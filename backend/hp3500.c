@@ -84,6 +84,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
+#include <math.h>
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -145,6 +146,7 @@ enum hp3500_option
   OPT_MODE,
   OPT_BRIGHTNESS,
   OPT_CONTRAST,
+  OPT_GAMMA,
 
   NUM_OPTIONS
 };
@@ -189,6 +191,8 @@ struct hp3500_data
   int brightness;
   int contrast;
 
+  double gamma;
+
   SANE_Option_Descriptor opt[NUM_OPTIONS];
   SANE_Device sane;
 };
@@ -218,6 +222,8 @@ static const SANE_Range range_brightness =
   { 0, 255, 0 };
 static const SANE_Range range_contrast =
   { 0, 255, 0 };
+static const SANE_Range range_gamma =
+  { SANE_FIX (0.2), SANE_FIX(4.0), SANE_FIX(0.01) };
 
 
 #define HP3500_COLOR_SCAN 0
@@ -383,6 +389,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
   scanner->mode = 0;
   scanner->brightness = 128;
   scanner->contrast = 64;
+  scanner->gamma = 2.2;
   calculateDerivedValues (scanner);
 
   return SANE_STATUS_GOOD;
@@ -537,6 +544,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  *(SANE_Word *) val = scanner->contrast;
 	  return SANE_STATUS_GOOD;
 
+        case OPT_GAMMA:
+          *(SANE_Word *) val = SANE_FIX(scanner->gamma);
+	  return SANE_STATUS_GOOD;
+
 	case OPT_BRIGHTNESS:
 	  *(SANE_Word *) val = scanner->brightness;
 	  return SANE_STATUS_GOOD;
@@ -650,6 +661,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_CONTRAST:
 	  scanner->contrast = *(SANE_Word *) val;
 	  return SANE_STATUS_GOOD;
+
+        case OPT_GAMMA:
+          scanner->gamma = SANE_UNFIX(*(SANE_Word *) val);
+          return SANE_STATUS_GOOD;
 	}			/* switch */
     }				/* else */
   return SANE_STATUS_INVAL;
@@ -953,7 +968,7 @@ attachScanner (const char *devicename)
   dev->devicename = strdup (devicename);
   dev->sfd = -1;
   dev->last_scan = 0;
-  dev->reader_pid = -1;
+  dev->reader_pid = (SANE_Pid) -1;
   dev->pipe_r = dev->pipe_w = -1;
 
   dev->sane.name = dev->devicename;
@@ -1086,6 +1101,16 @@ init_options (struct hp3500_data *scanner)
   opt->type = SANE_TYPE_INT;
   opt->constraint_type = SANE_CONSTRAINT_RANGE;
   opt->constraint.range = &range_contrast;
+  opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+
+  opt = scanner->opt + OPT_GAMMA;
+  opt->name = SANE_NAME_ANALOG_GAMMA;
+  opt->title = SANE_TITLE_ANALOG_GAMMA;
+  opt->desc = SANE_DESC_ANALOG_GAMMA;
+  opt->type = SANE_TYPE_FIXED;
+  opt->unit = SANE_UNIT_NONE;
+  opt->constraint_type = SANE_CONSTRAINT_RANGE;
+  opt->constraint.range = &range_gamma;
   opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 
   return SANE_STATUS_GOOD;
@@ -1751,14 +1776,14 @@ rt_set_basic_calibration (unsigned char *regs,
 			  int greengain,
 			  int blueoffset1, int blueoffset2, int bluegain)
 {
-  regs[0x05] = redoffset1;
-  regs[0x02] = redoffset2;
+  regs[0x02] = redoffset1;
+  regs[0x05] = redoffset2;
   regs[0x08] = redgain;
-  regs[0x06] = greenoffset1;
-  regs[0x03] = greenoffset2;
+  regs[0x03] = greenoffset1;
+  regs[0x06] = greenoffset2;
   regs[0x09] = greengain;
-  regs[0x07] = blueoffset1;
-  regs[0x04] = blueoffset2;
+  regs[0x04] = blueoffset1;
+  regs[0x07] = blueoffset2;
   regs[0x0a] = bluegain;
   return 0;
 }
@@ -1767,13 +1792,36 @@ static int
 rt_set_calibration_addresses (unsigned char *regs,
 			      unsigned redaddr,
 			      unsigned greenaddr,
-			      unsigned blueaddr, unsigned endaddr)
+			      unsigned blueaddr,
+			      unsigned endaddr,
+			      unsigned width)
 {
+  unsigned endpage = (endaddr + 31) / 32;
+  unsigned scanline_pages = ((width + 1) * 3 + 31) / 32;
+
+  /* Red, green and blue detailed calibration addresses */
+
   regs[0x84] = redaddr;
   regs[0x8e] = (regs[0x8e] & 0x0f) | ((redaddr >> 4) & 0xf0);
   rt_set_value_lsbfirst (regs, 0x85, 2, greenaddr);
   rt_set_value_lsbfirst (regs, 0x87, 2, blueaddr);
-  rt_set_value_lsbfirst (regs, 0x89, 2, (endaddr + 31) / 32);
+
+  /* I don't know what the next three are used for, but each buffer commencing
+   * at 0x80 and 0x82 needs to hold a full scan line.
+   */
+
+  rt_set_value_lsbfirst (regs, 0x80, 2, endpage);
+  rt_set_value_lsbfirst (regs, 0x82, 2, endpage + scanline_pages);
+  rt_set_value_lsbfirst (regs, 0x89, 2, endpage + scanline_pages * 2);
+
+  /* I don't know what this is, but it seems to be a number of pages that can hold
+   * 16 complete scan lines, but not calculated as an offset from any other page
+   */
+
+  rt_set_value_lsbfirst (regs, 0x51, 2, (48 * (width + 1) + 31) / 32);
+
+  /* I don't know what this is either, but this is what the Windows driver does */
+  rt_set_value_lsbfirst (regs, 0x8f, 2, 0x1c00);
   return 0;
 }
 
@@ -2247,10 +2295,14 @@ rt_nvram_read (int block, int location, unsigned char *data, int bytes)
   return 0;
 }
 
+/* This is what we want as the initial registers, not what they
+ * are at power on time. In particular 13 bytes at 0x10 are
+ * different, and the byte at 0x94 is different.
+ */
 static unsigned char initial_regs[] = {
   /* 0x00 */ 0xf5, 0x41, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   /* 0x08 */ 0x00, 0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00,
-  /* 0x10 */ 0xe1, 0xfc, 0xff, 0xff, 0x00, 0x00, 0x00, 0xfc,
+  /* 0x10 */ 0x81, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00,
   /* 0x18 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
   /* 0x20 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   /* 0x28 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x06, 0x19,
@@ -2266,7 +2318,7 @@ static unsigned char initial_regs[] = {
   /* 0x78 */ 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   /* 0x80 */ 0x0f, 0x02, 0x4b, 0x02, 0x00, 0xec, 0x19, 0xd8,
   /* 0x88 */ 0x2d, 0x87, 0x02, 0xff, 0x3f, 0x78, 0x60, 0x00,
-  /* 0x90 */ 0x1c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  /* 0x90 */ 0x1c, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x00,
   /* 0x98 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   /* 0xa0 */ 0x00, 0x00, 0x00, 0x0c, 0x27, 0x64, 0x00, 0x00,
   /* 0xa8 */ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2599,6 +2651,90 @@ constrain (int val, int min, int max)
   return val;
 }
 
+#if 0
+static void
+sram_dump_byte(FILE *fp,
+               unsigned char const *left,
+               unsigned leftstart,
+               unsigned leftlimit,
+               unsigned char const *right,
+               unsigned rightstart,
+               unsigned rightlimit,
+               unsigned idx)
+{
+  unsigned ridx = rightstart + idx;
+  unsigned lidx = leftstart + idx;
+
+  putc(' ', fp);
+  if (rightstart < rightlimit && leftstart < leftlimit && left[lidx] != right[ridx])
+    fputs("<b>", fp);
+  if (leftstart < leftlimit)
+    fprintf(fp, "%02x", left[lidx]);
+  else
+    fputs("  ", fp);
+  if (rightstart < rightlimit && leftstart < leftlimit && left[lidx] != right[ridx])
+    fputs("</b>", fp);
+}
+
+static void
+dump_sram_to_file(char const *fname,
+                  unsigned char const *expected,
+                  unsigned end_calibration_offset)
+{
+  FILE *fp = fopen(fname, "w");
+  rt_set_sram_page(0);
+
+  if (fp)
+    {
+      unsigned char buf[1024];
+      unsigned loc = 0;
+
+      fprintf(fp, "<html><head></head><body><pre>\n");
+      while (loc < end_calibration_offset)
+        {
+          unsigned byte = 0;
+
+          rt_read_sram(1024, buf);
+
+          while (byte < 1024)
+            {
+              unsigned idx = 0;
+
+              fprintf(fp, "%06x:", loc);
+              do
+                {
+		  sram_dump_byte(fp, buf, byte, 1024, expected, loc, end_calibration_offset, idx);
+                } while (++idx & 0x7);
+              fprintf(fp, " -");
+              do
+                {
+		  sram_dump_byte(fp, buf, byte, 1024, expected, loc, end_calibration_offset, idx);
+                } while (++idx & 0x7);
+
+              idx = 0;
+              fputs("     ", fp);
+
+              do
+                {
+                  sram_dump_byte(fp, expected, loc, end_calibration_offset, buf, byte, 1024, idx);
+                } while (++idx & 0x7);
+              fprintf(fp, " -");
+              do
+                {
+                  sram_dump_byte(fp, expected, loc, end_calibration_offset, buf, byte, 1024, idx);
+                } while (++idx & 0x7);
+
+
+              fputs("\n", fp);
+              byte += 16;
+              loc += 16;
+            }
+        }
+      fprintf(fp, "</pre></body></html>");
+      fclose(fp);
+    }
+}
+#endif
 
 static int
 rts8801_doscan (unsigned width,
@@ -2612,7 +2748,8 @@ rts8801_doscan (unsigned width,
 		int oddfirst,
 		unsigned char const *calib_info,
 		int merged_channels,
-		detailed_calibration_data const *detailed_calib_data)
+		double *postprocess_offsets,
+		double *postprocess_gains)
 {
   unsigned rowbytes = 0;
   unsigned output_rowbytes = 0;
@@ -2639,6 +2776,7 @@ rts8801_doscan (unsigned width,
 
   channels = 3;
   rowbytes = width * 3;
+
   switch (colour)
     {
     case HP3500_GRAY_SCAN:
@@ -2710,32 +2848,27 @@ rts8801_doscan (unsigned width,
 		      if (!rows_to_begin || !--rows_to_begin)
 			{
 			  unsigned char *outnow = output_buffer;
+                          unsigned x;
 
-			  for (i = 0;
-			       i < (merged_channels ? rowbytes : width);
-			       i += merged_channels ? channels : 1)
+			  for (i = x = 0;
+			       x < width;
+			       ++x, i += merged_channels ? channels : 1)
 			    {
 			      for (j = 0; j < channels; ++j)
 				{
 				  unsigned pix =
 				    (unsigned char) channel_data[j][i & 1][i];
 
-				  if (detailed_calib_data)
-				    {
-				      unsigned char const *calib_start =
-					detailed_calib_data->channeldata[j] +
-					2 *
-					detailed_calib_data->
-					resolution_divisor * i /
-					(merged_channels ? channels : 1);
-				      pix =
-					constrain ((int) pix -
-						   (int) calib_start[0], 0,
-						   255);
-				      pix =
-					constrain (pix * calib_start[1] /
-						   0x40, 0, 255);
-				    }
+                                  if (postprocess_gains && postprocess_offsets)
+                                  {
+                                    int ppidx = j * width + x;
+
+                                    pix = constrain ( pix
+                                                       * postprocess_gains[ppidx]
+                                                       - postprocess_offsets[ppidx],
+                                                      0,
+                                                      255);
+                                  }
 				  *outnow++ = pix;
 				}
 			    }
@@ -2818,6 +2951,9 @@ static unsigned local_sram_size;
 static unsigned char r93setting;
 
 #define RTS8801_F_SUPPRESS_MOVEMENT	1
+#define	RTS8801_F_LAMP_OFF		2
+#define RTS8801_F_NO_DISPLACEMENTS	4
+#define RTS8801_F_ODDX			8
 
 static int
 find_resolution_index (unsigned resolution)
@@ -2848,7 +2984,8 @@ rts8801_fullscan (unsigned x,
 		  int green_calib_offset,
 		  int blue_calib_offset,
 		  int end_calib_offset,
-		  detailed_calibration_data const *detailed_calib_data)
+                  double *postprocess_offsets,
+                  double *postprocess_gains)
 {
   int ires, jres;
   int tg_setting;
@@ -2856,6 +2993,13 @@ rts8801_fullscan (unsigned x,
   unsigned char offdutytime;
   int result;
   int scan_frequency;
+  unsigned intra_channel_offset;
+  unsigned red_green_offset;
+  unsigned green_blue_offset;
+  unsigned total_offsets;
+  unsigned top_sub_offsets;
+  unsigned bottom_add_offsets;
+
 
   ires = find_resolution_index (xresolution);
   jres = find_resolution_index (yresolution);
@@ -2906,30 +3050,29 @@ rts8801_fullscan (unsigned x,
   rt_set_stop_when_rewound (regs, 0);
   rt_set_data_feed_on (regs);
 
-  rt_set_calibration_addresses (regs, 0, 0, 0, 0);
+  rt_set_calibration_addresses (regs, 0, 0, 0, 0, 0);
 
   rt_set_basic_calibration (regs,
 			    calib_info[0], calib_info[1], calib_info[2],
 			    calib_info[3], calib_info[4], calib_info[5],
 			    calib_info[6], calib_info[7], calib_info[8]);
   regs[0x0b] = 0x70;		/* If set to 0x71, the alternative, all values are low */
+  regs[0x40] &= 0xc0;
 
   if (red_calib_offset >= 0
       && green_calib_offset >= 0
-      && blue_calib_offset >= 0 &&
-      yresolution < 400)
+      && blue_calib_offset >= 0)
     {
       rt_set_calibration_addresses (regs, red_calib_offset,
 				    green_calib_offset, blue_calib_offset,
-				    end_calib_offset);
+				    end_calib_offset,
+				    w);
       regs[0x40] |= 0x2f;
-      detailed_calib_data = 0;
     }
   else if (end_calib_offset >= 0)
     {
       rt_set_calibration_addresses (regs, 0x600, 0x600, 0x600,
-				    end_calib_offset);
-      regs[0x40] &= 0xc0;
+				    end_calib_offset, w);
     }
 
   rt_set_channel (regs, RT_CHANNEL_ALL);
@@ -2964,13 +3107,33 @@ rts8801_fullscan (unsigned x,
     regs[0xc3] &= 0x7f;
   rt_set_horizontal_resolution (regs, xresolution);
 
-  rt_set_noscan_distance (regs, y * scan_frequency - 1);
+  if (flags & RTS8801_F_NO_DISPLACEMENTS)
+    {
+      red_green_offset = green_blue_offset = intra_channel_offset = 0;
+    }
+  else
+    {
+      red_green_offset = resparms[jres].red_green_offset;
+      green_blue_offset = resparms[jres].green_blue_offset;
+      intra_channel_offset = resparms[jres].intra_channel_offset;
+    }
+  total_offsets = red_green_offset + green_blue_offset + intra_channel_offset;
+  if (y > total_offsets + 2)
+    {
+      top_sub_offsets = total_offsets;
+      bottom_add_offsets = 0;
+    }
+  else
+    {
+      top_sub_offsets = 0;
+      bottom_add_offsets = total_offsets;
+    }
+
+  rt_set_noscan_distance (regs, (y - top_sub_offsets) * scan_frequency - 1);
   rt_set_total_distance (regs, scan_frequency *
 			 (y +
 			  h +
-			  resparms[jres].red_green_offset +
-			  resparms[jres].green_blue_offset +
-			  resparms[jres].intra_channel_offset) - 1);
+			  bottom_add_offsets) - 1);
 
   rt_set_scanline_start (regs,
 			 x * (1200 / xresolution) /
@@ -2992,12 +3155,13 @@ rts8801_fullscan (unsigned x,
   result = rts8801_doscan (w,
 			   h,
 			   colour,
-			   resparms[jres].red_green_offset,
-			   resparms[jres].green_blue_offset,
-			   resparms[jres].intra_channel_offset,
+			   red_green_offset,
+			   green_blue_offset,
+			   intra_channel_offset,
 			   cbfunc, param, (x & 1), calib_info,
-			   (regs[0x2f] & 0x04) != 0, detailed_calib_data);
-
+			   (regs[0x2f] & 0x04) != 0,
+                           postprocess_offsets,
+                           postprocess_gains);
   return result;
 }
 
@@ -3080,6 +3244,11 @@ sum_channel (unsigned char *p, int n, int bytwo)
 
 static int do_warmup = 1;
 
+#define DETAILED_PASS_COUNT		3
+#define DETAILED_PASS_OFFSETS		0
+#define	DETAILED_PASS_GAINS_FIRSTPASS	1
+#define	DETAILED_PASS_GAINS_SECONDPASS	2
+
 static int
 rts8801_scan (unsigned x,
 	      unsigned y,
@@ -3090,25 +3259,22 @@ rts8801_scan (unsigned x,
 	      unsigned brightness,
 	      unsigned contrast,
 	      rts8801_callback cbfunc,
-	      void *param)
+	      void *param,
+	      double gamma)
 {
   unsigned char calib_info[9];
   unsigned char calibbuf[2400];
   struct dcalibdata dcd;
   struct calibdata cd;
   unsigned char *detail_buffer = 0;
-  int iCalibOffset;
-  int iCalibX;
   int iCalibY;
-  int iCalibWidth;
   int iCalibTarget;
-  int iCalibPixels;
   int iMoveFlags = 0;
-  unsigned int aiLow[3] = { 0, 0, 0 };
-  unsigned int aiHigh[3] = { 256, 256, 256 };
-  unsigned aiBestOffset[3];
+  unsigned aiBestOffset[6];
+  int aiPassed[6];
   int i;
   unsigned j;
+  int k;
   int calibration_size;
   unsigned char *pDetailedCalib;
   int red_calibration_offset;
@@ -3120,7 +3286,13 @@ rts8801_scan (unsigned x,
   int resolution_index;
   int detailed_calibration_rows = 50;
   unsigned char *tdetail_buffer;
-  detailed_calibration_data detailed_calib_data;
+  int pass;
+  int onechanged;
+  double *postprocess_gains;
+  double *postprocess_offsets;
+  int needs_postprocessed_calibration = 0;
+  double contrast_adjust = (double) contrast / 64;
+  int brightness_adjust = brightness - 0x80;
 
   /* Initialise and power up */
 
@@ -3149,98 +3321,101 @@ rts8801_scan (unsigned x,
 
   calib_info[2] = calib_info[5] = calib_info[8] = 1;
 
-  calib_info[0] = calib_info[1] = calib_info[3] = calib_info[4] =
-    calib_info[6] = calib_info[7] = 0xb4;
-
-  iCalibOffset = 0;		/* Note that horizontal resolution is always 600dpi for calibration. 330 is 110 dots in (for R,G,B channels) */
-  iCalibX = 1;
-  iCalibPixels = 50;
-  iCalibY = (resolution == 25) ? 1 : 2;	/* Was 1200 / resolution, which would take us past the calibration area for 50dpi */
-  iCalibWidth = 100;
+  iCalibY = (resolution == 25) ? 1 : 2;
   iCalibTarget = 550;
+ 
+  rt_turn_off_lamp();
 
-  for (i = 0; i < 3; ++i)
-    aiBestOffset[i] = 0xb4;
-
+  for (i = 0; i < 6; ++i)
+    {
+      aiBestOffset[i] = 0xbf;
+      aiPassed[i] = 0;
+    }
+ 
   do
     {
       DBG (30, "Initial calibration pass commences\n");
 
+      onechanged = 0;
       for (i = 0; i < 3; ++i)
-	{
-	  aiBestOffset[i] = (aiHigh[i] + aiLow[i] + 1) / 2;
-	}
-
-      for (i = 0; i < 3; ++i)
-	calib_info[i * 3] = calib_info[i * 3 + 1] = aiBestOffset[i];
-
+        {
+	  calib_info[i * 3] = aiBestOffset[i];
+	  calib_info[i * 3 + 1] = aiBestOffset[i + 3];
+        }
+ 
       cd.buffer = calibbuf;
       cd.space = sizeof (calibbuf);
       DBG (30, "Commencing scan for initial calibration pass\n");
-      rts8801_fullscan (iCalibX, iCalibY, iCalibWidth, 2, 600, resolution,
+      rts8801_fullscan (1401, iCalibY, 100, 2, 400, resolution,
 			HP3500_COLOR_SCAN, (rts8801_callback) storefunc, &cd,
-			calib_info, iMoveFlags, -1, -1, -1, -1, 0);
+			calib_info, iMoveFlags, -1, -1, -1, -1, 0, 0);
       DBG (30, "Completed scan for initial calibration pass\n");
-      iMoveFlags = RTS8801_F_SUPPRESS_MOVEMENT;
+      iMoveFlags = RTS8801_F_SUPPRESS_MOVEMENT | RTS8801_F_NO_DISPLACEMENTS;
+      iCalibY = 2;
 
-      for (i = 0; i < 3; ++i)
+      for (i = 0; i < 6; ++i)
 	{
 	  int sum;
 
-	  if (aiBestOffset[i] >= 255)
+	  if (aiBestOffset[i] >= 255 || aiPassed[i] > 2)
 	    continue;
-	  sum = sum_channel (calibbuf + iCalibOffset + i, iCalibPixels, 0);
+	  sum = sum_channel (calibbuf + i, 50, 1);
 	  DBG (20, "channel[%d] sum = %d (target %d)\n", i, sum,
 	       iCalibTarget);
 
-	  if (sum >= iCalibTarget)
-	    aiHigh[i] = aiBestOffset[i];
-	  else
-	    aiLow[i] = aiBestOffset[i];
+	  if (sum < iCalibTarget)
+            {
+              onechanged = 1;
+              ++aiBestOffset[i];
+            }
+          else
+            {
+              ++aiPassed[i];
+            }
 	}
       DBG (30, "Initial calibration pass completed\n");
     }
-  while (aiLow[0] < aiHigh[0] - 1 && aiLow[1] < aiHigh[1] - 1
-	 && aiLow[1] < aiHigh[1] + 1);
+  while (onechanged);
 
   DBG (20, "Offsets calculated\n");
-  cd.buffer = calibbuf;
-  cd.space = sizeof (calibbuf);
-  DBG (20, "Scanning for part 2 of initial calibration\n");
-  rts8801_fullscan (iCalibX + 2100, iCalibY, iCalibWidth, 2, 600, resolution,
-		    HP3500_COLOR_SCAN, (rts8801_callback) storefunc, &cd,
-		    calib_info, RTS8801_F_SUPPRESS_MOVEMENT, -1, -1, -1, -1,
-		    0);
-  DBG (20, "Scan for part 2 of initial calibration completed\n");
 
-  DBG (20, "Initial calibration completed\n");
+  rt_turn_on_lamp();
+  usleep(500000);
 
   tdetail_buffer =
     (unsigned char *) malloc (w * 3 * detailed_calibration_rows);
-  aiLow[0] = aiLow[1] = aiLow[2] = 1;
-  aiHigh[0] = aiHigh[1] = aiHigh[2] = 64;
 
+  for (i = 0; i < 3; ++i)
+    {
+      calib_info[i * 3 + 2] = 1;
+      aiPassed[i] = 0;
+    }
+ 
   do
     {
       struct dcalibdata dcdt;
-
-      for (i = 0; i < 3; ++i)
-	calib_info[i * 3 + 2] = (aiLow[i] + aiHigh[i]) / 2;
 
       dcdt.buffers[0] = tdetail_buffer;
       dcdt.buffers[1] = (tdetail_buffer + w * detailed_calibration_rows);
       dcdt.buffers[2] = (dcdt.buffers[1] + w * detailed_calibration_rows);
       dcdt.pixelsperrow = w;
       dcdt.pixelnow = dcdt.channelnow = dcdt.firstrowdone = 0;
+      DBG (20, "Scanning for part 2 of initial calibration\n");
       rts8801_fullscan (x, 4, w, detailed_calibration_rows + 1, resolution,
 			resolution, HP3500_COLOR_SCAN,
 			(rts8801_callback) accumfunc, &dcdt, calib_info,
-			RTS8801_F_SUPPRESS_MOVEMENT, -1, -1, -1, -1, 0);
+			RTS8801_F_SUPPRESS_MOVEMENT | RTS8801_F_NO_DISPLACEMENTS, -1, -1, -1, -1, 0, 0);
+      DBG (20, "Scan for part 2 of initial calibration completed\n");
+
+      onechanged = 0;
       for (i = 0; i < 3; ++i)
 	{
 	  int largest = 1;
 
-	  for (j = 0; j < w; ++j)
+          if (aiPassed[i] > 2 || calib_info[i * 3 + 2] >= 63)
+            continue;
+
+ 	  for (j = 0; j < w; ++j)
 	    {
 	      int val =
 		calcmedian (dcdt.buffers[i], j, w, detailed_calibration_rows);
@@ -3250,16 +3425,17 @@ rts8801_scan (unsigned x,
 	    }
 
 	  if (largest < 0xe0)
-	    aiLow[i] = calib_info[i * 3 + 2];
-	  else
-	    aiHigh[i] = calib_info[i * 3 + 2];
+            {
+              ++calib_info[i * 3 + 2];
+              onechanged = 1;
+            }
+          else
+            {
+              ++aiPassed[i];
+            }
 	}
     }
-  while (aiLow[0] < aiHigh[0] - 1 && aiLow[1] < aiHigh[1] - 1
-	 && aiLow[1] < aiHigh[1] + 1);
-
-  for (i = 0; i < 3; ++i)
-    calib_info[i * 3 + 2] = aiLow[i];
+  while (onechanged);
 
   for (i = 0; i < 3; ++i)
     {
@@ -3280,15 +3456,7 @@ rts8801_scan (unsigned x,
   dcd.buffers[1] = (detail_buffer + w * detailed_calibration_rows);
   dcd.buffers[2] = (dcd.buffers[1] + w * detailed_calibration_rows);
   dcd.pixelsperrow = w;
-  dcd.pixelnow = dcd.channelnow = dcd.firstrowdone = 0;
 
-  DBG (10, "Performing detailed calibration scan\n");
-  rts8801_fullscan (x, iCalibY, w, detailed_calibration_rows + 1,
-		    resolution, resolution, HP3500_COLOR_SCAN,
-		    (rts8801_callback) accumfunc, &dcd, calib_info,
-		    RTS8801_F_SUPPRESS_MOVEMENT, -1, -1, -1, -1, 0);
-
-  DBG (10, "Detailed calibration scan completed\n");
 
   /* And now for the detailed calibration */
   resolution_index = find_resolution_index (resolution);
@@ -3299,101 +3467,221 @@ rts8801_scan (unsigned x,
     base_resolution *= 2;
   resolution_divisor = base_resolution / resolution;
 
-  calibration_size = w * resolution_divisor * 6 + 1536;
-  red_calibration_offset = 1536;
-  blue_calibration_offset =
-    red_calibration_offset + w * resolution_divisor * 2;
+  calibration_size = w * resolution_divisor * 6 + 1568 + 96;
+  red_calibration_offset = 0x600;
   green_calibration_offset =
-    blue_calibration_offset + w * resolution_divisor * 2;
-  end_calibration_offset =
+    red_calibration_offset + w * resolution_divisor * 2;
+  blue_calibration_offset =
     green_calibration_offset + w * resolution_divisor * 2;
+  end_calibration_offset =
+    blue_calibration_offset + w * resolution_divisor * 2;
   pDetailedCalib = (unsigned char *) malloc (calibration_size);
 
   memset (pDetailedCalib, 0, calibration_size);
+
   for (i = 0; i < 3; ++i)
     {
       int idx =
-	(i == 0) ? red_calibration_offset : (i ==
-					     1) ? green_calibration_offset :
-	blue_calibration_offset;
-      double g = calib_info[i * 3 + 2];
+        (i == 0) ? red_calibration_offset :
+        (i == 1) ? green_calibration_offset :
+                       blue_calibration_offset;
 
       for (j = 0; j < 256; j++)
-	{
-	  int val = j;
-
-	  if (val < 0)
-	    val = 0;
-	  if (val > 255)
-	    val = 255;
-	  pDetailedCalib[i * 512 + j * 2] = val;
-	  pDetailedCalib[i * 512 + j * 2 + 1] = val;
-	}
+        {
+          /* Gamma table - appears to be 256 byte pairs for each input
+           * range (so the first entry cover inputs in the range 0 to 1,
+           * the second 1 to 2, and so on), mapping that input range
+           * (including the fractional parts within it) to an output
+           * range.
+           */
+          pDetailedCalib[i * 512 + j * 2] = j;
+          pDetailedCalib[i * 512 + j * 2 + 1] = j;
+        }
 
       for (j = 0; j < w; ++j)
-	{
-	  int multnow;
-	  int offnow;
-
-	  /* This seems to be the approach for reg 0x40 & 0x3f == 0x27, which allows detailed
-	   * calibration to return either higher or lower values.
-	   */
-	  int k;
-
-	  {
-	    double denom1 =
-	      calcmedian (dcd.buffers[i], j, w, detailed_calibration_rows);
-	    double f = 0xff / (denom1 - 2 * g);
-	    double contrast_adjust = (double) (contrast + 1) / 64;
-
-	    multnow = f * 64 * contrast_adjust;
-	    offnow = 4 * g + 128 - brightness;
-	  }
-	  if (multnow < 0)
-	    multnow = 0;
-	  if (multnow > 255)
-	    multnow = 255;
-	  if (offnow < 0)
-	    offnow = 0;
-	  if (offnow > 255)
-	    offnow = 255;
-
-	  for (k = 0; k < resolution_divisor; ++k)
-	    {
-	      /*multnow = j * resolution_divisor + k; */
-	      pDetailedCalib[idx++] = offnow;	/* Subtract this value from the result */
-	      pDetailedCalib[idx++] = multnow;	/* Then multiply by this value divided by 0x40 */
-	    }
-	}
+        {
+          for (k = 0; k < resolution_divisor; ++k)
+            {
+              pDetailedCalib[idx++] = 0;
+              pDetailedCalib[idx++] = 0x80;
+            }
+        }
     }
-
-  DBG (10, "\n");
 
   rt_set_sram_page (0);
   rt_set_one_register (0x93, r93setting);
   rt_write_sram (calibration_size, pDetailedCalib);
 
-  /* And finally, perform the scan */
+  postprocess_gains = (double *) malloc(sizeof(double) * 3 * w);
+  postprocess_offsets = (double *) malloc(sizeof(double) * 3 * w);
 
+  for (pass = 0; pass < DETAILED_PASS_COUNT; ++pass)
+    {
+      int ppidx = 0;
+
+      DBG (10, "Performing detailed calibration scan %d\n", pass);
+
+      switch (pass)
+      {
+      case DETAILED_PASS_OFFSETS:
+        rt_turn_off_lamp();
+	usleep(500000); /* To be sure it has gone off */
+        break;
+
+      case DETAILED_PASS_GAINS_FIRSTPASS:
+        rt_turn_on_lamp();
+	usleep(500000); /* Give the lamp time to settle */
+        break;
+      }
+
+      dcd.pixelnow = dcd.channelnow = dcd.firstrowdone = 0;
+      rts8801_fullscan (x, iCalibY, w, detailed_calibration_rows + 1,
+                        resolution, resolution, HP3500_COLOR_SCAN,
+                        (rts8801_callback) accumfunc, &dcd,
+			calib_info,
+                        RTS8801_F_SUPPRESS_MOVEMENT | RTS8801_F_NO_DISPLACEMENTS,
+			red_calibration_offset,
+			green_calibration_offset,
+			blue_calibration_offset,
+			end_calibration_offset,
+			0, 0);
+
+      DBG (10, " Detailed calibration scan %d completed\n", pass);
+
+      for (i = 0; i < 3; ++i)
+        {
+          int idx =
+            (i == 0) ? red_calibration_offset :
+	    (i == 1) ? green_calibration_offset :
+                       blue_calibration_offset;
+
+          for (j = 0; j < w; ++j)
+            {
+              double multnow = 0x80;
+              int offnow = 0;
+
+              /* This seems to be the approach for reg 0x40 & 0x3f == 0x27, which allows detailed
+               * calibration to return either higher or lower values.
+               */
+
+              {
+                double denom1 =
+                  calcmedian (dcd.buffers[i], j, w, detailed_calibration_rows);
+
+		switch (pass)
+                  {
+                  case DETAILED_PASS_OFFSETS:
+                    /* The offset is the number needed to be subtracted from "black" at detailed gain = 0x80,
+                     * which is the value we started with. For the next round, pull the gain down to 0x20. Our
+                     * next scan is a test scan to confirm the offset works.
+                     */
+                    multnow = 0x20;
+                    offnow = denom1;
+                    break;
+
+                  case DETAILED_PASS_GAINS_FIRSTPASS:
+                    multnow = 128.0 / denom1 * 0x20; /* Then bring it up to whatever we need to hit 192 */
+                    if (multnow > 255)
+                      multnow = 255;
+                    offnow = pDetailedCalib[idx];
+                    break;
+
+                  case DETAILED_PASS_GAINS_SECONDPASS:
+                    multnow = 255.0 / denom1 * contrast_adjust * pDetailedCalib[idx+1]; /* And finally to 255 */
+                    offnow = pDetailedCalib[idx] - brightness_adjust * 0x80 / multnow;
+
+                    if (offnow < 0)
+                      {
+                        postprocess_offsets[ppidx] = multnow * offnow / 0x80;
+                        offnow = 0;
+                        needs_postprocessed_calibration = 1;
+                      }
+                    else if (offnow > 255)
+                      {
+                        postprocess_offsets[ppidx] = multnow * (offnow - 255) / 0x80;
+                        offnow = 255;
+                        needs_postprocessed_calibration = 1;
+                      }
+                    else
+                      {
+                        postprocess_offsets[ppidx] = 0;
+                      }
+                    if (multnow > 255)
+                      {
+                        postprocess_gains[ppidx] = multnow / 255;
+                        multnow = 255;
+                        needs_postprocessed_calibration = 1;
+                      }
+                    else
+                      {
+                        postprocess_gains[ppidx] = 1.0;
+                      }
+                    break;
+                  }
+              }
+              if (offnow > 255)
+                offnow = 255;
+
+              for (k = 0; k < resolution_divisor; ++k)
+                {
+                  pDetailedCalib[idx++] = offnow;         /* Subtract this value from the result  at gains = 0x80*/
+                  pDetailedCalib[idx++] = multnow;        /* Then multiply by this value divided by 0x80	*/
+                }
+              ++ppidx;
+            }
+        }
+
+      if (pass == DETAILED_PASS_GAINS_SECONDPASS)
+        {
+           /* Build gamma table */
+           unsigned char *redgamma = pDetailedCalib;
+           unsigned char *greengamma = redgamma + 512;
+           unsigned char *bluegamma = greengamma + 512;
+           double val;
+	   double invgamma = 1.0l / gamma;
+
+           *redgamma++ = *bluegamma++ = *greengamma++ = 0;
+
+           /* The windows driver does a linear interpolation for the next 19 boundaries */
+           val = pow (20.0l / 255, invgamma) * 255;
+
+	   for (j = 1; j <= 20; ++j)
+             {
+               *redgamma++ = *bluegamma++ = *greengamma++ = val * j / 20 + 0.5;
+               *redgamma++ = *bluegamma++ = *greengamma++ = val * j / 20 + 0.5;
+             }
+
+           for (; j <= 255; ++j)
+             {
+               val = pow((double) j / 255, invgamma) * 255;
+
+               *redgamma++ = *bluegamma++ = *greengamma++ = val + 0.5;
+               *redgamma++ = *bluegamma++ = *greengamma++ = val + 0.5;
+             }
+           *redgamma++ = *bluegamma++ = *greengamma++ = 255;
+        }
+
+      DBG (10, "\n");
+
+      rt_set_sram_page (0);
+      rt_set_one_register (0x93, r93setting);
+      rt_write_sram (calibration_size, pDetailedCalib);
+    }
+
+  /* And finally, perform the scan */
   DBG (10, "Scanning\n");
 
   rts8801_rewind ();
-
-  detailed_calib_data.channeldata[0] =
-    pDetailedCalib + red_calibration_offset;
-  detailed_calib_data.channeldata[1] =
-    pDetailedCalib + green_calibration_offset;
-  detailed_calib_data.channeldata[2] =
-    pDetailedCalib + blue_calibration_offset;
-  detailed_calib_data.resolution_divisor = resolution_divisor;
 
   rts8801_fullscan (x, y, w, h, resolution, resolution, colour, cbfunc, param,
 		    calib_info, 0,
 		    red_calibration_offset, green_calibration_offset,
 		    blue_calibration_offset, end_calibration_offset,
-		    &detailed_calib_data);
+                    needs_postprocessed_calibration ? postprocess_offsets : 0,
+                    needs_postprocessed_calibration ? postprocess_gains : 0);
 
   rt_turn_off_lamp ();
+
   rts8801_rewind ();
   rt_set_powersave_mode (1);
 
@@ -3401,6 +3689,12 @@ rts8801_scan (unsigned x,
     free (pDetailedCalib);
   if (detail_buffer)
     free (detail_buffer);
+  if (tdetail_buffer)
+    free(tdetail_buffer);
+  if (postprocess_gains)
+    free(postprocess_gains);
+  if (postprocess_offsets)
+    free(postprocess_offsets);
   return 0;
 }
 
@@ -3464,7 +3758,6 @@ reader_process (void *pv)
       sigaction (SIGTERM, &act, 0);
     }
 
-
   /* Warm up the lamp again if our last scan ended more than 5 minutes ago. */
   time (&t);
   do_warmup = (t - scanner->last_scan) > 300;
@@ -3496,7 +3789,8 @@ reader_process (void *pv)
        scanner->actres_pixels.right - scanner->actres_pixels.left,
        scanner->actres_pixels.bottom - scanner->actres_pixels.top,
        scanner->resolution, scanner->mode, scanner->brightness,
-       scanner->contrast, (rts8801_callback) writefunc, &winfo) >= 0)
+       scanner->contrast, (rts8801_callback) writefunc, &winfo,
+       scanner->gamma) >= 0)
     status = SANE_STATUS_GOOD;
   status = SANE_STATUS_IO_ERROR;
   close (scanner->pipe_w);
@@ -3517,5 +3811,3 @@ max_string_size (char const **strings)
     }
   return max_size;
 }
-
-

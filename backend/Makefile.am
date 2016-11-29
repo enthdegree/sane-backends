@@ -520,7 +520,7 @@ libhp3500_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp3500
 nodist_libsane_hp3500_la_SOURCES = hp3500-s.c
 libsane_hp3500_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp3500
 libsane_hp3500_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_hp3500_la_LIBADD = $(COMMON_LIBS) libhp3500.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(USB_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
+libsane_hp3500_la_LIBADD = $(COMMON_LIBS) libhp3500.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
 
 libhp3900_la_SOURCES = hp3900.c
 libhp3900_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp3900

@@ -1848,6 +1848,13 @@ rt_set_data_feed_on (unsigned char *regs)
 }
 
 static int
+rt_set_data_feed_off (unsigned char *regs)
+{
+  regs[0xb2] |= 0x04;
+  return 0;
+}
+
+static int
 rt_enable_ccd (unsigned char *regs, int enable)
 {
   if (enable)
@@ -2997,9 +3004,6 @@ rts8801_fullscan (unsigned x,
   unsigned red_green_offset;
   unsigned green_blue_offset;
   unsigned total_offsets;
-  unsigned top_sub_offsets;
-  unsigned bottom_add_offsets;
-
 
   ires = find_resolution_index (xresolution);
   jres = find_resolution_index (yresolution);
@@ -3033,22 +3037,8 @@ rts8801_fullscan (unsigned x,
 
   rt_set_movement_pattern (regs, 0x800000);
 
-
-  tg_setting = resparms[jres].tg;
-  rt_set_ccd_shift_clock_multiplier (regs, tg_info[tg_setting].tg_cph0p);
-  rt_set_ccd_clock_reset_interval (regs, tg_info[tg_setting].tg_crsp);
-  rt_set_ccd_clamp_clock_multiplier (regs, tg_info[tg_setting].tg_cclpp);
-
-
-  rt_set_one_register (0xc6, 0);
-  rt_set_one_register (0xc6, 0);
-
-  rt_set_step_size (regs, resparms[jres].step_size);
-
   rt_set_direction_forwards (regs);
-
   rt_set_stop_when_rewound (regs, 0);
-  rt_set_data_feed_on (regs);
 
   rt_set_calibration_addresses (regs, 0, 0, 0, 0, 0);
 
@@ -3080,23 +3070,9 @@ rts8801_fullscan (unsigned x,
   rt_set_merge_channels (regs, 1);
   rt_set_colour_mode (regs, 1);
 
-  rt_set_motor_movement_clock_multiplier (regs,
-					  resparms[jres].
-					  motor_movement_clock_multiplier);
-
-  rt_set_cdss (regs, tg_info[tg_setting].tg_cdss1,
-	       tg_info[tg_setting].tg_cdss2);
-  rt_set_cdsc (regs, tg_info[tg_setting].tg_cdsc1,
-	       tg_info[tg_setting].tg_cdsc2);
-  rt_update_after_setting_cdss2 (regs);
-
   rt_set_last_sram_page (regs, (local_sram_size - 1) >> 5);
 
-  regs[0x39] = resparms[jres].reg_39_value;
-  regs[0xc3] = (regs[0xc3] & 0xf8) | resparms[jres].reg_c3_value;
-  regs[0xc6] = (regs[0xc6] & 0xf8) | resparms[jres].reg_c6_value;
   scan_frequency = resparms[jres].scan_frequency;
-  rt_set_scan_frequency (regs, scan_frequency);
   rt_set_cph0s (regs, resparms[ires].cph0s);
   if (resparms[ires].d3_bit_3_value)
     regs[0xd3] |= 0x08;
@@ -3105,7 +3081,20 @@ rts8801_fullscan (unsigned x,
 
   if (flags & RTS8801_F_SUPPRESS_MOVEMENT)
     regs[0xc3] &= 0x7f;
+
+  regs[0xb2] &= 0xf7;
+
   rt_set_horizontal_resolution (regs, xresolution);
+
+  rt_set_scanline_start (regs,
+			 x * (1200 / xresolution) /
+			 (resparms[ires].cph0s ? 1 : 2) /
+			 (resparms[ires].d3_bit_3_value ? 1 : 2));
+  rt_set_scanline_end (regs,
+		       (x +
+			w) * (1200 / xresolution) /
+		       (resparms[ires].cph0s ? 1 : 2) /
+		       (resparms[ires].d3_bit_3_value ? 1 : 2));
 
   if (flags & RTS8801_F_NO_DISPLACEMENTS)
     {
@@ -3119,31 +3108,105 @@ rts8801_fullscan (unsigned x,
     }
   total_offsets = red_green_offset + green_blue_offset + intra_channel_offset;
   if (y > total_offsets + 2)
+    y -= total_offsets;
+  h += total_offsets;
+
+  if (yresolution > 75 && !(flags & RTS8801_F_SUPPRESS_MOVEMENT))
     {
-      top_sub_offsets = total_offsets;
-      bottom_add_offsets = 0;
-    }
-  else
-    {
-      top_sub_offsets = 0;
-      bottom_add_offsets = total_offsets;
+      int rmres = find_resolution_index (50);
+
+      if (rmres >= 0)
+	{
+	  int factor = yresolution / 50;
+	  int fastres = y / factor;
+	  int remainder = y % factor;
+
+	  while (remainder < 2)
+	    {
+		--fastres;
+		remainder += factor;
+	    }
+
+	  if (fastres >= 3)
+	    {
+	      y = remainder;
+
+	      rt_set_noscan_distance(regs, fastres * resparms[rmres].scan_frequency - 2);
+	      rt_set_total_distance(regs, fastres * resparms[rmres].scan_frequency - 1);
+
+	      rt_set_scan_frequency(regs, 1);
+
+	      tg_setting = resparms[rmres].tg;
+	      rt_set_ccd_shift_clock_multiplier (regs, tg_info[tg_setting].tg_cph0p);
+	      rt_set_ccd_clock_reset_interval (regs, tg_info[tg_setting].tg_crsp);
+	      rt_set_ccd_clamp_clock_multiplier (regs, tg_info[tg_setting].tg_cclpp);	      
+
+	      rt_set_one_register (0xc6, 0);
+	      rt_set_one_register (0xc6, 0);
+
+	      rt_set_step_size (regs, resparms[rmres].step_size);
+
+	      rt_set_motor_movement_clock_multiplier (regs,
+						      resparms[rmres].
+							  motor_movement_clock_multiplier);
+
+	      rt_set_cdss (regs, tg_info[tg_setting].tg_cdss1,
+			   tg_info[tg_setting].tg_cdss2);
+	      rt_set_cdsc (regs, tg_info[tg_setting].tg_cdsc1,
+			   tg_info[tg_setting].tg_cdsc2);
+	      rt_update_after_setting_cdss2 (regs);
+
+	      regs[0x39] = resparms[rmres].reg_39_value;
+	      regs[0xc3] = (regs[0xc3] & 0xf8) | resparms[rmres].reg_c3_value;
+	      regs[0xc6] = (regs[0xc6] & 0xf8) | resparms[rmres].reg_c6_value;
+
+	      rt_set_data_feed_off (regs);
+
+	      rt_set_all_registers (regs);
+
+  	      rt_set_one_register (0x2c, regs[0x2c]);
+
+	      if (DBG_LEVEL >= 5)
+	        dump_registers (regs);
+
+	      rt_start_moving ();
+	      while (rt_is_moving ());
+	    }
+	}
     }
 
-  rt_set_noscan_distance (regs, (y - top_sub_offsets) * scan_frequency - 1);
-  rt_set_total_distance (regs, scan_frequency *
-			 (y +
-			  h +
-			  bottom_add_offsets) - 1);
 
-  rt_set_scanline_start (regs,
-			 x * (1200 / xresolution) /
-			 (resparms[ires].cph0s ? 1 : 2) /
-			 (resparms[ires].d3_bit_3_value ? 1 : 2));
-  rt_set_scanline_end (regs,
-		       (x +
-			w) * (1200 / xresolution) /
-		       (resparms[ires].cph0s ? 1 : 2) /
-		       (resparms[ires].d3_bit_3_value ? 1 : 2));
+  rt_set_noscan_distance (regs, y * scan_frequency - 1);
+  rt_set_total_distance (regs, scan_frequency * (y + h) - 1);
+
+  rt_set_scan_frequency (regs, scan_frequency);
+
+  tg_setting = resparms[jres].tg;
+
+  rt_set_ccd_shift_clock_multiplier (regs, tg_info[tg_setting].tg_cph0p);
+  rt_set_ccd_clock_reset_interval (regs, tg_info[tg_setting].tg_crsp);
+  rt_set_ccd_clamp_clock_multiplier (regs, tg_info[tg_setting].tg_cclpp);
+
+  rt_set_one_register (0xc6, 0);
+  rt_set_one_register (0xc6, 0);
+
+  rt_set_step_size (regs, resparms[jres].step_size);
+
+  rt_set_motor_movement_clock_multiplier (regs,
+					  resparms[jres].
+					  motor_movement_clock_multiplier);
+
+  rt_set_cdss (regs, tg_info[tg_setting].tg_cdss1,
+	       tg_info[tg_setting].tg_cdss2);
+  rt_set_cdsc (regs, tg_info[tg_setting].tg_cdsc1,
+	       tg_info[tg_setting].tg_cdsc2);
+  rt_update_after_setting_cdss2 (regs);
+
+  regs[0x39] = resparms[jres].reg_39_value;
+  regs[0xc3] = (regs[0xc3] & 0xf8) | resparms[jres].reg_c3_value;
+  regs[0xc6] = (regs[0xc6] & 0xf8) | resparms[jres].reg_c6_value;
+
+  rt_set_data_feed_on (regs);
 
   rt_set_all_registers (regs);
 

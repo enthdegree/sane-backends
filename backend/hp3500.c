@@ -2424,14 +2424,14 @@ static struct resolution_parameters resparms[] = {
   /* My values - all work */
   /*res   r39 rC3 rC6 freq cph0s rgo gbo intra mmcm d3 tg            stepsz */
   {1200, 3, 6, 4, 2, 1, 22, 22, 4, 2, 1, RT_NORMAL_TG, 0x157b},
-  {600, 15, 6, 4, 1, 0, 9, 10, 0, 2, 1, RT_NORMAL_TG, 0x055e},
+  {600, 15, 6, 4, 1, 1, 9, 10, 0, 2, 1, RT_NORMAL_TG, 0x055e},
   {400, 3, 1, 4, 1, 1, 6, 6, 1, 2, 1, RT_NORMAL_TG, 0x157b},
-  {300, 15, 3, 4, 1, 0, 5, 4, 0, 2, 1, RT_NORMAL_TG, 0x02af},
-  {200, 7, 1, 4, 1, 0, 3, 3, 0, 2, 1, RT_NORMAL_TG, 0x055e},
-  {150, 15, 3, 1, 1, 0, 2, 2, 0, 2, 1, RT_NORMAL_TG, 0x02af},
-  {100, 3, 1, 3, 1, 0, 1, 1, 0, 2, 1, RT_NORMAL_TG, 0x0abd},
-  {75, 15, 3, 3, 1, 0, 1, 1, 0, 2, 1, RT_NORMAL_TG, 0x02af},
-  {50, 15, 1, 1, 1, 0, 0, 0, 0, 2, 1, RT_NORMAL_TG, 0x055e},
+  {300, 15, 3, 4, 1, 1, 5, 4, 0, 2, 1, RT_NORMAL_TG, 0x02af},
+  {200, 7, 1, 4, 1, 1, 3, 3, 0, 2, 1, RT_NORMAL_TG, 0x055e},
+  {150, 15, 3, 1, 1, 1, 2, 2, 0, 2, 1, RT_NORMAL_TG, 0x02af},
+  {100, 3, 1, 3, 1, 1, 1, 1, 0, 2, 1, RT_NORMAL_TG, 0x0abd},
+  {75, 15, 3, 3, 1, 1, 1, 1, 0, 2, 1, RT_NORMAL_TG, 0x02af},
+  {50, 15, 1, 1, 1, 1, 0, 0, 0, 2, 1, RT_NORMAL_TG, 0x055e},
   {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 };
 

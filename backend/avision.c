@@ -2739,7 +2739,7 @@ wait_4_light (Avision_Scanner* s)
   struct command_read rcmd;
   char* light_status[] =
     { "off", "on", "warming up", "needs warm up test", 
-      "light check error", "RESERVED" };
+      "light check error", "backlight on", "RESERVED" };
   
   SANE_Status status;
   uint8_t result;
@@ -2765,10 +2765,10 @@ wait_4_light (Avision_Scanner* s)
       return status;
     }
     
-    DBG (3, "wait_4_light: command is %d. Result is %s\n",
-	 status, light_status[(result>4)?5:result]);
+    DBG (3, "wait_4_light: command is %d. Result is %d (%s)\n",
+	 status, result, light_status[(result>5)?6:result]);
     
-    if (result == 1) {
+    if (result == 1 || result == 5) {
       return SANE_STATUS_GOOD;
     }
     else if (dev->hw->feature_type & AV_LIGHT_CHECK_BOGUS) {
@@ -8371,6 +8371,14 @@ sane_start (SANE_Handle handle)
       DBG (1, "sane_start: set scan window command failed: %s\n",
 	   sane_strstatus (status));
       goto stop_scanner_and_return;
+    }
+    /* Re-check the light, as setting the window may have changed
+     * which light is to be turned on. */
+    if (s->prepared == SANE_FALSE && dev->inquiry_light_control) {
+      status = wait_4_light (s);
+      if (status != SANE_STATUS_GOOD) {
+	return status;
+      }
     }
   }
 

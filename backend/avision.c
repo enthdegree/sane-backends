@@ -2756,6 +2756,11 @@ wait_4_light (Avision_Scanner* s)
   set_triple (rcmd.transferlen, size);
   
   for (try = 0; try < 90; ++ try) {
+
+    if (s->cancelled) {
+      DBG (3, "wait_4_light: cancelled\n");
+      return SANE_STATUS_CANCELLED;
+    }
     
     DBG (5, "wait_4_light: read bytes %lu\n", (u_long) size);
     status = avision_cmd (&s->av_con, &rcmd, sizeof (rcmd), 0, 0, &result, &size);
@@ -6217,6 +6222,7 @@ do_cancel (Avision_Scanner* s)
   s->prepared = s->scanning = SANE_FALSE;
   s->duplex_rear_valid = SANE_FALSE;
   s->page = 0;
+  s->cancelled = 1;
   
   if (sanei_thread_is_valid (s->reader_pid)) {
     int exit_status;
@@ -8320,6 +8326,9 @@ sane_start (SANE_Handle handle)
   /* Make sure there is no scan running!!! */
   if (s->scanning)
     return SANE_STATUS_DEVICE_BUSY;
+
+  /* Clear cancellation status */
+  s->cancelled = 0;
  
   /* Make sure we have a current parameter set. Some of the
      parameters will be overwritten below, but that's OK. */

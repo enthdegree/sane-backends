@@ -444,6 +444,7 @@ typedef struct Avision_Scanner
   SANE_Bool prepared;		/* first page marker */
   SANE_Bool scanning;           /* scan in progress */
   unsigned int page;            /* page counter, 0: uninitialized, 1: scanning 1st page, ... */
+  int cancelled;
 
   SANE_Parameters params;       /* scan window */
   Avision_Dimensions avdimen;   /* scan window - detailed internals */

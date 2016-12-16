@@ -36,6 +36,7 @@ a hash mark (#) are ignored. A sample configuration file is shown below:
 \ 
  option force\-a4
  option force\-a3
+ option skip\-adf
  option disable\-gamma\-table
  option disable\-calibration
 \ 
@@ -60,6 +61,15 @@ returned by the scanner to ISO A3. Scanner that are
 known to return bogus data are marked in the backend
 so if you need this option please report this to the
 backend maintainer. USE WITH CARE!
+.TP
+skip\-adf:
+Forces the backend to ignore an inconsistent ADF
+status returned by the scanner (ADF not present, but
+ADF model number non-zero).  Without this option, the
+backend will make several attempts to reset the ADF
+and retry the query in this situation, and will fail
+with a "not supported" error if the ADF still doesn't
+respond.
 .TP
 disable\-gamma\-table:
 Disables the usage of the scanner's gamma-table. You

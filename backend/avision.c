@@ -1277,6 +1277,9 @@ static SANE_Bool force_calibration = SANE_FALSE;
 static SANE_Bool force_a4 = SANE_FALSE;
 static SANE_Bool force_a3 = SANE_FALSE;
 
+/* trust ADF-presence flag, even if ADF model is nonzero */
+static SANE_Bool skip_adf = SANE_FALSE;
+
 /* hardware resolutions to interpolate from */
 static const int  hw_res_list_c5[] =
   {
@@ -3218,11 +3221,13 @@ get_accessories_info (Avision_Scanner* s)
     {
       dev->inquiry_duplex = 1;
       dev->inquiry_duplex_interlaced = 0;
-    } else if (result[0] == 0 && result[2] != 0) {
+    } else if (result[0] == 0 && result[2] != 0 && !skip_adf) {
       /* Sometimes the scanner will report that there is no ADF attached, yet
        * an ADF model number will still be reported.  This happens on the
        * HP8200 series and possibly others.  In this case we need to reset the
-       * the adf and try reading it again.
+       * the adf and try reading it again.  Skip this if the configuration says
+       * to do so, so that we don't fail out the scanner as being broken and
+       * unsupported if there isn't actually an ADF present.
        */
       DBG (3, "get_accessories_info: Found ADF model number but the ADF-present flag is not set. Trying to recover...\n");
       status = adf_reset (s);
@@ -7626,6 +7631,11 @@ sane_reload_devices (void)
 		DBG (3, "sane_reload_devices: config file line %d: enabling force-a3\n",
 		     linenumber);
 		force_a3 = SANE_TRUE;
+	      }
+	      else if (strcmp (word, "skip-adf") == 0) {
+		DBG (3, "sane_reload_devices: config file line %d: enabling skip-adf\n",
+		     linenumber);
+		skip_adf = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "static-red-calib") == 0) {
 		DBG (3, "sane_reload_devices: config file line %d: static red calibration\n",

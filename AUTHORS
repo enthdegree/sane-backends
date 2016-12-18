@@ -18,8 +18,8 @@ Backends:
  canon630u:     Nathan Rutman
  canon_dr:      m. allan noah (*)
  canon_pp:      Matthew Duggan, Simon Krix
- coolscan:      Didier Carlier, Andreas Rick
  cardscan:      m. allan noah (*)
+ coolscan:      Didier Carlier, Andreas Rick
  coolscan2:     Andras Major
  coolscan3:     Alessandro Zummo
  dc25:          Peter Fales
@@ -34,14 +34,13 @@ Backends:
  epsonds:       Alessandro Zummo
  fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister,
                 m. allan noah (*)
- gphoto2:       Peter Fales
  genesys:       Henning Geinitz, Gerhard Jaeger (*), Stéphane Voltz (*),
                 Pierre Willenbrock
+ gphoto2:       Peter Fales
  gt68xx:        Sergey Vlasov, Andreas Nowack, David Stevenson, and
                 Henning Geinitz
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki
- hpsj5s:        Max Vorobiev
  hp3500:        Troy Rollo (*)
  hp3900:        Jonathan Bravo Lopez
  hp4200:        Adrian Perez Jorge, Andrew John Lewis, Arnar Mar Hrafnkelsson,
@@ -49,6 +48,7 @@ Backends:
  hp5400:        Martijn van Oosterhout, Thomas Soumarmon
  hp5590:        Ilia Sotnikov (*)
  hpljm1005:     Philippe Rétornaz
+ hpsj5s:        Max Vorobiev
  hs2p:		Jeremy Johnson (*)
  ibm:           M.F., Henning Geinitz
  kodak:         m. allan noah (*)
@@ -106,8 +106,8 @@ Backends:
  test:          Henning Geinitz
  u12:           Gerhard Jaeger (*)
  umax:          Oliver Rauch and Michael K. Johnson
- umax_pp:       Stéphane Voltz (*)
  umax1220u:     Marcio L. Teixeira, Patrick Lessard
+ umax_pp:       Stéphane Voltz (*)
  v4l:           Juergen G. Schimmer, and Henning Geinitz
  xerox_mfp:     Alex Belkin (*)
 

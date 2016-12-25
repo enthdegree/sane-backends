@@ -7,7 +7,7 @@
 ;
 
 :backend "sm3600"                 ; name of backend
-:version "0.1"                    ; version of backend
+:version "0.1 (unmaintained)"     ; version of backend
 :manpage "sane-sm3600"            ; name of manpage (if it exists)
 :url "http://sm3600.sourceforge.net/" ; backend's web page
 

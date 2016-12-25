@@ -1,5 +1,5 @@
 :backend "nec"                  ; name of backend
-:version "0.12"                 ; version of backend
+:version "0.12 (unmaintained)"  ; version of backend
 :url "http://www5a.biglobe.ne.jp/~saetaka/"
 				; backend's homepage
 :manpage "sane-nec"

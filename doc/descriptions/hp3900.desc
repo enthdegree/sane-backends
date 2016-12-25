@@ -10,7 +10,7 @@
 ; See doc/descriptions.txt for details.
 
 :backend "hp3900"
-:version "0.12"
+:version "0.12 (unmaintained)"
 :manpage "sane-hp3900"
 :url "http://sourceforge.net/projects/hp3900-series/"
 :comment "Still Beta"

@@ -10,7 +10,7 @@
 ;
 
 :backend "sceptre"
-:version "1.0-10"                  ; version of backend
+:version "1.0-10 (unmaintained)"   ; version of backend
 :manpage "sane-sceptre"           ; name of manpage
 :url "http://www.zago.net/sane/"   ; backend's web page
 

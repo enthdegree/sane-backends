@@ -10,7 +10,7 @@
 ;
 
 :backend "teco1"                  ; name of backend
-:version "1.0-10"                 ; version of backend
+:version "1.0-10 (unmaintained)"  ; version of backend
 :manpage "sane-teco1"             ; name of manpage (if it exists)
 :url "http://www.zago.net/sane/#teco"    ; backend's web page
 

@@ -10,7 +10,7 @@
 
 
 :backend "hp4200"               ; name of backend
-:version "1.0-2"                    ; version of backend
+:version "1.0-2 (unmaintained)" ; version of backend
 :manpage "sane-hp4200"           ; name of manpage (if it exists)
 :url "http://hp4200-backend.sourceforge.net" ; backend's web page
 

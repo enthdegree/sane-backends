@@ -3,7 +3,7 @@
 ; Jon Chambers <jon@jon.demon.co.uk>, 2006-05-29
 ;
 :backend "dell1600n_net"
-
+:version "unmaintained"
 :devicetype :scanner
 
 :mfg "Dell"

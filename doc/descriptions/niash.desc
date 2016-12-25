@@ -10,7 +10,7 @@
 ;
 
 :backend "niash"
-:version "0.3"
+:version "0.3 (unmaintained)"
 :manpage "sane-niash"
 :url "http://sourceforge.net/projects/hp3300backend"
 

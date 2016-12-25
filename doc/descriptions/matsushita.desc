@@ -10,7 +10,7 @@
 ;
 
 :backend "matsushita"             ; name of backend
-:version "1.0-7"                  ; version of backend
+:version "1.0-7 (unmaintained)"   ; version of backend
 :manpage "sane-matsushita"        ; name of manpage
 :url "http://www.zago.net/sane"    ; backend's web page
 

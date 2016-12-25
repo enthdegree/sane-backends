@@ -9,7 +9,7 @@
 ;
 
 :backend "as6e"			; name of backend
-:version "0.5"			; version of backend
+:version "0.5 (unmaintained)"	; version of backend
 :manpage "sane-as6e"		; name of manpage (if it exists)
 :url "http://as6edriver.sourceforge.net/"
 

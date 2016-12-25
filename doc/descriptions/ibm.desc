@@ -10,7 +10,7 @@
 
 :backend "ibm"                 ; name of backend
 :url "http://www.meier-geinitz.de/sane/ibm-backend/"
-:version "1.0-4"          ; version of backend
+:version "1.0-4 (unmaintained)" ; version of backend
 ;
 :manpage "sane-ibm"            ; name of manpage (if it exists)
 :comment "This backend has had only limited testing. It needs more work especially for the Ricoh scanners. Patches are welcome."

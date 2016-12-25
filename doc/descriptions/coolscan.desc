@@ -10,7 +10,7 @@
 ;
 
 :backend "coolscan"               ; name of backend
-:version "0.4.3"                  ; version of backend
+:version "0.4.3 (unmaintained)"   ; version of backend
 :url "http://andreas.rick.free.fr/sane/" ; backend's web page
 :manpage "sane-coolscan"
 :devicetype :scanner              ; start of a list of devices....

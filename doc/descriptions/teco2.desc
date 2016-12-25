@@ -10,7 +10,7 @@
 ;
 
 :backend "teco2"                  ; name of backend
-:version "1.0-9"                  ; version of backend
+:version "1.0-9 (unmaintained)"   ; version of backend
 :manpage "sane-teco2"
 :url "http://gkall.hobby.nl/teco2.html"   ; backend's web page
 

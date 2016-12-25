@@ -10,7 +10,7 @@
 ;
 
 :backend "bh"                     ; name of backend
-:version "1.0-4"                    ; version of backend
+:version "1.0-4 (unmaintained)"   ; version of backend
 :manpage "sane-bh"                ; name of manpage (if it exists)
 :url "http://www.martoneconsulting.com/sane-bh.html" ; backend's web page
 :comment "Supports Copiscan II scanners with Remote SCSI Controller (RSC) interface"

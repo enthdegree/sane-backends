@@ -10,7 +10,7 @@
 ;
 
 :backend "stv680"                  ; name of backend
-:version "1.0-1"                   ; version of backend
+:version "1.0-1 (unmaintained)"    ; version of backend
 :manpage "sane-stv680"
 :url "http://gkall.hobby.nl/stv680-aiptek.html" ; backend's web page
 :comment "This vidcam backend is for the stv0680 chipset, See the website for more info."

@@ -1,7 +1,7 @@
 ;Kodak DC240 backend .desc file by Peter S. Fales
 
 :backend "dc240"		; name of backend
-:version "0.0"                  ; version of backend
+:version "0.0 (unmaintained)"	; version of backend
 :manpage "sane-dc240"		; name of manpage (if it exists)
 :url "mailto:peter@fales-lorenz.net"   ; backend's web page
 

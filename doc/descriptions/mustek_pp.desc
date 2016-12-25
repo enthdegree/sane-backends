@@ -10,7 +10,7 @@
 ;
 
 :backend "mustek_pp"              ; name of backend
-:version "13"                     ; version of backend
+:version "13 (unmaintained)"      ; version of backend
 :manpage "sane-mustek_pp"         ; name of manpage (if it exists)
                                   ; backend's web page
 :url "http://penguin-breeder.org/sane/mustek_pp/"

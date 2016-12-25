@@ -1,5 +1,5 @@
 :backend "mustek_usb2"
-:version "1.0-10"
+:version "1.0-10 (unmaintained)"
 :manpage "sane-mustek_usb2"
 :url "http://www.meier-geinitz.de/sane/mustek_usb2-backend/"
 :comment "Only BearPaw 2448TA Pro is supported at the moment"

@@ -9,7 +9,7 @@
 ; All other information is optional (but what good is the file without it?).
 
 :backend "hpljm1005"
-:version "0"
+:version "0 (unmaintained)"
 :manpage "sane-hpljm1005"
 
 :devicetype :scanner

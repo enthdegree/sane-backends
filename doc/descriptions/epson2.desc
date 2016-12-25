@@ -10,7 +10,7 @@
 ; DO NOT EDIT - It's automatically generated.
 
 :backend "epson2"
-:version "1.0.124"
+:version "1.0.124 (unmaintained)"
 :new :no
 :manpage "sane-epson2"
 

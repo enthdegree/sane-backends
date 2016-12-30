@@ -613,7 +613,6 @@ set_cmd_for_dev (int devno, struct BJNP_command *cmd, char cmd_code, int payload
   /*
    * Set command buffer with command code, session_id and length of payload
    * Returns: sequence number of command
-   * If devno < 0, then use devno as negativ index into bjnp_protocol_defs
    */
 
   strncpy (cmd->BJNP_id, device[devno].protocol_string, sizeof (cmd->BJNP_id));

@@ -426,7 +426,7 @@ AS_IF([test xno != "x$with_usb"],
 AS_IF([test xyes = "x$with_usb" && test xyes != "x$have_usb"],
   [AC_MSG_ERROR([USB support requested but required libraries not found.])
   ])
-dnl AM_CONDITIONAL([have_usb], [test x != "x$USB_LIBS])
+AM_CONDITIONAL([have_usblib], [test x != "x$USB_LIBS"])
 
 dnl ************
 dnl SCSI Support
@@ -732,7 +732,7 @@ AC_ARG_WITH(api-spec,
     [with_api_spec=check])
 dnl  Test for all tools that may be involved.  These tests are fast and
 dnl  running them allows for the Makefile targets to be formulated such
-dnl  that you non-requested formats can be made using a one-off without
+dnl  that any non-requested formats can be made using a one-off without
 dnl  the need to reconfigure.
 AC_PATH_PROG(MAKEINDEX, makeindex, no)
 AC_PATH_PROG(DVIPS, dvips, no)

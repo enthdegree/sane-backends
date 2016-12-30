@@ -18,6 +18,7 @@ build:debian-8-mini:
   image: $REGISTRY_HUB:debian-8-mini
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI"
+    MAKE_FLAGS: "CFLAGS=-Werror"
   <<: *build_definition
 
 build:debian-8-full:

@@ -9,106 +9,106 @@ Backends:
  apple:         Milon Firikis
  artec:         Chris Pinkham
  artec_eplus48u:Sergey Vlasov, Andreas Nowack, David Stevenson, and
-                Michael Herder (*)
- as6e:          Eugene S. Weiss (*)
+                Michael Herder
+ as6e:          Eugene S. Weiss
  avision:       Meino Christian Cramer, René Rebe (*)
  bh:            Tom Martone
  canon:         Helmut Koeberle, Manuel Panea, and Markus Mertinat
                 Mitsuru Okaniwa, Ulrich Deiters (*)
- canon630u:     Nathan Rutman (*)
+ canon630u:     Nathan Rutman
  canon_dr:      m. allan noah (*)
- canon_pp:      Matthew Duggan (*), Simon Krix
- coolscan:      Didier Carlier, Andreas Rick
+ canon_pp:      Matthew Duggan, Simon Krix
  cardscan:      m. allan noah (*)
- coolscan2:     Andras Major (*)
- coolscan3:     Alessandro Zummo (*)
- dc25:          Peter Fales (*)
+ coolscan:      Didier Carlier, Andreas Rick
+ coolscan2:     Andras Major
+ coolscan3:     Alessandro Zummo
+ dc25:          Peter Fales
  dc210:         Brian J. Murrell
- dc240:         Peter Fales (*)
- dell1600n_net: Jon Chambers (*)
+ dc240:         Peter Fales
+ dell1600n_net: Jon Chambers
  dll:           David Mosberger
  dmc:           David F. Skoll
  epjitsu:       m. allan noah (*)
- epson:         Karl Heinz Kremer (*)
- epson2:        Alessandro Zummo (*)
- epsonds:       Alessandro Zummo (*)
- fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister (*), 
+ epson:         Karl Heinz Kremer
+ epson2:        Alessandro Zummo
+ epsonds:       Alessandro Zummo
+ fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister,
                 m. allan noah (*)
- gphoto2:       Peter Fales (*)
- genesys:	Henning Geinitz (*), Gerhard Jaeger (*), Stéphane Voltz (*),
-                Pierre Willenbrock (*)
+ genesys:       Henning Geinitz, Gerhard Jaeger (*), Stéphane Voltz (*),
+                Pierre Willenbrock
+ gphoto2:       Peter Fales
  gt68xx:        Sergey Vlasov, Andreas Nowack, David Stevenson, and
-                Henning Geinitz (*)
+                Henning Geinitz
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki
- hpsj5s:        Max Vorobiev
  hp3500:        Troy Rollo (*)
- hp3900:        Jonathan Bravo Lopez (*)
+ hp3900:        Jonathan Bravo Lopez
  hp4200:        Adrian Perez Jorge, Andrew John Lewis, Arnar Mar Hrafnkelsson,
-                Frank Zago (*), Henning Geinitz (*)
- hp5400:        Martijn van Oosterhout, Thomas Soumarmon (*)
+                Frank Zago, Henning Geinitz
+ hp5400:        Martijn van Oosterhout, Thomas Soumarmon
  hp5590:        Ilia Sotnikov (*)
  hpljm1005:     Philippe Rétornaz
+ hpsj5s:        Max Vorobiev
  hs2p:		Jeremy Johnson (*)
- ibm:           M.F., Henning Geinitz (*)
+ ibm:           M.F., Henning Geinitz
  kodak:         m. allan noah (*)
  kodakaio:	Paul Newall (*)
  kvs1025:       Tao Zhang, m. allan noah (*)
  kvs20xx:       unknown, m. allan noah (*)
  kvs40xx:       unknown, m. allan noah (*)
- leo:           Frank Zago (*)
- lexmark:       Fred Odendaal (*), Stéphane Voltz (*)
- ma1509:        Henning Geinitz (*)
- magicolor:     Reinhold Kainhofer (*)(based on epson2 backend)
- matsushita:    Frank Zago (*)
- microtek:      Matthew Marjanovic (*)
+ leo:           Frank Zago
+ lexmark:       Fred Odendaal, Stéphane Voltz (*)
+ ma1509:        Henning Geinitz
+ magicolor:     Reinhold Kainhofer(based on epson2 backend)
+ matsushita:    Frank Zago
+ microtek:      Matthew Marjanovic
  microtek2:     Bernd Schroeder, Karsten Festag
  mustek:        Andreas Bolsch, David Mosberger, Andreas Czechanowski,
-                Henning Geinitz (*), and James Perry.
- mustek_pp:     Jochen Eisinger (*), Eddy De Greef (*)
- mustek_usb:    Tom Wang and Henning Geinitz (*)
- mustek_usb2:   Roy Zhou, Jack Xu, Vinci Cen, and Henning Geinitz (*)
- nec:           Kazuya Fukuda (*)
+                Henning Geinitz, and James Perry.
+ mustek_pp:     Jochen Eisinger, Eddy De Greef
+ mustek_usb:    Tom Wang and Henning Geinitz
+ mustek_usb2:   Roy Zhou, Jack Xu, Vinci Cen, and Henning Geinitz
+ nec:           Kazuya Fukuda
  net:           Andreas Beck, David Mosberger, Julien Blache
- niash:         Ullrich Sigwanz (*), Bertrik Sikken (*)
+ niash:         Ullrich Sigwanz, Bertrik Sikken
  p5:		Stéphane Voltz (*)
- pie:           Simon Munton (*)
+ pie:           Simon Munton
  pieusb:        Jan Vleeshouwers, Michael Rickmann, Klaus Kämpf
  pint:          Gordon Matzigkeit
- pixma:         Wittawat Yamwong (*)
-                Nicolas Martin (*)
+ pixma:         Wittawat Yamwong
+                Nicolas Martin
                 Louis Lagendijk (*)
                 Dennis Lou
                 Rolf Bensch (*)
  plustek:       Gerhard Jaeger (*)
  plustek_pp:    Rick Bronson (former pp driver-code), Gerhard Jaeger (*)
  pnm:           Andreas Beck, Gordon Matzigkeit, David Mosberger, Michael
-                Herder (*), and Henning Geinitz (*)
+                Herder, and Henning Geinitz
  qcam:          Scott Laird (original driver), David Mosberger (SANE backend),
                 despeckling filter by Patrick Reynolds, 
                 B&W fixes by Andrew Kuchling
  ricoh:         Feico W. Dillema
  rts8891:       Stéphane Voltz (*)
  s9036:         Ingo Schneider
- sceptre:       Frank Zago (*)
- sharp:         Kazuya Fukuda (*) and Abel Deuring (*)
- sm3600:        Marian Eichholz (*) and Glenn Ramsey
- sm3840:        Earle F. Philhower III (*)
+ sceptre:       Frank Zago
+ sharp:         Kazuya Fukuda and Abel Deuring
+ sm3600:        Marian Eichholz and Glenn Ramsey
+ sm3840:        Earle F. Philhower III
  snapscan:      Kevin Charter, Franck Schneider, Michel Roelofs, Sebastien
-                Sable, Henrik Johansson, Chris Bagwell (*), and Oliver Schwartz (*)
+                Sable, Henrik Johansson, Chris Bagwell, and Oliver Schwartz (*)
  sp15c:         Randolph Bentson
  st400:         Ingo Wilken
- stv680:        Gerard Klaver (*)
+ stv680:        Gerard Klaver
  tamarack:      Rogier Wolff
- teco1:         Frank Zago (*)
- teco2:         Frank Zago (*), Gerard Klaver (*)
- teco3:         Frank Zago (*)
- test:          Henning Geinitz (*)
+ teco1:         Frank Zago
+ teco2:         Frank Zago, Gerard Klaver
+ teco3:         Frank Zago
+ test:          Henning Geinitz
  u12:           Gerhard Jaeger (*)
- umax:          Oliver Rauch (*) and Michael K. Johnson
- umax_pp:       Stéphane Voltz (*)
+ umax:          Oliver Rauch and Michael K. Johnson
  umax1220u:     Marcio L. Teixeira, Patrick Lessard
- v4l:           Juergen G. Schimmer, and Henning Geinitz (*)
+ umax_pp:       Stéphane Voltz (*)
+ v4l:           Juergen G. Schimmer, and Henning Geinitz
  xerox_mfp:     Alex Belkin (*)
 
 Frontends:
@@ -117,13 +117,13 @@ Frontends:
  saned:         Andreas Beck, David Mosberger, Julien Blache
  scanimage:     Andreas Beck, David Mosberger, Gordon Matzigkeit,
                 m. allan noah (*), Julien Blache, Stéphane Voltz (*)
- tstbackend:    Frank Zago (*)
+ tstbackend:    Frank Zago
 
 Sanei internal code:
 
   Adrian Perez Jorge, Andreas Beck, Andreas Czechanowski, Christian Bucher,
-  David Mosberger-Tang, Frank Zago (*), Henning Geinitz (*),
-  Jeff Freedman, Jochen Eisinger (*), Marcio Teixeira, Yuri Dario,
+  David Mosberger-Tang, Frank Zago, Henning Geinitz,
+  Jeff Freedman, Jochen Eisinger, Marcio Teixeira, Yuri Dario,
   Gerhard Jaeger (*), m. allan noah (*)
 
 Java API:
@@ -132,8 +132,8 @@ Java API:
 
 Miscellaneous coding:
 
-  Julien Blache, Mattias Ellert (*), Petter Reinholdtsen (*),
-  Chris Bagwell (*), Olaf Meeuwissen (*)
+  Julien Blache, Mattias Ellert, Petter Reinholdtsen,
+  Chris Bagwell, Olaf Meeuwissen (*)
 
 Translators:
 

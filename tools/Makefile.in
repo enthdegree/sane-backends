@@ -85,6 +85,7 @@ bin_PROGRAMS = sane-find-scanner$(EXEEXT) gamma4scanimage$(EXEEXT) \
 noinst_PROGRAMS = sane-desc$(EXEEXT) $(am__EXEEXT_2)
 @INSTALL_UMAX_PP_TOOLS_TRUE@am__append_1 = umax_pp
 @INSTALL_UMAX_PP_TOOLS_FALSE@am__append_2 = umax_pp
+@have_usblib_TRUE@am__append_3 = check-usb-chip.c
 subdir = tools
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/mkinstalldirs $(srcdir)/sane-config.in \
@@ -122,8 +123,11 @@ am__v_lt_1 =
 am_sane_desc_OBJECTS = sane-desc.$(OBJEXT)
 sane_desc_OBJECTS = $(am_sane_desc_OBJECTS)
 sane_desc_DEPENDENCIES = ../sanei/libsanei.la ../lib/liblib.la
+am__sane_find_scanner_SOURCES_DIST = sane-find-scanner.c \
+	check-usb-chip.c
+@have_usblib_TRUE@am__objects_1 = check-usb-chip.$(OBJEXT)
 am_sane_find_scanner_OBJECTS = sane-find-scanner.$(OBJEXT) \
-	check-usb-chip.$(OBJEXT)
+	$(am__objects_1)
 sane_find_scanner_OBJECTS = $(am_sane_find_scanner_OBJECTS)
 sane_find_scanner_DEPENDENCIES = ../sanei/libsanei.la ../lib/liblib.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
@@ -197,7 +201,7 @@ am__v_CCLD_1 =
 SOURCES = $(gamma4scanimage_SOURCES) $(sane_desc_SOURCES) \
 	$(sane_find_scanner_SOURCES) $(umax_pp_SOURCES)
 DIST_SOURCES = $(gamma4scanimage_SOURCES) $(sane_desc_SOURCES) \
-	$(sane_find_scanner_SOURCES) $(umax_pp_SOURCES)
+	$(am__sane_find_scanner_SOURCES_DIST) $(umax_pp_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -434,7 +438,7 @@ EXTRA_DIST = check-po.awk libtool-get-dll-ext mustek600iin-off.c \
 	RenSaneDlls.cmd README xerox hotplug/README \
 	hotplug/libusbscanner hotplug-ng/README \
 	hotplug-ng/libsane.hotplug openbsd/attach openbsd/detach
-sane_find_scanner_SOURCES = sane-find-scanner.c check-usb-chip.c
+sane_find_scanner_SOURCES = sane-find-scanner.c $(am__append_3)
 sane_find_scanner_LDADD = ../sanei/libsanei.la ../lib/liblib.la \
 			  $(USB_LIBS) $(IEEE1284_LIBS) $(SCSI_LIBS) \
 			  ../backend/sane_strstatus.lo

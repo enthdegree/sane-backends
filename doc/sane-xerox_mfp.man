@@ -1,47 +1,20 @@
 .TH sane\-xerox_mfp 5 "15 Dec 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-xerox_mfp
 .SH NAME
-sane\-xerox_mfp \- SANE backend for Xerox Phaser 3200MFP device
+sane\-xerox_mfp \- SANE backend for Xerox Phaser 3200MFP device et al.
 .SH DESCRIPTION
 The
 .B sane\-xerox_mfp
 library implements a SANE (Scanner Access Now Easy) backend that provides
-access to the following USB and network multifunction-peripheral:
-.PP
-.RS
-Phaser 3200MFP
-.br
-Dell MFP Laser Printer 1815dn
-.br
-Xerox Phaser 6110MFP
-.br
-Samsung CLX-3170fn & CLX-3175FW
-.br
-Samsung SCX-4200
-.br
-Samsung SCX-4300
-.br
-Samsung SCX-4500
-.br
-Samsung SCX-4500W
-.br
-Samsung SCX4725-FN
-.br
-Xerox WorkCentre 3119 Series
-.RE
-.PP
-If you own a scanner other than the ones listed above that works with this
-backend, please let us know this by sending the scanner's exact model name and
-the USB vendor and device ids (e.g. from
-.IR /proc/bus/usb/devices ,
-.I sane\-find\-scanner
-or syslog) to us. Even if the scanner's name is only slightly different from
-the models mentioned above, please let us know.
+access to several Samsung-based Samsung, Xerox, and Dell scanners.
+Please see full list of supported devices at
+http://www.sane\-project.org/sane\-supported\-devices.html
+
 .SH CONFIGURATION
 .I @CONFIGDIR@/xerox_mfp.conf
 USB scanners do not need any configuration.
 
-For SCX-4500W in network mode you need to specify
+For SCX\-4500W in network mode you need to specify
 .PP
 .RS
 .B tcp host_address [port]
@@ -70,13 +43,23 @@ debug levels increase the verbosity of the output.
 
 Example: 
 export SANE_DEBUG_XEROX_MFP=4
-.SH AUTHOR
-Alex Belkin <abc@telekom.ru>
 
-Samsung SCX-4500W scan over network support
-Alexander Kuznetsov <acca(at)cpan.org>
-.SH BUGS:
+.SH LIMITATIONS
 Multicast autoconfiguration for LAN scanners is not implemented yet. IPv6 addressing never been tested.
+
+.SH BUGS AND SUPPORT
+If you have found a bug or need support please follow open\-source way of acquiring support via
+mail\-lists http://www.sane\-project.org/mailing\-lists.html or SANE bug tracker 
+http://www.sane\-project.org/bugs.html
+
+.SH AUTHORS
+Alex Belkin <abc@telekom.ru>
+.br
+Samsung SCX\-4500W scan over network support by
+Alexander Kuznetsov <acca(at)cpan.org>
+.br
+Color scanning on Samsung M2870 model and Xerox Cognac 3215 & 3225 models by
+Laxmeesh Onkar Markod <m.laxmeesh@samsung.com>
 
 .SH "SEE ALSO"
 .BR sane (7),

@@ -1,5 +1,11 @@
 # pixma.conf configuration for the sane pixma backend
 #
+# bjnp-timeout=5000
+# Specify the timeout (in ms) to be used for all the folllowing
+# scanners.
+# May be specified multiple times.
+# The last value (if any) will be used for auto-detection
+#
 # define URI's of scanners (one per line)
 # This is only used for network scanners.
 # normally scanners will be detected by sending a broadcast
@@ -8,7 +14,12 @@
 #
 # method must be bjnp
 # port number can normally be left out, port 8612 is used as default
+# The timeout parameter sets a timeout value for the scanner on
+# the same line
 # Example:
-# bjnp://myscanner.my.domain:8612
-# bjnp://printer-1.pheasant.org
+# bjnp://myscanner.my.domain:8612 // uses the default 100ms timeout
+# timeout=5000
+# bjnp://printer-1.pheasant.org // will use the 500 ms timeout
+# bjnp://scanner.bad-network.org/timeout=1500 // timeout set to 1500 ms
+# timeout=3000 // will be used for auto-detected scanners
 #

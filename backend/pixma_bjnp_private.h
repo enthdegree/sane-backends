@@ -80,7 +80,7 @@
 /* timers */
 #define BJNP_BROADCAST_INTERVAL 10 	/* ms between broadcasts */
 #define BJNP_BC_RESPONSE_TIMEOUT 500  	/* waiting time for broadc. responses */
-#define BJNP_TIMEOUT_MIN 1000		/* minimum tiemout value for network operations */
+#define BJNP_TIMEOUT_DEFAULT 1000	/* minimum tiemout value for network operations */
 #define BJNP_USLEEP_MS 1000          	/* sleep for 1 msec */
 
 /* retries */
@@ -370,6 +370,7 @@ typedef struct device_s
   bjnp_sockaddr_t * addr;	/* ip-address of the scanner */
   int address_level;		/* link local, public or has a FQDN */
   int bjnp_timeout;		/* timeout (msec) for next poll command */
+  int bjnp_min_timeout;		/* device specific min timeout  */
 
 #ifdef PIXMA_BJNP_USE_STATUS
   /* polling state information */

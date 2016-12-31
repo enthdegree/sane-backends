@@ -65,9 +65,10 @@ extern void sanei_bjnp_init (void);
 
 /** Find scanners responding to a BJNP broadcast.
  *
- * The function attach is called for every device which has been found.
+ * The function sanei_bjnp_attach is called for every device which has 
+ * been found.
  * Serial is the address of the scanner in human readable form of max
- * SHORT_HOSTNAME_MAX characters
+ * SERIAL_MAX characters
  * @param conf_devices list of pre-configures device URI's to attach
  * @param attach attach function
  * @param pixma_devices device informatio needed by attach function
@@ -75,7 +76,7 @@ extern void sanei_bjnp_init (void);
  * @return SANE_STATUS_GOOD - on success (even if no scanner was found)
  */
 
-#define SHORT_HOSTNAME_MAX 16
+#define SERIAL_MAX 16
 
 extern SANE_Status
 sanei_bjnp_find_devices (const char **conf_devices,

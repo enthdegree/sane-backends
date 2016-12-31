@@ -395,18 +395,19 @@ determine_scanner_serial (const char *hostname, const char * mac_address, char *
   /* if we only have a literal ipv6 address, we use the mac-address */
 
   strcpy(copy, hostname);
-  while (strlen (copy) >= SHORT_HOSTNAME_MAX)
+  if (strlen (copy) >= SERIAL_MAX)
     {
+      /* make the string fit into the serial */
       /* if this is a FQDN, not an ip-address, remove domain part of the name */
       if ((dot = strchr (copy, '.')) != NULL)
         {
           *dot = '\0';
         }
-      else
-        {
-          strcpy(copy, mac_address);
-          break;
-        }
+    }
+  /* check if name is still to long. If so use the mac-address */
+  if (strlen(copy) >= SERIAL_MAX)
+    {
+      strcpy(copy, mac_address);
     }
   strcpy( serial, copy );
   return serial;
@@ -566,6 +567,7 @@ split_uri (const char *devname, char *method, char *host, char *port,
           return -1;
         }
       strcpy(port, start);
+      start = end_of_port + 1;
     }
 
 /*
@@ -806,7 +808,7 @@ get_scanner_name(const bjnp_sockaddr_t *scanner_sa, char *host)
 {
   /*
    * Parse identify command responses to ip-address
-   * and hostname
+   * and hostname. Return qulity of the address
    */
 
   struct addrinfo *results;
@@ -1441,7 +1443,8 @@ bjnp_recv_header (int devno, size_t *payload_size )
     {
       terrno = errno;
       PDBG (bjnp_dbg (LOG_CRIT,
-		       "bjnp_recv_header: ERROR - could not read response header (select timed out)!\n" ) );
+		"bjnp_recv_header: ERROR - could not read response header (select timed out after %d ms)!\n", 
+		device[devno].bjnp_timeout ) );
       errno = terrno;
       return SANE_STATUS_IO_ERROR;
     }
@@ -1501,7 +1504,7 @@ bjnp_recv_header (int devno, size_t *payload_size )
 }
 
 static int
-bjnp_init_device_structure(int dn, bjnp_sockaddr_t *sa, bjnp_protocol_defs_t *protocol_defs)
+bjnp_init_device_structure(int dn, bjnp_sockaddr_t *sa, bjnp_protocol_defs_t *protocol_defs, int min_timeout)
 {
   /* initialize device structure */
 
@@ -1523,7 +1526,8 @@ bjnp_init_device_structure(int dn, bjnp_sockaddr_t *sa, bjnp_protocol_defs_t *pr
   device[dn].address_level = get_scanner_name(sa, name);
   device[dn].session_id = 0;
   device[dn].serial = -1;
-  device[dn].bjnp_timeout = 1000;
+  device[dn].bjnp_timeout = min_timeout;
+  device[dn].bjnp_min_timeout = min_timeout;
   device[dn].scanner_data_left = 0;
   device[dn].last_cmd = 0;
   device[dn].blocksize = BJNP_BLOCKSIZE_START;	
@@ -1616,7 +1620,8 @@ bjnp_recv_data (int devno, SANE_Byte * buffer, size_t start_pos, size_t * len)
     {
       terrno = errno;
       PDBG (bjnp_dbg (LOG_CRIT,
-		       "bjnp_recv_data: ERROR - could not read response payload (select timed out)!\n") );
+		"bjnp_recv_data: ERROR - could not read response payload (select timed out after %d ms)!\n", 
+		device[devno].bjnp_timeout) );
       errno = terrno;
       *len = 0;
       return SANE_STATUS_IO_ERROR;
@@ -1642,7 +1647,7 @@ bjnp_recv_data (int devno, SANE_Byte * buffer, size_t start_pos, size_t * len)
 
 static BJNP_Status
 bjnp_allocate_device (SANE_String_Const devname, 
-                      SANE_Int * dn, char *res_host)
+                      SANE_Int * dn, char *resulting_host)
 {
   char method[BJNP_METHOD_MAX]; 
   char host[BJNP_HOST_MAX];
@@ -1653,6 +1658,7 @@ bjnp_allocate_device (SANE_String_Const devname,
   struct addrinfo hints;
   int result;
   int i;
+  int min_timeout = BJNP_TIMEOUT_DEFAULT;
 
   PDBG (bjnp_dbg (LOG_DEBUG, "bjnp_allocate_device(%s) %d\n", devname, bjnp_no_devices));
 
@@ -1661,20 +1667,29 @@ bjnp_allocate_device (SANE_String_Const devname,
       return BJNP_STATUS_INVAL;
     }
 
-  if (strlen (args) != 0)
+  if (strlen (args) > 0)
     {
-      PDBG (bjnp_dbg
-	    (LOG_CRIT,
-	     "bjnp_allocate_device: ERROR - URI may not contain userid, password or aguments: %s\n",
-	     devname));
+      /* get device specific timeout if any */
+
+      if (strncmp(args, "timeout=", strlen("timeout=")) == 0)
+        {
+          min_timeout = atoi(args + strlen("timeout="));
+          if (min_timeout < BJNP_TIMEOUT_DEFAULT)
+            min_timeout = BJNP_TIMEOUT_DEFAULT;
+        } else {
+		PDBG (bjnp_dbg
+	    		(LOG_CRIT,
+				"bjnp_allocate_device: ERROR - Unrecognized argument: %s\n",
+	     			devname));
 
       return BJNP_STATUS_INVAL;
+        }
     }
   if ( (protocol_defs = get_protocol_by_method(method)) == NULL)
     {
       PDBG (bjnp_dbg
-	    (LOG_CRIT, "bjnp_allocate_device: ERROR - URI %s contains invalid method: %s\n", devname,
-	     method));
+		(LOG_CRIT, "bjnp_allocate_device: ERROR - URI %s contains invalid method: %s\n",
+		 devname, method));
       return BJNP_STATUS_INVAL;
     }
 
@@ -1714,24 +1729,26 @@ bjnp_allocate_device (SANE_String_Const devname,
         {
           PDBG (bjnp_dbg
     	    (LOG_CRIT,
-    	     "bjnp_allocate_device: WARNING - Too many devices, ran out of device structures, can not add %s\n",
+    	     "bjnp_allocate_device: WARNING - Too many devices, ran out of device structures, cannot add %s\n",
     	     devname));
           freeaddrinfo(res);
           return BJNP_STATUS_INVAL;
         }
       if (bjnp_init_device_structure( bjnp_no_devices, (bjnp_sockaddr_t *)cur -> ai_addr,
-                                      protocol_defs) != 0)
+                                      protocol_defs, min_timeout) != 0)
         {
           /* giving up on this address, try next one if any */
           break;
         }
       for (i = 0; i < bjnp_no_devices; i++)
         {
-          /* we check for matching addresses as wel as matching mac_addresses as */
-          /* an IPv6 host can have multiple adresses */
 
-          if ( (sa_is_equal( device[i].addr, (bjnp_sockaddr_t *)cur -> ai_addr) ) ||
-               ( strcmp( device[i].mac_address, device[bjnp_no_devices].mac_address ) == 0 ) )
+          /* Check if found the scanner before, if so we use the best address 
+	   * but still make sure the scanner is listed only once.
+	   * We check for matching addresses as wel as matching mac_addresses as 
+           * an IPv6 host can have multiple adresses */
+
+          if ( strcmp( device[i].mac_address, device[bjnp_no_devices].mac_address ) == 0 )
             {
               if ( device[i].address_level < device[bjnp_no_devices].address_level ) 
                 {
@@ -1740,6 +1757,16 @@ bjnp_allocate_device (SANE_String_Const devname,
                   device[i].addr = device[bjnp_no_devices].addr;
                   device[bjnp_no_devices].addr = NULL;
                   device[i].address_level = device[bjnp_no_devices].address_level;
+                }
+
+	      /* check if new timeout value was defined (e.g. from sanei_bjnp_device_open)
+	       * if so, use new timout value */
+
+              if (device[i].bjnp_min_timeout < device[bjnp_no_devices].bjnp_min_timeout)
+                {
+                  /* use the longer timeout as requested */
+                  device[i].bjnp_timeout = device[bjnp_no_devices].bjnp_min_timeout;
+                  device[i].bjnp_min_timeout = device[bjnp_no_devices].bjnp_min_timeout;
                 }
               freeaddrinfo(res); 
               *dn = i;
@@ -1753,17 +1780,17 @@ bjnp_allocate_device (SANE_String_Const devname,
 
   PDBG (bjnp_dbg (LOG_INFO, "bjnp_allocate_device: Scanner not yet in our list, added it: %s:%s\n", host, port));
 
-  /* return hostname if required */
-
-  if (res_host != NULL)
-    {
-      strcpy (res_host, host);
-    }
-  *dn = bjnp_no_devices;
-
   /* Commit new device structure */
 
+  *dn = bjnp_no_devices;
   bjnp_no_devices++;
+
+  /* return hostname if required */
+
+  if (resulting_host != NULL)
+    {
+      strcpy (resulting_host, host);
+    }
 
   return BJNP_STATUS_GOOD;
 }
@@ -1799,10 +1826,11 @@ static void add_scanner(SANE_Int *dev_no,
            */
 
            determine_scanner_serial (scanner_host, device[*dev_no].mac_address, serial);
+
            attach_bjnp (uri, makemodel,
                         serial, pixma_devices);
-           PDBG (bjnp_dbg (LOG_NOTICE, "add_scanner: New scanner at %s added!\n",
-	                 uri));
+           PDBG (bjnp_dbg (LOG_NOTICE, "add_scanner: New scanner added: %s, serial %s, mac addres: %s.\n",
+	                 uri, serial, device[*dev_no].mac_address));
           }
         break;
       case BJNP_STATUS_ALREADY_ALLOCATED:
@@ -1815,6 +1843,34 @@ static void add_scanner(SANE_Int *dev_no,
 	                 uri));
         break;
     }
+}
+
+int rewrite_uri(char *uri, int timeout, int max_len)
+{
+  char method[BJNP_METHOD_MAX];
+  char host[BJNP_HOST_MAX];
+  char port_str[BJNP_PORT_MAX];
+  char args[BJNP_HOST_MAX];
+  int port;
+
+  if (split_uri(uri, method, host, port_str, args ) != 0)
+    {
+      return -1;
+    }
+
+  port = atoi(port_str);
+  if (port == 0)
+    {
+      port = 8612;
+    }
+
+  if (strstr(args, "timeout=") == NULL)
+    {
+      sprintf(args, "timeout=%d", timeout);
+    }
+
+  snprintf(uri, max_len -1, "bjnp://%s:%d/%s", host, port, args);
+  return 0;
 }
 
 
@@ -1869,6 +1925,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
   char uri[256];
   int dev_no;
   int port;
+  int timeout_default = BJNP_TIMEOUT_DEFAULT;
   bjnp_sockaddr_t broadcast_addr[BJNP_SOCK_MAX];
   bjnp_sockaddr_t scanner_sa; 
   socklen_t socklen;
@@ -1884,16 +1941,30 @@ sanei_bjnp_find_devices (const char **conf_devices,
     {
       socket_fd[i] = -1;
     }
-  /* First add devices from config file */
+
+  /* Add devices from config file */
 
   if (conf_devices[0] == NULL)
     PDBG (bjnp_dbg( LOG_DEBUG, "sanei_bjnp_find_devices: No devices specified in configuration file.\n" ) );
 
   for (i = 0; conf_devices[i] != NULL; i++)
     {
+      if (strncmp(conf_devices[i], "bjnp-timeout=", strlen("bjnp-timeout="))== 0)
+        {
+	  timeout_default = atoi(conf_devices[i] + strlen("bjnp-timeout=") );
+          if (timeout_default < BJNP_TIMEOUT_DEFAULT)
+	    {
+	      timeout_default = BJNP_TIMEOUT_DEFAULT;	    
+	    }
+	  PDBG ( bjnp_dbg
+                  (LOG_DEBUG, "Set new default timeout value: %d ms.", timeout_default));
+	  continue;
+	}
       PDBG (bjnp_dbg
 	    (LOG_DEBUG, "sanei_bjnp_find_devices: Adding scanner from pixma.conf: %s\n", conf_devices[i]));
-      add_scanner(&dev_no, conf_devices[i], attach_bjnp, pixma_devices);
+      strncpy(uri, conf_devices[i], sizeof(uri));
+      rewrite_uri(uri, timeout_default, sizeof(uri));
+      add_scanner(&dev_no, uri, attach_bjnp, pixma_devices);
     }
   PDBG (bjnp_dbg
 	(LOG_DEBUG,
@@ -2061,8 +2132,8 @@ sanei_bjnp_find_devices (const char **conf_devices,
               get_scanner_name( &scanner_sa, scanner_host);
 
 	      /* construct URI */
-	      sprintf (uri, "%s://%s:%d", protocol_defs->method_string, scanner_host,
-		       port);
+	      sprintf (uri, "%s://%s:%d/timeout=%d", protocol_defs->method_string, scanner_host,
+		           port, timeout_default);
 
               add_scanner( &dev_no, uri, attach_bjnp, pixma_devices); 
 
@@ -2181,11 +2252,11 @@ sanei_bjnp_deactivate (SANE_Int dn)
 extern void
 sanei_bjnp_set_timeout (SANE_Int devno, SANE_Int timeout)
 {
-  if (timeout < BJNP_TIMEOUT_MIN) 
+  if (timeout < device[devno].bjnp_min_timeout)
     {
       PDBG (bjnp_dbg (LOG_INFO, "bjnp_set_timeout to %d, but using minimum value %d\n",
-		   timeout, BJNP_TIMEOUT_MIN));
-      timeout = BJNP_TIMEOUT_MIN;
+        timeout, device[devno].bjnp_min_timeout));
+      timeout = device[devno].bjnp_min_timeout;
     } else {
       PDBG (bjnp_dbg (LOG_INFO, "bjnp_set_timeout to %d\n",
 		   timeout));

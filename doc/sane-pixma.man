@@ -217,21 +217,21 @@ support dynamic loading).
 .I @CONFIGDIR@/pixma.conf
 The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
-below). The files contains an optional list of networked scanners. Normally 
-only scanners that can not be auto-detected because they are on a different 
+below). The file contains an optional list of networked scanners. Normally 
+only scanners that cannot be auto-detected because they are on a different 
 subnet shall be listed here. If your OS does not allow enumeration of 
-interfaces (i.e. it does not support the getifaddrs() function) you may need 
+interfaces (i.e. it does not support the getifaddrs() function) you also may need 
 to add your scanner here as well.
+.RS
 .PP
-Scanners shall be listed as:
+.I Scanners shall be listed in the configuraton file as follows:
 .PP
 .RS
-.I <method>://<host>[:port] 
+.I <method>://<host>[:port][/timeout=<value>]
 .RE
-.RS
 .PP
 where method indicates the protocol used (bjnp is used for inkjet multi-functionals
-and mfnp is used for laser multi-functionals).
+and mfnp is used for laser multi-functionals). 
 .PP
 host is the hostname or IP address of the scanner, e.g. bjnp://10.0.1.4 
 for IPv4, bjnp://[2001:888:118e:18e2:21e:8fff:fe36:b64a] for a literal 
@@ -240,7 +240,25 @@ IPv6-address or bjnp://myscanner.mydomain.org for a hostname.
 The port number is optional and in normally implied by the method.
 Port 8610 is the standard port for mfnp, 8612 for bjnp.
 .PP
-Define each scanner on a new line.
+A scanner specific timeout value for the network protocol can be set using the 
+bjnp-timeout parameter. The value is in ms.
+.PP
+Define scanners each on a new line.
+.PP
+More globally applicable tinmeouts can be set using the bjnp-timeout parameter as folllows:
+.PP
+.RS
+.I bjnp-timeout=<value>
+.RE
+.PP
+A timeout defined using bjnp-timeout will apply to the following scanner definitions
+in the file. If required the bjnp-timeout setting 
+can be defined multiple times, where each settng will apply only to the scanners that
+follow the setting. The last setting is used for the auto discovered scanners.
+If not explicitely set,  the default 1000ms setting will apply. 
+.PP
+Setting timeouts should only be required in exceptional cases.
+.PP
 .SH USB SUPPORT
 USB scanners will be auto-detected and require no configuration.
 .SH NETWORKING SUPPORT

@@ -753,28 +753,13 @@ send_scan_param (pixma_t * s)
           data[0x01] = 0x02;
           data[0x1e] = 0x02;
         }
-      /* scanner specific ADF settings */
-      switch (s->cfg->pid) {
-        case MB5300_PID:
-        case MB5000_PID:
-          data[0x02] = (is_scanning_from_adfdup (s)) ? 0x04 : 0x01;
-          data[0x03] = (is_scanning_from_adfdup (s)) ? 0x03 : ((is_scanning_from_adf (s)) ? 0x01 : 0x00);
-          data[0x30] = (is_scanning_from_adf (s)) ? 0x03 : 0x01;
-	  break;
-
-        default:
-          data[0x02] = 0x01;
-          data[0x30] = 0x01;
-          if (is_scanning_from_adfdup (s))
-          {
-            data[0x02] = 0x03;
-            data[0x03] = 0x03;
-          }
-          data[0x05] = 0x01;        /* This one also seen at 0. Don't know yet what's used for */
-	  break;
-      }
-      data[0x1f] = (is_scanning_from_adf (s)) ? 0x01 : 0x00;
-
+      data[0x02] = 0x01;
+      if (is_scanning_from_adfdup (s))
+        {
+          data[0x02] = 0x03;
+          data[0x03] = 0x03;
+        }
+      data[0x05] = 0x01;	/* This one also seen at 0. Don't know yet what's used for */
       pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x08);
       pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x0a);
       /*PDBG (pixma_dbg (4, "*send_scan_param gen. 3+ ***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  w=%i ***** \n",
@@ -793,6 +778,7 @@ send_scan_param (pixma_t * s)
                                                  * ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : s->param->channels));   /* bits per pixel */
 #endif
 
+      data[0x1f] = 0x01;        /* This one also seen at 0. Don't know yet what's used for */
       data[0x20] = 0xff;
       data[0x21] = 0x81;
       data[0x23] = 0x02;
@@ -800,17 +786,19 @@ send_scan_param (pixma_t * s)
 
       switch (s->cfg->pid)
         {
-	  case MG5300_PID:
-	  case MB5000_PID:
-	    /* localtime (HHMM) */
-            gettimeofday(&tv, NULL);
-            ptm = localtime(&tv.tv_sec);
-            strftime( (char *)(data +0x26), 5, "%H%M", ptm);
-	    break;
+	case MG5300_PID:
+	case MB5000_PID:
+	  /* localtime (HHMM) */
+          gettimeofday(&tv, NULL);
+          ptm = localtime(&tv.tv_sec);
+          strftime( (char *)(data +0x26), 5, "%H%M", ptm);
+	  break;
 
-	  default:
-	    break;
+	default:
+	  break;
 	}
+
+      data[0x30] = 0x01;
     }
   return pixma_exec (s, &mp->cb);
 }

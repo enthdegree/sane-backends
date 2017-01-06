@@ -1170,8 +1170,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
               && s->cfg->pid != MG6400_PID
               && s->cfg->pid != MG7100_PID
               && s->cfg->pid != MG7500_PID
-              && s->cfg->pid != MG7700_PID
-              && s->cfg->pid != MB5000_PID)
+              && s->cfg->pid != MG7700_PID)
               reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
           
           /* Crop line to selected borders */

@@ -166,16 +166,6 @@
 :usbid     "0x04b8" "0x1101"
 :status    :good
 
-:model     "PX-M840FX"
-:interface "USB"
-:usbid     "0x04b8" "0x08cd"
-:status    :good
-
-:model     "PX-M860F"
-:interface "USB"
-:usbid     "0x04b8" "0x08ce"
-:status    :good
-
 :model     "PX-M7050"
 :interface "USB"
 :usbid     "0x04b8" "0x08bc"
@@ -184,6 +174,16 @@
 :model     "PX-M7050FX"
 :interface "USB"
 :usbid     "0x04b8" "0x08cc"
+:status    :good
+
+:model     "PX-M840FX"
+:interface "USB"
+:usbid     "0x04b8" "0x08cd"
+:status    :good
+
+:model     "PX-M860F"
+:interface "USB"
+:usbid     "0x04b8" "0x08ce"
 :status    :good
 
 :model     "WF-6530"
@@ -285,6 +285,16 @@
 :usbid     "0x04b8" "0x0157"
 :status    :good
 
+:model     "PID 0159"
+:interface "USB"
+:usbid     "0x04b8" "0x0159"
+:status    :good
+
+:model     "PID 015A"
+:interface "USB"
+:usbid     "0x04b8" "0x015a"
+:status    :good
+
 :model     "PID 015C"
 :interface "USB"
 :usbid     "0x04b8" "0x015c"
@@ -305,6 +315,11 @@
 :usbid     "0x04b8" "0x015f"
 :status    :good
 
+:model     "PID 0163"
+:interface "USB"
+:usbid     "0x04b8" "0x0163"
+:status    :good
+
 :model     "PID 110D"
 :interface "USB"
 :usbid     "0x04b8" "0x110d"
@@ -313,6 +328,11 @@
 :model     "PID 110F"
 :interface "USB"
 :usbid     "0x04b8" "0x110f"
+:status    :good
+
+:model     "PID 1112"
+:interface "USB"
+:usbid     "0x04b8" "0x1112"
 :status    :good
 
 :model     "PID 1113"
@@ -355,6 +375,12 @@
 :usbid     "0x04b8" "0x111a"
 :status    :good
 
+:model     "PID 111B"
+:interface "USB"
+:usbid     "0x04b8" "0x111b"
+:status    :good
+:comment   "EP-879A?"
+
 :model     "PID 111C"
 :interface "USB"
 :usbid     "0x04b8" "0x111c"
@@ -383,4 +409,35 @@
 :model     "PID 1121"
 :interface "USB"
 :usbid     "0x04b8" "0x1121"
+:status    :good
+
+:model     "PID 1122"
+:interface "USB"
+:usbid     "0x04b8" "0x1122"
+:status    :good
+
+:model     "PID 1123"
+:interface "USB"
+:usbid     "0x04b8" "0x1123"
+:status    :good
+:comment   "EP-30VA?"
+
+:model     "PID 1125"
+:interface "USB"
+:usbid     "0x04b8" "0x1125"
+:status    :good
+
+:model     "PID 1126"
+:interface "USB"
+:usbid     "0x04b8" "0x1126"
+:status    :good
+
+:model     "PID 1127"
+:interface "USB"
+:usbid     "0x04b8" "0x1127"
+:status    :good
+
+:model     "PID 112B"
+:interface "USB"
+:usbid     "0x04b8" "0x112b"
 :status    :good

@@ -1579,14 +1579,14 @@ hp5590_set_scan_area (SANE_Int dn,
 
   if (top_x + pixels_x > max_pixels_x_current_dpi)
     {
-      DBG (DBG_err, "Top X (%u) + pixels X (%u) exceedes max X %u\n",
+      DBG (DBG_err, "Top X (%u) + pixels X (%u) exceeds max X %u\n",
 	   top_x, pixels_x, max_pixels_x_current_dpi);
       return SANE_STATUS_INVAL;
     }
 
   if (top_y + pixels_y > max_pixels_y_current_dpi)
     {
-      DBG (DBG_err, "Top Y (%u) + pixels Y (%u) exceedes max Y %u\n",
+      DBG (DBG_err, "Top Y (%u) + pixels Y (%u) exceeds max Y %u\n",
 	   top_y, pixels_y, max_pixels_y_current_dpi);
       return SANE_STATUS_INVAL;
     }

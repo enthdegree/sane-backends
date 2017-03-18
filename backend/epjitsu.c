@@ -149,6 +149,8 @@
          - call change_params after changing page_width
       v28 2015-03-23, MAN
          - call get_hardware_status before starting scan
+      v29 2017-03-18, MAN
+         - fix infinite loop when scaling in Y direction
 
    SANE FLOW DIAGRAM
 
@@ -197,7 +199,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 28
+#define BUILD 29
 
 #ifndef MAX3
   #define MAX3(a,b,c) ((a) > (b) ? ((a) > (c) ? a : c) : ((b) > (c) ? b : c))
@@ -4320,7 +4322,7 @@ copy_block_to_page(struct scanner *s,int side)
     struct transfer * block = &s->block_xfr;
     struct page * page = &s->pages[side];
     int image_height = block->total_bytes / block->line_stride;
-    int page_height = SCANNER_UNIT_TO_PIX(s->page_height, s->resolution);
+    int page_height = SCANNER_UNIT_TO_PIX(s->page_height, s->fullscan.y_res);
     int page_width = page->image->width_pix;
     int block_page_stride = block->image->width_bytes * block->image->height;
     int line_reverse = (side == SIDE_BACK) || (s->model == MODEL_FI60F) || (s->model == MODEL_FI65F);
@@ -4332,7 +4334,7 @@ copy_block_to_page(struct scanner *s,int side)
     DBG (10, "copy_block_to_page: start\n");
 
     /* skip padding and tl_y */
-    if (s->fullscan.rx_bytes + s->block_xfr.rx_bytes < block->line_stride * page->image->y_skip_offset)
+    if (s->fullscan.rx_bytes + s->block_xfr.rx_bytes <= block->line_stride * page->image->y_skip_offset)
     {
         DBG (10, "copy_block_to_page: before the start? %d\n", side);
         return ret;
@@ -4347,13 +4349,13 @@ copy_block_to_page(struct scanner *s,int side)
     if (s->page_height)
     {
         DBG (10, "copy_block_to_page: ph %d\n", s->page_height);
-        if (s->fullscan.rx_bytes > block->line_stride * page->image->y_skip_offset + page_height * block->line_stride)
+        if (s->fullscan.rx_bytes >= (page->image->y_skip_offset + page_height) * block->line_stride)
         {
             DBG (10, "copy_block_to_page: off the end? %d\n", side);
             return ret;
         }
         else if (s->fullscan.rx_bytes + s->block_xfr.rx_bytes
-                 > block->line_stride * page->image->y_skip_offset + page_height * block->line_stride)
+                 > (page->image->y_skip_offset + page_height) * block->line_stride)
         {
              l = (s->fullscan.rx_bytes + s->block_xfr.rx_bytes) / block->line_stride
                  - page_height - page->image->y_skip_offset;

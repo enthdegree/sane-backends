@@ -1922,7 +1922,7 @@ static struct model_res settings[] = {
 
  /*fi-65F*/
 /* model       xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w   bh     cls     cps   cpw */
- { MODEL_FI65F, 300, 300, 0, 1296, 32,  875, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
+ { MODEL_FI65F, 300, 150, 0, 1296, 32,  875, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
    setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
    setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
    sendCal2Header_FI60F_300, setWindowScan_FI60F_150 },

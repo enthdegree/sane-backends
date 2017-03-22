@@ -151,6 +151,9 @@
          - call get_hardware_status before starting scan
       v29 2017-03-18, MAN
          - fix infinite loop when scaling in Y direction
+      v30 2017-03-21, MAN
+         - fix image truncation when using 150 DPI in Y direction
+         - add 200 and 400 DPI Y direction support for fi-60F/65F
 
    SANE FLOW DIAGRAM
 
@@ -1893,14 +1896,24 @@ static struct model_res settings[] = {
  /*fi-60F*/
 /* model       xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w   bh     cls    cps  cpw */
  { MODEL_FI60F, 300, 150, 0, 1296, 32,  875, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
-   setWindowCoarseCal_FI60F_150, setWindowFineCal_FI60F_150,
-   setWindowSendCal_FI60F_150, sendCal1Header_FI60F_150,
-   sendCal2Header_FI60F_150, setWindowScan_FI60F_150 },
+   setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
+   setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
+   sendCal2Header_FI60F_300, setWindowScan_FI60F_150 },
+
+ { MODEL_FI60F, 300, 200, 0, 1296, 32, 1166, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
+   setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
+   setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
+   sendCal2Header_FI60F_300, setWindowScan_FI60F_200 },
 
  { MODEL_FI60F, 300, 300, 0, 1296, 32, 1749, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
    setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
    setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
    sendCal2Header_FI60F_300, setWindowScan_FI60F_300 },
+
+ { MODEL_FI60F, 600, 400, 0, 2592, 32, 2332, 32, 2848*3,  978*3,  864,  61, 2848*3, 978*3, 864,
+   setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
+   setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
+   sendCal2Header_FI60F_600, setWindowScan_FI60F_400 },
 
  { MODEL_FI60F, 600, 600, 0, 2592, 32, 3498, 32, 2848*3,  978*3,  864,  61, 2848*3, 978*3, 864,
    setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
@@ -1909,17 +1922,27 @@ static struct model_res settings[] = {
 
  /*fi-65F*/
 /* model       xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w   bh     cls     cps   cpw */
- { MODEL_FI65F, 300, 150, 0, 1296, 32,  875, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
-   setWindowCoarseCal_FI60F_150, setWindowFineCal_FI60F_150,
-   setWindowSendCal_FI60F_150, sendCal1Header_FI60F_150,
-   sendCal2Header_FI60F_150, setWindowScan_FI60F_150 },
+ { MODEL_FI65F, 300, 300, 0, 1296, 32,  875, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
+   setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
+   setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
+   sendCal2Header_FI60F_300, setWindowScan_FI60F_150 },
 
- { MODEL_FI65F, 300, 300, 0, 1296, 32, 1749, 32, 2400*3,  958*3,  432,  72, 2400*3,   958*3, 432,
+ { MODEL_FI65F, 300, 200, 0, 1296, 32, 1166, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
+   setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
+   setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
+   sendCal2Header_FI60F_300, setWindowScan_FI60F_200 },
+
+ { MODEL_FI65F, 300, 300, 0, 1296, 32, 1749, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
    setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
    setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
    sendCal2Header_FI60F_300, setWindowScan_FI60F_300 },
 
- { MODEL_FI65F, 600, 600, 0, 2592, 32, 3498, 32, 2848*3,  978*3,  864,  61, 2848*3,   978*3, 864,
+ { MODEL_FI65F, 600, 400, 0, 2592, 32, 2332, 32, 2848*3,  978*3,  864,  61, 2848*3, 978*3, 864,
+   setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
+   setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
+   sendCal2Header_FI60F_600, setWindowScan_FI60F_400 },
+
+ { MODEL_FI65F, 600, 600, 0, 2592, 32, 3498, 32, 2848*3,  978*3,  864,  61, 2848*3, 978*3, 864,
    setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
    setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
    sendCal2Header_FI60F_600, setWindowScan_FI60F_600 },
@@ -4322,11 +4345,10 @@ copy_block_to_page(struct scanner *s,int side)
     struct transfer * block = &s->block_xfr;
     struct page * page = &s->pages[side];
     int image_height = block->total_bytes / block->line_stride;
-    int page_height = SCANNER_UNIT_TO_PIX(s->page_height, s->fullscan.y_res);
     int page_width = page->image->width_pix;
     int block_page_stride = block->image->width_bytes * block->image->height;
     int line_reverse = (side == SIDE_BACK) || (s->model == MODEL_FI60F) || (s->model == MODEL_FI65F);
-    int i,j,k=0,l=0;
+    int i,j,k=0;
 
     int curr_in_row = s->fullscan.rx_bytes/s->fullscan.width_bytes;
     int last_out_row = (page->bytes_scanned / page->image->width_bytes) - 1;
@@ -4345,25 +4367,8 @@ copy_block_to_page(struct scanner *s,int side)
         DBG (10, "copy_block_to_page: k start? %d\n", k);
     }
 
-    /* skip trailer */
-    if (s->page_height)
-    {
-        DBG (10, "copy_block_to_page: ph %d\n", s->page_height);
-        if (s->fullscan.rx_bytes >= (page->image->y_skip_offset + page_height) * block->line_stride)
-        {
-            DBG (10, "copy_block_to_page: off the end? %d\n", side);
-            return ret;
-        }
-        else if (s->fullscan.rx_bytes + s->block_xfr.rx_bytes
-                 > (page->image->y_skip_offset + page_height) * block->line_stride)
-        {
-             l = (s->fullscan.rx_bytes + s->block_xfr.rx_bytes) / block->line_stride
-                 - page_height - page->image->y_skip_offset;
-        }
-    }
-
     /* loop over all the lines in the block */
-    for (i = k; i < image_height-l; i++)
+    for (i = k; i < image_height; i++)
     {
       /* determine source and dest rows (dpi scaling) */
       int this_in_row = curr_in_row + i;
@@ -4413,7 +4418,7 @@ copy_block_to_page(struct scanner *s,int side)
             }
             else if (s->mode == MODE_LINEART)
             {
-                s->dt.buffer[j] = (r + g + b) / 3; /* stores dt temp image buffer and binarize afterword */
+                s->dt.buffer[j] = (r + g + b) / 3; /* stores dt temp image buffer and binarize afterward */
             }
             if (line_reverse)
                 p_in -= 3;

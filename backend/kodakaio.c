@@ -2448,7 +2448,8 @@ First version only does autodiscovery */
 
     /* Run the main loop */
 	for(i=1;i<K_SNMP_Timeout/POLL_ITN_MS;++i) {
-    		avahi_simple_poll_iterate(simple_poll,POLL_ITN_MS);
+    		if (avahi_simple_poll_iterate(simple_poll,POLL_ITN_MS) != 0)
+    			break;
 	}
     ret = 0;
 

@@ -344,6 +344,7 @@ struct pixma_scan_param_t
 
   /** adf-wait */
   unsigned adf_wait;
+  unsigned frontend_cancel;
 };
 
 /** PIXMA model information */

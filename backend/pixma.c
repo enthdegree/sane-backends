@@ -1381,6 +1381,7 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
   ss->rpipe = -1;
   ss->idle = SANE_TRUE;
   ss->scanning = SANE_FALSE;
+  ss->sp.frontend_cancel = SANE_FALSE;
   for (j=0; j < BUTTON_GROUP_SIZE; j++)
     ss->button_option_is_cached[j] = 0;
   error = pixma_open (i, &ss->s);
@@ -1630,6 +1631,7 @@ sane_cancel (SANE_Handle h)
   if (!ss)
     return;
   ss->cancel = SANE_TRUE;
+  ss->sp.frontend_cancel = SANE_TRUE;
   if (ss->idle)
     return;
   close (ss->rpipe);

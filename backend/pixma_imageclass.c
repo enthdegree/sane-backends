@@ -457,12 +457,17 @@ step1 (pixma_t * s)
   {
     int tmo = s->param->adf_wait;
 
-    while (!has_paper (s) && --tmo >= 0)
+    while (!has_paper (s) && --tmo >= 0 && !s->param->frontend_cancel)
     {
       if ((error = query_status (s)) < 0)
         return error;
       pixma_sleep (1000000);
       PDBG (pixma_dbg(2, "No paper in ADF. Timed out in %d sec.\n", tmo));
+    }
+    /* canceled from frontend */
+    if (s->param->frontend_cancel)
+    {
+      return PIXMA_ECANCELED;
     }
   }
   /* no paper inserted

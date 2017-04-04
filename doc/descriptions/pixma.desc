@@ -34,6 +34,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA E470 Series"
+:interface "USB"
+:usbid "0x04a9" "0x180c"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA E480 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x1789"
@@ -67,6 +73,12 @@
 :model "PIXMA E610"
 :interface "USB"
 :usbid "0x04a9" "0x1767"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA G3000"
+:interface "USB WIFI"
+:usbid "0x04a9" "0x181d"
 :status :untested
 :comment "Testers needed!"
 
@@ -778,6 +790,30 @@
 :usbid "0x04a9" "0x171c"
 :status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 4800DPI)"
+
+:model "PIXMA TS9000 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x179f"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS8000 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1800"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS6000 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1801"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS5000 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18022"
+:status :untested
+:comment "Testers needed!"
 
 :model "imageCLASS D420"
 :interface "USB"

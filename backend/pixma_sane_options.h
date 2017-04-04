@@ -35,6 +35,7 @@ typedef enum {
   opt__group_5,
   opt_threshold,
   opt_threshold_curve,
+  opt_adf_wait,
   opt_last
 } option_t;
 

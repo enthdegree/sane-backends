@@ -782,6 +782,14 @@ control_option (pixma_sane_t * ss, SANE_Int n,
               enable_option (ss, opt_threshold, SANE_FALSE);
               enable_option (ss, opt_threshold_curve, SANE_FALSE);
             }
+          if (cfg->cap & (PIXMA_CAP_ADF_WAIT))
+            { /* adf-wait */
+              enable_option (ss, opt_adf_wait, SANE_TRUE);
+            }
+          else
+            { /* disable adf-wait */
+              enable_option (ss, opt_adf_wait, SANE_FALSE);
+            }
           *info |= SANE_INFO_RELOAD_OPTIONS;
         }
       break;
@@ -801,6 +809,7 @@ print_scan_param (int level, const pixma_scan_param_t * sp)
 	     sp->xdpi, sp->ydpi, sp->x, sp->y, sp->w, sp->h);
   pixma_dbg (level, "  gamma_table=%p source=%d\n", sp->gamma_table,
 	     sp->source);
+  pixma_dbg (level, "  adf-wait=%d\n", sp->adf_wait);
 }
 #endif
 
@@ -850,6 +859,7 @@ calc_scan_param (pixma_sane_t * ss, pixma_scan_param_t * sp)
   sp->adf_pageid = ss->page_count;
   sp->threshold = 2.55 * OVAL (opt_threshold).w;
   sp->threshold_curve = OVAL (opt_threshold_curve).w;
+  sp->adf_wait = OVAL (opt_adf_wait).w;
 
   error = pixma_check_scan_param (ss->s, sp);
   if (error < 0)
@@ -1810,6 +1820,13 @@ type int threshold-curve
   constraint (0,127,1)
   title Threshold curve
   desc  Dynamic threshold curve, from light to dark, normally 50-65
+  cap soft_select soft_detect automatic inactive
+
+type int adf-wait
+  default 0
+  constraint (0,3600,1)
+  title ADF Waiting Time
+  desc  When set, the scanner searches the waiting time in seconds for a new document inserted into the automatic document feeder.
   cap soft_select soft_detect automatic inactive
 
 rem -------------------------------------------

@@ -848,6 +848,7 @@ pixma_scan (pixma_t * s, pixma_scan_param_t * sp)
 	     sp->xdpi, sp->ydpi, sp->x, sp->y, sp->w, sp->h);
   pixma_dbg (3, "  gamma_table=%p source=%d\n", sp->gamma_table, sp->source);
   pixma_dbg (3, "  threshold=%d threshold_curve=%d\n", sp->threshold, sp->threshold_curve);
+  pixma_dbg (3, "  adf-wait=%d\n", sp->adf_wait);
   pixma_dbg (3, "  ADF page count: %d\n", sp->adf_pageid);
 #endif
 

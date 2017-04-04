@@ -153,6 +153,7 @@ typedef uint32_t uint32_t;
 #define PIXMA_CAP_LINEART      (1 << 9)
 #define PIXMA_CAP_NEGATIVE     (1 << 10)
 #define PIXMA_CAP_TPUIR        ((1 << 11) | PIXMA_CAP_TPU)
+#define PIXMA_CAP_ADF_WAIT     (1 << 12)
 #define PIXMA_CAP_EXPERIMENT   (1 << 31)
 /**@}*/
 
@@ -340,6 +341,9 @@ struct pixma_scan_param_t
 
     /** The current page # in the same ADF scan session, 0 in non ADF */
   unsigned adf_pageid;
+
+  /** adf-wait */
+  unsigned adf_wait;
 };
 
 /** PIXMA model information */

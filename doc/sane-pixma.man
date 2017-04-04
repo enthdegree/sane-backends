@@ -145,14 +145,20 @@ an up-to-date status at the project homepage. (See below).
 Users feedback is essential to help improve features and performances. 
 .SH OPTIONS
 Besides "well-known" options (e.g. resolution, mode etc.) pixma backend also
-provides the following
-\#.B experimental
-options for button handling, i.e. the options might change in the future.
+provides the following options, i.e. the options might change in the future.
 .br
 The button status can be polled i.e. with 'scanimage \-A'.
 .br
 Button scan is disabled on MAC OS X due to darwin libusb not handling
 timeouts in usb interrupt reads, but may work when using the network protocol.
+.TP
+.I adf\-wait
+This option enables and sets the time in seconds waiting for a document
+inserted into the
+.BR Automatic
+.BR Document
+.BR Feeder .
+The maximum allowed waiting time is 3600 sec (= 1 hour).
 .TP
 .I button\-controlled
 This option can be used by applications (like

@@ -140,8 +140,21 @@ typedef struct iclass_t
   unsigned last_block;
 
   uint8_t generation;           /* New multifunctionals are (generation == 2) */
+
+  uint8_t adf_state;            /* handle adf scanning */
 } iclass_t;
 
+
+static int is_scanning_from_adf (pixma_t * s)
+{
+  return (s->param->source == PIXMA_SOURCE_ADF
+          || s->param->source == PIXMA_SOURCE_ADFDUP);
+}
+
+static int is_scanning_from_adfdup (pixma_t * s)
+{
+  return (s->param->source == PIXMA_SOURCE_ADFDUP);
+}
 
 static void iclass_finish_scan (pixma_t * s);
 
@@ -163,7 +176,8 @@ static int
 has_paper (pixma_t * s)
 {
   iclass_t *mf = (iclass_t *) s->subdriver;
-  return ((mf->current_status[1] & 0x0f) == 0);         /* allow 0x10 as ADF paper OK */
+  return ((mf->current_status[1] & 0x0f) == 0           /* allow 0x10 as ADF paper OK */
+          || mf->current_status[1] == 81);              /* allow 0x51 as ADF paper OK */
 }
 
 static int
@@ -185,9 +199,9 @@ query_status (pixma_t * s)
   if (error >= 0)
     {
       memcpy (mf->current_status, data, 12);
-      DBG (3, "Current status: paper=%u cal=%u lamp=%u\n",
-	   data[1], data[8], data[7]);
-      PDBG (pixma_dbg (3, "Current status: paper=%u cal=%u lamp=%u\n",
+      /*DBG (3, "Current status: paper=0x%02x cal=%u lamp=%u\n",
+	   data[1], data[8], data[7]);*/
+      PDBG (pixma_dbg (3, "Current status: paper=0x%02x cal=%u lamp=%u\n",
 		       data[1], data[8], data[7]));
     }
   return error;
@@ -229,10 +243,9 @@ select_source (pixma_t * s)
 {
   iclass_t *mf = (iclass_t *) s->subdriver;
   uint8_t *data = pixma_newcmd (&mf->cb, cmd_select_source, 10, 0);
-  data[0] = (s->param->source == PIXMA_SOURCE_ADF ||
-             s->param->source == PIXMA_SOURCE_ADFDUP) ? 2 : 1;
+  data[0] = (is_scanning_from_adf(s)) ? 2 : 1;
   /* special settings for MF6100 */
-  data[5] = (s->param->source == PIXMA_SOURCE_ADFDUP) ? 3 : ((s->cfg->pid == MF6100_PID && s->param->source == PIXMA_SOURCE_ADF) ? 1 : 0);
+  data[5] = is_scanning_from_adfdup(s) ? 3 : ((s->cfg->pid == MF6100_PID && s->param->source == PIXMA_SOURCE_ADF) ? 1 : 0);
   switch (s->cfg->pid)
     {
     case MF4200_PID:
@@ -438,10 +451,26 @@ step1 (pixma_t * s)
   }
   if (error < 0)
     return error;
-  if ((s->param->source == PIXMA_SOURCE_ADF
-       || s->param->source == PIXMA_SOURCE_ADFDUP)
-      && !has_paper (s))
+
+  /* wait for inserted paper */
+  if (s->param->adf_wait != 0 && is_scanning_from_adf(s))
+  {
+    int tmo = s->param->adf_wait;
+
+    while (!has_paper (s) && --tmo >= 0)
+    {
+      if ((error = query_status (s)) < 0)
+        return error;
+      pixma_sleep (1000000);
+      PDBG (pixma_dbg(2, "No paper in ADF. Timed out in %d sec.\n", tmo));
+    }
+  }
+  /* no paper inserted
+   * => abort session */
+  if (is_scanning_from_adf(s) && !has_paper (s))
+  {
     return PIXMA_ENO_PAPER;
+  }
   /* activate only seen for generation 1 scanners */
   if (mf->generation == 1)
     {
@@ -499,6 +528,9 @@ iclass_open (pixma_t * s)
   mf->cb.res_header_len = 2;
   mf->cb.cmd_header_len = 10;
   mf->cb.cmd_len_field_ofs = 7;
+
+  /* adf scanning */
+  mf->adf_state = state_idle;
 
   /* set generation = 2 for new multifunctionals */
   mf->generation = (s->cfg->pid >= MF8030_PID) ? 2 : 1;
@@ -604,7 +636,8 @@ iclass_scan (pixma_t * s)
   mf->blk_len = 0;
 
   error = step1 (s);
-  if (error >= 0 && (s->param->adf_pageid == 0 || mf->generation == 1))
+  if (error >= 0
+      && (s->param->adf_pageid == 0 || mf->generation == 1 || mf->adf_state == state_idle))
     { /* single sheet or first sheet from ADF */
       PDBG (pixma_dbg (3, "*iclass_scan***** start scanning *****\n"));
       error = start_session (s);
@@ -628,6 +661,10 @@ iclass_scan (pixma_t * s)
       return error;
     }
   mf->last_block = 0;
+
+  /* ADF scanning active */
+  if (is_scanning_from_adf (s))
+    mf->adf_state = state_scanning;
   return 0;
 }
 
@@ -792,7 +829,7 @@ iclass_finish_scan (pixma_t * s)
           || (mf->generation >= 2 && !has_paper(s)))            /* check status: no paper in ADF */
 	{
           /* ADFDUP scan: wait for 8sec to throw last page out of ADF feeder */
-          if (s->param->source == PIXMA_SOURCE_ADFDUP)
+          if (is_scanning_from_adfdup(s))
           {
             PDBG (pixma_dbg (4, "*iclass_finish_scan***** sleep for 8s  *****\n"));
             pixma_sleep(8000000);       /* sleep for 8s */
@@ -800,6 +837,8 @@ iclass_finish_scan (pixma_t * s)
           }
           PDBG (pixma_dbg (3, "*iclass_finish_scan***** abort session  *****\n"));
 	  abort_session (s);
+	  mf->adf_state = state_idle;
+	  mf->last_block = 0;
 	}
       else
         PDBG (pixma_dbg (3, "*iclass_finish_scan***** wait for next page from ADF  *****\n"));
@@ -858,6 +897,7 @@ static const pixma_scan_ops_t pixma_iclass_ops = {
             0, 0,                     /* tpuir_min_dpi & tpuir_max_dpi not used in this subdriver */   \
             w, h,                     /* width, height */	\
             PIXMA_CAP_LINEART|        /* all scanners have software lineart */ \
+            PIXMA_CAP_ADF_WAIT|       /* adf wait for all ADF and ADFDUP scanners */ \
             PIXMA_CAP_GRAY|PIXMA_CAP_EVENTS|cap             \
 }
 const pixma_config_t pixma_iclass_devices[] = {

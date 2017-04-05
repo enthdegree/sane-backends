@@ -10,7 +10,7 @@
 ;
 
 :backend "p5"              ; name of backend
-:version "1"               ; version of backend
+:version "1 (unmaintained)"; version of backend
 :manpage "sane-p5"         ; name of manpage (if it exists)
 :comment "New backend for SANE release 1.0.21, see sane-p5 manpage"
 :url "http://www.sane-project.org/" ; backend's web page

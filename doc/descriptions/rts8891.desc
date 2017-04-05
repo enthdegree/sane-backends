@@ -10,7 +10,7 @@
 
 
 :backend "rts8891"               ; name of backend
-:version "1.0-0"                    ; version of backend (or "unmaintained")
+:version "1.0-0 (unmaintained)"  ; version of backend (or "unmaintained")
 :manpage "sane-rts8891"        ; name of manpage (if it exists)
 :url "http://stef.dev.free.fr/sane/rts8891/index.html" 
 				  ; backend's web page

@@ -34,7 +34,7 @@ Backends:
  epsonds:       Alessandro Zummo
  fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister,
                 m. allan noah (*)
- genesys:       Henning Geinitz, Gerhard Jaeger (*), Stéphane Voltz (*),
+ genesys:       Henning Geinitz, Gerhard Jaeger (*), Stéphane Voltz,
                 Pierre Willenbrock
  gphoto2:       Peter Fales
  gt68xx:        Sergey Vlasov, Andreas Nowack, David Stevenson, and
@@ -57,7 +57,7 @@ Backends:
  kvs20xx:       unknown, m. allan noah (*)
  kvs40xx:       unknown, m. allan noah (*)
  leo:           Frank Zago
- lexmark:       Fred Odendaal, Stéphane Voltz (*)
+ lexmark:       Fred Odendaal, Stéphane Voltz
  ma1509:        Henning Geinitz
  magicolor:     Reinhold Kainhofer(based on epson2 backend)
  matsushita:    Frank Zago
@@ -71,7 +71,7 @@ Backends:
  nec:           Kazuya Fukuda
  net:           Andreas Beck, David Mosberger, Julien Blache
  niash:         Ullrich Sigwanz, Bertrik Sikken
- p5:		Stéphane Voltz (*)
+ p5:		Stéphane Voltz
  pie:           Simon Munton
  pieusb:        Jan Vleeshouwers, Michael Rickmann, Klaus Kämpf
  pint:          Gordon Matzigkeit
@@ -88,7 +88,7 @@ Backends:
                 despeckling filter by Patrick Reynolds, 
                 B&W fixes by Andrew Kuchling
  ricoh:         Feico W. Dillema
- rts8891:       Stéphane Voltz (*)
+ rts8891:       Stéphane Voltz
  s9036:         Ingo Schneider
  sceptre:       Frank Zago
  sharp:         Kazuya Fukuda and Abel Deuring
@@ -107,7 +107,7 @@ Backends:
  u12:           Gerhard Jaeger (*)
  umax:          Oliver Rauch and Michael K. Johnson
  umax1220u:     Marcio L. Teixeira, Patrick Lessard
- umax_pp:       Stéphane Voltz (*)
+ umax_pp:       Stéphane Voltz
  v4l:           Juergen G. Schimmer, and Henning Geinitz
  xerox_mfp:     Alex Belkin (*)
 
@@ -116,7 +116,7 @@ Frontends:
  jscanimage:    Jeff Freedman and Guido Muesch
  saned:         Andreas Beck, David Mosberger, Julien Blache
  scanimage:     Andreas Beck, David Mosberger, Gordon Matzigkeit,
-                m. allan noah (*), Julien Blache, Stéphane Voltz (*)
+                m. allan noah (*), Julien Blache, Stéphane Voltz
  tstbackend:    Frank Zago
 
 Sanei internal code:

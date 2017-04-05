@@ -10,7 +10,7 @@
 ;
 
 :backend "umax_pp"              ; name of backend
-:version "1"                      ; version of backend
+:version "1 (unmaintained)      ; version of backend
 :manpage "sane-umax_pp"         ; name of manpage (if it exists)
                                   ; backend's web page
 :url "http://umax1220p.sourceforge.net/"

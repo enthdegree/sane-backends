@@ -7036,7 +7036,9 @@ sane_close (SANE_Handle handle)
   FREE_IFNOT_NULL (s->dev->sensor.gamma_table[1]);
   FREE_IFNOT_NULL (s->dev->sensor.gamma_table[2]);
 
-  /* for an handful of bytes .. */
+  s->dev->already_initialized = SANE_FALSE;
+
+   /* for an handful of bytes .. */
   free ((void *)(size_t)s->opt[OPT_RESOLUTION].constraint.word_list);
   free (s->val[OPT_SOURCE].s);
   free (s->val[OPT_MODE].s);

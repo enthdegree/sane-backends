@@ -596,6 +596,10 @@
          - set ipc mode based on other options
          - cleanup inverted logic DTC options
          - fixes threshold option reported in #315069
+      v133 2017-04-08, MAN
+         - initial support for fi-7600/7700
+         - autodetect various double feed capabilities using VPD
+         - call send_lut if we are using a downloaded gamma table
 
    SANE FLOW DIAGRAM
 
@@ -645,7 +649,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 132
+#define BUILD 133
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1701,6 +1705,9 @@ init_vpd (struct fujitsu *s)
 
               DBG (15, "  skew check: %d\n", get_IN_skew_check(in));
               DBG (15, "  new feed roller: %d\n", get_IN_new_fd_roll(in));
+
+              s->has_adv_paper_prot = get_IN_paper_prot_2(in);
+              DBG (15, "  paper protection: %d\n", s->has_adv_paper_prot);
           }
 
           if (get_IN_page_length (in) > 0x70-5) {
@@ -1708,7 +1715,10 @@ init_vpd (struct fujitsu *s)
               DBG (15, "  paper count: %d\n", get_IN_paper_count(in));
               DBG (15, "  paper number: %d\n", get_IN_paper_number(in));
               DBG (15, "  ext send to: %d\n", get_IN_ext_send_to(in));
-              DBG (15, "  staple det: %d\n", get_IN_staple_det(in));
+
+              s->has_staple_detect = get_IN_staple_det(in);
+              DBG (15, "  staple det: %d\n", s->has_staple_detect);
+
               DBG (15, "  pause host: %d\n", get_IN_pause_host(in));
               DBG (15, "  pause panel: %d\n", get_IN_pause_panel(in));
               DBG (15, "  pause conf: %d\n", get_IN_pause_conf(in));
@@ -1720,7 +1730,9 @@ init_vpd (struct fujitsu *s)
               DBG (15, "  imprint chk b: %d\n", get_IN_imprint_chk_b(in));
               DBG (15, "  imprint chk f: %d\n", get_IN_imprint_chk_f(in));
               DBG (15, "  force w bg: %d\n", get_IN_force_w_bg(in));
-              DBG (15, "  mf recover lvl: %d\n", get_IN_mf_recover_lvl(in));
+
+              s->has_df_recovery = get_IN_mf_recover_lvl(in);
+              DBG (15, "  mf recover lvl: %d\n", s->has_df_recovery);
 
               DBG (15, "  first read time: %d\n", get_IN_first_read_time(in));
               DBG (15, "  div scanning: %d\n", get_IN_div_scanning(in));
@@ -2033,7 +2045,8 @@ init_model (struct fujitsu *s)
 
   /* if scanner has built-in gamma tables, we use the first one (0) */
   /* otherwise, we use the first downloaded one (0x80) */
-  /* note that you may NOT need to send the table to use it? */
+  /* note that you may NOT need to send the table to use it, */
+  /* the scanner will fall back to the brightness/contrast LUT */
   if (!s->num_internal_gamma && s->num_download_gamma){
     s->window_gamma = 0x80;
   }
@@ -2280,10 +2293,8 @@ init_model (struct fujitsu *s)
   }
 
   else if (strstr (s->model_name,"fi-6800")
-   || strstr (s->model_name,"fi-5900")){ /* guessing this scanner too */
-    /* missing from vpd */
-    s->has_staple_detect=1; /* may not actually work? */
-    s->has_df_recovery=1;
+   || strstr (s->model_name,"fi-5900")){
+    /* do not need overrides */
   }
 
   else if (strstr (s->model_name,"iX500")){
@@ -2342,10 +2353,6 @@ init_model (struct fujitsu *s)
     s->max_y_by_res[2].len = 260268;
     s->max_y_by_res[3].res = 200;
     s->max_y_by_res[3].len = 266268;
-
-    /* missing from vpd */
-    s->has_df_recovery=1;
-    s->has_adv_paper_prot=1;
   }
 
   else if (strstr (s->model_name,"fi-7280")
@@ -2361,8 +2368,6 @@ init_model (struct fujitsu *s)
     s->max_y_by_res[3].len = 266268;
 
     /* missing from vpd */
-    s->has_df_recovery=1;
-    s->has_adv_paper_prot=1;
     s->max_x_fb = 10764;
     s->max_y_fb = 14032; /* some scanners can be slightly more? */
   }
@@ -2378,10 +2383,6 @@ init_model (struct fujitsu *s)
     s->max_y_by_res[2].len = 260268;
     s->max_y_by_res[3].res = 200;
     s->max_y_by_res[3].len = 266268;
-
-    /* missing from vpd */
-    s->has_df_recovery=1;
-    s->has_adv_paper_prot=1;
   }
 
   else if (strstr (s->model_name,"fi-7030")){
@@ -2394,7 +2395,19 @@ init_model (struct fujitsu *s)
     s->max_y_by_res[2].len = 258000;
     s->max_y_by_res[3].res = 200;
     s->max_y_by_res[3].len = 264000;
+  }
 
+  else if (strstr (s->model_name,"fi-7700")
+   || strstr (s->model_name,"fi-7600")){
+
+    /* weirdness */
+    /* these machines have longer max paper at lower res */
+    s->max_y_by_res[1].res = 400;
+    s->max_y_by_res[1].len = 192000;
+    s->max_y_by_res[2].res = 300;
+    s->max_y_by_res[2].len = 258000;
+    s->max_y_by_res[3].res = 200;
+    s->max_y_by_res[3].len = 264000;
   }
 
   DBG (10, "init_model: finish\n");
@@ -6919,8 +6932,9 @@ sane_start (SANE_Handle handle)
       if (ret != SANE_STATUS_GOOD)
         DBG (5, "sane_start: WARNING: cannot send_endorser %d\n", ret);
 
-      /* send lut if scanner has no hardware brightness/contrast */
-      if (!s->late_lut && (!s->brightness_steps || !s->contrast_steps)){
+      /* send lut if scanner has no hardware brightness/contrast,
+       * or we are going to ask it to use a downloaded gamma table */
+      if (!s->late_lut && (!s->brightness_steps || !s->contrast_steps || s->window_gamma & 0x80)){
         ret = send_lut(s);
         if (ret != SANE_STATUS_GOOD)
           DBG (5, "sane_start: WARNING: cannot early send_lut %d\n", ret);
@@ -6933,8 +6947,9 @@ sane_start (SANE_Handle handle)
         goto errors;
       }
     
-      /* send lut if scanner has no hardware brightness/contrast */
-      if (s->late_lut && (!s->brightness_steps || !s->contrast_steps)){
+      /* send lut if scanner has no hardware brightness/contrast,
+       * or we are going to ask it to use a downloaded gamma table */
+      if (s->late_lut && (!s->brightness_steps || !s->contrast_steps || s->window_gamma & 0x80)){
         ret = send_lut(s);
         if (ret != SANE_STATUS_GOOD)
           DBG (5, "sane_start: WARNING: cannot late send_lut %d\n", ret);

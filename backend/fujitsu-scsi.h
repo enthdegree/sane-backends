@@ -377,6 +377,10 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_read_size(in)          getbitfield(in+0x78, 1, 6)
 #define get_IN_start_end_ms(in)       getbitfield(in+0x78, 1, 5)
 
+#define get_IN_battery(in)            getbitfield(in+0x79, 1, 7)
+#define get_IN_battery_save(in)       getbitfield(in+0x79, 1, 6)
+#define get_IN_op_reverse(in)         getbitfield(in+0x79, 1, 1)
+
 #define get_IN_op_halt(in)            getbitfield(in+0x7a, 1, 7)
 
 /* some scanners need evpd inquiry data manipulated */

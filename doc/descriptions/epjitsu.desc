@@ -10,8 +10,7 @@
 ;
 
 :backend "epjitsu"               ; name of backend
-:url "http://www.thebility.com/epjitsu/" 
-:version "27"                    ; version of backend
+:version "31"                    ; version of backend
 :manpage "sane-epjitsu"          ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.26, see sane-epjitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -24,15 +23,15 @@
 ;==================================================
 :model "fi-60F"
 :interface "USB"
-:status :basic
+:status :good
 :usbid "0x04c5" "0x10c7"
-:comment "A6-size flatbed, 300/600 dpi, color/gray/binary"
+:comment "A6-size flatbed. Hardware provides 150/200/300/400/600 dpi in color. Software creates other resolutions, plus grayscale and binary modes. Hardware grayscale mode is not used due to poor calibration."
 
 :model "ScanSnap S300"
 :interface "USB"
 :status :good
 :usbid "0x04c5" "0x1156"
-:comment "Duplex, 150/225/300/600 dpi, color/gray/binary, AC/USB power, buttons/sensors all supported. Scanner always scans in _triplex_ color, fast USB required."
+:comment "Letter-size ADF. Hardware provides duplex, 150/225/300/600 dpi in color on AC or USB power. Software creates other resolutions, plus grayscale and binary modes. All buttons and sensors are exposed. Scanner always scans in _triplex_ color, fast USB required."
 
 :model "ScanSnap S300M"
 :interface "USB"
@@ -40,11 +39,11 @@
 :usbid "0x04c5" "0x117f"
 :comment "Same as S300, with different usb id"
 
-:model "ScanSnap S1100"
+:model "fi-65F"
 :interface "USB"
 :status :good
-:usbid "0x04c5" "0x1200"
-:comment "Hardware only supports 300 and 600 dpi simplex color. Backend manufactures gray and binary modes."
+:usbid "0x04c5" "0x11bd"
+:comment "Same as fi-60f, with different usb id. Button support untested."
 
 :model "ScanSnap S1300"
 :interface "USB"
@@ -52,14 +51,20 @@
 :usbid "0x04c5" "0x11ed"
 :comment "Same as S300, with different usb id"
 
+:model "ScanSnap S1100"
+:interface "USB"
+:status :good
+:usbid "0x04c5" "0x1200"
+:comment "Letter-size ADF. Hardware provides simplex, 300/600 dpi in color on USB power. Software creates other resolutions, plus grayscale and binary modes. All buttons and sensors are exposed. Scanner always scans in _triplex_ color, fast USB required."
+
 :model "ScanSnap S1300i"
 :interface "USB"
 :status :good
 :usbid "0x04c5" "0x128d"
-:comment "Similar to S1300."
+:comment "Same as S300, with different usb id"
 
-:model "fi-65F"
+:model "ScanSnap S1100i"
 :interface "USB"
-:status :basic
-;:usbid "0x04c5" "0x10c7"
-:comment "A6-size flatbed, 300/600 dpi, color/gray/binary."
+:status :good
+:usbid "0x04c5" "0x1447"
+:comment "Same as S1100, with different usb id"

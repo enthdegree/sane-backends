@@ -154,6 +154,9 @@
       v30 2017-03-21, MAN
          - fix image truncation when using 150 DPI in Y direction
          - add 200 and 400 DPI Y direction support for fi-60F/65F
+      v31 2017-04-09, MAN
+         - hardware gray support for fi-60F/65F (disabled pending calibration)
+         - merge fi-60F/65F settings
 
    SANE FLOW DIAGRAM
 
@@ -202,7 +205,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 30
+#define BUILD 31
 
 #ifndef MAX3
   #define MAX3(a,b,c) ((a) > (b) ? ((a) > (c) ? a : c) : ((b) > (c) ? b : c))
@@ -1773,6 +1776,7 @@ update_transfer_totals(struct transfer * t)
 /* we hard-code the list (determined from usb snoops) here */
 struct model_res {
   int model;
+  int mode;
   int x_res;
   int y_res;
   int usb_power;
@@ -1805,161 +1809,153 @@ struct model_res {
 static struct model_res settings[] = {
 
  /*S300 AC*/
-/* model       xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w  bh     cls     cps   cpw */
- { MODEL_S300,  150, 150, 0, 1296, 32, 2662, 32, 4256*3, 1480*3, 1296, 41, 8512*3, 2960*3, 2592, 
+/* model       mode        xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w  bh     cls     cps   cpw */
+ { MODEL_S300, MODE_COLOR,  150, 150, 0, 1296, 32, 2662, 32, 4256*3, 1480*3, 1296, 41, 8512*3, 2960*3, 2592, 
    setWindowCoarseCal_S300_150, setWindowFineCal_S300_150,
    setWindowSendCal_S300_150, sendCal1Header_S300_150,
    sendCal2Header_S300_150, setWindowScan_S300_150 },
 
- { MODEL_S300,  225, 200, 0, 1944, 32, 3993, 32, 6144*3, 2100*3, 1944, 28, 8192*3, 2800*3, 2592,
+ { MODEL_S300, MODE_COLOR,  225, 200, 0, 1944, 32, 3993, 32, 6144*3, 2100*3, 1944, 28, 8192*3, 2800*3, 2592,
    setWindowCoarseCal_S300_225, setWindowFineCal_S300_225,
    setWindowSendCal_S300_225, sendCal1Header_S300_225,
    sendCal2Header_S300_225, setWindowScan_S300_225 },
 
- { MODEL_S300,  300, 300, 0, 2592, 32, 5324, 32, 8192*3, 2800*3, 2592, 21, 8192*3, 2800*3, 2592,
+ { MODEL_S300, MODE_COLOR,  300, 300, 0, 2592, 32, 5324, 32, 8192*3, 2800*3, 2592, 21, 8192*3, 2800*3, 2592,
    setWindowCoarseCal_S300_300, setWindowFineCal_S300_300,
    setWindowSendCal_S300_300, sendCal1Header_S300_300,
    sendCal2Header_S300_300, setWindowScan_S300_300 },
 
- { MODEL_S300,  600, 600, 0, 5184, 32, 10648, 32, 16064*3, 5440*3, 5184, 10, 16064*3, 5440*3, 5184,
+ { MODEL_S300, MODE_COLOR,  600, 600, 0, 5184, 32, 10648, 32, 16064*3, 5440*3, 5184, 10, 16064*3, 5440*3, 5184,
    setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
    setWindowSendCal_S300_600, sendCal1Header_S300_600,
    sendCal2Header_S300_600, setWindowScan_S300_600 },
 
  /*S300 USB*/
-/* model       xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w  bh      cls     cps   cpw */
- { MODEL_S300,  150, 150, 1, 1296, 32, 2662, 32, 7216*3, 2960*3, 1296, 24, 14432*3, 5920*3, 2592,
+/* model       mode        xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w  bh      cls     cps   cpw */
+ { MODEL_S300, MODE_COLOR,  150, 150, 1, 1296, 32, 2662, 32, 7216*3, 2960*3, 1296, 24, 14432*3, 5920*3, 2592,
    setWindowCoarseCal_S300_150_U, setWindowFineCal_S300_150_U,
    setWindowSendCal_S300_150_U, sendCal1Header_S300_150_U,
    sendCal2Header_S300_150_U, setWindowScan_S300_150_U },
 
- { MODEL_S300,  225, 200, 1, 1944, 32, 3993, 32, 10584*3, 4320*3, 1944, 16, 14112*3, 5760*3, 2592,
+ { MODEL_S300, MODE_COLOR,  225, 200, 1, 1944, 32, 3993, 32, 10584*3, 4320*3, 1944, 16, 14112*3, 5760*3, 2592,
    setWindowCoarseCal_S300_225_U, setWindowFineCal_S300_225_U,
    setWindowSendCal_S300_225_U, sendCal1Header_S300_225_U,
    sendCal2Header_S300_225_U, setWindowScan_S300_225_U },
 
- { MODEL_S300,  300, 300, 1, 2592, 32, 5324, 32, 15872*3, 6640*3, 2592, 11, 15872*3, 6640*3, 2592,
+ { MODEL_S300, MODE_COLOR,  300, 300, 1, 2592, 32, 5324, 32, 15872*3, 6640*3, 2592, 11, 15872*3, 6640*3, 2592,
    setWindowCoarseCal_S300_300_U, setWindowFineCal_S300_300_U,
    setWindowSendCal_S300_300_U, sendCal1Header_S300_300_U,
    sendCal2Header_S300_300_U, setWindowScan_S300_300_U },
 
- { MODEL_S300,  600, 600, 1, 5184, 32, 10648, 32, 16064*3, 5440*3, 5184, 10, 16064*3, 5440*3, 5184,
+ { MODEL_S300, MODE_COLOR,  600, 600, 1, 5184, 32, 10648, 32, 16064*3, 5440*3, 5184, 10, 16064*3, 5440*3, 5184,
    setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
    setWindowSendCal_S300_600, sendCal1Header_S300_600,
    sendCal2Header_S300_600, setWindowScan_S300_600 },
 
  /*S1300i AC*/
-/* model         xres yres  u   mxx mnx   mxy mny lin_s   pln_s   pln_w   bh      cls     cps   cpw */
- { MODEL_S1300i,  150, 150, 0, 1296, 32, 2662, 32, 4016*3, 1360*3, 1296,  43, 8032*3,  2720*3, 2592,
+/* model         mode        xres yres  u   mxx mnx   mxy mny lin_s   pln_s   pln_w   bh      cls     cps   cpw */
+ { MODEL_S1300i, MODE_COLOR,  150, 150, 0, 1296, 32, 2662, 32, 4016*3, 1360*3, 1296,  43, 8032*3,  2720*3, 2592,
    setWindowCoarseCal_S1300i_150, setWindowFineCal_S1300i_150,
    setWindowSendCal_S1300i_150, sendCal1Header_S1300i_150,
    sendCal2Header_S1300i_150, setWindowScan_S1300i_150 },
 
- { MODEL_S1300i,  225, 200, 0, 1944, 32, 3993, 32, 6072*3, 2063*3, 1944,  28, 8096*3,  2752*3, 2592,
+ { MODEL_S1300i, MODE_COLOR,  225, 200, 0, 1944, 32, 3993, 32, 6072*3, 2063*3, 1944,  28, 8096*3,  2752*3, 2592,
    setWindowCoarseCal_S1300i_225, setWindowFineCal_S1300i_225,
    setWindowSendCal_S1300i_225, sendCal1Header_S1300i_225,
    sendCal2Header_S1300i_225, setWindowScan_S1300i_225 },
 
- { MODEL_S1300i,  300, 300, 0, 2592, 32, 5324, 32, 8096*3, 2751*3, 2592,  21, 8096*3,  2752*3, 2592,
+ { MODEL_S1300i, MODE_COLOR,  300, 300, 0, 2592, 32, 5324, 32, 8096*3, 2751*3, 2592,  21, 8096*3,  2752*3, 2592,
    setWindowCoarseCal_S1300i_300, setWindowFineCal_S1300i_300,
    setWindowSendCal_S1300i_300, sendCal1Header_S1300i_300,
    sendCal2Header_S1300i_300, setWindowScan_S1300i_300 },
 
  /*NOTE: S1300i uses S300 data blocks for remainder*/
- { MODEL_S1300i,  600, 600, 0, 5184, 32, 10648, 32, 16064*3, 5440*3, 5184, 10, 16064*3, 5440*3, 5184,
+ { MODEL_S1300i, MODE_COLOR,  600, 600, 0, 5184, 32, 10648, 32, 16064*3, 5440*3, 5184, 10, 16064*3, 5440*3, 5184,
    setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
    setWindowSendCal_S300_600, sendCal1Header_S300_600,
    sendCal2Header_S300_600, setWindowScan_S300_600 },
 
  /*S1300i USB*/
-/* model         xres yres  u   mxx mnx    mxy mny   lin_s    pln_s pln_w  bh      cls     cps   cpw */
- { MODEL_S1300i,  150, 150, 1, 1296, 32,  2662, 32, 7216*3,  2960*3, 1296, 24, 14432*3, 5920*3, 2592,
+/* model         mode        xres yres  u   mxx mnx    mxy mny   lin_s    pln_s pln_w  bh      cls     cps   cpw */
+ { MODEL_S1300i, MODE_COLOR,  150, 150, 1, 1296, 32,  2662, 32, 7216*3,  2960*3, 1296, 24, 14432*3, 5920*3, 2592,
    setWindowCoarseCal_S300_150_U, setWindowFineCal_S300_150_U,
    setWindowSendCal_S300_150_U, sendCal1Header_S1300i_USB,
    sendCal2Header_S1300i_USB, setWindowScan_S300_150_U },
 
- { MODEL_S1300i,  225, 200, 1, 1944, 32,  3993, 32, 10584*3, 4320*3, 1944, 16, 14112*3, 5760*3, 2592,
+ { MODEL_S1300i, MODE_COLOR,  225, 200, 1, 1944, 32,  3993, 32, 10584*3, 4320*3, 1944, 16, 14112*3, 5760*3, 2592,
    setWindowCoarseCal_S300_225_U, setWindowFineCal_S300_225_U,
    setWindowSendCal_S300_225_U, sendCal1Header_S1300i_USB,
    sendCal2Header_S1300i_USB, setWindowScan_S300_225_U },
 
- { MODEL_S1300i,  300, 300, 1, 2592, 32,  5324, 32, 15872*3, 6640*3, 2592, 11, 15872*3, 6640*3, 2592,
+ { MODEL_S1300i, MODE_COLOR,  300, 300, 1, 2592, 32,  5324, 32, 15872*3, 6640*3, 2592, 11, 15872*3, 6640*3, 2592,
    setWindowCoarseCal_S300_300_U, setWindowFineCal_S300_300_U,
    setWindowSendCal_S300_300_U, sendCal1Header_S1300i_USB,
    sendCal2Header_S1300i_USB, setWindowScan_S300_300_U },
 
- { MODEL_S1300i,  600, 600, 1, 5184, 32, 10648, 32, 16064*3, 5440*3, 5184, 10, 16064*3, 5440*3, 5184,
+ { MODEL_S1300i, MODE_COLOR,  600, 600, 1, 5184, 32, 10648, 32, 16064*3, 5440*3, 5184, 10, 16064*3, 5440*3, 5184,
    setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
    setWindowSendCal_S300_600, sendCal1Header_S1300i_USB,
    sendCal2Header_S1300i_USB, setWindowScan_S300_600 },
 
- /*fi-60F*/
-/* model       xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w   bh     cls    cps  cpw */
- { MODEL_FI60F, 300, 150, 0, 1296, 32,  875, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
+ /*fi-60F/65F GRAY */
+/* model          mode         xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w   bh     cls    cps  cpw */
+/* disabled until calibration code supports grayscale
+ { MODEL_FI60F | MODEL_FI65F, MODE_GRAYSCALE, 300, 300, 0, 1296, 32, 1749, 32,   1440,    480,  432, 364, 2400*3, 958*3, 432,
+   setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
+   setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
+   sendCal2Header_FI60F_300, setWindowScan_FI60F_300_g },
+
+ { MODEL_FI60F | MODEL_FI65F, MODE_GRAYSCALE, 600, 400, 0, 2592, 32, 2332, 32,   2592,    864,  864, 202, 2848*3, 978*3, 864,
+   setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
+   setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
+   sendCal2Header_FI60F_600, setWindowScan_FI60F_400_g },
+
+ { MODEL_FI60F | MODEL_FI65F, MODE_GRAYSCALE, 600, 600, 0, 2592, 32, 3498, 32,   2592,    864,  864, 202, 2848*3, 978*3, 864,
+   setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
+   setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
+   sendCal2Header_FI60F_600, setWindowScan_FI60F_600_g },
+*/
+
+ /*fi-60F/65F*/
+/* model                      mode       xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w   bh     cls    cps  cpw */
+ { MODEL_FI60F | MODEL_FI65F, MODE_COLOR, 300, 150, 0, 1296, 32,  875, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
    setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
    setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
    sendCal2Header_FI60F_300, setWindowScan_FI60F_150 },
 
- { MODEL_FI60F, 300, 200, 0, 1296, 32, 1166, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
+ { MODEL_FI60F | MODEL_FI65F, MODE_COLOR, 300, 200, 0, 1296, 32, 1166, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
    setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
    setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
    sendCal2Header_FI60F_300, setWindowScan_FI60F_200 },
 
- { MODEL_FI60F, 300, 300, 0, 1296, 32, 1749, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
+ { MODEL_FI60F | MODEL_FI65F, MODE_COLOR, 300, 300, 0, 1296, 32, 1749, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
    setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
    setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
    sendCal2Header_FI60F_300, setWindowScan_FI60F_300 },
 
- { MODEL_FI60F, 600, 400, 0, 2592, 32, 2332, 32, 2848*3,  978*3,  864,  61, 2848*3, 978*3, 864,
+ { MODEL_FI60F | MODEL_FI65F, MODE_COLOR, 600, 400, 0, 2592, 32, 2332, 32, 2848*3,  978*3,  864,  61, 2848*3, 978*3, 864,
    setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
    setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
    sendCal2Header_FI60F_600, setWindowScan_FI60F_400 },
 
- { MODEL_FI60F, 600, 600, 0, 2592, 32, 3498, 32, 2848*3,  978*3,  864,  61, 2848*3, 978*3, 864,
-   setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
-   setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
-   sendCal2Header_FI60F_600, setWindowScan_FI60F_600 },
-
- /*fi-65F*/
-/* model       xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w   bh     cls     cps   cpw */
- { MODEL_FI65F, 300, 150, 0, 1296, 32,  875, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
-   setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
-   setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
-   sendCal2Header_FI60F_300, setWindowScan_FI60F_150 },
-
- { MODEL_FI65F, 300, 200, 0, 1296, 32, 1166, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
-   setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
-   setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
-   sendCal2Header_FI60F_300, setWindowScan_FI60F_200 },
-
- { MODEL_FI65F, 300, 300, 0, 1296, 32, 1749, 32, 2400*3,  958*3,  432,  72, 2400*3, 958*3, 432,
-   setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
-   setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
-   sendCal2Header_FI60F_300, setWindowScan_FI60F_300 },
-
- { MODEL_FI65F, 600, 400, 0, 2592, 32, 2332, 32, 2848*3,  978*3,  864,  61, 2848*3, 978*3, 864,
-   setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
-   setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
-   sendCal2Header_FI60F_600, setWindowScan_FI60F_400 },
-
- { MODEL_FI65F, 600, 600, 0, 2592, 32, 3498, 32, 2848*3,  978*3,  864,  61, 2848*3, 978*3, 864,
+ { MODEL_FI60F | MODEL_FI65F, MODE_COLOR, 600, 600, 0, 2592, 32, 3498, 32, 2848*3,  978*3,  864,  61, 2848*3, 978*3, 864,
    setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
    setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
    sendCal2Header_FI60F_600, setWindowScan_FI60F_600 },
 
  /*S1100 USB*/
-/* model        xres yres  u   mxx mnx    mxy mny  lin_s pln_s pln_w  bh   cls   cps   cpw */
- { MODEL_S1100,  300, 300, 1, 2592, 32,  5324, 32,  8912, 3160, 2592, 58, 8912, 3160, 2592,
+/* model        mode        xres yres  u   mxx mnx    mxy mny  lin_s pln_s pln_w  bh   cls   cps   cpw */
+ { MODEL_S1100, MODE_COLOR,  300, 300, 1, 2592, 32,  5324, 32,  8912, 3160, 2592, 58, 8912, 3160, 2592,
    setWindowCoarseCal_S1100_300_U, setWindowFineCal_S1100_300_U,
    setWindowSendCal_S1100_300_U, sendCal1Header_S1100_300_U,
    sendCal2Header_S1100_300_U, setWindowScan_S1100_300_U },
 
- { MODEL_S1100,  600, 600, 1, 5184, 32, 10648, 32, 15904, 5360, 5184, 32, 15904, 5360, 5184,
+ { MODEL_S1100, MODE_COLOR,  600, 600, 1, 5184, 32, 10648, 32, 15904, 5360, 5184, 32, 15904, 5360, 5184,
    setWindowCoarseCal_S1100_600_U, setWindowFineCal_S1100_600_U,
    setWindowSendCal_S1100_600_U, sendCal1Header_S1100_600_U,
    sendCal2Header_S1100_600_U, setWindowScan_S1100_600_U },
 
- { MODEL_NONE,     0,   0, 0,    0,  0,     0,  0,     0,    0,    0,  0,     0,    0,    0,
+ { MODEL_NONE,           0,    0,   0, 0,    0,  0,     0,  0,     0,    0,    0,  0,     0,    0,    0,
    NULL, NULL, NULL, NULL, NULL, NULL },
 
 };
@@ -1978,7 +1974,8 @@ change_params(struct scanner *s)
     DBG (10, "change_params: start\n");
 
     do {
-      if(settings[i].model == s->model
+      if(settings[i].model & s->model
+        && settings[i].mode <= s->mode
         && settings[i].x_res >= s->resolution
         && settings[i].y_res >= s->resolution
         && settings[i].usb_power == s->usb_power
@@ -2061,11 +2058,12 @@ change_params(struct scanner *s)
     s->br_x = (s->max_x + s->page_width)/2;
     
     /*=============================================================*/
-    /* set up the calibration structs */
+    /* set up the calibration scan structs */
     /* generally full width, short height, full resolution */
     s->cal_image.line_stride = settings[i].cal_line_stride;
     s->cal_image.plane_stride = settings[i].cal_plane_stride;
     s->cal_image.plane_width = settings[i].cal_plane_width;
+    s->cal_image.mode = MODE_COLOR;
     s->cal_image.x_res = settings[i].x_res;
     s->cal_image.y_res = settings[i].y_res;
     s->cal_image.raw_data = NULL;
@@ -2075,38 +2073,19 @@ change_params(struct scanner *s)
     s->cal_data.line_stride = settings[i].cal_line_stride * 2;
     s->cal_data.plane_stride = settings[i].cal_plane_stride * 2;
     s->cal_data.plane_width = settings[i].cal_plane_width;
+    s->cal_data.mode = MODE_COLOR;
     s->cal_data.x_res = settings[i].x_res;
     s->cal_data.y_res = settings[i].y_res;
     s->cal_data.raw_data = NULL;
     s->cal_data.image = &s->sendcal;
 
     /*=============================================================*/
-    /* set up the input scan structs */
-    s->block_xfr.line_stride = settings[i].line_stride;
-    s->block_xfr.plane_stride = settings[i].plane_stride;
-    s->block_xfr.plane_width = settings[i].plane_width;
-    s->block_xfr.x_res = settings[i].x_res;
-    s->block_xfr.y_res = settings[i].y_res;
-    s->block_xfr.raw_data = NULL;
-    s->block_xfr.image = &s->block_img;
-
-    /* set up the block image used during scanning operation */
-    /* note that this is the same width/x_res as the final output image */
-    /* but the height/y_res are the same as block_xfr */
-    width = (s->block_xfr.plane_width*s->resolution/settings[i].x_res) * img_heads;
-    s->block_img.width_pix = width;
-    s->block_img.width_bytes = width * 3;
-    s->block_img.height = settings[i].block_height;
-    s->block_img.x_res = s->resolution;
-    s->block_img.y_res = settings[i].y_res;
-    s->block_img.pages = img_pages;
-    s->block_img.buffer = NULL;
-
     /* set up the calibration image blocks */
     width = s->cal_image.plane_width * img_heads;
     s->coarsecal.width_pix = s->darkcal.width_pix = s->lightcal.width_pix = width;
     s->coarsecal.width_bytes = s->darkcal.width_bytes = s->lightcal.width_bytes = width * 3;
     s->coarsecal.height = 1;
+    s->coarsecal.mode = MODE_COLOR;
     s->coarsecal.x_res = s->darkcal.x_res = s->lightcal.x_res = settings[i].x_res;
     s->coarsecal.y_res = s->darkcal.y_res = s->lightcal.y_res = settings[i].y_res;
     s->darkcal.height = s->lightcal.height = 16;
@@ -2118,13 +2097,18 @@ change_params(struct scanner *s)
     s->sendcal.width_pix = width;
     s->sendcal.width_bytes = width * 6;  /* 2 bytes of cal data per pixel component */
     s->sendcal.height = 1;
+    s->sendcal.mode = MODE_COLOR;
     s->sendcal.x_res = settings[i].x_res;
     s->sendcal.y_res = settings[i].y_res;
     s->sendcal.pages = img_pages;
     s->sendcal.buffer = NULL;
     
+    /*=============================================================*/
     /* set up the fullscan parameters */
-    s->fullscan.width_bytes = s->block_xfr.line_stride;
+    /* this is bookkeeping for what we actually pull from the scanner */
+    /* note that this has no image, just dimensions and counters */
+    s->fullscan.width_bytes = settings[i].line_stride;
+    s->fullscan.mode = settings[i].mode;
     s->fullscan.x_res = settings[i].x_res;
     s->fullscan.y_res = settings[i].y_res;
     if(s->source == SOURCE_FLATBED || !s->page_height)
@@ -2139,8 +2123,34 @@ change_params(struct scanner *s)
     }
 
     /*=============================================================*/
+    /* set up the input block raw struct */
+    /* this holds up to 512k of raw scan data */
+    s->block_xfr.line_stride = settings[i].line_stride;
+    s->block_xfr.plane_stride = settings[i].plane_stride;
+    s->block_xfr.plane_width = settings[i].plane_width;
+    s->block_xfr.mode = settings[i].mode;
+    s->block_xfr.x_res = settings[i].x_res;
+    s->block_xfr.y_res = settings[i].y_res;
+    s->block_xfr.raw_data = NULL;
+    s->block_xfr.image = &s->block_img;
+
+    /* set up the input block image struct */
+    /* note that this is the same width/x_res as the final output image */
+    /* but the mode, height and y_res are the same as block_xfr */
+    width = (settings[i].max_x * s->resolution / settings[i].x_res);
+    s->block_img.width_pix = width;
+    s->block_img.width_bytes = width * (settings[i].mode == MODE_COLOR ? 3 : 1);
+    s->block_img.height = settings[i].block_height;
+    s->block_img.mode = settings[i].mode;
+    s->block_img.x_res = s->resolution;
+    s->block_img.y_res = settings[i].y_res;
+    s->block_img.pages = img_pages;
+    s->block_img.buffer = NULL;
+
+    /*=============================================================*/
     /* set up the output image structs */
     /* output image might be different from scan due to interpolation */
+    s->front.mode = s->mode;
     s->front.x_res = s->resolution;
     s->front.y_res = s->resolution;
     if(s->source == SOURCE_FLATBED)
@@ -2193,6 +2203,7 @@ change_params(struct scanner *s)
     /* back settings always same as front settings */
     s->back.width_pix = s->front.width_pix;
     s->back.width_bytes = s->front.width_bytes;
+    s->back.mode = s->front.mode;
     s->back.x_res = s->front.x_res;
     s->back.y_res = s->front.y_res;
     s->back.height = s->front.height;
@@ -2205,6 +2216,7 @@ change_params(struct scanner *s)
     /* dynamic threshold temp buffer, in gray */
     s->dt.width_pix = s->front.width_pix;
     s->dt.width_bytes = s->front.width_pix;
+    s->dt.mode = MODE_GRAYSCALE;
     s->dt.x_res = s->front.x_res;
     s->dt.y_res = s->front.y_res;
     s->dt.height = 1;
@@ -3978,7 +3990,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
         {
             DBG (15, "sane_read: block buffer full\n");
 
-            /* convert the raw data into normal packed pixel data */
+            /* convert the raw color data into normal packed pixel data */
             descramble_raw(s, &s->block_xfr);
 
             s->block_xfr.done = 0;
@@ -4118,6 +4130,8 @@ six5 (struct scanner *s)
 
 /* de-scrambles the raw data from the scanner into the image buffer */
 /* the output image might be lower dpi than input image, so we scale horizontally */
+/* if the input image is mirrored left to right, we do not correct it here */
+/* if the input image has padding (at the end or between heads), it is removed here */
 static SANE_Status
 descramble_raw(struct scanner *s, struct transfer * tp)
 {
@@ -4125,6 +4139,13 @@ descramble_raw(struct scanner *s, struct transfer * tp)
     unsigned char *p_out = tp->image->buffer;
     int height = tp->total_bytes / tp->line_stride;
     int i, j, k;
+
+    /* raw gray data handled in another function */
+    if(tp->mode == MODE_GRAYSCALE){
+      return descramble_raw_gray(s, tp);
+    }
+
+    DBG(15, "descramble_raw: start\n");
 
     if (s->model == MODEL_S300 || s->model == MODEL_S1300i) {
       for (i = 0; i < 2; i++){                   /* page, front/back */
@@ -4256,6 +4277,47 @@ descramble_raw(struct scanner *s, struct transfer * tp)
       }
     }
 
+    DBG(15, "descramble_raw: finish %d\n", ret);
+
+    return ret;
+}
+
+/* de-scrambles the raw gray data from the scanner into the image buffer */
+/* the output image might be lower dpi than input image, so we scale horizontally */
+/* if the input image is mirrored left to right, we do not correct it here */
+/* if the input image has padding (at the end or between heads), it is removed here */
+static SANE_Status
+descramble_raw_gray(struct scanner *s, struct transfer * tp)
+{
+    SANE_Status ret = SANE_STATUS_GOOD;
+    int height = tp->total_bytes / tp->line_stride;
+    int row, col_out;
+
+    DBG(15, "descramble_raw_gray: start\n");
+
+    if (s->model == MODEL_FI60F || s->model == MODEL_FI65F) {
+      for (row = 0; row < height; row++){
+  
+        unsigned char *p_in = tp->raw_data + row * tp->line_stride;
+        unsigned char *p_out = tp->image->buffer + row * tp->image->width_pix;
+  
+        for (col_out = 0; col_out < tp->image->width_pix; col_out++){
+          int col_in = col_out * tp->x_res/tp->image->x_res;
+          int offset = col_in%tp->plane_width;
+          int step   = col_in/tp->plane_width;
+  
+          *p_out = *(p_in + offset*3 + step);
+          p_out++;
+        }
+      }
+    }
+
+    else{
+        DBG(5, "internal error: descramble_raw_gray not supported\n");
+        ret = SANE_STATUS_INVAL;
+    }
+
+    DBG(15, "descramble_raw_gray: finish %d\n", ret);
     return ret;
 }
 
@@ -4336,8 +4398,10 @@ read_from_scanner(struct scanner *s, struct transfer * tp)
 }
 
 /* copies block buffer into front or back image buffer */
-/* converts pixel data from RGB Color to the output format */
+/* converts pixel data from input mode (color/gray) to output mode (color/gray/binary) */
 /* the output image might be lower dpi than input image, so we scale vertically */
+/* the input is already scaled horizontally and padding skipped if required */
+/* if the input is mirrored left to right, we fix it here */
 static SANE_Status
 copy_block_to_page(struct scanner *s,int side)
 {
@@ -4394,13 +4458,15 @@ copy_block_to_page(struct scanner *s,int side)
 
         last_out_row = this_out_row;
 
-        /* reverse order for back side or FI-60F scanner */
-        if (line_reverse)
+        if (block->mode == MODE_COLOR){
+  
+          /* reverse order for back side or FI-60F scanner */
+          if (line_reverse)
             p_in += (page_width - 1) * 3;
-
-        /* convert all of the pixels in this row */
-        for (j = 0; j < page_width; j++)
-        {
+  
+          /* convert all of the pixels in this row */
+          for (j = 0; j < page_width; j++)
+          {
             unsigned char r, g, b;
             if (s->model == MODEL_S300 || s->model == MODEL_S1300i)
                 { r = p_in[1]; g = p_in[2]; b = p_in[0]; }
@@ -4424,6 +4490,35 @@ copy_block_to_page(struct scanner *s,int side)
                 p_in -= 3;
             else
                 p_in += 3;
+           }
+         }
+ 
+         /* grayscale input */
+         else{
+           unsigned char * p_in = block->image->buffer + (side * block_page_stride)
+               + (i * block->image->width_bytes) + page->image->x_start_offset;
+ 
+           /* reverse order for back side or FI-60F scanner */
+           if (line_reverse)
+             p_in += (page_width - 1);
+   
+           //memcpy(p_out,p_in,page->image->width_bytes);
+           
+           for (j = 0; j < page_width; j++)
+           {
+             if (s->mode == MODE_GRAYSCALE)
+             {
+                 *p_out++ = *p_in;
+             }
+             else if (s->mode == MODE_LINEART)
+             {
+                 s->dt.buffer[j] = *p_in; /* stores dt temp image buffer and binarize afterward */
+             }
+             if (line_reverse)
+                 p_in--;
+             else
+                 p_in++;
+           }
         }
 
 	/* skip non-transfer pixels in block image buffer */

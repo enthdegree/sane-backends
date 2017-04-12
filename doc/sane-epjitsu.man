@@ -1,4 +1,4 @@
-.TH sane\-epjitsu 5 "12 Jun 2014" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-epjitsu 5 "11 Apr 2017" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-epjitsu
 
 .SH NAME
@@ -7,7 +7,7 @@ sane\-epjitsu \- SANE backend for Epson-based Fujitsu USB scanners.
 .SH DESCRIPTION
 The 
 .B sane\-epjitsu
-library implements a SANE (Scanner Access Now Easy) backend which provides basic access the Fujitsu fi\-60F/fi\-65F and ScanSnap S300/S1300/S1100 scanners.
+library implements a SANE (Scanner Access Now Easy) backend which provides basic access the Fujitsu fi\-60F/fi\-65F and ScanSnap S300/S1300(i)/S1100(i) scanners.
 
 .SH HARDWARE SUPPORT
 These scanners are fairly limited, only supporting a couple of modes and resolutions, and always scanning full width. The backend supports missing modes (binary, grayscale) and intermediate resolutions in software, but provides only minimal scan area controls. See 
@@ -87,7 +87,7 @@ The backend uses a single environment variable, SANE_DEBUG_EPJITSU, which enable
 Only limited scan area options are exposed.
 .br
 .br
-fi\-60F and fi\-65F hardware grayscale mode is not used.
+fi\-60F and fi\-65F hardware grayscale mode is not used, because the calibration code is not finished.
 .RE
 
 .SH CREDITS

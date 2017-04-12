@@ -55,6 +55,7 @@ struct image {
   int width_bytes;
   int height;
   int pages;
+  int mode;
   int x_res;
   int y_res;
   int x_start_offset;
@@ -71,6 +72,7 @@ struct transfer {
   int total_bytes;
   int rx_bytes;
   int done;
+  int mode;
   int x_res;
   int y_res;
 
@@ -216,6 +218,7 @@ struct scanner
   /* the scan struct holds these larger numbers, but image buffer is unused */
   struct {
       int done;
+      int mode;
       int x_res;
       int y_res;
       int height;
@@ -259,12 +262,12 @@ struct scanner
   int hw_sleep;
 };
 
-#define MODEL_NONE 0
-#define MODEL_S300 1
-#define MODEL_FI60F 2
-#define MODEL_S1100 3
-#define MODEL_S1300i 4
-#define MODEL_FI65F 5
+#define MODEL_NONE (1<<0)
+#define MODEL_S300 (1<<1)
+#define MODEL_FI60F (1<<2)
+#define MODEL_S1100 (1<<3)
+#define MODEL_S1300i (1<<4)
+#define MODEL_FI65F (1<<5)
 
 #define USB_COMMAND_TIME   10000
 #define USB_DATA_TIME      10000
@@ -378,6 +381,7 @@ static SANE_Status set_window(struct scanner *s, int window);
 static SANE_Status scan(struct scanner *s);
 
 static SANE_Status read_from_scanner(struct scanner *s, struct transfer *tp);
+static SANE_Status descramble_raw_gray(struct scanner *s, struct transfer * tp);
 static SANE_Status descramble_raw(struct scanner *s, struct transfer * tp);
 static SANE_Status copy_block_to_page(struct scanner *s, int side);
 static SANE_Status binarize_line(struct scanner *s, unsigned char *lineOut, int width);

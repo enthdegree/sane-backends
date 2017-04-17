@@ -1208,7 +1208,27 @@ write_png_header (SANE_Frame format, int width, int height, int depth, const cha
       icc_buffer = sanei_load_icc_profile(icc_profile, &icc_size);
       if (icc_size > 0)
         {
-	  png_set_iCCP(*png_ptr, *info_ptr, basename(icc_profile), PNG_COMPRESSION_TYPE_BASE, icc_buffer, icc_size);
+	  /* libpng will abort if the profile and image colour spaces do not match*/
+	  /* The data colour space field is at bytes 16 to 20 in an ICC profile */
+	  /* see: ICC.1:2010 § 7.2.6 */
+	  int is_gray_profile = strncmp(icc_buffer + 16, "GRAY", 4) == 0;
+	  int is_rgb_profile = strncmp(icc_buffer + 16, "RGB ", 4) == 0;
+	  if ((is_gray_profile && color_type == PNG_COLOR_TYPE_GRAY) ||
+	      (is_rgb_profile && color_type == PNG_COLOR_TYPE_RGB))
+	    {
+	      png_set_iCCP(*png_ptr, *info_ptr, basename(icc_profile), PNG_COMPRESSION_TYPE_BASE, icc_buffer, icc_size);
+	    }
+	  else
+	    {
+	      if (is_gray_profile)
+	        {
+		  fprintf(stderr, "Ignoring 'GRAY' space ICC profile because the image is RGB.\n");
+	        }
+	      if (is_rgb_profile)
+	        {
+		  fprintf(stderr, "Ignoring 'RGB ' space ICC profile because the image is Grayscale.\n");
+		}
+	    }
 	  free(icc_buffer);
 	}
     }

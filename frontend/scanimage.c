@@ -56,6 +56,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
+#include "sicc.h"
 #include "stiff.h"
 
 #include "../include/md5.h"
@@ -1165,9 +1166,11 @@ write_pnm_header (SANE_Frame format, int width, int height, int depth, FILE *ofp
 
 #ifdef HAVE_LIBPNG
 static void
-write_png_header (SANE_Frame format, int width, int height, int depth, FILE *ofp, png_structp* png_ptr, png_infop* info_ptr)
+write_png_header (SANE_Frame format, int width, int height, int depth, const char * icc_profile, FILE *ofp, png_structp* png_ptr, png_infop* info_ptr)
 {
   int color_type;
+  size_t icc_size = 0;
+  void *icc_buffer;
 
   *png_ptr = png_create_write_struct
        (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -1199,6 +1202,16 @@ write_png_header (SANE_Frame format, int width, int height, int depth, FILE *ofp
   png_set_IHDR(*png_ptr, *info_ptr, width, height,
     depth, color_type, PNG_INTERLACE_NONE,
     PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+  if (icc_profile)
+    {
+      icc_buffer = sanei_load_icc_profile(icc_profile, &icc_size);
+      if (icc_size > 0)
+        {
+	  png_set_iCCP(*png_ptr, *info_ptr, basename(icc_profile), PNG_COMPRESSION_TYPE_BASE, icc_buffer, icc_size);
+	  free(icc_buffer);
+	}
+    }
 
   png_write_info(*png_ptr, *info_ptr);
 }
@@ -1379,7 +1392,8 @@ scan_it (FILE *ofp)
 #ifdef HAVE_LIBPNG
 		  case OUTPUT_PNG:
 		    write_png_header (parm.format, parm.pixels_per_line,
-				      parm.lines, parm.depth, ofp, &png_ptr, &info_ptr);
+				      parm.lines, parm.depth, icc_profile,
+				      ofp, &png_ptr, &info_ptr);
 		    break;
 #endif
 #ifdef HAVE_LIBJPEG
@@ -1635,7 +1649,8 @@ scan_it (FILE *ofp)
 #ifdef HAVE_LIBPNG
       case OUTPUT_PNG:
 	write_png_header (parm.format, parm.pixels_per_line,
-                          image.height, parm.depth, ofp, &png_ptr, &info_ptr);
+			  image.height, parm.depth, icc_profile,
+			  ofp, &png_ptr, &info_ptr);
       break;
 #endif
 #ifdef HAVE_LIBJPEG

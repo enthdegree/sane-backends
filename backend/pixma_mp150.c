@@ -959,7 +959,8 @@ handle_interrupt (pixma_t * s, int timeout)
    * tt: target
    * rr: scan resolution
    * poll event with 'scanimage -A' */
-  if (s->cfg->pid == MG6200_PID
+  if (s->cfg->pid == MG5400_PID
+      || s->cfg->pid == MG6200_PID
       || s->cfg->pid == MG6300_PID
       || s->cfg->pid == MX520_PID
       || s->cfg->pid == MX720_PID

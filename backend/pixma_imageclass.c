@@ -103,6 +103,8 @@
 #define MF820_PID  0x27a6
 #define MF220_PID  0x27a8
 #define MF210_PID  0x27a9
+#define MF230_PID  0x27d1
+#define MF240_PID  0x27d2
 
 
 enum iclass_state_t
@@ -939,5 +941,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon imageClass MF810/820", "MF810/820", MF820_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF220 Series", "MF220", MF220_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF210 Series", "MF210", MF210_PID, 600, 0, 640, 1050, PIXMA_CAP_ADF),
+  DEV ("Canon i-SENSYS MF230 Series", "MF230", MF230_PID, 600, 0, 640, 1050, PIXMA_CAP_ADF),
+  DEV ("Canon i-SENSYS MF240 Series", "MF240", MF240_PID, 600, 0, 640, 1050, PIXMA_CAP_ADF),
   DEV (NULL, NULL, 0, 0, 0, 0, 0, 0)
 };

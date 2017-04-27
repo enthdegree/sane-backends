@@ -1529,7 +1529,8 @@ scan_it (FILE *ofp)
 			  for(j = 0; j < parm.bytes_per_line; j++)
 			    pngbuf[j] = ~pngbuf[j];
 			}
-                      /* PNG is big-endian, */
+#ifndef WORDS_BIGENDIAN
+                      /* SANE is endian-native, PNG is big-endian, */
                       /* see: https://www.w3.org/TR/2003/REC-PNG-20031110/#7Integers-and-byte-order */
                       if (parm.depth == 16)
                         {
@@ -1542,6 +1543,7 @@ scan_it (FILE *ofp)
                               pngbuf[j + 1] = LSB;
                             }
                         }
+#endif
 		      png_write_row(png_ptr, pngbuf);
 		      i += parm.bytes_per_line - pngrow;
 		      left -= parm.bytes_per_line - pngrow;

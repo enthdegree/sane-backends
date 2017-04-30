@@ -1211,8 +1211,8 @@ write_png_header (SANE_Frame format, int width, int height, int depth, const cha
 	  /* libpng will abort if the profile and image colour spaces do not match*/
 	  /* The data colour space field is at bytes 16 to 20 in an ICC profile */
 	  /* see: ICC.1:2010 § 7.2.6 */
-	  int is_gray_profile = strncmp(icc_buffer + 16, "GRAY", 4) == 0;
-	  int is_rgb_profile = strncmp(icc_buffer + 16, "RGB ", 4) == 0;
+	  int is_gray_profile = strncmp((char *) icc_buffer + 16, "GRAY", 4) == 0;
+	  int is_rgb_profile = strncmp((char *) icc_buffer + 16, "RGB ", 4) == 0;
 	  if ((is_gray_profile && color_type == PNG_COLOR_TYPE_GRAY) ||
 	      (is_rgb_profile && color_type == PNG_COLOR_TYPE_RGB))
 	    {

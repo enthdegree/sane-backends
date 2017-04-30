@@ -815,7 +815,6 @@ fi
 echo "IPv6 support:  `eval eval echo ${ipv6}`"
 echo "Avahi support: `eval eval echo ${enable_avahi}`"
 echo "SNMP support:  `eval eval echo ${with_snmp}`"
-dnl echo "CUPS support:  `eval eval echo ${with_cups}`" commented out 15/10/13
 echo "-> The following backends will be built:"
 for backend in ${BACKENDS} ; do
   echo $ECHO_N "${backend} " 

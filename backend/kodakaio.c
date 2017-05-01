@@ -1,7 +1,7 @@
 /*
  * kodakaio.c - SANE library for Kodak ESP Aio scanners.
  *
- * Copyright (C)   2011-2015 Paul Newall
+ * Copyright (C)   2011-2017 Paul Newall
  *
  * Based on the Magicolor sane backend: 
  * Based on the epson2 sane backend:
@@ -19,6 +19,7 @@
  * 01/01/13 Now with adf, the scan can be padded to make up the full page length, 
  * or the page can terminate at the end of the paper. This is a selectable option.
  * 25/11/12 Using avahi now for net autodiscovery. Use configure option --enable-avahi
+ * 1/5/17 patched to use local pointer for avahi callback
  */
 
 /* 
@@ -36,7 +37,7 @@ for ubuntu prior to 12.10
 for ubuntu 12.10
 ./configure --prefix=/usr --libdir=/usr/lib/i386-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi --without-api-spec BACKENDS="kodakaio test"
 
-for ubuntu 14.10
+for ubuntu 14.10 up to at least 17.04
 ./configure --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi --without-api-spec BACKENDS="kodakaio test"
 
 If you want to use the test backend, for example with sane-troubleshoot, you should enable it in /etc/sane.d/dll.conf
@@ -153,7 +154,7 @@ If you want to use the test backend, for example with sane-troubleshoot, you sho
 
 #define KODAKAIO_VERSION	02
 #define KODAKAIO_REVISION	7
-#define KODAKAIO_BUILD		2
+#define KODAKAIO_BUILD		3
 
 /* for usb (but also used for net though it's not required). */
 #define MAX_BLOCK_SIZE		32768
@@ -217,9 +218,6 @@ normal levels. This system is a plan rather than a reality
 #include <avahi-common/simple-watch.h>
 #include <avahi-common/malloc.h>
 #include <avahi-common/error.h>
-
-static AvahiSimplePoll *simple_poll = NULL; /* global because called by several functions */
-
 #endif
 
 #include "../include/sane/saneopts.h"
@@ -2364,9 +2362,9 @@ static void browse_callback(
     const char *domain,
     AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
     void* userdata) {
+    AvahiSimplePoll *simple_poll = userdata;
 
-    AvahiClient *c = userdata;
-    assert(b);
+    AvahiClient *c = avahi_service_browser_get_client (b);
 
     /* Called whenever a new services becomes available on the LAN or is removed from the LAN */
     switch (event) {
@@ -2400,7 +2398,8 @@ static void browse_callback(
     }
 }
 
-static void client_callback(AvahiClient *c, AvahiClientState state, AVAHI_GCC_UNUSED void * userdata) {
+static void client_callback(AvahiClient *c, AvahiClientState state, void * userdata) {
+    AvahiSimplePoll *simple_poll = userdata;
     assert(c);
 
     /* Called whenever the client or server state changes */
@@ -2417,6 +2416,7 @@ kodak_network_discovery(const char*host)
 /* If host = NULL do autodiscovery. If host != NULL try to verify the model 
 First version only does autodiscovery */
 {
+    AvahiSimplePoll *simple_poll;
     AvahiClient *client = NULL;
     AvahiServiceBrowser *sb = NULL;
     int error;
@@ -2432,7 +2432,7 @@ First version only does autodiscovery */
     }
 
     /* Allocate a new client */
-    client = avahi_client_new(avahi_simple_poll_get(simple_poll), 0, client_callback, NULL, &error);
+    client = avahi_client_new(avahi_simple_poll_get(simple_poll), 0, client_callback, simple_poll, &error);
 
     /* Check wether creating the client object succeeded */
     if (!client) {
@@ -2441,7 +2441,7 @@ First version only does autodiscovery */
     }
 
     /* Create the service browser */
-    if (!(sb = avahi_service_browser_new(client, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_scanner._tcp", NULL, 0, browse_callback, client))) {
+    if (!(sb = avahi_service_browser_new(client, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, "_scanner._tcp", NULL, 0, browse_callback, simple_poll))) {
         DBG(min(1,DBG_AUTO), "Failed to create service browser: %s\n", avahi_strerror(avahi_client_errno(client)));
         goto fail;
     }

@@ -1246,7 +1246,7 @@ write_png_header (SANE_Frame format, int width, int height, int depth, int dpi, 
 
 #ifdef HAVE_LIBJPEG
 static void
-write_jpeg_header (SANE_Frame format, int width, int height, FILE *ofp, struct jpeg_compress_struct *cinfo, struct jpeg_error_mgr *jerr)
+write_jpeg_header (SANE_Frame format, int width, int height, int dpi, FILE *ofp, struct jpeg_compress_struct *cinfo, struct jpeg_error_mgr *jerr)
 {
   cinfo->err = jpeg_std_error(jerr);
   jpeg_create_compress(cinfo);
@@ -1271,6 +1271,11 @@ write_jpeg_header (SANE_Frame format, int width, int height, FILE *ofp, struct j
     }
 
   jpeg_set_defaults(cinfo);
+  /* jpeg_set_defaults overrides density, be careful. */
+  cinfo->density_unit = 1;   /* Inches */
+  cinfo->X_density = cinfo->Y_density = dpi;
+  cinfo->write_JFIF_header = TRUE;
+
   jpeg_set_quality(cinfo, 75, TRUE);
   jpeg_start_compress(cinfo, TRUE);
 }
@@ -1426,7 +1431,8 @@ scan_it (FILE *ofp)
 #ifdef HAVE_LIBJPEG
 		  case OUTPUT_JPEG:
 		    write_jpeg_header (parm.format, parm.pixels_per_line,
-				      parm.lines, ofp, &cinfo, &jerr);
+				       parm.lines, resolution_value,
+				       ofp, &cinfo, &jerr);
 		    break;
 #endif
 		  }
@@ -1698,7 +1704,8 @@ scan_it (FILE *ofp)
 #ifdef HAVE_LIBJPEG
       case OUTPUT_JPEG:
 	write_jpeg_header (parm.format, parm.pixels_per_line,
-	parm.lines, ofp, &cinfo, &jerr);
+			   parm.lines, resolution_value,
+			   ofp, &cinfo, &jerr);
       break;
 #endif
       }

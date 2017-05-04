@@ -1,6 +1,7 @@
 /* Create SANE/tiff headers TIFF interfacing routines for SANE
    Copyright (C) 2000 Peter Kirchgessner
    Copyright (C) 2002 Oliver Rauch: added tiff ICC profile
+   Copyright (C) 2017 Aaron Muir Hamilton <aaron@correspondwith.me>
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -20,6 +21,7 @@
    2000-11-19, PK: Color TIFF-header: write 3 values for bits per sample
    2001-12-16, PK: Write fill order tag for b/w-images
    2002-08-27, OR: Added tiff tag for ICC profile
+   2017-04-16, AMH: Separate ICC profile loading into a separate file
 */
 #ifdef _AIX
 # include "../include/lalloca.h"	/* MUST come first for AIX! */
@@ -31,6 +33,7 @@
 #include "../include/sane/config.h"
 #include "../include/sane/sane.h"
 
+#include "sicc.h"
 #include "stiff.h"
 
 typedef struct {
@@ -269,22 +272,12 @@ write_tiff_grey_header (FILE *fptr, int width, int height, int depth,
     int strip_bytecount;
     int ntags;
     int motorola, bps, maxsamplevalue;
-    FILE *icc_file = 0;
-    int icc_len = -1;
+    void *icc_buffer = NULL;
+    size_t icc_size = 0;
 
     if (icc_profile)
     {
-      icc_file = fopen(icc_profile, "r");
-
-      if (!icc_file)
-      {
-        fprintf(stderr, "Could not open ICC profile %s\n", icc_profile);
-      }
-      else
-      {
-        icc_len = 16777216 * fgetc(icc_file) + 65536 * fgetc(icc_file) + 256 * fgetc(icc_file) + fgetc(icc_file);
-        rewind(icc_file);
-      }
+      icc_buffer = sanei_load_icc_profile(icc_profile, &icc_size);
     }
 
     ifd = create_ifd ();
@@ -302,10 +295,10 @@ write_tiff_grey_header (FILE *fptr, int width, int height, int depth,
         data_size += 2*4 + 2*4;
     }
 
-    if (icc_len > 0) /* if icc profile exists add memory for tag */
+    if (icc_size > 0) /* if icc profile exists add memory for tag */
     {
         ntags += 1;
-        data_size += icc_len;
+        data_size += icc_size;
     }
 
     ifd_size = 2 + ntags*12 + 4;
@@ -355,10 +348,10 @@ write_tiff_grey_header (FILE *fptr, int width, int height, int depth,
         add_ifd_entry (ifd, 296, IFDE_TYP_SHORT, 1, 2);
     }
 
-    if (icc_len > 0) /* add ICC-profile TAG */
+    if (icc_size > 0) /* add ICC-profile TAG */
     {
-      add_ifd_entry(ifd, 34675, 7, icc_len, data_offset);
-      data_offset += icc_len;
+      add_ifd_entry(ifd, 34675, 7, (int) icc_size, data_offset);
+      data_offset += icc_size;
     }
 
     /* I prefer motorola format. Its human readable. But for 16 bit, */
@@ -383,32 +376,15 @@ write_tiff_grey_header (FILE *fptr, int width, int height, int depth,
         write_i4 (fptr, 1, motorola);
     }
 
-    /* Write ICC profile */
-    if (icc_len > 0)
+    if (icc_size > 0)
     {
-      int i;
-      for (i=0; i<icc_len; i++)
-      {
-        if (!feof(icc_file))
-        {
-          fputc(fgetc(icc_file), fptr);
-        }
-        else
-        {
-          fprintf(stderr, "ICC profile %s is too short\n", icc_profile);
-          break;
-        }
-      }
+      fwrite(icc_buffer, icc_size, 1, fptr);
     }
 
-    if (icc_file)
-    {
-      fclose(icc_file);
-    }
+    free(icc_buffer);
 
     free_ifd (ifd);
 }
-
 
 static void
 write_tiff_color_header (FILE *fptr, int width, int height, int depth,
@@ -419,22 +395,12 @@ write_tiff_color_header (FILE *fptr, int width, int height, int depth,
     int strip_bytecount;
     int ntags;
     int motorola, bps, maxsamplevalue;
-    FILE *icc_file = 0;
-    int icc_len = -1;
+    void *icc_buffer = NULL;
+    size_t icc_size = 0;
 
     if (icc_profile)
     {
-      icc_file = fopen(icc_profile, "r");
-
-      if (!icc_file)
-      {
-        fprintf(stderr, "Could not open ICC profile %s\n", icc_profile);
-      }
-      else
-      {
-        icc_len = 16777216 * fgetc(icc_file) + 65536 * fgetc(icc_file) + 256 * fgetc(icc_file) + fgetc(icc_file);
-        rewind(icc_file);
-      }
+      icc_buffer = sanei_load_icc_profile(icc_profile, &icc_size);
     }
 
 
@@ -454,10 +420,10 @@ write_tiff_color_header (FILE *fptr, int width, int height, int depth,
         data_size += 2*4 + 2*4;
     }
 
-    if (icc_len > 0) /* if icc profile exists add memory for tag */
+    if (icc_size > 0) /* if icc profile exists add memory for tag */
     {
         ntags += 1;
-        data_size += icc_len;
+        data_size += icc_size;
     }
 
 
@@ -513,10 +479,10 @@ write_tiff_color_header (FILE *fptr, int width, int height, int depth,
         add_ifd_entry (ifd, 296, IFDE_TYP_SHORT, 1, 2);
     }
 
-    if (icc_len > 0) /* add ICC-profile TAG */
+    if (icc_size > 0) /* add ICC-profile TAG */
     {
-      add_ifd_entry(ifd, 34675, 7, icc_len, data_offset);
-      data_offset += icc_len;
+      add_ifd_entry(ifd, 34675, 7, (int) icc_size, data_offset);
+      data_offset += icc_size;
     }
 
 
@@ -558,27 +524,12 @@ write_tiff_color_header (FILE *fptr, int width, int height, int depth,
     }
 
     /* Write ICC profile */
-    if (icc_len > 0)
+    if (icc_size > 0)
     {
-      int i;
-      for (i=0; i<icc_len; i++)
-      {
-        if (!feof(icc_file))
-        {
-          fputc(fgetc(icc_file), fptr);
-        }
-        else
-        {
-          fprintf(stderr, "ICC profile %s is too short\n", icc_profile);
-          break;
-        }
-      }
+      fwrite(icc_buffer, icc_size, 1, fptr);
     }
 
-    if (icc_file)
-    {
-      fclose(icc_file);
-    }
+    free(icc_buffer);
 
     free_ifd (ifd);
 }

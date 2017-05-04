@@ -56,6 +56,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
+#include "sicc.h"
 #include "stiff.h"
 
 #include "../include/md5.h"
@@ -1165,12 +1166,14 @@ write_pnm_header (SANE_Frame format, int width, int height, int depth, FILE *ofp
 
 #ifdef HAVE_LIBPNG
 static void
-write_png_header (SANE_Frame format, int width, int height, int depth, int dpi, FILE *ofp, png_structp* png_ptr, png_infop* info_ptr)
+write_png_header (SANE_Frame format, int width, int height, int depth, int dpi, const char * icc_profile, FILE *ofp, png_structp* png_ptr, png_infop* info_ptr)
 {
   int color_type;
   /* PNG does not have imperial reference units, so we must convert to metric. */
   /* There are nominally 39.3700787401575 inches in a meter. */
   const double pixels_per_meter = dpi * 39.3700787401575;
+  size_t icc_size = 0;
+  void *icc_buffer;
 
   *png_ptr = png_create_write_struct
        (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -1206,6 +1209,36 @@ write_png_header (SANE_Frame format, int width, int height, int depth, int dpi, 
   png_set_pHYs(*png_ptr, *info_ptr,
     pixels_per_meter, pixels_per_meter,
     PNG_RESOLUTION_METER);
+
+  if (icc_profile)
+    {
+      icc_buffer = sanei_load_icc_profile(icc_profile, &icc_size);
+      if (icc_size > 0)
+        {
+	  /* libpng will abort if the profile and image colour spaces do not match*/
+	  /* The data colour space field is at bytes 16 to 20 in an ICC profile */
+	  /* see: ICC.1:2010 § 7.2.6 */
+	  int is_gray_profile = strncmp((char *) icc_buffer + 16, "GRAY", 4) == 0;
+	  int is_rgb_profile = strncmp((char *) icc_buffer + 16, "RGB ", 4) == 0;
+	  if ((is_gray_profile && color_type == PNG_COLOR_TYPE_GRAY) ||
+	      (is_rgb_profile && color_type == PNG_COLOR_TYPE_RGB))
+	    {
+	      png_set_iCCP(*png_ptr, *info_ptr, basename(icc_profile), PNG_COMPRESSION_TYPE_BASE, icc_buffer, icc_size);
+	    }
+	  else
+	    {
+	      if (is_gray_profile)
+	        {
+		  fprintf(stderr, "Ignoring 'GRAY' space ICC profile because the image is RGB.\n");
+	        }
+	      if (is_rgb_profile)
+	        {
+		  fprintf(stderr, "Ignoring 'RGB ' space ICC profile because the image is Grayscale.\n");
+		}
+	    }
+	  free(icc_buffer);
+	}
+    }
 
   png_write_info(*png_ptr, *info_ptr);
 }
@@ -1387,7 +1420,7 @@ scan_it (FILE *ofp)
 		  case OUTPUT_PNG:
 		    write_png_header (parm.format, parm.pixels_per_line,
 				      parm.lines, parm.depth, resolution_value,
-				      ofp, &png_ptr, &info_ptr);
+				      icc_profile, ofp, &png_ptr, &info_ptr);
 		    break;
 #endif
 #ifdef HAVE_LIBJPEG
@@ -1659,7 +1692,7 @@ scan_it (FILE *ofp)
       case OUTPUT_PNG:
 	write_png_header (parm.format, parm.pixels_per_line,
 			  image.height, parm.depth, resolution_value,
-			  ofp, &png_ptr, &info_ptr);
+			  icc_profile, ofp, &png_ptr, &info_ptr);
       break;
 #endif
 #ifdef HAVE_LIBJPEG

@@ -114,7 +114,7 @@ AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-am_scanimage_OBJECTS = scanimage.$(OBJEXT) stiff.$(OBJEXT)
+am_scanimage_OBJECTS = scanimage.$(OBJEXT) sicc.$(OBJEXT) stiff.$(OBJEXT)
 scanimage_OBJECTS = $(am_scanimage_OBJECTS)
 scanimage_DEPENDENCIES = ../backend/libsane.la ../sanei/libsanei.la \
 	../lib/liblib.la $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
@@ -381,7 +381,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-scanimage_SOURCES = scanimage.c stiff.c stiff.h
+scanimage_SOURCES = scanimage.c sicc.c sicc.h stiff.c stiff.h
 scanimage_LDADD = ../backend/libsane.la ../sanei/libsanei.la ../lib/liblib.la \
                   $(PNG_LIBS) $(JPEG_LIBS)
 
@@ -550,6 +550,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/saned.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scanimage.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sicc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stiff.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tstbackend.Po@am__quote@

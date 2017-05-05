@@ -65,21 +65,23 @@ size_t eds_send(epsonds_scanner *s, void *buf, size_t length, SANE_Status *statu
 
 size_t eds_recv(epsonds_scanner *s, void *buf, size_t length, SANE_Status *status)
 {
-	size_t n = 0;
+	size_t n = length; /* network interface needs to read header back even data is 0.*/
 
 	DBG(30, "%s: size = %ld, buf = %p\n", __func__, (long) length, buf);
+
+	*status = SANE_STATUS_GOOD;
 
 	if (s->hw->connection == SANE_EPSONDS_NET) {
 		n = epsonds_net_read(s, buf, length, status);
 	} else if (s->hw->connection == SANE_EPSONDS_USB) {
 
 		/* !!! only report an error if we don't read anything */
-
-		n = length;
-		*status = sanei_usb_read_bulk(s->fd, (SANE_Byte *)buf,
-					    (size_t *) &n);
-		if (n > 0)
-			*status = SANE_STATUS_GOOD;
+		if (n) {
+			*status = sanei_usb_read_bulk(s->fd, (SANE_Byte *)buf,
+						    (size_t *) &n);
+			if (n > 0)
+				*status = SANE_STATUS_GOOD;
+		}
 	}
 
 	if (n < length) {
@@ -109,10 +111,6 @@ SANE_Status eds_txrx(epsonds_scanner* s, char *txbuf, size_t txlen,
 	if (done != txlen) {
 		DBG(1, "%s: tx err, short write\n", __func__);
 		return SANE_STATUS_IO_ERROR;
-	}
-
-	if (rxlen == 0) {
-		return status;
 	}
 
 	done = eds_recv(s, rxbuf, rxlen, &status);

@@ -133,7 +133,7 @@ static SANE_Status esci2_cmd(epsonds_scanner* s,
 {
 	SANE_Status status;
 	unsigned int more;
-	char header[12], rbuf[64];
+	char header[13], rbuf[64]; /* add one more byte for header buffer to correct buffer overflow issue,*/
 
 	DBG(8, "%s: %4s len %lu, payload len: %lu\n", __func__, cmd, len, plen);
 

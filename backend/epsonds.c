@@ -1178,7 +1178,7 @@ SANE_Status
 sane_start(SANE_Handle handle)
 {
 	epsonds_scanner *s = (epsonds_scanner *)handle;
-	char buf[64];
+	char buf[65]; /* add one more byte to correct buffer overflow issue */
 	char cmd[100]; /* take care not to overflow */
 	SANE_Status status = 0;
 

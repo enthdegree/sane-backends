@@ -113,32 +113,37 @@ ssize_t
 e2_recv(Epson_Scanner *s, void *buf, ssize_t buf_size,
 	    SANE_Status *status)
 {
-	ssize_t n = 0;
+	ssize_t n = buf_size; /* network interface needs to read header back even data is 0.*/
 
 	DBG(15, "%s: size = %ld, buf = %p\n", __func__, (long) buf_size, buf);
 
+	*status = SANE_STATUS_GOOD;
 	if (s->hw->connection == SANE_EPSON_NET) {
 		n = sanei_epson_net_read(s, buf, buf_size, status);
 	} else if (s->hw->connection == SANE_EPSON_SCSI) {
-		n = sanei_epson2_scsi_read(s->fd, buf, buf_size, status);
+		if (buf_size)
+			n = sanei_epson2_scsi_read(s->fd, buf, buf_size, status);
 	} else if (s->hw->connection == SANE_EPSON_PIO) {
-		if (buf_size ==
-		    (n = sanei_pio_read(s->fd, buf, (size_t) buf_size)))
-			*status = SANE_STATUS_GOOD;
-		else
-			*status = SANE_STATUS_INVAL;
+		if (buf_size) {
+			if (buf_size ==
+			    (n = sanei_pio_read(s->fd, buf, (size_t) buf_size)))
+				*status = SANE_STATUS_GOOD;
+			else
+				*status = SANE_STATUS_INVAL;
+		}
 	} else if (s->hw->connection == SANE_EPSON_USB) {
 		/* !!! only report an error if we don't read anything */
-		n = buf_size;	/* buf_size gets overwritten */
-		*status =
-			sanei_usb_read_bulk(s->fd, (SANE_Byte *) buf,
-					    (size_t *) & n);
-		r_cmd_count += (n + 63) / 64;	/* add # of packets, rounding up */
-		DBG(20, "%s: cmd count, r = %d, w = %d\n",
-		    __func__, r_cmd_count, w_cmd_count);
+		if (n) {
+			*status =
+				sanei_usb_read_bulk(s->fd, (SANE_Byte *) buf,
+						    (size_t *) & n);
+			r_cmd_count += (n + 63) / 64;	/* add # of packets, rounding up */
+			DBG(20, "%s: cmd count, r = %d, w = %d\n",
+			    __func__, r_cmd_count, w_cmd_count);
 
-		if (n > 0)
-			*status = SANE_STATUS_GOOD;
+			if (n > 0)
+				*status = SANE_STATUS_GOOD;
+		}
 	}
 
 	if (n < buf_size) {
@@ -170,18 +175,23 @@ e2_txrx(Epson_Scanner * s, unsigned char *txbuf, size_t txlen,
 	    unsigned char *rxbuf, size_t rxlen)
 {
 	SANE_Status status;
+	size_t done;
 
-	e2_send(s, txbuf, txlen, rxlen, &status);
+	done = e2_send(s, txbuf, txlen, rxlen, &status);
 	if (status != SANE_STATUS_GOOD) {
 		DBG(1, "%s: tx err, %s\n", __func__, sane_strstatus(status));
 		return status;
+	}
+	if (done != txlen) {
+		DBG(1, "%s: tx err, short write\n", __func__);
+		return SANE_STATUS_IO_ERROR;
 	}
 
 	e2_recv(s, rxbuf, rxlen, &status);
 	if (status != SANE_STATUS_GOOD) {
 		DBG(1, "%s: rx err, %s\n", __func__, sane_strstatus(status));
 	}
-
+		DBG(1, "%s: eds_recv status, %s\n", __func__, sane_strstatus(status));
 	return status;
 }
 

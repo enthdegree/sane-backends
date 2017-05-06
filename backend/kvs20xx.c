@@ -156,7 +156,8 @@ sane_get_devices (const SANE_Device *** device_list,
 			       known_devices[curr_scan_dev].scanner.model,
 			       NULL, -1, -1, -1, -1, attach);
     }
-  *device_list = (const SANE_Device **) devlist;
+  if(device_list)
+    *device_list = (const SANE_Device **) devlist;
   return SANE_STATUS_GOOD;
 }
 
@@ -168,6 +169,12 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
   struct scanner *s;
   SANE_Int h, bus;
   SANE_Status st;
+  if (!devlist)
+    {
+      st = sane_get_devices (NULL, 0);
+      if (st)
+        return st;
+    }
   for (i = 0; devlist[i]; i++)
     {
       if (!strcmp (devlist[i]->name, devname))

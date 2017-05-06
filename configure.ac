@@ -760,9 +760,9 @@ AS_IF([test xno != "x$with_api_spec"],
           && test xno != "x$PPMTOFIG" ],   [with_api_html=yes])
 
    AS_IF([test xyes = "x$with_api_spec" \
-          && test xno = "x$with_api_ps" \
-          && test xno = "x$with_api_pdf" \
-          && test xno = "x$with_api_html"],
+          && test xyes != "x$with_api_ps" \
+          && test xyes != "x$with_api_pdf" \
+          && test xyes != "x$with_api_html"],
      [AC_MSG_ERROR([tools to convert the API spec are missing])
      ])
   ])

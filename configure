@@ -21327,9 +21327,9 @@ fi
 fi
 
    if test xyes = "x$with_api_spec" \
-          && test xno = "x$with_api_ps" \
-          && test xno = "x$with_api_pdf" \
-          && test xno = "x$with_api_html"; then :
+          && test xyes != "x$with_api_ps" \
+          && test xyes != "x$with_api_pdf" \
+          && test xyes != "x$with_api_html"; then :
   as_fn_error $? "tools to convert the API spec are missing" "$LINENO" 5
 
 fi

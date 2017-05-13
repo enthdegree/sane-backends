@@ -29,7 +29,7 @@ The
 option selects the bit depth the scanner is using. This option is only
 available for scanners that support more than one bit depth. Older
 scanners will always transfer the image in 8bit mode. Newer scanners
-allow to select either 8 bits, 12 or 14 bits per color channel. For a
+allow one to select either 8 bits, 12 or 14 bits per color channel. For a
 color scan this means an effective color depth of 36 or 42 bits over
 all three channels. The valid choices depend on the scanner model.
 

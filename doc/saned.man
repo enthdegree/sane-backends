@@ -226,7 +226,7 @@ compiled in, but then logging of debug information is not supported.
 The systemd configuration is different for the 2 options, so
 both are described below.
 .SH Systemd configuration for saned with systemd support compiled in
-for the systemd configuration we need to add 2 configuation files in 
+for the systemd configuration we need to add 2 configuration files in
 .I /etc/systemd/system.
 .PP
 The first file we need to add here is called 
@@ -301,7 +301,7 @@ forwarded to the system log.
 This configuration will also work when Saned is compiled WITH systemd integration
 support, but it does not allow debugging information to be logged.
 .PP
-for systemd configuration for saned, we need to add 2 configuation files in
+for systemd configuration for saned, we need to add 2 configuration files in
 .I /etc/systemd/system.
 .PP
 The first file we need to add here is called

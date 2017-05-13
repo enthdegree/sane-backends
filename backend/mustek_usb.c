@@ -1572,7 +1572,7 @@ sane_cancel (SANE_Handle handle)
   else
     {
       DBG (4, "sane_cancel: scan has not been initiated yet, "
-	   "or it is allready aborted\n");
+	   "or it is already aborted\n");
     }
   DBG (5, "sane_cancel: exit\n");
   return;

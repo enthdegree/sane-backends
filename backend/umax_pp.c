@@ -388,7 +388,7 @@ umax_pp_try_ports (SANEI_Config * config, char **ports)
                      ports[i]);
               else
                 DBG (3,
-                     "umax_pp_try_ports: attach to port `%s' successfull\n",
+                     "umax_pp_try_ports: attach to port `%s' successful\n",
                      ports[i]);
             }
           free (ports[i]);

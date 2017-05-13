@@ -2074,7 +2074,7 @@ main (int argc, char **argv)
       if (!check_mustek_pp_device() && verbose > 0)
         printf ("\n  # No Mustek parallel port scanners found. If you expected"
                 " something\n  # different, make sure the scanner is correctly"
-	        " connected to your computer\n  # and you have apropriate"
+	        " connected to your computer\n  # and you have appropriate"
 	        " access rights.\n");
     }
   else if (verbose > 0)

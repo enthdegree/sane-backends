@@ -2081,7 +2081,7 @@ hp_scl_strerror (int errnum)
       case 1024: return "ADF Paper Jam";
       case 1025: return "Home Position Missing";
       case 1026: return "Paper Not Loaded";
-      default: return "??Unkown Error??";
+      default: return "??Unknown Error??";
       }
 }
 

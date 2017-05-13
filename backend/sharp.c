@@ -370,7 +370,7 @@ sense_handler(int __sane_unused__ fd, u_char *sense_buffer, void *s)
                 DBG(10, "error: invalid field in parameter list\n");
                 return SANE_STATUS_IO_ERROR;
               case 0x29:
-                DBG(10, "note: reset occured\n");
+                DBG(10, "note: reset occurred\n");
                 return SANE_STATUS_GOOD;
               case 0x2a:
                 DBG(10, "note: mode parameter change\n");
@@ -495,7 +495,7 @@ sense_handler(int __sane_unused__ fd, u_char *sense_buffer, void *s)
                 switch (add_sense_code)
                   {
                     case 0x29:
-                      DBG(5, "unit attention: reset occured\n");
+                      DBG(5, "unit attention: reset occurred\n");
                       return SANE_STATUS_GOOD;
                     case 0x2a:
                       DBG(5, "unit attention: parameter changed by "

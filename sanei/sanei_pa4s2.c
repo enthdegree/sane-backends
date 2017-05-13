@@ -309,7 +309,7 @@ pa4s2_init (SANE_Status *status)
 
   if (first_time == SANE_FALSE)
     {
-      DBG (5, "pa4s2_init: sanei already initalized\n");
+      DBG (5, "pa4s2_init: sanei already initialized\n");
       status = SANE_STATUS_GOOD;
       return 0;
     }

@@ -1999,7 +1999,7 @@ gl646_set_fe (Genesys_Device * dev, uint8_t set, int dpi)
   /* Wolfson type frontend */
   if ((dev->reg[reg_0x04].value & REG04_FESET) != 0x03)
     {
-      DBG (DBG_proc, "gl646_set_fe(): unspported frontend type %d\n",
+      DBG (DBG_proc, "gl646_set_fe(): unsupported frontend type %d\n",
 	   dev->reg[reg_0x04].value & REG04_FESET);
       return SANE_STATUS_UNSUPPORTED;
     }

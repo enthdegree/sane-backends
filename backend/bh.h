@@ -652,7 +652,7 @@ _4btol(SANE_Byte *bytes)
 
 #define SANE_NAME_BARCODE_HMIN "barcode-hmin"
 #define SANE_TITLE_BARCODE_HMIN "Barcode Minimum Height"
-#define SANE_DESC_BARCODE_HMIN "Sets the Barcode Minimun Height (larger values increase recognition speed)"
+#define SANE_DESC_BARCODE_HMIN "Sets the Barcode Minimum Height (larger values increase recognition speed)"
 
 #define SANE_NAME_BARCODE_SEARCH_MODE "barcode-search-mode"
 #define SANE_TITLE_BARCODE_SEARCH_MODE "Barcode Search Mode"

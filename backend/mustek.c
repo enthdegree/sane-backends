@@ -1669,7 +1669,7 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
       DBG (0,
 	   "WARNING: Your scanner was detected by the SANE Mustek backend, "
 	   "but\n  it is not fully tested. It may or may not work. Be "
-	   "carefull and read\n  the PROBLEMS file in the sane directory. "
+	   "careful and read\n  the PROBLEMS file in the sane directory. "
 	   "Please set the debug level of this\n  backend to maximum "
 	   "(export SANE_DEBUG_MUSTEK=255) and send the output of\n  "
 	   "scanimage -L to the SANE mailing list sane-devel@lists.alioth.debian.org. "

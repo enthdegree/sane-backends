@@ -7702,7 +7702,7 @@ park_head (struct Rts8891_Device *dev, SANE_Bool wait)
   sanei_rts88xx_read_reg (dev->devnum, CONTROLER_REG, &reg);
   if (reg != 0x20)
     {
-      DBG (DBG_warn, "park_head: unexpected controler value 0x%02x\n", reg);
+      DBG (DBG_warn, "park_head: unexpected controller value 0x%02x\n", reg);
     }
 
   /* head parking */

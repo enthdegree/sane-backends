@@ -5138,7 +5138,7 @@ scsi_sense_handler (int fd, u_char *sense, void *arg)
           else if ( asc == 0x3d  && ascq == 0x00)
               DBG(5, "scsi_sense_handler: Invalid bit in IDENTIFY\n");
           else if ( asc == 0x2c && ascq == 0x02 )
-/* Ok */      DBG(5, "scsi_sense_handler: Invalid comb. of windows specfied\n");
+/* Ok */      DBG(5, "scsi_sense_handler: Invalid comb. of windows specified\n");
           else if ( asc == 0x20 && ascq == 0x00 )
 /* Ok */      DBG(5, "scsi_sense_handler: Invalid command opcode\n");
           else if ( asc == 0x24 && ascq == 0x00 )

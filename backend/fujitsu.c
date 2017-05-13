@@ -1751,7 +1751,7 @@ init_vpd (struct fujitsu *s)
               DBG (15, "  sync next feed: %d\n", get_IN_sync_next_feed(in));
 
               s->has_op_halt = get_IN_op_halt(in);
-              DBG (15, "  object postion halt: %d\n", s->has_op_halt);
+              DBG (15, "  object position halt: %d\n", s->has_op_halt);
           }
 
           ret = SANE_STATUS_GOOD;

@@ -686,7 +686,7 @@ sanei_rts88xx_setup_nvram (SANE_Int devnum, SANE_Int length,
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-           "sanei_rts88xx_setup_nvram : controler register write failed\n");
+           "sanei_rts88xx_setup_nvram : controller register write failed\n");
       return status;
     }
   reg = 1;
@@ -694,7 +694,7 @@ sanei_rts88xx_setup_nvram (SANE_Int devnum, SANE_Int length,
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-           "sanei_rts88xx_setup_nvram : controler register write failed\n");
+           "sanei_rts88xx_setup_nvram : controller register write failed\n");
       return status;
     }
   return status;

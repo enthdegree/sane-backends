@@ -373,7 +373,7 @@ print_sense_data (int dbg_level, SENSE_DATA * data)
        (data->sense_key & 0x0F));
   DBG (dbg_level, "Information Byte = %lu\n", _4btol (data->information));
   DBG (dbg_level, "Additional Sense Length = %d\n", data->sense_length);
-  DBG (dbg_level, "Command Specific Infomation = %lu\n",
+  DBG (dbg_level, "Command Specific Information = %lu\n",
        _4btol (data->command_specific_information));
   DBG (dbg_level, "Additional Sense Code = %#x\n", data->sense_code);
   DBG (dbg_level, "Additional Sense Code Qualifier = %#x\n",

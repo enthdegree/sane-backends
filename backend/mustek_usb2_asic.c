@@ -4302,7 +4302,7 @@ Asic_SetSource (PAsic chip, LIGHTSOURCE lsLightSource)
       DBG (DBG_ASIC, "Asic_SetSource: Source is Reflect\n");
       break;
     case 2:
-      DBG (DBG_ASIC, "Asic_SetSource: Source is Postion\n");
+      DBG (DBG_ASIC, "Asic_SetSource: Source is Position\n");
       break;
     case 4:
       DBG (DBG_ASIC, "Asic_SetSource: Source is Negtive\n");

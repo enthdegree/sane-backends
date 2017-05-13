@@ -1747,13 +1747,13 @@ read_dir (SANE_String dir, SANE_Bool read_files)
     {
       if (gp_list_free (dir_list) < 0)
 	{
-	  DBG (0, "%s: errror: gp_list_free failed\n", f);
+	  DBG (0, "%s: error: gp_list_free failed\n", f);
 	}
       dir_list = NULL;
     }
   if (gp_list_new (&dir_list) < 0)
     {
-      DBG (0, "%s: errror: gp_list_new failed\n", f);
+      DBG (0, "%s: error: gp_list_new failed\n", f);
     }
 
   if (read_files)

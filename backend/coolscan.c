@@ -238,7 +238,7 @@ request_sense_parse (unsigned char *sensed_data)
 
     case 0x6:
       if ((0x29 == asc) && (0x0 == ascq))
-	DBG (1, "\t%d/%d/%d: Power On, Reset, or Bus Device Reset Occured\n", sense, asc, ascq);
+	DBG (1, "\t%d/%d/%d: Power On, Reset, or Bus Device Reset Occurred\n", sense, asc, ascq);
       else if ((0x2a == asc) && (0x1 == ascq))
 	DBG (1, "\t%d/%d/%d: Mode Parameters Changed\n", sense, asc, ascq);
       else

@@ -399,7 +399,7 @@ static void umax_print_inquiry(Umax_Device *dev)
   DBG_inq_nz(" - relative address\n", get_inquiry_scsi_reladr(inquiry_block));
   DBG_inq_nz(" - wide bus 32 bit\n",  get_inquiry_scsi_wbus32(inquiry_block));
   DBG_inq_nz(" - wide bus 16 bit\n",  get_inquiry_scsi_wbus16(inquiry_block));
-  DBG_inq_nz(" - syncronous neg.\n",  get_inquiry_scsi_sync(inquiry_block));
+  DBG_inq_nz(" - synchronous neg.\n", get_inquiry_scsi_sync(inquiry_block));
   DBG_inq_nz(" - linked commands\n",  get_inquiry_scsi_linked(inquiry_block));
   DBG_inq_nz(" - (reserved)\n",       get_inquiry_scsi_R(inquiry_block));
   DBG_inq_nz(" - command queueing\n", get_inquiry_scsi_cmdqueue(inquiry_block));
@@ -526,7 +526,7 @@ static void umax_print_inquiry(Umax_Device *dev)
   DBG_inq_nz(" + ADF: no paper\n",			get_inquiry_ADF_no_paper(inquiry_block));
   DBG_inq_nz(" + ADF: cover open\n",			get_inquiry_ADF_cover_open(inquiry_block));
   DBG_inq_nz(" + ADF: paper jam\n",			get_inquiry_ADF_paper_jam(inquiry_block));
-  DBG_inq_nz(" - unknwon flag; 0x63 bit 3\n",		get_inquiry_0x63_bit3(inquiry_block));
+  DBG_inq_nz(" - unknown flag; 0x63 bit 3\n",		get_inquiry_0x63_bit3(inquiry_block));
   DBG_inq_nz(" - unknown lfag: 0x63 bit 4\n",		get_inquiry_0x63_bit4(inquiry_block));
   DBG_inq_nz(" - lens calib in doc pos\n",		get_inquiry_lens_cal_in_doc_pos(inquiry_block));
   DBG_inq_nz(" - manual focus\n",			get_inquiry_manual_focus(inquiry_block));
@@ -7624,7 +7624,7 @@ SANE_Status sane_start(SANE_Handle handle)
     /* of the x-origin defined by the scanner`s inquiry */
     if (scanner->device->dor != 0) /* dor mode active */
     {
-      DBG(DBG_info,"substracting DOR x-origin-offset from upper left x\n");
+      DBG(DBG_info,"subtracting DOR x-origin-offset from upper left x\n");
       scanner->device->upper_left_x -= scanner->device->inquiry_dor_x_off * scanner->device->x_coordinate_base; /* correct DOR x-origin */
 
       if (scanner->device->upper_left_x < 0) /* rounding errors may create a negative value */

@@ -839,7 +839,7 @@ sanei_parport_find_device (void)
   i = 0;
   while (devices[i] != NULL)
     {
-      DBG (16, "Controling %s: ", devices[i]);
+      DBG (16, "Controlling %s: ", devices[i]);
       file = open (devices[i], O_RDWR);
       if (file < 0)
 	{
@@ -1072,7 +1072,7 @@ sanei_umax_pp_initPort (int port, char *name)
 		  if (rc)
 		    {
 		      DBG (16,
-			   "umax_pp: ppdev couldn't negociate mode IEEE1284_MODE_EPP for '%s' (ignored)\n",
+			   "umax_pp: ppdev couldn't negotiate mode IEEE1284_MODE_EPP for '%s' (ignored)\n",
 			   name);
 		    }
 		  if (ioctl (fd, PPSETMODE, &mode))
@@ -1098,7 +1098,7 @@ sanei_umax_pp_initPort (int port, char *name)
 		  if (rc)
 		    {
 		      DBG (16,
-			   "umax_pp: ppdev couldn't negociate mode IEEE1284_MODE_ECP for '%s' (ignored)\n",
+			   "umax_pp: ppdev couldn't negotiate mode IEEE1284_MODE_ECP for '%s' (ignored)\n",
 			   name);
 		    }
 		  if (ioctl (fd, PPSETMODE, &mode))

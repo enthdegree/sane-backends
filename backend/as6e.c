@@ -576,8 +576,8 @@ as6e_open (AS6E_Scan * s)
 	    execlp ("as6edriver", "as6edriver", "-s", inpipe_desc,
 		    outpipe_desc, datapipe_desc, (char *) 0);
 	  DBG (1, "The SANE backend was unable to start \"as6edriver\".\n");
-	  DBG (1, "This must be installed in a driectory in your PATH.\n");
-	  DBG (1, "To aquire the as6edriver program,\n");
+	  DBG (1, "This must be installed in a directory in your PATH.\n");
+	  DBG (1, "To acquire the as6edriver program,\n");
 	  DBG (1, "go to http://as6edriver.sourceforge.net.\n");
 	  write (ctlinpipe[WRITEPIPE], &exec_result, sizeof (exec_result));
 	  exit (-1);

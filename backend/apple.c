@@ -2634,7 +2634,7 @@ sane_cancel (SANE_Handle handle)
       if (s->AbortedByUser)
 	{
 	  DBG (FLOW_CONTROL,
-	       "sane_cancel: Allready Aborted. Please Wait...\n");
+	       "sane_cancel: Already Aborted. Please Wait...\n");
 	}
       else
 	{
@@ -2648,7 +2648,7 @@ sane_cancel (SANE_Handle handle)
       if (s->AbortedByUser)
 	{
 	  DBG (FLOW_CONTROL, "sane_cancel: Scan has not been Initiated yet, "
-	       "or it is allready aborted.\n");
+	       "or it is already aborted.\n");
 	  s->AbortedByUser = SANE_FALSE;
 	  sanei_scsi_cmd (s->fd, test_unit_ready,
 				sizeof (test_unit_ready), 0, 0);

@@ -846,14 +846,14 @@ net_avahi_callback (AvahiClient *c, AvahiClientState state, void * userdata)
 	if (error == AVAHI_ERR_DISCONNECTED)
 	  {
 	    /* Server disappeared - try to reconnect */
-	    avahi_client_free (avahi_client);
-	    avahi_client = NULL;
-
 	    if (avahi_browser)
 	      {
 		avahi_service_browser_free (avahi_browser);
 		avahi_browser = NULL;
 	      }
+
+	    avahi_client_free (avahi_client);
+	    avahi_client = NULL;
 
 	    avahi_client = avahi_client_new (avahi_threaded_poll_get (avahi_thread), AVAHI_CLIENT_NO_FAIL, net_avahi_callback, NULL, &error);
 	    if (avahi_client == NULL)

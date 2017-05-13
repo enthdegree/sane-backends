@@ -457,7 +457,7 @@ AC_CHECK_HEADERS([ntddscsi.h ddk/ntddscsi.h],,,[#include <windows.h>])
 
 dnl FreeBSD < 3
 if test "$ac_cv_header_sys_scsiio_h" = "yes" \
-  && "$ac_cv_header_scsi_h" = "yes"; then
+  && test "$ac_cv_header_scsi_h" = "yes"; then
   AC_MSG_CHECKING([if 'scsireq_t' needs to be defined as 'struct scsireq'])
   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/scsiio.h>

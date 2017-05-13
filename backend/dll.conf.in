@@ -1,4 +1,12 @@
-# enable the next line if you want to allow access through the network:
+# dll.conf - Configuration file for the SANE dynamic backend loader
+#
+# Backends can also be enabled by configuration snippets under the dll.d/
+# directory -- third party backends can drop their configuration file in
+# this in this directory, named after the backend.
+#
+# The next line enables the network backend; comment it out if you don't
+# need to use a remote SANE scanner over the network -- see sane-net(5)
+# and saned(8) for details.
 net
 abaton
 agfafocus

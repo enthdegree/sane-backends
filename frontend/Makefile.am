@@ -22,7 +22,7 @@ scanimage_LDADD = ../backend/libsane.la ../sanei/libsanei.la ../lib/liblib.la \
 
 saned_SOURCES = saned.c
 saned_LDADD = ../backend/libsane.la ../sanei/libsanei.la ../lib/liblib.la \
-              $(SYSLOG_LIBS) $(SYSTEMD_LIBS)
+              $(SYSLOG_LIBS) $(SYSTEMD_LIBS) $(AVAHI_LIBS)
 
 test_SOURCES = test.c
 test_LDADD = ../lib/liblib.la ../backend/libsane.la

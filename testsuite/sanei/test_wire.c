@@ -54,7 +54,7 @@ Valid CODECs are: `ascii' `bin'\n", program_name, default_codec, default_outfile
 
 
 int
-main (int argc, char **argv)
+main (int __sane_unused__ arg, char **argv)
 {
   SANE_Option_Descriptor desc[2], *desc_ptr;
   SANE_Word len;

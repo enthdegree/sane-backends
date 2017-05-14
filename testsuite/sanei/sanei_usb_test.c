@@ -827,7 +827,7 @@ test_attach (void)
 }
 
 int
-main (int argc, char **argv)
+main (int __sane_unused__ argc, char **argv)
 {
   int detected, opened, i;
   SANE_Int dn[MAX_DEVICES];

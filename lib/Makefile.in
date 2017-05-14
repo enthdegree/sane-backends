@@ -80,10 +80,10 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = lib
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/mkinstalldirs alloca.c getopt1.c inet_ntop.c \
-	usleep.c inet_pton.c vsyslog.c strndup.c syslog.c sleep.c \
-	snprintf.c strcasestr.c getopt.c isfdtype.c strsep.c getenv.c \
-	sigprocmask.c strdup.c $(top_srcdir)/depcomp
+	$(top_srcdir)/mkinstalldirs alloca.c inet_pton.c getopt1.c \
+	strdup.c vsyslog.c sigprocmask.c usleep.c inet_ntop.c \
+	snprintf.c getopt.c isfdtype.c strsep.c strndup.c sleep.c \
+	strcasestr.c getenv.c syslog.c $(top_srcdir)/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
 	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intlmacosx.m4 \

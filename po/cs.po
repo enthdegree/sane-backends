@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends.cs\n"
 "Report-Msgid-Bugs-To: sane-devel@lists.alioth.debian.org\n"
-"POT-Creation-Date: 2016-06-25 23:57+0000\n"
+"POT-Creation-Date: 2017-05-14 09:24+0000\n"
 "PO-Revision-Date: 2007-12-17 22:59+0100\n"
 "Last-Translator: Josef  <joeprusa@volny.cz>\n"
 "Language-Team: \n"
@@ -27,12 +27,12 @@ msgstr ""
 
 #: include/sane/saneopts.h:157 backend/artec_eplus48u.c:2884
 #: backend/epson.c:3298 backend/epson2.c:1291 backend/genesys.c:5618
-#: backend/gt68xx.c:703 backend/hp3500.c:1003 backend/hp-option.c:3297
+#: backend/gt68xx.c:703 backend/hp3500.c:1019 backend/hp-option.c:3297
 #: backend/kvs1025_opt.c:640 backend/kvs20xx_opt.c:285
 #: backend/kvs40xx_opt.c:506 backend/leo.c:823 backend/lexmark.c:199
 #: backend/ma1509.c:551 backend/matsushita.c:1135 backend/microtek2.h:599
 #: backend/mustek.c:4361 backend/mustek_usb.c:305
-#: backend/mustek_usb2.c:465 backend/pixma_sane_options.c:158
+#: backend/mustek_usb2.c:465 backend/pixma_sane_options.c:160
 #: backend/plustek.c:808 backend/plustek_pp.c:747 backend/sceptre.c:702
 #: backend/snapscan-options.c:550 backend/teco1.c:1095
 #: backend/teco2.c:1914 backend/teco3.c:920 backend/test.c:647
@@ -84,7 +84,7 @@ msgid "Bit depth"
 msgstr "Bitová hloubka"
 
 #: include/sane/saneopts.h:165 backend/canon.c:1145 backend/leo.c:781
-#: backend/pixma_sane_options.c:45
+#: backend/pixma_sane_options.c:47
 #, no-c-format
 msgid "Scan mode"
 msgstr "Režim skenu"
@@ -125,7 +125,7 @@ msgid "Bottom-right y"
 msgstr "Pravý dolní roh y"
 
 #: include/sane/saneopts.h:173 backend/canon.c:1221
-#: backend/pixma_sane_options.c:298
+#: backend/pixma_sane_options.c:300
 #, no-c-format
 msgid "Scan resolution"
 msgstr "Rozlišení"
@@ -280,7 +280,7 @@ msgstr "Jméno souboru"
 msgid "Halftone pattern size"
 msgstr "Rozměr vzorku polotónu"
 
-#: include/sane/saneopts.h:204 backend/fujitsu.c:3181
+#: include/sane/saneopts.h:204 backend/fujitsu.c:3186
 #, no-c-format
 msgid "Halftone pattern"
 msgstr "Vzorek polotónu"
@@ -1004,22 +1004,22 @@ msgstr ""
 msgid "Button state"
 msgstr "Stav tlačítek"
 
-#: backend/avision.h:777
+#: backend/avision.h:778
 #, no-c-format
 msgid "Number of the frame to scan"
 msgstr "Číslo políčka pro sken"
 
-#: backend/avision.h:778
+#: backend/avision.h:779
 #, no-c-format
 msgid "Selects the number of the frame to scan"
 msgstr "Zvolí číslo políčka, které bude naskenováno"
 
-#: backend/avision.h:781
+#: backend/avision.h:782
 #, fuzzy, no-c-format
 msgid "Duplex scan"
 msgstr "Oboustraně"
 
-#: backend/avision.h:782
+#: backend/avision.h:783
 #, no-c-format
 msgid ""
 "Duplex scan provide a scan of the front and back side of the document"
@@ -1519,91 +1519,91 @@ msgstr "Typ filmu"
 msgid "Select the film type"
 msgstr "Zvolit polotóny"
 
-#: backend/canon_dr.c:406 backend/epjitsu.c:225 backend/epson.c:501
-#: backend/epson2.c:115 backend/fujitsu.c:663 backend/gt68xx.c:148
+#: backend/canon_dr.c:408 backend/epjitsu.c:233 backend/epson.c:501
+#: backend/epson2.c:115 backend/fujitsu.c:672 backend/gt68xx.c:148
 #: backend/hp3900_sane.c:418 backend/hp3900_sane.c:427
 #: backend/hp3900_sane.c:1017 backend/hp5590.c:85 backend/ma1509.c:108
 #: backend/magicolor.c:181 backend/mustek.c:156 backend/mustek.c:160
-#: backend/mustek.c:164 backend/pixma.c:891
-#: backend/pixma_sane_options.c:90 backend/snapscan-options.c:86
+#: backend/mustek.c:164 backend/pixma.c:901
+#: backend/pixma_sane_options.c:92 backend/snapscan-options.c:86
 #: backend/test.c:192 backend/umax.c:181
 #, no-c-format
 msgid "Flatbed"
 msgstr "Stolní"
 
-#: backend/canon_dr.c:407 backend/epjitsu.c:226 backend/fujitsu.c:664
+#: backend/canon_dr.c:409 backend/epjitsu.c:234 backend/fujitsu.c:673
 #: backend/kodak.c:140
 #, no-c-format
 msgid "ADF Front"
 msgstr ""
 
-#: backend/canon_dr.c:408 backend/epjitsu.c:227 backend/fujitsu.c:665
+#: backend/canon_dr.c:410 backend/epjitsu.c:235 backend/fujitsu.c:674
 #: backend/kodak.c:141
 #, no-c-format
 msgid "ADF Back"
 msgstr ""
 
-#: backend/canon_dr.c:409 backend/epjitsu.c:228 backend/fujitsu.c:666
-#: backend/hp5590.c:87 backend/kodak.c:142 backend/pixma.c:902
+#: backend/canon_dr.c:411 backend/epjitsu.c:236 backend/fujitsu.c:675
+#: backend/hp5590.c:87 backend/kodak.c:142 backend/pixma.c:912
 #, fuzzy, no-c-format
 msgid "ADF Duplex"
 msgstr "Oboustraně"
 
-#: backend/canon_dr.c:410
+#: backend/canon_dr.c:412
 #, no-c-format
 msgid "Card Front"
 msgstr ""
 
-#: backend/canon_dr.c:411
+#: backend/canon_dr.c:413
 #, no-c-format
 msgid "Card Back"
 msgstr ""
 
-#: backend/canon_dr.c:412
+#: backend/canon_dr.c:414
 #, fuzzy, no-c-format
 msgid "Card Duplex"
 msgstr "Oboustraně"
 
-#: backend/canon_dr.c:419 backend/epson.c:599 backend/epson.c:3096
-#: backend/epson2.c:201 backend/fujitsu.c:683 backend/genesys.c:89
+#: backend/canon_dr.c:421 backend/epson.c:599 backend/epson.c:3096
+#: backend/epson2.c:201 backend/fujitsu.c:692 backend/genesys.c:89
 #: backend/genesys.c:96 backend/gt68xx_low.h:133 backend/hp-option.c:3093
 #, no-c-format
 msgid "Red"
 msgstr "Červená"
 
-#: backend/canon_dr.c:420 backend/epson.c:600 backend/epson.c:3092
-#: backend/epson2.c:202 backend/fujitsu.c:684 backend/genesys.c:90
+#: backend/canon_dr.c:422 backend/epson.c:600 backend/epson.c:3092
+#: backend/epson2.c:202 backend/fujitsu.c:693 backend/genesys.c:90
 #: backend/genesys.c:97 backend/gt68xx_low.h:134 backend/hp-option.c:3094
 #, no-c-format
 msgid "Green"
 msgstr "Zelená"
 
-#: backend/canon_dr.c:421 backend/epson.c:601 backend/epson.c:3100
-#: backend/epson2.c:203 backend/fujitsu.c:685 backend/genesys.c:91
+#: backend/canon_dr.c:423 backend/epson.c:601 backend/epson.c:3100
+#: backend/epson2.c:203 backend/fujitsu.c:694 backend/genesys.c:91
 #: backend/genesys.c:98 backend/gt68xx_low.h:135 backend/hp-option.c:3095
 #, no-c-format
 msgid "Blue"
 msgstr "Modrá"
 
-#: backend/canon_dr.c:422
+#: backend/canon_dr.c:424
 #, fuzzy, no-c-format
 msgid "Enhance Red"
 msgstr "Vylepšení"
 
-#: backend/canon_dr.c:423
+#: backend/canon_dr.c:425
 #, fuzzy, no-c-format
 msgid "Enhance Green"
 msgstr "Vylepšení"
 
-#: backend/canon_dr.c:424
+#: backend/canon_dr.c:426
 #, fuzzy, no-c-format
 msgid "Enhance Blue"
 msgstr "Vylepšení"
 
-#: backend/canon_dr.c:426 backend/epson.c:556 backend/epson.c:564
+#: backend/canon_dr.c:428 backend/epson.c:556 backend/epson.c:564
 #: backend/epson.c:576 backend/epson.c:598 backend/epson2.c:165
 #: backend/epson2.c:173 backend/epson2.c:185 backend/epson2.c:200
-#: backend/epson2.c:214 backend/fujitsu.c:689 backend/genesys.c:99
+#: backend/epson2.c:214 backend/fujitsu.c:698 backend/genesys.c:99
 #: backend/leo.c:109 backend/matsushita.c:138 backend/matsushita.c:159
 #: backend/matsushita.c:191 backend/matsushita.c:213
 #: backend/snapscan-options.c:91
@@ -1611,18 +1611,18 @@ msgstr "Vylepšení"
 msgid "None"
 msgstr "Žádné"
 
-#: backend/canon_dr.c:427 backend/fujitsu.c:690
+#: backend/canon_dr.c:429 backend/fujitsu.c:699
 #, no-c-format
 msgid "JPEG"
 msgstr ""
 
-#: backend/canon_dr.c:2430 backend/fujitsu.c:4106 backend/genesys.c:5769
+#: backend/canon_dr.c:2449 backend/fujitsu.c:4066 backend/genesys.c:5769
 #: backend/kvs1025_opt.c:911
 #, no-c-format
 msgid "Software blank skip percentage"
 msgstr ""
 
-#: backend/canon_dr.c:2431 backend/fujitsu.c:4107
+#: backend/canon_dr.c:2450 backend/fujitsu.c:4067
 #, no-c-format
 msgid "Request driver to discard pages with low percentage of dark pixels"
 msgstr ""
@@ -1639,13 +1639,13 @@ msgstr "Jednostraně"
 msgid "Duplex"
 msgstr "Oboustraně"
 
-#: backend/epson.c:502 backend/epson2.c:116 backend/pixma.c:908
+#: backend/epson.c:502 backend/epson2.c:116 backend/pixma.c:918
 #, no-c-format
 msgid "Transparency Unit"
 msgstr "Prosvětlovací jednotka"
 
 #: backend/epson.c:503 backend/epson2.c:118 backend/magicolor.c:182
-#: backend/mustek.c:160 backend/pixma.c:896 backend/test.c:192
+#: backend/mustek.c:160 backend/pixma.c:906 backend/test.c:192
 #: backend/umax.c:183
 #, no-c-format
 msgid "Automatic Document Feeder"
@@ -1758,7 +1758,7 @@ msgstr "Inkoustové tiskárny"
 msgid "CRT monitors"
 msgstr "CRT monitory"
 
-#: backend/epson.c:656 backend/epson2.c:254 backend/fujitsu.c:673
+#: backend/epson.c:656 backend/epson2.c:254 backend/fujitsu.c:682
 #: backend/hp-option.c:3226 backend/test.c:143
 #, no-c-format
 msgid "Default"
@@ -2105,502 +2105,492 @@ msgstr ""
 msgid "User defined CCT profile"
 msgstr "Uživatelské nastavení"
 
-#: backend/fujitsu.c:674 backend/hp-option.c:3327 backend/hp-option.c:3340
+#: backend/fujitsu.c:683 backend/hp-option.c:3327 backend/hp-option.c:3340
 #, no-c-format
 msgid "On"
 msgstr ""
 
-#: backend/fujitsu.c:675 backend/hp-option.c:3159 backend/hp-option.c:3326
+#: backend/fujitsu.c:684 backend/hp-option.c:3159 backend/hp-option.c:3326
 #: backend/hp-option.c:3339
 #, no-c-format
 msgid "Off"
 msgstr ""
 
-#: backend/fujitsu.c:677
+#: backend/fujitsu.c:686
 #, no-c-format
 msgid "DTC"
 msgstr ""
 
-#: backend/fujitsu.c:678
+#: backend/fujitsu.c:687
 #, no-c-format
 msgid "SDTC"
 msgstr ""
 
-#: backend/fujitsu.c:680 backend/teco1.c:1152 backend/teco1.c:1153
+#: backend/fujitsu.c:689 backend/teco1.c:1152 backend/teco1.c:1153
 #: backend/teco2.c:1971 backend/teco2.c:1972 backend/teco3.c:977
 #: backend/teco3.c:978
 #, no-c-format
 msgid "Dither"
 msgstr "Rozptyl"
 
-#: backend/fujitsu.c:681
+#: backend/fujitsu.c:690
 #, fuzzy, no-c-format
 msgid "Diffusion"
 msgstr "Chybový rozptyl"
 
-#: backend/fujitsu.c:686
+#: backend/fujitsu.c:695
 #, fuzzy, no-c-format
 msgid "White"
 msgstr "Úroveň bílé"
 
-#: backend/fujitsu.c:687
+#: backend/fujitsu.c:696
 #, fuzzy, no-c-format
 msgid "Black"
 msgstr "Úroveň černé"
 
-#: backend/fujitsu.c:692
+#: backend/fujitsu.c:701
 #, no-c-format
 msgid "Continue"
 msgstr ""
 
-#: backend/fujitsu.c:693
+#: backend/fujitsu.c:702
 #, no-c-format
 msgid "Stop"
 msgstr ""
 
-#: backend/fujitsu.c:695
+#: backend/fujitsu.c:704
 #, no-c-format
 msgid "10mm"
 msgstr ""
 
-#: backend/fujitsu.c:696
+#: backend/fujitsu.c:705
 #, no-c-format
 msgid "15mm"
 msgstr ""
 
-#: backend/fujitsu.c:697
+#: backend/fujitsu.c:706
 #, no-c-format
 msgid "20mm"
 msgstr ""
 
-#: backend/fujitsu.c:699 backend/hp-option.c:3045
+#: backend/fujitsu.c:708 backend/hp-option.c:3045
 #, no-c-format
 msgid "Horizontal"
 msgstr "Horizontální"
 
-#: backend/fujitsu.c:700
+#: backend/fujitsu.c:709
 #, fuzzy, no-c-format
 msgid "Horizontal bold"
 msgstr "Horizontální"
 
-#: backend/fujitsu.c:701
+#: backend/fujitsu.c:710
 #, fuzzy, no-c-format
 msgid "Horizontal narrow"
 msgstr "Horizontální"
 
-#: backend/fujitsu.c:702 backend/hp-option.c:3044
+#: backend/fujitsu.c:711 backend/hp-option.c:3044
 #, no-c-format
 msgid "Vertical"
 msgstr "Vertikální"
 
-#: backend/fujitsu.c:703
+#: backend/fujitsu.c:712
 #, fuzzy, no-c-format
 msgid "Vertical bold"
 msgstr "Vertikální"
 
-#: backend/fujitsu.c:705
+#: backend/fujitsu.c:714
 #, no-c-format
 msgid "Top to bottom"
 msgstr ""
 
-#: backend/fujitsu.c:706
+#: backend/fujitsu.c:715
 #, no-c-format
 msgid "Bottom to top"
 msgstr ""
 
-#: backend/fujitsu.c:708
+#: backend/fujitsu.c:717
 #, no-c-format
 msgid "Front"
 msgstr ""
 
-#: backend/fujitsu.c:709
+#: backend/fujitsu.c:718
 #, no-c-format
 msgid "Back"
 msgstr ""
 
-#: backend/fujitsu.c:3092 backend/pixma_sane_options.c:143
+#: backend/fujitsu.c:3097 backend/pixma_sane_options.c:145
 #, no-c-format
 msgid "Gamma function exponent"
 msgstr ""
 
-#: backend/fujitsu.c:3093 backend/pixma_sane_options.c:144
+#: backend/fujitsu.c:3098 backend/pixma_sane_options.c:146
 #, no-c-format
 msgid "Changes intensity of midtones"
 msgstr ""
 
-#: backend/fujitsu.c:3142
+#: backend/fujitsu.c:3147
 #, no-c-format
 msgid "RIF"
 msgstr ""
 
-#: backend/fujitsu.c:3143
+#: backend/fujitsu.c:3148
 #, no-c-format
 msgid "Reverse image format"
 msgstr ""
 
-#: backend/fujitsu.c:3160
+#: backend/fujitsu.c:3165
 #, fuzzy, no-c-format
 msgid "Halftone type"
 msgstr "Polotóny"
 
-#: backend/fujitsu.c:3161
+#: backend/fujitsu.c:3166
 #, no-c-format
 msgid "Control type of halftone filter"
 msgstr ""
 
-#: backend/fujitsu.c:3182
+#: backend/fujitsu.c:3187
 #, no-c-format
 msgid "Control pattern of halftone filter"
 msgstr ""
 
-#: backend/fujitsu.c:3204
+#: backend/fujitsu.c:3209
 #, no-c-format
 msgid "Outline"
 msgstr ""
 
-#: backend/fujitsu.c:3205
+#: backend/fujitsu.c:3210
 #, fuzzy, no-c-format
 msgid "Perform outline extraction"
 msgstr "Hrubá kalibrace"
 
-#: backend/fujitsu.c:3216
+#: backend/fujitsu.c:3221
 #, fuzzy, no-c-format
 msgid "Emphasis"
 msgstr "Zvýraznění obrázku"
 
-#: backend/fujitsu.c:3217
+#: backend/fujitsu.c:3222
 #, no-c-format
 msgid "Negative to smooth or positive to sharpen image"
 msgstr ""
 
-#: backend/fujitsu.c:3235
+#: backend/fujitsu.c:3240
 #, fuzzy, no-c-format
 msgid "Separation"
 msgstr "Sytost"
 
-#: backend/fujitsu.c:3236
+#: backend/fujitsu.c:3241
 #, no-c-format
 msgid "Enable automatic separation of image and text"
 msgstr ""
 
-#: backend/fujitsu.c:3247
+#: backend/fujitsu.c:3252
 #, fuzzy, no-c-format
 msgid "Mirroring"
 msgstr "Zrcadlit obrázek"
 
-#: backend/fujitsu.c:3248
+#: backend/fujitsu.c:3253
 #, fuzzy, no-c-format
 msgid "Reflect output image horizontally"
 msgstr "Zrcadlit obrázek"
 
-#: backend/fujitsu.c:3265
+#: backend/fujitsu.c:3270
 #, fuzzy, no-c-format
 msgid "White level follower"
 msgstr "Úroveň bílé modré"
 
-#: backend/fujitsu.c:3266
+#: backend/fujitsu.c:3271
 #, fuzzy, no-c-format
 msgid "Control white level follower"
 msgstr "Ovládá úroveň červené"
 
-#: backend/fujitsu.c:3292
-#, fuzzy, no-c-format
-msgid "IPC mode"
-msgstr "Režim náhledu"
-
-#: backend/fujitsu.c:3293
-#, no-c-format
-msgid "Image processing mode, enables additional options"
-msgstr ""
-
-#: backend/fujitsu.c:3315
+#: backend/fujitsu.c:3289
 #, fuzzy, no-c-format
 msgid "BP filter"
 msgstr "Barevná perokresba"
 
-#: backend/fujitsu.c:3316
+#: backend/fujitsu.c:3290
 #, no-c-format
 msgid "Improves quality of high resolution ball-point pen text"
 msgstr ""
 
-#: backend/fujitsu.c:3333 backend/hp-option.h:73
+#: backend/fujitsu.c:3306 backend/hp-option.h:73
 #, fuzzy, no-c-format
 msgid "Smoothing"
 msgstr "Jemný"
 
-#: backend/fujitsu.c:3334
+#: backend/fujitsu.c:3307
 #, no-c-format
 msgid "Enable smoothing for improved OCR"
 msgstr ""
 
-#: backend/fujitsu.c:3351
+#: backend/fujitsu.c:3323
 #, fuzzy, no-c-format
 msgid "Gamma curve"
 msgstr "Hodnota gama"
 
-#: backend/fujitsu.c:3352
+#: backend/fujitsu.c:3324
 #, no-c-format
 msgid "Gamma curve, from light to dark, but upper two may not work"
 msgstr ""
 
-#: backend/fujitsu.c:3375 backend/genesys.c:5832
-#: backend/pixma_sane_options.c:333
+#: backend/fujitsu.c:3346 backend/genesys.c:5832
+#: backend/pixma_sane_options.c:335
 #, fuzzy, no-c-format
 msgid "Threshold curve"
 msgstr "Prahová hodnota"
 
-#: backend/fujitsu.c:3376
+#: backend/fujitsu.c:3347
 #, no-c-format
 msgid ""
 "Threshold curve, from light to dark, but upper two may not be linear"
 msgstr ""
 
-#: backend/fujitsu.c:3399
+#: backend/fujitsu.c:3369
 #, fuzzy, no-c-format
 msgid "Threshold white"
 msgstr "Prahová hodnota"
 
-#: backend/fujitsu.c:3400
+#: backend/fujitsu.c:3370
 #, no-c-format
 msgid "Set pixels equal to threshold to white instead of black"
 msgstr ""
 
-#: backend/fujitsu.c:3417 backend/fujitsu.c:3418
+#: backend/fujitsu.c:3386 backend/fujitsu.c:3387
 #, fuzzy, no-c-format
 msgid "Noise removal"
 msgstr "Redukce šumu"
 
-#: backend/fujitsu.c:3435
+#: backend/fujitsu.c:3403
 #, no-c-format
 msgid "Matrix 5x5"
 msgstr ""
 
-#: backend/fujitsu.c:3436
+#: backend/fujitsu.c:3404
 #, no-c-format
 msgid "Remove 5 pixel square noise"
 msgstr ""
 
-#: backend/fujitsu.c:3454
+#: backend/fujitsu.c:3420
 #, no-c-format
 msgid "Matrix 4x4"
 msgstr ""
 
-#: backend/fujitsu.c:3455
+#: backend/fujitsu.c:3421
 #, no-c-format
 msgid "Remove 4 pixel square noise"
 msgstr ""
 
-#: backend/fujitsu.c:3473
+#: backend/fujitsu.c:3437
 #, no-c-format
 msgid "Matrix 3x3"
 msgstr ""
 
-#: backend/fujitsu.c:3474
+#: backend/fujitsu.c:3438
 #, no-c-format
 msgid "Remove 3 pixel square noise"
 msgstr ""
 
-#: backend/fujitsu.c:3492
+#: backend/fujitsu.c:3454
 #, no-c-format
 msgid "Matrix 2x2"
 msgstr ""
 
-#: backend/fujitsu.c:3493
+#: backend/fujitsu.c:3455
 #, no-c-format
 msgid "Remove 2 pixel square noise"
 msgstr ""
 
-#: backend/fujitsu.c:3514
+#: backend/fujitsu.c:3474
 #, no-c-format
 msgid "Variance"
 msgstr ""
 
-#: backend/fujitsu.c:3515
+#: backend/fujitsu.c:3475
 #, no-c-format
 msgid "Set SDTC variance rate (sensitivity), 0 equals 127"
 msgstr ""
 
-#: backend/fujitsu.c:3548
+#: backend/fujitsu.c:3508
 #, fuzzy, no-c-format
 msgid "Auto width detection"
 msgstr "Bez korekce"
 
-#: backend/fujitsu.c:3549
+#: backend/fujitsu.c:3509
 #, no-c-format
 msgid "Scanner detects paper sides. May reduce scanning speed."
 msgstr ""
 
-#: backend/fujitsu.c:3566
+#: backend/fujitsu.c:3526
 #, fuzzy, no-c-format
 msgid "Auto length detection"
 msgstr "Bez korekce"
 
-#: backend/fujitsu.c:3567
+#: backend/fujitsu.c:3527
 #, no-c-format
 msgid "Scanner detects paper lower edge. May confuse some frontends."
 msgstr ""
 
-#: backend/fujitsu.c:3593
+#: backend/fujitsu.c:3553
 #, no-c-format
 msgid "Compression"
 msgstr ""
 
-#: backend/fujitsu.c:3594
+#: backend/fujitsu.c:3554
 #, no-c-format
 msgid "Enable compressed data. May crash your front-end program"
 msgstr ""
 
-#: backend/fujitsu.c:3614
+#: backend/fujitsu.c:3574
 #, no-c-format
 msgid "Compression argument"
 msgstr ""
 
-#: backend/fujitsu.c:3615
+#: backend/fujitsu.c:3575
 #, no-c-format
 msgid ""
 "Level of JPEG compression. 1 is small file, 7 is large file. 0 (default) "
 "is same as 4"
 msgstr ""
 
-#: backend/fujitsu.c:3645
+#: backend/fujitsu.c:3605
 #, no-c-format
 msgid "DF action"
 msgstr ""
 
-#: backend/fujitsu.c:3646
+#: backend/fujitsu.c:3606
 #, no-c-format
 msgid "Action following double feed error"
 msgstr ""
 
-#: backend/fujitsu.c:3662
+#: backend/fujitsu.c:3622
 #, no-c-format
 msgid "DF skew"
 msgstr ""
 
-#: backend/fujitsu.c:3663
+#: backend/fujitsu.c:3623
 #, no-c-format
 msgid "Enable double feed error due to skew"
 msgstr ""
 
-#: backend/fujitsu.c:3681
+#: backend/fujitsu.c:3641
 #, no-c-format
 msgid "DF thickness"
 msgstr ""
 
-#: backend/fujitsu.c:3682
+#: backend/fujitsu.c:3642
 #, no-c-format
 msgid "Enable double feed error due to paper thickness"
 msgstr ""
 
-#: backend/fujitsu.c:3700
+#: backend/fujitsu.c:3660
 #, no-c-format
 msgid "DF length"
 msgstr ""
 
-#: backend/fujitsu.c:3701
+#: backend/fujitsu.c:3661
 #, no-c-format
 msgid "Enable double feed error due to paper length"
 msgstr ""
 
-#: backend/fujitsu.c:3724
+#: backend/fujitsu.c:3684
 #, no-c-format
 msgid "DF length difference"
 msgstr ""
 
-#: backend/fujitsu.c:3725
+#: backend/fujitsu.c:3685
 #, no-c-format
 msgid "Difference in page length to trigger double feed error"
 msgstr ""
 
-#: backend/fujitsu.c:3748
+#: backend/fujitsu.c:3708
 #, fuzzy, no-c-format
 msgid "DF recovery mode"
 msgstr "Režim podavače"
 
-#: backend/fujitsu.c:3749
+#: backend/fujitsu.c:3709
 #, no-c-format
 msgid "Request scanner to reverse feed on paper jam"
 msgstr ""
 
-#: backend/fujitsu.c:3768
+#: backend/fujitsu.c:3728
 #, no-c-format
 msgid "Paper protection"
 msgstr ""
 
-#: backend/fujitsu.c:3769
+#: backend/fujitsu.c:3729
 #, no-c-format
 msgid "Request scanner to predict jams in the ADF"
 msgstr ""
 
-#: backend/fujitsu.c:3788
+#: backend/fujitsu.c:3748
 #, fuzzy, no-c-format
 msgid "Advanced paper protection"
 msgstr "Zvláštní volby"
 
-#: backend/fujitsu.c:3789
+#: backend/fujitsu.c:3749
 #, no-c-format
 msgid "Request scanner to predict jams in the ADF using improved sensors"
 msgstr ""
 
-#: backend/fujitsu.c:3808
+#: backend/fujitsu.c:3768
 #, fuzzy, no-c-format
 msgid "Staple detection"
 msgstr "Bez korekce"
 
-#: backend/fujitsu.c:3809
+#: backend/fujitsu.c:3769
 #, no-c-format
 msgid "Request scanner to detect jams in the ADF caused by staples"
 msgstr ""
 
-#: backend/fujitsu.c:3828
+#: backend/fujitsu.c:3788
 #, no-c-format
 msgid "Background color"
 msgstr ""
 
-#: backend/fujitsu.c:3829
+#: backend/fujitsu.c:3789
 #, no-c-format
 msgid ""
 "Set color of background for scans. May conflict with overscan option"
 msgstr ""
 
-#: backend/fujitsu.c:3849
+#: backend/fujitsu.c:3809
 #, fuzzy, no-c-format
 msgid "Dropout color"
 msgstr "Výpadek"
 
-#: backend/fujitsu.c:3850
+#: backend/fujitsu.c:3810
 #, no-c-format
 msgid ""
 "One-pass scanners use only one color during gray or binary scanning, "
 "useful for colored paper or ink"
 msgstr ""
 
-#: backend/fujitsu.c:3873
+#: backend/fujitsu.c:3833
 #, fuzzy, no-c-format
 msgid "Buffer mode"
 msgstr "Režim podavače"
 
-#: backend/fujitsu.c:3874
+#: backend/fujitsu.c:3834
 #, no-c-format
 msgid "Request scanner to read pages quickly from ADF into internal memory"
 msgstr ""
 
-#: backend/fujitsu.c:3893
+#: backend/fujitsu.c:3853
 #, no-c-format
 msgid "Prepick"
 msgstr ""
 
-#: backend/fujitsu.c:3894
+#: backend/fujitsu.c:3854
 #, no-c-format
 msgid "Request scanner to grab next page from ADF"
 msgstr ""
 
-#: backend/fujitsu.c:3913
+#: backend/fujitsu.c:3873
 #, no-c-format
 msgid "Overscan"
 msgstr ""
 
-#: backend/fujitsu.c:3914
+#: backend/fujitsu.c:3874
 #, no-c-format
 msgid ""
 "Collect a few mm of background on top side of scan, before paper enters "
@@ -2608,65 +2598,65 @@ msgid ""
 "collection on remaining sides. May conflict with bgcolor option"
 msgstr ""
 
-#: backend/fujitsu.c:3932
+#: backend/fujitsu.c:3892
 #, no-c-format
 msgid "Sleep timer"
 msgstr ""
 
-#: backend/fujitsu.c:3933
+#: backend/fujitsu.c:3893
 #, no-c-format
 msgid ""
 "Time in minutes until the internal power supply switches to sleep mode"
 msgstr ""
 
-#: backend/fujitsu.c:3951
+#: backend/fujitsu.c:3911
 #, fuzzy, no-c-format
 msgid "Off timer"
 msgstr "Vypnout lampu"
 
-#: backend/fujitsu.c:3952
+#: backend/fujitsu.c:3912
 #, no-c-format
 msgid ""
 "Time in minutes until the internal power supply switches the scanner "
 "off. Will be rounded to nearest 15 minutes. Zero means never power off."
 msgstr ""
 
-#: backend/fujitsu.c:3970
+#: backend/fujitsu.c:3930
 #, fuzzy, no-c-format
 msgid "Duplex offset"
 msgstr "Odstup modré"
 
-#: backend/fujitsu.c:3971
+#: backend/fujitsu.c:3931
 #, no-c-format
 msgid "Adjust front/back offset"
 msgstr ""
 
-#: backend/fujitsu.c:3988 backend/plustek.c:1025 backend/umax_pp.c:804
+#: backend/fujitsu.c:3948 backend/plustek.c:1025 backend/umax_pp.c:804
 #, no-c-format
 msgid "Green offset"
 msgstr "Odstup zelené"
 
-#: backend/fujitsu.c:3989
+#: backend/fujitsu.c:3949
 #, fuzzy, no-c-format
 msgid "Adjust green/red offset"
 msgstr "Odstup zelené"
 
-#: backend/fujitsu.c:4006 backend/plustek.c:1041 backend/umax_pp.c:816
+#: backend/fujitsu.c:3966 backend/plustek.c:1041 backend/umax_pp.c:816
 #, no-c-format
 msgid "Blue offset"
 msgstr "Odstup modré"
 
-#: backend/fujitsu.c:4007
+#: backend/fujitsu.c:3967
 #, fuzzy, no-c-format
 msgid "Adjust blue/red offset"
 msgstr "Nastavuje odstup modrého kanálu"
 
-#: backend/fujitsu.c:4020
+#: backend/fujitsu.c:3980
 #, no-c-format
 msgid "Low Memory"
 msgstr ""
 
-#: backend/fujitsu.c:4021
+#: backend/fujitsu.c:3981
 #, no-c-format
 msgid ""
 "Limit driver memory usage for use in embedded systems. Causes some "
@@ -2675,322 +2665,322 @@ msgid ""
 "only be used with custom front-end software."
 msgstr ""
 
-#: backend/fujitsu.c:4036
+#: backend/fujitsu.c:3996
 #, fuzzy, no-c-format
 msgid "Duplex side"
 msgstr "Oboustraně"
 
-#: backend/fujitsu.c:4037
+#: backend/fujitsu.c:3997
 #, no-c-format
 msgid ""
 "Tells which side (0=front, 1=back) of a duplex scan the next call to "
 "sane_read will return."
 msgstr ""
 
-#: backend/fujitsu.c:4048
+#: backend/fujitsu.c:4008
 #, no-c-format
 msgid "Hardware deskew and crop"
 msgstr ""
 
-#: backend/fujitsu.c:4049
+#: backend/fujitsu.c:4009
 #, no-c-format
 msgid "Request scanner to rotate and crop pages digitally."
 msgstr ""
 
-#: backend/fujitsu.c:4060 backend/kvs1025_opt.c:872
+#: backend/fujitsu.c:4020 backend/kvs1025_opt.c:872
 #, no-c-format
 msgid "Software deskew"
 msgstr ""
 
-#: backend/fujitsu.c:4061
+#: backend/fujitsu.c:4021
 #, no-c-format
 msgid "Request driver to rotate skewed pages digitally."
 msgstr ""
 
-#: backend/fujitsu.c:4073 backend/kvs1025_opt.c:881
+#: backend/fujitsu.c:4033 backend/kvs1025_opt.c:881
 #, no-c-format
 msgid "Software despeckle diameter"
 msgstr ""
 
-#: backend/fujitsu.c:4074
+#: backend/fujitsu.c:4034
 #, no-c-format
 msgid "Maximum diameter of lone dots to remove from scan."
 msgstr ""
 
-#: backend/fujitsu.c:4093 backend/genesys.c:5760
+#: backend/fujitsu.c:4053 backend/genesys.c:5760
 #, no-c-format
 msgid "Software crop"
 msgstr ""
 
-#: backend/fujitsu.c:4094
+#: backend/fujitsu.c:4054
 #, no-c-format
 msgid "Request driver to remove border from pages digitally."
 msgstr ""
 
-#: backend/fujitsu.c:4123
+#: backend/fujitsu.c:4083
 #, no-c-format
 msgid "Halt on Cancel"
 msgstr ""
 
-#: backend/fujitsu.c:4124
+#: backend/fujitsu.c:4084
 #, no-c-format
 msgid ""
 "Request driver to halt the paper feed instead of eject during a cancel."
 msgstr ""
 
-#: backend/fujitsu.c:4135
+#: backend/fujitsu.c:4095
 #, fuzzy, no-c-format
 msgid "Endorser Options"
 msgstr "Zvláštní volby"
 
-#: backend/fujitsu.c:4136
+#: backend/fujitsu.c:4096
 #, no-c-format
 msgid "Controls for endorser unit"
 msgstr ""
 
-#: backend/fujitsu.c:4147
+#: backend/fujitsu.c:4107
 #, no-c-format
 msgid "Endorser"
 msgstr ""
 
-#: backend/fujitsu.c:4148
+#: backend/fujitsu.c:4108
 #, no-c-format
 msgid "Enable endorser unit"
 msgstr ""
 
-#: backend/fujitsu.c:4163
+#: backend/fujitsu.c:4123
 #, no-c-format
 msgid "Endorser bits"
 msgstr ""
 
-#: backend/fujitsu.c:4164
+#: backend/fujitsu.c:4124
 #, no-c-format
 msgid "Determines maximum endorser counter value."
 msgstr ""
 
-#: backend/fujitsu.c:4189
+#: backend/fujitsu.c:4149
 #, no-c-format
 msgid "Endorser value"
 msgstr ""
 
-#: backend/fujitsu.c:4190
+#: backend/fujitsu.c:4150
 #, no-c-format
 msgid "Initial endorser counter value."
 msgstr ""
 
-#: backend/fujitsu.c:4213
+#: backend/fujitsu.c:4173
 #, no-c-format
 msgid "Endorser step"
 msgstr ""
 
-#: backend/fujitsu.c:4214
+#: backend/fujitsu.c:4174
 #, no-c-format
 msgid "Change endorser counter value by this much for each page."
 msgstr ""
 
-#: backend/fujitsu.c:4237
+#: backend/fujitsu.c:4197
 #, no-c-format
 msgid "Endorser Y"
 msgstr ""
 
-#: backend/fujitsu.c:4238
+#: backend/fujitsu.c:4198
 #, no-c-format
 msgid "Endorser print offset from top of paper."
 msgstr ""
 
-#: backend/fujitsu.c:4263
+#: backend/fujitsu.c:4223
 #, no-c-format
 msgid "Endorser font"
 msgstr ""
 
-#: backend/fujitsu.c:4264
+#: backend/fujitsu.c:4224
 #, no-c-format
 msgid "Endorser printing font."
 msgstr ""
 
-#: backend/fujitsu.c:4293
+#: backend/fujitsu.c:4253
 #, fuzzy, no-c-format
 msgid "Endorser direction"
 msgstr "Redukce šumu"
 
-#: backend/fujitsu.c:4294
+#: backend/fujitsu.c:4254
 #, no-c-format
 msgid "Endorser printing direction."
 msgstr ""
 
-#: backend/fujitsu.c:4318
+#: backend/fujitsu.c:4278
 #, no-c-format
 msgid "Endorser side"
 msgstr ""
 
-#: backend/fujitsu.c:4319
+#: backend/fujitsu.c:4279
 #, no-c-format
 msgid "Endorser printing side, requires hardware support to change"
 msgstr ""
 
-#: backend/fujitsu.c:4344
+#: backend/fujitsu.c:4304
 #, no-c-format
 msgid "Endorser string"
 msgstr ""
 
-#: backend/fujitsu.c:4345
+#: backend/fujitsu.c:4305
 #, no-c-format
 msgid ""
 "Endorser alphanumeric print format. %05ud or %08ud at the end will be "
 "replaced by counter value."
 msgstr ""
 
-#: backend/fujitsu.c:4372
+#: backend/fujitsu.c:4332
 #, no-c-format
 msgid "Top edge"
 msgstr ""
 
-#: backend/fujitsu.c:4373
+#: backend/fujitsu.c:4333
 #, no-c-format
 msgid "Paper is pulled partly into adf"
 msgstr ""
 
-#: backend/fujitsu.c:4384
+#: backend/fujitsu.c:4344
 #, fuzzy, no-c-format
 msgid "A3 paper"
 msgstr "Z papíru"
 
-#: backend/fujitsu.c:4385
+#: backend/fujitsu.c:4345
 #, no-c-format
 msgid "A3 paper detected"
 msgstr ""
 
-#: backend/fujitsu.c:4396
+#: backend/fujitsu.c:4356
 #, fuzzy, no-c-format
 msgid "B4 paper"
 msgstr "Z papíru"
 
-#: backend/fujitsu.c:4397
+#: backend/fujitsu.c:4357
 #, no-c-format
 msgid "B4 paper detected"
 msgstr ""
 
-#: backend/fujitsu.c:4408
+#: backend/fujitsu.c:4368
 #, fuzzy, no-c-format
 msgid "A4 paper"
 msgstr "Z papíru"
 
-#: backend/fujitsu.c:4409
+#: backend/fujitsu.c:4369
 #, no-c-format
 msgid "A4 paper detected"
 msgstr ""
 
-#: backend/fujitsu.c:4420
+#: backend/fujitsu.c:4380
 #, fuzzy, no-c-format
 msgid "B5 paper"
 msgstr "Z papíru"
 
-#: backend/fujitsu.c:4421
+#: backend/fujitsu.c:4381
 #, no-c-format
 msgid "B5 paper detected"
 msgstr ""
 
-#: backend/fujitsu.c:4444
+#: backend/fujitsu.c:4404
 #, no-c-format
 msgid "OMR or DF"
 msgstr ""
 
-#: backend/fujitsu.c:4445
+#: backend/fujitsu.c:4405
 #, no-c-format
 msgid "OMR or double feed detected"
 msgstr ""
 
-#: backend/fujitsu.c:4468
+#: backend/fujitsu.c:4428
 #, no-c-format
 msgid "Power saving"
 msgstr ""
 
-#: backend/fujitsu.c:4469
+#: backend/fujitsu.c:4429
 #, no-c-format
 msgid "Scanner in power saving mode"
 msgstr ""
 
-#: backend/fujitsu.c:4492
+#: backend/fujitsu.c:4452
 #, fuzzy, no-c-format
 msgid "Manual feed"
 msgstr "Manuální předběžné zaostření"
 
-#: backend/fujitsu.c:4493
+#: backend/fujitsu.c:4453
 #, fuzzy, no-c-format
 msgid "Manual feed selected"
 msgstr "Manuální předběžné zaostření"
 
-#: backend/fujitsu.c:4516
+#: backend/fujitsu.c:4476
 #, no-c-format
 msgid "Function"
 msgstr ""
 
-#: backend/fujitsu.c:4517
+#: backend/fujitsu.c:4477
 #, no-c-format
 msgid "Function character on screen"
 msgstr ""
 
-#: backend/fujitsu.c:4528
+#: backend/fujitsu.c:4488
 #, no-c-format
 msgid "Ink low"
 msgstr ""
 
-#: backend/fujitsu.c:4529
+#: backend/fujitsu.c:4489
 #, no-c-format
 msgid "Imprinter ink running low"
 msgstr ""
 
-#: backend/fujitsu.c:4540
+#: backend/fujitsu.c:4500
 #, no-c-format
 msgid "Double feed"
 msgstr ""
 
-#: backend/fujitsu.c:4541
+#: backend/fujitsu.c:4501
 #, no-c-format
 msgid "Double feed detected"
 msgstr ""
 
-#: backend/fujitsu.c:4552
+#: backend/fujitsu.c:4512
 #, no-c-format
 msgid "Error code"
 msgstr ""
 
-#: backend/fujitsu.c:4553
+#: backend/fujitsu.c:4513
 #, fuzzy, no-c-format
 msgid "Hardware error code"
 msgstr "Rozlišení"
 
-#: backend/fujitsu.c:4564
+#: backend/fujitsu.c:4524
 #, no-c-format
 msgid "Skew angle"
 msgstr ""
 
-#: backend/fujitsu.c:4565
+#: backend/fujitsu.c:4525
 #, no-c-format
 msgid "Requires black background for scanning"
 msgstr ""
 
-#: backend/fujitsu.c:4576
+#: backend/fujitsu.c:4536
 #, no-c-format
 msgid "Ink remaining"
 msgstr ""
 
-#: backend/fujitsu.c:4577
+#: backend/fujitsu.c:4537
 #, fuzzy, no-c-format
 msgid "Imprinter ink level"
 msgstr "Úroveň bílé"
 
-#: backend/fujitsu.c:4588
+#: backend/fujitsu.c:4548
 #, fuzzy, no-c-format
 msgid "Density"
 msgstr "Intenzita červené"
 
-#: backend/fujitsu.c:4589
+#: backend/fujitsu.c:4549
 #, no-c-format
 msgid "Density dial"
 msgstr ""
 
-#: backend/fujitsu.c:4600 backend/fujitsu.c:4601
+#: backend/fujitsu.c:4560 backend/fujitsu.c:4561
 #, fuzzy, no-c-format
 msgid "Duplex switch"
 msgstr "Oboustraně"
@@ -3015,12 +3005,12 @@ msgstr ""
 msgid "Request driver to detect and correct 90 degree image rotation"
 msgstr ""
 
-#: backend/genesys.c:5813 backend/pixma_sane_options.c:312
+#: backend/genesys.c:5813 backend/pixma_sane_options.c:314
 #, fuzzy, no-c-format
 msgid "Extras"
 msgstr "Velmi rychlý"
 
-#: backend/genesys.c:5833 backend/pixma_sane_options.c:334
+#: backend/genesys.c:5833 backend/pixma_sane_options.c:336
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
 msgstr ""
@@ -3134,7 +3124,7 @@ msgid "The scanner needs calibration for the current settings"
 msgstr "Vynutit kalibraci skeneru před skenováním"
 
 #: backend/genesys.c:6080 backend/gt68xx.c:787 backend/gt68xx.c:788
-#: backend/pixma_sane_options.c:224 backend/plustek.c:1080
+#: backend/pixma_sane_options.c:226 backend/plustek.c:1080
 #, fuzzy, no-c-format
 msgid "Buttons"
 msgstr "Stav tlačítek"
@@ -3266,12 +3256,12 @@ msgstr "Hodnota gama"
 msgid "Sets the gamma value of all channels."
 msgstr "Nastavuje hodnotu gama pro všechny kanály."
 
-#: backend/hp3500.c:1004
+#: backend/hp3500.c:1020
 #, fuzzy, no-c-format
 msgid "Geometry Group"
 msgstr "Geometrie"
 
-#: backend/hp3500.c:1057 backend/hp3500.c:1058
+#: backend/hp3500.c:1073 backend/hp3500.c:1074
 #, fuzzy, no-c-format
 msgid "Scan Mode Group"
 msgstr "Režim skenování"
@@ -3904,7 +3894,7 @@ msgstr ""
 msgid "single"
 msgstr ""
 
-#: backend/kvs1025_opt.c:73 backend/kvs20xx.c:455 backend/kvs20xx_opt.c:56
+#: backend/kvs1025_opt.c:73 backend/kvs20xx.c:462 backend/kvs20xx_opt.c:56
 #: backend/kvs40xx.c:704 backend/kvs40xx.c:722 backend/kvs40xx_opt.c:102
 #: backend/kvs40xx_opt.c:1087
 #, no-c-format
@@ -4204,7 +4194,7 @@ msgstr "Nastaví zvýraznění obrázku"
 
 #: backend/kvs1025_opt.c:808 backend/kvs1025_opt.c:809
 #: backend/matsushita.c:1300 backend/matsushita.c:1301
-#: backend/pixma_sane_options.c:110
+#: backend/pixma_sane_options.c:112
 #, no-c-format
 msgid "Gamma"
 msgstr "Gama"
@@ -5138,19 +5128,19 @@ msgstr ""
 msgid "16 bits gray"
 msgstr ""
 
-#: backend/pixma_sane_options.c:82
+#: backend/pixma_sane_options.c:84
 #, no-c-format
 msgid ""
 "Selects the scan source (such as a document-feeder). Set source before "
 "mode and resolution. Resets mode and resolution to auto values."
 msgstr ""
 
-#: backend/pixma_sane_options.c:96
+#: backend/pixma_sane_options.c:98
 #, no-c-format
 msgid "Button-controlled scan"
 msgstr ""
 
-#: backend/pixma_sane_options.c:97
+#: backend/pixma_sane_options.c:99
 #, no-c-format
 msgid ""
 "When enabled, scan process will not start immediately. To proceed, press "
@@ -5158,29 +5148,41 @@ msgid ""
 "cancel, press \"GRAY\" button."
 msgstr ""
 
-#: backend/pixma_sane_options.c:230
+#: backend/pixma_sane_options.c:232
 #, fuzzy, no-c-format
 msgid "Update button state"
 msgstr "Stav tlačítek"
 
-#: backend/pixma_sane_options.c:242
+#: backend/pixma_sane_options.c:244
 #, fuzzy, no-c-format
 msgid "Button 1"
 msgstr "Stav tlačítek"
 
-#: backend/pixma_sane_options.c:256
+#: backend/pixma_sane_options.c:258
 #, fuzzy, no-c-format
 msgid "Button 2"
 msgstr "Stav tlačítek"
 
-#: backend/pixma_sane_options.c:270
+#: backend/pixma_sane_options.c:272
 #, no-c-format
 msgid "Type of original to scan"
 msgstr ""
 
-#: backend/pixma_sane_options.c:284
+#: backend/pixma_sane_options.c:286
 #, no-c-format
 msgid "Target operation type"
+msgstr ""
+
+#: backend/pixma_sane_options.c:348
+#, no-c-format
+msgid "ADF Waiting Time"
+msgstr ""
+
+#: backend/pixma_sane_options.c:349
+#, no-c-format
+msgid ""
+"When set, the scanner searches the waiting time in seconds for a new "
+"document inserted into the automatic document feeder."
 msgstr ""
 
 #: backend/plustek.c:235 backend/plustek_pp.c:204 backend/u12.c:156
@@ -6401,6 +6403,10 @@ msgstr "Nastavuje odstup zeleného kanálu"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Nastavuje odstup modrého kanálu"
+
+#, fuzzy
+#~ msgid "IPC mode"
+#~ msgstr "Režim náhledu"
 
 #~ msgid "Grayscale"
 #~ msgstr "Stupně šedé"

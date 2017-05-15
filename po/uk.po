@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends\n"
 "Report-Msgid-Bugs-To: sane-devel@lists.alioth.debian.org\n"
-"POT-Creation-Date: 2017-04-28 17:22+0300\n"
+"POT-Creation-Date: 2017-05-14 09:24+0000\n"
 "PO-Revision-Date: 2017-04-28 19:32+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <translation@linux.org.ua>\n"
@@ -4023,7 +4023,7 @@ msgstr "планшет"
 msgid "single"
 msgstr "однобічний"
 
-#: backend/kvs1025_opt.c:73 backend/kvs20xx.c:455 backend/kvs20xx_opt.c:56
+#: backend/kvs1025_opt.c:73 backend/kvs20xx.c:462 backend/kvs20xx_opt.c:56
 #: backend/kvs40xx.c:704 backend/kvs40xx.c:722 backend/kvs40xx_opt.c:102
 #: backend/kvs40xx_opt.c:1087
 #, no-c-format

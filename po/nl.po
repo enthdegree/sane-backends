@@ -4,20 +4,20 @@
 # Martin Kho <mkho@xs4all.nl>, 2003, 2009.
 # Bertrik Sikken <bertrik@zonnet.nl>, 2003.
 # Martin Kho <mdlkho@gmail.com>, 2010.
-# Martin Kho <mkho@dds.nl>, 2011, 2012, 2013, 2015.
+# Martin Kho <mkho@dds.nl>, 2011, 2012, 2013, 2015, 2017.
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends.nl\n"
 "Report-Msgid-Bugs-To: sane-devel@lists.alioth.debian.org\n"
 "POT-Creation-Date: 2017-05-14 09:24+0000\n"
-"PO-Revision-Date: 2015-09-28 15:48+0200\n"
-"Last-Translator: Martin Kho <mkho@dds.nl>\n"
-"Language-Team: American English <sane-devel@lists.alioth.debian.org>\n"
+"PO-Revision-Date: 2017-05-19 17:02+0100\n"
+"Last-Translator: Martin Kho <mkho@posteo.net>\n"
+"Language-Team: English <kde-i18n-doc@kde.org>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 1.5\n"
+"X-Generator: Lokalize 2.0\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: include/sane/saneopts.h:154
@@ -548,8 +548,7 @@ msgstr "Bepaalt de hoogte van het origineel."
 
 #: include/sane/saneopts.h:308
 #, no-c-format
-msgid ""
-"Determines whether a builtin or a custom gamma-table should be used."
+msgid "Determines whether a builtin or a custom gamma-table should be used."
 msgstr ""
 "Bepaalt of de interne of de door de gebruiker gedefinieerde gammatabel "
 "wordt gebruikt."
@@ -607,8 +606,7 @@ msgstr "Bepaalt of een halftoon beeld (dithered) wordt verkregen."
 #: include/sane/saneopts.h:339 include/sane/saneopts.h:354
 #, no-c-format
 msgid "Selects what radiance level should be considered \"black\"."
-msgstr ""
-"Bepaalt welke helderheidswaarde als \"zwart\" moet worden beschouwd."
+msgstr "Bepaalt welke helderheidswaarde als \"zwart\" moet worden beschouwd."
 
 #: include/sane/saneopts.h:342 include/sane/saneopts.h:363
 #, no-c-format
@@ -662,16 +660,14 @@ msgstr ""
 
 #: include/sane/saneopts.h:367
 #, no-c-format
-msgid ""
-"Selects what green radiance level should be considered \"full green\"."
+msgid "Selects what green radiance level should be considered \"full green\"."
 msgstr ""
 "Bepaalt welke groene helderheidswaarde als \"verzadigd groen\" moet "
 "worden beschouwd."
 
 #: include/sane/saneopts.h:370
 #, no-c-format
-msgid ""
-"Selects what blue radiance level should be considered \"full blue\"."
+msgid "Selects what blue radiance level should be considered \"full blue\"."
 msgstr ""
 "Bepaalt welke blauwe helderheidswaarde als \"verzadigd blauw\" moet "
 "worden beschouwd."
@@ -780,14 +776,12 @@ msgstr "Bepaal de belichtingstijd voor de kalibratie van de rode component"
 #: include/sane/saneopts.h:421
 #, no-c-format
 msgid "Define exposure-time for green calibration"
-msgstr ""
-"Bepaal de belichtingstijd voor de kalibratie van de groene component"
+msgstr "Bepaal de belichtingstijd voor de kalibratie van de groene component"
 
 #: include/sane/saneopts.h:423
 #, no-c-format
 msgid "Define exposure-time for blue calibration"
-msgstr ""
-"Bepaal de belichtingstijd voor de kalibratie van de blauwe component"
+msgstr "Bepaal de belichtingstijd voor de kalibratie van de blauwe component"
 
 #: include/sane/saneopts.h:425
 #, no-c-format
@@ -1043,8 +1037,7 @@ msgstr "Dubbelzijdige scan"
 
 #: backend/avision.h:783
 #, no-c-format
-msgid ""
-"Duplex scan provide a scan of the front and back side of the document"
+msgid "Duplex scan provide a scan of the front and back side of the document"
 msgstr "Dubbelzijdige scan scant beide zijden van een document"
 
 #: backend/canon630u.c:159
@@ -1204,8 +1197,7 @@ msgstr "lampfalen van de transparanten eenheid"
 #: backend/canon.c:415
 #, no-c-format
 msgid "transparency unit scan head positioning failure"
-msgstr ""
-"fout in de positionering van de scannerkop in de transparanten eenheid"
+msgstr "fout in de positionering van de scannerkop in de transparanten eenheid"
 
 #: backend/canon.c:429
 #, no-c-format
@@ -1383,8 +1375,7 @@ msgstr "Handmatige focuspositie"
 #: backend/canon.c:1346
 #, no-c-format
 msgid "Set the optical system's focus position by hand (default: 128)."
-msgstr ""
-"Stel de optische focus van de scanner handmatig in (standaard: 128)"
+msgstr "Stel de optische focus van de scanner handmatig in (standaard: 128)"
 
 #: backend/canon.c:1356
 #, no-c-format
@@ -1469,8 +1460,7 @@ msgstr "Werp de film uit voor het programma wordt verlaten"
 
 #: backend/canon.c:1681
 #, no-c-format
-msgid ""
-"Automatically eject the film from the device before exiting the program"
+msgid "Automatically eject the film from the device before exiting the program"
 msgstr ""
 "Werp de film automatisch uit de scanner voor het programma wordt verlaten"
 
@@ -2085,8 +2075,7 @@ msgstr "Focus positie"
 
 #: backend/epson.h:73 backend/epson2.h:72
 #, no-c-format
-msgid ""
-"Sets the focus position to either the glass or 2.5mm above the glass"
+msgid "Sets the focus position to either the glass or 2.5mm above the glass"
 msgstr "Stelt de focus in op het glas of 2.5mm daarboven"
 
 #: backend/epson.h:75 backend/epson2.h:74
@@ -2259,109 +2248,108 @@ msgstr "Verandert de intensiteit van de middentonen"
 #: backend/fujitsu.c:3147
 #, no-c-format
 msgid "RIF"
-msgstr ""
+msgstr "GBF"
 
 #: backend/fujitsu.c:3148
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Reverse image format"
-msgstr "Geïnverteerd beeld"
+msgstr "Gespiegeld beeld formaat"
 
 #: backend/fujitsu.c:3165
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Halftone type"
-msgstr "Halftoon"
+msgstr "Halftoon type"
 
 #: backend/fujitsu.c:3166
 #, no-c-format
 msgid "Control type of halftone filter"
-msgstr ""
+msgstr "Regeltype van het halftoon filter"
 
 #: backend/fujitsu.c:3187
 #, no-c-format
 msgid "Control pattern of halftone filter"
-msgstr ""
+msgstr "Regelpatroon van het halftoon filter"
 
 #: backend/fujitsu.c:3209
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "Outline"
-msgstr ""
+msgstr "Omtrek"
 
 #: backend/fujitsu.c:3210
 #, fuzzy, no-c-format
 msgid "Perform outline extraction"
-msgstr "Voert kalibratie uit"
+msgstr "Voer omtrek extractie uit"
 
 #: backend/fujitsu.c:3221
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Emphasis"
-msgstr "Beeldverbetering"
+msgstr "Nadruk"
 
 #: backend/fujitsu.c:3222
 #, no-c-format
 msgid "Negative to smooth or positive to sharpen image"
-msgstr ""
+msgstr "Negatief naar geleidelijk of positief naar scherp beeld"
 
 #: backend/fujitsu.c:3240
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Separation"
-msgstr "Kleurverzadiging"
+msgstr "Scheiding"
 
 #: backend/fujitsu.c:3241
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enable automatic separation of image and text"
-msgstr ""
-"Maak automatische bepaling mogelijk van de drempelwaarde voor "
-"lijntekening scans."
+msgstr "Schakel automatische scheiding tussen beeld en tekst in"
 
 #: backend/fujitsu.c:3252
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Mirroring"
-msgstr "Spiegel het beeld"
+msgstr "Spiegelen"
 
 #: backend/fujitsu.c:3253
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Reflect output image horizontally"
-msgstr "Beeld horizontaal spiegelen"
+msgstr "Spiegel het resulterende beeld horizontaal"
 
 #: backend/fujitsu.c:3270
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "White level follower"
-msgstr "Witwaarde voor blauw"
+msgstr "Witwaarde volger"
 
 #: backend/fujitsu.c:3271
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Control white level follower"
-msgstr "Regelt de roodwaarde"
+msgstr "Regel de witwaarde volger"
 
 #: backend/fujitsu.c:3289
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "BP filter"
-msgstr "Kleurenfilter"
+msgstr "BP filter"
 
 #: backend/fujitsu.c:3290
 #, no-c-format
 msgid "Improves quality of high resolution ball-point pen text"
-msgstr ""
+msgstr "Verbeterd de kwaliteit van hoog resolutie bal-punt pen tekst"
 
 #: backend/fujitsu.c:3306 backend/hp-option.h:73
 #, no-c-format
 msgid "Smoothing"
-msgstr "Gelijkmatig"
+msgstr "Verzachten"
 
 #: backend/fujitsu.c:3307
 #, no-c-format
 msgid "Enable smoothing for improved OCR"
-msgstr ""
+msgstr "Schakelt verzachting in om OCR te verbeteren"
 
 #: backend/fujitsu.c:3323
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Gamma curve"
-msgstr "Gammawaarde"
+msgstr "Gammakromme"
 
 #: backend/fujitsu.c:3324
 #, no-c-format
 msgid "Gamma curve, from light to dark, but upper two may not work"
 msgstr ""
+"Gammakromme, van licht naar donker, maar bovenste twee werken misschien niet"
 
 #: backend/fujitsu.c:3346 backend/genesys.c:5832
 #: backend/pixma_sane_options.c:335
@@ -2370,110 +2358,114 @@ msgid "Threshold curve"
 msgstr "Drempel curve"
 
 #: backend/fujitsu.c:3347
-#, fuzzy, no-c-format
-msgid ""
-"Threshold curve, from light to dark, but upper two may not be linear"
-msgstr "Dynamische drempel curve, van licht naar donker, normaal 50-65"
+#, no-c-format
+msgid "Threshold curve, from light to dark, but upper two may not be linear"
+msgstr ""
+"Drempel curve, van licht naar donker, maar bovenste twee zijn misschien niet"
+" liniair"
 
 #: backend/fujitsu.c:3369
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Threshold white"
-msgstr "Drempelwaarde"
+msgstr "Drempel wit"
 
 #: backend/fujitsu.c:3370
 #, no-c-format
 msgid "Set pixels equal to threshold to white instead of black"
-msgstr ""
+msgstr "Stelt schermpunten in overeenkomstig de drempel voor wit ipv zwart"
 
 #: backend/fujitsu.c:3386 backend/fujitsu.c:3387
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Noise removal"
-msgstr "Ruisonderdrukking"
+msgstr "Ruisverwijdering"
 
 #: backend/fujitsu.c:3403
 #, no-c-format
 msgid "Matrix 5x5"
-msgstr ""
+msgstr "Matrix 5x5"
 
 #: backend/fujitsu.c:3404
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "Remove 5 pixel square noise"
-msgstr ""
+msgstr "Verwijder 5 beeldpunten in een vierkant ruis"
 
 #: backend/fujitsu.c:3420
 #, no-c-format
 msgid "Matrix 4x4"
-msgstr ""
+msgstr "Matrix 4x4"
 
 #: backend/fujitsu.c:3421
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "Remove 4 pixel square noise"
-msgstr ""
+msgstr "Verwijder 4 beeldpunten in een vierkant ruis"
 
 #: backend/fujitsu.c:3437
 #, no-c-format
 msgid "Matrix 3x3"
-msgstr ""
+msgstr "Matrix 3x3"
 
 #: backend/fujitsu.c:3438
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "Remove 3 pixel square noise"
-msgstr ""
+msgstr "Verwijder 3 beeldpunten in een vierkant ruis"
 
 #: backend/fujitsu.c:3454
 #, no-c-format
 msgid "Matrix 2x2"
-msgstr ""
+msgstr "Matrix 2x2"
 
 #: backend/fujitsu.c:3455
 #, no-c-format
 msgid "Remove 2 pixel square noise"
-msgstr ""
+msgstr "Verwijder 2 beeldpunten in een vierkant ruis"
 
 #: backend/fujitsu.c:3474
 #, no-c-format
 msgid "Variance"
-msgstr ""
+msgstr "Variantie"
 
 #: backend/fujitsu.c:3475
 #, no-c-format
 msgid "Set SDTC variance rate (sensitivity), 0 equals 127"
-msgstr ""
+msgstr "Stelt SDTC variantie rato in (gevoeligheid), 0 is gelijk aan 127"
 
 #: backend/fujitsu.c:3508
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Auto width detection"
-msgstr "Geen herkenning"
+msgstr "Automatische breedte herkenning"
 
 #: backend/fujitsu.c:3509
 #, no-c-format
 msgid "Scanner detects paper sides. May reduce scanning speed."
-msgstr ""
+msgstr "Scanner herkent paper zijden. Kan de scansnelheid verminderen."
 
 #: backend/fujitsu.c:3526
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Auto length detection"
-msgstr "Geen herkenning"
+msgstr "Automatische lengte herkenning"
 
 #: backend/fujitsu.c:3527
 #, no-c-format
 msgid "Scanner detects paper lower edge. May confuse some frontends."
 msgstr ""
+"Scanner herkent onderzijde van het papier. Kan sommige frontends in de war"
+" brengen."
 
 #: backend/fujitsu.c:3553
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Compression"
-msgstr "jpeg compressie"
+msgstr "Compressie"
 
 #: backend/fujitsu.c:3554
 #, no-c-format
 msgid "Enable compressed data. May crash your front-end program"
 msgstr ""
+"Schakelt gecomprimeerde gegevens in. Kan je front-end programma laten crashen."
 
 #: backend/fujitsu.c:3574
 #, no-c-format
 msgid "Compression argument"
-msgstr ""
+msgstr "Compressie argument"
 
 #: backend/fujitsu.c:3575
 #, no-c-format
@@ -2481,113 +2473,120 @@ msgid ""
 "Level of JPEG compression. 1 is small file, 7 is large file. 0 (default) "
 "is same as 4"
 msgstr ""
+"Niveau van JPEG compressie. 1 is klein bestand, 7 is groot bestand. 0"
+" (standaard) "
+"is hetzelfde als 4"
 
 #: backend/fujitsu.c:3605
 #, no-c-format
 msgid "DF action"
-msgstr ""
+msgstr "DF actie"
 
 #: backend/fujitsu.c:3606
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Action following double feed error"
-msgstr "Negeer rechter dubbele doorvoer voeler"
+msgstr "Actie die volgt op dubbele doorvoer fout"
 
 #: backend/fujitsu.c:3622
 #, no-c-format
 msgid "DF skew"
-msgstr ""
+msgstr "DF scheefheid"
 
 #: backend/fujitsu.c:3623
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enable double feed error due to skew"
-msgstr "Dubbele doorvoer herkenning in/uit schakelen"
+msgstr "Schakel dubbele doorvoer fout in als gevolg van scheefheid"
 
 #: backend/fujitsu.c:3641
 #, no-c-format
 msgid "DF thickness"
-msgstr ""
+msgstr "DF dikte"
 
 #: backend/fujitsu.c:3642
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enable double feed error due to paper thickness"
-msgstr "Dubbele doorvoer herkenning in/uit schakelen"
+msgstr "Stelt dubbele doorvoer fout in als gevolg van papierdikte"
 
 #: backend/fujitsu.c:3660
 #, no-c-format
 msgid "DF length"
-msgstr ""
+msgstr "DF lengte"
 
 #: backend/fujitsu.c:3661
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enable double feed error due to paper length"
-msgstr "Dubbele doorvoer herkenning in/uit schakelen"
+msgstr "Stelt dubbele doorvoer fout in als gevolg van papierlengte"
 
 #: backend/fujitsu.c:3684
 #, no-c-format
 msgid "DF length difference"
-msgstr ""
+msgstr "DF lengte verschil"
 
 #: backend/fujitsu.c:3685
 #, no-c-format
 msgid "Difference in page length to trigger double feed error"
-msgstr ""
+msgstr "Verschil in papier lengte om dubbele doorvoer fout te veroorzaken"
 
 #: backend/fujitsu.c:3708
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "DF recovery mode"
-msgstr "Deksel van automatische documentinvoer open"
+msgstr "DF herstel modus"
 
 #: backend/fujitsu.c:3709
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Request scanner to reverse feed on paper jam"
-msgstr ""
-"Vraag het stuurprogramma randen van pagina's digitaal te verwijderen "
+msgstr "Vraag de scanner de doorvoer om te keren bij papier opstopping"
 
 #: backend/fujitsu.c:3728
 #, no-c-format
 msgid "Paper protection"
-msgstr ""
+msgstr "Papier protectie"
 
 #: backend/fujitsu.c:3729
 #, no-c-format
 msgid "Request scanner to predict jams in the ADF"
-msgstr ""
+msgstr "Vraag de scanner opstoppingen in de ADF  te voorspellen "
 
 #: backend/fujitsu.c:3748
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Advanced paper protection"
-msgstr "Geavanceerde opties"
+msgstr "Geavanceerde papier protectie"
 
 #: backend/fujitsu.c:3749
 #, no-c-format
 msgid "Request scanner to predict jams in the ADF using improved sensors"
 msgstr ""
+"Vraag de scanner opstoppingen in de ADF te voorspellen met behulp van"
+" verbeterde sensoren"
 
 #: backend/fujitsu.c:3768
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Staple detection"
-msgstr "Geen herkenning"
+msgstr "Nietjes detectie"
 
 #: backend/fujitsu.c:3769
 #, no-c-format
 msgid "Request scanner to detect jams in the ADF caused by staples"
 msgstr ""
+"Vraag de scanner opstoppingen in de ADF te detecteren die worden veroorzaakt"
+" door nietjes"
 
 #: backend/fujitsu.c:3788
 #, no-c-format
 msgid "Background color"
-msgstr ""
+msgstr "Achtergrond kleur"
 
 #: backend/fujitsu.c:3789
 #, no-c-format
-msgid ""
-"Set color of background for scans. May conflict with overscan option"
+msgid "Set color of background for scans. May conflict with overscan option"
 msgstr ""
+"Stel de achtergrond kleur van scans in. Kan conflicteren met de 'overscan'"
+" optie"
 
 #: backend/fujitsu.c:3809
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Dropout color"
-msgstr "Kleuronderdrukken"
+msgstr "Uitvalkleur"
 
 #: backend/fujitsu.c:3810
 #, no-c-format
@@ -2595,31 +2594,36 @@ msgid ""
 "One-pass scanners use only one color during gray or binary scanning, "
 "useful for colored paper or ink"
 msgstr ""
+"One-pass scanners gebruiken slechts een kleur bij grijstrap of binair"
+" scannen, "
+"bruikbaar voor gekleurd papier of inkt."
 
 #: backend/fujitsu.c:3833
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Buffer mode"
-msgstr "Doorvoermodus"
+msgstr "Buffermodus"
 
 #: backend/fujitsu.c:3834
 #, no-c-format
 msgid "Request scanner to read pages quickly from ADF into internal memory"
 msgstr ""
+"Vraag de scanner pagina's vanuit de ADF zo snel mogelijk in te lezen in het"
+" interne geheugen"
 
 #: backend/fujitsu.c:3853
 #, no-c-format
 msgid "Prepick"
-msgstr ""
+msgstr "Voorkeuze"
 
 #: backend/fujitsu.c:3854
 #, no-c-format
 msgid "Request scanner to grab next page from ADF"
-msgstr ""
+msgstr "Vraag de scanner de volgende pagina uit de ADF op te halen"
 
 #: backend/fujitsu.c:3873
 #, no-c-format
 msgid "Overscan"
-msgstr ""
+msgstr "Overscan"
 
 #: backend/fujitsu.c:3874
 #, no-c-format
@@ -2628,22 +2632,28 @@ msgid ""
 "ADF, and increase maximum scan area beyond paper size, to allow "
 "collection on remaining sides. May conflict with bgcolor option"
 msgstr ""
+"Selecteer een paar mm van de achtergrond aan de bovenkant van de scan,"
+" voordat het papier "
+"de ADF ingaat, en vergroot het maximale scan oppervlak t.o.v. het"
+" papierformaat, om de "
+"inzameling van de overige kanten toe te staan. Kan conflicteren met 'bgcolor'"
+" optie"
 
 #: backend/fujitsu.c:3892
 #, no-c-format
 msgid "Sleep timer"
-msgstr ""
+msgstr "Tijdschakelaar - slaapstand"
 
 #: backend/fujitsu.c:3893
 #, no-c-format
-msgid ""
-"Time in minutes until the internal power supply switches to sleep mode"
+msgid "Time in minutes until the internal power supply switches to sleep mode"
 msgstr ""
+"Tijd in minuten voordat de interne voeding overschakelt naar slaap modus"
 
 #: backend/fujitsu.c:3911
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Off timer"
-msgstr "Lamp-uit tijd"
+msgstr "Tijdschakelaar - uitstand"
 
 #: backend/fujitsu.c:3912
 #, no-c-format
@@ -2651,16 +2661,18 @@ msgid ""
 "Time in minutes until the internal power supply switches the scanner "
 "off. Will be rounded to nearest 15 minutes. Zero means never power off."
 msgstr ""
+"Tijd in minuten voordat de interne voeding de scanner uitschakelt. "
+"In stappen van 15 minuten. Nul betekent nooit uitschakelen"
 
 #: backend/fujitsu.c:3930
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Duplex offset"
-msgstr "Blauw compensatie"
+msgstr "Dubbelzijdige compensatie"
 
 #: backend/fujitsu.c:3931
 #, no-c-format
 msgid "Adjust front/back offset"
-msgstr ""
+msgstr "Pas voor-/achtercompensatie aan"
 
 #: backend/fujitsu.c:3948 backend/plustek.c:1025 backend/umax_pp.c:804
 #, no-c-format
@@ -2668,9 +2680,9 @@ msgid "Green offset"
 msgstr "Groen compensatie"
 
 #: backend/fujitsu.c:3949
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Adjust green/red offset"
-msgstr "Groen compensatie"
+msgstr "Pas groen-/roodcompensatie aan"
 
 #: backend/fujitsu.c:3966 backend/plustek.c:1041 backend/umax_pp.c:816
 #, no-c-format
@@ -2678,14 +2690,14 @@ msgid "Blue offset"
 msgstr "Blauw compensatie"
 
 #: backend/fujitsu.c:3967
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Adjust blue/red offset"
-msgstr "Stelt de compensatie in van het blauwe kanaal"
+msgstr "Pas blauw-/roodcompensatie aan"
 
 #: backend/fujitsu.c:3980
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Low Memory"
-msgstr "Geheugen vol"
+msgstr "Te weinig geheugen beschikbaar"
 
 #: backend/fujitsu.c:3981
 #, no-c-format
@@ -2695,11 +2707,18 @@ msgid ""
 "option 'side' can be used to determine correct image. This option should "
 "only be used with custom front-end software."
 msgstr ""
+"Beperk het geheugengebruik door het stuurprogramma in ingebedde systemen."
+" Zorgt "
+"bij sommige duplex scans voor wisselende zijden bij de aanroep van sane_read."
+" De waarde "
+"van de optie 'zijde' kan worden gebruikt om het juiste beeld vast te stellen."
+" Deze optie dient "
+"uitsluitend te worden gebruikt door aangepaste front-end software."
 
 #: backend/fujitsu.c:3996
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Duplex side"
-msgstr "Dubbelzijdige scan"
+msgstr "Duplex zijde"
 
 #: backend/fujitsu.c:3997
 #, no-c-format
@@ -2707,17 +2726,19 @@ msgid ""
 "Tells which side (0=front, 1=back) of a duplex scan the next call to "
 "sane_read will return."
 msgstr ""
+"Vertelt welke zijde (0=voorkant, 1=achterkant) van een duplex scan bij de"
+" volgende aanroep "
+"van sane_read wordt geretourneerd."
 
 #: backend/fujitsu.c:4008
 #, no-c-format
 msgid "Hardware deskew and crop"
-msgstr ""
+msgstr "Hardware rechtzetten en afknippen"
 
 #: backend/fujitsu.c:4009
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Request scanner to rotate and crop pages digitally."
-msgstr ""
-"Vraag het stuurprogramma scheef getrokken pagina's digitaal te roteren"
+msgstr "Vraag de scanner pagina's digitaal te roteren en af te knippen."
 
 #: backend/fujitsu.c:4020 backend/kvs1025_opt.c:872
 #, no-c-format
@@ -2725,10 +2746,10 @@ msgid "Software deskew"
 msgstr "Softwarematige scheefheid correctie"
 
 #: backend/fujitsu.c:4021
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Request driver to rotate skewed pages digitally."
 msgstr ""
-"Vraag het stuurprogramma scheef getrokken pagina's digitaal te roteren"
+"Vraag het stuurprogramma scheef getrokken pagina's digitaal te roteren."
 
 #: backend/fujitsu.c:4033 backend/kvs1025_opt.c:881
 #, no-c-format
@@ -2736,11 +2757,11 @@ msgid "Software despeckle diameter"
 msgstr "Softwarematige ontspikkel omvang"
 
 #: backend/fujitsu.c:4034
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Maximum diameter of lone dots to remove from scan."
 msgstr ""
-"Maximale omvang van verspreid liggende spikkels, die van het gescande "
-"beeld moeten worden verwijderd"
+"Maximale diameter van verspreid liggende spikkels, die van het gescande "
+"beeld moeten worden verwijderd."
 
 #: backend/fujitsu.c:4053 backend/genesys.c:5760
 #, no-c-format
@@ -2748,116 +2769,117 @@ msgid "Software crop"
 msgstr "Softwarematig uitsnijden"
 
 #: backend/fujitsu.c:4054
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Request driver to remove border from pages digitally."
-msgstr ""
-"Vraag het stuurprogramma randen van pagina's digitaal te verwijderen "
+msgstr "Vraag het stuurprogramma randen van pagina's digitaal te verwijderen."
 
 #: backend/fujitsu.c:4083
 #, no-c-format
 msgid "Halt on Cancel"
-msgstr ""
+msgstr "Stoppen bij annuleren"
 
 #: backend/fujitsu.c:4084
 #, no-c-format
-msgid ""
-"Request driver to halt the paper feed instead of eject during a cancel."
+msgid "Request driver to halt the paper feed instead of eject during a cancel."
 msgstr ""
+"Vraag het stuurprogramma de papierdoorvoer te stoppen i.p.v. uit te werpen"
+" tijdens een annulering"
 
 #: backend/fujitsu.c:4095
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Endorser Options"
-msgstr "Geavanceerde opties"
+msgstr "Endorser-opties"
 
 #: backend/fujitsu.c:4096
 #, no-c-format
 msgid "Controls for endorser unit"
-msgstr ""
+msgstr "Stuurt de Endorser eenheid aan"
 
 #: backend/fujitsu.c:4107
 #, no-c-format
 msgid "Endorser"
-msgstr ""
+msgstr "Endorser"
 
 #: backend/fujitsu.c:4108
 #, no-c-format
 msgid "Enable endorser unit"
-msgstr ""
+msgstr "Schakel Endorser eenheid in"
 
 #: backend/fujitsu.c:4123
 #, no-c-format
 msgid "Endorser bits"
-msgstr ""
+msgstr "Endorser delen"
 
 #: backend/fujitsu.c:4124
 #, no-c-format
 msgid "Determines maximum endorser counter value."
-msgstr ""
+msgstr "Bepaald maximale Endorser teller waarde"
 
 #: backend/fujitsu.c:4149
 #, no-c-format
 msgid "Endorser value"
-msgstr ""
+msgstr "Endorser waarde"
 
 #: backend/fujitsu.c:4150
 #, no-c-format
 msgid "Initial endorser counter value."
-msgstr ""
+msgstr "Initiële Endorser teller waarde"
 
 #: backend/fujitsu.c:4173
 #, no-c-format
 msgid "Endorser step"
-msgstr ""
+msgstr "Endorser stap"
 
 #: backend/fujitsu.c:4174
 #, no-c-format
 msgid "Change endorser counter value by this much for each page."
-msgstr ""
+msgstr "Wijzig Endorser teller waarde met deze hoeveelheid voor elke pagina"
 
 #: backend/fujitsu.c:4197
 #, no-c-format
 msgid "Endorser Y"
-msgstr ""
+msgstr "Endorser Y"
 
 #: backend/fujitsu.c:4198
 #, no-c-format
 msgid "Endorser print offset from top of paper."
-msgstr ""
+msgstr "Endorser afdruk compensatie vanaf de bovenkant van het papier"
 
 #: backend/fujitsu.c:4223
 #, no-c-format
 msgid "Endorser font"
-msgstr ""
+msgstr "Endorser lettertype"
 
 #: backend/fujitsu.c:4224
 #, no-c-format
 msgid "Endorser printing font."
-msgstr ""
+msgstr "Endorser afdruk lettertype"
 
 #: backend/fujitsu.c:4253
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Endorser direction"
-msgstr "Ruisonderdrukking"
+msgstr "Endorser richting"
 
 #: backend/fujitsu.c:4254
 #, no-c-format
 msgid "Endorser printing direction."
-msgstr ""
+msgstr "Endorser afdruk richting"
 
 #: backend/fujitsu.c:4278
 #, no-c-format
 msgid "Endorser side"
-msgstr ""
+msgstr "Endorser zijde"
 
 #: backend/fujitsu.c:4279
 #, no-c-format
 msgid "Endorser printing side, requires hardware support to change"
 msgstr ""
+"Endorser afdrukzijde, vereist hardware ondersteuning om te worden gewijzigd"
 
 #: backend/fujitsu.c:4304
 #, no-c-format
 msgid "Endorser string"
-msgstr ""
+msgstr "Endorser tekst"
 
 #: backend/fujitsu.c:4305
 #, no-c-format
@@ -2865,161 +2887,164 @@ msgid ""
 "Endorser alphanumeric print format. %05ud or %08ud at the end will be "
 "replaced by counter value."
 msgstr ""
+"Endorser alfanumerieke afdrukformaat. %05ud of %08ud zal aan het eind worden"
+" vervangen "
+"door de teller waarde."
 
 #: backend/fujitsu.c:4332
 #, no-c-format
 msgid "Top edge"
-msgstr ""
+msgstr "Bovenrand"
 
 #: backend/fujitsu.c:4333
 #, no-c-format
 msgid "Paper is pulled partly into adf"
-msgstr ""
+msgstr "Papier is gedeeltelijk in de ADF getrokken"
 
 #: backend/fujitsu.c:4344
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "A3 paper"
-msgstr "Vanaf papier"
+msgstr "A3 papier"
 
 #: backend/fujitsu.c:4345
 #, no-c-format
 msgid "A3 paper detected"
-msgstr ""
+msgstr "A3 papier gedetecteerd"
 
 #: backend/fujitsu.c:4356
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "B4 paper"
-msgstr "Vanaf papier"
+msgstr "B4 papier"
 
 #: backend/fujitsu.c:4357
 #, no-c-format
 msgid "B4 paper detected"
-msgstr ""
+msgstr "B4 papier gedetecteerd"
 
 #: backend/fujitsu.c:4368
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "A4 paper"
-msgstr "Vanaf papier"
+msgstr "A4 papier"
 
 #: backend/fujitsu.c:4369
 #, no-c-format
 msgid "A4 paper detected"
-msgstr ""
+msgstr "A4 papier gedetecteerd"
 
 #: backend/fujitsu.c:4380
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "B5 paper"
-msgstr "Vanaf papier"
+msgstr "B5 papier"
 
 #: backend/fujitsu.c:4381
 #, no-c-format
 msgid "B5 paper detected"
-msgstr ""
+msgstr "B5 papier gedetecteerd"
 
 #: backend/fujitsu.c:4404
 #, no-c-format
 msgid "OMR or DF"
-msgstr ""
+msgstr "OMR of DF"
 
 #: backend/fujitsu.c:4405
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "OMR or double feed detected"
-msgstr "Dubbele doorvoer herkenning"
+msgstr "OMR of dubbele doorvoer gedetecteerd"
 
 #: backend/fujitsu.c:4428
 #, no-c-format
 msgid "Power saving"
-msgstr ""
+msgstr "Energiebesparende"
 
 #: backend/fujitsu.c:4429
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Scanner in power saving mode"
-msgstr "Deksel van de scanner is open"
+msgstr "Scanner in energiebesparende modus"
 
 #: backend/fujitsu.c:4452
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Manual feed"
-msgstr "Handmatige doorvoermodus"
+msgstr "Handmatige doorvoer"
 
 #: backend/fujitsu.c:4453
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Manual feed selected"
-msgstr "Handmatige doorvoermodus"
+msgstr "Handmatige doorvoer geselecteerd"
 
 #: backend/fujitsu.c:4476
 #, no-c-format
 msgid "Function"
-msgstr ""
+msgstr "Functie"
 
 #: backend/fujitsu.c:4477
 #, no-c-format
 msgid "Function character on screen"
-msgstr ""
+msgstr "Functie karakter op het scherm"
 
 #: backend/fujitsu.c:4488
 #, no-c-format
 msgid "Ink low"
-msgstr ""
+msgstr "Inkt bijna op"
 
 #: backend/fujitsu.c:4489
 #, no-c-format
 msgid "Imprinter ink running low"
-msgstr ""
+msgstr "Imprinter inkt is bijna op"
 
 #: backend/fujitsu.c:4500
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Double feed"
-msgstr "Dubbele doorvoer herkenning"
+msgstr "Dubbele doorvoer"
 
 #: backend/fujitsu.c:4501
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Double feed detected"
-msgstr "Dubbele doorvoer herkenning"
+msgstr "Dubbele doorvoer gedetecteerd"
 
 #: backend/fujitsu.c:4512
 #, no-c-format
 msgid "Error code"
-msgstr ""
+msgstr "Foutcode"
 
 #: backend/fujitsu.c:4513
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Hardware error code"
-msgstr "fout bij controle van de hardware"
+msgstr "Hardware foutcode"
 
 #: backend/fujitsu.c:4524
 #, no-c-format
 msgid "Skew angle"
-msgstr ""
+msgstr "Scheefheidshoek"
 
 #: backend/fujitsu.c:4525
 #, no-c-format
 msgid "Requires black background for scanning"
-msgstr ""
+msgstr "Vereist zwarte achtergrond voor het scannen"
 
 #: backend/fujitsu.c:4536
 #, no-c-format
 msgid "Ink remaining"
-msgstr ""
+msgstr "Resterende hoeveelheid inkt"
 
 #: backend/fujitsu.c:4537
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Imprinter ink level"
-msgstr "Witwaarde"
+msgstr "Imprinter inkt niveau"
 
 #: backend/fujitsu.c:4548
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Density"
-msgstr "Dichtheidscontrole"
+msgstr "Dichtheid"
 
 #: backend/fujitsu.c:4549
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Density dial"
-msgstr "Dichtheidscontrole"
+msgstr "Dichtheid schaal"
 
 #: backend/fujitsu.c:4560 backend/fujitsu.c:4561
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Duplex switch"
-msgstr "Dubbelzijdige scan"
+msgstr "Duplex schakelaar"
 
 #: backend/genesys.c:5761
 #, no-c-format
@@ -3029,8 +3054,7 @@ msgstr "Vraag backend randen van pagina's digitaal te verwijderen"
 #: backend/genesys.c:5770 backend/kvs1025_opt.c:913
 #, no-c-format
 msgid "Request driver to discard pages with low numbers of dark pixels"
-msgstr ""
-"Vraag het stuurprogramma pagina's met weinig dekking te verwijderen"
+msgstr "Vraag het stuurprogramma pagina's met weinig dekking te verwijderen"
 
 #: backend/genesys.c:5781 backend/kvs1025_opt.c:893
 #, no-c-format
@@ -3930,8 +3954,7 @@ msgstr "Schakel dubbelzijdig (duplex) scannen in"
 #: backend/kvs40xx_opt.c:517 backend/matsushita.h:225
 #, no-c-format
 msgid "Physical size of the paper in the ADF"
-msgstr ""
-"Feitelijke formaat van het papier in de Automatische documentinvoer"
+msgstr "Feitelijke formaat van het papier in de Automatische documentinvoer"
 
 #: backend/kvs1025_opt.c:39
 #, no-c-format
@@ -4316,14 +4339,12 @@ msgstr "Roteer beeld met de klok mee"
 #: backend/kvs1025_opt.c:862
 #, no-c-format
 msgid "Request driver to rotate pages by a fixed amount"
-msgstr ""
-"Vraag het stuurprogramma pagina's met een vaste hoeveelheid te roteren"
+msgstr "Vraag het stuurprogramma pagina's met een vaste hoeveelheid te roteren"
 
 #: backend/kvs1025_opt.c:874
 #, no-c-format
 msgid "Request driver to rotate skewed pages digitally"
-msgstr ""
-"Vraag het stuurprogramma scheef getrokken pagina's digitaal te roteren"
+msgstr "Vraag het stuurprogramma scheef getrokken pagina's digitaal te roteren"
 
 #: backend/kvs1025_opt.c:883
 #, no-c-format
@@ -4340,8 +4361,7 @@ msgstr "Softwarematig automatisch uitsnijden"
 #: backend/kvs1025_opt.c:904
 #, no-c-format
 msgid "Request driver to remove border from pages digitally"
-msgstr ""
-"Vraag het stuurprogramma randen van pagina's digitaal te verwijderen "
+msgstr "Vraag het stuurprogramma randen van pagina's digitaal te verwijderen "
 
 #: backend/kvs20xx_opt.c:233 backend/kvs40xx_opt.c:396
 #, no-c-format
@@ -4523,8 +4543,7 @@ msgstr "Snij het effectieve beeldoppervlak uit"
 #: backend/kvs40xx_opt.c:817
 #, no-c-format
 msgid "Scanner automatically detect image area and crop it"
-msgstr ""
-"De scanner herkent automatisch het beeldoppervlak en snijdt die uit"
+msgstr "De scanner herkent automatisch het beeldoppervlak en snijdt die uit"
 
 #: backend/kvs40xx_opt.c:827
 #, no-c-format
@@ -4754,8 +4773,7 @@ msgstr "Kalibratie door de \"backend\""
 
 #: backend/microtek2.h:617
 #, no-c-format
-msgid ""
-"If checked the color calibration before a scan is done by the backend"
+msgid "If checked the color calibration before a scan is done by the backend"
 msgstr ""
 "Wanneer aangevinkt, wordt de kleur kalibratie voor een scan uitgevoerd "
 "door de \"backend\""
@@ -5127,8 +5145,7 @@ msgstr "Helderheid van het groene kanaal"
 #: backend/mustek.c:4445
 #, no-c-format
 msgid "Controls the brightness of the green channel of the acquired image."
-msgstr ""
-"Bepaalt de helderheid van het groene kanaal van het verkregen beeld."
+msgstr "Bepaalt de helderheid van het groene kanaal van het verkregen beeld."
 
 #: backend/mustek.c:4457
 #, no-c-format
@@ -5138,8 +5155,7 @@ msgstr "Helderheid van het blauwe kanaal"
 #: backend/mustek.c:4458
 #, no-c-format
 msgid "Controls the brightness of the blue channel of the acquired image."
-msgstr ""
-"Bepaalt de helderheid van het blauwe kanaal van het verkregen beeld."
+msgstr "Bepaalt de helderheid van het blauwe kanaal van het verkregen beeld."
 
 #: backend/mustek.c:4483
 #, no-c-format
@@ -5159,8 +5175,7 @@ msgstr "Contrast van het groene kanaal"
 #: backend/mustek.c:4497
 #, no-c-format
 msgid "Controls the contrast of the green channel of the acquired image."
-msgstr ""
-"Bepaalt het contrast van het groene kanaal van het verkregen beeld."
+msgstr "Bepaalt het contrast van het groene kanaal van het verkregen beeld."
 
 #: backend/mustek.c:4509
 #, no-c-format
@@ -5170,8 +5185,7 @@ msgstr "Contrast van het blauwe kanaal"
 #: backend/mustek.c:4510
 #, no-c-format
 msgid "Controls the contrast of the blue channel of the acquired image."
-msgstr ""
-"Bepaalt het contrast van het blauwe kanaal van het verkregen beeld."
+msgstr "Bepaalt het contrast van het blauwe kanaal van het verkregen beeld."
 
 #: backend/mustek_usb2.c:105
 #, no-c-format
@@ -5286,7 +5300,7 @@ msgstr "Soort bewerking van het resultaat"
 #: backend/pixma_sane_options.c:348
 #, no-c-format
 msgid "ADF Waiting Time"
-msgstr ""
+msgstr "ADF wachttijd"
 
 #: backend/pixma_sane_options.c:349
 #, no-c-format
@@ -5294,6 +5308,9 @@ msgid ""
 "When set, the scanner searches the waiting time in seconds for a new "
 "document inserted into the automatic document feeder."
 msgstr ""
+"Wanneer ingesteld, zoekt de scanner gedurende de wachttijd in seconden naar"
+" een "
+"nieuw document dat in de automatisch document doorvoer is gelegd."
 
 #: backend/plustek.c:235 backend/plustek_pp.c:204 backend/u12.c:156
 #, no-c-format
@@ -5519,8 +5536,7 @@ msgstr ""
 
 #: backend/pnm.c:283
 #, no-c-format
-msgid ""
-"Set default values for enhancement controls (brightness & contrast)."
+msgid "Set default values for enhancement controls (brightness & contrast)."
 msgstr ""
 "Stel de kleurverbeteringsinstellingen (helderheid en contrast) in op "
 "standaardwaarden."
@@ -5999,8 +6015,7 @@ msgstr "Grootte van de leesbegrenzing"
 
 #: backend/test.c:499
 #, no-c-format
-msgid ""
-"The (maximum) amount of data transferred with each call to sane_read()."
+msgid "The (maximum) amount of data transferred with each call to sane_read()."
 msgstr ""
 "De (maximale) hoeveelheid gegevens die bij elke aanroep van sane_read() "
 "wordt overgedragen."
@@ -6339,8 +6354,7 @@ msgstr "(3/3) Vaste beperkte woordenlijst"
 #: backend/test.c:993
 #, no-c-format
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
-msgstr ""
-"(3/3) Vaste-testoptie zonder eenheid en met een beperkte woordenlijst."
+msgstr "(3/3) Vaste-testoptie zonder eenheid en met een beperkte woordenlijst."
 
 #: backend/test.c:1008
 #, no-c-format

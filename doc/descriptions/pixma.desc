@@ -854,8 +854,8 @@
 :model "i-SENSYS MF240 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x27d2"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI). ADF only 300DPI."
 
 :model "i-SENSYS MF810/820"
 :interface "USB Ethernet"

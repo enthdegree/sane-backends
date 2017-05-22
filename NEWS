@@ -1,4 +1,41 @@
 -*-Mode: outline-*-
+New with 1.0.27 (see Note 1), released 2017-05-22:
+
+* Significant enhancements to canon_dr, epjitsu, epsonds, fujitsu,
+  genesys, hp3500, pixma and xerox-mfp backends.
+* Minor updates, bugfixes or scanners added in several backends.
+* 30+ new scanner models supported.
+* Made libusb-1.0 the default for USB support (see Note 2).
+* Switched code from C90 to C99 (Thanks to Volker Diels-Grabsch).
+* Updated Linux USB3 workaround (see Note 3). 
+* Documentation and translation updates.
+* Bugfixes (Avahi, threading, USB, ICC/PNG/JPEG, etc).
+* Reduced compiler warnings, improved code (see Note 4).
+
+Note 1: There is no 1.0.26 release of sane-backends. That number was
+skipped so that our development version numbers would more clearly be
+an extension of the prior release. This should make packaging a little
+easier for our downstream users.
+
+Note 2: On all systems, the --enable-libusb* flags are now ignored. 
+Instead, the --with-usb and --without-usb flags now control support.
+When neither is given, USB support will be enabled if possible and
+disabled otherwise.  If --with-usb is requested but not possible,
+./configure will fail.  There is no support to prefer libusb-0.1 over
+libusb-1.0.  When libusb-1.0 is not found, libusb-0.1 will be tried.
+
+Note 3: The Linux USB3 workaround which was added in version 1.0.25 is
+now disabled by default. If you have difficulty using a scanner which
+previously worked, or intermittent scanner availability, try setting
+the new environment variable SANE_USB_WORKAROUND=1 before starting
+your frontend.
+
+Note 4: A special thanks goes to Olaf Meeuwissen for picking up the
+janitorial duties in sane-backends. He has found and fixed a large
+number of long-standing bugs, curated our bug tracker, improved our
+build scripts and docs, and provided user support. Thank you Olaf!
+
+
 New with 1.0.25, released 2015-10-03:
 
 * New backends: epsonds (Epson DS, PX and WF series),

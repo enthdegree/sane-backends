@@ -934,14 +934,14 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon imageClass MF8030", "MF8030", MF8030_PID, 600, 0, 0, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon i-SENSYS MF5880dn", "MF5880", MF5880_PID, 600, 0, 0, 640, 877, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF6680dn", "MF6680", MF6680_PID, 600, 0, 0, 640, 877, PIXMA_CAP_ADFDUP),
-  DEV ("Canon imageRUNNER 1133", "iR1133", IR1133_PID, 600, 0, 0, 637, 877, PIXMA_CAP_ADFDUP),
+  DEV ("Canon imageRUNNER 1133", "iR1133", IR1133_PID, 600, 0, 0, 637, 877, PIXMA_CAP_ADFDUP),                  /* max. w = 216mm */
   DEV ("Canon i-SENSYS MF5900 Series", "MF5900", MF5900_PID, 600, 0, 0, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF8500C Series", "MF8500C", MF8500_PID, 600, 0, 0, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF6100 Series", "MF6100", MF6100_PID, 600, 0, 300, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon imageClass MF810/820", "MF810/820", MF820_PID, 600, 0, 0, 640, 1050, PIXMA_CAP_ADFDUP),
-  DEV ("Canon i-SENSYS MF220 Series", "MF220", MF220_PID, 600, 0, 0, 640, 1050, PIXMA_CAP_ADFDUP),
-  DEV ("Canon i-SENSYS MF210 Series", "MF210", MF210_PID, 600, 0, 0, 640, 1050, PIXMA_CAP_ADF),
-  DEV ("Canon i-SENSYS MF230 Series", "MF230", MF230_PID, 600, 0, 0, 640, 1050, PIXMA_CAP_ADF),
-  DEV ("Canon i-SENSYS MF240 Series", "MF240", MF240_PID, 600, 300, 300, 640, 1050, PIXMA_CAP_ADF),
+  DEV ("Canon i-SENSYS MF220 Series", "MF220", MF220_PID, 600, 0, 0, 637, 1050, PIXMA_CAP_ADFDUP),              /* max. w = 216mm */
+  DEV ("Canon i-SENSYS MF210 Series", "MF210", MF210_PID, 600, 0, 0, 637, 1050, PIXMA_CAP_ADF),                 /* max. w = 216mm */
+  DEV ("Canon i-SENSYS MF230 Series", "MF230", MF230_PID, 600, 0, 0, 637, 1050, PIXMA_CAP_ADF),                 /* max. w = 216mm */
+  DEV ("Canon i-SENSYS MF240 Series", "MF240", MF240_PID, 600, 300, 300, 637, 1050, PIXMA_CAP_ADF),             /* max. w = 216mm */
   DEV (NULL, NULL, 0, 0, 0, 0, 0, 0, 0)
 };

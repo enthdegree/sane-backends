@@ -738,7 +738,7 @@ static void motorP98PositionYProc( pScanData ps, ULong dwStates )
 }
 
 /*.............................................................................
- * checks if the sensor is in it´s home position and moves it back if necessary
+ * checks if the sensor is in itÂ´s home position and moves it back if necessary
  */
 static int motorP98CheckSensorInHome( pScanData ps )
 {

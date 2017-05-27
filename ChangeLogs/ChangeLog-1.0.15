@@ -216,7 +216,7 @@
 
 	* backend/Makefile.in: fix niash dependencies
 
-2004-10-08  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-10-08  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c backend/umax_pp_low.c: 610P shading
 	  calibration improvements. 1220P offset and gain fixes.
@@ -448,14 +448,14 @@
 	  LS-50.
 	* doc/descriptions-external/brother.desc: Added more clear comments.
 
-2004-08-28  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-08-28  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c:
           option parsing fix
 	* backend/umax_pp_low.c:
           minor 1220P calibration fixes
 
-2004-08-25  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-08-25  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* tools/umax_pp.c backend/umax_pp.c backend/umax_pp.conf
 	  backend/umax_pp.h backend/umax_pp_low.c backend/umax_pp_low.h
@@ -480,7 +480,7 @@
 	  Updated.
 
 2004-08-18  Julien Blache <jb at jblache dot org>
-	* tools/hotplug/libsane.usermap: committed patch from Aurélien
+	* tools/hotplug/libsane.usermap: committed patch from AurÃ©lien
 	Jarno adding USB IDs for Epson Stylus CX6400 (and doing
 	s/EPSON/Epson/ on one entry to maintain consistency).
 
@@ -491,7 +491,7 @@
 2004-08-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/Makefile.in po/sane-backends.fi.po: Added Finnish translation
-	 (from Harri Järvi <harri.jarvi@ajatus.org>).
+	 (from Harri JÃ¤rvi <harri.jarvi@ajatus.org>).
 
 2004-08-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -572,7 +572,7 @@
 	* doc/plustek/Plustek-USB-TODO.txt doc/plustek/Plustek-USB.changes
 	  doc/descriptions/plustek.desc: Updated.
 
-2004-07-21  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-07-21  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c:
 	  fixed a 610P initialization bug that shown up when changing from color
@@ -773,7 +773,7 @@
 
 	* doc/.cvsignore: Added *.8.
 
-2004-06-17  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-06-17  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c doc/descriptions/umax_pp.desc
 	  doc/sane-umax_pp.man:
@@ -793,7 +793,7 @@
 	  therefore can't compile sane-backends without this fix. See
 	  bug #300803.
 
-2004-06-15  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-06-15  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.h backend/umax_pp_low.c backend/umax_pp_mid.c:
 	  610P gray level shading calibration fix. Added timer to let 610P
@@ -813,7 +813,7 @@
 	* backend/sane_usb.c: Added Perfection 1650 back in that was removed by
 	  mistake and finally removed Perfection 1250.
 
-2004-06-12  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-06-12  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c tools/umax_pp.c: final fixes for 610P color
 	  scanning, parallel port autodetection for the umax_pp tool.
@@ -972,13 +972,13 @@
 	  applied patch from Mattias Ellert (thanks), which adds support
 	  for sanei_thread
 
-2004-05-15  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-05-15  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c: fixed
 	  origin shift bug for 610P. Added on guard against configuration
 	  that can put several 'port' option in conf file.
 
-2004-05-13  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-05-13  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c: fixed
 	  data lines reordering for 610P
@@ -992,7 +992,7 @@
 	* Makefile.in: Remove autoconf temp files and some japi stuff in
 	  distclean target.
 
-2004-05-10  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-05-10  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c : fixed 300x600 dpi scans, direct
           hardware access and timing issues for 610P
@@ -1012,7 +1012,7 @@
 	* tools/hotplug/libsane.usbmap: removed empty lines, latest
 	  hotplug cannot cope with them
 
-2004-03-15  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-03-15  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c
 	  backend/umax_pp_mid.h backend/umax_pp.c backend/umax_pp.h

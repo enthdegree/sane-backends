@@ -3,7 +3,7 @@
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
    AFE offset/gain setting by David Stevenson <david.stevenson@zoom.co.uk>
    Copyright (C) 2002 - 2007 Henning Geinitz <sane@geinitz.org>
-   Copyright (C) 2009 Stéphane Voltz <stef.dev@free.fr> for sheetfed
+   Copyright (C) 2009 StÃ©phane Voltz <stef.dev@free.fr> for sheetfed
                       calibration code.
 
    This file is part of the SANE package.

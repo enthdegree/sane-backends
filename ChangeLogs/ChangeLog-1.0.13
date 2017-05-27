@@ -287,7 +287,7 @@
 	* AUTHORS: Oliver Schirrmeister has a CVS account now.
 	* doc/sane-mustek_usb.man: Added workaround for hardware bug.
 
-2003-10-21  Stéphane Voltz <svoltz@wanadoo.fr>
+2003-10-21  StÃ©phane Voltz <svoltz@wanadoo.fr>
 	* doc/sane-umax_pp.man: added help for new configuration option
 	* tools/umax_pp.c: uppded version number
 
@@ -413,7 +413,7 @@
 	  Redo when read returns with 0 bytes (non-SCSI only)
 	* doc/sane-hp.man: Add environment SANE_HP_RDREDO, SANE_HOME_HP
 
-2003-10-09  Stéphane Voltz <svoltz@wanadoo.fr>
+2003-10-09  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c backend/umax_pp_low.h backend/umax_pp.h
 	  backend/umax_pp_mid.c backend/umax_pp_low.c backend/umax_pp_mid.h
@@ -755,7 +755,7 @@
 	* doc/descriptions/unsupported.desc: Added HP, Microtek and UMAX
 	  scanners.
 
-2003-09-18  Stéphane Voltz <svoltz@wanadoo.fr>
+2003-09-18  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/sane-umax_pp.c: fix default port address handling
 	  (patch from Malcolm Parsons <malcolm.parsons@virgin.net>)
@@ -763,7 +763,7 @@
 	  machine/cpufunc.h and i386_set_ioperm() for FreeBSD support.
 
 
-2003-09-16  Stéphane Voltz <svoltz@wanadoo.fr>
+2003-09-16  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* doc/sane-umax_pp_low.man: updated man page
 
@@ -776,7 +776,7 @@
 
 	* backend/epson.c: put Henning's #include change back in.
 
-2003-09-14  Stéphane Voltz <svoltz@wanadoo.fr>
+2003-09-14  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: reworked inb/out functions. The backend now
 	  works on FreeBSD.
@@ -867,7 +867,7 @@
 	  1.4.27 (ID cleanup, fix for firmware download of Acer 310/320,
 	  new USB ID for Acer 310)
 
-2003-08-17  Stéphane Voltz <svoltz@wanadoo.fr>
+2003-08-17  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c backend/umax_pp.h: revert change for UTA
 
@@ -879,7 +879,7 @@
 	* backend/epson_scsi.c: Use sanei_scsi_cmd2() to send commands to fix a problem
 	  with SBP-2 under FreeBSD
 
-2003-08-15  Stéphane Voltz <svoltz@wanadoo.fr>
+2003-08-15  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c backend/umax_pp.h: added a check of values passed
 	  in gamma table. Fixed a bug which prevented custom gamm and UTA to be
@@ -1041,12 +1041,12 @@
 	* doc/descriptions/unsupported.desc: Added more information for
 	  Canon 9900F.
 
-2003-07-21  Stéphane Voltz <svoltz@wanadoo.fr>
+2003-07-21  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* doc/descriptions/umax_pp.desc: removed unwanted status line for
 	  backend
 
-2003-07-20  Stéphane Voltz <svoltz@wanadoo.fr>
+2003-07-20  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* doc/descriptions/umax_pp.desc: updated forgotten status to use new
 	  keyword.
@@ -1102,7 +1102,7 @@
 	* TODO: Added fujitsu option and libtool problem. Updated desc
 	  file entries.
 
-2003-07-15  Stéphane Voltz <svoltz@wanadoo.fr>
+2003-07-15  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* doc/descriptions/umax_pp.desc: updated to use new :status
 	  keyword.

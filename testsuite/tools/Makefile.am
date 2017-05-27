@@ -1,5 +1,5 @@
 ##  Makefile.am -- an automake template for Makefile.in file
-##  Copyright (C) 2013 Stéphane Voltz and Sane Developers.
+##  Copyright (C) 2013 StÃ©phane Voltz and Sane Developers.
 ##
 ##  This file is part of the "Sane" build infra-structure.  See
 ##  included LICENSE file for license information.

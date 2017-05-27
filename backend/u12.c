@@ -1839,7 +1839,7 @@ SANE_Status sane_set_io_mode( SANE_Handle handle, SANE_Bool non_blocking )
 	}
 
 	if( fcntl (s->r_pipe, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0) {
-		DBG( _DBG_ERROR, "ERROR: can´t set to non-blocking mode !\n" );
+		DBG( _DBG_ERROR, "ERROR: canÂ´t set to non-blocking mode !\n" );
 		return SANE_STATUS_IO_ERROR;
 	}
 

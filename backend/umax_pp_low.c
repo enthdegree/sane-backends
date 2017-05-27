@@ -1,5 +1,5 @@
 /**
-   Copyright (C) 2001-2012 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2001-2012 StÃ©phane Voltz <stef.dev@free.fr>
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -7018,7 +7018,7 @@ probeECP (unsigned char *dest)
  * inb ECR,35
  */
 /* routine A */
-  breg = Inb (CONTROL);		/* 0x04 évidemment! */
+  breg = Inb (CONTROL);		/* 0x04 Ã©videmment! */
   breg = Inb (ECR);
   breg = Inb (ECR);
   breg = Inb (ECR);

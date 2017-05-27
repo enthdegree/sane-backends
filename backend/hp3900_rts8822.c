@@ -1774,7 +1774,7 @@ SetScanParams (struct st_device *dev, SANE_Byte * Regs,
 					    8)) ? hwdcfg->compression : FALSE;
 
   if ((arrangeline2 == FIX_BY_HARD) || (mycolormode == CM_LINEART))
-    arrangeline2 = mycolormode;	/*¿? */
+    arrangeline2 = mycolormode;	/*Â¿? */
   else if ((mycolormode == CM_GRAY) && (hwdcfg->highresolution == FALSE))
     arrangeline2 = 0;
 
@@ -2372,7 +2372,7 @@ IsScannerLinked (struct st_device *dev)
 
   lamp = FLB_LAMP;
 
-  /* Comprobar si es la primera conexión con el escaner */
+  /* Comprobar si es la primera conexiÃ³n con el escaner */
   if (Read_Word (dev->usb_handle, 0xe829, &var2) == OK)
     {
       SANE_Int firstconnection;
@@ -2385,7 +2385,7 @@ IsScannerLinked (struct st_device *dev)
 
       if (firstconnection == TRUE)
 	{
-	  /* primera conexión */
+	  /* primera conexiÃ³n */
 	  SANE_Byte flb_lamp, tma_lamp;
 
 	  flb_lamp = 0;
@@ -7049,7 +7049,7 @@ Triplet_Colour_LRes (SANE_Int Width, SANE_Byte * Buffer,
    */
 
   /* Esta funcion une los tres canales de color en un triplete
-     Inicialmente cada color está separado en 3 buffers apuntados
+     Inicialmente cada color estÃ¡ separado en 3 buffers apuntados
      por pChannel1 ,2 y 3
    */
   SANE_Int Value;
@@ -7591,11 +7591,11 @@ Read_Block (struct st_device *dev, SANE_Int buffer_size, SANE_Byte * buffer,
 /*
 scan2:
 04F0155C  01 08 00 02 03 00 58 02  ..X
-04F01564  58 02 58 02 C5 00 00 00  XXÅ...
-04F0156C  B4 07 00 00 8B 01 00 00  ´..‹..
-04F01574  10 06 00 00 EC 13 00 00  ..ì..
-04F0157C  B2 07 00 00 B4 07 00 00  ²..´..
-04F01584  CF 08 00 00              Ï..
+04F01564  58 02 58 02 C5 00 00 00  XXÃ…...
+04F0156C  B4 07 00 00 8B 01 00 00  Â´..Â‹..
+04F01574  10 06 00 00 EC 13 00 00  ..Ã¬..
+04F0157C  B2 07 00 00 B4 07 00 00  Â²..Â´..
+04F01584  CF 08 00 00              Ã..
 
 arrangeline2 = 1
 */
@@ -8329,7 +8329,7 @@ if (Calib_test(dev, Regs, &myCalib, &scancfg) == OK )
 	}
       else
 	{
-	  /*5e7c *//* entra aquí */
+	  /*5e7c *//* entra aquÃ­ */
 	  if ((scancfg.resolution_y / 10) > scancfg.coord.top)
 	    runb1 = 0;
 	}
@@ -9209,7 +9209,7 @@ RTS_Setup (struct st_device *dev, SANE_Byte * Regs,
 	      if (scancfg->colormode == CM_LINEART)
 		data_bitset (&Regs[0x60b], 0x0c, 0);
 
-	      /* disable gamma correction ¿? */
+	      /* disable gamma correction Â¿? */
 	      data_bitset (&Regs[0x1d0], 0x40, 0);
 	    }
 

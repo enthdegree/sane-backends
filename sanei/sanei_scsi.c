@@ -958,7 +958,7 @@ sanei_scsi_open (const char *dev, int *fdp,
 
     if (sscanf (dev, "b%dt%dl%d", &bus, &target, &lun) != 3)
       {
-	DBG (1, "sanei_scsi_open: device name `%s´ is not valid: %s\n",
+	DBG (1, "sanei_scsi_open: device name `%sÂ´ is not valid: %s\n",
 	     dev, strerror (errno));
 	return SANE_STATUS_INVAL;
       }
@@ -1149,7 +1149,7 @@ sanei_scsi_open (const char *dev, int *fdp,
 	}
       else
 	{
-	  DBG (1, "sanei_scsi_open: can't open device `%s´: %s\n", dev,
+	  DBG (1, "sanei_scsi_open: can't open device `%sÂ´: %s\n", dev,
 	       strerror (errno));
 	  return SANE_STATUS_INVAL;
 	}
@@ -1163,7 +1163,7 @@ sanei_scsi_open (const char *dev, int *fdp,
     if (4 !=
 	sscanf (dev, "/dev/passthru0:%d,%d,%d,%d", &bus, &cnt, &id, &lun))
       {
-	DBG (1, "sanei_scsi_open: device name `%s´ is not valid: %s\n",
+	DBG (1, "sanei_scsi_open: device name `%sÂ´ is not valid: %s\n",
 	     dev, strerror (errno));
 	return SANE_STATUS_INVAL;
       }
@@ -3201,7 +3201,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	/* The old variant:
 	   hdr.databuf = (char *) src + cdb_size;
 	   hdr.datalen = src_size;
-	   xxxxxx huh? Shouldn´t the above line have been src_size - cdb_size)
+	   xxxxxx huh? ShouldnÂ´t the above line have been src_size - cdb_size)
 	 */
 	hdr.databuf = (char *) src;
 	hdr.datalen = src_size;

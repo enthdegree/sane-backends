@@ -43,7 +43,7 @@
 
    This file implements a SANE backend for Nikon Coolscan film scanners.
 
-   Written by Andr·s Major (andras@users.sourceforge.net), 2001-2002.
+   Written by Andr√°s Major (andras@users.sourceforge.net), 2001-2002.
 
    The developers wish to express their thanks to Nikon Corporation
    for providing technical information and thus making this backend

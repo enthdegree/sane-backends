@@ -406,7 +406,7 @@ static GT68xx_Model mustek_2448taplus_model = {
 
   SANE_FALSE,			/* Is this a CIS scanner? */
   GT68XX_FLAG_NO_STOP		/* Which flags are needed for this scanner? */
-    /* Based on data from Jakub Dvo?�k <xdvorak@chello.cz>. */
+    /* Based on data from Jakub Dvořák <xdvorak@chello.cz>. */
 };
 
 static GT68xx_Model mustek_1200ta_model = {

@@ -852,7 +852,7 @@ static void p9636PutToIdleMode( pScanData ps )
 
 /*.............................................................................
  * do all the preliminary stuff here (calibrate the scanner and move the
- * sensor to it´s start position, also setup the driver for the
+ * sensor to itÂ´s start position, also setup the driver for the
  * current run)
  */
 static int p9636Calibration( pScanData ps )

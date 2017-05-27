@@ -2,7 +2,7 @@
    lexmark.h - SANE library for Lexmark scanners.
    Copyright (C) 2003-2004 Lexmark International, Inc. (original source)
    Copyright (C) 2005 Fred Odendaal
-   Copyright (C) 2006-2010 Stéphane Voltz	<stef.dev@free.fr>
+   Copyright (C) 2006-2010 StÃ©phane Voltz	<stef.dev@free.fr>
    Copyright (C) 2010 "Torsten Houwaart" <ToHo@gmx.de> X74 support
 
    This file is part of the SANE package.

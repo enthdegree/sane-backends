@@ -4,7 +4,7 @@
  *
  * This file implements a SANE backend for Nikon Coolscan film scanners.
  *
- * coolscan3.c is based on coolscan2.c, a work of Andr·s Major, Ariel Garcia
+ * coolscan3.c is based on coolscan2.c, a work of Andr√°s Major, Ariel Garcia
  * and Giuseppe Sacco.
  *
  * Copyright (C) 2007-08 Tower Technologies

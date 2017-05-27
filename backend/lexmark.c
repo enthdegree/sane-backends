@@ -2,7 +2,7 @@
 
    (C) 2003-2004 Lexmark International, Inc. (Original Source code)
    (C) 2005 Fred Odendaal
-   (C) 2006-2013 Stéphane Voltz <stef.dev@free.fr>
+   (C) 2006-2013 StÃ©phane Voltz <stef.dev@free.fr>
    (C) 2010 "Torsten Houwaart" <ToHo@gmx.de> X74 support
 
    This file is part of the SANE package.

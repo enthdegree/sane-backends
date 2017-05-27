@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2009-12 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2009-12 StÃ©phane Voltz <stef.dev@free.fr>
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as

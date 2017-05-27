@@ -16,14 +16,14 @@
     * backend/pixma_imageclass.c: for all adf scanners restrict maximum page
       height at flatbed scans
 
-2015-09-16 Stéphane Voltz <stef.dev@free.fr>
+2015-09-16 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/niash.c: merged pu/protect-niash-option-access-315132 and
 	ifdef'ed unused code
 
-2015-09-16 Stéphane Voltz <stef.dev@free.fr>
+2015-09-16 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/pieusb.c: include sane/config.h first
 
-2015-09-14 Stéphane Voltz <stef.dev@free.fr>
+2015-09-14 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/bh.c: replace mktemp by mkstemp #300134
 
 2015-09-13 Paul Newall <p dot newalls at ntlworld dot com>
@@ -31,12 +31,12 @@
 	redundant variable bitposn and redundant function kodakaio_rxflush
 	commented out.
 
-2015-09-09 Stéphane Voltz <stef.dev@free.fr>
+2015-09-09 StÃ©phane Voltz <stef.dev@free.fr>
 	* doc/sane-genesys.man, doc/descriptions/genesys.desc: No LiDE 120
 	support.
 
 2015-09-08 m. allan noah <kitno455 at gmail dot com>
-	* backend/artec_eplus48u.c: fix HOME env bug #315071 (from Jörg Frings-Fürst)
+	* backend/artec_eplus48u.c: fix HOME env bug #315071 (from JÃ¶rg Frings-FÃ¼rst)
 
 2015-09-03 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp810.c: Canon Pixma MP990 needs specific reordering pixels
@@ -53,14 +53,14 @@
 	* backend/pixma_io_sanei.c: EOF is a bjnp timeout error.
 	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.21
 
-2015-08-10 Stéphane Voltz <stef.dev@free.fr>
+2015-08-10 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/abaton.c, backend/agfafocus.c, backend/apple.c,
 	backend/bh.c, backend/coolscan.c, backend/dmc.c, backend/ricoh.c,
 	backend/s9036.c, backend/sp15c.[ch], backend/tamarack.c:
 	fix for memleak in sane_get_devices (bugs #300132 #300131 #300130 #300129
 	#300127 #300126 #300124 #300122 #300121 #300120)
 
-2015-08-10 Klaus Kämpf <kkaempf@suse.com>
+2015-08-10 Klaus KÃ¤mpf <kkaempf@suse.com>
 	* backend/pieusb.c, doc/descriptions/pieusb.desc, doc/sane-pieusb.man,
           backend/pieusb_buffer.c, backend/pieusb_scancmd.c, backend/pieusb_specific.c,
           backend/pieusb_usb.c:
@@ -68,7 +68,7 @@
           4000, 5000, 6000; ProScan 7200; CrystalScan 7200. These scanners need
           further testing.
 
-2015-08-08 Stéphane Voltz <stef.dev@free.fr>
+2015-08-08 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/test.c: fix memleaks (#313553)
 	* configure.in, configure: don not harcode -I/usr/local/include
 	(#315060)
@@ -81,12 +81,12 @@
 	  communication problems, e.g. with OpenSuse.
 	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.20
 
-2015-08-06 Stéphane Voltz <stef.dev@free.fr>
+2015-08-06 StÃ©phane Voltz <stef.dev@free.fr>
 	*  backend/genesys_devices.c, backend/genesys_gl841.c, backend/genesys_low.c:
 	fix GPIO setup for LiDE 33/40/50, add more usleep() for GL847
 	scanning issues. Some GL841 LEDADD improvements.
 
-2015-07-31 Stéphane Voltz <stef.dev@free.fr>
+2015-07-31 StÃ©phane Voltz <stef.dev@free.fr>
 	* frontend/tstbackend.c: add an option to do tests scans during
 	open/close tests.
 	* backend/genesys.c, backend/genesys_low.c: fixes for
@@ -114,7 +114,7 @@
 2015-06-27 Louis Lagendijk <louis dot lagendijk at gmail dot com>
 	* backend/pixma_bjnp.c Added backend version in bjnp debug output
 
-2015-06-11 Stéphane Voltz <stef.dev@free.fr>
+2015-06-11 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl124.h: LiDE 120 support
 	improvement.
 
@@ -123,7 +123,7 @@
 	  New scanner Canon i-SENSYS MF8300 Series, reported by Florian Nierhaus.
 	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.18
 
-2015-04-12 Stéphane Voltz <stef.dev@free.fr>
+2015-04-12 StÃ©phane Voltz <stef.dev@free.fr>
 	* doc/sane-genesys.man backend/genesys.[ch] backend/genesys_low.c:
 	fix calibration cleared when calibration file loaded,
 	add expiration time option for cache.
@@ -144,7 +144,7 @@
 	  backend/pixma_io_sanei.c, backend/pixma_mp150.c, backend/pixma_mp7[35]0.c,
 	  backend/pixma_mp810.c: update copyright.
 
-2015-03-17 Stéphane Voltz <stef.dev@free.fr>
+2015-03-17 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c, backend/genesys.conf.in,
 	backend/genesys_devices.c, backend/genesys_gl124.c,
 	backend/genesys_gl124.h, backend/genesys_low.h,
@@ -166,18 +166,18 @@
 	fixed multiple regressions (range initilaizer, clobbering
 	paper-length window bits, ...) introduced over the past years, added
 	support for newer ASIC gamma table size, added AV220D2+ ID
-2015-03-04 Stéphane Voltz <stef.dev@free.fr>
+2015-03-04 StÃ©phane Voltz <stef.dev@free.fr>
 	* doc/descriptions/genesys.desc: mark LiDE 120 as unsupported.
 
-2015-03-02 Stéphane Voltz <stef.dev@free.fr>
+2015-03-02 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.c, backend/genesys_gl124.[ch]:
 	improve parking reliability for LiDE 210
 
-2015-03-01 Stéphane Voltz <stef.dev@free.fr>
+2015-03-01 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c, backend/genesys_gl124.c:
 	final tuning for Canon LiDE 220
 
-2015-02-26 Stéphane Voltz <stef.dev@free.fr>
+2015-02-26 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c, backend/genesys.conf.in,
 	backend/genesys_devices.c, backend/genesys_gl124.c,
 	backend/genesys_gl124.h, backend/genesys_low.h,
@@ -309,11 +309,11 @@
 	* frontend/scanimage.c: batch-print option and exit value changes
 	from Jeff Breidenbach jeff@jab.org
 
-2014-07-01 Stéphane Voltz <stef.dev@free.fr>
+2014-07-01 StÃ©phane Voltz <stef.dev@free.fr>
 	* testsuite/sanei/sanei_config_test.c: fix #314694 by exporting a
 	specific SANE_CONFIG_DIR env dir for tests
 
-2014-06-29 Stéphane Voltz <stef.dev@free.fr>
+2014-06-29 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c: fix regression in coarse gain calibration
 
 2014-06-05 Tom Callaway <spot@fedoraproject.org>
@@ -321,7 +321,7 @@
 	licensed under the Artistic License 1.0 which isn't compatible with the
 	GPL and arguably non-free.
 
-2014-06-02 Stéphane Voltz <stef.dev@free.fr>
+2014-06-02 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_*.[ch]: add internal ini_scan_regs_api. Add proper
 	target speed for LiDE 110/210 grey mode motor tables.
 
@@ -341,7 +341,7 @@
 	  Series scanner is working, reported by Gert Cauwenberg.
 	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.8
 
-2014-05-13 Stéphane Voltz <stef.dev@free.fr>
+2014-05-13 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.[ch] backend/genesys.c backend/genesys_low.c:
 	fix bug #314663. Set gamma for gl646 devices only at scan time. Reset
 	endpoint each time before leaving.
@@ -377,7 +377,7 @@
 	doc/sane-pixma.man: Rename Canon i-SENSYS MF4550d to Canon i-SENSYS MF4500
 	Series. This fixes ethernet problems. Patch from chrysn.
 
-2014-02-24 Stéphane Voltz <stef.dev@free.fr>
+2014-02-24 StÃ©phane Voltz <stef.dev@free.fr>
 	* doc/sane-genesys.man backend/genesys.[ch]:
 	avoid calibration file name collision in case of several identical
 	scanners
@@ -396,7 +396,7 @@
 2014-01-29 m. allan noah <kitno455 at gmail dot com>
 	* backend/umax-uc630.c: updates from Ondrej Zary
 
-2014-01-21 Stéphane Voltz <stef.dev@free.fr>
+2014-01-21 StÃ©phane Voltz <stef.dev@free.fr>
 	* doc/descriptions/unsupported.desc doc/descriptions/genesys.desc:
 	update status of the HP Scanjet 4850C
 
@@ -412,7 +412,7 @@
 
 2014-01-02 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc: ADF is working for Canon i-SENSYS MF4800
-	Series, reported by Yvan L. Gélinas.
+	Series, reported by Yvan L. GÃ©linas.
 
 2014-01-02 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.[ch], backend/pixma_common.[ch], backend/pixma_imageclass.c,
@@ -426,12 +426,12 @@
 	doc/sane-pixma.man:
 	- Canon i-SENSYS MF4800 Series has ADF and supports 14" legal paper size
 	  in ADF mode.
-	- Canon i-SENSYS MF4800 Series is working, reported by Yvan L. Gélinas.
+	- Canon i-SENSYS MF4800 Series is working, reported by Yvan L. GÃ©linas.
 
 2013-12-23 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_common.c: fix usb cmd transaction timeout
 
-2013-12-23 Stéphane Voltz <stef.dev@free.fr>
+2013-12-23 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys.c backend/genesys_low.h
 	backend/genesys_gl841.[ch]: color calibration improvement for LiDE80,
 	working LEDADD for gl841 CIS scanners
@@ -449,7 +449,7 @@
 	- tidy function calc_shifting()
 	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.6
 
-2013-12-16 Stéphane Voltz <stef.dev@free.fr>
+2013-12-16 StÃ©phane Voltz <stef.dev@free.fr>
 	* doc/descriptions/genesys.desc: update LiDE 80
 	* backend/genesys_devices.c backend/genesys.c backend/genesys_low.h
 	backend/genesys_gl841.[ch]: basic support for LiDE 80
@@ -470,10 +470,10 @@
 	- add initial support for card reader (P-215)
 	- removed unused var from do_scsi_cmd()
 
-2013-11-21 Stéphane Voltz <stef.dev@free.fr>
+2013-11-21 StÃ©phane Voltz <stef.dev@free.fr>
 	* testsuite/tools/Makefile.*: handle sane git version change in tests.
 
-2013-10-19 Stéphane Voltz <stef.dev@free.fr>
+2013-10-19 StÃ©phane Voltz <stef.dev@free.fr>
 	* doc/descriptions/genesys.desc doc/Descriptions/unsupported.desc:
 	update LiDE 80 and HP2400 information
 	* backend/genesys_devices.c backend/genesys.conf.in backend/genesys.c

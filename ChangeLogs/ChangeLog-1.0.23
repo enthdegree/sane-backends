@@ -20,7 +20,7 @@
 	* /backend/kodakaio.c:
 	calling of poll tidied up, may fix problems with repeated scans.
 
-2012-07-30 Stéphane Voltz <stef.dev@free.fr>
+2012-07-30 StÃ©phane Voltz <stef.dev@free.fr>
 	* doc/sane-genesys.man backend/genesys_low.h backend/genesys*.c:
 	rewrite lineart emulation du to bugs exhibited by the use of the
 	genesys backend through saned. Fixed an option delcartion that led
@@ -46,7 +46,7 @@
 	* backend/kvs1025.h: Increase max paper size (Matthew Wild)
 	* doc/*.man, doc/*.html: Typo fixes (Yuri Chornoivan)
 
-2012-07-30 Stéphane Voltz <stef.dev@free.fr>
+2012-07-30 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl843.c backend/genesys_gl646.c:
 	fix batch scanning for gl646 scanners
 
@@ -87,7 +87,7 @@
 	Fix hp5590 backend on big-endian platforms provided by Nhan Ngo Dinh
 	<nngodinh@tiscali.it>
 
-2012-07-13 Stéphane Voltz <stef.dev@free.fr>
+2012-07-13 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl124.c
 	backend/genesys_gl646.c backend/p5.c backend/p5.h backend/p5_device.h
 	backend/rts8891.c backend/rts8891.h backend/rts8891_devices.c backend/rts8891_low.c
@@ -118,37 +118,37 @@
 	- lowest resolution for 48 bit flatbed scan modes is 150 dpi
 	* po/de.po: German translations for new scan modes
 
-2012-06-04 Stéphane Voltz <stef.dev@free.fr>
+2012-06-04 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_low.h
 	backend/genesys_devices.c backend/genesys_gl124.[ch] : LiDE 110/210
 	led calibration improvements, add a 'lamp off during scan' option,
 	add 2400x4800 mode to LiDE 100, 110 and 210, improve remove/add
 	scanner detection.
 
-2012-06-01 Stéphane Voltz <stef.dev@free.fr>
+2012-06-01 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl841.c: apply led calibration fix
 
-2012-06-01 Stéphane Voltz <stef.dev@free.fr>
+2012-06-01 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c: fix get_device to handle scanner plugging and
 	unplugging
 
-2012-05-31 Stéphane Voltz <stef.dev@free.fr>
+2012-05-31 StÃ©phane Voltz <stef.dev@free.fr>
 	* doc/descriptions/genesys.desc doc/sane-genesys.man
 	doc/descriptions/unsupported.desc: updated Xerox onetouch 2400 status
 	to supported
 
-2012-05-30 Stéphane Voltz <stef.dev@free.fr>
+2012-05-30 StÃ©phane Voltz <stef.dev@free.fr>
 	*  backend/genesys.c backend/genesys_gl124.c backend/genesys_gl124.h:
 	align gl124 code on latest gl847 improvements
 
-2012-05-29 Stéphane Voltz <stef.dev@free.fr>
+2012-05-29 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c
 	backend/genesys_gl847.h doc/descriptions/genesys.desc: add 4800 dpi
 	for LiDE 700F
 	- improve fedd/move to scan area for gl847 based scanners
 	- remove non working 400 dpi mode
 
-2012-05-28 Stéphane Voltz <stef.dev@free.fr>
+2012-05-28 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl124.c
 	backend/genesys_gl847.c backend/genesys_gl847.h backend/genesys_low.h
 	doc/descriptions/genesys.desc doc/sane-genesys.man:
@@ -209,11 +209,11 @@
 	* backend/pixma_mp810.c: cropping y and h to scanable area in TPU mode,
 	for CS8800F and CS9000F.
 
-2012-03-29 Stéphane Voltz <stef.dev@free.fr>
+2012-03-29 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl124.c backend/genesys_devices.c: use feed earlier
 	at high resolution. Tune LiDE 110/210 geometry.
 
-2012-03-26 Stéphane Voltz <stef.dev@free.fr>
+2012-03-26 StÃ©phane Voltz <stef.dev@free.fr>
 	* doc/descriptions/unsupported.desc: removed G4010/G4050,
 	patch by Martin Michlmayr <tbm@cyrius.com>.
 
@@ -238,7 +238,7 @@
 	- Fix calculations when flipping back of duplex page.
 	- Track the number of lines to flip as a negative number.
 
-2012-03-20 Stéphane Voltz <stef.dev@free.fr>
+2012-03-20 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_*.[ch]: gl841 sheetfed scanners calibration
 	improvement, fix document end detection when doing dynamic lineart.
 	Copyrights updates.
@@ -247,7 +247,7 @@
 	* backend/plustek.c: Fix batch scanning with Plustek backend
 	Patch submitted and tested by Elias Oltmanns <eo@nebensachen.de>
 
-2012-03-19 Stéphane Voltz <stef.dev@free.fr>
+2012-03-19 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl843.c: update HP4850
 	geometry and fix initial state
 
@@ -313,7 +313,7 @@
 	doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	Updated Pixma backend from Gernot Hassenpflug.
 
-2012-01-03 Stéphane Voltz <stef.dev@free.fr>
+2012-01-03 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c backend/genesys_gl847.c
 	backend/genesys_gl43.[ch]: fixd scan line number for gl646 CCD
 	scanners, improved led calbration for gl847 CIS scanners and G4050 XPA
@@ -342,7 +342,7 @@
 	* doc/descriptions-external/epkowa.desc: update for new iScan
 	2.28.1 release from Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>.
 
-2011-11-29 Stéphane Voltz <stef.dev@free.fr>
+2011-11-29 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_low.h backend/genesys_devices.c
 	backend/genesys_gl847.c: genesys backend build 67, gl847 led and
 	shadingcalibration improvements.
@@ -370,7 +370,7 @@
 	* sanei_usb.c: FreeBSD version checks.  All changes in this
 	batch come from FreeBSD ports patches. Bug #312503.
 
-2011-11-20 Stéphane Voltz <stef.dev@free.fr>
+2011-11-20 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_*.[ch] doc/descriptions/genesys.desc: build
 	66. Add hp N6310 and 4850C devices. Fix gl847 calibration.
 	GL843 XPA support groundwork.
@@ -459,7 +459,7 @@
 	add winsock.h as needed.  Also, do not use signals windows
 	doesn't have as well.
 
-2011-11-02 Stéphane Voltz <stef.dev@free.fr>
+2011-11-02 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_*.[ch] backend/Makefile.am backend/Makefile.in:
 	genesys_gl841.h creation and genesys backend code cleanup
 
@@ -467,7 +467,7 @@
 	* backend/canon_dr.[ch]: backend v39
 	- DR-2580C pads the backside of duplex scans
 
-2011-11-01 Stéphane Voltz <stef.dev@free.fr>
+2011-11-01 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl124.c backend/genesys_gl646.c
 	backend/genesys_gl841.c backend/genesys_gl843.c backend/genesys_gl847.c
 	backend/genesys_low.c backend/genesys_low.h: do <sys/types.h> include
@@ -484,7 +484,7 @@
 	  Include <sys/types.h> for definition of u_long on MacOS X
 	* po/sv.po: Update Swedish translation
 
-2011-10-21 Stéphane Voltz <stef.dev@free.fr>
+2011-10-21 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_devices.c
 	backend/genesys_gl*.c backend/genesys_gl843.h
 	backend/genesys_low.[ch], doc/sane.man doc/sane-genesys.man
@@ -510,51 +510,51 @@
 	* doc/descriptions/epson2.desc backend/epson_usb.c: add USB id for Epson
 	Stylus SX125
 
-2011-09-07 Stéphane Voltz <stef.dev@free.fr>
+2011-09-07 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_low.h
 	backend/genesys_gl124.c: fix button mapping for LiDE 210
 
-2011-08-25 Stéphane Voltz <stef.dev@free.fr>
+2011-08-25 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c backend/genesys_low.c backend/genesys_low.h
 	backend/genesys.c: add a no move during shading calibratiob flag, and
 	use it for MD5345
 
-2011-08-23 Stéphane Voltz <stef.dev@free.fr>
+2011-08-23 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl847.c backend/genesys_low.c backend/genesys_low.h
 	backend/genesys.c backend/genesys_gl124.c backend/genesys_gl843.c:
 	make sure to use the fatest speed when parking, use lowest sensor dpi
 	as default resolution
 
-2011-08-22 Stéphane Voltz <stef.dev@free.fr>
+2011-08-22 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys*.[ch]: enable calibration for G4050/G4010 and
 	minor code refactors
 
-2011-08-05 Stéphane Voltz <stef.dev@free.fr>
+2011-08-05 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_low.c backend/genesys_conv.c:
 	fixed generic calibration cache for CCD case and when yres is higher
 	than sensor's maximum one. Fixed lineart data enlarging when yres is
 	higher than xres.
 
-2011-07-31 Stéphane Voltz <stef.dev@free.fr>
+2011-07-31 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c backend/genesys_gl841.c
 	backend/genesys_gl843.c backend/genesys_gl847.c backend/genesys_gl124.c
 	backend/genesys_low.[ch]: is_compatible cache refactor for gl843,
 	gl847 and gl124
 
-2011-07-31 Stéphane Voltz <stef.dev@free.fr>
+2011-07-31 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl124.[ch] backend/genesys_gl843.[ch]:
 	use sanei_genesys_compute_dpihw instead of specific function.
 
-2011-07-15 Stéphane Voltz <stef.dev@free.fr>
+2011-07-15 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl646.c
 	backend/genesys_gl847.c: re-tune scan area of MD5345/MD6228.
 	parking function clean up.
 
-2011-07-15 Stéphane Voltz <stef.dev@free.fr>
+2011-07-15 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/lexmark.c backend/lexmark_low.c: increase tolerance when
 	detecting the 'home' dot.
 
-2011-07-07 Stéphane Voltz <stef.dev@free.fr>
+2011-07-07 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c: fixed incorrect image height for sheetfed
 	scanners
 
@@ -570,13 +570,13 @@
 	- automatically disable read/send_panel if unsupported
 	* doc/descriptions/canon_dr.desc: status of DR-5020
 
-2011-07-06 Stéphane Voltz <stef.dev@free.fr>
+2011-07-06 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.h backend/genesys_gl847.c backend/genesys.c
 	backend/genesys_gl124.c backend/genesys_gl843.c backend/genesys_gl646.c
 	backend/genesys_gl841.c: improve 4800 dpi quality for LiDE 200 by
 	increasing the number of lines scan for shading
 
-2011-07-05 Stéphane Voltz <stef.dev@free.fr>
+2011-07-05 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.h backend/genesys_gl847.c backend/genesys_devices.c
 	backend/genesys.c backend/genesys_gl124.c backend/genesys_gl843.c
 	backend/genesys_gl646.c backend/genesys_gl841.c: make 4800 pdi work
@@ -599,23 +599,23 @@
 	for Samsung CLX-216x Series, tested with CLX-2160, reported by Malte
 	Starostik <malte@malte.homeip.net>
 
-2011-06-15 Stéphane Voltz <stef.dev@free.fr>
+2011-06-15 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl847.c: lineart fix
 
-2011-06-13 Stéphane Voltz <stef.dev@free.fr>
+2011-06-13 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys_gl646.c
 	backend/genesys_gl646.h doc/descriptions/genesys.desc
 	doc/sane-genesys.man: add full HP2400 support thanks a patch from
 	Alexey Osipov <simba@lerlan.ru>
 
-2011-06-13 Stéphane Voltz <stef.dev@free.fr>
+2011-06-13 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys*.[ch] : rework of gl847 to reach 2400 dpi for
 	LiDE 100 and 4800 dpi for LiDE 200
 
-2011-06-10 Stéphane Voltz <stef.dev@free.fr>
+2011-06-10 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/lexmark_models.c: fix missing motor initialization
 
-2011-06-07 Stéphane Voltz <stef.dev@free.fr>
+2011-06-07 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_conv.c:
 	add blank page skipping and rotation detection options
 
@@ -634,7 +634,7 @@
 	for the scanner group instead of making the device root:scanner 0664.
 	This is designed to help with MFPs and play nice with ConsoleKit.
 
-2011-04-20 Stéphane Voltz <stef.dev@free.fr>
+2011-04-20 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.c backend/genesys_devices.c
 	backend/genesys.conf.in: add Xerox 2400 onetouch model and improve
 	big endian handling
@@ -643,15 +643,15 @@
 	* tools/sane-desc.c: move away from using power/level for disabling
 	USB autosuspend/power management and use power/control if available.
 
-2011-03-18 Stéphane Voltz <stef.dev@free.fr>
+2011-03-18 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.c backend/genesys.c : rewrite big endian fixes
 	for gl847/gl124 based scanners. Improve calibration cache file handling.
 
-2011-03-17 Stéphane Voltz <stef.dev@free.fr>
+2011-03-17 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.c: big endian fixes for gl847/gl124 based
 	scanners. Patch by Olaf Zimmermann <oez@pt.lu> .
 
-2011-03-15 Stéphane Voltz <stef.dev@free.fr>
+2011-03-15 StÃ©phane Voltz <stef.dev@free.fr>
 	* backend/Makefile.in backend/canon_dr.[ch]: fixes to allow full
 	static build under cygwin
 

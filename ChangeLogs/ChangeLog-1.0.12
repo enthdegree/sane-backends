@@ -13,7 +13,7 @@
 	  Artec and Visioneer/Primax scanners.
 	* TODO: Added saned + configure issue.
 
-2003-05-21   Stéphane Voltz  <svoltz@wanadoo.fr>
+2003-05-21   StÃ©phane Voltz  <svoltz@wanadoo.fr>
 	* backend/umax_pp_low.c: backed out clearing epp timeout. It prevented most
 	  common settings to use the umax_pp backend.
 
@@ -286,12 +286,12 @@
 	* sanei/sanei_usb.c: fixed a memleak.
 	* sanei/sanei_pv8630.c: added some debug traces.
 
-2003-04-18   Stéphane Voltz  <svoltz@wanadoo.fr>
+2003-04-18   StÃ©phane Voltz  <svoltz@wanadoo.fr>
 
         * configure configure.in include/sane/config.h.in:
 	  added detection of dev/ppbus/ppi.h
 
-2003-04-18   Stéphane Voltz  <svoltz@wanadoo.fr>
+2003-04-18   StÃ©phane Voltz  <svoltz@wanadoo.fr>
 
         * backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp.conf:
 	  added support for /dev/ppi0 on *BSD, and a
@@ -708,7 +708,7 @@
 	* po/sane-backends.fr.po: Updated French translation (from Yann E.
 	  MORIN <yann dot morin dot 1998 at anciens dot enib dot fr>).
 
-2003-02-23   Stéphane Voltz  <svoltz@wanadoo.fr>
+2003-02-23   StÃ©phane Voltz  <svoltz@wanadoo.fr>
 
         * backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c
 	  backend/umax_pp_mid.h backend/umax_pp.c backend/umax_pp.h
@@ -739,7 +739,7 @@
         * backend/pie.c: fixed segmentation faults when sane_init/sane_exit is
 	  run more than once.
 
-2003-02-23   Stéphane Voltz  <svoltz@wanadoo.fr>
+2003-02-23   StÃ©phane Voltz  <svoltz@wanadoo.fr>
 
         * backend/umax_pp_low.c backend/umax_pp_low.c: Added global vars reset.
 	  Fixed a segmentation bug when using "" as opened device name.
@@ -800,7 +800,7 @@
 	* tools/sane-find-scanner.c: Check all interfaces. Print a more
 	  definite message when a scanner was found to avoid confusion.
 
-2003-02-18   Stéphane Voltz  <svoltz@wanadoo.fr>
+2003-02-18   StÃ©phane Voltz  <svoltz@wanadoo.fr>
 
         * backend/umax_pp_low.c: icc compile fixes, and
 	  EPP mode setting fix for direct hardware access
@@ -832,7 +832,7 @@
 	  (otherwise BP 2400 TA Plus wouldn't work with 12/16 bits). Added
 	  vid/pid 0x07b3/0x0400, that's another Plustek OpticPro 1248U.
 
-2003-02-16  René Rebe <rene@rocklinux.org>
+2003-02-16  RenÃ© Rebe <rene@rocklinux.org>
 
 	* backend/avision.h backend/avision.c doc/sane.man
 	  doc/descriptions/avision.desc: update to the latest Avision
@@ -892,7 +892,7 @@
 	* TODO: Added saned info. Added artec at3 misdetection.
 	* configure configure.in NEWS: Updated version number.
 
-2003-02-09   Stéphane Voltz  <svoltz@wanadoo.fr>
+2003-02-09   StÃ©phane Voltz  <svoltz@wanadoo.fr>
 
         * backend/umax_pp.c: fixed big bug related to color plane
 	  synchronization, which gave blur effect at > 75 dpi

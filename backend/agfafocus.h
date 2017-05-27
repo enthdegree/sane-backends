@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    This file (C) 1997 Ingo Schneider
-             (C) 1998 Karl Anders Øygard
+             (C) 1998 Karl Anders Ã˜ygard
 
    This file is part of the SANE package.
 

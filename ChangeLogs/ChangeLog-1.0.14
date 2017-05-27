@@ -288,7 +288,7 @@
 2004-03-15  Oliver Rauch <oliver.rauch@rauch-domain.de>
 	* backend/umax: bugfix for sense_handler and do_calibration
 
-2004-03-15  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-03-15  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c
           backend/umax_pp.c tools/umax_pp.c:   Added ppdev support for 610P
@@ -310,7 +310,7 @@
 	* doc/descriptions/unsupported.desc: Added Vantas 3000. Added some
 	  links.
 
-2004-03-09  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-03-09  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c
           doc/sane-umax_pp.man doc/descriptions/umax_pp.desc tools/umax_pp.c:
@@ -400,7 +400,7 @@
           jpg hardware compression support (fi-4530C)
 
 
-2004-02-20  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-02-20  StÃ©phane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.h backend/umax_pp_low.c backend/umax_pp.conf
 	  backend/umax_pp.c tools/umax_pp.c: added initial ECP support for
@@ -873,7 +873,7 @@
 	  support for mustek_pp backend
 	* backend/mustek_pp_null.c: beautified debug scanner name
 
-2003-11-23  René Rebe <rene@rocklinux.org>
+2003-11-23  RenÃ© Rebe <rene@rocklinux.org>
 
 	* backend/avision.c backend/avision.h: the current development state,
           including cleanups, code refactoring and nearly complete HP

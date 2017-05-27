@@ -12,7 +12,7 @@
  * 0.32 - no changes
  * 0.33 - no changes
  * 0.34 - added this history
- * 0.35 - added Kevins´ changes to MiscRestorePort
+ * 0.35 - added KevinsÂ´ changes to MiscRestorePort
  *		  changed prototype of MiscReinitStruct
  *		  added prototype for function PtDrvLegalRequested()
  * 0.36 - added prototype for function MiscLongRand()

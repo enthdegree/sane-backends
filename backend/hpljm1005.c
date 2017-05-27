@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2007-2008 Philippe Rétornaz
+   Copyright (C) 2007-2008 Philippe RÃ©tornaz
 
    This file is part of the SANE package.
 

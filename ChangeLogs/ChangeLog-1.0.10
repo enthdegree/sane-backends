@@ -367,7 +367,7 @@
 
 	* doc/descriptions/hp.desc: Change HP ScanJet to ScanJet
 
-2003-01-07   Stéphane Voltz  <svoltz@wanadoo.fr>
+2003-01-07   StÃ©phane Voltz  <svoltz@wanadoo.fr>
 
         * doc/sane-umax_pp.man: updates and fixes
 	* doc/descriptions/umax_pp.desc: change model form HP3200C to
@@ -399,7 +399,7 @@
 
 	* TODO: Added link to Irix patches. Updated .desc section.
 
-2003-01-05   Stéphane Voltz  <svoltz@wanadoo.fr>
+2003-01-05   StÃ©phane Voltz  <svoltz@wanadoo.fr>
 
         * backend/umax_pp_low.c: small image quality improvement
 	* backend/umax_pp.conf: ppdev device is now default option
@@ -568,7 +568,7 @@
 	  all backend files. Uses UTF-8 everywhere. Updated all files
 	  from the marked source code.
 
-2002-12-01   Stéphane Voltz  <svoltz@wanadoo.fr>
+2002-12-01   StÃ©phane Voltz  <svoltz@wanadoo.fr>
 
         * backend/umax_pp.c: unmarked from SANE_I18N 2 options names
 
@@ -594,7 +594,7 @@
 2002-11-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/Makefile.in po/epson.sv.po po/saneopts.sv.po: Added Swedish
-	  translation (from Dennis Björklund <db@zigo.dhs.org>).
+	  translation (from Dennis BjÃ¶rklund <db@zigo.dhs.org>).
 
 2002-11-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -736,7 +736,7 @@
           backend/matsushita.c backend/leo.c: fixed hexdump() declaration.
         * backend/dll.c: fixed some warnings.
 
-2002-11-07   Stéphane Voltz  <svoltz@wanadoo.fr>
+2002-11-07   StÃ©phane Voltz  <svoltz@wanadoo.fr>
 
         * backend/umax_pp_low.c: disable test facility
 
@@ -777,7 +777,7 @@
           The translations have been created by
           Vitaly Lipatov <LAV@VL3143.spb.edu>
 
-2002-11-07   Stéphane Voltz  <svoltz@wanadoo.fr>
+2002-11-07   StÃ©phane Voltz  <svoltz@wanadoo.fr>
 
         * backend/umax_pp.c: revert a experimental change that went into
           cvs by mistake.
@@ -798,7 +798,7 @@
           if custom gamma is off instead of uploading the composed gamma table.
           That avoids applying gamm twice. Minor man page update.
 
-2002-11-05   Stéphane Voltz  <svoltz@wanadoo.fr>
+2002-11-05   StÃ©phane Voltz  <svoltz@wanadoo.fr>
 
         * backend/umax_pp.c  backend/umax_pp_mid.c : OS/2 compile fix, indent
           correction
@@ -829,7 +829,7 @@
           backend/gt68xx_low.c backend/gt68xx_low.h doc/gt68xx/gt68xx.CHANGES:
           Faster AFE calibration. Minor fixes. New version: 1.0-28.
 
-2002-10-31   Stéphane Voltz  <svoltz@wanadoo.fr>
+2002-10-31   StÃ©phane Voltz  <svoltz@wanadoo.fr>
 
         * backend/umax_pp.c  backend/umax_pp.h  backend/umax_pp_low.h
           backend/umax_pp_low.c tools/umax_pp.c: add UTA detection,

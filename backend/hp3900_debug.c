@@ -764,7 +764,7 @@ dbg_buffer (SANE_Int level, char *title, SANE_Byte * buffer, SANE_Int size,
 			  bzero (&text, sizeof (text));
 			}
 		      data = _B0 (buffer[cont]);
-		      text[col] = (data > 31) ? data : '·';
+		      text[col] = (data > 31) ? data : 'Â·';
 		      snprintf (sdata, 80, "%02x ", data);
 		      sline = strcat (sline, sdata);
 		      col++;

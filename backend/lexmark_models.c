@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2006-2010 Stéphane Voltz <stef.dev@free.fr>
+   Copyright (C) 2006-2010 StÃ©phane Voltz <stef.dev@free.fr>
    Copyright (C) 2010 "Torsten Houwaart" <ToHo@gmx.de> X74 support
 
    This file is part of the SANE package.

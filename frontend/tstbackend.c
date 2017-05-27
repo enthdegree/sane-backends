@@ -3,7 +3,7 @@
 
    Uses the SANE library.
    Copyright (C) 2002 Frank Zago (sane at zago dot net)
-   Copyright (C) 2013 Stéphane Voltz <stef.dev@free.fr> : sane_get_devices test
+   Copyright (C) 2013 StÃ©phane Voltz <stef.dev@free.fr> : sane_get_devices test
 
    This file is part of the SANE package.
 

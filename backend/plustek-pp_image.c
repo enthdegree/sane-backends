@@ -107,7 +107,7 @@ static ThreshDef xferSpeed[4] = {
 
 /** return the correct DPI-value
  * The ASIC 96001/3 models are limited to an optical resolution of 300 Dpi
- * so it´s necessary to scale in X and Y direction (see scale.c)!
+ * so itÂ´s necessary to scale in X and Y direction (see scale.c)!
  */
 static UShort imageGetPhysDPI( pScanData ps, pImgDef pImgInf, Bool fDpiX )
 {

@@ -724,7 +724,7 @@ static void p48xxPutToIdleMode( pScanData ps )
 /*.............................................................................
  * for P96001/3 ASIC
  * do all the preliminary stuff here (calibrate the scanner and move the
- * sensor to it´s start position, also setup the driver for the
+ * sensor to itÂ´s start position, also setup the driver for the
  * current run)
  */
 static int p48xxCalibration( pScanData ps )

@@ -3390,7 +3390,7 @@ find_margin (struct Rts8891_Device *dev)
   dev->regs[0xd7] = 0x14;
   dev->regs[0xd8] = 0xf6;
 
-  dev->regs[0xda] = 0xa7;	/* XXX STEF XXX à l'origine, pas 'bare' */
+  dev->regs[0xda] = 0xa7;	/* XXX STEF XXX Ã  l'origine, pas 'bare' */
 
   dev->regs[0xe2] = 0x01;
 

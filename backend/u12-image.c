@@ -217,7 +217,7 @@ static void fnColor42( U12_Device *dev, void *pb, void *img, u_long len )
 {
 	u_short      *src;
 	RGBUShortDef *dest;
-    
+
 	register u_long i;
 
 	_VAR_NOT_USED( len );
@@ -317,7 +317,7 @@ u12image_GetPhysDPI( U12_Device *dev, ImgDef *img, SANE_Bool fDpiX )
 			return img->xyDpi.x;
 
 	} else {
-		
+
 		if( img->xyDpi.y > dev->dpi_max_y )
 				return dev->dpi_max_y;
 		else
@@ -374,7 +374,7 @@ static void u12image_GetImageInfo( U12_Device *dev, ImgDef *image )
 
 	switch( image->wDataType ) {
 
-	case COLOR_BW:                            
+	case COLOR_BW:
 		dev->scan.DataProcess     = fnDataDirect;
 		dev->DataInf.wPhyDataType = COLOR_BW;
 		dev->shade.intermediate   = _ScanMode_Mono;
@@ -407,7 +407,7 @@ static void u12image_GetImageInfo( U12_Device *dev, ImgDef *image )
 
 	/* raus mit einem von beiden!!!!*/
 	dev->DataInf.dwAppBytesPerLine = dev->DataInf.dwAppPhyBytesPerLine;
-	
+
 	DBG( _DBG_INFO, "AppLinesPerArea    = %lu\n", dev->DataInf.dwAppLinesPerArea    );
 	DBG( _DBG_INFO, "AppPixelsPerLine   = %lu\n", dev->DataInf.dwAppPixelsPerLine   );
 	DBG( _DBG_INFO, "AppPhyBytesPerLine = %lu\n", dev->DataInf.dwAppPhyBytesPerLine );
@@ -418,7 +418,7 @@ static void u12image_GetImageInfo( U12_Device *dev, ImgDef *image )
 	DBG( _DBG_INFO, "Physical Bytes     = %lu\n", dev->DataInf.dwPhysBytesPerLine   );
 }
 
-/** 
+/**
  */
 static int imageSetupScanSettings( U12_Device *dev, ImgDef *img )
 {
@@ -483,7 +483,7 @@ static SANE_Status u12image_SetupScanSettings( U12_Device *dev, ImgDef *img )
 	wPreviewScanned   = 0;
 	dev->scan.dpiIdx  = 0;
 	dev->scan.negScan = negScan;
- 
+
 	imageSetupScanSettings( dev, img );
 
 	if( !(dev->DataInf.dwScanFlag & _SCANDEF_TPA )) {
@@ -816,7 +816,7 @@ static void u12image_PrepareScaling( U12_Device *dev )
 		             dev->DataInf.xyAppDpi.x, dev->dpi_max_x );
 
 	if( dev->DataInf.xyAppDpi.x > dev->dpi_max_x ) {
-		
+
 		dev->scaleBuf = malloc( dev->DataInf.dwAppBytesPerLine );
 
 		ratio = (double)dev->DataInf.xyAppDpi.x/(double)dev->dpi_max_x;
@@ -837,7 +837,7 @@ static void u12image_PrepareScaling( U12_Device *dev )
 	} else {
 
 		DBG( _DBG_INFO, "u12image_PrepareScaling: DISABLED\n" );
-	} 
+	}
 }
 
 /** scaling picture data in x-direction, using a DDA algorithm

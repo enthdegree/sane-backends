@@ -1065,7 +1065,7 @@ CalibrateScanElements ()
   SANE_Byte CurrentLowTransferBorder;
   SANE_Byte CurrentUpSaveBorder;
   SANE_Byte CurrentLowSaveBorder;
-  SANE_Byte CurrentSpeed1, CurrentSpeed2; 
+  SANE_Byte CurrentSpeed1, CurrentSpeed2;
   SANE_Byte CorrectionValue;
   SANE_Byte FilteredBuffer[2570];
 
@@ -1174,7 +1174,7 @@ CalibrateScanElements ()
      Temp /= 2570;
 
      if((Average == 0)||(Average > Temp))
-     Average = Temp; 
+     Average = Temp;
     }
 
     for(Index = 0; Index < 3; Index++) /*Three color components*/
@@ -1190,7 +1190,7 @@ CalibrateScanElements ()
 	CallFunctionWithParameter (0x92, CurrentLowTransferBorder|0x80);
 	for(j=2999; j>0; j--)
 	    CallFunctionWithParameter (0xC6, 0);
-	
+
 	CurrentUpSaveBorder = arUpSaveBorders[Index];
 	CallFunctionWithParameter (CurrentUpSaveBorder, 0xFF);
 
@@ -1199,9 +1199,9 @@ CalibrateScanElements ()
 	CallFunctionWithParameter (0x90,0);
 	Calibration = 0x80;
 	CallFunctionWithParameter (CurrentUpSaveBorder, 0x80);
-	
+
 	CurrentSpeed1 = CurrentSpeed2 = arSpeeds[Index];
-	
+
 	for(CorrectionValue = 0x40; CorrectionValue != 0;CorrectionValue >>= 2)
 	{
 	    CallFunctionWithParameter (0x91, CurrentSpeed2);
@@ -1235,11 +1235,11 @@ CalibrateScanElements ()
 		Perhaps, we can optimize it in future.*/
 	    WriteScannerRegister (0x91, 0);
 	    usleep(10);
-	    
+
 	    for(Temp = 0,j = 0; j < 16;j++)
 		Temp += FilteredBuffer[509+j]; /*At this offset calcalates HP's driver.*/
 	    Temp /= 16;
-	    
+
 	    if(Average > Temp)
 	    {
 		Calibration += CorrectionValue;
@@ -1247,7 +1247,7 @@ CalibrateScanElements ()
 	    }
 	    else
 		Calibration -= CorrectionValue;
-	    
+
 	    WriteScannerRegister (CurrentUpSaveBorder, Calibration);
 	}/*By CorrectionValue we tune UpSaveBorder*/
 

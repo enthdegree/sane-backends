@@ -161,8 +161,8 @@ static int detectScannerConnection( pScanData ps )
 				_ASSERT( ps->ReadWriteTest );
 
 				/*
-				 * here we try to detect the operation speed of our parallel 
-				 * port if we have tested all the stuff and had no success, 
+				 * here we try to detect the operation speed of our parallel
+				 * port if we have tested all the stuff and had no success,
 				 * retval will contain the error-code
                  */
 				for( ps->IO.delay = 0; ps->IO.delay < 5; ps->IO.delay++ ) {
@@ -211,11 +211,11 @@ static int detectSetupBuffers( pScanData ps )
      */
     if ( 0 == ps->TotalBufferRequire ) {
 
-#ifdef __KERNEL__    
+#ifdef __KERNEL__
 		_PRINT(
 #else
 		DBG( DBG_HIGH,
-#endif        
+#endif
         "pt_drv: asic 0x%x probably not supported\n", ps->sCaps.AsicID);
 
         return _E_ALLOC;  /* Out of memory */
@@ -419,7 +419,7 @@ _LOC int DetectScanner( pScanData ps, int mode )
 
 		DBG( DBG_HIGH, "Starting Scanner-Autodetection\n" );
 
-		/* try to find a 48xx Scanner 
+		/* try to find a 48xx Scanner
 		 * (or even a scanner based on the 96001/3) ASIC
 		 */
 		result = detectP48xx( ps );

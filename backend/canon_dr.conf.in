@@ -1,6 +1,6 @@
 #######################################################################
 # NOTE: 'option' lines only apply to the devices found by
-# the NEXT 'usb' or 'scsi' line. You may repeat the option line if 
+# the NEXT 'usb' or 'scsi' line. You may repeat the option line if
 # required for multiple scanners of different models/connections.
 
 #######################################################################

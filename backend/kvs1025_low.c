@@ -988,7 +988,7 @@ buffer_deskew(PKV_DEV s, int side)
       &s->params[side_index],s->img_buffers[side_index],
       resolution,resolution,
       &s->deskew_vals[0],&s->deskew_vals[1],&s->deskew_slope);
-  
+
     if(s->deskew_stat){
       DBG (5, "buffer_despeck: bad findSkew, bailing\n");
       goto cleanup;
@@ -997,7 +997,7 @@ buffer_deskew(PKV_DEV s, int side)
   /* backside images can use a 'flipped' version of frontside data */
   else{
     s->deskew_slope *= -1;
-    s->deskew_vals[0] 
+    s->deskew_vals[0]
       = s->params[side_index].pixels_per_line - s->deskew_vals[0];
   }
 
@@ -1039,7 +1039,7 @@ buffer_crop(PKV_DEV s, int side)
       DBG (5, "buffer_crop: bad edges, bailing\n");
       goto cleanup;
     }
-  
+
     DBG (15, "buffer_crop: t:%d b:%d l:%d r:%d\n",
       s->crop_vals[0],s->crop_vals[1],s->crop_vals[2],s->crop_vals[3]);
 
@@ -1066,9 +1066,9 @@ buffer_crop(PKV_DEV s, int side)
   }
 
   /* update image size counter to new, smaller size */
-  s->img_size[side_index] 
+  s->img_size[side_index]
     = s->params[side_index].lines * s->params[side_index].bytes_per_line;
- 
+
   cleanup:
   DBG (10, "buffer_crop: finish\n");
   return ret;
@@ -1143,7 +1143,7 @@ buffer_rotate(PKV_DEV s, int side)
     ret = sanei_magic_findTurn(
       &s->params[side_index],s->img_buffers[side_index],
       resolution,resolution,&angle);
-  
+
     if(ret){
       DBG (5, "buffer_rotate: error %d\n",ret);
       ret = SANE_STATUS_GOOD;
@@ -1161,7 +1161,7 @@ buffer_rotate(PKV_DEV s, int side)
   ret = sanei_magic_turn(
     &s->params[side_index],s->img_buffers[side_index],
     angle);
-  
+
   if(ret){
     DBG (5, "buffer_rotate: error %d\n",ret);
     ret = SANE_STATUS_GOOD;
@@ -1169,9 +1169,9 @@ buffer_rotate(PKV_DEV s, int side)
   }
 
   /* update image size counter to new, smaller size */
-  s->img_size[side_index] 
+  s->img_size[side_index]
     = s->params[side_index].lines * s->params[side_index].bytes_per_line;
- 
+
   cleanup:
   DBG (10, "buffer_rotate: finished\n");
   return ret;

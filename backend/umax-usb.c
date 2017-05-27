@@ -2,7 +2,7 @@
 
 /* sane - Scanner Access Now Easy.
 
-   umax-usb.c 
+   umax-usb.c
 
    (C) 2001-2002 Frank Zago
 
@@ -77,7 +77,7 @@ static u_char cdb_sizes[8] = {
 
 /* Sends a CDB to the scanner. Also sends the parameters and receives
  * the data, if necessary. When this function returns with a
- * SANE_STATUS_GOOD, the SCSI command has been completed. 
+ * SANE_STATUS_GOOD, the SCSI command has been completed.
  *
  * Note: I don't know about deferred commands.
  */
@@ -88,7 +88,7 @@ static SANE_Status sanei_umaxusb_cmd(int fd, const void *src, size_t src_size, v
 	size_t param_size = src_size - cmd_size;
 	const char * param_ptr = ((const char *) src) + cmd_size;
 	size_t tmp_len;
-	
+
 	DBG(DBG_info, "Sending SCSI cmd 0x%02x cdb len %ld, param len %ld, result len %ld\n", ((const unsigned char *)src)[0], (long)cmd_size, (long)param_size, dst_size? (long)*dst_size:(long)0);
 
 	/* This looks like some kind of pre-initialization. */
@@ -100,7 +100,7 @@ static SANE_Status sanei_umaxusb_cmd(int fd, const void *src, size_t src_size, v
 	sanei_pv8630_write_byte(fd, PV8630_RMODE, 0x16);
 	sanei_pv8630_flush_buffer(fd);
 	sanei_pv8630_prep_bulkwrite(fd, cmd_size);
-	
+
 	tmp_len = cmd_size;
 	sanei_pv8630_bulkwrite(fd, src, &tmp_len);
 	sanei_pv8630_wait_byte(fd, PV8630_RSTATUS, 0xf8, 0xff, 1000);
@@ -118,19 +118,19 @@ static SANE_Status sanei_umaxusb_cmd(int fd, const void *src, size_t src_size, v
 		}
 		return(SANE_STATUS_IO_ERROR);
 	}
-	
+
 	/* Send the parameters and check they've been received OK. */
 	if (param_size) {
 		sanei_pv8630_flush_buffer(fd);
 		sanei_pv8630_prep_bulkwrite(fd, param_size);
-		
+
 		tmp_len = param_size;
 		sanei_pv8630_bulkwrite(fd, param_ptr, &tmp_len);
 		sanei_pv8630_wait_byte(fd, PV8630_RSTATUS, 0xf8, 0xff, 1000);
-		
+
 		sanei_pv8630_flush_buffer(fd);
 		sanei_pv8630_prep_bulkread(fd, 1);
-		
+
 		result = 0xA5;				/* to be sure */
 		tmp_len = 1;
 		sanei_pv8630_bulkread(fd, &result, &tmp_len);
@@ -174,7 +174,7 @@ static SANE_Status sanei_umaxusb_cmd(int fd, const void *src, size_t src_size, v
 	sanei_pv8630_wait_byte(fd, PV8630_RSTATUS, 0xd0, 0xff, 1000);
 
 	DBG(DBG_info, "  SCSI command successfully executed\n");
- 
+
 	return(SANE_STATUS_GOOD);
 }
 
@@ -214,12 +214,12 @@ static SANE_Status pv8630_init_umaxusb_scanner(int fd)
 	sanei_pv8630_write_byte(fd, PV8630_RMODE, 0x16);
 
 	DBG(DBG_info, "PV8630 initialized\n");
-	
+
 	return(SANE_STATUS_GOOD);
 }
 
 
-/* 
+/*
  * SCSI functions for the emulation.
  *
  * The following functions emulate their sanei_scsi_* counterpart.
@@ -227,7 +227,7 @@ static SANE_Status pv8630_init_umaxusb_scanner(int fd)
  */
 
 
-/* 
+/*
  * sanei_umaxusb_req_wait() and sanei_umaxusb_req_enter()
  *
  * I don't know if it is possible to queue the reads to the
@@ -255,7 +255,7 @@ sanei_umaxusb_req_wait (void *id)
 	return(SANE_STATUS_GOOD);
 }
 
-/* Open the device. 
+/* Open the device.
  */
 static SANE_Status
 sanei_umaxusb_open (const char *dev, int *fdp,
@@ -290,16 +290,16 @@ sanei_umaxusb_open (const char *dev, int *fdp,
 			*fdp = -1;
 			return SANE_STATUS_UNSUPPORTED;
 		}
-		
-		/* It's a good scanner. Initialize it.  
+
+		/* It's a good scanner. Initialize it.
 		 *
 		 * Note: pv8630_init_umaxusb_scanner() is for the UMAX
 		 * 2200. Other UMAX scanner might need a different
 		 * initialization routine. */
 
-		pv8630_init_umaxusb_scanner(*fdp); 
+		pv8630_init_umaxusb_scanner(*fdp);
 	}
-	
+
 	return(SANE_STATUS_GOOD);
 }
 

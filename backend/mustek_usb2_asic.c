@@ -42,7 +42,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro 
+   This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro
    and similar USB2 scanners. */
 
 #include "mustek_usb2_asic.h"
@@ -1649,7 +1649,7 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
   Mustek_SendData (chip, ES01_E5_MotorDecStep, LLF_MotorMove->DecStep);
   DBG (DBG_ASIC, "DecStep=%d\n", LLF_MotorMove->DecStep);
 
-  /*set motor uniform speed only for uniform speed 
+  /*set motor uniform speed only for uniform speed
      //only used for UNIFORM_MOTOR_AND_SCAN_SPEED_ENABLE
      //If you use acc mode, this two reg are not used. */
   Mustek_SendData (chip, ES01_FD_MotorFixedspeedLSB,
@@ -4541,7 +4541,7 @@ Asic_ReadCalibrationData (PAsic chip, void * pBuffer,
       pCalBuffer = (SANE_Byte *) malloc (dwXferBytes);
       if (pCalBuffer == NULL)
 	{
-	  DBG (DBG_ERR, 
+	  DBG (DBG_ERR,
 		   "Asic_ReadCalibrationData: Can't malloc bCalBuffer memory\n");
 	  return STATUS_MEM_ERROR;
 	}

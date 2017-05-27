@@ -1,9 +1,9 @@
 #ifndef KODAK_CMD_H
 #define KODAK_CMD_H
 
-/* 
+/*
  * Part of SANE - Scanner Access Now Easy.
- * 
+ *
  * Please see to opening comments in kodak.c
  */
 
@@ -27,7 +27,7 @@ getnbyte (unsigned char *pnt, int nbytes)
 {
     unsigned int result = 0;
     int i;
-  
+
     for (i = 0; i < nbytes; i++)
         result = (result << 8) | (pnt[i] & 0xff);
     return result;
@@ -37,7 +37,7 @@ static void
 putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 {
     int i;
-  
+
     for (i = nbytes - 1; i >= 0; i--) {
         pnt[i] = value & 0xff;
         value = value >> 8;
@@ -398,7 +398,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 /* output */
 #define set_SR_datatype_code(sb, val)   sb[0x02] = val
 #define SR_datatype_imagedata	        0x00
-#define SR_datatype_random              0x80 
+#define SR_datatype_random              0x80
 #define SR_datatype_imageheader         0x81
 #define SR_len_imageheader              1088
 
@@ -416,11 +416,11 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_SR_ih_length(in)            getnbyte(in + 23, 4)
 #define get_SR_ih_bpp(in)               in[27]
 #define get_SR_ih_comp_type(in)         in[28]
-#define get_SR_ih_ACD(in)               getbit(in + 29, 1, 5)  
-#define get_SR_ih_MF(in)                getbit(in + 29, 1, 4)  
-#define get_SR_ih_RIF(in)               getbit(in + 29, 1, 2)  
-#define get_SR_ih_ID(in)                getbit(in + 29, 1, 1)  
-#define get_SR_ih_DE(in)                getbit(in + 29, 1, 0)  
+#define get_SR_ih_ACD(in)               getbit(in + 29, 1, 5)
+#define get_SR_ih_MF(in)                getbit(in + 29, 1, 4)
+#define get_SR_ih_RIF(in)               getbit(in + 29, 1, 2)
+#define get_SR_ih_ID(in)                getbit(in + 29, 1, 1)
+#define get_SR_ih_DE(in)                getbit(in + 29, 1, 0)
 #define get_SR_ih_skew_angle(in)        getnbyte(in + 30, 2)
 #define get_SR_ih_ia_level(in)          in[32]
 #define get_SR_ih_ia(in)                getnbyte(in + 33, 60)

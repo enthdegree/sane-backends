@@ -12,7 +12,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.
  *
- * Header file for UDP/IP communications. 
+ * Header file for UDP/IP communications.
  */
 
 #ifndef sanei_udp_h

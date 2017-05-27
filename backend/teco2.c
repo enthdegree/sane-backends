@@ -4,42 +4,42 @@
    Copyright (C) 2003-2008 Gerard Klaver (gerard at gkall dot hobby dot nl)
 
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
-   
+
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
-   
+
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
-   
+
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
-   
+
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
-   
+
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 */
 
 /*
@@ -61,7 +61,7 @@
                       changed use of %d to %ld (when bytes values are displayed)
    update 2005/03/04, use of __sane_unused__
    update 2005/07/29. Removed using teco_request_sense (dev) routine for VM3564
-   update 2008/01/12, Update teco_request_sense routine due to no 
+   update 2008/01/12, Update teco_request_sense routine due to no
                       init value for size.
 */
 
@@ -1129,17 +1129,17 @@ teco_wait_for_data (Teco_Scanner * dev)
 /* Do the calibration stuff. Get 12 or 8 lines of data. Each pixel is coded
  * in 6 bytes (2 per color) or 3 bytes (3564 and 356A). To do the calibration,
  * allocates an array big enough for one line, read the 12 or 8 lines of calibration,
- * subtract the highest and lowest value and do a average. 
+ * subtract the highest and lowest value and do a average.
  * The input line is 1 raster for each color. However
  * the output line is interlaced (ie RBG for the first pixel, then RGB
  * for the second, and so on...). The output line are the value to use
- * to compensate for the white point. 
+ * to compensate for the white point.
  * There is two algorithms:
  *
  *   The range goes from 0 to 0xfff, and the average is 0x800. So if
  *   the average input is 0x700, the output value for that dot must be
  *   0x1000-0x700=0x900.
- * 
+ *
  * and
  *
  *   the calibration needs to be a multiplication factor, to
@@ -1169,7 +1169,7 @@ teco_do_calibration (Teco_Scanner * dev)
   colsub1_0 = 0;
   colsub1_1 = 0;
   colsub1_2 = 0;
-	
+
   DBG (DBG_proc, "teco_do_calibration: enter\n");
 
   /* Get default calibration algorithm. */
@@ -1251,7 +1251,7 @@ teco_do_calibration (Teco_Scanner * dev)
   	memset (tmp_max_buf, 0x0000, tmp_max_buf_size);
       break;
     }
-  
+
   if ((tmp_buf == NULL) || (tmp_min_buf == NULL) || (tmp_max_buf == NULL))
     {
       DBG (DBG_proc, "teco_do_calibration: not enough memory (%ld bytes)\n",
@@ -1362,29 +1362,29 @@ teco_do_calibration (Teco_Scanner * dev)
 		      tmp_min_buf[3 * j + 0] = dev->buffer[3 * j + 0];
 	      }
 	      /* get highest value */
-	      if (tmp_max_buf[3 * j + 0]  < dev->buffer[3 * j + 0]) 
+	      if (tmp_max_buf[3 * j + 0]  < dev->buffer[3 * j + 0])
 	      {
 		      tmp_max_buf[3 * j + 0] = dev->buffer[3 * j + 0];
 	      }
 	      tmp_buf[3 * j + 1] += dev->buffer[3 * j + 1];
 	      /* get lowest value */
-	      if (tmp_min_buf[3 * j + 1]  >> dev->buffer[3 * j + 1]) 
+	      if (tmp_min_buf[3 * j + 1]  >> dev->buffer[3 * j + 1])
 	      {
 		      tmp_min_buf[3 * j + 1]  = dev->buffer[3 * j + 1];
 	      }
 	      /* get hightest value */
-	      if (tmp_max_buf[3 * j + 1]  < dev->buffer[3 * j + 1]) 
+	      if (tmp_max_buf[3 * j + 1]  < dev->buffer[3 * j + 1])
 	      {
 		      tmp_max_buf[3 * j + 1]  = dev->buffer[3 * j + 1];
 	      }
 	      tmp_buf[3 * j + 2] += dev->buffer[3 * j + 2];
               /* get lowest value */
-	      if (tmp_min_buf[3 * j + 2]  >> dev->buffer[3 * j + 2]) 
+	      if (tmp_min_buf[3 * j + 2]  >> dev->buffer[3 * j + 2])
 	      {
 		      tmp_min_buf[3 * j + 2]  = dev->buffer[3 * j + 2];
 	      }
 	      /* get highest value */
-	      if (tmp_max_buf[3 * j + 2]  < dev->buffer[3 * j + 2]) 
+	      if (tmp_max_buf[3 * j + 2]  < dev->buffer[3 * j + 2])
 	      {
 		      tmp_max_buf[3 * j + 2]  = dev->buffer[3 * j + 2];
 	      }
@@ -1404,7 +1404,7 @@ teco_do_calibration (Teco_Scanner * dev)
   /* hexdump (DBG_info2, "calibration before average:", tmp_buf, tmp_buf_size); */
   /* hexdump (DBG_info2, "calibration before average min value:", tmp_min_buf, tmp_min_buf_size); */
   /* hexdump (DBG_info2, "calibration before average max value:", tmp_max_buf, tmp_max_buf_size); */
-  
+
   /* Do the average. Since we got 12 or 8 lines, divide all values by 10 or 6
    * and create the final calibration value that compensates for the
    * white values read. */
@@ -1419,28 +1419,28 @@ teco_do_calibration (Teco_Scanner * dev)
   		for (j = 0; j < dev->def->cal_length; j++)
 		{
 	       /* subtract lowest and highest value */
-			tmp_buf[j] = tmp_buf[j] - (tmp_min_buf[j] + tmp_max_buf[j]); 
-			tmp_buf[j + dev->def->cal_length] = tmp_buf[j + dev->def->cal_length] 
-				- (tmp_min_buf[j + dev->def->cal_length] 
-				+ tmp_max_buf[j + dev->def->cal_length]); 
-			tmp_buf[j + 2 * dev->def->cal_length] = tmp_buf[j + 2 * dev->def->cal_length] 
-				- (tmp_min_buf[j + 2 * dev->def->cal_length] 
-				+ tmp_max_buf[j + 2 *dev->def->cal_length]); 
+			tmp_buf[j] = tmp_buf[j] - (tmp_min_buf[j] + tmp_max_buf[j]);
+			tmp_buf[j + dev->def->cal_length] = tmp_buf[j + dev->def->cal_length]
+				- (tmp_min_buf[j + dev->def->cal_length]
+				+ tmp_max_buf[j + dev->def->cal_length]);
+			tmp_buf[j + 2 * dev->def->cal_length] = tmp_buf[j + 2 * dev->def->cal_length]
+				- (tmp_min_buf[j + 2 * dev->def->cal_length]
+				+ tmp_max_buf[j + 2 *dev->def->cal_length]);
 		/* sequence colors first color row one then two and last three   */
-      			if (cal_algo == 1) 
+      			if (cal_algo == 1)
 			{
 	  		tmp_buf[j] = (colsub1_0 * (dev->def->cal_lines - 2)) / tmp_buf[j];
-	  		tmp_buf[j + dev->def->cal_length] = (colsub1_1 * (dev->def->cal_lines - 2)) 
+	  		tmp_buf[j + dev->def->cal_length] = (colsub1_1 * (dev->def->cal_lines - 2))
 				/ tmp_buf[j + dev->def->cal_length];
-	  		tmp_buf[j + 2 * dev->def->cal_length] = (colsub1_2 * (dev->def->cal_lines - 2)) 
+	  		tmp_buf[j + 2 * dev->def->cal_length] = (colsub1_2 * (dev->def->cal_lines - 2))
 				/ tmp_buf[j + 2 * dev->def->cal_length];
 			}
-      			else 
+      			else
 			{
 	  		tmp_buf[j] = colsub0_0 - (tmp_buf[j] / (dev->def->cal_lines - 2));
-	  		tmp_buf[j + dev->def->cal_length] = colsub0_1 - (tmp_buf[j + dev->def->cal_length] 
+	  		tmp_buf[j + dev->def->cal_length] = colsub0_1 - (tmp_buf[j + dev->def->cal_length]
 								/ (dev->def->cal_lines - 2));
-	  		tmp_buf[j + 2 * dev->def->cal_length] = colsub0_2 
+	  		tmp_buf[j + 2 * dev->def->cal_length] = colsub0_2
 				- (tmp_buf[j + 2 * dev->def->cal_length] / (dev->def->cal_lines - 2));
 			}
 		}
@@ -1450,7 +1450,7 @@ teco_do_calibration (Teco_Scanner * dev)
 		{
       			if (cal_algo == 1)
 	  		tmp_buf[j] = (colsub1_1 * dev->def->cal_lines) / tmp_buf[j];
-      			else 
+      			else
 	  		tmp_buf[j] = colsub0_1 - (tmp_buf[j] / dev->def->cal_lines);
 		}
 	      	break;   */
@@ -1531,10 +1531,10 @@ teco_request_sense (Teco_Scanner * dev)
   /* size = 0;  */
 
   DBG (DBG_proc, "teco_request_sense: enter\n");
-  
+
   size = sizeof (buf);
   MKSCSI_REQUEST_SENSE (cdb, size);
-  
+
   /*size = cdb.data[5];
 
   hexdump (DBG_info2, "teco_request_sense", cdb.data, cdb.len);
@@ -1545,7 +1545,7 @@ teco_request_sense (Teco_Scanner * dev)
 			    NULL, 0, buf, &size);
 
   hexdump (DBG_info2, "teco_request_sense:", buf, size);
-  
+
   DBG (DBG_proc, "teco_request_sense: exit, status=%d\n", status);
 
   return (status);
@@ -2083,7 +2083,7 @@ teco_init_options (Teco_Scanner * dev)
   dev->opt[OPT_WHITE_LEVEL_G].constraint_type = SANE_CONSTRAINT_RANGE;
   dev->opt[OPT_WHITE_LEVEL_G].constraint.range = &green_level_range;
   dev->val[OPT_WHITE_LEVEL_G].w = 32;	/* to get middle value */
-  
+
   /* blue level calibration manual correction */
   dev->opt[OPT_WHITE_LEVEL_B].name = SANE_NAME_WHITE_LEVEL_B;
   dev->opt[OPT_WHITE_LEVEL_B].title = SANE_TITLE_WHITE_LEVEL_B;
@@ -2093,14 +2093,14 @@ teco_init_options (Teco_Scanner * dev)
   dev->opt[OPT_WHITE_LEVEL_B].constraint_type = SANE_CONSTRAINT_RANGE;
   dev->opt[OPT_WHITE_LEVEL_B].constraint.range = &blue_level_range;
   dev->val[OPT_WHITE_LEVEL_B].w = 32;	/* to get middle value */
-  
+
   /* Lastly, set the default scan mode. This might change some
    * values previously set here. */
   sane_control_option (dev, OPT_MODE, SANE_ACTION_SET_VALUE,
 		       (SANE_String_Const *) scan_mode_list[0], NULL);
 }
 
-/* 
+/*
  * Wait until the scanner is ready.
  */
 static SANE_Status
@@ -2136,7 +2136,7 @@ teco_wait_scanner (Teco_Scanner * dev)
   return (SANE_STATUS_IO_ERROR);
 }
 
-/* 
+/*
  * Adjust the rasters. This function is used during a color scan,
  * because the scanner does not present a format sane can interpret
  * directly.
@@ -2147,7 +2147,7 @@ teco_wait_scanner (Teco_Scanner * dev)
  *
  * The order of the color is dependant on each scanners. Also the same
  * scanner can change the order depending on the resolution.
- * 
+ *
  * For instance, the VM6586 at 300dpi has a color shift of 2 lines. The rasters sent are:
  *   starts with two blue rasters - BB,
  *   then red in added            - BRBR
@@ -2156,7 +2156,7 @@ teco_wait_scanner (Teco_Scanner * dev)
  *   and finaly only green stays  - GG
  *
  * Overall there is the same number of RGB rasters.
- * The VM3575 is a variant (when factor_x is 0). It does not keep the same order, 
+ * The VM3575 is a variant (when factor_x is 0). It does not keep the same order,
  * but reverses it, eg:
  *     BB RBRB GRB... GRGR GG
  * (ie it adds the new color in front of the previous one, instead of after).
@@ -2192,7 +2192,7 @@ teco_adjust_raster (Teco_Scanner * dev, size_t size_in)
       return;
     }
 
-  /* 
+  /*
    * The color coding is one line for each color (in the RGB order).
    * Recombine that stuff to create a RGB value for each pixel.
    */
@@ -2202,7 +2202,7 @@ teco_adjust_raster (Teco_Scanner * dev, size_t size_in)
   for (raster = 0; raster < nb_rasters; raster++)
     {
 
-      /* 
+      /*
        * Find the color and the line which this raster belongs to.
        */
       line = 0;
@@ -2365,7 +2365,7 @@ teco_fill_image (Teco_Scanner * dev)
 
   /* Copy the complete lines, plus the incompletes
    * ones. We don't keep the real end of data used
-   * in image, so we copy the biggest possible. 
+   * in image, so we copy the biggest possible.
    *
    * This is a no-op for non color images.
    */
@@ -2376,7 +2376,7 @@ teco_fill_image (Teco_Scanner * dev)
 
   while (dev->real_bytes_left)
     {
-      /* 
+      /*
        * Try to read the maximum number of bytes.
        */
       size = dev->real_bytes_left;
@@ -2398,7 +2398,7 @@ teco_fill_image (Teco_Scanner * dev)
 
       if (size == 0)
 	{
-	  /* Probably reached the end of the buffer. 
+	  /* Probably reached the end of the buffer.
 	   * Check, just in case. */
 	  assert (dev->image_end != 0);
 	  return (SANE_STATUS_GOOD);
@@ -2446,7 +2446,7 @@ teco_fill_image (Teco_Scanner * dev)
   return (SANE_STATUS_GOOD);	/* unreachable */
 }
 
-/* Copy from the raw buffer to the buffer given by the backend. 
+/* Copy from the raw buffer to the buffer given by the backend.
  *
  * len in input is the maximum length available in buf, and, in
  * output, is the length written into buf.

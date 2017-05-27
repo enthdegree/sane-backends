@@ -1201,7 +1201,7 @@ sane_cancel( SANE_Handle handle )
 #if 0
 		st400_stop_scan(dev->fd);
 #endif
-		if( st400_light_delay ) 
+		if( st400_light_delay )
 			st400_light_off(dev->fd);
 		st400_release(dev->fd);
 		sanei_scsi_close(dev->fd);

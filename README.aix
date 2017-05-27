@@ -1,7 +1,7 @@
 Under AIX, you'll need the generic SCSI device driver gsc written by
 Matthew Jacob <mjacob@feral.com> (nice piece of work!). When you
 install this driver, copy the header file gscdds.h to /usr/include, as
-we look for it there. 
+we look for it there.
 Find this driver under:
 
 	ftp://ftp.feral.com/pub/aix/gsc.tar.gz

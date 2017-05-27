@@ -15,10 +15,10 @@ The idea is not only to find bugs in frontends but also to show all
 capabilities of SANE.  Therefore
 .B sane\-test
 implements functions and options that are not (or seldom) found in other
-backends. 
+backends.
 .PP
 The backend is commented out in @CONFIGDIR@/dll.conf, so either the comment
-character must be removed or the backend must be called explicitly.  E.g. 
+character must be removed or the backend must be called explicitly.  E.g.
 `scanimage \-d test' or `xscanimage test'.
 
 .SH SCAN MODE OPTIONS
@@ -86,7 +86,7 @@ If option
 is set, the maximum amount of data transferred with each call to sane_read() is
 limited.
 .PP
-Option 
+Option
 .B read\-limit\-size
 sets the limit for option read-limit.  A low limit slows down scanning.  It
 can be used to detect errors in frontend that occur because of wrong
@@ -198,7 +198,7 @@ backend.
 .PP
 
 .SH INT TEST OPTIONS
-There are 6 int test options in total. 
+There are 6 int test options in total.
 .PP
 Option
 .B int
@@ -229,7 +229,7 @@ Option
 constraint.
 
 .SH FIXED TEST OPTIONS
-There are 3 fixed test options in total. 
+There are 3 fixed test options in total.
 .PP
 Option
 .B fixed
@@ -246,7 +246,7 @@ Option
 .PP
 
 .SH STRING TEST OPTIONS
-There are 3 string test options in total. 
+There are 3 string test options in total.
 .PP
 Option
 .B string
@@ -276,7 +276,7 @@ The backend configuration file (see also description of
 below). The initial values of most of the basic SANE options can be configured
 in this file. A template containing all the default values is provided
 together with this backend. One of the more interesting values may be
-.BR number_of_devices . 
+.BR number_of_devices .
 It can be used to check the frontend's ability to show a long list of devices.
 The config values concerning resolution and geometry can be useful to test
 the handling of big file sizes.
@@ -307,13 +307,13 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .B SANE_DEBUG_TEST
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  Higher
-debug levels increase the verbosity of the output. 
+debug levels increase the verbosity of the output.
 
-Example: 
+Example:
 export SANE_DEBUG_TEST=4
 
 .SH "SEE ALSO"
-sane(7), 
+sane(7),
 .IR http://www.meier\-geinitz.de/sane/test\-backend/
 
 

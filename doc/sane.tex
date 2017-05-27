@@ -423,7 +423,7 @@ numbers.
     frontend/backend pair is compatible.  The minor version and the
     build revision are used for informational and bug-fixing purposes
     only.
-  
+
   \item[\code{\defn{SANE\_VERSION\_MAJOR}(\var{vc})}:] This macro returns the
     major version number component of the version code passed in
     argument \var{vc}.
@@ -574,7 +574,7 @@ typedef char SANE_Char;
 
 Type \code{\defn{SANE\_String}} represents a text string as a sequence
 of C \verb|char| values.  The end of the sequence is indicated by a
-\verb|'\0'| (\defn{NUL}) character.  
+\verb|'\0'| (\defn{NUL}) character.
 \begin{quote}
 \begin{verbatim}
 typedef SANE_Char *SANE_String;
@@ -702,20 +702,20 @@ will be expanded as need arises):
       \hline
       \multicolumn{2}{|c|}{\bf \defn{Vendor Strings}} \\
       \hline\hline
-      \code{AGFA}            & \code{Microtek} \\ 
-      \code{Abaton}          & \code{Minolta} \\             
-      \code{Acer}            & \code{Mitsubishi} \\  
-      \code{Apple}           & \code{Mustek} \\      
-      \code{Artec}           & \code{NEC} \\         
-      \code{Avision}         & \code{Nikon} \\       
-      \code{CANON}           & \code{Plustek} \\     
-      \code{Connectix}       & \code{Polaroid} \\    
-      \code{Epson}           & \code{Relisys} \\     
-      \code{Fujitsu}         & \code{Ricoh} \\       
-      \code{Hewlett-Packard} & \code{Sharp} \\       
-      \code{IBM}             & \code{Siemens} \\     
-      \code{Kodak}           & \code{Tamarack} \\    
-      \code{Lexmark}	     & \code{UMAX} \\        
+      \code{AGFA}            & \code{Microtek} \\
+      \code{Abaton}          & \code{Minolta} \\
+      \code{Acer}            & \code{Mitsubishi} \\
+      \code{Apple}           & \code{Mustek} \\
+      \code{Artec}           & \code{NEC} \\
+      \code{Avision}         & \code{Nikon} \\
+      \code{CANON}           & \code{Plustek} \\
+      \code{Connectix}       & \code{Polaroid} \\
+      \code{Epson}           & \code{Relisys} \\
+      \code{Fujitsu}         & \code{Ricoh} \\
+      \code{Hewlett-Packard} & \code{Sharp} \\
+      \code{IBM}             & \code{Siemens} \\
+      \code{Kodak}           & \code{Tamarack} \\
+      \code{Lexmark}	     & \code{UMAX} \\
       \code{Logitech}        & \code{Noname} \\
       \hline
     \end{tabular}
@@ -823,29 +823,29 @@ in Table \ref{tab:valuetype}.
 \hline\hline
 
 \code{\defn{SANE\_TYPE\_BOOL}} & 0 & Option value is of type
-  \verb|SANE_Bool|. \\ 
+  \verb|SANE_Bool|. \\
 
 \code{\defn{SANE\_TYPE\_INT}} & 1 & Option value is of type
-  \verb|SANE_Int|. \\ 
+  \verb|SANE_Int|. \\
 
 \code{\defn{SANE\_TYPE\_FIXED}}&2 & Option value is of type
-  \verb|SANE_Fixed|. \\ 
+  \verb|SANE_Fixed|. \\
 
 \code{\defn{SANE\_TYPE\_STRING}}&3 & Option value is of type
-  \verb|SANE_String|. \\ 
+  \verb|SANE_String|. \\
 
 \code{\defn{SANE\_TYPE\_BUTTON}} & 4 & An option of this type has no value.
 Instead, setting an option of this type has an option-specific
 side-effect.  For example, a button-typed option could be used by a
 backend to provide a means to select default values or to the tell an
-automatic document feeder to advance to the next sheet of paper. \\ 
+automatic document feeder to advance to the next sheet of paper. \\
 
 \code{\defn{SANE\_TYPE\_GROUP}} & 5 & An option of this type has no value.
 This type is used to group logically related options.  A group option
 is in effect up to the point where another group option is encountered
 (or up to the end of the option list, if there are no other group
 options).  For group options, only members \code{title} and
-\code{type} are valid in the option descriptor. \\ 
+\code{type} are valid in the option descriptor. \\
 
   \hline
     \end{tabular}
@@ -945,14 +945,14 @@ capability bitset:
 \hline\hline
 
 \code{\defn{SANE\_CAP\_SOFT\_SELECT}} & 1 & The option
-  value can be set by a call to \code{sane\_con\-trol\_opt\-ion()}.\\ 
+  value can be set by a call to \code{sane\_con\-trol\_opt\-ion()}.\\
 
 \code{\defn{SANE\_CAP\_HARD\_SELECT}} & 2 & The option value can be set by
   user-intervention (e.g., by flipping a switch).  The user-interface
   should prompt the user to execute the appropriate action to set such
   an option.  This capability is mutually exclusive with
   SANE\_CAP\_SOFT\_SELECT (either one of them can be set, but not both
-  simultaneously).  \\ 
+  simultaneously).  \\
 
 \code{\defn{SANE\_CAP\_SOFT\_DETECT}} & 4 & The option
   value can be detected by software.  If
@@ -961,23 +961,23 @@ capability bitset:
   may or may not be set.  If this capability is set but neither
   \code{SANE\_CAP\_SO\-FT\_SEL\-ECT} nor \code{SANE\_CAP\_HA\-RD\_SEL\-ECT}
   are, then there is no way to control the option.  That is, the
-  option provides read-out of the current value only.  \\ 
+  option provides read-out of the current value only.  \\
 
 \code{\defn{SANE\_CAP\_EMULATED}} & 8 & If set, this capability indicates
   that an option is not directly supported by the device and is
   instead emulated in the backend.  A sophisticated frontend may
   elect to use its own (presumably better) emulation in lieu of an emulated
-  option. \\ 
+  option. \\
 
 \code{\defn{SANE\_CAP\_AUTOMATIC}} & 16 & If set, this capability indicates
   that the backend (or the device) is capable to picking a reasonable
   option value automatically.  For such options, it is possible to
   select automatic operation by calling \code{sane\_control\_option()}
-  with an action value of \code{SANE\_ACTION\_SET\_AUTO}.  \\ 
+  with an action value of \code{SANE\_ACTION\_SET\_AUTO}.  \\
 
 \code{\defn{SANE\_CAP\_INACTIVE}} & 32 & If set, this capability indicates
   that the option is not currently active (e.g., because it's
-  meaningful only if another option is set to some other value). \\ 
+  meaningful only if another option is set to some other value). \\
 
 \code{\defn{SANE\_CAP\_ADVANCED}} & 64 &
   If set, this capability indicates that the option should be
@@ -985,7 +985,7 @@ capability bitset:
   displays such options in a less conspicuous way than regular options
   (e.g., a command line interface may list such options last or a
   graphical interface may make them available in a seperate ``advanced
-  settings'' dialog). 
+  settings'' dialog).
   \\
 
 \hline
@@ -1045,7 +1045,7 @@ SANE_Range;
   specifies the quantization value.  If $l$ is the minimum value, $u$
   the maximum value and $q$ the (non-zero) quantization of a range,
   then the legal values are $v=k\cdot q+l$ for all non-negative
-  integer values of $k$ such that $v<=u$.  \\ 
+  integer values of $k$ such that $v<=u$.  \\
 
 \code{\defn{SANE\_CONSTRAINT\_WORD\_LIST}} & 2 & This constraint is applicable
   to integer and fixed-point valued options only.  It constrains the
@@ -1055,7 +1055,7 @@ SANE_Range;
   integer (\verb|SANE_Int|) that specifies the length of the list (not
   counting the length itself).  The remaining elements in the list are
   interpreted according to the type of the option value
-  (\verb|SANE_TYPE_INT| or \verb|SANE_TYPE_FIXED|). \\ 
+  (\verb|SANE_TYPE_INT| or \verb|SANE_TYPE_FIXED|). \\
 
 \code{\defn{SANE\_CONSTRAINT\_STRING\_LIST}} & 3 & This constraint is
   applicable to string-valued options only.  It constrains the option
@@ -1288,7 +1288,7 @@ described in Table~\ref{tab:actions}.
 
 \code{\defn{SANE\_ACTION\_SET\_VALUE}} & 1 & Set option value.  The
   option value passed through argument \code{v} may be modified by the
-  backend if the value cannot be set exactly.  \\ 
+  backend if the value cannot be set exactly.  \\
 
 \code{\defn{SANE\_ACTION\_SET\_AUTO}} & 2 & Turn on automatic mode.  Backend
   or device will automatically select an appropriate value.  This mode
@@ -1862,7 +1862,7 @@ regarding these options:
 
 \item A frontend must work properly with any or all of these options
   missing.
-  
+
 \end{itemize}
 
 \input{net.tex}

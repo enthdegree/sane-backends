@@ -27,7 +27,7 @@ enum AgfaFocus_Scanner_Type
     AGFAGRAY64,
     AGFALINEART,
     AGFAGRAY256,
-    AGFACOLOR 
+    AGFACOLOR
   };
 
 typedef enum

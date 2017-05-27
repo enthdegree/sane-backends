@@ -1,4 +1,4 @@
-/** 
+/**
  * Description of the Primax PagePartner model
  */
 static P5_Model pagepartner_model = {
@@ -249,7 +249,7 @@ write_reg2 (int fd, uint8_t index, uint16_t value)
 
 static int
 read_data (int fd, uint8_t * data, int length)
-{ 
+{
   if(fd && data && length)
     return -1;
   return -1;
@@ -463,7 +463,7 @@ setadresses (int fd, uint16_t start, uint16_t end)
 #ifdef HAVE_LINUX_PPDEV_H
 /** @brief open parallel port device
  * opens parallel port's low level device in EPP mode
- * @param devicename nam of the real device or the special value 'auto' 
+ * @param devicename nam of the real device or the special value 'auto'
  * @return file descriptor in cas of successn -1 otherwise
  */
 static int
@@ -532,7 +532,7 @@ open_pp (const char *devicename)
     }
   else
     {
-      /* 
+      /*
          if (mode & PARPORT_MODE_ECP)
          {
          mode = IEEE1284_MODE_ECP;
@@ -557,7 +557,7 @@ open_pp (const char *devicename)
 }
 
 /** close low level device
- * release and close low level hardware device 
+ * release and close low level hardware device
  */
 static void
 close_pp (int fd)
@@ -615,7 +615,7 @@ test_document (int fd)
 /**
  * return the amount of scanned data available
  * @param fd file descriptor to access scanner
- * @return avaible byte number 
+ * @return avaible byte number
  */
 static int
 available_bytes (int fd)
@@ -710,7 +710,7 @@ build_correction (P5_Device * dev, unsigned int dpi, unsigned int mode,
  * @param dev device describing hardware
  * @param mode color, gray level or lineart.
  * @param dpi desired scan resolution.
- * @param startx coordinate of the first pixel to scan in 
+ * @param startx coordinate of the first pixel to scan in
  * scan's resolution coordinate
  * @param width width of the scanned area
  * scanner's physical scan aread.

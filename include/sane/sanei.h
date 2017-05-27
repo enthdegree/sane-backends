@@ -20,24 +20,24 @@
 
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
-   
+
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
-   
+
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
-   
+
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
-   
+
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 */
 
 /** @file sanei.h
@@ -58,14 +58,14 @@
  * to be platform-independent to avoid lots of \#ifdef code in the backends.
  * Please use the SANEI functions wherever possible.
  *
- * This documentation was created by the use of doxygen, the 
+ * This documentation was created by the use of doxygen, the
  * doc/doxygen-sanei.conf configuration file and documentation in the sanei_*.h
  * files.
  *
  * This documentation is far from complete. Any help is appreciated.
  *
  * @section additional Additional documentation
- * - The SANE standard can be found at <a 
+ * - The SANE standard can be found at <a
  *   href="http://www.sane-project.org/html/">the SANE webserver</a>,
  *   though the PostScript version produced from the source may be more recent.
  * - Information on how to write a backend: <a
@@ -73,15 +73,15 @@
  * - General SANE documentation is on <a
  *   href="http://www.sane-project.org/docs.html">the SANE documentation
  *   page</a>.
- * 
- * @section contact Contact 
+ *
+ * @section contact Contact
  *
  * The common way to contact the developers of SANE is the sane-devel
  * mailing list. See the <a
  * href="http://www.sane-project.org/mailing-lists.html">mailing list webpage</a>
  * for details. That's the place to ask questions, report bugs, or announce
  * a new backend.
- * 
+ *
  */
 
 #ifndef sanei_h
@@ -113,7 +113,7 @@
  * @param opt   option to check
  * @param value value of the option
  *
- * @return 
+ * @return
  * - SANE_STATUS_GOOD     - on success
  * - SANE_STATUS_INVAL    - if the value doesn't fit inside the constraint
  *   or any other error occured
@@ -130,7 +130,7 @@
  * @param value value of the option
  * @param info  info is set to SANE_INFO_INEXACT if value was changed
  *
- * @return 
+ * @return
  * - SANE_STATUS_GOOD     - on success
  * - SANE_STATUS_INVAL    - if the function wasn't able to fit value into the
  *   constraint or any other error occured

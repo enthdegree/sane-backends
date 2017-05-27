@@ -973,7 +973,7 @@ CircBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
 }
 
 
-/* try to keep the number of transfers the same, but make them all 
+/* try to keep the number of transfers the same, but make them all
    as good as possible the same size to avoid cranking in critical
    situations
 */

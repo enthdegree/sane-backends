@@ -244,7 +244,7 @@ static void p9636Init98001( pScanData ps, Bool shading )
     ps->Device.bCCDID = bData;
     ps->Device.bCCDID &= _P98_CCD_TYPE_ID;
 	DBG( DBG_HIGH, "bData = 0x%04X, PCB-ID = 0x%02X\n", bData, (bData >> 4));
-	
+
 	/* encode the CCD-id into the flag parameter */
     dwID = (ULong)ps->Device.bCCDID;
     dwID = dwID << 16;

@@ -139,6 +139,6 @@ Interpolation with 1200 dpi is weak.
 .PP
 Support for buttons is missing due to missing support in SANE.
 .PP
-Please contact us if you find a bug: 
+Please contact us if you find a bug:
 .IR http://www.sane\-project.org/bugs.html .
 

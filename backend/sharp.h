@@ -47,21 +47,21 @@
 
 /* default values for configurable options.
    Though these options are only meaningful if USE_FORK is defined,
-   they are 
+   they are
    DEFAULT_BUFFERS:      number of buffers allocated as shared memory
                          for the data transfer from reader_process to
                          read_data. The minimum value is 2
    DEFAULT_BUFSIZE:      default size of one buffer. Must be greater
                          than zero.
-   DEFAULT_QUEUED_READS: number of read requests queued by 
+   DEFAULT_QUEUED_READS: number of read requests queued by
                          sanei_scsi_req_enter. Since queued read requests
-                         are currently only supported for Linux and 
+                         are currently only supported for Linux and
                          DomainOS, this value should automatically be set
                          dependent on the target OS...
                          For Linux, 2 is the optimum; for DomainOS, I
                          don't have any recommendation; other OS
                          should use the value zero.
-   
+
    The value for DEFAULT_BUFSIZE is probably too Linux-oriented...
 */
 
@@ -110,7 +110,7 @@ typedef enum
     OPT_LIGHTCOLOR,
     OPT_PREVIEW,
 
-#ifdef USE_CUSTOM_GAMMA 
+#ifdef USE_CUSTOM_GAMMA
     OPT_GAMMA_VECTOR,
     OPT_GAMMA_VECTOR_R,
     OPT_GAMMA_VECTOR_G,
@@ -123,7 +123,7 @@ SHARP_Option;
 
 #ifdef USE_FORK
 
-/* status defines for a buffer: 
+/* status defines for a buffer:
    buffer not used / read request queued / buffer contains data
 */
 #define SHM_EMPTY 0
@@ -150,7 +150,7 @@ typedef struct SHARP_rdr_ctl
 SHARP_rdr_ctl;
 #endif /* USE_FORK */
 
-typedef enum 
+typedef enum
   {
     /* JX250, JX330, JX350, JX610 are used as array indices, so the
        corresponding numbers should start at 0
@@ -187,8 +187,8 @@ typedef struct SHARP_Info
     int wanted_bufsize;
     size_t queued_reads;
     int complain_on_errors;
-    /* default scan mode: 
-      -1 -> "automatic": Use the ADF, if installed, 
+    /* default scan mode:
+      -1 -> "automatic": Use the ADF, if installed,
               else use the FSU, if installed.
       or: SCAN_ADF, SCAN_FSU, SCAN_SIMPLE
     */
@@ -201,14 +201,14 @@ SHARP_Info;
 typedef struct SHARP_Sense_Data
   {
     SHARP_Model model;
-    /* flag, if conditions like "paper jam" or "cover open" 
+    /* flag, if conditions like "paper jam" or "cover open"
        are considered as an error. Should be 0 for attach, else
        a frontend might refuse to start, if the scanner returns
        these errors.
     */
     int complain_on_errors;
     /* Linux returns only 16 bytes of sense data... */
-    u_char sb[16]; 
+    u_char sb[16];
   }
 SHARP_Sense_Data;
 
@@ -222,7 +222,7 @@ typedef struct SHARP_Device
   }
 SHARP_Device;
 
-typedef struct SHARP_New_Device 
+typedef struct SHARP_New_Device
   {
     struct SHARP_Device *dev;
     struct SHARP_New_Device *next;
@@ -292,7 +292,7 @@ typedef struct WPDH
 {
     u_char wpdh[6];
     u_char wdl[2];
-} 
+}
 WPDH;
 
 typedef struct WDB
@@ -325,7 +325,7 @@ typedef struct WDB
     SANE_Byte lightness_g[2];
     SANE_Byte lightness_b[2];
     SANE_Byte lightness_bw[2];
-    
+
 }
 WDB;
 

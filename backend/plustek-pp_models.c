@@ -115,7 +115,7 @@ static void modelInitPageSettings( pScanData ps )
 	    ps->sCaps.wMaxExtentY     =
         ps->LensInf.rExtentY.wDef =
 		ps->LensInf.rExtentY.wMax =
-	    ps->LensInf.rExtentY.wPhyMax = _MEASURE_BASE * 11.6934;	
+	    ps->LensInf.rExtentY.wPhyMax = _MEASURE_BASE * 11.6934;
 	    break;
 
 	case _SCANSIZE_A3:
@@ -124,7 +124,7 @@ static void modelInitPageSettings( pScanData ps )
 	    ps->sCaps.wMaxExtentY     =
 		ps->LensInf.rExtentY.wMax =
         ps->LensInf.rExtentY.wDef =
-	    ps->LensInf.rExtentY.wPhyMax = _MEASURE_BASE * 17;	
+	    ps->LensInf.rExtentY.wPhyMax = _MEASURE_BASE * 17;
 
         /* _MEASURE_BASE * 11.69 */
     	ps->sCaps.wMaxExtentX     =
@@ -139,7 +139,7 @@ static void modelInitPageSettings( pScanData ps )
 	    ps->sCaps.wMaxExtentY     =
         ps->LensInf.rExtentY.wDef =
 		ps->LensInf.rExtentY.wMax =
-	    ps->LensInf.rExtentY.wPhyMax = _MEASURE_BASE * 11;	
+	    ps->LensInf.rExtentY.wPhyMax = _MEASURE_BASE * 11;
 	    break;
 
 	case _SCANSIZE_LEGAL:
@@ -148,7 +148,7 @@ static void modelInitPageSettings( pScanData ps )
 	    ps->sCaps.wMaxExtentY     =
         ps->LensInf.rExtentY.wDef =
 		ps->LensInf.rExtentY.wMax =
-	    ps->LensInf.rExtentY.wPhyMax = _MEASURE_BASE * 14;	
+	    ps->LensInf.rExtentY.wPhyMax = _MEASURE_BASE * 14;
     }
 
 	/*

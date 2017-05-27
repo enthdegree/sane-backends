@@ -54,7 +54,7 @@ enum Abaton_Modes
     ABATON_MODE_HALFTONE,
     ABATON_MODE_GRAY
   };
-  
+
 enum Abaton_Option
   {
     OPT_NUM_OPTS = 0,
@@ -66,7 +66,7 @@ enum Abaton_Option
     OPT_RESOLUTION_BIND,
     OPT_PREVIEW,
     OPT_HALFTONE_PATTERN,
-    
+
     OPT_GEOMETRY_GROUP,
     OPT_TL_X,			/* top-left x */
     OPT_TL_Y,			/* top-left y */
@@ -79,7 +79,7 @@ enum Abaton_Option
     OPT_THRESHOLD,
     OPT_NEGATIVE,
     OPT_MIRROR,
-    
+
     /* must come last: */
     NUM_OPTIONS
   };
@@ -110,7 +110,7 @@ typedef struct Abaton_Scanner
 
     SANE_Bool scanning;
     SANE_Bool AbortedByUser;
- 
+
     SANE_Parameters params;
 
     /* The actual bpp, before "Pseudo-8-bit" fiddling */

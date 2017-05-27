@@ -227,14 +227,14 @@ static const uint8_t test_unit_ready[] =
 
 
 #if 0
-SANE_Int 
+SANE_Int
 xqstep (unsigned int Xres, unsigned int bpp)
 {
   return (SANE_Int) ((double) (8 * 1200)) / ((double) (Xres * bpp));
 }
 
 
-SANE_Int 
+SANE_Int
 yqstep (unsigned int Yres, unsigned int bpp)
 {
   return (SANE_Int) ((double) (1200)) / ((double) (Yres));
@@ -246,7 +246,7 @@ yqstep (unsigned int Yres, unsigned int bpp)
 /* The functions below return the quantized value of x,y in scanners dots
    aka 1/1200 of an inch */
 
-static SANE_Int 
+static SANE_Int
 xquant (double x, unsigned int Xres, unsigned int bpp, int dir)
 {
   double tmp;
@@ -264,7 +264,7 @@ xquant (double x, unsigned int Xres, unsigned int bpp, int dir)
 
 
 
-static SANE_Int 
+static SANE_Int
 yquant (double y, unsigned int Yres, int dir)
 {
   double tmp;
@@ -986,7 +986,7 @@ calc_parameters (Apple_Scanner * s)
        s->ulx, s->uly, s->wx, s->wy);
 
 
-/* 
+/*
 
    TODO: Remove this ugly hack (Protect). Read to learn why!
 
@@ -1168,7 +1168,7 @@ mode_update (SANE_Handle handle, char *val)
       DISABLE (OPT_HALFTONE_PATTERN);
       if (s->hw->ScannerModel == COLORONESCANNER)
 	ENABLE(OPT_COLOR_SENSOR);
-        
+
     }				/* End of Gray */
   else if (!strcmp (val, "BiColor"))
     {
@@ -1215,7 +1215,7 @@ mode_update (SANE_Handle handle, char *val)
     {
       DISABLE (OPT_THRESHOLD);
       DISABLE (OPT_AUTOBACKGROUND_THRESHOLD);
-      
+
       if (s->hw->ScannerModel == COLORONESCANNER)
 	{
 	ENABLE (OPT_VOLT_REF);
@@ -1302,7 +1302,7 @@ init_options (Apple_Scanner * s)
   s->opt[OPT_HWDETECT_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_HWDETECT_GROUP].cap = 0;
   s->opt[OPT_HWDETECT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
-        
+
   s->opt[OPT_MODEL].name = "model";
   s->opt[OPT_MODEL].title = "Model";
   s->opt[OPT_MODEL].desc = "Model and capabilities";
@@ -1325,7 +1325,7 @@ init_options (Apple_Scanner * s)
   halftone_pattern_list[1]="bayer4x4";
   halftone_pattern_list[2]="download";
   halftone_pattern_list[3]=NULL;
-  
+
 
   switch (s->hw->ScannerModel)
     {
@@ -1515,7 +1515,7 @@ init_options (Apple_Scanner * s)
   s->opt[OPT_AUTOBACKGROUND_THRESHOLD].constraint.range = &byte_range;
   s->val[OPT_AUTOBACKGROUND_THRESHOLD].w = 64;
 
- 
+
   /* AppleScanner & OneScanner options  */
 
   /* Select HalfTone Pattern  */
@@ -2440,7 +2440,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 #ifdef RESERVE_RELEASE_HACK
   uint8_t reserve[6];
   uint8_t release[6];
-#endif  
+#endif
 
   uint8_t result[12];
   size_t size;
@@ -2457,7 +2457,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 #else
   *len = 0;
   if (!s->scanning) return SANE_STATUS_EOF;
-  
+
 
   if (!strcmp (s->val[OPT_MODE].s, "Gray16"))
     Pseudo8bit = SANE_TRUE;
@@ -2493,7 +2493,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   release[1]|=SETTHIRDPARTY;
 
 #endif
- 
+
   do
     {
       size = sizeof (result);

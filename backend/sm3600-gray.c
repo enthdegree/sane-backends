@@ -204,7 +204,7 @@ static TState ReadNextGrayLine(PTInstance this)
 {
   int           iWrite;
   int           iDot;
-  unsigned char chBits;  
+  unsigned char chBits;
   int           iRead; /* read position in raw line */
   int           nInterpolator;
 
@@ -328,7 +328,7 @@ TState StartScanGray(TInstance *this)
   DoJog(this,this->state.cyTotalPath);
   INST_ASSERT();
   this->state.cyTotalPath += this->param.cy/2; /* for jogging back */
-  
+
   /*
     regular scan is asynchronously, that is,
     the scanning is issued, and the driver does bulk reads,
@@ -370,7 +370,7 @@ TState StartScanGray(TInstance *this)
   this->state.cchLineOut=(this->mode==gray)
     ? this->state.cxPixel
     : (this->state.cxPixel+7)/8;
-  
+
   this->state.pchLineOut = malloc(this->state.cchLineOut);
   if (!this->state.pchLineOut)
     return FreeState(this,SetError(this,

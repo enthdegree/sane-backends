@@ -6,8 +6,8 @@
 
 # Manual configuration is necessary for some scanners. Please uncomment the
 # override line and optinally the vendor and product lines that apply to your
-# scanner. For some scanners it's also necessary to change the name of the 
-# firmware file. 
+# scanner. For some scanners it's also necessary to change the name of the
+# firmware file.
 
 #############################################################################
 # For testing scanners that are not yet supported by this backend add the
@@ -43,32 +43,32 @@ usb 0x05d8 0x4002
 #override "mustek-scanexpress-2400-usb"
 
 # Artec Ultima 2000:
-#override "artec-ultima-2000" 
+#override "artec-ultima-2000"
 #firmware "ePlus2k.usb"
 
 # Artec Ultima 2000e+:
-#override "artec-ultima-2000" 
+#override "artec-ultima-2000"
 #firmware "ePlus2k.usb"
 #vendor "Artec"
 #model "Ultima 2000e+"
 
 # Boeder SmartScan Slim Edition:
-#override "artec-ultima-2000" 
+#override "artec-ultima-2000"
 #vendor "Boeder"
 #model "SmartScan Slim Edition"
 
 # Medion/Lifetec/Tevion/Cytron MD/LT 9385:
-#override "artec-ultima-2000" 
+#override "artec-ultima-2000"
 #vendor "Medion"
 #model "MD/LT 9385"
 
 # Medion/Lifetec/Tevion/Cytron MD 9458:
-#override "artec-ultima-2000" 
+#override "artec-ultima-2000"
 #vendor "Medion"
 #model "MD 9458"
 
 # Trust Flat Scan USB 19200:
-#override "artec-ultima-2000" 
+#override "artec-ultima-2000"
 #vendor "Trust"
 #model "Flat Scan USB 19200"
 

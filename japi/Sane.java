@@ -57,7 +57,7 @@ public static int STATUS_GOOD = 0;	// everything A-OK
 public static int STATUS_UNSUPPORTED = 1;// operation is not supported
 public static int STATUS_CANCELLED = 2;	// operation was cancelled
 public static int STATUS_DEVICE_BUSY = 3;// device is busy; try again later
-public static int STATUS_INVAL = 4;	// data is invalid (includes no 
+public static int STATUS_INVAL = 4;	// data is invalid (includes no
 					//   dev at open)
 public static int STATUS_EOF = 5;	// no more data available (end-of-file)
 public static int STATUS_JAMMED = 6;	// document feeder jammed
@@ -137,7 +137,7 @@ public native int setControlOption(int handle, int option,
 				int action, String value, int [] info);
 public native int getParameters(int handle, SaneParameters params);
 public native int start(int handle);
-public native int read(int handle, byte [] data, 
+public native int read(int handle, byte [] data,
 					int maxLength, int [] length);
 public native void cancel(int handle);
 public native String strstatus(int status);

@@ -32,7 +32,7 @@
  * \section sane_api SANE API
  *
  * \subsection sane_flow sane flow
-   SANE FLOW 
+   SANE FLOW
    - sane_init() : initialize backend, attach scanners.
    	- sane_get_devices() : query list of scanner devices, backend must
                            	probe for new devices.
@@ -60,7 +60,7 @@
 
 /**
  * Import directly the low level part needed to
- * operate scanner. The alternative is to prefix all public functions 
+ * operate scanner. The alternative is to prefix all public functions
  * with sanei_p5_ ,and have all the functions prototyped in
  * p5_device.h .
  */
@@ -72,7 +72,7 @@
 static int init_count = 0;
 
 /**
- * NULL terminated list of opened frontend sessions. Sessions are 
+ * NULL terminated list of opened frontend sessions. Sessions are
  * inserted here on sane_open() and removed on sane_close().
  */
 static P5_Session *sessions = NULL;
@@ -85,7 +85,7 @@ static P5_Session *sessions = NULL;
 static P5_Device *devices = NULL;
 
 /**
- * NULL terminated list of devices needed by sane_get_devices(), since 
+ * NULL terminated list of devices needed by sane_get_devices(), since
  * the result returned must stay consistent until next call.
  */
 static const SANE_Device **devlist = 0;
@@ -155,7 +155,7 @@ static P5_Config p5cfg;
 
 /**
  * Called by SANE initially.
- * 
+ *
  * From the SANE spec:
  * This function must be called before any other SANE function can be
  * called. The behavior of a SANE backend is undefined if this
@@ -195,7 +195,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 /**
  * Called by SANE to find out about supported devices.
- * 
+ *
  * From the SANE spec:
  * This function can be used to query the list of devices that are
  * available. If the function executes successfully, it stores a
@@ -208,7 +208,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
  * returned (devices directly attached to the machine that SANE is
  * running on). If it is false, the device list includes all remote
  * devices that are accessible to the SANE library.
- * 
+ *
  * SANE does not require that this function is called before a
  * sane_open() call is performed. A device name may be specified
  * explicitly by a user which would make it unnecessary and
@@ -239,7 +239,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
   /**
    * Since sane_get_devices() may be called repeatedly to detect new devices,
-   * the device detection must be run at each call. We are handling 
+   * the device detection must be run at each call. We are handling
    * hot-plugging : we probe for devices plugged since sane_init() was called.
    */
   probe_p5_devices ();
@@ -327,7 +327,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
  * the name of the backend as the device name, in this case the first
  * available device will also be used.
  * @param name name of the device to open
- * @param handle opaque pointer where to store the pointer of 
+ * @param handle opaque pointer where to store the pointer of
  *        the opened P5_Session
  * @return SANE_STATUS_GOOD on success
  */
@@ -383,7 +383,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
   /* device initialization */
   if (device->initialized == SANE_FALSE)
     {
-      /** 
+      /**
        * call to hardware initialization function here.
        */
       device->fd = open_pp (device->name);
@@ -690,7 +690,7 @@ get_option_value (P5_Session * s, int option, void *val)
 
 /**
  * Gets or sets an option value.
- * 
+ *
  * From the SANE spec:
  * This function is used to set or inquire the current value of option
  * number n of the device represented by handle h. The manner in which
@@ -701,7 +701,7 @@ get_option_value (P5_Session * s, int option, void *val)
  * area pointed to by v must be big enough to hold the entire option
  * value (determined by member size in the corresponding option
  * descriptor).
- * 
+ *
  * The only exception to this rule is that when setting the value of a
  * string option, the string pointed to by argument v may be shorter
  * since the backend will stop reading the option value upon
@@ -917,8 +917,8 @@ sane_start (SANE_Handle handle)
 
 /** @brief compute scan parameters
  * This function computes two set of parameters. The one for the SANE's standard
- * and the other for the hardware. Among these parameters are the bit depth, total 
- * number of lines, total number of columns, extra line to read for data reordering... 
+ * and the other for the hardware. Among these parameters are the bit depth, total
+ * number of lines, total number of columns, extra line to read for data reordering...
  * @param session fronted session to compute final scan parameters
  * @return SANE_STATUS_GOOD on success
  */
@@ -1086,7 +1086,7 @@ compute_parameters (P5_Session * session)
  * completion of that request. Outside of that window, the returned
  * values are best-effort estimates of what the parameters will be
  * when sane_start() gets invoked.
- * 
+ *
  * Calling this function before a scan has actually started allows,
  * for example, to get an estimate of how big the scanned image will
  * be. The parameters passed to this function are the handle of the
@@ -1113,7 +1113,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
 /**
  * Called by SANE to read data.
- * 
+ *
  * From the SANE spec:
  * This function is used to read image data from the device
  * represented by handle h.  Argument buf is a pointer to a memory
@@ -1121,7 +1121,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
  * returned is stored in *len. A backend must set this to zero when
  * the call fails (i.e., when a status other than SANE_STATUS_GOOD is
  * returned).
- *  
+ *
  * When the call succeeds, the number of bytes returned can be
  * anywhere in the range from 0 to maxlen bytes.
  *
@@ -1343,7 +1343,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 
 
 /**
- * Cancels a scan. 
+ * Cancels a scan.
  *
  * From the SANE spec:
  * This function is used to immediately or as quickly as possible
@@ -1393,7 +1393,7 @@ sane_cancel (SANE_Handle handle)
 
 /**
  * Ends use of the session.
- * 
+ *
  * From the SANE spec:
  * This function terminates the association between the device handle
  * passed in argument h and the device it represents. If the device is
@@ -1476,7 +1476,7 @@ sane_close (SANE_Handle handle)
 
 /**
  * Terminates the backend.
- * 
+ *
  * From the SANE spec:
  * This function must be called to terminate use of a backend. The
  * function will first close all device handles that still might be
@@ -1542,7 +1542,7 @@ sane_exit (void)
 
 
 /** @brief probe for all supported devices
- * This functions tries to probe if any of the supported devices of 
+ * This functions tries to probe if any of the supported devices of
  * the backend is present. Each detected device will be added to the
  * 'devices' list
  */
@@ -1609,10 +1609,10 @@ config_attach (SANEI_Config * config, const char *devname)
    * using an attach function with a config parameter */
   config = config;
 
-  /* the devname has been processed and is ready to be used 
+  /* the devname has been processed and is ready to be used
    * directly. The config struct contains all the configuration data for
    * the corresponding device. Since there is no ressources common to each
-   * backends regarding parallel port, we can directly call the attach 
+   * backends regarding parallel port, we can directly call the attach
    * function. */
   attach_p5 (devname, config);
 
@@ -1661,7 +1661,7 @@ attach_p5 (const char *devicename, SANEI_Config * config)
 
   /**
    * do physical probe of the device here. In case the device is recognized,
-   * we allocate a device struct and give it options and model. 
+   * we allocate a device struct and give it options and model.
    * Else we return SANE_STATUS_UNSUPPORTED.
    */
   model = probe (devicename);
@@ -1772,7 +1772,7 @@ init_options (struct P5_Session *session)
     SANE_CONSTRAINT_NONE;
   session->options[OPT_PREVIEW].value.w = SANE_FALSE;
 
-  /** @brief build resolution list 
+  /** @brief build resolution list
    * We merge xdpi and ydpi list to provide only one resolution option control.
    * This is the most common case for backends and fronteds and give 'square'
    * pixels. The SANE API allow to control x and y dpi independantly, but this is

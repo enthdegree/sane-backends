@@ -21,7 +21,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Sun May 14 21:34:36 2017 -0400
 
     updated uk.po translation
-    
+
     Update from Yuri Chornoivan
 
 commit 479ccaedddcb0a491b351e20cac22595196df02a
@@ -29,11 +29,11 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun May 14 19:48:41 2017 +0900
 
     autotools: Sync derived files
-    
+
     This was done by running
-    
+
       autoreconf --force --install
-    
+
     on Debian GNU/Linux 8.8 and reverting the removal of SANE specific
     tweaks to ltmain.sh.
 
@@ -54,7 +54,7 @@ Author: Jörg Frings-Fürst <debian@jff-webhosting.net>
 Date:   Sat May 13 18:07:26 2017 +0900
 
     Replace the startup gamma with the same from the standalone version
-    
+
     Fixes https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=629470
 
 commit 5c0812c51b6d48516acb9dd9efcfbe2b34f04a79
@@ -86,10 +86,10 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat May 13 13:09:25 2017 +0900
 
     Add a header to dll.conf
-    
+
     Document dll.conf in a header, point to the dll.d directory for external
     backends and document the net backend w/ pointers to the manpages.
-    
+
     Based on a patch by Julien BLACHE <jblache@debian.org>
 
 commit 77dcf26860b239dafb3094c863691aaef304805a
@@ -97,11 +97,11 @@ Author: Christopher James Halse Rogers <christopher.halse.rogers@canonical.com>
 Date:   Sat May 13 13:07:01 2017 +0900
 
     Fix potential assert in avahi backend
-    
+
     avahi_browser contains a reference to an AvahiClient, which may be
     avahi_client.  If it does, then freeing avahi_browser references avahi_client,
     resulting in an assert() in Avahi's linked list macro.
-    
+
     Fix this by freeing avahi_browser before avahi_client.
     See https://bugs.launchpad.net/bugs/831867
 
@@ -128,7 +128,7 @@ Author: René Rebe <rebe@exactcode.de>
 Date:   Fri May 5 07:05:30 2017 +0200
 
         epson2: fixed network transport for new scanners
-    
+
         increased command buffer due memory overrun, and always read receive
         status, even for zero length on network scanenrs, should fix #315552
 
@@ -137,7 +137,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat May 6 20:40:25 2017 +0900
 
     Fix test for API specification generation
-    
+
     If none of the formats can be generated but API specs are requested,
     bomb.  The original test aimed to do so but was testing against "no",
     a value that was never assigned.
@@ -147,10 +147,10 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat May 6 12:24:13 2017 +0900
 
     kvs20xx.c: don't assume sane_get_devices() has been called
-    
+
     Nor that that function is called with a non-NULL argument.
     This aligns the implementation with that of kvs40xx.c.
-    
+
     Fixes 315625.
 
 commit 8995b1fc81e4378d2b5b0b6b0d354735403210ed
@@ -158,7 +158,7 @@ Author: Martin Husemann <martin@NetBSD.org>
 Date:   Tue Mar 15 18:07:00 2016 +0900
 
     sanei_usb: fix number of bytes read for 64bit big-endian systems
-    
+
     Fixes 315337.
 
 commit b1a2c6105443c5279684f0c6827c268594aa234d
@@ -172,10 +172,10 @@ Author: Klaus Kaempf <kkaempf@suse.de>
 Date:   Wed May 3 17:52:15 2017 +0200
 
     pieusb: Support ProScan 10T and Reflecta CrystalScan 3600
-    
+
     Neither of these scanner have an automated slide transport and fail on
     respective SCSI commands.
-    
+
     - Add flags parameter to control if automatic slide transport is available
     - Reflect flags in pieusb.conf.in
     - rename SLIDE_LAMP_ON to SLIDE_INIT
@@ -232,7 +232,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Apr 30 20:05:12 2017 +0900
 
     Fix [-Werror=implicit-function-declaration] compiler error
-    
+
     The fileno() is only available if its feature test macro passes.  The
     various symbols are defined appropriately in ../include/sane/config.h
     during configuration of the build.
@@ -248,7 +248,7 @@ Author: Aaron Muir Hamilton <aaron@correspondwith.me>
 Date:   Mon Apr 17 12:07:40 2017 +0000
 
     Avoid attaching grayscale ICC profiles to rgb images, or vice-versa.
-    
+
       If the ICC profile added does not match the colour format of the
       image, libpng will abort. This can leave the scanner motors in an
       incorrect state and possibly cause permanent damage.
@@ -264,7 +264,7 @@ Author: Aaron Muir Hamilton <aaron@correspondwith.me>
 Date:   Sun Apr 16 15:13:06 2017 +0000
 
     Separate ICC profile loading into a separate file.
-    
+
       This cuts out some duplicate code, and enables us to reuse this
       logic for PNG, JPEG, and any other future output format.
       sanei_load_icc_profile also allows us to know that an ICC profile
@@ -283,7 +283,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Thu Apr 27 22:26:01 2017 +0900
 
     utsushi.desc: PID 0156 is a ES-400
-    
+
     See Alioth issue 315695.
 
 commit a0321d2a92286afbc9557fa44e2de4f706cf2407
@@ -297,7 +297,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Thu Apr 27 21:17:34 2017 +0900
 
     Only swap 16-bit PNG bytes on machines that are not big-endian
-    
+
     The SANE API specifies that image bytes are in machine native order.
 
 commit 28eb09eec4c64d9070b5747c93c25134395cab53
@@ -341,7 +341,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Tue Apr 11 21:22:05 2017 -0400
 
     epjitsu backend v31
-    
+
     - hardware gray support for fi-60F/65F (disabled pending calibration)
     - merge fi-60F/65F settings
     - improve desc, conf and man files
@@ -357,7 +357,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Sat Apr 8 21:44:27 2017 -0400
 
     fujitsu backend v133 2017-04-08, MAN
-    
+
     - initial support for fi-7600/7700
     - autodetect various double feed capabilities using VPD
     - call send_lut if we are using a downloaded gamma table
@@ -367,7 +367,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat Apr 8 21:08:12 2017 +0900
 
     genesys: Trigger reallocation of gamma tables on next sane_open()
-    
+
     Fixes 315491.
 
 commit 6eb4a1f164ef116a3ed10ee42883a15c268ea01e
@@ -381,7 +381,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Fri Apr 7 20:28:02 2017 +0900
 
     Add missing double quote
-    
+
     Accidently removed in 38ce7fc086a6ecbee94ef31901a6eb874fb611b1.
     Thanks to Jon Nelson for pointing this out.
 
@@ -432,7 +432,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Wed Mar 22 12:33:27 2017 -0400
 
     epjitsu backend v30 again
-    
+
     - typo in previous commit broke low resolution scans on fi-65F
 
 commit a7fde11e15e5604c7b37bc9553cbd08086c08e53
@@ -440,7 +440,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Tue Mar 21 21:35:59 2017 -0400
 
     epjitsu backend v30
-    
+
     - bump build number
 
 commit 891e3984d0410fa8c698d99d79948df3237e258d
@@ -448,7 +448,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Tue Mar 21 20:39:47 2017 -0400
 
     epjitsu v30
-    
+
     - fix image truncation when using 150 DPI in Y direction
     - add 200 and 400 DPI Y direction support for fi-60F/65F
 
@@ -457,7 +457,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Feb 19 16:45:45 2017 +0900
 
     Address memory corruption and information leakage.
-    
+
     Addresses CVE-2017-6318, Alioth#315576 and Debian's BTS#854804.
 
 commit eaa4d4407d96585b7cdbe194d8ac295eee3e6299
@@ -465,7 +465,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Sat Mar 18 19:15:03 2017 -0400
 
     epjitsu backend v29
-    
+
     - fix infinite loop when scaling in Y direction
 
 commit 2f9ea038b157fc6d08ce882a1d9984d37b46d809
@@ -473,7 +473,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat Mar 11 10:48:35 2017 +0900
 
     Fix typo
-    
+
     See http://lists.alioth.debian.org/pipermail/sane-devel/2017-March/035099.html
 
 commit 1e028b72cae0f4caaf48868504bd2cd1667d6da7
@@ -481,7 +481,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Mar 6 20:54:59 2017 +0900
 
     pixma: updated status for MG5400 Series
-    
+
     See http://lists.alioth.debian.org/pipermail/sane-devel/2017-March/035072.html
     and http://lists.alioth.debian.org/pipermail/sane-devel/2017-March/035082.html
 
@@ -502,7 +502,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Dec 26 08:13:33 2016 +0900
 
     Update backend maintenance status
-    
+
     Following the project member list cleanup, only backends that list
     a project member with git write access in the AUTHORS file are now
     considered maintained.
@@ -512,7 +512,7 @@ Author: Louis Lagendijk <louis.lagendijk@gmail.com>
 Date:   Fri Jan 6 23:30:31 2017 +0100
 
     Revert "pixma_mp150.c: Fix scanbutton detection for MB5000 series"
-    
+
     This reverts commit 53aa78df3a6980791ce250c471d019c5c59b83ec.
 
 commit 306f8f16e78b52948a6e09fa0957b3e364e0189f
@@ -520,7 +520,7 @@ Author: Louis Lagendijk <louis.lagendijk@gmail.com>
 Date:   Fri Jan 6 23:29:59 2017 +0100
 
     Revert "pixma_mp150.c: fix 1200 dpi scanning for MB5000 series"
-    
+
     This reverts commit dfc5487571ed2915bda7bdedbd4c79015004361b.
 
 commit 9bc734042f6a2af159772eef412efe7c65ebb02f
@@ -528,7 +528,7 @@ Author: Louis Lagendijk <louis.lagendijk@gmail.com>
 Date:   Fri Jan 6 23:28:56 2017 +0100
 
     Revert "pixma_mp150.c: scan param 0x26-0x29 should contain localtime HHMM, also for MB5000 series"
-    
+
     This reverts commit eb712c6bd8ca6a42a1d3941583fa18b9981b8712.
 
 commit 6c439bce791522aa9cd3fc04cf62087bdd6c6875
@@ -536,7 +536,7 @@ Author: Louis Lagendijk <louis.lagendijk@gmail.com>
 Date:   Fri Jan 6 23:28:31 2017 +0100
 
     Revert "pixma_mp150.c: replace multiple if statements with case statement in handle_interrupt"
-    
+
     This reverts commit 28dcd0aef4ac91b87527c17c8aa89e879f39f20d.
 
 commit 06b4b27ecfad1aa30c772fa0fac15d1c144c1e7a
@@ -544,7 +544,7 @@ Author: Louis Lagendijk <louis.lagendijk@gmail.com>
 Date:   Fri Jan 6 23:28:09 2017 +0100
 
     Revert "pixma_mp150.c: fix parameter settings for MB5000 in send_scan_param"
-    
+
     This reverts commit 1d2a40ec96aea0ba183415efea570301159d4159.
 
 commit 589e011992a21ae1edb4684eb89582350c47333f
@@ -601,7 +601,7 @@ Author: Dave Platt <dplatt@radagast.org>
 Date:   Thu Dec 15 23:12:07 2016 -0800
 
     avision.c: abort "wait for light" loop if interrupted
-    
+
     Adds a "cancelled" flag to the Avision device structure, cleared
     in sane_start() and set in sane_cancel().  Test this flag in
     wait_4_light() and bail out of the 90-second "wait for the
@@ -612,7 +612,7 @@ Author: Dave Platt <dplatt@radagast.org>
 Date:   Thu Dec 15 23:02:42 2016 -0800
 
     avision.c: Recognize "backlight on" status
-    
+
     Avision scanners can return an additional light-status value meaning
     "Transparent Media Adapter back-light is on".  Accept this as
     equivalent to "on" during the lamp-warmup check prior to starting a
@@ -625,16 +625,16 @@ Author: Dave Platt <dplatt@radagast.org>
 Date:   Thu Dec 15 22:29:16 2016 -0800
 
     avision.c: Add "skip-adf" option
-    
+
     The code which tries aggressively to reset/initialize HP 82xx/83xx
     Automatic Document Feeders doesn't work well if there's no ADF attached,
     because the scanner reports a non-zero ADF model type in this case.
     The retry code makes several attempts to initialize the ADF, and then
     bails out with an "Operation not supported" error.
-    
+
     Add a new "option skip-adf" which will cause the backend to believe
     the "ADF not present" status if that's what the scanner reports.
-    
+
     Fixes #313751
 
 commit f58ce8f9201364bd0fe28ef736d4b1345f3f71b2
@@ -679,7 +679,7 @@ Author: Alex Belkin <abc@telekom.ru>
 Date:   Sun Nov 6 22:28:03 2016 +0300
 
     Pre-create temporary file for Jpeg scanning.
-    
+
     Jpeg mode (as submitted by Samsung developer) uses temporary file with
     fixed name. This opens attacks on reading its content or overwriting any
     other user-writable file (with symlink). This change pre-creates
@@ -697,13 +697,13 @@ Author: Alex Belkin <abc@telekom.ru>
 Date:   Sun Nov 6 21:38:47 2016 +0300
 
     Indent of xerox_mfp-tcp.c and xerox_mfp-usb.c
-    
+
     This is purely indent commit without any code changes, in
     follow-up to 83bbcfe7d546b4d0cd28269b647fb558c6a1e00a.
-    
+
     Indent command used:
         astyle -A8 -U -H -k3 -W3 -o xerox_mfp-{usb,tcp}.c
-    
+
     Proof that code is not changed:
         git log -w -p xerox_mfp-{usb,tcp}.c
 
@@ -724,7 +724,7 @@ Author: Alex Belkin <abc@telekom.ru>
 Date:   Sun Nov 6 20:24:02 2016 +0300
 
     Run indent: astyle -A8 -U -H -k3 -W3 -o xerox_mfp.[ch]
-    
+
     This is purely indent commit w/o any code changes.
     To prove run `git diff -w`.
 
@@ -733,7 +733,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Sat Oct 8 19:32:43 2016 -0400
 
     fujitsu backend v132
-    
+
     - remove ipc_mode option and variables
     - set ipc mode based on other options
     - cleanup inverted logic DTC options
@@ -750,7 +750,7 @@ Author: Rolf Bensch <roben-guest@alioth.debian.org>
 Date:   Sat Oct 8 14:24:53 2016 +0200
 
     pixma: new scanner Canon PIXMA MG3000 Series
-    
+
     see bug report #315521
 
 commit 3b63fdab2b94f14765f8ba165546f6d69fc23ea9
@@ -764,7 +764,7 @@ Author: Rolf Bensch <roben-guest@alioth.debian.org>
 Date:   Wed Oct 5 19:51:35 2016 +0200
 
     fix ADF scanning for Canon MF57x0 devices
-    
+
     - ignore result from calibrate(): don't interrupt @ PIXMA_STATUS_BUSY
     - MF57x0 devices don't require abort_session() after the last page
     - reported by Dmitry Deshevoy
@@ -786,7 +786,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Sep 25 17:00:54 2016 +0900
 
     sane-find-scanner: disable USB if not supported
-    
+
     This fixes a [-Wpedantic] compiler warning about ISO C forbidding empty
     translation units.  The check-usb-chip.c file reduces to such a file in
     the case USB support was explicitly disabled or no usable library found.
@@ -796,11 +796,11 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Sep 25 16:28:11 2016 +0900
 
     sanei_pp: fix [-Wcpp] compiler warning
-    
+
     The `#warning` directive is turned into an error by `-Werror`.  The
     directive triggers is guaranteed to trigger with __GNUC__ when no
     parallel support is available.  This would prevent strict CI builds.
-    
+
     Output a message with all compilers that understand the pragma.  Those
     that don't should ignore it, according to C99.
 
@@ -809,7 +809,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Sep 25 15:53:46 2016 +0900
 
     sanei_usb: : fix [-Wunused-parameter] compiler warnings
-    
+
     These were issued in the absence of libusb.
 
 commit e6faafcdc94e253f7f4fe793fec6110ce37e8014
@@ -817,7 +817,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Sep 25 15:44:36 2016 +0900
 
     xerox_mfp: fix [-Wunused-parameter] compiler warnings
-    
+
     These are issued when libjpeg was not found during configuration.
 
 commit 32be261254a78d1f314b3ee86fd5e5b40ab91a86
@@ -832,7 +832,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Sep 21 22:11:09 2016 +0900
 
     AWARE: Treat compiler warnings as errors on debian-8-full
-    
+
     This build became compiler warning free in ee550e5d.  Let's keep it
     that way!
 
@@ -847,7 +847,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Sep 19 12:52:31 2016 +0900
 
     pieusb: fix [-Wunused-parameter] compiler warnings
-    
+
     The functions that trigger these warnings were not used.
 
 commit bf088a6ed15733237df446a84d6659c4e0145c9a
@@ -855,7 +855,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Sep 19 17:45:35 2016 +0900
 
     Merge comments
-    
+
     This gets rid of a missing :usbid warning.
 
 commit e01f574b19be74081650e9be9bcb16a3420068ef
@@ -869,7 +869,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Sep 19 15:26:14 2016 +0900
 
     Add missing USB IDs
-    
+
     Taken from http://www.linux-usb.org/usb.ids
 
 commit dd940a1f612f56d2acb929afd54614ebc6dfb309
@@ -883,7 +883,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Sep 12 20:12:28 2016 +0900
 
     niash: fix [-Wunused-but-set-variable] compiler warning
-    
+
     This makes explicit what the compiler has effectively been doing all
     along anyway since at least 727dd4ab (2004-08-03).
 
@@ -892,7 +892,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Sep 12 20:05:42 2016 +0900
 
     epson2: fix [-Wunused-but-set-variable] compiler warning
-    
+
     This makes explicit what the compiler has effectively been doing all
     along anyway since at least 728e032a (2009-06-01).
 
@@ -913,9 +913,9 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Sep 18 21:21:35 2016 +0900
 
     Add fig2dev as prerequisite for API HTML docs
-    
+
     The target for sane-html depends on sane.dvi which requires fig2dev.
-    
+
     Thanks to:
      - https://lists.debian.org/debian-user/2016/08/msg00484.html
      - http://superuser.com/questions/1101439/error-building-sane-backend-on-debian
@@ -931,7 +931,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Sun Sep 11 19:03:23 2016 -0400
 
     canon_dr v56
-    
+
     - add initial support for P-150M (and probably P-150)
 
 commit 39ceeae616a2e1638c2760d4364adcaa210a413b
@@ -945,7 +945,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Sep 7 21:01:26 2016 +0900
 
     Prefer *our* `include/` files
-    
+
     This fixes discrepancies in build results for VPATH builds.
 
 commit 737977199ccd2419a51e120c472981b1a1263ab0
@@ -959,7 +959,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Sep 4 14:39:52 2016 +0900
 
     gphoto2: fix libgphoto2 logging integration
-    
+
     In libgphoto2-2.5.0 (tagged for release on 2012-07-10) the GPLogFunc no
     longer takes a va_list.  Instead, it passes a formatted message.
 
@@ -968,7 +968,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Sep 4 12:50:19 2016 +0900
 
     saned: fix [-Wunused-parameter] compiler warning
-    
+
     The `__sane_unused__` attribute has been moved from sanei_backend.h to
     sanei.h to make it generally useful instead of limited to backends.
 
@@ -977,11 +977,11 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Sep 4 12:13:16 2016 +0900
 
     Drop build environments
-    
+
     Adding them did not quite have the effect I thought it would. I had
     thought it would allow for easy linking to build logs by environment
     name.  Alas, no such luck.
-    
+
     This reverts commits:
      - 9c44317289f1be0a72089ffd030be84caf75b58c
      - 6209fecf3a11e90e2e5efc057cf650f4ab792b50
@@ -1009,7 +1009,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Aug 28 15:27:50 2016 +0900
 
     magicolor: fix [-Werror] compiler warning
-    
+
     This casts away const-ness in the hope that libsnmp doesn't change
     the session.peername.
 
@@ -1018,7 +1018,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Aug 28 15:25:43 2016 +0900
 
     magicolor: fix [-Werror=pointer-sign] compiler warnings
-    
+
     The libsnmp API requires a u_char *session.community :-(
 
 commit c32d48ef5fd4a47a93933e6ffba5c8a93d26e43f
@@ -1038,7 +1038,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Aug 28 13:55:30 2016 +0900
 
     hp5400: fix [-Werror=overflow] compiler warning
-    
+
     This explicitly implements what gcc and clang assign.
 
 commit 9c44317289f1be0a72089ffd030be84caf75b58c
@@ -1070,7 +1070,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Aug 28 11:58:16 2016 +0900
 
     md5: fix [-Wpointer-arith] compiler warnings
-    
+
     This reverts commits 9aecb00947e6bf7ef1cf412aff2ab41202617b30 and
     cdad5961f3888f0a3c0c525d0efab33174c11a24 which fixed a different
     compiler warning that seems to have disappeared (at least on the
@@ -1093,7 +1093,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Aug 3 22:16:26 2016 +0900
 
     pixma: Fix include guard typo
-    
+
     This was introduced in f573865 on 2008-10-18.
 
 commit 23cc2e1ba043ea8309923f5f1dcc5acaeee38a95
@@ -1101,7 +1101,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Aug 3 22:08:49 2016 +0900
 
     Fix include guard typo
-    
+
     This seems to have been present since the beginning of sanei/sanei_scsi.c.
 
 commit 63b55e2b591ba977a285a4c91fde0118c25246e7
@@ -1109,7 +1109,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Aug 3 22:05:03 2016 +0900
 
     Drop check for sys/bitypes.h
-    
+
     It was obsoleted in 70f3fdf on 2009-02-26.
 
 commit d263f25911a0b359b7edec0faa9320d5d13928da
@@ -1117,7 +1117,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Aug 3 21:48:54 2016 +0900
 
     Fix typo
-    
+
     Appears to have been introduced in 0330a4d on 2009-02-02.  There is no
     evidence that a scdds.h file has ever existed.
 
@@ -1126,7 +1126,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Aug 3 20:53:06 2016 +0900
 
     Drop unused CPP define
-    
+
     The last reference to it was removed in 5dcf165 on 2007-06-21.
 
 commit 5389808029f0f81d204630f6e78abe11dfd61122
@@ -1140,7 +1140,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Tue Aug 2 21:38:43 2016 +0900
 
     Use DIR_SEP instead of hard-coding ":"
-    
+
     Fixes 313540
 
 commit b021c3bee8e9edc7854050a3975cef003586b2e5
@@ -1160,7 +1160,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Jul 18 20:55:14 2016 +0900
 
     kvs40xx: fix [-Wunused-function] compiler warning
-    
+
     This rather unceremoniously removed the function.  Note that a near copy
     can be found in the kvs20xx backend code.
 
@@ -1169,7 +1169,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Jul 18 20:53:51 2016 +0900
 
     kvs20xx: fix [-Wunused-function] compiler warning
-    
+
     This rather unceremoniously removed the function.  Note that a near copy
     can be found in the kvs40xx backend code.
 
@@ -1196,7 +1196,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Jul 18 16:51:08 2016 +0900
 
     Use a single symbol to flag unused parameters
-    
+
     The __sane_unused__ symbol was used slightly more often then UNUSEDARG
     and, more importantly, defined in include/sane/sanei_backend.h.  That
     makes it readily available to virtually all backends.
@@ -1206,7 +1206,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Jul 18 16:14:20 2016 +0900
 
     niash: fix [-Wunused-parameter] compiler warning
-    
+
     The attribute needs to go before the pointer designation for it to have
     any effect.
 
@@ -1215,7 +1215,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Jul 18 16:11:39 2016 +0900
 
     dc240: fix [-Wunused-parameter] compiler warning
-    
+
     The attribute needs to go before the pointer designation for it to have
     any effect.
 
@@ -1236,7 +1236,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Thu Jul 14 20:50:14 2016 +0900
 
     doc/sane.tex: drop html.sty in favour of url.sty
-    
+
     The latter is part of the core TeX Live distribution which is readily
     available on all major operating systems.
 
@@ -1257,7 +1257,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Jul 13 23:40:19 2016 +0900
 
     Generate EPS figures too
-    
+
     It's good to know how this is done so that we can modify any original
     figure if need be.
 
@@ -1266,10 +1266,10 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Jul 13 23:24:29 2016 +0900
 
     Generate PDF figures explicitly with fig2dev
-    
+
     This utility has less dependencies and supports conversion to a pile of
     other formats that may come in handy as well.
-    
+
     Clean up of generated PDF figures has been moved to the clean target as
     well.
 
@@ -1278,11 +1278,11 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Jul 13 22:37:44 2016 +0900
 
     doc/sane.tex: Replace epsfig with graphicx
-    
+
     The graphicx package allows for file specification without a hardcoded
     extension.  This provides more freedom in chosing how to prepare images
     in *.eps and *.pdf formats.
-    
+
     Moreover, epsfig is considered mostly obsolete in the TeX community and
     graphicx is the "current 'preferred' solution" to embed figures.
     See https://www.ctan.org/pkg/epsfig.
@@ -1292,7 +1292,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Jul 11 20:41:54 2016 +0900
 
     Bump standard minor version
-    
+
     This is to acknowledge the SANE_STATUS_GOOD fixes in net.tex that were
     committed in 4daf488 and 1100883.
 
@@ -1301,7 +1301,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Jul 11 20:37:08 2016 +0900
 
     Reclassify doc/html.sty
-    
+
     It is a package used by doc/sane.tex.
 
 commit 2481e1e98b02e927cdb9c2e6e404252ef9e49041
@@ -1315,13 +1315,13 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Jul 10 20:35:04 2016 +0900
 
     Refactor API spec conversion support
-    
+
     Unless explicitly asked to do without, all formats for which required
     tools are found will be built.  Checks cover PostScript, PDF and HTML.
-    
+
     All logic and files involved are now collected in a single "section"
     and grouped in such a way that their function should be clearer.
-    
+
     fixup! Refactor API spec conversion support
 
 commit d7c69d141ffb4f456d659b443aa4c3d3be82793e
@@ -1341,7 +1341,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Jul 10 15:41:08 2016 +0900
 
     Add support for PDF API spec output
-    
+
     Note that pdflatex internally uses epstopdf which in turn requires a
     working ghostscript.
 
@@ -1374,7 +1374,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Jul 6 20:23:12 2016 +0900
 
     check-po.awk: fix awk invocation
-    
+
     The awk utility has been moved to /usr/bin and the script relies on
     features present in gawk but not in mawk.
 
@@ -1401,10 +1401,10 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Fri Jul 1 23:37:49 2016 +0900
 
     Make libusb-1.0 the default for USB support
-    
+
     When libusb-1.0 is not found, libusb-0.1 will be tried.  On BeOS and
     OS2, nothing should have changed in terms of detection of USB support.
-    
+
     On all systems the --enable-libusb* flags are now ignored.  Instead, the
     --with-usb and --without-usb flags now control support.  When neither is
     given USB support will be enable if possible and disabled otherwise.  If
@@ -1422,7 +1422,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Thu Jun 30 21:49:25 2016 +0900
 
     Improve test shell builtin invocation portability
-    
+
     Looks like I missed this when committing 309a8140.
 
 commit 828cd013e9a4411158af8816a63b133b6da19ed5
@@ -1430,12 +1430,12 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Thu Jun 30 21:38:04 2016 +0900
 
     Compile getopt replacement functions only if needed
-    
+
     This ought to get rid of the last empty compilation unit warnings.  This
     merges libfelib.la with liblib.la.  The former was always used together
     with the latter.  The latter was only ever used without the former when
     linking backends and tools.
-    
+
     Tools might want to use the getopt functions, backends might just want
     to use MD5.
 
@@ -1444,7 +1444,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Jun 29 22:21:10 2016 +0900
 
     Sync autofoo
-    
+
     Looks like the sorting of the DIST_COMMON file list is not stable.
 
 commit a298bfe5a8c65236ac13130e891a93bf3cf58976
@@ -1464,7 +1464,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Tue Jun 28 22:42:09 2016 +0900
 
     Compile replacement functions only if needed
-    
+
     This ought to get rid of most empty compilation warnings.
 
 commit 0c2b86ac0b56ee7cb8b962102c54855f05887b08
@@ -1472,10 +1472,10 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Jun 27 22:33:28 2016 +0900
 
     Fix distcheck issues in tools/
-    
+
     Automake is smart enough these days to compile the *.lo files that are
     used when linking.
-    
+
     The umax_pp_CPPFLAGS are useless because backend/umax_pp_low.c undefines
     BACKEND_NAME unconditionally and sets it to what was passed here ;-)
 
@@ -1484,7 +1484,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Jun 27 22:08:20 2016 +0900
 
     Clean up .gitignore file content
-    
+
     Removes empty lines and duplicates (note that .gitignore patterns are
     recursive unless anchored with a leading /).
 
@@ -1493,7 +1493,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Jun 27 22:05:50 2016 +0900
 
     Remove references to SANE CVS
-    
+
     The references in in-file changelogs and the ChangeLog files have not
     been modified.  Only those references that refer to current practices
     or locations.
@@ -1503,7 +1503,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Jun 27 21:51:43 2016 +0900
 
     Sync AUTHORS content with current status
-    
+
     We've been using git for a while ;-).  Also updates the write access
     info and fixes encoding issues.
 
@@ -1512,7 +1512,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Jun 26 10:22:35 2016 +0900
 
     Stop distclean from removing files willy-nilly
-    
+
     The distclean target should only remove files that make creates.  If
     there are any that need taking care of, they should be added in on a
     per file basis in the Makefile.am that creates it.
@@ -1522,7 +1522,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Jun 26 10:11:42 2016 +0900
 
     Remove overly zealous ignore patterns
-    
+
     Text editor backup and temporary files like *~ are a per developer
     issue, add them to your global .gitignore.  Other dot-files should
     be ignored on a case-by-case basis.
@@ -1538,7 +1538,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Jun 26 10:05:12 2016 +0900
 
     Fix sorting of ignore files
-    
+
     We haven't been using CVS since ... 2009-05-04 :-|
 
 commit 0bc7b6aed7e3ac8ee78190f0e795ce9c62c3f36e
@@ -1546,7 +1546,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Jun 26 09:16:54 2016 +0900
 
     Sync *.po files with previous changes
-    
+
     This changes the file/line references in all files (and picks up any
     new messages as a side effect).
 
@@ -1567,7 +1567,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Jun 26 08:49:14 2016 +0900
 
     Switch to using the gettext build machinery
-    
+
     This adds two automatically maintained English variants that handle
     quote substitution in onrder to provide smart quotes.
 
@@ -1576,7 +1576,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Jun 26 08:30:45 2016 +0900
 
     Add gettext build machinery files for I18N/L10N support
-    
+
     These are courtesy of autopoint and target gettext-0.18.1 because that
     is the version in Debian 7 (which is what Alioth is running).  The one
     warning this produces on autoreconf is fixed in gettext-0.18.2, BTW.
@@ -1586,7 +1586,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat Jun 25 15:23:05 2016 +0900
 
     Fix VPATH build issue
-    
+
     The source *.po files weren't found when you configured outside of the
     top source directory.
 
@@ -1631,7 +1631,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Jun 15 20:23:33 2016 +0900
 
     Silence overly verbose targets
-    
+
     This only takes effect with silent rules enabled.
 
 commit 43cdc1056af899520797b09f3f78ba64703ed74d
@@ -1651,7 +1651,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Tue Jun 14 21:24:53 2016 +0900
 
     Tweak GitLab CI builds
-    
+
     The idea is to build as much as possible for the *-full flavour build,
     make compiler warnings stand out and muddle on after errors so that we
     get all the problems in a single log.
@@ -1661,7 +1661,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Tue Jun 14 21:20:48 2016 +0900
 
     Add missing autofoo file
-    
+
     This should have gone in with d853463e.
 
 commit d853463ef1b97082d657a0be32d1b27a04940ea2
@@ -1669,11 +1669,11 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Tue Jun 14 06:30:48 2016 +0900
 
     Sync derived files
-    
+
     This was done with
-    
+
       AUTOMAKE="automake --add-missing --copy" autoreconf --force
-    
+
     on Debian GNU/Linux 8.5.
 
 commit 17d78ab7c326069c3a596f17ded6418ef42930bc
@@ -1693,7 +1693,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Thu Feb 11 17:43:14 2016 +0900
 
     Drop Makefile.in from EXTRA_DIST
-    
+
     Automake is smart enough to include this on its own.
 
 commit 7bfa818c57485310994650528124a7036894eb36
@@ -1767,7 +1767,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat Jan 9 17:11:19 2016 +0900
 
     Drop a pile of unnecessary macro invocations
-    
+
     These are already taken care of by other macros.
 
 commit ae89c8f98362a4e50d4b1a0ce8f3586b77a81989
@@ -1775,7 +1775,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat Jan 9 15:59:35 2016 +0900
 
     Update to automake-1.11.6
-    
+
     This turns on additional warnings and adds support for silent make
     rules (so compiler warning really stand out ;-).
 
@@ -1784,7 +1784,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Jun 13 22:24:21 2016 +0900
 
     Sync derived files with autoreconf --force
-    
+
     For the record, this was done on Debian GNU/Linux 8.5.
 
 commit 309a8140e7285f87d5fc5ee24b942f1713e80be8
@@ -1792,7 +1792,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Oct 28 21:59:42 2015 +0900
 
     Improve test shell builtin invocation portability
-    
+
     POSIX 2008 obsoletes the -a and -o operands (according to the autoconf
     documentation).
 
@@ -1801,11 +1801,11 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Oct 28 20:59:22 2015 +0900
 
     Double quote code passed to AC_LANG_PROGRAM
-    
+
     Upon re-reading the autoconf documentation, this seemed the right thing
     to do.  The AC_LANG_PROGRAM macro does not quote its arguments so any
     occurence of [ and ] will get stripped out if not double quoted.
-    
+
     Current code snippets passed do not use them but it is better to use a
     consistent quoting approach for such snippets.  In other places in the
     configure.ac file double quoting is used already.
@@ -1815,10 +1815,10 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Thu Oct 22 22:18:19 2015 +0900
 
     Update to autoconf-2.69
-    
+
     This gets rid of a number of obsoleted macros and replaces RETSIGTYPE
     with a void literal which can be assumed for C89 and later.
-    
+
     This changeset was prepared using autoupdate and modified to get rid of
     whitespace and doubled [] changes.  Changes to acinclude.m4 were added
     by hand.
@@ -1828,12 +1828,12 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Thu Oct 22 20:15:45 2015 +0900
 
     Respect GNU Standards user variables
-    
+
     Several variables are considered "user variables" by the GNU Standards.
     This means that the user can pass these to their ./configure and make
     invocations as they see fit.  These variables include CPPFLAGS, CFLAGS
     and LDFLAGS.
-    
+
     This changeset pushes our use of these variables to the automake shadow
     variables, AM_CPPFLAGS, AM_CFLAGS and AM_LDFLAGS, so that user variables
     will no longer clobber flags required in order to build.
@@ -1843,7 +1843,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Oct 21 22:33:53 2015 +0900
 
     Prefer make variables over literal substitutions
-    
+
     The AC_SUBST and PKG_CHECK_MODULE invocations in configure.ac as well as
     acinclude.m4 are sufficient to trigger automake to insert initialization
     logic for the variables these introduce.  There is no need to do this by
@@ -1856,7 +1856,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Oct 19 21:52:47 2015 +0900
 
     Fix non-POSIX automake file variable warning
-    
+
     This addresses warnings about the use of the $(wildcard) function.
     It has been replaced by a plain shell glob.  There is one case where
     this will result in an error, when there are no matches, but that is
@@ -1868,12 +1868,12 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Oct 19 21:04:53 2015 +0900
 
     Add automake subdir-objects option
-    
+
     This addresses autoreconf output such as:
-    
+
       tools/Makefile.am:37: warning: source file '../backend/sane_strstatus.c' is in a subdirectory,
       tools/Makefile.am:37: but option 'subdir-objects' is disabled
-    
+
     The option was introduced in automake version 1.9 and is slated for
     unconditional activation with automake-2.0.
 
@@ -1882,11 +1882,11 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Oct 19 20:20:56 2015 +0900
 
     Rename configure.in to configure.ac
-    
+
     This name has been preferred since autoconf-2.52 and automake-1.5.
     Both were released in the summer of 2001.  Support for configure.in
     is slated for removal in automake-2.0.
-    
+
     The configure.ac file itself requires autoconf-2.54 or later (and
     does not care about the automake version).
 
@@ -1907,7 +1907,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Thu Jun 9 21:51:18 2016 -0400
 
     fujitsu backend v131
-    
+
     - hide compression-arg option when jpeg disabled
     - add Send/SC/GHS macros for recent scanners
     - add initial support for fi-74x0
@@ -1934,12 +1934,12 @@ Author: Alex Belkin <abc@telekom.ru>
 Date:   Sat May 7 22:33:03 2016 +0300
 
     Color scanning for Samsung models, which support JPEG Lossy compression.
-    
+
     Patch is submitted by Laxmeesh Onkar Markod <m.laxmeesh@samsung.com>
-    
+
     Patch to code is applied almost verbatim, except, insignificant
     formatting fixes and making new functions static.
-    
+
     Also, new USB ids added and scanner support is changed as reported.
 
 commit 1d2a40ec96aea0ba183415efea570301159d4159
@@ -2039,7 +2039,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Tue Apr 5 20:30:10 2016 -0400
 
     canon_dr backend v55
-    
+
     fixed-width scanners were calculating left-side offset incorrectly in color
     initial support for DR-F120
     rename all DUPLEX_INTERLACE_* to indicate start and end of line
@@ -2074,18 +2074,18 @@ Date:   Fri Mar 4 13:36:08 2016 +0100
 
     pixma_imageclass: software lineart for all imageCLASS, imageRUNNER, i-SENSYS and laserBase scanners,
                       supported by this sub-backend
-    
+
     imageCLASS scanners:
     D420, D480, D530, MF810/820, MF3240, MF4010, MF4150, MF4270, MF4320, MF4360,
     MF4410, MF4570dw, MF4690, MF5630, MF6500, MF8030, MF8170c
-    
+
     i-SENSYS scanners:
     MF210, MF220, MF3010, MF4500, MF4700, MF4800, MF5880dn, MF5900, MF6100,
     MF6680dn, MF8200C, MF8300, MF8500C
-    
+
     imageRUNNER scanners:
     iR1133
-    
+
     laserBase scanners:
     MF5650
 
@@ -2118,7 +2118,7 @@ Author: Stéphane Voltz <stef.dev@free.fr>
 Date:   Thu Mar 3 21:39:25 2016 +0100
 
     use rewind instead of slow_back_home
-    
+
     - if required by flags, do a rewind instead a slow_back_home that pollutes
       shading settings
 
@@ -2157,7 +2157,7 @@ Author: Rolf Bensch <roben-guest@alioth.debian.org>
 Date:   Thu Mar 3 13:36:44 2016 +0100
 
     pixma: new global parameter to set duration of receive timeout loop
-    
+
     The default value for receive timeout loop duration has not been changed.
     The loop still takes 8 seconds if a timeout occurs.
 
@@ -2172,7 +2172,7 @@ Author: Stéphane Voltz <stef.dev@free.fr>
 Date:   Sun Feb 28 12:26:12 2016 +0100
 
     motor table fixes
-    
+
     - add target speed for 600 dpi gray
     - add slope table for 4800/2400 dpi, gray and color
 
@@ -2223,7 +2223,7 @@ Author: Stéphane Voltz <stef.dev@free.fr>
 Date:   Wed Feb 24 06:17:50 2016 +0100
 
     make 600 dpi mode work for LiDE 120
-    
+
     - add override for registers 0x16 and 0x70 since 120's sensor
       is set differently according to resolution
 
@@ -2238,7 +2238,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Tue Feb 23 21:07:06 2016 -0500
 
     fujitsu backend v130
-    
+
     run init_model before init_ms so some scanners can override
     set all M309x and M409x scanners s->broken_diag_serial = 1
 
@@ -2253,7 +2253,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Tue Feb 23 20:36:32 2016 -0500
 
     Support SANE_USB_WORKAROUND env var
-    
+
     Here, we add a new env var (SANE_USB_WORKAROUND) to sanei_usb.c.
     This allows end users to conditionally enable the workaround added
     in commit 014b45d920f1fb630e1a31bb01f1da02ea2a6a87. The default is
@@ -2266,7 +2266,7 @@ Author: Stéphane Voltz <stef.dev@free.fr>
 Date:   Tue Feb 23 21:39:22 2016 +0100
 
     LiDE 120 working [75-300] dpi
-    
+
     - fix sensor pixel number
     - enable calibration
     - default to 16 pixel DUMMY
@@ -2360,7 +2360,7 @@ Author: Rolf Bensch <roben-guest@alioth.debian.org>
 Date:   Wed Feb 17 20:59:32 2016 +0100
 
     pixma_imageclass: fix for failed first usb command (timeout)
-    
+
     Sometimes the first usb command to the scanner fails after a previous scan.
     A workaround was to reconnect the usb cable. This fix simply resends the
     failed command.
@@ -2370,7 +2370,7 @@ Author: Rolf Bensch <roben-guest@alioth.debian.org>
 Date:   Wed Feb 17 20:55:49 2016 +0100
 
     pixma_imageclass: fixes for MF6100 Series
-    
+
     - special ADF settings
     - the MF6100 Series is a Generation 2+ scanner, but uses the old read image command
 
@@ -2397,7 +2397,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat Feb 13 17:34:46 2016 +0900
 
     Move #include <pthread.h> to sanei_thread.h
-    
+
     The sanei header file may need pthread_t.  If it does, make sure it
     is available.
 
@@ -2406,7 +2406,7 @@ Author: Rolf Bensch <roben-guest@alioth.debian.org>
 Date:   Thu Feb 11 12:06:34 2016 +0100
 
     pixma: Canon Pixma MG3600 Series is working
-    
+
     Reported by Rajib Bandopadhyay
 
 commit 7bd773ade5ff1bc4170d2a1773428efe759aaa75
@@ -2450,7 +2450,7 @@ Author: Rolf Bensch <roben-guest@alioth.debian.org>
 Date:   Fri Jan 8 18:34:27 2016 +0100
 
     pixma: Canon PIXMA MG5700 Series is working
-    
+
     Reported by Andrew Reginato, bug #315244
 
 commit 0f47b47b759908e7b11800404d269087d60d87ad
@@ -2458,10 +2458,10 @@ Author: Rolf Bensch <roben-guest@alioth.debian.org>
 Date:   Fri Jan 8 17:32:36 2016 +0100
 
     pixma_mp[150|810]: disable send_time()
-    
+
     The function send_time() makes trouble with a lot of scanners.
     We send a warning to the debug output instead of sending the time.
-    
+
     fix for [#315248] Canon MP250 with pixma backend is not working
 
 commit b040b150a08b0b5394ad3bc91a45966d97f58152
@@ -2469,7 +2469,7 @@ Author: Rolf Bensch <roben-guest@alioth.debian.org>
 Date:   Fri Jan 8 16:54:30 2016 +0100
 
     pixma: fix for [#315244] Add support for Canon PIXMA MG5700, MG6800, MG6900 and MG7700
-    
+
            These scanners are new and need further testing!
 
 commit 81c429082c3c139f8616de4a73733953cd5aa33f
@@ -2483,7 +2483,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Fri Jan 8 21:26:31 2016 +0900
 
     md5: Avoid the need for casting
-    
+
     This also modifies the code slightly to follow the original array
     access more closely.
 
@@ -2492,9 +2492,9 @@ Author: Volker Diels-Grabsch <v@njh.eu>
 Date:   Sun Dec 6 01:23:51 2015 +0100
 
     Introduce md5_set_uint32
-    
+
     This fixes the following GCC warning:
-    
+
     warning: dereferencing type-punned pointer will break strict-aliasing rules
 
 commit f3471c2ca6ea22846dd6619aff7913610722a6c0
@@ -2502,7 +2502,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat Jan 2 17:50:34 2016 +0900
 
     saned: Use system header IPv6 test macros if available
-    
+
     This should fix [-Wstrict-aliasing] compiler warnings on those systems
     where the IN6_IS_ADDR_LOOPBACK and IN6_IS_ADDR_V4MAPPED macros exist.
     POSIX.1-2001 states that they shall be defined in netinit/in.h so most
@@ -2513,7 +2513,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat Jan 2 16:06:34 2016 +0900
 
     umax_pp: fix memory leak
-    
+
     Found courtesy of [-Wunused-but-set-variable] compiler warning.
 
 commit 9d78ace3b7e60afa2b3cb829ac23e5f8b4ccdc07
@@ -2539,7 +2539,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Thu Dec 31 17:43:25 2015 +0900
 
     kodakaio: fix [-Wformat=] compiler warnings
-    
+
     This uses the ANSI C approach that is used in a lot of existing code
     rather than what ISO C99 allows for consistency.
 
@@ -2626,7 +2626,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Dec 23 22:17:40 2015 +0900
 
     microtek2: fix another [-Wunused-but-set-variable] compiler warning
-    
+
     This allows for the fact that the backend may be compiled with and
     without support for authorization.
 
@@ -2641,7 +2641,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat Dec 26 17:41:09 2015 +0900
 
     magicolor: fix [-Wunused-function] compiler warning
-    
+
     This function is only used when SNMP support is activated.
 
 commit 292dd42bb6585e2801623d1f33497581626d9d72
@@ -2661,7 +2661,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat Dec 26 17:36:57 2015 +0900
 
     lexmark: fix [-Wmaybe-uninitialized] compiler warning
-    
+
     This adds a default handler to switch statement so low_get_start_loc()
     bails before the start_600 variable is used.
 
@@ -2670,7 +2670,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat Dec 26 17:28:34 2015 +0900
 
     kodakaio: fix [-Wunused-function] compiler warning
-    
+
     The function is only used when Avahi support is enabled and has been
     put in a suitable compilation scope.
 
@@ -2769,7 +2769,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Dec 23 20:30:02 2015 +0900
 
     avision: fix [-Wunused-but-set-variable] compiler warning
-    
+
     The variable seems to have been superseded by conv_out_size in the
     else branch of set_calib_data().
 
@@ -2778,7 +2778,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Dec 23 20:27:20 2015 +0900
 
     artec_eplus48u: fix [-Wunused-but-set-variable] compiler warning
-    
+
     This leaves the sane_close() implementation just as broken as it has
     been from the initial commit sometime in 2002.
 
@@ -2787,7 +2787,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Dec 23 20:26:21 2015 +0900
 
     artec_eplus48u: fix [-Wunused-but-set-variable] compiler warning
-    
+
     The variable was only used to silence a [-Wunused-parameter] warning.
 
 commit 5b21a24312f2cf2ced5d5c70b0f7d2c1f0c58f35
@@ -2795,7 +2795,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Dec 23 19:57:13 2015 +0900
 
     artec: fix [-Wunused-but-set-variable] compiler warning
-    
+
     The variable is used to assign return values but is not referenced by
     anything itself.
 
@@ -2810,7 +2810,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Dec 23 18:53:06 2015 +0900
 
     sanei_usb: const_cast data buffer
-    
+
     The libusb_bulk_transfer() API caters to both reads and writes and
     as a result of that will not take a const pointer.
 
@@ -2819,7 +2819,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat Dec 26 17:05:17 2015 +0900
 
     sanei_usb: Move variable declarations to scope of usage
-    
+
     Fixes an [-Wunused-variable] when compiling without libusb.
 
 commit 0d7882e34b5f5625261258a3a341a58a04beb304
@@ -2827,11 +2827,11 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sat Dec 26 16:51:44 2015 +0900
 
     Change compile time warning policy
-    
+
     The -Wall flag is now always enabled (when using gcc).  The -Wextra
     flag (previously known as -W) and -pedantic flags are, by default,
     enabled during development but disabled for releases.
-    
+
     All other flags have been removed.
 
 commit 5136e664b8608604f54a2cc1d466019922b311e6
@@ -2845,9 +2845,9 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Dec 20 17:33:55 2015 +0900
 
     Improve readability of condition
-    
+
     This also fixes the following GCC warning:
-    
+
       warning: logical not is only applied to the left hand side of comparison
 
 commit 58052a7ce6b205e25a2fc85f31158595cad00258
@@ -2855,11 +2855,11 @@ Author: Volker Diels-Grabsch <v@njh.eu>
 Date:   Sat Dec 5 21:33:48 2015 +0100
 
     Change GCC mode from ISO C90 to ISO C99
-    
+
     Add GCC flag "-std=c99".  Also remove GCC flag "-ansi" which is an
     alias for "-std=c90" and would make the flag "-std=c99" ineffective.
     This fixes all occurrences of the following GCC warning:
-    
+
     warning: ISO C90 does not support '__func__' predefined identifier
 
 commit baec5e039504de390cae41557b0b8323343721c3
@@ -2867,11 +2867,11 @@ Author: Volker Diels-Grabsch <v@njh.eu>
 Date:   Sat Dec 5 10:48:59 2015 +0100
 
     Use consistently __func__ instead of __FUNCTION__
-    
+
     Some parts of SANE used __FUNCTION__ while other parts used __func__.
     Now, __func__ is used consistently throughout the SANE sources.  This
     fixes all occurrences of the following GCC warning:
-    
+
     warning: ISO C does not support '__FUNCTION__' predefined identifier
 
 commit 93298674d02b1127efdf4e726e92e797a0081c9e
@@ -2879,7 +2879,7 @@ Author: Volker Diels-Grabsch <v@njh.eu>
 Date:   Sat Dec 5 20:44:14 2015 +0100
 
     Merge all compatibility macros around __func__ and __FUNCTION__
-    
+
     Various parts of SANE introduced their own compatibility macros for
     old compilers that don't support __func__.  Most of these definitions
     are identical or have minor differences.  This patch replaces them
@@ -2890,9 +2890,9 @@ Author: Volker Diels-Grabsch <v@njh.eu>
 Date:   Sun Dec 6 03:32:51 2015 +0100
 
     Remove dead code due to unused variables
-    
+
     This fixes some occurrences of the following GCC warning:
-    
+
     warning: variable '...' set but not used
 
 commit aba87a4582d594cf953b4bda5b5d42e37e13f21c
@@ -2900,9 +2900,9 @@ Author: Volker Diels-Grabsch <v@njh.eu>
 Date:   Sun Dec 6 01:30:30 2015 +0100
 
     Mark internal function toupper_ascii as static
-    
+
     This fixes the following GCC warning:
-    
+
     warning: no previous prototype for 'toupper_ascii'
 
 commit 13b6faee2a0696eb02a61f22121b7f4854987f2e
@@ -2910,9 +2910,9 @@ Author: Volker Diels-Grabsch <v@njh.eu>
 Date:   Sun Dec 6 03:03:06 2015 +0100
 
     Fix interface of helper function write_many
-    
+
     This fixes two occurrences of the following GCC warning:
-    
+
     warning: cast discards 'const' qualifier from pointer target type
 
 commit badd7025b21b2207cfb95001aeb324597e24b301
@@ -2920,10 +2920,10 @@ Author: Volker Diels-Grabsch <v@njh.eu>
 Date:   Sun Dec 6 02:37:10 2015 +0100
 
     Bugfix: On error, return the actual error code in sanei_magic_rotate
-    
+
     Up to now, on failure the sanei_magic_rotate function returned a
     success status.  This fixes the following GCC warning:
-    
+
     warning: variable 'ret' set but not used
 
 commit 6aced758f4a95fd858906f3e898ee967a9718641
@@ -2931,7 +2931,7 @@ Author: Volker Diels-Grabsch <v@njh.eu>
 Date:   Sun Nov 29 16:02:01 2015 +0100
 
     Fix typos in comments
-    
+
     While reading through the SANE sources I noticed some annoying typos
     in the comments.  This patch is my contribution to make the SANE
     sources slightly more pleasant to read.
@@ -2953,7 +2953,7 @@ Author: Stéphane Voltz <stef.dev@free.fr>
 Date:   Tue Dec 15 06:05:07 2015 +0100
 
     fix for #315050
-    
+
     - handle case where linesel is rounded to 0 when scan y resolution is
       below minimal scan resolution but higher than half of the minimum
 
@@ -2962,7 +2962,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Sat Nov 28 08:34:58 2015 -0500
 
     canon_dr desc update
-    
+
     add note about mode switch on P-208
 
 commit f1593204c72124f3077b0b29f3c128d30be415b5
@@ -2970,7 +2970,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Fri Nov 27 21:26:46 2015 +0900
 
     Drop execute permission
-    
+
     Source code, description files and configuration templates should never
     need to be executed.
 
@@ -2979,7 +2979,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Fri Nov 13 22:06:30 2015 +0900
 
     Invert sense of sanei_thread validity check
-    
+
     Double negatives suck.
 
 commit fe12d31e6873f5c3de330f1de4c4fbc851df1e9f
@@ -2987,7 +2987,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Fri Nov 13 21:41:56 2015 +0900
 
     Fix SANE_Pid related -Wsign-compare warnings
-    
+
     This may fix threading related issues on WIN32 platforms, BTW.
 
 commit ed59056d40a143b3cf9243ea0068448a88ce3108
@@ -2995,7 +2995,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Mon Nov 23 21:26:09 2015 -0500
 
     canon_dr backend v54
-    
+
     - br_x and br_y locked to page_width/height until changed
 
 commit d0ea697ab83360bf0ccddcd02565f85ea0f96b50
@@ -3003,7 +3003,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Mon Nov 23 21:08:30 2015 -0500
 
     fujitsu backend v129
-    
+
     - br_x and br_y locked to page_width/height until changed
     - add USB ID's for fi-6xxxLA and fi-6xxxZLA scanners
     - add USB ID's for unsupported SP11xx scanners (genesys based)
@@ -3013,7 +3013,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Thu Nov 12 21:10:49 2015 -0500
 
     revert mustek_usb2 backend upgrade
-    
+
     Instead of 100+ revert commits, I've lumped everything into a
     single commit. This removes all of dedf0ac30 through db7f038f1,
     plus the parts of 497d59180 which were specific to mustek_usb2
@@ -3035,7 +3035,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Nov 11 22:35:34 2015 +0900
 
     Fix "discards 'const' qualifier from pointer target type" warnings
-    
+
     The line variable is not (and cannot be) declared 'const'.  The string
     variable points to a location in line, hence it is safe to cast away
     'const'ness of the sanei_config_skip_whitespace() return value.
@@ -3045,7 +3045,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Nov 11 22:33:34 2015 +0900
 
     Fix "discards 'const' qualifier from pointer target type" warning
-    
+
     The device2 variable is not modified so let's make that clear.
 
 commit d2576bbb948dd9d8e06f66dc4cede774c5518751
@@ -3053,7 +3053,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Nov 11 22:30:10 2015 +0900
 
     Fix "discards 'const' qualifier from pointer target type" warnings
-    
+
     The cs3_xfree() functions is really just a checked call to free() so its
     signature has been changed to match that.  The warnings that causes have
     been fixed in the same way and on the same grounds as the previous commit.
@@ -3063,7 +3063,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Wed Nov 11 22:28:17 2015 +0900
 
     Fix "discards 'const' qualifier from pointer target type" warnings
-    
+
     The resources pointed to have been acquired by the backend.  It is safe
     to cast away the 'const' qualifier when releasing these resources.
 
@@ -3072,7 +3072,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Sun Nov 8 17:17:37 2015 -0500
 
     automake for recent changes
-    
+
     updates to mustek_usb2, canon_dr and umax_pp require automake run
 
 commit db7f038f108ca12966b947dd80f3772e2133495e
@@ -3176,7 +3176,7 @@ Author: Jan Hauffa <jhauffa@gmail.com>
 Date:   Sat May 7 13:28:52 2011 +0200
 
     Remove restriction to 8-bit color in negative mode.
-    
+
     The only reason for that restriction was that the histogram stretching code, which has been removed earlier, could only handle 8-bit color.
 
 commit 4ced7a900a6463c460121eaed7583f4249ef74c2
@@ -3226,7 +3226,7 @@ Author: Jan Hauffa <jhauffa@gmail.com>
 Date:   Sun Apr 24 20:21:41 2011 +0200
 
     Introduce support for multiple scanners.
-    
+
     Keep all state local and ensure that all resources are freed by sane_exit. Ensure that each function returns only those error codes that are valid according to the SANE standard.
 
 commit 6865eaf6edef0cc5ea30bcc0d72b52189132f4d6
@@ -3336,7 +3336,7 @@ Author: Jan Hauffa <jhauffa@gmail.com>
 Date:   Wed Apr 20 23:10:53 2011 +0200
 
     Extensive changes to reduce the amount of global variables in mustek_usb2_high.c.
-    
+
     Might have made MustScanner_SetupScan less readable, though.
 
 commit 9444bf1156f0ab52937d101ba6120ae8685b645b
@@ -3830,7 +3830,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Sun Nov 8 09:24:37 2015 -0500
 
     fujitsu backend v128
-    
+
     do not ask fi-4340 for serial number
 
 commit 72ecee97ce9db13f148aedf52eb46911212d58e4
@@ -3850,7 +3850,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Nov 8 18:49:58 2015 +0900
 
     Add missing include (fixes 315207)
-    
+
     Both Linux and NetBSD mention this header for use of setsocketopt().
     DragonFly BSD needs it for the SOL_SOCKET symbol.
 
@@ -3865,7 +3865,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Sun Nov 8 18:16:17 2015 +0900
 
     Fix sane-desc testsuite logic
-    
+
     This fixes test failures for release tarballs (pointed out by Mike
     Frysinger), clamps down on wildcards and prints a failure message
     when a test does not succeed.
@@ -3875,7 +3875,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Fri Nov 6 21:39:35 2015 -0500
 
     canon_dr v53 continued
-    
+
     reorder geometry group options
     use bg_color to fill missing image data
 
@@ -3884,7 +3884,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Fri Nov 6 12:19:20 2015 -0500
 
     canon_dr backend v53
-    
+
     add swskip option
 
 commit b4bc0eb518ce74ffbfdbe0ce1a14bb404804cd57
@@ -3892,7 +3892,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Fri Nov 6 11:46:17 2015 -0500
 
     canon_dr backend v53
-    
+
     replace image processing methods with sanei_magic
 
 commit 666c9a74ff26fd530b40db28f03b447209cf419e
@@ -3900,7 +3900,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Thu Nov 5 21:42:29 2015 -0500
 
     canon_dr backend v52
-    
+
     improve dropout option handling
     add software dropout implementation for downsampled modes
 
@@ -3909,7 +3909,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Wed Nov 4 13:49:02 2015 -0500
 
     canon_dr backend v52
-    
+
     add must_downsample and must_fully_buffer
 
 commit 01063a769d5431ca83069a9cf240894f893d01f0
@@ -3917,7 +3917,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Wed Nov 4 13:05:05 2015 -0500
 
     canon_dr backend v52
-    
+
     set can_color=1 by default (recent models dont have 'C' in name)
     enable jpeg for DR-6080
 
@@ -3926,7 +3926,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Wed Nov 4 13:00:10 2015 -0500
 
     cardscan backend v3
-    
+
     add USB IDs for newer model 800c
 
 commit 33495ef9b42a783c8f5f2c056ac5699481d3cc7e
@@ -3946,11 +3946,11 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Oct 19 20:51:04 2015 +0900
 
     Drop unused INCLUDES substitution variable
-    
+
     This addresses the following autoreconf output:
-    
+
       configure.ac:85: warning: 'INCLUDES' is the old name for 'AM_CPPFLAGS' (or '*_CPPFLAGS')
-    
+
     The INCLUDES variable is not referenced anywhere in configure.ac or
     configure.  In addition, none of the Makefile.am files use it.
 
@@ -3959,7 +3959,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Oct 19 21:11:53 2015 +0900
 
     Fix duplicate automake file variable initialization issue
-    
+
     This was introduced in 74c00494.
 
 commit f8d35b8d2fdcacc9b664594d141102c2c80ac076
@@ -3967,7 +3967,7 @@ Author: m. allan noah <kitno455@gmail.com>
 Date:   Mon Oct 26 08:34:17 2015 -0400
 
     Update canon_dr.desc
-    
+
     We had a few scanners that were reported by email or in tracker
     tickets, which had not been updated in the desc file.
 
@@ -4012,9 +4012,9 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Tue Oct 13 23:32:40 2015 +0900
 
     Revert "Prevent use of uninitialized variable"
-    
+
     This change introduces a variable that shadows the file scope one.
-    
+
     This reverts commit 45e66aee952dcdada88293901580a111262fc1e9.
 
 commit 36876a83663832cf89fa945737d004ce9b46fb01
@@ -4040,7 +4040,7 @@ Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
 Date:   Mon Oct 12 20:49:07 2015 +0900
 
     Follow getopt_long usage in scanimage.c
-    
+
     This is on the off chance that getopt_long is not in the system's
     standard library.
 
@@ -4061,7 +4061,7 @@ Author: Matteo Croce <matteo@openwrt.org>
 Date:   Sun Oct 11 19:50:03 2015 +0200
 
     saned: use getopt_long() for option parsing
-    
+
     The help message has been adjusted to match getopt_long conventions.
 
 commit 418d1ecea7571d10acd08df2edc7967a91e14b0d
@@ -4075,7 +4075,7 @@ Author: Matteo Croce <matteo@openwrt.org>
 Date:   Sun Sep 20 19:55:36 2015 +0200
 
     saned: parse inetd args in main()
-    
+
     move argument parsing logic from run_inetd() to main()
 
 commit 2c3cb206ce55a7ac9ff9b479de452a332ba2aa1a
@@ -4083,7 +4083,7 @@ Author: Matteo Croce <matteo@openwrt.org>
 Date:   Sun Sep 20 19:55:35 2015 +0200
 
     saned: parse standalone args in main()
-    
+
     move argument parsing logic from run_standalone() to main()
 
 commit 2239d2aaff16964a5d67293f5e4220d235e2c84d

@@ -55,11 +55,11 @@ mustek
 .PP
 It is also possible to add a file in
 .I @CONFIGDIR@/dll.d
-that contains the list of backends to be added. Backends mentioned in a 
-file included in this directory will be added before any backends listed 
-in 
+that contains the list of backends to be added. Backends mentioned in a
+file included in this directory will be added before any backends listed
+in
 .I dll.conf.
-Files in 
+Files in
 .I @CONFIGDIR@/dll.d
 can be freely named. They shall follow the format conventions as apply for
 .I dll.conf.
@@ -76,7 +76,7 @@ in file backend/Makefile.in of the SANE source code distribution.  After
 changing the value of this macro, it is necessary to reconfigure, rebuild,
 and reinstall SANE for the change to take effect.
 
-Aliases are defined in the config file 
+Aliases are defined in the config file
 .IR dll.aliases .
 It can contain entries of the form
 .PP
@@ -152,7 +152,7 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
-levels reduce verbosity. 
+levels reduce verbosity.
 
 .ft CR
 .nf
@@ -165,7 +165,7 @@ Value  Description
 .fi
 .ft R
 
-Example: 
+Example:
 export SANE_DEBUG_DLL=3
 
 

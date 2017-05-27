@@ -2,7 +2,7 @@
    Copyright (C) 2007 Jeremy Johnson
    This file is part of a SANE backend for Ricoh IS450
    and IS420 family of HS2P Scanners using the SCSI controller.
-   
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -56,14 +56,14 @@
 /* All other status byte keys are reserved        */
 
 /*
- * SCSI Command List for Command Descriptor Block 
+ * SCSI Command List for Command Descriptor Block
  * All reserved bit and fields in the CDB must be zero
  * Values in the CDB described as "Reserved" must no be specified
  * The FLAG and LINK bits in the CONTROL byte must be zero
  * Any values in the Vendor Unique field are ignored
  * The Logical Unit Number in the CDB must always be zero
  * All Reserved bit and fields in the data fields must be zero
- * Values of parameters in the data fields described as 
+ * Values of parameters in the data fields described as
  *   "Reserved" or "Not supported" must not be specified
 */
 
@@ -132,7 +132,7 @@ static struct sense_key sensekey_errmsg[16] = {
   {0x0f, "RESERVED", "Invalid"}
 };
 
-/* When Error_Code = 0x70 more detailed information is available: 
+/* When Error_Code = 0x70 more detailed information is available:
  * code, qualifier, description
 */
 struct ASCQ
@@ -219,7 +219,7 @@ static struct ASCQ ascq_errmsg[74] = {
 
 typedef struct sense_data
 {				/* HS2P_REQUEST_SENSE_DATA  */
-  /* bit7:valid is 1 if information byte is valid, 
+  /* bit7:valid is 1 if information byte is valid,
      bits6:0 error_code */
   SANE_Byte error_code;
 
@@ -249,10 +249,10 @@ typedef struct sense_data
 #define HS2P_INQUIRY_JIS_PAGE_CODE      0xF0
 
 /*
- * The EVPD and Page Code are used in pair. When the EVPD bit is 0, INQUIRY data 
+ * The EVPD and Page Code are used in pair. When the EVPD bit is 0, INQUIRY data
  * in the standard format is returned to the initiator. When the EVPD bit is 1,
  * the EVPD information specified by each Page Code is returned in each Page Code
- * data format. 
+ * data format.
  *
  * EVPD=0x00, Page_Code=0x00      => Standard Data Format
  *
@@ -273,7 +273,7 @@ struct inquiry_standard_data
    */
   SANE_Byte devtype;		/* must be 0x06 */
 
-  /* bit7: repaceable media bit is set to 0 
+  /* bit7: repaceable media bit is set to 0
    * bits6-1: reserved
    * bit0: EVPD
    */
@@ -324,21 +324,21 @@ struct inquiry_vpd_data
   SANE_Byte pagecode;		/* Page Code  => 0xC0 */
   SANE_Byte byte2;		/* Reserved */
   SANE_Byte pagelength;		/* Page Length => 12 (0x0C) */
-  SANE_Byte adf_id;		/* ADF Identification 
+  SANE_Byte adf_id;		/* ADF Identification
 				 * 0: No ADF is mounted
 				 * 1: Single sided ADF is mounted
 				 * 2: Double sided ADF is mounted
 				 * 3: ARDF is mounted. (Reverse double side scanning available)
-				 * 4: Reserved 
+				 * 4: Reserved
 				 * It should be 1 or 2 with this scanner.
 				 */
-  SANE_Byte end_id;		/* Endorser Identification 
+  SANE_Byte end_id;		/* Endorser Identification
 				 * 0: No endorser
 				 * 1: Endorser mounted
-				 * 2: Reserved 
+				 * 2: Reserved
 				 * It should be 0 or 1 with this scanner
 				 */
-  SANE_Byte ipu_id;		/* Image Processing Unit Identification 
+  SANE_Byte ipu_id;		/* Image Processing Unit Identification
 				 * bits 7:2   Reserved
 				 * bit 1    0:Extended board not mounted
 				 *          1:Extended board is mounted
@@ -346,8 +346,8 @@ struct inquiry_vpd_data
 				 *          1:IPU is mounted
 				 * It should always be 0 with this scanner
 				 */
-  SANE_Byte imagecomposition;	/* indicates supported image data type. 
-				 * This is set to 0x37 
+  SANE_Byte imagecomposition;	/* indicates supported image data type.
+				 * This is set to 0x37
 				 * bit0 => Line art          supported ? 1:0
 				 * bit1 => Dither            supported ? 1:0
 				 * bit2 => Error Diffusion   supported ? 1:0
@@ -379,13 +379,13 @@ struct inquiry_vpd_data
 				 * bit0    => Marker Recognition supported ? 1:0
 				 * bits1-7 => Reserved
 				 */
-  SANE_Byte sizerecognition;	/* Size Detection 
+  SANE_Byte sizerecognition;	/* Size Detection
 				 * bit0    => Size Detection Supported ? 1:0
 				 * bits1-7 => Reserved
 				 */
   SANE_Byte byte13;		/* Reserved */
   SANE_Byte xmaxoutputpixels[2];	/* X Maximum Output Pixel is set to 4960 (0x1360)
-					 * indicates maximum number of pixels in the main 
+					 * indicates maximum number of pixels in the main
 					 * scanning direction that can be output by scanner
 					 */
 
@@ -440,8 +440,8 @@ struct inquiry_jis_data
 typedef struct scsi_mode_select_cmd
 {
   SANE_Byte opcode;		/* 15H                                                 */
-  SANE_Byte byte1;		/* 7-5:LUN; 4:PF; 2:Reserved; 1:SP                     
-				 * Save Page Bit must be 0 since pages cannot be saved 
+  SANE_Byte byte1;		/* 7-5:LUN; 4:PF; 2:Reserved; 1:SP
+				 * Save Page Bit must be 0 since pages cannot be saved
 				 * Page Format Bit must be 1                           */
   SANE_Byte reserved[2];
   SANE_Byte len;		/* Parameter List Length                               */
@@ -538,7 +538,7 @@ typedef struct mode_page_scanning_measurement
   SANE_Byte len;		/* Parameter Length (06H)            */
   SANE_Byte bmu;		/* Basic Measurement Unit            */
   SANE_Byte reserved0;
-  SANE_Byte mud[2];		/* Measurement Unit Divisor          
+  SANE_Byte mud[2];		/* Measurement Unit Divisor
 				 * produces an error if 0
 				 * mud is fixed to 1 for millimeter or point
 				 * point is default when scanner powers on */
@@ -574,9 +574,9 @@ typedef struct mode_page_adf_control
 				 * 01H Simplex ADF
 				 * 02H Duplex ADF
 				 * 03H-FFH Reserved                     */
-  SANE_Byte adf_mode_control;	/* 7-3:Reserved; 2:Prefeed Mode Validity 1-0:Ignored 
+  SANE_Byte adf_mode_control;	/* 7-3:Reserved; 2:Prefeed Mode Validity 1-0:Ignored
 				 * Prefeed Mode "0" means invalid, "1" means valid */
-  SANE_Byte medium_wait_timer;	/* indicates time for scanner to wait for media. Scanner 
+  SANE_Byte medium_wait_timer;	/* indicates time for scanner to wait for media. Scanner
 				 * will send CHECK on timeout. NOT SUPPORTED */
   SANE_Byte ignored[3];
 } MP_ADF;			/* ADF Control */
@@ -636,9 +636,9 @@ typedef struct scsi_mode_sense_cmd
   SANE_Byte len;		/* Allocation length */
   SANE_Byte control;		/* 7-6:Vendor Unique; 5-2:Reserved; 1:Flag; 0:Link */
 } SENSE;
-/* MODE SENSE DATA FORMAT -- 
- * The format of Sense Data to be returned is Mode Parameter Header + Page 
- * see struct scsi_mode_parameter_header 
+/* MODE SENSE DATA FORMAT --
+ * The format of Sense Data to be returned is Mode Parameter Header + Page
+ * see struct scsi_mode_parameter_header
  *     struct mode_pages
 */
 
@@ -649,8 +649,8 @@ typedef struct scsi_start_scan_cmd
   SANE_Byte byte1;		/* 7-5:LUN; 4-0:Reserved */
   SANE_Byte page_code;
   SANE_Byte reserved;
-  SANE_Byte len;		/* Transfer Length       
-				 * Length of Window List in bytes 
+  SANE_Byte len;		/* Transfer Length
+				 * Length of Window List in bytes
 				 * Since scanner supports up to 2 windows, len is 1 or 2
 				 */
   SANE_Byte control;		/* 7-6:Vendor Unique; 5-2:Reserved; 1:Flag; 0:Link */
@@ -847,7 +847,7 @@ struct window_section
  * Transfer length indicates the byte length of Window Parameters (Set Window Data Header +
  * Window Descriptor Bytes transferred from the initiator in the DATA OUT PHASE
  * The scanner supports 2 windows, so Transfer Length is 648 bytes:
- * Set Window Header 8 bytes + Window Descriptor Bytes 640 (320*2) bytes). 
+ * Set Window Header 8 bytes + Window Descriptor Bytes 640 (320*2) bytes).
  * If data length is longer than 648 bytes only the first 648 bytes are valid, The remainng data is ignored.
  * If data length is shorter than 648 only the specified byte length is valid data.
  *
@@ -874,19 +874,19 @@ struct hs2p_window_data
   SANE_Byte brightness;		/*    22: Brightness  [0-255] dark-light 0 means default value of 128 */
   SANE_Byte threshold;		/*    23: Threshold   [0-255] 0 means default value of 128            */
   SANE_Byte contrast;		/*    24: Contrast    [0-255] low-high   0 means default value of 128 */
-  SANE_Byte image_composition;	/*    25: Image Composition      
+  SANE_Byte image_composition;	/*    25: Image Composition
 				 *        00H Lineart
 				 *        01H Dithered Halftone
 				 *        02H Gray scale
 				 */
   SANE_Byte bpp;		/*    26: Bits Per Pixel         */
-  SANE_Byte halftone_code;	/*    27: Halftone Code          
+  SANE_Byte halftone_code;	/*    27: Halftone Code
 				 *        00H-01H Reserved
 				 *        02H Dither (partial Dot)
 				 *        03H Error Diffusion
 				 *        04H-07H Reserved
 				 */
-  SANE_Byte halftone_id;	/*    28: Halftone ID            
+  SANE_Byte halftone_id;	/*    28: Halftone ID
 				 *        00H Reserved
 				 *        01H 8x4, 45 degree
 				 *        02H 6x6, 90 degree
@@ -907,7 +907,7 @@ struct hs2p_window_data
 				 *             Image Composition field must be lineart or dithered halftone
 				 *             RIF=0: White=0 Black=1
 				 *             RIF=1: White=1 Black=0
-				 *        6-3: Reserved; 
+				 *        6-3: Reserved;
 				 *        2-0: Padding Type:
 				 *             00H Reserved
 				 *             01H Pad with 0's to byte boundary
@@ -940,7 +940,7 @@ struct hs2p_window_data
 				 *             100 Reserved
 				 *             110 Reserved
 				 *             111 Reserved
-				 *        3-0: Gamma ID 
+				 *        3-0: Gamma ID
 				 *             00H Normal
 				 *             01H Soft
 				 *             02H Sharp
@@ -951,7 +951,7 @@ struct hs2p_window_data
 				 */
   SANE_Byte ignored3;		/*    43: Ignored                */
   SANE_Byte ignored4;		/*    44: Ignored                */
-  SANE_Byte binary_filtering;	/*    45: Binary Filtering              
+  SANE_Byte binary_filtering;	/*    45: Binary Filtering
 				 *        0-1: Noise Removal Matrix:
 				 *             00: 3x3
 				 *             01: 4x4
@@ -965,14 +965,14 @@ struct hs2p_window_data
 				 *          Setting is ignored for reverse side because optional IPU is not valid
 				 *          for reverse side scanning
 				 */
-  /* 
+  /*
    *  The following is only available when IPU is installed:
    *  SECTION, Automatic Separation, Automatic Binarization
-   *  46-319 is ignored for Window 2       
+   *  46-319 is ignored for Window 2
    */
   SANE_Byte ignored5;		/*    46: Ignored                       */
   SANE_Byte ignored6;		/*    47: Ignored                       */
-  SANE_Byte automatic_separation;	/*    48: Automatic Separation          
+  SANE_Byte automatic_separation;	/*    48: Automatic Separation
 					 *            00H OFF
 					 *            01H Default
 					 *        02H-7FH Reserved
@@ -980,7 +980,7 @@ struct hs2p_window_data
 					 *        91H-FFH Reserved
 					 */
   SANE_Byte ignored7;		/*    49: Ignored                       */
-  SANE_Byte automatic_binarization;	/*    50: Automatic Binarization        
+  SANE_Byte automatic_binarization;	/*    50: Automatic Binarization
 					 *            00H OFF
 					 *            01H Default
 					 *            02H Enhancement of light characters
@@ -992,8 +992,8 @@ struct hs2p_window_data
   SANE_Byte ignored8[13];	/* 51-63: Ignored                       */
   struct window_section sec[8];	/* Each window can have multiple sections, each of 32 bytes long
 				 * 53-319: = 256 bytes = 8 sections of 32 bytes
-				 * IS450 supports up to 4 sections, 
-				 * IS420 supports up to 6 sections 
+				 * IS450 supports up to 4 sections,
+				 * IS420 supports up to 6 sections
 				 */
 };
 struct set_window_cmd
@@ -1031,7 +1031,7 @@ struct get_window_cmd
   SANE_Byte control;		/* 7-6:Vendor Unique; 5-2:Reserved; 1:Flag; 0:Link */
 };
 /* The data format to be returned is Get Window Data header + Window Descriptor Bytes
- * The format of Window Descriptor Bytes is the same as that for SET WINDOW 
+ * The format of Window Descriptor Bytes is the same as that for SET WINDOW
 */
 struct get_window_data_hdr
 {
@@ -1149,9 +1149,9 @@ typedef struct maintenance_data
   SANE_Byte reserved2;
   SANE_Byte zero[2];		/* All set as 0 */
 } MAINTENANCE_DATA;
-/* ADF status 1byte: 
- * 7-3:Reserved; 
- *   2:Reserved; 
+/* ADF status 1byte:
+ * 7-3:Reserved;
+ *   2:Reserved;
  *   1: '0'-ADF cover closed; '1'-ADF cover open
  *   0: '0'-Document on ADF; '1'-No document on ADF
  *
@@ -1164,7 +1164,7 @@ struct IPU
 };
 struct IPU_Auto_PhotoLetter
 {
-  /* Halftone Separations for each level 
+  /* Halftone Separations for each level
    * 256 steps of relative value with 0 the sharpest and 255 the softest
    * The relation of strength is Strength2 > Strength3 > Strength4 ...
    */
@@ -1173,7 +1173,7 @@ struct IPU_Auto_PhotoLetter
     SANE_Byte level[6];
   } halftone_separation[2];
 
-  /* 7-2:Reversed 1-0:Halftone 
+  /* 7-2:Reversed 1-0:Halftone
    * 00 Default
    * 01 Peak Detection Soft
    * 10 Peak Detection Sharp
@@ -1198,40 +1198,40 @@ struct IPU_Auto_PhotoLetter
    */
   SANE_Byte byte24;
 
-  /* 7-4:Filter A; 3-0:Filter B 
+  /* 7-4:Filter A; 3-0:Filter B
    *  FilterA: 16 types are valid from 0000 to 1111
    *  FilterB: 0000 to 1110 are valid; 1111 is not valid
    */
   SANE_Byte MTF_correction;
 
-  /* 7-4:Filter A; 3-0:Filter B 
+  /* 7-4:Filter A; 3-0:Filter B
    *  0000(soft) to 0111(sharp) are valid; 1000 to 1111 are invalid
    */
   SANE_Byte MTF_strength;
 
-  /* 7-4:Filter A; 3-0:Filter B 
+  /* 7-4:Filter A; 3-0:Filter B
    * slightly adjusts the strength of the filters
    */
   SANE_Byte MTF_adjustment;
 
-  /* 7-4:Reserved; 3-0: smoothing filter select 
+  /* 7-4:Reserved; 3-0: smoothing filter select
    * 14 kinds are valid from 0000 to 1101; 1110 to 1111 are invalid
    */
   SANE_Byte smoothing;
 
-  /* 7-2:Reversed; 1-0: Filter Select 
+  /* 7-2:Reversed; 1-0: Filter Select
    *  10 MTF Correction Select
    *  11 Smoothing Select
    *  from 00 to 01 are not valid and basically it is set as 10
    */
   SANE_Byte byte29;
 
-  /* 7-4:Reserved; 3-0: MTF Correction Filter C 
+  /* 7-4:Reserved; 3-0: MTF Correction Filter C
    * 16 kinds are valid from 0000 to 1111
    */
   SANE_Byte MTF_correction_c;
 
-  /* 7-3:Reserved; 2-0: MTF Correction Filter strength C 
+  /* 7-3:Reserved; 2-0: MTF Correction Filter strength C
    *  000(soft) to 111(sharp) are valid
    */
   SANE_Byte MTF_strength_c;

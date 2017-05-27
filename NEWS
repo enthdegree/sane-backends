@@ -7,7 +7,7 @@ New with 1.0.27 (see Note 1), released 2017-05-22:
 * 30+ new scanner models supported.
 * Made libusb-1.0 the default for USB support (see Note 2).
 * Switched code from C90 to C99 (Thanks to Volker Diels-Grabsch).
-* Updated Linux USB3 workaround (see Note 3). 
+* Updated Linux USB3 workaround (see Note 3).
 * Documentation and translation updates.
 * Bugfixes (Avahi, threading, USB, ICC/PNG/JPEG, etc).
 * Reduced compiler warnings, improved code (see Note 4).
@@ -17,7 +17,7 @@ skipped so that our development version numbers would more clearly be
 an extension of the prior release. This should make packaging a little
 easier for our downstream users.
 
-Note 2: On all systems, the --enable-libusb* flags are now ignored. 
+Note 2: On all systems, the --enable-libusb* flags are now ignored.
 Instead, the --with-usb and --without-usb flags now control support.
 When neither is given, USB support will be enabled if possible and
 disabled otherwise.  If --with-usb is requested but not possible,
@@ -113,7 +113,7 @@ New with 1.0.21, released 2010-04-25:
 New with 1.0.20, released 2009-05-03:
 
 * New backends: canon_dr (Canon DR-series), coolscan3 (Nikon LS & Coolscan),
-  rts8891 (Umax & HP 44xx), xerox_mfp (Samsung/Xerox/Dell MFPs) 
+  rts8891 (Umax & HP 44xx), xerox_mfp (Samsung/Xerox/Dell MFPs)
 * Many backends updated.
 * 75 more scanner models supported.
 * New build system (thanks Chris and Olaf).
@@ -132,7 +132,7 @@ New with 1.0.20, released 2009-05-03:
 
 New with 1.0.19, released 2008-02-10:
 
-* New backends: cardscan (Corex Cardscan 800c), epjitsu (Epson-based Fujitsu), 
+* New backends: cardscan (Corex Cardscan 800c), epjitsu (Epson-based Fujitsu),
   epson2 (various Epson scanners), hp3900 (HP ScanJet 3970 and more),
   hp5590 (HP ScanJet 5590 and more), hpljm1005 (HP LaserJet M1005 and more),
   hs2p (Ricoh IS400 series)
@@ -190,7 +190,7 @@ New with 1.0.16, released 2005-08-07:
 * Updated backends: avision, canon, coolscan, epson, gphoto2, gt68xx, mustek,
   mustek_pp, niash, plustek, plustek_pp, qcam, sm3600, snapscan, teco2,
   umax_pp, v4l.
-* More functionality/fixes for sanei_usb and sanei_pp. 
+* More functionality/fixes for sanei_usb and sanei_pp.
 * Added sanei_access to allow locking of SANE devices.
 * Hotplug updates.
 * scanimage updates.
@@ -294,7 +294,7 @@ New with 1.0.10, released 2003-02-01:
 
 New with 1.0.9, released 2002-10-24:
 
-* New backends: hpsj5s (Hewlett-Packard ScanJet 5S parport scanner), 
+* New backends: hpsj5s (Hewlett-Packard ScanJet 5S parport scanner),
   teco2 (some Relisys/Primax SCSI flatbed scanners, models VM3575, VM6565,
   VM6586 and VM6575), teco3 (some Relisys/Piotech/Trust/Plustek SCSI
   flatbed scanners, model VM3552).
@@ -314,9 +314,9 @@ New with 1.0.9, released 2002-10-24:
 
 New with 1.0.8, released 2002-05-27:
 
-* New backends: canon_pp (Canon parport scanners), canon630u (CanoScan 630u 
+* New backends: canon_pp (Canon parport scanners), canon630u (CanoScan 630u
   + 636u), coolscan2 (Nikon Coolscan LS-30, LS-40 ED, LS-4000 ED, and
-  LS-8000 ED), fujitsu (M3091, M3093, M3096 and similar scanners), 
+  LS-8000 ED), fujitsu (M3091, M3093, M3096 and similar scanners),
   leo (Leo/Across FS-1130 scanner), matsushita (Panasonic KV-SS scanners),
   sceptre (Sceptre VividScan S1200), teco1 (some Teco/Relisys flatbed
   scanners), test (test frontends and SANE installation).
@@ -341,7 +341,7 @@ New with 1.0.7, released 2002-02-04:
 * Updated backends: avision (v 1.0.15), dc240 (v 0.0), dc25 (v 1.2),
   dll (v 1.0.5), epson (v 1.0.219), gphoto2 (v 0.0), microtek2 (v 0.95),
   mustek (1.0.118), mustek_usb (v 1.0.10), plustek (v 0.41), pnm (v 1.0.4),
-  sharp (v 0.32), snapscan (v 1.4.7), st400 (v 1.6), umax (v 1.0-32), 
+  sharp (v 0.32), snapscan (v 1.4.7), st400 (v 1.6), umax (v 1.0-32),
   umax_pp (v 1.0.6).
 * Added support for translating backend options.
 * Added support for USB control messages and lm983x and pv6830 chipsets.
@@ -357,7 +357,7 @@ New with 1.0.6, released 2001-11-05:
 
 * New backends: gphoto2 (backend for gphoto2 supported cameras), mustek_usb
   (for Mustek USB scanners 600CU, 1200CU(+), 1200UB).
-* Updated backends: dc240 (v 0.0), epson (v 0.2.12), hp (0.95), 
+* Updated backends: dc240 (v 0.0), epson (v 0.2.12), hp (0.95),
   m3096g (v 1.11), microtek2 (v 0.95), mustek (v1.0-113), net (v 1.0.5),
   pie (1.0-7), pnm (1.0-2), snapscan (v 1.4.0), umax (1.0-31), umax_pp (1).
 * Added generic support for USB devices.
@@ -475,22 +475,22 @@ New with 1.01:
   Scanning from the ADF therefore should work now.
 
 * Updated Microtek backend (by Matto Marjanovic)
-   o Fixed off-by-1 error in revision-number parsing. 
-   o dump_inquiry() now prints the "Vendor Specific String". 
-   o Added model code/vendor name for the other 600ZS. 
+   o Fixed off-by-1 error in revision-number parsing.
+   o dump_inquiry() now prints the "Vendor Specific String".
+   o Added model code/vendor name for the other 600ZS.
    o Made get_scan_status() retry delay increase with each try (will
-     this help the poor 600ZS?). 
-   o Corrected base resolution for Agfa StudioScan II/IIsi (400dpi). 
+     this help the poor 600ZS?).
+   o Corrected base resolution for Agfa StudioScan II/IIsi (400dpi).
    o Disabled backend's clever aspect-ratio correction code for
      expanded-mode scans with StudioScan II/IIsi (scanner handles it
-     internally - smart scanner.) 
+     internally - smart scanner.)
    o Fixed gamma LUT code parsing stupidity: now correctly
      determines maximum allowed LUT size, and uses it. (Especially
-     necessary for StudioScan II/IIsi.) 
+     necessary for StudioScan II/IIsi.)
    o The E6 claims to only support 256-byte LUT's, but the backend
-     now ignores that misinformation (and uses 1024). 
+     now ignores that misinformation (and uses 1024).
    o Now ignores denial of expanded-mode by older E6's (model code
-     0x63), in addition to newer E6's. 
+     0x63), in addition to newer E6's.
 
 * Updated Microtek2 backend (by Bernd Schroeder)
    o Added support for non-blocking I/O.
@@ -576,8 +576,8 @@ New with 1.00:
 * Updated Microtek backend (by Matto Marjanovic).
   - Fix segfault on exit due to unnecessary free() in sane_close().
   - Fix to red channel shift bug (which crept in during rewrite of
-    color-handling code). 
-  - Addition of "patch level" to version codes. 
+    color-handling code).
+  - Addition of "patch level" to version codes.
 
 * Updated Microtek2 backend
   - Added support for ScanMaker 330, ScanMaker 636, ScanMaker E3plus,
@@ -606,25 +606,25 @@ New with 1.00:
   - Resolutions >300dpi in color mode sometimes result in corrupted images
     (parts duplicated/shifted *HORIZONTALLY*) depending on hardware
     configuration. Killing all other applications and disabling swap
-    (if sufficient physical memory available) may help. 
-    I added some code which writes to every page of the buffer prior 
+    (if sufficient physical memory available) may help.
+    I added some code which writes to every page of the buffer prior
     to scanning to fool the memory management and scanned a full page
     color scan with 600dpi * 1200dpi. Very slow but image seemed ok
-    after pnmscale.  
+    after pnmscale.
   - Max. scan area:  0-216mm (hor.), 2.5-294.5mm (ver.)
     The scanners can't scan the first 2.5mm (ver.), so you *MUST*
     specify the scan area according to this restriction!
   - The scanners support only lineart (1 bpp), gray (8 bpp), color (24 bpp).
-    Although the scanners have 10 bit (6000 SP) or 12 bit (12000 SP) 
+    Although the scanners have 10 bit (6000 SP) or 12 bit (12000 SP)
     A/D-converters, they can send only 8 bit values to the host.
     The higher resolution may only be used via gamma table.
   - For compatibility only 256 entry gamma tables may be specified, the
     actual gamma table sent to the scanner is linearly interpolated from it.
-  - In lineart mode only brightness may be adjusted. 
+  - In lineart mode only brightness may be adjusted.
   - Cover open/closed reported only via debug output and ignored otherwise.
   - Use of SCSI card supplied with scanner is *NOT* recommended. (Don't
     forget termination!)
-  
+
 * Updated UMAX backend (by Oliver Rauch)
   - added output of umax-backend-version in sane_init
   - added Linotype Hell Jade2 (Vobis ScanBoostar Premium)
@@ -696,13 +696,13 @@ New with 0.74:
    but the code is now leaner and cleaner.
  o fixed the bugs that the backend didn't compile with non gcc compilers.
  o added an option to control exposure times.
- o rewrote the code that processes the data that is received from the 
+ o rewrote the code that processes the data that is received from the
    scanner and transfers it into the frontend buffer. The smallest unit of
    data that can be copied into the frontend buffer is now a pixel, no
    longer a complete line.
  o added (a yet) undocumented option "strip-height" that allows to control
    the number of lines that is read from the scanner with one "read image".
- o fixed a bug that caused scanimage to sigsegv when calling sane_exit() 
+ o fixed a bug that caused scanimage to sigsegv when calling sane_exit()
    without having written all data into the output file.
  o added code to support scanners with more than 8 bit output per color.
    Due to the lack of such a scanner this functionality is COMPLETELY UNTESTED
@@ -727,20 +727,20 @@ New with 0.74:
 * Updated Nikon Coolscan backend (by Didier Carlier).
 
 * Updated UMAX backend (by Oliver Rauch):
-  o Cancelling a scan now works, cancelling a preview still makes problems! 
+  o Cancelling a scan now works, cancelling a preview still makes problems!
   o Preview fix is activated for Astra 600S, Astra 610S and Vista S6E
-    scanners. (calibration by driver still does not work for these scanners). 
-     - removed button for preview patch 
-  o Quality calibration / calibration by driver now works for same scanners. 
-     - added selection for type of shading data calculation 
-  o Solved problem with black area at top of the image 
-    (happend only with some SCSI-adapters). 
-  o Added gamma download format type 0 and type 1 for older scanners. 
-  o Added Astra 1220S as supported scanner: 
-     - added 36 gamma input bits support for Astra 1220S 
+    scanners. (calibration by driver still does not work for these scanners).
+     - removed button for preview patch
+  o Quality calibration / calibration by driver now works for same scanners.
+     - added selection for type of shading data calculation
+  o Solved problem with black area at top of the image
+    (happend only with some SCSI-adapters).
+  o Added gamma download format type 0 and type 1 for older scanners.
+  o Added Astra 1220S as supported scanner:
+     - added 36 gamma input bits support for Astra 1220S
      - added 36 output bits support, but there is no frontend that can
-       handle it! 
-  o Added inquiry for Escom Image Scanner 256 (UMAX UG80). 
+       handle it!
+  o Added inquiry for Escom Image Scanner 256 (UMAX UG80).
 
 * OS/2 (by Yuri Dario):
   o Updated SCSI support so sanei_scsi_find_devices is supported now.
@@ -786,7 +786,7 @@ New with 0.73:
        - scalar gamma correction.
 
   Options that are not yet supported include:
-   
+
        - 3-pass scanners
        - more than 8 bit per color output data. Provisions are made here
          and there in the code, to support more than 8 bit, but that's

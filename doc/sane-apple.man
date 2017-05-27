@@ -216,7 +216,7 @@ SANE_DEBUG_APPLE to 255 and rerun the exact sequence of keystrokes
 and menu selections to reproduce it. Then send me a report with the
 log attached.
 .PP
-If you have an Apple Macintosh with the AppleScanners driver installed, 
+If you have an Apple Macintosh with the AppleScanners driver installed,
 reporting to me which options are grayed out (inactive) in what modes
 would be very helpful.
 .PP

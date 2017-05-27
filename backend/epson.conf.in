@@ -16,7 +16,7 @@ scsi "EPSON SC"
 # There are two different methods of configuring a USB scanner: libusb and the kernel module
 # For any system with libusb support (which is pretty much any recent Linux distribution) the
 # following line is sufficient. This however assumes that the connected scanner (or to be more
-# accurate, it's device ID) is known to the backend. 
+# accurate, it's device ID) is known to the backend.
 usb
 # For libusb support for unknown scanners use the following command
 # usb <product ID> <device ID>

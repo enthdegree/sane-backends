@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -154,7 +154,7 @@ static const SANE_Range default_y_range =
 
 static inline void
 _lto2b(SANE_Int val, SANE_Byte *bytes)
-        
+
 {
 
         bytes[0] = (val >> 8) & 0xff;
@@ -163,7 +163,7 @@ _lto2b(SANE_Int val, SANE_Byte *bytes)
 
 static inline void
 _lto3b(SANE_Int val, SANE_Byte *bytes)
-       
+
 {
 
         bytes[0] = (val >> 16) & 0xff;
@@ -214,7 +214,7 @@ _4btol(SANE_Byte *bytes)
         return (rv);
 }
 
-typedef enum 
+typedef enum
   {
     OPT_NUM_OPTS = 0,
 
@@ -374,7 +374,7 @@ struct measurements_units_page {
 };
 
 struct mode_pages {
-        SANE_Byte page_code; 
+        SANE_Byte page_code;
         SANE_Byte parameter_length;
         SANE_Byte rest[14];  /* modified by mf; it was 6; see above */
 #if 0

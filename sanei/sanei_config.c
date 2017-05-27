@@ -227,7 +227,7 @@ sanei_config_read (char *str, int n, FILE *stream)
    while( isspace( *start))
       start++;
 
-   if (start != str) 
+   if (start != str)
       do {
          *str++ = *start++;
       } while( *str);
@@ -266,7 +266,7 @@ sanei_configure_attach (const char *config_file, SANEI_Config * config,
     }
 
   /* loop reading the configuration file, all line beginning by "option " are
-   * parsed for value to store in configuration structure, other line are 
+   * parsed for value to store in configuration structure, other line are
    * used are device to try to attach
    */
   while (sanei_config_read (line, PATH_MAX, fp) && status == SANE_STATUS_GOOD)
@@ -292,7 +292,7 @@ sanei_configure_attach (const char *config_file, SANEI_Config * config,
 
       /* to ensure maximum compatibility, we accept line like:
        * option "option_name" "option_value"
-       * "option_name" "option_value" 
+       * "option_name" "option_value"
        * So we parse the line 2 time to find an option */
       /* check if it is an option */
       lp = sanei_config_get_string (lp, &token);
@@ -405,7 +405,7 @@ sanei_configure_attach (const char *config_file, SANEI_Config * config,
 		       config->descriptors[i]->type,
 		       config->descriptors[i]->name);
 		}
-	      
+
 	      /* check decoded value */
 	      status = sanei_check_value (config->descriptors[i], value);
 
@@ -438,7 +438,7 @@ sanei_configure_attach (const char *config_file, SANEI_Config * config,
 	  /* to avoid every backend to depend on scsi and usb functions
 	   * we call back the backend for attach. In turn it will call
 	   * sanei_usb_attach_matching_devices, sanei_config_attach_matching_devices
-	   * or other. This means 2 callback functions per backend using this 
+	   * or other. This means 2 callback functions per backend using this
 	   * function. */
 	  DBG (3, "sanei_configure_attach: trying to attach with '%s'\n",
 	       lp2);

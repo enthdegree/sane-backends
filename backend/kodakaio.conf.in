@@ -9,7 +9,7 @@
 # snmp-timeout controls auto-detection timeout in ms (1500=1.5s).
 snmp-timeout 2000
 
-# scan-data-timeout controls the timeout for scan data 
+# scan-data-timeout controls the timeout for scan data
 # (scans may take several seconds to initialize, so we need to wait longer)
 scan-data-timeout 10000
 

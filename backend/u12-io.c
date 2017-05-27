@@ -182,7 +182,7 @@ gl640WriteControl(int fd, GL640_Request req, u_char * data, unsigned int size)
 				  /* ind */ 0,
 				  /* len */ size,
 				  /* dat */ data);
-	
+
 	if( status != SANE_STATUS_GOOD ) {
 		DBG( _DBG_ERROR, "gl640WriteControl error\n");
 	}
@@ -507,7 +507,7 @@ static SANE_Status u12io_DataToRegs( U12_Device *dev, SANE_Byte *buf, int len )
 	return SANE_STATUS_GOOD;
 }
 
-/** write data to the DAC 
+/** write data to the DAC
  */
 static void
 u12io_DataRegisterToDAC( U12_Device *dev, SANE_Byte reg, SANE_Byte val )
@@ -619,7 +619,7 @@ static SANE_Bool u12io_IsConnected( U12_Device *dev )
 			dev->mode = mode ;
 		}
 		return SANE_FALSE;
-	} 
+	}
 
 	u12io_SwitchToEPPMode( dev );
 	DBG( _DBG_INFO, "* Scanner is connected!\n" );
@@ -693,7 +693,7 @@ static SANE_Status u12io_DownloadScanStates( U12_Device *dev )
 	                     dev->scanStates, _SCANSTATE_BYTES ));
 	bulk_setup_data[1] = 0x11;
 
-/* FIXME: refreshState probably always FALSE */	
+/* FIXME: refreshState probably always FALSE */
 	if( dev->scan.refreshState ) {
 
 		u12io_RegisterToScanner( dev, REG_REFRESHSCANSTATE );
@@ -724,7 +724,7 @@ static void u12io_PutOnAllRegisters( U12_Device *dev )
 
 	c  = 0;
 	rb = buf;
-    
+
 	*(rb++) = REG_MODECONTROL;
 	*(rb++) = dev->regs.RD_ModeControl;
 	c++;
@@ -780,7 +780,7 @@ static u_long u12io_GetFifoLength( U12_Device *dev )
 		DBG( _DBG_READ, "Using cached FIFO len\n" );
 		memcpy( data, cacheLen, 13 );
 		u12io_ResetFifoLen();
-		
+
 	} else {
 
 		memset( bulk_setup_data, 0, 8 );

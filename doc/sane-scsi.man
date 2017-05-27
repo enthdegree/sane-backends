@@ -21,9 +21,9 @@ to the generic SCSI device that the scanner is connected to.  In this
 case, the configuration file simply lists the line
 .BR /dev/scanner .
 For a detailed description of each backend's configuration file,
-please refer to the relevant backend manual page (e.g., 
+please refer to the relevant backend manual page (e.g.,
 .BR sane\-epson (5)
-for Epson scanners, 
+for Epson scanners,
 .BR sane\-hp (5)
 for HP scanners, etc.).
 .PP
@@ -65,7 +65,7 @@ will be probed by the backend one by one and registered if the backend thinks
 it is a compatible device.  For example, the line
 .PP
 .RS
-scsi MUSTEK MFS\-06000CX Scanner 0 00 03 00 
+scsi MUSTEK MFS\-06000CX Scanner 0 00 03 00
 .RE
 .PP
 would attach the Mustek SCSI scanner with the following /proc/scsi/scsi entry:
@@ -84,7 +84,7 @@ Usually it's sufficient to use vendor and model strings only or even only the
 vendor string. The following example
 .PP
 .RS
-scsi MUSTEK * * * * * * 
+scsi MUSTEK * * * * * *
 .RE
 .PP
 would have the effect that all SCSI devices in the system with a
@@ -188,10 +188,10 @@ version 2.2.7 on. If the new SG driver is available some backends
 buffers. If a backend does not automatically request a larger scsi buffer, set
 the environment variable
 .B SANE_SG_BUFFERSIZE
-to the desired buffer size in bytes. It is not recommended to use more 
-than 1 MB, because for large values the probability increases that the 
-SG driver cannot allocate the necessary buffer(s). For ISA cards, even 
-1 MB might be a too large value. For a detailed discussion of memory 
+to the desired buffer size in bytes. It is not recommended to use more
+than 1 MB, because for large values the probability increases that the
+SG driver cannot allocate the necessary buffer(s). For ISA cards, even
+1 MB might be a too large value. For a detailed discussion of memory
 issues of the SG driver, see http://www.torque.net/sg.
 .PP
 For Linux kernels before version 2.2.7 the size of the buffer is only 32KB.
@@ -266,7 +266,7 @@ therefore while a scan is in progress, the system becomes almost unusable.
 You may change the values of the USLEEP macros in drivers/scsi/g_NCR5380.c.
 Some documentation is in this file and NCR5380.c.
 .TP
-NCR/Symbios 810 
+NCR/Symbios 810
 For some scanners it may be necessary to disable disconnect/reconnect. To
 achieve this use the option ncr53c8xx="disc:n". Some people reported that
 their scanner only worked with the 53c7,8xx driver, not the ncr53c8xx. Try
@@ -315,7 +315,7 @@ of 255 also prints kernel messages from the SCSI subsystem (where available).
 Smaller levels reduce verbosity.
 .TP
 .B SANE_SCSICMD_TIMEOUT
-sets the timeout value for SCSI commands in seconds. Overriding the default 
+sets the timeout value for SCSI commands in seconds. Overriding the default
 value of 120 seconds should only be necessary for very slow scanners.
 
 .SH "SEE ALSO"

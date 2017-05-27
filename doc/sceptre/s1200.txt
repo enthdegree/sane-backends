@@ -30,13 +30,13 @@ Vendor Spec
 02 00 00 00 04 00
   Get 4 bytes of status. Used to check the button.
   Default result when the button is not pressed
-    06 00 00 00 
+    06 00 00 00
 
 INQUIRY
   result:
-    06 00 02 02 30 00 00 10  4b 49 4e 50 4f 20 20 20    ....0...KINPO       
-    56 69 76 69 64 73 63 61  6e 20 53 31 32 30 20 20    Vividscan S120      
-    53 31 33 20 20 20 20 20  02 01 00 00 4a 45 46 46    S13     ....JEFF    
+    06 00 02 02 30 00 00 10  4b 49 4e 50 4f 20 20 20    ....0...KINPO
+    56 69 76 69 64 73 63 61  6e 20 53 31 32 30 20 20    Vividscan S120
+    53 31 33 20 20 20 20 20  02 01 00 00 4a 45 46 46    S13     ....JEFF
     ...
 
 MODE SEL
@@ -55,15 +55,15 @@ SET WINDOW
 24 00 00 00 00 00 00 00 52 00
   The window size is always 0x52 bytes. The parameters look standard:
     - X/Y resolution       |
-    - Upper left X,Y       |- all three coded in 600 dpi units 
+    - Upper left X,Y       |- all three coded in 600 dpi units
     - Width, Length        |
-    
+
   The supported scan modes are:
     - lineart image comp=0, halftone=0, depth=1
     - halftone image comp=0, haltone=1 to 4, depth=1
     - grayscale image comp=2,  halftone=0, depth=8
     - color image comp=5, halftone=0, depth=24
-  
+
   Y resolution is not used (X is also used for Y)
   X resolution is limited to 600 (if above, scanner defaults to 600)
   Y resolution is limited to 1200 (if above, scanner defaults to 1200)

@@ -51,7 +51,7 @@
 
 	* backend/niash_core.c backend/niash.c: moving critical timing
           for backward movement to niash_core
-          
+
 2004-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc
@@ -84,7 +84,7 @@
 
 2004-10-19  Gerhard Jaeger <gerhard@gjaeger.de>
 
-	* backend/plustek.c: Using now the same strings for gain and offset 
+	* backend/plustek.c: Using now the same strings for gain and offset
 	  like the umax_pp backend (bug #300962).
 	* doc/plustek/Plustek-USB.changes: Update.
 	* po/*.po: Update due to changes in the Plustek backend.
@@ -97,8 +97,8 @@
 
 2004-10-18  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
-	* backend/niash_core.c: 
-	* backend/niash.c: correcting vertical scanning start 
+	* backend/niash_core.c:
+	* backend/niash.c: correcting vertical scanning start
 	  point for changed max. page height
 
 2004-10-17  Ullrich Sigwanz <usigwanz@freesurf.ch>
@@ -136,7 +136,7 @@
 2004-10-17  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
 	* backend/niash_core.c: rewrote buffer portioning
-	* backend/niash_core.c (2): updated debug info 
+	* backend/niash_core.c (2): updated debug info
 	* backend/niash.c: Enabling support of full DIN A4 size
 
 2004-10-16  Oliver Rauch <Oliver.Rauch@Rauch-DOmain.DE>
@@ -147,8 +147,8 @@
 
 	* doc/descriptions/unsupported.desc: Added various scanners.
 	* po/sane-backends.da.po: Updated Danish translation (from Mogens
-	  Jaeger <mogensjaeger@get2net.dk>). 
-	
+	  Jaeger <mogensjaeger@get2net.dk>).
+
 2004-10-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* include/sane/sanei_wire.h sanei/sanei_wire.c: Limit the total
@@ -184,7 +184,7 @@
 	* acinclude.m4 config.guess config.sub configure ltmain.sh: Update
 	  to libtool 1.5.10.
 	* doc/descriptions/unsupported.desc: Added link to
-	  Microtek Filmscan 35. 
+	  Microtek Filmscan 35.
 	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_high.c
 	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES:
 	  Fixed typos. Added Packard Bell Diamond 2450 to .conf and
@@ -204,7 +204,7 @@
 
 	* backend/fujitsu.c: bugfix: 3091 did not work (15.12.2003)
 	  M4099 supported (bw only)
-	  enables brightness 
+	  enables brightness
 
 2004-10-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -229,14 +229,14 @@
 	  function _UnScrambleLine
 	* doc/descriptions/niash.desc: changed status to complete
 	  removed the color only comment
-  
+
 2004-10-06  Gerhard Jaeger <gerhard@gjaeger.de>
 
-	* backend/plustek.c backend/u12.c backend/plustek_pp.c: 
+	* backend/plustek.c backend/u12.c backend/plustek_pp.c:
 	  Using now the well known MODE definitions.
 	* backend/plustek.h backend/plustek-usb.h: Cleanup.
-	* doc/plustek/Plustek-USB.changes 
-	  doc/plustek/Plustek-Parport.changes doc/u12/U12.changes: 
+	* doc/plustek/Plustek-USB.changes
+	  doc/plustek/Plustek-Parport.changes doc/u12/U12.changes:
 	  Update.
 	* po/*.po: Update.
 
@@ -244,7 +244,7 @@
 
 	* backend/microtek2.h doc/descriptions/microtek2.desc: New
 	  version: 0.96. Added Genius ColorPage-EP (from Karsten Festag
-	  <karsten.festag@gmx.de>). 
+	  <karsten.festag@gmx.de>).
 	* doc/descriptions/unsupported.desc: Added link to artiscan 9600
 	  project. Removed Genius ColorPage-EP.
 	* configure.in include/sane/config.h.in: Removed dangling
@@ -256,7 +256,7 @@
 	* tools/sane-find-scanner.c: Fixed compilation problem when
 	  compiled without libusb support. Print sane-backends version
 	  number. Print if built without libusb.
-	
+
 	* backend/microtek2.c backend/microtek2.h: Added backend version
 	  200410042220 from Karsten Festag <karsten.festag@gmx.de>.  While
 	  attaching devices only read attributes from source 0 (=
@@ -276,7 +276,7 @@
 	  descriptors from /proc/bus/usb/devices dumps (e.g. from the
 	  unsupported scanner web pages). Minor modifications to some of
 	  the chipset tests.
-	
+
 2004-10-04  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* backend/hp.h backend/hp.c backend/hp-scl.c:
@@ -291,14 +291,14 @@
 
 2004-10-03  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 
-	* backend/hp5400_debug.c backend/hp5400_debug.h 
-	  backend/hp5400_internal.c backend/hp5400_sane.c: 
+	* backend/hp5400_debug.c backend/hp5400_debug.h
+	  backend/hp5400_internal.c backend/hp5400_sane.c:
 	  removing more hp5400 compilation warnings
 
 2004-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Nikon LS-5000 ED (bug
-	  #300972). 
+	  #300972).
 	* include/sane/saneopts.h: Added option for turning off the
 	  scanner's lamp on exit (bug #300963).
 	* backend/gt68xx.c backend/gt68xx_high.h: Used new lamp option
@@ -330,11 +330,11 @@
 
 	* backend/hp5400_internal.c backend/hp5400_internal.h
 	  backend/hp5400_sanei.c backend/hp5400_sanei.h
-	  backend/hp5400_sane.c: 
+	  backend/hp5400_sane.c:
 	  removing some compilation warnings
 
 2004-10-02  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
-	
+
 	* backend/hp5400_internal.c: hp5400 version mathing test
           has been removed by default.
           To enable it :
@@ -372,7 +372,7 @@
 	* doc/descriptions/unsupported.desc: Added Compeye Simplex 1236C.
 
 2004-09-14  Karl Heinz Kremer <khk@khk.net>
-	
+
 	* backend/epson_usb.c: add USB device ID for CX6400 back in
 	* backend/epson.c: disable "feed" command for Perfection 1640 w/ ADF
 
@@ -389,7 +389,7 @@
 	  doc/descriptions-external/genesys.desc: Moved HP 35xx series to
 	  unsupported.desc because these scanners use a RTS8801 chip (no
 	  Genesys chipset).
-	
+
 2004-09-06  Jochen Eisinger <jochen@penguin-breeder.org>
 
 	* backend/mustek_pp.c: clarify error message
@@ -400,7 +400,7 @@
 
 	* backend/plustek.c: Bumped build number.
 	* backend/plustek-usbdevs.c: Fixed bug #300913.
-	
+
 2004-09-05  Julien Blache <jb@jblache.org>
 
 	* More auth_callback() fixes, although they're not critical.
@@ -423,7 +423,7 @@
 	  to gt68xx.conf to test yet unsupported scanners without changing
 	  the source code.
 	* frontend/.cvsignore: Added tstbackend.
-	
+
 2004-09-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan-options.c
@@ -540,9 +540,9 @@
 	* backend/dll.conf: Added niash backend.
 	* backend/Makefile.in: Added niash backend files and target.
 	* backend/niash.c backend/niash_core.c backend/niash_core.h
-	  backend/niash-xfer.c backend/niash-xfer.h backend/niash-types.h: 
+	  backend/niash-xfer.c backend/niash-xfer.h backend/niash-types.h:
 	  Niash backend files, initial checkin.
-	* doc/sane-niash.man, doc/descriptions/niash.desc, doc/niash/niash.TODO: 
+	* doc/sane-niash.man, doc/descriptions/niash.desc, doc/niash/niash.TODO:
 	  Initial checkin.
 	* doc/Makefile.in: Added niash documentation stuff.
 	* doc/sane-man: Added niash manpage.
@@ -559,15 +559,15 @@
 2004-07-28  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* doc/descriptions/unsupported.desc: Added Logitech PageScan USB and
-	  Grandtek Scopecam 
+	  Grandtek Scopecam
 
 2004-07-26  Gerhard Jaeger <gerhard@gjaeger.de>
 
-	* sanei/sanei_usb.c sanei/sanei configure configure.in: Added 
+	* sanei/sanei_usb.c sanei/sanei configure configure.in: Added
 	  resource manager library support.
 	* backend/plustek.[ch] backend/plustek-usbdevs.c backend/plustek-usbhw.c
-	  backend/plustek-usbshading.c backend/plustek.conf: Added speedup 
-	  parameters and TPA autodetection for UMAX3400/3450, added 
+	  backend/plustek-usbshading.c backend/plustek.conf: Added speedup
+	  parameters and TPA autodetection for UMAX3400/3450, added
 	  disableSpeedup option.
 	* doc/plustek/Plustek-USB-TODO.txt doc/plustek/Plustek-USB.changes
 	  doc/descriptions/plustek.desc: Updated.
@@ -580,7 +580,7 @@
 
 2004-07-18  Karl Heinz Kremer <khk@khk.net>
 
-	* doc/descriptions/epson.desc: Added CX-5400, RX-500 and RX-600; updated version 
+	* doc/descriptions/epson.desc: Added CX-5400, RX-500 and RX-600; updated version
 	* doc/descriptions/unsupported.desc: Removed RX-500
 
 2004-07-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -592,21 +592,21 @@
 
 2004-07-16  Gerhard Jaeger <gerhard@gjaeger.de>
 
-	* doc/plustek/Makefile.module doc/plustek/BUILD 
+	* doc/plustek/Makefile.module doc/plustek/BUILD
 	  doc/plustek/VERSION0 doc/plustek/VERSION1: Removed, no longer needed.
 	* doc/plustek/Makefile.kernel2x doc/plustek/MakeModule.sh:
 	  Getting version information now out of the backends main file.
 	* doc/plustek/Plustek_PARPORT.changes: Updated.
 	* doc/descriptions/plustek_pp.desc: Updated.
 	* doc/sane-plustek.man: Fixed typo.
-	* backend/plustek-pp.[ch], backend/plustek-pp_*.[ch]: 
-	  Added DevFS support for kernel 2.6, removed floating point 
+	* backend/plustek-pp.[ch], backend/plustek-pp_*.[ch]:
+	  Added DevFS support for kernel 2.6, removed floating point
 	  operations (Thanx to Rafal Rzepecki), bumped up build number,
 	  cleanup work.
 	* doc/plustek/Plustek_USB.changes: Updated.
 	* backend/plustek.c: Bumped up build number
 	* backend/plustek-usbshading.c: Improved autowarmup, cleanup work.
-	* backend/plustek-usb.h backend/plustek-usbdevs.c 
+	* backend/plustek-usb.h backend/plustek-usbdevs.c
 	  backend/plustek-usbhw.c backend/plustek-usnscan.c: Improved
 	  fastforward stuff, cleanup work.
 	* sanei/sanei_lm983x.c: Cleanup work.
@@ -618,7 +618,7 @@
 
 2004-07-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/sane-coolscan2.man doc/sane-microtek2.man: Fixed 
+	* doc/sane-coolscan2.man doc/sane-microtek2.man: Fixed
 	  manual page problems.
 
 2004-07-10  Gerard Klaver <gerard at gkall dot hobby dot nl>
@@ -646,14 +646,14 @@
 	* doc/descriptions/plustek.desc: Changed status of CanoScan D660U.
 	* doc/plustek/Plustek-USB*: Update.
 	* backend/plustek.c: Bumped up build number.
-	* backend/plustek-usb.[ch] backend/plustek-usbdevs.c 
-	  backend/plustek-usbhw.c backend/plustek-usbimg.c 
+	* backend/plustek-usb.[ch] backend/plustek-usbdevs.c
+	  backend/plustek-usbhw.c backend/plustek-usbimg.c
 	  backend/plustek-usbmap.c backend/plustek-usbscan.c: Added support
 	  for binary scanning for the CanoScan D660U, cleanup work.
 
 2004-07-03  Peter Fales <peter@fales-lorenz.net>
 
-	* acinclude.m4, aclocal.m4, configure, tools/sane-config.in: 
+	* acinclude.m4, aclocal.m4, configure, tools/sane-config.in:
 	  When using pkg-config to get library flags for gphoto2, any
 	  extra flags (such as -L) must be passed to sane-config.in so
 	  that it can find the libraries in a non-standard location.
@@ -666,7 +666,7 @@
 	  doc/plustek/Plustek-USB.changes.
 	* doc/sane-plustek.man: Update.
 	* doc/plustek/Plustek-USB.changes: Update.
-	* doc/descriptions/plustek.desc: Removed unsupported devices, 
+	* doc/descriptions/plustek.desc: Removed unsupported devices,
 	  updated some states.
 	* doc/descriptions/plustek_pp.desc: URL update.
 	* doc/descriptions/u12.desc: URL update, changed state of backend.
@@ -675,21 +675,21 @@
 
 2004-06-30  Frank Zago  <fzago at austin dot rr dot com>
 
-	* backend/leo.c doc/descriptions/leo.desc: added support for 
+	* backend/leo.c doc/descriptions/leo.desc: added support for
 	  Genius FS-1130 Colorpage Scanner.
 
 2004-06-30  Gerhard Jaeger <gerhard@gjaeger.de>
 
-	* doc/plustek/Makefile.kernel26: fixed floating point issues 
+	* doc/plustek/Makefile.kernel26: fixed floating point issues
 	  for SuSE kernels.
 
 2004-06-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Microtek and Xerox
 	  scanners.
-	* tools/sane-desc.c: Added xml output (patch from 
+	* tools/sane-desc.c: Added xml output (patch from
 	  jose <jgato@lambdaux.com>). Other minor fixes.
-	
+
 2004-06-28 m. allan noah <anoah at pfeiffer dot edu>
 
 	* backend/fujitsu.c: use model code instead of string compare
@@ -697,7 +697,7 @@
 
 2004-06-21  Gerhard Jaeger <gerhard@gjaeger.de>
 
-	* doc/descriptions/unsupported.desc: removed Compac S4 100 
+	* doc/descriptions/unsupported.desc: removed Compac S4 100
 	  (supported by the Plustek backend), added various Plustek
 	  devices, changed OpticPro m12 to OpticSlim M12
 
@@ -720,7 +720,7 @@
 
 2004-06-20  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
-	* aclocal.m4, configure, sane/config.h.in, backend/Makefile.in, 
+	* aclocal.m4, configure, sane/config.h.in, backend/Makefile.in,
 	  backend/agfafocus.c, backend/artec_eplus48u.c, backend/avision.c,
 	  backend/coolscan.c, backend/fujitsu.c, backend/pie.c,
 	  backend/plustek.c, backend/plustek_pp.c, backend/sp15c.c,
@@ -775,14 +775,14 @@
 
 2004-06-17  Stéphane Voltz <svoltz@wanadoo.fr>
 
-	* backend/umax_pp_low.c doc/descriptions/umax_pp.desc 
+	* backend/umax_pp_low.c doc/descriptions/umax_pp.desc
 	  doc/sane-umax_pp.man:
 	  fixed overflows in 610P shading calibration coefficients,
 	  minor man update, 610P status change from minimal to good
 
 2004-06-16  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
-	* backend/snapscan.h backend/snapscan.c backend/snapscan-usb.c: 
+	* backend/snapscan.h backend/snapscan.c backend/snapscan-usb.c:
 	  Don't enforce even number of URB packages on 1212u_2 since
 	  it causes problems. See bug #300753.
 
@@ -811,7 +811,7 @@
 2004-06-13  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/sane_usb.c: Added Perfection 1650 back in that was removed by
-	  mistake and finally removed Perfection 1250. 
+	  mistake and finally removed Perfection 1250.
 
 2004-06-12  Stéphane Voltz <svoltz@wanadoo.fr>
 
@@ -888,7 +888,7 @@
 
 2004-05-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* backend/sp15c.c: Fixed the fix of the sanei_thread fix 
+	* backend/sp15c.c: Fixed the fix of the sanei_thread fix
 	 (from Mattias Ellert).
 
 2004-05-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -947,7 +947,7 @@
 
 2004-05-18  Michael Herder <crapmail@nurfuerspam.de>
 
-	* backend/Makefile.in: 
+	* backend/Makefile.in:
 	  adjusted for use with sanei_thread and artec_eplus48u backend
 	  (thanks Mattias Ellert)
 
@@ -968,19 +968,19 @@
 
 2004-05-15  Michael Herder <crapmail@nurfuerspam.de>
 
-	* backend/artec_eplus48u.c backend/artec_eplus48u.h: 
+	* backend/artec_eplus48u.c backend/artec_eplus48u.h:
 	  applied patch from Mattias Ellert (thanks), which adds support
 	  for sanei_thread
 
 2004-05-15  Stéphane Voltz <svoltz@wanadoo.fr>
 
-	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c: fixed 
+	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c: fixed
 	  origin shift bug for 610P. Added on guard against configuration
 	  that can put several 'port' option in conf file.
 
 2004-05-13  Stéphane Voltz <svoltz@wanadoo.fr>
 
-	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c: fixed 
+	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c: fixed
 	  data lines reordering for 610P
 
 2004-05-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -1011,11 +1011,11 @@
 
 	* tools/hotplug/libsane.usbmap: removed empty lines, latest
 	  hotplug cannot cope with them
-	
+
 2004-03-15  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c
-	  backend/umax_pp_mid.h backend/umax_pp.c backend/umax_pp.h 
+	  backend/umax_pp_mid.h backend/umax_pp.c backend/umax_pp.h
 	  tools/umax_pp.c:   added support for 610P
 
 2004-05-01  Henning Meier-Geinitz <henning@meier-geinitz.de>

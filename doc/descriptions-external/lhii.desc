@@ -16,7 +16,7 @@
                                   ; :yes or :no
 ;:manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://www.sane-project.org/backends/lhii/lhii-v0.2.tgz" ; backend's web page
-:comment "This backend is for old handscanners with proprietary adapter cards. You also need a kernel driver. You may find such drivers at that page: http://www.willamowius.de/scanner.html ." 
+:comment "This backend is for old handscanners with proprietary adapter cards. You also need a kernel driver. You may find such drivers at that page: http://www.willamowius.de/scanner.html ."
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....

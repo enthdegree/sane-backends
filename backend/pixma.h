@@ -104,7 +104,7 @@ typedef uint16_t uint16_t;
 typedef uint32_t uint32_t;
 #endif /* HAVE_STDINT_H */
 
-#ifdef HAVE_INTTYPES_H 
+#ifdef HAVE_INTTYPES_H
 # include <inttypes.h>          /* available in ISO C99 */
 #endif /* HAVE_INTTYPES_H */
 
@@ -278,7 +278,7 @@ struct pixma_scan_param_t
      *  line_size >= depth / 8 * channels * w <br>
      *  This field will be set by pixma_check_scan_param(). */
   uint64_t line_size;
-  
+
     /** Size in bytes of the whole image.
      *  image_size = line_size * h <br>
      *  This field will be set by pixma_check_scan_param(). */
@@ -310,7 +310,7 @@ struct pixma_scan_param_t
   unsigned x, y, w, h,   xs, wx;
   /*@} */
 
-  /** Flag indicating whether the offset correction for TPU scans 
+  /** Flag indicating whether the offset correction for TPU scans
    *  was already performed (to avoid repeated corrections).
    *  Currently only used in pixma_mp810.c sub-driver */
   unsigned tpu_offset_added;

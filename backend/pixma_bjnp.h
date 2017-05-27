@@ -43,7 +43,7 @@
    If you do not wish that, delete this exception notice.
 */
 /** @file sanei_bjnp.h
- * This file provides a generic BJNP interface.  
+ * This file provides a generic BJNP interface.
  */
 
 #ifndef sanei_bjnp_h
@@ -65,7 +65,7 @@ extern void sanei_bjnp_init (void);
 
 /** Find scanners responding to a BJNP broadcast.
  *
- * The function sanei_bjnp_attach is called for every device which has 
+ * The function sanei_bjnp_attach is called for every device which has
  * been found.
  * Serial is the address of the scanner in human readable form of max
  * SERIAL_MAX characters
@@ -91,9 +91,9 @@ sanei_bjnp_find_devices (const char **conf_devices,
 /** Open a BJNP device.
  *
  * The device is opened by its name devname and the device number is
- * returned in dn on success.  
+ * returned in dn on success.
  *
- * Device names consist of an URI                                     
+ * Device names consist of an URI
  * Where:
  * method = bjnp
  * hostname = resolvable name or IP-address
@@ -112,7 +112,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
 extern SANE_Status sanei_bjnp_open (SANE_String_Const devname, SANE_Int * dn);
 
 /** Close a BJNP device.
- * 
+ *
  * @param dn device number
  */
 
@@ -133,7 +133,7 @@ extern SANE_Status sanei_bjnp_activate (SANE_Int dn);
 extern SANE_Status sanei_bjnp_deactivate (SANE_Int dn);
 
 /** Set the libbjnp timeout for bulk and interrupt reads.
- * 
+ *
  * @param devno device number
  * @param timeout the new timeout in ms
  */
@@ -152,7 +152,7 @@ extern void sanei_bjnp_set_timeout (SANE_Int devno, SANE_Int timeout);
  * @param buffer buffer to store read data in
  * @param size size of the data
  *
- * @return 
+ * @return
  * - SANE_STATUS_GOOD - on succes
  * - SANE_STATUS_EOF - if zero bytes have been read
  * - SANE_STATUS_IO_ERROR - if an error occured during the read
@@ -171,7 +171,7 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size);
  * @param buffer buffer to write to device
  * @param size size of the data
  *
- * @return 
+ * @return
  * - SANE_STATUS_GOOD - on succes
  * - SANE_STATUS_IO_ERROR - if an error occured during the write
  * - SANE_STATUS_INVAL - on every other error
@@ -188,7 +188,7 @@ sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size);
  * @param buffer buffer to store read data in
  * @param size size of the data
  *
- * @return 
+ * @return
  * - SANE_STATUS_GOOD - on succes
  * - SANE_STATUS_EOF - if zero bytes have been read
  * - SANE_STATUS_IO_ERROR - if an error occured during the read

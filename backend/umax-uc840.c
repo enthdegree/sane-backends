@@ -1,7 +1,7 @@
 /* ------------------------------------------------------------------------- */
 
 /* umax-uc840.c: inquiry for UMAX scanner uc840
-  
+
    (C) 1997-2002 Oliver Rauch
 
    This program is free software; you can redistribute it and/or
@@ -58,13 +58,13 @@ static unsigned char UC840_INQUIRY[] =
 /* 28 - 29 reserved */
 	0x00, 0x00,
 
-/* 2a - 35 exposure times */	
+/* 2a - 35 exposure times */
 	0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00,
 
-/* 36 - 37 reserved */	
+/* 36 - 37 reserved */
 	0x00, 0x00,
 
 /* 38 - 5f scsi reserved */
@@ -77,13 +77,13 @@ static unsigned char UC840_INQUIRY[] =
 /* 60 -62 scanner capability*/
 	0xfd,
 	0x8c, /* 0xbc ? */
-	0x03, 
+	0x03,
 
 /* 63 reserved */
 	0x00,
 
 /* 64 gamma */
-	0xa1, 
+	0xa1,
 
 /* 65 reserved */
 	0x00,
@@ -150,7 +150,7 @@ static unsigned char UC840_INQUIRY[] =
 
 /* 8a-8b dor max scan width in 0.01 inch */
 	0x00, 0x00,
-	
+
 /* 8c-8d dor max scan length in 0.01 inch */
 	0x00, 0x00,
 

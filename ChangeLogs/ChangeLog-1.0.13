@@ -347,7 +347,7 @@
 2003-10-16  m. allan noah <anoah at pfeiffer dot edu>
 
 	* backend/fujitsu.c: memset the device struct and the scsi buff
-	  when a new device is attached. Submitted by 
+	  when a new device is attached. Submitted by
 	  Chris Chesney <cchesney at go-integral dot com>.
 	  Initialized a couple vars in the 3091 init routines.
 
@@ -368,7 +368,7 @@
 
 	* doc/descriptions/unsupported.desc: Added Pentax, Sicos, Syscan,
 	  and UMAX scanners.
-	
+
 2003-10-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx_low.c: Fixed compilation bug when debugging is
@@ -644,9 +644,9 @@
 	* po/Makefile.in: Added plustek_pp.c.
 	* po/sane-backends.nl.po: Updated Dutch translation (from Martin
 	  Kho <mkho@xs4all.nl>).
-	* po/sane-backends.bg.po po/sane-backends.cs.po po/sane-backends.de.po  
-	  po/sane-backends.es.po po/sane-backends.fr.po po/sane-backends.it.po  
-	  po/sane-backends.no.po po/sane-backends.pt.po po/sane-backends.ru.po  
+	* po/sane-backends.bg.po po/sane-backends.cs.po po/sane-backends.de.po
+	  po/sane-backends.es.po po/sane-backends.fr.po po/sane-backends.it.po
+	  po/sane-backends.no.po po/sane-backends.pt.po po/sane-backends.ru.po
 	  po/sane-backends.sv.po: Regenerated.
 	* doc/Makefile.in: Fixed link to image in HTML manpages.
 
@@ -668,10 +668,10 @@
 	  information. Spelling fixes. Minor updates.
 	* doc/sane.man: Updated contact information. Removed contributing
 	  section (now on homepage). Spelling fixes, general updates.
-	* sane-abaton.man sane-agfafocus.man sane-apple.man sane-bh.man  
-	  sane-dc210.man sane-dc240.man sane-dc25.man sane-gphoto2.man  
-	  sane-hp.man sane-microtek2.man sane-microtek.man  
-	  sane-mustek.man sane-mustek_pp.man sane-pint.man  
+	* sane-abaton.man sane-agfafocus.man sane-apple.man sane-bh.man
+	  sane-dc210.man sane-dc240.man sane-dc25.man sane-gphoto2.man
+	  sane-hp.man sane-microtek2.man sane-microtek.man
+	  sane-mustek.man sane-mustek_pp.man sane-pint.man
 	  sane-st400.man sane-usb.man sane-v4l.man: Updated links to
 	  sane-devel and SANE homepage.
 	* sane.tex: Changed homepage and sane-devel-request address.
@@ -734,12 +734,12 @@
 2003-09-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-desc.c: PATH_MAX is too small for long comments on
-	  win32. Actually return 0 if there is no second quotation mark. 
+	  win32. Actually return 0 if there is no second quotation mark.
 	  Patch from Frank Zago  <fzago at austin dot rr dot com>. Check
 	  for !word everywhere to avoid segfaults when a quotation mark is
 	  missing.
 	* sanei/sanei_config.c: Actually return 0 if there is no second
-	  quotation mark. 
+	  quotation mark.
 	* backend/ma1509.c backend/mustek.c backend/mustek_usb.c
 	  backend/test.c doc/descriptions/ma1509.desc
 	  doc/descriptions/mustek.desc doc/descriptions/mustek_usb.desc
@@ -761,7 +761,7 @@
 	  (patch from Malcolm Parsons <malcolm.parsons@virgin.net>)
 	* configure.in configure include/sane/config.h.in: added detection of
 	  machine/cpufunc.h and i386_set_ioperm() for FreeBSD support.
-	  
+
 
 2003-09-16  Stéphane Voltz <svoltz@wanadoo.fr>
 
@@ -848,7 +848,7 @@
 2003-08-21  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Removed '//' comments - again ...
-	  Added EPSON KOWA copyright 
+	  Added EPSON KOWA copyright
 
 2003-08-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -873,8 +873,8 @@
 
 2003-08-15  Karl Heinz Kremer <khk@khk.net>
 
-	* backend/epson.[ch]: Added support for GT-30000, with support for the 
-	  ADF in simplex mode (used some code from the EPSON Kowa IScan version 
+	* backend/epson.[ch]: Added support for GT-30000, with support for the
+	  ADF in simplex mode (used some code from the EPSON Kowa IScan version
 	  of the backend)
 	* backend/epson_scsi.c: Use sanei_scsi_cmd2() to send commands to fix a problem
 	  with SBP-2 under FreeBSD
@@ -884,7 +884,7 @@
 	* backend/umax_pp.c backend/umax_pp.h: added a check of values passed
 	  in gamma table. Fixed a bug which prevented custom gamm and UTA to be
 	  active
-	  
+
 2003-08-14  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/sane-plustek.man: Added debug description
@@ -939,7 +939,7 @@
 2003-07-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/Makefile.in po/sane-backends.bg.po: Added Bulgarian
-	  translation (from Pavel Constantinov 
+	  translation (from Pavel Constantinov
 	  <pavelconstantinov@bigfoot.com>).
 
 2003-07-28  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
@@ -962,10 +962,10 @@
 
 2003-07-26  Peter Fales <peter@fales-lorenz.net>
 	* sanei/Makefile.in, backend/cderror.h, backend/jinclude.h,
-	  backend/dc210.c, backend/dc240.c, backend/ gphoto2.c, 
+	  backend/dc210.c, backend/dc240.c, backend/ gphoto2.c,
 	  backend/djpeg.c, backend/cdjpeg.h, backend/Makefile.in, configure
-	  configure.in, frontend/Makefile.in:  Move jpeg support file 
-	  to sanei directofiles to include/sane, and associated 
+	  configure.in, frontend/Makefile.in:  Move jpeg support file
+	  to sanei directofiles to include/sane, and associated
 	  configure changes
 
 2003-07-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -982,12 +982,12 @@
 	* sanei/linux_sg3_err.h: Added GPL + SANE exception license.
 
 2003-07-25  Peter Fales <peter@fales-lorenz.net>
-	* include/sane/sanei_cderror.h, include/sane/sanei_jinclude.h 
+	* include/sane/sanei_cderror.h, include/sane/sanei_jinclude.h
 	  include/sane/sanei_jpeg.h sanei/sanei_jpeg.c:  Install these
 	  files as copies of the ones currently in backend.  (The old
 	  files will be deleted later)
 	* Moved backend/djpeg.README to README.djpeg and added usage info
-	 
+
 2003-07-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx.conf doc/sane-gt68xx.man
@@ -1005,7 +1005,7 @@
 	  license to GPL + SANE exception.
 	* TODO: Added canon630u SANE_I18N and include file license
 	  problem. Updated .desc file section.
-	
+
 2003-07-24  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* backend/hp.c, backend/hp-option.h, backend/hp-option.c
@@ -1043,12 +1043,12 @@
 
 2003-07-21  Stéphane Voltz <svoltz@wanadoo.fr>
 
-	* doc/descriptions/umax_pp.desc: removed unwanted status line for 
+	* doc/descriptions/umax_pp.desc: removed unwanted status line for
 	  backend
 
 2003-07-20  Stéphane Voltz <svoltz@wanadoo.fr>
 
-	* doc/descriptions/umax_pp.desc: updated forgotten status to use new 
+	* doc/descriptions/umax_pp.desc: updated forgotten status to use new
 	  keyword.
 
 2003-07-20  Oliver Rauch  <oliver.rauch@rauch-domain.de>
@@ -1128,7 +1128,7 @@
 
 	* doc/descriptions/unsupported.desc: Added Memorex, Visioneer and
 	  Xerox scanners. Updated information for Visioneer scanners.
-	
+
 2003-06-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Visioneer OneTouch 5800
@@ -1161,12 +1161,12 @@
 
 	* doc/descriptions/mustek_pp.desc: Updated status fields of CIS type
 	  scanners.
-        
+
 2003-06-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions.txt: Changed unmaintained tag to lowercase.
-	* doc/descriptions/template.desc. 
-	  doc/descriptions-external/template.desc.: Updated according to 
+	* doc/descriptions/template.desc.
+	  doc/descriptions-external/template.desc.: Updated according to
 	  descriptions.txt.
 	* doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
 	  doc/gt68xx/gt68xx.CHANGES: Added RevScan 19200i. Updated
@@ -1215,7 +1215,7 @@
 2003-06-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.darwin: Minor updates.
-	* TODO: Added v4l2 problem, desc file issues. Removed sm3600 
+	* TODO: Added v4l2 problem, desc file issues. Removed sm3600
 	  MacOS	X problem + printing backends in configure.
 	* doc/descriptions/unsupported.desc: Added Canon D2400UF
 	  and IS 12.
@@ -1230,9 +1230,9 @@
 
 2003-06-11  Oliver Schirrmeister <oschirr@abm.de>
 
-	* backend/fujitsu.c: fixed bug in that code when a scanner is 
+	* backend/fujitsu.c: fixed bug in that code when a scanner is
 	  disconnected (anoah at pfeiffer dot edu)
-	
+
 2003-06-10  Michael Herder <crapsite@gmx.net>
 
 	* po/Makefile.in: Added Czech translation
@@ -1263,7 +1263,7 @@
 	   backend/hp5400.h
 	   backend/hp5400_internal.c
 	   backend/hp5400_sanei.c
-	   backend/hp5400_xfer.h	
+	   backend/hp5400_xfer.h
 	   	to compile and run (on linux 2.4.21) as SANE backend and
 		in the corresponding hp5400backend sourceforge project
 
@@ -1307,7 +1307,7 @@
 
 2003-06-03  Oliver Schirrmeister <oschirr@abm.de>
 
-	* backend/fujitsu.c, backend/fujitsu.h: separated the 4x20 
+	* backend/fujitsu.c, backend/fujitsu.h: separated the 4x20
 	  into another model and color support for the 4x20
 
 2003-06-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -1328,7 +1328,7 @@
 	* PROJECTS: Changed entry for win32 SANE project.
 
 2003-05-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
+
 	* doc/descriptions/unsupported.html: Added link for Umax astra 4700.
 
 2003-05-27  Henning Meier-Geinitz <henning@meier-geinitz.de>

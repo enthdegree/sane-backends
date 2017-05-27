@@ -41,14 +41,14 @@
    If you do not wish that, delete this exception notice.
 
    This file contains static calibration data for the Benq 5150C scanner.
-   Once it is known how calibration for this scanner works this file 
+   Once it is known how calibration for this scanner works this file
    becomes obsolete.
    */
 
 
 /* $Id$
    SANE SnapScan backend */
-   
+
 static const SANE_Byte calibration_data_5150[] =
 {
    0x78,0x01,0xcc,0x47,0xca,0x53,0xcd,0x4a,0xd0,0x57,0xd5,0x46,0xda,0x56,0xdd,0x49,

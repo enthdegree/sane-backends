@@ -165,7 +165,7 @@
          - correct rgb padding macro
          - skip send_panel and ssm_df commands for DR-20xx scanners
       v22 2009-03-25, MAN
-         - add deinterlacing code for DR-2510C in duplex and color 
+         - add deinterlacing code for DR-2510C in duplex and color
       v23 2009-03-27, MAN
          - rewrite all image data processing code
          - handle more image interlacing formats
@@ -352,7 +352,7 @@
    . . - sane_start() : start image acquisition
    . .   - sane_get_parameters() : returns actual scan parameters
    . .   - sane_read() : read image data (from pipe)
-   . . (sane_read called multiple times; after sane_read returns EOF, 
+   . . (sane_read called multiple times; after sane_read returns EOF,
    . . loop may continue with sane_start which may return a 2nd page
    . . when doing duplex scans, or load the next page from the ADF)
    . .
@@ -392,7 +392,7 @@
  - function trace  10
  - function detail 15
  - get/setopt cmds 20
- - scsi/usb trace  25 
+ - scsi/usb trace  25
  - scsi/usb writes 30
  - scsi/usb reads  31
  - useless noise   35
@@ -455,7 +455,7 @@ static struct scanner *scanner_devList = NULL;
 
 /*
  * Called by SANE initially.
- * 
+ *
  * From the SANE spec:
  * This function must be called before any other SANE function can be
  * called. The behavior of a SANE backend is undefined if this
@@ -487,7 +487,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 /*
  * Called by SANE to find out about supported devices.
- * 
+ *
  * From the SANE spec:
  * This function can be used to query the list of devices that are
  * available. If the function executes successfully, it stores a
@@ -500,7 +500,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
  * returned (devices directly attached to the machine that SANE is
  * running on). If it is false, the device list includes all remote
  * devices that are accessible to the SANE library.
- * 
+ *
  * SANE does not require that this function is called before a
  * sane_open() call is performed. A device name may be specified
  * explicitly by a user which would make it unnecessary and
@@ -544,42 +544,42 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
         CANON_DR_CONFIG_FILE);
 
       while (sanei_config_read (line, PATH_MAX, fp)) {
-    
+
           lp = line;
-    
+
           /* ignore comments */
           if (*lp == '#')
             continue;
-    
+
           /* skip empty lines */
           if (*lp == 0)
             continue;
-    
+
           if (!strncmp ("option", lp, 6) && isspace (lp[6])) {
-    
+
               lp += 6;
               lp = sanei_config_skip_whitespace (lp);
-    
+
               /* BUFFERSIZE: > 4K */
               if (!strncmp (lp, "buffer-size", 11) && isspace (lp[11])) {
-    
+
                   int buf;
                   lp += 11;
                   lp = sanei_config_skip_whitespace (lp);
                   buf = atoi (lp);
-    
+
                   if (buf < 4096) {
                     DBG (5, "sane_get_devices: config option \"buffer-size\" "
                       "(%d) is < 4096, ignoring!\n", buf);
                     continue;
                   }
-    
+
                   if (buf > global_buffer_size_default) {
                     DBG (5, "sane_get_devices: config option \"buffer-size\" "
                       "(%d) is > %d, scanning problems may result\n", buf,
                       global_buffer_size_default);
                   }
-    
+
                   DBG (15, "sane_get_devices: setting \"buffer-size\" to %d\n",
                     buf);
 
@@ -588,24 +588,24 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
               /* PADDED READ: we clamp to 0 or 1 */
               else if (!strncmp (lp, "padded-read", 11) && isspace (lp[11])) {
-    
+
                   int buf;
                   lp += 11;
                   lp = sanei_config_skip_whitespace (lp);
                   buf = atoi (lp);
-    
+
                   if (buf < 0) {
                     DBG (5, "sane_get_devices: config option \"padded-read\" "
                       "(%d) is < 0, ignoring!\n", buf);
                     continue;
                   }
-    
+
                   if (buf > 1) {
                     DBG (5, "sane_get_devices: config option \"padded-read\" "
                       "(%d) is > 1, ignoring!\n", buf);
                     continue;
                   }
-    
+
                   DBG (15, "sane_get_devices: setting \"padded-read\" to %d\n",
                     buf);
 
@@ -614,24 +614,24 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
               /* EXTRA STATUS: we clamp to 0 or 1 */
               else if (!strncmp (lp, "extra-status", 12) && isspace (lp[12])) {
-    
+
                   int buf;
                   lp += 12;
                   lp = sanei_config_skip_whitespace (lp);
                   buf = atoi (lp);
-    
+
                   if (buf < 0) {
                     DBG (5, "sane_get_devices: config option \"extra-status\" "
                       "(%d) is < 0, ignoring!\n", buf);
                     continue;
                   }
-    
+
                   if (buf > 1) {
                     DBG (5, "sane_get_devices: config option \"extra-status\" "
                       "(%d) is > 1, ignoring!\n", buf);
                     continue;
                   }
-    
+
                   DBG (15, "sane_get_devices: setting \"extra-status\" to %d\n",
                     buf);
 
@@ -640,18 +640,18 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
               /* DUPLEXOFFSET: < 2400 */
               else if (!strncmp (lp, "duplex-offset", 13) && isspace (lp[13])) {
-    
+
                   int buf;
                   lp += 13;
                   lp = sanei_config_skip_whitespace (lp);
                   buf = atoi (lp);
-    
+
                   if (buf > 2400) {
                     DBG (5, "sane_get_devices: config option \"duplex-offset\" "
                       "(%d) is > 2400, ignoring!\n", buf);
                     continue;
                   }
-    
+
                   if (buf < 0) {
                     DBG (5, "sane_get_devices: config option \"duplex-offset\" "
                       "(%d) is < 0, ignoring!\n", buf);
@@ -671,7 +671,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
                   lp = sanei_config_skip_whitespace (lp);
                   strncpy(global_vendor_name, lp, 8);
                   global_vendor_name[8] = 0;
-    
+
                   DBG (15, "sane_get_devices: setting \"vendor-name\" to %s\n",
                     global_vendor_name);
               }
@@ -683,7 +683,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
                   lp = sanei_config_skip_whitespace (lp);
                   strncpy(global_model_name, lp, 16);
                   global_model_name[16] = 0;
-    
+
                   DBG (15, "sane_get_devices: setting \"model-name\" to %s\n",
                     global_model_name);
               }
@@ -695,7 +695,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
                   lp = sanei_config_skip_whitespace (lp);
                   strncpy(global_version_name, lp, 4);
                   global_version_name[4] = 0;
-    
+
                   DBG (15, "sane_get_devices: setting \"version-name\" to %s\n",
                     global_version_name);
               }
@@ -801,8 +801,8 @@ attach_one_usb (const char *device_name)
   return attach_one(device_name,CONNECTION_USB);
 }
 
-/* build the scanner struct and link to global list 
- * unless struct is already loaded, then pretend 
+/* build the scanner struct and link to global list
+ * unless struct is already loaded, then pretend
  */
 static SANE_Status
 attach_one (const char *device_name, int connType)
@@ -974,8 +974,8 @@ connect_fd (struct scanner *s)
 
   if(ret == SANE_STATUS_GOOD){
 
-    /* first generation usb scanners can get flaky if not closed 
-     * properly after last use. very first commands sent to device 
+    /* first generation usb scanners can get flaky if not closed
+     * properly after last use. very first commands sent to device
      * must be prepared to correct this- see wait_scanner() */
     ret = wait_scanner(s);
     if (ret != SANE_STATUS_GOOD) {
@@ -1016,9 +1016,9 @@ init_inquire (struct scanner *s)
   set_IN_return_size (cmd, inLen);
   set_IN_evpd (cmd, 0);
   set_IN_page_code (cmd, 0);
- 
+
   ret = do_cmd (
-    s, 1, 0, 
+    s, 1, 0,
     cmd, cmdLen,
     NULL, 0,
     in, &inLen
@@ -1323,7 +1323,7 @@ init_model (struct scanner *s)
     s->std_res_y[DPI_400]=1;
     s->std_res_x[DPI_600]=1;
     s->std_res_y[DPI_600]=1;
-    
+
     /*weirdness*/
     s->has_ssm = 0;
     s->has_ssm2 = 1;
@@ -1522,7 +1522,7 @@ init_model (struct scanner *s)
     s->std_res_y[DPI_400]=1;
     s->std_res_x[DPI_600]=1;
     s->std_res_y[DPI_600]=1;
-    
+
     s->has_comp_JPEG = 1;
     s->rgb_format = 1;
     s->has_df_ultra = 1;
@@ -1562,7 +1562,7 @@ init_model (struct scanner *s)
     s->std_res_y[DPI_400]=1;
     s->std_res_x[DPI_600]=1;
     s->std_res_y[DPI_600]=1;
-    
+
     s->has_comp_JPEG = 1;
     s->rgb_format = 1;
     s->has_df_ultra = 1;
@@ -1801,9 +1801,9 @@ init_options (struct scanner *s)
       s->opt[i].cap = SANE_CAP_INACTIVE;
   }
 
-  /* go ahead and setup the first opt, because 
-   * frontend may call control_option on it 
-   * before calling get_option_descriptor 
+  /* go ahead and setup the first opt, because
+   * frontend may call control_option on it
+   * before calling get_option_descriptor
    */
   s->opt[OPT_NUM_OPTS].name = SANE_NAME_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
@@ -1831,7 +1831,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
   struct scanner *dev = NULL;
   struct scanner *s = NULL;
   SANE_Status ret;
- 
+
   DBG (10, "sane_open: start\n");
 
   if(scanner_devList){
@@ -1852,7 +1852,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
   }
   else{
     DBG (15, "sane_open: device %s requested\n", name);
-                                                                                
+
     for (dev = scanner_devList; dev; dev = dev->next) {
       if (strcmp (dev->sane.name, name) == 0
        || strcmp (dev->device_name, name) == 0) { /*always allow sanei devname*/
@@ -1928,7 +1928,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     }
     if(s->has_adf){
       s->source_list[i++]=STRING_ADFFRONT;
-  
+
       if(s->has_back){
         s->source_list[i++]=STRING_ADFBACK;
       }
@@ -1938,7 +1938,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     }
     if(s->has_card){
       s->source_list[i++]=STRING_CARDFRONT;
-  
+
       if(s->has_back){
         s->source_list[i++]=STRING_CARDBACK;
       }
@@ -1974,7 +1974,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       s->mode_list[i++]=STRING_COLOR;
     }
     s->mode_list[i]=NULL;
-  
+
     opt->name = SANE_NAME_SCAN_MODE;
     opt->title = SANE_TITLE_SCAN_MODE;
     opt->desc = SANE_DESC_SCAN_MODE;
@@ -2041,14 +2041,14 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       s->res_list[++i] = 1200;
     }
     s->res_list[0] = i;
-  
+
     opt->name = SANE_NAME_SCAN_RESOLUTION;
     opt->title = SANE_TITLE_SCAN_RESOLUTION;
     opt->desc = SANE_DESC_SCAN_RESOLUTION;
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_DPI;
     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-  
+
     if(s->step_y_res){
       s->res_range.min = s->min_y_res;
       s->res_range.max = s->max_y_res;
@@ -2078,7 +2078,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->tl_x_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_x);
     s->tl_x_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_width(s));
     s->tl_x_range.quant = MM_PER_UNIT_FIX;
-  
+
     opt->name = SANE_NAME_SCAN_TL_X;
     opt->title = SANE_TITLE_SCAN_TL_X;
     opt->desc = SANE_DESC_SCAN_TL_X;
@@ -2096,7 +2096,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->tl_y_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_y);
     s->tl_y_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_height(s));
     s->tl_y_range.quant = MM_PER_UNIT_FIX;
-  
+
     opt->name = SANE_NAME_SCAN_TL_Y;
     opt->title = SANE_TITLE_SCAN_TL_Y;
     opt->desc = SANE_DESC_SCAN_TL_Y;
@@ -2114,7 +2114,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->br_x_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_x);
     s->br_x_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_width(s));
     s->br_x_range.quant = MM_PER_UNIT_FIX;
-  
+
     opt->name = SANE_NAME_SCAN_BR_X;
     opt->title = SANE_TITLE_SCAN_BR_X;
     opt->desc = SANE_DESC_SCAN_BR_X;
@@ -2132,7 +2132,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->br_y_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_y);
     s->br_y_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_height(s));
     s->br_y_range.quant = MM_PER_UNIT_FIX;
-  
+
     opt->name = SANE_NAME_SCAN_BR_Y;
     opt->title = SANE_TITLE_SCAN_BR_Y;
     opt->desc = SANE_DESC_SCAN_BR_Y;
@@ -2370,7 +2370,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*double feed by thickness */
   if(option==OPT_DF_THICKNESS){
-  
+
     opt->name = "df-thickness";
     opt->title = "DF by thickness";
     opt->desc = "Detect double feeds using thickness sensor";
@@ -2482,7 +2482,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->do_color_list[5] = STRING_EN_GREEN;
     s->do_color_list[6] = STRING_EN_BLUE;
     s->do_color_list[7] = NULL;
-  
+
     opt->name = "dropout-front";
     opt->title = "Dropout color front";
     opt->desc = "One-pass scanners use only one color during gray or binary scanning, useful for colored paper or ink";
@@ -2510,7 +2510,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->do_color_list[5] = STRING_EN_GREEN;
     s->do_color_list[6] = STRING_EN_BLUE;
     s->do_color_list[7] = NULL;
-  
+
     opt->name = "dropout-back";
     opt->title = "Dropout color back";
     opt->desc = "One-pass scanners use only one color during gray or binary scanning, useful for colored paper or ink";
@@ -2671,7 +2671,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
 /**
  * Gets or sets an option value.
- * 
+ *
  * From the SANE spec:
  * This function is used to set or inquire the current value of option
  * number n of the device represented by handle h. The manner in which
@@ -2682,7 +2682,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
  * area pointed to by v must be big enough to hold the entire option
  * value (determined by member size in the corresponding option
  * descriptor).
- * 
+ *
  * The only exception to this rule is that when setting the value of a
  * string option, the string pointed to by argument v may be shorter
  * since the backend will stop reading the option value upon
@@ -2999,7 +2999,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
        * below.
        */
       switch (option) {
- 
+
         /* Mode Group */
         case OPT_SOURCE:
           if (!strcmp (val, STRING_ADFFRONT)) {
@@ -3024,7 +3024,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             tmp = SOURCE_FLATBED;
           }
 
-          if (s->u.source == tmp) 
+          if (s->u.source == tmp)
               return SANE_STATUS_GOOD;
 
           s->u.source = tmp;
@@ -3056,7 +3056,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_RES:
 
-          if (s->u.dpi_x == val_c && s->u.dpi_y == val_c) 
+          if (s->u.dpi_x == val_c && s->u.dpi_y == val_c)
               return SANE_STATUS_GOOD;
 
           s->u.dpi_x = val_c;
@@ -3251,25 +3251,25 @@ ssm_buffer (struct scanner *s)
   DBG (10, "ssm_buffer: start\n");
 
   if(s->has_ssm){
-  
+
     unsigned char cmd[SET_SCAN_MODE_len];
     size_t cmdLen = SET_SCAN_MODE_len;
-  
+
     unsigned char out[SSM_PAY_len];
     size_t outLen = SSM_PAY_len;
-  
+
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
     set_SSM_pf(cmd, 1);
     set_SSM_pay_len(cmd, outLen);
-  
+
     memset(out,0,outLen);
     if(s->has_ssm_pay_head_len){
       set_SSM_pay_head_len(out, SSM_PAY_HEAD_len);
     }
     set_SSM_page_code(out, SM_pc_buffer);
     set_SSM_page_len(out, SSM_PAGE_len);
-  
+
     if(s->s.source == SOURCE_ADF_DUPLEX || s->s.source == SOURCE_CARD_DUPLEX){
       set_SSM_BUFF_duplex(out, 1);
     }
@@ -3288,7 +3288,7 @@ ssm_buffer (struct scanner *s)
     if(0){
       set_SSM_BUFF_unk(out,1);
     }
-  
+
     ret = do_cmd (
         s, 1, 0,
         cmd, cmdLen,
@@ -3301,20 +3301,20 @@ ssm_buffer (struct scanner *s)
 
     unsigned char cmd[SET_SCAN_MODE2_len];
     size_t cmdLen = SET_SCAN_MODE2_len;
-  
+
     unsigned char out[SSM2_PAY_len];
     size_t outLen = SSM2_PAY_len;
-  
+
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, SET_SCAN_MODE2_code);
     set_SSM2_page_code(cmd, SM2_pc_buffer);
     set_SSM2_pay_len(cmd, outLen);
-  
+
     memset(out,0,outLen);
     set_SSM2_BUFF_unk(out, !s->buffermode);
     set_SSM2_BUFF_unk2(out, 0x40);
     set_SSM2_BUFF_sync(out, !s->buffermode);
-  
+
     ret = do_cmd (
         s, 1, 0,
         cmd, cmdLen,
@@ -3338,52 +3338,52 @@ ssm_df (struct scanner *s)
   SANE_Status ret = SANE_STATUS_GOOD;
 
   DBG (10, "ssm_df: start\n");
-  
+
   if(!s->has_df){
     DBG (10, "ssm_df: unsupported, finishing\n");
     return ret;
   }
-  
+
   if(s->has_ssm){
 
     unsigned char cmd[SET_SCAN_MODE_len];
     size_t cmdLen = SET_SCAN_MODE_len;
-  
+
     unsigned char out[SSM_PAY_len];
     size_t outLen = SSM_PAY_len;
-  
+
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
     set_SSM_pf(cmd, 1);
     set_SSM_pay_len(cmd, outLen);
-  
+
     memset(out,0,outLen);
     if(s->has_ssm_pay_head_len){
       set_SSM_pay_head_len(out, SSM_PAY_HEAD_len);
     }
     set_SSM_page_code(out, SM_pc_df);
     set_SSM_page_len(out, SSM_PAGE_len);
-  
+
     /* deskew by roller */
     if(s->rollerdeskew){
       set_SSM_DF_deskew_roll(out, 1);
     }
-    
+
     /* staple detection */
     if(s->stapledetect){
       set_SSM_DF_staple(out, 1);
     }
-  
+
     /* thickness */
     if(s->df_thickness){
       set_SSM_DF_thick(out, 1);
     }
-    
+
     /* length */
     if(s->df_length){
       set_SSM_DF_len(out, 1);
     }
-  
+
     ret = do_cmd (
         s, 1, 0,
         cmd, cmdLen,
@@ -3397,7 +3397,7 @@ ssm_df (struct scanner *s)
 
     unsigned char cmd[SET_SCAN_MODE2_len];
     size_t cmdLen = SET_SCAN_MODE2_len;
-  
+
     unsigned char out[SSM2_PAY_len];
     size_t outLen = SSM2_PAY_len;
 
@@ -3407,11 +3407,11 @@ ssm_df (struct scanner *s)
       set_SCSI_opcode(cmd, SET_SCAN_MODE2_code);
       set_SSM2_page_code(cmd, SM2_pc_ultra);
       set_SSM2_pay_len(cmd, outLen);
-    
+
       memset(out,0,outLen);
       set_SSM2_ULTRA_top(out, 0);
       set_SSM2_ULTRA_bot(out, 0);
-  
+
       ret = do_cmd (
           s, 1, 0,
           cmd, cmdLen,
@@ -3424,19 +3424,19 @@ ssm_df (struct scanner *s)
     set_SCSI_opcode(cmd, SET_SCAN_MODE2_code);
     set_SSM2_page_code(cmd, SM2_pc_df);
     set_SSM2_pay_len(cmd, outLen);
-  
+
     memset(out,0,outLen);
-  
+
     /* thickness */
     if(s->df_thickness){
       set_SSM2_DF_thick(out, 1);
     }
-    
+
     /* length */
     if(s->df_length){
       set_SSM2_DF_len(out, 1);
     }
-  
+
     ret = do_cmd (
         s, 1, 0,
         cmd, cmdLen,
@@ -3466,7 +3466,7 @@ ssm_do (struct scanner *s)
    DBG (10, "ssm_do: unsupported, finishing\n");
    return ret;
  }
-  
+
  if(s->s.mode == MODE_COLOR){
    DBG (10, "ssm_do: unneeded, finishing\n");
    return ret;
@@ -3476,24 +3476,24 @@ ssm_do (struct scanner *s)
 
     unsigned char cmd[SET_SCAN_MODE_len];
     size_t cmdLen = SET_SCAN_MODE_len;
-  
+
     unsigned char out[SSM_PAY_len];
     size_t outLen = SSM_PAY_len;
-  
+
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
     set_SSM_pf(cmd, 1);
     set_SSM_pay_len(cmd, outLen);
-  
+
     memset(out,0,outLen);
     if(s->has_ssm_pay_head_len){
       set_SSM_pay_head_len(out, SSM_PAY_HEAD_len);
     }
     set_SSM_page_code(out, SM_pc_dropout);
     set_SSM_page_len(out, SSM_PAGE_len);
-  
+
     set_SSM_DO_unk1(out, 0x03);
-  
+
     switch(s->dropout_color[SIDE_FRONT]){
       case COLOR_RED:
         set_SSM_DO_unk2(out, 0x05);
@@ -3520,7 +3520,7 @@ ssm_do (struct scanner *s)
         set_SSM_DO_f_en(out,SSM_DO_blue);
         break;
     }
-  
+
     switch(s->dropout_color[SIDE_BACK]){
       case COLOR_RED:
         set_SSM_DO_unk2(out, 0x05);
@@ -3547,7 +3547,7 @@ ssm_do (struct scanner *s)
         set_SSM_DO_b_en(out,SSM_DO_blue);
         break;
     }
-  
+
     ret = do_cmd (
         s, 1, 0,
         cmd, cmdLen,
@@ -3561,17 +3561,17 @@ ssm_do (struct scanner *s)
 
     unsigned char cmd[SET_SCAN_MODE2_len];
     size_t cmdLen = SET_SCAN_MODE2_len;
-  
+
     unsigned char out[SSM2_PAY_len];
     size_t outLen = SSM2_PAY_len;
-  
+
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, SET_SCAN_MODE2_code);
     set_SSM2_page_code(cmd, SM2_pc_dropout);
     set_SSM2_pay_len(cmd, outLen);
-  
+
     memset(out,0,outLen);
-  
+
     switch(s->dropout_color[SIDE_FRONT]){
       case COLOR_RED:
         set_SSM2_DO_do(out,SSM_DO_red);
@@ -3622,7 +3622,7 @@ read_sensors(struct scanner *s,SANE_Int option)
   size_t inLen = R_SENSORS_len;
 
   DBG (10, "read_sensors: start %d\n", option);
- 
+
   if(!s->can_read_sensors){
     DBG (10, "read_sensors: unsupported, finishing\n");
     return ret;
@@ -3638,14 +3638,14 @@ read_sensors(struct scanner *s,SANE_Int option)
     set_SCSI_opcode(cmd, READ_code);
     set_R_datatype_code (cmd, SR_datatype_sensors);
     set_R_xfer_length (cmd, inLen);
-    
+
     ret = do_cmd (
       s, 1, 0,
       cmd, cmdLen,
       NULL, 0,
       in, &inLen
     );
-    
+
     if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
       /*set flags indicating there is data to read*/
       memset(s->sensors_read,1,sizeof(s->sensors_read));
@@ -3656,12 +3656,12 @@ read_sensors(struct scanner *s,SANE_Int option)
       ret = SANE_STATUS_GOOD;
     }
   }
-  
+
   if(option)
     s->sensors_read[option-OPT_ADF_LOADED] = 0;
 
   DBG (10, "read_sensors: finish\n");
-  
+
   return ret;
 }
 
@@ -3677,7 +3677,7 @@ read_panel(struct scanner *s,SANE_Int option)
   size_t inLen = R_PANEL_len;
 
   DBG (10, "read_panel: start %d\n", option);
- 
+
   if(!s->can_read_panel){
     DBG (10, "read_panel: unsupported, finishing\n");
     return ret;
@@ -3693,14 +3693,14 @@ read_panel(struct scanner *s,SANE_Int option)
     set_SCSI_opcode(cmd, READ_code);
     set_R_datatype_code (cmd, SR_datatype_panel);
     set_R_xfer_length (cmd, inLen);
-    
+
     ret = do_cmd (
       s, 1, 0,
       cmd, cmdLen,
       NULL, 0,
       in, &inLen
     );
-    
+
     if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
       /*set flags indicating there is data to read*/
       memset(s->panel_read,1,sizeof(s->panel_read));
@@ -3717,12 +3717,12 @@ read_panel(struct scanner *s,SANE_Int option)
       ret = SANE_STATUS_GOOD;
     }
   }
-  
+
   if(option)
     s->panel_read[option-OPT_START] = 0;
 
   DBG (10, "read_panel: finish %d\n",s->panel_counter);
-  
+
   return ret;
 }
 
@@ -3752,20 +3752,20 @@ send_panel(struct scanner *s)
     memset(out,0,outLen);
     set_S_PANEL_enable_led(out,s->panel_enable_led);
     set_S_PANEL_counter(out,s->panel_counter);
-  
+
     ret = do_cmd (
       s, 1, 0,
       cmd, cmdLen,
       out, outLen,
       NULL, NULL
     );
-  
+
     if (ret == SANE_STATUS_EOF) {
         ret = SANE_STATUS_GOOD;
     }
-  
+
     DBG (10, "send_panel: finish %d\n", ret);
-  
+
     return ret;
 }
 
@@ -3783,7 +3783,7 @@ send_panel(struct scanner *s)
  * completion of that request. Outside of that window, the returned
  * values are best-effort estimates of what the parameters will be
  * when sane_start() gets invoked.
- * 
+ *
  * Calling this function before a scan has actually started allows,
  * for example, to get an estimate of how big the scanned image will
  * be. The parameters passed to this function are the handle h of the
@@ -3795,7 +3795,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
     SANE_Status ret = SANE_STATUS_GOOD;
     struct scanner *s = (struct scanner *) handle;
-  
+
     DBG (10, "sane_get_parameters: start\n");
 
     if(!s->started){
@@ -3825,14 +3825,14 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     DBG(15,"sane_get_parameters: area: tlx=%d, brx=%d, tly=%d, bry=%d\n",
       s->i.tl_x, s->i.br_x, s->i.tl_y, s->i.br_y);
 
-    DBG (15, "sane_get_parameters: params: ppl=%d, Bpl=%d, lines=%d\n", 
+    DBG (15, "sane_get_parameters: params: ppl=%d, Bpl=%d, lines=%d\n",
       params->pixels_per_line, params->bytes_per_line, params->lines);
 
-    DBG (15, "sane_get_parameters: params: format=%d, depth=%d, last=%d\n", 
+    DBG (15, "sane_get_parameters: params: format=%d, depth=%d, last=%d\n",
       params->format, params->depth, params->last_frame);
 
     DBG (10, "sane_get_parameters: finish\n");
-  
+
     return ret;
 }
 
@@ -3840,9 +3840,9 @@ SANE_Status
 update_params(struct scanner *s, int calib)
 {
     SANE_Status ret = SANE_STATUS_GOOD;
-  
+
     DBG (10, "update_params: start\n");
-  
+
     s->u.width = (s->u.br_x - s->u.tl_x) * s->u.dpi_x / 1200;
     s->u.height = (s->u.br_y - s->u.tl_y) * s->u.dpi_y / 1200;
 
@@ -3884,7 +3884,7 @@ update_params(struct scanner *s, int calib)
       s->u.br_x, s->u.tl_x, s->u.dpi_x, s->u.br_y, s->u.tl_y, s->u.dpi_y);
 
     /* some scanners are limited in their valid scan params
-     * make a second version of the params struct, but 
+     * make a second version of the params struct, but
      * override the user's values with what the scanner can actually do */
 
     memcpy(&s->s,&s->u,sizeof(struct img_params));
@@ -3971,7 +3971,7 @@ update_params(struct scanner *s, int calib)
 
     /* round lines up to even number */
     s->s.height += s->s.height % 2;
-  
+
     DBG (15, "update_params: scan params: w:%d h:%d m:%d f:%d b:%d\n",
       s->s.width, s->s.height, s->s.mode, s->s.format, s->s.bpp);
     DBG (15, "update_params: scan params: B:%d vB:%d vw:%d\n",
@@ -4011,12 +4011,12 @@ SANE_Status
 update_i_params(struct scanner *s)
 {
     SANE_Status ret = SANE_STATUS_GOOD;
-  
+
     DBG (10, "update_i_params: start\n");
 
     s->i.width = s->u.width;
     s->i.Bpl = s->u.Bpl;
- 
+
     DBG (10, "update_i_params: finish\n");
     return ret;
 }
@@ -4169,7 +4169,7 @@ sane_start (SANE_Handle handle)
         DBG (5, "sane_start: ERROR: cannot load page\n");
         goto errors;
       }
-  
+
       /* wait for scanner to finish load */
       ret = wait_scanner (s);
       if (ret != SANE_STATUS_GOOD) {
@@ -4235,7 +4235,7 @@ sane_start (SANE_Handle handle)
           }
         }
       }
-  
+
       /* small, buffering scanners check for more pages by reading counter */
       else{
         ret = read_panel (s, OPT_COUNTER);
@@ -4261,9 +4261,9 @@ sane_start (SANE_Handle handle)
   DBG (15, "started=%d, side=%d, source=%d\n",
     s->started, s->side, s->u.source);
 
-  /* certain options require the entire image to 
+  /* certain options require the entire image to
    * be collected from the scanner before we can
-   * tell the user the size of the image. the sane 
+   * tell the user the size of the image. the sane
    * API has no way to inform the frontend of this,
    * so we block and buffer. yuck */
   if(must_fully_buffer(s)){
@@ -4294,7 +4294,7 @@ sane_start (SANE_Handle handle)
     }
     if(s->swskip){
       /* Skipping means throwing out this image.
-       * Pretend the user read the whole thing 
+       * Pretend the user read the whole thing
        * and call sane_start again.
        * This assumes we are running in batch mode. */
       if(buffer_isblank(s,s->side)){
@@ -4349,7 +4349,7 @@ clean_params (struct scanner *s)
   s->s.bytes_tot[0]=0;
   s->s.bytes_tot[1]=0;
 
-  /* store the number of front bytes */ 
+  /* store the number of front bytes */
   if ( s->u.source != SOURCE_ADF_BACK && s->u.source != SOURCE_CARD_BACK )
     s->u.bytes_tot[SIDE_FRONT] = s->u.Bpl * s->u.height;
 
@@ -4359,8 +4359,8 @@ clean_params (struct scanner *s)
   if ( s->s.source != SOURCE_ADF_BACK && s->s.source != SOURCE_CARD_BACK )
     s->s.bytes_tot[SIDE_FRONT] = s->s.Bpl * s->s.height;
 
-  /* store the number of back bytes */ 
-  if ( s->u.source == SOURCE_ADF_DUPLEX || s->u.source == SOURCE_ADF_BACK 
+  /* store the number of back bytes */
+  if ( s->u.source == SOURCE_ADF_DUPLEX || s->u.source == SOURCE_ADF_BACK
     || s->u.source == SOURCE_CARD_DUPLEX || s->u.source == SOURCE_CARD_BACK )
     s->u.bytes_tot[SIDE_BACK] = s->u.Bpl * s->u.height;
 
@@ -4421,14 +4421,14 @@ set_window (struct scanner *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
-  /* The command specifies the number of bytes in the data phase 
-   * the data phase has a header, followed by 1 window desc block 
+  /* The command specifies the number of bytes in the data phase
+   * the data phase has a header, followed by 1 window desc block
    * the header specifies the number of bytes in 1 window desc block
    */
 
   unsigned char cmd[SET_WINDOW_len];
   size_t cmdLen = SET_WINDOW_len;
- 
+
   unsigned char out[SW_header_len + SW_desc_len];
   size_t outLen = SW_header_len + SW_desc_len;
 
@@ -4484,9 +4484,9 @@ set_window (struct scanner *s)
     /*convert our common -127 to +127 range into HW's range
      *FIXME: this code assumes hardware range of 0-255 */
     set_WD_brightness (desc1, s->brightness+128);
-  
+
     set_WD_threshold (desc1, s->threshold);
-  
+
     /*convert our common -127 to +127 range into HW's range
      *FIXME: this code assumes hardware range of 0-255 */
     set_WD_contrast (desc1, s->contrast+128);
@@ -4593,7 +4593,7 @@ object_position (struct scanner *s, int i_load)
 
 /*
  * Issues SCAN command.
- * 
+ *
  * (This doesn't actually read anything, it just tells the scanner
  * to start scanning.)
  */
@@ -4641,7 +4641,7 @@ start_scan (struct scanner *s, int type)
 
 /*
  * Called by SANE to read data.
- * 
+ *
  * From the SANE spec:
  * This function is used to read image data from the device
  * represented by handle h.  Argument buf is a pointer to a memory
@@ -4649,7 +4649,7 @@ start_scan (struct scanner *s, int type)
  * returned is stored in *len. A backend must set this to zero when
  * the call fails (i.e., when a status other than SANE_STATUS_GOOD is
  * returned).
- * 
+ *
  * When the call succeeds, the number of bytes returned can be
  * anywhere in the range from 0 to maxlen bytes.
  */
@@ -4698,7 +4698,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       }
     }
   }
-    
+
   /* simplex or non-alternating duplex */
   else{
     if(!s->s.eof[s->side]){
@@ -4719,7 +4719,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   ret = read_from_buffer(s,buf,max_len,len,s->side);
   if(ret)
     goto errors;
-  
+
   ret = check_for_cancel(s);
   s->reading = 0;
 
@@ -4813,13 +4813,13 @@ read_from_scanner(struct scanner *s, int side, int exact)
       size_t i;
 
       for(i=0;i<inLen;i++){
-  
+
         /* about to change stage */
         if(s->jpeg_stage == JPEG_STAGE_NONE && in[i] == 0xff){
           s->jpeg_ff_offset=0;
           continue;
         }
-  
+
         s->jpeg_ff_offset++;
 
         /* last byte was an ff, this byte is SOF */
@@ -4827,7 +4827,7 @@ read_from_scanner(struct scanner *s, int side, int exact)
           s->jpeg_stage = JPEG_STAGE_SOF;
           continue;
         }
-  
+
         if(s->jpeg_stage == JPEG_STAGE_SOF){
 
           /* lines in start of frame, overwrite it */
@@ -4839,7 +4839,7 @@ read_from_scanner(struct scanner *s, int side, int exact)
             in[i] = s->s.height & 0xff;
             continue;
           }
-      
+
           /* width in start of frame, overwrite it */
           if(s->jpeg_ff_offset == 7){
             in[i] = (s->s.width >> 8) & 0xff;
@@ -4883,7 +4883,7 @@ read_from_scanner(struct scanner *s, int side, int exact)
       s->s.bytes_tot[side] = s->s.bytes_sent[side];
       s->i.bytes_tot[side] = s->i.bytes_sent[side];
       s->u.bytes_tot[side] = s->i.bytes_sent[side];
-    } 
+    }
 
     /* this is non-jpeg data, fill remainder, change rx'd size */
     else{
@@ -5025,7 +5025,7 @@ read_from_scanner_duplex(struct scanner *s,int exact)
   return ret;
 }
 
-/* these functions copy image data from input buffer to scanner struct 
+/* these functions copy image data from input buffer to scanner struct
  * descrambling it, and putting it in the right side buffer */
 /* NOTE: they assume buffer is scanline aligned */
 static SANE_Status
@@ -5051,7 +5051,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
     s->s.bytes_sent[side] += len;
     return ret;
   }
-  
+
   DBG (15, "copy_simplex: per-line copy\n");
 
   line = malloc(bwidth);
@@ -5061,7 +5061,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
   for(i=0; i<len; i+=bwidth){
 
     int lineNum = s->s.bytes_sent[side] / bwidth;
-  
+
     /*increment number of bytes rx'd from scanner*/
     s->s.bytes_sent[side] += bwidth;
 
@@ -5075,9 +5075,9 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
     line_next = 0;
 
     if(s->s.format == SANE_FRAME_GRAY){
-  
+
       switch (s->gray_interlace[side]) {
-  
+
         /* one line has the following format: ggg...GGG
          * where the 'capital' letters are the beginning of the line */
         case GRAY_INTERLACE_gG:
@@ -5086,10 +5086,10 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
             line[line_next++] = buf[i+j];
           }
           break;
-    
+
         case GRAY_INTERLACE_2510:
           DBG (17, "copy_simplex: gray, 2510\n");
-       
+
           /* first read head (third byte of every three) */
           for(j=bwidth-1;j>=0;j-=3){
             line[line_next++] = buf[i+j];
@@ -5109,11 +5109,11 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
           break;
       }
     }
-  
+
     else if (s->s.format == SANE_FRAME_RGB){
-  
+
       switch (inter) {
-    
+
         /* scanner returns color data as bgrbgr... */
         case COLOR_INTERLACE_BGR:
           DBG (17, "copy_simplex: color, BGR\n");
@@ -5123,7 +5123,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
             line[line_next++] = buf[i+j*3];
           }
           break;
-    
+
         /* scanner returns color data as gbrgbr... */
         case COLOR_INTERLACE_GBR:
           DBG (17, "copy_simplex: color, GBR\n");
@@ -5133,7 +5133,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
             line[line_next++] = buf[i+j*3+1];
           }
           break;
-    
+
         /* scanner returns color data as brgbrg... */
         case COLOR_INTERLACE_BRG:
           DBG (17, "copy_simplex: color, BRG\n");
@@ -5143,7 +5143,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
             line[line_next++] = buf[i+j*3];
           }
           break;
-    
+
         /* one line has the following format: RRR...rrrGGG...gggBBB...bbb */
         case COLOR_INTERLACE_RRGGBB:
           DBG (17, "copy_simplex: color, RRGGBB\n");
@@ -5153,7 +5153,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
             line[line_next++] = buf[i+2*pwidth+j];
           }
           break;
-    
+
         /* one line has the following format: rrr...RRRggg...GGGbbb...BBB
          * where the 'capital' letters are the beginning of the line */
         case COLOR_INTERLACE_rRgGbB:
@@ -5164,10 +5164,10 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
             line[line_next++] = buf[i+2*pwidth+j];
           }
           break;
-    
+
         case COLOR_INTERLACE_2510:
           DBG (17, "copy_simplex: color, 2510\n");
-        
+
           /* first read head (third byte of every three) */
           for(j=t-1;j>=0;j-=3){
             line[line_next++] = buf[i+j];
@@ -5193,7 +5193,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
           break;
       }
     }
-  
+
     /* nothing sent above? just copy one line of the block */
     /* used by uninterlaced gray/color */
     if(!line_next){
@@ -5201,14 +5201,14 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
       memcpy(line+line_next,buf+i,bwidth);
       line_next = bwidth;
     }
-  
+
     /* invert image if scanner needs it for this mode */
     if(s->reverse_by_mode[s->s.mode]){
       for(j=0; j<line_next; j++){
         line[j] ^= 0xff;
       }
     }
-  
+
     /* apply calibration if we have it */
     if(s->f_offset[side]){
       DBG (17, "copy_simplex: apply offset\n");
@@ -5227,7 +5227,7 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
         line[j] = curr;
       }
     }
-  
+
     /* apply brightness and contrast if hardware cannot do it */
     if(s->sw_lut && (s->s.mode == MODE_COLOR || s->s.mode == MODE_GRAYSCALE)){
       DBG (17, "copy_simplex: apply brightness/contrast\n");
@@ -5283,7 +5283,7 @@ copy_duplex(struct scanner *s, unsigned char * buf, int len)
     DBG (10, "copy_duplex: 2510\n");
 
     for(i=0; i<len; i+=dbwidth){
-  
+
       for(j=0;j<dbwidth;j+=6){
 
         /* we are actually only partially descrambling,
@@ -5473,7 +5473,7 @@ copy_line(struct scanner *s, unsigned char * buff, int side)
       line[i*3+2] = line[source+2];
     }
   }
-  
+
   /* scan is wider than user wanted, skip some pixels on left side */
   if(s->i.width != s->s.width){
     offset = ((s->valid_x-s->i.page_x) / 2 + s->i.tl_x) * s->i.dpi_x/1200;
@@ -5481,12 +5481,12 @@ copy_line(struct scanner *s, unsigned char * buff, int side)
 
   /* change mode, store line in buffer */
   switch (s->i.mode) {
-  
+
     case MODE_COLOR:
       memcpy(s->buffers[side]+s->i.bytes_sent[side], line+(offset*3), ibwidth);
       s->i.bytes_sent[side] += ibwidth;
       break;
-  
+
     case MODE_GRAYSCALE:
       for(i=0;i<ibwidth;i++){
         int source = (offset+i)*3;
@@ -5494,7 +5494,7 @@ copy_line(struct scanner *s, unsigned char * buff, int side)
           = ((int)line[source] + line[source+1] + line[source+2])/3;
       }
       break;
-  
+
     default:
       /*loop over output bytes*/
       for(i=0;i<ibwidth;i++){
@@ -5506,7 +5506,7 @@ copy_line(struct scanner *s, unsigned char * buff, int side)
         for(j=0;j<8;j++){
           int source = offset*3 + i*24 + j*3;
           if( (line[source] + line[source+1] + line[source+2]) < thresh ){
-            curr |= 1 << (7-j); 
+            curr |= 1 << (7-j);
           }
         }
 
@@ -5535,15 +5535,15 @@ read_from_buffer(struct scanner *s, SANE_Byte * buf, SANE_Int max_len,
   /* figure out the max amount to transfer */
   if(bytes > remain)
     bytes = remain;
-  
+
   *len = bytes;
-  
+
   /*FIXME this needs to timeout eventually */
   if(!bytes){
     DBG(5,"read_from_buffer: nothing to do\n");
     return SANE_STATUS_GOOD;
   }
-  
+
   DBG(15, "read_from_buffer: si:%d to:%d tx:%d bu:%d pa:%d\n", side,
     s->i.bytes_tot[side], s->u.bytes_sent[side], max_len, bytes);
 
@@ -5701,7 +5701,7 @@ calibrate_AFE (struct scanner *s)
     DBG (5, "calibrate_AFE: ERROR: cannot set window\n");
     goto cleanup;
   }
-  
+
   /* first pass (black offset), lamp off, no offset/gain/exposure */
   DBG (15, "calibrate_AFE: offset\n");
 
@@ -5925,7 +5925,7 @@ calibrate_fine_buffer (struct scanner *s)
     DBG (5, "calibrate_fine_buffer: ERROR: cannot load offset buffers\n");
     goto cleanup;
   }
- 
+
   DBG (5, "calibrate_fine_buffer: %d %x\n", s->s.dpi_x/10, s->s.dpi_x/10);
 
   memset(cmd,0,cmdLen);
@@ -5952,13 +5952,13 @@ calibrate_fine_buffer (struct scanner *s)
     /*color mode, expand offset across all three channels? */
     if(s->s.format == SANE_FRAME_RGB){
       for(j=0; j<s->s.valid_width; j++){
-        
-        /*red*/  
+
+        /*red*/
         s->f_offset[i][j*3] = in[j*2+i];
         if(s->f_offset[i][j*3] < 1)
           s->f_offset[i][j*3] = 1;
 
-        /*green and blue, same as red*/  
+        /*green and blue, same as red*/
         s->f_offset[i][j*3+1] = s->f_offset[i][j*3+2] = s->f_offset[i][j*3];
       }
     }
@@ -5995,10 +5995,10 @@ calibrate_fine_buffer (struct scanner *s)
     int codes[] = {R_FINE_uid_red,R_FINE_uid_green,R_FINE_uid_blue};
 
     for(k=0;k<3;k++){
-  
+
       set_R_xfer_uid (cmd, codes[k]);
       inLen = reqLen;
-    
+
       hexdump(15, "cmd:", cmd, cmdLen);
 
       ret = do_cmd (
@@ -6009,12 +6009,12 @@ calibrate_fine_buffer (struct scanner *s)
       );
       if (ret != SANE_STATUS_GOOD)
         goto cleanup;
-  
+
       for(i=0;i<2;i++){
         for(j=0; j<s->s.valid_width; j++){
-          
+
           s->f_gain[i][j*3+k] = in[j*2+i]*3/4;
-    
+
           if(s->f_gain[i][j*3+k] < 1)
             s->f_gain[i][j*3+k] = 1;
         }
@@ -6027,7 +6027,7 @@ calibrate_fine_buffer (struct scanner *s)
 
     set_R_xfer_uid (cmd, R_FINE_uid_gray);
     inLen = reqLen;
-    
+
     hexdump(15, "cmd:", cmd, cmdLen);
 
     ret = do_cmd (
@@ -6038,12 +6038,12 @@ calibrate_fine_buffer (struct scanner *s)
     );
     if (ret != SANE_STATUS_GOOD)
       goto cleanup;
-  
+
     for(i=0;i<2;i++){
       for(j=0; j<s->s.valid_width; j++){
-        
+
         s->f_gain[i][j] = in[j*2+i]*3/4;
-    
+
         if(s->f_gain[i][j] < 1)
           s->f_gain[i][j] = 1;
       }
@@ -6127,7 +6127,7 @@ calibrate_fine (struct scanner *s)
     DBG (5, "calibrate_fine: ERROR: cannot load buffers\n");
     goto cleanup;
   }
-  
+
   /*blast the existing fine cal data so reading code wont apply it*/
   ret = offset_buffers(s,0);
   ret = gain_buffers(s,0);
@@ -6138,14 +6138,14 @@ calibrate_fine (struct scanner *s)
     DBG (5, "calibrate_fine: ERROR: cannot ssm buffer\n");
     goto cleanup;
   }
-  
+
   /* set window command */
   ret = set_window(s);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibrate_fine: ERROR: cannot set window\n");
     goto cleanup;
   }
-  
+
   /*handle fifth pass (fine offset), lamp off*/
   DBG (15, "calibrate_fine: offset\n");
   ret = calibration_scan(s,0xff);
@@ -6159,7 +6159,7 @@ calibrate_fine (struct scanner *s)
     DBG (5, "calibrate_fine: ERROR: cannot load offset buffers\n");
     goto cleanup;
   }
-  
+
   for(i=0;i<2;i++){
     for(j=0; j<s->s.valid_Bpl; j++){
       min = 0;
@@ -6184,7 +6184,7 @@ calibrate_fine (struct scanner *s)
     DBG (5, "calibrate_fine: ERROR: cannot load gain buffers\n");
     goto cleanup;
   }
-  
+
   for(i=0;i<2;i++){
     for(j=0; j<s->s.valid_Bpl; j++){
       max = 0;
@@ -6231,14 +6231,14 @@ calibration_scan (struct scanner *s, int scan)
     DBG (5, "calibration_scan: ERROR: cannot clean_params\n");
     return ret;
   }
-  
+
   /* start scanning */
   ret = start_scan (s,scan);
   if (ret != SANE_STATUS_GOOD) {
     DBG (5, "calibration_scan: ERROR: cannot start_scan\n");
     return ret;
   }
-  
+
   while(!s->s.eof[SIDE_FRONT] && !s->s.eof[SIDE_BACK]){
     ret = read_from_scanner_duplex(s,1);
   }
@@ -6260,7 +6260,7 @@ write_AFE(struct scanner *s)
   size_t cmdLen = COR_CAL_len;
 
   /*use the longest payload for buffer*/
-  unsigned char pay[CC3_pay_len]; 
+  unsigned char pay[CC3_pay_len];
   size_t payLen = CC3_pay_len;
 
   DBG (10, "write_AFE: start\n");
@@ -6272,7 +6272,7 @@ write_AFE(struct scanner *s)
     set_SCSI_opcode(cmd, COR_CAL_code);
     set_CC_version(cmd,CC3_pay_ver);
     set_CC_xferlen(cmd,payLen);
-  
+
     memset(pay,0,payLen);
 
     set_CC3_gain_f_r(pay,s->c_gain[SIDE_FRONT]);
@@ -6282,7 +6282,7 @@ write_AFE(struct scanner *s)
     set_CC3_off_f_r(pay,s->c_offset[SIDE_FRONT]);
     set_CC3_off_f_g(pay,s->c_offset[SIDE_FRONT]);
     set_CC3_off_f_b(pay,s->c_offset[SIDE_FRONT]);
-  
+
     set_CC3_exp_f_r(pay,s->c_exposure[SIDE_FRONT][CHAN_RED]);
     set_CC3_exp_f_g(pay,s->c_exposure[SIDE_FRONT][CHAN_GREEN]);
     set_CC3_exp_f_b(pay,s->c_exposure[SIDE_FRONT][CHAN_BLUE]);
@@ -6307,7 +6307,7 @@ write_AFE(struct scanner *s)
     set_SCSI_opcode(cmd, COR_CAL_code);
     set_CC_version(cmd,CC_pay_ver);
     set_CC_xferlen(cmd,payLen);
-  
+
     memset(pay,0,payLen);
     set_CC_f_gain(pay,s->c_gain[SIDE_FRONT]);
     set_CC_unk1(pay,1);
@@ -6319,7 +6319,7 @@ write_AFE(struct scanner *s)
     set_CC_exp_f_r2(pay,s->c_exposure[SIDE_FRONT][CHAN_RED]);
     set_CC_exp_f_g2(pay,s->c_exposure[SIDE_FRONT][CHAN_GREEN]);
     set_CC_exp_f_b2(pay,s->c_exposure[SIDE_FRONT][CHAN_BLUE]);
-  
+
     set_CC_b_gain(pay,s->c_gain[SIDE_BACK]);
     set_CC_b_offset(pay,s->c_offset[SIDE_BACK]);
     set_CC_exp_b_r1(pay,s->c_exposure[SIDE_BACK][CHAN_RED]);
@@ -6414,26 +6414,26 @@ gain_buffers (struct scanner *s, int setup)
  * @@ Section 6 - SANE cleanup functions
  */
 /*
- * Cancels a scan. 
+ * Cancels a scan.
  *
  * It has been said on the mailing list that sane_cancel is a bit of a
  * misnomer because it is routinely called to signal the end of a
  * batch - quoting David Mosberger-Tang:
- * 
+ *
  * > In other words, the idea is to have sane_start() be called, and
  * > collect as many images as the frontend wants (which could in turn
  * > consist of multiple frames each as indicated by frame-type) and
- * > when the frontend is done, it should call sane_cancel(). 
+ * > when the frontend is done, it should call sane_cancel().
  * > Sometimes it's better to think of sane_cancel() as "sane_stop()"
  * > but that name would have had some misleading connotations as
  * > well, that's why we stuck with "cancel".
- * 
+ *
  * The current consensus regarding duplex and ADF scans seems to be
  * the following call sequence: sane_start; sane_read (repeat until
  * EOF); sane_start; sane_read...  and then call sane_cancel if the
  * batch is at an end. I.e. do not call sane_cancel during the run but
  * as soon as you get a SANE_STATUS_NO_DOCS.
- * 
+ *
  * From the SANE spec:
  * This function is used to immediately or as quickly as possible
  * cancel the currently pending operation of the device represented by
@@ -6478,13 +6478,13 @@ check_for_cancel(struct scanner *s)
   if(s->started && s->cancelled){
     unsigned char cmd[CANCEL_len];
     size_t cmdLen = CANCEL_len;
-  
+
     DBG (15, "check_for_cancel: cancelling\n");
-  
+
     /* cancel scan */
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, CANCEL_code);
-  
+
     ret = do_cmd (
         s, 1, 0,
         cmd, cmdLen,
@@ -6494,7 +6494,7 @@ check_for_cancel(struct scanner *s)
     if(ret){
       DBG (5, "check_for_cancel: ignoring bad cancel: %d\n",ret);
     }
-  
+
     ret = object_position(s,SANE_FALSE);
     if(ret){
       DBG (5, "check_for_cancel: ignoring bad eject: %d\n",ret);
@@ -6516,7 +6516,7 @@ check_for_cancel(struct scanner *s)
 
 /*
  * Ends use of the scanner.
- * 
+ *
  * From the SANE spec:
  * This function terminates the association between the device handle
  * passed in argument h and the device it represents. If the device is
@@ -6560,7 +6560,7 @@ disconnect_fd (struct scanner *s)
 
 /*
  * Terminates the backend.
- * 
+ *
  * From the SANE spec:
  * This function must be called to terminate use of a backend. The
  * function will first close all device handles that still might be
@@ -6983,19 +6983,19 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
         DBG(5,"cmd: no mem\n");
         return SANE_STATUS_NO_MEM;
       }
-  
+
       /* build a USB packet around the SCSI command */
       cmdBuffer[3] = cmdLength-4;
       cmdBuffer[5] = 1;
       cmdBuffer[6] = 0x90;
       memcpy(cmdBuffer+cmdOffset,cmdBuff,cmdLen);
-  
+
       /* write the command out */
       DBG(25, "cmd: writing %d bytes, timeout %d\n", (int)cmdLength, cmdTimeout);
       hexdump(30, "cmd: >>", cmdBuffer, cmdLength);
       ret = sanei_usb_write_bulk(s->fd, cmdBuffer, &cmdActual);
       DBG(25, "cmd: wrote %d bytes, retVal %d\n", (int)cmdActual, ret);
-  
+
       if(cmdLength != cmdActual){
         DBG(5,"cmd: wrong size %d/%d\n", (int)cmdLength, (int)cmdActual);
         free(cmdBuffer);
@@ -7043,19 +7043,19 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
         DBG(5,"out: no mem\n");
         return SANE_STATUS_NO_MEM;
       }
-  
+
       /* build a USB packet around the SCSI command */
       outBuffer[3] = outLength-4;
       outBuffer[5] = 2;
       outBuffer[6] = 0xb0;
       memcpy(outBuffer+outOffset,outBuff,outLen);
-  
+
       /* write the command out */
       DBG(25, "out: writing %d bytes, timeout %d\n", (int)outLength, outTimeout);
       hexdump(30, "out: >>", outBuffer, outLength);
       ret = sanei_usb_write_bulk(s->fd, outBuffer, &outActual);
       DBG(25, "out: wrote %d bytes, retVal %d\n", (int)outActual, ret);
-  
+
       if(outLength != outActual){
         DBG(5,"out: wrong size %d/%d\n", (int)outLength, (int)outActual);
         free(outBuffer);
@@ -7102,7 +7102,7 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
         DBG(5,"in: no mem\n");
         return SANE_STATUS_NO_MEM;
       }
-  
+
       DBG(25, "in: reading %d bytes, timeout %d\n", (int)inActual, inTimeout);
       ret = sanei_usb_read_bulk(s->fd, inBuffer, &inActual);
       DBG(25, "in: read %d bytes, retval %d\n", (int)inActual, ret);
@@ -7161,11 +7161,11 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
         ret = SANE_STATUS_EOF;
         DBG(5,"in: short read, %d/%d\n", (int)inLength,(int)inActual);
       }
-  
+
       /* ignore the USB packet around the SCSI command */
       *inLen = inActual - inOffset;
       memcpy(inBuff,inBuffer+inOffset,*inLen);
-  
+
       free(inBuffer);
     }
 
@@ -7214,12 +7214,12 @@ do_usb_status(struct scanner *s, int runRS, int shortTime, size_t * extraLength)
       DBG(5,"stat: no mem\n");
       return SANE_STATUS_NO_MEM;
     }
-  
+
     DBG(25, "stat: reading %d bytes, timeout %d\n", (int)statLength, statTimeout);
     ret = sanei_usb_read_bulk(s->fd, statBuffer, &statActual);
     DBG(25, "stat: read %d bytes, retval %d\n", (int)statActual, ret);
     hexdump(30, "stat: <<", statBuffer, statActual);
-  
+
     /*weird status*/
     if(ret != SANE_STATUS_GOOD){
       DBG(5,"stat: clearing error '%s'\n",sane_strstatus(ret));
@@ -7286,7 +7286,7 @@ do_usb_clear(struct scanner *s, int clear, int runRS)
           rs_in, &rs_inLen
         );
         DBG(25,"rs sub call <<\n");
-  
+
         if(ret2 == SANE_STATUS_EOF){
           DBG(5,"rs: got EOF, returning IO_ERROR\n");
           return SANE_STATUS_IO_ERROR;
@@ -7309,7 +7309,7 @@ do_usb_clear(struct scanner *s, int clear, int runRS)
 }
 
 static SANE_Status
-wait_scanner(struct scanner *s) 
+wait_scanner(struct scanner *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
@@ -7360,11 +7360,11 @@ wait_scanner(struct scanner *s)
 
 /* Some scanners have per-resolution
  * color interlacing values, but most
- * don't. This helper can tell the 
+ * don't. This helper can tell the
  * difference.
  */
 static int
-get_color_inter(struct scanner *s, int side, int res) 
+get_color_inter(struct scanner *s, int side, int res)
 {
   int i;
   for(i=0;i<DPI_1200;i++){
@@ -7384,7 +7384,7 @@ get_color_inter(struct scanner *s, int side, int res)
  * due to using FB or overscan.
  */
 static int
-get_page_width(struct scanner *s) 
+get_page_width(struct scanner *s)
 {
   int width = s->u.page_x;
 
@@ -7408,7 +7408,7 @@ get_page_width(struct scanner *s)
  * due to using FB or overscan.
  */
 static int
-get_page_height(struct scanner *s) 
+get_page_height(struct scanner *s)
 {
   int height = s->u.page_y;
 
@@ -7600,7 +7600,7 @@ buffer_crop(struct scanner *s, int side)
 
   /* if we will later binarize this image, make sure the width
    * is a multiple of 8 pixels, by adjusting the right side */
-  if ( must_downsample(s) && s->u.mode < MODE_GRAYSCALE ){ 
+  if ( must_downsample(s) && s->u.mode < MODE_GRAYSCALE ){
     s->crop_vals[3] -= (s->crop_vals[3]-s->crop_vals[2]) % 8;
   }
 
@@ -7618,13 +7618,13 @@ buffer_crop(struct scanner *s, int side)
   s->i.width = s->s_params.pixels_per_line;
   s->i.height = s->s_params.lines;
   s->i.Bpl = s->s_params.bytes_per_line;
-  
+
   /* update image size counter to new, smaller size */
   s->i.bytes_tot[side] = s->s_params.lines * s->s_params.bytes_per_line;
   s->i.bytes_sent[side] = s->i.bytes_tot[side];
   s->u.bytes_sent[side] = 0;
-  
-  cleanup: 
+
+  cleanup:
   DBG (10, "buffer_crop: finish\n");
   return ret;
 }
@@ -7679,7 +7679,7 @@ buffer_isblank(struct scanner *s, int side)
   return status;
 }
 
-/* certain options require the entire image to 
+/* certain options require the entire image to
  * be collected from the scanner before we can
  * tell the user the size of the image. */
 static int
@@ -7696,7 +7696,7 @@ must_fully_buffer(struct scanner *s)
   return 0;
 }
 
-/* certain scanners require the mode of the 
+/* certain scanners require the mode of the
  * image to be changed in software. */
 static int
 must_downsample(struct scanner *s)
@@ -7714,7 +7714,7 @@ must_downsample(struct scanner *s)
    used by scanners to implement brightness/contrast/gamma
    or by backends to speed binarization/thresholding
 
-   offset and slope inputs are -127 to +127 
+   offset and slope inputs are -127 to +127
 
    slope rotates line around central input/output val,
    0 makes horizontal line
@@ -7730,9 +7730,9 @@ must_downsample(struct scanner *s)
    offset moves line vertically, and clamps to output range
    0 keeps the line crossing the center of the table
 
-       pos            zero          neg 
+       pos            zero          neg
        .   xxxxxxxx   .        xx   .
-       . x            .      x      . 
+       . x            .      x      .
    out x              .    x        .          x
        .              .  x          .        x
        ............   xx..........  xxxxxxxx....
@@ -7761,7 +7761,7 @@ load_lut (unsigned char * lut,
    * first [-127,127] to [-.999,.999]
    * then to [-PI/4,PI/4] then [0,PI/2]
    * then take the tangent (T.O.A)
-   * then multiply by the normal linear slope 
+   * then multiply by the normal linear slope
    * because the table may not be square, i.e. 1024x256*/
   rise = tan((double)slope/128 * M_PI_4 + M_PI_4) * max_out_val / max_in_val;
 

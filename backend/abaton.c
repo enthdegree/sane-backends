@@ -322,7 +322,7 @@ set_window (Abaton_Scanner * s)
   uint8_t cmd[10 + 40];
   uint8_t *window = cmd + 10 + 8;
   int invert;
-  
+
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = SET_WINDOW;
   cmd[8] = 40;
@@ -379,11 +379,11 @@ set_window (Abaton_Scanner * s)
 	   s->val[OPT_HALFTONE_PATTERN].s);
       return SANE_STATUS_INVAL;
     }
-  
+
   /* We have to invert these ones for some reason, so why not
      let the scanner do it for us... */
   STORE8 (window + 21, invert ? 0x80 : 0);
-  
+
   STORE16 (window + 22, (s->val[OPT_MIRROR].w != 0));
 
   return sanei_scsi_cmd (s->fd, cmd, sizeof (cmd), 0, 0);
@@ -511,7 +511,7 @@ calc_parameters (Abaton_Scanner * s)
   SANE_Int dpix = s->val[OPT_X_RESOLUTION].w;
   SANE_Int dpiy = s->val[OPT_Y_RESOLUTION].w;
   double ulx, uly, width, height;
-  
+
   DBG (FLOW_CONTROL, "Entering calc_parameters\n");
 
   if (!strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) || !strcmp (val, SANE_VALUE_SCAN_MODE_HALFTONE))
@@ -549,7 +549,7 @@ calc_parameters (Abaton_Scanner * s)
   s->ULy    = uly    * dpiy;
   s->Width  = width  * dpix;
   s->Height = height * dpiy;
-  
+
   DBG (VARIABLE_CONTROL, "(pixels) ulx: %d, uly: %d, width: %d, height: %d\n",
        s->ULx, s->ULy, s->Width, s->Height);
 
@@ -653,7 +653,7 @@ init_options (Abaton_Scanner * s)
   s->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
   s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
-  
+
   /* "Mode" group: */
   s->opt[OPT_MODE_GROUP].title = "Scan Mode";
   s->opt[OPT_MODE_GROUP].desc = "";
@@ -662,7 +662,7 @@ init_options (Abaton_Scanner * s)
   s->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   mode_list[0]=SANE_VALUE_SCAN_MODE_LINEART;
-  
+
   switch (s->hw->ScannerModel)
     {
     case ABATON_300GS:
@@ -676,7 +676,7 @@ init_options (Abaton_Scanner * s)
       mode_list[1]=NULL;
       break;
     }
-  
+
   /* scan mode */
   s->opt[OPT_MODE].name = SANE_NAME_SCAN_MODE;
   s->opt[OPT_MODE].title = SANE_TITLE_SCAN_MODE;
@@ -724,7 +724,7 @@ init_options (Abaton_Scanner * s)
   s->opt[OPT_PREVIEW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
   s->opt[OPT_PREVIEW].type = SANE_TYPE_BOOL;
   s->val[OPT_PREVIEW].w = SANE_FALSE;
-  
+
   /* halftone pattern  */
   s->opt[OPT_HALFTONE_PATTERN].name = SANE_NAME_HALFTONE_PATTERN;
   s->opt[OPT_HALFTONE_PATTERN].title = SANE_TITLE_HALFTONE_PATTERN;
@@ -832,7 +832,7 @@ init_options (Abaton_Scanner * s)
   s->opt[OPT_NEGATIVE].unit = SANE_UNIT_NONE;
   s->opt[OPT_NEGATIVE].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_NEGATIVE].w = SANE_FALSE;
-  
+
   /* mirror-image */
   s->opt[OPT_MIRROR].name = "mirror";
   s->opt[OPT_MIRROR].title = "Mirror Image";
@@ -974,7 +974,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   /* set up some universal parameters */
   s->params.last_frame = SANE_TRUE;
   s->params.format = SANE_FRAME_GRAY;
-  
+
   /* insert newly opened handle into list of open handles: */
   s->next = first_handle;
   first_handle = s;
@@ -1017,7 +1017,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   if ((unsigned) option >= NUM_OPTIONS)
     return NULL;
-  
+
   return s->opt + option;
 }
 
@@ -1072,7 +1072,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_HALFTONE_PATTERN:
 	  status = sanei_constrain_value (s->opt + option, s->val[option].s,
 					  info);
-	  strcpy (val, s->val[option].s);	  
+	  strcpy (val, s->val[option].s);
 	  return SANE_STATUS_GOOD;
 	}
     }
@@ -1103,7 +1103,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_PARAMS;
 	  return SANE_STATUS_GOOD;
-	    
+
 	case OPT_RESOLUTION_BIND:
 	  s->val[option].w = *(SANE_Word *) val;
 	  if (*(SANE_Word *) val) {
@@ -1114,7 +1114,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		SANE_INFO_RELOAD_OPTIONS;
 	  }
 	  return SANE_STATUS_GOOD;
-	  
+
 	case OPT_X_RESOLUTION:
 	  if (s->val[OPT_PREVIEW].w || s->val[OPT_RESOLUTION_BIND].w) {
 	    s->val[OPT_Y_RESOLUTION].w = *(SANE_Word *)val;
@@ -1155,7 +1155,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  calc_parameters (s);
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_PARAMS
-	      | SANE_INFO_INEXACT;	  
+	      | SANE_INFO_INEXACT;
 	  return SANE_STATUS_GOOD;
 
 	  /* no side-effects whatsoever */
@@ -1176,7 +1176,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    free (s->val[option].s);
 	  s->val[option].s = strdup (val);
 	  return SANE_STATUS_GOOD;
-	  
+
 	case OPT_MODE:
 	  status = mode_update (s, val);
 	  if (status != SANE_STATUS_GOOD)
@@ -1295,7 +1295,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   /* this is a sub-optimal way of doing this, I'm sure */
   if (!s->scanning)
     return SANE_STATUS_EOF;
-  
+
   if (!strcmp (s->val[OPT_MODE].s, "Gray16"))
     Pseudo8bit = SANE_TRUE;
 
@@ -1352,13 +1352,13 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  {
 	    rread = data_av;
 	  }
-	
+
 	DBG (IO_MESSAGE,
 	     "sane_read: (action) Actual read request for %u bytes.\n",
 	     rread);
 
 	size = rread;
-      
+
 	STORE24 (read + 6, rread);
 
 	status = sanei_scsi_cmd (s->fd, read, sizeof (read),
@@ -1487,7 +1487,7 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
   handle = handle;			/* silence gcc */
   fd = fd;						/* silence gcc */
-  
+
   DBG (FLOW_CONTROL, "sane_get_select_fd: Don't call me please. "
        "Unimplemented function\n");
   return SANE_STATUS_UNSUPPORTED;

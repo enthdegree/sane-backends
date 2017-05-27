@@ -1,13 +1,13 @@
 /* Automatically generated from pixma_sane.c */
-static const SANE_Range constraint_gamma_table = 
+static const SANE_Range constraint_gamma_table =
   { 0,255,0 };
-static const SANE_Range constraint_gamma = 
+static const SANE_Range constraint_gamma =
   { SANE_FIX(0.3),SANE_FIX(5),SANE_FIX(0) };
-static const SANE_Range constraint_threshold = 
+static const SANE_Range constraint_threshold =
   { 0,100,1 };
-static const SANE_Range constraint_threshold_curve = 
+static const SANE_Range constraint_threshold_curve =
   { 0,127,1 };
-static const SANE_Range constraint_adf_wait = 
+static const SANE_Range constraint_adf_wait =
   { 0,3600,1 };
 
 

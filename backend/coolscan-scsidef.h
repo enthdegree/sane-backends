@@ -179,7 +179,7 @@ static scsiblk inquiry =
 /* ==================================================================== */
 /*
    static unsigned char mode_selectC[] = {
-   MODE_SELECT, 0x10, 0x00, 0x00, 0x00, 0x00    
+   MODE_SELECT, 0x10, 0x00, 0x00, 0x00, 0x00
 
    static scsiblk mode_select = { mode_selectC,sizeof(mode_selectC) };
  */
@@ -518,7 +518,7 @@ static scsiblk window_descriptor_block =
 
 
 
-/* LS-30 has different window-descriptor ! 
+/* LS-30 has different window-descriptor !
  */
 
 static unsigned char window_descriptor_blockC_LS30[] =
@@ -529,11 +529,11 @@ static unsigned char window_descriptor_blockC_LS30[] =
   0x00,				/* 0x00 */
 				/* Window Identifier */
 #define WD_wid_0 0x00		/* Only one supported */
-#define WD_wid_1 0x01		
-#define WD_wid_2 0x02		
-#define WD_wid_3 0x03		
-#define WD_wid_4 0x04		
-#define WD_wid_9 0x09	
+#define WD_wid_1 0x01
+#define WD_wid_2 0x02
+#define WD_wid_3 0x03
+#define WD_wid_4 0x04
+#define WD_wid_9 0x09
   0x00,			        /* reserved, AUTO */
 
   0x00, 0x00,			/* 0x02 */
@@ -784,7 +784,7 @@ static unsigned char autofocusLS30C[] =
 
 static unsigned char autofocuspos[] =
 {
-  0x00, 
+  0x00,
   0x00, 0x00, 0x05, 0x10,              /* x-position */
   0x00, 0x00, 0x07, 0x9b,	       /* y-position */
 };

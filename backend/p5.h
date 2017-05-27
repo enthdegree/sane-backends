@@ -1,22 +1,22 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2009-2012 stef.dev@free.fr
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
-   
+
 */
 
 /** @file p5.h
@@ -77,7 +77,7 @@
 
 #include "p5_device.h"
 
-/** 
+/**
  * List of all SANE options available for the frontend. Given a specific
  * device, some options may be set to inactive when the scanner model is
  * detected. The default values and the ranges they belong maybe also model
@@ -95,7 +95,7 @@ enum P5_Options
   OPT_RESOLUTION,		/** set scan's resolution */
   /* @} */
 
-  /** @name geometry group 
+  /** @name geometry group
    * geometry related options
    */
   /* @{ */
@@ -139,9 +139,9 @@ typedef struct P5_Option
   Option_Value value;			/** option value */
 } P5_Option;
 
-/** 
+/**
  * Frontend session. This struct holds informations usefull for
- * the functions defined in SANE's standard. Informations closer 
+ * the functions defined in SANE's standard. Informations closer
  * to the hardware are in the P5_Device structure. There is
  * as many session structure than frontends using the backend.
  */
@@ -175,7 +175,7 @@ typedef struct P5_Session
   SANE_Bool non_blocking;
 
   /**
-   * SANE Parameters describes what the next or current scan will be 
+   * SANE Parameters describes what the next or current scan will be
    * according to the current values of the options
    */
   SANE_Parameters params;

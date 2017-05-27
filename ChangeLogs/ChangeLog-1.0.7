@@ -8,7 +8,7 @@
 	* TODO: Added entries about config.h, sane-backends.html, device file
 	  types, the HPUX -ansi problem, and make distclean.
 	* backend/Makefile.in backend/coolscan2.desc: Added description file
-	  for coolscan2 backend (from Major Andras 
+	  for coolscan2 backend (from Major Andras
 	  <andras@users.sourceforge.net>).
 	* backend/gphoto2.desc: gphoto2 is no longer "NEW".
 
@@ -16,14 +16,14 @@
 
 	* PROJECTS: Added info about Canon N670U project. Added info about
 	  Sceptre S1200 project.
-	* backend/sceptre.desc backend/Makefile.in: New file (from Frank Zago 
+	* backend/sceptre.desc backend/Makefile.in: New file (from Frank Zago
 	  <fzago@greshamstorage.com>).
 	* backend/microtek2.desc doc/sane-microtek2.man: Updated microtek2
 	  documentation (from karsten.festag@t-online.de (Karsten Festag)).
 	* Makefile.in README.netbsd: New file. Information about problems
 	  with shared libs.
 	* configure configure.in: Include <sys/types.h> and <sys/ipc.h> also
-	  when checking for struct semun in <sys/sem.h>. This fixes a 
+	  when checking for struct semun in <sys/sem.h>. This fixes a
 	  compilation problem on FreeBSD.
 
 2002-01-31  Peter Fales <peter@fales.com>
@@ -31,7 +31,7 @@
 	* configure, acinclude.m4, aclocal.m4 - Latest gphoto2 updates
 	  changed the version number, breaking the gphoto2 backend.  This
 	  is a one line change to correct that.
-	
+
 2002-01-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* PROJECTS: Added info about GT-68xx backend.
@@ -49,7 +49,7 @@
 2002-01-27  Gerhard Jaeger <g.jaeger@earthling.net>
 
 	* backend/plustek-usbhw.c: Fixed LM9831 problem...
-	
+
 2002-01-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/microtek.c backend/microtek2.h: Fixed undefined behaviour
@@ -98,7 +98,7 @@
 	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan.h
           Fix recognition of Acer 320U, Fix for spaces in model ID strings,
           Change snapscan version to 1.4.7
-          
+
 2002-01-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek.c backend/mustek_usb.c doc/mustek/mustek.CHANGES
@@ -114,7 +114,7 @@
           Change snapscan version to 1.4.6
         * backend/snapscan.conf
           Use /dev/sg0 as default instead of the more uncommon /dev/sga
-          
+
 ---- sane-backends-1.0.7-beta1 ----
 
 2002-01-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -172,7 +172,7 @@
 	  po/umax.de.po: Moved the options contained in saneopts.h into a
 	  seperate file. So the backend po files are much smaller and easier to
 	  read and the saneopts translations are consistent through backends.
-	* backend/microtek2.c backend/microtek2.h: Update to backend 
+	* backend/microtek2.c backend/microtek2.h: Update to backend
 	  0.95-20020112 (from karsten.festag@t-online.de (Karsten Festag)).
 	* include/sane/sanei.h include/sane/sanei_config.h
 	  include/sane/sanei_thread.h sanei/sanei_config.c: Made documentation
@@ -189,7 +189,7 @@
 	* configure, acinclude.m4, aclocal.m4 - Update gphoto2 version check
 	* backend/gphoto2.c - Improved support for options not
 	  supported by camera.  Cosmetic cleanup.
-	  	
+
 2002-01-18  Rene Rebe <rene.rebe@gmx.net>
 
         * docs/sane-avision.man: added the new disable-gamma-table option
@@ -267,8 +267,8 @@
 	  converted gp_debug_printf to gp_log
 
 	  configure.in, configure, acinclude.m4, aclocal.m4 - Improvements
-	  to the way gphoto2 is detected and used based on using 
-	  gphoto2-config. 
+	  to the way gphoto2 is detected and used based on using
+	  gphoto2-config.
 
 2002-01-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -280,18 +280,18 @@
 	  translatable text in backend sources.
 
 2002-01-14  Oliver Schwartz <Oliver.Schwartz@gmx.de>
-	
+
 	* backend/snapscan.c   backend/snapscan-usb.c:
           Added workaround for bug in semctl() on PPC;
           backend version 1.4.5
-        
+
 2002-01-14  Peter Fales <peter@fales.com>
 	* backend/gphoto2.c:  Was requiring the device to have the
 	  IMAGE_CAPTURE capability - changed this to a warning instead
 	  of an error so the "Directory Browse" camera can be used.
 	  Don't require a port to be specified for the "Directory
-	  Browse" camera.  Fixed a bug that can result in extra data 
-	  at the end of the iamge.  Allow the returned image image to be 
+	  Browse" camera.  Fixed a bug that can result in extra data
+	  at the end of the iamge.  Allow the returned image image to be
 	  larger than the "estimate" specified in the configuration file.
 
 2002-01-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -351,9 +351,9 @@
 	* frontend/saned.c: Check that the IP addresses of the peer are the
 	  same for control and data connections. Exit, if this is not the
 	  case. Changed some debug levels.
-	* PROJECTS: Updated some URLs. Removed m3096g and Mustek BearPaw 
+	* PROJECTS: Updated some URLs. Removed m3096g and Mustek BearPaw
 	  (both are included now in SANE). Added test backend and SaneTwain.
-	* TODO: Removed primax (not a backend), fixed viceo URL, updated 
+	* TODO: Removed primax (not a backend), fixed viceo URL, updated
 	  qcam entries, added entries about ipv6 support, removed saned
 	  address validation entry. Added entry about scanimage + NLS.
 	* backend/mustek_usb.c backend/mustek_usb.desc
@@ -368,10 +368,10 @@
           addressed security issue with tempfile
 
 2002-01-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
-	
+
 	* backend/snapscan.c   backend/snapscan.h  backend/snapscan.desc:
-	  Update to snapscan-20020110 (Version 1.4.4) 
-          - add support for SnapScan e42	  
+	  Update to snapscan-20020110 (Version 1.4.4)
+          - add support for SnapScan e42
 
 2002-01-10  Gerhard Jaeger <g.jaeger@earthling.net>
 
@@ -390,7 +390,7 @@
     * backend/Makefile.in: Changed to compile the Plustek backend
 
 2002-01-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
+
 	* po/pnm.de.po: Added German translation for pnm backend.
 	* po/mustek.de.po po/mustek_usb.de.po: Updated German translations.
 	  They should be complete now.
@@ -401,9 +401,9 @@
 	* README: Added description of --enable-translations.
 	* doc/sane.man: Added comment about translations.
 	* Makefile.in: Added Changelogs to DISTFILES. test/Makefile is
-	  removed in make distclean now. 
+	  removed in make distclean now.
 	* doc/backend-writing.txt: Added paragraph about getting started.
-	  Added comments about ANSI C, compilation warnings, testing and 
+	  Added comments about ANSI C, compilation warnings, testing and
 	  keeping manpages up-to-date.
 	* backend/pnm.c: Added SANE_I18N() marks.
 	* TODO: Cleanup. Moved several entries to doc/backend-writing.txt.
@@ -443,7 +443,7 @@
 	  root dir to this file. Added standard variables and .PHONY.
 	* backend/Makefile.in doc/Makefile.in frontend/Makefile.in
 	  japi/Makefile.in lib/Makefile.in po/Makefile.in sanei/Makefile.in
-	  testsuite/Makefile.in tools/Makefile.in: Added target "dist". 
+	  testsuite/Makefile.in tools/Makefile.in: Added target "dist".
 	  Fixed .PHONY.
 	* Makefile.in: Added targets "dist" and "sane-backends". make dist
           creates sane-backends-x.y.z.tar.gz and make sane-backends also
@@ -476,8 +476,8 @@
 	* po/mustek.de.po mustek_usb.de.po: Added German translations
 	  for Mustek SCSI and USB backends. Translations for well-known
 	  options are missing.
-	* Makefile.in configure configure.in: Added option 
-	  --enable-translations to configure. I18N support is disabled by 
+	* Makefile.in configure configure.in: Added option
+	  --enable-translations to configure. I18N support is disabled by
 	  default.
 	* po/.cvsignore: New file.
 	* doc/sane-mustek_usb.man doc/mustek_usb/mustek_usb.CHANGES:
@@ -490,7 +490,7 @@
 	* backend/Makefile.in backend/dll.conf backend/umax1220u-common.c
 	  backend/umax1220u.c backend/umax1220u.conf backend/umax1220u.desc:
 	  Added new backend umax1220u for UMAX Astra 1220U and 2000U
-	  scanners (patch from Marcio Luis Teixeira 
+	  scanners (patch from Marcio Luis Teixeira
 	  <marciot@holly.colostate.edu>).
 	* doc/Makefile.in doc/sane.man doc/sane-umax1220u.man: Added
 	  documentation fo umax1220u backend (patch from from Marcio Luis
@@ -513,7 +513,7 @@
 	  comparison, not host names as before. It's possible to put
 	  hostnames, FQDNs and IP addresses into saned.conf. Limitations:
 	  Only the first IP address in struct hostent is checked. IPv6 is
-	  untested. The change is based on a patch by Petter Reinholdtsen 
+	  untested. The change is based on a patch by Petter Reinholdtsen
 	  <pere@hungry.com>.
 	  Return SANE_STATUS_ACCESS_DENIED if access was not granted instead
 	  of SANE_STATUS_IO_ERROR.
@@ -526,7 +526,7 @@
 2001-01-06  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Undefine TEST_IOCTL again, which was enabled
-	  by accident. 
+	  by accident.
 
 2002-01-06  Stéphane Voltz  <svoltz@wanadoo.fr>
 
@@ -535,7 +535,7 @@
 	  Corrected parport mode being set before being claimed.
 	* backend/umax_pp.c: changed build number.
 	* tools/umax_pp.c: changed version.
-	  
+
 
 2002-01-05 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 	* backend/umax-scanner.c, umax.c, umax.conf, umax.desc, umax.h:
@@ -543,7 +543,7 @@
 
 2002-01-05  Karl Heinz Kremer <khk@khk.net>
 
-	* backend/epson.[ch]: Check for (and set) s->fd to -1 when 
+	* backend/epson.[ch]: Check for (and set) s->fd to -1 when
 	  scanner is closed. Removed black gamma table - only RGB
 	  is used, even for grayscale scans. Do not call access()
 	  when running on OS/2 or when using a parallel port scanner.
@@ -626,22 +626,22 @@
 2001-12-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.linux: Used "sane-find-scanner". Some minor changes.
-	* config.guess config.sub: Updated from 
+	* config.guess config.sub: Updated from
 	  http://savannah.gnu.org/projects/config.
 	* TODO: New section: "platform-specific". Added some problems with
 	  *BSD. Some minor fixes and additions.
 	* tools/sane-find-scanner.c: Added OpenBSD device files.
-	* README.openbsd: New file. Some information on how to get SANE 
+	* README.openbsd: New file. Some information on how to get SANE
 	  running on top of OpenBSD.
 
 2001-12-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek_usb.c backend/mustek_usb.conf backend/mustek_usb.desc
-	  backend/mustek_usb_low.c backend/mustek_usb_low.h 
+	  backend/mustek_usb_low.c backend/mustek_usb_low.h
 	  doc/sane-mustek_usb.man doc/mustek_usb/mustek_usb.CHANGES:
 	  Made usb_low_read_rows more robust. Limited maximum block size and
 	  added option for this. New version: 1.0-9.
-	
+
 2001-12-21  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c    backend/snapscan.h
@@ -649,7 +649,7 @@
 
 2001-12-20  Peter Fales <peter@fales.com>
 
-	* backend/dc25.c - Fixed a potential security problem due to a 
+	* backend/dc25.c - Fixed a potential security problem due to a
 	  race condition involving temporary file creation.  Also did some
 	  cosmetic cleanup and removed some un-needed code.
 
@@ -697,19 +697,19 @@
 	* sanei/sanei_ab306: Removed warning: `dev_io_fd' defined but not
 	  used. Variable used only by FreeBSD. Added test for FreeBSD.
 	  Patch from Stephen Torri <storri@ameritech.net>.
-	
+
 2001-11-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* testsuite/Makefile.in testsuite/README: Added comment about
 	  the need to enable pnm. Made output easier to read.
 
 2001-11-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
-	* backend/mustek.c backend/mustek.desc doc/mustek/mustek.CHANGES: 
+
+	* backend/mustek.c backend/mustek.desc doc/mustek/mustek.CHANGES:
 	  Added check for TL_X > BR_X or TL_Y > BR_Y. New version: 1.0-115.
 	* TODO: Added entry about TL_X < BR_X problems and semaphores for OS/2.
 	  Removed entry about BearPaw scanners.
-	
+
 2001-11-26 Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* backend/sharp.c: added an additional check to prevent OS/2 from
 	  define "#define USE_FORK"
@@ -722,13 +722,13 @@
 	* backend/umax_pp_low.c: fixed color calibration bug. Scans are
 	  of much better quality now. Manual settings now work correctly.
 	* tools/umax_pp.c: changed version.
-	  
+
 
 2001-11-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* config.guess config.sub: Fetched new versions from
 	  http://savannah.gnu.org/projects/config.
-	* mkinstalldirs: Updated for OS/2 (from "Franz Bakan" 
+	* mkinstalldirs: Updated for OS/2 (from "Franz Bakan"
 	  <fbakan@gmx.net>).
 	* backend/mustek.c backend/mustek.desc backend/mustek.h
 	  doc/mustek/mustek.CHANGES: Added OS/2 compatibility fixes
@@ -774,7 +774,7 @@
 2001-11-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek_usb.c backend/mustek_usb.conf backend/mustek_usb.desc
-	  backend/mustek_usb.h backend/mustek_usb_high.c 
+	  backend/mustek_usb.h backend/mustek_usb_high.c
 	  backend/mustek_usb_high.h backend/mustek_usb_low.c
 	  backend/mustek_usb_low.h backend/mustek_usb_mid.c
 	  backend/mustek_usb_mid.h doc/sane-mustek_usb.man
@@ -810,12 +810,12 @@
 	  debug levels. Removed some compilation warnings. New version: 1.0.5.
 
 2001-11-11 Abel Deuring <a.deuring@satzbau-gmbh.de>
-	* sanei/sanei_scsi.c (Linux part): 
-          - improved handling of status codes returned by the SG driver. 
-          Device status INTERMEDIATE GOOD and CONDITION MET are now mapped 
-          to SANE_STATUS_GOOD; device status BUSY and a few driver status 
+	* sanei/sanei_scsi.c (Linux part):
+          - improved handling of status codes returned by the SG driver.
+          Device status INTERMEDIATE GOOD and CONDITION MET are now mapped
+          to SANE_STATUS_GOOD; device status BUSY and a few driver status
           codes are mapped to SANE_STATUS_DEVICE_BUSY
-          - On SCSI command completion, the (sometimes bogus) residual count 
+          - On SCSI command completion, the (sometimes bogus) residual count
           is no longer subtracted from *req->dstlen
         * backend/sharp.c: if a READ command fails with SANE_STATUS_DEVICE_BUSY,
           retry a few times.
@@ -830,7 +830,7 @@
 
 	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c
 	  backend/umax_pp_mid.h backend/umax_pp.c backend/umax_pp.h:
-	  use ENABLE_DIRECTIO to compile in direct I/O. Corrected the long 
+	  use ENABLE_DIRECTIO to compile in direct I/O. Corrected the long
 	  standing scan area origin detection bug. Improved parport mode
 	  negociation.
 

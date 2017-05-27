@@ -49,12 +49,12 @@ public class SaneParameters
 	//
 	//	Frame values:
 	//
-public static final int FRAME_GRAY = 0;	// band covering human visual range 
-public static final int FRAME_RGB = 1;	// pixel-interleaved 
-					//   red/green/blue bands 
-public static final int FRAME_RED = 2;	// red band only 
-public static final int FRAME_GREEN = 3;// green band only 
-public static final int FRAME_BLUE = 4;	// blue band only 
+public static final int FRAME_GRAY = 0;	// band covering human visual range
+public static final int FRAME_RGB = 1;	// pixel-interleaved
+					//   red/green/blue bands
+public static final int FRAME_RED = 2;	// red band only
+public static final int FRAME_GREEN = 3;// green band only
+public static final int FRAME_BLUE = 4;	// blue band only
 
 	//
 	//	Class members:

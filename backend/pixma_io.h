@@ -91,7 +91,7 @@ void pixma_io_cleanup (void);
  *             array of pixma_config_t which is terminated by setting
  *             pixma_config_t::name to \c NULL.
  *  \return Number of devices found */
-unsigned pixma_collect_devices (const char ** conf_devices, 
+unsigned pixma_collect_devices (const char ** conf_devices,
                                 const struct pixma_config_t *const
 				pixma_devices[]);
 

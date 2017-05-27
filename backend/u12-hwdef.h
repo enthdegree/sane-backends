@@ -224,7 +224,7 @@
 #define _MotorHFullStepH        0x00
 #define _MotorHHalfStep         0x04
 #define _MotorHQuarterStep      0x08
-#define _MotorPowerEnable       0x40    
+#define _MotorPowerEnable       0x40
 #define _MotorHHomeStop         0x80
 
 #define _DIR_FW   1
@@ -269,7 +269,7 @@
 #define _AGFA_PCB               0x1f
 
 /* Register RegModelControl (Addr: 0x1f) */
-#define _HOME_SENSOR_POLARITY   0x01    
+#define _HOME_SENSOR_POLARITY   0x01
 #define _LED_CONTROL            0x02
 #define _LED_ACTIVITY           0x04
 #define _MODEL_DPI200           0x00
@@ -393,7 +393,7 @@
 
 #define _DEFAULT_LINESCANTIME   96
 
-#define _LINE_TIMEOUT   (_SECOND * 5 ) 
+#define _LINE_TIMEOUT   (_SECOND * 5 )
 
 
 /** for mirroring parts of the 98003 ASIC register set
@@ -439,7 +439,7 @@ typedef struct svd
 	SANE_Byte   Reserved;
 } ShadingVarDef;
 
-typedef struct 
+typedef struct
 {
 	ShadingVarDef *pCcdDac;
 	ColorByte      DarkDAC;

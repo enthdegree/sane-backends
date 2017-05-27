@@ -2431,7 +2431,7 @@ _program_scan_type (HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
       sanei_hp_scl_set(scsi, SCL_TONE_MAP, -1); /* Select tone map */
     }
   }
-  
+
   return SANE_STATUS_GOOD;
 }
 

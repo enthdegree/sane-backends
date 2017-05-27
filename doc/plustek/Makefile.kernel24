@@ -43,7 +43,7 @@ REFOPT = -xref-all -index-all -html32
 
 #
 # add the following to get assembly listing
-# -Wa,-alh,-L -g 
+# -Wa,-alh,-L -g
 
 #
 # get some version numbers

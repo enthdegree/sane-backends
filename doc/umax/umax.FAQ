@@ -39,7 +39,7 @@ A: There are at least two kind of scsi controller cards that
    On linux you may have the chance to get it work with the recent
    g_NCR5380-driver. The card does not have IRQ/DMA.
 
-   Try the following option for kernel:  dtc3181e=0x280,255  
+   Try the following option for kernel:  dtc3181e=0x280,255
    or use the following command:
 
      insmod g_NCR5380 ncr_irq=255 ncr_addr=0x280 dtc3181e=1

@@ -4746,7 +4746,7 @@ gl841_led_calibration (Genesys_Device * dev)
         {
 	  acceptable = SANE_FALSE;
         }
-      
+
       /* for scanners using target value */
       if(target>0)
         {

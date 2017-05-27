@@ -32,7 +32,7 @@ for the exact status of each camera.
 For startup of this backend check that if present the stv680 kernel module is
 removed or disabled.
 .br
-Also before using, enable the backend by editing the /etc/sane.d/dll.conf file, 
+Also before using, enable the backend by editing the /etc/sane.d/dll.conf file,
 change #stv680 to stv680.
 
 For problems with the untested cameras, you
@@ -62,7 +62,7 @@ If you have any success with a camera not listed here, or if you have
 any strange behavior, please report to the backend maintainer or to
 the SANE mailing list.
 
-Valid command line options and their syntax can be listed by using 
+Valid command line options and their syntax can be listed by using
 .RS
 scanimage \-\-help \-d stv680
 .RE
@@ -75,7 +75,7 @@ scanimage \-\-help \-d stv680
 .B \-\-mode
 selects the basic mode of operation of the webcams valid choices.
 
-The read resolution mode is 8 bits, output resolution is 24 bits. 
+The read resolution mode is 8 bits, output resolution is 24 bits.
 Selects the resolution for a scan.
 The camera can do only the resolutions listed.
 .TP
@@ -98,7 +98,7 @@ Bayer unshuffle, color correction, textline with date and time is added
 .TP
 .B \-\-white\-level\-r
 Selects what red radiance level should be
-considered "white", when scanning some sheets by changing the calibration 
+considered "white", when scanning some sheets by changing the calibration
 value loaded into the scanner. Scale \-32 .. 0 .. +32 in steps of 1.
 
 .TP

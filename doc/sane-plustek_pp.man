@@ -13,7 +13,7 @@ The access of the scanner is either done directly by the backend
 or via kernel module, called pt_drv which can be created out of
 the plustek_pp backend code \- see also section
 .B "BUILDING THE KERNEL MODULE"
-for further information. 
+for further information.
 
 .SH "SUPPORTED DEVICES"
 
@@ -242,13 +242,13 @@ Within this directory, you should find a script called:
 .br
 .I MakeModule.sh
 .br
-Now if your Linux kernelsources are installed correctly, 
-it should be possible to build, install and load the 
+Now if your Linux kernelsources are installed correctly,
+it should be possible to build, install and load the
 module
 .B pt_drv.
-.B Please note, 
+.B Please note,
 that the kernelsources need to be configured correctly.
-Refer to your distributions 
+Refer to your distributions
 manual on how this is done. As root user, try
 .br
 .I ./MakeModule.sh
@@ -257,7 +257,7 @@ the script will try and get all necessary information about your
 running kernel and will lead you through the whole installation
 process.
 .br
-.B Note: Installing and loading the can only be done as 
+.B Note: Installing and loading the can only be done as
 superuser.
 .PP
 
@@ -510,7 +510,7 @@ and without transparency unit.
 * 30bit mode is currently not supported.
 .PP
 * On low end systems under heavy system load the
-driver may lose data, which can result in picture 
+driver may lose data, which can result in picture
 corruption or cause the sensor to hit the scan bed.
 .PP
 * The scanning speed on 600x1200 dpi models is slow.

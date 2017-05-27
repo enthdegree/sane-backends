@@ -130,7 +130,7 @@
 :mfg "Medion/Lifetec/Tevion/Cytron"
 :url "http://www.medion.com"
 :comment "Sold by Aldi and Tchibo."
-	  
+
 :model "MD 4394"
 :interface "USB"
 :usbid "0x05d8" "0x4002"

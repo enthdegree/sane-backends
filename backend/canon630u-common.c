@@ -35,15 +35,15 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice.  
+   If you do not wish that, delete this exception notice.
 */
 
 /*
    Communication, calibration, and scanning with the Canon CanoScan FB630U
    flatbed scanner under linux.
-   
+
    Reworked into SANE-compatible format.
-   
+
    The usb-parallel port interface chip is GL640usb, on the far side of
    which is an LM9830 parallel-port scanner-on-a-chip.
 
@@ -153,7 +153,7 @@ gl640ReadReq (int fd, GL640_Request req, byte * data)
 }
 
 
-/* Write USB bulk data 
+/* Write USB bulk data
    setup is an apparently scanner-specific sequence:
    {(0=read, 1=write), 0x00, 0x00, 0x00, sizelo, sizehi, 0x00, 0x00}
    hp3400: setup[1] = 0x01
@@ -177,7 +177,7 @@ gl640WriteBulk (int fd, byte * setup, byte * data, size_t size)
 }
 
 
-/* Read USB bulk data 
+/* Read USB bulk data
    setup is an apparently scanner-specific sequence:
    {(0=read, 1=write), 0x00, 0x00, 0x00, sizelo, sizehi, 0x00, 0x00}
    fb630u: setup[2] = 0x80
@@ -461,7 +461,7 @@ typedef struct CANON_Handle
 #define FLG_GRAY	0x01	/* grayscale */
 #define FLG_FORCE_CAL	0x02	/* force calibration */
 #define FLG_BUF		0x04	/* save scan to buffer instead of file */
-#define FLG_NO_INTERLEAVE 0x08	/* don't interleave r,g,b pixels; leave them 
+#define FLG_NO_INTERLEAVE 0x08	/* don't interleave r,g,b pixels; leave them
 				   in row format */
 #define FLG_PPM_HEADER	0x10	/* include PPM header in scan file */
 }
@@ -501,7 +501,7 @@ init (int fd)
 {
   byte result, rv;
 
-  if (gl640WriteReq (fd, GL640_GPIO_OE, 0x71) != SANE_STATUS_GOOD) { 
+  if (gl640WriteReq (fd, GL640_GPIO_OE, 0x71) != SANE_STATUS_GOOD) {
       DBG(1, "Initial write request failed.\n");
       return -1;
   }
@@ -653,7 +653,7 @@ do_scan (CANON_Handle * s)
 		  fwrite (redptr + s->width, 1, 1, fp);	/* Green */
 		  fwrite (redptr + s->width + s->width, 1, 1, fp);	/* Blue */
 		  /* for PPM ascii (P3)
-		     fprintf(fp, "%3d %3d %3d\n",  *redptr, 
+		     fprintf(fp, "%3d %3d %3d\n",  *redptr,
 		     *(redptr + s->width),
 		     *(redptr + s->width + s->width));
 		   */
@@ -869,8 +869,8 @@ plugin_cal (CANON_Handle * s)
   write_word (fd, LAMP_B_OFF, 0x0100);
   /* coming in, we've got 300dpi,
      data px start : 0x004b
-     data px end  : 0x1437 for a total of 5100(13ec) 600-dpi pixels, 
-     (8.5 inches) or 2550 300-dpi pixels (7653 bytes). 
+     data px end  : 0x1437 for a total of 5100(13ec) 600-dpi pixels,
+     (8.5 inches) or 2550 300-dpi pixels (7653 bytes).
      Interestingly, the scan head never moves, no matter how many rows
      are read. */
   s->width = 2551;
@@ -981,7 +981,7 @@ plugin_cal (CANON_Handle * s)
    somewhat more complicated than necessary because I don't hard-code the
    strip widths; I try to figure out the regions based on the scan data.
    Theoretically, the region-finder should work for any number of distinct
-   regions (but there are only 2 on this scanner.) 
+   regions (but there are only 2 on this scanner.)
    This produces the CAL_FILE_OGN file, the final offset/gain table. */
 static SANE_Status
 compute_ogn (char *calfilename)
@@ -1132,7 +1132,7 @@ compute_ogn (char *calfilename)
 	  continue;
 	}
 
-      /* Gain multiplier: 
+      /* Gain multiplier:
          255 : 1.5 times brighter
          511 : 2 times brighter
          1023: 3 times brighter */
@@ -1146,9 +1146,9 @@ compute_ogn (char *calfilename)
          offset would be bad.  */
 
       /* Enhanced offset and gain calculation by M.Reinelt <reinelt@eunet.at>
-       * These expressions were found by an iterative calibration process, 
+       * These expressions were found by an iterative calibration process,
        * by changing gain and offset values for every pixel until the desired
-       * values for black and white were reached, and finding an approximation 
+       * values for black and white were reached, and finding an approximation
        * formula.
        * Note that offset is linear, but gain isn't!
        */
@@ -1256,8 +1256,8 @@ scan (CANON_Handle * opt)
   read_byte (fd, STATUS, &result);	/* wants 2f or 2d */
   if (!(result & STATUS_HOME) /*0x2d */ )
     return SANE_STATUS_DEVICE_BUSY;
-  /* or force it to return? 
-     write_byte(fd, COMMAND, 0x02); 
+  /* or force it to return?
+     write_byte(fd, COMMAND, 0x02);
      wait_for_return(fd);
    */
 
@@ -1439,9 +1439,9 @@ CANON_set_scan_parameters (CANON_Handle * scan,
 			   const int left,
 			   const int top,
 			   const int right,
-			   const int bottom, 
-			   const int res, 
-			   const int gain, 
+			   const int bottom,
+			   const int res,
+			   const int gain,
 			   const double gamma)
 {
   DBG (2, "CANON_set_scan_parameters:\n");
@@ -1593,12 +1593,12 @@ CANON_start_scan (CANON_Handle * scanner)
       return SANE_STATUS_IO_ERROR;
   }
   if ((rv == 1)
-      || !check_ogn_file () 
+      || !check_ogn_file ()
       || (scanner->flags & FLG_FORCE_CAL)) {
       plugin_cal (scanner);
       wait_for_return (scanner->fd);
   }
-  
+
   /* scan */
   if ((status = scan (scanner)) != SANE_STATUS_GOOD)
     {

@@ -40,7 +40,7 @@ if test "${ac_cv_c_compiler_gnu}" = "yes"; then
     AS_HELP_STRING([--enable-warnings],
                    [turn on tons of compiler warnings (GCC only)]),
     [
-      if eval "test x$enable_warnings = xyes"; then 
+      if eval "test x$enable_warnings = xyes"; then
         for flag in $EXTRA_WARNINGS; do
           JAPHAR_GREP_AM_CFLAGS($flag, [ AM_CFLAGS="$AM_CFLAGS $flag" ])
         done
@@ -97,7 +97,7 @@ AC_DEFUN([SANE_SET_AM_LDFLAGS],
     esac
   fi
   AC_SUBST(STRICT_LDFLAGS)
-  case "${host_os}" in  
+  case "${host_os}" in
     aix*) #enable .so libraries, disable archives
       AM_LDFLAGS="$AM_LDFLAGS -Wl,-brtl"
       ;;
@@ -180,7 +180,7 @@ AC_DEFUN([SANE_CHECK_IEEE1284],
   AC_CHECK_HEADER(ieee1284.h, [
     AC_CACHE_CHECK([for libieee1284 >= 0.1.5], sane_cv_use_libieee1284, [
       AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <ieee1284.h>]], [[
-	struct parport p; char *buf; 
+	struct parport p; char *buf;
 	ieee1284_nibble_read(&p, 0, buf, 1);
 	]])],
         [sane_cv_use_libieee1284="yes"; IEEE1284_LIBS="-lieee1284"
@@ -234,7 +234,7 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
        LIBS="$save_LIBS"
     ],[ have_pthread=no; use_pthread=no ])
   fi
- 
+
   if test $use_pthread = yes ; then
     AC_DEFINE_UNQUOTED(USE_PTHREAD, "$use_pthread",
                    [Define if pthreads should be used instead of forked processes.])
@@ -257,9 +257,9 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
 # GPHOTO2 and dell1600n_net backends.
 AC_DEFUN([SANE_CHECK_JPEG],
 [
-  AC_CHECK_LIB(jpeg,jpeg_start_decompress, 
+  AC_CHECK_LIB(jpeg,jpeg_start_decompress,
   [
-    AC_CHECK_HEADER(jconfig.h, 
+    AC_CHECK_HEADER(jconfig.h,
     [
       AC_MSG_CHECKING([for jpeglib - version >= 61 (6a)])
       AC_EGREP_CPP(sane_correct_jpeg_lib_version_found,
@@ -268,7 +268,7 @@ AC_DEFUN([SANE_CHECK_JPEG],
         #if JPEG_LIB_VERSION >= 61
           sane_correct_jpeg_lib_version_found
         #endif
-      ], [sane_cv_use_libjpeg="yes"; JPEG_LIBS="-ljpeg"; 
+      ], [sane_cv_use_libjpeg="yes"; JPEG_LIBS="-ljpeg";
       AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
     ],)
   ],)
@@ -281,9 +281,9 @@ AC_DEFUN([SANE_CHECK_JPEG],
 # Checks for tiff library dell1600n_net backend.
 AC_DEFUN([SANE_CHECK_TIFF],
 [
-  AC_CHECK_LIB(tiff,TIFFFdOpen, 
+  AC_CHECK_LIB(tiff,TIFFFdOpen,
   [
-    AC_CHECK_HEADER(tiffio.h, 
+    AC_CHECK_HEADER(tiffio.h,
     [sane_cv_use_libtiff="yes"; TIFF_LIBS="-ltiff"],)
   ],)
   AC_SUBST(TIFF_LIBS)
@@ -345,7 +345,7 @@ AC_DEFUN([SANE_CHECK_LOCKING],
   fi
   if test $use_locking = yes ; then
     INSTALL_LOCKPATH=install-lockpath
-    AC_DEFINE([ENABLE_LOCKING], 1, 
+    AC_DEFINE([ENABLE_LOCKING], 1,
               [Define to 1 if device locking should be enabled.])
   else
     INSTALL_LOCKPATH=
@@ -397,13 +397,13 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 	      [# If --with-gphoto2=no or --without-gphoto2, disable backend
                # as "$with_gphoto2" will be set to "no"])
 
-  # If --with-gphoto2=yes (or not supplied), first check if 
+  # If --with-gphoto2=yes (or not supplied), first check if
   # pkg-config exists, then use it to check if libgphoto2 is
   # present.  If all that works, then see if we can actually link
-  # a program.   And, if that works, then add the -l flags to 
-  # GPHOTO2_LIBS and any other flags to GPHOTO2_LDFLAGS to pass to 
+  # a program.   And, if that works, then add the -l flags to
+  # GPHOTO2_LIBS and any other flags to GPHOTO2_LDFLAGS to pass to
   # sane-config.
-  if test "$with_gphoto2" != "no" ; then 
+  if test "$with_gphoto2" != "no" ; then
     AC_CHECK_TOOL(HAVE_GPHOTO2, pkg-config, false)
 
     if test ${HAVE_GPHOTO2} != "false" ; then
@@ -427,8 +427,8 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
         HAVE_GPHOTO2=false
       fi
       if test "${HAVE_GPHOTO2}" = "false"; then
-        GPHOTO2_CPPFLAGS="" 
-        GPHOTO2_LIBS="" 
+        GPHOTO2_CPPFLAGS=""
+        GPHOTO2_LIBS=""
       else
         SANE_EXTRACT_LDFLAGS(GPHOTO2_LIBS, GPHOTO2_LDFLAGS)
         if pkg-config --atleast-version=2.5.0 libgphoto2; then
@@ -448,31 +448,31 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 # Check for ss_family member in struct sockaddr_storage
 AC_DEFUN([SANE_CHECK_IPV6],
 [
-  AC_MSG_CHECKING([whether to enable IPv6]) 
-  AC_ARG_ENABLE(ipv6, 
+  AC_MSG_CHECKING([whether to enable IPv6])
+  AC_ARG_ENABLE(ipv6,
     AS_HELP_STRING([--disable-ipv6],[disable IPv6 support]),
       [  if test "$enableval" = "no" ; then
-         AC_MSG_RESULT([no, manually disabled]) 
-         ipv6=no 
+         AC_MSG_RESULT([no, manually disabled])
+         ipv6=no
          fi
       ])
 
   if test "$ipv6" != "no" ; then
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-	#define INET6 
-	#include <sys/types.h> 
+	#define INET6
+	#include <sys/types.h>
 	#include <sys/socket.h> ]], [[
-	 /* AF_INET6 available check */  
- 	if (socket(AF_INET6, SOCK_STREAM, 0) < 0) 
-   	  exit(1); 
- 	else 
-   	  exit(0); 
+	 /* AF_INET6 available check */
+ 	if (socket(AF_INET6, SOCK_STREAM, 0) < 0)
+   	  exit(1);
+ 	else
+   	  exit(0);
       ]])],[
-        AC_MSG_RESULT(yes) 
-        AC_DEFINE([ENABLE_IPV6], 1, [Define to 1 if the system supports IPv6]) 
+        AC_MSG_RESULT(yes)
+        AC_DEFINE([ENABLE_IPV6], 1, [Define to 1 if the system supports IPv6])
         ipv6=yes
       ],[
-        AC_MSG_RESULT([no (couldn't compile test program)]) 
+        AC_MSG_RESULT([no (couldn't compile test program)])
         ipv6=no
       ])
   fi
@@ -507,7 +507,7 @@ AC_DEFUN([SANE_CHECK_IPV6],
 		ipv6=no
     	  ])
     ])
-  fi	
+  fi
 ])
 
 #
@@ -527,7 +527,7 @@ for be in ${BACKENDS}; do
   case $be in
     plustek_pp)
     case "$host_os" in
-      gnu*) 
+      gnu*)
       echo "*** $be backend not supported on GNU/Hurd - $DISABLE_MSG"
       backend_supported="no"
       ;;
@@ -555,7 +555,7 @@ for be in ${BACKENDS}; do
     fi
     ;;
 
-    dell1600n_net) 
+    dell1600n_net)
     if test "${sane_cv_use_libjpeg}" != "yes" || test "${sane_cv_use_libtiff}" != "yes"; then
       echo "*** $be backend requires JPEG and TIFF library - $DISABLE_MSG"
       backend_supported="no"

@@ -42,7 +42,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro 
+   This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro
    and similar USB2 scanners. */
 
 
@@ -64,11 +64,11 @@ static SANE_Bool Transparent_PrepareScan (void);
 
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
-Routine Description: 
+Routine Description:
 	reset the scanner
 Parameters:
 	none
-Return value: 
+Return value:
 	if operation is success
 	return TRUE
 	else
@@ -132,7 +132,7 @@ Transparent_Reset ()
 
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
-Routine Description: 
+Routine Description:
 	get suggest parameter of scaning
 Parameters:
 	pTarget: the information of scaning
@@ -283,7 +283,7 @@ Transparent_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
-Routine Description: 
+Routine Description:
 	setup scanning process
 Parameters:
 	ColorMode: ScanMode of Scanning, CM_RGB48, CM_GRAY and so on
@@ -294,7 +294,7 @@ Parameters:
 	Y: Y start coordinate
 	Width: Width of Scan Image
 	Height: Height of Scan Image
-Return value: 
+Return value:
 	if the operation is success
 	return TRUE
 	else
@@ -493,11 +493,11 @@ Transparent_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short 
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/14
-Routine Description: 
+Routine Description:
 	Stop scan
 Parameters:
 	none
-Return value: 
+Return value:
 	if operation is success
 	return TRUE
 	else
@@ -534,7 +534,7 @@ Transparent_StopScan ()
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/15
-Routine Description: 
+Routine Description:
 	Get the data of image
 Parameters:
 	lpBlock: the data of image
@@ -604,11 +604,11 @@ Transparent_GetRows (SANE_Byte * lpBlock, unsigned short * Rows, SANE_Bool isOrd
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/13
-Routine Description: 
+Routine Description:
 	To adjust the value of offset gain of R/G/B
 Parameters:
 	none
-Return value: 
+Return value:
 	if operation is success
 	return TRUE
 	else
@@ -1114,7 +1114,7 @@ Transparent_AdjustAD ()
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/14
-Routine Description: 
+Routine Description:
 	Find top and left side
 Parameters:
 	lpwStartX: the left side
@@ -1266,11 +1266,11 @@ Transparent_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/15
-Routine Description: 
+Routine Description:
 	Get the calibration data
 Parameters:
 	none
-Return value: 
+Return value:
 	if the operation is success
 	return TRUE
 	else
@@ -1650,11 +1650,11 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/14
-Routine Description: 
+Routine Description:
 	Prepare scan image
 Parameters:
 	none
-Return value: 
+Return value:
 	if operation is success
 	return TRUE
 	else

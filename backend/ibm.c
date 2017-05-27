@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -157,12 +157,12 @@ attach (const char *devnam, Ibm_Device ** devp)
   if (!(
 	(strncmp ((char *)ibuf.vendor, "IBM", 3) ==0
          && strncmp ((char *)ibuf.product, "2456", 4) == 0)
-        || (strncmp ((char *)ibuf.vendor, "RICOH", 5) == 0 
-	    && strncmp ((char *)ibuf.product, "IS420", 5) == 0) 
-        || (strncmp ((char *)ibuf.vendor, "RICOH", 5) == 0 
-	    && strncmp ((char *)ibuf.product, "IS410", 5) == 0) 
-        || (strncmp ((char *)ibuf.vendor, "RICOH", 5) == 0 
-	    && strncmp ((char *)ibuf.product, "IS430", 5) == 0) 
+        || (strncmp ((char *)ibuf.vendor, "RICOH", 5) == 0
+	    && strncmp ((char *)ibuf.product, "IS420", 5) == 0)
+        || (strncmp ((char *)ibuf.vendor, "RICOH", 5) == 0
+	    && strncmp ((char *)ibuf.product, "IS410", 5) == 0)
+        || (strncmp ((char *)ibuf.vendor, "RICOH", 5) == 0
+	    && strncmp ((char *)ibuf.product, "IS430", 5) == 0)
 	))
     {
       DBG (1, "attach: device \"%s\" doesn't look like a scanner I know\n",
@@ -213,7 +213,7 @@ attach (const char *devnam, Ibm_Device ** devp)
       DBG (1, "attach: MODE_SELECT failed\n");
       sanei_scsi_close (fd);
       return (SANE_STATUS_INVAL);
-    } 
+    }
 #endif
 
 #if 0
@@ -286,13 +286,13 @@ attach (const char *devnam, Ibm_Device ** devp)
       dev->info.brightness_default = wbuf.brightness;
       dev->info.contrast_default = wbuf.contrast;
     }
-  
+
 /* da rivedere
   dev->info.adf_default = wbuf.adf_state;
 */
   dev->info.adf_default = ADF_UNUSED;
   dev->info.adf_default = IBM_PAPER_USER_DEFINED;
-  
+
 #if 1
   dev->info.bmu = mup.bmu;
   dev->info.mud = _2btol(mup.mud);
@@ -324,7 +324,7 @@ attach (const char *devnam, Ibm_Device ** devp)
 
   DBG (5, "brightness=%d\n", dev->info.brightness_default);
   DBG (5, "contrast=%d\n", dev->info.contrast_default);
-  
+
   DBG (5, "adf_state=%d\n", dev->info.adf_default);
 
   DBG (5, "bmu=%d\n", dev->info.bmu);
@@ -411,7 +411,7 @@ init_options (Ibm_Scanner * s)
   s->opt[OPT_Y_RESOLUTION].constraint_type = SANE_CONSTRAINT_RANGE;
   s->val[OPT_Y_RESOLUTION].w =  s->hw->info.yres_default;
   s->opt[OPT_Y_RESOLUTION].constraint.range = &ibm2456_res_range;
-  
+
   /* adf */
   s->opt[OPT_ADF].name = "adf";
   s->opt[OPT_ADF].title = "Use ADF";
@@ -437,7 +437,7 @@ init_options (Ibm_Scanner * s)
   s->opt[OPT_PAPER].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_PAPER].constraint.string_list = paper_list;
   s->val[OPT_PAPER].s = strdup (paper_list[s->hw->info.paper_default]);
-  
+
   /* top-left x */
   s->opt[OPT_TL_X].name = SANE_NAME_SCAN_TL_X;
   s->opt[OPT_TL_X].title = SANE_TITLE_SCAN_TL_X;
@@ -563,7 +563,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
           if (line[0] == '#')           /* ignore line comments */
             continue;
           len = strlen (line);
-  
+
           if (!len)
             continue;                   /* ignore empty lines */
 
@@ -734,7 +734,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_CONTRAST:
           *(SANE_Word *) val = s->val[option].w;
           return (SANE_STATUS_GOOD);
-        
+
           /* bool options: */
 	case OPT_ADF:
           *(SANE_Bool *) val = s->val[option].b;
@@ -767,7 +767,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             *info |= SANE_INFO_RELOAD_PARAMS;
           s->val[option].w = *(SANE_Word *) val;
           return (SANE_STATUS_GOOD);
-       
+
 	case OPT_TL_X:
         case OPT_TL_Y:
         case OPT_BR_X:
@@ -785,7 +785,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
               s->val[OPT_PAPER].s = strdup (paper_list[IBM_PAPER_USER_DEFINED]);
 	    }
           return (SANE_STATUS_GOOD);
-	
+
 	case OPT_NUM_OPTS:
         case OPT_BRIGHTNESS:
         case OPT_CONTRAST:
@@ -799,15 +799,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             free (s->val[option].s);
           s->val[option].s = strdup (val);
           return (SANE_STATUS_GOOD);
-	
+
 	case OPT_ADF:
 	  s->val[option].b = *(SANE_Bool *) val;
 	  if (*(SANE_Bool *) val)
 	    s->adf_state = ADF_ARMED;
-          else 
+          else
 	    s->adf_state = ADF_UNUSED;
 	  return (SANE_STATUS_GOOD);
-	
+
 	case OPT_PAPER:
           if (info && strcmp (s->val[option].s, (SANE_String) val))
             *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
@@ -957,7 +957,7 @@ sane_start (SANE_Handle handle)
            s->hw->sane.name, sane_strstatus (status));
       return (status);
     }
-  
+
   mode_str = s->val[OPT_MODE].s;
   s->xres = s->val[OPT_X_RESOLUTION].w;
   s->yres = s->val[OPT_Y_RESOLUTION].w;
@@ -968,7 +968,7 @@ sane_start (SANE_Handle handle)
   s->brightness = s->val[OPT_BRIGHTNESS].w;
   s->contrast = s->val[OPT_CONTRAST].w;
   s->bpp = s->params.depth;
-  if (strcmp (mode_str, SANE_VALUE_SCAN_MODE_LINEART) == 0) 
+  if (strcmp (mode_str, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     {
       s->image_composition = IBM_BINARY_MONOCHROME;
     }
@@ -996,11 +996,11 @@ sane_start (SANE_Handle handle)
   wbuf.image_comp = s->image_composition;
   /* if you throw the MRIF bit the brighness control reverses too */
   /* so I reverse the reversal in software for symmetry's sake */
-  if (wbuf.image_comp == IBM_GRAYSCALE || wbuf.image_comp == IBM_DITHERED_MONOCHROME) 
+  if (wbuf.image_comp == IBM_GRAYSCALE || wbuf.image_comp == IBM_DITHERED_MONOCHROME)
     {
-      if (wbuf.image_comp == IBM_GRAYSCALE) 
+      if (wbuf.image_comp == IBM_GRAYSCALE)
 	wbuf.mrif_filtering_gamma_id = (SANE_Byte) 0x80; /* it was 0x90 */
-      if (wbuf.image_comp == IBM_DITHERED_MONOCHROME) 
+      if (wbuf.image_comp == IBM_DITHERED_MONOCHROME)
 	wbuf.mrif_filtering_gamma_id = (SANE_Byte) 0x10;
       wbuf.brightness = 256 - (SANE_Byte) s->brightness;
 /*
@@ -1048,7 +1048,7 @@ sane_start (SANE_Handle handle)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "GET WINDOW failed: %s\n", sane_strstatus (status));
-      return (status); 
+      return (status);
     }
   DBG (5, "xres=%d\n", _2btol(wbuf.x_res));
   DBG (5, "yres=%d\n", _2btol(wbuf.y_res));
@@ -1073,7 +1073,7 @@ sane_start (SANE_Handle handle)
   else
     mup.adf_control = 0;
 /* end lines by mf */
-  
+
   status = mode_select (s->fd, (struct mode_pages *) &mup);
   if (status != SANE_STATUS_GOOD)
     {
@@ -1096,18 +1096,18 @@ sane_start (SANE_Handle handle)
     {
       DBG (1, "GET DATA STATUS failed: %s\n", sane_strstatus (status));
       return (status);
-    } 
+    }
 
   s->bytes_to_read = s->params.bytes_per_line * s->params.lines;
 
   DBG (1, "%d pixels per line, %d bytes, %d lines high, total %lu bytes, "
        "dpi=%d\n", s->params.pixels_per_line, s->params.bytes_per_line,
        s->params.lines, (u_long) s->bytes_to_read, s->val[OPT_Y_RESOLUTION].w);
- 
+
   s->scanning = SANE_TRUE;
 
-  DBG (11, "<< sane_start\n"); 
-  return (SANE_STATUS_GOOD); 
+  DBG (11, "<< sane_start\n");
+  return (SANE_STATUS_GOOD);
 }
 
 SANE_Status
@@ -1122,7 +1122,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   *len = 0;
 
   DBG (11, "sane_read: bytes left to read: %ld\n", (u_long) s->bytes_to_read);
-  
+
   if (s->bytes_to_read == 0)
     {
       do_cancel (s);
@@ -1132,7 +1132,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   if (!s->scanning) {
     DBG (11, "sane_read: scanning is false!\n");
     return (do_cancel (s));
-  } 
+  }
 
   nread = max_len;
   if (nread > s->bytes_to_read)

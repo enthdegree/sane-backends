@@ -7,7 +7,7 @@ scsi "K.M.E.  " "KV-S2025C       "
 scsi "K.M.E.  " "KV-S2045C       "
 scsi "K.M.E.  " "KV-S2065L       "
 
-# These scanners are untested. 
+# These scanners are untested.
 # If you have one:
 #    - check that the vendor/product strings are correct
 #    - uncomment the line

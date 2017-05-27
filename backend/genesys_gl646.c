@@ -985,7 +985,7 @@ gl646_setup_registers (Genesys_Device * dev,
   /* gamma enable for scans */
   if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA)
     regs[reg_0x05].value |= REG05_GMM14BIT;
-  
+
   regs[reg_0x05].value &= ~REG05_GMMENB;
 
   /* true CIS gray if needed */

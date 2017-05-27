@@ -280,7 +280,7 @@ AS_IF([test x != x$ALLOCA],
       [LTALLOCA=`echo "$ALLOCA" | sed 's/\.o$//; s/\.obj$//'`.lo])
 AC_SUBST(LTALLOCA)
 
-dnl Define SOCKET_LIB, NSL_LIB, BIND_LIB, and RESOLV_LIB  when required 
+dnl Define SOCKET_LIB, NSL_LIB, BIND_LIB, and RESOLV_LIB  when required
 dnl for functions we use.
 AC_CHECK_FUNC(gethostbyaddr,, [AC_CHECK_LIB(bind, gethostbyaddr, BIND_LIB="-lbind")])
 AC_CHECK_FUNC(gethostbyaddr,, [AC_CHECK_LIB(nsl, gethostbyaddr, NSL_LIB="-lnsl")])
@@ -439,7 +439,7 @@ dnl conditional scans for more specific only as needed.
 # Unset VERSION during the SCSI header check
 sed "s!^#define VERSION .*!/* & */!" confdefs.h > confdefs.h.tmp
 mv confdefs.h.tmp confdefs.h
- 
+
 AC_CHECK_HEADERS(IOKit/scsi/SCSITaskLib.h IOKit/cdb/IOSCSILib.h \
   IOKit/scsi/SCSICommandOperationCodes.h \
   IOKit/scsi-commands/SCSICommandOperationCodes.h scsi.h sys/scsi.h \
@@ -506,7 +506,7 @@ fi
 # Multiple platforms can set SCSI_LIBS so do substitution at end.
 AC_SUBST(SCSI_LIBS)
 
-AC_ARG_ENABLE(scsibuffersize, 
+AC_ARG_ENABLE(scsibuffersize,
   AS_HELP_STRING([--enable-scsibuffersize=N],
                  [specify the default size in bytes of the buffer for SCSI
                   commands @<:@default=131072@:>@]),
@@ -599,7 +599,7 @@ ALL_BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e \
         mustek_usb mustek_usb2 nec net niash pie pieusb pint \
         pixma plustek plustek_pp qcam ricoh rts8891 s9036 \
         sceptre sharp sm3600 sm3840 snapscan sp15c st400 \
-        stv680 tamarack teco1 teco2 teco3 test u12 umax 
+        stv680 tamarack teco1 teco2 teco3 test u12 umax
         umax_pp umax1220u v4l xerox_mfp p5"
 
 # If user specifies backends manually then cause configure
@@ -608,7 +608,7 @@ ALL_BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e \
 user_selected_backends="yes"
 
 AC_ARG_VAR(BACKENDS, [list of backends to compile])
-if eval "test x$enable_local_backends = xno"; then 
+if eval "test x$enable_local_backends = xno"; then
    BACKENDS="net"
 else
   if test "${BACKENDS}" != "" ; then
@@ -627,7 +627,7 @@ fi
 AM_CONDITIONAL(HAVE_JPEG, test x$sane_cv_use_libjpeg = xyes)
 AC_SUBST(SANEI_SANEI_JPEG_LO)
 
-AC_ARG_ENABLE(pnm-backend, 
+AC_ARG_ENABLE(pnm-backend,
   AS_HELP_STRING([--enable-pnm-backend],
                  [enable the pnm backend for testing frontends (possible security risk, see PROBLEMS file)]),
                  [FILTERED_BACKENDS="${FILTERED_BACKENDS} pnm"],
@@ -662,7 +662,7 @@ if test "${enable_preload}" = "yes"; then
   # are in automatic mode then remove backend from list instead.
   user_selected_backends="yes"
 
-  if eval "test x$enable_local_backends = xno"; then 
+  if eval "test x$enable_local_backends = xno"; then
     PRELOADABLE_BACKENDS="net"
   else
     if test "${PRELOADABLE_BACKENDS}" != "" ; then
@@ -714,7 +714,7 @@ esac
 
 AC_ARG_ENABLE(parport-directio,
   AS_HELP_STRING([--enable-parport-directio],
-                 [enable direct hardware access to the parallel port, so 
+                 [enable direct hardware access to the parallel port, so
                   frontends will require special permission level]),
   [
     if eval "test x$enable_parport_directio = xyes"; then
@@ -817,13 +817,13 @@ echo "Avahi support: `eval eval echo ${enable_avahi}`"
 echo "SNMP support:  `eval eval echo ${with_snmp}`"
 echo "-> The following backends will be built:"
 for backend in ${BACKENDS} ; do
-  echo $ECHO_N "${backend} " 
+  echo $ECHO_N "${backend} "
 done
-echo 
+echo
 echo
 echo "-> The following preload backends will be built:"
 for backend in ${PRELOADABLE_BACKENDS} ; do
-  echo $ECHO_N "${backend} " 
+  echo $ECHO_N "${backend} "
 done
 echo
 

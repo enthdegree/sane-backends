@@ -73,7 +73,7 @@ static char *hp_backend_revision = "$Revision$";
 
    Revision 1.17  2003/10/06 19:54:07  kig-guest
    Bug #300248: correct "Negatives" to "Negative" in option description
- 
+
 
    V 1.04, 24-Jul-2003, PK (peter@kirchgessner.net)
       - Add internationalization

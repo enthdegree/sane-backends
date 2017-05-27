@@ -133,7 +133,7 @@ hp5400_open (const char *filename)
 	   sane_strstatus (status));
       return -1;
     }
- 
+
   status = sanei_usb_get_vendor_product (fd, &iVendor, &iProduct);
   if (status != SANE_STATUS_GOOD)
     {
@@ -313,7 +313,7 @@ hp5400_bulk_read_block (int iHandle, int iCmd, void *cmd, int cmdlen,
   _UsbWriteControl (fd, iCmd, 0, cmd, cmdlen);
   res = len;
   sanei_usb_read_bulk (fd, (SANE_Byte *) buffer, &res);
-  HP5400_DBG (DBG_MSG, "Read block returned %lu when reading %d\n", 
+  HP5400_DBG (DBG_MSG, "Read block returned %lu when reading %d\n",
 	      (u_long) res, len);
   return res;
 }

@@ -139,7 +139,7 @@ me the report.
 .SH "SEE ALSO"
 sane(7), sane\-scsi(5)
 .br
-http://www.informatik.uni-oldenburg.de/~ingo/sane/ 
+http://www.informatik.uni-oldenburg.de/~ingo/sane/
 
 .SH AUTHOR
 

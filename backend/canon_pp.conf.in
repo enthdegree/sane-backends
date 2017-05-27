@@ -1,4 +1,4 @@
-# Define which port to use if one isn't specified - you should only have 
+# Define which port to use if one isn't specified - you should only have
 # one of these lines!
 # This is the default port to be used - others will be detected
 ieee1284 parport0
@@ -21,7 +21,7 @@ calibrate ~/.sane/canon_pp-calibration-pp0 parport0
 # calibrate /etc/sane/my_calibration parport1
 
 
-# Enable the next line if you're having trouble with ECP mode such as I/O 
+# Enable the next line if you're having trouble with ECP mode such as I/O
 # errors.  Nibble mode is slower, but more reliable.
 
 #force_nibble

@@ -1,7 +1,7 @@
 /***************************************************************************
  * SANE - Scanner Access Now Easy.
 
-   dc25.c 
+   dc25.c
 
    $Id$
 
@@ -43,13 +43,13 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice.  
+   If you do not wish that, delete this exception notice.
 
  ***************************************************************************
 
-   This file implements a SANE backend for the Kodak DC-25 (and 
+   This file implements a SANE backend for the Kodak DC-25 (and
    probably the DC-20) digital cameras.  THIS IS EXTREMELY ALPHA CODE!
-   USE AT YOUR OWN RISK!! 
+   USE AT YOUR OWN RISK!!
 
    (feedback to:  dc25-devel@fales-lorenz.net)
 
@@ -73,7 +73,7 @@
  *	conversion routine written by YOSHIDA Hideki <hideki@yk.rim.or.jp>
  *
  *	This program is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published 
+ *	it under the terms of the GNU General Public License as published
  *	the Free Software Foundation; either version 2 of the License, or
  *	(at your option) any later version.
  *
@@ -352,9 +352,9 @@ static SANE_Parameters parms = {
 static unsigned char init_pck[] = INIT_PCK;
 
 /*
- * List of speeds to try to establish connection with the camera.  
+ * List of speeds to try to establish connection with the camera.
  * Check 9600 first, as it's the speed the camera comes up in, then
- * 115200, as that is the one most likely to be configured from a 
+ * 115200, as that is the one most likely to be configured from a
  * previous run
  */
 static struct pkt_speed speeds[] = { {B9600, {0x96, 0x00}},
@@ -468,8 +468,8 @@ init_dc20 (char *device, speed_t speed)
   if (send_pck (tfd, init_pck) == -1)
     {
       /*
-       *      The camera always powers up at 9600, so we try 
-       *      that first.  However, it may be already set to 
+       *      The camera always powers up at 9600, so we try
+       *      that first.  However, it may be already set to
        *      a different speed.  Try the entries in the table:
        */
 
@@ -594,7 +594,7 @@ get_info (int fd)
     {
       /* Not sure where the previous line came from.  All the
        * information I have says that even on the DC20 the number of
-       * standard res pics left is in byte 23 and the number of high res 
+       * standard res pics left is in byte 23 and the number of high res
        * pics left is in byte 21.  It seems to me that the conservative
        * approach is to report the number of high res pics left.
        */
@@ -1114,7 +1114,7 @@ if (verbose) printf ("%s: determine_limits: low_i = %d, high_i = %d\n", __progna
 
 /*
  * The original dc20ctrl program used a default gamma of 0.35, but I thougt
- * 0.45 looks better.  In addition, since xscanimage seems to always force 
+ * 0.45 looks better.  In addition, since xscanimage seems to always force
  * a resolution of 0.1, I multiply everything by 10 and make the default
  * 4.5.
  */
@@ -1689,8 +1689,8 @@ shoot (int fd)
       cfsetispeed (&tty_temp, B9600);
       cfsetospeed (&tty_temp, B9600);
 
-      /* 
-       * Apparently there is a bug in the DC20 where the response to 
+      /*
+       * Apparently there is a bug in the DC20 where the response to
        * the shoot request is always at 9600.  The DC25 does not have
        * this bug, so we skip this block.
        */
@@ -1728,7 +1728,7 @@ shoot (int fd)
     {
       if (CameraInfo.model == 0x25)
 	{
-	  /* 
+	  /*
 	   * If we don't put this in, the next read will time out
 	   * and return failure.  Does the DC-20 need it too?
 	   */
@@ -1771,7 +1771,7 @@ erase (int fd)
        * This block may really apply to the DC20 also, but since I
        * don't have one, it's hard to say for sure.  On the DC25, erase
        * takes long enought that the read may timeout without returning
-       * any data before the erase is complete.   We let this happen 
+       * any data before the erase is complete.   We let this happen
        * up to 4 times, then give up.
        */
       while (count < 4)
@@ -2121,7 +2121,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  if (dc25_opt_thumbnails)
 	    {
-	      /* 
+	      /*
 	       * DC20 thumbnail are 80x60 grayscale, DC25
 	       * thumbnails are color.
 	       */
@@ -2200,7 +2200,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  /*
 	   * erase and erase_one are mutually exclusive.  If
-	   * this one is turned on, the other must be off 
+	   * this one is turned on, the other must be off
 	   */
 	  if (dc25_opt_erase && dc25_opt_erase_one)
 	    {
@@ -2214,7 +2214,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  /*
 	   * erase and erase_one are mutually exclusive.  If
-	   * this one is turned on, the other must be off 
+	   * this one is turned on, the other must be off
 	   */
 	  if (dc25_opt_erase_one && dc25_opt_erase)
 	    {
@@ -2350,7 +2350,7 @@ sane_start (SANE_Handle handle)
     {
 
       /*
-       * Don't allow picture unless there is room in the 
+       * Don't allow picture unless there is room in the
        * camera.
        */
       if (CameraInfo.pic_left == 0)
@@ -2359,7 +2359,7 @@ sane_start (SANE_Handle handle)
 	  return SANE_STATUS_INVAL;
 	}
 
-      /* 
+      /*
        * DC-20 can only change resolution when camer is empty.
        * DC-25 can do it any time.
        */
@@ -2403,7 +2403,7 @@ sane_start (SANE_Handle handle)
 
       /*
        * For thumbnails, we can do things right where we
-       * start the download, and grab the first block 
+       * start the download, and grab the first block
        * from the camera.  The reamining blocks will be
        * fetched as necessary by sane_read().
        */
@@ -2421,7 +2421,7 @@ sane_start (SANE_Handle handle)
 	  return SANE_STATUS_INVAL;
 	}
 
-      /* 
+      /*
        * DC20 thumbnail are 80x60 grayscale, DC25
        * thumbnails are color.
        */
@@ -2439,10 +2439,10 @@ sane_start (SANE_Handle handle)
     {
       /*
        * We do something a little messy, and violates the SANE
-       * philosophy.  However, since it is fairly tricky to 
+       * philosophy.  However, since it is fairly tricky to
        * convert the DC2x "comet" files on the fly, we read in
        * the entire data stream in sane_open(), and use convert_pic
-       * to convert it to an in-memory pixpmap.  Then when 
+       * to convert it to an in-memory pixpmap.  Then when
        * sane_read() is called, we fill the requests from
        * memory.  A good project for me (or some kind volunteer)
        * would be to rewrite this and move the actual download
@@ -2450,7 +2450,7 @@ sane_start (SANE_Handle handle)
        * this way is that the data comes down pretty fast, and
        * it helps to dedicate the processor to this task.  We
        * might get serial port overruns if we try to do other
-       * things at the same time.  
+       * things at the same time.
        *
        * Also, as a side note, I was constantly getting serial
        * port overruns on a 90MHz pentium until I used hdparm
@@ -2634,7 +2634,7 @@ sane_read (SANE_Handle __sane_unused__ handle, SANE_Byte * data,
       int i;
       int filesize = parms.bytes_per_line * parms.lines;
 
-      /* 
+      /*
        * If outbytes is zero, then this is the first time
        * we've been called, so update the contrast table.
        * The formula is something I came up with that has the
@@ -2642,10 +2642,10 @@ sane_read (SANE_Handle __sane_unused__ handle, SANE_Byte * data,
        * 1) It's a smooth curve that provides the effect I wanted
        *    (bright pixels are made brighter, dim pixels are made
        *    dimmer)
-       * 2) The contrast parameter can be adjusted to provide 
+       * 2) The contrast parameter can be adjusted to provide
        *    different amounts of contrast.
        * 3) A parameter of 1.0 can be used to pass the data
-       *    through unchanged (but values around 1.75 look 
+       *    through unchanged (but values around 1.75 look
        *    a lot better
        */
       if (outbytes == 0)

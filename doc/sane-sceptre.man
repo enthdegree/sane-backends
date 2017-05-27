@@ -29,7 +29,7 @@ The make of this scanner is KINPO, so other scanners from that manufacturer may 
 The options the backend supports can either be selected through command line
 options to programs like scanimage or through GUI elements in xscanimage or xsane.
 
-Valid command line options and their syntax can be listed by using 
+Valid command line options and their syntax can be listed by using
 .RS
 scanimage \-\-help \-d sceptre
 .RE
@@ -38,9 +38,9 @@ scanimage \-\-help \-d sceptre
 .B Scan Mode
 
 .TP
-.B \-\-mode 
-selects the basic mode of operation of the scanner valid choices are 
-.I Lineart, Halftone, Gray and Color. 
+.B \-\-mode
+selects the basic mode of operation of the scanner valid choices are
+.I Lineart, Halftone, Gray and Color.
 The Lineart and Halftone mode are black and white only (1 bit). Gray
 will produce 256 levels of gray (8 bits). Color will produce a 24 bits
 color image. The scanner supports 30 bits internally but it only
@@ -56,7 +56,7 @@ resolutions between 50 and 1200.
 selects the pattern mode that is used in Halftone mode. Valid options
 are 1, 2, 3 and 4.
 
-.TP 
+.TP
 .B \-\-gamma\-correction
 controls the scanner internal gamma correction. Valid options are
 "Default", "User defined", "High density printing" "Low density
@@ -67,18 +67,18 @@ printing" and "High contrast printing".
 (color mode only) allows the user to specify a gamma table (see the
 next 3 parameters).
 
-.TP 
-.B \-\-red\-gamma\-table 
+.TP
+.B \-\-red\-gamma\-table
 (color mode only) can be used to download a user defined
 gamma table for the red channel. The table must be 256 bytes long.
 
-.TP 
-.B \-\-green\-gamma\-table 
+.TP
+.B \-\-green\-gamma\-table
 (color mode only) can be used to download a user defined
 gamma table for the green channel. The table must be 256 bytes long.
 
 .TP
-.B \-\-blue\-gamma\-table 
+.B \-\-blue\-gamma\-table
 (color mode only) can be used to download a user defined gamma table
 for the blue channel. The table must be 256 bytes long.
 
@@ -87,7 +87,7 @@ for the blue channel. The table must be 256 bytes long.
 sets the threshold for black and white pixels in lineart
 mode. Possible values are from 0 (darker) to 255 (lighter).
 
-.TP 
+.TP
 .B \-\-preview
 requests a preview scan. The resolution used for that scan is 30 dpi
 and the scan area is the maximum allowed. The scan mode is user
@@ -97,7 +97,7 @@ selected. The default is "no".
 .B The geometry options
 
 .TP
-.B \-l \-t \-x \-y 
+.B \-l \-t \-x \-y
 control the scan area: \-l sets the top left x coordinate, \-t the top
 left y coordinate, \-x selects the width and \-y the height of the scan
 area. All parameters are specified in millimeters by default.

@@ -1,7 +1,7 @@
 /* --------------------------------------------------------------------------------------------------------- */
 
 /* umax.h - headerfile for SANE-backend for umax scanners
-  
+
    (C) 1997-2002 Oliver Rauch
 
    This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
-  
+
  */
 
 /* --------------------------------------------------------------------------------------------------------- */
@@ -58,7 +58,7 @@
 
 /* #define SANE_UMAX_DEBUG_S12 */
 /* #define UMAX_CALIBRATION_MODE_SELECTABLE */
-                                         
+
 /* --------------------------------------------------------------------------------------------------------- */
 
 #define SANE_UMAX_SCSI_MAXQUEUE 		8
@@ -269,7 +269,7 @@ typedef struct Umax_Device
   double		inquiry_dor_y_off;			     /* double resolution y offset in inches */
 
   int			inquiry_exposure_adj;				/* 1 if exposure adjust is supported */
-  int			inquiry_exposure_time_step_unit;		  /* exposure time unit in micro sec */ 
+  int			inquiry_exposure_time_step_unit;		  /* exposure time unit in micro sec */
   int			inquiry_exposure_time_max;				    /* exposure time maximum */
   int			inquiry_exposure_time_l_min;			/* exposure tine minimum for lineart */
   int			inquiry_exposure_time_l_fb_def;		/* exposure time default for lineart/flatbed */

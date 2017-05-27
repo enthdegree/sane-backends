@@ -11,7 +11,7 @@ scanimage \- scan an image
 .RB [ \-i | \-\-icc\-profile
 .IR profile ]
 .RB [ \-L | \-\-list\-devices ]
-.RB [ \-f | \-\-formatted\-device\-list 
+.RB [ \-f | \-\-formatted\-device\-list
 .IR format ]
 .RB [ \-b | \-\-batch
 .RI [= format ]]
@@ -84,9 +84,9 @@ or
 .B \-\-device\-name
 options must be followed by a
 .B SANE
-device-name like 
+device-name like
 .RI ` epson:/dev/sg0 '
-or 
+or
 .RI ` hp:/dev/usbscanner0 '.
 A (partial) list of available devices can be obtained with the
 .B \-\-list\-devices
@@ -94,12 +94,12 @@ option (see below).  If no device-name is specified explicitly,
 .B scanimage
 reads a device-name from the environment variable
 .BR SANE_DEFAULT_DEVICE .
-If this variable is not set, 
+If this variable is not set,
 .B scanimage
 will attempt to open the first available device.
 .PP
 The
-.B \-\-format 
+.B \-\-format
 .I format
 option selects how image data is written to standard output.
 .I format
@@ -126,7 +126,7 @@ or
 option requests a (partial) list of devices that are available.  The
 list is not complete since some devices may be available, but are not
 listed in any of the configuration files (which are typically stored
-in directory 
+in directory
 .IR @CONFIGDIR@ ).
 This is particularly the case when accessing scanners through the network.  If
 a device is not listed in a configuration file, the only way to access it is
@@ -161,7 +161,7 @@ SCSI, produced by SHARP
 The
 .B \-\-batch*
 options provide the features for scanning documents using document
-feeders.  
+feeders.
 .BR \-\-batch
 .RI [ format ]
 is used to specify the format of the filename that each page will be written
@@ -177,11 +177,11 @@ selects the page number to start naming files with. If this option is not
 given, the counter will start at 1.
 .B \-\-batch\-count
 .I count
-specifies the number of pages to attempt to scan.  If not given, 
+specifies the number of pages to attempt to scan.  If not given,
 scanimage will continue scanning until the scanner returns a state
 other than OK.  Not all scanners with document feeders signal when the
 ADF is empty, use this command to work around them.
-With 
+With
 .B \-\-batch\-increment
 .I increment
 you can change the amount that the number in the filename is incremented
@@ -211,7 +211,7 @@ option requests that
 .B scanimage
 prints a progress counter. It shows how much image data of the current image has
 already been received by
-.B scanimage 
+.B scanimage
 (in percent).
 .PP
 The
@@ -265,7 +265,7 @@ level.
 .PP
 The
 .B \-B
-option without argument changes the input buffer size from the default 32KB to 1MB.  For finer grained control, use 
+option without argument changes the input buffer size from the default 32KB to 1MB.  For finer grained control, use
 .B \-\-buffer-size=
 followed by the number of KB.
 .PP
@@ -426,7 +426,7 @@ is possible to specify multiple such linear segments.  For example,
 "[0]3-[2]3-[6]7,[7]10-[9]6" is equivalent to "3,3,3,4,5,6,7,10,8,6".
 The program
 .B gamma4scanimage
-can be used to generate such gamma tables (see 
+can be used to generate such gamma tables (see
 .BR gamma4scanimage (1)
 for details).
 .RE
@@ -440,7 +440,7 @@ for details).
 The description above is an example of an option that takes an
 arbitrary string value (which happens to be a filename).  Again,
 the value in brackets show that the option is current set to the
-filename 
+filename
 .BR /tmp/input.ppm .
 .RE
 

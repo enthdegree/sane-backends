@@ -3,7 +3,7 @@ SANE and OpenBSD
 
 Building:
 ---------
-Don't forget to use GNU make (gmake). E.g. "MAKE=gmake ./configure". 
+Don't forget to use GNU make (gmake). E.g. "MAKE=gmake ./configure".
 SANE should compile and install out-of-the-box.
 
 If some libraries and headers (like libjpeg) are installed in /usr/local/, adding

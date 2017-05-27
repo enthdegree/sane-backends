@@ -17,7 +17,7 @@
 :devicetype :scanner              ; start of a list of devices....
 
 :mfg "LEO"
-:model "LEOScan S3" 
+:model "LEOScan S3"
 :interface "SCSI"
 :comment "FCC ID LUZFS1130"
 :status :good

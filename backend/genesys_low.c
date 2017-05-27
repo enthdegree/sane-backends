@@ -1334,7 +1334,7 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
 /** @brief initialize device
  * Initialize backend and ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home. Designed for gl846+ ASICs.
- * Detects cold boot (ie first boot since device plugged) in this case 
+ * Detects cold boot (ie first boot since device plugged) in this case
  * an extensice setup up is done at hardware level.
  *
  * @param dev device to initialize
@@ -1510,7 +1510,7 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
   while (loop < max && !(val & HOMESNR) && status == SANE_STATUS_GOOD);
 
   /* if after the timeout, head is still not parked, error out */
-  if(loop >= max && !(val & HOMESNR) && status == SANE_STATUS_GOOD) 
+  if(loop >= max && !(val & HOMESNR) && status == SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "%s: failed to reach park position %ds\n", __func__, max/10);
       return SANE_STATUS_IO_ERROR;

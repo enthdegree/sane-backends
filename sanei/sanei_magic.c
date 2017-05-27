@@ -123,17 +123,17 @@ sanei_magic_despeck (SANE_Parameters * params, SANE_Byte * buffer,
 
         /* convert darkest pixel into a brighter threshold */
         thresh = (thresh + 255*3 + 255*3)/3;
-  
+
         /*loop over rows and columns around window */
         for(k=-1; k<diam+1; k++){
           for(l=-1; l<diam+1; l++){
 
             int tmp[3];
-  
+
             /* dont count pixels in the window */
             if(k != -1 && k != diam && l != -1 && l != diam)
               continue;
-  
+
             for(n=0; n<3; n++){
               tmp[n] = buffer[i + j*3 + k*bw + l*3 + n];
               outer[n] += tmp[n];
@@ -182,7 +182,7 @@ sanei_magic_despeck (SANE_Parameters * params, SANE_Byte * buffer,
 
         /* convert darkest pixel into a brighter threshold */
         thresh = (thresh + 255 + 255)/3;
-  
+
         /*loop over rows and columns around window */
         for(k=-1; k<diam+1; k++){
           for(l=-1; l<diam+1; l++){
@@ -192,7 +192,7 @@ sanei_magic_despeck (SANE_Parameters * params, SANE_Byte * buffer,
             /* dont count pixels in the window */
             if(k != -1 && k != diam && l != -1 && l != diam)
               continue;
-  
+
             tmp = buffer[i + j + k*bw + l];
 
             if(tmp < thresh){
@@ -222,7 +222,7 @@ sanei_magic_despeck (SANE_Parameters * params, SANE_Byte * buffer,
   else if(params->format == SANE_FRAME_GRAY && params->depth == 1){
     for(i=bw; i<bt-bw-(bw*diam); i+=bw){
       for(j=1; j<pw-1-diam; j++){
-        
+
         int curr = 0;
         int hits = 0;
 
@@ -242,7 +242,7 @@ sanei_magic_despeck (SANE_Parameters * params, SANE_Byte * buffer,
             /* dont count pixels in the window */
             if(k != -1 && k != diam && l != -1 && l != diam)
               continue;
-  
+
             hits += buffer[i + k*bw + (j+l)/8] >> (7-(j+l)%8) & 1;
 
             if(hits)
@@ -631,7 +631,7 @@ sanei_magic_rotate (SANE_Parameters * params, SANE_Byte * buffer,
     goto cleanup;
   }
 
-  if(params->format == SANE_FRAME_RGB || 
+  if(params->format == SANE_FRAME_RGB ||
     (params->format == SANE_FRAME_GRAY && params->depth == 8)
   ){
 
@@ -642,19 +642,19 @@ sanei_magic_rotate (SANE_Parameters * params, SANE_Byte * buffer,
 
     for (i=0; i<height; i++) {
       int shiftY = centerY - i;
-    
+
       for (j=0; j<pwidth; j++) {
         int shiftX = centerX - j;
         int sourceX, sourceY;
-    
+
         sourceX = centerX - (int)(shiftX * slopeCos + shiftY * slopeSin);
         if (sourceX < 0 || sourceX >= pwidth)
           continue;
-    
+
         sourceY = centerY + (int)(-shiftY * slopeCos + shiftX * slopeSin);
         if (sourceY < 0 || sourceY >= height)
           continue;
-    
+
         for (k=0; k<depth; k++) {
           outbuf[i*bwidth+j*depth+k]
             = buffer[sourceY*bwidth+sourceX*depth+k];
@@ -672,15 +672,15 @@ sanei_magic_rotate (SANE_Parameters * params, SANE_Byte * buffer,
 
     for (i=0; i<height; i++) {
       int shiftY = centerY - i;
-    
+
       for (j=0; j<pwidth; j++) {
         int shiftX = centerX - j;
         int sourceX, sourceY;
-    
+
         sourceX = centerX - (int)(shiftX * slopeCos + shiftY * slopeSin);
         if (sourceX < 0 || sourceX >= pwidth)
           continue;
-    
+
         sourceY = centerY + (int)(-shiftY * slopeCos + shiftX * slopeSin);
         if (sourceY < 0 || sourceY >= height)
           continue;
@@ -689,7 +689,7 @@ sanei_magic_rotate (SANE_Parameters * params, SANE_Byte * buffer,
         outbuf[i*bwidth + j/8] &= ~(1 << (7-(j%8)));
 
         /* fill in new bit */
-        outbuf[i*bwidth + j/8] |= 
+        outbuf[i*bwidth + j/8] |=
           ((buffer[sourceY*bwidth + sourceX/8]
           >> (7-(sourceX%8))) & 1) << (7-(j%8));
       }
@@ -726,7 +726,7 @@ sanei_magic_isBlank (SANE_Parameters * params, SANE_Byte * buffer,
   /*convert thresh from percent (0-100) to 0-1 range*/
   thresh /= 100;
 
-  if(params->format == SANE_FRAME_RGB || 
+  if(params->format == SANE_FRAME_RGB ||
     (params->format == SANE_FRAME_GRAY && params->depth == 8)
   ){
 
@@ -783,7 +783,7 @@ sanei_magic_isBlank (SANE_Parameters * params, SANE_Byte * buffer,
 
 /* Divide the image into 1/2 inch squares, skipping a 1/4 inch
  * margin on all sides. If all squares are under the user's density,
- * signal our caller to skip the image entirely, by returning 
+ * signal our caller to skip the image entirely, by returning
  * SANE_STATUS_NO_DOCS */
 SANE_Status
 sanei_magic_isBlank2 (SANE_Parameters * params, SANE_Byte * buffer,
@@ -813,12 +813,12 @@ sanei_magic_isBlank2 (SANE_Parameters * params, SANE_Byte * buffer,
 
     for(yb=0; yb<yblocks; yb++){
       for(xb=0; xb<xblocks; xb++){
-  
+
         /*count dark pix in this block*/
         double blocksum = 0;
-  
+
         for(y=0; y<yhalf; y++){
-  
+
           /* skip the top and left 1/4 inch */
           int offset = (yquarter + yb*yhalf + y) * params->bytes_per_line
             + (xquarter + xb*xhalf) * Bpp;
@@ -826,7 +826,7 @@ sanei_magic_isBlank2 (SANE_Parameters * params, SANE_Byte * buffer,
 
           /*count darkness of pix in this row*/
           int rowsum = 0;
-  
+
           for(x=0; x<xhalf*Bpp; x++){
             rowsum += 255 - ptr[x];
           }
@@ -847,12 +847,12 @@ sanei_magic_isBlank2 (SANE_Parameters * params, SANE_Byte * buffer,
 
     for(yb=0; yb<yblocks; yb++){
       for(xb=0; xb<xblocks; xb++){
-  
+
         /*count dark pix in this block*/
         double blocksum = 0;
-  
+
         for(y=0; y<yhalf; y++){
-  
+
           /* skip the top and left 1/4 inch */
           int offset = (yquarter + yb*yhalf + y) * params->bytes_per_line
             + (xquarter + xb*xhalf) / 8;
@@ -860,7 +860,7 @@ sanei_magic_isBlank2 (SANE_Parameters * params, SANE_Byte * buffer,
 
           /*count darkness of pix in this row*/
           int rowsum = 0;
-  
+
           for(x=0; x<xhalf; x++){
             rowsum += ptr[x/8] >> (7-(x%8)) & 1;
           }
@@ -898,7 +898,7 @@ sanei_magic_findTurn(SANE_Parameters * params, SANE_Byte * buffer,
 
   DBG(10,"sanei_magic_findTurn: start\n");
 
-  if(params->format == SANE_FRAME_RGB || 
+  if(params->format == SANE_FRAME_RGB ||
     (params->format == SANE_FRAME_GRAY && params->depth == 8)
   ){
 
@@ -1125,7 +1125,7 @@ sanei_magic_turn(SANE_Parameters * params, SANE_Byte * buffer,
   }
 
   /*turn color & gray image*/
-  if(params->format == SANE_FRAME_RGB || 
+  if(params->format == SANE_FRAME_RGB ||
     (params->format == SANE_FRAME_GRAY && params->depth == 8)
   ){
 
@@ -1282,7 +1282,7 @@ getTopEdge(int width, int height, int resolution,
   double topSlope = 0;
   int topOffset = 0;
   int topDensity = 0;
-  
+
   int i,j;
   int pass = 0;
 
@@ -1436,7 +1436,7 @@ getLine (int height, int width, int * buff,
 
     /* find central value of this 'bucket' */
     slopeCenter[j] = (
-      (double)j*(maxSlope-minSlope)/slopes+minSlope 
+      (double)j*(maxSlope-minSlope)/slopes+minSlope
       + (double)(j+1)*(maxSlope-minSlope)/slopes+minSlope
     )/2;
 
@@ -1525,7 +1525,7 @@ getLine (int height, int width, int * buff,
         maxDensity = lines[i][j];
     }
   }
-  
+
   DBG(15,"getLine: maxDensity %d\n",maxDensity);
 
   *finSlope = 0;
@@ -1544,20 +1544,20 @@ getLine (int height, int width, int * buff,
       }
     }
   }
-  
+
   if(0){
     fprintf(stderr,"offsetCenter:       ");
     for(j=0;j<offsets;j++){
       fprintf(stderr," %+04.0f",offsetCenter[j]);
     }
     fprintf(stderr,"\n");
-  
+
     fprintf(stderr,"offsetScale:        ");
     for(j=0;j<offsets;j++){
       fprintf(stderr," %04d",offsetScale[j]);
     }
     fprintf(stderr,"\n");
-  
+
     for(i=0;i<slopes;i++){
       fprintf(stderr,"slope: %02d %+02.2f %03d:",i,slopeCenter[i],slopeScale[i]);
       for(j=0;j<offsets;j++){
@@ -1589,12 +1589,12 @@ getLine (int height, int width, int * buff,
   return ret;
 }
 
-/* find the left side of paper by moving a line 
+/* find the left side of paper by moving a line
  * perpendicular to top slope across the image
  * the 'left-most' point on the paper is the
  * one with the smallest X intercept
  * return x and y intercepts */
-static SANE_Status 
+static SANE_Status
 getLeftEdge (int width, int height, int * top, int * bot,
  double slope, int * finXInter, int * finYInter)
 {
@@ -1611,7 +1611,7 @@ getLeftEdge (int width, int height, int * top, int * bot,
   leftCount = 0;
 
   for(i=0;i<width;i++){
-    
+
     if(top[i] < height){
       int tyi = top[i] - (slope * i);
       int txi = tyi/-slope;
@@ -1638,7 +1638,7 @@ getLeftEdge (int width, int height, int * top, int * bot,
   leftCount = 0;
 
   for(i=0;i<width;i++){
-    
+
     if(bot[i] > -1){
 
       int byi = bot[i] - (slope * i);
@@ -1677,7 +1677,7 @@ getLeftEdge (int width, int height, int * top, int * bot,
 
 /* Loop thru the image and look for first color change in each column.
  * Return a malloc'd array. Caller is responsible for freeing. */
-int * 
+int *
 sanei_magic_getTransY (
   SANE_Parameters * params, int dpi, SANE_Byte * buffer, int top)
 {
@@ -1715,7 +1715,7 @@ sanei_magic_getTransY (
 
   /* load the buff array with y value for first color change from edge
    * gray/color uses a different algo from binary/halftone */
-  if(params->format == SANE_FRAME_RGB || 
+  if(params->format == SANE_FRAME_RGB ||
     (params->format == SANE_FRAME_GRAY && params->depth == 8)
   ){
 
@@ -1734,10 +1734,10 @@ sanei_magic_getTransY (
       }
       near *= winLen;
       far = near;
-  
+
       /* move windows, check delta */
       for(j=firstLine+direction; j!=lastLine; j+=direction){
-  
+
         int farLine = j-winLen*2*direction;
         int nearLine = j-winLen*direction;
 
@@ -1770,10 +1770,10 @@ sanei_magic_getTransY (
     int near = 0;
 
     for(i=0; i<width; i++){
-  
+
       /* load the near window with first pixel */
       near = buffer[(firstLine*width+i)/8] >> (7-(i%8)) & 1;
-  
+
       /* move */
       for(j=firstLine+direction; j!=lastLine; j+=direction){
         if((buffer[(j*width+i)/8] >> (7-(i%8)) & 1) != near){
@@ -1809,7 +1809,7 @@ sanei_magic_getTransY (
 
 /* Loop thru the image height and look for first color change in each row.
  * Return a malloc'd array. Caller is responsible for freeing. */
-int * 
+int *
 sanei_magic_getTransX (
   SANE_Parameters * params, int dpi, SANE_Byte * buffer, int left)
 {
@@ -1848,7 +1848,7 @@ sanei_magic_getTransX (
 
   /* load the buff array with x value for first color change from edge
    * gray/color uses a different algo from binary/halftone */
-  if(params->format == SANE_FRAME_RGB || 
+  if(params->format == SANE_FRAME_RGB ||
     (params->format == SANE_FRAME_GRAY && params->depth == 8)
   ){
 
@@ -1867,10 +1867,10 @@ sanei_magic_getTransX (
       }
       near *= winLen;
       far = near;
-  
+
       /* move windows, check delta */
       for(j=firstCol+direction; j!=lastCol; j+=direction){
-  
+
         int farCol = j-winLen*2*direction;
         int nearCol = j-winLen*direction;
 
@@ -1888,7 +1888,7 @@ sanei_magic_getTransX (
           near -= buffer[i*bwidth + nearCol*depth + k];
           near += buffer[i*bwidth + j*depth + k];
         }
-  
+
         if(abs(near - far) > 50*winLen*depth - near*40/255){
           buff[i] = j;
           break;
@@ -1902,10 +1902,10 @@ sanei_magic_getTransX (
     int near = 0;
 
     for(i=0; i<height; i++){
-  
+
       /* load the near window with first pixel */
       near = buffer[i*bwidth + firstCol/8] >> (7-(firstCol%8)) & 1;
-  
+
       /* move */
       for(j=firstCol+direction; j!=lastCol; j+=direction){
         if((buffer[i*bwidth + j/8] >> (7-(j%8)) & 1) != near){

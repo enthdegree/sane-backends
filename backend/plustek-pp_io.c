@@ -110,7 +110,7 @@ static Byte ioDataFromSPPFast( pScanData ps )
 
 	/* read low nibble */
 	tmp = _INB_STATUS( ps );
-	
+
 	/* combine with low nibble */
     bData |= (tmp >> 4);
 
@@ -141,7 +141,7 @@ static Byte ioDataFromSPPMiddle( pScanData ps )
 	/* read low nibble */
 	_INB_STATUS( ps );
 	tmp = _INB_STATUS( ps );
-	
+
 	/* combine with low nibble */
     bData |= (tmp >> 4);
 
@@ -174,7 +174,7 @@ static UChar ioDataFromSPPSlow( pScanData ps )
 	_INB_STATUS( ps );
 	_INB_STATUS( ps );
 	tmp = _INB_STATUS( ps );
-	
+
 	/* combine with low nibble */
     bData |= (tmp >> 4);
 
@@ -209,7 +209,7 @@ static UChar ioDataFromSPPSlowest( pScanData ps )
 	_INB_STATUS( ps );
 	_INB_STATUS( ps );
 	tmp = _INB_STATUS( ps );
-	
+
 	/* combine with low nibble */
     bData |= (tmp >> 4);
 
@@ -309,9 +309,9 @@ static Bool fnBiDirRead( pScanData ps, pUChar pBuffer, ULong ulSize )
 
 		case 0:
 		    for( ; ulSize; ulSize--, pBuffer++ ) {
-				_OUTB_CTRL( ps, start );   
+				_OUTB_CTRL( ps, start );
 				*pBuffer = _INB_DATA( ps );
-				_OUTB_CTRL( ps, end );   
+				_OUTB_CTRL( ps, end );
 			}
 			break;
 
@@ -327,7 +327,7 @@ static Bool fnBiDirRead( pScanData ps, pUChar pBuffer, ULong ulSize )
 				_DO_UDELAY( 1 );
 			}
 			break;
-		
+
 		default:
 			_DO_UDELAY( 2 );
 		    for(; ulSize; ulSize--, pBuffer++ ) {
@@ -466,7 +466,7 @@ static Bool ioP98OpenScanPath( pScanData ps )
 #endif
 			} else {
 				ioP98003EstablishScannerConnection( ps, dw );
-			}			
+			}
 
 			_INB_STATUS( ps );
 			tmp = _INB_STATUS( ps );
@@ -524,7 +524,7 @@ static void ioCloseScanPath( pScanData ps )
  * (ASIC 9800x only)
  */
 static int ioP98ReadWriteTest( pScanData ps )
-{	
+{
 	UChar  tmp;
 	ULong  ul;
 	pUChar buffer;
@@ -539,10 +539,10 @@ static int ioP98ReadWriteTest( pScanData ps )
 
 	/* prepare content */
 	for( ul = 0; ul < _MEMTEST_SIZE; ul++ )
-	    buffer[ul] = (UChar)ul;	
+	    buffer[ul] = (UChar)ul;
 
 	ps->OpenScanPath(ps);
-	
+
 	/* avoid switching to Lamp0, when previously scanned in transp./neg mode */
 	tmp = ps->bLastLampStatus + _SCAN_BYTEMODE;
 	IODataToRegister( ps, ps->RegScanControl, tmp );
@@ -595,7 +595,7 @@ static void ioSPPWrite( pScanData ps, pUChar pBuffer, ULong size )
 	DBG( DBG_IO , "Moving %u bytes to scanner, IODELAY = %u...\n",
 					size, ps->IO.delay );
 	switch( ps->IO.delay ) {
-	
+
 		case 0:
 		    for (; size; size--, pBuffer++) {
 				_OUTB_DATA( ps, *pBuffer );
@@ -603,7 +603,7 @@ static void ioSPPWrite( pScanData ps, pUChar pBuffer, ULong size )
 				_OUTB_CTRL( ps, _CTRL_END_DATAWRITE );
         	}
 			break;
-		
+
 		case 1:
 		case 2:
 		    for (; size; size--, pBuffer++) {
@@ -647,7 +647,7 @@ static void ioEnterReadMode( pScanData ps )
 		ps->IO.bOldControlValue = _INB_CTRL( ps );
 
 	/* ask ASIC to enter read mode */
-	IORegisterToScanner( ps, ps->RegReadDataMode );	
+	IORegisterToScanner( ps, ps->RegReadDataMode );
 }
 
 /************************ exported functions *********************************/
@@ -750,7 +750,7 @@ _LOC void IODataToScanner( pScanData ps, Byte bValue )
 	/* notify asic there is data */
     _OUTB_CTRL( ps, _CTRL_START_DATAWRITE );
 	_DO_UDELAY( deltime );
-						
+
 		/* end write cycle */
    	_OUTB_CTRL( ps, _CTRL_END_DATAWRITE );
 	_DO_UDELAY( deltime-1 );
@@ -767,7 +767,7 @@ _LOC void IODataToRegister( pScanData ps, Byte bReg, Byte bData )
 #endif
 
 	/* specify register */
-    IORegisterToScanner( ps, bReg );	
+    IORegisterToScanner( ps, bReg );
 
 	/* then write the content */
 	IODataToScanner( ps, bData );

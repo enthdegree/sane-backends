@@ -1126,7 +1126,7 @@ sane_start (SANE_Handle handle)
       if (thistmpfile != NULL)
         {
           if (mktemp(thistmpfile) == 0)
-            {  
+            {
               DBG(1, "mktemp(thistmpfile) is failed\n");
               return (SANE_STATUS_INVAL);
 	    }

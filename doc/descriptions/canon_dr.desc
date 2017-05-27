@@ -10,7 +10,7 @@
 ;
 
 :backend "canon_dr"              ; name of backend
-:url "http://www.thebility.com/canon/" 
+:url "http://www.thebility.com/canon/"
 :version "51"                    ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.25, see sane-canon_dr manpage"

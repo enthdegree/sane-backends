@@ -15,7 +15,7 @@
 :url "http://stef.dev.free.fr/sane/lexmark"
 				  ; backend's web page
 
-:comment "This backend supports lexmark x1100 series scanners." 
+:comment "This backend supports lexmark x1100 series scanners."
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....

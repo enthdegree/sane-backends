@@ -164,23 +164,23 @@ static void mapInvertDitherMap( pScanData ps )
 static void mapBuildLinearMap( pScanData ps )
 {
 	ULong i;
-		
+
 	DBG( DBG_LOW, "mapBuildLinearMap()\n" );
 
 	if( _IS_ASIC98(ps->sCaps.AsicID)) {
 
 		for( i = 0; i < 4096; i++ ) {
-			ps->a_bMapTable[i] 	    = (UChar)(i >> 4);		
-			ps->a_bMapTable[4096+i] = (UChar)(i >> 4);		
-			ps->a_bMapTable[8192+i] = (UChar)(i >> 4);		
+			ps->a_bMapTable[i] 	    = (UChar)(i >> 4);
+			ps->a_bMapTable[4096+i] = (UChar)(i >> 4);
+			ps->a_bMapTable[8192+i] = (UChar)(i >> 4);
 		}
 
 	} else {
 
 		for( i = 0; i < 256; i++ ) {
-			ps->a_bMapTable[i] 	   = (UChar)(i & 0xff);		
-			ps->a_bMapTable[256+i] = (UChar)(i & 0xff);		
-			ps->a_bMapTable[512+i] = (UChar)(i & 0xff);	
+			ps->a_bMapTable[i] 	   = (UChar)(i & 0xff);
+			ps->a_bMapTable[256+i] = (UChar)(i & 0xff);
+			ps->a_bMapTable[512+i] = (UChar)(i & 0xff);
 		}
 	}
 }
@@ -221,7 +221,7 @@ _LOC void MapAdjust( pScanData ps, int which )
 	long   b, c, tmp;
 
 	DBG( DBG_LOW, "MapAdjust(%u)\n", which );
-		
+
 	if( _IS_ASIC98(ps->sCaps.AsicID)) {
 		tabLen = 4096;
 	} else {
@@ -257,7 +257,7 @@ _LOC void MapAdjust( pScanData ps, int which )
 			if( tmp > 255 ) tmp = 255;
 			ps->a_bMapTable[tabLen+i] = (UChar)tmp;
     	}
-    	
+
 		if((_MAP_MASTER == which) || (_MAP_BLUE == which)) {
 			tmp = ((((long)ps->a_bMapTable[tabLen*2+i] * 100) + b) * c) / 10000;
 			if( tmp < 0 )   tmp = 0;
@@ -268,33 +268,33 @@ _LOC void MapAdjust( pScanData ps, int which )
 
     if( ps->DataInf.dwScanFlag & SCANDEF_Negative ) {
 		DBG( DBG_LOW, "inverting...\n" );
-		
+
 		if((_MAP_MASTER == which) || (_MAP_RED == which)) {
-	
+
 			DBG( DBG_LOW, "inverting RED map\n" );
-			
+
 			pdw = (pULong)ps->a_bMapTable;
-			
+
 		    for( dw = tabLen / 4; dw; dw--, pdw++ )
 				*pdw = ~(*pdw);
     	}
-	
+
 		if((_MAP_MASTER == which) || (_MAP_GREEN == which)) {
-			
+
 			DBG( DBG_LOW, "inverting GREEN map\n" );
-			
+
 			pdw = (pULong)&ps->a_bMapTable[tabLen];
-			
+
 		    for( dw = tabLen / 4; dw; dw--, pdw++ )
 				*pdw = ~(*pdw);
     	}
-		
+
 		if((_MAP_MASTER == which) || (_MAP_BLUE == which)) {
-			
+
 			DBG( DBG_LOW, "inverting BLUE map\n" );
-			
+
 			pdw = (pULong)&ps->a_bMapTable[tabLen*2];
-			
+
 		    for( dw = tabLen / 4; dw; dw--, pdw++ )
 				*pdw = ~(*pdw);
     	}

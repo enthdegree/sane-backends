@@ -47,13 +47,13 @@
 #if defined(HAVE_SYS_TIME_H)
 # include <sys/time.h>
 #endif
-   
+
 #define DEBUG_NOT_STATIC
 #include "../include/sane/sanei_debug.h"
 
 /* Please note: ASSERT won't go away if you define NDEBUG, it just won't
  * output a message when ASSERT failes. So if "cond" does anything, it will
- * be executed, even if NDEBUG is defined... 
+ * be executed, even if NDEBUG is defined...
  */
 #define	ASSERT(cond, retval)	do { 					\
 				if (!(cond)) { 				\
@@ -112,7 +112,7 @@ typedef struct {
 	void			(*setup)(SANE_Handle hndl);
 
         /* processes a configuration option */
-        SANE_Status		(*config)(SANE_Handle hndl, 
+        SANE_Status		(*config)(SANE_Handle hndl,
 					  SANE_String_Const optname,
                                           SANE_String_Const optval);
 
@@ -150,7 +150,7 @@ typedef struct Mustek_pp_config_option {
 
    SANE_String name;
    SANE_String value;
-   
+
 } Mustek_pp_config_option;
 
 typedef struct Mustek_pp_Device {
@@ -174,11 +174,11 @@ typedef struct Mustek_pp_Device {
 
 	/* functions */
 	Mustek_pp_Functions	*func;
-        
+
         /* Modified by EDG: device identification is needed to initialize
            private device descriptor */
         SANE_Int 		info;
-        
+
         /* Array of configuration file options */
         int			numcfgoptions;
         Mustek_pp_config_option *cfgoptions;
@@ -240,8 +240,8 @@ typedef struct Mustek_pp_Handle {
 
 	struct Mustek_pp_Handle	*next;
 
-	
-	
+
+
 	Mustek_pp_Device	*dev;
 
 	int			fd;
@@ -250,7 +250,7 @@ typedef struct Mustek_pp_Handle {
 	int			pipe;
 
 	int			state;
-	
+
 	int			topX, topY;
 	int			bottomX, bottomY;
 	int			mode;
@@ -263,7 +263,7 @@ typedef struct Mustek_pp_Handle {
 	int			use_ta;
 	int			depth;
 	int			speed;
-	
+
 	/* current parameters */
 	SANE_Parameters params;
 
@@ -271,7 +271,7 @@ typedef struct Mustek_pp_Handle {
 	SANE_Range x_range;
 	SANE_Range y_range;
 	SANE_Range gamma_range;
-  
+
 	/* options */
 	SANE_Option_Descriptor	opt[NUM_OPTIONS];
 	Option_Value		val[NUM_OPTIONS];
@@ -280,7 +280,7 @@ typedef struct Mustek_pp_Handle {
 	time_t			lamp_on;
 
 	void			*priv;
-	
+
 } Mustek_pp_Handle;
 
 #endif /* mustek_pp_h */

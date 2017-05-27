@@ -3,7 +3,7 @@
    1998 Andreas Bolsch for extension to ScanExpress models version 0.6,
    2000-2005 Henning Meier-Geinitz,
    2003 James Perry (600 EP).
-   
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -1214,7 +1214,7 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
   /* Paragon 1-pass 14" series I */
 
   /* I haven't seen a single report for this, but it is mentioned in
-     the old man page. All reported Paragon 1200SP had a model name 
+     the old man page. All reported Paragon 1200SP had a model name
      "MFS-12000SP" */
   else if (strncmp ((SANE_String) model_name, "MSF-12000SP", 11) == 0)
     {
@@ -1269,7 +1269,7 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
       dev->y_trans_range.max = SANE_FIX (255.0);
       dev->dpi_range.max = SANE_FIX (600);
       /* Looks like at least some versions of this scanner produce black images
-         in gray and color mode if MUSTEK_FORCE_GAMMA is not set. At least 
+         in gray and color mode if MUSTEK_FORCE_GAMMA is not set. At least
          versions 2.01, 2.02 and 2.10 are reported as having this bug. 3.12
          doesn't need this workaround but it doesn't harm either. */
       dev->flags |= MUSTEK_FLAG_FORCE_GAMMA;
@@ -1451,12 +1451,12 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
 	  dev->y_range.min = SANE_FIX (0);
 	  dev->x_range.max = SANE_FIX (215.9);
 	  dev->y_range.max = SANE_FIX (291.2);
-	  
+
 	  dev->x_trans_range.min = SANE_FIX (0);
 	  dev->y_trans_range.min = SANE_FIX (0);
 	  dev->x_trans_range.max = SANE_FIX (150.0);
 	  dev->y_trans_range.max = SANE_FIX (175.0);
-	  
+
 	  dev->dpi_range.max = SANE_FIX (1200);
 	  dev->dpi_range.min = SANE_FIX (60);
 	  dev->flags |= MUSTEK_FLAG_SE;
@@ -1476,12 +1476,12 @@ attach (SANE_String_Const devname, Mustek_Device ** devp, SANE_Bool may_wait)
 	  dev->y_range.min = SANE_FIX (0);
 	  dev->x_range.max = SANE_FIX (215.9);
 	  dev->y_range.max = SANE_FIX (291.2);
-	  
+
 	  dev->x_trans_range.min = SANE_FIX (0);
 	  dev->y_trans_range.min = SANE_FIX (0);
 	  dev->x_trans_range.max = SANE_FIX (150.0);
 	  dev->y_trans_range.max = SANE_FIX (175.0);
-	  
+
 	  dev->dpi_range.max = SANE_FIX (1200);
 	  dev->dpi_range.min = SANE_FIX (60);
 	  dev->flags |= MUSTEK_FLAG_SE;
@@ -3415,7 +3415,7 @@ fix_line_distance_n_2 (Mustek_Scanner * s, SANE_Int num_lines, SANE_Int bpl,
   if (!s->ld.buf[0])
     {
       /* This buffer must be big enough to hold maximum line distance
-         times max_bpl bytes.  The maximum line distance for the 
+         times max_bpl bytes.  The maximum line distance for the
          Paragon 600 II N scanner is 23, so 40 should be safe.  */
       DBG (5,
 	   "fix_line_distance_n_2: allocating temp buffer of %d*%d bytes\n",
@@ -3495,7 +3495,7 @@ fix_line_distance_n_1 (Mustek_Scanner * s, SANE_Int num_lines, SANE_Int bpl,
   if (!s->ld.buf[0])
     {
       /* This buffer must be big enough to hold maximum line distance
-         times max_bpl bytes.  The maximum line distance for the 600 II N 
+         times max_bpl bytes.  The maximum line distance for the 600 II N
          is 23, so 40 is safe. */
       DBG (5,
 	   "fix_line_distance_n_1: allocating temp buffer of %d*%d bytes\n",
@@ -3643,7 +3643,7 @@ fix_line_distance_se (Mustek_Scanner * s, SANE_Int num_lines, SANE_Int bpl,
   DBG (5, "fix_line_distance_se: start color: %d; %d lines \n",
        s->ld.color, num_lines);
 
-  /* First scan the lines read and count red, green and blue ones. 
+  /* First scan the lines read and count red, green and blue ones.
      Since we will step through the lines a second time we must not
      alter any global variables here! */
   for (color = 0; color < 3; ++color)
@@ -3676,8 +3676,8 @@ fix_line_distance_se (Mustek_Scanner * s, SANE_Int num_lines, SANE_Int bpl,
 	color = 0;
     }
 
-  /* Calculate how many triples of color lines we can output now. 
-     Because the number of available red lines is always greater 
+  /* Calculate how many triples of color lines we can output now.
+     Because the number of available red lines is always greater
      than for the other colors we may ignore the red ones here. */
   num_lines = MIN (lines[1], lines[2]);
 
@@ -3688,7 +3688,7 @@ fix_line_distance_se (Mustek_Scanner * s, SANE_Int num_lines, SANE_Int bpl,
 
   lines[0] = lines[1] = lines[2] = num_lines;
 
-  /* Output the color lines saved in previous call first.  
+  /* Output the color lines saved in previous call first.
      Note that data is converted in r/g/b interleave on the fly. */
   for (color = 0; color < 3; ++color)
     {
@@ -4710,7 +4710,7 @@ output_data (Mustek_Scanner * s, FILE * fp,
   else
     {
       DBG (5, "output_data: write %d lpb; %d bpl\n", lines_per_buffer, bpl);
-      /* Scale x-resolution above 1/2 of the maximum resolution for 
+      /* Scale x-resolution above 1/2 of the maximum resolution for
          SE and Pro scanners */
       if ((s->hw->flags & MUSTEK_FLAG_ENLARGE_X) &&
 	  (s->val[OPT_RESOLUTION].w > (s->hw->dpi_range.max / 2)))
@@ -6011,7 +6011,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      {
 		/* enable brightness/contrast for  when in a binary mode */
 		s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-		/* The SE and paragon models support only threshold 
+		/* The SE and paragon models support only threshold
 		   in lineart */
 		if (!(s->hw->flags & MUSTEK_FLAG_SE)
 		    && !(s->hw->flags & MUSTEK_FLAG_PRO))
@@ -6548,8 +6548,8 @@ sane_start (SANE_Handle handle)
 
   s->line = 0;
 
-  /* don't call any SIGTERM or SIGCHLD handlers 
-     this is to stop xsane and other frontends from calling 
+  /* don't call any SIGTERM or SIGCHLD handlers
+     this is to stop xsane and other frontends from calling
      its quit handlers */
   memset (&act, 0, sizeof (act));
   sigaction (SIGTERM, &act, 0);

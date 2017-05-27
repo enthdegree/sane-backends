@@ -43,7 +43,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro 
+   This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro
    and similar USB2 scanners. */
 
 #define BUILD 10
@@ -396,7 +396,7 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
   s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
   s->opt[OPT_RESOLUTION].constraint.word_list = dpi_list;
-  s->val[OPT_RESOLUTION].w = 300; 
+  s->val[OPT_RESOLUTION].w = 300;
 
   /* preview */
   s->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
@@ -528,14 +528,14 @@ static unsigned int g_dwAlreadyGetNegLines = 0;
 
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
-Routine Description: 
+Routine Description:
 	Check the device connect status
 Parameters:
 	none
-Return value: 
+Return value:
 	if the device is connected
 	return TRUE
-	else 
+	else
 	return FALSE
 ***********************************************************************/
 static SANE_Bool
@@ -547,12 +547,12 @@ GetDeviceStatus ()
 
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
-Routine Description: 
+Routine Description:
 	Turn the lamp on or off
 Parameters:
 	isLampOn: turn the lamp on or off
 	isTALampOn: turn the TA lamp on or off
-Return value: 
+Return value:
 	if operation success
 	return TRUE
 	else
@@ -567,11 +567,11 @@ PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
 
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
-Routine Description: 
+Routine Description:
 	Turn the carriage home
 Parameters:
 	none
-Return value: 
+Return value:
 	if the operation success
 	return TRUE
 	else
@@ -587,11 +587,11 @@ CarriageHome ()
 #ifdef SANE_UNUSED
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
-Routine Description: 
+Routine Description:
 	Get gamma input/output bit count
 Parameters:
 	pGammaInfo: the gamma information
-Return value: 
+Return value:
 	if the operation success
 	return TRUE
 	else
@@ -632,11 +632,11 @@ GetGammaInfo (LPGAMMAINFO pGammaInfo)
 #endif
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
-Routine Description: 
+Routine Description:
 	set scan parameters
 Parameters:
 	pSetParameters: the information of scaning
-Return value: 
+Return value:
 	if the operation success
 	return TRUE
 	else
@@ -861,11 +861,11 @@ SetParameters (LPSETPARAMETERS pSetParameters)
 
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
-Routine Description: 
+Routine Description:
 	get the optical dpi and scan area
 Parameters:
 	pGetParameters: the information of scan
-Return value: 
+Return value:
 	if the operation is success
 	return TRUE
 	else
@@ -905,7 +905,7 @@ GetParameters (LPGETPARAMETERS pGetParameters)
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
 
-Routine Description: 
+Routine Description:
 	start scan image
 Parameters:
 	none
@@ -949,12 +949,12 @@ StartScan ()
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/14
-Routine Description: 
+Routine Description:
 	Read the scanner data
 Parameters:
 
 	pImageRows: the information of the data
-Return value:	
+Return value:
 	if the operation is seccuss
 	return TRUE
 	else
@@ -1090,11 +1090,11 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/14
-Routine Description: 
+Routine Description:
 	Stop scan
 Parameters:
 	none
-Return value: 
+Return value:
 	if operation is success
 	return TRUE
 	else
@@ -1150,11 +1150,11 @@ StopScan ()
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/14
-Routine Description: 
+Routine Description:
 	Check the status of TA
 Parameters:
 	none
-Return value: 
+Return value:
 	if operation is success
 	return TRUE
 	else
@@ -1187,11 +1187,11 @@ IsTAConnected ()
 #ifdef SANE_UNUSED
 /**********************************************************************
 Author: Jack             Date: 2005/05/14
-Routine Description: 
+Routine Description:
 	Get the status of the HK
 Parameters:
 	pKey: the status of key
-Return value: 
+Return value:
 	if the operation is success
 	return TRUE
 	else
@@ -1250,14 +1250,14 @@ GetKeyStatus (SANE_Byte * pKey)
 #endif
 /**********************************************************************
 Author: Jack             Date: 2005/05/14
-Routine Description: 
-	Deal with the image with auto level	
+Routine Description:
+	Deal with the image with auto level
 Parameters:
 	lpSource: the data of image
 	scanMode: the scan mode
 	ScanLines: the rows of image
 	BytesPerLine: the bytes of per line
-Return value: 
+Return value:
 	none
 ***********************************************************************/
 static void
@@ -1497,13 +1497,13 @@ AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
 #ifdef SANE_UNUSED
 /**********************************************************************
 Author: Jack             Date: 2005/05/14
-Routine Description: 
+Routine Description:
 	Deal with image with auto level
 Parameters:
 	pDIB: the data of image
 	ImageWidth: the width of image
 	ImageHeight: the height of image
-Return value: 
+Return value:
 	none
 ***********************************************************************/
 static void
@@ -1792,14 +1792,14 @@ QBETDetectAutoLevel (void *pDIB, unsigned int ImageWidth, unsigned int ImageHeig
 #ifdef SANE_UNUSED
 /**********************************************************************
 Author: Jack             Date: 2005/05/14
-Routine Description: 
-	Change the image data and deal with auto level	
+Routine Description:
+	Change the image data and deal with auto level
 Parameters:
 	lpSource: the data of image
 	scanMode: the scan mode
 	ScanLines: the rows of image
 	BytesPerLine: the bytes of per line
-Return value: 
+Return value:
 	none
 ***********************************************************************/
 static void

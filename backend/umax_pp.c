@@ -41,10 +41,10 @@
    This file implements a SANE backend for Umax PP flatbed scanners.  */
 
 /* CREDITS:
-   Started by being a mere copy of mustek_pp 
-   by Jochen Eisinger <jochen.eisinger@gmx.net> 
-   then evolved in its own thing                                       
-   
+   Started by being a mere copy of mustek_pp
+   by Jochen Eisinger <jochen.eisinger@gmx.net>
+   then evolved in its own thing
+
    support for the 610P has been made possible thank to an hardware donation
    from William Stuart
    */

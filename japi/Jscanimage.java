@@ -238,7 +238,7 @@ public class Jscanimage extends Frame implements WindowListener,
 	int status = sane.getControlOption(saneHandle, 0, numDevOptions, null);
 	if (status != Sane.STATUS_GOOD)
 		{
-		System.out.println("controlOption() failed.  Status= " 
+		System.out.println("controlOption() failed.  Status= "
 								+ status);
 		return (false);
 		}
@@ -262,7 +262,7 @@ public class Jscanimage extends Frame implements WindowListener,
 		if (opt.unit == SaneOption.UNIT_NONE)
 			title = opt.title;
 		else			// Show units.
-			title = opt.title + " [" + 
+			title = opt.title + " [" +
 					opt.unitString(unitLength) + ']';
 		switch (opt.type)
 			{
@@ -295,7 +295,7 @@ public class Jscanimage extends Frame implements WindowListener,
 			case SaneOption.CONSTRAINT_RANGE:
 					// A scale.
 				SaneSlider slider = new FixedSaneSlider(
-						opt.rangeConstraint.min, 
+						opt.rangeConstraint.min,
 						opt.rangeConstraint.max,
 						opt.unit == SaneOption.UNIT_MM,
 						this, i, opt.desc);
@@ -320,7 +320,7 @@ public class Jscanimage extends Frame implements WindowListener,
 			case SaneOption.CONSTRAINT_RANGE:
 					// A scale.
 				SaneSlider slider = new SaneSlider(
-						opt.rangeConstraint.min, 
+						opt.rangeConstraint.min,
 						opt.rangeConstraint.max,
 						this, i, opt.desc);
 				addLabeledOption(group, title, slider, c);
@@ -347,7 +347,7 @@ public class Jscanimage extends Frame implements WindowListener,
 				addControl(list);
 				break;
 			case SaneOption.CONSTRAINT_NONE:
-				SaneTextField tfield = new SaneTextField(16, 
+				SaneTextField tfield = new SaneTextField(16,
 							this, i, opt.desc);
 				addLabeledOption(group, title, tfield, c);
 				addControl(tfield);
@@ -511,8 +511,8 @@ public class Jscanimage extends Frame implements WindowListener,
     public void setControlOption(int optNum, int val)
 	{
 	int [] info = new int[1];
-	if (sane.setControlOption(saneHandle, optNum, 
-			SaneOption.ACTION_SET_VALUE, val, info) 
+	if (sane.setControlOption(saneHandle, optNum,
+			SaneOption.ACTION_SET_VALUE, val, info)
 							!= Sane.STATUS_GOOD)
 		System.out.println("setControlOption() failed.");
 	checkOptionInfo(info[0]);
@@ -524,8 +524,8 @@ public class Jscanimage extends Frame implements WindowListener,
     public void setControlOption(int optNum, String val)
 	{
 	int [] info = new int[1];
-	if (sane.setControlOption(saneHandle, optNum, 
-			SaneOption.ACTION_SET_VALUE, val, info) 
+	if (sane.setControlOption(saneHandle, optNum,
+			SaneOption.ACTION_SET_VALUE, val, info)
 							!= Sane.STATUS_GOOD)
 		System.out.println("setControlOption() failed.");
 	checkOptionInfo(info[0]);
@@ -783,7 +783,7 @@ class SaneSlider extends JPanel implements SaneComponent, ChangeListener
 	add(label, c);
 	c.weightx = .8;			// Give most weight to slider.
 	c.fill = GridBagConstraints.HORIZONTAL;
-	slider = new JSlider(JSlider.HORIZONTAL, min, max, 
+	slider = new JSlider(JSlider.HORIZONTAL, min, max,
 							min + (max - min)/2);
 	add(slider, c);
 					// Set tool tip.
@@ -855,7 +855,7 @@ class FixedSaneSlider extends SaneSlider
 	double val = (double) slider.getValue();
 					// Convert to actual control scale.
 	val = min + ((val - SCALE_MIN)/(SCALE_MAX - SCALE_MIN)) * (max - min);
-	label.setText(format.format(optMM ? 
+	label.setText(format.format(optMM ?
 					val/dialog.getUnitLength() : val));
 	dialog.setControlOption(optNum, dialog.getSane().fix(val));
 	}
@@ -872,9 +872,9 @@ class FixedSaneSlider extends SaneSlider
 		{
 		double val = dialog.getSane().unfix(ival[0]);
 					// Show value with user's pref.
-		label.setText(format.format(optMM ? 
+		label.setText(format.format(optMM ?
 					val/dialog.getUnitLength() : val));
-		val = SCALE_MIN + ((val - min)/(max - min)) * 
+		val = SCALE_MIN + ((val - min)/(max - min)) *
 						(SCALE_MAX - SCALE_MIN);
 		slider.setValue((int) val);
 		}
@@ -916,7 +916,7 @@ class SaneButton extends JButton implements ActionListener
 /*
  *	A combo-box for showing a list of items.
  */
-abstract class SaneComboBox extends JComboBox 
+abstract class SaneComboBox extends JComboBox
 				implements SaneComponent, ItemListener
     {
     protected Jscanimage dialog;	// That which created us.

@@ -6,7 +6,7 @@
 
 2006-07-02  Gerhard Jaeger <gerhard@gjaeger.de>
 
-	* backend/plustek.c: Fixed the fix (problem when trying to 
+	* backend/plustek.c: Fixed the fix (problem when trying to
 	  select bit-depth).
 
 2006-07-01  Wittawat Yamwong <wittawat@web.de>
@@ -23,7 +23,7 @@
 
 	* NEWS: Added dell1600n_net backend.
 	* doc/releases.txt: Typo fix.
-	* aclocal.m4 configure configure.in include/sane/config.h.in: 
+	* aclocal.m4 configure configure.in include/sane/config.h.in:
 	  Disabled compilation warnings for release.
 
 ---- CODE FREEZE FOR SANE-BACKENDS 1.0.18 ---
@@ -40,11 +40,11 @@
 2006-06-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/epson.desc: Fixed USB id of CX6600 (patch from
-	  Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>). 
-	* doc/descriptions-external/epkowa.desc: Updated (patch from 
-	  Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>). 
+	  Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>).
+	* doc/descriptions-external/epkowa.desc: Updated (patch from
+	  Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>).
 	* doc/descriptions/unsupported.desc: Added Xerox WorkCentre
-	  PE120i. 
+	  PE120i.
 
 2006-06-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -66,7 +66,7 @@
 
 2006-06-14  Jon Chambers <jon@jon.demon.co.uk>
 	* backend/dell1600n_net.c: working backend added
-	
+
 2006-06-13  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.[ch]: update to v1.0.31, add 5220c usb id,
@@ -75,7 +75,7 @@
 	* doc/descriptions/fujitsu.desc: usb id and version update
 
 2006-06-12  Jochen Eisinger <jochen@penguin-breeder.org>
-	
+
 	* doc/descriptions/mustek_pp.desc: Added Micromaxx MM-0851
 
 ---- FEATURE FREEZE FOR SANE 1.0.18 ---
@@ -85,16 +85,16 @@
 	* backend/coolscan2.c doc/descriptions/coolscan2.desc: Added
 	  (minimal) support for Nikon LS 50 ED, Coolscan V ED and
 	  (probably) Super Coolscan LS-5000 ED (patch from Giuseppe Sacco
-	  <giuseppe@eppesuigoccas.homedns.org>). 
+	  <giuseppe@eppesuigoccas.homedns.org>).
 	* backend/pixma.h: Fixed compilation problem on *BSD (ENODATA not
-	  defined). 
+	  defined).
 	* doc/descriptions/unsupported.desc: Added Canon 9950. Removed
 	  Epson 4490 (supported by epkowa). Removed Nikon scanners
 	  (supported by coolscan2 backend). Updated PLANon DocuPen R700.
 
 2006-06-11 Eddy De Greef <eddy_de_greef at scarlet dot be>
 
-	* AUTHORS backend/mustek_pp_cis.c backend/mustek_pp_cis.h 
+	* AUTHORS backend/mustek_pp_cis.c backend/mustek_pp_cis.h
 	  doc/sane-mustek_pp.man: e-mail address update.
 
 2006-06-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -296,7 +296,7 @@
 
 	* AUTHORS: added Wittawat Yamwong
 	* configure configure.in doc/Makefile.in doc/sane.man
-	  doc/descriptions/pixma.desc backend/Makefile.in 
+	  doc/descriptions/pixma.desc backend/Makefile.in
 	  backend/dll.conf.in backend/pixma*.[ch]: added pixma backend
         * doc/descriptions-external/pixma.desc: removed because the backend
           is now a part of sane-backends.
@@ -318,13 +318,13 @@
 
 2006-05-21  m. allan noah <anoah AT pfeiffer DOT edu>
 
-	* backend/fujitsu.c backend/fujitsu.conf.in 
+	* backend/fujitsu.c backend/fujitsu.conf.in
 	  doc/descriptions/fujitsu.desc: added usb ids for fi-5110EOX
 
 2006-05-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.linux: Updated concerning USB permissions (really, this
-	  time). 
+	  time).
 	* doc/descriptions/unsupported.desc: Removed models that are now
 	  in pixma.desc. Updated comment for Plustek OpticPro S24.
 	* doc/descriptions-external/hp_rts88xx.desc: Added reason for not
@@ -342,7 +342,7 @@
 2006-05-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/pixma.desc: Added some models (from
-	  Wittawat Yamwong <wy-sane-devel@arcor.de>). 
+	  Wittawat Yamwong <wy-sane-devel@arcor.de>).
 
 2006-05-14  m. allan noah <anoah AT pfeiffer DOT edu>
 
@@ -350,7 +350,7 @@
 	  do_cmd() - simplify timeout handling
 	* backend/fujitsu-scsi.h: increase default timeoutes
 
-2006-05-15  Stephane Voltz <stefdev@modulonet.fr> 
+2006-05-15  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/genesys_devices.c backend/genesys_gl646.c: tuned HP 2300
 	  geometry description and added a safeguard against failed origin
@@ -381,7 +381,7 @@
 
 	* doc/descriptions/lexmark.desc: X1150 is reported to work.
 	* doc/descriptions-external/brother.desc: MFC-3820CN is reported
-	  to work. 
+	  to work.
 
 2006-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -394,7 +394,7 @@
 	* backend/genesys_devices.c: Increase length of acceleration
 	  slopes for Canon LiDE 35/40/50/60
 
-2006-04-21  Stephane Voltz <stefdev@modulonet.fr> 
+2006-04-21  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/genesys.c: add workraound with issue related
 	  to asic reset and data scan amount
@@ -406,7 +406,7 @@
 	  explanations are given once at the top. Don't repeat options
 	  that aren't changed anyway.
 	* doc/descriptions/unsupported.desc: Added Microtek Scanmaker
-	  3880. 
+	  3880.
 
 2006-04-18  Giuseppe Sacco <eppesuig@debian.org>
 	* Updated italian translation
@@ -418,7 +418,7 @@
 	* backend/genesys_conv_hlp.c: Fix interpolation code to emit all
 	  pixels of a line.
 	* doc/descriptions/unsupported.desc: Added missing scanners from
-	  libsane.usermap. 
+	  libsane.usermap.
 
 2006-04-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -428,11 +428,11 @@
 	  ids. Minor cleanup.
 	* doc/descriptions/avision.desc: Used avision-desc.sh to update
 	  the .desc file to current SANE CVS avision.c code. Added USB
-	  ids. 
+	  ids.
 	* doc/descriptions/plustek.desc: Added USB ids. Splitted some
 	  entries which have two different USB ids. Clarified comment about
-	  UMAX 3400. 
-	* tools/hotplug/libsane.usermap: Removed. Will be created 
+	  UMAX 3400.
+	* tools/hotplug/libsane.usermap: Removed. Will be created
 	  automatically by sane-desc.
 	* tools/Makefile.in: Create libsane.usermap (for hotplug),
 	  libsane.db (for hotplug-ng) and libsane.rules (for udev)
@@ -461,7 +461,7 @@
 	  MP730.
 	* doc/sane-mustek_usb2.man: Removed description of non-existing
 	  configuration file.
-	
+
 2006-04-12  Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: Fix/optimize udev rules; tests on the same
 	  line are ANDed together, not ORed together, causing the rules to
@@ -490,7 +490,7 @@
 2006-03-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/sp15c.c: Fixed ADF support. Patch from Andreas Degert
-	  <ad@papyrus-gmbh.de>. 
+	  <ad@papyrus-gmbh.de>.
 	* doc/descriptions-external/cs3200f.desc: Listed new cs3200f
 	  backend for Canon 3200F.
 	* doc/descriptions/unsupported.desc: Added Canon PIXMA760, Tevion
@@ -499,7 +499,7 @@
 
 2006-03-27  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
-	* backend/genesys.c backend/genesys.h backend/genesys_low.h 
+	* backend/genesys.c backend/genesys.h backend/genesys_low.h
 	  backend/genesys_conv.c backend/genesys_gl841.c: Added extended
 	  option "Threshold" for lineart mode(Thanks to Laurent Charpentier).
 
@@ -509,10 +509,10 @@
 2006-03-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Iris Iriscan and Xerox
-	  Documate 510.  
+	  Documate 510.
 
 2006-03-21  Julien Blache <jb@jblache.org>
-	
+
 	* doc/*.man: More spelling fixes from A. Costa (through Debian).
 
 2006-02-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
@@ -521,7 +521,7 @@
 	  firmware is not yet loaded
 
 2006-03-18  Julien Blache <jb@jblache.org>
-	
+
 	* doc/sane-apple.man: Applied patch from A Costa (through Debian);
 	english/spelling fixes for sane-apple(5).
 
@@ -530,7 +530,7 @@
 	* doc/descriptions/unsupported.desc: Added Microtek ScanMaker 4850
 	  II and Plustek OpticPro ST 64+.
 
-2006-03-12  Stephane Voltz <stefdev@modulonet.fr> 
+2006-03-12  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/genesys_gl646.c: removed now unneeded #ifdef in
 	  gl646_send_gamma_table.
@@ -552,7 +552,7 @@
 
 2006-03-09  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
-	* backend/genesys.c backend/genesys_low.h: Removed little endian 
+	* backend/genesys.c backend/genesys_low.h: Removed little endian
 	  conversions in slope table creation functions
 	* backend/genesys_gl646.c backend/genesys_gl841.c: Added little
 	  endian conversions to gl*_send_slope_table functions
@@ -573,7 +573,7 @@
 	  SCX-4100 (bug #303166).
 	* doc/descriptions/unsupported.desc: Added Brother MFC 9600, Canon
 	  PIXMA MP450, and Plustek ScanCopy 115.
-	
+
 2006-02-16  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-PARPORT.changes: Update.

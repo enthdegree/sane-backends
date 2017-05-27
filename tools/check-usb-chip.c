@@ -1,6 +1,6 @@
 /*
    check-usb-chip.c -- Find out what USB scanner chipset is used
-   
+
    Copyright (C) 2003-2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2003 Gerhard Jaeger <gerhard@gjaeger.de>
                       for LM983x tests
@@ -706,7 +706,7 @@ check_ma1017 (struct usb_device *dev)
       finish_interface (handle);
       return 0;
     }
-  /* Read one byte again to work around a bug in the MA-1017 chipset that 
+  /* Read one byte again to work around a bug in the MA-1017 chipset that
      appears when an odd number of bytes is read or written. */
   result = usb_bulk_write (handle, 0x01, req, 2, 1000);
   result = usb_bulk_read (handle, 0x82, &res, 1, 1000);
@@ -1727,14 +1727,14 @@ check_gl660_gl646 (struct usb_device *dev)
 
 /********** the gl841 section **********/
 
-/* the various incarnations could be distinguished by the 
+/* the various incarnations could be distinguished by the
  * bcdDevice entry:
  *    0x701 --> GL124
  *    0x700 --> ?
  *    0x605 --> GL845
  *    0x603 --> GL847
- *    0x601 --> GL846 
- *    0x500 --> GL843 
+ *    0x601 --> GL846
+ *    0x500 --> GL843
  *    0x300 --> GL842 (perhaps only >= 0x303 ?)
  *    0x200 --> GL841
  */
@@ -2239,7 +2239,7 @@ check_pv8630_lm9830 (struct usb_device *dev)
   if (!result)
     return "PV8630/LM9830?";
 
-  result = 
+  result =
     usb_control_msg (handle, 0x40, 0x01, 0x38, 0x01, NULL, 0, TIMEOUT);
   if (result < 0)
     {
@@ -2261,7 +2261,7 @@ check_pv8630_lm9830 (struct usb_device *dev)
       return 0;
     }
 
-  result = 
+  result =
     usb_control_msg (handle, 0x40, 0x01, 0x38, 0x01, NULL, 0, TIMEOUT);
   if (result < 0)
     {
@@ -2375,7 +2375,7 @@ check_m011 (struct usb_device *dev)
 
   data = 0x63;
 
-  result = 
+  result =
     usb_control_msg (handle, 0x40, 0x08, 0x34, 0x00, &data, 1, TIMEOUT);
   if (result < 0)
     {
@@ -2876,13 +2876,13 @@ check_sq113 (struct usb_device *dev)
   result = prepare_interface (dev, &handle);
   if (!result)
     return "SQ113?";
-  
+
   buffer [0] = 0x5f;
   buffer [1] = 0x00;
   buffer [2] = 0x5f;
   buffer [3] = 0x00;
 
-  result = 
+  result =
     usb_control_msg (handle, 0x40, 0x01, 0xb0, 0, (char *) buffer, 4, TIMEOUT);
   if (result < 0)
     {
@@ -2900,7 +2900,7 @@ check_sq113 (struct usb_device *dev)
   buffer [2] = 0x8b;
   buffer [3] = data;
 
-  result = 
+  result =
     usb_control_msg (handle, 0x40, 0x01, 0xb0, 0, (char *) buffer, 4, TIMEOUT);
   if (result < 0)
     {
@@ -2915,7 +2915,7 @@ check_sq113 (struct usb_device *dev)
   buffer [1] = 0x8b;
   buffer [2] = 0x8b;
   buffer [3] = 0x8b;
-  result = 
+  result =
     usb_control_msg (handle, 0x40, 0x01, 0x04, 0x8b, (char *) buffer, 4, TIMEOUT);
   if (result < 0)
     {
@@ -2926,7 +2926,7 @@ check_sq113 (struct usb_device *dev)
       return 0;
     }
 
-  result = 
+  result =
     usb_control_msg (handle, 0xc0, 0x01, 0x07, 0, (char *) buffer, 4, TIMEOUT);
   if (result < 0)
     {
@@ -3240,7 +3240,7 @@ check_hp5590 (struct usb_device *dev)
     }
 
   /* Get confirmation for USB-in-USB command */
-  result = usb_control_msg (handle, USB_ENDPOINT_IN | USB_TYPE_VENDOR, 
+  result = usb_control_msg (handle, USB_ENDPOINT_IN | USB_TYPE_VENDOR,
 			    0x0c, 0x8e, 0x20,
 			    (char *) &status, sizeof(status), TIMEOUT);
   if (result < 0)
@@ -3874,14 +3874,14 @@ check_gt6816 (libusb_device_handle * handle,
 /** @brief check for known genesys chip
  *
  * Try to check if the scanner use a known genesys ASIC.
- * The various incarnations could be distinguished by the 
+ * The various incarnations could be distinguished by the
  * bcdDevice entry:
  *    0x701 --> GL124
  *    0x700 --> ?
  *    0x605 --> GL845
  *    0x603 --> GL847
- *    0x601 --> GL846 
- *    0x500 --> GL843 
+ *    0x601 --> GL846
+ *    0x500 --> GL843
  *    0x300 --> GL842 (perhaps only >= 0x303 ?)
  *    0x200 --> GL841
  *

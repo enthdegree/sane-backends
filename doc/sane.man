@@ -24,33 +24,33 @@ If you have trouble getting your scanner detected, read the PROBLEMS section.
 
 .SH TERMINOLOGY
 
-An application that uses the 
+An application that uses the
 .B SANE
-interface is called a 
+interface is called a
 .B SANE frontend.
-A driver that implements the 
+A driver that implements the
 .B SANE
 interface is called a
 .B SANE backend.
-A 
+A
 .B meta backend
 provides some means to manage one or more other backends.
 
 
 .SH "SOFTWARE PACKAGES"
-The package 
+The package
 .RB ` sane\-backends '
-contains a lot of backends, documentation (including the 
+contains a lot of backends, documentation (including the
 .B SANE
-standard), networking support, and the command line frontend 
+standard), networking support, and the command line frontend
 .RB ` scanimage '.
-The frontends 
+The frontends
 .RB ` xscanimage "', `" xcam "', and `" scanadf '
 are included in the package
-.RB ` sane\-frontends '. 
+.RB ` sane\-frontends '.
 Both packages can be downloaded from the
 .B SANE
-homepage 
+homepage
 .RI ( http://www.sane\-project.org/ ).
 Information about other frontends and backends can also be found on the
 .B SANE
@@ -60,15 +60,15 @@ homepage.
 The following sections provide short descriptions and links to more
 information about several aspects of
 .B SANE.
-A name with a number in parenthesis (e.g. 
+A name with a number in parenthesis (e.g.
 .RB ` sane\-dll (5)')
-points to a manual page. In this case 
+points to a manual page. In this case
 .RB ` "man 5 sane\-dll" '
 will display the page. Entries like
 .RI ` @DOCDIR@/sane.tex '
 are references to text files that were copied to the
 .B SANE
-documentation directory 
+documentation directory
 .RI ( @DOCDIR@/ )
 during installation. Everything else is a URL to a resource on the web.
 
@@ -79,9 +79,9 @@ can be found on the SANE homepage:
 .IR http://www.sane\-project.org/ .
 .TP
 .B SANE device lists
-The 
+The
 .B SANE
-device lists contain information about the status of 
+device lists contain information about the status of
 .B SANE
 support for a specific device. If your scanner is not listed there (either
 supported or unsupported), please contact us. See section HOW CAN YOU HELP
@@ -100,9 +100,9 @@ unsubscribe:
 .TP
 .B SANE IRC channel
 The IRC (Internet Relay Chat) channel #sane can be found on the Freenode
-network (irc.freenode.net). It's for discussing 
+network (irc.freenode.net). It's for discussing
 .B SANE
-problems, talking about development and general 
+problems, talking about development and general
 .B SANE
 related chatting. Before asking for help, please read the other documentation
 mentioned in this manual page. The channel's topic is also used for
@@ -127,13 +127,13 @@ For information about USB configuration see
 .SH "FRONTENDS AND MISCELLANEOUS PROGRAMS"
 .TP 2
 .B scanimage
-Command-line frontend. See 
+Command-line frontend. See
 .BR scanimage (1).
 .TP
 .B saned
 .B SANE
 network daemon that allows remote clients to access image acquisition devices
-available on the local host. See 
+available on the local host. See
 .BR saned (8).
 .TP
 .B sane\-find\-scanner
@@ -192,7 +192,7 @@ This backend supports several Avision based scanners. This includes the
 original Avision scanners (like AV 630, AV 620, ...) as well as the HP
 ScanJet 53xx and 74xx series, Fujitsu ScanPartner, some Mitsubishi and
 Minolta film-scanners.
-See 
+See
 .BR sane\-avision (5)
 for details.
 .TP
@@ -225,7 +225,7 @@ parallel port scanners.  See
 for details.
 .TP
 .B cardscan
-This backend provides support for Corex Cardscan USB scanners. See 
+This backend provides support for Corex Cardscan USB scanners. See
 .BR sane\-cardscan (5)
 for details.
 .TP
@@ -260,7 +260,7 @@ and adf scanners. See
 for details.
 .TP
 .B genesys
-The genesys backend provides support for several scanners based on the Genesys Logic 
+The genesys backend provides support for several scanners based on the Genesys Logic
 GL646, GL841, GL843, GL847 and GL124 chips like the Medion 6471 and Hewlett-Packard 2300c.
  See
 .BR sane\-genesys (5)
@@ -363,7 +363,7 @@ for details.
 .TP
 .B microtek
 The microtek backend provides access to the "second generation" Microtek
-scanners with SCSI-1 command set. See 
+scanners with SCSI-1 command set. See
 .BR sane\-microtek (5)
 for details.
 .TP
@@ -515,7 +515,7 @@ for details.
 .TP
 .B umax_pp
 The sane\-umax_pp backend provides access to Umax parallel port flatbed scanners
-and the HP 3200C. See 
+and the HP 3200C. See
 .BR sane\-umax_pp (5)
 for details.
 .TP
@@ -565,7 +565,7 @@ backend.  See
 .BR sane\-gphoto2 (5).
 .TP
 .B qcam
-Backend for Connectix QuickCam cameras. See 
+Backend for Connectix QuickCam cameras. See
 .BR sane\-qcam (5).
 .TP
 .B stv680
@@ -589,7 +589,7 @@ backends by dynamic loading. See
 .BR sane\-dll (5).
 .TP
 .B net
-The 
+The
 .B SANE
 network daemon saned provides access to scanners located on different
 computers in connection with the net backend. See
@@ -634,9 +634,9 @@ and the list of projects in
 .IR @DOCDIR@/PROJECTS .
 
 .SH "CHANGING THE TOP-LEVEL BACKEND"
-By default, all 
+By default, all
 .B SANE
-backends (drivers) are loaded dynamically by the 
+backends (drivers) are loaded dynamically by the
 .B sane\-dll
 meta backend. If you have any questions about the dynamic loading,
 read
@@ -655,8 +655,8 @@ It's not hard to write a
 backend. It can take some time, however. You should have basic knowledge of C
 and enough patience to work through the documentation and find out how your
 scanner works. Appended is a list of some documents that help to write backends
-and frontends. 
-.PP 
+and frontends.
+.PP
 The
 .B SANE
 standard defines the application programming interface (API) that is used to
@@ -685,7 +685,7 @@ for projects that are planned or not yet included into the
 distribution and at our bug-tracking system:
 .IR http://www.http://www.sane\-project.org/bugs.html .
 .PP
-There are some links on how to find out about the protocol of a scanner: 
+There are some links on how to find out about the protocol of a scanner:
 .IR http://www.meier\-geinitz.de/sane/misc/develop.html .
 
 .PP
@@ -731,9 +731,9 @@ If your scanner (or other device) is not connected over the SCSI bus or USB,
 read the backend's manual page for details on how to set it up.
 .PP
 
-Now your scanner is detected by the operating system but not by 
+Now your scanner is detected by the operating system but not by
 .BR SANE ?
-Try 
+Try
 .BR "scanimage \-L" .
 If the scanner is not found, check that the backend's name is mentioned in
 .IR @CONFIGDIR@/dll.conf .
@@ -741,7 +741,7 @@ Some backends are commented out by default. Remove the comment sign for your
 backend in this case. Also some backends aren't compiled at all if one of their
 prerequisites are missing. Examples include dc210, dc240, canon_pp, hpsj5s,
 gphoto2, pint, qcam, v4l, net, sm3600, snapscan, pnm. If you need one of these
-backends and they aren't available, read the build instructions in the 
+backends and they aren't available, read the build instructions in the
 .B README
 file and the individual manual pages of the backends.
 .PP
@@ -761,7 +761,7 @@ debugging.  The environment variables are documented in the
 relevant manual pages.  For example, to get the maximum amount of debug
 information when testing a Mustek SCSI scanner, set environment variables
 .BR SANE_DEBUG_DLL ", " SANE_DEBUG_MUSTEK ", and " SANE_DEBUG_SANEI_SCSI
-to 128 and then invoke 
+to 128 and then invoke
 .B scanimage
 .B \-L .
 The debug messages for the dll backend tell if the mustek backend was found
@@ -803,11 +803,11 @@ works and you want to use one of the graphical frontends like
 .BR xscanimage ", or"
 .B quiteinsane
 but those frontends don't detect your scanner? One reason may be that you
-installed two versions of 
+installed two versions of
 .BR SANE .
-E.g. the version that was installed by your distribution in 
+E.g. the version that was installed by your distribution in
 .I /usr
-and one you installed from source in 
+and one you installed from source in
 .IR /usr/local/ .
 Make sure that only one version is installed. Another possible reason is, that
 your system's dynamic loader can't find the
@@ -825,7 +825,7 @@ See also the documentation of the frontends.
 
 .SH "HOW CAN YOU HELP SANE"
 We appreciate any help we can get. Please have a look at our web page about
-contributing to 
+contributing to
 .BR SANE :
 .I http://www.sane\-project.org/contrib.html
 .PP

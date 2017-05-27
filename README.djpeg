@@ -2,7 +2,7 @@ The JPEG decoder in SANE is taken mostly without change from The
 Independent JPEG Group's JPEG software, release 6a.  Their "djpeg.README"
 file is included below.  The only changes are to file names, e.g.
 djpeg.c -> sanei_jpeg.c, and function names,
-e.g. sanei_jpeg_start_output_ppm() 
+e.g. sanei_jpeg_start_output_ppm()
 
 
 The Independent JPEG Group's JPEG software

@@ -162,10 +162,10 @@ typedef struct scandata
 	 */
 	ULong devno;
 	int   lampoff;
-	int   warmup;	
+	int   warmup;
 	int   lOffonEnd;
 
-	/*	
+	/*
 	 * CHECK for controlling the ECP-mode (not used now)
 	 */
 #if 0
@@ -188,7 +188,7 @@ typedef struct scandata
 	UShort TimePerLine;         /* --> to Device */
 
     /*
-     * scanner properties 
+     * scanner properties
      */
    	RegData     AsicReg;  		/* here we have the 98001/3 register set	*/
 	Reg96		Asic96Reg;		/* here we hold the 96001/3 specific regs	*/
@@ -287,7 +287,7 @@ typedef struct scandata
 	 */
 	DataInfo	DataInf;
 	Bool		fReshaded;
-	ULong 		dwDitherIndex;  	
+	ULong 		dwDitherIndex;
 	Bool		fDoFilter, fFilterFirstLine;
 	ULong		dwDivFilter;
 	ULong		dwMul;
@@ -606,9 +606,9 @@ typedef struct scandata
     Byte RegFifoFullLength1;
     Byte RegFifoFullLength2;
 
-    Byte RegMotorTotalStep0;	
+    Byte RegMotorTotalStep0;
     Byte RegMotorTotalStep1;
-    Byte RegMotorFreeRunCount0;	
+    Byte RegMotorFreeRunCount0;
     Byte RegMotorFreeRunCount1;
     Byte RegScanControl1;
     Byte RegMotorFreeRunTrigger;

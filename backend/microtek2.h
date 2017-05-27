@@ -1,7 +1,7 @@
 /*******************************************************************************
  * SANE - Scanner Access Now Easy.
 
-   microtek2.h 
+   microtek2.h
 
    This file (C) 1998, 1999 Bernd Schroeder
                  2000, 2001 Karsten Festag
@@ -160,7 +160,7 @@
 #define RG_COLOR(d,p)           (d)[5] |= (((p) << 5) & 0x60)
 #define RG_WORD(d,p)            (d)[5] |= ((p) & 0x01)
 #define RG_TRANSFERLENGTH(d,p)  (d)[7] = (((p) >> 8) & 0xff); \
-                                (d)[8] = ((p) & 0xff) 
+                                (d)[8] = ((p) & 0xff)
 
 /* SEND GAMMA TABLE */
 #define SG_SET_CMD(d)           (d)[0] = 0x2a; (d)[1] = 0x00; (d)[2] = 0x03; \
@@ -172,7 +172,7 @@
 #define SG_SET_COLOR(d,p)       (d)[5] |= (((p) << 5) & 0x60)
 #define SG_SET_WORD(d,p)        (d)[5] |= ((p) & 0x01)
 #define SG_SET_TRANSFERLENGTH(d,p)  (d)[7] = (((p) >> 8) & 0xff); \
-                                    (d)[8] = ((p) & 0xff) 
+                                    (d)[8] = ((p) & 0xff)
 #define SG_DATA_P               SG_CMD_L
 
 
@@ -394,7 +394,7 @@
 #define SW_BODY_L               61
 #define SW_CMD_P                0     /* command at postion 0 */
 #define SW_HEADER_P             SW_CMD_L
-#define SW_BODY_P(n)            SW_CMD_L + SW_HEADER_L + (n) * SW_BODY_L 
+#define SW_BODY_P(n)            SW_CMD_L + SW_HEADER_L + (n) * SW_BODY_L
 
 /* d: SW_CMD_P, SW_HEADER_P, SW_BODY_P(n) */
 #define SW_PARAM_LENGTH(d,p)    (d)[6] = ((p) >> 16) & 0xff; \
@@ -402,7 +402,7 @@
                                 (d)[8] = (p) & 0xff
 #define SW_WNDDESCVAL           SW_BODY_L
 #define SW_WNDDESCLEN(d,p)      (d)[6] = ((p) >> 8) & 0xff; \
-                                (d)[7] = (p) & 0xff  
+                                (d)[7] = (p) & 0xff
 #define SW_WNDID(d,p)           (d)[0] = (p)
 #define SW_XRESDPI(d,p)         (d)[2] = ((p) >> 8) & 0xff; \
                                 (d)[3] = (p) & 0xff
@@ -415,15 +415,15 @@
 #define SW_YPOSTL(d,p)          (d)[10] = ((p) >> 24) & 0xff; \
                                 (d)[11] = ((p) >> 16) & 0xff; \
                                 (d)[12] = ((p) >> 8) & 0xff; \
-                                (d)[13] = (p) & 0xff   
+                                (d)[13] = (p) & 0xff
 #define SW_WNDWIDTH(d,p)        (d)[14] = ((p) >> 24) & 0xff; \
                                 (d)[15] = ((p) >> 16) & 0xff; \
                                 (d)[16] = ((p) >> 8) & 0xff; \
-                                (d)[17] = (p) & 0xff   
+                                (d)[17] = (p) & 0xff
 #define SW_WNDHEIGHT(d,p)       (d)[18] = ((p) >> 24) & 0xff; \
                                 (d)[19] = ((p) >> 16) & 0xff; \
                                 (d)[20] = ((p) >> 8) & 0xff; \
-                                (d)[21] = (p) & 0xff   
+                                (d)[21] = (p) & 0xff
 #define SW_BRIGHTNESS_M(d,p)    (d)[22] = (p)
 #define SW_THRESHOLD(d,p)       (d)[23] = (p)
 #define SW_CONTRAST_M(d,p)      (d)[24] = (p)
@@ -1219,7 +1219,7 @@ static SANE_Status
 dump_to_file(uint8_t *, int, char *, char *);
 #endif
 
-static SANE_Status 
+static SANE_Status
 dump_attributes(Microtek2_Info *);
 
 static void
@@ -1251,7 +1251,7 @@ gray_set_exposure(uint8_t *, uint32_t, uint8_t, uint8_t);
 static SANE_Status
 init_options(Microtek2_Scanner *, uint8_t);
 
-static SANE_Status                
+static SANE_Status
 lineartfake_copy_pixels(Microtek2_Scanner *, uint8_t *, uint32_t, uint8_t,
                         int, FILE *);
 

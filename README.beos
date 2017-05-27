@@ -25,5 +25,5 @@ Compiler: gcc 2.95.3
 User-level SCSI support: yes
 USB support: yes
 Shared library support: yes
-Dynamic loading support: yes  
+Dynamic loading support: yes
 X11 clients: no

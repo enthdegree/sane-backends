@@ -26,10 +26,10 @@ The contents of the
 .I canon630u.conf
 file is a list of device names that correspond to Canon
 USB scanners.  Empty lines and lines starting with a hash mark (#) are
-ignored.  Only one device name can be listed in 
+ignored.  Only one device name can be listed in
 .IR canon630u.conf .
 The program
-.IR sane\-find\-scanner 
+.IR sane\-find\-scanner
 helps to find out the correct device. Under Linux, such a device name
 could be
 .I /dev/usb/scanner0
@@ -46,7 +46,7 @@ software was developed by analyzing the USB traffic of the Windows
 it seems to work for my scanner.  If you have complaints, let me know.
 .PP
 This driver requires the ability to send USB Control Messages, available in
-kernel 2.4.12 or later. 
+kernel 2.4.12 or later.
 .PP
 Some users have reported that this driver doesn't work at all.  This seems
 to be a hardware specific issue, although I don't know what exactly the
@@ -71,7 +71,7 @@ support dynamic loading).
 .I /tmp/canon.cal
 The calibration file used to normalize pixel brightness.  This is
 calculated every time the scanner is first used after it has lost power.
-Deleting this file will force recalibration. 
+Deleting this file will force recalibration.
 .SH ENVIRONMENT
 .TP
 .B SANE_CONFIG_DIR
@@ -91,10 +91,10 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .B SANE_DEBUG_CANON630U
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  Higher
-debug levels increase the verbosity of the output. 
+debug levels increase the verbosity of the output.
 
 Example:
-.br 
+.br
 SANE_DEBUG_CANON630U=12 scanimage > /dev/null
 .SH "SEE ALSO"
 sane(7), sane\-usb(5), sane\-find\-scanner(1)

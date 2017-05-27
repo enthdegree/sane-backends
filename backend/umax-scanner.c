@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------- */
 
 /* umax-scanner.c: scanner-definiton file for UMAX scanner driver.
-  
+
    (C) 1997-2004 Oliver Rauch
 
    This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
-   
+
  */
 
 /* -------------------------------------------------------------------- */
@@ -95,9 +95,9 @@ static char *scanner_str[] =
   "UMAX ",	"Astra 600S ",
   "UMAX ",	"Astra 610S ",
   "UMAX ",	"Astra 1200S ",
-  "UMAX ",	"Astra 1220S ", 
-  "UMAX ",	"Astra 2100S ", 
-  "UMAX ",	"Astra 2200 ", 
+  "UMAX ",	"Astra 1220S ",
+  "UMAX ",	"Astra 2100S ",
+  "UMAX ",	"Astra 2200 ",
   "UMAX ",	"Astra 2400S ",
 /*  "UMAX ",	"Astra 6400 ", */ /* this is a firewire scanner */
 /*  "UMAX ",	"Astra 6450 ", */ /* this is a firewire scanner */
@@ -124,8 +124,8 @@ static char *scanner_str[] =
   "HDM ",	"LS4H1S ", /* Linoscan 1400 */
   "Nikon ",	"AX-110 ", /* is a Vista S6E */
   "Nikon ",	"AX-210 ", /* is a Supervista S12 */
-  "KYE ",	"ColorPage-HR5 ", 
-  "EPSON ",	"Perfection600 ", 
+  "KYE ",	"ColorPage-HR5 ",
+  "EPSON ",	"Perfection600 ",
   "ESCORT ",    "Galleria 600S ", /* is an Astra 600S */
   "EDGE ",	"KTX-9600US ", /* may be an Astra 1220S */
   "TriGem ",	"PowerScanII ", /* is a Supervista S12 */

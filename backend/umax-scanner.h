@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------- */
 
 /* umax-scanner.h: scanner-definiton header-file for UMAX scanner driver.
-  
+
    (C) 1997-2002 Oliver Rauch
 
    This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
-   
+
  */
 
 /* -------------------------------------------------------------------- */

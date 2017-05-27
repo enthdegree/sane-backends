@@ -653,7 +653,7 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
   DBG (5, "sane_open: x=%d, y=%d, width=%d, height=%d\n",
        s->window.x, s->window.y, s->window.width, s->window.height);
 
-  /* already done in sane_start 
+  /* already done in sane_start
      if (-1 == v4l1_ioctl (v4lfd, VIDIOCGMBUF, &mbuf))
      DBG (1, "sane_open: can't ioctl VIDIOCGMBUF (no Fbuffer?)\n");
    */

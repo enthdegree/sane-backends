@@ -104,7 +104,7 @@ JNIEXPORT jint JNICALL Java_Sane_getDevicesNative
 	int i;
 
 					/* Get the list. */
-	status = sane_get_devices(&device_list, localOnly);	
+	status = sane_get_devices(&device_list, localOnly);
 	if (status != SANE_STATUS_GOOD)
 		return (status);
 					/* Get length of Java array. */
@@ -232,13 +232,13 @@ JNIEXPORT void JNICALL Java_Sane_getOptionNative
 		jobject range = (*env)->AllocObject(env, rangeClass);
 					/* Fill in fields. */
 		fid = (*env)->GetFieldID(env, rangeClass, "min", "I");
-		(*env)->SetIntField(env, range, fid, 
+		(*env)->SetIntField(env, range, fid,
 						sopt->constraint.range->min);
 		fid = (*env)->GetFieldID(env, rangeClass, "max", "I");
-		(*env)->SetIntField(env, range, fid, 
+		(*env)->SetIntField(env, range, fid,
 						sopt->constraint.range->max);
 		fid = (*env)->GetFieldID(env, rangeClass, "quant", "I");
-		(*env)->SetIntField(env, range, fid, 
+		(*env)->SetIntField(env, range, fid,
 						sopt->constraint.range->quant);
 		fid = (*env)->GetFieldID(env, optClass, "rangeConstraint",
 						"LSaneRange;");
@@ -251,7 +251,7 @@ JNIEXPORT void JNICALL Java_Sane_getOptionNative
 		jint *elements;
 		int i;
 					/* First word. is the length.	*/
-		wordList = (*env)->NewIntArray(env, 
+		wordList = (*env)->NewIntArray(env,
 				sopt->constraint.word_list[0]);
 					/* Copy in the integers.	*/
 		elements = (*env)->GetIntArrayElements(env, wordList, 0);
@@ -272,7 +272,7 @@ JNIEXPORT void JNICALL Java_Sane_getOptionNative
 
 		for (len = 0; sopt->constraint.string_list[len]; len++)
 			;
-		stringList = (*env)->NewObjectArray(env, len + 1, 
+		stringList = (*env)->NewObjectArray(env, len + 1,
 							stringClass, 0);
 					/* Add each string. */
 		for (i = 0; i < len; i++)
@@ -284,7 +284,7 @@ JNIEXPORT void JNICALL Java_Sane_getOptionNative
 					/* 0 at end. */
 		(*env)->SetObjectArrayElement(env, stringList, len, 0);
 					/* Set the field. */
-		fid = (*env)->GetFieldID(env, optClass, 
+		fid = (*env)->GetFieldID(env, optClass,
 			"stringListConstraint", "[Ljava/lang/String;");
 		(*env)->SetObjectField(env, optObj, fid, stringList);
 		}
@@ -296,7 +296,7 @@ JNIEXPORT void JNICALL Java_Sane_getOptionNative
  * Signature: (II[I[I)I
  */
 JNIEXPORT jint JNICALL Java_Sane_getControlOption__II_3I_3I
-  (JNIEnv *env, jobject jobj, jint handle, jint option, jintArray value, 
+  (JNIEnv *env, jobject jobj, jint handle, jint option, jintArray value,
 						jintArray info)
 	{
 	SANE_Status status;		/* Gets status. */
@@ -318,7 +318,7 @@ JNIEXPORT jint JNICALL Java_Sane_getControlOption__II_3I_3I
  * Signature: (II[B[I)I
  */
 JNIEXPORT jint JNICALL Java_Sane_getControlOption__II_3B_3I
-  (JNIEnv *env, jobject jobj, jint handle, jint option, jbyteArray value, 
+  (JNIEnv *env, jobject jobj, jint handle, jint option, jbyteArray value,
 						jintArray info)
 	{
 	SANE_Status status;		/* Gets status. */
@@ -340,7 +340,7 @@ JNIEXPORT jint JNICALL Java_Sane_getControlOption__II_3B_3I
  * Signature: (IIII[I)I
  */
 JNIEXPORT jint JNICALL Java_Sane_setControlOption__IIII_3I
-  (JNIEnv *env, jobject jobj, jint handle, jint option, jint action, 
+  (JNIEnv *env, jobject jobj, jint handle, jint option, jint action,
 				jint value, jintArray info)
 	{
 	SANE_Status status;		/* Gets status. */
@@ -457,7 +457,7 @@ JNIEXPORT jint JNICALL Java_Sane_read
 					/* Get actual data ptr. */
 	dataElements = (*env)->GetByteArrayElements(env, data, 0);
 					/* Do the read. */
-	status = sane_read((SANE_Handle) handle, dataElements, 
+	status = sane_read((SANE_Handle) handle, dataElements,
 						maxLength, &read_len);
 	(*env)->ReleaseByteArrayElements(env, data, dataElements, 0);
 					/* Return # bytes read. */

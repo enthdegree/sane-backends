@@ -225,7 +225,7 @@ sanei_thread_begin( int (*func)(void *args), void* args )
 		DBG( 1, "_beginthread() failed\n" );
 		return -1;
 	}
-   
+
 	DBG( 2, "_beginthread() created thread %d\n", pid );
 	return pid;
 }
@@ -282,7 +282,7 @@ sanei_thread_begin( int (*func)(void *args), void* args )
 		DBG( 1, "resume_thread() failed\n" );
 		return -1;
 	}
-   
+
 	DBG( 2, "spawn_thread() created thread %d\n", pid );
 	return pid;
 }
@@ -374,7 +374,7 @@ restore_sigpipe( void )
 			sigemptyset( &act.sa_mask );
 			act.sa_flags   = 0;
 			act.sa_handler = SIG_DFL;
-			
+
 			DBG( 2, "restoring SIGPIPE to SIG_DFL\n" );
 			sigaction( SIGPIPE, &act, NULL );
 		}
@@ -458,7 +458,7 @@ sanei_thread_begin( int (func)(void *args), void* args )
 
     	/* run in child context... */
 		int status = func( args );
-		
+
 		/* don't use exit() since that would run the atexit() handlers */
 		_exit( status );
 	}
@@ -511,7 +511,7 @@ sanei_thread_waitpid( SANE_Pid pid, int *status )
 	}
 	if ( EDEADLK == rc ) {
 		if ( (pthread_t)pid != pthread_self() ) {
-			/* call detach in any case to make sure that the thread resources 
+			/* call detach in any case to make sure that the thread resources
 			 * will be freed, when the thread has terminated
 			 */
 			DBG(2, "* detaching thread(%ld)\n", pid );

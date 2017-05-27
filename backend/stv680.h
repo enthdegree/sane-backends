@@ -2,10 +2,10 @@
 
    Copyright (C) 2004 -2006 Gerard Klaver (gerard at gkall dot hobby dot nl)
 
-   The teco2 and gl646 backend (Frank Zago) are used as a template for 
+   The teco2 and gl646 backend (Frank Zago) are used as a template for
    this backend.
-      
-   For the usb commands and bayer decoding parts of the following 
+
+   For the usb commands and bayer decoding parts of the following
    program are used:
    The pencam2 program  (GNU GPL license 2)
 
@@ -13,7 +13,7 @@
    The libgphoto2 (camlib stv0680)   (GNU GPL license 2)
    The stv680.c/.h kernel module   (GNU GPL license 2)
 
-   For the stv680_add_text routine the add_text routine and font_6x11.h file 
+   For the stv680_add_text routine the add_text routine and font_6x11.h file
    are taken from the webcam.c file, part of xawtv program,
    (c) 1998-2002 Gerd Knorr (GNU GPL license 2).
 
@@ -36,7 +36,7 @@
    ---------------------------------------------------------------------
 */
 
-/* 
+/*
 	$Id$
         update 20-04-2006*/
 
@@ -94,8 +94,8 @@ enum Stv680_Option
 
 /*--------------------------------------------------------------------------*/
 
-/* 
- * Video Camera supported by this backend. 
+/*
+ * Video Camera supported by this backend.
  */
 struct vidcam_hardware
 {
@@ -207,7 +207,7 @@ Stv680_Vidcam;
 
 /*--------------------------------------------------------------------------*/
 
-/* Debug levels. 
+/* Debug levels.
  * Should be common to all backends. */
 
 #define DBG_error0  0

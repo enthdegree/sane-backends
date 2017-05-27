@@ -142,7 +142,7 @@ $ make install
       $ cd ~
       $ scanimage > test.pnm
 
-      
+
 3. Advanced Installation Information
 ====================================
 

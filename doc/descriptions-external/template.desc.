@@ -17,7 +17,7 @@
 :manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://www.luser.com/temp/" ; backend's web page
 :url "http://www.luser.com/b/"    ; another backend webpage
-:comment "This backend supports only the USB and SCSI models" 
+:comment "This backend supports only the USB and SCSI models"
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....

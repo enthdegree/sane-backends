@@ -3,7 +3,7 @@
 	* Version 1.0 released
 
 	* From Brian J. Murrell:
-	
+
 	* backend/dll.conf: Mention dc210.
 
 	* backend/cderror.h: New file.
@@ -359,7 +359,7 @@
 	models.
 
 	* backend/epson.c: Apply Christian Bucher's patch.
-	
+
 	* backend/dc25.h: New file (by Peter Fales <psfales@earthling.net>)
 	* backend/dc25.c: Ditto.
 	* backend/dc25.conf: Ditto.
@@ -381,7 +381,7 @@
 	* backend/artec.c: Added code to default to using millimeters
 	instead of pixels for measurements, can revert to pixels by
 	defining PREFER_PIXEL_MODE at compilation time.
-	
+
 	Added code to cause sane_read to block until data available to return,
 	also buffers as much data as possible before returning.
 
@@ -690,7 +690,7 @@
 	needs to be installed before running configure.
 
 	* backend/s9036.c: Don't depend on GNU C dynamically sized arrays.
-	
+
 	* backend/coolscan.c (send_one_LUT): Use alloca() instead of
 	depending on GNU C dynamically sized arrays.
 	Include <alloca.h>.
@@ -715,7 +715,7 @@
 	* sanei/sanei_pio.c: Ditto.
 	* backend/epson.c, backend/epson.h, backend/epson.conf: Updated
 	with Christian's version adds support for parallel port interface.
-	
+
 	* sanei/sanei_scsi.c (sanei_scsi_req_wait): Patch by Matto to let
 	sense-handler decide whether a non-zero sense_buffer[0] really
 	should be considered an error (needed for Microtek backend).
@@ -724,7 +724,7 @@
 	unit SANE_UNIT_MICROSECOND.
 
 	Patches by Oliver Rauch:
-	
+
 	* frontend/gtkglue.c (unit_string): Handle SANE_UNIT_MICROSECOND.
 	* frontend/scanimage.c (print_unit): Ditto.
 	(parse_scalar): Ditto.
@@ -752,7 +752,7 @@
 	* backend/snapscan.c (DL_INFO): Increase from 0 to 1.
 	(DL_MAJOR_ERROR): Ditto.  This avoids printing error messages
 	unless the user specifically requests them.
-	
+
 	* frontend/gtkglue.c: Include <sys/types.h>.
 
 	* include/sane/config.h.in: Ignore HAVE_USLEEP under Apollo
@@ -792,7 +792,7 @@
 	* backend/epson.conf: New file.
 
 	Patches by Yuri Dario <mc6530@mclink.it>:
-	
+
 	* backend/epson.c (sane_init): Support config file.
 
 	* sanei/sanei_ab306.c (outb): Add missing parens.
@@ -841,7 +841,7 @@
 
 	* backend/snapscan.c: Upgrade to latest version (0.3 patch 7).
 	* backend/snapscan.h: Ditto.
-	
+
 	* configure.in (V_MINOR): Up version to 0.71.
 
 	* sanei/sanei_scsi.c (scsi_cmd) [USE == SOLARIS_INTERFACE]: "or"
@@ -918,7 +918,7 @@
 	* tools/xerox (scale): Added improvements contributed by Joachim
 	Woll <woll@physik.uni-kassel.de>.
 
-	* Upgrade to Oliver's latest UMAX backend. 
+	* Upgrade to Oliver's latest UMAX backend.
 
 	* include/Makefile.in (distclean): Add empty all rule.  Add
 	distclean rule to delete Makefile.
@@ -1026,7 +1026,7 @@
 	* backend/mustek.c (dev_open): Fix debug message.
 
 	* Solaris related patches by Martin Huber:
-	
+
 	* backend/umax-scsi.c (umax_wait_scanner): Sleep for 1 second
 	instead of 100ms on Sun platforms---the SCHILYscg driver prints a
 	warning message each time a device is busy.  Duh.
@@ -1145,7 +1145,7 @@
 
 	* Several changes in tools/find-scanner.c to run using
 	above mentioned driver.
-	Fixed wrong IN_periph_devtype_cpu (was 1, should be 3).	
+	Fixed wrong IN_periph_devtype_cpu (was 1, should be 3).
 
 1997-12-14  David Mosberger-Tang  <David.Mosberger@acm.org>
 
@@ -1263,11 +1263,11 @@
 
 	* japi/SaneOption.java: Fix indentation.
 	(unitString): New function.
-	
+
 	* japi/ImageCanvas.java: New file.
 	* japi/Jscanimage.java: Ditto.
 	* japi/ScanIt.java: Ditto.
-	
+
 	* japi/Makefile.in (CLASSES): Mention ScanIt.class and
 	ImageCanvas.class.
 	(all): Mention Jscanimage.class.
@@ -1332,7 +1332,7 @@
 	correct value before connecting the toggled callback.
 
 	Bugs reported by Petter Reinholdtsen <pere@link.no>:
-	
+
 	* sanei/sanei_config.c (sanei_config_open): Add missing cast to
 	(char *).
 
@@ -1364,7 +1364,7 @@
 
 	* backend/hp.c (sane_control_option): Only turn on RELOAD_PARAMS
 	when value changed.
-	
+
 	* backend/qcam.c (sane_control_option): Only turn on
 	RELOAD_PARAMS when value changed.
 
@@ -1578,7 +1578,7 @@
 	* configure.in (CPPFLAGS): Ditto.
 	* include/sane/config.h.in: Ditto.
 
-	* backend/epson.c: Updated 
+	* backend/epson.c: Updated
 
 1997-10-09  David Mosberger-Tang  <David.Mosberger@acm.org>
 
@@ -1704,7 +1704,7 @@ Tue Oct  7 15:44:33 1997  Kazuhiro Sasayama  <kaz@hypercore.co.jp>
 	* backend/microtek.c: Updated with latest version from
 	http://www.mir.com/mtek/ by Matt Marjanovic <maddog@mir.com>.
 	* backend/microtek.h: Ditto.
-	
+
 1997-10-3   Jeff Freedman <jsf@hevanet.com>
 
 	* sanei/sanei_scsi.c:  Minor fixes for OS/2 support.
@@ -1722,7 +1722,7 @@ Tue Oct  7 15:44:33 1997  Kazuhiro Sasayama  <kaz@hypercore.co.jp>
 	[USE = OS2_INTERFACE]: OS/2 version of sanei_scsi_cmd().
 	(sanei_scsi_cmd, sanei_scsi_req_wait) [STUBBED_INTERFACE]:
 	Return proper value.
-	
+
 	* include/sane/config.h.in (HAVE_STRNCASECMP, HAVE_OS2_H): Add
 	#undef.  If !HAVE_STRNCASECMP, define strncasecmp macro as
 	alias for strnicmp.
@@ -1739,7 +1739,7 @@ Tue Oct  7 15:44:33 1997  Kazuhiro Sasayama  <kaz@hypercore.co.jp>
 	[USE = OS2_INTERFACE]: OS/2 version of sanei_scsi_cmd().
 	(sanei_scsi_cmd, sanei_scsi_req_wait) [STUBBED_INTERFACE]:
 	Return proper value.
-	
+
 	* include/sane/config.h.in (HAVE_STRNCASECMP, HAVE_OS2_H): Add
 	#undef.  If !HAVE_STRNCASECMP, define strncasecmp macro as
 	alias for strnicmp.
@@ -2226,7 +2226,7 @@ Wed Jun 18 15:42:25 1997  David Mosberger-Tang  <davidm@azstarnet.com>
 
 	* doc/sane.tex (section{Image Data Format}}): Clarify
 	what valid bit-depths are.
-	
+
 Tue Jun 17 07:47:51 1997  David Mosberger-Tang  <davidm@azstarnet.com>
 
 	* backend/qcam.c (sane_get_parameters): Test for != QC_COLOR
@@ -2748,7 +2748,7 @@ Sun Apr 20 09:09:06 1997  David Mosberger-Tang  <davidm@azstarnet.com>
 	* frontend/Makefile.in: Ditto.
 	* backend/Makefile.in: Ditto.
 	* sanei/Makefile.in: Ditto.
-	
+
 	* frontend/saned.c (_PATH_HEQUIV): Define if not defined yet..
 
 	* configure.in: Check for libgimp/gimp.h instead of -lgimp since

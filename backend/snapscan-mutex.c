@@ -1,8 +1,8 @@
 /*
   Mutex implementation for SnapScan backend
- 
+
   Copyright (C) 2000, 2004 Henrik Johansson, Oliver Schwartz
- 
+
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
   published by the Free Software Foundation; either version 2 of the
@@ -38,7 +38,7 @@
   If you write modifications of your own for SANE, it is your choice
   whether to permit this exception to apply to your modifications.
   If you do not wish that, delete this exception notice.*/
-  
+
 #if defined __BEOS__
 
 #include <OS.h>
@@ -122,14 +122,14 @@ static unsigned int snapscani_bernstein(const unsigned char* str)
 {
     unsigned int hash = 5381; /* some arbitrary number */
     int c;
-    
+
     while (*str)
     {
-        c = *str++;    
+        c = *str++;
         hash = ((hash << 5) + hash) + c;
     }
     return hash;
-} 
+}
 
 static int snapscani_mutex_open(snapscan_mutex_t* sem_id, const char* dev)
 {

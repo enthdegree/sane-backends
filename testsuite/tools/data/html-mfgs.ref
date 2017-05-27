@@ -16,7 +16,7 @@ for more detailed (and usually important) information
 concerning each backend.</p>
 <p>If you have new information or corrections, please file a
 <a href="http://www.sane-project.org/bugs.html">bug report</a>
-with as many details as possible. Also please tell us if your scanner 
+with as many details as possible. Also please tell us if your scanner
 isn't mentioned in this list at all.</p>
 <p>For an explanation of the tables, see the
 <a href="#legend">legend</a>.
@@ -84,125 +84,125 @@ isn't mentioned in this list at all.</p>
 </tr>
 </table>
 <h2><a name="SCANNERS">Scanners</a></h2>
-<p><b>Manufacturers</b>: 
-<a href="#Z-ABATON">Abaton</a>, 
-<a href="#Z-ACER-PERIPHERALS">Acer Peripherals</a>, 
-<a href="#Z-ACROSS-TECHNOLOGIES">Across Technologies</a>, 
-<a href="#Z-ACTOWN">Actown</a>, 
-<a href="#Z-ADLIB">Adlib</a>, 
-<a href="#Z-ADVENT">Advent</a>, 
-<a href="#Z-AGFA">AGFA</a>, 
-<a href="#Z-AMBIR">Ambir</a>, 
-<a href="#Z-APPLE">Apple</a>, 
-<a href="#Z-ARIES">Aries</a>, 
-<a href="#Z-ARTEC-ULTIMA">Artec/Ultima</a>, 
-<a href="#Z-AVIGRAMM">Avigramm</a>, 
-<a href="#Z-AVISION">Avision</a>, 
-<a href="#Z-BELL-AND-HOWELL">Bell and Howell</a>, 
-<a href="#Z-BELL-HOWELL">Bell+Howell</a>, 
-<a href="#Z-BENQ">BenQ</a>, 
-<a href="#Z-BENQ--ACER-">Benq (Acer)</a>, 
-<a href="#Z-BLACKWIDOW">BlackWidow</a>, 
-<a href="#Z-BOEDER">Boeder</a>, 
-<a href="#Z-BRIGHTSCAN">BrightScan</a>, 
-<a href="#Z-BROTHER">Brother</a>, 
-<a href="#Z-C-CHANNEL">C-Channel</a>, 
-<a href="#Z-CANON">Canon</a>, 
-<a href="#Z-CHINON">Chinon</a>, 
-<a href="#Z-COMPAQ">Compaq</a>, 
-<a href="#Z-COMPEYE">Compeye</a>, 
-<a href="#Z-COREX">Corex</a>, 
-<a href="#Z-CYBERCOM">Cybercom</a>, 
-<a href="#Z-DCT">DCT</a>, 
-<a href="#Z-DELL">Dell</a>, 
-<a href="#Z-DEVCOM">Devcom</a>, 
-<a href="#Z-DEXTRA">Dextra</a>, 
-<a href="#Z-DEXXA">Dexxa</a>, 
-<a href="#Z-E-LUX">E-Lux</a>, 
-<a href="#Z-EDGE">EDGE</a>, 
-<a href="#Z-EDT--ELECTRONIC-DOCUMENT-TECHNOLOGY-">EDT (Electronic Document Technology)</a>, 
-<a href="#Z-ENHANS">Enhans</a>, 
-<a href="#Z-EPSON">Epson</a>, 
-<a href="#Z-ESCOM">Escom</a>, 
-<a href="#Z-ESCORT">Escort</a>, 
-<a href="#Z-FUJITSU">Fujitsu</a>, 
-<a href="#Z-GALLERY">Gallery</a>, 
-<a href="#Z-GENIUS">Genius</a>, 
-<a href="#Z-GOOGLEGEAR">Googlegear</a>, 
-<a href="#Z-GUILLEMOT">Guillemot</a>, 
-<a href="#Z-GUILLEMOT---HERCULES">Guillemot / Hercules</a>, 
-<a href="#Z-HERCULES">Hercules</a>, 
-<a href="#Z-HEWLETT-PACKARD">Hewlett-Packard</a>, 
-<a href="#Z-IBM">IBM</a>, 
-<a href="#Z-IOMAGIC">IOMagic</a>, 
-<a href="#Z-IRIS">Iris</a>, 
-<a href="#Z-IVINA">iVina</a>, 
-<a href="#Z-KODAK">Kodak</a>, 
-<a href="#Z-KOMODO">Komodo</a>, 
-<a href="#Z-KONICA-MINOLTA">KONICA MINOLTA</a>, 
-<a href="#Z-KYOCERA">Kyocera</a>, 
-<a href="#Z-LEO">LEO</a>, 
-<a href="#Z-LEXMARK">Lexmark</a>, 
-<a href="#Z-LINOTYPE-HELL">Linotype Hell</a>, 
-<a href="#Z-LOGITECH">Logitech</a>, 
-<a href="#Z-MEDION-LIFETEC-TEVION-CYTRON">Medion/Lifetec/Tevion/Cytron</a>, 
-<a href="#Z-MEMOREX">Memorex</a>, 
-<a href="#Z-MICROMAXX">Micromaxx</a>, 
-<a href="#Z-MICROSTAR">Microstar</a>, 
-<a href="#Z-MICROTEK">Microtek</a>, 
-<a href="#Z-MINOLTA">Minolta</a>, 
-<a href="#Z-MINOLTA-QMS">Minolta-QMS</a>, 
-<a href="#Z-MITSUBISHI">Mitsubishi</a>, 
-<a href="#Z-MUSTEK">Mustek</a>, 
-<a href="#Z-NEATRECEIPTS">NeatReceipts</a>, 
-<a href="#Z-NEC">NEC</a>, 
-<a href="#Z-NETWORK">Network</a>, 
-<a href="#Z-NIKON">Nikon</a>, 
-<a href="#Z-NORTEK">Nortek</a>, 
-<a href="#Z-OKI">OKI</a>, 
-<a href="#Z-OLIVETTI">Olivetti</a>, 
-<a href="#Z-OLYMPUS">Olympus</a>, 
-<a href="#Z-OPTOELECTRONICS">Optoelectronics</a>, 
-<a href="#Z-OPTROX">Optrox</a>, 
-<a href="#Z-PACKARD-BELL">Packard Bell</a>, 
-<a href="#Z-PANASONIC">Panasonic</a>, 
-<a href="#Z-PENTAX">Pentax</a>, 
-<a href="#Z-PIE">PIE</a>, 
-<a href="#Z-PIOTECH">PIOTECH</a>, 
-<a href="#Z-PLANON">PLANon</a>, 
-<a href="#Z-PLUSTEK">Plustek</a>, 
-<a href="#Z-PORTABLE-PERIPHERAL-CO---LTD-">Portable Peripheral Co., Ltd.</a>, 
-<a href="#Z-PRIMAX">Primax</a>, 
-<a href="#Z-PROLINK">Prolink</a>, 
-<a href="#Z-QUATO">Quato</a>, 
-<a href="#Z-REFLECTA">Reflecta</a>, 
-<a href="#Z-RELISYS">Relisys</a>, 
-<a href="#Z-REVSCAN">RevScan</a>, 
-<a href="#Z-RICOH">Ricoh</a>, 
-<a href="#Z-SAMSUNG">Samsung</a>, 
-<a href="#Z-SCANPORT">Scanport</a>, 
-<a href="#Z-SCANSHELL">Scanshell</a>, 
-<a href="#Z-SCEPTRE">Sceptre</a>, 
-<a href="#Z-SHARP">Sharp</a>, 
-<a href="#Z-SICOS">Sicos</a>, 
-<a href="#Z-SIEMENS">Siemens</a>, 
-<a href="#Z-SMARTDISK">SmartDisk</a>, 
-<a href="#Z-SPOT-TECHNOLOGY">Spot Technology</a>, 
-<a href="#Z-SYSCAN">Syscan</a>, 
-<a href="#Z-TAMARACK">Tamarack</a>, 
-<a href="#Z-TARGA">Targa</a>, 
-<a href="#Z-TCE">TCE</a>, 
-<a href="#Z-TECO">Teco</a>, 
-<a href="#Z-TINY">Tiny</a>, 
-<a href="#Z-TRIGEM">TriGem</a>, 
-<a href="#Z-TRUST">Trust</a>, 
-<a href="#Z-UMAX">UMAX</a>, 
-<a href="#Z-VANTAS">Vantas</a>, 
-<a href="#Z-VISIONEER">Visioneer</a>, 
-<a href="#Z-VIVISCAN">Viviscan</a>, 
-<a href="#Z-VOBIS">Vobis</a>, 
-<a href="#Z-VUEGO">Vuego</a>, 
-<a href="#Z-XEROX">Xerox</a>, 
+<p><b>Manufacturers</b>:
+<a href="#Z-ABATON">Abaton</a>,
+<a href="#Z-ACER-PERIPHERALS">Acer Peripherals</a>,
+<a href="#Z-ACROSS-TECHNOLOGIES">Across Technologies</a>,
+<a href="#Z-ACTOWN">Actown</a>,
+<a href="#Z-ADLIB">Adlib</a>,
+<a href="#Z-ADVENT">Advent</a>,
+<a href="#Z-AGFA">AGFA</a>,
+<a href="#Z-AMBIR">Ambir</a>,
+<a href="#Z-APPLE">Apple</a>,
+<a href="#Z-ARIES">Aries</a>,
+<a href="#Z-ARTEC-ULTIMA">Artec/Ultima</a>,
+<a href="#Z-AVIGRAMM">Avigramm</a>,
+<a href="#Z-AVISION">Avision</a>,
+<a href="#Z-BELL-AND-HOWELL">Bell and Howell</a>,
+<a href="#Z-BELL-HOWELL">Bell+Howell</a>,
+<a href="#Z-BENQ">BenQ</a>,
+<a href="#Z-BENQ--ACER-">Benq (Acer)</a>,
+<a href="#Z-BLACKWIDOW">BlackWidow</a>,
+<a href="#Z-BOEDER">Boeder</a>,
+<a href="#Z-BRIGHTSCAN">BrightScan</a>,
+<a href="#Z-BROTHER">Brother</a>,
+<a href="#Z-C-CHANNEL">C-Channel</a>,
+<a href="#Z-CANON">Canon</a>,
+<a href="#Z-CHINON">Chinon</a>,
+<a href="#Z-COMPAQ">Compaq</a>,
+<a href="#Z-COMPEYE">Compeye</a>,
+<a href="#Z-COREX">Corex</a>,
+<a href="#Z-CYBERCOM">Cybercom</a>,
+<a href="#Z-DCT">DCT</a>,
+<a href="#Z-DELL">Dell</a>,
+<a href="#Z-DEVCOM">Devcom</a>,
+<a href="#Z-DEXTRA">Dextra</a>,
+<a href="#Z-DEXXA">Dexxa</a>,
+<a href="#Z-E-LUX">E-Lux</a>,
+<a href="#Z-EDGE">EDGE</a>,
+<a href="#Z-EDT--ELECTRONIC-DOCUMENT-TECHNOLOGY-">EDT (Electronic Document Technology)</a>,
+<a href="#Z-ENHANS">Enhans</a>,
+<a href="#Z-EPSON">Epson</a>,
+<a href="#Z-ESCOM">Escom</a>,
+<a href="#Z-ESCORT">Escort</a>,
+<a href="#Z-FUJITSU">Fujitsu</a>,
+<a href="#Z-GALLERY">Gallery</a>,
+<a href="#Z-GENIUS">Genius</a>,
+<a href="#Z-GOOGLEGEAR">Googlegear</a>,
+<a href="#Z-GUILLEMOT">Guillemot</a>,
+<a href="#Z-GUILLEMOT---HERCULES">Guillemot / Hercules</a>,
+<a href="#Z-HERCULES">Hercules</a>,
+<a href="#Z-HEWLETT-PACKARD">Hewlett-Packard</a>,
+<a href="#Z-IBM">IBM</a>,
+<a href="#Z-IOMAGIC">IOMagic</a>,
+<a href="#Z-IRIS">Iris</a>,
+<a href="#Z-IVINA">iVina</a>,
+<a href="#Z-KODAK">Kodak</a>,
+<a href="#Z-KOMODO">Komodo</a>,
+<a href="#Z-KONICA-MINOLTA">KONICA MINOLTA</a>,
+<a href="#Z-KYOCERA">Kyocera</a>,
+<a href="#Z-LEO">LEO</a>,
+<a href="#Z-LEXMARK">Lexmark</a>,
+<a href="#Z-LINOTYPE-HELL">Linotype Hell</a>,
+<a href="#Z-LOGITECH">Logitech</a>,
+<a href="#Z-MEDION-LIFETEC-TEVION-CYTRON">Medion/Lifetec/Tevion/Cytron</a>,
+<a href="#Z-MEMOREX">Memorex</a>,
+<a href="#Z-MICROMAXX">Micromaxx</a>,
+<a href="#Z-MICROSTAR">Microstar</a>,
+<a href="#Z-MICROTEK">Microtek</a>,
+<a href="#Z-MINOLTA">Minolta</a>,
+<a href="#Z-MINOLTA-QMS">Minolta-QMS</a>,
+<a href="#Z-MITSUBISHI">Mitsubishi</a>,
+<a href="#Z-MUSTEK">Mustek</a>,
+<a href="#Z-NEATRECEIPTS">NeatReceipts</a>,
+<a href="#Z-NEC">NEC</a>,
+<a href="#Z-NETWORK">Network</a>,
+<a href="#Z-NIKON">Nikon</a>,
+<a href="#Z-NORTEK">Nortek</a>,
+<a href="#Z-OKI">OKI</a>,
+<a href="#Z-OLIVETTI">Olivetti</a>,
+<a href="#Z-OLYMPUS">Olympus</a>,
+<a href="#Z-OPTOELECTRONICS">Optoelectronics</a>,
+<a href="#Z-OPTROX">Optrox</a>,
+<a href="#Z-PACKARD-BELL">Packard Bell</a>,
+<a href="#Z-PANASONIC">Panasonic</a>,
+<a href="#Z-PENTAX">Pentax</a>,
+<a href="#Z-PIE">PIE</a>,
+<a href="#Z-PIOTECH">PIOTECH</a>,
+<a href="#Z-PLANON">PLANon</a>,
+<a href="#Z-PLUSTEK">Plustek</a>,
+<a href="#Z-PORTABLE-PERIPHERAL-CO---LTD-">Portable Peripheral Co., Ltd.</a>,
+<a href="#Z-PRIMAX">Primax</a>,
+<a href="#Z-PROLINK">Prolink</a>,
+<a href="#Z-QUATO">Quato</a>,
+<a href="#Z-REFLECTA">Reflecta</a>,
+<a href="#Z-RELISYS">Relisys</a>,
+<a href="#Z-REVSCAN">RevScan</a>,
+<a href="#Z-RICOH">Ricoh</a>,
+<a href="#Z-SAMSUNG">Samsung</a>,
+<a href="#Z-SCANPORT">Scanport</a>,
+<a href="#Z-SCANSHELL">Scanshell</a>,
+<a href="#Z-SCEPTRE">Sceptre</a>,
+<a href="#Z-SHARP">Sharp</a>,
+<a href="#Z-SICOS">Sicos</a>,
+<a href="#Z-SIEMENS">Siemens</a>,
+<a href="#Z-SMARTDISK">SmartDisk</a>,
+<a href="#Z-SPOT-TECHNOLOGY">Spot Technology</a>,
+<a href="#Z-SYSCAN">Syscan</a>,
+<a href="#Z-TAMARACK">Tamarack</a>,
+<a href="#Z-TARGA">Targa</a>,
+<a href="#Z-TCE">TCE</a>,
+<a href="#Z-TECO">Teco</a>,
+<a href="#Z-TINY">Tiny</a>,
+<a href="#Z-TRIGEM">TriGem</a>,
+<a href="#Z-TRUST">Trust</a>,
+<a href="#Z-UMAX">UMAX</a>,
+<a href="#Z-VANTAS">Vantas</a>,
+<a href="#Z-VISIONEER">Visioneer</a>,
+<a href="#Z-VIVISCAN">Viviscan</a>,
+<a href="#Z-VOBIS">Vobis</a>,
+<a href="#Z-VUEGO">Vuego</a>,
+<a href="#Z-XEROX">Xerox</a>,
 <a href="#Z-YAKUMO">Yakumo</a></p>
 <h3><a name="Z-ABATON">Manufacturer: Abaton</a></h3>
 <p>
@@ -330,7 +330,7 @@ abaton<br>(unmaintained)
 </table>
 <h3><a name="Z-ADVENT">Manufacturer: Advent</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.adventcomputers.co.uk">http://www.adventcomputers.co.uk</a><br>
 </p>
 <table border=1>
@@ -357,7 +357,7 @@ abaton<br>(unmaintained)
 </table>
 <h3><a name="Z-AGFA">Manufacturer: AGFA</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.agfa.com/">http://www.agfa.com/</a>, <a href="http://www.agfa.com">http://www.agfa.com</a><br>
 </p>
 <table border=1>
@@ -800,7 +800,7 @@ agfafocus<br>(unmaintained)
 </table>
 <h3><a name="Z-APPLE">Manufacturer: Apple</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://developer.apple.com/">http://developer.apple.com/</a>, <a href="http://www.apple.com/">http://www.apple.com/</a><br>
 </p>
 <table border=1>
@@ -882,7 +882,7 @@ apple<br>(unmaintained)
 </table>
 <h3><a name="Z-ARTEC-ULTIMA">Manufacturer: Artec/Ultima</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.artecusa.com/">http://www.artecusa.com/</a><br>
 </p>
 <table border=1>
@@ -1075,7 +1075,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-AVISION">Manufacturer: Avision</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.avision.com">http://www.avision.com</a>, <a href="http://www.avision.com/">http://www.avision.com/</a><br>
 </p>
 <table border=1>
@@ -1850,7 +1850,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-BELL-AND-HOWELL">Manufacturer: Bell and Howell</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.bhscanners.com/">http://www.bhscanners.com/</a><br>
 </p>
 <table border=1>
@@ -1957,7 +1957,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-BENQ">Manufacturer: BenQ</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.benq.com/">http://www.benq.com/</a><br>
 </p>
 <table border=1>
@@ -1984,7 +1984,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-BENQ--ACER-">Manufacturer: Benq (Acer)</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.benq.com">http://www.benq.com</a><br>
 <b>Comment:</b> Formerly Acer Peripherals<br>
 </p>
@@ -2408,7 +2408,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-BLACKWIDOW">Manufacturer: BlackWidow</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.blackwidow.co.uk/">http://www.blackwidow.co.uk/</a><br>
 </p>
 <table border=1>
@@ -2496,7 +2496,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-BROTHER">Manufacturer: Brother</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.brother.com/">http://www.brother.com/</a><br>
 </p>
 <table border=1>
@@ -2556,7 +2556,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-C-CHANNEL">Manufacturer: C-Channel</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.c-channel.ch/">http://www.c-channel.ch/</a><br>
 </p>
 <table border=1>
@@ -2605,7 +2605,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-CANON">Manufacturer: Canon</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.canon.com/">http://www.canon.com/</a><br>
 </p>
 <table border=1>
@@ -5407,7 +5407,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-COMPAQ">Manufacturer: Compaq</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.compaq.com/">http://www.compaq.com/</a><br>
 </p>
 <table border=1>
@@ -5470,7 +5470,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-COREX">Manufacturer: Corex</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.cardscan.com/">http://www.cardscan.com/</a><br>
 </p>
 <table border=1>
@@ -5555,7 +5555,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-DCT">Manufacturer: DCT</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.docucap.com/">http://www.docucap.com/</a><br>
 <b>Comment:</b> Successor of Syscan in the USA<br>
 </p>
@@ -5583,7 +5583,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-DELL">Manufacturer: Dell</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.dell.com/">http://www.dell.com/</a><br>
 </p>
 <table border=1>
@@ -5662,7 +5662,7 @@ xerox_mfp<br>(1.0-13)
 </table>
 <h3><a name="Z-DEVCOM">Manufacturer: Devcom</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.blackwidow.co.uk/">http://www.blackwidow.co.uk/</a><br>
 </p>
 <table border=1>
@@ -5769,7 +5769,7 @@ xerox_mfp<br>(1.0-13)
 </table>
 <h3><a name="Z-DEXXA">Manufacturer: Dexxa</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.dexxa.com">http://www.dexxa.com</a><br>
 </p>
 <table border=1>
@@ -5847,7 +5847,7 @@ xerox_mfp<br>(1.0-13)
 </table>
 <h3><a name="Z-EDT--ELECTRONIC-DOCUMENT-TECHNOLOGY-">Manufacturer: EDT (Electronic Document Technology)</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.bizcardreader.com/">http://www.bizcardreader.com/</a><br>
 </p>
 <table border=1>
@@ -5911,7 +5911,7 @@ xerox_mfp<br>(1.0-13)
 </table>
 <h3><a name="Z-EPSON">Manufacturer: Epson</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.epson.com/">http://www.epson.com/</a>, <a href="http://www.epson.com">http://www.epson.com</a><br>
 </p>
 <table border=1>
@@ -10239,7 +10239,7 @@ epson2<br>(1.0.124)
 </table>
 <h3><a name="Z-FUJITSU">Manufacturer: Fujitsu</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.fujitsu.com">http://www.fujitsu.com</a>, <a href="http://www.fujitsu.com/">http://www.fujitsu.com/</a>, <a href="http://www.fcpa.fujitsu.com/products/scanners/">http://www.fcpa.fujitsu.com/products/scanners/</a><br>
 </p>
 <table border=1>
@@ -11268,7 +11268,7 @@ sp15c<br>(unmaintained)
 </table>
 <h3><a name="Z-GENIUS">Manufacturer: Genius</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.genius-kye.com/">http://www.genius-kye.com/</a>, <a href="http://www.geniusmouse.co.uk/">http://www.geniusmouse.co.uk/</a>, <a href="http://www.geniusnet.com.tw/">http://www.geniusnet.com.tw/</a><br>
 </p>
 <table border=1>
@@ -11697,7 +11697,7 @@ sp15c<br>(unmaintained)
 </table>
 <h3><a name="Z-GUILLEMOT---HERCULES">Manufacturer: Guillemot / Hercules</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.guillemot.com">http://www.guillemot.com</a><br>
 </p>
 <table border=1>
@@ -11782,7 +11782,7 @@ sp15c<br>(unmaintained)
 </table>
 <h3><a name="Z-HEWLETT-PACKARD">Manufacturer: Hewlett-Packard</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.hp.com">http://www.hp.com</a>, <a href="http://www.hp.com/">http://www.hp.com/</a><br>
 </p>
 <table border=1>
@@ -12746,7 +12746,7 @@ hp5590<br>(1.0.5)
 </table>
 <h3><a name="Z-IBM">Manufacturer: IBM</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.ibm.com/">http://www.ibm.com/</a>, <a href="http://www.ibm.com">http://www.ibm.com</a><br>
 </p>
 <table border=1>
@@ -12784,7 +12784,7 @@ hp5590<br>(1.0.5)
 </table>
 <h3><a name="Z-IOMAGIC">Manufacturer: IOMagic</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.iomagic.com/">http://www.iomagic.com/</a><br>
 </p>
 <table border=1>
@@ -12811,7 +12811,7 @@ hp5590<br>(1.0.5)
 </table>
 <h3><a name="Z-IRIS">Manufacturer: Iris</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://irislink.com/">http://irislink.com/</a><br>
 </p>
 <table border=1>
@@ -12885,7 +12885,7 @@ hp5590<br>(1.0.5)
 </table>
 <h3><a name="Z-KODAK">Manufacturer: Kodak</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.kodak.com">http://www.kodak.com</a>, <a href="http://www.kodak.com/">http://www.kodak.com/</a><br>
 </p>
 <table border=1>
@@ -13627,7 +13627,7 @@ hp5590<br>(1.0.5)
 </table>
 <h3><a name="Z-KOMODO">Manufacturer: Komodo</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.komodo.com/">http://www.komodo.com/</a><br>
 </p>
 <table border=1>
@@ -13654,7 +13654,7 @@ hp5590<br>(1.0.5)
 </table>
 <h3><a name="Z-KONICA-MINOLTA">Manufacturer: KONICA MINOLTA</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.konicaminolta.com/">http://www.konicaminolta.com/</a><br>
 </p>
 <table border=1>
@@ -13819,7 +13819,7 @@ hp5590<br>(1.0.5)
 </table>
 <h3><a name="Z-LEXMARK">Manufacturer: Lexmark</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.lexmark.com/">http://www.lexmark.com/</a><br>
 </p>
 <table border=1>
@@ -14121,7 +14121,7 @@ hp5590<br>(1.0.5)
 </table>
 <h3><a name="Z-LINOTYPE-HELL">Manufacturer: Linotype Hell</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.heidelberg.com/">http://www.heidelberg.com/</a><br>
 </p>
 <table border=1>
@@ -14316,7 +14316,7 @@ hp5590<br>(1.0.5)
 </table>
 <h3><a name="Z-MEDION-LIFETEC-TEVION-CYTRON">Manufacturer: Medion/Lifetec/Tevion/Cytron</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.medion.com">http://www.medion.com</a>, <a href="http://www.medion.com/">http://www.medion.com/</a>, <a href="http://www.medion.de/">http://www.medion.de/</a><br>
 <b>Comment:</b> Sold by Aldi and Tchibo.<br>
 </p>
@@ -14616,7 +14616,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-MEMOREX">Manufacturer: Memorex</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.artecusa.com/">http://www.artecusa.com/</a>, <a href="http://www.memorex.com/">http://www.memorex.com/</a><br>
 </p>
 <table border=1>
@@ -14711,7 +14711,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-MICROSTAR">Manufacturer: Microstar</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.microstar.de/">http://www.microstar.de/</a><br>
 </p>
 <table border=1>
@@ -14737,7 +14737,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-MICROTEK">Manufacturer: Microtek</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.microtek.com/">http://www.microtek.com/</a><br>
 <b>Comment:</b> Microtek makes a wide variety of devices.<br>
 </p>
@@ -15667,7 +15667,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-MINOLTA">Manufacturer: Minolta</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.minolta.com">http://www.minolta.com</a><br>
 </p>
 <table border=1>
@@ -15785,7 +15785,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-MITSUBISHI">Manufacturer: Mitsubishi</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.mitsubishi.com">http://www.mitsubishi.com</a><br>
 </p>
 <table border=1>
@@ -15867,7 +15867,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-MUSTEK">Manufacturer: Mustek</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.mustek.com/">http://www.mustek.com/</a>, <a href="http://www.mustek.com.tw/">http://www.mustek.com.tw/</a>, <a href="http://www.mustek.de/">http://www.mustek.de/</a><br>
 </p>
 <table border=1>
@@ -16810,7 +16810,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-NEC">Manufacturer: NEC</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.nevt.co.jp/">http://www.nevt.co.jp/</a><br>
 </p>
 <table border=1>
@@ -16873,7 +16873,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-NIKON">Manufacturer: Nikon</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.nikon.com/">http://www.nikon.com/</a><br>
 </p>
 <table border=1>
@@ -17204,7 +17204,7 @@ coolscan3<br>(1.0.0)
 </table>
 <h3><a name="Z-OLIVETTI">Manufacturer: Olivetti</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.olivetti.com">http://www.olivetti.com</a><br>
 </p>
 <table border=1>
@@ -17231,7 +17231,7 @@ coolscan3<br>(1.0.0)
 </table>
 <h3><a name="Z-OLYMPUS">Manufacturer: Olympus</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.olympus.com">http://www.olympus.com</a><br>
 </p>
 <table border=1>
@@ -17432,7 +17432,7 @@ coolscan3<br>(1.0.0)
 </table>
 <h3><a name="Z-PANASONIC">Manufacturer: Panasonic</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.panasonic.com/">http://www.panasonic.com/</a><br>
 </p>
 <table border=1>
@@ -17823,7 +17823,7 @@ kvs40xx<br>(unmaintained)
 </table>
 <h3><a name="Z-PENTAX">Manufacturer: Pentax</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.pentaxtech.com/">http://www.pentaxtech.com/</a>, <a href="http://mobilesolutions.brother-usa.com/">http://mobilesolutions.brother-usa.com/</a><br>
 </p>
 <table border=1>
@@ -17872,7 +17872,7 @@ kvs40xx<br>(unmaintained)
 </table>
 <h3><a name="Z-PIE">Manufacturer: PIE</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.scanace.com/">http://www.scanace.com/</a><br>
 <b>Comment:</b> Pacific Image Electronics<br>
 </p>
@@ -18076,7 +18076,7 @@ kvs40xx<br>(unmaintained)
 </table>
 <h3><a name="Z-PIOTECH">Manufacturer: PIOTECH</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.image-land.com/">http://www.image-land.com/</a><br>
 </p>
 <table border=1>
@@ -18103,7 +18103,7 @@ kvs40xx<br>(unmaintained)
 </table>
 <h3><a name="Z-PLANON">Manufacturer: PLANon</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.planon.com/">http://www.planon.com/</a><br>
 </p>
 <table border=1>
@@ -18152,7 +18152,7 @@ kvs40xx<br>(unmaintained)
 </table>
 <h3><a name="Z-PLUSTEK">Manufacturer: Plustek</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.plustek.com/">http://www.plustek.com/</a>, <a href="http://www.plustek.de/">http://www.plustek.de/</a><br>
 </p>
 <table border=1>
@@ -18993,7 +18993,7 @@ kvs40xx<br>(unmaintained)
 </table>
 <h3><a name="Z-PORTABLE-PERIPHERAL-CO---LTD-">Manufacturer: Portable Peripheral Co., Ltd.</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.pandp.com.tw/">http://www.pandp.com.tw/</a><br>
 </p>
 <table border=1>
@@ -19031,7 +19031,7 @@ kvs40xx<br>(unmaintained)
 </table>
 <h3><a name="Z-PRIMAX">Manufacturer: Primax</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.primax.nl/">http://www.primax.nl/</a>, <a href="http://www.primax.com.tw">http://www.primax.com.tw</a><br>
 </p>
 <table border=1>
@@ -19344,7 +19344,7 @@ kvs40xx<br>(unmaintained)
 </table>
 <h3><a name="Z-PROLINK">Manufacturer: Prolink</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.fida.com/">http://www.fida.com/</a><br>
 </p>
 <table border=1>
@@ -19382,7 +19382,7 @@ kvs40xx<br>(unmaintained)
 </table>
 <h3><a name="Z-QUATO">Manufacturer: Quato</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.quato.de/">http://www.quato.de/</a><br>
 </p>
 <table border=1>
@@ -19467,7 +19467,7 @@ kvs40xx<br>(unmaintained)
 </table>
 <h3><a name="Z-RELISYS">Manufacturer: Relisys</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.relisys.com/">http://www.relisys.com/</a>, <a href="http://www.tecoimage.com.tw/">http://www.tecoimage.com.tw/</a><br>
 </p>
 <table border=1>
@@ -19805,7 +19805,7 @@ kvs40xx<br>(unmaintained)
 </table>
 <h3><a name="Z-RICOH">Manufacturer: Ricoh</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.ricoh.com/">http://www.ricoh.com/</a><br>
 </p>
 <table border=1>
@@ -19907,7 +19907,7 @@ ricoh<br>(unmaintained)
 </table>
 <h3><a name="Z-SAMSUNG">Manufacturer: Samsung</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.samsung.com">http://www.samsung.com</a><br>
 </p>
 <table border=1>
@@ -20534,7 +20534,7 @@ xerox_mfp<br>(1.0-13)
 </table>
 <h3><a name="Z-SCANPORT">Manufacturer: Scanport</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.scanport.com/">http://www.scanport.com/</a><br>
 </p>
 <table border=1>
@@ -20608,7 +20608,7 @@ xerox_mfp<br>(1.0-13)
 </table>
 <h3><a name="Z-SCEPTRE">Manufacturer: Sceptre</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.sceptre.com/">http://www.sceptre.com/</a><br>
 </p>
 <table border=1>
@@ -20635,7 +20635,7 @@ xerox_mfp<br>(1.0-13)
 </table>
 <h3><a name="Z-SHARP">Manufacturer: Sharp</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://sharp-world.com/">http://sharp-world.com/</a><br>
 </p>
 <table border=1>
@@ -20742,7 +20742,7 @@ xerox_mfp<br>(1.0-13)
 </table>
 <h3><a name="Z-SIEMENS">Manufacturer: Siemens</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.siemens.com/">http://www.siemens.com/</a>, <a href="http://www.siemens.de/">http://www.siemens.de/</a><br>
 </p>
 <table border=1>
@@ -20895,7 +20895,7 @@ agfafocus<br>(unmaintained)
 </table>
 <h3><a name="Z-SYSCAN">Manufacturer: Syscan</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.syscaninc.com/">http://www.syscaninc.com/</a><br>
 </p>
 <table border=1>
@@ -21112,7 +21112,7 @@ tamarack<br>(unmaintained)
 </table>
 <h3><a name="Z-TCE">Manufacturer: TCE</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.tce.com.br/">http://www.tce.com.br/</a><br>
 <b>Comment:</b> Brasilian vendor.<br>
 </p>
@@ -21151,7 +21151,7 @@ tamarack<br>(unmaintained)
 </table>
 <h3><a name="Z-TECO">Manufacturer: Teco</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.tecoimage.com.tw/">http://www.tecoimage.com.tw/</a><br>
 </p>
 <table border=1>
@@ -21203,7 +21203,7 @@ tamarack<br>(unmaintained)
 </table>
 <h3><a name="Z-TRIGEM">Manufacturer: TriGem</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.nikon.com/">http://www.nikon.com/</a><br>
 </p>
 <table border=1>
@@ -21230,7 +21230,7 @@ tamarack<br>(unmaintained)
 </table>
 <h3><a name="Z-TRUST">Manufacturer: Trust</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.trust-site.com">http://www.trust-site.com</a>, <a href="http://www.trust-site.com/home/">http://www.trust-site.com/home/</a>, <a href="http://www.trust.com">http://www.trust.com</a><br>
 <b>Comment:</b> Carefully check the model names. Trust uses similar names for completely different hardware.<br>
 </p>
@@ -21487,7 +21487,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-UMAX">Manufacturer: UMAX</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.umax.com/">http://www.umax.com/</a>, <a href="http://www.umax.com.tw/">http://www.umax.com.tw/</a>, <a href="http://www.umax.de/en">http://www.umax.de/en</a>, <a href="http://www.umax-europe.com">http://www.umax-europe.com</a>, <a href="http://www.umaxjapan.co.jp">http://www.umaxjapan.co.jp</a>, <a href="http://www.umax.com.cn">http://www.umax.com.cn</a>, <a href="http://www.umax.com">http://www.umax.com</a><br>
 </p>
 <table border=1>
@@ -22384,7 +22384,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-VISIONEER">Manufacturer: Visioneer</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.visioneer.com/">http://www.visioneer.com/</a><br>
 </p>
 <table border=1>
@@ -23085,7 +23085,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-VOBIS">Manufacturer: Vobis</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.vobis.de/">http://www.vobis.de/</a><br>
 </p>
 <table border=1>
@@ -23138,7 +23138,7 @@ artec_eplus48u<br>(unmaintained)
 </p>
 <h3><a name="Z-XEROX">Manufacturer: Xerox</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.xerox.com/">http://www.xerox.com/</a>, <a href="http://www.office.xerox.com/">http://www.office.xerox.com/</a><br>
 </p>
 <table border=1>
@@ -23467,7 +23467,7 @@ xerox_mfp<br>(1.0-13)
 </table>
 <h3><a name="Z-YAKUMO">Manufacturer: Yakumo</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.yakumo.com/">http://www.yakumo.com/</a><br>
 </p>
 <table border=1>
@@ -23492,12 +23492,12 @@ artec_eplus48u<br>(unmaintained)
 </tr>
 </table>
 <h2><a name="STILL">Still Cameras</a></h2>
-<p><b>Manufacturers</b>: 
-<a href="#Z-KODAK">Kodak</a>, 
+<p><b>Manufacturers</b>:
+<a href="#Z-KODAK">Kodak</a>,
 <a href="#Z-POLAROID">Polaroid</a></p>
 <h3><a name="Z-KODAK">Manufacturer: Kodak</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.kodak.com/global/en/service/digCam/dc25/dc25.shtml">http://www.kodak.com/global/en/service/digCam/dc25/dc25.shtml</a>, <a href="http://www.kodak.com/global/en/service/digCam/dc210/dc210.shtml">http://www.kodak.com/global/en/service/digCam/dc210/dc210.shtml</a>, <a href="http://www.kodak.com/global/en/service/products/ekn006568.jhtml">http://www.kodak.com/global/en/service/products/ekn006568.jhtml</a><br>
 </p>
 <table border=1>
@@ -23557,7 +23557,7 @@ artec_eplus48u<br>(unmaintained)
 </table>
 <h3><a name="Z-POLAROID">Manufacturer: Polaroid</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.polaroid.com/">http://www.polaroid.com/</a><br>
 </p>
 <table border=1>
@@ -23582,17 +23582,17 @@ dmc<br>(unmaintained)
 </tr>
 </table>
 <h2><a name="VIDEO">Video Cameras</a></h2>
-<p><b>Manufacturers</b>: 
-<a href="#Z-AIPTEK">Aiptek</a>, 
-<a href="#Z-BIOLUX">Biolux</a>, 
-<a href="#Z-CONNECTIX">Connectix</a>, 
-<a href="#Z-CREATIVE">Creative</a>, 
-<a href="#Z-DIGITAL-DREAM">Digital Dream</a>, 
-<a href="#Z-GRANDTEK-SCOPECAM">Grandtek Scopecam</a>, 
+<p><b>Manufacturers</b>:
+<a href="#Z-AIPTEK">Aiptek</a>,
+<a href="#Z-BIOLUX">Biolux</a>,
+<a href="#Z-CONNECTIX">Connectix</a>,
+<a href="#Z-CREATIVE">Creative</a>,
+<a href="#Z-DIGITAL-DREAM">Digital Dream</a>,
+<a href="#Z-GRANDTEK-SCOPECAM">Grandtek Scopecam</a>,
 <a href="#Z-KONICA">Konica</a></p>
 <h3><a name="Z-AIPTEK">Manufacturer: Aiptek</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.aiptek.com.tw">http://www.aiptek.com.tw</a><br>
 </p>
 <table border=1>
@@ -23678,7 +23678,7 @@ qcam<br>(unmaintained)
 </table>
 <h3><a name="Z-CREATIVE">Manufacturer: Creative</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.creative.com/">http://www.creative.com/</a><br>
 </p>
 <table border=1>
@@ -23705,7 +23705,7 @@ qcam<br>(unmaintained)
 </table>
 <h3><a name="Z-DIGITAL-DREAM">Manufacturer: Digital Dream</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.digitaldreamco.com/en/index.shtml">http://www.digitaldreamco.com/en/index.shtml</a><br>
 </p>
 <table border=1>
@@ -23757,7 +23757,7 @@ qcam<br>(unmaintained)
 </table>
 <h3><a name="Z-KONICA">Manufacturer: Konica</a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.konicaminolta.com">http://www.konicaminolta.com</a><br>
 </p>
 <table border=1>
@@ -23783,17 +23783,17 @@ qcam<br>(unmaintained)
 </tr>
 </table>
 <h2><a name="API">APIs</a></h2>
-<p><b>Backends</b>: 
-<a href="#A-GPHOTO2">gphoto2</a>, 
-<a href="#A-PINT">pint</a>, 
-<a href="#A-PNM">pnm</a>, 
-<a href="#A-TEST">test</a>, 
+<p><b>Backends</b>:
+<a href="#A-GPHOTO2">gphoto2</a>,
+<a href="#A-PINT">pint</a>,
+<a href="#A-PNM">pnm</a>,
+<a href="#A-TEST">test</a>,
 <a href="#A-V4L">v4l</a></p>
 <h3><a name="A-GPHOTO2">Backend: gphoto2
 (0.0)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="mailto:peter@fales-lorenz.net">mailto:peter@fales-lorenz.net</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-gphoto2.5.html">sane-gphoto2</a><br>
 <b>Description:</b> <a href="http://www.gphoto.org">Multiple cameras supported by the gphoto2 libraries</a><br>
@@ -23811,7 +23811,7 @@ qcam<br>(unmaintained)
 (1.0.8)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="mailto:henning@meier-geinitz.de">mailto:henning@meier-geinitz.de</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-pnm.5.html">sane-pnm</a><br>
 <b>Description:</b> Reads PNM files<br>
@@ -23821,7 +23821,7 @@ qcam<br>(unmaintained)
 (1.0-28)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.meier-geinitz.de/sane/test-backend/">http://www.meier-geinitz.de/sane/test-backend/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-test.5.html">sane-test</a><br>
 <b>Description:</b> Frontend-tester<br>
@@ -23831,21 +23831,21 @@ qcam<br>(unmaintained)
 (1.0-3)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="mailto:henning@meier-geinitz.de">mailto:henning@meier-geinitz.de</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-v4l.5.html">sane-v4l</a><br>
 <b>Description:</b> Interface to Video For Linux API<br>
 <b>Comment:</b> Supports video cameras and other devices accessed by the v4l kernel API, e.g. bttv devices. Quite a lot of known bugs.<br>
 </p>
 <h2><a name="META">Meta Backends</a></h2>
-<p><b>Backends</b>: 
-<a href="#M-DLL">dll</a>, 
+<p><b>Backends</b>:
+<a href="#M-DLL">dll</a>,
 <a href="#M-NET">net</a></p>
 <h3><a name="M-DLL">Backend: dll
 (1.0.13)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="mailto:henning@meier-geinitz.de">mailto:henning@meier-geinitz.de</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-dll.5.html">sane-dll</a><br>
 <b>Description:</b> Dynamic loading of shared-library backends.<br>
@@ -23854,7 +23854,7 @@ qcam<br>(unmaintained)
 (1.0.14)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.penguin-breeder.org/?page=sane-net">http://www.penguin-breeder.org/?page=sane-net</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-net.5.html">sane-net</a><br>
 <b>Description:</b> Network access to saned servers<br>
@@ -23870,18 +23870,18 @@ qcam<br>(unmaintained)
   <dt><b>USB id:</b></dt>
   <dd>The USB vendor and product ids as printed by sane-find-scanner -q (only applicable for USB devices).</dd>
   <dt><b>Status</b>:</dt>
-  <dd>Indicates how many of the features the device provides 
+  <dd>Indicates how many of the features the device provides
       are supported by SANE.
       <ul><li><font color="#F00000">unsupported</font>        means the device is not supported at least by this backend.         It may be supported by other backends, however.
       <li><font color="#0000B0">untested</font> means the         device may be supported but couldn't be tested. Be very         careful and report success/failure.
       <li><font color="#B00000">minimal</font> means that the
-        device is detected and scans at least in one mode. But the quality 
+        device is detected and scans at least in one mode. But the quality
         is bad or important features won't work.
-      <li><font color="#FF9000">basic</font> means it works at 
+      <li><font color="#FF9000">basic</font> means it works at
         least in the most important modes but quality is not perfect.
-      <li><font color="#90B000">good</font> means the device is usable 
+      <li><font color="#90B000">good</font> means the device is usable
         for day-to-day work. Some rather exotic features may be missing.
-      <li><font color="#007000">complete</font> means the backends 
+      <li><font color="#007000">complete</font> means the backends
         supports everything the device can do.
       </ul></dd>
   <dt><b>Comment:</b></dt>
@@ -23891,8 +23891,8 @@ qcam<br>(unmaintained)
       Version of backend/driver; newer versions may be
       available from their home sites.<br>      <font color="#F00000">NEW!</font> means brand-new to the
       current release of SANE.<br>
-      UNMAINTAINED means that nobody maintains that backend. Expect no 
-      new features or newly supported devices. You are welcome to take over 
+      UNMAINTAINED means that nobody maintains that backend. Expect no
+      new features or newly supported devices. You are welcome to take over
       maintainership.
   </dd>
   <dt><b>Manual Page:</b></dt>

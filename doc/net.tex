@@ -86,7 +86,7 @@ The four primitive types of the SANE standard are encoded as follows:
   \code{SANE\_Char} array.  The trailing NUL byte is considered part
   of the array and a \code{NULL} pointer is encoded as a zero-length
   array.
-  
+
 \item[\code{\defn{SANE\_Handle}}:] A handle is encoded like a word.
   The network backend needs to take care of converting these integer
   values to the opaque pointer values that are presented to the user
@@ -473,7 +473,7 @@ are no request or reply arguments in this call.  As a result of this
 call, the connection between the client and the server that was
 established by the \code{SANE\_NET\_INIT} call will be closed.
 
-% Local Variables: 
+% Local Variables:
 % mode: latex
 % TeX-master: "sane.tex"
-% End: 
+% End:

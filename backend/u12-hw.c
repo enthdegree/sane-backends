@@ -216,7 +216,7 @@ static void u12hw_InitiateComponentModel( U12_Device *dev )
 		dev->regs.RD_MotorDriverType |= _MOTORR_WEAK;
 /*	} */
 }
-  
+
 /**
  */
 static SANE_Status u12hw_InitAsic( U12_Device *dev, SANE_Bool shading )
@@ -259,7 +259,7 @@ static SANE_Status u12hw_InitAsic( U12_Device *dev, SANE_Bool shading )
 	if( dev->shade.intermediate & _ScanMode_Mono )
 		dev->regs.RD_Model1Control += _SCAN_GRAYTYPE;
 
-	DBG( _DBG_INFO, "* MotorDrvType = 0x%02x\n", dev->regs.RD_MotorDriverType); 
+	DBG( _DBG_INFO, "* MotorDrvType = 0x%02x\n", dev->regs.RD_MotorDriverType);
 	DBG( _DBG_INFO, "* Model1Cntrl  = 0x%02x\n", dev->regs.RD_Model1Control );
 
 #if 0
@@ -383,7 +383,7 @@ static void u12hw_SetupPreviewCondition( U12_Device *dev )
 
 	dev->scan.dwMaxReadFifo += (dev->DataInf.dwAsicBytesPerPlane / 2);
 
-	if( dev->DataInf.wPhyDataType > COLOR_256GRAY ) 
+	if( dev->DataInf.wPhyDataType > COLOR_256GRAY )
 		dev->scan.bFifoSelect = REG_BFIFOOFFSET;
 	else
 		dev->scan.bFifoSelect = REG_GFIFOOFFSET;
@@ -714,7 +714,7 @@ static SANE_Status u12hw_Memtest( U12_Device *dev )
 	u12io_DataToRegister( dev, REG_WIDTHPIXELHI, 5 );
 
 	memset( buf, 0, _TEST_SIZE );
-                                        
+
 	dev->regs.RD_ModeControl = _ModeReadMappingMem;
 	u12io_ReadData( dev, buf, _TEST_SIZE );
 
@@ -793,7 +793,7 @@ static void u12hw_CancelSequence( U12_Device *dev )
 {
 	int       c = 0;
 	SANE_Byte rb[6];
-	
+
 	DBG( _DBG_INFO, "u12hw_CancelSequence()\n" );
 
 	u12motor_PositionModuleToHome( dev );
@@ -888,7 +888,7 @@ static void usb_LampTimerIrq( int sig )
 				} else if( tmp & _TPALAMP_ON ) {
 					DBG( _DBG_INFO, "* TPA lamp is ON\n" );
 				}
-	
+
 				u12io_DataToRegister( dev_xxx, REG_SCANCONTROL, 0 );
 				u12io_CloseScanPath( dev_xxx );
 			}

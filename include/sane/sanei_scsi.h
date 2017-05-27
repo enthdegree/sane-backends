@@ -39,7 +39,7 @@
 */
 
 /** @file sanei_scsi.h
- *  Generic interface to SCSI drivers.  
+ *  Generic interface to SCSI drivers.
  *  @sa sanei_usb.h, sanei_ab306.h,sanei_lm983x.h, sanei_pa4s2.h, sanei_pio.h,
  *  and man sane-scsi(5) for user-oriented documentation
  */
@@ -76,8 +76,8 @@ extern int sanei_scsi_max_request_size;
  *
  * Find each SCSI device that matches the pattern specified by the
  * arguments.  String arguments can be "omitted" by passing NULL,
- * integer arguments can be "omitted" by passing -1.  
- * 
+ * integer arguments can be "omitted" by passing -1.
+ *
  *   Example: vendor="HP" model=NULL, type=NULL, bus=3, id=-1, lun=-1 would
  *	    attach all HP devices on SCSI bus 3.
  *
@@ -100,15 +100,15 @@ extern void sanei_scsi_find_devices (const char *vendor, const char *model,
 /** Open a SCSI device
  *
  * Opens a SCSI device by its device filename and returns a file descriptor.
- * If it's necessary to adjust the SCSI buffer size, use 
+ * If it's necessary to adjust the SCSI buffer size, use
  * sanei_scsi_open_extended().
  *
  * @param device_name name of the devicefile, e.g. "/dev/sg0"
  * @param fd file descriptor
  * @param sense_handler called whenever the SCSI driver returns a sense buffer
  * @param sense_arg pointer to data for the sense handler
- * 
- * @return 
+ *
+ * @return
  * - SANE_STATUS_GOOD - on success
  * - SANE_STATUS_ACCESS_DENIED - if the file couldn't be accessed due to
  *   permissions
@@ -138,8 +138,8 @@ extern SANE_Status sanei_scsi_open (const char * device_name, int * fd,
  * @param sense_handler called whenever the SCSI driver returns a sense buffer
  * @param sense_arg pointer to data for the sense handler
  * @param buffersize size of the SCAI request buffer (in bytes)
- * 
- * @return 
+ *
+ * @return
  * - SANE_STATUS_GOOD - on success
  * - SANE_STATUS_ACCESS_DENIED - if the file couldn't be accessed due to
  *   permissions
@@ -195,7 +195,7 @@ extern SANE_Status sanei_scsi_req_enter (int fd,
 					 void * dst, size_t * dst_size,
 					 void **idp);
 
-/** Enqueue SCSI command and separated data 
+/** Enqueue SCSI command and separated data
  *
  * Same as sanei_scsi_req_enter(), but with separate buffers for the SCSI
  * command and for the data to be sent to the device.
@@ -235,7 +235,7 @@ extern SANE_Status sanei_scsi_req_enter2 (int fd,
 
 /** Wait for SCSI command
  *
- * Wait for the completion of the SCSI command with id ID.  
+ * Wait for the completion of the SCSI command with id ID.
  *
  * @param id id used in sanei_scsi_req_enter()
  *

@@ -60,7 +60,7 @@
 #define DBG_io2         7	/* io functions that are called very often */
 #define DBG_data        8	/* log data sent and received */
 
-/* 
+/*
  * defines for registers name
  */
 #define CONTROL_REG             0xb3
@@ -97,7 +97,7 @@ void sanei_rts88xx_set_scan_area (SANE_Byte * reg, SANE_Int ystart,
 				  SANE_Int xend);
 
 /*
- * read one register at given index 
+ * read one register at given index
  */
 SANE_Status sanei_rts88xx_read_reg (SANE_Int devnum, SANE_Int index,
 				    SANE_Byte * reg);
@@ -109,7 +109,7 @@ SANE_Status sanei_rts88xx_read_data (SANE_Int devnum, SANE_Word * length,
 				     unsigned char *dest);
 
 /*
- * write one register at given index 
+ * write one register at given index
  */
 SANE_Status sanei_rts88xx_write_reg (SANE_Int devnum, SANE_Int index,
 				     SANE_Byte * reg);
@@ -127,17 +127,17 @@ SANE_Status sanei_rts88xx_read_regs (SANE_Int devnum, SANE_Int start,
 				     SANE_Byte * dest, SANE_Int length);
 
 /*
- * get status by reading registers 0x10 and 0x11 
+ * get status by reading registers 0x10 and 0x11
  */
 SANE_Status sanei_rts88xx_get_status (SANE_Int devnum, SANE_Byte * regs);
 /*
- * set status by writing registers 0x10 and 0x11 
+ * set status by writing registers 0x10 and 0x11
  */
 SANE_Status sanei_rts88xx_set_status (SANE_Int devnum, SANE_Byte * regs,
 				      SANE_Byte reg10, SANE_Byte reg11);
 
 /*
- * get lamp status by reading registers 0x84 to 0x8d  
+ * get lamp status by reading registers 0x84 to 0x8d
  */
 SANE_Status sanei_rts88xx_get_lamp_status (SANE_Int devnum, SANE_Byte * regs);
 
@@ -148,7 +148,7 @@ SANE_Status sanei_rts88xx_reset_lamp (SANE_Int devnum, SANE_Byte * regs);
 SANE_Status sanei_rts88xx_get_lcd (SANE_Int devnum, SANE_Byte * regs);
 
 /*
- * write to special control register CONTROL_REG=0xb3 
+ * write to special control register CONTROL_REG=0xb3
  */
 SANE_Status sanei_rts88xx_write_control (SANE_Int devnum, SANE_Byte value);
 

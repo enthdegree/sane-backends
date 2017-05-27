@@ -69,7 +69,7 @@
     if ((error = (x)) < 0)	\
       return error;		\
   } while(0)
-  
+
 #define WAIT_INTERRUPT(x) do {			\
     error = handle_interrupt (s, x);		\
     if (s->cancel)				\
@@ -441,7 +441,7 @@ static int
 send_cmd_start_calibrate_ccd_3 (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  
+
   pixma_newcmd (&mp->cb, cmd_start_calibrate_ccd_3, 0, 0);
   mp->cb.buf[3] = 0x01;
   return pixma_exec (s, &mp->cb);
@@ -469,7 +469,7 @@ static int
 has_paper (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  
+
   if (is_scanning_from_adfdup (s))
     return (mp->current_status[1] == 0 || mp->current_status[2] == 0);
   else
@@ -512,19 +512,19 @@ select_source (pixma_t * s)
         data[0] = 1;
         data[1] = 1;
         break;
-        
+
       case PIXMA_SOURCE_ADF:
         data[0] = 2;
         data[5] = 1;
         data[6] = 1;
         break;
-        
+
       case PIXMA_SOURCE_ADFDUP:
         data[0] = 2;
         data[5] = 3;
         data[6] = 3;
         break;
-        
+
       case PIXMA_SOURCE_TPU:
         data[0] = 4;
         data[1] = 2;
@@ -656,7 +656,7 @@ get_cis_ccd_line_size (pixma_t * s)
   return ((s->param->wx ? s->param->line_size / s->param->w * s->param->wx
                         : s->param->line_size) * ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : 1));
 }
- 
+
 static unsigned
 calc_shifting (pixma_t * s)
 {
@@ -683,7 +683,7 @@ calc_shifting (pixma_t * s)
           {
             mp->color_shift = s->param->ydpi / ((s->param->ydpi < 1200) ? 150 : 75);
 
-            if (is_scanning_from_tpu (s)) 
+            if (is_scanning_from_tpu (s))
               mp->color_shift = s->param->ydpi / 75;
 
             /* If you're trying to decipher this color-shifting code,
@@ -714,7 +714,7 @@ send_scan_param (pixma_t * s)
   mp150_t *mp = (mp150_t *) s->subdriver;
   uint8_t *data;
   unsigned raw_width = calc_raw_width (mp, s->param);
-  unsigned h = MIN (s->param->h + calc_shifting (s), 
+  unsigned h = MIN (s->param->h + calc_shifting (s),
                     s->cfg->height * s->param->ydpi / 75);
 
   /* TPU scan does not support lineart */
@@ -772,7 +772,7 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (raw_width, data + 0x14);
       pixma_set_be32 (h, data + 0x18);
       data[0x1c] = ((s->param->channels != 1) || is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 0x08 : 0x04;
-      
+
 #ifdef DEBUG_TPU_48
       data[0x1d] = 24;
 #else
@@ -1037,8 +1037,8 @@ wait_until_ready (pixma_t * s)
       WAIT_INTERRUPT (1000);
       if (mp->generation >= 3)
         RET_IF_ERR (query_status_3 (s));
-      else if (s->cfg->pid == MP600_PID || 
-               s->cfg->pid == MP600R_PID ||  
+      else if (s->cfg->pid == MP600_PID ||
+               s->cfg->pid == MP600R_PID ||
                s->cfg->pid == MP800R_PID)
         RET_IF_ERR (query_status (s));
       if (--tmo == 0)
@@ -1052,8 +1052,8 @@ wait_until_ready (pixma_t * s)
 }
 
 static uint8_t *
-shift_colors (uint8_t * dptr, uint8_t * sptr, 
-              unsigned w, unsigned dpi, unsigned pid, unsigned c, 
+shift_colors (uint8_t * dptr, uint8_t * sptr,
+              unsigned w, unsigned dpi, unsigned pid, unsigned c,
               int * colshft, unsigned strshft)
 {
   unsigned i, sr, sg, sb, st;
@@ -1064,7 +1064,7 @@ shift_colors (uint8_t * dptr, uint8_t * sptr,
     {
       /* stripes shift for MP800, MP800R at 2400 dpi */
       st = (i % 2 == 0) ? strshft : 0;
-        
+
       *sptr++ = *(dptr++ + sr + st);
       if (c == 6) *sptr++ = *(dptr++ + sr + st);
       *sptr++ = *(dptr++ + sg + st);
@@ -1076,7 +1076,7 @@ shift_colors (uint8_t * dptr, uint8_t * sptr,
 }
 
 static void
-reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n, 
+reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n,
                 unsigned m, unsigned w, unsigned line_size)
 {
   unsigned i;
@@ -1095,7 +1095,7 @@ pack_48_24_bpc (uint8_t * sptr, unsigned n)
   unsigned i;
   uint8_t *cptr, lsb;
   static uint8_t offset = 0;
-  
+
   cptr = sptr;
   if (n % 2 != 0)
     PDBG (pixma_dbg (3, "WARNING: misaligned image.\n"));
@@ -1109,9 +1109,9 @@ pack_48_24_bpc (uint8_t * sptr, unsigned n)
 }
 #endif
 
-/* This function deals both with PIXMA CCD sensors producing shifted color 
+/* This function deals both with PIXMA CCD sensors producing shifted color
  * planes images, Grayscale CCD scan and Generation >= 3 high dpi images.
- * Each complete line in mp->imgbuf is processed for shifting CCD sensor 
+ * Each complete line in mp->imgbuf is processed for shifting CCD sensor
  * color planes, reordering pixels above 600 dpi for Generation >= 3, and
  * converting to Grayscale for CCD sensors. */
 static unsigned
@@ -1125,15 +1125,15 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
       * ((s->param->software_lineart) ? 8 : s->param->depth) / 8;
   cw = c * s->param->w;
   cx = c * s->param->xs;
-  
+
   if (mp->generation >= 3)
     n = s->param->xdpi / 600;
   else    /* FIXME: maybe need different values for CIS and CCD sensors */
     n = s->param->xdpi / 2400;
-    
-  if (s->cfg->pid == MP600_PID || s->cfg->pid == MP600R_PID) 
+
+  if (s->cfg->pid == MP600_PID || s->cfg->pid == MP600R_PID)
     n = s->param->xdpi / 1200;
-  
+
   m = (n > 0) ? s->param->wx / n : 1;
   sptr = dptr = gptr = cptr = mp->imgbuf;
   line_size = get_cis_ccd_line_size (s);
@@ -1153,11 +1153,11 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
           /*PDBG (pixma_dbg (4, "*post_process_image_data***** Processing with c=%u, n=%u, m=%u, w=%i, line_size=%u ***** \n",
 	        c, n, m, s->param->wx, line_size));*/
           if (s->cfg->pid != MG5300_PID && s->cfg->pid != MG6300_PID && c >= 3)
-            dptr = shift_colors (dptr, sptr, 
+            dptr = shift_colors (dptr, sptr,
                                  s->param->wx, s->param->xdpi, s->cfg->pid, c,
                                  mp->shift, mp->stripe_shift);
-                       
-          /* special image format for *most* devices at high dpi. 
+
+          /* special image format for *most* devices at high dpi.
            * MP220, MX360, MX370, MX890, MG5300 are exceptions */
           if (n > 0
               && s->cfg->pid != MP220_PID
@@ -1181,10 +1181,10 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
               && s->cfg->pid != MG7700_PID
               && s->cfg->pid != MB5000_PID)
               reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
-          
+
           /* Crop line to selected borders */
           memmove(cptr, sptr + cx, cw);
-	  
+
           /* Color / Gray to Lineart convert */
           if (s->param->software_lineart)
               cptr = gptr = pixma_binarize_line (s->param, gptr, cptr, s->param->w, c);
@@ -1240,7 +1240,7 @@ mp150_open (pixma_t * s)
   /* And exceptions to be added here */
   if (s->cfg->pid == MP140_PID)
     mp->generation = 2;
-    
+
   PDBG (pixma_dbg (3, "*mp150_open***** This is a generation %d scanner.  *****\n", mp->generation));
 
   /* TPU info data setup */
@@ -1253,7 +1253,7 @@ mp150_open (pixma_t * s)
     {
       query_status (s);
       handle_interrupt (s, 200);
-      if (mp->generation == 3 && has_ccd_sensor (s)) 
+      if (mp->generation == 3 && has_ccd_sensor (s))
 	send_cmd_start_calibrate_ccd_3 (s);
     }
   return 0;
@@ -1324,13 +1324,13 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   sp->wx = calc_raw_width (mp, sp);
   sp->line_size = sp->w * sp->channels * (((sp->software_lineart) ? 8 : sp->depth) / 8);              /* bytes per line per color after cropping */
   /*PDBG (pixma_dbg (4, "*mp150_check_param***** Final scan width and line-size: %i, %i *****\n", sp->wx, sp->line_size));*/
-    
+
   /* Some exceptions here for particular devices */
   /* Those devices can scan up to legal 14" with ADF, but A4 11.7" in flatbed */
   /* PIXMA_CAP_ADF also works for PIXMA_CAP_ADFDUP */
   if ((s->cfg->cap & PIXMA_CAP_ADF) && sp->source == PIXMA_SOURCE_FLATBED)
     sp->h = MIN (sp->h, 877 * sp->xdpi / 75);
-    
+
   if (sp->source == PIXMA_SOURCE_TPU)
     {
       uint8_t k;
@@ -1340,10 +1340,10 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
         k = MAX (sp->xdpi, 300) / sp->xdpi;
       else
         k = MAX (sp->xdpi, 150) / sp->xdpi;
-      sp->x *= k;	
+      sp->x *= k;
       sp->xs *= k;
       sp->y *= k;
-      sp->w *= k;	
+      sp->w *= k;
       sp->wx *= k;
       sp->h *= k;
       sp->xdpi *= k;
@@ -1442,14 +1442,14 @@ mp150_scan (pixma_t * s)
         {
           case PIXMA_ECANCELED:
           case PIXMA_EBUSY:
-            PDBG (pixma_dbg (2, "cmd e920 or d520 returned %s\n", 
+            PDBG (pixma_dbg (2, "cmd e920 or d520 returned %s\n",
                              pixma_strerror (error)));
             /* fall through */
           case 0:
             query_status (s);
             break;
           default:
-            PDBG (pixma_dbg (1, "WARNING:cmd e920 or d520 failed %s\n", 
+            PDBG (pixma_dbg (1, "WARNING:cmd e920 or d520 failed %s\n",
                              pixma_strerror (error)));
             return error;
         }
@@ -1610,7 +1610,7 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 #endif
           bytes_received = pack_48_24_bpc (mp->imgbuf + mp->data_left_len, bytes_received);
 #endif
-#endif        
+#endif
       /* Post-process the image data */
       mp->data_left_ofs = mp->imgbuf + mp->data_left_len + bytes_received;
       mp->data_left_len = post_process_image_data (s, ib);
@@ -1638,7 +1638,7 @@ mp150_finish_scan (pixma_t * s)
       /* Send the get TPU info message */
       if (is_scanning_from_tpu (s) && mp->tpu_datalen == 0)
         send_get_tpu_info_3 (s);
-      /* FIXME: to process several pages ADF scan, must not send 
+      /* FIXME: to process several pages ADF scan, must not send
        * abort_session and start_session between pages (last_block=0x28) */
       if (mp->generation <= 2 || !is_scanning_from_adf (s) || mp->last_block == 0x38)
         {

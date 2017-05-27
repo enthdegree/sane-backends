@@ -44,7 +44,7 @@ should be `unmaintained' or contain this tag together with the version number.
 
 `:new' indicates that the backend is brand-new in the latest SANE release if
 the keyword argument is `:yes'.  Otherwise, `:no' should be used or `:new'
-should be omitted at all.  
+should be omitted at all.
 Example: `:new :yes'
 
 The `:manpage' keyword token has one string argument that names the manual
@@ -117,7 +117,7 @@ Multi-level keyword tokens
 --------------------------
 
 The following keyword tokens can be used after `:backend', `:mfg', `:model',
-and `:desc'. 
+and `:desc'.
 
 One or more `:url' keyword tokens can be used to point to more information
 about the entry the keyword refers to.  The string argument contains a URL to

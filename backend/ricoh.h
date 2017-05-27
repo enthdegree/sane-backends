@@ -171,7 +171,7 @@ _4btol(SANE_Byte *bytes)
         return (rv);
 }
 
-typedef enum 
+typedef enum
   {
     OPT_NUM_OPTS = 0,
 
@@ -318,7 +318,7 @@ struct measurements_units_page {
 };
 
 struct mode_pages {
-        SANE_Byte page_code; 
+        SANE_Byte page_code;
         SANE_Byte parameter_length;
         SANE_Byte rest[6];
 #if 0

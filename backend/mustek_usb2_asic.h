@@ -42,7 +42,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro 
+   This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro
    and similar USB2 scanners. */
 
 #ifndef MUSTEK_USB2_ASIC_H
@@ -299,8 +299,8 @@ RGBColor;
 
 /* debug levels */
 #define DBG_CRIT 	0	/* Critical errors thatshould be printed even
-				   if user hasn't enabled debugging -- use 
-				   with care and only after sane_open has been 
+				   if user hasn't enabled debugging -- use
+				   with care and only after sane_open has been
 				   called */
 #define DBG_ERR 	1	/* Other errors */
 #define DBG_WARN 	2	/* unusual conditions that may not be fatal */

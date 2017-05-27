@@ -1531,9 +1531,9 @@ pack_48_24_bpc (uint8_t * sptr, unsigned n)
 }
 #endif
 
-/* This function deals both with PIXMA CCD sensors producing shifted color 
+/* This function deals both with PIXMA CCD sensors producing shifted color
  * planes images, Grayscale CCD scan and Generation >= 3 high dpi images.
- * Each complete line in mp->imgbuf is processed for shifting CCD sensor 
+ * Each complete line in mp->imgbuf is processed for shifting CCD sensor
  * color planes, reordering pixels above 600 dpi for Generation >= 3, and
  * converting to Grayscale for CCD sensors. */
 static unsigned post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
@@ -2251,7 +2251,7 @@ static int mp810_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 #endif
     bytes_received = pack_48_24_bpc (mp->imgbuf + mp->data_left_len, bytes_received);
 #endif
-#endif        
+#endif
     /* Post-process the image data */
     mp->data_left_ofs = mp->imgbuf + mp->data_left_len + bytes_received;
     mp->data_left_len = post_process_image_data (s, ib);
@@ -2280,7 +2280,7 @@ static void mp810_finish_scan (pixma_t * s)
       /* Send the get TPU info message */
       if (is_scanning_from_tpu (s) && mp->tpu_datalen == 0)
         send_get_tpu_info_3 (s);
-      /* FIXME: to process several pages ADF scan, must not send 
+      /* FIXME: to process several pages ADF scan, must not send
        * abort_session and start_session between pages (last_block=0x28) */
       if (mp->generation <= 2 || !is_scanning_from_adf (s)
           || mp->last_block == 0x38)

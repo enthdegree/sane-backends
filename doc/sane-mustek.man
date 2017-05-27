@@ -15,7 +15,7 @@ Paragon MFS-6000CX
 .br
 Paragon MFS-12000CX
 .br
-Paragon MFC-600S, 600 II CD, ScanMagic 600 II SP 
+Paragon MFC-600S, 600 II CD, ScanMagic 600 II SP
 .br
 Paragon MFC-800S, 800 II SP
 .br
@@ -37,7 +37,7 @@ Paragon 1200 SP Pro
 .br
 Paragon 1200 A3 Pro
 .br
-Paragon 600 II EP 
+Paragon 600 II EP
 .br
 Paragon 600 II N
 .br
@@ -53,7 +53,7 @@ Primax Compact 4800 SCSI
 .br
 .RE
 .PP
-More details can be found on the Mustek SCSI backend homepage 
+More details can be found on the Mustek SCSI backend homepage
 .IR http://www.meier\-geinitz.de/sane/mustek\-backend/ .
 .PP
 Don't mix up MFS (Paragon), Pro and ScanExpress models! They're
@@ -112,17 +112,17 @@ Where
 .I special
 is either the path-name for the special device that corresponds to a
 SCSI scanner or the port number at which the parallel port scanners can
-be found (see section 
+be found (see section
 .B "PARALLEL PORT SCANNERS"
 below).  For SCSI scanners, the special device name must be a generic SCSI
 device or a symlink to such a device.  The program
-.I sane\-find\-scanner 
+.I sane\-find\-scanner
 helps to find out the correct device. Under Linux, such a device name
 could be
 .I /dev/sg0
 or
 .IR /dev/sg3 ,
-for example.  See 
+for example.  See
 .BR sane\-scsi (5)
 for details.
 .SH CONFIGURATION
@@ -130,7 +130,7 @@ The contents of the
 .I mustek.conf
 file is a list of options and device names that correspond to Mustek
 scanners.  Empty lines and lines starting with a hash mark (#) are
-ignored.  See 
+ignored.  See
 .BR sane\-scsi (5)
 on details of what constitutes a valid device name.
 .PP
@@ -279,7 +279,7 @@ for driver- and platform-specific information.
 The ScanExpress models have sometimes trouble with high resolution
 color mode. If you encounter sporadic corrupted images (parts duplicated
 or shifted horizontally) kill all other applications before scanning
-and (if sufficient memory is available) disable swapping. 
+and (if sufficient memory is available) disable swapping.
 .PP
 Details on how to get the Mustek SCSI adapters and other cards running can be
 found at
@@ -306,12 +306,12 @@ only one number on a single line. Example:
 .RE
 .PP
 Note that for these scanners usually root privileges are required to access the
-I/O ports.  Thus, either make frontends such as 
+I/O ports.  Thus, either make frontends such as
 .BR scanimage (1)
-and 
+and
 .BR xscanimage (1)
 setuid root (generally not recommended for safety reasons) or, alternatively,
-access this backend through the network daemon 
+access this backend through the network daemon
 .BR saned (8).
 .PP
 If the Mustek backend blocks while sending the inquiry command to the scanner,
@@ -360,7 +360,7 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .B SANE_DEBUG_MUSTEK
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  Higher
-debug levels increase the verbosity of the output. 
+debug levels increase the verbosity of the output.
 
 .ft CR
 .nf
@@ -374,15 +374,15 @@ Value  Description
 .fi
 .ft R
 
-Example: 
+Example:
 export SANE_DEBUG_MUSTEK=4
 
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane\-find\-scanner (1),
 .BR sane\-scsi (5),
-.BR sane\-mustek_usb (5), 
-.BR sane\-gt68xx (5), 
+.BR sane\-mustek_usb (5),
+.BR sane\-gt68xx (5),
 .BR sane\-plustek (5),
 .BR sane\-mustek_pp (5)
 .br
@@ -396,7 +396,7 @@ Henning Meier-Geinitz, James Perry (600 II EP).
 
 .SH BUGS
 Scanning with the SCSI adapters supplied by Mustek is very slow at
-high resolutions and wide scan areas. 
+high resolutions and wide scan areas.
 .PP
 Some scanners (e.g. Paragon 1200 A3 + Pro, SE A3) need more testing.
 .PP

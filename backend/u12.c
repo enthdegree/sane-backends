@@ -307,7 +307,7 @@ static int reader_process( void *args )
 	struct SIGACTION act;
 	sigset_t         ignore_set;
 	SANE_Status      status;
-	
+
 	U12_Scanner *scanner = (U12_Scanner *)args;
 
 	if( sanei_thread_is_forked()) {
@@ -348,11 +348,11 @@ static int reader_process( void *args )
 		DBG( _DBG_FATAL, "NULL Pointer !!!!\n" );
 		return SANE_STATUS_IO_ERROR;
 	}
-	
+
 	/* here we read all data from the scanner... */
 	buf    = scanner->buf;
 	status = u12if_prepare( scanner->hw );
-	
+
 	if( SANE_STATUS_GOOD == status ) {
 
 		for( line = 0; line < scanner->params.lines; line++ ) {
@@ -413,7 +413,7 @@ static SANE_Status do_cancel( U12_Scanner *scanner, SANE_Bool closepipe )
 
 		if( res != scanner->reader_pid ) {
 			DBG( _DBG_PROC,"sanei_thread_waitpid() failed !\n");
-			
+
 			/* do it the hard way...*/
 #ifdef USE_PTHREAD
 			sanei_thread_kill( scanner->reader_pid );
@@ -589,12 +589,12 @@ static SANE_Status init_options( U12_Scanner *s )
 	s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
 
 	/* "Enhancement" group: */
-	s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");	
+	s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");
 	s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
 	s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
 	s->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
 	s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
-	
+
 	u12map_InitGammaSettings( s->hw );
 
 	/* grayscale gamma vector */
@@ -641,7 +641,7 @@ static SANE_Status init_options( U12_Scanner *s )
 	s->opt[OPT_GAMMA_VECTOR_B].constraint.range = &(s->hw->gamma_range);
 	s->opt[OPT_GAMMA_VECTOR_B].size = s->hw->gamma_length * sizeof(SANE_Word);
 
-	/* GAMMA stuff is disabled per default */	
+	/* GAMMA stuff is disabled per default */
 	s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
 	s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 	s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
@@ -661,8 +661,8 @@ static SANE_Status init_options( U12_Scanner *s )
  * @param dest - pointer to a string to receive the USB ID
  */
 static void decodeUsbIDs( char *src, char **dest )
-{		
-	const char *name;	
+{
+	const char *name;
 	char       *tmp = *dest;
 	int         len = strlen(_SECTION);
 
@@ -677,11 +677,11 @@ static void decodeUsbIDs( char *src, char **dest )
 	if( '\0' == name[0] ) {
 		DBG( _DBG_SANE_INIT, "next device uses autodetection\n" );
 	} else {
-			
+
 		u_short pi = 0, vi = 0;
 
 		if( *name ) {
-	
+
 			name = sanei_config_get_string( name, &tmp );
 			if( tmp ) {
 		    	vi = strtol( tmp, 0, 0 );
@@ -691,7 +691,7 @@ static void decodeUsbIDs( char *src, char **dest )
 
 		name = sanei_config_skip_whitespace( name );
 		if( *name ) {
-		
+
 			name = sanei_config_get_string( name, &tmp );
 			if( tmp ) {
 				pi = strtol( tmp, 0, 0 );
@@ -733,14 +733,14 @@ static SANE_Bool decodeVal( char *src, char *opt,
 
 		/* on success, compare wiht the given one */
 		if( 0 == strcmp( tmp, opt )) {
-	
+
 			DBG( _DBG_SANE_INIT, "Decoding option >%s<\n", opt );
 
 			if( _INT == what ) {
-			
+
 				/* assign the default value for this option... */
 				*((int*)result) = *((int*)def);
-	
+
 				if( *name ) {
 
 					/* get the configuration value and decode it */
@@ -751,14 +751,14 @@ static SANE_Bool decodeVal( char *src, char *opt,
 				    	free( tmp2 );
 					}
 				}
-				free( tmp );	
+				free( tmp );
 				return SANE_TRUE;
-				
+
 			} else if( _FLOAT == what ) {
-			
+
 				/* assign the default value for this option... */
 				*((double*)result) = *((double*)def);
-	
+
 				if( *name ) {
 
 					/* get the configuration value and decode it */
@@ -769,13 +769,13 @@ static SANE_Bool decodeVal( char *src, char *opt,
 				    	free( tmp2 );
 					}
 				}
-				free( tmp );	
+				free( tmp );
 				return SANE_TRUE;
 			}
-		}	
+		}
 		free( tmp );
 	}
-	
+
    	return SANE_FALSE;
 }
 
@@ -788,27 +788,27 @@ static SANE_Bool decodeVal( char *src, char *opt,
  */
 static SANE_Bool decodeDevName( char *src, char *dest )
 {
-	char       *tmp;	
+	char       *tmp;
 	const char *name;
 
 	if( 0 == strncmp( "device", src, 6 )) {
 
 		name = (const char*)&src[strlen("device")];
 		name = sanei_config_skip_whitespace( name );
-	
+
 		DBG( _DBG_SANE_INIT, "Decoding device name >%s<\n", name );
-		
+
 		if( *name ) {
 			name = sanei_config_get_string( name, &tmp );
 			if( tmp ) {
-	      		
+
 				strcpy( dest, tmp );
 		    	free( tmp );
 		    	return SANE_TRUE;
 		    }
-		}	
+		}
 	}
-	
+
    	return SANE_FALSE;
 }
 
@@ -842,7 +842,7 @@ static SANE_Status attach( const char *dev_name,
 
 	/* assign all the stuff we need fo this device... */
 	memset(dev, 0, sizeof (*dev));
-	
+
 	dev->fd          = -1;
 	dev->name        = strdup(dev_name);    /* hold it double to avoid  */
 	dev->sane.name   = dev->name;           /* compiler warnings        */
@@ -855,7 +855,7 @@ static SANE_Status attach( const char *dev_name,
 	show_cnf( cnf );
 
 	strncpy( dev->usbId, cnf->usbId, _MAX_ID_LEN );
-	
+
 	/* go ahead and open the scanner device */
 	handle = u12if_open( dev );
 	if( handle < 0 ) {
@@ -939,7 +939,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	first_handle = NULL;
 	num_devices  = 0;
 
-	/* initialize the configuration structure */                
+	/* initialize the configuration structure */
 	init_config_struct( &config );
 
 	if( version_code != NULL )
@@ -953,26 +953,26 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	}
 
 	while( sanei_config_read( str, sizeof(str), fp)) {
-		
+
 		DBG( _DBG_SANE_INIT, ">%s<\n", str );
 		if( str[0] == '#')		/* ignore line comments */
     		continue;
-			
+
 		len = strlen(str);
 		if( 0 == len )
            	continue;			    /* ignore empty lines */
 
 		/* check for options */
 		if( 0 == strncmp(str, "option", 6)) {
-		
+
 			int    ival;
 			double dval;
-		
+
 			ival = -1;
 			decodeVal( str, "warmup",    _INT, &config.adj.warmup,      &ival);
 			decodeVal( str, "lampOff",   _INT, &config.adj.lampOff,     &ival);
 			decodeVal( str, "lOffOnEnd", _INT, &config.adj.lampOffOnEnd,&ival);
-			
+
 			ival = 0;
 
 			dval = 1.5;
@@ -984,9 +984,9 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 
 		/* check for sections: */
 		} else if( 0 == strncmp( str, _SECTION, strlen(_SECTION))) {
-		
+
 		    char *tmp;
-		
+
 		    /* new section, try and attach previous device */
 		    if( config.devName[0] != '\0' ) {
 				attach( config.devName, &config, 0 );
@@ -996,20 +996,20 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 					                   " ignored!\n" );
 				 }
 			}
-		
+
 			/* re-initialize the configuration structure */
 			init_config_struct( &config );
-		
+
 			tmp = config.usbId;
 			decodeUsbIDs( str, &tmp );
-		
+
 			DBG( _DBG_SANE_INIT, "... next device\n" );
-			continue;				
+			continue;
 
 		} else if( SANE_TRUE == decodeDevName( str, config.devName )) {
 			continue;
 		}
-		
+
 		/* ignore other stuff... */
 		DBG( _DBG_SANE_INIT, "ignoring >%s<\n", str );
 	}
@@ -1107,7 +1107,7 @@ SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 		if( !dev ) {
 
 			memset( &config, 0, sizeof(CnfDef));
-			
+
 			status = attach( devicename, &config, &dev );
 			if( SANE_STATUS_GOOD != status )
 				return status;
@@ -1137,7 +1137,7 @@ SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 	first_handle = s;
 
 	*handle = s;
-	
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -1201,7 +1201,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	int                      idx;
 #endif
 	int                      scanmode;
-	
+
 	if ( s->scanning )
 		return SANE_STATUS_DEVICE_BUSY;
 
@@ -1306,7 +1306,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	    			if( NULL != info )
     					*info |= SANE_INFO_RELOAD_PARAMS;
 	    			break;
-				
+
 				case OPT_CUSTOM_GAMMA:
     				s->val[option].w = *(SANE_Word *)value;
 	    			if( NULL != info )
@@ -1325,26 +1325,26 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 				    s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
 
     				if( SANE_TRUE == s->val[option].w ) {
-    				
+
     					if( scanmode == COLOR_256GRAY ) {
 						    s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 						} else {
 						    s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
 						    s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
 						    s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
-						}		
-										
+						}
+
     				} else {
-	
+
 						u12map_InitGammaSettings( s->hw );
-    				
+
     					if( scanmode == COLOR_256GRAY ) {
 						    s->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
-						} else {						
+						} else {
 						    s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 						    s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 						    s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-						}						
+						}
     				}
 	    			break;
 
@@ -1355,26 +1355,26 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	    			break;
 
 #ifdef ALL_MODES
-		    	case OPT_MODE: 
+		    	case OPT_MODE:
                     idx = (optval - mode_list);
 					mp  = getModeList( s );
-					
+
 					s->opt[OPT_CONTRAST].cap     &= ~SANE_CAP_INACTIVE;
 					s->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 
 	    			if( mp[idx].scanmode == COLOR_BW ) {
 			    		s->opt[OPT_CONTRAST].cap     |= SANE_CAP_INACTIVE;
 			    		s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
-			    	}	
-			    	
+			    	}
+
 			    	s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
 			    	s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 			    	s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 			    	s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-					
+
 					if( s->val[OPT_CUSTOM_GAMMA].w &&
 			    		!(s->opt[OPT_CUSTOM_GAMMA].cap & SANE_CAP_INACTIVE)) {
-			    		
+
     					if( mp[idx].scanmode == COLOR_256GRAY ) {
 						    s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
 						} else {
@@ -1595,7 +1595,7 @@ SANE_Status sane_start( SANE_Handle handle )
 		u12if_close( dev );
 		return SANE_STATUS_IO_ERROR;
     }
-	
+
 	/* All ready to go.  Set image def and see what the scanner
 	 * says for crop info.
 	 */
@@ -1728,9 +1728,9 @@ SANE_Status sane_start( SANE_Handle handle )
 	s->r_pipe     = fds[0];
 	s->w_pipe     = fds[1];
 	s->reader_pid = sanei_thread_begin( reader_process, s );
-	
+
 	cancelRead = SANE_FALSE;
-	
+
 	if( !sanei_thread_is_valid (s->reader_pid) ) {
 		DBG( _DBG_ERROR, "ERROR: could not start reader task\n" );
 		s->scanning = SANE_FALSE;
@@ -1743,7 +1743,7 @@ SANE_Status sane_start( SANE_Handle handle )
 		close( s->w_pipe );
 		s->w_pipe = -1;
 	}
-		
+
 	DBG( _DBG_SANE_INIT, "sane_start done\n" );
 	return SANE_STATUS_GOOD;
 }
@@ -1837,7 +1837,7 @@ SANE_Status sane_set_io_mode( SANE_Handle handle, SANE_Bool non_blocking )
 		DBG( _DBG_ERROR, "ERROR: not supported !\n" );
 		return SANE_STATUS_UNSUPPORTED;
 	}
-	
+
 	if( fcntl (s->r_pipe, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0) {
 		DBG( _DBG_ERROR, "ERROR: can´t set to non-blocking mode !\n" );
 		return SANE_STATUS_IO_ERROR;

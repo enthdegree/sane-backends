@@ -1,7 +1,7 @@
 /***************************************************************************
  * SANE - Scanner Access Now Easy.
 
-   dc210.c 
+   dc210.c
 
    11/11/98
 
@@ -43,17 +43,17 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice.  
+   If you do not wish that, delete this exception notice.
 
  ***************************************************************************
 
    This file implements a SANE backend for the Kodak DC-210
-   digital camera.  THIS IS EXTREMELY ALPHA CODE!  USE AT YOUR OWN RISK!! 
+   digital camera.  THIS IS EXTREMELY ALPHA CODE!  USE AT YOUR OWN RISK!!
 
    (feedback to:  sane-dc210@interlinx.bc.ca
 
    This backend is based somewhat on the dc25 backend included in this
-   package by Peter Fales 
+   package by Peter Fales
 
  ***************************************************************************/
 

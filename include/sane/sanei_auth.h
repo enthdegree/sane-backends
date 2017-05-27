@@ -36,7 +36,7 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 */
 
 /** @file sanei_auth.h
@@ -67,9 +67,9 @@
  * If the requested resource isn't listed in this file, sanei_authorize
  * return SANE_SATUS_GOOD. In all other cases, sanei_authorize sends a
  * challenge to the frontend of the form
- * 
+ *
  * resource$MD5$randomstring
- * 
+ *
  * where randomstring consists of the PID, the time, and some random
  * characters. It accepts two forms of answers
  *
@@ -77,7 +77,7 @@
  * md5: username:$MD5$m5digest
  *
  * where md5digest is md5(randomstring password).
- * 
+ *
  * If this username/password/resource triple is listed in backend.users
  * sanei_authorize returns SANE_STATUS_GOOD, in all other cases it returns
  * SANE_STATUS_ACCESS_DENIED.

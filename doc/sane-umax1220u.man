@@ -27,13 +27,13 @@ Usually, no manual configuration is necessary. The configuration file for this b
 
 Its contents is a list of device names that correspond to UMAX Astra scanners.
 Empty lines and lines starting with a hash mark (#) are ignored. A sample
-configuration file is shown below: 
+configuration file is shown below:
 
 .nf
  #usb vendor product
  usb 0x1606 0x0010
  # Device list for non-linux systems
- /dev/scanner 
+ /dev/scanner
  /dev/usb/scanner0
 .fi
 
@@ -66,7 +66,7 @@ SANE_DEBUG_UMAX1220U values
 .ft CR
 .nf
 Number  Remark
-\ 
+\
  1       print failures
  2       print information
  3       print high-level function calls

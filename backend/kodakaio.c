@@ -3,7 +3,7 @@
  *
  * Copyright (C)   2011-2017 Paul Newall
  *
- * Based on the Magicolor sane backend: 
+ * Based on the Magicolor sane backend:
  * Based on the epson2 sane backend:
  * Based on Kazuhiro Sasayama previous
  * work on epson.[ch] file from the SANE package.
@@ -16,13 +16,13 @@
 
  * Modified 30/12/14 to fix bug where network connection was broken after 30s of idle time.
  * The connection is now made in sane_start and ended in sane_cancel.
- * 01/01/13 Now with adf, the scan can be padded to make up the full page length, 
+ * 01/01/13 Now with adf, the scan can be padded to make up the full page length,
  * or the page can terminate at the end of the paper. This is a selectable option.
  * 25/11/12 Using avahi now for net autodiscovery. Use configure option --enable-avahi
  * 1/5/17 patched to use local pointer for avahi callback
  */
 
-/* 
+/*
 Packages to add to a clean ubuntu install
 libavahi-common-dev
 libusb-dev
@@ -45,7 +45,7 @@ If you want to use the test backend, for example with sane-troubleshoot, you sho
 */
 
 /* SANE-FLOW-DIAGRAM  Kodakaio commands in [] brackets
- 
+
    - sane_init() : initialize backend, attach scanners(devicename,0)
    . - sane_get_devices() : query list of scanner-devices
    . - sane_open() : open a particular scanner-device and attach_scanner(devicename,&dev)
@@ -58,7 +58,7 @@ If you want to use the test backend, for example with sane-troubleshoot, you sho
    . .   - sane_get_parameters() : returns actual scan-parameters
    . .   - sane_read() : read image-data (from pipe)
    . . - sane_cancel() : cancel operation, kill reader_process [(F), U]
-   
+
    . - sane_close() : close opened scanner-device, do_cancel, free buffer and handle
    - sane_exit() : terminate use of backend, free devicename and device-struture
 */
@@ -169,7 +169,7 @@ In terminal use: export SANE_DEBUG_KODAKAIO=40 to set the level to 40 or whateve
 level you want.
 Then you can scan with scanimage or simple-scan from terminal and see debug info
 
-use these defines to promote certain functions that you are interested in 
+use these defines to promote certain functions that you are interested in
 define low values to make detail of a section appear when DBG level is low
 define a high value eg 99 to get normal behaviour. */
 #define DBG_READ		99
@@ -248,7 +248,7 @@ FILE *RawScan = NULL;
 char RawScanPath[] = ""; /* empty path means no raw scan file is made */
 
 /*
- *   Devices supported by this backend 
+ *   Devices supported by this backend
 */
 
 /* kodak command strings */
@@ -286,7 +286,7 @@ The following are not used but may be in future
 commandtype, max depth, pointer to depth list
 */
 
-/* list of cap data the first scanner is the default 
+/* list of cap data the first scanner is the default
 */
   /* KODAK AIO DEFAULT,  */
   {
@@ -295,7 +295,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(100), 0}, {0, SANE_FIX(100), 0} /* ADF x/y ranges (TODO!) */
   },
   /* KODAK ESP 5100, */
@@ -305,7 +305,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP 5300, */
@@ -315,7 +315,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP 5500, */
@@ -325,7 +325,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP 5000, */
@@ -335,7 +335,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
    /* KODAK ESP 3300, */
@@ -345,7 +345,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP5, */
@@ -355,7 +355,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP7, */
@@ -365,7 +365,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP9, */
@@ -375,7 +375,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP5210 or 5250, */
@@ -385,7 +385,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP3200 ,  */
@@ -395,7 +395,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP4100 ,  */
@@ -405,7 +405,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP6100 ,  */
@@ -415,7 +415,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_TRUE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_TRUE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP7200 ,  */
@@ -425,7 +425,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP C110 ,  */
@@ -435,7 +435,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP C115 ,  */
@@ -445,7 +445,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP 2150 ,  */
@@ -455,7 +455,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_TRUE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_TRUE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP C310 ,  */
@@ -465,7 +465,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP C315 ,  */
@@ -475,7 +475,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_FALSE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_FALSE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* ADVENT AW10,   */
@@ -525,7 +525,7 @@ commandtype, max depth, pointer to depth list
       600, {75, 600, 0}, kodakaio_resolution_list, 4,  /* 600 dpi max, 4 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_TRUE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_TRUE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK ESP2170 ,  */
@@ -535,7 +535,7 @@ commandtype, max depth, pointer to depth list
       1200, {75, 1200, 0}, kodakaio_resolution_list, 5, /* 1200 dpi optical, {from, to, 0} 5 resolutions */
       8, kodakaio_depth_list,                          /* color depth max 8, list above */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(11.7 * MM_PER_INCH), 0}, /* FBF x/y ranges */
-      SANE_TRUE, SANE_FALSE, /* ADF, duplex */ 
+      SANE_TRUE, SANE_FALSE, /* ADF, duplex */
       {0, SANE_FIX(8.5 * MM_PER_INCH), 0}, {0, SANE_FIX(14 * MM_PER_INCH), 0} /* 14 ADF x/y ranges */
   },
   /* KODAK HERO 9.1,   */
@@ -748,7 +748,7 @@ sanei_kodakaio_net_write_raw(struct KodakAio_Scanner *s,
 			      SANE_Status *status)
 {
 	DBG(32, "net write:%x,%x,%x,%x,%x,%x,%x,%x\n",buf[0],buf[1],buf[2],buf[3],buf[4],buf[5],buf[6],buf[7]);
-	
+
 	sanei_tcp_write(s->fd, buf, buf_size);
 	/* TODO: Check whether sending failed... */
 
@@ -863,8 +863,8 @@ static ssize_t
 k_recv(KodakAio_Scanner * s, void *buf, ssize_t buf_size,
 	    SANE_Status * status)
 {
-/* requests and receives data this function makes the split between USB and NET 
-this function called by a number of others 
+/* requests and receives data this function makes the split between USB and NET
+this function called by a number of others
 
 In USB mode, this function will wait until data is available for a maximum of SCANNER_READ_TIMEOUT seconds.
 In NET mode the timeout is in kodakaio_net_read
@@ -878,7 +878,7 @@ In NET mode the timeout is in kodakaio_net_read
 	usb_delay.tv_nsec = 300000000; /* 0.3 sec */
 
 	if (s->hw->connection == SANE_KODAKAIO_NET) {
-		
+
 		time(&time_start);
 		DBG(min(16,DBG_READ), "[%ld]  %s: net req size = %ld  ", (long) time_start, __func__, (long) buf_size);
  		n = kodakaio_net_read(s, buf, buf_size, status);
@@ -1015,7 +1015,7 @@ and returns appropriate status
 			s->adf_loaded = SANE_TRUE;
 			DBG(5, "%s: News - docs in ADF\n", __func__);
 		}
-		else if (rxbuf[4] != 
+		else if (rxbuf[4] !=
 0x01 && s->adf_loaded == SANE_TRUE) {
 			s->adf_loaded = SANE_FALSE;
 			DBG(5, "%s: News - ADF is empty\n", __func__);
@@ -1031,7 +1031,7 @@ and returns appropriate status
 }
 
 /* unused function
-static ssize_t 
+static ssize_t
 kodakaio_rxflush(KodakAio_Scanner *s)
 
 Tries to get 64 byte reply
@@ -1052,7 +1052,7 @@ and returns number of bytes read
 */
 
 /*
- *   high-level communication commands 
+ *   high-level communication commands
 */
 
 static SANE_Status
@@ -1064,7 +1064,7 @@ k_hello (KodakAio_Scanner * s)
 
 	DBG(5, "%s\n", __func__);
 
-/* check that there is nothing already in the input buffer before starting 
+/* check that there is nothing already in the input buffer before starting
 kodakaio_rxflush(s);
 */
 /* preset the reply, so I can see if it gets changed */
@@ -1129,12 +1129,12 @@ cmd_cancel_scan (SANE_Handle handle)
 	unsigned char reply[8];
 /* adf added 20/2/12 should it be adf? or adf with paper in? */
 	if (strcmp(source_list[s->val[OPT_SOURCE].w], ADF_STR) == 0) { /* adf */
-		if (kodakaio_txrxack(s, KodakEsp_F, reply)!= SANE_STATUS_GOOD) 
+		if (kodakaio_txrxack(s, KodakEsp_F, reply)!= SANE_STATUS_GOOD)
 		{
 			DBG(1, "%s: KodakEsp_F command failed\n", __func__);
 			return SANE_STATUS_IO_ERROR;
 		}
-		if (kodakaio_txrxack(s, KodakEsp_UnLock, reply)!= SANE_STATUS_GOOD) 
+		if (kodakaio_txrxack(s, KodakEsp_UnLock, reply)!= SANE_STATUS_GOOD)
 		{
 			DBG(1, "%s: KodakEsp_UnLock command failed\n", __func__);
 			return SANE_STATUS_IO_ERROR;
@@ -1193,7 +1193,7 @@ cmd_set_color_curve(SANE_Handle handle, unsigned char col)
 	int i; /* 7/9/14 was unsigned char and that stopped the loop that made the linear curve from going to 255 */
 	DBG(32, "%s: start\n", __func__);
 	tx_col[0]=0x1b; tx_col[1]='S'; tx_col[2]='K'; tx_col[3]=col; tx_col[4]=0; tx_col[5]=0; tx_col[6]=0; tx_col[7]=0;
-/* linear curve now but could send tailor made curves in future */	
+/* linear curve now but could send tailor made curves in future */
 	for(i=0;i<=255;++i) tx_curve[i]=i; /* 7/9/14 was i<255 the missing elements caused speckles */
 
 	k_send(s, tx_col, 8, &status);
@@ -1255,7 +1255,7 @@ cmd_set_scanning_parameters(SANE_Handle handle,
 	tx_dpi[7]=0;
 	kodakaio_txrxack(s, tx_dpi, bufread);
 
-/* colour curves don't seem to be sent for usb preview 
+/* colour curves don't seem to be sent for usb preview
 but it seems to do no harm to send them */
 	cmd_set_color_curve(s, 'R');
 	cmd_set_color_curve(s, 'G');
@@ -1298,7 +1298,7 @@ this command needs actual DPI units*/
 int
 cmparray (unsigned char *array1, unsigned char *array2, size_t len)
 {
-/* compares len bytes of the arrays returns 0 if they match 
+/* compares len bytes of the arrays returns 0 if they match
 returns the first missmatch position if they don't match */
 unsigned int i;
 	for(i=0; i<len; ++i)
@@ -1311,7 +1311,7 @@ unsigned int i;
 static SANE_Status
 cmd_read_data (SANE_Handle handle, unsigned char *buf, size_t *len)
 {
-/* 
+/*
 cmd_read_data is only used in k_read. It reads one block of data
 read data using k_recv until you get the ackstring
 when you get the ackstring return s->ack and do padding if the padding option is selected
@@ -1363,7 +1363,7 @@ But it seems that the scanner takes care of that, and gives you the ack as a sep
 		/* it may be the last block from the scanner so look for Ack response in last 8 bytes */
 		Last8 = buf + bytecount - 8;
 
-		/* only compare 4 bytes because we sometimes get escSS02.. or escSS00.. 
+		/* only compare 4 bytes because we sometimes get escSS02.. or escSS00..
 		is 4 the right number ? */
 		if (cmparray(Last8,KodakEsp_Ack,4) == 0) {
 			DBG(min(10,DBG_READ), "%s: found KodakEsp_Ack at %lu bytes of %lu\n", __func__, (unsigned long) bytecount, (unsigned long) *len);
@@ -1404,12 +1404,12 @@ But it seems that the scanner takes care of that, and gives you the ack as a sep
 
 	if (status == SANE_STATUS_GOOD)
 		if (s->bytes_unread <= 0)
-			DBG(min(2,DBG_READ), "%s: Page fully read %d blocks, %ld bytes unread\n", __func__, s->counter, (long) s->bytes_unread);		
+			DBG(min(2,DBG_READ), "%s: Page fully read %d blocks, %ld bytes unread\n", __func__, s->counter, (long) s->bytes_unread);
 		else
 			DBG(min(20,DBG_READ), "%s: Image data successfully read %ld bytes, %ld bytes unread\n", __func__, (long) bytecount, (long) s->bytes_unread);
 	else if  (s->ack) /* was (status == SANE_STATUS_EOF) */
 		DBG(min(2,DBG_READ), "%s: scanner data read ended %d blocks %ld bytes, %ld bytes unread\n", __func__, s->counter, (long) bytecount, (long) s->bytes_unread);
-	else 
+	else
 		DBG(min(1,DBG_READ), "%s: Image data read stopped with %s after %d blocks %ld bytes, %ld bytes unread\n", __func__, sane_strstatus(status), s->counter, (long) bytecount, (long) s->bytes_unread);
 
 	return status;
@@ -1549,7 +1549,7 @@ k_setup_block_mode (KodakAio_Scanner *s)
 	return SANE_STATUS_GOOD;
 }
 
-/* Call the commands to set scanning parameters 
+/* Call the commands to set scanning parameters
 In the Kodak Aio the parameters are:
 (x1b,"S","F",0,0,0,0,0)
 (x1b,"S","S",1,0,0,0,0)
@@ -1615,7 +1615,7 @@ k_set_scanning_parameters(KodakAio_Scanner * s)
 	/* TODO: Any way to set PREVIEW??? */
 
 	/* Remaining bytes unused */
-	status = cmd_set_scanning_parameters(s, dpi, 
+	status = cmd_set_scanning_parameters(s, dpi,
 		s->left * dpi / optres, s->top * dpi / optres,  /* top/left start (dpi units)*/
 		s->params.pixels_per_line, s->params.lines, /* extent was s->width, s->height*/
 		source); /* source */
@@ -1696,7 +1696,7 @@ k_scan_finish(KodakAio_Scanner * s)
 static void
 k_copy_image_data(KodakAio_Scanner * s, SANE_Byte * data, SANE_Int max_length,
 		   SANE_Int * length)
-/* copies the read data from s->line_buffer to the position in data pointer to by s->ptr 
+/* copies the read data from s->line_buffer to the position in data pointer to by s->ptr
 uncompressed data is RRRR...GGGG...BBBB  per line */
 {
 		SANE_Int bytes_available;
@@ -1724,7 +1724,7 @@ uncompressed data is RRRR...GGGG...BBBB  per line */
 
 			/* We have filled as much as possible of the current line
 			 * with data from the scanner. If we have a complete line,
-			 * copy it over. 
+			 * copy it over.
 			line points to the current byte in the input s->line_buffer
 			data points to the output buffer*/
 			if ((s->bytes_read_in_line >= s->scan_bytes_per_line) &&
@@ -1753,8 +1753,8 @@ uncompressed data is RRRR...GGGG...BBBB  per line */
           						*data &= ~mask;     /* white clear the bit in mask */
         					else
           						*data |= mask;      /* black set the bit in mask */
-                  
-        					if (offset == 7 || i == s->params.pixels_per_line-1) 
+
+        					if (offset == 7 || i == s->params.pixels_per_line-1)
             						data++; /* move on a byte if the byte is full or the line is complete */
 					}
 
@@ -1768,7 +1768,7 @@ uncompressed data is RRRR...GGGG...BBBB  per line */
 				}
 /*debug file The same for color or grey because the scan is colour */
 				if (RawScan != NULL) {
-					for (i=0; i< s->scan_bytes_per_line; ++i) fputc(s->line_buffer[i],RawScan); 
+					for (i=0; i< s->scan_bytes_per_line; ++i) fputc(s->line_buffer[i],RawScan);
 				}
 				max_length -= s->params.bytes_per_line;
 				s->bytes_read_in_line -= s->scan_bytes_per_line;
@@ -1840,7 +1840,7 @@ k_init_parametersta(KodakAio_Scanner * s)
 	s->params.last_frame = SANE_TRUE;
 	s->params.bytes_per_line = 3 * ceil (s->params.depth * s->params.pixels_per_line / 8.0);
 
-/* kodak only scans in color and conversion to grey or lineart is done in the driver 
+/* kodak only scans in color and conversion to grey or lineart is done in the driver
 		s->params.format = SANE_FRAME_RGB; */
 	DBG(20, "%s: s->val[OPT_MODE].w = %d (color is %d)\n", __func__,s->val[OPT_MODE].w, MODE_COLOR);
 	if (s->val[OPT_MODE].w == MODE_COLOR) s->params.format = SANE_FRAME_RGB;
@@ -1870,7 +1870,7 @@ k_read(struct KodakAio_Scanner *s)
 {
 	unsigned char rx[8];
 
-/* monitors progress of blocks and calls cmd_read_data to get each block 
+/* monitors progress of blocks and calls cmd_read_data to get each block
 you don't know how many blocks there will be in advance because their size may be determined by the scanner*/
 	SANE_Status status = SANE_STATUS_GOOD;
 	size_t buf_len = 0;
@@ -1907,7 +1907,7 @@ you don't know how many blocks there will be in advance because their size may b
 			if (status == SANE_STATUS_EOF) {
 				/* page ended prematurely.  */
 			}
-		} 
+		}
 		else { /* s->bytes_unread <=0 This is the end of a page */
 			s->eof = SANE_TRUE;
 			DBG(min(10,DBG_READ), "%s: set EOF after %d blocks\n=============\n", __func__, s->counter);
@@ -1932,7 +1932,7 @@ you don't know how many blocks there will be in advance because their size may b
 }
 
 /*
- *   SANE API implementation (high-level functions) 
+ *   SANE API implementation (high-level functions)
 */
 
 #if WITH_AVAHI
@@ -1951,12 +1951,12 @@ get_device_from_identification (const char *ident, const char *vid, const char *
     		return NULL;
 	}
 	for (n = 0; n < NELEMS (kodakaio_cap); n++) {
-		
+
 		if (strcmp (kodakaio_cap[n].model, ident)==0) {
 			DBG(20, "matched <%s> & <%s>\n", kodakaio_cap[n].model, ident);
 			return &kodakaio_cap[n];
 		}
-		else 
+		else
 		if (kodakaio_cap[n].id == pidnum && 0x040A == vidnum) {
 			DBG(20, "matched <%s> & <%s:%s>\n", kodakaio_cap[n].model, vid, pid);
 			return &kodakaio_cap[n];
@@ -2124,7 +2124,7 @@ detect_usb(struct KodakAio_Scanner *s)
 	 *	   about the device */
 	while (i != numIds && !is_valid) {
 	/*	if (product == kodakaio_usb_product_ids[i]) */
-		if (product == kodakaio_cap[i].id) 
+		if (product == kodakaio_cap[i].id)
 			is_valid = SANE_TRUE;
 		i++;
 	}
@@ -2259,20 +2259,20 @@ device_detect(const char *name, int type, SANE_Status *status)
 
 #if WITH_AVAHI
 /* ProcessAvahiDevice is called to process each discovered device in turn */
-void 
+void
 ProcessAvahiDevice(const char *device_id, const char *vid, const char *pid, const char *ip_addr)
 {
 	struct KodakaioCap *cap;
 
 	DBG(min(10,DBG_AUTO),"device_id = <%s> vid:pid = <%s:%s>\n", device_id,vid,pid);
 
-/* check if it is a model likely to be supported: "KODAK ESP" or "KODAK HERO" 
+/* check if it is a model likely to be supported: "KODAK ESP" or "KODAK HERO"
 
 	DBG(min(10,DBG_AUTO),"look up model <%s>\n", device_model); */
 	cap = get_device_from_identification("", vid, pid);
 	if (cap == NULL) {
 		return;
-	} 
+	}
 
 	DBG(min(10,DBG_AUTO), "%s: Found autodiscovered device: %s (type 0x%x)\n", __func__, cap->model, cap->id);
 		attach_one_net (ip_addr, cap->id);
@@ -2337,12 +2337,12 @@ static void resolve_callback(
 	else DBG(min(10,DBG_AUTO), "didn't call ProcessAvahiDevice\n");
 
 	if(vid_pair_list != NULL) {
-		avahi_free(vidkey); 
+		avahi_free(vidkey);
 		avahi_free(vidvalue);
 		DBG(min(15,DBG_AUTO), "vidkey and vidvalue freed\n");
 	}
 	if(pid_pair_list != NULL) {
-		avahi_free(pidkey); 
+		avahi_free(pidkey);
 		avahi_free(pidvalue);
 		DBG(min(15,DBG_AUTO), "pidkey and pidvalue freed\n");
 	}
@@ -2413,7 +2413,7 @@ static void client_callback(AvahiClient *c, AvahiClientState state, void * userd
 
 static int
 kodak_network_discovery(const char*host)
-/* If host = NULL do autodiscovery. If host != NULL try to verify the model 
+/* If host = NULL do autodiscovery. If host != NULL try to verify the model
 First version only does autodiscovery */
 {
     AvahiSimplePoll *simple_poll;
@@ -2586,7 +2586,7 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 		/* Timeout for all other read requests */
 		DBG(50, "%s: Request timeout set to %d\n", __func__, timeout);
 		K_Request_Timeout = timeout;
-	
+
 	} else {
 		/* TODO: Warning about unparsable line! */
 	}
@@ -2790,7 +2790,7 @@ init_options(KodakAio_Scanner *s)
 	s->opt[OPT_BIT_DEPTH].constraint.word_list = s->hw->cap->depth_list;
 	s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
 	s->val[OPT_BIT_DEPTH].w = s->hw->cap->depth_list[1];	/* the first "real" element is the default */
-	
+
 	DBG(20, "%s: depth list has depth_list[0] = %d entries\n", __func__, s->hw->cap->depth_list[0]);
 	if (s->hw->cap->depth_list[0] == 1) {	/* only one element in the list -> hide the option */
 		s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
@@ -2814,7 +2814,7 @@ init_options(KodakAio_Scanner *s)
 	s->val[OPT_RESOLUTION].w = s->hw->cap->dpi_range.min;
 
 
-	/* trial option for debugging 
+	/* trial option for debugging
 	s->opt[OPT_TRIALOPT].name = "trialoption";
 	s->opt[OPT_TRIALOPT].title = "trialoption";
 	s->opt[OPT_TRIALOPT].desc = "trialoption";
@@ -2834,7 +2834,7 @@ init_options(KodakAio_Scanner *s)
 
 	for(i=0;source_list[i]!=NULL;++i)
 		DBG(18, "source_list: %s\n",source_list[i]);
-		
+
 	/* source */
 	s->opt[OPT_SOURCE].name = SANE_NAME_SCAN_SOURCE;
 	s->opt[OPT_SOURCE].title = SANE_TITLE_SCAN_SOURCE;
@@ -2850,7 +2850,7 @@ init_options(KodakAio_Scanner *s)
 		s->opt[OPT_SOURCE].cap |= SANE_CAP_INACTIVE;
 	}
 
-/* Are there any ESP scanners that are duplex? */	
+/* Are there any ESP scanners that are duplex? */
 	s->opt[OPT_ADF_MODE].name = "adf-mode";
 	s->opt[OPT_ADF_MODE].title = SANE_I18N("ADF Mode");
 	s->opt[OPT_ADF_MODE].desc =
@@ -2991,7 +2991,7 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
 	/* s is always valid here */
 
 	DBG(10, "handle obtained\n");
-	status = k_discover_capabilities(s); /* added 27/12/11 to fix source list problem 
+	status = k_discover_capabilities(s); /* added 27/12/11 to fix source list problem
 maybe we should only be rebuilding the source list here? */
 	if (status != SANE_STATUS_GOOD)
 		return status;
@@ -3000,7 +3000,7 @@ maybe we should only be rebuilding the source list here? */
 
 	*handle = (SANE_Handle) s;
 
-/* moving the open scanner section below to sane_start 27/12/14 
+/* moving the open scanner section below to sane_start 27/12/14
 	status = open_scanner(s);
 	if (status != SANE_STATUS_GOOD) {
 		free(s);
@@ -3400,8 +3400,8 @@ sane_start(SANE_Handle handle)
 
 	/* set scanning parameters; also query the current image
 	 * parameters from the sanner and save
-	 * them to s->params 
-Only set scanning params the first time, or after a cancel 
+	 * them to s->params
+Only set scanning params the first time, or after a cancel
 try change 22/2/12 take lock scanner out of k_set_scanning_parameters */
 
 /* moved open_scanner here 27/12/14 from sane_open */

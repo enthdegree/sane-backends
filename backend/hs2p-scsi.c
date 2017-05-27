@@ -2,7 +2,7 @@
    Copyright (C) 2007 Jeremy Johnson
    This file is part of a SANE backend for Ricoh IS450
    and IS420 family of HS2P Scanners using the SCSI controller.
-   
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -291,7 +291,7 @@ print_jis_info (struct inquiry_jis_data *jbuf)
   DBG (DBG_info, "[29] reserved  %#02x\n", jbuf->reserved2);
 }
 
-/* 1-3-1                  TEST UNIT READY 
+/* 1-3-1                  TEST UNIT READY
   Byte0: |                           0x00                       |
   Byte1: | 7-5 Logical Unit Number | Reserved                   |
   Byte2: |                           Reserved                   |
@@ -407,8 +407,8 @@ lookup_ascq_errmsg (unsigned int code)
 }
 
 /* a sensible sense handler
-   arg is a pointer to the associated HS2P_Scanner structure 
-   
+   arg is a pointer to the associated HS2P_Scanner structure
+
    SENSE DATA FORMAT:  14 bytes bits[7-0]
    Byte  0: [7]:valid [6-0]:Error Code
    Byte  1: Segment Number
@@ -488,9 +488,9 @@ sense_handler (int __sane_unused__ scsi_fd, u_char * sense_buffer, void *sd)
   DBG (DBG_sense, "sense_handler: ascq=(%#x,%#x): %#x '%s'\n", asc, ascq,
        ascq_key->codequalifier, ascq_key->description);
 
-  /* handle each sense key: Translate from HS2P message to SANE_STATUS_ message 
-   * SANE_STATUS_GOOD, _ACCESS_DEINIED, _NO_MEM, _INVAL, _IO_ERROR, _DEVICE_BUSY, 
-   * _EOF, _UNSUPPORTED, _CANCELLED, _JAMMED, _NO_DOCS, _COVER_OPEN 
+  /* handle each sense key: Translate from HS2P message to SANE_STATUS_ message
+   * SANE_STATUS_GOOD, _ACCESS_DEINIED, _NO_MEM, _INVAL, _IO_ERROR, _DEVICE_BUSY,
+   * _EOF, _UNSUPPORTED, _CANCELLED, _JAMMED, _NO_DOCS, _COVER_OPEN
    */
   switch (sense)
     {
@@ -1436,7 +1436,7 @@ set_halftone_mask (int fd, SANE_Byte halftone_id, void *buf,
   cmd.dtc = DATA_TYPE_HALFTONE;
   _lto2b (halftone_id, cmd.dtq);
 
-  /* Each cell of an NxM dither pattern is 1 byte from the set {2,3,4,6,8,16} 
+  /* Each cell of an NxM dither pattern is 1 byte from the set {2,3,4,6,8,16}
    *  0x80, 0x81 are User definable custom dither patterns
    */
   if (halftone_id != 0x80 && halftone_id != 0x81)
@@ -1547,7 +1547,7 @@ read_adf_status (int fd, SANE_Byte * adf_status_byte)
 
 /* 1-3-4 MODE SELECT */
 
-/* 1-3-5 Reserve Unit: 0x16 
+/* 1-3-5 Reserve Unit: 0x16
  * 1-3-6 Release Unit: 0x17
 */
 static SANE_Status
@@ -1750,7 +1750,7 @@ trigger_scan (HS2P_Scanner * s)
   /* Transfer length is the byte length of Window List transferred
    * Window List is a list of Window Identifier created by SET WINDOW command
    * Since only 1 Window is supported by SCAN command, 0 or 1 is used for Window Identifier
-   * and 1 or 2 for length 
+   * and 1 or 2 for length
    status = sanei_scsi_cmd (s->fd, &trigger, sizeof (trigger), &window_id_list[0], &wl_size);
    */
   scan.cmd.len = (s->val[OPT_DUPLEX].w == SANE_TRUE) ? 2 : 1;

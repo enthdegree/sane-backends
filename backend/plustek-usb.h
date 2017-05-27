@@ -381,7 +381,7 @@ enum SCANFLAG
 	SCANFLAG_BottomUp       = 0x00008000,
 	SCANFLAG_DWORDBoundary  = 0x00020000,
 	SCANFLAG_RightAlign     = 0x00040000,
-	SCANFLAG_StillModule    = 0x00080000, 
+	SCANFLAG_StillModule    = 0x00080000,
 	SCANFLAG_Pseudo48       = 0x08000000,
 	SCANFLAG_SampleY        = 0x04000000,
 	SCANFLAG_Calibration    = 0x10000000,
@@ -469,10 +469,10 @@ typedef struct HWDefault
 	u_char              bReg_0x0f_Mono [10];	/* 0x0f to 0x18 */
 	u_char              bReg_0x0f_Color [10];	/* 0x0f to 0x18 */
 
-	/* color mode settings */	
+	/* color mode settings */
 	u_char              bReg_0x26;
 	u_char              bReg_0x27;
-	
+
 	/* illumination mode reg 0x29 (runtime) */
 	u_char              bReg_0x29;
 
@@ -484,7 +484,7 @@ typedef struct HWDefault
 	 * format, you have to pay your attention when you
 	 * write this value to register.
 	 */
-	u_short             StepperPhaseCorrection;	
+	u_short             StepperPhaseCorrection;
 
 	/* Sensor Pixel Configuration
 	 * Actually, the wActivePixelsStart will be set to 0 for shading purpose.
@@ -656,11 +656,11 @@ typedef struct ScanDef
 	AnyPtr  Green;
 	AnyPtr  Red;
 	AnyPtr  Blue;
-	
+
 	long    lBufAdjust;       /**< bytes to adjust buffer pointer  */
 	                          /*   after a image line processed    */
 	u_short wSumY;            /**<  for line sampling              */
-	
+
 	u_char  bLineDistance;    /**< Color offset in specific dpi y  */
 	int     fGrayFromColor;   /**< channel to use for gray mode    */
 

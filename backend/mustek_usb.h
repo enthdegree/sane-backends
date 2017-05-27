@@ -43,7 +43,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for Mustek 1200UB and similar 
+   This file implements a SANE backend for Mustek 1200UB and similar
    USB flatbed scanners.  */
 
 #ifndef mustek_usb_h

@@ -41,7 +41,7 @@
    If you do not wish that, delete this exception notice.
 
    This backend is for HP LaserJet M1005 MFP
-   
+
    Highly inspired from the epson backend
 */
 
@@ -177,7 +177,7 @@ static int devlist_count;	/* Number of element in the list */
 
 /*
  * List of pointers to devices - will be dynamically allocated depending
- * on the number of devices found. 
+ * on the number of devices found.
  */
 static SANE_Device **devlist = NULL;
 
@@ -193,7 +193,7 @@ update_img_size (struct device_s *dev)
 {
   int dx, dy;
 
-  /* Only update the width when not scanning, 
+  /* Only update the width when not scanning,
    * otherwise the scanner give us the correct width */
   if (dev->status == STATUS_SCANNING)
     {
@@ -235,7 +235,7 @@ update_img_size (struct device_s *dev)
       dev->height = round2 ((dy / ((double) MAX_Y_S)) * 14025);
       break;
     }
-	
+
     DBG(2,"New image size: %dx%d\n",dev->width, dev->height);
 
 }
@@ -990,8 +990,8 @@ sane_start (SANE_Handle h)
 }
 
 
-static void 
-do_cancel(struct device_s *dev) 
+static void
+do_cancel(struct device_s *dev)
 {
   while (get_data (dev) == SANE_STATUS_GOOD);
   free (dev->buffer);
@@ -1064,7 +1064,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
     }
 
   /* Special case where sane_cancel is called while scanning */
-  if (dev->status == STATUS_CANCELING) 
+  if (dev->status == STATUS_CANCELING)
     {
        do_cancel(dev);
        return SANE_STATUS_CANCELLED;
@@ -1078,7 +1078,7 @@ sane_cancel (SANE_Handle h)
   struct device_s *dev = (struct device_s *) h;
 
 
-  if (dev->status == STATUS_SCANNING) 
+  if (dev->status == STATUS_SCANNING)
     {
       dev->status = STATUS_CANCELING;
       return;

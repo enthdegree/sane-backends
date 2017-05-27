@@ -87,7 +87,7 @@
 #if defined(HAVE_SYS_POLL_H) && defined(HAVE_POLL)
 # include <sys/poll.h>
 #else
-/* 
+/*
  * This replacement poll() using select() is only designed to cover
  * our needs in run_standalone(). It should probably be extended...
  */
@@ -203,13 +203,13 @@ static AvahiEntryGroup *avahi_group = NULL;
         (((const uint32_t *) (a))[0] == 0                                   \
          && ((const uint32_t *) (a))[1] == 0                                \
          && ((const uint32_t *) (a))[2] == 0                                \
-         && ((const uint32_t *) (a))[3] == htonl (1)) 
+         && ((const uint32_t *) (a))[3] == htonl (1))
 # endif
 # ifndef IN6_IS_ADDR_V4MAPPED
 # define IN6_IS_ADDR_V4MAPPED(a) \
 ((((const uint32_t *) (a))[0] == 0)                                 \
  && (((const uint32_t *) (a))[1] == 0)                              \
- && (((const uint32_t *) (a))[2] == htonl (0xffff))) 
+ && (((const uint32_t *) (a))[2] == htonl (0xffff)))
 # endif
 #endif /* ENABLE_IPV6 */
 
@@ -402,7 +402,7 @@ auth_callback (SANE_String_Const res,
       break;
 
     default:
-      DBG (DBG_WARN, 
+      DBG (DBG_WARN,
 	   "auth_callback: called for unexpected request %d (resource=%s)\n",
 	   current_request, res);
       break;
@@ -430,7 +430,7 @@ auth_callback (SANE_String_Const res,
     {
       DBG (DBG_WARN,
 	   "auth_callback: bad procedure number %d "
-	   "(expected: %d, resource=%s)\n", procnum, SANE_NET_AUTHORIZE, 
+	   "(expected: %d, resource=%s)\n", procnum, SANE_NET_AUTHORIZE,
 	   res);
       return;
     }
@@ -565,7 +565,7 @@ check_v4_in_range (struct sockaddr_in *sin, char *base_ip, char *netmask)
   int cidr;
   int i, err;
   char *end;
-  uint32_t mask; 
+  uint32_t mask;
   struct sockaddr_in *base;
   struct addrinfo hints;
   struct addrinfo *res;
@@ -573,7 +573,7 @@ check_v4_in_range (struct sockaddr_in *sin, char *base_ip, char *netmask)
 
   cidr = -1;
   cidr = strtol (netmask, &end, 10);
-  
+
   /* Sanity check on the cidr value */
   if ((cidr < 0) || (cidr > 32) || (end == netmask))
     {
@@ -584,13 +584,13 @@ check_v4_in_range (struct sockaddr_in *sin, char *base_ip, char *netmask)
   mask = 0;
   cidr -= 8;
 
-  /* Build a bitmask out of the CIDR value */  
+  /* Build a bitmask out of the CIDR value */
   for (i = 3; cidr >= 0; i--)
     {
       mask |= (0xff << (8 * i));
       cidr -= 8;
     }
-  
+
   if (cidr < 0)
     mask |= (cidrtomask[cidr + 8] << (8 * i));
 
@@ -600,7 +600,7 @@ check_v4_in_range (struct sockaddr_in *sin, char *base_ip, char *netmask)
   memset (&hints, 0, sizeof (struct addrinfo));
   hints.ai_flags = AI_NUMERICHOST;
   hints.ai_family = PF_INET;
-  
+
   err = getaddrinfo (base_ip, NULL, &hints, &res);
   if (err)
     {
@@ -616,9 +616,9 @@ check_v4_in_range (struct sockaddr_in *sin, char *base_ip, char *netmask)
    */
   if ((base->sin_addr.s_addr & mask) == (sin->sin_addr.s_addr & mask))
     ret = SANE_TRUE;
-  
+
   freeaddrinfo (res);
-  
+
   return ret;
 }
 
@@ -649,17 +649,17 @@ check_v6_in_range (struct sockaddr_in6 *sin6, char *base_ip, char *netmask)
 
   memset (mask, 0, (16 * sizeof (unsigned int)));
   cidr -= 8;
-  
+
   /* Build a bitmask out of the CIDR value */
   for (i = 0; cidr >= 0; i++)
     {
       mask[i] = 0xff;
       cidr -= 8;
     }
-  
+
   if (cidr < 0)
     mask[i] = cidrtomask[cidr + 8];
-  
+
   /* get a sockaddr_in6 representing the base IP address */
   memset (&hints, 0, sizeof (struct addrinfo));
   hints.ai_flags = AI_NUMERICHOST;
@@ -686,9 +686,9 @@ check_v6_in_range (struct sockaddr_in6 *sin6, char *base_ip, char *netmask)
 	  break;
 	}
     }
-  
+
   freeaddrinfo (res);
-  
+
   return ret;
 }
 # endif /* ENABLE_IPV6 */
@@ -699,12 +699,12 @@ check_v4_in_range (struct in_addr *inaddr, struct in_addr *base, char *netmask)
   int cidr;
   int i;
   char *end;
-  uint32_t mask; 
+  uint32_t mask;
   SANE_Bool ret = SANE_FALSE;
 
   cidr = -1;
   cidr = strtol (netmask, &end, 10);
-  
+
   /* sanity check on the cidr value */
   if ((cidr < 0) || (cidr > 32) || (end == netmask))
     {
@@ -714,14 +714,14 @@ check_v4_in_range (struct in_addr *inaddr, struct in_addr *base, char *netmask)
 
   mask = 0;
   cidr -= 8;
-  
+
   /* Build a bitmask out of the CIDR value */
   for (i = 3; cidr >= 0; i--)
     {
       mask |= (0xff << (8 * i));
       cidr -= 8;
     }
-  
+
   if (cidr < 0)
     mask |= (cidrtomask[cidr + 8] << (8 * i));
 
@@ -733,7 +733,7 @@ check_v4_in_range (struct in_addr *inaddr, struct in_addr *base, char *netmask)
    */
   if ((base->s_addr & mask) == (inaddr->s_addr & mask))
     ret = SANE_TRUE;
-  
+
   return ret;
 }
 #endif /* SANED_USES_AF_INDEP */
@@ -801,7 +801,7 @@ check_host (int fd)
       memset (&hints, 0, sizeof (struct addrinfo));
       hints.ai_flags = AI_NUMERICHOST;
       hints.ai_family = PF_INET;
-      
+
       err = getaddrinfo (remote_ipv4, NULL, &hints, &res);
       if (err)
 	{
@@ -901,13 +901,13 @@ check_host (int fd)
 	{
 	  DBG (DBG_DBG, "check_host: local hostname(s) (from DNS): %s\n",
 	       resp->ai_canonname);
-	  
+
 	  err = getnameinfo (resp->ai_addr, resp->ai_addrlen, text_addr,
 			     sizeof (text_addr), NULL, 0, NI_NUMERICHOST);
 	  if (err)
 		strncpy (text_addr, "[error]", 8);
 
-#ifdef ENABLE_IPV6	  
+#ifdef ENABLE_IPV6
 	  if ((strcasecmp (text_addr, remote_ip) == 0) ||
 	      ((IPv4map == SANE_TRUE) && (strcmp (text_addr, remote_ipv4) == 0)))
 #else
@@ -915,18 +915,18 @@ check_host (int fd)
 #endif /* ENABLE_IPV6 */
 	    {
 	      DBG (DBG_MSG, "check_host: remote host has same addr as local: access granted\n");
-	      
+
 	      freeaddrinfo (res);
 	      res = NULL;
 
 	      return SANE_STATUS_GOOD;
 	    }
 	}
-      
+
       freeaddrinfo (res);
       res = NULL;
-      
-      DBG (DBG_DBG, 
+
+      DBG (DBG_DBG,
 	   "check_host: remote host doesn't have same addr as local\n");
     }
 
@@ -947,8 +947,8 @@ check_host (int fd)
 	       config_file_names[j], strerror (errno));
 	  continue;
 	}
-      
-      while (!access_ok && sanei_config_read (config_line_buf, 
+
+      while (!access_ok && sanei_config_read (config_line_buf,
 					      sizeof (config_line_buf), fp))
 	{
 	  config_line = config_line_buf; /* from now on, use a pointer */
@@ -993,7 +993,7 @@ check_host (int fd)
 	  if (strcmp (config_line, "+") == 0)
 	    {
 	      access_ok = 1;
-	      DBG (DBG_DBG, 
+	      DBG (DBG_DBG,
 		   "check_host: access granted from any host (`+')\n");
 	    }
 	  /* compare remote_ip (remote IP address) to the config_line */
@@ -1033,7 +1033,7 @@ check_host (int fd)
 		      memset (&hints, 0, sizeof (struct addrinfo));
 		      hints.ai_flags = AI_NUMERICHOST;
 		      hints.ai_family = PF_INET;
-		      
+
 		      err = getaddrinfo (remote_ipv4, NULL, &hints, &res);
 		      if (err)
 			DBG (DBG_DBG, "check_host: getaddrinfo() failed: %s\n", gai_strerror (err));
@@ -1044,7 +1044,7 @@ check_host (int fd)
 		  if ((SS_FAMILY(remote_address.ss) == AF_INET) ||
 		      (IPv4map == SANE_TRUE))
 		    {
-		      
+
 		      if (check_v4_in_range (sin, config_line, netmask))
 			{
 			  DBG (DBG_DBG, "check_host: access granted from IP address %s (in subnet %s/%s)\n",
@@ -1056,7 +1056,7 @@ check_host (int fd)
 			  /* restore the old sin pointer */
 			  sin = &remote_address.sin;
 			}
-		      
+
 		      if (res != NULL)
 			{
 			  freeaddrinfo (res);
@@ -1086,11 +1086,11 @@ check_host (int fd)
 #else
 	      hints.ai_family = PF_INET;
 #endif /* ENABLE_IPV6 */
-	      
+
 	      err = getaddrinfo (config_line, NULL, &hints, &res);
 	      if (err)
 		{
-		  DBG (DBG_DBG, 
+		  DBG (DBG_DBG,
 		       "check_host: getaddrinfo for `%s' failed: %s\n",
 		       config_line, gai_strerror (err));
 		  DBG (DBG_MSG, "check_host: entry isn't an IP address "
@@ -1105,19 +1105,19 @@ check_host (int fd)
 					 sizeof (text_addr), NULL, 0, NI_NUMERICHOST);
 		      if (err)
 			strncpy (text_addr, "[error]", 8);
-		      
-		      DBG (DBG_MSG,  
-			   "check_host: DNS lookup returns IP address: %s\n", 
-			   text_addr); 
-		      
-#ifdef ENABLE_IPV6			  
+
+		      DBG (DBG_MSG,
+			   "check_host: DNS lookup returns IP address: %s\n",
+			   text_addr);
+
+#ifdef ENABLE_IPV6
 		      if ((strcasecmp (text_addr, remote_ip) == 0) ||
 			  ((IPv4map == SANE_TRUE) && (strcmp (text_addr, remote_ipv4) == 0)))
 #else
 		      if (strcmp (text_addr, remote_ip) == 0)
 #endif /* ENABLE_IPV6 */
 			access_ok = 1;
-		      
+
 		      if (access_ok)
 			break;
 		    }
@@ -1128,10 +1128,10 @@ check_host (int fd)
 	}
       fclose (fp);
     }
-  
+
   if (access_ok)
     return SANE_STATUS_GOOD;
-  
+
   return SANE_STATUS_ACCESS_DENIED;
 }
 
@@ -1150,7 +1150,7 @@ check_host (int fd)
   char hostname[MAXHOSTNAMELEN];
   char *r_hostname;
   static struct in_addr config_line_address;
-  
+
   int len;
   FILE *fp;
 
@@ -1164,7 +1164,7 @@ check_host (int fd)
     }
   r_hostname = inet_ntoa (sin.sin_addr);
   remote_ip = strdup (r_hostname);
-  DBG (DBG_WARN, "check_host: access by remote host: %s\n", 
+  DBG (DBG_WARN, "check_host: access by remote host: %s\n",
        remote_ip);
   /* Save remote address for check of control and data connections */
   memcpy (&remote_address, &sin.sin_addr, sizeof (remote_address));
@@ -1203,7 +1203,7 @@ check_host (int fd)
     {
       DBG (DBG_DBG, "check_host: local hostname (from DNS): %s\n",
 	   he->h_name);
-  
+
       if ((he->h_length == 4) || (he->h_addrtype == AF_INET))
 	{
 	  if (!inet_ntop (he->h_addrtype, he->h_addr_list[0], text_addr,
@@ -1211,9 +1211,9 @@ check_host (int fd)
 	    strcpy (text_addr, "[error]");
 	  DBG (DBG_DBG, "check_host: local host address (from DNS): %s\n",
 	       text_addr);
-	  if (memcmp (he->h_addr_list[0], &remote_address.s_addr, 4) == 0)   
+	  if (memcmp (he->h_addr_list[0], &remote_address.s_addr, 4) == 0)
 	    {
-	      DBG (DBG_MSG, 
+	      DBG (DBG_MSG,
 		   "check_host: remote host has same addr as local: "
 		   "access accepted\n");
 	      return SANE_STATUS_GOOD;
@@ -1246,8 +1246,8 @@ check_host (int fd)
 	       config_file_names[j], strerror (errno));
 	  continue;
 	}
-      
-      while (!access_ok && sanei_config_read (config_line_buf, 
+
+      while (!access_ok && sanei_config_read (config_line_buf,
 					      sizeof (config_line_buf), fp))
 	{
 	  config_line = config_line_buf; /* from now on, use a pointer */
@@ -1275,14 +1275,14 @@ check_host (int fd)
 	  if (strcmp (config_line, "+") == 0)
 	    {
 	      access_ok = 1;
-	      DBG (DBG_DBG, 
+	      DBG (DBG_DBG,
 		   "check_host: access accepted from any host (`+')\n");
 	    }
 	  else
 	    {
 	      if (inet_pton (AF_INET, config_line, &config_line_address) > 0)
 		{
-		  if (memcmp (&remote_address.s_addr, 
+		  if (memcmp (&remote_address.s_addr,
 			      &config_line_address.s_addr, 4) == 0)
 		    access_ok = 1;
 		  else if (netmask != NULL)
@@ -1297,13 +1297,13 @@ check_host (int fd)
 		}
 	      else
 		{
-		  DBG (DBG_DBG, 
+		  DBG (DBG_DBG,
 		       "check_host: inet_pton for `%s' failed\n",
 		       config_line);
 		  he = gethostbyname (config_line);
 		  if (!he)
 		    {
-		      DBG (DBG_DBG, 
+		      DBG (DBG_DBG,
 			   "check_host: gethostbyname for `%s' failed: %s\n",
 			   config_line, hstrerror (h_errno));
 		      DBG (DBG_MSG, "check_host: entry isn't an IP address "
@@ -1313,10 +1313,10 @@ check_host (int fd)
 		  if (!inet_ntop (he->h_addrtype, he->h_addr_list[0],
 				  text_addr, sizeof (text_addr)))
 		    strcpy (text_addr, "[error]");
-		  DBG (DBG_MSG, 
+		  DBG (DBG_MSG,
 		       "check_host: DNS lookup returns IP address: %s\n",
 		       text_addr);
-		  if (memcmp (&remote_address.s_addr, 
+		  if (memcmp (&remote_address.s_addr,
 			      he->h_addr_list[0], 4) == 0)
 		    access_ok = 1;
 		}
@@ -1356,7 +1356,7 @@ init (Wire * w)
       DBG (DBG_ERR, "init: bad status after sanei_w_set_dir: %d\n", w->status);
       return -1;
     }
-  
+
   sanei_w_word (w, &word);	/* decode procedure number */
   if (w->status || word != SANE_NET_INIT)
     {
@@ -1658,7 +1658,7 @@ do_scan (Wire * w, int h, int data_fd)
   long int nwritten;
   SANE_Int length;
   size_t nbytes;
-  
+
   DBG (3, "do_scan: start\n");
 
   FD_ZERO (&rd_mask);
@@ -1699,8 +1699,8 @@ do_scan (Wire * w, int h, int data_fd)
 	      FD_CLR (be_fd, &rd_mask);
 	      be_fd = -1;
 	      /* only set status_dirty if EOF hasn't been already detected */
-	      if (status == SANE_STATUS_GOOD) 
-		status_dirty = 1; 
+	      if (status == SANE_STATUS_GOOD)
+		status_dirty = 1;
 	      status = SANE_STATUS_EOF;
 	      DBG (DBG_INFO, "do_scan: select_fd was closed --> EOF\n");
 	      continue;
@@ -1723,11 +1723,11 @@ do_scan (Wire * w, int h, int data_fd)
 		  nbytes = bytes_in_buf;
 		  if (writer + nbytes > sizeof (buf))
 		    nbytes = sizeof (buf) - writer;
-		  DBG (DBG_INFO, 
+		  DBG (DBG_INFO,
 		       "do_scan: trying to write %d bytes to client\n",
 		       nbytes);
 		  nwritten = write (data_fd, buf + writer, nbytes);
-		  DBG (DBG_INFO, 
+		  DBG (DBG_INFO,
 		       "do_scan: wrote %ld bytes to client\n", nwritten);
 		  if (nwritten < 0)
 		    {
@@ -1791,7 +1791,7 @@ do_scan (Wire * w, int h, int data_fd)
 	  reader = store_reclen (buf, sizeof (buf), reader, 0xffffffff);
 	  buf[reader] = status;
 	  bytes_in_buf += 5;
-	  DBG (DBG_MSG, "do_scan: statuscode `%s' was added to buffer\n", 
+	  DBG (DBG_MSG, "do_scan: statuscode `%s' was added to buffer\n",
 	       sane_strstatus(status));
 	}
 
@@ -1854,7 +1854,7 @@ process_request (Wire * w)
 	sanei_w_string (w, &name);
 	if (w->status)
 	  {
-	    DBG (DBG_ERR, 
+	    DBG (DBG_ERR,
 		 "process_request: (open) error while decoding args (%s)\n",
 		 strerror (w->status));
 	    return 1;
@@ -1871,7 +1871,7 @@ process_request (Wire * w)
 	can_authorize = 1;
 
 	resource = strdup (name);
-	
+
 	if (strlen(resource) == 0) {
 
 	  const SANE_Device **device_list;
@@ -1879,8 +1879,8 @@ process_request (Wire * w)
 	  DBG(DBG_DBG, "process_request: (open) strlen(resource) == 0\n");
 	  free (resource);
 
-	  if ((i = sane_get_devices (&device_list, SANE_TRUE)) != 
-	      SANE_STATUS_GOOD) 
+	  if ((i = sane_get_devices (&device_list, SANE_TRUE)) !=
+	      SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_ERR, "process_request: (open) sane_get_devices failed\n");
 	      memset (&reply, 0, sizeof (reply));
@@ -1889,7 +1889,7 @@ process_request (Wire * w)
 	      break;
 	    }
 
-	  if ((device_list == NULL) || (device_list[0] == NULL)) 
+	  if ((device_list == NULL) || (device_list[0] == NULL))
 	    {
 	      DBG(DBG_ERR, "process_request: (open) device_list[0] == 0\n");
 	      memset (&reply, 0, sizeof (reply));
@@ -1907,7 +1907,7 @@ process_request (Wire * w)
 	if (sanei_authorize (resource, "saned", auth_callback) !=
 	    SANE_STATUS_GOOD)
 	  {
-	    DBG (DBG_ERR, "process_request: access to resource `%s' denied\n", 
+	    DBG (DBG_ERR, "process_request: access to resource `%s' denied\n",
 		 resource);
 	    free (resource);
 	    memset (&reply, 0, sizeof (reply));	/* avoid leaking bits */
@@ -1915,12 +1915,12 @@ process_request (Wire * w)
 	  }
 	else
 	  {
-	    DBG (DBG_MSG, "process_request: access to resource `%s' granted\n", 
+	    DBG (DBG_MSG, "process_request: access to resource `%s' granted\n",
 		 resource);
 	    free (resource);
 	    memset (&reply, 0, sizeof (reply));	/* avoid leaking bits */
 	    reply.status = sane_open (name, &be_handle);
-	    DBG (DBG_MSG, "process_request: sane_open returned: %s\n", 
+	    DBG (DBG_MSG, "process_request: sane_open returned: %s\n",
 		 sane_strstatus (reply.status));
 	  }
 
@@ -2112,7 +2112,7 @@ process_request (Wire * w)
 
 	    DBG (DBG_MSG, "process_request: access to data port from %s\n",
 		 text_addr);
-	    
+
 	    if (strcmp (text_addr, remote_ip) != 0)
 	      {
 		DBG (DBG_ERR, "process_request: however, only %s is authorized\n",
@@ -2136,7 +2136,7 @@ process_request (Wire * w)
 
 	    /* Get address of remote host */
 	    len = sizeof (sin);
-	    if (getpeername (data_fd, (struct sockaddr *) &sin, 
+	    if (getpeername (data_fd, (struct sockaddr *) &sin,
 			     (socklen_t *) &len) < 0)
 	      {
 		DBG (DBG_ERR, "process_request: getpeername failed: %s\n",
@@ -2147,13 +2147,13 @@ process_request (Wire * w)
 	    if (memcmp (&remote_address, &sin.sin_addr,
 			sizeof (remote_address)) != 0)
 	      {
-		DBG (DBG_ERR, 
+		DBG (DBG_ERR,
 		     "process_request: access to data port from %s\n",
 		     inet_ntoa (sin.sin_addr));
-		DBG (DBG_ERR, 
+		DBG (DBG_ERR,
 		     "process_request: however, only %s is authorized\n",
 		     inet_ntoa (remote_address));
-		DBG (DBG_ERR, 
+		DBG (DBG_ERR,
 		     "process_request: configuration problem or attack?\n");
 		close (data_fd);
 		data_fd = -1;
@@ -2320,7 +2320,7 @@ handle_connection (int fd)
       reset_watchdog ();
       if (process_request (&wire) < 0)
 	break;
-    }  
+    }
 }
 
 static void
@@ -3034,7 +3034,7 @@ run_standalone (char *user)
 			}
                       if (need_to_add)
                         {
-                          grplist = (gid_t *)realloc(grplist, 
+                          grplist = (gid_t *)realloc(grplist,
                                                      sizeof(gid_t)*ngroups+1);
                           if (grplist == NULL)
 			    {
@@ -3215,7 +3215,7 @@ run_standalone (char *user)
 static void
 run_inetd (char __sane_unused__ *sock)
 {
-  
+
   int fd = -1;
 
 #ifdef HAVE_SYSTEMD
@@ -3223,7 +3223,7 @@ run_inetd (char __sane_unused__ *sock)
 
   n = sd_listen_fds(0);
 
-  if (n > 1) 
+  if (n > 1)
     {
       DBG (DBG_ERR, "run_inetd: Too many file descriptors (sockets) received from systemd!\n");
       return;
@@ -3236,7 +3236,7 @@ run_inetd (char __sane_unused__ *sock)
     }
 #endif
 
-  if (fd == -1) 
+  if (fd == -1)
     {
       int dave_null;
 

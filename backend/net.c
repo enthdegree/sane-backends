@@ -197,22 +197,22 @@ add_device (const char *name, Net_Device ** ndp)
 	}
       else
 	{
-          for (resp = res; resp != NULL; resp = resp->ai_next) 
-            { 
-              switch (resp->ai_family) 
-                { 
-                  case AF_INET: 
-                    sin = (struct sockaddr_in *) resp->ai_addr; 
-                    sin->sin_port = sane_port; 
-                    break; 
-#ifdef ENABLE_IPV6 
-		  case AF_INET6: 
-		    sin6 = (struct sockaddr_in6 *) resp->ai_addr; 
-		    sin6->sin6_port = sane_port; 
-		    break; 
-#endif /* ENABLE_IPV6 */ 
+          for (resp = res; resp != NULL; resp = resp->ai_next)
+            {
+              switch (resp->ai_family)
+                {
+                  case AF_INET:
+                    sin = (struct sockaddr_in *) resp->ai_addr;
+                    sin->sin_port = sane_port;
+                    break;
+#ifdef ENABLE_IPV6
+		  case AF_INET6:
+		    sin6 = (struct sockaddr_in6 *) resp->ai_addr;
+		    sin6->sin6_port = sane_port;
+		    break;
+#endif /* ENABLE_IPV6 */
                 }
-	    } 
+	    }
 	}
     }
 
@@ -220,7 +220,7 @@ add_device (const char *name, Net_Device ** ndp)
   if (!nd)
     {
       DBG (1, "add_device: not enough memory for Net_Device struct\n");
-      
+
       freeaddrinfo (res);
       return SANE_STATUS_NO_MEM;
     }
@@ -233,14 +233,14 @@ add_device (const char *name, Net_Device ** ndp)
       free(nd);
       return SANE_STATUS_NO_MEM;
     }
-      
+
   nd->addr = res;
   nd->ctl = -1;
 
   nd->next = first_device;
 
   first_device = nd;
-      
+
   if (ndp)
     *ndp = nd;
   DBG (2, "add_device: backend %s added\n", name);
@@ -347,7 +347,7 @@ connect_dev (Net_Device * dev)
 	       i, addrp->ai_family);
 	  continue;
 	}
-      
+
       dev->ctl = socket (addrp->ai_family, SOCK_STREAM, 0);
       if (dev->ctl < 0)
 	{
@@ -577,15 +577,15 @@ fetch_options (Net_Scanner * s)
     {
       DBG (3, "fetch_options: creating %d local option descriptors\n",
 	   s->opt.num_options);
-      s->local_opt.desc = 
+      s->local_opt.desc =
 	malloc (s->opt.num_options * sizeof (s->local_opt.desc));
       if (!s->local_opt.desc)
 	{
 	  DBG (1, "fetch_options: couldn't malloc s->local_opt.desc\n");
 	  return SANE_STATUS_NO_MEM;
 	}
-      for (option_number = 0; 
-	   option_number < s->opt.num_options; 
+      for (option_number = 0;
+	   option_number < s->opt.num_options;
 	   option_number++)
 	{
 	  s->local_opt.desc[option_number] =
@@ -605,15 +605,15 @@ fetch_options (Net_Scanner * s)
       return SANE_STATUS_INVAL;
     }
 
-  DBG (3, "fetch_options: copying %d option descriptors\n", 
+  DBG (3, "fetch_options: copying %d option descriptors\n",
        s->opt.num_options);
-      
+
   for (option_number = 0; option_number < s->opt.num_options; option_number++)
     {
       memcpy (s->local_opt.desc[option_number], s->opt.desc[option_number],
 	      sizeof (SANE_Option_Descriptor));
     }
-  
+
   s->options_valid = 1;
   DBG (3, "fetch_options: %d options fetched\n", s->opt.num_options);
   return SANE_STATUS_GOOD;
@@ -1082,13 +1082,13 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		  /* add back the ":" that got removed by the strsep() */
 		  host[strlen (host)] = ':';
 		  /* host now holds the IPv6 address */
-		  
+
 		  /* skip the ':' that could be after ] (avoids a call to strsep() */
 		  if (next[0] == ':')
 		    next++;
 		}
 
-	      /* 
+	      /*
 	       * if the IPv6 is last in the list, the strsep() call in the while()
 	       * will return a string with the first char being '\0'. Skip it.
 	       */
@@ -1162,7 +1162,7 @@ sane_exit (void)
       if (dev->name)
 	free ((void *) dev->name);
 
-#ifdef NET_USES_AF_INDEP      
+#ifdef NET_USES_AF_INDEP
       if (dev->addr)
 	freeaddrinfo(dev->addr);
 #endif /* NET_USES_AF_INDEP */
@@ -1309,7 +1309,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
 	  memset (mem, 0, sizeof (*dev) + len);
 	  full_name = mem + sizeof (*dev);
-	  
+
 #ifdef ENABLE_IPV6
 	  if (IPv6 == SANE_TRUE)
 	    strcat (full_name, "[");
@@ -1317,7 +1317,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
 	  strcat (full_name, dev->name);
 
-#ifdef ENABLE_IPV6	  
+#ifdef ENABLE_IPV6
 	  if (IPv6 == SANE_TRUE)
 	    strcat (full_name, "]");
 #endif /* ENABLE_IPV6 */
@@ -1382,7 +1382,7 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   int need_auth;
 
   DBG (3, "sane_open(\"%s\")\n", full_name);
-  
+
 #ifdef ENABLE_IPV6
   /*
    * Check whether a numerical IPv6 host was specified
@@ -1405,7 +1405,7 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   dev_name = strchr (tmp_name, ':');
 #else /* !ENABLE_IPV6 */
 
-  dev_name = strchr (full_name, ':');  
+  dev_name = strchr (full_name, ':');
 #endif /* ENABLE_IPV6 */
 
   if (dev_name)
@@ -2153,7 +2153,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 	{
 	  DBG (3, "sane_read: left_over from previous call, return "
 	       "immediately\n");
-	  /* return the byte, we've currently scanned; hang_over becomes 
+	  /* return the byte, we've currently scanned; hang_over becomes
 	     left_over */
 	  *data = (SANE_Byte) left_over;
 	  left_over = -1;
@@ -2171,7 +2171,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
   if (s->bytes_remaining == 0)
     {
       /* boy, is this painful or what? */
-      
+
       DBG (4, "sane_read: reading packet length\n");
       nread = read (s->data, s->reclen_buf + s->reclen_buf_offset,
 		    4 - s->reclen_buf_offset);
@@ -2232,7 +2232,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
     max_length = s->bytes_remaining;
 
   nread = read (s->data, data, max_length);
-  
+
   if (nread < 0)
     {
       DBG (2, "sane_read: error code %s\n", strerror (errno));
@@ -2261,7 +2261,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
       /* special case: 1 byte scanned and hang_over */
       if ((nread == 1) && (hang_over > -1))
 	{
-	  /* return the byte, we've currently scanned; hang_over becomes 
+	  /* return the byte, we've currently scanned; hang_over becomes
 	     left_over */
 	  left_over = hang_over;
 	  hang_over = -1;

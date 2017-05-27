@@ -67,7 +67,7 @@ typedef enum { ltHome, ltUnknown, ltBed, ltError } TLineType;
 
 static unsigned char auchRegsSingleLine[]={
   0x00 /*0x01*/, 0x00 /*0x02*/, 0x3F /*0x03*/,
-  0xB4 /*!!0x04!!*/, 0x14 /*!!0x05!!*/, 0,0, 
+  0xB4 /*!!0x04!!*/, 0x14 /*!!0x05!!*/, 0,0,
   0x00 /*0x08*/, 0x3F /*!!0x09!!*/,
   1,0,
   0x6D /*0x0C*/,
@@ -119,7 +119,7 @@ static TLineType GetLineType(TInstance *this)
   RegWrite(this,R_CTL, 1, 0x59);    /* #2496[062.5] */
   RegWrite(this,R_CTL, 1, 0xD9);    /* #2497[062.5] */
   i=WaitWhileScanning(this,5); if (i) return i;
-    
+
   cchBulk=MAX_PIXEL_PER_SCANLINE;
   /*
   cchBulk=RegRead(this,R_STAT, 2);
@@ -298,7 +298,7 @@ TState DoCalibration(TInstance *this)
     case sm3750:
     default:
       yStart=100;  /* 54 is perimeter */
-      cStripes=MAX_CALIB_STRIPES;  
+      cStripes=MAX_CALIB_STRIPES;
       cyGap=10;
       break;
     } /* switch */
@@ -359,7 +359,7 @@ TState DoCalibration(TInstance *this)
     this->calibration.achStripeY[i]=(unsigned char)
       ((2*(int)auchHanning[i]+auchHanning[i-1]+auchHanning[i+1])/4);
 #endif
-  
+
   DoJog(this,-yStart-cStripes*cyGap);
   INST_ASSERT();
   this->calibration.bCalibrated=true;

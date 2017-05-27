@@ -61,7 +61,7 @@ TransferControlMsg()
 
 static int TransferControlMsg(TInstance *this,
 		       int nReqType,
-		       int nRequest, 
+		       int nRequest,
 		       int nValue,
 		       int nIndex,
 		       void *pBuffer,
@@ -302,7 +302,7 @@ int BulkRead(TInstance *this, FILE *fhOut, unsigned int cchBulk)
     {
       int cchChunk;
       int cchReal;
-      
+
       cchChunk=cchBulk;
       if (cchChunk>0x1000)
 	cchChunk=0x1000;
@@ -366,7 +366,7 @@ int BulkReadBuffer(TInstance *this,
     {
       int cchChunk;
       int cchReal;
-      
+
       cchChunk=cchBulk;
       if (cchChunk>0x1000)
 	cchChunk=0x1000;
@@ -391,7 +391,7 @@ int BulkReadBuffer(TInstance *this,
 		    );
     }
   dprintf(DEBUG_COMM,"writing %d bytes\n",cchRead);
-  
+
   if (!rc && puchBufferOut)
     memcpy(puchBufferOut,pchBuffer,cchRead);
   free(pchBuffer);

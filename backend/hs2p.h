@@ -2,7 +2,7 @@
    Copyright (C) 2007 Jeremy Johnson
    This file is part of a SANE backend for Ricoh IS450
    and IS420 family of HS2P Scanners using the SCSI controller.
-   
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -117,8 +117,8 @@ typedef struct
 
   char inquiry_data[256];
 
-  SANE_Byte max_win_sections;	/* Number of supported window subsections 
-				   IS450 supports max of 4 sections 
+  SANE_Byte max_win_sections;	/* Number of supported window subsections
+				   IS450 supports max of 4 sections
 				   IS420 supports max of 6 sections
 				 */
 
@@ -239,7 +239,7 @@ typedef struct HS2P_Device
   struct HS2P_Device *next;
   /*
    * struct with pointers to device/vendor/model names, and a type value
-   * used to inform sane frontend about the device 
+   * used to inform sane frontend about the device
    */
   SANE_Device sane;
   HS2P_Info info;

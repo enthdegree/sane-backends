@@ -376,7 +376,7 @@ optionTopLeftYCallback (SANE_Option * option, SANE_Handle handle,
 This option controls the bot-right-x corner of the scan
 */
 
-static SANE_Fixed optionBotRightXValue 
+static SANE_Fixed optionBotRightXValue
   = SANE_FIX (UMAX_MAX_WIDTH * MM_IN_INCH / 600);
 
 static SANE_Option_Descriptor optionBotRightXDescriptor = {

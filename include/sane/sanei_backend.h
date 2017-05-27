@@ -152,7 +152,7 @@ extern void ENTRY(exit) (void);
 /** Internationalization for SANE backends
  *
  * Add SANE_I18N() to all texts that can be translated.
- * E.g. out_txt = SANE_I18N("Hello"); 
+ * E.g. out_txt = SANE_I18N("Hello");
  */
 #ifndef SANE_I18N
 #define SANE_I18N(text) text

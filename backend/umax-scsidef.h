@@ -287,9 +287,9 @@ static scsiblk inquiry = { inquiryC, sizeof(inquiryC) };
 #define get_inquiry_0x65(in)					in[0x65]
 
 #define get_inquiry_gib(in)					in[0x66]
-#define get_inquiry_gib_8bpp(in)				getbitfield(in + 0x66, 1, 0) 
+#define get_inquiry_gib_8bpp(in)				getbitfield(in + 0x66, 1, 0)
 #define get_inquiry_gib_9bpp(in)				getbitfield(in + 0x66, 1, 1)
-#define get_inquiry_gib_10bpp(in)				getbitfield(in + 0x66, 1, 2) 
+#define get_inquiry_gib_10bpp(in)				getbitfield(in + 0x66, 1, 2)
 #define get_inquiry_gib_12bpp(in)				getbitfield(in + 0x66, 1, 3)
 #define get_inquiry_gib_14bpp(in)				getbitfield(in + 0x66, 1, 4)
 #define get_inquiry_gib_16bpp(in)				getbitfield(in + 0x66, 1, 5)
@@ -301,9 +301,9 @@ static scsiblk inquiry = { inquiryC, sizeof(inquiryC) };
 #define get_inquiry_0x67(in)					in[0x67]
 
 #define get_inquiry_gob(in)					in[0x68]
-#define get_inquiry_gob_8bpp(in)				getbitfield(in + 0x68, 1, 0) 
+#define get_inquiry_gob_8bpp(in)				getbitfield(in + 0x68, 1, 0)
 #define get_inquiry_gob_9bpp(in)				getbitfield(in + 0x68, 1, 1)
-#define get_inquiry_gob_10bpp(in)				getbitfield(in + 0x68, 1, 2) 
+#define get_inquiry_gob_10bpp(in)				getbitfield(in + 0x68, 1, 2)
 #define get_inquiry_gob_12bpp(in)				getbitfield(in + 0x68, 1, 3)
 #define get_inquiry_gob_14bpp(in)				getbitfield(in + 0x68, 1, 4)
 #define get_inquiry_gob_16bpp(in)				getbitfield(in + 0x68, 1, 5)
@@ -653,7 +653,7 @@ static unsigned char window_descriptor_blockC[] =
 #  define WD_calibration_lineart	0x0f
 #  define WD_calibration_dither		0x0e
 #  define WD_calibration_gray		0x0d
-#  define WD_calibration_rgb		0x0a 
+#  define WD_calibration_rgb		0x0a
 #  define WD_calibration_ignore		0x09
 
 /* 0x3a */  0x01,						   /* Color Sequence, Color Ordering Support */
@@ -722,7 +722,7 @@ static scsiblk window_descriptor_block = { window_descriptor_blockC, sizeof(wind
 
 /* --------------------------------------------------------------------------------------------------------- */
 
- 
+
 #define set_WDB_length(length)				(window_descriptor_block.size = (length))
 
 #define WPDB_OFF(b)					(b + set_window.size)
@@ -744,7 +744,7 @@ static scsiblk scan = { scanC, sizeof(scanC) - 3 };
 #define set_SC_quality(sb, val)				setbitfield(sb + 0x05, 1, 5, val)
 #define set_SC_adf(sb, val)				setbitfield(sb + 0x05, 1, 6, val)
 #define set_SC_preview(sb, val)				setbitfield(sb + 0x05, 1, 7, val)
-#define set_SC_wid(sb, n, val)				sb[0x05 + n] = val 
+#define set_SC_wid(sb, n, val)				sb[0x05 + n] = val
 
 
 /* --------------------------------------------------------------------------------------------------------- */
@@ -907,12 +907,12 @@ static scsiblk request_sense = { request_senseC, sizeof(request_senseC) };
 #define get_RS_filemark(b)				getbitfield(b + 0x02, 1, 7)
 #define get_RS_EOM(b)					getbitfield(b + 0x02, 1, 6)
 #define get_RS_ILI(b)					getbitfield(b + 0x02, 1, 5)
-#define get_RS_sense_key(b)				getbitfield(b + 0x02, 0x0f, 0) 
-#define get_RS_information(b)				getnbyte(b+0x03, 4) 
+#define get_RS_sense_key(b)				getbitfield(b + 0x02, 0x0f, 0)
+#define get_RS_information(b)				getnbyte(b+0x03, 4)
 #define get_RS_additional_length(b)			b[0x07]
 #define get_RS_ASC(b)					b[0x0c]
 #define get_RS_ASCQ(b)					b[0x0d]
-#define get_RS_SKSV(b)					getbitfield(b+0x0f,1,7)   /* valid */ 
+#define get_RS_SKSV(b)					getbitfield(b+0x0f,1,7)   /* valid */
 #define get_RS_CD(b)					getbitfield(b+0x0f,1,6)   /* 1=CDB */
 #define get_RS_field_pointer(b)				getnbyte(b+0x10, 2)
 

@@ -7,7 +7,7 @@ V 1.0-10 (2005-10-16)
 
 V 1.0-9 (2005-10-02)
 
-- Removed global variables in mustek_usb2.c: 
+- Removed global variables in mustek_usb2.c:
   Deleted the following variables (not necessary):
     m_bIsOpen
   Moved the following varaiables to Mustek_Scanner structure:
@@ -81,7 +81,7 @@ V 1.0-4 (2005-09-27)
   a2nu2/spicall/spicall.c		--> included in mustek_usb2.c
   a2nu2/spicall/spicall_ex.h
   a2nu2/spicall/spicall_g.h		--> included in mustek_usb2_high.c
-  a2nu2/include/asic.h			--> included in mustek_usb2_asic_low.h  
+  a2nu2/include/asic.h			--> included in mustek_usb2_asic_low.h
   a2nu2/include/debug.h			--> removed
   a2nu2/include/ini.h
   a2nu2/include/msam.ini		--> removed
@@ -94,11 +94,11 @@ V 1.0-4 (2005-09-27)
   a2nu2/asic/asic_libusb.h		--> removed
   a2nu2/asic/asic_mid.c			--> mustek_usb2_asic_mid.c
   a2nu2/asic/asic_mid.h			--> included in mustek_usb2_asic_mid.c
-  a2nu2/asic/asic_motor.c		--> mustek_usb2_asic_motor.c  
+  a2nu2/asic/asic_motor.c		--> mustek_usb2_asic_motor.c
   a2nu2/asic/asic_motor.h		--> mustek_usb2_asic_motor.h
-  a2nu2/asic/asic_usb.c			--> mustek_usb2_asic_low.c  
+  a2nu2/asic/asic_usb.c			--> mustek_usb2_asic_low.c
   a2nu2/asic/asic_usb.h			--> included in mustek_usb2_asic_low.h
-  a2nu2/asic/DefineScanner.h		--> mustek_usb2_asic_low.h  
+  a2nu2/asic/DefineScanner.h		--> mustek_usb2_asic_low.h
   a2nu2/asic/ScanRegDef.h		--> included in mustek_usb2_asic_low.h
 
 - Changed backend name to mustek_usb2.

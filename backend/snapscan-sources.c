@@ -238,7 +238,7 @@ typedef struct
 
 static SANE_Int FDSource_remaining (Source *pself)
 {
-    FDSource *ps = (FDSource *) pself;    
+    FDSource *ps = (FDSource *) pself;
     return ps->bytes_remaining;
 }
 
@@ -660,19 +660,19 @@ static SANE_Status create_Expander (SnapScan_Scanner *pss,
     return status;
 }
 
-/* 
+/*
    This filter implements a fix for scanners that have some columns
    of pixels offset. Currently it only shifts every other column
    starting with the first one down ch_offset pixels.
-   
+
    The Deinterlacer detects if data is in SANE RGB frame format (3 bytes/pixel)
    or in Grayscale (1 byte/pixel).
-   
+
    The first ch_offset lines of data in the output are fudged so that even indexed
    add odd indexed pixels will have the same value. This is necessary because
-   the real pixel values of the columns that are shifted down are not 
+   the real pixel values of the columns that are shifted down are not
    in the data for the first ch_offset lines. A better way to handle this would be to
-   scan in ch_offset extra lines of data, but I haven't figured out how to do this 
+   scan in ch_offset extra lines of data, but I haven't figured out how to do this
    yet.
 
 */
@@ -707,7 +707,7 @@ static SANE_Status Deinterlacer_get (Source *pself, SANE_Byte *pbuf, SANE_Int *p
     SANE_Int remaining = *plen;
     SANE_Int org_len = *plen;
     char *me = "Deinterlacer_get";
-    
+
     DBG(DL_DATA_TRACE, "%s: remaining=%d, pself->remaining=%d, ch_ndata=%d, ch_pos=%d\n",
             me, remaining, pself->remaining(pself), ps->ch_ndata, ps->ch_pos);
 
@@ -784,8 +784,8 @@ static SANE_Status Deinterlacer_get (Source *pself, SANE_Byte *pbuf, SANE_Int *p
                     *pbuf = ps->ch_buf[(ps->ch_pos + (ps->ch_line_size)) % ps->ch_size];
                 }else{
                     /* Use data from the next pixel for even indexed pixels
-                      if we are on the first few lines. 
-                      TODO: also we will overread the buffer if the buffer read ended 
+                      if we are on the first few lines.
+                      TODO: also we will overread the buffer if the buffer read ended
                       on the first pixel. */
                     if (ps->ch_pos % (ps->ch_line_size) == 0 )
                         *pbuf = ps->ch_buf[ps->ch_pos+ps->ch_bytes_per_pixel];
@@ -807,7 +807,7 @@ static SANE_Status Deinterlacer_get (Source *pself, SANE_Byte *pbuf, SANE_Int *p
     }
 
     *plen -= remaining;
-    
+
     DBG(DL_DATA_TRACE,
         "%s: Request=%d, remaining=%d, read=%d, TXSource_rem=%d, bytes_rem=%lu\n",
         me,
@@ -815,7 +815,7 @@ static SANE_Status Deinterlacer_get (Source *pself, SANE_Byte *pbuf, SANE_Int *p
         pself->remaining(pself),
         *plen,
         TxSource_remaining(pself),
-        (u_long) ps->pss->bytes_remaining);    
+        (u_long) ps->pss->bytes_remaining);
     return status;
 }
 
@@ -859,7 +859,7 @@ static SANE_Status Deinterlacer_init (Deinterlacer *pself,
             break;
         }
         pself->ch_line_size = TxSource_bytesPerLine((Source *) pself);
-        /* We need at least ch_offset+1 lines of buffer in order 
+        /* We need at least ch_offset+1 lines of buffer in order
            to shift up ch_offset pixels. */
         pself->ch_size = pself->ch_line_size * (pself->ch_offset + 1);
         pself->ch_buf = (SANE_Byte *) malloc(pself->ch_size);
@@ -1216,10 +1216,10 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
         {
         case MD_COLOUR:
             status = create_RGBRouter (pss, *pps, pps);
-            /* We only have the interlace probelms on 
-               some scanners like the Epson Perfection 2480/2580 
+            /* We only have the interlace probelms on
+               some scanners like the Epson Perfection 2480/2580
                at 2400 dpi. */
-            if (status == SANE_STATUS_GOOD && 
+            if (status == SANE_STATUS_GOOD &&
                 ((pss->pdev->model == PERFECTION2480 && pss->res == 2400) ||
                 (pss->pdev->model == PERFECTION3490 && pss->res == 3200) ||
                 (pss->pdev->model == PRISA5000E && pss->res == 1200)))
@@ -1229,7 +1229,7 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
             status = create_Expander (pss, *pps, pps);
             if (status == SANE_STATUS_GOOD)
                 status = create_RGBRouter (pss, *pps, pps);
-            if (status == SANE_STATUS_GOOD && 
+            if (status == SANE_STATUS_GOOD &&
                 ((pss->pdev->model == PERFECTION2480 && pss->res == 2400) ||
                 (pss->pdev->model == PERFECTION3490 && pss->res == 3200) ||
                 (pss->pdev->model == PRISA5000E && pss->res == 1200)))

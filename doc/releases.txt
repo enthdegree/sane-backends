@@ -7,7 +7,7 @@ Timetable (approximate periods):
 
 Day  0: Announcement of upcoming release on sane-devel including timetable
 Day 14: Feature freeze (only bugfixes + documentation updates)
-Day 28: Code freeze (only fixes for bugs that can destroy hardware, can cause 
+Day 28: Code freeze (only fixes for bugs that can destroy hardware, can cause
         compilation problems or render a backend completely unusable, and
         documentation updates are allowed)
 Day 35: Release
@@ -41,7 +41,7 @@ Making the release:
 * make tar.gz, sane-backends-x.y.z.lsm, and .md5sum with "make sane-backends"
 * unpack tar.gz in temporary directory
 * make diff from last release by unpacking it also in temporary directory
-  and running e.g. 
+  and running e.g.
   diff -uNr sane-backends-1.0.23 sane-backends-1.0.24  > sane-backends-1.0.23-1.0.24.diff
 * check that the diff applies cleanly to the old version
 * gzip the diff

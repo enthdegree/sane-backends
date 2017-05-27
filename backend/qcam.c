@@ -1248,7 +1248,7 @@ init_options (QC_Scanner * s)
   int i;
 
   DBG (3, "init_options: enter\n");
-  
+
   memset (s->opt, 0, sizeof (s->opt));
   memset (s->val, 0, sizeof (s->val));
 
@@ -1446,7 +1446,7 @@ init_options (QC_Scanner * s)
   s->val[OPT_SATURATION].w = 100;
 
   DBG (3, "init_options: exit\n");
-  
+
   return SANE_STATUS_GOOD;
 }
 
@@ -1497,9 +1497,9 @@ sane_exit (void)
 {
   QC_Device *dev, *next;
   static const SANE_Device **devlist;
-  
+
   DBG (5, "sane_exit: enter\n");
-  
+
   for (dev = first_dev; dev; dev = next)
     {
       next = dev->next;
@@ -1510,7 +1510,7 @@ sane_exit (void)
   if (devlist) {
 	  free (devlist);
           devlist = NULL;
-  }		  
+  }
   DBG (5, "sane_exit: exit\n");
 }
 
@@ -1538,9 +1538,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   devlist[i++] = 0;
 
   *device_list = devlist;
-  
+
   DBG (5, "sane_get_devices: exit\n");
-  
+
   return SANE_STATUS_GOOD;
 }
 
@@ -1630,7 +1630,7 @@ sane_close (SANE_Handle handle)
   QC_Scanner *prev, *s;
 
   DBG (5, "sane_close: enter\n");
-  
+
   /* remove handle from list of open handles: */
   prev = 0;
   for (s = first_handle; s; s = s->next)
@@ -1666,9 +1666,9 @@ sane_close (SANE_Handle handle)
     close (s->read_fd);
 
   free (s);
-  
+
   DBG (5, "sane_close: exit\n");
-	  
+
 }
 
 const SANE_Option_Descriptor *
@@ -1677,7 +1677,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   QC_Scanner *s = handle;
 
   DBG (5, "sane_get_option_descriptor: enter\n");
-  
+
   if ((unsigned) option >= NUM_OPTIONS)
     return 0;
 
@@ -1698,7 +1698,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   int i;
 
   DBG (5, "sane_control_option: enter\n");
-  
+
   if (info)
     *info = 0;
 
@@ -1866,7 +1866,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   size_t Bpp = 3;		/* # of bytes per pixel */
 
   DBG (5, "sane_get_parameters: enter\n");
-  
+
   if (!s->scanning)
     {
       /* Only compute new parameters when not scanning---allows
@@ -1912,7 +1912,7 @@ sane_start (SANE_Handle handle)
   QC_Scan_Request req;
 
   DBG (5, "sane_start: enter\n");
-  
+
   if (s->scanning)
     return SANE_STATUS_DEVICE_BUSY;
 
@@ -2099,7 +2099,7 @@ sane_start (SANE_Handle handle)
   s->deliver_eof = 0;
 
   DBG (5, "sane_start: exit\n");
-  
+
   return SANE_STATUS_GOOD;
 }
 
@@ -2114,7 +2114,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   size_t len;
 
   DBG (5, "sane_read: enter\n");
-  
+
   *lenp = 0;
 
   if (s->deliver_eof)
@@ -2177,7 +2177,7 @@ sane_cancel (SANE_Handle handle)
   SANE_Status status;
 
   DBG (5, "sane_cancel: enter\n");
-  
+
   was_scanning = s->scanning;
   s->scanning = SANE_FALSE;
   s->deliver_eof = 0;
@@ -2239,7 +2239,7 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
   QC_Scanner *s = handle;
 
   DBG (5, "sane_set_io_mode: enter\n");
-  
+
   if (!s->scanning)
     return SANE_STATUS_INVAL;
 

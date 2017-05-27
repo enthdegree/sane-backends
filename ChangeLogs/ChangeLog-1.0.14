@@ -72,9 +72,9 @@
 
 	* backend/snapscan-mutex.c: Fixed compilation problem on OS/2
 	  (Thanks to Franz Bakan).
-	* configure.in configure: SnapScan backend now compiled in by 
+	* configure.in configure: SnapScan backend now compiled in by
 	  default on OS/2
-      
+
 2004-04-15  Marian Eichholz <eichholz@computer.org>
 
 	* backend/sm3600.h backend/sm3600-scanmtek.c
@@ -178,7 +178,7 @@
 
 	* backend/test.c changed some option group headers to advanced option
 	  menu.
-	
+
 2004-04-06  Jochen Eisinger <jochen@penguin-breeder.org>
 
 	* sanei/sanei_pa4s2.c include/sane/sanei_pa4s2.h, backend/mustek_pp.c:
@@ -209,7 +209,7 @@
 
 2004-04-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
-	* backend/snapscan.c backend/snapscan-options.c 
+	* backend/snapscan.c backend/snapscan-options.c
 	  backend/snapscan-scsi.c:
 	  Various bugfixes for gamma correction (Thanks to Robert Tsien)
 	* po/sane-backends.de.po: Fix translation for "gamma table"
@@ -232,8 +232,8 @@
 	* backend/gt68xx.c backend/gt68xx_devices.c
 	  backend/gt68xx_gt6801.c backend/gt68xx_gt6816.c
 	  backend/gt68xx_high.c doc/descriptions/gt68xx.desc
-	  doc/gt68xx/gt68xx.CHANGES: Plustek U16B: Added 
-	  GT68XX_FLAG_SE_2400. Fixed color order.Increased debug 
+	  doc/gt68xx/gt68xx.CHANGES: Plustek U16B: Added
+	  GT68XX_FLAG_SE_2400. Fixed color order.Increased debug
 	  level for setup_scan. Fixed CCD ocarse calibration.
 	* doc/descriptions/microtek.desc: Added Agfa Studiostar.
 	* doc/descriptions/unsupported.desc: Added Avigramm Minidoc,
@@ -260,7 +260,7 @@
 	  since new models use new ID strings.
 
 2004-03-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
+
 	* backend/mustek.c doc/descriptions/mustek.desc
 	  doc/mustek/mustek.CHANGES: Added detection of Mustek ScanExpress
 	  1200 FS.
@@ -332,10 +332,10 @@
 	  to scanner pages.
 
 2004-03-04  Oliver Schirrmeister <oschirr@abm.de>
-	* backend/fujitsu.c 
+	* backend/fujitsu.c
           enabled dropoutcolor for fi4x20C
 2004-03-04  Oliver Schirrmeister <oschirr@abm.de>
-	* backend/fujitsu.c 
+	* backend/fujitsu.c
           enabled dropoutcolor for fi4530C
 
 2004-03-03  Gerhard Jaeger <gerhard@gjaeger.de>
@@ -421,7 +421,7 @@
 
 2004-02-08  Karl Heinz Kremer <khk@khk.net>
 	* backend/epson*.[ch]: Reformat source code to get rid of different coding styles
-	  used over the years (and by different authors). 
+	  used over the years (and by different authors).
 
 2004-02-08  Frank Zago  <fzago at austin dot rr dot com>
 	* README.windows: added info about USB scanners.
@@ -454,13 +454,13 @@
 	* backend/mustek_pp.conf: fixed mistakes in examples
 
 2004-02-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
+
 	* doc/descriptions/unsupported.desc: Added Genius Colorpage Vivid
 	  1200EX and Mustek Paragon 800 II EP.
 
 2004-02-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* sanei/sanei_usb.c: Fixed inconsistent error message (patch from 
+	* sanei/sanei_usb.c: Fixed inconsistent error message (patch from
 	  Mattias Ellert <mattias.ellert@tsl.uu.se>).
 
 2004-02-01  Gerhard Jaeger <gerhard@gjaeger.de>
@@ -627,7 +627,7 @@
 	* AUTHORS: added myself as u12 backend author.
 	* backend/Makefile.in: added new backend u12.
 	* backend/u12.c backend/u12.h backend/u12-scanner.h backend/u12-hwdef.h
-	  backend/u12.conf backend/u12-shading.c backend/u12-tpa.c 
+	  backend/u12.conf backend/u12-shading.c backend/u12-tpa.c
 	  backend/u12-ccd.c backend/u12-hw.c backend/u12-if.c backend/u12-image.c
 	  backend/u12-io.c backend/u12-map.c backend/u12-motor.c:
 	  initial checkin.
@@ -646,9 +646,9 @@
 	  bug in the stop scan function for Plustek U16b. Added support
 	  for Genius Vivid4xe.
 	* doc/descriptions/unsupported.desc: Added Visioneer 8820 and TCE S450.
-	
+
 2003-12-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
+
 	* doc/descriptions/unsupported.desc: Added HP and Epson scanners.
 
 2003-12-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -723,11 +723,11 @@
 
 	* doc/descriptions/unsupported.desc: Added Canon 3200F.
 	* backend/gt68xx_gt6801.h: Made internal function static.
-	
+
 2003-12-15  Oliver Schirrmeister <oschirr@abm.de>
 	* backends/fujitsu.[hc]: Bugfix: The options pagewidth and
 	  pageheight were disabled for the fi4530
-         
+
 2003-12-15  Eugene Weiss <eweiss@sbcglobal.net>
 	*  backend/as6e.c:  fixed bugs 300123 and 300133.
 
@@ -752,7 +752,7 @@
 
 	* AUTHORS: Eugene S. Weiss has CVS write access now.
 	* doc/descriptions/unsupported.desc: Added and updated some
-	  scanners. 
+	  scanners.
 	* tools/sane-find-scanner.c: Actually use the number of the alt
 	  setting when printing descriptors. Fixes bug #300383 found by
 	  Gerard Klaver.
@@ -792,7 +792,7 @@
 	* doc/descriptions/unsupported.desc: Added some scanners.
 
 2003-12-06  Peter Fales <peter@fales-lorenz.net>
-	* acinclude.m4, aclocal.m4, configure:  gphoto2 backend is now 
+	* acinclude.m4, aclocal.m4, configure:  gphoto2 backend is now
 	  enabled by default if gphoto2-config is found.   Use
 	  "--with-gphoto2=no" to disable it.
 
@@ -814,14 +814,14 @@
 	  removed compiler warnings, made HMG's fix for bug #300257
 	  permament.
 	* doc/sane-canon630u.man: cleanup
-	
+
 2003-12-01  Jochen Eisinger <jochen@penguin-breeder.org>
 
 	* backend/mustek_pp_ccd300.c: Fixed horizontal offset of scan area
 	  and scaling for color scans
-	
+
 2003-11-27  Karl Heinz Kremer <khk@khk.net>
-	
+
 	* doc/descriptions/epson.desc: Changed status for CX3200 and
 	  CX5200 from untested to good
 
@@ -862,13 +862,13 @@
 
 2003-11-23  Jochen Eisinger <jochen@penguin-breeder.org>
 
-	* backend/mustek_pp.c, sanei/sanei_pa4s2.c: added support for auto 
+	* backend/mustek_pp.c, sanei/sanei_pa4s2.c: added support for auto
 	  probing of the port
 	* configure{.in}, backend/mustek_pp_ccd.*, backend/Makefile.in,
-	  backend/dll.conf, doc/sane-mustek_pp_ccd.man, doc/sane.man, 
-	  doc/Makefile.in, doc/descriptions/mustek_pp_ccd.desc: mustek_pp_ccd 
+	  backend/dll.conf, doc/sane-mustek_pp_ccd.man, doc/sane.man,
+	  doc/Makefile.in, doc/descriptions/mustek_pp_ccd.desc: mustek_pp_ccd
 	  backend removed
-	* backend/mustek_pp.conf, mustek_pp_ccd300.[ch], 
+	* backend/mustek_pp.conf, mustek_pp_ccd300.[ch],
 	  doc/sane-mustek_pp.man, doc/descriptions/mustek_pp.desc: fixed CCD
 	  support for mustek_pp backend
 	* backend/mustek_pp_null.c: beautified debug scanner name

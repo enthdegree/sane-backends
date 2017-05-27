@@ -2,7 +2,7 @@
    Copyright (C) 2007 Jeremy Johnson
    This file is part of a SANE backend for Ricoh IS450
    and IS420 family of HS2P Scanners using the SCSI controller.
-   
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -309,7 +309,7 @@ typedef enum
   /*OPT_CHECK_ADF,          check for page in ADF before scanning */
 
   OPT_ENHANCEMENT_GROUP,
-  /* OPT_ACE_FUNCTION,  
+  /* OPT_ACE_FUNCTION,
      OPT_ACE_SENSITIVITY, */
   OPT_BRIGHTNESS,		/* Brightness */
   OPT_THRESHOLD,		/* Threshold */

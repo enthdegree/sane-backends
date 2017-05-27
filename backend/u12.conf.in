@@ -63,5 +63,5 @@ device auto
 
 #
 # to define a new device, start with a new section:
-# [usb] 
+# [usb]
 #

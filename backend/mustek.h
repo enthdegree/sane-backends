@@ -3,7 +3,7 @@
    extension to ScanExpress models version 0.5,
    2000 - 2005 Henning Meier-Geinitz.
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
@@ -38,7 +38,7 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice.  
+   If you do not wish that, delete this exception notice.
 
    This file implements a SANE backend for Mustek and some Trust flatbed
    scanners with SCSI or proprietary interface.  */
@@ -292,7 +292,7 @@ typedef struct Mustek_Scanner
     /* these are used for SE, MFS and N line-distance correction: */
     SANE_Byte *buf[3];
     /* these are used for N line-distance correction only: */
-    SANE_Int ld_line;		/* line # currently processed in 
+    SANE_Int ld_line;		/* line # currently processed in
 				   ld-correction */
     SANE_Int lmod3;		/* line # modulo 3 */
   }

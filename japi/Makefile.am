@@ -21,7 +21,7 @@ AM_LDFLAGS += $(STRICT_LDFLAGS) -version-number $(V_MAJOR):$(V_MINOR):$(V_REV)
 JAVA_SRC = SaneDevice.java SaneOption.java SaneRange.java\
 	   Sane.java SaneParameters.java ScanIt.java \
 	   ImageCanvas.java ImageCanvasClient.java \
-	   Test.java Jscanimage.java 
+	   Test.java Jscanimage.java
 
 dist_noinst_JAVA = $(JAVA_SRC)
 

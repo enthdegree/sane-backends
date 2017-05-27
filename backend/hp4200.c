@@ -5,24 +5,24 @@
   modify it under the terms of the GNU General Public License
   as published by the Free Software Foundation; either version 2
   of the License, or (at your option) any later version.
-  
+
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  
+  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 /* Developers:
 
-       Adrian Perez Jorge (APJ) - 
+       Adrian Perez Jorge (APJ) -
             Creator of the original HP4200C backend code.
 	    adrianpj@easynews.com
-				  
-       Andrew John Lewis  (AJL) - 
+
+       Andrew John Lewis  (AJL) -
 	    lewi0235@tc.umn.edu
 
        Arnar Mar Hrafnkelsson (AMH) -
@@ -43,7 +43,7 @@ TODO:
      image size and the scanner-to-host bandwidth.
    - improve image quality.
    - fix problem concerning mangled images
-  
+
 */
 
 #define BUILD 2
@@ -1884,7 +1884,7 @@ prepare_for_a_scan (HP4200_Scanner * s)
      calculated horizontal dpi code */
   hdpi_div = hdpi_mapping[hdpi_code];
 
-  /* image_width is set to the correct number of pixels by calling 
+  /* image_width is set to the correct number of pixels by calling
      fxn.  This might be the reason we can't do high res full width
      scans though...not sure.  */
   /*s->user_parms.image_width /= 4; */

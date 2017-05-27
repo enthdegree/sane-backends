@@ -43,13 +43,13 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice.  
+   If you do not wish that, delete this exception notice.
 
  ***************************************************************************
 
-   This file implements a SANE backend for the Kodak DC-25 (and 
+   This file implements a SANE backend for the Kodak DC-25 (and
    probably the DC-20) digital cameras.  THIS IS EXTREMELY ALPHA CODE!
-   USE AT YOUR OWN RISK!! 
+   USE AT YOUR OWN RISK!!
 
    (feedback to:  dc25-devel@fales-lorenz.net)
 
@@ -73,7 +73,7 @@
  *	conversion routine written by YOSHIDA Hideki <hideki@yk.rim.or.jp>
  *
  *	This program is free software; you can redistribute it and/or modify
- *	it under the terms of the GNU General Public License as published 
+ *	it under the terms of the GNU General Public License as published
  *	the Free Software Foundation; either version 2 of the License, or
  *	(at your option) any later version.
  *
@@ -97,7 +97,7 @@
 #include <string.h>
 
 #ifndef TRUE
-#define TRUE	(1==1)  
+#define TRUE	(1==1)
 #endif
 
 #ifndef FALSE
@@ -255,7 +255,7 @@ static int read_data (int fd, unsigned char *buf, int sz);
 
 static int end_of_data (int fd);
 
-static int set_pixel_rgb (struct pixmap *, int, int, unsigned char, unsigned char, unsigned char); 
+static int set_pixel_rgb (struct pixmap *, int, int, unsigned char, unsigned char, unsigned char);
 
 static struct pixmap *alloc_pixmap (int x, int y, int d);
 

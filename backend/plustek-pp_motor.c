@@ -1875,7 +1875,7 @@ static void motorP96SetupRunTable( pScanData ps )
 		    if ((siSum -= (Short)ps->DataInf.xyPhyDpi.y) <= 0) {
 				siSum += (Short)wP96BaseDpi;
 
-    			if((ps->sCaps.Model == MODEL_OP_12000P)|| 
+    			if((ps->sCaps.Model == MODEL_OP_12000P)||
                                            (ps->sCaps.Model == MODEL_OP_A3I)) {
 					*p.pb |= _COLORRUNTABLE_GREEN;
                 } else {
@@ -2083,7 +2083,7 @@ static void motorP96WaitBack( pScanData ps )
     } else {
 		dw = _P96_FORWARDMOVES;
 	}
-	
+
 	memset( a_bScanStateTable, 1, dw );
     memset(&a_bScanStateTable[dw], 0xff, 250 - dw );
 

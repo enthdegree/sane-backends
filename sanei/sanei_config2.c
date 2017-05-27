@@ -149,6 +149,6 @@ sanei_config_attach_matching_devices (const char *name,
       if (type)
 	free (type);
     }
-  else 
+  else
     (*attach) (name);
 }

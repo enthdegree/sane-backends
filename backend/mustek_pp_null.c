@@ -39,7 +39,7 @@
    If you do not wish that, delete this exception notice.
 
    This file implements a SANE backend for Mustek PP flatbed scanners.  */
-   
+
 #include "../include/sane/config.h"
 
 #if defined(HAVE_STDLIB_H)
@@ -62,7 +62,7 @@
 
 #define MUSTEK_PP_NULL_DRIVER	0
 
-static SANE_Status 
+static SANE_Status
 debug_drv_init(SANE_Int options, SANE_String_Const port,
 		SANE_String_Const name, SANE_Attach_Callback attach)
 {
@@ -75,7 +75,7 @@ debug_drv_init(SANE_Int options, SANE_String_Const port,
 }
 
 /*ARGSUSED*/
-static void 
+static void
 debug_drv_capabilities(SANE_Int info __UNUSED__, SANE_String *model,
                             SANE_String *vendor, SANE_String *type,
                             SANE_Int *maxres, SANE_Int *minres,
@@ -96,14 +96,14 @@ debug_drv_capabilities(SANE_Int info __UNUSED__, SANE_String *model,
 
 /*ARGSUSED*/
 static SANE_Status
-debug_drv_open (SANE_String port __UNUSED__, 
+debug_drv_open (SANE_String port __UNUSED__,
 			    SANE_Int caps __UNUSED__, SANE_Int *fd)
 {
 	*fd = 1;
 	return SANE_STATUS_GOOD;
 }
 
-static void 
+static void
 debug_drv_setup (SANE_Handle hndl)
 {
 
@@ -115,7 +115,7 @@ debug_drv_setup (SANE_Handle hndl)
 
 /*ARGSUSED*/
 static SANE_Status
-debug_drv_config(SANE_Handle hndl __UNUSED__, 
+debug_drv_config(SANE_Handle hndl __UNUSED__,
 			     SANE_String_Const optname,
 			     SANE_String_Const optval)
 {
@@ -136,7 +136,7 @@ debug_drv_start (SANE_Handle hndl __UNUSED__)
 	return SANE_STATUS_GOOD;
 }
 
-static void 
+static void
 debug_drv_read (SANE_Handle hndl, SANE_Byte *buffer)
 {
 

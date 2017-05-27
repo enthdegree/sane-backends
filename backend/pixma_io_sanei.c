@@ -106,9 +106,9 @@ get_scanner_info (unsigned devnr)
   return si;
 }
 
-static const struct pixma_config_t *lookup_scanner(const char *makemodel, 
+static const struct pixma_config_t *lookup_scanner(const char *makemodel,
                                                    const struct pixma_config_t *const pixma_devices[])
-{ 
+{
   int i;
   const struct pixma_config_t *cfg;
   char *match;
@@ -120,12 +120,12 @@ static const struct pixma_config_t *lookup_scanner(const char *makemodel,
         {
           /* loop through devices in class */
           if ((match = strcasestr (makemodel, cfg->model)) != NULL)
-            { 
+            {
               /* possible match found, make sure it is not a partial match */
               /* MP600 and MP600R are different models! */
               /* some models contain ranges, so check for a '-' too */
 
-              if ((match[strlen(cfg->model)] == ' ') || 
+              if ((match[strlen(cfg->model)] == ' ') ||
                   (match[strlen(cfg->model)] == '\0') ||
                   (match[strlen(cfg->model)] == '-'))
                 {
@@ -159,8 +159,8 @@ attach (SANE_String_Const devname)
 
 
 static SANE_Status
-attach_bjnp (SANE_String_Const devname,  SANE_String_Const makemodel, 
-             SANE_String_Const serial, 
+attach_bjnp (SANE_String_Const devname,  SANE_String_Const makemodel,
+             SANE_String_Const serial,
              const struct pixma_config_t *const pixma_devices[])
 {
   scanner_info_t *si;
@@ -417,7 +417,7 @@ pixma_connect (unsigned devnr, pixma_io_t ** handle)
     error = map_error (sanei_bjnp_open (si->devname, &dev));
   else
     error = map_error (sanei_usb_open (si->devname, &dev));
-      
+
   if (error < 0)
     return error;
   io = (pixma_io_t *) calloc (1, sizeof (*io));
@@ -425,7 +425,7 @@ pixma_connect (unsigned devnr, pixma_io_t ** handle)
     {
       if (si -> interface == INT_BJNP)
         sanei_bjnp_close (dev);
-      else 
+      else
         sanei_usb_close (dev);
       return PIXMA_ENOMEM;
     }

@@ -6,7 +6,7 @@ sane\-gphoto2 \- SANE backend for gphoto2 supported cameras
 The
 .B sane\-gphoto2
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to the digital cameras supported by gphoto2. 
+provides access to the digital cameras supported by gphoto2.
 This backend has only been tested with a handful of cameras so far.  Patches
 to support other models are welcome.
 .PP
@@ -26,16 +26,16 @@ required since they are needed by the sane frontends, but can't be obtained
 through the gphoto2 interface.  Valid ports and cameras can be obtained
 by "gphoto2 \-\-list\-cameras" and "gphoto2 \-\-list\-ports".
 .PP
-The dumpinquiry line causes some information about the camera to 
+The dumpinquiry line causes some information about the camera to
 be printed.
 .PP
 Empty lines and lines starting with a hash mark (#) are
 ignored.  A sample configuration file is shown below:
 .PP
-The "topfolder" line specifies the "fixed" part of the file path.  For 
-example, on the Kodak DC-240, files are stored in the directory 
+The "topfolder" line specifies the "fixed" part of the file path.  For
+example, on the Kodak DC-240, files are stored in the directory
 /DCIM/100DC240.  The /DCIM portion is constant, but 100DC240 will
-change and must be read from the camera.  In this case, the 
+change and must be read from the camera.  In this case, the
 line would read "topfolder=/DCIM"
 .PP
 Some cameras don't implement a file structure and store all pictures
@@ -90,12 +90,12 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .TP
 .B SANE_DEBUG_GPHOTO2
 If the library was compiled with debugging support enabled, this
-environment variable controls the debug level for this backend. 
+environment variable controls the debug level for this backend.
 A value of 128 requests maximally copious debug output; smaller
 levels reduce verbosity.
-.TP 
+.TP
 .B GP_DEBUG
-Set to 1, 2, or 3, to enable various levels of debugging within the 
+Set to 1, 2, or 3, to enable various levels of debugging within the
 gphoto2 libraries.
 
 .SH "SEE ALSO"
@@ -111,8 +111,8 @@ The manpage was largely copied from the dc210 manpage.
 Many, no doubt.
 .PP
 More general comments, suggestions, and inquiries about frontends
-or SANE should go to the SANE Developers mailing list 
-(see http://www.sane\-project.org/mailing\-lists.html for details). 
+or SANE should go to the SANE Developers mailing list
+(see http://www.sane\-project.org/mailing\-lists.html for details).
 You must be subscribed to the list, otherwise your mail won't be
 sent to the subscribers.
 

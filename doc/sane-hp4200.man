@@ -16,11 +16,11 @@ ScanJet 4200 Cxi
 ScanJet 4200 Cse
 .RE
 .PP
-More details can be found on the hp4200 backend homepage 
+More details can be found on the hp4200 backend homepage
 .IR http://hp4200\-backend.sourceforge.net/ .
 .PP
 This is BETA software. Keep your hand at the scanner's plug and unplug it, if
-the head bumps at the end of the scan area. 
+the head bumps at the end of the scan area.
 .PP
 If you own a scanner other than the ones listed above that works with this
 backend, please let us know this by sending the scanner's exact model name and
@@ -79,9 +79,9 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .B SANE_DEBUG_HP4200
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  Higher
-debug levels increase the verbosity of the output. 
+debug levels increase the verbosity of the output.
 
-Example: 
+Example:
 export SANE_DEBUG_HP4200=4
 
 .SH "SEE ALSO"

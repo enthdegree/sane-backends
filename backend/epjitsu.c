@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    This file implements a SANE backend for the Fujitsu fi-60F, the
-   ScanSnap S300/S1300, and (hopefully) other Epson-based scanners. 
+   ScanSnap S300/S1300, and (hopefully) other Epson-based scanners.
 
    Copyright 2007-2015 by m. allan noah <kitno455 at gmail dot com>
    Copyright 2009 by Richard Goedeken <richard at fascinationsoftware dot com>
@@ -174,7 +174,7 @@
    . . - sane_start() : start image acquisition
    . .   - sane_get_parameters() : returns actual scan parameters
    . .   - sane_read() : read image data (from pipe)
-   . . (sane_read called multiple times; after sane_read returns EOF, 
+   . . (sane_read called multiple times; after sane_read returns EOF,
    . . loop may continue with sane_start which may return a 2nd page
    . . when doing duplex scans, or load the next page from the ADF)
    . .
@@ -218,7 +218,7 @@ unsigned char global_firmware_filename[PATH_MAX];
  - function trace  10
  - function detail 15
  - get/setopt cmds 20
- - usb cmd trace   25 
+ - usb cmd trace   25
  - usb cmd detail  30
  - useless noise   35
 */
@@ -253,7 +253,7 @@ static struct scanner *scanner_devList = NULL;
 
 /*
  * Called by SANE initially.
- * 
+ *
  * From the SANE spec:
  * This function must be called before any other SANE function can be
  * called. The behavior of a SANE backend is undefined if this
@@ -271,21 +271,21 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
     DBG_INIT ();
     DBG (10, "sane_init: start\n");
-  
+
     if (version_code)
       *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
-  
+
     DBG (5, "sane_init: epjitsu backend %d.%d.%d, from %s\n",
       SANE_CURRENT_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
 
     DBG (10, "sane_init: finish\n");
-  
+
     return SANE_STATUS_GOOD;
 }
 
 /*
  * Called by SANE to find out about supported devices.
- * 
+ *
  * From the SANE spec:
  * This function can be used to query the list of devices that are
  * available. If the function executes successfully, it stores a
@@ -298,7 +298,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
  * returned (devices directly attached to the machine that SANE is
  * running on). If it is false, the device list includes all remote
  * devices that are accessible to the SANE library.
- * 
+ *
  * SANE does not require that this function is called before a
  * sane_open() call is performed. A device name may be specified
  * explicitly by a user which would make it unnecessary and
@@ -318,36 +318,36 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     FILE *fp;
     int num_devices=0;
     int i=0;
-  
+
     local_only = local_only;        /* get rid of compiler warning */
-  
+
     DBG (10, "sane_get_devices: start\n");
- 
+
     /* mark all existing scanners as missing, attach_one will remove mark */
     for (s = scanner_devList; s; s = s->next) {
       s->missing = 1;
     }
 
     sanei_usb_init();
-  
+
     fp = sanei_config_open (CONFIG_FILE);
-  
+
     if (fp) {
-  
+
         DBG (15, "sane_get_devices: reading config file %s\n", CONFIG_FILE);
-  
+
         while (sanei_config_read (line, PATH_MAX, fp)) {
-      
+
             lp = line;
 
             /* ignore comments */
             if (*lp == '#')
                 continue;
-      
+
             /* skip empty lines */
             if (*lp == 0)
                 continue;
-      
+
             if ((strncmp ("firmware", lp, 8) == 0) && isspace (lp[8])) {
                 lp += 8;
                 lp = sanei_config_skip_whitespace (lp);
@@ -364,7 +364,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
         }
         fclose (fp);
     }
-  
+
     else {
         DBG (5, "sane_get_devices: no config file '%s'!\n",
           CONFIG_FILE);
@@ -374,7 +374,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     for (s = scanner_devList; s;) {
       if(s->missing){
         DBG (5, "sane_get_devices: missing scanner %s\n",s->sane.name);
-  
+
         /*splice s out of list by changing pointer in prev to next*/
         if(prev){
           prev->next = s->next;
@@ -387,7 +387,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
           s = s->next;
           free(prev);
           prev=NULL;
-  
+
           /*reset head to next s*/
           scanner_devList = s;
         }
@@ -397,21 +397,21 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
         s=prev->next;
       }
     }
-  
+
     for (s = scanner_devList; s; s=s->next) {
         DBG (15, "sane_get_devices: found scanner %s\n",s->sane.name);
         num_devices++;
     }
-  
+
     DBG (15, "sane_get_devices: found %d scanner(s)\n",num_devices);
 
     if (sane_devArray)
       free (sane_devArray);
-  
+
     sane_devArray = calloc (num_devices + 1, sizeof (SANE_Device*));
     if (!sane_devArray)
         return SANE_STATUS_NO_MEM;
-  
+
     for (s = scanner_devList; s; s=s->next) {
         sane_devArray[i++] = (SANE_Device *)&s->sane;
     }
@@ -420,24 +420,24 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     if(device_list){
         *device_list = sane_devArray;
     }
- 
+
     DBG (10, "sane_get_devices: finish\n");
-  
+
     return ret;
 }
 
 /* callback used by sane_init
- * build the scanner struct and link to global list 
- * unless struct is already loaded, then pretend 
+ * build the scanner struct and link to global list
+ * unless struct is already loaded, then pretend
  */
 static SANE_Status
 attach_one (const char *name)
 {
     struct scanner *s;
     int ret, i;
-  
+
     DBG (10, "attach_one: start '%s'\n", name);
-  
+
     for (s = scanner_devList; s; s = s->next) {
         if (strcmp (s->sane.name, name) == 0) {
             DBG (10, "attach_one: already attached!\n");
@@ -445,30 +445,30 @@ attach_one (const char *name)
             return SANE_STATUS_GOOD;
         }
     }
-  
+
     /* build a scanner struct to hold it */
     DBG (15, "attach_one: init struct\n");
-  
+
     if ((s = calloc (sizeof (*s), 1)) == NULL)
         return SANE_STATUS_NO_MEM;
- 
+
     /* copy the device name */
     s->sane.name = strdup (name);
     if (!s->sane.name){
         destroy(s);
         return SANE_STATUS_NO_MEM;
     }
-  
+
     /* connect the fd */
     DBG (15, "attach_one: connect fd\n");
-  
+
     s->fd = -1;
     ret = connect_fd(s);
     if(ret != SANE_STATUS_GOOD){
         destroy(s);
         return ret;
     }
- 
+
     /* load the firmware file into scanner */
     ret = load_fw(s);
     if (ret != SANE_STATUS_GOOD) {
@@ -487,7 +487,7 @@ attach_one (const char *name)
 
     DBG (15, "attach_one: Found %s scanner %s at %s\n",
       s->sane.vendor, s->sane.model, s->sane.name);
-  
+
     if (strstr (s->sane.model, "S1300i")){
         unsigned char stat;
 
@@ -498,7 +498,7 @@ attach_one (const char *name)
           DBG (5, "attach_one: on USB power?\n");
           s->usb_power=1;
         }
-    
+
         s->model = MODEL_S1300i;
 
         s->has_adf = 1;
@@ -530,7 +530,7 @@ attach_one (const char *name)
           DBG (5, "attach_one: on USB power?\n");
           s->usb_power=1;
         }
-    
+
         s->model = MODEL_S300;
 
         s->has_adf = 1;
@@ -624,13 +624,13 @@ attach_one (const char *name)
     else{
         DBG (15, "attach_one: Found other\n");
     }
-     
+
     /* set SANE option 'values' to good defaults */
     DBG (15, "attach_one: init options\n");
-  
-    /* go ahead and setup the first opt, because 
-     * frontend may call control_option on it 
-     * before calling get_option_descriptor 
+
+    /* go ahead and setup the first opt, because
+     * frontend may call control_option on it
+     * before calling get_option_descriptor
      */
     memset (s->opt, 0, sizeof (s->opt));
     for (i = 0; i < NUM_OPTIONS; ++i) {
@@ -638,23 +638,23 @@ attach_one (const char *name)
         s->opt[i].size = sizeof (SANE_Word);
         s->opt[i].cap = SANE_CAP_INACTIVE;
     }
-  
+
     s->opt[OPT_NUM_OPTS].name = SANE_NAME_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
-  
+
     DBG (15, "attach_one: init settings\n");
     ret = change_params(s);
 
     /* we close the connection, so that another backend can talk to scanner */
     disconnect_fd(s);
-  
+
     s->next = scanner_devList;
     scanner_devList = s;
-  
+
     DBG (10, "attach_one: finish\n");
-  
+
     return SANE_STATUS_GOOD;
 }
 
@@ -665,9 +665,9 @@ static SANE_Status
 connect_fd (struct scanner *s)
 {
     SANE_Status ret;
-  
+
     DBG (10, "connect_fd: start\n");
-  
+
     if(s->fd > -1){
         DBG (5, "connect_fd: already open\n");
         ret = SANE_STATUS_GOOD;
@@ -676,13 +676,13 @@ connect_fd (struct scanner *s)
         DBG (15, "connect_fd: opening USB device\n");
         ret = sanei_usb_open (s->sane.name, &(s->fd));
     }
-  
+
     if(ret != SANE_STATUS_GOOD){
         DBG (5, "connect_fd: could not open device: %d\n", ret);
     }
-  
+
     DBG (10, "connect_fd: finish\n");
-  
+
     return ret;
 }
 
@@ -701,7 +701,7 @@ load_fw (struct scanner *s)
     size_t cmdLen;
     unsigned char stat[2];
     size_t statLen;
-  
+
     DBG (10, "load_fw: start\n");
 
     /*check status*/
@@ -712,7 +712,7 @@ load_fw (struct scanner *s)
         DBG (5, "load_fw: firmware already loaded?\n");
         return SANE_STATUS_GOOD;
     }
-    
+
     if(!global_firmware_filename[0]){
         DBG (5, "load_fw: missing filename\n");
         return SANE_STATUS_NO_DOCS;
@@ -757,7 +757,7 @@ load_fw (struct scanner *s)
     cmd[1] = 0x06;
     cmdLen = 2;
     statLen = 1;
-    
+
     ret = do_cmd(
       s, 0,
       cmd, cmdLen,
@@ -774,14 +774,14 @@ load_fw (struct scanner *s)
         free(buf);
         return SANE_STATUS_IO_ERROR;
     }
-    
+
     /*length/data*/
     cmd[0] = 0x01;
     cmd[1] = 0x00;
     cmd[2] = 0x01;
     cmd[3] = 0x00;
     cmdLen = 4;
-    
+
     ret = do_cmd(
       s, 0,
       cmd, cmdLen,
@@ -803,7 +803,7 @@ load_fw (struct scanner *s)
 
     cmdLen = 1;
     statLen = 1;
-    
+
     ret = do_cmd(
       s, 0,
       cmd, cmdLen,
@@ -818,13 +818,13 @@ load_fw (struct scanner *s)
         DBG (5, "load_fw: bad stat on cmd 3\n");
         return SANE_STATUS_IO_ERROR;
     }
-    
+
     /*reinit*/
     cmd[0] = 0x1b;
     cmd[1] = 0x16;
     cmdLen = 2;
     statLen = 1;
-    
+
     ret = do_cmd(
       s, 0,
       cmd, cmdLen,
@@ -843,7 +843,7 @@ load_fw (struct scanner *s)
     cmd[0] = 0x80;
     cmdLen = 1;
     statLen = 1;
-    
+
     ret = do_cmd(
       s, 0,
       cmd, cmdLen,
@@ -882,7 +882,7 @@ get_stat(struct scanner *s)
     size_t cmdLen;
     unsigned char stat[2];
     size_t statLen;
-  
+
     DBG (10, "get_stat: start\n");
 
     /*check status*/
@@ -890,7 +890,7 @@ get_stat(struct scanner *s)
     cmd[1] = 0x03;
     cmdLen = 2;
     statLen = 2;
-    
+
     ret = do_cmd(
       s, 0,
       cmd, cmdLen,
@@ -928,7 +928,7 @@ get_ident(struct scanner *s)
       NULL, 0,
       in, &inLen
     );
-  
+
     if (ret != SANE_STATUS_GOOD){
       return ret;
     }
@@ -945,7 +945,7 @@ get_ident(struct scanner *s)
     s->sane.model= strndup((char *)in+8, 24);
 
     s->sane.type = "scanner";
-  
+
     DBG (10, "get_ident: finish\n");
     return ret;
 }
@@ -965,7 +965,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
     struct scanner *dev = NULL;
     struct scanner *s = NULL;
     SANE_Status ret;
-   
+
     DBG (10, "sane_open: start\n");
 
     if(scanner_devList){
@@ -973,13 +973,13 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
     }
     else{
       DBG (15, "sane_open: no scanners currently attached, attaching\n");
-  
+
       ret = sane_get_devices(NULL,0);
       if(ret != SANE_STATUS_GOOD){
         return ret;
       }
     }
-  
+
     if(name[0] == 0){
         DBG (15, "sane_open: no device requested, using default\n");
         s = scanner_devList;
@@ -994,24 +994,24 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
             }
         }
     }
-  
+
     if (!s) {
         DBG (5, "sane_open: no device found\n");
         return SANE_STATUS_INVAL;
     }
-  
+
     DBG (15, "sane_open: device %s found\n", s->sane.name);
-  
+
     *handle = s;
-  
+
     /* connect the fd so we can talk to scanner */
     ret = connect_fd(s);
     if(ret != SANE_STATUS_GOOD){
         return ret;
     }
-  
+
     DBG (10, "sane_open: finish\n");
-  
+
     return SANE_STATUS_GOOD;
 }
 
@@ -1086,7 +1086,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->mode_list[i++]=STRING_GRAYSCALE;
     s->mode_list[i++]=STRING_COLOR;
     s->mode_list[i]=NULL;
-  
+
     opt->name = SANE_NAME_SCAN_MODE;
     opt->title = SANE_TITLE_SCAN_MODE;
     opt->desc = SANE_DESC_SCAN_MODE;
@@ -1130,7 +1130,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->tl_x_range.min = SCANNER_UNIT_TO_FIXED_MM(0);
     s->tl_x_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_width(s)-s->min_x);
     s->tl_x_range.quant = MM_PER_UNIT_FIX;
-  
+
     opt->name = SANE_NAME_SCAN_TL_X;
     opt->title = SANE_TITLE_SCAN_TL_X;
     opt->desc = SANE_DESC_SCAN_TL_X;
@@ -1149,7 +1149,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->tl_y_range.min = SCANNER_UNIT_TO_FIXED_MM(0);
     s->tl_y_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_height(s)-s->min_y);
     s->tl_y_range.quant = MM_PER_UNIT_FIX;
-  
+
     opt->name = SANE_NAME_SCAN_TL_Y;
     opt->title = SANE_TITLE_SCAN_TL_Y;
     opt->desc = SANE_DESC_SCAN_TL_Y;
@@ -1167,7 +1167,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->br_x_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_x);
     s->br_x_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_width(s));
     s->br_x_range.quant = MM_PER_UNIT_FIX;
-  
+
     opt->name = SANE_NAME_SCAN_BR_X;
     opt->title = SANE_TITLE_SCAN_BR_X;
     opt->desc = SANE_DESC_SCAN_BR_X;
@@ -1186,7 +1186,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->br_y_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_y);
     s->br_y_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_height(s));
     s->br_y_range.quant = MM_PER_UNIT_FIX;
-  
+
     opt->name = SANE_NAME_SCAN_BR_Y;
     opt->title = SANE_TITLE_SCAN_BR_Y;
     opt->desc = SANE_DESC_SCAN_BR_Y;
@@ -1377,7 +1377,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_adf)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -1389,7 +1389,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_adf)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -1401,7 +1401,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_adf)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -1413,7 +1413,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_adf)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -1425,7 +1425,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_adf)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -1434,7 +1434,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
 /**
  * Gets or sets an option value.
- * 
+ *
  * From the SANE spec:
  * This function is used to set or inquire the current value of option
  * number n of the device represented by handle h. The manner in which
@@ -1445,7 +1445,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
  * area pointed to by v must be big enough to hold the entire option
  * value (determined by member size in the corresponding option
  * descriptor).
- * 
+ *
  * The only exception to this rule is that when setting the value of a
  * string option, the string pointed to by argument v may be shorter
  * since the backend will stop reading the option value upon
@@ -1574,22 +1574,22 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           get_hardware_status(s);
           *val_p = s->hw_scan_sw;
           return SANE_STATUS_GOOD;
-          
+
         case OPT_HOPPER:
           get_hardware_status(s);
           *val_p = s->hw_hopper;
           return SANE_STATUS_GOOD;
-          
+
         case OPT_TOP:
           get_hardware_status(s);
           *val_p = s->hw_top;
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ADF_OPEN:
           get_hardware_status(s);
           *val_p = s->hw_adf_open;
           return SANE_STATUS_GOOD;
-          
+
         case OPT_SLEEP:
           get_hardware_status(s);
           *val_p = s->hw_sleep;
@@ -1630,7 +1630,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
        * below.
        */
       switch (option) {
- 
+
         /* Mode Group */
         case OPT_SOURCE:
           if (!strcmp (val, STRING_ADFFRONT)) {
@@ -1766,7 +1766,7 @@ static void
 update_transfer_totals(struct transfer * t)
 {
     if (t->image == NULL) return;
-    
+
     t->total_bytes = t->line_stride * t->image->height;
     t->rx_bytes = 0;
     t->done = 0;
@@ -1810,7 +1810,7 @@ static struct model_res settings[] = {
 
  /*S300 AC*/
 /* model       mode        xres yres  u   mxx mnx   mxy mny   lin_s   pln_s pln_w  bh     cls     cps   cpw */
- { MODEL_S300, MODE_COLOR,  150, 150, 0, 1296, 32, 2662, 32, 4256*3, 1480*3, 1296, 41, 8512*3, 2960*3, 2592, 
+ { MODEL_S300, MODE_COLOR,  150, 150, 0, 1296, 32, 2662, 32, 4256*3, 1480*3, 1296, 41, 8512*3, 2960*3, 2592,
    setWindowCoarseCal_S300_150, setWindowFineCal_S300_150,
    setWindowSendCal_S300_150, sendCal1Header_S300_150,
    sendCal2Header_S300_150, setWindowScan_S300_150 },
@@ -2056,7 +2056,7 @@ change_params(struct scanner *s)
        s->page_width = s->min_x;
     s->tl_x = (s->max_x - s->page_width)/2;
     s->br_x = (s->max_x + s->page_width)/2;
-    
+
     /*=============================================================*/
     /* set up the calibration scan structs */
     /* generally full width, short height, full resolution */
@@ -2102,7 +2102,7 @@ change_params(struct scanner *s)
     s->sendcal.y_res = settings[i].y_res;
     s->sendcal.pages = img_pages;
     s->sendcal.buffer = NULL;
-    
+
     /*=============================================================*/
     /* set up the fullscan parameters */
     /* this is bookkeeping for what we actually pull from the scanner */
@@ -2230,7 +2230,7 @@ change_params(struct scanner *s)
     s->pages[SIDE_BACK].done = 0;
 
     DBG (10, "change_params: finish\n");
-  
+
     return ret;
 }
 
@@ -2238,7 +2238,7 @@ change_params(struct scanner *s)
    used by scanners to implement brightness/contrast/gamma
    or by backends to speed binarization/thresholding
 
-   offset and slope inputs are -127 to +127 
+   offset and slope inputs are -127 to +127
 
    slope rotates line around central input/output val,
    0 makes horizontal line
@@ -2254,9 +2254,9 @@ change_params(struct scanner *s)
    offset moves line vertically, and clamps to output range
    0 keeps the line crossing the center of the table
 
-       high           low 
+       high           low
        .   xxxxxxxx   .
-       . x            . 
+       . x            .
    out x              .          x
        .              .        x
        ............   xxxxxxxx....
@@ -2285,7 +2285,7 @@ load_lut (unsigned char * lut,
    * first [-127,127] to [-1,1]
    * then multiply by PI/2 to convert to radians
    * then take the tangent (T.O.A)
-   * then multiply by the normal linear slope 
+   * then multiply by the normal linear slope
    * because the table may not be square, i.e. 1024x256*/
   rise = tan((double)slope/127 * M_PI/2) * max_out_val / max_in_val;
 
@@ -2332,7 +2332,7 @@ load_lut (unsigned char * lut,
  * completion of that request. Outside of that window, the returned
  * values are best-effort estimates of what the parameters will be
  * when sane_start() gets invoked.
- * 
+ *
  * Calling this function before a scan has actually started allows,
  * for example, to get an estimate of how big the scanned image will
  * be. The parameters passed to this function are the handle h of the
@@ -2389,9 +2389,9 @@ sane_start (SANE_Handle handle)
     struct scanner *s = handle;
     SANE_Status ret;
     int i;
-  
+
     DBG (10, "sane_start: start\n");
-  
+
     /* set side marker on first page */
     if(!s->started){
       if(s->source == SOURCE_ADF_BACK){
@@ -2462,7 +2462,7 @@ sane_start (SANE_Handle handle)
             sane_cancel((SANE_Handle)s);
             return ret;
         }
-      
+
         ret = finecal(s);
         if (ret != SANE_STATUS_GOOD) {
             DBG (5, "sane_start: ERROR: failed to finecal\n");
@@ -2476,14 +2476,14 @@ sane_start (SANE_Handle handle)
             sane_cancel((SANE_Handle)s);
             return ret;
         }
-      
+
         ret = lamp(s,1);
         if (ret != SANE_STATUS_GOOD) {
             DBG (5, "sane_start: ERROR: failed to heat lamp\n");
             sane_cancel((SANE_Handle)s);
             return ret;
         }
-      
+
         /*should this be between each page*/
         ret = set_window(s,WINDOW_SCAN);
         if (ret != SANE_STATUS_GOOD) {
@@ -2491,7 +2491,7 @@ sane_start (SANE_Handle handle)
             sane_cancel((SANE_Handle)s);
             return ret;
         }
-  
+
     }
 
     /* reset everything when starting any front, or just back */
@@ -2503,7 +2503,7 @@ sane_start (SANE_Handle handle)
         s->fullscan.done = 0;
         s->fullscan.rx_bytes = 0;
         s->fullscan.total_bytes = s->fullscan.width_bytes * s->fullscan.height;
-    
+
         /* reset block */
         update_transfer_totals(&s->block_xfr);
 
@@ -2532,7 +2532,7 @@ sane_start (SANE_Handle handle)
     }
 
     DBG (10, "sane_start: finish\n");
-  
+
     return SANE_STATUS_GOOD;
 }
 
@@ -2644,7 +2644,7 @@ coarsecal_send_cal(struct scanner *s, unsigned char *pay)
     unsigned char cmd[2];
     unsigned char stat[1];
     size_t cmdLen,statLen,payLen;
-    
+
     DBG (5, "coarsecal_send_cal: start\n");
     /* send coarse cal (c6) */
     cmd[0] = 0x1b;
@@ -2652,7 +2652,7 @@ coarsecal_send_cal(struct scanner *s, unsigned char *pay)
     cmdLen = 2;
     stat[0] = 0;
     statLen = 1;
-    
+
     ret = do_cmd(
       s, 0,
       cmd, cmdLen,
@@ -2667,7 +2667,7 @@ coarsecal_send_cal(struct scanner *s, unsigned char *pay)
         DBG (5, "coarsecal_send_cal: cmd bad c6 status?\n");
         return SANE_STATUS_IO_ERROR;
      }
-    
+
     /*send coarse cal payload*/
     stat[0] = 0;
     statLen = 1;
@@ -2708,7 +2708,7 @@ coarsecal_get_line(struct scanner *s, struct image *img)
     cmdLen = 2;
     stat[0] = 0;
     statLen = 1;
-   
+
     ret = do_cmd(
       s, 0,
       cmd, cmdLen,
@@ -2726,7 +2726,7 @@ coarsecal_get_line(struct scanner *s, struct image *img)
 
     s->cal_image.image = img;
     update_transfer_totals(&s->cal_image);
- 
+
     while(!s->cal_image.done){
         ret = read_from_scanner(s,&s->cal_image);
         if(ret){
@@ -2782,7 +2782,7 @@ coarsecal_dark(struct scanner *s, unsigned char *pay)
         }
 
         ret = coarsecal_send_cal(s, pay);
-        
+
         DBG(15, "coarsecal_dark offset: parameter front: %i back: %i\n", param[0], param[1]);
 
         ret = coarsecal_get_line(s, &s->coarsecal);
@@ -2857,7 +2857,7 @@ coarsecal_light(struct scanner *s, unsigned char *pay)
         return ret;
     }
 
-    try_count = 8; 
+    try_count = 8;
     param[0] = pay[11];
     param[1] = pay[13];
     low_param[0] = low_param[1] = 0;
@@ -2872,7 +2872,7 @@ coarsecal_light(struct scanner *s, unsigned char *pay)
         DBG(15, "coarsecal_light gain: parameter front: %i back: %i\n", param[0], param[1]);
 
         ret = coarsecal_get_line(s, &s->coarsecal);
-    
+
         /* gather statistics: count the proportion of 255-valued pixels in each color channel */
         /*                    count the average pixel value in each color channel */
         for (i = 0; i < s->coarsecal.pages; i++)
@@ -3119,7 +3119,7 @@ finecal_send_cal(struct scanner *s)
     /*second unknown cal block*/
     cmd[1] = 0xc4;
     statLen = 1;
-    
+
     ret = do_cmd(
       s, 0,
       cmd, cmdLen,
@@ -3441,13 +3441,13 @@ lamp(struct scanner *s, unsigned char set)
     size_t cmdLen = 2;
     unsigned char stat[1];
     size_t statLen = 1;
-  
+
     DBG (10, "lamp: start (%d)\n", set);
 
     /*send cmd*/
     cmd[0] = 0x1b;
     cmd[1] = 0xd0;
-    
+
     ret = do_cmd(
       s, 0,
       cmd, cmdLen,
@@ -3467,7 +3467,7 @@ lamp(struct scanner *s, unsigned char set)
     cmd[0] = set;
     cmdLen = 1;
     statLen = 1;
-    
+
     ret = do_cmd(
       s, 0,
       cmd, cmdLen,
@@ -3542,7 +3542,7 @@ set_window(struct scanner *s, int window)
 
     /*send payload*/
     statLen = 1;
-    
+
     ret = do_cmd(
       s, 0,
       payload, paylen,
@@ -3565,7 +3565,7 @@ set_window(struct scanner *s, int window)
 /* instead of internal brightness/contrast/gamma
    scanners uses 12bit x 12bit LUT
    default is linear table of slope 1
-   brightness and contrast inputs are -127 to +127 
+   brightness and contrast inputs are -127 to +127
 
    contrast rotates slope of line around central input val
 
@@ -3581,7 +3581,7 @@ set_window(struct scanner *s, int window)
 
        bright         dark
        .   xxxxxxxx   .
-       . x            . 
+       . x            .
    out x              .          x
        .              .        x
        ............   xxxxxxxx....
@@ -3598,12 +3598,12 @@ send_lut (struct scanner *s)
     size_t statLen = 1;
     unsigned char *out;
     size_t outLen;
-    
+
     int i, j;
     double b, slope, offset;
     int width;
     int height;
-  
+
     DBG (10, "send_lut: start\n");
 
     if (s->model == MODEL_S1100){
@@ -3630,7 +3630,7 @@ send_lut (struct scanner *s)
      * first [-127,127] to [0,254] then to [0,1]
      * then multiply by PI/2 to convert to radians
      * then take the tangent to get slope (T.O.A)
-     * then multiply by the normal linear slope 
+     * then multiply by the normal linear slope
      * because the table may not be square, i.e. 1024x256*/
     slope = tan(((double)s->contrast+127)/254 * M_PI/2);
 
@@ -3642,17 +3642,17 @@ send_lut (struct scanner *s)
      * into a scale that covers the range required
      * to slide the contrast curve entirely off the table */
     b = ((double)s->brightness/127) * (slope*(width-1) + offset);
-  
+
     DBG (15, "send_lut: %d %f %d %f %f\n", s->brightness, b,
       s->contrast, slope, offset);
-  
+
     for(i=0;i<width;i++){
       j=slope*i + offset + b;
-  
+
       if(j<0){
         j=0;
       }
-  
+
       if(j>(height-1)){
         j=height-1;
       }
@@ -3675,7 +3675,7 @@ send_lut (struct scanner *s)
             out[width*4 + i*2] = (j >> 8) & 0xff;
             out[width*4 + i*2+1] = j & 0xff;
         }
-        else {  
+        else {
             /*first table, le order*/
             out[i*2] = j & 0xff;
             out[i*2+1] = (j >> 8) & 0x0f;
@@ -3745,7 +3745,7 @@ get_hardware_status (struct scanner *s)
 
     cmd[0] = 0x1b;
     cmd[1] = 0x33;
-    
+
     ret = do_cmd(
       s, 0,
       cmd, cmdLen,
@@ -3790,12 +3790,12 @@ object_position(struct scanner *s, int ingest)
 
     i = (ingest)?5:1;
 
-    while(i--){    
+    while(i--){
         /*send paper load cmd*/
         cmd[0] = 0x1b;
         cmd[1] = 0xd4;
         statLen = 1;
-        
+
         ret = do_cmd(
           s, 0,
           cmd, cmdLen,
@@ -3810,12 +3810,12 @@ object_position(struct scanner *s, int ingest)
             DBG (5, "object_position: cmd bad status? %d\n",stat[0]);
             continue;
         }
-    
+
         /*send payload*/
         statLen = 1;
         payLen = 1;
         pay[0] = ingest;
-        
+
         ret = do_cmd(
           s, 0,
           pay, payLen,
@@ -3853,7 +3853,7 @@ scan(struct scanner *s)
     size_t cmdLen = 2;
     unsigned char stat[1];
     size_t statLen = 1;
-    
+
     DBG (10, "scan: start\n");
 
     if(s->model == MODEL_S300 || s->model == MODEL_S1100 || s->model == MODEL_S1300i){
@@ -3876,13 +3876,13 @@ scan(struct scanner *s)
     }
 
     DBG (10, "scan: finish\n");
-  
+
     return ret;
 }
 
 /*
  * Called by SANE to read data.
- * 
+ *
  * From the SANE spec:
  * This function is used to read image data from the device
  * represented by handle h.  Argument buf is a pointer to a memory
@@ -3890,7 +3890,7 @@ scan(struct scanner *s)
  * returned is stored in *len. A backend must set this to zero when
  * the call fails (i.e., when a status other than SANE_STATUS_GOOD is
  * returned).
- * 
+ *
  * When the call succeeds, the number of bytes returned can be
  * anywhere in the range from 0 to maxlen bytes.
  */
@@ -3900,7 +3900,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
     struct scanner *s = (struct scanner *) handle;
     SANE_Status ret=SANE_STATUS_GOOD;
     struct page * page;
-  
+
     DBG (10, "sane_read: start si:%d len:%d max:%d\n",s->side,*len,max_len);
 
     *len = 0;
@@ -3910,7 +3910,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
         DBG (5, "sane_read: call sane_start first\n");
         return SANE_STATUS_CANCELLED;
     }
-  
+
     page = &s->pages[s->side];
 
     /* have sent all of current buffer */
@@ -3920,14 +3920,14 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       /*S1100 needs help to turn off button*/
       if(s->model == MODEL_S1100){
         usleep(15000);
-  
+
         /* eject paper */
         ret = object_position(s,EPJITSU_PAPER_EJECT);
         if (ret != SANE_STATUS_GOOD && ret != SANE_STATUS_NO_DOCS) {
           DBG (5, "sane_read: ERROR: failed to eject\n");
           return ret;
         }
-  
+
         /* reset flashing button? */
         ret = six5(s);
         if (ret != SANE_STATUS_GOOD) {
@@ -3937,12 +3937,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       }
 
       return SANE_STATUS_EOF;
-    } 
+    }
 
     /* scan not finished, get more into block buffer */
     if(!s->fullscan.done)
     {
-        /* block buffer currently empty, clean up */ 
+        /* block buffer currently empty, clean up */
         if(!s->block_xfr.rx_bytes)
         {
             /* block buffer bigger than remainder of scan, shrink block */
@@ -3959,9 +3959,9 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
                 size_t cmdLen = 2;
                 unsigned char stat[1];
                 size_t statLen = 1;
-                
+
                 DBG (15, "sane_read: d3\n");
-              
+
                 ret = do_cmd(
                   s, 0,
                   cmd, cmdLen,
@@ -4002,7 +4002,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
                 size_t cmdLen = 2;
                 unsigned char in[10];
                 size_t inLen = 10;
-      
+
                 ret = do_cmd(
                   s, 0,
                   cmd, cmdLen,
@@ -4010,7 +4010,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
                   in, &inLen
                 );
                 hexdump(15, "cmd 43: ", in, inLen);
-    
+
                 if(ret){
                     DBG (5, "sane_read: error sending 43 cmd\n");
                     return ret;
@@ -4076,19 +4076,19 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
     if(*len){
         DBG (10, "sane_read: copy rx:%d tx:%d tot:%d len:%d\n",
           page->bytes_scanned, page->bytes_read, page->bytes_total,*len);
-    
+
         memcpy(buf, page->image->buffer + page->bytes_read, *len);
         page->bytes_read += *len;
-    
+
         /* sent it all, return eof on next read */
         if(page->bytes_read == page->bytes_scanned && s->fullscan.done){
             DBG (10, "sane_read: side done\n");
             page->done = 1;
         }
-    }  
+    }
 
     DBG (10, "sane_read: finish si:%d len:%d max:%d\n",s->side,*len,max_len);
-  
+
     return ret;
 }
 
@@ -4152,39 +4152,39 @@ descramble_raw(struct scanner *s, struct transfer * tp)
         for (j = 0; j < height; j++){             /* row (y)*/
           int curr_col = 0;
           int r=0, g=0, b=0, ppc=0;
-      
+
           for (k = 0; k <= tp->plane_width; k++){  /* column (x) */
             int this_col = k*tp->image->x_res/tp->x_res;
-      
+
             /* going to change output pixel, dump rgb and reset */
             if(ppc && curr_col != this_col){
               *p_out = r/ppc;
               p_out++;
-      
+
               *p_out = g/ppc;
               p_out++;
-      
+
               *p_out = b/ppc;
               p_out++;
-      
+
               r = g = b = ppc = 0;
-      
+
               curr_col = this_col;
             }
-      
+
             if(k == tp->plane_width || this_col >= tp->image->width_pix){
               break;
             }
-  
+
             /*red is first*/
             r += tp->raw_data[j*tp->line_stride + k*3 + i];
-      
+
             /*green is second*/
             g += tp->raw_data[j*tp->line_stride + tp->plane_stride + k*3 + i];
-      
+
             /*blue is third*/
             b += tp->raw_data[j*tp->line_stride + 2*tp->plane_stride + k*3 + i];
-      
+
             ppc++;
           }
         }
@@ -4194,39 +4194,39 @@ descramble_raw(struct scanner *s, struct transfer * tp)
       for (j = 0; j < height; j++){             /* row (y)*/
         int curr_col = 0;
         int r=0, g=0, b=0, ppc=0;
-    
+
         for (k = 0; k <= tp->plane_width; k++){  /* column (x) */
           int this_col = k*tp->image->x_res/tp->x_res;
-    
+
           /* going to change output pixel, dump rgb and reset */
           if(ppc && curr_col != this_col){
             *p_out = r/ppc;
             p_out++;
-    
+
             *p_out = g/ppc;
             p_out++;
-    
+
             *p_out = b/ppc;
             p_out++;
-    
+
             r = g = b = ppc = 0;
-    
+
             curr_col = this_col;
           }
-    
+
           if(k == tp->plane_width || this_col >= tp->image->width_pix){
             break;
           }
 
           /*red is second*/
           r += tp->raw_data[j*tp->line_stride + tp->plane_stride + k];
-    
+
           /*green is third*/
           g += tp->raw_data[j*tp->line_stride + 2*tp->plane_stride + k];
-    
+
           /*blue is first*/
           b += tp->raw_data[j*tp->line_stride + k];
-    
+
           ppc++;
         }
       }
@@ -4238,39 +4238,39 @@ descramble_raw(struct scanner *s, struct transfer * tp)
 
         for (i = 0; i < 3; i++){                /* read head */
           int r=0, g=0, b=0, ppc=0;
-      
+
           for (k = 0; k <= tp->plane_width; k++){  /* column (x) within the read head */
             int this_col = (k+i*tp->plane_width)*tp->image->x_res/tp->x_res;
-      
+
             /* going to change output pixel, dump rgb and reset */
             if(ppc && curr_col != this_col){
               *p_out = r/ppc;
               p_out++;
-      
+
               *p_out = g/ppc;
               p_out++;
-      
+
               *p_out = b/ppc;
               p_out++;
-      
+
               r = g = b = ppc = 0;
-      
+
               curr_col = this_col;
             }
-      
+
             if(k == tp->plane_width || this_col >= tp->image->width_pix){
               break;
             }
-  
+
             /*red is first*/
             r += tp->raw_data[j*tp->line_stride + k*3 + i];
-      
+
             /*green is second*/
             g += tp->raw_data[j*tp->line_stride + tp->plane_stride + k*3 + i];
-      
+
             /*blue is third*/
             b += tp->raw_data[j*tp->line_stride + 2*tp->plane_stride + k*3 + i];
-      
+
             ppc++;
           }
         }
@@ -4297,15 +4297,15 @@ descramble_raw_gray(struct scanner *s, struct transfer * tp)
 
     if (s->model == MODEL_FI60F || s->model == MODEL_FI65F) {
       for (row = 0; row < height; row++){
-  
+
         unsigned char *p_in = tp->raw_data + row * tp->line_stride;
         unsigned char *p_out = tp->image->buffer + row * tp->image->width_pix;
-  
+
         for (col_out = 0; col_out < tp->image->width_pix; col_out++){
           int col_in = col_out * tp->x_res/tp->image->x_res;
           int offset = col_in%tp->plane_width;
           int step   = col_in/tp->plane_width;
-  
+
           *p_out = *(p_in + offset*3 + step);
           p_out++;
         }
@@ -4388,12 +4388,12 @@ read_from_scanner(struct scanner *s, struct transfer * tp)
     else {
         DBG(5, "read_from_scanner: error reading status = %d\n", ret);
     }
- 
+
     free(buf);
 
     DBG (10, "read_from_scanner: finish rB:%lu len:%lu\n",
       (unsigned long)(tp->total_bytes - tp->rx_bytes + 8), (unsigned long)bytes);
-  
+
     return ret;
 }
 
@@ -4439,7 +4439,7 @@ copy_block_to_page(struct scanner *s,int side)
       int this_out_row = (this_in_row - page->image->y_skip_offset) * page->image->y_res / s->fullscan.y_res;
       DBG (15, "copy_block_to_page: in %d out %d lastout %d\n", this_in_row, this_out_row, last_out_row);
       DBG (15, "copy_block_to_page: bs %d wb %d\n", page->bytes_scanned, page->image->width_bytes);
-    
+
       /* don't walk off the end of the output buffer */
       if(this_out_row >= page->image->height || this_out_row < 0){
           DBG (10, "copy_block_to_page: out of space? %d\n", side);
@@ -4447,7 +4447,7 @@ copy_block_to_page(struct scanner *s,int side)
             page->bytes_scanned, page->bytes_read, page->bytes_total,page->image->width_bytes);
           return ret;
       }
-    
+
       /* ok, different output row, so we do the math */
       if(this_out_row > last_out_row){
 
@@ -4459,11 +4459,11 @@ copy_block_to_page(struct scanner *s,int side)
         last_out_row = this_out_row;
 
         if (block->mode == MODE_COLOR){
-  
+
           /* reverse order for back side or FI-60F scanner */
           if (line_reverse)
             p_in += (page_width - 1) * 3;
-  
+
           /* convert all of the pixels in this row */
           for (j = 0; j < page_width; j++)
           {
@@ -4492,18 +4492,18 @@ copy_block_to_page(struct scanner *s,int side)
                 p_in += 3;
            }
          }
- 
+
          /* grayscale input */
          else{
            unsigned char * p_in = block->image->buffer + (side * block_page_stride)
                + (i * block->image->width_bytes) + page->image->x_start_offset;
- 
+
            /* reverse order for back side or FI-60F scanner */
            if (line_reverse)
              p_in += (page_width - 1);
-   
+
            //memcpy(p_out,p_in,page->image->width_bytes);
-           
+
            for (j = 0; j < page_width; j++)
            {
              if (s->mode == MODE_GRAYSCALE)
@@ -4570,7 +4570,7 @@ binarize_line(struct scanner *s, unsigned char *lineOut, int width)
         {
             int addCol  = j + windowX/2;
             int dropCol = addCol - windowX;
-  
+
             if (dropCol >= 0 && addCol < width)
             {
                 sum -= s->dt.buffer[dropCol];
@@ -4584,7 +4584,7 @@ binarize_line(struct scanner *s, unsigned char *lineOut, int width)
           *lineOut &= ~mask;     /* white */
         else
           *lineOut |= mask;      /* black */
-                  
+
         if (offset == 7)
             lineOut++;
       }
@@ -4596,7 +4596,7 @@ binarize_line(struct scanner *s, unsigned char *lineOut, int width)
  * @@ Section 4 - SANE cleanup functions
  */
 /*
- * Cancels a scan. 
+ * Cancels a scan.
  *
  * From the SANE spec:
  * This function is used to immediately or as quickly as possible
@@ -4626,7 +4626,7 @@ sane_cancel (SANE_Handle handle)
 
 /*
  * Ends use of the scanner.
- * 
+ *
  * From the SANE spec:
  * This function terminates the association between the device handle
  * passed in argument h and the device it represents. If the device is
@@ -4684,7 +4684,7 @@ destroy(struct scanner *s)
     if(s->sane.model){
       free((void *) s->sane.model);
     }
-  
+
     free(s);
 
     DBG (10, "destroy: finish\n");
@@ -4758,7 +4758,7 @@ teardown_buffers(struct scanner *s)
 
 /*
  * Terminates the backend.
- * 
+ *
  * From the SANE spec:
  * This function must be called to terminate use of a backend. The
  * function will first close all device handles that still might be
@@ -4828,13 +4828,13 @@ do_cmd(struct scanner *s, int shortTime,
 
         /* change timeout */
         sanei_usb_set_timeout(cmdTime);
-    
+
         /* write the command out */
         DBG(25, "cmd: writing %ld bytes, timeout %d\n", (long)cmdLen, cmdTime);
         hexdump(30, "cmd: >>", cmdBuff, cmdLen);
         ret = sanei_usb_write_bulk(s->fd, cmdBuff, &cmdLen);
         DBG(25, "cmd: wrote %ld bytes, retVal %d\n", (long)cmdLen, ret);
-    
+
         if(ret == SANE_STATUS_EOF){
             DBG(5,"cmd: got EOF, returning IO_ERROR\n");
             return SANE_STATUS_IO_ERROR;
@@ -4993,7 +4993,7 @@ sane_get_select_fd (SANE_Handle h, SANE_Int *fdp)
  * due to using FB
  */
 static int
-get_page_width(struct scanner *s) 
+get_page_width(struct scanner *s)
 {
   /* scanner max for fb */
   if(s->source == SOURCE_FLATBED){
@@ -5009,7 +5009,7 @@ get_page_width(struct scanner *s)
  * due to using FB.
  */
 static int
-get_page_height(struct scanner *s) 
+get_page_height(struct scanner *s)
 {
   /* scanner max for fb */
   if(s->source == SOURCE_FLATBED){

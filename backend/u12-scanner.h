@@ -61,7 +61,7 @@ typedef double TimerDef;
 #define _DODELAY(msecs)     u12io_udelay(1000*msecs)
 /*{ int i; for( i = msecs; i--; ) _DO_UDELAY(1000); }*/
 #else
-#define _DODELAY(msecs) 
+#define _DODELAY(msecs)
 #endif
 
 /* ModuleStates */

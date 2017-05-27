@@ -16,7 +16,7 @@
                                   ; :yes or :no
 ;:manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://sourceforge.net/projects/brother-mfc"
-;:comment "" 
+;:comment ""
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....

@@ -1,5 +1,5 @@
 :backend "kodakaio"
-:url "http://sourceforge.net/projects/cupsdriverkodak/" 
+:url "http://sourceforge.net/projects/cupsdriverkodak/"
 :version "2.7.2"
 :manpage "sane-kodakaio"
 :comment "Backend for Kodak AiO ESP and Hero printers. Also possibly Advent AWL10"

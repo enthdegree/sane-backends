@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1998 David F. Skoll
-   Heavily based on "hp.c" driver for HP Scanners, by 
+   Heavily based on "hp.c" driver for HP Scanners, by
    David Mosberger-Tang.
 
    This file is part of the SANE package.
@@ -425,7 +425,7 @@ DMCInitOptions(DMC_Camera *c)
     c->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
     c->opt[OPT_TL_X].constraint.range = &c->tl_x_range;
     c->val[OPT_TL_X].w = c->tl_x_range.min;
-    
+
     /* top-left y */
     c->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
     c->opt[OPT_TL_Y].title = SANE_TITLE_SCAN_TL_Y;
@@ -435,7 +435,7 @@ DMCInitOptions(DMC_Camera *c)
     c->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
     c->opt[OPT_TL_Y].constraint.range = &c->tl_y_range;
     c->val[OPT_TL_Y].w = c->tl_y_range.min;
-    
+
     /* bottom-right x */
     c->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
     c->opt[OPT_BR_X].title = SANE_TITLE_SCAN_BR_X;
@@ -445,7 +445,7 @@ DMCInitOptions(DMC_Camera *c)
     c->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
     c->opt[OPT_BR_X].constraint.range = &c->br_x_range;
     c->val[OPT_BR_X].w = c->br_x_range.min;
-    
+
     /* bottom-right y */
     c->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
     c->opt[OPT_BR_Y].title = SANE_TITLE_SCAN_BR_Y;
@@ -485,7 +485,7 @@ DMCInitOptions(DMC_Camera *c)
     c->opt[OPT_SHUTTER_SPEED].constraint_type = SANE_CONSTRAINT_RANGE;
     c->opt[OPT_SHUTTER_SPEED].constraint.range = &c->hw->shutterSpeedRange;
     c->val[OPT_SHUTTER_SPEED].w = c->hw->shutterSpeed;
-    
+
     c->opt[OPT_WHITE_BALANCE].name = "whitebalance";
     c->opt[OPT_WHITE_BALANCE].title = "White Balance";
     c->opt[OPT_WHITE_BALANCE].desc = "Selects white balance";
@@ -618,7 +618,7 @@ DMCSetASA(int fd, unsigned int asa)
 
     if (i > ASA_100+1) return SANE_STATUS_INVAL;
 
-    status = DMCRead(fd, 0x87, 0x4, exposureCalculationResults, 
+    status = DMCRead(fd, 0x87, 0x4, exposureCalculationResults,
 		     sizeof(exposureCalculationResults), &len);
     if (status != SANE_STATUS_GOOD) return status;
     if (len < sizeof(exposureCalculationResults)) return SANE_STATUS_IO_ERROR;
@@ -647,7 +647,7 @@ DMCSetWhiteBalance(int fd, int mode)
     size_t len;
 
     DBG(3, "DMCSetWhiteBalance: %d\n", mode);
-    status = DMCRead(fd, 0x82, 0x0, userInterfaceSettings, 
+    status = DMCRead(fd, 0x82, 0x0, userInterfaceSettings,
 		     sizeof(userInterfaceSettings), &len);
     if (status != SANE_STATUS_GOOD) return status;
     if (len < sizeof(userInterfaceSettings)) return SANE_STATUS_IO_ERROR;
@@ -749,7 +749,7 @@ DMCReadTwoSuperResolutionLines(DMC_Camera *c, SANE_Byte *buf, int lastLine)
 	greenCoeff = ADVANCE_COEFF(greenCoeff);
 	blueCoeff = ADVANCE_COEFF(blueCoeff);
     }
-    
+
     /* Do the next super-resolution line and interpolate vertically */
     if (lastLine) {
 	memcpy(buf+BYTES_PER_RAW_LINE*3, buf, BYTES_PER_RAW_LINE*3);
@@ -868,7 +868,7 @@ sane_exit(void)
 	free(dev);
 	dev = next;
     }
-  
+
     if (devlist)
       free (devlist);
 }
@@ -1103,7 +1103,7 @@ sane_control_option(SANE_Handle handle, SANE_Int option,
 	if (c->val[OPT_SHUTTER_SPEED].w != * (SANE_Int *) val) {
 	    if (info) *info |= SANE_INFO_INEXACT;
 	}
-			
+
 	return SANE_STATUS_GOOD;
 
     default:
@@ -1328,7 +1328,7 @@ sane_read(SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len, SANE_Int *len)
 	*len = max_len;
 	return SANE_STATUS_GOOD;
     }
-	
+
     if (c->imageMode == IMAGE_MFI || c->imageMode == IMAGE_RAW) {
 	/* We have to read complete rows... */
 	max_len = (max_len / c->params.bytes_per_line) * c->params.bytes_per_line;

@@ -207,7 +207,7 @@ kvs20xx_init_options (struct scanner *s)
   o->unit = SANE_UNIT_NONE;
   s->val[DUPLEX].w = SANE_FALSE;
 
-  /*FIXME 
+  /*FIXME
      if (!s->support_info.support_duplex)
      o->cap |= SANE_CAP_INACTIVE;
    */

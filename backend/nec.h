@@ -47,21 +47,21 @@
 
 /* default values for configurable options.
    Though these options are only meaningful if USE_FORK is defined,
-   they are 
+   they are
    DEFAULT_BUFFERS:      number of buffers allocated as shared memory
                          for the data transfer from reader_process to
                          read_data. The minimum value is 2
    DEFAULT_BUFSIZE:      default size of one buffer. Must be greater
                          than zero.
-   DEFAULT_QUEUED_READS: number of read requests queued by 
+   DEFAULT_QUEUED_READS: number of read requests queued by
                          sanei_scsi_req_enter. Since queued read requests
-                         are currently only supported for Linux and 
+                         are currently only supported for Linux and
                          DomainOS, this value should automatically be set
                          dependent on the target OS...
                          For Linux, 2 is the optimum; for DomainOS, I
                          don't have any recommendation; other OS
                          should use the value zero.
-   
+
    The value for DEFAULT_BUFSIZE is probably too Linux-oriented...
 */
 
@@ -113,7 +113,7 @@ typedef enum
     OPT_COLOR,
     OPT_PREVIEW,
 
-#ifdef USE_CUSTOM_GAMMA 
+#ifdef USE_CUSTOM_GAMMA
     OPT_GAMMA_VECTOR,
     OPT_GAMMA_VECTOR_R,
     OPT_GAMMA_VECTOR_G,
@@ -126,7 +126,7 @@ NEC_Option;
 
 #ifdef USE_FORK
 
-/* status defines for a buffer: 
+/* status defines for a buffer:
    buffer not used / read request queued / buffer contains data
 */
 #define SHM_EMPTY 0
@@ -153,7 +153,7 @@ typedef struct NEC_rdr_ctl
 NEC_rdr_ctl;
 #endif /* USE_FORK */
 
-typedef enum 
+typedef enum
   {
     /* PCIN500, PCINXXX are used as array indices, so the corresponding
        numbers should start at 0
@@ -192,14 +192,14 @@ NEC_Info;
 typedef struct NEC_Sense_Data
   {
     NEC_Model model;
-    /* flag, if conditions like "paper jam" or "cover open" 
+    /* flag, if conditions like "paper jam" or "cover open"
        are considered as an error. Should be 0 for attach, else
        a frontend might refuse to start, if the scanner returns
        these errors.
     */
     int complain_on_adf_error;
     /* Linux returns only 16 bytes of sense data... */
-    u_char sb[16]; 
+    u_char sb[16];
   }
 NEC_Sense_Data;
 
@@ -213,7 +213,7 @@ typedef struct NEC_Device
   }
 NEC_Device;
 
-typedef struct NEC_New_Device 
+typedef struct NEC_New_Device
   {
     struct NEC_Device *dev;
     struct NEC_New_Device *next;
@@ -286,7 +286,7 @@ typedef struct WPDH
 {
     u_char wpdh[6];
     u_char wdl[2];
-} 
+}
 WPDH;
 
 typedef struct WDB
@@ -416,7 +416,7 @@ typedef struct buffer_status
     SANE_Byte block;
     SANE_Byte window_id;
     SANE_Byte reserved;
-    SANE_Byte bsa[3];      /* buffer space available */ 
+    SANE_Byte bsa[3];      /* buffer space available */
     SANE_Byte fdb[3];      /* filled data buffer */
 }
 buffer_status;

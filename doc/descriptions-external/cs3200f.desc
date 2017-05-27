@@ -16,7 +16,7 @@
                                   ; :yes or :no
 ;:manpage "sane-cs3200f"          ; name of manpage (if it exists)
 ;:url "http://www.luser.com/temp/" ; backend's web page
-:comment "Backend is in experimental CVS" 
+:comment "Backend is in experimental CVS"
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....

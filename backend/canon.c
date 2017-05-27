@@ -62,7 +62,7 @@
    . .   - sane_get_parameters() : returns actual scan-parameters
    . .   - sane_read() : read image-data (from pipe)
    . . - sane_cancel() : cancel operation, kill reader_process
-   
+
    . - sane_close() : close opened scanner-device, do_cancel, free buffer and handle
    - sane_exit() : terminate use of backend, free devicename and device-struture
 */
@@ -140,7 +140,7 @@ static const SANE_String_Const mode_list[] = {
   SANE_VALUE_SCAN_MODE_HALFTONE,
   SANE_VALUE_SCAN_MODE_GRAY,
   SANE_VALUE_SCAN_MODE_COLOR,
-  0     
+  0
 };
 
 /* modification for FS2710 */

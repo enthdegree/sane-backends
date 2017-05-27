@@ -32,7 +32,7 @@ use warnings;
 	}
 
 	foreach my $m (@models) {
-		
+
 		next unless defined $m->{'usbid'};
 		next if $m->{'status'} eq ':unsupported';
 

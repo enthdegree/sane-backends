@@ -57,7 +57,7 @@ Level 40 - HP5590 high-level commands
 Level 50 - HP5590 low-level (USB-in-USB) commands
 
 .P
-Example: 
+Example:
 
 export SANE_DEBUG_HP5590=50
 

@@ -155,7 +155,7 @@
 2003-01-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in include/sane/config.h.in sanei/sanei_scsi.c:
-	  Disable the new Linux SG interface for sparc64 to work-around 32 bit 
+	  Disable the new Linux SG interface for sparc64 to work-around 32 bit
 	  userland / 64 bit kernel problems.
 	* doc/descriptions/unsupported.desc: Added HP ScanJet 3500c, 3530c,
 	  3570c, 3570cxi, 5500C and Microtek ScanMaker 3800. Updated link for
@@ -198,7 +198,7 @@
 2003-01-13  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/descriptions/unsupported.desc: Added HP ScanJet 2300C and various chipset
-	  information for the unsupported Plustek devices  	
+	  information for the unsupported Plustek devices
 	* doc/descriptions/plustek.desc: cleanup
 
 
@@ -306,9 +306,9 @@
 	  <morais@inocam.com>). Added detection of Genius Colorpage Vivid3x.
 	  It's unknown if it works. Updated .desc file. Don't print calib line
 	  warnings by default.
-	* doc/descriptions/microtek2.desc: Updated (From Karsten Festag 
+	* doc/descriptions/microtek2.desc: Updated (From Karsten Festag
 	  <karsten.festag@gmx.de>).
-	* po/Makefile.in po/sane-backends.pt.po: Added Portuguese translation 
+	* po/Makefile.in po/sane-backends.pt.po: Added Portuguese translation
 	  for the gt68xx backend (from Pedro Morais <morais@inocam.com>).
 	* po/sane-backends.de.po: Added some missing translations. Removed some
 	  (wrong) fuzzy translations.
@@ -316,17 +316,17 @@
 2003-01-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* doc/descriptions/snapscan.desc:
-	  Added entries for Acer/Benq 310U, 320U, 340U and 
+	  Added entries for Acer/Benq 310U, 320U, 340U and
 	  Mitsubishi Diamondview 650U
 	* backend/snapscan.c backend/snapscan.h backend/snapscan-scsi.c
-	  backend/snapscan.conf: Backend version 1.4.18, added support for 
-	  Acer/Benq310U, fixed color correction for Agfa SnapScan 300 
+	  backend/snapscan.conf: Backend version 1.4.18, added support for
+	  Acer/Benq310U, fixed color correction for Agfa SnapScan 300
 
 2003-01-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/hpsj5s.desc doc/descriptions-external/hp4200.desc:
 	  Use uniform model names for HP scanners.
-	* doc/descriptions/unsupported.desc: Added Canon CanoScan D1250U2 
+	* doc/descriptions/unsupported.desc: Added Canon CanoScan D1250U2
 	  and HP ScanJet 4400C.
 	* po/artec_eplus48u.de.po po/epson.de.po po/epson.ru.po
 	  po/epson.sv.po po/gt68xx.de.po po/matsushita.fr.po
@@ -343,7 +343,7 @@
 	  are now in the per-language sane-backends.??.po files.
 	* TODO: Updated .desc file, mapages, sanei_usb and OS/2 entries. Removed
 	  entry about po files.
-	* po/Makefile.in: Remove sane-backends.pot from list of distributed 
+	* po/Makefile.in: Remove sane-backends.pot from list of distributed
 	  files. Add microtek2 files.
 	* backend/microtek2.c backend/microtek2.h:  Improved support for
 	  Scanmaker X12USL. Alpha support for Scanmaker 9800XL. Some bugfixes.
@@ -370,7 +370,7 @@
 2003-01-07   Stéphane Voltz  <svoltz@wanadoo.fr>
 
         * doc/sane-umax_pp.man: updates and fixes
-	* doc/descriptions/umax_pp.desc: change model form HP3200C to 
+	* doc/descriptions/umax_pp.desc: change model form HP3200C to
 	  Scanjet 3200C
 
 2003-01-07  Matthew Duggan <stauff1@users.sourceforge.net>
@@ -384,15 +384,15 @@
 	  doc/descriptions/dc240.desc, doc/descriptions/gphoto2.desc:
 	  Update author information
 
-        * backend/dc25.c:  Fix compiler warning 
+        * backend/dc25.c:  Fix compiler warning
 
-	* backend/dc210.c, backend/dc240.c, backend/dc210.conf, 
+	* backend/dc210.c, backend/dc240.c, backend/dc210.conf,
 	  backend/dc240.conf, backend/gphoto2.conf, backend/dc25.conf:
 	  Irix fixes from mailing list
 
 2003-01-05  Peter Fales  <peter@fales-lorenz.net>
 
-        * backend/dc25.c:  Mailing list fix.  Change = to == 
+        * backend/dc25.c:  Mailing list fix.  Change = to ==
 	  dc25/dc20 tests.
 
 2003-01-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -448,8 +448,8 @@
 	  GT-6801 scanners. Added "afe" option for gt68xx.conf for selecting
 	  default afe values. Removed AFE and exposure SANE options. Added
 	  documentation for afe option in gt68xx.conf. New version: 1.0-35.
-	* doc/descriptions-external/hp4200.desc 
-	  doc/descriptions-external/hpoj.desc: Use Hewlett-Packard consitantly 
+	* doc/descriptions-external/hp4200.desc
+	  doc/descriptions-external/hpoj.desc: Use Hewlett-Packard consitantly
 	  (instead of HP).
 	* doc/descriptions-external/scanwit.desc
 	  doc/descriptions-external/viceo.desc: Added description files for
@@ -458,7 +458,7 @@
 	* backend/test.c doc/descriptions/test.desc: Make sure that frontend bugs
 	  concerning the select fd are detected.
 	* doc/sane-scsi.man: Minor formatting change.
-	* sanei/sanei_usb.c: Explicitely set first configuration. When claiming 
+	* sanei/sanei_usb.c: Explicitely set first configuration. When claiming
 	  the interface, use the interface number from bInterfaceNumber.
 	  Explicitely set the alternative setting. When closing, call clear_halt,
 	  and reset_ep, and release_interface explicitley. On errors in
@@ -525,7 +525,7 @@
 	  Updated links.
 	* backend/test.c po/sane-backends.de.po: Minor spelling and translation
 	  fixes.
-	
+
 2002-12-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/epson_scsi.c backend/sm3600.c: Move config.h include to the
@@ -551,7 +551,7 @@
 	* configure.os2: Removed. No longer necessary.
 
 2002-12-04  Matthew Duggan <stauff1@users.sourceforge.net>
-	* backend/canon_pp-dev.c: Don't compare firmware version numbers - 
+	* backend/canon_pp-dev.c: Don't compare firmware version numbers -
 	  multiple versions do actually exist.
 	* doc/descriptions/canon_pp.desc: Bump version number.
 
@@ -574,7 +574,7 @@
 
 2002-12-01  Rene Rebe <rene.rebe@gmx.net>
 	 * backend/avision.h backend/avision.c backend/avision.conf
-	   doc/descriptions/avision.desc: updated the Avision backend - 
+	   doc/descriptions/avision.desc: updated the Avision backend -
 	   including auto-generated .desc file listing all devices
 	   also present in the avision.c device-list.
 	*  doc/descriptions/avision.desc: syntax fix
@@ -609,7 +609,7 @@
 	  in do_stop: really print exit status of reader process.
 	* doc/sane-usb.man: PACKAGEVERSION fix. Removed HP exception. Added
 	  MacOS X.
-	* doc/gamma4scanimage.man doc/sane-artec_eplus48u.man 
+	* doc/gamma4scanimage.man doc/sane-artec_eplus48u.man
 	  doc/sane-config.man doc/sane-find-scanner.man doc/sane-gt68xx.man
 	  doc/sane-mustek.man doc/sane-mustek_usb.man doc/sane.man
 	  doc/saned.man doc/scanimage.man: Added missing quotes around
@@ -661,7 +661,7 @@
 
 2002-11-23  Max Vorobiev <pcwizard@yandex.ru>
 	* backend/hpsj5s.c: Removed default port probing.
-	
+
 2002-11-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane.man: Formatting fixes. Updates some backend entries and
@@ -782,7 +782,7 @@
         * backend/umax_pp.c: revert a experimental change that went into
           cvs by mistake.
         * po/umax_pp.de.po: switch to iso-8858-1
-          
+
 2002-11-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
         * backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_high.h
@@ -820,7 +820,7 @@
           found. Use msgcat if available. Don't update the .po files
           automatically.
         * TODO: Added entries about canon.c model extraction bug, and sanei_usb
-          issue. Updated entries about MAcOS X support. Removed po files entry. 
+          issue. Updated entries about MAcOS X support. Removed po files entry.
 
 2002-10-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -831,10 +831,10 @@
 
 2002-10-31   Stéphane Voltz  <svoltz@wanadoo.fr>
 
-        * backend/umax_pp.c  backend/umax_pp.h  backend/umax_pp_low.h 
+        * backend/umax_pp.c  backend/umax_pp.h  backend/umax_pp_low.h
           backend/umax_pp_low.c tools/umax_pp.c: add UTA detection,
           version number updates
-        
+
 
 2002-10-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -843,8 +843,8 @@
 
 2002-10-27  Peter Fales <peter@fales-lorenz.net>
 
-        * configure, acinclude.m4, aclocal.m4 - Remove checks for 
-          specific version numbers of gphoto2 - that's not good for long 
+        * configure, acinclude.m4, aclocal.m4 - Remove checks for
+          specific version numbers of gphoto2 - that's not good for long
           term maintenance, and the API has settled down enough that all
           recent versions (both releases and CVS) are workable for SANE.
           It is still necessary to specify --with-gphoto2 if you want to

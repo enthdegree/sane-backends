@@ -67,7 +67,7 @@ sanei_w_space (Wire * w, size_t howmuch)
 
   if (w->status != 0)
     {
-      DBG (1, "sanei_w_space: wire is in invalid state %d\n", 
+      DBG (1, "sanei_w_space: wire is in invalid state %d\n",
 	   w->status);
       return;
     }
@@ -81,7 +81,7 @@ sanei_w_space (Wire * w, size_t howmuch)
 	case WIRE_ENCODE:
 	  nbytes = w->buffer.curr - w->buffer.start;
 	  w->buffer.curr = w->buffer.start;
-	  DBG (4, "sanei_w_space: ENCODE: sending %lu bytes\n", 
+	  DBG (4, "sanei_w_space: ENCODE: sending %lu bytes\n",
 	       (u_long) nbytes);
 	  while (nbytes > 0)
 	    {
@@ -184,7 +184,7 @@ sanei_w_array (Wire * w, SANE_Word * len_ptr, void **v,
       else
 	DBG (1, "sanei_w_array: FREE: tried to free array but *len_ptr or *v "
 	     "was NULL\n");
-	
+
       DBG (4, "sanei_w_array: FREE: done\n");
       return;
     }
@@ -200,14 +200,14 @@ sanei_w_array (Wire * w, SANE_Word * len_ptr, void **v,
       return;
     }
   DBG (4, "sanei_w_array: array has %d elements\n", len);
-      
+
   if (w->direction == WIRE_DECODE)
     {
       *len_ptr = len;
       if (len)
 	{
-	  if (((unsigned int) len) > MAX_MEM 
-	      || ((unsigned int) len * element_size) > MAX_MEM 
+	  if (((unsigned int) len) > MAX_MEM
+	      || ((unsigned int) len * element_size) > MAX_MEM
 	      || (w->allocated_memory + len * element_size) > MAX_MEM)
 	    {
 	      DBG (0, "sanei_w_array: DECODE: maximum amount of allocated memory "
@@ -291,7 +291,7 @@ sanei_w_ptr (Wire * w, void **v, WireCodecFunc w_value, size_t value_size)
 	    {
 	      DBG (0, "sanei_w_ptr: DECODE: maximum amount of allocated memory "
 		   "exceeded (limit: %u, new allocation: %lu, total: %lu bytes)\n",
-		   MAX_MEM, (unsigned long)value_size, 
+		   MAX_MEM, (unsigned long)value_size,
 			   (unsigned long)(w->allocated_memory + value_size));
 	      w->status = ENOMEM;
 	      return;
@@ -581,8 +581,8 @@ flush (Wire * w)
 void
 sanei_w_set_dir (Wire * w, WireDirection dir)
 {
-  DBG (3, "sanei_w_set_dir: wire %d, old direction WIRE_%s\n", w->io.fd, 
-       w->direction == WIRE_ENCODE ? "ENCODE" : 
+  DBG (3, "sanei_w_set_dir: wire %d, old direction WIRE_%s\n", w->io.fd,
+       w->direction == WIRE_ENCODE ? "ENCODE" :
        (w->direction == WIRE_DECODE ? "DECODE" : "FREE"));
   if (w->direction == WIRE_DECODE && w->buffer.curr != w->buffer.end)
     DBG (1, "sanei_w_set_dir: WARNING: will delete %lu bytes from buffer\n",
@@ -591,8 +591,8 @@ sanei_w_set_dir (Wire * w, WireDirection dir)
   w->direction = dir;
   DBG (4, "sanei_w_set_dir: direction changed\n");
   flush (w);
-  DBG (3, "sanei_w_set_dir: wire %d, new direction WIRE_%s\n", w->io.fd, 
-       dir == WIRE_ENCODE ? "ENCODE" : 
+  DBG (3, "sanei_w_set_dir: wire %d, new direction WIRE_%s\n", w->io.fd,
+       dir == WIRE_ENCODE ? "ENCODE" :
        (dir == WIRE_DECODE ? "DECODE" : "FREE"));
 }
 
@@ -656,13 +656,13 @@ void
 sanei_w_init (Wire * w, void (*codec_init_func) (Wire *))
 {
   DBG_INIT ();
-  
+
   DBG (3, "sanei_w_init: initializing\n");
   w->status = 0;
   w->direction = WIRE_ENCODE;
   w->buffer.size = 8192;
   w->buffer.start = malloc (w->buffer.size);
-  
+
   if (w->buffer.start == 0)
     {
       /* Malloc failed, so return an error. */

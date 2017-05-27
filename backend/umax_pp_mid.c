@@ -131,7 +131,7 @@ unlock_parport (void)
 
 
 
-/* 
+/*
  *
  *  This function recognize the scanner model by sending an image
  * filter command. 1220P will use it as is, but 2000P will return

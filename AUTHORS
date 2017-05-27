@@ -85,7 +85,7 @@ Backends:
  pnm:           Andreas Beck, Gordon Matzigkeit, David Mosberger, Michael
                 Herder, and Henning Geinitz
  qcam:          Scott Laird (original driver), David Mosberger (SANE backend),
-                despeckling filter by Patrick Reynolds, 
+                despeckling filter by Patrick Reynolds,
                 B&W fixes by Andrew Kuchling
  ricoh:         Feico W. Dillema
  rts8891:       Stéphane Voltz

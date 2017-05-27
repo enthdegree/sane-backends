@@ -12,7 +12,7 @@
 # extracted from the Fujitsu Windows driver. Presumably the Mac versions
 # contain the firmware as well, but the author has no access such a machine.
 
-# Firmware is installed in several different locations by the fujitsu software, 
+# Firmware is installed in several different locations by the fujitsu software,
 # using the windows 'search' feature to look for '*.nal' is the easiest way to
 # find them. They should be ~65K, and have the scanner's name as part of the
 # file name. They are often inside a .cab file.

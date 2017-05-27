@@ -4,9 +4,9 @@
 saned \- SANE network daemon
 .SH SYNOPSIS
 .B saned
-.B [ \-a 
+.B [ \-a
 .I [ username ]
-.B | \-d 
+.B | \-d
 .I [ n ]
 .B | \-s
 .I [ n ]
@@ -22,10 +22,10 @@ The
 .B \-a
 flag requests that
 .B saned
-run in standalone daemon mode. In this mode, 
+run in standalone daemon mode. In this mode,
 .B saned
 will detach from the console and run in the background, listening for incoming
-client connections; 
+client connections;
 .B inetd
 is not required for
 .B saned
@@ -59,7 +59,7 @@ is used, the debug messages will be printed to stderr while
 .B \-s
 requests using syslog.
 .PP
-If 
+If
 .B saned
 is run from inetd, xinetd or systemd, no option can be given.
 .PP
@@ -67,11 +67,11 @@ The
 .B \-h
 flag displays a short help message.
 .SH CONFIGURATION
-First and foremost: 
+First and foremost:
 .B saned
 is not intended to be exposed to the internet or other non-trusted
 networks. Make sure that access is limited by tcpwrappers and/or a firewall
-setup. Don't depend only on 
+setup. Don't depend only on
 .BR saned 's
 own authentication. Don't run
 .B saned
@@ -81,7 +81,7 @@ install
 .B saned
 as setuid root.
 .PP
-The 
+The
 .I saned.conf
 configuration file contains both options for the daemon and the access
 list.
@@ -131,21 +131,21 @@ identical to ahost.com.
 .SH SERVER DAEMON CONFIGURATION
 For
 .B saned
-to work properly in its default mode of operation, it is also necessary to 
-add the appropriate configuration for 
+to work properly in its default mode of operation, it is also necessary to
+add the appropriate configuration for
 .I (x)inetd or systemd.
 (see below).
 Note that your inetd must support IPv6 if you
-want to connect to saned over IPv6 ; xinetd, openbsd-inetd and systemd 
+want to connect to saned over IPv6 ; xinetd, openbsd-inetd and systemd
 are known to support IPv6, check the documentation for your inetd daemon.
 .PP
-In the sections below the configuration for 
+In the sections below the configuration for
 .I inetd, xinetd
 and
 .I systemd
 are described in more detail.
 .PP
-For the configurations below it is necessary to add a line of the following 
+For the configurations below it is necessary to add a line of the following
 form to
 .IR /etc/services :
 .PP
@@ -153,7 +153,7 @@ form to
 sane\-port 6566/tcp # SANE network scanner daemon
 .RE
 .PP
-The official IANA short name for port 6566 is "sane\-port". The older name 
+The official IANA short name for port 6566 is "sane\-port". The older name
 "sane" is now deprecated.
 .SH INETD CONFIGURATION
 It is required to add a single line to the inetd configuration file
@@ -183,22 +183,22 @@ Note that both examples assume that there is a
 .B saned
 group and a
 .B saned
-user.  If you follow this example, please make sure that the 
+user.  If you follow this example, please make sure that the
 access permissions on the special device are set such that
 .B saned
 can access the scanner (the program generally needs read and
 write access to scanner devices).
 .SH XINETD CONFIGURATION
 If xinetd is installed on your system instead of inetd the following example
-for 
-.I /etc/xinetd.conf 
+for
+.I /etc/xinetd.conf
 may be helpful:
 .PP
 .RS
 .ft CR
 .nf
 # default: off
-# description: The sane server accepts requests 
+# description: The sane server accepts requests
 # for network access to a local scanner via the
 # network.
 service sane\-port
@@ -214,14 +214,14 @@ service sane\-port
 .ft R
 .RE
 .SH SYSTEMD CONFIGURATION
-Saned can be compiled with explicit systemd support. This 
+Saned can be compiled with explicit systemd support. This
 will allow logging debugging information to be forwarded
 to the systemd journal. The systemd support
 requires compilation with the systemd-devel package
 installed on the system. this is the preferred option.
 
-Saned can be used wih systemd without the systemd integration 
-compiled in, but then logging of debug information is not supported. 
+Saned can be used wih systemd without the systemd integration
+compiled in, but then logging of debug information is not supported.
 
 The systemd configuration is different for the 2 options, so
 both are described below.
@@ -229,8 +229,8 @@ both are described below.
 for the systemd configuration we need to add 2 configuration files in
 .I /etc/systemd/system.
 .PP
-The first file we need to add here is called 
-.I saned.socket. 
+The first file we need to add here is called
+.I saned.socket.
 It shall have
 the following contents:
 .PP
@@ -251,8 +251,8 @@ WantedBy=sockets.target
 .ft R
 .RE
 .PP
-The second file to be added is 
-.I saned@.service 
+The second file to be added is
+.I saned@.service
 with the following contents:
 .PP
 .RS
@@ -269,7 +269,7 @@ Group=saned
 StandardInput=null
 StandardOutput=syslog
 StandardError=syslog
-Environment=SANE_CONFIG_DIR=@CONFIGDIR@ 
+Environment=SANE_CONFIG_DIR=@CONFIGDIR@
 # If you need to debug your configuration uncomment the next line and
 # change it as appropriate to set the desired debug options
 # Environment=SANE_DEBUG_DLL=255 SANE_DEBUG_BJNP=5
@@ -280,21 +280,21 @@ Also=saned.socket
 .ft R
 .RE
 .PP
-You need to set an environment variable for 
+You need to set an environment variable for
 .B SANE_CONFIG_DIR
 pointing to the directory where saned can find its configuration files.
-you will have to remove the # on the last line and set the variables 
-for the desired debugging information if required.  Multiple variables 
-can be set by separating the assignments by spaces as shown in the 
+you will have to remove the # on the last line and set the variables
+for the desired debugging information if required.  Multiple variables
+can be set by separating the assignments by spaces as shown in the
 example above.
 .PP
-Unlike 
+Unlike
 .I (x)inetd
 , systemd allows debugging output from backends set using
 .B SANE_DEBUG_XXX
 to be captured. See the man-page for your backend to see what options
 are  supported.
-With the service unit as described above, the debugging output is 
+With the service unit as described above, the debugging output is
 forwarded to the system log.
 
 .SH Systemd configuration when saned is compiled without systemd support
@@ -305,7 +305,7 @@ for systemd configuration for saned, we need to add 2 configuration files in
 .I /etc/systemd/system.
 .PP
 The first file we need to add here is called
-.I saned.socket. 
+.I saned.socket.
 It is identical to the version for systemd with the support compiled in.
 It shall have the following contents:
 .PP

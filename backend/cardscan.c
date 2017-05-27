@@ -199,7 +199,7 @@ four times {
    . . - sane_start() : start image acquisition
    . .   - sane_get_parameters() : returns actual scan parameters
    . .   - sane_read() : read image data (from pipe)
-   . . (sane_read called multiple times; after sane_read returns EOF, 
+   . . (sane_read called multiple times; after sane_read returns EOF,
    . . loop may continue with sane_start which may return a 2nd page
    . . when doing duplex scans, or load the next page from the ADF)
    . .
@@ -226,14 +226,14 @@ four times {
 #include "cardscan.h"
 
 #define DEBUG 1
-#define BUILD 3 
+#define BUILD 3
 
 /* values for SANE_DEBUG_CARDSCAN env var:
  - errors           5
  - function trace  10
  - function detail 15
  - get/setopt cmds 20
- - usb cmd trace   25 
+ - usb cmd trace   25
  - usb cmd detail  30
  - useless noise   35
 */
@@ -259,7 +259,7 @@ static struct scanner *scanner_devList = NULL;
 
 /*
  * Called by SANE initially.
- * 
+ *
  * From the SANE spec:
  * This function must be called before any other SANE function can be
  * called. The behavior of a SANE backend is undefined if this
@@ -274,26 +274,26 @@ SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
     authorize = authorize;        /* get rid of compiler warning */
-  
+
     DBG_INIT ();
     DBG (10, "sane_init: start\n");
-  
+
     sanei_usb_init();
-  
+
     if (version_code)
       *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
-  
+
     DBG (5, "sane_init: cardscan backend %d.%d.%d, from %s\n",
       SANE_CURRENT_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
-  
+
     DBG (10, "sane_init: finish\n");
-  
+
     return SANE_STATUS_GOOD;
 }
 
 /*
  * Called by SANE to find out about supported devices.
- * 
+ *
  * From the SANE spec:
  * This function can be used to query the list of devices that are
  * available. If the function executes successfully, it stores a
@@ -306,7 +306,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
  * returned (devices directly attached to the machine that SANE is
  * running on). If it is false, the device list includes all remote
  * devices that are accessible to the SANE library.
- * 
+ *
  * SANE does not require that this function is called before a
  * sane_open() call is performed. A device name may be specified
  * explicitly by a user which would make it unnecessary and
@@ -324,64 +324,64 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     FILE *fp;
     int num_devices=0;
     int i=0;
-  
+
     local_only = local_only;        /* get rid of compiler warning */
-  
+
     DBG (10, "sane_get_devices: start\n");
- 
+
     global_has_cal_buffer = 1;
     global_lines_per_block = 16;
 
     fp = sanei_config_open (CONFIG_FILE);
-  
+
     if (fp) {
-  
+
         DBG (15, "sane_get_devices: reading config file %s\n", CONFIG_FILE);
-  
+
         while (sanei_config_read (line, PATH_MAX, fp)) {
-      
+
             lp = line;
 
             /* ignore comments */
             if (*lp == '#')
                 continue;
-      
+
             /* skip empty lines */
             if (*lp == 0)
                 continue;
-      
+
             if ((strncmp ("usb", lp, 3) == 0) && isspace (lp[3])) {
                 DBG (15, "sane_get_devices: looking for '%s'\n", lp);
                 sanei_usb_attach_matching_devices(lp, attach_one);
             }
 
             else if (!strncmp(lp, "has_cal_buffer", 14) && isspace (lp[14])) {
-    
+
                 int buf;
                 lp += 14;
                 lp = sanei_config_skip_whitespace (lp);
                 buf = atoi (lp);
-    
+
                 if(buf){
                   global_has_cal_buffer = 1;
                 }
                 else{
                   global_has_cal_buffer = 0;
                 }
-    
+
                 DBG (15, "sane_get_devices: setting \"has_cal_buffer\" to %d\n",
                   global_has_cal_buffer);
             }
 
             else if (!strncmp(lp, "lines_per_block", 15) && isspace (lp[15])) {
-    
+
                 int buf;
                 lp += 15;
                 lp = sanei_config_skip_whitespace (lp);
                 buf = atoi (lp);
-    
+
                 if(buf < 1 || buf > 32){
-                  DBG (15, 
+                  DBG (15,
                     "sane_get_devices: \"lines_per_block\"=%d\n out of range",
                     buf
                   );
@@ -398,42 +398,42 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
         }
         fclose (fp);
     }
-  
+
     else {
         DBG (5, "sane_get_devices: no config file '%s', using defaults\n",
           CONFIG_FILE);
-  
+
         DBG (15, "sane_get_devices: looking for 'usb 0x08F0 0x0005'\n");
         sanei_usb_attach_matching_devices("usb 0x08F0 0x0005", attach_one);
     }
-  
+
     for (dev = scanner_devList; dev; dev=dev->next) {
         DBG (15, "sane_get_devices: found scanner %s\n",dev->device_name);
         num_devices++;
     }
-  
+
     DBG (15, "sane_get_devices: found %d scanner(s)\n",num_devices);
-  
+
     sane_devArray = calloc (num_devices + 1, sizeof (SANE_Device*));
     if (!sane_devArray)
         return SANE_STATUS_NO_MEM;
-  
+
     for (dev = scanner_devList; dev; dev=dev->next) {
         sane_devArray[i++] = (SANE_Device *)&dev->sane;
     }
-  
+
     sane_devArray[i] = 0;
-  
+
     *device_list = sane_devArray;
-  
+
     DBG (10, "sane_get_devices: finish\n");
-  
+
     return SANE_STATUS_GOOD;
 }
 
 /* callback used by sane_get_devices
- * build the scanner struct and link to global list 
- * unless struct is already loaded, then pretend 
+ * build the scanner struct and link to global list
+ * unless struct is already loaded, then pretend
  */
 static SANE_Status
 attach_one (const char *device_name)
@@ -441,32 +441,32 @@ attach_one (const char *device_name)
     struct scanner *s;
     int ret, i;
     SANE_Word vid, pid;
-  
+
     DBG (10, "attach_one: start '%s'\n", device_name);
-  
+
     for (s = scanner_devList; s; s = s->next) {
         if (strcmp (s->sane.name, device_name) == 0) {
             DBG (10, "attach_one: already attached!\n");
             return SANE_STATUS_GOOD;
         }
     }
-  
+
     /* build a scanner struct to hold it */
     DBG (15, "attach_one: init struct\n");
-  
+
     if ((s = calloc (sizeof (*s), 1)) == NULL)
         return SANE_STATUS_NO_MEM;
-  
+
     /* copy the device name */
     s->device_name = strdup (device_name);
     if (!s->device_name){
         free (s);
         return SANE_STATUS_NO_MEM;
     }
-  
+
     /* connect the fd */
     DBG (15, "attach_one: connect fd\n");
-  
+
     s->fd = -1;
     ret = connect_fd(s);
     if(ret != SANE_STATUS_GOOD){
@@ -474,11 +474,11 @@ attach_one (const char *device_name)
         free (s);
         return ret;
     }
-  
+
     /* clean up the scanner struct based on model */
     /* this is the only piece of model specific code */
     sanei_usb_get_vendor_product(s->fd,&vid,&pid);
-  
+
     if(vid == 0x08f0){
         s->vendor_name = "CardScan";
         if(pid == 0x0005){
@@ -507,10 +507,10 @@ attach_one (const char *device_name)
         s->vendor_name = "Unknown";
         s->product_name = "Unknown";
     }
-  
+
     DBG (15, "attach_one: Found %s scanner %s at %s\n",
       s->vendor_name, s->product_name, s->device_name);
- 
+
     /*copy config file settings*/
     s->has_cal_buffer = global_has_cal_buffer;
     s->lines_per_block = global_lines_per_block;
@@ -520,7 +520,7 @@ attach_one (const char *device_name)
     /* try to get calibration */
     if(s->has_cal_buffer){
       DBG (15, "attach_one: scanner calibration\n");
-    
+
       ret = load_calibration(s);
       if (ret != SANE_STATUS_GOOD) {
           DBG (5, "sane_start: ERROR: cannot calibrate, incompatible?\n");
@@ -532,13 +532,13 @@ attach_one (const char *device_name)
     else{
       DBG (15, "attach_one: skipping calibration\n");
     }
-  
+
     /* set SANE option 'values' to good defaults */
     DBG (15, "attach_one: init options\n");
-  
-    /* go ahead and setup the first opt, because 
-     * frontend may call control_option on it 
-     * before calling get_option_descriptor 
+
+    /* go ahead and setup the first opt, because
+     * frontend may call control_option on it
+     * before calling get_option_descriptor
      */
     memset (s->opt, 0, sizeof (s->opt));
     for (i = 0; i < NUM_OPTIONS; ++i) {
@@ -546,29 +546,29 @@ attach_one (const char *device_name)
         s->opt[i].size = sizeof (SANE_Word);
         s->opt[i].cap = SANE_CAP_INACTIVE;
     }
-  
+
     s->opt[OPT_NUM_OPTS].name = SANE_NAME_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
     s->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
-  
+
     DBG (15, "attach_one: init settings\n");
-  
+
     /* we close the connection, so that another backend can talk to scanner */
     disconnect_fd(s);
-  
+
     /* load info into sane_device struct */
     s->sane.name = s->device_name;
     s->sane.vendor = s->vendor_name;
     s->sane.model = s->product_name;
     s->sane.type = "scanner";
-  
+
     s->next = scanner_devList;
     scanner_devList = s;
-  
+
     DBG (10, "attach_one: finish\n");
-  
+
     return SANE_STATUS_GOOD;
 }
 
@@ -579,9 +579,9 @@ static SANE_Status
 connect_fd (struct scanner *s)
 {
     SANE_Status ret;
-  
+
     DBG (10, "connect_fd: start\n");
-  
+
     if(s->fd > -1){
         DBG (5, "connect_fd: already open\n");
         ret = SANE_STATUS_GOOD;
@@ -590,13 +590,13 @@ connect_fd (struct scanner *s)
         DBG (15, "connect_fd: opening USB device\n");
         ret = sanei_usb_open (s->device_name, &(s->fd));
     }
-  
+
     if(ret != SANE_STATUS_GOOD){
         DBG (5, "connect_fd: could not open device: %d\n", ret);
     }
-  
+
     DBG (10, "connect_fd: finish\n");
-  
+
     return ret;
 }
 
@@ -608,25 +608,25 @@ load_calibration(struct scanner *s)
     unsigned char * buf;
     size_t bytes = HEADER_SIZE + CAL_COLOR_SIZE*2 + CAL_GRAY_SIZE*2;
     int j;
-  
+
     DBG (10, "load_calibration: start\n");
-  
+
     buf = malloc(bytes);
     if(!buf){
       DBG(5, "load_calibration: not enough mem for buffer: %ld\n",(long)bytes);
       return SANE_STATUS_NO_MEM;
     }
-  
+
     ret = do_cmd(
       s, 0,
       cmd, sizeof(cmd),
       NULL, 0,
       buf, &bytes
     );
-  
+
     if (ret == SANE_STATUS_GOOD) {
         DBG(15, "load_calibration: got GOOD\n");
-    
+
         /*
          * color cal data comes from scaner like:
          * bbbbbbbBBBBBBBgggggggGGGGGGGrrrrrrrRRRRRRR
@@ -634,40 +634,40 @@ load_calibration(struct scanner *s)
          * reorder the data into two buffers
          * bbbbbbbgggggggrrrrrrr and BBBBBBBGGGGGGGRRRRRRR
          */
-    
+
         /*dark/light blue*/
         memcpy(s->cal_color_b, buf+HEADER_SIZE, PIXELS_PER_LINE);
         memcpy(s->cal_color_w,
           buf+HEADER_SIZE+PIXELS_PER_LINE, PIXELS_PER_LINE);
-    
+
         /*dark/light green*/
         memcpy(s->cal_color_b+PIXELS_PER_LINE,
           buf+HEADER_SIZE+(PIXELS_PER_LINE*2), PIXELS_PER_LINE);
         memcpy(s->cal_color_w+PIXELS_PER_LINE,
           buf+HEADER_SIZE+(PIXELS_PER_LINE*3), PIXELS_PER_LINE);
-    
+
         /*dark/light red*/
         memcpy(s->cal_color_b+(PIXELS_PER_LINE*2),
           buf+HEADER_SIZE+(PIXELS_PER_LINE*4), PIXELS_PER_LINE);
         memcpy(s->cal_color_w+(PIXELS_PER_LINE*2),
           buf+HEADER_SIZE+(PIXELS_PER_LINE*5), PIXELS_PER_LINE);
-    
+
         /* then slide the light data down using the dark offset */
         for(j=0;j<CAL_COLOR_SIZE;j++){
             s->cal_color_w[j] -= s->cal_color_b[j];
         }
-    
+
         /*dark/light gray*/
         memcpy(s->cal_gray_b,
           buf+HEADER_SIZE+(CAL_COLOR_SIZE*2), PIXELS_PER_LINE);
         memcpy(s->cal_gray_w,
           buf+HEADER_SIZE+(CAL_COLOR_SIZE*2)+PIXELS_PER_LINE, PIXELS_PER_LINE);
-    
+
         /* then slide the light data down using the dark offset */
         for(j=0;j<CAL_GRAY_SIZE;j++){
             s->cal_gray_w[j] -= s->cal_gray_b[j];
         }
-    
+
         hexdump(35, "cal_color_b:", s->cal_color_b, CAL_COLOR_SIZE);
         hexdump(35, "cal_color_w:", s->cal_color_w, CAL_COLOR_SIZE);
         hexdump(35, "cal_gray_b:", s->cal_gray_b, CAL_GRAY_SIZE);
@@ -676,9 +676,9 @@ load_calibration(struct scanner *s)
     else {
         DBG(5, "load_calibration: error reading data block status = %d\n", ret);
     }
-  
+
     DBG (10, "load_calibration: finish\n");
-  
+
     return ret;
 }
 
@@ -697,9 +697,9 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
     struct scanner *dev = NULL;
     struct scanner *s = NULL;
     SANE_Status ret;
-   
+
     DBG (10, "sane_open: start\n");
-  
+
     if(name[0] == 0){
         if(scanner_devList){
             DBG (15, "sane_open: no device requested, using first\n");
@@ -725,24 +725,24 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
             }
         }
     }
-  
+
     if (!s) {
         DBG (5, "sane_open: no device found\n");
         return SANE_STATUS_INVAL;
     }
-  
+
     DBG (15, "sane_open: device %s found\n", s->sane.name);
-  
+
     *handle = s;
-  
+
     /* connect the fd so we can talk to scanner */
     ret = connect_fd(s);
     if(ret != SANE_STATUS_GOOD){
         return ret;
     }
-  
+
     DBG (10, "sane_open: finish\n");
-  
+
     return SANE_STATUS_GOOD;
 }
 
@@ -789,7 +789,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->mode_list[i++]=STRING_GRAYSCALE;
     s->mode_list[i++]=STRING_COLOR;
     s->mode_list[i]=NULL;
-  
+
     opt->name = SANE_NAME_SCAN_MODE;
     opt->title = SANE_TITLE_SCAN_MODE;
     opt->desc = SANE_DESC_SCAN_MODE;
@@ -805,7 +805,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
 /**
  * Gets or sets an option value.
- * 
+ *
  * From the SANE spec:
  * This function is used to set or inquire the current value of option
  * number n of the device represented by handle h. The manner in which
@@ -816,7 +816,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
  * area pointed to by v must be big enough to hold the entire option
  * value (determined by member size in the corresponding option
  * descriptor).
- * 
+ *
  * The only exception to this rule is that when setting the value of a
  * string option, the string pointed to by argument v may be shorter
  * since the backend will stop reading the option value upon
@@ -902,7 +902,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
        * below.
        */
       switch (option) {
- 
+
         /* Mode Group */
         case OPT_MODE:
           if (!strcmp (val, STRING_GRAYSCALE)) {
@@ -939,7 +939,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
  * completion of that request. Outside of that window, the returned
  * values are best-effort estimates of what the parameters will be
  * when sane_start() gets invoked.
- * 
+ *
  * Calling this function before a scan has actually started allows,
  * for example, to get an estimate of how big the scanned image will
  * be. The parameters passed to this function are the handle h of the
@@ -986,38 +986,38 @@ sane_start (SANE_Handle handle)
 {
     struct scanner *s = handle;
     SANE_Status ret;
-  
+
     DBG (10, "sane_start: start\n");
-  
+
     /* first page of batch */
     if(s->started){
         DBG(5,"sane_start: previous transfer not finished?");
         sane_cancel((SANE_Handle)s);
         return SANE_STATUS_CANCELLED;
     }
-  
+
     /* set clean defaults */
     s->started=1;
     s->bytes_rx=0;
     s->bytes_tx=0;
     s->paperless_lines=0;
-  
-    /* heat up the lamp */ 
+
+    /* heat up the lamp */
     if(s->mode == MODE_COLOR){
         ret = heat_lamp_color(s);
     }
     else{
         ret = heat_lamp_gray(s);
     }
-  
+
     if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: failed to heat lamp\n");
         sane_cancel((SANE_Handle)s);
         return ret;
     }
-  
+
     DBG (10, "sane_start: finish\n");
-  
+
     return SANE_STATUS_GOOD;
 }
 
@@ -1031,9 +1031,9 @@ heat_lamp_gray(struct scanner *s)
     size_t bytes = HEADER_SIZE + 1;
     unsigned char * buf;
     int i;
-  
+
     DBG (10, "heat_lamp_gray: start\n");
-  
+
     buf = malloc(bytes);
     if(!buf){
         DBG(5, "heat_lamp_gray: not enough mem for buffer: %lu\n",
@@ -1042,26 +1042,26 @@ heat_lamp_gray(struct scanner *s)
     }
 
     for(i=0;i<10;i++){
-    
+
         ret2 = do_cmd(
           s, 0,
           cmd, sizeof(cmd),
           NULL, 0,
           buf, &bytes
         );
-      
+
         if (ret2 != SANE_STATUS_GOOD) {
             DBG(5, "heat_lamp_gray: %d error\n",i);
             ret = ret2;
             break;
         }
-    
+
         if(!buf[1]){
             DBG(5, "heat_lamp_gray: %d got no docs\n",i);
             ret = SANE_STATUS_NO_DOCS;
             break;
         }
-    
+
         DBG(15, "heat_lamp_gray: %d got: %d %d\n",i,
           buf[HEADER_SIZE],s->cal_gray_b[0]);
 
@@ -1075,11 +1075,11 @@ heat_lamp_gray(struct scanner *s)
             ret = SANE_STATUS_DEVICE_BUSY;
         }
     }
-  
+
     free(buf);
-  
+
     DBG (10, "heat_lamp_gray: finish %d\n",ret);
-  
+
     return ret;
 }
 
@@ -1093,9 +1093,9 @@ heat_lamp_color(struct scanner *s)
     size_t bytes = HEADER_SIZE + 3;
     unsigned char * buf;
     int i;
-  
+
     DBG (10, "heat_lamp_color: start\n");
-  
+
     buf = malloc(bytes);
     if(!buf){
         DBG(5, "heat_lamp_color: not enough mem for buffer: %lu\n",
@@ -1104,26 +1104,26 @@ heat_lamp_color(struct scanner *s)
     }
 
     for(i=0;i<10;i++){
-    
+
         ret2 = do_cmd(
           s, 0,
           cmd, sizeof(cmd),
           NULL, 0,
           buf, &bytes
         );
-      
+
         if (ret2 != SANE_STATUS_GOOD) {
             DBG(5, "heat_lamp_color: %d error\n",i);
             ret = ret2;
             break;
         }
-    
+
         if(!buf[1]){
             DBG(5, "heat_lamp_color: %d got no docs\n",i);
             ret = SANE_STATUS_NO_DOCS;
             break;
         }
-    
+
         DBG(15, "heat_lamp_color: %d got: %d,%d,%d %d,%d,%d\n",i,
           buf[HEADER_SIZE],buf[HEADER_SIZE+1],buf[HEADER_SIZE+2],
           s->cal_color_b[0],s->cal_color_b[1],s->cal_color_b[2]);
@@ -1140,17 +1140,17 @@ heat_lamp_color(struct scanner *s)
             ret = SANE_STATUS_DEVICE_BUSY;
         }
     }
-  
+
     free(buf);
-  
+
     DBG (10, "heat_lamp_color: finish %d\n",ret);
-  
+
     return ret;
 }
 
 /*
  * Called by SANE to read data.
- * 
+ *
  * From the SANE spec:
  * This function is used to read image data from the device
  * represented by handle h.  Argument buf is a pointer to a memory
@@ -1158,7 +1158,7 @@ heat_lamp_color(struct scanner *s)
  * returned is stored in *len. A backend must set this to zero when
  * the call fails (i.e., when a status other than SANE_STATUS_GOOD is
  * returned).
- * 
+ *
  * When the call succeeds, the number of bytes returned can be
  * anywhere in the range from 0 to maxlen bytes.
  */
@@ -1167,55 +1167,55 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 {
     struct scanner *s = (struct scanner *) handle;
     SANE_Status ret=SANE_STATUS_GOOD;
-  
+
     DBG (10, "sane_read: start\n");
-  
+
     *len = 0;
-  
+
     /* cancelled? */
     if(!s->started){
         DBG (5, "sane_read: call sane_start first\n");
         return SANE_STATUS_CANCELLED;
     }
-  
+
     /* have sent all of current buffer */
     if(s->bytes_tx == s->bytes_rx){
-  
+
         /* at end of data, stop */
         if(s->paperless_lines >= MAX_PAPERLESS_LINES){
             DBG (15, "sane_read: returning eof\n");
             power_down(s);
             return SANE_STATUS_EOF;
         }
-  
+
         /* more to get, reset and go */
         s->bytes_tx = 0;
         s->bytes_rx = 0;
-  
+
         if(s->mode == MODE_COLOR){
             ret = read_from_scanner_color(s);
         }
         else{
             ret = read_from_scanner_gray(s);
         }
-  
+
         if(ret){
             DBG(5,"sane_read: returning %d\n",ret);
             return ret;
         }
     }
-  
+
     /* data in current buffer, send some of it */
     *len = s->bytes_rx - s->bytes_tx;
     if(*len > max_len){
         *len = max_len;
     }
-  
+
     memcpy(buf,s->buffer+s->bytes_tx,*len);
     s->bytes_tx += *len;
-  
+
     DBG (10, "sane_read: %d,%d,%d finish\n", *len,s->bytes_rx,s->bytes_tx);
-  
+
     return ret;
 }
 
@@ -1229,9 +1229,9 @@ read_from_scanner_gray(struct scanner *s)
     size_t bytes = HEADER_SIZE + s->gray_block_size;
     unsigned char * buf;
     int i,j;
-  
+
     DBG (10, "read_from_scanner_gray: start\n");
- 
+
     cmd[4] = s->lines_per_block;
 
     buf = malloc(bytes);
@@ -1240,14 +1240,14 @@ read_from_scanner_gray(struct scanner *s)
           (long unsigned)bytes);
         return SANE_STATUS_NO_MEM;
     }
-  
+
     ret = do_cmd(
       s, 0,
       cmd, sizeof(cmd),
       NULL, 0,
       buf, &bytes
     );
-  
+
     if (ret == SANE_STATUS_GOOD) {
 
         DBG(15, "read_from_scanner_gray: got GOOD\n");
@@ -1255,19 +1255,19 @@ read_from_scanner_gray(struct scanner *s)
         if(!buf[1]){
           s->paperless_lines += s->lines_per_block;
         }
-    
+
         s->bytes_rx = s->gray_block_size;
-    
+
         /*memcpy(s->buffer,buf+HEADER_SIZE,s->gray_block_size);*/
-  
+
         /* reorder the gray data into the struct's buffer */
         for(i=0;i<s->gray_block_size;i+=PIXELS_PER_LINE){
             for(j=0;j<PIXELS_PER_LINE;j++){
-      
+
                 unsigned char byte = buf[ HEADER_SIZE + i + j ];
                 unsigned char bcal = s->cal_gray_b[j];
                 unsigned char wcal = s->cal_gray_w[j];
-        
+
                 byte = (byte <= bcal)?0:(byte-bcal);
                 byte = (byte >= wcal)?255:(byte*255/wcal);
                 s->buffer[i+j] = byte;
@@ -1277,11 +1277,11 @@ read_from_scanner_gray(struct scanner *s)
     else {
         DBG(5, "read_from_scanner_gray: error reading status = %d\n", ret);
     }
-  
+
     free(buf);
-  
+
     DBG (10, "read_from_scanner_gray: finish\n");
-  
+
     return ret;
 }
 
@@ -1294,9 +1294,9 @@ read_from_scanner_color(struct scanner *s)
     size_t bytes = HEADER_SIZE + s->color_block_size;
     unsigned char * buf;
     int i,j,k;
-  
+
     DBG (10, "read_from_scanner_color: start\n");
-  
+
     cmd[4] = s->lines_per_block;
 
     buf = malloc(bytes);
@@ -1305,14 +1305,14 @@ read_from_scanner_color(struct scanner *s)
           (long unsigned)bytes);
         return SANE_STATUS_NO_MEM;
     }
-  
+
     ret = do_cmd(
       s, 0,
       cmd, sizeof(cmd),
       NULL, 0,
       buf, &bytes
     );
-  
+
     if (ret == SANE_STATUS_GOOD) {
 
         DBG(15, "read_from_scanner_color: got GOOD\n");
@@ -1320,21 +1320,21 @@ read_from_scanner_color(struct scanner *s)
         if(!buf[1]){
           s->paperless_lines += s->lines_per_block;
         }
-    
+
         s->bytes_rx = s->color_block_size;
-    
+
         /*memcpy(s->buffer,buf+HEADER_SIZE,s->color_block_size);*/
-  
+
         /* reorder the color data into the struct's buffer */
         for(i=0;i<s->color_block_size;i+=PIXELS_PER_LINE*3){
             for(j=0;j<PIXELS_PER_LINE;j++){
                 for(k=0;k<3;k++){
-      
+
                     int offset = PIXELS_PER_LINE*(2-k) + j;
                     unsigned char byte = buf[ HEADER_SIZE + i + offset ];
                     unsigned char bcal = s->cal_color_b[offset];
                     unsigned char wcal = s->cal_color_w[offset];
-            
+
                     byte = (byte <= bcal)?0:(byte-bcal);
                     byte = (byte >= wcal)?255:(byte*255/wcal);
                     s->buffer[i+j*3+k] = byte;
@@ -1345,11 +1345,11 @@ read_from_scanner_color(struct scanner *s)
     else {
         DBG(5, "read_from_scanner_color: error reading status = %d\n", ret);
     }
-  
+
     free(buf);
-  
+
     DBG (10, "read_from_scanner_color: finish\n");
-  
+
     return ret;
 }
 
@@ -1357,7 +1357,7 @@ read_from_scanner_color(struct scanner *s)
  * @@ Section 4 - SANE cleanup functions
  */
 /*
- * Cancels a scan. 
+ * Cancels a scan.
  *
  * From the SANE spec:
  * This function is used to immediately or as quickly as possible
@@ -1393,7 +1393,7 @@ power_down(struct scanner *s)
     unsigned char buf[6];
     size_t bytes = sizeof(buf);
     int i;
-  
+
     DBG (10, "power_down: start\n");
 
     for(i=0;i<5;i++){
@@ -1413,9 +1413,9 @@ power_down(struct scanner *s)
     unsigned char cmd[] = {0x35, 0x01, 0x00, 0xff};
     unsigned char buf[5];
     size_t bytes = sizeof(buf);
-  
+
     DBG (10, "power_down: start\n");
-  
+
     ret = do_cmd(
       s, 0,
       cmd, sizeof(cmd),
@@ -1423,15 +1423,15 @@ power_down(struct scanner *s)
       buf, &bytes
     );
 #endif
-      
+
     DBG (10, "power_down: finish %d\n",ret);
-  
+
     return ret;
 }
 
 /*
  * Ends use of the scanner.
- * 
+ *
  * From the SANE spec:
  * This function terminates the association between the device handle
  * passed in argument h and the device it represents. If the device is
@@ -1467,7 +1467,7 @@ disconnect_fd (struct scanner *s)
 
 /*
  * Terminates the backend.
- * 
+ *
  * From the SANE spec:
  * This function must be called to terminate use of a backend. The
  * function will first close all device handles that still might be

@@ -31,7 +31,7 @@ backend:
 
 Other Panasonic high speed scanners may or may not work with that backend.
 
-Valid command line options and their syntax can be listed by using 
+Valid command line options and their syntax can be listed by using
 .RS
 scanimage \-\-help \-d matsushita
 .RE
@@ -57,12 +57,12 @@ selects the number of pages to scan (one or until the tray is empty).
 
 .TP
 .B \-\-paper\-size A4|...|Legal|Letter [A4]
-options selects the area to scan. It adjust the 
+options selects the area to scan. It adjust the
 .B \-l \-t \-x \-y
 options accordingly. It does not need to be the real size of the paper.
 
 .TP
-.B \-l \-t \-x \-y 
+.B \-l \-t \-x \-y
 control the scan area: \-l sets the top left x coordinate, \-t the top
 left y coordinate, \-x selects the width and \-y the height of the scan
 area. All parameters are specified in millimeters. It is possible to use
@@ -87,7 +87,7 @@ automatically sets brightness, contrast, white level, gamma, noise reduction and
 option sets the tonal gradation for the halftone mode. Pattern downloading is not implemented by the backend.
 .TP
 .B \-\-autoseparation
-provides automatic separation of text and images. 
+provides automatic separation of text and images.
 .TP
 .B \-\-white\-level
 option indicate the source of the white base.

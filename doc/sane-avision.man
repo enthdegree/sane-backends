@@ -24,23 +24,23 @@ you try the first scans \- especially with film-scanners!
 
 .SH CONFIGURATION
 
-The configuration file for this backend resides in 
+The configuration file for this backend resides in
 .IR @CONFIGDIR@/avision.conf .
 
 Its contents is a list of device names that correspond to Avision and Avision
 compatible scanners and backend-options. Empty lines and lines starting with
-a hash mark (#) are ignored. A sample configuration file is shown below: 
+a hash mark (#) are ignored. A sample configuration file is shown below:
 
 .nf
  # this is a comment
-\ 
+\
  option force\-a4
  option force\-a3
  option skip\-adf
  option disable\-gamma\-table
  option disable\-calibration
-\ 
- #scsi Vendor Model Type Bus Channel ID LUN 
+\
+ #scsi Vendor Model Type Bus Channel ID LUN
  scsi AVISION
  scsi HP
  scsi /dev/scanner
@@ -119,7 +119,7 @@ libusb corresponding to the USB scanner. For example "0x03f0 0x0701" or
 "libusb:002:003". See sane\-usb(5) for details.
 
 The program
-.IR sane\-find\-scanner 
+.IR sane\-find\-scanner
 helps to find out the correct scsi or usb device name.
 
 A list with supported devices is built into the avision backend so
@@ -161,7 +161,7 @@ environment variable controls the debug level for this backend.
 Higher debug levels increase the verbosity of the output. The debug
 level 7 is the author's preferred value to debug backend problems.
 
-Example: 
+Example:
 export SANE_DEBUG_AVISION=7
 
 .SH "SEE ALSO"

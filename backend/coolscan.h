@@ -110,7 +110,7 @@ typedef struct Image_Pos
 { int start;           /* start position of image on film strip */
   int end;             /* end position of image on film strip */
   int offset           /* always 0 */;
-  int height;          /* image height always 2591 */  
+  int height;          /* image height always 2591 */
 } Image_Pos_t;
 
 
@@ -213,19 +213,19 @@ typedef struct Coolscan
     int adbits;			/* Number of A/D bits [8 or 12] */
     int outputbits;		/* Number of output image data bits [8] */
     int maxres;			/* Maximum resolution [2700] (dpi) */
-    int xmax;			/* X-axis coordinate maximum value 
-				   (basic measurement unit when measurement 
+    int xmax;			/* X-axis coordinate maximum value
+				   (basic measurement unit when measurement
 				   unit divisor = 1200) [1151] */
-    int ymax;			/* Y-axis coordinate maximum value 
-				   (basic measurement unit when measurement 
+    int ymax;			/* Y-axis coordinate maximum value
+				   (basic measurement unit when measurement
 				   unit divisor = 1200) [1727] */
-    int xmaxpix;		/* X-axis coordinate maximum value (pixel 
+    int xmaxpix;		/* X-axis coordinate maximum value (pixel
 				   address value) [2591] */
-    int ymaxpix;		/* Y-axis coordinate maximum value (pixel 
+    int ymaxpix;		/* Y-axis coordinate maximum value (pixel
 				   address value) [3887] */
-    int ycurrent;		/* Current stage position (Y-axis direction 
+    int ycurrent;		/* Current stage position (Y-axis direction
 				   pixel address) [0-7652] */
-    int currentfocus;		/* Current focus position (focus direction 
+    int currentfocus;		/* Current focus position (focus direction
 				   address) [0-200] */
     int currentscanpitch;	/* Current scan pitch [1-25] */
     int autofeeder;		/* Provision of auto feeder [Yes: 1, No: 0] */
@@ -276,7 +276,7 @@ typedef struct Coolscan
     int analog_gamma_g;		/* analog gamma green */
     int analog_gamma_b;		/* analog gamma blue */
 
-    /* Infrared correction values */    
+    /* Infrared correction values */
     int ired_red;
     int ired_green;
     int ired_blue;

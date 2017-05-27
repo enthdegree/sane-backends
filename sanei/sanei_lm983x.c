@@ -4,7 +4,7 @@
    Copyright (C) 2002-2004 Gerhard Jaeger <gerhard@gjaeger.de>
 
    This file is part of the SANE package.
- 
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
@@ -96,20 +96,20 @@ sanei_lm983x_write( SANE_Int fd, SANE_Byte reg,
 
 	DBG( 15, "sanei_lm983x_write: fd=%d, reg=%d, len=%d, increment=%d\n", fd,
 	         reg, len, increment);
-	
+
 	if( reg > _LM9831_MAX_REG ) {
 		DBG( 1, "sanei_lm983x_write: register out of range (%u>%u)\n",
 				 reg, _LM9831_MAX_REG );
 		return SANE_STATUS_INVAL;
 	}
-	
+
 	for( bytes = 0; len > 0; ) {
 
 		max_len = _MIN( len, _MAX_TRANSFER_SIZE );
 
 		command_buffer[0] = 0;                      /* write              */
 		command_buffer[1] = reg;                    /* LM983x register    */
-		
+
 		if( increment == SANE_TRUE ) {
 			command_buffer[0] += 0x02;              /* increase reg?      */
 			command_buffer[1] += bytes;
@@ -122,7 +122,7 @@ sanei_lm983x_write( SANE_Int fd, SANE_Byte reg,
 
 		size   = (max_len + _CMD_BYTE_CNT);
 		result = sanei_usb_write_bulk( fd, command_buffer, &size );
-		
+
 		if( SANE_STATUS_GOOD != result )
 			return result;
 
@@ -183,7 +183,7 @@ sanei_lm983x_read( SANE_Int fd, SANE_Byte reg,
 
 		if( SANE_STATUS_GOOD != result )
 			return result;
-		
+
 		if( size != _CMD_BYTE_CNT) {
 			DBG( 1, "sanei_lm983x_read: short write while writing command "
 			        "(%d/_CMD_BYTE_CNT)\n", result);
@@ -228,7 +228,7 @@ SANE_Bool sanei_lm983x_reset( SANE_Int fd )
 	DBG( 15, "sanei_lm983x_reset()\n" );
 
 	for( i = 0; i < _MAX_RETRY; i++ ) {
-		
+
 		/* Read the command register and check that the reset bit is not set
 		 * If it is set, clear it and return false to indicate that
 		 * the bit has only now been cleared

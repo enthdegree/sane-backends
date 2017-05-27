@@ -116,11 +116,11 @@ max_string_size (const SANE_String_Const strings[])
 }
 
 /* sets loc_s bytes long value at offset loc in scsi command to value size  */
-static void 
+static void
 set_size (Byte * loc, int loc_s, size_t size)
 {
   int i;
-  
+
   for (i = 0; i < loc_s; i++)
     {
       loc[loc_s - i - 1] = (size >> (i * 8)) & 0xff;
@@ -142,10 +142,10 @@ get_size (Byte * loc, int loc_s)
   return j;
 }
 
-static long 
+static long
 reserve_unit (int fd)
 {
-  struct 
+  struct
   {
     /* Command */
     Byte cmd;
@@ -164,10 +164,10 @@ reserve_unit (int fd)
   return sanei_scsi_cmd (fd, &scsi_reserve, sizeof (scsi_reserve), 0, 0);
 }
 
-static long 
+static long
 release_unit (int fd)
 {
-  struct 
+  struct
   {
     /* Command */
     Byte cmd;
@@ -192,7 +192,7 @@ test_ready (int fd)
   SANE_Status status;
   int try;
 
-  struct 
+  struct
   {
     /* Command */
     Byte cmd;
@@ -317,7 +317,7 @@ wait_ready (int fd)
     Byte tr_len[3];
     Byte ctrl;
   } cmd;
-  
+
   memset (&cmd, 0, sizeof (cmd));
 
   cmd.cmd = 0x28;       /* READ */
@@ -468,7 +468,7 @@ set_window (AgfaFocus_Scanner * s)
           Byte tonecurve;                /* Tone curve (0 - 8) */
 	  Byte ht_pattern;               /* Halftone pattern */
 	  Byte paddingtype;              /* Padding type */
-			           
+
           Byte bitordering[2];           /* Bit ordering (0 = left to right) */
           Byte comprtype;                /* Compression type */
           Byte comprarg;                 /* Compression argument */
@@ -522,7 +522,7 @@ set_window (AgfaFocus_Scanner * s)
       set_size (cmd.tr_len, 3, 36 + 8);
       set_size (cmd.wd_len, 2, 36);
       break;
-      
+
     case AGFACOLOR:
       set_size (cmd.tr_len, 3, 65 + 8);
       set_size (cmd.wd_len, 2, 65);
@@ -582,7 +582,7 @@ set_window (AgfaFocus_Scanner * s)
 	cmd.wd.ht_pattern = s->halftone;
       else
 	cmd.wd.ht_pattern = 3;
-      
+
       cmd.wd.intensity = brightness;
       cmd.wd.contrast = contrast;
 
@@ -645,20 +645,20 @@ upload_dither_matrix (AgfaFocus_Scanner * s, int rows, int cols, int *dither_mat
     Byte re1[3];
     Byte tr_len[3];
     Byte ctrl;
-    
+
     struct {
       Byte nrrows[2];
       Byte nrcols[2];
-      
+
       struct {
 	Byte data[2];
       } element[256];
     } wd;
   } cmd;
-  
+
   SANE_Status status;
   int i;
-  
+
   memset (&cmd, 0, sizeof (cmd));
 
   cmd.cmd = 0x2a;       /* WRITE */
@@ -670,9 +670,9 @@ upload_dither_matrix (AgfaFocus_Scanner * s, int rows, int cols, int *dither_mat
 
   for (i = 0; i < cols * rows; ++i)
     set_size (cmd.wd.element[i].data, 2, dither_matrix[i]);
-      
+
   status = sanei_scsi_cmd (s->fd, &cmd, sizeof (cmd), 0, 0);
-  
+
   if (status != SANE_STATUS_GOOD)
     /* Command failed */
     return SANE_STATUS_IO_ERROR;
@@ -692,7 +692,7 @@ upload_tonecurve (AgfaFocus_Scanner * s, int color_type, int input, int output, 
    Byte re1[4];
    Byte tr_len[3];
    Byte ctrl;
-   
+
    Byte re2[6];
    Byte wd_len[2];
 
@@ -700,7 +700,7 @@ upload_tonecurve (AgfaFocus_Scanner * s, int color_type, int input, int output, 
       Byte color_type[2];
       Byte nrinput[2];
       Byte nroutput[2];
-      
+
       struct {
 	Byte data[2];
       } outputval[256];
@@ -721,9 +721,9 @@ upload_tonecurve (AgfaFocus_Scanner * s, int color_type, int input, int output, 
   for (i = 0; i < cols; ++i)
     for (j = 0; j < rows; ++j)
       set_size (cmd.wd.element[j + i * rows].data, 2, dither_matrix[j + i * rows]);
-      
+
   status = sanei_scsi_cmd (s->fd, &cmd, sizeof (cmd), 0, 0);
-  
+
   if (status != SANE_STATUS_GOOD)
   /*    * Command failed * */
     return SANE_STATUS_IO_ERROR;
@@ -760,22 +760,22 @@ read_data (AgfaFocus_Scanner * s, SANE_Byte *buf, int lines, int bpl)
 
   set_size (cmd.tr_len, 3, lines);
   size = lines * bpl;
-  
+
   status = sanei_scsi_cmd (s->fd, &cmd, sizeof (cmd), buf, &size);
-  
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "sanei_scsi_cmd() = %d\n", status);
       return SANE_STATUS_IO_ERROR;
     }
-  
+
   if (size != ((unsigned int) lines * bpl))
     {
       DBG (1, "sanei_scsi_cmd(): got %lu bytes, expected %d\n",
 	   (u_long) size, lines * bpl);
       return SANE_STATUS_INVAL;
     }
-  
+
   DBG (1, "Got %lu bytes\n", (u_long) size);
 
   /* Reverse: */
@@ -788,7 +788,7 @@ read_data (AgfaFocus_Scanner * s, SANE_Byte *buf, int lines, int bpl)
 	for (i = 0; i < size; i++)
 	  buf[i] = 255 - ((buf[i] * 256.0f) / 64.0f);
     }
-		  
+
   s->lines_available -= lines;
 
   return SANE_STATUS_GOOD;
@@ -1182,7 +1182,7 @@ init_options (AgfaFocus_Scanner * s)
   s->opt[OPT_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_CONTRAST].constraint.range = &percentage_range;
   s->val[OPT_CONTRAST].w = 0;
-  
+
   /* halftone patterns */
   s->opt[OPT_HALFTONE_PATTERN].name = SANE_NAME_HALFTONE_PATTERN;
   s->opt[OPT_HALFTONE_PATTERN].title = SANE_TITLE_HALFTONE_PATTERN;
@@ -1324,7 +1324,7 @@ sane_exit (void)
 	sane_close (dev->handle);
       free (dev);
     }
-  
+
   if (devlist)
     free (devlist);
 }
@@ -1510,16 +1510,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      s->val[option].s = strdup (val);
 
 	      if (strcmp (s->val[option].s, "Gray (6 bit)") == 0)
-		s->mode = GRAY6BIT;	
+		s->mode = GRAY6BIT;
 	      else if (strcmp (s->val[option].s, "Gray (8 bit)") == 0)
-		s->mode = GRAY8BIT;	
+		s->mode = GRAY8BIT;
 	      else if (strcmp (s->val[option].s, "Color (18 bit)") == 0)
-		s->mode = COLOR18BIT;	
+		s->mode = COLOR18BIT;
 	      else if (strcmp (s->val[option].s, "Color (24 bit)") == 0)
-		s->mode = COLOR24BIT;	
+		s->mode = COLOR24BIT;
 	      else
 		s->mode = LINEART;
-    
+
 	      switch (s->mode)
 		{
 		case LINEART:
@@ -1679,18 +1679,18 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	case LINEART:
 	  {
 	    const char *halftone;
-	    
+
 	    s->image_composition = 0;
-	    
+
 	    /* in 1 bpp mode, lines need to be 8 pixel length */
-	    
+
 	    if (s->params.pixels_per_line % 8)
 	      s->params.pixels_per_line += 8 - (s->params.pixels_per_line % 8);
-	    
+
 	    s->params.format = SANE_FRAME_GRAY;
 	    s->params.bytes_per_line = s->params.pixels_per_line / 8;
 	    s->bpp = s->params.depth = 1;
-	    
+
 	    halftone = s->val[OPT_HALFTONE_PATTERN].s;
 	    if (strcmp (halftone, "1") == 0 )
 	      s->halftone = 1;
@@ -1704,14 +1704,14 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	      s->halftone = 5;
 	    else
 	      s->halftone = 0;
-	    
+
 	    s->edge = s->val[OPT_SHARPEN].w;
 	  }
 	  break;
 
 	case GRAY6BIT:
 	  s->image_composition = 2;
-	  
+
           s->params.format = SANE_FRAME_GRAY;
           s->params.bytes_per_line = s->params.pixels_per_line;
 	  s->bpp = 6;
@@ -1722,7 +1722,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
 	case GRAY8BIT:
 	  s->image_composition = 2;
-	  
+
           s->params.format = SANE_FRAME_GRAY;
           s->params.bytes_per_line = s->params.pixels_per_line;
 	  s->bpp = s->params.depth = 8;
@@ -1760,9 +1760,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     if (s->mode == COLOR18BIT ||
 	s->mode == COLOR24BIT)
       s->params.format = SANE_FRAME_RED + s->pass;
-  
+
   s->params.last_frame = (s->params.format != SANE_FRAME_RED && s->params.format != SANE_FRAME_GREEN);
-  
+
   if (params)
     *params = s->params;
   return SANE_STATUS_GOOD;
@@ -1856,23 +1856,23 @@ reader_process (void *scanner)
 	{
 	  /* No lines in scanner?  Scan some more */
 	  status = request_more_data (s);
-	  
+
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      close (fd);
 	      return 1;
 	    }
 	}
-      
+
       /* We only request as many lines as there are already scanned */
       if (lines > s->lines_available)
 	lines = s->lines_available;
 
       DBG (1, "Requesting %d lines, in scanner: %d, total: %d\n", lines,
 	   s->lines_available, s->params.lines);
-  
+
       status = read_data (s, data, lines, bytes_per_line);
-      
+
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (1, "sane_read: read_data() failed (%s)\n",
@@ -1881,10 +1881,10 @@ reader_process (void *scanner)
 	  close (fd);
 	  return 1;
 	}
-      
+
       /* Sometimes the scanner will return more bytes per line than
          requested, so we copy only what we wanted. */
-      
+
       for (i = 0; i < lines; i++)
 	if (write (fd, data + i * bytes_per_line, s->params.bytes_per_line) != s->params.bytes_per_line)
 	  {
@@ -1895,7 +1895,7 @@ reader_process (void *scanner)
 
       lines_read += lines;
     }
-  
+
   close (fd);
   return 0;
 }
@@ -1906,14 +1906,14 @@ sane_start (SANE_Handle handle)
   AgfaFocus_Scanner *s = handle;
   SANE_Status status;
   int fds[2];
-  
+
   /* First make sure we have a current parameter set.  Some of the
      parameters will be overwritten below, but that's OK.  */
-  
+
   status = sane_get_parameters (s, 0);
   if (status != SANE_STATUS_GOOD)
     return status;
-  
+
   /* don't initialise scanner if we're doing a three-pass scan */
 
   if (s->pass == 0)
@@ -1966,10 +1966,10 @@ sane_start (SANE_Handle handle)
 	  42, 26, 38, 22, 43, 27, 39, 23,
 	   4, 58, 14, 54,  1, 59, 15, 55,
 	  36, 20, 46, 30, 33, 17, 47, 31,
-	  12, 52,  8, 62,  9, 49,  5, 63, 
+	  12, 52,  8, 62,  9, 49,  5, 63,
 	  44, 28, 40, 24, 41, 25, 37, 21
 	};
-	
+
 	status = upload_dither_matrix (s, 8, 8, matrix);
 	if (status != SANE_STATUS_GOOD)
 	  {
@@ -2030,7 +2030,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
   if (!s->scanning)
     return do_cancel (s);
-  
+
   if (nread < 0) {
     if (errno == EAGAIN) {
       return SANE_STATUS_GOOD;

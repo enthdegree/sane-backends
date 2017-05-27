@@ -39,10 +39,10 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 */
 
-/* 
+/*
 	$Id$
 */
 
@@ -307,8 +307,8 @@ enum Teco_Option
 
 /*--------------------------------------------------------------------------*/
 
-/* 
- * Scanner supported by this backend. 
+/*
+ * Scanner supported by this backend.
  */
 struct scanners_supported
 {
@@ -434,7 +434,7 @@ Teco_Scanner;
 
 /*--------------------------------------------------------------------------*/
 
-/* Debug levels. 
+/* Debug levels.
  * Should be common to all backends. */
 
 #define DBG_error0  0

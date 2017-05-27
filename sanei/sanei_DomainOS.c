@@ -326,7 +326,7 @@ static void DomainSCSIWait(void)
                      static status_$t sense_status;
                      static pinteger sense_return_count;
                      static int temp;
-            
+
                      /* Issue the sense command (wire, issue, wait, unwire */
                      sense_cdb_size = sizeof(scanner_sense_cdb);
                      memcpy(&sense_cdb, scanner_sense_cdb, sense_cdb_size);

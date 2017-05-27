@@ -37,8 +37,8 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   Choose suitable implementation of alloca. 
-   
+   Choose suitable implementation of alloca.
+
 */
 
 #ifndef lalloca_h

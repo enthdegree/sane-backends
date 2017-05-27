@@ -5,7 +5,7 @@
 sane\-canon_dr \- SANE backend for Canon DR-series scanners
 
 .SH DESCRIPTION
-The 
+The
 .B sane\-canon_dr
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to some Canon DR-series scanners.
@@ -13,8 +13,8 @@ provides access to some Canon DR-series scanners.
 This document describes backend version 51, which shipped with SANE 1.0.25.
 
 .SH SUPPORTED HARDWARE
-This version has only been tested with a few scanner models. Please see 
-http://www.sane\-project.org/sane\-supported\-devices.html for the most recent 
+This version has only been tested with a few scanner models. Please see
+http://www.sane\-project.org/sane\-supported\-devices.html for the most recent
 list.
 
 This backend may support other Canon scanners. The best
@@ -23,8 +23,8 @@ or to collect a trace of the windows driver in action.
 Please contact the author for help or with test results.
 
 In general, the larger machines (DR-4000 and up) which have been tested use
-a fairly complete protocol, with hardware support for many modes, resolutions 
-and features. The smaller machines have many limitations, like missing 
+a fairly complete protocol, with hardware support for many modes, resolutions
+and features. The smaller machines have many limitations, like missing
 horizontal resolutions, missing binary mode, always scanning full-width, etc.
 There is code in the backend to address these problems, but there seems to be
 no way to detect if they are required, so they must be hard-coded.
@@ -32,26 +32,26 @@ no way to detect if they are required, so they must be hard-coded.
 .SH OPTIONS
 Effort has been made to expose most hardware options, including:
 .PP
-source s 
+source s
 .RS
 Selects the source for the scan. Options
 may include "Flatbed", "ADF Front", "ADF Back", "ADF Duplex".
 .RE
 .PP
-mode m 
+mode m
 .RS
 Selects the mode for the scan. Options
 may include "Lineart", "Halftone", "Gray", and "Color".
 .RE
 .PP
-resolution 
+resolution
 .RS
 Controls scan resolution.
 .RE
 .PP
 tl\-x, tl\-y, br\-x, br\-y
 .RS
-Sets scan area upper left and lower right coordinates. These are renamed 
+Sets scan area upper left and lower right coordinates. These are renamed
 t, l, x, y by some frontends.
 .RE
 .PP
@@ -67,37 +67,37 @@ enhancement, compression, buttons and sensors, etc.
 Additionally, several 'software' options are exposed by the backend. These
 are reimplementations of features provided natively by larger scanners, but
 running on the host computer. This enables smaller machines to have similar
-capabilities. Please note that these features are somewhat simplistic, and 
-may not perform as well as the native implementations. Note also that these 
-features all require that the driver cache the entire image in memory. This 
+capabilities. Please note that these features are somewhat simplistic, and
+may not perform as well as the native implementations. Note also that these
+features all require that the driver cache the entire image in memory. This
 will almost certainly result in a reduction of scanning speed.
 .PP
-swcrop 
+swcrop
 .RS
-Requests the driver to detect the extremities of the paper within the larger 
-image, and crop the empty edges. 
+Requests the driver to detect the extremities of the paper within the larger
+image, and crop the empty edges.
 .RE
 .PP
-swdeskew 
+swdeskew
 .RS
-Requests the driver to detect the rotation of the paper within the larger 
+Requests the driver to detect the rotation of the paper within the larger
 image, and counter the rotation.
 .RE
 .PP
-swdespeck X 
+swdespeck X
 .RS
-Requests the driver to find and remove dots of X diameter or smaller from the 
+Requests the driver to find and remove dots of X diameter or smaller from the
 image, and fill the space with the average surrounding color.
 .RE
 
-Use 'scanimage \-\-help' to get a list, but be aware that some options may 
-be settable only when another option has been set, and that advanced options 
+Use 'scanimage \-\-help' to get a list, but be aware that some options may
+be settable only when another option has been set, and that advanced options
 may be hidden by some frontend programs.
 .PP
 .SH CONFIGURATION FILE
 The configuration file "canon_dr.conf" is used to tell the backend how to look
 for scanners, and provide options controlling the operation of the backend.
-This file is read each time the frontend asks the backend for a list 
+This file is read each time the frontend asks the backend for a list
 of scanners, generally only when the frontend starts. If the configuration
 file is missing, the backend will fail to run.
 .PP
@@ -105,9 +105,9 @@ Scanners can be specified in the configuration file in 4 ways:
 .PP
 "scsi CANON DR"
 .RS
-Requests backend to search all scsi busses in the system for a device 
+Requests backend to search all scsi busses in the system for a device
 which reports itself to be a scanner made by 'CANON', with a model name
-starting with 'DR'. 
+starting with 'DR'.
 .RE
 .PP
 "scsi /dev/sg0" (or other scsi device file)
@@ -119,7 +119,7 @@ specify one. Probably should not be used with the other "scsi" line above.
 .PP
 "usb 0x04a9 0x1603" (or other vendor/product ids)
 .RS
-Requests backend to search all usb busses in the system for a device 
+Requests backend to search all usb busses in the system for a device
 which uses that vendor and product id. The device will then be queried
 to determine if it is a Canon scanner.
 .RE
@@ -129,12 +129,12 @@ to determine if it is a Canon scanner.
 Some systems use a kernel driver to access usb scanners. This method is untested.
 .RE
 .PP
-Besides the 'scsi' and 'usb' lines, the configuration file supports the 
+Besides the 'scsi' and 'usb' lines, the configuration file supports the
 following 'option' lines:
 .PP
 "option buffer-size [number of bytes]"
 .RS
-Set the number of bytes in the data buffer to something other than the 
+Set the number of bytes in the data buffer to something other than the
 compiled\-in default of 4MB. Large values may cause timeouts or hangs, small
 values may cause slow scans.
 .PP
@@ -150,7 +150,7 @@ warned.
 .br
 "option version-name [string of text]"
 .RS
-These options can be used collectively to override the values provided by the 
+These options can be used collectively to override the values provided by the
 scanner, or to provide the values when the scanner cannot.
 .RE
 .PP
@@ -189,12 +189,12 @@ enables debugging output to stderr. Valid values are:
 .RE
 
 .SH KNOWN ISSUES
-This backend was entirely reverse engineered from usb traces of the proprietary 
+This backend was entirely reverse engineered from usb traces of the proprietary
 driver. Various advanced features of the machines may not be enabled. Many
 machines have not been tested. Their protocol is unknown.
 
 .SH CREDITS
-  
+
 The various authors of the sane\-fujitsu backend provided useful code
 .br
 Yabarana Corp. www.yabarana.com provided significant funding

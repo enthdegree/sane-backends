@@ -43,7 +43,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for Mustek 1200UB and similar 
+   This file implements a SANE backend for Mustek 1200UB and similar
    USB flatbed scanners.  */
 
 #include <unistd.h>
@@ -170,7 +170,7 @@ usb_low_exit (ma1017 * chip)
       DBG (7, "usb_low_exit: freeing chip\n");
       free (chip);
     }
-  DBG (5, "usb_low_exit: read %d URBs, wrote %d URBs\n", 
+  DBG (5, "usb_low_exit: read %d URBs, wrote %d URBs\n",
        chip->total_read_urbs, chip->total_write_urbs);
   DBG (7, "usb_low_exit: exit\n");
   return SANE_STATUS_GOOD;

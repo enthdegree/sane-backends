@@ -20,7 +20,7 @@ For SCX\-4500W in network mode you need to specify
 .B tcp host_address [port]
 .RE
 .PP
-The 
+The
 .B host_address
 is passed through resolver, thus can be a dotted quad or a name from /etc/hosts or resolvable through DNS.
 .SH FILES
@@ -39,9 +39,9 @@ support dynamic loading).
 .B SANE_DEBUG_XEROX_MFP
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  Higher
-debug levels increase the verbosity of the output. 
+debug levels increase the verbosity of the output.
 
-Example: 
+Example:
 export SANE_DEBUG_XEROX_MFP=4
 
 .SH LIMITATIONS
@@ -49,7 +49,7 @@ Multicast autoconfiguration for LAN scanners is not implemented yet. IPv6 addres
 
 .SH BUGS AND SUPPORT
 If you have found a bug or need support please follow open\-source way of acquiring support via
-mail\-lists http://www.sane\-project.org/mailing\-lists.html or SANE bug tracker 
+mail\-lists http://www.sane\-project.org/mailing\-lists.html or SANE bug tracker
 http://www.sane\-project.org/bugs.html
 
 .SH AUTHORS

@@ -212,10 +212,10 @@ SetCalibration (int iHandle, int numPixels, unsigned int *low_vals[3],
 {
   char cmd[8];
   /* unsigned char cmd[8]; */ /* should fix the compilation warning
-				 but I don't have a scanner right now 
+				 but I don't have a scanner right now
 				 to check that the fix does not break
 				 calibration */
-  
+
   int i, j, k;
   struct CalPixel
   {
@@ -413,7 +413,7 @@ CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine)
   int i;
   int maxoff = 0;
   char* buftmp = (char*) (p->buffer);
-  
+
 /*  HP5400_DBG(DBG_MSG, "CircBufferGetLine:\n");   */
 
   if (p->roff > maxoff)
@@ -1018,7 +1018,7 @@ InitScan (enum ScanType scantype, TScanParams * pParams,
   struct ScanRequest req;
   struct ScanResponse res;
   int ret;
-  
+
   memset(&req, 0, sizeof(req));
 
   req.x1 = 0x08;
@@ -1089,7 +1089,7 @@ InitScan2 (enum ScanType scantype, struct ScanRequest *req,
 	req->offx = htons (0x09F8);
       if (htons (req->offy) > 0x0DB6)
 	req->offy = htons (0x0DB6);
-      /* These tests are meaningless as htons() returns unsigned 
+      /* These tests are meaningless as htons() returns unsigned
          if( htons( req->offx ) < 0      ) req->offx = 0;
          if( htons( req->offy ) < 0      ) req->offy = 0;
        */

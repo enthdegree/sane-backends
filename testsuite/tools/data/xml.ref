@@ -1,6 +1,6 @@
 <backends>
 <backend name="abaton">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-abaton</manpage>
  <url>*none*</url>
@@ -29,7 +29,7 @@
  </type>
 </backend>
 <backend name="agfafocus">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-agfafocus</manpage>
  <url>*none*</url>
@@ -94,7 +94,7 @@
  </type>
 </backend>
 <backend name="apple">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-apple</manpage>
  <url>*none*</url>
@@ -131,7 +131,7 @@
  </type>
 </backend>
 <backend name="artec">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-artec</manpage>
  <url>http://www4.infi.net/~cpinkham/sane/sane-artec-doc.html</url>
@@ -216,7 +216,7 @@
  </type>
 </backend>
 <backend name="artec_eplus48u">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-artec_eplus48u</manpage>
  <url>*none*</url>
@@ -354,7 +354,7 @@
  </type>
 </backend>
 <backend name="as6e">
-<version>0.5</version> 
+<version>0.5</version>
 <new state="no"/>
  <manpage>sane-as6e</manpage>
  <url>http://as6edriver.sourceforge.net/</url>
@@ -399,7 +399,7 @@
  </type>
 </backend>
 <backend name="avision">
-<version>Build: 296</version> 
+<version>Build: 296</version>
 <new state="no"/>
  <manpage>sane-avision</manpage>
  <url>http://skull.piratehaven.org/~mike/sane/avision.html</url>
@@ -1644,7 +1644,7 @@
  </type>
 </backend>
 <backend name="bh">
-<version>1.0-4</version> 
+<version>1.0-4</version>
 <new state="no"/>
  <manpage>sane-bh</manpage>
  <url>http://www.martoneconsulting.com/sane-bh.html</url>
@@ -1705,7 +1705,7 @@
  </type>
 </backend>
 <backend name="canon">
-<version>1.12</version> 
+<version>1.12</version>
 <new state="no"/>
  <manpage>sane-canon</manpage>
  <url>http://www.rzg.mpg.de/~mpd/sane/</url>
@@ -1786,7 +1786,7 @@
  </type>
 </backend>
 <backend name="canon630u">
-<version>0.1</version> 
+<version>0.1</version>
 <new state="no"/>
  <manpage>sane-canon630u</manpage>
  <url>http://canon-fb630u.sourceforge.net/</url>
@@ -1815,7 +1815,7 @@
  </type>
 </backend>
 <backend name="canon_dr">
-<version>38</version> 
+<version>38</version>
 <new state="no"/>
  <manpage>sane-canon_dr</manpage>
  <url>http://www.thebility.com/canon/</url>
@@ -2148,7 +2148,7 @@
  </type>
 </backend>
 <backend name="canon_pp">
-<version>0.33</version> 
+<version>0.33</version>
 <new state="no"/>
  <manpage>sane-canon_pp</manpage>
  <url>http://canon-fb330p.sourceforge.net</url>
@@ -2233,7 +2233,7 @@
  </type>
 </backend>
 <backend name="cardscan">
-<version>2</version> 
+<version>2</version>
 <new state="no"/>
  <manpage>sane-cardscan</manpage>
  <url>http://www.thebility.com/cardscan/</url>
@@ -2262,7 +2262,7 @@
  </type>
 </backend>
 <backend name="coolscan">
-<version>0.4.3</version> 
+<version>0.4.3</version>
 <new state="no"/>
  <manpage>sane-coolscan</manpage>
  <url>http://andreas.rick.free.fr/sane/</url>
@@ -2307,7 +2307,7 @@
  </type>
 </backend>
 <backend name="coolscan2">
-<version>0.1.8</version> 
+<version>0.1.8</version>
 <new state="no"/>
  <manpage>sane-coolscan2</manpage>
  <url>http://coolscan2.sourceforge.net/</url>
@@ -2384,7 +2384,7 @@
  </type>
 </backend>
 <backend name="coolscan3">
-<version>1.0.0</version> 
+<version>1.0.0</version>
 <new state="no"/>
  <manpage>sane-coolscan3</manpage>
  <url>*none*</url>
@@ -2477,7 +2477,7 @@
  </type>
 </backend>
 <backend name="dc25">
-<version>1.2</version> 
+<version>1.2</version>
 <new state="no"/>
  <manpage>sane-dc25</manpage>
  <url>mailto:peter@fales-lorenz.net</url>
@@ -2506,7 +2506,7 @@
  </type>
 </backend>
 <backend name="dc210">
-<version>0.0</version> 
+<version>0.0</version>
 <new state="no"/>
  <manpage>sane-dc210</manpage>
  <url>mailto:peter@fales-lorenz.net</url>
@@ -2527,7 +2527,7 @@
  </type>
 </backend>
 <backend name="dc240">
-<version>0.0</version> 
+<version>0.0</version>
 <new state="no"/>
  <manpage>sane-dc240</manpage>
  <url>mailto:peter@fales-lorenz.net</url>
@@ -2569,7 +2569,7 @@
  </type>
 </backend>
 <backend name="dll">
-<version>1.0.13</version> 
+<version>1.0.13</version>
 <new state="no"/>
  <manpage>sane-dll</manpage>
  <url>mailto:henning@meier-geinitz.de</url>
@@ -2581,7 +2581,7 @@
  </type>
 </backend>
 <backend name="dmc">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-dmc</manpage>
  <url>*none*</url>
@@ -2602,7 +2602,7 @@
  </type>
 </backend>
 <backend name="epjitsu">
-<version>20</version> 
+<version>20</version>
 <new state="no"/>
  <manpage>sane-epjitsu</manpage>
  <url>http://www.thebility.com/epjitsu/</url>
@@ -2655,7 +2655,7 @@
  </type>
 </backend>
 <backend name="epson">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-epson</manpage>
  <url>http://www.khk.net/sane</url>
@@ -3196,7 +3196,7 @@
  </type>
 </backend>
 <backend name="epson2">
-<version>1.0.124</version> 
+<version>1.0.124</version>
 <new state="no"/>
  <manpage>sane-epson2</manpage>
  <url>*none*</url>
@@ -5945,7 +5945,7 @@
  </type>
 </backend>
 <backend name="fujitsu">
-<version>117</version> 
+<version>117</version>
 <new state="no"/>
  <manpage>sane-fujitsu</manpage>
  <url>http://www.thebility.com/fujitsu/</url>
@@ -6534,7 +6534,7 @@
  </type>
 </backend>
 <backend name="genesys">
-<version>1.0-63</version> 
+<version>1.0-63</version>
 <new state="no"/>
  <manpage>sane-genesys</manpage>
  <url>http://www.meier-geinitz.de/sane/genesys-backend/</url>
@@ -6906,7 +6906,7 @@
  </type>
 </backend>
 <backend name="gphoto2">
-<version>0.0</version> 
+<version>0.0</version>
 <new state="no"/>
  <manpage>sane-gphoto2</manpage>
  <url>mailto:peter@fales-lorenz.net</url>
@@ -6918,7 +6918,7 @@
  </type>
 </backend>
 <backend name="gt68xx">
-<version>1.0-84</version> 
+<version>1.0-84</version>
 <new state="no"/>
  <manpage>sane-gt68xx</manpage>
  <url>http://www.meier-geinitz.de/sane/gt68xx-backend/</url>
@@ -7542,7 +7542,7 @@
  </type>
 </backend>
 <backend name="hp">
-<version>1.06</version> 
+<version>1.06</version>
 <new state="no"/>
  <manpage>sane-hp</manpage>
  <url>http://www.kirchgessner.net/</url>
@@ -7707,7 +7707,7 @@
  </type>
 </backend>
 <backend name="hp3500">
-<version>1.1</version> 
+<version>1.1</version>
 <new state="no"/>
  <manpage>sane-hp3500</manpage>
  <url>http://projects.troy.rollo.name/rt-scanners/</url>
@@ -7744,7 +7744,7 @@
  </type>
 </backend>
 <backend name="hp3900">
-<version>0.12</version> 
+<version>0.12</version>
 <new state="no"/>
  <manpage>sane-hp3900</manpage>
  <url>http://sourceforge.net/projects/hp3900-series/</url>
@@ -7837,7 +7837,7 @@
  </type>
 </backend>
 <backend name="hp4200">
-<version>1.0-2</version> 
+<version>1.0-2</version>
 <new state="no"/>
  <manpage>sane-hp4200</manpage>
  <url>http://hp4200-backend.sourceforge.net</url>
@@ -7874,7 +7874,7 @@
  </type>
 </backend>
 <backend name="hp5400">
-<version>1.0-2</version> 
+<version>1.0-2</version>
 <new state="no"/>
  <manpage>sane-hp5400</manpage>
  <url>http://sourceforge.net/projects/hp5400backend</url>
@@ -7911,7 +7911,7 @@
  </type>
 </backend>
 <backend name="hp5590">
-<version>1.0.5</version> 
+<version>1.0.5</version>
 <new state="no"/>
  <manpage>sane-hp5590</manpage>
  <url>*none*</url>
@@ -7972,7 +7972,7 @@
  </type>
 </backend>
 <backend name="hpljm1005">
-<version>0</version> 
+<version>0</version>
 <new state="no"/>
  <manpage>sane-hpljm1005</manpage>
  <url>*none*</url>
@@ -8009,7 +8009,7 @@
  </type>
 </backend>
 <backend name="hpsj5s">
-<version>0.03</version> 
+<version>0.03</version>
 <new state="no"/>
  <manpage>sane-hpsj5s</manpage>
  <url>http://hpsj5s.sourceforge.net/</url>
@@ -8030,7 +8030,7 @@
  </type>
 </backend>
 <backend name="hs2p">
-<version>1.00</version> 
+<version>1.00</version>
 <new state="no"/>
  <manpage>sane-hs2p</manpage>
  <url>http://www.acjlaw.net:8080/~jeremy/Ricoh/</url>
@@ -8075,7 +8075,7 @@
  </type>
 </backend>
 <backend name="ibm">
-<version>1.0-4</version> 
+<version>1.0-4</version>
 <new state="no"/>
  <manpage>sane-ibm</manpage>
  <url>http://www.meier-geinitz.de/sane/ibm-backend/</url>
@@ -8124,7 +8124,7 @@
  </type>
 </backend>
 <backend name="kodak">
-<version>7</version> 
+<version>7</version>
 <new state="no"/>
  <manpage>sane-kodak</manpage>
  <url>http://www.thebility.com/kodak/</url>
@@ -8401,7 +8401,7 @@
  </type>
 </backend>
 <backend name="kodakaio">
-<version>2.4.6</version> 
+<version>2.4.6</version>
 <new state="no"/>
  <manpage>sane-kodakaio</manpage>
  <url>http://sourceforge.net/projects/cupsdriverkodak/</url>
@@ -8626,7 +8626,7 @@
  </type>
 </backend>
 <backend name="kvs20xx">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-kvs20xx</manpage>
  <url>*none*</url>
@@ -8687,7 +8687,7 @@
  </type>
 </backend>
 <backend name="kvs40xx">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-kvs40xx</manpage>
  <url>*none*</url>
@@ -8724,7 +8724,7 @@
  </type>
 </backend>
 <backend name="kvs1025">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-kvs1025</manpage>
  <url>*none*</url>
@@ -8761,7 +8761,7 @@
  </type>
 </backend>
 <backend name="leo">
-<version>1.0-10</version> 
+<version>1.0-10</version>
 <new state="no"/>
  <manpage>sane-leo</manpage>
  <url>http://www.zago.net/sane/#leo</url>
@@ -8806,7 +8806,7 @@
  </type>
 </backend>
 <backend name="lexmark">
-<version>1.0-0</version> 
+<version>1.0-0</version>
 <new state="no"/>
  <manpage>sane-lexmark</manpage>
  <url>http://stef.dev.free.fr/sane/lexmark</url>
@@ -8911,7 +8911,7 @@
  </type>
 </backend>
 <backend name="ma1509">
-<version>1.0-3</version> 
+<version>1.0-3</version>
 <new state="no"/>
  <manpage>sane-ma1509</manpage>
  <url>http://www.meier-geinitz.de/sane/ma1509-backend/</url>
@@ -8946,7 +8946,7 @@
  </type>
 </backend>
 <backend name="magicolor">
-<version>1.0.0</version> 
+<version>1.0.0</version>
 <new state="no"/>
  <manpage>sane-magicolor</manpage>
  <url>http://wiki.kainhofer.com/hardware/magicolor_scan</url>
@@ -8983,7 +8983,7 @@
  </type>
 </backend>
 <backend name="matsushita">
-<version>1.0-7</version> 
+<version>1.0-7</version>
 <new state="no"/>
  <manpage>sane-matsushita</manpage>
  <url>http://www.zago.net/sane</url>
@@ -9084,7 +9084,7 @@
  </type>
 </backend>
 <backend name="microtek">
-<version>0.13.1</version> 
+<version>0.13.1</version>
 <new state="no"/>
  <manpage>sane-microtek</manpage>
  <url>http://www.mir.com/mtek/</url>
@@ -9285,7 +9285,7 @@
  </type>
 </backend>
 <backend name="microtek2">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-microtek2</manpage>
  <url>http://karstenfestag.gmxhome.de/linux.html</url>
@@ -9566,7 +9566,7 @@
  </type>
 </backend>
 <backend name="mustek">
-<version>1.0-138</version> 
+<version>1.0-138</version>
 <new state="no"/>
  <manpage>sane-mustek</manpage>
  <url>http://www.meier-geinitz.de/sane/mustek-backend/</url>
@@ -9845,7 +9845,7 @@
  </type>
 </backend>
 <backend name="mustek_pp">
-<version>13</version> 
+<version>13</version>
 <new state="no"/>
  <manpage>sane-mustek_pp</manpage>
  <url>http://penguin-breeder.org/sane/mustek_pp/</url>
@@ -10076,7 +10076,7 @@
  </type>
 </backend>
 <backend name="mustek_usb">
-<version>1.0-18</version> 
+<version>1.0-18</version>
 <new state="no"/>
  <manpage>sane-mustek_usb</manpage>
  <url>http://www.meier-geinitz.de/sane/mustek_usb-backend/</url>
@@ -10135,7 +10135,7 @@
  </type>
 </backend>
 <backend name="mustek_usb2">
-<version>1.0-10</version> 
+<version>1.0-10</version>
 <new state="no"/>
  <manpage>sane-mustek_usb2</manpage>
  <url>http://www.meier-geinitz.de/sane/mustek_usb2-backend/</url>
@@ -10158,7 +10158,7 @@
  </type>
 </backend>
 <backend name="nec">
-<version>0.12</version> 
+<version>0.12</version>
 <new state="no"/>
  <manpage>sane-nec</manpage>
  <url>http://www5a.biglobe.ne.jp/~saetaka/</url>
@@ -10179,7 +10179,7 @@
  </type>
 </backend>
 <backend name="net">
-<version>1.0.14</version> 
+<version>1.0.14</version>
 <new state="no"/>
  <manpage>sane-net</manpage>
  <url>http://www.penguin-breeder.org/?page=sane-net</url>
@@ -10191,7 +10191,7 @@
  </type>
 </backend>
 <backend name="niash">
-<version>0.3</version> 
+<version>0.3</version>
 <new state="no"/>
  <manpage>sane-niash</manpage>
  <url>http://sourceforge.net/projects/hp3300backend</url>
@@ -10260,7 +10260,7 @@
  </type>
 </backend>
 <backend name="p5">
-<version>1</version> 
+<version>1</version>
 <new state="no"/>
  <manpage>sane-p5</manpage>
  <url>http://www.sane-project.org/</url>
@@ -10281,7 +10281,7 @@
  </type>
 </backend>
 <backend name="pie">
-<version>1.0</version> 
+<version>1.0</version>
 <new state="no"/>
  <manpage>sane-pie</manpage>
  <url>http://www.munton.demon.co.uk/sane</url>
@@ -10438,7 +10438,7 @@
  </type>
 </backend>
 <backend name="pint">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-pint</manpage>
  <url>*none*</url>
@@ -10450,7 +10450,7 @@
  </type>
 </backend>
 <backend name="pixma">
-<version>0.17.3</version> 
+<version>0.17.3</version>
 <new state="no"/>
  <manpage>sane-pixma</manpage>
  <url>http://home.arcor.de/wittawat/pixma/</url>
@@ -11568,7 +11568,7 @@
  </type>
 </backend>
 <backend name="plustek">
-<version>0.52</version> 
+<version>0.52</version>
 <new state="no"/>
  <manpage>sane-plustek</manpage>
  <url>http://www.gjaeger.de/scanner/plustek/</url>
@@ -11946,7 +11946,7 @@
  </type>
 </backend>
 <backend name="plustek_pp">
-<version>0.43</version> 
+<version>0.43</version>
 <new state="no"/>
  <manpage>sane-plustek_pp</manpage>
  <url>http://www.gjaeger.de/scanner/plustek_pp/</url>
@@ -12184,7 +12184,7 @@
  </type>
 </backend>
 <backend name="pnm">
-<version>1.0.8</version> 
+<version>1.0.8</version>
 <new state="no"/>
  <manpage>sane-pnm</manpage>
  <url>mailto:henning@meier-geinitz.de</url>
@@ -12196,7 +12196,7 @@
  </type>
 </backend>
 <backend name="qcam">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-qcam</manpage>
  <url>*none*</url>
@@ -12225,7 +12225,7 @@
  </type>
 </backend>
 <backend name="ricoh">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-ricoh</manpage>
  <url>*none*</url>
@@ -12254,7 +12254,7 @@
  </type>
 </backend>
 <backend name="rts8891">
-<version>1.0-0</version> 
+<version>1.0-0</version>
 <new state="no"/>
  <manpage>sane-rts8891</manpage>
  <url>http://stef.dev.free.fr/sane/rts8891/index.html</url>
@@ -12303,7 +12303,7 @@
  </type>
 </backend>
 <backend name="s9036">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-s9036</manpage>
  <url>*none*</url>
@@ -12324,7 +12324,7 @@
  </type>
 </backend>
 <backend name="sceptre">
-<version>1.0-10</version> 
+<version>1.0-10</version>
 <new state="no"/>
  <manpage>sane-sceptre</manpage>
  <url>http://www.zago.net/sane/</url>
@@ -12357,7 +12357,7 @@
  </type>
 </backend>
 <backend name="sharp">
-<version>0.32</version> 
+<version>0.32</version>
 <new state="no"/>
  <manpage>sane-sharp</manpage>
  <url>http://www.satzbau-gmbh.de/staff/abel/sane-sharp.html</url>
@@ -12418,7 +12418,7 @@
  </type>
 </backend>
 <backend name="sm3600">
-<version>0.1</version> 
+<version>0.1</version>
 <new state="no"/>
  <manpage>sane-sm3600</manpage>
  <url>http://sm3600.sourceforge.net/</url>
@@ -12479,7 +12479,7 @@
  </type>
 </backend>
 <backend name="sm3840">
-<version>1.1</version> 
+<version>1.1</version>
 <new state="no"/>
  <manpage>sane-sm3840</manpage>
  <url>http://www.ziplabel.com/sm3840/</url>
@@ -12508,7 +12508,7 @@
  </type>
 </backend>
 <backend name="SnapScan">
-<version>1.4</version> 
+<version>1.4</version>
 <new state="no"/>
  <manpage>sane-snapscan</manpage>
  <url>http://snapscan.sourceforge.net/</url>
@@ -13003,7 +13003,7 @@
  </type>
 </backend>
 <backend name="sp15c">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-sp15c</manpage>
  <url>*none*</url>
@@ -13033,7 +13033,7 @@
  </type>
 </backend>
 <backend name="st400">
-<version>1.6</version> 
+<version>1.6</version>
 <new state="no"/>
  <manpage>sane-st400</manpage>
  <url>http://www.informatik.uni-oldenburg.de/~ingo/sane/</url>
@@ -13062,7 +13062,7 @@
  </type>
 </backend>
 <backend name="stv680">
-<version>1.0-1</version> 
+<version>1.0-1</version>
 <new state="no"/>
  <manpage>sane-stv680</manpage>
  <url>http://gkall.hobby.nl/stv680-aiptek.html</url>
@@ -13119,7 +13119,7 @@
  </type>
 </backend>
 <backend name="tamarack">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-tamarack</manpage>
  <url>*none*</url>
@@ -13156,7 +13156,7 @@
  </type>
 </backend>
 <backend name="teco1">
-<version>1.0-10</version> 
+<version>1.0-10</version>
 <new state="no"/>
  <manpage>sane-teco1</manpage>
  <url>http://www.zago.net/sane/#teco</url>
@@ -13330,7 +13330,7 @@
  </type>
 </backend>
 <backend name="teco2">
-<version>1.0-9</version> 
+<version>1.0-9</version>
 <new state="no"/>
  <manpage>sane-teco2</manpage>
  <url>http://gkall.hobby.nl/teco2.html</url>
@@ -13439,7 +13439,7 @@
  </type>
 </backend>
 <backend name="teco3">
-<version>1.0-1</version> 
+<version>1.0-1</version>
 <new state="no"/>
  <manpage>sane-teco3</manpage>
  <url>http://www.zago.net/sane/#teco3</url>
@@ -13512,7 +13512,7 @@
  </type>
 </backend>
 <backend name="test">
-<version>1.0-28</version> 
+<version>1.0-28</version>
 <new state="no"/>
  <manpage>sane-test</manpage>
  <url>http://www.meier-geinitz.de/sane/test-backend/</url>
@@ -13524,7 +13524,7 @@
  </type>
 </backend>
 <backend name="u12">
-<version>0.02</version> 
+<version>0.02</version>
 <new state="no"/>
  <manpage>sane-u12</manpage>
  <url>http://www.gjaeger.de/scanner/u12/</url>
@@ -13594,7 +13594,7 @@
  </type>
 </backend>
 <backend name="umax">
-<version>1.0-41</version> 
+<version>1.0-41</version>
 <new state="no"/>
  <manpage>sane-umax</manpage>
  <url>http://www.rauch-domain.de/sane-umax/index.html</url>
@@ -14168,7 +14168,7 @@
  </type>
 </backend>
 <backend name="umax1220u">
-<version>unmaintained</version> 
+<version>unmaintained</version>
 <new state="no"/>
  <manpage>sane-umax1220u</manpage>
  <url>http://sourceforge.net/projects/umax1220u-sane</url>
@@ -14213,7 +14213,7 @@
  </type>
 </backend>
 <backend name="umax_pp">
-<version>1</version> 
+<version>1</version>
 <new state="no"/>
  <manpage>sane-umax_pp</manpage>
  <url>http://umax1220p.sourceforge.net/</url>
@@ -14290,7 +14290,7 @@
  </type>
 </backend>
 <backend name="unsupported">
-<version>2010-06-09</version> 
+<version>2010-06-09</version>
 <new state="no"/>
  <manpage>*none*</manpage>
  <url>/contrib.html</url>
@@ -17578,7 +17578,7 @@
  </type>
 </backend>
 <backend name="v4l">
-<version>1.0-3</version> 
+<version>1.0-3</version>
 <new state="no"/>
  <manpage>sane-v4l</manpage>
  <url>mailto:henning@meier-geinitz.de</url>
@@ -17590,7 +17590,7 @@
  </type>
 </backend>
 <backend name="xerox_mfp">
-<version>1.0-13</version> 
+<version>1.0-13</version>
 <new state="no"/>
  <manpage>sane-xerox_mfp</manpage>
  <url>*none*</url>

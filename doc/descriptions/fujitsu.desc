@@ -11,7 +11,7 @@
 
 
 :backend "fujitsu"               ; name of backend
-:url "http://www.thebility.com/fujitsu/" 
+:url "http://www.thebility.com/fujitsu/"
 :version "133"                   ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.26, see sane-fujitsu manpage"
@@ -26,7 +26,7 @@
 ; DISCONTINUED OLDER MODELS, SMALL
 :model "M3091DC"
 :interface "SCSI"
-:url "http://www.remote.org/frederik/projects/software/sane/" 
+:url "http://www.remote.org/frederik/projects/software/sane/"
 :status :complete
 :comment "small, old, discontinued"
 

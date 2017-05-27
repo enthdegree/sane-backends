@@ -15,15 +15,15 @@ connected.  The device name is always "0".
 .SH CONFIGURATION
 The contents of the
 .I dc25.conf
-specify the serial port and baud rate to use.  The baud rate 
+specify the serial port and baud rate to use.  The baud rate
 specifies the maximum rate to use while downloading pictures.  (The
 camera is always initialized using 9600 baud, then switches to the
 higher rate).  On my 90MHz Pentium, I usually have no problems downloading
-at 115200 baud as long as the system is not excessively busy and 
+at 115200 baud as long as the system is not excessively busy and
 the "interrupt-unmask flag" is set in the IDE driver (hdparm \-u1).
 Supported baud rates are: 9600, 19200, 38400, 57600, and 115200.
 .PP
-The dumpinquiry line causes some information about the camera to 
+The dumpinquiry line causes some information about the camera to
 be printed to stderr during startup.  Note:  This is not compatible
 with saned, so make sure you don't have any dumpinquiry lines if you are
 using saned (i.e. scanning on a remote machine using a
@@ -74,7 +74,7 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .TP
 .B SANE_DEBUG_DC25
 If the library was compiled with debugging support enabled, this
-environment variable controls the debug level for this backend. 
+environment variable controls the debug level for this backend.
 A value of 128 requests maximally copious debug output; smaller
 levels reduce verbosity.
 
@@ -93,7 +93,7 @@ slider that is used to select the picture from the camera may not be
 updated immediately.
 .PP
 More general comments, suggestions, and inquiries about frontends
-or SANE should go to the SANE Developers mailing list 
-(see http://www.sane\-project.org/mailing\-lists.html for details). 
+or SANE should go to the SANE Developers mailing list
+(see http://www.sane\-project.org/mailing\-lists.html for details).
 You must be subscribed to the list, otherwise your mail won't be
 sent to the subscribers.

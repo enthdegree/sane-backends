@@ -8,16 +8,16 @@
 	was still conflicting the epjistu and snapscan backends.
 
 2012-08-16 Rolf Bensch <rolf at bensch hyphen online dot de>
-	* backend/pixma.[ch], backend/pixma_common.[ch], 
+	* backend/pixma.[ch], backend/pixma_common.[ch],
 	backend/pixma_imageclass.c, backend/pixma_mp*.c:
 	Copyright updated.
 
 2012-08-11 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.c, backend/pixma_mp150.c, backend/pixma_mp810.c:
-	Lineart fix for generation 1+2 scanners.   
+	Lineart fix for generation 1+2 scanners.
 
 2012-08-09 Paul Newall <quandry at ntlworld dot com>
-	* /backend/kodakaio.c: 
+	* /backend/kodakaio.c:
 	calling of poll tidied up, may fix problems with repeated scans.
 
 2012-07-30 Stéphane Voltz <stef.dev@free.fr>
@@ -51,35 +51,35 @@
 	fix batch scanning for gl646 scanners
 
 2012-07-29 Paul Newall <quandry at ntlworld dot com>
-	* /doc/descriptions/kodakaio.desc: 
+	* /doc/descriptions/kodakaio.desc:
 	advent AW10 added.
 
 2012-07-28 Paul Newall <quandry at ntlworld dot com>
-	* /doc/descriptions/kodakaio.desc: 
+	* /doc/descriptions/kodakaio.desc:
 	usbids added and version.
 
 2012-07-28 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* doc/descriptions/pixma.desc: scanners resorted by name
-	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, 
+	* backend/pixma_mp150.c, doc/descriptions/pixma.desc,
 	doc/sane-pixma.man: new scanners reported by DMoeller
 	- Canon PIXMA MX410 as untested
 	- Canon PIXMA MX420 as complete
 	- Canon PIXMA E500, E600, MX370 Series, MX430 Series, MX710 Series
 	  as untested and experimental
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc: capabilities updated
-	  for Canon PIXMA MX510 and MX890 
+	  for Canon PIXMA MX510 and MX890
 	* backend/pixma_mp150.c, doc/sane-pixma.man: all 2012 untested new devices
-	  marked as experimental 
+	  marked as experimental
 
 2012-07-26 Rolf Bensch <rolf at bensch hyphen online dot de>
-	* README.linux: 
+	* README.linux:
 	New detailled description for the installation of SANE backend.
 
 2012-07-24 m. allan noah <kitno455 at gmail dot com>
 	* backend/kvs40xx_opt.c: Oops- it is new
 	* doc/descriptions/kvs40xx.desc: Fix typo (Yuri Chornoivan)
 	* po/uk.po: Updated (Yuri Chornoivan)
-	* tools/Makefile.am, tools/Makefile.in, tools/sane-config.in: 
+	* tools/Makefile.am, tools/Makefile.in, tools/sane-config.in:
 	sane-config fixes (Ruediger Meier)
 
 2012-07-15 Ilia Sotnikov <hostcc@gmail.com>
@@ -100,7 +100,7 @@
 2012-06-28 Paul Newall <quandry@ntlworld.com>
 	* backend/kodakaio.c backend/kodakaio.conf.in backend/kodakaio.h
 	doc/sane-kodakaio.man doc/descriptions/kodakaio.desc
-	configure.in makefile.am dllconf.in doc/makefile.am: Added new backend kodakaio for 
+	configure.in makefile.am dllconf.in doc/makefile.am: Added new backend kodakaio for
 	kodak ESP nnnn, Cnnn, hero AiOs, detection of cups added to configure
 	since cups is used for network auto detection.
 
@@ -113,9 +113,9 @@
 	  enabled by capability PIXMA_CAP_48BIT
 	* backend/pixma_mp150.c: unused capability PIXMA_CAP_48BIT removed
 	* backend/pixma_mp810.c:
-	- new capability for CS9000F: PIXMA_CAP_48BIT  
+	- new capability for CS9000F: PIXMA_CAP_48BIT
 	- functions for scan mode detection improved
-	- lowest resolution for 48 bit flatbed scan modes is 150 dpi 
+	- lowest resolution for 48 bit flatbed scan modes is 150 dpi
 	* po/de.po: German translations for new scan modes
 
 2012-06-04 Stéphane Voltz <stef.dev@free.fr>
@@ -151,7 +151,7 @@
 2012-05-28 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl124.c
 	backend/genesys_gl847.c backend/genesys_gl847.h backend/genesys_low.h
-	doc/descriptions/genesys.desc doc/sane-genesys.man: 
+	doc/descriptions/genesys.desc doc/sane-genesys.man:
 	add support for LiDE 700F up to 2400 dpi
 
 2012-05-10 m. allan noah <kitno455 at gmail dot com>
@@ -175,7 +175,7 @@
 	- improve (disabled) debug logs
 
 2012-05-03 Rolf Bensch <rolf at bensch hyphen online dot de>
-	* backend/pixma_io_sanei.c, backend/pixma_mp150.c, 
+	* backend/pixma_io_sanei.c, backend/pixma_mp150.c,
 	doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	Patch for Canon Pixma MP280 from Daniel Beer.
 	- PIXMA_EOF mapped to PIXMA_ETIMEDOUT.
@@ -187,15 +187,15 @@
 
 2012-04-20 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* tools/sane-desc.c: tools/udev/libsane.rules supports scanner group
-	access to any scanner, with and without acl support. 
+	access to any scanner, with and without acl support.
 
 2012-04-17 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.c, backend/pixma_sane_options.c, po/de.po:
 	New description for device specific option "source".
 
 2012-04-17 Rolf Bensch <rolf at bensch hyphen online dot de>
-	* backend/pixma.c: select first entries of dynamic dpi list 
-	and dynamic mode list as default values after changing the scan source 
+	* backend/pixma.c: select first entries of dynamic dpi list
+	and dynamic mode list as default values after changing the scan source
 
 2012-04-04 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150.c, doc/descriptions/pixma.desc, doc/sane-pixma.man:
@@ -255,23 +255,23 @@
 	* backend/pixma_bjnp.c: Replace index() with strchr(). Bug #313563.
 
 2012-02-29 Rolf Bensch <rolf at bensch hyphen online dot de>
-	* backend/pixma.[ch], backend/pixma_common.c, 
-	backend/pixma_sane_options.[ch]: New device specific option 
+	* backend/pixma.[ch], backend/pixma_common.c,
+	backend/pixma_sane_options.[ch]: New device specific option
 	'threshold-curve'. Can be used to optimize 1 bit B/W lineart scans.
 
 2012-02-27 Rolf Bensch <rolf at bensch hyphen online dot de>
-	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc, 
-	doc/sane-pixma.man: New scanner Canon imageCLASS MF4410 from 
+	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc,
+	doc/sane-pixma.man: New scanner Canon imageCLASS MF4410 from
 	Vasiliy Olekhov.
 
 2012-02-16 Rolf Bensch <rolf at bensch hyphen online dot de>
-	* backend/pixma.c, backend/pixma_sane_options.[ch]: 
+	* backend/pixma.c, backend/pixma_sane_options.[ch]:
 	New device specific option 'gamma'.
 
 2012-02-09 Rolf Bensch <rolf at bensch hyphen online dot de>
-	* backend/pixma.[ch], backend/pixma_common.[ch], 
+	* backend/pixma.[ch], backend/pixma_common.[ch],
 	backend/pixma_sane_options.[ch], backend/pixma_mp{150,810}.c:
-	1 bit B/W lineart for pixma_mp150 and pixma_810 subdrivers.  
+	1 bit B/W lineart for pixma_mp150 and pixma_810 subdrivers.
 
 2012-02-06 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150, doc/descriptions/pixma.desc, doc/sane-pixma.man:
@@ -281,15 +281,15 @@
 	* backend/pixma.h: set PIXMA_VERSION_{MAJOR,MINOR,BUILD} to 0.16.3.
 
 2012-02-03 Rolf Bensch <rolf at bensch hyphen online dot de>
-	* backend/scripts/pixma_gen_options.py: script to generate 
-	backend/pixma_sane_options.c and backend/pixma_sane_options.h 
+	* backend/scripts/pixma_gen_options.py: script to generate
+	backend/pixma_sane_options.c and backend/pixma_sane_options.h
 	from pixma.c. Found in old pixma project archive file
 	http://home.arcor.de/wittawat/pixma/mp150-0.13.1.tar.bz2.
 
 2012-01-31 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma.[ch], backend/pixma_imageclass.c, backend/pixma_mp[17]50.c,
 	backend/pixma_mp730.c, backend/pixma_mp810.c: modify dpi_list dependent on
-	different scanner capabilities for normal (flatbed) and ADF/TPU modes.    
+	different scanner capabilities for normal (flatbed) and ADF/TPU modes.
 
 2012-01-23 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* backend/pixma_mp150, doc/descriptions/pixma.desc, doc/sane-pixma.man:
@@ -372,7 +372,7 @@
 
 2011-11-20 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_*.[ch] doc/descriptions/genesys.desc: build
-	66. Add hp N6310 and 4850C devices. Fix gl847 calibration. 
+	66. Add hp N6310 and 4850C devices. Fix gl847 calibration.
 	GL843 XPA support groundwork.
 
 2011-11-14 Chris Bagwell <chris at cnpbagwell dot com>
@@ -571,7 +571,7 @@
 	* doc/descriptions/canon_dr.desc: status of DR-5020
 
 2011-07-06 Stéphane Voltz <stef.dev@free.fr>
-	* backend/genesys_low.h backend/genesys_gl847.c backend/genesys.c 
+	* backend/genesys_low.h backend/genesys_gl847.c backend/genesys.c
 	backend/genesys_gl124.c backend/genesys_gl843.c backend/genesys_gl646.c
 	backend/genesys_gl841.c: improve 4800 dpi quality for LiDE 200 by
 	increasing the number of lines scan for shading
@@ -603,13 +603,13 @@
 	* backend/genesys.c backend/genesys_gl847.c: lineart fix
 
 2011-06-13 Stéphane Voltz <stef.dev@free.fr>
-	* backend/genesys_devices.c backend/genesys_gl646.c 
+	* backend/genesys_devices.c backend/genesys_gl646.c
 	backend/genesys_gl646.h doc/descriptions/genesys.desc
 	doc/sane-genesys.man: add full HP2400 support thanks a patch from
 	Alexey Osipov <simba@lerlan.ru>
 
 2011-06-13 Stéphane Voltz <stef.dev@free.fr>
-	* backend/genesys*.[ch] : rework of gl847 to reach 2400 dpi for 
+	* backend/genesys*.[ch] : rework of gl847 to reach 2400 dpi for
 	LiDE 100 and 4800 dpi for LiDE 200
 
 2011-06-10 Stéphane Voltz <stef.dev@free.fr>
@@ -644,11 +644,11 @@
 	USB autosuspend/power management and use power/control if available.
 
 2011-03-18 Stéphane Voltz <stef.dev@free.fr>
-	* backend/genesys_low.c backend/genesys.c : rewrite big endian fixes 
+	* backend/genesys_low.c backend/genesys.c : rewrite big endian fixes
 	for gl847/gl124 based scanners. Improve calibration cache file handling.
 
 2011-03-17 Stéphane Voltz <stef.dev@free.fr>
-	* backend/genesys_low.c: big endian fixes for gl847/gl124 based 
+	* backend/genesys_low.c: big endian fixes for gl847/gl124 based
 	scanners. Patch by Olaf Zimmermann <oez@pt.lu> .
 
 2011-03-15 Stéphane Voltz <stef.dev@free.fr>

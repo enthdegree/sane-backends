@@ -40,4 +40,4 @@
 :comment "8bpp color, 75/150/300/600 dpi only"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
-;  and at the top-level.                                                       
+;  and at the top-level.

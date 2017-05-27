@@ -41,7 +41,7 @@
 
 /*
 	$Id$
-        This file implements a SANE backend for Ricoh flatbed scanners.  
+        This file implements a SANE backend for Ricoh flatbed scanners.
 */
 
 #include "../include/sane/config.h"
@@ -187,7 +187,7 @@ attach (const char *devnam, Ricoh_Device ** devp)
       DBG (1, "attach: MODE_SELECT failed\n");
       sanei_scsi_close (fd);
       return (SANE_STATUS_INVAL);
-    } 
+    }
 #endif
 
 #if 0
@@ -510,7 +510,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
           if (line[0] == '#')           /* ignore line comments */
             continue;
           len = strlen (line);
-  
+
           if (!len)
             continue;                   /* ignore empty lines */
 
@@ -538,7 +538,7 @@ sane_exit (void)
       free ((void *) dev->sane.model);
       free (dev);
     }
-  
+
   if (devlist)
     free (devlist);
 
@@ -824,7 +824,7 @@ sane_start (SANE_Handle handle)
   s->brightness = s->val[OPT_BRIGHTNESS].w;
   s->contrast = s->val[OPT_CONTRAST].w;
   s->bpp = s->params.depth;
-  if (strcmp (mode_str, SANE_VALUE_SCAN_MODE_LINEART) == 0) 
+  if (strcmp (mode_str, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     {
       s->image_composition = RICOH_BINARY_MONOCHROME;
     }
@@ -849,11 +849,11 @@ sane_start (SANE_Handle handle)
   wbuf.image_comp = s->image_composition;
   /* if you throw the MRIF bit the brighness control reverses too */
   /* so I reverse the reversal in software for symmetry's sake */
-  if (wbuf.image_comp == RICOH_GRAYSCALE || wbuf.image_comp == RICOH_DITHERED_MONOCHROME) 
+  if (wbuf.image_comp == RICOH_GRAYSCALE || wbuf.image_comp == RICOH_DITHERED_MONOCHROME)
     {
-      if (wbuf.image_comp == RICOH_GRAYSCALE) 
+      if (wbuf.image_comp == RICOH_GRAYSCALE)
 	wbuf.mrif_filtering_gamma_id = (SANE_Byte) 0x90;
-      if (wbuf.image_comp == RICOH_DITHERED_MONOCHROME) 
+      if (wbuf.image_comp == RICOH_DITHERED_MONOCHROME)
 	wbuf.mrif_filtering_gamma_id = (SANE_Byte) 0x10;
       wbuf.brightness = 256 - (SANE_Byte) s->brightness;
       if (is50)
@@ -899,7 +899,7 @@ sane_start (SANE_Handle handle)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "GET WINDOW failed: %s\n", sane_strstatus (status));
-      return (status); 
+      return (status);
     }
   DBG (5, "xres=%d\n", _2btol(wbuf.x_res));
   DBG (5, "yres=%d\n", _2btol(wbuf.y_res));
@@ -937,18 +937,18 @@ sane_start (SANE_Handle handle)
     {
       DBG (1, "GET DATA STATUS failed: %s\n", sane_strstatus (status));
       return (status);
-    } 
+    }
 
   s->bytes_to_read = s->params.bytes_per_line * s->params.lines;
 
   DBG (1, "%d pixels per line, %d bytes, %d lines high, total %lu bytes, "
        "dpi=%d\n", s->params.pixels_per_line, s->params.bytes_per_line,
        s->params.lines, (u_long) s->bytes_to_read, s->val[OPT_Y_RESOLUTION].w);
- 
+
   s->scanning = SANE_TRUE;
 
-  DBG (11, "<< sane_start\n"); 
-  return (SANE_STATUS_GOOD); 
+  DBG (11, "<< sane_start\n");
+  return (SANE_STATUS_GOOD);
 }
 
 SANE_Status
@@ -963,7 +963,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   *len = 0;
 
   DBG (11, "sane_read: bytes left to read: %ld\n", (u_long) s->bytes_to_read);
-  
+
   if (s->bytes_to_read == 0)
     {
       do_cancel (s);
@@ -973,7 +973,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   if (!s->scanning) {
     DBG (11, "sane_read: scanning is false!\n");
     return (do_cancel (s));
-  } 
+  }
 
   nread = max_len;
   if (nread > s->bytes_to_read)

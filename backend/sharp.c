@@ -2,7 +2,7 @@
 
    Copyright (C) 1998, 1999
    Kazuya Fukuda, Abel Deuring based on BYTEC GmbH Germany
-   Written by Helmut Koeberle previous Work on canon.c file from the 
+   Written by Helmut Koeberle previous Work on canon.c file from the
    SANE package.
 
    This file is part of the SANE package.
@@ -50,18 +50,18 @@
    changes to version 0.31:
    - support for JX320 added (Thanks to Isaac Wilcox for providind the
      patch)
-    
+
    Version 0.31
    changes to version 0.30:
    - support for JX350 added (Thanks to Shuhei Tomita for providind the
      patch)
-    
+
    changes to version 0.20
    - support for the proposed extended open function in sanei_scsi.c added
    - support for ADF and FSU (transparency adapter) added
    - simple sense handler added
    - preview added
-   - added several missing statements "s->fd = -1;" after 
+   - added several missing statements "s->fd = -1;" after
      "sanei_scsi_close(s->fd)" to error returns in sane_start();
    - maximum scan sizes are read from the scanner, if a JX330 or JX250
      is used. (this avoids the guessing of scan sizes for the JX330)
@@ -69,7 +69,7 @@
    - "Fixed gamma selection (1.0/2.2)", available for JX330 and JX610,
      is now implemented for the JX250 by downloading a gamma table
    - changed the calls to free() and strdup() in sane_control_option to
-     strcpy. 
+     strcpy.
      (I don't like too frequent unchecked malloc()s and strdups :) Abel)
    - cleaned up some quirks in option handling, eg, that "threshold"
      was initially enabled, while the initial scan mode is "color"
@@ -133,12 +133,12 @@
 */
 #define USE_CUSTOM_GAMMA
 #define USE_COLOR_THRESHOLD
-/* enable a short list of some standard resolutions. XSane provides 
+/* enable a short list of some standard resolutions. XSane provides
    its own resolution list; therefore its is generally not reasonable
    to enable this list, if you mainly using XSane. But it might be handy
    if you are working with xscanimage
 */
-/* #define USE_RESOLUTION_LIST */ 
+/* #define USE_RESOLUTION_LIST */
 
 /* enable separate specification of resolution in X and Y direction.
    XSane will show the Y-resolution at a quite different place than
@@ -220,15 +220,15 @@ static SANE_String use_adf = "Automatic Document Feeder";
 static SANE_String use_fsu = "Transparency Adapter";
 static SANE_String use_simple = "Flatbed";
 
-/* auto selection of ADF and FSU, as described in the JX330 manual, 
-   is a nice idea -- but I assume that the possible scan window 
-   sizes depend not only for the JX250, but also for JX330 on the 
+/* auto selection of ADF and FSU, as described in the JX330 manual,
+   is a nice idea -- but I assume that the possible scan window
+   sizes depend not only for the JX250, but also for JX330 on the
    usage of ADF or FSU. Thus, the user might be able to select scan
    windows of an "illegal" size, which would have to be automatically
-   corrected, and I don't see, how the user could be informed about 
-   this "window clipping". More important, I don't see, how the 
+   corrected, and I don't see, how the user could be informed about
+   this "window clipping". More important, I don't see, how the
    frontend could be informed that the ADF is automatically enabled.
-   
+
    Insert a "#define ALLOW_AUTO_SELECT_ADF", if you want to play
    with this feature.
 */
@@ -239,8 +239,8 @@ static SANE_String_Const use_auto = "AutoSelection";
 #define HAVE_FSU 1
 #define HAVE_ADF 2
 
-/* The follow #defines are used in SHARP_Scanner.adf_fsu_mode 
-   and as indexes for the arrays x_ranges, y_ranges in SHARP_Device 
+/* The follow #defines are used in SHARP_Scanner.adf_fsu_mode
+   and as indexes for the arrays x_ranges, y_ranges in SHARP_Device
 */
 #define SCAN_SIMPLE 0
 #define SCAN_WITH_FSU 1
@@ -326,17 +326,17 @@ sense_handler(int __sane_unused__ fd, u_char *sense_buffer, void *s)
 {
   int sense_key;
   SHARP_Sense_Data *sdat = (SHARP_Sense_Data *) s;
-  
+
 #define add_sense_code sense_buffer[12]
 #define add_sense_qual sense_buffer[13]
 
   memcpy(sdat->sb, sense_buffer, 16);
-  
+
   DBG(10, "sense code: %02x %02x %02x %02x %02x %02x %02x %02x "
           "%02x %02x %02x %02x %02x %02x %02x %02x\n",
-          sense_buffer[0], sense_buffer[1], sense_buffer[2], sense_buffer[3], 
-          sense_buffer[4], sense_buffer[5], sense_buffer[6], sense_buffer[7], 
-          sense_buffer[8], sense_buffer[9], sense_buffer[10], sense_buffer[11], 
+          sense_buffer[0], sense_buffer[1], sense_buffer[2], sense_buffer[3],
+          sense_buffer[4], sense_buffer[5], sense_buffer[6], sense_buffer[7],
+          sense_buffer[8], sense_buffer[9], sense_buffer[10], sense_buffer[11],
           sense_buffer[12], sense_buffer[13], sense_buffer[14], sense_buffer[15]);
 
   sense_key = sense_buffer[2] & 0x0F;
@@ -394,7 +394,7 @@ sense_handler(int __sane_unused__ fd, u_char *sense_buffer, void *s)
                 DBG(1, "scan head positioning error\n");
                 return SANE_STATUS_IO_ERROR;
             }
-          
+
         }
       else if (sdat->model == JX250 || sdat->model == JX330 ||
 	       sdat->model == JX350 || sdat->model == JX320)
@@ -561,7 +561,7 @@ inquiry (int fd, void *inq_buf, size_t *inq_size)
 static SANE_Status
 mode_select_mud (int fd, int mud)
 {
-  static u_char cmd[6 + MODEPARAM_LEN] = 
+  static u_char cmd[6 + MODEPARAM_LEN] =
                         {MODE_SELECT6, 0x10, 0, 0, MODEPARAM_LEN, 0};
   mode_select_param *mp;
   SANE_Status status;
@@ -583,7 +583,7 @@ mode_select_mud (int fd, int mud)
 static SANE_Status
 mode_select_adf_fsu (int fd, int mode)
 {
-  static u_char cmd[6 + MODE_SUBDEV_LEN] = 
+  static u_char cmd[6 + MODE_SUBDEV_LEN] =
                         {MODE_SELECT6, 0x10, 0, 0, MODE_SUBDEV_LEN, 0};
   mode_select_subdevice *mp;
   SANE_Status status;
@@ -670,7 +670,7 @@ release_unit (int fd)
 #endif
 
 static SANE_Status
-mode_sense (int fd, void *modeparam_buf, size_t * modeparam_size, 
+mode_sense (int fd, void *modeparam_buf, size_t * modeparam_size,
             int page)
 {
   static u_char cmd[6];
@@ -681,7 +681,7 @@ mode_sense (int fd, void *modeparam_buf, size_t * modeparam_size,
   cmd[0] = 0x1a;
   cmd[2] = page;
   cmd[4] = *modeparam_size;
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), modeparam_buf, 
+  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), modeparam_buf,
 			   modeparam_size);
 
   DBG (11, ">>\n");
@@ -740,7 +740,7 @@ send (int fd, SHARP_Send * ss)
 static SANE_Status
 set_window (int fd, window_param *wp, int len)
 {
-  static u_char cmd[10 + WINDOW_LEN] = 
+  static u_char cmd[10 + WINDOW_LEN] =
                         {SET_WINDOW, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   window_param *winp;
   SANE_Status status;
@@ -775,17 +775,17 @@ get_window (int fd, void *buf, size_t * buf_size)
 #ifdef USE_FORK
 
 /* the following four functions serve simply the purpose
-   to avoid "over-optimised" code when reader_process and 
-   read_data wait for the buffer to become ready. The simple 
-   while-loops in these functions which check the buffer 
-   status may be optimised so that the machine code only 
-   operates with registers instead of using the variable 
-   values stored in memory. (This is only a workaround - 
+   to avoid "over-optimised" code when reader_process and
+   read_data wait for the buffer to become ready. The simple
+   while-loops in these functions which check the buffer
+   status may be optimised so that the machine code only
+   operates with registers instead of using the variable
+   values stored in memory. (This is only a workaround -
    it would be better to set a compiler pragma, which ensures
    that the program looks into the RAM in these while loops --
    but unfortunately I could not find appropriate information
-   about this at least for gcc, not to speak about other 
-   compilers... 
+   about this at least for gcc, not to speak about other
+   compilers...
    Abel)
 */
 
@@ -795,7 +795,7 @@ cancel_requested(SHARP_Scanner *s)
   return s->rdr_ctl->cancel;
 }
 
-static SANE_Status 
+static SANE_Status
 rdr_status(SHARP_Scanner *s)
 {
   return s->rdr_ctl->status;
@@ -832,9 +832,9 @@ reader_process(SHARP_Scanner *s)
   DBG(11, "<< reader_process\n");
 
   sigemptyset (&sigterm_set);
-  
+
   bytes_to_queue = s->bytes_to_read;
-  
+
   /* it seems that some carriage stops can be avoided with the
      JX-250, if the data of an integral number of scan lines is
      read with one SCSI command
@@ -845,9 +845,9 @@ reader_process(SHARP_Scanner *s)
   else
     /* this is a really tiny buffer..*/
     max_bytes_per_read = s->dev->info.bufsize;
-  
+
   /*  wait_ready(s->fd); */
-  
+
   if (s->dev->info.queued_reads <= s->dev->info.buffers)
     max_queue = s->dev->info.queued_reads;
   else
@@ -869,16 +869,16 @@ reader_process(SHARP_Scanner *s)
 #ifdef QUEUEDEBUG
           DBG(2, "reader: req_enter...\n");
 #endif
-          status = sanei_scsi_req_enter (s->fd, cmd, sizeof (cmd), 
-                     bc->buffer, 
-                    &bc->used, 
+          status = sanei_scsi_req_enter (s->fd, cmd, sizeof (cmd),
+                     bc->buffer,
+                    &bc->used,
                     &bc->qid);
 #ifdef QUEUEDEBUG
           DBG(2, "reader: req_enter ok\n");
 #endif
           if (status != SANE_STATUS_GOOD)
             {
-              DBG(1, "reader_process: read command failed: %s", 
+              DBG(1, "reader_process: read command failed: %s",
                   sane_strstatus(status));
 #ifdef HAVE_SANEI_SCSI_OPEN_EXTENDED
               sanei_scsi_req_flush_all_extended(s->fd);
@@ -902,9 +902,9 @@ reader_process(SHARP_Scanner *s)
   waitindex = 0;
   cmdindex = i % s->dev->info.buffers;
 
-  while(s->bytes_to_read > 0) 
+  while(s->bytes_to_read > 0)
     {
-      if (cancel_requested(s)) 
+      if (cancel_requested(s))
         {
 #ifdef QUEUEDEBUG
           DBG(2, "reader: flushing requests...\n");
@@ -925,7 +925,7 @@ reader_process(SHARP_Scanner *s)
         }
 
       bc = &s->rdr_ctl->buf_ctl[waitindex];
-      if (bc->shm_status == SHM_BUSY) 
+      if (bc->shm_status == SHM_BUSY)
         {
 #ifdef DEBUG
           {
@@ -948,7 +948,7 @@ reader_process(SHARP_Scanner *s)
             DBG(2, "rd: data received    %li.%06li\n", t.tv_sec, t.tv_usec);
           }
 #endif
-          if (status == SANE_STATUS_DEVICE_BUSY && retries) 
+          if (status == SANE_STATUS_DEVICE_BUSY && retries)
             {
               bc->used = 0;
               retries--;
@@ -958,7 +958,7 @@ reader_process(SHARP_Scanner *s)
             }
           else if (status != SANE_STATUS_GOOD)
             {
-              DBG(1, "reader_process: read command failed: %s\n", 
+              DBG(1, "reader_process: read command failed: %s\n",
                   sane_strstatus(status));
 #ifdef HAVE_SANEI_SCSI_OPEN_EXTENDED
               sanei_scsi_req_flush_all_extended(s->fd);
@@ -969,7 +969,7 @@ reader_process(SHARP_Scanner *s)
               s->rdr_ctl->running = 0;
               return 2;
             }
-          else 
+          else
             {
               retries = MAX_RETRIES;
             }
@@ -982,7 +982,7 @@ reader_process(SHARP_Scanner *s)
           /* memset(bc->buffer + bc->used, 0, bc->nreq - bc->used); */
           bc->used = bc->nreq;
           /* bytes_to_queue += bc->nreq - bc->used; */
-          DBG(1, "btr: %i btq: %i nreq: %i nrcv: %i\n", 
+          DBG(1, "btr: %i btq: %i nreq: %i nrcv: %i\n",
             s->bytes_to_read, bytes_to_queue, bc->nreq, bc->used);
 #endif
           bc->start = 0;
@@ -993,7 +993,7 @@ reader_process(SHARP_Scanner *s)
             waitindex = 0;
 
         }
-      
+
       if (bytes_to_queue)
         {
           /* wait until the next buffer is completely read via read_data */
@@ -1028,11 +1028,11 @@ reader_process(SHARP_Scanner *s)
           cmd[6] = nread >> 16;
           cmd[7] = nread >> 8;
           cmd[8] = nread;
-          status = sanei_scsi_req_enter (s->fd, cmd, sizeof (cmd), 
+          status = sanei_scsi_req_enter (s->fd, cmd, sizeof (cmd),
                     bc->buffer, &bc->used, &bc->qid);
           if (status != SANE_STATUS_GOOD)
             {
-              DBG(1, "reader_process: read command failed: %s", 
+              DBG(1, "reader_process: read command failed: %s",
                   sane_strstatus(status));
 #ifdef HAVE_SANEI_SCSI_OPEN_EXTENDED
               sanei_scsi_req_flush_all_extended(s->fd);
@@ -1046,13 +1046,13 @@ reader_process(SHARP_Scanner *s)
           bc->shm_status = SHM_BUSY;
           bc->nreq = nread;
           bytes_to_queue -= nread;
-          
+
           cmdindex++;
           if (cmdindex == s->dev->info.buffers)
             cmdindex = 0;
         }
-      
-      if (cancel_requested(s)) 
+
+      if (cancel_requested(s))
         {
 #ifdef HAVE_SANEI_SCSI_OPEN_EXTENDED
           sanei_scsi_req_flush_all_extended(s->fd);
@@ -1066,7 +1066,7 @@ reader_process(SHARP_Scanner *s)
           return 1;
         }
     }
-      
+
   DBG(1, "buffer full conditions: %i\n", full_count);
   DBG(11, " reader_process>>\n");
 
@@ -1079,7 +1079,7 @@ read_data (SHARP_Scanner *s, SANE_Byte *buf, size_t * buf_size)
 {
   size_t copysize, copied = 0;
   SHARP_shmem_ctl *bc;
-  
+
   DBG(11, "<< read_data ");
 
   bc = &s->rdr_ctl->buf_ctl[s->read_buff];
@@ -1088,7 +1088,7 @@ read_data (SHARP_Scanner *s, SANE_Byte *buf, size_t * buf_size)
     {
       /* wait until the reader process delivers data or a scanner error occurs: */
       while (   buf_status(bc) != SHM_FULL
-             && rdr_status(s) == SANE_STATUS_GOOD) 
+             && rdr_status(s) == SANE_STATUS_GOOD)
         {
           usleep(10); /* could perhaps be longer. make this user configurable?? */
         }
@@ -1100,10 +1100,10 @@ read_data (SHARP_Scanner *s, SANE_Byte *buf, size_t * buf_size)
         }
 
       copysize = bc->used - bc->start;
-      
+
       if (copysize > *buf_size - copied )
         copysize = *buf_size - copied;
-        
+
       memcpy(buf, &(bc->buffer[bc->start]), copysize);
 
       copied += copysize;
@@ -1139,8 +1139,8 @@ read_data (SHARP_Scanner *s, SANE_Byte *buf, size_t * buf_size)
 
   /* sane_read_shuffled requires that read_data returns
      exactly *buf_size bytes, so it must be guaranteed here.
-     Further make sure that not more bytes are read in than 
-     sanei_scsi_max_request_size allows, to avoid a failure 
+     Further make sure that not more bytes are read in than
+     sanei_scsi_max_request_size allows, to avoid a failure
      of the read command
   */
   while (remain > 0)
@@ -1151,7 +1151,7 @@ read_data (SHARP_Scanner *s, SANE_Byte *buf, size_t * buf_size)
       cmd[6] = nread >> 16;
       cmd[7] = nread >> 8;
       cmd[8] = nread;
-      status = sanei_scsi_cmd (s->fd, cmd, sizeof (cmd), 
+      status = sanei_scsi_cmd (s->fd, cmd, sizeof (cmd),
                  &buf[*buf_size - remain], &nread);
       if (status == SANE_STATUS_DEVICE_BUSY && retries)
         {
@@ -1164,7 +1164,7 @@ read_data (SHARP_Scanner *s, SANE_Byte *buf, size_t * buf_size)
           DBG(11, ">>\n");
           return(status);
         }
-      else 
+      else
         {
           retries = MAX_RETRIES;
         }
@@ -1208,7 +1208,7 @@ wait_ready(int fd)
     sleep(3);
   }
   return (status);
-    
+
 }
 
 /* ask the scanner for the maximum scan sizes with/without ADF and
@@ -1220,7 +1220,7 @@ get_max_scan_size(int fd, SHARP_Device *dev, int mode)
   SANE_Status status;
   mode_sense_subdevice m_subdev;
   size_t buf_size;
-        
+
   status = mode_select_adf_fsu(fd, mode);
   if (status != SANE_STATUS_GOOD)
     {
@@ -1245,7 +1245,7 @@ get_max_scan_size(int fd, SHARP_Device *dev, int mode)
     (m_subdev.max_x[0] << 24) + (m_subdev.max_x[1] << 16) +
     (m_subdev.max_x[2] << 8) + m_subdev.max_x[3] - 1, dev->info.mud));
   dev->info.tl_x_ranges[mode].quant = 0;
-  
+
   dev->info.br_x_ranges[mode].min = SANE_FIX(PIX_TO_MM(1, dev->info.mud));
   dev->info.br_x_ranges[mode].max = SANE_FIX(PIX_TO_MM(
     (m_subdev.max_x[0] << 24) + (m_subdev.max_x[1] << 16) +
@@ -1261,19 +1261,19 @@ get_max_scan_size(int fd, SHARP_Device *dev, int mode)
   else
     /* The manual for the JX250 states on page 62 that the maximum
        value for tl_y in FSU mode is 13199, while the max value for
-       br_y is 13900, which is (probably -- I don't have a FSU) returned 
-       by mode sense/subdevice page. Therefore, we cannot simply 
+       br_y is 13900, which is (probably -- I don't have a FSU) returned
+       by mode sense/subdevice page. Therefore, we cannot simply
        decrement that value and store it as max(tl_y).
     */
     dev->info.tl_y_ranges[mode].max = 13199;
   dev->info.tl_y_ranges[mode].quant = 0;
-  
+
   dev->info.br_y_ranges[mode].min = SANE_FIX(PIX_TO_MM(1, dev->info.mud));
   dev->info.br_y_ranges[mode].max = SANE_FIX(PIX_TO_MM(
     (m_subdev.max_y[0] << 24) + (m_subdev.max_y[1] << 16) +
     (m_subdev.max_y[2] << 8) + m_subdev.max_y[3], dev->info.mud));
   dev->info.br_y_ranges[mode].quant = 0;
-  
+
   return SANE_STATUS_GOOD;
 }
 
@@ -1374,7 +1374,7 @@ attach (const char *devnam, SHARP_Device ** devp)
     }
 
   DBG (3, "attach: sending MODE SELECT\n");
-  /* JX-610 probably supports only 25 MUD size 
+  /* JX-610 probably supports only 25 MUD size
      JX-320 only supports 25 MUD size
   */
   if (strncmp (inquiry_data + 16, "JX610", 5) == 0)
@@ -1412,7 +1412,7 @@ attach (const char *devnam, SHARP_Device ** devp)
   model_name = (char*) inquiry_data + 16;
   dev->sane.model  = strndup (model_name, 10);
   dev->sane.type = "flatbed scanner";
-  
+
   dev->sensedat.model = sensedat.model;
 
   DBG (5, "dev->sane.name = %s\n", dev->sane.name);
@@ -1441,7 +1441,7 @@ attach (const char *devnam, SHARP_Device ** devp)
 
   dev->info.bmu = msp.bmu;
   dev->info.mud = (msp.mud[0] << 8) + msp.mud[1];
-  
+
   dev->info.adf_fsu_installed = 0;
   if (dev->sensedat.model == JX610)
     {
@@ -1475,7 +1475,7 @@ attach (const char *devnam, SHARP_Device ** devp)
     }
   else
     {
-      /* ask the scanner, if ADF or FSU are installed, and ask for 
+      /* ask the scanner, if ADF or FSU are installed, and ask for
          the maximum scan sizes with/without ADF and FSU.
       */
 
@@ -1489,23 +1489,23 @@ attach (const char *devnam, SHARP_Device ** devp)
           sanei_scsi_close (fd);
           return (SANE_STATUS_INVAL);
         }
-      
+
       /* The JX330 manual is not very clear about the ADF- und FSU-Bits
-         returned by a JX320 and JX325 for the mode sense command: 
+         returned by a JX320 and JX325 for the mode sense command:
          Are these bits set to zero or not? To be on the safe side, let's
          clear them.
       */
-      
+
       if (   strncmp(inquiry_data + 16, "JX320", 5) == 0
           || strncmp(inquiry_data + 16, "JX325", 5) == 0)
         {
           m_subdev.f_mode_type = 0;
           m_subdev.a_mode_type = 0;
         }
-      
+
       get_max_scan_size(fd, dev, SCAN_SIMPLE);
-      
-      if (m_subdev.a_mode_type & 0x03) 
+
+      if (m_subdev.a_mode_type & 0x03)
         {
           dev->info.adf_fsu_installed = HAVE_ADF;
           get_max_scan_size(fd, dev, SCAN_WITH_ADF);
@@ -1516,7 +1516,7 @@ attach (const char *devnam, SHARP_Device ** devp)
           get_max_scan_size(fd, dev, SCAN_WITH_FSU);
         }
 
-      if (   dev->sensedat.model == JX320 
+      if (   dev->sensedat.model == JX320
           || dev->sensedat.model == JX330
           || dev->sensedat.model == JX350)
         {
@@ -1540,7 +1540,7 @@ attach (const char *devnam, SHARP_Device ** devp)
         }
     }
   sanei_scsi_close (fd);
-  
+
   dev->info.threshold_range.min = 1;
   dev->info.threshold_range.max = 255;
   dev->info.threshold_range.quant = 0;
@@ -1616,12 +1616,12 @@ attach (const char *devnam, SHARP_Device ** devp)
 }
 
 /* Enabling / disabling of gamma options.
-   Depends on many user settable options, so lets put it into 
+   Depends on many user settable options, so lets put it into
    one function to be called by init_options and by sane_control_option
 
 */
 #ifdef USE_CUSTOM_GAMMA
-static void 
+static void
 set_gamma_caps(SHARP_Scanner *s)
 {
   /* neither fixed nor custom gamma for line art modes */
@@ -1761,11 +1761,11 @@ clip_value (const SANE_Option_Descriptor * opt, void * value)
 
 /* make sure that enough memory is allocated for each string,
    so that the strcpy in sane_control_option / set value cannot
-   write behind the end of the allocated memory. 
+   write behind the end of the allocated memory.
 */
 static SANE_Status
-init_string_option(SHARP_Scanner *s, SANE_String_Const name, 
-   SANE_String_Const title, SANE_String_Const desc, 
+init_string_option(SHARP_Scanner *s, SANE_String_Const name,
+   SANE_String_Const title, SANE_String_Const desc,
    const SANE_String_Const *string_list, int option, int default_index)
 {
   int i;
@@ -1869,7 +1869,7 @@ init_options (SHARP_Scanner * s)
         sourcename_index = i;
       s->dev->info.scansources[i++] = use_adf;
     }
-  else 
+  else
     {
       if (default_source == SCAN_WITH_ADF)
         default_source = SCAN_SIMPLE;
@@ -1893,7 +1893,7 @@ init_options (SHARP_Scanner * s)
     sourcename_index = i;
   s->dev->info.scansources[i++] = use_simple;
   s->dev->info.scansources[i] = 0;
-  
+
 #if 0
   s->opt[OPT_SCANSOURCE].name = SANE_NAME_SCAN_SOURCE;
   s->opt[OPT_SCANSOURCE].title = SANE_TITLE_SCAN_SOURCE;
@@ -1927,7 +1927,7 @@ init_options (SHARP_Scanner * s)
       s->opt[OPT_PAPER].constraint.string_list = paper_list_jx610;
       s->val[OPT_PAPER].s = strdup (paper_list_jx610[1]);
     }
-  else 
+  else
     {
       s->opt[OPT_PAPER].size = max_string_size (paper_list_jx330);
       s->opt[OPT_PAPER].constraint_type = SANE_CONSTRAINT_STRING_LIST;
@@ -1975,10 +1975,10 @@ init_options (SHARP_Scanner * s)
 #ifdef USE_RESOLUTION_LIST
   if (s->dev->sensedat.model == JX610 || s->dev->sensedat.model == JX330 ||
       s->dev->sensedat.model == JX350 || s->dev->sensedat.model == JX320)
-    init_string_option(s, "ResolutionList", "ResolutionList", "ResolutionList", 
+    init_string_option(s, "ResolutionList", "ResolutionList", "ResolutionList",
       resolution_list_jx610, OPT_RESOLUTION_LIST, RESOLUTION_MAX_JX610);
   else
-    init_string_option(s, "ResolutionList", "ResolutionList", "ResolutionList", 
+    init_string_option(s, "ResolutionList", "ResolutionList", "ResolutionList",
       resolution_list_jx250, OPT_RESOLUTION_LIST, RESOLUTION_MAX_JX250);
 #endif
   /* x resolution */
@@ -2050,7 +2050,7 @@ init_options (SHARP_Scanner * s)
   s->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
   s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_BR_Y].constraint.range = &s->dev->info.br_y_ranges[default_source];
-  /* The FSU for JX250 allows a maximum scan length of 11.5 inch, 
+  /* The FSU for JX250 allows a maximum scan length of 11.5 inch,
      which is less than the default value of 297 mm
   */
   scalar = s->dev->info.y_default;
@@ -2097,7 +2097,7 @@ init_options (SHARP_Scanner * s)
 #ifdef USE_COLOR_THRESHOLD
   s->opt[OPT_THRESHOLD_R].name = SANE_NAME_THRESHOLD "-red";
   /* xxx the titles and decriptions are confusing:
-     "set white point (red)" 
+     "set white point (red)"
      Any idea? maybe "threshold to get the red component on"
   */
   s->opt[OPT_THRESHOLD_R].title = SANE_TITLE_THRESHOLD " (red)";
@@ -2153,7 +2153,7 @@ init_options (SHARP_Scanner * s)
   s->opt[OPT_PREVIEW].type  = SANE_TYPE_BOOL;
   s->opt[OPT_PREVIEW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
   s->val[OPT_PREVIEW].w     = SANE_FALSE;
-          
+
 
 #ifdef USE_CUSTOM_GAMMA
   /* custom-gamma table */
@@ -2241,14 +2241,14 @@ do_cancel (SHARP_Scanner * s)
 
       DBG(11, "stopping reader process\n");
       s->rdr_ctl->cancel = 1;
-      while(reader_running(s) && count < 100) 
+      while(reader_running(s) && count < 100)
         {
           usleep(100000);
           count++;
         };
       if (reader_running(s))
         {
-          /* be brutal... 
+          /* be brutal...
              !! The waiting time of 10 seconds might be far too short
              !! if the resolution limit of the JX 250 is increased to
              !! to more than 400 dpi: for these (interpolated) resolutions,
@@ -2299,13 +2299,13 @@ do_cancel (SHARP_Scanner * s)
 static SHARP_New_Device *new_devs = 0;
 static SHARP_New_Device *new_dev_pool = 0;
 
-static SANE_Status 
+static SANE_Status
 attach_and_list(const char *devnam)
 {
   SANE_Status res;
   SHARP_Device *devp;
   SHARP_New_Device *np;
-  
+
   res = attach(devnam, &devp);
   if (res == SANE_STATUS_GOOD)
     {
@@ -2332,10 +2332,10 @@ static int bufsize[2] = {DEFAULT_BUFSIZE, DEFAULT_BUFSIZE};
 static int queued_reads[2] = {DEFAULT_QUEUED_READS, DEFAULT_QUEUED_READS};
 static int stop_on_fsu_error[2] = {COMPLAIN_ON_FSU_ERROR | COMPLAIN_ON_ADF_ERROR,
                                    COMPLAIN_ON_FSU_ERROR | COMPLAIN_ON_ADF_ERROR};
-static int default_scan_mode[2] = {-1, -1}; 
+static int default_scan_mode[2] = {-1, -1};
 
 SANE_Status
-sane_init (SANE_Int * version_code, 
+sane_init (SANE_Int * version_code,
 	   SANE_Auth_Callback __sane_unused__ authorize)
 {
   char devnam[PATH_MAX] = "/dev/scanner";
@@ -2347,7 +2347,7 @@ sane_init (SANE_Int * version_code,
   int opt_index = 0;
   int linecount = 0;
 #if 1
-  SHARP_Device sd; 
+  SHARP_Device sd;
   SHARP_Device *dp = &sd;
 #else
   SHARP_Device *dp;
@@ -2443,7 +2443,7 @@ sane_init (SANE_Int * version_code,
                               linecount);
                           DBG(1, "%s\n", line);
                         }
-                      else 
+                      else
                         queued_reads[opt_index] = i;
                     }
                   else if (strcmp(word, "stop_on_fsu_error") == 0)
@@ -2458,8 +2458,8 @@ sane_init (SANE_Int * version_code,
                               linecount);
                           DBG(1, "%s\n", line);
                         }
-                      else 
-                        stop_on_fsu_error[opt_index] 
+                      else
+                        stop_on_fsu_error[opt_index]
                           = i ? COMPLAIN_ON_FSU_ERROR : 0;
                     }
                   else if (strcmp(word, "default_scan_source") == 0)
@@ -2493,7 +2493,7 @@ sane_init (SANE_Int * version_code,
                 {
                   while (new_devs)
                     {
-                      if (buffers[1] >= 2) 
+                      if (buffers[1] >= 2)
                         new_devs->dev->info.buffers = buffers[1];
                       else
                         new_devs->dev->info.buffers = 2;
@@ -2529,7 +2529,7 @@ sane_init (SANE_Int * version_code,
 
   while (new_devs)
     {
-      if (buffers[1] >= 2) 
+      if (buffers[1] >= 2)
         new_devs->dev->info.buffers = buffers[1];
       else
         new_devs->dev->info.buffers = 2;
@@ -2574,7 +2574,7 @@ sane_exit (void)
       free ((void *) dev->sane.model);
       free (dev);
     }
-  
+
   if (devlist)
     free(devlist);
   devlist = 0;
@@ -2653,8 +2653,8 @@ sane_open (SANE_String_Const devnam, SANE_Handle * handle)
 
   s->fd = -1;
   s->dev = dev;
-  
-  s->buffer = 0;  
+
+  s->buffer = 0;
 #ifdef USE_CUSTOM_GAMMA
   for (i = 0; i < 4; ++i)
     for (j = 0; j < 256; ++j)
@@ -2827,7 +2827,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    *info |= SANE_INFO_RELOAD_PARAMS;
 	case OPT_NUM_OPTS:
 	case OPT_THRESHOLD:
-	  /* xxx theoretically, we could use OPT_THRESHOLD in 
+	  /* xxx theoretically, we could use OPT_THRESHOLD in
 	     bi-level color mode to adjust all three other
 	     threshold together. But this would require to set
 	     the bit SANE_INFO_RELOAD_OPTIONS in *info, and that
@@ -2879,8 +2879,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 #endif
               s->opt[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
             }
-          
-	  if (   strcmp (val, M_LINEART) == 0 
+
+	  if (   strcmp (val, M_LINEART) == 0
 	      || strcmp (val, M_GRAY) == 0)
             {
 	      s->opt[OPT_LIGHTCOLOR].cap &= ~SANE_CAP_INACTIVE;
@@ -2889,7 +2889,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             {
 	      s->opt[OPT_LIGHTCOLOR].cap |= SANE_CAP_INACTIVE;
             }
-            
+
           strcpy(s->val[option].s, val);
 #ifdef USE_CUSTOM_GAMMA
           set_gamma_caps(s);
@@ -2926,19 +2926,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  else
 	    range_index = SCAN_SIMPLE;
 
-          s->opt[OPT_TL_X].constraint.range 
+          s->opt[OPT_TL_X].constraint.range
             = &s->dev->info.tl_x_ranges[range_index];
           clip_value (&s->opt[OPT_TL_X], &s->val[OPT_TL_X].w);
 
-          s->opt[OPT_TL_Y].constraint.range 
+          s->opt[OPT_TL_Y].constraint.range
             = &s->dev->info.tl_y_ranges[range_index];
           clip_value (&s->opt[OPT_TL_Y], &s->val[OPT_TL_Y].w);
 
-          s->opt[OPT_BR_X].constraint.range 
+          s->opt[OPT_BR_X].constraint.range
             = &s->dev->info.br_x_ranges[range_index];
           clip_value (&s->opt[OPT_BR_X], &s->val[OPT_BR_X].w);
 
-          s->opt[OPT_BR_Y].constraint.range 
+          s->opt[OPT_BR_Y].constraint.range
             = &s->dev->info.br_y_ranges[range_index];
           clip_value (&s->opt[OPT_BR_Y], &s->val[OPT_BR_Y].w);
 
@@ -2994,11 +2994,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
 	  for (i = 0; s->opt[OPT_RESOLUTION_LIST].constraint.string_list[i]; i++) {
-	    if (strcmp (val, 
+	    if (strcmp (val,
 	          s->opt[OPT_RESOLUTION_LIST].constraint.string_list[i]) == 0){
-	      s->val[OPT_X_RESOLUTION].w 
+	      s->val[OPT_X_RESOLUTION].w
 	        = atoi(s->opt[OPT_RESOLUTION_LIST].constraint.string_list[i]);
-	      s->val[OPT_Y_RESOLUTION].w 
+	      s->val[OPT_Y_RESOLUTION].w
 	        = atoi(s->opt[OPT_RESOLUTION_LIST].constraint.string_list[i]);
 	      if (info)
 	        *info |= SANE_INFO_RELOAD_PARAMS;
@@ -3055,7 +3055,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
          scanning starts.  */
       memset (&s->params, 0, sizeof (s->params));
 
-      width = MM_TO_PIX(  SANE_UNFIX(s->val[OPT_BR_X].w) 
+      width = MM_TO_PIX(  SANE_UNFIX(s->val[OPT_BR_X].w)
                         - SANE_UNFIX(s->val[OPT_TL_X].w),
 			s->dev->info.mud);
       length = MM_TO_PIX(  SANE_UNFIX(s->val[OPT_BR_Y].w)
@@ -3077,14 +3077,14 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
       /* if async reads are used, )ie. if USE_FORK is defined,
          this command may only be issued immediately after the
-         "start scan" command. Later calls will confuse the 
+         "start scan" command. Later calls will confuse the
          read queue.
       */
       if (!s->get_params_called)
         {
           wait_ready(s->fd);
           status = sanei_scsi_cmd (s->fd, cmd, sizeof (cmd), buf, &len);
-          
+
           if (status != SANE_STATUS_GOOD)
             {
               do_cancel(s);
@@ -3142,7 +3142,7 @@ sprint_gamma(Option_Value val, SANE_Byte *dst)
 {
   int i;
   SANE_Byte *p = dst;
-  
+
   p += sprintf((char *) p, "%i", val.wa[0] > 255 ? 255 : val.wa[0]);
   /* val.wa[i] is over 255, so val.wa[i] is limitied to 255 */
   for (i = 1; i < 256; i++)
@@ -3155,17 +3155,17 @@ send_ascii_gamma_tables (SHARP_Scanner *s)
 {
   SANE_Status status;
   int i;
-  
+
   DBG(11, "<< send_ascii_gamma_tables ");
-    
+
   /* we need: 4 bytes for each gamma value (3 digits + delimiter)
              + 10 bytes for the command header
      i.e. 4 * 4 * 256 + 10 = 4106 bytes
   */
-  
+
   if (s->dev->info.bufsize < 4106)
     return SANE_STATUS_NO_MEM;
-  
+
   memset(s->buffer, 0, 4106);
 
   i = sprint_gamma(s->val[OPT_GAMMA_VECTOR_R], &s->buffer[10]);
@@ -3175,19 +3175,19 @@ send_ascii_gamma_tables (SHARP_Scanner *s)
   i += sprint_gamma(s->val[OPT_GAMMA_VECTOR_B], &s->buffer[10+i]);
   s->buffer[10+i++] = '/';
   i += sprint_gamma(s->val[OPT_GAMMA_VECTOR], &s->buffer[10+i]);
-  
+
   DBG(11, "%s\n", &s->buffer[10]);
 
   s->buffer[0] = SEND;
   s->buffer[2] = 0x03;
   s->buffer[7] = i >> 8;
   s->buffer[8] = i & 0xff;
-  
+
   wait_ready(s->fd);
   status = sanei_scsi_cmd (s->fd, s->buffer, i+10, 0, 0);
 
   DBG(11, ">>\n");
-  
+
   return status;
 }
 #endif
@@ -3197,29 +3197,29 @@ send_binary_g_table(SHARP_Scanner *s, SANE_Word *a, int dtq)
 {
   SANE_Status status;
   int i;
-  
+
   DBG(11, "<< send_binary_g_table\n");
 
   memset(s->buffer, 0, 522);
-  
+
   s->buffer[0] = SEND;
   s->buffer[2] = 0x03;
   s->buffer[5] = dtq;
   s->buffer[7] = 2;
   s->buffer[8] = 0;
-  
+
   for (i = 0; i < 256; i++)
     {
       s->buffer[2*i+11] = a[i] > 255 ? 255 : a[i];
     }
-  
+
   for (i = 0; i < 256; i += 16)
     {
       DBG(11, "%02x %02x %02x %02x %02x %02x %02x %02x "
               "%02x %02x %02x %02x %02x %02x %02x %02x\n",
-              a[i  ], a[i+1], a[i+2], a[i+3], 
+              a[i  ], a[i+1], a[i+2], a[i+3],
               a[i+4], a[i+5], a[i+6], a[i+7],
-              a[i+8], a[i+9], a[i+10], a[i+11], 
+              a[i+8], a[i+9], a[i+10], a[i+11],
               a[i+12], a[i+13], a[i+14], a[i+15]);
     }
 
@@ -3236,19 +3236,19 @@ static SANE_Status
 send_binary_gamma_tables (SHARP_Scanner *s)
 {
   SANE_Status status;
-  
+
   status = send_binary_g_table(s, s->val[OPT_GAMMA_VECTOR].wa, 0x10);
   if (status != SANE_STATUS_GOOD)
     return status;
-  
+
   status = send_binary_g_table(s, s->val[OPT_GAMMA_VECTOR_R].wa, 0x11);
   if (status != SANE_STATUS_GOOD)
     return status;
-  
+
   status = send_binary_g_table(s, s->val[OPT_GAMMA_VECTOR_G].wa, 0x12);
   if (status != SANE_STATUS_GOOD)
     return status;
-  
+
   status = send_binary_g_table(s, s->val[OPT_GAMMA_VECTOR_B].wa, 0x13);
 
   return status;
@@ -3265,7 +3265,7 @@ send_gamma_tables (SHARP_Scanner *s)
     {
       return send_binary_gamma_tables(s);
     }
-  
+
 }
 #endif
 
@@ -3276,19 +3276,19 @@ send_threshold_data(SHARP_Scanner *s)
   SANE_Status status;
   SANE_Byte cmd[26] = {SEND, 0, 0x82, 0, 0, 0, 0, 0, 0, 0};
   int len;
-  
+
   memset(cmd, 0, sizeof(cmd));
-  /* maximum string length: 3 bytes for each number (they are 
+  /* maximum string length: 3 bytes for each number (they are
      restricted to the range 0..255), 3 '/' and the null-byte,
      total: 16 bytes.
   */
-  len = sprintf((char *) &cmd[10], "%i/%i/%i/%i", 
+  len = sprintf((char *) &cmd[10], "%i/%i/%i/%i",
                 s->val[OPT_THRESHOLD_R].w,
                 s->val[OPT_THRESHOLD_G].w,
                 s->val[OPT_THRESHOLD_B].w,
                 s->val[OPT_THRESHOLD].w);
   cmd[8] = len;
-  
+
   wait_ready(s->fd);
   status = sanei_scsi_cmd(s->fd, cmd, len + 10, 0, 0);
   return status;
@@ -3315,7 +3315,7 @@ sane_start (SANE_Handle handle)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  s->dev->sensedat.complain_on_errors 
+  s->dev->sensedat.complain_on_errors
     = COMPLAIN_ON_ADF_ERROR | s->dev->info.complain_on_errors;
 
 #ifdef HAVE_SANEI_SCSI_OPEN_EXTENDED
@@ -3324,11 +3324,11 @@ sane_start (SANE_Handle handle)
     s->dev->info.bufsize = 32 * 1024;
   {
     int bsize = s->dev->info.bufsize;
-    status = sanei_scsi_open_extended (s->dev->sane.name, &s->fd, 
+    status = sanei_scsi_open_extended (s->dev->sane.name, &s->fd,
               &sense_handler, &s->dev->sensedat, &bsize);
     s->dev->info.bufsize = bsize;
   }
-  
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "open of %s failed: %s\n",
@@ -3337,10 +3337,10 @@ sane_start (SANE_Handle handle)
     }
 
   /* make sure that we got at least 32 kB. Even then, the scan will be
-     awfully slow. 
-     
+     awfully slow.
+
      NOTE: If you need to decrease this value, remember that s->buffer
-     is used in send_ascii_gamma_tables (JX330/JX610) and in 
+     is used in send_ascii_gamma_tables (JX330/JX610) and in
      send_binary_g_table (JX250/JX350). send_ascii_gamma_tables needs 4106
      bytes, and send_binary_g_table needs 522 bytes.
   */
@@ -3351,13 +3351,13 @@ sane_start (SANE_Handle handle)
       return SANE_STATUS_NO_MEM;
     }
 #else
-  status = sanei_scsi_open(s->dev->sane.name, &s->fd, &sense_handler, 
+  status = sanei_scsi_open(s->dev->sane.name, &s->fd, &sense_handler,
               &s->dev->sensedat);
   if (s->dev->info.wanted_bufsize < sanei_scsi_max_request_size)
     s->dev->info.bufsize = s->dev->info.wanted_bufsize;
   else
     s->dev->info.bufsize = sanei_scsi_max_request_size;
-    
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "open of %s failed: %s\n",
@@ -3415,7 +3415,7 @@ sane_start (SANE_Handle handle)
 
   DBG (5, "start: TEST_UNIT_READY\n");
   status = test_unit_ready (s->fd);
-  
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "TEST UNIT READY failed: %s\n", sane_strstatus (status));
@@ -3462,7 +3462,7 @@ sane_start (SANE_Handle handle)
   s->uly = MM_TO_PIX(SANE_UNFIX(s->val[OPT_TL_Y].w), s->dev->info.mud);
   s->threshold = s->val[OPT_THRESHOLD].w;
   s->bpp = s->params.depth;
-  
+
   s->adf_fsu_mode = SCAN_SIMPLE; /* default: scan without ADF and FSU */
 #ifdef ALLOW_AUTO_SELECT_ADF
   if (strcmp (adf_fsu, use_auto) == 0)
@@ -3565,7 +3565,7 @@ sane_start (SANE_Handle handle)
       DBG (11, "EDGE EMPHASIS BLUR\n");
       s->edge = 3;
     }
-  
+
   s->lightcolor = 3;
   if (strcmp(lightcolor, LIGHT_GREEN) == 0)
     s->lightcolor = 0;
@@ -3592,7 +3592,7 @@ sane_start (SANE_Handle handle)
       memset (&m_subdev, 0, sizeof (m_subdev));
       buf_size = sizeof (m_subdev);
       status = mode_sense (s->fd, &m_subdev, &buf_size, 0x20);
-      DBG(11, "mode sense result a_mode: %x f_mode: %x\n", 
+      DBG(11, "mode sense result a_mode: %x f_mode: %x\n",
           m_subdev.a_mode_type, m_subdev.f_mode_type);
       if (status != SANE_STATUS_GOOD)
         {
@@ -3601,7 +3601,7 @@ sane_start (SANE_Handle handle)
           s->fd = -1;
           return (status);
         }
-      if (s->adf_fsu_mode == SCAN_WITH_ADF) 
+      if (s->adf_fsu_mode == SCAN_WITH_ADF)
         s->adf_scan = 1;
 #ifdef ALLOW_AUTO_SELECT_ADF
       else if (s->adf_fsu_mode == SCAN_ADF_FSU_AUTO)
@@ -3612,7 +3612,7 @@ sane_start (SANE_Handle handle)
 #endif
     }
 
-  
+
 #ifdef USE_CUSTOM_GAMMA
   if (s->val[OPT_CUSTOM_GAMMA].w == SANE_FALSE)
     {
@@ -3639,7 +3639,7 @@ sane_start (SANE_Handle handle)
        }
      else
        {
-         /* the JX250 does not support the "fixed gamma selection", 
+         /* the JX250 does not support the "fixed gamma selection",
             therefore, lets calculate & send gamma values
          */
          int i;
@@ -3684,7 +3684,7 @@ sane_start (SANE_Handle handle)
           s->fd = -1;
           return (status);
         }
-      
+
 #ifdef USE_COLOR_THRESHOLD
       status = send_threshold_data(s);
       if (status != SANE_STATUS_GOOD)
@@ -3696,9 +3696,9 @@ sane_start (SANE_Handle handle)
         }
 #endif
     }
-  
+
   memset (&wp, 0, sizeof (wp));
-  /* every Sharp scanner seems to have a different 
+  /* every Sharp scanner seems to have a different
      window descriptor block...
   */
   if (   s->dev->sensedat.model == JX610
@@ -3714,7 +3714,7 @@ sane_start (SANE_Handle handle)
     {
       buf_size = sizeof (WDB) + sizeof(WDBX330) + sizeof(WDBX250);
     }
-    
+
   wp.wpdh.wdl[0] = buf_size >> 8;
   wp.wpdh.wdl[1] = buf_size;
   wp.wdb.x_res[0] = s->xres >> 8;
@@ -3780,7 +3780,7 @@ sane_start (SANE_Handle handle)
   DBG (5, "bpp=%d\n", wp.wdb.bpp);
   DBG (5, "rif_padding=%d\n", wp.wdb.rif_padding);
   DBG (5, "eletu=%d\n", wp.wdb.eletu);
-  
+
 #if 0
   {
     unsigned char *p = (unsigned char*) &wp.wdb;
@@ -3890,7 +3890,7 @@ sane_start (SANE_Handle handle)
 #ifdef USE_FORK
   {
     size_t i;
-    for (i = 0; i < s->dev->info.buffers; i++) 
+    for (i = 0; i < s->dev->info.buffers; i++)
       s->rdr_ctl->buf_ctl[i].shm_status = SHM_EMPTY;
     s->read_buff = 0;
     s->rdr_ctl->cancel = 0;
@@ -3906,7 +3906,7 @@ sane_start (SANE_Handle handle)
               s->reader_pid);
           }
 #endif
-  if (s->reader_pid == 0) 
+  if (s->reader_pid == 0)
     {
       sigset_t ignore_set;
       struct SIGACTION act;
@@ -3927,9 +3927,9 @@ sane_start (SANE_Handle handle)
       do_cancel(s);
       return SANE_STATUS_NO_MEM;
     }
-   
+
 #endif /* USE_FORK */
-  
+
 
   DBG (1, "%d pixels per line, %d bytes, %d lines high, total %lu bytes, "
        "dpi=%d\n", s->params.pixels_per_line, s->params.bytes_per_line,
@@ -3939,7 +3939,7 @@ sane_start (SANE_Handle handle)
   s->buf_used = 0;
   s->buf_pos = 0;
 
-  if (s->cancel == SANE_TRUE) 
+  if (s->cancel == SANE_TRUE)
     {
       do_cancel(s);
       DBG (10, ">>\n");
@@ -4008,14 +4008,14 @@ sane_read_shuffled (SANE_Handle handle, SANE_Byte *dst_buf, SANE_Int max_len,
   DBG (10, "<< sane_read_shuffled ");
 
   *len = 0;
-  if (s->bytes_to_read == 0 && s->buf_pos == s->buf_used) 
+  if (s->bytes_to_read == 0 && s->buf_pos == s->buf_used)
     {
       do_cancel (s);
       DBG (10, ">>\n");
       return (SANE_STATUS_EOF);
     }
-    
-  if (!s->scanning) 
+
+  if (!s->scanning)
     {
       DBG (10, ">>\n");
       return(do_cancel(s));
@@ -4026,14 +4026,14 @@ sane_read_shuffled (SANE_Handle handle, SANE_Byte *dst_buf, SANE_Int max_len,
       transfer = s->buf_used - s->buf_pos;
       if (transfer > max_len)
         transfer = max_len;
-      
+
       memcpy(dst_buf, &(s->buffer[s->buf_pos]), transfer);
       s->buf_pos += transfer;
       max_len -= transfer;
       *len = transfer;
     }
 
-  while (max_len > 0 && s->bytes_to_read > 0) 
+  while (max_len > 0 && s->bytes_to_read > 0)
     {
       if (eight_bit_data)
         {
@@ -4060,7 +4060,7 @@ sane_read_shuffled (SANE_Handle handle, SANE_Byte *dst_buf, SANE_Int max_len,
           start_input = s->dev->info.bufsize - nread;
         }
       ntest = nread;
-      
+
 #ifdef USE_FORK
       status = read_data (s, &(s->buffer[start_input]), &nread);
 #else
@@ -4073,8 +4073,8 @@ sane_read_shuffled (SANE_Handle handle, SANE_Byte *dst_buf, SANE_Int max_len,
           DBG (10, ">>\n");
           return (SANE_STATUS_IO_ERROR);
         }
-      
-      if (nread != ntest) 
+
+      if (nread != ntest)
         {
           /* if this happens, something is wrong in the input buffer
              management...
@@ -4082,8 +4082,8 @@ sane_read_shuffled (SANE_Handle handle, SANE_Byte *dst_buf, SANE_Int max_len,
           DBG(1, "Warning: could not read an integral number of scan lines\n");
           DBG(1, "         image will be scrambled\n");
         }
-      
-      
+
+
       s->buf_used = max_line * s->params.bytes_per_line;
       s->buf_pos = 0;
       s->bytes_to_read -= nread;
@@ -4125,12 +4125,12 @@ sane_read_shuffled (SANE_Handle handle, SANE_Byte *dst_buf, SANE_Int max_len,
                   }
               }
           }
-      
+
       transfer = max_len;
       if (transfer > s->buf_used)
         transfer = s->buf_used;
       memcpy(&(dst_buf[*len]), s->buffer, transfer);
-      
+
       max_len -= transfer;
       s->buf_pos += transfer;
       *len += transfer;
@@ -4150,13 +4150,13 @@ sane_read (SANE_Handle handle, SANE_Byte *dst_buf, SANE_Int max_len,
   SANE_Status status;
 
   s->busy = SANE_TRUE;
-  if (s->cancel == SANE_TRUE) 
+  if (s->cancel == SANE_TRUE)
     {
       do_cancel(s);
       *len = 0;
       return (SANE_STATUS_CANCELLED);
     }
-  
+
   /* RGB scans with a JX 250 and bi-level color scans
      must be handled differently: */
   if (s->image_composition <= 2)
@@ -4167,7 +4167,7 @@ sane_read (SANE_Handle handle, SANE_Byte *dst_buf, SANE_Int max_len,
     status = sane_read_direct(handle, dst_buf, max_len, len);
   else
     status = sane_read_shuffled(handle, dst_buf, max_len, len, 1);
-  
+
   s->busy = SANE_FALSE;
   if (s->cancel == SANE_TRUE)
     {
@@ -4192,7 +4192,7 @@ sane_cancel (SANE_Handle handle)
 }
 
 SANE_Status
-sane_set_io_mode (SANE_Handle __sane_unused__ handle, 
+sane_set_io_mode (SANE_Handle __sane_unused__ handle,
 		  SANE_Bool __sane_unused__ non_blocking)
 {
   DBG (10, "<< sane_set_io_mode");
@@ -4202,7 +4202,7 @@ sane_set_io_mode (SANE_Handle __sane_unused__ handle,
 }
 
 SANE_Status
-sane_get_select_fd (SANE_Handle __sane_unused__ handle, 
+sane_get_select_fd (SANE_Handle __sane_unused__ handle,
 		    SANE_Int __sane_unused__ * fd)
 {
   DBG (10, "<< sane_get_select_fd");

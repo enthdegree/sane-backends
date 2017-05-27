@@ -37,7 +37,7 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 
    This file implements an interface for the Mustek PP chipset A4S2 */
 
@@ -48,7 +48,7 @@
    3 - things nice to know
    4 - code flow
    5 - detailed flow
-   6 - everything 
+   6 - everything
 
    These debug levels can be set using the environment variable
    SANE_DEBUG_SANEI_PA4S2 */
@@ -333,7 +333,7 @@ pa4s2_init (SANE_Status *status)
     }
 
   DBG (3, "pa4s2_init: %d ports reported by IEEE 1284 library\n", pplist.portc);
-  
+
   for (n=0; n<pplist.portc; n++)
     DBG (6, "pa4s2_init: port %d is `%s`\n", n, pplist.portv[n]->name);
 
@@ -388,7 +388,7 @@ pa4s2_open (const char *dev, SANE_Status * status)
 #if !defined (HAVE_LIBIEEE1284)
   u_long base;
 #endif
-  
+
   DBG (4, "pa4s2_open: trying to attach dev `%s`\n", dev);
 
   if ((result = pa4s2_init(status)) != 0)
@@ -397,7 +397,7 @@ pa4s2_open (const char *dev, SANE_Status * status)
       DBG (1, "pa4s2_open: failed to initialize\n");
       return result;
     }
-  
+
 #if !defined (HAVE_LIBIEEE1284)
 
   {
@@ -526,7 +526,7 @@ pa4s2_open (const char *dev, SANE_Status * status)
   if (ioperm (port[n].base, 5, 1))
     {
 
-      DBG (1, "pa4s2_open: cannot get io privilege for port 0x%03lx\n", 
+      DBG (1, "pa4s2_open: cannot get io privilege for port 0x%03lx\n",
       		port[n].base);
 
 
@@ -715,7 +715,7 @@ pa4s2_readbyte_nib (int fd)
 {
 
   u_char val;
-  
+
   outbyte2 (fd, 0x05);
   val = inbyte1(fd);
   val >>= 4;
@@ -891,7 +891,7 @@ pa4s2_close (int fd, SANE_Status * status)
     {
 
 #if defined(HAVE_LIBIEEE1284)
-      DBG (1, "pa4s2_close: can't free port '%s' (%s)\n", 
+      DBG (1, "pa4s2_close: can't free port '%s' (%s)\n",
       		pplist.portv[fd]->name, pa4s2_libieee1284_errorstr(result));
 #else
       DBG (1, "pa4s2_close: can't free port 0x%03lx\n", port[fd].base);
@@ -1034,7 +1034,7 @@ sanei_pa4s2_scsi_pp_get_status(int fd, u_char *status)
 /*
  * SCSI-over-parallel scanners need this done when a register is
  * selected
- */ 
+ */
 SANE_Status
 sanei_pa4s2_scsi_pp_reg_select (int fd, int reg)
 {
@@ -1430,7 +1430,7 @@ sanei_pa4s2_enable (int fd, int enable)
       /* io-permissions are not inherited after fork (at least not on
          linux 2.2, although they seem to be inherited on linux 2.4),
          so we should make sure we get the permission */
-      
+
       if (ioperm (port[fd].base, 5, 1))
       {
           DBG (1, "sanei_pa4s2_enable: cannot get io privilege for port"
@@ -1457,7 +1457,7 @@ sanei_pa4s2_enable (int fd, int enable)
     {
 
 #if defined(HAVE_LIBIEEE1284)
-      DBG (4, "sanei_pa4s2_enable: disable port '%s'\n", 
+      DBG (4, "sanei_pa4s2_enable: disable port '%s'\n",
       		pplist.portv[fd]->name);
 #else
       DBG (4, "sanei_pa4s2_enable: disable port 0x%03lx\n", port[fd].base);

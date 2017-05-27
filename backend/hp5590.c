@@ -219,7 +219,7 @@ calc_image_params (struct hp5590_scanner *scanner,
 
   return SANE_STATUS_GOOD;
 }
-    
+
 /******************************************************************************/
 static SANE_Status
 attach_usb_device (SANE_String_Const devname,
@@ -328,9 +328,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize
 {
   SANE_Status 	ret;
   SANE_Word	vendor_id, product_id;
-  
+
   DBG_INIT();
-  
+
   DBG (1, "SANE backed for HP ScanJet 4500C/4570C/5500C/5550C/5590/7650 %u.%u.%u\n",
        SANE_CURRENT_MAJOR, V_MINOR, BUILD);
   DBG (1, "(c) Ilia Sotnikov <hostcc@gmail.com>\n");
@@ -456,7 +456,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   ptr->br_x = ptr->info->max_size_x;
   ptr->br_y = ptr->info->max_size_y;
   ptr->dpi = res_list[1];
-  ptr->depth = DEPTH_BW; 
+  ptr->depth = DEPTH_BW;
   ptr->source = SOURCE_FLATBED;
   ptr->extend_lamp_timeout = SANE_FALSE;
   ptr->wait_for_button = SANE_FALSE;
@@ -653,13 +653,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
                      SANE_Int * info)
 {
   struct hp5590_scanner	*scanner = handle;
-  
+
   if (!value)
     return SANE_STATUS_INVAL;
 
   if (!handle)
     return SANE_STATUS_INVAL;
- 
+
   if (option >= HP5590_OPT_LAST)
     return SANE_STATUS_INVAL;
 
@@ -671,10 +671,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  *((SANE_Int *) value) = HP5590_OPT_LAST;
 	  return SANE_STATUS_GOOD;
 	}
- 
+
       if (!scanner->opts)
 	return SANE_STATUS_INVAL;
-      
+
       DBG (DBG_proc, "%s: get option '%s' value\n", __func__, scanner->opts[option].name);
 
       if (option == HP5590_OPT_BR_X)
@@ -770,7 +770,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  *(SANE_Bool *) value = scanner->preview;
 	}
     }
- 
+
   if (action == SANE_ACTION_SET_VALUE)
     {
       if (option == HP5590_OPT_NUM)
@@ -914,7 +914,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  scanner->preview = *(SANE_Bool *) value;
 	}
     }
-   
+
   return SANE_STATUS_GOOD;
 }
 
@@ -968,7 +968,7 @@ SANE_Status sane_get_parameters (SANE_Handle handle,
       return SANE_STATUS_INVAL;
   }
 
-  
+
   DBG (DBG_proc, "format: %u, last_frame: %u, bytes_per_line: %u, "
        "pixels_per_line: %u, lines: %u, depth: %u\n",
        params->format, params->last_frame,
@@ -1031,7 +1031,7 @@ sane_start (SANE_Handle handle)
 	}
     }
 
-  DBG (DBG_verbose, "Init scanner\n");  
+  DBG (DBG_verbose, "Init scanner\n");
   ret = hp5590_init_scanner (scanner->dn, scanner->proto_flags,
   			     NULL, SCANNER_NONE);
   if (ret != SANE_STATUS_GOOD)
@@ -1047,7 +1047,7 @@ sane_start (SANE_Handle handle)
 					 scanner->extend_lamp_timeout);
   if (ret != SANE_STATUS_GOOD)
     return ret;
- 
+
   ret = hp5590_set_scan_params (scanner->dn,
   				scanner->proto_flags,
   				scanner->info,
@@ -1106,7 +1106,7 @@ sane_start (SANE_Handle handle)
 	   "(images size: %u, bytes per line: %u)\n",
 	   scanner->image_size, bytes_per_line);
     }
- 
+
   DBG (DBG_verbose, "Final image size: %u\n", scanner->image_size);
 
   DBG (DBG_verbose, "Reverse calibration maps\n");
@@ -1201,8 +1201,8 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
 
   lines = size / bytes_per_line;
   bytes_per_color = bytes_per_line / 3;
-  
-  DBG (DBG_verbose, "Length : %u\n", size); 
+
+  DBG (DBG_verbose, "Length : %u\n", size);
 
   DBG (DBG_verbose, "Converting row RGB to normal RGB\n");
 
@@ -1242,7 +1242,7 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
 	      buf[i*6+5] = ptr[2*i+bytes_per_color*2];
 	    }
 	}
-      
+
       /* Invert pixels in case of TMA Negatives source has been selected */
       if (scanner->source == SOURCE_TMA_NEGATIVES)
         {
@@ -1358,7 +1358,7 @@ sane_cancel (SANE_Handle handle)
   scanner->scanning = SANE_FALSE;
 
   if (scanner->dn < 0)
-   return; 
+   return;
 
   hp5590_low_free_bulk_read_state (&scanner->bulk_read_state);
 

@@ -311,7 +311,7 @@ static void dacP98CheckLastGain( pScanData ps )
 		    if (b[w] < *p.pb)
 				b[w] = *p.pb;
 		}
-	
+
 		if (b[w] > _GAIN_P98_HIGH) {
 		    *(pbReg [w]) -= 1;
 		}
@@ -643,7 +643,7 @@ static void dacP98WriteBackToShadingRAM( pScanData ps )
 		    *pBuffer = Data.wValue;
 		    pBuffer++;
 		}
-		
+
     }
 	dacP98DownloadShadingTable( ps, ps->pScanBuffer2, (5400 * 2 * 3));
 }
@@ -763,7 +763,7 @@ static void dacP98Adjust12BitShading( pScanData ps )
 		    *pt.pdw += (ULong)(*pd.pw * 94 / 100 & 0x0fff);
 
 		/* one line */
-		if (IOReadFifoLength( ps ) <= 2500)	
+		if (IOReadFifoLength( ps ) <= 2500)
 	    	IORegisterDirectToScanner( ps, ps->RegRefreshScanState );
     }
 
@@ -782,7 +782,7 @@ static Bool dacP98WaitForShading( pScanData ps )
 
 	DBG( DBG_LOW, "dacP98WaitForShading()\n" );
 
-	/*	
+	/*
 	 * before getting the shading data, (re)init the ASIC
 	 */
     ps->InitialSetCurrentSpeed( ps );
@@ -1079,7 +1079,7 @@ static void dacP96ReadColorShadingLine( pScanData ps )
 		    }
 		} else
 		    b2ndDiscard--;
-	
+
 		if (!b3rdDiscard) {
 		    if (b3rdReadLines) {
 				b3rdReadLines--;
@@ -1159,7 +1159,7 @@ static void dacP96SetShadingGainProc( pScanData ps, Byte bHigh, ULong dwCh )
     ps->Asic96Reg.RD_ShadingCorrectCtrl &= bMask;
     ps->Asic96Reg.RD_ShadingCorrectCtrl |= bGain;
 
-    if (!bGain) {	
+    if (!bGain) {
 		/* GammaGain1 (ps) */
 		for (dw = ps->BufferSizePerModel; dw; dw--, pbSrce++, pbDest++)
 		    if (*pbSrce > bDark)
@@ -1334,7 +1334,7 @@ static Bool dacP96003WaitForShading( pScanData ps )
 		    dacP96SetInitialGainRAM( ps );
 
 		    /* SetInitialGainRegister () ++++++++++++++++++++++++++++++++++++*/
-		    ps->Asic96Reg.u28.RD_RedChShadingOff	= 		
+		    ps->Asic96Reg.u28.RD_RedChShadingOff	=
 			ps->Asic96Reg.u29.RD_GreenChShadingOff	=
 		    ps->Asic96Reg.RD_BlueChShadingOff		=
 		    ps->Asic96Reg.RD_RedChDarkOff		 	=
@@ -1694,7 +1694,7 @@ static Bool dacP96001WaitForShading( pScanData ps )
 		    /* AverageWideBank (pScanData) */
 		    for( dwSum = 0, dw = 0; dw < 2700; dw++ )
 				dwSum += (ULong)ps->pPrescan16[dw];
-	
+
 			dwSum /= 2700UL;
 
 		    if( dwSum <= 0x80 ) {
@@ -1860,7 +1860,7 @@ static void dacP98003AdjustRGBGain( pScanData ps )
 
     	/* PauseColorMotorRunStates () */
     	memset( ps->a_nbNewAdrPointer, 0, _SCANSTATE_BYTES );
-	    ps->a_nbNewAdrPointer[1] = 0x77;	
+	    ps->a_nbNewAdrPointer[1] = 0x77;
 
 	    IOPutOnAllRegisters( ps );
 
@@ -2312,7 +2312,7 @@ static void dacP98003AdjustDark( pScanData ps )
 
     	/* PauseColorMotorRunStates () */
     	memset( ps->a_nbNewAdrPointer, 0, _SCANSTATE_BYTES );
-	    ps->a_nbNewAdrPointer[1] = 0x77;	
+	    ps->a_nbNewAdrPointer[1] = 0x77;
 
 	    IOPutOnAllRegisters( ps );
     	_DODELAY( 70 );
@@ -2374,7 +2374,7 @@ static Bool dacP98003WaitForShading( pScanData ps )
 
 	DBG( DBG_LOW, "dacP98003WaitForShading()\n" );
 
-	/*	
+	/*
 	 * before getting the shading data, (re)init the ASIC
 	 */
 	ps->ReInitAsic( ps, _TRUE );
@@ -2501,7 +2501,7 @@ _LOC void DacP98FillShadingDarkToShadingRegister( pScanData ps )
     pValue = (pUChar)&ps->AsicReg.RD_RedDarkOff;
     for (bReg = ps->RegRedChDarkOffsetLow; bReg <= ps->RegBlueChDarkOffsetHigh;
 	 	 bReg++, pValue++) {
-		
+
 		IODataToRegister( ps, bReg, *pValue );
 	}
 }

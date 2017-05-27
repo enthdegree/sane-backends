@@ -6,11 +6,11 @@ sane\-coolscan3 \- SANE backend for Nikon Coolscan film scanners
 The
 .B sane\-coolscan3
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to Nikon Coolscan film scanners.  Some functions of this 
-backend should be considered 
+provides access to Nikon Coolscan film scanners.  Some functions of this
+backend should be considered
 .B beta-quality
-software. Most functions have been stable for a long time, but of 
-course new development can not and will not function properly from 
+software. Most functions have been stable for a long time, but of
+course new development can not and will not function properly from
 the very first day.
 
 .PP
@@ -31,27 +31,27 @@ LS-8000 ED                   IEEE 1394
 .ft R
 .RE
 
-Please send mail to sane-devel@lists.alioth.debian.org to report successes 
+Please send mail to sane-devel@lists.alioth.debian.org to report successes
 or failures.
 
 .SH OPTIONS
-The options the backend supports can either be selected through command line 
+The options the backend supports can either be selected through command line
 options to programs like scanimage or through GUI elements in xscanimage or xsane.
 
-Valid command line options and their syntax can be listed by using 
+Valid command line options and their syntax can be listed by using
 .RS
 scanimage \-\-help \-d coolscan3:<interface>:<device>
 .RE
 where <interface> and <device> specify the device in question, as in the
 configuration file (see next section). The \-d parameter and its argument
 can be omitted to obtain information on the first scanner identified. Use
-the command 
+the command
 .RS
 scanimage \-L
 .RE
 to list all devices recognized by your SANE installation.
 
-The options should be fully described by the description or tooltips given by 
+The options should be fully described by the description or tooltips given by
 frontend. Here is a description of some of the most important options, in the
 syntax with which they must be supplied to scanimage:
 .TP
@@ -69,7 +69,7 @@ unit is mm).
 .I \-\-infrared=yes/no
 If set to "yes", the scanner will read the infrared channel, thus allowing
 defect removal in software. The infrared image is read during a second scan,
-with no options altered. The backend must not be restarted between the scans. 
+with no options altered. The backend must not be restarted between the scans.
 If you use scanimage, perform a batch scan with batch\-count=2 to obtain the
 IR information.
 .TP
@@ -109,7 +109,7 @@ Eject the film strip or mounted slide when using the slide loader.
 Reset scanner. The scanner will perform the same action as when power is
 turned on: it will eject the film strip and calibrate itself. Use this
 whenever the scanner refuses to load a film strip properly, as a result of
-which 
+which
 .I \-\-eject
 does not work.
 
@@ -126,7 +126,7 @@ entries are case-sensitive:
 These lines are ignored, thus '#' can be used to include comments.
 .TP
 .I containing only the word """auto"""
-This instructs the backend to probe for a scanner by scanning the buses for 
+This instructs the backend to probe for a scanner by scanning the buses for
 devices with know identifiers. This is the action taken when no
 configuration file is present.
 .TP
@@ -178,5 +178,5 @@ No real bugs currently known, please report any to the SANE developers' list.
 
 .SH AUTHORS
 coolscan3 written by A. Zummo (a.zummo@towertech.it), based heavily on
-coolscan2 written by Andr\['a]s Major (andras@users.sourceforge.net). 
+coolscan2 written by Andr\['a]s Major (andras@users.sourceforge.net).
 

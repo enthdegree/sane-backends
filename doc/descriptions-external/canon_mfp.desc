@@ -17,8 +17,8 @@
 ;:manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://cweb.canon.jp/drv-upd/bj/other.html#linux";
 :url "http://support-asia.canon-asia.com/";
-:comment "External backend made by canon. As this software contains non-free parts, it can't be included into SANE. If you can't find your model here, please have a look at the canon website which contains the latest list." 
-:comment "Note: these backend are designed by Canon and are part of their proprietary scanning software. They may not work at all with SANE, or with SANE frontends." 
+:comment "External backend made by canon. As this software contains non-free parts, it can't be included into SANE. If you can't find your model here, please have a look at the canon website which contains the latest list."
+:comment "Note: these backend are designed by Canon and are part of their proprietary scanning software. They may not work at all with SANE, or with SANE frontends."
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....

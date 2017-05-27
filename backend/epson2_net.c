@@ -124,7 +124,7 @@ sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, ssize_t wanted,
 		if (read < 0) {
 			return 0;
 		}
-		
+
 /*	} else if (wanted < size && s->netlen == size) { */
 	} else {
 		DBG(23, "%s: partial read\n", __func__);
@@ -187,7 +187,7 @@ sanei_epson_net_write(Epson_Scanner *s, unsigned int cmd, const unsigned char *b
 	DBG(24, "H1[0]: %02x %02x %02x %02x\n", h1[0], h1[1], h1[2], h1[3]);
 
 	if((cmd >> 8) == 0x20) {
-		htobe32a(&h1[6], buf_size + 8);		
+		htobe32a(&h1[6], buf_size + 8);
 
 		htobe32a(&h2[0], buf_size);
 		htobe32a(&h2[4], reply_len);

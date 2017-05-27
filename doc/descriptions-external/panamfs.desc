@@ -16,7 +16,7 @@
                                   ; :yes or :no
 ;:manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://panasonic.net/pcc/support/fax/common/table/linuxdriver.html" ; backend's web page
-:comment "External backend made by panasonic." 
+:comment "External backend made by panasonic."
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....

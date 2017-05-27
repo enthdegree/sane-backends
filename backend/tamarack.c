@@ -23,8 +23,8 @@
    exception gives you, Please do contact me, and we'll work something
    out.
 
-   R.E.Wolff@BitWizard.nl 
-   tel: +31-152137555 
+   R.E.Wolff@BitWizard.nl
+   tel: +31-152137555
    fax: +31-152138217
 
    This file implements a SANE backend for Tamarack flatbed scanners.  */
@@ -101,7 +101,7 @@ static const SANE_Range u8_range =
 
 
 /* David used " 100 << SANE_FIXED_SCALE_SHIFT ". This assumes that
- * it is implemented that way. I want to hide the datatype. 
+ * it is implemented that way. I want to hide the datatype.
  */
 static const SANE_Range percentage_range =
   {
@@ -111,7 +111,7 @@ static const SANE_Range percentage_range =
   };
 
 /* David used " 100 << SANE_FIXED_SCALE_SHIFT ". This assumes that
- * it is implemented that way. I want to hide the datatype. 
+ * it is implemented that way. I want to hide the datatype.
  */
 static const SANE_Range abs_percentage_range =
   {
@@ -139,7 +139,7 @@ static const uint8_t stop[] =
 
 static const uint8_t get_status[] =
 {
-  TAMARACK_SCSI_GET_DATA_STATUS, 0x00, 0x00, 0x00, 0x00, 0x00, 
+  TAMARACK_SCSI_GET_DATA_STATUS, 0x00, 0x00, 0x00, 0x00, 0x00,
                                        0x00, 0x00, 0x0c, 0x00
 };
 
@@ -250,17 +250,17 @@ attach (const char *devname, Tamarack_Device **devp)
   mfg = strdup (result+8);
 
   DBG(1, "attach: Inquiry gives mfg=%s, model=%s.\n", mfg, model);
-  
+
   if (strcmp (mfg, "TAMARACK") != 0) {
     DBG(1, "attach: device doesn't look like a Tamarack scanner "
 	   "(result[0]=%#02x)\n", result[0]);
     return SANE_STATUS_INVAL;
   }
-  
+
   dev = malloc (sizeof (*dev));
   if (!dev)
     return SANE_STATUS_NO_MEM;
-  
+
   memset (dev, 0, sizeof (*dev));
 
   dev->sane.name   = strdup (devname);
@@ -333,7 +333,7 @@ scan_area_and_windows (Tamarack_Scanner *s)
 
   memset (&dwp,'\0',sizeof (dwp));
   dwp.dwph.opc = TAMARACK_SCSI_AREA_AND_WINDOWS;
-  set_triple (dwp.dwph.len,8 + sizeof (dwp.wdb)); 
+  set_triple (dwp.dwph.len,8 + sizeof (dwp.wdb));
 
   set_double (dwp.wdh.wpll, sizeof (dwp.wdb));
 
@@ -343,7 +343,7 @@ scan_area_and_windows (Tamarack_Scanner *s)
 
   set_quad (dwp.wdb.ulx, (int) (47.2 * SANE_UNFIX (s->val[OPT_TL_X].w)));
   set_quad (dwp.wdb.uly, (int) (47.2 * SANE_UNFIX (s->val[OPT_TL_Y].w)));
-  set_quad (dwp.wdb.width, 
+  set_quad (dwp.wdb.width,
      (int) (47.2 * SANE_UNFIX (s->val[OPT_BR_X].w - s->val[OPT_TL_X].w)));
   set_quad (dwp.wdb.length,
      (int) (47.2 * SANE_UNFIX (s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w)));
@@ -357,7 +357,7 @@ scan_area_and_windows (Tamarack_Scanner *s)
   case THRESHOLDED:
     dwp.wdb.bpp = 1;
     dwp.wdb.image_comp = 0;
-    dwp.wdb.thresh     = 1 + 2.55 * (SANE_UNFIX (s->val[OPT_THRESHOLD].w)); 
+    dwp.wdb.thresh     = 1 + 2.55 * (SANE_UNFIX (s->val[OPT_THRESHOLD].w));
     break;
   case DITHERED:
     dwp.wdb.bpp = 1;
@@ -375,7 +375,7 @@ scan_area_and_windows (Tamarack_Scanner *s)
     DBG(1, "Invalid mode. %d\n", s->mode);
     return SANE_STATUS_INVAL;
   }
-  DBG(1, "bright, thresh, contrast = %d(%5.1f), %d, %d(%5.1f)\n", 
+  DBG(1, "bright, thresh, contrast = %d(%5.1f), %d, %d(%5.1f)\n",
       dwp.wdb.brightness, SANE_UNFIX (s->val[OPT_BRIGHTNESS].w),
       dwp.wdb.thresh    ,
       dwp.wdb.contrast  , SANE_UNFIX (s->val[OPT_CONTRAST].w));
@@ -399,7 +399,7 @@ mode_select (Tamarack_Scanner *s)
     struct tamarack_page page;
   } c;
 
-  memset (&c, '\0', sizeof (c));  
+  memset (&c, '\0', sizeof (c));
   c.cmd.opc = TAMARACK_SCSI_MODE_SELECT;
   c.cmd.pad0[0] = 0x10;    /* Suddenly the pad bytes are no long pad... */
   c.cmd.pad0[1] = 0;
@@ -412,7 +412,7 @@ mode_select (Tamarack_Scanner *s)
   case THRESHOLDED:
   case DITHERED:
   case GREYSCALE:
-    c.page.masks = 0x80;   
+    c.page.masks = 0x80;
     break;
   case TRUECOLOR:
     c.page.masks = 0x40 >> s->pass;
@@ -431,7 +431,7 @@ start_scan (Tamarack_Scanner *s)
     struct command_header cmd;
     unsigned char winid[1];
   } c;
-  
+
   memset (&c,'\0',sizeof (c));
   c.cmd.opc = TAMARACK_SCSI_START_STOP;
   c.cmd.len = sizeof (c.winid);
@@ -442,9 +442,9 @@ start_scan (Tamarack_Scanner *s)
 
 static SANE_Status
 stop_scan (Tamarack_Scanner *s)
-{ 
+{
   /* XXX I don't think a TAMARACK can stop in mid-scan. Just stop
-     sending it requests for data.... 
+     sending it requests for data....
    */
   return sanei_scsi_cmd (s->fd, stop, sizeof (stop), 0, 0);
 }
@@ -526,10 +526,10 @@ get_image_status (Tamarack_Scanner *s)
 			   result, &len);
   if ((status != SANE_STATUS_GOOD) && (status != SANE_STATUS_DEVICE_BUSY))
     return status;
-  
-  s->params.bytes_per_line = 
+
+  s->params.bytes_per_line =
     result[ 8] | (result[ 7] << 8) | (result[6] << 16);
-  s->params.lines = 
+  s->params.lines =
     result[11] | (result[10] << 8) | (result[9] << 16);
 
   switch (s->mode) {
@@ -855,7 +855,7 @@ reader_process (void *scanner)
   if (!lines_per_buffer)
     return 2;			/* resolution is too high */
 
-  /* Limit the size of a single transfer to one inch. 
+  /* Limit the size of a single transfer to one inch.
      XXX Add a stripsize option. */
   if (lines_per_buffer > SANE_UNFIX (s->val[OPT_RESOLUTION].w))
       lines_per_buffer = SANE_UNFIX (s->val[OPT_RESOLUTION].w);
@@ -877,14 +877,14 @@ reader_process (void *scanner)
       return 3;
     }
     DBG(3, "reader_process: read %d lines\n", lines_per_buffer);
-    
+
     if ((s->mode == TRUECOLOR) || (s->mode == GREYSCALE)) {
       fwrite (data, lines_per_buffer, bpl, fp);
     } else {
       /* in singlebit mode, the scanner returns 1 for black. ;-( --DM */
       /* Hah! Same for Tamarack... -- REW */
       int i;
-      
+
       for (i = 0; i < lines_per_buffer * bpl; ++i)
 	fputc (~data[i], fp);
     }
@@ -929,10 +929,10 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
     if (dev_name[0] == '#')		/* ignore line comments */
       continue;
     len = strlen (dev_name);
-    
+
     if (!len)
       continue;			/* ignore empty lines */
-    
+
     sanei_config_attach_matching_devices (dev_name, attach_one);
   }
   fclose (fp);
@@ -951,7 +951,7 @@ sane_exit (void)
     free ((void *) dev->sane.model);
     free (dev);
   }
-  
+
   if (devlist)
     free (devlist);
 }
@@ -1063,7 +1063,7 @@ const SANE_Option_Descriptor *
 sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
   Tamarack_Scanner *s = handle;
-  
+
   if ((unsigned) option >= NUM_OPTIONS)
     return 0;
   return s->opt + option;
@@ -1151,7 +1151,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     status = constrain_value (s, option, val, info);
     if (status != SANE_STATUS_GOOD)
       return status;
-    
+
     switch (option)
       {
 	/* (mostly) side-effect-free word options: */
@@ -1235,7 +1235,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 #endif
 
 
-	  if (strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0) 
+	  if (strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	    s->opt[OPT_THRESHOLD].cap  &= ~SANE_CAP_INACTIVE;
 	  else {
 	    s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
@@ -1271,10 +1271,10 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
 
   if (!s->scanning) {
     double width, height, dpi;
-    
+
 
     memset (&s->params, 0, sizeof (s->params));
-    
+
     width  = SANE_UNFIX (s->val[OPT_BR_X].w - s->val[OPT_TL_X].w);
     height = SANE_UNFIX (s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w);
     dpi    = SANE_UNFIX (s->val[OPT_RESOLUTION].w);
@@ -1284,7 +1284,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
        scanning starts.  */
     if (dpi > 0.0 && width > 0.0 && height > 0.0) {
       double dots_per_mm = dpi / MM_PER_INCH;
-      
+
       s->params.pixels_per_line = width * dots_per_mm;
       s->params.lines = height * dots_per_mm;
     }
@@ -1308,14 +1308,14 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
   }
 
   s->params.last_frame =  (s->mode != TRUECOLOR) || (s->pass == 2);
-  
+
   if (params)
     *params = s->params;
 
   DBG(1, "Got parameters: format:%d, ppl: %d, bpl:%d, depth:%d, "
-	   "last %d pass %d\n", 
-	   s->params.format, s->params.pixels_per_line, 
-	   s->params.bytes_per_line, s->params.depth, 
+	   "last %d pass %d\n",
+	   s->params.format, s->params.pixels_per_line,
+	   s->params.bytes_per_line, s->params.depth,
 	   s->params.last_frame, s->pass);
   return SANE_STATUS_GOOD;
 }
@@ -1349,7 +1349,7 @@ sane_start (SANE_Handle handle)
 	  s->params.last_frame = SANE_TRUE;
 	}
       }
-    
+
     status = sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, 0);
     if (status != SANE_STATUS_GOOD) {
       DBG(1, "open: open of %s failed: %s\n",
@@ -1374,7 +1374,7 @@ sane_start (SANE_Handle handle)
   status = mode_select (s);
   if (status != SANE_STATUS_GOOD)
     goto stop_scanner_and_return;
-    
+
   s->scanning = SANE_TRUE;
 
   status = start_scan (s);
@@ -1417,7 +1417,7 @@ sane_read (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len, SANE_Int *len)
 
   if (!s->scanning)
     return do_cancel (s);
-  
+
   if (nread < 0) {
     if (errno == EAGAIN) {
       return SANE_STATUS_GOOD;

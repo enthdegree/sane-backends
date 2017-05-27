@@ -47,7 +47,7 @@
    If you do not wish that, delete this exception notice.
 
    Transport layer for communication with HP5400/5470 scanner.
-   
+
    Add support for bulk transport of data - 19/02/2003 Martijn
 */
 

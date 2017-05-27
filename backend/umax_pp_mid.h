@@ -87,7 +87,7 @@ extern int sanei_umax_pp_attach (int port, char *name);
 extern int sanei_umax_pp_model (int port, int *model);
 
 
-/* 
+/*
 if on=1 -> lights scanner lamp
 if on=0 -> lights off scanner lamp
 
@@ -116,7 +116,7 @@ extern int sanei_umax_pp_open (int port, char *name);
 
 
 
-/* 
+/*
 	release any ressource acquired during open
 	since there may be only one scanner, no port parameter
 */
@@ -145,9 +145,9 @@ extern int sanei_umax_pp_cancel (void);
 	gain value is 256*red_gain+16*green_gain+blue_gain
 	if gain is given (ie <> 0), auto gain will not be performed
 
-	
 
-   returns UMAX1220P_OK on success, or one of the error above 
+
+   returns UMAX1220P_OK on success, or one of the error above
    if successful, rbpp holds bytes/pixel, rth the height and rtw
    the width of scanned area expressed in pixels
 */
@@ -159,7 +159,7 @@ extern int sanei_umax_pp_start (int x, int y, int width, int height, int dpi,
 /* reads one block of data from scanner
 	returns UMAX1220P_OK on success, or UMAX1220P_READ_FAILED on error
 	it also sets internal cancel flag on error
-	
+
 	len if the length of the block needed
 	window if the width in pixels of the scanned area
 	dpi is the resolution, it is used to choose the best read method

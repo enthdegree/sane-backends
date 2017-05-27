@@ -12,7 +12,7 @@ sanei_usb interface. However, there is one exceptions: USB Scanners
 supported by the microtek2 backend need a special USB kernel
 driver, see
 .BR sane\-microtek2 (5)
-for details. 
+for details.
 
 .SH "QUICK START"
 This is a short HOWTO-like section. For the full details, read the following
@@ -71,11 +71,11 @@ Usually udev or for older distributions the hotplug utilities are used, which
 support dynamic setting of access permissions. SANE comes with udev and hotplug
 scripts in the directory tools/udev and tools/hotplug. They can be used for
 setting permissions, see @DOCDIR@/README.linux, tools/README and the README in
-the tools/hotplug directory for more details. 
+the tools/hotplug directory for more details.
 .PP
 For the
 .BR BSDs ,
-the device files used by libusb are named 
+the device files used by libusb are named
 .IR /dev/ugen* .
 Use chmod to apply appropriate permissions.
 
@@ -114,7 +114,7 @@ usb 0x055f 0x0006
 .PP
 would have the effect that all USB devices in the system with a vendor id of
 0x55f and a product id of 0x0006 would be probed and recognized by the
-backend. 
+backend.
 .PP
 If your scanner is not detected automatically, it may be necessary to edit the
 appropriate backend configuration file before using SANE for the first time.

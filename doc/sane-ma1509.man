@@ -13,7 +13,7 @@ also work.
 This backend is ALPHA software.  Be careful and remove the power plug
 immediately if your hear unusual noises.
 .PP
-More details can be found on the ma1509 backend homepage 
+More details can be found on the ma1509 backend homepage
 .IR http://www.meier\-geinitz.de/sane/ma1509\-backend/ .
 .PP
 Other Mustek USB scanners are supported by the gt68xx, mustek_usb and the
@@ -25,7 +25,7 @@ and
 for details.
 .PP
 This backend can only work with scanners that are already detected by the
-operating system. See 
+operating system. See
 .BR sane\-usb (5)
 for details.
 .PP
@@ -59,20 +59,20 @@ file is a list of options and device names that correspond to Mustek BearPaw
 1200F scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored.
 .PP
-Instead of using the device name, the scanner can be autodetected by 
+Instead of using the device name, the scanner can be autodetected by
 .B "usb vendor_id product_id"
 statements which are already included into
 .IR ma1509.conf .
 This is only supported with Linux 2.4.8 and higher and all systems that
 support libsub. "vendor_id" and "product_id" are hexadecimal numbers that
 identify the scanner. If this doesn't work, a device name must be placed in
-.I ma1509.conf 
+.I ma1509.conf
 as described above.
 .PP
 To set the time the lamp needs for warm-up, use
 .B option
 .B warmup-time
-in 
+in
 .IR ma1509.conf .
 The time is given in seconds after the option. The default is 30 seconds.
 .SH FILES
@@ -107,7 +107,7 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .B SANE_DEBUG_MA1509
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  Higher
-debug levels increase the verbosity of the output. 
+debug levels increase the verbosity of the output.
 
 .SH "SEE ALSO"
 .BR sane (7),

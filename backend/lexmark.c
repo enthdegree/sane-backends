@@ -4,7 +4,7 @@
    (C) 2005 Fred Odendaal
    (C) 2006-2013 Stéphane Voltz <stef.dev@free.fr>
    (C) 2010 "Torsten Houwaart" <ToHo@gmx.de> X74 support
-   
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -625,7 +625,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
  * Open the backend, ie return the struct handle of a detected scanner
  * The struct returned is choosne if it matches the name given, which is
  * usefull when several scanners handled by the backend have been detected.
- * However, special case empty string "" and "lexmark" pick the first 
+ * However, special case empty string "" and "lexmark" pick the first
  * available handle.
  */
 SANE_Status
@@ -1144,7 +1144,7 @@ sane_start (SANE_Handle handle)
   lexmark_device->eof = SANE_FALSE;
 
 
-  /* Need this cancel_ctr to determine how many times sane_cancel is called 
+  /* Need this cancel_ctr to determine how many times sane_cancel is called
      since it is called more than once. */
   lexmark_device->cancel_ctr = 0;
 
@@ -1180,15 +1180,15 @@ sane_start (SANE_Handle handle)
       return status;
     }
 
-  /* At this point we're somewhere in the dot. We need to read a number of 
-     lines greater than the diameter of the dot and determine how many lines 
-     past the dot we've gone. We then use this information to see how far the 
+  /* At this point we're somewhere in the dot. We need to read a number of
+     lines greater than the diameter of the dot and determine how many lines
+     past the dot we've gone. We then use this information to see how far the
      scan head must move before starting the scan. */
   /* offset is in 600 dpi unit */
   offset = sanei_lexmark_low_find_start_line (lexmark_device);
   DBG (7, "start line offset=%d\n", offset);
 
-  /* Set the shadow registers for scan with the options (resolution, mode, 
+  /* Set the shadow registers for scan with the options (resolution, mode,
      size) set in the front end. Pass the offset so we can get the vert.
      start. */
   sanei_lexmark_low_set_scan_regs (lexmark_device,

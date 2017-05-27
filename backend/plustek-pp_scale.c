@@ -101,7 +101,7 @@ _LOC void ScaleX( pScanData ps, pUChar inBuf, pUChar outBuf )
 	ddax = 0;
 	x    = 0;
 	if( 0 == step ) {
-	
+
 		/* binary scaling
 		 */
 		memset( outBuf, 0, ps->DataInf.dwAppBytesPerLine );
@@ -134,7 +134,7 @@ _LOC void ScaleX( pScanData ps, pUChar inBuf, pUChar outBuf )
 			while( ddax < 0 ) {
 
 				for( j = 0; j < (ULong)step; j++ ) {
-        	
+
 					if((x+j) < ps->DataInf.dwAppBytesPerLine ) {
 						outBuf[x+j] = inBuf[i+j];
 					}

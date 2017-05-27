@@ -253,7 +253,7 @@ static const SANE_Device **devlist = 0;
 
 /**
  * Called by SANE initially.
- * 
+ *
  * From the SANE spec:
  * This function must be called before any other SANE function can be
  * called. The behavior of a SANE backend is undefined if this
@@ -287,7 +287,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 /**
  * Called by SANE to find out about supported devices.
- * 
+ *
  * From the SANE spec:
  * This function can be used to query the list of devices that are
  * available. If the function executes successfully, it stores a
@@ -300,7 +300,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
  * returned (devices directly attached to the machine that SANE is
  * running on). If it is false, the device list includes all remote
  * devices that are accessible to the SANE library.
- * 
+ *
  * SANE does not require that this function is called before a
  * sane_open() call is performed. A device name may be specified
  * explicitly by a user which would make it unnecessary and
@@ -452,7 +452,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
 /**
  * Gets or sets an option value.
- * 
+ *
  * From the SANE spec:
  * This function is used to set or inquire the current value of option
  * number n of the device represented by handle h. The manner in which
@@ -463,7 +463,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
  * area pointed to by v must be big enough to hold the entire option
  * value (determined by member size in the corresponding option
  * descriptor).
- * 
+ *
  * The only exception to this rule is that when setting the value of a
  * string option, the string pointed to by argument v may be shorter
  * since the backend will stop reading the option value upon
@@ -751,7 +751,7 @@ sane_start (SANE_Handle handle)
  * completion of that request. Outside of that window, the returned
  * values are best-effort estimates of what the parameters will be
  * when sane_start() gets invoked.
- * 
+ *
  * Calling this function before a scan has actually started allows,
  * for example, to get an estimate of how big the scanned image will
  * be. The parameters passed to this function are the handle h of the
@@ -788,12 +788,12 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
 /**
  * Called by SANE to read data.
- * 
+ *
  * In this implementation, sane_read does nothing much besides reading
  * data from a pipe and handing it back. On the other end of the pipe
  * there's the reader process which gets data from the scanner and
  * stuffs it into the pipe.
- * 
+ *
  * From the SANE spec:
  * This function is used to read image data from the device
  * represented by handle h.  Argument buf is a pointer to a memory
@@ -801,7 +801,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
  * returned is stored in *len. A backend must set this to zero when
  * the call fails (i.e., when a status other than SANE_STATUS_GOOD is
  * returned).
- * 
+ *
  * When the call succeeds, the number of bytes returned can be
  * anywhere in the range from 0 to maxlen bytes.
  */
@@ -846,26 +846,26 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 
 
 /**
- * Cancels a scan. 
+ * Cancels a scan.
  *
  * It has been said on the mailing list that sane_cancel is a bit of a
  * misnomer because it is routinely called to signal the end of a
  * batch - quoting David Mosberger-Tang:
- * 
+ *
  * > In other words, the idea is to have sane_start() be called, and
  * > collect as many images as the frontend wants (which could in turn
  * > consist of multiple frames each as indicated by frame-type) and
- * > when the frontend is done, it should call sane_cancel(). 
+ * > when the frontend is done, it should call sane_cancel().
  * > Sometimes it's better to think of sane_cancel() as "sane_stop()"
  * > but that name would have had some misleading connotations as
  * > well, that's why we stuck with "cancel".
- * 
+ *
  * The current consensus regarding duplex and ADF scans seems to be
  * the following call sequence: sane_start; sane_read (repeat until
  * EOF); sane_start; sane_read...  and then call sane_cancel if the
  * batch is at an end. I.e. do not call sane_cancel during the run but
  * as soon as you get a SANE_STATUS_NO_DOCS.
- * 
+ *
  * From the SANE spec:
  * This function is used to immediately or as quickly as possible
  * cancel the currently pending operation of the device represented by
@@ -892,7 +892,7 @@ sane_cancel (SANE_Handle h)
 
 /**
  * Ends use of the scanner.
- * 
+ *
  * From the SANE spec:
  * This function terminates the association between the device handle
  * passed in argument h and the device it represents. If the device is
@@ -910,7 +910,7 @@ sane_close (SANE_Handle handle)
 
 /**
  * Terminates the backend.
- * 
+ *
  * From the SANE spec:
  * This function must be called to terminate use of a backend. The
  * function will first close all device handles that still might be
@@ -1149,7 +1149,7 @@ calculateDerivedValues (struct hp3500_data *scanner)
 
   DBG (12, "calculateDerivedValues\n");
 
-  /* Convert the SANE_FIXED values for the scan area into 1/1200 inch 
+  /* Convert the SANE_FIXED values for the scan area into 1/1200 inch
    * scanner units */
 
   scanner->fullres_pixels.left =
@@ -3139,7 +3139,7 @@ rts8801_fullscan (unsigned x,
 	      tg_setting = resparms[rmres].tg;
 	      rt_set_ccd_shift_clock_multiplier (regs, tg_info[tg_setting].tg_cph0p);
 	      rt_set_ccd_clock_reset_interval (regs, tg_info[tg_setting].tg_crsp);
-	      rt_set_ccd_clamp_clock_multiplier (regs, tg_info[tg_setting].tg_cclpp);	      
+	      rt_set_ccd_clamp_clock_multiplier (regs, tg_info[tg_setting].tg_cclpp);
 
 	      rt_set_one_register (0xc6, 0);
 	      rt_set_one_register (0xc6, 0);
@@ -3386,7 +3386,7 @@ rts8801_scan (unsigned x,
 
   iCalibY = (resolution == 25) ? 1 : 2;
   iCalibTarget = 550;
- 
+
   rt_turn_off_lamp();
 
   for (i = 0; i < 6; ++i)
@@ -3394,7 +3394,7 @@ rts8801_scan (unsigned x,
       aiBestOffset[i] = 0xbf;
       aiPassed[i] = 0;
     }
- 
+
   do
     {
       DBG (30, "Initial calibration pass commences\n");
@@ -3405,7 +3405,7 @@ rts8801_scan (unsigned x,
 	  calib_info[i * 3] = aiBestOffset[i];
 	  calib_info[i * 3 + 1] = aiBestOffset[i + 3];
         }
- 
+
       cd.buffer = calibbuf;
       cd.space = sizeof (calibbuf);
       DBG (30, "Commencing scan for initial calibration pass\n");
@@ -3453,7 +3453,7 @@ rts8801_scan (unsigned x,
       calib_info[i * 3 + 2] = 1;
       aiPassed[i] = 0;
     }
- 
+
   do
     {
       struct dcalibdata dcdt;

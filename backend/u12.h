@@ -72,7 +72,7 @@ typedef union
 #define _MEASURE_BASE 300UL
 #define _DEF_DPI      50
 
-/** the default image 
+/** the default image
  */
 #define _DEFAULT_TLX        0
 #define _DEFAULT_TLY        0
@@ -184,7 +184,7 @@ typedef struct {
 	double  graygamma;
 
 	/* for adjusting scan-area */
-	long    upNormal;      
+	long    upNormal;
 	long    upPositive;
 	long    upNegative;
 	long    leftNormal;
@@ -240,7 +240,7 @@ typedef struct u12d
 	SANE_Int     res_list_size;     /* resolution values            */
 	ScannerCaps  caps;              /* caps reported by the driver  */
 	AdjDef       adj;               /* for driver adjustment        */
-	
+
 	char         usbId[_MAX_ID_LEN];/* to keep Vendor and product   */
                                     /* ID string (from conf) file   */
 	/* our gamma tables */
@@ -322,7 +322,7 @@ typedef struct u12s
 /** for collecting configuration info...
  */
 typedef struct {
-	
+
 	char devName[PATH_MAX];
 	char usbId[_MAX_ID_LEN];
 

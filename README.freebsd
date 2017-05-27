@@ -3,11 +3,11 @@ SANE and FreeBSD
 
 Building:
 ---------
-Don't forget to use GNU make (gmake). E.g. "MAKE=gmake ./configure". 
+Don't forget to use GNU make (gmake). E.g. "MAKE=gmake ./configure".
 SANE should compile and install out-of-the-box.
 
 If you've installed some of the optional libraries that sane-backends
-can make use of (see README for list) using Ports then you will need to 
+can make use of (see README for list) using Ports then you will need to
 let configure know about their locations:
 
 MAKE=gmake CPPFLAGS=-I/usr/local/include LDFLAGS=-L/usr/local/lib ./configure

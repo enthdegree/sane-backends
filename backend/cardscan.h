@@ -1,12 +1,12 @@
 #ifndef CARDSCAN_H
 #define CARDSCAN_H
 
-/* 
+/*
  * Part of SANE - Scanner Access Now Easy.
  * Please see opening comment in cardscan.c
  */
 
-/* ------------------------------------------------------------------------- 
+/* -------------------------------------------------------------------------
  * This option list has to contain all options for all scanners supported by
  * this driver. If a certain scanner cannot handle a certain option, there's
  * still the possibility to say so, later.
@@ -48,10 +48,10 @@ struct scanner
 
   /* --------------------------------------------------------------------- */
   /* immutable values which are set during reading of config file.         */
-  int has_cal_buffer; 
-  int lines_per_block; 
-  int color_block_size; 
-  int gray_block_size; 
+  int has_cal_buffer;
+  int lines_per_block;
+  int color_block_size;
+  int gray_block_size;
 
   /* --------------------------------------------------------------------- */
   /* changeable SANE_Option structs provide our interface to frontend.     */

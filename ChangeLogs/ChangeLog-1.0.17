@@ -13,8 +13,8 @@
 
 2005-12-17  Karl Heinz Kremer <khk@khk.net>
 
-	* doc/descriptions/epson.desc: Added a few new scanners based on 
-	  messages to the sane-devel mailing list. 
+	* doc/descriptions/epson.desc: Added a few new scanners based on
+	  messages to the sane-devel mailing list.
 
 2005-12-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -42,7 +42,7 @@
 	  non-fatal warnings/error messages. Several fixes for avoiding
 	  freezes/timeouts after cancelling a scan. Several fixes for
 	  warming up of lamp. Decreased scan width of Plustek OpticPro
-	  1248U. 
+	  1248U.
 
 2005-12-08  Gerhard Jaeger <gerhard@gjaeger.de>
 
@@ -59,7 +59,7 @@
 
 2005-12-07  Gerhard Jaeger <gerhard@gjaeger.de>
 
-	* sanei/sanei_acces.c: Fixed problem, when the device name contains 
+	* sanei/sanei_acces.c: Fixed problem, when the device name contains
 	  one or more path-separators. These characters are now converted.
 	  The problem occurs on 2.4 based installations as well as on OpenBSD.
 
@@ -71,7 +71,7 @@
 2005-12-06  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/genesys_gl646.c: added AF init in powersave, fixed
-	  long-standing bug related to a data read timeout between 
+	  long-standing bug related to a data read timeout between
 	  distinct scanning sessions
 
 2005-12-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -107,7 +107,7 @@
 	* backend/genesys.c backend/genesys_conv_hlp.c: Modified calling
 	  parameters to stagger/line distance correction filter to better
 	  describe its inner working.
-	* backend/genesys_devices.c: Slowed down motor timings for 
+	* backend/genesys_devices.c: Slowed down motor timings for
 	  LiDE 35/40/50/60. Removed untested message for LiDE 35/40/50/60.
 	* backend/genesys_gl646.c: Fixed bug for odd pixel count. Added
 	  support for gray to lineart conversion.
@@ -148,12 +148,12 @@
 
 2005-12-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
-	* backend/snapscan-sources.c: Another fix for lineart mode for the 
+	* backend/snapscan-sources.c: Another fix for lineart mode for the
 	  Epson 3490 @ 3200 DPI - this time tested
 	* backend/snapscan.c: Change version number to 1.4.50
 
 2005-12-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
+
 	* doc/descriptions/unsupported.desc: Added link for Corex Cardscan
 	  500.
 
@@ -199,7 +199,7 @@
 2005-11-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/sane-backends.da.po: Updated Danish translation (from Mogens
-	  Jaeger <mogensjaeger@get2net.dk>). 
+	  Jaeger <mogensjaeger@get2net.dk>).
 
 2005-11-25  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
@@ -267,35 +267,35 @@
 
 2005-11-19  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
-        * backend/genesys_gl841.c backend/genesys_devices.c: 
+        * backend/genesys_gl841.c backend/genesys_devices.c:
           Added support for Canon LiDE 35/40/50
-        * backend/genesys.c backend/genesys_low.h 
-	  backend/genesys_gl646.c: Reworked data conversion 
-          process to convert CIS data, added new slope 
+        * backend/genesys.c backend/genesys_low.h
+	  backend/genesys_gl646.c: Reworked data conversion
+          process to convert CIS data, added new slope
 	  generation variant
-	* backend/genesys_conv.c backend/genesys_conv_hlp.c: 
-          Moved conversion filter functions out of 
+	* backend/genesys_conv.c backend/genesys_conv_hlp.c:
+          Moved conversion filter functions out of
           backend/genesys.c
 
 2005-11-18  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
-	* backend/snapscan-options.c: Disable 2400 DPI for 
+	* backend/snapscan-options.c: Disable 2400 DPI for
 	  Epson 3490, use 1600 DPI instead
 
 2005-11-17  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-PARPORT.changes: Update.
-	* backend/plustek_pp.c backend/plustek-pp.h 
+	* backend/plustek_pp.c backend/plustek-pp.h
 	  backend/plustek-pp_ptdrv.c backend/plustek-pp_wrapper.c:
-	  Fixed sizeof(long) issue for 64bit platforms, see 
+	  Fixed sizeof(long) issue for 64bit platforms, see
 	  bugreport #302195.
 	* backend/plustek_pp.conf: Default config now only tries to
 	  access parport using libieee1284.
 
 2005-11-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
-	* backend/snapscan.c backend/snapscan-options.c 
-	  backend/snapscan-scsi.c: Enabled quality calibration for the 
+	* backend/snapscan.c backend/snapscan-options.c
+	  backend/snapscan-scsi.c: Enabled quality calibration for the
 	  Epson 3490
 	* doc/descriptions/snapscan.desc: Changed status for Epson Perfection
 	  3490 (good) and 3590 (basic)
@@ -316,7 +316,7 @@
 	  concerning status of these backends.
 
 2005-11-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
-	* backend/snapscan.c backend/snapscan-sources.c: Added 
+	* backend/snapscan.c backend/snapscan-sources.c: Added
           deinterlacing for Epson 3490
 	* backend/Makefile.in: added "snapscan" to FIRMWARE_DIRS
 
@@ -340,7 +340,7 @@
 
 2005-11-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
-	* sanei/sanei_usb.c: Fixed output of transfer buffer for 
+	* sanei/sanei_usb.c: Fixed output of transfer buffer for
 	  usb_read_bulk in OS/2.
 	* backend/snapscan.c backend/snapscan-scsi.c: Fixes for Benq 5000
 	* backend/snapscan-usb.c: Avoid recursive calls of usb_sense_handler
@@ -372,7 +372,7 @@
 	  240H Easy Webscan Gold to artec_eplus48u backend.
 	* Makefile.in acinclude.m4 configure configure.in
 	  backend/Makefile.in frontend/Makefile.in lib/Makefile.in
-	  sanei/Makefile.in tools/Makefile.in: 
+	  sanei/Makefile.in tools/Makefile.in:
 	  Run "makedepend" if it's available. This way "make" builds
 	  backends correctly even if only included files (e.g. headers) are
 	  changed. Don't be too verbose when running makedepend.
@@ -382,7 +382,7 @@
 	  Remove any libsane.* links in /usr/local/lib/sane. Such links
 	  are created by libtool. As they point to libsane-v4l.so,
 	  scanimage -L doesn't find any scanner in case of ld.so
-	  misconfigurations. 
+	  misconfigurations.
 	  The install target is much quiter now and prints the libtool
 	  message only once now.
 	* README.openbsd: Removed comment about broken library links.
@@ -392,7 +392,7 @@
 	* po/*.po: Updated po files, corrected/updated german translation.
 	* doc/plustek/Plustek-USB.changes: Update.
 	* backend/plustek.c backend/plustek.h: Added OPTION_SPEEDUP.
-	* backend/plustek-usbdevs.c: Changed high-speed setting for 
+	* backend/plustek-usbdevs.c: Changed high-speed setting for
 	  UMAX 3400, due to bugreport #302317.
 	  Fixed CanoScan N650U settings (bugreport #302433).
 
@@ -409,7 +409,7 @@
 2005-10-24  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan.h
-	  backend/snapscan-options.c: Fix transparency range for Epson 
+	  backend/snapscan-options.c: Fix transparency range for Epson
 	  2480/2580, fix preview for Epson 2580.
 
 2005-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -420,17 +420,17 @@
 2005-10-23  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan-scsi.c: Fixes for buffer
-	  size in high-res modes by Simon Munton, small changes to delay 
+	  size in high-res modes by Simon Munton, small changes to delay
 	  code.
 
 2005-10-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/hotplug/libsane.usermap: Added Epson Stylus DX3850 (from
-	  niels_kalle <niels_kalle@web.de>). 
+	  niels_kalle <niels_kalle@web.de>).
 
 2005-10-22  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
-	* backend/mustek_pp_cis.c: Decreased the maximum number of pixels 
+	* backend/mustek_pp_cis.c: Decreased the maximum number of pixels
           on a line for CIS scanners a bit to avoid border artifacts.
 
 2005-10-22  Eddy De Greef <eddy_de_greef at tiscali dot be>
@@ -448,7 +448,7 @@
 
 2005-10-20  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
-	* backend/snapscan-scsi.c: Fixes for 16 bit 
+	* backend/snapscan-scsi.c: Fixes for 16 bit
 	  quality calibration by Simon Munton
 
 2005-10-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -463,7 +463,7 @@
 
 	* acinclude.m4 configure: Fixed check for libpthread functions.
 	* tools/hotplug/libsane.usermap: Added Brother MFC 210C (from
-	  Benjamin Mirza <bm1607@yahoo.de>). 
+	  Benjamin Mirza <bm1607@yahoo.de>).
 	* doc/descriptions-external/epkowa.desc: Updated for iscan 1.17.0
 	  (patch from Olaf Meeuwissen <olaf@member.fsf.org>). Bug #302183.
 
@@ -489,7 +489,7 @@
 	  doc/descriptions/mustek_usb2.desc
 	  doc/mustek_usb2/mustek_usb2.CHANGES:
 	  Removed typedefs for DWORD, WORD and so on. Used int, unsigned
-	  short, ... directly in the code. 
+	  short, ... directly in the code.
 	* AUTHORS configure configure.in backend/Makefile.in
 	  backend/dll.conf backend/lexmark-x1100.c backend/lexmark.c
 	  backend/lexmark.conf backend/lexmark.h doc/Makefile.in
@@ -505,7 +505,7 @@
 	* backend/Makefile.in doc/Makefile.in tools/Makefile.in: Make
 	  "make dist" work again.
 	* acinclude.m4 configure include/sane/config.h.in: Check for
-	  pthread_cancel() and pthread_testcancel(). 
+	  pthread_cancel() and pthread_testcancel().
 
 2005-10-15  Jochen Eisinger <jochen@penguin-breeder.org>
 
@@ -539,7 +539,7 @@
 
 	* doc/descriptions/unsupported.desc: Added HP ScanJet 3800c.
 	* frontend/scanimage.c: Use correct size for fgets. Patch from
-	  Antoine Jacoutot <ajacoutot@lphp.org>. 
+	  Antoine Jacoutot <ajacoutot@lphp.org>.
 
 2005-10-05  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
@@ -554,7 +554,7 @@
 	  backend/mustek_usb2_reflective.c backend/mustek_usb2_transparent.c
 	  doc/Makefile.in doc/sane-mustek_usb2.man
 	  doc/mustek_usb2/mustek_usb2.CHANGES
-	  doc/mustek_usb2/mustek_usb2.TODO: 
+	  doc/mustek_usb2/mustek_usb2.TODO:
 	  Added mustek_usb backend which supports the Mustek BearPaw 2448
 	  TA Pro. Changes of the code before inclusion to CVS can be found
 	  in doc/mustek_usb2/mustek_usb2.CHANGES.
@@ -578,7 +578,7 @@
 	* doc/plustek/Plustek-USB.changes: Update.
 	* backend/plustek.c: Bumped build number.
 	* backend/plustek-usbdevs.c backend/plustek-usb.h: Updated motor
-	  settings for Canoscan LiDE25, thanks to Stephan February 
+	  settings for Canoscan LiDE25, thanks to Stephan February
 	  <stephanf@singnet.com.sg> for providing these values.
 
 2005-10-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -589,7 +589,7 @@
 	* AUTHORS: Fixed Rene Rebe's email address.
 	* doc/descriptions/unsupported.desc: Removed Epson Perfection 4180
 	  (supported by epkowa backend).
-	
+
 2005-10-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/mustek_a3p1.desc
@@ -606,7 +606,7 @@
 
 2005-09-29  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
-	* backend/mustek_pp_cis.c: Minor bug fix: wrong model name was 
+	* backend/mustek_pp_cis.c: Minor bug fix: wrong model name was
 	  reported for 1200CP+ driver.
 
 2005-09-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -615,7 +615,7 @@
 	  backend/gt68xx_generic.c backend/gt68xx_generic.h
 	  backend/gt68xx_high.c backend/gt68xx_low.c backend/gt68xx_low.h
 	  doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
-	  doc/gt68xx/gt68xx.CHANGES doc/gt68xx/gt68xx.TODO: 
+	  doc/gt68xx/gt68xx.CHANGES doc/gt68xx/gt68xx.TODO:
 	  Added support for Plustek OpticSlim M12 (untested). Based on patch
 	  from Gerhard Jaeger <gerhard@gjaeger.de>. Fixed gt68xx homepage
 	  links in man page. Changed minimum version of libusb to 0.1.8.
@@ -658,8 +658,8 @@
 
 2005-09-25  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
-	* backend/snapscan-scsi.c: Removed debugging code for 
-	  Epson scanners until a working solution has been found.               
+	* backend/snapscan-scsi.c: Removed debugging code for
+	  Epson scanners until a working solution has been found.
 
 2005-09-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -669,7 +669,7 @@
 	* configure configure.in: Added warning message that's printed
 	  when libusb or its header file is not available.
 	* frontend/scanimage.c doc/scanimage.man: Added progress indicator
-	  to scanimage (based on patch from Mario Goppold 
+	  to scanimage (based on patch from Mario Goppold
 	  <mgoppold@tbz-pariv.de>). Updated copyright information, added
 	  links to sane-devel mailing list.
 	* sanei/sanei_usb.c: Ignore EBUSY from usb_set_configuration. This
@@ -687,7 +687,7 @@
 	* backend/dc210.c backend/leo.c backend/matsushita.c
 	  backend/sceptre.c backend/sp15c-scsi.h backend/sp15c.h
 	  backend/teco1.c backend/teco2.c backend/teco3.c
-	  include/sane/sanei_backend.h: Replaced __unused__ with 
+	  include/sane/sanei_backend.h: Replaced __unused__ with
 	  __sane_unused__ to avoid a namespace conflict.
 
 2005-09-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -695,9 +695,9 @@
 	* backend/gt68xx.c backend/gt68xx_high.c
 	  doc/descriptions/gt68xx.descdoc/gt68xx/gt68xx.CHANGES
 	  doc/gt68xx/gt68xx.TODO: Fixed segfault that may happen with
-	  Mustek ScanExpress A3 USB. 
+	  Mustek ScanExpress A3 USB.
 	* doc/backend-writing.txt: Added some hints about number of
-	  files. 
+	  files.
 	* backend/mustek.conf doc/sane-mustek.man
 	  doc/descriptions/mustek.desc: Mustek Paragon 600 II EP
 	  works. Mentioned "parport0".
@@ -720,7 +720,7 @@
 2005-09-07  Oliver Schirrmeister <oschirr@abm.de>
 
 	* backend/fujitsu.c: enabled dropoutcolor for all fi-* scanners.
-	  Applied patch from Mario Goppold: Bugfixes for the M3092DCd     
+	  Applied patch from Mario Goppold: Bugfixes for the M3092DCd
 
 2005-09-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -730,13 +730,13 @@
 2005-09-03  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.h backend/snapscan-scsi.c: (Hopefully) fixed
-	  some debugging code for Epson scanners that only works after 
-	  firmware upload.                  
+	  some debugging code for Epson scanners that only works after
+	  firmware upload.
 
 2005-09-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Epson Perfection 4490
-	  Photo. 
+	  Photo.
 	* tools/hotplug/libsane.usermap: Added HP PSC 750.
 
 2005-09-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -747,17 +747,17 @@
 	  ColorPage Vivid 1200 X is reported to work. Genius ColorPage Vivid
 	  4 XE seems to be the same as 4 X, it just doesn't have
 	  buttons. Cleanup of .desc file. Fixed gain setting. Mustek
-	  ScanExpress A3 USB 600 dpi color scanning works now. 
+	  ScanExpress A3 USB 600 dpi color scanning works now.
 	* tools/check-usb-chip.c: Added detection for SQ113 chip
-	  (e.g. Mustek BearPaw 2448 TA Pro).	
+	  (e.g. Mustek BearPaw 2448 TA Pro).
 
 2005-08-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Removed Mustek 1800 A3 Pro
-	  (this is actually a P3600 A3 Pro). 
+	  (this is actually a P3600 A3 Pro).
 	* doc/descriptions-external/mustek_usb2.desc: Mustek BearPaw 2448
 	  TA Pro has status "good" now.
-	
+
 2005-08-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Removed Mustek BearPaw 2448
@@ -817,7 +817,7 @@
 	  doc/descriptions/unsupported.desc: Marked microtek2 backend as
 	  unsupported. Changed link to point to old website directly. Listed
 	  Microtek ScanMaker 9800XL as supported (bug #301515).
-	
+
 2005-08-21  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* ltmain.sh acinclude.am configure: Updated from libtool 1.5.18.
@@ -826,7 +826,7 @@
 
 	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
 	  backend/gt68xx_low.h doc/descriptions/gt68xx.desc
-	  doc/gt68xx/gt68xx.CHANGES doc/gt68xx/gt68xx.TODO: 
+	  doc/gt68xx/gt68xx.CHANGES doc/gt68xx/gt68xx.TODO:
 	  Increased number limit of scanners that can work with this
 	  backend to 50. Added support for Genius ColorPage Vivid 1200 X
 	  (untested).
@@ -880,7 +880,7 @@
 	* backend/snapscan-options.c: Removed //-style comment
 
 2005-08-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
+
 	* doc/descriptions/unsupported.desc: Added Canon PIXMA MP780 and
 	  Lexmark P6250.
 	* tools/sane-find-scanner.c: Don't print anything else but the
@@ -896,7 +896,7 @@
 	  Removed direct dependence of sm3600 on libusb. Used sanei_usb
 	  instead. Based on patch from Fran~is Revol <revol@free.fr>.
 	  Updated documentation accordingly. Fixed compilation warnings.
-	
+
 2005-08-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c: Bumped version number
@@ -906,8 +906,8 @@
 2005-08-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan-options.c backend/snapscan-scsi.c
-	  backend/snapscan.h doc/descriptions/snapscan.desc 
-	  backend/snapscan.conf: Added support for Epson Perfection 3490/3590 
+	  backend/snapscan.h doc/descriptions/snapscan.desc
+	  backend/snapscan.conf: Added support for Epson Perfection 3490/3590
 	  (thanks to Matt Judge).
 
 2005-08-15  Gerhard Jaeger <gerhard@gjaeger.de>
@@ -920,17 +920,17 @@
 	* backend/plustek.c: Bumped version and build number.
 	  Activated IPC between reader-process and parent.
 	* backend/plustek-usbio.c: usbio_DetectLM983x() now returns error if
-	  register could not be red, usbio_ResetLM983x() checks for reg7 
+	  register could not be red, usbio_ResetLM983x() checks for reg7
 	  value before writing.
-	* backend/plustek-usbhw.c: Added button support for Plustek/Genius 
+	* backend/plustek-usbhw.c: Added button support for Plustek/Genius
 	  devices. Changed behaviour of usb_IsScannerReady().
 	  Added special misc I/O setup for CIS devices (usb_ResetRegisters).
 	* backend/plustek-usb.c: Minor fix for startup reset.
 	  Removed unnecessary calls to usbio_ResetLM983x().
-	* backend/plustek-usbshading.c: Readded kCIS670 to add 5% extra to 
+	* backend/plustek-usbshading.c: Readded kCIS670 to add 5% extra to
 	  LiDE20 fine calibration.
 	* backend/plustek-usbcal.c: Tried to use the settings from SANE-1.0.13.
-	  Added _TWEAK_GAIN to allow increasing GAIN during lamp coarse 
+	  Added _TWEAK_GAIN to allow increasing GAIN during lamp coarse
 	  calibration. Added call to speedtest function.
 
 2005-08-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -965,7 +965,7 @@
 	  included).
 	* configure configure.in: Moved CPPFLAGS definition down to avoid
 	  problems with libtool tests for -fPIC.
- 
+
 2005-08-10  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek_pp.c: Bumped build number.
@@ -975,19 +975,19 @@
 	* doc/plustek/Plustek-PARPORT.changes: Update.
 
 2005-08-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
+
 	* sanei/sanei_usb.c: Minor fixes for usbcalls interface (patch
 	  from Paul Smedley <paul@smedley.info>).
 	* doc/descriptions/unsupported.desc: Added Hewlett-Packard Scanjet
-	  4370. 
-	
+	  4370.
+
 2005-08-08  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* acinclude.m4 configure: Locking feature will be disabled on OS/2
 	  per default (according to Paul Smedley <paul@smedley.info>).
 	* doc/plustek/Plustek-USB.changes: Update.
 	* backend/plustek.c: Bumped build number.
-	* doc/plustek/Plustek-USB.txt doc/descriptions/plustek.desc 
+	* doc/plustek/Plustek-USB.txt doc/descriptions/plustek.desc
 	  doc/sane-plustek.man backend/plustek-usb.c backend/plustek-usbdevs.c:
 	  Added support for CanoScan LiDE25.
 

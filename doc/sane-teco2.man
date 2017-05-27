@@ -45,7 +45,7 @@ Note that the untested scanner will not be directly supported. You
 should contact the author for that.
 
 The TECO VM number can usually be found at the back of the
-scanner. It is also part of the FCC ID. 
+scanner. It is also part of the FCC ID.
 
 The options the backend supports can either be selected through
 command line options to programs like scanimage or through GUI
@@ -56,7 +56,7 @@ If you have any success with a scanner not listed here, or if you have
 any strange behavior, please report to the backend maintainer or to
 the SANE mailing list.
 
-Valid command line options and their syntax can be listed by using 
+Valid command line options and their syntax can be listed by using
 .RS
 scanimage \-\-help \-d teco2
 .RE
@@ -66,7 +66,7 @@ scanimage \-\-help \-d teco2
 
 .TP
 .B \-\-mode
-selects the basic mode of operation of the scanner valid choices are 
+selects the basic mode of operation of the scanner valid choices are
 .I Lineart
 ,
 .I Gray
@@ -84,21 +84,21 @@ between 1 and 600, in increments of 1.
 
 
 Color
-selects the resolution for a scan. The scanner can do only the 
+selects the resolution for a scan. The scanner can do only the
 resolutions listed.
 
-All values with ydpi > 300 (300 x 600) or 600 (600 x 1200) result in 
-a wrong proportion for the scan. The proportion can be adjusted with 
-the following imagemagick command: 
-convert \-geometry (dpi/max_xdpi * 100%)x100% 
-max_xdpi is for the vm3575 constant with 300 dpi      
-e.g. 600dpi adjust with: convert \-geometry 200%x100%  
+All values with ydpi > 300 (300 x 600) or 600 (600 x 1200) result in
+a wrong proportion for the scan. The proportion can be adjusted with
+the following imagemagick command:
+convert \-geometry (dpi/max_xdpi * 100%)x100%
+max_xdpi is for the vm3575 constant with 300 dpi
+e.g. 600dpi adjust with: convert \-geometry 200%x100%
 
 .TP
 .B Geometry options
 
 .TP
-.B \-l \-t \-x \-y 
+.B \-l \-t \-x \-y
 control the scan area: \-l sets the top left x coordinate, \-t the top
 left y coordinate, \-x selects the width and \-y the height of the scan
 area. All parameters are specified in millimeters by default.
@@ -112,25 +112,25 @@ area. All parameters are specified in millimeters by default.
 (color mode only) allows the user to specify a gamma table (see the
 next 3 parameters).
 
-.TP 
-.B \-\-red\-gamma\-table 
+.TP
+.B \-\-red\-gamma\-table
 (color mode only) can be used to download a user defined
 gamma table for the red channel. The table must be 256 bytes long.
 
-.TP 
-.B \-\-green\-gamma\-table 
+.TP
+.B \-\-green\-gamma\-table
 (color mode only) can be used to download a user defined
 gamma table for the green channel. The table must be 256 bytes long.
 
 .TP
-.B \-\-blue\-gamma\-table 
+.B \-\-blue\-gamma\-table
 (color mode only) can be used to download a user defined gamma table
 for the blue channel. The table must be 256 bytes long.
 
 .TP
 .B \-\-white\-level\-r
 (VM3564, VM356A, VM3575 and VM6575 only) Selects what red radiance level should be
-considered "white", when scanning some sheets by changing the calibration 
+considered "white", when scanning some sheets by changing the calibration
 value loaded into the scanner. Scale 0..64 in steps of 1.
 
 .TP
@@ -145,10 +145,10 @@ value loaded into the scanner. Scale 0..64 in steps of 1.
 considered "white", when scanning some sheets by changing the calibration
 value loaded into the scanner. Scale 0..64 in steps of 1.
 
-.TP 
+.TP
 .B \-\-preview
 requests a preview scan. The resolution used for that scan is 50  dpi
-(for VM356A and VM6575 75 dpi) and the scan area is the maximum allowed. 
+(for VM356A and VM6575 75 dpi) and the scan area is the maximum allowed.
 The scan mode is user selected. The default is "no".
 
 

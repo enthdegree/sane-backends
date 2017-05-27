@@ -30,7 +30,7 @@
 # It was originaly been written for SANE backends translations, but
 # shall be able to check any .po file.
 #
-# Originally writen by Yann E. MORIN 
+# Originally writen by Yann E. MORIN
 # <yann dot morin dot 1998 at anciens dot enib dot fr>
 #
 # Output will look like :

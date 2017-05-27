@@ -363,12 +363,12 @@ static scsiblk request_sense = { request_senseC, sizeof(request_senseC) };
 #define get_RS_filemark(b)				getbitfield(b + 0x02, 1, 7)
 #define get_RS_EOM(b)					getbitfield(b + 0x02, 1, 6)
 #define get_RS_ILI(b)					getbitfield(b + 0x02, 1, 5)
-#define get_RS_sense_key(b)				getbitfield(b + 0x02, 0x0f, 0) 
-#define get_RS_information(b)				getnbyte(b+0x03, 4) 
+#define get_RS_sense_key(b)				getbitfield(b + 0x02, 0x0f, 0)
+#define get_RS_information(b)				getnbyte(b+0x03, 4)
 #define get_RS_additional_length(b)			b[0x07]
 #define get_RS_ASC(b)					b[0x0c]
 #define get_RS_ASCQ(b)					b[0x0d]
-#define get_RS_SKSV(b)					getbitfield(b+0x0f,1,7)   /* valid */ 
+#define get_RS_SKSV(b)					getbitfield(b+0x0f,1,7)   /* valid */
 #define get_RS_CD(b)					getbitfield(b+0x0f,1,6)   /* 1=CDB */
 #define get_RS_field_pointer(b)				getnbyte(b+0x10, 2)
 

@@ -21,7 +21,7 @@
  * or can test.
  *
  * Therefore, I'm splitting out a few calibration functions I need
- * to modify for the CanoScan which allows me to simplify things 
+ * to modify for the CanoScan which allows me to simplify things
  * greatly for the CanoScan without worrying about breaking other
  * scanners, as well as reuse the vast majority of the Plustek
  * driver infrastructure without forking.
@@ -109,7 +109,7 @@ cano_PrepareToReadWhiteCal( Plustek_Device *dev, SANE_Bool mv2shading_pos )
 {
 	SANE_Bool goto_shading_pos = SANE_TRUE;
 	HWDef     *hw = &dev->usbDev.HwSetting;
-	
+
 	switch (strip_state) {
 		case 0:
 			if( !usb_IsSheetFedDevice(dev)) {
@@ -152,7 +152,7 @@ cano_PrepareToReadBlackCal( Plustek_Device *dev )
 	if( strip_state == 0 )
 		if(cano_PrepareToReadWhiteCal(dev, SANE_FALSE))
 			return SANE_FALSE;
-			
+
 	if( strip_state != 2 ) {
 	    /*
 		 * if we have a dark shading strip, there's no need to switch
@@ -203,7 +203,7 @@ cano_LampOnAfterCalibration( Plustek_Device *dev )
  * @param max - pointer to the max OFF point for the CIS-channel
  * @param off - pointer to the current OFF point of the CIS-channel
  * @param val - current value to check
- * @return returns 0 if the value is fine, 1, if we need to adjust 
+ * @return returns 0 if the value is fine, 1, if we need to adjust
  */
 static int
 cano_adjLampSetting( u_short *min, u_short *max, u_short *off, u_short val )
@@ -249,7 +249,7 @@ cano_adjLampSetting( u_short *min, u_short *max, u_short *off, u_short val )
  * coarse calibration step 0
  * [Monty changes]: On the CanoScan at least, the default lamp
  * settings are several *hundred* percent too high and vary from
- * scanner-to-scanner by 20-50%. This is only for CIS devices 
+ * scanner-to-scanner by 20-50%. This is only for CIS devices
  * where the lamp_off parameter is adjustable; I'd make it more general,
  * but I only have the CIS hardware to test.
  */
@@ -305,7 +305,7 @@ cano_AdjustLightsource( Plustek_Device *dev )
 	min_rgb.Green = hw->green_lamp_on;
 	min_rgb.Blue  = hw->blue_lamp_on;
 
-	if((dev->adj.rlampoff != -1) && 
+	if((dev->adj.rlampoff != -1) &&
 	   (dev->adj.glampoff != -1) && (dev->adj.rlampoff != -1)) {
 		DBG( _DBG_INFO, "- function skipped, using frontend values!\n" );
 		return SANE_TRUE;
@@ -393,10 +393,10 @@ cano_AdjustLightsource( Plustek_Device *dev )
 			DBG( _DBG_INFO2, "red_lamp_off  = %u/%u/%u\n",
 			                  min_rgb.Red ,hw->red_lamp_off, max_rgb.Red );
 		}
-			
+
 		DBG( _DBG_INFO2, "green_lamp_off = %u/%u/%u\n",
 		                  min_rgb.Green, hw->green_lamp_off, max_rgb.Green );
-							
+
 		if( m_ScanParam.bDataType == SCANDATATYPE_Color ) {
 			DBG( _DBG_INFO2, "blue_lamp_off = %u/%u/%u\n",
 			                  min_rgb.Blue, hw->blue_lamp_off, max_rgb.Blue );
@@ -528,7 +528,7 @@ cano_AdjustGain( Plustek_Device *dev )
 
 	DBG( _DBG_INFO, "cano_AdjustGain()\n" );
 	if( !usb_InCalibrationMode(dev)) {
-		if((dev->adj.rgain != -1) && 
+		if((dev->adj.rgain != -1) &&
 		   (dev->adj.ggain != -1) && (dev->adj.bgain != -1)) {
 			setAdjGain( dev->adj.rgain, &dev->usbDev.a_bRegs[0x3b] );
 			setAdjGain( dev->adj.ggain, &dev->usbDev.a_bRegs[0x3c] );
@@ -559,11 +559,11 @@ cano_AdjustGain( Plustek_Device *dev )
 	DBG( _DBG_INFO2, "Pixels   = %lu\n", m_ScanParam.Size.dwPixels );
 	DBG( _DBG_INFO2, "Bytes    = %lu\n", m_ScanParam.Size.dwBytes  );
 	DBG( _DBG_INFO2, "Origin.X = %u\n",  m_ScanParam.Origin.x );
-  
+
 	while( adj ) {
 
 		m_ScanParam.dMCLK = dMCLK;
- 
+
 		if( !usb_SetScanParameters( dev, &m_ScanParam ))
 			return SANE_FALSE;
 
@@ -615,7 +615,7 @@ cano_AdjustGain( Plustek_Device *dev )
 				dwR = dwR / dwDiv;
 				dwG = dwG / dwDiv;
 				dwB = dwB / dwDiv;
-	
+
 				if(max_rgb.Red < dwR)
 					max_rgb.Red = dwR;
 				if(max_rgb.Green < dwG)
@@ -764,7 +764,7 @@ cano_AdjustOffset( Plustek_Device *dev )
 	u_long   *scanbuf = dev->scanning.pScanBuffer;
 	HWDef    *hw      = &dev->usbDev.HwSetting;
 	DCapsDef *scaps   = &dev->usbDev.Caps;
-	
+
 	if( usb_IsEscPressed())
 		return SANE_FALSE;
 
@@ -977,13 +977,13 @@ cano_AdjustDarkShading( Plustek_Device *dev, u_short cal_dpi )
 
 	/* average the n lines, compute reg values */
 	if( scan->sParam.bDataType == SCANDATATYPE_Color ) {
-		
+
 		stepW = m_ScanParam.Size.dwPhyPixels;
 		if( usb_IsCISDevice(dev))
 			step = m_ScanParam.Size.dwPhyPixels + 1;
 		else
 			step = (m_ScanParam.Size.dwPhyPixels*3) + 1;
-		
+
 		for( i=0; i<m_ScanParam.Size.dwPhyPixels; i++ ) {
 
 			red   = 0;
@@ -1036,7 +1036,7 @@ cano_AdjustDarkShading( Plustek_Device *dev, u_short cal_dpi )
 
 		step = m_ScanParam.Size.dwPhyPixels + 1;
 		for( i=0; i<m_ScanParam.Size.dwPhyPixels; i++ ) {
-			
+
 			gray = 0;
 			bufp = ((u_short *)scanbuf)+i;
 
@@ -1252,7 +1252,7 @@ cano_DoCalibration( Plustek_Device *dev )
 		DBG( _DBG_INFO2, "###### ADJUST OFFSET (COARSE) ####\n" );
 		if(cano_PrepareToReadBlackCal(dev))
 			return SANE_FALSE;
-		
+
 		if( !cano_AdjustOffset(dev)) {
 			DBG( _DBG_ERROR, "Coarse Calibration failed!!!\n" );
 			return SANE_FALSE;
@@ -1261,7 +1261,7 @@ cano_DoCalibration( Plustek_Device *dev )
 		DBG( _DBG_INFO2, "###### ADJUST GAIN (COARSE)#######\n" );
 		if(cano_PrepareToReadWhiteCal(dev, SANE_FALSE))
 			return SANE_FALSE;
-		
+
 		if( !cano_AdjustGain(dev)) {
 			DBG( _DBG_ERROR, "Coarse Calibration failed!!!\n" );
 			return SANE_FALSE;
@@ -1367,7 +1367,7 @@ cano_DoCalibration( Plustek_Device *dev )
 	if( !usb_IsSheetFedDevice(dev))
 		usb_ModuleToHome( dev, SANE_TRUE );
 	scan->fCalibrated = SANE_TRUE;
-	
+
 	DBG( _DBG_INFO, "cano_DoCalibration() done\n" );
 	DBG( _DBG_INFO, "-------------------------\n" );
 	DBG( _DBG_INFO, "Static Gain:\n" );

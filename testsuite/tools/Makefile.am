@@ -26,7 +26,7 @@ help:
 
 check: check.local
 
-check.local: 
+check.local:
 	@echo "**** Testing $(SANEDESC) with $(TESTFILE)"
 	@for mode in ascii html-backends-split html-mfgs xml statistics usermap db udev udev+acl udev+hwdb hwdb plist hal hal-new; \
 	do \

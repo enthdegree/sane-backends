@@ -20,7 +20,7 @@
 :comment "Untested, use with caution"
 :backend "agfafocus"
 :version "unmaintained"
-:manpage "sane-agfafocus" 
+:manpage "sane-agfafocus"
 
 :devicetype :scanner
 
@@ -66,9 +66,9 @@
 ;:url "http://no.www.page.yet/" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
- 
+
 :mfg "Apple"
-:url "http://developer.apple.com/"	
+:url "http://developer.apple.com/"
 :model "Apple Scanner"
 :interface "SCSI"
 :status :good                  ; :alpha, :beta, :stable, :new
@@ -1327,7 +1327,7 @@
 ;
 
 :backend "canon_dr"              ; name of backend
-:url "http://www.thebility.com/canon/" 
+:url "http://www.thebility.com/canon/"
 :version "38"                    ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.23, see sane-canon_dr manpage"
@@ -1644,7 +1644,7 @@
 ;
 
 :backend "cardscan"              ; name of backend
-:url "http://www.thebility.com/cardscan/" 
+:url "http://www.thebility.com/cardscan/"
 :version "2"                 ; version of backend
 :manpage "sane-cardscan"         ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.21, see sane-cardscan manpage"
@@ -1835,7 +1835,7 @@
 
 :model "LS-30"                 ; name models for above-specified mfg.
 :interface "SCSI"
-:comment "alpha: only 24/30 bit RGB + 32/40 bit RGBI" 
+:comment "alpha: only 24/30 bit RGB + 32/40 bit RGBI"
 :status :basic
 
 :model "LS-2000"               ; name models for above-specified mfg.
@@ -1845,7 +1845,7 @@
 
 :model "LS-1000"
 :interface "SCSI"
-:comment "Doesn't support gamma correction" 
+:comment "Doesn't support gamma correction"
 :status :basic
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
@@ -1858,7 +1858,7 @@
 :url "mailto:peter@fales-lorenz.net"   ; backend's web page
 
 :devicetype :stillcam           ; start of a list of devices....
- 
+
 :mfg "Kodak"
 :url "http://www.kodak.com/global/en/service/digCam/dc210/dc210.shtml"
 :model "DC210"
@@ -1872,7 +1872,7 @@
 :url "mailto:peter@fales-lorenz.net"   ; backend's web page
 
 :devicetype :stillcam           ; start of a list of devices....
- 
+
 :mfg "Kodak"
 :url "http://www.kodak.com/global/en/service/products/ekn006568.jhtml"
 :model "DC240"
@@ -1960,7 +1960,7 @@
 ;
 
 :backend "epjitsu"               ; name of backend
-:url "http://www.thebility.com/epjitsu/" 
+:url "http://www.thebility.com/epjitsu/"
 :version "20"                    ; version of backend
 :manpage "sane-epjitsu"          ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.21, see sane-epjitsu manpage"
@@ -4349,10 +4349,10 @@
 :usbid "0x04b8" "0x082b"
 :status :good
 
-:model "DX-6000" 
-:interface "USB" 
-:usbid "0x04b8" "0x082e" 
-:status :good 
+:model "DX-6000"
+:interface "USB"
+:usbid "0x04b8" "0x082e"
+:status :good
 
 :model "DX-7400"
 :interface "USB"
@@ -4397,7 +4397,7 @@
 
 
 :backend "fujitsu"               ; name of backend
-:url "http://www.thebility.com/fujitsu/" 
+:url "http://www.thebility.com/fujitsu/"
 :version "117"                   ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.23, see sane-fujitsu manpage"
@@ -4412,7 +4412,7 @@
 ; DISCONTINUED OLDER MODELS, SMALL
 :model "M3091DC"
 :interface "SCSI"
-:url "http://www.remote.org/frederik/projects/software/sane/" 
+:url "http://www.remote.org/frederik/projects/software/sane/"
 :status :complete
 :comment "small, old, discontinued"
 
@@ -5131,7 +5131,7 @@
 :url "mailto:peter@fales-lorenz.net"   ; backend's web page
 
 :devicetype :api	           ; start of a list of devices....
- 
+
 :desc "Multiple cameras supported by the gphoto2 libraries"
 :url "http://www.gphoto.org"
 ;:interface "USB, serial port"
@@ -5268,7 +5268,7 @@
 :mfg "Medion/Lifetec/Tevion/Cytron"
 :url "http://www.medion.com"
 :comment "Sold by Aldi and Tchibo."
-	  
+
 :model "MD 4394"
 :interface "USB"
 :usbid "0x05d8" "0x4002"
@@ -5779,7 +5779,7 @@
 :comment "8bpp color, 75/150/300/600 dpi only"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
-;  and at the top-level.                                                       
+;  and at the top-level.
 ; Copied from hp3300 testtools - Martijn van Oosterhout 22/02/2003
 ; SANE Backend specification file
 ;
@@ -6154,7 +6154,7 @@
 :status :untested
 :comment "Untested, please report!"
 :backend "kodakaio"
-:url "http://sourceforge.net/projects/cupsdriverkodak/" 
+:url "http://sourceforge.net/projects/cupsdriverkodak/"
 :version "2.4.6"
 :manpage "sane-kodakaio"
 :comment "Backend for Kodak AiO ESP and Hero printers. Also possibly Advent AWL10"
@@ -6334,7 +6334,7 @@
 
 
 :backend "kodak"
-:url "http://www.thebility.com/kodak/" 
+:url "http://www.thebility.com/kodak/"
 :version "7"
 :manpage "sane-kodak"
 :comment "New backend for SANE release 1.0.21, see sane-kodak manpage"
@@ -6660,7 +6660,7 @@
 :devicetype :scanner              ; start of a list of devices....
 
 :mfg "LEO"
-:model "LEOScan S3" 
+:model "LEOScan S3"
 :interface "SCSI"
 :comment "FCC ID LUZFS1130"
 :status :good
@@ -6694,7 +6694,7 @@
 :url "http://stef.dev.free.fr/sane/lexmark"
 				  ; backend's web page
 
-:comment "This backend supports lexmark x1100 series scanners." 
+:comment "This backend supports lexmark x1100 series scanners."
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....
@@ -6794,7 +6794,7 @@
 :interface "USB"
 :usbid "0x055f" "0x0010"
 :status :good
-:comment "Works upto 600 dpi. No support for TA and ADF yet."				
+:comment "Works upto 600 dpi. No support for TA and ADF yet."
 :mfg "Fujitsu"		; name a manufacturer
 :url "http://www.fujitsu.com/"
 
@@ -7083,7 +7083,7 @@
 
 :backend "microtek"
 :version "0.13.1"
-:manpage "sane-microtek" 
+:manpage "sane-microtek"
 :url "http://www.mir.com/mtek/"
 
 :devicetype :scanner
@@ -7682,7 +7682,7 @@
 
 :model "PagePartner"
 :interface "Parport (EPP/ECP)"
-:status :basic      
+:status :basic
 :comment "Sheetfed scanner, work in gray and color, but uncalibrated scans"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
@@ -9153,10 +9153,10 @@
 :backend "rts8891"               ; name of backend
 :version "1.0-0"                    ; version of backend (or "unmaintained")
 :manpage "sane-rts8891"        ; name of manpage (if it exists)
-:url "http://stef.dev.free.fr/sane/rts8891/index.html" 
+:url "http://stef.dev.free.fr/sane/rts8891/index.html"
 				  ; backend's web page
 
-:comment "This backend supports Realtek RTS8891 ASIC bases scanners." 
+:comment "This backend supports Realtek RTS8891 ASIC bases scanners."
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....
@@ -9225,20 +9225,20 @@
 
 :mfg "Sceptre"
 :url "http://www.sceptre.com/"
-:model "Vividscan S1200" 
+:model "Vividscan S1200"
 :interface "SCSI"
 :status :basic
 
 :mfg "Komodo"
 :url "http://www.komodo.com/"
-:model "S1200" 
+:model "S1200"
 :interface "SCSI"
 :status :untested
 :comment "rebadged Sceptre S1200"
 :backend "sharp"                ; name of backend
 :version "0.32"                 ; version of backend
 ;:status :beta                   ; :alpha, :beta, :stable, :new
-:url "http://www.satzbau-gmbh.de/staff/abel/sane-sharp.html" 
+:url "http://www.satzbau-gmbh.de/staff/abel/sane-sharp.html"
 				; backend's homepage
 :manpage "sane-sharp"
 :devicetype :scanner
@@ -9344,7 +9344,7 @@
 :version "1.1"                    ; version of backend (or "unmaintained")
 :manpage "sane-sm3840"          ; name of manpage (if it exists)
 :url "http://www.ziplabel.com/sm3840/" ; backend's web page
-:comment "This reverse-engineered backend supports the USB ScanMaker 3840 model" 
+:comment "This reverse-engineered backend supports the USB ScanMaker 3840 model"
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....
@@ -10695,41 +10695,41 @@
 :mfg "UMAX"                     ; name a manufacturer
 :url "http://www.umax.com.tw/"
 
-; These scanners are known to have the same ASIC family. 
+; These scanners are known to have the same ASIC family.
 
 :model "Astra 1220P"
 :interface "Parport (EPP/ECP)"
-:status :good      
+:status :good
 
 :model "Astra 2000P"
 :interface "Parport (EPP/ECP)"
-:status :good      
+:status :good
 
 :model "Astra 1600P"
 :interface "Parport (EPP/ECP)"
-:status :good      
+:status :good
 
 :model "Astra 600P"
 :interface "Parport (SPP/ECP)"
-:status :unsupported      
+:status :unsupported
 :comment "untested, but should be close to 610P"
 
 :model "Astra 610P"
 :interface "Parport (SPP/ECP)"
-:status :good      
+:status :good
 
 :mfg "Hewlett-Packard"
 
 :model "Scanjet 3200C"
 :interface "Parport (EPP/ECP)"
-:status :good      
+:status :good
 :comment "works (relabelled 1220P and 2000P)"
 
 :mfg "Genius"
 
 :model "ColorPage-Life Pro"
 :interface "Parport (EPP/ECP)"
-:status :good      
+:status :good
 :comment "works (relabelled 1220P and 2000P)"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
@@ -11703,14 +11703,14 @@
 :usbid "0x043d" "0x00bb"
 :status :unsupported
 :comment "Unsupported. See link for details."
- 
+
 :model "X3450"
 :url "/unsupported/lexmark-x3450.html"
 :interface "USB"
 :usbid "0x043d" "0x00f6"
 :status :unsupported
 :comment "Unsupported. See link for details."
- 
+
 :model "X5130"
 :url "/unsupported/lexmark-x5130.html"
 :interface "USB"
@@ -13511,7 +13511,7 @@
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.
- 
+
 ;
 ; SANE Backend specification file
 ;

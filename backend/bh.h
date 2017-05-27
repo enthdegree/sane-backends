@@ -73,16 +73,16 @@
 #define BH_SECTION_FRONT_PATCH (1 << 4)
 #define BH_SECTION_BACK_PATCH (1 << 5)
 
-typedef enum 
-{ 
-  BH_UNIT_INCH, 
-  BH_UNIT_MM, 
+typedef enum
+{
+  BH_UNIT_INCH,
+  BH_UNIT_MM,
   BH_UNIT_POINT
 } bh_measureUnit;
 
 typedef enum
 {
-  BH_COMP_NONE, 
+  BH_COMP_NONE,
   BH_COMP_G31D,
   BH_COMP_G32D,
   BH_COMP_G42D
@@ -90,13 +90,13 @@ typedef enum
 
 typedef enum
 {
-  BH_ROTATION_0, 
+  BH_ROTATION_0,
   BH_ROTATION_90,
   BH_ROTATION_180,
   BH_ROTATION_270
 } bh_rotation;
 
-typedef enum 
+typedef enum
 {
   OPT_NUM_OPTS = 0,
 
@@ -171,30 +171,30 @@ typedef enum
   OPT_BARCODE_SEARCH_BAR,
   /* Barcode search count (1-7, default 3). */
   OPT_BARCODE_SEARCH_COUNT,
-  /* Barcode search mode. 
-   * (1 = horizontal,2 = vertical, 6 = v then h, 9 = h then v). 
+  /* Barcode search mode.
+   * (1 = horizontal,2 = vertical, 6 = v then h, 9 = h then v).
    */
   OPT_BARCODE_SEARCH_MODE,
   /* Patch code min height (def=127 (5mm)) */
-  OPT_BARCODE_HMIN,       
-  /* Barcode search timeout in ms 
-   * (20-65535,default is disabled). 
+  OPT_BARCODE_HMIN,
+  /* Barcode search timeout in ms
+   * (20-65535,default is disabled).
    */
   OPT_BARCODE_SEARCH_TIMEOUT,
   /* Specify image sections and functions
    */
   OPT_SECTION,
-  /* Specifies the maximum relation from the widest to 
-   * the smallest bar 
+  /* Specifies the maximum relation from the widest to
+   * the smallest bar
    */
   OPT_BARCODE_RELMAX,
   /* Specifies the minimum number of bars in Bar/Patch code */
   OPT_BARCODE_BARMIN,
   /* Specifies the maximum number of bars in a Bar/Patch code */
   OPT_BARCODE_BARMAX,
-  /* Specifies the image contrast used in decoding.  
-   * Use higher values when there are more white pixels 
-   * in the code 
+  /* Specifies the image contrast used in decoding.
+   * Use higher values when there are more white pixels
+   * in the code
    */
   OPT_BARCODE_CONTRAST,
   /* Controls Patch Code detection. */
@@ -291,8 +291,8 @@ typedef struct _BH_Info
   SANE_Int resMaxY;		/* maximum Y resolution */
   SANE_Int resMinX;		/* minimum X resolution */
   SANE_Int resMinY;		/* minimum Y resolution */
-  SANE_Int resStdList[16+1];    /* list of available standard resolutions 
-				 * (first slot is the length) 
+  SANE_Int resStdList[16+1];    /* list of available standard resolutions
+				 * (first slot is the length)
 				 */
   SANE_Int winWidth;		/* length of window (in BasicX res DPI) */
   SANE_Int winHeight;		/* height of window (in BasicY res DPI) */
@@ -321,7 +321,7 @@ struct _BH_Scanner
 
   /* SCSI filedescriptor */
   int fd;
-  
+
   /* tempfile which is used to send decoded barcode data */
   FILE *barf;
   char barfname[PATH_MAX+1];
@@ -337,7 +337,7 @@ struct _BH_Scanner
 
   /* SANE image parameters */
   SANE_Parameters params;
-  
+
   /* state information - not options */
 
   /* Basic Measurement Unit */
@@ -394,9 +394,9 @@ static const SANE_Range barcode_search_timeout_range =
 static const SANE_Range barcode_hmin_range =
 {
     1,		/* minimum */
-    1660, 	/* maximum (when converted from mm 
-		 * to thousandths will still be less 
-		 * than 65536) 
+    1660, 	/* maximum (when converted from mm
+		 * to thousandths will still be less
+		 * than 65536)
 		 */
     0		/* quantization */
 };
@@ -915,7 +915,7 @@ struct mode_page_03 {
   SANE_Byte mediumtype;
   SANE_Byte devicespecificparam;
   SANE_Byte blockdescriptorlen;
-  
+
   SANE_Byte pagecode;
   SANE_Byte paramlen;
   SANE_Byte bmu;

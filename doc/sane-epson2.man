@@ -13,11 +13,11 @@ include network access.
 .PP
 Because
 .B sane\-epson
-and 
-.B sane\-epson2 
+and
+.B sane\-epson2
 drivers support many of the same devices, if one
 driver gives you problems you may try disabling it to try the other.
-This can be done by removing the driver name from the 
+This can be done by removing the driver name from the
 .I dll.conf
 or perhaps by commenting out the options in
 .I epson.conf
@@ -94,23 +94,23 @@ V750                         USB, IEEE-1394
 and many more. The official list is on the Sane web site.
 .RE
 
-For other scanners the software  may or may not work.  Please send mail to 
+For other scanners the software  may or may not work.  Please send mail to
 the sane-backend mailing list to report success with scanners not on
-the list or problems with scanners that are listed. 
+the list or problems with scanners that are listed.
 .SH OPTIONS
 The options the backend supports can either be selected through command line
 options to programs like scanimage or through GUI elements in programs like
 xscanimage or xsane.
 
-Valid command line options and their syntax can be listed by using 
+Valid command line options and their syntax can be listed by using
 .RS
 scanimage \-\-help \-d epson2
 .RE
 Not all devices support all options.
 .TP
 .I Scan Mode
-The 
-.I \-\-mode 
+The
+.I \-\-mode
 switch selects the basic mode of operation of the scanner. Valid choices
 are Binary, Gray and Color.  The Binary mode is black and white only,
 Gray will produce 256 levels of gray or more depending on the scanner
@@ -135,7 +135,7 @@ are "None", "Halftone A (Hard Tone)", "Halftone B (Soft Tone)", "Halftone C
 (4x4 Net Screen)", "Dither D (8x4 Net Screen)", "Text Enhanced Technology",
 "Download pattern A", and "Download pattern B".
 
-The 
+The
 .I \-\-dropout
 switch selects the so called dropout color. Valid options are None,
 Red, Green and Blue. The default is None. The dropout color is used for
@@ -155,54 +155,54 @@ switch sets the sharpness of the image data. Valid options are integer
 values from \-2 to 2, with \-2 meaning "Defocus", \-1 "Defocus slightly",
 0 "Normal", 1 "Sharpen slightly" and 2 "Sharpen".
 
-The 
+The
 .I \-\-gamma\-correction
 switch controls the scanner's internal gamma correction. Valid options are
 "Default", "User defined", "High density printing" "Low density printing"
 and "High contrast printing".
 
-The 
+The
 .I \-\-color\-correction
 switch controls the scanner's internal color correction function. Valid
 options are "No Correction", "Impact\-dot printers", "Thermal printers",
 "Ink\-jet printers" and "CRT monitors". The default is "CRT monitors".
 
-The 
+The
 .I \-\-resolution
 switch selects the resolution for a scan. Some EPSON scanners will scan in
 any resolution between the lowest and highest possible value. The list
 reported by the scanner can be displayed using the "\-\-help \-d epson"
 parameters to scanimage.
 
-The 
+The
 .I \-\-threshold
 switch selects the minimum brightness to get a white point.
 
-The 
+The
 .I \-\-mirror
 option controls the way the image is scanned. By reading the image data
 from right to left the image is mirrored. Valid options are "yes" and
 "no". The default is "no".
 
-The 
-.I \-\-auto\-area\-segmentation 
+The
+.I \-\-auto\-area\-segmentation
 switch activates the automatic area segmentation for monochrome scans. The
 scanner will try to determine which areas are text and which contain
 images. The image areas will be halftoned, and the text will be
 improved. Valid options are "yes" and "no". The default is "yes".
 
-The 
-.I \-\-red\-gamma\-table 
+The
+.I \-\-red\-gamma\-table
 parameter can be used to download a user defined gamma table for the
 red channel. The valid options are the same as for \-\-gamma\-table.
 
-The 
-.I \-\-green\-gamma\-table 
+The
+.I \-\-green\-gamma\-table
 parameter can be used to download a user defined gamma table for the
 green channel. The valid options are the same as for \-\-gamma\-table.
 
-The 
-.I \-\-blue\-gamma\-table 
+The
+.I \-\-blue\-gamma\-table
 parameter can be used to download a user defined gamma table for the
 blue channel. The valid options are the same as for \-\-gamma\-table.
 
@@ -216,13 +216,13 @@ The color correction coefficients
 will install color correction coefficients for the user defined color
 correction. Values are specified as integers in the range \-127..127.
 
-The 
+The
 .I \-\-preview
-option requests a preview scan. The frontend software automatically selects a low 
+option requests a preview scan. The frontend software automatically selects a low
 resolution. Valid options are "yes" and "no". The default is "no".
 
 The geometry options
-.I \-l \-t \-x \-y 
+.I \-l \-t \-x \-y
 control the scan area: \-l sets the top left x coordinate, \-t the top
 left y coordinate, \-x selects the width and \-y the height of the scan
 area. All parameters are specified in millimeters.
@@ -232,9 +232,9 @@ The
 option selects the scan source. Valid options depend on the installed
 options. The default is "Flatbed".
 
-The 
+The
 .I \-\-auto\-eject
-option will eject a page after scanning from the document feeder. 
+option will eject a page after scanning from the document feeder.
 
 The
 .I \-\-film\-type
@@ -264,7 +264,7 @@ The
 option select the ADF mode (simplex/duplex).
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/epson2.conf specifies the device(s) that the 
+The configuration file @CONFIGDIR@/epson2.conf specifies the device(s) that the
 backend will use. Possible connection types are:
 .TP
 .I SCSI
@@ -272,28 +272,28 @@ This is the default, and if nothing else is specified the backend software will
 open a given path as SCSI device. More information about valid syntax for SCSI
 devices can be found in sane\-scsi(5).
 .br
-Usually SCSI scanners are configured with a line "scsi EPSON" in this file. In 
+Usually SCSI scanners are configured with a line "scsi EPSON" in this file. In
 some cases it may be necessary to only use the string "scsi" (e.g. for the GT-6500).
 .TP
 .I PIO \- Parallel Interface
 The parallel interface can be configured in two ways: An integer value starting
 at the beginning of a line will be interpreted as the IO address of the parallel
-port. To make it clearer that a configured IO address is a parallel port the 
+port. To make it clearer that a configured IO address is a parallel port the
 port address can be preceded by the string "PIO". The PIO connection does not
 use a special device file in the /dev directory. The IO address can be specified
 in hex mode (prefixed with "0x").
 .TP
 .I USB
 For USB scanners not automatically detect, their VENDOR and PRODUCT ID can
-be specified manually in the config file.  
+be specified manually in the config file.
 More information about valid syntax for USB devices can be found in sane\-usb(5).
 .TP
 .I Network
 Network scanners can be auto-discovered if
 .I autodiscovery
-is specified after 
+is specified after
 .I
-net 
+net
 keyword.  An IP address to connect to can also be used.
 .SH FILES
 .TP
@@ -313,20 +313,20 @@ levels reduce verbosity.
 .TP
 .B SANE_DEBUG_EPSON2_SCSI
 If the library was compiled with debug support enabled, this
-environment variable controls the SCSI related debug level for this backend.  
+environment variable controls the SCSI related debug level for this backend.
 Only a value of 2 is supported.
 .TP
 .B SANE_DEBUG_EPSON2_NET
 If the library was compiled with debug support enabled, this
-environment variable controls the network related debug level for this 
-backend.  E.g., a value of 128 requests all debug output to be printed.  
+environment variable controls the network related debug level for this
+backend.  E.g., a value of 128 requests all debug output to be printed.
 Smaller levels reduce verbosity.
 .TP
 .B SANE_EPSON2_CMD_LVL
 This allows one to override the function or command level that the backend
 uses to communicate with the scanner. The function level a scanner
 supports is determined during the initialization of the device. If
-the backend does not recognize the function level reported by the 
+the backend does not recognize the function level reported by the
 scanner it will default to function level B3. Valid function levels
 are A1, A2, B1, B2, B3, B4, B5, B6, B7, B8, D1 and F5. Use this feature
 only if you know what you are doing!
@@ -340,16 +340,16 @@ sane\-scsi(5), sane\-usb(5), scanimage(1), xscanimage(1), xsane(1)
 None :-) At least none are currently known.
 
 .SH UNSUPPORTED DEVICES
-The backend may be used with Epson scanners that are not yet listed 
+The backend may be used with Epson scanners that are not yet listed
 under the list of supported devices. A scanner that is not recognized
-may default to the function level B3, which means that not all 
-functions that the scanner may be capable of are accessible. 
+may default to the function level B3, which means that not all
+functions that the scanner may be capable of are accessible.
 
 If the scanner is not even recognized as an Epson scanner this is
 probably because the device name reported by the scanner is not in the
 correct format. Please send this information to the backend maintainer
 (email address is in the AUTHOR section of this man page or in the
-AUTHORS file of the SANE distribution). 
+AUTHORS file of the SANE distribution).
 
 .SH AUTHOR
 

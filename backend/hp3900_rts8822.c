@@ -13902,7 +13902,7 @@ Constrains_Check (struct st_device *dev, SANE_Int Resolution,
 		  SANE_Int scantype, struct st_coords *mycoords)
 {
   /*
-     Constrains: 
+     Constrains:
      100 dpi   850 x  1170   | 164 x 327
      300 dpi  2550 x  3510
      600 dpi  5100 x  7020

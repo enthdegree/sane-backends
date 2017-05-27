@@ -58,7 +58,7 @@
 /** @mainpage
  *  @verbinclude Plustek-PARPORT.txt
  */
-  
+
 #ifdef _AIX
 # include "../include/lalloca.h"  /* MUST come first for AIX! */
 #endif
@@ -304,17 +304,17 @@ static pModeParam getModeList( Plustek_Scanner *scanner )
 
 	if((_ASIC_IS_98003 == scanner->hw->caps.AsicID) ||
    	   (_ASIC_IS_98001 == scanner->hw->caps.AsicID)) {
-		mp = mode_9800x_params;	
+		mp = mode_9800x_params;
 	} else {
-		mp = mode_params;	
-	}	
+		mp = mode_params;
+	}
 
 	/*
 	 * the transparency/negative mode supports only GRAY/COLOR/COLOR32/COLOR48
 	 */
 	if( 0 != scanner->val[OPT_EXT_MODE].w ) {
 		mp = &mp[_TPAModeSupportMin];
-	}		
+	}
 
 	return mp;
 }
@@ -396,7 +396,7 @@ static int reader_process( void *args )
 
 	act.sa_handler = reader_process_sigterm_handler;
 	sigaction( SIGTERM, &act, 0 );
-	
+
 	data_length = scanner->params.lines * scanner->params.bytes_per_line;
 
 	DBG( _DBG_PROC, "reader_process:"
@@ -407,7 +407,7 @@ static int reader_process( void *args )
 		DBG( _DBG_FATAL, "NULL Pointer !!!!\n" );
 		return SANE_STATUS_IO_ERROR;
 	}
-	
+
 	/* here we read all data from the driver... */
 	if( scanner->hw->readImage ) {
 
@@ -419,7 +419,7 @@ static int reader_process( void *args )
 
 
 		status = scanner->hw->prepare( scanner->hw, buf );
-    	
+
         if( 0 == status ) {
 
 			for( line = 0; line < scanner->params.lines; line++ ) {
@@ -442,7 +442,7 @@ static int reader_process( void *args )
                                                           (int)status, errno );
 		if( -9009 == (int)status )
 			return SANE_STATUS_CANCELLED;
-		
+
 		if( errno == EBUSY )
 			return SANE_STATUS_DEVICE_BUSY;
 
@@ -479,8 +479,8 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 		if( -1 != scanner->hw->fd ) {
 			int_cnt = 1;
 			scanner->hw->stopScan( scanner->hw, &int_cnt );
-		}	
-		
+		}
+
 	    sigemptyset(&(act.sa_mask));
     	act.sa_flags = 0;
 
@@ -494,17 +494,17 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 		alarm(10);
 		res = sanei_thread_waitpid( scanner->reader_pid, 0 );
 		alarm(0);
-		
+
 		if( res != scanner->reader_pid ) {
 			DBG( _DBG_PROC,"sanei_thread_waitpid() failed !\n");
-			
+
 			/* do it the hard way...*/
 #ifdef USE_PTHREAD
 			sanei_thread_kill( scanner->reader_pid );
 #else
 			sanei_thread_sendsig( scanner->reader_pid, SIGKILL );
 #endif
-		}			
+		}
 
 		scanner->reader_pid = -1;
 		DBG( _DBG_PROC,"reader_process killed\n");
@@ -547,7 +547,7 @@ static void limitResolution( Plustek_Device *dev )
 	} else {
 		dev->dpi_range.max = lens.rDpiY.wPhyMax;
 	}
-	
+
 	dev->dpi_range.quant = 0;
 	dev->x_range.min 	 = 0;
 	dev->x_range.max 	 = SANE_FIX(dev->max_x);
@@ -582,37 +582,37 @@ static SANE_Status initGammaSettings( Plustek_Scanner *s )
 
 		s->gamma_length = 256;
 	}
-  	
+
   	DBG( _DBG_INFO, "Presetting Gamma tables (len=%u)\n", s->gamma_length );
   	DBG( _DBG_INFO, "----------------------------------\n" );
-  	
+
   	/*
   	 * preset the gamma maps
   	 */
   	for( i = 0; i < 4; i++ ) {
-			
+
 		switch( i ) {
 			case 1:  gamma = s->hw->adj.rgamma;    break;
 			case 2:  gamma = s->hw->adj.ggamma;    break;
 			case 3:  gamma = s->hw->adj.bgamma;    break;
 			default: gamma = s->hw->adj.graygamma; break;
-		}			
-  	
+		}
+
 		for( j = 0; j < s->gamma_length; j++ ) {
-		
+
 			val = (s->gamma_range.max *
 					    pow((double) j / ((double)s->gamma_length - 1.0),
 						1.0 / gamma ));
-			
+
 			if( val > s->gamma_range.max )
 				val = s->gamma_range.max;
-												
-			s->gamma_table[i][j] = val;					
-		}			
-	}			
-	
+
+			s->gamma_table[i][j] = val;
+		}
+	}
+
 	return SANE_STATUS_GOOD;
-}  	
+}
 
 /** Check the gamma vectors we got back and limit if necessary
  * @param  s - pointer to the scanner specific structure
@@ -685,7 +685,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_EXT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 	s->opt[OPT_EXT_MODE].constraint.string_list = ext_mode_list;
 	s->val[OPT_EXT_MODE].w = 0; /* Normal */
-	
+
 	/* halftone */
 	s->opt[OPT_HALFTONE].name  = SANE_NAME_HALFTONE_PATTERN;
 	s->opt[OPT_HALFTONE].title = SANE_TITLE_HALFTONE;
@@ -790,14 +790,14 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
 
 	/* "Enhancement" group: */
-	s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");	
+	s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");
 	s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
 	s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
 	s->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
 	s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
-	
+
 	initGammaSettings( s );
-	
+
  	/* grayscale gamma vector */
   	s->opt[OPT_GAMMA_VECTOR].name  = SANE_NAME_GAMMA_VECTOR;
   	s->opt[OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
@@ -842,12 +842,12 @@ static SANE_Status init_options( Plustek_Scanner *s )
   	s->opt[OPT_GAMMA_VECTOR_B].constraint.range = &(s->gamma_range);
   	s->opt[OPT_GAMMA_VECTOR_B].size = s->gamma_length * sizeof(SANE_Word);
 
-	/* GAMMA stuff is disabled per default */	
+	/* GAMMA stuff is disabled per default */
     s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
     s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
     s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
     s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-	
+
 	/* disable extended mode list for devices without TPA */
 	if( 0 == (s->hw->caps.dwFlag & SFLAG_TPA)) {
 		s->opt[OPT_EXT_MODE].cap |= SANE_CAP_INACTIVE;
@@ -856,7 +856,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
   	/* disable custom gamma, if not supported by the driver... */
 	if( 0 == (s->hw->caps.dwFlag & SFLAG_CUSTOM_GAMMA)) {
 	  	s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
-	}  		
+	}
 
 	return SANE_STATUS_GOOD;
 }
@@ -885,18 +885,18 @@ static SANE_Bool decodeVal( char *src, char *opt,
 	/* get the name of the option */
 	name = sanei_config_get_string( name, &tmp );
 
-	if( tmp ) {	
+	if( tmp ) {
 
 		/* on success, compare wiht the given one */
 		if( 0 == strcmp( tmp, opt )) {
-	
+
 			DBG( _DBG_SANE_INIT, "Decoding option >%s<\n", opt );
 
 			if( _INT == what ) {
-			
+
 				/* assign the default value for this option... */
 				*((int*)result) = *((int*)def);
-	
+
 				if( *name ) {
 
 					/* get the configuration value and decode it */
@@ -907,14 +907,14 @@ static SANE_Bool decodeVal( char *src, char *opt,
 				    	free( tmp2 );
 					}
 				}
-				free( tmp );	
+				free( tmp );
 				return SANE_TRUE;
-				
+
 			} else if( _FLOAT == what ) {
-			
+
 				/* assign the default value for this option... */
 				*((double*)result) = *((double*)def);
-	
+
 				if( *name ) {
 
 					/* get the configuration value and decode it */
@@ -925,13 +925,13 @@ static SANE_Bool decodeVal( char *src, char *opt,
 				    	free( tmp2 );
 					}
 				}
-				free( tmp );	
+				free( tmp );
 				return SANE_TRUE;
 			}
-		}	
+		}
 		free( tmp );
 	}
-	
+
    	return SANE_FALSE;
 }
 
@@ -944,27 +944,27 @@ static SANE_Bool decodeVal( char *src, char *opt,
  */
 static SANE_Bool decodeDevName( char *src, char *dest )
 {
-	char       *tmp;	
+	char       *tmp;
 	const char *name;
 
 	if( 0 == strncmp( "device", src, 6 )) {
 
 		name = (const char*)&src[strlen("device")];
 		name = sanei_config_skip_whitespace( name );
-	
+
 		DBG( _DBG_SANE_INIT, "Decoding device name >%s<\n", name );
-		
+
 		if( *name ) {
 			name = sanei_config_get_string( name, &tmp );
 			if( tmp ) {
-	      		
+
 				strcpy( dest, tmp );
 		    	free( tmp );
 		    	return SANE_TRUE;
 		    }
-		}	
+		}
 	}
-	
+
    	return SANE_FALSE;
 }
 
@@ -1000,7 +1000,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	/* assign all the stuff we need fo this device... */
 
 	memset(dev, 0, sizeof (*dev));
-	
+
 	dev->fd			 = -1;
     dev->name        = strdup(dev_name);    /* hold it double to avoid  */
 	dev->sane.name   = dev->name;           /* compiler warnings        */
@@ -1067,7 +1067,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	} else {
 		dev->sane.model = ModelStr[0];
 	}
-	
+
 	DBG( _DBG_INFO, "Vendor : %s\n",      dev->sane.vendor  );
 	DBG( _DBG_INFO, "Model  : %s\n",      dev->sane.model   );
 	DBG( _DBG_INFO, "Asic   : 0x%02x\n",  dev->caps.AsicID  );
@@ -1140,7 +1140,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 
 	DBG_INIT();
 	sanei_thread_init();
-	
+
 	res = sanei_pp_init();
 	if( SANE_STATUS_GOOD != res ) {
 		DBG( _DBG_ERROR, "Could not initialize Parport library!\n" );
@@ -1178,20 +1178,20 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	}
 
 	while( sanei_config_read( str, sizeof(str), fp)) {
-		
+
 		DBG( _DBG_SANE_INIT, ">%s<\n", str );
 		if( str[0] == '#')		/* ignore line comments */
     		continue;
-			
+
 		len = strlen(str);
 		if( 0 == len )
            	continue;			    /* ignore empty lines */
 
 		/* check for options */
 		if( 0 == strncmp(str, "option", 6)) {
-		
+
 			int ival;
-		
+
 			ival = -1;
 			decodeVal( str, "warmup",    _INT, &config.adj.warmup,      &ival);
 			decodeVal( str, "lampOff",   _INT, &config.adj.lampOff,     &ival);
@@ -1203,14 +1203,14 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 
 		/* check for sections: */
 		} else if( 0 == strncmp( str, "[direct]", 8)) {
-											
+
 		    /* new section, try and attach previous device */
 		    if( config.devName[0] != '\0' )
 				attach( config.devName, &config, 0 );
-											
+
 			/* re-initialize the configuration structure */
 			init_config_struct( &config, SANE_TRUE );
-			continue;				
+			continue;
 
 		} else if( 0 == strncmp( str, "[kernel]", 8 )) {
 
@@ -1221,11 +1221,11 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 			/* re-initialize the configuration structure */
 			init_config_struct( &config, SANE_FALSE );
 			continue;
-		
+
 		} else if( SANE_TRUE == decodeDevName( str, config.devName )) {
 			continue;
 		}
-		
+
 		/* ignore other stuff... */
 		DBG( _DBG_SANE_INIT, "ignoring >%s<\n", str );
 	}
@@ -1234,7 +1234,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
     /* try to attach the last device in the config file... */
     if( config.devName[0] != '\0' )
 		attach( config.devName, &config, 0 );
-   	
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -1328,7 +1328,7 @@ SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 		if( !dev ) {
 
 			memset( &config, 0, sizeof(CnfDef));
-			
+
 			/* check if a valid parport-device is meant... */
 			status = attach( devicename, &config, &dev );
 			if( SANE_STATUS_GOOD != status )
@@ -1359,7 +1359,7 @@ SANE_Status sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 	first_handle = s;
 
 	*handle = s;
-	
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -1382,7 +1382,7 @@ void sane_close (SANE_Handle handle)
 
 	if (!s) {
     	DBG( _DBG_ERROR, "close: invalid handle %p\n", handle);
-		return;		
+		return;
 	}
 
 	close_pipe( s );
@@ -1463,7 +1463,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 				strcpy ((char *) value,
 					  s->opt[option].constraint.string_list[s->val[option].w]);
 				break;
-	
+
 	  		/* word array options: */
 	  		case OPT_GAMMA_VECTOR:
 			case OPT_GAMMA_VECTOR_R:
@@ -1471,7 +1471,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 			case OPT_GAMMA_VECTOR_B:
 				memcpy( value, s->val[option].wa, s->opt[option].size );
 				break;
-								
+
 			default:
 				return SANE_STATUS_INVAL;
 		}
@@ -1514,7 +1514,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
                         *(SANE_Word *)value = best;
 
 	    			if( NULL != info ) {
-		    			if( v != best )	
+		    			if( v != best )
                             *info |= SANE_INFO_INEXACT;
 				    	*info |= SANE_INFO_RELOAD_PARAMS;
          		  	}
@@ -1531,7 +1531,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	    			if( NULL != info )
     					*info |= SANE_INFO_RELOAD_PARAMS;
 	    			break;
-				
+
 				case OPT_CUSTOM_GAMMA:
     				s->val[option].w = *(SANE_Word *)value;
 	    			if( NULL != info )
@@ -1544,9 +1544,9 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 				    s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 				    s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 				    s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-					    					    					
+
     				if( SANE_TRUE == s->val[option].w ) {
-    				
+
     					if((scanmode == COLOR_256GRAY) ||
 						   (scanmode == COLOR_GRAY16)) {
 						    s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
@@ -1554,20 +1554,20 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 						    s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
 						    s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
 						    s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
-						}		
-										
+						}
+
     				} else {
-	
+
 						initGammaSettings( s );
-    				
+
     					if((scanmode == COLOR_256GRAY) ||
 						   (scanmode == COLOR_GRAY16)) {
 						    s->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
-						} else {						
+						} else {
 						    s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 						    s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 						    s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-						}						
+						}
     				}
 	    			break;
 
@@ -1587,7 +1587,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
                     }
 
                		mp = getModeList( s );
-               		
+
 	    			if( mp[idx].scanmode != COLOR_HALFTONE ){
 		    			s->opt[OPT_HALFTONE].cap     |= SANE_CAP_INACTIVE;
 			    		s->opt[OPT_CONTRAST].cap     &= ~SANE_CAP_INACTIVE;
@@ -1601,16 +1601,16 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	    			if( mp[idx].scanmode == COLOR_BW ) {
 			    		s->opt[OPT_CONTRAST].cap     |= SANE_CAP_INACTIVE;
 			    		s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
-			    	}	
-			    	
+			    	}
+
 			    	s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
 			    	s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 			    	s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 			    	s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-					
+
 					if( s->val[OPT_CUSTOM_GAMMA].w &&
 			    		!(s->opt[OPT_CUSTOM_GAMMA].cap & SANE_CAP_INACTIVE)) {
-			    		
+
     					if((mp[idx].scanmode == COLOR_256GRAY) ||
 						   (mp[idx].scanmode == COLOR_GRAY16)) {
 						    s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
@@ -1677,7 +1677,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
     					}
 
 	    				if( s->hw->caps.dwFlag & SFLAG_TPA ) {
-	    				
+
 		    				s->opt[OPT_MODE].constraint.string_list =
 											&mode_9800x_list[_TPAModeSupportMin];
         	    		} else {
@@ -1708,7 +1708,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 				    return SANE_STATUS_INVAL;
     		}
 	    	break;
-	    	
+
 
     	default:
         	return SANE_STATUS_INVAL;
@@ -1834,7 +1834,7 @@ SANE_Status sane_start( SANE_Handle handle )
 		s->hw->close( s->hw );
 		return SANE_STATUS_IO_ERROR;
     }
-	
+
 	result = s->hw->getLensInfo( s->hw, &lens );
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "dev->getLensInfo() failed(%d)\n", result );
@@ -2148,7 +2148,7 @@ SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 		DBG( _DBG_ERROR, "ERROR: not supported !\n" );
 		return SANE_STATUS_UNSUPPORTED;
 	}
-	
+
 	if( fcntl (s->r_pipe, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0) {
 		DBG( _DBG_ERROR, "ERROR: can´t set to non-blocking mode !\n" );
 		return SANE_STATUS_IO_ERROR;

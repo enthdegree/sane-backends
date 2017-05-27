@@ -56,7 +56,7 @@
 /******************* wrapper functions for parport device ********************/
 
 #ifndef _BACKEND_ENABLED
-  
+
 static int PtDrvInit( char *dev_name, unsigned short model_override )
 {
 	_VAR_NOT_USED( dev_name );
@@ -124,7 +124,7 @@ static int ppDev_open( const char *dev_name, void *misc )
 		handle = PtDrvOpen();
 	else
 		handle = open( dev_name, O_RDONLY );
-	
+
 	if ( handle  < 0 ) {
 	    DBG( _DBG_ERROR, "open: can't open %s as a device\n", dev_name );
     	return handle;
@@ -134,7 +134,7 @@ static int ppDev_open( const char *dev_name, void *misc )
 		result = PtDrvIoctl( _PTDRV_OPEN_DEVICE, &version );
 	else
 		result = ioctl( handle, _PTDRV_OPEN_DEVICE, &version );
-		
+
 	if( result < 0 ) {
 
         if( -9019 == result ) {
@@ -149,14 +149,14 @@ static int ppDev_open( const char *dev_name, void *misc )
 				result = PtDrvIoctl( _PTDRV_OPEN_DEVICE, &version );
 			else
 				result = ioctl( handle, _PTDRV_OPEN_DEVICE, &version );
-			
+
 			if( result < 0 ) {
-				
+
 				if( dev->adj.direct_io )
 					PtDrvClose();
 				else
 					close( dev->fd );
-					
+
 				DBG( _DBG_ERROR,
 					 "ioctl PT_DRV_OPEN_DEVICE failed(%d)\n", result );
 
@@ -294,23 +294,23 @@ static int ppDev_setMap( Plustek_Device *dev, SANE_Word *map,
 	m.map_id = channel;
 
 	m.map = (void *)map;
-		
+
 	DBG(_DBG_INFO,"Setting map[%u] at 0x%08lx\n", channel, (unsigned long)map);
 
 	buf = (SANE_Byte*)malloc( m.len );
-	
+
 	if( !buf )
 		return _E_ALLOC;
-	
+
 	for( i = 0; i < m.len; i++ ) {
 		buf[i] = (SANE_Byte)map[i];
-		
+
 		if( map[i] > 0xFF )
 			buf[i] = 0xFF;
 	}
-	
+
 	m.map = buf;
-	
+
 	if( dev->adj.direct_io )
 		PtDrvIoctl( _PTDRV_SETMAP, &m );
 	else
@@ -334,7 +334,7 @@ static int ppDev_stopScan( Plustek_Device *dev, short *mode )
 		retval = PtDrvIoctl( _PTDRV_STOP_SCAN, mode );
 	else
 		retval = ioctl( dev->fd, _PTDRV_STOP_SCAN, mode );
-	
+
 	/* ... and use it here */
 	if( 0 == tmp ) {
 		if( dev->adj.direct_io )

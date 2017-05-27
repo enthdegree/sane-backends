@@ -112,7 +112,7 @@ sanei_debug_msg
   (int level, int max_level, const char *be, const char *fmt, va_list ap)
 {
   char *msg;
-	
+
   if (max_level >= level)
     {
 #ifdef S_IFSOCK
@@ -137,7 +137,7 @@ sanei_debug_msg
 	  fprintf (stderr, "[%s] ", be);
           vfprintf (stderr, fmt, ap);
 	}
-	 
+
     }
 }
 

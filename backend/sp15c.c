@@ -313,7 +313,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
   struct sp15c *dev;
   int i;
-  
+
   local_only = local_only; /* silence compilation warnings */
 
   DBG (10, "sane_get_devices\n");
@@ -392,7 +392,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
 SANE_Status
 sane_set_io_mode (SANE_Handle h, SANE_Bool non_blocking)
 {
-  h = h; 
+  h = h;
   non_blocking = non_blocking; /* silence compilation warnings */
 
   DBG (10, "sane_set_io_mode\n");
@@ -989,7 +989,7 @@ sane_exit (void)
       free (dev->buffer);
       free (dev);
     }
-  
+
   if (devlist)
     free (devlist);
 }                               /* sane_exit */
@@ -1322,7 +1322,7 @@ static SANE_Status
 sp15c_do_inquiry (struct sp15c *s)
 {
   static SANE_Status ret;
-  
+
   DBG (10, "do_inquiry\n");
 
   memset (s->buffer, '\0', 256);        /* clear buffer */
@@ -1606,7 +1606,7 @@ sp15c_free_scanner (struct sp15c *s)
   if (ret)
     return ret;
 #endif
-  
+
   wait_scanner (s);
 
   ret = do_scsi_cmd (s->sfd, release_unitB.cmd, release_unitB.size, NULL, 0);
@@ -1626,7 +1626,7 @@ sp15c_free_scanner (struct sp15c *s)
  *     GOOD
  * RESERVE UNIT
  *     GOOD
- * 
+ *
  * It is then responsible for installing appropriate signal handlers
  * to call emergency_give_scanner() if user aborts.
  */
@@ -1647,7 +1647,7 @@ sp15c_grab_scanner (struct sp15c *s)
   return 0;
 }                               /* sp15c_grab_scanner */
 
-/* 
+/*
  *  wait_scanner spins until TEST_UNIT_READY returns 0 (GOOD)
  *  returns 0 on success,
  *  returns -1 on error or timeout
@@ -1788,7 +1788,7 @@ static void
 swap_res (struct sp15c *s)
 {
   s = s; /* silence compilation warnings */
-  
+
   /* for the time being, do nothing */
 }                               /* swap_res */
 
@@ -1820,7 +1820,7 @@ sp15c_set_window_param (struct sp15c *s, int prescan)
   int active_buffer_size;
 
   prescan = prescan;   /* silence compilation warnings */
-  
+
   wait_scanner (s);
   DBG (10, "set_window_param\n");
   memset (buffer_r, '\0', WDB_size_max);        /* clear buffer */
@@ -1979,7 +1979,7 @@ reader_process (void *data)
 
   DBG (10, "reader_process started\n");
 
-  if (sanei_thread_is_forked ()) 
+  if (sanei_thread_is_forked ())
     close (scanner->pipe);
 
   sigfillset (&ignore_set);

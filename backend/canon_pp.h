@@ -42,7 +42,7 @@
 
    canon_pp.h: $Revision$
 
-   This file is part of the canon_pp backend, supporting Canon FBX30P 
+   This file is part of the canon_pp backend, supporting Canon FBX30P
    and NX40P scanners
 
 */
@@ -69,7 +69,7 @@
 #define CANONP_CONFIG_FILE "canon_pp.conf"
 /* options: num,res,colour,depth,tl-x,tl-y,br-x,br-y,cal */
 /* preview option disabled */
-#define NUM_OPTIONS 9  
+#define NUM_OPTIONS 9
 #define BUF_MAX 64000
 
 /* Indexes into options array */

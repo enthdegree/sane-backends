@@ -36,8 +36,8 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice.  
-   
+   If you do not wish that, delete this exception notice.
+
    This file implements the hardware driver scanners using a 300dpi CCD */
 
 #include "mustek_pp_ccd300.h"
@@ -1881,7 +1881,7 @@ ccd300_start (SANE_Handle handle)
        priv->hwres);
 
   priv->skipimagebytes = dev->topX;
-  
+
   sanei_pa4s2_enable (dev->fd, SANE_TRUE);
   config_ccd (dev);
   set_voltages (dev);

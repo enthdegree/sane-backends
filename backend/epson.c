@@ -1,4 +1,4 @@
-/* 
+/*
    epson.c - SANE library for Epson flatbed scanners.
 
    Based on Kazuhiro Sasayama previous
@@ -63,7 +63,7 @@
          2006-08-21   Fix buffer overflow error (submitted by Johannes Meixner)
    2006-06-11   Applied patch from Henning. Fixed a number of compiler warnings
    2006-03-12   Added support for perfetion 4990 photo 4800 dpi
-   2005-01-09   "flaming hack to get USB scanners working without timeouts under linux" 
+   2005-01-09   "flaming hack to get USB scanners working without timeouts under linux"
                 submitted by "Steve" (in comment to bug #300830)
    2004-12-18   Added USB IDs for CX-4600 and CX-3650
    2004-10-16   Added USB ID for Expression 10000XL
@@ -78,7 +78,7 @@
                 Added EPSON Kowa copyright message
    2003-08-15   Added support for GT-30000, with support for the ADF in simplex mode
                 Borrowed some code from the EPSON Kowa IScan version of the backend
-                Use sanei_scsi_cmd2() to send commands. This makes this backend 
+                Use sanei_scsi_cmd2() to send commands. This makes this backend
                 useable for SBP-2 under FreeBSD
    2003-05-11   Initialize OPT_LIMIT_RESOLUTION before first call to filter_resolution_list()
                 Fix memory problem in get_identity_information(). Both problems were
@@ -88,14 +88,14 @@
    2003-02-15   Move sanei_usb_init() to sane_init(). Thanks to Ron Cemer
                                 for providing the patch.
    2003-02-15   Fix problem with "usb <vendor> <product> syntax in config file
-   2002-12-28   Added advanced option to display only short resolution list for 
+   2002-12-28   Added advanced option to display only short resolution list for
                 displays that can not show the complete list.
    2002-11-23   Fixed problem with dropout color.
    2002-11-03   Full libusb support.
    2002-10-05   Fixed problem with incorrect response to sane_get_parameters()
                 in certain situations.
    2002-09-01   USB scanners are now using libsane-usb funtions
-   2002-08-17   Fixed typo in variable name. 
+   2002-08-17   Fixed typo in variable name.
                 Fixed IEEE-1394 problem with Perfection-2450.
                 Fixed problem with older B3 level SCSI scanners that do
                 not support the extended status request.
@@ -104,12 +104,12 @@
    2002-04-13   Check if scanner needs to be opened for the reset call.
                 (Thanks to Thomas Wenrich for pointing this out)
                 Added product IDs for Perfection 1650 and 2450
-   2002-01-18   Recognize GT-xxxx type scanners also when using the SCSI 
+   2002-01-18   Recognize GT-xxxx type scanners also when using the SCSI
                 or IEEE-1394 interface
    2002-01-06   Disable TEST_IOCTL again, which was enabled by accident. Also
                 protect the ioctl portion with an #ifdef __linux__
    2002-01-05   Version 0.2.17
-                Check for and set s->fd to -1 when device is closed.            
+                Check for and set s->fd to -1 when device is closed.
                 Removed black gamma table - only use RGB even for grayscale
    2002-01-01   Do not call access() for OS/2 systems
    2001-11-13   Version 0.2.16
@@ -126,8 +126,8 @@
    2001-06-09   Version 0.2.09
                 Changed debug level for sense handler from 0 to 2
    2001-05-25   Version 0.2.07
-                Allow more than 8 bit color depth even for preview mode 
-                since Xsane can handle this. Some code cleanup. 
+                Allow more than 8 bit color depth even for preview mode
+                since Xsane can handle this. Some code cleanup.
    2001-05-24   Removed ancient code that was used to determine the resolution
                 back when the backend still had a slider for the resolution
                 selection.
@@ -156,12 +156,12 @@
                 Fixed problem with bilevel scanning with Perfection610: The
                 line count has to be an even number with this scanner.
                 Several initialization fixes regarding bit depth selection.
-                This version goes back into the CVS repository, the 1.0.4 
+                This version goes back into the CVS repository, the 1.0.4
                 release is out and therefore the code freeze is over.
                 Some general cleanup, added more comments.
    2000-12-09   Version 0.2.00
                 Cleaned up printing of gamma table data. 16 elements
-                are now printed in one line without the [epson] in 
+                are now printed in one line without the [epson] in
                 between the values. Values are only printed for
                 Debug levels >= 10.
    2000-12-04   We've introduced the concept of inverting images
@@ -175,7 +175,7 @@
    2000-12-03   added the 12/14/16 bit support again.
    2000-12-03   Version 0.1.38
                 removed changes regarding 12/14 bit support because
-                of SANE feature freeze for 1.0.4. The D1 fix for 
+                of SANE feature freeze for 1.0.4. The D1 fix for
                 reading the values from the scanner instead of using
                 hardcoded values and the fix for the off-by-one error
                 in the reorder routine are still in the code base.
@@ -194,13 +194,13 @@
                 sane/... include files.
    2000-07-26   Fixed problem with Perfection610: The variable
                 s->color_shuffle_line was never correctly initialized
-   2000-06-28   When closing the scanner device the data that's 
+   2000-06-28   When closing the scanner device the data that's
                 still in the scanner, waiting to be transferred
                 is flushed. This fixes the problem with scanimage -T
    2000-06-13   Invert image when scanning negative with TPU,
                 Show film type only when TPU is selected
    2000-06-13   Initialize optical_res to 0 (Dave Hill)
-   2000-06-07   Fix in sane_close() - found by Henning Meier-Geinitz 
+   2000-06-07   Fix in sane_close() - found by Henning Meier-Geinitz
    2000-06-01   Threshhold should only be active when scan depth
                 is 1 and halftoning is off.  (mjp)
    2000-05-28   Turned on scanner based color correction.
@@ -212,16 +212,16 @@
                 Help prevent extraneous option reloads.  Split
                 sane_control_option in getvalue and setvalue.
                 Further split up setvalue into several different
-                routines. (mjp)                         
-   2000-05-21   In sane_close use close_scanner instead of just the 
+                routines. (mjp)
+   2000-05-21   In sane_close use close_scanner instead of just the
                 SCSI close function.
    2000-05-20   ... finally fixed the problem with the 610
                 Added resolution_list to Epson_Device structure in
-                epson.h - this fixes a bug that caused problems when 
+                epson.h - this fixes a bug that caused problems when
                 more than one EPSON scanner was connected.
    2000-05-13   Fixed the color problem with the Perfection 610. The few
                 lines with "garbage" at the beginning of the scan are not
-                yet removed. 
+                yet removed.
    2000-05-06   Added support for multiple EPSON scanners. At this time
                 this may not be bug free, but it's a start and it seems
                 to work well with just one scanner.
@@ -235,21 +235,21 @@
                 fix an OS/2 bug. It now turned out that they are not
                 necessary. The real fix was in the repository for a
                 long time (2000-01-25).
-   2000-03-19   Fixed problem with A4 level devices - they use the 
-                line mode instead of the block mode. The routine to 
-                handle this was screwed up pretty bad. Now I have 
+   2000-03-19   Fixed problem with A4 level devices - they use the
+                line mode instead of the block mode. The routine to
+                handle this was screwed up pretty bad. Now I have
                 a solid version that handles all variations of line
                 mode (automatically deals with the order the color
                 lines are sent).
    2000-03-06   Fixed occasional crash after warm up when the "in warmup
                 state" went away in between doing ESC G and getting the
-                extended status message.  
-   2000-03-02   Code cleanup, disabled ZOOM until I have time to 
+                extended status message.
+   2000-03-02   Code cleanup, disabled ZOOM until I have time to
                 deal with all the side effects.
    2000-03-01   More D1 fixes. In the future I have to come up with
                 a more elegant solution to destinguish between different
                 function levels. The level > n does not work anymore with
-                D1. 
+                D1.
                 Added support for "set threshold" and "set zoom".
    2000-02-23   First stab at level D1 support, also added a test
                 for valid "set halftone" command to enable OPT_HALFTONE
@@ -275,11 +275,11 @@
                 because of hte changes to attach a few days ago. (KHK)
    2000-01-29   fixed core dump with xscanimage by moving the gamma
                 curves to the standard interface (no longer advanced)
-                Removed pragma pack() from source code to make it 
+                Removed pragma pack() from source code to make it
                 easier to compile on non-gcc compilers (KHK)
    2000-01-26   fixed problem with resolution selection when using the
                 resolution list in xsane (KHK)
-   2000-01-25   moved the section where the device name is assigned 
+   2000-01-25   moved the section where the device name is assigned
                 in attach. This avoids the core dump of frontend
                 applications when no scanner is found (Dave Hill)
    2000-01-24   reorganization of SCSI related "helper" functions
@@ -395,7 +395,7 @@
 #define  EPSON_LEVEL_D7         12
 #define  EPSON_LEVEL_D8         13
 
-/* there is also a function level "A5", which I'm igoring here until somebody can 
+/* there is also a function level "A5", which I'm igoring here until somebody can
    convince me that this is still needed. The A5 level was for the GT-300, which
    was (is) a monochrome only scanner. So if somebody really wants to use this
    scanner with SANE get in touch with me and we can work something out - khk */
@@ -437,7 +437,7 @@ static EpsonCmdRec epson_cmd[] = {
  *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   set bay
  *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   set threshold
  *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   set focus position
- *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   request focus position 
+ *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   request focus position
  *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |
  *        |   |   |   |   |   |   |   |   |   |   |             |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |
  */
@@ -460,7 +460,7 @@ static EpsonCmdRec epson_cmd[] = {
 
 
 /*
- * Definition of the mode_param struct, that is used to 
+ * Definition of the mode_param struct, that is used to
  * specify the valid parameters for the different scan modes.
  *
  * The depth variable gets updated when the bit depth is modified.
@@ -508,10 +508,10 @@ static const SANE_String_Const adf_mode_list[] = {
  * of the scanner.
  */
 
-static SANE_String_Const source_list[] = { 
-  FBF_STR, 
-  NULL, 
-  NULL, 
+static SANE_String_Const source_list[] = {
+  FBF_STR,
+  NULL,
+  NULL,
   NULL
 };
 
@@ -519,9 +519,9 @@ static SANE_String_Const source_list[] = {
 #define FILM_TYPE_POSITIVE      (0)
 #define FILM_TYPE_NEGATIVE      (1)
 
-static const SANE_String_Const film_list[] = { 
-  SANE_I18N ("Positive Film"), 
-  SANE_I18N ("Negative Film"), 
+static const SANE_String_Const film_list[] = {
+  SANE_I18N ("Positive Film"),
+  SANE_I18N ("Negative Film"),
   NULL
 };
 
@@ -538,67 +538,67 @@ static const SANE_String_Const focus_list[] = {
 #define HALFTONE_NONE 0x01
 #define HALFTONE_TET 0x03
 
-static int halftone_params[] = { 
-  HALFTONE_NONE, 
-  0x00, 
-  0x10, 
-  0x20, 
-  0x80, 
-  0x90, 
-  0xa0, 
-  0xb0, 
+static int halftone_params[] = {
+  HALFTONE_NONE,
+  0x00,
+  0x10,
+  0x20,
+  0x80,
+  0x90,
+  0xa0,
+  0xb0,
   HALFTONE_TET,
-  0xc0, 
+  0xc0,
   0xd0
 };
 
-static const SANE_String_Const halftone_list[] = { 
-  SANE_I18N ("None"), 
+static const SANE_String_Const halftone_list[] = {
+  SANE_I18N ("None"),
   SANE_I18N ("Halftone A (Hard Tone)"),
-  SANE_I18N ("Halftone B (Soft Tone)"), 
+  SANE_I18N ("Halftone B (Soft Tone)"),
   SANE_I18N ("Halftone C (Net Screen)"),
   NULL
 };
 
-static const SANE_String_Const halftone_list_4[] = { 
-  SANE_I18N ("None"), 
+static const SANE_String_Const halftone_list_4[] = {
+  SANE_I18N ("None"),
   SANE_I18N ("Halftone A (Hard Tone)"),
-  SANE_I18N ("Halftone B (Soft Tone)"), 
-  SANE_I18N ("Halftone C (Net Screen)"),
-  SANE_I18N ("Dither A (4x4 Bayer)"),
-  SANE_I18N ("Dither B (4x4 Spiral)"),
-  SANE_I18N ("Dither C (4x4 Net Screen)"),
-  SANE_I18N ("Dither D (8x4 Net Screen)"), 
-  NULL
-};
-
-static const SANE_String_Const halftone_list_7[] = { 
-  SANE_I18N ("None"), 
-  SANE_I18N ("Halftone A (Hard Tone)"),
-  SANE_I18N ("Halftone B (Soft Tone)"), 
+  SANE_I18N ("Halftone B (Soft Tone)"),
   SANE_I18N ("Halftone C (Net Screen)"),
   SANE_I18N ("Dither A (4x4 Bayer)"),
   SANE_I18N ("Dither B (4x4 Spiral)"),
   SANE_I18N ("Dither C (4x4 Net Screen)"),
   SANE_I18N ("Dither D (8x4 Net Screen)"),
-  SANE_I18N ("Text Enhanced Technology"), 
-  SANE_I18N ("Download pattern A"),
-  SANE_I18N ("Download pattern B"), 
   NULL
 };
 
-static int dropout_params[] = { 
+static const SANE_String_Const halftone_list_7[] = {
+  SANE_I18N ("None"),
+  SANE_I18N ("Halftone A (Hard Tone)"),
+  SANE_I18N ("Halftone B (Soft Tone)"),
+  SANE_I18N ("Halftone C (Net Screen)"),
+  SANE_I18N ("Dither A (4x4 Bayer)"),
+  SANE_I18N ("Dither B (4x4 Spiral)"),
+  SANE_I18N ("Dither C (4x4 Net Screen)"),
+  SANE_I18N ("Dither D (8x4 Net Screen)"),
+  SANE_I18N ("Text Enhanced Technology"),
+  SANE_I18N ("Download pattern A"),
+  SANE_I18N ("Download pattern B"),
+  NULL
+};
+
+static int dropout_params[] = {
   0x00, /* none */
   0x10, /* red */
   0x20, /* green */
   0x30  /* blue */
 };
 
-static const SANE_String_Const dropout_list[] = { 
-  SANE_I18N ("None"), 
-  SANE_I18N ("Red"), 
+static const SANE_String_Const dropout_list[] = {
+  SANE_I18N ("None"),
+  SANE_I18N ("Red"),
   SANE_I18N ("Green"),
-  SANE_I18N ("Blue"), 
+  SANE_I18N ("Blue"),
   NULL
 };
 
@@ -606,34 +606,34 @@ static const SANE_String_Const dropout_list[] = {
  * Color correction:
  * One array for the actual parameters that get sent to the scanner (color_params[]),
  * one array for the strings that get displayed in the user interface (color_list[])
- * and one array to mark the user defined color correction (dolor_userdefined[]). 
+ * and one array to mark the user defined color correction (dolor_userdefined[]).
  */
 
-static int color_params[] = { 
-  0x00, 
-  0x01, 
-  0x10, 
-  0x20, 
-  0x40, 
+static int color_params[] = {
+  0x00,
+  0x01,
+  0x10,
+  0x20,
+  0x40,
   0x80
 };
 
-static SANE_Bool color_userdefined[] = { 
-  SANE_FALSE, 
-  SANE_TRUE, 
-  SANE_FALSE, 
-  SANE_FALSE, 
-  SANE_FALSE, 
+static SANE_Bool color_userdefined[] = {
+  SANE_FALSE,
+  SANE_TRUE,
+  SANE_FALSE,
+  SANE_FALSE,
+  SANE_FALSE,
   SANE_FALSE
 };
 
-static const SANE_String_Const color_list[] = { 
-  SANE_I18N ("No Correction"), 
+static const SANE_String_Const color_list[] = {
+  SANE_I18N ("No Correction"),
   SANE_I18N ("User defined"),
-  SANE_I18N ("Impact-dot printers"), 
+  SANE_I18N ("Impact-dot printers"),
   SANE_I18N ("Thermal printers"),
   SANE_I18N ("Ink-jet printers"),
-  SANE_I18N ("CRT monitors"), 
+  SANE_I18N ("CRT monitors"),
   NULL
 };
 
@@ -644,20 +644,20 @@ static const SANE_String_Const color_list[] = {
  * the actally used params and list arrays at runtime.
  */
 
-static int gamma_params_ab[] = { 
-  0x01, 
-  0x03, 
-  0x00, 
-  0x10, 
+static int gamma_params_ab[] = {
+  0x01,
+  0x03,
+  0x00,
+  0x10,
   0x20
 };
 
-static const SANE_String_Const gamma_list_ab[] = { 
-  SANE_I18N ("Default"), 
+static const SANE_String_Const gamma_list_ab[] = {
+  SANE_I18N ("Default"),
   SANE_I18N ("User defined"),
-  SANE_I18N ("High density printing"), 
+  SANE_I18N ("High density printing"),
   SANE_I18N ("Low density printing"),
-  SANE_I18N ("High contrast printing"), 
+  SANE_I18N ("High contrast printing"),
   NULL
 };
 
@@ -669,14 +669,14 @@ static SANE_Bool gamma_userdefined_ab[] = {
   SANE_FALSE,
 };
 
-static int gamma_params_d[] = { 
-  0x03, 
+static int gamma_params_d[] = {
+  0x03,
   0x04
 };
 
-static const SANE_String_Const gamma_list_d[] = { 
+static const SANE_String_Const gamma_list_d[] = {
   SANE_I18N ("User defined (Gamma=1.0)"),
-  SANE_I18N ("User defined (Gamma=1.8)"), 
+  SANE_I18N ("User defined (Gamma=1.8)"),
   NULL
 };
 
@@ -701,13 +701,13 @@ static unsigned int w_cmd_count = 0;
  * this is used for the FilmScan
  */
 
-static const SANE_String_Const bay_list[] = { 
-  " 1 ", 
-  " 2 ", 
-  " 3 ", 
-  " 4 ", 
-  " 5 ", 
-  " 6 ", 
+static const SANE_String_Const bay_list[] = {
+  " 1 ",
+  " 2 ",
+  " 3 ",
+  " 4 ",
+  " 5 ",
+  " 6 ",
   NULL
 };
 
@@ -744,7 +744,7 @@ struct qf_param
 };
 
 /* gcc don't like to overwrite const field */
-static /*const */ struct qf_param qf_params[] = { 
+static /*const */ struct qf_param qf_params[] = {
   {0, 0, SANE_FIX (120.0), SANE_FIX (120.0)},
   {0, 0, SANE_FIX (148.5), SANE_FIX (210.0)},
   {0, 0, SANE_FIX (210.0), SANE_FIX (148.5)},
@@ -753,13 +753,13 @@ static /*const */ struct qf_param qf_params[] = {
   {0, 0, 0, 0}
 };
 
-static const SANE_String_Const qf_list[] = { 
-  SANE_I18N ("CD"), 
-  SANE_I18N ("A5 portrait"), 
+static const SANE_String_Const qf_list[] = {
+  SANE_I18N ("CD"),
+  SANE_I18N ("A5 portrait"),
   SANE_I18N ("A5 landscape"),
-  SANE_I18N ("Letter"), 
-  SANE_I18N ("A4"), 
-  SANE_I18N ("Max"), 
+  SANE_I18N ("Letter"),
+  SANE_I18N ("A4"),
+  SANE_I18N ("Max"),
   NULL
 };
 
@@ -770,7 +770,7 @@ static SANE_Word *bitDepthList = NULL;
 
 /*
  * List of pointers to devices - will be dynamically allocated depending
- * on the number of devices found. 
+ * on the number of devices found.
  */
 static const SANE_Device **devlist = 0;
 
@@ -1199,10 +1199,10 @@ set_resolution (Epson_Scanner * s, int xres, int yres)
 }
 
 /*
- * set_scan_area() 
+ * set_scan_area()
  *
- * Sends the "set scan area" command to the scanner with the currently selected 
- * scan area. This scan area is already corrected for "color shuffling" if 
+ * Sends the "set scan area" command to the scanner with the currently selected
+ * scan area. This scan area is already corrected for "color shuffling" if
  * necessary.
  */
 static SANE_Status
@@ -1472,7 +1472,7 @@ DetectSize:
  * is reported as a warning (only visible if debug level is set to 10 or greater) -
  * every other condition is reported as an error.
  *
- * This function only gets called when we are dealing with a scanner that supports the 
+ * This function only gets called when we are dealing with a scanner that supports the
  * "warming up" code, so it's not a problem for B3 level scanners, that don't handle
  * request extended status commands.
  */
@@ -1650,7 +1650,7 @@ close_scanner (Epson_Scanner * s)
   if (s->fd == -1)
     return;
 
-  if (r_cmd_count % 2) 
+  if (r_cmd_count % 2)
   {
     /* send a request_status. This toggles w_cmd_count and r_cmd_count */
     u_char param[3];
@@ -1668,7 +1668,7 @@ close_scanner (Epson_Scanner * s)
   DBG (5, "w_cmd_count = %d\n",w_cmd_count);
   DBG (5, "r_cmd_count = %d\n",r_cmd_count);
 
-  if (w_cmd_count % 2) 
+  if (w_cmd_count % 2)
   {
     int junk1,junk2;
 
@@ -1700,8 +1700,8 @@ close_scanner (Epson_Scanner * s)
 /*
  * open_scanner()
  *
- * Open the scanner device. Depending on the connection method, 
- * different open functions are called. 
+ * Open the scanner device. Depending on the connection method,
+ * different open functions are called.
  */
 
 static SANE_Status
@@ -1798,7 +1798,7 @@ feed (Epson_Scanner * s)
 
 /*
  * eject()
- * 
+ *
  * Eject the current page from the ADF. The scanner is opened prior to
  * sending the command and closed afterwards.
  *
@@ -2011,7 +2011,7 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
   }
 
   /* check for PIO devices */
-  /* can we convert the device name to an integer? This is only possible 
+  /* can we convert the device name to an integer? This is only possible
      with PIO devices */
   port = atoi (dev_name);
   if (port != 0)
@@ -2088,7 +2088,7 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
     buf[INQUIRY_BUF_SIZE] = 0;
     DBG (1, ">%s<\n", buf + 8);
 
-    /* 
+    /*
      * For USB and PIO scanners this will be done later, once
      * we have communication established with the device.
      */
@@ -2140,7 +2140,7 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
 
         status = sanei_usb_find_devices (vendor, product, attach_one_usb);
       }
-      return SANE_STATUS_INVAL; /* return - the attach_one_usb() 
+      return SANE_STATUS_INVAL; /* return - the attach_one_usb()
                                    will take care of this */
     }
 
@@ -2179,7 +2179,7 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
       is_valid = SANE_FALSE;
       i = 0;
 
-      /* check all known product IDs to verify that we know 
+      /* check all known product IDs to verify that we know
          about the device */
       while (i != numIds && !is_valid)
       {
@@ -2287,7 +2287,7 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
 
 
   /*
-   * Check for "request focus position" command. If this command is 
+   * Check for "request focus position" command. If this command is
    * supported, then the scanner does also support the "set focus
    * position" command.
    */
@@ -2350,10 +2350,10 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
  *    this also requests the scanner device name from the scanner
  */
   /*
-   * because we are also using the device name from this command, 
+   * because we are also using the device name from this command,
    * we have to run this block even if the scanner does not report
    * an extension. The extensions are only reported if the ADF or
-   * the TPU are actually detected. 
+   * the TPU are actually detected.
    */
   if (s->hw->cmd->request_extended_status != 0)
   {
@@ -2493,7 +2493,7 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
           SANE_FIX ((buf[10] << 8 | buf[9]) * 25.4 / dev->dpi_range.max);
         dev->tpu_y_range.quant = 0;
 
-        /* 
+        /*
          * Check for Perfection 4990 photo/GT-X800 scanner.
          * This scanner only report 3200 dpi back.
          * The scanner fysical supports 4800 dpi.
@@ -2503,11 +2503,11 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
          */
         if (strncmp((char *) buf + 0x1A,"GT-X800",7) == 0)
         {
-          dev->tpu_x_range.max = (dev->tpu_x_range.max/32)*48; 
-          dev->tpu_y_range.max = (dev->tpu_y_range.max/32)*48; 
+          dev->tpu_x_range.max = (dev->tpu_x_range.max/32)*48;
+          dev->tpu_y_range.max = (dev->tpu_y_range.max/32)*48;
           DBG (5, "dpi_range.max %x \n",  dev->dpi_range.max);
         }
- 
+
         DBG (5, "tpu tlx %f tly %f brx %f bry %f [mm]\n",
              SANE_UNFIX (dev->tpu_x_range.min),
              SANE_UNFIX (dev->tpu_y_range.min),
@@ -2597,8 +2597,8 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
 
   close_scanner (s);
 
-  /* 
-   * we are done with this one, prepare for the next scanner: 
+  /*
+   * we are done with this one, prepare for the next scanner:
    */
 
   ++num_devices;
@@ -2689,7 +2689,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       {
         int numIds;
 
-        /* add the vendor and product IDs to the list of 
+        /* add the vendor and product IDs to the list of
            known devices before we call the attach function */
         numIds = sanei_epson_getNumberOfUSBProductIds ();
         if (vendor != 0x4b8)
@@ -2723,7 +2723,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 /*
  * void sane_exit(void)
  *
- * Clean up the list of attached scanners. 
+ * Clean up the list of attached scanners.
  */
 
 void
@@ -2914,11 +2914,11 @@ init_options (Epson_Scanner * s)
 
   s->opt[OPT_GAMMA_CORRECTION].type = SANE_TYPE_STRING;
   s->opt[OPT_GAMMA_CORRECTION].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-  /* 
+  /*
    * special handling for D1 function level - at this time I'm not
    * testing for D1, I'm just assuming that all D level scanners will
    * behave the same way. This has to be confirmed with the next D-level
-   * scanner 
+   * scanner
    */
   if (s->hw->cmd->level[0] == 'D')
   {
@@ -2944,7 +2944,7 @@ init_options (Epson_Scanner * s)
 
 
   /* gamma vector */
-/* 
+/*
                 s->opt[ OPT_GAMMA_VECTOR].name  = SANE_NAME_GAMMA_VECTOR;
                 s->opt[ OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
                 s->opt[ OPT_GAMMA_VECTOR].desc  = SANE_DESC_GAMMA_VECTOR;
@@ -3585,7 +3585,7 @@ sane_close (SANE_Handle handle)
   Epson_Scanner *s, *prev;
 
   /*
-   * Test if there is still data pending from 
+   * Test if there is still data pending from
    * the scanner. If so, then do a cancel
    */
 
@@ -3828,14 +3828,14 @@ handle_source (Epson_Scanner * s, SANE_Int optindex, char *value)
     Handles setting the source (flatbed, transparency adapter (TPU),
     or auto document feeder (ADF)).
 
-    For newer scanners it also sets the focus according to the 
+    For newer scanners it also sets the focus according to the
     glass / TPU settings.
 */
 {
   int force_max = SANE_FALSE;
   SANE_Bool dummy;
 
-  /* reset the scanner when we are changing the source setting - 
+  /* reset the scanner when we are changing the source setting -
      this is necessary for the Perfection 1650 */
   if (s->hw->need_reset_on_source_change)
     reset (s);
@@ -4237,7 +4237,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
   DBG (5, "sane_get_parameters()\n");
 
-  /* 
+  /*
    * If sane_start was already called, then just retrieve the parameters
    * from the scanner data structure
    */
@@ -4275,7 +4275,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   s->params.lines =
     SANE_UNFIX (s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w) / 25.4 * ndpi + 0.5;
 
-  /* 
+  /*
    * Make sure that the number of lines is correct for color shuffling:
    * The shuffling alghorithm produces 2xline_distance lines at the
    * beginning and the same amount at the end of the scan that are not
@@ -4302,10 +4302,10 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
        SANE_UNFIX (s->val[OPT_BR_Y].w));
 
 
-  /* 
-   * Calculate bytes_per_pixel and bytes_per_line for 
+  /*
+   * Calculate bytes_per_pixel and bytes_per_line for
    * any color depths.
-   * 
+   *
    * The default color depth is stored in mode_params.depth:
    */
 
@@ -4320,8 +4320,8 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
   if (s->params.depth > 8)
   {
-    s->params.depth = 16;       /* 
-                                 * The frontends can only handle 8 or 16 bits 
+    s->params.depth = 16;       /*
+                                 * The frontends can only handle 8 or 16 bits
                                  * for gray or color - so if it's more than 8,
                                  * it gets automatically set to 16. This works
                                  * as long as EPSON does not come out with a
@@ -4366,7 +4366,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 /*
  * sane_start()
  *
- * This function is part of the SANE API and gets called from the front end to 
+ * This function is part of the SANE API and gets called from the front end to
  * start the scan process.
  *
  */
@@ -4396,7 +4396,7 @@ sane_start (SANE_Handle handle)
  *      off             0               ACK
  *      off             1               NAK
  *
- * It makes no sense to scan with TPU powered on and source flatbed, because 
+ * It makes no sense to scan with TPU powered on and source flatbed, because
  * light will come from both sides.
  */
 
@@ -4447,7 +4447,7 @@ sane_start (SANE_Handle handle)
     }
 
 
-    /* 
+    /*
      * set the focus position according to the extension used:
      * if the TPU is selected, then focus 2.5mm above the glass,
      * otherwise focus on the glass. Scanners that don't support
@@ -4499,7 +4499,7 @@ sane_start (SANE_Handle handle)
   }
 
   /*
-   * The byte sequence mode was introduced in B5, for B[34] we need line sequence mode 
+   * The byte sequence mode was introduced in B5, for B[34] we need line sequence mode
    */
 
   if ((s->hw->cmd->level[0] == 'D' ||
@@ -4641,7 +4641,7 @@ sane_start (SANE_Handle handle)
     if (s->hw->cmd->level[0] == 'D')
     {
       /*
-       * The D1 level has only the two user defined gamma 
+       * The D1 level has only the two user defined gamma
        * settings.
        */
       val = gamma_params[s->val[OPT_GAMMA_CORRECTION].w];
@@ -4652,8 +4652,8 @@ sane_start (SANE_Handle handle)
 
       /*
        * If "Default" is selected then determine the actual value
-       * to send to the scanner: If bilevel mode, just send the 
-       * value from the table (0x01), for grayscale or color mode 
+       * to send to the scanner: If bilevel mode, just send the
+       * value from the table (0x01), for grayscale or color mode
        * add one and send 0x02.
        */
 /*                      if( s->val[ OPT_GAMMA_CORRECTION].w <= 1) { */
@@ -4766,7 +4766,7 @@ sane_start (SANE_Handle handle)
 
 
 /*
- * If WAIT_FOR_BUTTON is active, then do just that: Wait until the button is 
+ * If WAIT_FOR_BUTTON is active, then do just that: Wait until the button is
  * pressed. If the button was already pressed, then we will get the button
  * Pressed event right away.
  */
@@ -4841,8 +4841,8 @@ sane_start (SANE_Handle handle)
       s->hw->color_shuffle = SANE_FALSE;
   }
 
-/* 
- * for debugging purposes: 
+/*
+ * for debugging purposes:
  */
 #ifdef FORCE_COLOR_SHUFFLE
   DBG (1, "Test mode: FORCE_COLOR_SHUFFLE = TRUE\n");
@@ -4850,7 +4850,7 @@ sane_start (SANE_Handle handle)
 #endif
 
 
-  /* 
+  /*
    * Modify the scan area: If the scanner requires color shuffling, then we try to
    * scan more lines to compensate for the lines that will be removed from the scan
    * due to the color shuffling alghorithm.
@@ -4872,7 +4872,7 @@ sane_start (SANE_Handle handle)
     s->params.lines += 4 * s->line_distance;
   }
 
-  /* 
+  /*
    * If (top + s->params.lines) is larger than the max scan area, reset
    * the number of scan lines:
    */
@@ -4897,7 +4897,7 @@ sane_start (SANE_Handle handle)
   lcount = 1;
 
   /*
-   * The set line count commands needs to be sent for certain scanners in 
+   * The set line count commands needs to be sent for certain scanners in
    * color mode. The D1 level requires it, we are however only testing for
    * 'D' and not for the actual numeric level.
    */
@@ -5167,7 +5167,7 @@ read_data_block (Epson_Scanner * s, EpsonDataRec * result)
 
     /*
      * Hack Alert!!!
-     * If the status is SANE_STATUS_DEVICE_BUSY then we need to 
+     * If the status is SANE_STATUS_DEVICE_BUSY then we need to
      * re-issue the command again. We can assume that the command that
      * caused this problem was ESC G, so in a loop with a sleep 1 we
      * are testing this over and over and over again, until the lamp
@@ -5319,7 +5319,7 @@ START_READ:
        */
 
 
-      /* 
+      /*
        * read the first color line - the number of bytes to read
        * is already known (from last call to read_data_block()
        * We determine where to write the line from the color information
@@ -5345,7 +5345,7 @@ START_READ:
 
       if (SANE_STATUS_GOOD != status)
         return status;
-      /* 
+      /*
        * send the ACK signal to the scanner in order to make
        * it ready for the next data block.
        */
@@ -5484,7 +5484,7 @@ START_READ:
      */
 
     /*
-     * Some scaners (e.g. the Perfection 1640 and GT-2200) seem 
+     * Some scaners (e.g. the Perfection 1640 and GT-2200) seem
      * to have the R and G channels swapped.
      * The GT-8700 is the Asian version of the Perfection1640.
      * If the scanner name is one of these, and the scan mode is
@@ -5499,9 +5499,9 @@ START_READ:
       s->params.format == SANE_FRAME_RGB;
 
     /*
-     * Certain Perfection 1650 also need this re-ordering of the two 
-     * color channels. These scanners are identified by the problem 
-     * with the half vertical scanning area. When we corrected this, 
+     * Certain Perfection 1650 also need this re-ordering of the two
+     * color channels. These scanners are identified by the problem
+     * with the half vertical scanning area. When we corrected this,
      * we also set the variable s->hw->need_color_reorder
      */
     if (s->hw->need_color_reorder)
@@ -5551,7 +5551,7 @@ START_READ:
       }
     }
 
-    /* 
+    /*
      * Do the color_shuffle if everything else is correct - at this time
      * most of the stuff is hardcoded for the Perfection 610
      */
@@ -5562,8 +5562,8 @@ START_READ:
 
       status = color_shuffle (s, &new_length);
 
-      /* 
-       * If no bytes are returned, check if the scanner is already done, if so, 
+      /*
+       * If no bytes are returned, check if the scanner is already done, if so,
        * we'll probably just return, but if there is more data to process get
        * the next batch.
        */
@@ -5584,7 +5584,7 @@ START_READ:
 
 
 
-  /* 
+  /*
    * copy the image data to the data memory area
    */
 
@@ -5689,10 +5689,10 @@ color_shuffle (SANE_Handle handle, int *new_length)
 
 
     /*
-     * Initialize the variables we are going to use for the 
+     * Initialize the variables we are going to use for the
      * copying of the data. data_ptr is the pointer to
      * the currently worked on scan line. data_end is the
-     * end of the data area as calculated from adding *length 
+     * end of the data area as calculated from adding *length
      * to the start of data.
      * out_data_ptr is used when writing out the processed data
      * and always points to the beginning of the next line to
@@ -5709,7 +5709,7 @@ color_shuffle (SANE_Handle handle, int *new_length)
 
     /*
      * The buffer area is supposed to have a number of full scan
-     * lines, let's test if this is the case. 
+     * lines, let's test if this is the case.
      */
 
     if (length % s->params.bytes_per_line != 0)
@@ -5785,7 +5785,7 @@ color_shuffle (SANE_Handle handle, int *new_length)
          */
 
         /*
-         * Strip the first and last n lines and limit to 
+         * Strip the first and last n lines and limit to
          */
         if ((s->current_output_line >= s->line_distance) &&
             (s->current_output_line < s->params.lines + s->line_distance))
@@ -5800,9 +5800,9 @@ color_shuffle (SANE_Handle handle, int *new_length)
 
 
         /*
-         * Now remove the 0-entry and move all other 
-         * lines up by one. There are 2*line_distance + 1 
-         * buffers, * therefore the loop has to run from 0 
+         * Now remove the 0-entry and move all other
+         * lines up by one. There are 2*line_distance + 1
+         * buffers, * therefore the loop has to run from 0
          * to * 2*line_distance, and because we want to
          * copy every n+1st entry to n the loop runs
          * from - to 2*line_distance-1!
@@ -6008,7 +6008,7 @@ get_identity_information (SANE_Handle handle)
           DBG (1, "maximum scan area: x %d y %d\n", x, y);
           k = 5;
 
-          /* 
+          /*
            * Check for Perfection 4990 photo/GT-X800 scanner.
            * This scanner only report 3200 dpi back.
            * The scanner fysical supports 4800 dpi.
@@ -6031,8 +6031,8 @@ get_identity_information (SANE_Handle handle)
               DBG (1, "product name %x %x %x %x %x %x %x %x \n", buf[0], buf[1],buf[2],buf[3],buf[4], buf[5],buf[6], buf[7] );
               if (strncmp((char *) buf,"GT-X800",7) == 0)
               {
-                int val = 0x12 << 8 | 0xC0;   
-                
+                int val = 0x12 << 8 | 0xC0;
+
                 s->hw->res_list_size++;
                 s->hw->res_list =
                  (SANE_Int *) realloc (s->hw->res_list,
@@ -6169,7 +6169,7 @@ get_identity2_information (SANE_Handle handle)
 
 /*
  * void sane_cancel(SANE_Handle handle)
- * 
+ *
  * Set the cancel flag to true. The next time the backend requests data
  * from the scanner the CAN message will be sent.
  */
@@ -6260,7 +6260,7 @@ request_focus_position (SANE_Handle handle, u_char * position)
 
 
 /*
- * Request the push button status 
+ * Request the push button status
  * returns SANE_TRUE if the button was pressed
  * and SANE_FALSE if the button was not pressed
  * it also returns SANE_TRUE in case of an error.

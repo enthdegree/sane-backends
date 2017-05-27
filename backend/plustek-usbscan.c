@@ -595,7 +595,7 @@ usb_GetMCLKDiv( Plustek_Device *dev )
 	DBG( _DBG_INFO, "usb_GetMCLKDiv()\n" );
 
 	r = 8; /* line rate */
-	if ((regs[0x26] & 7) == 0) 
+	if ((regs[0x26] & 7) == 0)
 		r = 24; /* pixel rate */
 
 	/* use high or low res min integration time */
@@ -606,7 +606,7 @@ usb_GetMCLKDiv( Plustek_Device *dev )
 	                       min_int_time /((double)1000. * r * m_wLineLength));
 	minmclk = _MAX(minmclk,MCLKDIV_SCALING);
 
-	maxmclk = (int)(32.5*MCLKDIV_SCALING + .5); 
+	maxmclk = (int)(32.5*MCLKDIV_SCALING + .5);
 
 	DBG(_DBG_INFO2,"- lower mclkdiv limit=%f\n",(double)minmclk/MCLKDIV_SCALING);
 	DBG(_DBG_INFO2,"- upper mclkdiv limit=%f\n",(double)maxmclk/MCLKDIV_SCALING);
@@ -622,7 +622,7 @@ usb_GetMCLKDiv( Plustek_Device *dev )
 
 	/* compute the horizontal dpi (pixels per inch) */
 	j    = regs[0x9] & 0x7;
-	hdpi = ((j&1)*.5+1)*(j&2?2:1)*(j&4?4:1);	
+	hdpi = ((j&1)*.5+1)*(j&2?2:1)*(j&4?4:1);
 
 	pixelsperline = (int)((256*regs[0x24]+regs[0x25]-256*regs[0x22]-regs[0x23])
 	                       *pixelbits/(hdpi * 8));
@@ -644,7 +644,7 @@ usb_GetMCLKDiv( Plustek_Device *dev )
 		while (mclkdiv * hdpi < 6.*MCLKDIV_SCALING) {
 			mclkdiv++;
 		}
-		DBG( _DBG_INFO2, "- HIGHSPEED MCLK Divider = %u\n", 
+		DBG( _DBG_INFO2, "- HIGHSPEED MCLK Divider = %u\n",
 		     mclkdiv/MCLKDIV_SCALING );
 	}
 
@@ -690,7 +690,7 @@ usb_GetMCLKDivider( Plustek_Device *dev, ScanParam *pParam )
 			       (m_dMCLKDivider * m_bCM * m_wLineLength / 6 * 9 / 10) *
  			       (1 + m_bIntTimeAdjust)) {
 				m_bIntTimeAdjust++;
-			}	
+			}
 
 			if( hw->motorModel == MODEL_HuaLien &&
 				sCaps->bCCD == kNEC3799 && m_bIntTimeAdjust > bMaxITA) {
@@ -730,7 +730,7 @@ usb_GetMCLKDivider( Plustek_Device *dev, ScanParam *pParam )
 		                   m_wStepSize, regs[0x46], regs[0x47] );
 	    usb_GetDPD( dev );
 	}
-	
+
 	/* Compute maximum MCLK divider base on maximum integration time for
 	 * high lamp PWM, use equation 4
 	 */
@@ -830,7 +830,7 @@ usb_GetLineLength( Plustek_Device *dev, ScanParam *param )
 
 	ctmode = (regs[0x0b] >> 3) & 3;                /* cis tr timing mode */
 
-	m_bLineRateColor = 1;	
+	m_bLineRateColor = 1;
 	if (afeop == 1 || afeop == 5) /* if 3 channel line or 1 channel mode b */
 		m_bLineRateColor = 3;
 
@@ -845,7 +845,7 @@ usb_GetLineLength( Plustek_Device *dev, ScanParam *param )
 
 	b = 1;
 	if( ctmode == 0 ) { /* CCD mode scanner*/
-	
+
 		b  = (ntr + 1) * ((2 * gbnd) + dur + 1);
 		b += (1 - ntr) * en_tradj;
 	}
@@ -871,12 +871,12 @@ usb_GetLineLength( Plustek_Device *dev, ScanParam *param )
 		if( ctmode == 0 )
 			tr += m_bLineRateColor;
 	} else {
-	
+
 		int le_phi, num_byteclk, num_mclkf, tr_fast_pix, extra_pix;
-			
+
 		/* Line color or gray mode */
 		if( afeop != 0 ) {
-		
+
 			le_phi      = (tradj + 1) / 2 + 1 + 6;
 			num_byteclk = ((le_phi + 8 * le + 8 * b + 4) /
 						   (8 * tradj)) + 1;
@@ -893,7 +893,7 @@ usb_GetLineLength( Plustek_Device *dev, ScanParam *param )
 			tr_fast_pix = num_byteclk;
 			extra_pix   = (num_mclkf - le_phi) % (3 * 8);
 		}
-		
+
 		tr = b + le + 4 + tr_fast_pix;
 		if (extra_pix == 0)
 			tr++;
@@ -970,8 +970,8 @@ usb_GetMotorParam( Plustek_Device *dev, ScanParam *pParam )
 				}
 				else if(pParam->PhyDpi.x <= 400)
 				{
-					regs[0x56] = 8;	
-					regs[0x57] = 48;	
+					regs[0x56] = 8;
+					regs[0x57] = 48;
 				}
 				else if(pParam->PhyDpi.x <= 600)
 				{
@@ -1184,7 +1184,7 @@ usb_SetScanParameters( Plustek_Device *dev, ScanParam *pParam )
 	usb_GetScanRect    ( dev, pParam );
 
 	usb_PresetStepSize( dev, pParam );
-	
+
 	if( dev->caps.dwFlag & SFLAG_ADF ) {
 
 		if( pParam->bCalibration == PARAM_Scan ) {
@@ -1251,7 +1251,7 @@ usb_SetScanParameters( Plustek_Device *dev, ScanParam *pParam )
 
 	/* Compute the number of lines to scan using actual Y resolution */
 	usb_GetScanLinesAndSize( dev, pParam );
-	
+
 	/* Pause limit should be bounded by total bytes to read
 	 * so that the chassis will not move too far.
 	 */
@@ -1316,7 +1316,7 @@ usb_SetScanParameters( Plustek_Device *dev, ScanParam *pParam )
 	_UIO(sanei_lm983x_write( dev->fd, 0x08, &regs[0x08], 0x7f - 0x08+1, SANE_TRUE));
 
 	usleep(100);
-	
+
 	if( !usbio_WriteReg( dev->fd, 0x07, 0 ))
 		return SANE_FALSE;
 
@@ -1363,7 +1363,7 @@ usb_ScanBegin( Plustek_Device *dev, SANE_Bool auto_park )
 				DBG( _DBG_INFO, "ScanBegin() - Cancel detected...\n" );
 				return SANE_FALSE;
 			}
-			
+
 			_UIO(usbio_ReadReg( dev->fd, 0x01, &m_bOldScanData ));
 			if( m_bOldScanData ) {
 
@@ -1373,7 +1373,7 @@ usb_ScanBegin( Plustek_Device *dev, SANE_Bool auto_park )
 				DBG(_DBG_INFO,"Flushing cache - %lu bytes (bOldScanData=%u)\n",
 				                                dwBytesToRead, m_bOldScanData );
 
-				_UIO(sanei_lm983x_read( dev->fd, 0x00, pBuffer, 
+				_UIO(sanei_lm983x_read( dev->fd, 0x00, pBuffer,
 				                                  dwBytesToRead, SANE_FALSE ));
 				free( pBuffer );
 
@@ -1430,7 +1430,7 @@ usb_ScanEnd( Plustek_Device *dev )
 			usb_ModuleToHome( dev, SANE_FALSE );
 	}
 	else if( SANE_TRUE == cancelRead ) {
-	
+
 		usb_ModuleToHome( dev, SANE_FALSE );
 	}
 	return SANE_TRUE;
@@ -1453,14 +1453,14 @@ usb_IsDataAvailableInDRAM( Plustek_Device *dev )
 
 	DBG( _DBG_INFO, "usb_IsDataAvailableInDRAM()\n" );
 
-	gettimeofday( &t, NULL);	
+	gettimeofday( &t, NULL);
 	dwTicks = t.tv_sec + 30;
 
 	for(;;)	{
 
 		_UIO( sanei_lm983x_read( dev->fd, 0x01, a_bBand, 3, SANE_FALSE ));
 
-		gettimeofday( &t, NULL);	
+		gettimeofday( &t, NULL);
 	    if( t.tv_sec > dwTicks )
 			break;
 
@@ -1468,7 +1468,7 @@ usb_IsDataAvailableInDRAM( Plustek_Device *dev )
 			DBG(_DBG_INFO,"usb_IsDataAvailableInDRAM() - Cancel detected...\n");
 			return SANE_FALSE;
 		}
-			
+
 		/* It is not stable for read */
 		if((a_bBand[0] != a_bBand[1]) && (a_bBand[1] != a_bBand[2]))
 			continue;
@@ -1549,7 +1549,7 @@ usb_GetImageInfo( Plustek_Device *dev, ImgDef *pInfo, WinInfo *pSize )
 		case COLOR_TRUE48:
 			pSize->dwBytes = pSize->dwPixels * 6UL;
 			break;
-			
+
 		case COLOR_TRUE24:
 			if( dev->scanning.fGrayFromColor > 7 ){
 				pSize->dwBytes  = (pSize->dwPixels + 7UL) >> 3;
@@ -1597,7 +1597,7 @@ usb_SaveImageInfo( Plustek_Device *dev, ImgDef *pInfo )
 		case COLOR_TRUE48:
 			pParam->bBitDepth = 16;
 			/* fall through... */
-			
+
 		case COLOR_TRUE24:
 			pParam->bDataType = SCANDATATYPE_Color;
 
@@ -1638,7 +1638,7 @@ usb_SaveImageInfo( Plustek_Device *dev, ImgDef *pInfo )
 	 * sheetfed device to avoid stripes in the resulting pictures
 	 */
 	if( usb_IsSheetFedDevice(dev)) {
-	
+
 		int step, div, org, xdpi;
 
 		xdpi = usb_SetAsicDpiX( dev, pParam->UserDpi.x );

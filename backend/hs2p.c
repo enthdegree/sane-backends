@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2007 Jeremy Johnson
-   This file is part of a SANE backend for Ricoh IS450 
+   This file is part of a SANE backend for Ricoh IS450
    and IS420 family of HS2P Scanners using the SCSI controller.
 
    This file is part of the SANE package.
@@ -217,8 +217,8 @@ init_options (HS2P_Scanner * s)
   s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
 
-  /* 
-   * "Scan Mode" GROUP: 
+  /*
+   * "Scan Mode" GROUP:
    */
   s->opt[OPT_MODE_GROUP].name = "";
   s->opt[OPT_MODE_GROUP].title = SANE_TITLE_SCAN_MODE_GROUP;
@@ -311,8 +311,8 @@ init_options (HS2P_Scanner * s)
 
 
 
-  /* 
-   * "Geometry" GROUP: 
+  /*
+   * "Geometry" GROUP:
    */
   s->opt[OPT_GEOMETRY_GROUP].name = "";
   s->opt[OPT_GEOMETRY_GROUP].title = SANE_TITLE_GEOMETRY_GROUP;
@@ -419,8 +419,8 @@ init_options (HS2P_Scanner * s)
 
 
 
-  /* 
-   * "Feeder" GROUP: 
+  /*
+   * "Feeder" GROUP:
    */
   s->opt[OPT_FEEDER_GROUP].name = "";
   s->opt[OPT_FEEDER_GROUP].title = SANE_TITLE_FEEDER_GROUP;
@@ -493,8 +493,8 @@ init_options (HS2P_Scanner * s)
   /* timeout ADF */
   /* timeout Manual */
 
-  /* 
-   * "Enhancement" GROUP: 
+  /*
+   * "Enhancement" GROUP:
    */
   s->opt[OPT_ENHANCEMENT_GROUP].name = "";
   s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_TITLE_ENHANCEMENT_GROUP;
@@ -684,7 +684,7 @@ init_options (HS2P_Scanner * s)
   if (!s->hw->info.hasIPU)
     s->opt[OPT_AUTOBIN].cap |= SANE_CAP_INACTIVE;
 
-  /* SECTION 
+  /* SECTION
    * The IS450 supports up to 4 Section; The IS420 supports up to 6 Sections
    * For each struct window_section[i] we need to fill in ulx,uly,width,height,etc
    * NOT YET IMPLEMENTED
@@ -708,8 +708,8 @@ init_options (HS2P_Scanner * s)
   s->opt[OPT_WHITE_BALANCE].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_WHITE_BALANCE].w = SANE_FALSE;	/* F/T = Relative/Absolute White */
 
-  /* 
-   * "Miscellaneous" GROUP: 
+  /*
+   * "Miscellaneous" GROUP:
    */
   s->opt[OPT_MISCELLANEOUS_GROUP].name = "";
   s->opt[OPT_MISCELLANEOUS_GROUP].title = SANE_TITLE_MISCELLANEOUS_GROUP;
@@ -1192,7 +1192,7 @@ attach (SANE_String_Const devname, int __sane_unused__ connType,
 
   /* ipu_id: Bit0: '0'-no IPU, '1'-has IPU
    *         Bit1: '0'-no extended board, '1'-has extended board;
-   * should always be 0 
+   * should always be 0
    */
   dev->info.hasIPU = (vbuf.ipu_id & 0x01) == 0x01 ? SANE_TRUE : SANE_FALSE;
   dev->info.hasXBD = (vbuf.ipu_id & 0x02) == 0x02 ? SANE_TRUE : SANE_FALSE;
@@ -1229,8 +1229,8 @@ attach (SANE_String_Const devname, int __sane_unused__ connType,
   dev->sane.type = strdup (device_string);
 
   /* ACE Image Data Processing  Binary Filters
-   * For IS450 this is set to 0x18 (0001 1000) if IPU installed, else 0x00 
-   * For IS420 this is set to 0x3C (0011 1100) if IPU installed, else 0x00 
+   * For IS450 this is set to 0x18 (0001 1000) if IPU installed, else 0x00
+   * For IS420 this is set to 0x3C (0011 1100) if IPU installed, else 0x00
    */
   dev->info.supports_whiteframing =
     ((vbuf.imagedataprocessing[0] & 0x01) == 0x01) ? SANE_TRUE : SANE_FALSE;
@@ -1272,16 +1272,16 @@ attach (SANE_String_Const devname, int __sane_unused__ connType,
   dev->info.supports_markerrecognition =
     ((vbuf.markerrecognition & 0x01) == 0x01) ? SANE_TRUE : SANE_FALSE;
 
-  /* Size Recognition 
+  /* Size Recognition
    * For IS450 this is set to 0x01 when IPU installed; else 0x00
-   * For IS420 this is set to 0x01 
+   * For IS420 this is set to 0x01
    */
   dev->info.supports_sizerecognition =
     ((vbuf.sizerecognition & 0x01) == 0x01) ? SANE_TRUE : SANE_FALSE;
 
-  /* X Maximum Output Pixel in main scanning direction 
-   * For IS450 this is set to 0x1360 (4960) 
-   * For IS420 this is set to        (4880) 
+  /* X Maximum Output Pixel in main scanning direction
+   * For IS450 this is set to 0x1360 (4960)
+   * For IS420 this is set to        (4880)
    * [MostSignificantByte LeastSignificantByte]
    */
   dev->info.xmaxoutputpixels =
@@ -2397,7 +2397,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_GOOD;
 	case OPT_SCAN_SOURCE:
 	  /* a string option */
-	  /*    Since the scanner ejects the sheet in ADF mode 
+	  /*    Since the scanner ejects the sheet in ADF mode
 	   * it is impossible to scan multiple sections in one document
 	   *    In ADF mode, because of mechanical limitations:
 	   * the minimum document size is (x,y)=(69mm x 120mm)
@@ -2824,7 +2824,7 @@ set_window_data (HS2P_Scanner * s, SWD * wbuf)
 	(paddingtype[get_paddingtype_id (s->val[OPT_PADDING_TYPE].s)].
 	 val & 0x07);
 
-      /* Bit Ordering: 
+      /* Bit Ordering:
        *     Manual Says DEFAULT: [1111 1111][1111 1000]
        * Bits15-8 reserved;
        * Bit7: '0'-Normal '1'-Mirroring
@@ -2877,7 +2877,7 @@ set_window_data (HS2P_Scanner * s, SWD * wbuf)
 	  data->automatic_binarization =
 	    get_auto_binarization_val (s->val[OPT_AUTOBIN].s);
 	  /* fill in values for each section
-	     for(j=0; j<NumSec; j++){ 
+	     for(j=0; j<NumSec; j++){
 	     wbuf[i].winsec[j].ulx
 	     wbuf[i].winsec[j].uly
 	     wbuf[i].winsec[j].width
@@ -3249,7 +3249,7 @@ pad:
 	case SANE_STATUS_NO_DOCS:
 	  DBG (DBG_error, "sane_read: End-Of-Medium detected\n");
 	  s->EOM = SANE_TRUE;
-	  /* 
+	  /*
 	   * If status != SANE_STATUS_GOOD, then sense_handler() has already
 	   * been called and the sanei_* functions have already gotten the
 	   * sense data buffer (which apparently clears the error conditionn)
@@ -3283,7 +3283,7 @@ sane_cancel (SANE_Handle handle)
   DBG (DBG_proc, ">> sane_cancel\n");
 
   if (s->scanning)
-    {				/* if batchmode is enabled, then call set_window to abort the batch 
+    {				/* if batchmode is enabled, then call set_window to abort the batch
 				   if (_OPT_VAL_WORD(s, OPT_BATCH) == SANE_TRUE) {
 				   DBG(5, "sane_cancel: calling set_window to abort batch\n");
 				   set_window(s, BH_BATCH_ABORT);

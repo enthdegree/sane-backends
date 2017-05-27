@@ -20,7 +20,7 @@ AC_EGREP_CPP([symbol is present|\<$1\>],[
 #ifdef $1
  	symbol is present
 #endif
-	], 
+	],
 [AC_MSG_RESULT(yes)
 $3
 ],

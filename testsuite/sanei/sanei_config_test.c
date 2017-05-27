@@ -863,7 +863,7 @@ snapscan (void)
 
 
 /**
- * create the test suite for sanei config related tests 
+ * create the test suite for sanei config related tests
  */
 static void
 sanei_config_suite (void)
@@ -890,7 +890,7 @@ sanei_config_suite (void)
 }
 
 /**
- * main function to run the test suites 
+ * main function to run the test suites
  */
 int
 main (void)

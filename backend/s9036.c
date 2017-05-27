@@ -51,7 +51,7 @@ static S9036_Device *s9036_devices;
 
 
 /* sets loc_s bytes long value at offset loc in scsi command to value size  */
-static void 
+static void
 set_size (Byte * loc, int loc_s, size_t size)
 {
   int i;
@@ -62,7 +62,7 @@ set_size (Byte * loc, int loc_s, size_t size)
     }
 }
 
-static long 
+static long
 reserve_unit (int fd)
 {
   const Byte scsi_reserve[] =
@@ -73,7 +73,7 @@ reserve_unit (int fd)
   return sanei_scsi_cmd (fd, scsi_reserve, sizeof (scsi_reserve), 0, 0);
 }
 
-static long 
+static long
 release_unit (int fd)
 {
   const Byte scsi_release[] =
@@ -871,7 +871,7 @@ sane_exit (void)
 	sane_close (dev->handle);
       free (dev);
     }
-  
+
   if (devlist)
     free (devlist);
 }
@@ -881,7 +881,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
   S9036_Device *dev;
   int i;
-  
+
   local_only = local_only; /* silence compilation warnings */
 
   if (devlist)
@@ -1237,7 +1237,7 @@ sane_start (SANE_Handle handle)
   return SANE_STATUS_GOOD;
 }
 
-static void 
+static void
 copy_buffer (S9036_Scanner * s, SANE_Byte ** buf, SANE_Int * max_len,
 	     SANE_Int * len)
 {
@@ -1327,7 +1327,7 @@ SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   handle = handle; /* silence compilation warnings */
-  
+
   DBG (1, "sane_set_io_mode(%d)\n", non_blocking);
 
   return (non_blocking == SANE_TRUE) ?

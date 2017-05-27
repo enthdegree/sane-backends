@@ -18,7 +18,7 @@ port=/dev/ttyS0
 ## This works for most UNIX's
 baud=38400
 # Prints some extra information during the init phase.  This can be
-# handy, but note that printing anything to stderr breaks the saned 
+# handy, but note that printing anything to stderr breaks the saned
 # network scanning.
 #dumpinquiry
 # How many usec (1,000,000ths of a) between writing the command and reading the

@@ -20,7 +20,7 @@ PLUSTEK
 =======
 Vendor ID: 0x07B3
 
-Product ID       Device-description and status	
+Product ID       Device-description and status
 0x0005           not identified yet
 0x0007           not identified yet
 0x000F           not identified yet
@@ -32,21 +32,21 @@ Product ID       Device-description and status
 0x0015           U24 (LM9832) - working
 0x0016           not identified yet
 0x0017           UT12 - working, UT16 - working, UT24 - working
-	
+
 MUSTEK
 ======
 BearPaw vendor ID: 0x0400 (They use the NationalSemiconductors ID!!!)
 
-Product ID       Device-description and status	
+Product ID       Device-description and status
 0x1000           BearPaw 1200 (LM9831) - working
 0x1001           BearPaw 1200 (LM9832) - not tested
 0x1001           BearPaw 2400 (LM9832) - mostly working
-    	
+
 KYE (Genius)
 ============
 Vendor ID: 0x0458
-	
-Product ID       Device-description and status	
+
+Product ID       Device-description and status
 0x2007           ColorPage-HR6 V2 - working
 0x2008           ColorPage-HR6 V2 - not tested
 0x2009           ColorPage-HR6A   - not tested
@@ -58,7 +58,7 @@ Hewlett Packard
 ===============
 Vendor ID: 0x03F0
 
-Product ID       Device-description and status	
+Product ID       Device-description and status
 0x0505           HP Scanjet 2100c - working
 0x0605           HP Scanjet 2200c - working
 
@@ -66,7 +66,7 @@ EPSON
 =====
 Vendor ID: 0x04b8
 
-Product ID       Device-description and status	
+Product ID       Device-description and status
 0x010F           EPSON Perfection 1250/Photo - working
 0x011D           EPSON Perfection 1260/Photo - working
 
@@ -74,9 +74,9 @@ UMAX
 ====
 Vendor ID: 0x1606
 
-Product ID       Device-description and status	
-0x0050           UMAX 3400 - working 
-0x0060           UMAX 3400/3450 - working 
+Product ID       Device-description and status
+0x0050           UMAX 3400 - working
+0x0060           UMAX 3400/3450 - working
 0x0160           UMAX 5400 - working
 
 COMPAQ
@@ -90,7 +90,7 @@ CANON
 =====
 Vendor ID: 0x04A9
 
-Product ID       Device-description and status	
+Product ID       Device-description and status
 0x????           FB620U        - not integrated
 0x2206           N650U         - working
 0x2207           N1220U        - working
@@ -216,7 +216,7 @@ usbscanner 0x0003 0x1606 0x0160 0x0000 0x0000 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 The example line shows the vendor ID of UMAX 0x1606 and the product ID of the 5400
 0x0160 - these values must match the ones of your scanner.
 
-Last step is adding a script in 
+Last step is adding a script in
 /etc/hotplug/usb/
 It is called "usbscanner" (don't forget the executable rights)
 
@@ -232,7 +232,7 @@ fi
 
 This script will correct the access right to your scanner device when the device
 is plugged in.
-              
+
 
 Debugging your USB scanner (written by Kev Green)
 -------------------------------------------------

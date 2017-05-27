@@ -7,7 +7,7 @@ sharing features of both. Hence a third backend.
 
 
 PIOTECH 3024 (TECO Scorpio/Taurus Infinity VM3552):
-   000: 06 00 02 02 43 00 00 10 20 20 20 20 20 20 20 20    ....C...        
+   000: 06 00 02 02 43 00 00 10 20 20 20 20 20 20 20 20    ....C...
    016: 46 6c 61 74 2d 62 65 64 20 73 63 61 6e 6e 65 72    Flat-bed scanner
    032: 35 2e 30 38 35 2e 30 38 03 02 54 45 43 4f 20 56    5.085.08..TECO V
    048: 4d 33 35 35 32 20 00 01 01 2c 00 01 04 b0 09 f6    M3552 ...,......
@@ -41,13 +41,13 @@ SCSI commands supported by the RELISYS VM3530+:
 TEST UNIT READY
 00 00 00 00 00 00
 
-REQ SENSE  
+REQ SENSE
 03 00 00 00 12 00
 
 VENDOR-09
 09 00 00 78 00 00
-  3-4 = length of data to receive. Always 30720 bytes. 
-        Probably 12 lines of calibration at 300dpi. 
+  3-4 = length of data to receive. Always 30720 bytes.
+        Probably 12 lines of calibration at 300dpi.
         8.5*300*12=30600
 
 VENDOR-0E (?)
@@ -91,7 +91,7 @@ Total length is 99
 	 0x06 = 8 X 8 Smooth
 	 0x07 = 8 X 8 Horizontal
 	 0x08 = 8 X 8 Vertical
-  37 = 
+  37 =
      0x80 = RIF ?
   48 = color channel to use
      if scan mode is 0 or 2:
@@ -105,7 +105,7 @@ Total length is 99
       02 = no
   53, 57, 61, 65: 0xff
 
-  
+
 READ
 28 00 00 00 00 00 00 00 3E 00
   6-8 = length
@@ -130,7 +130,7 @@ GET DATA BUFFER STATUS
     6-8 = scanner memory (with no RAM, it is 32KB on the VM3552)
    9-11 = filled data buffer
   12-13 = number of lines (constant during a scan)
-  14-15 = bytes per line (constant during a scan)  
+  14-15 = bytes per line (constant during a scan)
      16 = ?
      17 = in color mode, 0x07 seems to means to the colors are shifted
           and given by rasters. 0x00 seems to mean that there is no

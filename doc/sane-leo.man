@@ -32,7 +32,7 @@ elements in xscanimage or xsane.
 If you have any strange behavior, please report to the backend
 maintainer or to the SANE mailing list.
 
-Valid command line options and their syntax can be listed by using 
+Valid command line options and their syntax can be listed by using
 .RS
 scanimage \-\-help \-d leo
 .RE
@@ -42,7 +42,7 @@ scanimage \-\-help \-d leo
 
 .TP
 .B \-\-mode
-selects the basic mode of operation of the scanner valid choices are 
+selects the basic mode of operation of the scanner valid choices are
 .I Black & White
 ,
 .I Grayscale
@@ -62,7 +62,7 @@ between 1 and 300, in increments of 1.
 .B Geometry options
 
 .TP
-.B \-l \-t \-x \-y 
+.B \-l \-t \-x \-y
 control the scan area: \-l sets the top left x coordinate, \-t the top
 left y coordinate, \-x selects the width and \-y the height of the scan
 area. All parameters are specified in millimeters by default.
@@ -76,24 +76,24 @@ area. All parameters are specified in millimeters by default.
 (grayscale and color mode only) allows the user to specify a gamma table (see the
 next 3 parameters).
 
-.TP 
-.B \-\-red\-gamma\-table 
+.TP
+.B \-\-red\-gamma\-table
 (color mode only) can be used to download a user defined
 gamma table for the red channel. The table must be 256 bytes long.
 
-.TP 
-.B \-\-green\-gamma\-table 
+.TP
+.B \-\-green\-gamma\-table
 (color mode only) can be used to download a user defined
 gamma table for the green channel. The table must be 256 bytes long.
 
 .TP
-.B \-\-blue\-gamma\-table 
+.B \-\-blue\-gamma\-table
 (color mode only) can be used to download a user defined gamma table
 for the blue channel. The table must be 256 bytes long.
 
 .TP
 .B \-\-halftone
-(Black & White only) select the halftone mask to use. Possible values are 
+(Black & White only) select the halftone mask to use. Possible values are
 .I Diamond
 ,
 .I 8x8 Coarse Fatting
@@ -104,7 +104,7 @@ for the blue channel. The table must be 256 bytes long.
 and
 .I 8x8 Vertical Line
 
-.TP 
+.TP
 .B \-\-preview
 requests a preview scan. The resolution used for that scan is 28 dpi
 and the scan area is the maximum allowed. The scan mode is user

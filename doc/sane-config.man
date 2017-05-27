@@ -37,7 +37,7 @@ frontend to libsane.
 .B  \-\-cflags
 Print the compiler flags that are necessary to compile a
 .B SANE
-frontend. 
+frontend.
 .TP 8
 .B  \-\-prefix
 Print the prefix used during compilation of libsane.

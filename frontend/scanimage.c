@@ -2,7 +2,7 @@
    Uses the SANE library.
    Copyright (C) 2015 Rolf Bensch <rolf at bensch hyphen online dot de>
    Copyright (C) 1996, 1997, 1998 Andreas Beck and David Mosberger
-   
+
    Copyright (C) 1999 - 2009 by the SANE Project -- See AUTHORS and ChangeLog
    for details.
 
@@ -403,7 +403,7 @@ print_option (SANE_Device * device, int opt_num, const SANE_Option_Descriptor *o
   }*/
 
   /* if one of these three is not set, option is useless, skip it */
-  if(!(opt->cap & 
+  if(!(opt->cap &
    (SANE_CAP_SOFT_SELECT | SANE_CAP_HARD_SELECT | SANE_CAP_SOFT_DETECT)
   )){
     return;
@@ -462,7 +462,7 @@ print_option (SANE_Device * device, int opt_num, const SANE_Option_Descriptor *o
 	      if (!strcmp (opt->name, "x"))
 		{
 		  printf ("%d..%d",
-                          opt->constraint.range->min, 
+                          opt->constraint.range->min,
                           opt->constraint.range->max - tl_x);
 		}
 	      else if (!strcmp (opt->name, "y"))
@@ -1011,7 +1011,7 @@ set_option (SANE_Handle device, int optnum, void *valuep)
 		 prog_name, opt->name);
       return;
     }
-    
+
   if (opt->size == sizeof (SANE_Word) && opt->type != SANE_TYPE_STRING)
     orig = *(SANE_Word *) valuep;
 
@@ -1483,7 +1483,7 @@ scan_it (FILE *ofp)
 	  offset = parm.format - SANE_FRAME_RED;
 	  image.x = image.y = 0;
 	}
-      hundred_percent = parm.bytes_per_line * parm.lines 
+      hundred_percent = parm.bytes_per_line * parm.lines
 	* ((parm.format == SANE_FRAME_RGB || parm.format == SANE_FRAME_GRAY) ? 1:3);
 
       while (1)

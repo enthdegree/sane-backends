@@ -2438,8 +2438,8 @@ gl846_init_regs_for_scan (Genesys_Device * dev)
      assumption: steps are expressed at maximum motor resolution
 
      we need:
-     SANE_Fixed y_offset;             
-     SANE_Fixed y_size;       
+     SANE_Fixed y_offset;
+     SANE_Fixed y_size;
      SANE_Fixed y_offset_calib;
      mm_to_steps()=motor dpi / 2.54 / 10=motor dpi / MM_PER_INCH */
 

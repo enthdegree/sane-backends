@@ -97,7 +97,7 @@ int SetError(TInstance *this, int nError, const char *szFormat, ...)
   if (this->nErrorState) return 0; /* do not overwrite error state */
   this->nErrorState=nError;
   this->szErrorReason=malloc(500);
-  
+
   if (szFormat!=NULL && this->szErrorReason)
     {
       va_start(ap,szFormat);
@@ -200,7 +200,7 @@ TState CancelScan(TInstance *this)
   usleep(200);
   DoReset(this);
   EndScan(this); /* and step back! */
-  
+
   DBG(DEBUG_JUNK,"cs4: %d\n",(int)this->nErrorState);
   bCanceled=this->state.bCanceled;
   this->state.bCanceled=false; /* re-enable Origination! */

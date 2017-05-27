@@ -50,28 +50,28 @@
 /******************************************************************************
  * Read register symbols.
  *****************************************************************************/
-typedef enum { 
+typedef enum {
                 MA1015R_ASIC       = 0x00,
                 MA1015R_SCAN_VAL   = 0x01,
                 MA1015R_MOTOR      = 0x02,
-                MA1015R_BANK_COUNT = 0x03 
-             } 
+                MA1015R_BANK_COUNT = 0x03
+             }
 Mustek_PP_1015R_reg;
 
 /******************************************************************************
  * Read register bitmask symbols.
  *****************************************************************************/
-typedef enum { 
+typedef enum {
                 MA1015B_MOTOR_HOME   = 0x01,
-                MA1015B_MOTOR_STABLE = 0x03 
+                MA1015B_MOTOR_STABLE = 0x03
              }
 Mustek_PP_1015R_bit;
 
 /******************************************************************************
  * Write register symbols: (bank number << 4) + register number.
  *****************************************************************************/
- 
-typedef enum { 
+
+typedef enum {
                 MA1015W_RED_REF        = 0x00,
                 MA1015W_GREEN_REF      = 0x01,
                 MA1015W_BLUE_REF       = 0x02,
@@ -105,13 +105,13 @@ typedef struct Mustek_PP_1015_Registers
    SANE_Byte in_regs[4];
    SANE_Byte out_regs[4][4];
    SANE_Byte channel;
-   
+
    Mustek_PP_1015R_reg current_read_reg;
    SANE_Int read_count;
-   
+
    Mustek_PP_1015W_reg current_write_reg; /* always used */
    SANE_Int write_count;
-} 
+}
 Mustek_PP_1015_Registers;
 
 
@@ -122,74 +122,74 @@ typedef struct Mustek_PP_CIS_Info
 {
    /* Expose time (= time the lamp is on ?) */
    SANE_Byte exposeTime;
-   
+
    /* Power-on delay (= time between lamp on and start of capturing ?) */
    SANE_Byte powerOnDelay[3];
-   
+
    /* Motor step control */
    SANE_Byte phaseType;
-   
+
    /* Use 8K bank or 4K bank */
    SANE_Bool use8KBank;
-   
+
    /* High resolution (600 DPI) or not (300 DPI) */
    SANE_Bool highRes;
-   
+
    /* delay between pixels; reading too fast causes stability problems */
    SANE_Int delay;
 
    /* Register representation */
    Mustek_PP_1015_Registers regs;
-   
+
    /* Current color channel */
    SANE_Int channel;
-  
+
    /* Blocks motor movements during calibration */
    SANE_Bool dontMove;
-   
+
    /* Prevents read increment the before the first read */
    SANE_Bool dontIncRead;
-   
-   /* Controls whether or not calibration parameters are transmitted 
+
+   /* Controls whether or not calibration parameters are transmitted
       during CIS configuration */
    SANE_Bool setParameters;
-   
+
    /* Number of lines to skip to reach the origin (used during calibration) */
    SANE_Int skipsToOrigin;
-   
+
    /* Physical resolution of the CIS: either 300 or 600 DPI */
    SANE_Int cisRes;
-   
+
    /* CCD mode (color/grayscale/lineart) */
    SANE_Int mode;
-   
+
    /* how many positions to skip until scan area starts @ max res */
    SANE_Int skipimagebytes;
-   
+
    /* how many image bytes to scan @ max res */
    SANE_Int imagebytes;
-   
+
    /* total skip, adjusted to resolution */
    SANE_Int adjustskip;
-   
+
    /* current resolution */
    SANE_Int res;
-   
+
    /* current horizontal hardware resolution */
    SANE_Int hw_hres;
-   
+
    /* current vertical hardware resolution */
    SANE_Int hw_vres;
-   
+
    /* how many positions to scan for one pixel */
    SANE_Int hres_step;
-   
+
    /* how many lines to scan for one scanline */
    SANE_Int line_step;
-   
+
    /* inversion */
    SANE_Bool invert;
-   
+
 } Mustek_PP_CIS_Info;
 
 struct Mustek_pp_Handle;
@@ -200,7 +200,7 @@ typedef struct Mustek_PP_CIS_dev
 
   /* model identification (600CP/1200CP/1200CP+) */
   SANE_Int model;
-  
+
   /* CIS status */
   Mustek_PP_CIS_Info CIS;
 
@@ -216,26 +216,26 @@ typedef struct Mustek_PP_CIS_dev
   int line_diff;
   int ccd_line;
   int lines_left;
-  
+
   /* Configuration parameters that the user can calibrate */
   /* Starting position at the top */
   SANE_Int top_skip;
   /* Use fast skipping method for head movements ? (default: yes) */
   SANE_Bool fast_skip;
   /* Discrimination value to choose between black and white */
-  SANE_Byte bw_limit; 
+  SANE_Byte bw_limit;
   /* Run in calibration mode ? (default: no) */
   SANE_Bool calib_mode;
   /* Extra delay between engine commands (ms). Default: zero. */
   SANE_Int engine_delay;
-  
+
   /* temporary buffer for 1 line (of one color) */
   SANE_Byte *tmpbuf;
 
   /* calibration buffers (low cut, high cut) */
   SANE_Byte *calib_low[3];
   SANE_Byte *calib_hi[3];
-  
+
   /* Number of pixels in calibration buffers (<= number of pixels to scan) */
   int calib_pixels;
 

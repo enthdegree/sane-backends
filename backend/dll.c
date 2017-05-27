@@ -42,7 +42,7 @@
    allows managing an arbitrary number of SANE backends by using
    dynamic linking to load backends on demand.  */
 
-/* Please increase version number with every change 
+/* Please increase version number with every change
    (don't forget to update dll.desc) */
 #define DLL_VERSION "1.0.13"
 
@@ -353,7 +353,7 @@ load (struct backend *be)
 	image_id id = -1;
 	int i, w;
 	directory_which which[3] = { B_USER_ADDONS_DIRECTORY, B_COMMON_ADDONS_DIRECTORY, B_BEOS_ADDONS_DIRECTORY };
-	
+
 	/* look for config files in SANE/conf */
 	for (w = 0; (w < 3) && (id < 0) && (find_directory(which[w],0,true,path,PATH_MAX) == 0); w++)
 	{
@@ -373,7 +373,7 @@ load (struct backend *be)
 			continue; /* try next path */
 		}
     	be->handle=(void *)id;
-	    	
+
 		for (i = 0; i < NUM_OPS; ++i)
     	{
       		void *(*op) ();
@@ -492,7 +492,7 @@ load (struct backend *be)
 	break;
       DBG (4, "load: couldn't open `%s' (%s)\n", libname, strerror (errno));
 
-#ifdef ALT_POSTFIX      
+#ifdef ALT_POSTFIX
       /* Some platforms have two ways of storing their libraries, try both
 	 postfixes */
       snprintf (libname, sizeof (libname), "%s/" PREFIX "%s" ALT_POSTFIX,
@@ -882,7 +882,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   char path[1024];
   directory_which which[3] = { B_USER_ADDONS_DIRECTORY, B_COMMON_ADDONS_DIRECTORY, B_BEOS_ADDONS_DIRECTORY };
   int i;
-#endif	
+#endif
 
   DBG_INIT ();
 
@@ -934,7 +934,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     }
   fclose (fp);
 
-#else  
+#else
 	/* no ugly config files, just get scanners from their ~/config/add-ons/SANE */
 	/* look for drivers */
 	for (i = 0; i < 3; i++)
@@ -943,13 +943,13 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 			continue;
 		strcat(path,"/SANE/");
 		dir=opendir(path);
-		if(!dir) continue; 
+		if(!dir) continue;
 
 		while((dirent=readdir(dir)))
 		{
 			if((strcmp(dirent->d_name,".")==0) || (strcmp(dirent->d_name,"..")==0)) continue;
 			if((strcmp(dirent->d_name,"dll")==0)) continue;
-			add_backend(dirent->d_name,0); 
+			add_backend(dirent->d_name,0);
 		}
 		closedir(dir);
 	}

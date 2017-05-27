@@ -795,7 +795,7 @@ static SANE_Status u12shading_DoCalibration( U12_Device *dev )
 	SANE_Byte   bScanControl, rb[20];
 	SANE_Status res;
 	int         c;
-    
+
 	DBG( _DBG_INFO, "u12shading_DoCalibration()\n" );
 
 	/** before getting the shading data, (re)init the ASIC
@@ -847,7 +847,7 @@ static SANE_Status u12shading_DoCalibration( U12_Device *dev )
 	res = u12shading_AdjustRGBGain( dev );
 	if( SANE_STATUS_GOOD != res )
 		return res;
-	
+
 	res = u12shadingAdjustDark( dev );
 	if( SANE_STATUS_GOOD != res )
 		return res;

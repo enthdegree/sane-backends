@@ -12,7 +12,7 @@
 #	          # SANE_DEBUG_SANEI_PA4S2=128 scanimage -L
 #	          ...
 #  hangs here  -> [sanei_pa4s2] sanei_pa4s2_readbyte: read in EPP mode
-#	 
+#
 # Scanner definition template:
 # ============================
 #
@@ -39,20 +39,20 @@
 #              - cis1200+  (for Mustek 1200CP+ & OEM versions),
 #              - ccd300    (for Mustek 600 III EPP & OEM versions)
 #	       - ... more types will be added in the future
-#     
+#
 #     <optname> is a name of an option, and <optval> an optional value
 #               for the option.
 #               Currently available options for *CIS* type scanners are:
-#                 - top_adjust <value>: 
+#                 - top_adjust <value>:
 #                      Vertical adjustment of origin, in millimeter.
-#                      Values between -5.0 and +5.0 mm are possible 
+#                      Values between -5.0 and +5.0 mm are possible
 #                      (floating point).
 #                      Default: 0.0
-#                 - slow_skip: 
+#                 - slow_skip:
 #                      Boolean option. Disables fast skipping to the start
 #                      of the scan region. May be necessary in case fast
 #                      skipping results in inaccuracies.
-#                      Default: fast skipping enabled             
+#                      Default: fast skipping enabled
 #                 - bw <value>:
 #                      Black/white discrimination value for lineart scans.
 #                      Pixel values below that value are considered black,

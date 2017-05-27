@@ -2,47 +2,47 @@
 
    Copyright (C) 2002 Frank Zago (sane at zago dot net)
    Copyright (C) 2002 Other SANE contributors
-   
+
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
-   
+
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
-   
+
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
-   
+
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
-   
+
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
-   
+
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 */
 
-/* 
+/*
    $Id$
    Sceptre S1200 SCSI scanner (sometimes also called S120)
 */
@@ -366,7 +366,7 @@ sceptre_get_status (Sceptre_Scanner * dev, size_t * data_left)
   return (SANE_STATUS_GOOD);
 }
 
-/* 
+/*
  * Adjust the rasters. This function is used during a color scan,
  * because the scanner does not present a format sane can interpret
  * directly.
@@ -374,9 +374,9 @@ sceptre_get_status (Sceptre_Scanner * dev, size_t * data_left)
  * The scanner sends the colors by rasters (R then G then B), whereas
  * sane is waiting for a group of 3 bytes per color. To make things
  * funnier, the rasters are shifted. This shift factor depends on the
- * resolution used. The format of those raster is: 
+ * resolution used. The format of those raster is:
  *   R...R RG...RG RGB...RGB BG...GB B...B
- * 
+ *
  * So this function reorders all that mess. It gets the input from
  * dev->buffer and write the output in dev->image. size_in the the
  * length of the valid data in dev->buffer.
@@ -401,7 +401,7 @@ sceptre_adjust_raster (Sceptre_Scanner * dev, size_t size_in)
       return;
     }
 
-  /* 
+  /*
    * The color coding is one line for each color (in the RGB order).
    * Recombine that stuff to create a RGB value for each pixel.
    */
@@ -411,7 +411,7 @@ sceptre_adjust_raster (Sceptre_Scanner * dev, size_t size_in)
   for (raster = 0; raster < nb_rasters; raster++)
     {
 
-      /* 
+      /*
        * Find the color to which this raster belongs to.
        *   0 = red
        *   1 = green
@@ -516,7 +516,7 @@ sceptre_adjust_raster (Sceptre_Scanner * dev, size_t size_in)
   DBG (DBG_proc, "sceptre_adjust_raster: exit\n");
 }
 
-/* SCSI sense handler. Callback for SANE. 
+/* SCSI sense handler. Callback for SANE.
  *
  * Since this scanner does not have REQUEST SENSE, it is always an
  * error if this function is called.*/
@@ -596,14 +596,14 @@ attach_scanner (const char *devicename, Sceptre_Scanner ** devp)
   dev->resolution_range.max = SANE_FIX (1200);
   dev->resolution_range.quant = SANE_FIX (1);
 
-  /* 
+  /*
    * The S1200 has an area of 8.5 inches / 11.7 inches. (A4 like)
    * That's roughly 215*297 mm
    * The values are coded by
    *    size in inch * 600 dpi.
    * The maximums are:
    *   X:  8.5 inches * 600 = 5100 dots
-   *   Y: 11.7 inches * 600 = 7020 
+   *   Y: 11.7 inches * 600 = 7020
    *                (although the windows driver stops at 7019)
    *
    * The values are stored in mm. Inches sucks anyway.
@@ -840,7 +840,7 @@ sceptre_init_options (Sceptre_Scanner * dev)
 /* Wait until the scanner is ready.
  *
  * The only reason I know the scanner is not ready is because it is
- * moving the CCD. 
+ * moving the CCD.
  */
 static SANE_Status
 sceptre_wait_scanner (Sceptre_Scanner * dev)
@@ -873,7 +873,7 @@ sceptre_wait_scanner (Sceptre_Scanner * dev)
 	  return (SANE_STATUS_IO_ERROR);
 	}
 
-      /* Apparently the scanner returns only 2 values: 
+      /* Apparently the scanner returns only 2 values:
        *   0x00 - ready
        *   0xff - not ready
        */
@@ -1067,7 +1067,7 @@ sceptre_fill_image (Sceptre_Scanner * dev)
 
   /* Copy the complete lines, plus the imcompletes
    * ones. We don't keep the real end of data used
-   * in image, so we copy the biggest possible. 
+   * in image, so we copy the biggest possible.
    *
    * This is a no-op for non color images.
    */
@@ -1083,7 +1083,7 @@ sceptre_fill_image (Sceptre_Scanner * dev)
 	  return (status);
 	}
 
-      /* 
+      /*
        * Try to read the maximum number of bytes.
        */
       size = data_left;
@@ -1105,7 +1105,7 @@ sceptre_fill_image (Sceptre_Scanner * dev)
 
       if (size == 0)
 	{
-	  /* Probably reached the end of the buffer. 
+	  /* Probably reached the end of the buffer.
 	   * Check, just in case. */
 	  assert (dev->image_end != 0);
 	  return (SANE_STATUS_GOOD);
@@ -1163,7 +1163,7 @@ sceptre_fill_image (Sceptre_Scanner * dev)
   return (SANE_STATUS_GOOD);	/* unreachable */
 }
 
-/* Copy from the raw buffer to the buffer given by the backend. 
+/* Copy from the raw buffer to the buffer given by the backend.
  *
  * len in input is the maximum length available in buf, and, in
  * output, is the length written into buf.
@@ -1693,11 +1693,11 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
       dev->width = dev->x_br - dev->x_tl;
       dev->length = dev->y_br - dev->y_tl;
 
-      /* 
+      /*
        * Adjust the "X Resolution".  The sceptre S1200 ignores the
        * Y-Resolution parameter in the windows block. X-Resolution
        * is used instead. However the limits are not the same for X
-       * (600 dpi) and Y (1200 dpi).  
+       * (600 dpi) and Y (1200 dpi).
        */
       x_dpi = dev->resolution;
       if (x_dpi > 600)
@@ -1779,7 +1779,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	   *   2n + [0.0 .. 2.0[  -> round to 2n
 	   *
 	   * Note: the rounding is often incorrect at high
-	   * resolution (ag more than 300dpi) 
+	   * resolution (ag more than 300dpi)
 	   */
 	  dev->params.lines = (dev->length * dev->resolution) / 600;
 	  dev->params.lines &= ~1;

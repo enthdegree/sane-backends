@@ -66,7 +66,7 @@
  *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   set bay
  *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   set threshold
  *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   set focus position
- *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   request focus position 
+ *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   request focus position
  *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |   request extended identity
  *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |   |   request scanner status
  *       |   |   |   |   |   |   |   |   |   |   |              |   |   |   |   |   |   |   |   |   |   |   |   |    |   |     |   |   |   |   |   |   |   |   |   |
@@ -160,7 +160,7 @@ e2_dev_init(Epson_Device *dev, const char *devname, int conntype)
 	dev->need_double_vertical = SANE_FALSE;
 
 	dev->cct_profile = &epson_cct_profiles[0]; /* default profile */
-	
+
 	dev->cmd = &epson_cmd[EPSON_LEVEL_DEFAULT];
 
 	/* Change default level when using a network connection */
@@ -936,8 +936,8 @@ e2_set_extended_scanning_parameters(Epson_Scanner * s)
 		}
 
 		if (s->val[OPT_MODE].w == MODE_INFRARED) {
-                        /* only infrared in TPU mode (NOT in TPU2 or flatbeth) 
-	                 * XXX investigate this ... only tested on GT-X800 
+                        /* only infrared in TPU mode (NOT in TPU2 or flatbeth)
+	                 * XXX investigate this ... only tested on GT-X800
                          */
 
                         if (extensionCtrl == 1)   /* test for TPU */

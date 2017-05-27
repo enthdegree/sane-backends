@@ -8,7 +8,7 @@
     * backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.23
 
 2015-06-22 Louis Lagendijk <louis dot lagendijk at gmail dot com>
-	* doc/saned.man: updated to clarify systemd integration and 
+	* doc/saned.man: updated to clarify systemd integration and
 	configuration for thecase where saned is compiled with  systemd
 	glue.
 
@@ -485,7 +485,7 @@
 	for autodetection in kodakaio so the detection of cups is no longer required.
 
 2013-10-14 Paul Newall <quandry@ntlworld.com>
-	* backend/kodakaio.c: fix bug #314301, 
+	* backend/kodakaio.c: fix bug #314301,
 	Segfault when unexpected data returned by avahi auto discovery.
 
 2013-10-11 Rolf Bensch <rolf at bensch hyphen online dot de>
@@ -502,6 +502,6 @@
 
 2013-09-30 m. allan noah <kitno455 at gmail dot com>
 	* ChangeLog*, configure*, doc/releases.txt:
-	Various updates related to starting 1.0.25git 
+	Various updates related to starting 1.0.25git
 
 Older entries can be found in ChangeLog-1.0.24.

@@ -351,7 +351,7 @@ read_image_block (pixma_t * s, uint8_t * data, unsigned size)
   iclass_t *mf = (iclass_t *) s->subdriver;
   int error;
   unsigned maxchunksize, chunksize, count = 0;
-  
+
   maxchunksize = MAX_CHUNK_SIZE * ((mf->generation >= 2 ||
                                     s->cfg->pid == MF4600_PID ||
                                     s->cfg->pid == MF6500_PID ||
@@ -704,7 +704,7 @@ iclass_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
             }
 
           first_block_size = 0;
-          error = request_image_block (s, 4, &info, &block_size, 
+          error = request_image_block (s, 4, &info, &block_size,
                           mf->blkptr + mf->blk_len, &first_block_size);
           /* add current block to remainder of previous */
           mf->blk_len += first_block_size;

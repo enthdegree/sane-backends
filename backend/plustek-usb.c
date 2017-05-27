@@ -147,7 +147,7 @@ static SANE_Bool usb_normFileName( char *fname, char* buffer, u_long max_len )
 	}
 	*dst = '\0';
 
-	return SANE_TRUE;	
+	return SANE_TRUE;
 }
 
 /** do some range checking and copy the adjustment values from the
@@ -216,13 +216,13 @@ usb_initDev( Plustek_Device *dev, int idx, int handle, int vendor )
 
 	/* adjust data origin
 	 */
-	dev->usbDev.Caps.Positive.DataOrigin.x -= dev->adj.tpa.x;	
-	dev->usbDev.Caps.Positive.DataOrigin.y -= dev->adj.tpa.y;	
+	dev->usbDev.Caps.Positive.DataOrigin.x -= dev->adj.tpa.x;
+	dev->usbDev.Caps.Positive.DataOrigin.y -= dev->adj.tpa.y;
 
-	dev->usbDev.Caps.Negative.DataOrigin.x -= dev->adj.neg.x;	
-	dev->usbDev.Caps.Negative.DataOrigin.y -= dev->adj.neg.y;	
+	dev->usbDev.Caps.Negative.DataOrigin.x -= dev->adj.neg.x;
+	dev->usbDev.Caps.Negative.DataOrigin.y -= dev->adj.neg.y;
 
-	dev->usbDev.Caps.Normal.DataOrigin.x -= dev->adj.pos.x;	
+	dev->usbDev.Caps.Normal.DataOrigin.x -= dev->adj.pos.x;
 	dev->usbDev.Caps.Normal.DataOrigin.y -= dev->adj.pos.y;
 
 	/** adjust shading position
@@ -297,13 +297,13 @@ usb_initDev( Plustek_Device *dev, int idx, int handle, int vendor )
 	sParam.Size.dwPixels = 0;
 
 	/* create calibration-filename */
-	sprintf( tmp_str2, "%s-%s", 
+	sprintf( tmp_str2, "%s-%s",
 	         dev->sane.vendor, dev->usbDev.ModelStr );
 
 	if( !usb_normFileName( tmp_str2, tmp_str1, PATH_MAX )) {
 		strcpy( tmp_str1, "plustek-default" );
 	}
-	
+
 	ptr = getenv ("HOME");
 	if( NULL == ptr ) {
 		sprintf( tmp_str2, "/tmp/%s", tmp_str1 );
@@ -378,7 +378,7 @@ static int usb_CheckForPlustekDevice( int handle, Plustek_Device *dev )
 	/* now roam through the setting list... */
 	strncpy( tmp, dev->usbId, 13 );
 	tmp[13] = '\0';
-	
+
 	sprintf( pcbStr, "-%u", pcbID );
 	strcat ( tmp, pcbStr );
 
@@ -392,7 +392,7 @@ static int usb_CheckForPlustekDevice( int handle, Plustek_Device *dev )
 			return handle;
 		}
 	}
-	
+
 	return -1;
 }
 
@@ -416,7 +416,7 @@ static void usbDev_shutdown( Plustek_Device *dev  )
 
 		DBG( _DBG_INFO, "Waiting for scanner-ready...\n" );
 		usb_IsScannerReady( dev );
-	
+
 		if( 0 != dev->usbDev.bLampOffOnEnd ) {
 
 			DBG( _DBG_INFO, "Switching lamp off...\n" );
@@ -439,7 +439,7 @@ static void usbDev_shutdown( Plustek_Device *dev  )
 static SANE_Bool usb_IsDeviceInList( char *usbIdStr )
 {
 	int i;
-	
+
 	for( i = 0; NULL != Settings[i].pIDString; i++ ) {
 
 		if( 0 == strncmp( Settings[i].pIDString, usbIdStr, 13 ))
@@ -516,7 +516,7 @@ usbGetList( DevList **devs )
 				il = SANE_TRUE;
 				break;
 			}
-		} 
+		}
 		if( il ) {
 			DBG( _DBG_INFO2, "Already in list: 0x%04x-0x%04x\n", v, p );
 			continue;
@@ -528,7 +528,7 @@ usbGetList( DevList **devs )
 		sanei_usb_find_devices( v, p, usb_attach );
 
 		if( getLast(*devs) != tmp ) {
-			
+
 			if( tmp == NULL )
 				tmp = *devs;
 			else
@@ -547,7 +547,7 @@ usbGetList( DevList **devs )
 		DBG( _DBG_INFO, "NONE.\n" );
 
 	for( tmp = *devs; tmp; tmp = tmp->next ) {
-		DBG( _DBG_INFO, "Device: >%s< - 0x%04xx0x%04x\n", 
+		DBG( _DBG_INFO, "Device: >%s< - 0x%04xx0x%04x\n",
 			tmp->dev_name, tmp->vendor_id, tmp->device_id );
 	}
 }
@@ -568,7 +568,7 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs, int keep_lock )
 	SANE_Status status;
 	DevList    *tmp;
 
-	DBG( _DBG_INFO, "usbDev_open(%s,%s) - %p\n", 
+	DBG( _DBG_INFO, "usbDev_open(%s,%s) - %p\n",
 	    dev->name, dev->usbId, (void*)devs );
 
 	/* preset our internal usb device structure */
@@ -576,7 +576,7 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs, int keep_lock )
 
 	/* devs is NULL, when called from sane_start */
 	if( devs ) {
-	
+
 		dn[0] = '\0';
 		if( !strcmp( dev->name, "auto" )) {
 
@@ -618,7 +618,7 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs, int keep_lock )
 
 		status = sanei_usb_open( dn, &handle );
 		if( SANE_STATUS_GOOD != status ) {
-			DBG( _DBG_ERROR, "sanei_usb_open failed: %s (%d)\n", 
+			DBG( _DBG_ERROR, "sanei_usb_open failed: %s (%d)\n",
 			     strerror(errno), errno);
 			sanei_access_unlock( dev->sane.name );
 			return -1;
@@ -629,7 +629,7 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs, int keep_lock )
 		 */
 		free( dev->name );
 		dev->name      = strdup(dn);
-		dev->sane.name = dev->name; 
+		dev->sane.name = dev->name;
 
 	} else {
 
@@ -641,7 +641,7 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs, int keep_lock )
 
 		status = sanei_usb_open( dev->name, &handle );
 		if( SANE_STATUS_GOOD != status ) {
-			DBG( _DBG_ERROR, "sanei_usb_open failed: %s (%d)\n", 
+			DBG( _DBG_ERROR, "sanei_usb_open failed: %s (%d)\n",
 			     strerror(errno), errno);
 			sanei_access_unlock( dev->sane.name );
 			return -1;
@@ -659,7 +659,7 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs, int keep_lock )
 		DBG(_DBG_INFO,"Vendor ID=0x%04X, Product ID=0x%04X\n",vendor,product);
 
 		if( dev->usbId[0] != '\0' ) {
-		
+
 			if( 0 != strcmp( dev->usbId, devStr )) {
 				DBG( _DBG_ERROR, "Specified Vendor and Product ID "
 								 "doesn't match with the ones\n"
@@ -735,9 +735,9 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs, int keep_lock )
 	 * product ID and up to 7 different devices...
 	 */
 	if( 0x07B3 == vendor ) {
-	
+
 		handle = usb_CheckForPlustekDevice( handle, dev );
-	
+
 		if( was_empty )
 			dev->usbId[0] = '\0';
 
@@ -746,7 +746,7 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs, int keep_lock )
 				sanei_access_unlock( dev->sane.name );
 			return handle;
 		}
-		
+
 	} else {
 
 		/* now roam through the setting list... */
@@ -853,9 +853,9 @@ static int usbDev_setMap( Plustek_Device *dev, SANE_Word *map,
 	DBG(_DBG_INFO,"Setting map[%u] at 0x%08lx\n",channel,(unsigned long)map);
 
 	_VAR_NOT_USED( dev );
-		
+
 	if( channel == _MAP_MASTER ) {
-	
+
 		for( i = 0; i < length; i++ ) {
 			a_bMap[i]            = (SANE_Byte)map[i];
 			a_bMap[length +i]    = (SANE_Byte)map[i];
@@ -939,7 +939,7 @@ usbDev_setScanEnv( Plustek_Device *dev, ScanInfo *si )
 	usb_GetImageInfo ( dev, &si->ImgDef, &scan->sParam.Size );
 
 	/* mask the flags */
-	scan->dwFlag = si->ImgDef.dwFlag & 
+	scan->dwFlag = si->ImgDef.dwFlag &
 	              (SCANFLAG_bgr | SCANFLAG_BottomUp | SCANFLAG_Calibration |
 	               SCANFLAG_DWORDBoundary | SCANFLAG_RightAlign |
 	               SCANFLAG_StillModule | SCANDEF_Adf | SCANDEF_ContinuousScan);
@@ -1141,10 +1141,10 @@ usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 	/* CIS devices need special handling... */
 	if( usb_IsCISDevice(dev)) {
 		use_alt_cal = SANE_TRUE;
-		
+
 	} else {
 
-		if( dev->adj.altCalibrate ) 
+		if( dev->adj.altCalibrate )
 			use_alt_cal = SANE_TRUE;
 	}
 
@@ -1350,16 +1350,16 @@ usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 
 		if( !usb_ScanBegin( dev,
 			(scan->dwFlag&SCANFLAG_StillModule) ? SANE_FALSE:SANE_TRUE)) {
-	
+
 			return _E_INTERNAL;
 		}
-		
+
 		scan->dwFlag |= SCANFLAG_Scanning;
 
 		if( scan->sParam.UserDpi.y != scan->sParam.PhyDpi.y ) {
-		
+
 			if( scan->sParam.UserDpi.y < scan->sParam.PhyDpi.y ) {
-			
+
 				scan->wSumY = scan->sParam.PhyDpi.y - scan->sParam.UserDpi.y;
 				scan->dwFlag |= SCANFLAG_SampleY;
 				DBG( _DBG_INFO, "SampleY Flag set (%u != %u, wSumY=%u)\n",
@@ -1374,7 +1374,7 @@ usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 	 * as the SANE stuff already forked the driver to read data, I think
 	 * we should only read data by using a function...
 	 */
-	scan->dwLinesUser = scan->sParam.Size.dwLines; 
+	scan->dwLinesUser = scan->sParam.Size.dwLines;
 	if( !scan->dwLinesUser )
 		return _E_BUFFER_TOO_SMALL;
 
@@ -1388,10 +1388,10 @@ usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 		scan->UserBuf.pb = buf;
 
 	DBG(_DBG_INFO,"Reading the data now!\n" );
-	DBG(_DBG_INFO,"PhyDpi.x         = %u\n", scan->sParam.PhyDpi.x  );	
-	DBG(_DBG_INFO,"PhyDpi.y         = %u\n", scan->sParam.PhyDpi.y  );	
-	DBG(_DBG_INFO,"UserDpi.x        = %u\n", scan->sParam.UserDpi.x );	
-	DBG(_DBG_INFO,"UserDpi.y        = %u\n", scan->sParam.UserDpi.y );	
+	DBG(_DBG_INFO,"PhyDpi.x         = %u\n", scan->sParam.PhyDpi.x  );
+	DBG(_DBG_INFO,"PhyDpi.y         = %u\n", scan->sParam.PhyDpi.y  );
+	DBG(_DBG_INFO,"UserDpi.x        = %u\n", scan->sParam.UserDpi.x );
+	DBG(_DBG_INFO,"UserDpi.y        = %u\n", scan->sParam.UserDpi.y );
 	DBG(_DBG_INFO,"NumberOfScanBufs = %lu\n",scan->dwNumberOfScanBufs);
 	DBG(_DBG_INFO,"LinesPerScanBufs = %lu\n",scan->dwLinesPerScanBufs);
 	DBG(_DBG_INFO,"dwPhyBytes       = %lu\n",scan->sParam.Size.dwPhyBytes);

@@ -86,7 +86,7 @@
 #include "mustek_pp_drivers.h"
 
 #define MIN(a,b)	((a) < (b) ? (a) : (b))
-   
+
 /* converts millimeter to pixels at a given resolution */
 #define	MM_TO_PIXEL(mm, dpi)	(((float )mm * 5.0 / 127.0) * (float)dpi)
    /* and back */
@@ -120,27 +120,27 @@ static Mustek_pp_Handle *first_hndl = NULL;
 
 static SANE_String_Const       mustek_pp_modes[4] = {SANE_VALUE_SCAN_MODE_LINEART, SANE_VALUE_SCAN_MODE_GRAY, SANE_VALUE_SCAN_MODE_COLOR, NULL};
 static SANE_Word               mustek_pp_modes_size = 10;
- 
+
 static SANE_String_Const       mustek_pp_speeds[6] = {"Slowest", "Slower", "Normal", "Faster", "Fastest", NULL};
 static SANE_Word               mustek_pp_speeds_size = 8;
-static SANE_Word               mustek_pp_depths[5] = {4, 8, 10, 12, 16};   
+static SANE_Word               mustek_pp_depths[5] = {4, 8, 10, 12, 16};
 
 /* prototypes */
 static void free_cfg_options(int *numoptions, Mustek_pp_config_option** options);
 static SANE_Status do_eof(Mustek_pp_Handle *hndl);
 static SANE_Status do_stop(Mustek_pp_Handle *hndl);
 static int reader_process (Mustek_pp_Handle * hndl, int pipe);
-static SANE_Status sane_attach(SANE_String_Const port, SANE_String_Const name, 
+static SANE_Status sane_attach(SANE_String_Const port, SANE_String_Const name,
 			SANE_Int driver, SANE_Int info);
 static void init_options(Mustek_pp_Handle *hndl);
-static void attach_device(SANE_String *driver, SANE_String *name, 
+static void attach_device(SANE_String *driver, SANE_String *name,
 		   SANE_String *port, SANE_String *option_ta);
 
 
 /*
- * Auxiliary function for freeing arrays of configuration options, 
+ * Auxiliary function for freeing arrays of configuration options,
  */
-static void 
+static void
 free_cfg_options(int *numoptions, Mustek_pp_config_option** options)
 {
    int i;
@@ -225,7 +225,7 @@ do_stop(Mustek_pp_Handle *hndl)
  *
  * EDG - Jan 14, 2004:
  *      Make sure that the parport is released again by the child process
- *      under all circumstances, because otherwise the parent process may no 
+ *      under all circumstances, because otherwise the parent process may no
  *      longer be able to claim it (they share the same file descriptor, and
  *      the kernel doesn't release the child's claim because the file
  *      descriptor isn't cleaned up). If that would happen, the lamp may stay
@@ -267,13 +267,13 @@ reader_process (Mustek_pp_Handle * hndl, int pipe)
 
 	sigemptyset (&sigterm_set);
 	sigaddset (&sigterm_set, SIGTERM);
-	
+
 	if (!(buffer = malloc (hndl->params.bytes_per_line)))
 		return SANE_STATUS_NO_MEM;
-	
+
 	if (!(fp = fdopen(pipe, "w")))
 		return SANE_STATUS_IO_ERROR;
-        
+
 	fd_to_release = hndl->fd;
 	memset (&act, 0, sizeof(act));
 	act.sa_handler = sigterm_handler;
@@ -290,11 +290,11 @@ reader_process (Mustek_pp_Handle * hndl, int pipe)
 		sigprocmask (SIG_BLOCK, &sigterm_set, NULL);
 
 		hndl->dev->func->read (hndl, buffer);
-                
+
                 if (getppid() == 1) {
                     /* The parent process has died. Stop the scan (to make
                        sure that the lamp is off and returns home). This is
-                       a safety measure to make sure that we don't break 
+                       a safety measure to make sure that we don't break
                        the scanner in case the frontend crashes. */
 		    DBG (1, "reader_process: front-end died; aborting.\n");
                     hndl->dev->func->stop (hndl);
@@ -312,7 +312,7 @@ reader_process (Mustek_pp_Handle * hndl, int pipe)
 
 	return SANE_STATUS_GOOD;
 }
-		
+
 
 
 /* sane_attach:
@@ -334,7 +334,7 @@ sane_attach (SANE_String_Const port, SANE_String_Const name, SANE_Int driver, SA
 {
 	Mustek_pp_Device	*dev;
 
-	DBG (3, "sane_attach: attaching device ``%s'' to port %s (driver %s v%s by %s)\n", 
+	DBG (3, "sane_attach: attaching device ``%s'' to port %s (driver %s v%s by %s)\n",
 			name, port, Mustek_pp_Drivers[driver].driver,
 				Mustek_pp_Drivers[driver].version,
 				Mustek_pp_Drivers[driver].author);
@@ -355,7 +355,7 @@ sane_attach (SANE_String_Const port, SANE_String_Const name, SANE_Int driver, SA
 	dev->sane.name = dev->name = strdup (name);
 	dev->port = strdup (port);
         dev->info = info; /* Modified by EDG */
-        
+
         /* Transfer the options parsed from the configuration file */
         dev->numcfgoptions = numcfgoptions;
         dev->cfgoptions = cfgoptions;
@@ -469,7 +469,7 @@ init_options(Mustek_pp_Handle *hndl)
   /* color dept */
   hndl->opt[OPT_DEPTH].name = SANE_NAME_BIT_DEPTH;
   hndl->opt[OPT_DEPTH].title = SANE_TITLE_BIT_DEPTH;
-  hndl->opt[OPT_DEPTH].desc = 
+  hndl->opt[OPT_DEPTH].desc =
 	  "Number of bits per sample for color scans, typical values are 8 for truecolor (24bpp)"
 	  "up to 16 for far-to-many-color (48bpp).";
   hndl->opt[OPT_DEPTH].type = SANE_TYPE_INT;
@@ -634,7 +634,7 @@ init_options(Mustek_pp_Handle *hndl)
  *      this driver is called to initialize the device.
  */
 static void
-attach_device(SANE_String *driver, SANE_String *name, 
+attach_device(SANE_String *driver, SANE_String *name,
               SANE_String *port, SANE_String *option_ta)
 {
   int found = 0, driver_no, port_no;
@@ -681,15 +681,15 @@ attach_device(SANE_String *driver, SANE_String *name,
   if (*option_ta)
     free (*option_ta);
   *name = *port = *driver = *option_ta = 0;
-  
+
   /* In case of a successful initialization, the configuration options
      should have been transfered to the device, but this function can
      deal with that. */
   free_cfg_options(&numcfgoptions, &cfgoptions);
 }
-   
+
 /* sane_init:
- *	Reads configuration file and registers hardware driver 
+ *	Reads configuration file and registers hardware driver
  *
  * ChangeLog:
  *
@@ -711,7 +711,7 @@ attach_device(SANE_String *driver, SANE_String *name,
  *
  *      if the optional argument "option_ta" is present the driver uses special
  *      parameters fitting for a trasparency adapter.
- */ 	
+ */
 
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
@@ -740,9 +740,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       char driver_name[64];
       const char **devices = sanei_pa4s2_devices();
       int device_no;
-	
+
       DBG (2, "sane_init: could not open configuration file\n");
-      
+
       for (device_no = 0; devices[device_no] != NULL; device_no++)
         {
 	  DBG (3, "sane_init: trying ``%s''\n", devices[device_no]);
@@ -774,14 +774,14 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       if (strncmp(config_line_ptr, "scanner", 7) == 0)
 	{
 	  config_line_ptr += 7;
-          
+
           if (name)
           {
              /* Parsing of previous scanner + options is finished. Attach
                 the device before we parse the next section. */
              attach_device(&driver, &name, &port, &option_ta);
           }
-          
+
 	  config_line_ptr = sanei_config_skip_whitespace (config_line_ptr);
 	  if (!*config_line_ptr)
 	    {
@@ -858,7 +858,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      config_line_ptr = sanei_config_get_string (config_line_ptr,
 							&option_ta);
 
-	      if ((option_ta == NULL) || (!*option_ta) || 
+	      if ((option_ta == NULL) || (!*option_ta) ||
 		  (strcasecmp (option_ta, "use_ta") != 0))
 		{
 		  DBG (1, "sane_init: parse error in line %d after "
@@ -889,12 +889,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
         }
       else if (strncmp(config_line_ptr, "option", 6) == 0)
         {
-          /* Format for options: option <name> [<value>] 
-             Note that the value is optional. */   
+          /* Format for options: option <name> [<value>]
+             Note that the value is optional. */
           char *optname, *optval = 0;
           Mustek_pp_config_option *tmpoptions;
 
-          config_line_ptr += 6;         
+          config_line_ptr += 6;
           config_line_ptr = sanei_config_skip_whitespace (config_line_ptr);
           if (!*config_line_ptr)
 	    {
@@ -918,7 +918,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	    {
               /* The option has a value.
                  No need to check the value; that's up to the backend */
-	      config_line_ptr = sanei_config_get_string (config_line_ptr, 
+	      config_line_ptr = sanei_config_get_string (config_line_ptr,
                                                          &optval);
 
    	      config_line_ptr = sanei_config_skip_whitespace (config_line_ptr);
@@ -927,10 +927,10 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
           if (*config_line_ptr)
 	    {
 	      DBG (1, "sane_init: parse error in line %d after "
-		        "``option %s %s''\n", line, optname, 
+		        "``option %s %s''\n", line, optname,
 		        (optval == 0 ? "" : optval));
 	      free (optname);
-	      if (optval) 
+	      if (optval)
                  free (optval);
 	      continue;
 	    }
@@ -959,14 +959,14 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      DBG (1, "sane_init: parse error in line %d: unexpected "
                       " ``option''\n", line);
 	      free (optname);
-	      if (optval) 
+	      if (optval)
                  free (optval);
 	      continue;
 	    }
 
 
           /* Extend the (global) array of options */
-          tmpoptions = realloc(cfgoptions, 
+          tmpoptions = realloc(cfgoptions,
                                (numcfgoptions+1)*sizeof(cfgoptions[0]));
           if (!tmpoptions)
           {
@@ -987,7 +987,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	}
 
     }
-    
+
   /* If we hit the end of the file, we still may have to process the
      last driver */
   if (name)
@@ -996,7 +996,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   fclose(fp);
   return SANE_STATUS_GOOD;
 
-}	
+}
 
 /* sane_exit:
  *	Unloads all drivers and frees allocated memory
@@ -1060,7 +1060,7 @@ sane_exit (void)
  */
 /*ARGSUSED*/
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list, 
+sane_get_devices (const SANE_Device *** device_list,
 		  SANE_Bool local_only __UNUSED__)
 {
   int ctr;
@@ -1078,7 +1078,7 @@ sane_get_devices (const SANE_Device *** device_list,
     }
 
   dev = devlist;
-  
+
   for (ctr=0 ; ctr<num_devices ; ctr++) {
 	  devarray[ctr] = &dev->sane;
 	  dev = dev->next;
@@ -1142,7 +1142,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 		return SANE_STATUS_INVAL;
 	}
 
-	DBG (3, "sane_open: Using device ``%s'' (driver %s v%s by %s)\n", 
+	DBG (3, "sane_open: Using device ``%s'' (driver %s v%s by %s)\n",
 			dev->name, dev->func->driver, dev->func->version, dev->func->author);
 
 	if ((hndl = malloc (sizeof (Mustek_pp_Handle))) == NULL) {
@@ -1151,7 +1151,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 		return SANE_STATUS_NO_MEM;
 
 	}
-	
+
 	if ((status = dev->func->open (dev->port, dev->caps, &fd)) != SANE_STATUS_GOOD) {
 
 		DBG (1, "sane_open: could not open device (%s)\n",
@@ -1167,32 +1167,32 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 	hndl->pipe = -1;
 
 	init_options (hndl);
-	
+
 	dev->func->setup (hndl);
-        
+
         /* Initialize driver-specific configuration options. This must be
            done after calling the setup() function because only then the
            driver is guaranteed to be fully initialized */
         for (i = 0; i<dev->numcfgoptions; ++i)
         {
-           status = dev->func->config (hndl, 
+           status = dev->func->config (hndl,
 		  		       dev->cfgoptions[i].name,
 				       dev->cfgoptions[i].value);
            if (status != SANE_STATUS_GOOD)
            {
               DBG (1, "sane_open: could not set option %s for device (%s)\n",
             		dev->cfgoptions[i].name, sane_strstatus (status));
-              
-              /* Question: should the initialization be aborted when an 
-                 option cannot be handled ? 
-                 The driver should have reasonable built-in defaults, so 
-                 an illegal option value or an unknown option should not 
+
+              /* Question: should the initialization be aborted when an
+                 option cannot be handled ?
+                 The driver should have reasonable built-in defaults, so
+                 an illegal option value or an unknown option should not
                  be fatal. Therefore, it's probably ok to ignore the error. */
            }
         }
 
 	first_hndl = hndl;
-	
+
 	*handle = hndl;
 
 	return SANE_STATUS_GOOD;
@@ -1297,7 +1297,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
  *	values aren't supported.
  *
  *	before a value is written, some checks are performed. Depending
- *	on the option, that is written, other options also change 
+ *	on the option, that is written, other options also change
  *
  */
 SANE_Status
@@ -1487,7 +1487,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    hndl->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
 
 	    hndl->opt[OPT_DEPTH].cap |= SANE_CAP_INACTIVE;
-	    
+
 	    if ((hndl->dev->caps & CAP_DEPTH) && (strcmp(val, SANE_VALUE_SCAN_MODE_COLOR) == 0))
 		    hndl->opt[OPT_DEPTH].cap &= ~SANE_CAP_INACTIVE;
 
@@ -1543,7 +1543,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
  * 				supported) or 24bit by default
  * 				(ignored in bw/grayscale or if not
  * 				supported)
- * 		dpi:		resolution 
+ * 		dpi:		resolution
  * 		invert:		if supported else defaults to false
  * 		gamma:		if supported and selected
  * 		ta:		if supported by the device
@@ -1577,9 +1577,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	hndl->depth = hndl->val[OPT_DEPTH].w;
       else
 	hndl->depth = 8;
-	
+
       dpi = (int) (SANE_UNFIX (hndl->val[OPT_RESOLUTION].w) + 0.5);
-      
+
       hndl->res = dpi;
 
       if (hndl->dev->caps & CAP_INVERT)
@@ -1603,11 +1603,11 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 		      if (strcmp(mustek_pp_speeds[ctr], hndl->val[OPT_SPEED].s) == 0)
 			      hndl->speed = ctr;
 
-	      
+
 
       } else
 	      hndl->speed = SPEED_NORMAL;
-		      
+
       mode = hndl->val[OPT_MODE].s;
 
       if (strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0)
@@ -1651,7 +1651,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	MIN ((int)
 	     (MM_TO_PIXEL (SANE_UNFIX(hndl->val[OPT_BR_Y].w), hndl->dev->maxres) +
 	      0.5), hndl->dev->maxvsize);
-      
+
       /* If necessary, swap the upper and lower boundaries to avoid negative
          distances. */
       if (hndl->topX > hndl->bottomX) {
@@ -1913,7 +1913,7 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 
 	if (hndl->state != STATE_SCANNING)
 		return SANE_STATUS_INVAL;
-	
+
 
 	if (fcntl (hndl->pipe, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0) {
 
@@ -1943,7 +1943,7 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 
 	if (hndl->state != STATE_SCANNING)
 		return SANE_STATUS_INVAL;
-	
+
 	*fd = hndl->pipe;
 
 	return SANE_STATUS_GOOD;

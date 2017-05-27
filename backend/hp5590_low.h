@@ -60,7 +60,7 @@ enum proto_flags {
 /* Core flags for hp5590_cmd() - they indicate so called CORE commands */
 #define CORE_NONE		     0	/* No CORE operation */
 #define CORE_DATA		1 << 0	/* Operate on CORE data */
-#define CORE_BULK_IN		1 << 1	/* CORE bulk operation - prepare for bulk IN 
+#define CORE_BULK_IN		1 << 1	/* CORE bulk operation - prepare for bulk IN
 					 * transfer (not used yet)
 					 */
 #define CORE_BULK_OUT		1 << 2	/* CORE bulk operation - prepare for bulk OUT

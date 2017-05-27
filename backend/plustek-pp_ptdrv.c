@@ -243,8 +243,8 @@ static CLOSETYPE pt_drv_close( struct inode *, struct file *);
 #else
   static int pt_drv_ioctl( struct inode *, struct file *, UInt, unsigned long );
 #endif
-  
-  
+
+
 /*
  * the driver interface
  */
@@ -300,7 +300,7 @@ static pScanData get_pt_from_inode(struct inode *ip)
     /*
      * unit out of range
      */
-    if (minor >=  _MAX_PTDEVS )	
+    if (minor >=  _MAX_PTDEVS )
         return NULL;
 
     return( PtDrvDevices[minor] );
@@ -442,7 +442,7 @@ static void ptDrvSwitchLampOn( pScanData ps )
 		ps->bLastLampStatus = _SCAN_NORMALLAMP_ON;
 
 	} else {
-		
+
 		ps->AsicReg.RD_ScanControl |= ps->bLampOn;
 		ps->bLastLampStatus = ps->bLampOn;
 	}
@@ -484,12 +484,12 @@ static void ptdrvLampWarmup( pScanData ps )
 
 		MiscStartTimer( &timer, _SECOND * ps->warmup );
 		while( !MiscCheckTimer( &timer )) {
-		
+
 			/* on break, we setup the initial timer again... */
 			if( _FALSE == ps->fScanningStatus ) {
 				MiscStartTimer( &toTimer[ps->devno], (_SECOND * ps->warmup));
-				return;		
-			}	
+				return;
+			}
 		};
 
 	}
@@ -517,7 +517,7 @@ static void ptdrvLampTimerIrq( int sig_num )
 	pScanData ps;
 
 	DBG( DBG_HIGH, "!! IRQ !! Lamp-Timer stopped.\n" );
-	
+
 #ifdef __KERNEL__
 	ps = (pScanData)ptr;
 #else
@@ -539,10 +539,10 @@ static void ptdrvLampTimerIrq( int sig_num )
 	} else {
 		ps->AsicReg.RD_ScanControl &= ~_SCAN_LAMP_ON;
 	}
-	
+
 	/* force warmup... */
 	ps->bLastLampStatus = 0xFF;
-	
+
 	/*
 	 * claim parallel port if necessary...
 	 * if the port is busy, restart the timer
@@ -847,7 +847,7 @@ static int ptdrvInit( int devno )
 
 	if( _OK == retval ) {
 
-#ifdef __KERNEL__	
+#ifdef __KERNEL__
 		_PRINT( "pt_drv%u: %s found on port 0x%04x\n",
 			 devno, MiscGetModelName(ps->sCaps.Model), ps->IO.pbSppDataPort );
 #else
@@ -1097,19 +1097,19 @@ static int ptdrvIoctl( pScanData ps, UInt cmd, pVoid arg )
 			if( ps->devno < _MAX_PTDEVS ) {
 
 				if( adj.warmup >= 0 ) {
-					warmup[ps->devno] = adj.warmup;	
-					ps->warmup        = adj.warmup;	
-				}					
+					warmup[ps->devno] = adj.warmup;
+					ps->warmup        = adj.warmup;
+				}
 
 				if( adj.lampOff >= 0 ) {
 					lampoff[ps->devno] = adj.lampOff;
 					ps->lampoff        = adj.lampOff;
-				}					
+				}
 
 				if( adj.lampOffOnEnd >= 0 ) {
 					lOffonEnd[ps->devno] = adj.lampOffOnEnd;
 					ps->lOffonEnd        = adj.lampOffOnEnd;
-				}					
+				}
 			}
 		}
 		break;
@@ -1131,13 +1131,13 @@ static int ptdrvIoctl( pScanData ps, UInt cmd, pVoid arg )
 			x_len = 256;
 			if( _IS_ASIC98(ps->sCaps.AsicID))
 				x_len = 4096;
-			
+
 			/* check for 0 pointer and len */
 			if((NULL == map.map) || (x_len != map.len)) {
 				DBG( DBG_LOW, "map pointer == 0, or map len invalid!!\n" );
 				return _E_INVALID;
-			}	
-			
+			}
+
     		if( _MAP_MASTER == map.map_id ) {
 
 				for( i = 0; i < 3; i++ ) {
@@ -1159,7 +1159,7 @@ static int ptdrvIoctl( pScanData ps, UInt cmd, pVoid arg )
 						return _E_FAULT;
 				}
 			}
-			
+
 			/* here we adjust the maps according to
 			 * the brightness and contrast settings
 			 */
@@ -1254,7 +1254,7 @@ static int ptdrvIoctl( pScanData ps, UInt cmd, pVoid arg )
         		retval = _E_SEQUENCE;
 
 	      	ps->DataInf.dwVxdFlag &= ~_VF_ENVIRONMENT_READY;
-		
+
 		} else {
 			DBG( DBG_LOW, "CANCEL Mode set\n" );
 		}
@@ -1320,7 +1320,7 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 
 	if( _FALSE == ps->fScanningStatus )
 		return _E_ABORT;
-		
+
 	/*
 	 * has the environment been set ?
 	 * this should prevent the driver from causing a seg-fault
@@ -1374,7 +1374,7 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 			(unsigned long)ps->Scan.bp.pMonoBuf,
             ps->DataInf.dwAppPhyBytesPerLine, (unsigned long)scaleBuf );
 
-	/*	
+	/*
 	 * in case of a previous problem, move the sensor back home
 	 */
   	MotorToHomePosition( ps );
@@ -1382,8 +1382,8 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 	if( _FALSE == ps->fScanningStatus ) {
 		retval = _E_ABORT;
 		goto ReadFinished;
-	}	
-  	
+	}
+
 	dwLinesRead = 0;
 
 	/*
@@ -1465,7 +1465,7 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 
       		if( ps->Scan.dwLinesToRead > ps->DataInf.dwAppLinesPerArea )
         		ps->Scan.dwLinesToRead = ps->DataInf.dwAppLinesPerArea;
-      	
+
 			ps->DataInf.dwAppLinesPerArea -= ps->Scan.dwLinesToRead;
 
       		if (ps->DataInf.dwScanFlag & SCANDEF_BmpStyle)
@@ -1638,7 +1638,7 @@ int init_module( void )
 			                    (S_IFCHR | S_IRUGO | S_IWUGO | S_IFCHR),
 				                &pt_drv_fops, NULL );
 # else /* DEVFS_26_STYLE */
-				devfs_mk_cdev(MKDEV(_PTDRV_MAJOR, devCount), 
+				devfs_mk_cdev(MKDEV(_PTDRV_MAJOR, devCount),
 				    (S_IFCHR | S_IRUGO | S_IWUGO | S_IFCHR),
 				    "scanner/pt_drv%d", devCount);
 # endif
@@ -1787,7 +1787,7 @@ static int pt_drv_open(struct inode *inode, struct file *file)
 		return -EAGAIN;
 #else
 	MOD_INC_USE_COUNT;
-#endif    
+#endif
 	ps->flags |= _PTDRV_OPEN;
 
 	return _OK;
@@ -1811,7 +1811,7 @@ static CLOSETYPE pt_drv_close(struct inode * inode, struct file * file)
 		module_put(THIS_MODULE);
 #else
     	MOD_DEC_USE_COUNT;
-#endif     
+#endif
 	    CLOSERETURN(0);
 	} else {
 
@@ -1851,7 +1851,7 @@ static ssize_t pt_drv_read( struct file *file,
 	 */
 	if( _TRUE == deviceScanning ) {
 	    printk( KERN_INFO "pt_drv: device %u busy!!!\n", ps->devno );
-		return(-EBUSY);		
+		return(-EBUSY);
 	}
 
 	deviceScanning = _TRUE;
@@ -1924,7 +1924,7 @@ static int PtDrvInit( const char *dev_name, UShort model_override )
 
 	port[0] = fd;
 	mov[0]  = model_override;
-	
+
 	result = ptdrvInit( 0 );
 
 	if( _OK == result ) {

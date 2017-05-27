@@ -12,7 +12,7 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.
  *
- * Header file for TCP/IP communications. 
+ * Header file for TCP/IP communications.
  */
 
 #ifndef sanei_tcp_h

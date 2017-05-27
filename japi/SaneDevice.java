@@ -46,10 +46,10 @@
 
 public class SaneDevice
 {
-public String name;		// unique device name 
-public String vendor;		// device vendor string 
-public String model;		// device model name 
-public String type;		// device type (e.g., "flatbed scanner") 
+public String name;		// unique device name
+public String vendor;		// device vendor string
+public String model;		// device model name
+public String type;		// device type (e.g., "flatbed scanner")
 }
 
 

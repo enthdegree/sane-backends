@@ -107,11 +107,11 @@ variable controls the debug level for this backend. E.g., a value of 128
 requests all debug output to be printed. Smaller levels reduce verbosity.
 SANE_DEBUG_AGFAFOCUS values:
 
-.sp 
+.sp
 .ft CR
 .nf
 Number  Remark
-\ 
+\
  0       print important errors (printed each time)
  1       print errors
  2       print sense
@@ -151,7 +151,7 @@ SANE_DEBUG_AGFAFOCUS to 128 and try to regenerate the problem. Then
 send me a report with the log attached.
 .PP
 If you encounter a SCSI bus error or trimmed and/or displaced images please
-also set the environment variable SANE_DEBUG_SANEI_SCSI to 128 before sending 
+also set the environment variable SANE_DEBUG_SANEI_SCSI to 128 before sending
 me the report.
 
 .SH TODO

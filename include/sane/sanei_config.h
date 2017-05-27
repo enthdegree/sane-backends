@@ -53,7 +53,7 @@
 #include <sane/sane.h>
 
 /** Search configuration file \a name along directory list and return file
- * pointer if such a file exists.  
+ * pointer if such a file exists.
  *
  * The following directory list is used:
  *	1st: SANE_CONFIG_DIR environment variable.
@@ -127,9 +127,9 @@ extern void sanei_config_attach_matching_devices (const char *name,
 						  (const char *dev));
 
 /** this structure holds the description of configuration options. There is
- * a list for options and another for their values. 
+ * a list for options and another for their values.
  * These lists are used when the configuration file is
- * parsed. Read values are stored in Option_Value. Helpers functions are 
+ * parsed. Read values are stored in Option_Value. Helpers functions are
  * provided to access values easily */
 typedef struct
 {

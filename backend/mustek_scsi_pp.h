@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2003 James Perry
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
@@ -36,7 +36,7 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice.  
+   If you do not wish that, delete this exception notice.
 
    This file implements the SCSI-over-parallel port protocol used in,
    for example, the Paragon 600 II EP
@@ -113,7 +113,7 @@ static SANE_Status mustek_scsi_pp_cmd (int fd, const void *src, size_t src_size,
  *
  * @return
  * - SANE_STATUS_GOOD - on success
- * - SANE_STATUS_IO_ERROR - if an error occured during the dialog with the 
+ * - SANE_STATUS_IO_ERROR - if an error occured during the dialog with the
  *   device
  */
 static SANE_Status mustek_scsi_pp_rdata (int fd, int planes,

@@ -1,9 +1,9 @@
 /* ------------------------------------------------------------------------- */
 
 /* umax-ug80.c: inquiry for UMAX scanner ug80
-  
+
    (C) 1998-2002 Oliver Rauch
-   
+
    Thanks to Andreas Hofmeister <hofmeist@informatik.uni-freiburg.de>
    for his help!
 
@@ -61,13 +61,13 @@ static unsigned char UG80_INQUIRY[] =
 /* 28 - 29 reserved */
 	0x00, 0x00,
 
-/* 2a - 35 exposure times */	
+/* 2a - 35 exposure times */
 	0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00,
 
-/* 36 - 37 reserved */	
+/* 36 - 37 reserved */
 	0x00, 0x00,
 
 /* 38 - 5f scsi reserved */
@@ -153,7 +153,7 @@ static unsigned char UG80_INQUIRY[] =
 
 /* 8a-8b dor max scan width in 0.01 inch */
 	0x00, 0x00,
-	
+
 /* 8c-8d dor max scan length in 0.01 inch */
 	0x00, 0x00,
 

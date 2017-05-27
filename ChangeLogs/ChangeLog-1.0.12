@@ -107,7 +107,7 @@
 2003-05-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/Makefile.in po/sane-backends.no.po: Added Norwegian
-	  translation (from Sigurd Stordal <sigurd.stordal@stud.ibg.uit.no>). 
+	  translation (from Sigurd Stordal <sigurd.stordal@stud.ibg.uit.no>).
 
 2003-05-06  Michael Herder <crapsite@gmx.net>
 
@@ -122,8 +122,8 @@
 2003-05-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/sane-backends.fr.po: Updates for the French translation from
-	  Yann E. MORIN <yann dot morin dot 1998 at anciens dot enib dot fr>. 
-	* tools/check-po.awk: Added script to check the translations for 
+	  Yann E. MORIN <yann dot morin dot 1998 at anciens dot enib dot fr>.
+	* tools/check-po.awk: Added script to check the translations for
 	  completeness (from Yann E. MORIN).
 	* tools/README: Added description of check-po.awk. Minor reordering.
 
@@ -138,7 +138,7 @@
 	* TODO: Removed obsololete entries.
 	* NEWS: Updated for 1.0.12.
 	* backend/ibm.c backend/ibm-scsi.c: Only disable object position
-	  command for Ricoh IS-420. 
+	  command for Ricoh IS-420.
 
 2003-05-04 Oliver Rauch <Oliver.Rauch@XSane.org>
 
@@ -185,7 +185,7 @@
 
 	* backend/snapscan.c backend/snapscan.h backend/snapscan-options.c
 	  backend/snapscan-scsi.c doc/descriptions/snapscan.desc: SnapScan
-	  backend 1.4.26, added support for Agfa Arcus 1200, better support 
+	  backend 1.4.26, added support for Agfa Arcus 1200, better support
 	  for Benq 5000.
 
 2003-04-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -322,7 +322,7 @@
 	  doc/descriptions-external/v4l2.desc
 	  doc/descriptions-external/viceo.desc: Added comments to explain
 	  the reasons for not including these backends into SANE.
-	
+
 2003-04-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/scanimage.man: Added EXAMPLES section.
@@ -333,8 +333,8 @@
 
 	* AUTHORS backend/Makefile.in backend/dll.conf backend/ibm-scsi.c
 	  backend/ibm.c backend/ibm.conf backend/ibm.h doc/Makefile.in
-	  doc/sane.man doc/sane-ibm.man doc/.cvsignore 
-	  doc/descriptions/ibm.desc: Added IBM backend for the 
+	  doc/sane.man doc/sane-ibm.man doc/.cvsignore
+	  doc/descriptions/ibm.desc: Added IBM backend for the
 	  IBM 2456, the Ricoh IS-420 and maybe the IS-410 and IS-430 from
 	  mf <massifr@tiscalinet.it>. Added manual page, fixed some
 	  warnings, Added detection for IS-410 and IS-430.
@@ -344,7 +344,7 @@
 	  support it.
 	* doc/sane-ibm.man doc/descriptions/ibm.desc: Mention alpha
 	  quality. Add maintainer address.
-	
+
 2003-04-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-desc.c: Fixed some HTML bugs.
@@ -383,7 +383,7 @@
 	* TODO: Removed license issue. Updated desc files and global
 	  variables entries. Updated v4l entry.
 	* doc/scanimage.man: --batch format doesn't work, only --batch=format.
-	
+
 2003-04-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/test.c backend/test.h doc/descriptions/test.desc: Added
@@ -393,7 +393,7 @@
 
 	* backend/canon630u-common.c: Removed last change in offset/gain
 	  calculation, which croaked for some cases.  Give up early if we
-	  can't talk on the USB. 
+	  can't talk on the USB.
 	* backend/canon630u.c: Added option to force scanner recalibration.
 
 2003-04-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -402,7 +402,7 @@
 
 2003-04-03  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
-	* TODO: removed mustek_pp entry (Check that global variables are 
+	* TODO: removed mustek_pp entry (Check that global variables are
 	  initialized propperly
 
 2003-04-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -415,14 +415,14 @@
 	* backend/as6e.c: Fixed some warnings.
 	* backend/coolscan.c backend/coolscan-scsi.h: Fixed a bunch of
 	  compilation warnings.
-	* backend/djpeg.c: Fixed some warnings. 
-	* backend/dmc.c: Fixed some warnings. 
+	* backend/djpeg.c: Fixed some warnings.
+	* backend/dmc.c: Fixed some warnings.
 
 2003-04-03  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
 	* backend/mustek_pp.c: Fixed a potential crash bug that could be
-          triggered when calling sane_init/sane_get_devices/sane_exit 
-          multiple times, and fixed some minor bugs to pass the 
+          triggered when calling sane_init/sane_get_devices/sane_exit
+          multiple times, and fixed some minor bugs to pass the
           frontend/tstbackend.c tests.
 
 2003-04-03  Oliver Schwartz <Oliver.Schwartz@gmx.de>
@@ -487,7 +487,7 @@
 
 2003-03-28  Oliver Schirrmeister <oschirr@abm.de>
 
-	* backend/fujitsu.c backend/fujitsu-scsi.h: 
+	* backend/fujitsu.c backend/fujitsu-scsi.h:
 	  now really supports the fi-4120C
 
 2003-03-26  Karl Heinz Kremer <khk@khk.net>
@@ -506,7 +506,7 @@
 
 	* doc/descriptions/unsupported.desc: Added Canon CanoScan FB620U.
 	  Added more info for HP ScanJet 3500c.
-	
+
 2003-03-24  Rene Rebe <rene.rebe@gmx.net>
 
 	* include/sane/sanei_usb.h sanei/sanei_usb.c: support for
@@ -544,12 +544,12 @@
 
 	* backend/fujitsu.c backund/fujitsu-scsi.h backend/fujitsu.h
           * patch from Ron Cemer <ron@roncemer.com>
-	    fixes the broken "ADF empty" detection on the Fujitsu scanners 
+	    fixes the broken "ADF empty" detection on the Fujitsu scanners
 	    when connected via USB.  It also fixes a sense-request issues,
-	    which were required in order to determine whether the ADF is 
+	    which were required in order to determine whether the ADF is
 	    empty.  It also eliminates some duplicate code blocks.
 	  * renamed some functions
-	
+
 2003-03-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_low.h
@@ -568,11 +568,11 @@
 	* backend/fujitsu.c backund/fujitsu-scsi.h
           displays the offending byte when something is wrong in the
           window descriptor block.
-	
+
 2003-03-09  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
 	* backend/mustek_pp_cis.c backend/mustek_pp_cis.h: Fixed two
-          calibration bugs: one occasionally caused overexposed images at 
+          calibration bugs: one occasionally caused overexposed images at
           all resolutions; the other one occasionally caused color inbalances
           when scanning narrow areas at high resolutions.
 
@@ -676,7 +676,7 @@
 	  or 0x04.
 	* doc/descriptions/unsupported.desc: Added Compaq S4 100 and Microtek
 	  Scanmaker 4800.
-	
+
 2003-02-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/hp5400.desc: Added description for hp5400
@@ -710,9 +710,9 @@
 
 2003-02-23   Stéphane Voltz  <svoltz@wanadoo.fr>
 
-        * backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c 
-	  backend/umax_pp_mid.h backend/umax_pp.c backend/umax_pp.h 
-	  backend/umax_pp.conf tools/umax_pp.c doc/sane-umax_pp.man: changed 
+        * backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c
+	  backend/umax_pp_mid.h backend/umax_pp.c backend/umax_pp.h
+	  backend/umax_pp.conf tools/umax_pp.c doc/sane-umax_pp.man: changed
 	  highlight option to contrast, and gain to brightness.
 
 2003-02-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -783,7 +783,7 @@
 2003-02-20  Oliver Schirrmeister <oschirr@abm.de>
         * backend/fujitsu.c: make option RIF available for 3091 and 3092, bugfix
 	* backend/fujitsu.c: set availability of options THRESHOLD und VARIANCE
-	
+
 2003-02-20  Oliver Schirrmeister <oschirr@abm.de>
 	* backend/fujitsu.c, backend/fujitsu.h: patch from <ron@roncemer.com>:
 	  fi4220 support
@@ -791,7 +791,7 @@
 
 2003-02-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/descriptions-external/ma1509.desc: Added description of the 
+	* doc/descriptions-external/ma1509.desc: Added description of the
 	  ma1509 backend for Mustek BearPaw 1200F scanners.
 	* doc/descriptions/unsupported.desc: Added Avision, Brother, and Umax
 	  scanners. Removed Mustek BearPaw 1200F.
@@ -842,7 +842,7 @@
 
 2003-02-15  Karl Heinz Kremer <khk@khk.net>
 
-	* backend/epson.c backend/epson_usb.[ch]: Fix problem with 
+	* backend/epson.c backend/epson_usb.[ch]: Fix problem with
 	  "usb <vendor> <product> syntax in config file
 
 	* backend/epson.c: Move sanei_init_usb() to sane_init(). Thanks
@@ -851,7 +851,7 @@
 2003-02-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Updated Canon, Fujitsu, and
-	  Plustek entries. 
+	  Plustek entries.
 	* TODO: Added entries about v4l, fujitsu, snapscan.
 
 2003-02-11  Peter Fales <peter@fales-lorenz.net>
@@ -859,10 +859,10 @@
 	* backend/dll.conf, doc/sane-gphoto2.man:  Added a commented out
 	  gphoto2 entry in dll.conf, and mentioned it in the man page.
 
-	* backend/gphoto2.c: Bug fixes.  Don't coredump if the 
+	* backend/gphoto2.c: Bug fixes.  Don't coredump if the
 	  gphoto2.conf file is missing, and don't require a speed to
 	  be set if the usb port is used.
-	  
+
 2003-02-11  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* backend/hp-handle.c: Fix problem with ifdef/ifndef for threads

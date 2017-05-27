@@ -115,7 +115,7 @@
  * If you do not wish that, delete this exception notice.
  * <hr>
  */
- 
+
 /* the other stuff is included by plustek.c ...*/
 #include "plustek-usb.h"
 
@@ -146,11 +146,11 @@ static DCapsDef Cap0x07B3_0x0017_0 =
 	},
 	{	/* Negative */
 		{1004 + 55, 744 + 12},	/* DataOrigin (X: 7cm + 1.5cm, Y: 8mm + 5.5cm)*/
-		
+
 		/* 533 blaustichig */
 		537 /* hell */
 		/* 543 gruenstichig  */
-		
+
 		/*543*/, -1,    /* ShadingOriginY (Y: 8mm + 3.8cm)     */
 		{567, 414},     /* Size	(X: 4.8cm, Y: 3.5cm)           */
 		{150, 150}     /* MinDpi                              */
@@ -332,7 +332,7 @@ static DCapsDef Cap0x07B3_0x0013_4 =
 	{{1004 + 20,   744 - 20}, 543, -1, { 567,  414}, {150, 150}},
 	{{        0,         95},   0, -1, {2550, 3508}, { 50,  50}},
 	{1200, 1200},
-	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,	
+	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
 	12, 4, kNEC3778, 0x03, _WAF_NONE, _NO_MIO
 };
@@ -844,7 +844,7 @@ static HWDef Hw0x07B3_0x0017_0 =
 	{2, 7, 0, 1, 0, 0, 0, 0, 4, 0},
 	/* bReg_0x0f_Color [10]	(0x0f to 0x18)                      */
 	{5, 23, 1, 3, 0, 0, 0, 12, 10, 22},
-	
+
 	_GREEN_CH,      /* bReg_0x26 color mode - bits 4 and 5      */
 	0,              /* bReg 0x27 color mode                     */
 
@@ -1102,9 +1102,9 @@ static HWDef Hw0x07B3_0x0013_0 =
 	0,
 	0x1e,
 	0xa8,
-	0,	
+	0,
 	0xff,
-	64,	
+	64,
 	20,
 	0x0d, 0x22,	0x82, 0x88,
 	0, 0, 0,
@@ -1128,15 +1128,15 @@ static HWDef Hw0x07B3_0x0013_4 =
 	{20, 4, 13, 16, 19, 22, 0, 0, 23, 11},
 	_GREEN_CH,
 	0,
-	1,		
+	1,
 	/* illumination mode settings (not used for CCD devices) */
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	1,
 	13,
-	62,	
-	320,	
-	10684,	
+	62,
+	320,
+	10684,
 	0,
 	16383,
 	0,
@@ -1164,9 +1164,9 @@ static HWDef Hw0x07B3_0x000F_4 =
 {
 	1.1, 0.9, 0.0,
 	12,	12,
-	600,	
-	2048,	
-	8, 8,		
+	600,
+	2048,
+	8, 8,
 	4095, 4095,
 	0x06, 0x30,	0x2f, 0x2a,
 	{2, 7, 5, 6, 6, 7, 0, 0, 0, 5},
@@ -1259,7 +1259,7 @@ static HWDef Hw0x07B3_0x0017_4 =
 	8, 8,
 	4095, 4095,
 	0x06, 0x20, 0x2f, 0x2a,
-	{2, 7, 5, 6, 6, 7, 0, 0, 0, 5},	
+	{2, 7, 5, 6, 6, 7, 0, 0, 0, 5},
 	{20, 4, 13, 16, 19, 22, 0, 0, 23, 11},
 	_GREEN_CH,
 	0,
@@ -1327,7 +1327,7 @@ static HWDef Hw0x07B3_0x0017_1 =
 	0,
 	0x1e,
 	0xa8,
-	0,	
+	0,
 	0xff,
 	64,
 	20,
@@ -1414,7 +1414,7 @@ static HWDef Hw0x07B3_0x0017_2 =
 	0,
 	16383,
 	3,
-	0,	
+	0,
 	0x1e,
 	0xa8,
 	0,
@@ -1498,10 +1498,10 @@ static HWDef Hw0x03F0_0x0505 =
 
 	       /* bReg_0x0f_Color[10] (0x0f to 0x18)       */
 	{ 0x08, 0x17, 0x00, 0x03, 0x08, 0x0b, 0x00, 0x00, 0x0a, 0x14 },
-	
+
 	_GREEN_CH,  /* bReg_0x26 color mode - bits 4 and 5  */
 	0,          /* bReg 0x27 color mode                 */
-	
+
 	1,          /* bReg 0x29 illumination mode          */
 
 	/* illumination mode settings (not used for CCD devices) */
@@ -1520,7 +1520,7 @@ static HWDef Hw0x03F0_0x0505 =
 	1,      /* green lamp off (reg 0x32 + 0x33)         */
 	16383,  /* blue lamp on   (reg 0x34 + 0x35)         */
 	1,      /* blue lamp off  (reg 0x36 + 0x37)         */
-	
+
 	/* Misc                                             */
 	0x13,   /* bReg_0x45                                */
 	0,      /* wStepsAfterPaperSensor2 (0x4c & 0x4d)    */
@@ -1566,7 +1566,7 @@ static HWDef Hw0x03F0_0x0605 =
 
 	/* bReg_0x0f_Color[10] (0x0f to 0x18)       */
 	{ 0x08, 0x17, 0x00, 0x03, 0x08, 0x0b, 0x00, 0x00, 0x0a, 0x14 },
-	
+
 	_GREEN_CH,  /* bReg_0x26 color mode - bits 4 and 5  */
 	0,          /* bReg 0x27 color mode                 */
 	1,          /* bReg 0x29 illumination mode          */
@@ -1587,7 +1587,7 @@ static HWDef Hw0x03F0_0x0605 =
 	1,      /* green lamp off (reg 0x32 + 0x33)         */
 	16383,  /* blue lamp on   (reg 0x34 + 0x35)         */
 	1,      /* blue lamp off  (reg 0x36 + 0x37)         */
-	
+
 	/* Misc                                             */
 	0x13,   /* bReg_0x45                                */
 	0,      /* wStepsAfterPaperSensor2 (0x4c & 0x4d)    */
@@ -1985,7 +1985,7 @@ static HWDef Hw0x1606_0x0060 =
 	0,      /* test mode ADC Output CODE MSB (reg 0x5c)  */
 	0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
 	0,      /* test mode (reg 0x5e)                      */
-	_LM9832, 
+	_LM9832,
 	MODEL_UMAX,
 	1.0
 };
@@ -2019,7 +2019,7 @@ static HWDef Hw0x1606_0x0160 =
 	_GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5   */
 	0x40,       /* bReg 0x27 color mode                  */
 	1,          /* bReg 0x29 illumination mode           */
-	
+
 	/* illumination mode settings (not used for CCD devices) */
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	{ 0, 0, 0, 0, 0, 0, 0 },
@@ -2807,7 +2807,7 @@ static SetDef Settings[] =
 	{"0x1606-0x0050",   &Cap0x1606_0x0060, &Hw0x1606_0x0060, "3400" },
 	{"0x1606-0x0060",   &Cap0x1606_0x0060, &Hw0x1606_0x0060, "3400" },
 	{"0x1606-0x0160",   &Cap0x1606_0x0160, &Hw0x1606_0x0160, "5400" },
-  
+
 	/* COMPAQ... */
 	{"0x049F-0x001A",   &Cap0x1606_0x0060, &Hw0x1606_0x0060, "S4-100" },
 

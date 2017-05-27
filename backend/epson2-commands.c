@@ -199,7 +199,7 @@ round_cct(double org_cct[], int rnd_cct[])
   		mult_cct[i] = org_cct[i] * 32;
 		rnd_cct[i] = (int) floor(mult_cct[i] + 0.5);
 	}
-	
+
 	do {
 		for (i = 0; i < 3; i++) {
 
@@ -265,8 +265,8 @@ profile_to_colorcoeff(double *profile, unsigned char *color_coeff)
   	for (i = 0; i < 9; i++)
   		color_coeff[i] = int2cpt(color_table[cc_idx[i]]);
 }
-                                            
-                                            
+
+
 /*
  * Sends the "set color correction coefficients" command with the
  * currently selected parameters to the scanner.
@@ -825,7 +825,7 @@ esci_request_command_parameter(SANE_Handle handle, unsigned char *buf)
 	return status;
 }
 
-/* ESC q - Request Focus Position 
+/* ESC q - Request Focus Position
  * -> ESC q
  * <- Information block
  * <- Focus position status (2)

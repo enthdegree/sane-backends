@@ -42,7 +42,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro 
+   This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro
    and similar USB2 scanners. */
 
 #ifndef MUSTEK_USB2_HIGH_H

@@ -61,5 +61,5 @@ Frontend developers: I want to add internationalization support for my frontend
   language exactly one .mo file is installed. Earlier releases of
   sane-backends installed one file per backend, e.g. sane-umax.mo. For
   backward compatibility, frontends may want to check for these files, also.
-* As mentioned above, GNU gettext is used. 
+* As mentioned above, GNU gettext is used.
 * With other NLS implementations, converting the mo files may work.

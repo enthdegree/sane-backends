@@ -294,7 +294,7 @@ sanei_ab306_open (const char *dev, int *fdp)
   status = sanei_ab306_get_io_privilege (i);
   if (status != SANE_STATUS_GOOD)
     return status;
-  
+
   DBG(1, "sanei_ab306_ioport: using inb/outb access\n");
   for (j = 0; j < NELEMS(wakeup); ++j)
     {
@@ -477,7 +477,7 @@ sanei_ab306_rdata (int fd, int planes, SANE_Byte * buf, int lines, int bpl)
 	  do
 	    nstat = ab306_inb (p, p->base + 1);
 	  while (((p->lstat ^ nstat) & 0x10) == 0);
-	  
+
 	  if (p->port_fd >= 0)
 	    {
 	      /* the pixel-loop: */

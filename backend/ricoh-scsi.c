@@ -39,9 +39,9 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice. */
 
-/* 
+/*
 	$Id$
-	This file implements the low-level scsi-commands. 
+	This file implements the low-level scsi-commands.
 */
 
 
@@ -251,7 +251,7 @@ set_window (int fd, struct ricoh_window_data *rwd)
 static SANE_Status
 get_window (int fd, struct ricoh_window_data *rwd)
 {
- 
+
   static struct scsi_window_cmd cmd;
   static size_t rwd_size;
   SANE_Status status;
@@ -317,7 +317,7 @@ get_data_status (int fd, struct scsi_status_desc *dbs)
   status = sanei_scsi_cmd (fd, &cmd, sizeof (cmd), &ssd, &ssd_size);
 
   memcpy (dbs, &ssd.desc, sizeof(*dbs));
-  if (status == SANE_STATUS_GOOD && 
+  if (status == SANE_STATUS_GOOD &&
       (((unsigned int) _3btol(ssd.len)) <= sizeof(*dbs) || _3btol(ssd.desc.filled) == 0)) {
     DBG (11, "get_data_status: busy\n");
     status = SANE_STATUS_DEVICE_BUSY;

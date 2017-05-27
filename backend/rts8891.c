@@ -292,7 +292,7 @@ write_rgb_data (char *name, unsigned char *image, SANE_Int width,
 
 /**
  * Called by SANE initially.
- * 
+ *
  * From the SANE spec:
  * This function must be called before any other SANE function can be
  * called. The behavior of a SANE backend is undefined if this
@@ -333,7 +333,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 /**
  * Called by SANE to find out about supported devices.
- * 
+ *
  * From the SANE spec:
  * This function can be used to query the list of devices that are
  * available. If the function executes successfully, it stores a
@@ -346,7 +346,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
  * returned (devices directly attached to the machine that SANE is
  * running on). If it is false, the device list includes all remote
  * devices that are accessible to the SANE library.
- * 
+ *
  * SANE does not require that this function is called before a
  * sane_open() call is performed. A device name may be specified
  * explicitly by a user which would make it unnecessary and
@@ -908,7 +908,7 @@ get_option_value (Rts8891_Session * s, int option, void *val)
 
 /**
  * Gets or sets an option value.
- * 
+ *
  * From the SANE spec:
  * This function is used to set or inquire the current value of option
  * number n of the device represented by handle h. The manner in which
@@ -919,7 +919,7 @@ get_option_value (Rts8891_Session * s, int option, void *val)
  * area pointed to by v must be big enough to hold the entire option
  * value (determined by member size in the corresponding option
  * descriptor).
- * 
+ *
  * The only exception to this rule is that when setting the value of a
  * string option, the string pointed to by argument v may be shorter
  * since the backend will stop reading the option value upon
@@ -1388,8 +1388,8 @@ sane_start (SANE_Handle handle)
 
 /**
  * This function computes two set of parameters. The one for the SANE's standard
- * and the other for the hardware. Among these parameters are the bit depth, total 
- * number of lines, total number of columns, extra line to read for data reordering... 
+ * and the other for the hardware. Among these parameters are the bit depth, total
+ * number of lines, total number of columns, extra line to read for data reordering...
  */
 static SANE_Status
 compute_parameters (Rts8891_Session * session)
@@ -1666,7 +1666,7 @@ compute_parameters (Rts8891_Session * session)
  * completion of that request. Outside of that window, the returned
  * values are best-effort estimates of what the parameters will be
  * when sane_start() gets invoked.
- * 
+ *
  * Calling this function before a scan has actually started allows,
  * for example, to get an estimate of how big the scanned image will
  * be. The parameters passed to this function are the handle of the
@@ -1693,7 +1693,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
 /**
  * Called by SANE to read data.
- * 
+ *
  * From the SANE spec:
  * This function is used to read image data from the device
  * represented by handle h.  Argument buf is a pointer to a memory
@@ -1701,7 +1701,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
  * returned is stored in *len. A backend must set this to zero when
  * the call fails (i.e., when a status other than SANE_STATUS_GOOD is
  * returned).
- * 
+ *
  * When the call succeeds, the number of bytes returned can be
  * anywhere in the range from 0 to maxlen bytes.
  */
@@ -2077,7 +2077,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 
 
 /**
- * Cancels a scan. 
+ * Cancels a scan.
  *
  * From the SANE spec:
  * This function is used to immediately or as quickly as possible
@@ -2155,7 +2155,7 @@ sane_cancel (SANE_Handle handle)
 
 /**
  * Ends use of the session.
- * 
+ *
  * From the SANE spec:
  * This function terminates the association between the device handle
  * passed in argument h and the device it represents. If the device is
@@ -2188,7 +2188,7 @@ sane_close (SANE_Handle handle)
       DBG (DBG_error, "close: invalid handle %p\n", handle);
       return;			/* oops, not a handle we know about */
     }
-  
+
   dev=session->dev;
 
   /* cancel any active scan */
@@ -2202,7 +2202,7 @@ sane_close (SANE_Handle handle)
       rts8891_wait_for_home (dev, dev->regs);
     }
   set_lamp_brightness (dev, 0);
-  
+
 
   if (prev)
     prev->next = session->next;
@@ -2248,7 +2248,7 @@ sane_close (SANE_Handle handle)
 
 /**
  * Terminates the backend.
- * 
+ *
  * From the SANE spec:
  * This function must be called to terminate use of a backend. The
  * function will first close all device handles that still might be
@@ -2408,8 +2408,8 @@ config_attach_rts8891 (SANEI_Config * config, const char *devname)
       return SANE_STATUS_INVAL;
     }
 
-  /* the devname has been processed and is ready to be used 
-   * directly. Since the backend is an USB only one, we can 
+  /* the devname has been processed and is ready to be used
+   * directly. Since the backend is an USB only one, we can
    * call sanei_usb_attach_matching_devices straight */
   sanei_usb_attach_matching_devices (devname, attach_rts8891);
 
@@ -2863,7 +2863,7 @@ init_options (struct Rts8891_Session *session)
 
 /**
  * average scanned rgb data, returns the global average. Each channel avearge is also
- * returned. 
+ * returned.
  */
 static float
 average_area (int color, SANE_Byte * data, int width, int height,
@@ -3028,7 +3028,7 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
 
   DBG (DBG_proc, "find_origin: start\n");
 
-  /* check if head is at home 
+  /* check if head is at home
    * once sensor is correctly set up, we are allways park here,
    * but in case sensor has just changed, we are not so we park head */
   sanei_rts88xx_read_reg (dev->devnum, CONTROLER_REG, &reg);
@@ -3287,7 +3287,7 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
 
 	  dev->regs[0xe2] = 0x03;	/* 0x01 */
 
-	  /* dev->regs[0xe5] = 0x0d;     0x1c 
+	  /* dev->regs[0xe5] = 0x0d;     0x1c
 	     dev->regs[0xe6] = 0x08;     0x10 080d=2061=1030*2+1 */
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 2061);
 	}
@@ -3326,7 +3326,7 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
 /**
  * This function detects the left margin (ie x offset of scanning area) by doing
  * a grey scan of the very beginning of the sensor and finding the start of the
- * white area of calibration zone, which is start of usable pixels. 
+ * white area of calibration zone, which is start of usable pixels.
  */
 static SANE_Status
 find_margin (struct Rts8891_Device *dev)
@@ -3547,7 +3547,7 @@ initialize_device (struct Rts8891_Device *dev)
     }
   DBG (DBG_io, "initialize_device: lamp status=0x%02x\n", dev->regs[0x8e]);
 
-  /* sensor type the one for 4470c sold with XPA is slightly different 
+  /* sensor type the one for 4470c sold with XPA is slightly different
    * than those sold bare, for this model we allways start with xpa type sensor,
    * and change it later if we detect black scans in find_origin(). In case the
    * attach function set up the sensor type, we don't modify it */
@@ -4233,7 +4233,7 @@ init_device (struct Rts8891_Device *dev)
   rts8891_write_all (dev->devnum, dev->regs, dev->reg_count);
 
   /* now we are writing and reading back from memory, it is surely a memory test since the written data
-   * don't look usefull at first glance 
+   * don't look usefull at first glance
    */
   reg = 0x06;
   sanei_rts88xx_write_reg (dev->devnum, 0x93, &reg);
@@ -4424,7 +4424,7 @@ init_device (struct Rts8891_Device *dev)
   sanei_rts88xx_write_reg (dev->devnum, CONTROLER_REG, &reg);
 
   /* now we init nvram */
-  /* this is highly dangerous and thus desactivated 
+  /* this is highly dangerous and thus desactivated
    * in sanei_rts88xx_setup_nvram (HAZARDOUS_EXPERIMENT #define) */
   sanei_rts88xx_setup_nvram (dev->devnum, 21, nv_cmd1);
   sanei_rts88xx_setup_nvram (dev->devnum, 21, nv_cmd2);
@@ -4513,17 +4513,17 @@ static SANE_Status
 detect_device (struct Rts8891_Device *dev)
 {
 /*
----     5  74945 bulk_out len     4  wrote 0x80 0xb0 0x00 0x01 
----     6  74946 bulk_in  len     1  read  0x80 
----     7  74947 bulk_out len     4  wrote 0x80 0xb3 0x00 0x01 
----     8  74948 bulk_in  len     1  read  0x04 
----     9  74949 bulk_out len     4  wrote 0x80 0xb1 0x00 0x01 
----    10  74950 bulk_in  len     1  read  0x00 
----    11  74951 bulk_out len     5  wrote 0x88 0xb3 0x00 0x01 0x00 
----    12  74952 bulk_out len     5  wrote 0x88 0xb3 0x00 0x01 0x00 
----    13  74953 bulk_out len     4  wrote 0x80 0x00 0x00 0xf4 
----    14  74954 bulk_in  len   192  read  0xf5 0x41 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x70 0x00 0x00 0x00 0x00 0x60 0x1b 0xff 0x3e 0x00 0x00 0xff 0x3e 0x00 0x00 0x00 0x00 0x00 0x22 0x00 0x00 0x00 0x00 0x00 0xff 0x00 0xff 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x01 0x42 0x00 0x00 0x10 0x00 0x00 0x00 0x00 0x02 0x00 0x00 0x00 0x00 0x00 0x00 0x80 0x00 0x00 0x00 0x18 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x20 0x24 0x04 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x80 0x10 0x00 0x80 0x00 0x10 0x00 0x01 0x00 0x00 0x10 0x00 0x00 0x20 0x20 0x00 0x00 0x00 0x00 0x20 0x01 0x00 0x02 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x41 0x00 0x10 0x21 0x20 0x00 0x20 0x81 0x20 0x01 0x01 0x00 0x22 0x00 0x40 0x05 0x00 0x00 0x01 0x1e 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xcc 0x27 0x64 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x80 0x00 0x06 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 
----    15  74955 bulk_in  len    52  read  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x01 0x06 0x1b 0x10 0x7a 0x00 0x15 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x0f 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 
+---     5  74945 bulk_out len     4  wrote 0x80 0xb0 0x00 0x01
+---     6  74946 bulk_in  len     1  read  0x80
+---     7  74947 bulk_out len     4  wrote 0x80 0xb3 0x00 0x01
+---     8  74948 bulk_in  len     1  read  0x04
+---     9  74949 bulk_out len     4  wrote 0x80 0xb1 0x00 0x01
+---    10  74950 bulk_in  len     1  read  0x00
+---    11  74951 bulk_out len     5  wrote 0x88 0xb3 0x00 0x01 0x00
+---    12  74952 bulk_out len     5  wrote 0x88 0xb3 0x00 0x01 0x00
+---    13  74953 bulk_out len     4  wrote 0x80 0x00 0x00 0xf4
+---    14  74954 bulk_in  len   192  read  0xf5 0x41 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x70 0x00 0x00 0x00 0x00 0x60 0x1b 0xff 0x3e 0x00 0x00 0xff 0x3e 0x00 0x00 0x00 0x00 0x00 0x22 0x00 0x00 0x00 0x00 0x00 0xff 0x00 0xff 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x01 0x42 0x00 0x00 0x10 0x00 0x00 0x00 0x00 0x02 0x00 0x00 0x00 0x00 0x00 0x00 0x80 0x00 0x00 0x00 0x18 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x20 0x24 0x04 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x80 0x10 0x00 0x80 0x00 0x10 0x00 0x01 0x00 0x00 0x10 0x00 0x00 0x20 0x20 0x00 0x00 0x00 0x00 0x20 0x01 0x00 0x02 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x41 0x00 0x10 0x21 0x20 0x00 0x20 0x81 0x20 0x01 0x01 0x00 0x22 0x00 0x40 0x05 0x00 0x00 0x01 0x1e 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0xcc 0x27 0x64 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x80 0x00 0x06 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+---    15  74955 bulk_in  len    52  read  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x01 0x06 0x1b 0x10 0x7a 0x00 0x15 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x0f 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
 */
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Byte control;
@@ -4666,7 +4666,7 @@ dark_calibration (struct Rts8891_Device *dev, int mode, int light)
   dev->regs[0xd8] = 0x52;
   dev->regs[0xe2] = 0x1f;
 
-  /*dev->regs[0xe5] = 0x28;      28=40 
+  /*dev->regs[0xe5] = 0x28;      28=40
      dev->regs[0xe6] = 0x00; */
   SET_DOUBLE (dev->regs, EXPOSURE_REG, 40);
 
@@ -4747,7 +4747,7 @@ dark_calibration (struct Rts8891_Device *dev, int mode, int light)
       dev->regs[0xf0] = 0xa8;	/* 0x70 */
     }
 
-  /* we loop scanning a 637 (1911 bytes) pixels wide area in color mode 
+  /* we loop scanning a 637 (1911 bytes) pixels wide area in color mode
    * until each black average reaches the desired value */
   sanei_rts88xx_set_status (dev->devnum, dev->regs, mode, light);
   do
@@ -4858,7 +4858,7 @@ dark_calibration (struct Rts8891_Device *dev, int mode, int light)
 }
 
 /*
- * do gain calibration. We do scans until averaged values of the area match 
+ * do gain calibration. We do scans until averaged values of the area match
  * the target code. We're doing a dichotomy again.
  */
 static SANE_Status
@@ -4973,7 +4973,7 @@ gain_calibration (struct Rts8891_Device *dev, int mode, int light)
       dev->regs[0xd7] = 0x10;
       dev->regs[0xd8] = 0x52;
       dev->regs[0xe2] = 0x1f;
-      /* dev->regs[0xe5] = 0x28;    0028 -> 40 
+      /* dev->regs[0xe5] = 0x28;    0028 -> 40
          dev->regs[0xe6] = 0x00; */
       SET_DOUBLE (dev->regs, EXPOSURE_REG, 40);
       dev->regs[0xe7] = 0x75;
@@ -5218,7 +5218,7 @@ gain_calibration (struct Rts8891_Device *dev, int mode, int light)
 
 /**
  * Do fine offset calibration. Scans are done with gains from gain calibration
- * at 75 dpi regardless of the dpi of the final scan. We loop scanning a 637 
+ * at 75 dpi regardless of the dpi of the final scan. We loop scanning a 637
  * (1911 bytes) pixels wide area in color mode until each black average
  * reaches the desired value (OFFSET_TARGET).
  */
@@ -5450,7 +5450,7 @@ offset_calibration (struct Rts8891_Device *dev, int mode, int light)
 y			 offset=1 , yend=67, lines =66
  */
 #ifndef UNIT_TESTING
-static 
+static
 #endif
 SANE_Status
 setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int *status1, SANE_Byte * regs)
@@ -5532,7 +5532,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
       /* regs[0xd3] = 0x02;         0x0e */
       regs[0xd4] = 0x04;	/* 0x10 */
       regs[0xe2] = 0x02;	/* 0x05 */
-      /* regs[0xe5] = 0xbb;    
+      /* regs[0xe5] = 0xbb;
          regs[0xe6] = 0x01;    1bb =443 */
       exposure=443;
     }
@@ -5739,7 +5739,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0x88] = 0x1b;
 
 	  regs[0x8d] = 0xde;
-	  regs[0x8e] = 0x61;	/* low nibble of 8e and 8d are proportional to 
+	  regs[0x8e] = 0x61;	/* low nibble of 8e and 8d are proportional to
 					   the scanned width 1de => 5100 wide scan */
 
 	  regs[0xc0] = 0xff;
@@ -5826,7 +5826,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0x88] = 0x30;
 
 	  regs[0x8d] = 0xde;
-	  regs[0x8e] = 0x61;	/* low nibble of 8e and 8d are proportional to 
+	  regs[0x8e] = 0x61;	/* low nibble of 8e and 8d are proportional to
 					   the scanned width 1de => 5100 wide scan */
 	  regs[0xc0] = 0xff;
 	  regs[0xc1] = 0xff;
@@ -5870,7 +5870,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0x87] = 0x00;
 	  regs[0x88] = 0x06;
 
-	  regs[0x8d] = 0x00; 
+	  regs[0x8d] = 0x00;
 	  regs[0x8e] = 0x60; /* XXX STEF XXX */
 
 	  regs[0xc0] = 0xf8;
@@ -5895,7 +5895,7 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	  regs[0xd3] = 0x0e;
 	  regs[0xd4] = 0x10;
 	  regs[0xd7] = 0x31;
-          
+
           timing=0x0032;
           exposure=915;
 	  break;
@@ -6109,8 +6109,8 @@ setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int
 	}
       break;
     }
- 
-  /* apply computed settings */ 
+
+  /* apply computed settings */
   SET_DOUBLE (regs, EXPOSURE_REG, exposure);
   SET_DOUBLE (regs, TIMING_REG, timing);
   SET_DOUBLE (regs, TIMING1_REG, timing+1);
@@ -6167,8 +6167,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode, int 
 	   "shading_calibration: failed to allocate memory for data\n");
       return SANE_STATUS_NO_MEM;
     }
- 
-  /* set up registers */ 
+
+  /* set up registers */
   status=setup_shading_calibration(dev, mode, &light, &status1, dev->regs);
   if (status != SANE_STATUS_GOOD)
     {
@@ -6279,7 +6279,7 @@ fill_gamma (SANE_Byte * calibration, int *idx, SANE_Word * gamma)
 /*
  * build and send calibration data which contains gamma table and
  * shading correction coefficient
- * 	
+ *
  */
 static SANE_Status
 send_calibration_data (struct Rts8891_Session *session)
@@ -6309,28 +6309,28 @@ send_calibration_data (struct Rts8891_Session *session)
 
   DBG (DBG_io, "send_calibration_data: size=%d\n", size);
 
-  /* 
+  /*
    * FORMAT:
-   * 00 
+   * 00
    * 512 bytes gamma table (256 16 bit entry)
-   * FF 
-   * 00 
+   * FF
+   * 00
    * 512 bytes gamma table (256 16 bit entry)
-   * FF 
-   * 00 
+   * FF
+   * 00
    * 512 bytes gamma table (256 16 bit entry)
-   * FF 
+   * FF
    * 5400 max shading coefficients at 600 dpi repeated 3 times
    * overall size rounded at 32 bytes multiple
    * 675 CCD elements at 75 DPI. 16 bit per element. 1 or 3 channels.
    * there is a 0xFF marker at end of each coefficients row.
-   * a gamma table comes first 
+   * a gamma table comes first
    * 75  DPI:  5600=1542+(675)*2*3+8                ->size rounded to 'upper 32'
    * 150 DPI: 9664=675*2*2*3=1542+(675*2)*2*3+22
    * 17760                                        4         +18
    * 33952                                        8     +10
    * 65472+896=66368=                16     +26
-   * 
+   *
    * COEFFICIENT 16 bit value
    * first is 00, 0x40, 0x80 or 0xC0 => 10 significant bit
    * coeff*average=K  => coeff=K/average
@@ -6369,7 +6369,7 @@ send_calibration_data (struct Rts8891_Session *session)
   fill_gamma (calibration, &idx, gamma_b);
 
   /* compute calibration coefficients */
-  /* real witdh != 675 --> 637 
+  /* real witdh != 675 --> 637
    * shading data calibration starts at 1542. There are 3 rows of 16 bits values
    * first row is green calibration
    */
@@ -6404,7 +6404,7 @@ send_calibration_data (struct Rts8891_Session *session)
 	  green_code = atoi (getenv ("BLUE_CODE"));
 	}
 
-      /* correction coefficient is target code divided by average scanned value 
+      /* correction coefficient is target code divided by average scanned value
        * but it is put in a 16 bits number. Only 10 first bits are significants.
        */
       /* first color component red data  */
@@ -6511,7 +6511,7 @@ send_calibration_data (struct Rts8891_Session *session)
 }
 
 /* move at dev->model->min_ydpi dpi up to the scanning area. Which speeds
- * up scanning 
+ * up scanning
  */
 static SANE_Status
 move_to_scan_area (struct Rts8891_Session *session)
@@ -7130,7 +7130,7 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0xef] = 0x00;
 	  regs[0xf0] = 0x00;
 	  regs[0x8d] = 0xf0;
-	  regs[0x8e] = 0x60;	/* low nibble of 8e and 8d are proportional to 
+	  regs[0x8e] = 0x60;	/* low nibble of 8e and 8d are proportional to
 					   the scanned width 1de => 5100 wide scan */
 
 	  regs[0xc0] = 0xff;
@@ -7228,7 +7228,7 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0x88] = 0x5a;
 
 	  regs[0x8d] = 0xde;
-	  regs[0x8e] = 0x61;	/* low nibble of 8e and 8d are proportional to 
+	  regs[0x8e] = 0x61;	/* low nibble of 8e and 8d are proportional to
 					   the scanned width 1de => 5100 wide scan */
 
 	  regs[0xc0] = 0xff;
@@ -7275,7 +7275,7 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0x3a] = 0x1b;
 	  regs[0x40] = 0x2c; /* 0x24 */
 	  regs[0x50] = 0x00; /* 0x18 */
-	  
+
           regs[0x64] = 0x01; /* 0x02 */
 	  regs[0x65] = 0x20; /* 0x10 */
 
@@ -7421,7 +7421,7 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 	  regs[0x88] = 0xae;
 
 	  regs[0x8d] = 0xbd;	/* about twice the 600 dpi values */
-	  regs[0x8e] = 0x63;	/* low nibble of 8e and 8d are proportional to 
+	  regs[0x8e] = 0x63;	/* low nibble of 8e and 8d are proportional to
 					   the scanned width 3b5 => 10124 wide scan */
 	  regs[0xc0] = 0xff;
 	  regs[0xc1] = 0xff;
@@ -7716,7 +7716,7 @@ park_head (struct Rts8891_Device *dev, SANE_Bool wait)
   return status;
 }
 
-/* update button status 
+/* update button status
  * button access is allowed during scan, which is usefull for 'cancel' button
  */
 static SANE_Status

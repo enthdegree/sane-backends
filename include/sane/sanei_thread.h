@@ -131,7 +131,7 @@ extern int sanei_thread_kill (SANE_Pid pid);
  * @param pid - the id of the task
  * @param sig - the signal to send
  *
- * @return 
+ * @return
  * - 0 - on success
  * - any other value - if an error occured while sending the signal
  */
@@ -139,7 +139,7 @@ extern int sanei_thread_sendsig (SANE_Pid pid, int sig);
 
 /** Wait for task termination.
  *
- * This function waits until a task that has been terminated by 
+ * This function waits until a task that has been terminated by
  * sanei_thread_kill(), sanei_thread_sendsys() or by any other means
  * is finished.
  *
@@ -153,7 +153,7 @@ extern SANE_Pid sanei_thread_waitpid (SANE_Pid pid, int *status);
 
 /** Check the current status of the spawned task
  *
- * 
+ *
  * @param pid - the id of the task
  *
  * @return

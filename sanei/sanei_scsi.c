@@ -252,11 +252,11 @@ static int unit_ready (int fd);
 #endif
 
 #if USE == SYSVR4_INTERFACE
-# define MAX_DATA 56*1024	/* don't increase or kernel will dump 
-				 * tested with adsl, adsa and umax backend 
-				 * it depends on the lowend scsi 
-				 * drivers . But the most restriction 
-				 * is in the UNIXWARE KERNEL witch do 
+# define MAX_DATA 56*1024	/* don't increase or kernel will dump
+				 * tested with adsl, adsa and umax backend
+				 * it depends on the lowend scsi
+				 * drivers . But the most restriction
+				 * is in the UNIXWARE KERNEL witch do
 				 * not allow more then 64kB DMA transfers */
 static char lastrcmd[16];	/* hold command block of last read command */
 #endif
@@ -875,7 +875,7 @@ sanei_scsi_open (const char *dev, int *fdp,
   int fd, i;
 #if USE == LINUX_INTERFACE
   static int first_time = 1;
-#elif USE == MACOSX_INTERFACE  
+#elif USE == MACOSX_INTERFACE
   UInt8 *guid;
   int len;
   u_int d;
@@ -909,7 +909,7 @@ sanei_scsi_open (const char *dev, int *fdp,
          With newer versions of the SG driver, check the available buffer
          size by opening all SG device files belonging to a scanner,
          issue the ioctl calls for setting and reading the reserved
-         buffer size, and take the smallest value. 
+         buffer size, and take the smallest value.
 
          For older version of the SG driver, which don't support variable
          buffer size, try to read /proc/sys/kernel/sg-big-biff ; if
@@ -1222,21 +1222,21 @@ sanei_scsi_open (const char *dev, int *fdp,
   {
 	  char scsi_hca_name[20];
 	  u_int hca = 0;
- 
+
 	  if (sscanf (dev, "h%ub%ut%ul%u", &hca, &bus, &target, &lun) != 4)
 		  {
 			  DBG (1, "sanei_scsi_open: device name %s is not valid\n", dev);
 			  return SANE_STATUS_INVAL;
 		  }
- 
+
 	  snprintf(scsi_hca_name, 19, "\\\\.\\Scsi%d:", hca);
 	  scsi_hca_name[19] = 0;
-	  
+
 	  fd = CreateFile(scsi_hca_name, GENERIC_READ | GENERIC_WRITE,
 					  FILE_SHARE_READ | FILE_SHARE_WRITE,
 					  NULL, OPEN_EXISTING,
 					  FILE_FLAG_RANDOM_ACCESS, NULL );
-	  
+
 	  if (fd == INVALID_HANDLE_VALUE) fd = -1;
   }
 #else
@@ -1420,7 +1420,7 @@ sanei_scsi_open (const char *dev, int *fdp,
     else
       {
 	/* we have a really old SG driver version, or we're not opening
-	   an SG device file 
+	   an SG device file
 	 */
 	if (ioctl (fd, SG_GET_TIMEOUT, &ioctl_val) < 0)
 	  {
@@ -2436,8 +2436,8 @@ issue (struct req *req)
 		  }
 
 #if 0
-		/* Sometimes the Linux SCSI system reports bogus resid values. 
-		   Observed with lk 2.4.5, 2.4.13, aic7xxx and sym53c8xx drivers, 
+		/* Sometimes the Linux SCSI system reports bogus resid values.
+		   Observed with lk 2.4.5, 2.4.13, aic7xxx and sym53c8xx drivers,
 		   if command queueing is used. So we better issue only a warning
 		 */
 		if (status == SANE_STATUS_GOOD)
@@ -2601,7 +2601,7 @@ issue (struct req *req)
   }
 
   static int			/* Returns 1 if match with 'name' set, else 0 */
-   
+
     lx_scan_sg (int exclude_devnum, char *name, size_t name_len,
 		int host, int channel, int id, int lun)
   {
@@ -2636,7 +2636,7 @@ issue (struct req *req)
   }
 
   static int			/* Returns 1 if match, else 0 */
-   
+
     lx_chk_devicename (int guess_devnum, char *name, size_t name_len,
 		       int host, int channel, int id, int lun)
   {
@@ -3179,7 +3179,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     scsireq_t hdr;
     int result;
 
-/* xxx obsolete: 
+/* xxx obsolete:
   cdb_size = CDB_SIZE (*(u_char *) src);
 */
 
@@ -5013,7 +5013,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 #if USE == WIN32_INTERFACE
 
 SANE_Status
-sanei_scsi_cmd2 (int fd, 
+sanei_scsi_cmd2 (int fd,
                 const void *cmd, size_t cmd_size,
                 const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
@@ -5049,8 +5049,8 @@ sanei_scsi_cmd2 (int fd,
         pkt.sptd.DataBuffer         = src;
     }
   else {
-       pkt.sptd.DataIn = SCSI_IOCTL_DATA_UNSPECIFIED; 
-  }	
+       pkt.sptd.DataIn = SCSI_IOCTL_DATA_UNSPECIFIED;
+  }
 
   pkt.sptd.TimeOutValue       = sane_scsicmd_timeout;
 
@@ -5081,7 +5081,7 @@ sanei_scsi_cmd2 (int fd,
       else {
 	 return SANE_STATUS_IO_ERROR;
       }
-   } 
+   }
    else if (pkt.sptd.ScsiStatus != 0) {
       DBG (1, "sanei_scsi_cmd2: ScsiStatus is %d\n",
 	    pkt.sptd.ScsiStatus);
@@ -5152,14 +5152,14 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
 	adapter = (PSCSI_ADAPTER_BUS_INFO)buffer;
 
-	for(i = 0; i < adapter->NumberOfBuses; i++) {	
+	for(i = 0; i < adapter->NumberOfBuses; i++) {
 
 		if (adapter->BusData[i].InquiryDataOffset == 0) {
 			/* No device here */
 			continue;
 		}
 
-		inquiry = (PSCSI_INQUIRY_DATA) (buffer + 
+		inquiry = (PSCSI_INQUIRY_DATA) (buffer +
                                    adapter->BusData[i].InquiryDataOffset);
 
 		while(1) {

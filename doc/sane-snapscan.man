@@ -33,8 +33,8 @@ or
 .IR /dev/sge ,
 for example.  See sane\-scsi(5) for details.
 .P
-For USB scanners the devicename must contain the keyword "usb", as in 
-.I /dev/usbscanner 
+For USB scanners the devicename must contain the keyword "usb", as in
+.I /dev/usbscanner
 or
 .IR /dev/usb/scanner0 .
 For scanners that need a firmware upload before scanning add a line starting
@@ -107,5 +107,5 @@ Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
 Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Oliver Schwartz
 and Mikael Magnusson.
 .br
-Man page by Henning Meier-Geinitz (mostly based on the web pages and 
+Man page by Henning Meier-Geinitz (mostly based on the web pages and
 source code).

@@ -1,6 +1,6 @@
 :backend "microtek"
 :version "0.13.1 (unmaintained)"
-:manpage "sane-microtek" 
+:manpage "sane-microtek"
 :url "http://www.mir.com/mtek/"
 
 :devicetype :scanner

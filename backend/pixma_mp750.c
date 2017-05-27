@@ -229,8 +229,8 @@ is_ccd_grayscale (pixma_t * s)
 static unsigned
 get_cis_ccd_line_size (pixma_t * s)
 {
-  return (s->param->wx ? s->param->line_size / s->param->w * s->param->wx 
-	  : s->param->line_size) * ((is_ccd_grayscale (s)) ? 3 : 1); 
+  return (s->param->wx ? s->param->line_size / s->param->w * s->param->wx
+	  : s->param->line_size) * ((is_ccd_grayscale (s)) ? 3 : 1);
 }
 
 static int
@@ -829,17 +829,17 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 
       /* Color to Grayscale converion for CCD sensor */
       if (is_ccd_grayscale (s)) {
-	shift_rgb (mp->rawimg, n, shift[0], shift[1], shift[2], mp->stripe_shift, mp->line_size, 
-		   mp->imgcol + mp->imgbuf_ofs); 
+	shift_rgb (mp->rawimg, n, shift[0], shift[1], shift[2], mp->stripe_shift, mp->line_size,
+		   mp->imgcol + mp->imgbuf_ofs);
 	/* dst: img, src: imgcol */
-	rgb_to_gray (mp->img, mp->imgcol, n, c); /* cropping occurs later? */  
+	rgb_to_gray (mp->img, mp->imgcol, n, c); /* cropping occurs later? */
 	PDBG (pixma_dbg (4, "*fill_buffer: did grayscale conversion \n"));
       }
       /* Color image processing */
       else {
-	shift_rgb (mp->rawimg, n, shift[0], shift[1], shift[2], mp->stripe_shift, mp->line_size, 
+	shift_rgb (mp->rawimg, n, shift[0], shift[1], shift[2], mp->stripe_shift, mp->line_size,
 		   mp->img + mp->imgbuf_ofs);
-	PDBG (pixma_dbg (4, "*fill_buffer: no grayscale conversion---keep color \n")); 
+	PDBG (pixma_dbg (4, "*fill_buffer: no grayscale conversion---keep color \n"));
       }
 
       /* entering remaining unprocessed bytes after last complete pixel into mp->rawimg buffer -- no influence on mp->img */
@@ -852,7 +852,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
     }
   while (mp->shifted_bytes <= 0);
 
-  if ((unsigned) mp->shifted_bytes < mp->last_block_size) 
+  if ((unsigned) mp->shifted_bytes < mp->last_block_size)
     {
       if (is_ccd_grayscale (s))
 	ib->rptr = mp->img + mp->last_block_size/3 - mp->shifted_bytes/3; /* testing---works OK */
@@ -864,7 +864,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
   if (is_ccd_grayscale (s))
     ib->rend = mp->img + mp->last_block_size/3; /* testing---works OK */
   else
-    ib->rend = mp->img + mp->last_block_size; 
+    ib->rend = mp->img + mp->last_block_size;
   return ib->rend - ib->rptr;
 }
 

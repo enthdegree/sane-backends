@@ -48,7 +48,7 @@
 /* The idea is from the gcc header file assert.h. */
 
 #if defined __GNUC__ && defined _AIX
-/* The implementation of assert of gcc on AIX is in libgcc.a. This 
+/* The implementation of assert of gcc on AIX is in libgcc.a. This
    doesn't work with shared libraries. So let's make our own assert(). */
 #define assert(arg)  \
  ((void) ((arg) ? 0 : lassert (arg, __FILE__, __LINE__)))

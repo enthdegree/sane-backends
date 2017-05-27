@@ -16,7 +16,7 @@ for more detailed (and usually important) information
 concerning each backend.</p>
 <p>If you have new information or corrections, please file a
 <a href="http://www.sane-project.org/bugs.html">bug report</a>
-with as many details as possible. Also please tell us if your scanner 
+with as many details as possible. Also please tell us if your scanner
 isn't mentioned in this list at all.</p>
 <p>For an explanation of the tables, see the
 <a href="#legend">legend</a>.
@@ -84,82 +84,82 @@ isn't mentioned in this list at all.</p>
 </tr>
 </table>
 <h2><a name="SCANNERS">Scanners</a></h2>
-<p><b>Backends</b>: 
-<a href="#S-ABATON">abaton</a>, 
-<a href="#S-AGFAFOCUS">agfafocus</a>, 
-<a href="#S-APPLE">apple</a>, 
-<a href="#S-ARTEC">artec</a>, 
-<a href="#S-ARTEC-EPLUS48U">artec_eplus48u</a>, 
-<a href="#S-AS6E">as6e</a>, 
-<a href="#S-AVISION">avision</a>, 
-<a href="#S-BH">bh</a>, 
-<a href="#S-CANON">canon</a>, 
-<a href="#S-CANON630U">canon630u</a>, 
-<a href="#S-CANON-DR">canon_dr</a>, 
-<a href="#S-CANON-PP">canon_pp</a>, 
-<a href="#S-CARDSCAN">cardscan</a>, 
-<a href="#S-COOLSCAN">coolscan</a>, 
-<a href="#S-COOLSCAN2">coolscan2</a>, 
-<a href="#S-COOLSCAN3">coolscan3</a>, 
-<a href="#S-DELL1600N-NET">dell1600n_net</a>, 
-<a href="#S-EPJITSU">epjitsu</a>, 
-<a href="#S-EPSON">epson</a>, 
-<a href="#S-EPSON2">epson2</a>, 
-<a href="#S-FUJITSU">fujitsu</a>, 
-<a href="#S-GENESYS">genesys</a>, 
-<a href="#S-GT68XX">gt68xx</a>, 
-<a href="#S-HP">hp</a>, 
-<a href="#S-HP3500">hp3500</a>, 
-<a href="#S-HP3900">hp3900</a>, 
-<a href="#S-HP4200">hp4200</a>, 
-<a href="#S-HP5400">hp5400</a>, 
-<a href="#S-HP5590">hp5590</a>, 
-<a href="#S-HPLJM1005">hpljm1005</a>, 
-<a href="#S-HPSJ5S">hpsj5s</a>, 
-<a href="#S-HS2P">hs2p</a>, 
-<a href="#S-IBM">ibm</a>, 
-<a href="#S-KODAK">kodak</a>, 
-<a href="#S-KODAKAIO">kodakaio</a>, 
-<a href="#S-KVS20XX">kvs20xx</a>, 
-<a href="#S-KVS40XX">kvs40xx</a>, 
-<a href="#S-KVS1025">kvs1025</a>, 
-<a href="#S-LEO">leo</a>, 
-<a href="#S-LEXMARK">lexmark</a>, 
-<a href="#S-MA1509">ma1509</a>, 
-<a href="#S-MAGICOLOR">magicolor</a>, 
-<a href="#S-MATSUSHITA">matsushita</a>, 
-<a href="#S-MICROTEK">microtek</a>, 
-<a href="#S-MICROTEK2">microtek2</a>, 
-<a href="#S-MUSTEK">mustek</a>, 
-<a href="#S-MUSTEK-PP">mustek_pp</a>, 
-<a href="#S-MUSTEK-USB">mustek_usb</a>, 
-<a href="#S-MUSTEK-USB2">mustek_usb2</a>, 
-<a href="#S-NEC">nec</a>, 
-<a href="#S-NIASH">niash</a>, 
-<a href="#S-P5">p5</a>, 
-<a href="#S-PIE">pie</a>, 
-<a href="#S-PIXMA">pixma</a>, 
-<a href="#S-PLUSTEK">plustek</a>, 
-<a href="#S-PLUSTEK-PP">plustek_pp</a>, 
-<a href="#S-RICOH">ricoh</a>, 
-<a href="#S-RTS8891">rts8891</a>, 
-<a href="#S-S9036">s9036</a>, 
-<a href="#S-SCEPTRE">sceptre</a>, 
-<a href="#S-SHARP">sharp</a>, 
-<a href="#S-SM3600">sm3600</a>, 
-<a href="#S-SM3840">sm3840</a>, 
-<a href="#S-SNAPSCAN">SnapScan</a>, 
-<a href="#S-SP15C">sp15c</a>, 
-<a href="#S-ST400">st400</a>, 
-<a href="#S-TAMARACK">tamarack</a>, 
-<a href="#S-TECO1">teco1</a>, 
-<a href="#S-TECO2">teco2</a>, 
-<a href="#S-TECO3">teco3</a>, 
-<a href="#S-U12">u12</a>, 
-<a href="#S-UMAX">umax</a>, 
-<a href="#S-UMAX1220U">umax1220u</a>, 
-<a href="#S-UMAX-PP">umax_pp</a>, 
-<a href="#S-UNSUPPORTED">unsupported</a>, 
+<p><b>Backends</b>:
+<a href="#S-ABATON">abaton</a>,
+<a href="#S-AGFAFOCUS">agfafocus</a>,
+<a href="#S-APPLE">apple</a>,
+<a href="#S-ARTEC">artec</a>,
+<a href="#S-ARTEC-EPLUS48U">artec_eplus48u</a>,
+<a href="#S-AS6E">as6e</a>,
+<a href="#S-AVISION">avision</a>,
+<a href="#S-BH">bh</a>,
+<a href="#S-CANON">canon</a>,
+<a href="#S-CANON630U">canon630u</a>,
+<a href="#S-CANON-DR">canon_dr</a>,
+<a href="#S-CANON-PP">canon_pp</a>,
+<a href="#S-CARDSCAN">cardscan</a>,
+<a href="#S-COOLSCAN">coolscan</a>,
+<a href="#S-COOLSCAN2">coolscan2</a>,
+<a href="#S-COOLSCAN3">coolscan3</a>,
+<a href="#S-DELL1600N-NET">dell1600n_net</a>,
+<a href="#S-EPJITSU">epjitsu</a>,
+<a href="#S-EPSON">epson</a>,
+<a href="#S-EPSON2">epson2</a>,
+<a href="#S-FUJITSU">fujitsu</a>,
+<a href="#S-GENESYS">genesys</a>,
+<a href="#S-GT68XX">gt68xx</a>,
+<a href="#S-HP">hp</a>,
+<a href="#S-HP3500">hp3500</a>,
+<a href="#S-HP3900">hp3900</a>,
+<a href="#S-HP4200">hp4200</a>,
+<a href="#S-HP5400">hp5400</a>,
+<a href="#S-HP5590">hp5590</a>,
+<a href="#S-HPLJM1005">hpljm1005</a>,
+<a href="#S-HPSJ5S">hpsj5s</a>,
+<a href="#S-HS2P">hs2p</a>,
+<a href="#S-IBM">ibm</a>,
+<a href="#S-KODAK">kodak</a>,
+<a href="#S-KODAKAIO">kodakaio</a>,
+<a href="#S-KVS20XX">kvs20xx</a>,
+<a href="#S-KVS40XX">kvs40xx</a>,
+<a href="#S-KVS1025">kvs1025</a>,
+<a href="#S-LEO">leo</a>,
+<a href="#S-LEXMARK">lexmark</a>,
+<a href="#S-MA1509">ma1509</a>,
+<a href="#S-MAGICOLOR">magicolor</a>,
+<a href="#S-MATSUSHITA">matsushita</a>,
+<a href="#S-MICROTEK">microtek</a>,
+<a href="#S-MICROTEK2">microtek2</a>,
+<a href="#S-MUSTEK">mustek</a>,
+<a href="#S-MUSTEK-PP">mustek_pp</a>,
+<a href="#S-MUSTEK-USB">mustek_usb</a>,
+<a href="#S-MUSTEK-USB2">mustek_usb2</a>,
+<a href="#S-NEC">nec</a>,
+<a href="#S-NIASH">niash</a>,
+<a href="#S-P5">p5</a>,
+<a href="#S-PIE">pie</a>,
+<a href="#S-PIXMA">pixma</a>,
+<a href="#S-PLUSTEK">plustek</a>,
+<a href="#S-PLUSTEK-PP">plustek_pp</a>,
+<a href="#S-RICOH">ricoh</a>,
+<a href="#S-RTS8891">rts8891</a>,
+<a href="#S-S9036">s9036</a>,
+<a href="#S-SCEPTRE">sceptre</a>,
+<a href="#S-SHARP">sharp</a>,
+<a href="#S-SM3600">sm3600</a>,
+<a href="#S-SM3840">sm3840</a>,
+<a href="#S-SNAPSCAN">SnapScan</a>,
+<a href="#S-SP15C">sp15c</a>,
+<a href="#S-ST400">st400</a>,
+<a href="#S-TAMARACK">tamarack</a>,
+<a href="#S-TECO1">teco1</a>,
+<a href="#S-TECO2">teco2</a>,
+<a href="#S-TECO3">teco3</a>,
+<a href="#S-U12">u12</a>,
+<a href="#S-UMAX">umax</a>,
+<a href="#S-UMAX1220U">umax1220u</a>,
+<a href="#S-UMAX-PP">umax_pp</a>,
+<a href="#S-UNSUPPORTED">unsupported</a>,
 <a href="#S-XEROX-MFP">xerox_mfp</a></p>
 <h3><a name="S-ABATON">Backend: abaton
 (unmaintained)
@@ -298,7 +298,7 @@ Siemens
 (unmaintained)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www4.infi.net/~cpinkham/sane/sane-artec-doc.html">http://www4.infi.net/~cpinkham/sane/sane-artec-doc.html</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-artec.5.html">sane-artec</a><br>
 </p>
@@ -492,7 +492,7 @@ Siemens
 (0.5)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://as6edriver.sourceforge.net/">http://as6edriver.sourceforge.net/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-as6e.5.html">sane-as6e</a><br>
 </p>
@@ -537,7 +537,7 @@ Siemens
 (Build: 296)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://skull.piratehaven.org/~mike/sane/avision.html">http://skull.piratehaven.org/~mike/sane/avision.html</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-avision.5.html">sane-avision</a><br>
 </p>
@@ -1617,7 +1617,7 @@ Kyocera
 (1.0-4)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.martoneconsulting.com/sane-bh.html">http://www.martoneconsulting.com/sane-bh.html</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-bh.5.html">sane-bh</a><br>
 <b>Comment:</b> Supports Copiscan II scanners with Remote SCSI Controller (RSC) interface<br>
@@ -1680,7 +1680,7 @@ Kyocera
 (1.12)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.rzg.mpg.de/~mpd/sane/">http://www.rzg.mpg.de/~mpd/sane/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-canon.5.html">sane-canon</a><br>
 </p>
@@ -1758,7 +1758,7 @@ Kyocera
 (0.1)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://canon-fb630u.sourceforge.net/">http://canon-fb630u.sourceforge.net/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-canon630u.5.html">sane-canon630u</a><br>
 </p>
@@ -1792,7 +1792,7 @@ Kyocera
 (38)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.thebility.com/canon/">http://www.thebility.com/canon/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-canon_dr.5.html">sane-canon_dr</a><br>
 <b>Comment:</b> Backend updated for SANE release 1.0.23, see sane-canon_dr manpage<br>
@@ -2093,7 +2093,7 @@ Kyocera
 (0.33)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://canon-fb330p.sourceforge.net">http://canon-fb330p.sourceforge.net</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-canon_pp.5.html">sane-canon_pp</a><br>
 </p>
@@ -2176,7 +2176,7 @@ Kyocera
 (2)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.thebility.com/cardscan/">http://www.thebility.com/cardscan/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-cardscan.5.html">sane-cardscan</a><br>
 <b>Comment:</b> Backend updated for SANE release 1.0.21, see sane-cardscan manpage<br>
@@ -2211,7 +2211,7 @@ Kyocera
 (0.4.3)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://andreas.rick.free.fr/sane/">http://andreas.rick.free.fr/sane/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-coolscan.5.html">sane-coolscan</a><br>
 </p>
@@ -2259,7 +2259,7 @@ Kyocera
 (0.1.8)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://coolscan2.sourceforge.net/">http://coolscan2.sourceforge.net/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-coolscan2.5.html">sane-coolscan2</a><br>
 </p>
@@ -2446,7 +2446,7 @@ Kyocera
 (20)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.thebility.com/epjitsu/">http://www.thebility.com/epjitsu/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-epjitsu.5.html">sane-epjitsu</a><br>
 <b>Comment:</b> Backend updated for SANE release 1.0.21, see sane-epjitsu manpage<br>
@@ -2502,7 +2502,7 @@ Kyocera
 (unmaintained)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.khk.net/sane">http://www.khk.net/sane</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-epson.5.html">sane-epson</a><br>
 </p>
@@ -5396,7 +5396,7 @@ Kyocera
 (117)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.thebility.com/fujitsu/">http://www.thebility.com/fujitsu/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-fujitsu.5.html">sane-fujitsu</a><br>
 <b>Comment:</b> Backend updated for SANE release 1.0.23, see sane-fujitsu manpage<br>
@@ -5921,7 +5921,7 @@ Kyocera
 (1.0-63)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.meier-geinitz.de/sane/genesys-backend/">http://www.meier-geinitz.de/sane/genesys-backend/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-genesys.5.html">sane-genesys</a><br>
 <b>Comment:</b> Only the USB scanners mentioned below are currently supported.<br>
@@ -6240,7 +6240,7 @@ Panasonic
 (1.0-84)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.meier-geinitz.de/sane/gt68xx-backend/">http://www.meier-geinitz.de/sane/gt68xx-backend/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-gt68xx.5.html">sane-gt68xx</a><br>
 <b>Comment:</b> Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend.<br>
@@ -6772,7 +6772,7 @@ RevScan
 (1.06)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.kirchgessner.net/">http://www.kirchgessner.net/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-hp.5.html">sane-hp</a><br>
 </p>
@@ -6925,7 +6925,7 @@ RevScan
 (1.1)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://projects.troy.rollo.name/rt-scanners/">http://projects.troy.rollo.name/rt-scanners/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-hp3500.5.html">sane-hp3500</a><br>
 <b>Comment:</b> HP3500 series scanners.<br>
@@ -6967,7 +6967,7 @@ RevScan
 (0.12)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://sourceforge.net/projects/hp3900-series/">http://sourceforge.net/projects/hp3900-series/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-hp3900.5.html">sane-hp3900</a><br>
 <b>Comment:</b> Still Beta<br>
@@ -7055,7 +7055,7 @@ RevScan
 (1.0-2)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://hp4200-backend.sourceforge.net">http://hp4200-backend.sourceforge.net</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-hp4200.5.html">sane-hp4200</a><br>
 </p>
@@ -7096,7 +7096,7 @@ RevScan
 (1.0-2)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://sourceforge.net/projects/hp5400backend">http://sourceforge.net/projects/hp5400backend</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-hp5400.5.html">sane-hp5400</a><br>
 <b>Comment:</b> HP5400 and HP5470 scanners. Prototype backend available<br>
@@ -7237,7 +7237,7 @@ RevScan
 (0.03)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://hpsj5s.sourceforge.net/">http://hpsj5s.sourceforge.net/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-hpsj5s.5.html">sane-hpsj5s</a><br>
 </p>
@@ -7264,7 +7264,7 @@ RevScan
 (1.00)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.acjlaw.net:8080/~jeremy/Ricoh/">http://www.acjlaw.net:8080/~jeremy/Ricoh/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-hs2p.5.html">sane-hs2p</a><br>
 <b>Comment:</b> This backend has been tested with the IS450DE (Duplex/Endorser). All major functions necessary for scanning are supported. This backend should work with all Ricoh scanners in the IS450 family as well as the IS420 series, but the IS420 has not yet been tested. Features provided by the optional Image Processing Unit (IPU) are not yet integrated into the backend, as my scanner lacks the IPU.<br>
@@ -7313,7 +7313,7 @@ RevScan
 (1.0-4)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.meier-geinitz.de/sane/ibm-backend/">http://www.meier-geinitz.de/sane/ibm-backend/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-ibm.5.html">sane-ibm</a><br>
 <b>Comment:</b> This backend has had only limited testing. It needs more work especially for the Ricoh scanners. Patches are welcome.<br>
@@ -7364,7 +7364,7 @@ Ricoh
 (7)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.thebility.com/kodak/">http://www.thebility.com/kodak/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-kodak.5.html">sane-kodak</a><br>
 <b>Comment:</b> New backend for SANE release 1.0.21, see sane-kodak manpage<br>
@@ -7616,7 +7616,7 @@ Ricoh
 (2.4.6)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://sourceforge.net/projects/cupsdriverkodak/">http://sourceforge.net/projects/cupsdriverkodak/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-kodakaio.5.html">sane-kodakaio</a><br>
 <b>Comment:</b> Backend for Kodak AiO ESP and Hero printers. Also possibly Advent AWL10<br>
@@ -7962,7 +7962,7 @@ Ricoh
 (1.0-10)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.zago.net/sane/#leo">http://www.zago.net/sane/#leo</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-leo.5.html">sane-leo</a><br>
 </p>
@@ -8007,7 +8007,7 @@ Genius
 (1.0-0)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://stef.dev.free.fr/sane/lexmark">http://stef.dev.free.fr/sane/lexmark</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-lexmark.5.html">sane-lexmark</a><br>
 <b>Comment:</b> This backend supports lexmark x1100 series scanners.<br>
@@ -8107,7 +8107,7 @@ Dell
 (1.0-3)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.meier-geinitz.de/sane/ma1509-backend/">http://www.meier-geinitz.de/sane/ma1509-backend/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-ma1509.5.html">sane-ma1509</a><br>
 </p>
@@ -8143,7 +8143,7 @@ Dell
 (1.0.0)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://wiki.kainhofer.com/hardware/magicolor_scan">http://wiki.kainhofer.com/hardware/magicolor_scan</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-magicolor.5.html">sane-magicolor</a><br>
 </p>
@@ -8184,7 +8184,7 @@ Dell
 (1.0-7)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.zago.net/sane">http://www.zago.net/sane</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-matsushita.5.html">sane-matsushita</a><br>
 </p>
@@ -8281,7 +8281,7 @@ Dell
 (0.13.1)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.mir.com/mtek/">http://www.mir.com/mtek/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-microtek.5.html">sane-microtek</a><br>
 </p>
@@ -8461,7 +8461,7 @@ Dell
 (unmaintained)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://karstenfestag.gmxhome.de/linux.html">http://karstenfestag.gmxhome.de/linux.html</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-microtek2.5.html">sane-microtek2</a><br>
 </p>
@@ -8711,7 +8711,7 @@ Dell
 (1.0-138)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.meier-geinitz.de/sane/mustek-backend/">http://www.meier-geinitz.de/sane/mustek-backend/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-mustek.5.html">sane-mustek</a><br>
 <b>Comment:</b> Most Mustek SCSI scanners are supported by this backend. For USB scanners, look at the mustek_usb backend.<br>
@@ -8960,7 +8960,7 @@ Dell
 (13)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://penguin-breeder.org/sane/mustek_pp/">http://penguin-breeder.org/sane/mustek_pp/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-mustek_pp.5.html">sane-mustek_pp</a><br>
 <b>Comment:</b> Supports CIS and CCD type parallel port scanners from Mustek.<br>
@@ -9158,7 +9158,7 @@ Micromaxx
 (1.0-18)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.meier-geinitz.de/sane/mustek_usb-backend/">http://www.meier-geinitz.de/sane/mustek_usb-backend/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-mustek_usb.5.html">sane-mustek_usb</a><br>
 <b>Comment:</b> Only the USB scanners mentioned below are supported. For BearPaws, look at the Plustek, MA-1509, and gt68xx backends.<br>
@@ -9216,7 +9216,7 @@ Micromaxx
 (1.0-10)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.meier-geinitz.de/sane/mustek_usb2-backend/">http://www.meier-geinitz.de/sane/mustek_usb2-backend/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-mustek_usb2.5.html">sane-mustek_usb2</a><br>
 <b>Comment:</b> Only BearPaw 2448TA Pro is supported at the moment<br>
@@ -9244,7 +9244,7 @@ Micromaxx
 (0.12)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www5a.biglobe.ne.jp/~saetaka/">http://www5a.biglobe.ne.jp/~saetaka/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-nec.5.html">sane-nec</a><br>
 </p>
@@ -9271,7 +9271,7 @@ Micromaxx
 (0.3)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://sourceforge.net/projects/hp3300backend">http://sourceforge.net/projects/hp3300backend</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-niash.5.html">sane-niash</a><br>
 </p>
@@ -9337,7 +9337,7 @@ Micromaxx
 (1)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.sane-project.org/">http://www.sane-project.org/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-p5.5.html">sane-p5</a><br>
 <b>Comment:</b> New backend for SANE release 1.0.21, see sane-p5 manpage<br>
@@ -9365,7 +9365,7 @@ Micromaxx
 (1.0)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.munton.demon.co.uk/sane">http://www.munton.demon.co.uk/sane</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-pie.5.html">sane-pie</a><br>
 </p>
@@ -9508,7 +9508,7 @@ Adlib
 (0.17.3)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://home.arcor.de/wittawat/pixma/">http://home.arcor.de/wittawat/pixma/</a>, <a href="http://mp610.blogspot.com/">http://mp610.blogspot.com/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-pixma.5.html">sane-pixma</a><br>
 </p>
@@ -10494,7 +10494,7 @@ Adlib
 (0.52)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.gjaeger.de/scanner/plustek/">http://www.gjaeger.de/scanner/plustek/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-plustek.5.html">sane-plustek</a><br>
 </p>
@@ -10816,7 +10816,7 @@ Ambir
 (0.43)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.gjaeger.de/scanner/plustek_pp/">http://www.gjaeger.de/scanner/plustek_pp/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-plustek_pp.5.html">sane-plustek_pp</a><br>
 </p>
@@ -11058,7 +11058,7 @@ BrightScan
 (1.0-0)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://stef.dev.free.fr/sane/rts8891/index.html">http://stef.dev.free.fr/sane/rts8891/index.html</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-rts8891.5.html">sane-rts8891</a><br>
 <b>Comment:</b> This backend supports Realtek RTS8891 ASIC bases scanners.<br>
@@ -11134,7 +11134,7 @@ BrightScan
 (1.0-10)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.zago.net/sane/">http://www.zago.net/sane/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-sceptre.5.html">sane-sceptre</a><br>
 </p>
@@ -11170,7 +11170,7 @@ BrightScan
 (0.32)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.satzbau-gmbh.de/staff/abel/sane-sharp.html">http://www.satzbau-gmbh.de/staff/abel/sane-sharp.html</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-sharp.5.html">sane-sharp</a><br>
 </p>
@@ -11232,7 +11232,7 @@ BrightScan
 (0.1)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://sm3600.sourceforge.net/">http://sm3600.sourceforge.net/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-sm3600.5.html">sane-sm3600</a><br>
 </p>
@@ -11294,7 +11294,7 @@ BrightScan
 (1.1)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.ziplabel.com/sm3840/">http://www.ziplabel.com/sm3840/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-sm3840.5.html">sane-sm3840</a><br>
 <b>Comment:</b> This reverse-engineered backend supports the USB ScanMaker 3840 model<br>
@@ -11329,7 +11329,7 @@ BrightScan
 (1.4)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://snapscan.sourceforge.net/">http://snapscan.sourceforge.net/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-snapscan.5.html">sane-snapscan</a><br>
 <b>Comment:</b> Supported  bit depths: 24 bit (color), 48 bit (color, Epson) 8 bit (gray)<br>
@@ -11789,7 +11789,7 @@ BrightScan
 (1.6)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.informatik.uni-oldenburg.de/~ingo/sane/">http://www.informatik.uni-oldenburg.de/~ingo/sane/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-st400.5.html">sane-st400</a><br>
 </p>
@@ -11862,7 +11862,7 @@ Tamarack
 (1.0-10)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.zago.net/sane/#teco">http://www.zago.net/sane/#teco</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-teco1.5.html">sane-teco1</a><br>
 </p>
@@ -12019,7 +12019,7 @@ Dextra
 (1.0-9)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://gkall.hobby.nl/teco2.html">http://gkall.hobby.nl/teco2.html</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-teco2.5.html">sane-teco2</a><br>
 </p>
@@ -12120,7 +12120,7 @@ Dextra
 (1.0-1)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.zago.net/sane/#teco3">http://www.zago.net/sane/#teco3</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-teco3.5.html">sane-teco3</a><br>
 </p>
@@ -12188,7 +12188,7 @@ Trust
 (0.02)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.gjaeger.de/scanner/u12/">http://www.gjaeger.de/scanner/u12/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-u12.5.html">sane-u12</a><br>
 </p>
@@ -12254,7 +12254,7 @@ RevScan
 (1.0-41)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.rauch-domain.de/sane-umax/index.html">http://www.rauch-domain.de/sane-umax/index.html</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-umax.5.html">sane-umax</a><br>
 </p>
@@ -12747,7 +12747,7 @@ Genius
 (unmaintained)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://sourceforge.net/projects/umax1220u-sane">http://sourceforge.net/projects/umax1220u-sane</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-umax1220u.5.html">sane-umax1220u</a><br>
 </p>
@@ -12795,7 +12795,7 @@ Genius
 (1)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://umax1220p.sourceforge.net/">http://umax1220p.sourceforge.net/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-umax_pp.5.html">sane-umax_pp</a><br>
 </p>
@@ -12868,7 +12868,7 @@ Genius
 (2010-06-09)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="/contrib.html">/contrib.html</a><br>
 <b>Comment:</b> The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs.<br>
 </p>
@@ -16120,16 +16120,16 @@ Vantas
 </tr>
 </table>
 <h2><a name="STILL">Still Cameras</a></h2>
-<p><b>Backends</b>: 
-<a href="#C-DC25">dc25</a>, 
-<a href="#C-DC210">dc210</a>, 
-<a href="#C-DC240">dc240</a>, 
+<p><b>Backends</b>:
+<a href="#C-DC25">dc25</a>,
+<a href="#C-DC210">dc210</a>,
+<a href="#C-DC240">dc240</a>,
 <a href="#C-DMC">dmc</a></p>
 <h3><a name="C-DC25">Backend: dc25
 (1.2)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="mailto:peter@fales-lorenz.net">mailto:peter@fales-lorenz.net</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-dc25.5.html">sane-dc25</a><br>
 </p>
@@ -16163,7 +16163,7 @@ Vantas
 (0.0)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="mailto:peter@fales-lorenz.net">mailto:peter@fales-lorenz.net</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-dc210.5.html">sane-dc210</a><br>
 </p>
@@ -16190,7 +16190,7 @@ Vantas
 (0.0)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="mailto:peter@fales-lorenz.net">mailto:peter@fales-lorenz.net</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-dc240.5.html">sane-dc240</a><br>
 </p>
@@ -16239,9 +16239,9 @@ Vantas
 </tr>
 </table>
 <h2><a name="VIDEO">Video Cameras</a></h2>
-<p><b>Backends</b>: 
-<a href="#V-QCAM">qcam</a>, 
-<a href="#V-STV680">stv680</a>, 
+<p><b>Backends</b>:
+<a href="#V-QCAM">qcam</a>,
+<a href="#V-STV680">stv680</a>,
 <a href="#V-UNSUPPORTED">unsupported</a></p>
 <h3><a name="V-QCAM">Backend: qcam
 (unmaintained)
@@ -16279,7 +16279,7 @@ Connectix
 (1.0-1)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://gkall.hobby.nl/stv680-aiptek.html">http://gkall.hobby.nl/stv680-aiptek.html</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-stv680.5.html">sane-stv680</a><br>
 <b>Comment:</b> This vidcam backend is for the stv0680 chipset, See the website for more info.<br>
@@ -16334,7 +16334,7 @@ Connectix
 (2010-06-09)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="/contrib.html">/contrib.html</a><br>
 <b>Comment:</b> The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs.<br>
 </p>
@@ -16367,17 +16367,17 @@ Grandtek Scopecam
 </tr>
 </table>
 <h2><a name="API">APIs</a></h2>
-<p><b>Backends</b>: 
-<a href="#A-GPHOTO2">gphoto2</a>, 
-<a href="#A-PINT">pint</a>, 
-<a href="#A-PNM">pnm</a>, 
-<a href="#A-TEST">test</a>, 
+<p><b>Backends</b>:
+<a href="#A-GPHOTO2">gphoto2</a>,
+<a href="#A-PINT">pint</a>,
+<a href="#A-PNM">pnm</a>,
+<a href="#A-TEST">test</a>,
 <a href="#A-V4L">v4l</a></p>
 <h3><a name="A-GPHOTO2">Backend: gphoto2
 (0.0)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="mailto:peter@fales-lorenz.net">mailto:peter@fales-lorenz.net</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-gphoto2.5.html">sane-gphoto2</a><br>
 <b>Description:</b> <a href="http://www.gphoto.org">Multiple cameras supported by the gphoto2 libraries</a><br>
@@ -16395,7 +16395,7 @@ Grandtek Scopecam
 (1.0.8)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="mailto:henning@meier-geinitz.de">mailto:henning@meier-geinitz.de</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-pnm.5.html">sane-pnm</a><br>
 <b>Description:</b> Reads PNM files<br>
@@ -16405,7 +16405,7 @@ Grandtek Scopecam
 (1.0-28)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.meier-geinitz.de/sane/test-backend/">http://www.meier-geinitz.de/sane/test-backend/</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-test.5.html">sane-test</a><br>
 <b>Description:</b> Frontend-tester<br>
@@ -16415,21 +16415,21 @@ Grandtek Scopecam
 (1.0-3)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="mailto:henning@meier-geinitz.de">mailto:henning@meier-geinitz.de</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-v4l.5.html">sane-v4l</a><br>
 <b>Description:</b> Interface to Video For Linux API<br>
 <b>Comment:</b> Supports video cameras and other devices accessed by the v4l kernel API, e.g. bttv devices. Quite a lot of known bugs.<br>
 </p>
 <h2><a name="META">Meta Backends</a></h2>
-<p><b>Backends</b>: 
-<a href="#M-DLL">dll</a>, 
+<p><b>Backends</b>:
+<a href="#M-DLL">dll</a>,
 <a href="#M-NET">net</a></p>
 <h3><a name="M-DLL">Backend: dll
 (1.0.13)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="mailto:henning@meier-geinitz.de">mailto:henning@meier-geinitz.de</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-dll.5.html">sane-dll</a><br>
 <b>Description:</b> Dynamic loading of shared-library backends.<br>
@@ -16438,7 +16438,7 @@ Grandtek Scopecam
 (1.0.14)
 </a></h3>
 <p>
-<b>Link(s):</b> 
+<b>Link(s):</b>
 <a href="http://www.penguin-breeder.org/?page=sane-net">http://www.penguin-breeder.org/?page=sane-net</a><br>
 <b>Manual page:</b> <a href="http://www.sane-project.org/man/sane-net.5.html">sane-net</a><br>
 <b>Description:</b> Network access to saned servers<br>
@@ -16451,8 +16451,8 @@ Grandtek Scopecam
       Version of backend/driver; newer versions may be
       available from their home sites.<br>      <font color="#F00000">NEW!</font> means brand-new to the
       current release of SANE.<br>
-      UNMAINTAINED means that nobody maintains that backend. Expect no 
-      new features or newly supported devices. You are welcome to take over 
+      UNMAINTAINED means that nobody maintains that backend. Expect no
+      new features or newly supported devices. You are welcome to take over
       maintainership.
   </dd>
   <dt><b>Link(s):</b></dt>
@@ -16472,18 +16472,18 @@ Grandtek Scopecam
   <dt><b>USB id:</b></dt>
   <dd>The USB vendor and product ids as printed by sane-find-scanner -q (only applicable for USB devices).</dd>
   <dt><b>Status</b>:</dt>
-  <dd>Indicates how many of the features the device provides 
+  <dd>Indicates how many of the features the device provides
       are supported by SANE.
       <ul><li><font color="#F00000">unsupported</font>        means the device is not supported at least by this backend.         It may be supported by other backends, however.
       <li><font color="#0000B0">untested</font> means the         device may be supported but couldn't be tested. Be very         careful and report success/failure.
       <li><font color="#B00000">minimal</font> means that the
-        device is detected and scans at least in one mode. But the quality 
+        device is detected and scans at least in one mode. But the quality
         is bad or important features won't work.
-      <li><font color="#FF9000">basic</font> means it works at 
+      <li><font color="#FF9000">basic</font> means it works at
         least in the most important modes but quality is not perfect.
-      <li><font color="#90B000">good</font> means the device is usable 
+      <li><font color="#90B000">good</font> means the device is usable
         for day-to-day work. Some rather exotic features may be missing.
-      <li><font color="#007000">complete</font> means the backends 
+      <li><font color="#007000">complete</font> means the backends
         supports everything the device can do.
       </ul></dd>
   <dt><b>Description</b>:</dt>

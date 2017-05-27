@@ -703,7 +703,7 @@ attach_one (const char *name)
 }
 
 
-/* 
+/*
    Find our devices
  */
 SANE_Status
@@ -995,7 +995,7 @@ sane_start (SANE_Handle handle)
 				   MM_IN_INCH * 600,
 				   SANE_UNFIX (optionBotRightYValue) /
 				   MM_IN_INCH * 600,
-				   optionResolutionValue, 
+				   optionResolutionValue,
 				   optionAGainValue,
 				   SANE_UNFIX (optionGammaValue));
 

@@ -1,47 +1,47 @@
 /*
   sane - Scanner Access Now Easy.
   Copyright (C) 2006 Jon Chambers <jon@jon.demon.co.uk>
- 
+
   This file is part of the SANE package.
- 
+
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
   published by the Free Software Foundation; either version 2 of the
   License, or (at your option) any later version.
- 
+
   This program is distributed in the hope that it will be useful, but
   WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place - Suite 330, Boston,
   MA 02111-1307, USA.
- 
+
   As a special exception, the authors of SANE give permission for
   additional uses of the libraries contained in this release of SANE.
- 
+
   The exception is that, if you link a SANE library with other files
   to produce an executable, this does not by itself cause the
   resulting executable to be covered by the GNU General Public
   License.  Your use of that executable is in no way restricted on
   account of linking the SANE library code into it.
- 
+
   This exception does not, however, invalidate any other reasons why
   the executable file might be covered by the GNU General Public
   License.
- 
+
   If you submit changes to SANE to the maintainers to be included in
   a subsequent release, you agree by submitting the changes that
   those changes may be distributed with this exception intact.
- 
+
   If you write modifications of your own for SANE, it is your choice
   whether to permit this exception to apply to your modifications.
   If you do not wish that, delete this exception notice.
- 
+
   Dell 1600n network scan driver for SANE.
-   
+
   To debug:
   SANE_DEBUG_DELL1600N_NET=255 scanimage --verbose 2>scan.errs 1>scan.png
 */
@@ -136,8 +136,8 @@ struct ScannerState
   unsigned int m_currentPageBytes;/* number of bytes of current page read (host byte order) */
 };
 
-/* state data for a single page 
-   NOTE: all ints are in host byte order 
+/* state data for a single page
+   NOTE: all ints are in host byte order
 */
 struct PageInfo
 {
@@ -199,7 +199,7 @@ static void FinalisePacket (struct ComBuf *pBuf);
 static int MessageIsComplete (unsigned char *pData, size_t size);
 
 /* process a registration broadcast response
-   \return DeviceRecord pointer on success (caller frees), NULL on failure 
+   \return DeviceRecord pointer on success (caller frees), NULL on failure
 */
 static struct DeviceRecord *ProcessFindResponse (unsigned char *pData, size_t size);
 
@@ -638,7 +638,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   height = pageInfo.m_height;
   imageSize = width * height * 3;
 
-  DBG( 5, "sane_get_parameters: bytes remaining on this page: %d, num pages: %d, size: %dx%d\n", 
+  DBG( 5, "sane_get_parameters: bytes remaining on this page: %d, num pages: %d, size: %dx%d\n",
        pageInfo.m_bytesRemaining,
        gOpenScanners[iHandle]->m_numPages,
        width,
@@ -781,7 +781,7 @@ sane_start (SANE_Handle handle)
 cleanup:
 
   FreeComBuf (&buf);
-  
+
   return status;
 
 } /* sane_start */
@@ -805,7 +805,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
     return SANE_STATUS_INVAL;
 
   /* check for end of data (no further pages) */
-  if ( ( ! gOpenScanners[iHandle]->m_imageData.m_used ) 
+  if ( ( ! gOpenScanners[iHandle]->m_imageData.m_used )
        || ( ! gOpenScanners[iHandle]->m_numPages ) )
     {
       /* remove empty page if there are no more cached pages */
@@ -845,7 +845,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
   DBG (5,
        "sane_read: sending %d bytes, image total %d, %d page bytes remaining, %lu total remaining, image: %dx%d\n",
        dataSize, gOpenScanners[iHandle]->m_bytesRead, pageInfo.m_bytesRemaining ,
-       (unsigned long)(gOpenScanners[iHandle]->m_imageData.m_used - dataSize), 
+       (unsigned long)(gOpenScanners[iHandle]->m_imageData.m_used - dataSize),
        pageInfo.m_width,
        pageInfo.m_height);
 
@@ -1037,7 +1037,7 @@ FreeComBuf (struct ComBuf *pBuf)
 /* add data to a ComBuf struct
    \return 0 on success, >0 on failure
    \note If pData is NULL then buffer size will be increased but no copying will take place
-   \note In case of failure pBuf will be released using FreeComBuf 
+   \note In case of failure pBuf will be released using FreeComBuf
 */
 int
 AppendToComBuf (struct ComBuf *pBuf, const unsigned char *pData,
@@ -1178,7 +1178,7 @@ MessageIsComplete (unsigned char *pData, size_t size)
 /***********************************************************/
 
 /* process a registration broadcast response
-   \return struct DeviceRecord pointer on success (caller frees), NULL on failure 
+   \return struct DeviceRecord pointer on success (caller frees), NULL on failure
 */
 struct DeviceRecord *
 ProcessFindResponse (unsigned char *pData, size_t size)
@@ -1730,7 +1730,7 @@ ProcessTcpResponse (struct ScannerState *pState, struct ComBuf *pTcpBuf)
         } /* if */
     } /* while */
 
-  /* process page data if required */ 
+  /* process page data if required */
   if ( bProcessImage ) errorCheck |= ProcessPageData (pState);
 
 cleanup:
@@ -1824,10 +1824,10 @@ ProcessPageData (struct ScannerState *pState)
         jpegCinfo.m_cinfo.src = &jpegSrcMgr;
         jpegCinfo.m_bytesRemaining = pState->m_buf.m_used;
         jpegCinfo.m_pData = pState->m_buf.m_pBuf;
-        
+
         jpeg_read_header (&jpegCinfo.m_cinfo, TRUE);
         jpeg_start_decompress (&jpegCinfo.m_cinfo);
-        
+
         /* allocate space for a single scanline */
         scanLineSize = jpegCinfo.m_cinfo.output_width
           * jpegCinfo.m_cinfo.output_components;

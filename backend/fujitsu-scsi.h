@@ -1,9 +1,9 @@
 #ifndef FUJITSU_SCSI_H
 #define FUJITSU_SCSI_H
 
-/* 
+/*
  * Part of SANE - Scanner Access Now Easy.
- * 
+ *
  * Please see to opening comments in fujitsu.c
  */
 
@@ -233,7 +233,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_has_cmd_sdiag(in)	getbitfield(in+0x28, 1, 2)
 #define get_IN_has_cmd_rdiag(in)	getbitfield(in+0x28, 1, 1)
 #define get_IN_has_cmd_scan(in)		getbitfield(in+0x28, 1, 0)
-  
+
 #define get_IN_has_cmd_msen6(in)	getbitfield(in+0x29, 1, 7)
 #define get_IN_has_cmd_copy(in)		getbitfield(in+0x29, 1, 6)
 #define get_IN_has_cmd_rel(in)		getbitfield(in+0x29, 1, 5)
@@ -244,7 +244,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_has_cmd_tur(in)		getbitfield(in+0x29, 1, 0)
 
 /* more stuff here? (vendor commands) */
-#define get_IN_has_cmd_subwindow(in)       getbitfield(in+0x2b, 1, 0) 
+#define get_IN_has_cmd_subwindow(in)       getbitfield(in+0x2b, 1, 0)
 #define get_IN_has_cmd_endorser(in)        getbitfield(in+0x2b, 1, 1)
 #define get_IN_has_cmd_hw_status(in)       getbitfield(in+0x2b, 1, 2)
 #define get_IN_has_cmd_hw_status_2(in)     getbitfield(in+0x2b, 1, 3)
@@ -413,7 +413,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_MSEL_pf(sb, val) setbitfield(sb + 1, 1, 4, val)
 #define set_MSEL_xferlen(sb, val) sb[0x04] = (unsigned char)val
 
-/* MS payloads are combined 4 byte header and 8 or 10 byte page 
+/* MS payloads are combined 4 byte header and 8 or 10 byte page
  * there is also 'descriptor block' & 'vendor-specific block'
  * but fujitsu seems not to use these */
 /* 10 byte page only used by dropout? */
@@ -439,7 +439,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_MSEL_df_thickness(sb, val) setbitfield(sb + 2, 1, 4, val)
 #define set_MSEL_df_length(sb, val) setbitfield(sb + 2, 1, 3, val)
 #define set_MSEL_df_diff(sb, val) setbitfield(sb + 2, 3, 0, val)
-#define MSEL_df_diff_DEFAULT 0 
+#define MSEL_df_diff_DEFAULT 0
 #define MSEL_df_diff_10MM 1
 #define MSEL_df_diff_15MM 2
 #define MSEL_df_diff_20MM 3
@@ -940,7 +940,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_WD_contrast(sb) sb[0x18]
 
   /* 0x19 - Image Composition (color mode)
-   *        3091 - use 0x00 for line art, 0x01 for halftone, 
+   *        3091 - use 0x00 for line art, 0x01 for halftone,
    *               0x02 for grayscale, 0x05 for color.
    *        3096 - same but minus color.
    */
@@ -961,9 +961,9 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_WD_bitsperpixel(sb)	sb[0x1a]
 
   /* 0x1b,0x1c - Halftone Pattern
-   *        3091 byte 1b: 00h default(=dither), 01h dither, 
+   *        3091 byte 1b: 00h default(=dither), 01h dither,
    *                      02h error dispersion
-   *                  1c: 00 dark images, 01h dark text+images, 
+   *                  1c: 00 dark images, 01h dark text+images,
    *                      02h light images,
    *                      03h light text+images, 80h download pattern
    *        3096: 1b unused; 1c bit 7=1: use downloadable pattern,
@@ -983,8 +983,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
   /* 0x1d - Reverse image, padding type
    *        3091: bit 7=1: reverse black&white
    *              bits 0-2: padding type, must be 0
-   *        3096: the same; bit 7 must be set for gray and not 
-   *              set for b/w. 
+   *        3096: the same; bit 7 must be set for gray and not
+   *              set for b/w.
    */
 #define set_WD_rif(sb, val) setbitfield(sb + 0x1d, 1, 7, val)
 #define get_WD_rif(sb)	getbitfield(sb + 0x1d, 1, 7)

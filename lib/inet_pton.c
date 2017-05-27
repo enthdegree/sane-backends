@@ -13,7 +13,7 @@
 #include <arpa/inet.h>
 #endif
 
-int 
+int
 inet_pton (int af, const char *src, void *dst)
 {
 

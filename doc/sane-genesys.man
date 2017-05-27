@@ -8,14 +8,14 @@ The
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to USB flatbed scanners based on the Genesys GL646, GL841, GL843, GL847 and GL124 chips.
 At present, the following scanners are known to work with this backend:
-.PP 
+.PP
 .RS
 Canon LiDE 35/40/50/60/100/110/120/200/210/220/700
 .br
 Hewlett-Packard HP2300C/HP2400/HP3670/HP3690/G4010/G4050
 .br
 Medion MD5345/MD6228/MD6274
-.br 
+.br
 Panasonic KV-SS080
 .br
 Plustek OpticBook 3600
@@ -29,11 +29,11 @@ Visioneer OneTouch 7100/Strobe XP100 (rev3)/XP200/XP300/Roadwarrior
 Xerox Travel Scanner 100, OneTouch 2400
 .RE
 
-.PP 
+.PP
 This is stable software for supported models. But if you test new or untested scanners, keep
 your hand at the scanner's plug and unplug it, if the head bumps at the end of
 the scan area.
-.PP 
+.PP
 If you own a scanner other than the ones listed above that works with this
 backend, please let me know this by sending the scanner's exact model name and
 the USB vendor and device ids (e.g. from
@@ -41,10 +41,10 @@ the USB vendor and device ids (e.g. from
 .I sane\-find\-scanner
 or syslog) to the sane\-devel mailing list. Even if the scanner's name is only
 slightly different from the models mentioned above, please let me know.
-.PP 
+.PP
 If you own a scanner that isn't detected by the genesys backend but has a GL646,
-GL841, GL843, GL847 or GL124 chipset, you can try to add it to the backend. 
-.PP 
+GL841, GL843, GL847 or GL124 chipset, you can try to add it to the backend.
+.PP
 .SH "CALIBRATION"
 To give correct image quality, sheet fed scanners need to be calibrated using the
 calibration sheet sold with the scanner. To do calibration, you must insert this target
@@ -135,26 +135,26 @@ userwith the calibration clear option. A value of 0 means cache is disabled.
 Additionally, several 'software' options are exposed by the backend. These
 are reimplementations of features provided natively by larger scanners, but
 running on the host computer. This enables smaller machines to have similar
-capabilities. Please note that these features are somewhat simplistic, and 
-may not perform as well as the native implementations. Note also that these 
-features all require that the driver cache the entire image in memory. This 
+capabilities. Please note that these features are somewhat simplistic, and
+may not perform as well as the native implementations. Note also that these
+features all require that the driver cache the entire image in memory. This
 will almost certainly result in a reduction of scanning speed.
 .PP
-.B \-\-swcrop 
+.B \-\-swcrop
 .RS
-	Requests the driver to detect the extremities of the paper within the larger 
-image, and crop the empty edges. 
+	Requests the driver to detect the extremities of the paper within the larger
+image, and crop the empty edges.
 .RE
 .PP
-.B \-\-swdeskew 
+.B \-\-swdeskew
 .RS
-	Requests the driver to detect the rotation of the paper within the larger 
+	Requests the driver to detect the rotation of the paper within the larger
 image, and counter the rotation.
 .RE
 .PP
 .B \-\-swdespeck  \-\-despeck X
 .RS
-	Requests the driver to find and remove dots of X diameter or smaller from the 
+	Requests the driver to find and remove dots of X diameter or smaller from the
 image, and fill the space with the average surrounding color.
 .RE
 .PP
@@ -187,24 +187,24 @@ autodetected by
 statements which are already included into
 .IR genesys.conf .
 "vendor_id" and "product_id" are hexadecimal numbers that identify the
-scanner. 
-.PP 
+scanner.
+.PP
 
 .SH "FILES"
-.TP 
+.TP
 .I @CONFIGDIR@/genesys.conf
 The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
-.TP 
+.TP
 .I @LIBDIR@/libsane\-genesys.a
 The static library implementing this backend.
-.TP 
+.TP
 .I @LIBDIR@/libsane\-genesys.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH "ENVIRONMENT"
-.TP 
+.TP
 .B SANE_CONFIG_DIR
 This environment variable specifies the list of directories that may
 contain the configuration file.  Under UNIX, the directories are
@@ -218,7 +218,7 @@ directories.  For example, setting
 .B SANE_CONFIG_DIR
 to "/tmp/config:" would result in directories "tmp/config", ".", and
 "@CONFIGDIR@" being searched (in this order).
-.TP 
+.TP
 .B SANE_DEBUG_GENESYS
 If the library was compiled with debug support enabled, this environment
 variable controls the debug level for this backend.  Higher debug levels
@@ -229,29 +229,29 @@ care. This will print messages related to core genesys functions.
 .B SANE_DEBUG_GENESYS_LOW
 This environment variable controls the debug level for low level functions
 common to all genesys ASICs.
-.TP 
+.TP
 .B SANE_DEBUG_GENESYS_GL646
 This environment variable controls the debug level for the specific GL646 code
 part.
-.TP 
+.TP
 .B SANE_DEBUG_GENESYS_GL841
 This environment variable controls the debug level for the specific GL841 code
 part.
-.TP 
+.TP
 .B SANE_DEBUG_GENESYS_GL843
 This environment variable controls the debug level for the specific GL843 code
 part.
-.TP 
+.TP
 .B SANE_DEBUG_GENESYS_GL847
 This environment variable controls the debug level for the specific GL847 code
 part.
-.TP 
+.TP
 .B SANE_DEBUG_GENESYS_GL124
 This environment variable controls the debug level for the specific GL124 code
 part.
 
 
-Example (full and highly verbose output for gl646): 
+Example (full and highly verbose output for gl646):
 .br
 export SANE_DEBUG_GENESYS=255
 .br
@@ -260,12 +260,12 @@ export SANE_DEBUG_GENESYS_LOW=255
 export SANE_DEBUG_GENESYS_GL646=255
 
 .SH CREDITS
-  
+
 Jack McGill for donating several sheetfed and flatbed scanners, which made possible to add support
 for them in the genesys backend:
 .RS
 Hewlett-Packard HP3670
-.br 
+.br
 Visioneer Strobe XP100 (rev3)/XP200/XP300/Roadwarrior
 .br
 Canon LiDE 200
@@ -292,20 +292,20 @@ Luc Verhaegen for donating a Canoscan LiDE 120.
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane\-usb (5)
-.br 
+.br
 
 
 .SH "AUTHOR"
 Oliver Rauch
-.br 
+.br
 Henning Meier-Geinitz <henning@meier\-geinitz.de>
-.br 
+.br
 Gerhard Jaeger <gerhard@gjaeger.de>
-.br 
+.br
 St\['e]phane Voltz <stef.dev@free.fr>
-.br 
+.br
 Philipp Schmid <philipp8288@web.de>
-.br 
+.br
 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 .br
 Alexey Osipov <simba@lerlan.ru> for HP2400 final support
@@ -321,4 +321,4 @@ This backend will be much slower if not using libusb\-1.0. So be sure that sane\
 .SH "BUGS"
 For the LiDE 200, the scanned data at 4800 dpi is obtained "as is" from sensor. It seems the windows driver does some digital processing
 to improve it, which is not implemented in the backend.
-.PP 
+.PP

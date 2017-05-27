@@ -21,19 +21,19 @@ SANE (actually EMX 0.9D fix 03).
 
 SANE (Scanner Access Now Easy)
 ------------------------------
-For more info about the SANE Project, please visit 
+For more info about the SANE Project, please visit
 
 	http://www.sane-project.org/
 
 You should also check the main site for an updated list of supported scanners.
 
-Note that I can't say you if your scanner is supported; check SANE homepage 
+Note that I can't say you if your scanner is supported; check SANE homepage
 instead.
 
 
 SUPPORT
 -------
-I'm sorry to tell you that it is hard for me to help you: if your scanner 
+I'm sorry to tell you that it is hard for me to help you: if your scanner
 doesn't work or your problem can't be reproduced on my pc, there are high
 choices that I can't fix the bug. Most problems are specific to same PC/scanner
 combinations, and can't be solved without having a full developement enviroment
@@ -61,7 +61,7 @@ file, he is welcome (actually I'm using groff).
 
 INSTALLATION
 ------------
-If you already didn't it, install the correct driver for your scsi adapter. 
+If you already didn't it, install the correct driver for your scsi adapter.
 The drivers has usually a .ADD extension and looks like
 
 	BASEDEV=AHA154X.ADD
@@ -71,7 +71,7 @@ directory, so you have only to add
 
 	BASEDEV=OS2ASPI.DMD /ALL
 
-The /ALL switch is required only if you need to use other devices with 
+The /ALL switch is required only if you need to use other devices with
 aspirout.sys, e.g. if you have a CD-RW and CDRecord/2 installed.
 
 Last, add aspirout.sys to your config.sys
@@ -86,7 +86,7 @@ available on Hobbes or Leo as emxrt.zip.
 
 find-scanner.exe can be used to recognize a scanner on the scsi bus. Then
 you should edit your xxx.conf file and add the scanner address, a string like
-b0t4l0. This can be simplified using autodetection: with autodetection you can 
+b0t4l0. This can be simplified using autodetection: with autodetection you can
 use a string like
 
 	scsi EPSON
@@ -104,7 +104,7 @@ you should see your scanner following the list of internal devices:
 	    pnm:0 pnm:1
 
 If it is not present, check your scsi driver, the aspi driver OS2ASPI.DMD and
-aspirout.sys; on Warp4 you can use the Hardware Manager to check scanner 
+aspirout.sys; on Warp4 you can use the Hardware Manager to check scanner
 presence. Then look at your xxx.conf, maybe there is something wrong in the
 text.
 
@@ -115,7 +115,7 @@ Once configured your system, create a proper .conf file (edit one of the
 supplied templates) and run
 
 	scanimage -L
-	
+
 The output should be like
 
 	device `umax:b0t3l0' is a UMAX     Vista-S8         flatbed scanner
@@ -131,8 +131,8 @@ A simple scan
 
 will do a scan with default parameters. Run
 
-	scanimage -d umax --help 
-	
+	scanimage -d umax --help
+
 to get a full list of available switches.
 
 
@@ -155,7 +155,7 @@ of scanimage.exe: here you have to add a list of valid saned servers.
 Run
 
 	scanimage -L
-	
+
 The output is like this
 
 device `umax:b0t3l0' is a UMAX     Vista-S8         flatbed scanner
@@ -174,7 +174,7 @@ Be aware that this configuration shouldn't work: I have been unable to get it
 working on my PC without running saned under the debugger PMGDB.
 The correct syntax for running scanimage over the net is
 
-	scanimage -d net:HOSTNAME:umax:b0t3l0 > test.pnm 
+	scanimage -d net:HOSTNAME:umax:b0t3l0 > test.pnm
 
 where HOSTNAME is a valid DNS host name.
 You can log server access using syslogd: if syslogd is running, saned will
@@ -199,10 +199,10 @@ Steps:
 - unzip this file somewhere;
 - copy src\* into sane-1.0.1;
 - enter sane-1.0.1 directory;
-- apply patches to original distribution: 
+- apply patches to original distribution:
     [...\sane-1.0.1]gnupatch -p 0 < patch.os2
 - run autoconf to rebuild the configure script
-- edit configure and change autoconf default optimization flags; 
+- edit configure and change autoconf default optimization flags;
   search for -O2 -m486 and change to your preferred settings;
 - add the following line after :${LDFLAGS="...."}
   : ${LIBS="-lsocket"}
@@ -211,15 +211,15 @@ Steps:
 - run make (compiler warnings are ok);
 - wait to complete all makes;
 
-Remember to install a Unix like shell in your path; I use ksh.exe 
-renamed to sh.exe, and saved in d:\bin 
+Remember to install a Unix like shell in your path; I use ksh.exe
+renamed to sh.exe, and saved in d:\bin
 (that's because most unix scripts uses SHELL=/bin/sh)
 
 You need also a compatible dl.a and syslog.a library; look in .\contrib
 for a couple of simple sources.
 
 Flags needed under EMX:
--Zsysv-signals	enables signal management as in SystemV, otherwise emx 
+-Zsysv-signals	enables signal management as in SystemV, otherwise emx
                 convention is used (and it is different from sysv).
 -Zcrtdll	link dynamically with EMXLIBCM.DLL;
 

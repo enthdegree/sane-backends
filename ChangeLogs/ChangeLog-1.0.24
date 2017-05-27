@@ -90,7 +90,7 @@
 2013-08-07 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.[ch] backend/genesys_conv.c doc/sane-genesys.man
 	po/fr.po: add digital brightness and contrast options.
-	Add an option to set calibration cache file name. 
+	Add an option to set calibration cache file name.
 
 2013-08-07 Stéphane Voltz <stef.dev@free.fr>
 	* frontend/tstbackend.c: add argument to get verbose messages during
@@ -105,7 +105,7 @@
 
 2013-08-02 Stéphane Voltz <stef.dev@free.fr>
 	* configure configure.in testsuite/Makefile.* testsuite/tools/*: add
-	a testsuite for sane-desc, then merge hwdb support for sane-desc by 
+	a testsuite for sane-desc, then merge hwdb support for sane-desc by
 	Tom Gundersen <teg@jklm.no> .
 
 2013-07-31 m. allan noah <kitno455 at gmail dot com>
@@ -291,7 +291,7 @@
 
 2013-03-04 Oliver Schwartz <oliverschwartz@users.sf.net>
 	* backend/snapscan-options.c backend/snapscan-scsi.c backend/snapscan.c
-	  backend/snapscan-sources.c backend/snapscan.h 
+	  backend/snapscan-sources.c backend/snapscan.h
 	  doc/descriptions/snapscan.desc: Added support for Acer Scanwit 2720S
 	  implemented by Andrew Goddbody.
 
@@ -424,9 +424,9 @@
 	has added support for IPv6
 
 2013-01-10 Louis Lagendijk <louis dot lagendijk at gmail dot com>
-	* Added optional support in sanedi.c for systemd socket activation. This 
-	will allow for using backend debugging using SANE_DEBUG_xxx to be used 
-	for saned controlled scanning when using socket activation. When only the 
+	* Added optional support in sanedi.c for systemd socket activation. This
+	will allow for using backend debugging using SANE_DEBUG_xxx to be used
+	for saned controlled scanning when using socket activation. When only the
 	socket is received we use the existing code path.
 
 2013-01-08 Rolf Bensch <rolf at bensch hyphen online dot de>
@@ -486,7 +486,7 @@
 	speed up batch scans
 
 2012-11-28 Paul Newall <quandry@ntlworld.com>
-	* backend/kodakaio.c backend/kodakaio.h  backend/kodakaio.conf.in 
+	* backend/kodakaio.c backend/kodakaio.h  backend/kodakaio.conf.in
 	backend/Makefile.am backend/Makefile.in docs/descriptions/kodakaio.desc:
 	Use avahi instead of cups for network autodetection
 
@@ -512,7 +512,7 @@
 	  without need for manual editing
 	* pixma.[ch] pixma_mp810.c pixma_mp150.c
 	  Rewrite of button option handling. Button options can now be read
-	  without triggering through the button-update option. Buton-update 
+	  without triggering through the button-update option. Buton-update
 	  options is left for ease of use with xsane
 	  Options are cached so that only when an option is read again all
 	  options are re-read.
@@ -597,6 +597,6 @@
 
 2012-08-26 m. allan noah <kitno455 at gmail dot com>
 	* ChangeLog*, configure*, Makefile.in, doc/desc/{kodakaio,kvs40xx}.desc:
-	Various updates related to starting 1.0.24git 
+	Various updates related to starting 1.0.24git
 
 Older entries can be found in ChangeLog-1.0.23.

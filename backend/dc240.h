@@ -46,12 +46,12 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice.  
+   If you do not wish that, delete this exception notice.
 
  ***************************************************************************
 
    This file implements a SANE backend for the Kodak DC-240
-   digital camera.  THIS IS EXTREMELY ALPHA CODE!  USE AT YOUR OWN RISK!! 
+   digital camera.  THIS IS EXTREMELY ALPHA CODE!  USE AT YOUR OWN RISK!!
 
    (feedback to:  dc240-devel@fales-lorenz.net)
 
@@ -143,16 +143,16 @@ static SANE_Int get_info (DC240 *);
  *                                   Resolution: 0x00 = low, 0x01 = high
  */
 #define THUMBS_PCK	{0x93, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x1A}
-/*  
- *  
+/*
+ *
  */
 #define PICS_PCK	{0x9A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1A}
-/*      
- *      
+/*
+ *
  */
 #define PICS_INFO_PCK	{0x91, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1A}
-/*                         
- *                         
+/*
+ *
  */
 #define OPEN_CARD_PCK	{0x96, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1A}
 #define READ_DIR_PCK	{0x99, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1A}

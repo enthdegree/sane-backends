@@ -1,7 +1,7 @@
 #ifndef CANON_DR_CMD_H
 #define CANON_DR_CMD_H
 
-/* 
+/*
  * Part of SANE - Scanner Access Now Easy.
  * Please see opening comments in canon_dr.c
  */
@@ -571,7 +571,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
   /* FIXME: more params here? */
 #define set_WD_reserved2(sb, val)  sb[0x2a] = val
 #define get_WD_reserved2(sb)	   sb[0x2a]
-  
+
 
 /* ==================================================================== */
 

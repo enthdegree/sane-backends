@@ -22,7 +22,7 @@ help:
 
 test: test.local
 
-test.local: 
+test.local:
 	@echo "**** Testing $(SCANIMAGE) with device $(DEVICE)"
 	@if echo "---> Trying flatbed scanner" && \
 	  $(SCANIMAGE) -d $(DEVICE) -T && \

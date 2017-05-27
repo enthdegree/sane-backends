@@ -91,7 +91,7 @@ static void u12motor_Force16Steps( U12_Device *dev, int dir )
 static void u12motor_ModuleFreeRun( U12_Device *dev, u_long steps )
 {
 	SANE_Byte rb[6];
-	
+
 	rb[0] = REG_MOTORFREERUNCOUNT1;  rb[1] = _HIBYTE(steps);
 	rb[2] = REG_MOTORFREERUNCOUNT0;  rb[3] = _LOBYTE(steps);
 	rb[4] = REG_MOTORFREERUNTRIGGER; rb[5] = 0;
@@ -124,7 +124,7 @@ static SANE_Status u12motor_PositionYProc( U12_Device *dev, u_long steps )
 		if( u12io_IsEscPressed()) {
 			DBG( _DBG_INFO, "* CANCEL detected!\n" );
 			return SANE_STATUS_CANCELLED;
-		}   
+		}
 
 	} while( !u12io_CheckTimer( &timer ));
 	DBG( _DBG_INFO, "u12motor_PositionYProc() - done\n" );
@@ -289,7 +289,7 @@ static SANE_Status u12motor_ModuleToHome( U12_Device *dev )
 		res = u12motor_PositionYProc( dev, 40 );
 		if( SANE_STATUS_GOOD != res )
 			return res;
-			
+
 		res = u12motor_BackToHomeSensor( dev );
 		if( SANE_STATUS_GOOD != res )
 			return res;
@@ -425,7 +425,7 @@ static SANE_Status u12motor_GotoShadingPosition( U12_Device *dev )
 	SANE_Byte   rb[20];
 	SANE_Status res;
 	int         c;
-	
+
 	DBG( _DBG_INFO, "u12motor_GotoShadingPosition()\n" );
 	res = u12motor_ModuleToHome( dev );
 	if( SANE_STATUS_GOOD == res )

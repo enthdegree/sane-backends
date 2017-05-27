@@ -1,13 +1,13 @@
 /***************************************************************************
  * _S_A_N_E - Scanner Access Now Easy.
 
-   dc240.c 
+   dc240.c
 
    03/12/01 - Peter Fales
 
    Based on the dc210 driver, (C) 1998 Brian J. Murrell (which is
 	based on dc25 driver (C) 1998 by Peter Fales)
-	
+
    This file (C) 2001 by Peter Fales
 
    This file is part of the SANE package.
@@ -46,12 +46,12 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice.  
+   If you do not wish that, delete this exception notice.
 
  ***************************************************************************
 
    This file implements a SANE backend for the Kodak DC-240
-   digital camera.  THIS IS EXTREMELY ALPHA CODE!  USE AT YOUR OWN RISK!! 
+   digital camera.  THIS IS EXTREMELY ALPHA CODE!  USE AT YOUR OWN RISK!!
 
    (feedback to:  dc240-devel@fales-lorenz.net)
 
@@ -440,7 +440,7 @@ init_dc240 (DC240 * camera)
     }
 
   /* send a break to get it back to a known state */
-  /* Used to supply a non-zero argument to tcsendbreak(), TCSBRK, 
+  /* Used to supply a non-zero argument to tcsendbreak(), TCSBRK,
    * and TCSBRKP, but that is system dependent.  e.g. on irix a non-zero
    * value does a drain instead of a break.  A zero value is universally
    * used to send a break.
@@ -465,7 +465,7 @@ init_dc240 (DC240 * camera)
   sleep (1);
 #endif
 
-  /* We seem to get some garbage following the break, so 
+  /* We seem to get some garbage following the break, so
    * read anything pending */
 
   n = read (camera->fd, buf, 5);
@@ -476,8 +476,8 @@ init_dc240 (DC240 * camera)
   if (send_pck (camera->fd, init_pck) == -1)
     {
       /*
-       *    The camera always powers up at 9600, so we try 
-       *      that first.  However, it may be already set to 
+       *    The camera always powers up at 9600, so we try
+       *      that first.  However, it may be already set to
        *      a different speed.  Try the entries in the table:
        */
 
@@ -491,7 +491,7 @@ init_dc240 (DC240 * camera)
        buf[1], buf[2], buf[3], buf[4]);
 
   /*
-     Set speed to requested speed. 
+     Set speed to requested speed.
    */
   cfsetospeed (&tty_new, Camera.baud);
   cfsetispeed (&tty_new, Camera.baud);
@@ -597,7 +597,7 @@ get_info (DC240 * camera)
   n = read_dir ("\\PCCARD\\DCIM\\*.*");
 
   /* If we've already got a folder_list, free it up before starting
-   * the new one 
+   * the new one
    */
   if (folder_list != NULL)
     {
@@ -1083,8 +1083,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 
-	  /* get the image's resolution, unless the camera has no 
-	   * pictures yet 
+	  /* get the image's resolution, unless the camera has no
+	   * pictures yet
 	   */
 	  if (Camera.pic_taken != 0)
 	    {
@@ -1367,7 +1367,7 @@ sane_start (SANE_Handle handle)
   if (dc240_opt_snap)
     {
       /*
-       * Don't allow picture unless there is room in the 
+       * Don't allow picture unless there is room in the
        * camera.
        */
       if (Camera.pic_left == 0)
@@ -1719,7 +1719,7 @@ get_picture_info (PictureInfo * pic, SANE_Int p)
 
   read_info (e->name);
 
-  /* Validate picture info 
+  /* Validate picture info
    * byte 0 - 1 == picture info
    * byte 1 - 5 == DC240 Camera
    * byte 2 - 3 == JFIF file
@@ -1736,7 +1736,7 @@ get_picture_info (PictureInfo * pic, SANE_Int p)
 
   pic->low_res = info_buf[3] == 0 ? SANE_TRUE : SANE_FALSE;
 
-  /* 
+  /*
    * byte 12 - Year MSB
    * byte 13 - Year LSB
    * byte 14 - Month
@@ -1991,8 +1991,8 @@ read_info (SANE_String fname)
 
 
 /*
- * send_data - Send a data block - assumes all data blocks to camera 
- *		are 60 bytes long 
+ * send_data - Send a data block - assumes all data blocks to camera
+ *		are 60 bytes long
  */
 
 static SANE_Int
@@ -2090,7 +2090,7 @@ dir_insert (struct cam_dirent *entry)
 }
 
 /*
- *  dir_delete - Delete a directory entry from the linked list of file 
+ *  dir_delete - Delete a directory entry from the linked list of file
  * 		names
  */
 static SANE_Int
@@ -2123,7 +2123,7 @@ dir_delete (SANE_String fname)
 }
 
 /*
- *  set_res - set picture size depending on resolution settings 
+ *  set_res - set picture size depending on resolution settings
  */
 static void
 set_res (SANE_Int lowres)

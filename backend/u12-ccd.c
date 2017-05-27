@@ -483,7 +483,7 @@ static void fnCCDInitWolfson3799( U12_Device *dev )
     }
 }
 
-/** 
+/**
  */
 static void fnCCDInitWolfson548( U12_Device *dev )
 {
@@ -788,7 +788,7 @@ static void fnDACDarkWolfson( U12_Device *dev, ShadingVarDef *sTbl,
 
 			if ((short) w < 0)
 				w = 0;
-				
+
 			if( w != (u_short)dev->shade.DarkDAC.bColors[dwCh] ) {
 				dev->shade.DarkDAC.bColors [dwCh] = (SANE_Byte)w;
 				dev->shade.fStop                  = SANE_FALSE;
@@ -926,7 +926,7 @@ static void u12ccd_InitCCDandDAC( U12_Device *dev, SANE_Bool shading )
 		DBG( _DBG_INFO, "* DAC: Samsung 1224\n" );
 
 		switch( dev->CCDID ) {
-			
+
 		case _CCD_3797:
 			DBG( _DBG_INFO, "* CCD-3797\n" );
 			pDAC_CCD          = ShadingVar3797;

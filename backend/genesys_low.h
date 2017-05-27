@@ -710,7 +710,7 @@ typedef struct
 
   /**< value for brightness enhancement in the [-100..100] range */
   int brightness;
-  
+
   /**< cahe entries expiration time */
   int expiration_time;
 } Genesys_Settings;

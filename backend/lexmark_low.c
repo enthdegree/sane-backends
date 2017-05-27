@@ -3,7 +3,7 @@
    (C) 2005 Fred Odendaal
    (C) 2006-2013 Stéphane Voltz	<stef.dev@free.fr>
    (C) 2010 "Torsten Houwaart" <ToHo@gmx.de> X74 support
-   
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -180,7 +180,7 @@ rts88xx_set_scan_frequency (SANE_Byte * regs, int frequency)
 }
 
 /*
- * read one register at given index 
+ * read one register at given index
  */
 static SANE_Status
 rts88xx_read_reg (SANE_Int devnum, SANE_Int index, SANE_Byte * reg)
@@ -218,7 +218,7 @@ rts88xx_read_reg (SANE_Int devnum, SANE_Int index, SANE_Byte * reg)
 }
 
 /*
- * write one register at given index 
+ * write one register at given index
  */
 static SANE_Status
 rts88xx_write_reg (SANE_Int devnum, SANE_Int index, SANE_Byte * reg)
@@ -412,7 +412,7 @@ lexmark_low_wake_up (Lexmark_Device * dev)
 
 
 /**
- * 
+ *
  */
 #ifdef DEEP_DEBUG
 static void
@@ -1254,7 +1254,7 @@ sanei_lexmark_low_close_device (Lexmark_Device * dev)
 }
 
 
-/* This function writes the contents of the given registers to the 
+/* This function writes the contents of the given registers to the
      scanner. */
 SANE_Status
 low_write_all_regs (SANE_Int devnum, SANE_Byte * regs)
@@ -1306,31 +1306,31 @@ SANE_Bool
 low_is_home_line (Lexmark_Device * dev, unsigned char *buffer)
 {
   /*
-     This function assumes the buffer has a size of 2500 bytes.It is 
+     This function assumes the buffer has a size of 2500 bytes.It is
      destructive to the buffer.
 
      Here is what it does:
 
-     Go through the buffer finding low and high values, which are computed by 
-     comparing to the average: 
+     Go through the buffer finding low and high values, which are computed by
+     comparing to the average:
      average = (lowest value + highest value)/2
-     High bytes are changed to 0xFF (white), lower or equal bytes are changed 
-     to 0x00 (black),so that the buffer only contains white (0xFF) or black 
+     High bytes are changed to 0xFF (white), lower or equal bytes are changed
+     to 0x00 (black),so that the buffer only contains white (0xFF) or black
      (0x00) values.
 
      Next, we go through the buffer. We use a tolerance of 5 bytes on each end
      of the buffer and check a region from bytes 5 to 2495. We start assuming
      we are in a white region and look for the start of a black region. We save
-     this index as the transition from white to black. We also save where we 
-     change from black back to white. We continue checking for transitions 
-     until the end of the check region. If we don't have exactly two 
+     this index as the transition from white to black. We also save where we
+     change from black back to white. We continue checking for transitions
+     until the end of the check region. If we don't have exactly two
      transitions when we reach the end we return SANE_FALSE.
 
      The final check compares the transition indices to the nominal values
      plus or minus the tolerence. For the first transition (white to black
      index) the value must lie in the range 1235-30 (1205) to 1235+30 (1265).
      For the second transition (black to white) the value must lie in the range
-     1258-30 (1228) to 1258+30 (1288). If the indices are out of range we 
+     1258-30 (1228) to 1258+30 (1288). If the indices are out of range we
      return SANE_FALSE. Otherwise, we return SANE_TRUE.
    */
 
@@ -1467,9 +1467,9 @@ sanei_lexmark_low_move_fwd (SANE_Int distance, Lexmark_Device * dev,
 			    SANE_Byte * regs)
 {
   /*
-     This function moves the scan head forward with the highest vertical 
+     This function moves the scan head forward with the highest vertical
      resolution of 1200dpi. The distance moved is given by the distance
-     parameter. 
+     parameter.
 
      As an example, given a distance parameter of 600, the scan head will
      move 600/1200", or 1/2" forward.
@@ -1950,7 +1950,7 @@ sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev)
 /* This function must only be called if the scan head is past the home dot.
    It could damage the scanner if not.
 
-   This function tells the scanner to do a grayscale scan backwards with a 
+   This function tells the scanner to do a grayscale scan backwards with a
    300dpi resolution. It reads 2500 bytes of data between horizontal
    co-ordinates 0x6a and 0x13f2.
 
@@ -1959,8 +1959,8 @@ sanei_lexmark_low_search_home_bwd (Lexmark_Device * dev)
    before it bangs against the end. A line limit is set so that a maximum of
    0x0F3C (13"*300dpi) lines can be read.
 
-   To read the scan data we create a buffer space large enough to hold 10 
-   lines of data. For each read we poll twice, ignoring the first poll. This 
+   To read the scan data we create a buffer space large enough to hold 10
+   lines of data. For each read we poll twice, ignoring the first poll. This
    is required for timing. We repeat the double poll until there is data
    available. The number of lines (or number of buffers in our buffer space)
    is calculated from the size of the data available from the scanner. The
@@ -2462,10 +2462,10 @@ sanei_lexmark_low_find_start_line (Lexmark_Device * dev)
      This function scans forward 59 lines, reading 88 bytes per line from the
      middle of the horizontal line: pixel 0xa84 to pixel 0x9d4. It scans with
      the following parameters:
-     dir=fwd 
+     dir=fwd
      mode=grayscale
      h.res=300 dpi
-     v.res=600 dpi   
+     v.res=600 dpi
      hor. pixels = (0xa84 - 0x9d4)/2 = 0x58 = 88
      vert. pixels = 0x3e - 0x03 = 0x3b = 59
      data = 88x59=5192=0x1448
@@ -2479,18 +2479,18 @@ sanei_lexmark_low_find_start_line (Lexmark_Device * dev)
 
      Byte swap the order of the bytes in the buffer.
 
-     Go through the buffer finding low and high values, which are computed by 
-     comparing to the weighted average: 
+     Go through the buffer finding low and high values, which are computed by
+     comparing to the weighted average:
      weighted_average = (lowest value + (highest value - lowest value)/4)
-     Low bytes are changed to 0xFF (white), higher of equal bytes are changed 
-     to 0x00 (black),so that the buffer only contains white (0xFF) or black 
+     Low bytes are changed to 0xFF (white), higher of equal bytes are changed
+     to 0x00 (black),so that the buffer only contains white (0xFF) or black
      (0x00) values.
 
      Next, we go through the buffer a line (88 bytes) at a time for 59 lines
      to read the entire buffer. For each byte in a line we check if the
      byte is black. If it is we increment the black byte counter.
 
-     After each line we check the black byte counter. If it is greater than 0 
+     After each line we check the black byte counter. If it is greater than 0
      we increment the black line count and set the white line count to 0. If
      there were no black bytes in the line we set the black line count to 0
      and increment the white line count.
@@ -2852,7 +2852,7 @@ sanei_lexmark_low_find_start_line (Lexmark_Device * dev)
     }				/* end for buffer */
 
   free (buffer);
-  /* Stop the scanner. 
+  /* Stop the scanner.
      This is needed to get the right distance to the scanning area */
   if (dev->model.sensor_type == X74_SENSOR)
     low_stop_mvmt (dev->devnum);
@@ -3879,7 +3879,7 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	      /* set motor resolution divisor */
 	      dev->shadow_regs[0x39] = 0x03;
 
-	      /* data compression 
+	      /* data compression
 	         dev->shadow_regs[0x40] = 0x90;
 	         dev->shadow_regs[0x50] = 0x20; */
 	      /* no data compression */
@@ -4296,7 +4296,7 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	      dev->shadow_regs[0x36] = 0x0a;
 	      dev->shadow_regs[0x38] = 0x04;
 
-	      /* data compression 
+	      /* data compression
 	         dev->shadow_regs[0x40] = 0x90;
 	         dev->shadow_regs[0x50] = 0x20; */
 
@@ -4499,8 +4499,8 @@ sanei_lexmark_low_set_scan_regs (Lexmark_Device * dev, SANE_Int resolution,
 	      dev->shadow_regs[0x37] = 0x07;
 	      dev->shadow_regs[0x38] = 0x0b;
 
-	      /* data compression 
-	         dev->shadow_regs[0x40] = 0x90; 
+	      /* data compression
+	         dev->shadow_regs[0x40] = 0x90;
 	         dev->shadow_regs[0x50] = 0x20; */
 	      /* no data compression */
 	      dev->shadow_regs[0x40] = 0x80;
@@ -5471,7 +5471,7 @@ read_buffer_is_empty (Read_Buffer * read_buffer)
   return read_buffer->empty;
 }
 
-/* 
+/*
  * average a width*height rgb/monochrome area
  * return values in given pointers
  */
@@ -5882,7 +5882,7 @@ sanei_lexmark_low_shading_calibration (Lexmark_Device * dev)
 
   /* computes coefficients */
   /* there are 8 lines usable for shading calibration at 150 dpi, between
-     bottom of "home position" dot and the start of the scanner's window 
+     bottom of "home position" dot and the start of the scanner's window
      assembly, we only use 7 of them */
   if (yoffset + (8 * 4) / regs[0x7a] < lines)
     lines = yoffset + (8 * 4) / regs[0x7a];
@@ -6003,7 +6003,7 @@ sanei_lexmark_low_calibration (Lexmark_Device * dev)
 	return status;
     }
 
-  /* put the calibrated or manual settings before shading calibration 
+  /* put the calibrated or manual settings before shading calibration
      which must be done with final setting values */
   if (rts88xx_is_color (dev->shadow_regs))
     {
@@ -6049,7 +6049,7 @@ sanei_lexmark_low_assign_sensor (Lexmark_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
-/* assign model description, based on USB id, and register content when 
+/* assign model description, based on USB id, and register content when
  * available */
 SANE_Status
 sanei_lexmark_low_assign_model (Lexmark_Device * dev,

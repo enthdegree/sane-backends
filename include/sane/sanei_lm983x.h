@@ -4,7 +4,7 @@
    Copyright (C) 2002-2003 Gerhard Jaeger <gerhard@gjaeger.de>
 
    This file is part of the SANE package.
- 
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
@@ -140,7 +140,7 @@ extern SANE_Status sanei_lm983x_read( SANE_Int fd, SANE_Byte reg,
  * Reset the LM983x chip.
  *
  * @param fd    - device file descriptor
- * @return 
+ * @return
  * - SANE_TRUE  - reset successfuly done
  * - SANE_FALSE - reset failed
  */

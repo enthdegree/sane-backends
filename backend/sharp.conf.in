@@ -9,7 +9,7 @@
 # option readqueue: number of queued read requests. This is
 #    with the current SANE version (1.01) only useful for
 #    Linux, since queued read requests are not supported
-#    for other operating systems. 
+#    for other operating systems.
 #
 #    For Linux, a value of 2 is recommended, at least if a
 #    JX-250 is used. Bigger values are only a waste of memory.
@@ -22,8 +22,8 @@
 #
 # option default_scan_source: valid values are "auto", "fsu", "adf"
 #    and "flatbed". For "auto", the backend will enable an ADF or
-#    or FSU, if installed. 
-#    
+#    or FSU, if installed.
+#
 # global options:
 option buffers 4
 option buffersize 131072

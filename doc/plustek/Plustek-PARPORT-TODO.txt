@@ -28,7 +28,7 @@ Genius HR6               negative scanning not okay            none
 
 ********************************* DONE ***************************************
 
-- PS/2 bidi does not work (libieee1284)                          
+- PS/2 bidi does not work (libieee1284)
 - Update the IOCTL interface and remove some old structs (CmdBlk)
 
 ******************************** SKIPPED *************************************

@@ -41,7 +41,7 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x82e, /* DX-6000 */
   0x82f, /* DX-4050 */
   0x838, /* DX-7400 */
-  0				/* last entry - this is used for devices that are specified 
+  0				/* last entry - this is used for devices that are specified
 				   in the config file as "usb <vendor> <product>" */
 };
 

@@ -16,9 +16,9 @@
    along with sane; see the file COPYING.  If not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-   This file implements a simple SANE frontend (well it rather is a 
-   transport layer, but seen from libsane it is a frontend) which acts 
-   as a NETSANE server. The NETSANE specifications should have come 
+   This file implements a simple SANE frontend (well it rather is a
+   transport layer, but seen from libsane it is a frontend) which acts
+   as a NETSANE server. The NETSANE specifications should have come
    with this package.
    Feel free to enhance this program ! It needs extension especially
    regarding crypto-support and authentication.

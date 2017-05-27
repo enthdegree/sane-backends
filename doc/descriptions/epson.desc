@@ -316,10 +316,10 @@
 :usbid "0x04b8" "0x082b"
 :status :good
 
-:model "DX-6000" 
-:interface "USB" 
-:usbid "0x04b8" "0x082e" 
-:status :good 
+:model "DX-6000"
+:interface "USB"
+:usbid "0x04b8" "0x082e"
+:status :good
 
 :model "DX-7400"
 :interface "USB"

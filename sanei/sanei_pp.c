@@ -38,7 +38,7 @@
  *
  * If you write modifications of your own for SANE, it is your choice
  * whether to permit this exception to apply to your modifications.
- * If you do not wish that, delete this exception notice. 
+ * If you do not wish that, delete this exception notice.
  *
  * This file implements an interface for accessing the parallelport
  */
@@ -50,7 +50,7 @@
  * 3 - things nice to know
  * 4 - code flow
  * 5 - detailed flow
- * 6 - everything 
+ * 6 - everything
  *
  * These debug levels can be set using the environment variable
  * SANE_DEBUG_SANEI_PP
@@ -156,7 +156,7 @@ static unsigned long pp_thresh  = 0;
 #if (defined (HAVE_IOPERM) || defined (HAVE_LIBIEEE1284)) && !defined (IO_SUPPORT_MISSING)
 
 typedef struct {
-	
+
 #ifndef HAVE_LIBIEEE1284
 	const char name[6];
 	u_long     base;        /**< i/o base address                */
@@ -166,7 +166,7 @@ typedef struct {
 
 	u_int in_use;           /**< port in use?      */
 	u_int claimed;          /**< port claimed?     */
-	
+
 	int caps;               /**< port capabilities */
 
 } PortRec, *Port;
@@ -181,8 +181,8 @@ static PortRec              port[_MAX_PORTS];
 /** redefine the CAPability flags */
 enum ieee1284_capabilities
 {
-	CAP1284_RAW    = (1<<0), 
-	CAP1284_NIBBLE = (1<<1), /* SPP mode             */ 
+	CAP1284_RAW    = (1<<0),
+	CAP1284_NIBBLE = (1<<1), /* SPP mode             */
 	CAP1284_BYTE   = (1<<2), /* PS/2 bidirectional   */
 	CAP1284_COMPAT = (1<<3),
 	CAP1284_BECP   = (1<<4),
@@ -315,12 +315,12 @@ pp_showcaps( int caps )
 	char ct[1024];
 
     ct[0] = '\0';
-	
+
 	if( caps & CAP1284_NIBBLE ) {
 		strcat( ct, "SPP " );
 		mode |= SANEI_PP_MODE_SPP;
 	}
-		
+
 	if( caps & CAP1284_BYTE ) {
 		strcat( ct, "PS/2 " );
 		mode |= SANEI_PP_MODE_BIDI;
@@ -330,7 +330,7 @@ pp_showcaps( int caps )
 		strcat( ct, "EPP " );
 		mode |= SANEI_PP_MODE_EPP;
 	}
-	
+
 	if( caps &  CAP1284_EPPSWE ) {
 		strcat( ct, "EPPSWE " );
 		mode |= SANEI_PP_MODE_EPP;
@@ -357,13 +357,13 @@ pp_showcaps( int caps )
 static int
 pp_probe( int fd )
 {
-#ifdef HAVE_IOPL 
+#ifdef HAVE_IOPL
 	SANE_Byte c;
 	int       i, j;
 #endif
 	SANE_Byte a, b;
 	int       retv = 0;
-    
+
 	DBG( 4, "pp_probe: port 0x%04lx\n", port[fd].base );
 
 	/* SPP check */
@@ -383,7 +383,7 @@ pp_probe( int fd )
 #ifdef HAVE_IOPL
 
 	/* clear at most 1k of data from FIFO */
-	for( i = 1024; i > 0; i-- ) { 
+	for( i = 1024; i > 0; i-- ) {
 		a = inbyte402( fd );
 		if ((a & 0x03) == 0x03)
 			goto no_ecp;
@@ -428,7 +428,7 @@ pp_probe( int fd )
     	DBG( 4, "pp_probe: ECP with a %i byte FIFO present\n", i );
 		retv += CAP1284_ECP;
     }
-    
+
 no_ecp:
 #endif
 	/* check for PS/2 compatible port */
@@ -522,7 +522,7 @@ static int pp_set_scpmode( int fd )
 {
 	SANE_Byte tmp;
 	DBG( 4, "pp_set_scpmode\n" );
-	
+
 #ifdef HAVE_IOPL
 	tmp  = inbyte402( fd );
 	tmp &= 0x1f;
@@ -531,7 +531,7 @@ static int pp_set_scpmode( int fd )
 	tmp  = inb_ctrl( fd );
 	tmp &= 0x0f;
 	outb_ctrl ( fd, tmp );
-	
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -547,7 +547,7 @@ static int pp_set_bidimode( int fd )
 	tmp = inb_ctrl( fd );
 	tmp = (tmp & 0x0f) | 0x20;
 	outb_ctrl ( fd, tmp );
-	
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -563,7 +563,7 @@ static int pp_set_eppmode( int fd )
 	tmp = inb_ctrl( fd );
 	tmp = (tmp & 0xf0) | 0x40;
 	outb_ctrl ( fd, tmp );
-	
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -572,7 +572,7 @@ static int pp_set_ecpmode( int fd )
 #ifdef HAVE_IOPL
 	SANE_Byte tmp;
 #endif
-	
+
 	DBG( 4, "pp_set_ecpmode\n" );
 #ifdef HAVE_IOPL
 	tmp = inbyte402( fd );
@@ -594,7 +594,7 @@ pp_setmode( int fd, int mode )
 		DBG( 2, "pp_setmode: mode not supported %d\n", mode );
 		return SANE_STATUS_UNSUPPORTED;
 	}
-	
+
 	switch( mode ) {
 		case SANEI_PP_MODE_SPP:  ret = pp_set_scpmode( fd );  break;
 		case SANEI_PP_MODE_BIDI: ret = pp_set_bidimode( fd ); break;
@@ -715,13 +715,13 @@ pp_init( void )
 	}
 
 	DBG( 3, "pp_init: %d ports reported by IEEE 1284 library\n", pplist.portc);
-  
+
 	for( i = 0; i < pplist.portc; i++ )
 		DBG( 6, "pp_init: port %d is `%s`\n", i, pplist.portv[i]->name);
 
 	/* we support only up to _MAX_PORTS... */
 	if( pplist.portc > _MAX_PORTS ) {
-		DBG (1, "pp_init: Lib IEEE 1284 reports too much ports: %d\n", 
+		DBG (1, "pp_init: Lib IEEE 1284 reports too much ports: %d\n",
 		        pplist.portc );
 
 		ieee1284_free_ports( &pplist );
@@ -759,7 +759,7 @@ pp_open( const char *dev, SANE_Status * status )
 #else
 	int result;
 #endif
-  
+
 	DBG( 4, "pp_open: trying to attach dev `%s`\n", dev );
 
 #if !defined (HAVE_LIBIEEE1284)
@@ -853,7 +853,7 @@ pp_open( const char *dev, SANE_Status * status )
 	/* TODO: insert FreeBSD compatible code here */
 
 	if( ioperm( port[i].base, 5, 1 )) {
-		DBG( 1, "pp_open: cannot get io privilege for port 0x%03lx\n", 
+		DBG( 1, "pp_open: cannot get io privilege for port 0x%03lx\n",
 				port[i].base);
 
 		port[i].in_use = SANE_FALSE;
@@ -867,7 +867,7 @@ pp_open( const char *dev, SANE_Status * status )
 	port[i].ecp_ctrl = inbyte402(i);
 	port[i].ctrl     = inb_ctrl(i);
 #endif
-	
+
 	/* check the capabilities of this port */
 	port[i].caps = pp_probe( i );
 #endif
@@ -908,7 +908,7 @@ pp_close( int fd, SANE_Status *status )
 	if( ioperm( port[fd].base, 5, 0 )) {
 #endif
 #if defined(HAVE_LIBIEEE1284)
-		DBG( 1, "pp_close: can't free port '%s' (%s)\n", 
+		DBG( 1, "pp_close: can't free port '%s' (%s)\n",
 				pplist.portv[fd]->name, pp_libieee1284_errorstr(result));
 #else
 		DBG( 1, "pp_close: can't free port 0x%03lx\n", port[fd].base );
@@ -930,7 +930,7 @@ SANE_Status
 sanei_pp_init( void )
 {
 	SANE_Status result;
-	
+
 	DBG_INIT();
 
 	result = pp_init();
@@ -1008,7 +1008,7 @@ sanei_pp_claim( int fd )
 		DBG( 2, "sanei_pp_claim: fd %d is invalid\n", fd );
 		return SANE_STATUS_INVAL;
 	}
-	
+
 	result = ieee1284_claim (pplist.portv[fd]);
 	if (result) {
 		DBG (1, "sanei_pp_claim: failed (%s)\n",
@@ -1018,7 +1018,7 @@ sanei_pp_claim( int fd )
 #endif
 
 	port[fd].claimed = SANE_TRUE;
-	
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -1032,11 +1032,11 @@ sanei_pp_release( int fd )
 		DBG( 2, "sanei_pp_release: fd %d is invalid\n", fd );
 		return SANE_STATUS_INVAL;
 	}
-		
+
 	ieee1284_release( pplist.portv[fd] );
 #endif
 	port[fd].claimed = SANE_FALSE;
-	
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -1121,7 +1121,7 @@ sanei_pp_inb_data( int fd )
 {
 #ifdef _PARANOIA
 	DBG( 4, "sanei_pp_inb_data: called for fd %d\n", fd );
-	
+
 #if defined(HAVE_LIBIEEE1284)
 	if ((fd < 0) || (fd >= pplist.portc)) {
 #else
@@ -1139,7 +1139,7 @@ sanei_pp_inb_stat( int fd )
 {
 #ifdef _PARANOIA
 	DBG( 4, "sanei_pp_inb_stat: called for fd %d\n", fd );
-	
+
 #if defined(HAVE_LIBIEEE1284)
 	if ((fd < 0) || (fd >= pplist.portc)) {
 #else
@@ -1174,7 +1174,7 @@ sanei_pp_inb_epp( int fd )
 {
 #ifdef _PARANOIA
 	DBG( 4, "sanei_pp_inb_epp: called for fd %d\n", fd );
-	
+
 #if defined(HAVE_LIBIEEE1284)
 	if ((fd < 0) || (fd >= pplist.portc)) {
 #else
@@ -1224,7 +1224,7 @@ sanei_pp_setmode( int fd, int mode )
 		DBG( 2, "sanei_pp_setmode: invalid mode %d\n", mode );
 		return SANE_STATUS_INVAL;
 	}
-	
+
 #if defined(HAVE_LIBIEEE1284)
 	switch( mode ) {
 		case SANEI_PP_MODE_SPP:  mode = M1284_NIBBLE; break;
@@ -1267,7 +1267,7 @@ sanei_pp_udelay( unsigned long usec )
 
 	if( usec < pp_thresh )
 		return;
-	
+
 	do {
 		gettimeofday( &now, NULL );
 	} while ((now.tv_sec < deadline.tv_sec) ||

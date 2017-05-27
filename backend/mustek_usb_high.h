@@ -43,7 +43,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for Mustek 1200UB and similar 
+   This file implements a SANE backend for Mustek 1200UB and similar
    USB flatbed scanners.  */
 
 #ifndef mustek_usb_high_h
@@ -333,7 +333,7 @@ typedef struct Mustek_Usb_Scanner
   double tl_y;
   double width;
   double height;
-  /* scan window in dots (at current resolution): 
+  /* scan window in dots (at current resolution):
      top left x+y and width+height */
   SANE_Int tl_x_dots;
   SANE_Int tl_y_dots;

@@ -7,7 +7,7 @@
    Parts copyright (C) 2006 Patrick Lessard
 
    This file is part of the SANE package.
- 
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
@@ -66,7 +66,7 @@
 #include <sys/ioctl.h>
 #include <math.h>
 
-/* 
+/*
  * The backend performs test scans in order to calibrate
  * the CCD and to find the zero location. If you would like
  * to look at those scans, define DEBUG_CALIBRATION to have

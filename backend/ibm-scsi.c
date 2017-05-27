@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice. */
 
-/* 
+/*
 */
 
 #include <time.h>
@@ -62,7 +62,7 @@
 /* for object_position command */
 #define OBJECT_POSITION_UNLOAD 0
 #define OBJECT_POSITION_LOAD   1
-   
+
 struct scsi_window_cmd {
         SANE_Byte opcode;
         SANE_Byte byte2;
@@ -162,7 +162,7 @@ inquiry (int fd, void *buf, size_t  * buf_size)
 
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = IBM_SCSI_INQUIRY;
-  cmd[4] = *buf_size;  
+  cmd[4] = *buf_size;
   status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), buf, buf_size);
 
   DBG (11, "<< inquiry\n");
@@ -266,7 +266,7 @@ set_window (int fd, struct ibm_window_data *iwd)
 static SANE_Status
 get_window (int fd, struct ibm_window_data *iwd)
 {
- 
+
   static struct scsi_window_cmd cmd;
   static size_t iwd_size;
   SANE_Status status;
@@ -343,7 +343,7 @@ get_data_status (int fd, struct scsi_status_desc *dbs)
   status = sanei_scsi_cmd (fd, &cmd, sizeof (cmd), &ssd, &ssd_size);
 
   memcpy (dbs, &ssd.desc, sizeof(*dbs));
-  if (status == SANE_STATUS_GOOD && 
+  if (status == SANE_STATUS_GOOD &&
       ((unsigned int) _3btol(ssd.len) <= sizeof(*dbs) || _3btol(ssd.desc.filled) == 0)) {
     DBG (11, "get_data_status: busy\n");
     status = SANE_STATUS_DEVICE_BUSY;

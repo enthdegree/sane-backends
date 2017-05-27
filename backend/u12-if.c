@@ -68,7 +68,7 @@ typedef struct {
 
 #define _PLUSTEK_VENID 0x07B3
 #define _KYE_VENID     0x0458
-  
+
 /** to allow different vendors...
  */
 static TabDef u12Vendors[] = {
@@ -148,7 +148,7 @@ static void u12if_shutdown( U12_Device *dev  )
 	DBG( _DBG_INFO, "Shutdown called (dev->fd=%d, %s)\n",
 													dev->fd, dev->sane.name );
 	if( SANE_STATUS_GOOD == sanei_usb_open( dev->sane.name, &handle )) {
-		
+
     	dev->fd = handle;
 		u12io_OpenScanPath( dev );
 
@@ -234,7 +234,7 @@ static SANE_Bool usbDev_autodetect( SANE_Word *vendor, SANE_Word *product )
 {
 	int       i;
 	SANE_Word p, v;
-	
+
 	DBG( _DBG_INFO, "Autodetection...\n" );
 
 	for( i = 0; NULL != u12Devices[i].name; i++ ) {
@@ -310,7 +310,7 @@ static int u12if_open( U12_Device *dev )
          */
 		free( dev->name );
 		dev->name      = strdup( USB_devname );
-		dev->sane.name = dev->name; 
+		dev->sane.name = dev->name;
 
 	} else {
 
@@ -329,7 +329,7 @@ static int u12if_open( U12_Device *dev )
 		DBG(_DBG_INFO,"Vendor ID=0x%04X, Product ID=0x%04X\n",vendor,product);
 
 		if( dev->usbId[0] != '\0' ) {
-		
+
 			if( 0 != strcmp( dev->usbId, devStr )) {
 				DBG( _DBG_ERROR, "Specified Vendor and Product ID "
 								 "doesn't match with the ones\n"
@@ -340,7 +340,7 @@ static int u12if_open( U12_Device *dev )
 		} else {
 			sprintf( dev->usbId, "0x%04X-0x%04X", vendor, product );
 			was_empty = SANE_TRUE;
-		}			
+		}
 
 	} else {
 
@@ -397,7 +397,7 @@ static int u12if_open( U12_Device *dev )
 		if( dev->Tpa )
 			dev->sane.model = "UT12";
 	}
-	
+
 	dev->initialized = SANE_TRUE;
 	return handle;
 }
@@ -413,7 +413,7 @@ static int u12if_close( U12_Device *dev )
     return 0;
 }
 
-/** 
+/**
  */
 static SANE_Status u12if_getCaps( U12_Device *dev )
 {
@@ -459,7 +459,7 @@ static SANE_Status u12if_getCaps( U12_Device *dev )
 		dev->res_list_size++;
 		dev->res_list[dev->res_list_size - 1] = (SANE_Int)cntr;
 	}
-	
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -500,7 +500,7 @@ static SANE_Status u12if_stopScan( U12_Device *dev )
 static SANE_Status u12if_prepare( U12_Device *dev )
 {
 	SANE_Status res;
-	
+
 	DBG( _DBG_INFO, "u12if_prepare()\n" );
 
 	u12motor_ToHomePosition( dev, SANE_TRUE );
@@ -514,11 +514,11 @@ static SANE_Status u12if_prepare( U12_Device *dev )
 		return res;
 
 	u12image_PrepareScaling( dev );
-                           
+
 	u12motor_ForceToLeaveHomePos( dev );
 	if( dev->DataInf.dwScanFlag & _SCANDEF_PREVIEW )
 		u12hw_SetupPreviewCondition( dev );
-	else	
+	else
 		u12hw_SetupScanningCondition( dev );
 
 	res = u12motor_WaitForPositionY( dev );

@@ -123,7 +123,7 @@ sanei_rts88xx_set_scan_frequency (SANE_Byte * regs, int frequency)
 }
 
 /*
- * read one register at given index 
+ * read one register at given index
  */
 SANE_Status
 sanei_rts88xx_read_reg (SANE_Int devnum, SANE_Int index, SANE_Byte * reg)
@@ -153,7 +153,7 @@ sanei_rts88xx_read_reg (SANE_Int devnum, SANE_Int index, SANE_Byte * reg)
 }
 
 /*
- * write one register at given index 
+ * write one register at given index
  */
 SANE_Status
 sanei_rts88xx_write_reg (SANE_Int devnum, SANE_Int index, SANE_Byte * reg)
@@ -200,7 +200,7 @@ sanei_rts88xx_write_regs (SANE_Int devnum, SANE_Int start,
            start, length, message);
     }
 
-  /* when writing several registers at a time, we avoid writing the 0xb3 register 
+  /* when writing several registers at a time, we avoid writing the 0xb3 register
    * which is used to control the status of the scanner */
   if ((start + length > 0xb3) && (length > 1))
     {
@@ -297,7 +297,7 @@ sanei_rts88xx_read_regs (SANE_Int devnum, SANE_Int start,
 }
 
 /*
- * get status by reading registers 0x10 and 0x11 
+ * get status by reading registers 0x10 and 0x11
  */
 SANE_Status
 sanei_rts88xx_get_status (SANE_Int devnum, SANE_Byte * regs)
@@ -310,7 +310,7 @@ sanei_rts88xx_get_status (SANE_Int devnum, SANE_Byte * regs)
 }
 
 /*
- * set status by writing registers 0x10 and 0x11 
+ * set status by writing registers 0x10 and 0x11
  */
 SANE_Status
 sanei_rts88xx_set_status (SANE_Int devnum, SANE_Byte * regs,
@@ -394,7 +394,7 @@ sanei_rts88xx_reset_lamp (SANE_Int devnum, SANE_Byte * regs)
            "sanei_rts88xx_reset_lamp: expected reg[0xda]=0xa7, got 0x%02x\n",
            reg);
     }
-  
+
   /* store read value in shadow register */
   regs[0xda] = reg;
 
@@ -415,7 +415,7 @@ sanei_rts88xx_get_lcd (SANE_Int devnum, SANE_Byte * regs)
 }
 
 /*
- * write to special control register CONTROL_REG=0xb3 
+ * write to special control register CONTROL_REG=0xb3
  */
 SANE_Status
 sanei_rts88xx_write_control (SANE_Int devnum, SANE_Byte value)

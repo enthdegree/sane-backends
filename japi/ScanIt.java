@@ -156,7 +156,7 @@ public class ScanIt implements ImageProducer
 	 */
     public synchronized void removeConsumer(ImageConsumer ic)
 	{ consumers.removeElement(ic); }
-    	
+
 	/*
 	 *	Add a consumer and start scanning.
 	 */
@@ -224,7 +224,7 @@ public class ScanIt implements ImageProducer
 					// Single frame.
 		for (i = 0; i < readLen; ++i)
 			{		// Doing a single color frame.
-			image[offset + i] |= 
+			image[offset + i] |=
 				(((int) data[i]) & 0xff) << (8*cindex);
 			++x;
 			if (x >= width)
@@ -235,7 +235,7 @@ public class ScanIt implements ImageProducer
 		for (i = 0; i < readLen; ++i)
 			{
 			int b = 2 - (offset + i)%3;
-			image[(offset + i)/3] |= 
+			image[(offset + i)/3] |=
 				(((int) data[i]) & 0xff) << (8*b);
 			if (b == 0)
 				{
@@ -261,7 +261,7 @@ public class ScanIt implements ImageProducer
 	offset += readLen;		// Update where we are.
 					// Show it.
 	System.out.println("PrevY = " + prevY + ", y = " + y);
-//	tellPixels(0, prevY, width, y - prevY);	
+//	tellPixels(0, prevY, width, y - prevY);
 	tellPixels(0, 0, width, height);
 	return true;
 	}
@@ -289,7 +289,7 @@ public class ScanIt implements ImageProducer
 		status = sane.start(handle);
 		if (status != Sane.STATUS_GOOD)
 			{
-			System.out.println("start() failed.  Status= " 
+			System.out.println("start() failed.  Status= "
 								+ status);
 			tellStatus(ImageConsumer.IMAGEERROR);
 			return;
@@ -297,7 +297,7 @@ public class ScanIt implements ImageProducer
 		status = sane.getParameters(handle, parms);
 		if (status != Sane.STATUS_GOOD)
 			{
-			System.out.println("getParameters() failed.  Status= " 
+			System.out.println("getParameters() failed.  Status= "
 								+ status);
 			tellStatus(ImageConsumer.IMAGEERROR);
 			return;	//++++cleanup.
@@ -342,7 +342,7 @@ public class ScanIt implements ImageProducer
 		catch (IOException e)
 			{	//+++++++++++++++
 			System.out.println("I/O error writing file.");
-			}	
+			}
 		outputFile = null;	// Clear for next time.
 		}
 	tellStatus(ImageConsumer.STATICIMAGEDONE);
@@ -364,7 +364,7 @@ public class ScanIt implements ImageProducer
 	case SaneParameters.FRAME_GREEN:
 	case SaneParameters.FRAME_BLUE:
 	case SaneParameters.FRAME_RGB:
-		pout.print("P6\n# SANE data follows\n" + 
+		pout.print("P6\n# SANE data follows\n" +
 			width + ' ' + height + "\n255\n");
 		for (i = 0; i < len; i++)
 			{

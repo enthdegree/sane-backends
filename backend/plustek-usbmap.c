@@ -75,7 +75,7 @@ static void usb_MapAdjust( Plustek_Device *dev )
 {
 	int    i, tabLen;
 	double b, c, tmp;
-	
+
 	tabLen = _MAP_SIZE;
 
 	/* adjust brightness (b) and contrast (c) using the function:
@@ -125,11 +125,11 @@ static SANE_Bool usb_MapDownload( Plustek_Device *dev )
 	int       i, threshold;
 	SANE_Byte value;
 	SANE_Bool fInverse = 0;
-	
+
 	DBG( _DBG_INFO, "usb_MapDownload()\n" );
 
 	/* the maps are have been already set */
-	
+
 	/* do the brightness and contrast adjustment ... */
 	if( scanning->sParam.bDataType != SCANDATATYPE_BW )
 		usb_MapAdjust( dev );
@@ -141,7 +141,7 @@ static SANE_Bool usb_MapDownload( Plustek_Device *dev )
 	 * into trouble elsewhere on CanoScan models using gray mode
 	 */
 	for( color = 0; color < 3; color++) {
-	
+
 		/* select color */
 		value = (color << 2)+2;
 
@@ -161,13 +161,13 @@ static SANE_Bool usb_MapDownload( Plustek_Device *dev )
 				threshold = 0;
 			if(threshold > (int)_MAP_SIZE)
 				threshold = _MAP_SIZE;
-	
+
 			DBG(_DBG_INFO, "* Threshold is at %u brightness=%i\n",
 			               threshold, scanning->sParam.brightness );
 
 			for(i = 0; i < threshold; i++)
 				a_bMap[color*_MAP_SIZE + i] = 0;
-				
+
 			for(i = threshold; i < _MAP_SIZE; i++)
 				a_bMap[color*_MAP_SIZE + i] = 255;
 
@@ -184,23 +184,23 @@ static SANE_Bool usb_MapDownload( Plustek_Device *dev )
 		}
 
 		if( fInverse ) {
-		
+
 			u_char  map[_MAP_SIZE];
 			u_char *pMap = a_bMap+color*_MAP_SIZE;
-			
+
 			DBG( _DBG_INFO, "* Inverting Map\n" );
-			
+
 			for( i = 0; i < _MAP_SIZE; i++, pMap++ )
 				map[i] = ~*pMap;
-			
+
 			sanei_lm983x_write( dev->fd,  0x06, map, _MAP_SIZE, SANE_FALSE );
-			
+
 		} else {
 			DBG( _DBG_INFO, "* downloading map %u...\n", color );
 			sanei_lm983x_write( dev->fd, 0x06, a_bMap+color*_MAP_SIZE,
 			                    _MAP_SIZE, SANE_FALSE );
 		}
-	
+
 	} /* for each color */
 
 	DBG( _DBG_INFO, "usb_MapDownload() done.\n" );

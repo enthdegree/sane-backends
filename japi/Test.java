@@ -81,7 +81,7 @@ public static void main(String[] args)
 	status = sane.getControlOption(handle[0], 0, numDevOptions, null);
 	if (status != Sane.STATUS_GOOD)
 		{
-		System.out.println("controlOption() failed.  Status= " 
+		System.out.println("controlOption() failed.  Status= "
 								+ status);
 		return;
 		}
@@ -101,7 +101,7 @@ public static void main(String[] args)
 		switch (opt.constraintType)
 			{
 		case SaneOption.CONSTRAINT_RANGE:
-			System.out.println("Range:  " + 
+			System.out.println("Range:  " +
 				opt.rangeConstraint.min + ", " +
 				opt.rangeConstraint.max + ", " +
 				opt.rangeConstraint.quant);
@@ -123,11 +123,11 @@ public static void main(String[] args)
 			break;
 			}
 		}
-	status = sane.setControlOption(handle[0], 2, 
+	status = sane.setControlOption(handle[0], 2,
 			SaneOption.ACTION_SET_VALUE, "../test1.pnm", null);
 	if (status != Sane.STATUS_GOOD)
 		{
-		System.out.println("setControlOption() failed.  Status= " 
+		System.out.println("setControlOption() failed.  Status= "
 								+ status);
 		}
 	//
@@ -145,14 +145,14 @@ public static void main(String[] args)
 		status = sane.start(handle[0]);
 		if (status != Sane.STATUS_GOOD)
 			{
-			System.out.println("start() failed.  Status= " 
+			System.out.println("start() failed.  Status= "
 								+ status);
 			return;
 			}
 		status = sane.getParameters(handle[0], parm);
 		if (status != Sane.STATUS_GOOD)
 			{
-			System.out.println("getParameters() failed.  Status= " 
+			System.out.println("getParameters() failed.  Status= "
 								+ status);
 			return;	//++++cleanup.
 			}

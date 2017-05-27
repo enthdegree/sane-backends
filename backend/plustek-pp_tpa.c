@@ -104,7 +104,7 @@ static void tpaP98SubNoise( pScanData ps, pULong pdwSum, pUShort pwShading,
 
 		for (dwLines = _DEF_DARKEST_SKIP; dwLines--; pw += 5400UL)
 		    dwSum += (ULong) *pw;
-	
+
 		*pwShading = (UShort)((*pdwSum - dwSum) / ps->Shade.dwDiv);
     }
     if (ps->dwShadingPixels != 5400UL) {
@@ -247,7 +247,7 @@ static void tpaP98GetNegativeTempRamData( pScanData ps )
 		pNegativeTempRam[dw] = (UShort)((pdwNegativeSumTemp[dw1] +
 										 pdwNegativeSumTemp[dw1+1] +
 										 pdwNegativeSumTemp[dw1+2] +
-										 pdwNegativeSumTemp[dw1+3]) / 128);	
+										 pdwNegativeSumTemp[dw1+3]) / 128);
 				/* shift 6 bits */
 	}
 
@@ -259,7 +259,7 @@ static void tpaP98GetNegativeTempRamData( pScanData ps )
 	}
 
 	/* do R shading average */
-    for (dw = 0; dw < 240; dw++, dw1 += 4) {	
+    for (dw = 0; dw < 240; dw++, dw1 += 4) {
 		pNegativeTempRam2[dw] = (UShort)(
 								 (((pUShort)ps->pScanBuffer1)[dw1] +
 								  ((pUShort)ps->pScanBuffer1)[dw1+1] +

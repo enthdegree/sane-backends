@@ -62,7 +62,7 @@
 #include "plustek-pp_scan.h"
 
 /* toggled by your kernel configuration */
-#ifdef CONFIG_PROC_FS	
+#ifdef CONFIG_PROC_FS
 
 /****************************** static vars **********************************/
 
@@ -197,7 +197,7 @@ static int procfsInfoReadProc( char *buf, char **start, off_t offset,
 					    MiscGetModelName(ps->sCaps.Model));
 		len += sprintf( buf+len, "Portaddress : 0x%X\n", ps->IO.portBase );
 		len += sprintf( buf+len, "Portmode    : %s (%s I/O, %s)\n",
-					    procfsGetMode(ps->IO.portMode), 
+					    procfsGetMode(ps->IO.portMode),
 						(ps->IO.slowIO == _TRUE?"delayed":"fast"),
                         (ps->IO.forceMode == 0?"autodetect":"forced"));
 		len += sprintf( buf+len, "Buttons     : %u\n",  ps->Device.buttons);
@@ -278,7 +278,7 @@ static struct proc_dir_entry *new_entry( const char *name, mode_t mode,
 	/* position pointer of name to end of the structure*/
 	ent->name = ((char *) ent) + sizeof(*ent);
 	strcpy((char *)ent->name, name );
-	
+
 	ent->namelen = strlen(name);
 	ent->mode    = mode;
 
@@ -310,7 +310,7 @@ static inline void destroy_proc_entry( struct proc_dir_entry *root,
 	kfree(*d);
 #else
 	DBG(DBG_HIGH, "pt_drv: proc del '%s' root='%s'\n", (*d)->name, root->name);
-	
+
 	remove_proc_entry((*d)->name, root );
 #endif
 
@@ -407,7 +407,7 @@ void ProcFsRegisterDevice( pScanData ps )
 	memset( &ps->procDir, 0, sizeof(ProcDirDef));
 
 	sprintf( str, "device%u", ps->devno );
-	
+
 	ps->procDir.entry = new_entry( str, S_IFDIR, base );
 	if( NULL == ps->procDir.entry )
 		goto error_exit;

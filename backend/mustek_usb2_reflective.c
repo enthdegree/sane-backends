@@ -42,7 +42,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro 
+   This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro
    and similar USB2 scanners. */
 
 /* forward declarations */
@@ -63,11 +63,11 @@ static SANE_Bool Reflective_PrepareScan (void);
 
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
-Routine Description: 
+Routine Description:
 	reset the scanner status
 Parameters:
 	none
-Return value: 
+Return value:
 	if operation is success
 	return TRUE
 	els
@@ -140,12 +140,12 @@ Reflective_Reset ()
 
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
-Routine Description: 
+Routine Description:
 	get the suggest parameter of scaning
 Parameters:
 	pTarget: the information of scaning
 	pSuggest: suggest parameter of scaning
-Return value: 
+Return value:
 	if the operation is success
 	return TRUE
 	els
@@ -341,7 +341,7 @@ Reflective_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
-Routine Description: 
+Routine Description:
 	setup scanning process
 Parameters:
 	ColorMode: ScanMode of Scanning, CM_RGB48, CM_GRAY and so on
@@ -352,7 +352,7 @@ Parameters:
 	Y: Y start coordinate
 	Width: Width of Scan Image
 	Height: Height of Scan Image
-Return value: 
+Return value:
 	if the operation is success
 	return TRUE
 	else
@@ -567,11 +567,11 @@ Reflective_SetupScan (COLORMODE ColorMode,
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/13
-Routine Description: 
+Routine Description:
 	To adjust the value of offset gain of R/G/B
 Parameters:
 	none
-Return value: 
+Return value:
 	if operation is success
 	return TRUE
 	else
@@ -1102,7 +1102,7 @@ Reflective_AdjustAD ()
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/14
-Routine Description: 
+Routine Description:
 	Find top and left side
 Parameters:
 	lpwStartX: the left side
@@ -1284,11 +1284,11 @@ Reflective_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/14
-Routine Description: 
+Routine Description:
 	Stop scan
 Parameters:
 	none
-Return value: 
+Return value:
 	if operation is success
 	return TRUE
 	else
@@ -1329,11 +1329,11 @@ Reflective_StopScan ()
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/15
-Routine Description: 
+Routine Description:
 	Get the calibration data
 Parameters:
 	none
-Return value: 
+Return value:
 	if the operation is success
 	return TRUE
 	else
@@ -1749,11 +1749,11 @@ Reflective_LineCalibration16Bits ()
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/14
-Routine Description: 
+Routine Description:
 	Prepare scan image
 Parameters:
 	none
-Return value: 
+Return value:
 	if operation is success
 	return TRUE
 	else
@@ -1870,7 +1870,7 @@ Reflective_PrepareScan ()
 
 /**********************************************************************
 Author: Jack             Date: 2005/05/15
-Routine Description: 
+Routine Description:
 	Get the data of image
 Parameters:
 	lpBlock: the data of image

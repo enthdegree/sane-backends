@@ -6,7 +6,7 @@
 :url "mailto:peter@fales-lorenz.net"   ; backend's web page
 
 :devicetype :stillcam           ; start of a list of devices....
- 
+
 :mfg "Kodak"
 :url "http://www.kodak.com/global/en/service/digCam/dc210/dc210.shtml"
 :model "DC210"

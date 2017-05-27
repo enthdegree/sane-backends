@@ -121,7 +121,7 @@ static void p12InitiateComponentModel( pScanData ps )
 
 	case _SCANNER5Button:
     	DBG( DBG_LOW, "Scanner has 5 Buttons\n" );
-	    ps->Device.dwModelOriginY = 64 + 20;	
+	    ps->Device.dwModelOriginY = 64 + 20;
 	    p12ButtonSetup( ps, 5 );
 	    break;
 
@@ -153,7 +153,7 @@ static void p12InitiateComponentModel( pScanData ps )
 	case _SCANNER2Button:
     	DBG( DBG_LOW, "Scanner has 2 Buttons\n" );
     	DBG( DBG_LOW, "Seems we have a Genius Colorpage Vivid III V2\n" );
-	    ps->Device.dwModelOriginY = 64 - 33;	
+	    ps->Device.dwModelOriginY = 64 - 33;
 	    p12ButtonSetup( ps, 2 );
         ps->sCaps.Model = MODEL_GEN_CPV2;
 	    break;
@@ -232,7 +232,7 @@ static void p12SetupScanningCondition( pScanData ps )
     ps->Scan.dwMaxReadFifo += (ps->DataInf.dwAsicBytesPerPlane / 2);
 
 
-	DBG( DBG_LOW, "MinReadFifo=%u, MaxReadFifo=%u\n",	
+	DBG( DBG_LOW, "MinReadFifo=%u, MaxReadFifo=%u\n",
          ps->Scan.dwMinReadFifo, ps->Scan.dwMaxReadFifo );
 
     /* ------- Set the max. read fifo to asic ------- */
@@ -260,7 +260,7 @@ static void p12SetupScanningCondition( pScanData ps )
         		    channel = _GREEN_FULLSIZE << 16;
 		            ps->AsicReg.RD_BufFullSize = _SIZE_GREENFIFO;
         		}
-		
+
                 lGreen = (ULong)(-lGreen * ps->DataInf.dwAsicBytesPerPlane);
 
         		if(  ps->DataInf.wPhyDataType > COLOR_TRUE24 )
@@ -434,7 +434,7 @@ static void p12ProgramCCD( pScanData ps)
     DBG( DBG_IO, " %u regs * %u (intermediate)\n",
                     ps->Device.wNumCCDRegs, ps->Shade.bIntermediate );
 
-    rp = ps->Device.pCCDRegisters +	
+    rp = ps->Device.pCCDRegisters +
          (ULong)ps->Device.wNumCCDRegs * ps->Shade.bIntermediate;
 
     for( w = ps->Device.wNumCCDRegs; w--; rp++ ) {

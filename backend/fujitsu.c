@@ -107,7 +107,7 @@
          - removed SP15 code
          - sane_open actually opens the device you request
       v11 2003-06-11, MAN
-         - fixed bug in that code when a scanner is disconnected 
+         - fixed bug in that code when a scanner is disconnected
       v12 2003-10-06, MAN
          - added code to support color modes of more recent scanners
       v13 2003-11-07, OS
@@ -136,7 +136,7 @@
       v19 2004-06-28, MAN
          - 4220 use model code not strcmp (stan a t saticed.me.uk)
       v20 2004-08-24, OS
-         - bugfix: 3091 did not work since 15.12.2003 
+         - bugfix: 3091 did not work since 15.12.2003
          - M4099 supported (bw only)
       v21 2006-05-01, MAN
          - Complete rewrite, half code size
@@ -264,7 +264,7 @@
          - change window_gamma determination
          - add fi-5650C usb id and color mode
       v48 2007-04-16, MAN
-         - re-enable brightness/contrast for built-in models 
+         - re-enable brightness/contrast for built-in models
       v49 2007-06-28, MAN
          - add fi-5750C usb id and color mode
       v50 2007-07-10, MAN
@@ -617,7 +617,7 @@
    . . - sane_start() : start image acquisition
    . .   - sane_get_parameters() : returns actual scan parameters
    . .   - sane_read() : read image data (from pipe)
-   . . (sane_read called multiple times; after sane_read returns EOF, 
+   . . (sane_read called multiple times; after sane_read returns EOF,
    . . loop may continue with sane_start which may return a 2nd page
    . . when doing duplex scans, or load the next page from the ADF)
    . .
@@ -656,7 +656,7 @@
  - function trace  10
  - function detail 15
  - get/setopt cmds 20
- - scsi/usb trace  25 
+ - scsi/usb trace  25
  - scsi/usb writes 30
  - scsi/usb reads  31
  - useless noise   35
@@ -736,7 +736,7 @@ static struct fujitsu *fujitsu_devList = NULL;
 
 /*
  * Called by SANE initially.
- * 
+ *
  * From the SANE spec:
  * This function must be called before any other SANE function can be
  * called. The behavior of a SANE backend is undefined if this
@@ -770,7 +770,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 /*
  * Called by SANE to find out about supported devices.
- * 
+ *
  * From the SANE spec:
  * This function can be used to query the list of devices that are
  * available. If the function executes successfully, it stores a
@@ -783,7 +783,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
  * returned (devices directly attached to the machine that SANE is
  * running on). If it is false, the device list includes all remote
  * devices that are accessible to the SANE library.
- * 
+ *
  * SANE does not require that this function is called before a
  * sane_open() call is performed. A device name may be specified
  * explicitly by a user which would make it unnecessary and
@@ -827,39 +827,39 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
         FUJITSU_CONFIG_FILE);
 
       while (sanei_config_read (line, PATH_MAX, fp)) {
-    
+
           lp = line;
-    
+
           /* ignore comments */
           if (*lp == '#')
             continue;
-    
+
           /* skip empty lines */
           if (*lp == 0)
             continue;
-    
+
           if ((strncmp ("option", lp, 6) == 0) && isspace (lp[6])) {
-    
+
               lp += 6;
               lp = sanei_config_skip_whitespace (lp);
-    
+
               /* we allow setting buffersize too big */
               if ((strncmp (lp, "buffer-size", 11) == 0) && isspace (lp[11])) {
-    
+
                   int buf;
                   lp += 11;
                   lp = sanei_config_skip_whitespace (lp);
                   buf = atoi (lp);
-    
+
                   if (buf < 4096) {
                     DBG (5, "sane_get_devices: config option \"buffer-size\" (%d) is < 4096, ignoring!\n", buf);
                     continue;
                   }
-    
+
                   if (buf > 64*1024) {
                     DBG (5, "sane_get_devices: config option \"buffer-size\" (%d) is > %d, warning!\n", buf, 64*1024);
                   }
-    
+
                   DBG (15, "sane_get_devices: setting \"buffer-size\" to %d\n", buf);
                   global_buffer_size = buf;
               }
@@ -956,8 +956,8 @@ attach_one_usb (const char *device_name)
   return attach_one(device_name,CONNECTION_USB);
 }
 
-/* build the scanner struct and link to global list 
- * unless struct is already loaded, then pretend 
+/* build the scanner struct and link to global list
+ * unless struct is already loaded, then pretend
  */
 static SANE_Status
 attach_one (const char *device_name, int connType)
@@ -1105,7 +1105,7 @@ connect_fd (struct fujitsu *s)
   }
   else {
     DBG (15, "connect_fd: opening SCSI device\n");
-    ret = sanei_scsi_open_extended (s->device_name, &(s->fd), sense_handler, s, 
+    ret = sanei_scsi_open_extended (s->device_name, &(s->fd), sense_handler, s,
       &s->buffer_size);
     if(!ret && buffer_size != s->buffer_size){
       DBG (5, "connect_fd: cannot get requested buffer size (%d/%d)\n",
@@ -1115,8 +1115,8 @@ connect_fd (struct fujitsu *s)
 
   if(ret == SANE_STATUS_GOOD){
 
-    /* first generation usb scanners can get flaky if not closed 
-     * properly after last use. very first commands sent to device 
+    /* first generation usb scanners can get flaky if not closed
+     * properly after last use. very first commands sent to device
      * must be prepared to correct this- see wait_scanner() */
     ret = wait_scanner(s);
     if (ret != SANE_STATUS_GOOD) {
@@ -1157,9 +1157,9 @@ init_inquire (struct fujitsu *s)
   set_IN_return_size (cmd, inLen);
   set_IN_evpd (cmd, 0);
   set_IN_page_code (cmd, 0);
- 
+
   ret = do_cmd (
-    s, 1, 0, 
+    s, 1, 0,
     cmd, cmdLen,
     NULL, 0,
     in, &inLen
@@ -1674,7 +1674,7 @@ init_vpd (struct fujitsu *s)
           /*not all scanners go this far*/
           if (get_IN_page_length (in) >= 0x67-5) {
               DBG (15, "  connection type: %d\n", get_IN_connection(in));
-    
+
               DBG (15, "  endorser ext: %d\n", get_IN_endorser_type_ext(in));
               DBG (15, "  endorser pr_b: %d\n", get_IN_endorser_pre_back(in));
               DBG (15, "  endorser pr_f: %d\n", get_IN_endorser_pre_front(in));
@@ -1683,7 +1683,7 @@ init_vpd (struct fujitsu *s)
 
               s->os_x_basic = get_IN_x_overscan_size(in);
               DBG (15, "  horizontal overscan: %d\n", s->os_x_basic);
-    
+
               s->os_y_basic = get_IN_y_overscan_size(in);
               DBG (15, "  vertical overscan: %d\n", s->os_y_basic);
           }
@@ -1778,7 +1778,7 @@ init_vpd (struct fujitsu *s)
 }
 
 static SANE_Status
-init_ms(struct fujitsu *s) 
+init_ms(struct fujitsu *s)
 {
   int ret;
   int oldDbg=0;
@@ -2543,9 +2543,9 @@ init_options (struct fujitsu *s)
       s->opt[i].cap = SANE_CAP_INACTIVE;
   }
 
-  /* go ahead and setup the first opt, because 
-   * frontend may call control_option on it 
-   * before calling get_option_descriptor 
+  /* go ahead and setup the first opt, because
+   * frontend may call control_option on it
+   * before calling get_option_descriptor
    */
   s->opt[OPT_NUM_OPTS].name = SANE_NAME_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
@@ -2660,11 +2660,11 @@ init_serial (struct fujitsu *s)
   set_SCSI_opcode(cmd, SEND_DIAGNOSTIC_code);
   set_SD_slftst(cmd, 0);
   set_SD_xferlen(cmd, outLen);
- 
+
   memcpy(out,SD_gdi_string,outLen);
 
   ret = do_cmd (
-    s, 1, 0, 
+    s, 1, 0,
     cmd, cmdLen,
     out, outLen,
     NULL, NULL
@@ -2680,7 +2680,7 @@ init_serial (struct fujitsu *s)
   set_RD_xferlen(cmd, inLen);
 
   ret = do_cmd (
-    s, 1, 0, 
+    s, 1, 0,
     cmd, cmdLen,
     NULL, 0,
     in, &inLen
@@ -2719,7 +2719,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
   struct fujitsu *dev = NULL;
   struct fujitsu *s = NULL;
   SANE_Status ret;
- 
+
   DBG (10, "sane_open: start\n");
 
   if(fujitsu_devList){
@@ -2740,7 +2740,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
   }
   else{
     DBG (15, "sane_open: device %s requested\n", name);
-                                                                                
+
     for (dev = fujitsu_devList; dev; dev = dev->next) {
       if (strcmp (dev->sane.name, name) == 0
        || strcmp (dev->device_name, name) == 0) { /*always allow sanei devname*/
@@ -2816,7 +2816,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     }
     if(s->has_adf){
       s->source_list[i++]=STRING_ADFFRONT;
-  
+
       if(s->has_back){
         s->source_list[i++]=STRING_ADFBACK;
       }
@@ -2852,7 +2852,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       s->mode_list[i++]=STRING_COLOR;
     }
     s->mode_list[i]=NULL;
-  
+
     opt->name = SANE_NAME_SCAN_MODE;
     opt->title = SANE_TITLE_SCAN_MODE;
     opt->desc = SANE_DESC_SCAN_MODE;
@@ -2873,7 +2873,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_DPI;
     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-  
+
     if(s->step_x_res[s->s_mode] && s->step_y_res[s->s_mode]){
       s->res_range.min = s->min_x_res;
       s->res_range.max = s->max_x_res;
@@ -2895,7 +2895,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
         }
       }
       s->res_list[0] = i;
-  
+
       opt->constraint_type = SANE_CONSTRAINT_WORD_LIST;
       opt->constraint.word_list = s->res_list;
     }
@@ -2917,7 +2917,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->tl_x_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_x);
     s->tl_x_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_width(s));
     s->tl_x_range.quant = MM_PER_UNIT_FIX;
-  
+
     opt->name = SANE_NAME_SCAN_TL_X;
     opt->title = SANE_TITLE_SCAN_TL_X;
     opt->desc = SANE_DESC_SCAN_TL_X;
@@ -2935,7 +2935,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->tl_y_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_y);
     s->tl_y_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_height(s));
     s->tl_y_range.quant = MM_PER_UNIT_FIX;
-  
+
     opt->name = SANE_NAME_SCAN_TL_Y;
     opt->title = SANE_TITLE_SCAN_TL_Y;
     opt->desc = SANE_DESC_SCAN_TL_Y;
@@ -2953,7 +2953,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->br_x_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_x);
     s->br_x_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_width(s));
     s->br_x_range.quant = MM_PER_UNIT_FIX;
-  
+
     opt->name = SANE_NAME_SCAN_BR_X;
     opt->title = SANE_TITLE_SCAN_BR_X;
     opt->desc = SANE_DESC_SCAN_BR_X;
@@ -2971,7 +2971,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->br_y_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_y);
     s->br_y_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_height(s));
     s->br_y_range.quant = MM_PER_UNIT_FIX;
-  
+
     opt->name = SANE_NAME_SCAN_BR_Y;
     opt->title = SANE_TITLE_SCAN_BR_Y;
     opt->desc = SANE_DESC_SCAN_BR_Y;
@@ -3160,7 +3160,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->ht_type_list[i++]=STRING_DITHER;
     s->ht_type_list[i++]=STRING_DIFFUSION;
     s->ht_type_list[i]=NULL;
-  
+
     opt->name = "ht-type";
     opt->title = SANE_I18N ("Halftone type");
     opt->desc = SANE_I18N ("Control type of halftone filter");
@@ -3265,7 +3265,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->wl_follow_list[i++]=STRING_ON;
     s->wl_follow_list[i++]=STRING_OFF;
     s->wl_follow_list[i]=NULL;
-  
+
     opt->name = "wl-follow";
     opt->title = SANE_I18N ("White level follower");
     opt->desc = SANE_I18N ("Control white level follower");
@@ -3503,7 +3503,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*automatic width detection */
   if(option==OPT_AWD){
-  
+
     opt->name = "awd";
     opt->title = SANE_I18N ("Auto width detection");
     opt->desc = SANE_I18N ("Scanner detects paper sides. May reduce scanning speed.");
@@ -3521,7 +3521,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*automatic length detection */
   if(option==OPT_ALD){
-  
+
     opt->name = "ald";
     opt->title = SANE_I18N ("Auto length detection");
     opt->desc = SANE_I18N ("Scanner detects paper lower edge. May confuse some frontends.");
@@ -3600,7 +3600,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->df_action_list[1] = STRING_CONTINUE;
     s->df_action_list[2] = STRING_STOP;
     s->df_action_list[3] = NULL;
-  
+
     opt->name = "df-action";
     opt->title = SANE_I18N ("DF action");
     opt->desc = SANE_I18N ("Action following double feed error");
@@ -3617,7 +3617,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*double feed by skew*/
   if(option==OPT_DF_SKEW){
-  
+
     opt->name = "df-skew";
     opt->title = SANE_I18N ("DF skew");
     opt->desc = SANE_I18N ("Enable double feed error due to skew");
@@ -3636,7 +3636,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*double feed by thickness */
   if(option==OPT_DF_THICKNESS){
-  
+
     opt->name = "df-thickness";
     opt->title = SANE_I18N ("DF thickness");
     opt->desc = SANE_I18N ("Enable double feed error due to paper thickness");
@@ -3655,7 +3655,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*double feed by length*/
   if(option==OPT_DF_LENGTH){
-  
+
     opt->name = "df-length";
     opt->title = SANE_I18N ("DF length");
     opt->desc = SANE_I18N ("Enable double feed error due to paper length");
@@ -3679,7 +3679,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->df_diff_list[2] = STRING_15MM;
     s->df_diff_list[3] = STRING_20MM;
     s->df_diff_list[4] = NULL;
-  
+
     opt->name = "df-diff";
     opt->title = SANE_I18N ("DF length difference");
     opt->desc = SANE_I18N ("Difference in page length to trigger double feed error");
@@ -3703,7 +3703,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->df_recovery_list[1] = STRING_OFF;
     s->df_recovery_list[2] = STRING_ON;
     s->df_recovery_list[3] = NULL;
-  
+
     opt->name = "df-recovery";
     opt->title = SANE_I18N ("DF recovery mode");
     opt->desc = SANE_I18N ("Request scanner to reverse feed on paper jam");
@@ -3723,7 +3723,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->paper_protect_list[1] = STRING_OFF;
     s->paper_protect_list[2] = STRING_ON;
     s->paper_protect_list[3] = NULL;
-  
+
     opt->name = "paper-protect";
     opt->title = SANE_I18N ("Paper protection");
     opt->desc = SANE_I18N ("Request scanner to predict jams in the ADF");
@@ -3743,7 +3743,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->adv_paper_prot_list[1] = STRING_OFF;
     s->adv_paper_prot_list[2] = STRING_ON;
     s->adv_paper_prot_list[3] = NULL;
-  
+
     opt->name = "adv-paper-protect";
     opt->title = SANE_I18N ("Advanced paper protection");
     opt->desc = SANE_I18N ("Request scanner to predict jams in the ADF using improved sensors");
@@ -3763,7 +3763,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->staple_detect_list[1] = STRING_OFF;
     s->staple_detect_list[2] = STRING_ON;
     s->staple_detect_list[3] = NULL;
-  
+
     opt->name = "staple-detect";
     opt->title = SANE_I18N ("Staple detection");
     opt->desc = SANE_I18N ("Request scanner to detect jams in the ADF caused by staples");
@@ -3783,7 +3783,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->bg_color_list[1] = STRING_WHITE;
     s->bg_color_list[2] = STRING_BLACK;
     s->bg_color_list[3] = NULL;
-  
+
     opt->name = "bgcolor";
     opt->title = SANE_I18N ("Background color");
     opt->desc = SANE_I18N ("Set color of background for scans. May conflict with overscan option");
@@ -3804,7 +3804,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->do_color_list[2] = STRING_GREEN;
     s->do_color_list[3] = STRING_BLUE;
     s->do_color_list[4] = NULL;
-  
+
     opt->name = "dropoutcolor";
     opt->title = SANE_I18N ("Dropout color");
     opt->desc = SANE_I18N ("One-pass scanners use only one color during gray or binary scanning, useful for colored paper or ink");
@@ -3828,7 +3828,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->buff_mode_list[1] = STRING_OFF;
     s->buff_mode_list[2] = STRING_ON;
     s->buff_mode_list[3] = NULL;
-  
+
     opt->name = "buffermode";
     opt->title = SANE_I18N ("Buffer mode");
     opt->desc = SANE_I18N ("Request scanner to read pages quickly from ADF into internal memory");
@@ -3848,7 +3848,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->prepick_list[1] = STRING_OFF;
     s->prepick_list[2] = STRING_ON;
     s->prepick_list[3] = NULL;
-  
+
     opt->name = "prepick";
     opt->title = SANE_I18N ("Prepick");
     opt->desc = SANE_I18N ("Request scanner to grab next page from ADF");
@@ -3868,7 +3868,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->overscan_list[1] = STRING_OFF;
     s->overscan_list[2] = STRING_ON;
     s->overscan_list[3] = NULL;
-  
+
     opt->name = "overscan";
     opt->title = SANE_I18N ("Overscan");
     opt->desc = SANE_I18N ("Collect a few mm of background on top side of scan, before paper enters ADF, and increase maximum scan area beyond paper size, to allow collection on remaining sides. May conflict with bgcolor option");
@@ -3887,10 +3887,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->sleep_time_range.min = 0;
     s->sleep_time_range.max = 60;
     s->sleep_time_range.quant = 1;
-  
+
     opt->name = "sleeptimer";
     opt->title = SANE_I18N ("Sleep timer");
-    opt->desc = SANE_I18N ("Time in minutes until the internal power supply switches to sleep mode"); 
+    opt->desc = SANE_I18N ("Time in minutes until the internal power supply switches to sleep mode");
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
@@ -3906,10 +3906,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->off_time_range.min = 0;
     s->off_time_range.max = 960;
     s->off_time_range.quant = 1;
-  
+
     opt->name = "offtimer";
     opt->title = SANE_I18N ("Off timer");
-    opt->desc = SANE_I18N ("Time in minutes until the internal power supply switches the scanner off. Will be rounded to nearest 15 minutes. Zero means never power off."); 
+    opt->desc = SANE_I18N ("Time in minutes until the internal power supply switches the scanner off. Will be rounded to nearest 15 minutes. Zero means never power off.");
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
@@ -3925,7 +3925,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->duplex_offset_range.min = -16;
     s->duplex_offset_range.max = 16;
     s->duplex_offset_range.quant = 1;
-  
+
     opt->name = "duplexoffset";
     opt->title = SANE_I18N ("Duplex offset");
     opt->desc = SANE_I18N ("Adjust front/back offset");
@@ -3943,7 +3943,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->green_offset_range.min = -16;
     s->green_offset_range.max = 16;
     s->green_offset_range.quant = 1;
-  
+
     opt->name = "greenoffset";
     opt->title = SANE_I18N ("Green offset");
     opt->desc = SANE_I18N ("Adjust green/red offset");
@@ -3956,12 +3956,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
-  
+
   if(option==OPT_BLUE_OFFSET){
     s->blue_offset_range.min = -16;
     s->blue_offset_range.max = 16;
     s->blue_offset_range.quant = 1;
-  
+
     opt->name = "blueoffset";
     opt->title = SANE_I18N ("Blue offset");
     opt->desc = SANE_I18N ("Adjust blue/red offset");
@@ -3974,7 +3974,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
-  
+
   if(option==OPT_LOW_MEM){
     opt->name = "lowmemory";
     opt->title = SANE_I18N ("Low Memory");
@@ -3985,7 +3985,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if (1)
       opt->cap= SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
 
     opt->constraint_type = SANE_CONSTRAINT_NONE;
@@ -4112,7 +4112,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if (s->has_endorser_f || s->has_endorser_b)
       opt->cap= SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
 
     opt->constraint_type = SANE_CONSTRAINT_NONE;
@@ -4335,7 +4335,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4347,7 +4347,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4359,7 +4359,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4371,7 +4371,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4383,7 +4383,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4395,7 +4395,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4407,7 +4407,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4419,7 +4419,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4431,7 +4431,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4443,7 +4443,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4455,7 +4455,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4467,7 +4467,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4479,7 +4479,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4491,7 +4491,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status && (s->has_endorser_f || s->has_endorser_b))
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4503,7 +4503,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4515,7 +4515,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4527,7 +4527,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4539,7 +4539,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status && (s->has_endorser_f || s->has_endorser_b))
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4551,7 +4551,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->ghs_in_rs)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4563,7 +4563,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     if (s->ghs_in_rs)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
-    else 
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -4572,7 +4572,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
 /**
  * Gets or sets an option value.
- * 
+ *
  * From the SANE spec:
  * This function is used to set or inquire the current value of option
  * number n of the device represented by handle h. The manner in which
@@ -4583,7 +4583,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
  * area pointed to by v must be big enough to hold the entire option
  * value (determined by member size in the corresponding option
  * descriptor).
- * 
+ *
  * The only exception to this rule is that when setting the value of a
  * string option, the string pointed to by argument v may be shorter
  * since the backend will stop reading the option value upon
@@ -5056,23 +5056,23 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_ENDORSER:
           *val_p = s->u_endorser;
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ENDORSER_BITS:
           *val_p = s->u_endorser_bits;
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ENDORSER_VAL:
           *val_p = s->u_endorser_val;
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ENDORSER_STEP:
           *val_p = s->u_endorser_step;
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ENDORSER_Y:
           *val_p = SCANNER_UNIT_TO_FIXED_MM(s->u_endorser_y);
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ENDORSER_FONT:
           switch (s->u_endorser_font) {
             case FONT_H:
@@ -5092,7 +5092,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
               break;
           }
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ENDORSER_DIR:
           switch (s->u_endorser_dir) {
             case DIR_TTB:
@@ -5103,7 +5103,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
               break;
           }
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ENDORSER_SIDE:
           switch (s->u_endorser_side) {
             case ED_front:
@@ -5114,7 +5114,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
               break;
           }
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ENDORSER_STRING:
 	  strncpy(
 	    (SANE_String)val,
@@ -5128,102 +5128,102 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           ret = get_hardware_status(s,option);
           *val_p = s->hw_top;
           return ret;
-          
+
         case OPT_A3:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_A3;
           return ret;
-          
+
         case OPT_B4:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_B4;
           return ret;
-          
+
         case OPT_A4:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_A4;
           return ret;
-          
+
         case OPT_B5:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_B5;
           return ret;
-          
+
         case OPT_HOPPER:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_hopper;
           return ret;
-          
+
         case OPT_OMR:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_omr;
           return ret;
-          
+
         case OPT_ADF_OPEN:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_adf_open;
           return ret;
-          
+
         case OPT_SLEEP:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_sleep;
           return ret;
-          
+
         case OPT_SEND_SW:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_send_sw;
           return ret;
-          
+
         case OPT_MANUAL_FEED:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_manual_feed;
           return ret;
-          
+
         case OPT_SCAN_SW:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_scan_sw;
           return ret;
-          
+
         case OPT_FUNCTION:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_function;
           return ret;
-          
+
         case OPT_INK_EMPTY:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_ink_empty;
           return ret;
-          
+
         case OPT_DOUBLE_FEED:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_double_feed;
           return ret;
-          
+
         case OPT_ERROR_CODE:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_error_code;
           return ret;
-          
+
         case OPT_SKEW_ANGLE:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_skew_angle;
           return ret;
-          
+
         case OPT_INK_REMAIN:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_ink_remain;
           return ret;
-          
+
         case OPT_DENSITY_SW:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_density_sw;
           return ret;
-          
+
         case OPT_DUPLEX_SW:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_duplex_sw;
           return ret;
-          
+
       }
   }
   else if (action == SANE_ACTION_SET_VALUE) {
@@ -5260,7 +5260,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
        * below.
        */
       switch (option) {
- 
+
         /* Mode Group */
         case OPT_SOURCE:
           if (!strcmp (val, STRING_ADFFRONT)) {
@@ -5276,7 +5276,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             tmp = SOURCE_FLATBED;
           }
 
-          if (s->source == tmp) 
+          if (s->source == tmp)
               return SANE_STATUS_GOOD;
 
           s->source = tmp;
@@ -5307,7 +5307,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_RES:
 
-          if (s->resolution_x == val_c) 
+          if (s->resolution_x == val_c)
               return SANE_STATUS_GOOD;
 
           s->resolution_x = val_c;
@@ -5703,24 +5703,24 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           s->u_endorser = val_c;
           *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ENDORSER_BITS:
           s->u_endorser_bits = val_c;
           return SANE_STATUS_GOOD;
-          
+
 	/*this val not used in send_endorser*/
         case OPT_ENDORSER_VAL:
           s->u_endorser_val = val_c;
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ENDORSER_STEP:
           s->u_endorser_step = val_c;
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ENDORSER_Y:
           s->u_endorser_y = FIXED_MM_TO_SCANNER_UNIT(val_c);
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ENDORSER_FONT:
 
           if (!strcmp (val, STRING_HORIZONTAL)){
@@ -5739,7 +5739,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->u_endorser_font = FONT_VB;
           }
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ENDORSER_DIR:
           if (!strcmp (val, STRING_TOPTOBOTTOM)){
             s->u_endorser_dir = DIR_TTB;
@@ -5748,7 +5748,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->u_endorser_dir = DIR_BTT;
           }
           return SANE_STATUS_GOOD;
-          
+
 	/*this val not used in send_endorser*/
         case OPT_ENDORSER_SIDE:
           if (!strcmp (val, STRING_FRONT)){
@@ -5758,7 +5758,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->u_endorser_side = ED_back;
           }
           return SANE_STATUS_GOOD;
-          
+
         case OPT_ENDORSER_STRING:
 	  strncpy(
 	    (SANE_String)s->u_endorser_string,
@@ -5773,7 +5773,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 }
 
 static SANE_Status
-set_sleep_mode(struct fujitsu *s) 
+set_sleep_mode(struct fujitsu *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
@@ -5830,13 +5830,13 @@ set_off_mode(struct fujitsu *s)
   set_SCSI_opcode(cmd, SEND_DIAGNOSTIC_code);
   set_SD_slftst(cmd, 0);
   set_SD_xferlen(cmd, outLen);
- 
+
   memcpy(out,SD_powoff_string,SD_powoff_stringlen);
   set_SD_powoff_disable(out,!s->off_time);
   set_SD_powoff_interval(out,s->off_time/15);
 
   ret = do_cmd (
-    s, 1, 0, 
+    s, 1, 0,
     cmd, cmdLen,
     out, outLen,
     NULL, NULL
@@ -5880,14 +5880,14 @@ get_hardware_status (struct fujitsu *s, SANE_Int option)
           set_GHS_allocation_length(cmd, inLen);
 
           DBG (15, "get_hardware_status: calling ghs\n");
-  
+
           ret = do_cmd (
             s, 1, 0,
             cmd, cmdLen,
             NULL, 0,
             in, &inLen
           );
-        
+
           if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
 
               s->hw_top = get_GHS_top(in);
@@ -5895,23 +5895,23 @@ get_hardware_status (struct fujitsu *s, SANE_Int option)
               s->hw_B4 = get_GHS_B4(in);
               s->hw_A4 = get_GHS_A4(in);
               s->hw_B5 = get_GHS_B5(in);
-      
+
               s->hw_hopper = get_GHS_hopper(in);
               s->hw_omr = get_GHS_omr(in);
               s->hw_adf_open = get_GHS_adf_open(in);
-      
+
               s->hw_sleep = get_GHS_sleep(in);
               s->hw_send_sw = get_GHS_send_sw(in);
               s->hw_manual_feed = get_GHS_manual_feed(in);
               s->hw_scan_sw = get_GHS_scan_sw(in);
-      
+
               s->hw_function = get_GHS_function(in);
               s->hw_ink_empty = get_GHS_ink_empty(in);
 
               s->hw_double_feed = get_GHS_double_feed(in);
-      
+
               s->hw_error_code = get_GHS_error_code(in);
-      
+
               s->hw_skew_angle = get_GHS_skew_angle(in);
 
               if(inLen > 9){
@@ -5942,7 +5942,7 @@ get_hardware_status (struct fujitsu *s, SANE_Int option)
             NULL,0,
             in, &inLen
           );
-    
+
           /* parse the rs data */
           if(ret == SANE_STATUS_GOOD){
             if(get_RS_sense_key(in)==0 && get_RS_ASC(in)==0x80){
@@ -5972,13 +5972,13 @@ get_hardware_status (struct fujitsu *s, SANE_Int option)
 }
 
 static SANE_Status
-send_endorser(struct fujitsu *s) 
+send_endorser(struct fujitsu *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
   unsigned char cmd[SEND_len];
   size_t cmdLen = SEND_len;
- 
+
   size_t strLen = strlen(s->u_endorser_string);
 
   unsigned char out[S_e_data_max_len]; /*we probably send less below*/
@@ -6080,7 +6080,7 @@ send_endorser(struct fujitsu *s)
 /* instead of internal brightness/contrast/gamma
    most scanners use a 256x256 or 1024x256 LUT
    default is linear table of slope 1 or 1/4 resp.
-   brightness and contrast inputs are -127 to +127 
+   brightness and contrast inputs are -127 to +127
 
    contrast rotates slope of line around central input val
 
@@ -6096,7 +6096,7 @@ send_endorser(struct fujitsu *s)
 
        bright         dark
        .   xxxxxxxx   .
-       . x            . 
+       . x            .
    out x              .          x
        .              .        x
        ............   xxxxxxxx....
@@ -6128,7 +6128,7 @@ send_lut (struct fujitsu *s)
    * first [-127,127] to [0,254] then to [0,1]
    * then multiply by PI/2 to convert to radians
    * then take the tangent to get slope (T.O.A)
-   * then multiply by the normal linear slope 
+   * then multiply by the normal linear slope
    * because the table may not be square, i.e. 1024x256*/
   slope = tan(((double)s->contrast+127)/254 * M_PI/2) * 256/bytes;
 
@@ -6156,7 +6156,7 @@ send_lut (struct fujitsu *s)
   set_S_lut_order (out, S_lut_order_single);
   set_S_lut_ssize (out, bytes);
   set_S_lut_dsize (out, 256);
- 
+
   for(i=0;i<bytes;i++){
     j=slope*i + offset + b;
 
@@ -6274,7 +6274,7 @@ mode_select_unk (struct fujitsu *s, int foo)
   set_MSEL_page_len(page, MSEL_data_min_len-2);
 
   *(page + 0x02) = foo;
-  
+
   ret = do_cmd (
       s, 1, 0,
       cmd, cmdLen,
@@ -6311,7 +6311,7 @@ diag_preread (struct fujitsu *s)
   set_SCSI_opcode(cmd, SEND_DIAGNOSTIC_code);
   set_SD_slftst(cmd, 0);
   set_SD_xferlen(cmd, outLen);
- 
+
   memcpy(out,SD_preread_string,SD_preread_stringlen);
   set_SD_preread_xres(out,s->resolution_x);
   set_SD_preread_yres(out,s->resolution_y);
@@ -6322,7 +6322,7 @@ diag_preread (struct fujitsu *s)
   set_SD_preread_composition(out, s->s_mode);
 
   ret = do_cmd (
-    s, 1, 0, 
+    s, 1, 0,
     cmd, cmdLen,
     out, outLen,
     NULL, NULL
@@ -6374,17 +6374,17 @@ mode_select_df (struct fujitsu *s)
     if(s->df_action == DF_CONTINUE){
       set_MSEL_df_continue (page, 1);
     }
-  
+
     /* skew */
     if(s->df_skew){
       set_MSEL_df_skew (page, 1);
     }
-  
+
     /* thickness */
     if(s->df_thickness){
       set_MSEL_df_thickness (page, 1);
     }
-  
+
     /* length */
     if(s->df_length){
       set_MSEL_df_length (page, 1);
@@ -6446,7 +6446,7 @@ mode_select_bg (struct fujitsu *s)
       set_MSEL_bg_fb (page, 1);
     }
   }
-  
+
   ret = do_cmd (
       s, 1, 0,
       cmd, cmdLen,
@@ -6489,7 +6489,7 @@ mode_select_dropout (struct fujitsu *s)
 
   set_MSEL_dropout_front (page, s->dropout_color);
   set_MSEL_dropout_back (page, s->dropout_color);
-  
+
   ret = do_cmd (
       s, 1, 0,
       cmd, cmdLen,
@@ -6574,7 +6574,7 @@ mode_select_prepick (struct fujitsu *s)
   set_MSEL_page_len(page, MSEL_data_min_len-2);
 
   set_MSEL_prepick(page, s->prepick);
-  
+
   ret = do_cmd (
       s, 1, 0,
       cmd, cmdLen,
@@ -6620,7 +6620,7 @@ mode_select_auto (struct fujitsu *s)
   set_MSEL_awd(page, s->awd || s->hwdeskewcrop);
   set_MSEL_req_driv_crop(page, s->hwdeskewcrop && (s->swcrop || s->swdeskew));
   set_MSEL_deskew(page, s->hwdeskewcrop);
-  
+
   ret = do_cmd (
       s, 1, 0,
       cmd, cmdLen,
@@ -6648,7 +6648,7 @@ mode_select_auto (struct fujitsu *s)
  * completion of that request. Outside of that window, the returned
  * values are best-effort estimates of what the parameters will be
  * when sane_start() gets invoked.
- * 
+ *
  * Calling this function before a scan has actually started allows,
  * for example, to get an estimate of how big the scanned image will
  * be. The parameters passed to this function are the handle h of the
@@ -6660,9 +6660,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
   struct fujitsu *s = (struct fujitsu *) handle;
-  
+
   DBG (10, "sane_get_parameters: start\n");
-  
+
   /* not started? update param data from user settings */
   if(!s->started){
     ret = update_params(s);
@@ -6760,10 +6760,10 @@ update_params (struct fujitsu * s)
   DBG(15,"update_params: area: tlx=%d, brx=%d, tly=%d, bry=%d\n",
     s->tl_x, s->br_x, s->tl_y, s->br_y);
 
-  DBG(15,"update_params: params: ppl=%d, Bpl=%d, lines=%d\n", 
+  DBG(15,"update_params: params: ppl=%d, Bpl=%d, lines=%d\n",
     params->pixels_per_line, params->bytes_per_line, params->lines);
 
-  DBG(15,"update_params: params: format=%d, depth=%d, last=%d\n", 
+  DBG(15,"update_params: params: format=%d, depth=%d, last=%d\n",
     params->format, params->depth, params->last_frame);
 
   /* second, we setup u_params to describe the image to the user */
@@ -6801,20 +6801,20 @@ update_u_params (struct fujitsu * s)
       params->format = SANE_FRAME_GRAY;
       params->bytes_per_line = params->pixels_per_line / 8;
     }
-  
+
     DBG(15,"update_u_params: x: max=%d, page=%d, gpw=%d, res=%d\n",
       s->max_x, s->page_width, get_page_width(s), s->resolution_x);
-  
+
     DBG(15,"update_u_params: y: max=%d, page=%d, gph=%d, res=%d\n",
       s->max_y, s->page_height, get_page_height(s), s->resolution_y);
-  
+
     DBG(15,"update_u_params: area: tlx=%d, brx=%d, tly=%d, bry=%d\n",
       s->tl_x, s->br_x, s->tl_y, s->br_y);
-  
-    DBG(15,"update_u_params: params: ppl=%d, Bpl=%d, lines=%d\n", 
+
+    DBG(15,"update_u_params: params: ppl=%d, Bpl=%d, lines=%d\n",
       params->pixels_per_line, params->bytes_per_line, params->lines);
-  
-    DBG(15,"update_u_params: params: format=%d, depth=%d, last=%d\n", 
+
+    DBG(15,"update_u_params: params: format=%d, depth=%d, last=%d\n",
       params->format, params->depth, params->last_frame);
   }
 
@@ -6939,14 +6939,14 @@ sane_start (SANE_Handle handle)
         if (ret != SANE_STATUS_GOOD)
           DBG (5, "sane_start: WARNING: cannot early send_lut %d\n", ret);
       }
-    
+
       /* set window command */
       ret = set_window(s);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot set window\n");
         goto errors;
       }
-    
+
       /* send lut if scanner has no hardware brightness/contrast,
        * or we are going to ask it to use a downloaded gamma table */
       if (s->late_lut && (!s->brightness_steps || !s->contrast_steps || s->window_gamma & 0x80)){
@@ -6954,7 +6954,7 @@ sane_start (SANE_Handle handle)
         if (ret != SANE_STATUS_GOOD)
           DBG (5, "sane_start: WARNING: cannot late send_lut %d\n", ret);
       }
-    
+
       /* some scanners need the q table sent, even when not scanning jpeg */
       if (s->need_q_table){
         ret = send_q_table(s);
@@ -6968,7 +6968,7 @@ sane_start (SANE_Handle handle)
         DBG (5, "sane_start: ERROR: cannot start/stop endorser\n");
         goto errors;
       }
-    
+
       /* turn lamp on */
       ret = scanner_control(s, SC_function_lamp_on);
       if (ret != SANE_STATUS_GOOD) {
@@ -7043,7 +7043,7 @@ sane_start (SANE_Handle handle)
         goto errors;
       }
 
-      /* store the number of front bytes */ 
+      /* store the number of front bytes */
       if ( s->source != SOURCE_ADF_BACK ){
         s->bytes_tot[SIDE_FRONT] = s->s_params.bytes_per_line * s->s_params.lines;
         s->buff_tot[SIDE_FRONT] = s->buffer_size;
@@ -7062,7 +7062,7 @@ sane_start (SANE_Handle handle)
         s->buff_tot[SIDE_FRONT] = 0;
       }
 
-      /* store the number of back bytes */ 
+      /* store the number of back bytes */
       if ( s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK ){
         s->bytes_tot[SIDE_BACK] = s->s_params.bytes_per_line * s->s_params.lines;
         s->buff_tot[SIDE_BACK] = s->bytes_tot[SIDE_BACK];
@@ -7087,7 +7087,7 @@ sane_start (SANE_Handle handle)
               DBG (5, "sane_start: ERROR: cannot load buffers\n");
               goto errors;
           }
-    
+
           s->started=1;
       }
   }
@@ -7102,9 +7102,9 @@ sane_start (SANE_Handle handle)
 
   DBG (15, "started=%d, side=%d, source=%d\n", s->started, s->side, s->source);
 
-  /* certain options require the entire image to 
+  /* certain options require the entire image to
    * be collected from the scanner before we can
-   * tell the user the size of the image. the sane 
+   * tell the user the size of the image. the sane
    * API has no way to inform the frontend of this,
    * so we block and buffer. yuck */
   if( must_fully_buffer(s) ){
@@ -7142,7 +7142,7 @@ sane_start (SANE_Handle handle)
     }
     if(s->swskip){
       /* Skipping means throwing out this image.
-       * Pretend the user read the whole thing 
+       * Pretend the user read the whole thing
        * and call sane_start again.
        * This assumes we are running in batch mode. */
       if(buffer_isblank(s,s->side)){
@@ -7166,7 +7166,7 @@ sane_start (SANE_Handle handle)
   errors:
     DBG (10, "sane_start: error %d\n", ret);
 
-    /* if we are started, but something went wrong, 
+    /* if we are started, but something went wrong,
      * chances are there is image data inside scanner,
      * which should be discarded via cancel command */
     if(s->started){
@@ -7181,7 +7181,7 @@ sane_start (SANE_Handle handle)
 }
 
 static SANE_Status
-endorser(struct fujitsu *s) 
+endorser(struct fujitsu *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
@@ -7243,7 +7243,7 @@ endorser(struct fujitsu *s)
 }
 
 static SANE_Status
-scanner_control (struct fujitsu *s, int function) 
+scanner_control (struct fujitsu *s, int function)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
   int tries = 0;
@@ -7283,7 +7283,7 @@ scanner_control (struct fujitsu *s, int function)
       }
 
       usleep(500000);
-    } 
+    }
 
     if(ret == SANE_STATUS_GOOD){
       DBG (15, "scanner_control: success, tries %d, ret %d\n",tries,ret);
@@ -7299,7 +7299,7 @@ scanner_control (struct fujitsu *s, int function)
 }
 
 static SANE_Status
-scanner_control_ric (struct fujitsu *s, int bytes, int side) 
+scanner_control_ric (struct fujitsu *s, int bytes, int side)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
   int tries = 0;
@@ -7325,7 +7325,7 @@ scanner_control_ric (struct fujitsu *s, int bytes, int side)
     set_SC_ric_len(cmd, bytes);
 
     DBG (15, "scanner_control_ric: %d %d\n",bytes,side);
- 
+
     /* extremely long retry period */
     while(tries++ < 120){
 
@@ -7341,7 +7341,7 @@ scanner_control_ric (struct fujitsu *s, int bytes, int side)
       }
 
       usleep(500000);
-    } 
+    }
 
     if(ret == SANE_STATUS_GOOD){
       DBG (15, "scanner_control_ric: success, tries %d, ret %d\n",tries,ret);
@@ -7408,14 +7408,14 @@ set_window (struct fujitsu *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
-  /* The command specifies the number of bytes in the data phase 
-   * the data phase has a header, followed by 1 or 2 window desc blocks 
+  /* The command specifies the number of bytes in the data phase
+   * the data phase has a header, followed by 1 or 2 window desc blocks
    * the header specifies the number of bytes in 1 window desc block
    */
 
   unsigned char cmd[SET_WINDOW_len];
   size_t cmdLen = SET_WINDOW_len;
- 
+
   /*this is max size, we might send less below*/
   unsigned char out[SW_header_len + SW_desc_len + SW_desc_len];
   size_t outLen = SW_header_len + SW_desc_len + SW_desc_len;
@@ -7687,7 +7687,7 @@ get_pixelsize(struct fujitsu *s, int actual)
       set_R_window_id (cmd, WD_wid_front);
     }
     set_R_xfer_length (cmd, inLen);
-  
+
     ret = do_cmd (
       s, 1, 0,
       cmd, cmdLen,
@@ -7732,7 +7732,7 @@ get_pixelsize(struct fujitsu *s, int actual)
       else {
         s->s_params.bytes_per_line = s->s_params.pixels_per_line / 8;
       }
-  
+
       /* some scanners can request that the driver clean img */
       if(!s->has_short_pixelsize && get_PSIZE_req_driv_valid(in)){
         s->req_driv_crop = get_PSIZE_req_driv_crop(in);
@@ -7741,7 +7741,7 @@ get_pixelsize(struct fujitsu *s, int actual)
           s->req_driv_crop,s->req_driv_lut);
       }
 
-      DBG (15, "get_pixelsize: scan_x=%d, Bpl=%d, scan_y=%d\n", 
+      DBG (15, "get_pixelsize: scan_x=%d, Bpl=%d, scan_y=%d\n",
         s->s_params.pixels_per_line, s->s_params.bytes_per_line, s->s_params.lines );
 
       /* the user params are usually the same */
@@ -7758,7 +7758,7 @@ get_pixelsize(struct fujitsu *s, int actual)
       else {
         s->u_params.bytes_per_line = s->u_params.pixels_per_line / 8;
       }
-  
+
     }
     else{
       DBG (10, "get_pixelsize: got bad status %d, ignoring\n", ret);
@@ -7812,7 +7812,7 @@ object_position (struct fujitsu *s, int action)
 
 /*
  * Issues SCAN command.
- * 
+ *
  * (This doesn't actually read anything, it just tells the scanner
  * to start scanning.)
  */
@@ -7897,7 +7897,7 @@ check_for_cancel(struct fujitsu *s)
 
 /*
  * Called by SANE to read data.
- * 
+ *
  * From the SANE spec:
  * This function is used to read image data from the device
  * represented by handle h.  Argument buf is a pointer to a memory
@@ -7905,7 +7905,7 @@ check_for_cancel(struct fujitsu *s)
  * returned is stored in *len. A backend must set this to zero when
  * the call fails (i.e., when a status other than SANE_STATUS_GOOD is
  * returned).
- * 
+ *
  * When the call succeeds, the number of bytes returned can be
  * anywhere in the range from 0 to maxlen bytes.
  */
@@ -7963,7 +7963,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   /* alternating jpeg duplex interlacing */
   else if(s->source == SOURCE_ADF_DUPLEX
-    && s->s_params.format == SANE_FRAME_JPEG 
+    && s->s_params.format == SANE_FRAME_JPEG
     && s->jpeg_interlace == JPEG_INTERLACE_ALT
   ){
     ret = read_from_JPEGduplex(s);
@@ -7985,7 +7985,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       DBG(5,"sane_read: front returning %d\n",ret);
       return ret;
     }
-  
+
     /* buffer back side, but don't get too far ahead of the front! */
     if(s->bytes_rx[SIDE_BACK] < s->bytes_rx[SIDE_FRONT] + s->buffer_size){
       ret = read_from_scanner(s, SIDE_BACK);
@@ -8084,9 +8084,9 @@ read_from_JPEGduplex(struct fujitsu *s)
 
     int bytes = s->buffer_size;
     int i = 0;
-  
+
     DBG (10, "read_from_JPEGduplex: start\n");
-  
+
     if(s->eof_rx[SIDE_FRONT] && s->eof_rx[SIDE_BACK]){
       DBG (10, "read_from_JPEGduplex: already have eofs, done\n");
       return ret;
@@ -8112,7 +8112,7 @@ read_from_JPEGduplex(struct fujitsu *s)
           bytes -= JFIF_APP0_LENGTH;
       }
     }
-  
+
     DBG(15, "read_from_JPEGduplex: fto:%d frx:%d bto:%d brx:%d pa:%d\n",
       s->bytes_tot[SIDE_FRONT], s->bytes_rx[SIDE_FRONT],
       s->bytes_tot[SIDE_BACK], s->bytes_rx[SIDE_BACK],
@@ -8123,7 +8123,7 @@ read_from_JPEGduplex(struct fujitsu *s)
       DBG(5, "read_from_JPEGduplex: Warning: no bytes this pass\n");
       return ret;
     }
-  
+
     /* fi-6770A gets mad if you 'read' too soon on usb, see if it is ready */
     if(!s->bytes_rx[SIDE_FRONT] && s->connection == CONNECTION_USB){
       DBG (15, "read: start of usb page, checking RIC\n");
@@ -8147,14 +8147,14 @@ read_from_JPEGduplex(struct fujitsu *s)
     /* interlaced jpeg duplex always reads from front */
     set_R_window_id (cmd, WD_wid_front);
     set_R_xfer_length (cmd, inLen);
-  
+
     ret = do_cmd (
       s, 1, 0,
       cmd, cmdLen,
       NULL, 0,
       in, &inLen
     );
-  
+
     if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
         DBG(15, "read_from_JPEGduplex: got GOOD/EOF, returning GOOD\n");
     }
@@ -8167,7 +8167,7 @@ read_from_JPEGduplex(struct fujitsu *s)
         DBG(5, "read_from_JPEGduplex: error reading data status = %d\n", ret);
         inLen = 0;
     }
-  
+
     for(i=0;i<(int)inLen;i++){
 
         /* about to change stage */
@@ -8359,9 +8359,9 @@ read_from_JPEGduplex(struct fujitsu *s)
               s->eof_rx[SIDE_BACK] = 1;
         }
     }
-      
+
     free(in);
-  
+
     /* jpeg uses in-band EOI marker, so this is ususally redundant */
     if(ret == SANE_STATUS_EOF){
       DBG(15, "read_from_JPEGduplex: got EOF, finishing\n");
@@ -8372,7 +8372,7 @@ read_from_JPEGduplex(struct fujitsu *s)
     }
 
     DBG (10, "read_from_JPEGduplex: finish\n");
-  
+
     return ret;
 }
 
@@ -8411,7 +8411,7 @@ read_from_3091duplex(struct fujitsu *s)
     if(bytes > avail)
       bytes = avail;
   }
-  
+
   /* all requests must end on a line boundary */
   bytes -= (bytes % s->s_params.bytes_per_line);
 
@@ -8534,9 +8534,9 @@ read_from_scanner(struct fujitsu *s, int side)
     int bytes = s->buffer_size;
     int avail = s->buff_tot[side] - s->buff_rx[side];
     int remain = s->bytes_tot[side] - s->bytes_rx[side];
-  
+
     DBG (10, "read_from_scanner: start %d\n", side);
-  
+
     if(s->eof_rx[side]){
       DBG (10, "read_from_scanner: already have eof, done\n");
       return ret;
@@ -8545,7 +8545,7 @@ read_from_scanner(struct fujitsu *s, int side)
     /* figure out the max amount to transfer */
     if(bytes > avail)
       bytes = avail;
-  
+
     /* all requests must end on line boundary */
     bytes -= (bytes % s->s_params.bytes_per_line);
 
@@ -8559,7 +8559,7 @@ read_from_scanner(struct fujitsu *s, int side)
     /* jpeg scans leave space for JFIF header at start of image */
     if(s->s_params.format == SANE_FRAME_JPEG && s->bytes_rx[side] < 2)
       bytes -= JFIF_APP0_LENGTH;
-  
+
     DBG(15, "read_from_scanner: si:%d re:%d bs:%d by:%d av:%d\n",
       side, remain, s->buffer_size, bytes, avail);
 
@@ -8569,13 +8569,13 @@ read_from_scanner(struct fujitsu *s, int side)
 
     DBG(15, "read_from_scanner: buf to:%d rx:%d tx:%d\n",
       s->buff_tot[side], s->buff_rx[side], s->buff_tx[side]);
-  
+
     /* this will happen if buffer is not drained yet */
     if(bytes < 1){
       DBG(5, "read_from_scanner: no bytes this pass\n");
       return ret;
     }
-  
+
     /* fi-6770A gets mad if you 'read' too soon on usb, see if it is ready */
     if(!s->bytes_rx[side] && s->connection == CONNECTION_USB){
       DBG (15, "read_from_scanner: start of usb page, checking RIC\n");
@@ -8592,27 +8592,27 @@ read_from_scanner(struct fujitsu *s, int side)
         DBG(5, "read_from_scanner: not enough mem for buffer: %d\n",(int)inLen);
         return SANE_STATUS_NO_MEM;
     }
-  
+
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, READ_code);
     set_R_datatype_code (cmd, R_datatype_imagedata);
-  
+
     if (side == SIDE_BACK) {
         set_R_window_id (cmd, WD_wid_back);
     }
     else{
         set_R_window_id (cmd, WD_wid_front);
     }
-  
+
     set_R_xfer_length (cmd, inLen);
-  
+
     ret = do_cmd (
       s, 1, 0,
       cmd, cmdLen,
       NULL, 0,
       in, &inLen
     );
-  
+
     if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
         DBG(15, "read_from_scanner: got GOOD/EOF, returning GOOD\n");
         ret = SANE_STATUS_GOOD;
@@ -8626,7 +8626,7 @@ read_from_scanner(struct fujitsu *s, int side)
         DBG(5, "read_from_scanner: error reading data block status = %d\n",ret);
         inLen = 0;
     }
-  
+
     DBG(15, "read_from_scanner: read %lu bytes\n",(unsigned long)inLen);
 
     if(inLen){
@@ -8640,7 +8640,7 @@ read_from_scanner(struct fujitsu *s, int side)
             copy_buffer (s, in, inLen, side);
         }
     }
-  
+
     free(in);
 
     /* if this was a short read or not, log it */
@@ -8655,7 +8655,7 @@ read_from_scanner(struct fujitsu *s, int side)
       s->eom_rx = 1;
     }
 
-    /* paper ran out. lets try to set the eof flag on both sides, 
+    /* paper ran out. lets try to set the eof flag on both sides,
      * but only if that side had a short read last time */
     if(s->eom_rx){
       int i;
@@ -8668,7 +8668,7 @@ read_from_scanner(struct fujitsu *s, int side)
     }
 
     DBG (10, "read_from_scanner: finish\n");
-  
+
     return ret;
 }
 
@@ -8682,7 +8682,7 @@ copy_3091(struct fujitsu *s, unsigned char * buf, int len, int side)
 
   /* Data is RR...GG...BB... on each line,
    * green is back 8 lines from red at 300 dpi
-   * blue is back 4 lines from red at 300 dpi. 
+   * blue is back 4 lines from red at 300 dpi.
    *
    * Here, we get things on correct line, and
    * interlace to make RGBRGB.
@@ -8726,12 +8726,12 @@ copy_3091(struct fujitsu *s, unsigned char * buf, int len, int side)
       s->lines_rx[side]++;
   }
 
-  /* even if we have read data, we may not have any 
+  /* even if we have read data, we may not have any
    * full lines loaded yet, so we may have to lie */
   i = (s->lines_rx[side]-goff) * s->s_params.bytes_per_line;
   if(i < 0){
     i = 0;
-  } 
+  }
   s->bytes_rx[side] = i;
   s->buff_rx[side] = i;
 
@@ -8753,11 +8753,11 @@ copy_JPEG(struct fujitsu *s, unsigned char * buf, int len, int side)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
   int i, seen = 0;
- 
+
   DBG (10, "copy_JPEG: start\n");
 
   /* A jpeg image starts with the SOI marker, FF D8.
-   * This is optionally followed by the JFIF APP0 
+   * This is optionally followed by the JFIF APP0
    * marker, FF E0. If that marker is not present,
    * we add it, so we can insert the resolution */
 
@@ -8797,7 +8797,7 @@ copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side)
   int i, j;
   int bwidth = s->s_params.bytes_per_line;
   int pwidth = s->s_params.pixels_per_line;
- 
+
   DBG (10, "copy_buffer: start\n");
 
   /* invert image if scanner needs it for this mode */
@@ -8810,9 +8810,9 @@ copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side)
 
   /* scanners interlace colors in many different ways */
   if(s->s_params.format == SANE_FRAME_RGB){
-  
+
     switch (s->color_interlace) {
-  
+
       /* scanner returns pixel data as bgrbgr... */
       case COLOR_INTERLACE_BGR:
         for(i=0; i<len; i+=bwidth){
@@ -8823,7 +8823,7 @@ copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side)
           }
         }
         break;
-  
+
       /* one line has the following format: rrr...rrrggg...gggbbb...bbb */
       case COLOR_INTERLACE_RRGGBB:
         for(i=0; i<len; i+=bwidth){
@@ -8834,7 +8834,7 @@ copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side)
           }
         }
         break;
-  
+
       default:
         memcpy(s->buffers[side]+s->buff_rx[side],buf,len);
         s->buff_rx[side] += len;
@@ -8847,7 +8847,7 @@ copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side)
     memcpy(s->buffers[side]+s->buff_rx[side],buf,len);
     s->buff_rx[side] += len;
   }
-  
+
   s->bytes_rx[side] += len;
   s->lines_rx[side] += len/s->s_params.bytes_per_line;
 
@@ -8867,16 +8867,16 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf,
     SANE_Status ret=SANE_STATUS_GOOD;
     int bytes = max_len;
     int remain = s->buff_rx[side] - s->buff_tx[side];
-  
+
     DBG (10, "read_from_buffer: start\n");
-  
+
     /* figure out the max amount to transfer */
     if(bytes > remain){
         bytes = remain;
     }
-  
+
     *len = bytes;
-  
+
     DBG(15, "read_from_buffer: si:%d re:%d ml:%d by:%d\n",
       side, remain, max_len, bytes);
 
@@ -8885,19 +8885,19 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf,
 
     DBG(15, "read_from_buffer: buf to:%d rx:%d tx:%d\n",
       s->buff_tot[side], s->buff_rx[side], s->buff_tx[side]);
-  
+
     /*FIXME this needs to timeout eventually */
     if(!bytes){
         DBG(5,"read_from_buffer: nothing to do\n");
         return SANE_STATUS_GOOD;
     }
-  
+
     memcpy(buf,s->buffers[side]+s->buff_tx[side],bytes);
     s->buff_tx[side] += bytes;
     s->bytes_tx[side] += bytes;
 
     DBG (10, "read_from_buffer: finish\n");
-  
+
     return ret;
 }
 
@@ -8911,7 +8911,7 @@ downsample_from_buffer(struct fujitsu *s, SANE_Byte * buf,
     SANE_Status ret=SANE_STATUS_GOOD;
 
     DBG (10, "downsample_from_buffer: start %d %d %d %d\n", s->bytes_rx[side], s->bytes_tx[side], s->buff_rx[side], s->buff_tx[side]);
-  
+
     if(s->s_mode == MODE_COLOR && s->u_mode == MODE_GRAYSCALE){
 
       while(*len < max_len && s->buff_rx[side] - s->buff_tx[side] >= 3){
@@ -8959,7 +8959,7 @@ downsample_from_buffer(struct fujitsu *s, SANE_Byte * buf,
         for(i=0; i<8; i++){
 
           int gray = 0;
-  
+
           switch (s->dropout_color) {
             case COLOR_RED:
               gray = *(s->buffers[side]+s->buff_tx[side]) * 3;
@@ -8999,7 +8999,7 @@ downsample_from_buffer(struct fujitsu *s, SANE_Byte * buf,
     }
 
     DBG (10, "downsample_from_buffer: finish %d %d %d %d\n", s->bytes_rx[side], s->bytes_tx[side], s->buff_rx[side], s->buff_tx[side]);
-  
+
     return ret;
 }
 
@@ -9008,26 +9008,26 @@ downsample_from_buffer(struct fujitsu *s, SANE_Byte * buf,
  * @@ Section 5 - SANE cleanup functions
  */
 /*
- * Cancels a scan. 
+ * Cancels a scan.
  *
  * It has been said on the mailing list that sane_cancel is a bit of a
  * misnomer because it is routinely called to signal the end of a
  * batch - quoting David Mosberger-Tang:
- * 
+ *
  * > In other words, the idea is to have sane_start() be called, and
  * > collect as many images as the frontend wants (which could in turn
  * > consist of multiple frames each as indicated by frame-type) and
- * > when the frontend is done, it should call sane_cancel(). 
+ * > when the frontend is done, it should call sane_cancel().
  * > Sometimes it's better to think of sane_cancel() as "sane_stop()"
  * > but that name would have had some misleading connotations as
  * > well, that's why we stuck with "cancel".
- * 
+ *
  * The current consensus regarding duplex and ADF scans seems to be
  * the following call sequence: sane_start; sane_read (repeat until
  * EOF); sane_start; sane_read...  and then call sane_cancel if the
  * batch is at an end. I.e. do not call sane_cancel during the run but
  * as soon as you get a SANE_STATUS_NO_DOCS.
- * 
+ *
  * From the SANE spec:
  * This function is used to immediately or as quickly as possible
  * cancel the currently pending operation of the device represented by
@@ -9061,7 +9061,7 @@ sane_cancel (SANE_Handle handle)
 
 /*
  * Ends use of the scanner.
- * 
+ *
  * From the SANE spec:
  * This function terminates the association between the device handle
  * passed in argument h and the device it represents. If the device is
@@ -9104,7 +9104,7 @@ disconnect_fd (struct fujitsu *s)
 
 /*
  * Terminates the backend.
- * 
+ *
  * From the SANE spec:
  * This function must be called to terminate use of a backend. The
  * function will first close all device handles that still might be
@@ -9703,7 +9703,7 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
           rs_in, &rs_inLen
         );
         DBG(25,"rs sub call <<\n");
-  
+
         if(ret2 == SANE_STATUS_EOF){
           DBG(5,"rs: got EOF, returning IO_ERROR\n");
           return SANE_STATUS_IO_ERROR;
@@ -9736,7 +9736,7 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
 }
 
 static SANE_Status
-wait_scanner(struct fujitsu *s) 
+wait_scanner(struct fujitsu *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
@@ -9754,7 +9754,7 @@ wait_scanner(struct fujitsu *s)
     NULL, 0,
     NULL, NULL
   );
-  
+
   if (ret != SANE_STATUS_GOOD) {
     DBG(5,"WARNING: Brain-dead scanner. Hitting with stick\n");
     ret = do_cmd (
@@ -9783,7 +9783,7 @@ wait_scanner(struct fujitsu *s)
   return ret;
 }
 
-/* certain options require the entire image to 
+/* certain options require the entire image to
  * be collected from the scanner before we can
  * tell the user the size of the image. */
 static int
@@ -9803,7 +9803,7 @@ must_fully_buffer(struct fujitsu *s)
   return 0;
 }
 
-/* certain scanners require the mode of the 
+/* certain scanners require the mode of the
  * image to be changed in software. */
 static int
 must_downsample(struct fujitsu *s)
@@ -9823,7 +9823,7 @@ must_downsample(struct fujitsu *s)
  * due to using FB or overscan.
  */
 static int
-get_page_width(struct fujitsu *s) 
+get_page_width(struct fujitsu *s)
 {
   int width = s->page_width + 2 * (s->os_x_basic*1200/s->basic_x_res);
 
@@ -9852,7 +9852,7 @@ get_page_width(struct fujitsu *s)
  * due to using FB or overscan.
  */
 static int
-get_page_height(struct fujitsu *s) 
+get_page_height(struct fujitsu *s)
 {
   int height = s->page_height + 2 * (s->os_y_basic*1200/s->basic_y_res);
 
@@ -9883,7 +9883,7 @@ get_page_height(struct fujitsu *s)
  * and pick the right mode to match.
  */
 static int
-get_ipc_mode(struct fujitsu *s) 
+get_ipc_mode(struct fujitsu *s)
 {
   if ( s->bp_filter
     || s->smoothing
@@ -9912,10 +9912,10 @@ get_ipc_mode(struct fujitsu *s)
   return WD_ipc_DEFAULT;
 }
 
-/* s->max_y gives the maximum height of paper which can be scanned 
+/* s->max_y gives the maximum height of paper which can be scanned
  * this actually varies by resolution, so a helper to change it */
 static int
-set_max_y(struct fujitsu *s) 
+set_max_y(struct fujitsu *s)
 {
   int i;
 
@@ -10046,7 +10046,7 @@ buffer_deskew(struct fujitsu *s, int side)
     s->deskew_stat = sanei_magic_findSkew(
       &s->s_params,s->buffers[side],s->resolution_x,s->resolution_y,
       &s->deskew_vals[0],&s->deskew_vals[1],&s->deskew_slope);
-  
+
     if(s->deskew_stat){
       DBG (5, "buffer_deskew: bad findSkew, bailing\n");
       goto cleanup;
@@ -10101,7 +10101,7 @@ buffer_crop(struct fujitsu *s, int side)
     ret = SANE_STATUS_GOOD;
     goto cleanup;
   }
-  
+
   DBG (15, "buffer_crop: t:%d b:%d l:%d r:%d\n",
     s->crop_vals[0],s->crop_vals[1],s->crop_vals[2],s->crop_vals[3]);
 
@@ -10127,7 +10127,7 @@ buffer_crop(struct fujitsu *s, int side)
   /* update image size counter to new, smaller size */
   s->bytes_rx[side] = s->s_params.lines * s->s_params.bytes_per_line;
   s->buff_rx[side] = s->bytes_rx[side];
- 
+
   cleanup:
   DBG (10, "buffer_crop: finish\n");
   return ret;

@@ -46,7 +46,7 @@ port models may work (under Linux), if they use a parport->scsi chip,
 and if you can find a scsi->parport driver.  This is known to be the
 case for the Color PageWiz.
 .PP
-The driver does 
+The driver does
 .B not
 support the newest Microtek scanners, such as the V330 and V660, which use
 a new and very different SCSI-II command set.  For those, try the alternate
@@ -144,7 +144,7 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .TP
 .B SANE_DEBUG_MICROTEK
 If the library was compiled with debugging support enabled, this
-environment variable controls the debug level for this backend. 
+environment variable controls the debug level for this backend.
 A value of 128 requests maximally copious debug output; smaller
 levels reduce verbosity.
 
@@ -169,7 +169,7 @@ i.e. don't complain about these --- but if brightness and/or contrast
 .B do
 work for you, please tell me.
 .PP
-If your scanner locks up, try setting the 
+If your scanner locks up, try setting the
 .I norealcal
 or
 .I noprecal
@@ -188,7 +188,7 @@ setenv SANE_DEBUG_MICROTEK 128
 .RE
 .PP
 More general comments, suggestions, and inquiries about frontends
-or SANE should go to 
+or SANE should go to
 .BR sane\-devel@lists.alioth.debian.org ,
 the SANE Developers mailing list. Have a look at
 http://www.sane\-project.org/mailing\-lists.html concerning subscription to sane\-devel.

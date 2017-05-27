@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
- 
+
    Copyright (C) 2009 m. allan noah
 
    This file is part of the SANE package.
@@ -141,7 +141,7 @@ sanei_magic_findEdges(SANE_Parameters * params, SANE_Byte * buffer,
  * @param buffer contains image data
  * @param top vertical offset to upper edge of crop
  * @param bot vertical offset to lower edge of crop
- * @param left horizontal offset to left edge of crop 
+ * @param left horizontal offset to left edge of crop
  * @param right horizontal offset to right edge of crop
  *
  * @return

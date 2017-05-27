@@ -46,7 +46,7 @@
  *  Interface file for the sanei_access functions.
  *
  *  The idea is to provide some simple locking/unlocking mecanism, which
- *  can be used to protect device access from more than one frontend 
+ *  can be used to protect device access from more than one frontend
  *  simultaneously.
  */
 
@@ -66,7 +66,7 @@ extern void sanei_access_init( const char * backend );
 
 /** Set a lock.
  *
- * The function tries to open/create exclusively a lock file in 
+ * The function tries to open/create exclusively a lock file in
  * $PATH_SANE_LOCK_DIR.
  * If the file could be created successfully, the function fills in the
  * process ID.
@@ -77,7 +77,7 @@ extern void sanei_access_init( const char * backend );
  *
  * @param devicename - unique part of the lockfile name
  * @param timeout    - time in seconds to try to set a lock
- * @return  
+ * @return
  * - SANE_STATUS_GOOD          - if the lock has been successfully set
  * - SANE_STATUS_ACCESS_DENIED - the lock could not set
  */

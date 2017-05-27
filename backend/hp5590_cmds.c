@@ -179,10 +179,10 @@ struct power_resp
   uint16_t unk1;
 } __attribute__ ((packed));
 
-/* 
+/*
  * 215.9 mm x 297.2 mm
  * 8.5" x 11.72"
- * 
+ *
  *   50 :  425.00 x  586.00
  *   75 :  637.50 x  879.50
  *  100 :  850.00 x 1172.00
@@ -206,7 +206,7 @@ struct scan_params
 				 * TMA Negatives        : 11 = 17
 				 * TMA Slides           : 12 = 18
 				 * ADF                  : 14 = 20
-				 * Flatbed              : 18 = 24 
+				 * Flatbed              : 18 = 24
 				 * ADF Duplex           : 54 = 84
 				 */
 
@@ -263,7 +263,7 @@ struct scan_params
 				 *  50          : 06db =  1755 ; 150
 				 *  75          : 06da =  1754 ; 150
 				 * 100          : 06db =  1755 ; 150
-				 * 100 TMA      : 0384 =   900 ; 150 
+				 * 100 TMA      : 0384 =   900 ; 150
 				 * 150          : 0db6 =  3510 ; 300
 				 * 200          : 0db6 =  3510 ; 300
 				 * 300          : 0db6 =  3510 ; 300
@@ -321,8 +321,8 @@ struct scan_params
 				 * gray 75                              : 03 50 =   848
 				 * color 75                             : 09 f0 =  2544 (3 * gray)
 				 *
-				 * bw 100                               : 00 6a =   106 
-				 * gray 100                             : 03 50 =   848 (8 * bw) 
+				 * bw 100                               : 00 6a =   106
+				 * gray 100                             : 03 50 =   848 (8 * bw)
 				 * color 100(24)			: 09 f0 =  2544 (3 * gray)
 				 * color 100(48)			: 13 e0 =  5088 (2 * color 24)
 				 * color 100(48) TMA			: 03 f0 = 1008
@@ -428,7 +428,7 @@ hp5590_model_def (enum hp_scanner_types scanner_type,
 		  const struct hp5590_model ** model)
 {
   unsigned int i;
-   
+
   hp5590_cmds_assert (model != NULL);
 
   for (i = 0; i < sizeof (hp5590_models) / sizeof (struct hp5590_model); i++)
@@ -439,7 +439,7 @@ hp5590_model_def (enum hp_scanner_types scanner_type,
 	  return SANE_STATUS_GOOD;
 	}
     }
-	
+
   return SANE_STATUS_INVAL;
 }
 
@@ -777,9 +777,9 @@ hp5590_read_max_scan_count (SANE_Int dn,
 }
 
 /***************************************************************************
- * 
+ *
  * EEPROM contents:
- * 
+ *
  * 0000: 6A 11 00 00 FF FF FF FF FF FF FF FF 09 0E 0F 00  j...............
  * 0010: 0C 13 0F 00 00 3A 00 FF FF FF 4E 35 39 45 54 52  ..........N59ETR
  * 0020: 31 52 4D 00 FF FF 00 16 00 0A 00 0D 00 11 00 10  1RM.............
@@ -1024,7 +1024,7 @@ hp5590_read_error_code (SANE_Int dn,
   SANE_Status 	ret;
 
   DBG (DBG_proc, "%s\n", __func__);
-  
+
   hp5590_cmds_assert (sizeof (reg_03) == 3);
   hp5590_cmds_assert (adf_flags != NULL);
 
@@ -1057,7 +1057,7 @@ hp5590_reset_scan_head (SANE_Int dn,
   SANE_Status	ret;
 
   DBG (DBG_proc, "%s\n", __func__);
-  
+
   ret = hp5590_turnon_lamp (dn, proto_flags, LAMP_STATE_TURNOFF);
   if (ret != SANE_STATUS_GOOD)
     return ret;
@@ -2040,13 +2040,13 @@ GRAY 100
 18 00 64 00 64 00 00 00 00 04 f8 06 db 00 80 00
 40 08 e8 40 00 64 00 64 00 64 00 00 00 00 00 00
 00 00 00 03 50
-	
+
 COLOR 100
 18 00 64 00 64 00 00 00 00 04 f8 06 db 00 80 00
 00 18 e8 40 00 64 00 64 00 64 00 00 00 00 00 00
 00 00 00 09 f0
 
-COLOR 100 48bit, preview 
+COLOR 100 48bit, preview
 18 00 64 00 64 00 00 00 00 04 f8 06 db 00 80 00
 00 30 e8 40 00 64 00 64 00 64 00 00 00 00 00 00
 04 00 00 13 e0
@@ -2144,7 +2144,7 @@ GRAY 400
 18 02 58 02 58 00 00 00 00 13 ec 1b 6c 00 80 00
 40 08 c8 40 00 64 00 64 00 64 00 00 00 00 00 00
 00 00 00 13 ec
-	
+
 COLOR 400
 18 02 58 02 58 00 00 00 00 13 ec 1b 6c 00 80 00
 00 18 c8 40 00 64 00 64 00 64 00 00 00 00 00 00

@@ -7,42 +7,42 @@
                       calibration code.
 
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
-   
+
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
-   
+
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
-   
+
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
-   
+
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
-   
+
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 */
 
 #include "gt68xx_high.h"
@@ -560,7 +560,7 @@ gt68xx_scanner_start_scan_extended (GT68xx_Scanner * scanner,
       return status;
     }
 
-  if (scanner->dev->model->is_cis 
+  if (scanner->dev->model->is_cis
       && !((scanner->dev->model->flags & GT68XX_FLAG_SHEET_FED) && scanner->calibrated == SANE_FALSE))
     {
       status =
@@ -1016,7 +1016,7 @@ struct GT68xx_Afe_Values
 /** Calculate average black and maximum white
  *
  * This function is used for CCD scanners. The black mark to the left ist used
- * for the calculation of average black. The remaining calibration strip    
+ * for the calculation of average black. The remaining calibration strip
  * is used for searching the segment whose white average is the highest.
  *
  * @param values AFE values
@@ -1189,7 +1189,7 @@ finish:
 
 /* Wait for lamp to give stable brightness */
 static SANE_Status
-gt68xx_wait_lamp_stable (GT68xx_Scanner * scanner, 
+gt68xx_wait_lamp_stable (GT68xx_Scanner * scanner,
 			 GT68xx_Scan_Parameters * params,
 			 GT68xx_Scan_Request *request,
 			 unsigned int *buffer_pointers[3],
@@ -2006,7 +2006,7 @@ gt68xx_calibrator_create_copy (GT68xx_Calibrator ** calibrator,
 
   return status;
 }
- 
+
 static SANE_Status
 gt68xx_sheetfed_move_to_scan_area (GT68xx_Scanner * scanner,
 				  GT68xx_Scan_Request * request)
@@ -2032,8 +2032,8 @@ gt68xx_sheetfed_move_to_scan_area (GT68xx_Scanner * scanner,
  * target (which may be a blank page). It first move to a white area then
  * does afe and exposure calibration. Then it scans white lines to get data
  * for shading correction.
- * @param scanner structure describing the frontend session and the device 
- * @return SANE_STATUS_GOOD is everything goes right, SANE_STATUS_INVAL 
+ * @param scanner structure describing the frontend session and the device
+ * @return SANE_STATUS_GOOD is everything goes right, SANE_STATUS_INVAL
  * otherwise.
  */
 static SANE_Status
@@ -2349,10 +2349,10 @@ gt68xx_sheetfed_scanner_calibrate (GT68xx_Scanner * scanner)
 
 /** @brief assign calibration for scan
  * This function creates the calibrators and set up afe for the requested
- * scan. It uses calibration data that has been created by 
+ * scan. It uses calibration data that has been created by
  * gt68xx_sheetfed_scanner_calibrate.
- * @param scanner structure describing the frontend session and the device 
- * @return SANE_STATUS_GOOD is everything goes right, SANE_STATUS_INVAL 
+ * @param scanner structure describing the frontend session and the device
+ * @return SANE_STATUS_GOOD is everything goes right, SANE_STATUS_INVAL
  * otherwise.
  */
 static SANE_Status

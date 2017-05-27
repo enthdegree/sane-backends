@@ -51,7 +51,7 @@ SOLUTION:
 ---------
 Set the link /usr/src/linux
 to your current kernel-source tree before recompiling
-kernel-modules like pt_drv, then your version mismatch 
+kernel-modules like pt_drv, then your version mismatch
 problem should be solved.
 
 
@@ -303,7 +303,7 @@ A:  Normally, there is no need to do so, because once you
     have to worry about loading the driver. It happens automagically. ;-)
     The driver will be loaded when needed (and eventually
     removed after a specific time of not using it).
-	
+
     Nevertheless, another possibility is to do a modprobe pt_drv in the
     /etc/rc.d/boot.local (using SuSE) or
     /etc/rc.d/rc.local (using RedHat or Mandrake) file

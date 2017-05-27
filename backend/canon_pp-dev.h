@@ -42,7 +42,7 @@
 
    canon_pp-dev.h: $Revision$
 
-   This file is part of the canon_pp backend, supporting Canon FBX30P 
+   This file is part of the canon_pp backend, supporting Canon FBX30P
    and NX40P scanners and also part of the stand-alone driver.
 
    Simon Krix <kinsei@users.sourceforge.net>
@@ -105,9 +105,9 @@ typedef struct scanner_parameter_struct
 	int max_xresolution;
 	int max_yresolution;
 
-	/* ID String. Should only be 38(?) bytes long, so we can 
+	/* ID String. Should only be 38(?) bytes long, so we can
 	   reduce the size later. */
-	char id_string[80]; 
+	char id_string[80];
 
 	/* Short, readable scanner name, such as "FB330P" */
 	char name[40];
@@ -120,7 +120,7 @@ typedef struct scanner_parameter_struct
 	unsigned long *blueweight;
 
 	/* Not understood white-balance/gain values */
-	unsigned char gamma[32]; 
+	unsigned char gamma[32];
 
 	/* Type of scanner ( 0 = *20P, 1 = [*30P|*40P] ) */
 	unsigned char type;
@@ -154,7 +154,7 @@ typedef struct image_segment_struct
 
 /* Scan-related functions ========================= */
 
-/* Brings the scanner in and out of transparent mode 
+/* Brings the scanner in and out of transparent mode
    and detects model information */
 int sanei_canon_pp_initialise(scanner_parameters *sp, int mode);
 int sanei_canon_pp_close_scanner(scanner_parameters *sp);
@@ -162,7 +162,7 @@ int sanei_canon_pp_close_scanner(scanner_parameters *sp);
 /* Image scanning functions */
 int sanei_canon_pp_init_scan(scanner_parameters *sp, scan_parameters *scanp);
 
-int sanei_canon_pp_read_segment(image_segment **dest, scanner_parameters *sp, 
+int sanei_canon_pp_read_segment(image_segment **dest, scanner_parameters *sp,
 		scan_parameters *scanp, int scanline_count, int do_adjust,
 		int scanlines_left);
 

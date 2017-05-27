@@ -87,7 +87,7 @@ typedef unsigned long int md5_uintptr;
 #define ALIGN __attribute__ ((__aligned__ (4)))
 #else
 #define ALIGN
-#endif 
+#endif
 
 /* Structure to save state of computation between the single steps.  */
 struct md5_ctx

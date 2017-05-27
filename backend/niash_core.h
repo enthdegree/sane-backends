@@ -124,7 +124,7 @@ STATIC SANE_Bool CircBufferGetLine (int iHandle, TDataPipe * p,
 				    unsigned char *pabLine,
 				    SANE_Bool iReversedHead);
 
-/* returns false, when trying to read after end of buffer 
+/* returns false, when trying to read after end of buffer
    if fReturn==SANE_TRUE, the head will return automatically on an end of scan */
 
 STATIC SANE_Bool

@@ -80,9 +80,9 @@ static SnapScan_Model snapscani_get_model_id(char* model_str, int fd, SnapScan_B
     if ((bus_type == USB) &&
         (sanei_usb_get_vendor_product(fd, &vendor_id, &product_id) == SANE_STATUS_GOOD))
     {
-    	DBG(DL_MINOR_INFO, 
+    	DBG(DL_MINOR_INFO,
             "%s: looking up scanner for ID 0x%04x,0x%04x.\n",
-            me, vendor_id, product_id);           
+            me, vendor_id, product_id);
         for (i = 0; i < known_usb_scanners; i++)
         {
             if ((usb_scanners[i].vendor_id == vendor_id) &&
@@ -1320,7 +1320,7 @@ static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
                 else
                 {
                     /* This seems to happen for Epson scanners. Return
-                       SANE_STATUS_GOOD and hope the scanner accepts the 
+                       SANE_STATUS_GOOD and hope the scanner accepts the
                        next command... */
                     DBG (DL_CALL_TRACE, "%s: No timeout specified, returning immediately\n", me);
                     return SANE_STATUS_GOOD;

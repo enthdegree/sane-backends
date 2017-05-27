@@ -180,5 +180,5 @@ The value controls the verbosity of the backend.
 .SH "KNOWN BUGS & RESTRICTIONS"
 * The driver is in alpha state, so please don't expect too much!!!
 .PP
-* When using libusb, it might be, that the backend hangs. 
+* When using libusb, it might be, that the backend hangs.
 In that case, reconnect the scanner.

@@ -1,7 +1,7 @@
 /***************************************************************************
  * SANE - Scanner Access Now Easy.
 
-   microtek.h 
+   microtek.h
 
    This file Copyright 2002 Matthew Marjanovic
 
@@ -60,13 +60,13 @@
 
 
 /*******************************************************************/
-/***** enumeration of Option Descriptors                       *****/ 
+/***** enumeration of Option Descriptors                       *****/
 /*******************************************************************/
 
 enum Mtek_Option
 {
   OPT_NUM_OPTS = 0,
-  
+
   OPT_MODE_GROUP,
   OPT_MODE,             /* -a,b,c,g */
   OPT_HALFTONE_PATTERN, /* -H */
@@ -77,13 +77,13 @@ enum Mtek_Option
   OPT_SOURCE,           /* -t */
   OPT_PREVIEW,
   OPT_CALIB_ONCE,
-  
+
   OPT_GEOMETRY_GROUP,   /* -f .... */
   OPT_TL_X,             /* top-left x */
   OPT_TL_Y,             /* top-left y */
   OPT_BR_X,             /* bottom-right x */
-  OPT_BR_Y,             /* bottom-right y */ 
-  
+  OPT_BR_Y,             /* bottom-right y */
+
   OPT_ENHANCEMENT_GROUP,
   OPT_EXPOSURE,
   OPT_BRIGHTNESS,       /* -d */
@@ -91,7 +91,7 @@ enum Mtek_Option
   OPT_HIGHLIGHT,        /* -l */
   OPT_SHADOW,           /* -s */
   OPT_MIDTONE,          /* -m */
-  
+
   OPT_GAMMA_GROUP,
   OPT_CUSTOM_GAMMA,
   OPT_ANALOG_GAMMA,
@@ -106,16 +106,16 @@ enum Mtek_Option
   OPT_GAMMA_BIND,
 
   NUM_OPTIONS,
-  
+
   OPT_BACKTRACK,        /* -B */
-  
+
   /* must come last: */
   RNUM_OPTIONS
 };
 
 
 /*******************************************************************/
-/***** scanner hardware information (as discovered by INQUIRY) *****/ 
+/***** scanner hardware information (as discovered by INQUIRY) *****/
 /*******************************************************************/
 
 typedef struct Microtek_Info {
@@ -131,7 +131,7 @@ typedef struct Microtek_Info {
   SANE_Byte response_data_format;
 #define MI_RESSTEP_1PER 0x01
 #define MI_RESSTEP_5PER 0x02
-  SANE_Byte res_step; 
+  SANE_Byte res_step;
 #define MI_MODES_LINEART  0x01
 #define MI_MODES_HALFTONE 0x02
 #define MI_MODES_GRAY     0x04  /* ??????? or "MultiBit"??? XXXXX*/
@@ -139,9 +139,9 @@ typedef struct Microtek_Info {
 #define MI_MODES_TRANSMSV 0x20
 #define MI_MODES_ONEPASS  0x40
 #define MI_MODES_NEGATIVE 0x80
-  SANE_Byte modes; 
-  SANE_Int pattern_count; 
-  SANE_Byte pattern_dwnld; 
+  SANE_Byte modes;
+  SANE_Int pattern_count;
+  SANE_Byte pattern_dwnld;
 #define MI_FEED_FLATBED  0x01
 #define MI_FEED_EDGEFEED 0x02
 #define MI_FEED_AUTOSUPP 0x04
@@ -191,7 +191,7 @@ typedef struct Microtek_Info {
 #define MI_FMT_CAP_12BPP 0x04
 #define MI_FMT_CAP_16BPP 0x08
   SANE_Byte bit_formats;        /* output bit formats capabilities   */
-#define MI_EXCAP_OFF_CTL   0x01 
+#define MI_EXCAP_OFF_CTL   0x01
 #define MI_EXCAP_DIS_LNTBL 0x02
 #define MI_EXCAP_DIS_RECAL 0x04
   SANE_Byte extra_cap;
@@ -240,7 +240,7 @@ typedef struct ring_buffer {
   size_t green_extra; /* unmatched green bytes */
   size_t red_extra;   /* unmatched red bytes   */
 
-  size_t complete_count; 
+  size_t complete_count;
   size_t head_complete;
 
 } ring_buffer;
@@ -256,7 +256,7 @@ typedef struct ring_buffer {
 typedef struct Microtek_Scanner {
   struct Microtek_Scanner *next;  /* for linked list */
   Microtek_Device *dev;           /* raw device info */
-  
+
   SANE_Option_Descriptor sod[RNUM_OPTIONS]; /* option list for session   */
   Option_Value val[RNUM_OPTIONS];  /* option values for session */
 
@@ -295,7 +295,7 @@ typedef struct Microtek_Scanner {
   SANE_Int gamma_entry_size;
   SANE_Int gamma_bit_depth;
   /*  SANE_Int gamma_max_entry;*/
-  
+
   SANE_Range gamma_entry_range;
   SANE_Range contrast_range;
   SANE_Range exposure_range;
@@ -366,7 +366,7 @@ typedef struct Microtek_Scanner {
 #define MS_PRECAL_EXP_COLOR 3
   SANE_Byte precal_record; /* record what precalibrations have been done */
 
-#define MS_SENSE_IGNORE 1 
+#define MS_SENSE_IGNORE 1
   int sense_flags;  /* flags passed to the sense handler */
 
   uint8_t *scsi_buffer;

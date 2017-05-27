@@ -6,42 +6,42 @@
                       calibration code.
 
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
-   
+
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
-   
+
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
-   
+
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
-   
+
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 */
 
 /*
@@ -756,7 +756,7 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_SENSOR_GROUP].desc = SANE_DESC_SENSORS;
   s->opt[OPT_SENSOR_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_SENSOR_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
-  
+
   /* calibration needed */
   s->opt[OPT_NEED_CALIBRATION_SW].name = "need-calibration";
   s->opt[OPT_NEED_CALIBRATION_SW].title = SANE_I18N ("Need calibration");
@@ -1616,7 +1616,7 @@ sane_close (SANE_Handle handle)
     gt68xx_device_lamp_control (s->dev, SANE_FALSE, SANE_FALSE);
 
   dev = s->dev;
-  
+
   free (s->val[OPT_MODE].s);
   free (s->val[OPT_GRAY_MODE_COLOR].s);
   free (s->val[OPT_SOURCE].s);
@@ -1624,7 +1624,7 @@ sane_close (SANE_Handle handle)
   free ((void *)(size_t)s->opt[OPT_RESOLUTION].constraint.word_list);
 
   gt68xx_scanner_free (s);
-  
+
   gt68xx_device_fix_descriptor (dev);
 
   gt68xx_device_deactivate (dev);
@@ -1859,7 +1859,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           status = gt68xx_sheetfed_scanner_calibrate (s);
           myinfo |= SANE_INFO_RELOAD_OPTIONS;
           break;
-    
+
         case OPT_CLEAR_CALIBRATION:
           gt68xx_clear_calibration (s);
           myinfo |= SANE_INFO_RELOAD_OPTIONS;
@@ -2045,14 +2045,14 @@ sane_start (SANE_Handle handle)
     {
       /* compute scan parameters */
       scan_request.calculate = SANE_TRUE;
-      gt68xx_device_setup_scan (s->dev, &scan_request, SA_SCAN, &scan_params); 
+      gt68xx_device_setup_scan (s->dev, &scan_request, SA_SCAN, &scan_params);
 
       /* restore settings from calibration stored */
       memcpy(s->dev->afe,&(s->afe_params), sizeof(GT68xx_AFE_Parameters));
       RIE (gt68xx_assign_calibration (s, scan_params));
       scan_request.calculate = SANE_FALSE;
     }
- 
+
   /* send scan request to the scanner */
   RIE (gt68xx_scanner_start_scan (s, &scan_request, &scan_params));
 
@@ -2331,7 +2331,7 @@ sane_cancel (SANE_Handle handle)
       if (s->dev->model->flags & GT68XX_FLAG_SHEET_FED)
         {
           gt68xx_device_paperfeed (s->dev);
-        } 
+        }
       else
         {
           sanei_usb_set_timeout (SHORT_TIMEOUT);

@@ -92,7 +92,7 @@ can be found in
 
 To install it on a SPARC do:
 
-	cd /tmp 
+	cd /tmp
 	get SCHILYscg.sparc.tar.Z
 	uncompress SCHILYscg.sparc.tar.Z
 	tar -xvf SCHILYscg.sparc.tar
@@ -105,7 +105,7 @@ NOTE: Be very careful with pkgadd as it does not check for the correct
 
 For Solaris on an x86 do:
 
-	cd /tmp 
+	cd /tmp
 	get SCHILYscg.i386.tar.Z
 	uncompress SCHILYscg.i386.tar.Z
 	tar -xvf SCHILYscg.i386.tar

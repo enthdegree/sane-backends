@@ -38,12 +38,12 @@ REQUEST SENSE:
 INQUIRY:
 12 00 00 00 60 00
   result:
-    06 00 02 02 5B 00 00 10 4B 2E 4D 2E 45 2E 20 20 
-    4B 56 2D 53 53 32 35 41 20 20 20 20 20 20 20 20 
-    31 2E 30 35 00 00 00 00 00 00 00 00 00 00 00 00 
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+    06 00 02 02 5B 00 00 10 4B 2E 4D 2E 45 2E 20 20
+    4B 56 2D 53 53 32 35 41 20 20 20 20 20 20 20 20
+    31 2E 30 35 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
 SET WINDOWS:
 24 00 00 00 00 00 00 00 00 00
@@ -51,9 +51,9 @@ SET WINDOWS:
 24 00 00 00 00 00 00 00 48 00
    72 bytes.
    6-7 = 0x40 = window descriptor length
-   
+
    Window Descriptor Block:
-   0 = page side 
+   0 = page side
 	 0x00 = front
 	 0x80 = back
    2-3 = X resolution
@@ -80,7 +80,7 @@ SET WINDOWS:
 	  0x80 = User downloaded pattern
    29 = reverse image
       0x00 = no reverse
-      0x80 = reverse 
+      0x80 = reverse
    43 = image emphasis
 	  0x80 smooth
 	  0x00 none
@@ -111,7 +111,7 @@ SET WINDOWS:
 	  0x82 = mode 3
    59 = automatic separation
 	  0x00 = no (twain default)
-	  0x80 = yes 
+	  0x80 = yes
    60 = white level
       0x00 = from white stick (twain default)
 	  0x80 = from paper
@@ -136,7 +136,7 @@ READ:
         5: page side
 		   0x00 = front
 		   0x80 = back
-  
+
       0x80 image size in dots
          3(?)-4: number of the page to read. Multipage mode.
 
@@ -147,7 +147,7 @@ READ:
 SEND(10):
   2A 00 03 00 00 01 00 01 0A 00
   2 = data type code
-    0x02 = halftone pattern 
+    0x02 = halftone pattern
        data is 10 bytes of header + 64 bytes for the matrix
     0x03 = gamma table
        data is 10 bytes of header + 256 bytes for the table

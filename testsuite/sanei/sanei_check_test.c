@@ -427,7 +427,7 @@ wrong_bool_array (void)
 
 
 /**
- * run the test suite for sanei_check_value related tests 
+ * run the test suite for sanei_check_value related tests
  */
 static void
 sanei_check_suite (void)

@@ -112,7 +112,7 @@ inb (u_long port)
 #define PORT_DEV	"/dev/port"
 
 /*    base    278 (lpt2)
-   
+
               ioport  stat    ctrl
       offs    0       1       2
       len     1       1       1     */
@@ -174,7 +174,7 @@ static int pio_write (const Port port, const u_char * buf, int n);
 static int pio_read (const Port port, u_char * buf, int n);
 static int pio_open (const char *dev, SANE_Status * status);
 
-static inline int 
+static inline int
 pio_outb (const Port port, u_char val, u_long addr)
 {
 
@@ -190,7 +190,7 @@ pio_outb (const Port port, u_char val, u_long addr)
   return 0;
 }
 
-static inline int 
+static inline int
 pio_inb (const Port port, u_char * val, u_long addr)
 {
 
@@ -206,7 +206,7 @@ pio_inb (const Port port, u_char * val, u_long addr)
   return 0;
 }
 
-static inline int 
+static inline int
 pio_wait (const Port port, u_char val, u_char mask)
 {
   int stat = 0;
@@ -268,7 +268,7 @@ pio_ctrl (const Port port, u_char val)
   return;
 }
 
-static inline void 
+static inline void
 pio_delay (const Port port)
 {
   inb (port->base + PIO_STAT);	/* delay */
@@ -276,14 +276,14 @@ pio_delay (const Port port)
   return;
 }
 
-static inline void 
+static inline void
 pio_init (const Port port)
 {
   pio_ctrl (port, PIO_CTRL_IE);
   return;
 }
 
-static void 
+static void
 pio_reset (const Port port)
 {
   int n;
@@ -302,7 +302,7 @@ pio_reset (const Port port)
   return;
 }
 
-static int 
+static int
 pio_write (const Port port, const u_char * buf, int n)
 {
   int k;
@@ -356,7 +356,7 @@ pio_write (const Port port, const u_char * buf, int n)
   return k;
 }
 
-static int 
+static int
 pio_read (const Port port, u_char * buf, int n)
 {
   int k;
@@ -401,10 +401,10 @@ pio_read (const Port port, u_char * buf, int n)
 }
 
 /*
-     Open the device, <dev> must contain a valid port number (as string).   
+     Open the device, <dev> must contain a valid port number (as string).
  */
 
-static int 
+static int
 pio_open (const char *dev, SANE_Status * status)
 {
   static int first_time = 1;
@@ -481,7 +481,7 @@ pio_open (const char *dev, SANE_Status * status)
   return n;
 }
 
-SANE_Status 
+SANE_Status
 sanei_pio_open (const char *dev, int *fdp)
 {
   SANE_Status status;
@@ -490,7 +490,7 @@ sanei_pio_open (const char *dev, int *fdp)
   return status;
 }
 
-void 
+void
 sanei_pio_close (int fd)
 {
   Port p = port + fd;
@@ -512,7 +512,7 @@ sanei_pio_close (int fd)
   return;
 }
 
-int 
+int
 sanei_pio_read (int fd, u_char * buf, int n)
 {
   if ((0 > fd) && (NELEMS (port) <= fd))
@@ -524,7 +524,7 @@ sanei_pio_read (int fd, u_char * buf, int n)
   return pio_read (&port[fd], buf, n);
 }
 
-int 
+int
 sanei_pio_write (int fd, const u_char * buf, int n)
 {
   if ((0 > fd) && (NELEMS (port) <= fd))
@@ -546,30 +546,30 @@ SANE_Status
 sanei_pio_open (const char *dev, int *fdp)
 {
 	int fp;
-	
+
 	/* open internal parallel port */
 	fp=open("/dev/parallel/parallel1",O_RDWR);
-  
+
   	*fdp=fp;
   	if(fp<0) return SANE_STATUS_INVAL;
   	return(SANE_STATUS_GOOD);
 }
 
 
-void 
+void
 sanei_pio_close (int fd)
 {
 	close(fd);
 	return;
 }
 
-int 
+int
 sanei_pio_read (int fd, u_char * buf, int n)
 {
 	return(read(fd,buf,n));
 }
 
-int 
+int
 sanei_pio_write (int fd, const u_char * buf, int n)
 {
   	return(write(fd,buf,n));
@@ -585,19 +585,19 @@ sanei_pio_open (const char *dev, int *fdp)
 }
 
 
-void 
+void
 sanei_pio_close (int fd)
 {
   return;
 }
 
-int 
+int
 sanei_pio_read (int fd, u_char * buf, int n)
 {
   return -1;
 }
 
-int 
+int
 sanei_pio_write (int fd, const u_char * buf, int n)
 {
   return -1;

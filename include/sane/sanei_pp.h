@@ -36,7 +36,7 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 */
 
 /** @file sanei_pp.h
@@ -78,7 +78,7 @@ enum sanei_pp_mode {
  */
 extern SANE_Status sanei_pp_init( void );
 
-/** Open a parport device. 
+/** Open a parport device.
  *
  * @param dev - name of device to open.
  * @param fd  - pointer to variable that should revceive the handle.
@@ -95,7 +95,7 @@ extern void sanei_pp_close( int fd );
 /** Claim a parport device
  *
  * @param fd - handle of the device to claim
- * @return 
+ * @return
  */
 extern SANE_Status sanei_pp_claim( int fd );
 

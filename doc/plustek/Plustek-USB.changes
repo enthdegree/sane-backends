@@ -148,7 +148,7 @@ optical one (sensor stops too early)
 V 0.50-2 (2005-08-19)
 ---------------------
 More cleanup.
-Removed obsolete _WAF_BLACKFINE. 
+Removed obsolete _WAF_BLACKFINE.
 LiDE20 does not seem to have a reliable black calibration area,
 so the devices now will switch off the lamp for dark calibration.
 Fixed line statistics and added  calibration data output.
@@ -283,7 +283,7 @@ V 0.47-1 - 0.47-4
 
 V 0.46-9 (2003-11-03)
 ---------------------
-- Added alternate calibration for CIS devices 
+- Added alternate calibration for CIS devices
 - Added coarse calibration data-cache
 - Moved parallelport code to extra backend file plustek_pp
 - Fixed some minor bugs

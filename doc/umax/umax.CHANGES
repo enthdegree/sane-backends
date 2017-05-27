@@ -101,7 +101,7 @@ sane-0.6 / 0.61 / 0.62 -> 0.63
 
     * added support for each color (R,G,B) for highlight and shadow
 
-    * added "Astra 1200S" and "UC840" as supported 
+    * added "Astra 1200S" and "UC840" as supported
 
     * added bad bugfix for preview-problem with S6E
       (in umax-scsi.c function start_scan)
@@ -344,7 +344,7 @@ sane-0.70/0.71 -> 0.72
 
     * combined bind for highlight, shadow, analog-gamma and new
       exposure time functions to rgb-bind
-      
+
     * added set_WD_line_arrangement(buffer_r, WD_line_arrengement_by_driver);
       if driver is doing color-ordering from line to pixel
 
@@ -423,11 +423,11 @@ sane-0.73 -> 0.74
     * added sigterm_handler for umax_reader_process
       changed sane_canel, do_canel and do_eof(=close_pipe),
       cancel now works!
-     
+
     * changed trim_rowbufsize that made problems with SGI,
       there has been an overflow because of big buffersize
 
-      
+
 sane-0.74 -> 1.00 (build 0)
 ---------------------------
 
@@ -682,7 +682,7 @@ build-15 -> build-16
 
     * OPT_SOURCE: removed change of width/height and "*info |= SANE_INFO_RELOAD_PARAMS;"
       from get_value to set_value and added "*info |= SANE_INFO_RELOAD_OPTIONS;"
-     
+
 
 build-16 -> build-17
 --------------------
@@ -782,7 +782,7 @@ build-21 -> build-22
        scsi-read commands, it also is possible to give
        bothe scanners different scsi command queueing depth).
 
-    * prepared replacement of pipe by sanei_ipc_* routines 
+    * prepared replacement of pipe by sanei_ipc_* routines
 
     * added routines umax_get_lamp_status and umax_set_lamp_status
 
@@ -826,7 +826,7 @@ build-22 -> build-23
 
     * for Astra 2200 selection for different x/y resolutions is disabled
 
-    
+
 build-23 -> build-24 (sane-1.0.4)
 --------------------
 
@@ -837,8 +837,8 @@ build-23 -> build-24 (sane-1.0.4)
     * enabled lamp control for Astra 2100S
 
     * Added warning in sane_control_option if option could not be set
- 
-    
+
+
 build-24 -> build-25
 --------------------
 
@@ -906,7 +906,7 @@ build-24 -> build-25
    * added #define SANE_I18N(text) text to umax.c. This is to mark the backend
      specific texts that shall be translated by the frontend
 
-    
+
 build-25 -> build-26
 --------------------
 
@@ -925,11 +925,11 @@ build-25 -> build-26
 
    * changed some static unsigned int to static int
 
-   * sane_exit does free devlist 
+   * sane_exit does free devlist
 
    * added some options for Powerlook 3000 - still is not completly supported
 
-    
+
 build-26 -> build-27
 --------------------
 
@@ -940,7 +940,7 @@ build-26 -> build-27
 
    * changed default minimum scsi buffer size from 64KB to 32 KB
 
-    
+
 build-27 -> build-28
 --------------------
 
@@ -967,7 +967,7 @@ build-27 -> build-28
 
    * added Heidelberg Linoscan 1400 "HDM LS4H1S" as supported scanner
 
-    
+
 build-28 -> build-29
 --------------------
 
@@ -1026,10 +1026,10 @@ build-32 -> build-33
   * added USB support for Astra 2200
     thanks to Frank Zago <fzago@greshamstorage.com>
     for creating umax-usb.c and suggesting several changes to umax.c
-   
+
   * added umax.conf option "connection-type", values: 1=scsi, 2=usb
 
-  * added umax.conf device selection "usb 0x1606 0x0230" (usb vendor_id product_id) 
+  * added umax.conf device selection "usb 0x1606 0x0230" (usb vendor_id product_id)
 
   * removed #ifdef HAVE_SANEI_IPC parts (SANEI_IPC was never defined)
 

@@ -129,9 +129,9 @@
 /** @mainpage
  *  @verbinclude Plustek-USB.txt
  */
-  
+
 #ifdef _AIX
-# include "../include/lalloca.h" 
+# include "../include/lalloca.h"
 #endif
 
 #include "../include/sane/config.h"
@@ -339,7 +339,7 @@ getScanMode( Plustek_Scanner *scanner )
 {
 	int mode;
 	int scanmode;
-	
+
 	/* are we in TPA-mode? */
 	mode = scanner->val[OPT_MODE].w;
 	if( scanner->val[OPT_EXT_MODE].w != 0 )
@@ -384,7 +384,7 @@ max_string_size (const SANE_String_Const strings[])
 
 /** shutdown open pipes
  */
-static SANE_Status 
+static SANE_Status
 close_pipe( Plustek_Scanner *scanner )
 {
 	if( scanner->r_pipe >= 0 ) {
@@ -550,7 +550,7 @@ reader_process( void *args )
                                                           (int)status, lerrn );
 		if( _E_ABORT == (int)status )
 			return SANE_STATUS_CANCELLED;
-		
+
 		if( lerrn == EBUSY )
 			return SANE_STATUS_DEVICE_BUSY;
 
@@ -746,7 +746,7 @@ init_options( Plustek_Scanner *s )
 	else
 		s->opt[OPT_BIT_DEPTH].constraint.word_list = bpp_lm9832_list;
 	s->val[OPT_BIT_DEPTH].w = 8;
-	
+
 	if (caps->workaroundFlag & _WAF_ONLY_8BIT)
 		_DISABLE(OPT_BIT_DEPTH);
 
@@ -851,7 +851,7 @@ init_options( Plustek_Scanner *s )
 	s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
 
 	/* "Enhancement" group: */
-	s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");	
+	s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");
 	s->opt[OPT_ENHANCEMENT_GROUP].desc  = "";
 	s->opt[OPT_ENHANCEMENT_GROUP].type  = SANE_TYPE_GROUP;
 	s->opt[OPT_ENHANCEMENT_GROUP].cap   = 0;
@@ -899,7 +899,7 @@ init_options( Plustek_Scanner *s )
 	s->opt[OPT_GAMMA_VECTOR_B].constraint.range = &(s->gamma_range);
 	s->opt[OPT_GAMMA_VECTOR_B].size = s->gamma_length * sizeof(SANE_Word);
 
-	/* GAMMA stuff is disabled per default */	
+	/* GAMMA stuff is disabled per default */
 	_DISABLE(OPT_GAMMA_VECTOR);
 	_DISABLE(OPT_GAMMA_VECTOR_R);
 	_DISABLE(OPT_GAMMA_VECTOR_G);
@@ -996,7 +996,7 @@ init_options( Plustek_Scanner *s )
 	s->opt[OPT_AFE_GROUP].desc  = "";
 	s->opt[OPT_AFE_GROUP].type  = SANE_TYPE_GROUP;
 	s->opt[OPT_AFE_GROUP].cap   = SANE_CAP_ADVANCED;
-	
+
 	s->opt[OPT_OVR_REDGAIN].name  = "red-gain";
 	s->opt[OPT_OVR_REDGAIN].title = SANE_I18N("Red gain");
 	s->opt[OPT_OVR_REDGAIN].desc  = SANE_I18N("Red gain value of the AFE");
@@ -1118,8 +1118,8 @@ init_options( Plustek_Scanner *s )
  */
 static void
 decodeUsbIDs( char *src, char **dest )
-{		
-	const char *name;	
+{
+	const char *name;
 	char       *tmp = *dest;
 	int         len = strlen(_SECTION);
 
@@ -1134,11 +1134,11 @@ decodeUsbIDs( char *src, char **dest )
 	if( '\0' == name[0] ) {
 		DBG( _DBG_SANE_INIT, "next device uses autodetection\n" );
 	} else {
-			
+
 		u_short pi = 0, vi = 0;
 
 		if( *name ) {
-	
+
 			name = sanei_config_get_string( name, &tmp );
 			if( tmp ) {
 		    	vi = strtol( tmp, 0, 0 );
@@ -1208,7 +1208,7 @@ decodeVal( char *src, char *opt, int what, void *result, void *def )
 						free( tmp2 );
 					}
 				}
-				free( tmp );	
+				free( tmp );
 				return SANE_TRUE;
 
 			} else if( _FLOAT == what ) {
@@ -1226,7 +1226,7 @@ decodeVal( char *src, char *opt, int what, void *result, void *def )
 						free( tmp2 );
 					}
 				}
-				free( tmp );	
+				free( tmp );
 				return SANE_TRUE;
 			}
 		}
@@ -1245,7 +1245,7 @@ decodeVal( char *src, char *opt, int what, void *result, void *def )
 static SANE_Bool
 decodeDevName( char *src, char *dest )
 {
-	char       *tmp;	
+	char       *tmp;
 	const char *name;
 
 	if( 0 == strncmp( "device", src, 6 )) {
@@ -1360,7 +1360,7 @@ attach( const char *dev_name, CnfDef *cnf, Plustek_Device **devp )
 	 */
 	dev->res_list = (SANE_Int *)
 	                 calloc((((dev->usbDev.Caps.OpticDpi.x*16)-_DEF_DPI)/25+1),
-	                 sizeof (SANE_Int));  
+	                 sizeof (SANE_Int));
 
 	if (NULL == dev->res_list) {
 		DBG( _DBG_ERROR, "calloc failed: %s\n", strerror(errno));
@@ -1565,10 +1565,10 @@ sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 
 			/* re-initialize the configuration structure */
 			init_config_struct( &config );
-		
+
 			tmp = config.usbId;
 			decodeUsbIDs( str, &tmp );
-		
+
 			DBG( _DBG_SANE_INIT, "... next device\n" );
 			continue;
 
@@ -1613,7 +1613,7 @@ sane_exit( void )
 
 		if( dev->calFile )
 			free( dev->calFile );
-		
+
         if( dev->res_list )
 			free( dev->res_list );
 		free( dev );
@@ -1807,7 +1807,7 @@ do_calibration( void *args )
 				continue;
 			}
 		}
- 
+
 		dev->scanning.dwFlag |= SCANFLAG_Calibration;
 
 		if (SANE_STATUS_GOOD == local_sane_start(s, modes[scanmode])) {
@@ -1937,7 +1937,7 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 				strcpy ((char *) value,
 					  s->opt[option].constraint.string_list[s->val[option].w]);
 				break;
-	
+
 			/* word array options: */
 			case OPT_GAMMA_VECTOR:
 				DBG( _DBG_INFO, "Reading MASTER gamma.\n" );
@@ -2000,7 +2000,7 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 						*(SANE_Word *)value = best;
 
 					if( NULL != info ) {
-						if( v != best )	
+						if( v != best )
 							*info |= SANE_INFO_INEXACT;
 						*info |= SANE_INFO_RELOAD_PARAMS;
 					}
@@ -2165,10 +2165,10 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 					     ((*(SANE_Word *)value) >> SANE_FIXED_SCALE_SHIFT);
 					break;
 
-				case OPT_MODE: 
+				case OPT_MODE:
 					s->val[option].w = optval - s->opt[option].constraint.string_list;
 					scanmode = getScanMode( s );
-					
+
 					_ENABLE(OPT_CONTRAST);
 					_ENABLE(OPT_BIT_DEPTH);
 					_ENABLE(OPT_CUSTOM_GAMMA);
@@ -2447,9 +2447,9 @@ local_sane_start(Plustek_Scanner *s, int scanmode )
 	}
 
 	/* position and extent are always relative to 300 dpi */
-	dpi_x = (double)dev->usbDev.Caps.OpticDpi.x; 
+	dpi_x = (double)dev->usbDev.Caps.OpticDpi.x;
 	dpi_y = (double)dev->usbDev.Caps.OpticDpi.x * 2;
-	
+
 	left   = (int)(SANE_UNFIX (s->val[OPT_TL_X].w)*dpi_x/
 	                                            (MM_PER_INCH*(dpi_x/300.0)));
 	top    = (int)(SANE_UNFIX (s->val[OPT_TL_Y].w)*dpi_y/
@@ -2504,7 +2504,7 @@ local_sane_start(Plustek_Scanner *s, int scanmode )
 	sinfo.siContrast   = s->val[OPT_CONTRAST].w;
 
 	memcpy( &sinfo.ImgDef, &crop.ImgDef, sizeof(ImgDef));
-	
+
 	DBG( _DBG_SANE_INIT, "brightness %i, contrast %i\n",
 	                      sinfo.siBrightness, sinfo.siContrast );
 
@@ -2628,7 +2628,7 @@ sane_start( SANE_Handle handle )
 	s->reader_pid    = sanei_thread_begin( reader_process, s );
 
 	cancelRead = SANE_FALSE;
-	
+
 	if( !sanei_thread_is_valid (s->reader_pid) ) {
 		DBG( _DBG_ERROR, "ERROR: could not start reader task\n" );
 		s->scanning = SANE_FALSE;
@@ -2687,7 +2687,7 @@ sane_read( SANE_Handle handle, SANE_Byte *data,
 			}
 		}
 		s->hw->transferRate = ipc.transferRate;
-		DBG( _DBG_INFO, "IPC: Transferrate = %lu Bytes/s\n", 
+		DBG( _DBG_INFO, "IPC: Transferrate = %lu Bytes/s\n",
 		     ipc.transferRate );
 	}
 #endif
@@ -2773,7 +2773,7 @@ sane_set_io_mode( SANE_Handle handle, SANE_Bool non_blocking )
 		DBG( _DBG_ERROR, "ERROR: not supported !\n" );
 		return SANE_STATUS_UNSUPPORTED;
 	}
-	
+
 	if( fcntl (s->r_pipe, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0) {
 		DBG( _DBG_ERROR, "ERROR: could not set to non-blocking mode !\n" );
 		return SANE_STATUS_IO_ERROR;

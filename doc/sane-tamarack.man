@@ -28,8 +28,8 @@ Where
 .I special
 is the path-name for the special device that corresponds to a
 SCSI scanner. The special device name must be a generic SCSI device or a
-symlink to such a device.  The program 
-.IR sane\-find\-scanner 
+symlink to such a device.  The program
+.IR sane\-find\-scanner
 helps to find out the correct device. Under Linux, such a device name
 could be
 .I /dev/sga
@@ -69,9 +69,9 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .B SANE_DEBUG_TAMARACK
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  Higher
-debug levels increase the verbosity of the output. 
+debug levels increase the verbosity of the output.
 
-Example: 
+Example:
 export SANE_DEBUG_TAMARACK=4
 
 .SH "SEE ALSO"

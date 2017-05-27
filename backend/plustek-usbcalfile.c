@@ -67,7 +67,7 @@ typedef struct {
 	u_long blue_light_on;
 	u_long blue_light_off;
 	u_long green_pwm_duty;
-	
+
 } LightCtrl;
 
 typedef struct {
@@ -106,7 +106,7 @@ usb_ReadSpecLine( FILE *fp, char *id, char* res )
 {
 	char  tmp[1024];
 	char *ptr;
-	
+
 	/* rewind file pointer */
 	if( 0 != fseek( fp, 0L, SEEK_SET)) {
 		DBG( _DBG_ERROR, "fseek: %s\n", strerror(errno));
@@ -124,7 +124,7 @@ usb_ReadSpecLine( FILE *fp, char *id, char* res )
 				ptr = &tmp[strlen(id)];
         			if( '\0' == *ptr )
 					break;
-					
+
 				strcpy( res, ptr );
 				res[strlen(res)-1] = '\0';
 				return SANE_TRUE;
@@ -176,7 +176,7 @@ usb_ReadOtherLines( FILE *fp, char *except )
 			/* we ignore the version line... */
 			if( 0 == strncmp( tmp, "version=", 8 ))
 				continue;
-	
+
 			if( !ignore ) {
 				if(0 != strncmp(tmp, except, strlen(except))) {
 
@@ -225,9 +225,9 @@ usb_ReadSamples( FILE *fp, char *which, u_long *dim, u_short *buffer )
 		if( NULL != fgets( rb, 1024, fp )) {
 
 			/* we ignore the version line... */
-			if( 0 == strncmp( tmp, "version=", 8 )) 
+			if( 0 == strncmp( tmp, "version=", 8 ))
 				continue;
-	
+
 			p = tmp;
 			if( !ignore && diml == 0) {
 				if(0 == strncmp(tmp, which, strlen(which))) {
@@ -271,7 +271,7 @@ usb_ReadSamples( FILE *fp, char *which, u_long *dim, u_short *buffer )
 					/* reached the end? */
 					if( *next == '\0' ) {
 
-						/* we probably have only parsed a part of a value 
+						/* we probably have only parsed a part of a value
 						 * so we copy that back to the input buffer and
 						 * parse it the next time...
 						 */
@@ -372,7 +372,7 @@ usb_ReadAndSetCalData( Plustek_Device *dev )
 	FILE      *fp;
 	CalData    cal;
 	SANE_Bool  ret;
-	
+
 	DBG( _DBG_INFO, "usb_ReadAndSetCalData()\n" );
 
 	if( usb_InCalibrationMode(dev)) {
@@ -388,7 +388,7 @@ usb_ReadAndSetCalData( Plustek_Device *dev )
 	sprintf( tmp, "%s-coarse.cal", dev->calFile );
 	DBG( _DBG_INFO, "- Reading coarse calibration data from file\n");
 	DBG( _DBG_INFO, "  %s\n", tmp );
-	
+
 	fp = fopen( tmp, "r" );
 	if( NULL == fp ) {
 		DBG( _DBG_ERROR, "File %s not found\n", tmp );
@@ -416,7 +416,7 @@ usb_ReadAndSetCalData( Plustek_Device *dev )
 	}
 
 	usb_CreatePrefix( dev, pfx, SANE_TRUE );
-	
+
 	ret = SANE_FALSE;
 	if( usb_ReadSpecLine( fp, pfx, tmp )) {
 		DBG( _DBG_INFO, "- Calibration data: %s\n", tmp );
@@ -445,7 +445,7 @@ usb_ReadAndSetCalData( Plustek_Device *dev )
 
 	fclose( fp );
 	DBG( _DBG_INFO, "usb_ReadAndSetCalData() done -> %u\n", ret );
-		
+
 	return ret;
 }
 
@@ -526,7 +526,7 @@ usb_SaveCalData( Plustek_Device *dev )
 	other_tmp = NULL;
 	fp = fopen( fn, "r+" );
 	if( NULL != fp ) {
-	
+
 		if( usb_ReadSpecLine( fp, "version=", tmp )) {
 			DBG( _DBG_INFO, "- Calibration file version: %s\n", tmp );
 
@@ -553,7 +553,7 @@ usb_SaveCalData( Plustek_Device *dev )
 	if( NULL == fp ) {
 		DBG( _DBG_ERROR, "- Cannot create file %s\n", fn );
 		DBG( _DBG_ERROR, "- -> %s\n", strerror(errno));
-		if( other_tmp ) 
+		if( other_tmp )
 			free( other_tmp );
 		return;
 	}
@@ -603,7 +603,7 @@ usb_SaveFineCalData( Plustek_Device *dev, int dpi,
 	other_tmp = NULL;
 	fp = fopen( fn, "r+" );
 	if( NULL != fp ) {
-	
+
 		if( usb_ReadSpecLine( fp, "version=", tmp )) {
 			DBG( _DBG_INFO, "- Calibration file version: %s\n", tmp );
 
@@ -664,7 +664,7 @@ usb_ReadFineCalData( Plustek_Device *dev, int dpi,
 	char       tmp[1024];
 	u_short    version;
 	FILE      *fp;
-	
+
 	DBG( _DBG_INFO, "usb_ReadFineCalData()\n" );
 	if( usb_InCalibrationMode(dev)) {
 		DBG( _DBG_INFO, "- we are in calibration mode!\n" );

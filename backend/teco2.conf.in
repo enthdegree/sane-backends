@@ -1,5 +1,5 @@
 # VM3564 RELISYS AVEC II S3 scanner
-scsi "RELISYS" "AVEC II S3" 
+scsi "RELISYS" "AVEC II S3"
 
 # VM356A Primax Jewel 4800 scanner
 scsi "Primax" "Jewel"
@@ -13,7 +13,7 @@ scsi "RELISYS" "AVEC Super 3"
 # VM3575  Relisys SCORPIO Super 3
 # VM3575  Mustek ScanMagic 4830S
 # VM6586  Relisys SCORPIO Pro-S
-scsi "" "Flatbed Scanner" 
+scsi "" "Flatbed Scanner"
 
 # VM656A  Relisys APOLLO Express 6
 scsi "RELISYS" "APOLLO Express 6"

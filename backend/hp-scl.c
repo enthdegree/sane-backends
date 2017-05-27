@@ -553,7 +553,7 @@ hp_scsi_close (HpScsi this, int completely)
      DBG(3, "scsi_close: not closing. Keep open\n");
      return;
    }
-   
+
  }
  assert(this->fd >= 0);
 

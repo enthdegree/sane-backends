@@ -225,7 +225,7 @@ scanner_do_scsi_inquiry (unsigned char *buffer, int sfd)
 
   memset (buffer, '\0', 256);	/* clear buffer */
 
-  size = 5;			/* first get only 5 bytes to get size of 
+  size = 5;			/* first get only 5 bytes to get size of
 				   inquiry_return_block */
   set_inquiry_return_size (inquiry.cmd, size);
   status = sanei_scsi_cmd (sfd, inquiry.cmd, inquiry.size, buffer, &size);
@@ -433,13 +433,13 @@ get_libusb_string_descriptor (struct usb_device *dev, int index)
       return 0;
     }
 
-  if (sd->bLength < 2 
+  if (sd->bLength < 2
       || sd->bDescriptorType != USB_DT_STRING)
     {
       usb_close (handle);
       return 0;
     }
-  
+
   size = sd->bLength;
 
   buffer = calloc (1, size + 1);
@@ -659,7 +659,7 @@ check_libusb_device (struct usb_device *dev, SANE_Bool from_file)
 	  ++is_scanner;
 	  break;
 	case USB_CLASS_PER_INTERFACE:
-	  if (dev->config[0].interface[interface_nr].num_altsetting == 0 || 
+	  if (dev->config[0].interface[interface_nr].num_altsetting == 0 ||
 	      !dev->config[0].interface[interface_nr].altsetting)
 	    break;
 	  switch (dev->config[0].interface[interface_nr].altsetting[0].bInterfaceClass)
@@ -782,7 +782,7 @@ get_libusb_string_descriptor (libusb_device_handle *hdl, int index)
   if ((short_buffer[0] < 2) /* descriptor length */
       || (short_buffer[1] != LIBUSB_DT_STRING)) /* descriptor type */
     return NULL;
-  
+
   size = short_buffer[0];
 
   buffer = calloc (1, size + 1);
@@ -934,7 +934,7 @@ check_libusb_device (libusb_device *dev, SANE_Bool from_file)
 	  printf (" iConfiguration       %d (%s)\n", c->iConfiguration,
 		  (buf) ? buf : "");
 	  free (buf);
-		  
+
 	  printf (" bmAttributes         %d (%s%s)\n", c->bmAttributes,
 		  c->bmAttributes & 64 ? "Self-powered" : "",
 		  c->bmAttributes & 32 ? "Remote Wakeup" : "");
@@ -1064,7 +1064,7 @@ check_libusb_device (libusb_device *dev, SANE_Bool from_file)
   if (is_scanner > 0)
     {
       char *chipset = NULL;
-      
+
       if(!from_file)
         chipset = check_usb_chip (verbose, desc, hdl, config0);
 
@@ -1084,7 +1084,7 @@ check_libusb_device (libusb_device *dev, SANE_Bool from_file)
       libusb_device_found = SANE_TRUE;
       device_found = SANE_TRUE;
     }
-  
+
   libusb_free_config_descriptor (config0);
 
  out_free:
@@ -1212,14 +1212,14 @@ static char **build_scsi_dev_list(void)
 
 		adapter = (PSCSI_ADAPTER_BUS_INFO)buffer;
 
-		for(i = 0; i < adapter->NumberOfBuses; i++) {	
+		for(i = 0; i < adapter->NumberOfBuses; i++) {
 
 			if (adapter->BusData[i].InquiryDataOffset == 0) {
 				/* No device here */
 				continue;
 			}
 
-			inquiry = (PSCSI_INQUIRY_DATA) (buffer + 
+			inquiry = (PSCSI_INQUIRY_DATA) (buffer +
 											adapter->BusData[i].InquiryDataOffset);
 			while(1) {
 				/* Check if it is a scanner or a processor
@@ -1233,7 +1233,7 @@ static char **build_scsi_dev_list(void)
 					dev_list[dev_list_index] = strdup(device_name);
 					dev_list_index++;
 				}
-			
+
 				if (inquiry->NextInquiryDataOffset == 0) {
 					/* No device here */
 					break;
@@ -1300,7 +1300,7 @@ check_mustek_pp_device (void)
       printf ("checking %s...", devices[ctr]);
 
     result = sanei_pa4s2_open (devices[ctr], &fd);
-    
+
     if (verbose > 1)
       {
         if (result != 0)
@@ -1315,13 +1315,13 @@ check_mustek_pp_device (void)
       found++;
       sanei_pa4s2_close(fd);
     }
-    
+
     /* trying scsi over pp devices */
     if (verbose > 1)
       printf ("checking %s (SCSI emulation)...", devices[ctr]);
 
     result = sanei_pa4s2_scsi_pp_open (devices[ctr], &fd);
-    
+
     if (verbose > 1)
       {
         if (result != 0)
@@ -1365,7 +1365,7 @@ parse_num (char* search, const char* line, int base, long int * number)
   if (start_number == NULL)
     return SANE_FALSE;
   start_number += strlen (search);
- 
+
   *number = strtol (start_number, NULL, base);
   if (verbose > 2)
     printf ("Found %s%ld\n", search, *number);
@@ -1384,11 +1384,11 @@ parse_bcd (char* search, const char* line, long int * number)
   if (start_number == NULL)
     return SANE_FALSE;
   start_number += strlen (search);
- 
+
   first_part = strtol (start_number, &end_number, 10);
   start_number = end_number + 1; /* skip colon */
   second_part = strtol (start_number, NULL, 10);
-  *number = ((first_part / 10) << 12) + ((first_part % 10) << 8) 
+  *number = ((first_part / 10) << 12) + ((first_part % 10) << 8)
     + ((second_part / 10) << 4) + (second_part % 10);
   if (verbose > 2)
     printf ("Found %s%ld\n", search, *number);
@@ -1478,7 +1478,7 @@ parse_file (char *filename)
 	    }
 	  if (parse_num ("Ifs=", line, 10, &number))
 	    dev->config[current_config].bNumInterfaces = number;
-	  dev->config[current_config].interface 
+	  dev->config[current_config].interface
 	    = calloc (number, sizeof (struct usb_interface));
 	  if (parse_num ("Atr=", line, 16, &number))
 	    dev->config[current_config].bmAttributes = number;
@@ -1504,24 +1504,24 @@ parse_file (char *filename)
 	  if (parse_num ("Alt=", line, 10, &number))
 	    {
 	      current_as = number;
-	      dev->config[current_config].interface[current_if].altsetting[current_as].bInterfaceNumber 
+	      dev->config[current_config].interface[current_if].altsetting[current_as].bInterfaceNumber
 		= current_if;
-	      dev->config[current_config].interface[current_if].altsetting[current_as].bAlternateSetting 
+	      dev->config[current_config].interface[current_if].altsetting[current_as].bAlternateSetting
 		= current_as;
 	    }
 	  if (parse_num ("#EPs=", line, 10, &number))
-	    dev->config[current_config].interface[current_if].altsetting[current_as].bNumEndpoints 
+	    dev->config[current_config].interface[current_if].altsetting[current_as].bNumEndpoints
 	      = number;
-	  dev->config[current_config].interface[current_if].altsetting[current_as].endpoint 
+	  dev->config[current_config].interface[current_if].altsetting[current_as].endpoint
 	    = calloc (number, sizeof (struct usb_endpoint_descriptor));
 	  if (parse_num ("Cls=", line, 16, &number))
-	    dev->config[current_config].interface[current_if].altsetting[current_as].bInterfaceClass 
+	    dev->config[current_config].interface[current_if].altsetting[current_as].bInterfaceClass
 	      = number;
 	  if (parse_num ("Sub=", line, 16, &number))
-	    dev->config[current_config].interface[current_if].altsetting[current_as].bInterfaceSubClass 
+	    dev->config[current_config].interface[current_if].altsetting[current_as].bInterfaceSubClass
 	      = number;
 	  if (parse_num ("Prot=", line, 16, &number))
-	    dev->config[current_config].interface[current_if].altsetting[current_as].bInterfaceProtocol 
+	    dev->config[current_config].interface[current_if].altsetting[current_as].bInterfaceProtocol
 	      = number;
 	  break;
 	case 'E':
@@ -2069,7 +2069,7 @@ main (int argc, char **argv)
 		"more details.\n");
 #endif
     }
-  if (enable_pp_checks == SANE_TRUE) 
+  if (enable_pp_checks == SANE_TRUE)
     {
       if (!check_mustek_pp_device() && verbose > 0)
         printf ("\n  # No Mustek parallel port scanners found. If you expected"

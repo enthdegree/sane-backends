@@ -8,15 +8,15 @@ The
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Epson ESC/I-2 scanners.
 .PP
-Valid command line options and their syntax can be listed by using 
+Valid command line options and their syntax can be listed by using
 .RS
 scanimage \-\-help \-d epsonds
 .RE
 Not all devices support all options.
 .TP
 .I Scan Mode
-The 
-.I \-\-mode 
+The
+.I \-\-mode
 switch selects the basic mode of operation of the scanner. Valid choices
 are Lineart, Gray and Color. The Lineart mode is black and white only,
 Gray will produce 256 levels of gray or more depending on the scanner
@@ -33,7 +33,7 @@ allow one to select either 8 bits, 12 or 14 bits per color channel. For a
 color scan this means an effective color depth of 36 or 42 bits over
 all three channels. The valid choices depend on the scanner model.
 
-The 
+The
 .I \-\-resolution
 switch selects the resolution for a scan. Some EPSON scanners will scan in
 any resolution between the lowest and highest possible value. The list
@@ -41,7 +41,7 @@ reported by the scanner can be displayed using the "\-\-help \-d epson"
 parameters to scanimage.
 
 The geometry options
-.I \-l \-t \-x \-y 
+.I \-l \-t \-x \-y
 control the scan area: \-l sets the top left x coordinate, \-t the top
 left y coordinate, \-x selects the width and \-y the height of the scan
 area. All parameters are specified in millimeters.
@@ -60,20 +60,20 @@ The
 option select the ADF mode (simplex/duplex).
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/epsonds.conf specifies the device(s) that the 
+The configuration file @CONFIGDIR@/epsonds.conf specifies the device(s) that the
 backend will use. Possible connection types are:
 .TP
 .I USB
 For not automatically detected USB scanners, their VENDOR and PRODUCT ID can
-be specified manually in the config file.  
+be specified manually in the config file.
 More information about valid syntax for USB devices can be found in sane\-usb(5).
 .TP
 .I Network (not yet supported)
 Network scanners can be auto-discovered if
 .I autodiscovery
-is specified after 
+is specified after
 .I
-net 
+net
 keyword.  An IP address to connect to can also be used.
 .SH FILES
 .TP

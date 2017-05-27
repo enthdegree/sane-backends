@@ -22,7 +22,7 @@ in sane-backends/backend. Simply do (as root user)
 
 Then the module should be compiled, installed and loaded.
 
-Add the following three lines to file /etc/modules.conf 
+Add the following three lines to file /etc/modules.conf
 
 alias char-major-40	pt_drv
 pre-install pt_drv modprobe -k parport

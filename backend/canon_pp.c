@@ -42,7 +42,7 @@
 
    canon_pp.c: $Revision$
 
-   This file is part of the canon_pp backend, supporting Canon FBX30P 
+   This file is part of the canon_pp backend, supporting Canon FBX30P
    and NX40P scanners
    */
 
@@ -114,9 +114,9 @@ static SANE_Bool force_nibble = SANE_FALSE;
 /* Constants */
 
 /* Colour Modes */
-static const SANE_String_Const cmodes[] = { 
-	SANE_VALUE_SCAN_MODE_GRAY, 
-	SANE_VALUE_SCAN_MODE_COLOR, 
+static const SANE_String_Const cmodes[] = {
+	SANE_VALUE_SCAN_MODE_GRAY,
+	SANE_VALUE_SCAN_MODE_COLOR,
 	NULL };
 
 /* bit depths */
@@ -139,7 +139,7 @@ static const SANE_Int res600[] = {4, 75, 150, 300, 600};
 sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 {
 	SANE_Status status = SANE_STATUS_GOOD;
-	int i, tmp; 
+	int i, tmp;
 	int tmp_im = INITMODE_AUTO;
 	FILE *fp;
 	char line[81]; /* plus 1 for a null */
@@ -150,7 +150,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 	DBG_INIT();
 
 #if defined PACKAGE && defined VERSION
-	DBG(2, ">> sane_init (version %s null, authorize %s null): " PACKAGE " " VERSION "\n", 
+	DBG(2, ">> sane_init (version %s null, authorize %s null): " PACKAGE " " VERSION "\n",
 	    (vc) ? "!=" : "==", (cb) ? "!=" : "==");
 #endif
 
@@ -192,8 +192,8 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 	/* just to be extra sure, the line will always have an end: */
 	line[sizeof(line)-1] = '\0';
 
-	/* 
-	 * Read information from config file: pixel weight location and default 
+	/*
+	 * Read information from config file: pixel weight location and default
 	 * port.
 	 */
 	if((fp = sanei_config_open(CANONP_CONFIG_FILE)))
@@ -208,24 +208,24 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 
 			if(strncmp(line,"calibrate ", 10) == 0)
 			{
-				/* warning: pointer trickyness ahead 
+				/* warning: pointer trickyness ahead
 				 * Do not free tmp_port! */
-				DBG(40, "sane_init: calibrate line, %s\n", 
+				DBG(40, "sane_init: calibrate line, %s\n",
 						line);
 				tmp_wf = strdup(line+10);
 				tmp_port = strstr(tmp_wf, " ");
 				if ((tmp_port == tmp_wf) || (tmp_port == NULL))
 				{
-					/* They have used an old style config 
+					/* They have used an old style config
 					 * file which does not specify scanner
 					 * Assume first port */
 					DBG(1, "sane_init: old config line:"
 							"\"%s\".  Please add "
-							"a port argument.\n", 
+							"a port argument.\n",
 							line);
 
 					/* first_dev should never be null here
-					 * because we found at least one 
+					 * because we found at least one
 					 * parallel port above */
 					first_dev->weights_file = tmp_wf;
 					DBG(100, "sane_init: Successfully "
@@ -236,7 +236,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 
 				}
 
-				/* Now find which scanner wants 
+				/* Now find which scanner wants
 				 * this calibration file */
 				s_tmp = first_dev;
 				DBG(100, "sane_init: Finding scanner on port "
@@ -247,7 +247,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 								tmp_port+1))
 					{
 						DBG(100, "sane_init: Found!\n");
-						/* Now terminate the weight 
+						/* Now terminate the weight
 						 * file string */
 						*tmp_port = '\0';
 						s_tmp->weights_file = tmp_wf;
@@ -255,7 +255,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 								"cal, for port"
 								" '%s', weight"
 								" file is '%s'"
-								".\n", 
+								".\n",
 								s_tmp->params.
 								  port->name,
 								tmp_wf);
@@ -295,7 +295,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 			if(strncmp(line,"init_mode ", 10) == 0)
 			{
 
-				/* parse what sort of initialisation mode to 
+				/* parse what sort of initialisation mode to
 				 * use */
 				if (strncmp(line+10, "FB620P", 6) == 0)
 					tmp_im = INITMODE_20P;
@@ -311,7 +311,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 				if (tmp_port == NULL)
 				{
 					/* first_dev should never be null here
-					 * because we found at least one 
+					 * because we found at least one
 					 * parallel port above */
 					first_dev->init_mode = tmp_im;
 					DBG(100, "sane_init: Parsed init-1.\n");
@@ -344,9 +344,9 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 			}
 			DBG(1, "sane_init: Unknown configuration command!");
 
-		} 
+		}
 		fclose (fp);
-	}	
+	}
 
 	/* There should now be a LL of ports starting at first_dev */
 
@@ -355,23 +355,23 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 		/* Assume there's no scanner present until proven otherwise */
 		s_tmp->scanner_present = SANE_FALSE;
 
-		/* Try to detect if there's a scanner there, and if so, 
+		/* Try to detect if there's a scanner there, and if so,
 		 * what sort of scanner it is */
 		status = detect_mode(s_tmp);
 
-		if (status != SANE_STATUS_GOOD) 
+		if (status != SANE_STATUS_GOOD)
 		{
 			DBG(10,"sane_init: Error detecting port mode on %s!\n",
 					s_tmp->params.port->name);
 			s_tmp->scanner_present = SANE_FALSE;
 			continue;
-		} 
-		
+		}
+
 		/* detect_mode suceeded, so the port is open.  This beholdens
 		 * us to call ieee1284_close in any of the remaining error
 		 * cases in this loop. */
 #if 0
-		tmp = sanei_canon_pp_detect(s_tmp->params.port, 
+		tmp = sanei_canon_pp_detect(s_tmp->params.port,
 				s_tmp->init_mode);
 
 
@@ -383,7 +383,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 
 			s_tmp->ieee1284_mode = M1284_NIBBLE;
 			sanei_canon_pp_set_ieee1284_mode(s_tmp->ieee1284_mode);
-			tmp = sanei_canon_pp_detect(s_tmp->params.port, 
+			tmp = sanei_canon_pp_detect(s_tmp->params.port,
 					s_tmp->init_mode);
 		}
 		/* still no go? */
@@ -395,7 +395,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 			ieee1284_close(s_tmp->params.port);
 			continue;
 		}
-		
+
 #endif
 		/* all signs point to yes, try it out */
 		if (ieee1284_claim(s_tmp->params.port) != E1284_OK) {
@@ -405,9 +405,9 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 			ieee1284_close(s_tmp->params.port);
 			continue;
 		}
-		
+
 		DBG(2, "sane_init: >> initialise\n");
-		tmp = sanei_canon_pp_initialise(&(s_tmp->params), 
+		tmp = sanei_canon_pp_initialise(&(s_tmp->params),
 				s_tmp->init_mode);
 		DBG(2, "sane_init: << %d initialise\n", tmp);
 		if (tmp) {
@@ -420,13 +420,13 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 			continue;
 		}
 
-		/* put it back to sleep until we're ready to 
+		/* put it back to sleep until we're ready to
 		 * open for business again - this will only work
 		 * if we actually have a scanner there! */
 		DBG(100, "sane_init: And back to sleep again\n");
 		sanei_canon_pp_sleep_scanner(s_tmp->params.port);
 
-		/* leave the port open but not claimed - this is regardless 
+		/* leave the port open but not claimed - this is regardless
 		 * of the return value of initialise */
 		ieee1284_release(s_tmp->params.port);
 
@@ -435,7 +435,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 
 		if (fix_weights_file(s_tmp) != SANE_STATUS_GOOD) {
 			DBG(1, "sane_init: Eeek! fix_weights_file failed for "
-				"scanner on port %s!\n", 
+				"scanner on port %s!\n",
 				s_tmp->params.port->name);
 			/* non-fatal.. scans will look ugly as sin unless
 			 * they calibrate */
@@ -462,7 +462,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
  *************************************************************************/
 	SANE_Status
 sane_get_devices (const SANE_Device ***dl, SANE_Bool local)
-{	
+{
 	static const SANE_Device **devlist;
 	CANONP_Scanner *dev;
 	int i;
@@ -521,7 +521,7 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 
 	DBG(2, ">> sane_open (h=%p, name=\"%s\")\n", (void *)h, name);
 
-	if ((h == NULL) || (name == NULL)) 
+	if ((h == NULL) || (name == NULL))
 	{
 		DBG(2,"sane_open: Null pointer received!\n");
 		return SANE_STATUS_INVAL;
@@ -543,12 +543,12 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 		while((cs != NULL) && strcmp(cs->params.port->name, name))
 			cs = cs->next;
 
-		/* if we didn't find the port they want, or there's no scanner 
+		/* if we didn't find the port they want, or there's no scanner
 		 * there, we just want to find _any_ scanner */
 		if ((cs == NULL) || (cs->scanner_present != SANE_TRUE))
 		{
 			cs = first_dev;
-			while((cs != NULL) && 
+			while((cs != NULL) &&
 					(cs->scanner_present == SANE_FALSE))
 				cs = cs->next;
 		}
@@ -563,7 +563,7 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 	}
 
 
-	if (cs == NULL) 
+	if (cs == NULL)
 	{
 		DBG(2,"sane_open: No scanner found or requested port "
 				"doesn't exist (%s)\n", name);
@@ -575,15 +575,15 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 				"(%s)\n", name);
 		return SANE_STATUS_IO_ERROR;
 	}
-	if (cs->opened == SANE_TRUE) 
+	if (cs->opened == SANE_TRUE)
 	{
 		DBG(2,"sane_open; Oi!, That scanner's already open.\n");
 		return SANE_STATUS_DEVICE_BUSY;
 	}
 
-	/* If the scanner has already been opened once, we don't have to do 
+	/* If the scanner has already been opened once, we don't have to do
 	 * this setup again */
-	if (cs->setup == SANE_TRUE) 
+	if (cs->setup == SANE_TRUE)
 	{
 		cs->opened = SANE_TRUE;
 		*h = (SANE_Handle)cs;
@@ -613,11 +613,11 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 	}
 
 	if (cs->weights_file != NULL)
-		DBG(2, "sane_open: >> load_weights(%s, %p)\n", 
-				cs->weights_file, 
+		DBG(2, "sane_open: >> load_weights(%s, %p)\n",
+				cs->weights_file,
 				(const void *)(&(cs->params)));
 	else
-		DBG(2, "sane_open: >> load_weights(NULL, %p)\n", 
+		DBG(2, "sane_open: >> load_weights(NULL, %p)\n",
 				(const void *)(&(cs->params)));
 	tmp = sanei_canon_pp_load_weights(cs->weights_file, &(cs->params));
 	DBG(2, "sane_open: << %d load_weights\n", tmp);
@@ -638,10 +638,10 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 			DBG(1, "sane_open: WARNING: adjust_gamma returned "
 					"%d!\n", tmp);
 
-		DBG(10, "sane_open: after adjust_gamma Status = %i\n", 
+		DBG(10, "sane_open: after adjust_gamma Status = %i\n",
 				sanei_canon_pp_check_status(cs->params.port));
 	}
-		
+
 
 	/* Configure ranges etc */
 
@@ -744,11 +744,11 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 	int i = 0, tmp, maxresi;
 
 	DBG(2, ">> sane_control_option (h=%p, opt=%d, act=%d)\n",
-			h,opt,act); 
-	/* Do some sanity checks on the parameters 
+			h,opt,act);
+	/* Do some sanity checks on the parameters
 	 * note that val can be null for buttons */
-	if ((h == NULL) || ((val == NULL) && (opt != OPT_CAL)))   
-		/* || (info == NULL))  - Don't check this any more.. 
+	if ((h == NULL) || ((val == NULL) && (opt != OPT_CAL)))
+		/* || (info == NULL))  - Don't check this any more..
 		 * frontends seem to like passing a null */
 	{
 		DBG(1,"sane_control_option: Frontend passed me a null! "
@@ -757,7 +757,7 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 		return SANE_STATUS_INVAL;
 	}
 
-	if (((unsigned)opt) >= NUM_OPTIONS) 
+	if (((unsigned)opt) >= NUM_OPTIONS)
 	{
 		DBG(1,"sane_control_option: I don't do option %d.\n", opt);
 		return SANE_STATUS_INVAL;
@@ -777,17 +777,17 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 		return SANE_STATUS_DEVICE_BUSY;
 	}
 
-	switch(act) 
+	switch(act)
 	{
 		case SANE_ACTION_GET_VALUE:
-			switch (opt) 
+			switch (opt)
 			{
 				case OPT_COLOUR_MODE:
-					strcpy((char *)val, 
+					strcpy((char *)val,
 							cmodes[cs->vals[opt]]);
 					break;
 				case OPT_DEPTH:
-					strcpy((char *)val, 
+					strcpy((char *)val,
 							depths[cs->vals[opt]]);
 					break;
 				case OPT_RESOLUTION:
@@ -812,40 +812,40 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 					maxresi = cs->opt[OPT_RESOLUTION].
 						constraint.word_list[0];
 
-					while ((cs->vals[opt] <= maxresi) && 
+					while ((cs->vals[opt] <= maxresi) &&
 							(res600[cs->vals[opt]]
 							 < *((int *)val)))
 					{
 						cs->vals[opt] += 1;
 					}
 
-					if (res600[cs->vals[opt]] != 
+					if (res600[cs->vals[opt]] !=
 							*((int *)val))
 					{
-						if (info != NULL) *info |= 
+						if (info != NULL) *info |=
 							SANE_INFO_INEXACT;
 					}
 					break;
 				case OPT_COLOUR_MODE:
 					cs->vals[opt] = 0;
 					while ((cmodes[cs->vals[opt]] != NULL)
-							&& strcmp(cmodes[cs->vals[opt]], 
+							&& strcmp(cmodes[cs->vals[opt]],
 								(char *)val))
 					{
 						cs->vals[opt] += 1;
 					}
-					if (info != NULL) *info |= 
+					if (info != NULL) *info |=
 						SANE_INFO_RELOAD_PARAMS;
 					break;
 				case OPT_DEPTH:
 					cs->vals[opt] = 0;
 					while ((depths[cs->vals[opt]] != NULL)
-							&& strcmp(depths[cs->vals[opt]], 
+							&& strcmp(depths[cs->vals[opt]],
 								(char *)val))
 					{
 						cs->vals[opt] += 1;
 					}
-					if (info != NULL) *info |= 
+					if (info != NULL) *info |=
 						SANE_INFO_RELOAD_PARAMS;
 					break;
 				case OPT_TL_X:
@@ -861,34 +861,34 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 					if ((cs->weights_file==NULL) ||
 							cs->cal_readonly
 					   )
-						DBG(2, ">> calibrate(x, " 
+						DBG(2, ">> calibrate(x, "
 								"NULL)\n");
 					else
 						DBG(2, ">> calibrate(x,"
 								"%s)\n",
 								cs->weights_file);
 
-					if (cs->cal_readonly) tmp = 
+					if (cs->cal_readonly) tmp =
 						sanei_canon_pp_calibrate(
-								&(cs->params), 
+								&(cs->params),
 								NULL);
 					else tmp = sanei_canon_pp_calibrate(
-							&(cs->params), 
+							&(cs->params),
 							cs->weights_file);
 
-					DBG(2, "<< %d calibrate\n", 
+					DBG(2, "<< %d calibrate\n",
 							tmp);
 					if (tmp != 0) {
 						DBG(1, "sane_control_option: "
 								"WARNING: "
 								"calibrate "
-								"returned %d!", 
+								"returned %d!",
 								tmp);
-						cs->cal_valid = 
+						cs->cal_valid =
 							SANE_FALSE;
 						return SANE_STATUS_IO_ERROR;
 					} else {
-						cs->cal_valid = 
+						cs->cal_valid =
 							SANE_TRUE;
 					}
 
@@ -930,7 +930,7 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 {
 	int res, max_width, max_height, max_res;
         CANONP_Scanner *cs = ((CANONP_Scanner *)h);
-	DBG(2, ">> sane_get_parameters (h=%p, params=%p)\n", (void*)h, 
+	DBG(2, ">> sane_get_parameters (h=%p, params=%p)\n", (void*)h,
 			(void*)params);
 
 	if (h == NULL) return SANE_STATUS_INVAL;
@@ -946,16 +946,16 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 	 * version, so this will always work. */
 	res = res600[cs->vals[OPT_RESOLUTION]];
 
-	/* 
-	 * These don't change whether we're scanning or not 
+	/*
+	 * These don't change whether we're scanning or not
 	 * NOTE: Assumes options don't change after scanning commences, which
          *       is part of the standard
 	 */
 
 	/* Copy the options stored in the vals into the scaninfo */
-	params->pixels_per_line = 
+	params->pixels_per_line =
                 ((cs->vals[OPT_BR_X] - cs->vals[OPT_TL_X]) * res) / MM_PER_IN;
-	params->lines = ((cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y]) * res) 
+	params->lines = ((cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y]) * res)
                 / MM_PER_IN;
 
 	/* FIXME: Magic numbers ahead! */
@@ -970,17 +970,17 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 
 	max_width = cs->params.scanheadwidth / (max_res / res);
 
-	max_height = (cs->params.scanheadwidth == 2552 ? 3508 : 7016) / 
+	max_height = (cs->params.scanheadwidth == 2552 ? 3508 : 7016) /
                                         (max_res / res);
 
-        if(params->pixels_per_line > max_width) 
+        if(params->pixels_per_line > max_width)
                 params->pixels_per_line = max_width;
         if(params->lines > max_height) params->lines = max_height;
 
 
 	params->depth = cs->vals[OPT_DEPTH] ? 16 : 8;
 
-	switch (cs->vals[OPT_COLOUR_MODE]) 
+	switch (cs->vals[OPT_COLOUR_MODE])
 	{
 		case 0:
 			params->format = SANE_FRAME_GRAY;
@@ -997,7 +997,7 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 	if (!(params->pixels_per_line)) {
 		params->last_frame = SANE_TRUE;
 		params->lines = 0;
-	} 
+	}
 
 	/* Always the "last frame" */
 	params->last_frame = SANE_TRUE;
@@ -1009,7 +1009,7 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
                 "max_res=%d, res=%d, max_height=%d, br_y=%d, tl_y=%d, "
 		"mm_per_in=%f\n",
                 params->bytes_per_line, params->pixels_per_line, params->lines,
-                max_res, res, max_height, cs->vals[OPT_BR_Y], 
+                max_res, res, max_height, cs->vals[OPT_BR_Y],
 		cs->vals[OPT_TL_Y], MM_PER_IN);
 
 	DBG(2, "<< sane_get_parameters\n");
@@ -1047,18 +1047,18 @@ sane_start (SANE_Handle h)
 	res = res600[cs->vals[OPT_RESOLUTION]];
 
 	/* Copy the options stored in the vals into the scaninfo */
-	cs->scan.width = ((cs->vals[OPT_BR_X] - cs->vals[OPT_TL_X]) * res) 
+	cs->scan.width = ((cs->vals[OPT_BR_X] - cs->vals[OPT_TL_X]) * res)
                 / MM_PER_IN;
-	cs->scan.height = ((cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y]) * res) 
+	cs->scan.height = ((cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y]) * res)
                 / MM_PER_IN;
 
 	cs->scan.xoffset = (cs->vals[OPT_TL_X] * res) / MM_PER_IN;
 	cs->scan.yoffset = (cs->vals[OPT_TL_Y] * res) / MM_PER_IN;
 
-        /* 
-         * These values have to pass the requirements of not exceeding 
-         * dimensions (simple clipping) and both width values have to be some 
-         * integer multiple of 4 
+        /*
+         * These values have to pass the requirements of not exceeding
+         * dimensions (simple clipping) and both width values have to be some
+         * integer multiple of 4
          */
 
 	/* FIXME: Magic numbers ahead! */
@@ -1074,11 +1074,11 @@ sane_start (SANE_Handle h)
 
 	max_width = cs->params.scanheadwidth / (max_res / res);
 
-	max_height = (cs->params.scanheadwidth == 2552 ? 3508 : 7016) / 
+	max_height = (cs->params.scanheadwidth == 2552 ? 3508 : 7016) /
                                         (max_res / res);
 
         if (cs->scan.width > max_width) cs->scan.width = max_width;
-	if (cs->scan.width + cs->scan.xoffset > max_width) cs->scan.xoffset = 
+	if (cs->scan.width + cs->scan.xoffset > max_width) cs->scan.xoffset =
 		max_width - cs->scan.width;
         if (cs->scan.height > max_height) cs->scan.height = max_height;
 
@@ -1104,7 +1104,7 @@ sane_start (SANE_Handle h)
 	cs->scan.xresolution = i;
 	cs->scan.yresolution = i;
 
-	if (((cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y]) <= 0) || 
+	if (((cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y]) <= 0) ||
 			((cs->vals[OPT_BR_X] - cs->vals[OPT_TL_X]) <= 0))
 	{
 		DBG(1,"sane_start: height = %d, Width = %d. "
@@ -1156,26 +1156,26 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 	static SANE_Byte *lbuf;
 	static unsigned int bytesleft;
 
-	DBG(2, ">> sane_read (h=%p, buf=%p, maxlen=%d)\n", h, 
+	DBG(2, ">> sane_read (h=%p, buf=%p, maxlen=%d)\n", h,
 			(const void *)buf, maxlen);
 
 	/* default to returning 0 - for errors */
 	*lenp = 0;
 
-	if ((h == NULL) || (buf == NULL) || (lenp == NULL)) 
+	if ((h == NULL) || (buf == NULL) || (lenp == NULL))
 	{
 		DBG(1, "sane_read: This frontend's passing me dodgy gear! "
-				"(h=%p, buf=%p, lenp=%p)\n", 
+				"(h=%p, buf=%p, lenp=%p)\n",
 				(void*)h, (void*)buf, (void*)lenp);
 		return SANE_STATUS_INVAL;
 	}
 
 	/* Now we have to see if we have some leftover from last time */
 
-	if (read_leftover != NULL) 
+	if (read_leftover != NULL)
 	{
-		/* feed some more data in until we've run out - don't care 
-		 * whether or not we _think_ the scanner is scanning now, 
+		/* feed some more data in until we've run out - don't care
+		 * whether or not we _think_ the scanner is scanning now,
 		 * because we may still have data left over to send */
 		DBG(200, "sane_read: didn't send it all last time\n");
 
@@ -1204,11 +1204,11 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 			return SANE_STATUS_GOOD;
 		}
 
-	} 
+	}
 
 
 	/* Has the last scan ended (other than by cancelling)? */
-	if (((unsigned)cs->scan.height <= (unsigned)cs->lines_scanned) 
+	if (((unsigned)cs->scan.height <= (unsigned)cs->lines_scanned)
 	    || (cs->sent_eof) || !(cs->scanning))
 	{
 		cs->sent_eof = SANE_TRUE;
@@ -1220,7 +1220,7 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 		return SANE_STATUS_EOF;
 	}
 
-	/* At this point we have to read more data from the scanner - or the 
+	/* At this point we have to read more data from the scanner - or the
 	 * scan has been cancelled, which means we have to call read_segment
 	 * to leave the scanner consistant */
 
@@ -1230,17 +1230,17 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 	else
 		bpl = cs->scan.width * (cs->vals[OPT_COLOUR_MODE] ? 6 : 2);
 
-        /* New way: scan a whole scanner buffer full, and return as much as 
-         * the frontend wants.  It's faster and more reliable since the 
+        /* New way: scan a whole scanner buffer full, and return as much as
+         * the frontend wants.  It's faster and more reliable since the
          * scanners crack the shits if we ask for too many small packets */
 	lines = (BUF_MAX * 4 / 5) / bpl;
 
-	if (lines > (cs->scan.height - cs->lines_scanned)) 
+	if (lines > (cs->scan.height - cs->lines_scanned))
 		lines = cs->scan.height - cs->lines_scanned;
 
 	if (!lines)
 	{
-		/* can't fit a whole line into the buffer 
+		/* can't fit a whole line into the buffer
                  * (should never happen!) */
 		lines = 1;
 	}
@@ -1268,16 +1268,16 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 	DBG(10, "scan_params->: width=%d, height=%d, xoffset=%d, "
 			"yoffset=%d\n\txresolution=%d, yresolution=%d, "
 			"mode=%d, (lines=%d)\n",
-			cs->scan.width, cs->scan.height, 
+			cs->scan.width, cs->scan.height,
 			cs->scan.xoffset, cs->scan.yoffset,
 			cs->scan.xresolution, cs->scan.yresolution,
 			cs->scan.mode, lines);
 
 	DBG(2, ">> read_segment(x, x, x, %d, %d, %d)\n",
-			lines, cs->cal_valid, 
+			lines, cs->cal_valid,
 			cs->scan.height - cs->lines_scanned);
-	tmp = sanei_canon_pp_read_segment(&is, &(cs->params), &(cs->scan), 
-			lines, cs->cal_valid, 
+	tmp = sanei_canon_pp_read_segment(&is, &(cs->params), &(cs->scan),
+			lines, cs->cal_valid,
 			cs->scan.height - cs->lines_scanned);
 	DBG(2, "<< %d read_segment\n", tmp);
 
@@ -1361,7 +1361,7 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 
 	if ((unsigned)cs->lines_scanned >= cs->scan.height)
 	{
-		/* The scan is over! Don't need to call anything in the 
+		/* The scan is over! Don't need to call anything in the
 		 * hardware, it will sort itself out */
 		DBG(10, "sane_read: Scan is finished.\n");
 		cs->scanning = SANE_FALSE;
@@ -1392,7 +1392,7 @@ sane_cancel (SANE_Handle h)
 
 	read_leftover = NULL;
 
-	if (!(cs->scanning)) 
+	if (!(cs->scanning))
 	{
 		DBG(2, "<< sane_cancel (not scanning)\n");
 		return;
@@ -1431,7 +1431,7 @@ sane_close (SANE_Handle h)
 	sanei_canon_pp_close_scanner(&(cs->params));
 
 	cs->opened = SANE_FALSE;
-	
+
 	/* if it was scanning, it's not any more */
 	cs->scanning = SANE_FALSE;
 	cs->sent_eof = SANE_TRUE;
@@ -1461,9 +1461,9 @@ sane_exit (void)
 		next = dev->next;
 
 		/* These were only created if the scanner has been init'd */
-		
+
 		/* Should normally nullify pointers after freeing, but in
-		 * this case we're about to free the whole structure so 
+		 * this case we're about to free the whole structure so
 		 * theres not a lot of point. */
 
 		/* Constraints (mostly) allocated when the scanner is opened */
@@ -1513,17 +1513,17 @@ sane_exit (void)
  * (Not part of the SANE API)
  *
  * Initialises a CANONP_Scanner data structure for a new device.
- * NOTE: The device is not ready to scan until initialise() has been 
+ * NOTE: The device is not ready to scan until initialise() has been
  * called in scan library!
  *
  *************************************************************************/
-static SANE_Status init_device(struct parport *pp) 
+static SANE_Status init_device(struct parport *pp)
 {
 	int i;
 	static const char *hw_vendor = "CANON";
 	static const char *hw_type = "flatbed scanner";
 	static const char *opt_names[] = {
-		SANE_NAME_NUM_OPTIONS, 
+		SANE_NAME_NUM_OPTIONS,
 		SANE_NAME_SCAN_RESOLUTION,
 		SANE_NAME_SCAN_MODE,
 		SANE_NAME_BIT_DEPTH,
@@ -1539,7 +1539,7 @@ static SANE_Status init_device(struct parport *pp)
 #endif
 	};
 	static const char *opt_titles[] = {
-		SANE_TITLE_NUM_OPTIONS, 
+		SANE_TITLE_NUM_OPTIONS,
 		SANE_TITLE_SCAN_RESOLUTION,
 		SANE_TITLE_SCAN_MODE,
 		SANE_TITLE_BIT_DEPTH,
@@ -1555,7 +1555,7 @@ static SANE_Status init_device(struct parport *pp)
 #endif
 	};
 	static const char *opt_descs[] = {
-		SANE_DESC_NUM_OPTIONS, 
+		SANE_DESC_NUM_OPTIONS,
 		SANE_DESC_SCAN_RESOLUTION,
 		SANE_DESC_SCAN_MODE,
 		SANE_DESC_BIT_DEPTH,
@@ -1583,7 +1583,7 @@ static SANE_Status init_device(struct parport *pp)
 	memset(cs, 0, sizeof(*cs));
 
 #if 0
-	if ((cs->params.port = malloc(sizeof(*(cs->params.port)))) == NULL) 
+	if ((cs->params.port = malloc(sizeof(*(cs->params.port)))) == NULL)
 		return SANE_STATUS_NO_MEM;
 
 	memcpy(cs->params.port, pp, sizeof(*pp));
@@ -1637,7 +1637,7 @@ static SANE_Status init_device(struct parport *pp)
 	cs->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
 	cs->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
 	/* should never point at first element (wordlist size) */
-	cs->vals[OPT_RESOLUTION] = 1; 
+	cs->vals[OPT_RESOLUTION] = 1;
 
 	DBG(100, "init_device: configuring opt: colour mode\n");
 
@@ -1689,8 +1689,8 @@ static SANE_Status init_device(struct parport *pp)
 	/* The calibration button */
 	cs->opt[OPT_CAL].type = SANE_TYPE_BUTTON;
 	cs->opt[OPT_CAL].constraint_type = SANE_CONSTRAINT_NONE;
-	if (cs->cal_readonly) 
-		cs->opt[OPT_CAL].cap |= SANE_CAP_INACTIVE; 
+	if (cs->cal_readonly)
+		cs->opt[OPT_CAL].cap |= SANE_CAP_INACTIVE;
 
 #if 0
 	/* the gamma values (once we do them) */
@@ -1700,8 +1700,8 @@ static SANE_Status init_device(struct parport *pp)
 #endif
 
 	/*
-	 * NOTE: Ranges and lists are actually set when scanner is opened, 
-	 * becase that's when we find out what sort of scanner it is 
+	 * NOTE: Ranges and lists are actually set when scanner is opened,
+	 * becase that's when we find out what sort of scanner it is
 	 */
 
 	DBG(100, "init_device: done opts\n");
@@ -1720,7 +1720,7 @@ static SANE_Status init_device(struct parport *pp)
 
 /*************************************************************************
  *
- * These two are optional ones... maybe if I get really keen? 
+ * These two are optional ones... maybe if I get really keen?
  *
  *************************************************************************/
 	SANE_Status
@@ -1739,7 +1739,7 @@ sane_set_io_mode (SANE_Handle h, SANE_Bool non_blocking)
 	SANE_Status
 sane_get_select_fd (SANE_Handle h, SANE_Int *fdp)
 {
-	DBG(2, ">> sane_get_select_fd (%p, %p) (not supported)\n", h, 
+	DBG(2, ">> sane_get_select_fd (%p, %p) (not supported)\n", h,
 			(const void *)fdp);
 	DBG(2, "<< sane_get_select_fd\n");
 	return SANE_STATUS_UNSUPPORTED;
@@ -1762,7 +1762,7 @@ static int init_cal(char *file)
 		if (errno == ENOENT)
 		{
 			/* we need to try and make ~/.sane perhaps -
-			 * find the last / in the file path, and try 
+			 * find the last / in the file path, and try
 			 * to create it */
 			if ((tmp = strrchr(file, '/')) == NULL)
 				return -1;
@@ -1775,9 +1775,9 @@ static int init_cal(char *file)
 			if ((f = open(file, O_CREAT | O_WRONLY, 0600)) < 0)
 				return -1;
 		}
-		else 
+		else
 		{
-			/* Error is something like access denied - too 
+			/* Error is something like access denied - too
 			 * hard to fix, so i give up... */
 			return -1;
 		}
@@ -1789,7 +1789,7 @@ static int init_cal(char *file)
 
 /*************************************************************************
  *
- * fix_weights_file(): Ensures that the weights_file setting for a given 
+ * fix_weights_file(): Ensures that the weights_file setting for a given
  * scanner is valid
  *
  ************************************************************************/
@@ -1821,7 +1821,7 @@ static SANE_Status fix_weights_file(CANONP_Scanner *cs)
 	/* Get the user's home dir if they used ~ */
 	if (cs->weights_file[0] == '~')
 	{
-		if ((tmp = malloc(PATH_MAX)) == NULL) 
+		if ((tmp = malloc(PATH_MAX)) == NULL)
 			return SANE_STATUS_NO_MEM;
 		if ((myhome = getenv("HOME")) == NULL)
 		{
@@ -1832,7 +1832,7 @@ static SANE_Status fix_weights_file(CANONP_Scanner *cs)
 			return SANE_STATUS_INVAL;
 		}
 		strncpy(tmp, myhome, PATH_MAX);
-		strncpy(tmp+strlen(tmp), (cs->weights_file)+1, 
+		strncpy(tmp+strlen(tmp), (cs->weights_file)+1,
 				PATH_MAX-strlen(tmp));
 
 		free(cs->weights_file);
@@ -1869,8 +1869,8 @@ static SANE_Status fix_weights_file(CANONP_Scanner *cs)
 			i = open(cs->weights_file, O_RDONLY);
 			if (i <= 0)
 			{
-				/* 
-				 * Open failed (do i care why?) 
+				/*
+				 * Open failed (do i care why?)
 				 */
 				DBG(2,"fix_weights_file: error opening cal "
 						"(%s)\n", strerror(errno));
@@ -1904,10 +1904,10 @@ static SANE_Status fix_weights_file(CANONP_Scanner *cs)
  * PRE:
  *	cs->params.port is not open
  * POST:
- * 	cs->params.port is left opened iff SANE_STATUS_GOOD returned. 
+ * 	cs->params.port is left opened iff SANE_STATUS_GOOD returned.
  */
 
-SANE_Status detect_mode(CANONP_Scanner *cs) 
+SANE_Status detect_mode(CANONP_Scanner *cs)
 {
 
 	int capabilities, tmp;
@@ -1925,7 +1925,7 @@ SANE_Status detect_mode(CANONP_Scanner *cs)
 				DBG(1, "detect_mode: Invalid port.\n");
 				break;
 			case E1284_SYS:
-				DBG(1, "detect_mode: System error: %s\n", 
+				DBG(1, "detect_mode: System error: %s\n",
 						strerror(errno));
 				break;
 			case E1284_INIT:
@@ -1973,7 +1973,7 @@ SANE_Status detect_mode(CANONP_Scanner *cs)
 	{
 		cs->ieee1284_mode = M1284_ECP;
 		DBG(10, "detect_mode: Using ECP-H Mode\n");
-	}	
+	}
 	else if (capabilities & CAP1284_ECPSWE)
 	{
 		cs->ieee1284_mode = M1284_ECPSWE;
@@ -1993,11 +1993,11 @@ SANE_Status detect_mode(CANONP_Scanner *cs)
 	}
 
 	/* Check to make sure ECP mode really is supported */
-	/* Have disabled the hardware ECP check because it's always supported 
-	 * by libieee1284 now, and it's too prone to hitting a ppdev bug 
+	/* Have disabled the hardware ECP check because it's always supported
+	 * by libieee1284 now, and it's too prone to hitting a ppdev bug
 	 */
 
-	/* Disabled check entirely.. check now in initialise when we 
+	/* Disabled check entirely.. check now in initialise when we
 	 * actually do a read */
 #if 0
 	if ((cs->ieee1284_mode == M1284_ECP) ||
@@ -2005,17 +2005,17 @@ SANE_Status detect_mode(CANONP_Scanner *cs)
 	{
 		DBG(1, "detect_mode: attempting a 0 byte read, if we hang "
 				"here, it's a ppdev bug!\n");
-		/* 
-		 * 29/06/02 
+		/*
+		 * 29/06/02
 		 * NOTE:
-		 * This causes an infinite loop in ppdev on 2.4.18.  
-		 * Not checking on hardware ECP mode should work-around 
+		 * This causes an infinite loop in ppdev on 2.4.18.
+		 * Not checking on hardware ECP mode should work-around
 		 * effectively.
 		 *
-		 * I have sent email to twaugh about it, should be fixed in 
+		 * I have sent email to twaugh about it, should be fixed in
 		 * 2.4.19 and above.
 		 */
-		if (ieee1284_ecp_read_data(cs->params.port, 0, NULL, 0) == 
+		if (ieee1284_ecp_read_data(cs->params.port, 0, NULL, 0) ==
 				E1284_NOTIMPL)
 		{
 			DBG(10, "detect_mode: Your version of libieee1284 "

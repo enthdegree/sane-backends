@@ -1,4 +1,4 @@
-/* 
+/*
    tstbackend -- backend test utility
 
    Uses the SANE library.
@@ -85,15 +85,15 @@ int verbose_level;
 static void display_stats(void)
 {
 #ifdef HAVE_LONG_LONG
-	printf("warnings: %d  error: %d  checks: %lld\n", 
+	printf("warnings: %d  error: %d  checks: %lld\n",
 		   message_number_wrn, message_number_err, checks_done);
 #else
-	printf("warnings: %d  error: %d  checks: %ld\n", 
+	printf("warnings: %d  error: %d  checks: %ld\n",
 		   message_number_wrn, message_number_err, checks_done);
 #endif
 }
 
-/* 
+/*
  * If the condition is false, display a message with some headers
  * depending on the level.
  *
@@ -109,8 +109,8 @@ static int check(enum message_level level, int condition, const char *format, ..
 	va_list args;
 
 	if (level != MSG && level != INF) checks_done ++;
-	
-	if (condition != 0) 
+
+	if (condition != 0)
 		return condition;
 
 	va_start(args, format);
@@ -135,10 +135,10 @@ static int check(enum message_level level, int condition, const char *format, ..
 	case FATAL:					/* fatal error */
 		printf("FATAL ERROR : %s\n", str);
 		message_number_err ++;
-		break;		
+		break;
 	case BUG:					/* bug in tstbackend */
 		printf("tstbackend BUG : %s\n", str);
-		break;				
+		break;
 	}
 
 	if (level == FATAL || level == BUG) {
@@ -210,14 +210,14 @@ static void guards_check(void *ptr, size_t size)
 
 /*--------------------------------------------------------------------------*/
 
-static void 
+static void
 test_parameters (SANE_Device * device, SANE_Parameters *params)
 {
 	SANE_Status status;
 	SANE_Parameters p;
 
 	status = sane_get_parameters (device, &p);
-	check(FATAL, (status == SANE_STATUS_GOOD), 
+	check(FATAL, (status == SANE_STATUS_GOOD),
 		  "cannot get the parameters (error %s)", sane_strstatus(status));
 
 	check(FATAL, ((p.format == SANE_FRAME_GRAY) ||
@@ -227,7 +227,7 @@ test_parameters (SANE_Device * device, SANE_Parameters *params)
 				  (p.format == SANE_FRAME_BLUE)),
 		  "parameter format is not a known SANE_FRAME_* (%d)", p.format);
 
-	check(FATAL, ((p.last_frame == SANE_FALSE) || 
+	check(FATAL, ((p.last_frame == SANE_FALSE) ||
 				  (p.last_frame == SANE_TRUE)),
 		  "parameter last_frame is neither SANE_FALSE or SANE_TRUE (%d)", p.last_frame);
 
@@ -243,7 +243,7 @@ test_parameters (SANE_Device * device, SANE_Parameters *params)
 
 /* Try to set every option in a word list. */
 static void
-test_options_word_list (SANE_Device * device, int option_num, 
+test_options_word_list (SANE_Device * device, int option_num,
 						const SANE_Option_Descriptor *opt,
 						int can_do_recursive)
 {
@@ -252,24 +252,24 @@ test_options_word_list (SANE_Device * device, int option_num,
 	SANE_Int val_int;
 	SANE_Int info;
 
-	check(FATAL, (opt->type == SANE_TYPE_INT || 
+	check(FATAL, (opt->type == SANE_TYPE_INT ||
 			  opt->type == SANE_TYPE_FIXED),
 		  "type must be SANE_TYPE_INT or SANE_TYPE_FIXED (%d)", opt->type);
 
 	if (!SANE_OPTION_IS_SETTABLE(opt->cap)) return;
 
 	for (i=1; i<opt->constraint.word_list[0]; i++) {
-		
+
 		info = 0x1010;			/* garbage */
 
 		val_int = opt->constraint.word_list[i];
-		status = sane_control_option (device, option_num, 
+		status = sane_control_option (device, option_num,
 									  SANE_ACTION_SET_VALUE, &val_int, &info);
-		
+
 		check(FATAL, (status == SANE_STATUS_GOOD),
 			  "cannot set a settable option (status=%s)", sane_strstatus(status));
 
-		check(WRN, ((info & ~(SANE_INFO_RELOAD_OPTIONS | 
+		check(WRN, ((info & ~(SANE_INFO_RELOAD_OPTIONS |
 							SANE_INFO_RELOAD_PARAMS)) == 0),
 			  "sane_control_option set an invalid info (%d)", info);
 
@@ -281,8 +281,8 @@ test_options_word_list (SANE_Device * device, int option_num,
 		}
 
 		/* The option might have become inactive or unsettable. Skip it. */
-		if (!SANE_OPTION_IS_ACTIVE(opt->cap) || 
-			!SANE_OPTION_IS_SETTABLE(opt->cap)) 
+		if (!SANE_OPTION_IS_ACTIVE(opt->cap) ||
+			!SANE_OPTION_IS_SETTABLE(opt->cap))
 			return;
 
 	}
@@ -290,7 +290,7 @@ test_options_word_list (SANE_Device * device, int option_num,
 
 /* Try to set every option in a string list. */
 static void
-test_options_string_list (SANE_Device * device, int option_num, 
+test_options_string_list (SANE_Device * device, int option_num,
 						  const SANE_Option_Descriptor *opt,
 						  int can_do_recursive)
 {
@@ -314,13 +314,13 @@ test_options_string_list (SANE_Device * device, int option_num,
 			  val_string, opt->size);
 
 		info = 0xE1000;			/* garbage */
-		status = sane_control_option (device, option_num, 
+		status = sane_control_option (device, option_num,
 									  SANE_ACTION_SET_VALUE, val_string, &info);
 
 		check(FATAL, (status == SANE_STATUS_GOOD),
 			  "cannot set a settable option (status=%s)", sane_strstatus(status));
 
-		check(WRN, ((info & ~(SANE_INFO_RELOAD_OPTIONS | 
+		check(WRN, ((info & ~(SANE_INFO_RELOAD_OPTIONS |
 							SANE_INFO_RELOAD_PARAMS)) == 0),
 			  "sane_control_option set an invalid info (%d)", info);
 
@@ -334,8 +334,8 @@ test_options_string_list (SANE_Device * device, int option_num,
 		}
 
 		/* The option might have become inactive or unsettable. Skip it. */
-		if (!SANE_OPTION_IS_ACTIVE(opt->cap) || 
-			!SANE_OPTION_IS_SETTABLE(opt->cap)) 
+		if (!SANE_OPTION_IS_ACTIVE(opt->cap) ||
+			!SANE_OPTION_IS_SETTABLE(opt->cap))
 			return;
 	}
 }
@@ -352,8 +352,8 @@ test_options (SANE_Device * device, int can_do_recursive)
 	void *optval;				/* value for the option */
 	size_t optsize;				/* size of the optval buffer */
 
-	/* 
-	 * Test option 0 
+	/*
+	 * Test option 0
 	 */
 	opt = sane_get_option_descriptor (device, 0);
 	check(FATAL, (opt != NULL),
@@ -374,7 +374,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 	check(WRN, (status != SANE_STATUS_GOOD),
 		  "the option 0 value can be set");
 
-	/* 
+	/*
 	 * Test all options
 	 */
 	option_num = 0;
@@ -454,7 +454,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 			check(WRN, (opt->constraint_type == SANE_CONSTRAINT_NONE),
 				  "invalid constraint type for option [%d, %s] (%d)", option_num, opt->name, opt->constraint_type);
 			break;
-			
+
 		case SANE_TYPE_INT:
 		case SANE_TYPE_FIXED:
 			check(WRN, (opt->size > 0 && (opt->size % sizeof(SANE_Word) == 0)),
@@ -467,7 +467,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 				  "invalid constraint type for option [%d, %s] (%d)", option_num, opt->name, opt->constraint_type);
 			break;
 
-		case SANE_TYPE_STRING:	
+		case SANE_TYPE_STRING:
 			check(WRN, (opt->size >= 1),
 				  "size of option [%d, %s] must be at least 1 for the NUL terminator", option_num, opt->name);
 			check(INF, (opt->unit == SANE_UNIT_NONE),
@@ -479,7 +479,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 			optsize = opt->size;
 			break;
 
-		case SANE_TYPE_BUTTON:  
+		case SANE_TYPE_BUTTON:
 		case SANE_TYPE_GROUP:
 			check(INF, (opt->unit == SANE_UNIT_NONE),
 				  "option [%d, %s], unit is not SANE_UNIT_NONE", option_num, opt->name);
@@ -491,11 +491,11 @@ test_options (SANE_Device * device, int can_do_recursive)
 
 		default:
 			check(ERR, 0,
-				  "invalid type %d for option %s", 
+				  "invalid type %d for option %s",
 				  opt->type, opt->name);
 			break;
 		}
-		
+
 		if (optval) {
 			/* This is an option with a value */
 
@@ -505,7 +505,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 			 * consider that an inactive option shouldn't be read by a
 			 * frontend because its value is meaningless. I think
 			 * that, in that case, SANE_STATUS_INVAL is an appropriate
-			 * return.  
+			 * return.
 			 */
 			guards_set(optval, optsize);
 			status = sane_control_option (device, option_num,
@@ -522,7 +522,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 
 			/* set with NULL info */
 			guards_set(optval, optsize);
-			status = sane_control_option (device, option_num, 
+			status = sane_control_option (device, option_num,
 										  SANE_ACTION_SET_VALUE, optval, NULL);
 			guards_check(optval, optsize);
 			if (SANE_OPTION_IS_SETTABLE (opt->cap) && SANE_OPTION_IS_ACTIVE (opt->cap)) {
@@ -531,13 +531,13 @@ test_options (SANE_Device * device, int can_do_recursive)
 			} else {
 				check(ERR, (status == SANE_STATUS_INVAL),
 					  "was able to set option [%d, %s] value, although it is not active or settable", option_num, opt->name);
-			}  
-			
+			}
+
 			/* Get with invalid info. Since if is a get, info should be either
 			 * ignored or set to 0. */
 			info = 0xdeadbeef;
 			guards_set(optval, optsize);
-			status = sane_control_option (device, option_num, SANE_ACTION_GET_VALUE, 
+			status = sane_control_option (device, option_num, SANE_ACTION_GET_VALUE,
 										  optval, &info);
 			guards_check(optval, optsize);
 			if (SANE_OPTION_IS_GETTABLE (opt->cap)) {
@@ -549,19 +549,19 @@ test_options (SANE_Device * device, int can_do_recursive)
 			}
 			check(ERR, ((info == (SANE_Int)0xdeadbeef) || (info == 0)),
 				  "when getting option [%d, %s], info was set to %x", option_num, opt->name, info);
-			
+
 			/* Set with invalid info. Info should be reset by the backend. */
 			info = 0x10000;
 			guards_set(optval, optsize);
-			status = sane_control_option (device, option_num, 
+			status = sane_control_option (device, option_num,
 										  SANE_ACTION_SET_VALUE, optval, &info);
 			guards_check(optval, optsize);
 			if (SANE_OPTION_IS_SETTABLE (opt->cap) && SANE_OPTION_IS_ACTIVE (opt->cap)) {
 				check(ERR, (status == SANE_STATUS_GOOD),
 					  "cannot set option [%d, %s] value, although it is active and settable (%s)", option_num, opt->name, sane_strstatus(status));
 
-				check(ERR, ((info & ~(SANE_INFO_INEXACT | 
-									  SANE_INFO_RELOAD_OPTIONS | 
+				check(ERR, ((info & ~(SANE_INFO_INEXACT |
+									  SANE_INFO_RELOAD_OPTIONS |
 									  SANE_INFO_RELOAD_PARAMS)) == 0),
 					  "sane_control_option set some wrong bit in info (%d)", info);
 
@@ -575,10 +575,10 @@ test_options (SANE_Device * device, int can_do_recursive)
 
 			/* Ask the backend to set the option automatically. */
 			guards_set(optval, optsize);
-			status = sane_control_option (device, option_num, 
+			status = sane_control_option (device, option_num,
 										  SANE_ACTION_SET_AUTO, optval, &info);
 			guards_check(optval, optsize);
-			if (SANE_OPTION_IS_SETTABLE (opt->cap) && 
+			if (SANE_OPTION_IS_SETTABLE (opt->cap) &&
 				SANE_OPTION_IS_ACTIVE (opt->cap) &&
 				(opt->cap & SANE_CAP_AUTOMATIC)) {
 				check(ERR, (status == SANE_STATUS_GOOD),
@@ -594,7 +594,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 
 		if (optval) {
 			guards_free(optval);
-			optval = NULL; 
+			optval = NULL;
 		}
 
 		/* Some capabilities checks. */
@@ -605,18 +605,18 @@ test_options (SANE_Device * device, int can_do_recursive)
 			check(ERR, ((opt->cap & SANE_CAP_SOFT_DETECT) != 0),
 				  "option [%d, %s], SANE_CAP_SOFT_DETECT must be set if SANE_CAP_SOFT_SELECT is set", option_num, opt->name);
 		}
-		if ((opt->cap & (SANE_CAP_SOFT_SELECT | 
-						 SANE_CAP_HARD_SELECT | 
+		if ((opt->cap & (SANE_CAP_SOFT_SELECT |
+						 SANE_CAP_HARD_SELECT |
 						 SANE_CAP_SOFT_DETECT)) == SANE_CAP_SOFT_DETECT) {
 			check(ERR, (!SANE_OPTION_IS_SETTABLE (opt->cap)),
 				  "option [%d, %s], must not be settable", option_num, opt->name);
 		}
-		
+
 		if (!SANE_OPTION_IS_SETTABLE (opt->cap)) {
 			/* Unsettable option. Ignore the rest of the test. */
 			continue;
 		}
-	
+
 		/* Check that will sane_control_option copy the string
 		 * parameter and not just store a pointer to it. */
 		if (opt->type == SANE_TYPE_STRING) {
@@ -624,7 +624,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 			char *optstr;
 
 			optstr = guards_malloc(opt->size);
-			val_string2 = guards_malloc(opt->size);				
+			val_string2 = guards_malloc(opt->size);
 
 			/* Poison the current value. */
 			strncpy(optstr, "-pOiSoN-", opt->size-1);
@@ -632,7 +632,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 
 			/* Get the value */
 			guards_set(optstr, opt->size);
-			status = sane_control_option (device, option_num, SANE_ACTION_GET_VALUE, 
+			status = sane_control_option (device, option_num, SANE_ACTION_GET_VALUE,
 										  optstr, NULL);
 			guards_check(optstr, opt->size);
 			check(FATAL, (status == SANE_STATUS_GOOD),
@@ -642,7 +642,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 
 			/* Set the value */
 			guards_set(optstr, opt->size);
-			status = sane_control_option (device, option_num, 
+			status = sane_control_option (device, option_num,
 										  SANE_ACTION_SET_VALUE, optstr, NULL);
 			guards_check(optstr, opt->size);
 			check(ERR, (status == SANE_STATUS_GOOD),
@@ -653,13 +653,13 @@ test_options (SANE_Device * device, int can_do_recursive)
 			optstr[opt->size-1] = 0;
 
 			/* Read again the value and compare. */
-			guards_set(val_string2, opt->size);			
-			status = sane_control_option (device, option_num, SANE_ACTION_GET_VALUE, 
+			guards_set(val_string2, opt->size);
+			status = sane_control_option (device, option_num, SANE_ACTION_GET_VALUE,
 										  val_string2, NULL);
 			guards_check(val_string2, opt->size);
 			check(ERR, (status == SANE_STATUS_GOOD),
 				  "cannot get option [%d, %s] value", option_num, opt->name);
-			
+
 			check(FATAL, (strcmp(optstr, val_string2) != 0),
 				  "sane_control_option did not copy the string parameter for option [%d, %s]", option_num, opt->name);
 
@@ -671,8 +671,8 @@ test_options (SANE_Device * device, int can_do_recursive)
 		if (opt->type == SANE_TYPE_BOOL) {
 			SANE_Bool org_v;
 			SANE_Bool v;
-			
-			status = sane_control_option (device, option_num, SANE_ACTION_GET_VALUE, 
+
+			status = sane_control_option (device, option_num, SANE_ACTION_GET_VALUE,
 										  &org_v, &info);
 			check(ERR, (status == SANE_STATUS_GOOD),
 				  "cannot get boolean option [%d, %s] value (%s)", option_num, opt->name, sane_strstatus(status));
@@ -686,12 +686,12 @@ test_options (SANE_Device * device, int can_do_recursive)
 				break;
 			default:
 				check(ERR, 0,
-					  "invalid boolean value %d for option [%d, %s]", 
+					  "invalid boolean value %d for option [%d, %s]",
 					  org_v, option_num, opt->name);
 			}
-			
+
 			/* Set the opposite of the current value. */
-			status = sane_control_option (device, option_num, 
+			status = sane_control_option (device, option_num,
 										  SANE_ACTION_SET_VALUE, &v, &info);
 			check(ERR, (status == SANE_STATUS_GOOD),
 				  "cannot set boolean option [%d, %s] value (%s)", option_num, opt->name, sane_strstatus(status));
@@ -704,7 +704,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 
 			/* Set the initial value. */
 			v = org_v;
-			status = sane_control_option (device, option_num, 
+			status = sane_control_option (device, option_num,
 										  SANE_ACTION_SET_VALUE, &v, &info);
 			check(ERR, (status == SANE_STATUS_GOOD),
 				  "cannot set boolean option [%d, %s] value (%s)", option_num, opt->name, sane_strstatus(status));
@@ -713,22 +713,22 @@ test_options (SANE_Device * device, int can_do_recursive)
 
 			if (info & SANE_INFO_RELOAD_PARAMS) {
 				test_parameters(device, NULL);
-			}			
+			}
 		}
-		
+
 		/* Try to set an invalid option. */
 		switch(opt->type) {
 		case SANE_TYPE_BOOL: {
 			SANE_Word v;	/* should be SANE_Bool instead */
-				
+
 			v = -1;				/* invalid value. must be SANE_FALSE or SANE_TRUE */
-			status = sane_control_option (device, option_num, 
+			status = sane_control_option (device, option_num,
 										  SANE_ACTION_SET_VALUE, &v, NULL);
 			check(ERR, (status != SANE_STATUS_GOOD),
 				  "was able to set an invalid value for boolean option [%d, %s]", option_num, opt->name);
 
 			v = 2;				/* invalid value. must be SANE_FALSE or SANE_TRUE */
-			status = sane_control_option (device, option_num, 
+			status = sane_control_option (device, option_num,
 										  SANE_ACTION_SET_VALUE, &v, NULL);
 			check(ERR, (status != SANE_STATUS_GOOD),
 				  "was able to set an invalid value for boolean option [%d, %s]", option_num, opt->name);
@@ -750,7 +750,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 					v[i] = opt->constraint.range->min - 1;	/* invalid range */
 
 				guards_set(v, opt->size);
-				status = sane_control_option (device, option_num, 
+				status = sane_control_option (device, option_num,
 											  SANE_ACTION_SET_VALUE, v, &info);
 				guards_check(v, opt->size);
 				check(ERR, (status == SANE_STATUS_GOOD && (info & SANE_INFO_INEXACT) ),
@@ -758,7 +758,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 
 				/* Set the corrected value. */
 				guards_set(v, opt->size);
-				status = sane_control_option (device, option_num, 
+				status = sane_control_option (device, option_num,
 											  SANE_ACTION_SET_VALUE, v, &info);
 				guards_check(v, opt->size);
 				check(ERR, (status == SANE_STATUS_GOOD && !(info & SANE_INFO_INEXACT) ),
@@ -769,7 +769,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 					v[i] = opt->constraint.range->max + 1; /* invalid range */
 
 				guards_set(v, opt->size);
-				status = sane_control_option (device, option_num, 
+				status = sane_control_option (device, option_num,
 											  SANE_ACTION_SET_VALUE, v, &info);
 				guards_check(v, opt->size);
 				check(ERR, (status == SANE_STATUS_GOOD && (info & SANE_INFO_INEXACT) ),
@@ -777,7 +777,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 
 				/* Set the corrected value. */
 				guards_set(v, opt->size);
-				status = sane_control_option (device, option_num, 
+				status = sane_control_option (device, option_num,
 											  SANE_ACTION_SET_VALUE, v, &info);
 				guards_check(v, opt->size);
 				check(ERR, (status == SANE_STATUS_GOOD && !(info & SANE_INFO_INEXACT) ),
@@ -791,15 +791,15 @@ test_options (SANE_Device * device, int can_do_recursive)
 		default:
 			break;
 		}
-		
+
 		/* TODO: button */
-		
-		/* 
+
+		/*
 		 * Here starts all the recursive stuff. After the test, it is
 		 * possible that the value is not settable nor active
-		 * anymore. 
+		 * anymore.
 		 */
-		
+
 		/* Try to set every option in a list */
 		switch(opt->constraint_type) {
 		case SANE_CONSTRAINT_WORD_LIST:
@@ -813,12 +813,12 @@ test_options (SANE_Device * device, int can_do_recursive)
 				  "no constraint list for option [%d, %s]", option_num, opt->name);
 			test_options_string_list (device, option_num, opt, can_do_recursive);
 			break;
-			
+
 		case SANE_CONSTRAINT_RANGE:
 			check(FATAL, (opt->constraint.range != NULL),
 				  "no constraint range for option [%d, %s]", option_num, opt->name);
 			check(FATAL, (opt->constraint.range->max >= opt->constraint.range->min),
-				  "incorrect range for option [%d, %s] (min=%d > max=%d)", 
+				  "incorrect range for option [%d, %s] (min=%d > max=%d)",
 				  option_num, opt->name, opt->constraint.range->min, opt->constraint.range->max);
 			/* Recurse. */
 			if (can_do_recursive) {
@@ -838,7 +838,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 		}
 
 		/* End of the test for that option. */
-	}		
+	}
 
 	/* test random non-existing options. */
 	opt = sane_get_option_descriptor (device, -1);
@@ -852,7 +852,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 	opt = sane_get_option_descriptor (device, num_dev_options+2);
 	check(ERR, (opt == NULL),
 		  "was able to get option descriptor for option %d", num_dev_options+2);
-	
+
 	opt = sane_get_option_descriptor (device, num_dev_options+50);
 	check(ERR, (opt == NULL),
 		  "was able to get option descriptor for option %d", num_dev_options+50);
@@ -863,8 +863,8 @@ static const SANE_Option_Descriptor *get_optdesc_by_name(SANE_Handle device, con
 {
 	const SANE_Option_Descriptor *opt;
 	SANE_Int num_dev_options;
-	SANE_Status status;	
-	
+	SANE_Status status;
+
 	/* Get the number of options. */
 	status = sane_control_option (device, 0, SANE_ACTION_GET_VALUE, &num_dev_options, 0);
 	check(FATAL, (status == SANE_STATUS_GOOD),
@@ -876,7 +876,7 @@ static const SANE_Option_Descriptor *get_optdesc_by_name(SANE_Handle device, con
 		opt = sane_get_option_descriptor (device, *option_num);
 		check(FATAL, (opt != NULL),
 			  "cannot get option descriptor for option %d", *option_num);
-	
+
 		if (opt->name && strcmp(opt->name, name) == 0) {
 			return(opt);
 		}
@@ -886,10 +886,10 @@ static const SANE_Option_Descriptor *get_optdesc_by_name(SANE_Handle device, con
 
 /* Set the first value for an option. That equates to the minimum for a
  * range or the first element in a list. */
-static void set_min_value(SANE_Handle device, int option_num, 
+static void set_min_value(SANE_Handle device, int option_num,
 						  const SANE_Option_Descriptor *opt)
 {
-	SANE_Status status;	
+	SANE_Status status;
 	SANE_String val_string;
 	SANE_Int val_int;
 	int rc;
@@ -915,7 +915,7 @@ static void set_min_value(SANE_Handle device, int option_num,
 		if (!rc) return;
 		val_string = strdup(opt->constraint.string_list[0]);
 		assert(val_string);
-		status = sane_control_option (device, option_num, 
+		status = sane_control_option (device, option_num,
 									  SANE_ACTION_SET_VALUE, val_string, NULL);
 		check(ERR, (status == SANE_STATUS_GOOD),
 			  "cannot set option %s to [%s] (%s)", opt->name, val_string, sane_strstatus(status));
@@ -929,7 +929,7 @@ static void set_min_value(SANE_Handle device, int option_num,
 		check(ERR, (status == SANE_STATUS_GOOD),
 			  "cannot set option %s to %d (%s)", opt->name, val_int, sane_strstatus(status));
 		break;
-		
+
 	default:
 		abort();
 	}
@@ -937,10 +937,10 @@ static void set_min_value(SANE_Handle device, int option_num,
 
 /* Set the last value for an option. That equates to the maximum for a
  * range or the last element in a list. */
-static void set_max_value(SANE_Handle device, int option_num, 
+static void set_max_value(SANE_Handle device, int option_num,
 						  const SANE_Option_Descriptor *opt)
 {
-	SANE_Status status;	
+	SANE_Status status;
 	SANE_String val_string;
 	SANE_Int val_int;
 	int i;
@@ -968,7 +968,7 @@ static void set_max_value(SANE_Handle device, int option_num,
 		for (i=1; opt->constraint.string_list[i] != NULL; i++);
 		val_string = strdup(opt->constraint.string_list[i-1]);
 		assert(val_string);
-		status = sane_control_option (device, option_num, 
+		status = sane_control_option (device, option_num,
 									  SANE_ACTION_SET_VALUE, val_string, NULL);
 		check(ERR, (status == SANE_STATUS_GOOD),
 			  "cannot set option %s to [%s] (%s)", opt->name, val_string, sane_strstatus(status));
@@ -982,17 +982,17 @@ static void set_max_value(SANE_Handle device, int option_num,
 		check(ERR, (status == SANE_STATUS_GOOD),
 			  "cannot set option %s to %d (%s)", opt->name, val_int, sane_strstatus(status));
 		break;
-		
+
 	default:
 		abort();
 	}
 }
 
 /* Set a random value for an option amongst the possible values. */
-static void set_random_value(SANE_Handle device, int option_num, 
+static void set_random_value(SANE_Handle device, int option_num,
 							 const SANE_Option_Descriptor *opt)
 {
-	SANE_Status status;	
+	SANE_Status status;
 	SANE_String val_string;
 	SANE_Int val_int;
 	int i;
@@ -1022,7 +1022,7 @@ static void set_random_value(SANE_Handle device, int option_num,
 		i = rand() % i;
 		val_string = strdup(opt->constraint.string_list[0]);
 		assert(val_string);
-		status = sane_control_option (device, option_num, 
+		status = sane_control_option (device, option_num,
 									  SANE_ACTION_SET_VALUE, val_string, NULL);
 		check(ERR, (status == SANE_STATUS_GOOD),
 			  "cannot set option %s to [%s] (%s)", opt->name, val_string, sane_strstatus(status));
@@ -1038,7 +1038,7 @@ static void set_random_value(SANE_Handle device, int option_num,
 		check(ERR, (status == SANE_STATUS_GOOD),
 			  "cannot set option %s to %d (%s)", opt->name, val_int, sane_strstatus(status));
 		break;
-		
+
 	default:
 		abort();
 	}
@@ -1053,18 +1053,18 @@ static char *get_option_value(SANE_Handle device, const char *option_name)
 	void *optval;				/* value for the option */
 	int optnum;
 	static char str[100];
-	SANE_Status status;	
+	SANE_Status status;
 
 	opt = get_optdesc_by_name(device, option_name, &optnum);
 	if (opt) {
-		
+
 		optval = guards_malloc(opt->size);
 		status = sane_control_option (device, optnum,
 									  SANE_ACTION_GET_VALUE, optval, NULL);
-		
+
 		if (status == SANE_STATUS_GOOD) {
 			switch(opt->type) {
-				
+
 			case SANE_TYPE_BOOL:
 				if (*(SANE_Word*) optval == SANE_FALSE) {
 					strcpy(str, "FALSE");
@@ -1072,22 +1072,22 @@ static char *get_option_value(SANE_Handle device, const char *option_name)
 					strcpy(str, "TRUE");
 				}
 				break;
-			
+
 			case SANE_TYPE_INT:
 				sprintf(str, "%d", *(SANE_Word*) optval);
 				break;
-				
+
 			case SANE_TYPE_FIXED: {
 				int i;
 				i = SANE_UNFIX(*(SANE_Word*) optval);
 				sprintf(str, "%d", i);
 			}
 			break;
-				
+
 			case SANE_TYPE_STRING:
 				strcpy(str, optval);
 				break;
-				
+
 			default:
 				str[0] = 0;
 			}
@@ -1113,7 +1113,7 @@ static char *display_scan_parameters(SANE_Handle device)
 	char *p = str;
 
 	*p = 0;
-	
+
 	p += sprintf(p, "scan mode=[%s] ", get_option_value(device, SANE_NAME_SCAN_MODE));
 	p += sprintf(p, "resolution=[%s] ", get_option_value(device, SANE_NAME_SCAN_RESOLUTION));
 
@@ -1129,7 +1129,7 @@ static char *display_scan_parameters(SANE_Handle device)
 static void test_scan(SANE_Handle device)
 {
 	const SANE_Option_Descriptor *opt;
-	SANE_Status status;	
+	SANE_Status status;
 	int option_num;
 	SANE_Int val_int;
 	unsigned char *image = NULL;
@@ -1140,7 +1140,7 @@ static void test_scan(SANE_Handle device)
 	int rc;
 	int fd;
 
-	/* Set the largest scan possible.  
+	/* Set the largest scan possible.
 	 *
 	 * For that test, the corner
 	 * position must exists and be SANE_CONSTRAINT_RANGE (this is not
@@ -1169,17 +1169,17 @@ static void test_scan(SANE_Handle device)
 	/* Try to set the I/O mode outside of a scan. */
 	status = sane_set_io_mode (device, SANE_FALSE);
 	check(ERR, (status == SANE_STATUS_INVAL),
-		  "it is possible to sane_set_io_mode outside of a scan");	
+		  "it is possible to sane_set_io_mode outside of a scan");
 	status = sane_set_io_mode (device, SANE_TRUE);
 	check(ERR, (status == SANE_STATUS_INVAL ||
 				status == SANE_STATUS_UNSUPPORTED),
-		  "it is possible to sane_set_io_mode outside of a scan");	
+		  "it is possible to sane_set_io_mode outside of a scan");
 
 	/* Test sane_get_select_fd outside of a scan. */
 	status = sane_get_select_fd(device, &fd);
-	check(ERR, (status == SANE_STATUS_INVAL || 
+	check(ERR, (status == SANE_STATUS_INVAL ||
 				status == SANE_STATUS_UNSUPPORTED),
-		  "sane_get_select_fd outside of a scan returned an invalid status (%s)", 
+		  "sane_get_select_fd outside of a scan returned an invalid status (%s)",
 		  sane_strstatus (status));
 
 	if (test_level > 2) {
@@ -1197,11 +1197,11 @@ static void test_scan(SANE_Handle device)
 		check(ERR, (status == SANE_STATUS_GOOD),
 			  "sane_set_io_mode with SANE_FALSE must return SANE_STATUS_GOOD");
 
-		/* test sane_set_io_mode with SANE_TRUE. */	
+		/* test sane_set_io_mode with SANE_TRUE. */
 		status = sane_set_io_mode (device, SANE_TRUE);
-		check(ERR, (status == SANE_STATUS_GOOD || 
+		check(ERR, (status == SANE_STATUS_GOOD ||
 					status == SANE_STATUS_UNSUPPORTED),
-			  "sane_set_io_mode with SANE_TRUE returned an invalid status (%s)", 
+			  "sane_set_io_mode with SANE_TRUE returned an invalid status (%s)",
 			  sane_strstatus (status));
 
 		/* Put the backend back into blocking mode. */
@@ -1212,9 +1212,9 @@ static void test_scan(SANE_Handle device)
 		/* Test sane_get_select_fd */
 		fd = 0x76575;				/* won't exists */
 		status = sane_get_select_fd(device, &fd);
-		check(ERR, (status == SANE_STATUS_GOOD || 
+		check(ERR, (status == SANE_STATUS_GOOD ||
 					status == SANE_STATUS_UNSUPPORTED),
-			  "sane_get_select_fd returned an invalid status (%s)", 
+			  "sane_get_select_fd returned an invalid status (%s)",
 			  sane_strstatus (status));
 		if (status == SANE_STATUS_GOOD) {
 			check(ERR, (fd != 0x76575),
@@ -1222,13 +1222,13 @@ static void test_scan(SANE_Handle device)
 			check(ERR, (fd >= 0),
 				  "sane_get_select_fd returned an invalid fd");
 		}
-	
+
 		/* Check that it is not possible to set an option. It is probably
 		 * a requirement stated indirectly in the section 4.4 on code
-		 * flow.  
+		 * flow.
 		 */
-		status = sane_control_option (device, option_num, 
-									  SANE_ACTION_SET_VALUE, 
+		status = sane_control_option (device, option_num,
+									  SANE_ACTION_SET_VALUE,
 									  &val_int , NULL);
 		check(WRN, (status != SANE_STATUS_GOOD),
 			  "it is possible to set a value during a scan");
@@ -1236,7 +1236,7 @@ static void test_scan(SANE_Handle device)
 		test_parameters(device, &params);
 
 		if (params.bytes_per_line != 0 && params.lines != 0) {
-		
+
 			to_read = params.bytes_per_line * params.lines;
 			while(SANE_TRUE) {
 				len = 76457645;		/* garbage */
@@ -1288,8 +1288,8 @@ static void test_scan(SANE_Handle device)
 		  "it is possible to sane_read outside a scan");
 
 
-	/* 
-	 * Do a partial scan 
+	/*
+	 * Do a partial scan
 	 */
 	check(MSG, 0, "TEST: partial scan - %s", display_scan_parameters(device));
 
@@ -1301,7 +1301,7 @@ static void test_scan(SANE_Handle device)
 	test_parameters(device, &params);
 
 	if (params.bytes_per_line != 0 && params.lines != 0) {
-		
+
 		len = 10;
 
 		guards_set(image, 1);
@@ -1311,12 +1311,12 @@ static void test_scan(SANE_Handle device)
 		check(ERR, (len == 1),
 			  "sane_read() didn't return 1 byte as requested");
 	}
-		
+
 	sane_cancel(device);
 
 
-	/* 
-	 * Do a scan, reading random length. 
+	/*
+	 * Do a scan, reading random length.
 	 */
 	check(MSG, 0, "TEST: scan random length - %s", display_scan_parameters(device));
 
@@ -1336,8 +1336,8 @@ static void test_scan(SANE_Handle device)
 	if (!rc) goto the_end;
 
 	/* Check that it is not possible to set an option. */
-	status = sane_control_option (device, option_num, 
-								  SANE_ACTION_SET_VALUE, 
+	status = sane_control_option (device, option_num,
+								  SANE_ACTION_SET_VALUE,
 								  &val_int , NULL);
 	check(WRN, (status != SANE_STATUS_GOOD),
 		  "it is possible to set a value during a scan");
@@ -1345,10 +1345,10 @@ static void test_scan(SANE_Handle device)
 	test_parameters(device, &params);
 
 	if (params.bytes_per_line != 0 && params.lines != 0) {
-		
+
 		to_read = params.bytes_per_line * params.lines;
 		srandom(time(NULL));
-		
+
 		while (SANE_TRUE) {
 
 			ask_len = rand() & 0x7ffff;	/* 0 to 512K-1 */
@@ -1387,7 +1387,7 @@ static void test_scan(SANE_Handle device)
 			if (!rc) {
 				break;
 			}
-			
+
 			to_read -= len;
 		}
 
@@ -1422,7 +1422,7 @@ static void test_scan(SANE_Handle device)
 	test_parameters(device, &params);
 
 	if (params.bytes_per_line != 0 && params.lines != 0) {
-		
+
 		to_read = params.bytes_per_line * params.lines;
 		while(SANE_TRUE) {
 			ask_len = IMAGE_SIZE;
@@ -1481,7 +1481,7 @@ static void test_scans(SANE_Device * device)
 {
 	const SANE_Option_Descriptor *scan_mode_opt;
 	const SANE_Option_Descriptor *resolution_mode_opt;
-	SANE_Status status;	
+	SANE_Status status;
 	int scan_mode_optnum;
 	int resolution_mode_optnum;
 	SANE_String val_string;
@@ -1519,27 +1519,27 @@ static void test_scans(SANE_Device * device)
 	if (scan_mode_opt) {
 		/* Do several scans, with several resolution. */
 		for (i=0; scan_mode_opt->constraint.string_list[i] != NULL; i++) {
-		
+
 			val_string = strdup(scan_mode_opt->constraint.string_list[i]);
 			assert(val_string);
-		
-			status = sane_control_option (device, scan_mode_optnum, 
+
+			status = sane_control_option (device, scan_mode_optnum,
 										  SANE_ACTION_SET_VALUE, val_string, NULL);
 			check(FATAL, (status == SANE_STATUS_GOOD),
 				  "cannot set a settable option (status=%s)", sane_strstatus(status));
-		
+
 			free(val_string);
 
 			if (resolution_mode_opt) {
-				set_min_value(device, resolution_mode_optnum, 
-							  resolution_mode_opt);			
-				test_scan(device);
-
-				set_max_value(device, resolution_mode_optnum, 
+				set_min_value(device, resolution_mode_optnum,
 							  resolution_mode_opt);
 				test_scan(device);
 
-				set_random_value(device, resolution_mode_optnum, 
+				set_max_value(device, resolution_mode_optnum,
+							  resolution_mode_opt);
+				test_scan(device);
+
+				set_random_value(device, resolution_mode_optnum,
 								 resolution_mode_opt);
 				test_scan(device);
 			} else {
@@ -1548,15 +1548,15 @@ static void test_scans(SANE_Device * device)
 		}
 	} else {
 		if (resolution_mode_opt) {
-			set_min_value(device, resolution_mode_optnum, 
-						  resolution_mode_opt);			
-			test_scan(device);
-
-			set_max_value(device, resolution_mode_optnum, 
+			set_min_value(device, resolution_mode_optnum,
 						  resolution_mode_opt);
 			test_scan(device);
 
-			set_random_value(device, resolution_mode_optnum, 
+			set_max_value(device, resolution_mode_optnum,
+						  resolution_mode_opt);
+			test_scan(device);
+
+			set_random_value(device, resolution_mode_optnum,
 							 resolution_mode_opt);
 			test_scan(device);
 		} else {
@@ -1593,7 +1593,7 @@ SANE_Status status;
 		check(FATAL, (dev->vendor != NULL), "device vendor is NULL");
 		check(FATAL, (dev->type != NULL), "device type is NULL");
 		check(FATAL, (dev->model != NULL), "device model is NULL");
-		
+
 		check(INF, ((strcmp(dev->type, "flatbed scanner") == 0) ||
 					(strcmp(dev->type, "frame grabber") == 0) ||
 					(strcmp(dev->type, "handheld scanner") == 0) ||
@@ -1784,7 +1784,7 @@ main (int argc, char **argv)
 		status = sane_open ("opihndvses75bvt6fg", &device);
 		check(WRN, (status == SANE_STATUS_INVAL),
 			  "sane_open() failed (%s)", sane_strstatus (status));
-		
+
 		if (status == SANE_STATUS_GOOD)
 			sane_close(device);
 
@@ -1809,7 +1809,7 @@ main (int argc, char **argv)
 	status = sane_init (&version_code, NULL);
 	check(FATAL, (status == SANE_STATUS_GOOD),
 		  "sane_init failed with %s", sane_strstatus (status));
-  
+
 	/* Check the device list */
 	rc = test_get_devices(&device_list, time);
 	if (rc) goto the_exit;
@@ -1833,7 +1833,7 @@ main (int argc, char **argv)
 	if (!rc) goto the_exit;
 
 	check(MSG, 0, "using device %s", devname);
-	
+
 	/* Test open close */
 	check(MSG, 0, "TEST: open/close");
 	for (i=0; i<10; i++) {

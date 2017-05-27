@@ -8,7 +8,7 @@ The
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to USB flatbed scanners based on the Grandtech GT-6801 and GT-6816
 chips.  A list of supported scanners can be found on the gt68xx backend
-homepage: 
+homepage:
 .IR http://www.meier\-geinitz.de/sane/gt68xx\-backend/ .
 .PP
 This is BETA software. Especially if you test new or untested scanners, keep
@@ -24,7 +24,7 @@ the models already listed as supported, please let me know.
 .PP
 If you own a scanner that isn't detected by the gt68xx backend but has a GT-6801
 or GT-6816 chipset, you can try to add it to the backend. Have a look at the
-following web page: 
+following web page:
 .I http://www.meier\-geinitz.de/sane/gt68xx\-backend/adding.html
 .PP
 .SH LIBUSB ISSUES
@@ -38,7 +38,7 @@ USB information looks at
 .SH FIRMWARE FILE
 You need a firmware file for your scanner. That's a small file containing
 software that will be uploaded to the scanner's memory. It's usually named
-*.usb, e.g. 
+*.usb, e.g.
 .IR PS1fw.usb .
 It comes on the installation CD that was provided by the manufacturer, but it
 may be packaged together with the installation program in an .exe file. For
@@ -64,9 +64,9 @@ autodetected by
 statements which are already included into
 .IR gt68xx.conf .
 "vendor_id" and "product_id" are hexadecimal numbers that identify the
-scanner. 
+scanner.
 .PP
-The 
+The
 .BR override ,
 .BR firmware ,
 .BR vendor ,
@@ -82,7 +82,7 @@ Option
 is used to override the default model parameters. That's necessary for some
 scanners that use the same vendor/product ids but are different. For these
 scanners there are already commented out override lines in the configuration
-file. 
+file.
 .B override "mustek\-scanexpress\-1200\-ub\-plus"
 is necessary for the Mustek Scanexpress 1200 UB Plus, the
 Medion/Lifetec/Tevion LT 9452, and the Trust Compact Scan USB 19200.
@@ -93,7 +93,7 @@ Medion/ Lifetec/ Tevion/ Cytron MD/LT 9385, the Medion/ Lifetec/ Tevion MD
 .B override "mustek\-bearpaw\-2400\-cu"
 is necessary for the Mustek BearPaw 2400 CU and the Fujitsu 1200CUS. The
 .B override
-option must be the first one after the 
+option must be the first one after the
 .B usb
 line.
 .PP
@@ -107,7 +107,7 @@ at a different path, use a
 .B firmware
 line.
 .PP
-The 
+The
 .B vendor
 and
 .B model
@@ -178,7 +178,7 @@ increase the verbosity of the output. If the debug level is set to 1 or higher,
 some debug options become available that are normally hidden. Handle them with
 care.
 
-Example: 
+Example:
 export SANE_DEBUG_GT68XX=4
 
 .SH "SEE ALSO"

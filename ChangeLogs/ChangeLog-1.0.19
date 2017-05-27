@@ -102,7 +102,7 @@
 
 2008-01-16  m. allan noah <kitno455 a t gmail d o t com>
 	* po/sane-backends.fr.po: updated translation from Yann E. MORIN
-	* backend/fujitsu.c, backend/fujitsu.conf.in, 
+	* backend/fujitsu.c, backend/fujitsu.conf.in,
 	  doc/descriptions/fujitsu.desc: add usb id for S500M
 
 2008-01-16  Jonathan Bravo Lopez <jkdsoft@gmail.com>
@@ -251,7 +251,7 @@
 	added support for Perfection 4990 (Claus Boje).
 
 2007-11-17  m. allan noah <kitno455 a t gmail d o t com>
-	* backend/fujitsu.c, backend/fujitsu.conf.in, 
+	* backend/fujitsu.c, backend/fujitsu.conf.in,
 	  doc/descriptions/fujitsu.desc: add usb id for S510
 
 2007-11-17  Rene Rebe <rene@exactcode.de>
@@ -276,7 +276,7 @@
 	* backend/plustek-usb.[ch] backend/plustek-usbcal.c
 	  backend/plustek-usbdevs.c backend/plustek-usbshading.c
 	  backend/plustek.[ch] backend/plustek.conf.in:
-	  Tweaked TravelScan464 settings. Added possibility to disable 
+	  Tweaked TravelScan464 settings. Added possibility to disable
 	  dark-calibration with lamp on (touches devices like CanoScan1220 etc.)
 	  Use attribute packed for data access structs
 
@@ -302,7 +302,7 @@
 
 2007-11-11  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys.c, backend/genesys_gl646.c,
-	  backend/genesys_gl841.c, backend/genesys_low.h: change 
+	  backend/genesys_gl841.c, backend/genesys_low.h: change
 	  bulk_write_register to take number of registers instead of
 	  byte size of register set
 
@@ -335,7 +335,7 @@
 	* doc/descriptions/unsupported.desc: Updated some entries
 	* backend/plustek-usb.c backend/plustek-usbimg.c backend/plustek-usbmap.c
 	  backend/plustek-usbscan.c backend/plustek-usbshading.c: Fixed copyright
-	* backend/plustek-usb.h backend/plustek-usbdevs.c 
+	* backend/plustek-usb.h backend/plustek-usbdevs.c
 	  doc/descriptions/plustek.desc: Added support for TravelScan464
 
 2007-10-28  Julien Blache <jb@jblache.org>
@@ -370,9 +370,9 @@
 	  sizeof(Genesys_Register_Set)
 
 2007-10-25  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
-	* backend/genesys_gl841.c: One more instance of 
+	* backend/genesys_gl841.c: One more instance of
 	  sizeof(Genesys_Register_Set) vs 2
-	* backend/genesys.c: Add check for small register set in 
+	* backend/genesys.c: Add check for small register set in
 	  sanei_genesys_get_address
 
 2007-10-24  Julien Blache <jb@jblache.org>
@@ -550,7 +550,7 @@
 
 2007-07-15  m. allan noah <kitno455 a t gmail d o t com>
 
-	* doc/descriptions/fujitsu.desc, doc/sane-fujitsu.man: 
+	* doc/descriptions/fujitsu.desc, doc/sane-fujitsu.man:
 	  update website and fi-60F status
 	* Authors, backend/dll.conf.in: added cardscan backend
 
@@ -628,7 +628,7 @@
 	* backend/hp5590.c: Do not localize option names
 
 2007-04-29 Ilia Sotnikov <hostcc@gmail.com>
-	
+
 	* backend/hp5590_low.c: don't use libusb structs directly, define
 	  necessary of them by ourselves ('struct usb_ctrl_setup' -> 'struct
 	  usb_in_usb_ctrl_setup')
@@ -756,7 +756,7 @@
 2007-02-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/sane-backends.pl.po: Polish translation fix (from Jakub
-	  Bogusz <qboosh at  pld-linux.org>, bug #304410). 
+	  Bogusz <qboosh at  pld-linux.org>, bug #304410).
 
 2007-02-07  Gerhard Jaeger <gerhard@gjaeger.de>
 
@@ -767,7 +767,7 @@
 	* backend/gt68xx.c backend/gt68xx_devices.c
 	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Added
 	  .conf entry for Pluste OpticPro S12 and S24. Updated .desc
-	  file. 
+	  file.
 	* doc/descriptions/unsupported.desc: Added UMAX Astra 2850. Added
 	  Canon Imagerunner series.
 
@@ -789,7 +789,7 @@
 	  backend/fujitsu.c: updated email address
 	* backend/fujitsu-scsi.h, backend/fujitsu.[ch]: update to v1.0.44,
 	  set SANE_CAP_HARD_SELECT on all buttons/sensors.
-	  disable sending gamma LUT, quality errors reported. 
+	  disable sending gamma LUT, quality errors reported.
 	  support MS overscan.
 	  clamp the scan area to the pagesize on ADF.
 	* doc/descriptions/fujitsu.desc: version number update
@@ -854,7 +854,7 @@
 
 	* epson2: removed calls to alloca(), code reorganization
 	  fixed a bug with request_extended_status (reply
-	  length is 33 on older scanners).	
+	  length is 33 on older scanners).
 	* include/.cvsignore: added two more entries
 
 2006-12-10  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
@@ -870,7 +870,7 @@
 2006-12-07  Alessandro Zummo <a.zummo@towertech.it>
 
 	* epson2: reordered includes, replaced __FUNCTION__,
-	  use the new byteorder macros 
+	  use the new byteorder macros
 	* moved acbyteorder.m4 to m4/byteorder.m4,
 	  added m4/stdint.m4
 
@@ -903,7 +903,7 @@
 2006-11-22  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: update.
-	* backend/plustek.c: bumped build number, fixed option 
+	* backend/plustek.c: bumped build number, fixed option
 	  descriptors, see bug #303786.
 
 2006-11-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -930,7 +930,7 @@
 	  (noticed by Jaroslaw Gorny) (bug #303962).
 	* po/sane-backends.es.po: Updated (from Jonathan Bravo Lopez
 	  <jkdsoft at gmail.com>).
-	* doc/descriptions-external/hp3900.desc 
+	* doc/descriptions-external/hp3900.desc
 	  doc/descriptions-external/samsung.desc: Updated based on
 	  sane-devel information.
 	* doc/descriptions/unsupported.desc: Added Canon Canoscan 4400F,
@@ -943,14 +943,14 @@
 	  Scanjet 4370 to "minimal" (bug #303839).
 	* doc/scanimage.man frontend/scanimage.c: Added examples on how to
 	  set the scan area in the manual page (bug #303802). Mention how
-	  to separate parameters from options in --help and manpage (bug 
+	  to separate parameters from options in --help and manpage (bug
 	  #303819).
 	* doc/descriptions/unsupported.desc: Added EDT BizCardReader
 	  900C. Moved Genius ColorPage-SF600 to gt68xx.desc. Minor
 	  updates.
 	* backend/gt68xx.c backend/gt68xx_devices.c
 	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Added
-	  Support for Genius Colorpage SF600. 
+	  Support for Genius Colorpage SF600.
 
 2006-09-24  Giuseppe Sacco <eppesuig@debian.org>
 
@@ -990,7 +990,7 @@
 
 	* doc/plustek/Plustek-PARPORT.changes: update.
 	* backend/plustek-pp.h backend/plustek-pp_ptdrv.c backend/plustek_pp.c:
-	  fixed "not homing" problem, the sensor did not return when 
+	  fixed "not homing" problem, the sensor did not return when
 	  the driver gets the _IOCTL_STOP command
 	  fixed compilation issue for kernels > 2.6.15
 	  fixed compiler warning conditions
@@ -1017,7 +1017,7 @@
 	  fix line correction (color alignment) for MP760
 	* doc/sane-pixma.man: update
 	* doc/descriptions/pixma.desc: add MP360,MP530 and MP800R product ID
-	* doc/descriptions/unsupported.desc: remove Smartbase MP360 (supported 
+	* doc/descriptions/unsupported.desc: remove Smartbase MP360 (supported
 	  by pixma backend)
 
 2006-08-26  m. allan noah <anoah AT pfeiffer DOT edu>
@@ -1053,7 +1053,7 @@
 
 	* backend/dell1600n_net.c: update for dell1600n_net.conf + reduce memory footprint
 	* backend/dell1600n_net.conf.in: added
-	* backend/dell1600n_net.c: update for dell1600n_net.conf.in 
+	* backend/dell1600n_net.c: update for dell1600n_net.conf.in
 
 2006-08-11  Gerhard Jaeger <gerhard@gjaeger.de>
 
@@ -1080,7 +1080,7 @@
 2006-08-06  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/genesys_gl646.c backend/genesys.c: fix y scan area offset
-	  detection for HP2300, one more fixe related to bug #303681. 
+	  detection for HP2300, one more fixe related to bug #303681.
 
 2006-08-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -1144,7 +1144,7 @@
 
 2006-07-04  m. allan noah <anoah AT pfeiffer DOT edu>
 
-	* backend/fujitsu.[ch] backend/fujitsu-scsi.h: 
+	* backend/fujitsu.[ch] backend/fujitsu-scsi.h:
 	  update to v1.0.34, add S500 usb id, get more inq and vpd data,
 	  allow background color setting for some scanners
 	* doc/descriptions/fujitsu.desc: version number update

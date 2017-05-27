@@ -1,12 +1,12 @@
 #ifndef CANON_DR_H
 #define CANON_DR_H
 
-/* 
+/*
  * Part of SANE - Scanner Access Now Easy.
  * Please see opening comments in canon_dr.c
  */
 
-/* ------------------------------------------------------------------------- 
+/* -------------------------------------------------------------------------
  * This option list has to contain all options for all scanners supported by
  * this driver. If a certain scanner cannot handle a certain option, there's
  * still the possibility to say so, later.
@@ -89,7 +89,7 @@ struct img_params
   int Bpl;            /* in bytes */
 
   int valid_width;    /*some machines have black padding*/
-  int valid_Bpl;      
+  int valid_Bpl;
 
   /* done yet? */
   int eof[2];
@@ -183,7 +183,7 @@ struct scanner
   int has_df;
   int has_df_ultra;
   int has_btc;
-  int has_ssm;           /* older scanners use this set scan mode command */         
+  int has_ssm;           /* older scanners use this set scan mode command */
   int has_ssm2;          /* newer scanners user this similar command */
   int has_ssm_pay_head_len; /* newer scanners put the length twice in ssm */
   int can_read_sensors;
@@ -454,8 +454,8 @@ enum {
 #define DUPLEX_INTERLACE_2510 3
 #define DUPLEX_INTERLACE_fFBb 4
 
-#define JPEG_INTERLACE_ALT 0 
-#define JPEG_INTERLACE_NONE 1 
+#define JPEG_INTERLACE_ALT 0
+#define JPEG_INTERLACE_NONE 1
 
 #define CROP_RELATIVE 0
 #define CROP_ABSOLUTE 1

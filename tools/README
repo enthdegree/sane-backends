@@ -48,7 +48,7 @@ This directory contains various tools that may be useful:
 	scanner protocol can be tested directly.
 
  gamma4scanimage: Creates a gamma table in the format expected by scanimage.
-	You can define a gamma value, shadow and highlight. 
+	You can define a gamma value, shadow and highlight.
 	Take a look at manual page gamma4scanimage for further information.
 
  RenSaneDlls.cmd: Convert backend-DLL-filenames according to 8.3 naming
@@ -57,13 +57,13 @@ This directory contains various tools that may be useful:
 Maybe useful for SANE developers:
 
  sane-config:
-        Show SANE version, linker flags etc. Might be useful for 
+        Show SANE version, linker flags etc. Might be useful for
         frontend developers.
 
  sane-desc:
         Generate SANE webpages (and ASCII lists) from backend .desc files.
         Run "sane-desc --help" for details. The default lists are generated
-        in doc/Makefile. 
+        in doc/Makefile.
 
  check-po.awk:
         Print untranslated and fuzzy messages and their line numbers in the

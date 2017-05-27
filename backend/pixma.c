@@ -291,7 +291,7 @@ update_button_state (pixma_sane_t * ss, SANE_Int * info)
     }
 
   if (b1 != OVAL (opt_button_1).w || b2 != OVAL (opt_button_2).w)
-    { 
+    {
     *info |= SANE_INFO_RELOAD_OPTIONS;
     OVAL (opt_button_1).w = b1;
     OVAL (opt_button_2).w = b2;
@@ -642,9 +642,9 @@ control_option (pixma_sane_t * ss, SANE_Int n,
   SANE_Int dummy;
 
   /* info may be null, better to set a dummy here then test everywhere */
-  if (info == NULL) 
+  if (info == NULL)
     info = &dummy;
-  
+
   cfg = pixma_get_config (ss->s);
 
   /* PDBG (pixma_dbg (4, "*control_option***** n = %u, a = %u\n", n, a)); */
@@ -697,7 +697,7 @@ control_option (pixma_sane_t * ss, SANE_Int n,
         ss->button_option_is_cached[  BUTTON_GROUP_INDEX(n) ] = 0;
     }
 
-  /* now deal with getting and setting of options */ 
+  /* now deal with getting and setting of options */
   switch (SOD (n).type)
     {
     case SANE_TYPE_BOOL:
@@ -1441,7 +1441,7 @@ sane_control_option (SANE_Handle h, SANE_Int n,
   if (!ss->idle && a != SANE_ACTION_GET_VALUE)
     {
       PDBG (pixma_dbg (3, "Warning: !idle && !SANE_ACTION_GET_VALUE\n"));
-      if (ss->sp.source != PIXMA_SOURCE_ADF && ss->sp.source != PIXMA_SOURCE_ADFDUP) 
+      if (ss->sp.source != PIXMA_SOURCE_ADF && ss->sp.source != PIXMA_SOURCE_ADFDUP)
         return SANE_STATUS_INVAL;
     }
 
@@ -1799,7 +1799,7 @@ type int original
 type int target
   default 0
   title Target operation type
-  cap soft_detect advanced 
+  cap soft_detect advanced
 
 type int scan-resolution
   default 0

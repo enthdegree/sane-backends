@@ -442,10 +442,10 @@ step1 (pixma_t * s)
           default:
             break;
         }
-        
+
       activate (s, 0);
       error = calibrate (s);
-      
+
       switch (s->cfg->pid)
         {
           case MF5730_PID:
@@ -836,7 +836,7 @@ const pixma_config_t pixma_mp730_devices[] = {
   DEVICE ("PIXMA MP710", "MP710", MP710_PID, 1200, 637, 868, PIXMA_CAP_LINEART),
   DEVICE ("PIXMA MP730", "MP730", MP730_PID, 1200, 637, 868, PIXMA_CAP_ADF | PIXMA_CAP_LINEART),
   DEVICE ("PIXMA MP740", "MP740", MP740_PID, 1200, 637, 868, PIXMA_CAP_ADF | PIXMA_CAP_LINEART),
-  
+
   DEVICE ("Canon imageCLASS MF5730", "MF5730", MF5730_PID, 1200, 636, 868, PIXMA_CAP_ADF),
   DEVICE ("Canon imageCLASS MF5750", "MF5750", MF5750_PID, 1200, 636, 868, PIXMA_CAP_ADF),
   DEVICE ("Canon imageCLASS MF5770", "MF5770", MF5770_PID, 1200, 636, 868, PIXMA_CAP_ADF),

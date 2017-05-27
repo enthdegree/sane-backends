@@ -1715,7 +1715,7 @@ artec_get_cap_data (ARTEC_Device * dev, int fd)
 
   DBG (7, "artec_get_cap_data()\n");
 
-  /* DB always use the hard-coded capability info first 
+  /* DB always use the hard-coded capability info first
    * if we get cap data from the scanner, we override */
   cap_model = -1;
   for (loop = 0; loop < NELEMS (cap_data); loop++)

@@ -23,7 +23,7 @@
  * - 0.47 - no changes
  * - 0.48 - cleanup
  * - 0.49 - no changes
- * - 0.50 - usbio_DetectLM983x() now returns error if register 
+ * - 0.50 - usbio_DetectLM983x() now returns error if register
  *          could not be red
  *        - usbio_ResetLM983x() checks for reg7 value before writing
  * - 0.51 - allow dumpRegs to be called without valid fd
@@ -69,7 +69,7 @@
  * If you do not wish that, delete this exception notice.
  * <hr>
  */
- 
+
 #include "../include/sane/sanei_usb.h"
 #include "../include/sane/sanei_lm983x.h"
 
@@ -256,7 +256,7 @@ static SANE_Bool usbio_WriteReg( SANE_Int handle,
 	for( i = 0; i < 100; i++ ) {
 
 		sanei_lm983x_write_byte( handle, reg, value );
-	
+
 		/* Flush register 0x02 when register 0x58 is written */
 		if( 0x58 == reg ) {
 			_UIO( usbio_ReadReg( handle, 2, &data ));
@@ -301,7 +301,7 @@ static SANE_Status usbio_DetectLM983x( SANE_Int fd, SANE_Byte *version )
 	sprintf( buf, "usbio_DetectLM983x: found " );
 
 	switch((SANE_Int)value ) {
-		
+
 		case 4:	 strcat( buf, "LM9832/3" ); break;
 		case 3:	 strcat( buf, "LM9831" );   break;
 		case 2:	 strcat( buf, "LM9830 --> unsupported!!!" );

@@ -3,10 +3,10 @@
 2001-11-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sane-backends.lsm: Added keyword gphoto.
-	
+
 2001-10-31  Peter Fales <peter@fales.com>
 
-	* acinclude.m4, aclocal.m4, configure - Fix build failure due to 
+	* acinclude.m4, aclocal.m4, configure - Fix build failure due to
 	  renaming of gphoto2 header files
 
 2001-10-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -40,7 +40,7 @@
 2001-10-28  Peter Fales <peter@fales.com>
 
 	* backend/gphoto2.c, backend/gphoto2.conf: the ghoto2 people
-	  made some pretty radical changes to the API and broke 
+	  made some pretty radical changes to the API and broke
 	  the gphoto2 backend.  Made the changes to allow the
 	  gphoto2 backend to work with the latest changes from the
 	  gphoto2 library CVS.
@@ -72,7 +72,7 @@
       umax.c umax-scanner.c umax-scsidef.h
     directory doc:
       sane-umax.man /umax/sane-umax-advanced-options-doc.html
-      umax/sane-umax-standard-options-doc.html umax/umax.CHANGES    
+      umax/sane-umax-standard-options-doc.html umax/umax.CHANGES
 
 2001-10-27  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
@@ -357,9 +357,9 @@
 	* PROJECTS: Updated Winsane address.
 	* TODO: Added net/saned and .desc file entries. Removed scanimage/adf
 	  extention entry.
-	* backend/pnm.c backend/pnm.desc: Make sure that *length=0 in 
+	* backend/pnm.c backend/pnm.desc: Make sure that *length=0 in
 	  sane_read(). Added more debug output.
-	
+
 2001-09-18  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp.desc:
@@ -379,7 +379,7 @@
 2001-09-17  Simon Munton <simon@munton.demon.co.uk>
 	* backend/pie.c backend/pie.conf: Changed ADLIB to AdLib as this is
 	  what the scanner returns and the comparison is case sensitive
-	
+
 	* doc/sane-pie.man: Update the status of the AdLib JetScan 630
 
 2001-09-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -388,12 +388,12 @@
 	  are included in the distribution now. Updated bearpaw and OS/2
 	  entries.
 	* NEWS: Created preliminary entry for 1.0.6.
-	  
+
 2001-09-16  Peter Fales <peter@fales.com>
 
 	* backend/dc240.desc:  Change status from new to alpha
 
-	  acinclude.m4, aclocal.m4, configure:  Cosmetic changes to 
+	  acinclude.m4, aclocal.m4, configure:  Cosmetic changes to
 	  help text and change function used in gphoto2 lib check due
 	  to API change
 
@@ -401,7 +401,7 @@
 
 	* backend/umax_pp_low.c backend/umax_pp_mid.c
 	  tools/umax_pp.c:
-	  change ppdev support to compile and run on linux kernel 
+	  change ppdev support to compile and run on linux kernel
 	  prior to 2.4.5
 
 2001-09-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -413,7 +413,7 @@
 	  doc/mustek_usb/mustek_usb.TODO: Update to mustek_usb backend
 	  1.0-6. Increased resolution to the maximum hardware supports.
 	  No fixed resolution any more. Gamma table support. Bugfixes.
-	
+
 2001-09-12  Peter Fales <peter@fales.com>
 
 	* acinclude.m4 aclocal.m4 configure configure.in: Changes to
@@ -444,7 +444,7 @@
 
 	* backend/mustek.c backend/mustek.desc doc/mustek/mustek.CHANGES:
 	  Fixed problem with gamma correction. New version: 1.0-113.
-	* backend/mustek_usb.c backend/mustek_usb.desc 
+	* backend/mustek_usb.c backend/mustek_usb.desc
 	  backend/mustek_usb_high.c backend/mustek_usb_low.c
 	  backend/mustek_usb_low.h backend/mustek_usb_mid.c
 	  backend/mustek_usb_mid.h doc/mustek_usb/mustek_usb.CHANGES:
@@ -458,7 +458,7 @@
 	  backend/mustek_usb_high.c backend/mustek_usb_high.h
 	  backend/mustek_usb_low.c backend/mustek_usb_low.h
  	  backend/mustek_usb_mid.c backend/mustek_usb_mid.h:
-	  Added backend mustek_usb for Mustek USB scanners. Currently the 
+	  Added backend mustek_usb for Mustek USB scanners. Currently the
 	  600 CU, 1200 CU, 1200 CU Plus and 1200 UB are supported.
 	* backend/Makefile.in dll.conf: Added entries for mustek_usb.
 	* doc/Makefile.in doc/mustek_usb/mustek_usb.CHANGES
@@ -486,9 +486,9 @@
 2001-09-06  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: made CmdSetDataBuffer static
-	* backend/Makefile.in: removed sanei_config2 from 
+	* backend/Makefile.in: removed sanei_config2 from
 	  umax_pp depencies
-	  
+
 2001-09-05  Jochen Eisinger <jochen.eisinger@gmx.de>
 
         * backend/net.c: ignoring size of parameter value for
@@ -512,7 +512,7 @@
 2001-09-04  Jochen Eisinger <jochen.eisinger@gmx.de>
 
 	* backend/net.desc doc/saned.man doc/sane-net.man: added
-	  pointer to new saned homepage 
+	  pointer to new saned homepage
 	  (http://home.nexgo.de/jochen.eisinger/saned/)
 
 2001-09-04  Peter Kirchgessner <peter@kirchgessner.net>
@@ -550,7 +550,7 @@
 	* backend/mustek.c backend/mustek.desc doc/sane-mustek.man
 	  doc/mustek/mustek.CHANGES: Update to backend version 1.0-112.
 	  Some minor fixes for returning the scan slider and OS/2.
-	  
+
 2001-08-26 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* backend/umax.c backend/umax.desc doc/umax/umax.CHANGES:
@@ -560,7 +560,7 @@
 
 	* backend/umax_pp_low.c tools/umax_pp.c:
 	  Finished probe code cleaning, increased version number
-	  
+
 2001-08-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Fixed bug concerning libusb that
@@ -577,22 +577,22 @@
 	  doc/Makefile.in doc/sane-usb.man: Added sane USB interface.
 	* include/sane/sanei_config.h sanei/sanei_config2.c: Added support
 	  for searching USB devices ("usb vendor product").
-	* doc/sane-find-scanner.man tools/Makefile.in 
+	* doc/sane-find-scanner.man tools/Makefile.in
 	  tools/sane-find-scanner.c: Added USB support.
 	* doc/sane.man: Added information for USB scanners.
 	* TODO: Removed USB entries. Removed entry about checking for
 	  /etc/ld.so.conf, this shouldn't be necessary any longer. Removed
 	  entry about saned freezing, no bug reports about this for a long
 	  time. Removed entry about moving .desc files, this doesn't seem to
-	  be necessary. Added proposal to include libieeee1284. 
+	  be necessary. Added proposal to include libieeee1284.
 	* doc/.cvsignore: Updated concerning sane-usb.5.
-	
+
 2001-08-05  Peter Fales <peter@fales.com>
 
 	* backend/dc240.c - Previously, the backend always assumed that
           the images were stored in the 100DC240 directory in the
 	  camera.  It now determines the directory automatically.  If
-          multiple directories are present, it will eventually let you 
+          multiple directories are present, it will eventually let you
 	  pick the directory, but that feature hasn't been completed
 	  yet.
 
@@ -639,10 +639,10 @@
 2001-07-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek.c backend/mustek.desc backend/mustek.h
-	  doc/mustek/mustek.CHANGES: Fixed bug in fix_line_distance_block 
+	  doc/mustek/mustek.CHANGES: Fixed bug in fix_line_distance_block
 	  that resulted in too much data transfered to the frontend.
 	  New version: 1.0-110.
-	
+
 2001-07-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek.c backend/mustek.conf backend/mustek.desc
@@ -650,7 +650,7 @@
 	  Fixed problem with SCSI command queuing. Fixed problem that
 	  resulted in black images on some Paragon 6000SP scanners. Added
 	  option to disable backtracking. New version: 1.0-109.
-	
+
 2001-07-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/Makefile.in: Use 6 lines as top/bottom margin for man2html

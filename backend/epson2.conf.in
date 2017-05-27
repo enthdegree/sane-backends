@@ -21,7 +21,7 @@ usb
 # usb 0x4b8 0x110
 
 # Network
-# 
+#
 # net 192.168.1.123
 net autodiscovery
 

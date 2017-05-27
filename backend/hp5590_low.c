@@ -218,7 +218,7 @@ hp5590_get_status (SANE_Int dn,
  * sanei_control_msg()
  * bytes - pointer to data buffer
  * size - size of data
- * core_flags - 
+ * core_flags -
  *  CORE_NONE - no CORE operation will be performed
  *  CORE_DATA - operation on CORE data will be performed
  *  CORE_BULK_IN - preparation for bulk IN transfer (not used yet)
@@ -515,7 +515,7 @@ hp5590_verify_last_cmd (SANE_Int dn,
  * sanei_control_msg()
  * bytes - pointer to data buffer
  * size - size of data
- * core_flags - 
+ * core_flags -
  *  CORE_NONE - no CORE operation will be performed
  *  CORE_DATA - operation on CORE data will be performed
  *  CORE_BULK_IN - preparation for bulk IN transfer (not used yet)
@@ -751,7 +751,7 @@ hp5590_bulk_read (SANE_Int dn,
 	    }
 
 	  /* USB-in-USB: checking if control msg was accepted */
-	  ret = hp5590_get_ack (dn, proto_flags); 
+	  ret = hp5590_get_ack (dn, proto_flags);
 	  if (ret != SANE_STATUS_GOOD)
 	    return ret;
 	}
@@ -870,7 +870,7 @@ hp5590_bulk_read (SANE_Int dn,
  *
  * Returns
  * SANE_STATUS_GOOD - all data transferred successfully
- * all other SANE_Status value - otherwise 
+ * all other SANE_Status value - otherwise
  */
 static SANE_Status
 hp5590_bulk_write (SANE_Int dn,
@@ -891,7 +891,7 @@ hp5590_bulk_write (SANE_Int dn,
 
   hp5590_low_assert (bytes != NULL);
 
-  /* Prepare bulk write request */ 
+  /* Prepare bulk write request */
   memset (&bulk_size, 0, sizeof (bulk_size));
   /* Counted in page size */
   bulk_size.size = size / BULK_WRITE_PAGE_SIZE;

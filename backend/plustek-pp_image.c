@@ -287,7 +287,7 @@ static void fnP96GrayDirect( pScanData ps, pVoid pBuf, pVoid pImg, ULong bl )
 
 	src  = (pUChar)pImg;
 	dest = (pUChar)pBuf;
-	
+
     for (; bl; bl--, src++, dest++ )
 		*dest = ps->pbMapRed [*src];
 }
@@ -315,7 +315,7 @@ static void fnHalftoneDirect0( pScanData ps, pVoid pb, pVoid pImg, ULong bL )
 
 	src  = (pUChar)pImg;
 	dest = (pUChar)pb;
-   
+
 	pDither = &ps->a_bDitherPattern[ps->dwDitherIndex];
 
     for( ; bL; bL--, dest++, pDither -= 8 ) {
@@ -365,10 +365,10 @@ static void fnP98ColorDirect( pScanData ps, pVoid pb, pVoid pImg, ULong bL )
 {
 	pUChar      src;
 	pRGBByteDef dest;
-	
+
 	src  = (pUChar)pImg;
 	dest = (pRGBByteDef)pb;
-	
+
 	for ( bL = ps->DataInf.dwAsicPixelsPerPlane; bL; bL--, src++, dest++) {
 
 		dest->Red   = *src;
@@ -384,7 +384,7 @@ static void fnP96ColorDirect( pScanData ps, pVoid pb, pVoid pImg, ULong bL )
 
 	src  = (pUChar)pImg;
 	dest = (pRGBByteDef)pb;
-		
+
 	for ( bL = ps->DataInf.dwAsicPixelsPerPlane; bL; bL--, dest++, src++) {
 
 			dest->Red  =ps->pbMapRed[*src];
@@ -400,13 +400,13 @@ static void fnP98Color48( pScanData ps, pVoid pb, pVoid pImg, ULong bL )
 {
 	pUShort       src;
 	pRGBUShortDef dest;
-	
+
 	register ULong i;
 
 	_VAR_NOT_USED( bL );
 	src  = (pUShort)pImg;
 	dest = (pRGBUShortDef)pb;
-	
+
 	for ( i = ps->DataInf.dwAsicPixelsPerPlane; i;	i--, src++, dest++) {
 
 		dest->Red   = *src;
@@ -960,7 +960,7 @@ static Bool imageP96ReadOneImageLine( pScanData ps )
 				if ((bData - ps->bCurrentLineCount) < _SCANSTATE_BYTES)
 				    continue;
 		    }
-	
+
 		    ps->bMoveDataOutFlag = _DataAfterRefreshState;
 		}
 #endif
@@ -977,7 +977,7 @@ static Bool imageP96ReadOneImageLine( pScanData ps )
 				(ps->RedDataReady | ps->GreenDataReady | _BLUE_DATA_READY));
 												 ps->pCurrentColorRunTable++);
 
-#ifdef DEBUG			
+#ifdef DEBUG
 			if( ps->pCurrentColorRunTable >
 							(ps->pColorRunTable+ps->BufferForColorRunTable))
 				DBG( DBG_LOW, "WARNING: pCurrentColorRunTab>pColorRunTable\n");
@@ -1290,7 +1290,7 @@ static Bool imageP98003ReadOneImageLine( pScanData ps )
 
     } while( !MiscCheckTimer( &timer ));
 
-#ifdef __KERNEL__    
+#ifdef __KERNEL__
 	_PRINT(
 #else
 	DBG( DBG_HIGH,
@@ -1358,7 +1358,7 @@ static void imageP98003SetupScanStateVariables( pScanData ps, ULong index )
 
     if( var.dwValue && ps->DataInf.dwAsicBytesPerPlane > var.dwValue ) {
     	if((var.dwValue << 1) > ps->DataInf.dwAsicBytesPerPlane)
-	        ps->Scan.dwInterval <<= 1;			
+	        ps->Scan.dwInterval <<= 1;
     	else
         	if((var.dwValue << 2) > ps->DataInf.dwAsicBytesPerPlane)
 		        ps->Scan.dwInterval <<= 2;
@@ -1376,7 +1376,7 @@ static void imageP98003SetupScanStateVariables( pScanData ps, ULong index )
 
     if( ps->DataInf.wPhyDataType >= COLOR_TRUE24 ) {
 
-    	if( ps->DataInf.xyPhyDpi.y > 75U ) { 
+    	if( ps->DataInf.xyPhyDpi.y > 75U ) {
     	    if( ps->Device.f0_8_16 ) {
 	        	ps->Scan.gd_gk.wGreenDiscard = ps->DataInf.xyPhyDpi.y / 75U;
     	    } else {
@@ -1535,7 +1535,7 @@ static int imageP98003SetupScanSettings( pScanData ps, pScanInfo pInf )
 
 			ps->Scan.p48BitBuf.pb = ps->Bufs.b1.pReadBuf;
 		}
-    }	
+    }
 
     if( ps->Scan.p48BitBuf.pb ){
     	ps->Scan.DataRead          = fnReadToDriver;

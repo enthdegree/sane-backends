@@ -283,7 +283,7 @@ typedef struct {
 	int rofs;
 	int gofs;
 	int bofs;
-	
+
 	int rlampoff;   /* for red lamp off setting (CIS-scanner)   */
 	int glampoff;   /* for green lamp off setting (CIS-scanner) */
 	int blampoff;   /* for blue lamp off setting (CIS-scanner)  */
@@ -408,7 +408,7 @@ typedef struct Plustek_Scanner
 /** for collecting configuration info...
  */
 typedef struct {
-	
+
 	char     devName[PATH_MAX];
 	char     usbId[_MAX_ID_LEN];
 

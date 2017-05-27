@@ -1,8 +1,8 @@
 SANE and Zeta
 -------------
 
-The Zeta port is based on existing BeOS port, with some changes 
-to accomodate yellowTAB's internal build procedure, and some new 
+The Zeta port is based on existing BeOS port, with some changes
+to accomodate yellowTAB's internal build procedure, and some new
 conventions brought up by Zeta.
 
 Cf. README.beos for more historical stuff.
@@ -22,5 +22,5 @@ Compiler: gcc 2.95.3
 User-level SCSI support: yes
 USB support: yes
 Shared library support: yes
-Dynamic loading support: yes  
+Dynamic loading support: yes
 X11 clients: no

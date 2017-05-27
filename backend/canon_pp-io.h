@@ -42,7 +42,7 @@
 
    canon_pp-io.h: $Revision$
 
-   This file is part of the canon_pp backend, supporting Canon FBX30P 
+   This file is part of the canon_pp backend, supporting Canon FBX30P
    and NX40P scanners and also distributed as part of the stand-alone
    driver.
 
@@ -50,14 +50,14 @@
    */
 
 #ifndef CANON_PP_IO_H
-#define CANON_PP_IO_H	
+#define CANON_PP_IO_H
 
 /* Actual Interface */
 void sanei_canon_pp_set_ieee1284_mode(int m);
 int sanei_canon_pp_wake_scanner(struct parport *port, int mode);
-int sanei_canon_pp_write(struct parport *port, int length, 
+int sanei_canon_pp_write(struct parport *port, int length,
 		unsigned char *data);
-int sanei_canon_pp_read(struct parport *port, int length, 
+int sanei_canon_pp_read(struct parport *port, int length,
 		unsigned char *data);
 int sanei_canon_pp_check_status(struct parport *port);
 int sanei_canon_pp_scanner_init(struct parport *port);

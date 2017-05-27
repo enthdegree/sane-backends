@@ -39,7 +39,7 @@ PhotoSmart     C5100A R029,R030,R032    SCSI
 .RE
 .PP
 Support for models 5100C/5200C connected to the parallel port requires
-the ppSCSI driver available at 
+the ppSCSI driver available at
 .I http://cyberelk.net/tim/parport/ppscsi.html
 and
 .IR http://penguin-breeder.org/kernel/download/ .
@@ -52,7 +52,7 @@ for more details.
 .PP
 The "hp" backend no longer supports OfficeJet multi-function peripherals.
 For these devices use the external "hpoj" backend in version 0.90 and later of
-the "HP OfficeJet Linux driver", available at 
+the "HP OfficeJet Linux driver", available at
 .br
 .IR http://hpoj.sourceforge.net
 .
@@ -66,7 +66,7 @@ by another one. See
 You can also watch the sane\-devel mailing list at
 .IR http://www.sane\-project.org/mailing\-lists.html .
 .PP
-More details about the hp backend can be found on its homepage 
+More details about the hp backend can be found on its homepage
 .IR http://www.kirchgessner.net/sane.html .
 .PP
 .SH "DEVICE NAMES"
@@ -104,7 +104,7 @@ and
 .BR sane\-usb (5)
 on details of what constitutes a valid device name.
 .PP
-Options specified in front of the first line that contains a device name 
+Options specified in front of the first line that contains a device name
 are defaults for all devices. Options specified below a line that
 contains a device name apply just to the most recently mentioned device.
 .PP
@@ -203,7 +203,7 @@ levels reduce verbosity.
 .TP
 .B SANE_HOME_HP
 Only used for OS/2 and along with use of HP PhotoSmart PhotoScanner.
-Must be set to the directory where the directory .sane is located. 
+Must be set to the directory where the directory .sane is located.
 Is used to save and read the calibration file.
 .TP
 .B SANE_HP_KEEPOPEN_SCSI
@@ -237,7 +237,7 @@ and 24 bit color.
 .B Automatic Document Feeder (ADF)
 For use of the ADF with xscanimage(1), first place paper in the ADF and
 then change option scan source to 'ADF'. Press 'change document'
-to load a sheet. Then press 'scan' to start a scan. 
+to load a sheet. Then press 'scan' to start a scan.
 Maybe it is sufficient to press 'scan' without 'change document'
 for repeated scans. The use of the preview window is not recommended
 when working with the ADF.

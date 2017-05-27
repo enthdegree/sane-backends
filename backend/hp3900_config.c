@@ -243,7 +243,7 @@ enum fcsec6
 
 	CALIBOFFSET2ON,
 	OFFSETTUNESTEP2, OFFSETBOUNDARYRATIO2, OFFSETAVGRATIO2,
-	
+
 	OFFSETEVEN2R, OFFSETEVEN2G, OFFSETEVEN2B,
 	OFFSETODD2R,  OFFSETODD2G,  OFFSETODD2B,
 
@@ -5622,7 +5622,7 @@ static int fitcalibrate_get(int section, int option, int defvalue)
 		case SCANINFO:
 			rst = fc_scaninfo_get(option, defvalue); break;
 	}
-	
+
 	return rst;
 }
 

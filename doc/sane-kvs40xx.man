@@ -5,7 +5,7 @@
 sane\-kvs40xx \- SANE backend for Panasonic KV-S40xxC USB/SCSI ADF scanners.
 
 .SH DESCRIPTION
-The 
+The
 .B sane\-kvs40xx
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to the Panasonic KV-S40xxC and KV-S70xxC scanners.

@@ -5,16 +5,16 @@
 sane\-cardscan \- SANE backend for Corex CardScan usb scanners
 
 .SH DESCRIPTION
-The 
+The
 .B sane\-cardscan
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to the Corex CardScan 800c & 600c small-format scanners.
 
-The backend supports only grayscale and color modes and media of 
+The backend supports only grayscale and color modes and media of
 (theoretically) infinite length.
 
 This backend may support other scanners. The best
-way to determine level of support is to get a trace of the windows 
+way to determine level of support is to get a trace of the windows
 driver in action, and send it to the author.
 
 .SH OPTIONS
@@ -28,7 +28,7 @@ Selects the mode for the scan. Options are "Gray" and "Color".
 .SH CONFIGURATION FILE
 The configuration file "cardscan.conf" is used to tell the backend how to look
 for scanners, and provide options controlling the operation of the backend.
-This file is read each time the frontend asks the backend for a list 
+This file is read each time the frontend asks the backend for a list
 of scanners, generally only when the frontend starts. If the configuration
 file is missing, the backend will use a set of compiled defaults, which
 are identical to the default configuration file shipped with SANE.
@@ -37,7 +37,7 @@ Scanners can be specified in the configuration file in 2 ways:
 .PP
 "usb 0x04c5 0x1042" (or other vendor/product ids)
 .RS
-Requests backend to search all usb busses in the system for a device 
+Requests backend to search all usb busses in the system for a device
 which uses that vendor and product id. The device will then be queried
 to determine if it is a cardscan scanner.
 .RE
@@ -91,11 +91,11 @@ cannot set x/y coordinate values, resolutions, etc. These things could
 be simulated in the backend, but there are plenty of command line tools.
 .br
 .br
-The backend also does not send all the commands that the windows driver 
+The backend also does not send all the commands that the windows driver
 does, so it may not function the same.
 .br
 .br
-The backend does not have the calibration or ejection options of the 
+The backend does not have the calibration or ejection options of the
 windows driver.
 .br
 .br

@@ -865,7 +865,7 @@ sanei_parport_find_device (void)
       else
 	{
 #ifdef HAVE_LINUX_PPDEV_H
-	  /* on kernel < 2.4.23, you have to CLAIM the device 
+	  /* on kernel < 2.4.23, you have to CLAIM the device
 	   * to check it really exists
 	   * we may hang if another program already claimed it
 	   */
@@ -1793,8 +1793,8 @@ sanei_umax_pp_setauto (int autoset)
 }
 
 #ifdef HAVE_LINUX_PPDEV_H
-/* set to the parallel port needed using ppdev 
- * returns 1 if ok, 0 else 
+/* set to the parallel port needed using ppdev
+ * returns 1 if ok, 0 else
  */
 static int
 ppdev_set_mode (int mode)
@@ -2807,7 +2807,7 @@ ECPregisterRead (int reg)
 
   Outb (CONTROL, 0x4);
 
-  /* ECP FIFO mode, interrupt bit, dma disabled, 
+  /* ECP FIFO mode, interrupt bit, dma disabled,
      service bit, fifo full=0, fifo empty=0 */
   ECPFifoMode ();		/*Outb (ECR, 0x60); */
   if (waitFifoEmpty () == 0)
@@ -2825,12 +2825,12 @@ ECPregisterRead (int reg)
     }
   breg = Inb (ECR);
 
-  /* byte mode, interrupt bit, dma disabled, 
+  /* byte mode, interrupt bit, dma disabled,
      service bit, fifo full=0, fifo empty=0 */
   byteMode ();			/*Outb (ECR, 0x20); */
   Outb (CONTROL, 0x20);		/* data reverse */
 
-  /* ECP FIFO mode, interrupt bit, dma disabled, 
+  /* ECP FIFO mode, interrupt bit, dma disabled,
      service bit, fifo full=0, fifo empty=0 */
   ECPFifoMode ();		/*Outb (ECR, 0x60); */
   if (waitFifoNotEmpty () == 0)
@@ -2963,12 +2963,12 @@ ECPregisterWrite (int reg, int value)
     }
 #endif
 
-  /* standard mode, interrupt bit, dma disabled, 
+  /* standard mode, interrupt bit, dma disabled,
      service bit, fifo full=0, fifo empty=0 */
   compatMode ();
   Outb (CONTROL, 0x04);		/* reset ? */
 
-  /* ECP FIFO mode, interrupt bit, dma disabled, 
+  /* ECP FIFO mode, interrupt bit, dma disabled,
      service bit, fifo full=0, fifo empty=0 */
   ECPFifoMode ();		/*Outb (ECR, 0x60); */
   if (waitFifoEmpty () == 0)
@@ -3429,8 +3429,8 @@ ECPbufferWrite (int size, unsigned char *source)
     }
   breg = Inb (ECR);
 
-  /* block transfer direction 
-   * 0x80 means from scanner to PC, 0xC0 means PC to scanner 
+  /* block transfer direction
+   * 0x80 means from scanner to PC, 0xC0 means PC to scanner
    */
   Outb (DATA, 0xC0);
 
@@ -4957,7 +4957,7 @@ sendWord (int *cmd)
 /******************************************************************************/
 /* ringScanner: returns 1 if scanner present, else 0                          */
 /******************************************************************************/
-/* 
+/*
  * in fact this function is really close to CPP macro in
  * /usr/src/linux/drivers/block/paride/epat.c .....
  * we have almost CPP(8)
@@ -6005,7 +6005,7 @@ initScanner610p (int recover)
       return 1;
     }
 
-  /* here we do re-homing 
+  /* here we do re-homing
    * since it is first probe or recover */
   /* move forward */
   CMDSYNC (0xC2);
@@ -6096,7 +6096,7 @@ initScanner610p (int recover)
 /* 1: OK
    2: homing happened
    3: scanner busy
-   0: init failed 
+   0: init failed
 
    init transport layer
    init scanner
@@ -6308,13 +6308,13 @@ sanei_umax_pp_initScanner (int recover)
 }
 
 
-/* 
+/*
         1: OK
            2: failed, try again
-           0: init failed 
+           0: init failed
 
         initialize the transport layer
-   
+
    */
 
 static int
@@ -6400,13 +6400,13 @@ initTransport610p (void)
   return 1;
 }
 
-/* 
+/*
         1: OK
            2: failed, try again
-           0: init failed 
+           0: init failed
 
         initialize the transport layer
-   
+
    */
 
 static int
@@ -6605,13 +6605,13 @@ initTransport1220P (int recover)	/* ECP OK !! */
   return 1;
 }
 
-/* 
+/*
         1: OK
            2: failed, try again
-           0: init failed 
+           0: init failed
 
         initialize the transport layer
-   
+
    */
 
 int
@@ -6643,7 +6643,7 @@ probe610p (int recover)
       return 0;
     }
 
-  /* make sure we won't try 1220/200P later 
+  /* make sure we won't try 1220/200P later
    * since we got here, we have a 610, and in any case
    * NOT a 1220P/2000P, since no EPAT present */
   sanei_umax_pp_setastra (610);
@@ -6660,7 +6660,7 @@ probe610p (int recover)
 }
 
 
-  /* 
+  /*
    * try PS2 mode
    * returns 1 on success, 0 on failure
    */
@@ -9368,7 +9368,7 @@ cmdGetBlockBuffer (int cmd, int len, int window, unsigned char *buffer)
   return read;
 }
 
-/* 
+/*
  * encodes DC offsets: must be in [0..0x0F] range
  */
 static void
@@ -9387,7 +9387,7 @@ decodeDC (int *motor)
 }
 
 
-/* 
+/*
  * encodes VGA : must be in [0..0x0F] range
  */
 static void
@@ -9402,10 +9402,10 @@ encodeVGA (int vgaRed, int vgaGreen, int vgaBlue, int *motor)
     {
       motor[10] = (vgaGreen << 4) | vgaBlue;
       motor[11] = (motor[11] & 0xF0) | vgaRed;
-      /* ancien 
-         F00: vert 
+      /* ancien
+         F00: vert
          0F0: bleu
-         00F: rouge   
+         00F: rouge
          motor[10] = (vgaRed << 4) | vgaGreen;
          motor[11] = (motor[11] & 0xF0) | vgaBlue; */
     }
@@ -9693,7 +9693,7 @@ bloc8Decode (int *op)
 static int
 completionWait (void)
 {
-  /* for 610P, wait and sync is done while 
+  /* for 610P, wait and sync is done while
    * reading data from the scanner */
   CMDSYNC (0x40);
   usleep (100000);
@@ -9893,7 +9893,7 @@ evalGain (int sum, int count)
   avg = (float) (sum) / (float) (count);
   pct = 100.0 - (avg * 100.0) / targetCode;
   gn = (int) (pct / 0.57);
- 
+
   /* give gain for dark areas a boost */
 #ifdef UMAX_PP_DANGEROUS_EXPERIMENT
   if(getenv("AREA")!=NULL)
@@ -9907,7 +9907,7 @@ evalGain (int sum, int count)
   pct = gn;
   avg = exp((-pct)/area)*coeff+cnst;
   gn = gn * avg;
-  
+
   /* bound checking : there are sightings of >127 values being negative */
   if (gn < 0)
     gn = 0;
@@ -9985,7 +9985,7 @@ computeCalibrationData (int color, int width, unsigned char *source,
 
 
 /* move head by the distance given using precision or not */
-/* 0: failed  
+/* 0: failed
    1: success                                          */
 static int
 move (int distance, int precision, unsigned char *buffer)
@@ -10437,11 +10437,11 @@ shadingCalibration1220p (int color,
   /* get calibration data */
   /*
      if (sanei_umax_pp_getauto ())
-     {                           auto settings doesn't use offset 
+     {                           auto settings doesn't use offset
      offset = 0x000;
      }
      else
-     {                           manual settings 
+     {                           manual settings
      gain = 0x777;
      offset = 0x000;
      }
@@ -10743,7 +10743,7 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 	  read += len;
 	}
 
-      /* in color mode we have to fill the 'reserve' area 
+      /* in color mode we have to fill the 'reserve' area
        * so that we can reorder data lines */
       while ((read - dataoffset < reserve) && (!gCancel))
 	{
@@ -10823,8 +10823,8 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 			    }
 			}
 		      /* copy tail lines for next block */
-		      /* memcpy (buffer, 
-		       *         (buffer + reserve) + (hp * bpl - reserve), 
+		      /* memcpy (buffer,
+		       *         (buffer + reserve) + (hp * bpl - reserve),
 		       *         reserve + remain); */
 		      memcpy (buffer, buffer + hp * bpl, reserve + remain);
 		      break;
@@ -11194,8 +11194,8 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   th = (height * dpi) / hwdpi;
   tw = (width * xdpi) / hwdpi;
 
-  /* corrects y to match exact scan area start 
-   * and lets room for a leading zone so that 
+  /* corrects y to match exact scan area start
+   * and lets room for a leading zone so that
    * we can reorder data */
   switch (sanei_umax_pp_getastra ())
     {
@@ -11476,7 +11476,7 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   /* 3 ccd lines + 3 gamma tables + end tag */
   if (sanei_umax_pp_getastra () <= 610)
     {
-      /* XXX STEF XXX : there is a 4 pixels shift to the right 
+      /* XXX STEF XXX : there is a 4 pixels shift to the right
        * the first shading correction value applies to the forth
        * pixel of scan (at 300 dpi), we allready shift to the left
        * when doing shadingCalibration, but now we have to move coeffs
@@ -11504,7 +11504,7 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   return 1;
 }
 
-/* 
+/*
  * check the scanner model. Return 1220 for
  * a 1220P, or 2000 for a 2000P.
  * and 610 for a 610p
@@ -11728,7 +11728,7 @@ loadDefaultTables (void)
     }
 
   /* set and reread first table */
-  /* since 1660P seems to have another type of CCD 
+  /* since 1660P seems to have another type of CCD
    * this table is not sent/needed
    */
   err = 0;
@@ -11829,7 +11829,7 @@ loadDefaultTables (void)
   return rc;
 }
 
-/* inquire scanner status 
+/* inquire scanner status
  * O: failure
  * 1: OK
  * 2: first scanner init, needs re-homing
@@ -12070,7 +12070,7 @@ offsetCalibration1220p (int color, int *offRed, int *offGreen, int *offBlue)
  * computes DC offset to have black pixel really black out of
  * CCD ie black gives 0
  * 610P doesn't implement method described in LM9811 datasheet
- * but scan a black line with decreasing offsets until the 
+ * but scan a black line with decreasing offsets until the
  * scanned data reach a 'good black level'.
  * returns 1 and DC offsets in the corresponding vars on success .
  * On failure, returns 0.
@@ -12247,7 +12247,7 @@ offsetCalibration610p (int color, int *offRed, int *offGreen, int *offBlue)
   return 1;
 }
 
-/* 
+/*
  * generic offset calibration function
  */
 static int
@@ -12339,7 +12339,7 @@ coarseGainCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
   /* move back to desired area */
   MOVE (-69, PRECISION_OFF, NULL);
 
-  /* first scan : taking a reference full width scan to 
+  /* first scan : taking a reference full width scan to
    * find usable full width of the CCD
    */
   *vgaRed = 0x08;

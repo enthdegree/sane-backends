@@ -29,7 +29,7 @@
 
 #include "../include/sane/config.h"
 
-#ifndef HAVE_STRCASESTR 
+#ifndef HAVE_STRCASESTR
 
 #if  defined HAVE_STRING_H
 # include <string.h>

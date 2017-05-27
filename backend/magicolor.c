@@ -2050,7 +2050,7 @@ mc_network_discovery(const char*host)
 			fd_set fdset;
 			DBG(1, "    loop=%d\n", i++);
 			timeout.tv_sec = 0;
-			/* Use a 125ms timeout for select. If we get a response, 
+			/* Use a 125ms timeout for select. If we get a response,
 			 * the loop will be entered earlier again, anyway */
 			timeout.tv_usec = 125000;
 			FD_ZERO (&fdset);
@@ -2193,7 +2193,7 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 		/* Timeout for all other read requests */
 		DBG(50, "%s: Request timeout set to %d\n", __func__, timeout);
 		MC_Request_Timeout = timeout;
-	
+
 	} else {
 		/* TODO: Warning about unparsable line! */
 	}
@@ -2414,7 +2414,7 @@ init_options(Magicolor_Scanner *s)
 	s->opt[OPT_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
 	s->opt[OPT_SOURCE].constraint.string_list = source_list;
 	s->val[OPT_SOURCE].w = 0;	/* always use Flatbed as default */
-	
+
 	s->opt[OPT_ADF_MODE].name = "adf-mode";
 	s->opt[OPT_ADF_MODE].title = SANE_I18N("ADF Mode");
 	s->opt[OPT_ADF_MODE].desc =

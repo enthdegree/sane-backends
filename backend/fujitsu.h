@@ -1,12 +1,12 @@
 #ifndef FUJITSU_H
 #define FUJITSU_H
 
-/* 
+/*
  * Part of SANE - Scanner Access Now Easy.
  * Please see opening comment in fujitsu.c
  */
 
-/* ------------------------------------------------------------------------- 
+/* -------------------------------------------------------------------------
  * This option list has to contain all options for all scanners supported by
  * this driver. If a certain scanner cannot handle a certain option, there's
  * still the possibility to say so, later.
@@ -219,7 +219,7 @@ struct fujitsu
   int has_cmd_sdiag;
   int has_cmd_rdiag;
   int has_cmd_scan;
-  
+
   int has_cmd_msen6;
   int has_cmd_copy;
   int has_cmd_rel;
@@ -330,8 +330,8 @@ struct fujitsu
 
   int broken_diag_serial;   /* some scanners are just plain borked */
   int need_q_table;         /* some scanners wont work without these */
-  int need_diag_preread;    
-  int late_lut;    
+  int need_diag_preread;
+  int late_lut;
   int hopper_before_op;     /* some scanners dont like OP when hopper empty */
   int no_wait_after_op;     /* some scanners dont like TUR after OP */
 
@@ -669,15 +669,15 @@ struct fujitsu
 #define COLOR_INTERLACE_RRGGBB 3
 #define COLOR_INTERLACE_3091 4
 
-#define DUPLEX_INTERLACE_ALT 0 
-#define DUPLEX_INTERLACE_NONE 1 
-#define DUPLEX_INTERLACE_3091 2 
+#define DUPLEX_INTERLACE_ALT 0
+#define DUPLEX_INTERLACE_NONE 1
+#define DUPLEX_INTERLACE_3091 2
 
-#define JPEG_INTERLACE_ALT 0 
-#define JPEG_INTERLACE_NONE 1 
+#define JPEG_INTERLACE_ALT 0
+#define JPEG_INTERLACE_NONE 1
 
-#define CROP_RELATIVE 0 
-#define CROP_ABSOLUTE 1 
+#define CROP_RELATIVE 0
+#define CROP_ABSOLUTE 1
 
 #define DF_DEFAULT 0
 #define DF_CONTINUE 1

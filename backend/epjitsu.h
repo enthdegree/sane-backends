@@ -1,12 +1,12 @@
 #ifndef EPJITSU_H
 #define EPJITSU_H
 
-/* 
+/*
  * Part of SANE - Scanner Access Now Easy.
  * Please see opening comment in epjitsu.c
  */
 
-/* ------------------------------------------------------------------------- 
+/* -------------------------------------------------------------------------
  * This option list has to contain all options for all scanners supported by
  * this driver. If a certain scanner cannot handle a certain option, there's
  * still the possibility to say so, later.
@@ -197,7 +197,7 @@ struct scanner
 
   unsigned char * setWindowScan;  /* sent before scan */
   size_t setWindowScanLen;
-  
+
   /* --------------------------------------------------------------------- */
   /* values which are set by scanning functions to keep track of pages, etc */
   int started;

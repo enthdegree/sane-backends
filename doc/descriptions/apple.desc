@@ -6,9 +6,9 @@
 ;:url "http://no.www.page.yet/" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
- 
+
 :mfg "Apple"
-:url "http://developer.apple.com/"	
+:url "http://developer.apple.com/"
 :model "Apple Scanner"
 :interface "SCSI"
 :status :good                  ; :alpha, :beta, :stable, :new

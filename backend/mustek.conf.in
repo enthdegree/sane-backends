@@ -1,7 +1,7 @@
 # See sane-mustek(5) for documentation.
 
 #--------------------------- Global options ---------------------------------
-#option strip-height 1           # some SCSI adapters need this; scanning may 
+#option strip-height 1           # some SCSI adapters need this; scanning may
                                  # be faster without this option
 #option force-wait               # wait for scanner to be ready (only necessary
                                  # when scanner freezes)
@@ -36,6 +36,6 @@ scsi SCANNER
 # option linedistance-fix       # only neccessary with firmware 2.x
 
 #-------------------------- 600 II EP ---------------------------------------
-#parport0				
-				# parport0, parport1, ..., 
+#parport0
+				# parport0, parport1, ...,
 				# or: 0x378(=lpt1), 0x278(=lpt2), 0x3bc(=lpt3)

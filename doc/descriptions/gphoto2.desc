@@ -6,7 +6,7 @@
 :url "mailto:peter@fales-lorenz.net"   ; backend's web page
 
 :devicetype :api	           ; start of a list of devices....
- 
+
 :desc "Multiple cameras supported by the gphoto2 libraries"
 :url "http://www.gphoto.org"
 ;:interface "USB, serial port"

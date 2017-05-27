@@ -68,7 +68,7 @@ Example:
 # cat /proc/scsi/scsi
 Host: scsi0 Channel: 00 Id: 06 Lun: 00
   Vendor: SCANNER  Model:                  Rev: 2.02
-  Type:   Scanner                          ANSI SCSI revision: 01 CCS 
+  Type:   Scanner                          ANSI SCSI revision: 01 CCS
 
 In this case the real vendor and scanner name are not shown (Mustek
 Scannexpress 12000SP) but SANE will detect it nevertheless.
@@ -76,7 +76,7 @@ Scannexpress 12000SP) but SANE will detect it nevertheless.
 If your scanner is supported by SANE, scanimage -L will list it now:
 
 # scanimage -L
-device mustek:/dev/scanner' is a Mustek ScanExpress 12000SP flatbed scanner 
+device mustek:/dev/scanner' is a Mustek ScanExpress 12000SP flatbed scanner
 
 If this doesn't work you may have to add the right SCSI generic device name
 to the configuration file. This should be documented in the man page for
@@ -85,7 +85,7 @@ your backend. To find out about the right SCSI device use sane-find-scanner:
 # sane-find-scanner
 found SCSI scanner "SCANNER  2.02" at /dev/scanner
 found SCSI scanner "SCANNER  2.02" at /dev/sg0
-found SCSI scanner "SCANNER  2.02" at /dev/sga 
+found SCSI scanner "SCANNER  2.02" at /dev/sga
 
 It may help to set a symbolic link /dev/scanner to the respective device if
 automatic detection does not work.
@@ -98,10 +98,10 @@ in devfs".
 
 Adaptec 1542 SCSI adapter:
   Using buffer sizes of more than 32768 bytes with the aha1542 driver can
-  lead to kernel panic with older kernels. To avoid this, run configure with 
+  lead to kernel panic with older kernels. To avoid this, run configure with
   the option --enable-scsibuffersize or set the environment variable
-  SANE_SG_BUFFERSIZE to 32768 before running scanimage or another frontend, 
-  or download and install the SG driver 2.1.37 or newer from 
+  SANE_SG_BUFFERSIZE to 32768 before running scanimage or another frontend,
+  or download and install the SG driver 2.1.37 or newer from
   http://www.torque.net/sg.
 
 idescsi:
@@ -110,10 +110,10 @@ idescsi:
   SANE. If your scanner isn't found or you encounter segmentation faults
   try to disable idescsi.
 
-SCSI Direct IO: Recent versions of the Linux SG driver for the 2.4 kernels 
-  support direct IO, i.e., the SCSI adapter's DMA chip copies data directly 
-  to/from user memory. Direct IO reduces memory usage, but it can lead to 
-  access conflicts, if a backend uses shared memory. SANE does not use 
+SCSI Direct IO: Recent versions of the Linux SG driver for the 2.4 kernels
+  support direct IO, i.e., the SCSI adapter's DMA chip copies data directly
+  to/from user memory. Direct IO reduces memory usage, but it can lead to
+  access conflicts, if a backend uses shared memory. SANE does not use
   direct IO by default. If you want to use it, run
 
 	configure --enable-scsi-directio=yes

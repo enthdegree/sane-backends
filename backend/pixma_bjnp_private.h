@@ -1,5 +1,5 @@
 /* SANE - Scanner Access Now Easy.
- 
+
    Copyright (C) 2008 by Louis Lagendijk
 
    This file is part of the SANE package.
@@ -51,13 +51,13 @@
    If you do not wish that, delete this exception notice.
 */
 
-/* 
- *  BJNP definitions 
+/*
+ *  BJNP definitions
  */
 
 /* selection of options */
 /* This works now, disable when it gives you problems */
-#define PIXMA_BJNP_USE_STATUS 1 
+#define PIXMA_BJNP_USE_STATUS 1
 
 /* sizes */
 
@@ -116,14 +116,14 @@ typedef enum bjnp_port_e
   BJNP_PORT_4 = 8614
 } bjnp_port_t;
 
-typedef enum 
+typedef enum
 {
   PROTOCOL_BJNP = 0,
   PROTOCOL_MFNP = 1,
   PROTOCOL_NONE =2
 } bjnp_protocol_t;
 
-typedef struct 
+typedef struct
 {
   bjnp_protocol_t protocol_version;
   int default_port;
@@ -131,7 +131,7 @@ typedef struct
   char * method_string;
 } bjnp_protocol_defs_t;
 
-bjnp_protocol_defs_t bjnp_protocol_defs[] = 
+bjnp_protocol_defs_t bjnp_protocol_defs[] =
 {
   {PROTOCOL_BJNP, BJNP_PORT_SCAN,"BJNP", "bjnp"},
   {PROTOCOL_MFNP, MFNP_PORT_SCAN,"MFNP", "mfnp"},
@@ -194,7 +194,7 @@ struct  __attribute__ ((__packed__)) DISCOVER_RESPONSE
        unsigned char ipv4_addr[4];
      } ipv4;
      struct  __attribute__ ((__packed__)) {
-       unsigned char ipv6_addr_1[16];	
+       unsigned char ipv6_addr_1[16];
        unsigned char ipv6_addr_2[16];
      } ipv6;
   } addresses;
@@ -227,7 +227,7 @@ struct  __attribute__ ((__packed__)) POLL_DETAILS
       char empty1[6];		/* 0 */
       char user_host[64];       /* unicode user <space> <space> hostname */
       uint64_t emtpy2;		/* 0 */
-    } type1;			/* length = 80 */ 
+    } type1;			/* length = 80 */
 
     struct __attribute__ ((__packed__)) {
       uint16_t empty_1;         /* 00 00 */
@@ -256,7 +256,7 @@ struct  __attribute__ ((__packed__)) POLL_DETAILS
 struct  __attribute__ ((__packed__)) POLL_RESPONSE
 {
   struct BJNP_command cmd;	/* command header */
-  
+
   unsigned char result[4];	/* unknown stuff, result[2] = 80 -> status is available*/
                                 /* result[8] is dialog, size? */
   uint32_t dialog;		/* to be returned in next request */
@@ -270,7 +270,7 @@ struct  __attribute__ ((__packed__)) POLL_RESPONSE
 struct  __attribute__ ((__packed__)) IDENTITY
 {
   struct BJNP_command cmd;
-  union  __attribute__ ((__packed__)) 
+  union  __attribute__ ((__packed__))
     {
       struct __attribute__ ((__packed__)) payload_s
         {
@@ -343,7 +343,7 @@ typedef enum
 typedef struct device_s
 {
   int open;			/* connection to scanner is opened */
-  
+
   /* protocol version */
   int protocol;
   char *protocol_string;

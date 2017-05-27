@@ -7,3 +7,6 @@
 # See http://editorconfig.org/#download for details.
 
 root = true                     ; look no further
+
+[*]
+trim_trailing_whitespace = true

@@ -12,10 +12,10 @@
 :backend "rts8891"               ; name of backend
 :version "1.0-0 (unmaintained)"  ; version of backend (or "unmaintained")
 :manpage "sane-rts8891"        ; name of manpage (if it exists)
-:url "http://stef.dev.free.fr/sane/rts8891/index.html" 
+:url "http://stef.dev.free.fr/sane/rts8891/index.html"
 				  ; backend's web page
 
-:comment "This backend supports Realtek RTS8891 ASIC bases scanners." 
+:comment "This backend supports Realtek RTS8891 ASIC bases scanners."
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....

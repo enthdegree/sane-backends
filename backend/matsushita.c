@@ -2,49 +2,49 @@
 
    Copyright (C) 2002, 2004 Frank Zago (sane at zago dot net)
    Copyright (C) 2002 Other SANE contributors
-   
+
    This file is part of the SANE package.
-   
+
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
-   
+
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
-   
+
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
-   
+
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
-   
+
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
-   
+
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. 
+   If you do not wish that, delete this exception notice.
 */
 
 /*
    $Id$
-   Matsushita/Panasonic KV-SS25, KV-SS50, KV-SS55, KV-SS50EX, 
+   Matsushita/Panasonic KV-SS25, KV-SS50, KV-SS55, KV-SS50EX,
                         KV-SS55EX, KV-SS850, KV-SS855 SCSI scanners.
 
    This backend may support more Panasonic scanners.
@@ -132,7 +132,7 @@ static const SANE_Word resolutions_rounds_400[8] = {
 
 /*--------------------------------------------------------------------------*/
 
-/* Lists of supported halftone. They are only valid with 
+/* Lists of supported halftone. They are only valid with
  * for the Black&White mode. */
 static SANE_String_Const halftone_pattern_list[] = {
   SANE_I18N ("None"),
@@ -265,7 +265,7 @@ static const int feeder_mode_val[] = {
 
 /*--------------------------------------------------------------------------*/
 
-/* Paper size in millimeters. 
+/* Paper size in millimeters.
  * Values from http://www.twics.com/~eds/paper/. */
 static const struct paper_sizes paper_sizes[] = {
   {"2A0", 1189, 1682},
@@ -1317,7 +1317,7 @@ matsushita_init_options (Matsushita_Scanner * dev)
 /* Wait until the scanner is ready.
  *
  * The only reason I know the scanner is not ready is because it is
- * moving the CCD. 
+ * moving the CCD.
  */
 static SANE_Status
 matsushita_wait_scanner (Matsushita_Scanner * dev)
@@ -1524,17 +1524,17 @@ matsushita_fill_image (Matsushita_Scanner * dev)
   while (dev->real_bytes_left)
     {
 
-      /* 
+      /*
        * Try to read the maximum number of bytes.
        *
-       * The windows driver reads no more than 0x8000 byte. 
+       * The windows driver reads no more than 0x8000 byte.
        *
        * This backend operates differently than the windows
        * driver. The windows TWAIN driver always read 2 more bytes
        * at the end, so it gets a CHECK CONDITION with a short read
        * sense. Since the linux scsi layer seem to be buggy
        * regarding the resid, always read exactly the number of
-       * remaining bytes.  
+       * remaining bytes.
        */
 
       size = dev->real_bytes_left;
@@ -1545,7 +1545,7 @@ matsushita_fill_image (Matsushita_Scanner * dev)
 
       if (size == 0)
 	{
-	  /* Probably reached the end of the buffer. 
+	  /* Probably reached the end of the buffer.
 	   * Check, just in case. */
 	  assert (dev->image_end != 0);
 	  return (SANE_STATUS_GOOD);
@@ -1620,7 +1620,7 @@ matsushita_fill_image (Matsushita_Scanner * dev)
 
 	case 4:
 	  {
-	    /* Adjust from a depth of 4 bits ([0..15]) to 
+	    /* Adjust from a depth of 4 bits ([0..15]) to
 	     * a depth of 8 bits ([0..255]) */
 
 	    unsigned char *src = dev->buffer;
@@ -1654,7 +1654,7 @@ matsushita_fill_image (Matsushita_Scanner * dev)
   return (SANE_STATUS_GOOD);	/* unreachable */
 }
 
-/* Copy from the raw buffer to the buffer given by the backend. 
+/* Copy from the raw buffer to the buffer given by the backend.
  *
  * len in input is the maximum length available in buf, and, in
  * output, is the length written into buf.

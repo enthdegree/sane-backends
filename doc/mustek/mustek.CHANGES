@@ -212,7 +212,7 @@ CHANGES for the SANE Mustek backend
   * Added OS/2 compatibility fixes from "Franz Bakan" <fbakan@gmx.net>.
 
 2001-11-18
-  * The Primax Compact 4800 seems to bes also supported. Added .desc and 
+  * The Primax Compact 4800 seems to bes also supported. Added .desc and
     manpage entries.
 
 2001-09-10
@@ -290,7 +290,7 @@ CHANGES for the SANE Mustek backend
 
 2001-04-19
   * Don't check for macro VERSION any longer in sane_init. Print out
-    PACKAGE_VERSION instead. 
+    PACKAGE_VERSION instead.
   * Update email address and homepage.
 
 2001-08-08
@@ -348,7 +348,7 @@ CHANGES for the SANE Mustek backend
 
 2000-12-31
   * Released Mustek backend 1.0-103
-  
+
 2000-12-30
   * Implemented calibration (color and gray mode) for the Paragon 1200 Pro.
     It's not perfect and needs lots of tests. It may work for the Paragon
@@ -360,14 +360,14 @@ CHANGES for the SANE Mustek backend
   * Increased scan width to 8.6" for 1200 Pro.
 
 2000-12-26
-  * Added calibration for the SE 12000 SP Plus. Doesn't fully work until now 
+  * Added calibration for the SE 12000 SP Plus. Doesn't fully work until now
     (images are too dark and colored).
 
 2000-12-23
   * Added option for Legal format (because the ScanExpress 12000 SP A4 size
     scanner can't be distinguished from the Paragon 1200 LS Legal size scanner
     by software).
-  
+
 2000-12-21
   * Added a few checks for Null-Pointers.
   * Removed old code for SE calibration.
@@ -378,7 +378,7 @@ CHANGES for the SANE Mustek backend
 
 2000-12-10
   * Released Mustek backend 1.0-102
-  
+
 2000-12-09
   * Fixed wrong comment in encode_resolution
   * Added missing test for return status in sane_start
@@ -386,7 +386,7 @@ CHANGES for the SANE Mustek backend
 
 2000-12-05
   * Released Mustek backend 1.0-101
- 
+
 2000-12-05
   * Fixed lamp setting (avoid problems with some SE scanners).
 
@@ -443,18 +443,18 @@ CHANGES for the SANE Mustek backend
     scanning (seems to work for firmware >= 2.00)
   * Adjusted transparency adapter support for all ScanExpress scanners.
     The 12000 A3 SP can only do A4 beacuse I don't have the right TA.
-  * don't use u_int* types in mustek.h because the definitions for these 
+  * don't use u_int* types in mustek.h because the definitions for these
     types are not included
 
 2000-11-04
   * SE scanners can now scan 75, 100, 150, 200, 250, 300, 400, 500, 600,
-    900 and 1200 dpi in color mode (the 1200 dpi models). These are fixed 
+    900 and 1200 dpi in color mode (the 1200 dpi models). These are fixed
     resolutions, a resolution >= the wanted resolution is selected. This
     makes preview and some resolutions faster than before (at least for
     some scanners), because lower resolutions can be used.
-  * Minimum scan resolution is 60 dpi in gray and lineart and 75 dpi in 
+  * Minimum scan resolution is 60 dpi in gray and lineart and 75 dpi in
     color mode for the SE scanners now.
-  
+
 2000-10-29
   * Fixed a bug concerning block LD. Paragon 1 and 2 were exchanged.
   * Paragon 12000SP color mode works now without garbage at the end
@@ -479,9 +479,9 @@ CHANGES for the SANE Mustek backend
 
 2000-10-03
   * Released backend version 1.0-98.
-  
+
 2000-10-03
-  * Fixed segmentation fault in sane_init (else statement was missing). 
+  * Fixed segmentation fault in sane_init (else statement was missing).
     Thanks to Oliver Rauch who spotted this problem.
   * Re-enabled double buffering.
 
@@ -518,7 +518,7 @@ CHANGES for the SANE Mustek backend
 
 2000-09-24
   * Released backend version 1.0-97.
-  
+
 2000-09-24
   * Added RGB brightness and contrast for 3pass scanners
   * Brightness and contrast is +-100% for 3pass scanners now
@@ -635,7 +635,7 @@ CHANGES for the SANE Mustek backend
 2000-07-26
   * fixed possible segfault pointer info was not checked for 0 (found by
     Petter Reinholdtsen)
-  * Updated comment about Paragon 600 II N linedistance correction in man 
+  * Updated comment about Paragon 600 II N linedistance correction in man
     page
 
 2000-07-25
@@ -643,7 +643,7 @@ CHANGES for the SANE Mustek backend
 
 2000-07-25
   * Released backend version 1.0-92
-  
+
 2000-07-24
   * Fixed ADF handling (output was mirrored in x direction). Gray and lineart
     seems to work now. Color and halftone modes look somewhat crazy.
@@ -682,7 +682,7 @@ CHANGES for the SANE Mustek backend
   * Released backend version 1.0-89
 
 2000-06-30
-  * Fixed bug in do_stop. The scan slider didn't return after the scan 
+  * Fixed bug in do_stop. The scan slider didn't return after the scan
     in some situations.
 
 2000-06-28
@@ -703,7 +703,7 @@ CHANGES for the SANE Mustek backend
 
 2000-06-25
   * updated manpage concerning parport and USB scanners
-  * added example for 600 II N to mustek.conf 
+  * added example for 600 II N to mustek.conf
 
 2000-06-22
   * fixed debug output bug in fix_linedistance_se (found by Jan-Erik Karlsson)
@@ -750,7 +750,7 @@ CHANGES for the SANE Mustek backend
   * Code cleanup and reorganization for inclusion of the Paragon 1200 A3 Pro.
 
 2000-06-07
-  * Fixed bug in sane_close where the chain of handles got destroyed by 
+  * Fixed bug in sane_close where the chain of handles got destroyed by
     closing the first device. This bug is in the backend since 3 1/2 years.
     Thanks to Jochen Eisinger for spotting this.
 
@@ -762,7 +762,7 @@ CHANGES for the SANE Mustek backend
 
 2000-06-04
   * changed (again) Paragon 12000 SP linedistance handling, now 1.02 uses
-    normal LD corrections, all other use none. We'll see, if this works. 
+    normal LD corrections, all other use none. We'll see, if this works.
     Thanks to Reinhard Günzel who helped to debug this.
   * fixed some long lines (>80 chars)
 
@@ -805,7 +805,7 @@ CHANGES for the SANE Mustek backend
 
 2000-05-08
   * fixed remaining sane_cancel problems (in non_blocking mode)
-  * fixed color stripes and segmentation fault for Paragon MFS-12000SP 
+  * fixed color stripes and segmentation fault for Paragon MFS-12000SP
     1.00 (at least for me)
   * added more debug output to inquiry
   * added possibility to distinguish old and new firmware formats
@@ -816,14 +816,14 @@ CHANGES for the SANE Mustek backend
   * released backend version 1.0-81
 
 2000-05-06
-  * added transparency adapter support for the Paragon 600 II CD, 600S, 
+  * added transparency adapter support for the Paragon 600 II CD, 600S,
     800 II SP, 600 II N, ScannExpress 6000SP and 12000SP
   * removed "color lineart" and "color halftone" for all scanners.
     These modes didn't work for any of my scanners.
   * added more debug output for ADF and TA
   * fixed bug when ADF is out of documents
   * Scan source option is only available if TA or ADF is present. For
-    SE and N models TA is always available because it can't be detected 
+    SE and N models TA is always available because it can't be detected
     by hardware
   * removed "backtrack", "speed" and "grain" from 600 II N options,
     the scanner doesn't support them
@@ -839,12 +839,12 @@ CHANGES for the SANE Mustek backend
   * Added Warning for scanners that are not (fully) tested
 
 2000-04-26
-  * changed sane_init to use sanei_config_read () and 
+  * changed sane_init to use sanei_config_read () and
     sanei_config_get_string ()
 
 2000-04-24
   * released backend version 1.0-80
-  
+
 2000-04-23
   * fixed lineart and color scanning >600 dpi for the SE 12000SP
   * added variable debug_level to be faster without debugging in attach ()
@@ -863,13 +863,13 @@ CHANGES for the SANE Mustek backend
 
 2000-04-20
   * Output of scanning time now works with scanimage, too.
-  * Adjusted scan area to the Windows driver defaults for Paragon 
+  * Adjusted scan area to the Windows driver defaults for Paragon
     MFS-6000CX
   * Added transparency adapter support for the Paragon MFS-6000CX and
     MFS-12000SP
 
 2000-04-19
-  * Adjusted scan area to the Windows driver defaults for Paragon 
+  * Adjusted scan area to the Windows driver defaults for Paragon
     MFS-12000SP
 
 2000-04-17
@@ -883,14 +883,14 @@ CHANGES for the SANE Mustek backend
     These modes didn't work for any of my scanners.
   * fixed problems in color mode for the MFS-8000SP (gamma table is now
     uploaded even if not selected)
-  * Output "cover open" only for ScanExpress scanners (Paragon scanners 
+  * Output "cover open" only for ScanExpress scanners (Paragon scanners
     don't have a cover sensor)
   * Added transparency adapter support for the Paragon MFS-6000SP and
     MFS-12000CX
   * Added output of transfer speed (kb/s)
   * maximum allocated memory for read request can be set by a #define
   * buffer size can be set on a per scanner basis
-  * Adjusted scan area to the Windows driver defaults for Paragon 
+  * Adjusted scan area to the Windows driver defaults for Paragon
     800 II SP
   * Added quotation marks to inquiry output
 
@@ -899,7 +899,7 @@ CHANGES for the SANE Mustek backend
     ScanExpress 12000SP
   * Fixed scan area settings (TL-X and TL-Y) for transparency adapter (TA)
   * Added TA support for Paragon 8000SP
-  
+
 2000-04-13
   * Added more debug output in sane_read and some other functions
   * removed warnings
@@ -913,7 +913,7 @@ CHANGES for the SANE Mustek backend
 
 2000-04-09
   * released backend version 1.0-79
-  
+
 2000-04-08
   * added output of scanning time (debuglevel 2 and higher)
   * removed old code from sane_cancel
@@ -931,16 +931,16 @@ CHANGES for the SANE Mustek backend
 2000-04-03
   * output backend and version information
   * fixed resolution encoding for MFS12000cx
-  * Changed version system to be compatible to the SANE standard 
+  * Changed version system to be compatible to the SANE standard
     (major, minor, build); 0.78 --> 1.0-78
-  
+
 2000-04-02
   * released backend version 0.78
   * added MUSTEK_FLAG_DOUBLE_RES for the MFS-12000CX 3-pass scanner,
     resolutions > 600 dpi should work now
-    
+
 2000-04-01
-  * reduced scan area for Paragon 800 S / II SP 
+  * reduced scan area for Paragon 800 S / II SP
 
 2000-03-29
   * released backend version 0.77
@@ -948,17 +948,17 @@ CHANGES for the SANE Mustek backend
   * more debug level tweaking
   * man page update
   * model name update
-  
+
 2000-03-25
   * corrected some spelling errors
-  
+
 2000-03-24
   * reduced scanarea for the MSF-6000SP
   * restructured scanner recognition
 
 2000-03-18
   * released backend version 0.76
-  
+
 2000-03-17
   * removed some compiler warnings
   * changed the sane.model names (e.g. ScanExpress 12000SP instead of
@@ -978,12 +978,12 @@ CHANGES for the SANE Mustek backend
     possibly never happen)
   * fixed firmware version identification for newer ScanExpress models
     (patch from Marco G. Salvagno)
-  * probably fixed linedistance correction at high resolutions for 
+  * probably fixed linedistance correction at high resolutions for
     MFS-1200SP firmware 1.00 and possibly others (patch from Andreas Beck)
   * added check for ADF ready in sane_start (patch from Joerg Anders)
   * Bug fix in the STORE makros (patch from Norbert Mueller)
- 
-  
+
+
 2000-03-06
   * created mustek.CHANGES file
   * released backend version 0.74

@@ -7,7 +7,7 @@ and run by 'make check'.
 sanei_usb_test
 ---------------
 	 Tests sanei_usb_* functions. No USB scanner needs to be plugged,
-but in this case less code is covered (open/close and claim/release 
+but in this case less code is covered (open/close and claim/release
 of real devices).
 Function currently tested are:
 	- sanei_usb_init()

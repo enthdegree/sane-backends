@@ -566,7 +566,7 @@ typedef struct Plustek_Device
     SANE_Int 			   res_list_size;    /* resolution values            */
     ScannerCaps            caps;             /* caps reported by the driver  */
 	AdjDef                 adj;	             /* for driver adjustment        */
-	
+
     /*
      * each device we support may need other access functions...
      */
@@ -612,9 +612,9 @@ typedef struct Plustek_Scanner
     SANE_Byte 			   *buf;            /* the image buffer              */
     SANE_Bool 				scanning;       /* TRUE during scan-process      */
     SANE_Parameters 		params;         /* for keeping the parameter     */
-	
+
 	/************************** gamma tables *********************************/
-	
+
 	SANE_Word	gamma_table[4][4096];
 	SANE_Range	gamma_range;
 	int 		gamma_length;
@@ -626,7 +626,7 @@ typedef struct Plustek_Scanner
 /** for collecting configuration info...
  */
 typedef struct {
-	
+
 	char   devName[PATH_MAX];
 
 	/* contains the stuff to adjust... */

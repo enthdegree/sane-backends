@@ -1,7 +1,7 @@
 /***************************************************************************
  * SANE - Scanner Access Now Easy.
 
-   dc210.c 
+   dc210.c
 
    11/11/98
 
@@ -43,17 +43,17 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice.  
+   If you do not wish that, delete this exception notice.
 
  ***************************************************************************
 
    This file implements a SANE backend for the Kodak DC-210
-   digital camera.  THIS IS EXTREMELY ALPHA CODE!  USE AT YOUR OWN RISK!! 
+   digital camera.  THIS IS EXTREMELY ALPHA CODE!  USE AT YOUR OWN RISK!!
 
    (feedback to:  sane-dc210@interlinx.bc.ca
 
    This backend is based somewhat on the dc25 backend included in this
-   package by Peter Fales 
+   package by Peter Fales
 
  ***************************************************************************/
 
@@ -395,7 +395,7 @@ init_dc210 (DC210 * camera)
     }
 
   /* send a break to get it back to a known state */
-  /* Used to supply a non-zero argument to tcsendbreak(), TCSBRK, 
+  /* Used to supply a non-zero argument to tcsendbreak(), TCSBRK,
    * and TCSBRKP, but that is system dependent.  e.g. on irix a non-zero
    * value does a drain instead of a break.  A zero value is universally
    * used to send a break.
@@ -423,8 +423,8 @@ init_dc210 (DC210 * camera)
   if (send_pck (camera->fd, init_pck) == -1)
     {
       /*
-       *    The camera always powers up at 9600, so we try 
-       *      that first.  However, it may be already set to 
+       *    The camera always powers up at 9600, so we try
+       *      that first.  However, it may be already set to
        *      a different speed.  Try the entries in the table:
        */
 
@@ -455,7 +455,7 @@ init_dc210 (DC210 * camera)
 	}
     }
   /*
-     Set speed to requested speed. 
+     Set speed to requested speed.
    */
   cfsetospeed (&tty_new, Camera.baud);
   cfsetispeed (&tty_new, Camera.baud);
@@ -954,7 +954,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  if (dc210_opt_thumbnails)
 	    {
-	      /* 
+	      /*
 	       * DC210 thumbnail are 96x72x8x3
 	       */
 	      parms.bytes_per_line = 96 * 3;
@@ -1190,7 +1190,7 @@ sane_start (SANE_Handle handle)
     {
 
       /*
-       * Don't allow picture unless there is room in the 
+       * Don't allow picture unless there is room in the
        * camera.
        */
       if (Camera.pic_left == 0)

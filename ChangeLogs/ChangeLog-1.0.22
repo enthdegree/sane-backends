@@ -38,7 +38,7 @@
 
 2011-01-26 m. allan noah <kitno455 at gmail dot com>
 	* backend/canon_dr.[ch], doc/descriptions/canon_dr.desc,
-	backend/canon_dr.conf.in, doc/sane-canon_dr.man: 
+	backend/canon_dr.conf.in, doc/sane-canon_dr.man:
 	canon_dr backend v37:
 	- don't center window when using flatbed
 	- improve request sense error messages
@@ -53,12 +53,12 @@
 2011-01-18 m. allan noah <kitno455 at gmail dot com>
 	* backend/canon_dr.[ch], doc/desc/canon_dr.desc, doc/sane-canon_dr.man:
 	canon_dr backend v36:
-	- initial support for DR-3080 and DR-5060 
-	- add code to clamp scan width to an arbitrary byte width boundary 
-	- add code to prevent setting of brightness/threshold/contrast 
-	- don't send dropout color command on non-color scanners 
-	- initial support for DR-7090C 
-	- update credits 
+	- initial support for DR-3080 and DR-5060
+	- add code to clamp scan width to an arbitrary byte width boundary
+	- add code to prevent setting of brightness/threshold/contrast
+	- don't send dropout color command on non-color scanners
+	- initial support for DR-7090C
+	- update credits
 	* po/pl.po: updated translation from Jakub Bogusz
 	* po/de.po: updated translation from Matthias Mailander
 	* backend/canon.conf.in: improved detection of scsi scanners
@@ -85,7 +85,7 @@
 2011-01-06 Stéphane Voltz <stef.dev@free.fr>
 	*  backend/genesys.c backend/genesys_devices.c
 	backend/genesys_gl847.c: fix lineart issue when yres is higher than
-	xres and dynamic lineart is enabled, make gl847 wait for head to 
+	xres and dynamic lineart is enabled, make gl847 wait for head to
 	park between scans, wait for head ot park in sane_close()
 
 2011-01-05  Nicolas Martin <nicols-guest at users.alioth.debian.org>
@@ -136,7 +136,7 @@
 	* backend/genesys.c backend/genesys.conf.in backend/genesys_devices.c
 	backend/genesys_gl841.c backend/genesys_low.h
 	doc/descriptions/genesys.desc doc/descriptions/unsupported.desc
-	doc/sane-genesys.man: add Plustek OpticBook 3600 support 
+	doc/sane-genesys.man: add Plustek OpticBook 3600 support
 	by Chris Berry <s0457957@sms.ed.ac.uk> and Michael Rickmann <mrickma@gwdg.de>
 
 2010-12-27 Stéphane Voltz <stef.dev@free.fr>
@@ -205,7 +205,7 @@
 	  interface list.
 
 2010-12-02 m. allan noah <kitno455 at gmail dot com>
-	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: 
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h:
 	Fujitsu backend version 105
 	- backup and restore image params around image processing code
 	- cache software crop/deskew parameters for use on backside of duplex
@@ -216,7 +216,7 @@
 	  and D2.
 
 2010-11-24 m. allan noah <kitno455 at gmail dot com>
-	* backend/fujitsu.c, backend/fujitsu.conf.in, 
+	* backend/fujitsu.c, backend/fujitsu.conf.in,
 	  doc/descriptions/fujitsu.desc, doc/sane-fujitsu.man:
 	Fujitsu backend versions 103 and 104
 	- remove compiled-in default config file
@@ -229,7 +229,7 @@
 	from Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>.
 
 2010-11-17 Stéphane Voltz <stef.dev@free.fr>
-	* backend/genesys.c: don't write scan data unless specified by debug 
+	* backend/genesys.c: don't write scan data unless specified by debug
 	level.
 
 2010-11-08 Marc Deslauriers <marc.deslauriers@ubuntu.com>
@@ -247,16 +247,16 @@
 2010-11-01 Stéphane Voltz <stef.dev@free.fr>
 	* frontend/scanimage.c: don't print readonly device options since
 	they can't be set on command line
-	
+
 2010-11-01 Stéphane Voltz <stef.dev@free.fr>
-	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl843.c 
+	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl843.c
 	backend/genesys_gl843.h backend/genesys_gl847.c: up build number to 41,
 	rework head parking,
-	fixed clear-calibration option reading, 
+	fixed clear-calibration option reading,
 	make calibration cache expire for non sheetfed gl847 scanners,
 	tuned KV-SS080 timings to improve image quality,
 	raised LiDE 100/200 defaukt gamma to 1.7
-	
+
 2010-10-31 Julien Blache <jb@jblache.org>
 	* doc/descriptions/hp.desc: add SCSI IDs for ScanJet 4c.
 
@@ -266,10 +266,10 @@
 	  config file.
 
 2010-10-13 Stéphane Voltz <stef.dev@free.fr>
-	* backend/genesys_devices.c backend/genesys_gl843.c 
+	* backend/genesys_devices.c backend/genesys_gl843.c
 	backend/genesys_gl843.h: added 100, 150, 400 and 600 dpi modes for
 	G4050 and G4010. Added 500 and 400 dpi modes for KV-SS080
-	
+
 2010-09-30 Alex Belkin <abc@telekom.ru>
 	* Makefile.in backend/Makefile.am backend/Makefile.in backend/xerox_mfp-tcp.c
 	backend/xerox_mfp-usb.c backend/xerox_mfp.c backend/xerox_mfp.conf.in backend/xerox_mfp.h
@@ -355,7 +355,7 @@
 
 2010-08-31 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_devices.c backend/genesys.conf.in backend/genesys.c
-	backend/genesys_gl843.[ch] backend/Makefile.am backend/Makefile.in: 
+	backend/genesys_gl843.[ch] backend/Makefile.am backend/Makefile.in:
 	support for gl843 based scanners, starting with KV-SS080.
 	disable true gray for LIDE35/50 since it breaks scanning
 
@@ -370,7 +370,7 @@
 	       some MF8030 settings, but device not yet supported.
 
 2010-07-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
-	* backend/pixma_mp150.c, backend/pixma_imageclass.c, 
+	* backend/pixma_mp150.c, backend/pixma_imageclass.c,
 	doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	pixma:  add support for PIXMA MX870.
 		declared PIXMA MF8030, but not yet working.
@@ -411,7 +411,7 @@
 	* backend/fujitsu.c: Fix compilation bug when jpeg support is enabled.
 
 2010-06-23 Julien Blache <jb@jblache.org>
-	* various: corrected initialization, printing, etc. in many backends 
+	* various: corrected initialization, printing, etc. in many backends
 
 2010-06-21 Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: udev rules: set libsane_matched=yes for SCSI
@@ -506,7 +506,7 @@
 	backend/Makefile.in: start of LiDE 100 and LIDE 200 support
 
 2010-05-16 Stéphane Voltz <stef.dev@free.fr>
-	* sanei/sanei_usb.c include/sane/sanei_usb.h: add a sanei_usb_reset() 
+	* sanei/sanei_usb.c include/sane/sanei_usb.h: add a sanei_usb_reset()
 	function.
 
 2010-05-15 m. allan noah <kitno455 at gmail dot com>

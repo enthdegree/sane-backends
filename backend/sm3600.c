@@ -180,7 +180,7 @@ InitOptions(TInstance *this)
 	Some hints:
 	*every* field needs a constraint, elseway there will be a warning.
 	*/
-    
+
       switch (iOpt)
 	{
 	case optCount:
@@ -353,8 +353,8 @@ RegisterSaneDev (TModel model, SANE_String_Const szName)
 
   return SANE_STATUS_GOOD;
 }
- 
-static SANE_Status 
+
+static SANE_Status
 sm_usb_attach (SANE_String_Const dev_name)
 {
   int fd;
@@ -398,9 +398,9 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
    }
 
   pdevFirst=NULL;
-  
+
   sanei_usb_init();
-  for (i = 0; aScanners[i].idProduct; i++) 
+  for (i = 0; aScanners[i].idProduct; i++)
     {
       sanei_usb_find_devices(SCANNER_VENDOR, aScanners[i].idProduct, sm_usb_attach);
     }
@@ -417,7 +417,7 @@ sane_exit (void)
   /* free all bound resources and instances */
   while (pinstFirst)
     sane_close((SANE_Handle)pinstFirst); /* free all resources */
-  
+
   /* free all device descriptors */
   for (dev = pdevFirst; dev; dev = pNext)
     {
@@ -511,7 +511,7 @@ sane_close (SANE_Handle handle)
       if (p==this) break;
       pParent=p;
     }
-  
+
   if (!p)
     {
       DBG(1,"invalid handle in close()\n");
@@ -545,7 +545,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int iOpt)
 
 SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int iOpt,
-		     SANE_Action action, void *pVal, 
+		     SANE_Action action, void *pVal,
 		     SANE_Int *pnInfo)
 {
   SANE_Word   cap;
@@ -562,7 +562,7 @@ sane_control_option (SANE_Handle handle, SANE_Int iOpt,
     return SANE_STATUS_INVAL;
 
   cap=this->aoptDesc[iOpt].cap;
-  
+
   switch (action)
     {
 
@@ -699,7 +699,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *p)
       p->depth=1;
       p->bytes_per_line=(p->pixels_per_line+7)/8;
       break;
-    }      
+    }
   DBG(DEBUG_INFO,"getting parameters (%d,%d)...\n",p->bytes_per_line,p->lines);
   return SANE_STATUS_GOOD;
 }

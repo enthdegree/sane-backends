@@ -9,7 +9,7 @@ library implements a SANE (Scanner Access Now Easy) backend that provides
 access to USB flatbed scanners based on the Service & Quality SQ113 chipset. At
 the moment, only the Mustek BearPaw 2448 TA Pro is supported. It's planned to add
 support for other scanners that are based on the SQ113 and maybe SQ11 chip. For
-more details, see the mustek_usb2 backend homepage: 
+more details, see the mustek_usb2 backend homepage:
 .IR http://www.meier\-geinitz.de/sane/mustek_usb2\-backend/ .
 .PP
 This is BETA software. Especially if you test new or untested scanners, keep
@@ -44,9 +44,9 @@ support dynamic loading).
 .B SANE_DEBUG_MUSTEK_USB2
 If the library was compiled with debug support enabled, this environment
 variable controls the debug level for this backend.  Higher debug levels
-increase the verbosity of the output. 
+increase the verbosity of the output.
 
-Example: 
+Example:
 export SANE_DEBUG_MUSTEK_USB2=4
 
 .SH "SEE ALSO"

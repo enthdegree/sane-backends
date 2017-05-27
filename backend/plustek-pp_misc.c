@@ -280,7 +280,7 @@ static int miscSetFastMode( pScanData ps )
 		ps->IO.lastPortMode = a;	     	/* save it for restoring later 	*/
 
 		/* set to Fast Centronics/bi-directional/PS2 */
-        a = (a & 0x1F) | 0x20;  	     	
+        a = (a & 0x1F) | 0x20;
         _OUTB_ECTL(ps,a);					/* write it back */
 		_DO_UDELAY(1);
 
@@ -335,7 +335,7 @@ static int miscSetFastMode( pScanData ps )
 			DBG(DBG_LOW, "Port is set to PS2 bidirectional mode.\n");
 			ps->IO.portMode = _PORT_BIDI;
 			return _OK;
-			
+
 		} else {
 			DBG(DBG_LOW, "Port could not be set to PS2 mode. "
 														"Using SPP mode.\n");
@@ -458,7 +458,7 @@ _LOC pScanData MiscAllocAndInitStruct( void )
 	}
 
 	DBG( DBG_HIGH, "ScanData = 0x%08lx\n", (unsigned long)ps );
-	return ps;	
+	return ps;
 }
 
 /** re-initialize the memory for the scanner structure
@@ -610,7 +610,7 @@ _LOC void MiscStartTimer( TimerDef *timer , unsigned long us)
 #ifdef __KERNEL__
 	_GET_TIME( &start_time );
 #else
-	gettimeofday(&start_time, NULL);	
+	gettimeofday(&start_time, NULL);
 #endif
 
     *timer = (TimerDef)start_time.tv_sec * 1000000 + (TimerDef)start_time.tv_usec + us;
@@ -635,7 +635,7 @@ _LOC int MiscCheckTimer( TimerDef *timer )
     if ((TimerDef)current_time.tv_sec * 1000000 + (TimerDef)current_time.tv_usec > *timer) {
 		return _E_TIMEOUT;
     } else {
-#ifdef __KERNEL__       
+#ifdef __KERNEL__
 		schedule();
 /*#else
 		sched_yield();
@@ -739,7 +739,7 @@ _LOC int MiscRegisterPort( pScanData ps, int portAddr )
 	return _OK;
 }
 
-/** unregisters the port from driver 
+/** unregisters the port from driver
  */
 _LOC void MiscUnregisterPort( pScanData ps )
 {

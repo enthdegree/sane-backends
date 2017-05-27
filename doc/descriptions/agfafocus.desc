@@ -1,6 +1,6 @@
 :backend "agfafocus"
 :version "unmaintained"
-:manpage "sane-agfafocus" 
+:manpage "sane-agfafocus"
 
 :devicetype :scanner
 

@@ -91,7 +91,7 @@ enum Apple_Modes
   EMPTY_DONT_USE_IT,
   APPLE_MODE_COLOR
   };
-  
+
 enum Apple_Option
   {
     OPT_NUM_OPTS = 0,
@@ -116,7 +116,7 @@ enum Apple_Option
     OPT_BRIGHTNESS,
     OPT_CONTRAST,
     OPT_THRESHOLD,
-    
+
     /* AppleScanner only		*/
     OPT_GRAYMAP,
     OPT_AUTOBACKGROUND,
@@ -147,7 +147,7 @@ enum Apple_Option
     /* OneScanner && ColorOneScanner	*/
     OPT_LED,
     OPT_CCD,
-    
+
     /* ColorOneScanner only		*/
 
     OPT_MTF_CIRCUIT,
@@ -255,7 +255,7 @@ TODO: Initialize this beasts with malloc instead of statically allocation.
 
     SANE_Bool scanning;
     SANE_Bool AbortedByUser;
- 
+
     int pass;			/* pass number */
     SANE_Parameters params;
 

@@ -18,10 +18,10 @@ The
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Mustek parallel port flatbed scanners and OEM versions.
 
-There are 2 classes of Mustek parallel port scanners: regular 
+There are 2 classes of Mustek parallel port scanners: regular
 .B CCD
-(cold cathode device) scanners and 
-.B CIS 
+(cold cathode device) scanners and
+.B CIS
 (contact image sensor) scanners.
 .P
 The current version of this backend supports both CCD type scanners and
@@ -29,7 +29,7 @@ CIS type scanners.
 .P
 The following scanners might work with this backend:
 
-.SS "CCD scanners" 
+.SS "CCD scanners"
 
 .EX
 Model:                  ASIC ID:        CCD Type:       works:
@@ -56,25 +56,25 @@ Mustek 1200 CP+         1015            yes
 .EE
 
 .EX
-OEM versions            Original        works 
+OEM versions            Original        works
 --------------------------------------------------
 Medion/LifeTec/Tevion
    MD/LT 9350/9351      1200 CP         yes
    MD/LT 9850/9851      1200 CP         maybe (**)
    MD/LT 9858           1200 CP         probably
    MD/LT 9890/9891      1200 CP         yes
-Targa 
+Targa
    Funline TS12EP       1200 CP         yes
    Funline TS6EP        600 CP          yes
 Trust
    Easy Connect 9600+   600 CP          yes
-Cybercom 
+Cybercom
    9352                 1200 CP         yes (***)
 .EE
-.HP 
+.HP
 (*)    Calibration  problems existed with earlier version of
 this driver. They seem to be solved now.
-.HP 
+.HP
 (**)   Problems have been reported in the past for the
 MD/LT9850 type (striped scans, head moving in wrong
 direction at some resolutions). It is not known whether
@@ -82,7 +82,7 @@ the current version of the driver still has these problems.
 .PP
 .B  IF YOU HEAR LOUD CLICKING NOISES, IMMEDIATELY UNPLUG THE SCANNER !
 (This holds for any type of scanner).
-.HP 
+.HP
 (***)  Possibly, the engine_delay parameter has to be set to 1 ms
 for accurate engine movements.
 .PP
@@ -90,15 +90,15 @@ Please note that this backend is still under construction. Certain models
 are currently not supported and some may never be because the communication
 protocol is still unknown (eg., SE 12000 P).
 .PP
-Some scanners work faster when 
+Some scanners work faster when
 .B EPP/ECP
 is enabled in the BIOS. EPP mode however may lead to hard-locks on some Linux
 systems. If that is the case for you, you can either disable ECP/EPP in your
 BIOS or disable it in the backend itself (see GLOBAL OPTIONS).
 .PP
 Note that the backend needs to run as root or has to have appropriate access
-rights to /dev/parport* if libieee1284 support is compiled in. To allow user 
-access to the scanner run the backend through the network interface (See 
+rights to /dev/parport* if libieee1284 support is compiled in. To allow user
+access to the scanner run the backend through the network interface (See
 saned(8) and sane\-net(5)). Note also that the backend
 .I does not
 support
@@ -112,7 +112,7 @@ to enable the backend explicitly in your dll.conf, just remove the hash mark
 in the line "mustek_pp".
 
 .SH "DEVICE DEFINITION"
-This backend allows multiple devices being defined and configured via the 
+This backend allows multiple devices being defined and configured via the
 .B mustek_pp.conf
 file (even simultaneously, provided that they are connected to different
 parallel ports). Please make sure to edit this file
@@ -134,23 +134,23 @@ for instance "LifeTec 9350".
 .B <port name>
 is the name of the parallel port to which the device is connected. In case
 libieee1284 is used for communication with the port
-.I (default 
-.IR setup) , 
-valid port names are 
-.BR parport0 , 
-.BR parport1 , 
+.I (default
+.IR setup) ,
+valid port names are
+.BR parport0 ,
+.BR parport1 ,
 and
 .BR parport2 .
 .PP
 In case the backend is configured for raw IO
-.I (old 
+.I (old
 .IR setup) ,
 port addresses have to be used instead of port names:
 .BR 0x378 ,
-.BR 0x278 , 
+.BR 0x278 ,
 or
 .BR 0x3BC .
-The mapping of parallel ports (lp0, lp1, and lp2) to these addresses 
+The mapping of parallel ports (lp0, lp1, and lp2) to these addresses
 can be different for different Linux kernel versions. For instance,
 if you are using a Kernel 2.2.x or better and you have only one
 parallel port, this port is named lp0 regardless of the base address. However,
@@ -159,7 +159,7 @@ port your scanner is connected to, have a look at your /etc/conf.modules,
 /etc/modules.conf and/or /proc/ioports.
 .PP
 If you are unsure which port to use, you can use the magic value
-.BR * 
+.BR *
 to probe for your scanner.
 .PP
 .HP
@@ -169,7 +169,7 @@ is the driver to use for this device. Currently available drivers are:
 .BR cis600 "   : for 600 CP, 96 CP & OEM versions"
 .br
 .BR cis1200 "  : for 1200 CP & OEM versions"
-.br  
+.br
 .BR cis1200+ " : for 1200 CP+ & OEM versions"
 .br
 .BR ccd300 "   : for 600 IIIE P & OEM version"
@@ -187,12 +187,12 @@ cover only half of the width of the scan area (also not dangerous).
 .PP
 If unsure about the exact model of your OEM version, check the optical
 resolution in the manual or on the box: the 600CP has a maximum optical
-resolution of 300x600 DPI, whereas the 1200CP and 1200CP+ have a maximum 
-optical resolution of 600x1200 DPI. 
+resolution of 300x600 DPI, whereas the 1200CP and 1200CP+ have a maximum
+optical resolution of 600x1200 DPI.
 .PP
 Examples:
 .PP
-.RS 
+.RS
 scanner "LifeTec 9350" 0x378 cis1200
 .PP
 scanner Mustek_600CP 0x378 cis600
@@ -201,7 +201,7 @@ scanner Mustek_600IIIEP * ccd300
 .RE
 
 If in doubt which port you have to use, or whether your scanner is
-detected at all, you can use 
+detected at all, you can use
 .B sane\-find\-scanner \-p
 to probe all configured ports.
 
@@ -209,7 +209,7 @@ to probe all configured ports.
 .PP
 The contents of the
 .B mustek_pp.conf
-file is a list of device definitions and device options that correspond to 
+file is a list of device definitions and device options that correspond to
 Mustek scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored. Options have the following format:
 .PP
@@ -220,19 +220,19 @@ ignored. Options have the following format:
 Depending on the nature of the option, a value may or may not be present.
 Options always apply to the scanner definition that precedes them. There
 are no global options. Options are also driver-specific: not all drivers
-support all possible options. 
+support all possible options.
 
 .SS Common options
 .TP
 .B bw <value>
 Black/white discrimination value to be used during lineart scanning. Pixel
 values below this value are assumed to be black, values above are
-assumed to be white. 
+assumed to be white.
 .br
 Default value: 127
-.br 
+.br
 Minimum:         0
-.br 
+.br
 Maximum:       255
 .sp
 Example:  option bw 150
@@ -240,7 +240,7 @@ Example:  option bw 150
 .SS CIS driver options
 .TP
 .B top_adjust <value>
-Vertical adjustment of the origin, expressed in millimeter (floating point). 
+Vertical adjustment of the origin, expressed in millimeter (floating point).
 This option can be used to calibrate the position of the origin, within
 certain limits. Note that CIS scanners are probably temperature sensitive, and
 that a certain inaccuracy may be hard to avoid. Differences in offset between
@@ -261,7 +261,7 @@ scan does not start at the origin, the driver will try to move the scanhead
 to the start of the scan area at the fastest possible speed. On some models,
 this may not work, resulting in large inaccuracies (up to centimeters).
 By setting this option, the driver is forced to use normal speed during
-skipping, which can circumvent the accuracy problems. Currently, there are 
+skipping, which can circumvent the accuracy problems. Currently, there are
 no models for which these inaccuracy problems are known to occur.
 .sp
 By default, fast skipping is used.
@@ -454,12 +454,12 @@ For additional information on the CIS driver, see
 
 .SH AUTHORS
 .nf
-Jochen Eisinger <jochen at penguin\-breeder dot org> 
+Jochen Eisinger <jochen at penguin\-breeder dot org>
 Eddy De Greef <eddy_de_greef at scarlet dot be>
 .fi
 
 .SH BUGS
-Too many... please send bug reports to 
+Too many... please send bug reports to
 .I sane\-devel@lists.alioth.debian.org
 (note that you have to subscribe first to the list before you can send
 emails... see http://www.sane\-project.org/mailing\-lists.html)

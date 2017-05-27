@@ -43,7 +43,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for Mustek 1200UB and similar 
+   This file implements a SANE backend for Mustek 1200UB and similar
    USB flatbed scanners.  */
 
 #define BUILD 18
@@ -1533,7 +1533,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   *len = MIN (max_len, (SANE_Int) s->hw->scan_buffer_len);
   memcpy (buf, s->hw->scan_buffer_start, *len);
   DBG (4, "sane_read: exit, read %d bytes from scan_buffer; "
-       "%ld bytes remaining\n", *len, 
+       "%ld bytes remaining\n", *len,
        (long int) (s->hw->scan_buffer_len - *len));
   s->hw->scan_buffer_len -= (*len);
   s->hw->scan_buffer_start += (*len);

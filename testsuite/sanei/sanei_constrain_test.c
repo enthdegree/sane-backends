@@ -271,7 +271,7 @@ max_fixed_value (void)
   /* check results */
   assert (status == SANE_STATUS_GOOD);
   assert (info == 0);
-  assert (value == fixed_range.max); 
+  assert (value == fixed_range.max);
 }
 
 static void
@@ -721,7 +721,7 @@ string_array_ok (void)
 }
 
 /**
- * run the test suite for sanei constrain related tests 
+ * run the test suite for sanei constrain related tests
  */
 static void
 sanei_constrain_suite (void)
@@ -781,7 +781,7 @@ sanei_constrain_suite (void)
 }
 
 /**
- * main function to run the test suites 
+ * main function to run the test suites
  */
 int
 main (void)

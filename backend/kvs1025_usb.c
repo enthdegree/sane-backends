@@ -303,7 +303,7 @@ kv_usb_escape (PKV_DEV dev,
       size_t len = 16;
 
       ret = sanei_usb_read_bulk (dev->usb_fd, (SANE_Byte *) cmd_buff, &len);
-      
+
       if (ret || len != 16)
 	{
 	  DBG (DBG_error, "usb_bulk_read: Error reading response."

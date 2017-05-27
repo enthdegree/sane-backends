@@ -241,7 +241,7 @@ The Options:
 option warmup t
 .RS
 .I t
-specifies the warmup period in seconds, if set to \-1, the 
+specifies the warmup period in seconds, if set to \-1, the
 automatic warmup function will be used
 .RE
 .PP
@@ -505,13 +505,13 @@ For problem reports it should be enough the set the verbosity to
 * The driver does not support these manic scalings up
 to 16 times the physical resolution. The only scaling
 is done on resolutions between the physical resolution
-of the CCD-/CIS-sensor and the stepper motor i.e. you 
-have a 600x1200 dpi scanner and you are scanning using 
-800dpi, so scaling is necessary, because the sensor only 
-delivers 600dpi but the motor is capable to perform 
+of the CCD-/CIS-sensor and the stepper motor i.e. you
+have a 600x1200 dpi scanner and you are scanning using
+800dpi, so scaling is necessary, because the sensor only
+delivers 600dpi but the motor is capable to perform
 1200dpi steps.
 .PP
-* Plusteks' model policy is somewhat inconsistent. They 
+* Plusteks' model policy is somewhat inconsistent. They
 sell technically different devices under the
 same product name. Therefore it is possible that some
 devices like the UT12 or U12 won't work \- please check

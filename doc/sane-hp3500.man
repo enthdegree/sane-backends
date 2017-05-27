@@ -37,9 +37,9 @@ support dynamic loading).
 .B SANE_DEBUG_HP3500
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  Higher
-debug levels increase the verbosity of the output. 
+debug levels increase the verbosity of the output.
 
-Example: 
+Example:
 export SANE_DEBUG_HP3500=4
 
 .SH "SEE ALSO"

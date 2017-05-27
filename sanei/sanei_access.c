@@ -80,10 +80,10 @@
 #ifdef ENABLE_LOCKING
 /** get the status/owner of a lock file
  *
- * The function tries to open an existing lockfile. On success, it reads out 
+ * The function tries to open an existing lockfile. On success, it reads out
  * the pid which is stored inside and tries to find out more about the status
  * of the process with the corresponding PID.
- * 
+ *
  * @param fn - the complete filename of the lockfile to check
  * @return
  * - PROCESS_SELF  - the calling process is owner of the lockfile
@@ -96,10 +96,10 @@ get_lock_status( char *fn )
 	char  pid_buf[PID_BUFSIZE];
 	int   fd, status;
 	pid_t pid;
-	
+
 	fd = open( fn, O_RDONLY );
 	if( fd < 0 ) {
-		DBG( 2, "does_process_exist: open >%s< failed: %s\n", 
+		DBG( 2, "does_process_exist: open >%s< failed: %s\n",
 		        fn, strerror(errno));
 		return PROCESS_OTHER;
 	}
@@ -155,7 +155,7 @@ sanei_access_init( const char *backend )
 	DBG( 2, "sanei_access_init: >%s<\n", backend);
 }
 
-SANE_Status 
+SANE_Status
 sanei_access_lock( const char *devicename, SANE_Word timeout )
 {
 #ifdef ENABLE_LOCKING
@@ -164,7 +164,7 @@ sanei_access_lock( const char *devicename, SANE_Word timeout )
 	int  fd, to, i;
 #endif
 
-	DBG( 2, "sanei_access_lock: devname >%s<, timeout: %u\n", 
+	DBG( 2, "sanei_access_lock: devname >%s<, timeout: %u\n",
 	        devicename, timeout );
 #ifndef ENABLE_LOCKING
 	return SANE_STATUS_GOOD;
@@ -179,7 +179,7 @@ sanei_access_lock( const char *devicename, SANE_Word timeout )
 
 		fd = open( fn, O_CREAT | O_EXCL | O_WRONLY, 0644 );
 		if (fd < 0) {
-	
+
 			if (errno == EEXIST) {
 				switch( get_lock_status( fn )) {
 				case PROCESS_DEAD:
@@ -198,7 +198,7 @@ sanei_access_lock( const char *devicename, SANE_Word timeout )
 				DBG( 2, "sanei_access_lock: lock exists, waiting...\n" );
 				sleep(1);
 			} else {
-				DBG( 1, "sanei_access_lock: open >%s< failed: %s\n", 
+				DBG( 1, "sanei_access_lock: open >%s< failed: %s\n",
 				        fn, strerror(errno));
 				return SANE_STATUS_ACCESS_DENIED;
 			}
@@ -215,7 +215,7 @@ sanei_access_lock( const char *devicename, SANE_Word timeout )
 #endif
 }
 
-SANE_Status 
+SANE_Status
 sanei_access_unlock( const char *devicename )
 {
 #ifdef ENABLE_LOCKING

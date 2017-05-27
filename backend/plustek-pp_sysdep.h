@@ -1,5 +1,5 @@
 /* @file plustek-pp_sysdep.h
- * @brief a trial to centralize changes between the different 
+ * @brief a trial to centralize changes between the different
  *        kernel-versions some stuff is maybe not relevant, but anyway...
  *
  * Copyright (C) 2000-2013 Gerhard Jaeger <gerhard@gjaeger.de>

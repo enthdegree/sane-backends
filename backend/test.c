@@ -2521,7 +2521,7 @@ sane_start (SANE_Handle handle)
     {
       test_device->number_of_scans++;
       DBG (3, "sane_start: scanning page %d\n", test_device->number_of_scans);
-      
+
       if ((strcmp (test_device->val[opt_scan_source].s, "Automatic Document Feeder") == 0) &&
 	  (((test_device->number_of_scans) % 11) == 0))
 	{

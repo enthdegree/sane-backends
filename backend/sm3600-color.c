@@ -171,7 +171,7 @@ TState StartScanColor(TInstance *this)
   this->state.cyTotalPath =
     this->param.y/2-(2*this->state.ySensorSkew)*600/this->param.res;
   DoJog(this,this->state.cyTotalPath); INST_ASSERT();
-  this->state.cyTotalPath += 
+  this->state.cyTotalPath +=
     (this->state.cyPixel+2*this->state.ySensorSkew)
     *600/this->param.res; /* for jogging back */
 
@@ -214,7 +214,7 @@ TState StartScanColor(TInstance *this)
     RegWrite(this,R_SLEN, 2,
 	     this->state.cyWindow+
 	     (2*this->state.ySensorSkew)*600/this->param.res);
-    this->state.szOrder=ORDER_BRG; 
+    this->state.szOrder=ORDER_BRG;
     RegWrite(this,R_CCAL, 3, this->calibration.rgbBias); INST_ASSERT(); /* 0xBBGGRR */
     switch (this->param.res)
       {
@@ -294,7 +294,7 @@ TState StartScanColor(TInstance *this)
   }
 
   /* calculate and prepare intermediate line transfer buffer */
-  
+
   this->state.cchLineOut=3*this->state.cxPixel;
   this->state.pchLineOut = malloc(this->state.cchLineOut);
   if (!this->state.pchLineOut)

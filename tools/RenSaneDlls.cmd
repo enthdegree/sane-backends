@@ -3,7 +3,7 @@
 /* necessary for DLLs on OS/2            (C) Franz Bakan  2004,2005     */
 /*                                                                      */
 /* This file is part of the SANE package.                               */
-/*                                                                      */ 
+/*                                                                      */
 /* This program is free software; you can redistribute it and/or        */
 /* modify it under the terms of the GNU General Public License as       */
 /* published by the Free Software Foundation; either version 2 of the   */

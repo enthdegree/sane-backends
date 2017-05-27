@@ -38,17 +38,17 @@ this backend with the newer 4000 and 8000 series scanners.  If you have such a
 beast, please let me know.
 .PP
 The Bell+Howell Copiscan II series document scanners are high
-volume, high throughput scanners designed for document scanning 
+volume, high throughput scanners designed for document scanning
 applications.  As such, they are lineart/grayscale scanners supporting
-a fixed number of fairly low resolutions (e.g. 200/240/300dpi).  
-However, they do have a number of interesting and useful features 
-suited to needs of document imaging applications.  
+a fixed number of fairly low resolutions (e.g. 200/240/300dpi).
+However, they do have a number of interesting and useful features
+suited to needs of document imaging applications.
 This backend attempts to support as many of these features as possible.
 .PP
 The main technical reference used in writing this backend is the
-.B Bell and Howell Copiscan II Remote SCSI Controller (RSC) OEM 
-.B Technical Manual Version 1.5.  
-The Linux SCSI programming HOWTO, the SANE API documentation, and 
+.B Bell and Howell Copiscan II Remote SCSI Controller (RSC) OEM
+.B Technical Manual Version 1.5.
+The Linux SCSI programming HOWTO, the SANE API documentation, and
 SANE source code were also extremely valuable resources.
 
 .PP
@@ -80,9 +80,9 @@ The contents of the
 .I bh.conf
 file is a list of device names that correspond to Bell+Howell
 scanners.  See sane\-scsi(5) on details of what constitutes a valid device name.
-Additionally, options can be specified; these lines begin with the word "option".  
-Each option is described in detail below.  Empty lines and lines starting 
-with a hash mark (#) are ignored.  
+Additionally, options can be specified; these lines begin with the word "option".
+Each option is described in detail below.  Empty lines and lines starting
+with a hash mark (#) are ignored.
 
 .SH OPTIONS
 The following options can be specified in the
@@ -99,9 +99,9 @@ These frames are generated based on the compression and barcode options.
 These frames are never sent in preview mode.
 .TP
 .B fake\-inquiry
-This option is used for debugging purposes and its use is not encouraged.  
+This option is used for debugging purposes and its use is not encouraged.
 Essentially, it allows the backend to initialize in the absence of
-a scanner.  This is useful for development and not much else.  
+a scanner.  This is useful for development and not much else.
 This option must be specified earlier in the configuration file than
 the devices which are to be "faked".
 
@@ -144,8 +144,8 @@ levels reduce verbosity.
 .TP
 .B ADF support
 With document scanners, automatic document feeder (ADF) support is a key
-feature.  The backend supports the ADF by default and returns 
-.B SANE_STATUS_NO_DOCS 
+feature.  The backend supports the ADF by default and returns
+.B SANE_STATUS_NO_DOCS
 when the out-of-paper condition is detected.  The SANE frontend
 .B scanadf
 is a command line frontend that supports multi-page scans.  It has been
@@ -158,8 +158,8 @@ scans is included in xsane version 0.35 and above.
 .B Duplex scanning
 Some models, such as the COPISCAN II 6338, support duplex scanning.  That
 is, they scan both sides of the document during a single pass through the
-scanner (the scanner has two cameras).  This backend supports duplex 
-scanning (with the 
+scanner (the scanner has two cameras).  This backend supports duplex
+scanning (with the
 .B \-\-duplex
 option).  The front and back page images are delivered consecutively
 as if they were separately scanned pages.
@@ -167,16 +167,16 @@ as if they were separately scanned pages.
 .TP
 .B Hardware compression
 The scanner is capable of compressing the data into several industry
-standard formats (CCITT G3, CCITT G3-2D, CCITT G4).  This results in 
+standard formats (CCITT G3, CCITT G3-2D, CCITT G4).  This results in
 increased performance as less data is passed from the scanner to the
 host over the SCSI bus.  The backend supports these compression formats
-via the 
+via the
 .B \-\-g31d, \-\-g32d, \-\-g42d
 options, respectively.  Many SANE frontends are not equipped to deal with
 these formats, however.  The SANE frontend
 .B scanadf
-supports these optional frame formats.  The compressed image data 
-is written directly to a file and can then be processed by a scan-script 
+supports these optional frame formats.  The compressed image data
+is written directly to a file and can then be processed by a scan-script
 using the
 .B \-\-scan\-script
 option.  Examples of this are given on the scanadf homepage.
@@ -197,18 +197,18 @@ parameters must remain constant during the entire batch.
 .TP
 .B Icon Generation
 The Icon function generates a thumbnail of the full page image, that can be
-transferred as if it were a separate page.  This allows the host to 
+transferred as if it were a separate page.  This allows the host to
 quickly display a thumbnail representation during the scanning operation.
-Perhaps this would be a great way of implementing a preview scan, but 
+Perhaps this would be a great way of implementing a preview scan, but
 since a normal scan is so quick, it might not be worth the trouble.
 
 .TP
 .B Multiple Sections
 Multiple sections (scanning sub-windows) can be defined for the front and
-back pages.  Each section can have different characteristics (e.g. geometry, 
+back pages.  Each section can have different characteristics (e.g. geometry,
 compression).  The sections are returned as if they were separately
 scanned images.  Additionally sections can be used to greatly enhance the
-accuracy and efficiency of the barcode/patchcode decoding process by 
+accuracy and efficiency of the barcode/patchcode decoding process by
 limiting the search area to a small subset of the page.  Most Copiscan II
 series scanners support up to 8 user-defined sections.
 
@@ -218,18 +218,18 @@ The RSC unit can recognize Bar and Patch Codes of various types embedded
 in the scanned image.  The codes are decoded and the data is returned to
 the frontend as a text frame.  The text is encoded in xml and contains
 a great deal of information about the decoded data such as the location
-where it was found, its orientation, and the time it took to find.  
-Further information on the content of this text frame as well as some 
+where it was found, its orientation, and the time it took to find.
+Further information on the content of this text frame as well as some
 barcode decoding examples can be found on the backend homepage.
 
 .SH LIMITATIONS
 .TP
 .B Decoding a single barcode type per scan
 The RSC unit can search for up to six different barcode types at a time.
-While the code generally supports this as well, the 
+While the code generally supports this as well, the
 .B \-\-barcode\-search\-bar
-option only allows the user to specify a single barcode type.  
-Perhaps another option which allows a comma separated list of barcode 
+option only allows the user to specify a single barcode type.
+Perhaps another option which allows a comma separated list of barcode
 type codes could be added to address this.
 .TP
 .B Scanning a fixed number of pages in batch mode
@@ -241,12 +241,12 @@ prior to initiating the last scan command.  Currently, there is no mechanism
 available for the frontend to pass this knowledge to the backend.
 If batch mode is enabled and the \-\-end\-count terminates a scanadf session,
 an extra page will be pulled through the scanner, but is neither read
-nor delivered to the frontend.  The issue can be avoided by specifying 
+nor delivered to the frontend.  The issue can be avoided by specifying
 \-\-batch=no when scanning a fixed number of pages.
 .TP
 .B Revision 1.2 Patch detector
 There is an enhanced patchcode detection algorithm available in the RSC
-with revision 1.2 or higher that is faster and more reliable than the 
+with revision 1.2 or higher that is faster and more reliable than the
 standard Bar/Patch code decoder.  This is not currently supported.
 
 .SH OPTIONS
@@ -255,14 +255,14 @@ standard Bar/Patch code decoder.  This is not currently supported.
 .TP
 .B \-\-preview[=(yes|no)] [no]
 Request a preview-quality scan.  When preview is set to yes image
-compression is disabled and the image is delivered in a 
+compression is disabled and the image is delivered in a
 SANE_FRAME_GRAY frame.
 .TP
 .B \-\-mode lineart|halftone [lineart]
 Selects the scan mode (e.g., lineart,monochrome, or color).
 .TP
 .B \-\-resolution 200|240|300dpi [200]
-Sets the resolution of the scanned image.  Each scanner model supports 
+Sets the resolution of the scanned image.  Each scanner model supports
 a list of standard resolutions; only these resolutions can be used.
 .TP
 .B \-\-compression none|g31d|g32d|g42d [none]
@@ -313,7 +313,7 @@ Bottom-right y position of scan area.
 .B  Feeder Options:
 .TP
 .B \-\-source Automatic Document Feeder|Manual Feed Tray [Automatic Document Feeder]
-Selects the scan source (such as a document feeder).  This option is provided 
+Selects the scan source (such as a document feeder).  This option is provided
 to allow multiple image scans with xsane; it has no other purpose.
 .TP
 .B \-\-batch[=(yes|no)] [no]
@@ -329,7 +329,7 @@ affect both the front and back pages.
 .TP
 .B \-\-timeout\-adf 0..255 [0]
 Sets the timeout in seconds for the automatic document feeder (ADF).
-The value 0 specifies the hardware default value which varies based 
+The value 0 specifies the hardware default value which varies based
 on the scanner model.
 .TP
 .B \-\-timeout\-manual 0..255 [0]
@@ -388,40 +388,40 @@ feature is completely disabled.  The valid barcode type are:
 .RS
 .br
 .B none
-.br 
+.br
 .B ean\-8
 .br
 .B ean\-13
-.br 
+.br
 .B reserved\-ean\-add
-.br 
+.br
 .B code39
-.br 
+.br
 .B code2\-5\-interleaved
-.br 
+.br
 .B code2\-5\-3lines\-matrix
-.br 
+.br
 .B code2\-5\-3lines\-datalogic
-.br 
+.br
 .B code2\-5\-5lines\-industrial
-.br 
+.br
 .B patchcode
-.br 
+.br
 .B codabar
-.br 
+.br
 .B codabar\-with\-start\-stop
-.br 
+.br
 .B code39ascii
-.br 
+.br
 .B code128
-.br 
+.br
 .B code2\-5\-5lines\-iata
 .br
 .RE
 .TP
 .B \-\-barcode\-search\-count 1..7 [3]
 Number of times that the RSC performs the decoding algorithm.  Specify
-the smallest number possible to increase performance.  If you are having 
+the smallest number possible to increase performance.  If you are having
 trouble recognizing barcodes, it is suggested that you increase this option
 to its maximum value (7).
 .TP
@@ -440,7 +440,7 @@ are:
 .RE
 .TP
 .B \-\-barcode\-hmin 0..1660mm [5]
-Sets the barcode minimum height in millimeters (larger values increase 
+Sets the barcode minimum height in millimeters (larger values increase
 recognition speed).  Of course the actual barcodes in the document must be
 of sufficient size.
 .TP
@@ -450,67 +450,67 @@ expires, the decoder will stop trying to decode barcodes.
 .TP
 .B \-\-section <string> []
 Specifies a series of image sections.  A section can be used to gather
-a subset image or to provide a small area for barcode decoding.    
+a subset image or to provide a small area for barcode decoding.
 Each section is specified in the following format (units are in millimeters):
 .PP
 .B <width>x<height>+<top-left-x>+<top-left-y>[:functioncode...]
-.PP 
+.PP
 Multiple sections can be specified by separating them with commas.
 .PP
 For example
 .B 76.2x25.4+50.8+0:frontbar
-identifies an area 3 inches wide and 1 inch high with a top left corner 
+identifies an area 3 inches wide and 1 inch high with a top left corner
 at the top of the page two inches from the left hand edge of the page.
-This section will be used for barcode decoding on the front page only.  
+This section will be used for barcode decoding on the front page only.
 .PP
 For example
-.B 50.8x25.4+25.4+0:frontbar:front:g42d 
-identifies an area 2 inches wide and 1 inch high with a top left corner 
-at the top of the page one inch from the left hand edge of the page.  
-This section will be used for barcode decoding on the front page as well 
-as generating an image compressed in g42d format.  
+.B 50.8x25.4+25.4+0:frontbar:front:g42d
+identifies an area 2 inches wide and 1 inch high with a top left corner
+at the top of the page one inch from the left hand edge of the page.
+This section will be used for barcode decoding on the front page as well
+as generating an image compressed in g42d format.
 .PP
 Ordinarily barcodes are searched in the entire image.  However, when you
 specify sections all barcode searching is done within the specific sections
-identified.  This can significantly speed up the decoding process.  
+identified.  This can significantly speed up the decoding process.
 
 The following functioncodes are available:
 .RS
 .br
 .B front
 \- generate an image for the front page section
-.br 
+.br
 .B back
 \- generate an image for the back page section
 .br
 .B frontbar
 \- perform barcode search in front page section
-.br 
+.br
 .B backbar
 \- perform barcode search in back page section
 .br
 .B frontpatch
 \- perform patchcode search in front page section
-.br 
+.br
 .B backpatch
 \- perform patchcode search in back page section
 .br
 .B none
 \- use no image compression
-.br 
+.br
 .B g31d
 \- use Group 3 1 dimension image compression
-.br 
+.br
 .B g32d
 \- use Group 3 2 dimensions image compression
-.br 
+.br
 .B g42d
 \- use Group 4 2 dimensions image compression
 .br
 .RE
 .PP
 If you omit a compression functioncode, the full page compression setting
-is used.  If you specify multiple compression functioncodes, only the 
+is used.  If you specify multiple compression functioncodes, only the
 last one is used.
 
 .TP

@@ -1,28 +1,28 @@
 /* Please note!  Although intended to support multiple camera types
  * it's been tested with only cameras I have access to: the Kodak DC240
- * and the Directory Browse "camera."  I'm very interested 
- * in learning what it would take to support more cameras.  In 
+ * and the Directory Browse "camera."  I'm very interested
+ * in learning what it would take to support more cameras.  In
  * particular, the current incarnation will only support cameras
  * that directly generate jpeg files.
- * 
+ *
  * Please report sucesses or failures using this backend!
- *  
+ *
  * However, having said that, I've already found it to be quite useful
  * even in its current form - one reason is that gphoto2 provides access
- * to the camera via USB which is not supported by the regular DC240 
+ * to the camera via USB which is not supported by the regular DC240
  * backend and is dramatically faster than the serial port.
  */
 
 /***************************************************************************
  * _S_A_N_E - Scanner Access Now Easy.
 
-   gphoto2.c 
+   gphoto2.c
 
    03/12/01 - Peter Fales
 
    Based on the dc210 driver, (C) 1998 Brian J. Murrell (which is
 	based on dc25 driver (C) 1998 by Peter Fales)
-	
+
    This file (C) 2001 by Peter Fales
 
    This file is part of the SANE package.
@@ -61,14 +61,14 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice.  
+   If you do not wish that, delete this exception notice.
 
  ***************************************************************************
 
-   This file implements a SANE backend for digital cameras 
+   This file implements a SANE backend for digital cameras
    supported by the gphoto2 libraries.
- 
-   THIS IS EXTREMELY ALPHA CODE!  USE AT YOUR OWN RISK!! 
+
+   THIS IS EXTREMELY ALPHA CODE!  USE AT YOUR OWN RISK!!
 
    (feedback to:  gphoto2-devel@fales-lorenz.net)
 
@@ -96,7 +96,7 @@
 #include "../include/sane/sanei_backend.h"
 
 /* PSF 1/12/02 - gphoto2.h does a #include of config.h.  We don't have
- * config.h by that name (we call it sane/config.h), so the #undef of 
+ * config.h by that name (we call it sane/config.h), so the #undef of
  * HAVE_CONFIG_H will cause it to skip that.
  */
 #undef HAVE_CONFIG_H
@@ -349,7 +349,7 @@ static const SANE_Device *devlist[] = {
   dev + 0, 0
 };
 
-/* 
+/*
  * debug_func - called for gphoto2 debugging output (if enabled)
  */
 static void
@@ -397,9 +397,9 @@ init_gphoto2 (void)
     {
       /*
        * We get here if re-initializing the camera:  either because
-       * the user clicked the "re-establish" button, or we need to 
-       * recalculate the number of photos after taking a picture.  
-       * We must release the old camera before starting over. 
+       * the user clicked the "re-establish" button, or we need to
+       * recalculate the number of photos after taking a picture.
+       * We must release the old camera before starting over.
        */
       CHECK_RET (gp_camera_unref (camera));
     }
@@ -455,14 +455,14 @@ init_gphoto2 (void)
    * knows that and will complain if we try to set the speed for
    * ports other than serial ones. Because we are paranoid here and
    * check every single error message returned by gphoto2, we need
-   * to make sure that we have a serial port.                
+   * to make sure that we have a serial port.
    */
   if (Cam_data.speed && !strncmp (Cam_data.port, "serial:", 7))
     {
-      /* 
+      /*
        * Not sure why we need this hack.  The API keeps opening/closing
        * the port, and that seems to confuse the camera.  Holding
-       * the port open seems to fix it. 
+       * the port open seems to fix it.
        */
       if ((hack_fd = open (Cam_data.port + 7, O_RDONLY)) < 0)
 	{
@@ -514,7 +514,7 @@ init_gphoto2 (void)
 }
 
 /*
- * close_gphoto2() - Shutdown camera interface 
+ * close_gphoto2() - Shutdown camera interface
  */
 static void
 close_gphoto2 (void)
@@ -565,7 +565,7 @@ get_info (void)
     }
 
   /* If we've already got a folder_list, free it up before starting
-   * the new one 
+   * the new one
    */
   if (folder_list != NULL)
     {
@@ -613,8 +613,8 @@ get_info (void)
 
 }
 
-/* 
- * erase() - erase file from camera corresponding to 
+/*
+ * erase() - erase file from camera corresponding to
  *	current picture number.  Does not update any of the other
  *	backend data structures.
  */
@@ -689,7 +689,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize
       /* Earlier versions why would try to keep going with compiled in
        * defaults if the config file is missing.  But, now we have so
        * options and combinations of options, that success without a config
-       * file is unlikely.  So, give and return failure 
+       * file is unlikely.  So, give and return failure
        */
       DBG (0, "warning: %s:  missing config file '%s'\n"
 	   "If you aren't using gphoto2, you should disable it in dll.conf.\n"
@@ -794,7 +794,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize
 	      /* Special case: Force port to special value for the
 	       * "Directory Browse" camera - overriding anything in
 	       * the config file - or more likely when not specified
-	       * in the config file. 
+	       * in the config file.
 	       */
 
 	      if (strcmp (Cam_data.camera_name, "Directory Browse") == 0)
@@ -1086,14 +1086,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  else
 	    Cam_data.current_picture_number = Cam_data.pic_taken;
 
-	  /* 
+	  /*
 	   * Setting a new image number could change image size (if
 	   * we supported that - which we hope to do someday!
 	   */
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 
-	  /* get the image's resolution, unless the camera has no 
-	   * pictures yet 
+	  /* get the image's resolution, unless the camera has no
+	   * pictures yet
 	   */
 	  if (Cam_data.pic_taken != 0)
 	    {
@@ -1141,7 +1141,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (gphoto2_opt_snap)
 	    {
 	      /* activate the resolution setting */
-/* Until we figure out how to do this 
+/* Until we figure out how to do this
 	      sod[GPHOTO2_OPT_LOWRES].cap &= ~SANE_CAP_INACTIVE;
 */
 	      /* and de-activate the image number selector */
@@ -1151,7 +1151,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      /* deactivate the resolution setting */
 	      sod[GPHOTO2_OPT_LOWRES].cap |= SANE_CAP_INACTIVE;
-	      /* and activate the image number selector, if there are 
+	      /* and activate the image number selector, if there are
 	       * pictures available */
 	      if (Cam_data.current_picture_number)
 		{
@@ -1405,7 +1405,7 @@ sane_start (SANE_Handle handle)
   if (gphoto2_opt_snap)
     {
       /*
-       * Don't allow picture unless there is room in the 
+       * Don't allow picture unless there is room in the
        * camera.
        */
       if (Cam_data.pic_left == 0)
@@ -1458,7 +1458,7 @@ sane_start (SANE_Handle handle)
   if ( converter_init (handle) != SANE_STATUS_GOOD )
     return SANE_STATUS_INVAL;
 
-  /* Check if a linebuffer has been allocated.  If we had one 
+  /* Check if a linebuffer has been allocated.  If we had one
    * previously, free it up and allocate one for (possibly) new
    * size.  parms.bytes_per_line is set by converter_init()
    */
@@ -1588,7 +1588,7 @@ sane_get_select_fd (SANE_Handle __sane_unused__ handle, SANE_Int __sane_unused__
  * get_pictures_info - load information about all pictures currently in
  *			camera:  Mainly the mapping of picture number
  *			to picture name.  We'ld like to get other
- *			information such as image size, but the API 
+ *			information such as image size, but the API
  *			doesn't provide any support for that.
  */
 static PictureInfo *
@@ -1684,7 +1684,7 @@ snap_pic (void)
       return SANE_STATUS_INVAL;
     }
 
-  /* 
+  /*
    * This is needed when the camera has no files and the first picture
    * is taken.  I guess it's because a folder needs to be created and
    * the filesystem doesn't know about it.
@@ -1699,9 +1699,9 @@ snap_pic (void)
   /* Can't just increment picture count, because if the camera has
    * zero pictures we may not know the folder name.  Start over
    * with get_info and get_pictures_info.  (We didn't have the call
-   * to init_gphoto2() here before, but that was causing us to not 
+   * to init_gphoto2() here before, but that was causing us to not
    * see the new image - need to use a biggger hammer to get it to
-   * re-read the camera directory 
+   * re-read the camera directory
    */
 
   if (init_gphoto2 () != SANE_STATUS_GOOD)
@@ -1772,7 +1772,7 @@ read_dir (SANE_String dir, SANE_Bool read_files)
 
 /*
  * read_info - read the info block from camera for the specified file
- *	NOT YET SUPPORTED - If it were we could use it to do things 
+ *	NOT YET SUPPORTED - If it were we could use it to do things
  *	like update the image size parameters displayed by the GUI
  */
 static SANE_Int
@@ -1789,7 +1789,7 @@ read_info (SANE_String_Const fname)
 }
 
 /*
- *  set_res - set picture size depending on resolution settings 
+ *  set_res - set picture size depending on resolution settings
  */
 static void
 set_res (SANE_Int __sane_unused__ lowres)
@@ -1809,8 +1809,8 @@ set_res (SANE_Int __sane_unused__ lowres)
 }
 
 /*
- * converter_do_scan_complete_cleanup - do everything that needs to be 
- *      once a "scan" has been completed:  Unref the file, Erase the image, 
+ * converter_do_scan_complete_cleanup - do everything that needs to be
+ *      once a "scan" has been completed:  Unref the file, Erase the image,
  *      and increment image number to point to next picture.
  */
 static SANE_Status
@@ -1902,17 +1902,17 @@ converter_do_scan_complete_cleanup (void)
 }
 
 /*
- * converter_fill_buffer - Fill line buffer with next input line from image.  
- * 	Currently assumes jpeg, but this is where we would put the switch 
+ * converter_fill_buffer - Fill line buffer with next input line from image.
+ * 	Currently assumes jpeg, but this is where we would put the switch
  * 	to handle other image types.
  */
 static SANE_Int
 converter_fill_buffer (void)
 {
 
-/* 
+/*
  * FIXME:  Current implementation reads one scan line at a time.  Part
- * of the reason for this is in the original code is to give the frontend 
+ * of the reason for this is in the original code is to give the frontend
  * a chance to update  * the progress marker periodically.  Since the gphoto2
  * driver sucks in the whole image before decoding it, perhaps we could
  * come up with a simpler implementation.
@@ -1927,8 +1927,8 @@ converter_fill_buffer (void)
 }
 
 /*
- * converter_scan_complete  - Check if all the data for the image has been read. 
- *	Currently assumes jpeg, but this is where we would put the 
+ * converter_scan_complete  - Check if all the data for the image has been read.
+ *	Currently assumes jpeg, but this is where we would put the
  *	switch to handle other image types.
  */
 static SANE_Bool
@@ -1946,7 +1946,7 @@ converter_scan_complete (void)
 
 /*
  * converter_init  - Initialize image conversion data.
- *	Currently assumes jpeg, but this is where we would put the 
+ *	Currently assumes jpeg, but this is where we would put the
  *	switch to handle other image types.
  */
 static SANE_Status

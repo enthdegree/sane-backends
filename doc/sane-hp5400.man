@@ -16,7 +16,7 @@ ScanJet 5470C
 ScanJet 5490C
 .RE
 .PP
-More details can be found on the hp5400 backend homepage 
+More details can be found on the hp5400 backend homepage
 .IR http://hp5400backend.sourceforge.net/ .
 .PP
 This is ALPHA software. Keep your hand at the scanner's plug and unplug it, if
@@ -79,9 +79,9 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .B SANE_DEBUG_HP5400
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  Higher
-debug levels increase the verbosity of the output. 
+debug levels increase the verbosity of the output.
 
-Example: 
+Example:
 export SANE_DEBUG_HP5400=4
 
 .SH "SEE ALSO"

@@ -24,7 +24,7 @@
 
 :model "PagePartner"
 :interface "Parport (EPP/ECP)"
-:status :basic      
+:status :basic
 :comment "Sheetfed scanner, work in gray and color, but uncalibrated scans"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

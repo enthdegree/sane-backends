@@ -8,7 +8,7 @@ int
 isfdtype(int fd, int fdtype)
 {
   struct stat st;
-  
+
   if (fstat(fd, &st) == -1) return 0; /* couldn't stat fd */
 
   if (st.st_mode == 0)

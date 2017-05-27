@@ -1,8 +1,8 @@
 /*
   Snapscan 1212U modifications for the Snapscan SANE backend
- 
+
   Copyright (C) 2000 Henrik Johansson
- 
+
   Henrik Johansson (henrikjo@post.urfors.se)
 
   This program is free software; you can redistribute it and/or
@@ -43,7 +43,7 @@
 
   This file implements USB equivalents to the SCSI routines used by the Snapscan
   backend.
-  
+
   History
 
   0.1        2000-02-01
@@ -174,7 +174,7 @@ static SANE_Status snapscani_usb_open(const char *dev, int *fdp,
     usb_sense_handler=sense_handler;
     usb_pss = pss;
     urb_counters->read_urbs = 0;
-    urb_counters->write_urbs = 0;    
+    urb_counters->write_urbs = 0;
     return sanei_usb_open(dev, fdp);
 }
 
@@ -182,13 +182,13 @@ static SANE_Status snapscani_usb_open(const char *dev, int *fdp,
 static void snapscani_usb_close(int fd) {
     static const char me[] = "snapscani_usb_close";
     SANE_Word vendor_id, product_id;
-    
+
     DBG (DL_CALL_TRACE, "%s(%d)\n", me, fd);
     DBG (DL_DATA_TRACE,"1st read %ld write %ld\n", urb_counters->read_urbs, urb_counters->write_urbs);
-    
+
     /* Check if URB counting is needed. If yes, ensure the number of sent and
        received URBs is even.
-       Odd number of URBs only cause problems with libusb and certain 
+       Odd number of URBs only cause problems with libusb and certain
        scanner models. On other scanner models, sending additional commands
        seems to cause problems (e.g. 1212u_2).
        If sanei_usb_get_vendor_product returns an error there's probably no
@@ -197,12 +197,12 @@ static void snapscani_usb_close(int fd) {
     if (sanei_usb_get_vendor_product(fd, &vendor_id, &product_id) == SANE_STATUS_GOOD)
     {
         /* Exclude 1212u_2 */
-        if (!((vendor_id == USB_VENDOR_AGFA) && (product_id == USB_PRODUCT_1212U2)))        
+        if (!((vendor_id == USB_VENDOR_AGFA) && (product_id == USB_PRODUCT_1212U2)))
         {
             if ((urb_counters->read_urbs & 0x01) && (urb_counters->write_urbs & 0x01))
             {
                 char cmd[] = {TEST_UNIT_READY, 0, 0, 0, 0, 0};
-        
+
                 snapscani_usb_cmd (fd, cmd, sizeof (cmd), NULL, 0);
             }
             else if (urb_counters->read_urbs & 0x01)
@@ -211,7 +211,7 @@ static void snapscani_usb_close(int fd) {
                 char cmd[] = {TEST_UNIT_READY, 0, 0, 0, 0, 0};
                 char cmd2[] = {INQUIRY, 0, 0, 0, 120, 0};
                 char data[120];
-        
+
                 read_bytes = 120;
                 snapscani_usb_cmd (fd, cmd2, sizeof (cmd2), data, &read_bytes);
                 snapscani_usb_cmd (fd, cmd, sizeof (cmd), NULL, 0);
@@ -221,11 +221,11 @@ static void snapscani_usb_close(int fd) {
                 size_t read_bytes;
                 char cmd[] = {INQUIRY, 0, 0, 0, 120, 0};
                 char data[120];
-        
+
                 read_bytes = 120;
                 snapscani_usb_cmd (fd, cmd, sizeof (cmd), data, &read_bytes);
             }
-            DBG (DL_DATA_TRACE,"2nd read %ld write %ld\n", urb_counters->read_urbs, 
+            DBG (DL_DATA_TRACE,"2nd read %ld write %ld\n", urb_counters->read_urbs,
                 urb_counters->write_urbs);
         }
     }
@@ -302,7 +302,7 @@ static SANE_Status usb_read(SANE_Int fd, void *buf, size_t n) {
         DBG (DL_MAJOR_ERROR, "%s Only %lu bytes read\n",me, (u_long) bytes_read);
         status = SANE_STATUS_IO_ERROR;
     }
-    urb_counters->read_urbs += ((63 + bytes_read) / 64); 
+    urb_counters->read_urbs += ((63 + bytes_read) / 64);
     DBG(DL_DATA_TRACE, "%s: reading: %s\n",me,usb_debug_data(dbgmsg,buf,n));
     DBG(DL_DATA_TRACE, "Read %lu bytes\n", (u_long) bytes_read);
     return status;
@@ -521,7 +521,7 @@ static SANE_Status snapscani_usb_shm_init(void)
     }
     memset(urb_counters, 0, shm_size);
     return SANE_STATUS_GOOD;
-        
+
 }
 
 static void snapscani_usb_shm_exit(void)
@@ -546,7 +546,7 @@ static SANE_Status snapscani_usb_shm_init(void)
             strerror (errno));
         return SANE_STATUS_NO_MEM;
     }
-    
+
     shm_area = shmat (shm_id, NULL, 0);
     if (shm_area == (void *) -1)
     {
@@ -555,7 +555,7 @@ static SANE_Status snapscani_usb_shm_init(void)
         shmctl (shm_id, IPC_RMID, NULL);
         return SANE_STATUS_NO_MEM;
     }
-    
+
     if (shmctl (shm_id, IPC_RMID, NULL) == -1)
     {
         DBG (DL_MAJOR_ERROR, "snapscani_usb_shm_init: cannot remove shared memory segment id: %s\n",

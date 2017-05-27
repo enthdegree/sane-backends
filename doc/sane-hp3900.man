@@ -26,7 +26,7 @@ BenQ 5550                  RTS8823L-01E *
 .ft R
 .RE
 .PP
-More details can be found on the hp3900 backend homepage 
+More details can be found on the hp3900 backend homepage
 .IR http://sourceforge.net/projects/hp3900\-series/ .
 .PP
 This is ALPHA software. Keep your hand at the scanner's plug and unplug it, if
@@ -88,9 +88,9 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .B SANE_DEBUG_HP3900
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  Higher
-debug levels increase the verbosity of the output. 
+debug levels increase the verbosity of the output.
 
-Example: 
+Example:
 export SANE_DEBUG_HP3900=4
 
 .SH "SEE ALSO"

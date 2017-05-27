@@ -241,7 +241,7 @@ enum {
  * therefore I define two different sets of arrays, plus one set of
  * variables that get set to the actally used params and list arrays at runtime.
  */
- 
+
 static int gamma_params_ab[] = {
 	0x01,
 	0x03,
@@ -497,7 +497,7 @@ open_scanner(Epson_Scanner *s)
 
 			DBG(32, "scanner locked\n");
 		}
-		
+
 	} else if (s->hw->connection == SANE_EPSON_SCSI)
 		status = sanei_scsi_open(s->hw->sane.name, &s->fd,
 					 sanei_epson2_scsi_sense_handler,
@@ -515,7 +515,7 @@ open_scanner(Epson_Scanner *s)
 		DBG(1, "disable any conflicting driver (like usblp).\n");
 	}
 
-	if (status != SANE_STATUS_GOOD) 
+	if (status != SANE_STATUS_GOOD)
 		DBG(1, "%s open failed: %s\n", s->hw->sane.name,
 			sane_strstatus(status));
 	else
@@ -604,7 +604,7 @@ detect_usb(struct Epson_Scanner *s, SANE_Bool assume_valid)
 		DBG(1, "the device cannot be verified - will continue\n");
 	 	return SANE_STATUS_GOOD;
 	}
-	
+
 	/* check the vendor ID to see if we are dealing with an EPSON device */
 	if (vendor != SANE_EPSON_VENDOR_ID) {
 		/* this is not a supported vendor ID */
@@ -631,11 +631,11 @@ detect_usb(struct Epson_Scanner *s, SANE_Bool assume_valid)
 			s->hw->sane.name, product);
 		return SANE_STATUS_INVAL;
 	}
-	
+
 	DBG(1, "found valid Epson scanner: 0x%x/0x%x (vendorID/productID)\n",
 		vendor, product);
 
-	return SANE_STATUS_GOOD;	    
+	return SANE_STATUS_GOOD;
 }
 
 static int num_devices;		/* number of scanners attached to backend */
@@ -684,7 +684,7 @@ device_detect(const char *name, int type, SANE_Bool assume_valid, SANE_Status *s
 		*status = SANE_STATUS_INVAL;
 		return NULL;
 	}
-	
+
 	/* alloc and clear our device structure */
 	dev = malloc(sizeof(*dev));
 	if (!dev) {
@@ -797,7 +797,7 @@ attach_one_usb(const char *dev)
 static SANE_Status
 attach_one_net(const char *dev)
 {
-        char name[39+4]; 
+        char name[39+4];
 
 	DBG(7, "%s: dev = %s\n", __func__, dev);
 
@@ -821,7 +821,7 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 	int len = strlen(line);
 
 	DBG(7, "%s: len = %d, line = %s\n", __func__, len, line);
-	
+
 	if (sscanf(line, "usb %i %i", &vendor, &product) == 2) {
 
 		/* add the vendor and product IDs to the list of
@@ -1248,7 +1248,7 @@ init_options(Epson_Scanner *s)
 
 /*	if (!s->hw->cmd->set_color_correction)
 		s->opt[OPT_FILM_TYPE].cap |= SANE_CAP_INACTIVE;
-*/	
+*/
 
 	/* mirror */
 	s->opt[OPT_MIRROR].name = "mirror";
@@ -1501,12 +1501,12 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
 			if (s == NULL)
 				return status;
 		} else {
-		
+
 			/* as a last resort, check for a match
 			 * in the device list. This should handle SCSI
 			 * devices and platforms without libusb.
 			 */
-			
+
 			if (first_dev == NULL)
 				probe_devices();
 
@@ -1515,7 +1515,7 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
 				DBG(1, "invalid device name: %s\n", name);
 				return SANE_STATUS_INVAL;
 			}
-		}		
+		}
 	}
 
 
@@ -1538,7 +1538,7 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
 	}
 
 	*handle = (SANE_Handle)s;
-	
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -2132,7 +2132,7 @@ sane_start(SANE_Handle handle)
 			return status;
 	}
 
-	
+
 	if (s->val[OPT_COLOR_CORRECTION].w == CORR_AUTO) { /* Automatic */
 
 		DBG(1, "using built in CCT profile\n");
@@ -2142,7 +2142,7 @@ sane_start(SANE_Handle handle)
 
 
 		if (0) { /* XXX TPU */
- 
+
 		        /* XXX check this */
 			if (s->val[OPT_FILM_TYPE].w == 0)
 				e2_load_cct_profile(s, CCTP_COLORPOS);
@@ -2153,7 +2153,7 @@ sane_start(SANE_Handle handle)
 			e2_load_cct_profile(s, CCTP_REFLECTIVE);
 		}
 	}
-                                                    
+
 	/* ESC m, user defined color correction */
 	if (s->hw->cmd->set_color_correction_coefficients
 		&& correction_userdefined[s->val[OPT_COLOR_CORRECTION].w]) {

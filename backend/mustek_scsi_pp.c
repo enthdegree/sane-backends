@@ -793,7 +793,7 @@ mustek_scsi_pp_cmd (int fd, const void *src, size_t src_size,
 
   /*
    * Retry the command several times, as occasionally it doesn't
-   * work first time. 
+   * work first time.
    */
   do
     {

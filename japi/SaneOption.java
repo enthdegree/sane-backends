@@ -58,13 +58,13 @@ public class SaneOption
 	//
 	//	Sane value units:
 	//
-    public static final int UNIT_NONE = 0;	// the value is unit-less 
-					//   (e.g., # of scans) 
-    public static final int UNIT_PIXEL = 1;	// value is number of pixels 
-    public static final int UNIT_BIT = 2;	// value is number of bits 
-    public static final int UNIT_MM = 3;	// value is millimeters 
-    public static final int UNIT_DPI = 4;	// value is res. in dots/inch 
-    public static final int UNIT_PERCENT = 5;// value is a percentage 
+    public static final int UNIT_NONE = 0;	// the value is unit-less
+					//   (e.g., # of scans)
+    public static final int UNIT_PIXEL = 1;	// value is number of pixels
+    public static final int UNIT_BIT = 2;	// value is number of bits
+    public static final int UNIT_MM = 3;	// value is millimeters
+    public static final int UNIT_DPI = 4;	// value is res. in dots/inch
+    public static final int UNIT_PERCENT = 5;// value is a percentage
 	//
 	//	Option capabilities:
 	//
@@ -100,13 +100,13 @@ public class SaneOption
 	//
 	//	Class members:
 	//
-    public String name;		// name of this option (command-line name) 
-    public String title;	// title of this option (single-line) 
-    public String desc;		// description of this option (multi-line) 
+    public String name;		// name of this option (command-line name)
+    public String title;	// title of this option (single-line)
+    public String desc;		// description of this option (multi-line)
     public int type;		// how are values interpreted? (TYPE_)
     public int unit;		// what is the (physical) unit? (UNIT_)
     public int size;
-    public int cap;		// capabilities 
+    public int cap;		// capabilities
     public int constraintType;
 				// These are a union in the "C" API:
 				// Null-terminated list:
@@ -123,7 +123,7 @@ public class SaneOption
 	{ return ((cap) & CAP_SOFT_SELECT) == 0; }
 				// Return string describing units.
 				// "unitLength" is # mm. preferred.
-    public String unitString(double unitLength)	
+    public String unitString(double unitLength)
 	{
 	switch (unit)
 		{

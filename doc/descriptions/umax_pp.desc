@@ -22,41 +22,41 @@
 :mfg "UMAX"                     ; name a manufacturer
 :url "http://www.umax.com.tw/"
 
-; These scanners are known to have the same ASIC family. 
+; These scanners are known to have the same ASIC family.
 
 :model "Astra 1220P"
 :interface "Parport (EPP/ECP)"
-:status :good      
+:status :good
 
 :model "Astra 2000P"
 :interface "Parport (EPP/ECP)"
-:status :good      
+:status :good
 
 :model "Astra 1600P"
 :interface "Parport (EPP/ECP)"
-:status :good      
+:status :good
 
 :model "Astra 600P"
 :interface "Parport (SPP/ECP)"
-:status :unsupported      
+:status :unsupported
 :comment "untested, but should be close to 610P"
 
 :model "Astra 610P"
 :interface "Parport (SPP/ECP)"
-:status :good      
+:status :good
 
 :mfg "Hewlett-Packard"
 
 :model "Scanjet 3200C"
 :interface "Parport (EPP/ECP)"
-:status :good      
+:status :good
 :comment "works (relabelled 1220P and 2000P)"
 
 :mfg "Genius"
 
 :model "ColorPage-Life Pro"
 :interface "Parport (EPP/ECP)"
-:status :good      
+:status :good
 :comment "works (relabelled 1220P and 2000P)"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

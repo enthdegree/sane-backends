@@ -73,7 +73,7 @@ struct video_picture
 #define VIDEO_PALETTE_HI240	2	/* High 240 cube (BT848) */
 #define VIDEO_PALETTE_RGB565	3	/* 565 16 bit RGB */
 #define VIDEO_PALETTE_RGB24	4	/* 24bit RGB */
-#define VIDEO_PALETTE_RGB32	5	/* 32bit RGB */	
+#define VIDEO_PALETTE_RGB32	5	/* 32bit RGB */
 #define VIDEO_PALETTE_RGB555	6	/* 555 15bit RGB */
 #define VIDEO_PALETTE_YUV422	7	/* YUV422 capture */
 #define VIDEO_PALETTE_YUYV	8
@@ -112,7 +112,7 @@ struct video_mbuf
 	int	frames;		/* Frames */
 	int	offsets[VIDEO_MAX_FRAME];
 };
-	
+
 struct video_mmap
 {
 	unsigned	int frame;		/* Frame (0 - n) for double buffer */
@@ -130,7 +130,7 @@ struct video_channel
 #define VIDEO_VC_AUDIO		2	/* Channel has audio */
 	__u16  type;
 #define VIDEO_TYPE_TV		1
-#define VIDEO_TYPE_CAMERA	2	
+#define VIDEO_TYPE_CAMERA	2
 	__u16 norm;			/* Norm set by channel */
 };
 

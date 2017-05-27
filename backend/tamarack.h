@@ -167,11 +167,11 @@ Tamarack_Scanner;
 
 #define TAMARACK_SCSI_TEST_UNIT_READY		0x00
 #define TAMARACK_SCSI_INQUIRY			0x12
-#define TAMARACK_SCSI_MODE_SELECT		0x15 
+#define TAMARACK_SCSI_MODE_SELECT		0x15
 #define TAMARACK_SCSI_START_STOP		0x1b
 #define TAMARACK_SCSI_AREA_AND_WINDOWS		0x24
 #define TAMARACK_SCSI_READ_SCANNED_DATA		0x28
-#define TAMARACK_SCSI_GET_DATA_STATUS		0x34 
+#define TAMARACK_SCSI_GET_DATA_STATUS		0x34
 
 
 /* The structures that you have to send to the tamarack to get it to
@@ -190,7 +190,7 @@ struct win_desc_block {
   unsigned char yres[2];
   unsigned char ulx[4];
   unsigned char uly[4];
-  unsigned char width[4];  
+  unsigned char width[4];
   unsigned char length[4];
   unsigned char brightness;
   unsigned char thresh;
@@ -209,7 +209,7 @@ struct win_desc_block {
 
 struct command_header {
   unsigned char opc;
-  unsigned char pad0[3];  
+  unsigned char pad0[3];
   unsigned char len;
   unsigned char pad1;
 };
@@ -217,7 +217,7 @@ struct command_header {
 
 struct command_header_10 {
   unsigned char opc;
-  unsigned char pad0[5];  
+  unsigned char pad0[5];
   unsigned char len[3];
   unsigned char pad1;
 };

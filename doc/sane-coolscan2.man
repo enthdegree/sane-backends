@@ -6,12 +6,12 @@ sane\-coolscan2 \- SANE backend for Nikon Coolscan film scanners
 The
 .B sane\-coolscan2
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to Nikon Coolscan film scanners.  Some functions of this 
+provides access to Nikon Coolscan film scanners.  Some functions of this
 backend should be considered
 .B beta-quality
-software. Most functions have been stable for a long time, but of 
+software. Most functions have been stable for a long time, but of
 course new development can not and will not function properly from
-the very first day. Please report any strange behaviour to the 
+the very first day. Please report any strange behaviour to the
 maintainer of the backend.
 
 .PP
@@ -38,7 +38,7 @@ report successes or failures.
 The options the backend supports can either be selected through command line
 options to programs like scanimage or through GUI elements in xscanimage or xsane.
 
-Valid command line options and their syntax can be listed by using 
+Valid command line options and their syntax can be listed by using
 .RS
 scanimage \-\-help \-d coolscan2:<interface>:<device>
 .RE
@@ -69,7 +69,7 @@ unit is mm).
 .I \-\-infrared=yes/no
 If set to "yes", the scanner will read the infrared channel, thus allowing
 defect removal in software. The infrared image is read during a second scan,
-with no options altered. The backend must not be restarted between the scans. 
+with no options altered. The backend must not be restarted between the scans.
 If you use scanimage, perform a batch scan with batch\-count=2 to obtain the
 IR information.
 .TP

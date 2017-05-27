@@ -173,4 +173,3 @@ STV680 kernel module
 pencam2 program
 .br
 libghoto2 program (camlib stv0680)
-

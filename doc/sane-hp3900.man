@@ -107,4 +107,3 @@ Jonathan Bravo Lopez <jkdsoft@gmail.com>
 Scanning is only tested with Linux/ix86/gcc. Be careful when testing on other
 operating systems and especially on big-endian platforms. The scanner may get
 wrong data.
-

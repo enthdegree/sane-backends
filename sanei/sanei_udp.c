@@ -229,4 +229,3 @@ sanei_udp_recvfrom(int fd, u_char * buf, int count, char **fromp)
 
 	return l;
 }
-

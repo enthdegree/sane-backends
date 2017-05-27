@@ -400,4 +400,3 @@
 :interface "USB"
 :usbid "0x04f9" "0x011b"
 :comment "There is a report that this scanner does not work with the brother backend (I/O errors)"
-

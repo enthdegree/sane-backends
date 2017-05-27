@@ -376,4 +376,3 @@ typedef struct Microtek_Scanner {
 
 
 #endif /* microtek_h */
-

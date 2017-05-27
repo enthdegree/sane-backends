@@ -264,4 +264,3 @@ seems to be approximately 0x40302f (which would mean that the average value
 is approximately 0x803 in stead of 0x800).
 
 Hope this is clarifies the new algorithm.
-

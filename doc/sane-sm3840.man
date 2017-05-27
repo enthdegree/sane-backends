@@ -92,4 +92,3 @@ sane\-microtek2(5), sane\-sm3600(5), http://www.ziplabel.com/sm3840
 .br
 Earle F. Philhower III (earle@ziplabel.com)
 .br
-

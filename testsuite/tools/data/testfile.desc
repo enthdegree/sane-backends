@@ -13885,4 +13885,3 @@
 :interface "USB"
 :usbid "0x04e8" "0x3468"
 :status :untested
-

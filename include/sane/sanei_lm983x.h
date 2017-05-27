@@ -147,4 +147,3 @@ extern SANE_Status sanei_lm983x_read( SANE_Int fd, SANE_Byte reg,
 extern SANE_Bool sanei_lm983x_reset( SANE_Int fd );
 
 #endif /* sanei_lm983x_h */
-

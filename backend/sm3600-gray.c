@@ -386,4 +386,3 @@ TState StartScanGray(TInstance *this)
   this->state.bScanning = true;
   return SANE_STATUS_GOOD;
 }
-

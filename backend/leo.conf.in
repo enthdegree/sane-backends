@@ -5,4 +5,3 @@ scsi ACROSS * Scanner * * * 0
 scsi "LEO" "LEOScan-S3"
 
 /dev/scanner
-

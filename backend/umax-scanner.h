@@ -58,4 +58,3 @@ typedef struct
 } inquiry_blk;
 
 #endif
-

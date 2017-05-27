@@ -229,4 +229,3 @@ Matthew Duggan (SANE interface).
 .PP
 Many thanks to Kevin Easton for his comments and help, and Kent A. Signorini
 for his help with the N340P.
-

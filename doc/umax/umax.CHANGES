@@ -1169,4 +1169,3 @@ build-44 -> build-45
 
    * added defualt options for Linotype Opal2
    * changed bug in highlight-blue function (using green value)
-

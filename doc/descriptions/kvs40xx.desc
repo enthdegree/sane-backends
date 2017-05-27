@@ -32,4 +32,3 @@
 :interface "USB"
 :usbid "0x04da" "0x100e"
 :status :untested
-

@@ -153,4 +153,3 @@
 :interface "Parport (SPP, EPP)"
 :status :complete
 :comment "Reported as P12"
-

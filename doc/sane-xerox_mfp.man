@@ -65,4 +65,3 @@ Laxmeesh Onkar Markod <m.laxmeesh@samsung.com>
 .BR sane (7),
 .BR sane\-usb (5)
 .br
-

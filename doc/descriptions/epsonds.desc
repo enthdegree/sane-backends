@@ -94,4 +94,3 @@
 :interface  "USB"
 :usbid      "0x04b8" "0x08cc"
 :status     :untested
-

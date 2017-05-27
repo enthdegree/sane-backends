@@ -49,4 +49,3 @@ typedef struct {
 
 struct pixma_sane_t;
 static int build_option_descriptors(struct pixma_sane_t *ss);
-

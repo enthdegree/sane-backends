@@ -192,4 +192,3 @@ static inquiry_blk inquiry_ug630 =
 {
   "UG630 ", UG630_INQUIRY, UG630_INQUIRY_LEN
 };
-

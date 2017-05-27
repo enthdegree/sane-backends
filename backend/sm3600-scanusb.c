@@ -440,4 +440,3 @@ unsigned int RegRead(TInstance *this, int iRegister, int cch)
   SetError(this,SANE_STATUS_IO_ERROR,"error during register read");
   return 0;
 }
-

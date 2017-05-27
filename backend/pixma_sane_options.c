@@ -360,4 +360,3 @@ int build_option_descriptors(struct pixma_sane_t *ss)
   return 0;
 
 }
-

@@ -40,4 +40,3 @@
 :usbid "0x0451" "0x6250"
 :status :good
 :comment "4 inch wide 8bit Gray or 24bit Color simplex card/receipt scanner"
-

@@ -84,4 +84,3 @@
 :interface "USB"
 :usbid "0x040a" "0x6011"
 :comment "Flatbed attachment for use with Kodak ADF scanner. Requires 12V power over usb cable. No report yet."
-

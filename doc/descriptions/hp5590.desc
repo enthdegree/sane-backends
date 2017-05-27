@@ -52,4 +52,3 @@
 :usbid "0x03f0" "0x1805"
 :status :complete
 :comment "Lineart/grayscale/color (24 bit), 100/200/300/600/1200/2400 DPI, flatbed/ADF/ADF duplex/TMA slides/TMA negatives"
-

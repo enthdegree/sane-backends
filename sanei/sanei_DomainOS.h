@@ -73,4 +73,3 @@ struct DomainServerCommon
    };
 
 #endif /*DomainSenseSize*/
-

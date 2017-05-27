@@ -1938,4 +1938,3 @@ sanei_magic_getTransX (
 
   return buff;
 }
-

@@ -1474,4 +1474,3 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int *fd)
   *fd = s->pipe;
   return SANE_STATUS_GOOD;
 }
-

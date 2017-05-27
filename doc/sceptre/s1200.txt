@@ -105,5 +105,3 @@ The shifts are:
    50				  0
 
 Some resolution give garbage. However that table might not be complete.
-
-

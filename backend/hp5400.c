@@ -81,5 +81,3 @@
 #include "hp5400_internal.c"
 #include "hp5400_sane.c"
 #include "hp5400_sanei.c"
-
-

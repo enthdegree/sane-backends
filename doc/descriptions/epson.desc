@@ -350,4 +350,3 @@
 :interface "USB IEEE-1394"
 :usbid "0x04b8" "0x012c"
 :status :good
-

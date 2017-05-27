@@ -496,4 +496,3 @@ TState DoJog(TInstance *this, int nDistance)
   usleep(100);
   return WaitWhileBusy(this,1000); /* thanks Mattias Ellert */
 }
-

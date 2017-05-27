@@ -186,5 +186,3 @@ SANE_Status eds_lock(epsonds_scanner *s)
 
 	return status;
 }
-
-

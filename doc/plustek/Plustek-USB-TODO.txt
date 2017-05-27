@@ -50,4 +50,3 @@ make mono/gray modes work on Canon scanners                     done
 copy picture line by line to backend                            done
 cancel function does not work correctly in large resolutions    fixed
 Move documents to its correct SANE place                        done
-

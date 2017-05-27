@@ -116,4 +116,3 @@ usb 0x05d8 0x4011
 option artecFirmwareFile @DATADIR@/sane/artec_eplus48u/Artec48.usb
 option vendorString "Yakumo"
 option modelString "Scan50"
-

@@ -30,4 +30,3 @@ SANE_Status eds_fsx(epsonds_scanner *s);
 SANE_Status eds_lock(epsonds_scanner *s);
 
 #endif
-

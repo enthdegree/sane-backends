@@ -131,4 +131,3 @@ NetBSD, OpenBSD, and HP-UX.
 No support for most parallel port scanners yet.
 .br
 Detection of USB chipsets is limited to a few chipsets.
-

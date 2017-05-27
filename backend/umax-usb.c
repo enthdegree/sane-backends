@@ -318,7 +318,3 @@ sanei_umaxusb_close (int fd)
 {
 	sanei_usb_close(fd);
 }
-
-
-
-

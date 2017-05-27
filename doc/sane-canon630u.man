@@ -103,4 +103,3 @@ http://canon-fb630u.sourceforge.net/
 .br
 .SH AUTHOR
 Nathan Rutman
-

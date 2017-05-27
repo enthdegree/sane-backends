@@ -76,4 +76,3 @@ export SANE_DEBUG_RICOH=4
 sane(7), sane\-scsi(5)
 .SH AUTHOR
 Feico W. Dillema
-

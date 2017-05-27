@@ -14,4 +14,3 @@
 :usbid "0x413c" "0x5250"
 :status :basic
 :comment "Supports colour and monochrome scans over ethernet (USB not supported)"
-

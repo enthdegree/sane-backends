@@ -122,4 +122,3 @@ struct CANONP_Scanner_Struct
 
 
 #endif
-

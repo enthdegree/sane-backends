@@ -20,4 +20,3 @@
 #scsi /dev/scanner
 # usb libusb:002:003
 # usb 0x03f0 0x0701
-

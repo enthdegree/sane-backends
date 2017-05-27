@@ -172,4 +172,3 @@ sane(7), sane\-scsi(5)
 .SH AUTHOR
 
 Ingo Schneider and Karl Anders \[/O]ygard.
-

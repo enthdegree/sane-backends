@@ -398,4 +398,3 @@
 :interface "USB"
 :usbid "0x1083" "0x1648"
 :status :untested
-

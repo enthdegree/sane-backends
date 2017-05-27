@@ -44,6 +44,3 @@ protocol will be changed and newer drivers won't work with older backends
 and vice versa.
 In this case (error -9019 in the SANE debug output!!) you have to recompile SANE
 AND the driver (have a look at the installation procedure above).
-
-
-

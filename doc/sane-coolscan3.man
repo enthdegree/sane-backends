@@ -179,4 +179,3 @@ No real bugs currently known, please report any to the SANE developers' list.
 .SH AUTHORS
 coolscan3 written by A. Zummo (a.zummo@towertech.it), based heavily on
 coolscan2 written by Andr\['a]s Major (andras@users.sourceforge.net).
-

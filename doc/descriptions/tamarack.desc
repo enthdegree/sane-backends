@@ -32,4 +32,3 @@
 :interface "SCSI"
 :status :good
 :comment "3 pass, 600 DPI"
-

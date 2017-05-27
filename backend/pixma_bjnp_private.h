@@ -380,4 +380,3 @@ typedef struct device_s
   uint32_t status_key;		/* key of last received status message */
 #endif
 } bjnp_device_t;
-

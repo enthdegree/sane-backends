@@ -59,4 +59,3 @@
 :interface "Parport (ECP)"
 :status :good
 :comment "Just an N640P in a different box?"
-

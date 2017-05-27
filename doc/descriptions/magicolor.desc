@@ -39,4 +39,3 @@
 :usbid      "ignore"
 :status     :unsupported
 :comment    "Uses a similar protocol as the magicolor 1690MF, according to Ilia Sotnikov."
-

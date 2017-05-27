@@ -310,4 +310,3 @@ TState StartScanColor(TInstance *this)
   this->state.bScanning = true;
   return SANE_STATUS_GOOD;
 }
-

@@ -35,4 +35,3 @@
 :usbid "0x04c5" "0x1040"
 :status :unsupported
 :comment "Uses ma1509 chip, but very different from other scanners supported by the ma1509 backend"
-

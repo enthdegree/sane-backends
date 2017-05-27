@@ -73,4 +73,3 @@ Maybe useful for SANE developers:
         script. Alternatively, run it via gawk's -f option, like so:
            gawk -f tools/check-po.awk po/de.po
         More documentation is in the script itself.
-

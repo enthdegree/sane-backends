@@ -1887,6 +1887,3 @@ main (int argc, char **argv)
 	display_stats();
 	return(0);
 }
-
-
-

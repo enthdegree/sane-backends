@@ -187,4 +187,3 @@
 :interface "SCSI"
 :status :untested
 :comment "Please test!"
-

@@ -59,5 +59,3 @@ use warnings;
 		print join(', ', @{$ids{$_}});
 		print " */\n";
 	}
-
-

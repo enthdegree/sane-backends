@@ -32,4 +32,3 @@ fi
 # if [ "$ACTION" = "add" -a "$TYPE" = "usb" ]; then
 #  chmod 0666 "$DEVICE"
 # fi
-

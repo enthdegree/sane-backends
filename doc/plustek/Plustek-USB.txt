@@ -454,4 +454,3 @@ CM - Color Mode (unitless), 3 for channel pixel rate color, else 1
 
 
 -------------------------
-

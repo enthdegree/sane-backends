@@ -20,4 +20,3 @@
 
 :desc "Frontend-tester"
 :comment "Backend for testing frontends. Also serves as example for SANE backend options."
-

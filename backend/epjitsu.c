@@ -5018,4 +5018,3 @@ get_page_height(struct scanner *s)
 
   return s->page_height;
 }
-

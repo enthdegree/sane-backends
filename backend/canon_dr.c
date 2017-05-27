@@ -7793,4 +7793,3 @@ load_lut (unsigned char * lut,
   DBG (10, "load_lut: finish\n");
   return ret;
 }
-

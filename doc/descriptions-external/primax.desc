@@ -40,7 +40,3 @@
 :model "Colorpage-Vivid+"
 :interface "Parport"
 :status :untested
-
-
-
-

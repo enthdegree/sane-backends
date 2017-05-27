@@ -311,8 +311,3 @@ sane\-scsi(5), sane(7)
 Bernd Schroeder (not active anymore)
 .br
 Karsten Festag  karsten.festag@gmx.de
-
-
-
-
-

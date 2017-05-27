@@ -653,4 +653,3 @@ static void snapscani_usb_shm_exit(void)
  * - Change copyright notice
  *
  * */
-

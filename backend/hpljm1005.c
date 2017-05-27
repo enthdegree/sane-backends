@@ -1101,4 +1101,3 @@ sane_get_select_fd (SANE_Handle __sane_unused__ handle,
 {
   return SANE_STATUS_UNSUPPORTED;
 }
-

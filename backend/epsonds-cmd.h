@@ -26,4 +26,3 @@ SANE_Status esci2_trdt(epsonds_scanner *s);
 SANE_Status esci2_img(struct epsonds_scanner *s, SANE_Int *length) ;
 
 #endif
-

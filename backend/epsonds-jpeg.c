@@ -224,5 +224,3 @@ eds_jpeg_read(SANE_Handle handle, SANE_Byte *data,
 	memcpy(data, src->linebuffer + src->linebuffer_index, *length);
 	src->linebuffer_index += *length;
 }
-
-

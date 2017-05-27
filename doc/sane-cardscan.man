@@ -111,4 +111,3 @@ sane\-usb(5)
 
 .SH AUTHOR
 m. allan noah: <kitno455 a t gmail d o t com>
-

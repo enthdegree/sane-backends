@@ -52,4 +52,3 @@ extern int		sanei_pio_read  (int fd, u_char * buf, int n);
 extern int		sanei_pio_write (int fd, const u_char * buf, int n);
 
 #endif /* sanei_pio_h */
-

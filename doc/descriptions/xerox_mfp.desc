@@ -411,4 +411,3 @@
 :interface "USB"
 :usbid "0x04e8" "0x3482"
 :status :untested
-

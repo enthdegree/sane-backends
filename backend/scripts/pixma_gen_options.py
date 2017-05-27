@@ -387,4 +387,3 @@ if (len(sys.argv) == 2) and (sys.argv[1] == 'h'):
 else:
     genConstraints(options)
     genBuildOptions(options)
-

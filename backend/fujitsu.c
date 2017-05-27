@@ -10178,4 +10178,3 @@ buffer_isblank(struct fujitsu *s, int side)
   DBG (10, "buffer_isblank: finished\n");
   return status;
 }
-

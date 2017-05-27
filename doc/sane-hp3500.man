@@ -50,4 +50,3 @@ export SANE_DEBUG_HP3500=4
 
 .SH AUTHOR
 Troy Rollo <sane@troy.rollo.name>
-

@@ -471,4 +471,3 @@ sanei_hp_device_sanedevice (HpDevice this)
 {
   return &this->sanedev;
 }
-

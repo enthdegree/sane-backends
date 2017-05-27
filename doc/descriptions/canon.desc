@@ -62,4 +62,3 @@
 :interface "SCSI"
 :comment "Rebadged CanoScan 300"
 :status :good
-

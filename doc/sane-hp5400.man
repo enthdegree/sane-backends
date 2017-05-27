@@ -99,4 +99,3 @@ Martijn van Oosterhout <kleptog@svana.org>, Thomas Soumarmon
 Scanning is only tested with Linux/ix86/gcc. Be careful when testing on other
 operating systems and especially on big-endian platforms. The scanner may get
 wrong data.
-

@@ -384,4 +384,3 @@ hp5400_isOn (int iHandle)
   return 0;			/* is off */
 }
 #endif
-

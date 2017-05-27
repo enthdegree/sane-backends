@@ -3882,4 +3882,3 @@ sane_exit (void)
   if (devlist)
     free (devlist);
 }
-

@@ -37,4 +37,3 @@
 :usbid "0x03f0" "0x0b01"
 :url "http://ftp.cyberbaladeur.fr/82xxc%20Linux%20drivers.tar.gz"  ; model's URL
 :comment "External backend. Binary-only Linux i386 code. Not supported by the SANE developers."
-

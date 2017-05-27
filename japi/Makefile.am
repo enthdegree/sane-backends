@@ -40,4 +40,3 @@ libsanej_la_LIBADD = $(LIBSANE)
 # Make sure that java classes get created before create Sane.h
 Sane.h: classdist_noinst.stamp
 	$(JAVAH) Sane
-

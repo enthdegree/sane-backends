@@ -50,4 +50,3 @@ public int min;			// minimum (element) value
 public int max;			// maximum (element) value
 public int quant;		// Quantization value (0 if none)
 }
-

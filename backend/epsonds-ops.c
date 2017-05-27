@@ -490,5 +490,3 @@ void eds_ring_flush(ring_buffer *ring)
 {
 	eds_ring_skip(ring, ring->fill);
 }
-
-

@@ -245,4 +245,3 @@ usb 0x413c 0x5124
 
 #Dell 1235cn (clone of Samsung CLX-3175)
 usb 0x413c 0x5310
-

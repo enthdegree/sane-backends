@@ -13,6 +13,7 @@ dist_doc_DATA = AUTHORS ChangeLog COPYING LICENSE NEWS PROBLEMS PROJECTS \
  README.solaris README.unixware2 README.unixware7 README.windows \
  README.zeta
 EXTRA_DIST = $(PACKAGE).lsm
+EXTRA_DIST += .editorconfig
 
 #
 # Keep the .gitignore files sorted, and use this target to do it.

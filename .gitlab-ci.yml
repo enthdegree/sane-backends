@@ -28,8 +28,8 @@ build:debian-8-full:
     MAKE_FLAGS: "CFLAGS=-Werror"
   <<: *build_definition
 
-build:alpine-3.5-musl:
-  image: $REGISTRY_HUB:alpine-3.5-musl
+build:alpine-3.6-musl:
+  image: $REGISTRY_HUB:alpine-3.6-musl
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *build_definition

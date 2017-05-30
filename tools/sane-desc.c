@@ -315,7 +315,7 @@ print_usage (char *program_name)
   printf ("Usage: %s [-s dir] [-m mode] [-d level] [-h] [-V]\n",
 	  program_name);
   printf ("  -s|--search-dir dir    "
-	  "Specify the directory that contains .desc files \n"
+	  "Specify the directory that contains .desc files\n"
 	  "                         "
 	  "(multiple directories can be concatenated by \":\")\n");
   printf ("  -m|--mode mode         "
@@ -2075,7 +2075,7 @@ xml_print_backends (void)
 	printf ("<backend name=\"*none\">\n");
 
       if (be->version)
-	printf ("<version>%s</version> \n", clean_string (be->version));
+	printf ("<version>%s</version>\n", clean_string (be->version));
       else
 	printf ("<version>*none*</version>\n");
 
@@ -2448,7 +2448,7 @@ html_backends_split_table (device_type dev_type)
   backend_entry *be = first_backend;
   SANE_Bool first = SANE_TRUE;
 
-  printf ("<p><b>Backends</b>: \n");
+  printf ("<p><b>Backends</b>:\n");
   while (be)			/* print link list */
     {
       type_entry *type = be->type;
@@ -2463,7 +2463,7 @@ html_backends_split_table (device_type dev_type)
       if (found)
 	{
 	  if (!first)
-	    printf (", \n");
+	    printf (",\n");
 	  first = SANE_FALSE;
 	  printf ("<a href=\"#%s\">%s</a>",
 		  html_generate_anchor_name (dev_type, be->name), be->name);
@@ -2512,7 +2512,7 @@ html_backends_split_table (device_type dev_type)
 	      if (be->url && be->url->name)
 		{
 		  url_entry *url = be->url;
-		  printf ("<b>Link(s):</b> \n");
+		  printf ("<b>Link(s):</b>\n");
 		  while (url)
 		    {
 		      if (url != be->url)
@@ -2650,11 +2650,11 @@ html_mfgs_table (device_type dev_type)
   first_mfg_record = create_mfg_list (dev_type);
   mfg_record = first_mfg_record;
 
-  printf ("<p><b>Manufacturers</b>: \n");
+  printf ("<p><b>Manufacturers</b>:\n");
   while (mfg_record)
     {
       if (mfg_record != first_mfg_record)
-	printf (", \n");
+	printf (",\n");
       printf ("<a href=\"#%s\">%s</a>",
 	      html_generate_anchor_name (type_unknown, mfg_record->name),
 	      mfg_record->name);
@@ -2675,7 +2675,7 @@ html_mfgs_table (device_type dev_type)
       if (mfg_record->url && mfg_record->url->name)
 	{
 	  url_entry *url = mfg_record->url;
-	  printf ("<b>Link(s):</b> \n");
+	  printf ("<b>Link(s):</b>\n");
 	  while (url)
 	    {
 	      if (url != mfg_record->url)
@@ -2798,7 +2798,7 @@ html_print_header (void)
   printf
     ("<p>If you have new information or corrections, please file a\n"
      "<a href=\"http://www.sane-project.org/bugs.html\">bug report</a>\n"
-     "with as many details as possible. Also please tell us if your scanner \n"
+     "with as many details as possible. Also please tell us if your scanner\n"
      "isn't mentioned in this list at all.</p>\n"
      "<p>For an explanation of the tables, see the\n"
      "<a href=\"#legend\">legend</a>.\n");
@@ -2834,8 +2834,8 @@ html_print_legend_backend (void)
      "      available from their home sites.<br>"
      "      <font color=" COLOR_NEW ">NEW!</font> means brand-new to the\n"
      "      current release of SANE.<br>\n"
-     "      UNMAINTAINED means that nobody maintains that backend. Expect no \n"
-     "      new features or newly supported devices. You are welcome to take over \n"
+     "      UNMAINTAINED means that nobody maintains that backend. Expect no\n"
+     "      new features or newly supported devices. You are welcome to take over\n"
      "      maintainership.\n" "  </dd>\n");
 }
 
@@ -2902,7 +2902,7 @@ html_print_legend_status (void)
 {
   printf
     ("  <dt><b>Status</b>:</dt>\n"
-     "  <dd>Indicates how many of the features the device provides \n"
+     "  <dd>Indicates how many of the features the device provides\n"
      "      are supported by SANE.\n"
      "      <ul><li><font color=" COLOR_UNSUPPORTED ">unsupported</font>"
      "        means the device is not supported at least by this backend. "
@@ -2912,16 +2912,16 @@ html_print_legend_status (void)
      "        device may be supported but couldn't be tested. Be very "
      "        careful and report success/failure.\n"
      "      <li><font color=" COLOR_MINIMAL ">minimal</font> means that the\n"
-     "        device is detected and scans at least in one mode. But the quality \n"
+     "        device is detected and scans at least in one mode. But the quality\n"
      "        is bad or important features won't work.\n");
   printf
-    ("      <li><font color=" COLOR_BASIC ">basic</font> means it works at \n"
+    ("      <li><font color=" COLOR_BASIC ">basic</font> means it works at\n"
      "        least in the most important modes but quality is not perfect.\n"
      "      <li><font color=" COLOR_GOOD
-     ">good</font> means the device is usable \n"
+     ">good</font> means the device is usable\n"
      "        for day-to-day work. Some rather exotic features may be missing.\n"
      "      <li><font color=" COLOR_COMPLETE
-     ">complete</font> means the backends \n"
+     ">complete</font> means the backends\n"
      "        supports everything the device can do.\n" "      </ul></dd>\n");
 }
 
@@ -3451,7 +3451,7 @@ print_db (void)
 	  name = name->next;
 	}
       printf ("\n");
-      printf ("%s\t%s\t%s:%s\t%s\t\n", usbid->usb_vendor_id,
+      printf ("%s\t%s\t%s:%s\t%s\n", usbid->usb_vendor_id,
 	      usbid->usb_product_id, DEVOWNER, DEVGROUP, DEVMODE);
       usbid = usbid->next;
     }
@@ -3783,7 +3783,7 @@ print_hwdb_header (void)
      "#\n"
      "# If the scanner is supported by sane-backends, please mail the entry to\n"
      "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
-     "#\n"
+     "#"
      );
 }
 
@@ -3802,7 +3802,7 @@ print_hwdb (void)
       manufacturer_model_type * name = usbid->name;
 
       i = 0;
-      printf ("# ");
+      printf ("\n# ");
       while (name)
 	{
 	  if ((name != usbid->name) && (i > 0))
@@ -3833,7 +3833,7 @@ print_hwdb (void)
         product_id[j] = toupper(product_id[j]);
       }
 
-      printf ("usb:v%sp%s*\n libsane_matched=yes\n\n",
+      printf ("usb:v%sp%s*\n libsane_matched=yes\n",
 		vendor_id, product_id);
 
       free(vendor_id);

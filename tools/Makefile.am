@@ -33,6 +33,7 @@ CLEANFILES = $(bin_SCRIPTS) $(dist_noinst_SCRIPTS)
 
 EXTRA_DIST = check-po.awk libtool-get-dll-ext mustek600iin-off.c \
 	     RenSaneDlls.cmd README xerox
+EXTRA_DIST += style-check.sh
 
 sane_find_scanner_SOURCES = sane-find-scanner.c
 if have_usblib

@@ -942,6 +942,6 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF220 Series", "MF220", MF220_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),              /* max. w = 216mm */
   DEV ("Canon i-SENSYS MF210 Series", "MF210", MF210_PID, 600, 0, 637, 1050, PIXMA_CAP_ADF),                 /* max. w = 216mm */
   DEV ("Canon i-SENSYS MF230 Series", "MF230", MF230_PID, 600, 0, 637, 1050, PIXMA_CAP_ADF),                 /* max. w = 216mm */
-  DEV ("Canon i-SENSYS MF240 Series", "MF240", MF240_PID, 600, 0, 637, 1050, PIXMA_CAP_ADF),                 /* max. w = 216mm */
+  DEV ("Canon i-SENSYS MF240 Series", "MF240", MF240_PID, 600, 300, 637, 1050, PIXMA_CAP_ADF),               /* max. w = 216mm */
   DEV (NULL, NULL, 0, 0, 0, 0, 0, 0)
 };

@@ -52,6 +52,8 @@ esac
 
 status=0
 for file in "$@"; do
+    test -d $file && continue       # skip directories, just in case
+    file=$(echo $file | sed 's,^\.\/,,')
     case $file in
         COPYING) ;;                 # hands off of the GPL
         *.gif) ;;                   # don't touch image files

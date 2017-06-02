@@ -1,5 +1,5 @@
 # .gitlab-ci.yml -- to test some source code build scenarios
-# Copyright (C) 2016  Olaf Meeuwissen
+# Copyright (C) 2016, 2017  Olaf Meeuwissen
 #
 # License: GPL-3.0+
 
@@ -7,6 +7,15 @@ variables:
   REGISTRY_HUB: "registry.gitlab.com/sane-project/ci-envs"
   CONFIGURE_MINI: "--enable-silent-rules"
   CONFIGURE_FULL: "--with-usb --enable-avahi --enable-pnm-backend"
+
+stages:
+  - lint
+  - build
+
+lint:
+  stage: lint
+  script:
+  - find -path ./.git -prune -o -type f | xargs tools/style-check.sh
 
 .build_template: &build_definition
   stage: build

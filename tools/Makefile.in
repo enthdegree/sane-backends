@@ -435,7 +435,7 @@ noinst_SCRIPTS = $(HOTPLUG)
 BUILT_SOURCES = $(HOTPLUG_DIR)
 CLEANFILES = $(bin_SCRIPTS) $(dist_noinst_SCRIPTS)
 EXTRA_DIST = check-po.awk libtool-get-dll-ext mustek600iin-off.c \
-	RenSaneDlls.cmd README xerox hotplug/README \
+	RenSaneDlls.cmd README xerox style-check.sh hotplug/README \
 	hotplug/libusbscanner hotplug-ng/README \
 	hotplug-ng/libsane.hotplug openbsd/attach openbsd/detach
 sane_find_scanner_SOURCES = sane-find-scanner.c $(am__append_3)

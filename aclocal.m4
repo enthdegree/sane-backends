@@ -220,6 +220,21 @@ m4_popdef([pkg_default])
 m4_popdef([pkg_description])
 ]) dnl PKG_NOARCH_INSTALLDIR
 
+
+# PKG_CHECK_VAR(VARIABLE, MODULE, CONFIG-VARIABLE,
+# [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
+# -------------------------------------------
+# Retrieves the value of the pkg-config variable for the given module.
+AC_DEFUN([PKG_CHECK_VAR],
+[AC_REQUIRE([PKG_PROG_PKG_CONFIG])dnl
+AC_ARG_VAR([$1], [value of $3 for $2, overriding pkg-config])dnl
+
+_PKG_CONFIG([$1], [variable="][$3]["], [$2])
+AS_VAR_COPY([$1], [pkg_cv_][$1])
+
+AS_VAR_IF([$1], [""], [$5], [$4])dnl
+])# PKG_CHECK_VAR
+
 # Copyright (C) 2002-2013 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
@@ -363,10 +378,9 @@ AC_SUBST([AR])dnl
 # configured tree to be moved without reconfiguration.
 
 AC_DEFUN([AM_AUX_DIR_EXPAND],
-[dnl Rely on autoconf to set up CDPATH properly.
-AC_PREREQ([2.50])dnl
-# expand $ac_aux_dir to an absolute path
-am_aux_dir=`cd $ac_aux_dir && pwd`
+[AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT])dnl
+# Expand $ac_aux_dir to an absolute path.
+am_aux_dir=`cd "$ac_aux_dir" && pwd`
 ])
 
 # AM_CONDITIONAL                                            -*- Autoconf -*-
@@ -833,7 +847,8 @@ to "yes", and re-run configure.
 END
     AC_MSG_ERROR([Your 'rm' program is bad, sorry.])
   fi
-fi])
+fi
+])
 
 dnl Hook into '_AC_COMPILER_EXEEXT' early to learn its expansion.  Do not
 dnl add the conditional right here, as _AC_COMPILER_EXEEXT may be further

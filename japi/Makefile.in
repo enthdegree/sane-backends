@@ -409,7 +409,7 @@ JAVAH = javah -jni -cp $(MY_CLASSPATH)
 JAVA_SRC = SaneDevice.java SaneOption.java SaneRange.java\
 	   Sane.java SaneParameters.java ScanIt.java \
 	   ImageCanvas.java ImageCanvasClient.java \
-	   Test.java Jscanimage.java 
+	   Test.java Jscanimage.java
 
 dist_noinst_JAVA = $(JAVA_SRC)
 LIBSANE = ../backend/libsane.la

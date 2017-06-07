@@ -657,6 +657,8 @@ MAKEINDEX
 BACKEND_MANS_ENABLED
 BACKEND_CONFS_ENABLED
 PRELOADABLE_BACKENDS_ENABLED
+preloadable_backends_enabled_FALSE
+preloadable_backends_enabled_TRUE
 PRELOADABLE_BACKENDS
 INSTALL_UMAX_PP_TOOLS_FALSE
 INSTALL_UMAX_PP_TOOLS_TRUE
@@ -2845,8 +2847,8 @@ test "$program_suffix" != NONE &&
 ac_script='s/[\\$]/&&/g;s/;s,x,x,$//'
 program_transform_name=`$as_echo "$program_transform_name" | sed "$ac_script"`
 
-# expand $ac_aux_dir to an absolute path
-am_aux_dir=`cd $ac_aux_dir && pwd`
+# Expand $ac_aux_dir to an absolute path.
+am_aux_dir=`cd "$ac_aux_dir" && pwd`
 
 if test x"${MISSING+set}" != xset; then
   case $am_aux_dir in
@@ -3251,6 +3253,7 @@ END
     as_fn_error $? "Your 'rm' program is bad, sorry." "$LINENO" 5
   fi
 fi
+
 # Check whether --enable-silent-rules was given.
 if test "${enable_silent_rules+set}" = set; then :
   enableval=$enable_silent_rules;
@@ -20956,6 +20959,14 @@ for backend in ${PRELOADABLE_BACKENDS} ; do
   fi
   PRELOADABLE_BACKENDS_ENABLED="${PRELOADABLE_BACKENDS_ENABLED} lib${backend}.la"
 done
+ if test x != "x$PRELOADABLE_BACKENDS_ENABLED"; then
+  preloadable_backends_enabled_TRUE=
+  preloadable_backends_enabled_FALSE='#'
+else
+  preloadable_backends_enabled_TRUE='#'
+  preloadable_backends_enabled_FALSE=
+fi
+
 
 
 
@@ -21538,6 +21549,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${INSTALL_UMAX_PP_TOOLS_TRUE}" && test -z "${INSTALL_UMAX_PP_TOOLS_FALSE}"; then
   as_fn_error $? "conditional \"INSTALL_UMAX_PP_TOOLS\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${preloadable_backends_enabled_TRUE}" && test -z "${preloadable_backends_enabled_FALSE}"; then
+  as_fn_error $? "conditional \"preloadable_backends_enabled\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WITH_API_PS_TRUE}" && test -z "${WITH_API_PS_FALSE}"; then

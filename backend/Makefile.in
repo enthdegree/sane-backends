@@ -1441,6 +1441,36 @@ libsane_xerox_mfp_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(AM_CFLAGS) $(CFLAGS) $(libsane_xerox_mfp_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
+@preloadable_backends_enabled_TRUE@am__DEPENDENCIES_2 =  \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_config2.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_usb.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_scsi.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_pv8630.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_pp.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_thread.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_lm983x.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_access.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_net.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_wire.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_codec_bin.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_pa4s2.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_ab306.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_pio.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_tcp.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_udp.lo \
+@preloadable_backends_enabled_TRUE@	../sanei/sanei_magic.lo \
+@preloadable_backends_enabled_TRUE@	$(am__DEPENDENCIES_1) \
+@preloadable_backends_enabled_TRUE@	$(am__DEPENDENCIES_1) \
+@preloadable_backends_enabled_TRUE@	$(am__DEPENDENCIES_1) \
+@preloadable_backends_enabled_TRUE@	$(am__DEPENDENCIES_1) \
+@preloadable_backends_enabled_TRUE@	$(am__DEPENDENCIES_1) \
+@preloadable_backends_enabled_TRUE@	$(am__DEPENDENCIES_1) \
+@preloadable_backends_enabled_TRUE@	$(am__DEPENDENCIES_1) \
+@preloadable_backends_enabled_TRUE@	$(am__DEPENDENCIES_1) \
+@preloadable_backends_enabled_TRUE@	$(am__DEPENDENCIES_1) \
+@preloadable_backends_enabled_TRUE@	$(am__DEPENDENCIES_1) \
+@preloadable_backends_enabled_TRUE@	$(am__DEPENDENCIES_1) \
+@preloadable_backends_enabled_TRUE@	$(am__DEPENDENCIES_1)
 nodist_libsane_la_OBJECTS = libsane_la-dll-s.lo
 libsane_la_OBJECTS = $(nodist_libsane_la_OBJECTS)
 libsane_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
@@ -2164,7 +2194,7 @@ COMMON_LIBS = ../lib/liblib.la
 # all related files within backend directory.  General guideline
 # is to have a ${backend}.c and ${backend}.h.  Some backends also
 # add a few support source files to convience library.
-# Note: automake doesn't really use header files listed here. 
+# Note: automake doesn't really use header files listed here.
 # They are indications that they need to be distributed only.
 libabaton_la_SOURCES = abaton.c abaton.h
 libabaton_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=abaton
@@ -2175,7 +2205,7 @@ libabaton_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=abaton
 # Also, it will need to link in related convenience library as well as
 # any external libraries required to resolve symbols.
 #
-# All backends should include $(DIST_SANELIBS_LDFLAGS) so that 
+# All backends should include $(DIST_SANELIBS_LDFLAGS) so that
 # library is correctly versioned.
 #
 # If a backend has a config file, it must be listed here to get distributed.
@@ -2184,9 +2214,9 @@ libsane_abaton_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=abaton
 libsane_abaton_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_abaton_la_LIBADD = $(COMMON_LIBS) libabaton.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(RESMGR_LIBS)
 libagfafocus_la_SOURCES = agfafocus.c agfafocus.h
-libagfafocus_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=agfafocus 
+libagfafocus_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=agfafocus
 nodist_libsane_agfafocus_la_SOURCES = agfafocus-s.c
-libsane_agfafocus_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=agfafocus 
+libsane_agfafocus_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=agfafocus
 libsane_agfafocus_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_agfafocus_la_LIBADD = $(COMMON_LIBS) libagfafocus.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
 libapple_la_SOURCES = apple.c apple.h
@@ -2212,10 +2242,10 @@ libas6e_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=as6e
 nodist_libsane_as6e_la_SOURCES = as6e-s.c
 libsane_as6e_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=as6e
 libsane_as6e_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_as6e_la_LIBADD = $(COMMON_LIBS) libas6e.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo 
+libsane_as6e_la_LIBADD = $(COMMON_LIBS) libas6e.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo
 libavision_la_SOURCES = avision.c avision.h
 libavision_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=avision
-nodist_libsane_avision_la_SOURCES = avision-s.c 
+nodist_libsane_avision_la_SOURCES = avision-s.c
 libsane_avision_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=avision
 libsane_avision_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_avision_la_LIBADD = $(COMMON_LIBS) libavision.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
@@ -2227,7 +2257,7 @@ libsane_bh_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_bh_la_LIBADD = $(COMMON_LIBS) libbh.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(RESMGR_LIBS)
 libcanon_la_SOURCES = canon.c canon.h
 libcanon_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=canon
-nodist_libsane_canon_la_SOURCES = canon-s.c 
+nodist_libsane_canon_la_SOURCES = canon-s.c
 libsane_canon_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=canon
 libsane_canon_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_canon_la_LIBADD = $(COMMON_LIBS) libcanon.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo $(MATH_LIB) $(SCSI_LIBS) $(RESMGR_LIBS)
@@ -2239,7 +2269,7 @@ libsane_canon630u_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_canon630u_la_LIBADD = $(COMMON_LIBS) libcanon630u.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo  $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
 libcanon_dr_la_SOURCES = canon_dr.c canon_dr.h canon_dr-cmd.h
 libcanon_dr_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=canon_dr
-nodist_libsane_canon_dr_la_SOURCES = canon_dr-s.c 
+nodist_libsane_canon_dr_la_SOURCES = canon_dr-s.c
 libsane_canon_dr_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=canon_dr
 libsane_canon_dr_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_canon_dr_la_LIBADD = $(COMMON_LIBS) libcanon_dr.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_magic.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
@@ -2349,13 +2379,13 @@ libsane_genesys_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_genesys_la_LIBADD = $(COMMON_LIBS) libgenesys.la  ../sanei/sanei_magic.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
 libgphoto2_i_la_SOURCES = gphoto2.c gphoto2.h
 libgphoto2_i_la_CPPFLAGS = $(AM_CPPFLAGS) $(GPHOTO2_CPPFLAGS) -DBACKEND_NAME=gphoto2
-nodist_libsane_gphoto2_la_SOURCES = gphoto2-s.c 
+nodist_libsane_gphoto2_la_SOURCES = gphoto2-s.c
 libsane_gphoto2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=gphoto2
 libsane_gphoto2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_gphoto2_la_LIBADD = $(GPHOTO2_LDFLAGS) $(COMMON_LIBS) libgphoto2_i.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo $(SANEI_SANEI_JPEG_LO) $(GPHOTO2_LIBS) $(JPEG_LIBS)
 libgt68xx_la_SOURCES = gt68xx.c gt68xx.h
 libgt68xx_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=gt68xx
-nodist_libsane_gt68xx_la_SOURCES = gt68xx-s.c 
+nodist_libsane_gt68xx_la_SOURCES = gt68xx-s.c
 libsane_gt68xx_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=gt68xx
 libsane_gt68xx_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_gt68xx_la_LIBADD = $(COMMON_LIBS) libgt68xx.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
@@ -2379,7 +2409,7 @@ libsane_hp3900_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_hp3900_la_LIBADD = $(COMMON_LIBS) libhp3900.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(TIFF_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
 libhp4200_la_SOURCES = hp4200.c hp4200.h
 libhp4200_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp4200
-nodist_libsane_hp4200_la_SOURCES = hp4200-s.c 
+nodist_libsane_hp4200_la_SOURCES = hp4200-s.c
 libsane_hp4200_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hp4200
 libsane_hp4200_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_hp4200_la_LIBADD = $(COMMON_LIBS) libhp4200.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo  ../sanei/sanei_pv8630.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
@@ -2403,13 +2433,13 @@ libsane_hpljm1005_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_hpljm1005_la_LIBADD = $(COMMON_LIBS) libhpljm1005.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
 libhpsj5s_la_SOURCES = hpsj5s.c hpsj5s.h
 libhpsj5s_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hpsj5s
-nodist_libsane_hpsj5s_la_SOURCES = hpsj5s-s.c 
+nodist_libsane_hpsj5s_la_SOURCES = hpsj5s-s.c
 libsane_hpsj5s_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hpsj5s
 libsane_hpsj5s_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_hpsj5s_la_LIBADD = $(COMMON_LIBS) libhpsj5s.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo $(IEEE1284_LIBS)
 libhs2p_la_SOURCES = hs2p.c hs2p.h hs2p-saneopts.h
 libhs2p_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hs2p
-nodist_libsane_hs2p_la_SOURCES = hs2p-s.c 
+nodist_libsane_hs2p_la_SOURCES = hs2p-s.c
 libsane_hs2p_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=hs2p
 libsane_hs2p_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_hs2p_la_LIBADD = $(COMMON_LIBS) libhs2p.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo  sane_strstatus.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(RESMGR_LIBS)
@@ -2440,7 +2470,7 @@ libsane_kvs1025_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kvs1025
 libsane_kvs1025_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_kvs1025_la_LIBADD = $(COMMON_LIBS) libkvs1025.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_magic.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
 libkvs20xx_la_SOURCES = kvs20xx.c kvs20xx_cmd.c kvs20xx_opt.c \
- kvs20xx_cmd.h kvs20xx.h 
+ kvs20xx_cmd.h kvs20xx.h
 
 libkvs20xx_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kvs20xx
 nodist_libsane_kvs20xx_la_SOURCES = kvs20xx-s.c
@@ -2448,7 +2478,7 @@ libsane_kvs20xx_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kvs20xx
 libsane_kvs20xx_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_kvs20xx_la_LIBADD = $(COMMON_LIBS) libkvs20xx.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
 libkvs40xx_la_SOURCES = kvs40xx.c kvs40xx_cmd.c kvs40xx_opt.c \
- kvs40xx.h 
+ kvs40xx.h
 
 libkvs40xx_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kvs40xx
 nodist_libsane_kvs40xx_la_SOURCES = kvs40xx-s.c
@@ -2463,7 +2493,7 @@ libsane_leo_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_leo_la_LIBADD = $(COMMON_LIBS) libleo.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo  sane_strstatus.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(RESMGR_LIBS)
 liblexmark_la_SOURCES = lexmark.c lexmark.h lexmark_low.c
 liblexmark_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=lexmark
-nodist_libsane_lexmark_la_SOURCES = lexmark-s.c 
+nodist_libsane_lexmark_la_SOURCES = lexmark-s.c
 libsane_lexmark_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=lexmark
 libsane_lexmark_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_lexmark_la_LIBADD = $(COMMON_LIBS) liblexmark.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(USB_LIBS) $(RESMGR_LIBS)
@@ -2511,7 +2541,7 @@ libsane_mustek_pp_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_mustek_pp_la_LIBADD = $(COMMON_LIBS) libmustek_pp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_pa4s2.lo $(MATH_LIB) $(IEEE1284_LIBS)
 libmustek_usb_la_SOURCES = mustek_usb.c mustek_usb.h
 libmustek_usb_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_usb
-nodist_libsane_mustek_usb_la_SOURCES = mustek_usb-s.c 
+nodist_libsane_mustek_usb_la_SOURCES = mustek_usb-s.c
 libsane_mustek_usb_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_usb
 libsane_mustek_usb_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_mustek_usb_la_LIBADD = $(COMMON_LIBS) libmustek_usb.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(USB_LIBS) $(RESMGR_LIBS)
@@ -2541,7 +2571,7 @@ libsane_niash_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_niash_la_LIBADD = $(COMMON_LIBS) libniash.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
 libpie_la_SOURCES = pie.c pie-scsidef.h
 libpie_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pie
-nodist_libsane_pie_la_SOURCES = pie-s.c 
+nodist_libsane_pie_la_SOURCES = pie-s.c
 libsane_pie_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pie
 libsane_pie_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_pie_la_LIBADD = $(COMMON_LIBS) libpie.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo ../sanei/sanei_thread.lo $(SCSI_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
@@ -2562,7 +2592,7 @@ libpint_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pint
 nodist_libsane_pint_la_SOURCES = pint-s.c
 libsane_pint_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pint
 libsane_pint_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_pint_la_LIBADD = $(COMMON_LIBS) libpint.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo 
+libsane_pint_la_LIBADD = $(COMMON_LIBS) libpint.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo
 libpixma_la_SOURCES = pixma.c pixma.h pixma_io_sanei.c pixma_io.h pixma_common.c pixma_common.h pixma_mp150.c pixma_mp730.c pixma_mp750.c pixma_mp810.c pixma_imageclass.c pixma_bjnp.c pixma_bjnp.h pixma_bjnp_private.h pixma_rename.h
 libpixma_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pixma
 nodist_libsane_pixma_la_SOURCES = pixma-s.c
@@ -2583,10 +2613,10 @@ libsane_plustek_pp_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_plustek_pp_la_LIBADD = $(COMMON_LIBS) libplustek_pp.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(IEEE1284_LIBS) $(PTHREAD_LIBS)
 libpnm_la_SOURCES = pnm.c
 libpnm_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pnm
-nodist_libsane_pnm_la_SOURCES = pnm-s.c 
+nodist_libsane_pnm_la_SOURCES = pnm-s.c
 libsane_pnm_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pnm
 libsane_pnm_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_pnm_la_LIBADD = $(COMMON_LIBS) libpnm.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo 
+libsane_pnm_la_LIBADD = $(COMMON_LIBS) libpnm.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo
 libqcam_la_SOURCES = qcam.c qcam.h
 libqcam_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=qcam
 nodist_libsane_qcam_la_SOURCES = qcam-s.c
@@ -2649,7 +2679,7 @@ libsane_sp15c_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_sp15c_la_LIBADD = $(COMMON_LIBS) libsp15c.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
 libst400_la_SOURCES = st400.c st400.h
 libst400_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=st400
-nodist_libsane_st400_la_SOURCES = st400-s.c ../sanei/sanei_scsi.lo 
+nodist_libsane_st400_la_SOURCES = st400-s.c ../sanei/sanei_scsi.lo
 libsane_st400_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=st400
 libsane_st400_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_st400_la_LIBADD = $(COMMON_LIBS) libst400.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo  sane_strstatus.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(RESMGR_LIBS)
@@ -2703,7 +2733,7 @@ libsane_umax_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_umax_la_LIBADD = $(COMMON_LIBS) libumax.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
 libumax1220u_la_SOURCES = umax1220u.c
 libumax1220u_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=umax1220u
-nodist_libsane_umax1220u_la_SOURCES = umax1220u-s.c 
+nodist_libsane_umax1220u_la_SOURCES = umax1220u-s.c
 libsane_umax1220u_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=umax1220u
 libsane_umax1220u_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_umax1220u_la_LIBADD = $(COMMON_LIBS) libumax1220u.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_pv8630.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
@@ -2736,31 +2766,32 @@ libsane_dll_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_dll_la_LIBADD = $(COMMON_LIBS) libdll.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo $(DL_LIBS)
 
 # libsane.la and libsane-dll.la are the same thing except for
-# the addition of backends listed by PRELOADABLE_BACKENDS that are 
+# the addition of backends listed by PRELOADABLE_BACKENDS that are
 # statically linked in.
 # Also, libsane.la goes into $(libdir) where as all libsane-*
 # (including libsane-dll.la) go into $(libdir)/sane
 
 # FIXME: Since we are throwing in the kitchen sink, might as
 # well link in ../sanei/libsanei.la instead.  But currently,
-# libsanei.la is linking in sanei_auth which requires md5. 
+# libsanei.la is linking in sanei_auth which requires md5.
 # Shipping md5 could cause symbol conflicts with commonly used
 # md5 external libraries.  Either need to prefix md5 with sanei_
 # (see liblib.la and snprintf), or move sanei_auth outside
 # of libsanei.
 #
-# FIXME: This is linking in every possible external library because there
-# is the off chance user is using PRELOADABLE_BACKENDS that may need
-# them. Since standard mode is to only have the dll backend, its a waste.
-# Need to update configure to build a list of only what needs to go into
-# LIBADD based on whats being preloaded.
+# FIXME: This is using every possibly needed library and dependency
+# when the user is using any PRELOADABLE_BACKENDS, irrespective of
+# what backends are preloaded.  It should include what is needed by
+# those backends that are actually preloaded.
+@preloadable_backends_enabled_TRUE@PRELOADABLE_BACKENDS_LIBS = ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo $(LIBV4L_LIBS) $(MATH_LIB) $(IEEE1284_LIBS) $(TIFF_LIBS) $(JPEG_LIBS) $(GPHOTO2_LIBS) $(SOCKET_LIBS) $(USB_LIBS) $(AVAHI_LIBS) $(SCSI_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
+@preloadable_backends_enabled_TRUE@PRELOADABLE_BACKENDS_DEPS = ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo $(SANEI_SANEI_JPEG_LO)
 nodist_libsane_la_SOURCES = dll-s.c
 libsane_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 libsane_la_LDFLAGS = $(DIST_LIBS_LDFLAGS)
-libsane_la_LIBADD = $(COMMON_LIBS) $(PRELOADABLE_BACKENDS_ENABLED) libdll_preload.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo $(DL_LIBS) $(LIBV4L_LIBS) $(MATH_LIB) $(IEEE1284_LIBS) $(TIFF_LIBS) $(JPEG_LIBS) $(GPHOTO2_LIBS) $(SOCKET_LIBS) $(USB_LIBS) $(AVAHI_LIBS) $(SCSI_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
+libsane_la_LIBADD = $(COMMON_LIBS) $(PRELOADABLE_BACKENDS_ENABLED) libdll_preload.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo $(PRELOADABLE_BACKENDS_LIBS) $(DL_LIBS)
 
 # WARNING: Automake is getting this wrong so have to do it ourselves.
-libsane_la_DEPENDENCIES = $(COMMON_LIBS) $(PRELOADABLE_BACKENDS_ENABLED) libdll_preload.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_magic.lo $(SANEI_SANEI_JPEG_LO)
+libsane_la_DEPENDENCIES = $(COMMON_LIBS) $(PRELOADABLE_BACKENDS_ENABLED) libdll_preload.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo $(PRELOADABLE_BACKENDS_DEPS)
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -5605,8 +5636,8 @@ install-data-hook: install-becfg install-firmware-path $(INSTALL_LOCKPATH)
 # files that have been previously installed so that user modifications
 # are not lost.
 install-becfg:
-	@# Libtool has a bug where it will sometimes symlink the last 
-	@# installed library in $(sanelibdir) to $(sanelibdir)/libsane.*.  
+	@# Libtool has a bug where it will sometimes symlink the last
+	@# installed library in $(sanelibdir) to $(sanelibdir)/libsane.*.
 	@# Having two libsane's can cause issues so get rid of it.
 	-rm -f $(DESTDIR)$(sanelibdir)/libsane.*
 	test -z "$(configdir)" || $(MKDIR_P) "$(DESTDIR)$(configdir)"

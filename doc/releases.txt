@@ -20,8 +20,11 @@ Before the release:
   ls | while read aa; do git log --follow --diff-filter=A --find-renames=40% --format="%ai  $aa" "$aa"; done > foo.log
 
   Then inspect foo.log for any files added since the last release.
-* Make sure that config.guess and config.sub are up-to-date (get them from
-  savannah.gnu.org/projects/config) (git clone is easiest)
+* Make sure that upstream files are up-to-date by running:
+
+  ./tools/update-upstream.sh
+
+  Requires curl or wget.
 * configure.ac: remove 'git' from textual version number, and increment it
 * run autoreconf --force but do *NOT* use the --install option as it will
   overwrite our custom ltmain.sh

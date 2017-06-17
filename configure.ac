@@ -27,7 +27,7 @@ AS_IF([test x = "x`echo $VERSION | sed 's/[[.0-9]]//g'`"],
             [is_release=no])
 V_MAJOR=`echo $VERSION | $AWK -F. '{print $1}'`
 V_MINOR=`echo $VERSION | $AWK -F. '{print $2}'`
-V_REV=`echo $VERSION | $AWK -F. '{print $3}' | sed 's/[[^0-9]]//g'`;
+V_REV=`echo $VERSION | $AWK -F. '{print $3}' | sed 's/^\([[0-9]]*\).*/\1/'`;
 
 AC_DEFINE_UNQUOTED(SANE_DLL_V_MAJOR, $V_MAJOR, [SANE DLL major number])
 AC_DEFINE_UNQUOTED(SANE_DLL_V_MINOR, $V_MINOR, [SANE DLL minor number])

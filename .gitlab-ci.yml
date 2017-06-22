@@ -63,6 +63,18 @@ compile:fedora-25-clang:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition
 
+compile:debian-9-mini:
+  image: $REGISTRY_HUB:debian-9-mini
+  variables:
+    CONFIGURE_OPTS: "$CONFIGURE_MINI"
+  <<: *compile_definition
+
+compile:debian-9-full:
+  image: $REGISTRY_HUB:debian-9-full
+  variables:
+    CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
+  <<: *compile_definition
+
 archive:
   stage: archive
   image: $REGISTRY_HUB:debian-8-full

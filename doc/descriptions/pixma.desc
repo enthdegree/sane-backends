@@ -792,7 +792,7 @@
 :comment "Flatbed and ADF scan. All resolutions supported (up to 4800DPI)"
 
 :model "PIXMA TS9000 Series"
-:interface "USB WiFi"
+:interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x179f"
 :status :untested
 :comment "Testers needed!"

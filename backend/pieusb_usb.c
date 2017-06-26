@@ -176,11 +176,13 @@ _hexdump(char *msg, unsigned char *ptr, int size)
     clipped = size;
     size = 128;
   }
-  while (size-- > 0)
-  {
-    if ((count % 16) == 0)
-      fprintf (stderr, "%s\t%08lx:", msg?msg:"", start);
-      msg = NULL;
+    while (size-- > 0)
+    {
+	if ((count % 16) == 0)
+	{
+	    fprintf (stderr, "%s\t%08lx:", msg?msg:"", start);
+	    msg = NULL;
+	}
 	fprintf (stderr, " %02x", *ptr++);
 	count++;
 	start++;
@@ -207,7 +209,7 @@ _hexdump(char *msg, unsigned char *ptr, int size)
     if ((count % 16) != 0)
 	fprintf (stderr, "\n");
     if (clipped > 0)
-      fprintf (stderr, "\t%08lx bytes clipped\n", clipped);
+	fprintf (stderr, "\t%08lx bytes clipped\n", clipped);
 
     fflush(stderr);
     return;

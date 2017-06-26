@@ -100,10 +100,6 @@ static SANE_Int new_dev_alloced;
 
 static SANE_String_Const mode_list[6];
 
-static const SANE_Range char_range = {
-  -127, 127, 1
-};
-
 static const SANE_Range u8_range = {
   0,				/* minimum */
   255,				/* maximum */

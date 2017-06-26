@@ -193,11 +193,6 @@ static const SANE_String_Const tpu_filmtype_list[] = {
   0
 };
 
-static const SANE_String_Const papersize_list[] = {
-  "A4", "Letter", "B5", "Maximal",
-  0
-};
-
 /**************************************************/
 
 static const SANE_Range u8_range = {

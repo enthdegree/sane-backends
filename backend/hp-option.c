@@ -851,16 +851,19 @@ _probe_resolution (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ optset,
 
   if (   (sanei_hp_device_probe (&compat, scsi) == SANE_STATUS_GOOD)
       && (compat & HP_COMPAT_PS) )
-  {int val, mi, ma;
+  {
+      int val, mi, ma;
 
-    if (   (sanei_hp_scl_inquire(scsi, SCL_MEDIA, &val, &mi, &ma)
+      if (   (sanei_hp_scl_inquire(scsi, SCL_MEDIA, &val, &mi, &ma)
               == SANE_STATUS_GOOD)
-        && ((val == HP_MEDIA_SLIDE) || (val == HP_MEDIA_NEGATIVE)) )
-      quant = 300;
-      minval = (minval+quant-1)/quant;
-      minval *= quant;
-      maxval = (maxval+quant-1)/quant;
-      maxval *= quant;
+          && ((val == HP_MEDIA_SLIDE) || (val == HP_MEDIA_NEGATIVE)) )
+      {
+          quant = 300;
+          minval = (minval+quant-1)/quant;
+          minval *= quant;
+          maxval = (maxval+quant-1)/quant;
+          maxval *= quant;
+      }
   }
   DBG(5, "_probe_resolution: set range %d..%d, quant=%d\n",minval,maxval,quant);
 

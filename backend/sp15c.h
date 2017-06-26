@@ -1,7 +1,6 @@
 #ifndef SP15C_H
 #define SP15C_H
 
-static const char RCSid_h[] = "$Header$";
 /* sane - Scanner Access Now Easy.
 
    This file is part of the SANE package.

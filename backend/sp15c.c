@@ -1,4 +1,3 @@
-static const char RCSid[] = "$Header$";
 /* sane - Scanner Access Now Easy.
 
    This file is part of the SANE package.

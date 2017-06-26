@@ -162,13 +162,6 @@ static SANE_Range y_range = {
   SANE_FIX (0.0)                /* quantization */
 };
 
-
-static const SANE_Range offset_range = {
-  -63,                          /* minimum */
-  63,                           /* maximum */
-  1                             /* quantization */
-};
-
 static SANE_Range gamma_range = {
   SANE_FIX (0.01),              /* minimum */
   SANE_FIX (5.0),               /* maximum */

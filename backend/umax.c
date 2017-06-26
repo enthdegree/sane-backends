@@ -275,16 +275,16 @@ static const SANE_Range u8_range =
 
 static const SANE_Range percentage_range =
 {
-  -100 << SANE_FIXED_SCALE_SHIFT, /* minimum */
-   100 << SANE_FIXED_SCALE_SHIFT, /* maximum */
-     1 << SANE_FIXED_SCALE_SHIFT  /* quantization */
+  SANE_FIX(-100), /* minimum */
+  SANE_FIX( 100), /* maximum */
+  SANE_FIX(   1)  /* quantization */
 };
 
 static const SANE_Range percentage_range_100 =
 {
-     0 << SANE_FIXED_SCALE_SHIFT, /* minimum */
-   100 << SANE_FIXED_SCALE_SHIFT, /* maximum */
-     0 << SANE_FIXED_SCALE_SHIFT  /* quantization */
+  SANE_FIX(  0), /* minimum */
+  SANE_FIX(100), /* maximum */
+  SANE_FIX(  0)  /* quantization */
 };
 
 static int num_devices = 0;

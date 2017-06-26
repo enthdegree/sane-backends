@@ -297,17 +297,14 @@ enum _BUTTONS
 	_PORT2     = ((_MIO5 | _MIO6) << _BUTTON_SHIFT)
 };
 
-enum _PAPER_SENSE
-{
-	_PS_INP1     = (0x01  << _PSENSE_SHIFT),
-	_PS_INP2     = (0x02  << _PSENSE_SHIFT),
-	_PS_INP_MIO1 = (_MIO1 << (_PSENSE_SHIFT+2)),
-	_PS_INP_MIO2 = (_MIO2 << (_PSENSE_SHIFT+2)),
-	_PS_INP_MIO3 = (_MIO3 << (_PSENSE_SHIFT+2)),
-	_PS_INP_MIO4 = (_MIO4 << (_PSENSE_SHIFT+2)),
-	_PS_INP_MIO5 = (_MIO5 << (_PSENSE_SHIFT+2)),
-	_PS_INP_MIO6 = (_MIO6 << (_PSENSE_SHIFT+2))
-};
+#define _PS_INP1      (0x01  << _PSENSE_SHIFT)
+#define _PS_INP2      (0x02  << _PSENSE_SHIFT)
+#define _PS_INP_MIO1  (_MIO1 << (_PSENSE_SHIFT+2))
+#define _PS_INP_MIO2  (_MIO2 << (_PSENSE_SHIFT+2))
+#define _PS_INP_MIO3  (_MIO3 << (_PSENSE_SHIFT+2))
+#define _PS_INP_MIO4  (_MIO4 << (_PSENSE_SHIFT+2))
+#define _PS_INP_MIO5  (_MIO5 << (_PSENSE_SHIFT+2))
+#define _PS_INP_MIO6  (_MIO6 << (_PSENSE_SHIFT+2))
 
 /** for encoding a misc I/O register as TPA */
 #define _TPA(register) ((u_long)(register << _TPA_SHIFT))

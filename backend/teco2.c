@@ -317,10 +317,6 @@ static const struct dpi_color_adjust vm6586_dpi_color_adjust[] = {
   {0, 0, 0, 0, 0, 0}
 };
 
-static const struct dpi_color_adjust default_dpi_color_adjust[1] = {
-  {0, 0, 1, 2, 0, 0}
-};
-
 /* For all scanners. Must be reasonable (eg. between 50 and 300) and
  * appear in the ...._dpi_color_adjust list of all supported scanners. */
 #define DEF_RESOLUTION 150

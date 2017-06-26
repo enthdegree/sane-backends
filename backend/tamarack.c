@@ -92,12 +92,14 @@ static const SANE_String_Const mode_list[] =
   };
 
 
+#if 0
 static const SANE_Range u8_range =
   {
       0,				/* minimum */
     255,				/* maximum */
       0				/* quantization */
   };
+#endif
 
 
 /* David used " 100 << SANE_FIXED_SCALE_SHIFT ". This assumes that

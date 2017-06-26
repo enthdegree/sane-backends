@@ -1316,13 +1316,6 @@ static const SANE_Range percentage_range =
     SANE_FIX (1) /* quantization */
   };
 
-static const SANE_Range abs_percentage_range =
-  {
-    SANE_FIX (0), /* minimum */
-    SANE_FIX (100), /* maximum */
-    SANE_FIX (1) /* quantization */
-  };
-
 static const SANE_Range exposure_range =
   {
     0, /* minimum */

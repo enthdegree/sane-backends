@@ -3241,7 +3241,7 @@ sane_control_option(SANE_Handle handle, SANE_Int option,
               case OPT_BR_Y:
                 if ( info )
                     *info |= SANE_INFO_RELOAD_PARAMS;
-                    return SANE_STATUS_GOOD;
+                return SANE_STATUS_GOOD;
               case OPT_DISABLE_BACKTRACK:
               case OPT_CALIB_BACKEND:
               case OPT_LIGHTLID35:
@@ -3300,7 +3300,7 @@ sane_control_option(SANE_Handle handle, SANE_Int option,
 
                 if ( info )
                     *info |= SANE_INFO_RELOAD_PARAMS;
-                    return SANE_STATUS_GOOD;
+                return SANE_STATUS_GOOD;
 
               case OPT_SOURCE:
                 if ( info )

@@ -1653,16 +1653,16 @@ gl124_init_scan_regs (Genesys_Device * dev,
   if(flags & SCAN_FLAG_FEEDING)
     mflags|=MOTOR_FLAG_FEED;
 
-    status = gl124_init_motor_regs_scan (dev,
-					 reg,
-					 exposure_time,
-					 slope_dpi,
-					 scan_step_type,
-					 dev->model->is_cis ? lincnt * channels : lincnt,
-					 dummy,
-					 move,
-					 scan_mode,
-					 mflags);
+  status = gl124_init_motor_regs_scan (dev,
+                                       reg,
+                                       exposure_time,
+                                       slope_dpi,
+                                       scan_step_type,
+                                       dev->model->is_cis ? lincnt * channels : lincnt,
+                                       dummy,
+                                       move,
+                                       scan_mode,
+                                       mflags);
   if (status != SANE_STATUS_GOOD)
     return status;
 

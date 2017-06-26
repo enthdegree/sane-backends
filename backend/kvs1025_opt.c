@@ -141,7 +141,6 @@ static const KV_PAPER_SIZE go_paper_sizes[] = {
 };
 
 static const int default_paper_size_idx = 3;	/* A4 */
-static const int go_paper_max_width = 216;	/* US letter */
 
 /* Lists of supported halftone. They are only valid with
  * for the Black&White mode. */

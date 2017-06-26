@@ -1288,9 +1288,10 @@ mc_scan_finish(Magicolor_Scanner * s)
 	status = cmd_finish_scan (s);
 
 	status = cmd_request_error(s);
-	if (status != SANE_STATUS_GOOD)
+	if (status != SANE_STATUS_GOOD) {
 		cmd_cancel_scan (s);
 		return status;
+        }
 
 	/* XXX required? */
 	/* TODO:	cmd_reset(s);*/

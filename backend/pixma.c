@@ -1454,16 +1454,16 @@ sane_control_option (SANE_Handle h, SANE_Int n,
       if ((opt->sod.type != SANE_TYPE_BUTTON && !v) ||
           !SANE_OPTION_IS_SETTABLE (opt->sod.cap))
         return SANE_STATUS_INVAL;	/* or _UNSUPPORTED? */
-        break;
+      break;
     case SANE_ACTION_SET_AUTO:
       if (!(opt->sod.cap & SANE_CAP_AUTOMATIC) ||
           !SANE_OPTION_IS_SETTABLE (opt->sod.cap))
         return SANE_STATUS_INVAL;	/* or _UNSUPPORTED? */
-        break;
+      break;
     case SANE_ACTION_GET_VALUE:
       if (!v || !(opt->sod.cap & SANE_CAP_SOFT_DETECT))
         return SANE_STATUS_INVAL;	/* or _UNSUPPORTED? */
-        break;
+      break;
     default:
       return SANE_STATUS_UNSUPPORTED;
     }

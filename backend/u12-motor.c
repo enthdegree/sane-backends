@@ -382,7 +382,7 @@ static SANE_Status u12motor_WaitForPositionY( U12_Device *dev )
 
 		while(( u12io_GetExtendedStatus( dev ) & _STILL_FREE_RUNNING) &&
 		                                             !u12io_CheckTimer(&timer));
-			u12io_DataToRegister( dev, REG_MODECONTROL, _ModeScan );
+		u12io_DataToRegister( dev, REG_MODECONTROL, _ModeScan );
 	} else {
 		u12motor_PositionYProc( dev, dwBeginY );
 		u12io_RegisterToScanner( dev, REG_REFRESHSCANSTATE );

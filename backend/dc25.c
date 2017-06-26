@@ -148,12 +148,6 @@ static SANE_Byte contrast_table[256];
 
 static struct pixmap *pp;
 
-static const SANE_Range percentage_range = {
-  -100 << SANE_FIXED_SCALE_SHIFT,	/* minimum */
-  100 << SANE_FIXED_SCALE_SHIFT,	/* maximum */
-  0 << SANE_FIXED_SCALE_SHIFT	/* quantization */
-};
-
 static const SANE_Range contrast_range = {
   0 << SANE_FIXED_SCALE_SHIFT,	/* minimum */
   3 << SANE_FIXED_SCALE_SHIFT,	/* maximum */

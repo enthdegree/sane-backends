@@ -1345,11 +1345,17 @@ static const uint8_t test_unit_ready[] =
     AVISION_SCSI_TEST_UNIT_READY, 0x00, 0x00, 0x00, 0x00, 0x00
   };
 
+/* Remove #ifdef and this comment when this SCSI command is used for
+   something.  Keeping this definition around so we don't loose info
+   about the protocol.
+ */
+#ifdef ENABLE_AVISION_SCSI_GET_DATA_STATUS
 static const uint8_t get_status[] =
   {
     AVISION_SCSI_GET_DATA_STATUS, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x0c, 0x00
   };
+#endif
 
 static size_t
 max_string_size (const SANE_String_Const strings[])

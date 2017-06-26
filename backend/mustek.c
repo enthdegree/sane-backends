@@ -200,9 +200,15 @@ static const SANE_Byte scsi_inquiry[] = {
 static const SANE_Byte scsi_test_unit_ready[] = {
   MUSTEK_SCSI_TEST_UNIT_READY, 0x00, 0x00, 0x00, 0x00, 0x00
 };
+/* Remove #ifdef and this comment when this SCSI command is used for
+   something.  Keeping this definition around so we don't loose info
+   about the protocol.
+ */
+#ifdef ENABLE_MUSTEK_SCSI_AREA_AND_WINDOWS
 static const SANE_Byte scsi_area_and_windows[] = {
   MUSTEK_SCSI_AREA_AND_WINDOWS, 0x00, 0x00, 0x00, 0x09, 0x00
 };
+#endif
 static const SANE_Byte scsi_request_sense[] = {
   MUSTEK_SCSI_REQUEST_SENSE, 0x00, 0x00, 0x00, 0x04, 0x00
 };
@@ -227,10 +233,16 @@ static const SANE_Byte scsi_read_data[] = {
 static const SANE_Byte scsi_send_data[] = {
   MUSTEK_SCSI_SEND_DATA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
+/* Remove #ifdef and this comment when this SCSI command is used for
+   something.  Keeping this definition around so we don't loose info
+   about the protocol.
+ */
+#ifdef ENABLE_MUSTEK_SCSI_LOOKUP_TABLE
 static const SANE_Byte scsi_lookup_table[] = {
   MUSTEK_SCSI_LOOKUP_TABLE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00
 };
+#endif
 
 /* prototypes */
 static SANE_Status area_and_windows (Mustek_Scanner * s);

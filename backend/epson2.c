@@ -303,7 +303,6 @@ static const SANE_String_Const bay_list[] = {
 
 /* minimum, maximum, quantization */
 static const SANE_Range u8_range = { 0, 255, 0 };
-static const SANE_Range s8_range = { -127, 127, 0 };
 static const SANE_Range fx_range = { SANE_FIX(-2.0), SANE_FIX(2.0), 0 };
 
 static const SANE_Range outline_emphasis_range = { -2, 2, 0 };

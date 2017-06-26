@@ -112,18 +112,6 @@ static SANE_Range y_range = {
   SANE_FIX (0.0)		/* no quantization */
 };
 
-static const SANE_Range u8_range = {
-  0,				/* minimum */
-  255,				/* maximum */
-  0				/* no quantization */
-};
-
-static const SANE_Range threshold_percentage_range = {
-  SANE_FIX (0),			/* minimum */
-  SANE_FIX (100),		/* maximum */
-  SANE_FIX (1)			/* quantization */
-};
-
 /**
  * finds the maximum string length in a string array.
  */

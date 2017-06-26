@@ -232,23 +232,23 @@ static const SANE_Range focus_range =
 
 static const SANE_Range brightness_range =
 {
-    -400 << SANE_FIXED_SCALE_SHIFT,
-    400 << SANE_FIXED_SCALE_SHIFT,
-    1 << SANE_FIXED_SCALE_SHIFT
+    SANE_FIX(-400),
+    SANE_FIX(400),
+    SANE_FIX(1)
 };
 
 static const SANE_Range contrast_range =
 {
-    -100 << SANE_FIXED_SCALE_SHIFT,
-    400 << SANE_FIXED_SCALE_SHIFT,
-    1 << SANE_FIXED_SCALE_SHIFT
+    SANE_FIX(-100),
+    SANE_FIX(400),
+    SANE_FIX(1)
 };
 
 static const SANE_Range positive_percent_range =
 {
-    0 << SANE_FIXED_SCALE_SHIFT,
-    100 << SANE_FIXED_SCALE_SHIFT,
-    1 << SANE_FIXED_SCALE_SHIFT
+    SANE_FIX(0),
+    SANE_FIX(100),
+    SANE_FIX(1)
 };
 
 static void control_options(SnapScan_Scanner *pss);

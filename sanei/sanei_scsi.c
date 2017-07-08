@@ -2945,8 +2945,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     char *me = "sanei_scsi_find_devices";
     char path[PATH_MAX];
     char dev_name[128];
-    struct dirent buf;
-    struct dirent *de;
+    struct dirent *buf;
     DIR *scsidevs;
     FILE *fp;
     char *ptr;
@@ -2987,8 +2986,9 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     number = -1;
     for (;;)
       {
-	ret = readdir_r(scsidevs, &buf, &de);
-	if (ret != 0)
+	errno = 0;
+	buf = readdir (scsidevs);
+	if (errno != 0)
 	  {
 	    DBG (1, "%s: could not read directory %s: %s\n",
 		 me, SYSFS_SCSI_DEVICES, strerror(errno));
@@ -2996,14 +2996,14 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	    break;
 	  }
 
-	if (de == NULL)
+	if (buf == NULL)
 	  break;
 
-	if (buf.d_name[0] == '.')
+	if (buf->d_name[0] == '.')
 	  continue;
 
 	/* Extract bus, channel, id, lun from directory name b:c:i:l */
-	ptr = buf.d_name;
+	ptr = buf->d_name;
 	for (i = 0; i < 4; i++)
 	  {
 	    errno = 0;
@@ -3028,7 +3028,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
 	    if (*end && (*end != ':'))
 	      {
-		DBG (1, "%s: parse error on string %s (%d)\n", me, buf.d_name, i);
+		DBG (1, "%s: parse error on string %s (%d)\n", me, buf->d_name, i);
 
 		i = 12; /* Skip */
 		break;
@@ -3036,7 +3036,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
 	    if (val > INT_MAX)
 	      {
-		DBG (1, "%s: integer value too large (%s)\n", me, buf.d_name);
+		DBG (1, "%s: integer value too large (%s)\n", me, buf->d_name);
 
 		i = 12; /* Skip */
 		break;
@@ -3059,11 +3059,11 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	for (i = 0; i < 3; i++)
 	  {
 	    ret = snprintf (path, PATH_MAX, "%s/%s/%s",
-			   SYSFS_SCSI_DEVICES, buf.d_name, vmtfiles[i]);
+			   SYSFS_SCSI_DEVICES, buf->d_name, vmtfiles[i]);
 	    if ((ret < 0) || (ret >= PATH_MAX))
 	      {
 		DBG (1, "%s: skipping %s/%s, PATH_MAX exceeded on %s\n",
-		     me, SYSFS_SCSI_DEVICES, buf.d_name, vmtfiles[i]);
+		     me, SYSFS_SCSI_DEVICES, buf->d_name, vmtfiles[i]);
 
 		i = 12; /* Skip */
 		break;

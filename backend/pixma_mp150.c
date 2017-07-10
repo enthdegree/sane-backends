@@ -1158,28 +1158,22 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
                                  mp->shift, mp->stripe_shift);
 
           /* special image format for *most* devices at high dpi.
-           * MP220, MX360, MX370, MX890, MG5300 are exceptions */
+           * MP220, MX360 and generation 5 scanners are exceptions */
           if (n > 0
               && s->cfg->pid != MP220_PID
               && s->cfg->pid != MX360_PID
-              && s->cfg->pid != MX370_PID
-              && s->cfg->pid != MX530_PID
-              && s->cfg->pid != MX890_PID
-              && s->cfg->pid != MX720_PID
-              && s->cfg->pid != MX920_PID
-              && s->cfg->pid != MG3100_PID
-              && s->cfg->pid != MG3500_PID
-              && s->cfg->pid != MG3600_PID
-              && s->cfg->pid != MG2100_PID
-              && s->cfg->pid != MG5300_PID
-              && s->cfg->pid != MG5400_PID
-              && s->cfg->pid != MG5500_PID
-              && s->cfg->pid != MG6300_PID
-              && s->cfg->pid != MG6400_PID
-              && s->cfg->pid != MG7100_PID
-              && s->cfg->pid != MG7500_PID
-              && s->cfg->pid != MG7700_PID
-              && s->cfg->pid != MB5000_PID)
+              && (mp->generation < 5
+                  /* generation 5 scanners *with* special image format */
+                  || s->cfg->pid == MG2200_PID
+                  || s->cfg->pid == MG3200_PID
+                  || s->cfg->pid == MG4200_PID
+                  || s->cfg->pid == MG5600_PID
+                  || s->cfg->pid == MG5700_PID
+                  || s->cfg->pid == MG6200_PID
+                  || s->cfg->pid == MP230_PID
+                  || s->cfg->pid == MX470_PID
+                  || s->cfg->pid == MX510_PID
+                  || s->cfg->pid == MX520_PID))
               reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
 
           /* Crop line to selected borders */
@@ -1236,6 +1230,9 @@ mp150_open (pixma_t * s)
 
   if (s->cfg->pid >= MP250_PID)
     mp->generation = 4;
+
+  if (s->cfg->pid >= MG2100_PID)        /* this scanners generation doesn't need */
+    mp->generation = 5;                 /* special image conversion @ high dpi */
 
   /* And exceptions to be added here */
   if (s->cfg->pid == MP140_PID)
@@ -1383,7 +1380,7 @@ mp150_scan (pixma_t * s)
 
   /* Generation 4: send XML dialog */
   /* adf: first page or idle */
-  if (mp->generation == 4 && mp->adf_state == state_idle)
+  if (mp->generation >= 4 && mp->adf_state == state_idle)
     {
       if (!send_xml_dialog (s, XML_START_1))
         return PIXMA_EPROTO;
@@ -1425,7 +1422,7 @@ mp150_scan (pixma_t * s)
 
         /* Generation 4: send XML dialog */
         /* adf: first page or idle */
-        if (mp->generation == 4 && mp->adf_state == state_idle)
+        if (mp->generation >= 4 && mp->adf_state == state_idle)
         {
           if (!send_xml_dialog (s, XML_END))
             return PIXMA_EPROTO;

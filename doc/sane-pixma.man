@@ -369,8 +369,6 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane\-dll (5),
-.I http://home.arcor.de/wittawat/pixma/,
-.I http://mp610.blogspot.com/
 .PP
 In case of trouble with a recent Pixma model, try the latest code for
 the pixma backend, available in the Sane git repository at:

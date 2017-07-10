@@ -333,7 +333,7 @@ request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
           s->cfg->pid == MF8030_PID)
         {                                         /* 32bit size */
           *datalen = mf->cb.reslen - hlen;
-          *size = (*datalen + hlen == 512) ? pixma_get_be32 (mf->cb.buf + 4) - *datalen : 0;
+          *size = (*datalen + hlen == 512) ? pixma_get_be32 (mf->cb.buf + 4) - *datalen : *size;
           memcpy (data, mf->cb.buf + hlen, *datalen);
         }
      PDBG (pixma_dbg (11, "*request_image_block***** size = %u *****\n", *size));

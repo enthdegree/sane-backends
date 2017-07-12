@@ -67,12 +67,14 @@ compile:debian-9-mini:
   image: $REGISTRY_HUB:debian-9-mini
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI"
+    MAKE_FLAGS: "CFLAGS=-Werror"
   <<: *compile_definition
 
 compile:debian-9-full:
   image: $REGISTRY_HUB:debian-9-full
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
+    MAKE_FLAGS: "CFLAGS=-Werror"
   <<: *compile_definition
 
 archive:

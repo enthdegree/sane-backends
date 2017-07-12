@@ -1248,7 +1248,7 @@ static void motorP96WaitForPositionY( pScanData ps )
 	MiscStartTimer( &timer, _SECOND / 4);
     while (!MiscCheckTimer( &timer ));
 
-	memset( ps->a_nbNewAdrPointer, 0, _SCANSTATE_BYTES );
+    memset( ps->a_nbNewAdrPointer, 0, _SCANSTATE_BYTES );
 
     ps->Asic96Reg.RD_MotorControl = ps->IgnorePF|ps->MotorOn|_MotorDirForward;
     ps->Scan.fMotorBackward = _FALSE;
@@ -2671,7 +2671,7 @@ static void motorP98003WaitForPositionY( pScanData ps )
 
 	    while(( IOGetExtendedStatus( ps ) & _STILL_FREE_RUNNING) &&
                                                       !MiscCheckTimer(&timer));
-        	IODataToRegister( ps, ps->RegModeControl, _ModeScan );
+	    IODataToRegister( ps, ps->RegModeControl, _ModeScan );
     } else {
     	MotorP98003PositionYProc( ps, dwBeginY );
         IORegisterToScanner( ps, ps->RegRefreshScanState );

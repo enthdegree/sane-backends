@@ -1537,7 +1537,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	    			if( NULL != info )
     					*info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 
-					mp       = getModeList( s );
+	    			mp       = getModeList( s );
 					scanmode = mp[s->val[OPT_MODE].w].scanmode;
 
 				    s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
@@ -1702,7 +1702,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 					checkGammaSettings(s);
 	    			if( NULL != info )
 		    			*info |= SANE_INFO_RELOAD_PARAMS;
-					break;
+		    		break;
 
 			    default:
 				    return SANE_STATUS_INVAL;

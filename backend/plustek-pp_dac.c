@@ -2221,7 +2221,7 @@ static void dacP98003AdjustShadingWaveform( pScanData ps )
        	    } else
                	pwsum->Red = 0;
 
-           	if((short)(pwsum->Green -= ps->Shade.DarkOffset.Colors.Green) > 0) {
+       	    if((short)(pwsum->Green -= ps->Shade.DarkOffset.Colors.Green) > 0) {
                	pwsum->Green = pwsum->Green * pRGB->Green / 100U;
            	    if( pwsum->Green > 0xfff )
                	    pwsum->Green = 0xfff;

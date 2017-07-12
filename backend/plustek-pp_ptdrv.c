@@ -1399,7 +1399,7 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
     else
         ps->Scan.fRefreshState = _TRUE;
 
-	ptdrvLampWarmup( ps );
+    ptdrvLampWarmup( ps );
 
 	if( _FALSE == ps->fScanningStatus ) {
 		retval = _E_ABORT;
@@ -1466,16 +1466,16 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
       		if( ps->Scan.dwLinesToRead > ps->DataInf.dwAppLinesPerArea )
         		ps->Scan.dwLinesToRead = ps->DataInf.dwAppLinesPerArea;
 
-			ps->DataInf.dwAppLinesPerArea -= ps->Scan.dwLinesToRead;
+      		ps->DataInf.dwAppLinesPerArea -= ps->Scan.dwLinesToRead;
 
       		if (ps->DataInf.dwScanFlag & SCANDEF_BmpStyle)
         		buffer += ((ps->Scan.dwLinesToRead - 1) *
                    				ps->DataInf.dwAppBytesPerLine);
 
-			if (ps->DataInf.dwVxdFlag & _VF_DATATOUSERBUFFER)
+      		if (ps->DataInf.dwVxdFlag & _VF_DATATOUSERBUFFER)
         		ps->DataInf.pCurrentBuffer = ps->Scan.bp.pMonoBuf;
 
-			while(ps->fScanningStatus && ps->Scan.dwLinesToRead) {
+      		while(ps->fScanningStatus && ps->Scan.dwLinesToRead) {
 
         		_ASSERT(ps->ReadOneImageLine);
 		   		if (!ps->ReadOneImageLine(ps)) {
@@ -1549,8 +1549,8 @@ static int ptdrvRead( pScanData ps, pUChar buffer, int count )
 ReadFinished:
 
 
-    if( _ASIC_IS_98003 == ps->sCaps.AsicID )
-        ps->CloseScanPath( ps );
+	if( _ASIC_IS_98003 == ps->sCaps.AsicID )
+		ps->CloseScanPath( ps );
 
 	if( NULL != ps->Scan.bp.pMonoBuf )
 		_KFREE( ps->Scan.bp.pMonoBuf );

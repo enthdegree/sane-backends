@@ -1105,7 +1105,7 @@ _LOC void P12InitCCDandDAC( pScanData ps, Bool shading )
 	    else
     		ps->Shade.bUniGain = 7;
 
-   		ps->Shade.wDarkLevels = 10;
+	    ps->Shade.wDarkLevels = 10;
 
 	    if( ps->Shade.bIntermediate & _ScanMode_Mono ) {
     		SamsungDAC8531[0].bParam = 0x57;

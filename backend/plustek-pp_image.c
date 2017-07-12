@@ -1216,7 +1216,7 @@ static Bool imageP98003DataIsReady( pScanData ps )
 	        IORegisterToScanner( ps, ps->RegRefreshScanState );
 
 		/* direct is done here without copying...*/
-		if( fnDataDirect != ps->Scan.DataProcess ) {
+    	if( fnDataDirect != ps->Scan.DataProcess ) {
 			(*ps->Scan.DataProcess)(ps, (pVoid)(ps->Scan.bp.pMonoBuf ),
                                         (pVoid)(ps->Scan.BufPut.red.bp),
                                         ps->DataInf.dwAppPhyBytesPerLine);

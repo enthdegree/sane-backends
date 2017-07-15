@@ -2901,7 +2901,7 @@ do_cancel (Pie_Scanner * scanner)
       DBG (DBG_sane_info, "killing reader_process\n");
       sanei_thread_kill (scanner->reader_pid);
       sanei_thread_waitpid (scanner->reader_pid, 0);
-      scanner->reader_pid = -1;
+      sanei_thread_invalidate (scanner->reader_pid);
       DBG (DBG_sane_info, "reader_process killed\n");
     }
 

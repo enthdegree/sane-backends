@@ -4686,7 +4686,7 @@ static SANE_Status do_cancel(Umax_Scanner *scanner)
       DBG(DBG_sane_info, "do_cancel: reader_process terminated with status: %s\n", sane_strstatus(status));
     }
 
-    scanner->reader_pid = -1;
+    sanei_thread_invalidate (scanner->reader_pid);
 
     if (scanner->device->pixelbuffer != NULL)					      /* pixelbuffer exists? */
     {
@@ -7285,9 +7285,9 @@ SANE_Status sane_start(SANE_Handle handle)
 
   DBG(DBG_sane_init,"sane_start\n");
 
-  /* Initialize reader_pid to invalid so a subsequent error and following call
-   * to do_cancel() won't trip over it. */
-  scanner->reader_pid = -1;
+  /* Invalidate reader_pid so a subsequent error and following call to
+   * do_cancel() won't trip over it. */
+  sanei_thread_invalidate(scanner->reader_pid);
 
   mode = scanner->val[OPT_MODE].s;
 

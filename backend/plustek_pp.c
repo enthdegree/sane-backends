@@ -506,7 +506,7 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 #endif
 		}
 
-		scanner->reader_pid = -1;
+		sanei_thread_invalidate( scanner->reader_pid );
 		DBG( _DBG_PROC,"reader_process killed\n");
 	}
 
@@ -2084,7 +2084,7 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 			if( s->bytes_read ==
 				(unsigned long)(s->params.lines * s->params.bytes_per_line)) {
 				sanei_thread_waitpid( s->reader_pid, 0 );
-				s->reader_pid = -1;
+				sanei_thread_invalidate( s->reader_pid );
 				drvclose( s->hw );
 				return close_pipe(s);
 			}
@@ -2112,7 +2112,7 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 			close_pipe(s);
 			return s->exit_code;
 		}
-		s->reader_pid = -1;
+		sanei_thread_invalidate( s->reader_pid );
 		return close_pipe(s);
 	}
 

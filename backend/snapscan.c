@@ -1286,7 +1286,7 @@ static SANE_Status start_reader (SnapScan_Scanner *pss)
 
     pss->nonblocking = SANE_FALSE;
     pss->rpipe[0] = pss->rpipe[1] = -1;
-    pss->child = -1;
+    sanei_thread_initialize (pss->child);
 
     if (pipe (pss->rpipe) != -1)
     {
@@ -1812,7 +1812,7 @@ SANE_Status sane_read (SANE_Handle h,
       if (sanei_thread_is_valid (pss->child))
         {
             sanei_thread_waitpid (pss->child, 0);        /* ensure no zombies */
-            pss->child = -1;
+            sanei_thread_invalidate (pss->child);
         }
         release_unit (pss);
         close_scanner (pss);
@@ -1904,7 +1904,7 @@ void sane_cancel (SANE_Handle h)
                 sanei_thread_sendsig( pss->child, SIGKILL );
 #endif
             }
-            pss->child = -1;
+            sanei_thread_invalidate( pss->child );
             DBG( DL_INFO,"reader_process killed\n");
         }
         release_unit (pss);

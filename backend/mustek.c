@@ -3008,7 +3008,7 @@ do_stop (Mustek_Scanner * s)
 	    status = exit_status;
 	}
 
-      s->reader_pid = -1;
+      sanei_thread_invalidate (s->reader_pid);
     }
 
   if (s->fd >= 0)

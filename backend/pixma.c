@@ -1105,7 +1105,7 @@ terminate_reader_task (pixma_sane_t * ss, int *exit_code)
 /*      pixma_cancel (ss->s);   What is this for ? Makes end-of-scan buggy => removing */
     }
   result = sanei_thread_waitpid (pid, &status);
-  ss->reader_taskid = -1;
+  sanei_thread_invalidate (ss->reader_taskid);
 
   if (ss->sp.source != PIXMA_SOURCE_ADF && ss->sp.source != PIXMA_SOURCE_ADFDUP)
     ss->idle = SANE_TRUE;
@@ -1376,7 +1376,7 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
     return SANE_STATUS_NO_MEM;
   ss->next = first_scanner;
   first_scanner = ss;
-  ss->reader_taskid = -1;
+  sanei_thread_initialize (ss->reader_taskid);
   ss->wpipe = -1;
   ss->rpipe = -1;
   ss->idle = SANE_TRUE;

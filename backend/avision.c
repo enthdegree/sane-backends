@@ -6207,7 +6207,7 @@ do_eof (Avision_Scanner *s)
   /* join our processes - without a wait() you will produce zombies
      (defunct children) */
   sanei_thread_waitpid (s->reader_pid, &exit_status);
-  s->reader_pid = -1;
+  sanei_thread_invalidate (s->reader_pid);
 
   DBG (3, "do_eof: returning %d\n", exit_status);
   return (SANE_Status)exit_status;
@@ -6229,7 +6229,7 @@ do_cancel (Avision_Scanner* s)
     /* ensure child knows it's time to stop: */
     sanei_thread_kill (s->reader_pid);
     sanei_thread_waitpid (s->reader_pid, &exit_status);
-    s->reader_pid = -1;
+    sanei_thread_invalidate (s->reader_pid);
   }
 
   return SANE_STATUS_CANCELLED;
@@ -7844,7 +7844,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   s->av_con.scsi_fd = -1;
   s->av_con.usb_dn = -1;
 
-  s->reader_pid = -1;
+  sanei_thread_initialize (s->reader_pid);
   s->read_fds = -1;
 
   s->hw = dev;

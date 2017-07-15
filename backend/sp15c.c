@@ -1769,7 +1769,7 @@ do_cancel (struct sp15c *scanner)
       sanei_thread_kill (scanner->reader_pid);
       DBG (50, "wait for scanner to stop\n");
       sanei_thread_waitpid (scanner->reader_pid, &exit_status);
-      scanner->reader_pid = -1;
+      sanei_thread_invalidate (scanner->reader_pid);
     }
 
   if (scanner->sfd >= 0)

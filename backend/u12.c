@@ -421,7 +421,7 @@ static SANE_Status do_cancel( U12_Scanner *scanner, SANE_Bool closepipe )
 			sanei_thread_sendsig( scanner->reader_pid, SIGKILL );
 #endif
 		}
-		scanner->reader_pid = -1;
+		sanei_thread_invalidate( scanner->reader_pid );
 		DBG( _DBG_PROC, "reader_process killed\n");
 
 		if( scanner->hw->fd >= 0 ) {
@@ -1773,7 +1773,7 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 			if( s->bytes_read ==
 				(unsigned long)(s->params.lines * s->params.bytes_per_line)) {
 				sanei_thread_waitpid( s->reader_pid, 0 );
-				s->reader_pid = -1;
+				sanei_thread_invalidate( s->reader_pid );
 				drvClose( s->hw );
 				return drvClosePipes(s);
 			}
@@ -1801,7 +1801,7 @@ SANE_Status sane_read( SANE_Handle handle, SANE_Byte *data,
 			drvClosePipes(s);
 			return s->exit_code;
 		}
-		s->reader_pid = -1;
+		sanei_thread_invalidate( s->reader_pid );
 		return drvClosePipes(s);
 	}
 

@@ -1134,7 +1134,7 @@ do_cancel (struct hp3500_data *scanner)
 
 	  sanei_thread_waitpid (scanner->reader_pid, &exit_status);
 	}
-      scanner->reader_pid = -1;
+      sanei_thread_invalidate (scanner->reader_pid);
     }
   if (scanner->pipe_r >= 0)
     {

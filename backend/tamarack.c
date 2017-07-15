@@ -479,7 +479,7 @@ do_cancel (Tamarack_Scanner *s)
       /* ensure child knows it's time to stop: */
       sanei_thread_kill (s->reader_pid);
       sanei_thread_waitpid (s->reader_pid, &exit_status);
-      s->reader_pid = -1;
+      sanei_thread_invalidate (s->reader_pid);
     }
 
   if (s->fd >= 0)

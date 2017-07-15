@@ -94,6 +94,38 @@ extern SANE_Bool sanei_thread_is_forked (void);
  */
 extern SANE_Bool sanei_thread_is_valid (SANE_Pid pid);
 
+/** Invalidate a SANE_Pid
+ *
+ *  This "function" should be used to invalidate a SANE_Pid in a
+ *  portable manner.
+ *
+ *  @note
+ *  When using pthreads, this only works for those implementations
+ *  that opted to make pthread_t an arithmatic type.  This is *not*
+ *  required by the POSIX threads specification.  The choice to do
+ *  SANE_Pid invalidation by means of a macro rather than a proper
+ *  function circumvents to need to pass a pointer.
+ *  If we decide to implement SANE_Pid with a void* in the future,
+ *  this can be changed into a proper function without the need to
+ *  change existing code.
+ *
+ *  For details on the pthread_t type, see in particular Issue 6 of
+ *  http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/sys_types.h.html
+ */
+#define sanei_thread_invalidate(pid) ((pid) = (SANE_Pid)(-1))
+
+/** Initialize a SANE_Pid
+ *
+ *  This "function" should be used to initialize a SANE_Pid in a
+ *  portable manner.
+ *
+ *  @note
+ *  This is at present just an alias of sanei_thread_invalidate.
+ *  It seemed misleading to use the latter when intent clearly has
+ *  initialization written all over it, hence the alias.
+ */
+#define sanei_thread_initialize sanei_thread_invalidate
+
 /** Spawn a new task.
  *
  * This function should be used to start a new task.

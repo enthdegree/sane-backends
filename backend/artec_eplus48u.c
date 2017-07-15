@@ -3505,7 +3505,7 @@ do_cancel (Artec48U_Scanner * s, SANE_Bool closepipe)
 	{
 	  XDBG ((1, "sanei_thread_waitpid() failed !\n"));
 	}
-      s->reader_pid = -1;
+      sanei_thread_invalidate (s->reader_pid);
       XDBG ((1, "reader_process killed\n"));
     }
   if (SANE_TRUE == closepipe)
@@ -4337,7 +4337,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	  if (s->eof == SANE_TRUE)
 	    {
 	      sanei_thread_waitpid (s->reader_pid, 0);
-	      s->reader_pid = -1;
+	      sanei_thread_invalidate (s->reader_pid);
 	      artec48u_scanner_stop_scan (s);
 	      artec48u_carriage_home (s->dev);
 	      return close_pipe (s);

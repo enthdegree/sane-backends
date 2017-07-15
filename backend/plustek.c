@@ -604,7 +604,7 @@ do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe )
 #endif
 		}
 
-		scanner->reader_pid = -1;
+		sanei_thread_invalidate( scanner->reader_pid );
 		DBG( _DBG_PROC,"reader_process killed\n");
 #ifndef HAVE_SETITIMER
 		usb_StartLampTimer( scanner->hw );
@@ -2706,7 +2706,7 @@ sane_read( SANE_Handle handle, SANE_Byte *data,
 			if( s->bytes_read ==
 				(unsigned long)(s->params.lines * s->params.bytes_per_line)) {
 				sanei_thread_waitpid( s->reader_pid, 0 );
-				s->reader_pid = -1;
+				sanei_thread_invalidate( s->reader_pid );
 				s->scanning = SANE_FALSE;
 				drvclose( s->hw );
 				return close_pipe(s);
@@ -2735,7 +2735,7 @@ sane_read( SANE_Handle handle, SANE_Byte *data,
 			close_pipe(s);
 			return s->exit_code;
 		}
-		s->reader_pid = -1;
+		sanei_thread_invalidate( s->reader_pid );
 		s->scanning = SANE_FALSE;
 		return close_pipe(s);
 	}

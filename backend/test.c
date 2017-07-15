@@ -1375,7 +1375,7 @@ finish_pass (Test_Device * test_device)
 	  DBG (2, "finish_pass: reader process terminated with status: %s\n",
 	       sane_strstatus (status));
 	}
-      test_device->reader_pid = -1;
+      sanei_thread_invalidate (test_device->reader_pid);
     }
   /* this happens when running in thread context... */
   if (test_device->reader_fds >= 0)
@@ -1641,7 +1641,7 @@ sane_init (SANE_Int * __sane_unused__ version_code, SANE_Auth_Callback __sane_un
       test_device->eof = SANE_FALSE;
       test_device->scanning = SANE_FALSE;
       test_device->cancelled = SANE_FALSE;
-      test_device->reader_pid = -1;
+      sanei_thread_initialize (test_device->reader_pid);
       test_device->pipe = -1;
       DBG (4, "sane_init: new device: `%s' is a %s %s %s\n",
 	   test_device->sane.name, test_device->sane.vendor,

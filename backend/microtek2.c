@@ -554,7 +554,7 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
     ms->cancelled = SANE_FALSE;
     ms->current_pass = 0;
     ms->sfd = -1;
-    ms->pid = -1;
+    sanei_thread_initialize(ms->pid);
     ms->fp = NULL;
     ms->gamma_table = NULL;
     ms->buf.src_buf = ms->buf.src_buffer[0] = ms->buf.src_buffer[1] = NULL;
@@ -1353,7 +1353,7 @@ cleanup_scanner(Microtek2_Scanner *ms)
     if ( ms->sfd != -1 )
       sanei_scsi_close(ms->sfd);
     ms->sfd = -1;
-    ms->pid = -1;
+    sanei_thread_invalidate(ms->pid);
     ms->fp = NULL;
     ms->current_pass = 0;
     ms->scanning = SANE_FALSE;

@@ -107,6 +107,22 @@ sanei_init_debug (const char * backend, int * var)
   DBG (0, "Setting debug level of %s to %d.\n", backend, *var);
 }
 
+static int
+is_socket (int fd)
+{
+  struct stat sbuf;
+
+  if (fstat(fd, &sbuf) == -1) return 0;
+
+#if defined(S_ISSOCK)
+  return S_ISSOCK(sbuf.st_mode);
+#elif defined (S_IFMT) && defined(S_IFMT)
+  return (sbuf.st_mode & S_IFMT) == S_IFSOCK;
+#else
+  return 0;
+#endif
+}
+
 void
 sanei_debug_msg
   (int level, int max_level, const char *be, const char *fmt, va_list ap)
@@ -115,8 +131,7 @@ sanei_debug_msg
 
   if (max_level >= level)
     {
-#ifdef S_IFSOCK
-      if ( 1 == isfdtype(fileno(stderr), S_IFSOCK) )
+      if (is_socket(fileno(stderr)))
 	{
 	  msg = (char *)malloc (sizeof(char) * (strlen(be) + strlen(fmt) + 4));
 	  if (msg == NULL)
@@ -132,7 +147,6 @@ sanei_debug_msg
 	    }
 	}
       else
-#endif
 	{
 	  fprintf (stderr, "[%s] ", be);
           vfprintf (stderr, fmt, ap);

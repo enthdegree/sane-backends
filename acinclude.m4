@@ -684,12 +684,6 @@ const char * inet_ntop (int af, const void *src, char *dst, size_t cnt);
 int inet_pton (int af, const char *src, void *dst);
 #endif
 
-/* Prototype for isfdtype */
-#ifndef HAVE_ISFDTYPE
-#define isfdtype sanei_isfdtype
-int isfdtype(int fd, int fdtype);
-#endif
-
 /* Prototype for sigprocmask */
 #ifndef HAVE_SIGPROCMASK
 #define sigprocmask sanei_sigprocmask

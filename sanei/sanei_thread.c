@@ -121,12 +121,12 @@ sanei_thread_set_invalid( SANE_Pid *pid )
 
 #ifdef WIN32
 #ifdef WINPTHREAD_API
-	*pid = 0;
+	*pid = (pthread_t) 0;
 #else
 	pid->p = 0;
 #endif
 #else
-	*pid = -1;
+	*pid = (pthread_t) -1;
 #endif
 }
 
@@ -162,12 +162,12 @@ sanei_thread_pid_to_long( SANE_Pid pid )
 
 #ifdef WIN32
 #ifdef WINPTHREAD_API
-	rc = pid;
+	rc = (long) pid;
 #else
 	rc = pid.p;
 #endif
 #else
-	rc = pid;
+	rc = (long) pid;
 #endif
 
 	return rc;

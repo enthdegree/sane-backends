@@ -192,7 +192,7 @@ dnl Checks for header files.
 dnl ***********************************************************************
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
-    sys/time.h sys/shm.h sys/ipc.h sys/signal.h sys/scanio.h os2.h \
+    sys/time.h sys/shm.h sys/ipc.h sys/scanio.h os2.h \
     sys/socket.h sys/io.h sys/hw.h sys/types.h linux/ppdev.h \
     dev/ppbus/ppi.h machine/cpufunc.h sys/sem.h sys/poll.h \
     windows.h be/kernel/OS.h limits.h sys/ioctl.h asm/types.h\

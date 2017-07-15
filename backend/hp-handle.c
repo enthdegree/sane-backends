@@ -227,16 +227,9 @@ hp_handle_stopScan (HpHandle this)
     {
       int info;
       DBG(3, "hp_handle_stopScan: killing child (%ld)\n", (long) this->reader_pid);
-      if (this->child_forked)
-      {
-        kill(this->reader_pid, SIGTERM);
-        waitpid(this->reader_pid, &info, 0);
-      }
-      else
-      {
-        sanei_thread_kill (this->reader_pid);
-        sanei_thread_waitpid(this->reader_pid, &info);
-      }
+      sanei_thread_kill (this->reader_pid);
+      sanei_thread_waitpid(this->reader_pid, &info);
+
       DBG(1, "hp_handle_stopScan: child %s = %d\n",
 	  WIFEXITED(info) ? "exited, status" : "signalled, signal",
 	  WIFEXITED(info) ? WEXITSTATUS(info) : WTERMSIG(info));
@@ -746,10 +739,7 @@ sanei_hp_handle_cancel (HpHandle this)
   {
      DBG(3,"sanei_hp_handle_cancel: send SIGTERM to child (%ld)\n",
          (long) this->reader_pid);
-     if (this->child_forked)
-       kill(this->reader_pid, SIGTERM);
-     else
-       sanei_thread_kill(this->reader_pid);
+     sanei_thread_kill(this->reader_pid);
   }
 }
 

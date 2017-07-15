@@ -115,6 +115,7 @@ sanei_thread_is_forked( void )
 
 /* Use this to mark a SANE_Pid as invaild instead of marking with -1.
  */
+#ifdef USE_PTHREAD
 static void
 sanei_thread_set_invalid( SANE_Pid *pid )
 {
@@ -129,6 +130,7 @@ sanei_thread_set_invalid( SANE_Pid *pid )
 	*pid = (pthread_t) -1;
 #endif
 }
+#endif
 
 /* Return if PID is a valid PID or not. */
 SANE_Bool

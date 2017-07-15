@@ -3782,12 +3782,14 @@ writefunc (struct hp3500_write_info *winfo, int bytes, char *data)
   return write (winfo->scanner->pipe_w, data, bytes) == bytes;
 }
 
+#ifdef _POSIX_SOURCE
 static void
 sigtermHandler (int signal)
 {
   signal = signal;		/* get rid of compiler warning */
   cancelled_scan = 1;
 }
+#endif
 
 static int
 reader_process (void *pv)

@@ -235,6 +235,24 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
     ],[ have_pthread=no; use_pthread=no ])
   fi
 
+  # Based on a similar test for pthread_key_t from the Python project.
+  # See https://bugs.python.org/review/25658/patch/19209/75870
+  AC_MSG_CHECKING(whether pthread_t is integer)
+  AC_COMPILE_IFELSE(
+    [AC_LANG_PROGRAM([[#include <pthread.h>]], [[pthread_t k; k * 1;]])],
+    [ac_pthread_t_is_integer=yes],
+    [ac_pthread_t_is_integer=no]
+  )
+  AC_MSG_RESULT($ac_pthread_t_is_integer)
+  if test "$ac_pthread_t_is_integer" = yes ; then
+    AC_DEFINE(PTHREAD_T_IS_INTEGER, 1,
+              [Define if pthread_t is integer.])
+  else
+    # Until the sanei_thread implementation is fixed.
+    have_pthread=no
+    use_pthread=no
+  fi
+
   if test $use_pthread = yes ; then
     AC_DEFINE_UNQUOTED(USE_PTHREAD, "$use_pthread",
                    [Define if pthreads should be used instead of forked processes.])

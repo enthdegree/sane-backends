@@ -1094,7 +1094,7 @@ terminate_reader_task (pixma_sane_t * ss, int *exit_code)
 
   pid = ss->reader_taskid;
   if (!sanei_thread_is_valid (pid))
-    return -1;
+    return pid;
   if (sanei_thread_is_forked ())
     {
       sanei_thread_kill (pid);
@@ -1119,7 +1119,8 @@ terminate_reader_task (pixma_sane_t * ss, int *exit_code)
   else
     {
       PDBG (pixma_dbg (1, "WARNING:waitpid() failed %s\n", strerror (errno)));
-      return -1;
+      sanei_thread_invalidate (pid);
+      return pid;
     }
 }
 
@@ -1159,7 +1160,7 @@ start_reader_task (pixma_sane_t * ss)
   if (is_forked)
     {
       pid = sanei_thread_begin (reader_process, ss);
-      if (pid > 0)
+      if (sanei_thread_is_valid (pid))
         {
           close (ss->wpipe);
           ss->wpipe = -1;

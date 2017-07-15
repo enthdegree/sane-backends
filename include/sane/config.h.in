@@ -181,9 +181,6 @@
 /* Define to 1 if you have the <io/cam/cam.h> header file. */
 #undef HAVE_IO_CAM_CAM_H
 
-/* Define to 1 if you have the `isfdtype' function. */
-#undef HAVE_ISFDTYPE
-
 /* Define to 1 if you have the <libc.h> header file. */
 #undef HAVE_LIBC_H
 
@@ -654,12 +651,6 @@ const char * inet_ntop (int af, const void *src, char *dst, size_t cnt);
 #ifndef HAVE_INET_PTON
 #define inet_pton sanei_inet_pton
 int inet_pton (int af, const char *src, void *dst);
-#endif
-
-/* Prototype for isfdtype */
-#ifndef HAVE_ISFDTYPE
-#define isfdtype sanei_isfdtype
-int isfdtype(int fd, int fdtype);
 #endif
 
 /* Prototype for sigprocmask */

@@ -80,10 +80,10 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = lib
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/mkinstalldirs alloca.c strndup.c getenv.c \
-	strdup.c getopt.c strcasestr.c inet_pton.c usleep.c getopt1.c \
-	snprintf.c isfdtype.c sleep.c sigprocmask.c inet_ntop.c \
-	vsyslog.c strsep.c syslog.c $(top_srcdir)/depcomp
+	$(top_srcdir)/mkinstalldirs alloca.c inet_ntop.c usleep.c \
+	sleep.c getenv.c getopt1.c strdup.c strndup.c getopt.c \
+	strsep.c syslog.c sigprocmask.c vsyslog.c strcasestr.c \
+	inet_pton.c snprintf.c $(top_srcdir)/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
 	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intlmacosx.m4 \
@@ -429,7 +429,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/getopt1.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/inet_ntop.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/inet_pton.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/isfdtype.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/sigprocmask.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/sleep.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/snprintf.Plo@am__quote@

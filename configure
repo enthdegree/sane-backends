@@ -18645,19 +18645,6 @@ esac
 
 fi
 
-ac_fn_c_check_func "$LINENO" "isfdtype" "ac_cv_func_isfdtype"
-if test "x$ac_cv_func_isfdtype" = xyes; then :
-  $as_echo "#define HAVE_ISFDTYPE 1" >>confdefs.h
-
-else
-  case " $LIBOBJS " in
-  *" isfdtype.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS isfdtype.$ac_objext"
- ;;
-esac
-
-fi
-
 ac_fn_c_check_func "$LINENO" "sigprocmask" "ac_cv_func_sigprocmask"
 if test "x$ac_cv_func_sigprocmask" = xyes; then :
   $as_echo "#define HAVE_SIGPROCMASK 1" >>confdefs.h

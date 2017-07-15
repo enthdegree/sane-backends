@@ -77,6 +77,12 @@ compile:debian-9-full:
     MAKE_FLAGS: "CFLAGS=-Werror"
   <<: *compile_definition
 
+compile:fedora-26-clang:
+  image: $REGISTRY_HUB:fedora-26-clang
+  variables:
+    CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
+  <<: *compile_definition
+
 archive:
   stage: archive
   image: $REGISTRY_HUB:debian-8-full

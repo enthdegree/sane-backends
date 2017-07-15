@@ -443,7 +443,7 @@ sanei_thread_begin( int (func)(void *args), void* args )
 	}
 	else
 		DBG( 2, "pthread_create() created thread %ld\n",
-		     (SANE_Pid)thread );
+		     sanei_thread_pid_to_long(thread) );
 
 	return (SANE_Pid)thread;
 #else
@@ -514,7 +514,8 @@ sanei_thread_waitpid( SANE_Pid pid, int *status )
 			/* call detach in any case to make sure that the thread resources
 			 * will be freed, when the thread has terminated
 			 */
-			DBG(2, "* detaching thread(%ld)\n", pid );
+			DBG(2, "* detaching thread(%ld)\n",
+			    sanei_thread_pid_to_long(pid) );
 			pthread_detach((pthread_t)pid);
 		}
 	}

@@ -35,11 +35,15 @@ main (int argc, char **argv)
   char *name = NULL;
   int scan = 0;
   int lamp = -1;
-  int i, fd;
+  int i;
   int found;
   int recover = 0;
   int trace = 0;
   int maxw, maxh;
+
+#ifdef HAVE_LINUX_PPDEV_H
+  int fd;
+#endif
 
 /* scanning parameters : defaults to preview (75 dpi color, full scan area) */
   int gain = 0x0;

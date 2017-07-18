@@ -400,7 +400,7 @@ sane_get_devices (const SANE_Device *** device_list,
   remoteAddr.sin_addr.s_addr = 0xFFFFFFFF;	/* broadcast */
 
   if (sendto (sock, queryPacket.m_pBuf, queryPacket.m_used, 0,
-    &remoteAddr, sizeof (remoteAddr)) == -1)
+    (struct sockaddr *) &remoteAddr, sizeof (remoteAddr)) == -1)
     {
       DBG (1, "Error sending broadcast packet\n");
       ret = SANE_STATUS_NO_MEM;
@@ -705,7 +705,7 @@ sane_start (SANE_Handle handle)
 
   /* determine local IP address */
   addrSize = sizeof (myAddr);
-  if (getsockname (gOpenScanners[iHandle]->m_udpFd, &myAddr, &addrSize))
+  if (getsockname (gOpenScanners[iHandle]->m_udpFd, (struct sockaddr *) &myAddr, &addrSize))
     {
       DBG (1, "sane_start: Error getting own IP address\n");
       return SANE_STATUS_IO_ERROR;

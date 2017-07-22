@@ -102,6 +102,13 @@ may have performance issues. Use this option if your \fBsaned\fP
 server is sitting behind a firewall. If that firewall is a Linux
 machine, we strongly recommend using the Netfilter
 \fInf_conntrack_sane\fP module instead.
+.TP
+\fBdata_connect_timeout\fP = \fItimeout\fP
+Specify the time in milliseconds that saned will wait for a data
+connection. Without this option, if the data connection is not done
+before the scanner reaches the end of scan, the scanner will continue
+to scan past the end and may damage it depending on the
+backend. Specify zero to have the old behavior. The default is 4000ms.
 .PP
 The access list is a list of host names, IP addresses or IP subnets
 (CIDR notation) that are permitted to use local SANE devices. IPv6

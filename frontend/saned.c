@@ -251,6 +251,7 @@ static Wire wire;
 static int num_handles;
 static int debug;
 static int run_mode;
+static int data_connect_timeout = 4000;
 static Handle *handle;
 static char *bind_addr;
 static union
@@ -1734,6 +1735,7 @@ do_scan (Wire * w, int h, int data_fd)
 		      DBG (DBG_ERR, "do_scan: write failed (%s)\n",
 			   strerror (errno));
 		      status = SANE_STATUS_CANCELLED;
+	              handle[h].docancel = 1;
 		      break;
 		    }
 		  bytes_in_buf -= nwritten;
@@ -1799,13 +1801,19 @@ do_scan (Wire * w, int h, int data_fd)
 	{
 	  DBG (DBG_MSG,
 	       "do_scan: processing RPC request on fd %d\n", w->io.fd);
-	  process_request (w);
+	  if(process_request (w) < 0)
+	    handle[h].docancel = 1;
+
 	  if (handle[h].docancel)
 	    break;
 	}
     }
   while (status == SANE_STATUS_GOOD || bytes_in_buf > 0 || status_dirty);
   DBG (DBG_MSG, "do_scan: done, status=%s\n", sane_strstatus (status));
+
+  if(handle[h].docancel)
+    sane_cancel (handle[h].handle);
+
   handle[h].docancel = 0;
   handle[h].scanning = 0;
 }
@@ -2062,7 +2070,7 @@ process_request (Wire * w)
     case SANE_NET_START:
       {
 	SANE_Start_Reply reply;
-	int fd = -1, data_fd;
+	int fd = -1, data_fd = -1;
 
 	h = decode_handle (w, "start");
 	if (h < 0)
@@ -2087,9 +2095,36 @@ process_request (Wire * w)
 	    char text_addr[64];
 	    int len;
 	    int error;
+	    struct pollfd fds[1];
+	    int ret;
 
-	    DBG (DBG_MSG, "process_request: waiting for data connection\n");
-	    data_fd = accept (fd, 0, 0);
+	    fds->fd = fd;
+	    fds->events = POLLIN;
+
+	    DBG (DBG_MSG, "process_request: waiting 4s for data connection\n");
+	    if(data_connect_timeout)
+	      {
+	        while (1)
+	          {
+	            ret = poll (fds, 1, data_connect_timeout);
+	            if (ret < 0)
+	              {
+	                if (errno == EINTR)
+	                  continue;
+	                else
+	                  {
+	                    DBG (DBG_ERR, "run_standalone: poll failed: %s\n",
+	                         strerror (errno));
+	                  }
+	                break;
+	              }
+	            break;
+	          }
+	      }
+	    else
+	      ret = 0;
+	    if(ret >= 0)
+	      data_fd = accept (fd, 0, 0);
 	    close (fd);
 
 	    /* Get address of remote host */
@@ -2129,9 +2164,36 @@ process_request (Wire * w)
 	  {
 	    struct sockaddr_in sin;
 	    int len;
+	    int ret;
+	    struct pollfd fds[1];
+
+	    fds->fd = fd;
+	    fds->events = POLLIN;
 
 	    DBG (DBG_MSG, "process_request: waiting for data connection\n");
-	    data_fd = accept (fd, 0, 0);
+	    if(data_connect_timeout)
+	      {
+	        while (1)
+	         {
+	           ret = poll (fds, 1, data_connect_timeout);
+	           if (ret < 0)
+	             {
+	               if (errno == EINTR)
+	                 continue;
+	               else
+	                 {
+	                   DBG (DBG_ERR, "run_standalone: poll failed: %s\n", strerror (errno));
+	                 }
+	               break;
+	             }
+	           break;
+	         }
+	      }
+	    else
+	      ret = 0;
+	    if(ret >= 0)
+	      data_fd = accept (fd, 0, 0);
+
 	    close (fd);
 
 	    /* Get address of remote host */
@@ -2734,6 +2796,26 @@ read_config (void)
 
                   DBG (DBG_INFO, "read_config: data port range: %d - %d\n", data_port_lo, data_port_hi);
                 }
+            }
+            else if(strstr(config_line, "data_connect_timeout") != NULL)
+            {
+              optval = sanei_config_skip_whitespace (++optval);
+              if ((optval != NULL) && (*optval != '\0'))
+              {
+                val = strtol (optval, &endval, 10);
+                if (optval == endval)
+                {
+                  DBG (DBG_ERR, "read_config: invalid value for data_connect_timeout\n");
+                  continue;
+                }
+                else if ((val < 0) || (val > 65535))
+                {
+                  DBG (DBG_ERR, "read_config: data_connect_timeout is invalid\n");
+                  continue;
+                }
+                data_connect_timeout = val;
+                DBG (DBG_INFO, "read_config: data connect timeout: %d\n", data_connect_timeout);
+              }
             }
         }
       fclose (fp);

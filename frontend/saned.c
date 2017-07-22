@@ -3300,7 +3300,7 @@ static void usage(char *me, int err)
        "Usage: %s [OPTIONS]\n\n"
        " Options:\n\n"
        "  -a, --alone[=user]	run standalone and fork in background as `user'\n"
-       "  -d, --debug[=level]	run foreground with output to stdout\n"
+       "  -d, --debug[=level]	run foreground with output to stderr\n"
        "			and debug level `level' (default is 2)\n"
        "  -s, --syslog[=level]	run foreground with output to syslog\n"
        "			and debug level `level' (default is 2)\n"

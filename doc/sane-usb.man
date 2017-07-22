@@ -138,6 +138,13 @@ environment variable controls the debug level for the USB I/O
 subsystem.  E.g., a value of 128 requests all debug output to be
 printed.  Smaller levels reduce verbosity. Values greater than 4 enable
 libusb debugging (if available). Example: export SANE_DEBUG_SANEI_USB=4.
+.PP
+.TP
+.B SANE_USB_WORKAROUND
+If your scanner does not work when plugged into a USB3 port, try
+setting the environment variable SANE_USB_WORKAROUND to 1. This
+may work around issues which happen with particular kernel
+versions. Example: export SANE_USB_WORKAROUND=1.
 
 .SH "SEE ALSO"
 .BR sane (7),

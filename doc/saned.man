@@ -6,6 +6,9 @@ saned \- SANE network daemon
 .B saned
 .B [ \-a
 .I [ username ]
+.B [ \-b
+.I address
+.B ]
 .B | \-d
 .I [ n ]
 .B | \-s
@@ -58,6 +61,12 @@ at all. The default value is 2. If flag
 is used, the debug messages will be printed to stderr while
 .B \-s
 requests using syslog.
+.PP
+The
+.B \-b
+flag requests that
+.B saned
+bind to a specific address.
 .PP
 If
 .B saned

@@ -297,7 +297,7 @@ sanei_outb (unsigned int port, unsigned char value)
 static void
 sanei_insb (unsigned int port, unsigned char *addr, unsigned long count)
 {
-  int i;
+  unsigned int i;
 
   for (i = 0; i < count; i++)
     addr[i] = sanei_inb (port);
@@ -306,7 +306,7 @@ sanei_insb (unsigned int port, unsigned char *addr, unsigned long count)
 static void
 sanei_insl (unsigned int port, unsigned char *addr, unsigned long count)
 {
-  int i;
+  unsigned int i;
 
   for (i = 0; i < count * 4; i++)
     addr[i] = sanei_inb (port);
@@ -316,7 +316,7 @@ static void
 sanei_outsb (unsigned int port, const unsigned char *addr,
 	     unsigned long count)
 {
-  int i;
+  unsigned int i;
 
   for (i = 0; i < count; i++)
     sanei_outb (port, addr[i]);
@@ -326,7 +326,7 @@ static void
 sanei_outsl (unsigned int port, const unsigned char *addr,
 	     unsigned long count)
 {
-  int i;
+  unsigned int i;
 
   for (i = 0; i < count * 4; i++)
     sanei_outb (port, addr[i]);

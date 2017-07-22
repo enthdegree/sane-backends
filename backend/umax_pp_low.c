@@ -2868,9 +2868,9 @@ EPPregisterRead (int reg)
 #ifdef HAVE_LINUX_PPDEV_H
   int fd, mode, rc;
   unsigned char breg, bval;
+  int value;
 #endif
   int control;
-  int value;
 
 
 #ifdef HAVE_LINUX_PPDEV_H
@@ -2919,7 +2919,7 @@ EPPregisterRead (int reg)
   control = Inb (CONTROL);
   control = (control & 0x1F) | 0x20;
   Outb (CONTROL, control);
-  value = Inb (EPPDATA);
+  Inb (EPPDATA);
   control = Inb (CONTROL);
   control = control & 0x1F;
   Outb (CONTROL, control);
@@ -2952,9 +2952,8 @@ registerRead (int reg)
 static void
 ECPregisterWrite (int reg, int value)
 {
-  unsigned char breg;
-
 #ifdef HAVE_LINUX_PPDEV_H
+  unsigned char breg;
   int rc, fd;
 
   fd = sanei_umax_pp_getparport ();
@@ -2986,7 +2985,7 @@ ECPregisterWrite (int reg, int value)
 	   __FILE__, __LINE__);
       return;
     }
-  breg = Inb (ECR);
+  Inb (ECR);
 
   Outb (DATA, reg);
   if (waitFifoEmpty () == 0)
@@ -2995,7 +2994,7 @@ ECPregisterWrite (int reg, int value)
 	   __FILE__, __LINE__);
       return;
     }
-  breg = Inb (ECR);
+  Inb (ECR);
 
   Outb (ECPDATA, value);
   if (waitFifoEmpty () == 0)
@@ -3004,7 +3003,7 @@ ECPregisterWrite (int reg, int value)
 	   __FILE__, __LINE__);
       return;
     }
-  breg = Inb (ECR);
+  Inb (ECR);
   Outb (CONTROL, 0x04);
   byteMode ();
   return;
@@ -8626,9 +8625,9 @@ EPPcmdGetBuffer610p (int cmd, int len, unsigned char *buffer)
   int word[5];
   int count, needed, max;
 #ifdef HAVE_LINUX_PPDEV_H
-  int fd, mode, rc;
+  int fd, mode, rc, wait;
 #endif
-  int loop, wait, remain;
+  int loop, remain;
 
   /* first we set length and channel */
   /* compute word */
@@ -8711,7 +8710,6 @@ EPPcmdGetBuffer610p (int cmd, int len, unsigned char *buffer)
       else
 	remain = 4;
       loop = (needed - remain) / 2;
-      wait = 0;
       DBG (32, "EPPcmdGetBuffer610p: %d loops to do \n", loop);
 
       status = 0x20;
@@ -8751,6 +8749,7 @@ EPPcmdGetBuffer610p (int cmd, int len, unsigned char *buffer)
       /* there is one form for full CCD width reads, and another for other
          reads */
 #ifdef HAVE_LINUX_PPDEV_H
+      wait = 0;
       /* check we have ppdev working */
       fd = sanei_umax_pp_getparport ();
       if (fd > 0)

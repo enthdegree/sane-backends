@@ -926,13 +926,22 @@ sanei_parport_find_device (void)
 int
 sanei_umax_pp_initPort (int port, char *name)
 {
-  int fd, ectr;
+#ifndef IO_SUPPORT_MISSING
+# ifdef HAVE_LINUX_PPDEV_H
   int found = 0;
-#if ((defined HAVE_IOPERM)||(defined HAVE_MACHINE_CPUFUNC_H)||(defined HAVE_LINUX_PPDEV_H))
+  int fd;
   int mode, modes, rc;
-#endif
-#ifdef HAVE_LINUX_PPDEV_H
+#  ifdef PPGETMODES
   char strmodes[160];
+#  endif
+# endif
+# ifdef HAVE_DEV_PPBUS_PP_H
+  int found = 0;
+  int fd;
+# endif
+# ifdef HAVE_IOPERM
+  int ectr;
+# endif
 #endif
 
   /* since this function must be called before */

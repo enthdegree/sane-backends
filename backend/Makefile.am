@@ -74,6 +74,10 @@ BACKEND_CONFS= abaton.conf agfafocus.conf apple.conf artec.conf \
 	       teco1.conf teco2.conf teco3.conf test.conf \
 	       u12.conf umax1220u.conf umax.conf umax_pp.conf v4l.conf \
 	       xerox_mfp.conf dll.conf saned.conf
+# Although ./configure sets up BACKEND_CONFS_ENABLED it does not take
+# into account the fact that some backends don't have a configuration
+# file.  The becfg should depend on BACKEND_CONFS.  The install-becfg
+# target uses BACKEND_CONFS_ENABLED and silently skips missing files.
 becfg: $(BACKEND_CONFS)
 
 SUFFIXES = .conf.in .conf
@@ -92,7 +96,7 @@ install-data-hook: install-becfg install-firmware-path $(INSTALL_LOCKPATH)
 # Custom install target to install config files.  Do not overwrite
 # files that have been previously installed so that user modifications
 # are not lost.
-install-becfg:
+install-becfg: becfg
 	@# Libtool has a bug where it will sometimes symlink the last
 	@# installed library in $(sanelibdir) to $(sanelibdir)/libsane.*.
 	@# Having two libsane's can cause issues so get rid of it.

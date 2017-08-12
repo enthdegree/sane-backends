@@ -3382,6 +3382,12 @@
 :status     :complete
 :comment    "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
+:model      "XP-427"
+:interface  "USB"
+:usbid      "0x04b8" "0x1116"
+:status     :good
+:comment    "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model      "XP-600 Series"
 :interface  "USB"
 :usbid      "0x04b8" "0x089e"

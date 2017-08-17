@@ -3346,6 +3346,12 @@
 :status     :complete
 :comment    "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one<br>overseas version of the PX-047A"
 
+:model      "XP-243 245 247 Series"
+:interface  "USB"
+:usbid      "0x04b8" "0x1116"
+:status     :good
+:comment    "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
 :model      "XP-300 Series"
 :interface  "USB"
 :usbid      "0x04b8" "0x0898"

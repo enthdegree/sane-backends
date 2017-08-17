@@ -171,7 +171,7 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x8ca, /* L850 Series */
   0x8cd, /* WF-R4640 Series, WF-R5690 Series */
   0x8d0, /* PX-M350F, WF-M5690 Series */
-  0x1116, /* XP-427 */
+  0x1116, /* XP-243 245 247 Series, XP-427 */
   0				/* last entry - this is used for devices that are specified
 				   in the config file as "usb <vendor> <product>" */
 };

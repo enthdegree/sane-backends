@@ -245,7 +245,7 @@
 :comment "Testers needed!"
 
 :model "PIXMA MG7100 Series"
-:interface "USB"
+:interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x1772"
 :status :complete
 :comment "All resolutions supported (up to 2400DPI)."

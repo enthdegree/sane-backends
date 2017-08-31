@@ -168,6 +168,7 @@
 #define MX420_PID 0x174f
 #define MX880_PID 0x1750
 
+/* Generation 5 */
 /* 2011 new devices (untested) */
 #define MG2100_PID 0x1751
 #define MG3100_PID 0x1752
@@ -1351,7 +1352,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
     {
       uint8_t k = 1;
 
-  /* ADF/ADF duplex mode: max scan res is 600 dpi, at least for generation 4 */
+  /* ADF/ADF duplex mode: max scan res is 600 dpi, at least for generation 4+ */
       if (mp->generation >= 4)
         k = sp->xdpi / MIN (sp->xdpi, 600);
       sp->x /= k;
@@ -1378,7 +1379,7 @@ mp150_scan (pixma_t * s)
   if (mp->state != state_idle)
     return PIXMA_EBUSY;
 
-  /* Generation 4: send XML dialog */
+  /* Generation 4+: send XML dialog */
   /* adf: first page or idle */
   if (mp->generation >= 4 && mp->adf_state == state_idle)
     {
@@ -1420,7 +1421,7 @@ mp150_scan (pixma_t * s)
         if (error < 0)
           return error;
 
-        /* Generation 4: send XML dialog */
+        /* Generation 4+: send XML dialog */
         /* adf: first page or idle */
         if (mp->generation >= 4 && mp->adf_state == state_idle)
         {
@@ -1644,8 +1645,8 @@ mp150_finish_scan (pixma_t * s)
           if (error < 0)
             PDBG (pixma_dbg (1, "WARNING:abort_session() failed %d\n", error));
 
-          /* Generation 4: send XML end of scan dialog */
-          if (mp->generation == 4)
+          /* Generation 4+: send XML end of scan dialog */
+          if (mp->generation >= 4)
             {
               if (!send_xml_dialog (s, XML_END))
                 PDBG (pixma_dbg (1, "WARNING:XML_END dialog failed \n"));

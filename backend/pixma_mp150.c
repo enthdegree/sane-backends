@@ -1791,7 +1791,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MG5200", "MG5200", MG5200_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG6100", "MG6100", MG6100_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
-  /* Latest devices (2011) Generation 4 CIS/CCD */
+  /* Latest devices (2011) Generation 5 CIS/CCD */
   DEVICE ("Canon PIXMA MG2100", "MG2100", MG2100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG3100", "MG3100", MG3100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG4100", "MG4100", MG4100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
@@ -1800,7 +1800,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MP493",  "MP493",  MP493_PID,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA E500",   "E500",   E500_PID,   1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
-  /* Latest devices (2012) Generation 4 CIS */
+  /* Latest devices (2012) Generation 5 CIS */
   DEVICE ("Canon PIXMA MX370 Series", "MX370", MX370_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX430 Series", "MX430", MX430_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX510 Series", "MX510", MX510_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
@@ -1809,7 +1809,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA E600 Series",  "E600",  E600_PID,  1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MG4200", "MG4200", MG4200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
-  /* Latest devices (2013) Generation 4 CIS */
+  /* Latest devices (2013) Generation 5 CIS */
   DEVICE ("Canon PIXMA E510",  "E510",  E510_PID,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA E610",  "E610",  E610_PID,  1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MP230", "MP230", MP230_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
@@ -1830,7 +1830,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MG6500 Series", "MG6500", MG6500_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG7100 Series", "MG7100", MG7100_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
-  /* Latest devices (2014) Generation 4 CIS */
+  /* Latest devices (2014) Generation 5 CIS */
   DEVICE ("Canon PIXMA MX470 Series", "MX470", MX470_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX530 Series", "MX530", MX530_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon MAXIFY MB5000 Series", "MB5000", MB5000_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
@@ -1845,7 +1845,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MG2900 Series", "MG2900", MG2900_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA E460 Series",  "E460",  E460_PID,  600, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
-  /* Latest devices (2015) Generation 4 CIS */
+  /* Latest devices (2015) Generation 5 CIS */
   DEVICE ("Canon PIXMA MX490 Series", "MX490", MX490_PID, 600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA E480 Series",  "E480",  E480_PID,  600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MG3600 Series", "MG3600", MG3600_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
@@ -1854,7 +1854,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MG6800 Series", "MG6800", MG6800_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG5700 Series", "MG5700", MG5700_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
-  /* Latest devices (2016) Generation 4 CIS */
+  /* Latest devices (2016) Generation 5 CIS */
   DEVICE ("Canon PIXMA TS9000 Series", "TS9000", TS9000_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA TS8000 Series", "TS8000", TS8000_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA TS6000 Series", "TS6000", TS6000_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),

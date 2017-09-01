@@ -28,6 +28,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA E410 Series"
+:interface "USB"
+:usbid "0x04a9" "0x181e"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA E460 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1788"
@@ -73,6 +79,24 @@
 :model "PIXMA E610"
 :interface "USB"
 :usbid "0x04a9" "0x1767"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA E3100 Series"
+:interface "USB"
+:usbid "0x04a9" "0x1828"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA G2000"
+:interface "USB"
+:usbid "0x04a9" "0x1795"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA G3000"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1794"
 :status :untested
 :comment "Testers needed!"
 

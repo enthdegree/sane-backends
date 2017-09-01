@@ -235,15 +235,19 @@
 #define MG5700_PID 0x178e
 
 /* 2016 new devices (untested) */
+#define G3000_PID 0x1794
+#define G2000_PID 0x1795
 #define TS9000_PID 0x179f
 #define TS8000_PID 0x1800
 #define TS6000_PID 0x1801
 #define TS5000_PID 0x1802
 #define MG3000_PID 0x180b
 #define E470_PID 0x180c
+#define E410_PID 0x181e
 
 /* 2017 new devices (untested) */
 #define G4000_PID 0x181d
+#define E3100_PID 0x1828
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
 #define XML_START_1   \
@@ -1857,15 +1861,19 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MG5700 Series", "MG5700", MG5700_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2016) Generation 5 CIS */
+  DEVICE ("Canon PIXMA G3000", "G3000", G3000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA G2000", "G2000", G2000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA TS9000 Series", "TS9000", TS9000_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA TS8000 Series", "TS8000", TS8000_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA TS6000 Series", "TS6000", TS6000_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA TS5000 Series", "TS5000", TS5000_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG3000 Series", "MG3000", MG3000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA E470 Series", "E470", E470_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA E410 Series", "E410", E410_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2017) Generation 5 CIS */
   DEVICE ("Canon PIXMA G4000", "G4000", G4000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA E3100 Series", "E3100", E3100_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   END_OF_DEVICE_LIST
 };

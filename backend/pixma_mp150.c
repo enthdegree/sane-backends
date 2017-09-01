@@ -241,7 +241,9 @@
 #define TS5000_PID 0x1802
 #define MG3000_PID 0x180b
 #define E470_PID 0x180c
-#define G3000_PID 0x181d
+
+/* 2017 new devices (untested) */
+#define G4000_PID 0x181d
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
 #define XML_START_1   \
@@ -1861,7 +1863,9 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA TS5000 Series", "TS5000", TS5000_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG3000 Series", "MG3000", MG3000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA E470 Series", "E470", E470_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA G4000 Series", "G3000", G3000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+
+  /* Latest devices (2017) Generation 5 CIS */
+  DEVICE ("Canon PIXMA G4000", "G4000", G4000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   END_OF_DEVICE_LIST
 };

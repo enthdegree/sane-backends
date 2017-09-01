@@ -76,8 +76,8 @@
 :status :untested
 :comment "Testers needed!"
 
-:model "PIXMA G3000"
-:interface "USB WIFI"
+:model "PIXMA G4000"
+:interface "USB WiFi"
 :usbid "0x04a9" "0x181d"
 :status :untested
 :comment "Testers needed!"

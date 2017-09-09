@@ -70,7 +70,8 @@ bind to a specific address.
 .PP
 If
 .B saned
-is run from inetd, xinetd or systemd, no option can be given.
+is run from other programs such as inetd, xinetd and systemd, check that
+program's documentation on how to pass command-line options.
 .PP
 The
 .B \-h

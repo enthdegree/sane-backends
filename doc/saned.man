@@ -6,15 +6,21 @@ saned \- SANE network daemon
 .B saned
 .B [ \-a
 .I [ username ]
+.B ]
+.B [ \-u
+.I username
+.B ]
 .B [ \-b
 .I address
 .B ]
-.B | \-d
-.I [ n ]
-.B | \-s
-.I [ n ]
-.B | \-h
+.B [ \-l ]
+.B [ \-D ]
+.B [ \-o ]
+.B [ \-d
+.I n
 .B ]
+.B [ \-e ]
+.B [ \-h ]
 .SH DESCRIPTION
 .B saned
 is the SANE (Scanner Access Now Easy) daemon that allows remote clients
@@ -22,51 +28,59 @@ to access image acquisition devices available on the local host.
 .SH OPTIONS
 .PP
 The
-.B \-a
+.B \-l
 flag requests that
 .B saned
 run in standalone daemon mode. In this mode,
 .B saned
-will detach from the console and run in the background, listening for incoming
-client connections;
+will listening for incoming client connections;
 .B inetd
 is not required for
 .B saned
-operations in this mode. If the optional
-.B username
-is given after
-.B \-a
-,
+operations in this mode. The
+.B \-b
+flag can control which address
 .B saned
-will drop root privileges and run as this user (and group).
+will bind. The
+.B \-u
+.I username
+flag requests that
+.B saned
+drop root privileges and run as this user (and group) after bind.
+The
+.B \-D
+flag will request
+.B saned
+to detach from the console and run in the background.
+The flag
+.B \-a
+is equals to
+.B \-l \-B \-u
+.I username
+.
+.PP
+The
+.B \-e
+flag will request that 
+.B saned
+output to stderr instead of syslog.
 .PP
 The
 .B \-d
-and
-.B \-s
-flags request that
+flag sets the debug level of
 .B saned
-run in debug mode (as opposed to
-.BR inetd (8)
-daemon mode).  In this mode,
-.B saned
-explicitly waits for a connection request.  When compiled with
-debugging enabled, these flags may be followed by a number to request
+. When compiled with debugging enabled, these flags may be followed by a number to request
 debug info. The larger the number, the more verbose the debug output.
 E.g.,
 .B \-d128
 will request printing of all debug info. Debug level 0 means no debug output
-at all. The default value is 2. If flag
-.B \-d
-is used, the debug messages will be printed to stderr while
-.B \-s
-requests using syslog.
+at all. The default value is 2.
 .PP
 The
-.B \-b
+.B \-o
 flag requests that
 .B saned
-bind to a specific address.
+exits after the first client disconnects. Useful for debugging.
 .PP
 If
 .B saned

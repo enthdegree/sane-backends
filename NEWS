@@ -1,4 +1,12 @@
 -*-Mode: outline-*-
+New with the development version, not yet released:
+
+* Saned options where reorganized (See "man 8 saned" for details):
+ o New: -l (listen), -D (daemonize), -o (once), -e (stderr), -u (user).
+ o Removed: -s (syslog). Use '-a -d level -o -f' for the old behavior.
+ o Changed: -d (debug). Use '-a -d level -o -f -e' for the old behavior.
+
+
 New with 1.0.27 (see Note 1), released 2017-05-22:
 
 * Significant enhancements to canon_dr, epjitsu, epsonds, fujitsu,

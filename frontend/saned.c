@@ -251,6 +251,8 @@ static Wire wire;
 static int num_handles;
 static int debug;
 static int run_mode;
+static int run_foreground;
+static int run_once;
 static int data_connect_timeout = 4000;
 static Handle *handle;
 static char *bind_addr;
@@ -299,9 +301,7 @@ static SANE_Bool log_to_syslog = SANE_TRUE;
 static int process_request (Wire * w);
 
 #define SANED_RUN_INETD  0
-#define SANED_RUN_DEBUG  1
-#define SANED_RUN_ALONE  2
-
+#define SANED_RUN_ALONE  1
 
 #define DBG_ERR  1
 #define DBG_WARN 2
@@ -3046,6 +3046,114 @@ do_bindings (int *nfds, struct pollfd **fds)
 
 
 static void
+runas_user (char *user)
+{
+  uid_t runas_uid = 0;
+  gid_t runas_gid = 0;
+  struct passwd *pwent;
+  gid_t *grplist = NULL;
+  struct group *grp;
+  int ngroups = 0;
+  int ret;
+
+  pwent = getpwnam(user);
+
+  if (pwent == NULL)
+    {
+      DBG (DBG_ERR, "FATAL ERROR: user %s not found on system\n", user);
+      bail_out (1);
+    }
+
+  runas_uid = pwent->pw_uid;
+  runas_gid = pwent->pw_gid;
+
+  /* Get group list for runas_uid */
+  grplist = (gid_t *)malloc(sizeof(gid_t));
+
+  if (grplist == NULL)
+    {
+      DBG (DBG_ERR, "FATAL ERROR: cannot allocate memory for group list\n");
+
+      exit (1);
+    }
+
+  ngroups = 1;
+  grplist[0] = runas_gid;
+
+  setgrent();
+  while ((grp = getgrent()) != NULL)
+    {
+      int i = 0;
+
+      /* Already added current group */
+      if (grp->gr_gid == runas_gid)
+	continue;
+
+      while (grp->gr_mem[i])
+	{
+	  if (strcmp(grp->gr_mem[i], user) == 0)
+	    {
+	      int need_to_add = 1, j;
+
+	      /* Make sure its not already in list */
+	      for (j = 0; j < ngroups; j++)
+		{
+		  if (grp->gr_gid == grplist[i])
+		    need_to_add = 0;
+		}
+	      if (need_to_add)
+		{
+		  grplist = (gid_t *)realloc(grplist,
+					     sizeof(gid_t)*ngroups+1);
+		  if (grplist == NULL)
+		    {
+		      DBG (DBG_ERR, "FATAL ERROR: cannot reallocate memory for group list\n");
+
+		      exit (1);
+		    }
+		  grplist[ngroups++] = grp->gr_gid;
+		}
+	    }
+	  i++;
+	}
+    }
+  endgrent();
+
+  /* Drop privileges if requested */
+  if (runas_uid > 0)
+    {
+      ret = setgroups(ngroups, grplist);
+      if (ret < 0)
+	{
+	  DBG (DBG_ERR, "FATAL ERROR: could not set group list: %s\n", strerror(errno));
+
+	  exit (1);
+	}
+
+      free(grplist);
+
+      ret = setegid (runas_gid);
+      if (ret < 0)
+	{
+	  DBG (DBG_ERR, "FATAL ERROR: setegid to gid %d failed: %s\n", runas_gid, strerror (errno));
+
+	  exit (1);
+	}
+
+      ret = seteuid (runas_uid);
+      if (ret < 0)
+	{
+	  DBG (DBG_ERR, "FATAL ERROR: seteuid to uid %d failed: %s\n", runas_uid, strerror (errno));
+
+	  exit (1);
+	}
+
+      DBG (DBG_WARN, "Dropped privileges to uid %d gid %d\n", runas_uid, runas_gid);
+    }
+}
+
+
+static void
 run_standalone (char *user)
 {
   struct pollfd *fds = NULL;
@@ -3055,84 +3163,12 @@ run_standalone (char *user)
   int i;
   int ret;
 
-  uid_t runas_uid = 0;
-  gid_t runas_gid = 0;
-  struct passwd *pwent;
-  gid_t *grplist = NULL;
-  struct group *grp;
-  int ngroups = 0;
   FILE *pidfile;
 
   do_bindings (&nfds, &fds);
 
-  if (run_mode != SANED_RUN_DEBUG)
+  if (run_foreground == SANE_FALSE)
     {
-      if (user)
-	{
-	  pwent = getpwnam(user);
-
-	  if (pwent == NULL)
-	    {
-	      DBG (DBG_ERR, "FATAL ERROR: user %s not found on system\n", user);
-	      bail_out (1);
-	    }
-
-	  runas_uid = pwent->pw_uid;
-	  runas_gid = pwent->pw_gid;
-
-	  /* Get group list for runas_uid */
-          grplist = (gid_t *)malloc(sizeof(gid_t));
-
-	  if (grplist == NULL)
-	    {
-	      DBG (DBG_ERR, "FATAL ERROR: cannot allocate memory for group list\n");
-
-	      exit (1);
-	    }
-
-          ngroups = 1;
-          grplist[0] = runas_gid;
-
-          setgrent();
-          while ((grp = getgrent()) != NULL)
-	    {
-              int i = 0;
-
-              /* Already added current group */
-              if (grp->gr_gid == runas_gid)
-                continue;
-
-              while (grp->gr_mem[i])
-		{
-                  if (strcmp(grp->gr_mem[i], user) == 0)
-                    {
-                      int need_to_add = 1, j;
-
-                      /* Make sure its not already in list */
-                      for (j = 0; j < ngroups; j++)
-                        {
-                          if (grp->gr_gid == grplist[i])
-                            need_to_add = 0;
-			}
-                      if (need_to_add)
-                        {
-                          grplist = (gid_t *)realloc(grplist,
-                                                     sizeof(gid_t)*ngroups+1);
-                          if (grplist == NULL)
-			    {
-			      DBG (DBG_ERR, "FATAL ERROR: cannot reallocate memory for group list\n");
-
-			      exit (1);
-			    }
-                          grplist[ngroups++] = grp->gr_gid;
-                        }
-                    }
-                  i++;
-                }
-	    }
-          endgrent();
-	}
-
       DBG (DBG_MSG, "run_standalone: daemonizing now\n");
 
       fd = open ("/dev/null", O_RDWR);
@@ -3175,41 +3211,12 @@ run_standalone (char *user)
 
       setsid ();
 
-      /* Drop privileges if requested */
-      if (runas_uid > 0)
-	{
-	  ret = setgroups(ngroups, grplist);
-	  if (ret < 0)
-	    {
-	      DBG (DBG_ERR, "FATAL ERROR: could not set group list: %s\n", strerror(errno));
-
-	      exit (1);
-	    }
-
-	  free(grplist);
-
-	  ret = setegid (runas_gid);
-	  if (ret < 0)
-	    {
-	      DBG (DBG_ERR, "FATAL ERROR: setegid to gid %d failed: %s\n", runas_gid, strerror (errno));
-
-	      exit (1);
-	    }
-
-	  ret = seteuid (runas_uid);
-	  if (ret < 0)
-	    {
-	      DBG (DBG_ERR, "FATAL ERROR: seteuid to uid %d failed: %s\n", runas_uid, strerror (errno));
-
-	      exit (1);
-	    }
-
-	  DBG (DBG_WARN, "Dropped privileges to uid %d gid %d\n", runas_uid, runas_gid);
-	}
-
       signal(SIGINT, sig_int_term_handler);
       signal(SIGTERM, sig_int_term_handler);
     }
+
+  if (user)
+    runas_user(user);
 
 #ifdef WITH_AVAHI
   DBG (DBG_INFO, "run_standalone: spawning Avahi process\n");
@@ -3269,13 +3276,13 @@ run_standalone (char *user)
 	      continue;
 	    }
 
-	  if (run_mode == SANED_RUN_DEBUG)
-	    break; /* We have the only connection we're going to handle */
-	  else
-	    handle_client (fd);
+	  handle_client (fd);
+
+	  if (run_once == SANE_TRUE)
+	    break; /* We have handled the only connection we're going to handle */
 	}
 
-      if (run_mode == SANED_RUN_DEBUG)
+      if (run_once == SANE_TRUE)
 	break;
     }
 
@@ -3283,14 +3290,6 @@ run_standalone (char *user)
     close (fdp->fd);
 
   free (fds);
-
-  if (run_mode == SANED_RUN_DEBUG)
-    {
-      if (fd > 0)
-	handle_connection (fd);
-
-      bail_out(0);
-    }
 }
 
 
@@ -3381,12 +3380,14 @@ static void usage(char *me, int err)
   fprintf (stderr,
        "Usage: %s [OPTIONS]\n\n"
        " Options:\n\n"
-       "  -a, --alone[=user]	run standalone and fork in background as `user'\n"
-       "  -d, --debug[=level]	run foreground with output to stderr\n"
-       "			and debug level `level' (default is 2)\n"
-       "  -s, --syslog[=level]	run foreground with output to syslog\n"
-       "			and debug level `level' (default is 2)\n"
-       "  -b, --bind=addr	bind address `addr'\n"
+       "  -a, --alone[=user]	equals to `-l -D -u user'\n"
+       "  -l, --listen		run in standalone mode (listen for connection)\n"
+       "  -u, --user=user	run as `user'\n"
+       "  -D, --daemonize	run in background\n"
+       "  -o, --once		exit after first client disconnects\n"
+       "  -d, --debug=level	set debug level `level' (default is 2)\n"
+       "  -e, --stderr		output to stderr\n"
+       "  -b, --bind=addr	bind address `addr' (default all interfaces)\n"
        "  -h, --help		show this help message and exit\n", me);
 
   exit(err);
@@ -3399,8 +3400,12 @@ static struct option long_options[] =
 /* These options set a flag. */
   {"help",	no_argument,		0, 'h'},
   {"alone",	optional_argument,	0, 'a'},
-  {"debug",	optional_argument,	0, 'd'},
-  {"syslog",	optional_argument,	0, 's'},
+  {"listen",	no_argument,		0, 'l'},
+  {"user",	required_argument,	0, 'u'},
+  {"daemonize", no_argument,		0, 'D'},
+  {"once",	no_argument,		0, 'o'},
+  {"debug",	required_argument,	0, 'd'},
+  {"stderr",	no_argument,		0, 'e'},
   {"bind",	required_argument,	0, 'b'},
   {0,		0,			0,  0 }
 };
@@ -3424,20 +3429,35 @@ main (int argc, char *argv[])
 
   numchildren = 0;
   run_mode = SANED_RUN_INETD;
+  run_foreground = SANE_TRUE;
+  run_once = SANE_FALSE;
 
-  while((c = getopt_long(argc, argv,"ha::d::s::b:", long_options, &long_index )) != -1)
+  while((c = getopt_long(argc, argv,"ha::lu:Dod:eb:", long_options, &long_index )) != -1)
     {
       switch(c) {
       case 'a':
 	run_mode = SANED_RUN_ALONE;
+	run_foreground = SANE_FALSE;
+	if (optarg)
+	  user = optarg;
+	break;
+      case 'l':
+	run_mode = SANED_RUN_ALONE;
+	break;
+      case 'u':
 	user = optarg;
 	break;
+      case 'D':
+	run_foreground = SANE_FALSE;
+	break;
+      case 'o':
+	run_once = SANE_TRUE;
+	break;
       case 'd':
+	debug = atoi(optarg);
+	break;
+      case 'e':
 	log_to_syslog = SANE_FALSE;
-      case 's':
-	run_mode = SANED_RUN_DEBUG;
-	if(optarg)
-	  debug = atoi(optarg);
 	break;
       case 'b':
 	bind_addr = optarg;
@@ -3487,7 +3507,7 @@ main (int argc, char *argv[])
       DBG (DBG_WARN, "saned from %s ready\n", PACKAGE_STRING);
     }
 
-  if ((run_mode == SANED_RUN_ALONE) || (run_mode == SANED_RUN_DEBUG))
+  if (run_mode == SANED_RUN_ALONE)
     {
       run_standalone(user);
     }

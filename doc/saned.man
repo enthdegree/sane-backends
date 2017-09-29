@@ -1,4 +1,4 @@
-.TH saned 8 "20 Apr 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH saned 8 "29 Sep 2017" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX saned
 .SH NAME
 saned \- SANE network daemon
@@ -31,22 +31,25 @@ The
 .B \-l
 flag requests that
 .B saned
-run in standalone daemon mode. In this mode,
+run in standalone daemon mode.  In this mode,
 .B saned
-will listening for incoming client connections;
+will listen for incoming client connections;
 .B inetd
 is not required for
 .B saned
 operations in this mode. The
 .B \-b
-flag can control which address
+flag tells
 .B saned
-will bind. The
+to bind to the
+.I address
+given.  The
 .B \-u
-.I username
 flag requests that
 .B saned
-drop root privileges and run as this user (and group) after bind.
+drop root privileges and run as the user (and group) associated with
+.I username
+after binding.
 The
 .B \-D
 flag will request
@@ -54,42 +57,42 @@ flag will request
 to detach from the console and run in the background.
 The flag
 .B \-a
-is equals to
+is equivalent to the combination of
 .B \-l \-B \-u
 .I username
-.
-.PP
-The
-.B \-e
-flag will request that 
-.B saned
-output to stderr instead of syslog.
+options.
 .PP
 The
 .B \-d
-flag sets the debug level of
+flag sets the level of
 .B saned
-. When compiled with debugging enabled, these flags may be followed by a number to request
-debug info. The larger the number, the more verbose the debug output.
-E.g.,
+debug output.  When compiled with debugging enabled, this flag may be
+followed by a number to request more or less debug info.  The larger
+the number, the more verbose the debug output.  E.g.,
 .B \-d128
-will request printing of all debug info. Debug level 0 means no debug output
-at all. The default value is 2.
+will request output of all debug info.  A level of 0 produces no
+output at all.  The default value is 2.
+.PP
+The
+.B \-e
+flag will divert
+.B saned
+debug output to stderr instead of the syslog default.
 .PP
 The
 .B \-o
 flag requests that
 .B saned
-exits after the first client disconnects. Useful for debugging.
+exits after the first client disconnects.  This is useful for debugging.
+.PP
+The
+.B \-h
+flag displays a short help message.
 .PP
 If
 .B saned
 is run from other programs such as inetd, xinetd and systemd, check that
 program's documentation on how to pass command-line options.
-.PP
-The
-.B \-h
-flag displays a short help message.
 .SH CONFIGURATION
 First and foremost:
 .B saned

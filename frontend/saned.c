@@ -3380,7 +3380,7 @@ static void usage(char *me, int err)
   fprintf (stderr,
        "Usage: %s [OPTIONS]\n\n"
        " Options:\n\n"
-       "  -a, --alone[=user]	equals to `-l -D -u user'\n"
+       "  -a, --alone[=user]	equal to `-l -D -u user'\n"
        "  -l, --listen		run in standalone mode (listen for connection)\n"
        "  -u, --user=user	run as `user'\n"
        "  -D, --daemonize	run in background\n"

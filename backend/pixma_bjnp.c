@@ -1829,7 +1829,7 @@ static void add_scanner(SANE_Int *dev_no,
 
            attach_bjnp (uri, makemodel,
                         serial, pixma_devices);
-           PDBG (bjnp_dbg (LOG_NOTICE, "add_scanner: New scanner added: %s, serial %s, mac addres: %s.\n",
+           PDBG (bjnp_dbg (LOG_NOTICE, "add_scanner: New scanner added: %s, serial %s, mac address: %s.\n",
 	                 uri, serial, device[*dev_no].mac_address));
           }
         break;

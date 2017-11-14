@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "01 Sep 2017" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "14 Nov 2017" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
@@ -236,7 +236,7 @@ interfaces (i.e. it does not support the getifaddrs() function) you also may nee
 to add your scanner here as well.
 .RS
 .PP
-.I Scanners shall be listed in the configuraton file as follows:
+.I Scanners shall be listed in the configuration file as follows:
 .PP
 .RS
 .I <method>://<host>[:port][/timeout=<value>]
@@ -257,7 +257,7 @@ bjnp-timeout parameter. The value is in ms.
 .PP
 Define scanners each on a new line.
 .PP
-More globally applicable tinmeouts can be set using the bjnp-timeout parameter as folllows:
+More globally applicable timeouts can be set using the bjnp-timeout parameter as follows:
 .PP
 .RS
 .I bjnp-timeout=<value>
@@ -267,7 +267,7 @@ A timeout defined using bjnp-timeout will apply to the following scanner definit
 in the file. If required the bjnp-timeout setting
 can be defined multiple times, where each settng will apply only to the scanners that
 follow the setting. The last setting is used for the auto discovered scanners.
-If not explicitely set,  the default 1000ms setting will apply.
+If not explicitly set, the default 1000ms setting will apply.
 .PP
 Setting timeouts should only be required in exceptional cases.
 .PP

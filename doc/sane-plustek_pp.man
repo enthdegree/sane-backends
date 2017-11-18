@@ -448,8 +448,6 @@ export SANE_DEBUG_PLUSTEK_PP=10
 .BR sane (7),
 .br
 .I @DOCDIR@/plustek/Plustek\-PARPORT.changes
-.br
-.I http://www.gjaeger.de/scanner/plustek_pp/
 
 .SH "CONTACT AND BUG-REPORTS"
 Please send any information and bug-reports to:
@@ -461,10 +459,6 @@ Additional info and hints can be obtained from our
 Mailing-List archive at:
 .br
 .B http://www.sane\-project.org/mailing\-lists.html
-.PP
-or directly from the projects' homepage at:
-.br
-.B http://www.gjaeger.de/scanner/plustek_pp/
 .PP
 To obtain debug messages from the backend, please set the
 environment-variable

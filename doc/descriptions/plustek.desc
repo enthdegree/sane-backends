@@ -5,8 +5,6 @@
 :backend "plustek"
 :version "0.52"
 :manpage "sane-plustek"
-; backend's web page
-:url "http://www.gjaeger.de/scanner/plustek/"
 
 :devicetype :scanner
 
@@ -202,27 +200,51 @@
 :mfg "Canon"
 :url "http://www.canon.com/"
 
-:model "CanoScan N650U/N656U"
+:model "CanoScan N650U"
 :interface "USB"
 :usbid "0x04a9" "0x2206"
 :status :complete
+
+:model "CanoScan N656U"
+:interface "USB"
+:usbid "0x04a9" "0x2206"
+:status :complete
+:comment "Identical to CanoScan N650U"
 
 :model "CanoScan N1220U"
 :interface "USB"
 :usbid "0x04a9" "0x2207"
 :status :complete
 
-:model "CanoScan N670U/N676U/LiDE20"
+:model "CanoScan N670U"
 :interface "USB"
 :usbid "0x04a9" "0x220d"
 :status :complete
 
-:model "CanoScan N1240U/LiDE30"
+:model "CanoScan N676U"
+:interface "USB"
+:usbid "0x04a9" "0x220d"
+:status :complete
+:comment "Identical to CanoScan N670U"
+
+:model "CanoScan LiDE 20"
+:interface "USB"
+:usbid "0x04a9" "0x220d"
+:status :complete
+:comment "Identical to CanoScan N670U"
+
+:model "CanoScan N1240U"
 :interface "USB"
 :usbid "0x04a9" "0x220e"
 :status :complete
 
-:model "CanoScan LiDE25"
+:model "CanoScan LiDE 30"
+:interface "USB"
+:usbid "0x04a9" "0x220e"
+:status :complete
+:comment "Identical to CanoScan N1240U"
+
+:model "CanoScan LiDE 25"
 :interface "USB"
 :usbid "0x04a9" "0x2220"
 :status :good

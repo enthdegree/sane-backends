@@ -1,4 +1,4 @@
-.TH sane\-plustek 5 "13 Feb 2013" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-plustek 5 "03 Nov 2017" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-plustek
 .SH NAME
 sane\-plustek \- SANE backend for LM983[1/2/3] based
@@ -468,8 +468,6 @@ export SANE_DEBUG_PLUSTEK=10
 .BR sane\-gt68xx (5),
 .br
 .I @DOCDIR@/plustek/Plustek-USB.changes
-.br
-.I http://www.gjaeger.de/scanner/plustek/
 
 .SH "CONTACT AND BUG-REPORTS"
 Please send any information and bug-reports to:
@@ -482,16 +480,12 @@ Mailing-List archive at:
 .br
 .B http://www.sane\-project.org/mailing\-lists.html
 .PP
-or directly from the projects' homepage at:
-.br
-.B http://www.gjaeger.de/scanner/plustek/
-.PP
 To obtain debug messages from the backend, please set the
 environment-variable
 .I SANE_DEBUG_PLUSTEK
-before calling your favorite scan-frontend (i.e. xscanimage).
+before calling your favorite scan-frontend (i.e. scanimage).
 .br
-.B i.e.: export SANE_DEBUG_PLUSTEK=20 ; xscanimage
+.B i.e.: export SANE_DEBUG_PLUSTEK=20 ; scanimage
 .PP
 The value controls the verbosity of the backend. Please note, that
 values greater than 24 force the backend to output raw data files,

@@ -4,7 +4,7 @@
 sane\-find\-scanner \- find SCSI and USB scanners and their device files
 .SH SYNOPSIS
 .B sane\-find\-scanner
-.RB [ \-h | \-? ]
+.RB [ \-? | \-h | \-\-help ]
 .RB [ \-v ]
 .RB [ \-q ]
 .RB [ \-p ]
@@ -64,7 +64,7 @@ At the time of writing this will only detect Mustek parallel port scanners.
 
 .SH OPTIONS
 .TP 8
-.B \-h, \-?
+.B \-?, \-h, \-\-help
 Prints a short usage message.
 .TP 8
 .B \-v

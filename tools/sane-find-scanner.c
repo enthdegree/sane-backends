@@ -1605,6 +1605,13 @@ main (int argc, char **argv)
 #endif
 	  exit (0);
 
+	case '-':
+	  if (!strcmp((*ap), "--help"))
+	    {
+	      usage (0);
+	      exit (0);
+	    }
+
 	default:
 	  printf ("unknown option: -%c, try -h for help\n", (*ap)[1]);
 	  exit (0);

@@ -1146,10 +1146,10 @@
 :comment "Testers needed!"
 
 :model "MAXIFY MB2000 Series"
-:interface "USB"
+:interface "USB WiFi"
 :usbid "0x04a9" "0x1778"
-:status :untested
-:comment "Testers needed!"
+:status :good
+:comment "Flatbed works, All resolutions supported (up to 1200DPI), ADF does not work"
 
 :model "MAXIFY MB2300 Series"
 :interface "USB"
@@ -1160,7 +1160,7 @@
 :model "MAXIFY MB5000 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1776"
-:status :complete
+:status :good
 :comment "Flatbed works, All resolutions supported (up to 1200DPI), ADF does not work"
 
 :model "MAXIFY MB5300 Series"

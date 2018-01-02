@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "14 Nov 2017" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "02 Jan 2018" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
@@ -69,7 +69,7 @@ imageRUNNER 1020/1024/1025
 .br
 CanoScan 8800F, 9000F, 9000F Mark II
 .br
-MAXIFY MB5000 (ADF is not working)
+MAXIFY MB2000, MB5000
 .RE
 .PP
 The following models are not well tested and/or the scanner sometimes hangs
@@ -109,7 +109,7 @@ imageRUNNER 1133
 .br
 i-SENSYS MF220, MF5880dn, MF5900, MF6680dn, MF8500C
 .br
-MAXIFY MB2000, MB2300, MB5300
+MAXIFY MB2300, MB5300
 .RE
 .PP
 \#The following models may use partly the same Pixma protocol as other devices

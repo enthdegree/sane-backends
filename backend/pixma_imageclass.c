@@ -107,6 +107,7 @@
 #define MF230_PID  0x27d1
 #define MF240_PID  0x27d2
 #define MF630_PID  0x27e1
+#define MF730_PID  0x27e4
 
 
 enum iclass_state_t
@@ -948,5 +949,6 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF240 Series", "MF240", MF240_PID, 600, 300, 634, 1050, PIXMA_CAP_ADF),               /* max. w = 215mm, */
                                                                                                              /* TODO: fix black stripes for 216mm @ 600dpi */
   DEV ("Canon i-SENSYS MF630 Series", "MF630", MF630_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),
+  DEV ("Canon i-SENSYS MF730 Series", "MF730", MF730_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),
   DEV (NULL, NULL, 0, 0, 0, 0, 0, 0)
 };

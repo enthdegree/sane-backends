@@ -884,8 +884,8 @@
 :model "i-SENSYS MF620 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x27b4"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)."
 
 :model "i-SENSYS MF630 Series"
 :interface "USB Ethernet WiFi"

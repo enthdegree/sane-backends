@@ -528,6 +528,11 @@
 :status     :good
 :comment    "network interface supported via DFSG non-free iscan-network-nt package"
 
+:model      "ET-2650"
+:interface  "USB Ethernet"
+:usbid      "0x04b8" "0x1121"
+:status     :good
+
 :model      "Expression 636"
 :interface  "SCSI"
 :status     :complete
@@ -1048,6 +1053,11 @@
 :usbid      "0x04b8" "0x08a8"
 :status     :complete
 :comment    "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
+
+:model      "L495"
+:interface  "USB Ethernet"
+:usbid      "0x04b8" "0x1121"
+:status     :good
 
 :model      "L550 Series"
 :interface  "USB"

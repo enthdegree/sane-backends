@@ -184,7 +184,7 @@ sanei_ir_to_8bit (SANE_Parameters * params, const SANE_Uint *in_img,
 /**
  * @brief Allocate and initialize logarithmic lookup table
  *
- * @param[in]  length of table, usually 1 << depth
+ * @param[in]  len length of table, usually 1 << depth
  * @param[out] lut_ln adress of pointer to allocated table
  *
  * @return
@@ -202,7 +202,7 @@ SANE_Status sanei_ir_ln_table (int len, double **lut_ln);
  * @param[in]  lut_ln pointer lookup table
  *             if NULL it is dynamically handled
  * @param[in]  red_data pointer to red image plane
- * @param      ired_data pointer to ired image plane
+ * @param      ir_data pointer to ir image plane
  *
  * @return
  * - SANE_STATUS_GOOD - success

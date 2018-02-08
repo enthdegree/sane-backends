@@ -1,5 +1,5 @@
 ;;;  utsushi.desc                               -*- emacs-lisp -*- (sort of)
-;;;  Copyright (C) 2015-2017  Olaf Meeuwissen
+;;;  Copyright (C) 2015-2018  Olaf Meeuwissen
 ;;;
 ;;;  License: GPL-3.0+
 ;;;  Author : Olaf Meeuwissen
@@ -80,6 +80,11 @@
 :model     "DS-860"
 :interface "USB"
 :usbid     "0x04b8" "0x014d"
+:status    :good
+
+:model     "DS-1630"
+:interface "USB"
+:usbid     "0x04b8" "0x015c"
 :status    :good
 
 :model     "DS-5500"
@@ -212,6 +217,16 @@
 :usbid     "0x04b8" "0x08ce"
 :status    :good
 
+:model     "PX-M884F"
+:interface "USB"
+:usbid     "0x04b8" "0x112e"
+:status    :good
+
+:model     "WF-4720"
+:interface "USB"
+:usbid     "0x04b8" "0x1125"
+:status    :good
+
 :model     "WF-6530"
 :interface "USB"
 :usbid     "0x04b8" "0x08cd"
@@ -280,6 +295,16 @@
 :model     "XP-530"
 :interface "USB"
 :usbid     "0x04b8" "0x110c"
+:status    :good
+
+:model     "XP-540"
+:interface "USB"
+:usbid     "0x04b8" "0x1117"
+:status    :good
+
+:model     "XP-640"
+:interface "USB"
+:usbid     "0x04b8" "0x1117"
 :status    :good
 
 :model     "XP-830"
@@ -491,10 +516,11 @@
 :interface "USB"
 :usbid     "0x04b8" "0x1128"
 :status    :good
+:comment   "PX-Mxxx?"
 
 :model     "PID 1129"
 :interface "USB"
-:usbid     "0x04b8" "0x1129b"
+:usbid     "0x04b8" "0x1129"
 :status    :good
 :comment   "L61x0?"
 
@@ -563,5 +589,11 @@
 
 :model     "PID 113A"
 :interface "USB"
-:usbid     "0x04b8" "0x113A"
+:usbid     "0x04b8" "0x113a"
 :status    :good
+
+:model     "PID 113B"
+:interface "USB"
+:usbid     "0x04b8" "0x113b"
+:status    :good
+:comment   "PX-Mxxx?"

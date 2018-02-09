@@ -27,7 +27,7 @@ $ make install
       If you prefer to use git, you can fetch a read-only copy of the git tree
       with this command:
 
-      $ git clone git://git.debian.org/sane/sane-backends.git
+      $ git clone https://gitlab.com/sane-project/backends.git
 
       If you already are using a self compiled SANE backend and just fetched a
       new copy of the git tree or if you patched some source files, there is no

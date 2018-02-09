@@ -379,7 +379,7 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 In case of trouble with a recent Pixma model, try the latest code for
 the pixma backend, available in the Sane git repository at:
 .br
-.I http://git.debian.org/?p=sane/sane-backends.git
+.I https://gitlab.com/sane-project/backends.git
 .PP
 You can also post into the Sane-devel mailing list for support.
 

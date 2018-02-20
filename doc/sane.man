@@ -569,8 +569,8 @@ Backend for Connectix QuickCam cameras. See
 .BR sane\-qcam (5).
 .TP
 .B stv680
-The sane\-st680 backend provides access to webcams with a stv680 chip. See
-.BR sane\-st680 (5)
+The sane\-stv680 backend provides access to webcams with a stv680 chip. See
+.BR sane\-stv680 (5)
 for details.
 .PP
 Also, have a look at the backend information page at

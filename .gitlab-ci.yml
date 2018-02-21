@@ -44,11 +44,14 @@ compile:debian-8-full:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
     MAKE_FLAGS: "CFLAGS=-Werror"
   <<: *compile_definition
+  - make -C doc html-pages
+  - mkdir lists && doc/*.html lists/
   cache:
     untracked: true
   artifacts:
     paths:
     - configure
+    - lists
     expire_in: 1 day
 
 compile:alpine-3.6-musl:
@@ -95,3 +98,4 @@ archive:
   artifacts:
     paths:
     - sane-backends-*.tar.gz
+    - lists

@@ -1,5 +1,5 @@
 # .gitlab-ci.yml -- to test some source code build scenarios
-# Copyright (C) 2016, 2017  Olaf Meeuwissen
+# Copyright (C) 2016-2018  Olaf Meeuwissen
 #
 # License: GPL-3.0+
 
@@ -44,6 +44,7 @@ compile:debian-8-full:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
     MAKE_FLAGS: "CFLAGS=-Werror"
   <<: *compile_definition
+  after_script:
   - make -C doc html-pages
   - mkdir lists && doc/*.html lists/
   cache:

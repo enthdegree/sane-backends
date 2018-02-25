@@ -46,7 +46,7 @@ compile:debian-8-full:
   <<: *compile_definition
   after_script:
   - make -C doc html-pages
-  - mkdir lists && doc/*.html lists/
+  - mkdir lists && mv doc/*.html lists/
   cache:
     untracked: true
   artifacts:

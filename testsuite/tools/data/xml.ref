@@ -2361,7 +2361,7 @@
     <usbvendorid>0x04b0</usbvendorid>
     <usbproductid>0x4001</usbproductid>
     <status>minimal</status>
-    <url>/unsupported/nikon-ls50-ed.html</url>
+    <url>unsupported/nikon-ls50-ed.html</url>
     <comment>*none*</comment>
    </model>
    <model name="Super Coolscan LS-5000 ED">
@@ -2369,7 +2369,7 @@
     <usbvendorid>0x04b0</usbvendorid>
     <usbproductid>0x4002</usbproductid>
     <status>untested</status>
-    <url>/unsupported/nikon-ls5000-ed.html</url>
+    <url>unsupported/nikon-ls5000-ed.html</url>
     <comment>May work, similar to LS 50 ED, but untested. Please tell us if it works.</comment>
    </model>
    <model name="LS 8000 ED">
@@ -2430,7 +2430,7 @@
     <usbvendorid>0x04b0</usbvendorid>
     <usbproductid>0x4001</usbproductid>
     <status>minimal</status>
-    <url>/unsupported/nikon-ls50-ed.html</url>
+    <url>unsupported/nikon-ls50-ed.html</url>
     <comment>*none*</comment>
    </model>
    <model name="Coolscan V ED">
@@ -2438,7 +2438,7 @@
     <usbvendorid>0x04b0</usbvendorid>
     <usbproductid>0x4001</usbproductid>
     <status>minimal</status>
-    <url>/unsupported/nikon-ls50-ed.html</url>
+    <url>unsupported/nikon-ls50-ed.html</url>
     <comment>Rebadged LS 50?</comment>
    </model>
    <model name="LS 2000">
@@ -2462,7 +2462,7 @@
     <usbvendorid>0x04b0</usbvendorid>
     <usbproductid>0x4002</usbproductid>
     <status>untested</status>
-    <url>/unsupported/nikon-ls5000-ed.html</url>
+    <url>unsupported/nikon-ls5000-ed.html</url>
     <comment>May work, similar to LS 50 ED, but untested. Please tell us if it works.</comment>
    </model>
    <model name="LS 8000 ED">
@@ -9427,7 +9427,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>minimal</status>
-    <url>/unsupported/microtek-scanmaker-9800.html</url>
+    <url>unsupported/microtek-scanmaker-9800.html</url>
     <comment>IEEE-1394 seems to work. See link. More reports welcome.</comment>
    </model>
    <model name="Phantom 330CX">
@@ -14293,7 +14293,7 @@
 <version>2010-06-09</version>
 <new state="no"/>
  <manpage>*none*</manpage>
- <url>/contrib.html</url>
+ <url>contrib.html</url>
  <comment>The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs.</comment>
  <type def="scanner">
  <mfg name="Agfa">
@@ -14304,7 +14304,7 @@
     <usbvendorid>0x06bd</usbvendorid>
     <usbproductid>0x02bf</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/agfa-duoscan-f40.html</url>
+    <url>unsupported/agfa-duoscan-f40.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="DuoScan T2000XL">
@@ -14312,7 +14312,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/agfa-duoscan-t2000xl.html</url>
+    <url>unsupported/agfa-duoscan-t2000xl.html</url>
     <comment>Unsupported. Same as Microtek ArtixScan 2020?</comment>
    </model>
    <model name="DuoScan T2500">
@@ -14328,7 +14328,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/acer-parport.html</url>
+    <url>unsupported/acer-parport.html</url>
     <comment>Unsupported, see link for details.</comment>
    </model>
    <model name="SnapScan EZ">
@@ -14336,7 +14336,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/acer-parport.html</url>
+    <url>unsupported/acer-parport.html</url>
     <comment>Unsupported, see link for details.</comment>
    </model>
    <model name="SnapScan 1200P">
@@ -14344,7 +14344,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/acer-parport.html</url>
+    <url>unsupported/acer-parport.html</url>
     <comment>Unsupported, see link for details.</comment>
    </model>
    <model name="SnapScan 1212P">
@@ -14352,7 +14352,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/acer-parport.html</url>
+    <url>unsupported/acer-parport.html</url>
     <comment>Unsupported, see link for details.</comment>
    </model>
  </mfg>
@@ -14364,7 +14364,7 @@
     <usbvendorid>0x05d8</usbvendorid>
     <usbproductid>0x4001</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/artec_1236usb.html</url>
+    <url>unsupported/artec_1236usb.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="AM12e+">
@@ -14380,7 +14380,7 @@
     <usbvendorid>0x05d8</usbvendorid>
     <usbproductid>0x4001</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/artec-ultima-2000-2.html</url>
+    <url>unsupported/artec-ultima-2000-2.html</url>
     <comment>Same name, but different ids: This scanner is not supported. The scanner with product id 0x4002 is supported by the gt68xx backend, however.</comment>
    </model>
  </mfg>
@@ -14392,7 +14392,7 @@
     <usbvendorid>0x05cb</usbvendorid>
     <usbproductid>0x1483</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/trust-combiscan-19200.html</url>
+    <url>unsupported/trust-combiscan-19200.html</url>
     <comment>Not supported. See link for details.</comment>
    </model>
  </mfg>
@@ -14420,7 +14420,7 @@
     <usbvendorid>0x0638</usbvendorid>
     <usbproductid>0x0a10</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/umax-astra-4500.html</url>
+    <url>unsupported/umax-astra-4500.html</url>
     <comment>GL646 based, to be added to genesys backend. Same as UMAX Astra 4500.</comment>
    </model>
    <model name="iVina FB1800">
@@ -14428,7 +14428,7 @@
     <usbvendorid>0x0638</usbvendorid>
     <usbproductid>0x0a20</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/umax-astra-4700.html</url>
+    <url>unsupported/umax-astra-4700.html</url>
     <comment>GL646/GL660 based. Same as UMAX Astra 4700.</comment>
    </model>
  </mfg>
@@ -14440,7 +14440,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/acer-parport.html</url>
+    <url>unsupported/acer-parport.html</url>
     <comment>Unsupported, see link for details.</comment>
    </model>
    <model name="320P">
@@ -14448,7 +14448,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/acer-parport.html</url>
+    <url>unsupported/acer-parport.html</url>
     <comment>Unsupported, see link for details.</comment>
    </model>
    <model name="340P">
@@ -14456,7 +14456,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/acer-parport.html</url>
+    <url>unsupported/acer-parport.html</url>
     <comment>Unsupported, see link for details.</comment>
    </model>
    <model name="610P">
@@ -14464,7 +14464,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/acer-parport.html</url>
+    <url>unsupported/acer-parport.html</url>
     <comment>Unsupported, see link for details.</comment>
    </model>
    <model name="610PT">
@@ -14472,7 +14472,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/acer-parport.html</url>
+    <url>unsupported/acer-parport.html</url>
     <comment>Unsupported, see link for details.</comment>
    </model>
    <model name="620P">
@@ -14480,7 +14480,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/acer-parport.html</url>
+    <url>unsupported/acer-parport.html</url>
     <comment>Unsupported, see link for details.</comment>
    </model>
    <model name="620PT">
@@ -14488,7 +14488,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/acer-parport.html</url>
+    <url>unsupported/acer-parport.html</url>
     <comment>Unsupported, see link for details.</comment>
    </model>
    <model name="640P">
@@ -14496,7 +14496,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/acer-parport.html</url>
+    <url>unsupported/acer-parport.html</url>
     <comment>Unsupported, see link for details.</comment>
    </model>
    <model name="5450">
@@ -14512,7 +14512,7 @@
     <usbvendorid>0x04a5</usbvendorid>
     <usbproductid>0x2211</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/benq-5550.html</url>
+    <url>unsupported/benq-5550.html</url>
     <comment>Unsupported, see link for details.</comment>
    </model>
    <model name="5560">
@@ -14528,7 +14528,7 @@
     <usbvendorid>0x04a5</usbvendorid>
     <usbproductid>0x2202</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/benq-7400ut.html</url>
+    <url>unsupported/benq-7400ut.html</url>
     <comment>*none*</comment>
    </model>
  </mfg>
@@ -14540,7 +14540,7 @@
     <usbvendorid>0x05cb</usbvendorid>
     <usbproductid>0x1483</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/trust-combiscan-19200.html</url>
+    <url>unsupported/trust-combiscan-19200.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
  </mfg>
@@ -14552,7 +14552,7 @@
     <usbvendorid>0x04f9</usbvendorid>
     <usbproductid>0x000a</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/brother-mfc-2500.html</url>
+    <url>unsupported/brother-mfc-2500.html</url>
     <comment>Not supported. See link for details.</comment>
    </model>
    <model name="MFC 4600">
@@ -14568,7 +14568,7 @@
     <usbvendorid>0x04f9</usbvendorid>
     <usbproductid>0x0106</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/brother-mfc-7300.html</url>
+    <url>unsupported/brother-mfc-7300.html</url>
     <comment>*none*</comment>
    </model>
    <model name="MFC 9600">
@@ -14576,7 +14576,7 @@
     <usbvendorid>0x04f9</usbvendorid>
     <usbproductid>0x0101</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/brother-mfc-9600.html</url>
+    <url>unsupported/brother-mfc-9600.html</url>
     <comment>*none*</comment>
    </model>
  </mfg>
@@ -14588,7 +14588,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/c-channel-mypen-pro.html</url>
+    <url>unsupported/c-channel-mypen-pro.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="MyPen Light">
@@ -14616,7 +14616,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x2215</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-3000.html</url>
+    <url>unsupported/canon-3000.html</url>
     <comment>GL660+GL646 based.</comment>
    </model>
    <model name="CanoScan 3000ex">
@@ -14624,7 +14624,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x2215</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-3000.html</url>
+    <url>unsupported/canon-3000.html</url>
     <comment>GL660+GL646 based.</comment>
    </model>
    <model name="CanoScan 3000F">
@@ -14632,7 +14632,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x2215</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-3000.html</url>
+    <url>unsupported/canon-3000.html</url>
     <comment>GL660+GL646 based, to be added to genesys backend</comment>
    </model>
    <model name="CanoScan 4200F">
@@ -14640,7 +14640,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x221b</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-4200f.html</url>
+    <url>unsupported/canon-4200f.html</url>
     <comment>Probably unsupported. See link.</comment>
    </model>
    <model name="CanoScan 4400F">
@@ -14648,7 +14648,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x2228</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-4400.html</url>
+    <url>unsupported/canon-4400.html</url>
     <comment>GL843 based, to be added to genesys backend</comment>
    </model>
    <model name="CanoScan 5000F">
@@ -14656,7 +14656,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x2212</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-5000f.html</url>
+    <url>unsupported/canon-5000f.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="CanoScan 5200F">
@@ -14664,7 +14664,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x2217</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-5200f.html</url>
+    <url>unsupported/canon-5200f.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="CanoScan 8000F">
@@ -14672,7 +14672,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x220f</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-8000f.html</url>
+    <url>unsupported/canon-8000f.html</url>
     <comment>Not supported. See link for more information. With transparency adapter.</comment>
    </model>
    <model name="CanoScan 8400F">
@@ -14680,7 +14680,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x221e</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-8400f.html</url>
+    <url>unsupported/canon-8400f.html</url>
     <comment>GL841 based, to be added to genesys backend</comment>
    </model>
    <model name="CanoScan 8600F">
@@ -14688,7 +14688,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x2229</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-8600.html</url>
+    <url>unsupported/canon-8600.html</url>
     <comment>GL841 based, to be added to genesys backend</comment>
    </model>
    <model name="CanoScan 9900F">
@@ -14696,7 +14696,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x2210</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-9900f.html</url>
+    <url>unsupported/canon-9900f.html</url>
     <comment>Probably unsupported, similar to 8000F. 3200x6400 dpi USB2. With transparency adapter.</comment>
    </model>
    <model name="CanoScan 9950F">
@@ -14704,7 +14704,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x2219</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-9950f.html</url>
+    <url>unsupported/canon-9950f.html</url>
     <comment>Probably unsupported.</comment>
    </model>
    <model name="CanoScan D646U">
@@ -14712,7 +14712,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x220b</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-d646u.html</url>
+    <url>unsupported/canon-d646u.html</url>
     <comment>Probably not supported. See link for more information and test program.</comment>
    </model>
    <model name="CanoScan D646U ex">
@@ -14720,7 +14720,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x220b</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-d646u.html</url>
+    <url>unsupported/canon-d646u.html</url>
     <comment>Probably not supported. See D646.</comment>
    </model>
    <model name="CanoScan D1230U">
@@ -14728,7 +14728,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x2209</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-d1230u.html</url>
+    <url>unsupported/canon-d1230u.html</url>
     <comment>Probably not supported. </comment>
    </model>
    <model name="CanoScan D1250U2">
@@ -14736,7 +14736,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x220c</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-d1250u2.html</url>
+    <url>unsupported/canon-d1250u2.html</url>
     <comment>Not supported. However, someone started working on this scanner and some information is available (see link).</comment>
    </model>
    <model name="CanoScan D2400UF">
@@ -14744,7 +14744,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x220a</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-d2400uf.html</url>
+    <url>unsupported/canon-d2400uf.html</url>
     <comment>Not supported. See link.</comment>
    </model>
    <model name="CanoScan FB320U">
@@ -14760,7 +14760,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x2202</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-fb620u.html</url>
+    <url>unsupported/canon-fb620u.html</url>
     <comment>Probably not supported. Some information is available.</comment>
    </model>
    <model name="CanoScan FB1210U">
@@ -14784,7 +14784,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x2214</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-lide-80.html</url>
+    <url>unsupported/canon-lide-80.html</url>
     <comment>GL841 based, to be added to genesys backend</comment>
    </model>
    <model name="CanoScan LiDE 90">
@@ -14792,7 +14792,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x1900</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-lide-90.html</url>
+    <url>unsupported/canon-lide-90.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="CanoScan LiDE 500F">
@@ -14800,7 +14800,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x221f</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-canoscan-lide-500f.html</url>
+    <url>unsupported/canon-canoscan-lide-500f.html</url>
     <comment>GL841 based, to be added to genesys backend</comment>
    </model>
    <model name="CanoScan LiDE 600">
@@ -14824,7 +14824,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x3042</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-fs4000.html</url>
+    <url>unsupported/canon-fs4000.html</url>
     <comment>Not supported. See link for more details.</comment>
    </model>
    <model name="IS 12">
@@ -14832,7 +14832,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-is-12.html</url>
+    <url>unsupported/canon-is-12.html</url>
     <comment>Probably not supported. Scanner cardridge for Canon inkjet printers.</comment>
    </model>
    <model name="IS 22">
@@ -14840,7 +14840,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-is-22.html</url>
+    <url>unsupported/canon-is-22.html</url>
     <comment>Probably not supported. Scanner cardridge for Canon inkjet printers.</comment>
    </model>
    <model name="IS 32">
@@ -14848,7 +14848,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x105d</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-is-32.html</url>
+    <url>unsupported/canon-is-32.html</url>
     <comment>Probably not supported. Scanner cardridge for Canon inkjet printers.</comment>
    </model>
    <model name="IS 52">
@@ -14856,7 +14856,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-is-52.html</url>
+    <url>unsupported/canon-is-52.html</url>
     <comment>Probably not supported. Scanner cardridge for Canon inkjet printers.</comment>
    </model>
    <model name="ImageRunner iR1018">
@@ -14864,7 +14864,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x269d</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-imagerunner.html</url>
+    <url>unsupported/canon-imagerunner.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="ImageRunner iR1022">
@@ -14872,7 +14872,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x269d</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-imagerunner.html</url>
+    <url>unsupported/canon-imagerunner.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="ImageRunner iR1023">
@@ -14880,7 +14880,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x269d</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-imagerunner.html</url>
+    <url>unsupported/canon-imagerunner.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="PIXMA MP110">
@@ -14888,7 +14888,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x1700</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-pixma-mp110.html</url>
+    <url>unsupported/canon-pixma-mp110.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="PIXMA MP130">
@@ -14896,7 +14896,7 @@
     <usbvendorid>0x04a9</usbvendorid>
     <usbproductid>0x1701</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/canon-pixma-mp130.html</url>
+    <url>unsupported/canon-pixma-mp130.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="DR-2020U">
@@ -14916,7 +14916,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/chinon-ds3000.html</url>
+    <url>unsupported/chinon-ds3000.html</url>
     <comment>Unsupported at the moment, but a backend is in preparation. See link.</comment>
    </model>
  </mfg>
@@ -14940,7 +14940,7 @@
     <usbvendorid>0x05cb</usbvendorid>
     <usbproductid>0x1483</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/trust-combiscan-19200.html</url>
+    <url>unsupported/trust-combiscan-19200.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
  </mfg>
@@ -14952,7 +14952,7 @@
     <usbvendorid>0x08f0</usbvendorid>
     <usbproductid>0x0001</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/corex-cardscan-500.html</url>
+    <url>unsupported/corex-cardscan-500.html</url>
     <comment>Probably not supported. Businesscard reader.</comment>
    </model>
    <model name="Cardscan 700 C">
@@ -14960,7 +14960,7 @@
     <usbvendorid>0x08f0</usbvendorid>
     <usbproductid>0x0004</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/corex-cardscan-700.html</url>
+    <url>unsupported/corex-cardscan-700.html</url>
     <comment>Probably not supported.</comment>
    </model>
  </mfg>
@@ -14980,7 +14980,7 @@
     <usbvendorid>0x413c</usbvendorid>
     <usbproductid>0x5107</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/dell-a960.html</url>
+    <url>unsupported/dell-a960.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="922">
@@ -14988,7 +14988,7 @@
     <usbvendorid>0x413c</usbvendorid>
     <usbproductid>0x5109</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/dell-922.html</url>
+    <url>unsupported/dell-922.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
  </mfg>
@@ -15016,7 +15016,7 @@
     <usbvendorid>0x04b8</usbvendorid>
     <usbproductid>0x083f</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/epson-stylus-dx4450.html</url>
+    <url>unsupported/epson-stylus-dx4450.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="Stylus CX-5800">
@@ -15036,7 +15036,7 @@
     <usbvendorid>0x0a53</usbvendorid>
     <usbproductid>0x5001</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/edt-900c.html</url>
+    <url>unsupported/edt-900c.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
  </mfg>
@@ -15081,7 +15081,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/genius-colorpage-cs.html</url>
+    <url>unsupported/genius-colorpage-cs.html</url>
     <comment>Probably unsupported, see link for details.</comment>
    </model>
    <model name="ColorPage-Slim 1200 USB2">
@@ -15089,7 +15089,7 @@
     <usbvendorid>0x0458</usbvendorid>
     <usbproductid>0x2020</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/genius-colorpage-slim-1200-usb2.html</url>
+    <url>unsupported/genius-colorpage-slim-1200-usb2.html</url>
     <comment>GL841 based, to be added to genesys backend.</comment>
    </model>
    <model name="ColorPage HR6X Slim">
@@ -15097,7 +15097,7 @@
     <usbvendorid>0x0458</usbvendorid>
     <usbproductid>0x2019</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/genius-colorpage-hr6x.html</url>
+    <url>unsupported/genius-colorpage-hr6x.html</url>
     <comment>GL646 based, to be added to genesys backend</comment>
    </model>
    <model name="ColorPage HR7X">
@@ -15105,7 +15105,7 @@
     <usbvendorid>0x0458</usbvendorid>
     <usbproductid>0x2018</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/genius-colorpage-hr7x.html</url>
+    <url>unsupported/genius-colorpage-hr7x.html</url>
     <comment>GL646 based, to be added to genesys backend</comment>
    </model>
    <model name="ColorPage HR7XE">
@@ -15113,7 +15113,7 @@
     <usbvendorid>0x06dc</usbvendorid>
     <usbproductid>0x0012</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/genius-colorpage-hr7xe.html</url>
+    <url>unsupported/genius-colorpage-hr7xe.html</url>
     <comment>Unsuported. See link for details.</comment>
    </model>
    <model name="ColorPage HR8">
@@ -15121,7 +15121,7 @@
     <usbvendorid>0x0458</usbvendorid>
     <usbproductid>0x201c</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/genius-colorpage-hr8.html</url>
+    <url>unsupported/genius-colorpage-hr8.html</url>
     <comment>GL841 based, to be added to genesys backend</comment>
    </model>
  </mfg>
@@ -15133,7 +15133,7 @@
     <usbvendorid>0x080d</usbvendorid>
     <usbproductid>0x0102</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/teco-vm6509.html</url>
+    <url>unsupported/teco-vm6509.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="Maxi Scan A4 Parallel 36 bit">
@@ -15153,7 +15153,7 @@
     <usbvendorid>0x080d</usbvendorid>
     <usbproductid>0x0102</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/teco-vm6509.html</url>
+    <url>unsupported/teco-vm6509.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
  </mfg>
@@ -15165,7 +15165,7 @@
     <usbvendorid>0x03f0</usbvendorid>
     <usbproductid>0x1001</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/hp-photo-1000.html</url>
+    <url>unsupported/hp-photo-1000.html</url>
     <comment>Not supported by SANE. However, it&apos;s detected as mass storage device so just mounting it is reported to work. See link for device data.</comment>
    </model>
    <model name="Photosmart 1200 Photo">
@@ -15181,7 +15181,7 @@
     <usbvendorid>0x03f0</usbvendorid>
     <usbproductid>0x0102</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/hp-photosmart-s20xi.html</url>
+    <url>unsupported/hp-photosmart-s20xi.html</url>
     <comment>Not supported yet by SANE. See link for details.</comment>
    </model>
    <model name="Photosmart S20xi (C7150A)">
@@ -15189,7 +15189,7 @@
     <usbvendorid>0x03f0</usbvendorid>
     <usbproductid>0x0102</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/hp-photosmart-s20xi.html</url>
+    <url>unsupported/hp-photosmart-s20xi.html</url>
     <comment>Not supported yet by SANE. See link for details.</comment>
    </model>
    <model name="Photosmart C5100 series">
@@ -15197,7 +15197,7 @@
     <usbvendorid>0x03f0</usbvendorid>
     <usbproductid>0x5811</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/hp-photosmart-5100.html</url>
+    <url>unsupported/hp-photosmart-5100.html</url>
     <comment>Not supported yet by SANE. See link for details.</comment>
    </model>
    <model name="ScanJet 2400c">
@@ -15205,7 +15205,7 @@
     <usbvendorid>0x03f0</usbvendorid>
     <usbproductid>0x0a01</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/hp-scanjet-2400c.html</url>
+    <url>unsupported/hp-scanjet-2400c.html</url>
     <comment>GL646 based, to be added to genesys backend</comment>
    </model>
    <model name="Photosmart C3180">
@@ -15213,7 +15213,7 @@
     <usbvendorid>0x03f0</usbvendorid>
     <usbproductid>0x5611</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/hp-photosmart-3180.html</url>
+    <url>unsupported/hp-photosmart-3180.html</url>
     <comment>Not supported yet by SANE. See link for details.</comment>
    </model>
    <model name="ScanJet 3770">
@@ -15229,7 +15229,7 @@
     <usbvendorid>0x03f0</usbvendorid>
     <usbproductid>0x3005</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/hp-scanjet-4600.html</url>
+    <url>unsupported/hp-scanjet-4600.html</url>
     <comment>Not supported. See link for details, or http://www.chmil.org/hp4600linux/ for code</comment>
    </model>
    <model name="ScanJet 4670">
@@ -15245,7 +15245,7 @@
     <usbvendorid>0x03f0</usbvendorid>
     <usbproductid>0x1b05</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/hp-scanjet-4850.html</url>
+    <url>unsupported/hp-scanjet-4850.html</url>
     <comment>GL841, maybe can be added to genesys backend </comment>
    </model>
    <model name="ScanJet 4890C">
@@ -15253,7 +15253,7 @@
     <usbvendorid>0x03f0</usbvendorid>
     <usbproductid>0x1b05</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/hp-scanjet-4850.html</url>
+    <url>unsupported/hp-scanjet-4850.html</url>
     <comment>GL843, maybe can be added to genesys backend </comment>
    </model>
    <model name="ScanJet 5530C Photosmart">
@@ -15261,7 +15261,7 @@
     <usbvendorid>0x03f0</usbvendorid>
     <usbproductid>0x1605</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/hp-scanjet-5530.html</url>
+    <url>unsupported/hp-scanjet-5530.html</url>
     <comment>Maybe GL841_HP, but not confirmed, maybe can be added to genesys backend</comment>
    </model>
    <model name="ScanJet 8390">
@@ -15269,7 +15269,7 @@
     <usbvendorid>0x03f0</usbvendorid>
     <usbproductid>0x3805</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/hp-scanjet-8390.html</url>
+    <url>unsupported/hp-scanjet-8390.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="ScanJet G4000">
@@ -15277,7 +15277,7 @@
     <usbvendorid>0x03f0</usbvendorid>
     <usbproductid>0x4505</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/hp-g4000.html</url>
+    <url>unsupported/hp-g4000.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
  </mfg>
@@ -15301,7 +15301,7 @@
     <usbvendorid>0x05cb</usbvendorid>
     <usbproductid>0x1483</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/trust-combiscan-19200.html</url>
+    <url>unsupported/trust-combiscan-19200.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
  </mfg>
@@ -15313,7 +15313,7 @@
     <usbvendorid>0x0a53</usbvendorid>
     <usbproductid>0x1000</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/iris-iriscan.html</url>
+    <url>unsupported/iris-iriscan.html</url>
     <comment>Unsupported. LM9832/3. See link for details.</comment>
    </model>
    <model name="IRISPen Translator Executive">
@@ -15321,7 +15321,7 @@
     <usbvendorid>0x0f43</usbvendorid>
     <usbproductid>0x015a</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/iris-irispen-translator.html</url>
+    <url>unsupported/iris-irispen-translator.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="IRISCard Pro (IBCR II)">
@@ -15329,7 +15329,7 @@
     <usbvendorid>0x0a38</usbvendorid>
     <usbproductid>0x0301</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/iris-business.html</url>
+    <url>unsupported/iris-business.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
  </mfg>
@@ -15353,7 +15353,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x0097</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/lexmark-p6250.html</url>
+    <url>unsupported/lexmark-p6250.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="Photo 3150">
@@ -15361,7 +15361,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x007d</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/lexmark-3150.html</url>
+    <url>unsupported/lexmark-3150.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="X74">
@@ -15369,7 +15369,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x0060</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/lexmark-x75.html</url>
+    <url>unsupported/lexmark-x75.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="X75">
@@ -15377,7 +15377,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x0060</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/lexmark-x75.html</url>
+    <url>unsupported/lexmark-x75.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="X75 PrinTrio">
@@ -15385,7 +15385,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x0060</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/lexmark-x75.html</url>
+    <url>unsupported/lexmark-x75.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="X83">
@@ -15393,7 +15393,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x003d</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/lexmark-x83.html</url>
+    <url>unsupported/lexmark-x83.html</url>
     <comment>Unsupported. GL640.</comment>
    </model>
    <model name="X2330">
@@ -15401,7 +15401,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x00bb</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/lexmark-x2330.html</url>
+    <url>unsupported/lexmark-x2330.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="X3450">
@@ -15409,7 +15409,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x00f6</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/lexmark-x3450.html</url>
+    <url>unsupported/lexmark-x3450.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="X5130">
@@ -15417,7 +15417,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x0065</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/lexmark-x5130.html</url>
+    <url>unsupported/lexmark-x5130.html</url>
     <comment>Unsupported.</comment>
    </model>
    <model name="X5150">
@@ -15425,7 +15425,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x0065</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/lexmark-x5130.html</url>
+    <url>unsupported/lexmark-x5130.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="X5250">
@@ -15433,7 +15433,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x0093</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/lexmark-x5250.html</url>
+    <url>unsupported/lexmark-x5250.html</url>
     <comment>Unsupported.</comment>
    </model>
    <model name="X6170">
@@ -15441,7 +15441,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x0072</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/lexmark-x6170.html</url>
+    <url>unsupported/lexmark-x6170.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="X7170">
@@ -15457,7 +15457,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x00b8</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/lexmark-x7350.html</url>
+    <url>unsupported/lexmark-x7350.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="X8350">
@@ -15465,7 +15465,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x00b9</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/lexmark-x8350.html</url>
+    <url>unsupported/lexmark-x8350.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
  </mfg>
@@ -15485,7 +15485,7 @@
     <usbvendorid>0x046d</usbvendorid>
     <usbproductid>0x040f</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/logitech-pagescan-usb.html</url>
+    <url>unsupported/logitech-pagescan-usb.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
  </mfg>
@@ -15498,7 +15498,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x0392</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/medion-md6190.html</url>
+    <url>unsupported/medion-md6190.html</url>
     <comment>Probably unsupported. There seem to exist two different scanners with that name. See link for details.</comment>
    </model>
    <model name="MD 6190">
@@ -15506,7 +15506,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x037b</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/medion-md6190.html</url>
+    <url>unsupported/medion-md6190.html</url>
     <comment>Probably unsupported. There seem to exist two different scanners with that name. See link for details.</comment>
    </model>
    <model name="MD 40420">
@@ -15514,7 +15514,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x3008</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/tevion-md40420.html</url>
+    <url>unsupported/tevion-md40420.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="MD 41260">
@@ -15522,7 +15522,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x037b</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/medion-md6190.html</url>
+    <url>unsupported/medion-md6190.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="MD 41985">
@@ -15530,7 +15530,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x037b</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/medion-md6190.html</url>
+    <url>unsupported/medion-md6190.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="MD 42666">
@@ -15538,7 +15538,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x3008</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/tevion-md40420.html</url>
+    <url>unsupported/tevion-md40420.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="MD 85264">
@@ -15554,7 +15554,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x30e5</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/tevion-md90009.html</url>
+    <url>unsupported/tevion-md90009.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="MD 90070">
@@ -15562,7 +15562,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x3022</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/tevion-md90070.html</url>
+    <url>unsupported/tevion-md90070.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="MD 90090">
@@ -15570,7 +15570,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x3022</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/tevion-md90070.html</url>
+    <url>unsupported/tevion-md90070.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
  </mfg>
@@ -15582,7 +15582,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x0346</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/memorex-maxx-6136u.html</url>
+    <url>unsupported/memorex-maxx-6136u.html</url>
     <comment>Probably unsupported.</comment>
    </model>
    <model name="6142u">
@@ -15590,7 +15590,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x0347</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch4400.html</url>
+    <url>unsupported/visioneer-onetouch4400.html</url>
     <comment>Probably unsupported. Same as Visioneer Onetouch 4400. See link for details.</comment>
    </model>
    <model name="MaxxScan 6122">
@@ -15598,7 +15598,7 @@
     <usbvendorid>0x05cb</usbvendorid>
     <usbproductid>0x1483</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/trust-combiscan-19200.html</url>
+    <url>unsupported/trust-combiscan-19200.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="SCF 9612P">
@@ -15606,7 +15606,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/memorex-scf-9612p.html</url>
+    <url>unsupported/memorex-scf-9612p.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
  </mfg>
@@ -15626,7 +15626,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x202e</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-artixscan-2020.html</url>
+    <url>unsupported/microtek-artixscan-2020.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="Artixscan 2500f">
@@ -15650,7 +15650,7 @@
     <usbvendorid>0x05e3</usbvendorid>
     <usbproductid>0x0120</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-filmscan-35.html</url>
+    <url>unsupported/microtek-filmscan-35.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="ScanMaker 336 CX">
@@ -15666,7 +15666,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-1850s.html</url>
+    <url>unsupported/microtek-scanmaker-1850s.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="ScanMaker 3630">
@@ -15674,7 +15674,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x0347</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-3630.html</url>
+    <url>unsupported/microtek-scanmaker-3630.html</url>
     <comment>Unsupported. Doesn&apos;t seem to be compatible to 3600 series, see link.</comment>
    </model>
    <model name="ScanMaker 3800">
@@ -15682,7 +15682,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x30ce</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-3800.html</url>
+    <url>unsupported/microtek-scanmaker-3800.html</url>
     <comment>Unsupported. See link for more details.</comment>
    </model>
    <model name="ScanMaker 3830">
@@ -15690,7 +15690,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x30ce</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-3830.html</url>
+    <url>unsupported/microtek-scanmaker-3830.html</url>
     <comment>Unsupported. See link for more details.</comment>
    </model>
    <model name="ScanMaker 3860">
@@ -15698,7 +15698,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x3023</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-3880.html</url>
+    <url>unsupported/microtek-scanmaker-3880.html</url>
     <comment>Unsupported. See link for more details. Appears to be similar to ScanMaker 3880.</comment>
    </model>
    <model name="ScanMaker 3880">
@@ -15706,7 +15706,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x3021</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-3880.html</url>
+    <url>unsupported/microtek-scanmaker-3880.html</url>
     <comment>Unsupported. SQ113 chip. See link for more details.</comment>
    </model>
    <model name="ScanMaker 4600">
@@ -15714,7 +15714,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x40c7</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-4600.html</url>
+    <url>unsupported/microtek-scanmaker-4600.html</url>
     <comment>Unsupported. See link for more details.</comment>
    </model>
    <model name="ScanMaker 4700">
@@ -15722,7 +15722,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x20b4</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-4700.html</url>
+    <url>unsupported/microtek-scanmaker-4700.html</url>
     <comment>Unsupported. See link for more details.</comment>
    </model>
    <model name="ScanMaker 4850">
@@ -15730,7 +15730,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x30d9</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-4900.html</url>
+    <url>unsupported/microtek-scanmaker-4900.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="ScanMaker 4850 II">
@@ -15738,7 +15738,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x3008</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-4850-2.html</url>
+    <url>unsupported/microtek-scanmaker-4850-2.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="ScanMaker 4900">
@@ -15746,7 +15746,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x30b9</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-4900.html</url>
+    <url>unsupported/microtek-scanmaker-4900.html</url>
     <comment>Unsupported. See link for more details.</comment>
    </model>
    <model name="ScanMaker 5">
@@ -15754,7 +15754,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-5600.html</url>
+    <url>unsupported/microtek-scanmaker-5600.html</url>
     <comment>Probably unsupported. See link for more details.</comment>
    </model>
    <model name="ScanMaker 5600">
@@ -15762,7 +15762,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x20a7</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-5600.html</url>
+    <url>unsupported/microtek-scanmaker-5600.html</url>
     <comment>Unsupported. See link for more details.</comment>
    </model>
    <model name="ScanMaker 5700">
@@ -15778,7 +15778,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x3008</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-5800.html</url>
+    <url>unsupported/microtek-scanmaker-5800.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="ScanMaker 5800">
@@ -15786,7 +15786,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x30d8</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-5800.html</url>
+    <url>unsupported/microtek-scanmaker-5800.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="ScanMaker 5900">
@@ -15794,7 +15794,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x30d8</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-5900.html</url>
+    <url>unsupported/microtek-scanmaker-5900.html</url>
     <comment>Unsupported. See link for more details.</comment>
    </model>
    <model name="ScanMaker 5950">
@@ -15802,7 +15802,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x30d8</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-5950.html</url>
+    <url>unsupported/microtek-scanmaker-5950.html</url>
     <comment>Unsupported. See link for more details.</comment>
    </model>
    <model name="ScanMaker 6000">
@@ -15810,7 +15810,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x30e5</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-6000.html</url>
+    <url>unsupported/microtek-scanmaker-6000.html</url>
     <comment>Unsupported. See link for more details.</comment>
    </model>
    <model name="ScanMaker 6100">
@@ -15818,7 +15818,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x30e5</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-6100.html</url>
+    <url>unsupported/microtek-scanmaker-6100.html</url>
     <comment>Unsupported. See link for more details.</comment>
    </model>
    <model name="ScanMaker 6700">
@@ -15826,7 +15826,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x20c9</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-6700.html</url>
+    <url>unsupported/microtek-scanmaker-6700.html</url>
     <comment>Unsupported. See link.</comment>
    </model>
    <model name="ScanMaker 8700">
@@ -15834,7 +15834,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x20b1</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-8700.html</url>
+    <url>unsupported/microtek-scanmaker-8700.html</url>
     <comment>Unsupported. See link for details. USB vendor and product ids to be checked.</comment>
    </model>
    <model name="ScanMaker 9600XL">
@@ -15850,7 +15850,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x20de</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-9800.html</url>
+    <url>unsupported/microtek-scanmaker-9800.html</url>
     <comment>Partly unsupported. IEEE-1394 works with microtek2 backend. See link.</comment>
    </model>
    <model name="ScanMaker i320">
@@ -15858,7 +15858,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x30e6</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-i320.html</url>
+    <url>unsupported/microtek-scanmaker-i320.html</url>
     <comment>Unsupported. See link.</comment>
    </model>
    <model name="ScanMaker s400">
@@ -15866,7 +15866,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x201c</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-s400.html</url>
+    <url>unsupported/microtek-scanmaker-s400.html</url>
     <comment>Unsupported. See link.</comment>
    </model>
    <model name="ScanMaker S400">
@@ -15874,7 +15874,7 @@
     <usbvendorid>0x05da</usbvendorid>
     <usbproductid>0x300b</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanmaker-s400.html</url>
+    <url>unsupported/microtek-scanmaker-s400.html</url>
     <comment>Unsupported. See link.</comment>
    </model>
    <model name="ScanPort 3000">
@@ -15882,7 +15882,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0224</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/microtek-scanport-3000.html</url>
+    <url>unsupported/microtek-scanport-3000.html</url>
     <comment>Unsupported. Vendor/Product ids: 0x04a7/0x0224. Realtek RTS8801B?. See link for details.</comment>
    </model>
  </mfg>
@@ -15894,7 +15894,7 @@
     <usbvendorid>0x0686</usbvendorid>
     <usbproductid>0x400d</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/minolta-dual-scan-III.html</url>
+    <url>unsupported/minolta-dual-scan-III.html</url>
     <comment>Unsupported. May work with vuescan. See link for details.</comment>
    </model>
    <model name="Dual Scan IV">
@@ -15902,7 +15902,7 @@
     <usbvendorid>0x132b</usbvendorid>
     <usbproductid>0x000a</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/minolta-dual-scan-IV.html</url>
+    <url>unsupported/minolta-dual-scan-IV.html</url>
     <comment>Unsupported. Works with vuescan. See link for details.</comment>
    </model>
    <model name="DiMAGE Scan Elite 5400">
@@ -15910,7 +15910,7 @@
     <usbvendorid>0x0686</usbvendorid>
     <usbproductid>0x400e</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/minolta-dse-5400.html</url>
+    <url>unsupported/minolta-dse-5400.html</url>
     <comment>Probably unsupported. May work with vuescan. See link for details.</comment>
    </model>
    <model name="DiMAGE Scan Elite 5400 2">
@@ -15918,7 +15918,7 @@
     <usbvendorid>0x132b</usbvendorid>
     <usbproductid>0x0012</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/minolta-dse-5400-2.html</url>
+    <url>unsupported/minolta-dse-5400-2.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="DiMAGE Scan Multi Pro">
@@ -15926,7 +15926,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/minolta-dimage-scan-multi-pro.html</url>
+    <url>unsupported/minolta-dimage-scan-multi-pro.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="magicolor 2480MF">
@@ -15972,7 +15972,7 @@
     <usbvendorid>0x055f</usbvendorid>
     <usbproductid>0x0408</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/mustek-bearpaw-2448-cu-pro.html</url>
+    <url>unsupported/mustek-bearpaw-2448-cu-pro.html</url>
     <comment>Not supported. May be supported by mustek_usb2 backend later. See link for some information.</comment>
    </model>
    <model name="BearPaw 4800 TA Pro">
@@ -15980,7 +15980,7 @@
     <usbvendorid>0x055f</usbvendorid>
     <usbproductid>0x1000</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/mustek-bearpaw-4800ta-pro.html</url>
+    <url>unsupported/mustek-bearpaw-4800ta-pro.html</url>
     <comment>Not supported. See link for some information.</comment>
    </model>
    <model name="BearPaw 4800 TA Pro II">
@@ -15988,7 +15988,7 @@
     <usbvendorid>0x055f</usbvendorid>
     <usbproductid>0x040a</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/mustek-bearpaw-4800ta-pro-ii.html</url>
+    <url>unsupported/mustek-bearpaw-4800ta-pro-ii.html</url>
     <comment>Not supported.  May be supported by mustek_usb2 backend later. See link for some information.</comment>
    </model>
    <model name="BearPaw 6400 TA Pro">
@@ -16072,7 +16072,7 @@
     <usbvendorid>0x0475</usbvendorid>
     <usbproductid>0x0100</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/nec-petiscan.html</url>
+    <url>unsupported/nec-petiscan.html</url>
     <comment>Most probably unsupported. See link for details. Vendor ID is Relisys/Teco. Not known if it is similar to other Relisys/Teco USB scanners.</comment>
    </model>
  </mfg>
@@ -16084,7 +16084,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/nikon-ls9000-ed.html</url>
+    <url>unsupported/nikon-ls9000-ed.html</url>
     <comment>Probably not supported. See link for details. Possibly similar to LS-8000 ED.</comment>
    </model>
  </mfg>
@@ -16096,7 +16096,7 @@
     <usbvendorid>0x0b3c</usbvendorid>
     <usbproductid>0xa880</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/olivetti-job-jet-m400.html</url>
+    <url>unsupported/olivetti-job-jet-m400.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
  </mfg>
@@ -16116,7 +16116,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/olympus-es10s.html</url>
+    <url>unsupported/olympus-es10s.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
  </mfg>
@@ -16300,7 +16300,7 @@
     <usbvendorid>0x0a82</usbvendorid>
     <usbproductid>0x2000</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/syscan-travelscan-pro.html</url>
+    <url>unsupported/syscan-travelscan-pro.html</url>
     <comment>Probably not supported. Some information is available.</comment>
    </model>
  </mfg>
@@ -16312,7 +16312,7 @@
     <usbvendorid>0x05e3</usbvendorid>
     <usbproductid>0x0120</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/pie-1800u.html</url>
+    <url>unsupported/pie-1800u.html</url>
     <comment>Not supported. See link for details.</comment>
    </model>
    <model name="Primefilm 2700">
@@ -16336,7 +16336,7 @@
     <usbvendorid>0x05e3</usbvendorid>
     <usbproductid>0x0142</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/reflecta-digitdia-3600.html</url>
+    <url>unsupported/reflecta-digitdia-3600.html</url>
     <comment>Probably unsupported. Film scanner that can scan directly from the magazine.</comment>
    </model>
    <model name="PF3650 Pro3 Film Scanner">
@@ -16344,7 +16344,7 @@
     <usbvendorid>0x05e3</usbvendorid>
     <usbproductid>0x0143</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/pie-pf3650.html</url>
+    <url>unsupported/pie-pf3650.html</url>
     <comment>Not supported. See link for details.</comment>
    </model>
  </mfg>
@@ -16357,7 +16357,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0807</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticfilm-7200.html</url>
+    <url>unsupported/plustek-opticfilm-7200.html</url>
     <comment>GL842 based, maybe to be added to genesys backend</comment>
    </model>
    <model name="OpticFilm 7200i">
@@ -16389,7 +16389,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0600</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticpro-st12.html</url>
+    <url>unsupported/plustek-opticpro-st12.html</url>
     <comment>Product id 0x0600 is unsupported but may be supported by the genesys backend in future. Product id 0x040b is supported by the gt68xx backend.</comment>
    </model>
    <model name="OpticPro ST12">
@@ -16397,7 +16397,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0600</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticpro-st12.html</url>
+    <url>unsupported/plustek-opticpro-st12.html</url>
     <comment>Product id 0x0600 is unsupported but may be supported by the genesys backend in future. Product id 0x040b is supported by the gt68xx backend.</comment>
    </model>
    <model name="OpticPro ST16">
@@ -16405,7 +16405,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0600</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticpro-st16.html</url>
+    <url>unsupported/plustek-opticpro-st16.html</url>
     <comment>GL646 based, to be added to genesys backend</comment>
    </model>
    <model name="OpticPro UA18">
@@ -16421,7 +16421,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0601</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticpro-st24.html</url>
+    <url>unsupported/plustek-opticpro-st24.html</url>
     <comment>Product id 0x0601 is unsupported but may be supported by the genesys backend in future /GL646). Product id 0x040e is supported by the gt68xx backend.</comment>
    </model>
    <model name="OpticPro ST24">
@@ -16429,7 +16429,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0601</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticpro-st24.html</url>
+    <url>unsupported/plustek-opticpro-st24.html</url>
     <comment>GL646 based, to be added to genesys backend</comment>
    </model>
    <model name="OpticPro S28">
@@ -16437,7 +16437,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0801</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticpro-s28.html</url>
+    <url>unsupported/plustek-opticpro-s28.html</url>
     <comment>GL841 based, to be added to genesys backend</comment>
    </model>
    <model name="OpticPro ST28">
@@ -16445,7 +16445,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0801</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticpro-s28.html</url>
+    <url>unsupported/plustek-opticpro-s28.html</url>
     <comment>GL841 based, to be added to genesys backend</comment>
    </model>
    <model name="OpticPro ST28">
@@ -16453,7 +16453,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0802</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticpro-st28.html</url>
+    <url>unsupported/plustek-opticpro-st28.html</url>
     <comment>GL841 based, to be added to genesys backend</comment>
    </model>
    <model name="Umax AstraScan 4750">
@@ -16461,7 +16461,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0802</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/umax-astrscan-4750.html</url>
+    <url>unsupported/umax-astrscan-4750.html</url>
     <comment>GL841 based, to be added to genesys backend, rebadged Plustek ST28</comment>
    </model>
    <model name="OpticPro ST48">
@@ -16469,7 +16469,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0800</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticpro-st48.html</url>
+    <url>unsupported/plustek-opticpro-st48.html</url>
     <comment>GL841 based, to be added to genesys backend</comment>
    </model>
    <model name="OpticPro ST64">
@@ -16477,7 +16477,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0c00</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticpro-st64.html</url>
+    <url>unsupported/plustek-opticpro-st64.html</url>
     <comment>GL843 based, maybe to be added to genesys backend</comment>
    </model>
    <model name="OpticPro ST64+">
@@ -16485,7 +16485,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0c03</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticpro-st64plus.html</url>
+    <url>unsupported/plustek-opticpro-st64plus.html</url>
     <comment>GL843 based. See link for more details.</comment>
    </model>
    <model name="PL 806">
@@ -16493,7 +16493,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0c0c</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-pl806.html</url>
+    <url>unsupported/plustek-pl806.html</url>
     <comment>Unsupported. See link for more details.</comment>
    </model>
    <model name="SmartOffice PL 812">
@@ -16501,7 +16501,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0c0d</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-pl812.html</url>
+    <url>unsupported/plustek-pl812.html</url>
     <comment>Unsupported. See link for more details.</comment>
    </model>
    <model name="OpticSlim 500">
@@ -16509,7 +16509,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0458</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticslim-500.html</url>
+    <url>unsupported/plustek-opticslim-500.html</url>
     <comment>Unsupported. See link for more details.</comment>
    </model>
    <model name="OpticSlim 2420">
@@ -16517,7 +16517,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0806</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticslim-2420.html</url>
+    <url>unsupported/plustek-opticslim-2420.html</url>
     <comment>GL841 based, to be added to genesys backend</comment>
    </model>
    <model name="OpticSlim 2420+">
@@ -16525,7 +16525,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0914</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticslim-2420plus.html</url>
+    <url>unsupported/plustek-opticslim-2420plus.html</url>
     <comment>GL841 based, to be added to genesys backend</comment>
    </model>
    <model name="OpticWorks 2000">
@@ -16549,7 +16549,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x081c</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-scancopy-115.html</url>
+    <url>unsupported/plustek-scancopy-115.html</url>
     <comment>GL841 based, to be added to genesys backend</comment>
    </model>
    <model name="Spectra ADF">
@@ -16625,7 +16625,7 @@
     <usbvendorid>0x10c4</usbvendorid>
     <usbproductid>0xea60</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/planon-docupen-r700.html</url>
+    <url>unsupported/planon-docupen-r700.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="DocuPen (DPEN-BW)">
@@ -16645,7 +16645,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x0341</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/primax-colorado-600u.html</url>
+    <url>unsupported/primax-colorado-600u.html</url>
     <comment>Not supported. Some information is available.</comment>
    </model>
    <model name="Colorado 1200p">
@@ -16669,7 +16669,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x0347</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch4400.html</url>
+    <url>unsupported/visioneer-onetouch4400.html</url>
     <comment>Unsupported. Same as Visioneer Onetouch 4400. See link for details.</comment>
    </model>
    <model name="Colorado Direct 600">
@@ -16693,7 +16693,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x0340</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/primax-colorado-usb-9600.html</url>
+    <url>unsupported/primax-colorado-usb-9600.html</url>
     <comment>Not supported. See link for details.</comment>
    </model>
    <model name="G2-300">
@@ -16781,7 +16781,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x0371</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch8920.html</url>
+    <url>unsupported/visioneer-onetouch8920.html</url>
     <comment>Not supported. Look similar to Visioneer Onetouch 8920 (same USB product id).</comment>
    </model>
  </mfg>
@@ -16793,7 +16793,7 @@
     <usbvendorid>0x06dc</usbvendorid>
     <usbproductid>0x0014</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/prolink-2448u.html</url>
+    <url>unsupported/prolink-2448u.html</url>
     <comment>Not supported. Some information is available. RealTek RTS8801.</comment>
    </model>
    <model name="Winscan Pro 2000">
@@ -16833,7 +16833,7 @@
     <usbvendorid>0x05e3</usbvendorid>
     <usbproductid>0x0142</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/reflecta-digitdia-3600.html</url>
+    <url>unsupported/reflecta-digitdia-3600.html</url>
     <comment>Film scanner that can scan directly from the magazine.</comment>
    </model>
    <model name="iScan 1800">
@@ -16841,7 +16841,7 @@
     <usbvendorid>0x05e3</usbvendorid>
     <usbproductid>0x0120</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/reflecta-iscan-1800.html</url>
+    <url>unsupported/reflecta-iscan-1800.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="ProScan 4000">
@@ -16849,7 +16849,7 @@
     <usbvendorid>0x05e3</usbvendorid>
     <usbproductid>0x0143</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/reflecta-proscan-4000.html</url>
+    <url>unsupported/reflecta-proscan-4000.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
  </mfg>
@@ -16861,7 +16861,7 @@
     <usbvendorid>0x0475</usbvendorid>
     <usbproductid>0x0103</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/relisys-eclipse-1200u.html</url>
+    <url>unsupported/relisys-eclipse-1200u.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="Scorpio Ultra 3">
@@ -16869,7 +16869,7 @@
     <usbvendorid>0x0475</usbvendorid>
     <usbproductid>0x0210</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/relisys-scorpio-ultra3.html</url>
+    <url>unsupported/relisys-scorpio-ultra3.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="Episode">
@@ -16877,7 +16877,7 @@
     <usbvendorid>0x0475</usbvendorid>
     <usbproductid>0x0103</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/relisys-episode.html</url>
+    <url>unsupported/relisys-episode.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
    <model name="AVEC II E3">
@@ -16897,7 +16897,7 @@
     <usbvendorid>0x04e8</usbvendorid>
     <usbproductid>0x341f</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/samsung-scx-4725.html</url>
+    <url>unsupported/samsung-scx-4725.html</url>
     <comment>Not supported. See link for details.</comment>
    </model>
  </mfg>
@@ -16909,7 +16909,7 @@
     <usbvendorid>0x0a82</usbvendorid>
     <usbproductid>0x6605</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/scanshell-800n.html</url>
+    <url>unsupported/scanshell-800n.html</url>
     <comment>Not supported. See link for details.</comment>
    </model>
  </mfg>
@@ -16993,7 +16993,7 @@
     <usbvendorid>0x0a82</usbvendorid>
     <usbproductid>0x0530</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/syscan-travelscan-fs531.html</url>
+    <url>unsupported/syscan-travelscan-fs531.html</url>
     <comment>Not supported. May work with the Plustek backend in future. See link for details.</comment>
    </model>
    <model name="TravelScan Pro">
@@ -17001,7 +17001,7 @@
     <usbvendorid>0x0a82</usbvendorid>
     <usbproductid>0x2000</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/syscan-travelscan-pro.html</url>
+    <url>unsupported/syscan-travelscan-pro.html</url>
     <comment>Probably not supported. Some information is available.</comment>
    </model>
  </mfg>
@@ -17029,7 +17029,7 @@
     <usbvendorid>0x05e3</usbvendorid>
     <usbproductid>0x0100</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/tamarack-artiscan-2400.html</url>
+    <url>unsupported/tamarack-artiscan-2400.html</url>
     <comment>Unsupported. See link for more information.</comment>
    </model>
  </mfg>
@@ -17041,7 +17041,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x0346</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/memorex-maxx-6136u.html</url>
+    <url>unsupported/memorex-maxx-6136u.html</url>
     <comment>Not supported. Some information is available.</comment>
    </model>
    <model name="S450">
@@ -17061,7 +17061,7 @@
     <usbvendorid>0x080d</usbvendorid>
     <usbproductid>0x0102</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/teco-vm6509.html</url>
+    <url>unsupported/teco-vm6509.html</url>
     <comment>Probably unsupported. See link for details.</comment>
    </model>
  </mfg>
@@ -17073,7 +17073,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x0347</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch4400.html</url>
+    <url>unsupported/visioneer-onetouch4400.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
  </mfg>
@@ -17085,7 +17085,7 @@
     <usbvendorid>0x05cb</usbvendorid>
     <usbproductid>0x1483</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/trust-combiscan-19200.html</url>
+    <url>unsupported/trust-combiscan-19200.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="EasyScan 19200">
@@ -17101,7 +17101,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/trust-scsi-scan-19200.html</url>
+    <url>unsupported/trust-scsi-scan-19200.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
  </mfg>
@@ -17113,7 +17113,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x0374</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/umax-astra-2500.html</url>
+    <url>unsupported/umax-astra-2500.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="Astra 2850">
@@ -17121,7 +17121,7 @@
     <usbvendorid>0x07b3</usbvendorid>
     <usbproductid>0x0601</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/plustek-opticpro-st24.html</url>
+    <url>unsupported/plustek-opticpro-st24.html</url>
     <comment>Probably not supported. Same IDs as Plustek OpticPro ST24. See link for details.</comment>
    </model>
    <model name="Astra 3000">
@@ -17129,7 +17129,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x038a</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/umax-astra-3000.html</url>
+    <url>unsupported/umax-astra-3000.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="Astra 3600">
@@ -17137,7 +17137,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x038a</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/umax-astra-3600.html</url>
+    <url>unsupported/umax-astra-3600.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="Astra 4000">
@@ -17145,7 +17145,7 @@
     <usbvendorid>0x1606</usbvendorid>
     <usbproductid>0x1030</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/umax-astra-4000.html</url>
+    <url>unsupported/umax-astra-4000.html</url>
     <comment>Not supported. See link for details.</comment>
    </model>
    <model name="Astra 4100">
@@ -17153,7 +17153,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x038c</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/umax-astra-4100.html</url>
+    <url>unsupported/umax-astra-4100.html</url>
     <comment>Not supported, to be added to genesys backend.</comment>
    </model>
    <model name="Astra 4500">
@@ -17161,7 +17161,7 @@
     <usbvendorid>0x0638</usbvendorid>
     <usbproductid>0x0a10</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/umax-astra-4500.html</url>
+    <url>unsupported/umax-astra-4500.html</url>
     <comment>GL646 based, to be added to genesys backend. Avision iVina FB1600 clone</comment>
    </model>
    <model name="Astra 4600">
@@ -17177,7 +17177,7 @@
     <usbvendorid>0x0638</usbvendorid>
     <usbproductid>0x0a20</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/umax-astra-4700.html</url>
+    <url>unsupported/umax-astra-4700.html</url>
     <comment>GL646/GL660 based. Avision iVina FB1800 clone.</comment>
    </model>
    <model name="Astra 6700">
@@ -17193,7 +17193,7 @@
     <usbvendorid>0x080d</usbvendorid>
     <usbproductid>0x0104</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/umax-astraslim.html</url>
+    <url>unsupported/umax-astraslim.html</url>
     <comment>Probably not supported currently. See link for more details.</comment>
    </model>
    <model name="AstraSlim 1200">
@@ -17201,7 +17201,7 @@
     <usbvendorid>0x080d</usbvendorid>
     <usbproductid>0x0110</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/umax-astraslim-1200.html</url>
+    <url>unsupported/umax-astraslim-1200.html</url>
     <comment>See link for more details.</comment>
    </model>
    <model name="AstraSlim 6000">
@@ -17209,7 +17209,7 @@
     <usbvendorid>0x080d</usbvendorid>
     <usbproductid>0x0104</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/umax-astraslim-6000.html</url>
+    <url>unsupported/umax-astraslim-6000.html</url>
     <comment>Probably not supported currently. See link for more details.</comment>
    </model>
    <model name="Nete3470&apos;">
@@ -17225,7 +17225,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/umax-powerlook-180.html</url>
+    <url>unsupported/umax-powerlook-180.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="Powerlook 1000 USB">
@@ -17245,7 +17245,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0224</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch4800.html</url>
+    <url>unsupported/visioneer-onetouch4800.html</url>
     <comment>Not supported. See link for more details.</comment>
    </model>
  </mfg>
@@ -17273,7 +17273,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x03a8</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-9420.html</url>
+    <url>unsupported/visioneer-9420.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="9450 USB">
@@ -17281,7 +17281,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0421</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-9450-usb.html</url>
+    <url>unsupported/visioneer-9450-usb.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="Onetouch 4400">
@@ -17289,7 +17289,7 @@
     <usbvendorid>0x0461</usbvendorid>
     <usbproductid>0x0347</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch4400.html</url>
+    <url>unsupported/visioneer-onetouch4400.html</url>
     <comment>Not supported. E5 chipset? See link for more details.</comment>
    </model>
    <model name="OneTouch 4800 USB">
@@ -17297,7 +17297,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0224</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch4800.html</url>
+    <url>unsupported/visioneer-onetouch4800.html</url>
     <comment>Unsupported. Seems to use Realtek RTS8801B. Same as Microtek Scanport 3000. See link for details.</comment>
    </model>
    <model name="OneTouch 5300 USB">
@@ -17305,7 +17305,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0226</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch5300.html</url>
+    <url>unsupported/visioneer-onetouch5300.html</url>
     <comment>Not supported. Chipset is RTS8801B(?). See link for output of /proc/bus/usb/devices.</comment>
    </model>
    <model name="OneTouch 5300">
@@ -17321,7 +17321,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0226</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch5800.html</url>
+    <url>unsupported/visioneer-onetouch5800.html</url>
     <comment>Unsupported. 48 bit scanner, doesn&apos;t work with viceo backend. RTS8801C.</comment>
    </model>
    <model name="OneTouch 6600">
@@ -17329,7 +17329,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x022a</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch6600.html</url>
+    <url>unsupported/visioneer-onetouch6600.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="Onetouch 7100">
@@ -17337,7 +17337,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0229</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch7100.html</url>
+    <url>unsupported/visioneer-onetouch7100.html</url>
     <comment>GL646 based, to be added to genesys backend</comment>
    </model>
    <model name="Onetouch 7700">
@@ -17345,7 +17345,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0380</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch7700.html</url>
+    <url>unsupported/visioneer-onetouch7700.html</url>
     <comment>LM9832/3 based, to be added to plustek backend</comment>
    </model>
    <model name="OneTouch 8100">
@@ -17353,7 +17353,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0321</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch8100.html</url>
+    <url>unsupported/visioneer-onetouch8100.html</url>
     <comment>Unsupported. See link for details.</comment>
    </model>
    <model name="Onetouch 8700">
@@ -17361,7 +17361,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0371</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch8920.html</url>
+    <url>unsupported/visioneer-onetouch8920.html</url>
     <comment>Not supported. See link for details.</comment>
    </model>
    <model name="Onetouch 8900">
@@ -17369,7 +17369,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0371</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch8920.html</url>
+    <url>unsupported/visioneer-onetouch8920.html</url>
     <comment>Not supported. Same as 8920 but without TA?</comment>
    </model>
    <model name="Onetouch 8920">
@@ -17377,7 +17377,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0371</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch8920.html</url>
+    <url>unsupported/visioneer-onetouch8920.html</url>
     <comment>Not supported. Same as 8700 and 8900 but includes a TA. Uses a Primax ID. Chipset is RTS8801C. See link for output of /proc/bus/usb/devices.</comment>
    </model>
    <model name="Onetouch 9000">
@@ -17385,7 +17385,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x022c</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch9020.html</url>
+    <url>unsupported/visioneer-onetouch9020.html</url>
     <comment>Not supported. See link for details.</comment>
    </model>
    <model name="Onetouch 9020">
@@ -17393,7 +17393,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x022c</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch9020.html</url>
+    <url>unsupported/visioneer-onetouch9020.html</url>
     <comment>Not supported. See link for details.</comment>
    </model>
    <model name="Onetouch 9320">
@@ -17401,7 +17401,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0362</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch9320.html</url>
+    <url>unsupported/visioneer-onetouch9320.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="Onetouch Pro 8800">
@@ -17409,7 +17409,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0410</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch8820.html</url>
+    <url>unsupported/visioneer-onetouch8820.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="Onetouch Pro 8820">
@@ -17417,7 +17417,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0410</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch8820.html</url>
+    <url>unsupported/visioneer-onetouch8820.html</url>
     <comment>Probably not supported. See link for details.</comment>
    </model>
    <model name="PaperPort 3100b">
@@ -17425,7 +17425,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-paperport-3100b.html</url>
+    <url>unsupported/visioneer-paperport-3100b.html</url>
     <comment>Most probably not supported. See link for details.</comment>
    </model>
    <model name="PaperPort 6100">
@@ -17441,7 +17441,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-paperport-onetouch.html</url>
+    <url>unsupported/visioneer-paperport-onetouch.html</url>
     <comment>Most probably not supported. See link for details.</comment>
    </model>
    <model name="Strobe Pro USB">
@@ -17449,7 +17449,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0102</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-strobe-pro-usb.html</url>
+    <url>unsupported/visioneer-strobe-pro-usb.html</url>
     <comment>Not supported. See link for details.</comment>
    </model>
    <model name="4800 One Touch">
@@ -17457,7 +17457,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x03a0</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/xerox-4800-onetouch.html</url>
+    <url>unsupported/xerox-4800-onetouch.html</url>
     <comment>Unsupported. See link for details. Different id compared to One Touch 4800?</comment>
    </model>
    <model name="DocuImage 620S">
@@ -17465,7 +17465,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/xerox-docuimage-620s.html</url>
+    <url>unsupported/xerox-docuimage-620s.html</url>
     <comment>Not supported. See link for more details.</comment>
    </model>
    <model name="DocuMate 510">
@@ -17473,7 +17473,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0446</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/xerox-documate-510.html</url>
+    <url>unsupported/xerox-documate-510.html</url>
     <comment>Not supported. See link for more details.</comment>
    </model>
    <model name="DocuMate 510">
@@ -17481,7 +17481,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x047c</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/xerox-documate-510.html</url>
+    <url>unsupported/xerox-documate-510.html</url>
     <comment>Not supported. See link for more details. Yet another USB id.</comment>
    </model>
    <model name="One Touch 4800">
@@ -17489,7 +17489,7 @@
     <usbvendorid>0x04a7</usbvendorid>
     <usbproductid>0x0224</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/visioneer-onetouch4800.html</url>
+    <url>unsupported/visioneer-onetouch4800.html</url>
     <comment>Unsupported. See link for details. Different id compared to 4800 One Touch?</comment>
    </model>
    <model name="WorkCentre 470cx">
@@ -17497,7 +17497,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/xerox-workcentre-470cx.html</url>
+    <url>unsupported/xerox-workcentre-470cx.html</url>
     <comment>Not supported. See link for more details.</comment>
    </model>
    <model name="WorkCentre M15i">
@@ -17505,7 +17505,7 @@
     <usbvendorid>0x0924</usbvendorid>
     <usbproductid>0xffef</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/xerox-workcentre-m15i.html</url>
+    <url>unsupported/xerox-workcentre-m15i.html</url>
     <comment>Not supported. See link for more details.</comment>
    </model>
    <model name="WorkCentre XK35c">
@@ -17513,7 +17513,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x0020</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/xerox-workcentre-xk35c.html</url>
+    <url>unsupported/xerox-workcentre-xk35c.html</url>
     <comment>Not supported. See link for more details.</comment>
    </model>
    <model name="WorkCentre XK50cx">
@@ -17521,7 +17521,7 @@
     <usbvendorid>0x04e8</usbvendorid>
     <usbproductid>0x3903</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/xerox-workcentre-xk50cx.html</url>
+    <url>unsupported/xerox-workcentre-xk50cx.html</url>
     <comment>Not supported. See link for more details.</comment>
    </model>
    <model name="WorkCentre Pro 412">
@@ -17529,7 +17529,7 @@
     <usbvendorid>0x043d</usbvendorid>
     <usbproductid>0x4303</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/xerox-workcentre-pro412.html</url>
+    <url>unsupported/xerox-workcentre-pro412.html</url>
     <comment>Not supported. See link for more details.</comment>
    </model>
    <model name="WorkCentre PE16">
@@ -17537,7 +17537,7 @@
     <usbvendorid>0x0924</usbvendorid>
     <usbproductid>0x4220</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/xerox-workcentre-pe16.html</url>
+    <url>unsupported/xerox-workcentre-pe16.html</url>
     <comment>Not supported. See link for more details.</comment>
    </model>
    <model name="WorkCentre PE120i">
@@ -17545,7 +17545,7 @@
     <usbvendorid>0x0924</usbvendorid>
     <usbproductid>0x4237</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/xerox-workcentre-pe120i.html</url>
+    <url>unsupported/xerox-workcentre-pe120i.html</url>
     <comment>Not supported. See link for more details.</comment>
    </model>
  </mfg>
@@ -17559,7 +17559,7 @@
     <usbvendorid>0x0923</usbvendorid>
     <usbproductid>0x010f</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/biolux-654.html</url>
+    <url>unsupported/biolux-654.html</url>
     <comment>Not supported yet. See link for more details.</comment>
    </model>
  </mfg>
@@ -17571,7 +17571,7 @@
     <usbvendorid>0x0797</usbvendorid>
     <usbproductid>0x801c</usbproductid>
     <status>unsupported</status>
-    <url>/unsupported/grandtech-scopecam.html</url>
+    <url>unsupported/grandtech-scopecam.html</url>
     <comment>Not Supported yet. See link for more details.</comment>
    </model>
  </mfg>

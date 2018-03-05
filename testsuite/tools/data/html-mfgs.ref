@@ -403,24 +403,24 @@ abaton<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-microtek.5.html">sane-microtek</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/agfa-duoscan-f40.html">DuoScan f40</a></td>
+<tr><td align=center><a href="unsupported/agfa-duoscan-f40.html">DuoScan f40</a></td>
 <td align=center>USB IEEE-1394</td>
 <td align=center>0x06bd/0x02bf</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/agfa-duoscan-t2000xl.html">DuoScan T2000XL</a></td>
+<tr><td align=center><a href="unsupported/agfa-duoscan-t2000xl.html">DuoScan T2000XL</a></td>
 <td align=center>SCSI</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Same as Microtek ArtixScan 2020?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -431,7 +431,7 @@ abaton<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Same as Microtek Artixscan 2500f</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -519,13 +519,13 @@ agfafocus<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-snapscan.5.html">sane-snapscan</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/acer-parport.html">SnapScan 310P</a></td>
+<tr><td align=center><a href="unsupported/acer-parport.html">SnapScan 310P</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported, see link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -541,24 +541,24 @@ agfafocus<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-snapscan.5.html">sane-snapscan</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/acer-parport.html">SnapScan 1200P</a></td>
+<tr><td align=center><a href="unsupported/acer-parport.html">SnapScan 1200P</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported, see link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/acer-parport.html">SnapScan 1212P</a></td>
+<tr><td align=center><a href="unsupported/acer-parport.html">SnapScan 1212P</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported, see link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -706,13 +706,13 @@ agfafocus<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-snapscan.5.html">sane-snapscan</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/acer-parport.html">SnapScan EZ</a></td>
+<tr><td align=center><a href="unsupported/acer-parport.html">SnapScan EZ</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported, see link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -895,13 +895,13 @@ apple<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/artec_1236usb.html">1236 USB</a></td>
+<tr><td align=center><a href="unsupported/artec_1236usb.html">1236 USB</a></td>
 <td align=center>USB</td>
 <td align=center>0x05d8/0x4001</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -934,7 +934,7 @@ apple<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Chips found inside: AT015, AD9816JS. Maybe similar to SCSI version or as6e?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -1025,13 +1025,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-gt68xx.5.html">sane-gt68xx</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/artec-ultima-2000-2.html">Ultima 2000 (0x4001)</a></td>
+<tr><td align=center><a href="unsupported/artec-ultima-2000-2.html">Ultima 2000 (0x4001)</a></td>
 <td align=center>USB</td>
 <td align=center>0x05d8/0x4001</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Same name, but different ids: This scanner is not supported. The scanner with product id 0x4002 is supported by the gt68xx backend, however.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -1061,13 +1061,13 @@ artec_eplus48u<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/trust-combiscan-19200.html">Minidoc</a></td>
+<tr><td align=center><a href="unsupported/trust-combiscan-19200.html">Minidoc</a></td>
 <td align=center>USB Parport</td>
 <td align=center>0x05cb/0x1483</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -1754,7 +1754,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. Scanner/printer/copier combination.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -1814,24 +1814,24 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-avision.5.html">sane-avision</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/umax-astra-4500.html">iVina 1600</a></td>
+<tr><td align=center><a href="unsupported/umax-astra-4500.html">iVina 1600</a></td>
 <td align=center>USB</td>
 <td align=center>0x0638/0x0a10</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL646 based, to be added to genesys backend. Same as UMAX Astra 4500.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/umax-astra-4700.html">iVina FB1800</a></td>
+<tr><td align=center><a href="unsupported/umax-astra-4700.html">iVina FB1800</a></td>
 <td align=center>USB</td>
 <td align=center>0x0638/0x0a20</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL646/GL660 based. Same as UMAX Astra 4700.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -1842,7 +1842,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. No chipset information available. Same as UMAX Astra 6700.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2009,13 +2009,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-snapscan.5.html">sane-snapscan</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/acer-parport.html">310P</a></td>
+<tr><td align=center><a href="unsupported/acer-parport.html">310P</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported, see link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2042,13 +2042,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-snapscan.5.html">sane-snapscan</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/acer-parport.html">320P</a></td>
+<tr><td align=center><a href="unsupported/acer-parport.html">320P</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported, see link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2064,13 +2064,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-snapscan.5.html">sane-snapscan</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/acer-parport.html">340P</a></td>
+<tr><td align=center><a href="unsupported/acer-parport.html">340P</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported, see link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2086,13 +2086,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-snapscan.5.html">sane-snapscan</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/acer-parport.html">610P</a></td>
+<tr><td align=center><a href="unsupported/acer-parport.html">610P</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported, see link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2108,13 +2108,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-snapscan.5.html">sane-snapscan</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/acer-parport.html">610PT</a></td>
+<tr><td align=center><a href="unsupported/acer-parport.html">610PT</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported, see link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2130,24 +2130,24 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-snapscan.5.html">sane-snapscan</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/acer-parport.html">620P</a></td>
+<tr><td align=center><a href="unsupported/acer-parport.html">620P</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported, see link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/acer-parport.html">620PT</a></td>
+<tr><td align=center><a href="unsupported/acer-parport.html">620PT</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported, see link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2207,13 +2207,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-snapscan.5.html">sane-snapscan</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/acer-parport.html">640P</a></td>
+<tr><td align=center><a href="unsupported/acer-parport.html">640P</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported, see link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2356,18 +2356,18 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/benq-5550.html">5550</a></td>
+<tr><td align=center><a href="unsupported/benq-5550.html">5550</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a5/0x2211</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported, see link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2378,18 +2378,18 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>&nbsp;</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/benq-7400ut.html">7400UT</a></td>
+<tr><td align=center><a href="unsupported/benq-7400ut.html">7400UT</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a5/0x2202</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>&nbsp;</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2446,13 +2446,13 @@ artec_eplus48u<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/trust-combiscan-19200.html">Sm@rtScan Office</a></td>
+<tr><td align=center><a href="unsupported/trust-combiscan-19200.html">Sm@rtScan Office</a></td>
 <td align=center>Parport USB</td>
 <td align=center>0x05cb/0x1483</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2509,13 +2509,13 @@ artec_eplus48u<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/brother-mfc-2500.html">MFC 2500</a></td>
+<tr><td align=center><a href="unsupported/brother-mfc-2500.html">MFC 2500</a></td>
 <td align=center>USB</td>
 <td align=center>0x04f9/0x000a</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2526,29 +2526,29 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>The parport 200x400dpi grayscale version of this scanner is unsupported. Dmitri Katchalov did some investigations on this scanner. If you want to write a backend, contact him (see link).</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/brother-mfc-7300.html">MFC 7300c</a></td>
+<tr><td align=center><a href="unsupported/brother-mfc-7300.html">MFC 7300c</a></td>
 <td align=center>Parport USB</td>
 <td align=center>0x04f9/0x0106</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>&nbsp;</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/brother-mfc-9600.html">MFC 9600</a></td>
+<tr><td align=center><a href="unsupported/brother-mfc-9600.html">MFC 9600</a></td>
 <td align=center>USB</td>
 <td align=center>0x04f9/0x0101</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>&nbsp;</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2575,7 +2575,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2586,18 +2586,18 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>See bug #306792 for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/c-channel-mypen-pro.html">MyPen Pro</a></td>
+<tr><td align=center><a href="unsupported/c-channel-mypen-pro.html">MyPen Pro</a></td>
 <td align=center>USB</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2706,57 +2706,57 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-canon.5.html">sane-canon</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-3000.html">CanoScan 3000</a></td>
+<tr><td align=center><a href="unsupported/canon-3000.html">CanoScan 3000</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x2215</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL660+GL646 based.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-3000.html">CanoScan 3000ex</a></td>
+<tr><td align=center><a href="unsupported/canon-3000.html">CanoScan 3000ex</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x2215</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL660+GL646 based.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-3000.html">CanoScan 3000F</a></td>
+<tr><td align=center><a href="unsupported/canon-3000.html">CanoScan 3000F</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x2215</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL660+GL646 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-4200f.html">CanoScan 4200F</a></td>
+<tr><td align=center><a href="unsupported/canon-4200f.html">CanoScan 4200F</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x221b</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-4400.html">CanoScan 4400F</a></td>
+<tr><td align=center><a href="unsupported/canon-4400.html">CanoScan 4400F</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x2228</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL843 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2772,24 +2772,24 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-genesys.5.html">sane-genesys</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-5000f.html">CanoScan 5000F</a></td>
+<tr><td align=center><a href="unsupported/canon-5000f.html">CanoScan 5000F</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x2212</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-5200f.html">CanoScan 5200F</a></td>
+<tr><td align=center><a href="unsupported/canon-5200f.html">CanoScan 5200F</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x2217</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2805,35 +2805,35 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-genesys.5.html">sane-genesys</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-8000f.html">CanoScan 8000F</a></td>
+<tr><td align=center><a href="unsupported/canon-8000f.html">CanoScan 8000F</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x220f</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for more information. With transparency adapter.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-8400f.html">CanoScan 8400F</a></td>
+<tr><td align=center><a href="unsupported/canon-8400f.html">CanoScan 8400F</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x221e</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL841 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-8600.html">CanoScan 8600F</a></td>
+<tr><td align=center><a href="unsupported/canon-8600.html">CanoScan 8600F</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x2229</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL841 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2871,46 +2871,46 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-pixma.5.html">sane-pixma</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-9900f.html">CanoScan 9900F</a></td>
+<tr><td align=center><a href="unsupported/canon-9900f.html">CanoScan 9900F</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x2210</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported, similar to 8000F. 3200x6400 dpi USB2. With transparency adapter.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-9950f.html">CanoScan 9950F</a></td>
+<tr><td align=center><a href="unsupported/canon-9950f.html">CanoScan 9950F</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x2219</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-d646u.html">CanoScan D646U</a></td>
+<tr><td align=center><a href="unsupported/canon-d646u.html">CanoScan D646U</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x220b</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for more information and test program.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-d646u.html">CanoScan D646U ex</a></td>
+<tr><td align=center><a href="unsupported/canon-d646u.html">CanoScan D646U ex</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x220b</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See D646.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2926,35 +2926,35 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-plustek.5.html">sane-plustek</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-d1230u.html">CanoScan D1230U</a></td>
+<tr><td align=center><a href="unsupported/canon-d1230u.html">CanoScan D1230U</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x2209</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. </td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-d1250u2.html">CanoScan D1250U2</a></td>
+<tr><td align=center><a href="unsupported/canon-d1250u2.html">CanoScan D1250U2</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x220c</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. However, someone started working on this scanner and some information is available (see link).</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-d2400uf.html">CanoScan D2400UF</a></td>
+<tr><td align=center><a href="unsupported/canon-d2400uf.html">CanoScan D2400UF</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x220a</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -2987,7 +2987,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -3025,13 +3025,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-canon_pp.5.html">sane-canon_pp</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-fb620u.html">CanoScan FB620U</a></td>
+<tr><td align=center><a href="unsupported/canon-fb620u.html">CanoScan FB620U</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x2202</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. Some information is available.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -3075,7 +3075,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. However, a stand-alone program for FreeBSD is available.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -3130,29 +3130,29 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Philips chip. Backend started, see link</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-lide-80.html">CanoScan LiDE 80</a></td>
+<tr><td align=center><a href="unsupported/canon-lide-80.html">CanoScan LiDE 80</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x2214</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL841 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-lide-90.html">CanoScan LiDE 90</a></td>
+<tr><td align=center><a href="unsupported/canon-lide-90.html">CanoScan LiDE 90</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x1900</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -3201,13 +3201,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-genesys.5.html">sane-genesys</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-canoscan-lide-500f.html">CanoScan LiDE 500F</a></td>
+<tr><td align=center><a href="unsupported/canon-canoscan-lide-500f.html">CanoScan LiDE 500F</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x221f</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL841 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -3218,7 +3218,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Philips chip. Backend started, see link</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -3229,7 +3229,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Philips chip. Backend started, see link</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -3438,7 +3438,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL84x?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -3773,13 +3773,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-canon_dr.5.html">sane-canon_dr</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-fs4000.html">FS4000</a></td>
+<tr><td align=center><a href="unsupported/canon-fs4000.html">FS4000</a></td>
 <td align=center>USB SCSI</td>
 <td align=center>0x04a9/0x3042</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -4147,79 +4147,79 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-pixma.5.html">sane-pixma</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-imagerunner.html">ImageRunner iR1018</a></td>
+<tr><td align=center><a href="unsupported/canon-imagerunner.html">ImageRunner iR1018</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x269d</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-imagerunner.html">ImageRunner iR1022</a></td>
+<tr><td align=center><a href="unsupported/canon-imagerunner.html">ImageRunner iR1022</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x269d</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-imagerunner.html">ImageRunner iR1023</a></td>
+<tr><td align=center><a href="unsupported/canon-imagerunner.html">ImageRunner iR1023</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x269d</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-is-12.html">IS 12</a></td>
+<tr><td align=center><a href="unsupported/canon-is-12.html">IS 12</a></td>
 <td align=center>USB</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. Scanner cardridge for Canon inkjet printers.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-is-22.html">IS 22</a></td>
+<tr><td align=center><a href="unsupported/canon-is-22.html">IS 22</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. Scanner cardridge for Canon inkjet printers.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-is-32.html">IS 32</a></td>
+<tr><td align=center><a href="unsupported/canon-is-32.html">IS 32</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x105d</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. Scanner cardridge for Canon inkjet printers.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-is-52.html">IS 52</a></td>
+<tr><td align=center><a href="unsupported/canon-is-52.html">IS 52</a></td>
 <td align=center>USB</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. Scanner cardridge for Canon inkjet printers.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -4455,24 +4455,24 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-pixma.5.html">sane-pixma</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-pixma-mp110.html">PIXMA MP110</a></td>
+<tr><td align=center><a href="unsupported/canon-pixma-mp110.html">PIXMA MP110</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x1700</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/canon-pixma-mp130.html">PIXMA MP130</a></td>
+<tr><td align=center><a href="unsupported/canon-pixma-mp130.html">PIXMA MP130</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a9/0x1701</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -5393,13 +5393,13 @@ artec_eplus48u<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/chinon-ds3000.html">DS-3000</a></td>
+<tr><td align=center><a href="unsupported/chinon-ds3000.html">DS-3000</a></td>
 <td align=center>Parport Serial Port</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported at the moment, but a backend is in preparation. See link.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -5437,7 +5437,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. 2400x1200 dpi. One bulk-in, one bulk-out and one interrupt endpoint. Type-number: U0001-HB21, another type nr on the inside: 75100512-00</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -5456,13 +5456,13 @@ artec_eplus48u<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/trust-combiscan-19200.html">Simplex 1236C</a></td>
+<tr><td align=center><a href="unsupported/trust-combiscan-19200.html">Simplex 1236C</a></td>
 <td align=center>Parport USB</td>
 <td align=center>0x05cb/0x1483</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -5505,24 +5505,24 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-cardscan.5.html">sane-cardscan</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/corex-cardscan-500.html">Cardscan 500</a></td>
+<tr><td align=center><a href="unsupported/corex-cardscan-500.html">Cardscan 500</a></td>
 <td align=center>USB</td>
 <td align=center>0x08f0/0x0001</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. Businesscard reader.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/corex-cardscan-700.html">Cardscan 700 C</a></td>
+<tr><td align=center><a href="unsupported/corex-cardscan-700.html">Cardscan 700 C</a></td>
 <td align=center>USB</td>
 <td align=center>0x08f0/0x0004</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -5596,13 +5596,13 @@ artec_eplus48u<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/dell-922.html">922</a></td>
+<tr><td align=center><a href="unsupported/dell-922.html">922</a></td>
 <td align=center>USB</td>
 <td align=center>0x413c/0x5109</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -5633,18 +5633,18 @@ dell1600n_net</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably rebadged Lexmark X5150. May work with sane-lexmark? See bug #312130</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/dell-a960.html">A960</a></td>
+<tr><td align=center><a href="unsupported/dell-a960.html">A960</a></td>
 <td align=center>USB</td>
 <td align=center>0x413c/0x5107</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -5814,7 +5814,7 @@ xerox_mfp<br>(1.0-13)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. Sold 1998. Same as E-Lux j-6121.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -5860,13 +5860,13 @@ xerox_mfp<br>(1.0-13)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/edt-900c.html">BizCardReader 900C</a></td>
+<tr><td align=center><a href="unsupported/edt-900c.html">BizCardReader 900C</a></td>
 <td align=center>USB</td>
 <td align=center>0x0a53/0x5001</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -5892,7 +5892,7 @@ xerox_mfp<br>(1.0-13)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. Sold 1998. Same as E-Lux j-6121.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -5903,7 +5903,7 @@ xerox_mfp<br>(1.0-13)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. </td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -6845,7 +6845,7 @@ epson2<br>(1.0.124)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -8807,7 +8807,7 @@ epson2<br>(1.0.124)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported at the moment. Not compatible to snapscan backend. It's not known if it may work with epson or epkowa backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -9322,13 +9322,13 @@ epson2<br>(1.0.124)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-epson2.5.html">sane-epson2</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/epson-stylus-dx4450.html">Stylus DX4450</a></td>
+<tr><td align=center><a href="unsupported/epson-stylus-dx4450.html">Stylus DX4450</a></td>
 <td align=center>USB</td>
 <td align=center>0x04b8/0x083f</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -10119,7 +10119,7 @@ epson2<br>(1.0.124)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -11281,13 +11281,13 @@ sp15c<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/genius-colorpage-cs.html">ColorPage CS</a></td>
+<tr><td align=center><a href="unsupported/genius-colorpage-cs.html">ColorPage CS</a></td>
 <td align=center>SCSI</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported, see link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -11358,13 +11358,13 @@ sp15c<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-plustek_pp.5.html">sane-plustek_pp</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/genius-colorpage-hr6x.html">ColorPage HR6X Slim</a></td>
+<tr><td align=center><a href="unsupported/genius-colorpage-hr6x.html">ColorPage HR6X Slim</a></td>
 <td align=center>USB</td>
 <td align=center>0x0458/0x2019</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL646 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -11391,35 +11391,35 @@ sp15c<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-plustek.5.html">sane-plustek</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/genius-colorpage-hr7x.html">ColorPage HR7X</a></td>
+<tr><td align=center><a href="unsupported/genius-colorpage-hr7x.html">ColorPage HR7X</a></td>
 <td align=center>USB</td>
 <td align=center>0x0458/0x2018</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL646 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/genius-colorpage-hr7xe.html">ColorPage HR7XE</a></td>
+<tr><td align=center><a href="unsupported/genius-colorpage-hr7xe.html">ColorPage HR7XE</a></td>
 <td align=center>USB</td>
 <td align=center>0x06dc/0x0012</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsuported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/genius-colorpage-hr8.html">ColorPage HR8</a></td>
+<tr><td align=center><a href="unsupported/genius-colorpage-hr8.html">ColorPage HR8</a></td>
 <td align=center>USB</td>
 <td align=center>0x0458/0x201c</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL841 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -11600,13 +11600,13 @@ sp15c<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-umax_pp.5.html">sane-umax_pp</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/genius-colorpage-slim-1200-usb2.html">ColorPage-Slim 1200 USB2</a></td>
+<tr><td align=center><a href="unsupported/genius-colorpage-slim-1200-usb2.html">ColorPage-Slim 1200 USB2</a></td>
 <td align=center>USB</td>
 <td align=center>0x0458/0x2020</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL841 based, to be added to genesys backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -11678,18 +11678,18 @@ sp15c<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. Identical to the Benq Prisa 620P.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/teco-vm6509.html">SCAN@HOME 48 USB</a></td>
+<tr><td align=center><a href="unsupported/teco-vm6509.html">SCAN@HOME 48 USB</a></td>
 <td align=center>USB</td>
 <td align=center>0x080d/0x0102</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -11768,13 +11768,13 @@ sp15c<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/teco-vm6509.html">SCAN@HOME 48 USB</a></td>
+<tr><td align=center><a href="unsupported/teco-vm6509.html">SCAN@HOME 48 USB</a></td>
 <td align=center>USB</td>
 <td align=center>0x080d/0x0102</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -11825,13 +11825,13 @@ hpljm1005<br>(0)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-hpljm1005.5.html">sane-hpljm1005</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/hp-photo-1000.html">Photo Scanner 1000</a></td>
+<tr><td align=center><a href="unsupported/hp-photo-1000.html">Photo Scanner 1000</a></td>
 <td align=center>USB</td>
 <td align=center>0x03f0/0x1001</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported by SANE. However, it's detected as mass storage device so just mounting it is reported to work. See link for device data.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -11842,29 +11842,29 @@ hpljm1005<br>(0)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported by SANE. No details known. 10x15 cm. Maybe similar to Photo Scanner 1000?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/hp-photosmart-3180.html">Photosmart C3180</a></td>
+<tr><td align=center><a href="unsupported/hp-photosmart-3180.html">Photosmart C3180</a></td>
 <td align=center>USB</td>
 <td align=center>0x03f0/0x5611</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported yet by SANE. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/hp-photosmart-5100.html">Photosmart C5100 series</a></td>
+<tr><td align=center><a href="unsupported/hp-photosmart-5100.html">Photosmart C5100 series</a></td>
 <td align=center>USB</td>
 <td align=center>0x03f0/0x5811</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported yet by SANE. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -11880,24 +11880,24 @@ hpljm1005<br>(0)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-hp.5.html">sane-hp</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/hp-photosmart-s20xi.html">Photosmart S20 (C5101A)</a></td>
+<tr><td align=center><a href="unsupported/hp-photosmart-s20xi.html">Photosmart S20 (C5101A)</a></td>
 <td align=center>USB</td>
 <td align=center>0x03f0/0x0102</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported yet by SANE. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/hp-photosmart-s20xi.html">Photosmart S20xi (C7150A)</a></td>
+<tr><td align=center><a href="unsupported/hp-photosmart-s20xi.html">Photosmart S20xi (C7150A)</a></td>
 <td align=center>USB</td>
 <td align=center>0x03f0/0x0102</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported yet by SANE. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -12106,7 +12106,7 @@ hpljm1005<br>(0)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>While an external binary-only backend exists, it works only on Linux i386. Therefore the scanner is unsupported on other platforms.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -12263,13 +12263,13 @@ hp5590<br>(1.0.5)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-hp5590.5.html">sane-hp5590</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/hp-scanjet-4600.html">ScanJet 4600</a></td>
+<tr><td align=center><a href="unsupported/hp-scanjet-4600.html">ScanJet 4600</a></td>
 <td align=center>USB</td>
 <td align=center>0x03f0/0x3005</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for details, or http://www.chmil.org/hp4600linux/ for code</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -12280,7 +12280,7 @@ hp5590<br>(1.0.5)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See ScanJet 4600 entry.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -12296,13 +12296,13 @@ hp5590<br>(1.0.5)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-genesys.5.html">sane-genesys</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/hp-scanjet-4850.html">ScanJet 4890C</a></td>
+<tr><td align=center><a href="unsupported/hp-scanjet-4850.html">ScanJet 4890C</a></td>
 <td align=center>USB</td>
 <td align=center>0x03f0/0x1b05</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL843, maybe can be added to genesys backend </td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -12394,13 +12394,13 @@ hp5590<br>(1.0.5)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-hp5590.5.html">sane-hp5590</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/hp-scanjet-5530.html">ScanJet 5530C Photosmart</a></td>
+<tr><td align=center><a href="unsupported/hp-scanjet-5530.html">ScanJet 5530C Photosmart</a></td>
 <td align=center>USB</td>
 <td align=center>0x03f0/0x1605</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Maybe GL841_HP, but not confirmed, maybe can be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -12655,13 +12655,13 @@ hp5590<br>(1.0.5)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-hp3900.5.html">sane-hp3900</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/hp-g4000.html">ScanJet G4000</a></td>
+<tr><td align=center><a href="unsupported/hp-g4000.html">ScanJet G4000</a></td>
 <td align=center>USB</td>
 <td align=center>0x03f0/0x4505</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -12776,7 +12776,7 @@ hp5590<br>(1.0.5)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Uses proprietary ISA card. Maybe the same as the Plustek Spectra ADF?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -12797,13 +12797,13 @@ hp5590<br>(1.0.5)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/trust-combiscan-19200.html">MobileScan USB</a></td>
+<tr><td align=center><a href="unsupported/trust-combiscan-19200.html">MobileScan USB</a></td>
 <td align=center>USB Parport</td>
 <td align=center>0x05cb/0x1483</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -12824,35 +12824,35 @@ hp5590<br>(1.0.5)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/iris-iriscan.html">IriScan</a></td>
+<tr><td align=center><a href="unsupported/iris-iriscan.html">IriScan</a></td>
 <td align=center>USB</td>
 <td align=center>0x0a53/0x1000</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. LM9832/3. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/iris-business.html">IRISCard Pro (IBCR II)</a></td>
+<tr><td align=center><a href="unsupported/iris-business.html">IRISCard Pro (IBCR II)</a></td>
 <td align=center>USB</td>
 <td align=center>0x0a38/0x0301</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/iris-irispen-translator.html">IRISPen Translator Executive</a></td>
+<tr><td align=center><a href="unsupported/iris-irispen-translator.html">IRISPen Translator Executive</a></td>
 <td align=center>USB</td>
 <td align=center>0x0f43/0x015a</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -13619,7 +13619,7 @@ hp5590<br>(1.0.5)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. FCC ID HWF96PHS</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -13689,57 +13689,57 @@ hp5590<br>(1.0.5)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-magicolor.5.html">sane-magicolor</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/minolta-dse-5400.html">DiMAGE Scan Elite 5400</a></td>
+<tr><td align=center><a href="unsupported/minolta-dse-5400.html">DiMAGE Scan Elite 5400</a></td>
 <td align=center>USB IEEE-1394</td>
 <td align=center>0x0686/0x400e</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. May work with vuescan. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/minolta-dse-5400-2.html">DiMAGE Scan Elite 5400 2</a></td>
+<tr><td align=center><a href="unsupported/minolta-dse-5400-2.html">DiMAGE Scan Elite 5400 2</a></td>
 <td align=center>USB</td>
 <td align=center>0x132b/0x0012</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/minolta-dimage-scan-multi-pro.html">DiMAGE Scan Multi Pro</a></td>
+<tr><td align=center><a href="unsupported/minolta-dimage-scan-multi-pro.html">DiMAGE Scan Multi Pro</a></td>
 <td align=center>IEEE-1394</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/minolta-dual-scan-III.html">Dual Scan III</a></td>
+<tr><td align=center><a href="unsupported/minolta-dual-scan-III.html">Dual Scan III</a></td>
 <td align=center>USB</td>
 <td align=center>0x0686/0x400d</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. May work with vuescan. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/minolta-dual-scan-IV.html">Dual Scan IV</a></td>
+<tr><td align=center><a href="unsupported/minolta-dual-scan-IV.html">Dual Scan IV</a></td>
 <td align=center>USB</td>
 <td align=center>0x132b/0x000a</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Works with vuescan. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -13761,7 +13761,7 @@ hp5590<br>(1.0.5)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Uses a different scanning protocol than the magicolor 1690MF</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -13832,24 +13832,24 @@ hp5590<br>(1.0.5)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/lexmark-p6250.html">P6250</a></td>
+<tr><td align=center><a href="unsupported/lexmark-p6250.html">P6250</a></td>
 <td align=center>USB</td>
 <td align=center>0x043d/0x0097</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/lexmark-3150.html">Photo 3150</a></td>
+<tr><td align=center><a href="unsupported/lexmark-3150.html">Photo 3150</a></td>
 <td align=center>USB</td>
 <td align=center>0x043d/0x007d</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -13898,35 +13898,35 @@ hp5590<br>(1.0.5)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-lexmark.5.html">sane-lexmark</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/lexmark-x75.html">X75</a></td>
+<tr><td align=center><a href="unsupported/lexmark-x75.html">X75</a></td>
 <td align=center>USB</td>
 <td align=center>0x043d/0x0060</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/lexmark-x75.html">X75 PrinTrio</a></td>
+<tr><td align=center><a href="unsupported/lexmark-x75.html">X75 PrinTrio</a></td>
 <td align=center>USB</td>
 <td align=center>0x043d/0x0060</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/lexmark-x83.html">X83</a></td>
+<tr><td align=center><a href="unsupported/lexmark-x83.html">X83</a></td>
 <td align=center>USB</td>
 <td align=center>0x043d/0x003d</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. GL640.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14019,68 +14019,68 @@ hp5590<br>(1.0.5)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-lexmark.5.html">sane-lexmark</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/lexmark-x2330.html">X2330</a></td>
+<tr><td align=center><a href="unsupported/lexmark-x2330.html">X2330</a></td>
 <td align=center>USB</td>
 <td align=center>0x043d/0x00bb</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/lexmark-x3450.html">X3450</a></td>
+<tr><td align=center><a href="unsupported/lexmark-x3450.html">X3450</a></td>
 <td align=center>USB</td>
 <td align=center>0x043d/0x00f6</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/lexmark-x5130.html">X5130</a></td>
+<tr><td align=center><a href="unsupported/lexmark-x5130.html">X5130</a></td>
 <td align=center>USB</td>
 <td align=center>0x043d/0x0065</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/lexmark-x5130.html">X5150</a></td>
+<tr><td align=center><a href="unsupported/lexmark-x5130.html">X5150</a></td>
 <td align=center>USB</td>
 <td align=center>0x043d/0x0065</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/lexmark-x5250.html">X5250</a></td>
+<tr><td align=center><a href="unsupported/lexmark-x5250.html">X5250</a></td>
 <td align=center>USB</td>
 <td align=center>0x043d/0x0093</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/lexmark-x6170.html">X6170</a></td>
+<tr><td align=center><a href="unsupported/lexmark-x6170.html">X6170</a></td>
 <td align=center>USB</td>
 <td align=center>0x043d/0x0072</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14091,29 +14091,29 @@ hp5590<br>(1.0.5)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See bug #310889 for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/lexmark-x7350.html">X7350</a></td>
+<tr><td align=center><a href="unsupported/lexmark-x7350.html">X7350</a></td>
 <td align=center>USB</td>
 <td align=center>0x043d/0x00b8</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/lexmark-x8350.html">X8350</a></td>
+<tr><td align=center><a href="unsupported/lexmark-x8350.html">X8350</a></td>
 <td align=center>USB</td>
 <td align=center>0x043d/0x00b9</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14297,18 +14297,18 @@ hp5590<br>(1.0.5)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Most probably unsupported.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/logitech-pagescan-usb.html">PageScan USB</a></td>
+<tr><td align=center><a href="unsupported/logitech-pagescan-usb.html">PageScan USB</a></td>
 <td align=center>USB</td>
 <td align=center>0x046d/0x040f</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14352,24 +14352,24 @@ hp5590<br>(1.0.5)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-gt68xx.5.html">sane-gt68xx</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/medion-md6190.html">MD 6190</a></td>
+<tr><td align=center><a href="unsupported/medion-md6190.html">MD 6190</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x037b</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. There seem to exist two different scanners with that name. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/medion-md6190.html">MD 6190</a></td>
+<tr><td align=center><a href="unsupported/medion-md6190.html">MD 6190</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x0392</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. There seem to exist two different scanners with that name. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14407,46 +14407,46 @@ hp5590<br>(1.0.5)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-mustek_pp.5.html">sane-mustek_pp</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/tevion-md40420.html">MD 40420</a></td>
+<tr><td align=center><a href="unsupported/tevion-md40420.html">MD 40420</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x3008</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/medion-md6190.html">MD 41260</a></td>
+<tr><td align=center><a href="unsupported/medion-md6190.html">MD 41260</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x037b</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/medion-md6190.html">MD 41985</a></td>
+<tr><td align=center><a href="unsupported/medion-md6190.html">MD 41985</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x037b</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/tevion-md40420.html">MD 42666</a></td>
+<tr><td align=center><a href="unsupported/tevion-md40420.html">MD 42666</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x3008</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14457,40 +14457,40 @@ hp5590<br>(1.0.5)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Fingerprint sensor. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/tevion-md90009.html">MD 90009</a></td>
+<tr><td align=center><a href="unsupported/tevion-md90009.html">MD 90009</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x30e5</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/tevion-md90070.html">MD 90070</a></td>
+<tr><td align=center><a href="unsupported/tevion-md90070.html">MD 90070</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x3022</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/tevion-md90070.html">MD 90090</a></td>
+<tr><td align=center><a href="unsupported/tevion-md90070.html">MD 90090</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x3022</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14629,35 +14629,35 @@ artec_eplus48u<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/memorex-maxx-6136u.html">6136u</a></td>
+<tr><td align=center><a href="unsupported/memorex-maxx-6136u.html">6136u</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x0346</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch4400.html">6142u</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch4400.html">6142u</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x0347</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. Same as Visioneer Onetouch 4400. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/trust-combiscan-19200.html">MaxxScan 6122</a></td>
+<tr><td align=center><a href="unsupported/trust-combiscan-19200.html">MaxxScan 6122</a></td>
 <td align=center>USB Parport</td>
 <td align=center>0x05cb/0x1483</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14672,13 +14672,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-artec_eplus48u.5.html">sane-artec_eplus48u</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/memorex-scf-9612p.html">SCF 9612P</a></td>
+<tr><td align=center><a href="unsupported/memorex-scf-9612p.html">SCF 9612P</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14757,7 +14757,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Same as Agfa DuoScan T2000XL?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14768,7 +14768,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Same as Agfa DuoScan T2500?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14779,18 +14779,18 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Uses ALI M5611B.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-artixscan-2020.html">ArtixScanDI 2020</a></td>
+<tr><td align=center><a href="unsupported/microtek-artixscan-2020.html">ArtixScanDI 2020</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x202e</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14806,13 +14806,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-microtek.5.html">sane-microtek</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-filmscan-35.html">FilmScan 35</a></td>
+<tr><td align=center><a href="unsupported/microtek-filmscan-35.html">FilmScan 35</a></td>
 <td align=center>USB</td>
 <td align=center>0x05e3/0x0120</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14850,13 +14850,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-microtek2.5.html">sane-microtek2</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-5600.html">ScanMaker 5</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-5600.html">ScanMaker 5</a></td>
 <td align=center>SCSI</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14911,7 +14911,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. Seems to be similar to the Microtek 330 CX and is detected by the microtek2 backend. Scanning doesn't seem to work however.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -14960,13 +14960,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-microtek2.5.html">sane-microtek2</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-1850s.html">Scanmaker 1850S</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-1850s.html">Scanmaker 1850S</a></td>
 <td align=center>SCSI</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -15004,13 +15004,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-sm3600.5.html">sane-sm3600</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-3630.html">ScanMaker 3630</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-3630.html">ScanMaker 3630</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x0347</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Doesn't seem to be compatible to 3600 series, see link.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -15048,24 +15048,24 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-sm3600.5.html">sane-sm3600</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-3800.html">ScanMaker 3800</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-3800.html">ScanMaker 3800</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x30ce</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-3830.html">ScanMaker 3830</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-3830.html">ScanMaker 3830</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x30ce</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -15081,46 +15081,46 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-sm3840.5.html">sane-sm3840</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-3880.html">ScanMaker 3860</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-3880.html">ScanMaker 3860</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x3023</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more details. Appears to be similar to ScanMaker 3880.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-3880.html">ScanMaker 3880</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-3880.html">ScanMaker 3880</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x3021</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. SQ113 chip. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-4600.html">ScanMaker 4600</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-4600.html">ScanMaker 4600</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x40c7</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-4700.html">ScanMaker 4700</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-4700.html">ScanMaker 4700</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x20b4</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -15136,46 +15136,46 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-sm3840.5.html">sane-sm3840</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-4900.html">ScanMaker 4850</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-4900.html">ScanMaker 4850</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x30d9</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-4850-2.html">ScanMaker 4850 II</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-4850-2.html">ScanMaker 4850 II</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x3008</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-4900.html">ScanMaker 4900</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-4900.html">ScanMaker 4900</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x30b9</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-5600.html">ScanMaker 5600</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-5600.html">ScanMaker 5600</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x20a7</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -15186,73 +15186,73 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Uses ALI M5615 like the ScanMaker 4700.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-5800.html">ScanMaker 5800</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-5800.html">ScanMaker 5800</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x30d8</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-5800.html">ScanMaker 5800</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-5800.html">ScanMaker 5800</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x3008</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-5900.html">ScanMaker 5900</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-5900.html">ScanMaker 5900</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x30d8</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-5950.html">ScanMaker 5950</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-5950.html">ScanMaker 5950</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x30d8</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-6000.html">ScanMaker 6000</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-6000.html">ScanMaker 6000</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x30e5</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-6100.html">ScanMaker 6100</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-6100.html">ScanMaker 6100</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x30e5</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -15268,24 +15268,24 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-microtek2.5.html">sane-microtek2</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-6700.html">ScanMaker 6700</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-6700.html">ScanMaker 6700</a></td>
 <td align=center>USB IEEE-1394</td>
 <td align=center>0x05da/0x20c9</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-8700.html">ScanMaker 8700</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-8700.html">ScanMaker 8700</a></td>
 <td align=center>USB IEEE-1394</td>
 <td align=center>0x05da/0x20b1</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details. USB vendor and product ids to be checked.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -15296,7 +15296,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. SCSI seems to work with microtek2 backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -15312,18 +15312,18 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-microtek2.5.html">sane-microtek2</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-9800.html">ScanMaker 9800XL</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-9800.html">ScanMaker 9800XL</a></td>
 <td align=center>USB SCSI</td>
 <td align=center>0x05da/0x20de</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Partly unsupported. IEEE-1394 works with microtek2 backend. See link.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-9800.html">ScanMaker 9800XL</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-9800.html">ScanMaker 9800XL</a></td>
 <td align=center>IEEE-1394</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#B00000">Minimal</font></td>
@@ -15389,13 +15389,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-microtek.5.html">sane-microtek</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-i320.html">ScanMaker i320</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-i320.html">ScanMaker i320</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x30e6</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -15455,24 +15455,24 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-microtek.5.html">sane-microtek</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-s400.html">ScanMaker S400</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-s400.html">ScanMaker S400</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x300b</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanmaker-s400.html">ScanMaker s400</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanmaker-s400.html">ScanMaker s400</a></td>
 <td align=center>USB</td>
 <td align=center>0x05da/0x201c</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -15631,13 +15631,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-microtek2.5.html">sane-microtek2</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/microtek-scanport-3000.html">ScanPort 3000</a></td>
+<tr><td align=center><a href="unsupported/microtek-scanport-3000.html">ScanPort 3000</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0224</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Vendor/Product ids: 0x04a7/0x0224. Realtek RTS8801B?. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -15908,7 +15908,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. quarlewm at jmu dot edu offers to temporarily loan such a scanner to anyone who is interested in writing a driver.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -15919,7 +15919,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -16106,7 +16106,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. May be supported by mustek_usb2 backend later. See link for some information.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -16122,13 +16122,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-gt68xx.5.html">sane-gt68xx</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/mustek-bearpaw-2448-cu-pro.html">BearPaw 2448 CU Pro</a></td>
+<tr><td align=center><a href="unsupported/mustek-bearpaw-2448-cu-pro.html">BearPaw 2448 CU Pro</a></td>
 <td align=center>USB</td>
 <td align=center>0x055f/0x0408</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. May be supported by mustek_usb2 backend later. See link for some information.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -16155,24 +16155,24 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-mustek_usb2.5.html">sane-mustek_usb2</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/mustek-bearpaw-4800ta-pro.html">BearPaw 4800 TA Pro</a></td>
+<tr><td align=center><a href="unsupported/mustek-bearpaw-4800ta-pro.html">BearPaw 4800 TA Pro</a></td>
 <td align=center>USB</td>
 <td align=center>0x055f/0x1000</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for some information.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/mustek-bearpaw-4800ta-pro-ii.html">BearPaw 4800 TA Pro II</a></td>
+<tr><td align=center><a href="unsupported/mustek-bearpaw-4800ta-pro-ii.html">BearPaw 4800 TA Pro II</a></td>
 <td align=center>USB</td>
 <td align=center>0x055f/0x040a</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported.  May be supported by mustek_usb2 backend later. See link for some information.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -16183,7 +16183,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. May be supported by mustek_usb2 backend later. See link for some information.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -16238,7 +16238,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Maybe similar to 600 II EP (SCSI_over-parport)? In this case it could be supported by the mustek SCSI backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -16447,7 +16447,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Programming information is available.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -16535,7 +16535,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Programming information is available.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -16546,7 +16546,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -16601,7 +16601,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Asic 1505/05.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -16634,7 +16634,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Maybe it will be supported by the mustek_pp backend in future.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -16667,7 +16667,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. USB business card scanner. Maybe works as USB storage device?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -16733,7 +16733,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. Same as Mustek 12000 P?. ASIC 1505.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -16834,13 +16834,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-nec.5.html">sane-nec</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/nec-petiscan.html">Petiscan</a></td>
+<tr><td align=center><a href="unsupported/nec-petiscan.html">Petiscan</a></td>
 <td align=center>USB</td>
 <td align=center>0x0475/0x0100</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Most probably unsupported. See link for details. Vendor ID is Relisys/Teco. Not known if it is similar to other Relisys/Teco USB scanners.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -16918,7 +16918,7 @@ coolscan3<br>(1.0.0)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-coolscan3.5.html">sane-coolscan3</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/nikon-ls50-ed.html">Coolscan V ED</a></td>
+<tr><td align=center><a href="unsupported/nikon-ls50-ed.html">Coolscan V ED</a></td>
 <td align=center>USB</td>
 <td align=center>0x04b0/0x4001</td>
 <td align=center><font color="#B00000">Minimal</font></td>
@@ -16928,7 +16928,7 @@ coolscan3<br>(1.0.0)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-coolscan3.5.html">sane-coolscan3</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/nikon-ls50-ed.html">Coolscan V ED</a></td>
+<tr><td align=center><a href="unsupported/nikon-ls50-ed.html">Coolscan V ED</a></td>
 <td align=center>USB</td>
 <td align=center>0x04b0/0x4001</td>
 <td align=center><font color="#B00000">Minimal</font></td>
@@ -16991,7 +16991,7 @@ coolscan3<br>(1.0.0)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-coolscan2.5.html">sane-coolscan2</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/nikon-ls50-ed.html">LS 50 ED</a></td>
+<tr><td align=center><a href="unsupported/nikon-ls50-ed.html">LS 50 ED</a></td>
 <td align=center>USB</td>
 <td align=center>0x04b0/0x4001</td>
 <td align=center><font color="#B00000">Minimal</font></td>
@@ -17119,18 +17119,18 @@ coolscan3<br>(1.0.0)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-coolscan.5.html">sane-coolscan</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/nikon-ls9000-ed.html">LS-9000 ED</a></td>
+<tr><td align=center><a href="unsupported/nikon-ls9000-ed.html">LS-9000 ED</a></td>
 <td align=center>IEEE-1394</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details. Possibly similar to LS-8000 ED.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/nikon-ls5000-ed.html">Super Coolscan LS-5000 ED</a></td>
+<tr><td align=center><a href="unsupported/nikon-ls5000-ed.html">Super Coolscan LS-5000 ED</a></td>
 <td align=center>USB</td>
 <td align=center>0x04b0/0x4002</td>
 <td align=center><font color="#0000B0">Untested</font></td>
@@ -17140,7 +17140,7 @@ coolscan3<br>(1.0.0)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-coolscan3.5.html">sane-coolscan3</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/nikon-ls5000-ed.html">Super Coolscan LS-5000 ED</a></td>
+<tr><td align=center><a href="unsupported/nikon-ls5000-ed.html">Super Coolscan LS-5000 ED</a></td>
 <td align=center>USB</td>
 <td align=center>0x04b0/0x4002</td>
 <td align=center><font color="#0000B0">Untested</font></td>
@@ -17217,13 +17217,13 @@ coolscan3<br>(1.0.0)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/olivetti-job-jet-m400.html">Job-Jet M400</a></td>
+<tr><td align=center><a href="unsupported/olivetti-job-jet-m400.html">Job-Jet M400</a></td>
 <td align=center>USB</td>
 <td align=center>0x0b3c/0xa880</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17250,18 +17250,18 @@ coolscan3<br>(1.0.0)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>&nbsp;</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/olympus-es10s.html">ES-10S</a></td>
+<tr><td align=center><a href="unsupported/olympus-es10s.html">ES-10S</a></td>
 <td align=center>SCSI</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17286,7 +17286,7 @@ coolscan3<br>(1.0.0)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17311,7 +17311,7 @@ coolscan3<br>(1.0.0)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>&nbsp;</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17322,7 +17322,7 @@ coolscan3<br>(1.0.0)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>&nbsp;</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17333,7 +17333,7 @@ coolscan3<br>(1.0.0)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Special ISA card</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17344,7 +17344,7 @@ coolscan3<br>(1.0.0)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>&nbsp;</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17355,7 +17355,7 @@ coolscan3<br>(1.0.0)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>&nbsp;</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17366,7 +17366,7 @@ coolscan3<br>(1.0.0)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Special ISA card</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17543,7 +17543,7 @@ kvs20xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>might be supported by matsushita backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17554,7 +17554,7 @@ kvs20xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>might be supported by matsushita backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17576,7 +17576,7 @@ kvs20xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>might be supported by matsushita backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17587,7 +17587,7 @@ kvs20xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>might be supported by matsushita backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17598,7 +17598,7 @@ kvs20xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>might be supported by matsushita backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17609,7 +17609,7 @@ kvs20xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>might be supported by matsushita backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17620,7 +17620,7 @@ kvs20xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>might be supported by matsushita backend. See http://code.google.com/p/kvss905c/ for a standalone scanning tool.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17651,7 +17651,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>might be supported by matsushita backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17662,7 +17662,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>might be supported by matsushita backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17673,7 +17673,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>might be supported by matsushita backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17684,7 +17684,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>might be supported by matsushita backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17695,7 +17695,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>might be supported by matsushita backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17815,7 +17815,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>might be supported by matsushita backend. See http://code.google.com/p/kvss905c/ for a standalone scanning tool.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17858,13 +17858,13 @@ kvs40xx<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-genesys.5.html">sane-genesys</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/syscan-travelscan-pro.html">DSmobile USB</a></td>
+<tr><td align=center><a href="unsupported/syscan-travelscan-pro.html">DSmobile USB</a></td>
 <td align=center>USB</td>
 <td align=center>0x0a82/0x2000</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. Some information is available.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17886,35 +17886,35 @@ kvs40xx<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/pie-pf3650.html">PF3650 Pro3 Film Scanner</a></td>
+<tr><td align=center><a href="unsupported/pie-pf3650.html">PF3650 Pro3 Film Scanner</a></td>
 <td align=center>USB IEEE-1394</td>
 <td align=center>0x05e3/0x0143</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/reflecta-digitdia-3600.html">Powerslide 3600</a></td>
+<tr><td align=center><a href="unsupported/reflecta-digitdia-3600.html">Powerslide 3600</a></td>
 <td align=center>USB IEEE-1394</td>
 <td align=center>0x05e3/0x0142</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. Film scanner that can scan directly from the magazine.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/pie-1800u.html">Primefilm 1800u</a></td>
+<tr><td align=center><a href="unsupported/pie-1800u.html">Primefilm 1800u</a></td>
 <td align=center>USB</td>
 <td align=center>0x05e3/0x0120</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17925,7 +17925,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>&nbsp;</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -17936,7 +17936,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. </td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18122,18 +18122,18 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/planon-docupen-r700.html">DocuPen R700</a></td>
+<tr><td align=center><a href="unsupported/planon-docupen-r700.html">DocuPen R700</a></td>
 <td align=center>USB</td>
 <td align=center>0x10c4/0xea60</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18144,7 +18144,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18182,7 +18182,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Business card reader. No further information available.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18198,13 +18198,13 @@ kvs40xx<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-genesys.5.html">sane-genesys</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticfilm-7200.html">OpticFilm 7200</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticfilm-7200.html">OpticFilm 7200</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0807</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL842 based, maybe to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18215,7 +18215,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL843 based, maybe to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18424,7 +18424,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Uses Plustek ASIC P99002</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18479,18 +18479,18 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Uses RealTek chipset (RTL8801D)</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticpro-st12.html">OpticPro S12</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticpro-st12.html">OpticPro S12</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0600</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Product id 0x0600 is unsupported but may be supported by the genesys backend in future. Product id 0x040b is supported by the gt68xx backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18506,13 +18506,13 @@ kvs40xx<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-gt68xx.5.html">sane-gt68xx</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticpro-st24.html">OpticPro S24</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticpro-st24.html">OpticPro S24</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0601</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Product id 0x0601 is unsupported but may be supported by the genesys backend in future /GL646). Product id 0x040e is supported by the gt68xx backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18528,24 +18528,24 @@ kvs40xx<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-gt68xx.5.html">sane-gt68xx</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticpro-s28.html">OpticPro S28</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticpro-s28.html">OpticPro S28</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0801</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL841 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticpro-st12.html">OpticPro ST12</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticpro-st12.html">OpticPro ST12</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0600</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Product id 0x0600 is unsupported but may be supported by the genesys backend in future. Product id 0x040b is supported by the gt68xx backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18561,79 +18561,79 @@ kvs40xx<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-gt68xx.5.html">sane-gt68xx</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticpro-st16.html">OpticPro ST16</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticpro-st16.html">OpticPro ST16</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0600</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL646 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticpro-st24.html">OpticPro ST24</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticpro-st24.html">OpticPro ST24</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0601</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL646 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticpro-st28.html">OpticPro ST28</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticpro-st28.html">OpticPro ST28</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0802</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL841 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticpro-s28.html">OpticPro ST28</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticpro-s28.html">OpticPro ST28</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0801</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL841 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticpro-st48.html">OpticPro ST48</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticpro-st48.html">OpticPro ST48</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0800</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL841 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticpro-st64.html">OpticPro ST64</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticpro-st64.html">OpticPro ST64</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0c00</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL843 based, maybe to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticpro-st64plus.html">OpticPro ST64+</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticpro-st64plus.html">OpticPro ST64+</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0c03</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL843 based. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18710,7 +18710,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably LM983x based.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18781,13 +18781,13 @@ kvs40xx<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-plustek.5.html">sane-plustek</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticslim-500.html">OpticSlim 500</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticslim-500.html">OpticSlim 500</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0458</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18825,24 +18825,24 @@ kvs40xx<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-gt68xx.5.html">sane-gt68xx</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticslim-2420.html">OpticSlim 2420</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticslim-2420.html">OpticSlim 2420</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0806</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL841 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticslim-2420plus.html">OpticSlim 2420+</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticslim-2420plus.html">OpticSlim 2420+</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0914</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL841 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18864,40 +18864,40 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Multifunction device. No further information available.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-pl806.html">PL 806</a></td>
+<tr><td align=center><a href="unsupported/plustek-pl806.html">PL 806</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0c0c</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-scancopy-115.html">ScanCopy 115</a></td>
+<tr><td align=center><a href="unsupported/plustek-scancopy-115.html">ScanCopy 115</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x081c</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL841 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-pl812.html">SmartOffice PL 812</a></td>
+<tr><td align=center><a href="unsupported/plustek-pl812.html">SmartOffice PL 812</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0c0d</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18908,18 +18908,18 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Uses proprietary ISA card that also provides power and is labelled GPS-1 PAGE-A from Taiwan. Other labels on the scanner include ADF Color Scanner and SF600AS. Maybe the same as the IBM ADF Color Scanner?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/umax-astrscan-4750.html">Umax AstraScan 4750</a></td>
+<tr><td align=center><a href="unsupported/umax-astrscan-4750.html">Umax AstraScan 4750</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0802</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL841 based, to be added to genesys backend, rebadged Plustek ST28</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18930,7 +18930,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. Scanner name not known yet.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18941,7 +18941,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. Scanner name not known yet.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18952,7 +18952,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. Scanner name not known yet.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18963,7 +18963,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. Scanner name not known yet.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18974,7 +18974,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. Scanner name not known yet.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -18985,7 +18985,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. Scanner name not known yet.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19044,13 +19044,13 @@ kvs40xx<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/primax-colorado-600u.html">Colorado 600U</a></td>
+<tr><td align=center><a href="unsupported/primax-colorado-600u.html">Colorado 600U</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x0341</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Some information is available.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19061,7 +19061,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported by SANE. But is reported to partly work with pxscan. See link.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19072,7 +19072,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19094,7 +19094,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. However, a stand-alone program is available.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19105,18 +19105,18 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. However, a stand-alone program is available.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/primax-colorado-usb-9600.html">Colorado USB 9600</a></td>
+<tr><td align=center><a href="unsupported/primax-colorado-usb-9600.html">Colorado USB 9600</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x0340</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19171,7 +19171,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19182,7 +19182,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19193,7 +19193,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19204,7 +19204,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19215,7 +19215,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19226,7 +19226,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19237,7 +19237,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19259,18 +19259,18 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch8920.html">Onetouch 8920</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch8920.html">Onetouch 8920</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x0371</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Look similar to Visioneer Onetouch 8920 (same USB product id).</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19286,13 +19286,13 @@ kvs40xx<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-p5.5.html">sane-p5</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch4400.html">Primascan Colorado 2600u</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch4400.html">Primascan Colorado 2600u</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x0347</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Same as Visioneer Onetouch 4400. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19325,7 +19325,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. No details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19336,7 +19336,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Maybe GL646. Maybe similar to Medion MD 6228?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19363,18 +19363,18 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. No further information available.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/prolink-2448u.html">Winscan Pro 2448U</a></td>
+<tr><td align=center><a href="unsupported/prolink-2448u.html">Winscan Pro 2448U</a></td>
 <td align=center>USB</td>
 <td align=center>0x06dc/0x0014</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Some information is available. RealTek RTS8801.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19401,7 +19401,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. No details yet. Originally manufactured by PFU?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19412,7 +19412,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. No details yet.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19431,35 +19431,35 @@ kvs40xx<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/reflecta-digitdia-3600.html">DigitDia 3600</a></td>
+<tr><td align=center><a href="unsupported/reflecta-digitdia-3600.html">DigitDia 3600</a></td>
 <td align=center>USB IEEE-1394</td>
 <td align=center>0x05e3/0x0142</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Film scanner that can scan directly from the magazine.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/reflecta-iscan-1800.html">iScan 1800</a></td>
+<tr><td align=center><a href="unsupported/reflecta-iscan-1800.html">iScan 1800</a></td>
 <td align=center>USB</td>
 <td align=center>0x05e3/0x0120</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/reflecta-proscan-4000.html">ProScan 4000</a></td>
+<tr><td align=center><a href="unsupported/reflecta-proscan-4000.html">ProScan 4000</a></td>
 <td align=center>USB IEEE-1394</td>
 <td align=center>0x05e3/0x0143</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19552,7 +19552,7 @@ kvs40xx<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Parport version of AVEC II S3?. See bug #304992 for details</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19579,24 +19579,24 @@ kvs40xx<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-teco2.5.html">sane-teco2</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/relisys-eclipse-1200u.html">Eclipse 1200U</a></td>
+<tr><td align=center><a href="unsupported/relisys-eclipse-1200u.html">Eclipse 1200U</a></td>
 <td align=center>USB</td>
 <td align=center>0x0475/0x0103</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/relisys-episode.html">Episode</a></td>
+<tr><td align=center><a href="unsupported/relisys-episode.html">Episode</a></td>
 <td align=center>USB</td>
 <td align=center>0x0475/0x0103</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -19755,13 +19755,13 @@ kvs40xx<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-teco2.5.html">sane-teco2</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/relisys-scorpio-ultra3.html">Scorpio Ultra 3</a></td>
+<tr><td align=center><a href="unsupported/relisys-scorpio-ultra3.html">Scorpio Ultra 3</a></td>
 <td align=center>USB</td>
 <td align=center>0x0475/0x0210</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -20380,13 +20380,13 @@ xerox_mfp<br>(1.0-13)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-xerox_mfp.5.html">sane-xerox_mfp</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/samsung-scx-4725.html">SCX-4725FN</a></td>
+<tr><td align=center><a href="unsupported/samsung-scx-4725.html">SCX-4725FN</a></td>
 <td align=center>USB</td>
 <td align=center>0x04e8/0x341f</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -20594,13 +20594,13 @@ xerox_mfp<br>(1.0-13)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/scanshell-800n.html">800N</a></td>
+<tr><td align=center><a href="unsupported/scanshell-800n.html">800N</a></td>
 <td align=center>USB</td>
 <td align=center>0x0a82/0x6605</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -20734,7 +20734,7 @@ xerox_mfp<br>(1.0-13)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported until now. Work on a backend has started, contact the author for details (see link)</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -20771,7 +20771,7 @@ s9036<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -20782,7 +20782,7 @@ s9036<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -20839,7 +20839,7 @@ agfafocus<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. Same as PIE Primefilm 2600 PRO.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -20865,7 +20865,7 @@ agfafocus<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported until now. Work on a backend has started, see link for more information.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -20876,7 +20876,7 @@ agfafocus<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Work on a backend has started, see link for more information.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -20887,7 +20887,7 @@ agfafocus<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Work on a backend has started, see link for more information.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -20974,24 +20974,24 @@ agfafocus<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-plustek.5.html">sane-plustek</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/syscan-travelscan-fs531.html">TravelScan FS-531</a></td>
+<tr><td align=center><a href="unsupported/syscan-travelscan-fs531.html">TravelScan FS-531</a></td>
 <td align=center>USB</td>
 <td align=center>0x0a82/0x0530</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. May work with the Plustek backend in future. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/syscan-travelscan-pro.html">TravelScan Pro</a></td>
+<tr><td align=center><a href="unsupported/syscan-travelscan-pro.html">TravelScan Pro</a></td>
 <td align=center>USB</td>
 <td align=center>0x0a82/0x2000</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. Some information is available.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21010,13 +21010,13 @@ agfafocus<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/tamarack-artiscan-2400.html">Artiscan 2400FS</a></td>
+<tr><td align=center><a href="unsupported/tamarack-artiscan-2400.html">Artiscan 2400FS</a></td>
 <td align=center>USB</td>
 <td align=center>0x05e3/0x0100</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for more information.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21047,7 +21047,7 @@ tamarack<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported at the moment. See link for a project for that scanner taht may support it in future.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21058,7 +21058,7 @@ tamarack<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported at the moment. See link for a project for that scanner.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21126,13 +21126,13 @@ tamarack<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/memorex-maxx-6136u.html">MK600U</a></td>
+<tr><td align=center><a href="unsupported/memorex-maxx-6136u.html">MK600U</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x0346</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Some information is available.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21143,7 +21143,7 @@ tamarack<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported by SANE but is reported to work with pxscan (see link).</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21164,13 +21164,13 @@ tamarack<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/teco-vm6509.html">VM6509F</a></td>
+<tr><td align=center><a href="unsupported/teco-vm6509.html">VM6509F</a></td>
 <td align=center>USB</td>
 <td align=center>0x080d/0x0102</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21189,13 +21189,13 @@ tamarack<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch4400.html">FU661E</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch4400.html">FU661E</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x0347</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21265,13 +21265,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-gt68xx.5.html">sane-gt68xx</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/trust-combiscan-19200.html">CombiScan 19200</a></td>
+<tr><td align=center><a href="unsupported/trust-combiscan-19200.html">CombiScan 19200</a></td>
 <td align=center>Parport USB</td>
 <td align=center>0x05cb/0x1483</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21358,7 +21358,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>&nbsp;</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21473,13 +21473,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-mustek.5.html">sane-mustek</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/trust-scsi-scan-19200.html">SCSI Scan 19200 -Excellence Series-</a></td>
+<tr><td align=center><a href="unsupported/trust-scsi-scan-19200.html">SCSI Scan 19200 -Excellence Series-</a></td>
 <td align=center>SCSI</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21687,68 +21687,68 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-umax.5.html">sane-umax</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/umax-astra-2500.html">Astra 2500</a></td>
+<tr><td align=center><a href="unsupported/umax-astra-2500.html">Astra 2500</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x0374</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/plustek-opticpro-st24.html">Astra 2850</a></td>
+<tr><td align=center><a href="unsupported/plustek-opticpro-st24.html">Astra 2850</a></td>
 <td align=center>USB</td>
 <td align=center>0x07b3/0x0601</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. Same IDs as Plustek OpticPro ST24. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/umax-astra-3000.html">Astra 3000</a></td>
+<tr><td align=center><a href="unsupported/umax-astra-3000.html">Astra 3000</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x038a</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/umax-astra-3600.html">Astra 3600</a></td>
+<tr><td align=center><a href="unsupported/umax-astra-3600.html">Astra 3600</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x038a</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/umax-astra-4000.html">Astra 4000</a></td>
+<tr><td align=center><a href="unsupported/umax-astra-4000.html">Astra 4000</a></td>
 <td align=center>USB</td>
 <td align=center>0x1606/0x1030</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/umax-astra-4100.html">Astra 4100</a></td>
+<tr><td align=center><a href="unsupported/umax-astra-4100.html">Astra 4100</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x038c</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported, to be added to genesys backend.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21775,13 +21775,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-rts8891.5.html">sane-rts8891</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/umax-astra-4500.html">Astra 4500</a></td>
+<tr><td align=center><a href="unsupported/umax-astra-4500.html">Astra 4500</a></td>
 <td align=center>USB</td>
 <td align=center>0x0638/0x0a10</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL646 based, to be added to genesys backend. Avision iVina FB1600 clone</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21792,18 +21792,18 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported, no details known.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/umax-astra-4700.html">Astra 4700</a></td>
+<tr><td align=center><a href="unsupported/umax-astra-4700.html">Astra 4700</a></td>
 <td align=center>USB</td>
 <td align=center>0x0638/0x0a20</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL646/GL660 based. Avision iVina FB1800 clone.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21847,7 +21847,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. No chipset information available. Same as Avision iVina FB2400.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21874,24 +21874,24 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-umax.5.html">sane-umax</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/umax-astraslim.html">AstraSlim</a></td>
+<tr><td align=center><a href="unsupported/umax-astraslim.html">AstraSlim</a></td>
 <td align=center>USB</td>
 <td align=center>0x080d/0x0104</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported currently. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/umax-astraslim-1200.html">AstraSlim 1200</a></td>
+<tr><td align=center><a href="unsupported/umax-astraslim-1200.html">AstraSlim 1200</a></td>
 <td align=center>USB</td>
 <td align=center>0x080d/0x0110</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21906,13 +21906,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-artec_eplus48u.5.html">sane-artec_eplus48u</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/umax-astraslim-6000.html">AstraSlim 6000</a></td>
+<tr><td align=center><a href="unsupported/umax-astraslim-6000.html">AstraSlim 6000</a></td>
 <td align=center>USB</td>
 <td align=center>0x080d/0x0104</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported currently. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -21977,7 +21977,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. No details known..</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -22004,13 +22004,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-umax.5.html">sane-umax</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/umax-powerlook-180.html">Powerlook 180</a></td>
+<tr><td align=center><a href="unsupported/umax-powerlook-180.html">Powerlook 180</a></td>
 <td align=center>USB</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -22043,7 +22043,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. No further information available.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -22370,13 +22370,13 @@ artec_eplus48u<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch4800.html">3000</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch4800.html">3000</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0224</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -22397,13 +22397,13 @@ artec_eplus48u<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/xerox-4800-onetouch.html">4800 One Touch</a></td>
+<tr><td align=center><a href="unsupported/xerox-4800-onetouch.html">4800 One Touch</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x03a0</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details. Different id compared to One Touch 4800?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -22414,7 +22414,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Is reported to use the E5 chipset. Uses a Primax ID. Looks similar to Primascan Colorado 2600u.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -22425,7 +22425,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Id is from Primax? Yet another scanner with the same name?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -22441,13 +22441,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-avision.5.html">sane-avision</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-9420.html">9420</a></td>
+<tr><td align=center><a href="unsupported/visioneer-9420.html">9420</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x03a8</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -22463,13 +22463,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-avision.5.html">sane-avision</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-9450-usb.html">9450 USB</a></td>
+<tr><td align=center><a href="unsupported/visioneer-9450-usb.html">9450 USB</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0421</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -22540,68 +22540,68 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-avision.5.html">sane-avision</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/xerox-docuimage-620s.html">DocuImage 620S</a></td>
+<tr><td align=center><a href="unsupported/xerox-docuimage-620s.html">DocuImage 620S</a></td>
 <td align=center>SCSI</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/xerox-documate-510.html">DocuMate 510</a></td>
+<tr><td align=center><a href="unsupported/xerox-documate-510.html">DocuMate 510</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x047c</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for more details. Yet another USB id.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/xerox-documate-510.html">DocuMate 510</a></td>
+<tr><td align=center><a href="unsupported/xerox-documate-510.html">DocuMate 510</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0446</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch4800.html">One Touch 4800</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch4800.html">One Touch 4800</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0224</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details. Different id compared to 4800 One Touch?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch4400.html">Onetouch 4400</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch4400.html">Onetouch 4400</a></td>
 <td align=center>USB</td>
 <td align=center>0x0461/0x0347</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. E5 chipset? See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch4800.html">OneTouch 4800 USB</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch4800.html">OneTouch 4800 USB</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0224</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. Seems to use Realtek RTS8801B. Same as Microtek Scanport 3000. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -22612,51 +22612,51 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Yet another scanner with this name?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch5300.html">OneTouch 5300 USB</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch5300.html">OneTouch 5300 USB</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0226</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Chipset is RTS8801B(?). See link for output of /proc/bus/usb/devices.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch5800.html">OneTouch 5800 USB</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch5800.html">OneTouch 5800 USB</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0226</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. 48 bit scanner, doesn't work with viceo backend. RTS8801C.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch6600.html">OneTouch 6600</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch6600.html">OneTouch 6600</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x022a</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch7100.html">Onetouch 7100</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch7100.html">Onetouch 7100</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0229</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>GL646 based, to be added to genesys backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -22672,123 +22672,123 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-gt68xx.5.html">sane-gt68xx</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch7700.html">Onetouch 7700</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch7700.html">Onetouch 7700</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0380</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>LM9832/3 based, to be added to plustek backend</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch8100.html">OneTouch 8100</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch8100.html">OneTouch 8100</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0321</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Unsupported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch8920.html">Onetouch 8700</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch8920.html">Onetouch 8700</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0371</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch8920.html">Onetouch 8900</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch8920.html">Onetouch 8900</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0371</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Same as 8920 but without TA?</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch8920.html">Onetouch 8920</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch8920.html">Onetouch 8920</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0371</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. Same as 8700 and 8900 but includes a TA. Uses a Primax ID. Chipset is RTS8801C. See link for output of /proc/bus/usb/devices.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch9020.html">Onetouch 9000</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch9020.html">Onetouch 9000</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x022c</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch9020.html">Onetouch 9020</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch9020.html">Onetouch 9020</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x022c</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch9320.html">Onetouch 9320</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch9320.html">Onetouch 9320</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0362</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch8820.html">Onetouch Pro 8800</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch8820.html">Onetouch Pro 8800</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0410</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-onetouch8820.html">Onetouch Pro 8820</a></td>
+<tr><td align=center><a href="unsupported/visioneer-onetouch8820.html">Onetouch Pro 8820</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0410</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-paperport-3100b.html">PaperPort 3100b</a></td>
+<tr><td align=center><a href="unsupported/visioneer-paperport-3100b.html">PaperPort 3100b</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Most probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -22799,18 +22799,18 @@ artec_eplus48u<br>(unmaintained)
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Most probably not supported. More details would be appreciated.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-paperport-onetouch.html">PaperPort OneTouch</a></td>
+<tr><td align=center><a href="unsupported/visioneer-paperport-onetouch.html">PaperPort OneTouch</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Most probably not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -22870,13 +22870,13 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-genesys.5.html">sane-genesys</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/visioneer-strobe-pro-usb.html">Strobe Pro USB</a></td>
+<tr><td align=center><a href="unsupported/visioneer-strobe-pro-usb.html">Strobe Pro USB</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0102</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -22980,79 +22980,79 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="http://www.sane-project.org/man/sane-genesys.5.html">sane-genesys</a></td>
 </tr>
-<tr><td align=center><a href="/unsupported/xerox-workcentre-470cx.html">WorkCentre 470cx</a></td>
+<tr><td align=center><a href="unsupported/xerox-workcentre-470cx.html">WorkCentre 470cx</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/xerox-workcentre-m15i.html">WorkCentre M15i</a></td>
+<tr><td align=center><a href="unsupported/xerox-workcentre-m15i.html">WorkCentre M15i</a></td>
 <td align=center>USB</td>
 <td align=center>0x0924/0xffef</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/xerox-workcentre-pe16.html">WorkCentre PE16</a></td>
+<tr><td align=center><a href="unsupported/xerox-workcentre-pe16.html">WorkCentre PE16</a></td>
 <td align=center>USB Parport</td>
 <td align=center>0x0924/0x4220</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/xerox-workcentre-pe120i.html">WorkCentre PE120i</a></td>
+<tr><td align=center><a href="unsupported/xerox-workcentre-pe120i.html">WorkCentre PE120i</a></td>
 <td align=center>USB</td>
 <td align=center>0x0924/0x4237</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/xerox-workcentre-pro412.html">WorkCentre Pro 412</a></td>
+<tr><td align=center><a href="unsupported/xerox-workcentre-pro412.html">WorkCentre Pro 412</a></td>
 <td align=center>USB Parport</td>
 <td align=center>0x043d/0x4303</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/xerox-workcentre-xk35c.html">WorkCentre XK35c</a></td>
+<tr><td align=center><a href="unsupported/xerox-workcentre-xk35c.html">WorkCentre XK35c</a></td>
 <td align=center>USB Parport</td>
 <td align=center>0x043d/0x0020</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="/unsupported/xerox-workcentre-xk50cx.html">WorkCentre XK50cx</a></td>
+<tr><td align=center><a href="unsupported/xerox-workcentre-xk50cx.html">WorkCentre XK50cx</a></td>
 <td align=center>USB</td>
 <td align=center>0x04e8/0x3903</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -23630,13 +23630,13 @@ dmc<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/biolux-654.html">654 (micrOcular)</a></td>
+<tr><td align=center><a href="unsupported/biolux-654.html">654 (micrOcular)</a></td>
 <td align=center>USB</td>
 <td align=center>0x0923/0x010f</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not supported yet. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>
@@ -23743,13 +23743,13 @@ qcam<br>(unmaintained)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="/unsupported/grandtech-scopecam.html">8x30 Binocular & Digital Camera</a></td>
+<tr><td align=center><a href="unsupported/grandtech-scopecam.html">8x30 Binocular & Digital Camera</a></td>
 <td align=center>USB</td>
 <td align=center>0x0797/0x801c</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
 <td>Not Supported yet. See link for more details.</td>
 <td align=center>
-<a href="/contrib.html">unsupported</a>
+<a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
 </td>
 <td align=center>?</td>

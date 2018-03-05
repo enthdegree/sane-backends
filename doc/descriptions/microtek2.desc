@@ -86,7 +86,7 @@
 :status :good
 
 :model "ScanMaker 9800XL"
-:url "/unsupported/microtek-scanmaker-9800.html"
+:url "unsupported/microtek-scanmaker-9800.html"
 :interface "IEEE-1394"
 :status :minimal
 :comment "IEEE-1394 seems to work. See link. More reports welcome."

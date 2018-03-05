@@ -48,7 +48,7 @@
 :url "http://www.genius-kye.com/"
 
 :model "ColorPage Slim 1200"
-;:url "/unsupported/genius-colorpage-slim-1200.html"
+;:url "unsupported/genius-colorpage-slim-1200.html"
 :interface "USB"
 :usbid "0x0458" "0x201e"
 :status :untested

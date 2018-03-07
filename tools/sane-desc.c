@@ -47,7 +47,7 @@
 
 #define SANE_DESC_VERSION "3.5"
 
-#define MAN_PAGE_LINK "http://www.sane-project.org/man/%s.5.html"
+#define MAN_PAGE_LINK "man/%s.5.html"
 #define COLOR_MINIMAL      "\"#B00000\""
 #define COLOR_BASIC        "\"#FF9000\""
 #define COLOR_GOOD         "\"#90B000\""
@@ -2786,7 +2786,7 @@ html_print_header (void)
     ("</head>\n"
      "<body bgcolor=FFFFFF>\n"
      "<div align=center>\n"
-     "<img src=\"http://www.sane-project.org/images/sane.png\" alt=\"SANE\">\n");
+     "<img src=\"images/sane.png\" alt=\"SANE\">\n");
   printf ("<h1>%s</h1>\n", title);
   printf ("</div>\n" "<hr>\n");
   printf ("%s\n", intro);
@@ -2797,7 +2797,7 @@ html_print_header (void)
      "concerning each backend.</p>\n");
   printf
     ("<p>If you have new information or corrections, please file a\n"
-     "<a href=\"http://www.sane-project.org/bugs.html\">bug report</a>\n"
+     "<a href=\"bugs.html\">bug report</a>\n"
      "with as many details as possible. Also please tell us if your scanner\n"
      "isn't mentioned in this list at all.</p>\n"
      "<p>For an explanation of the tables, see the\n"
@@ -2812,9 +2812,9 @@ html_print_footer (void)
 
   printf
     ("<hr>\n"
-     "<a href=\"http://www.sane-project.org/\">SANE homepage</a>\n"
+     "<a href=\"./\">SANE homepage</a>\n"
      "<address>\n"
-     "<a href=\"http://www.sane-project.org/imprint.html\"\n"
+     "<a href=\"imprint.html\"\n"
      ">Contact</a>\n" "</address>\n" "<font size=-1>\n");
   printf ("This page was last updated on %s by sane-desc %s from %s\n",
 	  asctime (localtime (&current_time)), SANE_DESC_VERSION, PACKAGE_STRING);

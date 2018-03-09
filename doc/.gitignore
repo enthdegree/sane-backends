@@ -9,6 +9,8 @@ descriptions-external.db
 descriptions.db
 doxygen-genesys.conf
 doxygen-sanei.conf
+doxygen_sqlite3.db
+genesys-html
 sane.aux
 sane.cb
 sane.dvi

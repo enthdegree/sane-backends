@@ -47,12 +47,14 @@ compile:debian-8-full:
   after_script:
   - make -C doc html-pages
   - mkdir lists && mv doc/*.html lists/
+  - cd doc && doxygen doxygen-sanei.conf
   cache:
     untracked: true
   artifacts:
     paths:
     - configure
     - lists
+    - doc/sanei-html
     expire_in: 1 day
 
 compile:alpine-3.6-musl:

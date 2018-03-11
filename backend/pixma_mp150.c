@@ -972,6 +972,7 @@ handle_interrupt (pixma_t * s, int timeout)
       || s->cfg->pid == MX520_PID
       || s->cfg->pid == MX720_PID
       || s->cfg->pid == MX920_PID
+      || s->cfg->pid == MB2300_PID
       || s->cfg->pid == MB5000_PID)
   /* button no. in buf[7]
    * size in buf[10] 01=A4; 02=Letter; 08=10x15; 09=13x18; 0b=auto

@@ -63,12 +63,6 @@ compile:alpine-3.6-musl:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition
 
-compile:fedora-25-clang:
-  image: $REGISTRY_HUB:fedora-25-clang
-  variables:
-    CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
-  <<: *compile_definition
-
 compile:debian-9-mini:
   image: $REGISTRY_HUB:debian-9-mini
   variables:
@@ -85,6 +79,12 @@ compile:debian-9-full:
 
 compile:fedora-26-clang:
   image: $REGISTRY_HUB:fedora-26-clang
+  variables:
+    CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
+  <<: *compile_definition
+
+compile:fedora-27-clang:
+  image: $REGISTRY_HUB:fedora-27-clang
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition

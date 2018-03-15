@@ -57,12 +57,6 @@ compile:debian-8-full:
     - doc/sanei-html
     expire_in: 1 day
 
-compile:alpine-3.6-musl:
-  image: $REGISTRY_HUB:alpine-3.6-musl
-  variables:
-    CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
-  <<: *compile_definition
-
 compile:debian-9-mini:
   image: $REGISTRY_HUB:debian-9-mini
   variables:
@@ -85,6 +79,12 @@ compile:fedora-26-clang:
 
 compile:fedora-27-clang:
   image: $REGISTRY_HUB:fedora-27-clang
+  variables:
+    CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
+  <<: *compile_definition
+
+compile:alpine-3.7-musl:
+  image: $REGISTRY_HUB:alpine-3.7-musl
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition

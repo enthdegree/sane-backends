@@ -14,7 +14,7 @@ stages:
   - archive
 
 prepare:
-  image: $REGISTRY_HUB:debian-8-base
+  image: $REGISTRY_HUB:debian-9-base
   stage: prepare
   script:
   - find -path ./.git -prune -o -type f | xargs tools/style-check.sh
@@ -44,18 +44,6 @@ compile:debian-8-full:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
     MAKE_FLAGS: "CFLAGS=-Werror"
   <<: *compile_definition
-  after_script:
-  - make -C doc html-pages
-  - mkdir lists && mv doc/*.html lists/
-  - cd doc && doxygen doxygen-sanei.conf
-  cache:
-    untracked: true
-  artifacts:
-    paths:
-    - configure
-    - lists
-    - doc/sanei-html
-    expire_in: 1 day
 
 compile:debian-9-mini:
   image: $REGISTRY_HUB:debian-9-mini
@@ -70,6 +58,18 @@ compile:debian-9-full:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
     MAKE_FLAGS: "CFLAGS=-Werror"
   <<: *compile_definition
+  after_script:
+  - make -C doc html-pages
+  - mkdir lists && mv doc/*.html lists/
+  - cd doc && doxygen doxygen-sanei.conf
+  cache:
+    untracked: true
+  artifacts:
+    paths:
+    - configure
+    - lists
+    - doc/sanei-html
+    expire_in: 1 day
 
 compile:fedora-26-clang:
   image: $REGISTRY_HUB:fedora-26-clang
@@ -91,9 +91,9 @@ compile:alpine-3.7-musl:
 
 archive:
   stage: archive
-  image: $REGISTRY_HUB:debian-8-full
+  image: $REGISTRY_HUB:debian-9-full
   dependencies:
-  - compile:debian-8-full
+  - compile:debian-9-full
   before_script:
   - ./config.status --quiet || ./configure "$CONFIGURE_MINI"
   script:

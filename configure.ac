@@ -7,11 +7,11 @@ dnl  and remove the git suffix.
 dnl ******************************************************************
 AC_INIT([sane-backends],[1.0.27git],
         [sane-devel@lists.alioth.debian.org])
-AC_PREREQ(2.69)                 dnl minimum autoconf version required
+AC_PREREQ([2.69])               dnl minimum autoconf version required
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([include/sane/config.h])
 
-AM_INIT_AUTOMAKE([1.11.6 subdir-objects -Wall])
+AM_INIT_AUTOMAKE([1.15 subdir-objects -Wall])
 AM_SILENT_RULES
 dnl Turn off feature were automake will automatically run autoreconf.
 dnl This is because we used to check in generated files into CVS which
@@ -58,13 +58,13 @@ AC_USE_SYSTEM_EXTENSIONS        dnl call before running the C compiler
 
 AM_PROG_AR
 LT_INIT([disable-static win32-dll])
-LT_PREREQ([2.4.2])
+LT_PREREQ([2.4.6])
 
 dnl *****************************************************************
 dnl  Set up I18N/L10N support
 dnl *****************************************************************
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.18.1])
+AM_GNU_GETTEXT_VERSION([0.19.8])
 
 dnl ***********************************************************************
 dnl Checks for programs.

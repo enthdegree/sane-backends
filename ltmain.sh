@@ -2,6 +2,10 @@
 ## DO NOT EDIT - This file generated from ./build-aux/ltmain.in
 ##               by inline-source v2014-01-03.01
 
+# Local changes for sane-backends (search for "Local change"):
+# 2003-04-30: Henning Meirer-Geinitz
+#   * soname changed to "libsane" for every backend (all systems but AIX)
+
 # libtool (GNU libtool) 2.4.6
 # Provide generalized library-building support services.
 # Written by Gordon Matzigkeit <gord@gnu.ai.mit.edu>, 1996
@@ -9615,6 +9619,25 @@ EOF
 	  dlname=$soname
 	fi
 
+	# Local change for sane-backends: internal name for every lib
+	# is "libsane" not "libsane-backendname". So linking to each
+	# backend is possible. Also the following test was moved to this
+	# location.
+	# If -module or -export-dynamic was specified, set the dlname
+	if test "$module" = yes || test "$export_dynamic" = yes; then
+	  # On all known operating systems, these are identical.
+	  dlname="$soname"
+	fi
+	case $host in
+	  *mingw*)
+	    ;;
+	  *aix*)
+	    ;;
+	  *)
+	    soname=`echo $soname | sed -e "s/libsane-[A-Za-z_0-9]*/libsane/g"`
+	esac
+	# End of local change
+
 	lib=$output_objdir/$realname
 	linknames=
 	for link
@@ -10074,11 +10097,12 @@ EOF
 	  fi
 	done
 
+	# Local change from sane-backends; moved up
 	# If -module or -export-dynamic was specified, set the dlname.
-	if test yes = "$module" || test yes = "$export_dynamic"; then
-	  # On all known operating systems, these are identical.
-	  dlname=$soname
-	fi
+	#if test yes = "$module" || test yes = "$export_dynamic"; then
+	#  # On all known operating systems, these are identical.
+	#  dlname=$soname
+	#fi
       fi
       ;;
 

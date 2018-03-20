@@ -136,8 +136,9 @@ Support for the Prima PagePartner has been made possible thank to an hardware do
 by S\['e]bastien Lange.
 
 .SH "BUG REPORTS"
-If something doesn't work mail sane-devel@lists.alioth.debian.org or use the bug
-tracker at https://alioth.debian.org/tracker/?atid=410366&group_id=30186 .
+If something doesn't work mail sane-devel@lists.alioth.debian.org or submit an
+issue via https://gitlab.com/sane-project/backends/issues/new with a label of
+backend/p5.
 Please give as much information as you can.
 
 .TP

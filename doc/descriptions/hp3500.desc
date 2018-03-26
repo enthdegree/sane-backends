@@ -9,7 +9,7 @@
 ;
 
 :backend "hp3500"		; name of backend
-:version "1.1"			; version of backend
+:version "1.1 (unmaintained)"	; version of backend
 :manpage "sane-hp3500"		; name of manpage (if it exists)
 :url "http://projects.troy.rollo.name/rt-scanners/" ; backend's web page
 :comment "HP3500 series scanners."

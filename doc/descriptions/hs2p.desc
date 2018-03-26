@@ -10,7 +10,7 @@
 
 :backend "hs2p"                 ; name of backend
 :url "http://www.acjlaw.net:8080/~jeremy/Ricoh/"
-:version "1.00"          ; version of backend
+:version "1.00 (unmaintained)"  ; version of backend
 ;
 :manpage "sane-hs2p"            ; name of manpage (if it exists)
 :comment "This backend has been tested with the IS450DE (Duplex/Endorser). All major functions necessary for scanning are supported. This backend should work with all Ricoh scanners in the IS450 family as well as the IS420 series, but the IS420 has not yet been tested. Features provided by the optional Image Processing Unit (IPU) are not yet integrated into the backend, as my scanner lacks the IPU."

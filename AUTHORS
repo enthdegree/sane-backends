@@ -11,10 +11,10 @@ Backends:
  artec_eplus48u:Sergey Vlasov, Andreas Nowack, David Stevenson, and
                 Michael Herder
  as6e:          Eugene S. Weiss
- avision:       Meino Christian Cramer, René Rebe (*)
+ avision:       Meino Christian Cramer, René Rebe
  bh:            Tom Martone
  canon:         Helmut Koeberle, Manuel Panea, and Markus Mertinat
-                Mitsuru Okaniwa, Ulrich Deiters (*)
+                Mitsuru Okaniwa, Ulrich Deiters
  canon630u:     Nathan Rutman
  canon_dr:      m. allan noah (*)
  canon_pp:      Matthew Duggan, Simon Krix
@@ -39,9 +39,9 @@ Backends:
  gphoto2:       Peter Fales
  gt68xx:        Sergey Vlasov, Andreas Nowack, David Stevenson, and
                 Henning Geinitz
- hp:            Peter Kirchgessner (*)
+ hp:            Peter Kirchgessner
                 Geoffrey Dairiki
- hp3500:        Troy Rollo (*)
+ hp3500:        Troy Rollo
  hp3900:        Jonathan Bravo Lopez
  hp4200:        Adrian Perez Jorge, Andrew John Lewis, Arnar Mar Hrafnkelsson,
                 Frank Zago, Henning Geinitz
@@ -49,7 +49,7 @@ Backends:
  hp5590:        Ilia Sotnikov (*)
  hpljm1005:     Philippe Rétornaz
  hpsj5s:        Max Vorobiev
- hs2p:		Jeremy Johnson (*)
+ hs2p:		Jeremy Johnson
  ibm:           M.F., Henning Geinitz
  kodak:         m. allan noah (*)
  kodakaio:	Paul Newall (*)
@@ -73,7 +73,7 @@ Backends:
  niash:         Ullrich Sigwanz, Bertrik Sikken
  p5:		Stéphane Voltz
  pie:           Simon Munton
- pieusb:        Jan Vleeshouwers, Michael Rickmann, Klaus Kämpf
+ pieusb:        Jan Vleeshouwers, Michael Rickmann, Klaus Kämpf (*)
  pint:          Gordon Matzigkeit
  pixma:         Wittawat Yamwong
                 Nicolas Martin

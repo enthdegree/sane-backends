@@ -474,7 +474,7 @@ Date:   Sat Mar 11 10:48:35 2017 +0900
 
     Fix typo
 
-    See http://lists.alioth.debian.org/pipermail/sane-devel/2017-March/035099.html
+    See http://alioth-lists.debian.net/pipermail/sane-devel/2017-March/035099.html
 
 commit 1e028b72cae0f4caaf48868504bd2cd1667d6da7
 Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>
@@ -482,8 +482,8 @@ Date:   Mon Mar 6 20:54:59 2017 +0900
 
     pixma: updated status for MG5400 Series
 
-    See http://lists.alioth.debian.org/pipermail/sane-devel/2017-March/035072.html
-    and http://lists.alioth.debian.org/pipermail/sane-devel/2017-March/035082.html
+    See http://alioth-lists.debian.net/pipermail/sane-devel/2017-March/035072.html
+    and http://alioth-lists.debian.net/pipermail/sane-devel/2017-March/035082.html
 
 commit 928b803ef1f1bc1007ca3fa83418f103c6a7bdd7
 Author: Olaf Meeuwissen <paddy-hack@member.fsf.org>

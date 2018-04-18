@@ -12447,7 +12447,7 @@ backend `unsupported'
     usb-vendor-id `0x04a5'
     usb-product-id `0x2311'
     status unsupported
-    url `http://lists.alioth.debian.org/pipermail/sane-devel/2009-January/023447.html'
+    url `http://alioth-lists.debian.net/pipermail/sane-devel/2009-January/023447.html'
     comment *none*
    model `7400UT'
     interface `USB'
@@ -13781,7 +13781,7 @@ backend `unsupported'
     usb-vendor-id *none*
     usb-product-id *none*
     status unsupported
-    url `http://lists.alioth.debian.org/pipermail/sane-devel/2003-May/007682.html'
+    url `http://alioth-lists.debian.net/pipermail/sane-devel/2003-May/007682.html'
     comment `Probably not supported. Same as Mustek 12000 P?. ASIC 1505.'
   mfg `NEC'
    url `http://www.nevt.co.jp/'
@@ -13821,7 +13821,7 @@ backend `unsupported'
     usb-vendor-id *none*
     usb-product-id *none*
     status unsupported
-    url `http://lists.alioth.debian.org/pipermail/sane-devel/2008-December/023326.html'
+    url `http://alioth-lists.debian.net/pipermail/sane-devel/2008-December/023326.html'
     comment *none*
    model `ES-10S'
     interface `SCSI'
@@ -14004,7 +14004,7 @@ backend `unsupported'
     usb-vendor-id *none*
     usb-product-id *none*
     status unsupported
-    url `http://lists.alioth.debian.org/pipermail/sane-devel/2009-January/023442.html'
+    url `http://alioth-lists.debian.net/pipermail/sane-devel/2009-January/023442.html'
     comment *none*
    model `Primefilm 3600PRO'
     interface `USB IEEE-1394'
@@ -14671,7 +14671,7 @@ backend `unsupported'
     usb-vendor-id *none*
     usb-product-id *none*
     status unsupported
-    url `http://lists.alioth.debian.org/pipermail/sane-devel/2008-October/022955.html'
+    url `http://alioth-lists.debian.net/pipermail/sane-devel/2008-October/022955.html'
     comment *none*
    model `SCSI Scan 19200 -Excellence Series-'
     interface `SCSI'

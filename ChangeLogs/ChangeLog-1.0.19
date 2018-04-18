@@ -659,8 +659,7 @@
 	* doc/descriptions-external/hp5590.desc,
 	  doc/descriptions/unsupported.desc:
 	  Added description for new external backend hp5590
-	  See: http://lists.alioth.debian.org/pipermail/sane-devel/
-	  2007-April/018977.html
+	  See: http://alioth-lists.debian.net/pipermail/sane-devel/2007-April/018977.html
 
 2007-04-21  Julien Blache <jb@jblache.org>
 	* backend/epson.c: remove bogus check in
@@ -689,8 +688,7 @@
 	* doc/descriptions-external/hp3900.desc,
 	  doc/descriptions/unsupported.desc:
 	  Moved 3 scanners from unsupported to hp3900
-	  See: http://lists.alioth.debian.org/pipermail/sane-devel/
-	  2007-April/018980.html
+	  See: http://alioth-lists.debian.net/pipermail/sane-devel/2007-April/018980.html
 
 2007-04-13  m. allan noah <kitno455 a t gmail d o t com>
 

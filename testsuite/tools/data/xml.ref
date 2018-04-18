@@ -14520,7 +14520,7 @@
     <usbvendorid>0x04a5</usbvendorid>
     <usbproductid>0x2311</usbproductid>
     <status>unsupported</status>
-    <url>http://lists.alioth.debian.org/pipermail/sane-devel/2009-January/023447.html</url>
+    <url>http://alioth-lists.debian.net/pipermail/sane-devel/2009-January/023447.html</url>
     <comment>*none*</comment>
    </model>
    <model name="7400UT">
@@ -16060,7 +16060,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>http://lists.alioth.debian.org/pipermail/sane-devel/2003-May/007682.html</url>
+    <url>http://alioth-lists.debian.net/pipermail/sane-devel/2003-May/007682.html</url>
     <comment>Probably not supported. Same as Mustek 12000 P?. ASIC 1505.</comment>
    </model>
  </mfg>
@@ -16108,7 +16108,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>http://lists.alioth.debian.org/pipermail/sane-devel/2008-December/023326.html</url>
+    <url>http://alioth-lists.debian.net/pipermail/sane-devel/2008-December/023326.html</url>
     <comment>*none*</comment>
    </model>
    <model name="ES-10S">
@@ -16320,7 +16320,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>http://lists.alioth.debian.org/pipermail/sane-devel/2009-January/023442.html</url>
+    <url>http://alioth-lists.debian.net/pipermail/sane-devel/2009-January/023442.html</url>
     <comment>*none*</comment>
    </model>
    <model name="Primefilm 3600PRO">
@@ -17093,7 +17093,7 @@
     <usbvendorid>*none*</usbvendorid>
     <usbproductid>*none*</usbproductid>
     <status>unsupported</status>
-    <url>http://lists.alioth.debian.org/pipermail/sane-devel/2008-October/022955.html</url>
+    <url>http://alioth-lists.debian.net/pipermail/sane-devel/2008-October/022955.html</url>
     <comment>*none*</comment>
    </model>
    <model name="SCSI Scan 19200 -Excellence Series-">

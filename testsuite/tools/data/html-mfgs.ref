@@ -2372,7 +2372,7 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="http://lists.alioth.debian.org/pipermail/sane-devel/2009-January/023447.html">5560</a></td>
+<tr><td align=center><a href="http://alioth-lists.debian.net/pipermail/sane-devel/2009-January/023447.html">5560</a></td>
 <td align=center>USB</td>
 <td align=center>0x04a5/0x2311</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
@@ -16727,7 +16727,7 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="man/sane-teco2.5.html">sane-teco2</a></td>
 </tr>
-<tr><td align=center><a href="http://lists.alioth.debian.org/pipermail/sane-devel/2003-May/007682.html">ScanMagic 9636P</a></td>
+<tr><td align=center><a href="http://alioth-lists.debian.net/pipermail/sane-devel/2003-May/007682.html">ScanMagic 9636P</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
@@ -17244,7 +17244,7 @@ coolscan3<br>(1.0.0)
 <th align=center>Backend</th>
 <th align=center>Manpage</th>
 </tr>
-<tr><td align=center><a href="http://lists.alioth.debian.org/pipermail/sane-devel/2008-December/023326.html">ES-10P</a></td>
+<tr><td align=center><a href="http://alioth-lists.debian.net/pipermail/sane-devel/2008-December/023326.html">ES-10P</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
@@ -17919,7 +17919,7 @@ kvs40xx<br>(unmaintained)
 </td>
 <td align=center>?</td>
 </tr>
-<tr><td align=center><a href="http://lists.alioth.debian.org/pipermail/sane-devel/2009-January/023442.html">Primefilm 2700</a></td>
+<tr><td align=center><a href="http://alioth-lists.debian.net/pipermail/sane-devel/2009-January/023442.html">Primefilm 2700</a></td>
 <td align=center>USB</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
@@ -21352,7 +21352,7 @@ artec_eplus48u<br>(unmaintained)
 </td>
 <td align=center><a href="man/sane-artec_eplus48u.5.html">sane-artec_eplus48u</a></td>
 </tr>
-<tr><td align=center><a href="http://lists.alioth.debian.org/pipermail/sane-devel/2008-October/022955.html">EasyScan 19200</a></td>
+<tr><td align=center><a href="http://alioth-lists.debian.net/pipermail/sane-devel/2008-October/022955.html">EasyScan 19200</a></td>
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>

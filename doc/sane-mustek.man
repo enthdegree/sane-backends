@@ -92,7 +92,7 @@ If you own a Mustek (or Trust) scanner other than the ones listed
 above that works with this backend, please let us know by sending the
 scanner's exact model name (look at the front and back of the scanner)
 and a debug output to
-.IR sane\-devel@lists.alioth.debian.org .
+.IR sane\-devel@alioth-lists.debian.net .
 You can get the debug output by setting the environment variable
 .B SANE_DEBUG_MUSTEK
 to 5 and showing the list of available scanners with scanimage \-L. Please

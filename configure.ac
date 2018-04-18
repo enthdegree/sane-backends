@@ -6,7 +6,7 @@ dnl  When preparing a release, modify the numeric version components
 dnl  and remove the git suffix.
 dnl ******************************************************************
 AC_INIT([sane-backends],[1.0.27git],
-        [sane-devel@lists.alioth.debian.org])
+        [sane-devel@alioth-lists.debian.net])
 AC_PREREQ([2.69])               dnl minimum autoconf version required
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([include/sane/config.h])

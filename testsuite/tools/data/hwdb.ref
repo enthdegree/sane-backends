@@ -11,7 +11,7 @@
 # device detection support for your OS
 #
 # If the scanner is supported by sane-backends, please mail the entry to
-# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).
+# the sane-devel mailing list (sane-devel@alioth-lists.debian.net).
 #
 # Hewlett-Packard ScanJet 4100C
 usb:v03F0p0101*

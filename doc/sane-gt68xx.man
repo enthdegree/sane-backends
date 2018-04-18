@@ -214,5 +214,5 @@ Support for buttons is missing.
 More detailed bug information is available at the gt68xx backend homepage
 .IR http://www.meier\-geinitz.de/sane/gt68xx\-backend/ .
 Please contact us if you find a bug or missing feature:
-<sane\-devel@lists.alioth.debian.org>. Please send a debug log if your scanner isn't
+<sane\-devel@alioth-lists.debian.net>. Please send a debug log if your scanner isn't
 detected correctly (see SANE_DEBUG_GT68XX above).

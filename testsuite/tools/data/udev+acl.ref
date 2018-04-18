@@ -21,7 +21,7 @@
 # device detection support for your OS
 #
 # If the scanner is supported by sane-backends, please mail the entry to
-# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).
+# the sane-devel mailing list (sane-devel@alioth-lists.debian.net).
 #
 ACTION!="add", GOTO="libsane_rules_end"
 ENV{DEVTYPE}=="usb_device", GOTO="libsane_create_usb_dev"

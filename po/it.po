@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.18\n"
-"Report-Msgid-Bugs-To: sane-devel@lists.alioth.debian.org\n"
+"Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2017-05-14 09:24+0000\n"
 "PO-Revision-Date: 2007-08-28 23:11+0200\n"
 "Last-Translator: Giuseppe Sacco <eppesuig@debian.org>\n"

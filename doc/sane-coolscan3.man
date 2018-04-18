@@ -31,7 +31,7 @@ LS-8000 ED                   IEEE 1394
 .ft R
 .RE
 
-Please send mail to sane-devel@lists.alioth.debian.org to report successes
+Please send mail to sane-devel@alioth-lists.debian.net to report successes
 or failures.
 
 .SH OPTIONS

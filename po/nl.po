@@ -8,7 +8,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends.nl\n"
-"Report-Msgid-Bugs-To: sane-devel@lists.alioth.debian.org\n"
+"Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2017-05-14 09:24+0000\n"
 "PO-Revision-Date: 2017-05-19 17:02+0100\n"
 "Last-Translator: Martin Kho <mkho@posteo.net>\n"

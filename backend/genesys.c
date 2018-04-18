@@ -6880,7 +6880,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 	   "         had only limited testing. Please be careful and \n");
       DBG (DBG_error0, "         report any failure/success to \n");
       DBG (DBG_error0,
-	   "         sane-devel@lists.alioth.debian.org. Please provide as many\n");
+	   "         sane-devel@alioth-lists.debian.net. Please provide as many\n");
       DBG (DBG_error0,
 	   "         details as possible, e.g. the exact name of your\n");
       DBG (DBG_error0, "         scanner and what does (not) work.\n");

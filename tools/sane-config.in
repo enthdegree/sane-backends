@@ -2,7 +2,7 @@
 #
 # This script is part of SANE, <URL:http://www.sane-project.org/>
 #
-# Send bugreports and other requests to sane-devel@lists.alioth.debian.org
+# Send bugreports and other requests to sane-devel@alioth-lists.debian.net
 
 PACKAGE="@PACKAGE@"
 scriptname="sane-config"

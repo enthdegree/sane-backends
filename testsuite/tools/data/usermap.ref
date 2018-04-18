@@ -20,7 +20,7 @@
 # device detection support for your OS
 #
 # If the scanner is supported by sane-backends, please mail the entry to
-# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).
+# the sane-devel mailing list (sane-devel@alioth-lists.debian.net).
 #
 # Hewlett-Packard ScanJet 4100C
 libusbscanner 0x0003 0x03f0 0x0101 0x0000 0x0000 0x00 0x00 0x00 0x00 0x00 0x00 0x00000000

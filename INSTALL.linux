@@ -135,7 +135,7 @@ $ make install
 
       However, please check and redo the installation described above.
       If this doesn't help, you can ask the mailing list
-      <sane-devel@lists.alioth.debian.org> for further support.
+      <sane-devel@alioth-lists.debian.net> for further support.
 
 2.4.3. Testscan:
 

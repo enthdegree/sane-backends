@@ -18,7 +18,7 @@ For more information on this backend, please visit
 This backend is also able to drive the UMAX Astra 1600U/2000U/2100U.  The
 2100U is confirmed to work. For the other scanners no reports have been received
 yet. Please contact us and tell us if your scanner works
-(sane\-devel@lists.alioth.debian.org).
+(sane\-devel@alioth-lists.debian.net).
 
 .SH CONFIGURATION
 
@@ -106,7 +106,7 @@ sane(7), sane\-usb(5)
 Marcio Luis Teixeira <marciot@users.sourceforge.net>
 
 .SH EMAIL-CONTACT
-sane\-devel@lists.alioth.debian.org
+sane\-devel@alioth-lists.debian.net
 
 .SH REPORTING BUGS
 

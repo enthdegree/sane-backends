@@ -460,7 +460,7 @@ Eddy De Greef <eddy_de_greef at scarlet dot be>
 
 .SH BUGS
 Too many... please send bug reports to
-.I sane\-devel@lists.alioth.debian.org
+.I sane\-devel@alioth-lists.debian.net
 (note that you have to subscribe first to the list before you can send
 emails... see http://www.sane\-project.org/mailing\-lists.html)
 

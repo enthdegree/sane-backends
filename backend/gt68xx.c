@@ -1480,7 +1480,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       DBG (0, "WARNING: Your scanner is not fully supported or at least \n");
       DBG (0, "         had only limited testing. Please be careful and \n");
       DBG (0, "         report any failure/success to \n");
-      DBG (0, "         sane-devel@lists.alioth.debian.org. Please provide as many\n");
+      DBG (0, "         sane-devel@alioth-lists.debian.net. Please provide as many\n");
       DBG (0, "         details as possible, e.g. the exact name of your\n");
       DBG (0, "         scanner and what does (not) work.\n");
     }
@@ -1495,7 +1495,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       DBG (0,
            "         the scanner immediately if you hear unusual noise. \n");
       DBG (0, "         Please report any success to \n");
-      DBG (0, "         sane-devel@lists.alioth.debian.org. Please provide as many\n");
+      DBG (0, "         sane-devel@alioth-lists.debian.net. Please provide as many\n");
       DBG (0, "         details as possible, e.g. the exact name of your\n");
       DBG (0, "         scanner, ids, settings etc.\n");
 

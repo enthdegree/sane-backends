@@ -3360,7 +3360,7 @@ print_usermap_header (void)
      "# device detection support for your OS\n"
      "#\n"
      "# If the scanner is supported by sane-backends, please mail the entry to\n"
-     "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
+     "# the sane-devel mailing list (sane-devel@alioth-lists.debian.net).\n"
      "#\n"
      );
 
@@ -3427,7 +3427,7 @@ print_db_header (void)
      "# device detection support for your OS\n"
      "#\n"
      "# If the scanner is supported by sane-backends, please mail the entry to\n"
-     "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
+     "# the sane-devel mailing list (sane-devel@alioth-lists.debian.net).\n"
      "#\n"
      );
 }
@@ -3491,7 +3491,7 @@ print_udev_header (void)
      "# device detection support for your OS\n"
      "#\n"
      "# If the scanner is supported by sane-backends, please mail the entry to\n"
-     "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
+     "# the sane-devel mailing list (sane-devel@alioth-lists.debian.net).\n"
      "#\n"
      );
 }
@@ -3679,7 +3679,7 @@ print_udevhwdb_header (void)
      "# device detection support for your OS\n"
      "#\n"
      "# If the scanner is supported by sane-backends, please mail the entry to\n"
-     "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
+     "# the sane-devel mailing list (sane-devel@alioth-lists.debian.net).\n"
      "#\n"
      );
 }
@@ -3782,7 +3782,7 @@ print_hwdb_header (void)
      "# device detection support for your OS\n"
      "#\n"
      "# If the scanner is supported by sane-backends, please mail the entry to\n"
-     "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
+     "# the sane-devel mailing list (sane-devel@alioth-lists.debian.net).\n"
      "#"
      );
 }

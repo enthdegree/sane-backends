@@ -235,6 +235,8 @@
 #define MG5700_PID 0x178e
 
 /* 2016 new devices (untested) */
+#define MB2700_PID 0x1792
+#define MB2100_PID 0x1793
 #define G3000_PID 0x1794
 #define G2000_PID 0x1795
 #define TS9000_PID 0x179f
@@ -392,6 +394,12 @@ static int
 is_scanning_from_adfdup (pixma_t * s)
 {
   return (s->param->source == PIXMA_SOURCE_ADFDUP);
+}
+
+static int
+is_scanning_jpeg (pixma_t *s)
+{
+  return s->param->mode_jpeg;
 }
 
 static int
@@ -769,7 +777,14 @@ send_scan_param (pixma_t * s)
           data[0x02] = 0x03;
           data[0x03] = 0x03;
         }
-      data[0x05] = 0x01;	/* This one also seen at 0. Don't know yet what's used for */
+      if (is_scanning_jpeg (s))
+        {
+          data[0x03] = 0x01;
+        }
+      else
+        {
+          data[0x05] = 0x01;	/* This one also seen at 0. Don't know yet what's used for */
+        }
       pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x08);
       pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x0a);
       /*PDBG (pixma_dbg (4, "*send_scan_param gen. 3+ ***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  w=%i ***** \n",
@@ -790,7 +805,14 @@ send_scan_param (pixma_t * s)
 
       data[0x1f] = 0x01;        /* This one also seen at 0. Don't know yet what's used for */
       data[0x20] = 0xff;
-      data[0x21] = 0x81;
+      if (is_scanning_jpeg (s))
+        {
+          data[0x21] = 0x83;
+        }
+      else
+        {
+          data[0x21] = 0x81;
+        }
       data[0x23] = 0x02;
       data[0x24] = 0x01;
 
@@ -889,6 +911,7 @@ read_image_block (pixma_t * s, uint8_t * header, uint8_t * data)
     return datalen;
 
   memcpy (header, mp->cb.buf, hlen);
+
   if (datalen >= hlen)
     {
       datalen -= hlen;
@@ -1128,6 +1151,15 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   mp150_t *mp = (mp150_t *) s->subdriver;
   unsigned c, lines, line_size, n, m, cw, cx;
   uint8_t *sptr, *dptr, *gptr, *cptr;
+
+  if (s->param->mode_jpeg)
+    {
+      /* No post-processing, send raw JPEG data to main */
+      ib->rptr = mp->imgbuf;
+      ib->rend = mp->data_left_ofs;
+      return 0;    /* # of non processed bytes */
+    }
+
 
   c = ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : s->param->channels)
       * ((s->param->software_lineart) ? 8 : s->param->depth) / 8;
@@ -1372,6 +1404,10 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
       sp->ydpi = sp->xdpi;
     }
 
+  sp->mode_jpeg = (s->cfg->cap & PIXMA_CAP_ADF_JPEG) &&
+                      (sp->source == PIXMA_SOURCE_ADF ||
+                       sp->source == PIXMA_SOURCE_ADFDUP);
+
   /*PDBG (pixma_dbg (4, "*mp150_check_param***** Finally: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u *****\n",
                    sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx));*/
   return 0;
@@ -1501,7 +1537,7 @@ mp150_scan (pixma_t * s)
         error = select_source (s);
       if ((error >= 0) && (mp->generation >= 3) && has_ccd_sensor (s))
         error = init_ccd_lamp_3 (s);
-      if ((error >= 0) && !is_scanning_from_tpu (s))
+      if ((error >= 0) && !is_scanning_from_tpu (s) && !is_scanning_jpeg (s))
         {
           int i;
 
@@ -1516,8 +1552,6 @@ mp150_scan (pixma_t * s)
     PDBG (pixma_dbg (4, "*mp150_scan***** scan next sheet from ADF  *****\n"));
     pixma_sleep (1000000);
   }
-
-
   if ((error >= 0) || (mp->generation >= 3))
     mp->state = state_warmup;
   if (error >= 0)
@@ -1843,7 +1877,9 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon MAXIFY MB5000 Series", "MB5000", MB5000_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
   DEVICE ("Canon MAXIFY MB5300 Series", "MB5300", MB5300_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
   DEVICE ("Canon MAXIFY MB2000 Series", "MB2000", MB2000_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon MAXIFY MB2100 Series", "MB2100", MB2100_PID, 600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
   DEVICE ("Canon MAXIFY MB2300 Series", "MB2300", MB2300_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon MAXIFY MB2700 Series", "MB2700", MB2700_PID, 600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
   DEVICE ("Canon PIXMA E400",  "E400",  E400_PID,  600, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA E560",  "E560",  E560_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG7500 Series", "MG7500", MG7500_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),

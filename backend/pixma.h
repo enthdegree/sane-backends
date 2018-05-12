@@ -154,6 +154,7 @@ typedef uint32_t uint32_t;
 #define PIXMA_CAP_NEGATIVE     (1 << 10)
 #define PIXMA_CAP_TPUIR        ((1 << 11) | PIXMA_CAP_TPU)
 #define PIXMA_CAP_ADF_WAIT     (1 << 12)
+#define PIXMA_CAP_ADF_JPEG     (1 << 13)
 #define PIXMA_CAP_EXPERIMENT   (1 << 31)
 /**@}*/
 
@@ -314,6 +315,9 @@ struct pixma_scan_param_t
    *  was already performed (to avoid repeated corrections).
    *  Currently only used in pixma_mp810.c sub-driver */
   unsigned tpu_offset_added;
+
+  /* Flag indicating if data from scanner will be in JPEG format */
+  unsigned mode_jpeg;
 
   /** Flag indicating whether a software-lineart scan is in progress
    *  0 = other scan

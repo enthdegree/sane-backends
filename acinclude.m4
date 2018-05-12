@@ -552,7 +552,7 @@ for be in ${BACKENDS}; do
     esac
     ;;
 
-    dc210|dc240)
+    dc210|dc240|pixma)
     if test "${sane_cv_use_libjpeg}" != "yes"; then
       echo "*** $be backend requires JPEG library - $DISABLE_MSG"
       backend_supported="no"

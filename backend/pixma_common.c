@@ -933,7 +933,7 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
           if (result == 0)
             {			/* end of image? */
               s->ops->finish_scan (s);
-              if (s->cur_image_size != s->param->image_size)
+              if ((s->cur_image_size != s->param->image_size) && !s->param->mode_jpeg)
                 {
                   pixma_dbg (1, "WARNING:image size mismatches\n");
                   pixma_dbg (1,
@@ -947,7 +947,7 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
                      "BUG:received data not multiple of line_size\n");
                     }
                 }
-              if (s->cur_image_size < s->param->image_size)
+              if ((s->cur_image_size < s->param->image_size) && !s->param->mode_jpeg)
                 {
                   s->underrun = 1;
                   ib.wptr = fill_pixels (s, ib.wptr, ib.wend, 0xff);

@@ -66,6 +66,7 @@
 # include "../include/sane/sanei_thread.h"
 # include "../include/sane/sanei_backend.h"
 # include "../include/sane/sanei_config.h"
+# include "../include/sane/sanei_jpeg.h"
 
 #ifdef NDEBUG
 # define PDBG(x)
@@ -122,7 +123,25 @@ typedef struct pixma_sane_t
   SANE_Pid reader_taskid;
   int wpipe, rpipe;
   SANE_Bool reader_stop;
+
+  /* Valid for JPEG source */
+  djpeg_dest_ptr jdst;
+  struct jpeg_decompress_struct jpeg_cinfo;
+  struct jpeg_error_mgr jpeg_err;
+  SANE_Bool jpeg_header_seen;
 } pixma_sane_t;
+
+typedef struct
+{
+  struct jpeg_source_mgr jpeg;
+
+  pixma_sane_t *s;
+  JOCTET *buffer;
+
+  SANE_Byte *linebuffer;
+  SANE_Int linebuffer_size;
+  SANE_Int linebuffer_index;
+} pixma_jpeg_src_mgr;
 
 
 static const char vendor_str[] = "CANON";
@@ -1185,6 +1204,245 @@ start_reader_task (pixma_sane_t * ss)
   return 0;
 }
 
+/* libJPEG API callbacks */
+static void
+jpeg_init_source(j_decompress_ptr __sane_unused__ cinfo)
+{
+  /* No-op */
+}
+
+static void
+jpeg_term_source(j_decompress_ptr __sane_unused__ cinfo)
+{
+  /* No-op */
+}
+
+static boolean
+jpeg_fill_input_buffer(j_decompress_ptr cinfo)
+{
+  pixma_jpeg_src_mgr *mgr = (pixma_jpeg_src_mgr *)cinfo->src;
+  int size;
+  int retry;
+
+  for (retry = 0; retry < 30; retry ++ )
+    {
+      size = read (mgr->s->rpipe, mgr->buffer, 1024);
+      if (size == 0)
+        {
+          return FALSE;
+        }
+      else if (size < 0)
+        {
+          sleep (1);
+        }
+      else
+        {
+          mgr->jpeg.next_input_byte = mgr->buffer;
+          mgr->jpeg.bytes_in_buffer = size;
+          return TRUE;
+        }
+    }
+
+  return FALSE;
+}
+
+static void
+jpeg_skip_input_data(j_decompress_ptr cinfo, long num_bytes)
+{
+  pixma_jpeg_src_mgr *mgr = (pixma_jpeg_src_mgr *)cinfo->src;
+
+  if (num_bytes > 0)
+    {
+      /* Read and throw away extra */
+      while (num_bytes > (long)mgr->jpeg.bytes_in_buffer)
+        {
+           num_bytes -= (long)mgr->jpeg.bytes_in_buffer;
+           jpeg_fill_input_buffer(cinfo);
+        }
+
+      /* Update jpeg info structure with leftover */
+      mgr->jpeg.next_input_byte += (size_t) num_bytes;
+      mgr->jpeg.bytes_in_buffer -= (size_t) num_bytes;
+    }
+}
+
+/* Pixma JPEG reader helpers */
+static SANE_Status
+pixma_jpeg_start(pixma_sane_t *s)
+{
+  pixma_jpeg_src_mgr *mgr;
+
+  s->jpeg_cinfo.err = jpeg_std_error(&s->jpeg_err);
+
+  jpeg_create_decompress(&s->jpeg_cinfo);
+
+  s->jpeg_cinfo.src = (struct jpeg_source_mgr *)(*s->jpeg_cinfo.mem->alloc_small)((j_common_ptr)&s->jpeg_cinfo,
+                              JPOOL_PERMANENT, sizeof(pixma_jpeg_src_mgr));
+
+  memset(s->jpeg_cinfo.src, 0, sizeof(pixma_jpeg_src_mgr));
+
+  mgr = (pixma_jpeg_src_mgr *)s->jpeg_cinfo.src;
+  mgr->s = s;
+
+  mgr->buffer = (JOCTET *)(*s->jpeg_cinfo.mem->alloc_small)((j_common_ptr)&s->jpeg_cinfo,
+                                                  JPOOL_PERMANENT,
+                                                  1024 * sizeof(JOCTET));
+
+  mgr->jpeg.init_source = jpeg_init_source;
+  mgr->jpeg.fill_input_buffer = jpeg_fill_input_buffer;
+  mgr->jpeg.skip_input_data = jpeg_skip_input_data;
+  mgr->jpeg.resync_to_restart = jpeg_resync_to_restart;
+  mgr->jpeg.term_source = jpeg_term_source;
+  mgr->jpeg.bytes_in_buffer = 0;
+  mgr->jpeg.next_input_byte = NULL;
+
+  s->jpeg_header_seen = 0;
+
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+pixma_jpeg_read_header(pixma_sane_t *s)
+{
+  pixma_jpeg_src_mgr *src = (pixma_jpeg_src_mgr *)s->jpeg_cinfo.src;
+
+  if (jpeg_read_header(&s->jpeg_cinfo, TRUE))
+    {
+      s->jdst = sanei_jpeg_jinit_write_ppm(&s->jpeg_cinfo);
+
+      if (jpeg_start_decompress(&s->jpeg_cinfo))
+        {
+          int size;
+
+          DBG(3, "%s: w: %d, h: %d, components: %d\n",
+                  __func__,
+                  s->jpeg_cinfo.output_width, s->jpeg_cinfo.output_height,
+                  s->jpeg_cinfo.output_components);
+
+          size = s->jpeg_cinfo.output_width * s->jpeg_cinfo.output_components * 1;
+
+          src->linebuffer = (*s->jpeg_cinfo.mem->alloc_large)((j_common_ptr)&s->jpeg_cinfo,
+                  JPOOL_PERMANENT, size);
+
+          src->linebuffer_size = 0;
+          src->linebuffer_index = 0;
+
+          s->jpeg_header_seen = 1;
+
+          return SANE_STATUS_GOOD;
+        }
+      else
+        {
+          DBG(0, "%s: decompression failed\n", __func__);
+          return SANE_STATUS_IO_ERROR;
+        }
+    }
+  else
+    {
+      DBG(0, "%s: cannot read JPEG header\n", __func__);
+      return SANE_STATUS_IO_ERROR;
+    }
+}
+
+static void
+pixma_jpeg_finish(pixma_sane_t *ss)
+{
+  jpeg_destroy_decompress(&ss->jpeg_cinfo);
+}
+
+static void
+pixma_jpeg_read(pixma_sane_t *ss, SANE_Byte *data,
+           SANE_Int max_length, SANE_Int *length)
+{
+  struct jpeg_decompress_struct cinfo = ss->jpeg_cinfo;
+  pixma_jpeg_src_mgr *src = (pixma_jpeg_src_mgr *)ss->jpeg_cinfo.src;
+
+  int l;
+
+  *length = 0;
+
+  /* copy from line buffer if available */
+  if (src->linebuffer_size && src->linebuffer_index < src->linebuffer_size)
+    {
+      *length = src->linebuffer_size - src->linebuffer_index;
+
+      if (*length > max_length)
+        *length = max_length;
+
+      memcpy(data, src->linebuffer + src->linebuffer_index, *length);
+             src->linebuffer_index += *length;
+
+      return;
+    }
+
+  if (cinfo.output_scanline >= cinfo.output_height)
+    {
+      *length = 0;
+      return;
+    }
+
+  /* scanlines of decompressed data will be in ss->jdst->buffer
+   * only one line at time is supported
+   */
+
+  l = jpeg_read_scanlines(&cinfo, ss->jdst->buffer, 1);
+  if (l == 0)
+    return;
+
+  /* from ss->jdst->buffer to linebuffer
+   * linebuffer holds width * bytesperpixel
+   */
+
+  (*ss->jdst->put_pixel_rows)(&cinfo, ss->jdst, 1, (char *)src->linebuffer);
+
+  *length = ss->sp.w * ss->sp.channels;
+  /* Convert RGB into grayscale */
+  if (ss->sp.channels == 1)
+    {
+      unsigned int i;
+      unsigned char *d = (unsigned char *)src->linebuffer;
+      unsigned char *s = (unsigned char *)src->linebuffer;
+      for (i = 0; i < ss->sp.w; i++)
+        {
+          /* Using BT.709 luma formula, fixed-point */
+          int sum = ( s[0]*2126 + s[1]*7152 + s[2]*722 );
+          *d = sum / 10000;
+          d ++;
+          s += 3;
+        }
+    }
+
+  /* Maybe pack into lineary binary image */
+  if (ss->sp.depth == 1)
+    {
+      *length /= 8;
+      unsigned int i;
+      unsigned char *d = (unsigned char *)src->linebuffer;
+      unsigned char *s = (unsigned char *)src->linebuffer;
+      unsigned char b = 0;
+      for (i = 1; i < ss->sp.w + 1; i++)
+        {
+          if (*(s++) > 127)
+            b = (b << 1) | 0;
+         else
+            b = (b << 1) | 1;
+        }
+      if ((i % 8) == 0)
+        *(d++) = b;
+    }
+
+  src->linebuffer_size = *length;
+  src->linebuffer_index = 0;
+
+  if (*length > max_length)
+    *length = max_length;
+
+  memcpy(data, src->linebuffer + src->linebuffer_index, *length);
+        src->linebuffer_index += *length;
+}
+
+
+
 static SANE_Status
 read_image (pixma_sane_t * ss, void *buf, unsigned size, int *readlen)
 {
@@ -1200,7 +1458,20 @@ read_image (pixma_sane_t * ss, void *buf, unsigned size, int *readlen)
       if (ss->cancel)
         /* ss->rpipe has already been closed by sane_cancel(). */
         return SANE_STATUS_CANCELLED;
-      count = read (ss->rpipe, buf, size);
+      if (ss->sp.mode_jpeg && !ss->jpeg_header_seen)
+        {
+          status = pixma_jpeg_read_header(ss);
+          if (status != SANE_STATUS_GOOD)
+            return status;
+        }
+
+      if (ss->sp.mode_jpeg)
+        {
+          count = -1;
+          pixma_jpeg_read(ss, buf, size, &count);
+        }
+      else
+        count = read (ss->rpipe, buf, size);
     }
   while (count == -1 && errno == EINTR);
 
@@ -1216,6 +1487,8 @@ read_image (pixma_sane_t * ss, void *buf, unsigned size, int *readlen)
       close (ss->rpipe);
       ss->rpipe = -1;
       terminate_reader_task (ss, NULL);
+      if (ss->sp.mode_jpeg)
+        pixma_jpeg_finish(ss);
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -1230,6 +1503,8 @@ read_image (pixma_sane_t * ss, void *buf, unsigned size, int *readlen)
       close (ss->rpipe);
       ss->rpipe = -1;
       terminate_reader_task (ss, NULL);
+      if (ss->sp.mode_jpeg)
+        pixma_jpeg_finish(ss);
     }
   else if (count == 0)
     {
@@ -1237,6 +1512,8 @@ read_image (pixma_sane_t * ss, void *buf, unsigned size, int *readlen)
 		       PRIu64" bytes received, %"PRIu64" bytes expected\n",
 		       ss->image_bytes_read, ss->sp.image_size));
       close (ss->rpipe);
+      if (ss->sp.mode_jpeg)
+        pixma_jpeg_finish(ss);
       ss->rpipe = -1;
       if (sanei_thread_is_valid (terminate_reader_task (ss, &status))
       	  && status != SANE_STATUS_GOOD)
@@ -1528,6 +1805,19 @@ sane_start (SANE_Handle h)
     ss->page_count++;
   if (calc_scan_param (ss, &ss->sp) < 0)
     return SANE_STATUS_INVAL;
+
+  /* Prepare the JPEG decompressor, if needed */
+  if (ss->sp.mode_jpeg)
+    {
+      SANE_Status status;
+      status = pixma_jpeg_start(ss);
+      if (status != SANE_STATUS_GOOD)
+        {
+          PDBG (pixma_dbg(1, "%s: pixma_jpeg_start: %s\n", __func__, sane_strstatus(status)) );
+          return status;
+        }
+    }
+
   ss->image_bytes_read = 0;
   /* TODO: Check paper here in sane_start(). A function like
      pixma_get_status() is needed. */
@@ -1636,6 +1926,8 @@ sane_cancel (SANE_Handle h)
   if (ss->idle)
     return;
   close (ss->rpipe);
+  if (ss->sp.mode_jpeg)
+    pixma_jpeg_finish(ss);
   ss->rpipe = -1;
   terminate_reader_task (ss, NULL);
   ss->idle = SANE_TRUE;

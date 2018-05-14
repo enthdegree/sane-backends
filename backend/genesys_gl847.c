@@ -2532,7 +2532,7 @@ gl847_init_regs_for_scan (Genesys_Device * dev)
       move=500;
     }
 
-  DBG (DBG_info, "gl124_init_regs_for_scan: move=%f steps\n", move);
+  DBG (DBG_info, "gl847_init_regs_for_scan: move=%f steps\n", move);
   DBG (DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* start */

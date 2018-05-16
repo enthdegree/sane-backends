@@ -1173,7 +1173,7 @@
 :interface "USB WiFi"
 :usbid "0x04a9" "0x1793"
 :status :complete
-:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)."
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "MAXIFY MB2300 Series"
 :interface "USB Ethernet WiFi"
@@ -1185,7 +1185,7 @@
 :interface "USB WiFi"
 :usbid "0x04a9" "0x1792"
 :status :complete
-:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)."
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "MAXIFY MB5000 Series"
 :interface "USB"

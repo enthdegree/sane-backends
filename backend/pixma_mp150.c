@@ -1422,6 +1422,12 @@ mp150_scan (pixma_t * s)
   if (mp->state != state_idle)
     return PIXMA_EBUSY;
 
+  /* no paper inserted after first adf page => abort session */
+  if (s->param->adf_pageid && is_scanning_from_adf(s) && mp->adf_state == state_idle)
+  {
+    return PIXMA_ENO_PAPER;
+  }
+
   /* Generation 4+: send XML dialog */
   /* adf: first page or idle */
   if (mp->generation >= 4 && mp->adf_state == state_idle)
@@ -1877,9 +1883,9 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon MAXIFY MB5000 Series", "MB5000", MB5000_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
   DEVICE ("Canon MAXIFY MB5300 Series", "MB5300", MB5300_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
   DEVICE ("Canon MAXIFY MB2000 Series", "MB2000", MB2000_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon MAXIFY MB2100 Series", "MB2100", MB2100_PID, 600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
+  DEVICE ("Canon MAXIFY MB2100 Series", "MB2100", MB2100_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
   DEVICE ("Canon MAXIFY MB2300 Series", "MB2300", MB2300_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon MAXIFY MB2700 Series", "MB2700", MB2700_PID, 600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
+  DEVICE ("Canon MAXIFY MB2700 Series", "MB2700", MB2700_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
   DEVICE ("Canon PIXMA E400",  "E400",  E400_PID,  600, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA E560",  "E560",  E560_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG7500 Series", "MG7500", MG7500_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),

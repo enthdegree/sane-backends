@@ -1462,7 +1462,22 @@ read_image (pixma_sane_t * ss, void *buf, unsigned size, int *readlen)
         {
           status = pixma_jpeg_read_header(ss);
           if (status != SANE_STATUS_GOOD)
-            return status;
+            {
+              close (ss->rpipe);
+              pixma_jpeg_finish(ss);
+              ss->rpipe = -1;
+              if (sanei_thread_is_valid (terminate_reader_task (ss, &status))
+                && status != SANE_STATUS_GOOD)
+                {
+                  return status;
+                }
+              else
+                {
+                  /* either terminate_reader_task failed or
+                     rpipe was closed but we expect more data */
+                  return SANE_STATUS_IO_ERROR;
+                }
+            }
         }
 
       if (ss->sp.mode_jpeg)
@@ -1829,6 +1844,22 @@ sane_start (SANE_Handle h)
       ss->last_read_status = SANE_STATUS_GOOD;
       ss->scanning = SANE_TRUE;
       ss->idle = SANE_FALSE;
+      if (ss->sp.mode_jpeg && !ss->jpeg_header_seen)
+        {
+          SANE_Status status;
+          status = pixma_jpeg_read_header(ss);
+          if (status != SANE_STATUS_GOOD)
+            {
+              close (ss->rpipe);
+              pixma_jpeg_finish(ss);
+              ss->rpipe = -1;
+              if (sanei_thread_is_valid (terminate_reader_task (ss, &error))
+                && error != SANE_STATUS_GOOD)
+                {
+                  return error;
+                }
+            }
+        }
     }
   return map_error (error);
 }

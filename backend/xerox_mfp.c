@@ -208,7 +208,8 @@ static int isSupportedDevice(struct device __sane_unused__ *dev)
     /* Checking device which supports JPEG Lossy compression for color scanning*/
     if (dev->compressionTypes & (1 << 6)) {
 	/* blacklist malfunctioning device(s) */
-	if (!strncmp(dev->sane.model, "SCX-4500W", 9))
+	if (!strncmp(dev->sane.model, "SCX-4500W", 9) ||
+	    !strncmp(dev->sane.model, "M288x", 5))
 	    return 0;
         return 1;
     } else

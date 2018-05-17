@@ -206,9 +206,12 @@ static int isSupportedDevice(struct device __sane_unused__ *dev)
 {
 #ifdef HAVE_LIBJPEG
     /* Checking device which supports JPEG Lossy compression for color scanning*/
-    if (dev->compressionTypes & (1 << 6))
+    if (dev->compressionTypes & (1 << 6)) {
+	/* blacklist malfunctioning device(s) */
+	if (!strncmp(dev->sane.model, "SCX-4500W", 9))
+	    return 0;
         return 1;
-    else
+    } else
         return 0;
 #else
     return 0;

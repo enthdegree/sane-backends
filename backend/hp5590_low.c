@@ -158,7 +158,7 @@ hp5590_get_ack (SANE_Int dn,
 
   DBG (DBG_usb, "%s: USB-in-USB: accepted\n", __func__);
 
-  /* Check if we received correct acknowledgement */
+  /* Check if we received correct acknowledgment */
   if (status != 0x01)
     {
       DBG (DBG_err, "%s: USB-in-USB: not accepted (status %u)\n",
@@ -214,7 +214,7 @@ hp5590_get_status (SANE_Int dn,
  *
  * Parameters
  * dn - sanei_usb device descriptor
- * requesttype, request, value, index - their meaninings are similar to
+ * requesttype, request, value, index - their meanings are similar to
  * sanei_control_msg()
  * bytes - pointer to data buffer
  * size - size of data
@@ -222,7 +222,7 @@ hp5590_get_status (SANE_Int dn,
  *  CORE_NONE - no CORE operation will be performed
  *  CORE_DATA - operation on CORE data will be performed
  *  CORE_BULK_IN - preparation for bulk IN transfer (not used yet)
- *  CORE_BULK_OUT - preparation for bulk OUT trasfer
+ *  CORE_BULK_OUT - preparation for bulk OUT transfer
  *
  * Returns
  * SANE_STATUS_GOOD - control message was sent w/o any errors
@@ -780,7 +780,7 @@ hp5590_bulk_read (SANE_Int dn,
 	  return ret;
 	}
 
-      /* Check if we received the same amount of data as requsted */
+      /* Check if we received the same amount of data as requested */
       if (next_portion != BULK_READ_PAGE_SIZE)
 	{
 	  DBG (DBG_err, "%s: USB-in-USB: incomplete bulk read "

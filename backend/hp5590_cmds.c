@@ -72,7 +72,7 @@ hp5590_models[] = {
     0x03f0, 0x1205, "SILITEKIPenguin",
     "4500C/5550C", "Workgroup scanner",
     PF_NO_USB_IN_USB_ACK		/* These devices need no
-    					 * acknowledgement after USB-in-USB
+    					 * acknowledgment after USB-in-USB
 					 * commands */
   },
   {
@@ -92,6 +92,7 @@ hp5590_models[] = {
 /* Debug levels */
 #define	DBG_err		0
 #define DBG_proc	10
+#define DBG_verbose	20
 #define DBG_cmds	40
 
 #define hp5590_cmds_assert(exp) if(!(exp)) { \
@@ -118,7 +119,7 @@ hp5590_models[] = {
 #define FORWARD_MAP_LEN		128 * 1024 / sizeof(uint16_t)
 
 /* Button flags */
-/* From left to rigth */
+/* From left to right */
 /* 1:   Power
  * 1:   Scan
  * 2:   Collect
@@ -709,8 +710,8 @@ hp5590_inc_scan_count (SANE_Int dn,
 		       enum proto_flags proto_flags)
 {
   uint32_t scan_count;
-  unsigned int count;
-  unsigned int new_count;
+  uint32_t count;
+  uint32_t new_count;
   SANE_Status ret;
 
   DBG (DBG_proc, "%s\n", __func__);
@@ -721,6 +722,7 @@ hp5590_inc_scan_count (SANE_Int dn,
     return ret;
 
   scan_count = ++count;
+  DBG (DBG_verbose, "Scan count = %u\n", scan_count);
 
   ret = hp5590_write_eeprom (dn,
   			     proto_flags,
@@ -1260,20 +1262,40 @@ hp5590_set_color_map (SANE_Int dn,
     }
   else
     {
-      color_map.color1[2] = 0xff;
-      color_map.color1[3] = 0x01;
-      color_map.color1[4] = 0x04;
-      color_map.color1[5] = 0x02;
+      if (0) {
+        // Does not work with hp5590 and 2400 dpi.
+        color_map.color1[2] = 0xff;
+        color_map.color1[3] = 0x01;
+        color_map.color1[4] = 0x04;
+        color_map.color1[5] = 0x02;
 
-      color_map.color2[2] = 0xff;
-      color_map.color2[3] = 0x01;
-      color_map.color2[4] = 0x04;
-      color_map.color2[5] = 0x02;
+        color_map.color2[2] = 0xff;
+        color_map.color2[3] = 0x01;
+        color_map.color2[4] = 0x04;
+        color_map.color2[5] = 0x02;
 
-      color_map.color3[2] = 0xff;
-      color_map.color3[3] = 0x01;
-      color_map.color3[4] = 0x04;
-      color_map.color3[5] = 0x02;
+        color_map.color3[2] = 0xff;
+        color_map.color3[3] = 0x01;
+        color_map.color3[4] = 0x04;
+        color_map.color3[5] = 0x02;
+
+      } else {
+        // Needs documentation.
+        color_map.color1[2] = 0x00;
+        color_map.color1[3] = 0x00;
+        color_map.color1[4] = 0x01;
+        color_map.color1[5] = 0x00;
+
+        color_map.color2[2] = 0x00;
+        color_map.color2[3] = 0x00;
+        color_map.color2[4] = 0x01;
+        color_map.color2[5] = 0x00;
+
+        color_map.color3[2] = 0x00;
+        color_map.color3[3] = 0x00;
+        color_map.color3[4] = 0x01;
+        color_map.color3[5] = 0x00;
+      }
     }
 
   ret = hp5590_cmd (dn,
@@ -1602,7 +1624,7 @@ hp5590_set_scan_area (SANE_Int dn,
   /* Scanner hangs at scan command if line width less than 18 */
   if (scanner_line_width < 18)
     {
-      DBG (DBG_err, "Line width too smal, extending to minimum\n");
+      DBG (DBG_err, "Line width too small, extending to minimum\n");
       scanner_line_width = 18;
     }
   scan_params.line_width = htons (scanner_line_width);
@@ -1778,10 +1800,15 @@ hp5590_send_reverse_calibration_map (SANE_Int dn,
 
   for (i = len * 3; i < len * 4; i++)
     {
-      reverse_map[i] = htons (0xffff);
+      if (1) {
+        reverse_map[i] = htons (0xffff);
+      } else {
+        reverse_map[i] = htons (val);
+        val -= 1;
+      }
     }
 
-  DBG (DBG_proc, "Done preparing reverse calibration map\n");
+  DBG (DBG_proc, "Done preparing reverse calibration map. n=%u, bytes_per_entry=%lu\n", reverse_map_size, sizeof(uint16_t));
 
   ret = hp5590_bulk_write (dn,
   			   proto_flags,
@@ -1814,7 +1841,7 @@ hp5590_send_forward_calibration_maps (SANE_Int dn,
       if (val < 0xffff)
 	val += 1;
     }
-  DBG (DBG_proc, "Done preparing forward calibration map\n");
+  DBG (DBG_proc, "Done preparing forward calibration map. n=%u, bytes_per_entry=%lu\n", forward_map_size, sizeof(uint16_t));
 
   ret = hp5590_bulk_write (dn,
   			   proto_flags,

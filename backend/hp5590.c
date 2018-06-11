@@ -1,6 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2007 Ilia Sotnikov <hostcc@gmail.com>
    HP ScanJet 4570c support by Markham Thomas
+   ADF page detection and high DPI fixes by Bernard Badr
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -1211,31 +1212,31 @@ sane_start (SANE_Handle handle)
   if (!scanner)
     return SANE_STATUS_INVAL;
 
-  // Cleanup for all pages.
+  /* Cleanup for all pages. */
   if (scanner->eop_last_line_data)
     {
-      // Release last line data
+      /* Release last line data */
       free (scanner->eop_last_line_data);
       scanner->eop_last_line_data = NULL;
       scanner->eop_last_line_data_rpos = 0;
     }
   if (scanner->one_line_read_buffer)
     {
-      // Release temporary line buffer.
+      /* Release temporary line buffer. */
       free (scanner->one_line_read_buffer);
       scanner->one_line_read_buffer = NULL;
       scanner->one_line_read_buffer_rpos = 0;
     }
   if (scanner->color_shift_line_buffer1)
     {
-      // Release line buffer1 for shifting colors.
+      /* Release line buffer1 for shifting colors. */
       free (scanner->color_shift_line_buffer1);
       scanner->color_shift_line_buffer1 = NULL;
       scanner->color_shift_buffered_lines1 = 0;
     }
   if (scanner->color_shift_line_buffer2)
     {
-      // Release line buffer2 for shifting colors.
+      /* Release line buffer2 for shifting colors. */
       free (scanner->color_shift_line_buffer2);
       scanner->color_shift_line_buffer2 = NULL;
       scanner->color_shift_buffered_lines2 = 0;
@@ -1407,7 +1408,7 @@ sane_start (SANE_Handle handle)
 static void
 invert_negative_colors (unsigned char *buf, unsigned int bytes_per_line, struct hp5590_scanner *scanner)
 {
-  // Invert lineart or negatives.
+  /* Invert lineart or negatives. */
   int is_linear = (scanner->depth == DEPTH_BW);
   int is_negative = (scanner->source == SOURCE_TMA_NEGATIVES);
   if (is_linear ^ is_negative)
@@ -1452,9 +1453,10 @@ convert_gray_and_lineart (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_
         {
           if (pixels_per_line > 0)
             {
-              // Test for last-line indicator pixel.
-              // If found, store last line and optionally overwrite indicator pixel with neighbor value.
-              unsigned int j = bytes_per_line - 1;
+			  /* Test for last-line indicator pixel. If found, store last line
+			   * and optionally overwrite indicator pixel with neighbor value.
+			   */
+			  unsigned int j = bytes_per_line - 1;
               int eop_found = 0;
               if (scanner->depth == DEPTH_GRAY)
                 {
@@ -1485,17 +1487,17 @@ convert_gray_and_lineart (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_
                   memcpy (scanner->eop_last_line_data, buf, bytes_per_line);
                   scanner->eop_last_line_data_rpos = 0;
 
-                  // Fill trailing line buffer with requested color.
+                  /* Fill trailing line buffer with requested color. */
                   if (scanner->eop_trailing_lines_mode == TRAILING_LINES_MODE_RASTER)
                     {
-                      // Black-white raster.
+                      /* Black-white raster. */
                       if (scanner->depth == DEPTH_BW)
                         {
                           memset (scanner->eop_last_line_data, 0xaa, bytes_per_line);
                         }
                       else
                         {
-                          // Gray.
+                          /* Gray. */
                           for (unsigned int k = 0; k < bytes_per_line; ++k)
                             {
                               scanner->eop_last_line_data[k] = (k & 1 ? 0xff : 0);
@@ -1504,7 +1506,7 @@ convert_gray_and_lineart (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_
                     }
                   else if (scanner->eop_trailing_lines_mode == TRAILING_LINES_MODE_WHITE)
                     {
-                      // White.
+                      /* White. */
                       if (scanner->depth == DEPTH_BW)
                         {
                           memset (scanner->eop_last_line_data, 0x00, bytes_per_line);
@@ -1516,7 +1518,7 @@ convert_gray_and_lineart (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_
                     }
                   else if (scanner->eop_trailing_lines_mode == TRAILING_LINES_MODE_BLACK)
                     {
-                      // Black.
+                      /* Black. */
                       if (scanner->depth == DEPTH_BW)
                         {
                           memset (scanner->eop_last_line_data, 0xff, bytes_per_line);
@@ -1530,12 +1532,12 @@ convert_gray_and_lineart (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_
                     {
                       if (scanner->depth == DEPTH_BW)
                         {
-                          // Black or white.
+                          /* Black or white. */
                           memset (scanner->eop_last_line_data, scanner->eop_trailing_lines_color & 0x01 ? 0x00 : 0xff, bytes_per_line);
                         }
                       else
                         {
-                          // Gray value
+                          /* Gray value */
                           memset (scanner->eop_last_line_data, scanner->eop_trailing_lines_color & 0xff, bytes_per_line);
                         }
                     }
@@ -1549,8 +1551,10 @@ convert_gray_and_lineart (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_
 
           if ((scanner->source == SOURCE_ADF) || (scanner->source == SOURCE_ADF_DUPLEX))
             {
-              // We are in in ADF mode after last-line and store next page data to buffer.
-              if (! scanner->adf_next_page_lines_data)
+			  /* We are in in ADF mode after last-line and store next page data
+			   * to buffer.
+			   */
+			  if (! scanner->adf_next_page_lines_data)
                 {
                   unsigned int n_rest_lines = lines - i;
                   unsigned int buf_size = n_rest_lines * bytes_per_line;
@@ -1570,8 +1574,10 @@ convert_gray_and_lineart (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_
 
           if (scanner->eop_trailing_lines_mode != TRAILING_LINES_MODE_RAW)
             {
-              // Copy last line data or corresponding color over trailing lines data.
-              memcpy (buf, scanner->eop_last_line_data, bytes_per_line);
+			  /* Copy last line data or corresponding color over trailing lines
+			   * data.
+			   */
+			  memcpy (buf, scanner->eop_last_line_data, bytes_per_line);
             }
         }
     }
@@ -1633,7 +1639,7 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
   bytes_per_line_limit = bytes_per_line;
   if ((scanner->depth == DEPTH_COLOR_48) && (bytes_per_line_limit > 3))
     {
-      // Last-line indicator pixel has only 3 bytes instead of 6.
+      /* Last-line indicator pixel has only 3 bytes instead of 6. */
       bytes_per_line_limit -= 3;
     }
 
@@ -1647,7 +1653,7 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
   DBG (DBG_verbose, "Pixels per line %u\n", pixels_per_line);
   DBG (DBG_verbose, "Lines %u\n", lines);
 
-  // Use working buffer for color mapping.
+  /* Use working buffer for color mapping. */
   bufptr = malloc (size);
   if (! bufptr)
     return SANE_STATUS_NO_MEM;
@@ -1659,7 +1665,7 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
     {
       for (i = 0; i < pixels_per_line; i++)
 	{
-          // Color mapping from raw scanner data to RGB buffer.
+	  /* Color mapping from raw scanner data to RGB buffer. */
 	  if (scanner->depth == DEPTH_COLOR_24)
 	    {
 	      /* R */
@@ -1671,8 +1677,9 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
 	    }
 	  else if (scanner->depth == DEPTH_COLOR_48)
 	    {
-              // Note: The last-line indicator pixel uses only 24 bits, not 48.
-              // Blue uses offset of 2 bytes. Green swaps lo and hi.
+              /* Note: The last-line indicator pixel uses only 24 bits, not 48.
+               *Blue uses offset of 2 bytes. Green swaps lo and hi.
+			   */
               /* R lo, hi*/
               buf[i*6]   = get_checked(ptr, 2*i+(pixels_per_line-1)*0+1, bytes_per_line_limit);
               buf[i*6+1] = get_checked(ptr, 2*i+(pixels_per_line-1)*0+0, bytes_per_line_limit);
@@ -1689,13 +1696,15 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
         {
           if (pixels_per_line > 0)
             {
-              // Test for last-line indicator pixel on blue.
-              // If found, store last line and optionally overwrite indicator pixel with neighbor value.
-              i = pixels_per_line - 1;
+			  /* Test for last-line indicator pixel on blue. If found, store
+			   * last line and optionally overwrite indicator pixel with
+			   * neighbor value.
+			   */
+			  i = pixels_per_line - 1;
               int eop_found = 0;
               if (scanner->depth == DEPTH_COLOR_24)
                 {
-                  //DBG (DBG_details, "BUF24: %u %u %u\n", buf[i*3], buf[i*3+1], buf[i*3+2]);
+                  /* DBG (DBG_details, "BUF24: %u %u %u\n", buf[i*3], buf[i*3+1], buf[i*3+2]); */
                   eop_found = (buf[i*3+2] != 0);
                   if (scanner->overwrite_eop_pixel && (i > 0))
                     {
@@ -1706,7 +1715,7 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
                 }
               else if (scanner->depth == DEPTH_COLOR_48)
                 {
-                  //DBG (DBG_details, "BUF48: %u %u %u\n", buf[i*6+1], buf[i*6+3], buf[i*6+5]);
+                  /* DBG (DBG_details, "BUF48: %u %u %u\n", buf[i*6+1], buf[i*6+3], buf[i*6+5]); */
                   eop_found = (buf[i*6+5] != 0);
                   if (scanner->overwrite_eop_pixel && (i > 0))
                     {
@@ -1731,10 +1740,10 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
                   memcpy (scanner->eop_last_line_data, buf, bytes_per_line);
                   scanner->eop_last_line_data_rpos = 0;
 
-                  // Fill trailing line buffer with requested color.
+                  /* Fill trailing line buffer with requested color. */
                   if (scanner->eop_trailing_lines_mode == TRAILING_LINES_MODE_RASTER)
                     {
-                      // Black-white raster.
+                      /* Black-white raster. */
                       if (scanner->depth == DEPTH_COLOR_24)
                         {
                           for (unsigned int k = 0; k < bytes_per_line; ++k)
@@ -1744,7 +1753,7 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
                         }
                       else
                         {
-                          // Color48.
+                          /* Color48. */
                           for (unsigned int k = 0; k < bytes_per_line; ++k)
                             {
                               scanner->eop_last_line_data[k] = (k % 12 < 6 ? 0xff : 0);
@@ -1761,7 +1770,7 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
                     }
                   else if (scanner->eop_trailing_lines_mode == TRAILING_LINES_MODE_COLOR)
                     {
-                      // RGB color value.
+                      /* RGB color value. */
                       int rgb[3];
                       rgb[0] = (scanner->eop_trailing_lines_color >> 16) & 0xff;
                       rgb[1] = (scanner->eop_trailing_lines_color >> 8) & 0xff;
@@ -1775,7 +1784,7 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
                         }
                       else
                         {
-                          // Color48.
+                          /* Color48. */
                           for (unsigned int k = 0; k < bytes_per_line; ++k)
                             {
                               scanner->eop_last_line_data[k] = rgb[(k % 6) >> 1];
@@ -1792,8 +1801,10 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
 
           if ((scanner->source == SOURCE_ADF) || (scanner->source == SOURCE_ADF_DUPLEX))
             {
-              // We are in in ADF mode after last-line and store next page data to buffer.
-              if (! scanner->adf_next_page_lines_data)
+			  /* We are in in ADF mode after last-line and store next page data
+			   * to buffer.
+			   */
+			  if (! scanner->adf_next_page_lines_data)
                 {
                   unsigned int n_rest_lines = lines - j;
                   unsigned int buf_size = n_rest_lines * bytes_per_line;
@@ -1813,8 +1824,10 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
 
           if (scanner->eop_trailing_lines_mode != TRAILING_LINES_MODE_RAW)
             {
-              // Copy last line data or corresponding color over trailing lines data.
-              memcpy (buf, scanner->eop_last_line_data, bytes_per_line);
+			  /* Copy last line data or corresponding color over trailing lines
+			   * data.
+			   */
+			  memcpy (buf, scanner->eop_last_line_data, bytes_per_line);
             }
         }
     }
@@ -1833,8 +1846,8 @@ read_data_from_temporary_buffer(struct hp5590_scanner *scanner,
   *length = 0;
   if (scanner && scanner->one_line_read_buffer)
   {
-    // Copy scan data from temporary read buffer and return size copied data.
-    // Release buffer, when no data left.
+    /* Copy scan data from temporary read buffer and return size copied data. */
+    /* Release buffer, when no data left. */
     unsigned int rest_len;
     rest_len = bytes_per_line - scanner->one_line_read_buffer_rpos;
     rest_len = (rest_len < max_length) ? rest_len : max_length;
@@ -1876,13 +1889,15 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
   if ((unsigned long long) *length > scanner->transferred_image_size)
     *length = (SANE_Int) scanner->transferred_image_size;
 
-  // Align reading size to bytes per line.
+  /* Align reading size to bytes per line. */
   *length -= *length % bytes_per_line;
 
   if (scanner->depth == DEPTH_COLOR_48)
     {
-      // Note: The last-line indicator pixel uses only 24 bits (3 bytes), not 48 bits (6 bytes).
-      if (bytes_per_line > 3)
+	  /* Note: The last-line indicator pixel uses only 24 bits (3 bytes), not
+	   * 48 bits (6 bytes).
+	   */
+	  if (bytes_per_line > 3)
         {
           length_limited = *length - *length % (bytes_per_line - 3);
         }
@@ -1902,7 +1917,7 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
 
   if (scanner->one_line_read_buffer)
     {
-      // Copy scan data from temporary read buffer.
+      /* Copy scan data from temporary read buffer. */
       read_data_from_temporary_buffer (scanner, data, max_length, bytes_per_line, length);
       if (*length > 0)
         {
@@ -1911,20 +1926,23 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
         }
     }
 
-  // Buffer to return scanned data. We need at least space for one line to simplify
-  // color processing and last-line detection.
-  // If call buffer is too small, use temporary read buffer for reading one line instead.
+  /* Buffer to return scanned data. We need at least space for one line to
+   * simplify color processing and last-line detection. If call buffer is too
+   * small, use temporary read buffer for reading one line instead.
+   */
   SANE_Byte * scan_data;
   SANE_Int scan_data_length;
   scan_data = data;
   scan_data_length = *length;
 
-  // Note, read length is shorter in 48bit mode.
+  /* Note, read length is shorter in 48bit mode. */
   SANE_Int length_for_read = length_limited ? length_limited : scan_data_length;
   if (length_for_read == 0)
     {
-      // Call buffer is too small for one line. Use temporary read buffer instead.
-      if (! scanner->one_line_read_buffer)
+	  /* Call buffer is too small for one line. Use temporary read buffer
+	   * instead.
+	   */
+	  if (! scanner->one_line_read_buffer)
         {
           scanner->one_line_read_buffer = malloc (bytes_per_line);
           if (! scanner->one_line_read_buffer)
@@ -1935,14 +1953,16 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
       DBG (DBG_verbose, "Call buffer too small for one scan line. Use temporary read buffer for one line with %u bytes.\n",
           bytes_per_line);
 
-      // Scan and process next line in temporary buffer.
+      /* Scan and process next line in temporary buffer. */
       scan_data = scanner->one_line_read_buffer;
       scan_data_length = bytes_per_line;
       length_for_read = bytes_per_line;
       if (scanner->depth == DEPTH_COLOR_48)
         {
-          // The last-line indicator pixel uses only 24 bits (3 bytes), not 48 bits (6 bytes).
-          if (length_for_read > 3)
+		  /* The last-line indicator pixel uses only 24 bits (3 bytes), not 48
+		   * bits (6 bytes).
+		   */
+		  if (length_for_read > 3)
             {
               length_for_read -= 3;
             }
@@ -1954,8 +1974,10 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
     {
       if (scanner->eop_last_line_data)
         {
-          // Scanner is in ADF mode between last-line of previous page and start of next page.
-          // Fill remaining lines with last-line data.
+		  /* Scanner is in ADF mode between last-line of previous page and
+		   * start of next page.
+		   * Fill remaining lines with last-line data.
+		   */
           unsigned int wpos = 0;
           while (wpos < (unsigned int) scan_data_length)
             {
@@ -1973,9 +1995,11 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
         }
       else if (scanner->adf_next_page_lines_data)
         {
-          // Scanner is in ADF mode at start of next page and already some next page data is available
-          // from earlier read operation. Return this data.
-          unsigned int wpos = 0;
+		  /* Scanner is in ADF mode at start of next page and already some next
+		   * page data is available from earlier read operation. Return this
+		   * data.
+		   */
+		  unsigned int wpos = 0;
           while ((wpos < (unsigned int) scan_data_length) &&
                  (scanner->adf_next_page_lines_data_rpos < scanner->adf_next_page_lines_data_size))
             {
@@ -2002,7 +2026,7 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
 
   if (read_from_scanner)
     {
-      // Read data from scanner.
+      /* Read data from scanner. */
       ret = hp5590_read (scanner->dn, scanner->proto_flags,
                          scan_data, length_for_read,
                          scanner->bulk_read_state);
@@ -2012,11 +2036,11 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
           return ret;
         }
 
-      // Look for last-line indicator pixels in convert functions.
-      // If found:
-      //   - Overwrite indicator pixel with neighboring color (optional).
-      //   - Save last line data for later use.
-
+      /* Look for last-line indicator pixels in convert functions.
+       * If found:
+       *   - Overwrite indicator pixel with neighboring color (optional).
+       *   - Save last line data for later use.
+	   */
       ret = convert_to_rgb (scanner, scan_data, scan_data_length);
       if (ret != SANE_STATUS_GOOD)
         {
@@ -2031,16 +2055,16 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
 
   if (data == scan_data)
     {
-      // Scanned to call buffer.
+      /* Scanned to call buffer. */
       scanner->transferred_image_size -= scan_data_length;
       *length = scan_data_length;
     }
   else
     {
-      // Scanned to temporary read buffer.
+      /* Scanned to temporary read buffer. */
       if (scanner->one_line_read_buffer)
         {
-          // Copy scan data from temporary read buffer.
+          /* Copy scan data from temporary read buffer. */
           read_data_from_temporary_buffer (scanner, data, max_length, scan_data_length, length);
         }
       else
@@ -2053,9 +2077,11 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
   return SANE_STATUS_GOOD;
 }
 
-/******************************************************************************/
-// Copy at maximum the last n lines from the src buffer to the begin of the dst buffer.
-// Return number of lines copied.
+/******************************************************************************
+ * Copy at maximum the last n lines from the src buffer to the begin of the dst
+ * buffer.
+ * Return number of lines copied.
+ */
 static SANE_Int
 copy_n_last_lines(SANE_Byte * src, SANE_Int src_len, SANE_Byte * dst, SANE_Int n, unsigned int bytes_per_line)
 {
@@ -2066,13 +2092,14 @@ copy_n_last_lines(SANE_Byte * src, SANE_Int src_len, SANE_Byte * dst, SANE_Int n
   return n_copy;
 }
 
-/******************************************************************************/
-// Copy the color values from line - delta_lines to line.
-// buffer2 : Source and target buffer.
-// buffer1 : Only source buffer. Contains lines scanned before lines in buffer1.
-// color_idx : Index of color to be copied (0..2).
-// delta_lines : color shift.
-// color_48 : True = 2 byte , false = 1 byte per color.
+/******************************************************************************
+ * Copy the color values from line - delta_lines to line.
+ * buffer2 : Source and target buffer.
+ * buffer1 : Only source buffer. Contains lines scanned before lines in buffer1.
+ * color_idx : Index of color to be copied (0..2).
+ * delta_lines : color shift.
+ * color_48 : True = 2 byte , false = 1 byte per color.
+ */
 static void
 shift_color_lines(SANE_Byte * buffer2, SANE_Int n_lines2, SANE_Byte * buffer1, SANE_Int n_lines1, SANE_Int color_idx, SANE_Int delta_lines, SANE_Bool color_48, unsigned int bytes_per_line)
 {
@@ -2083,20 +2110,20 @@ shift_color_lines(SANE_Byte * buffer2, SANE_Int n_lines2, SANE_Byte * buffer1, S
     SANE_Byte * src = NULL;
     SANE_Int source_color_idx = color_idx;
     if (ii >= 0) {
-      // Read from source and target buffer.
+      /* Read from source and target buffer. */
       src = buffer2 + ii * bytes_per_line;
     } else {
       ii += n_lines1;
       if (ii >= 0) {
-        // Read from source only buffer.
+        /* Read from source only buffer. */
         src = buffer1 + ii * bytes_per_line;
       } else {
-        // Read other color from source position.
+        /* Read other color from source position. */
         src = dst;
         source_color_idx = 2;
       }
     }
-    // Copy selected color values.
+    /* Copy selected color values. */
     SANE_Int step = color_48 ? 2 : 1;
     SANE_Int stride = 3 * step;
     for (unsigned int pos = 0; pos < bytes_per_line; pos += stride) {
@@ -2110,11 +2137,13 @@ shift_color_lines(SANE_Byte * buffer2, SANE_Int n_lines2, SANE_Byte * buffer1, S
   }
 }
 
-/******************************************************************************/
-// Append all lines from buffer2 to the end of buffer1 and keep max_lines last lines.
-// buffer2 : Source line buffer.
-// buffer1 : Target line buffer. Length will be adjusted.
-// max_lines : Max number of lines in buffer1.
+/******************************************************************************
+ * Append all lines from buffer2 to the end of buffer1 and keep max_lines last
+ * lines.
+ * buffer2 : Source line buffer.
+ * buffer1 : Target line buffer. Length will be adjusted.
+ * max_lines : Max number of lines in buffer1.
+ */
 static void
 append_and_move_lines(SANE_Byte * buffer2, SANE_Int n_lines2, SANE_Byte * buffer1, unsigned int * n_lines1_ptr, SANE_Int max_lines, unsigned int bytes_per_line)
 {
@@ -2195,9 +2224,12 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
   if ((ret == SANE_STATUS_GOOD) && (scanner->dpi == 2400) &&
           ((scanner->depth == DEPTH_COLOR_48) || (scanner->depth == DEPTH_COLOR_24)))
     {
-      // Correct color shift bug for 2400 dpi.
-      // Note: 2400 dpi only works in color mode. Grey mode and lineart seem to fail.
-      // Align colors by shifting B channel by 48 lines and G channel by 24 lines.
+      /* Correct color shift bug for 2400 dpi.
+	   * Note: 2400 dpi only works in color mode. Grey mode and lineart seem to
+	   * fail.
+	   * Align colors by shifting B channel by 48 lines and G channel by 24
+	   * lines.
+	   */
       const SANE_Int offset_max = 48;
       const SANE_Int offset_part = 24;
       SANE_Bool color_48 = (scanner->depth == DEPTH_COLOR_48);

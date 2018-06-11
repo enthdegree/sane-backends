@@ -1,6 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2007 Ilia Sotnikov <hostcc@gmail.com>
    HP ScanJet 4570c support by Markham Thomas
+   ADF page detection and high DPI fixes by Bernard Badr
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -1263,7 +1264,7 @@ hp5590_set_color_map (SANE_Int dn,
   else
     {
       if (0) {
-        // Does not work with hp5590 and 2400 dpi.
+        /* Does not work with hp5590 and 2400 dpi. */
         color_map.color1[2] = 0xff;
         color_map.color1[3] = 0x01;
         color_map.color1[4] = 0x04;
@@ -1280,7 +1281,7 @@ hp5590_set_color_map (SANE_Int dn,
         color_map.color3[5] = 0x02;
 
       } else {
-        // Needs documentation.
+        /* Needs documentation. */
         color_map.color1[2] = 0x00;
         color_map.color1[3] = 0x00;
         color_map.color1[4] = 0x01;

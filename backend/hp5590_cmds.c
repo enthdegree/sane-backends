@@ -2,6 +2,7 @@
    Copyright (C) 2007 Ilia Sotnikov <hostcc@gmail.com>
    HP ScanJet 4570c support by Markham Thomas
    ADF page detection and high DPI fixes by Bernard Badr
+   scanbd integration by Damiano Scaramuzza and Bernard Badr
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or

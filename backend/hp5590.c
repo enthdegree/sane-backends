@@ -63,58 +63,62 @@
 #include "sanei_net.h"
 
 /* Debug levels */
-#define	DBG_err		0
-#define	DBG_proc	10
-#define	DBG_verbose	20
-#define	DBG_details	30
+#define DBG_err         0
+#define DBG_proc        10
+#define DBG_verbose     20
+#define DBG_details     30
 
 #define hp5590_assert(exp) if(!(exp)) { \
-	DBG (DBG_err, "Assertion '%s' failed at %s:%u\n", #exp, __FILE__, __LINE__);\
-	return SANE_STATUS_INVAL; \
+        DBG (DBG_err, "Assertion '%s' failed at %s:%u\n", #exp, __FILE__, __LINE__);\
+        return SANE_STATUS_INVAL; \
 }
 
 #define hp5590_assert_void_return(exp) if(!(exp)) { \
-	DBG (DBG_err, "Assertion '%s' failed at %s:%u\n", #exp, __FILE__, __LINE__);\
-	return; \
+        DBG (DBG_err, "Assertion '%s' failed at %s:%u\n", #exp, __FILE__, __LINE__);\
+        return; \
 }
 
 #define MY_MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define MY_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 /* #define HAS_WORKING_COLOR_48 */
-#define BUILD 		7
-#define USB_TIMEOUT	30 * 1000
+#define BUILD           7
+#define USB_TIMEOUT     30 * 1000
 
 static SANE_Word
 res_list[] = { 6, 100, 200, 300, 600, 1200, 2400 };
 
-#define SANE_VALUE_SCAN_SOURCE_FLATBED  	SANE_I18N("Flatbed")
-#define SANE_VALUE_SCAN_SOURCE_ADF 		SANE_I18N("ADF")
-#define SANE_VALUE_SCAN_SOURCE_ADF_DUPLEX 	SANE_I18N("ADF Duplex")
-#define SANE_VALUE_SCAN_SOURCE_TMA_SLIDES 	SANE_I18N("TMA Slides")
-#define SANE_VALUE_SCAN_SOURCE_TMA_NEGATIVES 	SANE_I18N("TMA Negatives")
+#define SANE_VALUE_SCAN_SOURCE_FLATBED          SANE_I18N("Flatbed")
+#define SANE_VALUE_SCAN_SOURCE_ADF              SANE_I18N("ADF")
+#define SANE_VALUE_SCAN_SOURCE_ADF_DUPLEX       SANE_I18N("ADF Duplex")
+#define SANE_VALUE_SCAN_SOURCE_TMA_SLIDES       SANE_I18N("TMA Slides")
+#define SANE_VALUE_SCAN_SOURCE_TMA_NEGATIVES    SANE_I18N("TMA Negatives")
 
-#define SANE_VALUE_SCAN_MODE_COLOR_24 		SANE_VALUE_SCAN_MODE_COLOR
-#define SANE_VALUE_SCAN_MODE_COLOR_48 		SANE_I18N("Color (48 bits)")
+#define SANE_VALUE_SCAN_MODE_COLOR_24           SANE_VALUE_SCAN_MODE_COLOR
+#define SANE_VALUE_SCAN_MODE_COLOR_48           SANE_I18N("Color (48 bits)")
 #define HAS_WORKING_COLOR_48 1
 
-#define SANE_NAME_LAMP_TIMEOUT 			"extend-lamp-timeout"
-#define SANE_TITLE_LAMP_TIMEOUT 		SANE_I18N("Extend lamp timeout")
-#define SANE_DESC_LAMP_TIMEOUT 			SANE_I18N("Extends lamp timeout (from 15 minutes to 1 hour)")
-#define SANE_NAME_WAIT_FOR_BUTTON 		"wait-for-button"
-#define SANE_TITLE_WAIT_FOR_BUTTON 		SANE_I18N("Wait for button")
-#define SANE_DESC_WAIT_FOR_BUTTON 		SANE_I18N("Waits for button before scanning")
-#define SANE_NAME_OVERWRITE_EOP_PIXEL 		"hide-eop-pixel"
-#define SANE_TITLE_OVERWRITE_EOP_PIXEL 		SANE_I18N("Hide end-of-page pixel")
-#define SANE_DESC_OVERWRITE_EOP_PIXEL 		SANE_I18N("Hide end-of-page indicator pixels and overwrite with neighbor pixels")
-#define SANE_NAME_TRAILING_LINES_MODE 		"trailing-lines-mode"
-#define SANE_TITLE_TRAILING_LINES_MODE 		SANE_I18N("Filling mode of trailing lines after scan data (ADF)")
-#define SANE_DESC_TRAILING_LINES_MODE 		SANE_I18N("raw = raw scan data, last = repeat last scan line, raster = b/w raster, "\
-							  "white = white color, black = black color, color = RGB or gray color value")
-#define SANE_NAME_TRAILING_LINES_COLOR 		"trailing-lines-color"
-#define SANE_TITLE_TRAILING_LINES_COLOR		SANE_I18N("RGB or gray color value for filling mode 'color'")
-#define SANE_DESC_TRAILING_LINES_COLOR 		SANE_I18N("Color value for trailing lines filling mode 'color'. "\
-							  "RGB color as r*65536+256*g+b or gray value (default=violet or gray)")
+#define SANE_NAME_LAMP_TIMEOUT                  "extend-lamp-timeout"
+#define SANE_TITLE_LAMP_TIMEOUT                 SANE_I18N("Extend lamp timeout")
+#define SANE_DESC_LAMP_TIMEOUT                  SANE_I18N("Extends lamp timeout (from 15 minutes to 1 hour)")
+#define SANE_NAME_WAIT_FOR_BUTTON               "wait-for-button"
+#define SANE_TITLE_WAIT_FOR_BUTTON              SANE_I18N("Wait for button")
+#define SANE_DESC_WAIT_FOR_BUTTON               SANE_I18N("Waits for button before scanning")
+#define SANE_NAME_BUTTON_PRESSED                "button-pressed"
+#define SANE_TITLE_BUTTON_PRESSED               SANE_I18N("Last button pressed")
+#define SANE_DESC_BUTTON_PRESSED                SANE_I18N("Get ID of last button pressed (read only)")
+#define BUTTON_PRESSED_BUTTONNAME_MAX_LEN 32
+#define SANE_NAME_OVERWRITE_EOP_PIXEL           "hide-eop-pixel"
+#define SANE_TITLE_OVERWRITE_EOP_PIXEL          SANE_I18N("Hide end-of-page pixel")
+#define SANE_DESC_OVERWRITE_EOP_PIXEL           SANE_I18N("Hide end-of-page indicator pixels and overwrite with neighbor pixels")
+#define SANE_NAME_TRAILING_LINES_MODE           "trailing-lines-mode"
+#define SANE_TITLE_TRAILING_LINES_MODE          SANE_I18N("Filling mode of trailing lines after scan data (ADF)")
+#define SANE_DESC_TRAILING_LINES_MODE           SANE_I18N("raw = raw scan data, last = repeat last scan line, raster = b/w raster, "\
+                                                          "white = white color, black = black color, color = RGB or gray color value")
+#define SANE_NAME_TRAILING_LINES_COLOR          "trailing-lines-color"
+#define SANE_TITLE_TRAILING_LINES_COLOR         SANE_I18N("RGB or gray color value for filling mode 'color'")
+#define SANE_DESC_TRAILING_LINES_COLOR          SANE_I18N("Color value for trailing lines filling mode 'color'. "\
+                                                          "RGB color as r*65536+256*g+b or gray value (default=violet or gray)")
 
 #define TRAILING_LINES_MODE_RAW 0
 #define TRAILING_LINES_MODE_LAST 1
@@ -132,8 +136,8 @@ res_list[] = { 6, 100, 200, 300, 600, 1200, 2400 };
 #define TRAILING_LINES_MODE_COLOR_KEY "color"
 #define TRAILING_LINES_MODE_MAX_VALUE_LEN 24
 
-#define MAX_SCAN_SOURCE_VALUE_LEN 	24
-#define MAX_SCAN_MODE_VALUE_LEN		24
+#define MAX_SCAN_SOURCE_VALUE_LEN       24
+#define MAX_SCAN_MODE_VALUE_LEN         24
 
 static SANE_Range
 range_x, range_y, range_qual;
@@ -160,6 +164,7 @@ enum hp5590_opt_idx {
   HP5590_OPT_RESOLUTION,
   HP5590_OPT_LAMP_TIMEOUT,
   HP5590_OPT_WAIT_FOR_BUTTON,
+  HP5590_OPT_BUTTON_PRESSED,
   HP5590_OPT_PREVIEW,
   HP5590_OPT_OVERWRITE_EOP_PIXEL,
   HP5590_OPT_TRAILING_LINES_MODE,
@@ -168,39 +173,39 @@ enum hp5590_opt_idx {
 };
 
 struct hp5590_scanner {
-  struct scanner_info 		*info;
-  enum proto_flags		proto_flags;
-  SANE_Device 			sane;
-  SANE_Int 			dn;
-  float 			br_x, br_y, tl_x, tl_y;
-  unsigned int 			dpi;
-  enum color_depths 		depth;
-  enum scan_sources	 	source;
-  SANE_Bool 			extend_lamp_timeout;
-  SANE_Bool 			wait_for_button;
-  SANE_Bool 			preview;
-  unsigned int 			quality;
-  SANE_Option_Descriptor 	*opts;
-  struct hp5590_scanner 	*next;
-  unsigned long long		image_size;
-  unsigned long long		transferred_image_size;
-  void			 	*bulk_read_state;
-  SANE_Bool 			scanning;
-  SANE_Bool 			overwrite_eop_pixel;
-  SANE_Byte 			*eop_last_line_data;
-  unsigned int 			eop_last_line_data_rpos;
-  SANE_Int 			eop_trailing_lines_mode;
-  SANE_Int 			eop_trailing_lines_color;
-  SANE_Byte 			*adf_next_page_lines_data;
-  unsigned int 			adf_next_page_lines_data_size;
-  unsigned int 			adf_next_page_lines_data_rpos;
-  unsigned int 			adf_next_page_lines_data_wpos;
-  SANE_Byte 			*one_line_read_buffer;
-  unsigned int 			one_line_read_buffer_rpos;
-  SANE_Byte 			*color_shift_line_buffer1;
-  unsigned int 			color_shift_buffered_lines1;
-  SANE_Byte 			*color_shift_line_buffer2;
-  unsigned int 			color_shift_buffered_lines2;
+  struct scanner_info           *info;
+  enum proto_flags              proto_flags;
+  SANE_Device                   sane;
+  SANE_Int                      dn;
+  float                         br_x, br_y, tl_x, tl_y;
+  unsigned int                  dpi;
+  enum color_depths             depth;
+  enum scan_sources             source;
+  SANE_Bool                     extend_lamp_timeout;
+  SANE_Bool                     wait_for_button;
+  SANE_Bool                     preview;
+  unsigned int                  quality;
+  SANE_Option_Descriptor        *opts;
+  struct hp5590_scanner         *next;
+  unsigned long long            image_size;
+  unsigned long long            transferred_image_size;
+  void                          *bulk_read_state;
+  SANE_Bool                     scanning;
+  SANE_Bool                     overwrite_eop_pixel;
+  SANE_Byte                     *eop_last_line_data;
+  unsigned int                  eop_last_line_data_rpos;
+  SANE_Int                      eop_trailing_lines_mode;
+  SANE_Int                      eop_trailing_lines_color;
+  SANE_Byte                     *adf_next_page_lines_data;
+  unsigned int                  adf_next_page_lines_data_size;
+  unsigned int                  adf_next_page_lines_data_rpos;
+  unsigned int                  adf_next_page_lines_data_wpos;
+  SANE_Byte                     *one_line_read_buffer;
+  unsigned int                  one_line_read_buffer_rpos;
+  SANE_Byte                     *color_shift_line_buffer1;
+  unsigned int                  color_shift_buffered_lines1;
+  SANE_Byte                     *color_shift_line_buffer2;
+  unsigned int                  color_shift_buffered_lines2;
 };
 
 static
@@ -209,19 +214,19 @@ struct hp5590_scanner *scanners_list;
 /******************************************************************************/
 static SANE_Status
 calc_image_params (struct hp5590_scanner *scanner,
-		   unsigned int *pixel_bits,
-		   unsigned int *pixels_per_line,
-		   unsigned int *bytes_per_line,
-		   unsigned int *lines,
-		   unsigned long long *image_size)
+                   unsigned int *pixel_bits,
+                   unsigned int *pixels_per_line,
+                   unsigned int *bytes_per_line,
+                   unsigned int *lines,
+                   unsigned long long *image_size)
 {
-  unsigned int 	_pixel_bits;
-  SANE_Status	ret;
-  unsigned int	_pixels_per_line;
-  unsigned int	_bytes_per_line;
-  unsigned int	_lines;
-  unsigned int	_image_size;
-  float		var;
+  unsigned int  _pixel_bits;
+  SANE_Status   ret;
+  unsigned int  _pixels_per_line;
+  unsigned int  _bytes_per_line;
+  unsigned int  _lines;
+  unsigned int  _image_size;
+  float         var;
 
   DBG (DBG_proc, "%s\n", __func__);
 
@@ -247,7 +252,7 @@ calc_image_params (struct hp5590_scanner *scanner,
   if (var > _bytes_per_line)
     _bytes_per_line++;
 
-  _image_size 	   = (unsigned long long) _lines * _bytes_per_line;
+  _image_size      = (unsigned long long) _lines * _bytes_per_line;
 
   DBG (DBG_verbose, "%s: pixel_bits: %u, pixels_per_line: %u, "
        "bytes_per_line: %u, lines: %u, image_size: %u\n",
@@ -275,14 +280,14 @@ calc_image_params (struct hp5590_scanner *scanner,
 /******************************************************************************/
 static SANE_Status
 attach_usb_device (SANE_String_Const devname,
-		   enum hp_scanner_types hp_scanner_type)
+                   enum hp_scanner_types hp_scanner_type)
 {
-  struct scanner_info		*info;
-  struct hp5590_scanner		*scanner, *ptr;
-  unsigned int 			max_count, count;
-  SANE_Int 			dn;
-  SANE_Status			ret;
-  const struct hp5590_model	*hp5590_model;
+  struct scanner_info           *info;
+  struct hp5590_scanner         *scanner, *ptr;
+  unsigned int                  max_count, count;
+  SANE_Int                      dn;
+  SANE_Status                   ret;
+  const struct hp5590_model     *hp5590_model;
 
   DBG (DBG_proc, "%s: Opening USB device\n", __func__);
   if (sanei_usb_open (devname, &dn) != SANE_STATUS_GOOD)
@@ -294,7 +299,7 @@ attach_usb_device (SANE_String_Const devname,
     return ret;
 
   if (hp5590_init_scanner (dn, hp5590_model->proto_flags,
-    			   &info, hp_scanner_type) != 0)
+                           &info, hp_scanner_type) != 0)
     return SANE_STATUS_IO_ERROR;
 
   DBG (1, "%s: found HP%s scanner at '%s'\n",
@@ -302,13 +307,13 @@ attach_usb_device (SANE_String_Const devname,
 
   DBG (DBG_verbose, "%s: Reading max scan count\n", __func__);
   if (hp5590_read_max_scan_count (dn, hp5590_model->proto_flags,
-    				  &max_count) != 0)
+                                  &max_count) != 0)
     return SANE_STATUS_IO_ERROR;
   DBG (DBG_verbose, "%s: Max Scanning count %u\n", __func__, max_count);
 
   DBG (DBG_verbose, "%s: Reading scan count\n", __func__);
   if (hp5590_read_scan_count (dn, hp5590_model->proto_flags,
-    			      &count) != 0)
+                              &count) != 0)
     return SANE_STATUS_IO_ERROR;
   DBG (DBG_verbose, "%s: Scanning count %u\n", __func__, count);
 
@@ -390,8 +395,8 @@ attach_hp7650 (SANE_String_Const devname)
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize)
 {
-  SANE_Status 	ret;
-  SANE_Word	vendor_id, product_id;
+  SANE_Status   ret;
+  SANE_Word     vendor_id, product_id;
 
   DBG_INIT();
 
@@ -453,31 +458,31 @@ void sane_exit (void)
   for (ptr = scanners_list; ptr; ptr = pnext)
     {
       if (ptr->opts != NULL)
-	free (ptr->opts);
+        free (ptr->opts);
       if (ptr->eop_last_line_data != NULL) {
-	free (ptr->eop_last_line_data);
+        free (ptr->eop_last_line_data);
         ptr->eop_last_line_data = NULL;
         ptr->eop_last_line_data_rpos = 0;
       }
       if (ptr->adf_next_page_lines_data != NULL) {
-	free (ptr->adf_next_page_lines_data);
+        free (ptr->adf_next_page_lines_data);
         ptr->adf_next_page_lines_data = NULL;
         ptr->adf_next_page_lines_data_size = 0;
         ptr->adf_next_page_lines_data_wpos = 0;
         ptr->adf_next_page_lines_data_rpos = 0;
       }
       if (ptr->one_line_read_buffer != NULL) {
-	free (ptr->one_line_read_buffer);
+        free (ptr->one_line_read_buffer);
         ptr->one_line_read_buffer = NULL;
         ptr->one_line_read_buffer_rpos = 0;
       }
       if (ptr->color_shift_line_buffer1 != NULL) {
-	free (ptr->color_shift_line_buffer1);
+        free (ptr->color_shift_line_buffer1);
         ptr->color_shift_line_buffer1 = NULL;
         ptr->color_shift_buffered_lines1 = 0;
       }
       if (ptr->color_shift_line_buffer2 != NULL) {
-	free (ptr->color_shift_line_buffer2);
+        free (ptr->color_shift_line_buffer2);
         ptr->color_shift_line_buffer2 = NULL;
         ptr->color_shift_buffered_lines2 = 0;
       }
@@ -519,13 +524,15 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 SANE_Status
 sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
-  struct hp5590_scanner 	*ptr;
-  SANE_Option_Descriptor 	*opts;
-  unsigned int 			available_sources;
-  SANE_String_Const 		*sources_list;
-  unsigned int 			source_idx;
-  SANE_String_Const 		*fillmode_list;
-  unsigned int 			fillmode_idx;
+  struct hp5590_scanner         *ptr;
+  SANE_Option_Descriptor        *opts;
+  unsigned int                  available_sources;
+  SANE_String_Const             *sources_list;
+  unsigned int                  source_idx;
+  SANE_String_Const             *fillmode_list;
+  unsigned int                  fillmode_idx;
+  SANE_String_Const             *buttonstate_list;
+  unsigned int                  buttonstate_idx;
 
   DBG (DBG_proc, "%s: device name: %s\n", __func__, devicename);
 
@@ -537,12 +544,24 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     ptr = scanners_list;
   } else {
     for (ptr = scanners_list;
-	 ptr && strcmp (ptr->sane.name, devicename) != 0;
-	 ptr = ptr->next);
+         ptr && strcmp (ptr->sane.name, devicename) != 0;
+         ptr = ptr->next);
   }
 
   if (!ptr)
     return SANE_STATUS_INVAL;
+
+  /* DS: Without this after the first scan (and sane_close)
+   * it was impossible to use again the read_buttons usb routine.
+   * Function sane_close puts dn = -1. Now sane_open needs to open
+   * the usb communication again.
+   */
+  if (ptr->dn < 0) {
+    DBG (DBG_proc, "%s: Reopening USB device\n", __func__);
+    if (sanei_usb_open (ptr->sane.name, &ptr->dn) != SANE_STATUS_GOOD)
+      return SANE_STATUS_IO_ERROR;
+    DBG (DBG_proc, "%s: USB device reopened\n", __func__);
+  }
 
   ptr->tl_x = 0;
   ptr->tl_y = 0;
@@ -690,6 +709,23 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   opts[HP5590_OPT_WAIT_FOR_BUTTON].constraint_type = SANE_CONSTRAINT_NONE;
   opts[HP5590_OPT_WAIT_FOR_BUTTON].constraint.string_list = NULL;
 
+  buttonstate_list = malloc ((TRAILING_LINES_MODE_VALUE_COUNT + 1) * sizeof (SANE_String_Const));
+  if (!buttonstate_list)
+    return SANE_STATUS_NO_MEM;
+  buttonstate_idx = 0;
+  buttonstate_list[buttonstate_idx++] = "read-only";
+  buttonstate_list[buttonstate_idx++] = NULL;
+
+  opts[HP5590_OPT_BUTTON_PRESSED].name = SANE_NAME_BUTTON_PRESSED;
+  opts[HP5590_OPT_BUTTON_PRESSED].title = SANE_TITLE_BUTTON_PRESSED;
+  opts[HP5590_OPT_BUTTON_PRESSED].desc = SANE_DESC_BUTTON_PRESSED;
+  opts[HP5590_OPT_BUTTON_PRESSED].type = SANE_TYPE_STRING;
+  opts[HP5590_OPT_BUTTON_PRESSED].unit = SANE_UNIT_NONE;
+  opts[HP5590_OPT_BUTTON_PRESSED].size = BUTTON_PRESSED_BUTTONNAME_MAX_LEN;
+  opts[HP5590_OPT_BUTTON_PRESSED].cap =  SANE_CAP_HARD_SELECT | SANE_CAP_SOFT_DETECT;
+  opts[HP5590_OPT_BUTTON_PRESSED].constraint_type = SANE_CONSTRAINT_NONE;
+  opts[HP5590_OPT_BUTTON_PRESSED].constraint.string_list = buttonstate_list;
+
   opts[HP5590_OPT_PREVIEW].name = SANE_NAME_PREVIEW;
   opts[HP5590_OPT_PREVIEW].title = SANE_TITLE_PREVIEW;
   opts[HP5590_OPT_PREVIEW].desc = SANE_DESC_PREVIEW;
@@ -706,7 +742,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   opts[HP5590_OPT_OVERWRITE_EOP_PIXEL].type = SANE_TYPE_BOOL;
   opts[HP5590_OPT_OVERWRITE_EOP_PIXEL].unit = SANE_UNIT_NONE;
   opts[HP5590_OPT_OVERWRITE_EOP_PIXEL].size = sizeof(SANE_Bool);
-  opts[HP5590_OPT_OVERWRITE_EOP_PIXEL].cap =  SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  opts[HP5590_OPT_OVERWRITE_EOP_PIXEL].cap =  SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   opts[HP5590_OPT_OVERWRITE_EOP_PIXEL].constraint_type = SANE_CONSTRAINT_NONE;
   opts[HP5590_OPT_OVERWRITE_EOP_PIXEL].constraint.string_list = NULL;
 
@@ -728,7 +764,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   opts[HP5590_OPT_TRAILING_LINES_MODE].type = SANE_TYPE_STRING;
   opts[HP5590_OPT_TRAILING_LINES_MODE].unit = SANE_UNIT_NONE;
   opts[HP5590_OPT_TRAILING_LINES_MODE].size = TRAILING_LINES_MODE_MAX_VALUE_LEN;
-  opts[HP5590_OPT_TRAILING_LINES_MODE].cap =  SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  opts[HP5590_OPT_TRAILING_LINES_MODE].cap =  SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   opts[HP5590_OPT_TRAILING_LINES_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   opts[HP5590_OPT_TRAILING_LINES_MODE].constraint.string_list = fillmode_list;
 
@@ -738,7 +774,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   opts[HP5590_OPT_TRAILING_LINES_COLOR].type = SANE_TYPE_INT;
   opts[HP5590_OPT_TRAILING_LINES_COLOR].unit = SANE_UNIT_NONE;
   opts[HP5590_OPT_TRAILING_LINES_COLOR].size = sizeof(SANE_Bool);
-  opts[HP5590_OPT_TRAILING_LINES_COLOR].cap =  SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  opts[HP5590_OPT_TRAILING_LINES_COLOR].cap =  SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   opts[HP5590_OPT_TRAILING_LINES_COLOR].constraint_type = SANE_CONSTRAINT_NONE;
   opts[HP5590_OPT_TRAILING_LINES_COLOR].constraint.string_list = NULL;
 
@@ -773,13 +809,32 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   return &scanner->opts[option];
 }
 
+/*************************************DS:Support function read buttons status */
+SANE_Status
+read_button_pressed(SANE_Handle handle, enum button_status * button_pressed)
+{
+  struct hp5590_scanner * scanner = handle;
+  *button_pressed = BUTTON_NONE;
+  enum button_status status = BUTTON_NONE;
+  DBG (DBG_verbose, "%s: Checking button status (device_number = %u) (device_name = %s)\n", __func__, scanner->dn, scanner->sane.name);
+  SANE_Status ret = hp5590_read_buttons (scanner->dn, scanner->proto_flags, &status);
+  if (ret != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_proc, "%s: Error reading button status (%u)\n", __func__, ret);
+      return ret;
+    }
+  DBG (DBG_verbose, "%s: Button pressed = %d\n", __func__, status);
+  *button_pressed = status;
+  return SANE_STATUS_GOOD;
+}
+
 /******************************************************************************/
 SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
-		     SANE_Action action, void *value,
+                     SANE_Action action, void *value,
                      SANE_Int * info)
 {
-  struct hp5590_scanner	*scanner = handle;
+  struct hp5590_scanner *scanner = handle;
 
   if (!value)
     return SANE_STATUS_INVAL;
@@ -793,117 +848,160 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   if (action == SANE_ACTION_GET_VALUE)
     {
       if (option == HP5590_OPT_NUM)
-	{
-	  DBG(3, "%s: get total number of options - %u\n", __func__, HP5590_OPT_LAST);
-	  *((SANE_Int *) value) = HP5590_OPT_LAST;
-	  return SANE_STATUS_GOOD;
-	}
+        {
+          DBG(3, "%s: get total number of options - %u\n", __func__, HP5590_OPT_LAST);
+          *((SANE_Int *) value) = HP5590_OPT_LAST;
+          return SANE_STATUS_GOOD;
+        }
 
       if (!scanner->opts)
-	return SANE_STATUS_INVAL;
+        return SANE_STATUS_INVAL;
 
       DBG (DBG_proc, "%s: get option '%s' value\n", __func__, scanner->opts[option].name);
 
       if (option == HP5590_OPT_BR_X)
-	{
-	  *(SANE_Fixed *) value = SANE_FIX (scanner->br_x * 25.4);
-	}
+        {
+          *(SANE_Fixed *) value = SANE_FIX (scanner->br_x * 25.4);
+        }
 
       if (option == HP5590_OPT_BR_Y)
-	{
-	  *(SANE_Fixed *) value = SANE_FIX (scanner->br_y * 25.4);
-	}
+        {
+          *(SANE_Fixed *) value = SANE_FIX (scanner->br_y * 25.4);
+        }
 
       if (option == HP5590_OPT_TL_X)
-	{
-	  *(SANE_Fixed *) value = SANE_FIX ((scanner->tl_x) * 25.4);
-	}
+        {
+          *(SANE_Fixed *) value = SANE_FIX ((scanner->tl_x) * 25.4);
+        }
 
       if (option == HP5590_OPT_TL_Y)
-	{
-	  *(SANE_Fixed *) value = SANE_FIX (scanner->tl_y * 25.4);
-	}
+        {
+          *(SANE_Fixed *) value = SANE_FIX (scanner->tl_y * 25.4);
+        }
 
       if (option == HP5590_OPT_MODE)
-	{
-	  switch (scanner->depth) {
-	    case DEPTH_BW:
-	      memset (value , 0, scanner->opts[option].size);
-	      memcpy (value, SANE_VALUE_SCAN_MODE_LINEART, strlen (SANE_VALUE_SCAN_MODE_LINEART));
-	      break;
-	    case DEPTH_GRAY:
-	      memset (value , 0, scanner->opts[option].size);
-	      memcpy (value, SANE_VALUE_SCAN_MODE_GRAY, strlen (SANE_VALUE_SCAN_MODE_GRAY));
-	      break;
-	    case DEPTH_COLOR_24:
-	      memset (value , 0, scanner->opts[option].size);
-	      memcpy (value, SANE_VALUE_SCAN_MODE_COLOR_24, strlen (SANE_VALUE_SCAN_MODE_COLOR_24));
-	      break;
-	    case DEPTH_COLOR_48:
-	      memset (value , 0, scanner->opts[option].size);
-	      memcpy (value, SANE_VALUE_SCAN_MODE_COLOR_48, strlen (SANE_VALUE_SCAN_MODE_COLOR_48));
-	      break;
-	    default:
-	      return SANE_STATUS_INVAL;
-	  }
-	}
+        {
+          switch (scanner->depth) {
+            case DEPTH_BW:
+              memset (value , 0, scanner->opts[option].size);
+              memcpy (value, SANE_VALUE_SCAN_MODE_LINEART, strlen (SANE_VALUE_SCAN_MODE_LINEART));
+              break;
+            case DEPTH_GRAY:
+              memset (value , 0, scanner->opts[option].size);
+              memcpy (value, SANE_VALUE_SCAN_MODE_GRAY, strlen (SANE_VALUE_SCAN_MODE_GRAY));
+              break;
+            case DEPTH_COLOR_24:
+              memset (value , 0, scanner->opts[option].size);
+              memcpy (value, SANE_VALUE_SCAN_MODE_COLOR_24, strlen (SANE_VALUE_SCAN_MODE_COLOR_24));
+              break;
+            case DEPTH_COLOR_48:
+              memset (value , 0, scanner->opts[option].size);
+              memcpy (value, SANE_VALUE_SCAN_MODE_COLOR_48, strlen (SANE_VALUE_SCAN_MODE_COLOR_48));
+              break;
+            default:
+              return SANE_STATUS_INVAL;
+          }
+        }
 
       if (option == HP5590_OPT_SOURCE)
-	{
-	  switch (scanner->source) {
-	    case SOURCE_FLATBED:
-	      memset (value , 0, scanner->opts[option].size);
-	      memcpy (value, SANE_VALUE_SCAN_SOURCE_FLATBED, strlen (SANE_VALUE_SCAN_SOURCE_FLATBED));
-	      break;
-	    case SOURCE_ADF:
-	      memset (value , 0, scanner->opts[option].size);
-	      memcpy (value, SANE_VALUE_SCAN_SOURCE_ADF, strlen (SANE_VALUE_SCAN_SOURCE_ADF));
-	      break;
-	    case SOURCE_ADF_DUPLEX:
-	      memset (value , 0, scanner->opts[option].size);
-	      memcpy (value, SANE_VALUE_SCAN_SOURCE_ADF_DUPLEX, strlen (SANE_VALUE_SCAN_SOURCE_ADF_DUPLEX));
-	      break;
-	    case SOURCE_TMA_SLIDES:
-	      memset (value , 0, scanner->opts[option].size);
-	      memcpy (value, SANE_VALUE_SCAN_SOURCE_TMA_SLIDES, strlen (SANE_VALUE_SCAN_SOURCE_TMA_SLIDES));
-	      break;
-	    case SOURCE_TMA_NEGATIVES:
-	      memset (value , 0, scanner->opts[option].size);
-	      memcpy (value, SANE_VALUE_SCAN_SOURCE_TMA_NEGATIVES, strlen (SANE_VALUE_SCAN_SOURCE_TMA_NEGATIVES));
-	      break;
-	    case SOURCE_NONE:
-	    default:
-	      return SANE_STATUS_INVAL;
-	  }
-	}
+        {
+          switch (scanner->source) {
+            case SOURCE_FLATBED:
+              memset (value , 0, scanner->opts[option].size);
+              memcpy (value, SANE_VALUE_SCAN_SOURCE_FLATBED, strlen (SANE_VALUE_SCAN_SOURCE_FLATBED));
+              break;
+            case SOURCE_ADF:
+              memset (value , 0, scanner->opts[option].size);
+              memcpy (value, SANE_VALUE_SCAN_SOURCE_ADF, strlen (SANE_VALUE_SCAN_SOURCE_ADF));
+              break;
+            case SOURCE_ADF_DUPLEX:
+              memset (value , 0, scanner->opts[option].size);
+              memcpy (value, SANE_VALUE_SCAN_SOURCE_ADF_DUPLEX, strlen (SANE_VALUE_SCAN_SOURCE_ADF_DUPLEX));
+              break;
+            case SOURCE_TMA_SLIDES:
+              memset (value , 0, scanner->opts[option].size);
+              memcpy (value, SANE_VALUE_SCAN_SOURCE_TMA_SLIDES, strlen (SANE_VALUE_SCAN_SOURCE_TMA_SLIDES));
+              break;
+            case SOURCE_TMA_NEGATIVES:
+              memset (value , 0, scanner->opts[option].size);
+              memcpy (value, SANE_VALUE_SCAN_SOURCE_TMA_NEGATIVES, strlen (SANE_VALUE_SCAN_SOURCE_TMA_NEGATIVES));
+              break;
+            case SOURCE_NONE:
+            default:
+              return SANE_STATUS_INVAL;
+          }
+        }
 
       if (option == HP5590_OPT_RESOLUTION)
-	{
-	  *(SANE_Int *) value = scanner->dpi;
-	}
+        {
+          *(SANE_Int *) value = scanner->dpi;
+        }
 
       if (option == HP5590_OPT_LAMP_TIMEOUT)
-	{
-	  *(SANE_Bool *) value = scanner->extend_lamp_timeout;
-	}
+        {
+          *(SANE_Bool *) value = scanner->extend_lamp_timeout;
+        }
 
       if (option == HP5590_OPT_WAIT_FOR_BUTTON)
-	{
-	  *(SANE_Bool *) value = scanner->wait_for_button;
-	}
+        {
+          *(SANE_Bool *) value = scanner->wait_for_button;
+        }
+
+      if (option == HP5590_OPT_BUTTON_PRESSED)
+        {
+          enum button_status button_pressed = BUTTON_NONE;
+          SANE_Status ret = read_button_pressed(scanner, &button_pressed);
+          if (ret != SANE_STATUS_GOOD)
+            return ret;
+          switch (button_pressed) {
+            case BUTTON_POWER:
+              strncpy (value, "power", scanner->opts[option].size);
+              break;
+            case BUTTON_SCAN:
+              strncpy (value, "scan", scanner->opts[option].size);
+              break;
+            case BUTTON_COLLECT:
+              strncpy (value, "collect", scanner->opts[option].size);
+              break;
+            case BUTTON_FILE:
+              strncpy (value, "file", scanner->opts[option].size);
+              break;
+            case BUTTON_EMAIL:
+              strncpy (value, "email", scanner->opts[option].size);
+              break;
+            case BUTTON_COPY:
+              strncpy (value, "copy", scanner->opts[option].size);
+              break;
+            case BUTTON_UP:
+              strncpy (value, "up", scanner->opts[option].size);
+              break;
+            case BUTTON_DOWN:
+              strncpy (value, "down", scanner->opts[option].size);
+              break;
+            case BUTTON_MODE:
+              strncpy (value, "mode", scanner->opts[option].size);
+              break;
+            case BUTTON_CANCEL:
+              strncpy (value, "cancel", scanner->opts[option].size);
+              break;
+            case BUTTON_NONE:
+            default:
+              strncpy (value, "none", scanner->opts[option].size);
+          }
+        }
 
       if (option == HP5590_OPT_PREVIEW)
-	{
-	  *(SANE_Bool *) value = scanner->preview;
-	}
+        {
+          *(SANE_Bool *) value = scanner->preview;
+        }
 
       if (option == HP5590_OPT_OVERWRITE_EOP_PIXEL)
-	{
-	  *(SANE_Bool *) value = scanner->overwrite_eop_pixel;
-	}
+        {
+          *(SANE_Bool *) value = scanner->overwrite_eop_pixel;
+        }
 
       if (option == HP5590_OPT_TRAILING_LINES_MODE)
-	{
+        {
           switch (scanner->eop_trailing_lines_mode) {
             case TRAILING_LINES_MODE_RAW:
               memset (value , 0, scanner->opts[option].size);
@@ -932,100 +1030,100 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             default:
               return SANE_STATUS_INVAL;
           }
-	}
+        }
 
       if (option == HP5590_OPT_TRAILING_LINES_COLOR)
-	{
-	  *(SANE_Int *) value = scanner->eop_trailing_lines_color;
-	}
+        {
+          *(SANE_Int *) value = scanner->eop_trailing_lines_color;
+        }
     }
 
   if (action == SANE_ACTION_SET_VALUE)
     {
       if (option == HP5590_OPT_NUM)
-	return SANE_STATUS_INVAL;
+        return SANE_STATUS_INVAL;
 
       if (option == HP5590_OPT_BR_X)
-	{
-	  float val = SANE_UNFIX(*(SANE_Fixed *) value) / 25.4;
-	  if (val <= scanner->tl_x)
-	    return SANE_STATUS_GOOD;
-	  scanner->br_x = val;
-	  if (info)
-	    *info = SANE_INFO_RELOAD_PARAMS;
-	}
+        {
+          float val = SANE_UNFIX(*(SANE_Fixed *) value) / 25.4;
+          if (val <= scanner->tl_x)
+            return SANE_STATUS_GOOD;
+          scanner->br_x = val;
+          if (info)
+            *info = SANE_INFO_RELOAD_PARAMS;
+        }
 
       if (option == HP5590_OPT_BR_Y)
-	{
-	  float val = SANE_UNFIX(*(SANE_Fixed *) value) / 25.4;
-	  if (val <= scanner->tl_y)
-	    return SANE_STATUS_GOOD;
-	  scanner->br_y = val;
-	  if (info)
- 	    *info = SANE_INFO_RELOAD_PARAMS;
-	}
+        {
+          float val = SANE_UNFIX(*(SANE_Fixed *) value) / 25.4;
+          if (val <= scanner->tl_y)
+            return SANE_STATUS_GOOD;
+          scanner->br_y = val;
+          if (info)
+            *info = SANE_INFO_RELOAD_PARAMS;
+        }
 
       if (option == HP5590_OPT_TL_X)
-	{
-	  float val = SANE_UNFIX(*(SANE_Fixed *) value) / 25.4;
-	  if (val >= scanner->br_x)
-	    return SANE_STATUS_GOOD;
-	  scanner->tl_x = val;
-	  if (info)
- 	    *info = SANE_INFO_RELOAD_PARAMS;
-	}
+        {
+          float val = SANE_UNFIX(*(SANE_Fixed *) value) / 25.4;
+          if (val >= scanner->br_x)
+            return SANE_STATUS_GOOD;
+          scanner->tl_x = val;
+          if (info)
+            *info = SANE_INFO_RELOAD_PARAMS;
+        }
 
       if (option == HP5590_OPT_TL_Y)
-	{
-	  float val = SANE_UNFIX(*(SANE_Fixed *) value) / 25.4;
-	  if (val >= scanner->br_y)
-	    return SANE_STATUS_GOOD;
-	  scanner->tl_y = val;
-	  if (info)
-  	    *info = SANE_INFO_RELOAD_PARAMS;
-	}
+        {
+          float val = SANE_UNFIX(*(SANE_Fixed *) value) / 25.4;
+          if (val >= scanner->br_y)
+            return SANE_STATUS_GOOD;
+          scanner->tl_y = val;
+          if (info)
+            *info = SANE_INFO_RELOAD_PARAMS;
+        }
 
       if (option == HP5590_OPT_MODE)
-	{
-	  if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_MODE_LINEART) == 0)
-	    {
-	      scanner->depth = DEPTH_BW;
-	    }
-	  else if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_MODE_GRAY) == 0)
-	    {
-	      scanner->depth = DEPTH_GRAY;
-	    }
-	  else if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_MODE_COLOR_24) == 0)
-	    {
-	      scanner->depth = DEPTH_COLOR_24;
-	    }
-	  else if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_MODE_COLOR_48) == 0)
-	    {
-	      scanner->depth = DEPTH_COLOR_48;
-	    }
+        {
+          if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_MODE_LINEART) == 0)
+            {
+              scanner->depth = DEPTH_BW;
+            }
+          else if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_MODE_GRAY) == 0)
+            {
+              scanner->depth = DEPTH_GRAY;
+            }
+          else if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_MODE_COLOR_24) == 0)
+            {
+              scanner->depth = DEPTH_COLOR_24;
+            }
+          else if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_MODE_COLOR_48) == 0)
+            {
+              scanner->depth = DEPTH_COLOR_48;
+            }
           else
             {
               return SANE_STATUS_INVAL;
             }
 
-	  if (info)
- 	    *info = SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-	}
+          if (info)
+            *info = SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+        }
 
       if (option == HP5590_OPT_SOURCE)
-	{
+        {
           range_y.max = SANE_FIX(scanner->info->max_size_y * 25.4);
 
-	  if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_SOURCE_FLATBED) == 0)
-	    {
-	      scanner->source = SOURCE_FLATBED;
-	      range_x.max = SANE_FIX(scanner->info->max_size_x * 25.4);
-	      range_y.max = SANE_FIX(scanner->info->max_size_y * 25.4);
-	      scanner->br_x = scanner->info->max_size_x;
-	      scanner->br_y = scanner->info->max_size_y;
-	    }
-	  else if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_SOURCE_ADF) == 0)
-	    {
+          if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_SOURCE_FLATBED) == 0)
+            {
+              scanner->source = SOURCE_FLATBED;
+              range_x.max = SANE_FIX(scanner->info->max_size_x * 25.4);
+              range_y.max = SANE_FIX(scanner->info->max_size_y * 25.4);
+              scanner->br_x = scanner->info->max_size_x;
+              scanner->br_y = scanner->info->max_size_y;
+            }
+          else if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_SOURCE_ADF) == 0)
+            {
               /* In ADF modes the device can scan up to ADF_MAX_Y_INCHES, which is usually
                * bigger than what scanner reports back during initialization
                */
@@ -1034,106 +1132,111 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
                   DBG(DBG_err, "ADF feature not available: %s\n", (char *) value);
                   return SANE_STATUS_UNSUPPORTED;
                 }
-	      scanner->source = SOURCE_ADF;
-	      range_x.max = SANE_FIX(scanner->info->max_size_x * 25.4);
-	      range_y.max = SANE_FIX(ADF_MAX_Y_INCHES * 25.4);
-	      scanner->br_x = scanner->info->max_size_x;
-	      scanner->br_y = ADF_MAX_Y_INCHES;
-	    }
-	  else if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_SOURCE_ADF_DUPLEX) == 0)
-	    {
+              scanner->source = SOURCE_ADF;
+              range_x.max = SANE_FIX(scanner->info->max_size_x * 25.4);
+              range_y.max = SANE_FIX(ADF_MAX_Y_INCHES * 25.4);
+              scanner->br_x = scanner->info->max_size_x;
+              scanner->br_y = ADF_MAX_Y_INCHES;
+            }
+          else if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_SOURCE_ADF_DUPLEX) == 0)
+            {
               if (! (scanner->info->features & FEATURE_ADF))
                 {
                   DBG(DBG_err, "ADF feature not available: %s\n", (char *) value);
                   return SANE_STATUS_UNSUPPORTED;
                 }
-	      scanner->source = SOURCE_ADF_DUPLEX;
-	      range_x.max = SANE_FIX(scanner->info->max_size_x * 25.4);
-	      range_y.max = SANE_FIX(ADF_MAX_Y_INCHES * 25.4);
-	      scanner->br_x = scanner->info->max_size_x;
-	      scanner->br_y = ADF_MAX_Y_INCHES;
-	    }
-	  else if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_SOURCE_TMA_SLIDES) == 0)
-	    {
+              scanner->source = SOURCE_ADF_DUPLEX;
+              range_x.max = SANE_FIX(scanner->info->max_size_x * 25.4);
+              range_y.max = SANE_FIX(ADF_MAX_Y_INCHES * 25.4);
+              scanner->br_x = scanner->info->max_size_x;
+              scanner->br_y = ADF_MAX_Y_INCHES;
+            }
+          else if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_SOURCE_TMA_SLIDES) == 0)
+            {
               if (! (scanner->info->features & FEATURE_TMA))
                 {
                   DBG(DBG_err, "TMA feature not available: %s\n", (char *) value);
                   return SANE_STATUS_UNSUPPORTED;
                 }
-	      scanner->source = SOURCE_TMA_SLIDES;
-	      range_x.max = SANE_FIX(TMA_MAX_X_INCHES * 25.4);
-	      range_y.max = SANE_FIX(TMA_MAX_Y_INCHES * 25.4);
-	      scanner->br_x = TMA_MAX_X_INCHES;
-	      scanner->br_y = TMA_MAX_Y_INCHES;
-	    }
-	  else if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_SOURCE_TMA_NEGATIVES) == 0)
-	    {
+              scanner->source = SOURCE_TMA_SLIDES;
+              range_x.max = SANE_FIX(TMA_MAX_X_INCHES * 25.4);
+              range_y.max = SANE_FIX(TMA_MAX_Y_INCHES * 25.4);
+              scanner->br_x = TMA_MAX_X_INCHES;
+              scanner->br_y = TMA_MAX_Y_INCHES;
+            }
+          else if (strcmp ((char *) value, (char *) SANE_VALUE_SCAN_SOURCE_TMA_NEGATIVES) == 0)
+            {
               if (! (scanner->info->features & FEATURE_TMA))
                 {
                   DBG(DBG_err, "TMA feature not available: %s\n", (char *) value);
                   return SANE_STATUS_UNSUPPORTED;
                 }
-	      scanner->source = SOURCE_TMA_NEGATIVES;
-	      range_x.max = SANE_FIX(TMA_MAX_X_INCHES * 25.4);
-	      range_y.max = SANE_FIX(TMA_MAX_Y_INCHES * 25.4);
-	      scanner->br_x = TMA_MAX_X_INCHES;
-	      scanner->br_y = TMA_MAX_Y_INCHES;
-	    }
+              scanner->source = SOURCE_TMA_NEGATIVES;
+              range_x.max = SANE_FIX(TMA_MAX_X_INCHES * 25.4);
+              range_y.max = SANE_FIX(TMA_MAX_Y_INCHES * 25.4);
+              scanner->br_x = TMA_MAX_X_INCHES;
+              scanner->br_y = TMA_MAX_Y_INCHES;
+            }
           else
             {
               return SANE_STATUS_INVAL;
             }
-	  if (info)
-	    *info = SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-	}
+          if (info)
+            *info = SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+        }
 
       if (option == HP5590_OPT_RESOLUTION)
-	{
-	  scanner->dpi = *(SANE_Int *) value;
-	  if (info)
-	    *info = SANE_INFO_RELOAD_PARAMS;
-	}
+        {
+          scanner->dpi = *(SANE_Int *) value;
+          if (info)
+            *info = SANE_INFO_RELOAD_PARAMS;
+        }
 
       if (option == HP5590_OPT_LAMP_TIMEOUT)
-	{
-	  scanner->extend_lamp_timeout = *(SANE_Bool *) value;
-	}
+        {
+          scanner->extend_lamp_timeout = *(SANE_Bool *) value;
+        }
 
       if (option == HP5590_OPT_WAIT_FOR_BUTTON)
-	{
-	  scanner->wait_for_button = *(SANE_Bool *) value;
-	}
+        {
+          scanner->wait_for_button = *(SANE_Bool *) value;
+        }
+
+      if (option == HP5590_OPT_BUTTON_PRESSED)
+        {
+          DBG(DBG_verbose, "State of buttons is read only. Setting of state will be ignored.\n");
+        }
 
       if (option == HP5590_OPT_PREVIEW)
-	{
-	  scanner->preview = *(SANE_Bool *) value;
-	}
+        {
+          scanner->preview = *(SANE_Bool *) value;
+        }
 
       if (option == HP5590_OPT_OVERWRITE_EOP_PIXEL)
-	{
-	  scanner->overwrite_eop_pixel = *(SANE_Bool *) value;
-	}
+        {
+          scanner->overwrite_eop_pixel = *(SANE_Bool *) value;
+        }
 
       if (option == HP5590_OPT_TRAILING_LINES_MODE)
-	{
+        {
           if (strcmp ((char *) value, (char *) TRAILING_LINES_MODE_RAW_KEY) == 0)
-	    scanner->eop_trailing_lines_mode = TRAILING_LINES_MODE_RAW;
+            scanner->eop_trailing_lines_mode = TRAILING_LINES_MODE_RAW;
           if (strcmp ((char *) value, (char *) TRAILING_LINES_MODE_LAST_KEY) == 0)
-	    scanner->eop_trailing_lines_mode = TRAILING_LINES_MODE_LAST;
+            scanner->eop_trailing_lines_mode = TRAILING_LINES_MODE_LAST;
           if (strcmp ((char *) value, (char *) TRAILING_LINES_MODE_RASTER_KEY) == 0)
-	    scanner->eop_trailing_lines_mode = TRAILING_LINES_MODE_RASTER;
+            scanner->eop_trailing_lines_mode = TRAILING_LINES_MODE_RASTER;
           if (strcmp ((char *) value, (char *) TRAILING_LINES_MODE_BLACK_KEY) == 0)
-	    scanner->eop_trailing_lines_mode = TRAILING_LINES_MODE_BLACK;
+            scanner->eop_trailing_lines_mode = TRAILING_LINES_MODE_BLACK;
           if (strcmp ((char *) value, (char *) TRAILING_LINES_MODE_WHITE_KEY) == 0)
-	    scanner->eop_trailing_lines_mode = TRAILING_LINES_MODE_WHITE;
+            scanner->eop_trailing_lines_mode = TRAILING_LINES_MODE_WHITE;
           if (strcmp ((char *) value, (char *) TRAILING_LINES_MODE_COLOR_KEY) == 0)
-	    scanner->eop_trailing_lines_mode = TRAILING_LINES_MODE_COLOR;
-	}
+            scanner->eop_trailing_lines_mode = TRAILING_LINES_MODE_COLOR;
+        }
 
       if (option == HP5590_OPT_TRAILING_LINES_COLOR)
-	{
-	  scanner->eop_trailing_lines_color = *(SANE_Int *) value;
-	}
+        {
+          scanner->eop_trailing_lines_color = *(SANE_Int *) value;
+        }
     }
 
   return SANE_STATUS_GOOD;
@@ -1141,11 +1244,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 /******************************************************************************/
 SANE_Status sane_get_parameters (SANE_Handle handle,
-		                 SANE_Parameters * params)
+                                 SANE_Parameters * params)
 {
-  struct hp5590_scanner	*scanner = handle;
-  SANE_Status		ret;
-  unsigned int		pixel_bits;
+  struct hp5590_scanner *scanner = handle;
+  SANE_Status           ret;
+  unsigned int          pixel_bits;
 
   DBG (DBG_proc, "%s\n", __func__);
 
@@ -1156,10 +1259,10 @@ SANE_Status sane_get_parameters (SANE_Handle handle,
     return SANE_STATUS_INVAL;
 
   ret = calc_image_params (scanner,
-			   (unsigned int *) &pixel_bits,
-			   (unsigned int *) &params->pixels_per_line,
-			   (unsigned int *) &params->bytes_per_line,
-			   (unsigned int *) &params->lines, NULL);
+                           (unsigned int *) &pixel_bits,
+                           (unsigned int *) &params->pixels_per_line,
+                           (unsigned int *) &params->bytes_per_line,
+                           (unsigned int *) &params->lines, NULL);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1203,9 +1306,9 @@ SANE_Status sane_get_parameters (SANE_Handle handle,
 SANE_Status
 sane_start (SANE_Handle handle)
 {
-  struct hp5590_scanner	*scanner = handle;
-  SANE_Status		ret;
-  unsigned int		bytes_per_line;
+  struct hp5590_scanner *scanner = handle;
+  SANE_Status           ret;
+  unsigned int          bytes_per_line;
 
   DBG (DBG_proc, "%s\n", __func__);
 
@@ -1244,20 +1347,20 @@ sane_start (SANE_Handle handle)
 
   if (   scanner->scanning == SANE_TRUE
       && (  scanner->source == SOURCE_ADF
-	 || scanner->source == SOURCE_ADF_DUPLEX))
+         || scanner->source == SOURCE_ADF_DUPLEX))
     {
       DBG (DBG_verbose, "%s: Scanner is scanning, check if more data is available\n",
-	   __func__);
+           __func__);
       ret = hp5590_is_data_available (scanner->dn, scanner->proto_flags);
       if (ret == SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_verbose, "%s: More data is available\n", __func__);
-	  scanner->transferred_image_size = scanner->image_size;
-	  return SANE_STATUS_GOOD;
-	}
+        {
+          DBG (DBG_verbose, "%s: More data is available\n", __func__);
+          scanner->transferred_image_size = scanner->image_size;
+          return SANE_STATUS_GOOD;
+        }
 
       if (ret != SANE_STATUS_NO_DOCS)
-	return ret;
+        return ret;
     }
 
   sane_cancel (handle);
@@ -1266,25 +1369,25 @@ sane_start (SANE_Handle handle)
     {
       enum button_status status;
       for (;;)
-	{
-	  ret = hp5590_read_buttons (scanner->dn,
-	  		     	     scanner->proto_flags,
-				     &status);
-	  if (ret != SANE_STATUS_GOOD)
-	    return ret;
+        {
+          ret = hp5590_read_buttons (scanner->dn,
+                                     scanner->proto_flags,
+                                     &status);
+          if (ret != SANE_STATUS_GOOD)
+            return ret;
 
-	  if (status == BUTTON_CANCEL)
-	    return SANE_STATUS_CANCELLED;
+          if (status == BUTTON_CANCEL)
+            return SANE_STATUS_CANCELLED;
 
-	  if (status != BUTTON_NONE && status != BUTTON_POWER)
-	    break;
-	  sleep (1);
-	}
+          if (status != BUTTON_NONE && status != BUTTON_POWER)
+            break;
+          usleep (100 * 1000);
+        }
     }
 
   DBG (DBG_verbose, "Init scanner\n");
   ret = hp5590_init_scanner (scanner->dn, scanner->proto_flags,
-  			     NULL, SCANNER_NONE);
+                             NULL, SCANNER_NONE);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1294,21 +1397,21 @@ sane_start (SANE_Handle handle)
 
   DBG (DBG_verbose, "Wakeup\n");
   ret = hp5590_select_source_and_wakeup (scanner->dn, scanner->proto_flags,
-  					 scanner->source,
-					 scanner->extend_lamp_timeout);
+                                         scanner->source,
+                                         scanner->extend_lamp_timeout);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
   ret = hp5590_set_scan_params (scanner->dn,
-  				scanner->proto_flags,
-  				scanner->info,
-			      	scanner->tl_x * scanner->dpi,
-			      	scanner->tl_y * scanner->dpi,
-			      	(scanner->br_x - scanner->tl_x) * scanner->dpi,
-			      	(scanner->br_y - scanner->tl_y) * scanner->dpi,
-			      	scanner->dpi,
-		              	scanner->depth, scanner->preview ? MODE_PREVIEW : MODE_NORMAL,
-			      	scanner->source);
+                                scanner->proto_flags,
+                                scanner->info,
+                                scanner->tl_x * scanner->dpi,
+                                scanner->tl_y * scanner->dpi,
+                                (scanner->br_x - scanner->tl_x) * scanner->dpi,
+                                (scanner->br_y - scanner->tl_y) * scanner->dpi,
+                                scanner->dpi,
+                                scanner->depth, scanner->preview ? MODE_PREVIEW : MODE_NORMAL,
+                                scanner->source);
   if (ret != SANE_STATUS_GOOD)
     {
       hp5590_reset_scan_head (scanner->dn, scanner->proto_flags);
@@ -1316,8 +1419,8 @@ sane_start (SANE_Handle handle)
     }
 
   ret = calc_image_params (scanner, NULL, NULL,
-			   &bytes_per_line, NULL,
-			   &scanner->image_size);
+                           &bytes_per_line, NULL,
+                           &scanner->image_size);
   if (ret != SANE_STATUS_GOOD)
     {
       hp5590_reset_scan_head (scanner->dn, scanner->proto_flags);
@@ -1330,32 +1433,32 @@ sane_start (SANE_Handle handle)
       || scanner->depth == DEPTH_COLOR_48)
     {
       DBG (1, "Color 24/48 bits: checking if image size is correctly "
-	   "aligned on number of colors\n");
+           "aligned on number of colors\n");
       if (bytes_per_line % 3)
-	{
-	  DBG (DBG_err, "Color 24/48 bits: image size doesn't lined up on number of colors (3) "
-	       "(image size: %llu, bytes per line %u)\n",
-	       scanner->image_size, bytes_per_line);
+        {
+          DBG (DBG_err, "Color 24/48 bits: image size doesn't lined up on number of colors (3) "
+               "(image size: %llu, bytes per line %u)\n",
+               scanner->image_size, bytes_per_line);
           hp5590_reset_scan_head (scanner->dn, scanner->proto_flags);
-	  return SANE_STATUS_INVAL;
-	}
+          return SANE_STATUS_INVAL;
+        }
       DBG (1, "Color 24/48 bits: image size is correctly aligned on number of colors "
-	   "(image size: %llu, bytes per line %u)\n",
-	   scanner->image_size, bytes_per_line);
+           "(image size: %llu, bytes per line %u)\n",
+           scanner->image_size, bytes_per_line);
 
       DBG (1, "Color 24/48 bits: checking if image size is correctly "
-	   "aligned on bytes per line\n");
+           "aligned on bytes per line\n");
       if (scanner->image_size % bytes_per_line)
-	{
-	  DBG (DBG_err, "Color 24/48 bits: image size doesn't lined up on bytes per line "
-	       "(image size: %llu, bytes per line %u)\n",
-	       scanner->image_size, bytes_per_line);
+        {
+          DBG (DBG_err, "Color 24/48 bits: image size doesn't lined up on bytes per line "
+               "(image size: %llu, bytes per line %u)\n",
+               scanner->image_size, bytes_per_line);
           hp5590_reset_scan_head (scanner->dn, scanner->proto_flags);
-	  return SANE_STATUS_INVAL;
-	}
+          return SANE_STATUS_INVAL;
+        }
       DBG (1, "Color 24/48 bits: image size correctly aligned on bytes per line "
-	   "(images size: %llu, bytes per line: %u)\n",
-	   scanner->image_size, bytes_per_line);
+           "(images size: %llu, bytes per line: %u)\n",
+           scanner->image_size, bytes_per_line);
     }
 
   DBG (DBG_verbose, "Final image size: %llu\n", scanner->image_size);
@@ -1390,9 +1493,9 @@ sane_start (SANE_Handle handle)
   DBG (DBG_verbose, "Starting scan\n");
   ret = hp5590_start_scan (scanner->dn, scanner->proto_flags);
   /* Check for paper jam */
-  if (	  ret == SANE_STATUS_DEVICE_BUSY
+  if (    ret == SANE_STATUS_DEVICE_BUSY
       && (   scanner->source == SOURCE_ADF
-	  || scanner->source == SOURCE_ADF_DUPLEX))
+          || scanner->source == SOURCE_ADF_DUPLEX))
     return SANE_STATUS_JAMMED;
 
   if (ret != SANE_STATUS_GOOD)
@@ -1438,9 +1541,9 @@ convert_gray_and_lineart (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_
   DBG (DBG_proc, "%s\n", __func__);
 
   ret = calc_image_params (scanner,
-			   &pixel_bits,
-			   &pixels_per_line, &bytes_per_line,
-			   NULL, NULL);
+                           &pixel_bits,
+                           &pixels_per_line, &bytes_per_line,
+                           NULL, NULL);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1453,10 +1556,10 @@ convert_gray_and_lineart (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_
         {
           if (pixels_per_line > 0)
             {
-			  /* Test for last-line indicator pixel. If found, store last line
-			   * and optionally overwrite indicator pixel with neighbor value.
-			   */
-			  unsigned int j = bytes_per_line - 1;
+              /* Test for last-line indicator pixel. If found, store last line
+               * and optionally overwrite indicator pixel with neighbor value.
+               */
+              unsigned int j = bytes_per_line - 1;
               int eop_found = 0;
               if (scanner->depth == DEPTH_GRAY)
                 {
@@ -1551,10 +1654,10 @@ convert_gray_and_lineart (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_
 
           if ((scanner->source == SOURCE_ADF) || (scanner->source == SOURCE_ADF_DUPLEX))
             {
-			  /* We are in in ADF mode after last-line and store next page data
-			   * to buffer.
-			   */
-			  if (! scanner->adf_next_page_lines_data)
+              /* We are in in ADF mode after last-line and store next page data
+               * to buffer.
+               */
+              if (! scanner->adf_next_page_lines_data)
                 {
                   unsigned int n_rest_lines = lines - i;
                   unsigned int buf_size = n_rest_lines * bytes_per_line;
@@ -1574,10 +1677,10 @@ convert_gray_and_lineart (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_
 
           if (scanner->eop_trailing_lines_mode != TRAILING_LINES_MODE_RAW)
             {
-			  /* Copy last line data or corresponding color over trailing lines
-			   * data.
-			   */
-			  memcpy (buf, scanner->eop_last_line_data, bytes_per_line);
+              /* Copy last line data or corresponding color over trailing lines
+               * data.
+               */
+              memcpy (buf, scanner->eop_last_line_data, bytes_per_line);
             }
         }
     }
@@ -1611,7 +1714,7 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
   unsigned char *buf;
   unsigned char *bufptr;
   unsigned char *ptr;
-  SANE_Status	ret;
+  SANE_Status   ret;
 
   hp5590_assert (scanner != NULL);
   hp5590_assert (data != NULL);
@@ -1627,9 +1730,9 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
 #endif
 
   ret = calc_image_params (scanner,
-			   &pixel_bits,
-			   &pixels_per_line, &bytes_per_line,
-			   NULL, NULL);
+                           &pixel_bits,
+                           &pixels_per_line, &bytes_per_line,
+                           NULL, NULL);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1664,22 +1767,22 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
   for (j = 0; j < lines; ptr += bytes_per_line_limit, buf += bytes_per_line, j++)
     {
       for (i = 0; i < pixels_per_line; i++)
-	{
-	  /* Color mapping from raw scanner data to RGB buffer. */
-	  if (scanner->depth == DEPTH_COLOR_24)
-	    {
-	      /* R */
-	      buf[i*3]   = get_checked(ptr, i, bytes_per_line_limit);
-	      /* G */
-	      buf[i*3+1] = get_checked(ptr, i+pixels_per_line, bytes_per_line_limit);;
-	      /* B */
-	      buf[i*3+2] = get_checked(ptr, i+pixels_per_line*2, bytes_per_line_limit);
-	    }
-	  else if (scanner->depth == DEPTH_COLOR_48)
-	    {
+        {
+          /* Color mapping from raw scanner data to RGB buffer. */
+          if (scanner->depth == DEPTH_COLOR_24)
+            {
+              /* R */
+              buf[i*3]   = get_checked(ptr, i, bytes_per_line_limit);
+              /* G */
+              buf[i*3+1] = get_checked(ptr, i+pixels_per_line, bytes_per_line_limit);;
+              /* B */
+              buf[i*3+2] = get_checked(ptr, i+pixels_per_line*2, bytes_per_line_limit);
+            }
+          else if (scanner->depth == DEPTH_COLOR_48)
+            {
               /* Note: The last-line indicator pixel uses only 24 bits, not 48.
                *Blue uses offset of 2 bytes. Green swaps lo and hi.
-			   */
+               */
               /* R lo, hi*/
               buf[i*6]   = get_checked(ptr, 2*i+(pixels_per_line-1)*0+1, bytes_per_line_limit);
               buf[i*6+1] = get_checked(ptr, 2*i+(pixels_per_line-1)*0+0, bytes_per_line_limit);
@@ -1689,18 +1792,18 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
               /* B lo, hi*/
               buf[i*6+4] = get_checked(ptr, 2*i+(pixels_per_line-1)*4+1+2, bytes_per_line_limit);
               buf[i*6+5] = get_checked(ptr, 2*i+(pixels_per_line-1)*4+0+2, bytes_per_line_limit);
-	    }
-	}
+            }
+        }
 
       if (! scanner->eop_last_line_data)
         {
           if (pixels_per_line > 0)
             {
-			  /* Test for last-line indicator pixel on blue. If found, store
-			   * last line and optionally overwrite indicator pixel with
-			   * neighbor value.
-			   */
-			  i = pixels_per_line - 1;
+              /* Test for last-line indicator pixel on blue. If found, store
+               * last line and optionally overwrite indicator pixel with
+               * neighbor value.
+               */
+              i = pixels_per_line - 1;
               int eop_found = 0;
               if (scanner->depth == DEPTH_COLOR_24)
                 {
@@ -1801,10 +1904,10 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
 
           if ((scanner->source == SOURCE_ADF) || (scanner->source == SOURCE_ADF_DUPLEX))
             {
-			  /* We are in in ADF mode after last-line and store next page data
-			   * to buffer.
-			   */
-			  if (! scanner->adf_next_page_lines_data)
+              /* We are in in ADF mode after last-line and store next page data
+               * to buffer.
+               */
+              if (! scanner->adf_next_page_lines_data)
                 {
                   unsigned int n_rest_lines = lines - j;
                   unsigned int buf_size = n_rest_lines * bytes_per_line;
@@ -1824,10 +1927,10 @@ convert_to_rgb (struct hp5590_scanner *scanner, SANE_Byte *data, SANE_Int size)
 
           if (scanner->eop_trailing_lines_mode != TRAILING_LINES_MODE_RAW)
             {
-			  /* Copy last line data or corresponding color over trailing lines
-			   * data.
-			   */
-			  memcpy (buf, scanner->eop_last_line_data, bytes_per_line);
+              /* Copy last line data or corresponding color over trailing lines
+               * data.
+               */
+              memcpy (buf, scanner->eop_last_line_data, bytes_per_line);
             }
         }
     }
@@ -1875,9 +1978,9 @@ read_data_from_temporary_buffer(struct hp5590_scanner *scanner,
 /******************************************************************************/
 static SANE_Status
 sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
-	   SANE_Int max_length, SANE_Int * length, unsigned int bytes_per_line)
+    SANE_Int max_length, SANE_Int * length, unsigned int bytes_per_line)
 {
-  SANE_Status 		ret;
+  SANE_Status ret;
 
   DBG (DBG_proc, "%s, length %u, left %llu\n",
        __func__,
@@ -1894,10 +1997,10 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
 
   if (scanner->depth == DEPTH_COLOR_48)
     {
-	  /* Note: The last-line indicator pixel uses only 24 bits (3 bytes), not
-	   * 48 bits (6 bytes).
-	   */
-	  if (bytes_per_line > 3)
+      /* Note: The last-line indicator pixel uses only 24 bits (3 bytes), not
+       * 48 bits (6 bytes).
+       */
+      if (bytes_per_line > 3)
         {
           length_limited = *length - *length % (bytes_per_line - 3);
         }
@@ -1939,10 +2042,10 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
   SANE_Int length_for_read = length_limited ? length_limited : scan_data_length;
   if (length_for_read == 0)
     {
-	  /* Call buffer is too small for one line. Use temporary read buffer
-	   * instead.
-	   */
-	  if (! scanner->one_line_read_buffer)
+      /* Call buffer is too small for one line. Use temporary read buffer
+       * instead.
+       */
+      if (! scanner->one_line_read_buffer)
         {
           scanner->one_line_read_buffer = malloc (bytes_per_line);
           if (! scanner->one_line_read_buffer)
@@ -1959,10 +2062,10 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
       length_for_read = bytes_per_line;
       if (scanner->depth == DEPTH_COLOR_48)
         {
-		  /* The last-line indicator pixel uses only 24 bits (3 bytes), not 48
-		   * bits (6 bytes).
-		   */
-		  if (length_for_read > 3)
+          /* The last-line indicator pixel uses only 24 bits (3 bytes), not 48
+           * bits (6 bytes).
+           */
+          if (length_for_read > 3)
             {
               length_for_read -= 3;
             }
@@ -1974,10 +2077,10 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
     {
       if (scanner->eop_last_line_data)
         {
-		  /* Scanner is in ADF mode between last-line of previous page and
-		   * start of next page.
-		   * Fill remaining lines with last-line data.
-		   */
+          /* Scanner is in ADF mode between last-line of previous page and
+           * start of next page.
+           * Fill remaining lines with last-line data.
+           */
           unsigned int wpos = 0;
           while (wpos < (unsigned int) scan_data_length)
             {
@@ -1995,11 +2098,11 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
         }
       else if (scanner->adf_next_page_lines_data)
         {
-		  /* Scanner is in ADF mode at start of next page and already some next
-		   * page data is available from earlier read operation. Return this
-		   * data.
-		   */
-		  unsigned int wpos = 0;
+          /* Scanner is in ADF mode at start of next page and already some next
+           * page data is available from earlier read operation. Return this
+           * data.
+           */
+          unsigned int wpos = 0;
           while ((wpos < (unsigned int) scan_data_length) &&
                  (scanner->adf_next_page_lines_data_rpos < scanner->adf_next_page_lines_data_size))
             {
@@ -2040,7 +2143,7 @@ sane_read_internal (struct hp5590_scanner * scanner, SANE_Byte * data,
        * If found:
        *   - Overwrite indicator pixel with neighboring color (optional).
        *   - Save last line data for later use.
-	   */
+       */
       ret = convert_to_rgb (scanner, scan_data, scan_data_length);
       if (ret != SANE_STATUS_GOOD)
         {
@@ -2170,10 +2273,10 @@ append_and_move_lines(SANE_Byte * buffer2, SANE_Int n_lines2, SANE_Byte * buffer
 /******************************************************************************/
 SANE_Status
 sane_read (SANE_Handle handle, SANE_Byte * data,
-	   SANE_Int max_length, SANE_Int * length)
+           SANE_Int max_length, SANE_Int * length)
 {
-  struct hp5590_scanner	*scanner = handle;
-  SANE_Status 		ret;
+  struct hp5590_scanner *scanner = handle;
+  SANE_Status ret;
 
   DBG (DBG_proc, "%s, length %u, left %llu\n",
        __func__,
@@ -2193,7 +2296,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 
       ret = hp5590_inc_scan_count (scanner->dn, scanner->proto_flags);
       if (ret != SANE_STATUS_GOOD)
-	return ret;
+        return ret;
 
       /* Don't free bulk read state, some bytes could be left
        * for the next images from ADF
@@ -2205,10 +2308,10 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
     {
       ret = hp5590_low_init_bulk_read_state (&scanner->bulk_read_state);
       if (ret != SANE_STATUS_GOOD)
-	{
-	  scanner->scanning = SANE_FALSE;
-	  return ret;
-	}
+        {
+          scanner->scanning = SANE_FALSE;
+          return ret;
+        }
     }
 
   unsigned int bytes_per_line;
@@ -2225,11 +2328,11 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
           ((scanner->depth == DEPTH_COLOR_48) || (scanner->depth == DEPTH_COLOR_24)))
     {
       /* Correct color shift bug for 2400 dpi.
-	   * Note: 2400 dpi only works in color mode. Grey mode and lineart seem to
-	   * fail.
-	   * Align colors by shifting B channel by 48 lines and G channel by 24
-	   * lines.
-	   */
+       * Note: 2400 dpi only works in color mode. Grey mode and lineart seem to
+       * fail.
+       * Align colors by shifting B channel by 48 lines and G channel by 24
+       * lines.
+       */
       const SANE_Int offset_max = 48;
       const SANE_Int offset_part = 24;
       SANE_Bool color_48 = (scanner->depth == DEPTH_COLOR_48);
@@ -2268,8 +2371,8 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 void
 sane_cancel (SANE_Handle handle)
 {
-  struct hp5590_scanner	*scanner = handle;
-  SANE_Status		ret;
+  struct hp5590_scanner *scanner = handle;
+  SANE_Status ret;
 
   DBG (DBG_proc, "%s\n", __func__);
 
@@ -2289,7 +2392,7 @@ sane_cancel (SANE_Handle handle)
 
 SANE_Status
 sane_set_io_mode (SANE_Handle __sane_unused__ handle,
-		  SANE_Bool __sane_unused__ non_blocking)
+                  SANE_Bool __sane_unused__ non_blocking)
 {
   DBG (DBG_proc, "%s\n", __func__);
 
@@ -2299,7 +2402,7 @@ sane_set_io_mode (SANE_Handle __sane_unused__ handle,
 /******************************************************************************/
 SANE_Status
 sane_get_select_fd (SANE_Handle __sane_unused__ handle,
-		    SANE_Int __sane_unused__ * fd)
+                    SANE_Int __sane_unused__ * fd)
 {
   DBG (DBG_proc, "%s\n", __func__);
 

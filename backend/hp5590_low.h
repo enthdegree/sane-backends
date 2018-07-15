@@ -48,40 +48,40 @@
 #include "../include/sane/sane.h"
 
 enum proto_flags {
-  PF_NONE	 	= 0,
-  PF_NO_USB_IN_USB_ACK	= 1 << 0	/* Getting acknowledge after USB-in-USB command
-  					 * will be skipped */
+  PF_NONE               = 0,
+  PF_NO_USB_IN_USB_ACK  = 1 << 0        /* Getting acknowledge after USB-in-USB command
+                                         * will be skipped */
 };
 
 /* Flags for hp5590_cmd() */
-#define CMD_IN			1 << 0	/* Indicates IN direction, otherwise - OUT */
-#define CMD_VERIFY		1 << 1	/* Requests last command verification */
+#define CMD_IN                  1 << 0  /* Indicates IN direction, otherwise - OUT */
+#define CMD_VERIFY              1 << 1  /* Requests last command verification */
 
 /* Core flags for hp5590_cmd() - they indicate so called CORE commands */
-#define CORE_NONE		     0	/* No CORE operation */
-#define CORE_DATA		1 << 0	/* Operate on CORE data */
-#define CORE_BULK_IN		1 << 1	/* CORE bulk operation - prepare for bulk IN
-					 * transfer (not used yet)
-					 */
-#define CORE_BULK_OUT		1 << 2	/* CORE bulk operation - prepare for bulk OUT
-					 * transfer
-					 */
+#define CORE_NONE                    0  /* No CORE operation */
+#define CORE_DATA               1 << 0  /* Operate on CORE data */
+#define CORE_BULK_IN            1 << 1  /* CORE bulk operation - prepare for bulk IN
+                                         * transfer (not used yet)
+                                         */
+#define CORE_BULK_OUT           1 << 2  /* CORE bulk operation - prepare for bulk OUT
+                                         * transfer
+                                         */
 static SANE_Status hp5590_cmd (SANE_Int dn,
-			enum proto_flags proto_flags,
-			unsigned int flags,
-			unsigned int cmd, unsigned char *data,
-			unsigned int size, unsigned int core_flags);
+                        enum proto_flags proto_flags,
+                        unsigned int flags,
+                        unsigned int cmd, unsigned char *data,
+                        unsigned int size, unsigned int core_flags);
 static SANE_Status hp5590_bulk_read (SANE_Int dn,
-			      enum proto_flags proto_flags,
-			      unsigned char *bytes,
-			      unsigned int size, void *state);
+                              enum proto_flags proto_flags,
+                              unsigned char *bytes,
+                              unsigned int size, void *state);
 static SANE_Status hp5590_bulk_write (SANE_Int dn,
-			       enum proto_flags proto_flags,
-			       int cmd,
-			       unsigned char *bytes,
-			       unsigned int size);
+                               enum proto_flags proto_flags,
+                               int cmd,
+                               unsigned char *bytes,
+                               unsigned int size);
 static SANE_Status hp5590_get_status (SANE_Int dn,
-				      enum proto_flags proto_flags);
+                                      enum proto_flags proto_flags);
 static SANE_Status hp5590_low_init_bulk_read_state (void **state);
 static SANE_Status hp5590_low_free_bulk_read_state (void **state);
 #endif /* HP5590_LOW_H */

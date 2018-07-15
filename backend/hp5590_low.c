@@ -59,9 +59,9 @@
 #include "hp5590_low.h"
 
 /* Debug levels */
-#define DBG_err		0
-#define	DBG_proc	10
-#define DBG_usb		50
+#define DBG_err         0
+#define DBG_proc        10
+#define DBG_usb         50
 
 /* Custom assert() macro */
 #define hp5590_low_assert(exp) if(!(exp)) { \
@@ -72,38 +72,38 @@
 /* Structure describing bulk transfer size */
 struct bulk_size
 {
-  uint16_t	size;
-  uint8_t 	unused;
+  uint16_t      size;
+  uint8_t       unused;
 } __attribute__ ((packed));
 
 /* Structure describing bulk URB */
 /* FIXME: Verify according to USB standard */
 struct usb_in_usb_bulk_setup
 {
-  uint8_t	bRequestType;
-  uint8_t	bRequest;
-  uint8_t	bEndpoint;
-  uint16_t	unknown;
-  uint16_t	wLength;	/* MSB first */
-  uint8_t 	pad;
+  uint8_t       bRequestType;
+  uint8_t       bRequest;
+  uint8_t       bEndpoint;
+  uint16_t      unknown;
+  uint16_t      wLength;        /* MSB first */
+  uint8_t       pad;
 } __attribute__ ((packed));
 
 /* Structure describing control URB */
 struct usb_in_usb_ctrl_setup {
   uint8_t  bRequestType;
   uint8_t  bRequest;
-  uint16_t wValue;		/* MSB first */
-  uint16_t wIndex;		/* MSB first */
-  uint16_t wLength;		/* LSB first */
+  uint16_t wValue;              /* MSB first */
+  uint16_t wIndex;              /* MSB first */
+  uint16_t wLength;             /* LSB first */
 } __attribute__ ((packed));
 
 /* CORE status flag - ready or not */
-#define CORE_FLAG_NOT_READY		1 << 1
+#define CORE_FLAG_NOT_READY             1 << 1
 
 /* Bulk transfers are done in pages, below their respective sizes */
-#define BULK_WRITE_PAGE_SIZE		0x0f000
-#define BULK_READ_PAGE_SIZE		0x10000
-#define ALLOCATE_BULK_READ_PAGES	16	/* 16 * 65536 = 1Mb */
+#define BULK_WRITE_PAGE_SIZE            0x0f000
+#define BULK_READ_PAGE_SIZE             0x10000
+#define ALLOCATE_BULK_READ_PAGES        16      /* 16 * 65536 = 1Mb */
 
 /* Structure describing bulk read state, because bulk reads will be done in
  * pages, but function caller uses its own buffer, whose size is certainly
@@ -112,14 +112,14 @@ struct usb_in_usb_ctrl_setup {
  */
 struct bulk_read_state
 {
-  unsigned char	*buffer;
-  unsigned int	buffer_size;
-  unsigned int 	bytes_available;
+  unsigned char *buffer;
+  unsigned int  buffer_size;
+  unsigned int  bytes_available;
   unsigned char *buffer_out_ptr;
   unsigned char *buffer_in_ptr;
-  unsigned int 	total_pages;
+  unsigned int  total_pages;
   unsigned char *buffer_end_ptr;
-  unsigned int 	initialized;
+  unsigned int  initialized;
 };
 
 /*******************************************************************************
@@ -134,10 +134,10 @@ struct bulk_read_state
  */
 static SANE_Status
 hp5590_get_ack (SANE_Int dn,
-		enum proto_flags proto_flags)
+                enum proto_flags proto_flags)
 {
-  uint8_t 	status;
-  SANE_Status	ret;
+  uint8_t       status;
+  SANE_Status   ret;
 
   /* Bypass reading acknowledge if the device doesn't need it */
   if (proto_flags & PF_NO_USB_IN_USB_ACK)
@@ -147,12 +147,12 @@ hp5590_get_ack (SANE_Int dn,
 
   /* Check if USB-in-USB operation was accepted */
   ret = sanei_usb_control_msg (dn, USB_DIR_IN | USB_TYPE_VENDOR,
-			       0x0c, 0x8e, 0x20,
-			       sizeof (status), &status);
+                               0x0c, 0x8e, 0x20,
+                               sizeof (status), &status);
   if (ret != SANE_STATUS_GOOD)
     {
       DBG (DBG_err, "%s: USB-in-USB: error getting acknowledge\n",
-	   __func__);
+           __func__);
       return ret;
     }
 
@@ -162,7 +162,7 @@ hp5590_get_ack (SANE_Int dn,
   if (status != 0x01)
     {
       DBG (DBG_err, "%s: USB-in-USB: not accepted (status %u)\n",
-	   __func__, status);
+           __func__, status);
       return SANE_STATUS_DEVICE_BUSY;
     }
 
@@ -181,7 +181,7 @@ hp5590_get_ack (SANE_Int dn,
  */
 static SANE_Status
 hp5590_get_status (SANE_Int dn,
-		   __sane_unused__ enum proto_flags proto_flags)
+                   __sane_unused__ enum proto_flags proto_flags)
 {
   uint8_t status;
   SANE_Status ret;
@@ -189,12 +189,12 @@ hp5590_get_status (SANE_Int dn,
   DBG (DBG_proc, "%s\n", __func__);
 
   ret = sanei_usb_control_msg (dn, USB_DIR_IN | USB_TYPE_VENDOR,
-			       0x0c, 0x8e, 0x00,
-			       sizeof (status), &status);
+                               0x0c, 0x8e, 0x00,
+                               sizeof (status), &status);
   if (ret != SANE_STATUS_GOOD)
     {
       DBG (DBG_err, "%s: USB-in-USB: error getting device status\n",
-	   __func__);
+           __func__);
       return ret;
     }
 
@@ -202,7 +202,7 @@ hp5590_get_status (SANE_Int dn,
   if (status != 0x00)
     {
       DBG (DBG_err, "%s: USB-in-USB: got non-zero device status (status %u)\n",
-	   __func__, status);
+           __func__, status);
       return SANE_STATUS_DEVICE_BUSY;
     }
 
@@ -230,18 +230,18 @@ hp5590_get_status (SANE_Int dn,
  */
 static SANE_Status
 hp5590_control_msg (SANE_Int dn,
-		    enum proto_flags proto_flags,
-		    int requesttype, int request,
-		    int value, int index, unsigned char *bytes,
-		    int size, int core_flags)
+                    enum proto_flags proto_flags,
+                    int requesttype, int request,
+                    int value, int index, unsigned char *bytes,
+                    int size, int core_flags)
 {
-  struct usb_in_usb_ctrl_setup	ctrl;
-  SANE_Status 			ret;
-  unsigned int 			len;
-  unsigned char 		*ptr;
-  uint8_t 			ack;
-  uint8_t 			response;
-  unsigned int 			needed_response;
+  struct usb_in_usb_ctrl_setup  ctrl;
+  SANE_Status                   ret;
+  unsigned int                  len;
+  unsigned char                 *ptr;
+  uint8_t                       ack;
+  uint8_t                       response;
+  unsigned int                  needed_response;
 
   DBG (DBG_proc, "%s: USB-in-USB: core data: %s\n",
        __func__, core_flags & CORE_DATA ? "yes" : "no");
@@ -262,60 +262,60 @@ hp5590_control_msg (SANE_Int dn,
       DBG (DBG_usb, "%s: USB-in-USB: sending control msg\n", __func__);
       /* Send USB-in-USB control message */
       ret = sanei_usb_control_msg (dn, USB_DIR_OUT | USB_TYPE_VENDOR,
-				   0x04, 0x8f, 0x00,
-				   sizeof (ctrl), (unsigned char *) &ctrl);
+                                   0x04, 0x8f, 0x00,
+                                   sizeof (ctrl), (unsigned char *) &ctrl);
       if (ret != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_err, "%s: USB-in-USB: error sending control message\n",
-	       __func__);
-	  return ret;
-	}
+        {
+          DBG (DBG_err, "%s: USB-in-USB: error sending control message\n",
+               __func__);
+          return ret;
+        }
 
       /* USB-in-USB: checking acknowledge for control message */
       ret = hp5590_get_ack (dn, proto_flags);
       if (ret != SANE_STATUS_GOOD)
-	return ret;
+        return ret;
 
       len = size;
       ptr = bytes;
       /* Data is read in 8 byte portions */
       while (len)
-	{
-	  unsigned int next_packet_size;
-	  next_packet_size = 8;
-	  if (len < 8)
-	    next_packet_size = len;
+        {
+          unsigned int next_packet_size;
+          next_packet_size = 8;
+          if (len < 8)
+            next_packet_size = len;
 
-	  /* Read USB-in-USB data */
-	  ret = sanei_usb_control_msg (dn, USB_DIR_IN | USB_TYPE_VENDOR,
-				       core_flags & CORE_DATA ? 0x0c : 0x04,
-				       0x90, 0x00, next_packet_size, ptr);
-	  if (ret != SANE_STATUS_GOOD)
-	    {
-	      DBG (DBG_err, "%s: USB-in-USB: error reading data\n", __func__);
-	      return ret;
-	    }
+          /* Read USB-in-USB data */
+          ret = sanei_usb_control_msg (dn, USB_DIR_IN | USB_TYPE_VENDOR,
+                                       core_flags & CORE_DATA ? 0x0c : 0x04,
+                                       0x90, 0x00, next_packet_size, ptr);
+          if (ret != SANE_STATUS_GOOD)
+            {
+              DBG (DBG_err, "%s: USB-in-USB: error reading data\n", __func__);
+              return ret;
+            }
 
-	  ptr += next_packet_size;
-	  len -= next_packet_size;
-	}
+          ptr += next_packet_size;
+          len -= next_packet_size;
+        }
 
       /* Confirm data reception */
       ack = 0;
       ret = sanei_usb_control_msg (dn, USB_DIR_OUT | USB_TYPE_VENDOR,
-				   0x0c, 0x8f, 0x00,
-				   sizeof (ack), &ack);
+                                   0x0c, 0x8f, 0x00,
+                                   sizeof (ack), &ack);
       if (ret != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_err, "%s: USB-in-USB: error confirming data reception\n",
-	       __func__);
-	  return -1;
-	}
+        {
+          DBG (DBG_err, "%s: USB-in-USB: error confirming data reception\n",
+               __func__);
+          return -1;
+        }
 
       /* USB-in-USB: checking if confirmation was acknowledged */
       ret = hp5590_get_ack (dn, proto_flags);
       if (ret != SANE_STATUS_GOOD)
-	return ret;
+        return ret;
     }
 
   /* OUT (write) operation will be performed */
@@ -332,112 +332,112 @@ hp5590_control_msg (SANE_Int dn,
       DBG (DBG_usb, "%s: USB-in-USB: sending control msg\n", __func__);
       /* Send USB-in-USB control message */
       ret = sanei_usb_control_msg (dn, USB_DIR_OUT | USB_TYPE_VENDOR,
-				   0x04, 0x8f, 0x00,
-				   sizeof (ctrl), (unsigned char *) &ctrl);
+                                   0x04, 0x8f, 0x00,
+                                   sizeof (ctrl), (unsigned char *) &ctrl);
       if (ret != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_err, "%s: USB-in-USB: error sending control message\n",
-	       __func__);
-	  return ret;
-	}
+        {
+          DBG (DBG_err, "%s: USB-in-USB: error sending control message\n",
+               __func__);
+          return ret;
+        }
 
       /* USB-in-USB: checking acknowledge for control message */
       ret = hp5590_get_ack (dn, proto_flags);
       if (ret != SANE_STATUS_GOOD)
-	return ret;
+        return ret;
 
       len = size;
       ptr = bytes;
       /* Data is sent in 8 byte portions */
       while (len)
-	{
-	  unsigned int next_packet_size;
-	  next_packet_size = 8;
-	  if (len < 8)
-	    next_packet_size = len;
+        {
+          unsigned int next_packet_size;
+          next_packet_size = 8;
+          if (len < 8)
+            next_packet_size = len;
 
-	  /* Send USB-in-USB data */
-	  ret = sanei_usb_control_msg (dn, USB_DIR_OUT | USB_TYPE_VENDOR,
-				       core_flags & CORE_DATA ? 0x04 : 0x0c,
-				       0x8f, 0x00, next_packet_size, ptr);
-	  if (ret != SANE_STATUS_GOOD)
-	    {
-	      DBG (DBG_err, "%s: USB-in-USB: error sending data\n", __func__);
-	      return ret;
-	    }
+          /* Send USB-in-USB data */
+          ret = sanei_usb_control_msg (dn, USB_DIR_OUT | USB_TYPE_VENDOR,
+                                       core_flags & CORE_DATA ? 0x04 : 0x0c,
+                                       0x8f, 0x00, next_packet_size, ptr);
+          if (ret != SANE_STATUS_GOOD)
+            {
+              DBG (DBG_err, "%s: USB-in-USB: error sending data\n", __func__);
+              return ret;
+            }
 
-	  /* CORE data is acknowledged packet by packet */
-	  if (core_flags & CORE_DATA)
-	    {
-	      /* USB-in-USB: checking if data was accepted */
-	      ret = hp5590_get_ack (dn, proto_flags);
-	      if (ret != SANE_STATUS_GOOD)
-		return ret;
-	    }
+          /* CORE data is acknowledged packet by packet */
+          if (core_flags & CORE_DATA)
+            {
+              /* USB-in-USB: checking if data was accepted */
+              ret = hp5590_get_ack (dn, proto_flags);
+              if (ret != SANE_STATUS_GOOD)
+                return ret;
+            }
 
-	  ptr += next_packet_size;
-	  len -= next_packet_size;
-	}
+          ptr += next_packet_size;
+          len -= next_packet_size;
+        }
 
       /* Normal (non-CORE) data is acknowledged after its full transmission */
       if (!(core_flags & CORE_DATA))
-	{
-	  /* USB-in-USB: checking if data was accepted */
-	  ret = hp5590_get_ack (dn, proto_flags);
-	  if (ret != SANE_STATUS_GOOD)
-	    return ret;
-	}
+        {
+          /* USB-in-USB: checking if data was accepted */
+          ret = hp5590_get_ack (dn, proto_flags);
+          if (ret != SANE_STATUS_GOOD)
+            return ret;
+        }
 
       /* Getting  response after data transmission */
       DBG (DBG_usb, "%s: USB-in-USB: getting response\n", __func__);
       ret = sanei_usb_control_msg (dn, USB_DIR_IN | USB_TYPE_VENDOR,
-				   0x0c, 0x90, 0x00,
-				   sizeof (response), &response);
+                                   0x0c, 0x90, 0x00,
+                                   sizeof (response), &response);
       if (ret != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_err, "%s: USB-in-USB: error getting response\n", __func__);
-	  return ret;
-	}
+        {
+          DBG (DBG_err, "%s: USB-in-USB: error getting response\n", __func__);
+          return ret;
+        }
 
       /* Necessary response after normal (non-CORE) data is 0x00,
        * after bulk OUT preparation - 0x24
        */
       needed_response = core_flags & CORE_BULK_OUT ? 0x24 : 0x00;
       if (response == needed_response)
-	DBG (DBG_usb, "%s: USB-in-USB: got correct response\n",
-	     __func__);
+        DBG (DBG_usb, "%s: USB-in-USB: got correct response\n",
+             __func__);
 
       if (response != needed_response)
-	{
-	  DBG (DBG_err,
-	       "%s: USB-in-USB: invalid response received "
-	       "(needed %04x, got %04x)\n",
-	       __func__, needed_response, response);
-	  return SANE_STATUS_IO_ERROR;
-	}
+        {
+          DBG (DBG_err,
+               "%s: USB-in-USB: invalid response received "
+               "(needed %04x, got %04x)\n",
+               __func__, needed_response, response);
+          return SANE_STATUS_IO_ERROR;
+        }
 
       /* Send bulk OUT flags is bulk OUT preparation is performed */
       if (core_flags & CORE_BULK_OUT)
-	{
-	  uint8_t bulk_flags = 0x24;
-	  DBG (DBG_usb, "%s: USB-in-USB: sending bulk flags\n",
-	       __func__);
+        {
+          uint8_t bulk_flags = 0x24;
+          DBG (DBG_usb, "%s: USB-in-USB: sending bulk flags\n",
+               __func__);
 
-	  ret = sanei_usb_control_msg (dn, USB_DIR_OUT | USB_TYPE_VENDOR,
-				       0x0c, 0x83, 0x00,
-				       sizeof (bulk_flags), &bulk_flags);
-	  if (ret != SANE_STATUS_GOOD)
-	    {
-	      DBG (DBG_err, "%s: USB-in-USB: error sending bulk flags\n",
-		   __func__);
-	      return ret;
-	    }
+          ret = sanei_usb_control_msg (dn, USB_DIR_OUT | USB_TYPE_VENDOR,
+                                       0x0c, 0x83, 0x00,
+                                       sizeof (bulk_flags), &bulk_flags);
+          if (ret != SANE_STATUS_GOOD)
+            {
+              DBG (DBG_err, "%s: USB-in-USB: error sending bulk flags\n",
+                   __func__);
+              return ret;
+            }
 
-	  /* USB-in-USB: checking confirmation for bulk flags */
-	  ret = hp5590_get_ack (dn, proto_flags);
-	  if (ret != SANE_STATUS_GOOD)
-	    return ret;
-	}
+          /* USB-in-USB: checking confirmation for bulk flags */
+          ret = hp5590_get_ack (dn, proto_flags);
+          if (ret != SANE_STATUS_GOOD)
+            return ret;
+        }
     }
 
   return SANE_STATUS_GOOD;
@@ -458,24 +458,24 @@ hp5590_control_msg (SANE_Int dn,
  */
 static SANE_Status
 hp5590_verify_last_cmd (SANE_Int dn,
-			enum proto_flags proto_flags,
-			unsigned int cmd)
+                        enum proto_flags proto_flags,
+                        unsigned int cmd)
 {
-  uint16_t	verify_cmd;
-  unsigned int	last_cmd;
-  unsigned int	core_status;
-  SANE_Status 	ret;
+  uint16_t      verify_cmd;
+  unsigned int  last_cmd;
+  unsigned int  core_status;
+  SANE_Status   ret;
 
   DBG (3, "%s: USB-in-USB: command verification requested\n",
        __func__);
 
   /* Read last command along with CORE status */
   ret = hp5590_control_msg (dn,
-  			    proto_flags,
-  			    USB_DIR_IN,
-			    0x04, 0xc5, 0x00,
-			    (unsigned char *) &verify_cmd,
-			    sizeof (verify_cmd), CORE_NONE);
+                            proto_flags,
+                            USB_DIR_IN,
+                            0x04, 0xc5, 0x00,
+                            (unsigned char *) &verify_cmd,
+                            sizeof (verify_cmd), CORE_NONE);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -493,8 +493,8 @@ hp5590_verify_last_cmd (SANE_Int dn,
   if ((cmd & 0x00ff) != last_cmd)
     {
       DBG (DBG_err, "%s: USB-in-USB: command verification failed: "
-	   "expected 0x%04x, got 0x%04x\n",
-	   __func__, cmd, last_cmd);
+           "expected 0x%04x, got 0x%04x\n",
+           __func__, cmd, last_cmd);
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -511,7 +511,7 @@ hp5590_verify_last_cmd (SANE_Int dn,
  *
  * Parameters
  * dn - sanei_usb device descriptor
- * requesttype, request, value, index - their meaninings are similar to
+ * requesttype, request, value, index - their meanings are similar to
  * sanei_control_msg()
  * bytes - pointer to data buffer
  * size - size of data
@@ -519,7 +519,7 @@ hp5590_verify_last_cmd (SANE_Int dn,
  *  CORE_NONE - no CORE operation will be performed
  *  CORE_DATA - operation on CORE data will be performed
  *  CORE_BULK_IN - preparation for bulk IN transfer (not used yet)
- *  CORE_BULK_OUT - preparation for bulk OUT trasfer
+ *  CORE_BULK_OUT - preparation for bulk OUT transfer
  *
  * Returns
  * SANE_STATUS_GOOD - command was sent (and possible verified) w/o any errors
@@ -527,19 +527,19 @@ hp5590_verify_last_cmd (SANE_Int dn,
  */
 static SANE_Status
 hp5590_cmd (SANE_Int dn,
-	    enum proto_flags proto_flags,
-	    unsigned int flags,
-	    unsigned int cmd, unsigned char *data, unsigned int size,
-	    unsigned int core_flags)
+            enum proto_flags proto_flags,
+            unsigned int flags,
+            unsigned int cmd, unsigned char *data, unsigned int size,
+            unsigned int core_flags)
 {
   SANE_Status ret;
 
   DBG (3, "%s: USB-in-USB: command : %04x\n", __func__, cmd);
 
   ret = hp5590_control_msg (dn,
-  			    proto_flags,
-			    flags & CMD_IN ? USB_DIR_IN : USB_DIR_OUT,
-			    0x04, cmd, 0x00, data, size, core_flags);
+                            proto_flags,
+                            flags & CMD_IN ? USB_DIR_IN : USB_DIR_OUT,
+                            0x04, cmd, 0x00, data, size, core_flags);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -578,21 +578,21 @@ hp5590_low_init_bulk_read_state (void **state)
   memset (bulk_read_state, 0, sizeof (struct bulk_read_state));
 
   bulk_read_state->buffer = malloc (ALLOCATE_BULK_READ_PAGES
-				    * BULK_READ_PAGE_SIZE);
+                                    * BULK_READ_PAGE_SIZE);
   if (!bulk_read_state->buffer)
     {
       DBG (DBG_err, "%s: Memory allocation failed for %u bytes\n",
-	   __func__, ALLOCATE_BULK_READ_PAGES * BULK_READ_PAGE_SIZE);
+           __func__, ALLOCATE_BULK_READ_PAGES * BULK_READ_PAGE_SIZE);
       return SANE_STATUS_NO_MEM;
     }
   bulk_read_state->buffer_size = ALLOCATE_BULK_READ_PAGES
-				 * BULK_READ_PAGE_SIZE;
+                                 * BULK_READ_PAGE_SIZE;
   bulk_read_state->bytes_available = 0;
   bulk_read_state->buffer_out_ptr = bulk_read_state->buffer;
   bulk_read_state->buffer_in_ptr = bulk_read_state->buffer;
   bulk_read_state->total_pages = 0;
   bulk_read_state->buffer_end_ptr = bulk_read_state->buffer
-				    + bulk_read_state->buffer_size;
+                                    + bulk_read_state->buffer_size;
   bulk_read_state->initialized = 1;
 
   *state = bulk_read_state;
@@ -644,17 +644,17 @@ hp5590_low_free_bulk_read_state (void **state)
  */
 static SANE_Status
 hp5590_bulk_read (SANE_Int dn,
-		  enum proto_flags proto_flags,
-		  unsigned char *bytes, unsigned int size,
-		  void *state)
+                  enum proto_flags proto_flags,
+                  unsigned char *bytes, unsigned int size,
+                  void *state)
 {
-  struct usb_in_usb_bulk_setup	ctrl;
-  SANE_Status 			ret;
-  unsigned int 			next_pages;
-  uint8_t 			bulk_flags;
-  size_t 			next_portion;
-  struct bulk_read_state	*bulk_read_state;
-  unsigned int 			bytes_until_buffer_end;
+  struct usb_in_usb_bulk_setup  ctrl;
+  SANE_Status                   ret;
+  unsigned int                  next_pages;
+  uint8_t                       bulk_flags;
+  size_t                        next_portion;
+  struct bulk_read_state        *bulk_read_state;
+  unsigned int                  bytes_until_buffer_end;
 
   DBG (3, "%s\n", __func__);
 
@@ -665,7 +665,7 @@ hp5590_bulk_read (SANE_Int dn,
   if (bulk_read_state->initialized == 0)
     {
       DBG (DBG_err, "%s: USB-in-USB: bulk read state not initialized\n",
-	   __func__);
+           __func__);
       return SANE_STATUS_INVAL;
     }
 
@@ -675,8 +675,8 @@ hp5590_bulk_read (SANE_Int dn,
   if (size > bulk_read_state->buffer_size)
     {
       DBG (DBG_err, "Data requested won't fit in the bulk read buffer "
-	   "(requested: %u, buffer size: %u\n", size,
-	   bulk_read_state->buffer_size);
+           "(requested: %u, buffer size: %u\n", size,
+           bulk_read_state->buffer_size);
       return SANE_STATUS_NO_MEM;
     }
 
@@ -684,8 +684,8 @@ hp5590_bulk_read (SANE_Int dn,
   while (bulk_read_state->bytes_available < size)
     {
       DBG (DBG_usb, "%s: USB-in-USB: not enough data in buffer available "
-	   "(available: %u, requested: %u)\n",
-	   __func__, bulk_read_state->bytes_available, size);
+           "(available: %u, requested: %u)\n",
+           __func__, bulk_read_state->bytes_available, size);
 
       /* IMPORTANT! 'next_pages' means 'request and receive next_pages pages in
        * one bulk transfer request '. Windows driver uses 4 pages between each
@@ -703,114 +703,114 @@ hp5590_bulk_read (SANE_Int dn,
        */
       bulk_read_state->total_pages++;
       DBG (DBG_usb, "%s: USB-in-USB: total pages done: %u\n",
-	   __func__, bulk_read_state->total_pages);
+           __func__, bulk_read_state->total_pages);
 
       /* Send another bulk request for 'next_pages' before first
        * page or next necessary one
        */
       if (   bulk_read_state->total_pages == 1
-	  || bulk_read_state->total_pages % next_pages == 0)
-	{
-	  /* Send bulk flags */
-	  DBG (DBG_usb, "%s: USB-in-USB: sending USB-in-USB bulk flags\n",
-	       __func__);
-	  bulk_flags = 0x24;
-	  ret = sanei_usb_control_msg (dn, USB_DIR_OUT | USB_TYPE_VENDOR,
-				       0x0c, 0x83, 0x00,
-				       sizeof (bulk_flags), &bulk_flags);
-	  if (ret != SANE_STATUS_GOOD)
-	    {
-	      DBG (DBG_err, "%s: USB-in-USB: error sending bulk flags\n",
-		   __func__);
-	      return ret;
-	    }
+          || bulk_read_state->total_pages % next_pages == 0)
+        {
+          /* Send bulk flags */
+          DBG (DBG_usb, "%s: USB-in-USB: sending USB-in-USB bulk flags\n",
+               __func__);
+          bulk_flags = 0x24;
+          ret = sanei_usb_control_msg (dn, USB_DIR_OUT | USB_TYPE_VENDOR,
+                                       0x0c, 0x83, 0x00,
+                                       sizeof (bulk_flags), &bulk_flags);
+          if (ret != SANE_STATUS_GOOD)
+            {
+              DBG (DBG_err, "%s: USB-in-USB: error sending bulk flags\n",
+                   __func__);
+              return ret;
+            }
 
-	  /* USB-in-USB: checking confirmation for bulk flags\n" */
-	  ret = hp5590_get_ack (dn, proto_flags);
-	  if (ret != SANE_STATUS_GOOD)
-	    return ret;
+          /* USB-in-USB: checking confirmation for bulk flags\n" */
+          ret = hp5590_get_ack (dn, proto_flags);
+          if (ret != SANE_STATUS_GOOD)
+            return ret;
 
-	  /* Prepare bulk read request */
-	  memset (&ctrl, 0, sizeof (ctrl));
-	  ctrl.bRequestType = 0x00;
-	  ctrl.bEndpoint = 0x82;
-	  ctrl.wLength = htons (next_pages);
+          /* Prepare bulk read request */
+          memset (&ctrl, 0, sizeof (ctrl));
+          ctrl.bRequestType = 0x00;
+          ctrl.bEndpoint = 0x82;
+          ctrl.wLength = htons (next_pages);
 
-	  /* Send bulk read request */
-	  DBG (DBG_usb, "%s: USB-in-USB: sending control msg for bulk\n",
-	       __func__);
-	  ret = sanei_usb_control_msg (dn, USB_DIR_OUT | USB_TYPE_VENDOR,
-				       0x04, 0x82, 0x00,
-				       sizeof (ctrl),
-				       (unsigned char *) &ctrl);
-	  if (ret != SANE_STATUS_GOOD)
-	    {
-	      DBG (DBG_err, "%s: USB-in-USB: error sending control msg\n",
-		   __func__);
-	      return ret;
-	    }
+          /* Send bulk read request */
+          DBG (DBG_usb, "%s: USB-in-USB: sending control msg for bulk\n",
+               __func__);
+          ret = sanei_usb_control_msg (dn, USB_DIR_OUT | USB_TYPE_VENDOR,
+                                       0x04, 0x82, 0x00,
+                                       sizeof (ctrl),
+                                       (unsigned char *) &ctrl);
+          if (ret != SANE_STATUS_GOOD)
+            {
+              DBG (DBG_err, "%s: USB-in-USB: error sending control msg\n",
+                   __func__);
+              return ret;
+            }
 
-	  /* USB-in-USB: checking if control msg was accepted */
-	  ret = hp5590_get_ack (dn, proto_flags);
-	  if (ret != SANE_STATUS_GOOD)
-	    return ret;
-	}
+          /* USB-in-USB: checking if control msg was accepted */
+          ret = hp5590_get_ack (dn, proto_flags);
+          if (ret != SANE_STATUS_GOOD)
+            return ret;
+        }
 
       next_portion = BULK_READ_PAGE_SIZE;
       /* Check if next page will fit into the buffer */
       if (bulk_read_state->buffer_size
-	  - bulk_read_state->bytes_available < next_portion)
-	{
-	  DBG (DBG_err, "%s: USB-in-USB: buffer too small\n", __func__);
-	  return SANE_STATUS_NO_MEM;
-	}
+          - bulk_read_state->bytes_available < next_portion)
+        {
+          DBG (DBG_err, "%s: USB-in-USB: buffer too small\n", __func__);
+          return SANE_STATUS_NO_MEM;
+        }
 
       /* Bulk read next page */
       DBG (DBG_usb, "%s: USB-in-USB: bulk reading %lu bytes\n",
-	   __func__, (u_long) next_portion);
+           __func__, (u_long) next_portion);
       ret = sanei_usb_read_bulk (dn,
-				 bulk_read_state->buffer_in_ptr,
-				 &next_portion);
+                                 bulk_read_state->buffer_in_ptr,
+                                 &next_portion);
       if (ret != SANE_STATUS_GOOD)
-	{
-	  if (ret == SANE_STATUS_EOF)
-	    return ret;
-	  DBG (DBG_err, "%s: USB-in-USB: error during bulk read: %s\n",
-	       __func__, sane_strstatus (ret));
-	  return ret;
-	}
+        {
+          if (ret == SANE_STATUS_EOF)
+            return ret;
+          DBG (DBG_err, "%s: USB-in-USB: error during bulk read: %s\n",
+               __func__, sane_strstatus (ret));
+          return ret;
+        }
 
       /* Check if we received the same amount of data as requested */
       if (next_portion != BULK_READ_PAGE_SIZE)
-	{
-	  DBG (DBG_err, "%s: USB-in-USB: incomplete bulk read "
-	       "(requested %u bytes, got %lu bytes)\n",
-	       __func__, BULK_READ_PAGE_SIZE, (u_long) next_portion);
-	  return SANE_STATUS_IO_ERROR;
-	}
+        {
+          DBG (DBG_err, "%s: USB-in-USB: incomplete bulk read "
+               "(requested %u bytes, got %lu bytes)\n",
+               __func__, BULK_READ_PAGE_SIZE, (u_long) next_portion);
+          return SANE_STATUS_IO_ERROR;
+        }
 
       /* Move pointers to the next position */
       bulk_read_state->buffer_in_ptr += next_portion;
 
       /* Check for the end of the buffer */
       if (bulk_read_state->buffer_in_ptr > bulk_read_state->buffer_end_ptr)
-	{
-	  DBG (DBG_err,
-	       "%s: USB-in-USB: attempted to access over the end of buffer "
-	       "(in_ptr: %p, end_ptr: %p, ptr: %p, buffer size: %u\n",
-	       __func__, bulk_read_state->buffer_in_ptr,
-	       bulk_read_state->buffer_end_ptr, bulk_read_state->buffer,
-	       bulk_read_state->buffer_size);
-	  return SANE_STATUS_NO_MEM;
-	}
+        {
+          DBG (DBG_err,
+               "%s: USB-in-USB: attempted to access over the end of buffer "
+               "(in_ptr: %p, end_ptr: %p, ptr: %p, buffer size: %u\n",
+               __func__, bulk_read_state->buffer_in_ptr,
+               bulk_read_state->buffer_end_ptr, bulk_read_state->buffer,
+               bulk_read_state->buffer_size);
+          return SANE_STATUS_NO_MEM;
+        }
 
       /* Check for buffer pointer wrapping */
       if (bulk_read_state->buffer_in_ptr == bulk_read_state->buffer_end_ptr)
-	{
-	  DBG (DBG_usb, "%s: USB-in-USB: buffer wrapped while writing\n",
-	       __func__);
-	  bulk_read_state->buffer_in_ptr = bulk_read_state->buffer;
-	}
+        {
+          DBG (DBG_usb, "%s: USB-in-USB: buffer wrapped while writing\n",
+               __func__);
+          bulk_read_state->buffer_in_ptr = bulk_read_state->buffer;
+        }
 
       /* Count the amount of data we read */
       bulk_read_state->bytes_available += next_portion;
@@ -832,13 +832,13 @@ hp5590_bulk_read (SANE_Int dn,
       bulk_read_state->buffer_out_ptr = bulk_read_state->buffer;
       /* And second part (if any) */
       if (bytes_until_buffer_end < size)
-	{
-	  DBG (DBG_usb, "%s: USB-in-USB: giving 2nd buffer part\n", __func__);
-	  memcpy (bytes + bytes_until_buffer_end,
-		  bulk_read_state->buffer_out_ptr,
-		  size - bytes_until_buffer_end);
-	  bulk_read_state->buffer_out_ptr += size - bytes_until_buffer_end;
-	}
+        {
+          DBG (DBG_usb, "%s: USB-in-USB: giving 2nd buffer part\n", __func__);
+          memcpy (bytes + bytes_until_buffer_end,
+                  bulk_read_state->buffer_out_ptr,
+                  size - bytes_until_buffer_end);
+          bulk_read_state->buffer_out_ptr += size - bytes_until_buffer_end;
+        }
     }
   else
     {
@@ -846,11 +846,11 @@ hp5590_bulk_read (SANE_Int dn,
       memcpy (bytes, bulk_read_state->buffer_out_ptr, size);
       bulk_read_state->buffer_out_ptr += size;
       if (bulk_read_state->buffer_out_ptr == bulk_read_state->buffer_end_ptr)
-	{
-	  DBG (DBG_usb, "%s: USB-in-USB: buffer wrapped while reading\n",
-	       __func__);
-	  bulk_read_state->buffer_out_ptr = bulk_read_state->buffer;
-	}
+        {
+          DBG (DBG_usb, "%s: USB-in-USB: buffer wrapped while reading\n",
+               __func__);
+          bulk_read_state->buffer_out_ptr = bulk_read_state->buffer;
+        }
     }
 
   /* Count the amount of data transferred to the caller */
@@ -874,13 +874,13 @@ hp5590_bulk_read (SANE_Int dn,
  */
 static SANE_Status
 hp5590_bulk_write (SANE_Int dn,
-		   enum proto_flags proto_flags,
-		   int cmd, unsigned char *bytes,
-		   unsigned int size)
+                   enum proto_flags proto_flags,
+                   int cmd, unsigned char *bytes,
+                   unsigned int size)
 {
-  struct usb_in_usb_bulk_setup	ctrl;
-  SANE_Status 			ret;
-  struct bulk_size		bulk_size;
+  struct usb_in_usb_bulk_setup  ctrl;
+  SANE_Status                   ret;
+  struct bulk_size              bulk_size;
 
   unsigned int len;
   unsigned char *ptr;
@@ -900,11 +900,11 @@ hp5590_bulk_write (SANE_Int dn,
   DBG (3, "%s: USB-in-USB: total %u pages (each of %u bytes)\n",
        __func__, bulk_size.size, BULK_WRITE_PAGE_SIZE);
   ret = hp5590_control_msg (dn,
-  			    proto_flags,
-  			    USB_DIR_OUT,
-			    0x04, cmd, 0,
-			    (unsigned char *) &bulk_size, sizeof (bulk_size),
-			    CORE_DATA | CORE_BULK_OUT);
+                            proto_flags,
+                            USB_DIR_OUT,
+                            0x04, cmd, 0,
+                            (unsigned char *) &bulk_size, sizeof (bulk_size),
+                            CORE_DATA | CORE_BULK_OUT);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -916,10 +916,10 @@ hp5590_bulk_write (SANE_Int dn,
     {
       next_portion = BULK_WRITE_PAGE_SIZE;
       if (len < next_portion)
-	next_portion = len;
+        next_portion = len;
 
       DBG (3, "%s: USB-in-USB: next portion %lu bytes\n",
-	   __func__, (u_long) next_portion);
+           __func__, (u_long) next_portion);
 
       /* Prepare bulk write request */
       memset (&ctrl, 0, sizeof (ctrl));
@@ -929,29 +929,29 @@ hp5590_bulk_write (SANE_Int dn,
 
       /* Send bulk write request */
       ret = sanei_usb_control_msg (dn, USB_DIR_OUT | USB_TYPE_VENDOR,
-				   0x04, 0x82, 0,
-				   sizeof (ctrl), (unsigned char *) &ctrl);
+                                   0x04, 0x82, 0,
+                                   sizeof (ctrl), (unsigned char *) &ctrl);
       if (ret != SANE_STATUS_GOOD)
-	return ret;
+        return ret;
 
       /* USB-in-USB: checking if command was accepted */
       ret = hp5590_get_ack (dn, proto_flags);
       if (ret != SANE_STATUS_GOOD)
-	return ret;
+        return ret;
 
       /* Write bulk data */
       DBG (3, "%s: USB-in-USB: bulk writing %lu bytes\n",
-	   __func__, (u_long) next_portion);
+           __func__, (u_long) next_portion);
       ret = sanei_usb_write_bulk (dn, ptr, &next_portion);
       if (ret != SANE_STATUS_GOOD)
-	{
-	  /* Treast EOF as successful result */
-	  if (ret == SANE_STATUS_EOF)
-	    break;
-	  DBG (DBG_err, "%s: USB-in-USB: error during bulk write: %s\n",
-	       __func__, sane_strstatus (ret));
-	  return ret;
-	}
+        {
+          /* Treast EOF as successful result */
+          if (ret == SANE_STATUS_EOF)
+            break;
+          DBG (DBG_err, "%s: USB-in-USB: error during bulk write: %s\n",
+               __func__, sane_strstatus (ret));
+          return ret;
+        }
 
       /* Move to the next page */
       len -= next_portion;

@@ -72,9 +72,9 @@ hp5590_models[] = {
     SCANNER_HP5550,
     0x03f0, 0x1205, "SILITEKIPenguin",
     "4500C/5550C", "Workgroup scanner",
-    PF_NO_USB_IN_USB_ACK		/* These devices need no
-    					 * acknowledgment after USB-in-USB
-					 * commands */
+    PF_NO_USB_IN_USB_ACK                /* These devices need no
+                                         * acknowledgment after USB-in-USB
+                                         * commands */
   },
   {
     SCANNER_HP5590,
@@ -91,33 +91,33 @@ hp5590_models[] = {
 };
 
 /* Debug levels */
-#define	DBG_err		0
-#define DBG_proc	10
-#define DBG_verbose	20
-#define DBG_cmds	40
+#define DBG_err         0
+#define DBG_proc        10
+#define DBG_verbose     20
+#define DBG_cmds        40
 
 #define hp5590_cmds_assert(exp) if(!(exp)) { \
   DBG (DBG_err, "Assertion '%s' failed at %s:%u\n", #exp, __FILE__, __LINE__);\
   return SANE_STATUS_INVAL; \
 }
 
-#define WAKEUP_TIMEOUT		90
+#define WAKEUP_TIMEOUT          90
 
 /* First byte of init (0x12 cmd) response */
-#define INIT_FLAG_TMA		1 << 0
-#define	INIT_FLAG_ADF		1 << 1
-#define INIT_FLAG_LCD		1 << 3
+#define INIT_FLAG_TMA           1 << 0
+#define INIT_FLAG_ADF           1 << 1
+#define INIT_FLAG_LCD           1 << 3
 
 /* Power (0x24 cmd) */
-#define POWER_FLAG_ON		1 << 1
+#define POWER_FLAG_ON           1 << 1
 
 /* ADF (0x03 cmd) */
-#define FLAG_ADF_EMPTY		1 << 1
+#define FLAG_ADF_EMPTY          1 << 1
 
-#define PART_NUMBER_LEN		10
+#define PART_NUMBER_LEN         10
 
-#define REVERSE_MAP_LEN		128 * 1024 / sizeof(uint16_t)
-#define FORWARD_MAP_LEN		128 * 1024 / sizeof(uint16_t)
+#define REVERSE_MAP_LEN         128 * 1024 / sizeof(uint16_t)
+#define FORWARD_MAP_LEN         128 * 1024 / sizeof(uint16_t)
 
 /* Button flags */
 /* From left to right */
@@ -131,48 +131,48 @@ hp5590_models[] = {
  * 8:   Mode
  * 9:   Cancel
  */
-#define BUTTON_FLAG_EMAIL	1 << 15
-#define BUTTON_FLAG_COPY	1 << 14
-#define BUTTON_FLAG_DOWN	1 << 13
-#define BUTTON_FLAG_MODE	1 << 12
-#define BUTTON_FLAG_UP		1 << 11
-#define BUTTON_FLAG_FILE	1 << 9
-#define BUTTON_FLAG_POWER	1 << 5
-#define BUTTON_FLAG_SCAN	1 << 2
-#define	BUTTON_FLAG_COLLECT	1 << 1
-#define BUTTON_FLAG_CANCEL	1 << 0
+#define BUTTON_FLAG_EMAIL       1 << 15
+#define BUTTON_FLAG_COPY        1 << 14
+#define BUTTON_FLAG_DOWN        1 << 13
+#define BUTTON_FLAG_MODE        1 << 12
+#define BUTTON_FLAG_UP          1 << 11
+#define BUTTON_FLAG_FILE        1 << 9
+#define BUTTON_FLAG_POWER       1 << 5
+#define BUTTON_FLAG_SCAN        1 << 2
+#define BUTTON_FLAG_COLLECT     1 << 1
+#define BUTTON_FLAG_CANCEL      1 << 0
 
-#define CMD_INIT		0x0012
-#define CMD_EEPROM_ADDR		0x00f2
-#define CMD_EEPROM_READ		0x0bf0
-#define CMD_EEPROM_WRITE	0x0bf1
-#define CMD_DATA_STATUS		0x0001
-#define CMD_STOP_SCAN		0x011b
-#define CMD_CONTROL_LAMP	0x00c0
-#define CMD_POWER_STATUS	0x0024
-#define CMD_SELECT_SOURCE	0x00d6
-#define CMD_MISC_STATUS		0x0003
-#define CMD_LOCK_UNLOCK		0x0000
-#define CMD_SET_BASE_DPI	0x0015
-#define CMD_SET_COLOR_MAP	0x0240
-#define CMD_SET_SCAN_PARAMS	0x0025
-#define CMD_GET_IMAGE_PARAMS	0x0034
-#define CMD_START_SCAN		0x051b
-#define CMD_BUTTON_STATUS	0x0020
+#define CMD_INIT                0x0012
+#define CMD_EEPROM_ADDR         0x00f2
+#define CMD_EEPROM_READ         0x0bf0
+#define CMD_EEPROM_WRITE        0x0bf1
+#define CMD_DATA_STATUS         0x0001
+#define CMD_STOP_SCAN           0x011b
+#define CMD_CONTROL_LAMP        0x00c0
+#define CMD_POWER_STATUS        0x0024
+#define CMD_SELECT_SOURCE       0x00d6
+#define CMD_MISC_STATUS         0x0003
+#define CMD_LOCK_UNLOCK         0x0000
+#define CMD_SET_BASE_DPI        0x0015
+#define CMD_SET_COLOR_MAP       0x0240
+#define CMD_SET_SCAN_PARAMS     0x0025
+#define CMD_GET_IMAGE_PARAMS    0x0034
+#define CMD_START_SCAN          0x051b
+#define CMD_BUTTON_STATUS       0x0020
 
 struct init_resp
 {
-  uint8_t 	flags;			/* bit 0 - TMA, bit 1 - ADF, bit 3 - LCD present */
-  uint8_t 	id[15];			/* SILITEKPenguin */
-  uint8_t 	pad1[9];		/* 00 00 00 00 00 00 00 00 00 */
-  uint8_t 	version[5];		/* 0.0.67 */
-  uint16_t 	max_dpi_x;		/* 09 60 = 2400 */
-  uint16_t 	max_dpi_y;		/* 09 60 = 2400 */
-  uint16_t 	max_pixels_x;		/* 4F B0 = 20400 (20400 / 2400 = 8.5")   */
-  uint16_t 	max_pixels_y;		/* 6D E0 = 28128 (28128 / 2400 = 11.72") */
-  uint8_t 	pad2[8];		/* 00 00 00 00 00 00 00 00 */
-  uint16_t 	motor_param_normal;	/* 00 64 = 100 */
-  uint16_t 	motor_param_max;	/* 03 E8 = 1000 */
+  uint8_t       flags;                  /* bit 0 - TMA, bit 1 - ADF, bit 3 - LCD present */
+  uint8_t       id[15];                 /* SILITEKPenguin */
+  uint8_t       pad1[9];                /* 00 00 00 00 00 00 00 00 00 */
+  uint8_t       version[5];             /* 0.0.67 */
+  uint16_t      max_dpi_x;              /* 09 60 = 2400 */
+  uint16_t      max_dpi_y;              /* 09 60 = 2400 */
+  uint16_t      max_pixels_x;           /* 4F B0 = 20400 (20400 / 2400 = 8.5")   */
+  uint16_t      max_pixels_y;           /* 6D E0 = 28128 (28128 / 2400 = 11.72") */
+  uint8_t       pad2[8];                /* 00 00 00 00 00 00 00 00 */
+  uint16_t      motor_param_normal;     /* 00 64 = 100 */
+  uint16_t      motor_param_max;        /* 03 E8 = 1000 */
 } __attribute__ ((packed));
 
 struct power_resp
@@ -195,239 +195,239 @@ struct power_resp
  *  600 : 5100.00 x 7032.00 (base DPI)
  */
 
-#define SCAN_PARAMS_SOURCE_TMA_NEGATIVES 	1 << 0
-#define SCAN_PARAMS_SOURCE_TMA_SLIDES 		1 << 1
-#define SCAN_PARAMS_SOURCE_ADF	 		1 << 2
-#define SCAN_PARAMS_SOURCE_FLATBED		1 << 3
-#define SCAN_PARAMS_SOURCE_SIMPLEX		1 << 4
-#define SCAN_PARAMS_SOURCE_DUPLEX 		1 << 6
+#define SCAN_PARAMS_SOURCE_TMA_NEGATIVES        1 << 0
+#define SCAN_PARAMS_SOURCE_TMA_SLIDES           1 << 1
+#define SCAN_PARAMS_SOURCE_ADF                  1 << 2
+#define SCAN_PARAMS_SOURCE_FLATBED              1 << 3
+#define SCAN_PARAMS_SOURCE_SIMPLEX              1 << 4
+#define SCAN_PARAMS_SOURCE_DUPLEX               1 << 6
 
 struct scan_params
 {
-  uint8_t source;		/*
-				 * TMA Negatives        : 11 = 17
-				 * TMA Slides           : 12 = 18
-				 * ADF                  : 14 = 20
-				 * Flatbed              : 18 = 24
-				 * ADF Duplex           : 54 = 84
-				 */
+  uint8_t source;               /*
+                                 * TMA Negatives        : 11 = 17
+                                 * TMA Slides           : 12 = 18
+                                 * ADF                  : 14 = 20
+                                 * Flatbed              : 18 = 24
+                                 * ADF Duplex           : 54 = 84
+                                 */
 
-  uint16_t dpi_x;		/*
-				 *  50  : 00 64 = 100
-				 *  75  : 00 64 = 100
-				 * 100  : 00 64 = 100
-				 * 150  : 00 c8 = 200
-				 * 200  : 00 c8 = 200
-				 * 300  : 01 2c = 300
-				 * 400  : 02 58 = 600
-				 * 600  : 02 58 = 600
-				 * 1200 : 04 b0 = 1200
-				 */
+  uint16_t dpi_x;               /*
+                                 *  50  : 00 64 = 100
+                                 *  75  : 00 64 = 100
+                                 * 100  : 00 64 = 100
+                                 * 150  : 00 c8 = 200
+                                 * 200  : 00 c8 = 200
+                                 * 300  : 01 2c = 300
+                                 * 400  : 02 58 = 600
+                                 * 600  : 02 58 = 600
+                                 * 1200 : 04 b0 = 1200
+                                 */
 
-  uint16_t dpi_y;		/*
-				 *  50  : 00 64 = 100
-				 *  75  : 00 64 = 100
-				 * 100  : 00 64 = 100
-				 * 150  : 00 c8 = 200
-				 * 200  : 00 c8 = 200
-				 * 300  : 01 2c = 300
-				 * 400  : 02 58 = 600
-				 * 600  : 02 58 = 600
-				 * 1200 : 04 b0 = 1200
-				 */
+  uint16_t dpi_y;               /*
+                                 *  50  : 00 64 = 100
+                                 *  75  : 00 64 = 100
+                                 * 100  : 00 64 = 100
+                                 * 150  : 00 c8 = 200
+                                 * 200  : 00 c8 = 200
+                                 * 300  : 01 2c = 300
+                                 * 400  : 02 58 = 600
+                                 * 600  : 02 58 = 600
+                                 * 1200 : 04 b0 = 1200
+                                 */
 
-  uint16_t top_x;		/*
-				 * pixels * (Base DPI / current DPI)
-				 * 00 00, 01 6e = 366 (x = 425 - 302 = 123)
-				 * 04 b0 = 1200 (x = 425 - 24 = 401)
-				 */
+  uint16_t top_x;               /*
+                                 * pixels * (Base DPI / current DPI)
+                                 * 00 00, 01 6e = 366 (x = 425 - 302 = 123)
+                                 * 04 b0 = 1200 (x = 425 - 24 = 401)
+                                 */
 
-  uint16_t top_y;		/*
-				 * pixels * (Base DPI / current DPI)
-				 * 00 00, 06 99 = 1689 (y = 585 - 21 = 564)
-				 */
+  uint16_t top_y;               /*
+                                 * pixels * (Base DPI / current DPI)
+                                 * 00 00, 06 99 = 1689 (y = 585 - 21 = 564)
+                                 */
 
-  uint16_t size_x;		/* X pixels in Base DPI (CMD 15)
-				 *  50          : 04f8 =  1272                           ; 150
-				 *  75          : 04f8 =  1272                           ; 150
-				 * 100          : 04f8 =  1272                           ; 150
-				 * 100 TMA      : 00fc =   252                           ; 150
-				 * 150          : 09f6 =  2550, 09f0 = 2544, 09f4 = 2548 ; 300
-				 * 200          : 09f0 =  2544, 09f6 = 2550, 09f6 = 2550 ; 300
-				 * 300          : 09f6 =  2550, 09f0 = 2544, 09f4 = 2548 ; 300
-				 * 300 TMA      : 01fc =   508                           ; 300
-				 * 400          : 13ec =  5100                           ; 600
-				 * 600          : 13e8 =  5096, 13ec = 5100 ,13ec = 5100 ; 600
-				 * 1200         : 27a8 = 10152                           ; 1200
-				 */
+  uint16_t size_x;              /* X pixels in Base DPI (CMD 15)
+                                 *  50          : 04f8 =  1272                           ; 150
+                                 *  75          : 04f8 =  1272                           ; 150
+                                 * 100          : 04f8 =  1272                           ; 150
+                                 * 100 TMA      : 00fc =   252                           ; 150
+                                 * 150          : 09f6 =  2550, 09f0 = 2544, 09f4 = 2548 ; 300
+                                 * 200          : 09f0 =  2544, 09f6 = 2550, 09f6 = 2550 ; 300
+                                 * 300          : 09f6 =  2550, 09f0 = 2544, 09f4 = 2548 ; 300
+                                 * 300 TMA      : 01fc =   508                           ; 300
+                                 * 400          : 13ec =  5100                           ; 600
+                                 * 600          : 13e8 =  5096, 13ec = 5100 ,13ec = 5100 ; 600
+                                 * 1200         : 27a8 = 10152                           ; 1200
+                                 */
 
-  uint16_t size_y;		/* Y pixels in Base DPI (CMD 15)
-				 *  50          : 06db =  1755 ; 150
-				 *  75          : 06da =  1754 ; 150
-				 * 100          : 06db =  1755 ; 150
-				 * 100 TMA      : 0384 =   900 ; 150
-				 * 150          : 0db6 =  3510 ; 300
-				 * 200          : 0db6 =  3510 ; 300
-				 * 300          : 0db6 =  3510 ; 300
-				 * 300 TMA      : 0708 =  1800 ; 300
-				 * 400          : 1b6c =  7020 ; 600
-				 * 600          : 1b6c =  7020 ; 600
-				 * 1200         : 36d8 = 14040 ; 1200
-				 */
+  uint16_t size_y;              /* Y pixels in Base DPI (CMD 15)
+                                 *  50          : 06db =  1755 ; 150
+                                 *  75          : 06da =  1754 ; 150
+                                 * 100          : 06db =  1755 ; 150
+                                 * 100 TMA      : 0384 =   900 ; 150
+                                 * 150          : 0db6 =  3510 ; 300
+                                 * 200          : 0db6 =  3510 ; 300
+                                 * 300          : 0db6 =  3510 ; 300
+                                 * 300 TMA      : 0708 =  1800 ; 300
+                                 * 400          : 1b6c =  7020 ; 600
+                                 * 600          : 1b6c =  7020 ; 600
+                                 * 1200         : 36d8 = 14040 ; 1200
+                                 */
 
-  uint16_t unk1;		/* 00 80 */
+  uint16_t unk1;                /* 00 80 */
 
-  uint16_t bw_gray_flag;	/*
-				 * 00 40 - bw (ntsc gray)/gray,
-				 * 00 20 - bw (by green band),
-				 * 00 10 - bw (by red band),
-				 * 00 30 - bw (by blue band),
-				 * 00 00 - color
-				 */
+  uint16_t bw_gray_flag;        /*
+                                 * 00 40 - bw (ntsc gray)/gray,
+                                 * 00 20 - bw (by green band),
+                                 * 00 10 - bw (by red band),
+                                 * 00 30 - bw (by blue band),
+                                 * 00 00 - color
+                                 */
 
-  uint8_t pixel_bits;		/*
-				 * bw 50/75/150/400                             : 08 =  8
-				 * bw 100/200/300/600/1200                      : 01 =  1
-				 * gray 50/75/100/150/200/400/600      	        : 08 =  8
-				 * color 24 bit 50/75/100/150/200/400/600	: 18 = 24
-				 * color 48 bit 100/200				: 30 = 48
-				 */
+  uint8_t pixel_bits;           /*
+                                 * bw 50/75/150/400                             : 08 =  8
+                                 * bw 100/200/300/600/1200                      : 01 =  1
+                                 * gray 50/75/100/150/200/400/600               : 08 =  8
+                                 * color 24 bit 50/75/100/150/200/400/600       : 18 = 24
+                                 * color 48 bit 100/200                         : 30 = 48
+                                 */
 
-  uint16_t flags;		/*
-				 * 50/75/100/150/200/300        	: e8 40 = 59456
-				 * 400/600/1200                         : c8 40 = 51264
-				 */
+  uint16_t flags;               /*
+                                 * 50/75/100/150/200/300                : e8 40 = 59456
+                                 * 400/600/1200                         : c8 40 = 51264
+                                 */
 
-  uint16_t motor_param1;	/*
-				 * 00 64 = 100
-				 */
-  uint16_t motor_param2;	/*
-				 * 00 64 = 100 - ADF, Flatbed, TMA slides
-				 * 00 c8 = 200 - TMA Negatives
-				 */
-  uint16_t motor_param3;	/*
-				 * 00 64 = 100 - ADF, Flatbed, TMA slides
-				 * 01 90 = 400 - TMA negatives
-				 */
-  uint32_t pad1;		/* 00 00 00 00 */
-  uint16_t pad2;		/* 00 00 */
-  uint8_t mode;		/* 00 - normal scan, 04 - preview scan */
-  uint16_t pad3;		/* 00 00 */
+  uint16_t motor_param1;        /*
+                                 * 00 64 = 100
+                                 */
+  uint16_t motor_param2;        /*
+                                 * 00 64 = 100 - ADF, Flatbed, TMA slides
+                                 * 00 c8 = 200 - TMA Negatives
+                                 */
+  uint16_t motor_param3;        /*
+                                 * 00 64 = 100 - ADF, Flatbed, TMA slides
+                                 * 01 90 = 400 - TMA negatives
+                                 */
+  uint32_t pad1;                /* 00 00 00 00 */
+  uint16_t pad2;                /* 00 00 */
+  uint8_t mode;                 /* 00 - normal scan, 04 - preview scan */
+  uint16_t pad3;                /* 00 00 */
 
-  uint16_t line_width;		/* Based on current .dpi_x
-				 * bw 50                                : 03 50 =   848
-				 * gray 50                              : 03 50 =   848
-				 * color 50                             : 09 f0 =  2544 (3 * gray)
-				 *
-				 * bw 75                                : 03 50 =   848
-				 * gray 75                              : 03 50 =   848
-				 * color 75                             : 09 f0 =  2544 (3 * gray)
-				 *
-				 * bw 100                               : 00 6a =   106
-				 * gray 100                             : 03 50 =   848 (8 * bw)
-				 * color 100(24)			: 09 f0 =  2544 (3 * gray)
-				 * color 100(48)			: 13 e0 =  5088 (2 * color 24)
-				 * color 100(48) TMA			: 03 f0 = 1008
-				 *
-				 * bw 150                               : 06 a4 =  1700
-				 * gray 150                             : 06 a4 =  1700
-				 * color 150				: 13 ec =  5100 (3 * gray)
-				 *
-				 * bw 200                               : 00 d4 =   212
-				 * gray 200                             : 06 a4 =  1700 (8 * bw)
-				 * color 200(24)                	: 13 ec =  5100 (3 * gray)
-				 * color 200(48)                	: 27 a8 = 10152
-				 *
-				 * bw 300                               : 01 3e =   318
-				 * gray 300                             : 09 f4 =  2548 (8 * bw)
-				 * color 300                    	: 1d dc =  7644 (3 * gray)
-				 * color 300(48) TMA    		: 0b e8 = 3048
-				 *
-				 * bw 400                               : 13 ec =  5100
-				 * gray 400                             : 13 ec =  5100
-				 * color 400  		             	: 3b c4 = 15300 (3 * gray)
-				 *
-				 * bw 600                               : 02 7d =   637
-				 * gray 600                             : 13 ec =  5100 (8 * bw)
-				 * color 600                    	: 3b c4 = 15300 (3 * gray)
-				 *
-				 * bw 1200                              : 04 f5 =  1269
-				 */
+  uint16_t line_width;          /* Based on current .dpi_x
+                                 * bw 50                                : 03 50 =   848
+                                 * gray 50                              : 03 50 =   848
+                                 * color 50                             : 09 f0 =  2544 (3 * gray)
+                                 *
+                                 * bw 75                                : 03 50 =   848
+                                 * gray 75                              : 03 50 =   848
+                                 * color 75                             : 09 f0 =  2544 (3 * gray)
+                                 *
+                                 * bw 100                               : 00 6a =   106
+                                 * gray 100                             : 03 50 =   848 (8 * bw)
+                                 * color 100(24)                        : 09 f0 =  2544 (3 * gray)
+                                 * color 100(48)                        : 13 e0 =  5088 (2 * color 24)
+                                 * color 100(48) TMA                    : 03 f0 = 1008
+                                 *
+                                 * bw 150                               : 06 a4 =  1700
+                                 * gray 150                             : 06 a4 =  1700
+                                 * color 150                            : 13 ec =  5100 (3 * gray)
+                                 *
+                                 * bw 200                               : 00 d4 =   212
+                                 * gray 200                             : 06 a4 =  1700 (8 * bw)
+                                 * color 200(24)                        : 13 ec =  5100 (3 * gray)
+                                 * color 200(48)                        : 27 a8 = 10152
+                                 *
+                                 * bw 300                               : 01 3e =   318
+                                 * gray 300                             : 09 f4 =  2548 (8 * bw)
+                                 * color 300                            : 1d dc =  7644 (3 * gray)
+                                 * color 300(48) TMA                    : 0b e8 = 3048
+                                 *
+                                 * bw 400                               : 13 ec =  5100
+                                 * gray 400                             : 13 ec =  5100
+                                 * color 400                            : 3b c4 = 15300 (3 * gray)
+                                 *
+                                 * bw 600                               : 02 7d =   637
+                                 * gray 600                             : 13 ec =  5100 (8 * bw)
+                                 * color 600                            : 3b c4 = 15300 (3 * gray)
+                                 *
+                                 * bw 1200                              : 04 f5 =  1269
+                                 */
 } __attribute__ ((packed));
 
 struct image_params
 {
-  uint8_t signature;		/* c0 */
-  uint8_t pad1;		/* 00 */
-  uint32_t image_size;		/*
-				 * bw 50                : 00 0f 23 a0 =    992 160
-				 * gray 50              : 00 0f 23 a0 =    992 160
-				 * color 50             : 00 2d 6a e0 =  2 976 480
-				 *
-				 * bw 75                : 00 0f 20 50 =    991 312
-				 * gray 75              : 00 0f 20 50 =    991 312
-				 * color 75             : 00 2d 60 f0 =  2 973 936
-				 * color 75(48) 	: 00 5a 86 40 =  5 932 608
-				 *
-				 * bw 100               : 00 01 e4 74 =    124 020
-				 * gray 100             : 00 0f 23 a0 =    992 160
-				 * color 100    	: 00 2d 6a e0 =  2 976 480
-				 * color 100(48)	: 00 5a 68 10 =  5 924 880
-				 * color 100(48), preview: 00 5a d5 c0 = 5 952 960
-				 *
-				 * bw 150               : 00 3c b3 10 =   3 978 000
-				 * gray 150             : 00 3c b3 10 =   3 978 000
-				 * color 150    	: 00 b6 19 30 =  11 934 000
-				 * color 150(48)	: 01 6a 7b a0 =  23 755 680
-				 *
-				 * bw 200               : 00 07 91 d0 =     496 080
-				 * gray 200             : 00 3c b3 10 =   3 978 000
-				 * color 200    	: 00 b6 19 30 =  11 934 000
-				 * color 200(48)	: 01 6a f3 a0 =  23 786 400
-				 *
-				 * bw 300               : 00 11 08 14 =   1 116 180
-				 * gray 300             : 00 88 77 78 =   8 943 480
-				 * color 300    	: 01 99 66 68 =  26 830 440
-				 *
-				 * bw 400               : 02 22 4b 90 =  35 802 000
-				 * gray 400             : 02 22 4b 90 =  35 802 000
-				 * color 400    	: 06 66 e2 b0 = 107 406 000
-				 *
-				 * bw 600               : 00 44 3b bc =   4 471 740
-				 * gray 600             : 02 22 4b 90 =  35 802 000
-				 * color 600    	: 06 66 e2 b0 = 107 406 000
-				 */
-  uint16_t pad2;		/* 00 00 */
+  uint8_t signature;            /* c0 */
+  uint8_t pad1;         /* 00 */
+  uint32_t image_size;          /*
+                                 * bw 50                : 00 0f 23 a0 =    992 160
+                                 * gray 50              : 00 0f 23 a0 =    992 160
+                                 * color 50             : 00 2d 6a e0 =  2 976 480
+                                 *
+                                 * bw 75                : 00 0f 20 50 =    991 312
+                                 * gray 75              : 00 0f 20 50 =    991 312
+                                 * color 75             : 00 2d 60 f0 =  2 973 936
+                                 * color 75(48)         : 00 5a 86 40 =  5 932 608
+                                 *
+                                 * bw 100               : 00 01 e4 74 =    124 020
+                                 * gray 100             : 00 0f 23 a0 =    992 160
+                                 * color 100            : 00 2d 6a e0 =  2 976 480
+                                 * color 100(48)        : 00 5a 68 10 =  5 924 880
+                                 * color 100(48), preview: 00 5a d5 c0 = 5 952 960
+                                 *
+                                 * bw 150               : 00 3c b3 10 =   3 978 000
+                                 * gray 150             : 00 3c b3 10 =   3 978 000
+                                 * color 150            : 00 b6 19 30 =  11 934 000
+                                 * color 150(48)        : 01 6a 7b a0 =  23 755 680
+                                 *
+                                 * bw 200               : 00 07 91 d0 =     496 080
+                                 * gray 200             : 00 3c b3 10 =   3 978 000
+                                 * color 200            : 00 b6 19 30 =  11 934 000
+                                 * color 200(48)        : 01 6a f3 a0 =  23 786 400
+                                 *
+                                 * bw 300               : 00 11 08 14 =   1 116 180
+                                 * gray 300             : 00 88 77 78 =   8 943 480
+                                 * color 300            : 01 99 66 68 =  26 830 440
+                                 *
+                                 * bw 400               : 02 22 4b 90 =  35 802 000
+                                 * gray 400             : 02 22 4b 90 =  35 802 000
+                                 * color 400            : 06 66 e2 b0 = 107 406 000
+                                 *
+                                 * bw 600               : 00 44 3b bc =   4 471 740
+                                 * gray 600             : 02 22 4b 90 =  35 802 000
+                                 * color 600            : 06 66 e2 b0 = 107 406 000
+                                 */
+  uint16_t pad2;                /* 00 00 */
   uint16_t line_width;
   uint16_t real_size_y;
-  uint32_t pad3;		/* 00 00 00 00 */
+  uint32_t pad3;                /* 00 00 00 00 */
 } __attribute__ ((packed));
 
 struct lamp_state
 {
-  uint8_t	unk1;		/* 02 */
-  uint8_t 	flag;		/* 01 on start, 02 - TMA, 03 - all other */
-  uint16_t 	turnoff_time;	/* 0a 0a, 03 36, 0f 36 */
+  uint8_t       unk1;           /* 02 */
+  uint8_t       flag;           /* 01 on start, 02 - TMA, 03 - all other */
+  uint16_t      turnoff_time;   /* 0a 0a, 03 36, 0f 36 */
 } __attribute__ ((packed));
 
 struct color_map
 {
-  uint8_t 	color1[6];	/* 00 00 00 00 01 00 */
-  uint8_t 	color2[6];	/* 00 00 00 00 01 00 */
-  uint8_t 	color3[6];	/* 00 00 00 00 01 00 */
+  uint8_t       color1[6];      /* 00 00 00 00 01 00 */
+  uint8_t       color2[6];      /* 00 00 00 00 01 00 */
+  uint8_t       color3[6];      /* 00 00 00 00 01 00 */
 } __attribute__ ((packed));
 
 struct reg_03
 {
-  uint8_t 	unk1;		/* 0x0b - ADF ready, 0x03 - not */
-  uint8_t 	unk2;		/* 0x80 */
-  uint8_t 	adf_flags;	/* 0x01 - ADF ready when selected, 0x02 - not */
+  uint8_t       unk1;           /* 0x0b - ADF ready, 0x03 - not */
+  uint8_t       unk2;           /* 0x80 */
+  uint8_t       adf_flags;      /* 0x01 - ADF ready when selected, 0x02 - not */
 } __attribute__ ((packed));
 
 /******************************************************************************/
 static SANE_Status
 hp5590_model_def (enum hp_scanner_types scanner_type,
-		  const struct hp5590_model ** model)
+                  const struct hp5590_model ** model)
 {
   unsigned int i;
 
@@ -436,10 +436,10 @@ hp5590_model_def (enum hp_scanner_types scanner_type,
   for (i = 0; i < sizeof (hp5590_models) / sizeof (struct hp5590_model); i++)
     {
       if (hp5590_models[i].scanner_type == scanner_type)
-	{
-	  *model = &hp5590_models[i];
-	  return SANE_STATUS_GOOD;
-	}
+        {
+          *model = &hp5590_models[i];
+          return SANE_STATUS_GOOD;
+        }
     }
 
   return SANE_STATUS_INVAL;
@@ -448,11 +448,11 @@ hp5590_model_def (enum hp_scanner_types scanner_type,
 /******************************************************************************/
 static SANE_Status
 hp5590_vendor_product_id (enum hp_scanner_types scanner_type,
-			  SANE_Word * vendor_id,
-			  SANE_Word * product_id)
+                          SANE_Word * vendor_id,
+                          SANE_Word * product_id)
 {
-  const struct hp5590_model	*model;
-  SANE_Status			ret;
+  const struct hp5590_model     *model;
+  SANE_Status                   ret;
 
   hp5590_cmds_assert (vendor_id != NULL);
   hp5590_cmds_assert (product_id != NULL);
@@ -469,15 +469,15 @@ hp5590_vendor_product_id (enum hp_scanner_types scanner_type,
 /******************************************************************************/
 static SANE_Status
 hp5590_init_scanner (SANE_Int dn,
-		     enum proto_flags proto_flags,
-		     struct scanner_info ** info,
-		     enum hp_scanner_types scanner_type)
+                     enum proto_flags proto_flags,
+                     struct scanner_info ** info,
+                     enum hp_scanner_types scanner_type)
 {
-  struct init_resp 		init_resp;
-  char 				id_buf[sizeof (init_resp.id) + 1];
-  char 				ver_buf[sizeof (init_resp.version) + 1];
-  SANE_Status 			ret;
-  const struct hp5590_model 	*scanner_model;
+  struct init_resp              init_resp;
+  char                          id_buf[sizeof (init_resp.id) + 1];
+  char                          ver_buf[sizeof (init_resp.version) + 1];
+  SANE_Status                   ret;
+  const struct hp5590_model     *scanner_model;
 
   /*
    * 0A 53 49 4C 49 54 45 4B 49 50 65 6E 67 75 69 6E  .SILITEKIPenguin
@@ -491,11 +491,11 @@ hp5590_init_scanner (SANE_Int dn,
 
   /* Init scanner */
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_IN | CMD_VERIFY,
-		    CMD_INIT,
-		    (unsigned char *) &init_resp,
-		    sizeof (init_resp), CORE_NONE);
+                    proto_flags,
+                    CMD_IN | CMD_VERIFY,
+                    CMD_INIT,
+                    (unsigned char *) &init_resp,
+                    sizeof (init_resp), CORE_NONE);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -506,23 +506,23 @@ hp5590_init_scanner (SANE_Int dn,
     {
       unsigned int i;
       for (i = 0; i < sizeof (hp5590_models) / sizeof (struct hp5590_model);
-	   i++)
-	{
-	  if (hp5590_models[i].scanner_type == scanner_type)
-	    {
-	      if (strcmp (id_buf, hp5590_models[i].vendor_id) != 0)
-		{
-		  DBG (DBG_err, "%s: Vendor id mismatch for scanner HP%s - "
-		       "required  '%s', got '%s'\n",
-		       __func__,
-		       hp5590_models[i].model,
-		       hp5590_models[i].vendor_id, id_buf);
-		  return SANE_STATUS_INVAL;
-		}
-	      scanner_model = &hp5590_models[i];
-	      break;
-	    }
-	}
+           i++)
+        {
+          if (hp5590_models[i].scanner_type == scanner_type)
+            {
+              if (strcmp (id_buf, hp5590_models[i].vendor_id) != 0)
+                {
+                  DBG (DBG_err, "%s: Vendor id mismatch for scanner HP%s - "
+                       "required  '%s', got '%s'\n",
+                       __func__,
+                       hp5590_models[i].model,
+                       hp5590_models[i].vendor_id, id_buf);
+                  return SANE_STATUS_INVAL;
+                }
+              scanner_model = &hp5590_models[i];
+              break;
+            }
+        }
       hp5590_cmds_assert (scanner_model != NULL);
     }
 
@@ -531,10 +531,10 @@ hp5590_init_scanner (SANE_Int dn,
       DBG (DBG_cmds, "HP%s flags (0x%02x)\n", scanner_model->model, init_resp.flags);
 
       DBG (DBG_cmds, "HP%s flags: ADF %s, TMA %s, LCD %s\n",
-	   scanner_model->model,
-	   init_resp.flags & INIT_FLAG_ADF ? "yes" : "no",
-	   init_resp.flags & INIT_FLAG_TMA ? "yes" : "no",
-	   init_resp.flags & INIT_FLAG_LCD ? "yes" : "no");
+           scanner_model->model,
+           init_resp.flags & INIT_FLAG_ADF ? "yes" : "no",
+           init_resp.flags & INIT_FLAG_TMA ? "yes" : "no",
+           init_resp.flags & INIT_FLAG_LCD ? "yes" : "no");
 
 
       memset (ver_buf, 0, sizeof (ver_buf));
@@ -542,33 +542,33 @@ hp5590_init_scanner (SANE_Int dn,
       DBG (DBG_cmds, "HP%s firmware version: %s\n", scanner_model->model, ver_buf);
 
       DBG (DBG_cmds, "HP%s max resolution X: %u DPI\n",
-	   scanner_model->model, ntohs (init_resp.max_dpi_x));
+           scanner_model->model, ntohs (init_resp.max_dpi_x));
       DBG (DBG_cmds, "HP%s max resolution Y: %u DPI\n",
-	   scanner_model->model, ntohs (init_resp.max_dpi_y));
+           scanner_model->model, ntohs (init_resp.max_dpi_y));
       DBG (DBG_cmds, "HP%s max pixels X: %u\n",
-	   scanner_model->model, ntohs (init_resp.max_pixels_x));
+           scanner_model->model, ntohs (init_resp.max_pixels_x));
       DBG (DBG_cmds, "HP%s max pixels Y: %u\n",
-	   scanner_model->model, ntohs (init_resp.max_pixels_y));
+           scanner_model->model, ntohs (init_resp.max_pixels_y));
       DBG (DBG_cmds, "HP%s max size X: %.3f inches\n",
-	   scanner_model->model,
-	   ntohs (init_resp.max_pixels_x) * 1.0 /
-	   ntohs (init_resp.max_dpi_x));
+           scanner_model->model,
+           ntohs (init_resp.max_pixels_x) * 1.0 /
+           ntohs (init_resp.max_dpi_x));
       DBG (DBG_cmds, "HP%s max size Y: %.3f inches\n", scanner_model->model,
-	   ntohs (init_resp.max_pixels_y) * 1.0 /
-	   ntohs (init_resp.max_dpi_y));
+           ntohs (init_resp.max_pixels_y) * 1.0 /
+           ntohs (init_resp.max_dpi_y));
       DBG (DBG_cmds, "HP%s normal motor param: %u, max motor param: %u\n",
-	   scanner_model->model, ntohs (init_resp.motor_param_normal),
-	   ntohs (init_resp.motor_param_max));
+           scanner_model->model, ntohs (init_resp.motor_param_normal),
+           ntohs (init_resp.motor_param_max));
     }
 
   if (info)
     {
       *info = malloc (sizeof (struct scanner_info));
       if (!*info)
-	{
-	  DBG (DBG_err, "Memory allocation failed\n");
-	  return SANE_STATUS_NO_MEM;
-	}
+        {
+          DBG (DBG_err, "Memory allocation failed\n");
+          return SANE_STATUS_NO_MEM;
+        }
       memset (*info, 0, sizeof (struct scanner_info));
 
       (*info)->max_dpi_x = ntohs (init_resp.max_dpi_x);
@@ -579,23 +579,23 @@ hp5590_init_scanner (SANE_Int dn,
       (*info)->max_size_y = (*info)->max_pixels_y * 1.0 / (*info)->max_dpi_y;
       (*info)->features = FEATURE_NONE;
       if (init_resp.flags & INIT_FLAG_LCD)
-	(*info)->features |= FEATURE_LCD;
+        (*info)->features |= FEATURE_LCD;
       if (init_resp.flags & INIT_FLAG_ADF)
-	(*info)->features |= FEATURE_ADF;
+        (*info)->features |= FEATURE_ADF;
       if (init_resp.flags & INIT_FLAG_TMA)
-	(*info)->features |= FEATURE_TMA;
+        (*info)->features |= FEATURE_TMA;
       if (scanner_model)
-	{
-	  (*info)->model = scanner_model->model;
-	  (*info)->kind = scanner_model->kind;
-	}
+        {
+          (*info)->model = scanner_model->model;
+          (*info)->kind = scanner_model->kind;
+        }
     }
 
   ret = hp5590_get_status (dn, proto_flags);
   if (ret != SANE_STATUS_GOOD)
     {
       DBG (DBG_err, "%s: scanner reports non-zero status: %s\n",
-	   __func__, sane_strstatus (ret));
+           __func__, sane_strstatus (ret));
       return ret;
     }
   DBG (DBG_cmds, "%s: scanner status OK\n", __func__);
@@ -606,9 +606,9 @@ hp5590_init_scanner (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_read_eeprom (SANE_Int dn,
-		    enum proto_flags proto_flags,
-		    unsigned int addr,
-		    unsigned char *data, unsigned int size)
+                    enum proto_flags proto_flags,
+                    unsigned int addr,
+                    unsigned char *data, unsigned int size)
 {
   uint8_t eeprom_addr = addr;
   SANE_Status ret;
@@ -620,18 +620,18 @@ hp5590_read_eeprom (SANE_Int dn,
   DBG (DBG_proc, "Reading EEPROM: addr %04x, size %u\n", addr, size);
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_VERIFY,
-		    CMD_EEPROM_ADDR,
-		    (unsigned char *) &eeprom_addr,
-		    sizeof (eeprom_addr), CORE_NONE);
+                    proto_flags,
+                    CMD_VERIFY,
+                    CMD_EEPROM_ADDR,
+                    (unsigned char *) &eeprom_addr,
+                    sizeof (eeprom_addr), CORE_NONE);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-		    CMD_IN | CMD_VERIFY,
-		    CMD_EEPROM_READ, data, size, CORE_NONE);
+                    proto_flags,
+                    CMD_IN | CMD_VERIFY,
+                    CMD_EEPROM_READ, data, size, CORE_NONE);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -641,9 +641,9 @@ hp5590_read_eeprom (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_write_eeprom (SANE_Int dn,
-		     enum proto_flags proto_flags,
-		     unsigned int addr,
-		     unsigned char *data, unsigned int size)
+                     enum proto_flags proto_flags,
+                     unsigned int addr,
+                     unsigned char *data, unsigned int size)
 {
   uint8_t eeprom_addr = addr;
   SANE_Status ret;
@@ -655,18 +655,18 @@ hp5590_write_eeprom (SANE_Int dn,
   DBG (DBG_proc, "Writing EEPROM: addr %04x, size: %u\n", addr, size);
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_VERIFY,
-		    CMD_EEPROM_ADDR,
-		    (unsigned char *) &eeprom_addr,
-		    sizeof (eeprom_addr), CORE_NONE);
+                    proto_flags,
+                    CMD_VERIFY,
+                    CMD_EEPROM_ADDR,
+                    (unsigned char *) &eeprom_addr,
+                    sizeof (eeprom_addr), CORE_NONE);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-		    CMD_VERIFY,
-		    CMD_EEPROM_WRITE, data, size, CORE_DATA);
+                    proto_flags,
+                    CMD_VERIFY,
+                    CMD_EEPROM_WRITE, data, size, CORE_DATA);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -676,8 +676,8 @@ hp5590_write_eeprom (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_read_scan_count (SANE_Int dn,
-			enum proto_flags proto_flags,
-			unsigned int *count)
+                        enum proto_flags proto_flags,
+                        unsigned int *count)
 {
   uint32_t scan_count;
   SANE_Status ret;
@@ -689,10 +689,10 @@ hp5590_read_scan_count (SANE_Int dn,
   DBG (DBG_proc, "Reading scan count\n");
 
   ret = hp5590_read_eeprom (dn,
-  			    proto_flags,
-  			    0x00,
-			    (unsigned char *) &scan_count,
-			    sizeof (scan_count));
+                            proto_flags,
+                            0x00,
+                            (unsigned char *) &scan_count,
+                            sizeof (scan_count));
 
   if (ret != SANE_STATUS_GOOD)
     return ret;
@@ -708,7 +708,7 @@ hp5590_read_scan_count (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_inc_scan_count (SANE_Int dn,
-		       enum proto_flags proto_flags)
+                       enum proto_flags proto_flags)
 {
   uint32_t scan_count;
   uint32_t count;
@@ -726,10 +726,10 @@ hp5590_inc_scan_count (SANE_Int dn,
   DBG (DBG_verbose, "Scan count = %u\n", scan_count);
 
   ret = hp5590_write_eeprom (dn,
-  			     proto_flags,
-  			     0x00,
-			     (unsigned char *) &scan_count,
-			     sizeof (scan_count));
+                             proto_flags,
+                             0x00,
+                             (unsigned char *) &scan_count,
+                             sizeof (scan_count));
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -750,8 +750,8 @@ hp5590_inc_scan_count (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_read_max_scan_count (SANE_Int dn,
-			    enum proto_flags proto_flags,
-			    unsigned int *max_count)
+                            enum proto_flags proto_flags,
+                            unsigned int *max_count)
 {
   uint8_t max_scan_count[3];
   SANE_Status ret;
@@ -763,10 +763,10 @@ hp5590_read_max_scan_count (SANE_Int dn,
   DBG (DBG_proc, "Reading max scan count\n");
 
   ret = hp5590_read_eeprom (dn,
-  			    proto_flags,
-			    0x10,
-			    (unsigned char *) max_scan_count,
-			    sizeof (max_scan_count));
+                            proto_flags,
+                            0x10,
+                            (unsigned char *) max_scan_count,
+                            sizeof (max_scan_count));
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -809,7 +809,7 @@ hp5590_read_max_scan_count (SANE_Int dn,
 /******************************************************************************/
 static __sane_unused__ SANE_Status
 hp5590_read_eeprom_all_cmd (SANE_Int dn,
-			    enum proto_flags proto_flags)
+                            enum proto_flags proto_flags)
 {
   uint8_t eeprom[255];
   SANE_Status ret;
@@ -817,10 +817,10 @@ hp5590_read_eeprom_all_cmd (SANE_Int dn,
   DBG (DBG_proc, "%s\n", __func__);
 
   ret = hp5590_read_eeprom (dn,
-  			    proto_flags,
-  			    0x00,
-			    (unsigned char *) eeprom,
-			    sizeof (eeprom));
+                            proto_flags,
+                            0x00,
+                            (unsigned char *) eeprom,
+                            sizeof (eeprom));
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -832,7 +832,7 @@ hp5590_read_eeprom_all_cmd (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_read_part_number (SANE_Int dn,
-			 enum proto_flags proto_flags)
+                         enum proto_flags proto_flags)
 {
   unsigned int part_number_len = PART_NUMBER_LEN;
   unsigned char part_number[PART_NUMBER_LEN + 1];
@@ -842,9 +842,9 @@ hp5590_read_part_number (SANE_Int dn,
 
   memset (part_number, 0, sizeof (part_number));
   ret = hp5590_read_eeprom (dn,
-  			    proto_flags,
-			    0x1a,
-			    part_number, part_number_len);
+                            proto_flags,
+                            0x1a,
+                            part_number, part_number_len);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -856,7 +856,7 @@ hp5590_read_part_number (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_is_data_available (SANE_Int dn,
-			  enum proto_flags proto_flags)
+                          enum proto_flags proto_flags)
 {
   uint8_t data_status;
   SANE_Status ret;
@@ -868,11 +868,11 @@ hp5590_is_data_available (SANE_Int dn,
   data_available = SANE_FALSE;
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_IN | CMD_VERIFY,
-		    CMD_DATA_STATUS,
-		    (unsigned char *) &data_status,
-		    sizeof (data_status), CORE_DATA);
+                    proto_flags,
+                    CMD_IN | CMD_VERIFY,
+                    CMD_DATA_STATUS,
+                    (unsigned char *) &data_status,
+                    sizeof (data_status), CORE_DATA);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -891,7 +891,7 @@ hp5590_is_data_available (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_stop_scan (SANE_Int dn,
-		  enum proto_flags proto_flags)
+                  enum proto_flags proto_flags)
 {
   uint8_t reg_011b = 0x40;
   SANE_Status ret;
@@ -901,11 +901,11 @@ hp5590_stop_scan (SANE_Int dn,
   hp5590_cmds_assert (sizeof (reg_011b) == 1);
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_VERIFY,
-		    CMD_STOP_SCAN,
-		    (unsigned char *) &reg_011b,
-		    sizeof (reg_011b), CORE_NONE);
+                    proto_flags,
+                    CMD_VERIFY,
+                    CMD_STOP_SCAN,
+                    (unsigned char *) &reg_011b,
+                    sizeof (reg_011b), CORE_NONE);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -917,8 +917,8 @@ hp5590_stop_scan (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_turnon_lamp (SANE_Int dn,
-		    enum proto_flags proto_flags,
-		    enum hp5590_lamp_state state)
+                    enum proto_flags proto_flags,
+                    enum hp5590_lamp_state state)
 {
   struct lamp_state lamp_state;
   SANE_Status ret;
@@ -964,11 +964,11 @@ hp5590_turnon_lamp (SANE_Int dn,
     }
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_VERIFY,
-		    CMD_CONTROL_LAMP,
-		    (unsigned char *) &lamp_state,
-		    sizeof (lamp_state), CORE_DATA);
+                    proto_flags,
+                    CMD_VERIFY,
+                    CMD_CONTROL_LAMP,
+                    (unsigned char *) &lamp_state,
+                    sizeof (lamp_state), CORE_DATA);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -976,7 +976,7 @@ hp5590_turnon_lamp (SANE_Int dn,
     {
       ret = hp5590_init_scanner (dn, proto_flags, NULL, SCANNER_NONE);
       if (ret != SANE_STATUS_GOOD)
-	return ret;
+        return ret;
     }
 
   return SANE_STATUS_GOOD;
@@ -985,7 +985,7 @@ hp5590_turnon_lamp (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_power_status (SANE_Int dn,
-		     enum proto_flags proto_flags)
+                     enum proto_flags proto_flags)
 {
   struct power_resp power_resp;
   SANE_Status ret;
@@ -995,11 +995,11 @@ hp5590_power_status (SANE_Int dn,
   hp5590_cmds_assert (sizeof (power_resp) == 3);
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_IN | CMD_VERIFY,
-		    CMD_POWER_STATUS,
-		    (unsigned char *) &power_resp,
-		    sizeof (power_resp), CORE_NONE);
+                    proto_flags,
+                    CMD_IN | CMD_VERIFY,
+                    CMD_POWER_STATUS,
+                    (unsigned char *) &power_resp,
+                    sizeof (power_resp), CORE_NONE);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1011,7 +1011,7 @@ hp5590_power_status (SANE_Int dn,
       DBG (DBG_cmds, "Turning lamp on\n");
       ret = hp5590_turnon_lamp (dn, proto_flags, LAMP_STATE_TURNON);
       if (ret != SANE_STATUS_GOOD)
-	return ret;
+        return ret;
     }
 
   return SANE_STATUS_GOOD;
@@ -1020,11 +1020,11 @@ hp5590_power_status (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_read_error_code (SANE_Int dn,
-			enum proto_flags proto_flags,
-			unsigned int *adf_flags)
+                        enum proto_flags proto_flags,
+                        unsigned int *adf_flags)
 {
   struct reg_03 reg_03;
-  SANE_Status 	ret;
+  SANE_Status   ret;
 
   DBG (DBG_proc, "%s\n", __func__);
 
@@ -1034,11 +1034,11 @@ hp5590_read_error_code (SANE_Int dn,
   memset (&reg_03, 0, sizeof (reg_03));
   *adf_flags = 0;
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_IN,
-		    CMD_MISC_STATUS,
-		    (unsigned char *) &reg_03,
-		    sizeof (reg_03), CORE_NONE);
+                    proto_flags,
+                    CMD_IN,
+                    CMD_MISC_STATUS,
+                    (unsigned char *) &reg_03,
+                    sizeof (reg_03), CORE_NONE);
 
   if (ret != SANE_STATUS_GOOD)
     return ret;
@@ -1055,9 +1055,9 @@ hp5590_read_error_code (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_reset_scan_head (SANE_Int dn,
-			enum proto_flags proto_flags)
+                        enum proto_flags proto_flags)
 {
-  SANE_Status	ret;
+  SANE_Status   ret;
 
   DBG (DBG_proc, "%s\n", __func__);
 
@@ -1077,13 +1077,13 @@ hp5590_reset_scan_head (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_select_source_and_wakeup (SANE_Int dn,
-				 enum proto_flags proto_flags,
-				 enum scan_sources source,
-				 SANE_Bool extend_lamp_timeout)
+                                 enum proto_flags proto_flags,
+                                 enum scan_sources source,
+                                 SANE_Bool extend_lamp_timeout)
 {
-  uint8_t 	reg_d6 = 0x04;
-  SANE_Status 	ret;
-  unsigned int	adf_flags;
+  uint8_t       reg_d6 = 0x04;
+  SANE_Status   ret;
+  unsigned int  adf_flags;
 
   DBG (DBG_proc, "%s\n", __func__);
 
@@ -1093,50 +1093,50 @@ hp5590_select_source_and_wakeup (SANE_Int dn,
     {
       ret = hp5590_turnon_lamp (dn, proto_flags, LAMP_STATE_TURNOFF);
       if (ret != SANE_STATUS_GOOD)
-	return ret;
+        return ret;
     }
   else
     {
       ret = hp5590_turnon_lamp (dn,
-				proto_flags,
-				extend_lamp_timeout == SANE_TRUE ?
-				LAMP_STATE_SET_TURNOFF_TIME_LONG :
-				LAMP_STATE_SET_TURNOFF_TIME);
+                                proto_flags,
+                                extend_lamp_timeout == SANE_TRUE ?
+                                LAMP_STATE_SET_TURNOFF_TIME_LONG :
+                                LAMP_STATE_SET_TURNOFF_TIME);
       if (ret != SANE_STATUS_GOOD)
-	return ret;
+        return ret;
     }
 
   switch (source)
     {
       case SOURCE_ADF:
       case SOURCE_ADF_DUPLEX:
-	reg_d6 = 0x03;
-	break;
+        reg_d6 = 0x03;
+        break;
       case SOURCE_FLATBED:
-	reg_d6 = 0x04;
-	break;
+        reg_d6 = 0x04;
+        break;
       case SOURCE_TMA_SLIDES:
-	reg_d6 = 0x02;
-	break;
+        reg_d6 = 0x02;
+        break;
       case SOURCE_TMA_NEGATIVES:
-	reg_d6 = 0x01;
-	break;
+        reg_d6 = 0x01;
+        break;
       case SOURCE_NONE:
-	DBG (DBG_err, "Scan source not selected\n");
-	return SANE_STATUS_INVAL;
+        DBG (DBG_err, "Scan source not selected\n");
+        return SANE_STATUS_INVAL;
       default:
-	DBG (DBG_err, "Unknown scan source: %u\n", source);
-	return SANE_STATUS_INVAL;
+        DBG (DBG_err, "Unknown scan source: %u\n", source);
+        return SANE_STATUS_INVAL;
     }
 
   DBG (DBG_cmds, "Scan source: %u\n", reg_d6);
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_VERIFY,
-		    CMD_SELECT_SOURCE,
-		    (unsigned char *) &reg_d6,
-		    sizeof (reg_d6), CORE_NONE);
+                    proto_flags,
+                    CMD_VERIFY,
+                    CMD_SELECT_SOURCE,
+                    (unsigned char *) &reg_d6,
+                    sizeof (reg_d6), CORE_NONE);
 
   if (ret != SANE_STATUS_GOOD && ret != SANE_STATUS_DEVICE_BUSY)
     return ret;
@@ -1157,12 +1157,12 @@ hp5590_select_source_and_wakeup (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_lock_unlock_scanner (SANE_Int dn,
-			    enum proto_flags proto_flags)
+                            enum proto_flags proto_flags)
 {
-  uint8_t 	reg_00 = 0x01;
-  SANE_Status 	ret;
-  unsigned int	adf_flags;
-  unsigned int	waiting;
+  uint8_t       reg_00 = 0x01;
+  SANE_Status   ret;
+  unsigned int  adf_flags;
+  unsigned int  waiting;
 
   DBG (DBG_proc, "%s\n", __func__);
   hp5590_cmds_assert (sizeof (reg_00) == 1);
@@ -1170,27 +1170,27 @@ hp5590_lock_unlock_scanner (SANE_Int dn,
   for (waiting = 0; waiting < WAKEUP_TIMEOUT; waiting++, sleep (1))
     {
       ret = hp5590_cmd (dn,
-      			proto_flags,
-      			CMD_VERIFY,
-			CMD_LOCK_UNLOCK,
-			(unsigned char *) &reg_00,
-			sizeof (reg_00), CORE_NONE);
+                        proto_flags,
+                        CMD_VERIFY,
+                        CMD_LOCK_UNLOCK,
+                        (unsigned char *) &reg_00,
+                        sizeof (reg_00), CORE_NONE);
       if (ret == SANE_STATUS_GOOD)
-	break;
+        break;
 
       if (ret != SANE_STATUS_DEVICE_BUSY)
-	return ret;
+        return ret;
 
       DBG (DBG_cmds, "Waiting for scanner...\n");
       ret = hp5590_read_error_code (dn, proto_flags, &adf_flags);
       if (ret != SANE_STATUS_GOOD)
-	return ret;
+        return ret;
 
       if (adf_flags & FLAG_ADF_EMPTY)
-	{
-	  DBG (DBG_cmds, "ADF empty\n");
-	  return SANE_STATUS_NO_DOCS;
-	}
+        {
+          DBG (DBG_cmds, "ADF empty\n");
+          return SANE_STATUS_NO_DOCS;
+        }
     }
 
   if (waiting == WAKEUP_TIMEOUT)
@@ -1202,9 +1202,9 @@ hp5590_lock_unlock_scanner (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_set_base_dpi (SANE_Int dn,
-		     enum proto_flags proto_flags,
-		     struct scanner_info *scanner_info,
-		     unsigned int base_dpi)
+                     enum proto_flags proto_flags,
+                     struct scanner_info *scanner_info,
+                     unsigned int base_dpi)
 {
   uint16_t _base_dpi;
   SANE_Status ret;
@@ -1219,21 +1219,21 @@ hp5590_set_base_dpi (SANE_Int dn,
       || base_dpi > scanner_info->max_dpi_y)
     {
       DBG (DBG_err, "Base DPI too large "
-	   "(given: %u, max X DPI: %u, max Y DPI: %u)\n",
-	   base_dpi,
-	   scanner_info->max_dpi_x,
-	   scanner_info->max_dpi_y);
+           "(given: %u, max X DPI: %u, max Y DPI: %u)\n",
+           base_dpi,
+           scanner_info->max_dpi_x,
+           scanner_info->max_dpi_y);
       return SANE_STATUS_INVAL;
     }
 
   _base_dpi = htons (base_dpi);
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_VERIFY,
-		    CMD_SET_BASE_DPI,
-		    (unsigned char *) &_base_dpi,
-		    sizeof (_base_dpi), CORE_DATA);
+                    proto_flags,
+                    CMD_VERIFY,
+                    CMD_SET_BASE_DPI,
+                    (unsigned char *) &_base_dpi,
+                    sizeof (_base_dpi), CORE_DATA);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1243,8 +1243,8 @@ hp5590_set_base_dpi (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_set_color_map (SANE_Int dn,
-		      enum proto_flags proto_flags,
-		      unsigned int base_dpi)
+                      enum proto_flags proto_flags,
+                      unsigned int base_dpi)
 {
   struct color_map color_map;
   SANE_Status ret;
@@ -1300,11 +1300,11 @@ hp5590_set_color_map (SANE_Int dn,
     }
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_VERIFY,
-		    CMD_SET_COLOR_MAP,
-		    (unsigned char *) &color_map,
-		    sizeof (color_map), CORE_DATA);
+                    proto_flags,
+                    CMD_VERIFY,
+                    CMD_SET_COLOR_MAP,
+                    (unsigned char *) &color_map,
+                    sizeof (color_map), CORE_DATA);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1417,7 +1417,7 @@ calc_scanner_dpi (unsigned int dpi, unsigned int *scanner_dpi)
 /******************************************************************************/
 static SANE_Status
 hp5590_calc_pixel_bits (unsigned int dpi, enum color_depths color_depth,
-			unsigned int *pixel_bits)
+                        unsigned int *pixel_bits)
 {
   unsigned int scanner_dpi;
   SANE_Status ret;
@@ -1452,9 +1452,9 @@ hp5590_calc_pixel_bits (unsigned int dpi, enum color_depths color_depth,
   if (color_depth == DEPTH_BW)
     {
       if (dpi == scanner_dpi)
-	*pixel_bits = 1;
+        *pixel_bits = 1;
       else
-	*pixel_bits = 8;
+        *pixel_bits = 8;
       return SANE_STATUS_GOOD;
     }
 
@@ -1465,28 +1465,28 @@ hp5590_calc_pixel_bits (unsigned int dpi, enum color_depths color_depth,
 /******************************************************************************/
 static SANE_Status
 hp5590_set_scan_area (SANE_Int dn,
-		      enum proto_flags proto_flags,
-		      struct scanner_info *scanner_info,
-		      unsigned int top_x, unsigned int top_y,
-		      unsigned int width, unsigned int height,
-		      unsigned int dpi, enum color_depths color_depth,
-		      enum scan_modes scan_mode,
-		      enum scan_sources scan_source)
+                      enum proto_flags proto_flags,
+                      struct scanner_info *scanner_info,
+                      unsigned int top_x, unsigned int top_y,
+                      unsigned int width, unsigned int height,
+                      unsigned int dpi, enum color_depths color_depth,
+                      enum scan_modes scan_mode,
+                      enum scan_sources scan_source)
 {
-  struct scan_params	scan_params;
-  unsigned int 		scanner_top_x;
-  unsigned int 		scanner_top_y;
-  unsigned int 		scanner_pixels_x;
-  unsigned int		scanner_pixels_y;
-  unsigned int 		base_dpi;
-  unsigned int 		scanner_dpi;
-  unsigned int 		pixel_bits;
-  unsigned int 		scanner_line_width;
-  unsigned int 		max_pixels_x_current_dpi;
-  unsigned int		max_pixels_y_current_dpi;
-  unsigned int 		pixels_x;
-  unsigned int 		pixels_y;
-  SANE_Status 		ret;
+  struct scan_params    scan_params;
+  unsigned int          scanner_top_x;
+  unsigned int          scanner_top_y;
+  unsigned int          scanner_pixels_x;
+  unsigned int          scanner_pixels_y;
+  unsigned int          base_dpi;
+  unsigned int          scanner_dpi;
+  unsigned int          pixel_bits;
+  unsigned int          scanner_line_width;
+  unsigned int          max_pixels_x_current_dpi;
+  unsigned int          max_pixels_y_current_dpi;
+  unsigned int          pixels_x;
+  unsigned int          pixels_y;
+  SANE_Status           ret;
 
   DBG (DBG_proc, "%s\n", __func__);
 
@@ -1514,8 +1514,8 @@ hp5590_set_scan_area (SANE_Int dn,
   if (dpi > scanner_info->max_dpi_x || dpi > scanner_info->max_dpi_y)
     {
       DBG (DBG_err, "DPI too large "
-	   "(given: %u, max X DPI: %u, max Y DPI: %u)\n",
-	   dpi, scanner_info->max_dpi_x, scanner_info->max_dpi_y);
+           "(given: %u, max X DPI: %u, max Y DPI: %u)\n",
+           dpi, scanner_info->max_dpi_x, scanner_info->max_dpi_y);
       return SANE_STATUS_INVAL;
     }
 
@@ -1603,14 +1603,14 @@ hp5590_set_scan_area (SANE_Int dn,
   if (top_x + pixels_x > max_pixels_x_current_dpi)
     {
       DBG (DBG_err, "Top X (%u) + pixels X (%u) exceeds max X %u\n",
-	   top_x, pixels_x, max_pixels_x_current_dpi);
+           top_x, pixels_x, max_pixels_x_current_dpi);
       return SANE_STATUS_INVAL;
     }
 
   if (top_y + pixels_y > max_pixels_y_current_dpi)
     {
       DBG (DBG_err, "Top Y (%u) + pixels Y (%u) exceeds max Y %u\n",
-	   top_y, pixels_y, max_pixels_y_current_dpi);
+           top_y, pixels_y, max_pixels_y_current_dpi);
       return SANE_STATUS_INVAL;
     }
 
@@ -1620,7 +1620,7 @@ hp5590_set_scan_area (SANE_Int dn,
   scan_params.size_y = htons (scanner_pixels_y);
 
   scanner_line_width = (float) (pixels_x
-				* (1.0 * scanner_dpi / dpi) / 8 * pixel_bits);
+                                * (1.0 * scanner_dpi / dpi) / 8 * pixel_bits);
 
   /* Scanner hangs at scan command if line width less than 18 */
   if (scanner_line_width < 18)
@@ -1632,11 +1632,11 @@ hp5590_set_scan_area (SANE_Int dn,
   DBG (DBG_cmds, "Line width: %u\n", scanner_line_width);
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_VERIFY,
-		    CMD_SET_SCAN_PARAMS,
-		    (unsigned char *) &scan_params,
-		    sizeof (scan_params), CORE_DATA);
+                    proto_flags,
+                    CMD_VERIFY,
+                    CMD_SET_SCAN_PARAMS,
+                    (unsigned char *) &scan_params,
+                    sizeof (scan_params), CORE_DATA);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1646,7 +1646,7 @@ hp5590_set_scan_area (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_read_image_params (SANE_Int dn,
-			  enum proto_flags proto_flags)
+                          enum proto_flags proto_flags)
 {
   struct image_params image_params;
   SANE_Status ret;
@@ -1658,18 +1658,18 @@ hp5590_read_image_params (SANE_Int dn,
   memset (&image_params, 0, sizeof (image_params));
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_IN | CMD_VERIFY,
-		    CMD_GET_IMAGE_PARAMS,
-		    (unsigned char *) &image_params,
-		    sizeof (image_params), CORE_NONE);
+                    proto_flags,
+                    CMD_IN | CMD_VERIFY,
+                    CMD_GET_IMAGE_PARAMS,
+                    (unsigned char *) &image_params,
+                    sizeof (image_params), CORE_NONE);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
   if (image_params.signature != 0xc0)
     {
       DBG (DBG_err, "Wrong signature for image parameters structure "
-	   "received (needed 0xc0, got %02x)\n", image_params.signature);
+           "received (needed 0xc0, got %02x)\n", image_params.signature);
       return SANE_STATUS_IO_ERROR;
     }
   DBG (DBG_cmds, "Received image params:\n");
@@ -1688,13 +1688,13 @@ hp5590_read_image_params (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_set_scan_params (SANE_Int dn,
-			enum proto_flags proto_flags,
-			struct scanner_info * scanner_info,
-			unsigned int top_x, unsigned int top_y,
-			unsigned int width, unsigned int height,
-			unsigned int dpi, enum color_depths color_depth,
-			enum scan_modes scan_mode,
-			enum scan_sources scan_source)
+                        enum proto_flags proto_flags,
+                        struct scanner_info * scanner_info,
+                        unsigned int top_x, unsigned int top_y,
+                        unsigned int width, unsigned int height,
+                        unsigned int dpi, enum color_depths color_depth,
+                        enum scan_modes scan_mode,
+                        enum scan_sources scan_source)
 {
   unsigned int base_dpi;
   SANE_Status ret;
@@ -1737,11 +1737,11 @@ hp5590_set_scan_params (SANE_Int dn,
     }
 
   ret = hp5590_set_scan_area (dn,
-  			      proto_flags,
-  			      scanner_info,
-			      top_x, top_y,
-			      width, height,
-			      dpi, color_depth, scan_mode, scan_source);
+                              proto_flags,
+                              scanner_info,
+                              top_x, top_y,
+                              width, height,
+                              dpi, color_depth, scan_mode, scan_source);
   if (ret != SANE_STATUS_GOOD)
     {
       /* Unlock scanner */
@@ -1768,7 +1768,7 @@ hp5590_set_scan_params (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_send_reverse_calibration_map (SANE_Int dn,
-				     enum proto_flags proto_flags)
+                                     enum proto_flags proto_flags)
 {
   unsigned int reverse_map_size = REVERSE_MAP_LEN;
   uint16_t reverse_map[REVERSE_MAP_LEN];
@@ -1809,13 +1809,13 @@ hp5590_send_reverse_calibration_map (SANE_Int dn,
       }
     }
 
-  DBG (DBG_proc, "Done preparing reverse calibration map. n=%u, bytes_per_entry=%lu\n", reverse_map_size, sizeof(uint16_t));
+  DBG (DBG_proc, "Done preparing reverse calibration map. n=%u, bytes_per_entry=%zu\n", reverse_map_size, sizeof(uint16_t));
 
   ret = hp5590_bulk_write (dn,
-  			   proto_flags,
-  			   0x2b,
-			   (unsigned char *) reverse_map,
-			   reverse_map_size * sizeof (uint16_t));
+                           proto_flags,
+                           0x2b,
+                           (unsigned char *) reverse_map,
+                           reverse_map_size * sizeof (uint16_t));
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1825,7 +1825,7 @@ hp5590_send_reverse_calibration_map (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_send_forward_calibration_maps (SANE_Int dn,
-				      enum proto_flags proto_flags)
+                                      enum proto_flags proto_flags)
 {
   unsigned int forward_map_size = FORWARD_MAP_LEN;
   uint16_t forward_map[FORWARD_MAP_LEN];
@@ -1840,31 +1840,31 @@ hp5590_send_forward_calibration_maps (SANE_Int dn,
     {
       forward_map[i] = htons (val);
       if (val < 0xffff)
-	val += 1;
+        val += 1;
     }
-  DBG (DBG_proc, "Done preparing forward calibration map. n=%u, bytes_per_entry=%lu\n", forward_map_size, sizeof(uint16_t));
+  DBG (DBG_proc, "Done preparing forward calibration map. n=%u, bytes_per_entry=%zu\n", forward_map_size, sizeof(uint16_t));
 
   ret = hp5590_bulk_write (dn,
-  			   proto_flags,
-  			   0x012a,
-			   (unsigned char *) forward_map,
-			   forward_map_size * sizeof (uint16_t));
+                           proto_flags,
+                           0x012a,
+                           (unsigned char *) forward_map,
+                           forward_map_size * sizeof (uint16_t));
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
   ret = hp5590_bulk_write (dn,
-  			   proto_flags,
-  			   0x022a,
-			   (unsigned char *) forward_map,
-			   forward_map_size * sizeof (uint16_t));
+                           proto_flags,
+                           0x022a,
+                           (unsigned char *) forward_map,
+                           forward_map_size * sizeof (uint16_t));
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
   ret = hp5590_bulk_write (dn,
-  			   proto_flags,
-  			   0x032a,
-			   (unsigned char *) forward_map,
-			   forward_map_size * sizeof (uint16_t));
+                           proto_flags,
+                           0x032a,
+                           (unsigned char *) forward_map,
+                           forward_map_size * sizeof (uint16_t));
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1874,9 +1874,9 @@ hp5590_send_forward_calibration_maps (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_read (SANE_Int dn,
-	     enum proto_flags proto_flags,
-	     unsigned char *bytes, unsigned int size,
-	     void *state)
+             enum proto_flags proto_flags,
+             unsigned char *bytes, unsigned int size,
+             void *state)
 {
   SANE_Status ret;
 
@@ -1895,7 +1895,7 @@ hp5590_read (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_start_scan (SANE_Int dn,
-		   enum proto_flags proto_flags)
+                   enum proto_flags proto_flags)
 {
   uint8_t reg_051b = 0x40;
   SANE_Status ret;
@@ -1905,11 +1905,11 @@ hp5590_start_scan (SANE_Int dn,
   hp5590_cmds_assert (sizeof (reg_051b) == 1);
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_VERIFY,
-		    CMD_START_SCAN,
-		    (unsigned char *) &reg_051b,
-		    sizeof (reg_051b), CORE_NONE);
+                    proto_flags,
+                    CMD_VERIFY,
+                    CMD_START_SCAN,
+                    (unsigned char *) &reg_051b,
+                    sizeof (reg_051b), CORE_NONE);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
@@ -1919,8 +1919,8 @@ hp5590_start_scan (SANE_Int dn,
 /******************************************************************************/
 static SANE_Status
 hp5590_read_buttons (SANE_Int dn,
-		     enum proto_flags proto_flags,
-		     enum button_status * status)
+                     enum proto_flags proto_flags,
+                     enum button_status * status)
 {
   uint16_t button_status;
   SANE_Status ret;
@@ -1931,11 +1931,11 @@ hp5590_read_buttons (SANE_Int dn,
   hp5590_cmds_assert (sizeof (button_status) == 2);
 
   ret = hp5590_cmd (dn,
-  		    proto_flags,
-  		    CMD_IN | CMD_VERIFY,
-		    CMD_BUTTON_STATUS,
-		    (unsigned char *) &button_status,
-		    sizeof (button_status), CORE_NONE);
+                    proto_flags,
+                    CMD_IN | CMD_VERIFY,
+                    CMD_BUTTON_STATUS,
+                    (unsigned char *) &button_status,
+                    sizeof (button_status), CORE_NONE);
   if (ret != SANE_STATUS_GOOD)
     return ret;
 

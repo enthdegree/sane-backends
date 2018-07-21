@@ -3108,7 +3108,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
                                channels,
                                0,
                                coeff,
-                               0xd000,
+			       0xe000,
                                0x0800);
       break;
     case CCD_PLUSTEK_3600:

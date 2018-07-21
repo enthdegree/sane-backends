@@ -4359,8 +4359,17 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
   if (dev->model->motor_type == MOTOR_CANONLIDE80)
     {
       ydpi = gl841_get_dpihw(dev);
-      /* get over extra dark area for this model */
-      starty = 140;
+      /* get over extra dark area for this model.
+	 It looks like different devices have dark areas of different width
+	 due to manufacturing variability. The initial value of starty was 140,
+	 but it moves the sensor almost past the dark area completely in places
+	 on certain devices.
+
+	 On a particular device the black area starts at roughly position
+	 160 to 230 depending on location (the dark area is not completely
+	 parallel to the frame).
+      */
+      starty = 70;
     }
 
   dev->calib_channels = 3;

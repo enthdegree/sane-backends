@@ -61,7 +61,7 @@
 #include "../include/sane/saneopts.h"
 #include "hp5590_cmds.c"
 #include "hp5590_low.c"
-#include "sanei_net.h"
+#include "../include/sane/sanei_net.h"
 
 /* Debug levels */
 #define DBG_err         0

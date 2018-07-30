@@ -258,6 +258,11 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define R_FINE_uid_blue           0x09
 #define R_FINE_uid_unknown        0x14
 
+/* get pixel size */
+#define R_PSIZE_len               16
+#define get_R_PSIZE_width(in)     getnbyte(in + 0x08, 4)
+#define get_R_PSIZE_length(in)    getnbyte(in + 0x0c, 4)
+
 /* ==================================================================== */
 /* SEND */
 #define SEND_code               0x2a
@@ -431,6 +436,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SM2_pc_df                       0x00
 #define SM2_pc_ultra                    0x01
 #define SM2_pc_buffer                   0x02
+#define SM2_pc_hw_enhancement           0x03
 #define SM2_pc_dropout                  0x06
 
 /* ==================================================================== */
@@ -447,6 +453,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 /* for DF (0x00) page */
 #define set_SSM2_DF_thick(sb, val)       setbitfield(sb+3, 1, 2, val)
 #define set_SSM2_DF_len(sb, val)         setbitfield(sb+3, 1, 0, val)
+#define set_SSM2_DF_staple(sb, val)      setbitfield(sb+3, 1, 4, val)
 
 /* for ULTRA (0x01) page */
 #define set_SSM2_ULTRA_top(sb, val)      putnbyte(sb + 0x07, val, 2)
@@ -457,9 +464,14 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_SSM2_BUFF_unk2(sb, val)          sb[0x06] = val
 #define set_SSM2_BUFF_sync(sb, val)          sb[0x09] = val
 
+/* for HARDWARE ENHANCEMENT (0x03) */
+#define set_SSM2_roller_deskew(sb, val)      setbitfield(sb+6, 1, 3, val)
+#define set_SSM2_hw_crop(sb, val)            setbitfield(sb+6, 1, 5, val)
+
 /* for DROPOUT (0x06) page */
 #define set_SSM2_DO_do(sb, val)              sb[0x09] = val
 #define set_SSM2_DO_en(sb, val)              sb[0x0a] = val
+#define set_SSM2_DO_side(sb, val)            sb[0x05] = val
 
 /* ==================================================================== */
 /* window descriptor macros for SET_WINDOW and GET_WINDOW */

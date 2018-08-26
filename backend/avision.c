@@ -4088,6 +4088,8 @@ get_double ( &(result[48] ) ));
   dev->inquiry_button_control = BIT (result[50], 6) | BIT (result[51],2);
 
   dev->inquiry_exposure_control = BIT(result[51],7);
+  if (dev->scanner_type != AV_FILM && !(dev->hw->feature_type & AV_FORCE_FILM))
+    dev->inquiry_exposure_control = 0;
   dev->inquiry_max_shading_target = get_double ( &(result[75]) );
 
   dev->inquiry_color_boundary = result[54];

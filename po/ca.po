@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.27git\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2018-08-21 13:32+0200\n"
-"PO-Revision-Date: 2018-08-21 14:06+0100\n"
+"PO-Revision-Date: 2018-08-27 01:30+0100\n"
 "Last-Translator: Antoni Bella Pérez <antonibella5@yahoo.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca\n"
@@ -102,27 +102,27 @@ msgstr "Font de l'escàner"
 #: include/sane/saneopts.h:168
 #, no-c-format
 msgid "Force backtracking"
-msgstr ""
+msgstr "Força el retrocés"
 
 #: include/sane/saneopts.h:169
 #, no-c-format
 msgid "Top-left x"
-msgstr ""
+msgstr "A dalt-esquerra X"
 
 #: include/sane/saneopts.h:170
 #, no-c-format
 msgid "Top-left y"
-msgstr ""
+msgstr "A dalt-esquerra Y"
 
 #: include/sane/saneopts.h:171
 #, no-c-format
 msgid "Bottom-right x"
-msgstr ""
+msgstr "A baix-dreta X"
 
 #: include/sane/saneopts.h:172
 #, no-c-format
 msgid "Bottom-right y"
-msgstr ""
+msgstr "A baix-dreta Y"
 
 #: include/sane/saneopts.h:173 backend/canon.c:1216
 #: backend/pixma_sane_options.c:300
@@ -153,7 +153,7 @@ msgstr "Alçada de la pàgina"
 #: include/sane/saneopts.h:178
 #, no-c-format
 msgid "Use custom gamma table"
-msgstr ""
+msgstr "Usa una taula de gamma personalitzada"
 
 #: include/sane/saneopts.h:179
 #, no-c-format
@@ -193,7 +193,7 @@ msgstr "Mida del gra"
 #: include/sane/saneopts.h:186
 #, no-c-format
 msgid "Halftoning"
-msgstr ""
+msgstr "Tons mitjans"
 
 #: include/sane/saneopts.h:187
 #, no-c-format
@@ -208,17 +208,17 @@ msgstr "Nivell de blanc"
 #: include/sane/saneopts.h:189
 #, no-c-format
 msgid "White level for red"
-msgstr ""
+msgstr "Nivell de blanc per al vermell"
 
 #: include/sane/saneopts.h:190
 #, no-c-format
 msgid "White level for green"
-msgstr ""
+msgstr "Nivell de blanc per al verd"
 
 #: include/sane/saneopts.h:191
 #, no-c-format
 msgid "White level for blue"
-msgstr ""
+msgstr "Nivell de blanc per al blau"
 
 #: include/sane/saneopts.h:192
 #, no-c-format
@@ -278,17 +278,17 @@ msgstr "Nom de fitxer"
 #: include/sane/saneopts.h:203
 #, no-c-format
 msgid "Halftone pattern size"
-msgstr ""
+msgstr "Mida del patró per als tons mitjans"
 
 #: include/sane/saneopts.h:204 backend/fujitsu.c:3186
 #, no-c-format
 msgid "Halftone pattern"
-msgstr ""
+msgstr "Patró per als tons mitjans"
 
 #: include/sane/saneopts.h:205
 #, no-c-format
 msgid "Bind X and Y resolution"
-msgstr ""
+msgstr "Enllaça les resolucions X i Y"
 
 #: include/sane/saneopts.h:206 backend/hp3900_sane.c:428
 #: backend/hp3900_sane.c:1021 backend/hp3900_sane.c:1421
@@ -311,7 +311,7 @@ msgstr "Dobla la resolució òptica"
 #: include/sane/saneopts.h:209
 #, no-c-format
 msgid "Bind RGB"
-msgstr ""
+msgstr "Enllaça el RGB"
 
 #: include/sane/saneopts.h:210 backend/sm3840.c:770
 #, no-c-format
@@ -321,113 +321,115 @@ msgstr "Llindar"
 #: include/sane/saneopts.h:211
 #, no-c-format
 msgid "Analog gamma correction"
-msgstr ""
+msgstr "Correcció amb una gamma analògica"
 
 #: include/sane/saneopts.h:212
 #, no-c-format
 msgid "Analog gamma red"
-msgstr ""
+msgstr "Gamma analògica vermella"
 
 #: include/sane/saneopts.h:213
 #, no-c-format
 msgid "Analog gamma green"
-msgstr ""
+msgstr "Gamma analògica verda"
 
 #: include/sane/saneopts.h:214
 #, no-c-format
 msgid "Analog gamma blue"
-msgstr ""
+msgstr "Gamma analògica blava"
 
 #: include/sane/saneopts.h:215
 #, no-c-format
 msgid "Bind analog gamma"
-msgstr ""
+msgstr "Enllaça amb la gamma analògica"
 
 #: include/sane/saneopts.h:216
 #, no-c-format
 msgid "Warmup lamp"
-msgstr ""
+msgstr "Escalfament de la làmpada"
 
 #: include/sane/saneopts.h:217
 #, no-c-format
 msgid "Cal. exposure-time"
-msgstr ""
+msgstr "Cal. el  temps d'exposició"
 
 #: include/sane/saneopts.h:218
 #, no-c-format
 msgid "Cal. exposure-time for red"
-msgstr ""
+msgstr "Cal. el  temps d'exposició per al vermell"
 
 #: include/sane/saneopts.h:219
 #, no-c-format
 msgid "Cal. exposure-time for green"
-msgstr ""
+msgstr "Cal. el  temps d'exposició per al verd"
 
 #: include/sane/saneopts.h:221
 #, no-c-format
 msgid "Cal. exposure-time for blue"
-msgstr ""
+msgstr "Cal. el  temps d'exposició per al blau"
 
 #: include/sane/saneopts.h:222
 #, no-c-format
 msgid "Scan exposure-time"
-msgstr ""
+msgstr "Temps d'exposició de l'escaneig"
 
 #: include/sane/saneopts.h:223
 #, no-c-format
 msgid "Scan exposure-time for red"
-msgstr ""
+msgstr "Temps d'exposició de l'escaneig per al vermell"
 
 #: include/sane/saneopts.h:224
 #, no-c-format
 msgid "Scan exposure-time for green"
-msgstr ""
+msgstr "Temps d'exposició de l'escaneig per al verd"
 
 #: include/sane/saneopts.h:226
 #, no-c-format
 msgid "Scan exposure-time for blue"
-msgstr ""
+msgstr "Temps d'exposició de l'escaneig per al blau"
 
 #: include/sane/saneopts.h:227
 #, no-c-format
 msgid "Set exposure-time"
-msgstr ""
+msgstr "Estableix el temps d'exposició"
 
 #: include/sane/saneopts.h:228
 #, no-c-format
 msgid "Cal. lamp density"
-msgstr ""
+msgstr "Cal. densitat del llum"
 
 #: include/sane/saneopts.h:229
 #, no-c-format
 msgid "Scan lamp density"
-msgstr ""
+msgstr "Densitat del llum en escanejar"
 
 #: include/sane/saneopts.h:230
 #, no-c-format
 msgid "Set lamp density"
-msgstr ""
+msgstr "Estableix la densitat del llum"
 
 #: include/sane/saneopts.h:231 backend/umax.c:5829
 #, no-c-format
 msgid "Lamp off at exit"
-msgstr ""
+msgstr "Apaga la làmpada en sortir"
 
 #: include/sane/saneopts.h:245
 #, no-c-format
 msgid ""
 "Read-only option that specifies how many options a specific devices supports."
 msgstr ""
+"Opció de només lectura que especifica quantes opcions admet un dispositiu "
+"específic."
 
 #: include/sane/saneopts.h:248
 #, no-c-format
 msgid "Source, mode and resolution options"
-msgstr ""
+msgstr "Opcions per a la font, mode i resolució"
 
 #: include/sane/saneopts.h:249
 #, no-c-format
 msgid "Scan area and media size options"
-msgstr ""
+msgstr "Opcions per a l'àrea d'escaneig i mida del suport"
 
 #: include/sane/saneopts.h:250
 #, no-c-format
@@ -447,7 +449,7 @@ msgstr "Sensors i botons de l'escàner"
 #: include/sane/saneopts.h:255
 #, no-c-format
 msgid "Request a preview-quality scan."
-msgstr ""
+msgstr "Sol·licita una vista prèvia de qualitat de l'escaneig."
 
 #: include/sane/saneopts.h:258
 #, no-c-format
@@ -456,6 +458,10 @@ msgid ""
 "scanner this cuts down the number of passes to one and on a one-pass "
 "scanner, it reduces the memory requirements and scan-time of the preview."
 msgstr ""
+"Demana que totes les vistes prèvies es facin en el mode monocrom. En un "
+"escàner de tres passos, això reduirà el nombre de passos a un i en un escàner "
+"d'un sol pas, això reduirà els requisits de memòria i el temps d'escaneig de "
+"la vista prèvia."
 
 #: include/sane/saneopts.h:264
 #, no-c-format
@@ -463,61 +469,64 @@ msgid ""
 "Number of bits per sample, typical values are 1 for \"line-art\" and 8 for "
 "multibit scans."
 msgstr ""
+"Nombre de bits per mostra, els valors típics són 1 per a escaneigs amb «art "
+"lineal» i 8 per a escaneigs amb «múltiples bits»."
 
 #: include/sane/saneopts.h:268
 #, no-c-format
 msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
 msgstr ""
+"Selecciona el mode de l'escàner (p. ex., art lineal, monocrom o color)."
 
 #: include/sane/saneopts.h:271
 #, no-c-format
 msgid "Determines the speed at which the scan proceeds."
-msgstr ""
+msgstr "Determina la velocitat amb la qual procedirà l'escàner."
 
 #: include/sane/saneopts.h:274
 #, no-c-format
 msgid "Selects the scan source (such as a document-feeder)."
-msgstr ""
+msgstr "Selecciona l'escàner font (com un alimentador de documents)."
 
 #: include/sane/saneopts.h:277
 #, no-c-format
 msgid "Controls whether backtracking is forced."
-msgstr ""
+msgstr "Controla si es forçarà el retrocés."
 
 #: include/sane/saneopts.h:280
 #, no-c-format
 msgid "Top-left x position of scan area."
-msgstr ""
+msgstr "Posició X a dalt-esquerra de l'àrea d'escaneig."
 
 #: include/sane/saneopts.h:283
 #, no-c-format
 msgid "Top-left y position of scan area."
-msgstr ""
+msgstr "Posició Y a dalt-esquerra de l'àrea d'escaneig."
 
 #: include/sane/saneopts.h:286
 #, no-c-format
 msgid "Bottom-right x position of scan area."
-msgstr ""
+msgstr "Posició X a baix-dreta de l'àrea d'escaneig."
 
 #: include/sane/saneopts.h:289
 #, no-c-format
 msgid "Bottom-right y position of scan area."
-msgstr ""
+msgstr "Posició Y a baix-dreta de l'àrea d'escaneig."
 
 #: include/sane/saneopts.h:292
 #, no-c-format
 msgid "Sets the resolution of the scanned image."
-msgstr ""
+msgstr "Estableix la resolució de la imatge escanejada."
 
 #: include/sane/saneopts.h:295
 #, no-c-format
 msgid "Sets the horizontal resolution of the scanned image."
-msgstr ""
+msgstr "Estableix la resolució horitzontal de la imatge escanejada."
 
 #: include/sane/saneopts.h:298
 #, no-c-format
 msgid "Sets the vertical resolution of the scanned image."
-msgstr ""
+msgstr "Estableix la resolució vertical de la imatge escanejada."
 
 #: include/sane/saneopts.h:301
 #, no-c-format
@@ -525,6 +534,8 @@ msgid ""
 "Specifies the width of the media.  Required for automatic centering of sheet-"
 "fed scans."
 msgstr ""
+"Especifica l'amplada del suport. Es requereix per a centrar automàticament "
+"els escanejos dels fulls."
 
 #: include/sane/saneopts.h:305
 #, no-c-format
@@ -535,6 +546,7 @@ msgstr "Especifica l'alçada del suport."
 #, no-c-format
 msgid "Determines whether a builtin or a custom gamma-table should be used."
 msgstr ""
+"Determina si s'haurà d'usar una taula de gamma integrada o personalitzada."
 
 #: include/sane/saneopts.h:312
 #, no-c-format
@@ -543,31 +555,34 @@ msgid ""
 "green, and blue channels simultaneously (i.e., it is an intensity gamma "
 "table)."
 msgstr ""
+"Taula per a la correcció de la gamma. En el mode de color, aquesta opció "
+"afectarà igualment els canals vermell, verd i blau alhora (és a dir, aquesta "
+"és una taula de gamma per a la intensitat)."
 
 #: include/sane/saneopts.h:317
 #, no-c-format
 msgid "Gamma-correction table for the red band."
-msgstr ""
+msgstr "Taula per a la correcció de la gamma per a la banda vermella."
 
 #: include/sane/saneopts.h:320
 #, no-c-format
 msgid "Gamma-correction table for the green band."
-msgstr ""
+msgstr "Taula per a la correcció de la gamma per a la banda verda."
 
 #: include/sane/saneopts.h:323
 #, no-c-format
 msgid "Gamma-correction table for the blue band."
-msgstr ""
+msgstr "Taula per a la correcció de la gamma per a la banda blava."
 
 #: include/sane/saneopts.h:326
 #, no-c-format
 msgid "Controls the brightness of the acquired image."
-msgstr ""
+msgstr "Controla la brillantor de la imatge obtinguda."
 
 #: include/sane/saneopts.h:329
 #, no-c-format
 msgid "Controls the contrast of the acquired image."
-msgstr ""
+msgstr "Controla el contrast de la imatge obtinguda."
 
 #: include/sane/saneopts.h:332
 #, no-c-format
@@ -575,71 +590,89 @@ msgid ""
 "Selects the \"graininess\" of the acquired image.  Smaller values result in "
 "sharper images."
 msgstr ""
+"Selecciona el «granulat» de la imatge obtinguda. Els valors més petits "
+"resulten en imatges més definides."
 
 #: include/sane/saneopts.h:336
 #, no-c-format
 msgid "Selects whether the acquired image should be halftoned (dithered)."
 msgstr ""
+"Selecciona si la imatge obtinguda s'haurà de convertir a tons mitjans "
+"(tramat)."
 
 #: include/sane/saneopts.h:339 include/sane/saneopts.h:354
 #, no-c-format
 msgid "Selects what radiance level should be considered \"black\"."
-msgstr ""
+msgstr "Selecciona quin nivell de radiància s'haurà de considerar «negre»."
 
 #: include/sane/saneopts.h:342 include/sane/saneopts.h:363
 #, no-c-format
 msgid "Selects what radiance level should be considered \"white\"."
-msgstr ""
+msgstr "Selecciona quin nivell de radiància s'haurà de considerar «blanc»."
 
 #: include/sane/saneopts.h:345
 #, no-c-format
 msgid "Selects what red radiance level should be considered \"white\"."
 msgstr ""
+"Selecciona quin nivell de radiància del vermell s'haurà de considerar "
+"«blanc»."
 
 #: include/sane/saneopts.h:348
 #, no-c-format
 msgid "Selects what green radiance level should be considered \"white\"."
 msgstr ""
+"Selecciona quin nivell de radiància del verd s'haurà de considerar «blanc»."
 
 #: include/sane/saneopts.h:351
 #, no-c-format
 msgid "Selects what blue radiance level should be considered \"white\"."
 msgstr ""
+"Selecciona quin nivell de radiància del blau s'haurà de considerar «blanc»."
 
 #: include/sane/saneopts.h:356
 #, no-c-format
 msgid "Selects what red radiance level should be considered \"black\"."
 msgstr ""
+"Selecciona quin nivell de radiància del vermell s'haurà de considerar "
+"«negre»."
 
 #: include/sane/saneopts.h:358
 #, no-c-format
 msgid "Selects what green radiance level should be considered \"black\"."
 msgstr ""
+"Selecciona quin nivell de radiància del verd s'haurà de considerar «negre»."
 
 #: include/sane/saneopts.h:360
 #, no-c-format
 msgid "Selects what blue radiance level should be considered \"black\"."
 msgstr ""
+"Selecciona quin nivell de radiància del blau s'haurà de considerar «negre»."
 
 #: include/sane/saneopts.h:365
 #, no-c-format
 msgid "Selects what red radiance level should be considered \"full red\"."
 msgstr ""
+"Selecciona quin nivell de radiància del vermell s'haurà de considerar "
+"«totalment vermell»."
 
 #: include/sane/saneopts.h:367
 #, no-c-format
 msgid "Selects what green radiance level should be considered \"full green\"."
 msgstr ""
+"Selecciona quin nivell de radiància del verd s'haurà de considerar «totalment "
+"verd»."
 
 #: include/sane/saneopts.h:370
 #, no-c-format
 msgid "Selects what blue radiance level should be considered \"full blue\"."
 msgstr ""
+"Selecciona quin nivell de radiància del blau s'haurà de considerar «totalment "
+"blau»."
 
 #: include/sane/saneopts.h:374
 #, no-c-format
 msgid "Controls the \"hue\" (blue-level) of the acquired image."
-msgstr ""
+msgstr "Controla el «to» (nivell del blau) de la imatge obtinguda."
 
 #: include/sane/saneopts.h:377
 #, no-c-format
@@ -647,11 +680,14 @@ msgid ""
 "The saturation level controls the amount of \"blooming\" that occurs when "
 "acquiring an image with a camera. Larger values cause more blooming."
 msgstr ""
+"El nivell de saturació controla la quantitat d'«enlluernament» que es "
+"produeix en obtenir una imatge amb una càmera. Els valors més grans causen "
+"més enlluernament."
 
 #: include/sane/saneopts.h:382
 #, no-c-format
 msgid "The filename of the image to be loaded."
-msgstr ""
+msgstr "El nom del fitxer de la imatge que es carregarà."
 
 #: include/sane/saneopts.h:385
 #, no-c-format
@@ -659,132 +695,136 @@ msgid ""
 "Sets the size of the halftoning (dithering) pattern used when scanning "
 "halftoned images."
 msgstr ""
+"Estableix la mida del patró per als tons mitjans (tramatge) que s'usarà per a "
+"escanejar les imatges amb tons mitjans."
 
 #: include/sane/saneopts.h:389
 #, no-c-format
 msgid ""
 "Defines the halftoning (dithering) pattern for scanning halftoned images."
 msgstr ""
+"Defineix el patró per als tons mitjans (tramatge) que s'usarà per a escanejar "
+"les imatges amb tons mitjans."
 
 #: include/sane/saneopts.h:393
 #, no-c-format
 msgid "Use same values for X and Y resolution"
-msgstr ""
+msgstr "Usa els mateixos valors per a la resolució X i Y"
 
 #: include/sane/saneopts.h:395
 #, no-c-format
 msgid "Swap black and white"
-msgstr ""
+msgstr "Intercanvia el blanc i el negre"
 
 #: include/sane/saneopts.h:397
 #, no-c-format
 msgid "Do a quality white-calibration"
-msgstr ""
+msgstr "Fes un calibratge de qualitat del blanc"
 
 #: include/sane/saneopts.h:399
 #, no-c-format
 msgid "Use lens that doubles optical resolution"
-msgstr ""
+msgstr "Usa lents que doblen la resolució òptica"
 
 #: include/sane/saneopts.h:401 include/sane/saneopts.h:413
 #, no-c-format
 msgid "In RGB-mode use same values for each color"
-msgstr ""
+msgstr "En el mode RGB, usa els mateixos valors per a cada color"
 
 #: include/sane/saneopts.h:403
 #, no-c-format
 msgid "Select minimum-brightness to get a white point"
-msgstr ""
+msgstr "Selecciona la brillantor mínima per obtenir un punt blanc"
 
 #: include/sane/saneopts.h:405
 #, no-c-format
 msgid "Analog gamma-correction"
-msgstr ""
+msgstr "Correcció amb una gamma analògica"
 
 #: include/sane/saneopts.h:407
 #, no-c-format
 msgid "Analog gamma-correction for red"
-msgstr ""
+msgstr "Correcció amb una gamma analògica per al vermell"
 
 #: include/sane/saneopts.h:409
 #, no-c-format
 msgid "Analog gamma-correction for green"
-msgstr ""
+msgstr "Correcció amb una gamma analògica per al verd"
 
 #: include/sane/saneopts.h:411
 #, no-c-format
 msgid "Analog gamma-correction for blue"
-msgstr ""
+msgstr "Correcció amb una gamma analògica per al blau"
 
 #: include/sane/saneopts.h:415
 #, no-c-format
 msgid "Warmup lamp before scanning"
-msgstr ""
+msgstr "Escalfament de la làmpada abans d'escanejar"
 
 #: include/sane/saneopts.h:417
 #, no-c-format
 msgid "Define exposure-time for calibration"
-msgstr ""
+msgstr "Defineix el temps d'exposició per al calibratge"
 
 #: include/sane/saneopts.h:419
 #, no-c-format
 msgid "Define exposure-time for red calibration"
-msgstr ""
+msgstr "Defineix el temps d'exposició per al calibratge del vermell"
 
 #: include/sane/saneopts.h:421
 #, no-c-format
 msgid "Define exposure-time for green calibration"
-msgstr ""
+msgstr "Defineix el temps d'exposició per al calibratge del verd"
 
 #: include/sane/saneopts.h:423
 #, no-c-format
 msgid "Define exposure-time for blue calibration"
-msgstr ""
+msgstr "Defineix el temps d'exposició per al calibratge del blau"
 
 #: include/sane/saneopts.h:425
 #, no-c-format
 msgid "Define exposure-time for scan"
-msgstr ""
+msgstr "Defineix el temps d'exposició per a l'escaneig"
 
 #: include/sane/saneopts.h:427
 #, no-c-format
 msgid "Define exposure-time for red scan"
-msgstr ""
+msgstr "Defineix el temps d'exposició per a l'escaneig del vermell"
 
 #: include/sane/saneopts.h:429
 #, no-c-format
 msgid "Define exposure-time for green scan"
-msgstr ""
+msgstr "Defineix el temps d'exposició per a l'escaneig del verd"
 
 #: include/sane/saneopts.h:431
 #, no-c-format
 msgid "Define exposure-time for blue scan"
-msgstr ""
+msgstr "Defineix el temps d'exposició per a l'escaneig del blau"
 
 #: include/sane/saneopts.h:433
 #, no-c-format
 msgid "Enable selection of exposure-time"
-msgstr ""
+msgstr "Habilita la selecció del temps d'exposició"
 
 #: include/sane/saneopts.h:435
 #, no-c-format
 msgid "Define lamp density for calibration"
-msgstr ""
+msgstr "Defineix la densitat del llum per al calibratge"
 
 #: include/sane/saneopts.h:437
 #, no-c-format
 msgid "Define lamp density for scan"
-msgstr ""
+msgstr "Defineix la densitat del llum per a l'escaneig"
 
 #: include/sane/saneopts.h:439
 #, no-c-format
 msgid "Enable selection of lamp density"
-msgstr ""
+msgstr "Habilita la selecció de la densitat del llum"
 
 #: include/sane/saneopts.h:441 backend/umax.c:5830
 #, no-c-format
 msgid "Turn off lamp when program exits"
-msgstr ""
+msgstr "Apaga la làmpada quan se surti del programa"
 
 #: include/sane/saneopts.h:444
 #, no-c-format
@@ -824,7 +864,7 @@ msgstr "S'ha carregat la pàgina"
 #: include/sane/saneopts.h:451
 #, no-c-format
 msgid "Cover open"
-msgstr "Tapa oberta"
+msgstr "La tapa es troba oberta"
 
 #: include/sane/saneopts.h:454
 #, no-c-format
@@ -834,12 +874,12 @@ msgstr "Color"
 #: include/sane/saneopts.h:455
 #, no-c-format
 msgid "Color Lineart"
-msgstr ""
+msgstr "Color per a l'art lineal"
 
 #: include/sane/saneopts.h:456
 #, no-c-format
 msgid "Color Halftone"
-msgstr ""
+msgstr "Color per als tons mitjans"
 
 #: include/sane/saneopts.h:457
 #, no-c-format
@@ -849,12 +889,12 @@ msgstr "Gris"
 #: include/sane/saneopts.h:458
 #, no-c-format
 msgid "Halftone"
-msgstr "Semi to"
+msgstr "To mitjà"
 
 #: include/sane/saneopts.h:459
 #, no-c-format
 msgid "Lineart"
-msgstr ""
+msgstr "Art lineal"
 
 #: backend/sane_strstatus.c:59
 #, no-c-format
@@ -889,12 +929,12 @@ msgstr "S'ha arribat al final del fitxer"
 #: backend/sane_strstatus.c:77
 #, no-c-format
 msgid "Document feeder jammed"
-msgstr ""
+msgstr "S'ha encallat l'alimentador de documents"
 
 #: backend/sane_strstatus.c:80
 #, no-c-format
 msgid "Document feeder out of documents"
-msgstr ""
+msgstr "L'alimentador de documents està buit"
 
 #: backend/sane_strstatus.c:83
 #, no-c-format
@@ -904,7 +944,7 @@ msgstr "La tapa de l'escàner està oberta"
 #: backend/sane_strstatus.c:86
 #, no-c-format
 msgid "Error during device I/O"
-msgstr "Error durant l'E/S del dispositiu"
+msgstr "Error durant l'E/S amb el dispositiu"
 
 #: backend/sane_strstatus.c:89
 #, no-c-format
@@ -919,12 +959,12 @@ msgstr "S'ha denegat l'accés al recurs"
 #: backend/sane_strstatus.c:96
 #, no-c-format
 msgid "Lamp not ready, please retry"
-msgstr ""
+msgstr "La làmpada no està preparada. Torneu-ho a provar"
 
 #: backend/sane_strstatus.c:101
 #, no-c-format
 msgid "Scanner mechanism locked for transport"
-msgstr ""
+msgstr "El mecanisme de l'escàner està bloquejat per al transport"
 
 #: backend/artec_eplus48u.c:2874 backend/pnm.c:282
 #, no-c-format
@@ -934,7 +974,7 @@ msgstr "Omissió"
 #: backend/artec_eplus48u.c:2876
 #, no-c-format
 msgid "Set default values for enhancement controls."
-msgstr ""
+msgstr "Estableix els valors predeterminats per als controls de millora."
 
 #: backend/artec_eplus48u.c:2932 backend/canon.c:1611
 #, no-c-format
@@ -944,7 +984,7 @@ msgstr "Calibratge"
 #: backend/artec_eplus48u.c:2941
 #, no-c-format
 msgid "Calibrate before next scan"
-msgstr ""
+msgstr "Calibra abans del següent escaneig"
 
 #: backend/artec_eplus48u.c:2943
 #, no-c-format
@@ -952,11 +992,13 @@ msgid ""
 "If enabled, the device will be calibrated before the next scan. Otherwise, "
 "calibration is performed only before the first start."
 msgstr ""
+"Si està habilitada, el dispositiu serà calibrat abans del següent escaneig. "
+"En cas contrari, el calibratge només es realitzarà abans del primer inici."
 
 #: backend/artec_eplus48u.c:2954
 #, no-c-format
 msgid "Only perform shading-correction"
-msgstr ""
+msgstr "Realitza només la correcció de les ombres"
 
 #: backend/artec_eplus48u.c:2956
 #, no-c-format
@@ -965,6 +1007,10 @@ msgid ""
 "default values for gain, offset and exposure time, either build-in or from "
 "the configuration file, are used."
 msgstr ""
+"Si està habilitada, només es realitzarà la correcció de les ombres durant el "
+"calibratge. Es faran servir els valors predeterminats per al guany, "
+"desplaçament i temps d'exposició, ja sigui els integrats o des del fitxer de "
+"configuració."
 
 #: backend/artec_eplus48u.c:2967
 #, no-c-format
@@ -974,22 +1020,24 @@ msgstr "Botó per a l'estat"
 #: backend/avision.h:778
 #, no-c-format
 msgid "Number of the frame to scan"
-msgstr ""
+msgstr "Número del fotograma a escanejar"
 
 #: backend/avision.h:779
 #, no-c-format
 msgid "Selects the number of the frame to scan"
-msgstr ""
+msgstr "Selecciona el número del fotograma a escanejar"
 
 #: backend/avision.h:782
 #, no-c-format
 msgid "Duplex scan"
-msgstr ""
+msgstr "Escaneja a dues cares"
 
 #: backend/avision.h:783
 #, no-c-format
 msgid "Duplex scan provide a scan of the front and back side of the document"
 msgstr ""
+"L'escanejat de les dues cares proporciona un escanejat de l'anvers i el "
+"revers del document"
 
 #: backend/canon630u.c:159
 #, no-c-format
@@ -999,7 +1047,7 @@ msgstr "Calibratge de l'escàner"
 #: backend/canon630u.c:160
 #, no-c-format
 msgid "Force scanner calibration before scan"
-msgstr ""
+msgstr "Força el calibratge de l'escàner abans de l'escaneig"
 
 #: backend/canon630u.c:259 backend/umax1220u.c:208
 #, no-c-format
@@ -1009,27 +1057,27 @@ msgstr "Escaneja en escala de grisos"
 #: backend/canon630u.c:260 backend/umax1220u.c:209
 #, no-c-format
 msgid "Do a grayscale rather than color scan"
-msgstr ""
+msgstr "Fes un escaneig en escala de grisos en lloc d'en color"
 
 #: backend/canon630u.c:306
 #, no-c-format
 msgid "Analog Gain"
-msgstr ""
+msgstr "Guany analògic"
 
 #: backend/canon630u.c:307
 #, no-c-format
 msgid "Increase or decrease the analog gain of the CCD array"
-msgstr ""
+msgstr "Augmenta o disminueix el guany analògic per a la matriu del CCD"
 
 #: backend/canon630u.c:347 backend/epson.h:68 backend/epson2.h:67
 #, no-c-format
 msgid "Gamma Correction"
-msgstr ""
+msgstr "Correcció de la gamma"
 
 #: backend/canon630u.c:348
 #, no-c-format
 msgid "Selects the gamma corrected transfer curve"
-msgstr ""
+msgstr "Selecciona la corba de transferència per a la correcció de la gamma"
 
 #: backend/canon.c:149 backend/canon-sane.c:1318
 #, no-c-format
@@ -1041,22 +1089,22 @@ msgstr "En brut"
 #: backend/canon-sane.c:1494 backend/canon-sane.c:1643
 #, no-c-format
 msgid "Fine color"
-msgstr ""
+msgstr "Color fi"
 
 #: backend/canon.c:169
 #, no-c-format
 msgid "No transparency correction"
-msgstr "Sense correcció per a la transparència"
+msgstr "Sense correcció de la transparència"
 
 #: backend/canon.c:170 backend/canon-sane.c:680
 #, no-c-format
 msgid "Correction according to film type"
-msgstr ""
+msgstr "Correcció d'acord amb el tipus de pel·lícula"
 
 #: backend/canon.c:171 backend/canon-sane.c:674
 #, no-c-format
 msgid "Correction according to transparency ratio"
-msgstr ""
+msgstr "Correcció d'acord amb la relació de transparència"
 
 #: backend/canon.c:176 backend/canon-sane.c:776
 #, no-c-format
@@ -1092,33 +1140,33 @@ msgstr "1/3 de la velocitat normal"
 #: backend/canon.c:360
 #, no-c-format
 msgid "rounded parameter"
-msgstr ""
+msgstr "Paràmetre arrodonit"
 
 #: backend/canon.c:363 backend/canon.c:379 backend/canon.c:414
 #: backend/canon.c:464 backend/canon.c:482 backend/canon.c:525
 #, no-c-format
 msgid "unknown"
-msgstr "desconegut"
+msgstr "Desconegut"
 
 #: backend/canon.c:373
 #, no-c-format
 msgid "ADF jam"
-msgstr ""
+msgstr "S'ha encallat l'ADF"
 
 #: backend/canon.c:376
 #, no-c-format
 msgid "ADF cover open"
-msgstr ""
+msgstr "La tapa de l'ADF es troba oberta"
 
 #: backend/canon.c:389
 #, no-c-format
 msgid "lamp failure"
-msgstr ""
+msgstr "Fallada de la làmpada"
 
 #: backend/canon.c:392
 #, no-c-format
 msgid "scan head positioning error"
-msgstr ""
+msgstr "Error en el posicionament del capçal d'escaneig"
 
 #: backend/canon.c:395
 #, no-c-format
@@ -1143,87 +1191,89 @@ msgstr "Error en comprobar el maquinari"
 #: backend/canon.c:407
 #, no-c-format
 msgid "transparency unit lamp failure"
-msgstr ""
+msgstr "Fallada de la làmpada amb la unitat de transparència"
 
 #: backend/canon.c:410
 #, no-c-format
 msgid "transparency unit scan head positioning failure"
 msgstr ""
+"Fallada en el posicionament del capçal d'escaneig amb la unitat de "
+"transparència"
 
 #: backend/canon.c:424
 #, no-c-format
 msgid "parameter list length error"
-msgstr ""
+msgstr "Error en la longitud de la llista de paràmetres"
 
 #: backend/canon.c:428
 #, no-c-format
 msgid "invalid command operation code"
-msgstr ""
+msgstr "Codi no vàlid per a l'ordre d'operació"
 
 #: backend/canon.c:432
 #, no-c-format
 msgid "invalid field in CDB"
-msgstr ""
+msgstr "Camp no vàlid al CDB"
 
 #: backend/canon.c:436
 #, no-c-format
 msgid "unsupported LUN"
-msgstr ""
+msgstr "LUN no admès"
 
 #: backend/canon.c:440
 #, no-c-format
 msgid "invalid field in parameter list"
-msgstr ""
+msgstr "Camp no vàlid a la llista de paràmetres"
 
 #: backend/canon.c:444
 #, no-c-format
 msgid "command sequence error"
-msgstr ""
+msgstr "Error en la seqüència d'ordres"
 
 #: backend/canon.c:448
 #, no-c-format
 msgid "too many windows specified"
-msgstr ""
+msgstr "S'han especificat massa finestres"
 
 #: backend/canon.c:452
 #, no-c-format
 msgid "medium not present"
-msgstr ""
+msgstr "No es troba el suport"
 
 #: backend/canon.c:456
 #, no-c-format
 msgid "invalid bit IDENTIFY message"
-msgstr ""
+msgstr "Missatge «IDENTIFY» del bit no vàlid"
 
 #: backend/canon.c:460
 #, no-c-format
 msgid "option not connect"
-msgstr ""
+msgstr "L'opció no connectar"
 
 #: backend/canon.c:474
 #, no-c-format
 msgid "power on reset / bus device reset"
-msgstr ""
+msgstr "Reinicia l'encesa / reinicia el bus del dispositiu"
 
 #: backend/canon.c:478
 #, no-c-format
 msgid "parameter changed by another initiator"
-msgstr ""
+msgstr "Paràmetre canviat per un altre iniciador"
 
 #: backend/canon.c:492
 #, no-c-format
 msgid "no additional sense information"
-msgstr ""
+msgstr "Sense informació addicional"
 
 #: backend/canon.c:496
 #, no-c-format
 msgid "reselect failure"
-msgstr ""
+msgstr "Fallada en tornar a seleccionar"
 
 #: backend/canon.c:500
 #, no-c-format
 msgid "SCSI parity error"
-msgstr ""
+msgstr "Error de paritat SCSI"
 
 #: backend/canon.c:504
 #, no-c-format
@@ -1602,7 +1652,7 @@ msgstr ""
 #: backend/matsushita.h:218
 #, no-c-format
 msgid "Duplex"
-msgstr "Doble"
+msgstr "Dues cares"
 
 #: backend/epson.c:502 backend/epson2.c:116 backend/pixma.c:937
 #, no-c-format

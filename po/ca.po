@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.27git\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2018-08-21 13:32+0200\n"
-"PO-Revision-Date: 2018-08-27 01:30+0100\n"
+"PO-Revision-Date: 2018-08-28 00:49+0100\n"
 "Last-Translator: Antoni Bella Pérez <antonibella5@yahoo.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca\n"
@@ -193,7 +193,7 @@ msgstr "Mida del gra"
 #: include/sane/saneopts.h:186
 #, no-c-format
 msgid "Halftoning"
-msgstr "Tons mitjans"
+msgstr "Semi to"
 
 #: include/sane/saneopts.h:187
 #, no-c-format
@@ -278,12 +278,12 @@ msgstr "Nom de fitxer"
 #: include/sane/saneopts.h:203
 #, no-c-format
 msgid "Halftone pattern size"
-msgstr "Mida del patró per als tons mitjans"
+msgstr "Mida del patró per al semi to"
 
 #: include/sane/saneopts.h:204 backend/fujitsu.c:3186
 #, no-c-format
 msgid "Halftone pattern"
-msgstr "Patró per als tons mitjans"
+msgstr "Patró per al semi to"
 
 #: include/sane/saneopts.h:205
 #, no-c-format
@@ -396,17 +396,17 @@ msgstr "Estableix el temps d'exposició"
 #: include/sane/saneopts.h:228
 #, no-c-format
 msgid "Cal. lamp density"
-msgstr "Cal. densitat del llum"
+msgstr "Cal. densitat de la llum"
 
 #: include/sane/saneopts.h:229
 #, no-c-format
 msgid "Scan lamp density"
-msgstr "Densitat del llum en escanejar"
+msgstr "Densitat de la llum en escanejar"
 
 #: include/sane/saneopts.h:230
 #, no-c-format
 msgid "Set lamp density"
-msgstr "Estableix la densitat del llum"
+msgstr "Estableix la densitat de la llum"
 
 #: include/sane/saneopts.h:231 backend/umax.c:5829
 #, no-c-format
@@ -597,8 +597,7 @@ msgstr ""
 #, no-c-format
 msgid "Selects whether the acquired image should be halftoned (dithered)."
 msgstr ""
-"Selecciona si la imatge obtinguda s'haurà de convertir a tons mitjans "
-"(tramat)."
+"Selecciona si la imatge obtinguda s'haurà de convertir a semi to (tramat)."
 
 #: include/sane/saneopts.h:339 include/sane/saneopts.h:354
 #, no-c-format
@@ -695,16 +694,16 @@ msgid ""
 "Sets the size of the halftoning (dithering) pattern used when scanning "
 "halftoned images."
 msgstr ""
-"Estableix la mida del patró per als tons mitjans (tramatge) que s'usarà per a "
-"escanejar les imatges amb tons mitjans."
+"Estableix la mida del patró per al semi to (tramatge) que s'usarà per a "
+"escanejar les imatges amb semi to."
 
 #: include/sane/saneopts.h:389
 #, no-c-format
 msgid ""
 "Defines the halftoning (dithering) pattern for scanning halftoned images."
 msgstr ""
-"Defineix el patró per als tons mitjans (tramatge) que s'usarà per a escanejar "
-"les imatges amb tons mitjans."
+"Defineix el patró per al semi to (tramatge) que s'usarà per a escanejar les "
+"imatges amb semi to."
 
 #: include/sane/saneopts.h:393
 #, no-c-format
@@ -809,17 +808,17 @@ msgstr "Habilita la selecció del temps d'exposició"
 #: include/sane/saneopts.h:435
 #, no-c-format
 msgid "Define lamp density for calibration"
-msgstr "Defineix la densitat del llum per al calibratge"
+msgstr "Defineix la densitat de la llum per al calibratge"
 
 #: include/sane/saneopts.h:437
 #, no-c-format
 msgid "Define lamp density for scan"
-msgstr "Defineix la densitat del llum per a l'escaneig"
+msgstr "Defineix la densitat de la llum per a l'escaneig"
 
 #: include/sane/saneopts.h:439
 #, no-c-format
 msgid "Enable selection of lamp density"
-msgstr "Habilita la selecció de la densitat del llum"
+msgstr "Habilita la selecció de la densitat de la llum"
 
 #: include/sane/saneopts.h:441 backend/umax.c:5830
 #, no-c-format
@@ -879,7 +878,7 @@ msgstr "Color per a l'art lineal"
 #: include/sane/saneopts.h:456
 #, no-c-format
 msgid "Color Halftone"
-msgstr "Color per als tons mitjans"
+msgstr "Color per al semi to"
 
 #: include/sane/saneopts.h:457
 #, no-c-format
@@ -889,7 +888,7 @@ msgstr "Gris"
 #: include/sane/saneopts.h:458
 #, no-c-format
 msgid "Halftone"
-msgstr "To mitjà"
+msgstr "Semi to"
 
 #: include/sane/saneopts.h:459
 #, no-c-format
@@ -1278,7 +1277,7 @@ msgstr "Error de paritat SCSI"
 #: backend/canon.c:504
 #, no-c-format
 msgid "initiator detected error message received"
-msgstr ""
+msgstr "L'iniciador ha detectat la recepció d'un missatge d'error"
 
 #: backend/canon.c:509
 #, no-c-format
@@ -1293,12 +1292,12 @@ msgstr "Error de caducitat"
 #: backend/canon.c:517
 #, no-c-format
 msgid "transparency unit shading error"
-msgstr ""
+msgstr "Error de l'ombrejat a la unitat de transparència"
 
 #: backend/canon.c:521
 #, no-c-format
 msgid "lamp not stabilized"
-msgstr ""
+msgstr "La llum no està estabilitzada"
 
 #: backend/canon.c:847 backend/canon.c:862
 #, no-c-format
@@ -1321,7 +1320,7 @@ msgstr "Tipus de pel·lícula"
 #: backend/canon.c:1179
 #, no-c-format
 msgid "Selects the film type, i.e. negatives or slides"
-msgstr ""
+msgstr "Selecciona el tipus de pel·lícula, p. ex., en negatiu o diapositiva"
 
 #: backend/canon.c:1191
 #, no-c-format
@@ -1331,7 +1330,7 @@ msgstr "Tipus de pel·lícula en negatiu"
 #: backend/canon.c:1192
 #, no-c-format
 msgid "Selects the negative film type"
-msgstr ""
+msgstr "Selecciona el tipus de pel·lícula en negatiu"
 
 #: backend/canon.c:1231
 #, no-c-format
@@ -1356,27 +1355,29 @@ msgstr "Enfocament automàtic"
 #: backend/canon.c:1324
 #, no-c-format
 msgid "Enable/disable auto focus"
-msgstr "Activa/Desactiva l'enfocament automàtic"
+msgstr "Habilita/Inhabilita l'enfocament automàtic"
 
 #: backend/canon.c:1331
 #, no-c-format
 msgid "Auto focus only once"
-msgstr ""
+msgstr "Enfocament automàtic només una vegada"
 
 #: backend/canon.c:1332
 #, no-c-format
 msgid "Do auto focus only once between ejects"
-msgstr ""
+msgstr "Fes l'enfocament automàtic només una vegada entre les expulsions"
 
 #: backend/canon.c:1340
 #, no-c-format
 msgid "Manual focus position"
-msgstr ""
+msgstr "Posició manual de l'enfocament"
 
 #: backend/canon.c:1341
 #, no-c-format
 msgid "Set the optical system's focus position by hand (default: 128)."
 msgstr ""
+"Estableix la posició manual per a l'enfocament del sistema òptic (omissió: "
+"128)."
 
 #: backend/canon.c:1351
 #, no-c-format
@@ -1407,7 +1408,7 @@ msgstr "Exposició automàtica"
 #: backend/canon.c:1604
 #, no-c-format
 msgid "Enable/disable the auto exposure feature"
-msgstr "Activa/Desactiva la característica per a l'exposició automàtica"
+msgstr "Habilita/Inhabilita la característica per a l'exposició automàtica"
 
 #: backend/canon.c:1620
 #, no-c-format
@@ -1442,42 +1443,45 @@ msgstr "Reinicia l'escàner"
 #: backend/canon.c:1654
 #, no-c-format
 msgid "Medium handling"
-msgstr ""
+msgstr "Maneja el suport"
 
 #: backend/canon.c:1663
 #, no-c-format
 msgid "Eject film after each scan"
-msgstr ""
+msgstr "Expulsa la pel·lícula després de cada escaneig"
 
 #: backend/canon.c:1664
 #, no-c-format
 msgid "Automatically eject the film from the device after each scan"
 msgstr ""
+"Expulsa automàticament la pel·lícula del dispositiu després de cada escaneig"
 
 #: backend/canon.c:1675
 #, no-c-format
 msgid "Eject film before exit"
-msgstr ""
+msgstr "Expulsa la pel·lícula abans de sortir"
 
 #: backend/canon.c:1676
 #, no-c-format
 msgid "Automatically eject the film from the device before exiting the program"
 msgstr ""
+"Expulsa automàticament la pel·lícula del dispositiu abans de sortir del "
+"programa"
 
 #: backend/canon.c:1685
 #, no-c-format
 msgid "Eject film now"
-msgstr ""
+msgstr "Expulsa la pel·lícula ara"
 
 #: backend/canon.c:1686
 #, no-c-format
 msgid "Eject the film *now*"
-msgstr ""
+msgstr "Expulsa la pel·lícula *ara*"
 
 #: backend/canon.c:1695
 #, no-c-format
 msgid "Document feeder extras"
-msgstr ""
+msgstr "Extres de l'alimentador de documents"
 
 #: backend/canon.c:1702
 #, no-c-format
@@ -1488,7 +1492,7 @@ msgstr "Només llit pla"
 #, no-c-format
 msgid "Disable auto document feeder and use flatbed only"
 msgstr ""
-"Inhabilita l'alimentador automàtic de documents i només usa un llit pla"
+"Inhabilita l'alimentador automàtic de documents i només usa el llit pla"
 
 #: backend/canon.c:1713 backend/canon.c:1723
 #, no-c-format
@@ -1499,6 +1503,8 @@ msgstr "Unitat per a la transparència"
 #, no-c-format
 msgid "Switch on/off the transparency unit (FAU, film adapter unit)"
 msgstr ""
+"Canvia a activa/desactiva la unitat de transparència (FAU, unitat adaptadora "
+"de pel·lícula)"
 
 #: backend/canon.c:1734
 #, no-c-format
@@ -1523,7 +1529,7 @@ msgstr "Estableix el mode de control per a la densitat"
 #: backend/canon.c:1756
 #, no-c-format
 msgid "Transparency ratio"
-msgstr ""
+msgstr "Relació de transparència"
 
 #: backend/canon.c:1770
 #, no-c-format
@@ -1550,34 +1556,34 @@ msgstr "Llit pla"
 #: backend/kodak.c:140
 #, no-c-format
 msgid "ADF Front"
-msgstr ""
+msgstr "ADF pel davant"
 
 #: backend/canon_dr.c:410 backend/epjitsu.c:235 backend/fujitsu.c:674
 #: backend/kodak.c:141
 #, no-c-format
 msgid "ADF Back"
-msgstr ""
+msgstr "ADF pel darrere"
 
 #: backend/canon_dr.c:411 backend/epjitsu.c:236 backend/fujitsu.c:675
 #: backend/hp5590.c:94 backend/kodak.c:142 backend/pixma.c:931
 #, no-c-format
 msgid "ADF Duplex"
-msgstr ""
+msgstr "ADF a dues cares"
 
 #: backend/canon_dr.c:412
 #, no-c-format
 msgid "Card Front"
-msgstr ""
+msgstr "Targeta pel davant"
 
 #: backend/canon_dr.c:413
 #, no-c-format
 msgid "Card Back"
-msgstr ""
+msgstr "Targeta pel darrere"
 
 #: backend/canon_dr.c:414
 #, no-c-format
 msgid "Card Duplex"
-msgstr ""
+msgstr "Targeta a dues cares"
 
 #: backend/canon_dr.c:421 backend/epson.c:599 backend/epson.c:3096
 #: backend/epson2.c:201 backend/fujitsu.c:692 backend/genesys.c:89
@@ -1635,17 +1641,19 @@ msgstr "JPEG"
 #: backend/kvs1025_opt.c:910
 #, no-c-format
 msgid "Software blank skip percentage"
-msgstr ""
+msgstr "El percentatge per a saltar el blanc del programari"
 
 #: backend/canon_dr.c:2450 backend/fujitsu.c:4067
 #, no-c-format
 msgid "Request driver to discard pages with low percentage of dark pixels"
 msgstr ""
+"Sol·licita al controlador que descarti les pàgines amb un percentatge baix de "
+"píxels foscos"
 
 #: backend/epson.c:491 backend/epson2.c:108 backend/magicolor.c:174
 #, no-c-format
 msgid "Simplex"
-msgstr ""
+msgstr "Una cara"
 
 #: backend/epson.c:492 backend/epson2.c:109 backend/kvs1025.h:50
 #: backend/kvs20xx_opt.c:204 backend/kvs40xx_opt.c:353 backend/magicolor.c:175
@@ -1679,69 +1687,69 @@ msgstr "Pel·lícula en negatiu"
 #: backend/epson.c:529 backend/epson2.c:142
 #, no-c-format
 msgid "Focus on glass"
-msgstr ""
+msgstr "Enfocament sobre el vidre"
 
 #: backend/epson.c:530 backend/epson2.c:143
 #, no-c-format
 msgid "Focus 2.5mm above glass"
-msgstr ""
+msgstr "Enfocament de 2,5 mm per sobre del vidre"
 
 #: backend/epson.c:557 backend/epson.c:565 backend/epson.c:577
 #: backend/epson2.c:166 backend/epson2.c:174 backend/epson2.c:186
 #, no-c-format
 msgid "Halftone A (Hard Tone)"
-msgstr ""
+msgstr "Semi to A (to dur)"
 
 #: backend/epson.c:558 backend/epson.c:566 backend/epson.c:578
 #: backend/epson2.c:167 backend/epson2.c:175 backend/epson2.c:187
 #, no-c-format
 msgid "Halftone B (Soft Tone)"
-msgstr ""
+msgstr "Semi to B (to suau)"
 
 #: backend/epson.c:559 backend/epson.c:567 backend/epson.c:579
 #: backend/epson2.c:168 backend/epson2.c:176 backend/epson2.c:188
 #, no-c-format
 msgid "Halftone C (Net Screen)"
-msgstr ""
+msgstr "Semi to C (matisat)"
 
 #: backend/epson.c:568 backend/epson.c:580 backend/epson2.c:177
 #: backend/epson2.c:189
 #, no-c-format
 msgid "Dither A (4x4 Bayer)"
-msgstr ""
+msgstr "Trama A (bayer 4x4)"
 
 #: backend/epson.c:569 backend/epson.c:581 backend/epson2.c:178
 #: backend/epson2.c:190
 #, no-c-format
 msgid "Dither B (4x4 Spiral)"
-msgstr ""
+msgstr "Trama B (espiral 4x4)"
 
 #: backend/epson.c:570 backend/epson.c:582 backend/epson2.c:179
 #: backend/epson2.c:191
 #, no-c-format
 msgid "Dither C (4x4 Net Screen)"
-msgstr ""
+msgstr "Trama C (matisat 4x4)"
 
 #: backend/epson.c:571 backend/epson.c:583 backend/epson2.c:180
 #: backend/epson2.c:192
 #, no-c-format
 msgid "Dither D (8x4 Net Screen)"
-msgstr ""
+msgstr "Trama D (matisat 8x4)"
 
 #: backend/epson.c:584 backend/epson2.c:193
 #, no-c-format
 msgid "Text Enhanced Technology"
-msgstr ""
+msgstr "Tecnologia per a la millora del text"
 
 #: backend/epson.c:585 backend/epson2.c:194
 #, no-c-format
 msgid "Download pattern A"
-msgstr ""
+msgstr "Descarrega el patró A"
 
 #: backend/epson.c:586 backend/epson2.c:195
 #, no-c-format
 msgid "Download pattern B"
-msgstr ""
+msgstr "Descarrega el patró B"
 
 #: backend/epson.c:631
 #, no-c-format
@@ -1756,7 +1764,7 @@ msgstr "Definit per l'usuari"
 #: backend/epson.c:633
 #, no-c-format
 msgid "Impact-dot printers"
-msgstr ""
+msgstr "Impressores matricials"
 
 #: backend/epson.c:634
 #, no-c-format
@@ -1782,17 +1790,17 @@ msgstr "Omissió"
 #: backend/epson.c:658 backend/epson2.c:256
 #, no-c-format
 msgid "High density printing"
-msgstr ""
+msgstr "Impressió d'alta densitat"
 
 #: backend/epson.c:659 backend/epson2.c:257
 #, no-c-format
 msgid "Low density printing"
-msgstr ""
+msgstr "Impressió de baixa densitat"
 
 #: backend/epson.c:660 backend/epson2.c:258
 #, no-c-format
 msgid "High contrast printing"
-msgstr ""
+msgstr "Impressió d'alt contrast"
 
 #: backend/epson.c:678 backend/epson2.c:276
 #, no-c-format
@@ -1852,17 +1860,17 @@ msgstr "Mode de l'escàner"
 #: backend/epson.c:2845 backend/epson2.c:1011
 #, no-c-format
 msgid "Selects the halftone."
-msgstr ""
+msgstr "Selecciona el semi to."
 
 #: backend/epson.c:2867 backend/epson2.c:1032
 #, no-c-format
 msgid "Dropout"
-msgstr ""
+msgstr "Exclusió"
 
 #: backend/epson.c:2868 backend/epson2.c:1033
 #, no-c-format
 msgid "Selects the dropout."
-msgstr ""
+msgstr "Selecciona el que s'exclourà."
 
 #: backend/epson.c:2880 backend/epson2.c:1045
 #, no-c-format
@@ -1883,6 +1891,8 @@ msgstr "Correcció del color"
 #, no-c-format
 msgid "Sets the color correction table for the selected output device."
 msgstr ""
+"Estableix la taula de correcció del color per al dispositiu de sortida "
+"seleccionat."
 
 #: backend/epson.c:3075
 #, no-c-format
@@ -1892,82 +1902,82 @@ msgstr "Coeficients per a la correcció del color"
 #: backend/epson.c:3076
 #, no-c-format
 msgid "Matrix multiplication of RGB"
-msgstr ""
+msgstr "Matriu de multiplicació del RGB"
 
 #: backend/epson.c:3093
 #, no-c-format
 msgid "Shift green to red"
-msgstr ""
+msgstr "Canvia de verd a vermell"
 
 #: backend/epson.c:3094
 #, no-c-format
 msgid "Shift green to blue"
-msgstr ""
+msgstr "Canvia de verd a blau"
 
 #: backend/epson.c:3095
 #, no-c-format
 msgid "Shift red to green"
-msgstr ""
+msgstr "Canvia de vermell a verd"
 
 #: backend/epson.c:3097
 #, no-c-format
 msgid "Shift red to blue"
-msgstr ""
+msgstr "Canvia de vermell a blau"
 
 #: backend/epson.c:3098
 #, no-c-format
 msgid "Shift blue to green"
-msgstr ""
+msgstr "Canvia de blau a verd"
 
 #: backend/epson.c:3099
 #, no-c-format
 msgid "Shift blue to red"
-msgstr ""
+msgstr "Canvia de blau a vermell"
 
 #: backend/epson.c:3102
 #, no-c-format
 msgid "Controls green level"
-msgstr ""
+msgstr "Controla el nivell de verd"
 
 #: backend/epson.c:3103
 #, no-c-format
 msgid "Adds to red based on green level"
-msgstr ""
+msgstr "Afegeix vermell en funció del nivell de verd"
 
 #: backend/epson.c:3104
 #, no-c-format
 msgid "Adds to blue based on green level"
-msgstr ""
+msgstr "Afegeix blau en funció del nivell de verd"
 
 #: backend/epson.c:3105
 #, no-c-format
 msgid "Adds to green based on red level"
-msgstr ""
+msgstr "Afegeix verd en funció del nivell de vermell"
 
 #: backend/epson.c:3106
 #, no-c-format
 msgid "Controls red level"
-msgstr "Controls per al nivell de vermell"
+msgstr "Controla el nivell de vermell"
 
 #: backend/epson.c:3107
 #, no-c-format
 msgid "Adds to blue based on red level"
-msgstr ""
+msgstr "Afegeix blau en funció del nivell de vermell"
 
 #: backend/epson.c:3108
 #, no-c-format
 msgid "Adds to green based on blue level"
-msgstr ""
+msgstr "Afegeix verd en funció del nivell de blau"
 
 #: backend/epson.c:3109
 #, no-c-format
 msgid "Adds to red based on blue level"
-msgstr ""
+msgstr "Afegeix vermell en funció del nivell de blau"
 
 #: backend/epson.c:3110
 #, no-c-format
 msgid "Controls blue level"
-msgstr "Controls per al nivell de blau"
+msgstr "Controla el nivell de blau"
 
 #: backend/epson.c:3206 backend/epson2.c:1255
 #, no-c-format
@@ -1982,17 +1992,17 @@ msgstr "Vista prèvia ràpida"
 #: backend/epson.c:3245 backend/epson2.c:1265
 #, no-c-format
 msgid "Auto area segmentation"
-msgstr ""
+msgstr "Segmentació automàtica de l'àrea"
 
 #: backend/epson.c:3258
 #, no-c-format
 msgid "Short resolution list"
-msgstr ""
+msgstr "Llista curta de les resolucions"
 
 #: backend/epson.c:3260
 #, no-c-format
 msgid "Display short resolution list"
-msgstr ""
+msgstr "Mostra una llista curta de les resolucions"
 
 #: backend/epson.c:3267
 #, no-c-format
@@ -2002,7 +2012,7 @@ msgstr "Zoom"
 #: backend/epson.c:3269
 #, no-c-format
 msgid "Defines the zoom factor the scanner will use"
-msgstr ""
+msgstr "Defineix el factor de zoom que usarà l'escàner"
 
 #: backend/epson.c:3349
 #, no-c-format
@@ -2012,7 +2022,7 @@ msgstr "Format ràpid"
 #: backend/epson.c:3360 backend/epson2.c:1340
 #, no-c-format
 msgid "Optional equipment"
-msgstr ""
+msgstr "Equipament opcional"
 
 #: backend/epson.c:3431 backend/epson2.c:1393
 #, no-c-format
@@ -2022,7 +2032,7 @@ msgstr "Expulsa"
 #: backend/epson.c:3432 backend/epson2.c:1394
 #, no-c-format
 msgid "Eject the sheet in the ADF"
-msgstr ""
+msgstr "Expulsa el full de l'ADF"
 
 #: backend/epson.c:3444 backend/epson2.c:1404
 #, no-c-format
@@ -2032,7 +2042,7 @@ msgstr "Expulsa automàticament"
 #: backend/epson.c:3445 backend/epson2.c:1406
 #, no-c-format
 msgid "Eject document after scanning"
-msgstr ""
+msgstr "Expulsa el document després de l'escaneig"
 
 #: backend/epson.c:3457 backend/epson2.c:1416 backend/magicolor.c:2420
 #, no-c-format
@@ -2042,17 +2052,17 @@ msgstr "Mode ADF"
 #: backend/epson.c:3459 backend/epson2.c:1418 backend/magicolor.c:2422
 #, no-c-format
 msgid "Selects the ADF mode (simplex/duplex)"
-msgstr ""
+msgstr "Seleccionar el mode de l'ADF (una cara/dues cares)"
 
 #: backend/epson.c:3473 backend/epson2.c:1430
 #, no-c-format
 msgid "Bay"
-msgstr ""
+msgstr "Badia"
 
 #: backend/epson.c:3474 backend/epson2.c:1431
 #, no-c-format
 msgid "Select bay to scan"
-msgstr ""
+msgstr "Selecciona la badia per escanejar"
 
 #: backend/epson.h:69 backend/epson2.h:68
 #, no-c-format
@@ -2060,6 +2070,9 @@ msgid ""
 "Selects the gamma correction value from a list of pre-defined devices or the "
 "user defined table, which can be downloaded to the scanner"
 msgstr ""
+"Selecciona el valor per a la correcció de la gamma des d'una llista "
+"predefinida de dispositius o de la taula definida per l'usuari, la qual es "
+"pot descarregar a l'escàner."
 
 #: backend/epson.h:72 backend/epson2.h:71
 #, no-c-format
@@ -2070,11 +2083,13 @@ msgstr "Posició de l'enfocament"
 #, no-c-format
 msgid "Sets the focus position to either the glass or 2.5mm above the glass"
 msgstr ""
+"Estableix la posició de l'enfocament sobre el vidre o 2,5 mm per sobre del "
+"vidre"
 
 #: backend/epson.h:75 backend/epson2.h:74
 #, no-c-format
 msgid "Wait for Button"
-msgstr ""
+msgstr "Espera pel botó"
 
 #: backend/epson.h:76 backend/epson2.h:75
 #, no-c-format
@@ -2082,6 +2097,8 @@ msgid ""
 "After sending the scan command, wait until the button on the scanner is "
 "pressed to actually start the scan process."
 msgstr ""
+"Després d'enviar l'ordre d'escaneig, s'ha d'esperar fins que es premi el botó "
+"de l'escàner per iniciar realment el procés d'escaneig."
 
 #: backend/epson2.c:102 backend/pixma.c:409
 #, no-c-format
@@ -2096,12 +2113,12 @@ msgstr ""
 #: backend/epson2.c:136
 #, no-c-format
 msgid "Positive Slide"
-msgstr ""
+msgstr "Diapositiva en positiu"
 
 #: backend/epson2.c:137
 #, no-c-format
 msgid "Negative Slide"
-msgstr ""
+msgstr "Diapositiva en negatiu"
 
 #: backend/epson2.c:215
 #, no-c-format
@@ -2229,12 +2246,12 @@ msgstr ""
 #: backend/fujitsu.c:3097 backend/pixma_sane_options.c:145
 #, no-c-format
 msgid "Gamma function exponent"
-msgstr ""
+msgstr "Exemple de funció de la gamma"
 
 #: backend/fujitsu.c:3098 backend/pixma_sane_options.c:146
 #, no-c-format
 msgid "Changes intensity of midtones"
-msgstr ""
+msgstr "Canvia la intensitat dels semi to"
 
 #: backend/fujitsu.c:3147
 #, no-c-format
@@ -2249,17 +2266,17 @@ msgstr ""
 #: backend/fujitsu.c:3165
 #, no-c-format
 msgid "Halftone type"
-msgstr ""
+msgstr "Tipus de semi to"
 
 #: backend/fujitsu.c:3166
 #, no-c-format
 msgid "Control type of halftone filter"
-msgstr ""
+msgstr "Controla el tipus de filtre del semi to"
 
 #: backend/fujitsu.c:3187
 #, no-c-format
 msgid "Control pattern of halftone filter"
-msgstr ""
+msgstr "Controla el patró del filtre del semi to"
 
 #: backend/fujitsu.c:3209
 #, no-c-format
@@ -2269,7 +2286,7 @@ msgstr "Contorn"
 #: backend/fujitsu.c:3210
 #, no-c-format
 msgid "Perform outline extraction"
-msgstr ""
+msgstr "Realitza l'extracció del contorn"
 
 #: backend/fujitsu.c:3221
 #, no-c-format
@@ -2289,27 +2306,27 @@ msgstr "Separació"
 #: backend/fujitsu.c:3241
 #, no-c-format
 msgid "Enable automatic separation of image and text"
-msgstr ""
+msgstr "Habilita la separació automàtica de les imatges i el text"
 
 #: backend/fujitsu.c:3252
 #, no-c-format
 msgid "Mirroring"
-msgstr ""
+msgstr "Emmiralla"
 
 #: backend/fujitsu.c:3253
 #, no-c-format
 msgid "Reflect output image horizontally"
-msgstr ""
+msgstr "Reflecteix la imatge de sortida horitzontalment"
 
 #: backend/fujitsu.c:3270
 #, no-c-format
 msgid "White level follower"
-msgstr ""
+msgstr "Seguidor del nivell de blanc"
 
 #: backend/fujitsu.c:3271
 #, no-c-format
 msgid "Control white level follower"
-msgstr ""
+msgstr "Controla el seguidor del nivell de blanc"
 
 #: backend/fujitsu.c:3289
 #, no-c-format
@@ -2329,7 +2346,7 @@ msgstr "Suavitzat"
 #: backend/fujitsu.c:3307
 #, no-c-format
 msgid "Enable smoothing for improved OCR"
-msgstr ""
+msgstr "Habilita el suavitzat per a millorar l'OCR"
 
 #: backend/fujitsu.c:3323
 #, no-c-format
@@ -2365,47 +2382,47 @@ msgstr ""
 #: backend/fujitsu.c:3386 backend/fujitsu.c:3387
 #, no-c-format
 msgid "Noise removal"
-msgstr ""
+msgstr "Eliminació del soroll"
 
 #: backend/fujitsu.c:3403
 #, no-c-format
 msgid "Matrix 5x5"
-msgstr ""
+msgstr "Matriu 5x5"
 
 #: backend/fujitsu.c:3404
 #, no-c-format
 msgid "Remove 5 pixel square noise"
-msgstr ""
+msgstr "Elimina el soroll quadrat de 5 píxels"
 
 #: backend/fujitsu.c:3420
 #, no-c-format
 msgid "Matrix 4x4"
-msgstr ""
+msgstr "Matriu 4x4"
 
 #: backend/fujitsu.c:3421
 #, no-c-format
 msgid "Remove 4 pixel square noise"
-msgstr ""
+msgstr "Elimina el soroll quadrat de 4 píxels"
 
 #: backend/fujitsu.c:3437
 #, no-c-format
 msgid "Matrix 3x3"
-msgstr ""
+msgstr "Matriu 3x3"
 
 #: backend/fujitsu.c:3438
 #, no-c-format
 msgid "Remove 3 pixel square noise"
-msgstr ""
+msgstr "Elimina el soroll quadrat de 3 píxels"
 
 #: backend/fujitsu.c:3454
 #, no-c-format
 msgid "Matrix 2x2"
-msgstr ""
+msgstr "Matriu 2x2"
 
 #: backend/fujitsu.c:3455
 #, no-c-format
 msgid "Remove 2 pixel square noise"
-msgstr ""
+msgstr "Elimina el soroll quadrat de 2 píxels"
 
 #: backend/fujitsu.c:3474
 #, no-c-format
@@ -2420,7 +2437,7 @@ msgstr ""
 #: backend/fujitsu.c:3508
 #, no-c-format
 msgid "Auto width detection"
-msgstr ""
+msgstr "Detecció automàtica de l'amplada"
 
 #: backend/fujitsu.c:3509
 #, no-c-format
@@ -4668,12 +4685,12 @@ msgstr ""
 #: backend/microtek2.h:612
 #, no-c-format
 msgid "Toggle lamp of flatbed"
-msgstr "Commuta el llum del llit pla"
+msgstr "Commuta la llum del llit pla"
 
 #: backend/microtek2.h:613
 #, no-c-format
 msgid "Toggles the lamp of the flatbed"
-msgstr "Commuta el llum del llit pla"
+msgstr "Commuta la llum del llit pla"
 
 #: backend/microtek2.h:616
 #, no-c-format
@@ -4693,7 +4710,7 @@ msgstr ""
 #: backend/microtek2.h:622
 #, no-c-format
 msgid "This option turns off the lamp of the flatbed during a scan"
-msgstr "Aquesta opció desactiva el llum del llit pla durant un escanejat"
+msgstr "Aquesta opció desactiva la llum del llit pla durant un escanejat"
 
 #: backend/microtek2.h:626 backend/snapscan-options.c:421
 #, no-c-format

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.27git\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2018-08-21 13:32+0200\n"
-"PO-Revision-Date: 2018-08-28 00:49+0100\n"
+"PO-Revision-Date: 2018-08-28 19:29+0100\n"
 "Last-Translator: Antoni Bella Pérez <antonibella5@yahoo.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca\n"
@@ -2351,33 +2351,37 @@ msgstr "Habilita el suavitzat per a millorar l'OCR"
 #: backend/fujitsu.c:3323
 #, no-c-format
 msgid "Gamma curve"
-msgstr ""
+msgstr "Corba de la gamma"
 
 #: backend/fujitsu.c:3324
 #, no-c-format
 msgid "Gamma curve, from light to dark, but upper two may not work"
 msgstr ""
+"La corba de la gamma, des de la llum a la foscor, però la part superior de "
+"les dues podria no funcionar"
 
 #: backend/fujitsu.c:3346 backend/genesys.c:5832
 #: backend/pixma_sane_options.c:335
 #, no-c-format
 msgid "Threshold curve"
-msgstr ""
+msgstr "Corba del llindar"
 
 #: backend/fujitsu.c:3347
 #, no-c-format
 msgid "Threshold curve, from light to dark, but upper two may not be linear"
 msgstr ""
+"La corba del llindar, des de la llum a la foscor, però la part superior de "
+"les dues podria no ser lineal"
 
 #: backend/fujitsu.c:3369
 #, no-c-format
 msgid "Threshold white"
-msgstr ""
+msgstr "Llindar al blanc"
 
 #: backend/fujitsu.c:3370
 #, no-c-format
 msgid "Set pixels equal to threshold to white instead of black"
-msgstr ""
+msgstr "Estableix els píxels iguals al llindar al blanc en comptes de negre"
 
 #: backend/fujitsu.c:3386 backend/fujitsu.c:3387
 #, no-c-format
@@ -2433,6 +2437,7 @@ msgstr "Variància"
 #, no-c-format
 msgid "Set SDTC variance rate (sensitivity), 0 equals 127"
 msgstr ""
+"Estableix la velocitat de la variància SDTC (sensibilitat), 0 és igual a 127"
 
 #: backend/fujitsu.c:3508
 #, no-c-format
@@ -2443,16 +2448,20 @@ msgstr "Detecció automàtica de l'amplada"
 #, no-c-format
 msgid "Scanner detects paper sides. May reduce scanning speed."
 msgstr ""
+"L'escàner detectarà els costats del paper. Pot reduir la velocitat de "
+"l'escaneig."
 
 #: backend/fujitsu.c:3526
 #, no-c-format
 msgid "Auto length detection"
-msgstr ""
+msgstr "Detecció automàtica de la llargada"
 
 #: backend/fujitsu.c:3527
 #, no-c-format
 msgid "Scanner detects paper lower edge. May confuse some frontends."
 msgstr ""
+"L'escàner detectarà la vora inferior del paper. Pot confondre alguns "
+"frontals."
 
 #: backend/fujitsu.c:3553
 #, no-c-format
@@ -2463,11 +2472,12 @@ msgstr "Compressió"
 #, no-c-format
 msgid "Enable compressed data. May crash your front-end program"
 msgstr ""
+"Habilita les dades comprimides. Pot fer fallar el vostre programa de frontal"
 
 #: backend/fujitsu.c:3574
 #, no-c-format
 msgid "Compression argument"
-msgstr ""
+msgstr "Argument per a la compressió"
 
 #: backend/fujitsu.c:3575
 #, no-c-format
@@ -2475,6 +2485,8 @@ msgid ""
 "Level of JPEG compression. 1 is small file, 7 is large file. 0 (default) is "
 "same as 4"
 msgstr ""
+"Nivell de la compressió JPEG. 1 és un fitxer petit, 7 és un fitxer gran. 0 "
+"(omissió) és igual a 4"
 
 #: backend/fujitsu.c:3605
 #, no-c-format
@@ -2539,32 +2551,36 @@ msgstr ""
 #: backend/fujitsu.c:3728
 #, no-c-format
 msgid "Paper protection"
-msgstr ""
+msgstr "Protecció del paper"
 
 #: backend/fujitsu.c:3729
 #, no-c-format
 msgid "Request scanner to predict jams in the ADF"
-msgstr ""
+msgstr "Pregunta a l'escàner per a predir les encallades a l'ADF"
 
 #: backend/fujitsu.c:3748
 #, no-c-format
 msgid "Advanced paper protection"
-msgstr ""
+msgstr "Protecció avançada del paper"
 
 #: backend/fujitsu.c:3749
 #, no-c-format
 msgid "Request scanner to predict jams in the ADF using improved sensors"
 msgstr ""
+"Pregunta a l'escàner per a predir les encallades a l'ADF usant sensors "
+"millorats"
 
 #: backend/fujitsu.c:3768
 #, no-c-format
 msgid "Staple detection"
-msgstr ""
+msgstr "Detecció de les grapes"
 
 #: backend/fujitsu.c:3769
 #, no-c-format
 msgid "Request scanner to detect jams in the ADF caused by staples"
 msgstr ""
+"Pregunta a l'escàner per a detectar les encallades a l'ADF causades per les "
+"grapes"
 
 #: backend/fujitsu.c:3788
 #, no-c-format
@@ -2575,6 +2591,8 @@ msgstr "Color de fons"
 #, no-c-format
 msgid "Set color of background for scans. May conflict with overscan option"
 msgstr ""
+"Estableix un color de fons per a l'escaneig. Pot entrar en conflicte amb "
+"l'opció de sobre-exploració"
 
 #: backend/fujitsu.c:3809
 #, no-c-format
@@ -2587,16 +2605,20 @@ msgid ""
 "One-pass scanners use only one color during gray or binary scanning, useful "
 "for colored paper or ink"
 msgstr ""
+"Els escàners d'una sola passada només usen un color durant l'escaneig gris o "
+"binari, útil per a paper amb colors o tinta"
 
 #: backend/fujitsu.c:3833
 #, no-c-format
 msgid "Buffer mode"
-msgstr ""
+msgstr "Mode de memòria intermèdia"
 
 #: backend/fujitsu.c:3834
 #, no-c-format
 msgid "Request scanner to read pages quickly from ADF into internal memory"
 msgstr ""
+"Sol·licita a l'escàner que llegeixi les pàgines ràpidament des de l'ADF a la "
+"memòria interna"
 
 #: backend/fujitsu.c:3853
 #, no-c-format
@@ -2606,35 +2628,41 @@ msgstr ""
 #: backend/fujitsu.c:3854
 #, no-c-format
 msgid "Request scanner to grab next page from ADF"
-msgstr ""
+msgstr "Sol·licita a l'escàner que agafi la pàgina següent des de l'ADF"
 
 #: backend/fujitsu.c:3873
 #, no-c-format
 msgid "Overscan"
-msgstr ""
+msgstr "Sobre-exploració"
 
 #: backend/fujitsu.c:3874
-#, no-c-format
+#, fuzzy, no-c-format
 msgid ""
 "Collect a few mm of background on top side of scan, before paper enters ADF, "
 "and increase maximum scan area beyond paper size, to allow collection on "
 "remaining sides. May conflict with bgcolor option"
 msgstr ""
+"Recull uns pocs mm del fons al costat superior de l'escaneig, abans que el "
+"paper ingressi a l'ADF i augmenta l'àrea màxima d'escaneig més enllà de la "
+"mida del paper, per a permetre recollir els costats restants. Pot estar en "
+"conflicte amb l'opció bgcolor"
 
 #: backend/fujitsu.c:3892
 #, no-c-format
 msgid "Sleep timer"
-msgstr ""
+msgstr "Temporitzador de suspensió"
 
 #: backend/fujitsu.c:3893
 #, no-c-format
 msgid "Time in minutes until the internal power supply switches to sleep mode"
 msgstr ""
+"Temps en minuts fins que la font d'alimentació interna canviarà al mode de "
+"suspensió"
 
 #: backend/fujitsu.c:3911
 #, no-c-format
 msgid "Off timer"
-msgstr ""
+msgstr "Temporitzador per apagar"
 
 #: backend/fujitsu.c:3912
 #, no-c-format
@@ -2642,6 +2670,9 @@ msgid ""
 "Time in minutes until the internal power supply switches the scanner off. "
 "Will be rounded to nearest 15 minutes. Zero means never power off."
 msgstr ""
+"Temps en minuts fins que la font d'alimentació interna apagui l'escàner. "
+"S'arrodonirà fins als 15 minuts més propers. Zero significa que no s'apagarà "
+"mai."
 
 #: backend/fujitsu.c:3930
 #, no-c-format
@@ -2656,27 +2687,27 @@ msgstr ""
 #: backend/fujitsu.c:3948 backend/plustek.c:1025 backend/umax_pp.c:804
 #, no-c-format
 msgid "Green offset"
-msgstr ""
+msgstr "Desplaçament del verd"
 
 #: backend/fujitsu.c:3949
 #, no-c-format
 msgid "Adjust green/red offset"
-msgstr ""
+msgstr "Ajusta el desplaçament del verd/vermell"
 
 #: backend/fujitsu.c:3966 backend/plustek.c:1041 backend/umax_pp.c:816
 #, no-c-format
 msgid "Blue offset"
-msgstr ""
+msgstr "Desplaçament del blau"
 
 #: backend/fujitsu.c:3967
 #, no-c-format
 msgid "Adjust blue/red offset"
-msgstr ""
+msgstr "Ajusta el desplaçament del blau/vermell"
 
 #: backend/fujitsu.c:3980
 #, no-c-format
 msgid "Low Memory"
-msgstr ""
+msgstr "Memòria baixa"
 
 #: backend/fujitsu.c:3981
 #, no-c-format
@@ -2686,6 +2717,11 @@ msgid ""
 "'side' can be used to determine correct image. This option should only be "
 "used with custom front-end software."
 msgstr ""
+"Limita l'ús de la memòria del controlador per a usar-ho en sistemes "
+"incrustats. Provoca algunes transferències dúplex a costats alternatius de "
+"cada crida a «sane_read». El valor de l'opció «side» es pot usar per a "
+"determinar la imatge correcta. Aquesta opció només s'hauria d'usar amb el "
+"programari de frontal personalitzat."
 
 #: backend/fujitsu.c:3996
 #, no-c-format
@@ -2732,22 +2768,26 @@ msgstr ""
 #: backend/fujitsu.c:4053 backend/genesys.c:5760
 #, no-c-format
 msgid "Software crop"
-msgstr ""
+msgstr "Retalla per programari"
 
 #: backend/fujitsu.c:4054
 #, no-c-format
 msgid "Request driver to remove border from pages digitally."
 msgstr ""
+"Sol·licita al controlador que elimini la vora de les pàgines de forma "
+"digital."
 
 #: backend/fujitsu.c:4083
 #, no-c-format
 msgid "Halt on Cancel"
-msgstr ""
+msgstr "Atura en cancel·lar"
 
 #: backend/fujitsu.c:4084
 #, no-c-format
 msgid "Request driver to halt the paper feed instead of eject during a cancel."
 msgstr ""
+"Sol·licita al controlador que aturi el full de paper en lloc d'expulsar-lo "
+"durant una cancel·lació."
 
 #: backend/fujitsu.c:4095
 #, no-c-format
@@ -2864,42 +2904,42 @@ msgstr ""
 #: backend/fujitsu.c:4344
 #, no-c-format
 msgid "A3 paper"
-msgstr ""
+msgstr "Paper A3"
 
 #: backend/fujitsu.c:4345
 #, no-c-format
 msgid "A3 paper detected"
-msgstr ""
+msgstr "S'ha detectat un paper A3"
 
 #: backend/fujitsu.c:4356
 #, no-c-format
 msgid "B4 paper"
-msgstr ""
+msgstr "Paper B4"
 
 #: backend/fujitsu.c:4357
 #, no-c-format
 msgid "B4 paper detected"
-msgstr ""
+msgstr "S'ha detectat un paper B4"
 
 #: backend/fujitsu.c:4368
 #, no-c-format
 msgid "A4 paper"
-msgstr ""
+msgstr "Paper A4"
 
 #: backend/fujitsu.c:4369
 #, no-c-format
 msgid "A4 paper detected"
-msgstr ""
+msgstr "S'ha detectat un paper A4"
 
 #: backend/fujitsu.c:4380
 #, no-c-format
 msgid "B5 paper"
-msgstr ""
+msgstr "Paper B5"
 
 #: backend/fujitsu.c:4381
 #, no-c-format
 msgid "B5 paper detected"
-msgstr ""
+msgstr "S'ha detectat un paper B5"
 
 #: backend/fujitsu.c:4404
 #, no-c-format
@@ -2914,22 +2954,22 @@ msgstr ""
 #: backend/fujitsu.c:4428
 #, no-c-format
 msgid "Power saving"
-msgstr ""
+msgstr "Estalvi d'energia"
 
 #: backend/fujitsu.c:4429
 #, no-c-format
 msgid "Scanner in power saving mode"
-msgstr ""
+msgstr "Escàner en el mode estalvi d'energia"
 
 #: backend/fujitsu.c:4452
 #, no-c-format
 msgid "Manual feed"
-msgstr ""
+msgstr "Alimentació manual"
 
 #: backend/fujitsu.c:4453
 #, no-c-format
 msgid "Manual feed selected"
-msgstr ""
+msgstr "S'ha seleccionat una alimentació manual"
 
 #: backend/fujitsu.c:4476
 #, no-c-format
@@ -2969,27 +3009,27 @@ msgstr "Codi d'error"
 #: backend/fujitsu.c:4513
 #, no-c-format
 msgid "Hardware error code"
-msgstr ""
+msgstr "Codi d'error del maquinari"
 
 #: backend/fujitsu.c:4524
 #, no-c-format
 msgid "Skew angle"
-msgstr ""
+msgstr "Angle d'inclinació"
 
 #: backend/fujitsu.c:4525
 #, no-c-format
 msgid "Requires black background for scanning"
-msgstr ""
+msgstr "Requereix un fons negre per escanejar"
 
 #: backend/fujitsu.c:4536
 #, no-c-format
 msgid "Ink remaining"
-msgstr ""
+msgstr "Tinta restant"
 
 #: backend/fujitsu.c:4537
 #, no-c-format
 msgid "Imprinter ink level"
-msgstr ""
+msgstr "Nivell de tinta de la impressora"
 
 #: backend/fujitsu.c:4548
 #, no-c-format
@@ -3010,36 +3050,43 @@ msgstr ""
 #, no-c-format
 msgid "Request backend to remove border from pages digitally"
 msgstr ""
+"Sol·licita al dorsal que elimini la vora de les pàgines de forma digital"
 
 #: backend/genesys.c:5770 backend/kvs1025_opt.c:912
 #, no-c-format
 msgid "Request driver to discard pages with low numbers of dark pixels"
 msgstr ""
+"Sol·licita al controlador que descarti les pàgines amb un nombre baix de "
+"píxels foscos"
 
 #: backend/genesys.c:5781 backend/kvs1025_opt.c:892
 #, no-c-format
 msgid "Software derotate"
-msgstr ""
+msgstr "Treu el gir per programari"
 
 #: backend/genesys.c:5782 backend/kvs1025_opt.c:894
 #, no-c-format
 msgid "Request driver to detect and correct 90 degree image rotation"
 msgstr ""
+"Sol·licita al controlador que detecti i corregeixi el gir de 90 graus de la "
+"imatge"
 
 #: backend/genesys.c:5813 backend/pixma_sane_options.c:314
 #, no-c-format
 msgid "Extras"
-msgstr ""
+msgstr "Extres"
 
 #: backend/genesys.c:5833 backend/pixma_sane_options.c:336
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
 msgstr ""
+"La corba dinàmica del llindar, des de la llum a la foscor, normalment de 50 a "
+"65"
 
 #: backend/genesys.c:5842
 #, no-c-format
 msgid "Disable dynamic lineart"
-msgstr ""
+msgstr "Inhabilita l'art lineal dinàmic"
 
 #: backend/genesys.c:5844
 #, no-c-format
@@ -3047,11 +3094,13 @@ msgid ""
 "Disable use of a software adaptive algorithm to generate lineart relying "
 "instead on hardware lineart."
 msgstr ""
+"Inhabilita l'ús d'un algorisme adaptatiu per programari que genera art lineal "
+"en comptes de per maquinari"
 
 #: backend/genesys.c:5860
 #, no-c-format
 msgid "Disable interpolation"
-msgstr ""
+msgstr "Inhabilita la interpolació"
 
 #: backend/genesys.c:5863
 #, no-c-format
@@ -3059,6 +3108,8 @@ msgid ""
 "When using high resolutions where the horizontal resolution is smaller than "
 "the vertical resolution this disables horizontal interpolation."
 msgstr ""
+"Quan s'usen resolucions d'alta resolució on la resolució horitzontal és més "
+"petita que la vertical, això inhabilitarà la interpolació horitzontal."
 
 #: backend/genesys.c:5872
 #, no-c-format
@@ -3069,6 +3120,7 @@ msgstr "Filtre de color"
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
+"Quan s'usa gris o art lineal, aquesta opció seleccionarà el color a usar."
 
 #: backend/genesys.c:5901
 #, no-c-format
@@ -3078,12 +3130,12 @@ msgstr ""
 #: backend/genesys.c:5902
 #, no-c-format
 msgid "Specify the calibration file to use"
-msgstr ""
+msgstr "Especifica el fitxer de calibratge a usar"
 
 #: backend/genesys.c:5919
 #, no-c-format
 msgid "Calibration cache expiration time"
-msgstr ""
+msgstr "Temps de caducitat per a la memòria cau del calibratge"
 
 #: backend/genesys.c:5920
 #, no-c-format
@@ -3091,11 +3143,14 @@ msgid ""
 "Time (in minutes) before a cached calibration expires. A value of 0 means "
 "cache is not used. A negative value means cache never expires."
 msgstr ""
+"Temps (en minuts) abans que expiri el calibratge emmagatzemat a la memòria "
+"cau. Un valor de 0 indicarà que no s'usarà la memòria cau. Un valor negatiu "
+"indicarà que la memòria cau no caducarà mai."
 
 #: backend/genesys.c:5930
 #, no-c-format
 msgid "Lamp off time"
-msgstr ""
+msgstr "Temps per apagar la làmpada"
 
 #: backend/genesys.c:5933
 #, no-c-format
@@ -3103,6 +3158,8 @@ msgid ""
 "The lamp will be turned off after the given time (in minutes). A value of 0 "
 "means, that the lamp won't be turned off."
 msgstr ""
+"La llum s'apagarà després del temps determinat (en minuts). Un valor de 0 "
+"indicarà que no s'apagarà la làmpada."
 
 #: backend/genesys.c:5943
 #, no-c-format
@@ -3122,12 +3179,12 @@ msgstr ""
 #: backend/genesys.c:6025 backend/genesys.c:6026
 #, no-c-format
 msgid "OCR button"
-msgstr ""
+msgstr "Botó OCR"
 
 #: backend/genesys.c:6039 backend/genesys.c:6040
 #, no-c-format
 msgid "Power button"
-msgstr ""
+msgstr "Botó d'encesa"
 
 #: backend/genesys.c:6053 backend/genesys.c:6054
 #, no-c-format
@@ -3137,12 +3194,12 @@ msgstr "Botó extra"
 #: backend/genesys.c:6067 backend/gt68xx.c:755
 #, no-c-format
 msgid "Need calibration"
-msgstr ""
+msgstr "Necessita calibratge"
 
 #: backend/genesys.c:6068 backend/gt68xx.c:756
 #, no-c-format
 msgid "The scanner needs calibration for the current settings"
-msgstr ""
+msgstr "L'escàner necessita calibratge per als ajustaments actuals"
 
 #: backend/genesys.c:6080 backend/gt68xx.c:780 backend/gt68xx.c:781
 #: backend/pixma_sane_options.c:226 backend/plustek.c:1080
@@ -3159,17 +3216,17 @@ msgstr "Calibratge"
 #: backend/genesys.c:6091 backend/gt68xx.c:789
 #, no-c-format
 msgid "Start calibration using special sheet"
-msgstr ""
+msgstr "Comença el calibratge emprant un full especial"
 
 #: backend/genesys.c:6105 backend/gt68xx.c:802
 #, no-c-format
 msgid "Clear calibration"
-msgstr ""
+msgstr "Neteja el calibratge"
 
 #: backend/genesys.c:6106 backend/gt68xx.c:803
 #, no-c-format
 msgid "Clear calibration cache"
-msgstr ""
+msgstr "Neteja la memòria cau del calibratge"
 
 #: backend/gt68xx.c:149 backend/ma1509.c:108 backend/mustek.c:164
 #: backend/snapscan-options.c:87 backend/umax.c:182
@@ -3180,17 +3237,18 @@ msgstr ""
 #: backend/gt68xx.c:470
 #, no-c-format
 msgid "Gray mode color"
-msgstr ""
+msgstr "Color per al mode gris"
 
 #: backend/gt68xx.c:472
 #, no-c-format
 msgid "Selects which scan color is used gray mode (default: green)."
 msgstr ""
+"Selecciona quin color d'escaneig s'usarà en el mode gris (omissió: verd)."
 
 #: backend/gt68xx.c:553 backend/hp3900_sane.c:1392 backend/mustek_usb2.c:410
 #, no-c-format
 msgid "Debugging Options"
-msgstr ""
+msgstr "Opcions de depuració"
 
 #: backend/gt68xx.c:564 backend/mustek_usb2.c:419
 #, no-c-format
@@ -3258,12 +3316,12 @@ msgstr ""
 #: backend/gt68xx.c:674 backend/mustek_usb2.c:452
 #, no-c-format
 msgid "Gamma value"
-msgstr ""
+msgstr "Valor de la gamma"
 
 #: backend/gt68xx.c:676 backend/mustek_usb2.c:454
 #, no-c-format
 msgid "Sets the gamma value of all channels."
-msgstr ""
+msgstr "Estableix el valor de la gamma de tots els canals."
 
 #: backend/hp3500.c:1020
 #, no-c-format
@@ -3284,52 +3342,53 @@ msgstr "Diapositiva"
 #: backend/hp3900_sane.c:1405
 #, no-c-format
 msgid "Scanner model"
-msgstr ""
+msgstr "Model de l'escàner"
 
 #: backend/hp3900_sane.c:1408
 #, no-c-format
 msgid "Allows one to test device behaviour with other supported models"
 msgstr ""
+"Permet comprovar el comportament del dispositiu amb altres models admesos"
 
 #: backend/hp3900_sane.c:1422
 #, no-c-format
 msgid "Image colours will be inverted"
-msgstr ""
+msgstr "Els colors de la imatge seran invertits"
 
 #: backend/hp3900_sane.c:1436
 #, no-c-format
 msgid "Disable gamma correction"
-msgstr ""
+msgstr "Inhabilita la correcció de la gamma"
 
 #: backend/hp3900_sane.c:1437
 #, no-c-format
 msgid "Gamma correction will be disabled"
-msgstr ""
+msgstr "La correcció de la gamma serà inhabilitada"
 
 #: backend/hp3900_sane.c:1451
 #, no-c-format
 msgid "Disable white shading correction"
-msgstr ""
+msgstr "Inhabilita la correcció de l'ombra blanca"
 
 #: backend/hp3900_sane.c:1453
 #, no-c-format
 msgid "White shading correction will be disabled"
-msgstr ""
+msgstr "La correcció de l'ombra blanca serà inhabilitada"
 
 #: backend/hp3900_sane.c:1467
 #, no-c-format
 msgid "Skip warmup process"
-msgstr ""
+msgstr "Omet el procés d'escalfament"
 
 #: backend/hp3900_sane.c:1468
 #, no-c-format
 msgid "Warmup process will be disabled"
-msgstr ""
+msgstr "El procés d'escalfament serà inhabilitat"
 
 #: backend/hp3900_sane.c:1482
 #, no-c-format
 msgid "Force real depth"
-msgstr ""
+msgstr "Força la profunditat real"
 
 #: backend/hp3900_sane.c:1485
 #, no-c-format
@@ -3338,11 +3397,15 @@ msgid ""
 "quality and then converted to the selected depth. This option avoids depth "
 "emulation."
 msgstr ""
+"Si s'ha habilitat la gamma, els escanejos es realitzaran sempre en 16 bits de "
+"profunditat per a millorar la qualitat de la imatge i després convertir-la a "
+"la profunditat seleccionada. Aquesta opció evitarà l'emulació de la "
+"profunditat."
 
 #: backend/hp3900_sane.c:1499
 #, no-c-format
 msgid "Emulate Grayscale"
-msgstr ""
+msgstr "Emula l'escala de grisos"
 
 #: backend/hp3900_sane.c:1502
 #, no-c-format
@@ -3350,11 +3413,14 @@ msgid ""
 "If enabled, image will be scanned in color mode and then converted to "
 "grayscale by software. This may improve image quality in some circumstances."
 msgstr ""
+"Si s'habilita, la imatge s'escanejarà en el mode de color i després es "
+"convertirà per programari a una escala de grisos. Això pot millorar la "
+"qualitat de la imatge en algunes circumstàncies."
 
 #: backend/hp3900_sane.c:1516
 #, no-c-format
 msgid "Save debugging images"
-msgstr ""
+msgstr "Desa imatges per a la depuració"
 
 #: backend/hp3900_sane.c:1519
 #, no-c-format
@@ -3362,6 +3428,8 @@ msgid ""
 "If enabled, some images involved in scanner processing are saved to analyze "
 "them."
 msgstr ""
+"Si s'habilita, es desaran algunes imatges relacionades amb el processament de "
+"l'escàner per analitzar-les."
 
 #: backend/hp3900_sane.c:1533
 #, no-c-format

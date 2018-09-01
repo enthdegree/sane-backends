@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.27git\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2018-08-21 13:32+0200\n"
-"PO-Revision-Date: 2018-09-01 20:46+0100\n"
+"PO-Revision-Date: 2018-09-01 23:25+0100\n"
 "Last-Translator: Antoni Bella Pérez <antonibella5@yahoo.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca\n"
@@ -245,22 +245,22 @@ msgstr "Ombra per al blau"
 #: include/sane/saneopts.h:196
 #, no-c-format
 msgid "Highlight"
-msgstr "Ressaltat"
+msgstr "Llum intensa"
 
 #: include/sane/saneopts.h:197
 #, no-c-format
 msgid "Highlight for red"
-msgstr "Ressaltat per al vermell"
+msgstr "Llum intensa per al vermell"
 
 #: include/sane/saneopts.h:198
 #, no-c-format
 msgid "Highlight for green"
-msgstr "Ressaltat per al verd"
+msgstr "Llum intensa per al verd"
 
 #: include/sane/saneopts.h:199
 #, no-c-format
 msgid "Highlight for blue"
-msgstr "Ressaltat per al blau"
+msgstr "Llum intensa per al blau"
 
 #: include/sane/saneopts.h:200
 #, no-c-format
@@ -323,7 +323,7 @@ msgstr "Llindar"
 #: include/sane/saneopts.h:211
 #, no-c-format
 msgid "Analog gamma correction"
-msgstr "Correcció amb una gamma analògica"
+msgstr "Correcció de la gamma analògica"
 
 #: include/sane/saneopts.h:212
 #, no-c-format
@@ -353,22 +353,22 @@ msgstr "Escalfament de la làmpada"
 #: include/sane/saneopts.h:217
 #, no-c-format
 msgid "Cal. exposure-time"
-msgstr "Cal. el  temps d'exposició"
+msgstr "Cal. el temps d'exposició"
 
 #: include/sane/saneopts.h:218
 #, no-c-format
 msgid "Cal. exposure-time for red"
-msgstr "Cal. el  temps d'exposició per al vermell"
+msgstr "Cal. el temps d'exposició per al vermell"
 
 #: include/sane/saneopts.h:219
 #, no-c-format
 msgid "Cal. exposure-time for green"
-msgstr "Cal. el  temps d'exposició per al verd"
+msgstr "Cal. el temps d'exposició per al verd"
 
 #: include/sane/saneopts.h:221
 #, no-c-format
 msgid "Cal. exposure-time for blue"
-msgstr "Cal. el  temps d'exposició per al blau"
+msgstr "Cal. el temps d'exposició per al blau"
 
 #: include/sane/saneopts.h:222
 #, no-c-format
@@ -722,7 +722,7 @@ msgstr "Usa els mateixos valors per a la resolució X i Y"
 #: include/sane/saneopts.h:395
 #, no-c-format
 msgid "Swap black and white"
-msgstr "Intercanvia el blanc i el negre"
+msgstr "Intercanvia el negre i el blanc"
 
 #: include/sane/saneopts.h:397
 #, no-c-format
@@ -732,7 +732,7 @@ msgstr "Fes un calibratge de qualitat del blanc"
 #: include/sane/saneopts.h:399
 #, no-c-format
 msgid "Use lens that doubles optical resolution"
-msgstr "Usa lents que doblen la resolució òptica"
+msgstr "Usa una lent que dobli la resolució òptica"
 
 #: include/sane/saneopts.h:401 include/sane/saneopts.h:413
 #, no-c-format
@@ -747,22 +747,22 @@ msgstr "Selecciona la brillantor mínima per obtenir un punt blanc"
 #: include/sane/saneopts.h:405
 #, no-c-format
 msgid "Analog gamma-correction"
-msgstr "Correcció amb una gamma analògica"
+msgstr "Correcció de la gamma analògica"
 
 #: include/sane/saneopts.h:407
 #, no-c-format
 msgid "Analog gamma-correction for red"
-msgstr "Correcció amb una gamma analògica per al vermell"
+msgstr "Correcció de la gamma analògica per al vermell"
 
 #: include/sane/saneopts.h:409
 #, no-c-format
 msgid "Analog gamma-correction for green"
-msgstr "Correcció amb una gamma analògica per al verd"
+msgstr "Correcció de la gamma analògica per al verd"
 
 #: include/sane/saneopts.h:411
 #, no-c-format
 msgid "Analog gamma-correction for blue"
-msgstr "Correcció amb una gamma analògica per al blau"
+msgstr "Correcció de la gamma analògica per al blau"
 
 #: include/sane/saneopts.h:415
 #, no-c-format
@@ -2263,7 +2263,7 @@ msgstr "Exemple de funció de la gamma"
 #: backend/fujitsu.c:3098 backend/pixma_sane_options.c:146
 #, no-c-format
 msgid "Changes intensity of midtones"
-msgstr "Canvia la intensitat dels semi to"
+msgstr "Canvia la intensitat dels semi tons"
 
 #: backend/fujitsu.c:3147
 #, no-c-format
@@ -2363,14 +2363,14 @@ msgstr "Habilita el suavitzat per a millorar l'OCR"
 #: backend/fujitsu.c:3323
 #, no-c-format
 msgid "Gamma curve"
-msgstr "Corba de la gamma"
+msgstr "Corba amb interval"
 
 #: backend/fujitsu.c:3324
 #, no-c-format
 msgid "Gamma curve, from light to dark, but upper two may not work"
 msgstr ""
-"La corba de la gamma, des de la llum a la foscor, però la part superior "
-"de les dues podria no funcionar"
+"La corba amb interval, des de la llum a la foscor, però la part superior de "
+"les dues podria no funcionar"
 
 #: backend/fujitsu.c:3346 backend/genesys.c:5832
 #: backend/pixma_sane_options.c:335
@@ -2449,7 +2449,7 @@ msgstr "Variància"
 #, no-c-format
 msgid "Set SDTC variance rate (sensitivity), 0 equals 127"
 msgstr ""
-"Estableix la velocitat de la variància SDTC (sensibilitat), 0 és igual a "
+"Estableix la velocitat de la variància SDTC (sensibilitat), 0 és igual que "
 "127"
 
 #: backend/fujitsu.c:3508
@@ -2500,7 +2500,7 @@ msgid ""
 "is same as 4"
 msgstr ""
 "Nivell de la compressió JPEG. 1 és un fitxer petit, 7 és un fitxer gran. "
-"0 (omissió) és igual a 4"
+"0 (omissió) és igual que 4"
 
 #: backend/fujitsu.c:3605
 #, no-c-format
@@ -3111,7 +3111,7 @@ msgid ""
 "instead on hardware lineart."
 msgstr ""
 "Inhabilita l'ús d'un algorisme adaptatiu per programari que genera art "
-"lineal en comptes de per maquinari"
+"lineal en comptes de per maquinari."
 
 #: backend/genesys.c:5860
 #, no-c-format
@@ -3926,7 +3926,7 @@ msgstr "Opcions per a l'actualització"
 #: backend/hp-option.h:151
 #, no-c-format
 msgid "Update options."
-msgstr "Opcions per a l'actualització"
+msgstr "Opcions per a l'actualització."
 
 #: backend/hp-option.h:156
 #, no-c-format
@@ -4600,7 +4600,7 @@ msgstr "S'aturarà l'escàner quan un paper s'hagi inclinat"
 #: backend/kvs40xx_opt.c:816
 #, no-c-format
 msgid "Crop actual image area"
-msgstr "Escapça una àrea de la imatge actual"
+msgstr "Escapça una àrea de la imatge real"
 
 #: backend/kvs40xx_opt.c:817
 #, no-c-format
@@ -4796,7 +4796,7 @@ msgstr "Escala de grisos en 8 bits"
 #: backend/microtek2.h:601
 #, no-c-format
 msgid "Shadow, midtone, highlight, exposure time"
-msgstr "Ombra, semi to, ressaltat, temps d'exposició"
+msgstr "Ombra, semi to, llum intensa, temps d'exposició"
 
 #: backend/microtek2.h:603
 #, no-c-format
@@ -4999,7 +4999,7 @@ msgstr "Selecciona quin nivell de radiància s'haurà de considerar «50 % blau�
 #: backend/microtek2.h:694
 #, no-c-format
 msgid "Red balance"
-msgstr "Balanç del vermell"
+msgstr "Equilibri del vermell"
 
 #: backend/microtek2.h:695
 #, no-c-format
@@ -5011,7 +5011,7 @@ msgstr ""
 #: backend/microtek2.h:699
 #, no-c-format
 msgid "Green balance"
-msgstr "Balanç del verd"
+msgstr "Equilibri del verd"
 
 #: backend/microtek2.h:700
 #, no-c-format
@@ -5023,7 +5023,7 @@ msgstr ""
 #: backend/microtek2.h:704
 #, no-c-format
 msgid "Blue balance"
-msgstr "Balanç del blau"
+msgstr "Equilibri del blau"
 
 #: backend/microtek2.h:705
 #, no-c-format
@@ -5035,13 +5035,13 @@ msgstr ""
 #: backend/microtek2.h:709
 #, no-c-format
 msgid "Firmware balance"
-msgstr "Balanç per microprogramari"
+msgstr "Equilibri per microprogramari"
 
 #: backend/microtek2.h:710
 #, no-c-format
 msgid "Sets the color balance values to the firmware provided values."
 msgstr ""
-"Estableix els valors per a l'equilibri del color als valors proporcionats pel "
+"Estableix els valors per a l'equilibri de color als valors proporcionats pel "
 "microprogramari."
 
 #: backend/mustek.c:149

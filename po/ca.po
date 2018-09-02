@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.27git\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2018-08-21 13:32+0200\n"
-"PO-Revision-Date: 2018-09-02 21:32+0100\n"
+"PO-Revision-Date: 2018-09-03 01:22+0100\n"
 "Last-Translator: Antoni Bella Pérez <antonibella5@yahoo.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca\n"
@@ -937,7 +937,7 @@ msgstr "S'ha arribat al final del fitxer"
 #: backend/sane_strstatus.c:77
 #, no-c-format
 msgid "Document feeder jammed"
-msgstr "S'ha encallat l'alimentador de documents"
+msgstr "S'ha embussat l'alimentador de documents"
 
 #: backend/sane_strstatus.c:80
 #, no-c-format
@@ -1160,7 +1160,7 @@ msgstr "Desconegut"
 #: backend/canon.c:373
 #, no-c-format
 msgid "ADF jam"
-msgstr "S'ha encallat l'ADF"
+msgstr "S'ha embussat l'ADF"
 
 #: backend/canon.c:376
 #, no-c-format
@@ -1561,40 +1561,40 @@ msgstr "Selecciona el tipus de pel·lícula"
 #: backend/snapscan-options.c:86 backend/test.c:192 backend/umax.c:181
 #, no-c-format
 msgid "Flatbed"
-msgstr "Llit pla"
+msgstr "De llit pla"
 
 #: backend/canon_dr.c:409 backend/epjitsu.c:234 backend/fujitsu.c:673
 #: backend/kodak.c:140
 #, no-c-format
 msgid "ADF Front"
-msgstr "ADF pel davant"
+msgstr "ADF per a l'anvers"
 
 #: backend/canon_dr.c:410 backend/epjitsu.c:235 backend/fujitsu.c:674
 #: backend/kodak.c:141
 #, no-c-format
 msgid "ADF Back"
-msgstr "ADF pel darrere"
+msgstr "ADF per al revers"
 
 #: backend/canon_dr.c:411 backend/epjitsu.c:236 backend/fujitsu.c:675
 #: backend/hp5590.c:94 backend/kodak.c:142 backend/pixma.c:931
 #, no-c-format
 msgid "ADF Duplex"
-msgstr "ADF a dues cares"
+msgstr "ADF per a les dues cares"
 
 #: backend/canon_dr.c:412
 #, no-c-format
 msgid "Card Front"
-msgstr "Targeta pel davant"
+msgstr "Targeta per a l'anvers"
 
 #: backend/canon_dr.c:413
 #, no-c-format
 msgid "Card Back"
-msgstr "Targeta pel darrere"
+msgstr "Targeta per al revers"
 
 #: backend/canon_dr.c:414
 #, no-c-format
 msgid "Card Duplex"
-msgstr "Targeta a dues cares"
+msgstr "Targeta per a les dues cares"
 
 #: backend/canon_dr.c:421 backend/epson.c:599 backend/epson.c:3096
 #: backend/epson2.c:201 backend/fujitsu.c:692 backend/genesys.c:89
@@ -2117,10 +2117,11 @@ msgstr ""
 msgid "Infrared"
 msgstr "Infraroigs"
 
+# Nota: https://github.com/Scan-o-Matic/scanomatic/wiki/Installing-scanners
 #: backend/epson2.c:117
 #, no-c-format
 msgid "TPU8x10"
-msgstr ""
+msgstr "TPU8x10"
 
 #: backend/epson2.c:136
 #, no-c-format
@@ -2132,15 +2133,16 @@ msgstr "Diapositiva en positiu"
 msgid "Negative Slide"
 msgstr "Diapositiva en negatiu"
 
+# Nota: https://en.wikipedia.org/wiki/Color_temperature#Correlated_color_temperature
 #: backend/epson2.c:215
 #, no-c-format
 msgid "Built in CCT profile"
-msgstr ""
+msgstr "Incorpora el perfil CCT"
 
 #: backend/epson2.c:216
 #, no-c-format
 msgid "User defined CCT profile"
-msgstr ""
+msgstr "Perfil CCT definit per l'usuari"
 
 #: backend/fujitsu.c:683 backend/hp-option.c:3330 backend/hp-option.c:3343
 #, no-c-format
@@ -2156,12 +2158,12 @@ msgstr "Inactiu"
 #: backend/fujitsu.c:686
 #, no-c-format
 msgid "DTC"
-msgstr ""
+msgstr "DTC"
 
 #: backend/fujitsu.c:687
 #, no-c-format
 msgid "SDTC"
-msgstr ""
+msgstr "SDTC"
 
 #: backend/fujitsu.c:689 backend/teco1.c:1152 backend/teco1.c:1153
 #: backend/teco2.c:1967 backend/teco2.c:1968 backend/teco3.c:977
@@ -2218,12 +2220,12 @@ msgstr "Horitzontal"
 #: backend/fujitsu.c:709
 #, no-c-format
 msgid "Horizontal bold"
-msgstr ""
+msgstr "Horitzontal en negre"
 
 #: backend/fujitsu.c:710
 #, no-c-format
 msgid "Horizontal narrow"
-msgstr ""
+msgstr "Horitzontal estreta"
 
 #: backend/fujitsu.c:711 backend/hp-option.c:3047
 #, no-c-format
@@ -2233,7 +2235,7 @@ msgstr "Vertical"
 #: backend/fujitsu.c:712
 #, no-c-format
 msgid "Vertical bold"
-msgstr ""
+msgstr "Vertical en negre"
 
 #: backend/fujitsu.c:714
 #, no-c-format
@@ -2248,17 +2250,17 @@ msgstr "De baix a dalt"
 #: backend/fujitsu.c:717
 #, no-c-format
 msgid "Front"
-msgstr ""
+msgstr "Anvers"
 
 #: backend/fujitsu.c:718
 #, no-c-format
 msgid "Back"
-msgstr ""
+msgstr "Revers"
 
 #: backend/fujitsu.c:3097 backend/pixma_sane_options.c:145
 #, no-c-format
 msgid "Gamma function exponent"
-msgstr "Exemple de funció de la gamma"
+msgstr "Exponent de la funció gamma"
 
 #: backend/fujitsu.c:3098 backend/pixma_sane_options.c:146
 #, no-c-format
@@ -2268,12 +2270,12 @@ msgstr "Canvia la intensitat dels semi tons"
 #: backend/fujitsu.c:3147
 #, no-c-format
 msgid "RIF"
-msgstr ""
+msgstr "RIF"
 
 #: backend/fujitsu.c:3148
 #, no-c-format
 msgid "Reverse image format"
-msgstr ""
+msgstr "Format d'imatge inversa"
 
 #: backend/fujitsu.c:3165
 #, no-c-format
@@ -2308,7 +2310,7 @@ msgstr "Èmfasi"
 #: backend/fujitsu.c:3222
 #, no-c-format
 msgid "Negative to smooth or positive to sharpen image"
-msgstr ""
+msgstr "Negatiu per a suavitzar o positiu per aguditzar la imatge"
 
 #: backend/fujitsu.c:3240
 #, no-c-format
@@ -2328,7 +2330,7 @@ msgstr "Emmiralla"
 #: backend/fujitsu.c:3253
 #, no-c-format
 msgid "Reflect output image horizontally"
-msgstr "Reflecteix la imatge de sortida horitzontalment"
+msgstr "Reflecteix horitzontalment la imatge de sortida"
 
 #: backend/fujitsu.c:3270
 #, no-c-format
@@ -2343,12 +2345,12 @@ msgstr "Controla el seguidor del nivell de blanc"
 #: backend/fujitsu.c:3289
 #, no-c-format
 msgid "BP filter"
-msgstr ""
+msgstr "Filtre per al bolígraf"
 
 #: backend/fujitsu.c:3290
 #, no-c-format
 msgid "Improves quality of high resolution ball-point pen text"
-msgstr ""
+msgstr "Millora la qualitat del text del bolígraf amb alta resolució"
 
 #: backend/fujitsu.c:3306 backend/hp-option.h:73
 #, no-c-format
@@ -2505,62 +2507,65 @@ msgstr ""
 #: backend/fujitsu.c:3605
 #, no-c-format
 msgid "DF action"
-msgstr ""
+msgstr "Acció per a la doble alimentació"
 
 #: backend/fujitsu.c:3606
 #, no-c-format
 msgid "Action following double feed error"
-msgstr ""
+msgstr "Acció per a després de l'error de doble alimentació"
 
 #: backend/fujitsu.c:3622
 #, no-c-format
 msgid "DF skew"
-msgstr ""
+msgstr "Inclinació per la doble alimentació"
 
 #: backend/fujitsu.c:3623
 #, no-c-format
 msgid "Enable double feed error due to skew"
-msgstr ""
+msgstr "Habilita l'error de doble alimentació que causa inclinació"
 
 #: backend/fujitsu.c:3641
 #, no-c-format
 msgid "DF thickness"
-msgstr ""
+msgstr "Gruix del paper per la doble alimentació"
 
 #: backend/fujitsu.c:3642
 #, no-c-format
 msgid "Enable double feed error due to paper thickness"
-msgstr ""
+msgstr "Habilita l'error de doble alimentació causat pel gruix del paper"
 
 #: backend/fujitsu.c:3660
 #, no-c-format
 msgid "DF length"
-msgstr ""
+msgstr "Longitud del paper causant doble alimentació"
 
 #: backend/fujitsu.c:3661
 #, no-c-format
 msgid "Enable double feed error due to paper length"
-msgstr ""
+msgstr "Habilita l'error de doble alimentació causat per la longitud del paper"
 
 #: backend/fujitsu.c:3684
 #, no-c-format
 msgid "DF length difference"
-msgstr ""
+msgstr "Diferència en la longitud per a causar doble alimentació"
 
 #: backend/fujitsu.c:3685
 #, no-c-format
 msgid "Difference in page length to trigger double feed error"
 msgstr ""
+"Diferència en la longitud de la pàgina per activar l'error de doble "
+"alimentació"
 
 #: backend/fujitsu.c:3708
 #, no-c-format
 msgid "DF recovery mode"
-msgstr ""
+msgstr "El mode recuperació causa doble alimentació"
 
 #: backend/fujitsu.c:3709
 #, no-c-format
 msgid "Request scanner to reverse feed on paper jam"
 msgstr ""
+"Sol·licita a l'escàner que l'alimentador recuperi el paper en embussar-se"
 
 #: backend/fujitsu.c:3728
 #, no-c-format
@@ -2570,7 +2575,7 @@ msgstr "Protecció del paper"
 #: backend/fujitsu.c:3729
 #, no-c-format
 msgid "Request scanner to predict jams in the ADF"
-msgstr "Pregunta a l'escàner per a predir les encallades a l'ADF"
+msgstr "Pregunta a l'escàner per a predir les embussades a l'ADF"
 
 #: backend/fujitsu.c:3748
 #, no-c-format
@@ -2581,7 +2586,7 @@ msgstr "Protecció avançada del paper"
 #, no-c-format
 msgid "Request scanner to predict jams in the ADF using improved sensors"
 msgstr ""
-"Pregunta a l'escàner per a predir les encallades a l'ADF usant sensors "
+"Pregunta a l'escàner per a predir les embussades a l'ADF usant sensors "
 "millorats"
 
 #: backend/fujitsu.c:3768
@@ -2593,8 +2598,8 @@ msgstr "Detecció de les grapes"
 #, no-c-format
 msgid "Request scanner to detect jams in the ADF caused by staples"
 msgstr ""
-"Pregunta a l'escàner per a detectar les encallades a l'ADF causades per "
-"les grapes"
+"Pregunta a l'escàner per a detectar les embussades a l'ADF causades per les "
+"grapes"
 
 #: backend/fujitsu.c:3788
 #, no-c-format
@@ -2650,7 +2655,7 @@ msgid "Overscan"
 msgstr "Sobreexploració"
 
 #: backend/fujitsu.c:3874
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Collect a few mm of background on top side of scan, before paper enters "
 "ADF, and increase maximum scan area beyond paper size, to allow "
@@ -2659,7 +2664,7 @@ msgstr ""
 "Recull uns pocs mm del fons al costat superior de l'escaneig, abans que "
 "el paper ingressi a l'ADF i augmenta l'àrea màxima d'escaneig més enllà "
 "de la mida del paper, per a permetre recollir els costats restants. Pot "
-"entrar en conflicte amb l'opció bgcolor"
+"entrar en conflicte amb l'opció Color de fons"
 
 #: backend/fujitsu.c:3892
 #, no-c-format
@@ -2696,7 +2701,7 @@ msgstr "Desplaçament de la doble cara"
 #: backend/fujitsu.c:3931
 #, no-c-format
 msgid "Adjust front/back offset"
-msgstr "Ajusta el desplaçament per a la cara del davant/darrere"
+msgstr "Ajusta el desplaçament per a l'anvers/revers"
 
 #: backend/fujitsu.c:3948 backend/plustek.c:1025 backend/umax_pp.c:804
 #, no-c-format
@@ -2754,7 +2759,7 @@ msgstr ""
 #: backend/fujitsu.c:4008
 #, no-c-format
 msgid "Hardware deskew and crop"
-msgstr "Inclina i escapça per maquinari"
+msgstr "Desinclina i escapça per maquinari"
 
 #: backend/fujitsu.c:4009
 #, no-c-format
@@ -2765,7 +2770,7 @@ msgstr ""
 #: backend/fujitsu.c:4020 backend/kvs1025_opt.c:871
 #, no-c-format
 msgid "Software deskew"
-msgstr "Inclina per programari"
+msgstr "Desinclina per programari"
 
 #: backend/fujitsu.c:4021
 #, no-c-format
@@ -2776,7 +2781,7 @@ msgstr ""
 #: backend/fujitsu.c:4033 backend/kvs1025_opt.c:880
 #, no-c-format
 msgid "Software despeckle diameter"
-msgstr ""
+msgstr "Diàmetre per eliminar els pics per programari"
 
 #: backend/fujitsu.c:4034
 #, no-c-format
@@ -2917,7 +2922,7 @@ msgstr "Vora superior"
 #: backend/fujitsu.c:4333
 #, no-c-format
 msgid "Paper is pulled partly into adf"
-msgstr ""
+msgstr "El paper s'ha retirat parcialment dins de l'ADF"
 
 #: backend/fujitsu.c:4344
 #, no-c-format
@@ -3057,12 +3062,12 @@ msgstr "Densitat"
 #: backend/fujitsu.c:4549
 #, no-c-format
 msgid "Density dial"
-msgstr ""
+msgstr "Marcador de la densitat"
 
 #: backend/fujitsu.c:4560 backend/fujitsu.c:4561
 #, no-c-format
 msgid "Duplex switch"
-msgstr ""
+msgstr "Commuta a doble cara"
 
 #: backend/genesys.c:5761
 #, no-c-format
@@ -3299,9 +3304,9 @@ msgstr ""
 "compte. No seleccioneu tota l'alçada. Només per a proves."
 
 #: backend/gt68xx.c:591
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Coarse calibration"
-msgstr "Calibratge gruixut"
+msgstr "Calibratge tosc"
 
 #: backend/gt68xx.c:593
 #, no-c-format
@@ -3318,7 +3323,7 @@ msgstr ""
 #: backend/gt68xx.c:612
 #, no-c-format
 msgid "Coarse calibration for first scan only"
-msgstr "Calibratge gruixut només per al primer escanejat"
+msgstr "Calibratge tosc només per al primer escanejat"
 
 #: backend/gt68xx.c:614
 #, no-c-format
@@ -3327,7 +3332,7 @@ msgid ""
 "scanners and can save scanning time. If the image brightness is "
 "different with each scan, disable this option. For testing only."
 msgstr ""
-"El calibratge gruixut només es farà per al primer escaneig. Funciona amb la "
+"El calibratge tosc només es farà per al primer escaneig. Funciona amb la "
 "majoria d'escàners i pot estalviar temps d'escaneig. Si la brillantor de la "
 "imatge és diferent amb cada escaneig, inhabiliteu aquesta opció. Només per a "
 "proves."
@@ -3385,7 +3390,7 @@ msgstr "Model de l'escàner"
 #, no-c-format
 msgid "Allows one to test device behaviour with other supported models"
 msgstr ""
-"Permet comprovar el comportament del dispositiu amb altres models admesos"
+"Permet comprovar el comportament del dispositiu amb els altres models admesos"
 
 #: backend/hp3900_sane.c:1422
 #, no-c-format
@@ -3675,7 +3680,7 @@ msgstr "Opcions avançades"
 #: backend/hp-option.c:3044
 #, no-c-format
 msgid "Coarse"
-msgstr ""
+msgstr "Tosc"
 
 #: backend/hp-option.c:3045
 #, no-c-format
@@ -4372,9 +4377,9 @@ msgstr "Color de la llum"
 
 #: backend/kvs1025_opt.c:818 backend/kvs20xx_opt.c:437
 #: backend/kvs40xx_opt.c:682
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the lamp color (color dropout)"
-msgstr "Estableix el color de la llum"
+msgstr "Estableix el color de la llum (descarta el color)"
 
 #: backend/kvs1025_opt.c:831
 #, no-c-format
@@ -5648,7 +5653,7 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_EOF after "
 "sane_read() has been called."
 msgstr ""
-"Força el dorsal perquè retorni el codi d'estat SANE_STATUS_EOF després de "
+"Força el dorsal perquè retorni el codi d'estat «SANE_STATUS_EOF» després de "
 "cridar al «sane_read()»."
 
 #: backend/pnm.c:416
@@ -5662,8 +5667,8 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_JAMMED after "
 "sane_read() has been called."
 msgstr ""
-"Força el dorsal perquè retorni el codi d'estat SANE_STATUS_JAMMED després de "
-"cridar al «sane_read()»."
+"Força el dorsal perquè retorni el codi d'estat «SANE_STATUS_JAMMED» després "
+"de cridar al «sane_read()»."
 
 #: backend/pnm.c:430
 #, no-c-format
@@ -5676,8 +5681,8 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_NO_DOCS after "
 "sane_read() has been called."
 msgstr ""
-"Força el dorsal perquè retorni el codi d'estat SANE_STATUS_NO_DOCS després de "
-"cridar al «sane_read()»."
+"Força el dorsal perquè retorni el codi d'estat «SANE_STATUS_NO_DOCS» després "
+"de cridar al «sane_read()»."
 
 #: backend/pnm.c:443
 #, no-c-format
@@ -5690,8 +5695,8 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_COVER_OPEN after "
 "sane_read() has been called."
 msgstr ""
-"Força el dorsal perquè retorni el codi d'estat SANE_STATUS_COVER_OPEN després "
-"de cridar al «sane_read()»."
+"Força el dorsal perquè retorni el codi d'estat «SANE_STATUS_COVER_OPEN» "
+"després de cridar al «sane_read()»."
 
 #: backend/pnm.c:456
 #, no-c-format
@@ -5704,7 +5709,7 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_IO_ERROR after "
 "sane_read() has been called."
 msgstr ""
-"Força el dorsal perquè retorni el codi d'estat SANE_STATUS_IO_ERROR després "
+"Força el dorsal perquè retorni el codi d'estat «SANE_STATUS_IO_ERROR» després "
 "de cridar al «sane_read()»."
 
 #: backend/pnm.c:469
@@ -5718,8 +5723,8 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_NO_MEM after "
 "sane_read() has been called."
 msgstr ""
-"Força el dorsal perquè retorni el codi d'estat SANE_STATUS_NO_MEM després de "
-"cridar al «sane_read()»."
+"Força el dorsal perquè retorni el codi d'estat «SANE_STATUS_NO_MEM» després "
+"de cridar al «sane_read()»."
 
 #: backend/pnm.c:483
 #, no-c-format
@@ -5732,7 +5737,7 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_ACCESS_DENIED "
 "after sane_read() has been called."
 msgstr ""
-"Força el dorsal perquè retorni el codi d'estat SANE_STATUS_ACCESS_DENIED "
+"Força el dorsal perquè retorni el codi d'estat «SANE_STATUS_ACCESS_DENIED» "
 "després de cridar al «sane_read()»."
 
 #: backend/rts8891.c:2809
@@ -5927,7 +5932,7 @@ msgstr "Color RGB"
 #: backend/stv680.h:117
 #, no-c-format
 msgid "Color RGB TEXT"
-msgstr ""
+msgstr "Color RGB per al text"
 
 #: backend/test.c:137
 #, no-c-format
@@ -6025,9 +6030,9 @@ msgid "Special Options"
 msgstr "Opcions especials"
 
 #: backend/test.c:444
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Select the test picture"
-msgstr "Selecciona la imatge de prova"
+msgstr "Selecciona la fotografia de prova"
 
 #: backend/test.c:446
 #, no-c-format
@@ -6039,6 +6044,13 @@ msgid ""
 "Grid: draws a black/white grid with a width and height of 10 mm per "
 "square."
 msgstr ""
+"Seleccioneu el tipus de la fotografia de prova. Opcions disponibles:\n"
+"Negre sòlid: omple tot l'escaneig amb el negre.\n"
+"Blanc sòlid: omple tot l'escaneig amb el blanc.\n"
+"Patró per al color: dibuixa diversos patrons de prova per al color en funció "
+"del mode.\n"
+"Quadrícula: dibuixa una quadrícula negre/blanca amb una amplada i una alçada "
+"de 10 mm per quadrat."
 
 #: backend/test.c:467
 #, no-c-format
@@ -6127,7 +6139,7 @@ msgstr "El nombre de píxels que es perdran al final de cada línia."
 #: backend/test.c:577
 #, no-c-format
 msgid "Fuzzy parameters"
-msgstr ""
+msgstr "Paràmetres difusos"
 
 #: backend/test.c:578
 #, no-c-format
@@ -6135,21 +6147,25 @@ msgid ""
 "Return fuzzy lines and bytes per line when sane_parameters() is called "
 "before sane_start()."
 msgstr ""
+"Retorna línies borroses i bytes per línia quan es crida la "
+"«sane_parameters()» abans de la «sane_start()»."
 
 #: backend/test.c:591
 #, no-c-format
 msgid "Use non-blocking IO"
-msgstr ""
+msgstr "Usa una E/S que no es bloquegi"
 
 #: backend/test.c:592
 #, no-c-format
 msgid "Use non-blocking IO for sane_read() if supported by the frontend."
 msgstr ""
+"Usa una E/S que no es bloquegi per a la «sane_read()» si està admès pel "
+"frontal."
 
 #: backend/test.c:605
 #, no-c-format
 msgid "Offer select file descriptor"
-msgstr ""
+msgstr "Ofereix el descriptor de fitxer seleccionat"
 
 #: backend/test.c:606
 #, no-c-format
@@ -6157,6 +6173,8 @@ msgid ""
 "Offer a select filedescriptor for detecting if sane_read() will return "
 "data."
 msgstr ""
+"Ofereix un descriptor de fitxer seleccionat per a detectar si la "
+"«sane_read()» retornarà dades."
 
 #: backend/test.c:619
 #, no-c-format
@@ -6175,7 +6193,7 @@ msgstr ""
 #: backend/test.c:634
 #, no-c-format
 msgid "Print options"
-msgstr "Opcions de la impressió"
+msgstr "Opcions per a la impressió"
 
 #: backend/test.c:635
 #, no-c-format
@@ -6492,12 +6510,12 @@ msgstr "Calibra l'enfocament de la lent a la posició del document"
 #: backend/umax.c:5781
 #, no-c-format
 msgid "Holder focus position 0mm"
-msgstr ""
+msgstr "Mantén la posició de l'enfocament a 0 mm"
 
 #: backend/umax.c:5782
 #, no-c-format
 msgid "Use 0mm holder focus position instead of 0.6mm"
-msgstr ""
+msgstr "Usa una posició mantinguda de l'enfocament de 0 mm en lloc de 0,6 mm"
 
 #: backend/umax.c:5885
 #, no-c-format
@@ -6512,7 +6530,7 @@ msgstr "Defineix el mode del calibratge"
 #: backend/umax_pp.c:640
 #, no-c-format
 msgid "Sets lamp on/off"
-msgstr ""
+msgstr "Estableix la làmpada a encesa/apagada"
 
 #: backend/umax_pp.c:649
 #, no-c-format

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.27git\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2018-08-21 13:32+0200\n"
-"PO-Revision-Date: 2018-09-01 23:25+0100\n"
+"PO-Revision-Date: 2018-09-02 21:05+0100\n"
 "Last-Translator: Antoni Bella Pérez <antonibella5@yahoo.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca\n"
@@ -2611,7 +2611,7 @@ msgstr ""
 #: backend/fujitsu.c:3809
 #, no-c-format
 msgid "Dropout color"
-msgstr ""
+msgstr "Descarta el color"
 
 #: backend/fujitsu.c:3810
 #, no-c-format
@@ -2619,7 +2619,7 @@ msgid ""
 "One-pass scanners use only one color during gray or binary scanning, "
 "useful for colored paper or ink"
 msgstr ""
-"Els escàners d'una sola passada només usen un color durant l'escaneig "
+"Els escàners d'una sola passada només usen un color durant l'escaneig amb "
 "gris o binari, útil per a paper amb colors o tinta"
 
 #: backend/fujitsu.c:3833
@@ -2637,7 +2637,7 @@ msgstr ""
 #: backend/fujitsu.c:3853
 #, no-c-format
 msgid "Prepick"
-msgstr ""
+msgstr "Preselecciona"
 
 #: backend/fujitsu.c:3854
 #, no-c-format
@@ -2659,7 +2659,7 @@ msgstr ""
 "Recull uns pocs mm del fons al costat superior de l'escaneig, abans que "
 "el paper ingressi a l'ADF i augmenta l'àrea màxima d'escaneig més enllà "
 "de la mida del paper, per a permetre recollir els costats restants. Pot "
-"estar en conflicte amb l'opció bgcolor"
+"entrar en conflicte amb l'opció bgcolor"
 
 #: backend/fujitsu.c:3892
 #, no-c-format
@@ -2691,12 +2691,12 @@ msgstr ""
 #: backend/fujitsu.c:3930
 #, no-c-format
 msgid "Duplex offset"
-msgstr ""
+msgstr "Desplaçament de la doble cara"
 
 #: backend/fujitsu.c:3931
 #, no-c-format
 msgid "Adjust front/back offset"
-msgstr ""
+msgstr "Ajusta el desplaçament per a la cara del davant/darrere"
 
 #: backend/fujitsu.c:3948 backend/plustek.c:1025 backend/umax_pp.c:804
 #, no-c-format
@@ -2733,14 +2733,14 @@ msgid ""
 msgstr ""
 "Limita l'ús de la memòria del controlador per a usar-ho en sistemes "
 "incrustats. Provoca algunes transferències dúplex a costats alternatius "
-"de cada crida a «sane_read». El valor de l'opció «side» es pot usar per "
+"de cada crida a «sane_read()». El valor de l'opció «side» es pot usar per "
 "a determinar la imatge correcta. Aquesta opció només s'hauria d'usar amb "
 "el programari de frontal personalitzat."
 
 #: backend/fujitsu.c:3996
 #, no-c-format
 msgid "Duplex side"
-msgstr ""
+msgstr "Cara per a les dues cares"
 
 #: backend/fujitsu.c:3997
 #, no-c-format
@@ -2748,6 +2748,8 @@ msgid ""
 "Tells which side (0=front, 1=back) of a duplex scan the next call to "
 "sane_read will return."
 msgstr ""
+"Indica a quina cara (0=anvers, 1=revers) en un escaneig de dues cares "
+"retornarà la següent crida al «sane_read()»."
 
 #: backend/fujitsu.c:4008
 #, no-c-format
@@ -2779,7 +2781,7 @@ msgstr ""
 #: backend/fujitsu.c:4034
 #, no-c-format
 msgid "Maximum diameter of lone dots to remove from scan."
-msgstr ""
+msgstr "Diàmetre màxim dels punts solitaris per eliminar-los de l'escaneig."
 
 #: backend/fujitsu.c:4053 backend/genesys.c:5760
 #, no-c-format
@@ -3869,7 +3871,7 @@ msgid ""
 "value."
 msgstr ""
 "Un temps d'exposició més llarg permet que l'escàner recopili més llum. L'ús "
-"aconsellat és el 175 % per a impressions, el 150 % per a diapositives normals "
+"aconsellat és el 175% per a impressions, el 150% per a diapositives normals "
 "i «Negatiu» per a pel·lícules en negatiu. Per a imatges fosques (sota "
 "exposades), podeu augmentar aquest valor."
 
@@ -4590,12 +4592,12 @@ msgstr "Ajustament de la inclinació"
 #: backend/kvs40xx_opt.c:808
 #, no-c-format
 msgid "Stop scanner when a paper have been skewed"
-msgstr "Atura l'escàner quan un paper s'hagi inclinat"
+msgstr "Atura l'escàner quan un paper estigui inclinat"
 
 #: backend/kvs40xx_opt.c:809
 #, no-c-format
 msgid "Scanner will be stop  when a paper have been skewed"
-msgstr "S'aturarà l'escàner quan un paper s'hagi inclinat"
+msgstr "S'aturarà l'escàner quan un paper estigui inclinat"
 
 #: backend/kvs40xx_opt.c:816
 #, no-c-format
@@ -4963,7 +4965,7 @@ msgstr "Semi to"
 #: backend/microtek2.h:675
 #, no-c-format
 msgid "Selects which radiance level should be considered \"50 % gray\"."
-msgstr "Selecciona quin nivell de radiància s'haurà de considerar «50 % gris»."
+msgstr "Selecciona quin nivell de radiància s'haurà de considerar «50% gris»."
 
 #: backend/microtek2.h:679
 #, no-c-format
@@ -4974,7 +4976,7 @@ msgstr "Semi to per al vermell"
 #, no-c-format
 msgid "Selects which radiance level should be considered \"50 % red\"."
 msgstr ""
-"Selecciona quin nivell de radiància s'haurà de considerar «50 % vermell»."
+"Selecciona quin nivell de radiància s'haurà de considerar «50% vermell»."
 
 #: backend/microtek2.h:684
 #, no-c-format
@@ -4984,7 +4986,7 @@ msgstr "Semi to per al verd"
 #: backend/microtek2.h:685
 #, no-c-format
 msgid "Selects which radiance level should be considered \"50 % green\"."
-msgstr "Selecciona quin nivell de radiància s'haurà de considerar «50 % verd»."
+msgstr "Selecciona quin nivell de radiància s'haurà de considerar «50% verd»."
 
 #: backend/microtek2.h:689
 #, no-c-format
@@ -4994,7 +4996,7 @@ msgstr "Semi to per al blau"
 #: backend/microtek2.h:690
 #, no-c-format
 msgid "Selects which radiance level should be considered \"50 % blue\"."
-msgstr "Selecciona quin nivell de radiància s'haurà de considerar «50 % blau»."
+msgstr "Selecciona quin nivell de radiància s'haurà de considerar «50% blau»."
 
 #: backend/microtek2.h:694
 #, no-c-format
@@ -5005,7 +5007,7 @@ msgstr "Equilibri del vermell"
 #, no-c-format
 msgid "Balance factor for red. A value of 100% means no correction."
 msgstr ""
-"Equilibra el factor per al vermell. Un valor del 100 % voldrà dir sense "
+"Equilibra el factor per al vermell. Un valor del 100% voldrà dir sense "
 "correcció."
 
 #: backend/microtek2.h:699
@@ -5017,7 +5019,7 @@ msgstr "Equilibri del verd"
 #, no-c-format
 msgid "Balance factor for green. A value of 100% means no correction."
 msgstr ""
-"Equilibra el factor per al verd. Un valor del 100 % voldrà dir sense "
+"Equilibra el factor per al verd. Un valor del 100% voldrà dir sense "
 "correcció."
 
 #: backend/microtek2.h:704
@@ -5029,7 +5031,7 @@ msgstr "Equilibri del blau"
 #, no-c-format
 msgid "Balance factor for blue. A value of 100% means no correction."
 msgstr ""
-"Equilibra el factor per al blau. Un valor del 100 % voldrà dir sense "
+"Equilibra el factor per al blau. Un valor del 100% voldrà dir sense "
 "correcció."
 
 #: backend/microtek2.h:709
@@ -6099,7 +6101,7 @@ msgstr ""
 #: backend/test.c:543
 #, no-c-format
 msgid "Return-value of sane_read"
-msgstr "Valor retornat per «sane_read»"
+msgstr "Valor retornat per «sane_read()»"
 
 #: backend/test.c:545
 #, no-c-format

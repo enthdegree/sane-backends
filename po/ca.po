@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.27git\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2018-08-21 13:32+0200\n"
-"PO-Revision-Date: 2018-09-02 21:05+0100\n"
+"PO-Revision-Date: 2018-09-02 21:32+0100\n"
 "Last-Translator: Antoni Bella Pérez <antonibella5@yahoo.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca\n"
@@ -1018,8 +1018,8 @@ msgid ""
 msgstr ""
 "Si està habilitada, només es realitzarà la correcció de les ombres "
 "durant el calibratge. Es faran servir els valors predeterminats per al "
-"guany, desplaçament i temps d'exposició, ja sigui els integrats o des "
-"del fitxer de configuració."
+"guany, desplaçament i temps d'exposició, sigui els integrats o des del fitxer "
+"de configuració."
 
 #: backend/artec_eplus48u.c:2967
 #, no-c-format
@@ -1302,7 +1302,7 @@ msgstr "Error de caducitat"
 #: backend/canon.c:517
 #, no-c-format
 msgid "transparency unit shading error"
-msgstr "Error de l'ombrejat a la unitat de transparència"
+msgstr "Error de l'ombreig a la unitat de transparència"
 
 #: backend/canon.c:521
 #, no-c-format
@@ -2606,7 +2606,7 @@ msgstr "Color de fons"
 msgid "Set color of background for scans. May conflict with overscan option"
 msgstr ""
 "Estableix un color de fons per a l'escaneig. Pot entrar en conflicte amb "
-"l'opció de sobre-exploració"
+"l'opció de sobreexploració"
 
 #: backend/fujitsu.c:3809
 #, no-c-format
@@ -2647,7 +2647,7 @@ msgstr "Sol·licita a l'escàner que agafi la pàgina següent des de l'ADF"
 #: backend/fujitsu.c:3873
 #, no-c-format
 msgid "Overscan"
-msgstr "Sobre-exploració"
+msgstr "Sobreexploració"
 
 #: backend/fujitsu.c:3874
 #, fuzzy, no-c-format
@@ -2732,10 +2732,10 @@ msgid ""
 "only be used with custom front-end software."
 msgstr ""
 "Limita l'ús de la memòria del controlador per a usar-ho en sistemes "
-"incrustats. Provoca algunes transferències dúplex a costats alternatius "
-"de cada crida a «sane_read()». El valor de l'opció «side» es pot usar per "
-"a determinar la imatge correcta. Aquesta opció només s'hauria d'usar amb "
-"el programari de frontal personalitzat."
+"incrustats. Provoca algunes transferències de doble cara a costats "
+"alternatius de cada crida al «sane_read()». El valor de l'opció «side» es pot "
+"usar per a determinar la imatge correcta. Aquesta opció només s'hauria d'usar "
+"amb el programari de frontal personalitzat."
 
 #: backend/fujitsu.c:3996
 #, no-c-format
@@ -3346,9 +3346,9 @@ msgid ""
 "omitting lines."
 msgstr ""
 "Nombre de línies que el control lliscant de l'escanejat mourà cap enrere quan "
-"succeeixi el tornar enrere. Això passa quan l'escàner escaneja més ràpid amb "
-"el que l'ordinador pot rebre les dades. Els valors baixos produeixen "
-"escaneigs més ràpids, però augmenten el risc d'omissió de línies."
+"succeeixi el fet de tornar enrere. Això passa quan l'escàner escaneja més de "
+"pressa que en el que l'ordinador pot rebre les dades. Els valors baixos "
+"produeixen escaneigs més ràpids, però augmenten el risc d'omissió de línies."
 
 #: backend/gt68xx.c:674 backend/mustek_usb2.c:452
 #, no-c-format
@@ -3743,7 +3743,7 @@ msgstr "Ràpid"
 #: backend/hp-option.c:3150
 #, no-c-format
 msgid "Extra Fast"
-msgstr "Extra ràpid"
+msgstr "Extraràpid"
 
 #: backend/hp-option.c:3163
 #, no-c-format
@@ -3893,7 +3893,7 @@ msgstr "Matriu de color a mida."
 #: backend/hp-option.h:132
 #, no-c-format
 msgid "Mono Color Matrix"
-msgstr "Matriu de color monocroma"
+msgstr "Matriu de color monocrom"
 
 #: backend/hp-option.h:133
 #, no-c-format
@@ -4500,9 +4500,9 @@ msgid ""
 "Long Paper Mode is a mode that the scanner reads the image after it "
 "divides long paper by the length which is set in Document Size option."
 msgstr ""
-"El mode paper llarg, és un mode en el que l'escàner llegeix la imatge després "
-"de dividir el paper llarg per la longitud que s'estableix a l'opció Mida del "
-"document."
+"El mode paper llarg, és un mode en el qual l'escàner llegeix la imatge "
+"després de dividir el paper llarg per la longitud que s'estableix a l'opció "
+"Mida del document."
 
 #: backend/kvs40xx_opt.c:449
 #, no-c-format
@@ -5377,7 +5377,7 @@ msgid ""
 "When set, the scanner searches the waiting time in seconds for a new "
 "document inserted into the automatic document feeder."
 msgstr ""
-"Quan s'estableix, l'escàner cerca el temps d'espera en segons per a que "
+"Quan s'estableix, l'escàner cerca el temps d'espera en segons perquè "
 "s'insereixi un document nou a l'alimentador automàtic de documents."
 
 #: backend/plustek.c:235 backend/plustek_pp.c:204 backend/u12.c:156
@@ -5635,7 +5635,7 @@ msgstr "No força el codi d'estat"
 #: backend/pnm.c:392
 #, no-c-format
 msgid "Do not force the backend to return a status code."
-msgstr "No força al dorsal a que retorni un codi d'estat."
+msgstr "No força al dorsal a què retorni un codi d'estat."
 
 #: backend/pnm.c:403
 #, no-c-format
@@ -5648,8 +5648,8 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_EOF after "
 "sane_read() has been called."
 msgstr ""
-"Força el dorsal per a que retorni el codi d'estat SANE_STATUS_EOF després de "
-"cridar «sane_read()»."
+"Força el dorsal perquè retorni el codi d'estat SANE_STATUS_EOF després de "
+"cridar al «sane_read()»."
 
 #: backend/pnm.c:416
 #, no-c-format
@@ -5662,8 +5662,8 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_JAMMED after "
 "sane_read() has been called."
 msgstr ""
-"Força el dorsal per a que retorni el codi d'estat SANE_STATUS_JAMMED després "
-"de cridar «sane_read()»."
+"Força el dorsal perquè retorni el codi d'estat SANE_STATUS_JAMMED després de "
+"cridar al «sane_read()»."
 
 #: backend/pnm.c:430
 #, no-c-format
@@ -5676,8 +5676,8 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_NO_DOCS after "
 "sane_read() has been called."
 msgstr ""
-"Força el dorsal per a que retorni el codi d'estat SANE_STATUS_NO_DOCS després "
-"de cridar «sane_read()»."
+"Força el dorsal perquè retorni el codi d'estat SANE_STATUS_NO_DOCS després de "
+"cridar al «sane_read()»."
 
 #: backend/pnm.c:443
 #, no-c-format
@@ -5690,8 +5690,8 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_COVER_OPEN after "
 "sane_read() has been called."
 msgstr ""
-"Força el dorsal per a que retorni el codi d'estat SANE_STATUS_COVER_OPEN "
-"després de cridar «sane_read()»."
+"Força el dorsal perquè retorni el codi d'estat SANE_STATUS_COVER_OPEN després "
+"de cridar al «sane_read()»."
 
 #: backend/pnm.c:456
 #, no-c-format
@@ -5704,8 +5704,8 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_IO_ERROR after "
 "sane_read() has been called."
 msgstr ""
-"Força el dorsal per a que retorni el codi d'estat SANE_STATUS_IO_ERROR "
-"després de cridar «sane_read()»."
+"Força el dorsal perquè retorni el codi d'estat SANE_STATUS_IO_ERROR després "
+"de cridar al «sane_read()»."
 
 #: backend/pnm.c:469
 #, no-c-format
@@ -5718,8 +5718,8 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_NO_MEM after "
 "sane_read() has been called."
 msgstr ""
-"Força el dorsal per a que retorni el codi d'estat SANE_STATUS_NO_MEM després "
-"de cridar «sane_read()»."
+"Força el dorsal perquè retorni el codi d'estat SANE_STATUS_NO_MEM després de "
+"cridar al «sane_read()»."
 
 #: backend/pnm.c:483
 #, no-c-format
@@ -5732,8 +5732,8 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_ACCESS_DENIED "
 "after sane_read() has been called."
 msgstr ""
-"Força el dorsal per a que retorni el codi d'estat SANE_STATUS_ACCESS_DENIED "
-"després de cridar «sane_read()»."
+"Força el dorsal perquè retorni el codi d'estat SANE_STATUS_ACCESS_DENIED "
+"després de cridar al «sane_read()»."
 
 #: backend/rts8891.c:2809
 #, no-c-format
@@ -6101,7 +6101,7 @@ msgstr ""
 #: backend/test.c:543
 #, no-c-format
 msgid "Return-value of sane_read"
-msgstr "Valor retornat per «sane_read()»"
+msgstr "Valor retornat pel «sane_read()»"
 
 #: backend/test.c:545
 #, no-c-format
@@ -6110,7 +6110,7 @@ msgid ""
 "handling for scanning. All other status codes are for testing how the "
 "frontend handles them."
 msgstr ""
-"Selecciona el valor retornat per «sane_read()». «Omissió» és el maneig normal "
+"Selecciona el valor retornat pel «sane_read()». «Omissió» és el maneig normal "
 "per a escanejar. Tots els altres codis d'estat són per a provar com els "
 "maneja el frontal."
 

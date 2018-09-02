@@ -137,6 +137,11 @@
 :usbid     "0x04b8" "0x0156"
 :status    :good
 
+:model     "ES-8500"
+:interface "USB"
+:usbid     "0x04b8" "0x0109"
+:status    :basic
+
 :model     "ET-2500"
 :interface "USB"
 :usbid     "0x04b8" "0x1105"
@@ -156,6 +161,11 @@
 :interface "USB"
 :usbid     "0x04b8" "0x1101"
 :status    :good
+
+:model     "Expression 1640XL"
+:interface "USB"
+:usbid     "0x04b8" "0x0109"
+:status    :basic
 
 :model     "L220"
 :interface "USB"
@@ -400,6 +410,24 @@
 :status    :good
 :comment   "propably one of DS-410, DS-535, DS-575W, DS-775"
 
+:model     "PID 016B"
+:interface "USB"
+:usbid     "0x04b8" "0x016b"
+:status    :good
+:comment   "probably a FastFoto 680W, could be a WorkForce ES-300WR or ES-500WR"
+
+:model     "PID 0176"
+:interface "USB"
+:usbid     "0x04b8" "0x0176"
+:status    :good
+:comment   "probably a WorkForce ES-300WR or ES-500WR, could be a FastFoto 680W"
+
+:model     "PID 0177"
+:interface "USB"
+:usbid     "0x04b8" "0x0177"
+:status    :good
+:comment   "probably a WorkForce ES-500WR or ES-300WR, could be a FastFoto 680W"
+
 :model     "PID 110D"
 :interface "USB"
 :usbid     "0x04b8" "0x110d"
@@ -638,3 +666,51 @@
 :usbid     "0x04b8" "0x1143"
 :status    :good
 :comment   "L3xxx?"
+
+:model     "PID 1145"
+:interface "USB"
+:usbid     "0x04b8" "0x1145"
+:status    :good
+:comment   "EP-81xA?"
+
+:model     "PID 1146"
+:interface "USB"
+:usbid     "0x04b8" "0x1146"
+:status    :good
+:comment   "EP-71xA?"
+
+:model     "PID 1147"
+:interface "USB"
+:usbid     "0x04b8" "0x1147"
+:status    :good
+:comment   "XP-7xxx?"
+
+:model     "PID 1148"
+:interface "USB"
+:usbid     "0x04b8" "0x1148"
+:status    :good
+:comment   "PX-M8xxFX?"
+
+:model     "PID 114A"
+:interface "USB"
+:usbid     "0x04b8" "0x114a"
+:status    :good
+:comment   "L61x0?"
+
+:model     "PID 114B"
+:interface "USB"
+:usbid     "0x04b8" "0x114b"
+:status    :good
+:comment   "EP-8xxA?"
+
+:model     "PID 114C"
+:interface "USB"
+:usbid     "0x04b8" "0x114c"
+:status    :good
+:comment   "EP-8xxA?"
+
+:model     "PID 114D"
+:interface "USB"
+:usbid     "0x04b8" "0x114d"
+:status    :good
+:comment   "L5xxx"

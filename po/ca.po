@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.27git\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2018-08-21 13:32+0200\n"
-"PO-Revision-Date: 2018-09-03 01:22+0100\n"
+"PO-Revision-Date: 2018-09-04 23:21+0100\n"
 "Last-Translator: Antoni Bella Pérez <antonibella5@yahoo.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca\n"
@@ -89,7 +89,7 @@ msgstr "Bits de profunditat"
 #: backend/pixma_sane_options.c:47
 #, no-c-format
 msgid "Scan mode"
-msgstr "Mode de l'escàner"
+msgstr "Mode d'escaneig"
 
 #: include/sane/saneopts.h:166
 #, no-c-format
@@ -478,8 +478,7 @@ msgstr ""
 #: include/sane/saneopts.h:268
 #, no-c-format
 msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
-msgstr ""
-"Selecciona el mode de l'escàner (p. ex., art lineal, monocrom o color)."
+msgstr "Selecciona el mode d'escaneig (p. ex., art lineal, monocrom o color)."
 
 #: include/sane/saneopts.h:271
 #, no-c-format
@@ -489,7 +488,7 @@ msgstr "Determina la velocitat amb la qual procedirà l'escàner."
 #: include/sane/saneopts.h:274
 #, no-c-format
 msgid "Selects the scan source (such as a document-feeder)."
-msgstr "Selecciona l'escàner font (com un alimentador de documents)."
+msgstr "Selecciona la font de l'escàner (com un alimentador de documents)."
 
 #: include/sane/saneopts.h:277
 #, no-c-format
@@ -1867,7 +1866,7 @@ msgstr "Màx"
 #: backend/umax.c:5054
 #, no-c-format
 msgid "Scan Mode"
-msgstr "Mode de l'escàner"
+msgstr "Mode d'escaneig"
 
 #: backend/epson.c:2845 backend/epson2.c:1011
 #, no-c-format
@@ -2815,97 +2814,103 @@ msgstr ""
 #: backend/fujitsu.c:4095
 #, no-c-format
 msgid "Endorser Options"
-msgstr ""
+msgstr "Opcions per a l'aprovador"
 
 #: backend/fujitsu.c:4096
 #, no-c-format
 msgid "Controls for endorser unit"
-msgstr ""
+msgstr "Controls per a la unitat aprovadora"
 
 #: backend/fujitsu.c:4107
 #, no-c-format
 msgid "Endorser"
-msgstr ""
+msgstr "Aprovador"
 
 #: backend/fujitsu.c:4108
 #, no-c-format
 msgid "Enable endorser unit"
-msgstr ""
+msgstr "Habilita la unitat aprovadora"
 
 #: backend/fujitsu.c:4123
 #, no-c-format
 msgid "Endorser bits"
-msgstr ""
+msgstr "Bits de l'aprovació"
 
 #: backend/fujitsu.c:4124
 #, no-c-format
 msgid "Determines maximum endorser counter value."
-msgstr ""
+msgstr "Determina el valor màxim del comptador de l'aprovació."
 
 #: backend/fujitsu.c:4149
 #, no-c-format
 msgid "Endorser value"
-msgstr ""
+msgstr "Valor de l'aprovació"
 
 #: backend/fujitsu.c:4150
 #, no-c-format
 msgid "Initial endorser counter value."
-msgstr ""
+msgstr "Valor inicial del comptador de l'aprovació."
 
 #: backend/fujitsu.c:4173
 #, no-c-format
 msgid "Endorser step"
-msgstr ""
+msgstr "Pas de l'aprovació"
 
 #: backend/fujitsu.c:4174
 #, no-c-format
 msgid "Change endorser counter value by this much for each page."
 msgstr ""
+"Canvia el valor del comptador de l'aprovació en aquest tant per a cada "
+"pàgina."
 
 #: backend/fujitsu.c:4197
 #, no-c-format
 msgid "Endorser Y"
-msgstr ""
+msgstr "Aprovació Y"
 
 #: backend/fujitsu.c:4198
 #, no-c-format
 msgid "Endorser print offset from top of paper."
 msgstr ""
+"Desplaçament de la impressió de l'aprovador des de la part superior del "
+"paper."
 
 #: backend/fujitsu.c:4223
 #, no-c-format
 msgid "Endorser font"
-msgstr ""
+msgstr "Tipus de lletra per a l'aprovador"
 
 #: backend/fujitsu.c:4224
 #, no-c-format
 msgid "Endorser printing font."
-msgstr ""
+msgstr "El tipus de lletra amb el que imprimirà l'aprovador."
 
 #: backend/fujitsu.c:4253
 #, no-c-format
 msgid "Endorser direction"
-msgstr ""
+msgstr "Direcció de l'aprovador"
 
 #: backend/fujitsu.c:4254
 #, no-c-format
 msgid "Endorser printing direction."
-msgstr ""
+msgstr "Direcció amb la que imprimirà l'aprovador."
 
 #: backend/fujitsu.c:4278
 #, no-c-format
 msgid "Endorser side"
-msgstr ""
+msgstr "Costat de l'aprovador"
 
 #: backend/fujitsu.c:4279
 #, no-c-format
 msgid "Endorser printing side, requires hardware support to change"
 msgstr ""
+"El costat de la impressió de l'aprovador, requereix de maquinari per "
+"canviar-lo"
 
 #: backend/fujitsu.c:4304
 #, no-c-format
 msgid "Endorser string"
-msgstr ""
+msgstr "Cadena de l'aprovador"
 
 #: backend/fujitsu.c:4305
 #, no-c-format
@@ -2913,6 +2918,8 @@ msgid ""
 "Endorser alphanumeric print format. %05ud or %08ud at the end will be "
 "replaced by counter value."
 msgstr ""
+"Format d'impressió alfanumèric de l'aprovador. %05ud o %08ud al final serà "
+"substituït pel valor del comptador."
 
 #: backend/fujitsu.c:4332
 #, no-c-format
@@ -2967,12 +2974,14 @@ msgstr "S'ha detectat un paper B5"
 #: backend/fujitsu.c:4404
 #, no-c-format
 msgid "OMR or DF"
-msgstr ""
+msgstr "OMR o DF"
 
 #: backend/fujitsu.c:4405
 #, no-c-format
 msgid "OMR or double feed detected"
 msgstr ""
+"S'ha detectat una OMR (reconeixement de marca òptica) o alimentació de doble "
+"cara"
 
 #: backend/fujitsu.c:4428
 #, no-c-format
@@ -3002,7 +3011,7 @@ msgstr "Funció"
 #: backend/fujitsu.c:4477
 #, no-c-format
 msgid "Function character on screen"
-msgstr ""
+msgstr "Funció caràcter a la pantalla"
 
 #: backend/fujitsu.c:4488
 #, no-c-format
@@ -3198,7 +3207,7 @@ msgstr "La llum s'apagarà durant l'escaneig."
 #: backend/genesys.c:5972 backend/genesys.c:5973
 #, no-c-format
 msgid "File button"
-msgstr ""
+msgstr "Botó de fitxer"
 
 #: backend/genesys.c:6025 backend/genesys.c:6026
 #, no-c-format
@@ -3368,12 +3377,12 @@ msgstr "Estableix el valor de la gamma de tots els canals."
 #: backend/hp3500.c:1020
 #, no-c-format
 msgid "Geometry Group"
-msgstr ""
+msgstr "Grup de geometria"
 
 #: backend/hp3500.c:1073 backend/hp3500.c:1074
 #, no-c-format
 msgid "Scan Mode Group"
-msgstr ""
+msgstr "Grup de mode d'escaneig"
 
 #: backend/hp3900_sane.c:427 backend/hp3900_sane.c:1019
 #: backend/hp-option.c:3177
@@ -3589,15 +3598,16 @@ msgstr "Calibra per al nivell de blanc i negre."
 msgid "ADF"
 msgstr "ADF"
 
+# Nota: https://en.wikipedia.org/wiki/Tissue_microarray
 #: backend/hp5590.c:95
 #, no-c-format
 msgid "TMA Slides"
-msgstr ""
+msgstr "Costats de la TMA"
 
 #: backend/hp5590.c:96
 #, no-c-format
 msgid "TMA Negatives"
-msgstr ""
+msgstr "TMA negatius"
 
 #: backend/hp5590.c:99
 #, no-c-format
@@ -3659,6 +3669,9 @@ msgid ""
 "raw = raw scan data, last = repeat last scan line, raster = b/w raster, "
 "white = white color, black = black color, color = RGB or gray color value"
 msgstr ""
+"raw = dades d'escaneig sense processar, last = repeteix l'última línia "
+"escanejada, raster = ràster en b/n, white = color blanc, black = color negre, "
+"color = valor del color RGB o gris"
 
 #: backend/hp5590.c:120
 #, no-c-format
@@ -3671,6 +3684,8 @@ msgid ""
 "Color value for trailing lines filling mode 'color'. RGB color as "
 "r*65536+256*g+b or gray value (default=violet or gray)"
 msgstr ""
+"Valor del «color» per al mode d'ompliment al final de les línies. Color RGB "
+"com a valor r*65536+256*g+b o gris (per omissió=violeta o gris)"
 
 #: backend/hp-option.c:2987
 #, no-c-format
@@ -3690,7 +3705,7 @@ msgstr "Fina"
 #: backend/hp-option.c:3046
 #, no-c-format
 msgid "Bayer"
-msgstr ""
+msgstr "Bayer"
 
 #: backend/hp-option.c:3049 backend/hp-option.c:3100
 #, no-c-format
@@ -3703,30 +3718,32 @@ msgstr "A mida"
 msgid "Auto"
 msgstr "Auto"
 
+# Nota: https://ca.wikipedia.org/wiki/NTSC
 #: backend/hp-option.c:3091
 #, no-c-format
 msgid "NTSC RGB"
-msgstr ""
+msgstr "RGB del NTSC"
 
+# Nota: https://support.hp.com/gb-en/document/c01275842
 #: backend/hp-option.c:3092
 #, no-c-format
 msgid "XPA RGB"
-msgstr ""
+msgstr "RGB amb el XPA"
 
 #: backend/hp-option.c:3093
 #, no-c-format
 msgid "Pass-through"
-msgstr ""
+msgstr "Passa a través"
 
 #: backend/hp-option.c:3094
 #, no-c-format
 msgid "NTSC Gray"
-msgstr ""
+msgstr "Gris del NTSC"
 
 #: backend/hp-option.c:3095
 #, no-c-format
 msgid "XPA Gray"
-msgstr ""
+msgstr "Gris amb el XPA"
 
 #: backend/hp-option.c:3147
 #, no-c-format
@@ -3773,12 +3790,12 @@ msgstr "Imprimeix"
 #: backend/hp-option.c:3178
 #, no-c-format
 msgid "Film-strip"
-msgstr ""
+msgstr "Tira de pel·lícules"
 
 #: backend/hp-option.c:3257
 #, no-c-format
 msgid "XPA"
-msgstr ""
+msgstr "XPA"
 
 #: backend/hp-option.c:3331 backend/hp-option.c:3344
 #, no-c-format
@@ -4029,7 +4046,7 @@ msgstr "Grandària física del paper a l'ADF"
 #: backend/kvs1025_opt.c:39
 #, no-c-format
 msgid "bw"
-msgstr ""
+msgstr "nb"
 
 #: backend/kvs1025_opt.c:40
 #, no-c-format
@@ -4056,13 +4073,13 @@ msgstr "ADF"
 #: backend/kvs40xx_opt.c:109
 #, no-c-format
 msgid "fb"
-msgstr ""
+msgstr "fb"
 
 #: backend/kvs1025_opt.c:72 backend/kvs20xx_opt.c:55
 #: backend/kvs40xx_opt.c:101
 #, no-c-format
 msgid "single"
-msgstr ""
+msgstr "individual"
 
 #: backend/kvs1025_opt.c:73 backend/kvs20xx.c:462 backend/kvs20xx_opt.c:56
 #: backend/kvs40xx.c:704 backend/kvs40xx.c:722 backend/kvs40xx_opt.c:102
@@ -4081,25 +4098,25 @@ msgstr "desactivat"
 #: backend/kvs40xx_opt.c:116
 #, no-c-format
 msgid "wait_doc"
-msgstr ""
+msgstr "espera_doc"
 
 #: backend/kvs1025_opt.c:85 backend/kvs20xx_opt.c:64
 #: backend/kvs40xx_opt.c:118
 #, no-c-format
 msgid "wait_key"
-msgstr ""
+msgstr "espera_clau"
 
 #: backend/kvs1025_opt.c:96 backend/kvs20xx_opt.c:70
 #: backend/kvs40xx_opt.c:124 backend/kvs40xx_opt.c:141
 #, no-c-format
 msgid "user_def"
-msgstr ""
+msgstr "definit_usuari"
 
 #: backend/kvs1025_opt.c:97 backend/kvs20xx_opt.c:71
 #: backend/kvs40xx_opt.c:125 backend/kvs40xx_opt.c:142
 #, no-c-format
 msgid "business_card"
-msgstr ""
+msgstr "tarjeta_visita"
 
 #: backend/kvs1025_opt.c:98 backend/kvs40xx_opt.c:126
 #: backend/kvs40xx_opt.c:143
@@ -4140,22 +4157,22 @@ msgstr "Legal"
 #: backend/kvs1025_opt.c:148 backend/kvs40xx_opt.c:239
 #, no-c-format
 msgid "bayer_64"
-msgstr ""
+msgstr "bayer_64"
 
 #: backend/kvs1025_opt.c:149 backend/kvs40xx_opt.c:240
 #, no-c-format
 msgid "bayer_16"
-msgstr ""
+msgstr "bayer_16"
 
 #: backend/kvs1025_opt.c:150 backend/kvs40xx_opt.c:241
 #, no-c-format
 msgid "halftone_32"
-msgstr ""
+msgstr "semi_to_32"
 
 #: backend/kvs1025_opt.c:151 backend/kvs40xx_opt.c:242
 #, no-c-format
 msgid "halftone_64"
-msgstr ""
+msgstr "semi_to_64"
 
 #: backend/kvs1025_opt.c:152
 #, no-c-format
@@ -4235,7 +4252,7 @@ msgstr "CRT"
 #: backend/kvs1025_opt.c:229
 #, no-c-format
 msgid "linier"
-msgstr ""
+msgstr "lineal"
 
 #: backend/kvs1025_opt.c:241 backend/kvs20xx_opt.c:138
 #: backend/kvs40xx_opt.c:224
@@ -4462,7 +4479,7 @@ msgstr "A3"
 #: backend/kvs40xx_opt.c:132
 #, no-c-format
 msgid "Double letter 11x17 in"
-msgstr ""
+msgstr "Doble lletra 11x17 a"
 
 #: backend/kvs40xx_opt.c:133
 #, no-c-format
@@ -4482,7 +4499,7 @@ msgstr "Baixa sensibilitat"
 #: backend/kvs40xx_opt.c:243
 #, no-c-format
 msgid "err_diffusion"
-msgstr ""
+msgstr "difusió_errònia"
 
 #: backend/kvs40xx_opt.c:249
 #, no-c-format
@@ -4637,22 +4654,22 @@ msgstr "Diamant"
 #: backend/leo.c:111
 #, no-c-format
 msgid "8x8 Coarse Fatting"
-msgstr ""
+msgstr "Engreix gruixut 8x8"
 
 #: backend/leo.c:112
 #, no-c-format
 msgid "8x8 Fine Fatting"
-msgstr ""
+msgstr "Engreix fi 8x8"
 
 #: backend/leo.c:113
 #, no-c-format
 msgid "8x8 Bayer"
-msgstr ""
+msgstr "Bayer 8x8"
 
 #: backend/leo.c:114
 #, no-c-format
 msgid "8x8 Vertical Line"
-msgstr ""
+msgstr "Línia vertical 8x8"
 
 #: backend/lexmark.c:273 backend/umax_pp.c:715
 #, no-c-format
@@ -4707,22 +4724,22 @@ msgstr "Estableix el guany del canal blau"
 #: backend/matsushita.c:139
 #, no-c-format
 msgid "Bayer Dither 16"
-msgstr ""
+msgstr "Trama 16 de Bayer"
 
 #: backend/matsushita.c:140
 #, no-c-format
 msgid "Bayer Dither 64"
-msgstr ""
+msgstr "Trama 64 de Bayer"
 
 #: backend/matsushita.c:141
 #, no-c-format
 msgid "Halftone Dot 32"
-msgstr ""
+msgstr "Punt 32 de semi to"
 
 #: backend/matsushita.c:142
 #, no-c-format
 msgid "Halftone Dot 64"
-msgstr ""
+msgstr "Punt 64 de semi to"
 
 #: backend/matsushita.c:143
 #, no-c-format
@@ -4788,7 +4805,7 @@ msgstr "Totes les pàgines"
 #: backend/matsushita.c:1034 backend/plustek.c:1333
 #, no-c-format
 msgid "sheetfed scanner"
-msgstr ""
+msgstr "escàner alimentat per fulls"
 
 #: backend/matsushita.h:209
 #, no-c-format
@@ -4850,7 +4867,7 @@ msgstr ""
 #: backend/microtek2.h:621
 #, no-c-format
 msgid "Use the lightlid-35mm adapter"
-msgstr ""
+msgstr "Usa l'adaptador «lightlid-35mm»"
 
 #: backend/microtek2.h:622
 #, no-c-format
@@ -5074,92 +5091,92 @@ msgstr "El més ràpid"
 #: backend/mustek.c:177
 #, no-c-format
 msgid "8x8 coarse"
-msgstr ""
+msgstr "Gruixut 8x8"
 
 #: backend/mustek.c:177
 #, no-c-format
 msgid "8x8 normal"
-msgstr ""
+msgstr "Normal 8x8"
 
 #: backend/mustek.c:177
 #, no-c-format
 msgid "8x8 fine"
-msgstr ""
+msgstr "Fina 8x8"
 
 #: backend/mustek.c:178
 #, no-c-format
 msgid "8x8 very fine"
-msgstr ""
+msgstr "Molt fina 8x8"
 
 #: backend/mustek.c:178
 #, no-c-format
 msgid "6x6 normal"
-msgstr ""
+msgstr "Normal 6x6"
 
 #: backend/mustek.c:179
 #, no-c-format
 msgid "5x5 coarse"
-msgstr ""
+msgstr "Gruixut 5x5"
 
 #: backend/mustek.c:179
 #, no-c-format
 msgid "5x5 fine"
-msgstr ""
+msgstr "Fina 5x5"
 
 #: backend/mustek.c:179
 #, no-c-format
 msgid "4x4 coarse"
-msgstr ""
+msgstr "Gruixut 4x4"
 
 #: backend/mustek.c:180
 #, no-c-format
 msgid "4x4 normal"
-msgstr ""
+msgstr "Normal 4x4"
 
 #: backend/mustek.c:180
 #, no-c-format
 msgid "4x4 fine"
-msgstr ""
+msgstr "Fina 4x4"
 
 #: backend/mustek.c:180
 #, no-c-format
 msgid "3x3 normal"
-msgstr ""
+msgstr "Normal 3x3"
 
 #: backend/mustek.c:181
 #, no-c-format
 msgid "2x2 normal"
-msgstr ""
+msgstr "Normal 2x2"
 
 #: backend/mustek.c:181
 #, no-c-format
 msgid "8x8 custom"
-msgstr ""
+msgstr "A mida 8x8"
 
 #: backend/mustek.c:182
 #, no-c-format
 msgid "6x6 custom"
-msgstr ""
+msgstr "A mida 6x6"
 
 #: backend/mustek.c:183
 #, no-c-format
 msgid "5x5 custom"
-msgstr ""
+msgstr "A mida 5x5"
 
 #: backend/mustek.c:183
 #, no-c-format
 msgid "4x4 custom"
-msgstr ""
+msgstr "A mida 4x4"
 
 #: backend/mustek.c:184
 #, no-c-format
 msgid "3x3 custom"
-msgstr ""
+msgstr "A mida 3x3"
 
 #: backend/mustek.c:185
 #, no-c-format
 msgid "2x2 custom"
-msgstr ""
+msgstr "A mida 2x2"
 
 #: backend/mustek.c:4247
 #, no-c-format
@@ -5264,22 +5281,22 @@ msgstr "Controla el contrast del canal blau de la imatge obtinguda."
 #: backend/mustek_usb2.c:105
 #, no-c-format
 msgid "Color48"
-msgstr ""
+msgstr "Color48"
 
 #: backend/mustek_usb2.c:106 backend/mustek_usb2.c:114
 #, no-c-format
 msgid "Color24"
-msgstr ""
+msgstr "Color24"
 
 #: backend/mustek_usb2.c:107
 #, no-c-format
 msgid "Gray16"
-msgstr ""
+msgstr "Gris16"
 
 #: backend/mustek_usb2.c:108
 #, no-c-format
 msgid "Gray8"
-msgstr ""
+msgstr "Gris8"
 
 #: backend/mustek_usb2.c:119
 #, no-c-format
@@ -5326,8 +5343,9 @@ msgid ""
 "Selects the scan source (such as a document-feeder). Set source before "
 "mode and resolution. Resets mode and resolution to auto values."
 msgstr ""
-"Selecciona l'escàner font (com un alimentador de documents). Estableix la "
-"font abans del mode i la resolució. Restaura el mode i la resolució als "
+"Selecciona la font de l'escàner font (com un alimentador de documents)."
+" Estableix "
+"la font abans del mode i la resolució. Restaura el mode i la resolució als "
 "valors automàtics."
 
 #: backend/pixma_sane_options.c:98
@@ -5349,7 +5367,7 @@ msgstr ""
 #: backend/pixma_sane_options.c:232
 #, no-c-format
 msgid "Update button state"
-msgstr ""
+msgstr "Actualitza l'estat del botó"
 
 #: backend/pixma_sane_options.c:244
 #, no-c-format
@@ -5468,7 +5486,7 @@ msgstr "Frontal analògic"
 #: backend/plustek.c:1002
 #, no-c-format
 msgid "Red gain value of the AFE"
-msgstr ""
+msgstr "Valor de guany del vermell de l'AFE"
 
 #: backend/plustek.c:1009 backend/umax_pp.c:792
 #, no-c-format
@@ -5478,27 +5496,27 @@ msgstr "Desplaçament del vermell"
 #: backend/plustek.c:1010
 #, no-c-format
 msgid "Red offset value of the AFE"
-msgstr ""
+msgstr "Valor de desplaçament del vermell de l'AFE"
 
 #: backend/plustek.c:1018
 #, no-c-format
 msgid "Green gain value of the AFE"
-msgstr ""
+msgstr "Valor de guany del verd de l'AFE"
 
 #: backend/plustek.c:1026
 #, no-c-format
 msgid "Green offset value of the AFE"
-msgstr ""
+msgstr "Valor de desplaçament del verd de l'AFE"
 
 #: backend/plustek.c:1034
 #, no-c-format
 msgid "Blue gain value of the AFE"
-msgstr ""
+msgstr "Valor de guany del blau de l'AFE"
 
 #: backend/plustek.c:1042
 #, no-c-format
 msgid "Blue offset value of the AFE"
-msgstr ""
+msgstr "Valor de desplaçament del blau de l'AFE"
 
 #: backend/plustek.c:1049
 #, no-c-format
@@ -5538,17 +5556,17 @@ msgstr "Aquesta opció reflecteix l'estat dels botons de l'escàner."
 #: backend/plustek_pp.c:197
 #, no-c-format
 msgid "Color36"
-msgstr ""
+msgstr "Color36"
 
 #: backend/plustek_pp.c:211
 #, no-c-format
 msgid "Dithermap 1"
-msgstr ""
+msgstr "Mapa amb trama 1"
 
 #: backend/plustek_pp.c:212
 #, no-c-format
 msgid "Dithermap 2"
-msgstr ""
+msgstr "Mapa amb trama 2"
 
 #: backend/plustek_pp.c:213
 #, no-c-format
@@ -5568,7 +5586,7 @@ msgstr "Millora de la imatge"
 #: backend/pnm.c:241
 #, no-c-format
 msgid "Grayify"
-msgstr ""
+msgstr "Grisifica"
 
 #: backend/pnm.c:242
 #, no-c-format
@@ -5808,12 +5826,12 @@ msgstr "El semi to no està admès"
 #: backend/snapscan-options.c:98
 #, no-c-format
 msgid "DispersedDot8x8"
-msgstr ""
+msgstr "PuntDispers8x8"
 
 #: backend/snapscan-options.c:99
 #, no-c-format
 msgid "DispersedDot16x16"
-msgstr ""
+msgstr "PuntDispers16x16"
 
 #: backend/snapscan-options.c:103
 #, no-c-format
@@ -6055,7 +6073,7 @@ msgstr ""
 #: backend/test.c:467
 #, no-c-format
 msgid "Invert endianness"
-msgstr ""
+msgstr "Inverteix la codificació «endian»"
 
 #: backend/test.c:468
 #, no-c-format
@@ -6064,6 +6082,9 @@ msgid ""
 "can be used to test the 16 bit modes of frontends, e.g. if the frontend "
 "uses the correct endianness."
 msgstr ""
+"Intercanvi de bytes superior i inferior de dades d'imatge en els modes de 16 "
+"bits. Aquesta opció es pot usar per a provar els modes de 16 bits dels "
+"frontals, p. ex., si el frontal empra una codificació «endian» correcta."
 
 #: backend/test.c:484
 #, no-c-format
@@ -6460,17 +6481,17 @@ msgstr "Bi-nivell en blanc i negre (mode art lineal)"
 #: backend/umax.c:237
 #, no-c-format
 msgid "Dithered/halftone black & white (halftone mode)"
-msgstr ""
+msgstr "Tramat/semi to en negre i blanc (mode semi to)"
 
 #: backend/umax.c:238
 #, no-c-format
 msgid "Multi-level black & white (grayscale mode)"
-msgstr ""
+msgstr "Múltiples nivells en blanc i negre (mode escala de grisos)"
 
 #: backend/umax.c:239
 #, no-c-format
 msgid "Multi-level RGB color (one pass color)"
-msgstr ""
+msgstr "Múltiples nivells en color RGB (color d'una sola passada)"
 
 #: backend/umax.c:240
 #, no-c-format

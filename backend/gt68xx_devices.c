@@ -805,6 +805,54 @@ static GT68xx_Model artec_ultima2000_model = {
     /* Setup for Cytron TCM MD 9385 */
 };
 
+static GT68xx_Model plustek_opticslim500plus_model = {
+  "plustek-opticslim-500plus",	/* Name */
+  "Plustek",			/* Device vendor string */
+  "OpticSlim 500 Plus",		/* Device model name */
+  "cis3R5B1.fw",		/* Name of the firmware file */
+  SANE_FALSE,			/* Dynamic allocation flag */
+
+  &mustek_gt6816_command_set,	/* Command set used by this scanner */
+
+  600,				/* maximum optical sensor resolution */
+  1200,				/* maximum motor resolution */
+  600,				/* base x-res used to calculate geometry */
+  600,				/* base y-res used to calculate geometry */
+  1200,				/* if ydpi is equal or higher, disable backtracking */
+  SANE_FALSE,			/* Use base_ydpi for all resolutions */
+
+  {600, 300, 150, 75, 50, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 50, 0},/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (1.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (9.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (142.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+  0,				/* CCD distcance for CCD with 6 lines) */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+  {0x32, 0x02, 0x26, 0x07, 0x26, 0x09},	/* Default offset/gain */
+  {0x127, 0x127, 0x127},	/* Default exposure parameters */
+  SANE_FIX (1.5),		/* Default gamma value */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  GT68XX_FLAG_NO_CALIBRATE	/* Which flags are needed for this scanner? */
+};
+
 static GT68xx_Model mustek_2400cu_model = {
   "mustek-bearpaw-2400-cu",	/* Name */
   "Mustek",			/* Device vendor string */
@@ -1930,6 +1978,7 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x07b3, 0x040b, &plustek_ops12_model},
   {0x07b3, 0x040e, &plustek_ops24_model},
   {0x07b3, 0x0412, &plustek_opticslim_m12_model},
+  {0x07b3, 0x046e, &plustek_opticslim500plus_model},
   {0x07b3, 0x0413, &plustek_opticslim1200_model},
   {0x07b3, 0x0422, &plustek_opticslim2400_model},
   {0x07b3, 0x045f, &iriscan_express_2_model},

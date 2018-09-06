@@ -1848,6 +1848,11 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
 
   DBG (5, "gt68xx_afe_cis_auto: start\n");
 
+  if (scanner->dev->model->flags & GT68XX_FLAG_NO_CALIBRATE)
+  {
+    return SANE_STATUS_GOOD;
+  }
+
   memset (&old_afe, 255, sizeof (old_afe));
 
   /* Start with the preset exposure settings */

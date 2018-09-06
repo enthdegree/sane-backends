@@ -112,6 +112,9 @@
 #define GT68XX_FLAG_SHEET_FED       (1 << 12)	/* we have a sheet fed scanner */
 #define GT68XX_FLAG_HAS_CALIBRATE   (1 << 13)	/* for sheet fed scanners that be calibrated with
                                                    an calibration sheet */
+#define GT68XX_FLAG_NO_CALIBRATE   (1 << 14)	/* don't calibrate, because calibration is broken */
+
+
 
 /* Forward typedefs */
 typedef struct GT68xx_USB_Device_Entry GT68xx_USB_Device_Entry;

@@ -197,6 +197,11 @@ usb 0x07b3 0x045f
 usb 0x07b3 0x0462
 
 ##############################################################################
+# Autodetect Plustek OpticSlim 500 Plus
+usb 0x07b3 0x046e
+override "plustek-opticslim-500plus"
+
+##############################################################################
 # Autodetect Plustek OpticSlim 1200
 usb 0x07b3 0x0413
 

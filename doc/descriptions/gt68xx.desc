@@ -406,6 +406,12 @@
 :status :good
 :comment "Same as OpticSlim 2400."
 
+:model "OpticSlim 500 plus"
+:interface "USB"
+:usbid "0x07b3" "0x046e"
+:status :good
+:comment "Need firmware from windows driver. Image is upside down because hardware in this model is upside down. Buttons not tested."
+
 :model "Iriscan Express 2"
 :interface "USB"
 :usbid "0x07b3" "0x045f"

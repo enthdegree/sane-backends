@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.27git\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2018-08-21 13:32+0200\n"
-"PO-Revision-Date: 2018-09-07 14:50+0100\n"
+"PO-Revision-Date: 2018-09-07 15:16+0100\n"
 "Last-Translator: Antoni Bella Pérez <antonibella5@yahoo.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca\n"
@@ -976,7 +976,7 @@ msgstr "El mecanisme de l'escàner està bloquejat per al transport"
 #: backend/artec_eplus48u.c:2874 backend/pnm.c:282
 #, no-c-format
 msgid "Defaults"
-msgstr "Omissió"
+msgstr "Predeterminats"
 
 #: backend/artec_eplus48u.c:2876
 #, no-c-format
@@ -1319,7 +1319,7 @@ msgstr "Escàner de pel·lícula"
 #: backend/u12.c:851
 #, no-c-format
 msgid "flatbed scanner"
-msgstr "Escàner de llit pla"
+msgstr "Escàner amb llit pla"
 
 #: backend/canon.c:1178 backend/epson.c:3386 backend/epson2.c:1364
 #, no-c-format
@@ -1386,7 +1386,7 @@ msgstr "Posició manual de l'enfocament"
 msgid "Set the optical system's focus position by hand (default: 128)."
 msgstr ""
 "Estableix la posició manual per a l'enfocament del sistema òptic "
-"(omissió: 128)."
+"(predeterminat: 128)."
 
 #: backend/canon.c:1351
 #, no-c-format
@@ -1496,7 +1496,7 @@ msgstr "Extres de l'alimentador de documents"
 #: backend/canon.c:1702
 #, no-c-format
 msgid "Flatbed only"
-msgstr "Només llit pla"
+msgstr "Només amb llit pla"
 
 #: backend/canon.c:1703
 #, no-c-format
@@ -1560,7 +1560,7 @@ msgstr "Selecciona el tipus de pel·lícula"
 #: backend/snapscan-options.c:86 backend/test.c:192 backend/umax.c:181
 #, no-c-format
 msgid "Flatbed"
-msgstr "De llit pla"
+msgstr "Amb llit pla"
 
 #: backend/canon_dr.c:409 backend/epjitsu.c:234 backend/fujitsu.c:673
 #: backend/kodak.c:140
@@ -1795,7 +1795,7 @@ msgstr "Monitors CRT"
 #: backend/hp-option.c:3229 backend/test.c:143
 #, no-c-format
 msgid "Default"
-msgstr "Omissió"
+msgstr "Predeterminat"
 
 #: backend/epson.c:658 backend/epson2.c:256
 #, no-c-format
@@ -2500,8 +2500,8 @@ msgid ""
 "Level of JPEG compression. 1 is small file, 7 is large file. 0 (default) "
 "is same as 4"
 msgstr ""
-"Nivell de la compressió JPEG. 1 és un fitxer petit, 7 és un fitxer gran. "
-"0 (omissió) és igual que 4"
+"Nivell de la compressió JPEG. 1 és un fitxer petit, 7 és un fitxer gran. 0 "
+"(predeterminat) és igual que 4"
 
 #: backend/fujitsu.c:3605
 #, no-c-format
@@ -3276,7 +3276,8 @@ msgstr "Color per al mode gris"
 #, no-c-format
 msgid "Selects which scan color is used gray mode (default: green)."
 msgstr ""
-"Selecciona quin color d'escaneig s'usarà en el mode gris (omissió: verd)."
+"Selecciona quin color d'escaneig s'usarà en el mode gris (predeterminat: "
+"verd)."
 
 #: backend/gt68xx.c:553 backend/hp3900_sane.c:1392
 #: backend/mustek_usb2.c:410
@@ -3685,7 +3686,7 @@ msgid ""
 "r*65536+256*g+b or gray value (default=violet or gray)"
 msgstr ""
 "Valor del «color» per al mode d'ompliment al final de les línies. Color RGB "
-"com a valor r*65536+256*g+b o gris (per omissió=violeta o gris)"
+"com a valor r*65536+256*g+b o gris (predeterminat=violeta o gris)"
 
 #: backend/hp-option.c:2987
 #, no-c-format
@@ -4211,37 +4212,37 @@ msgstr "Des del paper"
 #: backend/kvs1025_opt.c:191 backend/kvs40xx_opt.c:284
 #, no-c-format
 msgid "default"
-msgstr "per omissió"
+msgstr "Predeterminat"
 
 #: backend/kvs1025_opt.c:210 backend/kvs20xx_opt.c:123
 #: backend/kvs40xx_opt.c:209
 #, no-c-format
 msgid "smooth"
-msgstr "suavitzat"
+msgstr "Suavitzat"
 
 #: backend/kvs1025_opt.c:211 backend/kvs20xx_opt.c:119
 #: backend/kvs40xx_opt.c:205
 #, no-c-format
 msgid "none"
-msgstr "cap"
+msgstr "Cap"
 
 #: backend/kvs1025_opt.c:212 backend/kvs20xx_opt.c:120
 #: backend/kvs40xx_opt.c:206
 #, no-c-format
 msgid "low"
-msgstr "baix"
+msgstr "Baix"
 
 #: backend/kvs1025_opt.c:213 backend/kvs1025_opt.c:803
 #: backend/kvs20xx_opt.c:121 backend/kvs40xx_opt.c:207
 #, no-c-format
 msgid "medium"
-msgstr "mitjà"
+msgstr "Mitjà"
 
 #: backend/kvs1025_opt.c:214 backend/kvs20xx_opt.c:122
 #: backend/kvs40xx_opt.c:208
 #, no-c-format
 msgid "high"
-msgstr "alt"
+msgstr "Alt"
 
 #: backend/kvs1025_opt.c:228 backend/kvs20xx_opt.c:130
 #: backend/kvs40xx_opt.c:216
@@ -4252,25 +4253,25 @@ msgstr "CRT"
 #: backend/kvs1025_opt.c:229
 #, no-c-format
 msgid "linier"
-msgstr "lineal"
+msgstr "Lineal"
 
 #: backend/kvs1025_opt.c:241 backend/kvs20xx_opt.c:138
 #: backend/kvs40xx_opt.c:224
 #, no-c-format
 msgid "red"
-msgstr "vermell"
+msgstr "Vermell"
 
 #: backend/kvs1025_opt.c:242 backend/kvs20xx_opt.c:139
 #: backend/kvs40xx_opt.c:225
 #, no-c-format
 msgid "green"
-msgstr "verd"
+msgstr "Verd"
 
 #: backend/kvs1025_opt.c:243 backend/kvs20xx_opt.c:140
 #: backend/kvs40xx_opt.c:226
 #, no-c-format
 msgid "blue"
-msgstr "blau"
+msgstr "Blau"
 
 #: backend/kvs1025_opt.c:561
 #, no-c-format
@@ -6143,9 +6144,9 @@ msgid ""
 "handling for scanning. All other status codes are for testing how the "
 "frontend handles them."
 msgstr ""
-"Selecciona el valor retornat pel «sane_read()». «Omissió» és el maneig normal "
-"per a escanejar. Tots els altres codis d'estat són per a provar com els "
-"maneja el frontal."
+"Selecciona el valor retornat pel «sane_read()». «Predeterminat» és el maneig "
+"normal per a escanejar. Tots els altres codis d'estat són per a provar com "
+"els maneja el frontal."
 
 #: backend/test.c:562
 #, no-c-format

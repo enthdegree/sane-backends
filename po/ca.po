@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.27git\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2018-08-21 13:32+0200\n"
-"PO-Revision-Date: 2018-09-04 23:21+0100\n"
+"PO-Revision-Date: 2018-09-07 14:50+0100\n"
 "Last-Translator: Antoni Bella Pérez <antonibella5@yahoo.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca\n"
@@ -4457,7 +4457,7 @@ msgid ""
 "length of actual paper or logical document length."
 msgstr ""
 "El mode control de la longitud és un mode on l'escàner llegirà fins a la "
-"longitud més curta del paper real o la durada lògica del document."
+"longitud més curta del paper real o la longitud lògica del document."
 
 #: backend/kvs20xx_opt.c:424 backend/kvs20xx_opt.c:425
 #: backend/kvs40xx_opt.c:668 backend/kvs40xx_opt.c:669
@@ -4469,7 +4469,7 @@ msgstr "Correcció de la gamma"
 #: backend/kvs40xx_opt.c:117
 #, no-c-format
 msgid "wait_doc_hopper_up"
-msgstr ""
+msgstr "espera_la_tolva_de_documents"
 
 #: backend/kvs40xx_opt.c:127
 #, no-c-format
@@ -5852,7 +5852,7 @@ msgstr ""
 #: backend/snapscan-options.c:111
 #, no-c-format
 msgid "Frame number of media holder that should be scanned."
-msgstr ""
+msgstr "Número del fotograma del suport que s'haurà d'escanejar."
 
 #: backend/snapscan-options.c:114
 #, no-c-format
@@ -6224,12 +6224,12 @@ msgstr "Imprimeix una llista de totes les opcions."
 #: backend/test.c:712
 #, no-c-format
 msgid "Bool test options"
-msgstr ""
+msgstr "Opcions per a la prova booleana"
 
 #: backend/test.c:725
 #, no-c-format
 msgid "(1/6) Bool soft select soft detect"
-msgstr ""
+msgstr "(1/6) Selecció i detecció booleana per programari"
 
 #: backend/test.c:727
 #, no-c-format
@@ -6237,11 +6237,14 @@ msgid ""
 "(1/6) Bool test option that has soft select and soft detect (and "
 "advanced) capabilities. That's just a normal bool option."
 msgstr ""
+"(1/6) Opció per a la prova booleana amb capacitats (i avançades) per a la "
+"selecció i detecció per programari. Aquesta només és una opció booleana "
+"normal."
 
 #: backend/test.c:743
 #, no-c-format
 msgid "(2/6) Bool hard select soft detect"
-msgstr ""
+msgstr "(2/6) Selecció booleana per maquinari i detecció per programari"
 
 #: backend/test.c:745
 #, no-c-format
@@ -6250,11 +6253,15 @@ msgid ""
 "advanced) capabilities. That means the option can't be set by the "
 "frontend but by the user (e.g. by pressing a button at the device)."
 msgstr ""
+"(2/6) Opció per a la prova booleana amb capacitats (i avançades) per a la "
+"selecció per maquinari i la detecció per programari. Això vol dir que l'opció "
+"no pot ser establerta pel frontal, sinó per l'usuari (p. ex., si premeu un "
+"botó al dispositiu)."
 
 #: backend/test.c:762
 #, no-c-format
 msgid "(3/6) Bool hard select"
-msgstr ""
+msgstr "(3/6) Selecció booleana per maquinari"
 
 #: backend/test.c:763
 #, no-c-format
@@ -6263,11 +6270,15 @@ msgid ""
 "That means the option can't be set by the frontend but by the user (e.g. "
 "by pressing a button at the device) and can't be read by the frontend."
 msgstr ""
+"(3/6) Opció per a la prova booleana amb capacitats (i avançades) per a la "
+"selecció per maquinari. Això vol dir que l'opció no pot ser establerta pel "
+"frontal, sinó per l'usuari (p. ex., si premeu un botó al dispositiu) i no el "
+"frontal no ho pot llegir."
 
 #: backend/test.c:781
 #, no-c-format
 msgid "(4/6) Bool soft detect"
-msgstr ""
+msgstr "(4/6) Detecció booleana per programari"
 
 #: backend/test.c:782
 #, no-c-format
@@ -6275,11 +6286,14 @@ msgid ""
 "(4/6) Bool test option that has soft detect (and advanced) capabilities. "
 "That means the option is read-only."
 msgstr ""
+"(4/6) Opció per a la prova booleana amb capacitats (i avançades) per a la "
+"detecció per programari. Això vol dir que aquesta opció és de només lectura."
 
 #: backend/test.c:798
 #, no-c-format
 msgid "(5/6) Bool soft select soft detect emulated"
 msgstr ""
+"(5/6) Detecció booleana per programari i detecció emulada per programari"
 
 #: backend/test.c:799
 #, no-c-format
@@ -6287,11 +6301,14 @@ msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated "
 "(and advanced) capabilities."
 msgstr ""
+"(5/6) Opció per a la prova booleana amb capacitats (i avançades) per a la "
+"selecció i detecció per programari, i emulades."
 
 #: backend/test.c:815
 #, no-c-format
 msgid "(6/6) Bool soft select soft detect auto"
 msgstr ""
+"(6/6) Detecció booleana per programari i detecció automàtica per programari"
 
 #: backend/test.c:816
 #, no-c-format
@@ -6300,26 +6317,31 @@ msgid ""
 "(and advanced) capabilities. This option can be automatically set by the "
 "backend."
 msgstr ""
+"(6/6) Opció per a la prova booleana amb capacitats (i avançades) per a la "
+"selecció i detecció per programari, i automàtiques. Aquesta opció pot "
+"establir-la automàticament el dorsal."
 
 #: backend/test.c:833
 #, no-c-format
 msgid "Int test options"
-msgstr ""
+msgstr "Opcions per a la prova de l'enter"
 
 #: backend/test.c:846
 #, no-c-format
 msgid "(1/6) Int"
-msgstr ""
+msgstr "(1/6) Enter"
 
 #: backend/test.c:847
 #, no-c-format
 msgid "(1/6) Int test option with no unit and no constraint set."
 msgstr ""
+"(1/6) Opció per a la prova de l'enter sense unitats i no restringida a un "
+"conjunt."
 
 #: backend/test.c:862
 #, no-c-format
 msgid "(2/6) Int constraint range"
-msgstr ""
+msgstr "(2/6) Interval restringit amb un enter"
 
 #: backend/test.c:863
 #, no-c-format
@@ -6327,21 +6349,25 @@ msgid ""
 "(2/6) Int test option with unit pixel and constraint range set. Minimum "
 "is 4, maximum 192, and quant is 2."
 msgstr ""
+"(2/6) Opció per a la prova de l'enter amb píxels com a unitat i un conjunt "
+"restringit a un interval. El mínim és 4, el màxim 192 i «quant» és 2."
 
 #: backend/test.c:879
 #, no-c-format
 msgid "(3/6) Int constraint word list"
-msgstr ""
+msgstr "(3/6) Llista restringida de paraules amb un enter"
 
 #: backend/test.c:880
 #, no-c-format
 msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr ""
+"(3/6) Opció per a la prova de l'enter amb bits com a unitat i restringida a "
+"un conjunt de llista de paraules."
 
 #: backend/test.c:895
 #, no-c-format
 msgid "(4/6) Int array"
-msgstr ""
+msgstr "(4/6) Matriu amb un enter"
 
 #: backend/test.c:896
 #, no-c-format
@@ -6349,11 +6375,13 @@ msgid ""
 "(4/6) Int test option with unit mm and using an array without "
 "constraints."
 msgstr ""
+"(4/6) Opció per a la prova de l'enter amb mm com a unitat i usant una matriu "
+"sense restringir."
 
 #: backend/test.c:911
 #, no-c-format
 msgid "(5/6) Int array constraint range"
-msgstr ""
+msgstr "(5/6) Interval restringit amb una matriu amb un enter"
 
 #: backend/test.c:912
 #, no-c-format
@@ -6361,11 +6389,13 @@ msgid ""
 "(5/6) Int test option with unit dpi and using an array with a range "
 "constraint. Minimum is 4, maximum 192, and quant is 2."
 msgstr ""
+"(5/6) Opció per a la prova de l'enter amb ppp com a unitat i usant una matriu "
+"amb un interval restringit. El mínim és 4, el màxim 192 i «quant» és 2."
 
 #: backend/test.c:929
 #, no-c-format
 msgid "(6/6) Int array constraint word list"
-msgstr ""
+msgstr "(6/6) Llista restringida de paraules amb una matriu amb un enter"
 
 #: backend/test.c:930
 #, no-c-format
@@ -6373,26 +6403,29 @@ msgid ""
 "(6/6) Int test option with unit percent and using an array with a word "
 "list constraint."
 msgstr ""
+"(6/6) Opció per a la prova de l'enter amb percentatge com a unitat i usant "
+"una matriu amb una llista restringida de paraules."
 
 #: backend/test.c:946
 #, no-c-format
 msgid "Fixed test options"
-msgstr ""
+msgstr "Opcions per a la prova fixa"
 
 #: backend/test.c:959
 #, no-c-format
 msgid "(1/3) Fixed"
-msgstr ""
+msgstr "(1/3) Fixa"
 
 #: backend/test.c:960
 #, no-c-format
 msgid "(1/3) Fixed test option with no unit and no constraint set."
 msgstr ""
+"(1/3) Opció per a la prova fixa sense unitats i no restringida a un conjunt."
 
 #: backend/test.c:975
 #, no-c-format
 msgid "(2/3) Fixed constraint range"
-msgstr ""
+msgstr "(2/3) Interval restringit de paraules"
 
 #: backend/test.c:976
 #, no-c-format
@@ -6400,46 +6433,53 @@ msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
 "Minimum is -42.17, maximum 32767.9999, and quant is 2.0."
 msgstr ""
+"(2/3) Opció per a la prova fixa amb microsegons com a unitat i un conjunt "
+"restringit a un interval. El mínim és -42,17, el màxim 32767,9999 i «quant» "
+"és 2,0."
 
 #: backend/test.c:992
 #, no-c-format
 msgid "(3/3) Fixed constraint word list"
-msgstr ""
+msgstr "(3/3) Llista fixa i restringida de paraules"
 
 #: backend/test.c:993
 #, no-c-format
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
 msgstr ""
+"(3/3) Opció per a la prova fixa sense unitats i restringida a un conjunt de "
+"llista de paraules."
 
 #: backend/test.c:1008
 #, no-c-format
 msgid "String test options"
-msgstr ""
+msgstr "Opcions per a la prova de la cadena"
 
 #: backend/test.c:1021
 #, no-c-format
 msgid "(1/3) String"
-msgstr ""
+msgstr "(1/3) Cadena"
 
 #: backend/test.c:1022
 #, no-c-format
 msgid "(1/3) String test option without constraint."
-msgstr ""
+msgstr "(1/3) Opció per a la prova de la cadena sense restringir."
 
 #: backend/test.c:1039
 #, no-c-format
 msgid "(2/3) String constraint string list"
-msgstr ""
+msgstr "(2/3) Llista restringida de cadenes"
 
 #: backend/test.c:1040
 #, no-c-format
 msgid "(2/3) String test option with string list constraint."
 msgstr ""
+"(2/3) Opció per a la prova de la cadena amb una llista restringida de "
+"cadenes."
 
 #: backend/test.c:1059
 #, no-c-format
 msgid "(3/3) String constraint long string list"
-msgstr ""
+msgstr "(3/3) Llista llarga i restringida de cadenes"
 
 #: backend/test.c:1060
 #, no-c-format
@@ -6447,26 +6487,28 @@ msgid ""
 "(3/3) String test option with string list constraint. Contains some more "
 "entries..."
 msgstr ""
+"(3/3) Opció per a la prova de la cadena amb una llista restringida de "
+"cadenes. Conté algunes entrades més..."
 
 #: backend/test.c:1080
 #, no-c-format
 msgid "Button test options"
-msgstr ""
+msgstr "Opcions per a la prova del botó"
 
 #: backend/test.c:1093
 #, no-c-format
 msgid "(1/1) Button"
-msgstr ""
+msgstr "(1/1) Botó"
 
 #: backend/test.c:1094
 #, no-c-format
 msgid "(1/1) Button test option. Prints some text..."
-msgstr ""
+msgstr "(1/1) Opció per a la prova del botó. Imprimeix algun text..."
 
 #: backend/u12.c:149
 #, no-c-format
 msgid "Color 36"
-msgstr ""
+msgstr "Color 36"
 
 #: backend/umax.c:235
 #, no-c-format
@@ -6556,12 +6598,12 @@ msgstr "Estableix la làmpada a encesa/apagada"
 #: backend/umax_pp.c:649
 #, no-c-format
 msgid "UTA on"
-msgstr ""
+msgstr "Activa l'UTA"
 
 #: backend/umax_pp.c:650
 #, no-c-format
 msgid "Sets UTA on/off"
-msgstr ""
+msgstr "Estableix l'UTA a actiu/inactiu"
 
 #: backend/umax_pp.c:771
 #, no-c-format

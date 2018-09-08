@@ -1202,8 +1202,8 @@
 :model "MAXIFY MB5300 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1777"
-:status :untested
-:comment "Testers needed!"
+:status :good
+:comment "1200dpi scans do not work"
 
 :model "CanoScan 8800F"
 :interface "USB"

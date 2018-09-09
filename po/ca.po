@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.27git\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2018-08-21 13:32+0200\n"
-"PO-Revision-Date: 2018-09-07 15:16+0100\n"
+"PO-Revision-Date: 2018-09-10 00:37+0100\n"
 "Last-Translator: Antoni Bella Pérez <antonibella5@yahoo.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca\n"
@@ -421,8 +421,8 @@ msgid ""
 "Read-only option that specifies how many options a specific devices "
 "supports."
 msgstr ""
-"Opció de només lectura que especifica quantes opcions admet un "
-"dispositiu específic."
+"Opció de només lectura que especifica quantes opcions admet un dispositiu "
+"específic."
 
 #: include/sane/saneopts.h:248
 #, no-c-format
@@ -462,9 +462,9 @@ msgid ""
 "scanner, it reduces the memory requirements and scan-time of the preview."
 msgstr ""
 "Demana que totes les vistes prèvies es facin en el mode monocrom. En un "
-"escàner de tres passos, això reduirà el nombre de passos a un i en un "
-"escàner d'un sol pas, això reduirà els requisits de memòria i el temps "
-"d'escaneig de la vista prèvia."
+"escàner de tres passos, això reduirà el nombre de passos a un i en un escàner "
+"d'un sol pas, això reduirà els requisits de memòria i el temps d'escaneig de "
+"la vista prèvia."
 
 #: include/sane/saneopts.h:264
 #, no-c-format
@@ -536,8 +536,8 @@ msgid ""
 "Specifies the width of the media.  Required for automatic centering of "
 "sheet-fed scans."
 msgstr ""
-"Especifica l'amplada del suport. Es requereix per a centrar "
-"automàticament els escanejos dels fulls."
+"Especifica l'amplada del suport. Es requereix per a centrar automàticament "
+"els escanejos dels fulls."
 
 #: include/sane/saneopts.h:305
 #, no-c-format
@@ -548,8 +548,7 @@ msgstr "Especifica l'alçada del suport."
 #, no-c-format
 msgid "Determines whether a builtin or a custom gamma-table should be used."
 msgstr ""
-"Determina si s'haurà d'usar una taula de gamma integrada o "
-"personalitzada."
+"Determina si s'haurà d'usar una taula de gamma integrada o personalitzada."
 
 #: include/sane/saneopts.h:312
 #, no-c-format
@@ -559,8 +558,8 @@ msgid ""
 "gamma table)."
 msgstr ""
 "Taula per a la correcció de la gamma. En el mode de color, aquesta opció "
-"afectarà igualment els canals vermell, verd i blau alhora (és a dir, "
-"aquesta és una taula de gamma per a la intensitat)."
+"afectarà igualment els canals vermell, verd i blau alhora (és a dir, aquesta "
+"és una taula de gamma per a la intensitat)."
 
 #: include/sane/saneopts.h:317
 #, no-c-format
@@ -1319,7 +1318,7 @@ msgstr "Escàner de pel·lícula"
 #: backend/u12.c:851
 #, no-c-format
 msgid "flatbed scanner"
-msgstr "Escàner amb llit pla"
+msgstr "Escàner de superfície plana"
 
 #: backend/canon.c:1178 backend/epson.c:3386 backend/epson2.c:1364
 #, no-c-format
@@ -1496,13 +1495,14 @@ msgstr "Extres de l'alimentador de documents"
 #: backend/canon.c:1702
 #, no-c-format
 msgid "Flatbed only"
-msgstr "Només amb llit pla"
+msgstr "Només de superfície plana"
 
 #: backend/canon.c:1703
 #, no-c-format
 msgid "Disable auto document feeder and use flatbed only"
 msgstr ""
-"Inhabilita l'alimentador automàtic de documents i només usa el llit pla"
+"Inhabilita l'alimentador automàtic de documents i només usa la superfície "
+"plana"
 
 #: backend/canon.c:1713 backend/canon.c:1723
 #, no-c-format
@@ -1560,7 +1560,7 @@ msgstr "Selecciona el tipus de pel·lícula"
 #: backend/snapscan-options.c:86 backend/test.c:192 backend/umax.c:181
 #, no-c-format
 msgid "Flatbed"
-msgstr "Amb llit pla"
+msgstr "De superfície plana"
 
 #: backend/canon_dr.c:409 backend/epjitsu.c:234 backend/fujitsu.c:673
 #: backend/kodak.c:140
@@ -2893,7 +2893,7 @@ msgstr "Direcció de l'aprovador"
 #: backend/fujitsu.c:4254
 #, no-c-format
 msgid "Endorser printing direction."
-msgstr "Direcció amb la que imprimirà l'aprovador."
+msgstr "Direcció amb la qual imprimirà l'aprovador."
 
 #: backend/fujitsu.c:4278
 #, no-c-format
@@ -2904,8 +2904,7 @@ msgstr "Costat de l'aprovador"
 #, no-c-format
 msgid "Endorser printing side, requires hardware support to change"
 msgstr ""
-"El costat de la impressió de l'aprovador, requereix de maquinari per "
-"canviar-lo"
+"El costat de la impressió de l'aprovador, requereix maquinari per canviar-lo"
 
 #: backend/fujitsu.c:4304
 #, no-c-format
@@ -4523,9 +4522,9 @@ msgid ""
 "Long Paper Mode is a mode that the scanner reads the image after it "
 "divides long paper by the length which is set in Document Size option."
 msgstr ""
-"El mode paper llarg, és un mode en el qual l'escàner llegeix la imatge "
-"després de dividir el paper llarg per la longitud que s'estableix a l'opció "
-"Mida del document."
+"El mode paper llarg és un mode en el qual l'escàner llegeix la imatge després "
+"de dividir el paper llarg per la longitud que s'estableix a l'opció Mida del "
+"document."
 
 #: backend/kvs40xx_opt.c:449
 #, no-c-format
@@ -4846,12 +4845,12 @@ msgstr "Si està marcada, l'escàner no realitzarà cap retrocés"
 #: backend/microtek2.h:612
 #, no-c-format
 msgid "Toggle lamp of flatbed"
-msgstr "Commuta la llum del llit pla"
+msgstr "Commuta la llum de la superfície plana"
 
 #: backend/microtek2.h:613
 #, no-c-format
 msgid "Toggles the lamp of the flatbed"
-msgstr "Commuta la llum del llit pla"
+msgstr "Commuta la llum de la superfície plana"
 
 #: backend/microtek2.h:616
 #, no-c-format
@@ -4873,7 +4872,8 @@ msgstr "Usa l'adaptador «lightlid-35mm»"
 #: backend/microtek2.h:622
 #, no-c-format
 msgid "This option turns off the lamp of the flatbed during a scan"
-msgstr "Aquesta opció desactiva la llum del llit pla durant un escanejat"
+msgstr ""
+"Aquesta opció desactiva la llum de la superfície plana durant un escanejat"
 
 #: backend/microtek2.h:626 backend/snapscan-options.c:421
 #, no-c-format
@@ -6068,8 +6068,8 @@ msgstr ""
 "Blanc sòlid: omple tot l'escaneig amb el blanc.\n"
 "Patró per al color: dibuixa diversos patrons de prova per al color en funció "
 "del mode.\n"
-"Quadrícula: dibuixa una quadrícula negre/blanca amb una amplada i una alçada "
-"de 10 mm per quadrat."
+"Quadrícula: dibuixa una quadrícula en negre/blanc amb una amplada i una "
+"alçada de 10 mm per quadrat."
 
 #: backend/test.c:467
 #, no-c-format

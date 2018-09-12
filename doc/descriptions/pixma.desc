@@ -833,6 +833,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA TS6100 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1822"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA TS5000 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x1802"

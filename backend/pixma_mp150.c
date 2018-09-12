@@ -249,6 +249,7 @@
 
 /* 2017 new devices (untested) */
 #define G4000_PID 0x181d
+#define TS6100_PID 0x1822
 #define E3100_PID 0x1828
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
@@ -1916,6 +1917,7 @@ const pixma_config_t pixma_mp150_devices[] = {
 
   /* Latest devices (2017) Generation 5 CIS */
   DEVICE ("Canon PIXMA G4000", "G4000", G4000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS6100 Series", "TS6100", TS6100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA E3100 Series", "E3100", E3100_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   END_OF_DEVICE_LIST

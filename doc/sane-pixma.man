@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "27 Aug 2018" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "12 Sep 2018" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
@@ -97,7 +97,7 @@ PIXMA MX320, MX390, MX430, MX450, MX490, MX710
 .br
 PIXMA G2000, G3000, G4000
 .br
-PIXMA TS6000, TS9000
+PIXMA TS6000, TS6100, TS9000
 .br
 PIXUS MP5
 .br

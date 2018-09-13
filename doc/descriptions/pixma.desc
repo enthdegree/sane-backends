@@ -863,6 +863,12 @@
 :status :complete
 :comment "All resolutions supported (up to 600DPI)"
 
+:model "imageCLASS D570"
+:interface "USB"
+:usbid "0x04a9" "0x27e8"
+:status :untested
+:comment "Testers needed!"
+
 :model "i-SENSYS MF210 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x27a9"

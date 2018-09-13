@@ -104,6 +104,7 @@
 #define MF220_PID  0x27a8
 #define MF210_PID  0x27a9
 #define MF620_PID  0x27b4
+#define MF410_PID  0x27c0
 #define MF230_PID  0x27d1
 #define MF240_PID  0x27d2
 #define MF630_PID  0x27e1
@@ -947,6 +948,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF220 Series", "MF220", MF220_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),              /* max. w = 216mm */
   DEV ("Canon i-SENSYS MF210 Series", "MF210", MF210_PID, 600, 0, 637, 1050, PIXMA_CAP_ADF),                 /* max. w = 216mm */
   DEV ("Canon i-SENSYS MF620 Series", "MF620", MF620_PID, 600, 0, 637, 1050, PIXMA_CAP_ADF),
+  DEV ("Canon i-SENSYS MF410 Series", "MF410", MF410_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),              /* max. w = 216mm */
   DEV ("Canon i-SENSYS MF230 Series", "MF230", MF230_PID, 600, 0, 637, 1050, PIXMA_CAP_ADF),                 /* max. w = 216mm */
   DEV ("Canon i-SENSYS MF240 Series", "MF240", MF240_PID, 600, 300, 634, 1050, PIXMA_CAP_ADF),               /* max. w = 215mm, */
                                                                                                              /* TODO: fix black stripes for 216mm @ 600dpi */

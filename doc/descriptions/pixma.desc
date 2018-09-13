@@ -893,6 +893,12 @@
 :status :good
 :comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI, ADF up to 300DPI). 216mm image width buggy, restricted to 215mm."
 
+:model "i-SENSYS MF410 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27c0"
+:status :untested
+:comment "Testers needed!"
+
 :model "i-SENSYS MF620 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x27b4"

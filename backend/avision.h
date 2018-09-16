@@ -204,6 +204,9 @@ typedef struct Avision_HWEntry {
     /* For scanners which need to have their firmware read to properly function. */
   #define AV_FIRMWARE ((uint64_t)1<<35)
 
+  /* at least Kodak i1120 claims no calibration needed but windows driver does it anyways */
+  #define AV_FORCE_CALIB ((uint64_t)1<<36)
+
     /* maybe more ...*/
   uint64_t feature_type;
 

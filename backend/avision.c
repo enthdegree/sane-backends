@@ -901,7 +901,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { NULL, NULL,
       0x040a, 0x6013,
       "Kodak", "i1120",
-      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED },
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_FORCE_CALIB },
       /* comment="duplex sheetfed scanner" */
       /* status="basic" */
       /* This is a Kodak OEM device manufactured by avision.
@@ -4985,7 +4985,7 @@ normal_calibration (Avision_Scanner* s)
     return status;
 
   /* check if need do calibration */
-  if (calib_format.flags != 1) {
+  if (calib_format.flags != 1 && !(s->hw->hw->feature_type & AV_FORCE_CALIB)) {
     DBG (1, "normal_calibration: Scanner claims no calibration needed -> skipped!\n");
     return SANE_STATUS_GOOD;
   }

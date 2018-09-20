@@ -6,16 +6,17 @@
 :mfg "Xerox"
 :url "http://www.office.xerox.com/"
 
+:model "Phaser 3200MFP"
+:interface "USB"
+:usbid "0x0924" "0x3da4"
+:comment "All these models is turned out to be rebranded Samsungs."
+:status :complete
+:url "http://www.office.xerox.com/multifunction-printer/multifunction-under-30ppm/phaser-3200mfp/spec-enus.html"
+
 :model "Phaser 6110MFP"
 :interface "USB"
 :usbid "0x0924" "0x3d5d"
 :status :good
-
-:model "Phaser 3200MFP"
-:interface "USB"
-:usbid "0x0924" "0x3da4"
-:status :complete
-:url "http://www.office.xerox.com/multifunction-printer/multifunction-under-30ppm/phaser-3200mfp/spec-enus.html"
 
 :model "WorkCentre 3119 Series"
 :interface "USB"
@@ -282,6 +283,7 @@
 :interface "USB"
 :usbid "0x04e8" "0x3440"
 :status :good
+:comment "Ethernet interface is not supported."
 
 :model "SCX-3205W (SCX-3200 Series)"
 :interface "USB Ethernet"

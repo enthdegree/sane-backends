@@ -898,6 +898,16 @@ static Avision_HWEntry Avision_Device_List [] =
       AV_INT_BUTTON},
      /* status="good" */
 
+    { NULL, NULL,
+      0x040a, 0x6013,
+      "Kodak", "i1120",
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED },
+      /* comment="duplex sheetfed scanner" */
+      /* status="basic" */
+      /* This is a Kodak OEM device manufactured by avision.
+         It uses an Avision firmware modified by Kodak, so
+         some modifications needed to be done here. */
+
     { "iVina", "1200U",
       0x0638, 0x0268,
       "iVina", "1200U",

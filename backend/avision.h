@@ -207,6 +207,9 @@ typedef struct Avision_HWEntry {
   /* at least Kodak i1120 claims no calibration needed but windows driver does it anyways */
   #define AV_FORCE_CALIB ((uint64_t)1<<36)
 
+  /* at least Kodak i1120 does not have an explicit "quality-scan" mode */
+  #define AV_NO_QSCAN_MODE ((uint64_t)1<<37)
+
     /* maybe more ...*/
   uint64_t feature_type;
 

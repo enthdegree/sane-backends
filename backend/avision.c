@@ -901,7 +901,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { NULL, NULL,
       0x040a, 0x6013,
       "Kodak", "i1120",
-      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_USE_GRAY_FILTER | AV_SOFT_SCALE | AV_FORCE_CALIB },
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_USE_GRAY_FILTER | AV_SOFT_SCALE | AV_FORCE_CALIB | AV_NO_QSCAN_MODE},
       /* comment="duplex sheetfed scanner" */
       /* status="basic" */
       /* This is a Kodak OEM device manufactured by avision.
@@ -5706,7 +5706,8 @@ set_window (Avision_Scanner* s)
   if ( !(dev->hw->feature_type & AV_FUJITSU) )
     {
       /* quality scan option switch */
-      if (s->val[OPT_QSCAN].w == SANE_TRUE) {
+      if (s->val[OPT_QSCAN].w == SANE_TRUE &&
+          !(dev->hw->feature_type & AV_NO_QSCAN_MODE)) {
 	SET_BIT (cmd.window.avision.type.normal.bitset2, 4);
       }
 
@@ -6184,7 +6185,8 @@ start_scan (Avision_Scanner* s)
     SET_BIT(cmd.bitset1,6);
   }
 
-  if (s->val[OPT_QSCAN].w == SANE_TRUE) {
+  if (s->val[OPT_QSCAN].w == SANE_TRUE &&
+      !(s->hw->hw->feature_type & AV_NO_QSCAN_MODE)) {
     SET_BIT(cmd.bitset1,7);
   }
 
@@ -6513,6 +6515,8 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_QSCAN].type   = SANE_TYPE_BOOL;
   s->opt[OPT_QSCAN].unit   = SANE_UNIT_NONE;
   s->val[OPT_QSCAN].w      = SANE_TRUE;
+  if (dev->hw->feature_type & AV_NO_QSCAN_MODE)
+    s->opt[OPT_QSCAN].cap |= SANE_CAP_INACTIVE;
 
   /* Quality Calibration */
   s->opt[OPT_QCALIB].name  = SANE_NAME_QUALITY_CAL;

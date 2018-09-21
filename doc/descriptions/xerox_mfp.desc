@@ -9,7 +9,7 @@
 :model "Phaser 3200MFP"
 :interface "USB"
 :usbid "0x0924" "0x3da4"
-:comment "All these models is turned out to be rebranded Samsungs."
+:comment "All these models are turned out to be rebranded Samsungs."
 :status :complete
 :url "http://www.office.xerox.com/multifunction-printer/multifunction-under-30ppm/phaser-3200mfp/spec-enus.html"
 
@@ -280,10 +280,9 @@
 :status :untested
 
 :model "SCX-4623FW"
-:interface "USB"
+:interface "USB Ethernet"
 :usbid "0x04e8" "0x3440"
 :status :good
-:comment "Ethernet interface is not supported."
 
 :model "SCX-3205W (SCX-3200 Series)"
 :interface "USB Ethernet"

@@ -5002,7 +5002,7 @@ normal_calibration (Avision_Scanner* s)
     return SANE_STATUS_NO_MEM;
 
   /* check if we need to do dark calibration (shading) */
-  if (BIT(calib_format.ability1, 3))
+  if (BIT(calib_format.ability1, 2))
     {
       DBG (1, "normal_calibration: reading dark data\n");
       /* read dark calib data */

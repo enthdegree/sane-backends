@@ -213,6 +213,9 @@ typedef struct Avision_HWEntry {
   /* at least Kodak i1120 optical DPI is used for overscan calculation */
   #define AV_OVERSCAN_OPTDPI ((uint64_t)1<<38)
 
+  /* some scanners support fast feed-out of the sheet when cancelling a running scan */
+  #define AV_FASTFEED_ON_CANCEL ((uint64_t)1<<39)
+
     /* maybe more ...*/
   uint64_t feature_type;
 

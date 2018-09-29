@@ -901,7 +901,8 @@ static Avision_HWEntry Avision_Device_List [] =
     { NULL, NULL,
       0x040a, 0x6013,
       "Kodak", "i1120",
-      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_USE_GRAY_FILTER | AV_SOFT_SCALE | AV_FORCE_CALIB | AV_NO_QSCAN_MODE | AV_OVERSCAN_OPTDPI | AV_NO_REAR },
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_USE_GRAY_FILTER | AV_SOFT_SCALE |
+      AV_FORCE_CALIB | AV_NO_QSCAN_MODE | AV_OVERSCAN_OPTDPI | AV_NO_REAR | AV_FASTFEED_ON_CANCEL },
       /* comment="duplex sheetfed scanner" */
       /* status="basic" */
       /* This is a Kodak OEM device manufactured by avision.
@@ -6238,6 +6239,8 @@ do_eof (Avision_Scanner *s)
 static SANE_Status
 do_cancel (Avision_Scanner* s)
 {
+  int status, release_type = 0;
+
   DBG (3, "do_cancel:\n");
 
   s->prepared = s->scanning = SANE_FALSE;
@@ -6258,6 +6261,12 @@ do_cancel (Avision_Scanner* s)
     sanei_thread_waitpid (s->reader_pid, &exit_status);
     sanei_thread_invalidate (s->reader_pid);
   }
+
+  if (s->hw->hw->feature_type & AV_FASTFEED_ON_CANCEL)
+    release_type = 1;
+  status = release_unit (s, release_type);
+  if (status != SANE_STATUS_GOOD)
+    DBG (1, "do_cancel: release_unit failed\n");
 
   return SANE_STATUS_CANCELLED;
 }

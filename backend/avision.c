@@ -901,7 +901,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { NULL, NULL,
       0x040a, 0x6013,
       "Kodak", "i1120",
-      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_USE_GRAY_FILTER | AV_SOFT_SCALE | AV_FORCE_CALIB | AV_NO_QSCAN_MODE | AV_OVERSCAN_OPTDPI },
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_USE_GRAY_FILTER | AV_SOFT_SCALE | AV_FORCE_CALIB | AV_NO_QSCAN_MODE | AV_OVERSCAN_OPTDPI | AV_NO_REAR },
       /* comment="duplex sheetfed scanner" */
       /* status="basic" */
       /* This is a Kodak OEM device manufactured by avision.

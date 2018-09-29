@@ -210,6 +210,9 @@ typedef struct Avision_HWEntry {
   /* at least Kodak i1120 does not have an explicit "quality-scan" mode */
   #define AV_NO_QSCAN_MODE ((uint64_t)1<<37)
 
+  /* at least Kodak i1120 optical DPI is used for overscan calculation */
+  #define AV_OVERSCAN_OPTDPI ((uint64_t)1<<38)
+
     /* maybe more ...*/
   uint64_t feature_type;
 

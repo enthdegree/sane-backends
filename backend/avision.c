@@ -901,7 +901,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { NULL, NULL,
       0x040a, 0x6013,
       "Kodak", "i1120",
-      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_USE_GRAY_FILTER | AV_SOFT_SCALE | AV_FORCE_CALIB | AV_NO_QSCAN_MODE},
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_USE_GRAY_FILTER | AV_SOFT_SCALE | AV_FORCE_CALIB | AV_NO_QSCAN_MODE | AV_OVERSCAN_OPTDPI },
       /* comment="duplex sheetfed scanner" */
       /* status="basic" */
       /* This is a Kodak OEM device manufactured by avision.
@@ -4377,7 +4377,9 @@ get_tune_scan_length (Avision_Scanner* s)
 static SANE_Status
 send_tune_scan_length (Avision_Scanner* s)
 {
-  int top, bottom;
+  Avision_Device* dev = s->hw;
+
+  int top, bottom, dpi;
 
   SANE_Status status;
   size_t size;
@@ -4397,9 +4399,15 @@ send_tune_scan_length (Avision_Scanner* s)
   set_triple (scmd.transferlen, size);
 
   /* the SPEC says optical DPI, but real world measuring suggests it is 1200
-     as in the window descriptor */
-  top = 1200 * SANE_UNFIX (s->val[OPT_OVERSCAN_TOP].w) / MM_PER_INCH;
-  DBG (3, "send_tune_scan_length: top: %d\n", top);
+     as in the window descriptor.
+     MN: This is not true for at least Kodak i1120 where it is optical DPI
+  */
+  dpi = 1200;
+  if (dev->hw->feature_type & AV_OVERSCAN_OPTDPI)
+    dpi = dev->inquiry_optical_res;
+
+  top = dpi * SANE_UNFIX (s->val[OPT_OVERSCAN_TOP].w) / MM_PER_INCH;
+  DBG (3, "send_tune_scan_length: top: %d\n", dev->inquiry_optical_res);
 
   set_double (scmd.datatypequal, 0x0001); /* attach, 0x000 is shorten */
   set_double (payload.vertical, top);
@@ -4417,7 +4425,7 @@ send_tune_scan_length (Avision_Scanner* s)
   }
 
   scmd.datatypecode = 0x95; /* Attach/Truncate tail(right) of scan length */
-  bottom = 1200 * SANE_UNFIX (s->val[OPT_OVERSCAN_BOTTOM].w) / MM_PER_INCH;
+  bottom = dpi * SANE_UNFIX (s->val[OPT_OVERSCAN_BOTTOM].w) / MM_PER_INCH;
   DBG (3, "send_tune_scan_length: bottom: %d\n", bottom);
 
   set_double (payload.vertical, bottom);

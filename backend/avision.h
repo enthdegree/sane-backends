@@ -216,6 +216,9 @@ typedef struct Avision_HWEntry {
   /* some scanners support fast feed-out of the sheet when cancelling a running scan */
   #define AV_FASTFEED_ON_CANCEL ((uint64_t)1<<39)
 
+  /* at least Kodak i1120 does not have an explicit "quality-calibration" mode */
+  #define AV_NO_QCALIB_MODE ((uint64_t)1<<40)
+
     /* maybe more ...*/
   uint64_t feature_type;
 

@@ -902,7 +902,8 @@ static Avision_HWEntry Avision_Device_List [] =
       0x040a, 0x6013,
       "Kodak", "i1120",
       AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_USE_GRAY_FILTER | AV_SOFT_SCALE |
-      AV_FORCE_CALIB | AV_NO_QSCAN_MODE | AV_OVERSCAN_OPTDPI | AV_NO_REAR | AV_FASTFEED_ON_CANCEL },
+      AV_FORCE_CALIB | AV_NO_QSCAN_MODE | AV_NO_QCALIB_MODE | AV_OVERSCAN_OPTDPI |
+      AV_NO_REAR | AV_FASTFEED_ON_CANCEL },
       /* comment="duplex sheetfed scanner" */
       /* status="basic" */
       /* This is a Kodak OEM device manufactured by avision.
@@ -5721,7 +5722,8 @@ set_window (Avision_Scanner* s)
       }
 
       /* quality calibration option switch (inverted! if set == speed) */
-      if (s->val[OPT_QCALIB].w == SANE_FALSE) {
+      if (s->val[OPT_QCALIB].w == SANE_FALSE &&
+          !(dev->hw->feature_type & AV_NO_QCALIB_MODE)) {
 	SET_BIT (cmd.window.avision.type.normal.bitset2, 3);
       }
 
@@ -6542,6 +6544,8 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_QCALIB].type  = SANE_TYPE_BOOL;
   s->opt[OPT_QCALIB].unit  = SANE_UNIT_NONE;
   s->val[OPT_QCALIB].w     = SANE_TRUE;
+  if (dev->hw->feature_type & AV_NO_QCALIB_MODE)
+    s->opt[OPT_QCALIB].cap |= SANE_CAP_INACTIVE;
 
   /* gray scale gamma vector */
   s->opt[OPT_GAMMA_VECTOR].name = SANE_NAME_GAMMA_VECTOR;

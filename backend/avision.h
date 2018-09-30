@@ -219,6 +219,9 @@ typedef struct Avision_HWEntry {
   /* at least Kodak i1120 does not have an explicit "quality-calibration" mode */
   #define AV_NO_QCALIB_MODE ((uint64_t)1<<40)
 
+  /* Kodak i1120 needs gamma = 1.0 to give decent results */
+  #define AV_GAMMA_10 ((uint64_t)1<<41)
+
     /* maybe more ...*/
   uint64_t feature_type;
 

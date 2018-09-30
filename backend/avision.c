@@ -903,7 +903,7 @@ static Avision_HWEntry Avision_Device_List [] =
       "Kodak", "i1120",
       AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_USE_GRAY_FILTER | AV_SOFT_SCALE |
       AV_FORCE_CALIB | AV_NO_QSCAN_MODE | AV_NO_QCALIB_MODE | AV_OVERSCAN_OPTDPI |
-      AV_NO_REAR | AV_FASTFEED_ON_CANCEL },
+      AV_NO_REAR | AV_FASTFEED_ON_CANCEL | AV_GAMMA_10 },
       /* comment="duplex sheetfed scanner" */
       /* status="basic" */
       /* This is a Kodak OEM device manufactured by avision.
@@ -7924,9 +7924,17 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
 
 	http://www.poynton.com/GammaFAQ.html
 
-     Avision's driver defaults to 2.2 though. */
+     Avision's driver defaults to 2.2 though.
+
+     MN: This is not true for at least Kodak i1120's windows driver.
+         Some real-world testing showed that a gamma of 1.0 is needed
+         for this scanner to give decent scan results. Add an option for this...
+  */
+
   {
-    const double gamma = 2.22;
+    double gamma = 2.22;
+    if (s->hw->hw->feature_type & AV_GAMMA_10)
+      gamma = 1.0;
     const double one_over_gamma = 1. / gamma;
 
     for (i = 0; i < 4; ++ i)

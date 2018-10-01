@@ -18,11 +18,11 @@
 
 # This script will (hopefully!) check the completeness of a .po
 # translation file. It will report untranslated strings, as well
-# as fuzzy ones. It will print a summarry at the end of the check
+# as fuzzy ones. It will print a summary at the end of the check
 # that says how many strings there are, how many are translated
 # (and the percentage it represents), how many are fuzzy (and the
 # percentage it represents amongst translated strings), and how
-# many aree un-translated (and the percentage it represents).
+# many are untranslated (and the percentage it represents).
 # It will _not_ tell you wether your file is syntactically correct
 # (eg. check for terminating double quotes!). And of course it
 # will _not_ tell you wether the translations are correct! ;-]

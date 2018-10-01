@@ -222,6 +222,9 @@ typedef struct Avision_HWEntry {
   /* Kodak i1120 needs gamma = 1.0 to give decent results */
   #define AV_GAMMA_10 ((uint64_t)1<<41)
 
+  /* Kodak i1120 has a different gamma table format (like a uint16/double array) */
+  #define AV_GAMMA_UINT16 ((uint64_t)1<<42)
+
     /* maybe more ...*/
   uint64_t feature_type;
 

@@ -5282,11 +5282,24 @@ send_gamma (Avision_Scanner* s)
 	      v2 = 0;
 	  }
 
-	  for (k = 0; k < gamma_values; ++ k, ++ i) {
-	    gamma_data [i] = (uint8_t)
-	      (((v1 * (gamma_values - k)) + (v2 * k) ) / (double) gamma_values);
-	  }
+          if (s->hw->hw->feature_type & AV_GAMMA_UINT16) {
+            /* Use some pointer-cast magic to use gamma_data as uint16 array
+               and write as big-endian since values get swapped */
+            ((uint16_t *)gamma_data) [i++] = (uint16_t)v1<<8;
+          } else {
+            /* interpolate gamma_values to gamma_data */
+	    for (k = 0; k < gamma_values; ++ k, ++ i) {
+	      gamma_data [i] = (uint8_t)
+	        (((v1 * (gamma_values - k)) + (v2 * k) ) / (double) gamma_values);
+	    }
+          }
+
 	}
+
+      /* with AV_GAMMA_UINT16 only every second value is filled, so double i */
+      if (s->hw->hw->feature_type & AV_GAMMA_UINT16)
+        i *= 2;
+
       /* fill the gamma table - (e.g.) if 11bit (old protocol) table */
       {
 	size_t t_i = i-1;

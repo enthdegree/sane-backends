@@ -225,6 +225,12 @@ typedef struct Avision_HWEntry {
   /* Kodak i1120 has a different gamma table format (like a uint16/double array) */
   #define AV_GAMMA_UINT16 ((uint64_t)1<<42)
 
+  /* Kodak i1120 has single-sheet and multi-sheet scan modes. This option sets
+     bitset3[7] which enables multi-sheet scan by default so there is no pause
+     of 1s between two sheets in ADF scan mode. This also fixes some offsets
+     when scanning multiple sheets. */
+  #define AV_MULTI_SHEET_SCAN ((uint64_t)1<<43)
+
     /* maybe more ...*/
   uint64_t feature_type;
 
@@ -691,6 +697,8 @@ typedef struct command_set_window_window
 	uint8_t line_width_msb;
 	uint8_t line_count_msb;
 	uint8_t background_lines;
+
+	uint8_t single_sheet_scan; /* from Kodak SVT tool */
       } normal;
 
       struct {

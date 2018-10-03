@@ -903,7 +903,7 @@ static Avision_HWEntry Avision_Device_List [] =
       "Kodak", "i1120",
       AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_USE_GRAY_FILTER | AV_SOFT_SCALE |
       AV_FORCE_CALIB | AV_NO_QSCAN_MODE | AV_NO_QCALIB_MODE | AV_OVERSCAN_OPTDPI |
-      AV_NO_REAR | AV_FASTFEED_ON_CANCEL | AV_GAMMA_10 },
+      AV_NO_REAR | AV_FASTFEED_ON_CANCEL | AV_GAMMA_10 | AV_MULTI_SHEET_SCAN },
       /* comment="duplex sheetfed scanner" */
       /* status="basic" */
       /* This is a Kodak OEM device manufactured by avision.
@@ -5632,8 +5632,10 @@ set_window (Avision_Scanner* s)
     paralen += sizeof (cmd.window.avision.type.fujitsu);
   else if (!dev->inquiry_new_protocol)
     paralen += sizeof (cmd.window.avision.type.old);
-  else
+  else if (dev->hw->feature_type & AV_MULTI_SHEET_SCAN)
     paralen += sizeof (cmd.window.avision.type.normal);
+  else
+    paralen += sizeof (cmd.window.avision.type.normal) - 1;
 
   DBG (2, "set_window: final paralen: %d\n", paralen);
 
@@ -5701,6 +5703,13 @@ set_window (Avision_Scanner* s)
       s->source_mode == AV_ADF_DUPLEX) {
     DBG (3, "set_window: filling ADF bits\n");
     SET_BIT (cmd.window.avision.bitset1, 7);
+
+    if (dev->hw->feature_type & AV_MULTI_SHEET_SCAN) {
+      /* Always set bit 7 to enable single_sheet_scan option (defaults to off).
+         This removes the 1s pause between two sheets and fixes some offsets. */
+      SET_BIT(cmd.window.avision.type.normal.bitset3, 7);
+      cmd.window.avision.type.normal.single_sheet_scan = 0;
+    }
 
     /* normal, interlaced duplex scanners */
     if (dev->inquiry_duplex_interlaced) {

@@ -383,6 +383,11 @@
 :usbid "0x04e8" "0x3468"
 :status :untested
 
+:model "C1860FW"
+:interface "USB"
+:usbid "0x04e8" "0x346b"
+:status :untested
+
 :model "M458x Series"
 :interface "USB"
 :usbid "0x04e8" "0x346f"

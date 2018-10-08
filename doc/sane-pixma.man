@@ -113,7 +113,7 @@ i-SENSYS MF220, MF410, MF630, MF731/733, MF5880dn
 .br
 i-SENSYS MF5900, MF6680dn, MF8500C
 .br
-MAXIFY MB5300
+MAXIFY MB5100, MB5300, MB5400
 .RE
 .PP
 \#The following models may use partly the same Pixma protocol as other devices

@@ -250,7 +250,14 @@
 /* 2017 new devices (untested) */
 #define G4000_PID 0x181d
 #define TS6100_PID 0x1822
+#define TS5100_PID 0x1825
+#define TS3100_PID 0x1827
 #define E3100_PID 0x1828
+
+/* 2018 new devices (untested) */
+#define TS9100_PID 0x1820
+#define TR8500_PID 0x1823
+#define TR7500_PID 0x1824
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
 #define XML_START_1   \
@@ -1918,7 +1925,14 @@ const pixma_config_t pixma_mp150_devices[] = {
   /* Latest devices (2017) Generation 5 CIS */
   DEVICE ("Canon PIXMA G4000", "G4000", G4000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA TS6100 Series", "TS6100", TS6100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS5100 Series", "TS5100", TS5100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS3100 Series", "TS3100", TS3100_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA E3100 Series", "E3100", E3100_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+
+  /* Latest devices (2018) Generation 5 CIS */
+  DEVICE ("Canon PIXMA TS9100 Series", "TS9100", TS9100_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TR8500 Series", "TR8500", TR8500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TR7500 Series", "TR7500", TR7500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
 
   END_OF_DEVICE_LIST
 };

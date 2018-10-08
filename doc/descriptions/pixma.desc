@@ -815,17 +815,35 @@
 :status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 4800DPI)"
 
-:model "PIXMA TS9000 Series"
-:interface "USB Ethernet WiFi"
-:usbid "0x04a9" "0x179f"
+:model "PIXMA TR7500 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1824"
 :status :untested
 :comment "Testers needed!"
 
-:model "PIXMA TS8000 Series"
+:model "PIXMA TR8500 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x1823"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS3100 Series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x1800"
+:usbid "0x04a9" "0x1827"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS5000 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1802"
 :status :good
-:comment "All resolutions supported (up to 2400DPI). WiFi not working."
+:comment "All resolutions supported (up to 1200DPI). WiFi not working."
+
+:model "PIXMA TS5100 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1825"
+:status :untested
+:comment "Testers needed!"
 
 :model "PIXMA TS6000 Series"
 :interface "USB WiFi"
@@ -839,11 +857,23 @@
 :status :good
 :comment "All resolutions supported (up to 2400DPI). WiFi not working."
 
-:model "PIXMA TS5000 Series"
+:model "PIXMA TS8000 Series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x1802"
+:usbid "0x04a9" "0x1800"
 :status :good
-:comment "All resolutions supported (up to 1200DPI). WiFi not working."
+:comment "All resolutions supported (up to 2400DPI). WiFi not working."
+
+:model "PIXMA TS9000 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x179f"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS9100 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x1820"
+:status :untested
+:comment "Testers needed!"
 
 :model "imageCLASS D420"
 :interface "USB"

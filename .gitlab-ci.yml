@@ -83,8 +83,8 @@ compile:fedora-28-clang:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition
 
-compile:alpine-3.7-musl:
-  image: $REGISTRY_HUB:alpine-3.7-musl
+compile:alpine-3.8-musl:
+  image: $REGISTRY_HUB:alpine-3.8-musl
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition

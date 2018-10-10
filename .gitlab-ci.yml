@@ -60,7 +60,7 @@ compile:debian-9-full:
   <<: *compile_definition
   after_script:
   - make -C doc html-pages
-  - mkdir lists && mv doc/*.html lists/
+  - rm -rf lists && mkdir lists && mv doc/*.html lists/
   - cd doc && doxygen doxygen-sanei.conf
   cache:
     untracked: true

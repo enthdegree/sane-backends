@@ -2308,7 +2308,10 @@ static Genesys_Model canon_lide_60_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA
     | GENESYS_FLAG_HALF_CCD_MODE,
 
-  GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
+  GENESYS_HAS_COPY_SW             /* Has four buttons: COPY, SCAN, PDF, EMAIL */
+    | GENESYS_HAS_SCAN_SW
+    | GENESYS_HAS_FILE_SW
+    | GENESYS_HAS_EMAIL_SW,
   300,
   400
 };                                /* this is completely untested -- hmg */

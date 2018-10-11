@@ -4489,8 +4489,10 @@ gl841_init_regs_for_scan (Genesys_Device * dev)
 
   /* true gray (led add for cis scanners) */
   if(dev->model->is_cis && dev->settings.true_gray
-    && dev->settings.scan_mode != SCAN_MODE_COLOR)
+    && dev->settings.scan_mode != SCAN_MODE_COLOR
+    && dev->model->ccd_type != CIS_CANONLIDE80)
     {
+      // on Lide 80 the LEDADD bit results in only red LED array being lit
       DBG (DBG_io, "%s: activating LEDADD\n", __func__);
       flags |= SCAN_FLAG_ENABLE_LEDADD;
     }

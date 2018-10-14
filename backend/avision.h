@@ -81,6 +81,12 @@ typedef struct Avision_Connection {
 
 } Avision_Connection;
 
+/* structure for ADF offsets in mm */
+typedef struct mm_offset {
+  double top;
+  double bottom;
+} mm_offset;
+
 typedef struct Avision_HWEntry {
   const char* scsi_mfg;
   const char* scsi_model;
@@ -184,9 +190,6 @@ typedef struct Avision_HWEntry {
     /* does the scanner contain a Cancel button? */
   #define AV_CANCEL_BUTTON ((uint64_t)1<<28)
 
-    /* is the rear image offset? */
-  #define AV_REAR_OFFSET ((uint64_t)1<<29)
-
     /* some devices do not need a START_SCAN, even hang with it */
   #define AV_NO_START_SCAN ((uint64_t)1<<30)
 
@@ -233,6 +236,12 @@ typedef struct Avision_HWEntry {
 
     /* maybe more ...*/
   uint64_t feature_type;
+
+  /* ADF offsets in mm */
+  struct {
+    mm_offset front;
+    mm_offset rear;
+  } offset;
 
 } Avision_HWEntry;
 
@@ -328,6 +337,13 @@ enum Avision_Option
   NUM_OPTIONS            /* must come last */
 };
 
+/* structure for ADF offsets in pixels of HW res */
+typedef struct hwpx_offset {
+  int top;
+  int bottom;
+} hwpx_offset;
+
+
 typedef struct Avision_Dimensions
 {
   /* in dpi */
@@ -342,7 +358,11 @@ typedef struct Avision_Dimensions
 
   /* in pixels */
   int line_difference;
-  int rear_offset; /* in pixels of HW res */
+
+  struct {
+    hwpx_offset front;
+    hwpx_offset rear;
+  } offset;
 
   /* interlaced duplex scan */
   SANE_Bool interlaced_duplex;
@@ -434,6 +454,8 @@ typedef struct Avision_Device
   int inquiry_bits_per_channel;
   int inquiry_no_gray_modes;
 
+  SANE_Bool adf_offset_compensation;
+
   int scsi_buffer_size; /* nice to have SCSI buffer size */
   int read_stripe_size; /* stripes to be read at-a-time */
 
@@ -478,6 +500,7 @@ typedef struct Avision_Scanner
 
   /* Internal data for duplex scans */
   char duplex_rear_fname [PATH_MAX];
+  char duplex_offtmp_fname [PATH_MAX];
   SANE_Bool duplex_rear_valid;
 
   color_mode c_mode;

@@ -239,8 +239,11 @@ typedef struct Avision_HWEntry {
 
   /* ADF offsets in mm */
   struct {
-    mm_offset front;
-    mm_offset rear;
+    mm_offset front; /* front-only */
+    struct {
+      mm_offset front;
+      mm_offset rear;
+    } duplex;
   } offset;
 
 } Avision_HWEntry;

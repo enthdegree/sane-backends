@@ -239,6 +239,7 @@ typedef struct Avision_HWEntry {
 
   /* ADF offsets in mm */
   struct {
+    float first; /* offset difference first sheet */
     mm_offset front; /* front-only */
     struct {
       mm_offset front;

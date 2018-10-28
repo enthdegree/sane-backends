@@ -1123,7 +1123,7 @@ static Avision_HWEntry Avision_Device_List [] =
       { /* offsets */
         -1.5, /* first sheet (should be identical for single / duplex) */
         {2.5, -6.0}, /* front-only scan */
-        {{2.0, -15.0}, {-10.0, -3.0}} /* duplex scan */
+        {{2.0, -14.0}, {-10.0, -2.0}} /* duplex scan */
       }
     },
       /* comment="duplex sheetfed scanner" */

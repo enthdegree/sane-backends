@@ -2915,6 +2915,7 @@ compute_parameters (Avision_Scanner* s)
     } offsets = {{0, 0}, {0, 0}};
 
     double overscan;
+    double bry_offset = 0;
 
     /* top */
     overscan = fmax(0, fmax(dev->hw->offset.duplex.front.top,
@@ -2922,6 +2923,7 @@ compute_parameters (Avision_Scanner* s)
 
     offsets.front.top += overscan - dev->hw->offset.duplex.front.top;
     offsets.rear.top  += overscan - dev->hw->offset.duplex.rear.top;
+    bry_offset += overscan;
 
     /* bottom */
     overscan = fmax(0, fmax(dev->hw->offset.duplex.front.bottom,
@@ -2929,6 +2931,7 @@ compute_parameters (Avision_Scanner* s)
 
     offsets.front.bottom += overscan - dev->hw->offset.duplex.front.bottom;
     offsets.rear.bottom  += overscan - dev->hw->offset.duplex.rear.bottom;
+    bry_offset += overscan;
 
     /* first page offset */
     if (dev->hw->feature_type & AV_MULTI_SHEET_SCAN) {
@@ -2963,6 +2966,7 @@ compute_parameters (Avision_Scanner* s)
         }
 
       }
+      bry_offset += abs(dev->hw->offset.first);
     }
 
     /* convert to lines */
@@ -2970,6 +2974,9 @@ compute_parameters (Avision_Scanner* s)
     s->avdimen.offset.front.bottom = (int) ( offsets.front.bottom * s->avdimen.yres / MM_PER_INCH );
     s->avdimen.offset.rear.top     = (int) ( offsets.rear.top     * s->avdimen.yres / MM_PER_INCH );
     s->avdimen.offset.rear.bottom  = (int) ( offsets.rear.bottom  * s->avdimen.yres / MM_PER_INCH );
+
+    /* add overscan to bry (hw_lines) */
+    s->avdimen.bry += (long) ( bry_offset * s->avdimen.hw_yres / MM_PER_INCH );
 
     DBG (1, "sane_compute_parameters: front offset: top: %d!\n",
          s->avdimen.offset.front.top);
@@ -2980,20 +2987,23 @@ compute_parameters (Avision_Scanner* s)
     DBG (1, "sane_compute_parameters: rear offset: bottom: %d!\n",
          s->avdimen.offset.rear.bottom);
 
-    //TBD s->avdimen.bry += overscan;
-
   } else if (dev->adf_offset_compensation && s->source_mode == AV_ADF) {
     /* ADF front scan */
 
     mm_offset offsets = {0, 0};
+    double bry_offset = 0;
 
     /* top */
     if (dev->hw->offset.front.top < 0)
       offsets.top += abs(dev->hw->offset.front.top);
+    else
+      bry_offset += dev->hw->offset.front.top;
 
     /* bottom */
     if (dev->hw->offset.front.bottom < 0)
       offsets.bottom += abs(dev->hw->offset.front.bottom);
+    else
+      bry_offset += dev->hw->offset.front.bottom;
 
     /* first page offset */
     if (dev->hw->feature_type & AV_MULTI_SHEET_SCAN) {
@@ -3022,18 +3032,20 @@ compute_parameters (Avision_Scanner* s)
           offsets.bottom += abs(dev->hw->offset.first);
 
       }
+      bry_offset += abs(dev->hw->offset.first);
     }
 
     /* convert to lines */
     s->avdimen.offset.front.top    = (int) ( offsets.top    * s->avdimen.yres / MM_PER_INCH );
     s->avdimen.offset.front.bottom = (int) ( offsets.bottom * s->avdimen.yres / MM_PER_INCH );
 
+    /* add overscan to bry (hw_lines) */
+    s->avdimen.bry += (long) ( bry_offset * s->avdimen.hw_yres / MM_PER_INCH );
+
     DBG (1, "sane_compute_parameters: front offset: top: %d!\n",
          s->avdimen.offset.front.top);
     DBG (1, "sane_compute_parameters: front offset: bottom: %d!\n",
          s->avdimen.offset.front.bottom);
-
-    //TBD s->avdimen.bry += overscan;
 
   } else {
     s->avdimen.offset.front.top = 0;
@@ -6133,7 +6145,7 @@ set_window (Avision_Scanner* s)
 
   set_quad (cmd.window.descriptor.width,
 	    s->avdimen.hw_pixels_per_line * base_dpi_rel / s->avdimen.hw_xres + 1);
-  line_count = s->avdimen.hw_lines + 2 * s->avdimen.line_difference; //+ s->avdimen.rear_offset;
+  line_count = s->avdimen.hw_lines + 2 * s->avdimen.line_difference;
   set_quad (cmd.window.descriptor.length,
 	    line_count * base_dpi_rel / s->avdimen.hw_yres + 1);
 
@@ -7454,10 +7466,9 @@ reader_process (void *data)
   }
 
   /* calculate params for the reading loop */
-  total_size = s->avdimen.hw_bytes_per_line * (s->avdimen.hw_lines +
-					       2 * s->avdimen.line_difference //+
-					       //s->avdimen.rear_offset
-                                               );
+  total_size = s->avdimen.hw_bytes_per_line *
+               (s->avdimen.hw_lines + 2 * s->avdimen.line_difference);
+
   if (deinterlace != NONE && !s->duplex_rear_valid)
     total_size *= 2;
   DBG (3, "reader_process: total_size: %lu\n", (u_long) total_size);

@@ -1166,8 +1166,8 @@
 :model "imageCLASS MF8030"
 :interface "USB"
 :usbid "0x04a9" "0x2707"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF8170c"
 :interface "USB"

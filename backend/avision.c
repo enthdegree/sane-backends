@@ -2958,15 +2958,15 @@ compute_parameters (Avision_Scanner* s)
            - skip bottom lines at page n>0, front and rear
         */
         if (s->page == 0) {
-          offsets.front.top += abs(dev->hw->offset.first);
-          offsets.rear.top  += abs(dev->hw->offset.first);
+          offsets.front.top += fabs(dev->hw->offset.first);
+          offsets.rear.top  += fabs(dev->hw->offset.first);
         } else {
-          offsets.front.bottom += abs(dev->hw->offset.first);
-          offsets.rear.bottom  += abs(dev->hw->offset.first);
+          offsets.front.bottom += fabs(dev->hw->offset.first);
+          offsets.rear.bottom  += fabs(dev->hw->offset.first);
         }
 
       }
-      bry_offset += abs(dev->hw->offset.first);
+      bry_offset += fabs(dev->hw->offset.first);
     }
 
     /* convert to lines */
@@ -2995,13 +2995,13 @@ compute_parameters (Avision_Scanner* s)
 
     /* top */
     if (dev->hw->offset.front.top < 0)
-      offsets.top += abs(dev->hw->offset.front.top);
+      offsets.top += fabs(dev->hw->offset.front.top);
     else
       bry_offset += dev->hw->offset.front.top;
 
     /* bottom */
     if (dev->hw->offset.front.bottom < 0)
-      offsets.bottom += abs(dev->hw->offset.front.bottom);
+      offsets.bottom += fabs(dev->hw->offset.front.bottom);
     else
       bry_offset += dev->hw->offset.front.bottom;
 
@@ -3027,12 +3027,12 @@ compute_parameters (Avision_Scanner* s)
            - skip bottom lines at page n>0
         */
         if (s->page == 0)
-          offsets.top += abs(dev->hw->offset.first);
+          offsets.top += fabs(dev->hw->offset.first);
         else
-          offsets.bottom += abs(dev->hw->offset.first);
+          offsets.bottom += fabs(dev->hw->offset.first);
 
       }
-      bry_offset += abs(dev->hw->offset.first);
+      bry_offset += fabs(dev->hw->offset.first);
     }
 
     /* convert to lines */
@@ -4906,7 +4906,7 @@ send_tune_scan_length (Avision_Scanner* s)
 
     /* first page offset */
     if (dev->hw->offset.first < 0)
-      offset += abs(dev->hw->offset.first);
+      offset += fabs(dev->hw->offset.first);
 
     /* convert to lines */
     int bottom_offset = dpi * offset / MM_PER_INCH;

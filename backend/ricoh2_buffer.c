@@ -82,7 +82,7 @@ ricoh2_buffer_create (SANE_Int  size,
     return NULL;
 
   self->data = malloc (size);
-  if (!self)
+  if (!self->data)
     {
       free (self);
       return NULL;

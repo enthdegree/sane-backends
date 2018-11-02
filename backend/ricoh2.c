@@ -62,6 +62,7 @@
 #define WIDTH_PIXELS_300DPI     2550
 #define INFO_SIZE               (WIDTH_BYTES_300DPI - WIDTH_PIXELS_300DPI)
 #define USB_TIMEOUT_MS          20000
+#define MAX_COMMAND_SIZE        64
 
 #define CHECK_IF(x) if (!(x)) return SANE_STATUS_INVAL
 
@@ -110,10 +111,12 @@ static SANE_String_Const mode_list[] = {
   SANE_VALUE_SCAN_MODE_GRAY,
   NULL
 };
+static SANE_String_Const default_mode = SANE_VALUE_SCAN_MODE_COLOR;
 
 static SANE_Int resolution_list[] = {
   2, 300, 600
 };
+static SANE_Int default_resolution = 300;
 
 static SANE_Bool initialized = SANE_FALSE;
 static Ricoh2_Device *ricoh2_devices = NULL;
@@ -132,6 +135,16 @@ lookup_handle(SANE_Handle handle)
     }
 
   return NULL;
+}
+
+static const char* get_model_by_productid(SANE_Int id)
+{
+  switch (id)
+    {
+    case 0x0448: return "Aficio SP111SU";
+    case 0x042c: return "Aficio SP100SU";
+    default:     return "Unidentified device";
+    }
 }
 
 static SANE_Status
@@ -179,7 +192,7 @@ attach (SANE_String_Const devname)
   sanei_usb_close (dn);
   device->sane.name = strdup (devname);
   device->sane.vendor = "Ricoh";
-  device->sane.model = product == 0x0448 ? "Aficio SP111SU" : "Aficio SP100SU";
+  device->sane.model = get_model_by_productid (product);
   device->sane.type = "flatbed scanner";
   device->active = SANE_TRUE;
   device->buffer = NULL;
@@ -284,7 +297,7 @@ sane_get_devices (const SANE_Device ***dl,
   if (sane_devices)
     free (sane_devices);
 
-  sane_devices = (const SANE_Device**) malloc (sizeof (sane_devices[0])
+  sane_devices = (const SANE_Device **) malloc (sizeof (const SANE_Device *)
                                                * (num_devices + 1));
   if (!sane_devices)
     return SANE_STATUS_NO_MEM;
@@ -395,7 +408,28 @@ sane_control_option (SANE_Handle handle,
     case SANE_ACTION_SET_AUTO:
       CHECK_IF (SANE_OPTION_IS_SETTABLE (device->opt[option].cap));
       CHECK_IF (device->opt[option].cap & SANE_CAP_AUTOMATIC);
-      // TODO: do we need to set something here?
+
+      switch (option)
+        {
+        case OPT_RESOLUTION:
+          DBG (100,
+               "Setting value to default value of %d for option %s\n",
+               default_resolution,
+               device->opt[option].name);
+          device->val[option].w = default_resolution;
+          break;
+
+        case OPT_MODE:
+          DBG (100,
+               "Setting value to default value of %s for option %s\n",
+               (SANE_String_Const) default_mode,
+               device->opt[option].name);
+          strcpy (device->val[option].s, default_mode);
+          break;
+
+        default:
+          return SANE_STATUS_INVAL;
+        }
       break;
 
     case SANE_ACTION_SET_VALUE:
@@ -431,6 +465,9 @@ sane_control_option (SANE_Handle handle,
                device->opt[option].name);
           strcpy (device->val[option].s, value);
           break;
+
+        default:
+          return SANE_STATUS_INVAL;
         }
       break;
 
@@ -540,11 +577,14 @@ send_receive (SANE_Int dn, Send_Receive_Pair *transfer)
 {
   SANE_Status status;
   size_t io_size;
-  SANE_Byte send_buffer[64];
-  memset(send_buffer, 0, 64);
+  SANE_Byte send_buffer[MAX_COMMAND_SIZE];
+
+  assert(transfer->to_send <= MAX_COMMAND_SIZE);
+
+  memset(send_buffer, 0, MAX_COMMAND_SIZE);
 
   /* send a command */
-  io_size = 64;
+  io_size = MAX_COMMAND_SIZE;
   DBG (255, "sending a packet of size %lu\n", io_size);
   memcpy (send_buffer, transfer->send_buffer, transfer->to_send);
   status = sanei_usb_write_bulk (dn, send_buffer, &io_size);

@@ -165,7 +165,7 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libniash.la libp5.la \
     libpie.la libpieusb.la libpint.la libpixma.la \
     libplustek.la libplustek_pp.la libpnm.la \
-    libqcam.la libricoh.la librts8891.la \
+    libqcam.la libricoh.la libricoh2.la librts8891.la \
     libs9036.la libsceptre.la libsharp.la \
     libsm3600.la libsm3840.la libsnapscan.la \
     libsp15c.la libst400.la libstv680.la \
@@ -199,7 +199,7 @@ be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
     libsane-niash.la libsane-p5.la \
     libsane-pie.la libsane-pieusb.la libsane-pint.la libsane-pixma.la \
     libsane-plustek.la libsane-plustek_pp.la libsane-pnm.la \
-    libsane-qcam.la libsane-ricoh.la libsane-rts8891.la \
+    libsane-qcam.la libsane-ricoh.la libsane-ricoh2.la libsane-rts8891.la \
     libsane-s9036.la libsane-sceptre.la libsane-sharp.la \
     libsane-sm3600.la libsane-sm3840.la libsane-snapscan.la \
     libsane-sp15c.la libsane-st400.la libsane-stv680.la \
@@ -884,6 +884,15 @@ libsane_ricoh_la_LIBADD = $(COMMON_LIBS) libricoh.la ../sanei/sanei_init_debug.l
 EXTRA_DIST += ricoh.conf.in
 # TODO: Why are these distributed but not compiled?
 EXTRA_DIST += ricoh-scsi.c
+
+libricoh2_la_SOURCES = ricoh2.c
+libricoh2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=ricoh2
+
+nodist_libsane_ricoh2_la_SOURCES = ricoh2-s.c
+libsane_ricoh2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=ricoh2
+libsane_ricoh2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
+libsane_ricoh2_la_LIBADD = $(COMMON_LIBS) libricoh2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_usb.lo ../sanei/sanei_config.lo sane_strstatus.lo $(USB_LIBS)
+EXTRA_DIST += ricoh2_buffer.c
 
 librts8891_la_SOURCES = rts8891.c rts8891.h rts88xx_lib.c rts88xx_lib.h
 librts8891_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=rts8891

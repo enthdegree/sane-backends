@@ -88,6 +88,7 @@ Backends:
                 despeckling filter by Patrick Reynolds,
                 B&W fixes by Andrew Kuchling
  ricoh:         Feico W. Dillema
+ ricoh2:        Stanislav Yuzvinsky
  rts8891:       Stéphane Voltz
  s9036:         Ingo Schneider
  sceptre:       Frank Zago

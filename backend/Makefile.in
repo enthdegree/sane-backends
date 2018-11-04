@@ -377,6 +377,9 @@ libqcam_la_OBJECTS = $(am_libqcam_la_OBJECTS)
 libricoh_la_LIBADD =
 am_libricoh_la_OBJECTS = libricoh_la-ricoh.lo
 libricoh_la_OBJECTS = $(am_libricoh_la_OBJECTS)
+libricoh2_la_LIBADD =
+am_libricoh2_la_OBJECTS = libricoh2_la-ricoh2.lo
+libricoh2_la_OBJECTS = $(am_libricoh2_la_OBJECTS)
 librts8891_la_LIBADD =
 am_librts8891_la_OBJECTS = librts8891_la-rts8891.lo \
 	librts8891_la-rts88xx_lib.lo
@@ -1141,6 +1144,7 @@ libsane_pixma_la_DEPENDENCIES = $(COMMON_LIBS) libpixma.la \
 	../sanei/sanei_usb.lo ../sanei/sanei_thread.lo \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 nodist_libsane_pixma_la_OBJECTS = libsane_pixma_la-pixma-s.lo
 libsane_pixma_la_OBJECTS = $(nodist_libsane_pixma_la_OBJECTS)
@@ -1204,6 +1208,16 @@ libsane_ricoh_la_OBJECTS = $(nodist_libsane_ricoh_la_OBJECTS)
 libsane_ricoh_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(AM_CFLAGS) $(CFLAGS) $(libsane_ricoh_la_LDFLAGS) $(LDFLAGS) \
+	-o $@
+libsane_ricoh2_la_DEPENDENCIES = $(COMMON_LIBS) libricoh2.la \
+	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
+	../sanei/sanei_usb.lo ../sanei/sanei_config.lo \
+	sane_strstatus.lo $(am__DEPENDENCIES_1)
+nodist_libsane_ricoh2_la_OBJECTS = libsane_ricoh2_la-ricoh2-s.lo
+libsane_ricoh2_la_OBJECTS = $(nodist_libsane_ricoh2_la_OBJECTS)
+libsane_ricoh2_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(libsane_ricoh2_la_LDFLAGS) $(LDFLAGS) \
 	-o $@
 libsane_rts8891_la_DEPENDENCIES = $(COMMON_LIBS) librts8891.la \
 	../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
@@ -1614,8 +1628,8 @@ SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(libpixma_la_SOURCES) $(libplustek_la_SOURCES) \
 	$(libplustek_pp_la_SOURCES) $(libpnm_la_SOURCES) \
 	$(libqcam_la_SOURCES) $(libricoh_la_SOURCES) \
-	$(librts8891_la_SOURCES) $(libs9036_la_SOURCES) \
-	$(nodist_libsane_abaton_la_SOURCES) \
+	$(libricoh2_la_SOURCES) $(librts8891_la_SOURCES) \
+	$(libs9036_la_SOURCES) $(nodist_libsane_abaton_la_SOURCES) \
 	$(nodist_libsane_agfafocus_la_SOURCES) \
 	$(nodist_libsane_apple_la_SOURCES) \
 	$(nodist_libsane_artec_la_SOURCES) \
@@ -1684,6 +1698,7 @@ SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(nodist_libsane_pnm_la_SOURCES) \
 	$(nodist_libsane_qcam_la_SOURCES) \
 	$(nodist_libsane_ricoh_la_SOURCES) \
+	$(nodist_libsane_ricoh2_la_SOURCES) \
 	$(nodist_libsane_rts8891_la_SOURCES) \
 	$(nodist_libsane_s9036_la_SOURCES) \
 	$(nodist_libsane_sceptre_la_SOURCES) \
@@ -1750,17 +1765,17 @@ DIST_SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(libpixma_la_SOURCES) $(libplustek_la_SOURCES) \
 	$(libplustek_pp_la_SOURCES) $(libpnm_la_SOURCES) \
 	$(libqcam_la_SOURCES) $(libricoh_la_SOURCES) \
-	$(librts8891_la_SOURCES) $(libs9036_la_SOURCES) \
-	$(libsceptre_la_SOURCES) $(libsharp_la_SOURCES) \
-	$(libsm3600_la_SOURCES) $(libsm3840_la_SOURCES) \
-	$(libsnapscan_la_SOURCES) $(libsp15c_la_SOURCES) \
-	$(libst400_la_SOURCES) $(libstv680_la_SOURCES) \
-	$(libtamarack_la_SOURCES) $(libteco1_la_SOURCES) \
-	$(libteco2_la_SOURCES) $(libteco3_la_SOURCES) \
-	$(libtest_la_SOURCES) $(libu12_la_SOURCES) \
-	$(libumax_la_SOURCES) $(libumax1220u_la_SOURCES) \
-	$(libumax_pp_la_SOURCES) $(libv4l_la_SOURCES) \
-	$(libxerox_mfp_la_SOURCES)
+	$(libricoh2_la_SOURCES) $(librts8891_la_SOURCES) \
+	$(libs9036_la_SOURCES) $(libsceptre_la_SOURCES) \
+	$(libsharp_la_SOURCES) $(libsm3600_la_SOURCES) \
+	$(libsm3840_la_SOURCES) $(libsnapscan_la_SOURCES) \
+	$(libsp15c_la_SOURCES) $(libst400_la_SOURCES) \
+	$(libstv680_la_SOURCES) $(libtamarack_la_SOURCES) \
+	$(libteco1_la_SOURCES) $(libteco2_la_SOURCES) \
+	$(libteco3_la_SOURCES) $(libtest_la_SOURCES) \
+	$(libu12_la_SOURCES) $(libumax_la_SOURCES) \
+	$(libumax1220u_la_SOURCES) $(libumax_pp_la_SOURCES) \
+	$(libv4l_la_SOURCES) $(libxerox_mfp_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -2076,24 +2091,24 @@ EXTRA_DIST = sane_strstatus.c stubs.c saned.conf.in abaton.conf.in \
 	plustek-pp_scale.c plustek-pp_scan.h plustek-pp_scandata.h \
 	plustek-pp_sysdep.h plustek-pp_tpa.c plustek-pp_types.h \
 	plustek-pp_wrapper.c qcam.conf.in ricoh.conf.in ricoh-scsi.c \
-	rts8891.conf.in rts8891_devices.c rts8891_low.c rts8891_low.h \
-	s9036.conf.in sceptre.conf.in sharp.conf.in sm3600-color.c \
-	sm3600-gray.c sm3600-homerun.c sm3600-scanmtek.c \
-	sm3600-scantool.h sm3600-scanusb.c sm3600-scanutil.c \
-	sm3840.conf.in sm3840_lib.c sm3840_lib.h sm3840_scan.c \
-	snapscan.conf.in snapscan-data.c snapscan-mutex.c \
-	snapscan-options.c snapscan-scsi.c snapscan-sources.c \
-	snapscan-sources.h snapscan-usb.c snapscan-usb.h sp15c.conf.in \
-	st400.conf.in stv680.conf.in tamarack.conf.in test.conf.in \
-	test-picture.c teco1.conf.in teco2.conf.in teco3.conf.in \
-	u12.conf.in u12-ccd.c u12-hw.c u12-hwdef.h u12-if.c \
-	u12-image.c u12-io.c u12-map.c u12-motor.c u12-scanner.h \
-	u12-shading.c u12-tpa.c umax.conf.in umax-scanner.c \
-	umax-scanner.h umax-scsidef.h umax-uc1200s.c umax-uc1200se.c \
-	umax-uc1260.c umax-uc630.c umax-uc840.c umax-ug630.c \
-	umax-ug80.c umax-usb.c umax1220u.conf.in umax1220u-common.c \
-	umax_pp.conf.in v4l.conf.in xerox_mfp.conf.in dll.conf.in \
-	dll.aliases
+	ricoh2_buffer.c rts8891.conf.in rts8891_devices.c \
+	rts8891_low.c rts8891_low.h s9036.conf.in sceptre.conf.in \
+	sharp.conf.in sm3600-color.c sm3600-gray.c sm3600-homerun.c \
+	sm3600-scanmtek.c sm3600-scantool.h sm3600-scanusb.c \
+	sm3600-scanutil.c sm3840.conf.in sm3840_lib.c sm3840_lib.h \
+	sm3840_scan.c snapscan.conf.in snapscan-data.c \
+	snapscan-mutex.c snapscan-options.c snapscan-scsi.c \
+	snapscan-sources.c snapscan-sources.h snapscan-usb.c \
+	snapscan-usb.h sp15c.conf.in st400.conf.in stv680.conf.in \
+	tamarack.conf.in test.conf.in test-picture.c teco1.conf.in \
+	teco2.conf.in teco3.conf.in u12.conf.in u12-ccd.c u12-hw.c \
+	u12-hwdef.h u12-if.c u12-image.c u12-io.c u12-map.c \
+	u12-motor.c u12-scanner.h u12-shading.c u12-tpa.c umax.conf.in \
+	umax-scanner.c umax-scanner.h umax-scsidef.h umax-uc1200s.c \
+	umax-uc1200se.c umax-uc1260.c umax-uc630.c umax-uc840.c \
+	umax-ug630.c umax-ug80.c umax-usb.c umax1220u.conf.in \
+	umax1220u-common.c umax_pp.conf.in v4l.conf.in \
+	xerox_mfp.conf.in dll.conf.in dll.aliases
 
 # Backends are not required to have a config file. Any backend
 # that wants to install a config file should list it here.
@@ -2153,7 +2168,7 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libniash.la libp5.la \
     libpie.la libpieusb.la libpint.la libpixma.la \
     libplustek.la libplustek_pp.la libpnm.la \
-    libqcam.la libricoh.la librts8891.la \
+    libqcam.la libricoh.la libricoh2.la librts8891.la \
     libs9036.la libsceptre.la libsharp.la \
     libsm3600.la libsm3840.la libsnapscan.la \
     libsp15c.la libst400.la libstv680.la \
@@ -2188,7 +2203,7 @@ be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
     libsane-niash.la libsane-p5.la \
     libsane-pie.la libsane-pieusb.la libsane-pint.la libsane-pixma.la \
     libsane-plustek.la libsane-plustek_pp.la libsane-pnm.la \
-    libsane-qcam.la libsane-ricoh.la libsane-rts8891.la \
+    libsane-qcam.la libsane-ricoh.la libsane-ricoh2.la libsane-rts8891.la \
     libsane-s9036.la libsane-sceptre.la libsane-sharp.la \
     libsane-sm3600.la libsane-sm3840.la libsane-snapscan.la \
     libsane-sp15c.la libsane-st400.la libsane-stv680.la \
@@ -2642,6 +2657,12 @@ nodist_libsane_ricoh_la_SOURCES = ricoh-s.c
 libsane_ricoh_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=ricoh
 libsane_ricoh_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_ricoh_la_LIBADD = $(COMMON_LIBS) libricoh.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(RESMGR_LIBS)
+libricoh2_la_SOURCES = ricoh2.c
+libricoh2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=ricoh2
+nodist_libsane_ricoh2_la_SOURCES = ricoh2-s.c
+libsane_ricoh2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=ricoh2
+libsane_ricoh2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
+libsane_ricoh2_la_LIBADD = $(COMMON_LIBS) libricoh2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_usb.lo ../sanei/sanei_config.lo sane_strstatus.lo $(USB_LIBS)
 librts8891_la_SOURCES = rts8891.c rts8891.h rts88xx_lib.c rts88xx_lib.h
 librts8891_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=rts8891
 nodist_libsane_rts8891_la_SOURCES = rts8891-s.c
@@ -3120,6 +3141,9 @@ libqcam.la: $(libqcam_la_OBJECTS) $(libqcam_la_DEPENDENCIES) $(EXTRA_libqcam_la_
 libricoh.la: $(libricoh_la_OBJECTS) $(libricoh_la_DEPENDENCIES) $(EXTRA_libricoh_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK)  $(libricoh_la_OBJECTS) $(libricoh_la_LIBADD) $(LIBS)
 
+libricoh2.la: $(libricoh2_la_OBJECTS) $(libricoh2_la_DEPENDENCIES) $(EXTRA_libricoh2_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(LINK)  $(libricoh2_la_OBJECTS) $(libricoh2_la_LIBADD) $(LIBS)
+
 librts8891.la: $(librts8891_la_OBJECTS) $(librts8891_la_DEPENDENCIES) $(EXTRA_librts8891_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK)  $(librts8891_la_OBJECTS) $(librts8891_la_LIBADD) $(LIBS)
 
@@ -3332,6 +3356,9 @@ libsane-qcam.la: $(libsane_qcam_la_OBJECTS) $(libsane_qcam_la_DEPENDENCIES) $(EX
 
 libsane-ricoh.la: $(libsane_ricoh_la_OBJECTS) $(libsane_ricoh_la_DEPENDENCIES) $(EXTRA_libsane_ricoh_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libsane_ricoh_la_LINK)  $(libsane_ricoh_la_OBJECTS) $(libsane_ricoh_la_LIBADD) $(LIBS)
+
+libsane-ricoh2.la: $(libsane_ricoh2_la_OBJECTS) $(libsane_ricoh2_la_DEPENDENCIES) $(EXTRA_libsane_ricoh2_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libsane_ricoh2_la_LINK)  $(libsane_ricoh2_la_OBJECTS) $(libsane_ricoh2_la_LIBADD) $(LIBS)
 
 libsane-rts8891.la: $(libsane_rts8891_la_OBJECTS) $(libsane_rts8891_la_DEPENDENCIES) $(EXTRA_libsane_rts8891_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libsane_rts8891_la_LINK)  $(libsane_rts8891_la_OBJECTS) $(libsane_rts8891_la_LIBADD) $(LIBS)
@@ -3581,6 +3608,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libplustek_pp_la-plustek_pp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpnm_la-pnm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libqcam_la-qcam.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libricoh2_la-ricoh2.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libricoh_la-ricoh.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librts8891_la-rts8891.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librts8891_la-rts88xx_lib.Plo@am__quote@
@@ -3654,6 +3682,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_plustek_pp_la-plustek_pp-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_pnm_la-pnm-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_qcam_la-qcam-s.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_ricoh2_la-ricoh2-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_ricoh_la-ricoh-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_rts8891_la-rts8891-s.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libsane_s9036_la-s9036-s.Plo@am__quote@
@@ -4564,6 +4593,13 @@ libricoh_la-ricoh.lo: ricoh.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libricoh_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libricoh_la-ricoh.lo `test -f 'ricoh.c' || echo '$(srcdir)/'`ricoh.c
 
+libricoh2_la-ricoh2.lo: ricoh2.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libricoh2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libricoh2_la-ricoh2.lo -MD -MP -MF $(DEPDIR)/libricoh2_la-ricoh2.Tpo -c -o libricoh2_la-ricoh2.lo `test -f 'ricoh2.c' || echo '$(srcdir)/'`ricoh2.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libricoh2_la-ricoh2.Tpo $(DEPDIR)/libricoh2_la-ricoh2.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ricoh2.c' object='libricoh2_la-ricoh2.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libricoh2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libricoh2_la-ricoh2.lo `test -f 'ricoh2.c' || echo '$(srcdir)/'`ricoh2.c
+
 librts8891_la-rts8891.lo: rts8891.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(librts8891_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT librts8891_la-rts8891.lo -MD -MP -MF $(DEPDIR)/librts8891_la-rts8891.Tpo -c -o librts8891_la-rts8891.lo `test -f 'rts8891.c' || echo '$(srcdir)/'`rts8891.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/librts8891_la-rts8891.Tpo $(DEPDIR)/librts8891_la-rts8891.Plo
@@ -5067,6 +5103,13 @@ libsane_ricoh_la-ricoh-s.lo: ricoh-s.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ricoh-s.c' object='libsane_ricoh_la-ricoh-s.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_ricoh_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libsane_ricoh_la-ricoh-s.lo `test -f 'ricoh-s.c' || echo '$(srcdir)/'`ricoh-s.c
+
+libsane_ricoh2_la-ricoh2-s.lo: ricoh2-s.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_ricoh2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libsane_ricoh2_la-ricoh2-s.lo -MD -MP -MF $(DEPDIR)/libsane_ricoh2_la-ricoh2-s.Tpo -c -o libsane_ricoh2_la-ricoh2-s.lo `test -f 'ricoh2-s.c' || echo '$(srcdir)/'`ricoh2-s.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libsane_ricoh2_la-ricoh2-s.Tpo $(DEPDIR)/libsane_ricoh2_la-ricoh2-s.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='ricoh2-s.c' object='libsane_ricoh2_la-ricoh2-s.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_ricoh2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libsane_ricoh2_la-ricoh2-s.lo `test -f 'ricoh2-s.c' || echo '$(srcdir)/'`ricoh2-s.c
 
 libsane_rts8891_la-rts8891-s.lo: rts8891-s.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_rts8891_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libsane_rts8891_la-rts8891-s.lo -MD -MP -MF $(DEPDIR)/libsane_rts8891_la-rts8891-s.Tpo -c -o libsane_rts8891_la-rts8891-s.lo `test -f 'rts8891-s.c' || echo '$(srcdir)/'`rts8891-s.c

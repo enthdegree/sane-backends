@@ -24,7 +24,7 @@ BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 	sane-nec.5 sane-net.5 sane-pie.5 sane-pieusb.5 sane-pint.5 sane-pnm.5 \
 	sane-umax.5 sane-qcam.5 sane-scsi.5 sane-artec.5 sane-kodak.5 sane-kodakaio.5 \
 	sane-fujitsu.5 sane-sharp.5 sane-s9036.5 sane-tamarack.5 \
-	sane-ricoh.5 sane-avision.5 sane-plustek.5 sane-st400.5 \
+	sane-ricoh.5 sane-ricoh.5 sane-avision.5 sane-plustek.5 sane-st400.5 \
 	sane-mustek_pp.5 sane-dc210.5 sane-v4l.5 sane-snapscan.5 \
 	sane-canon.5 sane-coolscan.5 sane-bh.5 sane-dc240.5 \
 	sane-umax_pp.5 sane-umax1220u.5 sane-sm3600.5 sane-usb.5 \
@@ -47,7 +47,7 @@ EXTRA_DIST += sane-abaton.man sane-agfafocus.man sane-apple.man sane-as6e.man \
 	sane-pie.man sane-pieusb.man sane-pint.man sane-pnm.man sane-umax.man \
 	sane-qcam.man sane-scsi.man sane-artec.man sane-fujitsu.man \
 	sane-sharp.man sane-s9036.man sane-tamarack.man sane-kodak.man sane-kodakaio.man\
-	sane-ricoh.man sane-avision.man sane-plustek.man sane-st400.man \
+	sane-ricoh.man sane-ricoh2.man sane-avision.man sane-plustek.man sane-st400.man \
 	sane-mustek_pp.man sane-dc210.man sane-v4l.man sane-snapscan.man \
 	sane-canon.man sane-coolscan.man sane-bh.man sane-dc240.man \
 	sane-umax_pp.man sane-umax1220u.man sane-sm3600.man sane-usb.man \
@@ -174,7 +174,8 @@ DESC_FILES = descriptions/abaton.desc descriptions/agfafocus.desc \
   descriptions/niash.desc descriptions/pie.desc descriptions/pieusb.desc descriptions/pint.desc \
   descriptions/p5.desc descriptions/pixma.desc descriptions/plustek.desc \
   descriptions/plustek_pp.desc descriptions/pnm.desc descriptions/qcam.desc \
-  descriptions/ricoh.desc descriptions/rts8891.desc descriptions/s9036.desc \
+  descriptions/ricoh.desc descriptions/ricoh2.desc \
+  descriptions/rts8891.desc descriptions/s9036.desc \
   descriptions/sceptre.desc descriptions/sharp.desc descriptions/sm3600.desc \
   descriptions/sm3840.desc descriptions/snapscan.desc descriptions/sp15c.desc \
   descriptions/st400.desc descriptions/stv680.desc descriptions/tamarack.desc \

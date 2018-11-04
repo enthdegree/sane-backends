@@ -448,6 +448,12 @@ scanners: IS50 and IS60. See
 .BR sane\-ricoh (5)
 for details.
 .TP
+.B ricoh2
+The ricoh2 backend provides access to the following Ricoh flatbed
+scanners: SP-100SU and SP-111SU. See
+.BR sane\-ricoh2 (5)
+for details.
+.TP
 .B s9036
 The s9036 backend provides access to Siemens 9036 flatbed scanners. See
 .BR sane\-s9036 (5)
@@ -903,6 +909,7 @@ for details).
 .BR sane\-pnm (5),
 .BR sane\-qcam (5),
 .BR sane\-ricoh (5),
+.BR sane\-ricoh2 (5),
 .BR sane\-s9036 (5),
 .BR sane\-sceptre (5),
 .BR sane\-scsi (5),

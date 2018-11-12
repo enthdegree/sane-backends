@@ -35,7 +35,7 @@ Backends:
  fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister,
                 m. allan noah (*)
  genesys:       Henning Geinitz, Gerhard Jaeger (*), Stéphane Voltz,
-                Pierre Willenbrock
+                Pierre Willenbrock, Povilas Kanapickas (*)
  gphoto2:       Peter Fales
  gt68xx:        Sergey Vlasov, Andreas Nowack, David Stevenson, and
                 Henning Geinitz

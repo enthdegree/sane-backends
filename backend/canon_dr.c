@@ -1712,8 +1712,8 @@ init_model (struct scanner *s)
     s->std_res_x[DPI_600]=1;
     s->std_res_y[DPI_600]=1;
 
-    s->reverse_by_mode[MODE_LINEART] = 0;
-    s->reverse_by_mode[MODE_HALFTONE] = 0;
+    s->reverse_by_mode[MODE_LINEART] = 1;
+    s->reverse_by_mode[MODE_HALFTONE] = 1;
 
     s->has_hwcrop = 1;
   }
@@ -3961,6 +3961,9 @@ get_pixelsize(struct scanner *s)
       s->u.br_y = get_R_PSIZE_length(in);
       s->u.tl_y = 0;
 
+      s->u.page_x = s->u.br_x;
+      s->u.page_y = s->u.br_y;
+
       update_params(s,0);
       clean_params(s);
       break;
@@ -4312,6 +4315,15 @@ sane_start (SANE_Handle handle)
     s->prev_page = 0;
     if(send_panel(s)){
       DBG (5, "sane_start: ERROR: cannot send panel\n");
+    }
+
+    if(s->hwcrop){
+      s->u.br_x = s->max_x;
+      s->u.tl_x = 0;
+      s->u.br_y = s->max_y;
+      s->u.tl_y = 0;
+      s->u.page_x = s->max_x;
+      s->u.page_y = s->max_y;
     }
 
     /* load our own private copy of scan params */

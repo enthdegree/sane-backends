@@ -1712,9 +1712,6 @@ init_model (struct scanner *s)
     s->std_res_x[DPI_600]=1;
     s->std_res_y[DPI_600]=1;
 
-    s->reverse_by_mode[MODE_LINEART] = 1;
-    s->reverse_by_mode[MODE_HALFTONE] = 1;
-
     s->has_hwcrop = 1;
   }
 
@@ -3956,7 +3953,22 @@ get_pixelsize(struct scanner *s)
            get_R_PSIZE_width(in) * s->u.dpi_x / 1200,
            get_R_PSIZE_length(in) * s->u.dpi_y / 1200);
 
-      s->u.br_x = get_R_PSIZE_width(in);
+      /*
+       * Round up to byte boundary if needed.
+       * For 1 bpp the resulting size may not fit in a byte boundary.
+       */
+      int remainder = (get_R_PSIZE_width(in) * s->u.dpi_x / 1200) % 8;
+
+      if (s->u.mode < MODE_GRAYSCALE && remainder)
+      {
+        int rounded_up = (8 - remainder) + (get_R_PSIZE_width(in) * s->u.dpi_x / 1200);
+
+        s->u.br_x = rounded_up * 1200 / s->u.dpi_x;
+      }
+      else{
+        s->u.br_x = get_R_PSIZE_width(in);
+      }
+
       s->u.tl_x = 0;
       s->u.br_y = get_R_PSIZE_length(in);
       s->u.tl_y = 0;

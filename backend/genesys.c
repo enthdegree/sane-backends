@@ -3069,6 +3069,9 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
           case CIS_CANONLIDE220:
             target_code = 0xf000;
             break;
+          case CIS_CANONLIDE700:
+            target_code = 0xc000; /* from experimentation */
+            break;
           default:
             target_code = 0xdc00;
           }

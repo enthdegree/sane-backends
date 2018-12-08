@@ -71,14 +71,14 @@ compile:debian-9-full:
     - doc/sanei-html
     expire_in: 1 day
 
-compile:fedora-27-clang:
-  image: $REGISTRY_HUB:fedora-27-clang
+compile:fedora-28-clang:
+  image: $REGISTRY_HUB:fedora-28-clang
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition
 
-compile:fedora-28-clang:
-  image: $REGISTRY_HUB:fedora-28-clang
+compile:fedora-29-clang:
+  image: $REGISTRY_HUB:fedora-29-clang
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition

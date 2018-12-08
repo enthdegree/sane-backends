@@ -11,3 +11,14 @@ config.cache
 config.log
 config.status
 libtool
+
+# `make check` artifacts
+test-suite.log
+/testsuite/sanei/sanei_*_test
+/testsuite/sanei/sanei_*_test.log
+/testsuite/sanei/sanei_*_test.trs
+/testsuite/sanei/test_wire
+/testsuite/sanei/test_wire.log
+/testsuite/sanei/test_wire.out
+/testsuite/sanei/test_wire.trs
+/testsuite/tools/*.res

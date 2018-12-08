@@ -36,6 +36,16 @@
 :usbid     "0x04b8" "0x0152"
 :status    :good
 
+:model     "DS-70"
+:interface "USB"
+:status    :good
+:comment   "USB product ID one of 0x0160, 0x0166, 0x016c or 0x016e"
+
+:model     "DS-80W"
+:interface "USB"
+:status    :good
+:comment   "USB product ID one of 0x0160, 0x0166, 0x016c or 0x016e"
+
 :model     "DS-410"
 :interface "USB"
 :status    :good
@@ -136,6 +146,16 @@
 :interface "USB"
 :usbid     "0x04b8" "0x1109"
 :status    :good
+
+:model     "ES-50"
+:interface "USB"
+:status    :good
+:comment   "USB product ID one of 0x0160, 0x0166, 0x016c or 0x016e"
+
+:model     "ES-60W"
+:interface "USB"
+:status    :good
+:comment   "USB product ID one of 0x0160, 0x0166, 0x016c or 0x016e"
 
 :model     "ES-400"
 :interface "USB"
@@ -620,6 +640,24 @@
 :status    :good
 :comment   "L61x0?"
 
+:model     "PID 1136"
+:interface "USB"
+:usbid     "0x04b8" "0x1136"
+:status    :good
+:comment   "L61x0?"
+
+:model     "PID 1137"
+:interface "USB"
+:usbid     "0x04b8" "0x1137"
+:status    :good
+:comment   "L61x0?"
+
+:model     "PID 1138"
+:interface "USB"
+:usbid     "0x04b8" "0x1138"
+:status    :good
+:comment   "L61x0?"
+
 :model     "PID 1139"
 :interface "USB"
 :usbid     "0x04b8" "0x1139"
@@ -720,6 +758,12 @@
 :usbid     "0x04b8" "0x114d"
 :status    :good
 :comment   "L5xxx"
+
+:model     "PID 114E"
+:interface "USB"
+:usbid     "0x04b8" "0x114e"
+:status    :good
+:comment   "XP21xx"
 
 :model     "PID 114F"
 :interface "USB"

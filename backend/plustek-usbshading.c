@@ -1822,7 +1822,7 @@ static void usb_procHighlightAndShadow( Plustek_Device *dev, ScanParam *sp,
 	pg = pr + sp->Size.dwPhyPixels;
 	pb = pg + sp->Size.dwPhyPixels;
 
-	memset(pr, 0, sp->Size.dwPhyPixels * 4UL * 3UL);
+	memset(pr, 0, sp->Size.dwPhyPixels * sizeof(*pr) * 3UL);
 
 	/* Sort hilight */
 	usb_CalSortHighlight(dev, sp, hilight, shading_lines);

@@ -3793,7 +3793,7 @@ static Genesys_Command_Set gl847_cmd_set = {
   gl847_led_calibration,
 
   gl847_slow_back_home,
-  gl847_rewind,
+  NULL, /* disable gl847_rewind, see #7 */
 
   sanei_genesys_bulk_write_register,
   NULL,

@@ -255,6 +255,7 @@ Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpdata)
   STATUS status = STATUS_GOOD;
   unsigned int i, buf[1];
   unsigned int read_size;
+  size_t read_size_usb;
 
   DBG (DBG_ASIC, "Mustek_DMARead: Enter\n");
 
@@ -268,9 +269,11 @@ Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpdata)
       SetRWSize (chip, 1, buf[0]);
       status = WriteIOControl (chip, 0x03, 0, 4, (SANE_Byte *) (buf));
 
+      read_size_usb = buf[0];
       status =
 	sanei_usb_read_bulk (chip->fd, lpdata + i * read_size,
-			     (size_t *) buf);
+                             &read_size_usb);
+      buf[0] = read_size_usb;
       if (status != STATUS_GOOD)
 	{
 	  DBG (DBG_ERR, "Mustek_DMARead: read error\n");
@@ -284,9 +287,11 @@ Mustek_DMARead (PAsic chip, unsigned int size, SANE_Byte * lpdata)
       SetRWSize (chip, 1, buf[0]);
       status = WriteIOControl (chip, 0x03, 0, 4, (SANE_Byte *) (buf));
 
+      read_size_usb = buf[0];
       status =
 	sanei_usb_read_bulk (chip->fd, lpdata + i * read_size,
-			     (size_t *) buf);
+                             &read_size_usb);
+      buf[0] = read_size_usb;
       if (status != STATUS_GOOD)
 	{
 	  DBG (DBG_ERR, "Mustek_DMARead: read error\n");
@@ -307,6 +312,7 @@ Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpdata)
   unsigned int buf[1];
   unsigned int i;
   unsigned int write_size;
+  size_t write_size_usb;
 
   DBG (DBG_ASIC, "Mustek_DMAWrite: Enter:size=%d\n", size);
 
@@ -320,9 +326,11 @@ Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpdata)
       SetRWSize (chip, 0, buf[0]);
       WriteIOControl (chip, 0x02, 0, 4, (SANE_Byte *) buf);
 
+      write_size_usb = buf[0];
       status =
 	sanei_usb_write_bulk (chip->fd, lpdata + i * write_size,
-			      (size_t *) buf);
+                              &write_size_usb);
+      buf[0] = write_size_usb;
       if (status != STATUS_GOOD)
 	{
 	  DBG (DBG_ERR, "Mustek_DMAWrite: write error\n");
@@ -337,9 +345,11 @@ Mustek_DMAWrite (PAsic chip, unsigned int size, SANE_Byte * lpdata)
       SetRWSize (chip, 0, buf[0]);
       WriteIOControl (chip, 0x02, 0, 4, (SANE_Byte *) buf);
 
+      write_size_usb = buf[0];
       status =
 	sanei_usb_write_bulk (chip->fd, lpdata + i * write_size,
-			      (size_t *) buf);
+                              &write_size_usb);
+      buf[0] = write_size_usb;
       if (status != STATUS_GOOD)
 	{
 	  DBG (DBG_ERR, "Mustek_DMAWrite: write error\n");

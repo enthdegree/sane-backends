@@ -1934,6 +1934,7 @@ gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
  * @param dev device to rewind
  * @returns SANE_STATUS_GOOD on success
  */
+#if 0                           /* disabled to fix #7 */
 GENESYS_STATIC
 SANE_Status gl847_rewind(Genesys_Device * dev)
 {
@@ -1965,6 +1966,7 @@ SANE_Status gl847_rewind(Genesys_Device * dev)
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
+#endif
 
 /** Park head
  * Moves the slider to the home (top) position slowly

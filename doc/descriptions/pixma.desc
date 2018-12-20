@@ -875,6 +875,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA TS9500 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x185c"
+:status :untested
+:comment "Testers needed!"
+
 :model "imageCLASS D420"
 :interface "USB"
 :usbid "0x04a9" "0x26ef"

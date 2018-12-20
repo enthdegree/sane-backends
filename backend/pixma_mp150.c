@@ -260,6 +260,7 @@
 #define TS9100_PID 0x1820
 #define TR8500_PID 0x1823
 #define TR7500_PID 0x1824
+#define TS9500_PID 0x185c
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
 #define XML_START_1   \
@@ -1939,6 +1940,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA TS9100 Series", "TS9100", TS9100_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA TR8500 Series", "TR8500", TR8500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA TR7500 Series", "TR7500", TR7500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TS9500 Series", "TS9500", TS9500_PID, 1200, 0, 600, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
 
   END_OF_DEVICE_LIST
 };

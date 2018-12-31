@@ -3061,13 +3061,20 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     case CIS_CANONLIDE220:
         /* TODO store this in a data struct so we avoid
          * growing this switch */
-        if(dev->model->ccd_type!=CIS_CANONLIDE110
-        && dev->model->ccd_type!=CIS_CANONLIDE210
-        && dev->model->ccd_type!=CIS_CANONLIDE120
-        && dev->model->ccd_type!=CIS_CANONLIDE220)
-          target_code=0xdc00;
-        else
-          target_code=0xf000;
+        switch(dev->model->ccd_type)
+          {
+          case CIS_CANONLIDE110:
+          case CIS_CANONLIDE120:
+          case CIS_CANONLIDE210:
+          case CIS_CANONLIDE220:
+            target_code = 0xf000;
+            break;
+          case CIS_CANONLIDE700:
+            target_code = 0xc000; /* from experimentation */
+            break;
+          default:
+            target_code = 0xdc00;
+          }
         words_per_color=pixels_per_line*2;
         length = words_per_color * 3 * 2;
         free(shading_data);

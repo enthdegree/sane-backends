@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "20 Dec 2018" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "01 Jan 2019" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
@@ -107,7 +107,7 @@ PIXUS MP5
 .br
 imageCLASS MF810/820, MF5630, MF5650, MF5750, MF8170c
 .br
-imageCLASS MPC190, D570
+imageCLASS MPC190, D550, D570
 .br
 imageRUNNER 1133
 .br

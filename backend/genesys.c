@@ -2070,11 +2070,15 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
   dev->model->cmd_set->set_motor_power (dev->calib_reg, motor);
 
-  /* if needed, go back before doin next scan, by using rewind, registers and
-   * slopes table are kept intact from previous scan */
-  if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK && dev->model->cmd_set->rewind)
+  /* if needed, go back before doing next scan */
+  if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK)
     {
-      status = dev->model->cmd_set->rewind (dev);
+      /* rewind keeps registers and slopes table intact from previous
+         scan but is not available on all supported chipsets (or may
+         cause scan artifacts, see #7) */
+      status = (dev->model->cmd_set->rewind
+                ? dev->model->cmd_set->rewind (dev)
+                : dev->model->cmd_set->slow_back_home (dev, SANE_TRUE));
     }
 
   status =

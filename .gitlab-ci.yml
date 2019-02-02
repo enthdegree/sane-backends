@@ -1,5 +1,5 @@
 # .gitlab-ci.yml -- to test some source code build scenarios
-# Copyright (C) 2016-2018  Olaf Meeuwissen
+# Copyright (C) 2016-2019  Olaf Meeuwissen
 #
 # License: GPL-3.0+
 
@@ -83,8 +83,8 @@ compile:fedora-29-clang:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition
 
-compile:alpine-3.8-musl:
-  image: $REGISTRY_HUB:alpine-3.8-musl
+compile:alpine-3.9-musl:
+  image: $REGISTRY_HUB:alpine-3.9-musl
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition

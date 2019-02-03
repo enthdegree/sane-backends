@@ -383,6 +383,11 @@
 :usbid "0x04e8" "0x3468"
 :status :untested
 
+:model "M2070"
+:interface "USB"
+:usbid "0x04e8" "0x3469"
+:status :good
+
 :model "C1860FW"
 :interface "USB"
 :usbid "0x04e8" "0x346b"

@@ -214,6 +214,9 @@ usb 0x04e8 0x3477
 #Samsung K401 Series
 usb 0x04e8 0x3478
 
+#Samsung C480W
+usb 0x04e8 0x347e
+
 #Samsung K3250 Series
 usb 0x04e8 0x3481
 

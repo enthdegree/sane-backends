@@ -413,6 +413,11 @@
 :usbid "0x04e8" "0x3478"
 :status :untested
 
+:model "C480W"
+:interface "USB"
+:usbid "0x04e8" "0x347e"
+:status :untested
+
 :model "K3250 Series"
 :interface "USB"
 :usbid "0x04e8" "0x3481"

@@ -196,6 +196,9 @@ usb 0x04e8 0x3466
 #Samsung C460 Series
 usb 0x04e8 0x3468
 
+#Samsung M2070 Series
+usb 0x04e8 0x3469
+
 #Samsung C1860FW
 usb 0x04e8 0x346b
 

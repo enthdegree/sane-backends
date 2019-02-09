@@ -10,6 +10,7 @@
    Canon, USA. www.usa.canon.com loaned equipment
    HPrint hprint.com.br provided funding and testing for DR-2510 support
    Stone-IT www.stone-it.com provided funding for DR-2010 and DR-2050 support
+   Smartmatic www.smartmatic.com provided testing and changes for DR-X10C support
 
    --------------------------------------------------------------------------
 

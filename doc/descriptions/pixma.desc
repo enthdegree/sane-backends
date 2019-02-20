@@ -1295,6 +1295,12 @@
 :status :complete
 :comment "Full flatbed support up to 4800DPI (Note: flatbed does not have 9600DPI capability). Full TPU support (negatives, slides and infrared) up to 9600DPI."
 
+:model "CanoScan LiDE 300"
+:interface "USB"
+:usbid "0x04a9" "0x1913"
+:status :complete
+:comment "Support up to 4800DPI (Note: does not have less than 300DPI support)"
+
 :model "CanoScan LiDE 400"
 :interface "USB"
 :usbid "0x04a9" "0x1912"

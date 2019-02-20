@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "01 Jan 2019" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "20 Feb 2019" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
@@ -73,7 +73,7 @@ imageRUNNER 1020/1024/1025
 .br
 CanoScan 8800F, 9000F, 9000F Mark II
 .br
-CanoScan LiDE 400
+CanoScan LiDE 300, 400
 .br
 MAXIFY MB2000, MB2100, MB2300, MB2700, MB5000
 .RE

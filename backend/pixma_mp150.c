@@ -1021,6 +1021,14 @@ handle_interrupt (pixma_t * s, int timeout)
     if (buf[7] & 2)
       s->events = PIXMA_EV_BUTTON2 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* b/w scan */
   }
+  else if (s->cfg->pid == LIDE400_PID)
+  /* unknown value in buf[4]
+   * target in buf[0x13]
+   * always set button-1 */
+  {
+    if (buf[0x13])
+      s->events = PIXMA_EV_BUTTON1 | buf[0x13];
+  }
   else
   /* button no. in buf[0]
    * original in buf[0]

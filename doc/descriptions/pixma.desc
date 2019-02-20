@@ -1298,5 +1298,5 @@
 :model "CanoScan LiDE 400"
 :interface "USB"
 :usbid "0x04a9" "0x1912"
-:status :good
-:comment "Support up to 4800DPI (Note: does not have less than 300DPI support, buttons not working)"
+:status :complete
+:comment "Support up to 4800DPI (Note: does not have less than 300DPI support)"

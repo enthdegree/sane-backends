@@ -1226,8 +1226,8 @@
 :model "imageRUNNER 1133"
 :interface "USB"
 :usbid "0x04a9" "0x2742"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
 :model "MAXIFY MB2000 Series"
 :interface "USB WiFi"

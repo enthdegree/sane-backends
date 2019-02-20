@@ -261,6 +261,7 @@
 #define TR8500_PID 0x1823
 #define TR7500_PID 0x1824
 #define TS9500_PID 0x185c
+#define LIDE400_PID 0x1912  /* tested */
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
 #define XML_START_1   \
@@ -1381,7 +1382,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   if ((s->cfg->cap & PIXMA_CAP_ADF) && sp->source == PIXMA_SOURCE_FLATBED)
     sp->h = MIN (sp->h, 877 * sp->xdpi / 75);
 
-  if (sp->source == PIXMA_SOURCE_TPU)
+  if (sp->source == PIXMA_SOURCE_TPU || s->cfg->pid == LIDE400_PID)
     {
       uint8_t k;
 
@@ -1941,6 +1942,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA TR8500 Series", "TR8500", TR8500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA TR7500 Series", "TR7500", TR7500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA TS9500 Series", "TS9500", TS9500_PID, 1200, 0, 600, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("CanoScan LiDE 400", "LIDE400", LIDE400_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   END_OF_DEVICE_LIST
 };

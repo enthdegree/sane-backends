@@ -11,7 +11,7 @@
 ; See doc/descriptions.txt for details.
 
 :backend "pixma"                  ; name of backend
-:version "0.20.0"                 ; version of backend (or "unmaintained")
+:version "0.21.0"                 ; version of backend (or "unmaintained")
 :manpage "sane-pixma"             ; name of manpage (if it exists)
 ;:comment "Devices marked as experimantal are disabled by default. See the manual page for how to enable them."
 
@@ -91,8 +91,14 @@
 :model "PIXMA G2000"
 :interface "USB"
 :usbid "0x04a9" "0x1795"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 600DPI)."
+
+:model "PIXMA G2100"
+:interface "USB"
+:usbid "0x04a9" "0x1795"
+:status :complete
+:comment "All resolutions supported (up to 600DPI)."
 
 :model "PIXMA G3000"
 :interface "USB WiFi"
@@ -1233,8 +1239,8 @@ model "imageCLASS MF733Cdw Color Laser MFP"
 :model "imageRUNNER 1133"
 :interface "USB"
 :usbid "0x04a9" "0x2742"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
 :model "MAXIFY MB2000 Series"
 :interface "USB WiFi"
@@ -1301,3 +1307,15 @@ model "imageCLASS MF733Cdw Color Laser MFP"
 :usbid "0x04a9" "0x190d"
 :status :complete
 :comment "Full flatbed support up to 4800DPI (Note: flatbed does not have 9600DPI capability). Full TPU support (negatives, slides and infrared) up to 9600DPI."
+
+:model "CanoScan LiDE 300"
+:interface "USB"
+:usbid "0x04a9" "0x1913"
+:status :complete
+:comment "Support up to 4800DPI (Note: does not have less than 300DPI support)"
+
+:model "CanoScan LiDE 400"
+:interface "USB"
+:usbid "0x04a9" "0x1912"
+:status :complete
+:comment "Support up to 4800DPI (Note: does not have less than 300DPI support)"

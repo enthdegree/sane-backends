@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "01 Jan 2019" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "20 Feb 2019" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
@@ -16,6 +16,8 @@ Currently, the following models work with this backend:
 .PP
 .RS
 PIXMA E510
+.br
+PIXMA G2000, G2100
 .br
 PIXMA MG2100, MG2200, MG2400, MG2500, MG2900, MG3100, MG3200
 .br
@@ -71,9 +73,11 @@ i-SENSYS MF4330d, MF4500, MF4700, MF4800, MF6100, MF8030
 .br
 i-SENSYS MF8200C, MF8300
 .br
-imageRUNNER 1020/1024/1025
+imageRUNNER 1020/1024/1025, 1133
 .br
 CanoScan 8800F, 9000F, 9000F Mark II
+.br
+CanoScan LiDE 300, 400
 .br
 MAXIFY MB2000, MB2100, MB2300, MB2700, MB5000
 .RE
@@ -101,7 +105,7 @@ PIXMA MP375R, MP493, MP495, MP740
 .br
 PIXMA MX320, MX390, MX430, MX450, MX490, MX710
 .br
-PIXMA G2000, G3000, G4000
+PIXMA G3000, G4000
 .br
 PIXMA TR7500, TR8500, TS5100, TS6000, TS9000, TS9100, TS9500
 .br
@@ -110,8 +114,6 @@ PIXUS MP5
 imageCLASS MF810/820, MF5630, MF5650, MF5750, MF8170c
 .br
 imageCLASS MPC190, D550, D570
-.br
-imageRUNNER 1133
 .br
 i-SENSYS MF220, MF410, MF630, MF731/733, MF5880dn, MF5900
 .br

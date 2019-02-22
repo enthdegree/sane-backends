@@ -959,6 +959,13 @@
 :status :good
 :comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI). Ethernet and WiFi not tested yet"
 
+
+model "imageCLASS MF733Cdw Color Laser MFP"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27e5"
+:status :good
+:comment "Working up to 600DPI"
+
 :model "i-SENSYS MF731/733"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x27e5"

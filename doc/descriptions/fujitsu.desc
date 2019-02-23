@@ -131,12 +131,6 @@
 :usbid "0x04c5" "0x116f"
 :comment "small, recent, discontinued"
 
-:model "fi-6125"
-:interface "USB"
-:status :complete
-:usbid "0x04c5" "0x11ee"
-:comment "small, recent, discontinued"
-
 :model "fi-6130"
 :interface "USB"
 :status :complete
@@ -562,11 +556,6 @@
 :interface "SCSI USB"
 :status :untested
 :usbid "0x04c5" "0x14bd"
-
-:model "fi-6225"
-:interface "USB"
-:status :untested
-:usbid "0x04c5" "0x11ef"
 
 :model "ScanSnap iX500EE"
 :interface "USB"

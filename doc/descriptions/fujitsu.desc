@@ -562,24 +562,6 @@
 :status :untested
 :usbid "0x04c5" "0x13f3"
 
-:model "ScanPartner SP25"
-:interface "USB"
-:status :unsupported
-:usbid "0x04c5" "0x1409"
-:comment "Possibly Genesys protocol?"
-
-:model "ScanPartner SP30"
-:interface "USB"
-:status :unsupported
-:usbid "0x04c5" "0x140a"
-:comment "Possibly Genesys protocol?"
-
-:model "ScanPartner SP30F"
-:interface "USB"
-:status :unsupported
-:usbid "0x04c5" "0x140c"
-:comment "Possibly Genesys protocol?"
-
 :model "N7100"
 :interface "USB Ethernet"
 :status :untested

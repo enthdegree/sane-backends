@@ -689,6 +689,24 @@
 :status :unsupported
 :comment "Genesys GL310 chipset, not supported by sane-genesys backend."
 
+:model "ScanPartner SP25"
+:interface "USB"
+:status :unsupported
+:usbid "0x04c5" "0x1409"
+:comment "Possibly Genesys protocol?"
+
+:model "ScanPartner SP30"
+:interface "USB"
+:status :unsupported
+:usbid "0x04c5" "0x140a"
+:comment "Possibly Genesys protocol?"
+
+:model "ScanPartner SP30F"
+:interface "USB"
+:status :unsupported
+:usbid "0x04c5" "0x140c"
+:comment "Possibly Genesys protocol?"
+
 ;********************************************************************************************
 
 :mfg "Genius"

@@ -276,7 +276,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_ipc_ipc3(in)                getbitfield(in+0x59, 1, 5)
 #define get_IN_ipc_rotation(in)            getbitfield(in+0x59, 1, 4)
 #define get_IN_ipc_hybrid_crop_deskew(in)  getbitfield(in+0x59, 1, 3)
-#define get_IN_ipc_ipc2_byte67(in)         getbitfield(in+0x59, 1, 0)
+#define get_IN_vpd_thru_byte_6f(in)        getbitfield(in+0x59, 1, 0)
 
 #define get_IN_compression_MH(in)          getbitfield(in+0x5a, 1, 7)
 #define get_IN_compression_MR(in)          getbitfield(in+0x5a, 1, 6)
@@ -382,9 +382,6 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_op_reverse(in)         getbitfield(in+0x79, 1, 1)
 
 #define get_IN_op_halt(in)            getbitfield(in+0x7a, 1, 7)
-
-/* some scanners need evpd inquiry data manipulated */
-#define set_IN_page_length(in,val)    in[0x04]=val
 
 /* ==================================================================== */
 /* page codes used by mode_sense and mode_select */

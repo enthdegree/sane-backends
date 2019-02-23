@@ -600,6 +600,9 @@
          - initial support for fi-7600/7700
          - autodetect various double feed capabilities using VPD
          - call send_lut if we are using a downloaded gamma table
+      v134 2019-02-23, MAN
+         - rewrite init_vpd for scanners which fail to report
+           overscan correctly
 
    SANE FLOW DIAGRAM
 
@@ -649,7 +652,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 133
+#define BUILD 134
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1238,6 +1241,8 @@ init_vpd (struct fujitsu *s)
   unsigned char in[INQUIRY_vpd_len];
   size_t inLen = INQUIRY_vpd_len;
 
+  int payload_len, payload_off;
+
   DBG (10, "init_vpd: start\n");
 
   /* get EVPD */
@@ -1254,527 +1259,569 @@ init_vpd (struct fujitsu *s)
     in, &inLen
   );
 
+  /*FIXME no vpd, set some defaults? */
+  if (ret != SANE_STATUS_GOOD && ret != SANE_STATUS_EOF) {
+    DBG (5, "init_vpd: Your scanner does not support VPD?\n");
+    DBG (5, "init_vpd: Please contact kitno455 at gmail dot com\n");
+    DBG (5, "init_vpd: with details of your scanner model.\n");
+    return ret;
+  }
+
+  /* In byte 4, the scanner sends the length of the remainder of
+   * the payload. But, this value is often bogus. */
+  payload_len = get_IN_page_length(in);
+
+  DBG (15, "init_vpd: length=%0x\n", payload_len);
+
   /* M3099 gives all data, but wrong length */
-  if (strstr (s->model_name, "M3099")
-    && (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF)
-    && get_IN_page_length (in) == 0x19){
-      DBG (5, "init_vpd: M3099 repair\n");
-      set_IN_page_length(in,0x5f);
+  if (strstr (s->model_name, "M3099") && payload_len == 0x19){
+    DBG (5, "init_vpd: M3099 repair\n");
+    payload_len = 0x5f;
   }
 
   /* M3097G has short vpd, fill in missing part */
-  else if (strstr (s->model_name, "M3097G")
-    && (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF)
-    && get_IN_page_length (in) == 0x19){
-      unsigned char vpd3097g[] = {
+  else if (strstr (s->model_name, "M3097G") && payload_len == 0x19){
+    unsigned char vpd3097g[] = {
 0, 0,
 0xc2, 0x08, 0, 0, 0, 0, 0, 0, 0xed, 0xbf, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0xff, 0xff, 0xff, 0, 0x45, 0x35, 0, 0xe0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0
-      };
-      DBG (5, "init_vpd: M3097G repair\n");
-      set_IN_page_length(in,0x5f);
-      memcpy(in+0x1e,vpd3097g,sizeof(vpd3097g));
+    };
 
-      /*IPC*/
-      if(strstr (s->model_name, "i")){
-         DBG (5, "init_vpd: M3097G IPC repair\n");
+    DBG (5, "init_vpd: M3097G repair\n");
+    payload_len = 0x5f;
+    memcpy(in+0x1e,vpd3097g,sizeof(vpd3097g));
 
-	 /*subwin cmd*/
-	 in[0x2b] = 1;
+    /*IPC*/
+    if(strstr (s->model_name, "i")){
+      DBG (5, "init_vpd: M3097G IPC repair\n");
 
-	 /*rif/dtc/sdtc/outline/emph/sep/mirr/wlf*/
-	 in[0x58] = 0xff;
+      /*subwin cmd*/
+      in[0x2b] = 1;
+ 
+      /*rif/dtc/sdtc/outline/emph/sep/mirr/wlf*/
+      in[0x58] = 0xff;
+ 
+      /*subwin/diffusion*/
+      in[0x59] = 0xc0;
+    }
 
-	 /*subwin/diffusion*/
-	 in[0x59] = 0xc0;
-      }
+    /*CMP*/
+    if(strstr (s->model_name, "m")){
+      DBG (5, "init_vpd: M3097G CMP repair\n");
 
-      /*CMP*/
-      if(strstr (s->model_name, "m")){
-         DBG (5, "init_vpd: M3097G CMP repair\n");
+      /*4megs*/
+      in[0x23] = 0x40;
 
-	 /*4megs*/
-	 in[0x23] = 0x40;
-
-	 /*mh/mr/mmr*/
-	 in[0x5a] = 0xe0;
-      }
+      /*mh/mr/mmr*/
+      in[0x5a] = 0xe0;
+    }
   }
 
-  DBG (15, "init_vpd: length=%0x\n",get_IN_page_length (in));
-
-  /* This scanner supports vital product data.
-   * Use this data to set dpi-lists etc. */
-  if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
-
-      DBG (15, "standard options\n");
-
-      s->basic_x_res = get_IN_basic_x_res (in);
-      DBG (15, "  basic x res: %d dpi\n",s->basic_x_res);
-
-      s->basic_y_res = get_IN_basic_y_res (in);
-      DBG (15, "  basic y res: %d dpi\n",s->basic_y_res);
-
-      s->step_x_res[MODE_LINEART] = get_IN_step_x_res (in);
-      DBG (15, "  step x res: %d dpi\n", s->step_x_res[MODE_LINEART]);
-
-      s->step_y_res[MODE_LINEART] = get_IN_step_y_res (in);
-      DBG (15, "  step y res: %d dpi\n", s->step_y_res[MODE_LINEART]);
-
-      s->max_x_res = get_IN_max_x_res (in);
-      DBG (15, "  max x res: %d dpi\n", s->max_x_res);
-
-      s->max_y_res = get_IN_max_y_res (in);
-      DBG (15, "  max y res: %d dpi\n", s->max_y_res);
-
-      s->min_x_res = get_IN_min_x_res (in);
-      DBG (15, "  min x res: %d dpi\n", s->min_x_res);
-
-      s->min_y_res = get_IN_min_y_res (in);
-      DBG (15, "  min y res: %d dpi\n", s->min_y_res);
-
-      /* some scanners list B&W resolutions. */
-      s->std_res[0] = get_IN_std_res_60 (in);
-      DBG (15, "  60 dpi: %d\n", s->std_res[0]);
-
-      s->std_res[1] = get_IN_std_res_75 (in);
-      DBG (15, "  75 dpi: %d\n", s->std_res[1]);
-
-      s->std_res[2] = get_IN_std_res_100 (in);
-      DBG (15, "  100 dpi: %d\n", s->std_res[2]);
-
-      s->std_res[3] = get_IN_std_res_120 (in);
-      DBG (15, "  120 dpi: %d\n", s->std_res[3]);
-
-      s->std_res[4] = get_IN_std_res_150 (in);
-      DBG (15, "  150 dpi: %d\n", s->std_res[4]);
-
-      s->std_res[5] = get_IN_std_res_160 (in);
-      DBG (15, "  160 dpi: %d\n", s->std_res[5]);
-
-      s->std_res[6] = get_IN_std_res_180 (in);
-      DBG (15, "  180 dpi: %d\n", s->std_res[6]);
-
-      s->std_res[7] = get_IN_std_res_200 (in);
-      DBG (15, "  200 dpi: %d\n", s->std_res[7]);
-
-      s->std_res[8] = get_IN_std_res_240 (in);
-      DBG (15, "  240 dpi: %d\n", s->std_res[8]);
-
-      s->std_res[9] = get_IN_std_res_300 (in);
-      DBG (15, "  300 dpi: %d\n", s->std_res[9]);
-
-      s->std_res[10] = get_IN_std_res_320 (in);
-      DBG (15, "  320 dpi: %d\n", s->std_res[10]);
-
-      s->std_res[11] = get_IN_std_res_400 (in);
-      DBG (15, "  400 dpi: %d\n", s->std_res[11]);
-
-      s->std_res[12] = get_IN_std_res_480 (in);
-      DBG (15, "  480 dpi: %d\n", s->std_res[12]);
-
-      s->std_res[13] = get_IN_std_res_600 (in);
-      DBG (15, "  600 dpi: %d\n", s->std_res[13]);
-
-      s->std_res[14] = get_IN_std_res_800 (in);
-      DBG (15, "  800 dpi: %d\n", s->std_res[14]);
-
-      s->std_res[15] = get_IN_std_res_1200 (in);
-      DBG (15, "  1200 dpi: %d\n", s->std_res[15]);
-
-      /* maximum window width and length are reported in basic units.*/
-      s->max_x_basic = get_IN_window_width(in);
-      DBG(15, "  max width: %2.2f inches\n",(float)s->max_x_basic/s->basic_x_res);
-
-      s->max_y_basic = get_IN_window_length(in);
-      DBG(15, "  max length: %2.2f inches\n",(float)s->max_y_basic/s->basic_y_res);
-
-      /* known modes */
-      s->can_overflow = get_IN_overflow(in);
-      DBG (15, "  overflow: %d\n", s->can_overflow);
-
-      s->can_mode[MODE_LINEART] = get_IN_monochrome (in);
-      DBG (15, "  monochrome: %d\n", s->can_mode[MODE_LINEART]);
-
-      s->can_mode[MODE_HALFTONE] = get_IN_half_tone (in);
-      DBG (15, "  halftone: %d\n", s->can_mode[MODE_HALFTONE]);
-
-      s->can_mode[MODE_GRAYSCALE] = get_IN_multilevel (in);
-      DBG (15, "  grayscale: %d\n", s->can_mode[MODE_GRAYSCALE]);
-
-      DBG (15, "  color_monochrome: %d\n", get_IN_monochrome_rgb(in));
-      DBG (15, "  color_halftone: %d\n", get_IN_half_tone_rgb(in));
-
-      s->can_mode[MODE_COLOR] = get_IN_multilevel_rgb (in);
-      DBG (15, "  color_grayscale: %d\n", s->can_mode[MODE_COLOR]);
-
-      /* now we look at vendor specific data */
-      if (get_IN_page_length (in) >= 0x5f) {
-
-          DBG (15, "vendor options\n");
-
-          s->has_adf = get_IN_adf(in);
-          DBG (15, "  adf: %d\n", s->has_adf);
-
-          s->has_flatbed = get_IN_flatbed(in);
-          DBG (15, "  flatbed: %d\n", s->has_flatbed);
-
-          s->has_transparency = get_IN_transparency(in);
-          DBG (15, "  transparency: %d\n", s->has_transparency);
-
-          s->has_duplex = get_IN_duplex(in);
-          s->has_back = s->has_duplex;
-          DBG (15, "  duplex: %d\n", s->has_duplex);
-
-          s->has_endorser_b = get_IN_endorser_b(in);
-          DBG (15, "  back endorser: %d\n", s->has_endorser_b);
-
-          s->has_barcode = get_IN_barcode(in);
-          DBG (15, "  barcode: %d\n", s->has_barcode);
-
-          s->has_operator_panel = get_IN_operator_panel(in);
-          DBG (15, "  operator panel: %d\n", s->has_operator_panel);
-
-          s->has_endorser_f = get_IN_endorser_f(in);
-          DBG (15, "  front endorser: %d\n", s->has_endorser_f);
-
-          DBG (15, "  multi-purpose stacker: %d\n", get_IN_mp_stacker(in));
-
-          DBG (15, "  prepick: %d\n", get_IN_prepick(in));
-          DBG (15, "  mf detect: %d\n", get_IN_mf_detect(in));
-
-          s->has_paper_protect = get_IN_paperprot(in);
-          DBG (15, "  paper protection: %d\n", s->has_paper_protect);
-
-          s->adbits = get_IN_adbits(in);
-          DBG (15, "  A/D bits: %d\n",s->adbits);
-
-          s->buffer_bytes = get_IN_buffer_bytes(in);
-          DBG (15, "  buffer bytes: %d\n",s->buffer_bytes);
-
-          DBG (15, "Standard commands\n");
-
-          /* std scsi command support byte 26*/
-          s->has_cmd_msen10 = get_IN_has_cmd_msen10(in);
-          DBG (15, "  mode_sense_10 cmd: %d\n", s->has_cmd_msen10);
-
-          s->has_cmd_msel10 = get_IN_has_cmd_msel10(in);
-          DBG (15, "  mode_select_10 cmd: %d\n", s->has_cmd_msel10);
-
-          /* std scsi command support byte 27*/
-          s->has_cmd_lsen = get_IN_has_cmd_lsen(in);
-          DBG (15, "  log_sense cmd: %d\n", s->has_cmd_lsen);
-
-          s->has_cmd_lsel = get_IN_has_cmd_lsel(in);
-          DBG (15, "  log_select cmd: %d\n", s->has_cmd_lsel);
-
-          s->has_cmd_change = get_IN_has_cmd_change(in);
-          DBG (15, "  change cmd: %d\n", s->has_cmd_change);
-
-          s->has_cmd_rbuff = get_IN_has_cmd_rbuff(in);
-          DBG (15, "  read_buffer cmd: %d\n", s->has_cmd_rbuff);
-
-          s->has_cmd_wbuff = get_IN_has_cmd_wbuff(in);
-          DBG (15, "  write_buffer cmd: %d\n", s->has_cmd_wbuff);
-
-          s->has_cmd_cav = get_IN_has_cmd_cav(in);
-          DBG (15, "  copy_and_verify cmd: %d\n", s->has_cmd_cav);
-
-          s->has_cmd_comp = get_IN_has_cmd_comp(in);
-          DBG (15, "  compare cmd: %d\n", s->has_cmd_comp);
-
-          s->has_cmd_gdbs = get_IN_has_cmd_gdbs(in);
-          DBG (15, "  get_d_b_status cmd: %d\n", s->has_cmd_gdbs);
-
-          /* std scsi command support byte 28*/
-          s->has_cmd_op = get_IN_has_cmd_op(in);
-          DBG (15, "  object_pos cmd: %d\n", s->has_cmd_op);
-
-          s->has_cmd_send = get_IN_has_cmd_send(in);
-          DBG (15, "  send cmd: %d\n", s->has_cmd_send);
-
-          s->has_cmd_read = get_IN_has_cmd_read(in);
-          DBG (15, "  read cmd: %d\n", s->has_cmd_read);
-
-          s->has_cmd_gwin = get_IN_has_cmd_gwin(in);
-          DBG (15, "  get_window cmd: %d\n", s->has_cmd_gwin);
-
-          s->has_cmd_swin = get_IN_has_cmd_swin(in);
-          DBG (15, "  set_window cmd: %d\n", s->has_cmd_swin);
-
-          s->has_cmd_sdiag = get_IN_has_cmd_sdiag(in);
-          DBG (15, "  send_diag cmd: %d\n", s->has_cmd_sdiag);
-
-          s->has_cmd_rdiag = get_IN_has_cmd_rdiag(in);
-          DBG (15, "  read_diag cmd: %d\n", s->has_cmd_rdiag);
-
-          s->has_cmd_scan = get_IN_has_cmd_scan(in);
-          DBG (15, "  scan cmd: %d\n", s->has_cmd_scan);
-
-          /* std scsi command support byte 29*/
-          s->has_cmd_msen6 = get_IN_has_cmd_msen6(in);
-          DBG (15, "  mode_sense_6 cmd: %d\n", s->has_cmd_msen6);
-
-          s->has_cmd_copy = get_IN_has_cmd_copy(in);
-          DBG (15, "  copy cmd: %d\n", s->has_cmd_copy);
-
-          s->has_cmd_rel = get_IN_has_cmd_rel(in);
-          DBG (15, "  release cmd: %d\n", s->has_cmd_rel);
-
-          s->has_cmd_runit = get_IN_has_cmd_runit(in);
-          DBG (15, "  reserve_unit cmd: %d\n", s->has_cmd_runit);
-
-          s->has_cmd_msel6 = get_IN_has_cmd_msel6(in);
-          DBG (15, "  mode_select_6 cmd: %d\n", s->has_cmd_msel6);
-
-          s->has_cmd_inq = get_IN_has_cmd_inq(in);
-          DBG (15, "  inquiry cmd: %d\n", s->has_cmd_inq);
-
-          s->has_cmd_rs = get_IN_has_cmd_rs(in);
-          DBG (15, "  request_sense cmd: %d\n", s->has_cmd_rs);
-
-          s->has_cmd_tur = get_IN_has_cmd_tur(in);
-          DBG (15, "  test_unit_ready cmd: %d\n", s->has_cmd_tur);
-
-          /* vendor added scsi command support */
-          /* FIXME: there are more of these... */
-          DBG (15, "Vendor commands\n");
-
-          s->has_cmd_subwindow = get_IN_has_cmd_subwindow(in);
-          DBG (15, "  subwindow cmd: %d\n", s->has_cmd_subwindow);
-
-          s->has_cmd_endorser = get_IN_has_cmd_endorser(in);
-          DBG (15, "  endorser cmd: %d\n", s->has_cmd_endorser);
-
-          s->has_cmd_hw_status = get_IN_has_cmd_hw_status (in);
-          DBG (15, "  hardware status cmd: %d\n", s->has_cmd_hw_status);
-
-          s->has_cmd_hw_status_2 = get_IN_has_cmd_hw_status_2 (in);
-          DBG (15, "  hardware status 2 cmd: %d\n", s->has_cmd_hw_status_2);
-
-          s->has_cmd_hw_status_3 = get_IN_has_cmd_hw_status_3 (in);
-          DBG (15, "  hardware status 3 cmd: %d\n", s->has_cmd_hw_status_3);
-
-          s->has_cmd_scanner_ctl = get_IN_has_cmd_scanner_ctl(in);
-          DBG (15, "  scanner control cmd: %d\n", s->has_cmd_scanner_ctl);
-
-          s->has_cmd_device_restart = get_IN_has_cmd_device_restart(in);
-          DBG (15, "  device restart cmd: %d\n", s->has_cmd_device_restart);
-
-          /* get threshold, brightness and contrast ranges. */
-          s->brightness_steps = get_IN_brightness_steps(in);
-          DBG (15, "  brightness steps: %d\n", s->brightness_steps);
-
-          s->threshold_steps = get_IN_threshold_steps(in);
-          DBG (15, "  threshold steps: %d\n", s->threshold_steps);
-
-          s->contrast_steps = get_IN_contrast_steps(in);
-          DBG (15, "  contrast steps: %d\n", s->contrast_steps);
-
-          /* dither/gamma patterns */
-	  s->num_internal_gamma = get_IN_num_gamma_internal (in);
-          DBG (15, "  built in gamma patterns: %d\n", s->num_internal_gamma);
-
-	  s->num_download_gamma = get_IN_num_gamma_download (in);
-          DBG (15, "  download gamma patterns: %d\n", s->num_download_gamma);
-
-	  s->num_internal_dither = get_IN_num_dither_internal (in);
-          DBG (15, "  built in dither patterns: %d\n", s->num_internal_dither);
-
-	  s->num_download_dither = get_IN_num_dither_download (in);
-          DBG (15, "  download dither patterns: %d\n", s->num_download_dither);
-
-          /* ipc functions */
-	  s->has_rif = get_IN_ipc_bw_rif (in);
-          DBG (15, "  RIF: %d\n", s->has_rif);
-
-          s->has_dtc = get_IN_ipc_dtc(in);
-          DBG (15, "  DTC (AutoI): %d\n", s->has_dtc);
-
-          s->has_sdtc = get_IN_ipc_sdtc(in);
-          DBG (15, "  SDTC (AutoII): %d\n", s->has_sdtc);
-
-          s->has_outline = get_IN_ipc_outline_extraction (in);
-          DBG (15, "  outline extraction: %d\n", s->has_outline);
-
-          s->has_emphasis = get_IN_ipc_image_emphasis (in);
-          DBG (15, "  image emphasis: %d\n", s->has_emphasis);
-
-          s->has_autosep = get_IN_ipc_auto_separation (in);
-          DBG (15, "  automatic separation: %d\n", s->has_autosep);
-
-          s->has_mirroring = get_IN_ipc_mirroring (in);
-          DBG (15, "  mirror image: %d\n", s->has_mirroring);
-
-          s->has_wl_follow = get_IN_ipc_wl_follow (in);
-          DBG (15, "  white level follower: %d\n", s->has_wl_follow);
-
-          /* byte 58 */
-          s->has_subwindow = get_IN_ipc_subwindow (in);
-          DBG (15, "  subwindow: %d\n", s->has_subwindow);
-
-          s->has_diffusion = get_IN_ipc_diffusion (in);
-          DBG (15, "  diffusion: %d\n", s->has_diffusion);
-
-          s->has_ipc3 = get_IN_ipc_ipc3 (in);
-          DBG (15, "  ipc3: %d\n", s->has_ipc3);
-
-          s->has_rotation = get_IN_ipc_rotation (in);
-          DBG (15, "  rotation: %d\n", s->has_rotation);
-
-          s->has_hybrid_crop_deskew = get_IN_ipc_hybrid_crop_deskew(in);
-          DBG (15, "  hybrid crop deskew: %d\n", s->has_hybrid_crop_deskew);
-
-          DBG (15, "  ipc2 byte 67: %d\n", get_IN_ipc_ipc2_byte67(in));
-
-          /* compression modes */
-          s->has_comp_MH = get_IN_compression_MH (in);
-          DBG (15, "  compression MH: %d\n", s->has_comp_MH);
-
-          s->has_comp_MR = get_IN_compression_MR (in);
-          DBG (15, "  compression MR: %d\n", s->has_comp_MR);
-
-          s->has_comp_MMR = get_IN_compression_MMR (in);
-          DBG (15, "  compression MMR: %d\n", s->has_comp_MMR);
-
-          s->has_comp_JBIG = get_IN_compression_JBIG (in);
-          DBG (15, "  compression JBIG: %d\n", s->has_comp_JBIG);
-
-          s->has_comp_JPG1 = get_IN_compression_JPG_BASE (in);
-          DBG (15, "  compression JPG1: %d\n", s->has_comp_JPG1);
-#ifdef SANE_JPEG_DISABLED
-          DBG (15, "  (Disabled)\n");
-#endif
-
-          s->has_comp_JPG2 = get_IN_compression_JPG_EXT (in);
-          DBG (15, "  compression JPG2: %d\n", s->has_comp_JPG2);
-
-          s->has_comp_JPG3 = get_IN_compression_JPG_INDEP (in);
-          DBG (15, "  compression JPG3: %d\n", s->has_comp_JPG3);
-
-          /* FIXME: we dont store these? */
-          DBG (15, "  back endorser mech: %d\n", get_IN_endorser_b_mech(in));
-          DBG (15, "  back endorser stamp: %d\n", get_IN_endorser_b_stamp(in));
-          DBG (15, "  back endorser elec: %d\n", get_IN_endorser_b_elec(in));
-          DBG (15, "  endorser max id: %d\n", get_IN_endorser_max_id(in));
-
-          DBG (15, "  front endorser mech: %d\n", get_IN_endorser_f_mech(in));
-          DBG (15, "  front endorser stamp: %d\n", get_IN_endorser_f_stamp(in));
-          DBG (15, "  front endorser elec: %d\n", get_IN_endorser_f_elec(in));
-
-          s->endorser_type_b = get_IN_endorser_b_type(in);
-          DBG (15, "  back endorser type: %d\n", s->endorser_type_b);
-
-          s->endorser_type_f = get_IN_endorser_f_type(in);
-          DBG (15, "  back endorser type: %d\n", s->endorser_type_f);
-
-          /*not all scanners go this far*/
-          if (get_IN_page_length (in) >= 0x67-5) {
-              DBG (15, "  connection type: %d\n", get_IN_connection(in));
-
-              DBG (15, "  endorser ext: %d\n", get_IN_endorser_type_ext(in));
-              DBG (15, "  endorser pr_b: %d\n", get_IN_endorser_pre_back(in));
-              DBG (15, "  endorser pr_f: %d\n", get_IN_endorser_pre_front(in));
-              DBG (15, "  endorser po_b: %d\n", get_IN_endorser_post_back(in));
-              DBG (15, "  endorser po_f: %d\n", get_IN_endorser_post_front(in));
-
-              s->os_x_basic = get_IN_x_overscan_size(in);
-              DBG (15, "  horizontal overscan: %d\n", s->os_x_basic);
-
-              s->os_y_basic = get_IN_y_overscan_size(in);
-              DBG (15, "  vertical overscan: %d\n", s->os_y_basic);
-          }
-
-          if (get_IN_page_length (in) >= 0x70-5) {
-              DBG (15, "  default bg adf b: %d\n", get_IN_default_bg_adf_b(in));
-              DBG (15, "  default bg adf f: %d\n", get_IN_default_bg_adf_f(in));
-              DBG (15, "  default bg fb: %d\n", get_IN_default_bg_fb(in));
-
-              DBG (15, "  auto color: %d\n", get_IN_auto_color(in));
-              DBG (15, "  blank skip: %d\n", get_IN_blank_skip(in));
-              DBG (15, "  multi image: %d\n", get_IN_multi_image(in));
-              DBG (15, "  f b type indep: %d\n", get_IN_f_b_type_indep(in));
-              DBG (15, "  f b res indep: %d\n", get_IN_f_b_res_indep(in));
-
-              DBG (15, "  dropout spec: %d\n", get_IN_dropout_spec(in));
-              DBG (15, "  dropout non: %d\n", get_IN_dropout_non(in));
-              DBG (15, "  dropout white: %d\n", get_IN_dropout_white(in));
-
-              DBG (15, "  skew check: %d\n", get_IN_skew_check(in));
-              DBG (15, "  new feed roller: %d\n", get_IN_new_fd_roll(in));
-
-              s->has_adv_paper_prot = get_IN_paper_prot_2(in);
-              DBG (15, "  paper protection: %d\n", s->has_adv_paper_prot);
-          }
-
-          if (get_IN_page_length (in) > 0x70-5) {
-
-              DBG (15, "  paper count: %d\n", get_IN_paper_count(in));
-              DBG (15, "  paper number: %d\n", get_IN_paper_number(in));
-              DBG (15, "  ext send to: %d\n", get_IN_ext_send_to(in));
-
-              s->has_staple_detect = get_IN_staple_det(in);
-              DBG (15, "  staple det: %d\n", s->has_staple_detect);
-
-              DBG (15, "  pause host: %d\n", get_IN_pause_host(in));
-              DBG (15, "  pause panel: %d\n", get_IN_pause_panel(in));
-              DBG (15, "  pause conf: %d\n", get_IN_pause_conf(in));
-              DBG (15, "  hq print: %d\n", get_IN_hq_print(in));
-
-              DBG (15, "  ext GHS len: %d\n", get_IN_ext_GHS_len(in));
-
-              DBG (15, "  smbc func: %d\n", get_IN_smbc_func(in));
-              DBG (15, "  imprint chk b: %d\n", get_IN_imprint_chk_b(in));
-              DBG (15, "  imprint chk f: %d\n", get_IN_imprint_chk_f(in));
-              DBG (15, "  force w bg: %d\n", get_IN_force_w_bg(in));
-
-              s->has_df_recovery = get_IN_mf_recover_lvl(in);
-              DBG (15, "  mf recover lvl: %d\n", s->has_df_recovery);
-
-              DBG (15, "  first read time: %d\n", get_IN_first_read_time(in));
-              DBG (15, "  div scanning: %d\n", get_IN_div_scanning(in));
-              DBG (15, "  start job: %d\n", get_IN_start_job(in));
-              DBG (15, "  lifetime log: %d\n", get_IN_lifetime_log(in));
-              DBG (15, "  imff save rest: %d\n", get_IN_imff_save_rest(in));
-              DBG (15, "  wide scsi type: %d\n", get_IN_wide_scsi_type(in));
-
-              DBG (15, "  lut hybrid crop: %d\n", get_IN_lut_hybrid_crop(in));
-              DBG (15, "  over under amt: %d\n", get_IN_over_under_amt(in));
-              DBG (15, "  rgb lut: %d\n", get_IN_rgb_lut(in));
-              DBG (15, "  num lut dl: %d\n", get_IN_num_lut_dl(in));
-
-              s->has_off_mode = get_IN_erp_lot6_supp(in);
-              DBG (15, "  ErP Lot6 (power off timer): %d\n", s->has_off_mode);
-              DBG (15, "  sync next feed: %d\n", get_IN_sync_next_feed(in));
-
-              s->has_op_halt = get_IN_op_halt(in);
-              DBG (15, "  object position halt: %d\n", s->has_op_halt);
-          }
-
-          ret = SANE_STATUS_GOOD;
-      }
-
-      /*FIXME no vendor vpd, set some defaults? */
-      else{
-        DBG (5, "init_vpd: Your scanner supports only partial VPD?\n");
-        DBG (5, "init_vpd: Please contact kitno455 at gmail dot com\n");
-        DBG (5, "init_vpd: with details of your scanner model.\n");
-        ret = SANE_STATUS_INVAL;
-      }
-  }
-  /*FIXME no vpd, set some defaults? */
-  else{
-    DBG (5, "init_vpd: Your scanner does not support VPD?\n");
+  /* all other known scanners have at least 0x5f,
+   * less would require software changes like above */
+  else if (payload_len < 0x5f) {
+    DBG (5, "init_vpd: Your scanner supports only partial VPD?\n");
     DBG (5, "init_vpd: Please contact kitno455 at gmail dot com\n");
     DBG (5, "init_vpd: with details of your scanner model.\n");
+    return SANE_STATUS_INVAL;
+  }
+
+  /* Special case- some scanners will under-report the amount of
+   * valid vpd that they send, and return the default length. 
+   * Adding 4 more bytes allows us to include the overscan info.
+   * Scanners that don't support overscan seem to have all zeros
+   * in these bytes, so no harm is done. 
+   * This may be an 'off-by-four' error in the firmware. */
+  else if (payload_len == 0x5f){
+    payload_len += 4;
+  }
+
+  /* Having an offset from the beginning of the payload
+   * is more useful than from byte 4, as that matches the
+   * documentation more closely. */
+  payload_off = payload_len + 4;
+
+  /* everything that appears in bytes 0 to 0x1d */
+  DBG (15, "standard options\n");
+
+  s->basic_x_res = get_IN_basic_x_res (in);
+  DBG (15, "  basic x res: %d dpi\n",s->basic_x_res);
+
+  s->basic_y_res = get_IN_basic_y_res (in);
+  DBG (15, "  basic y res: %d dpi\n",s->basic_y_res);
+
+  s->step_x_res[MODE_LINEART] = get_IN_step_x_res (in);
+  DBG (15, "  step x res: %d dpi\n", s->step_x_res[MODE_LINEART]);
+
+  s->step_y_res[MODE_LINEART] = get_IN_step_y_res (in);
+  DBG (15, "  step y res: %d dpi\n", s->step_y_res[MODE_LINEART]);
+
+  s->max_x_res = get_IN_max_x_res (in);
+  DBG (15, "  max x res: %d dpi\n", s->max_x_res);
+
+  s->max_y_res = get_IN_max_y_res (in);
+  DBG (15, "  max y res: %d dpi\n", s->max_y_res);
+
+  s->min_x_res = get_IN_min_x_res (in);
+  DBG (15, "  min x res: %d dpi\n", s->min_x_res);
+
+  s->min_y_res = get_IN_min_y_res (in);
+  DBG (15, "  min y res: %d dpi\n", s->min_y_res);
+
+  /* some scanners list B&W resolutions. */
+  s->std_res[0] = get_IN_std_res_60 (in);
+  DBG (15, "  60 dpi: %d\n", s->std_res[0]);
+
+  s->std_res[1] = get_IN_std_res_75 (in);
+  DBG (15, "  75 dpi: %d\n", s->std_res[1]);
+
+  s->std_res[2] = get_IN_std_res_100 (in);
+  DBG (15, "  100 dpi: %d\n", s->std_res[2]);
+
+  s->std_res[3] = get_IN_std_res_120 (in);
+  DBG (15, "  120 dpi: %d\n", s->std_res[3]);
+
+  s->std_res[4] = get_IN_std_res_150 (in);
+  DBG (15, "  150 dpi: %d\n", s->std_res[4]);
+
+  s->std_res[5] = get_IN_std_res_160 (in);
+  DBG (15, "  160 dpi: %d\n", s->std_res[5]);
+
+  s->std_res[6] = get_IN_std_res_180 (in);
+  DBG (15, "  180 dpi: %d\n", s->std_res[6]);
+
+  s->std_res[7] = get_IN_std_res_200 (in);
+  DBG (15, "  200 dpi: %d\n", s->std_res[7]);
+
+  s->std_res[8] = get_IN_std_res_240 (in);
+  DBG (15, "  240 dpi: %d\n", s->std_res[8]);
+
+  s->std_res[9] = get_IN_std_res_300 (in);
+  DBG (15, "  300 dpi: %d\n", s->std_res[9]);
+
+  s->std_res[10] = get_IN_std_res_320 (in);
+  DBG (15, "  320 dpi: %d\n", s->std_res[10]);
+
+  s->std_res[11] = get_IN_std_res_400 (in);
+  DBG (15, "  400 dpi: %d\n", s->std_res[11]);
+
+  s->std_res[12] = get_IN_std_res_480 (in);
+  DBG (15, "  480 dpi: %d\n", s->std_res[12]);
+
+  s->std_res[13] = get_IN_std_res_600 (in);
+  DBG (15, "  600 dpi: %d\n", s->std_res[13]);
+
+  s->std_res[14] = get_IN_std_res_800 (in);
+  DBG (15, "  800 dpi: %d\n", s->std_res[14]);
+
+  s->std_res[15] = get_IN_std_res_1200 (in);
+  DBG (15, "  1200 dpi: %d\n", s->std_res[15]);
+
+  /* maximum window width and length are reported in basic units.*/
+  s->max_x_basic = get_IN_window_width(in);
+  DBG(15, "  max width: %2.2f inches\n",(float)s->max_x_basic/s->basic_x_res);
+
+  s->max_y_basic = get_IN_window_length(in);
+  DBG(15, "  max length: %2.2f inches\n",(float)s->max_y_basic/s->basic_y_res);
+
+  /* known modes */
+  s->can_overflow = get_IN_overflow(in);
+  DBG (15, "  overflow: %d\n", s->can_overflow);
+
+  s->can_mode[MODE_LINEART] = get_IN_monochrome (in);
+  DBG (15, "  monochrome: %d\n", s->can_mode[MODE_LINEART]);
+
+  s->can_mode[MODE_HALFTONE] = get_IN_half_tone (in);
+  DBG (15, "  halftone: %d\n", s->can_mode[MODE_HALFTONE]);
+
+  s->can_mode[MODE_GRAYSCALE] = get_IN_multilevel (in);
+  DBG (15, "  grayscale: %d\n", s->can_mode[MODE_GRAYSCALE]);
+
+  DBG (15, "  color_monochrome: %d\n", get_IN_monochrome_rgb(in));
+  DBG (15, "  color_halftone: %d\n", get_IN_half_tone_rgb(in));
+
+  s->can_mode[MODE_COLOR] = get_IN_multilevel_rgb (in);
+  DBG (15, "  color_grayscale: %d\n", s->can_mode[MODE_COLOR]);
+
+  /* now we look at vendor specific data in bytes 0x1e onward */
+  DBG (15, "vendor options\n");
+
+  s->has_adf = get_IN_adf(in);
+  DBG (15, "  adf: %d\n", s->has_adf);
+
+  s->has_flatbed = get_IN_flatbed(in);
+  DBG (15, "  flatbed: %d\n", s->has_flatbed);
+
+  s->has_transparency = get_IN_transparency(in);
+  DBG (15, "  transparency: %d\n", s->has_transparency);
+
+  s->has_duplex = get_IN_duplex(in);
+  s->has_back = s->has_duplex;
+  DBG (15, "  duplex: %d\n", s->has_duplex);
+
+  s->has_endorser_b = get_IN_endorser_b(in);
+  DBG (15, "  back endorser: %d\n", s->has_endorser_b);
+
+  s->has_barcode = get_IN_barcode(in);
+  DBG (15, "  barcode: %d\n", s->has_barcode);
+
+  s->has_operator_panel = get_IN_operator_panel(in);
+  DBG (15, "  operator panel: %d\n", s->has_operator_panel);
+
+  s->has_endorser_f = get_IN_endorser_f(in);
+  DBG (15, "  front endorser: %d\n", s->has_endorser_f);
+
+  DBG (15, "  multi-purpose stacker: %d\n", get_IN_mp_stacker(in));
+
+  DBG (15, "  prepick: %d\n", get_IN_prepick(in));
+  DBG (15, "  mf detect: %d\n", get_IN_mf_detect(in));
+
+  s->has_paper_protect = get_IN_paperprot(in);
+  DBG (15, "  paper protection: %d\n", s->has_paper_protect);
+
+  s->adbits = get_IN_adbits(in);
+  DBG (15, "  A/D bits: %d\n",s->adbits);
+
+  s->buffer_bytes = get_IN_buffer_bytes(in);
+  DBG (15, "  buffer bytes: %d\n",s->buffer_bytes);
+
+  DBG (15, "Standard commands\n");
+
+  /* std scsi command support byte 26*/
+  s->has_cmd_msen10 = get_IN_has_cmd_msen10(in);
+  DBG (15, "  mode_sense_10 cmd: %d\n", s->has_cmd_msen10);
+
+  s->has_cmd_msel10 = get_IN_has_cmd_msel10(in);
+  DBG (15, "  mode_select_10 cmd: %d\n", s->has_cmd_msel10);
+
+  /* std scsi command support byte 27*/
+  s->has_cmd_lsen = get_IN_has_cmd_lsen(in);
+  DBG (15, "  log_sense cmd: %d\n", s->has_cmd_lsen);
+
+  s->has_cmd_lsel = get_IN_has_cmd_lsel(in);
+  DBG (15, "  log_select cmd: %d\n", s->has_cmd_lsel);
+
+  s->has_cmd_change = get_IN_has_cmd_change(in);
+  DBG (15, "  change cmd: %d\n", s->has_cmd_change);
+
+  s->has_cmd_rbuff = get_IN_has_cmd_rbuff(in);
+  DBG (15, "  read_buffer cmd: %d\n", s->has_cmd_rbuff);
+
+  s->has_cmd_wbuff = get_IN_has_cmd_wbuff(in);
+  DBG (15, "  write_buffer cmd: %d\n", s->has_cmd_wbuff);
+
+  s->has_cmd_cav = get_IN_has_cmd_cav(in);
+  DBG (15, "  copy_and_verify cmd: %d\n", s->has_cmd_cav);
+
+  s->has_cmd_comp = get_IN_has_cmd_comp(in);
+  DBG (15, "  compare cmd: %d\n", s->has_cmd_comp);
+
+  s->has_cmd_gdbs = get_IN_has_cmd_gdbs(in);
+  DBG (15, "  get_d_b_status cmd: %d\n", s->has_cmd_gdbs);
+
+  /* std scsi command support byte 28*/
+  s->has_cmd_op = get_IN_has_cmd_op(in);
+  DBG (15, "  object_pos cmd: %d\n", s->has_cmd_op);
+
+  s->has_cmd_send = get_IN_has_cmd_send(in);
+  DBG (15, "  send cmd: %d\n", s->has_cmd_send);
+
+  s->has_cmd_read = get_IN_has_cmd_read(in);
+  DBG (15, "  read cmd: %d\n", s->has_cmd_read);
+
+  s->has_cmd_gwin = get_IN_has_cmd_gwin(in);
+  DBG (15, "  get_window cmd: %d\n", s->has_cmd_gwin);
+
+  s->has_cmd_swin = get_IN_has_cmd_swin(in);
+  DBG (15, "  set_window cmd: %d\n", s->has_cmd_swin);
+
+  s->has_cmd_sdiag = get_IN_has_cmd_sdiag(in);
+  DBG (15, "  send_diag cmd: %d\n", s->has_cmd_sdiag);
+
+  s->has_cmd_rdiag = get_IN_has_cmd_rdiag(in);
+  DBG (15, "  read_diag cmd: %d\n", s->has_cmd_rdiag);
+
+  s->has_cmd_scan = get_IN_has_cmd_scan(in);
+  DBG (15, "  scan cmd: %d\n", s->has_cmd_scan);
+
+  /* std scsi command support byte 29*/
+  s->has_cmd_msen6 = get_IN_has_cmd_msen6(in);
+  DBG (15, "  mode_sense_6 cmd: %d\n", s->has_cmd_msen6);
+
+  s->has_cmd_copy = get_IN_has_cmd_copy(in);
+  DBG (15, "  copy cmd: %d\n", s->has_cmd_copy);
+
+  s->has_cmd_rel = get_IN_has_cmd_rel(in);
+  DBG (15, "  release cmd: %d\n", s->has_cmd_rel);
+
+  s->has_cmd_runit = get_IN_has_cmd_runit(in);
+  DBG (15, "  reserve_unit cmd: %d\n", s->has_cmd_runit);
+
+  s->has_cmd_msel6 = get_IN_has_cmd_msel6(in);
+  DBG (15, "  mode_select_6 cmd: %d\n", s->has_cmd_msel6);
+
+  s->has_cmd_inq = get_IN_has_cmd_inq(in);
+  DBG (15, "  inquiry cmd: %d\n", s->has_cmd_inq);
+
+  s->has_cmd_rs = get_IN_has_cmd_rs(in);
+  DBG (15, "  request_sense cmd: %d\n", s->has_cmd_rs);
+
+  s->has_cmd_tur = get_IN_has_cmd_tur(in);
+  DBG (15, "  test_unit_ready cmd: %d\n", s->has_cmd_tur);
+
+  /* vendor added scsi command support */
+  /* FIXME: there are more of these... */
+  DBG (15, "Vendor commands\n");
+
+  s->has_cmd_subwindow = get_IN_has_cmd_subwindow(in);
+  DBG (15, "  subwindow cmd: %d\n", s->has_cmd_subwindow);
+
+  s->has_cmd_endorser = get_IN_has_cmd_endorser(in);
+  DBG (15, "  endorser cmd: %d\n", s->has_cmd_endorser);
+
+  s->has_cmd_hw_status = get_IN_has_cmd_hw_status (in);
+  DBG (15, "  hardware status cmd: %d\n", s->has_cmd_hw_status);
+
+  s->has_cmd_hw_status_2 = get_IN_has_cmd_hw_status_2 (in);
+  DBG (15, "  hardware status 2 cmd: %d\n", s->has_cmd_hw_status_2);
+
+  s->has_cmd_hw_status_3 = get_IN_has_cmd_hw_status_3 (in);
+  DBG (15, "  hardware status 3 cmd: %d\n", s->has_cmd_hw_status_3);
+
+  s->has_cmd_scanner_ctl = get_IN_has_cmd_scanner_ctl(in);
+  DBG (15, "  scanner control cmd: %d\n", s->has_cmd_scanner_ctl);
+
+  s->has_cmd_device_restart = get_IN_has_cmd_device_restart(in);
+  DBG (15, "  device restart cmd: %d\n", s->has_cmd_device_restart);
+
+  /* get threshold, brightness and contrast ranges. */
+  s->brightness_steps = get_IN_brightness_steps(in);
+  DBG (15, "  brightness steps: %d\n", s->brightness_steps);
+
+  s->threshold_steps = get_IN_threshold_steps(in);
+  DBG (15, "  threshold steps: %d\n", s->threshold_steps);
+
+  s->contrast_steps = get_IN_contrast_steps(in);
+  DBG (15, "  contrast steps: %d\n", s->contrast_steps);
+
+  /* dither/gamma patterns */
+  s->num_internal_gamma = get_IN_num_gamma_internal (in);
+  DBG (15, "  built in gamma patterns: %d\n", s->num_internal_gamma);
+
+  s->num_download_gamma = get_IN_num_gamma_download (in);
+  DBG (15, "  download gamma patterns: %d\n", s->num_download_gamma);
+
+  s->num_internal_dither = get_IN_num_dither_internal (in);
+  DBG (15, "  built in dither patterns: %d\n", s->num_internal_dither);
+
+  s->num_download_dither = get_IN_num_dither_download (in);
+  DBG (15, "  download dither patterns: %d\n", s->num_download_dither);
+
+  /* ipc functions */
+  s->has_rif = get_IN_ipc_bw_rif (in);
+  DBG (15, "  RIF: %d\n", s->has_rif);
+
+  s->has_dtc = get_IN_ipc_dtc(in);
+  DBG (15, "  DTC (AutoI): %d\n", s->has_dtc);
+
+  s->has_sdtc = get_IN_ipc_sdtc(in);
+  DBG (15, "  SDTC (AutoII): %d\n", s->has_sdtc);
+
+  s->has_outline = get_IN_ipc_outline_extraction (in);
+  DBG (15, "  outline extraction: %d\n", s->has_outline);
+
+  s->has_emphasis = get_IN_ipc_image_emphasis (in);
+  DBG (15, "  image emphasis: %d\n", s->has_emphasis);
+
+  s->has_autosep = get_IN_ipc_auto_separation (in);
+  DBG (15, "  automatic separation: %d\n", s->has_autosep);
+
+  s->has_mirroring = get_IN_ipc_mirroring (in);
+  DBG (15, "  mirror image: %d\n", s->has_mirroring);
+
+  s->has_wl_follow = get_IN_ipc_wl_follow (in);
+  DBG (15, "  white level follower: %d\n", s->has_wl_follow);
+
+  /* byte 58 */
+  s->has_subwindow = get_IN_ipc_subwindow (in);
+  DBG (15, "  subwindow: %d\n", s->has_subwindow);
+
+  s->has_diffusion = get_IN_ipc_diffusion (in);
+  DBG (15, "  diffusion: %d\n", s->has_diffusion);
+
+  s->has_ipc3 = get_IN_ipc_ipc3 (in);
+  DBG (15, "  ipc3: %d\n", s->has_ipc3);
+
+  s->has_rotation = get_IN_ipc_rotation (in);
+  DBG (15, "  rotation: %d\n", s->has_rotation);
+
+  s->has_hybrid_crop_deskew = get_IN_ipc_hybrid_crop_deskew(in);
+  DBG (15, "  hybrid crop deskew: %d\n", s->has_hybrid_crop_deskew);
+
+  /* this one is weird, overrides the payload length from scanner */
+  DBG (15, "  vpd extends to byte 6f: %d\n", get_IN_vpd_thru_byte_6f(in));
+  if(get_IN_vpd_thru_byte_6f(in) && payload_off < 0x6f){
+    payload_off = 0x6f;
+  }
+
+  /* compression modes */
+  s->has_comp_MH = get_IN_compression_MH (in);
+  DBG (15, "  compression MH: %d\n", s->has_comp_MH);
+
+  s->has_comp_MR = get_IN_compression_MR (in);
+  DBG (15, "  compression MR: %d\n", s->has_comp_MR);
+
+  s->has_comp_MMR = get_IN_compression_MMR (in);
+  DBG (15, "  compression MMR: %d\n", s->has_comp_MMR);
+
+  s->has_comp_JBIG = get_IN_compression_JBIG (in);
+  DBG (15, "  compression JBIG: %d\n", s->has_comp_JBIG);
+
+  s->has_comp_JPG1 = get_IN_compression_JPG_BASE (in);
+  DBG (15, "  compression JPG1: %d\n", s->has_comp_JPG1);
+#ifdef SANE_JPEG_DISABLED
+  DBG (15, "  (Disabled)\n");
+#endif
+
+  s->has_comp_JPG2 = get_IN_compression_JPG_EXT (in);
+  DBG (15, "  compression JPG2: %d\n", s->has_comp_JPG2);
+
+  s->has_comp_JPG3 = get_IN_compression_JPG_INDEP (in);
+  DBG (15, "  compression JPG3: %d\n", s->has_comp_JPG3);
+
+  /* FIXME: we dont store these? */
+  DBG (15, "  back endorser mech: %d\n", get_IN_endorser_b_mech(in));
+  DBG (15, "  back endorser stamp: %d\n", get_IN_endorser_b_stamp(in));
+  DBG (15, "  back endorser elec: %d\n", get_IN_endorser_b_elec(in));
+  DBG (15, "  endorser max id: %d\n", get_IN_endorser_max_id(in));
+
+  DBG (15, "  front endorser mech: %d\n", get_IN_endorser_f_mech(in));
+  DBG (15, "  front endorser stamp: %d\n", get_IN_endorser_f_stamp(in));
+  DBG (15, "  front endorser elec: %d\n", get_IN_endorser_f_elec(in));
+
+  s->endorser_type_b = get_IN_endorser_b_type(in);
+  DBG (15, "  back endorser type: %d\n", s->endorser_type_b);
+
+  s->endorser_type_f = get_IN_endorser_f_type(in);
+  DBG (15, "  back endorser type: %d\n", s->endorser_type_f);
+
+  DBG (15, "  connection type: %d\n", get_IN_connection(in));
+
+  DBG (15, "  endorser ext: %d\n", get_IN_endorser_type_ext(in));
+  DBG (15, "  endorser pr_b: %d\n", get_IN_endorser_pre_back(in));
+  DBG (15, "  endorser pr_f: %d\n", get_IN_endorser_pre_front(in));
+  DBG (15, "  endorser po_b: %d\n", get_IN_endorser_post_back(in));
+  DBG (15, "  endorser po_f: %d\n", get_IN_endorser_post_front(in));
+
+  s->os_x_basic = get_IN_x_overscan_size(in);
+  DBG (15, "  horizontal overscan: %d\n", s->os_x_basic);
+
+  s->os_y_basic = get_IN_y_overscan_size(in);
+  DBG (15, "  vertical overscan: %d\n", s->os_y_basic);
+
+  /* not all scanners go this far */
+  if (payload_off >= 0x68) {
+    DBG (15, "  default bg adf b: %d\n", get_IN_default_bg_adf_b(in));
+    DBG (15, "  default bg adf f: %d\n", get_IN_default_bg_adf_f(in));
+    DBG (15, "  default bg fb: %d\n", get_IN_default_bg_fb(in));
+  }
+
+  if (payload_off >= 0x69) {
+    DBG (15, "  auto color: %d\n", get_IN_auto_color(in));
+    DBG (15, "  blank skip: %d\n", get_IN_blank_skip(in));
+    DBG (15, "  multi image: %d\n", get_IN_multi_image(in));
+    DBG (15, "  f b type indep: %d\n", get_IN_f_b_type_indep(in));
+    DBG (15, "  f b res indep: %d\n", get_IN_f_b_res_indep(in));
+  }
+
+  if (payload_off >= 0x6a) {
+    DBG (15, "  dropout spec: %d\n", get_IN_dropout_spec(in));
+    DBG (15, "  dropout non: %d\n", get_IN_dropout_non(in));
+    DBG (15, "  dropout white: %d\n", get_IN_dropout_white(in));
+  }
+
+  if (payload_off >= 0x6d) {
+    DBG (15, "  skew check: %d\n", get_IN_skew_check(in));
+    DBG (15, "  new feed roller: %d\n", get_IN_new_fd_roll(in));
+    s->has_adv_paper_prot = get_IN_paper_prot_2(in);
+    DBG (15, "  paper protection: %d\n", s->has_adv_paper_prot);
+  }
+
+  /* this one is weird, overrides the payload length from scanner,
+   * but the enlarged area is just null bytes, so we ignore this */
+  if (payload_off >= 0x6f) {
+    DBG (15, "  extra evpd length: %d\n", get_IN_evpd_len(in));
+  }
+
+  if (payload_off >= 0x70) {
+    DBG (15, "  paper count: %d\n", get_IN_paper_count(in));
+    DBG (15, "  paper number: %d\n", get_IN_paper_number(in));
+    DBG (15, "  ext send to: %d\n", get_IN_ext_send_to(in));
+
+    s->has_staple_detect = get_IN_staple_det(in);
+    DBG (15, "  staple det: %d\n", s->has_staple_detect);
+
+    DBG (15, "  pause host: %d\n", get_IN_pause_host(in));
+    DBG (15, "  pause panel: %d\n", get_IN_pause_panel(in));
+    DBG (15, "  pause conf: %d\n", get_IN_pause_conf(in));
+    DBG (15, "  hq print: %d\n", get_IN_hq_print(in));
+  }
+
+  if (payload_off >= 0x71) {
+    DBG (15, "  ext GHS len: %d\n", get_IN_ext_GHS_len(in));
+  }
+
+  if (payload_off >= 0x72) {
+    DBG (15, "  smbc func: %d\n", get_IN_smbc_func(in));
+    DBG (15, "  imprint chk b: %d\n", get_IN_imprint_chk_b(in));
+    DBG (15, "  imprint chk f: %d\n", get_IN_imprint_chk_f(in));
+    DBG (15, "  force w bg: %d\n", get_IN_force_w_bg(in));
+
+    s->has_df_recovery = get_IN_mf_recover_lvl(in);
+    DBG (15, "  mf recover lvl: %d\n", s->has_df_recovery);
+  }
+
+  if (payload_off >= 0x73) {
+    DBG (15, "  first read time: %d\n", get_IN_first_read_time(in));
+    DBG (15, "  div scanning: %d\n", get_IN_div_scanning(in));
+    DBG (15, "  start job: %d\n", get_IN_start_job(in));
+    DBG (15, "  lifetime log: %d\n", get_IN_lifetime_log(in));
+    DBG (15, "  imff save rest: %d\n", get_IN_imff_save_rest(in));
+    DBG (15, "  wide scsi type: %d\n", get_IN_wide_scsi_type(in));
+  }
+
+  if (payload_off >= 0x74) {
+    DBG (15, "  lut hybrid crop: %d\n", get_IN_lut_hybrid_crop(in));
+    DBG (15, "  over under amt: %d\n", get_IN_over_under_amt(in));
+    DBG (15, "  rgb lut: %d\n", get_IN_rgb_lut(in));
+    DBG (15, "  num lut dl: %d\n", get_IN_num_lut_dl(in));
+  }
+
+  /* Various items below are poorly documented or missing */
+
+  if (payload_off >= 0x76) {
+    s->has_off_mode = get_IN_erp_lot6_supp(in);
+    DBG (15, "  ErP Lot6 (power off timer): %d\n", s->has_off_mode);
+    DBG (15, "  sync next feed: %d\n", get_IN_sync_next_feed(in));
+  }
+
+  if (payload_off >= 0x79) {
+    DBG (15, "  battery: %d\n", get_IN_battery(in));
+    DBG (15, "  battery save: %d\n", get_IN_battery_save(in));
+    DBG (15, "  object position reverse: %d\n", get_IN_op_reverse(in));
+  }
+
+  if (payload_off >= 0x7a) {
+    s->has_op_halt = get_IN_op_halt(in);
+    DBG (15, "  object position halt: %d\n", s->has_op_halt);
   }
 
   DBG (10, "init_vpd: finish\n");
 
-  return ret;
+  return SANE_STATUS_GOOD;
 }
 
 static SANE_Status

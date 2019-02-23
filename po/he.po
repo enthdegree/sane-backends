@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.27git\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
-"POT-Creation-Date: 2018-09-04 18:43+0300\n"
+"POT-Creation-Date: 2019-02-23 13:21-0500\n"
 "PO-Revision-Date: 2018-09-16 22:30+0300\n"
+"Last-Translator: Elishai Shkury <e1907@mm.st>\n"
+"Language-Team: Hebrew\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Last-Translator: Elishai Shkury <e1907@mm.st>\n"
-"Language-Team: Hebrew\n"
 "X-Generator: Poedit 2.0.6\n"
 
 #: include/sane/saneopts.h:154
@@ -28,28 +28,29 @@ msgid "Standard"
 msgstr "סטנדרט"
 
 #: include/sane/saneopts.h:157 backend/artec_eplus48u.c:2884
-#: backend/epson.c:3298 backend/epson2.c:1290 backend/genesys.c:5618
+#: backend/epson.c:3298 backend/epson2.c:1290 backend/genesys.c:5629
 #: backend/gt68xx.c:696 backend/hp3500.c:1019 backend/hp-option.c:3300
 #: backend/kvs1025_opt.c:639 backend/kvs20xx_opt.c:285
 #: backend/kvs40xx_opt.c:506 backend/leo.c:823 backend/lexmark.c:199
 #: backend/ma1509.c:551 backend/matsushita.c:1135 backend/microtek2.h:599
-#: backend/mustek.c:4373 backend/mustek_usb.c:301 backend/mustek_usb2.c:465
-#: backend/pixma_sane_options.c:160 backend/plustek.c:808
-#: backend/plustek_pp.c:747 backend/sceptre.c:702
-#: backend/snapscan-options.c:550 backend/teco1.c:1095 backend/teco2.c:1910
-#: backend/teco3.c:920 backend/test.c:647 backend/u12.c:546 backend/umax.c:5176
-#: backend/umax_pp.c:580
+#: backend/mustek.c:4373 backend/mustek_usb.c:301
+#: backend/mustek_usb2.c:465 backend/pixma_sane_options.c:160
+#: backend/plustek.c:808 backend/plustek_pp.c:747 backend/sceptre.c:702
+#: backend/snapscan-options.c:550 backend/teco1.c:1095
+#: backend/teco2.c:1910 backend/teco3.c:920 backend/test.c:647
+#: backend/u12.c:546 backend/umax.c:5176 backend/umax_pp.c:580
 #, no-c-format
 msgid "Geometry"
 msgstr "גיאומטריה"
 
 #: include/sane/saneopts.h:158 backend/artec_eplus48u.c:2805
-#: backend/canon.c:1493 backend/genesys.c:5678 backend/gt68xx.c:665
+#: backend/canon.c:1493 backend/genesys.c:5689 backend/gt68xx.c:665
 #: backend/hp-option.c:2956 backend/kvs1025_opt.c:703 backend/leo.c:871
 #: backend/ma1509.c:599 backend/matsushita.c:1189 backend/microtek2.h:600
-#: backend/mustek.c:4421 backend/mustek_usb.c:349 backend/mustek_usb2.c:431
-#: backend/niash.c:754 backend/plustek.c:854 backend/plustek_pp.c:793
-#: backend/sceptre.c:750 backend/snapscan-options.c:617 backend/stv680.c:1067
+#: backend/mustek.c:4421 backend/mustek_usb.c:349
+#: backend/mustek_usb2.c:431 backend/niash.c:754 backend/plustek.c:854
+#: backend/plustek_pp.c:793 backend/sceptre.c:750
+#: backend/snapscan-options.c:617 backend/stv680.c:1067
 #: backend/teco1.c:1143 backend/teco2.c:1958 backend/teco3.c:968
 #: backend/u12.c:592 backend/umax.c:5226 backend/umax_pp.c:629
 #, no-c-format
@@ -57,8 +58,9 @@ msgid "Enhancement"
 msgstr "הגדלה"
 
 #: include/sane/saneopts.h:159 backend/epson.c:3197 backend/epson2.c:1215
-#: backend/kvs20xx_opt.c:366 backend/kvs40xx_opt.c:597 backend/rts8891.c:2831
-#: backend/snapscan-options.c:923 backend/umax.c:5565
+#: backend/kvs20xx_opt.c:366 backend/kvs40xx_opt.c:597
+#: backend/rts8891.c:2831 backend/snapscan-options.c:923
+#: backend/umax.c:5565
 #, no-c-format
 msgid "Advanced"
 msgstr "מתקדם"
@@ -280,7 +282,7 @@ msgstr "שם קובץ"
 msgid "Halftone pattern size"
 msgstr "גודל תבנית הדפסת רשת"
 
-#: include/sane/saneopts.h:204 backend/fujitsu.c:3186
+#: include/sane/saneopts.h:204 backend/fujitsu.c:3233
 #, no-c-format
 msgid "Halftone pattern"
 msgstr "תבנית הדפסת רשת"
@@ -292,8 +294,8 @@ msgstr "קשור רזולוציה X ו-Y"
 
 #: include/sane/saneopts.h:206 backend/hp3900_sane.c:428
 #: backend/hp3900_sane.c:1021 backend/hp3900_sane.c:1421
-#: backend/hp-option.c:3238 backend/mustek_usb2.c:121 backend/plustek.c:236
-#: backend/plustek_pp.c:205 backend/u12.c:157
+#: backend/hp-option.c:3238 backend/mustek_usb2.c:121
+#: backend/plustek.c:236 backend/plustek_pp.c:205 backend/u12.c:157
 #, no-c-format
 msgid "Negative"
 msgstr "תשליל"
@@ -416,7 +418,8 @@ msgstr "מנורה כבויה ביציאה"
 #: include/sane/saneopts.h:245
 #, no-c-format
 msgid ""
-"Read-only option that specifies how many options a specific devices supports."
+"Read-only option that specifies how many options a specific devices "
+"supports."
 msgstr "אפשרות קריאה-בלבד המפרטת כמה אפשרויות נתמכות בהתקן מסוים."
 
 #: include/sane/saneopts.h:248
@@ -456,18 +459,18 @@ msgid ""
 "scanner this cuts down the number of passes to one and on a one-pass "
 "scanner, it reduces the memory requirements and scan-time of the preview."
 msgstr ""
-"בקש שכל הסריקות המקדימות יבוצעו במצב מונוכרום. בסורק תלת-מעברי זה מוריד את "
-"מספר המעברים לאחד ובסורק חד-מעברי, זה מוריד את דרישות הזיכרון וזמן הסריקה של "
-"הסריקה המקדימה."
+"בקש שכל הסריקות המקדימות יבוצעו במצב מונוכרום. בסורק תלת-מעברי זה מוריד "
+"את מספר המעברים לאחד ובסורק חד-מעברי, זה מוריד את דרישות הזיכרון וזמן "
+"הסריקה של הסריקה המקדימה."
 
 #: include/sane/saneopts.h:264
 #, no-c-format
 msgid ""
-"Number of bits per sample, typical values are 1 for \"line-art\" and 8 for "
-"multibit scans."
+"Number of bits per sample, typical values are 1 for \"line-art\" and 8 "
+"for multibit scans."
 msgstr ""
-"מספר ביטים פר דגימה, ערכים טיפוסיים הם 1 ל-\"סגנון-קווי\" ו-8 לסריקות מרובות "
-"ביטים."
+"מספר ביטים פר דגימה, ערכים טיפוסיים הם 1 ל-\"סגנון-קווי\" ו-8 לסריקות "
+"מרובות ביטים."
 
 #: include/sane/saneopts.h:268
 #, no-c-format
@@ -527,8 +530,8 @@ msgstr "קובע את הרזולוציה האנכית של התמונה הנסר
 #: include/sane/saneopts.h:301
 #, no-c-format
 msgid ""
-"Specifies the width of the media.  Required for automatic centering of sheet-"
-"fed scans."
+"Specifies the width of the media.  Required for automatic centering of "
+"sheet-fed scans."
 msgstr ""
 "מציין את הרוחב של המדיה. נדרש עבור מרכוז אוטומטי של סריקות מוזנות דפים."
 
@@ -539,18 +542,19 @@ msgstr "מציין את הגובה של המדיה."
 
 #: include/sane/saneopts.h:308
 #, no-c-format
-msgid "Determines whether a builtin or a custom gamma-table should be used."
+msgid ""
+"Determines whether a builtin or a custom gamma-table should be used."
 msgstr "קובע האם טבלת גמה מובנית או מותאמת אישית תהיה בשימוש."
 
 #: include/sane/saneopts.h:312
 #, no-c-format
 msgid ""
-"Gamma-correction table.  In color mode this option equally affects the red, "
-"green, and blue channels simultaneously (i.e., it is an intensity gamma "
-"table)."
+"Gamma-correction table.  In color mode this option equally affects the "
+"red, green, and blue channels simultaneously (i.e., it is an intensity "
+"gamma table)."
 msgstr ""
-"טבלת תיקון גמה. במצב צבע אפשרות זו משפיעה באופן שווה על ערוצי אדום, ירוק, "
-"וכחול בו זמנית (זאת אומרת, זו טבלת עוצמת גמה)."
+"טבלת תיקון גמה. במצב צבע אפשרות זו משפיעה באופן שווה על ערוצי אדום, "
+"ירוק, וכחול בו זמנית (זאת אומרת, זו טבלת עוצמת גמה)."
 
 #: include/sane/saneopts.h:317
 #, no-c-format
@@ -580,11 +584,11 @@ msgstr "קובע את הניגודיות של התמונה הנסרקת."
 #: include/sane/saneopts.h:332
 #, no-c-format
 msgid ""
-"Selects the \"graininess\" of the acquired image.  Smaller values result in "
-"sharper images."
+"Selects the \"graininess\" of the acquired image.  Smaller values result "
+"in sharper images."
 msgstr ""
-"בוחר את \"מידת הגרגיר\" של התמונה הנסרקת. ערכים נמוכים יותר גורמים לתמונות "
-"חדות יותר."
+"בוחר את \"מידת הגרגיר\" של התמונה הנסרקת. ערכים נמוכים יותר גורמים "
+"לתמונות חדות יותר."
 
 #: include/sane/saneopts.h:336
 #, no-c-format
@@ -638,12 +642,14 @@ msgstr "בוחר איזו רמת קרינה אדומה תיחשב \"אדום מ�
 
 #: include/sane/saneopts.h:367
 #, no-c-format
-msgid "Selects what green radiance level should be considered \"full green\"."
+msgid ""
+"Selects what green radiance level should be considered \"full green\"."
 msgstr "בוחר איזו רמת קרינה ירוקה תיחשב \"ירוק מלא\"."
 
 #: include/sane/saneopts.h:370
 #, no-c-format
-msgid "Selects what blue radiance level should be considered \"full blue\"."
+msgid ""
+"Selects what blue radiance level should be considered \"full blue\"."
 msgstr "בוחר איזו רמת קרינה כחולה תיחשב \"כחול מלא\"."
 
 #: include/sane/saneopts.h:374
@@ -654,11 +660,11 @@ msgstr "קובע את ה\"גוון\" (רמת כחול) של התמונה הנס�
 #: include/sane/saneopts.h:377
 #, no-c-format
 msgid ""
-"The saturation level controls the amount of \"blooming\" that occurs when "
-"acquiring an image with a camera. Larger values cause more blooming."
+"The saturation level controls the amount of \"blooming\" that occurs "
+"when acquiring an image with a camera. Larger values cause more blooming."
 msgstr ""
-"רמת הרוויה קובעת את מידת ה\"רעננות\" בעת צילום תמונה עם מצלמה. ערכים גבוהים "
-"יותר גורמים לרעננות גדולה יותר."
+"רמת הרוויה קובעת את מידת ה\"רעננות\" בעת צילום תמונה עם מצלמה. ערכים "
+"גבוהים יותר גורמים לרעננות גדולה יותר."
 
 #: include/sane/saneopts.h:382
 #, no-c-format
@@ -671,8 +677,8 @@ msgid ""
 "Sets the size of the halftoning (dithering) pattern used when scanning "
 "halftoned images."
 msgstr ""
-"קובע את גודל התבנית של הדפסת הרשת (dithering) בשימוש בסריקה של תמונות בהדפסת "
-"רשת."
+"קובע את גודל התבנית של הדפסת הרשת (dithering) בשימוש בסריקה של תמונות "
+"בהדפסת רשת."
 
 #: include/sane/saneopts.h:389
 #, no-c-format
@@ -963,8 +969,8 @@ msgstr "כייל לפני הסריקה הבאה"
 #: backend/artec_eplus48u.c:2943
 #, no-c-format
 msgid ""
-"If enabled, the device will be calibrated before the next scan. Otherwise, "
-"calibration is performed only before the first start."
+"If enabled, the device will be calibrated before the next scan. "
+"Otherwise, calibration is performed only before the first start."
 msgstr ""
 "אם מופעלת, ההתקן יעבור כיול לפני הסריקה הבאה. אחרת, כיול מבוצע רק לפני "
 "ההתחלה הראשונה."
@@ -977,12 +983,12 @@ msgstr "בצע רק תיקון הצללה"
 #: backend/artec_eplus48u.c:2956
 #, no-c-format
 msgid ""
-"If enabled, only the shading correction is performed during calibration. The "
-"default values for gain, offset and exposure time, either build-in or from "
-"the configuration file, are used."
+"If enabled, only the shading correction is performed during calibration. "
+"The default values for gain, offset and exposure time, either build-in "
+"or from the configuration file, are used."
 msgstr ""
-"אם מופעלת, רק תיקון הצללה מבוצע במהלך כיול. ערכי ברירת מחדל עבור הגבר, אופסט "
-"וזמן חשיפה, בין אם מובנים או מקובץ הגדרות הם בשימוש."
+"אם מופעלת, רק תיקון הצללה מבוצע במהלך כיול. ערכי ברירת מחדל עבור הגבר, "
+"אופסט וזמן חשיפה, בין אם מובנים או מקובץ הגדרות הם בשימוש."
 
 #: backend/artec_eplus48u.c:2967
 #, no-c-format
@@ -1006,7 +1012,8 @@ msgstr "סריקה דו צדדית"
 
 #: backend/avision.h:783
 #, no-c-format
-msgid "Duplex scan provide a scan of the front and back side of the document"
+msgid ""
+"Duplex scan provide a scan of the front and back side of the document"
 msgstr "סריקה דו צדדית מאפשרת סריקה של העמוד הקדמי והאחורי של המסמך"
 
 #: backend/canon630u.c:159
@@ -1429,7 +1436,8 @@ msgstr "הוצא את הסרט לפני עזיבה"
 
 #: backend/canon.c:1676
 #, no-c-format
-msgid "Automatically eject the film from the device before exiting the program"
+msgid ""
+"Automatically eject the film from the device before exiting the program"
 msgstr "הוצא את הסרט אוטומטית מההתקן לפני עזיבת היישום"
 
 #: backend/canon.c:1685
@@ -1503,29 +1511,30 @@ msgid "Select the film type"
 msgstr "בחר את סוג הסרט"
 
 #: backend/canon_dr.c:408 backend/epjitsu.c:233 backend/epson.c:501
-#: backend/epson2.c:115 backend/fujitsu.c:672 backend/gt68xx.c:148
+#: backend/epson2.c:115 backend/fujitsu.c:675 backend/gt68xx.c:148
 #: backend/hp3900_sane.c:418 backend/hp3900_sane.c:427
 #: backend/hp3900_sane.c:1017 backend/hp5590.c:92 backend/ma1509.c:108
 #: backend/magicolor.c:181 backend/mustek.c:156 backend/mustek.c:160
-#: backend/mustek.c:164 backend/pixma.c:920 backend/pixma_sane_options.c:92
-#: backend/snapscan-options.c:86 backend/test.c:192 backend/umax.c:181
+#: backend/mustek.c:164 backend/pixma.c:920
+#: backend/pixma_sane_options.c:92 backend/snapscan-options.c:86
+#: backend/test.c:192 backend/umax.c:181
 #, no-c-format
 msgid "Flatbed"
 msgstr "סורק שטוח"
 
-#: backend/canon_dr.c:409 backend/epjitsu.c:234 backend/fujitsu.c:673
+#: backend/canon_dr.c:409 backend/epjitsu.c:234 backend/fujitsu.c:676
 #: backend/kodak.c:140
 #, no-c-format
 msgid "ADF Front"
 msgstr "חזית מזין מסמכים אוטומטי"
 
-#: backend/canon_dr.c:410 backend/epjitsu.c:235 backend/fujitsu.c:674
+#: backend/canon_dr.c:410 backend/epjitsu.c:235 backend/fujitsu.c:677
 #: backend/kodak.c:141
 #, no-c-format
 msgid "ADF Back"
 msgstr "אחורי מזין מסמכים אוטומטי"
 
-#: backend/canon_dr.c:411 backend/epjitsu.c:236 backend/fujitsu.c:675
+#: backend/canon_dr.c:411 backend/epjitsu.c:236 backend/fujitsu.c:678
 #: backend/hp5590.c:94 backend/kodak.c:142 backend/pixma.c:931
 #, no-c-format
 msgid "ADF Duplex"
@@ -1547,22 +1556,22 @@ msgid "Card Duplex"
 msgstr "דו צדדי לוח"
 
 #: backend/canon_dr.c:421 backend/epson.c:599 backend/epson.c:3096
-#: backend/epson2.c:201 backend/fujitsu.c:692 backend/genesys.c:89
-#: backend/genesys.c:96 backend/gt68xx_low.h:133 backend/hp-option.c:3096
+#: backend/epson2.c:201 backend/fujitsu.c:695 backend/genesys.c:89
+#: backend/genesys.c:96 backend/gt68xx_low.h:136 backend/hp-option.c:3096
 #, no-c-format
 msgid "Red"
 msgstr "אדום"
 
 #: backend/canon_dr.c:422 backend/epson.c:600 backend/epson.c:3092
-#: backend/epson2.c:202 backend/fujitsu.c:693 backend/genesys.c:90
-#: backend/genesys.c:97 backend/gt68xx_low.h:134 backend/hp-option.c:3097
+#: backend/epson2.c:202 backend/fujitsu.c:696 backend/genesys.c:90
+#: backend/genesys.c:97 backend/gt68xx_low.h:137 backend/hp-option.c:3097
 #, no-c-format
 msgid "Green"
 msgstr "ירוק"
 
 #: backend/canon_dr.c:423 backend/epson.c:601 backend/epson.c:3100
-#: backend/epson2.c:203 backend/fujitsu.c:694 backend/genesys.c:91
-#: backend/genesys.c:98 backend/gt68xx_low.h:135 backend/hp-option.c:3098
+#: backend/epson2.c:203 backend/fujitsu.c:697 backend/genesys.c:91
+#: backend/genesys.c:98 backend/gt68xx_low.h:138 backend/hp-option.c:3098
 #, no-c-format
 msgid "Blue"
 msgstr "כחול"
@@ -1585,7 +1594,7 @@ msgstr "שפר כחול"
 #: backend/canon_dr.c:428 backend/epson.c:556 backend/epson.c:564
 #: backend/epson.c:576 backend/epson.c:598 backend/epson2.c:165
 #: backend/epson2.c:173 backend/epson2.c:185 backend/epson2.c:200
-#: backend/epson2.c:214 backend/fujitsu.c:698 backend/genesys.c:99
+#: backend/epson2.c:214 backend/fujitsu.c:701 backend/genesys.c:99
 #: backend/leo.c:109 backend/matsushita.c:138 backend/matsushita.c:159
 #: backend/matsushita.c:191 backend/matsushita.c:213
 #: backend/snapscan-options.c:91
@@ -1593,18 +1602,18 @@ msgstr "שפר כחול"
 msgid "None"
 msgstr "אף אחד"
 
-#: backend/canon_dr.c:429 backend/fujitsu.c:699
+#: backend/canon_dr.c:429 backend/fujitsu.c:702
 #, no-c-format
 msgid "JPEG"
 msgstr "JPEG"
 
-#: backend/canon_dr.c:2449 backend/fujitsu.c:4066 backend/genesys.c:5769
+#: backend/canon_dr.c:2449 backend/fujitsu.c:4113 backend/genesys.c:5780
 #: backend/kvs1025_opt.c:910
 #, no-c-format
 msgid "Software blank skip percentage"
 msgstr "אחוז דילוג מקום ריק של תוכנה"
 
-#: backend/canon_dr.c:2450 backend/fujitsu.c:4067
+#: backend/canon_dr.c:2450 backend/fujitsu.c:4114
 #, no-c-format
 msgid "Request driver to discard pages with low percentage of dark pixels"
 msgstr "בקש מהדרייבר לזנוח עמודים עם אחוז נמוך של פיקסלים כהים"
@@ -1615,8 +1624,8 @@ msgid "Simplex"
 msgstr "חד צדדי"
 
 #: backend/epson.c:492 backend/epson2.c:109 backend/kvs1025.h:50
-#: backend/kvs20xx_opt.c:204 backend/kvs40xx_opt.c:353 backend/magicolor.c:175
-#: backend/matsushita.h:218
+#: backend/kvs20xx_opt.c:204 backend/kvs40xx_opt.c:353
+#: backend/magicolor.c:175 backend/matsushita.h:218
 #, no-c-format
 msgid "Duplex"
 msgstr "דו צדדי"
@@ -1740,7 +1749,7 @@ msgstr "מדפסות הזרקת דיו"
 msgid "CRT monitors"
 msgstr "מסכי CRT"
 
-#: backend/epson.c:656 backend/epson2.c:254 backend/fujitsu.c:682
+#: backend/epson.c:656 backend/epson2.c:254 backend/fujitsu.c:685
 #: backend/hp-option.c:3229 backend/test.c:143
 #, no-c-format
 msgid "Default"
@@ -1804,14 +1813,16 @@ msgstr "A4"
 msgid "Max"
 msgstr "מירבי"
 
-#: backend/epson.c:2813 backend/epson2.c:976 backend/genesys.c:5535
+#: backend/epson.c:2813 backend/epson2.c:976 backend/genesys.c:5546
 #: backend/gt68xx.c:451 backend/hp-option.c:2917 backend/kvs1025_opt.c:521
-#: backend/kvs20xx_opt.c:171 backend/kvs40xx_opt.c:320 backend/ma1509.c:501
-#: backend/matsushita.c:1084 backend/microtek2.h:598 backend/mustek.c:4215
-#: backend/mustek_usb.c:256 backend/mustek_usb2.c:344 backend/niash.c:734
-#: backend/plustek.c:721 backend/plustek_pp.c:658 backend/sceptre.c:673
-#: backend/snapscan-options.c:354 backend/stv680.c:1030 backend/teco2.c:1882
-#: backend/test.c:306 backend/u12.c:473 backend/umax.c:5054
+#: backend/kvs20xx_opt.c:171 backend/kvs40xx_opt.c:320
+#: backend/ma1509.c:501 backend/matsushita.c:1084 backend/microtek2.h:598
+#: backend/mustek.c:4215 backend/mustek_usb.c:256
+#: backend/mustek_usb2.c:344 backend/niash.c:734 backend/plustek.c:721
+#: backend/plustek_pp.c:658 backend/sceptre.c:673
+#: backend/snapscan-options.c:354 backend/stv680.c:1030
+#: backend/teco2.c:1882 backend/test.c:306 backend/u12.c:473
+#: backend/umax.c:5054
 #, no-c-format
 msgid "Scan Mode"
 msgstr "מצב סריקה"
@@ -2024,11 +2035,11 @@ msgstr "בחר תא לסריקה"
 #: backend/epson.h:69 backend/epson2.h:68
 #, no-c-format
 msgid ""
-"Selects the gamma correction value from a list of pre-defined devices or the "
-"user defined table, which can be downloaded to the scanner"
+"Selects the gamma correction value from a list of pre-defined devices or "
+"the user defined table, which can be downloaded to the scanner"
 msgstr ""
-"בוחר את ערך תיקון גמה מרשימה של התקנים מוגדרים מראש או טבלה המוגדרת על ידי "
-"המשתמש, שניתן להוריד אל הסורק"
+"בוחר את ערך תיקון גמה מרשימה של התקנים מוגדרים מראש או טבלה המוגדרת על "
+"ידי המשתמש, שניתן להוריד אל הסורק"
 
 #: backend/epson.h:72 backend/epson2.h:71
 #, no-c-format
@@ -2037,7 +2048,8 @@ msgstr "מיקום פוקוס"
 
 #: backend/epson.h:73 backend/epson2.h:72
 #, no-c-format
-msgid "Sets the focus position to either the glass or 2.5mm above the glass"
+msgid ""
+"Sets the focus position to either the glass or 2.5mm above the glass"
 msgstr "קובע את מיקום הפוקוס לזכוכית או 2.5 מילימטר מעל הזכוכית"
 
 #: backend/epson.h:75 backend/epson2.h:74
@@ -2051,8 +2063,8 @@ msgid ""
 "After sending the scan command, wait until the button on the scanner is "
 "pressed to actually start the scan process."
 msgstr ""
-"לאחר שליחת פקודת הסריקה, חכה עד שהכפתור על הסורק יילחץ כדי להתחיל בפועל את "
-"תהליך הסריקה."
+"לאחר שליחת פקודת הסריקה, חכה עד שהכפתור על הסורק יילחץ כדי להתחיל בפועל "
+"את תהליך הסריקה."
 
 #: backend/epson2.c:102 backend/pixma.c:409
 #, no-c-format
@@ -2084,581 +2096,585 @@ msgstr "פרופיל CCT מובנה"
 msgid "User defined CCT profile"
 msgstr "פרופיל CCT מוגדר משתמש"
 
-#: backend/fujitsu.c:683 backend/hp-option.c:3330 backend/hp-option.c:3343
+#: backend/fujitsu.c:686 backend/hp-option.c:3330 backend/hp-option.c:3343
 #, no-c-format
 msgid "On"
 msgstr "דולק"
 
-#: backend/fujitsu.c:684 backend/hp-option.c:3162 backend/hp-option.c:3329
+#: backend/fujitsu.c:687 backend/hp-option.c:3162 backend/hp-option.c:3329
 #: backend/hp-option.c:3342
 #, no-c-format
 msgid "Off"
 msgstr "כבוי"
 
-#: backend/fujitsu.c:686
+#: backend/fujitsu.c:689
 #, no-c-format
 msgid "DTC"
 msgstr "DTC"
 
-#: backend/fujitsu.c:687
+#: backend/fujitsu.c:690
 #, no-c-format
 msgid "SDTC"
 msgstr "SDTC"
 
-#: backend/fujitsu.c:689 backend/teco1.c:1152 backend/teco1.c:1153
+#: backend/fujitsu.c:692 backend/teco1.c:1152 backend/teco1.c:1153
 #: backend/teco2.c:1967 backend/teco2.c:1968 backend/teco3.c:977
 #: backend/teco3.c:978
 #, no-c-format
 msgid "Dither"
 msgstr "Dither"
 
-#: backend/fujitsu.c:690
+#: backend/fujitsu.c:693
 #, no-c-format
 msgid "Diffusion"
 msgstr "דיפוזיה"
 
-#: backend/fujitsu.c:695
+#: backend/fujitsu.c:698
 #, no-c-format
 msgid "White"
 msgstr "לבן"
 
-#: backend/fujitsu.c:696
+#: backend/fujitsu.c:699
 #, no-c-format
 msgid "Black"
 msgstr "שחור"
 
-#: backend/fujitsu.c:701
+#: backend/fujitsu.c:704
 #, no-c-format
 msgid "Continue"
 msgstr "המשך"
 
-#: backend/fujitsu.c:702
+#: backend/fujitsu.c:705
 #, no-c-format
 msgid "Stop"
 msgstr "עצור"
 
-#: backend/fujitsu.c:704
+#: backend/fujitsu.c:707
 #, no-c-format
 msgid "10mm"
 msgstr "10 מילימטר"
 
-#: backend/fujitsu.c:705
+#: backend/fujitsu.c:708
 #, no-c-format
 msgid "15mm"
 msgstr "15 מילימטר"
 
-#: backend/fujitsu.c:706
+#: backend/fujitsu.c:709
 #, no-c-format
 msgid "20mm"
 msgstr "20 מילימטר"
 
-#: backend/fujitsu.c:708 backend/hp-option.c:3048
+#: backend/fujitsu.c:711 backend/hp-option.c:3048
 #, no-c-format
 msgid "Horizontal"
 msgstr "אופקי"
 
-#: backend/fujitsu.c:709
+#: backend/fujitsu.c:712
 #, no-c-format
 msgid "Horizontal bold"
 msgstr "אופקי מודגש"
 
-#: backend/fujitsu.c:710
+#: backend/fujitsu.c:713
 #, no-c-format
 msgid "Horizontal narrow"
 msgstr "אופקי צר"
 
-#: backend/fujitsu.c:711 backend/hp-option.c:3047
+#: backend/fujitsu.c:714 backend/hp-option.c:3047
 #, no-c-format
 msgid "Vertical"
 msgstr "אנכי"
 
-#: backend/fujitsu.c:712
+#: backend/fujitsu.c:715
 #, no-c-format
 msgid "Vertical bold"
 msgstr "אנכי מודגש"
 
-#: backend/fujitsu.c:714
+#: backend/fujitsu.c:717
 #, no-c-format
 msgid "Top to bottom"
 msgstr "מלמעלה למטה"
 
-#: backend/fujitsu.c:715
+#: backend/fujitsu.c:718
 #, no-c-format
 msgid "Bottom to top"
 msgstr "מלמטה למעלה"
 
-#: backend/fujitsu.c:717
+#: backend/fujitsu.c:720
 #, no-c-format
 msgid "Front"
 msgstr "חזית"
 
-#: backend/fujitsu.c:718
+#: backend/fujitsu.c:721
 #, no-c-format
 msgid "Back"
 msgstr "אחור"
 
-#: backend/fujitsu.c:3097 backend/pixma_sane_options.c:145
+#: backend/fujitsu.c:3144 backend/pixma_sane_options.c:145
 #, no-c-format
 msgid "Gamma function exponent"
 msgstr "פונקציית גמה אקספוננט"
 
-#: backend/fujitsu.c:3098 backend/pixma_sane_options.c:146
+#: backend/fujitsu.c:3145 backend/pixma_sane_options.c:146
 #, no-c-format
 msgid "Changes intensity of midtones"
 msgstr "משנה את העוצמה של גווני הביניים"
 
-#: backend/fujitsu.c:3147
+#: backend/fujitsu.c:3194
 #, no-c-format
 msgid "RIF"
 msgstr "RIF"
 
-#: backend/fujitsu.c:3148
+#: backend/fujitsu.c:3195
 #, no-c-format
 msgid "Reverse image format"
 msgstr "הפוך את עיצוב התמונה"
 
-#: backend/fujitsu.c:3165
+#: backend/fujitsu.c:3212
 #, no-c-format
 msgid "Halftone type"
 msgstr "סוג הדפסת רשת"
 
-#: backend/fujitsu.c:3166
+#: backend/fujitsu.c:3213
 #, no-c-format
 msgid "Control type of halftone filter"
 msgstr "סוג בקרה של מסנן הדפסת רשת"
 
-#: backend/fujitsu.c:3187
+#: backend/fujitsu.c:3234
 #, no-c-format
 msgid "Control pattern of halftone filter"
 msgstr "תבנית בקרה של מסנן הדפסת רשת"
 
-#: backend/fujitsu.c:3209
+#: backend/fujitsu.c:3256
 #, no-c-format
 msgid "Outline"
 msgstr "תרשים"
 
-#: backend/fujitsu.c:3210
+#: backend/fujitsu.c:3257
 #, no-c-format
 msgid "Perform outline extraction"
 msgstr "בצע חילוץ תרשים"
 
-#: backend/fujitsu.c:3221
+#: backend/fujitsu.c:3268
 #, no-c-format
 msgid "Emphasis"
 msgstr "הדגשה"
 
-#: backend/fujitsu.c:3222
+#: backend/fujitsu.c:3269
 #, no-c-format
 msgid "Negative to smooth or positive to sharpen image"
 msgstr "שלילי כדי להחליק או חיובי כדי לחדד את התמונה"
 
-#: backend/fujitsu.c:3240
+#: backend/fujitsu.c:3287
 #, no-c-format
 msgid "Separation"
 msgstr "הפרדה"
 
-#: backend/fujitsu.c:3241
+#: backend/fujitsu.c:3288
 #, no-c-format
 msgid "Enable automatic separation of image and text"
 msgstr "הפעל הפרדה אוטומטית של תמונה וטקסט"
 
-#: backend/fujitsu.c:3252
+#: backend/fujitsu.c:3299
 #, no-c-format
 msgid "Mirroring"
 msgstr "ביצוע תמונת ראי"
 
-#: backend/fujitsu.c:3253
+#: backend/fujitsu.c:3300
 #, no-c-format
 msgid "Reflect output image horizontally"
 msgstr "בצע שיקוף אופקי של תמונת הפלט"
 
-#: backend/fujitsu.c:3270
+#: backend/fujitsu.c:3317
 #, no-c-format
 msgid "White level follower"
 msgstr "עוקב רמת לבן"
 
-#: backend/fujitsu.c:3271
+#: backend/fujitsu.c:3318
 #, no-c-format
 msgid "Control white level follower"
 msgstr "שלוט על עוקב רמת לבן"
 
-#: backend/fujitsu.c:3289
+#: backend/fujitsu.c:3336
 #, no-c-format
 msgid "BP filter"
 msgstr "מסנן כדורי"
 
-#: backend/fujitsu.c:3290
+#: backend/fujitsu.c:3337
 #, no-c-format
 msgid "Improves quality of high resolution ball-point pen text"
 msgstr "משפר איכות טקסט של עט כדורי ברזולוציה גבוהה"
 
-#: backend/fujitsu.c:3306 backend/hp-option.h:73
+#: backend/fujitsu.c:3353 backend/hp-option.h:73
 #, no-c-format
 msgid "Smoothing"
 msgstr "החלקה"
 
-#: backend/fujitsu.c:3307
+#: backend/fujitsu.c:3354
 #, no-c-format
 msgid "Enable smoothing for improved OCR"
 msgstr "הפעל החלקה ל-OCR משופר"
 
-#: backend/fujitsu.c:3323
+#: backend/fujitsu.c:3370
 #, no-c-format
 msgid "Gamma curve"
 msgstr "עקום גמה"
 
-#: backend/fujitsu.c:3324
+#: backend/fujitsu.c:3371
 #, no-c-format
 msgid "Gamma curve, from light to dark, but upper two may not work"
 msgstr "עקום גמה, מבהיר לכהה, אך יתכן ושניים עליונים לא יעבדו"
 
-#: backend/fujitsu.c:3346 backend/genesys.c:5832
+#: backend/fujitsu.c:3393 backend/genesys.c:5843
 #: backend/pixma_sane_options.c:335
 #, no-c-format
 msgid "Threshold curve"
 msgstr "עקום סף"
 
-#: backend/fujitsu.c:3347
+#: backend/fujitsu.c:3394
 #, no-c-format
-msgid "Threshold curve, from light to dark, but upper two may not be linear"
+msgid ""
+"Threshold curve, from light to dark, but upper two may not be linear"
 msgstr "עקום סף, מבהיר לכהה, אך יתכן ושניים עליונים לא יהיו לינאריים"
 
-#: backend/fujitsu.c:3369
+#: backend/fujitsu.c:3416
 #, no-c-format
 msgid "Threshold white"
 msgstr "לבן סף"
 
-#: backend/fujitsu.c:3370
+#: backend/fujitsu.c:3417
 #, no-c-format
 msgid "Set pixels equal to threshold to white instead of black"
 msgstr "קבע פיקסלים שווים לסף ללבן במקום לשחור"
 
-#: backend/fujitsu.c:3386 backend/fujitsu.c:3387
+#: backend/fujitsu.c:3433 backend/fujitsu.c:3434
 #, no-c-format
 msgid "Noise removal"
 msgstr "הסרת רעשים"
 
-#: backend/fujitsu.c:3403
+#: backend/fujitsu.c:3450
 #, no-c-format
 msgid "Matrix 5x5"
 msgstr "מטריצה 5x5"
 
-#: backend/fujitsu.c:3404
+#: backend/fujitsu.c:3451
 #, no-c-format
 msgid "Remove 5 pixel square noise"
 msgstr "הסר רעשים ריבוע 5 פיקסל"
 
-#: backend/fujitsu.c:3420
+#: backend/fujitsu.c:3467
 #, no-c-format
 msgid "Matrix 4x4"
 msgstr "מטריצה 4x4"
 
-#: backend/fujitsu.c:3421
+#: backend/fujitsu.c:3468
 #, no-c-format
 msgid "Remove 4 pixel square noise"
 msgstr "הסר רעשים ריבוע 4 פיקסל"
 
-#: backend/fujitsu.c:3437
+#: backend/fujitsu.c:3484
 #, no-c-format
 msgid "Matrix 3x3"
 msgstr "מטריצה 3x3"
 
-#: backend/fujitsu.c:3438
+#: backend/fujitsu.c:3485
 #, no-c-format
 msgid "Remove 3 pixel square noise"
 msgstr "הסר רעשים ריבוע 3 פיקסל"
 
-#: backend/fujitsu.c:3454
+#: backend/fujitsu.c:3501
 #, no-c-format
 msgid "Matrix 2x2"
 msgstr "מטריצה 2x2"
 
-#: backend/fujitsu.c:3455
+#: backend/fujitsu.c:3502
 #, no-c-format
 msgid "Remove 2 pixel square noise"
 msgstr "הסר רעשים ריבוע 2 פיקסל"
 
-#: backend/fujitsu.c:3474
+#: backend/fujitsu.c:3521
 #, no-c-format
 msgid "Variance"
 msgstr "שונות"
 
-#: backend/fujitsu.c:3475
+#: backend/fujitsu.c:3522
 #, no-c-format
 msgid "Set SDTC variance rate (sensitivity), 0 equals 127"
 msgstr "קבע קצב שונות SDTC (רגישות), 0 שווה ל-127"
 
-#: backend/fujitsu.c:3508
+#: backend/fujitsu.c:3555
 #, no-c-format
 msgid "Auto width detection"
 msgstr "גילוי רוחב אוטומטי"
 
-#: backend/fujitsu.c:3509
+#: backend/fujitsu.c:3556
 #, no-c-format
 msgid "Scanner detects paper sides. May reduce scanning speed."
 msgstr "סורק מגלה צידי נייר. עלול להאט מהירות סריקה."
 
-#: backend/fujitsu.c:3526
+#: backend/fujitsu.c:3573
 #, no-c-format
 msgid "Auto length detection"
 msgstr "גילוי אורך אוטומטי"
 
-#: backend/fujitsu.c:3527
+#: backend/fujitsu.c:3574
 #, no-c-format
 msgid "Scanner detects paper lower edge. May confuse some frontends."
 msgstr "סורק מגלה קצה נמוך של נייר. עלול להטעות כמה ממשקים."
 
-#: backend/fujitsu.c:3553
+#: backend/fujitsu.c:3600
 #, no-c-format
 msgid "Compression"
 msgstr "דחיסה"
 
-#: backend/fujitsu.c:3554
+#: backend/fujitsu.c:3601
 #, no-c-format
 msgid "Enable compressed data. May crash your front-end program"
 msgstr "הפעל מידע דחוס. עלול לגרום לנפילה של יישום הממשק"
 
-#: backend/fujitsu.c:3574
+#: backend/fujitsu.c:3621
 #, no-c-format
 msgid "Compression argument"
 msgstr "ארגומנט דחיסה"
 
-#: backend/fujitsu.c:3575
+#: backend/fujitsu.c:3622
 #, no-c-format
 msgid ""
-"Level of JPEG compression. 1 is small file, 7 is large file. 0 (default) is "
-"same as 4"
-msgstr "רמת דחיסה JPEG. קובץ קטן זה 1, קובץ גדול זה 7. 0 (ברירת מחדל) זה כמו 4"
+"Level of JPEG compression. 1 is small file, 7 is large file. 0 (default) "
+"is same as 4"
+msgstr ""
+"רמת דחיסה JPEG. קובץ קטן זה 1, קובץ גדול זה 7. 0 (ברירת מחדל) זה כמו 4"
 
-#: backend/fujitsu.c:3605
+#: backend/fujitsu.c:3652
 #, no-c-format
 msgid "DF action"
 msgstr "פעולת DF"
 
-#: backend/fujitsu.c:3606
+#: backend/fujitsu.c:3653
 #, no-c-format
 msgid "Action following double feed error"
 msgstr "פעולה בעקבות תקלת הזנה כפולה"
 
-#: backend/fujitsu.c:3622
+#: backend/fujitsu.c:3669
 #, no-c-format
 msgid "DF skew"
 msgstr "עיוות DF"
 
-#: backend/fujitsu.c:3623
+#: backend/fujitsu.c:3670
 #, no-c-format
 msgid "Enable double feed error due to skew"
 msgstr "הפעל תקלת הזנה כפולה כתוצאה מעיוות"
 
-#: backend/fujitsu.c:3641
+#: backend/fujitsu.c:3688
 #, no-c-format
 msgid "DF thickness"
 msgstr "עובי DF"
 
-#: backend/fujitsu.c:3642
+#: backend/fujitsu.c:3689
 #, no-c-format
 msgid "Enable double feed error due to paper thickness"
 msgstr "הפעל תקלת הזנה כפולה כתוצאה מעובי נייר"
 
-#: backend/fujitsu.c:3660
+#: backend/fujitsu.c:3707
 #, no-c-format
 msgid "DF length"
 msgstr "אורך DF"
 
-#: backend/fujitsu.c:3661
+#: backend/fujitsu.c:3708
 #, no-c-format
 msgid "Enable double feed error due to paper length"
 msgstr "הפעל תקלת הזנה כפולה כתוצאה מאורך נייר"
 
-#: backend/fujitsu.c:3684
+#: backend/fujitsu.c:3731
 #, no-c-format
 msgid "DF length difference"
 msgstr "הבדל אורך DF"
 
-#: backend/fujitsu.c:3685
+#: backend/fujitsu.c:3732
 #, no-c-format
 msgid "Difference in page length to trigger double feed error"
 msgstr "הבדל באורך עמוד יגרור תקלת הזנה כפולה"
 
-#: backend/fujitsu.c:3708
+#: backend/fujitsu.c:3755
 #, no-c-format
 msgid "DF recovery mode"
 msgstr "מצב שחזור DF"
 
-#: backend/fujitsu.c:3709
+#: backend/fujitsu.c:3756
 #, no-c-format
 msgid "Request scanner to reverse feed on paper jam"
 msgstr "בקש מהסורק להפוך הזנה בעת היתקעות נייר"
 
-#: backend/fujitsu.c:3728
+#: backend/fujitsu.c:3775
 #, no-c-format
 msgid "Paper protection"
 msgstr "הגנת נייר"
 
-#: backend/fujitsu.c:3729
+#: backend/fujitsu.c:3776
 #, no-c-format
 msgid "Request scanner to predict jams in the ADF"
 msgstr "בקש מהסורק לנבא תקלות במזין המסמכים האוטומטי"
 
-#: backend/fujitsu.c:3748
+#: backend/fujitsu.c:3795
 #, no-c-format
 msgid "Advanced paper protection"
 msgstr "הגנת נייר מתקדמת"
 
-#: backend/fujitsu.c:3749
+#: backend/fujitsu.c:3796
 #, no-c-format
 msgid "Request scanner to predict jams in the ADF using improved sensors"
 msgstr "בקש מהסורק לנבא תקלות במזין המסמכים האוטומטי בעזרת חיישנים משופרים"
 
-#: backend/fujitsu.c:3768
+#: backend/fujitsu.c:3815
 #, no-c-format
 msgid "Staple detection"
 msgstr "גילוי סיכת הידוק"
 
-#: backend/fujitsu.c:3769
+#: backend/fujitsu.c:3816
 #, no-c-format
 msgid "Request scanner to detect jams in the ADF caused by staples"
 msgstr "בקש מהסורק לגלות תקלות במזין המסמכים האוטומטי כתוצאה מסיכות הידוק"
 
-#: backend/fujitsu.c:3788
+#: backend/fujitsu.c:3835
 #, no-c-format
 msgid "Background color"
 msgstr "צבע רקע"
 
-#: backend/fujitsu.c:3789
+#: backend/fujitsu.c:3836
 #, no-c-format
-msgid "Set color of background for scans. May conflict with overscan option"
+msgid ""
+"Set color of background for scans. May conflict with overscan option"
 msgstr "קבע צבע רקע לסריקות. עלול להתנגש עם אפשרות סריקת יתר"
 
-#: backend/fujitsu.c:3809
+#: backend/fujitsu.c:3856
 #, no-c-format
 msgid "Dropout color"
 msgstr "צבע נושר"
 
-#: backend/fujitsu.c:3810
+#: backend/fujitsu.c:3857
 #, no-c-format
 msgid ""
-"One-pass scanners use only one color during gray or binary scanning, useful "
-"for colored paper or ink"
+"One-pass scanners use only one color during gray or binary scanning, "
+"useful for colored paper or ink"
 msgstr ""
-"סורקים עם מעבר אחד משתמשים בצבע אחד בלבד במהלך סריקה אפורה או בינרית, שימושי "
-"עבור נייר או דיו צבעוניים"
+"סורקים עם מעבר אחד משתמשים בצבע אחד בלבד במהלך סריקה אפורה או בינרית, "
+"שימושי עבור נייר או דיו צבעוניים"
 
-#: backend/fujitsu.c:3833
+#: backend/fujitsu.c:3880
 #, no-c-format
 msgid "Buffer mode"
 msgstr "מצב חוצץ"
 
-#: backend/fujitsu.c:3834
+#: backend/fujitsu.c:3881
 #, no-c-format
 msgid "Request scanner to read pages quickly from ADF into internal memory"
 msgstr ""
 "בקש מהסורק לקרוא עמודים במהירות ממזין המסמכים האוטומטי לתוך זיכרון פנימי"
 
-#: backend/fujitsu.c:3853
+#: backend/fujitsu.c:3900
 #, no-c-format
 msgid "Prepick"
 msgstr "איסוף מקדים"
 
-#: backend/fujitsu.c:3854
+#: backend/fujitsu.c:3901
 #, no-c-format
 msgid "Request scanner to grab next page from ADF"
 msgstr "בקש מהסורק לתפוס את העמוד הבא ממזין המסמכים האוטומטי"
 
-#: backend/fujitsu.c:3873
+#: backend/fujitsu.c:3920
 #, no-c-format
 msgid "Overscan"
 msgstr "סריקת יתר"
 
-#: backend/fujitsu.c:3874
+#: backend/fujitsu.c:3921
 #, no-c-format
 msgid ""
-"Collect a few mm of background on top side of scan, before paper enters ADF, "
-"and increase maximum scan area beyond paper size, to allow collection on "
-"remaining sides. May conflict with bgcolor option"
+"Collect a few mm of background on top side of scan, before paper enters "
+"ADF, and increase maximum scan area beyond paper size, to allow "
+"collection on remaining sides. May conflict with bgcolor option"
 msgstr ""
 "צבור כמה מילימטרים של רקע בצד העליון של הסריקה, לפני שהנייר נכנס למזין "
-"המסמכים האוטומטי, והגדל שטח סריקה מירבי מעבר לגודל הנייר, על מנת לאפשר צבירה "
-"בצדדים הנותרים. עלול להתנגש עם אפשרות צבע רקע"
+"המסמכים האוטומטי, והגדל שטח סריקה מירבי מעבר לגודל הנייר, על מנת לאפשר "
+"צבירה בצדדים הנותרים. עלול להתנגש עם אפשרות צבע רקע"
 
-#: backend/fujitsu.c:3892
+#: backend/fujitsu.c:3939
 #, no-c-format
 msgid "Sleep timer"
 msgstr "טיימר שינה"
 
-#: backend/fujitsu.c:3893
+#: backend/fujitsu.c:3940
 #, no-c-format
-msgid "Time in minutes until the internal power supply switches to sleep mode"
+msgid ""
+"Time in minutes until the internal power supply switches to sleep mode"
 msgstr "זמן בדקות עד שספק הכוח הפנימי עובר למצב שינה"
 
-#: backend/fujitsu.c:3911
+#: backend/fujitsu.c:3958
 #, no-c-format
 msgid "Off timer"
 msgstr "טיימר כיבוי"
 
-#: backend/fujitsu.c:3912
+#: backend/fujitsu.c:3959
 #, no-c-format
 msgid ""
-"Time in minutes until the internal power supply switches the scanner off. "
-"Will be rounded to nearest 15 minutes. Zero means never power off."
+"Time in minutes until the internal power supply switches the scanner "
+"off. Will be rounded to nearest 15 minutes. Zero means never power off."
 msgstr ""
-"זמן בדקות עד שספק הכוח הפנימי מכבה את הסורק. יעוגל ל-15 הדקות הקרובות ביותר. "
-"אפס אומר אף פעם לא לכבות."
+"זמן בדקות עד שספק הכוח הפנימי מכבה את הסורק. יעוגל ל-15 הדקות הקרובות "
+"ביותר. אפס אומר אף פעם לא לכבות."
 
-#: backend/fujitsu.c:3930
+#: backend/fujitsu.c:3977
 #, no-c-format
 msgid "Duplex offset"
 msgstr "אופסט דו צדדי"
 
-#: backend/fujitsu.c:3931
+#: backend/fujitsu.c:3978
 #, no-c-format
 msgid "Adjust front/back offset"
 msgstr "כוון אופסט חזיתי/אחורי"
 
-#: backend/fujitsu.c:3948 backend/plustek.c:1025 backend/umax_pp.c:804
+#: backend/fujitsu.c:3995 backend/plustek.c:1025 backend/umax_pp.c:804
 #, no-c-format
 msgid "Green offset"
 msgstr "אופסט ירוק"
 
-#: backend/fujitsu.c:3949
+#: backend/fujitsu.c:3996
 #, no-c-format
 msgid "Adjust green/red offset"
 msgstr "כוון אופסט ירוק/אדום"
 
-#: backend/fujitsu.c:3966 backend/plustek.c:1041 backend/umax_pp.c:816
+#: backend/fujitsu.c:4013 backend/plustek.c:1041 backend/umax_pp.c:816
 #, no-c-format
 msgid "Blue offset"
 msgstr "אופסט כחול"
 
-#: backend/fujitsu.c:3967
+#: backend/fujitsu.c:4014
 #, no-c-format
 msgid "Adjust blue/red offset"
 msgstr "כוון אופסט כחול/אדום"
 
-#: backend/fujitsu.c:3980
+#: backend/fujitsu.c:4027
 #, no-c-format
 msgid "Low Memory"
 msgstr "זיכרון נמוך"
 
-#: backend/fujitsu.c:3981
+#: backend/fujitsu.c:4028
 #, no-c-format
 msgid ""
-"Limit driver memory usage for use in embedded systems. Causes some duplex "
-"transfers to alternate sides on each call to sane_read. Value of option "
-"'side' can be used to determine correct image. This option should only be "
-"used with custom front-end software."
+"Limit driver memory usage for use in embedded systems. Causes some "
+"duplex transfers to alternate sides on each call to sane_read. Value of "
+"option 'side' can be used to determine correct image. This option should "
+"only be used with custom front-end software."
 msgstr ""
 "הגבל שימוש זיכרון של דרייבר לשימוש במערכות משובצות. גורם לכמה מעברים דו "
-"צדדיים להחליף צדדים בכל קריאה ל-sane_read. ערך של אפשרות \"צד\" ניתן לשימוש "
-"על מנת לקבוע את התמונה הנכונה. אפשרות זו אמורה להיות בשימוש רק עם תוכנות "
-"ממשק מותאמות אישית."
+"צדדיים להחליף צדדים בכל קריאה ל-sane_read. ערך של אפשרות \"צד\" ניתן "
+"לשימוש על מנת לקבוע את התמונה הנכונה. אפשרות זו אמורה להיות בשימוש רק עם "
+"תוכנות ממשק מותאמות אישית."
 
-#: backend/fujitsu.c:3996
+#: backend/fujitsu.c:4043
 #, no-c-format
 msgid "Duplex side"
 msgstr "צד דו צדדי"
 
-#: backend/fujitsu.c:3997
+#: backend/fujitsu.c:4044
 #, no-c-format
 msgid ""
 "Tells which side (0=front, 1=back) of a duplex scan the next call to "
@@ -2667,349 +2683,351 @@ msgstr ""
 "אומר איזה צד (0=חזית, 1=אחור) של סריקה דו צדדית הקריאה הבאה ל-sane_read "
 "תחזיר."
 
-#: backend/fujitsu.c:4008
+#: backend/fujitsu.c:4055
 #, no-c-format
 msgid "Hardware deskew and crop"
 msgstr "הטיה וקיצוץ של חומרה"
 
-#: backend/fujitsu.c:4009
+#: backend/fujitsu.c:4056
 #, no-c-format
 msgid "Request scanner to rotate and crop pages digitally."
 msgstr "בקש מסורק לסובב ולקצץ עמודים באופן דיגיטלי."
 
-#: backend/fujitsu.c:4020 backend/kvs1025_opt.c:871
+#: backend/fujitsu.c:4067 backend/kvs1025_opt.c:871
 #, no-c-format
 msgid "Software deskew"
 msgstr "קיצוץ של חומרה"
 
-#: backend/fujitsu.c:4021
+#: backend/fujitsu.c:4068
 #, no-c-format
 msgid "Request driver to rotate skewed pages digitally."
 msgstr "בקש מהדרייבר לסובב עמודים מוטים באופן דיגיטלי."
 
-#: backend/fujitsu.c:4033 backend/kvs1025_opt.c:880
+#: backend/fujitsu.c:4080 backend/kvs1025_opt.c:880
 #, no-c-format
 msgid "Software despeckle diameter"
 msgstr "קוטר פגמים של תוכנה"
 
-#: backend/fujitsu.c:4034
+#: backend/fujitsu.c:4081
 #, no-c-format
 msgid "Maximum diameter of lone dots to remove from scan."
 msgstr "קוטר מירבי של נקודות בודדות להסרה מהסריקה."
 
-#: backend/fujitsu.c:4053 backend/genesys.c:5760
+#: backend/fujitsu.c:4100 backend/genesys.c:5771
 #, no-c-format
 msgid "Software crop"
 msgstr "קיצוץ של תוכנה"
 
-#: backend/fujitsu.c:4054
+#: backend/fujitsu.c:4101
 #, no-c-format
 msgid "Request driver to remove border from pages digitally."
 msgstr "בקש מהדרייבר להסיר את הגבול מהעמודים באופן דיגיטלי."
 
-#: backend/fujitsu.c:4083
+#: backend/fujitsu.c:4130
 #, no-c-format
 msgid "Halt on Cancel"
 msgstr "הפסק כאשר ביטול"
 
-#: backend/fujitsu.c:4084
+#: backend/fujitsu.c:4131
 #, no-c-format
-msgid "Request driver to halt the paper feed instead of eject during a cancel."
+msgid ""
+"Request driver to halt the paper feed instead of eject during a cancel."
 msgstr "בקש מהדרייבר להפסיק את הזנת הנייר במקום להוציא במהלך ביטול."
 
-#: backend/fujitsu.c:4095
+#: backend/fujitsu.c:4142
 #, no-c-format
 msgid "Endorser Options"
 msgstr "אפשרויות תומך"
 
-#: backend/fujitsu.c:4096
+#: backend/fujitsu.c:4143
 #, no-c-format
 msgid "Controls for endorser unit"
 msgstr "שולט על יחידת התמיכה"
 
-#: backend/fujitsu.c:4107
+#: backend/fujitsu.c:4154
 #, no-c-format
 msgid "Endorser"
 msgstr "תומך"
 
-#: backend/fujitsu.c:4108
+#: backend/fujitsu.c:4155
 #, no-c-format
 msgid "Enable endorser unit"
 msgstr "הפעל יחידת תמיכה"
 
-#: backend/fujitsu.c:4123
+#: backend/fujitsu.c:4170
 #, no-c-format
 msgid "Endorser bits"
 msgstr "ביטים של תומך"
 
-#: backend/fujitsu.c:4124
+#: backend/fujitsu.c:4171
 #, no-c-format
 msgid "Determines maximum endorser counter value."
 msgstr "קובע את ערך הספירה המירבי של התומך."
 
-#: backend/fujitsu.c:4149
+#: backend/fujitsu.c:4196
 #, no-c-format
 msgid "Endorser value"
 msgstr "ערך תומך"
 
-#: backend/fujitsu.c:4150
+#: backend/fujitsu.c:4197
 #, no-c-format
 msgid "Initial endorser counter value."
 msgstr "ערך ספירה התחלתי של התומך."
 
-#: backend/fujitsu.c:4173
+#: backend/fujitsu.c:4220
 #, no-c-format
 msgid "Endorser step"
 msgstr "צעד תומך"
 
-#: backend/fujitsu.c:4174
+#: backend/fujitsu.c:4221
 #, no-c-format
 msgid "Change endorser counter value by this much for each page."
 msgstr "שנה את ערך הספירה של התומך בכמות זו לכל עמוד."
 
-#: backend/fujitsu.c:4197
+#: backend/fujitsu.c:4244
 #, no-c-format
 msgid "Endorser Y"
 msgstr "תומך Y"
 
-#: backend/fujitsu.c:4198
+#: backend/fujitsu.c:4245
 #, no-c-format
 msgid "Endorser print offset from top of paper."
 msgstr "אופסט הדפסה של התומך מהחלק העליון של הנייר."
 
-#: backend/fujitsu.c:4223
+#: backend/fujitsu.c:4270
 #, no-c-format
 msgid "Endorser font"
 msgstr "גופן תומך"
 
-#: backend/fujitsu.c:4224
+#: backend/fujitsu.c:4271
 #, no-c-format
 msgid "Endorser printing font."
 msgstr "גופן הדפסה תומך."
 
-#: backend/fujitsu.c:4253
+#: backend/fujitsu.c:4300
 #, no-c-format
 msgid "Endorser direction"
 msgstr "כיוון תומך"
 
-#: backend/fujitsu.c:4254
+#: backend/fujitsu.c:4301
 #, no-c-format
 msgid "Endorser printing direction."
 msgstr "כיוון הדפסה תומך."
 
-#: backend/fujitsu.c:4278
+#: backend/fujitsu.c:4325
 #, no-c-format
 msgid "Endorser side"
 msgstr "צד תומך"
 
-#: backend/fujitsu.c:4279
+#: backend/fujitsu.c:4326
 #, no-c-format
 msgid "Endorser printing side, requires hardware support to change"
 msgstr "צד הדפסה תומך, דורש תמיכת חומרה לשינוי"
 
-#: backend/fujitsu.c:4304
+#: backend/fujitsu.c:4351
 #, no-c-format
 msgid "Endorser string"
 msgstr "מחרוזת תומך"
 
-#: backend/fujitsu.c:4305
+#: backend/fujitsu.c:4352
 #, no-c-format
 msgid ""
 "Endorser alphanumeric print format. %05ud or %08ud at the end will be "
 "replaced by counter value."
-msgstr "פורמט הדפסה אלפא נומרי תומך. ערך מונה מחליף את %05ud או %08ud בסוף."
+msgstr ""
+"פורמט הדפסה אלפא נומרי תומך. ערך מונה מחליף את %05ud או %08ud בסוף."
 
-#: backend/fujitsu.c:4332
+#: backend/fujitsu.c:4379
 #, no-c-format
 msgid "Top edge"
 msgstr "קצה עליון"
 
-#: backend/fujitsu.c:4333
+#: backend/fujitsu.c:4380
 #, no-c-format
 msgid "Paper is pulled partly into adf"
 msgstr "נייר משוך בחלקו לתוך מזין מסמכים אוטומטי"
 
-#: backend/fujitsu.c:4344
+#: backend/fujitsu.c:4391
 #, no-c-format
 msgid "A3 paper"
 msgstr "נייר A3"
 
-#: backend/fujitsu.c:4345
+#: backend/fujitsu.c:4392
 #, no-c-format
 msgid "A3 paper detected"
 msgstr "התגלה נייר A3"
 
-#: backend/fujitsu.c:4356
+#: backend/fujitsu.c:4403
 #, no-c-format
 msgid "B4 paper"
 msgstr "נייר B4"
 
-#: backend/fujitsu.c:4357
+#: backend/fujitsu.c:4404
 #, no-c-format
 msgid "B4 paper detected"
 msgstr "התגלה נייר B4"
 
-#: backend/fujitsu.c:4368
+#: backend/fujitsu.c:4415
 #, no-c-format
 msgid "A4 paper"
 msgstr "נייר A4"
 
-#: backend/fujitsu.c:4369
+#: backend/fujitsu.c:4416
 #, no-c-format
 msgid "A4 paper detected"
 msgstr "התגלה נייר A4"
 
-#: backend/fujitsu.c:4380
+#: backend/fujitsu.c:4427
 #, no-c-format
 msgid "B5 paper"
 msgstr "נייר B5"
 
-#: backend/fujitsu.c:4381
+#: backend/fujitsu.c:4428
 #, no-c-format
 msgid "B5 paper detected"
 msgstr "התגלה נייר B5"
 
-#: backend/fujitsu.c:4404
+#: backend/fujitsu.c:4451
 #, no-c-format
 msgid "OMR or DF"
 msgstr "OMR or DF"
 
-#: backend/fujitsu.c:4405
+#: backend/fujitsu.c:4452
 #, no-c-format
 msgid "OMR or double feed detected"
 msgstr "התגלה OMR או הזנה כפולה"
 
-#: backend/fujitsu.c:4428
+#: backend/fujitsu.c:4475
 #, no-c-format
 msgid "Power saving"
 msgstr "חיסכון בחשמל"
 
-#: backend/fujitsu.c:4429
+#: backend/fujitsu.c:4476
 #, no-c-format
 msgid "Scanner in power saving mode"
 msgstr "סורק במצב חיסכון בחשמל"
 
-#: backend/fujitsu.c:4452
+#: backend/fujitsu.c:4499
 #, no-c-format
 msgid "Manual feed"
 msgstr "הזנה ידנית"
 
-#: backend/fujitsu.c:4453
+#: backend/fujitsu.c:4500
 #, no-c-format
 msgid "Manual feed selected"
 msgstr "נבחרה הזנה ידנית"
 
-#: backend/fujitsu.c:4476
+#: backend/fujitsu.c:4523
 #, no-c-format
 msgid "Function"
 msgstr "פונקציה"
 
-#: backend/fujitsu.c:4477
+#: backend/fujitsu.c:4524
 #, no-c-format
 msgid "Function character on screen"
 msgstr "תו פונקציה על מסך"
 
-#: backend/fujitsu.c:4488
+#: backend/fujitsu.c:4535
 #, no-c-format
 msgid "Ink low"
 msgstr "דיו נמוך"
 
-#: backend/fujitsu.c:4489
+#: backend/fujitsu.c:4536
 #, no-c-format
 msgid "Imprinter ink running low"
 msgstr "דיו רושם עומד להיגמר"
 
-#: backend/fujitsu.c:4500
+#: backend/fujitsu.c:4547
 #, no-c-format
 msgid "Double feed"
 msgstr "הזנה כפולה"
 
-#: backend/fujitsu.c:4501
+#: backend/fujitsu.c:4548
 #, no-c-format
 msgid "Double feed detected"
 msgstr "התגלתה הזנה כפולה"
 
-#: backend/fujitsu.c:4512
+#: backend/fujitsu.c:4559
 #, no-c-format
 msgid "Error code"
 msgstr "קוד תקלה"
 
-#: backend/fujitsu.c:4513
+#: backend/fujitsu.c:4560
 #, no-c-format
 msgid "Hardware error code"
 msgstr "קוד תקלה חומרה"
 
-#: backend/fujitsu.c:4524
+#: backend/fujitsu.c:4571
 #, no-c-format
 msgid "Skew angle"
 msgstr "זווית הטיה"
 
-#: backend/fujitsu.c:4525
+#: backend/fujitsu.c:4572
 #, no-c-format
 msgid "Requires black background for scanning"
 msgstr "דורש רקע שחור עבור סריקה"
 
-#: backend/fujitsu.c:4536
+#: backend/fujitsu.c:4583
 #, no-c-format
 msgid "Ink remaining"
 msgstr "דיו נותר"
 
-#: backend/fujitsu.c:4537
+#: backend/fujitsu.c:4584
 #, no-c-format
 msgid "Imprinter ink level"
 msgstr "רמת דיו רושם"
 
-#: backend/fujitsu.c:4548
+#: backend/fujitsu.c:4595
 #, no-c-format
 msgid "Density"
 msgstr "צפיפות"
 
-#: backend/fujitsu.c:4549
+#: backend/fujitsu.c:4596
 #, no-c-format
 msgid "Density dial"
 msgstr "לוח צפיפות"
 
-#: backend/fujitsu.c:4560 backend/fujitsu.c:4561
+#: backend/fujitsu.c:4607 backend/fujitsu.c:4608
 #, no-c-format
 msgid "Duplex switch"
 msgstr "החלפה דו צדדית"
 
-#: backend/genesys.c:5761
+#: backend/genesys.c:5772
 #, no-c-format
 msgid "Request backend to remove border from pages digitally"
 msgstr "בקש מה-backend להסיר גבול מהעמודים באופן דיגיטלי"
 
-#: backend/genesys.c:5770 backend/kvs1025_opt.c:912
+#: backend/genesys.c:5781 backend/kvs1025_opt.c:912
 #, no-c-format
 msgid "Request driver to discard pages with low numbers of dark pixels"
 msgstr "בקש מהדרייבר לזנוח עמודים עם מספר נמוך של פיקסלים כהים"
 
-#: backend/genesys.c:5781 backend/kvs1025_opt.c:892
+#: backend/genesys.c:5792 backend/kvs1025_opt.c:892
 #, no-c-format
 msgid "Software derotate"
 msgstr "סיבוב תוכנה"
 
-#: backend/genesys.c:5782 backend/kvs1025_opt.c:894
+#: backend/genesys.c:5793 backend/kvs1025_opt.c:894
 #, no-c-format
 msgid "Request driver to detect and correct 90 degree image rotation"
 msgstr "בקש מהדרייבר לגלות ולתקן סיבוב תמונה של 90 מעלות"
 
-#: backend/genesys.c:5813 backend/pixma_sane_options.c:314
+#: backend/genesys.c:5824 backend/pixma_sane_options.c:314
 #, no-c-format
 msgid "Extras"
 msgstr "תוספות"
 
-#: backend/genesys.c:5833 backend/pixma_sane_options.c:336
+#: backend/genesys.c:5844 backend/pixma_sane_options.c:336
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
 msgstr "עקום סף דינמי, מבהיר לכהה, בדרך כלל 50-65"
 
-#: backend/genesys.c:5842
+#: backend/genesys.c:5853
 #, no-c-format
 msgid "Disable dynamic lineart"
 msgstr "כבה סגנון קווי דינמי"
 
-#: backend/genesys.c:5844
+#: backend/genesys.c:5855
 #, no-c-format
 msgid ""
 "Disable use of a software adaptive algorithm to generate lineart relying "
@@ -3018,130 +3036,130 @@ msgstr ""
 "כבה שימוש של אלגוריתם מסתגל תוכנתי ליצור סגנון קווי ובמקום זאת הסתמך על "
 "סגנון קווי חומרתי."
 
-#: backend/genesys.c:5860
+#: backend/genesys.c:5871
 #, no-c-format
 msgid "Disable interpolation"
 msgstr "כבה אינטרפולציה"
 
-#: backend/genesys.c:5863
+#: backend/genesys.c:5874
 #, no-c-format
 msgid ""
-"When using high resolutions where the horizontal resolution is smaller than "
-"the vertical resolution this disables horizontal interpolation."
+"When using high resolutions where the horizontal resolution is smaller "
+"than the vertical resolution this disables horizontal interpolation."
 msgstr ""
-"כאשר רזולוציות גבוהות בשימוש היכן שהרזולוציה האופקית קטנה מהרזולוציה האנכית "
-"זה מכבה אינטרפולציה אופקית."
+"כאשר רזולוציות גבוהות בשימוש היכן שהרזולוציה האופקית קטנה מהרזולוציה "
+"האנכית זה מכבה אינטרפולציה אופקית."
 
-#: backend/genesys.c:5872
+#: backend/genesys.c:5883
 #, no-c-format
 msgid "Color filter"
 msgstr "מסנן צבע"
 
-#: backend/genesys.c:5875
+#: backend/genesys.c:5886
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr "כאשר משתמשים באפור או בסגנון קווי אפשרות זו בוחרת את הצבע בשימוש."
 
-#: backend/genesys.c:5901
+#: backend/genesys.c:5912
 #, no-c-format
 msgid "Calibration file"
 msgstr "קובץ כיול"
 
-#: backend/genesys.c:5902
+#: backend/genesys.c:5913
 #, no-c-format
 msgid "Specify the calibration file to use"
 msgstr "פרט את קובץ הכיול לשימוש"
 
-#: backend/genesys.c:5919
+#: backend/genesys.c:5930
 #, no-c-format
 msgid "Calibration cache expiration time"
 msgstr "זמן תפוגה מטמון כיול"
 
-#: backend/genesys.c:5920
+#: backend/genesys.c:5931
 #, no-c-format
 msgid ""
-"Time (in minutes) before a cached calibration expires. A value of 0 means "
-"cache is not used. A negative value means cache never expires."
+"Time (in minutes) before a cached calibration expires. A value of 0 "
+"means cache is not used. A negative value means cache never expires."
 msgstr ""
-"זמן (בדקות) לפני שכיול מוטמן פג. ערך של 0 אומר שמטמון אינו בשימוש. ערך שלילי "
-"אומר שמטמון לעולם לא פג."
+"זמן (בדקות) לפני שכיול מוטמן פג. ערך של 0 אומר שמטמון אינו בשימוש. ערך "
+"שלילי אומר שמטמון לעולם לא פג."
 
-#: backend/genesys.c:5930
+#: backend/genesys.c:5941
 #, no-c-format
 msgid "Lamp off time"
 msgstr "זמן כיבוי מנורה"
 
-#: backend/genesys.c:5933
+#: backend/genesys.c:5944
 #, no-c-format
 msgid ""
-"The lamp will be turned off after the given time (in minutes). A value of 0 "
-"means, that the lamp won't be turned off."
+"The lamp will be turned off after the given time (in minutes). A value "
+"of 0 means, that the lamp won't be turned off."
 msgstr ""
 "המנורה תיכבה לאחר הזמן הנתון (בדקות). ערך של  0 אומר, שהמנורה לא תיכבה."
 
-#: backend/genesys.c:5943
+#: backend/genesys.c:5954
 #, no-c-format
 msgid "Lamp off during scan"
 msgstr "מנורה כבויה במהלך סריקה"
 
-#: backend/genesys.c:5944
+#: backend/genesys.c:5955
 #, no-c-format
 msgid "The lamp will be turned off during scan. "
 msgstr "המנורה תיכבה במהלך סריקה. "
 
-#: backend/genesys.c:5972 backend/genesys.c:5973
+#: backend/genesys.c:5983 backend/genesys.c:5984
 #, no-c-format
 msgid "File button"
 msgstr "כפתור קובץ"
 
-#: backend/genesys.c:6025 backend/genesys.c:6026
+#: backend/genesys.c:6036 backend/genesys.c:6037
 #, no-c-format
 msgid "OCR button"
 msgstr "כפתור OCR"
 
-#: backend/genesys.c:6039 backend/genesys.c:6040
+#: backend/genesys.c:6050 backend/genesys.c:6051
 #, no-c-format
 msgid "Power button"
 msgstr "כפתור הדלקה"
 
-#: backend/genesys.c:6053 backend/genesys.c:6054
+#: backend/genesys.c:6064 backend/genesys.c:6065
 #, no-c-format
 msgid "Extra button"
 msgstr "כפתור אקסטרה"
 
-#: backend/genesys.c:6067 backend/gt68xx.c:755
+#: backend/genesys.c:6078 backend/gt68xx.c:755
 #, no-c-format
 msgid "Need calibration"
 msgstr "דרוש כיול"
 
-#: backend/genesys.c:6068 backend/gt68xx.c:756
+#: backend/genesys.c:6079 backend/gt68xx.c:756
 #, no-c-format
 msgid "The scanner needs calibration for the current settings"
 msgstr "הסורק דורש כיול עבור ההגדרות הנוכחיות"
 
-#: backend/genesys.c:6080 backend/gt68xx.c:780 backend/gt68xx.c:781
+#: backend/genesys.c:6091 backend/gt68xx.c:780 backend/gt68xx.c:781
 #: backend/pixma_sane_options.c:226 backend/plustek.c:1080
 #, no-c-format
 msgid "Buttons"
 msgstr "כפתורים"
 
-#: backend/genesys.c:6089 backend/gt68xx.c:787 backend/hp5400_sane.c:392
+#: backend/genesys.c:6100 backend/gt68xx.c:787 backend/hp5400_sane.c:392
 #: backend/hp-option.h:97 backend/niash.c:726 backend/plustek.c:941
 #, no-c-format
 msgid "Calibrate"
 msgstr "כייל"
 
-#: backend/genesys.c:6091 backend/gt68xx.c:789
+#: backend/genesys.c:6102 backend/gt68xx.c:789
 #, no-c-format
 msgid "Start calibration using special sheet"
 msgstr "התחל כיול בעזרת דף מיוחד"
 
-#: backend/genesys.c:6105 backend/gt68xx.c:802
+#: backend/genesys.c:6116 backend/gt68xx.c:802
 #, no-c-format
 msgid "Clear calibration"
 msgstr "נקה כיול"
 
-#: backend/genesys.c:6106 backend/gt68xx.c:803
+#: backend/genesys.c:6117 backend/gt68xx.c:803
 #, no-c-format
 msgid "Clear calibration cache"
 msgstr "נקה מטמון כיול"
@@ -3162,7 +3180,8 @@ msgstr "צבע מצב אפור"
 msgid "Selects which scan color is used gray mode (default: green)."
 msgstr "בוחר איזה צבע סריקה בשימוש מצב אפור (ברירת מחדל: ירוק)."
 
-#: backend/gt68xx.c:553 backend/hp3900_sane.c:1392 backend/mustek_usb2.c:410
+#: backend/gt68xx.c:553 backend/hp3900_sane.c:1392
+#: backend/mustek_usb2.c:410
 #, no-c-format
 msgid "Debugging Options"
 msgstr "אפשרויות ניקוי באגים"
@@ -3175,9 +3194,10 @@ msgstr "חימום אוטומטי"
 #: backend/gt68xx.c:566
 #, no-c-format
 msgid ""
-"Warm-up until the lamp's brightness is constant instead of insisting on 60 "
-"seconds warm-up time."
-msgstr "בצע חימום עד שבהירות המנורה קבועה במקום להיצמד לזמן חימום של 60 שניות."
+"Warm-up until the lamp's brightness is constant instead of insisting on "
+"60 seconds warm-up time."
+msgstr ""
+"בצע חימום עד שבהירות המנורה קבועה במקום להיצמד לזמן חימום של 60 שניות."
 
 #: backend/gt68xx.c:578
 #, no-c-format
@@ -3190,8 +3210,8 @@ msgid ""
 "Scan the complete scanning area including calibration strip. Be careful. "
 "Don't select the full height. For testing only."
 msgstr ""
-"סרוק את כל שטח הסריקה כולל רצועת הכיול. שים לב. אל תבחר את כל הגובה. לבדיקה "
-"בלבד."
+"סרוק את כל שטח הסריקה כולל רצועת הכיול. שים לב. אל תבחר את כל הגובה. "
+"לבדיקה בלבד."
 
 #: backend/gt68xx.c:591
 #, no-c-format
@@ -3202,12 +3222,12 @@ msgstr "כיול גס"
 #, no-c-format
 msgid ""
 "Setup gain and offset for scanning automatically. If this option is "
-"disabled, options for setting the analog frontend parameters manually are "
-"provided. This option is enabled by default. For testing only."
+"disabled, options for setting the analog frontend parameters manually "
+"are provided. This option is enabled by default. For testing only."
 msgstr ""
-"קבע הגבר ואופסט לסריקה אוטומטית. אם אפשרות זו כבויה, קיימות אפשרויות לקביעת "
-"הפרמטרים של הממשק האנלוגי באופן ידני. אפשרות זו פועלת כברירת מחדל. לבדיקה "
-"בלבד."
+"קבע הגבר ואופסט לסריקה אוטומטית. אם אפשרות זו כבויה, קיימות אפשרויות "
+"לקביעת הפרמטרים של הממשק האנלוגי באופן ידני. אפשרות זו פועלת כברירת "
+"מחדל. לבדיקה בלבד."
 
 #: backend/gt68xx.c:612
 #, no-c-format
@@ -3217,12 +3237,13 @@ msgstr "כיול גס עבור סריקה ראשונה בלבד"
 #: backend/gt68xx.c:614
 #, no-c-format
 msgid ""
-"Coarse calibration is only done for the first scan. Works with most scanners "
-"and can save scanning time. If the image brightness is different with each "
-"scan, disable this option. For testing only."
+"Coarse calibration is only done for the first scan. Works with most "
+"scanners and can save scanning time. If the image brightness is "
+"different with each scan, disable this option. For testing only."
 msgstr ""
-"כיול גס מבוצע רק עבור הסריקה הראשונה. עובד עם רוב הסורקים ויכול לחסוך זמן "
-"סריקה. אם בהירות התמונה שונה בכל סריקה, כבה את האפשרות הזו . לבדיקה בלבד."
+"כיול גס מבוצע רק עבור הסריקה הראשונה. עובד עם רוב הסורקים ויכול לחסוך "
+"זמן סריקה. אם בהירות התמונה שונה בכל סריקה, כבה את האפשרות הזו . לבדיקה "
+"בלבד."
 
 #: backend/gt68xx.c:647
 #, no-c-format
@@ -3232,13 +3253,14 @@ msgstr "קווי חזרה"
 #: backend/gt68xx.c:649
 #, no-c-format
 msgid ""
-"Number of lines the scan slider moves back when backtracking occurs. That "
-"happens when the scanner scans faster than the computer can receive the "
-"data. Low values cause faster scans but increase the risk of omitting lines."
+"Number of lines the scan slider moves back when backtracking occurs. "
+"That happens when the scanner scans faster than the computer can receive "
+"the data. Low values cause faster scans but increase the risk of "
+"omitting lines."
 msgstr ""
-"מספר הקווים שהחלק הנע בסורק חוזר אחורה כאשר מתרחשת חזרה. זה קורה כאשר הסורק "
-"סורק מהר יותר מיכולת המחשב לקבל את המידע. ערכים נמוכים גורמים לסריקות מהירות "
-"יותר אבל מגדילים את הסיכוי לפספס שורות."
+"מספר הקווים שהחלק הנע בסורק חוזר אחורה כאשר מתרחשת חזרה. זה קורה כאשר "
+"הסורק סורק מהר יותר מיכולת המחשב לקבל את המידע. ערכים נמוכים גורמים "
+"לסריקות מהירות יותר אבל מגדילים את הסיכוי לפספס שורות."
 
 #: backend/gt68xx.c:674 backend/mustek_usb2.c:452
 #, no-c-format
@@ -3319,12 +3341,12 @@ msgstr "אלץ עומק אמיתי"
 #: backend/hp3900_sane.c:1485
 #, no-c-format
 msgid ""
-"If gamma is enabled, scans are always made in 16 bits depth to improve image "
-"quality and then converted to the selected depth. This option avoids depth "
-"emulation."
+"If gamma is enabled, scans are always made in 16 bits depth to improve "
+"image quality and then converted to the selected depth. This option "
+"avoids depth emulation."
 msgstr ""
-"אם גמה פועלת, סריקות תמיד מבוצעות בעומק 16 ביטים כדי לשפר את איכות התמונה "
-"ואז מומרות לעומק הנבחר. אפשרות זו מונעת דימוי עומק."
+"אם גמה פועלת, סריקות תמיד מבוצעות בעומק 16 ביטים כדי לשפר את איכות "
+"התמונה ואז מומרות לעומק הנבחר. אפשרות זו מונעת דימוי עומק."
 
 #: backend/hp3900_sane.c:1499
 #, no-c-format
@@ -3335,10 +3357,11 @@ msgstr "דמה גווני אפור"
 #, no-c-format
 msgid ""
 "If enabled, image will be scanned in color mode and then converted to "
-"grayscale by software. This may improve image quality in some circumstances."
+"grayscale by software. This may improve image quality in some "
+"circumstances."
 msgstr ""
-"אם פועלת, התמונה תיסרק במצב צבע ואז תהפוך המרה לגווני אפור בעזרת התוכנה. זה "
-"יכול לשפר את איכות התמונה בנסיבות מסוימות."
+"אם פועלת, התמונה תיסרק במצב צבע ואז תהפוך המרה לגווני אפור בעזרת התוכנה. "
+"זה יכול לשפר את איכות התמונה בנסיבות מסוימות."
 
 #: backend/hp3900_sane.c:1516
 #, no-c-format
@@ -3348,9 +3371,10 @@ msgstr "שמור תמונות ניפוי באגים"
 #: backend/hp3900_sane.c:1519
 #, no-c-format
 msgid ""
-"If enabled, some images involved in scanner processing are saved to analyze "
-"them."
-msgstr "אם פועלת, חלק מהתמונות שקשורות בעיבוד הסורק נשמרות לצורך אבחון שלהן."
+"If enabled, some images involved in scanner processing are saved to "
+"analyze them."
+msgstr ""
+"אם פועלת, חלק מהתמונות שקשורות בעיבוד הסורק נשמרות לצורך אבחון שלהן."
 
 #: backend/hp3900_sane.c:1533
 #, no-c-format
@@ -3519,7 +3543,8 @@ msgstr "הסתר את הפיקסל של סוף העמוד"
 
 #: backend/hp5590.c:114
 #, no-c-format
-msgid "Hide end-of-page indicator pixels and overwrite with neighbor pixels"
+msgid ""
+"Hide end-of-page indicator pixels and overwrite with neighbor pixels"
 msgstr "מסתיר את הפיקסלים המורים על סוף העמוד ומחליף עם הפיקסלים השכנים"
 
 #: backend/hp5590.c:116
@@ -3533,9 +3558,9 @@ msgid ""
 "raw = raw scan data, last = repeat last scan line, raster = b/w raster, "
 "white = white color, black = black color, color = RGB or gray color value"
 msgstr ""
-"גולמי = מידע סריקה גולמי ,אחרונה = חזור על שורת סריקה אחרונה, מפת סיביות = "
-"מפת סיביות שחור לבן, לבן = צבע לבן, שחור = צבע שחור, צבע = ערך צבע RGB או "
-"אפור"
+"גולמי = מידע סריקה גולמי ,אחרונה = חזור על שורת סריקה אחרונה, מפת סיביות "
+"= מפת סיביות שחור לבן, לבן = צבע לבן, שחור = צבע שחור, צבע = ערך צבע RGB "
+"או אפור"
 
 #: backend/hp5590.c:120
 #, no-c-format
@@ -3548,8 +3573,8 @@ msgid ""
 "Color value for trailing lines filling mode 'color'. RGB color as "
 "r*65536+256*g+b or gray value (default=violet or gray)"
 msgstr ""
-"ערך צבע עבור מצב מילוי קווים משתרכים \"צבע\". צבע RGB לפי r*65536+256*g+b או "
-"ערך אפור (ברירת מחדל=סגול או אפור)"
+"ערך צבע עבור מצב מילוי קווים משתרכים \"צבע\". צבע RGB לפי r*65536+256*g"
+"+b או ערך אפור (ברירת מחדל=סגול או אפור)"
 
 #: backend/hp-option.c:2987
 #, no-c-format
@@ -3576,7 +3601,8 @@ msgstr "Bayer"
 msgid "Custom"
 msgstr "מותאם אישית"
 
-#: backend/hp-option.c:3090 backend/hp-option.c:3146 backend/hp-option.c:3161
+#: backend/hp-option.c:3090 backend/hp-option.c:3146
+#: backend/hp-option.c:3161
 #, no-c-format
 msgid "Auto"
 msgstr "אוטומטי"
@@ -3611,9 +3637,9 @@ msgstr "אפור XPA"
 msgid "Slow"
 msgstr "לאט"
 
-#: backend/hp-option.c:3148 backend/hp-option.c:3255 backend/kvs40xx_opt.c:230
-#: backend/matsushita.c:244 backend/mustek.c:149 backend/plustek.c:234
-#: backend/plustek_pp.c:203 backend/u12.c:155
+#: backend/hp-option.c:3148 backend/hp-option.c:3255
+#: backend/kvs40xx_opt.c:230 backend/matsushita.c:244 backend/mustek.c:149
+#: backend/plustek.c:234 backend/plustek_pp.c:203 backend/u12.c:155
 #, no-c-format
 msgid "Normal"
 msgstr "רגיל"
@@ -3746,13 +3772,14 @@ msgstr "זמן חשיפה"
 #: backend/hp-option.h:111
 #, no-c-format
 msgid ""
-"A longer exposure time lets the scanner collect more light. Suggested use is "
-"175% for prints, 150% for normal slides and \"Negative\" for negative film. "
-"For dark (underexposed) images you can increase this value."
+"A longer exposure time lets the scanner collect more light. Suggested "
+"use is 175% for prints, 150% for normal slides and \"Negative\" for "
+"negative film. For dark (underexposed) images you can increase this "
+"value."
 msgstr ""
-"זמן חשיפה ארוך יותר מאפשר לסורק לאסוף עוד אור. שימוש מומלץ הוא 175% להדפסות, "
-"150% לשקפים רגילים ו\"תשלילים\" עבור סרט תשלילים. עבור תמונות כהות (תת "
-"חשיפה) אתה יכול להגדיל את הערך הזה."
+"זמן חשיפה ארוך יותר מאפשר לסורק לאסוף עוד אור. שימוש מומלץ הוא 175% "
+"להדפסות, 150% לשקפים רגילים ו\"תשלילים\" עבור סרט תשלילים. עבור תמונות "
+"כהות (תת חשיפה) אתה יכול להגדיל את הערך הזה."
 
 #: backend/hp-option.h:119 backend/hp-option.h:126
 #, no-c-format
@@ -3839,8 +3866,8 @@ msgstr "כיבוי מנורה"
 msgid "Shut off scanner lamp."
 msgstr "כיבוי מנורת סורק."
 
-#: backend/kvs1025.h:51 backend/kvs20xx_opt.c:295 backend/kvs40xx_opt.c:516
-#: backend/matsushita.h:219
+#: backend/kvs1025.h:51 backend/kvs20xx_opt.c:295
+#: backend/kvs40xx_opt.c:516 backend/matsushita.h:219
 #, no-c-format
 msgid "Paper size"
 msgstr "גודל נייר"
@@ -3851,7 +3878,8 @@ msgstr "גודל נייר"
 msgid "Automatic separation"
 msgstr "הפרדה אוטומטית"
 
-#: backend/kvs1025.h:53 backend/kvs20xx_opt.c:307 backend/kvs40xx_opt.c:531
+#: backend/kvs1025.h:53 backend/kvs20xx_opt.c:307
+#: backend/kvs40xx_opt.c:531
 #, no-c-format
 msgid "Landscape"
 msgstr "תמונת נוף"
@@ -3866,34 +3894,38 @@ msgstr "הפוך תמונה"
 msgid "Long paper mode"
 msgstr "מצב נייר ארוך"
 
-#: backend/kvs1025.h:57 backend/kvs20xx_opt.c:230 backend/kvs40xx_opt.c:393
+#: backend/kvs1025.h:57 backend/kvs20xx_opt.c:230
+#: backend/kvs40xx_opt.c:393
 #, no-c-format
 msgid "Length control mode"
 msgstr "מצב בקרת אורך"
 
-#: backend/kvs1025.h:58 backend/kvs20xx_opt.c:242 backend/kvs40xx_opt.c:416
+#: backend/kvs1025.h:58 backend/kvs20xx_opt.c:242
+#: backend/kvs40xx_opt.c:416
 #, no-c-format
 msgid "Manual feed mode"
 msgstr "מצב הזנה ידנית"
 
-#: backend/kvs1025.h:59 backend/kvs20xx_opt.c:254 backend/kvs40xx_opt.c:428
+#: backend/kvs1025.h:59 backend/kvs20xx_opt.c:254
+#: backend/kvs40xx_opt.c:428
 #, no-c-format
 msgid "Manual feed timeout"
 msgstr "זמן תפוגה הזנה ידנית"
 
-#: backend/kvs1025.h:60 backend/kvs20xx_opt.c:267 backend/kvs40xx_opt.c:441
+#: backend/kvs1025.h:60 backend/kvs20xx_opt.c:267
+#: backend/kvs40xx_opt.c:441
 #, no-c-format
 msgid "Double feed detection"
 msgstr "גילוי הזנה כפולה"
 
-#: backend/kvs1025.h:63 backend/kvs20xx_opt.c:205 backend/kvs40xx_opt.c:354
-#: backend/matsushita.h:223
+#: backend/kvs1025.h:63 backend/kvs20xx_opt.c:205
+#: backend/kvs40xx_opt.c:354 backend/matsushita.h:223
 #, no-c-format
 msgid "Enable Duplex (Dual-Sided) Scanning"
 msgstr "הפעל סריקה דו צדדית (משני הצדדים)"
 
-#: backend/kvs1025.h:65 backend/kvs20xx_opt.c:296 backend/kvs40xx_opt.c:517
-#: backend/matsushita.h:225
+#: backend/kvs1025.h:65 backend/kvs20xx_opt.c:296
+#: backend/kvs40xx_opt.c:517 backend/matsushita.h:225
 #, no-c-format
 msgid "Physical size of the paper in the ADF"
 msgstr "גודל פיזי של הנייר במזין המסמכים האוטומטי"
@@ -3924,12 +3956,14 @@ msgstr "צבע"
 msgid "adf"
 msgstr "מזין מסמכים אוטומטי"
 
-#: backend/kvs1025_opt.c:62 backend/kvs40xx_opt.c:50 backend/kvs40xx_opt.c:109
+#: backend/kvs1025_opt.c:62 backend/kvs40xx_opt.c:50
+#: backend/kvs40xx_opt.c:109
 #, no-c-format
 msgid "fb"
 msgstr "שטוח"
 
-#: backend/kvs1025_opt.c:72 backend/kvs20xx_opt.c:55 backend/kvs40xx_opt.c:101
+#: backend/kvs1025_opt.c:72 backend/kvs20xx_opt.c:55
+#: backend/kvs40xx_opt.c:101
 #, no-c-format
 msgid "single"
 msgstr "בודד"
@@ -3941,64 +3975,68 @@ msgstr "בודד"
 msgid "continuous"
 msgstr "רציף"
 
-#: backend/kvs1025_opt.c:83 backend/kvs20xx_opt.c:62 backend/kvs40xx_opt.c:115
+#: backend/kvs1025_opt.c:83 backend/kvs20xx_opt.c:62
+#: backend/kvs40xx_opt.c:115
 #, no-c-format
 msgid "off"
 msgstr "כבוי"
 
-#: backend/kvs1025_opt.c:84 backend/kvs20xx_opt.c:63 backend/kvs40xx_opt.c:116
+#: backend/kvs1025_opt.c:84 backend/kvs20xx_opt.c:63
+#: backend/kvs40xx_opt.c:116
 #, no-c-format
 msgid "wait_doc"
 msgstr "wait_doc"
 
-#: backend/kvs1025_opt.c:85 backend/kvs20xx_opt.c:64 backend/kvs40xx_opt.c:118
+#: backend/kvs1025_opt.c:85 backend/kvs20xx_opt.c:64
+#: backend/kvs40xx_opt.c:118
 #, no-c-format
 msgid "wait_key"
 msgstr "wait_key"
 
-#: backend/kvs1025_opt.c:96 backend/kvs20xx_opt.c:70 backend/kvs40xx_opt.c:124
-#: backend/kvs40xx_opt.c:141
+#: backend/kvs1025_opt.c:96 backend/kvs20xx_opt.c:70
+#: backend/kvs40xx_opt.c:124 backend/kvs40xx_opt.c:141
 #, no-c-format
 msgid "user_def"
 msgstr "user_def"
 
-#: backend/kvs1025_opt.c:97 backend/kvs20xx_opt.c:71 backend/kvs40xx_opt.c:125
-#: backend/kvs40xx_opt.c:142
+#: backend/kvs1025_opt.c:97 backend/kvs20xx_opt.c:71
+#: backend/kvs40xx_opt.c:125 backend/kvs40xx_opt.c:142
 #, no-c-format
 msgid "business_card"
 msgstr "business_card"
 
-#: backend/kvs1025_opt.c:98 backend/kvs40xx_opt.c:126 backend/kvs40xx_opt.c:143
+#: backend/kvs1025_opt.c:98 backend/kvs40xx_opt.c:126
+#: backend/kvs40xx_opt.c:143
 #, no-c-format
 msgid "Check"
 msgstr "בדיקה"
 
-#: backend/kvs1025_opt.c:101 backend/kvs20xx_opt.c:75 backend/kvs40xx_opt.c:129
-#: backend/kvs40xx_opt.c:146
+#: backend/kvs1025_opt.c:101 backend/kvs20xx_opt.c:75
+#: backend/kvs40xx_opt.c:129 backend/kvs40xx_opt.c:146
 #, no-c-format
 msgid "A5"
 msgstr "A5"
 
-#: backend/kvs1025_opt.c:102 backend/kvs20xx_opt.c:76 backend/kvs40xx_opt.c:130
-#: backend/kvs40xx_opt.c:147
+#: backend/kvs1025_opt.c:102 backend/kvs20xx_opt.c:76
+#: backend/kvs40xx_opt.c:130 backend/kvs40xx_opt.c:147
 #, no-c-format
 msgid "A6"
 msgstr "A6"
 
-#: backend/kvs1025_opt.c:106 backend/kvs20xx_opt.c:80 backend/kvs40xx_opt.c:134
-#: backend/kvs40xx_opt.c:151
+#: backend/kvs1025_opt.c:106 backend/kvs20xx_opt.c:80
+#: backend/kvs40xx_opt.c:134 backend/kvs40xx_opt.c:151
 #, no-c-format
 msgid "B5"
 msgstr "B5"
 
-#: backend/kvs1025_opt.c:107 backend/kvs20xx_opt.c:81 backend/kvs40xx_opt.c:135
-#: backend/kvs40xx_opt.c:152
+#: backend/kvs1025_opt.c:107 backend/kvs20xx_opt.c:81
+#: backend/kvs40xx_opt.c:135 backend/kvs40xx_opt.c:152
 #, no-c-format
 msgid "B6"
 msgstr "B6"
 
-#: backend/kvs1025_opt.c:108 backend/kvs20xx_opt.c:82 backend/kvs40xx_opt.c:136
-#: backend/kvs40xx_opt.c:153
+#: backend/kvs1025_opt.c:108 backend/kvs20xx_opt.c:82
+#: backend/kvs40xx_opt.c:136 backend/kvs40xx_opt.c:153
 #, no-c-format
 msgid "Legal"
 msgstr "Legal"
@@ -4051,7 +4089,8 @@ msgstr "כהה"
 msgid "From scanner"
 msgstr "מסורק"
 
-#: backend/kvs1025_opt.c:179 backend/kvs40xx_opt.c:272 backend/matsushita.c:177
+#: backend/kvs1025_opt.c:179 backend/kvs40xx_opt.c:272
+#: backend/matsushita.c:177
 #, no-c-format
 msgid "From paper"
 msgstr "מנייר"
@@ -4197,9 +4236,10 @@ msgstr "סף אוטומטי"
 #: backend/kvs1025_opt.c:737 backend/matsushita.c:1227
 #, no-c-format
 msgid ""
-"Automatically sets brightness, contrast, white level, gamma, noise reduction "
-"and image emphasis"
-msgstr "קובע אוטומטית בהירות, ניגודיות, רמת לבן, גמה, הפחתת רעשים והדגשת תמונה"
+"Automatically sets brightness, contrast, white level, gamma, noise "
+"reduction and image emphasis"
+msgstr ""
+"קובע אוטומטית בהירות, ניגודיות, רמת לבן, גמה, הפחתת רעשים והדגשת תמונה"
 
 #: backend/kvs1025_opt.c:782 backend/kvs40xx_opt.c:764
 #: backend/matsushita.c:1275
@@ -4304,7 +4344,8 @@ msgstr ""
 "אורך המסמך הלוגי."
 
 #: backend/kvs20xx_opt.c:424 backend/kvs20xx_opt.c:425
-#: backend/kvs40xx_opt.c:668 backend/kvs40xx_opt.c:669 backend/microtek2.h:640
+#: backend/kvs40xx_opt.c:668 backend/kvs40xx_opt.c:669
+#: backend/microtek2.h:640
 #, no-c-format
 msgid "Gamma correction"
 msgstr "תיקון גמה"
@@ -4362,8 +4403,8 @@ msgstr "מצב מועשר"
 #: backend/kvs40xx_opt.c:405
 #, no-c-format
 msgid ""
-"Long Paper Mode is a mode that the scanner reads the image after it divides "
-"long paper by the length which is set in Document Size option."
+"Long Paper Mode is a mode that the scanner reads the image after it "
+"divides long paper by the length which is set in Document Size option."
 msgstr ""
 "מצב נייר ארוך הוא מצב בו הסורק קורא את התמונה לאחר חלוקת נייר ארוך באורך "
 "שנקבע באפשרות גודל מסמך."
@@ -4618,7 +4659,8 @@ msgstr "חלק"
 msgid "Low"
 msgstr "נמוך"
 
-#: backend/matsushita.c:215 backend/matsushita.c:230 backend/matsushita.c:1296
+#: backend/matsushita.c:215 backend/matsushita.c:230
+#: backend/matsushita.c:1296
 #, no-c-format
 msgid "Medium"
 msgstr "בינוני"
@@ -4700,7 +4742,8 @@ msgstr "כיול בעזרת backend"
 
 #: backend/microtek2.h:617
 #, no-c-format
-msgid "If checked the color calibration before a scan is done by the backend"
+msgid ""
+"If checked the color calibration before a scan is done by the backend"
 msgstr "אם מסומנת כיול הצבע לפני סריקה מבוצע בעזרת ה-backend"
 
 #: backend/microtek2.h:621
@@ -4741,8 +4784,8 @@ msgstr "כיוון אוטומטי של סף"
 #: backend/microtek2.h:635
 #, no-c-format
 msgid ""
-"If checked the backend automatically tries to determine an optimal value for "
-"the threshold."
+"If checked the backend automatically tries to determine an optimal value "
+"for the threshold."
 msgstr "אם מסומנת ה-backend מנסה אוטומטית לקבוע ערך מיטבי לסף."
 
 #: backend/microtek2.h:641
@@ -5014,8 +5057,8 @@ msgstr "סרוק במצב אפור מהיר (איכות נמוכה יותר)."
 #: backend/mustek.c:4345
 #, no-c-format
 msgid ""
-"Request that all previews are done in the fastest (low-quality) mode. This "
-"may be a non-color mode or a low resolution mode."
+"Request that all previews are done in the fastest (low-quality) mode. "
+"This may be a non-color mode or a low resolution mode."
 msgstr ""
 "בקש שכל התצוגות המקדימות יבוצעו במצב המהיר ביותר (איכות נמוכה). זה יכול "
 "להיות מצב לא צבע או מצב רזולוציה נמוכה."
@@ -5133,10 +5176,11 @@ msgstr "חיובי"
 #: backend/mustek_usb2.c:421
 #, no-c-format
 msgid ""
-"Warm-up until the lamp's brightness is constant instead of insisting on 40 "
-"seconds warm-up time."
+"Warm-up until the lamp's brightness is constant instead of insisting on "
+"40 seconds warm-up time."
 msgstr ""
-"בצע חימום עד שהבהירות של המנורה קבועה במקום להיצמד לזמן חימום של 40 שניות."
+"בצע חימום עד שהבהירות של המנורה קבועה במקום להיצמד לזמן חימום של 40 "
+"שניות."
 
 #: backend/pixma.c:397
 #, no-c-format
@@ -5161,11 +5205,11 @@ msgstr "צבע 16 ביטים"
 #: backend/pixma_sane_options.c:84
 #, no-c-format
 msgid ""
-"Selects the scan source (such as a document-feeder). Set source before mode "
-"and resolution. Resets mode and resolution to auto values."
+"Selects the scan source (such as a document-feeder). Set source before "
+"mode and resolution. Resets mode and resolution to auto values."
 msgstr ""
-"בוחר את מקור הסריקה (כמו מזין מסמכים). קבע מקור לפני מצב ורזולוציה. מאתחל "
-"מצב ורזולוציה לערכים אוטומטים."
+"בוחר את מקור הסריקה (כמו מזין מסמכים). קבע מקור לפני מצב ורזולוציה. "
+"מאתחל מצב ורזולוציה לערכים אוטומטים."
 
 #: backend/pixma_sane_options.c:98
 #, no-c-format
@@ -5218,8 +5262,8 @@ msgid ""
 "When set, the scanner searches the waiting time in seconds for a new "
 "document inserted into the automatic document feeder."
 msgstr ""
-"כאשר נקבע, הסורק מחפש את זמן ההמתנה בשניות למסמך חדש המוכנס למזין המסמכים "
-"האוטומטי."
+"כאשר נקבע, הסורק מחפש את זמן ההמתנה בשניות למסמך חדש המוכנס למזין "
+"המסמכים האוטומטי."
 
 #: backend/plustek.c:235 backend/plustek_pp.c:204 backend/u12.c:156
 #, no-c-format
@@ -5419,11 +5463,11 @@ msgstr "סימולציה תלת-מעברית"
 #: backend/pnm.c:255
 #, no-c-format
 msgid ""
-"Simulate a three-pass scanner by returning 3 separate frames.  For kicks, it "
-"returns green, then blue, then red."
+"Simulate a three-pass scanner by returning 3 separate frames.  For "
+"kicks, it returns green, then blue, then red."
 msgstr ""
-"בצע סימולציה של סורק תלת-מעברי בעזרת חזרה של 3 פריימים שונים. בשביל הכיף, "
-"מחזיר ירוק, אחר כך כחול, אחר כך אדום."
+"בצע סימולציה של סורק תלת-מעברי בעזרת חזרה של 3 פריימים שונים. בשביל "
+"הכיף, מחזיר ירוק, אחר כך כחול, אחר כך אדום."
 
 #: backend/pnm.c:267
 #, no-c-format
@@ -5433,17 +5477,18 @@ msgstr "סימולציה סורק ידני"
 #: backend/pnm.c:268
 #, no-c-format
 msgid ""
-"Simulate a hand-scanner.  Hand-scanners often do not know the image height a "
-"priori.  Instead, they return a height of -1.  Setting this option allows "
-"one to test whether a frontend can handle this correctly."
+"Simulate a hand-scanner.  Hand-scanners often do not know the image "
+"height a priori.  Instead, they return a height of -1.  Setting this "
+"option allows one to test whether a frontend can handle this correctly."
 msgstr ""
-"בצע סימולציה של סורק ידני. סורקים ידניים אינם יודעים את גובה התמונה מהתחלה. "
-"במקום, הם מחזירים גובה של -1. הפעלת אפשרות זו מאפשרת בדיקה האם ממשק יכול "
-"לטפל בכך בהצלחה."
+"בצע סימולציה של סורק ידני. סורקים ידניים אינם יודעים את גובה התמונה "
+"מהתחלה. במקום, הם מחזירים גובה של -1. הפעלת אפשרות זו מאפשרת בדיקה האם "
+"ממשק יכול לטפל בכך בהצלחה."
 
 #: backend/pnm.c:283
 #, no-c-format
-msgid "Set default values for enhancement controls (brightness & contrast)."
+msgid ""
+"Set default values for enhancement controls (brightness & contrast)."
 msgstr "קבע ערכי ברירת מחדל עבור בקרות העשרה (בהירות וניגודיות)."
 
 #: backend/pnm.c:295
@@ -5501,8 +5546,8 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_JAMMED after "
 "sane_read() has been called."
 msgstr ""
-"אלץ את ה-backend להחזיר את קוד הסטטוס SANE_STATUS_JAMMED לאחר ש-sane_read() "
-"נקראה."
+"אלץ את ה-backend להחזיר את קוד הסטטוס SANE_STATUS_JAMMED לאחר ש-"
+"sane_read() נקראה."
 
 #: backend/pnm.c:430
 #, no-c-format
@@ -5515,8 +5560,8 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_NO_DOCS after "
 "sane_read() has been called."
 msgstr ""
-"אלץ את ה-backend להחזיר את קוד הסטטוס SANE_STATUS_NO_DOCS לאחר ש-sane_read() "
-"נקראה."
+"אלץ את ה-backend להחזיר את קוד הסטטוס SANE_STATUS_NO_DOCS לאחר ש-"
+"sane_read() נקראה."
 
 #: backend/pnm.c:443
 #, no-c-format
@@ -5557,8 +5602,8 @@ msgid ""
 "Force the backend to return the status code SANE_STATUS_NO_MEM after "
 "sane_read() has been called."
 msgstr ""
-"אלץ את ה-backend להחזיר את קוד הסטטוס SANE_STATUS_NO_MEM לאחר ש-sane_read() "
-"נקראה."
+"אלץ את ה-backend להחזיר את קוד הסטטוס SANE_STATUS_NO_MEM לאחר ש-"
+"sane_read() נקראה."
 
 #: backend/pnm.c:483
 #, no-c-format
@@ -5568,8 +5613,8 @@ msgstr "החזר SANE_STATUS_ACCESS_DENIED"
 #: backend/pnm.c:484
 #, no-c-format
 msgid ""
-"Force the backend to return the status code SANE_STATUS_ACCESS_DENIED after "
-"sane_read() has been called."
+"Force the backend to return the status code SANE_STATUS_ACCESS_DENIED "
+"after sane_read() has been called."
 msgstr ""
 "אלץ את ה-backend להחזיר את קוד הסטטוס SANE_STATUS_ACCESS_DENIED לאחר ש-"
 "sane_read() נקראה."
@@ -5653,15 +5698,15 @@ msgstr "DispersedDot16x16"
 #, no-c-format
 msgid ""
 "Number of scan lines to request in a SCSI read. Changing this parameter "
-"allows you to tune the speed at which data is read from the scanner during "
-"scans. If this is set too low, the scanner will have to stop periodically in "
-"the middle of a scan; if it's set too high, X-based frontends may stop "
-"responding to X events and your system could bog down."
+"allows you to tune the speed at which data is read from the scanner "
+"during scans. If this is set too low, the scanner will have to stop "
+"periodically in the middle of a scan; if it's set too high, X-based "
+"frontends may stop responding to X events and your system could bog down."
 msgstr ""
-"מספר שורות סריקה לבקש בקריאת SCSI. שינוי פרמטר זה מאפשר לך לכוון את המהירות "
-"שבה מידע נקרא מהסורק במהלך סריקות. אם הערך הנקבע נמוך מדי, הסורק יצטרך לעצור "
-"מדי פעם באמצע סריקה. אם הערך הנקבע גבוה מדי, ממשקים מבוססי X עלולים לא להגיב "
-"לאירועי X והמערכת שלך יכולה לקרוס."
+"מספר שורות סריקה לבקש בקריאת SCSI. שינוי פרמטר זה מאפשר לך לכוון את "
+"המהירות שבה מידע נקרא מהסורק במהלך סריקות. אם הערך הנקבע נמוך מדי, הסורק "
+"יצטרך לעצור מדי פעם באמצע סריקה. אם הערך הנקבע גבוה מדי, ממשקים מבוססי X "
+"עלולים לא להגיב לאירועי X והמערכת שלך יכולה לקרוס."
 
 #: backend/snapscan-options.c:111
 #, no-c-format
@@ -5689,8 +5734,8 @@ msgid ""
 "Select the mode for previews. Greyscale previews usually give the best "
 "combination of speed and detail."
 msgstr ""
-"בחר את המצב לתצוגות מקדימות. תצוגות מקדימות בגווני אפור בדרך כלל נותנות את "
-"השילוב הטוב ביותר של מהירות ופירוט."
+"בחר את המצב לתצוגות מקדימות. תצוגות מקדימות בגווני אפור בדרך כלל נותנות "
+"את השילוב הטוב ביותר של מהירות ופירוט."
 
 #: backend/snapscan-options.c:601
 #, no-c-format
@@ -5700,7 +5745,8 @@ msgstr "הגדרות מוגדרות מראש"
 #: backend/snapscan-options.c:603
 #, no-c-format
 msgid ""
-"Provides standard scanning areas for photographs, printed pages and the like."
+"Provides standard scanning areas for photographs, printed pages and the "
+"like."
 msgstr "מספק שטחי סריקה סטנדרטיים לצלמים, עמודים מודפסים וכדומה."
 
 #: backend/snapscan-options.c:884
@@ -5809,13 +5855,13 @@ msgstr "סימולציה סורק-ידני"
 #, no-c-format
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners do not know the image height a "
-"priori.  Instead, they return a height of -1.  Setting this option allows "
-"one to test whether a frontend can handle this correctly.  This option also "
-"enables a fixed width of 11 cm."
+"priori.  Instead, they return a height of -1.  Setting this option "
+"allows one to test whether a frontend can handle this correctly.  This "
+"option also enables a fixed width of 11 cm."
 msgstr ""
 "בצע סימולציה של סורק ידני. סורקים ידניים אינם יודעים את הגובה של התמונה "
-"מראש. במקום, הם מחזירים גובה של -1. קביעת אפשרות זו מאפשרת לבדוק האם ממשק "
-"יכול לטפל בזה נכון. אפשרות זו גם מאפשרת רוחב קבוע של 11 סנטימטר."
+"מראש. במקום, הם מחזירים גובה של -1. קביעת אפשרות זו מאפשרת לבדוק האם "
+"ממשק יכול לטפל בזה נכון. אפשרות זו גם מאפשרת רוחב קבוע של 11 סנטימטר."
 
 #: backend/test.c:366
 #, no-c-format
@@ -5825,7 +5871,8 @@ msgstr "סימולציה תלת-מעברית"
 #: backend/test.c:367
 #, no-c-format
 msgid ""
-"Simulate a three-pass scanner. In color mode, three frames are transmitted."
+"Simulate a three-pass scanner. In color mode, three frames are "
+"transmitted."
 msgstr "בצע סימולציה של סורק תלת מעברי. במצב צבע, שלושה פריימים מועברים."
 
 #: backend/test.c:382
@@ -5841,8 +5888,8 @@ msgstr "קבע את הסדר של הפריימים במצב צבע תלת מעב
 #: backend/test.c:416
 #, no-c-format
 msgid ""
-"If Automatic Document Feeder is selected, the feeder will be 'empty' after "
-"10 scans."
+"If Automatic Document Feeder is selected, the feeder will be 'empty' "
+"after 10 scans."
 msgstr "אם מזין מסמכים אוטומטי נבחר, המזין יהיה \"ריק\" לאחר 10 סריקות."
 
 #: backend/test.c:431
@@ -5862,7 +5909,8 @@ msgid ""
 "Solid black: fills the whole scan with black.\n"
 "Solid white: fills the whole scan with white.\n"
 "Color pattern: draws various color test patterns depending on the mode.\n"
-"Grid: draws a black/white grid with a width and height of 10 mm per square."
+"Grid: draws a black/white grid with a width and height of 10 mm per "
+"square."
 msgstr ""
 "בחר את סוג תמונת הבדיקה. אפשרויות זמינות:\n"
 "שחור מלא: ממלא את כל הסריקה בשחור.\n"
@@ -5878,12 +5926,13 @@ msgstr "הפוך סדר בייטים"
 #: backend/test.c:468
 #, no-c-format
 msgid ""
-"Exchange upper and lower byte of image data in 16 bit modes. This option can "
-"be used to test the 16 bit modes of frontends, e.g. if the frontend uses the "
-"correct endianness."
+"Exchange upper and lower byte of image data in 16 bit modes. This option "
+"can be used to test the 16 bit modes of frontends, e.g. if the frontend "
+"uses the correct endianness."
 msgstr ""
-"החלף בייט עליון ותחתון של מידע תמונה במצבי 16 ביט. אפשרות זו ניתנת לשימוש "
-"לבדיקה של מצבי 16 ביט של ממשקים, למשל אם הממשק משתמש בסדר הבייטים הנכון."
+"החלף בייט עליון ותחתון של מידע תמונה במצבי 16 ביט. אפשרות זו ניתנת "
+"לשימוש לבדיקה של מצבי 16 ביט של ממשקים, למשל אם הממשק משתמש בסדר הבייטים "
+"הנכון."
 
 #: backend/test.c:484
 #, no-c-format
@@ -5902,7 +5951,8 @@ msgstr "גודל של גבול קריאה"
 
 #: backend/test.c:499
 #, no-c-format
-msgid "The (maximum) amount of data transferred with each call to sane_read()."
+msgid ""
+"The (maximum) amount of data transferred with each call to sane_read()."
 msgstr "הכמות (המירבית) של מידע המועבר בכל קריאה ל-sane_read()."
 
 #: backend/test.c:514
@@ -5934,12 +5984,12 @@ msgstr "ערך מוחזר של sane_read"
 #: backend/test.c:545
 #, no-c-format
 msgid ""
-"Select the return-value of sane_read(). \"Default\" is the normal handling "
-"for scanning. All other status codes are for testing how the frontend "
-"handles them."
+"Select the return-value of sane_read(). \"Default\" is the normal "
+"handling for scanning. All other status codes are for testing how the "
+"frontend handles them."
 msgstr ""
-"בחר את הערך המוחזר של sane_read(). \"ברירת מחדל\" היא הטיפול הרגיל לסריקה. "
-"כל שאר הקודים של הסטטוס הם לבדיקה של איך הממשק מטפל בהם."
+"בחר את הערך המוחזר של sane_read(). \"ברירת מחדל\" היא הטיפול הרגיל "
+"לסריקה. כל שאר הקודים של הסטטוס הם לבדיקה של איך הממשק מטפל בהם."
 
 #: backend/test.c:562
 #, no-c-format
@@ -5983,7 +6033,8 @@ msgstr "תציע תיאור בחר קובץ"
 #: backend/test.c:606
 #, no-c-format
 msgid ""
-"Offer a select filedescriptor for detecting if sane_read() will return data."
+"Offer a select filedescriptor for detecting if sane_read() will return "
+"data."
 msgstr "תציע תיאור בחר קובץ לגילוי האם sane_read() תחזיר מידע."
 
 #: backend/test.c:619
@@ -5994,11 +6045,11 @@ msgstr "הפעל אפשרויות בדיקה"
 #: backend/test.c:620
 #, no-c-format
 msgid ""
-"Enable various test options. This is for testing the ability of frontends to "
-"view and modify all the different SANE option types."
+"Enable various test options. This is for testing the ability of "
+"frontends to view and modify all the different SANE option types."
 msgstr ""
-"הפעל אפשרויות בדיקה שונות. זה עבור בדיקה של יכולת הממשקים לצפות ולשנות את כל "
-"סוגי אפשרויות SANE השונות."
+"הפעל אפשרויות בדיקה שונות. זה עבור בדיקה של יכולת הממשקים לצפות ולשנות "
+"את כל סוגי אפשרויות SANE השונות."
 
 #: backend/test.c:634
 #, no-c-format
@@ -6023,11 +6074,11 @@ msgstr "(1/6) בחירה רכה גילוי רך בוליאני"
 #: backend/test.c:727
 #, no-c-format
 msgid ""
-"(1/6) Bool test option that has soft select and soft detect (and advanced) "
-"capabilities. That's just a normal bool option."
+"(1/6) Bool test option that has soft select and soft detect (and "
+"advanced) capabilities. That's just a normal bool option."
 msgstr ""
-"(1/6) אפשרות בדיקה בוליאנית שיש לה בחירה רכה וגילוי רך ויכולות (מתקדמות). "
-"זוהי אפשרות בוליאנית רגילה."
+"(1/6) אפשרות בדיקה בוליאנית שיש לה בחירה רכה וגילוי רך ויכולות "
+"(מתקדמות). זוהי אפשרות בוליאנית רגילה."
 
 #: backend/test.c:743
 #, no-c-format
@@ -6037,13 +6088,13 @@ msgstr "(2/6) בחירה קשה גילוי רך בוליאני"
 #: backend/test.c:745
 #, no-c-format
 msgid ""
-"(2/6) Bool test option that has hard select and soft detect (and advanced) "
-"capabilities. That means the option can't be set by the frontend but by the "
-"user (e.g. by pressing a button at the device)."
+"(2/6) Bool test option that has hard select and soft detect (and "
+"advanced) capabilities. That means the option can't be set by the "
+"frontend but by the user (e.g. by pressing a button at the device)."
 msgstr ""
-"(2/6) אפשרות בדיקה בוליאנית שיש לה בחירה קשה וגילוי רך ויכולות (מתקדמות). זה "
-"אומר שהאפשרות אינה ניתנת לקביעה בעזרת הממשק אלא על ידי המשתמש (למשל על ידי "
-"לחיצה על כפתור בהתקן)."
+"(2/6) אפשרות בדיקה בוליאנית שיש לה בחירה קשה וגילוי רך ויכולות "
+"(מתקדמות). זה אומר שהאפשרות אינה ניתנת לקביעה בעזרת הממשק אלא על ידי "
+"המשתמש (למשל על ידי לחיצה על כפתור בהתקן)."
 
 #: backend/test.c:762
 #, no-c-format
@@ -6054,12 +6105,12 @@ msgstr "(3/6) בחירה קשה בוליאני"
 #, no-c-format
 msgid ""
 "(3/6) Bool test option that has hard select (and advanced) capabilities. "
-"That means the option can't be set by the frontend but by the user (e.g. by "
-"pressing a button at the device) and can't be read by the frontend."
+"That means the option can't be set by the frontend but by the user (e.g. "
+"by pressing a button at the device) and can't be read by the frontend."
 msgstr ""
 "(3/6) אפשרות בדיקה בוליאנית שיש לה בחירה קשה ויכולות (מתקדמות). זה אומר "
-"שהאפשרות אינה ניתנת לקביעה בעזרת הממשק אלא על ידי המשתמש (למשל על ידי לחיצה "
-"על כפתור בהתקן) ואינה ניתנת לקריאה בעזרת הממשק."
+"שהאפשרות אינה ניתנת לקביעה בעזרת הממשק אלא על ידי המשתמש (למשל על ידי "
+"לחיצה על כפתור בהתקן) ואינה ניתנת לקריאה בעזרת הממשק."
 
 #: backend/test.c:781
 #, no-c-format
@@ -6083,8 +6134,8 @@ msgstr "(5/6) בחירה רכה גילוי רך מדומה בוליאני"
 #: backend/test.c:799
 #, no-c-format
 msgid ""
-"(5/6) Bool test option that has soft select, soft detect, and emulated (and "
-"advanced) capabilities."
+"(5/6) Bool test option that has soft select, soft detect, and emulated "
+"(and advanced) capabilities."
 msgstr ""
 "(5/6) אפשרות בדיקה בוליאנית שיש לה בחירה רכה, גילוי רך, ויכולות מדומות "
 "(ומתקדמות)."
@@ -6097,8 +6148,9 @@ msgstr "(6/6) בחירה רכה גילוי רך אוטומטי בוליאני"
 #: backend/test.c:816
 #, no-c-format
 msgid ""
-"(6/6) Bool test option that has soft select, soft detect, and automatic (and "
-"advanced) capabilities. This option can be automatically set by the backend."
+"(6/6) Bool test option that has soft select, soft detect, and automatic "
+"(and advanced) capabilities. This option can be automatically set by the "
+"backend."
 msgstr ""
 "(6/6) אפשרות בדיקה בוליאנית שיש לה בחירה רכה, גילוי רך ויכולות אוטומטיות "
 "(ומתקדמות). אפשרות זו יכולה להיקבע אוטומטית בעזרת ה-backend."
@@ -6126,11 +6178,11 @@ msgstr "(2/6) טווח אילוץ שלם"
 #: backend/test.c:863
 #, no-c-format
 msgid ""
-"(2/6) Int test option with unit pixel and constraint range set. Minimum is "
-"4, maximum 192, and quant is 2."
+"(2/6) Int test option with unit pixel and constraint range set. Minimum "
+"is 4, maximum 192, and quant is 2."
 msgstr ""
-"(2/6) אפשרות בדיקה שלם עם פיקסל יחידה וסט טווח אילוץ. מינימום זה 4, מקסימום "
-"192, ו-quant הוא 2."
+"(2/6) אפשרות בדיקה שלם עם פיקסל יחידה וסט טווח אילוץ. מינימום זה 4, "
+"מקסימום 192, ו-quant הוא 2."
 
 #: backend/test.c:879
 #, no-c-format
@@ -6150,7 +6202,8 @@ msgstr "(4/6) מערך שלם"
 #: backend/test.c:896
 #, no-c-format
 msgid ""
-"(4/6) Int test option with unit mm and using an array without constraints."
+"(4/6) Int test option with unit mm and using an array without "
+"constraints."
 msgstr "(4/6) אפשרות בדיקה שלם עם מילימטר יחידה ושימוש במערך ללא אילוצים."
 
 #: backend/test.c:911
@@ -6164,8 +6217,8 @@ msgid ""
 "(5/6) Int test option with unit dpi and using an array with a range "
 "constraint. Minimum is 4, maximum 192, and quant is 2."
 msgstr ""
-"(5/6) אפשרות בדיקה שלם עם dpi יחידה ושימוש במערך עם אילוץ טווח. מינימום זה "
-"4, מקסימום 192, ו-quant זה 2."
+"(5/6) אפשרות בדיקה שלם עם dpi יחידה ושימוש במערך עם אילוץ טווח. מינימום "
+"זה 4, מקסימום 192, ו-quant זה 2."
 
 #: backend/test.c:929
 #, no-c-format
@@ -6175,8 +6228,8 @@ msgstr "(6/6) רשימת מילות אילוץ מערך שלם"
 #: backend/test.c:930
 #, no-c-format
 msgid ""
-"(6/6) Int test option with unit percent and using an array with a word list "
-"constraint."
+"(6/6) Int test option with unit percent and using an array with a word "
+"list constraint."
 msgstr ""
 "(6/6) אפשרות בדיקה שלם עם אחוז יחידה ושימוש במערך עם אילוץ רשימת מילים."
 
@@ -6206,8 +6259,8 @@ msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
 "Minimum is -42.17, maximum 32767.9999, and quant is 2.0."
 msgstr ""
-"(2/3) אפשרות בדיקה קבועה עם מיקרושנייה יחידה וסט טווח אילוצים. מינימום זה "
-"-42.17, מקסימום 32767.9999, ו-quant זה 2.0."
+"(2/3) אפשרות בדיקה קבועה עם מיקרושנייה יחידה וסט טווח אילוצים. מינימום "
+"זה -42.17, מקסימום 32767.9999, ו-quant זה 2.0."
 
 #: backend/test.c:992
 #, no-c-format
@@ -6255,7 +6308,8 @@ msgid ""
 "(3/3) String test option with string list constraint. Contains some more "
 "entries..."
 msgstr ""
-"(3/3) אפשרות בדיקה מחרוזת עם אילוץ רשימת מחרוזות. מכילה כמה ערכים נוספים..."
+"(3/3) אפשרות בדיקה מחרוזת עם אילוץ רשימת מחרוזות. מכילה כמה ערכים "
+"נוספים..."
 
 #: backend/test.c:1080
 #, no-c-format

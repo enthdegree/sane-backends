@@ -70,7 +70,7 @@ Please check that there aren't any older versions of SANE installed on your
 system. Especially if SANE libraries are installed in a different prefix
 directory (e.g. /usr/lib/) this may cause problems with external
 frontends. Please remove these libraries (libsane.*, sane/libsane-*) by using
-your packet manager or manually before installing this version of SANE.
+your package manager or manually before installing this version of SANE.
 
 
 Configuration
@@ -127,10 +127,10 @@ to the epson2 and fujitsu backends:
   ./configure BACKENDS="epson2 fujitsu"
 
 To limit the backends that are preloaded into the DLL, set the variable
-PRELOADABLE_BACKENDS.  The following will limit compiling  to the epson2
+PRELOADABLE_BACKENDS.  The following will limit compiling to the epson2
 and fujitsu backends but only preloads the epson2 backend:
 
-  ./configure BACKENDS="epson2 futjisu" PRELOADABLE_BACKENDS="epson2"
+  ./configure BACKENDS="epson2 fujitsu" PRELOADABLE_BACKENDS="epson2"
 
 In addition to these configuration options, there are some more SANE-specific
 options and many standard-options.  To get a description of available options,

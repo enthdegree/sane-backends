@@ -1300,10 +1300,10 @@ init_vpd (struct fujitsu *s)
 
       /*subwin cmd*/
       in[0x2b] = 1;
- 
+
       /*rif/dtc/sdtc/outline/emph/sep/mirr/wlf*/
       in[0x58] = 0xff;
- 
+
       /*subwin/diffusion*/
       in[0x59] = 0xc0;
     }
@@ -1330,10 +1330,10 @@ init_vpd (struct fujitsu *s)
   }
 
   /* Special case- some scanners will under-report the amount of
-   * valid vpd that they send, and return the default length. 
+   * valid vpd that they send, and return the default length.
    * Adding 4 more bytes allows us to include the overscan info.
    * Scanners that don't support overscan seem to have all zeros
-   * in these bytes, so no harm is done. 
+   * in these bytes, so no harm is done.
    * This may be an 'off-by-four' error in the firmware. */
   else if (payload_len == 0x5f){
     payload_len += 4;

@@ -336,6 +336,8 @@
          - rename all DUPLEX_INTERLACE_* to indicate start and end of line
       v56 2016-08-23, MAN
          - initial support for P-150
+      v57 2019-02-24, manuarg
+         - complete support for X-10, including hardware cropping
 
    SANE FLOW DIAGRAM
 
@@ -386,7 +388,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 56
+#define BUILD 57
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -2956,6 +2958,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->side;
           return SANE_STATUS_GOOD;
 
+        case OPT_HW_CROP:
+          *val_p = s->hwcrop;
+          return SANE_STATUS_GOOD;
+
         /* Sensor Group */
         case OPT_START:
           ret = read_panel(s,OPT_START);
@@ -3001,10 +3007,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           ret = read_sensors(s,OPT_CARD_LOADED);
           *val_p = s->sensor_card_loaded;
           return ret;
-
-        case OPT_HW_CROP:
-          *val_p = s->hwcrop;
-          return SANE_STATUS_GOOD;
       }
   }
   else if (action == SANE_ACTION_SET_VALUE) {
@@ -3910,6 +3912,7 @@ send_panel(struct scanner *s)
 /*
  * Request the size of the scanned image
  */
+/* we should really be updating s->s and s->i instead */
 static SANE_Status
 get_pixelsize(struct scanner *s)
 {
@@ -4330,6 +4333,7 @@ sane_start (SANE_Handle handle)
       DBG (5, "sane_start: ERROR: cannot send panel\n");
     }
 
+    /* we should really be updating s->s and s->i instead */
     if(s->hwcrop){
       s->u.br_x = s->max_x;
       s->u.tl_x = 0;

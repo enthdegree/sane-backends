@@ -10,6 +10,7 @@
    Canon, USA. www.usa.canon.com loaned equipment
    HPrint hprint.com.br provided funding and testing for DR-2510 support
    Stone-IT www.stone-it.com provided funding for DR-2010 and DR-2050 support
+   Smartmatic www.smartmatic.com provided testing and changes for DR-X10C support
 
    --------------------------------------------------------------------------
 
@@ -1690,6 +1691,31 @@ init_model (struct scanner *s)
     s->can_halftone = 0;
   }
 
+  else if (strstr (s->model_name,"DR-X10C")){
+
+    /* Required for USB coms */
+    s->has_ssm = 0;
+    s->has_ssm2 = 1;
+
+    /* missing */
+    s->std_res_x[DPI_100]=1;
+    s->std_res_y[DPI_100]=1;
+    s->std_res_x[DPI_150]=1;
+    s->std_res_y[DPI_150]=1;
+    s->std_res_x[DPI_200]=1;
+    s->std_res_y[DPI_200]=1;
+    s->std_res_x[DPI_240]=1;
+    s->std_res_y[DPI_240]=1;
+    s->std_res_x[DPI_300]=1;
+    s->std_res_y[DPI_300]=1;
+    s->std_res_x[DPI_400]=1;
+    s->std_res_y[DPI_400]=1;
+    s->std_res_x[DPI_600]=1;
+    s->std_res_y[DPI_600]=1;
+
+    s->has_hwcrop = 1;
+  }
+
   DBG (10, "init_model: finish\n");
 
   return SANE_STATUS_GOOD;
@@ -2551,6 +2577,18 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_NONE;
   }
 
+  /*hardware crop*/
+  if(option==OPT_HW_CROP){
+    opt->name = "hwcrop";
+    opt->title = "Hardware crop";
+    opt->desc = "Request scanner to crop image automatically";
+    opt->type = SANE_TYPE_BOOL;
+    if (s->has_hwcrop)
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
   /* "Sensor" group ------------------------------------------------------ */
   if(option==OPT_SENSOR_GROUP){
     opt->name = SANE_NAME_SENSORS;
@@ -2963,6 +3001,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           ret = read_sensors(s,OPT_CARD_LOADED);
           *val_p = s->sensor_card_loaded;
           return ret;
+
+        case OPT_HW_CROP:
+          *val_p = s->hwcrop;
+          return SANE_STATUS_GOOD;
       }
   }
   else if (action == SANE_ACTION_SET_VALUE) {
@@ -3237,6 +3279,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           s->buffermode = val_c;
           return SANE_STATUS_GOOD;
 
+        case OPT_HW_CROP:
+          s->hwcrop = val_c;
+          return SANE_STATUS_GOOD;
+
       }
   }                           /* else */
 
@@ -3437,6 +3483,11 @@ ssm_df (struct scanner *s)
       set_SSM2_DF_len(out, 1);
     }
 
+    /* staple detection */
+    if(s->stapledetect){
+      set_SSM2_DF_staple(out, 1);
+    }
+
     ret = do_cmd (
         s, 1, 0,
         cmd, cmdLen,
@@ -3451,6 +3502,53 @@ ssm_df (struct scanner *s)
   }
 
   DBG (10, "ssm_df: finish\n");
+
+  return ret;
+}
+
+static SANE_Status
+ssm2_hw_enhancement (struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  DBG (10, "ssm2_hw_enhancement: start\n");
+
+  if(s->has_ssm2){
+    unsigned char cmd[SET_SCAN_MODE2_len];
+    size_t cmdLen = SET_SCAN_MODE2_len;
+
+    unsigned char out[SSM2_PAY_len];
+    size_t outLen = SSM2_PAY_len;
+
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, SET_SCAN_MODE2_code);
+    set_SSM2_page_code(cmd, SM2_pc_hw_enhancement);
+    set_SSM2_pay_len(cmd, outLen);
+
+    memset(out,0,outLen);
+
+    if(s->rollerdeskew){
+      set_SSM2_roller_deskew(out, 1);
+    }
+
+    if(s->hwcrop){
+      set_SSM2_hw_crop(out, 1);
+    }
+
+    ret = do_cmd (
+        s, 1, 0,
+        cmd, cmdLen,
+        out, outLen,
+        NULL, NULL
+    );
+
+  }
+
+  else{
+    DBG (10, "ssm2_hw_enhancement: unsupported\n");
+  }
+
+  DBG (10, "ssm2_hw_enhancement: finish\n");
 
   return ret;
 }
@@ -3599,6 +3697,46 @@ ssm_do (struct scanner *s)
         out, outLen,
         NULL, NULL
     );
+
+    if(ret == SANE_STATUS_GOOD &&
+       (s->s.source == SOURCE_ADF_DUPLEX || s->s.source == SOURCE_CARD_DUPLEX)){
+
+      memset(cmd,0,cmdLen);
+      set_SCSI_opcode(cmd, SET_SCAN_MODE2_code);
+      set_SSM2_page_code(cmd, SM2_pc_dropout);
+      set_SSM2_DO_side(cmd, SIDE_BACK);
+      set_SSM2_pay_len(cmd, outLen);
+
+      memset(out,0,outLen);
+
+      switch(s->dropout_color[SIDE_BACK]){
+        case COLOR_RED:
+          set_SSM2_DO_do(out,SSM_DO_red);
+          break;
+        case COLOR_GREEN:
+          set_SSM2_DO_do(out,SSM_DO_green);
+          break;
+        case COLOR_BLUE:
+          set_SSM2_DO_do(out,SSM_DO_blue);
+          break;
+        case COLOR_EN_RED:
+          set_SSM2_DO_en(out,SSM_DO_red);
+          break;
+        case COLOR_EN_GREEN:
+          set_SSM2_DO_en(out,SSM_DO_green);
+          break;
+        case COLOR_EN_BLUE:
+          set_SSM2_DO_en(out,SSM_DO_blue);
+          break;
+      }
+
+      ret = do_cmd (
+          s, 1, 0,
+          cmd, cmdLen,
+          out, outLen,
+          NULL, NULL
+      );
+    }
   }
 
   else{
@@ -3767,6 +3905,93 @@ send_panel(struct scanner *s)
     DBG (10, "send_panel: finish %d\n", ret);
 
     return ret;
+}
+
+/*
+ * Request the size of the scanned image
+ */
+static SANE_Status
+get_pixelsize(struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[READ_len];
+  size_t cmdLen = READ_len;
+
+  unsigned char in[R_PSIZE_len];
+  size_t inLen = R_PSIZE_len;
+
+  int i = 0;
+  const int MAX_TRIES = 5;
+
+  DBG (10, "get_pixelsize: start\n");
+
+  if(!s->hwcrop){
+    DBG (10, "get_pixelsize: unneeded, finishing\n");
+    return ret;
+  }
+
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, READ_code);
+  set_R_datatype_code(cmd, SR_datatype_pixelsize);
+  set_R_xfer_lid(cmd, 0x02);
+  set_R_xfer_length(cmd, inLen);
+
+  /* May need to retry/block until the scanner is done */
+  for(i=0;i<MAX_TRIES;i++){
+    ret = do_cmd (
+        s, 1, 0,
+        cmd, cmdLen,
+        NULL, 0,
+        in, &inLen
+    );
+
+    if(ret == SANE_STATUS_GOOD &&
+       get_R_PSIZE_width(in) > 0 &&
+       get_R_PSIZE_length(in) > 0){
+
+      DBG (15, "get_pixelsize: w:%d h:%d\n",
+           get_R_PSIZE_width(in) * s->u.dpi_x / 1200,
+           get_R_PSIZE_length(in) * s->u.dpi_y / 1200);
+
+      /*
+       * Round up to byte boundary if needed.
+       * For 1 bpp the resulting size may not fit in a byte boundary.
+       */
+      int remainder = (get_R_PSIZE_width(in) * s->u.dpi_x / 1200) % 8;
+
+      if (s->u.mode < MODE_GRAYSCALE && remainder)
+      {
+        int rounded_up = (8 - remainder) + (get_R_PSIZE_width(in) * s->u.dpi_x / 1200);
+
+        s->u.br_x = rounded_up * 1200 / s->u.dpi_x;
+      }
+      else{
+        s->u.br_x = get_R_PSIZE_width(in);
+      }
+
+      s->u.tl_x = 0;
+      s->u.br_y = get_R_PSIZE_length(in);
+      s->u.tl_y = 0;
+
+      s->u.page_x = s->u.br_x;
+      s->u.page_y = s->u.br_y;
+
+      update_params(s,0);
+      clean_params(s);
+      break;
+    }
+
+    else{
+      DBG (10, "get_pixelsize: error reading, status = %d w:%d h:%d\n",
+           ret, get_R_PSIZE_width(in), get_R_PSIZE_length(in));
+      ret = SANE_STATUS_INVAL;
+      usleep(1000000);
+    }
+  }
+  DBG (10, "get_pixelsize: finish\n");
+
+  return ret;
 }
 
 /*
@@ -4105,6 +4330,15 @@ sane_start (SANE_Handle handle)
       DBG (5, "sane_start: ERROR: cannot send panel\n");
     }
 
+    if(s->hwcrop){
+      s->u.br_x = s->max_x;
+      s->u.tl_x = 0;
+      s->u.br_y = s->max_y;
+      s->u.tl_y = 0;
+      s->u.page_x = s->max_x;
+      s->u.page_y = s->max_y;
+    }
+
     /* load our own private copy of scan params */
     ret = update_params(s,0);
     if (ret != SANE_STATUS_GOOD) {
@@ -4137,6 +4371,12 @@ sane_start (SANE_Handle handle)
     ret = ssm_df(s);
     if (ret != SANE_STATUS_GOOD) {
       DBG (5, "sane_start: ERROR: cannot ssm df\n");
+      goto errors;
+    }
+
+    ret = ssm2_hw_enhancement(s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot ssm2 hw enhancement\n");
       goto errors;
     }
 
@@ -4182,6 +4422,12 @@ sane_start (SANE_Handle handle)
     ret = start_scan (s,0);
     if (ret != SANE_STATUS_GOOD) {
       DBG (5, "sane_start: ERROR: cannot start_scan\n");
+      goto errors;
+    }
+
+    ret = get_pixelsize(s);
+    if (ret != SANE_STATUS_GOOD) {
+      DBG (5, "sane_start: ERROR: cannot get pixel size\n");
       goto errors;
     }
 
@@ -4250,6 +4496,12 @@ sane_start (SANE_Handle handle)
         }
         DBG (5, "sane_start: diff counter (%d/%d)\n",
           s->prev_page,s->panel_counter);
+      }
+
+      ret = get_pixelsize(s);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot get pixel size\n");
+        goto errors;
       }
     }
   }
@@ -7232,7 +7484,7 @@ do_usb_status(struct scanner *s, int runRS, int shortTime, size_t * extraLength)
     }
     /*inspect the status byte of the response*/
     else if(statBuffer[statOffset]){
-      DBG(5,"stat: status %d\n",statBuffer[statLength-1-4]);
+      DBG(5,"stat: status %d\n",statBuffer[statOffset]);
       ret = do_usb_clear(s,0,runRS);
     }
 

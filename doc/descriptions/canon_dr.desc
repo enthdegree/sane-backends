@@ -262,8 +262,8 @@
 :model "DR-X10C"
 :interface "USB SCSI"
 :usbid "0x1083" "0x1618"
-:status :untested
-:comment "Please test!"
+:status :good
+:comment "Simplex, duplex, all resolutions, binary/ht/gray/color, async mode, dropout-color, multifeed/staple detection, deskew, autocrop working. Imprinter, barcode, custom gamma and multistream unsupported"
 
 :model "DR-C120"
 :interface "USB"

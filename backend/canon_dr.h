@@ -49,6 +49,7 @@ enum scanner_Option
   OPT_DROPOUT_COLOR_B,
   OPT_BUFFERMODE,
   OPT_SIDE,
+  OPT_HW_CROP,
 
   /*sensor group*/
   OPT_SENSOR_GROUP,
@@ -186,6 +187,7 @@ struct scanner
   int has_ssm;           /* older scanners use this set scan mode command */
   int has_ssm2;          /* newer scanners user this similar command */
   int has_ssm_pay_head_len; /* newer scanners put the length twice in ssm */
+  int has_hwcrop;
   int can_read_sensors;
   int can_read_panel;
   int can_write_panel;
@@ -286,6 +288,7 @@ struct scanner
   int swcrop;
   int swskip;
   int stapledetect;
+  int hwcrop;
 
   /* --------------------------------------------------------------------- */
   /* values which are derived from setting the options above */

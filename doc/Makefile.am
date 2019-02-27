@@ -189,7 +189,6 @@ EXTRA_DIST += $(DESC_FILES) descriptions/template.desc.
 DESC_EXT_FILES = descriptions-external/brother2.desc \
   descriptions-external/brother.desc \
   descriptions-external/brother-mfc4600.desc \
-  descriptions-external/canon_mfp.desc \
   descriptions-external/cs3200f.desc \
   descriptions-external/epkowa.desc \
   descriptions-external/geniusvp2.desc \

@@ -264,6 +264,9 @@
 #define LIDE400_PID 0x1912  /* tested */
 #define LIDE300_PID 0x1913  /* tested */
 
+/* 2019 new devices (untested) */
+#define TS6200_PID 0x1856
+
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
 #define XML_START_1   \
 "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\
@@ -1956,6 +1959,9 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA TS9500 Series", "TS9500", TS9500_PID, 1200, 0, 600, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("CanoScan LiDE 400", "LIDE400", LIDE400_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("CanoScan LiDE 300", "LIDE300", LIDE300_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
+
+  /* Latest devices (2019) Generation 5 CIS */
+  DEVICE ("Canon PIXMA TS6200 Series", "TS6200", TS6200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   END_OF_DEVICE_LIST
 };

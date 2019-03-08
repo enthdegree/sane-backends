@@ -120,6 +120,8 @@ i-SENSYS MF220, MF410, MF630, MF5880dn, MF5900
 i-SENSYS MF6680dn, MF8500C
 .br
 MAXIFY MB5100, MB5300, MB5400
+.br
+PIXMA TS6200
 .RE
 .PP
 \#The following models may use partly the same Pixma protocol as other devices

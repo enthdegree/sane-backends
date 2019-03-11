@@ -839,15 +839,45 @@
 :status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 4800DPI)"
 
+:model "PIXMA TR4500 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1854"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA TR7500 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x1824"
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA TR7530 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1845"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA TR8500 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x1823"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TR8530 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x1844"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TR8580 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x1841"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TR9530 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x185e"
 :status :untested
 :comment "Testers needed!"
 

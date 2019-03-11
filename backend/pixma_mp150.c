@@ -267,8 +267,13 @@
 /* 2019 new devices (untested) */
 #define G3010_PID 0x183b
 #define G4010_PID 0x183d
+#define TR8580_PID 0x1841
+#define TR8530_PID 0x1844
+#define TR7530_PID 0x1845
+#define TR4500_PID 0x1854
 #define E4200_PID 0x1855
 #define TS6200_PID 0x1856
+#define TR9530_PID 0x185e
 
 /* Generation 4 XML messages that encapsulates the Pixma protocol messages */
 #define XML_START_1   \
@@ -1966,8 +1971,13 @@ const pixma_config_t pixma_mp150_devices[] = {
   /* Latest devices (2019) Generation 5 CIS */
   DEVICE ("Canon PIXMA G3010 Series", "G3010", G3010_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA G4010 Series", "G4010", G4010_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TR8580 Series", "TR8580", TR8580_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TR8530 Series", "TR8530", TR8530_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TR7530 Series", "TR7530", TR7530_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TR4500 Series", "TR4500", TR4500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA E4200 Series", "E4200", E4200_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA TS6200 Series", "TS6200", TS6200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TR9530 Series", "TR9530", TR9530_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
 
   END_OF_DEVICE_LIST
 };

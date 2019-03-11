@@ -35,7 +35,7 @@
 :comment "Testers needed!"
 
 :model "PIXMA E460 Series"
-:interface "USB"
+:interface "USB Ethernet"
 :usbid "0x04a9" "0x1788"
 :status :untested
 :comment "Testers needed!"
@@ -83,7 +83,7 @@
 :comment "Testers needed!"
 
 :model "PIXMA E3100 Series"
-:interface "USB"
+:interface "USB WiFi"
 :usbid "0x04a9" "0x1828"
 :status :untested
 :comment "Testers needed!"
@@ -870,7 +870,7 @@
 :comment "All resolutions supported (up to 2400DPI). WiFi not working."
 
 :model "PIXMA TS9000 Series"
-:interface "USB Ethernet WiFi"
+:interface "USB WiFi"
 :usbid "0x04a9" "0x179f"
 :status :untested
 :comment "Testers needed!"

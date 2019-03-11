@@ -322,18 +322,6 @@
 :status :complete
 :comment "All resolutions supported (up to 4800DPI)."
 
-:model "PIXUS MP5"
-:interface "USB"
-:usbid "0x04a9" "0x2635"
-:status :untested
-:comment "Testers needed! Identical with imageCLASS MPC190."
-
-:model "PIXUS MP10"
-:interface "USB"
-:usbid "0x04a9" "0x261f"
-:status :complete
-:comment "All resolutions supported (up to 600DPI). Identical with imageCLASS MPC200."
-
 :model "PIXMA MP140"
 :interface "USB"
 :usbid "0x04a9" "0x172b"
@@ -1010,7 +998,36 @@
 :model "PIXMA TS9580 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x185d"
+:status :untested
+:comment "Testers needed!"
 
+:model "PIXUS MP5"
+:interface "USB"
+:usbid "0x04a9" "0x2635"
+:status :untested
+:comment "Testers needed! Identical with imageCLASS MPC190."
+
+:model "PIXUS MP10"
+:interface "USB"
+:usbid "0x04a9" "0x261f"
+:status :complete
+:comment "All resolutions supported (up to 600DPI). Identical with imageCLASS MPC200."
+
+:model "PIXUS XK50 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1846"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXUS XK70 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1847"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXUS XK80 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1873"
 :status :untested
 :comment "Testers needed!"
 

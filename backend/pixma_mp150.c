@@ -265,6 +265,8 @@
 #define LIDE300_PID 0x1913  /* tested */
 
 /* 2019 new devices (untested) */
+#define G3010_PID 0x183b
+#define G4010_PID 0x183d
 #define E4200_PID 0x1855
 #define TS6200_PID 0x1856
 
@@ -1962,6 +1964,8 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("CanoScan LiDE 300", "LIDE300", LIDE300_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2019) Generation 5 CIS */
+  DEVICE ("Canon PIXMA G3010 Series", "G3010", G3010_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA G4010 Series", "G4010", G4010_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA E4200 Series", "E4200", E4200_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA TS6200 Series", "TS6200", TS6200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 

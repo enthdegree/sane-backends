@@ -112,9 +112,21 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA G3010 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x183b"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA G4000 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x181d"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA G4010 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x183d"
 :status :untested
 :comment "Testers needed!"
 

@@ -911,11 +911,77 @@
 :status :good
 :comment "All resolutions supported (up to 2400DPI). WiFi not working."
 
+:model "PIXMA TS6130 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1843"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS6180 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1840"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS6200 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1856"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS6230 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1858"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS6280 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1857"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA TS8000 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x1800"
 :status :good
 :comment "All resolutions supported (up to 2400DPI). WiFi not working."
+
+:model "PIXMA TS8100 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1821"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS8130 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1842"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS8180 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x183f"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS8200 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1859"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS8230 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x185b"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS8280 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x185a"
+:status :untested
+:comment "Testers needed!"
 
 :model "PIXMA TS9000 Series"
 :interface "USB WiFi"
@@ -929,15 +995,22 @@
 :status :untested
 :comment "Testers needed!"
 
-:model "PIXMA TS9500 Series"
+:model "PIXMA TS9180 Series"
 :interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x183e"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS9500 Series"
+:interface "USB WiFi"
 :usbid "0x04a9" "0x185c"
 :status :untested
 :comment "Testers needed!"
 
-:model "PIXMA TS6200 Series"
-:interface "USB Ethernet WiFi"
-:usbid "0x04a9" "0x1856"
+:model "PIXMA TS9580 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x185d"
+
 :status :untested
 :comment "Testers needed!"
 

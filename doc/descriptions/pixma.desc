@@ -88,6 +88,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA E4200 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1855"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA G2000"
 :interface "USB"
 :usbid "0x04a9" "0x1795"

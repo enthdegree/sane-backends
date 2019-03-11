@@ -95,9 +95,9 @@ in the backend so that they get recognized and activated.
 Feedback in the sane\-devel mailing list welcome.
 .PP
 .RS
-PIXMA E400, E410, E460, E470, E480, E500, E560, E600
+PIXMA E400, E410, E460, E470, E480, E500, E560, E600, E610
 .br
-PIXMA E610, E3100
+PIXMA E3100, E4200
 .br
 PIXMA MG3000, MG4100, MG6500, MG6600, MG6800, MG6900, MG8100
 .br

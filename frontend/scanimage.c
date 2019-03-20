@@ -93,6 +93,7 @@ static struct option basic_options[] = {
   {"help", no_argument, NULL, 'h'},
   {"verbose", no_argument, NULL, 'v'},
   {"progress", no_argument, NULL, 'p'},
+  {"output-file", required_argument, NULL, 'o'},
   {"test", no_argument, NULL, 'T'},
   {"all-options", no_argument, NULL, 'A'},
   {"version", no_argument, NULL, 'V'},
@@ -116,7 +117,7 @@ static struct option basic_options[] = {
 #define OUTPUT_PNG      2
 #define OUTPUT_JPEG     3
 
-#define BASE_OPTSTRING	"d:hi:Lf:B::nvVTAbp"
+#define BASE_OPTSTRING	"d:hi:Lf:o:B::nvVTAbp"
 #define STRIP_HEIGHT	256	/* # lines we increment image height */
 
 static struct option *all_options;
@@ -125,6 +126,7 @@ static int *option_number;
 static SANE_Handle device;
 static int verbose;
 static int progress = 0;
+static const char* output_file = NULL;
 static int test;
 static int all;
 static int output_format = OUTPUT_PNM;
@@ -2033,6 +2035,9 @@ main (int argc, char **argv)
 	case 'p':
           progress = 1;
 	  break;
+        case 'o':
+          output_file = optarg;
+          break;
 	case 'B':
           if (optarg)
 	    buffer_size = 1024 * atoi(optarg);
@@ -2247,6 +2252,7 @@ Parameters are separated by a blank from single-character options (e.g.\n\
       printf ("\
     --accept-md5-only      only accept authorization requests using md5\n\
 -p, --progress             print progress messages\n\
+-o, --output-file=PATH     save output to the given file instead of stdout\n\
 -n, --dont-scan            only set options, don't actually scan\n\
 -T, --test                 test backend thoroughly\n\
 -A, --all-options          list all available backend options\n\
@@ -2389,6 +2395,7 @@ Parameters are separated by a blank from single-character options (e.g.\n\
 	    case 'd':
 	    case 'h':
 	    case 'p':
+            case 'o':
 	    case 'v':
 	    case 'V':
 	    case 'T':
@@ -2535,7 +2542,19 @@ List of available devices:", prog_name);
 	}
 
       if (!batch)
-        ofp = stdout;
+        {
+          ofp = stdout;
+          if (output_file != NULL)
+            {
+              ofp = fopen(output_file, "w");
+              if (ofp == NULL)
+                {
+                  fprintf(stderr, "%s: could not open input file '%s', "
+                          "exiting\n", prog_name, output_file);
+                  scanimage_exit(1);
+                }
+            }
+        }
 
       if (batch)
 	{
@@ -2662,6 +2681,14 @@ List of available devices:", prog_name);
 			}
 		    }
 		}
+              else
+                {
+                  if (output_file && ofp)
+                    {
+                      fclose(ofp);
+                      ofp = NULL;
+                    }
+                }
 	      break;
 	    default:
 	      if (batch)
@@ -2673,6 +2700,15 @@ List of available devices:", prog_name);
 		    }
 		  unlink (part_path);
 		}
+              else
+                {
+                  if (output_file && ofp)
+                    {
+                      fclose(ofp);
+                      ofp = NULL;
+                    }
+                  unlink (output_file);
+                }
 	      break;
 	    }			/* switch */
 	  n += batch_increment;

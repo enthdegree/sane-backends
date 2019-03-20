@@ -295,13 +295,6 @@ sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val)
   SANE_Status status;
   SANE_Byte reg8;
 
-#ifdef UNIT_TESTING
-  if(dev->usb_mode<0)
-    {
-      return SANE_STATUS_GOOD;
-    }
-#endif
-
   /* 16 bit register address space */
   if(reg>255)
     {
@@ -359,13 +352,6 @@ sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val)
 {
   SANE_Status status;
 
-#ifdef UNIT_TESTING
-  if(dev->usb_mode<0)
-    {
-      return SANE_STATUS_GOOD;
-    }
-#endif
-
   DBG (DBG_io, "sanei_genesys_write_0x8c: 0x%02x,0x%02x\n", index, val);
 
   status =
@@ -416,14 +402,6 @@ sanei_genesys_read_register (Genesys_Device * dev, uint16_t reg, uint8_t * val)
 {
   SANE_Status status;
   SANE_Byte reg8;
-
-#ifdef UNIT_TESTING
-  if(dev->usb_mode<0)
-    {
-      *val=0;
-      return SANE_STATUS_GOOD;
-    }
-#endif
 
   /* 16 bit register address space */
   if(reg>255)
@@ -572,13 +550,6 @@ sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
   SANE_Status status;
   Genesys_Register_Set reg[3];
 
-#ifdef UNIT_TESTING
-  if(dev->usb_mode<0)
-    {
-      return SANE_STATUS_GOOD;
-    }
-#endif
-
   DBG (DBG_io, "sanei_genesys_fe_write_data (0x%02x, 0x%04x)\n", addr, data);
 
   reg[0].address = 0x51;
@@ -616,14 +587,6 @@ sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
 SANE_Status
 sanei_genesys_get_status (Genesys_Device * dev, uint8_t * status)
 {
-#ifdef UNIT_TESTING
-  if(dev->usb_mode<0)
-    {
-      *status=0;
-      return SANE_STATUS_GOOD;
-    }
-#endif
-
   if(dev->model->asic_type==GENESYS_GL124)
     return sanei_genesys_read_hregister(dev, 0x101, status);
   return sanei_genesys_read_register (dev, 0x41, status);

@@ -1978,10 +1978,7 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set, int dpi)
  * @param set action to execute
  * @param dpi dpi to setup the AFE
  * @return error or SANE_STATUS_GOOD */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl646_set_fe (Genesys_Device * dev, uint8_t set, int dpi)
 {
   SANE_Status status;
@@ -2173,10 +2170,7 @@ gl646_set_fe (Genesys_Device * dev, uint8_t set, int dpi)
  * @param dev device to set
  * @param set action to execute
  * @return error or SANE_STATUS_GOOD */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl646_public_set_fe (Genesys_Device * dev, uint8_t set)
 {
   return gl646_set_fe (dev, set, dev->settings.yres);
@@ -2344,10 +2338,7 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
  * HOMESNR becomes 1 ->document left sensor
  * paper event -> document is out
  */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl646_load_document (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
@@ -5197,10 +5188,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
  * @param dev device of the scanner
  * @param distance distance to move in MM
  */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 simple_move (Genesys_Device * dev, SANE_Int distance)
 {
   SANE_Status status;

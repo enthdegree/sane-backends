@@ -701,40 +701,19 @@ SANE_Status gl124_init_scan_regs (Genesys_Device * dev,
                                   int color_filter,
                                   unsigned int flags);
 
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status gl124_start_action (Genesys_Device * dev);
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status gl124_start_action (Genesys_Device * dev);
+static SANE_Status
 gl124_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		  SANE_Bool start_motor);
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl124_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		SANE_Bool check_stop);
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home);
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl124_init (Genesys_Device * dev);
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size);
+static SANE_Status gl124_init (Genesys_Device * dev);
+static SANE_Status gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size);
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse);
+static SANE_Status gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse);
 
 GENESYS_STATIC SANE_Status
 gl124_stop_action (Genesys_Device * dev);

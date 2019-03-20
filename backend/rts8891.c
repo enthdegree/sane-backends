@@ -3694,10 +3694,7 @@ initialize_device (struct Rts8891_Device *dev)
 }
 #else /* FAST_INIT */
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 init_registers (struct Rts8891_Device *dev)
 {
 int i;
@@ -5449,10 +5446,7 @@ offset_calibration (struct Rts8891_Device *dev, int mode, int light)
  * We scan a 637 pixels by 66 linesxoffset=24 , xend=661, pixels=637
 y			 offset=1 , yend=67, lines =66
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 setup_shading_calibration (struct Rts8891_Device *dev, int mode, int *light, int *status1, SANE_Byte * regs)
 {
   SANE_Status status = SANE_STATUS_GOOD;
@@ -6554,10 +6548,7 @@ move_to_scan_area (struct Rts8891_Session *session)
 /* The windows driver is allways scanning in color, so we do the same.   */
 /* For now, the only mode that could be done would be 300 dpi gray scan, */
 /* based on the register settings of find_origin()                       */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_Byte *status2, SANE_Byte *regs)
 {
   SANE_Status status = SANE_STATUS_GOOD;

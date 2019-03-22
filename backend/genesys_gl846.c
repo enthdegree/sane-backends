@@ -1257,10 +1257,7 @@ gl846_init_optical_regs_scan (Genesys_Device * dev,
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl846_init_scan_regs (Genesys_Device * dev,
                       Genesys_Register_Set * reg,
                       float xres,	/*dpi */
@@ -1737,10 +1734,7 @@ gl846_start_action (Genesys_Device * dev)
   return sanei_genesys_write_register (dev, 0x0f, 0x01);
 }
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl846_stop_action (Genesys_Device * dev)
 {
   SANE_Status status;
@@ -1824,10 +1818,7 @@ gl846_stop_action (Genesys_Device * dev)
 }
 
 /* Send the low-level scan command */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl846_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		  SANE_Bool start_motor)
 {
@@ -1870,10 +1861,7 @@ gl846_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 
 
 /* Send the stop scan command */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl846_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		SANE_Bool check_stop)
 {
@@ -1904,10 +1892,7 @@ gl846_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 }
 
 /* Moves the slider to the home (top) postion slowly */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl846_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
   Genesys_Register_Set local_reg[GENESYS_GL846_MAX_REGS];
@@ -2244,10 +2229,7 @@ gl846_init_regs_for_coarse_calibration (Genesys_Device * dev)
  * @param dev device to work on
  * @param steps number of steps to move in base_dpi line count
  * */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl846_feed (Genesys_Device * dev, unsigned int steps)
 {
   Genesys_Register_Set local_reg[GENESYS_GL846_MAX_REGS];
@@ -2882,10 +2864,7 @@ gl846_init_memory_layout (Genesys_Device * dev)
 /* *
  * initialize ASIC from power on condition
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl846_boot (Genesys_Device * dev, SANE_Bool cold)
 {
   SANE_Status status;
@@ -2958,10 +2937,7 @@ gl846_boot (Genesys_Device * dev, SANE_Bool cold)
  * initialize backend and ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl846_init (Genesys_Device * dev)
+static SANE_Status gl846_init (Genesys_Device * dev)
 {
   SANE_Status status;
 

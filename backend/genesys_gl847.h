@@ -43,12 +43,6 @@
 
 #include "genesys.h"
 
-
-#ifdef UNIT_TESTING
-SANE_Status gl847_stop_action (Genesys_Device * dev);
-SANE_Status gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home);
-#endif
-
 #define REG01           0x01
 #define REG01_CISSET	0x80
 #define REG01_DOGENB	0x40
@@ -480,10 +474,7 @@ enum
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl847_init_scan_regs (Genesys_Device * dev,
+static SANE_Status gl847_init_scan_regs (Genesys_Device * dev,
                       Genesys_Register_Set * reg,
                       float xres,	/*dpi */
 		      float yres,	/*dpi */
@@ -497,30 +488,18 @@ SANE_Status gl847_init_scan_regs (Genesys_Device * dev,
                       unsigned int flags);
 
 /* Send the low-level scan command */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl847_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool start_motor);
+static SANE_Status gl847_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool start_motor);
 
 /* Send the stop scan command */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool check_stop);
+static SANE_Status gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool check_stop);
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl847_init (Genesys_Device * dev);
+static SANE_Status gl847_init (Genesys_Device * dev);
 
 /** @brief moves the slider to steps at motor base dpi
  * @param dev device to work on
  * @param steps number of steps to move
  * */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl847_feed (Genesys_Device * dev, unsigned int steps);
 
 typedef struct

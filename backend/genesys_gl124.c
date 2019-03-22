@@ -1943,19 +1943,13 @@ gl124_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
   return SANE_STATUS_GOOD;
 }
 
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl124_start_action (Genesys_Device * dev)
 {
   return sanei_genesys_write_register (dev, 0x0f, 0x01);
 }
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl124_stop_action (Genesys_Device * dev)
 {
   SANE_Status status;
@@ -2101,10 +2095,7 @@ uint8_t val;
 
 /* Send the low-level scan command */
 /* todo : is this that useful ? */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl124_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		  SANE_Bool start_motor)
 {
@@ -2141,10 +2132,7 @@ gl124_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 
 
 /* Send the stop scan command */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl124_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		SANE_Bool check_stop)
 {
@@ -2386,10 +2374,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
  * @param steps number of steps to move
  * @param reverse true is moving backward
  * */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse)
 {
   Genesys_Register_Set local_reg[GENESYS_GL124_MAX_REGS];
@@ -2895,10 +2880,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
  * Send shading calibration data. The buffer is considered to always hold values
  * for all the channels.
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
 {
   SANE_Status status = SANE_STATUS_GOOD;
@@ -3798,10 +3780,7 @@ gl124_init_memory_layout (Genesys_Device * dev)
  * initialize backend and ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl124_init (Genesys_Device * dev)
 {
   SANE_Status status;

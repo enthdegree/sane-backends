@@ -509,10 +509,7 @@ enum
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl846_init_scan_regs (Genesys_Device * dev,
+static SANE_Status gl846_init_scan_regs (Genesys_Device * dev,
                       Genesys_Register_Set * reg,
                       float xres,	/*dpi */
 		      float yres,	/*dpi */
@@ -526,48 +523,27 @@ SANE_Status gl846_init_scan_regs (Genesys_Device * dev,
                       unsigned int flags);
 
 /* Send the low-level scan command */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl846_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool start_motor);
+static SANE_Status gl846_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool start_motor);
 
 /* Send the stop scan command */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl846_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool check_stop);
+static SANE_Status gl846_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool check_stop);
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl846_init (Genesys_Device * dev);
+static SANE_Status gl846_init (Genesys_Device * dev);
 
 /** @brief moves the slider to steps at motor base dpi
  * @param dev device to work on
  * @param steps number of steps to move
  * */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl846_feed (Genesys_Device * dev, unsigned int steps);
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl846_stop_action (Genesys_Device * dev);
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl846_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home);
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl846_boot (Genesys_Device * dev, SANE_Bool cold);
 
 

@@ -251,15 +251,9 @@ enum
   GENESYS_GL646_MAX_REGS
 };
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl646_set_fe (Genesys_Device * dev, uint8_t set, int dpi);
+static SANE_Status gl646_set_fe (Genesys_Device * dev, uint8_t set, int dpi);
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl646_public_set_fe (Genesys_Device * dev, uint8_t set);
+static SANE_Status gl646_public_set_fe (Genesys_Device * dev, uint8_t set);
 
 GENESYS_STATIC
 SANE_Status
@@ -317,10 +311,7 @@ gl646_setup_registers (Genesys_Device * dev,
  * @param dev device of the scanner
  * @param distance distance to move in MM
  */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 simple_move (Genesys_Device * dev, SANE_Int distance);
 
 /**
@@ -335,10 +326,7 @@ simple_move (Genesys_Device * dev, SANE_Int distance);
  * @param shading  flag to tell if shading correction should be done
  * @param data     pointer that will point to the scanned data
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
 	     SANE_Bool shading, unsigned char **data);
 
@@ -359,10 +347,7 @@ static SANE_Status write_control (Genesys_Device * dev, int resolution);
  */
 static void gl646_init_regs (Genesys_Device * dev);
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl646_load_document (Genesys_Device * dev);
+static SANE_Status gl646_load_document (Genesys_Device * dev);
 
 static SANE_Status
 gl646_detect_document_end (Genesys_Device * dev);

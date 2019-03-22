@@ -917,10 +917,7 @@ sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 
    The data needs to be of size "size", and in little endian byte order.
  */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
 				 int size)
 {
@@ -1762,10 +1759,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
 /* Averages image data.
    average_data and calibration_data are little endian 16 bit words.
  */
-#ifndef UNIT_TESTING
-static
-#endif
-void
+static void
 genesys_average_data (uint8_t * average_data,
 		      uint8_t * calibration_data,
                       uint32_t lines,
@@ -2169,10 +2163,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 /* This calibration uses a scan over the calibration target, comprising a
  * black and a white strip. (So the motor must be on.)
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 genesys_dark_white_shading_calibration (Genesys_Device * dev)
 {
   SANE_Status status;
@@ -2424,10 +2415,7 @@ compute_coefficient (unsigned int coeff, unsigned int target, unsigned int value
  * @param target_bright value of the white target code
  * @param target_dark value of the black target code
 */
-#ifndef UNIT_TESTING
-static
-#endif
-void
+static void
 compute_averaged_planar (Genesys_Device * dev,
 			 uint8_t * shading_data,
 			 unsigned int pixels_per_line,
@@ -2610,10 +2598,7 @@ compute_averaged_planar (Genesys_Device * dev,
  * @param coeff 4000h or 2000h depending on fast scan mode or not
  * @param target value of the target code
  */
-#ifndef UNIT_TESTING
-static
-#endif
-void
+static void
 compute_coefficients (Genesys_Device * dev,
 		      uint8_t * shading_data,
 		      unsigned int pixels_per_line,
@@ -2687,10 +2672,7 @@ compute_coefficients (Genesys_Device * dev,
  * @param coeff 4000h or 2000h depending on fast scan mode or not
  * @param target white target value
  */
-#ifndef UNIT_TESTING
-static
-#endif
-void
+static void
 compute_planar_coefficients (Genesys_Device * dev,
 			     uint8_t * shading_data,
 			     unsigned int factor,
@@ -2759,10 +2741,7 @@ compute_planar_coefficients (Genesys_Device * dev,
   }
 }
 
-#ifndef UNIT_TESTING
-static
-#endif
-void
+static void
 compute_shifted_coefficients (Genesys_Device * dev,
 			      uint8_t * shading_data,
 			      unsigned int pixels_per_line,
@@ -6314,10 +6293,7 @@ config_attach_genesys (SANEI_Config __sane_unused__ *config, const char *devname
 }
 
 /* probes for scanner to attach to the backend */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 probe_genesys_devices (void)
 {
   SANEI_Config config;

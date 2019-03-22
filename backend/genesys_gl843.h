@@ -43,36 +43,6 @@
 
 #include "genesys.h"
 
-#ifdef UNIT_TESTING
-SANE_Status gl843_send_slope_table (Genesys_Device * dev, int table_nr, uint16_t * slope_table, int steps);
-SANE_Status gl843_init_scan_regs (Genesys_Device * dev,
-                      Genesys_Register_Set * reg,
-                      float xres,	/*dpi */
-		      float yres,	/*dpi */
-		      float startx,	/*optical_res, from dummy_pixel+1 */
-		      float starty,	/*base_ydpi, from home! */
-		      float pixels,
-		      float lines,
-		      unsigned int depth,
-		      unsigned int channels,
-		      int scan_mode,
-		      int color_filter,
-                      unsigned int flags);
-SANE_Status gl843_start_action (Genesys_Device * dev);
-SANE_Status gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool start_motor);
-SANE_Status gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool check_stop);
-SANE_Status gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home);
-SANE_Status gl843_feed (Genesys_Device * dev, unsigned int steps);
-SANE_Status gl843_init (Genesys_Device * dev);
-SANE_Status gl843_boot (Genesys_Device * dev, SANE_Bool cold);
-SANE_Status gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size);
-SANE_Status gl843_bulk_write_register (Genesys_Device * dev, Genesys_Register_Set * reg, size_t elems);
-SANE_Status gl843_xpa_lamp_on (Genesys_Device * dev);
-SANE_Status gl843_xpa_motor_on (Genesys_Device * dev);
-SANE_Status gl843_xpa_motor_off (Genesys_Device * dev);
-SANE_Status gl843_move_to_ta (Genesys_Device * dev);
-#endif
-
 #define DBGSTART DBG (DBG_proc, "%s start\n", __func__);
 #define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __func__);
 

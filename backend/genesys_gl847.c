@@ -1281,10 +1281,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl847_init_scan_regs (Genesys_Device * dev,
                       Genesys_Register_Set * reg,
                       float xres,	/*dpi */
@@ -1761,10 +1758,7 @@ gl847_start_action (Genesys_Device * dev)
   return sanei_genesys_write_register (dev, 0x0f, 0x01);
 }
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl847_stop_action (Genesys_Device * dev)
 {
   SANE_Status status;
@@ -1848,10 +1842,7 @@ gl847_stop_action (Genesys_Device * dev)
 }
 
 /* Send the low-level scan command */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl847_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		  SANE_Bool start_motor)
 {
@@ -1896,10 +1887,7 @@ gl847_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 
 
 /* Send the stop scan command */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		SANE_Bool check_stop)
 {
@@ -2308,10 +2296,7 @@ gl847_init_regs_for_coarse_calibration (Genesys_Device * dev)
  * @param dev device to work on
  * @param steps number of steps to move in base_dpi line count
  * */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl847_feed (Genesys_Device * dev, unsigned int steps)
 {
   Genesys_Register_Set local_reg[GENESYS_GL847_MAX_REGS];
@@ -3054,10 +3039,7 @@ gl847_boot (Genesys_Device * dev, SANE_Bool cold)
  * initialize backend and ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl847_init (Genesys_Device * dev)
+static SANE_Status gl847_init (Genesys_Device * dev)
 {
   SANE_Status status;
 

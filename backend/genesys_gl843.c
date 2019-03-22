@@ -778,10 +778,7 @@ gl843_init_registers (Genesys_Device * dev)
 /* Send slope table for motor movement
    slope_table in machine byte order
  */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl843_send_slope_table (Genesys_Device * dev, int table_nr,
 			uint16_t * slope_table, int steps)
 {
@@ -1383,10 +1380,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl843_init_scan_regs (Genesys_Device * dev,
                       Genesys_Register_Set * reg,
                       float xres,	/*dpi */
@@ -1928,10 +1922,7 @@ gl843_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
   return status;
 }
 
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl843_start_action (Genesys_Device * dev)
 {
   return sanei_genesys_write_register (dev, 0x0f, 0x01);
@@ -2201,10 +2192,7 @@ gl843_detect_document_end (Genesys_Device * dev)
  * toggle gpios to switch disble XPA slider motor
  * @param dev device to set up
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl843_xpa_motor_off(Genesys_Device *dev)
+static SANE_Status gl843_xpa_motor_off(Genesys_Device *dev)
 {
   uint8_t val;
   SANE_Status status=SANE_STATUS_GOOD;
@@ -2233,10 +2221,7 @@ SANE_Status gl843_xpa_motor_off(Genesys_Device *dev)
  * toggle gpios to switch enable XPA slider motor
  * @param dev device to set up
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl843_xpa_motor_on(Genesys_Device *dev)
+static SANE_Status gl843_xpa_motor_on(Genesys_Device *dev)
 {
   uint8_t val;
   SANE_Status status=SANE_STATUS_GOOD;
@@ -2275,10 +2260,7 @@ SANE_Status gl843_xpa_motor_on(Genesys_Device *dev)
  * XPA light
  * @param dev device to set up
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status gl843_xpa_lamp_on(Genesys_Device *dev)
+static SANE_Status gl843_xpa_lamp_on(Genesys_Device *dev)
 {
   uint8_t val;
   SANE_Status status=SANE_STATUS_GOOD;
@@ -2307,10 +2289,7 @@ SANE_Status gl843_xpa_lamp_on(Genesys_Device *dev)
 }
 
 /* Send the low-level scan command */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		  SANE_Bool start_motor)
 {
@@ -2397,10 +2376,7 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 
 
 /* Send the stop scan command */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		SANE_Bool check_stop)
 {
@@ -2531,10 +2507,7 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
 
 /** @brief Moves the slider to the home (top) position slowly
  * */
-#ifndef UNIT_TESTING
-static
-#endif
-  SANE_Status
+static SANE_Status
 gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
   Genesys_Register_Set local_reg[GENESYS_GL843_MAX_REGS];
@@ -2869,10 +2842,7 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev)
  * @param dev device to work on
  * @param steps number of steps to move
  * */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl843_feed (Genesys_Device * dev, unsigned int steps)
 {
   Genesys_Register_Set local_reg[GENESYS_GL843_MAX_REGS];
@@ -3842,10 +3812,7 @@ gl843_init_gpio (Genesys_Device * dev)
 /* *
  * initialize ASIC from power on condition
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl843_boot (Genesys_Device * dev, SANE_Bool cold)
 {
   SANE_Status status;
@@ -3926,10 +3893,7 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
  * initialize backend and ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl843_init (Genesys_Device * dev)
 {
   SANE_Status status;
@@ -3978,14 +3942,13 @@ gl843_update_hardware_sensors (Genesys_Scanner * s)
 
   return status;
 }
-#ifndef UNIT_TESTING
-static
-#endif
+
 /** @brief move sensor to transparency adaptor
  * Move sensor to the calibration of the transparency adapator (XPA).
  * @param dev device to use
  */
-SANE_Status gl843_move_to_ta (Genesys_Device * dev)
+static SANE_Status
+gl843_move_to_ta (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   float resolution;
@@ -4309,10 +4272,7 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
  * Send shading calibration data. The buffer is considered to always hold values
  * for all the channels.
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
 {
   SANE_Status status;

@@ -81,11 +81,7 @@
 
 #include "../include/_stdint.h"
 
-#ifndef UNIT_TESTING
 #define GENESYS_STATIC static
-#else
-#define GENESYS_STATIC
-#endif
 
 #define DBG_error0      0	/* errors/warnings printed even with devuglevel 0 */
 #define DBG_error       1	/* fatal errors */
@@ -1174,73 +1170,6 @@ sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
                                     int max,
                                     int size,
                                     uint8_t *gamma);
-
-#ifdef UNIT_TESTING
-SANE_Status
-genesys_send_offset_and_shading (Genesys_Device * dev,
-          	                 uint8_t * data,
-				 int size);
-
-void
-genesys_average_data (uint8_t * average_data,
-		      uint8_t * calibration_data,
-                      uint32_t lines,
-		      uint32_t pixel_components_per_line);
-
-void
-compute_averaged_planar (Genesys_Device * dev,
-			     uint8_t * shading_data,
-			     unsigned int pixels_per_line,
-			     unsigned int words_per_color,
-			     unsigned int channels,
-			     unsigned int o,
-			     unsigned int coeff,
-			     unsigned int target_bright,
-			     unsigned int target_dark);
-
-
-void
-compute_coefficients (Genesys_Device * dev,
-		      uint8_t * shading_data,
-		      unsigned int pixels_per_line,
-		      unsigned int channels,
-		      unsigned int cmat[3],
-		      int offset,
-		      unsigned int coeff,
-		      unsigned int target);
-
-void
-compute_planar_coefficients (Genesys_Device * dev,
-			     uint8_t * shading_data,
-			     unsigned int factor,
-			     unsigned int pixels_per_line,
-			     unsigned int words_per_color,
-			     unsigned int channels,
-			     unsigned int cmat[3],
-			     unsigned int offset,
-			     unsigned int coeff,
-			     unsigned int target);
-
-void
-compute_shifted_coefficients (Genesys_Device * dev,
-			      uint8_t * shading_data,
-			      unsigned int pixels_per_line,
-			      unsigned int channels,
-			      unsigned int cmat[3],
-			      int offset,
-			      unsigned int coeff,
-			      unsigned int target_dark,
-			      unsigned int target_bright,
-			      unsigned int patch_size);		/* contigous extent */
-
-SANE_Status
-probe_genesys_devices (void);
-
-SANE_Status genesys_flatbed_calibration (Genesys_Device *dev);
-
-SANE_Status genesys_send_shading_coefficient (Genesys_Device *dev);
-#endif
-
 
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */

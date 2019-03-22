@@ -1688,10 +1688,7 @@ uint8_t *table;
 }
 
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl841_init_motor_regs(Genesys_Device * dev,
 		      Genesys_Register_Set * reg,
 		      unsigned int feed_steps,/*1/base_ydpi*/
@@ -1856,10 +1853,7 @@ HOME_FREE: 3
     return SANE_STATUS_GOOD;
 }
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl841_init_motor_regs_scan(Genesys_Device * dev,
 		      Genesys_Register_Set * reg,
 		      unsigned int scan_exposure_time,/*pixel*/
@@ -3431,19 +3425,13 @@ gl841_set_powersaving (Genesys_Device * dev,
   return status;
 }
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl841_start_action (Genesys_Device * dev)
 {
   return sanei_genesys_write_register (dev, 0x0f, 0x01);
 }
 
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl841_stop_action (Genesys_Device * dev)
 {
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
@@ -3821,10 +3809,7 @@ gl841_detect_document_end (Genesys_Device * dev)
 
 /* Send the low-level scan command */
 /* todo : is this that useful ? */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl841_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 			SANE_Bool start_motor)
 {
@@ -3881,10 +3866,7 @@ gl841_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 
 
 /* Send the stop scan command */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl841_end_scan (Genesys_Device * dev, Genesys_Register_Set __sane_unused__ * reg,
 		      SANE_Bool check_stop)
 {
@@ -3914,10 +3896,7 @@ gl841_end_scan (Genesys_Device * dev, Genesys_Register_Set __sane_unused__ * reg
 }
 
 /* Moves the slider to steps */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl841_feed (Genesys_Device * dev, int steps)
 {
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
@@ -3993,10 +3972,7 @@ gl841_feed (Genesys_Device * dev, int steps)
 }
 
 /* Moves the slider to the home (top) position slowly */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
@@ -5606,10 +5582,7 @@ gl841_init_regs_for_warmup (Genesys_Device * dev,
  * so that the head goes to park position.
  * as a by-product, also check for lock
  */
-#ifndef UNIT_TESTING
-static
-#endif
-SANE_Status
+static SANE_Status
 sanei_gl841_repark_head (Genesys_Device * dev)
 {
   SANE_Status status;

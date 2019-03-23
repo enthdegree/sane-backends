@@ -152,10 +152,20 @@
 :status    :good
 :comment   "USB product ID one of 0x0160, 0x0166, 0x016c or 0x016e"
 
+:model     "ES-55R"
+:interface "USB"
+:status    :good
+:comment   "USB product ID one of 0x016d or 0x016f"
+
 :model     "ES-60W"
 :interface "USB"
 :status    :good
 :comment   "USB product ID one of 0x0160, 0x0166, 0x016c or 0x016e"
+
+:model     "ES-65WR"
+:interface "USB"
+:status    :good
+:comment   "USB product ID one of 0x016d or 0x016f"
 
 :model     "ES-400"
 :interface "USB"
@@ -441,6 +451,18 @@
 :status    :good
 :comment   "probably a FastFoto 680W, could be a WorkForce ES-300WR or ES-500WR"
 
+:model     "PID 016D"
+:interface "USB"
+:usbid     "0x04b8" "0x016d"
+:status    :good
+:comment   "propably one of ES-55R, ES-65WR"
+
+:model     "PID 016F"
+:interface "USB"
+:usbid     "0x04b8" "0x016f"
+:status    :good
+:comment   "propably one of ES-55R, ES-65WR"
+
 :model     "PID 0176"
 :interface "USB"
 :usbid     "0x04b8" "0x0176"
@@ -569,7 +591,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x1128"
 :status    :good
-:comment   "PX-Mxxx?"
+:comment   "PX-Mxxxx?"
 
 :model     "PID 1129"
 :interface "USB"
@@ -672,7 +694,13 @@
 :interface "USB"
 :usbid     "0x04b8" "0x113b"
 :status    :good
-:comment   "PX-Mxxx?"
+:comment   "PX-Mxxxx?"
+
+:model     "PID 113C"
+:interface "USB"
+:usbid     "0x04b8" "0x113c"
+:status    :good
+:comment   "PX-Mxxxx?"
 
 :model     "PID 113D"
 :interface "USB"
@@ -692,6 +720,11 @@
 :model     "PID 1140"
 :interface "USB"
 :usbid     "0x04b8" "0x1140"
+:status    :good
+
+:model     "PID 1141"
+:interface "USB"
+:usbid     "0x04b8" "0x1141"
 :status    :good
 
 :model     "PID 1142"
@@ -782,3 +815,99 @@
 :usbid     "0x04b8" "0x1151"
 :status    :good
 :comment   "L5xxx"
+
+:model     "PID 1152"
+:interface "USB"
+:usbid     "0x04b8" "0x1152"
+:status    :good
+:comment   "PX-Mxxxx"
+
+:model     "PID 1153"
+:interface "USB"
+:usbid     "0x04b8" "0x1153"
+:status    :good
+:comment   "PX-Mxxxx"
+
+:model     "PID 1154"
+:interface "USB"
+:usbid     "0x04b8" "0x1154"
+:status    :good
+:comment   "L61x0"
+
+:model     "PID 1155"
+:interface "USB"
+:usbid     "0x04b8" "0x1155"
+:status    :good
+:comment   "L61x0"
+
+:model     "PID 1156"
+:interface "USB"
+:usbid     "0x04b8" "0x1156"
+:status    :good
+:comment   "L61x0"
+
+:model     "PID 1157"
+:interface "USB"
+:usbid     "0x04b8" "0x1157"
+:status    :good
+:comment   "L3xxx"
+
+:model     "PID 1158"
+:interface "USB"
+:usbid     "0x04b8" "0x1158"
+:status    :good
+:comment   "L3xxx"
+
+:model     "PID 115A"
+:interface "USB"
+:usbid     "0x04b8" "0x115a"
+:status    :good
+:comment   "EP8xxA"
+
+:model     "PID 115B"
+:interface "USB"
+:usbid     "0x04b8" "0x115b"
+:status    :good
+:comment   "EP9xxA3"
+
+:model     "PID 115C"
+:interface "USB"
+:usbid     "0x04b8" "0x115c"
+:status    :good
+:comment   "EP7xxA"
+
+:model     "PID 115D"
+:interface "USB"
+:usbid     "0x04b8" "0x115c"
+:status    :good
+:comment   "EP9xxA3"
+
+:model     "PID 1160"
+:interface "USB"
+:usbid     "0x04b8" "0x1160"
+:status    :good
+:comment   "L5xxx"
+
+:model     "PID 1161"
+:interface "USB"
+:usbid     "0x04b8" "0x1161"
+:status    :good
+:comment   "LX-10xxx"
+
+:model     "PID 1164"
+:interface "USB"
+:usbid     "0x04b8" "0x1164"
+:status    :good
+:comment   "L61x0"
+
+:model     "PID 1165"
+:interface "USB"
+:usbid     "0x04b8" "0x1165"
+:status    :good
+:comment   "L61x0"
+
+:model     "PID 1166"
+:interface "USB"
+:usbid     "0x04b8" "0x1166"
+:status    :good
+:comment   "L61x0"

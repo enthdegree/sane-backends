@@ -80,7 +80,7 @@
 /* timers */
 #define BJNP_BROADCAST_INTERVAL 10 	/* ms between broadcasts */
 #define BJNP_BC_RESPONSE_TIMEOUT 500  	/* waiting time for broadc. responses */
-#define BJNP_TIMEOUT_DEFAULT 1000	/* minimum tiemout value for network operations */
+#define BJNP_TIMEOUT_DEFAULT 10000	/* minimum tiemout value for network operations */
 #define BJNP_USLEEP_MS 1000          	/* sleep for 1 msec */
 
 /* retries */

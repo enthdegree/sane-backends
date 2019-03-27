@@ -1845,7 +1845,7 @@ static void add_scanner(SANE_Int *dev_no,
     }
 }
 
-int rewrite_uri(char *uri, int timeout, int max_len)
+int add_default_timeout(char *uri, int timeout, int max_len)
 {
   char method[BJNP_METHOD_MAX];
   char host[BJNP_HOST_MAX];
@@ -1869,7 +1869,7 @@ int rewrite_uri(char *uri, int timeout, int max_len)
       sprintf(args, "timeout=%d", timeout);
     }
 
-  snprintf(uri, max_len -1, "bjnp://%s:%d/%s", host, port, args);
+  snprintf(uri, max_len -1, "%s://%s:%d/%s", method,host, port, args);
   return 0;
 }
 
@@ -1963,7 +1963,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
       PDBG (bjnp_dbg
 	    (LOG_DEBUG, "sanei_bjnp_find_devices: Adding scanner from pixma.conf: %s\n", conf_devices[i]));
       strncpy(uri, conf_devices[i], sizeof(uri));
-      rewrite_uri(uri, timeout_default, sizeof(uri));
+      add_default_timeout(uri, timeout_default, sizeof(uri));
       add_scanner(&dev_no, uri, attach_bjnp, pixma_devices);
     }
   PDBG (bjnp_dbg

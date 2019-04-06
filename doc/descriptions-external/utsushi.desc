@@ -858,6 +858,11 @@
 :status    :good
 :comment   "L3xxx"
 
+:model     "PID 1159"
+:interface "USB"
+:usbid     "0x04b8" "0x1159"
+:status    :good
+
 :model     "PID 115A"
 :interface "USB"
 :usbid     "0x04b8" "0x115a"
@@ -911,3 +916,8 @@
 :usbid     "0x04b8" "0x1166"
 :status    :good
 :comment   "L61x0"
+
+:model     "PID 116B"
+:interface "USB"
+:usbid     "0x04b8" "0x116b"
+:status    :good

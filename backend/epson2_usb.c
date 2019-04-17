@@ -17,7 +17,10 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x10c, /* GT-6700U, Perfection 640U */
   0x10e, /* ES-2200, Expression 1680 */
   0x110, /* GT-8200U, GT-8200UF, Perfection 1650, Perfection 1650 PHOTO */
+  0x1116, /* XP-243 245 247 Series, XP-427 */
   0x112, /* GT-9700F, Perfection 2450 PHOTO */
+  0x1120, /* L380 */
+  0x1121, /* ET-2650, L495 */
   0x11b, /* GT-9300UF, Perfection 2400 PHOTO */
   0x11c, /* GT-9800F, Perfection 3200 PHOTO */
   0x11e, /* GT-8300UF, Perfection 1660 PHOTO */
@@ -172,7 +175,6 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x8ca, /* L850 Series */
   0x8cd, /* WF-R4640 Series, WF-R5690 Series */
   0x8d0, /* PX-M350F, WF-M5690 Series */
-  0x1116, /* XP-243 245 247 Series, XP-427 */
   0				/* last entry - this is used for devices that are specified
 				   in the config file as "usb <vendor> <product>" */
 };

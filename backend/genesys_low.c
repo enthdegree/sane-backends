@@ -1248,6 +1248,12 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
       val &= ~(0x01 << i);
       RIEF (sanei_genesys_write_register (dev, 0xbe, val), gamma);
 
+      // FIXME: currently the last word of each gamma table is not initialied, so to work around
+      // unstable data, just set it to 0 which is the most likely value of uninitialized memory
+      // (proper value is probably 0xff)
+      gamma[size * 2 * i + size * 2 - 2] = 0;
+      gamma[size * 2 * i + size * 2 - 1] = 0;
+
       /* set GMM_Z */
       RIEF (sanei_genesys_write_register (dev, 0xc5+2*i, gamma[size*2*i+1]), gamma);
       RIEF (sanei_genesys_write_register (dev, 0xc6+2*i, gamma[size*2*i]), gamma);
@@ -1255,10 +1261,10 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
       status = sanei_genesys_write_ahb (dev->dn, dev->usb_mode, 0x01000000 + 0x200 * i, (size-1) * 2, gamma + i * size * 2+2);
       if (status != SANE_STATUS_GOOD)
 	{
-          free (gamma);
 	  DBG (DBG_error,
 	       "%s: write to AHB failed writing table %d (%s)\n", __func__,
 	       i, sane_strstatus (status));
+          break;
 	}
     }
 

@@ -6009,8 +6009,8 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 
   if (!dev)
     {
-      DBG(DBG_error, "%s: vendor %d product %d is not supported by this backend\n", __func__,
-          vendor, product);
+      DBG(DBG_error, "%s: vendor 0x%xd product 0x%xd is not supported by this backend\n", __func__,
+	   vendor, product);
       return SANE_STATUS_INVAL;
     }
 

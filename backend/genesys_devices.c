@@ -55,6 +55,8 @@
 /*                     Some setup DAC and CCD tables                        */
 /* ------------------------------------------------------------------------ */
 
+#include "genesys_low.h"
+
 /** Setup table for various scanners using a Wolfson DAC
  */
 static Genesys_Frontend Wolfson[] = {

@@ -622,7 +622,7 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0x7d, 0x00);
   SETREG (0x7f, 0x00);
   SETREG (0x80, 0x00);
-  if (strcmp (dev->model->name, "canon-canoscan-4400f") != 0)
+  if (dev->model->model_id != MODEL_CANON_CANOSCAN_4400F)
     {
       SETREG (0x81, 0x00);
       SETREG (0x82, 0x00);
@@ -634,7 +634,7 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0x87, 0x00);
   SETREG (0x9d, 0x04);
   SETREG (0x9e, 0x00);
-  if (strcmp (dev->model->name, "canon-canoscan-8400f") != 0)
+  if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F)
     {
       SETREG (0x0c, 0x00);
       SETREG (0x94, 0xff);
@@ -642,16 +642,16 @@ gl843_init_registers (Genesys_Device * dev)
     }
 
   /* so many time burnt for this register ....*/
-  if (strcmp (dev->model->name, "canon-canoscan-4400f") != 0
-    &&strcmp (dev->model->name, "canon-canoscan-8400f") != 0)
+  if (dev->model->model_id != MODEL_CANON_CANOSCAN_4400F
+   && dev->model->model_id != MODEL_CANON_CANOSCAN_8400F)
     {
       SETREG (0xaa, 0x00);
     }
 
   /* G4050 values */
-  if ((strcmp (dev->model->name, "hewlett-packard-scanjet-g4050") == 0)
-   || (strcmp (dev->model->name, "hewlett-packard-scanjet-4850c") == 0)
-   || (strcmp (dev->model->name, "hewlett-packard-scanjet-g4010") == 0))
+  if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
+      dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
+      dev->model->model_id == MODEL_HP_SCANJET_4850C)
     {
       SETREG (0x03, 0x1d);
       SETREG (0x05, 0x08);
@@ -687,7 +687,7 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0xac, 0x00);
     }
 
-  if (strcmp (dev->model->name, "canon-canoscan-4400f") == 0)
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F)
     {
       SETREG (0x06, 0xf0); /* SCANMOD=111, PWRBIT and no GAIN4 */
       SETREG (0x0b, 0x69); /* 16M only */
@@ -709,7 +709,7 @@ gl843_init_registers (Genesys_Device * dev)
       sanei_genesys_set_double(dev->reg,REG_EXPB,0x9c40);
     }
 
-  if (strcmp (dev->model->name, "canon-canoscan-8400f") == 0)
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F)
     {
       SETREG (0x03, 0x1c);
       SETREG (0x06, 0xd0); /* SCANMOD=110, PWRBIT and no GAIN4 */

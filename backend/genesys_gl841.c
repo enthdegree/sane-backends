@@ -912,7 +912,7 @@ gl841_init_registers (Genesys_Device * dev)
 
   nr = 0;
   memset (dev->reg, 0, GENESYS_MAX_REGS * sizeof (Genesys_Register_Set));
-  if (strcmp (dev->model->name, "canon-lide-80") == 0)
+  if (dev->model->model_id == MODEL_CANON_LIDE_80)
     {
       gl841_init_lide80(dev);
       return ;

@@ -6014,6 +6014,8 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
       return SANE_STATUS_INVAL;
     }
 
+  memset(dev, 0x00, sizeof(Genesys_Device));
+
   dev->file_name = strdup (devname);
   if (!dev->file_name)
     {

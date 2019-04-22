@@ -1396,6 +1396,7 @@ static Genesys_Model umax_astra_4500_model = {
   "umax-astra-4500",                /* Name */
   "UMAX",                        /* Device vendor string */
   "Astra 4500",                        /* Device model name */
+  MODEL_UMAX_ASTRA_4500,
   GENESYS_GL646,
   NULL,
 
@@ -1445,6 +1446,7 @@ static Genesys_Model canon_lide_50_model = {
   "canon-lide-50",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 35/40/50",                /* Device model name */
+  MODEL_CANON_LIDE_50,
   GENESYS_GL841,
   NULL,
 
@@ -1501,6 +1503,7 @@ static Genesys_Model panasonic_kvss080_model = {
   "panasonic-kv-ss080",                /* Name */
   "Panasonic",                        /* Device vendor string */
   "KV-SS080",                        /* Device model name */
+  MODEL_PANASONIC_KV_SS080,
   GENESYS_GL843,
   NULL,
 
@@ -1552,6 +1555,7 @@ static Genesys_Model hp4850c_model = {
   "hewlett-packard-scanjet-4850c",        /* Name */
   "Hewlett Packard",                        /* Device vendor string */
   "ScanJet 4850C",                        /* Device model name */
+  MODEL_HP_SCANJET_4850C,
   GENESYS_GL843,
   NULL,
 
@@ -1607,6 +1611,7 @@ static Genesys_Model hpg4010_model = {
   "hewlett-packard-scanjet-g4010",        /* Name */
   "Hewlett Packard",                        /* Device vendor string */
   "ScanJet G4010",                        /* Device model name */
+  MODEL_HP_SCANJET_G4010,
   GENESYS_GL843,
   NULL,
 
@@ -1662,6 +1667,7 @@ static Genesys_Model hpg4050_model = {
   "hewlett-packard-scanjet-g4050",        /* Name */
   "Hewlett Packard",                        /* Device vendor string */
   "ScanJet G4050",                        /* Device model name */
+  MODEL_HP_SCANJET_G4050,
   GENESYS_GL843,
   NULL,
 
@@ -1718,6 +1724,7 @@ static Genesys_Model canon_4400f_model = {
   "canon-canoscan-4400f",        /* Name */
   "Canon",                        /* Device vendor string */
   "Canoscan 4400f",                /* Device model name */
+  MODEL_CANON_CANOSCAN_4400F,
   GENESYS_GL843,
   NULL,
 
@@ -1777,6 +1784,7 @@ static Genesys_Model canon_8400f_model = {
   "canon-canoscan-8400f",        /* Name */
   "Canon",                        /* Device vendor string */
   "Canoscan 8400f",                /* Device model name */
+  MODEL_CANON_CANOSCAN_8400F,
   GENESYS_GL843,
   NULL,
 
@@ -1836,6 +1844,7 @@ static Genesys_Model canon_lide_100_model = {
   "canon-lide-100",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 100",                        /* Device model name */
+  MODEL_CANON_LIDE_100,
   GENESYS_GL847,
   NULL,
 
@@ -1890,6 +1899,7 @@ static Genesys_Model canon_lide_110_model = {
   "canon-lide-110",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 110",                        /* Device model name */
+  MODEL_CANON_LIDE_110,
   GENESYS_GL124,
   NULL,
 
@@ -1943,6 +1953,7 @@ static Genesys_Model canon_lide_120_model = {
   "canon-lide-120",              /* Name */
   "Canon",                       /* Device vendor string */
   "LiDE 120",                    /* Device model name */
+  MODEL_CANON_LIDE_120,
   GENESYS_GL124,
   NULL,
 
@@ -1997,6 +2008,7 @@ static Genesys_Model canon_lide_210_model = {
   "canon-lide-210",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 210",                        /* Device model name */
+  MODEL_CANON_LIDE_210,
   GENESYS_GL124,
   NULL,
 
@@ -2050,6 +2062,7 @@ static Genesys_Model canon_lide_220_model = {
   "canon-lide-220",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 220",                        /* Device model name */
+  MODEL_CANON_LIDE_220,
   GENESYS_GL124, /* or a compatible one */
   NULL,
 
@@ -2103,6 +2116,7 @@ static Genesys_Model canon_5600f_model = {
   "canon-5600f",                /* Name */
   "Canon",                        /* Device vendor string */
   "5600F",                        /* Device model name */
+  MODEL_CANON_CANOSCAN_5600F,
   GENESYS_GL847,
   NULL,
 
@@ -2156,6 +2170,7 @@ static Genesys_Model canon_lide_700f_model = {
   "canon-lide-700f",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 700F",                        /* Device model name */
+  MODEL_CANON_LIDE_700F,
   GENESYS_GL847,
   NULL,
 
@@ -2211,6 +2226,7 @@ static Genesys_Model canon_lide_200_model = {
   "canon-lide-200",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 200",                        /* Device model name */
+  MODEL_CANON_LIDE_200,
   GENESYS_GL847,
   NULL,
 
@@ -2265,6 +2281,7 @@ static Genesys_Model canon_lide_60_model = {
   "canon-lide-60",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 60",                        /* Device model name */
+  MODEL_CANON_LIDE_60,
   GENESYS_GL841,
   NULL,
 
@@ -2322,6 +2339,7 @@ static Genesys_Model canon_lide_80_model = {
   "canon-lide-80",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 80",                        /* Device model name */
+  MODEL_CANON_LIDE_80,
   GENESYS_GL841,
   NULL,
 
@@ -2378,6 +2396,7 @@ static Genesys_Model hp2300c_model = {
   "hewlett-packard-scanjet-2300c",        /* Name */
   "Hewlett Packard",                /* Device vendor string */
   "ScanJet 2300c",                /* Device model name */
+  MODEL_HP_SCANJET_2300C,
   GENESYS_GL646,
   NULL,
 
@@ -2434,6 +2453,7 @@ Genesys_Model hp2400c_model = {
   "hewlett-packard-scanjet-2400c",        /* Name */
   "Hewlett Packard",                /* Device vendor string */
   "ScanJet 2400c",                /* Device model name */
+  MODEL_HP_SCANJET_2400C,
   GENESYS_GL646,
   NULL,
 
@@ -2489,6 +2509,7 @@ Genesys_Model visioneer_xp200_model = {
   "visioneer-strobe-xp200",        /* Name */
   "Visioneer",                        /* Device vendor string */
   "Strobe XP200",                /* Device model name */
+  MODEL_VISIONEER_STROBE_XP200,
   GENESYS_GL646,
   NULL,
 
@@ -2542,6 +2563,7 @@ static Genesys_Model hp3670c_model = {
   "hewlett-packard-scanjet-3670c",        /* Name */
   "Hewlett Packard",                /* Device vendor string */
   "ScanJet 3670c",                /* Device model name */
+  MODEL_HP_SCANJET_3670C,
   GENESYS_GL646,
   NULL,
 
@@ -2596,6 +2618,7 @@ static Genesys_Model plustek_st12_model = {
   "plustek-opticpro-st12",        /* Name */
   "Plustek",                        /* Device vendor string */
   "OpticPro ST12",                /* Device model name */
+  MODEL_PLUSTEK_OPTICPRO_ST12,
   GENESYS_GL646,
   NULL,
 
@@ -2644,6 +2667,7 @@ static Genesys_Model plustek_st24_model = {
   "plustek-opticpro-st24",        /* Name */
   "Plustek",                        /* Device vendor string */
   "OpticPro ST24",                /* Device model name */
+  MODEL_PLUSTEK_OPTICPRO_ST24,
   GENESYS_GL646,
   NULL,
 
@@ -2697,6 +2721,7 @@ static Genesys_Model medion_md5345_model = {
   "medion-md5345-model",        /* Name */
   "Medion",                        /* Device vendor string */
   "MD5345/MD6228/MD6471",        /* Device model name */
+  MODEL_MEDION_MD5345,
   GENESYS_GL646,
   NULL,
 
@@ -2752,6 +2777,7 @@ static Genesys_Model visioneer_xp300_model = {
   "visioneer-strobe-xp300",                /* Name */
   "Visioneer",                        /* Device vendor string */
   "Strobe XP300",                        /* Device model name */
+  MODEL_VISIONEER_STROBE_XP300,
   GENESYS_GL841,
   NULL,
 
@@ -2805,6 +2831,7 @@ static Genesys_Model syscan_docketport_665_model = {
   "syscan-docketport-665",                /* Name */
   "Syscan/Ambir",                        /* Device vendor string */
   "DocketPORT 665",                        /* Device model name */
+  MODEL_SYSCAN_DOCKETPORT_665,
   GENESYS_GL841,
   NULL,
 
@@ -2857,6 +2884,7 @@ static Genesys_Model visioneer_roadwarrior_model = {
   "visioneer-roadwarrior",                /* Name */
   "Visioneer",                                /* Device vendor string */
   "Readwarrior",                        /* Device model name */
+  MODEL_VISIONEER_ROADWARRIOR,
   GENESYS_GL841,
   NULL,
 
@@ -2909,6 +2937,7 @@ static Genesys_Model syscan_docketport_465_model = {
   "syscan-docketport-465",                /* Name */
   "Syscan",                                /* Device vendor string */
   "DocketPORT 465",                        /* Device model name */
+  MODEL_SYSCAN_DOCKETPORT_465,
   GENESYS_GL841,
   NULL,
 
@@ -2961,6 +2990,7 @@ static Genesys_Model visioneer_xp100_r3_model = {
   "visioneer-xp100-revision3",                /* Name */
   "Visioneer",                                /* Device vendor string */
   "XP100 Revision 3",                        /* Device model name */
+  MODEL_VISIONEER_STROBE_XP100_REVISION3,
   GENESYS_GL841,
   NULL,
 
@@ -3013,6 +3043,7 @@ static Genesys_Model pentax_dsmobile_600_model = {
   "pentax-dsmobile-600",                /* Name */
   "Pentax",                                /* Device vendor string */
   "DSmobile 600",                        /* Device model name */
+  MODEL_PENTAX_DSMOBILE_600,
   GENESYS_GL841,
   NULL,
 
@@ -3065,6 +3096,7 @@ static Genesys_Model syscan_docketport_467_model = {
   "syscan-docketport-467",                /* Name */
   "Syscan",                                /* Device vendor string */
   "DocketPORT 467",                        /* Device model name */
+  MODEL_SYSCAN_DOCKETPORT_467,
   GENESYS_GL841,
   NULL,
 
@@ -3117,6 +3149,7 @@ static Genesys_Model syscan_docketport_685_model = {
   "syscan-docketport-685",                /* Name */
   "Syscan/Ambir",                        /* Device vendor string */
   "DocketPORT 685",                        /* Device model name */
+  MODEL_SYSCAN_DOCKETPORT_685,
   GENESYS_GL841,
   NULL,
 
@@ -3170,6 +3203,7 @@ static Genesys_Model syscan_docketport_485_model = {
   "syscan-docketport-485",                /* Name */
   "Syscan/Ambir",                        /* Device vendor string */
   "DocketPORT 485",                        /* Device model name */
+  MODEL_SYSCAN_DOCKETPORT_485,
   GENESYS_GL841,
   NULL,
 
@@ -3223,6 +3257,7 @@ static Genesys_Model dct_docketport_487_model = {
   "dct-docketport-487",                /* Name */
   "DCT",                        /* Device vendor string */
   "DocketPORT 487",                        /* Device model name */
+  MODEL_DCT_DOCKETPORT_487,
   GENESYS_GL841,
   NULL,
 
@@ -3277,6 +3312,7 @@ static Genesys_Model visioneer_7100_model = {
   "visioneer-7100-model",        /* Name */
   "Visioneer",                        /* Device vendor string */
   "OneTouch 7100",        /* Device model name */
+  MODEL_VISIONEER_7100,
   GENESYS_GL646,
   NULL,
 
@@ -3332,6 +3368,7 @@ static Genesys_Model xerox_2400_model = {
   "xerox-2400-model",        /* Name */
   "Xerox",                /* Device vendor string */
   "OneTouch 2400",        /* Device model name */
+  MODEL_XEROX_2400,
   GENESYS_GL646,
   NULL,
 
@@ -3388,6 +3425,7 @@ static Genesys_Model xerox_travelscanner_model = {
   "xerox-travelscanner",                /* Name */
   "Xerox",                                /* Device vendor string */
   "Travelscanner 100",                        /* Device model name */
+  MODEL_XEROX_TRAVELSCANNER_100,
   GENESYS_GL841,
   NULL,
 
@@ -3440,6 +3478,7 @@ static Genesys_Model plustek_3600_model = {
   "plustek-opticbook-3600",        /* Name */
   "PLUSTEK",                        /* Device vendor string */
   "OpticBook 3600",                /* Device model name */
+  MODEL_PLUSTEK_OPTICPRO_3600,
   GENESYS_GL841,
   NULL,
   {/*1200,*/ 600, 400, 300, 200, 150, 100, 75, 0},                /* possible x-resolutions */
@@ -3494,6 +3533,7 @@ static Genesys_Model hpn6310_model = {
   "hewlett-packard-scanjet-N6310",        /* Name */
   "Hewlett Packard",                        /* Device vendor string */
   "ScanJet N6310",                        /* Device model name */
+  MODEL_HP_SCANJET_N6310,
   GENESYS_GL847,
   NULL,
 
@@ -3553,6 +3593,7 @@ static Genesys_Model plustek_3800_model = {
   "plustek-opticbook-3800",        /* Name */
   "PLUSTEK",                        /* Device vendor string */
   "OpticBook 3800",                /* Device model name */
+  MODEL_PLUSTEK_OPTICBOOK_3800,
   GENESYS_GL845,
   NULL,
 
@@ -3605,6 +3646,7 @@ static Genesys_Model canon_formula101_model = {
   "canon-image-formula-101",                /* Name */
   "Canon",                        /* Device vendor string */
   "Image Formula 101",                        /* Device model name */
+  MODEL_CANON_IMAGE_FORMULA_101,
   GENESYS_GL846,
   NULL,
 

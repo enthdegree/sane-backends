@@ -3614,7 +3614,7 @@ gl124_init_gpio (Genesys_Device * dev)
     {
       idx = 0;
     }
-  else if (strcmp (dev->model->name, "canon-lide-110") == 0)
+  else if (strcmp (dev->model->name, "canon-lide-120") == 0)
     {
       idx = 2;
     }

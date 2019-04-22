@@ -416,7 +416,7 @@ gl847_init_registers (Genesys_Device * dev)
 
   DBGSTART;
   /* 700F class needs some different initial settings */
-  if (strcmp (dev->model->name, "canon-lide-700f") == 0)
+  if (dev->model->model_id == MODEL_CANON_LIDE_700F)
     {
        lide700 = 1;
     }
@@ -2833,19 +2833,19 @@ gl847_init_memory_layout (Genesys_Device * dev)
 
   /* point to per model memory layout */
   idx = 0;
-  if (strcmp (dev->model->name, "canon-lide-100") == 0)
+  if (dev->model->model_id == MODEL_CANON_LIDE_100)
     {
       idx = 0;
     }
-  if (strcmp (dev->model->name, "canon-lide-200") == 0)
+  if (dev->model->model_id == MODEL_CANON_LIDE_200)
     {
       idx = 1;
     }
-  if (strcmp (dev->model->name, "canon-5600f") == 0)
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_5600F)
     {
       idx = 2;
     }
-  if (strcmp (dev->model->name, "canon-lide-700f") == 0)
+  if (dev->model->model_id == MODEL_CANON_LIDE_700F)
     {
       idx = 3;
     }

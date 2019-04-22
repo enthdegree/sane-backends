@@ -5253,7 +5253,7 @@ GENESYS_STATIC char *calibration_filename(Genesys_Device *currdev)
     {
       for (dev = first_dev; dev; dev = dev->next)
         {
-          if(strcmp(dev->model->name,currdev->model->name)==0)
+          if (dev->model->model_id == currdev->model->model_id)
             {
               count++;
             }

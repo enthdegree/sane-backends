@@ -2231,7 +2231,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
 
   /* feed a little first */
-  if (strcmp (dev->model->name, "canon-lide-210") == 0)
+  if (dev->model->model_id == MODEL_CANON_LIDE_210)
     {
       status = gl124_feed (dev, 20, SANE_TRUE);
       if (status != SANE_STATUS_GOOD)
@@ -3610,11 +3610,11 @@ gl124_init_gpio (Genesys_Device * dev)
   DBGSTART;
 
   /* per model GPIO layout */
-  if (strcmp (dev->model->name, "canon-lide-110") == 0)
+  if (dev->model->model_id == MODEL_CANON_LIDE_110)
     {
       idx = 0;
     }
-  else if (strcmp (dev->model->name, "canon-lide-120") == 0)
+  else if (dev->model->model_id == MODEL_CANON_LIDE_120)
     {
       idx = 2;
     }
@@ -3647,8 +3647,7 @@ gl124_init_memory_layout (Genesys_Device * dev)
   DBGSTART;
 
   /* point to per model memory layout */
-  if ((strcmp (dev->model->name, "canon-lide-110") == 0)
-    ||(strcmp (dev->model->name, "canon-lide-120") == 0))
+  if (dev->model->model_id == MODEL_CANON_LIDE_110 ||dev->model->model_id == MODEL_CANON_LIDE_120)
     {
       idx = 0;
     }

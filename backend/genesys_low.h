@@ -771,8 +771,13 @@ struct Genesys_Device
   SANE_Int dn;
   SANE_Word vendorId;			/**< USB vendor identifier */
   SANE_Word productId;			/**< USB product identifier */
-  SANE_Int usb_mode;			/**< USB mode: 1 for USB 1.1, 2 for USB 2.0,
-					  0 unset and -1 for fake USB device */
+
+  // USB mode:
+  // 0: not set
+  // 1: USB 1.1
+  // 2: USB 2.0
+  SANE_Int usb_mode;
+
   SANE_String file_name;
   SANE_String calib_file;
   Genesys_Model *model;
@@ -948,7 +953,7 @@ extern SANE_Status sanei_genesys_get_status (Genesys_Device * dev, uint8_t * sta
 extern void sanei_genesys_print_status (uint8_t val);
 
 extern SANE_Status
-sanei_genesys_write_ahb (SANE_Int dn, int usb_mode, uint32_t addr, uint32_t size, uint8_t * data);
+sanei_genesys_write_ahb(SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * data);
 
 extern void sanei_genesys_init_fe (Genesys_Device * dev);
 

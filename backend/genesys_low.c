@@ -1049,13 +1049,13 @@ sanei_genesys_bulk_write_register (Genesys_Device * dev,
 /**
  * writes a block of data to AHB
  * @param dn USB device index
- * @param usb_mode usb mode : -1, fake usb, 1 usb 1.1, 2 usb 2.0
+ * @param usb_mode usb mode : 1 usb 1.1, 2 usb 2.0
  * @param addr AHB address to write to
  * @param size size of the chunk of data
  * @param data pointer to the data to write
  */
 SANE_Status
-sanei_genesys_write_ahb (SANE_Int dn, int usb_mode, uint32_t addr, uint32_t size, uint8_t * data)
+sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * data)
 {
   uint8_t outdata[8];
   size_t written,blksize;
@@ -1080,13 +1080,6 @@ sanei_genesys_write_ahb (SANE_Int dn, int usb_mode, uint32_t addr, uint32_t size
 	}
       DBG (DBG_io, "%s: write(0x%08x,0x%08x)\n", __func__, addr,size);
       DBG (DBG_io, "%s: %s\n", __func__, msg);
-    }
-
-  /* no effective write if fake USB */
-  if(usb_mode<0)
-    {
-      DBGCOMPLETED;
-      return status;
     }
 
   /* write addr and size for AHB */
@@ -1252,7 +1245,7 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
       RIEF (sanei_genesys_write_register (dev, 0xc5+2*i, gamma[size*2*i+1]), gamma);
       RIEF (sanei_genesys_write_register (dev, 0xc6+2*i, gamma[size*2*i]), gamma);
 
-      status = sanei_genesys_write_ahb (dev->dn, dev->usb_mode, 0x01000000 + 0x200 * i, (size-1) * 2, gamma + i * size * 2+2);
+      status = sanei_genesys_write_ahb(dev->dn, 0x01000000 + 0x200 * i, (size-1) * 2, gamma + i * size * 2+2);
       if (status != SANE_STATUS_GOOD)
 	{
           free (gamma);
@@ -1289,25 +1282,22 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
   DBGSTART;
 
   /* URB    16  control  0xc0 0x0c 0x8e 0x0b len     1 read  0x00 */
-  if(dev->usb_mode>=0)
+  status = sanei_usb_control_msg (dev->dn, REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_GET_REGISTER, 0x00, 1, &val);
+  if (status != SANE_STATUS_GOOD)
     {
-      status = sanei_usb_control_msg (dev->dn, REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_GET_REGISTER, 0x00, 1, &val);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG (DBG_error, "%s: request register failed %s\n", __func__,
-               sane_strstatus (status));
-          return status;
-        }
-      DBG (DBG_io2, "%s: value=0x%02x\n", __func__, val);
-      DBG (DBG_info, "%s: device is %s\n", __func__, (val & 0x08) ? "USB 1.0" : "USB2.0");
-      if (val & 0x08)
-        {
-          dev->usb_mode = 1;
-        }
-      else
-        {
-          dev->usb_mode = 2;
-        }
+      DBG (DBG_error, "%s: request register failed %s\n", __func__,
+           sane_strstatus (status));
+      return status;
+    }
+  DBG (DBG_io2, "%s: value=0x%02x\n", __func__, val);
+  DBG (DBG_info, "%s: device is %s\n", __func__, (val & 0x08) ? "USB 1.0" : "USB2.0");
+  if (val & 0x08)
+    {
+      dev->usb_mode = 1;
+    }
+  else
+    {
+      dev->usb_mode = 2;
     }
 
   /* setup gamma tables */

@@ -1255,10 +1255,10 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
       status = sanei_genesys_write_ahb (dev->dn, dev->usb_mode, 0x01000000 + 0x200 * i, (size-1) * 2, gamma + i * size * 2+2);
       if (status != SANE_STATUS_GOOD)
 	{
-          free (gamma);
 	  DBG (DBG_error,
 	       "%s: write to AHB failed writing table %d (%s)\n", __func__,
 	       i, sane_strstatus (status));
+          break;
 	}
     }
 

@@ -194,9 +194,9 @@ genesys_gray_lineart(
 {
   size_t y;
 
-  DBG (DBG_io2, "genesys_gray_lineart: converting %lu lines of %lu pixels\n",
-       (unsigned long)lines, (unsigned long)pixels);
-  DBG (DBG_io2, "genesys_gray_lineart: threshold=%d\n",threshold);
+  DBG(DBG_io2, "%s: converting %lu lines of %lu pixels\n", __func__, (unsigned long)lines,
+      (unsigned long)pixels);
+  DBG(DBG_io2, "%s: threshold=%d\n", __func__, threshold);
 
   for (y = 0; y < lines; y++)
     {

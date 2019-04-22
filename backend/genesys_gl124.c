@@ -73,7 +73,7 @@ gl124_bulk_read_data (Genesys_Device * dev, uint8_t addr,
   size_t size, target, read, done;
   uint8_t outdata[8], *buffer;
 
-  DBG (DBG_io, "gl124_bulk_read_data: requesting %lu bytes (unused addr=0x%02x)\n", (u_long) len,addr);
+  DBG(DBG_io, "%s: requesting %lu bytes (unused addr=0x%02x)\n", __func__, (u_long) len,addr);
 
   if (len == 0)
     return SANE_STATUS_GOOD;
@@ -123,15 +123,12 @@ gl124_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 
       if(read>0)
         {
-          DBG (DBG_io2,
-               "gl124_bulk_read_data: trying to read %lu bytes of data\n",
-               (u_long) read);
+          DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) read);
           status = sanei_usb_read_bulk (dev->dn, data, &read);
           if (status != SANE_STATUS_GOOD)
             {
-              DBG (DBG_error,
-                   "gl124_bulk_read_data failed while reading bulk data: %s\n",
-                   sane_strstatus (status));
+              DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
+                  sane_strstatus(status));
               return status;
             }
         }
@@ -141,15 +138,12 @@ gl124_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 	{
           done = read;
 	  read = size - read;
-	  DBG (DBG_io2,
-	       "gl124_bulk_read_data: trying to read remaining %lu bytes of data\n",
-	       (u_long) read);
+	  DBG(DBG_io2, "%s: trying to read remaining %lu bytes of data\n", __func__, (u_long) read);
 	  status = sanei_usb_read_bulk (dev->dn, data+done, &read);
 	  if (status != SANE_STATUS_GOOD)
 	    {
-	      DBG (DBG_error,
-		   "gl124_bulk_read_data failed while reading bulk data: %s\n",
-		   sane_strstatus (status));
+	      DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
+		  sane_strstatus(status));
 	      return status;
 	    }
 	}
@@ -744,9 +738,7 @@ gl124_set_ti_fe (Genesys_Device * dev, uint8_t set)
       status = sanei_genesys_fe_write_data (dev, i, val);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error,
-	       "%s: failed to write reg %d: %s\n", __func__, i,
-	       sane_strstatus (status));
+	  DBG(DBG_error, "%s: failed to write reg %d: %s\n", __func__, i, sane_strstatus(status));
 	  return status;
 	}
     }
@@ -802,14 +794,12 @@ gl124_set_fe (Genesys_Device * dev, uint8_t set)
   SANE_Status status;
   uint8_t val;
 
-  DBG (DBG_proc, "gl124_set_fe (%s)\n",
-       set == AFE_INIT ? "init" : set == AFE_SET ? "set" : set ==
-       AFE_POWER_SAVE ? "powersave" : "huh?");
+  DBG(DBG_proc, "%s (%s)\n", __func__, set == AFE_INIT ? "init" : set == AFE_SET ? "set" : set ==
+      AFE_POWER_SAVE ? "powersave" : "huh?");
 
   if (set == AFE_INIT)
     {
-      DBG (DBG_proc, "gl124_set_fe(): setting DAC %u\n",
-	   dev->model->dac_type);
+      DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
       sanei_genesys_init_fe (dev);
     }
 
@@ -830,7 +820,7 @@ gl124_set_fe (Genesys_Device * dev, uint8_t set)
     case 1:
     case 2:
     default:
-      DBG (DBG_error, "%s: unsupported analog FE 0x%02x\n",__func__,val);
+      DBG(DBG_error, "%s: unsupported analog FE 0x%02x\n", __func__, val);
       status=SANE_STATUS_INVAL;
       break;
     }
@@ -881,13 +871,9 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   unsigned int linesel;
 
   DBGSTART;
-  DBG (DBG_info, "gl124_init_motor_regs_scan : scan_exposure_time=%d, "
-       "scan_yres=%g, scan_step_type=%d, scan_lines=%d, scan_dummy=%d, "
-       "feed_steps=%d, scan_mode=%d, flags=%x\n",
-       scan_exposure_time,
-       scan_yres,
-       scan_step_type,
-       scan_lines, scan_dummy, feed_steps, scan_mode, flags);
+  DBG(DBG_info, "%s : scan_exposure_time=%d, scan_yres=%g, scan_step_type=%d, scan_lines=%d, "
+      "scan_dummy=%d, feed_steps=%d, scan_mode=%d, flags=%x\n", __func__, scan_exposure_time,
+      scan_yres, scan_step_type, scan_lines, scan_dummy, feed_steps, scan_mode, flags);
 
   /* we never use fast fed since we do manual feed for the scans */
   use_fast_fed=0;
@@ -1037,11 +1023,11 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
                                   &z1,
                                   &z2);
 
-  sanei_genesys_set_triple(reg,REG_Z1MOD,z1);
-  DBG (DBG_info, "gl124_init_motor_regs_scan: z1 = %d\n", z1);
+  sanei_genesys_set_triple(reg, REG_Z1MOD,z1);
+  DBG(DBG_info, "%s: z1 = %d\n", __func__, z1);
 
-  sanei_genesys_set_triple(reg,REG_Z2MOD,z2);
-  DBG (DBG_info, "gl124_init_motor_regs_scan: z2 = %d\n", z2);
+  sanei_genesys_set_triple(reg, REG_Z2MOD, z2);
+  DBG(DBG_info, "%s: z2 = %d\n", __func__, z2);
 
   /* LINESEL */
   r = sanei_genesys_get_address (reg, REG1D);
@@ -1219,10 +1205,9 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   SANE_Status status;
   uint32_t expmax, exp;
 
-  DBG (DBG_proc, "%s :  exposure_time=%d, "
-       "used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
-       "half_ccd=%d, flags=%x\n", __func__, exposure_time,
-       used_res, start, pixels, channels, depth, half_ccd, flags);
+  DBG(DBG_proc, "%s :  exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
+      "half_ccd=%d, flags=%x\n", __func__, exposure_time, used_res, start, pixels, channels, depth,
+      half_ccd, flags);
 
   /* resolution is divided according to CKSEL */
   r = sanei_genesys_get_address (reg, REG18);
@@ -1510,15 +1495,15 @@ gl124_init_scan_regs (Genesys_Device * dev,
   int optical_res;
   SANE_Status status;
 
-  DBG (DBG_info,
-       "gl124_init_scan_regs settings:\n"
-       "Resolution    : %gDPI/%gDPI\n"
-       "Lines         : %g\n"
-       "PPL           : %g\n"
-       "Startpos      : %g/%g\n"
-       "Depth/Channels: %u/%u\n"
-       "Flags         : %x\n\n",
-       xres, yres, lines, pixels, startx, starty, depth, channels, flags);
+  DBG(DBG_info,
+      "%s:\n"
+      "Resolution    : %gDPI/%gDPI\n"
+      "Lines         : %g\n"
+      "PPL           : %g\n"
+      "Startpos      : %g/%g\n"
+      "Depth/Channels: %u/%u\n"
+      "Flags         : %x\n\n",
+      __func__, xres, yres, lines, pixels, startx, starty, depth, channels, flags);
 
   half_ccd=compute_half_ccd(dev->model, xres);
 
@@ -1591,8 +1576,8 @@ gl124_init_scan_regs (Genesys_Device * dev,
       scan_step_type = sanei_genesys_compute_step_type(motors, dev->model->motor_type, exposure_time);
     }
 
-  DBG (DBG_info, "gl124_init_scan_regs : exposure_time=%d pixels\n", exposure_time);
-  DBG (DBG_info, "gl124_init_scan_regs : scan_step_type=%d\n", scan_step_type);
+  DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
+  DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, scan_step_type);
 
   /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
@@ -1645,7 +1630,7 @@ gl124_init_scan_regs (Genesys_Device * dev,
 
   /* add tl_y to base movement */
   move = starty;
-  DBG (DBG_info, "gl124_init_scan_regs: move=%d steps\n", move);
+  DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
   mflags=0;
   if(flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)
@@ -1699,14 +1684,12 @@ gl124_init_scan_regs (Genesys_Device * dev,
 
   dev->read_bytes_left = bytes_per_line * lincnt;
 
-  DBG (DBG_info,
-       "gl124_init_scan_regs: physical bytes to read = %lu\n",
-       (u_long) dev->read_bytes_left);
+  DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
 
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
-  DBG (DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
+  DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;
   dev->current_setup.depth = depth;
   dev->current_setup.channels = channels;
@@ -1727,8 +1710,7 @@ gl124_init_scan_regs (Genesys_Device * dev,
     dev->total_bytes_to_read =
       dev->settings.pixels * dev->settings.lines * channels * (depth / 8);
 
-  DBG (DBG_info, "gl124_init_scan_regs: total bytes to send = %lu\n",
-       (u_long) dev->total_bytes_to_read);
+  DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -1759,16 +1741,17 @@ gl124_calculate_current_setup (Genesys_Device * dev)
 
   int optical_res;
 
-  DBG (DBG_info,
-       "gl124_calculate_current_setup settings:\n"
-       "Resolution: %ux%uDPI\n"
-       "Lines     : %u\n"
-       "PPL       : %u\n"
-       "Startpos  : %.3f/%.3f\n"
-       "Scan mode : %d\n\n",
-       dev->settings.xres,
-       dev->settings.yres, dev->settings.lines, dev->settings.pixels,
-       dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
+  DBG(DBG_info,
+      "%s:\n"
+      "Resolution: %ux%uDPI\n"
+      "Lines     : %u\n"
+      "PPL       : %u\n"
+      "Startpos  : %.3f/%.3f\n"
+      "Scan mode : %d\n\n",
+      __func__,
+      dev->settings.xres,
+      dev->settings.yres, dev->settings.lines, dev->settings.pixels,
+      dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
 
   /* channels */
   if (dev->settings.scan_mode == 4)        /* single pass color */
@@ -1795,15 +1778,15 @@ gl124_calculate_current_setup (Genesys_Device * dev)
 
   half_ccd=compute_half_ccd(dev->model, xres);
 
-  DBG (DBG_info,
-       "gl124_calculate_current_setup settings:\n"
-       "Resolution    : %gDPI/%gDPI\n"
-       "Lines         : %g\n"
-       "PPL           : %g\n"
-       "Startpos      : %g\n"
-       "Half ccd      : %d\n"
-       "Depth/Channels: %u/%u\n\n",
-       xres, yres, lines, pixels, startx, depth, half_ccd, channels);
+  DBG(DBG_info,
+      "%s:\n"
+      "Resolution    : %gDPI/%gDPI\n"
+      "Lines         : %g\n"
+      "PPL           : %g\n"
+      "Startpos      : %g\n"
+      "Half ccd      : %d\n"
+      "Depth/Channels: %u/%u\n\n",
+      __func__, xres, yres, lines, pixels, startx, depth, half_ccd, channels);
 
   /* optical_res */
   optical_res = dev->sensor.optical_res;
@@ -1864,7 +1847,7 @@ static void
 gl124_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
 {
 
-  DBG (DBG_proc, "gl124_set_motor_power\n");
+  DBG(DBG_proc, "%s\n", __func__);
 
   if (set)
     {
@@ -1913,7 +1896,7 @@ gl124_set_lamp_power (Genesys_Device * dev,
 static SANE_Status
 gl124_save_power (Genesys_Device * dev, SANE_Bool enable)
 {
-  DBG (DBG_proc, "gl124_save_power: enable = %d\n", enable);
+  DBG(DBG_proc, "%s: enable = %d\n", __func__, enable);
   if (dev == NULL)
     return SANE_STATUS_INVAL;
 
@@ -1926,7 +1909,7 @@ gl124_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
 {
   Genesys_Register_Set *r;
 
-  DBG (DBG_proc, "gl124_set_powersaving (delay = %d)\n", delay);
+  DBG(DBG_proc, "%s (delay = %d)\n", __func__, delay);
 
   r = sanei_genesys_get_address (dev->reg, REG03);
   r->value &= ~0xf0;
@@ -1970,9 +1953,7 @@ gl124_stop_action (Genesys_Device * dev)
   status = sanei_genesys_read_register (dev, REG100, &val40);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "%s: failed to read reg100: %s\n", __func__,
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to read reg100: %s\n", __func__, sane_strstatus(status));
       DBGCOMPLETED;
       return status;
     }
@@ -2138,7 +2119,7 @@ gl124_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 {
   SANE_Status status;
 
-  DBG (DBG_proc, "gl124_end_scan (check_stop = %d)\n", check_stop);
+  DBG(DBG_proc, "%s (check_stop = %d)\n", __func__, check_stop);
   if (reg == NULL)
     return SANE_STATUS_INVAL;
 
@@ -2151,9 +2132,7 @@ gl124_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
       status = gl124_stop_action (dev);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error,
-	       "gl124_end_scan: failed to stop: %s\n",
-	       sane_strstatus (status));
+          DBG(DBG_error, "%s: failed to stop: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
     }
@@ -2217,8 +2196,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   float resolution;
   int loop = 0;
 
-  DBG (DBG_proc, "gl124_slow_back_home (wait_until_home = %d)\n",
-       wait_until_home);
+  DBG(DBG_proc, "%s (wait_until_home = %d)\n", __func__, wait_until_home);
 
   if(dev->usb_mode<0)
     {
@@ -2233,9 +2211,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   status = sanei_genesys_get_status (dev, &val);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl124_slow_back_home: failed to read home sensor: %s\n",
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
       return status;
     }
   if (DBG_LEVEL >= DBG_io)
@@ -2248,9 +2224,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   status = sanei_genesys_get_status (dev, &val);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl124_slow_back_home: failed to read home sensor: %s\n",
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
       return status;
     }
   if (DBG_LEVEL >= DBG_io)
@@ -2273,7 +2247,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       status = gl124_feed (dev, 20, SANE_TRUE);
       if (status != SANE_STATUS_GOOD)
         {
-          DBG (DBG_error, "%s: failed to do initial feed: %s\n", __func__, sane_strstatus (status));
+          DBG(DBG_error, "%s: failed to do initial feed: %s\n", __func__, sane_strstatus(status));
           return status;
         }
     }
@@ -2299,9 +2273,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
                                  SCAN_FLAG_IGNORE_LINE_DISTANCE);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-           "gl124_slow_back_home: failed to set up registers: %s\n",
-           sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to set up registers: %s\n", __func__, sane_strstatus(status));
       DBGCOMPLETED;
       return status;
     }
@@ -2320,9 +2292,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   status = gl124_start_action (dev);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl124_slow_back_home: failed to start motor: %s\n",
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
       gl124_stop_action (dev);
       /* restore original registers */
       dev->model->cmd_set->bulk_write_register (dev, dev->reg, GENESYS_GL124_MAX_REGS);
@@ -2340,15 +2310,14 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	  status = sanei_genesys_get_status (dev, &val);
 	  if (status != SANE_STATUS_GOOD)
 	    {
-	      DBG (DBG_error,
-		   "gl124_slow_back_home: failed to read home sensor: %s\n",
-		   sane_strstatus (status));
+	      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__,
+		  sane_strstatus(status));
 	      return status;
 	    }
 
 	  if (val & HOMESNR)        /* home sensor */
 	    {
-	      DBG (DBG_info, "gl124_slow_back_home: reached home position\n");
+	      DBG(DBG_info, "%s: reached home position\n", __func__);
 	      DBGCOMPLETED;
               dev->scanhead_position_in_steps = 0;
 	      return SANE_STATUS_GOOD;
@@ -2359,12 +2328,11 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
       /* when we come here then the scanner needed too much time for this, so we better stop the motor */
       gl124_stop_action (dev);
-      DBG (DBG_error,
-	   "gl124_slow_back_home: timeout while waiting for scanhead to go home\n");
+      DBG(DBG_error, "%s: timeout while waiting for scanhead to go home\n", __func__);
       return SANE_STATUS_IO_ERROR;
     }
 
-  DBG (DBG_info, "gl124_slow_back_home: scanhead is still moving\n");
+  DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
@@ -2506,9 +2474,7 @@ gl124_search_start_position (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE);
   if (status!=SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "%s: failed to init scan registers: %s\n", __func__,
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to init scan registers: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
@@ -2516,9 +2482,7 @@ gl124_search_start_position (Genesys_Device * dev)
   status = dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL124_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl124_search_start_position: failed to bulk write registers: %s\n",
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
@@ -2527,8 +2491,7 @@ gl124_search_start_position (Genesys_Device * dev)
   data = malloc (size);
   if (!data)
     {
-      DBG (DBG_error,
-	   "gl124_search_start_position: failed to allocate memory\n");
+      DBG(DBG_error, "%s: failed to allocate memory\n", __func__);
       return SANE_STATUS_NO_MEM;
     }
 
@@ -2536,9 +2499,7 @@ gl124_search_start_position (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       free (data);
-      DBG (DBG_error,
-	   "gl124_search_start_position: failed to begin scan: %s\n",
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
@@ -2552,9 +2513,7 @@ gl124_search_start_position (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       free (data);
-      DBG (DBG_error,
-	   "gl124_search_start_position: failed to read data: %s\n",
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
@@ -2566,9 +2525,7 @@ gl124_search_start_position (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       free (data);
-      DBG (DBG_error,
-	   "gl124_search_start_position: failed to end scan: %s\n",
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
@@ -2582,9 +2539,8 @@ gl124_search_start_position (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       free (data);
-      DBG (DBG_error,
-	   "gl124_search_start_position: failed to set search reference point: %s\n",
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to set search reference point: %s\n", __func__,
+          sane_strstatus(status));
       return status;
     }
 
@@ -2632,23 +2588,18 @@ gl124_init_regs_for_coarse_calibration (Genesys_Device * dev)
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl124_init_register_for_coarse_calibration: failed to setup scan: %s\n",
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
   gl124_set_motor_power (dev->calib_reg, SANE_FALSE);
 
-  DBG (DBG_info,
-       "gl124_init_register_for_coarse_calibration: optical sensor res: %d dpi, actual res: %d\n",
-       dev->sensor.optical_res / cksel, dev->settings.xres);
+  DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
+      dev->sensor.optical_res / cksel, dev->settings.xres);
 
   status = dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl124_init_register_for_coarse_calibration: failed to bulk write registers: %s\n",
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
@@ -2754,16 +2705,15 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
 
   SANE_Status status;
 
-  DBG (DBG_info,
-       "gl124_init_regs_for_scan settings:\nResolution: %ux%uDPI\n"
-       "Lines     : %u\npixels    : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\n\n",
-       dev->settings.xres,
-       dev->settings.yres,
-       dev->settings.lines,
-       dev->settings.pixels,
-       dev->settings.tl_x,
-       dev->settings.tl_y,
-       dev->settings.scan_mode);
+  DBG(DBG_info, "%s:\nResolution: %ux%uDPI\n"
+      "Lines     : %u\npixels    : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\n\n", __func__,
+      dev->settings.xres,
+      dev->settings.yres,
+      dev->settings.lines,
+      dev->settings.pixels,
+      dev->settings.tl_x,
+      dev->settings.tl_y,
+      dev->settings.scan_mode);
 
   /* wait for motor to stop first */
   status = sanei_genesys_get_status (dev, &val);
@@ -2834,7 +2784,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
         }
       move=500;
     }
-  DBG (DBG_info, "gl124_init_regs_for_scan: move=%f steps\n", move);
+  DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* start */
   start = SANE_UNFIX (dev->model->x_offset);
@@ -2991,8 +2941,7 @@ gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
       status = sanei_genesys_write_ahb (dev->dn, dev->usb_mode, addr, pixels*dev->segnb, buffer);
       if (status != SANE_STATUS_GOOD)
         {
-          DBG (DBG_error, "gl124_send_shading_data; write to AHB failed (%s)\n",
-               sane_strstatus (status));
+          DBG(DBG_error, "%s; write to AHB failed (%s)\n", __func__, sane_strstatus(status));
           return status;
         }
     }
@@ -3174,7 +3123,7 @@ gl124_led_calibration (Genesys_Device * dev)
       /* write registers and scan data */
       RIEF (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS), line);
 
-      DBG (DBG_info, "gl124_led_calibration: starting line reading\n");
+      DBG(DBG_info, "%s: starting line reading\n", __func__);
       RIEF (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE), line);
       RIEF (sanei_genesys_read_data_from_scanner (dev, line, total_size), line);
 
@@ -3207,7 +3156,7 @@ gl124_led_calibration (Genesys_Device * dev)
 	  avg[j] /= num_pixels;
 	}
 
-      DBG (DBG_info, "gl124_led_calibration: average: %d,%d,%d\n", avg[0], avg[1], avg[2]);
+      DBG(DBG_info, "%s: average: %d,%d,%d\n", __func__, avg[0], avg[1], avg[2]);
 
       /* check if exposure gives average within the boundaries */
       acceptable = SANE_TRUE;
@@ -3225,7 +3174,7 @@ gl124_led_calibration (Genesys_Device * dev)
     }
   while (!acceptable && turn < 100);
 
-  DBG (DBG_info, "gl124_led_calibration: acceptable exposure: %d,%d,%d\n", exp[0], exp[1], exp[2]);
+  DBG(DBG_info, "%s: acceptable exposure: %d,%d,%d\n", __func__, exp[0], exp[1], exp[2]);
 
   /* set these values as final ones for scan */
   sanei_genesys_set_triple(dev->reg,REG_EXPR,exp[0]);
@@ -3274,13 +3223,13 @@ dark_average (uint8_t * data, unsigned int pixels, unsigned int lines,
 	}
       if (count)
 	avg[k] /= count;
-      DBG (DBG_info, "dark_average: avg[%d] = %d\n", k, avg[k]);
+      DBG(DBG_info, "%s: avg[%d] = %d\n", __func__, k, avg[k]);
     }
   average = 0;
   for (i = 0; i < channels; i++)
     average += avg[i];
   average /= channels;
-  DBG (DBG_info, "dark_average: average = %d\n", average);
+  DBG(DBG_info, "%s: average = %d\n", __func__, average);
   return average;
 }
 
@@ -3314,7 +3263,7 @@ gl124_offset_calibration (Genesys_Device * dev)
   bpp=8;
   pixels= (dev->sensor.sensor_pixels*resolution) / dev->sensor.optical_res;
   black_pixels = (dev->sensor.black_pixels * resolution) / dev->sensor.optical_res;
-  DBG (DBG_io2, "gl124_offset_calibration: black_pixels=%d\n", black_pixels);
+  DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
   status = gl124_init_scan_regs (dev,
 				 dev->calib_reg,
@@ -3335,9 +3284,7 @@ gl124_offset_calibration (Genesys_Device * dev)
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl124_offset_calibration: failed to setup scan: %s\n",
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
   gl124_set_motor_power (dev->calib_reg, SANE_FALSE);
@@ -3369,7 +3316,7 @@ gl124_offset_calibration (Genesys_Device * dev)
 
   RIEF2 (gl124_set_fe(dev, AFE_SET), first_line, second_line);
   RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS), first_line, second_line);
-  DBG (DBG_info, "gl124_offset_calibration: starting first line reading\n");
+  DBG(DBG_info, "%s: starting first line reading\n", __func__);
   RIEF2 (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
   RIEF2 (sanei_genesys_read_data_from_scanner (dev, first_line, total_size), first_line, second_line);
   if (DBG_LEVEL >= DBG_data)
@@ -3379,7 +3326,7 @@ gl124_offset_calibration (Genesys_Device * dev)
    }
 
   bottomavg = dark_average (first_line, pixels, lines, channels, black_pixels);
-  DBG (DBG_io2, "gl124_offset_calibration: bottom avg=%d\n", bottomavg);
+  DBG(DBG_io2, "%s: bottom avg=%d\n", __func__, bottomavg);
 
   /* now top value */
   top = 255;
@@ -3388,12 +3335,12 @@ gl124_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[2] = top;
   RIEF2 (gl124_set_fe(dev, AFE_SET), first_line, second_line);
   RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS), first_line, second_line);
-  DBG (DBG_info, "gl124_offset_calibration: starting second line reading\n");
+  DBG(DBG_info, "%s: starting second line reading\n", __func__);
   RIEF2 (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
   RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
 
   topavg = dark_average (second_line, pixels, lines, channels, black_pixels);
-  DBG (DBG_io2, "gl124_offset_calibration: top avg=%d\n", topavg);
+  DBG(DBG_io2, "%s: top avg=%d\n", __func__, topavg);
 
   /* loop until acceptable level */
   while ((pass < 32) && (top - bottom > 1))
@@ -3408,7 +3355,7 @@ gl124_offset_calibration (Genesys_Device * dev)
       /* scan with no move */
       RIEF2 (gl124_set_fe(dev, AFE_SET), first_line, second_line);
       RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL124_MAX_REGS), first_line, second_line);
-      DBG (DBG_info, "gl124_offset_calibration: starting second line reading\n");
+      DBG(DBG_info, "%s: starting second line reading\n", __func__);
       RIEF2 (gl124_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
       RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
 
@@ -3419,8 +3366,7 @@ gl124_offset_calibration (Genesys_Device * dev)
 	}
 
       avg = dark_average (second_line, pixels, lines, channels, black_pixels);
-      DBG (DBG_info, "gl124_offset_calibration: avg=%d offset=%d\n", avg,
-	   dev->frontend.offset[1]);
+      DBG(DBG_info, "%s: avg=%d offset=%d\n", __func__, avg, dev->frontend.offset[1]);
 
       /* compute new boundaries */
       if (topavg == avg)
@@ -3434,7 +3380,8 @@ gl124_offset_calibration (Genesys_Device * dev)
 	  bottom = dev->frontend.offset[1];
 	}
     }
-  DBG (DBG_info, "gl124_offset_calibration: offset=(%d,%d,%d)\n", dev->frontend.offset[0], dev->frontend.offset[1], dev->frontend.offset[2]);
+  DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__, dev->frontend.offset[0],
+      dev->frontend.offset[1], dev->frontend.offset[2]);
 
   /* cleanup before return */
   free (first_line);
@@ -3468,7 +3415,7 @@ gl124_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   int resolution;
   int bpp;
 
-  DBG (DBG_proc, "gl124_coarse_gain_calibration: dpi = %d\n", dpi);
+  DBG(DBG_proc, "%s: dpi = %d\n", __func__, dpi);
 
   /* no gain nor offset for TI AFE */
   RIE (sanei_genesys_read_register (dev, REG0A, &reg0a));
@@ -3518,9 +3465,7 @@ gl124_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl124_coarse_calibration: failed to setup scan: %s\n",
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
@@ -3579,9 +3524,8 @@ gl124_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	code = 0;
       dev->frontend.gain[j] = code;
 
-      DBG (DBG_proc,
-	   "gl124_coarse_gain_calibration: channel %d, max=%d, gain = %f, setting:%d\n",
-	   j, max[j], gain[j], dev->frontend.gain[j]);
+      DBG(DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__, j, max[j],
+          gain[j], dev->frontend.gain[j]);
     }
 
   if (dev->model->is_cis)
@@ -3648,9 +3592,7 @@ gl124_init_regs_for_warmup (Genesys_Device * dev,
 
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error,
-	   "gl124_init_regs_for_warmup: failed to setup scan: %s\n",
-	   sane_strstatus (status));
+      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
@@ -3826,9 +3768,7 @@ gl124_boot (Genesys_Device * dev, SANE_Bool cold)
   if (val & REG100_CHKVER)
     {
       RIE (sanei_genesys_read_register (dev, 0x00, &val));
-      DBG (DBG_info,
-	   "gl124_cold_boot: reported version for genesys chip is 0x%02x\n",
-	   val);
+      DBG(DBG_info, "%s: reported version for genesys chip is 0x%02x\n", __func__, val);
     }
 
   /* Set default values for registers */

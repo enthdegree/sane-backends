@@ -1061,6 +1061,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "i-SENSYS MF110 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27ed"
+:status :untested
+:comment "Testers needed! WiFi only for w Types."
+
 :model "i-SENSYS MF210 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x27a9"
@@ -1085,9 +1091,33 @@
 :status :good
 :comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI, ADF up to 300DPI). 216mm image width buggy, restricted to 215mm."
 
+:model "i-SENSYS MF260 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27f4"
+:status :untested
+:comment "Testers needed! Duplex only for MF269."
+
 :model "i-SENSYS MF410 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x27c0"
+:status :untested
+:comment "Testers needed!"
+
+:model "i-SENSYS MF420 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27f1"
+:status :untested
+:comment "Testers needed!"
+
+:model "i-SENSYS MF510 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27c2"
+:status :untested
+:comment "Testers needed!"
+
+:model "i-SENSYS MF520 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27f0"
 :status :untested
 :comment "Testers needed!"
 
@@ -1100,6 +1130,12 @@
 :model "i-SENSYS MF630 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x27e1"
+:status :untested
+:comment "Testers needed!"
+
+:model "i-SENSYS MF640 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27fe"
 :status :untested
 :comment "Testers needed!"
 
@@ -1121,6 +1157,12 @@
 :usbid "0x04a9" "0x27e5"
 :status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)."
+
+:model "i-SENSYS MF740 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27fb"
+:status :untested
+:comment "Testers needed!"
 
 :model "i-SENSYS MF810/820"
 :interface "USB Ethernet"

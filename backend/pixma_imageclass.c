@@ -110,6 +110,7 @@
 #define MF230_PID  0x27d1
 #define MF240_PID  0x27d2
 #define MF630_PID  0x27e1
+#define MF634_PID  0x27e2
 #define MF730_PID  0x27e4
 #define MF731_PID  0x27e5
 #define D570_PID   0x27e8
@@ -965,6 +966,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF630 Series", "MF630", MF630_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF730 Series", "MF730", MF730_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF731C", "MF731", MF731_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),
+  DEV ("Canon imageCLASS MF634C", "MF632C/634C", MF634_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon imageCLASS MF733C", "MF731C/733C", MF731_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),            /* however, we need this for ethernet/wifi */
   DEV ("Canon imageCLASS D570", "D570", D570_PID, 600, 0, 640, 877, 0),
   DEV ("Canon i-SENSYS MF110 Series", "MF110", MF110_PID, 600, 0, 640, 1050, 0),

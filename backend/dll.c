@@ -1188,7 +1188,10 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 
       be_name = sanei_usb_testing_get_backend();
       if (be_name == NULL)
-        return SANE_STATUS_ACCESS_DENIED;
+        {
+          DBG (0, "%s: unknown backend for testing\n", __func__);
+          return SANE_STATUS_ACCESS_DENIED;
+        }
     }
   else if (dev_name)
     {

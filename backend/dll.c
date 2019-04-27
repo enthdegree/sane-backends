@@ -139,6 +139,8 @@ posix_dlsym (void *handle, const char *func)
 #define DLL_CONFIG_FILE "dll.conf"
 #define DLL_ALIASES_FILE "dll.aliases"
 
+#include "../include/sane/sanei_usb.h"
+
 enum SANE_Ops
 {
   OP_INIT = 0,
@@ -1177,7 +1179,18 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
     }
 
   dev_name = strchr (full_name, ':');
-  if (dev_name)
+  if (dev_name && strncmp(full_name, "fakeusb", dev_name - full_name) == 0)
+    {
+      ++dev_name; // skip colon
+      status = sanei_usb_testing_enable_replay(dev_name);
+      if (status != SANE_STATUS_GOOD)
+        return status;
+
+      be_name = sanei_usb_testing_get_backend();
+      if (be_name == NULL)
+        return SANE_STATUS_ACCESS_DENIED;
+    }
+  else if (dev_name)
     {
       be_name = strndup(full_name, dev_name - full_name);
       ++dev_name;		/* skip colon */

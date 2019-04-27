@@ -180,6 +180,27 @@ struct sanei_usb_dev_descriptor
 	SANE_Byte    max_packet_size;
 };
 
+/** Initialize sanei_usb for replay testing.
+ *
+ * Initializes sanei_usb for testing by mocking whole USB stack. This function
+ * must be called before sanei_usb_init().
+ */
+extern SANE_Status sanei_usb_testing_enable_replay(SANE_String_Const path);
+
+/** Initialize sanei_usb for recording.
+ *
+ * Initializes sanei_usb for recording communication with the scanner. This
+ * function must be called before sanei_usb_init().
+ */
+extern SANE_Status sanei_usb_testing_enable_record(SANE_String_Const path);
+
+/** Returns backend name for testing.
+ *
+ * Returns backend name for the file registered in sanei_usb_testing_enable.
+ * The caller is responsible for freeing it.
+ */
+extern SANE_String sanei_usb_testing_get_backend();
+
 /** Initialize sanei_usb.
  *
  * Call this before any other sanei_usb function.

@@ -49,6 +49,7 @@
 #include "../include/sane/config.h"
 
 #include <stdlib.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -62,6 +63,7 @@
 #include <dirent.h>
 #include <time.h>
 
+#include <libxml/tree.h>
 
 #ifdef HAVE_RESMGR
 #include <resmgr.h>
@@ -173,6 +175,26 @@ static int device_number=0;
 /**
  * count number of time sanei_usb has been initialized */
 static int initialized=0;
+
+typedef enum
+{
+  sanei_usb_testing_mode_disabled = 0,
+
+  sanei_usb_testing_mode_record, // records the communication with the slave
+                                 // but does not change the USB stack in any
+                                 // way
+  sanei_usb_testing_mode_replay,  // replays the communication with the scanner
+                                  // recorded earlier
+}
+sanei_usb_testing_mode;
+
+// Whether testing mode has been enabled
+static sanei_usb_testing_mode testing_mode = sanei_usb_testing_mode_disabled;
+// XML file from which we read testing data
+SANE_String testing_xml_path = NULL;
+xmlDoc* testing_xml_doc = NULL;
+xmlNode* testing_xml_next_tx_node = NULL;
+
 
 #if defined(HAVE_LIBUSB_LEGACY) || defined(HAVE_LIBUSB)
 static int libusb_timeout = 30 * 1000;	/* 30 seconds */
@@ -455,6 +477,580 @@ sanei_libusb_strerror (int errcode)
 }
 #endif /* HAVE_LIBUSB */
 
+SANE_Status sanei_usb_testing_enable_replay(SANE_String_Const path)
+{
+  testing_mode = sanei_usb_testing_mode_replay;
+  // TODO: we'll leak if noone ever inits sane_usb properly
+  testing_xml_path = strdup(path);
+  testing_xml_doc = xmlReadFile(testing_xml_path, NULL, 0);
+  if (!testing_xml_doc)
+    return SANE_STATUS_ACCESS_DENIED;
+
+  return SANE_STATUS_GOOD;
+}
+
+#define FAIL_TEST(func, ...)                                                   \
+  do {                                                                         \
+    DBG(1, "%s: FAIL: ", func);                                                \
+    DBG(1, __VA_ARGS__);                                                       \
+    fail_test();                                                               \
+  } while (0)
+
+#define FAIL_TEST_TX(func, node, ...)                                          \
+  do {                                                                         \
+    sanei_xml_print_seq_if_any(node, func);                                    \
+    DBG(1, "%s: FAIL: ", func);                                                \
+    DBG(1, __VA_ARGS__);                                                       \
+    fail_test();                                                               \
+  } while (0)
+
+void fail_test()
+{
+}
+
+SANE_Status sanei_usb_testing_enable_record(SANE_String_Const path)
+{
+  (void) path;
+  return SANE_STATUS_UNSUPPORTED;
+}
+
+static xmlNode* sanei_xml_find_first_child_with_name(xmlNode* parent,
+                                                     const char* name)
+{
+  xmlNode* curr_child = xmlFirstElementChild(parent);
+  while (curr_child != NULL)
+    {
+      if (xmlStrcmp(curr_child->name, (const xmlChar*)name) == 0)
+        return curr_child;
+      curr_child = xmlNextElementSibling(curr_child);
+    }
+  return NULL;
+}
+
+static xmlNode* sanei_xml_find_next_child_with_name(xmlNode* child,
+                                                    const char* name)
+{
+  xmlNode* curr_child = xmlNextElementSibling(child);
+  while (curr_child != NULL)
+    {
+      if (xmlStrcmp(curr_child->name, (const xmlChar*)name) == 0)
+        return curr_child;
+      curr_child = xmlNextElementSibling(curr_child);
+    }
+  return NULL;
+}
+
+// a wrapper to get rid of -Wpointer-sign warnings in a single place
+static char* sanei_xml_get_prop(xmlNode* node, const char* name)
+{
+  return (char*)xmlGetProp(node, (const xmlChar*)name);
+}
+
+// returns -1 if attribute is not found
+static int sanei_xml_get_prop_uint(xmlNode* node, const char* name)
+{
+  char* attr = sanei_xml_get_prop(node, name);
+  if (attr == NULL)
+    {
+      return -1;
+    }
+
+  unsigned attr_uint = strtoul(attr, NULL, 0);
+  xmlFree(attr);
+  return attr_uint;
+}
+
+static void sanei_xml_print_seq_if_any(xmlNode* node, const char* parent_fun)
+{
+  char* attr = sanei_xml_get_prop(node, "seq");
+  if (attr == NULL)
+    return;
+
+  DBG(1, "%s: FAIL: in transaction with seq %s:\n", parent_fun, attr);
+  xmlFree(attr);
+}
+
+// Checks whether transaction should be ignored. We ignore get_descriptor and
+// set_configuration transactions. The latter is ignored because
+// set_configuration is called in sanei_usb_open outside test path.
+static int sanei_xml_is_transaction_ignored(xmlNode* node)
+{
+  if (xmlStrcmp(node->name, (const xmlChar*)"control_tx") != 0)
+    return 0;
+
+  if (sanei_xml_get_prop_uint(node, "endpoint_number") != 0)
+    return 0;
+
+  int is_direction_in = 0;
+  int is_direction_out = 0;
+
+  char* attr = sanei_xml_get_prop(node, "direction");
+  if (attr == NULL)
+    return 0;
+
+  if (strcmp(attr, "IN") == 0)
+    is_direction_in = 1;
+  if (strcmp(attr, "OUT") == 0)
+    is_direction_out = 1;
+  xmlFree(attr);
+
+  unsigned bRequest = sanei_xml_get_prop_uint(node, "bRequest");
+  if (bRequest == USB_REQ_GET_DESCRIPTOR && is_direction_in)
+    {
+      if (sanei_xml_get_prop_uint(node, "bmRequestType") != 0x80)
+        return 0;
+      return 1;
+    }
+  if (bRequest == USB_REQ_SET_CONFIGURATION && is_direction_out)
+    return 1;
+
+  return 0;
+}
+
+static xmlNode* sanei_xml_skip_non_tx_nodes(xmlNode* node)
+{
+  const char* known_node_names[] = {
+    "control_tx", "bulk_tx", "interrupt_tx"
+  };
+
+  while (node != NULL)
+    {
+      int found = 0;
+      for (unsigned i = 0; i < sizeof(known_node_names) /
+                               sizeof(known_node_names[0]); ++i)
+        {
+          if (xmlStrcmp(node->name, (const xmlChar*) known_node_names[i]) == 0)
+            {
+              found = 1;
+              break;
+            }
+        }
+
+      if (found && sanei_xml_is_transaction_ignored(node) == 0)
+        {
+          break;
+        }
+
+      node = xmlNextElementSibling(node);
+    }
+  return node;
+}
+
+// returns next transaction node that is not get_descriptor
+static xmlNode* sanei_xml_peek_next_tx_node()
+{
+  return testing_xml_next_tx_node;
+}
+
+// returns next transaction node that is not get_descriptor
+static xmlNode* sanei_xml_get_next_tx_node()
+{
+  xmlNode* next = testing_xml_next_tx_node;
+
+  testing_xml_next_tx_node =
+      xmlNextElementSibling(testing_xml_next_tx_node);
+
+  testing_xml_next_tx_node =
+      sanei_xml_skip_non_tx_nodes(testing_xml_next_tx_node);
+  return next;
+}
+
+
+// Parses hex data in XML text node in the format of '00 11 ab 3f', etc. to
+// binary string. The size is returned as *size. The caller is responsible for
+// freeing the returned value
+static char* sanei_xml_get_hex_data(xmlNode* node, size_t* size)
+{
+  xmlChar* content = xmlNodeGetContent(node);
+
+  // let's overallocate to simplify the implementation. We expect the string
+  // to be deallocated soon anyway
+  char* ret_data = malloc(strlen((const char*)content) / 2 + 2);
+
+  int num_nibbles = 0;
+  unsigned cur_nibble = 0;
+  size_t cur_size = 0;
+
+  xmlChar* cur_content = content;
+  while (*cur_content != 0)
+    {
+      while (isspace(*cur_content))
+        cur_content++;
+
+      if (*cur_content == 0)
+        break;
+
+      // don't use stroul because it will parse in big-endian and data is in
+      // little endian
+      xmlChar c = *cur_content;
+      unsigned ci = 0;
+      if (c >= '0' && c <= '9')
+        ci = c - '0';
+      else if (c >= 'a' && c <= 'f')
+        ci = c - 'a' + 10;
+      else if (c >= 'A' && c <= 'F')
+        ci = c - 'A' + 10;
+      else
+        {
+          FAIL_TEST_TX(__func__, node, "unexpected character %c\n", c);
+          cur_content++;
+          continue;
+        }
+
+      cur_nibble = (cur_nibble << 4) | ci;
+      num_nibbles++;
+
+      if (num_nibbles == 2)
+        {
+          ret_data[cur_size++] = cur_nibble;
+          cur_nibble = 0;
+          num_nibbles = 0;
+        }
+      cur_content++;
+    }
+  *size = cur_size;
+  xmlFree(content);
+  return ret_data;
+}
+
+// caller is responsible for freeing the returned pointer
+static char* sanei_binary_to_hex_data(const char* data, size_t size,
+                                      size_t* out_size)
+{
+  char* hex_data = malloc(size * 4);
+  size_t hex_size = 0;
+
+  for (size_t i = 0; i < size; ++i)
+    {
+      hex_size += snprintf(hex_data + hex_size, 3, "%02hhx", data[i]);
+      if (i + 1 != size)
+      {
+        if ((i + 1) % 32 == 0)
+          hex_data[hex_size++] = '\n';
+        else
+          hex_data[hex_size++] = ' ';
+      }
+    }
+  hex_data[hex_size] = 0;
+  if (out_size)
+    *out_size = hex_size;
+  return hex_data;
+}
+
+// Writes binary data to XML node as a child text node in the hex format of
+// '00 11 ab 3f'.
+static void sanei_xml_set_hex_data(xmlNode* node, const char* data,
+                                   size_t size)
+{
+  size_t hex_size = 0;
+  char* hex_data = sanei_binary_to_hex_data(data, size, &hex_size);
+
+  xmlNodeAddContentLen(node, (xmlChar*)hex_data, hex_size);
+  free(hex_data);
+}
+
+// returns 1 on success
+static int sanei_usb_check_attr(xmlNode* node, const char* attr_name,
+                                const char* expected, const char* parent_fun)
+{
+  char* attr = sanei_xml_get_prop(node, attr_name);
+  if (attr == NULL)
+    {
+      FAIL_TEST_TX(parent_fun, node, "no %s attribute\n", attr_name);
+      return 0;
+    }
+
+  if (strcmp(attr, expected) != 0)
+    {
+      FAIL_TEST_TX(parent_fun, node, "unexpected %s attribute: %s, wanted %s\n",
+                   attr_name, attr, expected);
+      xmlFree(attr);
+      return 0;
+    }
+  xmlFree(attr);
+  return 1;
+}
+
+// returns 1 on success
+static int sanei_usb_attr_is(xmlNode* node, const char* attr_name,
+                             const char* expected)
+{
+  char* attr = sanei_xml_get_prop(node, attr_name);
+  if (attr == NULL)
+      return 0;
+
+  if (strcmp(attr, expected) != 0)
+    {
+      xmlFree(attr);
+      return 0;
+    }
+  xmlFree(attr);
+  return 1;
+}
+
+// returns 0 on success
+static int sanei_usb_check_attr_uint(xmlNode* node, const char* attr_name,
+                                     unsigned expected, const char* parent_fun)
+{
+  char* attr = sanei_xml_get_prop(node, attr_name);
+  if (attr == NULL)
+    {
+      FAIL_TEST_TX(parent_fun, node, "no %s attribute\n", attr_name);
+      return 0;
+    }
+
+  unsigned attr_int = strtoul(attr, NULL, 0);
+  if (attr_int != expected)
+    {
+      FAIL_TEST_TX(parent_fun, node,
+                   "unexpected %s attribute: %s, wanted 0x%x\n",
+                   attr_name, attr, expected);
+      xmlFree(attr);
+      return 0;
+    }
+  xmlFree(attr);
+  return 1;
+}
+
+static int sanei_usb_attr_is_uint(xmlNode* node, const char* attr_name,
+                                  unsigned expected)
+{
+  char* attr = sanei_xml_get_prop(node, attr_name);
+  if (attr == NULL)
+    return 0;
+
+  unsigned attr_int = strtoul(attr, NULL, 0);
+  if (attr_int != expected)
+    {
+      xmlFree(attr);
+      return 0;
+    }
+  xmlFree(attr);
+  return 1;
+}
+
+// returns 1 on data equality
+static int sanei_usb_check_data_equal(xmlNode* node,
+                                      const char* data,
+                                      size_t data_size,
+                                      const char* expected_data,
+                                      size_t expected_size,
+                                      const char* parent_fun)
+{
+  if ((data_size == expected_size) &&
+      (memcmp(data, expected_data, data_size) == 0))
+    return 1;
+
+  char* data_hex = sanei_binary_to_hex_data(data, data_size, NULL);
+  char* expected_hex = sanei_binary_to_hex_data(expected_data, expected_size,
+                                                NULL);
+
+  if (data_size == expected_size)
+    FAIL_TEST_TX(parent_fun, node, "data differs (size %lu):\n", data_size);
+  else
+    FAIL_TEST_TX(parent_fun, node,
+                 "data differs (got size %lu, expected %lu):\n",
+                 data_size, expected_size);
+
+  FAIL_TEST(parent_fun, "got: %s\n", data_hex);
+  FAIL_TEST(parent_fun, "expected: %s\n", expected_hex);
+  free(data_hex);
+  free(expected_hex);
+  return 0;
+}
+
+SANE_String sanei_usb_testing_get_backend()
+{
+  if (testing_xml_doc == NULL)
+    return NULL;
+
+  xmlNode* el_root = xmlDocGetRootElement(testing_xml_doc);
+  if (xmlStrcmp(el_root->name, (const xmlChar*)"device_capture") != 0)
+    {
+      FAIL_TEST(__func__, "the given file is not USB capture\n");
+      return NULL;
+    }
+
+  char* attr = sanei_xml_get_prop(el_root, "backend");
+  if (attr == NULL)
+    {
+      FAIL_TEST(__func__, "no backend attr in description node\n");
+      return NULL;
+    }
+  // duplicate using strdup so that the caller can use free()
+  char* ret = strdup(attr);
+  xmlFree(attr);
+  return ret;
+}
+
+static void sanei_usb_add_endpoint(device_list_type* device,
+                                   SANE_Int transfer_type,
+                                   SANE_Int ep_address,
+                                   SANE_Int ep_direction);
+
+static SANE_Status sanei_usb_testing_init()
+{
+  DBG_INIT();
+
+  if (testing_mode == sanei_usb_testing_mode_record)
+    {
+      return SANE_STATUS_UNSUPPORTED;
+    }
+
+  if (device_number != 0)
+    return SANE_STATUS_INVAL; // already opened
+
+  xmlNode* el_root = xmlDocGetRootElement(testing_xml_doc);
+  if (xmlStrcmp(el_root->name, (const xmlChar*)"device_capture") != 0)
+    {
+      DBG(1, "%s: the given file is not USB capture\n", __func__);
+      return SANE_STATUS_INVAL;
+    }
+
+  xmlNode* el_description =
+      sanei_xml_find_first_child_with_name(el_root, "description");
+  if (el_description == NULL)
+    {
+      DBG(1, "%s: could not find description node\n", __func__);
+      return SANE_STATUS_INVAL;
+    }
+
+  int device_id = sanei_xml_get_prop_uint(el_description, "id_vendor");
+  if (device_id < 0)
+    {
+      DBG(1, "%s: no id_vendor attr in description node\n", __func__);
+      return SANE_STATUS_INVAL;
+    }
+
+  int product_id = sanei_xml_get_prop_uint(el_description, "id_product");
+  if (product_id < 0)
+    {
+      DBG(1, "%s: no id_product attr in description node\n", __func__);
+      return SANE_STATUS_INVAL;
+    }
+
+  xmlNode* el_configurations =
+      sanei_xml_find_first_child_with_name(el_description, "configurations");
+  if (el_configurations == NULL)
+    {
+      DBG(1, "%s: could not find configurations node\n", __func__);
+      return SANE_STATUS_INVAL;
+    }
+
+  xmlNode* el_configuration =
+      sanei_xml_find_first_child_with_name(el_configurations, "configuration");
+  if (el_configuration == NULL)
+    {
+      DBG(1, "%s: no configuration nodes\n", __func__);
+      return SANE_STATUS_INVAL;
+    }
+
+  while (el_configuration != NULL)
+    {
+      xmlNode* el_interface =
+          sanei_xml_find_first_child_with_name(el_configuration, "interface");
+
+      while (el_interface != NULL)
+        {
+          device_list_type device;
+          device.devname = strdup(testing_xml_path);
+
+          // other code shouldn't depend on methon because testing_mode is
+          // sanei_usb_testing_mode_replay
+          device.method = sanei_usb_method_libusb;
+          device.vendor = device_id;
+          device.product = product_id;
+
+          device.interface_nr = sanei_xml_get_prop_uint(el_interface, "number");
+          if (device.interface_nr < 0)
+            {
+              DBG(1, "%s: no number attr in interface node\n", __func__);
+              return SANE_STATUS_INVAL;
+            }
+
+          xmlNode* el_endpoint =
+              sanei_xml_find_first_child_with_name(el_interface, "endpoint");
+
+          while (el_endpoint != NULL)
+            {
+              char* transfer_attr = sanei_xml_get_prop(el_endpoint,
+                                                       "transfer_type");
+              int address = sanei_xml_get_prop_uint(el_endpoint, "address");
+              char* direction_attr = sanei_xml_get_prop(el_endpoint,
+                                                        "direction");
+
+              int direction_is_in = strcmp(direction_attr, "IN") == 0 ? 1 : 0;
+              int transfer_type = -1;
+              if (strcmp(transfer_attr, "INTERRUPT") == 0)
+                transfer_type = USB_ENDPOINT_TYPE_INTERRUPT;
+              else if (strcmp(transfer_attr, "BULK") == 0)
+                transfer_type = USB_ENDPOINT_TYPE_BULK;
+              else if (strcmp(transfer_attr, "ISOCHRONOUS") == 0)
+                transfer_type = USB_ENDPOINT_TYPE_ISOCHRONOUS;
+              else if (strcmp(transfer_attr, "CONTROL") == 0)
+                transfer_type = USB_ENDPOINT_TYPE_CONTROL;
+              else
+                {
+                  DBG(3, "%s: unknown endpoint type %s\n",
+                      __func__, transfer_attr);
+                }
+
+              if (transfer_type >= 0)
+                {
+                  sanei_usb_add_endpoint(&device, transfer_type, address,
+                                         direction_is_in);
+                }
+
+              xmlFree(transfer_attr);
+              xmlFree(direction_attr);
+
+              el_endpoint =
+                  sanei_xml_find_next_child_with_name(el_endpoint, "endpoint");
+            }
+          device.alt_setting = 0;
+          device.missing = 0;
+
+          memcpy(&(devices[device_number]), &device, sizeof(device));
+          device_number++;
+
+          el_interface = sanei_xml_find_next_child_with_name(el_interface,
+                                                             "interface");
+        }
+      el_configuration =
+            sanei_xml_find_next_child_with_name(el_configurations,
+                                                "configuration");
+    }
+
+  xmlNode* el_transactions =
+      sanei_xml_find_first_child_with_name(el_root, "transactions");
+
+  if (el_transactions == NULL)
+    {
+      DBG(1, "%s: could not find transactions node\n", __func__);
+      return SANE_STATUS_INVAL;
+    }
+
+  xmlNode* el_transaction = xmlFirstElementChild(el_transactions);
+  el_transaction = sanei_xml_skip_non_tx_nodes(el_transaction);
+
+  if (el_transaction == NULL)
+    {
+      DBG(1, "%s: no transactions within capture\n", __func__);
+      return SANE_STATUS_INVAL;
+    }
+
+  testing_xml_next_tx_node = el_transaction;
+
+  return SANE_STATUS_GOOD;
+}
+
+static void sanei_usb_testing_exit()
+{
+  xmlFreeDoc(testing_xml_doc);
+  free(testing_xml_path);
+  xmlCleanupParser();
+}
+
 void
 sanei_usb_init (void)
 {
@@ -472,6 +1068,24 @@ sanei_usb_init (void)
   /* if no device yet, clean up memory */
   if(device_number==0)
     memset (devices, 0, sizeof (devices));
+
+  if (testing_mode != sanei_usb_testing_mode_disabled)
+    {
+      if (initialized == 0)
+        {
+          if (sanei_usb_testing_init() != SANE_STATUS_GOOD)
+            {
+              DBG(1, "%s: failed initializing fake USB stack\n", __func__);
+              return;
+            }
+        }
+
+      if (testing_mode == sanei_usb_testing_mode_replay)
+        {
+          initialized++;
+          return;
+        }
+    }
 
   /* initialize USB with old libusb library */
 #ifdef HAVE_LIBUSB_LEGACY
@@ -533,6 +1147,14 @@ int i;
   /* if we reach 0, free allocated resources */
   if(initialized==0)
     {
+      if (testing_mode != sanei_usb_testing_mode_disabled)
+        {
+          sanei_usb_testing_exit();
+
+          if (testing_mode == sanei_usb_testing_mode_replay)
+            return;
+        }
+
       /* free allocated resources */
       DBG (4, "%s: freeing resources\n", __func__);
       for (i = 0; i < device_number; i++)
@@ -1038,6 +1660,11 @@ sanei_usb_scan_devices (void)
       return;
     }
 
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    {
+      // device added in sanei_usb_testing_init()
+      return;
+    }
   /* we mark all already detected devices as missing */
   /* each scan method will reset this value to 0 (not missing)
    * when storing the device */
@@ -1400,7 +2027,13 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
       return SANE_STATUS_INVAL;
     }
 
-  if (devices[devcount].method == sanei_usb_method_libusb)
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    {
+      DBG (1, "sanei_usb_open: opening fake USB device\n");
+      // the device configuration has been already filled in
+      // sanei_usb_testing_init()
+    }
+  else if (devices[devcount].method == sanei_usb_method_libusb)
     {
 #ifdef HAVE_LIBUSB_LEGACY
       struct usb_device *dev;
@@ -1915,6 +2548,11 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
       return SANE_STATUS_INVAL;
     }
 
+  if (testing_mode == sanei_usb_testing_mode_record)
+    {
+      // ZZTODO: record the USB state
+    }
+
   devices[devcount].open = SANE_TRUE;
   *dn = devcount;
   DBG (3, "sanei_usb_open: opened usb device `%s' (*dn=%d)\n",
@@ -1948,7 +2586,11 @@ sanei_usb_close (SANE_Int dn)
 	   dn);
       return;
     }
-  if (devices[dn].method == sanei_usb_method_scanner_driver)
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    {
+      DBG (1, "sanei_usb_close: closing fake USB device\n");
+    }
+  else if (devices[dn].method == sanei_usb_method_scanner_driver)
     close (devices[dn].fd);
   else if (devices[dn].method == sanei_usb_method_usbcalls)
     {
@@ -2001,6 +2643,9 @@ sanei_usb_close (SANE_Int dn)
 void
 sanei_usb_set_timeout (SANE_Int __sane_unused__ timeout)
 {
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    return;
+
 #if defined(HAVE_LIBUSB_LEGACY) || defined(HAVE_LIBUSB)
   libusb_timeout = timeout;
 #else
@@ -2027,6 +2672,9 @@ sanei_usb_clear_halt (SANE_Int dn)
       DBG (1, "sanei_usb_clear_halt: dn >= device number || dn < 0\n");
       return SANE_STATUS_INVAL;
     }
+
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    return SANE_STATUS_GOOD;
 
 #ifdef HAVE_LIBUSB_LEGACY
   int ret;
@@ -2085,6 +2733,9 @@ sanei_usb_clear_halt (SANE_Int dn)
 SANE_Status
 sanei_usb_reset (SANE_Int __sane_unused__ dn)
 {
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    return SANE_STATUS_GOOD;
+
 #ifdef HAVE_LIBUSB_LEGACY
   int ret;
 
@@ -2110,6 +2761,93 @@ sanei_usb_reset (SANE_Int __sane_unused__ dn)
   return SANE_STATUS_GOOD;
 }
 
+// returns non-negative value on success, -1 on failure
+static int sanei_usb_replay_next_read_bulk_packet_size(SANE_Int dn)
+{
+  xmlNode* node = sanei_xml_peek_next_tx_node();
+  if (node == NULL)
+    return -1;
+
+  if (xmlStrcmp(node->name, (const xmlChar*)"bulk_tx") != 0)
+    {
+      return -1;
+    }
+
+  if (!sanei_usb_attr_is(node, "direction", "IN"))
+    return -1;
+  if (!sanei_usb_attr_is_uint(node, "endpoint_number",
+                              devices[dn].bulk_in_ep & 0x0f))
+    return -1;
+
+  size_t got_size = 0;
+  char* got_data = sanei_xml_get_hex_data(node, &got_size);
+  free(got_data);
+  return got_size;
+}
+
+static int sanei_usb_replay_read_bulk(SANE_Int dn, SANE_Byte* buffer,
+                                      size_t size)
+{
+  // libusb may potentially combine multiple IN packets into a single transfer.
+  // We recontruct that by looking into the next packet. If it can be
+  // included into the current transfer without
+  size_t wanted_size = size;
+  size_t total_got_size = 0;
+  while (wanted_size > 0)
+    {
+      xmlNode* node = sanei_xml_get_next_tx_node();
+      if (node == NULL)
+        {
+          FAIL_TEST(__func__, "no more transactions\n");
+          return -1;
+        }
+
+      if (xmlStrcmp(node->name, (const xmlChar*)"bulk_tx") != 0)
+        {
+          FAIL_TEST_TX(__func__, node, "unexpected transaction type %s\n",
+                       (const char*) node->name);
+          return -1;
+        }
+
+      if (!sanei_usb_check_attr(node, "direction", "IN", __func__))
+        return -1;
+      if (!sanei_usb_check_attr_uint(node, "endpoint_number",
+                                     devices[dn].bulk_in_ep & 0x0f,
+                                     __func__))
+        return -1;
+
+      size_t got_size = 0;
+      char* got_data = sanei_xml_get_hex_data(node, &got_size);
+
+      if (got_size > wanted_size)
+        {
+          FAIL_TEST_TX(__func__, node,
+                       "got more data than wanted (%lu vs %lu)\n",
+                       got_size, wanted_size);
+          free(got_data);
+          return -1;
+        }
+
+      memcpy(buffer + total_got_size, got_data, got_size);
+      free(got_data);
+      total_got_size += got_size;
+      wanted_size -= got_size;
+
+      int next_size = sanei_usb_replay_next_read_bulk_packet_size(dn);
+      if (next_size < 0)
+        return total_got_size;
+      if ((size_t) next_size > wanted_size)
+        return total_got_size;
+    }
+  return total_got_size;
+}
+
+static void sanei_usb_record_read_bulk(SANE_Int dn, SANE_Byte* buffer,
+                                       size_t size, size_t read_size)
+{
+  (void) dn; (void) buffer; (void) size; (void) read_size;
+}
+
 SANE_Status
 sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 {
@@ -2129,7 +2867,11 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   DBG (5, "sanei_usb_read_bulk: trying to read %lu bytes\n",
        (unsigned long) *size);
 
-  if (devices[dn].method == sanei_usb_method_scanner_driver)
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    {
+      read_size = sanei_usb_replay_read_bulk(dn, buffer, *size);
+    }
+  else if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
       read_size = read (devices[dn].fd, buffer, *size);
 
@@ -2236,6 +2978,11 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       return SANE_STATUS_INVAL;
     }
 
+  if (testing_mode == sanei_usb_testing_mode_record)
+    {
+      sanei_usb_record_read_bulk(dn, buffer, *size, read_size);
+    }
+
   if (read_size < 0)
     {
 #ifdef HAVE_LIBUSB_LEGACY
@@ -2263,6 +3010,69 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   return SANE_STATUS_GOOD;
 }
 
+static int sanei_usb_replay_write_bulk(SANE_Int dn, const SANE_Byte* buffer,
+                                       size_t size)
+{
+  size_t wanted_size = size;
+  size_t total_wrote_size = 0;
+  while (wanted_size > 0)
+    {
+      xmlNode* node = sanei_xml_get_next_tx_node();
+      if (node == NULL)
+        {
+          FAIL_TEST(__func__, "no more transactions\n");
+          return -1;
+        }
+
+      if (xmlStrcmp(node->name, (const xmlChar*)"bulk_tx") != 0)
+        {
+          FAIL_TEST_TX(__func__, node, "unexpected transaction type %s\n",
+                       (const char*) node->name);
+          return -1;
+        }
+
+      if (!sanei_usb_check_attr(node, "direction", "OUT", __func__))
+        return -1;
+      if (!sanei_usb_check_attr_uint(node, "endpoint_number",
+                                     devices[dn].bulk_out_ep & 0x0f,
+                                     __func__))
+        return -1;
+
+      size_t wrote_size = 0;
+      char* wrote_data = sanei_xml_get_hex_data(node, &wrote_size);
+
+      if (wrote_size > wanted_size)
+        {
+          FAIL_TEST_TX(__func__, node,
+                       "wrote more data than wanted (%lu vs %lu)\n",
+                       wrote_size, wanted_size);
+          free(wrote_data);
+          return -1;
+        }
+
+      if (!sanei_usb_check_data_equal(node,
+                                      ((const char*) buffer) + total_wrote_size,
+                                      wrote_size,
+                                      wrote_data, wrote_size,
+                                      __func__))
+        {
+          free(wrote_data);
+          return -1;
+        }
+      free(wrote_data);
+      total_wrote_size += wrote_size;
+      wanted_size -= wrote_size;
+    }
+  return total_wrote_size;
+}
+
+static int sanei_usb_record_write_bulk(SANE_Int dn, const SANE_Byte* buffer,
+                                       size_t size, size_t write_size)
+{
+  (void) dn; (void) buffer; (void) size; (void) write_size;
+  return 0;
+}
+
 SANE_Status
 sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
 {
@@ -2284,7 +3094,11 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
   if (debug_level > 10)
     print_buffer (buffer, *size);
 
-  if (devices[dn].method == sanei_usb_method_scanner_driver)
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    {
+      write_size = sanei_usb_replay_write_bulk(dn, buffer, *size);
+    }
+  else if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
       write_size = write (devices[dn].fd, buffer, *size);
 
@@ -2391,6 +3205,11 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
       return SANE_STATUS_INVAL;
     }
 
+  if (testing_mode == sanei_usb_testing_mode_record)
+    {
+      sanei_usb_record_write_bulk(dn, buffer, *size, write_size);
+    }
+
   if (write_size < 0)
     {
       *size = 0;
@@ -2407,6 +3226,86 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
        (unsigned long) *size, (unsigned long) write_size);
   *size = write_size;
   return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+sanei_usb_replay_control_msg(SANE_Int dn, SANE_Int rtype, SANE_Int req,
+                             SANE_Int value, SANE_Int index, SANE_Int len,
+                             SANE_Byte* data)
+{
+  (void) dn;
+
+  xmlNode* node = sanei_xml_get_next_tx_node();
+  if (node == NULL)
+    {
+      FAIL_TEST(__func__, "no more transactions\n");
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  if (xmlStrcmp(node->name, (const xmlChar*)"control_tx") != 0)
+    {
+      FAIL_TEST_TX(__func__, node, "unexpected transaction type %s\n",
+                   (const char*) node->name);
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  int direction_is_in = (rtype & 0x80) == 0x80;
+  if (!sanei_usb_check_attr(node, "direction", direction_is_in ? "IN" : "OUT",
+                            __func__))
+    return SANE_STATUS_IO_ERROR;
+
+  if (!sanei_usb_check_attr_uint(node, "bmRequestType", rtype, __func__))
+    return SANE_STATUS_IO_ERROR;
+
+  if (!sanei_usb_check_attr_uint(node, "bRequest", req, __func__))
+    return SANE_STATUS_IO_ERROR;
+
+  if (!sanei_usb_check_attr_uint(node, "wValue", value, __func__))
+    return SANE_STATUS_IO_ERROR;
+
+  if (!sanei_usb_check_attr_uint(node, "wIndex", index, __func__))
+    return SANE_STATUS_IO_ERROR;
+
+  if (!sanei_usb_check_attr_uint(node, "wLength", len, __func__))
+    return SANE_STATUS_IO_ERROR;
+
+  size_t tx_data_size = 0;
+  char* tx_data = sanei_xml_get_hex_data(node, &tx_data_size);
+
+  if (direction_is_in)
+    {
+      if (tx_data_size > (size_t)len)
+        {
+          FAIL_TEST_TX(__func__, node,
+                       "got more data than wanted (%lu vs %lu)\n",
+                       tx_data_size, (size_t)len);
+          free(tx_data);
+          return SANE_STATUS_IO_ERROR;
+        }
+      memcpy(data, tx_data, tx_data_size);
+    }
+  else
+    {
+      if (!sanei_usb_check_data_equal(node,
+                                      (const char*)data, len,
+                                      tx_data, tx_data_size, __func__))
+        {
+          free(tx_data);
+          return SANE_STATUS_IO_ERROR;
+        }
+    }
+  free(tx_data);
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+sanei_usb_record_control_msg(SANE_Int dn, SANE_Int rtype, SANE_Int req,
+                             SANE_Int value, SANE_Int index, SANE_Int len,
+                             const SANE_Byte* data)
+{
+  (void) dn; (void) rtype; (void) req; (void) value; (void) index; (void) len;
+  (void) data;
+  return SANE_STATUS_UNSUPPORTED;
 }
 
 SANE_Status
@@ -2426,6 +3325,11 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
   if (!(rtype & 0x80) && debug_level > 10)
     print_buffer (data, len);
 
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    {
+      return sanei_usb_replay_control_msg(dn, rtype, req, value, index, len,
+                                          data);
+    }
   if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
 #if defined(__linux__)
@@ -2537,7 +3441,64 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 	   devices[dn].method);
       return SANE_STATUS_UNSUPPORTED;
     }
+
+  if (testing_mode == sanei_usb_testing_mode_record)
+    {
+      // TODO: record in the error code path too
+      sanei_usb_record_control_msg(dn, rtype, req, value, index, len, data);
+    }
   return SANE_STATUS_GOOD;
+}
+
+static int sanei_usb_replay_read_int(SANE_Int dn, SANE_Byte* buffer,
+                                     size_t size)
+{
+  (void) dn;
+  size_t wanted_size = size;
+
+  xmlNode* node = sanei_xml_get_next_tx_node();
+  if (node == NULL)
+    {
+      FAIL_TEST(__func__, "no more transactions\n");
+      return -1;
+    }
+
+  if (xmlStrcmp(node->name, (const xmlChar*)"interrupt_tx") != 0)
+    {
+      FAIL_TEST_TX(__func__, node, "unexpected transaction type %s\n",
+                   (const char*) node->name);
+      return -1;
+    }
+
+  if (!sanei_usb_check_attr(node, "direction", "IN", __func__))
+    return -1;
+
+  if (!sanei_usb_check_attr_uint(node, "endpoint_number",
+                                 devices[dn].int_in_ep & 0x0f,
+                                 __func__))
+    return -1;
+
+  size_t tx_data_size = 0;
+  char* tx_data = sanei_xml_get_hex_data(node, &tx_data_size);
+
+  if (tx_data_size > wanted_size)
+    {
+      FAIL_TEST_TX(__func__, node,
+                   "got more data than wanted (%lu vs %lu)\n",
+                   tx_data_size, wanted_size);
+      free(tx_data);
+      return -1;
+    }
+
+  memcpy((char*) buffer, tx_data, tx_data_size);
+  free(tx_data);
+  return tx_data_size;
+}
+
+static void sanei_usb_record_read_int(SANE_Int dn, SANE_Byte* buffer,
+                                      size_t size, size_t read_size)
+{
+  (void) dn; (void) buffer; (void) size; (void) read_size;
 }
 
 SANE_Status
@@ -2562,7 +3523,11 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 
   DBG (5, "sanei_usb_read_int: trying to read %lu bytes\n",
        (unsigned long) *size);
-  if (devices[dn].method == sanei_usb_method_scanner_driver)
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    {
+      read_size = sanei_usb_replay_read_int(dn, buffer, *size);
+    }
+  else if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
       DBG (1, "sanei_usb_read_int: access method %d not implemented\n",
 	   devices[dn].method);
@@ -2658,6 +3623,11 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       return SANE_STATUS_INVAL;
     }
 
+  if (testing_mode == sanei_usb_testing_mode_record)
+    {
+      sanei_usb_record_read_int(dn, buffer, *size, read_size);
+    }
+
   if (read_size < 0)
     {
 #ifdef HAVE_LIBUSB_LEGACY
@@ -2687,6 +3657,53 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   return SANE_STATUS_GOOD;
 }
 
+static SANE_Status sanei_usb_replay_set_configuration(SANE_Int dn,
+                                                      SANE_Int configuration)
+{
+  (void) dn;
+
+  xmlNode* node = sanei_xml_get_next_tx_node();
+  if (node == NULL)
+    {
+      FAIL_TEST(__func__, "no more transactions\n");
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  if (xmlStrcmp(node->name, (const xmlChar*)"control_tx") != 0)
+    {
+      FAIL_TEST_TX(__func__, node, "unexpected transaction type %s\n",
+                   (const char*) node->name);
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  if (!sanei_usb_check_attr(node, "direction", "OUT", __func__))
+    return SANE_STATUS_IO_ERROR;
+
+  if (!sanei_usb_check_attr_uint(node, "bmRequestType", 0, __func__))
+    return SANE_STATUS_IO_ERROR;
+
+  if (!sanei_usb_check_attr_uint(node, "bRequest", 9, __func__))
+    return SANE_STATUS_IO_ERROR;
+
+  if (!sanei_usb_check_attr_uint(node, "wValue", configuration, __func__))
+    return SANE_STATUS_IO_ERROR;
+
+  if (!sanei_usb_check_attr_uint(node, "wIndex", 0, __func__))
+    return SANE_STATUS_IO_ERROR;
+
+  if (!sanei_usb_check_attr_uint(node, "wLength", 0, __func__))
+    return SANE_STATUS_IO_ERROR;
+
+  return SANE_STATUS_GOOD;
+}
+
+static void sanei_usb_record_set_configuration(SANE_Int dn,
+                                               SANE_Int configuration)
+{
+  (void) dn; (void) configuration;
+  // ZZTODO
+}
+
 SANE_Status
 sanei_usb_set_configuration (SANE_Int dn, SANE_Int configuration)
 {
@@ -2700,7 +3717,16 @@ sanei_usb_set_configuration (SANE_Int dn, SANE_Int configuration)
 
   DBG (5, "sanei_usb_set_configuration: configuration = %d\n", configuration);
 
-  if (devices[dn].method == sanei_usb_method_scanner_driver)
+  if (testing_mode == sanei_usb_testing_mode_record)
+    {
+      sanei_usb_record_set_configuration(dn, configuration);
+    }
+
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    {
+      return sanei_usb_replay_set_configuration(dn, configuration);
+    }
+  else if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
 #if defined(__linux__)
       return SANE_STATUS_GOOD;
@@ -2770,7 +3796,11 @@ sanei_usb_claim_interface (SANE_Int dn, SANE_Int interface_number)
 
   DBG (5, "sanei_usb_claim_interface: interface_number = %d\n", interface_number);
 
-  if (devices[dn].method == sanei_usb_method_scanner_driver)
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    {
+      return SANE_STATUS_GOOD;
+    }
+  else if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
 #if defined(__linux__)
       return SANE_STATUS_GOOD;
@@ -2837,7 +3867,11 @@ sanei_usb_release_interface (SANE_Int dn, SANE_Int interface_number)
     }
   DBG (5, "sanei_usb_release_interface: interface_number = %d\n", interface_number);
 
-  if (devices[dn].method == sanei_usb_method_scanner_driver)
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    {
+      return SANE_STATUS_GOOD;
+    }
+  else if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
 #if defined(__linux__)
       return SANE_STATUS_GOOD;
@@ -2903,7 +3937,11 @@ sanei_usb_set_altinterface (SANE_Int dn, SANE_Int alternate)
 
   devices[dn].alt_setting = alternate;
 
-  if (devices[dn].method == sanei_usb_method_scanner_driver)
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    {
+      return SANE_STATUS_GOOD;
+    }
+  else if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
 #if defined(__linux__)
       return SANE_STATUS_GOOD;
@@ -2955,6 +3993,25 @@ sanei_usb_set_altinterface (SANE_Int dn, SANE_Int alternate)
     }
 }
 
+static SANE_Status
+sanei_usb_replay_get_descriptor(SANE_Int dn,
+                                struct sanei_usb_dev_descriptor *desc)
+{
+  (void) dn;
+  (void) desc;
+  return SANE_STATUS_UNSUPPORTED;
+  // ZZTODO
+}
+
+static void
+sanei_usb_record_get_descriptor(SANE_Int dn,
+                                struct sanei_usb_dev_descriptor *desc)
+{
+  (void) dn;
+  (void) desc;
+  // ZZTODO
+}
+
 extern SANE_Status
 sanei_usb_get_descriptor( SANE_Int dn,
                           struct sanei_usb_dev_descriptor __sane_unused__
@@ -2966,6 +4023,11 @@ sanei_usb_get_descriptor( SANE_Int dn,
 	   "sanei_usb_get_descriptor: dn >= device number || dn < 0, dn=%d\n",
 	   dn);
       return SANE_STATUS_INVAL;
+    }
+
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    {
+      return sanei_usb_replay_get_descriptor(dn, desc);
     }
 
   DBG (5, "sanei_usb_get_descriptor\n");
@@ -3013,5 +4075,11 @@ sanei_usb_get_descriptor( SANE_Int dn,
       return SANE_STATUS_UNSUPPORTED;
     }
 #endif /* not HAVE_LIBUSB_LEGACY && not HAVE_LIBUSB */
+
+  if (testing_mode == sanei_usb_testing_mode_record)
+    {
+      sanei_usb_record_get_descriptor(dn, desc);
+    }
+
   return SANE_STATUS_GOOD;
 }

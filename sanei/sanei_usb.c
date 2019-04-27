@@ -2446,7 +2446,6 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 	}
       if ((rtype & 0x80) && debug_level > 10)
 	print_buffer (data, len);
-      return SANE_STATUS_GOOD;
 #elif defined(__BEOS__)
       struct usb_scanner_ioctl_ctrlmsg c;
 
@@ -2465,8 +2464,6 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 	}
 	if ((rtype & 0x80) && debug_level > 10)
 		print_buffer (data, len);
-
-	return SANE_STATUS_GOOD;
 #else /* not __linux__ */
       DBG (5, "sanei_usb_control_msg: not supported on this OS\n");
       return SANE_STATUS_UNSUPPORTED;
@@ -2488,7 +2485,6 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 	}
       if ((rtype & 0x80) && debug_level > 10)
 	print_buffer (data, len);
-      return SANE_STATUS_GOOD;
     }
 #elif defined(HAVE_LIBUSB)
     {
@@ -2505,7 +2501,6 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 	}
       if ((rtype & 0x80) && debug_level > 10)
 	print_buffer (data, len);
-      return SANE_STATUS_GOOD;
     }
 #else /* not HAVE_LIBUSB_LEGACY && not HAVE_LIBUSB*/
     {
@@ -2529,7 +2524,6 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 	}
       if ((rtype & 0x80) && debug_level > 10)
 	print_buffer (data, len);
-      return SANE_STATUS_GOOD;
 #else /* not HAVE_USBCALLS */
     {
       DBG (1, "sanei_usb_control_msg: usbcalls support missing\n");
@@ -2543,6 +2537,7 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 	   devices[dn].method);
       return SANE_STATUS_UNSUPPORTED;
     }
+  return SANE_STATUS_GOOD;
 }
 
 SANE_Status

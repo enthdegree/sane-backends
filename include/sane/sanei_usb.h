@@ -181,16 +181,32 @@ struct sanei_usb_dev_descriptor
 };
 
 /** Initialize sanei_usb for replay testing.
- *
- * Initializes sanei_usb for testing by mocking whole USB stack. This function
- * must be called before sanei_usb_init().
+
+    Initializes sanei_usb for testing by mocking whole USB stack. This function
+    must be called before sanei_usb_init().
+
+    The sanei_usb subsystem also implements a "development mode". It modifies
+    the XML data file with the actual commands of the test run and attemps to
+    proceed testing until a mismatching input command is found for which
+    input data is required.
+
+    A <known_commands_end/> node in the data XML file will cause sanei_usb not
+    to continue to the subsequent command in the XML file and instead it will
+    prepend all output commands before that node before an output command is
+    encountered.
+
+    @param path Path to the XML data file.
+    @param development_mode Enables development mode.
  */
-extern SANE_Status sanei_usb_testing_enable_replay(SANE_String_Const path);
+extern SANE_Status sanei_usb_testing_enable_replay(SANE_String_Const path,
+                                                   int development_mode);
 
 /** Initialize sanei_usb for recording.
  *
  * Initializes sanei_usb for recording communication with the scanner. This
  * function must be called before sanei_usb_init().
+*
+* @param path Path to the XML data file.
  */
 extern SANE_Status sanei_usb_testing_enable_record(SANE_String_Const path);
 

@@ -190,6 +190,11 @@ sanei_usb_testing_mode;
 
 // Whether testing mode has been enabled
 static sanei_usb_testing_mode testing_mode = sanei_usb_testing_mode_disabled;
+static int testing_development_mode = 0;
+int testing_known_commands_input_failed = 0;
+unsigned testing_last_known_seq = 0;
+xmlNode* testing_append_commands_node = NULL;
+
 // XML file from which we read testing data
 SANE_String testing_xml_path = NULL;
 xmlDoc* testing_xml_doc = NULL;
@@ -477,9 +482,12 @@ sanei_libusb_strerror (int errcode)
 }
 #endif /* HAVE_LIBUSB */
 
-SANE_Status sanei_usb_testing_enable_replay(SANE_String_Const path)
+SANE_Status sanei_usb_testing_enable_replay(SANE_String_Const path,
+                                            int development_mode)
 {
   testing_mode = sanei_usb_testing_mode_replay;
+  testing_development_mode = development_mode;
+
   // TODO: we'll leak if noone ever inits sane_usb properly
   testing_xml_path = strdup(path);
   testing_xml_doc = xmlReadFile(testing_xml_path, NULL, 0);
@@ -610,7 +618,7 @@ static int sanei_xml_is_transaction_ignored(xmlNode* node)
 static xmlNode* sanei_xml_skip_non_tx_nodes(xmlNode* node)
 {
   const char* known_node_names[] = {
-    "control_tx", "bulk_tx", "interrupt_tx"
+    "control_tx", "bulk_tx", "interrupt_tx", "known_commands_end"
   };
 
   while (node != NULL)
@@ -636,6 +644,13 @@ static xmlNode* sanei_xml_skip_non_tx_nodes(xmlNode* node)
   return node;
 }
 
+static int sanei_xml_is_known_commands_end(xmlNode* node)
+{
+  if (!testing_development_mode || node == NULL)
+    return 0;
+  return xmlStrcmp(node->name, (const xmlChar*)"known_commands_end") == 0;
+}
+
 // returns next transaction node that is not get_descriptor
 static xmlNode* sanei_xml_peek_next_tx_node()
 {
@@ -647,11 +662,18 @@ static xmlNode* sanei_xml_get_next_tx_node()
 {
   xmlNode* next = testing_xml_next_tx_node;
 
+  if (sanei_xml_is_known_commands_end(next))
+    {
+      testing_append_commands_node = xmlPreviousElementSibling(next);
+      return next;
+    }
+
   testing_xml_next_tx_node =
       xmlNextElementSibling(testing_xml_next_tx_node);
 
   testing_xml_next_tx_node =
       sanei_xml_skip_non_tx_nodes(testing_xml_next_tx_node);
+
   return next;
 }
 
@@ -742,11 +764,80 @@ static char* sanei_binary_to_hex_data(const char* data, size_t size,
 static void sanei_xml_set_hex_data(xmlNode* node, const char* data,
                                    size_t size)
 {
-  size_t hex_size = 0;
-  char* hex_data = sanei_binary_to_hex_data(data, size, &hex_size);
+  char* hex_data = sanei_binary_to_hex_data(data, size, NULL);
 
-  xmlNodeAddContentLen(node, (xmlChar*)hex_data, hex_size);
+  // FIXME: remove existing children
+
+  xmlNode* e_content = xmlNewText((const xmlChar*)hex_data);
+  xmlAddChild(node, e_content);
   free(hex_data);
+}
+
+static void sanei_xml_set_hex_attr(xmlNode* node, const char* attr_name,
+                                   unsigned attr_value)
+{
+  const int buf_size = 128;
+  char buf[buf_size];
+  if (attr_value > 0xffffff)
+    snprintf(buf, buf_size, "0x%x", attr_value);
+  else if (attr_value > 0xffff)
+    snprintf(buf, buf_size, "0x%06x", attr_value);
+  else if (attr_value > 0xff)
+    snprintf(buf, buf_size, "0x%04x", attr_value);
+  else
+    snprintf(buf, buf_size, "0x%02x", attr_value);
+
+  xmlNewProp(node, (const xmlChar*)attr_name, (const xmlChar*)buf);
+}
+
+static void sanei_xml_set_uint_attr(xmlNode* node, const char* attr_name,
+                                    unsigned attr_value)
+{
+  const int buf_size = 128;
+  char buf[buf_size];
+  snprintf(buf, buf_size, "%d", attr_value);
+  xmlNewProp(node, (const xmlChar*)attr_name, (const xmlChar*)buf);
+}
+
+static xmlNode* sanei_xml_append_command(xmlNode* sibling,
+                                         int indent, xmlNode* e_command)
+{
+  if (indent)
+    {
+      xmlNode* e_indent = xmlNewText((const xmlChar*)"\n    ");
+      sibling = xmlAddNextSibling(sibling, e_indent);
+    }
+  return xmlAddNextSibling(sibling, e_command);
+}
+
+static void sanei_xml_command_common_props(xmlNode* node, int endpoint_number,
+                                           const char* direction)
+{
+  xmlNewProp(node, (const xmlChar*)"time_usec", (const xmlChar*)"0");
+  sanei_xml_set_uint_attr(node, "seq", ++testing_last_known_seq);
+  sanei_xml_set_uint_attr(node, "endpoint_number", endpoint_number);
+  xmlNewProp(node, (const xmlChar*)"direction", (const xmlChar*)direction);
+}
+
+static void sanei_xml_record_seq(xmlNode* node)
+{
+  int seq = sanei_xml_get_prop_uint(node, "seq");
+  if (seq > 0)
+    testing_last_known_seq = seq;
+}
+
+static void sanei_xml_break()
+{
+}
+
+static void sanei_xml_break_if_needed(xmlNode* node)
+{
+  char* attr = sanei_xml_get_prop(node, "debug_break");
+  if (attr != NULL)
+    {
+      sanei_xml_break();
+      xmlFree(attr);
+    }
 }
 
 // returns 1 on success
@@ -1046,6 +1137,10 @@ static SANE_Status sanei_usb_testing_init()
 
 static void sanei_usb_testing_exit()
 {
+  if (testing_development_mode)
+    {
+      xmlSaveFileEnc(testing_xml_path, testing_xml_doc, "UTF-8");
+    }
   xmlFreeDoc(testing_xml_doc);
   free(testing_xml_path);
   xmlCleanupParser();
@@ -2785,6 +2880,49 @@ static int sanei_usb_replay_next_read_bulk_packet_size(SANE_Int dn)
   return got_size;
 }
 
+static void sanei_usb_record_read_bulk(xmlNode* node, SANE_Int dn,
+                                       SANE_Byte* buffer,
+                                       size_t size, size_t read_size)
+{
+  int node_was_null = node == NULL;
+  if (node_was_null)
+    node = testing_append_commands_node;
+
+  xmlNode* e_tx = xmlNewNode(NULL, (const xmlChar*)"bulk_tx");
+  sanei_xml_command_common_props(e_tx, devices[dn].bulk_in_ep & 0x0f, "IN");
+
+  if (buffer == NULL)
+    {
+      const int buf_size = 128;
+      char buf[buf_size];
+      snprintf(buf, buf_size, "(unknown read of allowed size %ld)", size);
+      xmlNode* e_content = xmlNewText((const xmlChar*)buf);
+      xmlAddChild(e_tx, e_content);
+    }
+  else
+    {
+      sanei_xml_set_hex_data(e_tx, (const char*)buffer, read_size);
+    }
+
+  node = sanei_xml_append_command(node, node_was_null, e_tx);
+
+  if (node_was_null)
+    testing_append_commands_node = node;
+}
+
+static void sanei_usb_record_replace_read_bulk(xmlNode* node, SANE_Int dn,
+                                               SANE_Byte* buffer,
+                                               size_t size, size_t read_size)
+{
+  if (!testing_development_mode)
+    return;
+  testing_known_commands_input_failed = 1;
+  testing_last_known_seq--;
+  sanei_usb_record_read_bulk(node, dn, buffer, size, read_size);
+  xmlUnlinkNode(node);
+  xmlFreeNode(node);
+}
+
 static int sanei_usb_replay_read_bulk(SANE_Int dn, SANE_Byte* buffer,
                                       size_t size)
 {
@@ -2795,6 +2933,9 @@ static int sanei_usb_replay_read_bulk(SANE_Int dn, SANE_Byte* buffer,
   size_t total_got_size = 0;
   while (wanted_size > 0)
     {
+      if (testing_known_commands_input_failed)
+        return -1;
+
       xmlNode* node = sanei_xml_get_next_tx_node();
       if (node == NULL)
         {
@@ -2802,19 +2943,36 @@ static int sanei_usb_replay_read_bulk(SANE_Int dn, SANE_Byte* buffer,
           return -1;
         }
 
+      if (sanei_xml_is_known_commands_end(node))
+        {
+          sanei_usb_record_read_bulk(NULL, dn, NULL, 0, size);
+          testing_known_commands_input_failed = 1;
+          return -1;
+        }
+
+      sanei_xml_record_seq(node);
+      sanei_xml_break_if_needed(node);
+
       if (xmlStrcmp(node->name, (const xmlChar*)"bulk_tx") != 0)
         {
           FAIL_TEST_TX(__func__, node, "unexpected transaction type %s\n",
                        (const char*) node->name);
+          sanei_usb_record_replace_read_bulk(node, dn, NULL, 0, wanted_size);
           return -1;
         }
 
       if (!sanei_usb_check_attr(node, "direction", "IN", __func__))
-        return -1;
+        {
+          sanei_usb_record_replace_read_bulk(node, dn, NULL, 0, wanted_size);
+          return -1;
+        }
       if (!sanei_usb_check_attr_uint(node, "endpoint_number",
                                      devices[dn].bulk_in_ep & 0x0f,
                                      __func__))
-        return -1;
+        {
+          sanei_usb_record_replace_read_bulk(node, dn, NULL, 0, wanted_size);
+          return -1;
+        }
 
       size_t got_size = 0;
       char* got_data = sanei_xml_get_hex_data(node, &got_size);
@@ -2825,6 +2983,7 @@ static int sanei_usb_replay_read_bulk(SANE_Int dn, SANE_Byte* buffer,
                        "got more data than wanted (%lu vs %lu)\n",
                        got_size, wanted_size);
           free(got_data);
+          sanei_usb_record_replace_read_bulk(node, dn, NULL, 0, wanted_size);
           return -1;
         }
 
@@ -2840,12 +2999,6 @@ static int sanei_usb_replay_read_bulk(SANE_Int dn, SANE_Byte* buffer,
         return total_got_size;
     }
   return total_got_size;
-}
-
-static void sanei_usb_record_read_bulk(SANE_Int dn, SANE_Byte* buffer,
-                                       size_t size, size_t read_size)
-{
-  (void) dn; (void) buffer; (void) size; (void) read_size;
 }
 
 SANE_Status
@@ -2980,11 +3133,15 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 
   if (testing_mode == sanei_usb_testing_mode_record)
     {
-      sanei_usb_record_read_bulk(dn, buffer, *size, read_size);
+      sanei_usb_record_read_bulk(NULL, dn, buffer, *size, read_size);
     }
 
   if (read_size < 0)
     {
+      *size = 0;
+      if (testing_mode != sanei_usb_testing_mode_disabled)
+        return SANE_STATUS_IO_ERROR;
+
 #ifdef HAVE_LIBUSB_LEGACY
       if (devices[dn].method == sanei_usb_method_libusb)
 	usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
@@ -2992,7 +3149,6 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       if (devices[dn].method == sanei_usb_method_libusb)
 	libusb_clear_halt (devices[dn].lu_handle, devices[dn].bulk_in_ep);
 #endif
-      *size = 0;
       return SANE_STATUS_IO_ERROR;
     }
   if (read_size == 0)
@@ -3010,6 +3166,62 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   return SANE_STATUS_GOOD;
 }
 
+static int sanei_usb_record_write_bulk(xmlNode* node, SANE_Int dn,
+                                       const SANE_Byte* buffer,
+                                       size_t size, size_t write_size)
+{
+  int node_was_null = node == NULL;
+  if (node_was_null)
+    node = testing_append_commands_node;
+
+  xmlNode* e_tx = xmlNewNode(NULL, (const xmlChar*)"bulk_tx");
+  sanei_xml_command_common_props(e_tx, devices[dn].bulk_out_ep & 0x0f, "OUT");
+  sanei_xml_set_hex_data(e_tx, (const char*)buffer, size);
+  // FIXME: output write_size
+
+  node = sanei_xml_append_command(node, node_was_null, e_tx);
+
+  if (node_was_null)
+    testing_append_commands_node = node;
+  return write_size;
+}
+
+static void sanei_usb_record_replace_write_bulk(xmlNode* node, SANE_Int dn,
+                                                const SANE_Byte* buffer,
+                                                size_t size, size_t write_size)
+{
+  if (!testing_development_mode)
+    return;
+  testing_last_known_seq--;
+  sanei_usb_record_write_bulk(node, dn, buffer, size, write_size);
+  xmlUnlinkNode(node);
+  xmlFreeNode(node);
+}
+
+// returns non-negative value on success, -1 on failure
+static int sanei_usb_replay_next_write_bulk_packet_size(SANE_Int dn)
+{
+  xmlNode* node = sanei_xml_peek_next_tx_node();
+  if (node == NULL)
+    return -1;
+
+  if (xmlStrcmp(node->name, (const xmlChar*)"bulk_tx") != 0)
+    {
+      return -1;
+    }
+
+  if (!sanei_usb_attr_is(node, "direction", "OUT"))
+    return -1;
+  if (!sanei_usb_attr_is_uint(node, "endpoint_number",
+                              devices[dn].bulk_out_ep & 0x0f))
+    return -1;
+
+  size_t got_size = 0;
+  char* got_data = sanei_xml_get_hex_data(node, &got_size);
+  free(got_data);
+  return got_size;
+}
+
 static int sanei_usb_replay_write_bulk(SANE_Int dn, const SANE_Byte* buffer,
                                        size_t size)
 {
@@ -3017,6 +3229,9 @@ static int sanei_usb_replay_write_bulk(SANE_Int dn, const SANE_Byte* buffer,
   size_t total_wrote_size = 0;
   while (wanted_size > 0)
     {
+      if (testing_known_commands_input_failed)
+        return -1;
+
       xmlNode* node = sanei_xml_get_next_tx_node();
       if (node == NULL)
         {
@@ -3024,19 +3239,35 @@ static int sanei_usb_replay_write_bulk(SANE_Int dn, const SANE_Byte* buffer,
           return -1;
         }
 
+      if (sanei_xml_is_known_commands_end(node))
+        {
+          sanei_usb_record_write_bulk(NULL, dn, buffer, size, size);
+          return size;
+        }
+
+      sanei_xml_record_seq(node);
+      sanei_xml_break_if_needed(node);
+
       if (xmlStrcmp(node->name, (const xmlChar*)"bulk_tx") != 0)
         {
           FAIL_TEST_TX(__func__, node, "unexpected transaction type %s\n",
                        (const char*) node->name);
+          sanei_usb_record_replace_write_bulk(node, dn, buffer, size, size);
           return -1;
         }
 
       if (!sanei_usb_check_attr(node, "direction", "OUT", __func__))
-        return -1;
+        {
+          sanei_usb_record_replace_write_bulk(node, dn, buffer, size, size);
+          return -1;
+        }
       if (!sanei_usb_check_attr_uint(node, "endpoint_number",
                                      devices[dn].bulk_out_ep & 0x0f,
                                      __func__))
-        return -1;
+        {
+          sanei_usb_record_replace_write_bulk(node, dn, buffer, size, size);
+          return -1;
+        }
 
       size_t wrote_size = 0;
       char* wrote_data = sanei_xml_get_hex_data(node, &wrote_size);
@@ -3046,31 +3277,50 @@ static int sanei_usb_replay_write_bulk(SANE_Int dn, const SANE_Byte* buffer,
           FAIL_TEST_TX(__func__, node,
                        "wrote more data than wanted (%lu vs %lu)\n",
                        wrote_size, wanted_size);
-          free(wrote_data);
-          return -1;
+          if (!testing_development_mode)
+            {
+              free(wrote_data);
+              return -1;
+            }
+          sanei_usb_record_replace_write_bulk(node, dn, buffer, size, size);
+          wrote_size = size;
+        }
+      else if (!sanei_usb_check_data_equal(node,
+                                           ((const char*) buffer) +
+                                              total_wrote_size,
+                                           wrote_size,
+                                           wrote_data, wrote_size,
+                                           __func__))
+        {
+          if (!testing_development_mode)
+            {
+              free(wrote_data);
+              return -1;
+            }
+          sanei_usb_record_replace_write_bulk(node, dn, buffer, size,
+                                              size);
+          wrote_size = size;
         }
 
-      if (!sanei_usb_check_data_equal(node,
-                                      ((const char*) buffer) + total_wrote_size,
-                                      wrote_size,
-                                      wrote_data, wrote_size,
-                                      __func__))
-        {
-          free(wrote_data);
-          return -1;
-        }
       free(wrote_data);
+      if (wrote_size < wanted_size &&
+          sanei_usb_replay_next_write_bulk_packet_size(dn) < 0)
+        {
+          FAIL_TEST_TX(__func__, node,
+                       "wrote less data than wanted (%lu vs %lu)\n",
+                       wrote_size, wanted_size);
+          if (!testing_development_mode)
+            {
+              return -1;
+            }
+          sanei_usb_record_replace_write_bulk(node, dn, buffer, size,
+                                              size);
+          wrote_size = size;
+        }
       total_wrote_size += wrote_size;
       wanted_size -= wrote_size;
     }
   return total_wrote_size;
-}
-
-static int sanei_usb_record_write_bulk(SANE_Int dn, const SANE_Byte* buffer,
-                                       size_t size, size_t write_size)
-{
-  (void) dn; (void) buffer; (void) size; (void) write_size;
-  return 0;
 }
 
 SANE_Status
@@ -3207,12 +3457,15 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
 
   if (testing_mode == sanei_usb_testing_mode_record)
     {
-      sanei_usb_record_write_bulk(dn, buffer, *size, write_size);
+      sanei_usb_record_write_bulk(NULL, dn, buffer, *size, write_size);
     }
 
   if (write_size < 0)
     {
       *size = 0;
+      if (testing_mode != sanei_usb_testing_mode_disabled)
+        return SANE_STATUS_IO_ERROR;
+
 #ifdef HAVE_LIBUSB_LEGACY
       if (devices[dn].method == sanei_usb_method_libusb)
 	usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_out_ep);
@@ -3228,12 +3481,82 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
   return SANE_STATUS_GOOD;
 }
 
+static void
+sanei_usb_record_control_msg(xmlNode* node,
+                             SANE_Int dn, SANE_Int rtype, SANE_Int req,
+                             SANE_Int value, SANE_Int index, SANE_Int len,
+                             const SANE_Byte* data)
+{
+  (void) dn;
+
+  int node_was_null = node == NULL;
+  if (node_was_null)
+    node = testing_append_commands_node;
+
+  xmlNode* e_tx = xmlNewNode(NULL, (const xmlChar*)"control_tx");
+
+  int direction_is_in = (rtype & 0x80) == 0x80;
+  sanei_xml_command_common_props(e_tx, rtype & 0x1f,
+                                 direction_is_in ? "IN" : "OUT");
+  sanei_xml_set_hex_attr(e_tx, "bmRequestType", rtype);
+  sanei_xml_set_hex_attr(e_tx, "bRequest", req);
+  sanei_xml_set_hex_attr(e_tx, "wValue", value);
+  sanei_xml_set_hex_attr(e_tx, "wIndex", index);
+  sanei_xml_set_hex_attr(e_tx, "wLength", len);
+
+  if (direction_is_in && data == NULL)
+    {
+      const int buf_size = 128;
+      char buf[buf_size];
+      snprintf(buf, buf_size, "(unknown read of size %d)", len);
+      xmlNode* e_content = xmlNewText((const xmlChar*)buf);
+      xmlAddChild(e_tx, e_content);
+    }
+  else
+    {
+      sanei_xml_set_hex_data(e_tx, (const char*)data, len);
+    }
+
+  node = sanei_xml_append_command(node, node_was_null, e_tx);
+
+  if (node_was_null)
+    testing_append_commands_node = node;
+}
+
+
+static SANE_Status
+sanei_usb_record_replace_control_msg(xmlNode* node,
+                                     SANE_Int dn, SANE_Int rtype, SANE_Int req,
+                                     SANE_Int value, SANE_Int index, SANE_Int len,
+                                     const SANE_Byte* data)
+{
+  if (!testing_development_mode)
+    return SANE_STATUS_IO_ERROR;
+
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int direction_is_in = (rtype & 0x80) == 0x80;
+  if (direction_is_in)
+    {
+      testing_known_commands_input_failed = 1;
+      ret = SANE_STATUS_IO_ERROR;
+    }
+
+  testing_last_known_seq--;
+  sanei_usb_record_control_msg(node, dn, rtype, req, value, index, len, data);
+  xmlUnlinkNode(node);
+  xmlFreeNode(node);
+  return ret;
+}
+
 static SANE_Status
 sanei_usb_replay_control_msg(SANE_Int dn, SANE_Int rtype, SANE_Int req,
                              SANE_Int value, SANE_Int index, SANE_Int len,
                              SANE_Byte* data)
 {
   (void) dn;
+
+  if (testing_known_commands_input_failed)
+    return -1;
 
   xmlNode* node = sanei_xml_get_next_tx_node();
   if (node == NULL)
@@ -3242,45 +3565,57 @@ sanei_usb_replay_control_msg(SANE_Int dn, SANE_Int rtype, SANE_Int req,
       return SANE_STATUS_IO_ERROR;
     }
 
+  int direction_is_in = (rtype & 0x80) == 0x80;
+  SANE_Byte* rdata = direction_is_in ? NULL : data;
+
+  if (sanei_xml_is_known_commands_end(node))
+    {
+      sanei_usb_record_control_msg(NULL, dn, rtype, req, value, index, len,
+                                   rdata);
+      if (direction_is_in)
+        {
+          testing_known_commands_input_failed = 1;
+          return SANE_STATUS_IO_ERROR;
+        }
+      return SANE_STATUS_GOOD;
+    }
+
+  sanei_xml_record_seq(node);
+  sanei_xml_break_if_needed(node);
+
   if (xmlStrcmp(node->name, (const xmlChar*)"control_tx") != 0)
     {
       FAIL_TEST_TX(__func__, node, "unexpected transaction type %s\n",
                    (const char*) node->name);
-      return SANE_STATUS_IO_ERROR;
+      return sanei_usb_record_replace_control_msg(node, dn, rtype, req, value,
+                                                  index, len, rdata);
     }
 
-  int direction_is_in = (rtype & 0x80) == 0x80;
   if (!sanei_usb_check_attr(node, "direction", direction_is_in ? "IN" : "OUT",
-                            __func__))
-    return SANE_STATUS_IO_ERROR;
-
-  if (!sanei_usb_check_attr_uint(node, "bmRequestType", rtype, __func__))
-    return SANE_STATUS_IO_ERROR;
-
-  if (!sanei_usb_check_attr_uint(node, "bRequest", req, __func__))
-    return SANE_STATUS_IO_ERROR;
-
-  if (!sanei_usb_check_attr_uint(node, "wValue", value, __func__))
-    return SANE_STATUS_IO_ERROR;
-
-  if (!sanei_usb_check_attr_uint(node, "wIndex", index, __func__))
-    return SANE_STATUS_IO_ERROR;
-
-  if (!sanei_usb_check_attr_uint(node, "wLength", len, __func__))
-    return SANE_STATUS_IO_ERROR;
+                            __func__) ||
+      !sanei_usb_check_attr_uint(node, "bmRequestType", rtype, __func__) ||
+      !sanei_usb_check_attr_uint(node, "bRequest", req, __func__) ||
+      !sanei_usb_check_attr_uint(node, "wValue", value, __func__) ||
+      !sanei_usb_check_attr_uint(node, "wIndex", index, __func__) ||
+      !sanei_usb_check_attr_uint(node, "wLength", len, __func__))
+    {
+      return sanei_usb_record_replace_control_msg(node, dn, rtype, req, value,
+                                                  index, len, rdata);
+    }
 
   size_t tx_data_size = 0;
   char* tx_data = sanei_xml_get_hex_data(node, &tx_data_size);
 
   if (direction_is_in)
     {
-      if (tx_data_size > (size_t)len)
+      if (tx_data_size != (size_t)len)
         {
           FAIL_TEST_TX(__func__, node,
-                       "got more data than wanted (%lu vs %lu)\n",
+                       "got different amount of data than wanted (%lu vs %lu)\n",
                        tx_data_size, (size_t)len);
           free(tx_data);
-          return SANE_STATUS_IO_ERROR;
+          return sanei_usb_record_replace_control_msg(node, dn, rtype, req,
+                                                      value, index, len, rdata);
         }
       memcpy(data, tx_data, tx_data_size);
     }
@@ -3291,21 +3626,12 @@ sanei_usb_replay_control_msg(SANE_Int dn, SANE_Int rtype, SANE_Int req,
                                       tx_data, tx_data_size, __func__))
         {
           free(tx_data);
-          return SANE_STATUS_IO_ERROR;
+          return sanei_usb_record_replace_control_msg(node, dn, rtype, req,
+                                                      value, index, len, rdata);
         }
     }
   free(tx_data);
   return SANE_STATUS_GOOD;
-}
-
-static SANE_Status
-sanei_usb_record_control_msg(SANE_Int dn, SANE_Int rtype, SANE_Int req,
-                             SANE_Int value, SANE_Int index, SANE_Int len,
-                             const SANE_Byte* data)
-{
-  (void) dn; (void) rtype; (void) req; (void) value; (void) index; (void) len;
-  (void) data;
-  return SANE_STATUS_UNSUPPORTED;
 }
 
 SANE_Status
@@ -3445,15 +3771,64 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
   if (testing_mode == sanei_usb_testing_mode_record)
     {
       // TODO: record in the error code path too
-      sanei_usb_record_control_msg(dn, rtype, req, value, index, len, data);
+      sanei_usb_record_control_msg(NULL, dn, rtype, req, value, index, len,
+                                   data);
     }
   return SANE_STATUS_GOOD;
+}
+
+static void sanei_usb_record_read_int(xmlNode* node,
+                                      SANE_Int dn, SANE_Byte* buffer,
+                                      size_t size, size_t read_size)
+{
+  (void) size;
+
+  int node_was_null = node == NULL;
+  if (node_was_null)
+    node = testing_append_commands_node;
+
+  xmlNode* e_tx = xmlNewNode(NULL, (const xmlChar*)"interrupt_tx");
+
+  sanei_xml_command_common_props(e_tx, devices[dn].int_in_ep & 0x0f, "IN");
+
+  if (buffer == NULL)
+    {
+      const int buf_size = 128;
+      char buf[buf_size];
+      snprintf(buf, buf_size, "(unknown read of wanted size %ld)", read_size);
+      xmlNode* e_content = xmlNewText((const xmlChar*)buf);
+      xmlAddChild(e_tx, e_content);
+    }
+  else
+    {
+      sanei_xml_set_hex_data(e_tx, (const char*)buffer, read_size);
+    }
+
+  node = sanei_xml_append_command(node, node_was_null, e_tx);
+
+  if (node_was_null)
+    testing_append_commands_node = node;
+}
+
+static void sanei_usb_record_replace_read_int(xmlNode* node,
+                                              SANE_Int dn, SANE_Byte* buffer,
+                                              size_t size, size_t read_size)
+{
+  if (!testing_development_mode)
+    return;
+  testing_known_commands_input_failed = 1;
+  testing_last_known_seq--;
+  sanei_usb_record_read_int(node, dn, buffer, size, read_size);
+  xmlUnlinkNode(node);
+  xmlFreeNode(node);
 }
 
 static int sanei_usb_replay_read_int(SANE_Int dn, SANE_Byte* buffer,
                                      size_t size)
 {
-  (void) dn;
+  if (testing_known_commands_input_failed)
+    return -1;
+
   size_t wanted_size = size;
 
   xmlNode* node = sanei_xml_get_next_tx_node();
@@ -3463,20 +3838,37 @@ static int sanei_usb_replay_read_int(SANE_Int dn, SANE_Byte* buffer,
       return -1;
     }
 
+  if (sanei_xml_is_known_commands_end(node))
+    {
+      sanei_usb_record_read_int(NULL, dn, NULL, 0, size);
+      testing_known_commands_input_failed = 1;
+      return -1;
+    }
+
+  sanei_xml_record_seq(node);
+  sanei_xml_break_if_needed(node);
+
   if (xmlStrcmp(node->name, (const xmlChar*)"interrupt_tx") != 0)
     {
       FAIL_TEST_TX(__func__, node, "unexpected transaction type %s\n",
                    (const char*) node->name);
+      sanei_usb_record_replace_read_int(node, dn, NULL, 0, size);
       return -1;
     }
 
   if (!sanei_usb_check_attr(node, "direction", "IN", __func__))
-    return -1;
+    {
+      sanei_usb_record_replace_read_int(node, dn, NULL, 0, size);
+      return -1;
+    }
 
   if (!sanei_usb_check_attr_uint(node, "endpoint_number",
                                  devices[dn].int_in_ep & 0x0f,
                                  __func__))
-    return -1;
+    {
+      sanei_usb_record_replace_read_int(node, dn, NULL, 0, size);
+      return -1;
+    }
 
   size_t tx_data_size = 0;
   char* tx_data = sanei_xml_get_hex_data(node, &tx_data_size);
@@ -3486,6 +3878,7 @@ static int sanei_usb_replay_read_int(SANE_Int dn, SANE_Byte* buffer,
       FAIL_TEST_TX(__func__, node,
                    "got more data than wanted (%lu vs %lu)\n",
                    tx_data_size, wanted_size);
+      sanei_usb_record_replace_read_int(node, dn, NULL, 0, size);
       free(tx_data);
       return -1;
     }
@@ -3493,12 +3886,6 @@ static int sanei_usb_replay_read_int(SANE_Int dn, SANE_Byte* buffer,
   memcpy((char*) buffer, tx_data, tx_data_size);
   free(tx_data);
   return tx_data_size;
-}
-
-static void sanei_usb_record_read_int(SANE_Int dn, SANE_Byte* buffer,
-                                      size_t size, size_t read_size)
-{
-  (void) dn; (void) buffer; (void) size; (void) read_size;
 }
 
 SANE_Status
@@ -3625,11 +4012,15 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 
   if (testing_mode == sanei_usb_testing_mode_record)
     {
-      sanei_usb_record_read_int(dn, buffer, *size, read_size);
+      sanei_usb_record_read_int(NULL, dn, buffer, *size, read_size);
     }
 
   if (read_size < 0)
     {
+      *size = 0;
+      if (testing_mode != sanei_usb_testing_mode_disabled)
+        return SANE_STATUS_IO_ERROR;
+
 #ifdef HAVE_LIBUSB_LEGACY
       if (devices[dn].method == sanei_usb_method_libusb)
         if (stalled)
@@ -3639,7 +4030,6 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
         if (stalled)
 	  libusb_clear_halt (devices[dn].lu_handle, devices[dn].int_in_ep);
 #endif
-      *size = 0;
       return SANE_STATUS_IO_ERROR;
     }
   if (read_size == 0)
@@ -3668,6 +4058,9 @@ static SANE_Status sanei_usb_replay_set_configuration(SANE_Int dn,
       FAIL_TEST(__func__, "no more transactions\n");
       return SANE_STATUS_IO_ERROR;
     }
+
+  sanei_xml_record_seq(node);
+  sanei_xml_break_if_needed(node);
 
   if (xmlStrcmp(node->name, (const xmlChar*)"control_tx") != 0)
     {

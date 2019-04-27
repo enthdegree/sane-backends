@@ -1179,10 +1179,21 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
     }
 
   dev_name = strchr (full_name, ':');
-  if (dev_name && strncmp(full_name, "fakeusb", dev_name - full_name) == 0)
+
+  int is_fakeusb = 0, is_fakeusbdev = 0;
+
+  if (dev_name)
+    {
+      is_fakeusb = strncmp(full_name, "fakeusb", dev_name - full_name) == 0 &&
+          dev_name - full_name == 7;
+      is_fakeusbdev = strncmp(full_name, "fakeusbdev", dev_name - full_name) == 0 &&
+          dev_name - full_name == 10;
+    }
+
+  if (is_fakeusb || is_fakeusbdev)
     {
       ++dev_name; // skip colon
-      status = sanei_usb_testing_enable_replay(dev_name);
+      status = sanei_usb_testing_enable_replay(dev_name, is_fakeusbdev);
       if (status != SANE_STATUS_GOOD)
         return status;
 

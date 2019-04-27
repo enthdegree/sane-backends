@@ -2982,7 +2982,6 @@ sanei_usb_get_descriptor( SANE_Int dn,
 	  desc->dev_sub_class   = usb_descr->bDeviceSubClass;
 	  desc->dev_protocol    = usb_descr->bDeviceProtocol;
 	  desc->max_packet_size = usb_descr->bMaxPacketSize0;
-	  return SANE_STATUS_GOOD;
     }
 #elif defined(HAVE_LIBUSB)
     {
@@ -3007,7 +3006,6 @@ sanei_usb_get_descriptor( SANE_Int dn,
       desc->dev_sub_class   = lu_desc.bDeviceSubClass;
       desc->dev_protocol    = lu_desc.bDeviceProtocol;
       desc->max_packet_size = lu_desc.bMaxPacketSize0;
-      return SANE_STATUS_GOOD;
     }
 #else /* not HAVE_LIBUSB_LEGACY && not HAVE_LIBUSB */
     {
@@ -3015,4 +3013,5 @@ sanei_usb_get_descriptor( SANE_Int dn,
       return SANE_STATUS_UNSUPPORTED;
     }
 #endif /* not HAVE_LIBUSB_LEGACY && not HAVE_LIBUSB */
+  return SANE_STATUS_GOOD;
 }

@@ -1155,7 +1155,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 SANE_Status
 sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 {
-  const char *be_name, *dev_name;
+  char *be_name;
+  const char *dev_name;
   struct meta_scanner *s;
   SANE_Handle handle;
   struct backend *be;
@@ -1178,16 +1179,7 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   dev_name = strchr (full_name, ':');
   if (dev_name)
     {
-#ifdef strndupa
-      be_name = strndupa (full_name, dev_name - full_name);
-#else
-      char *tmp;
-
-      tmp = alloca (dev_name - full_name + 1);
-      memcpy (tmp, full_name, dev_name - full_name);
-      tmp[dev_name - full_name] = '\0';
-      be_name = tmp;
-#endif
+      be_name = strndup(full_name, dev_name - full_name);
       ++dev_name;		/* skip colon */
     }
   else
@@ -1195,7 +1187,7 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
       /* if no colon interpret full_name as the backend name; an empty
          backend device name will cause us to open the first device of
          that backend.  */
-      be_name = full_name;
+      be_name = strdup(full_name);
       dev_name = "";
     }
 
@@ -1210,8 +1202,12 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
     {
       status = add_backend (be_name, &be);
       if (status != SANE_STATUS_GOOD)
-	return status;
+        {
+          free(be_name);
+          return status;
+        }
     }
+  free(be_name);
 
   if (!be->inited)
     {

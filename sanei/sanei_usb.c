@@ -2197,9 +2197,10 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 #ifdef HAVE_USBCALLS
     int rc;
     char* buffer_ptr = (char*) buffer;
-    while (*size)
+    size_t requested_size = *size;
+    while (requested_size)
     {
-      ULONG ulToRead = (*size>MAX_RW)?MAX_RW:*size;
+      ULONG ulToRead = (requested_size>MAX_RW)?MAX_RW:requested_size;
       ULONG ulNum = ulToRead;
       DBG (5, "Entered usbcalls UsbBulkRead with dn = %d\n",dn);
       DBG (5, "Entered usbcalls UsbBulkRead with dh = %p\n",dh);
@@ -2217,7 +2218,7 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
           return SANE_STATUS_INVAL;
       }
       if (rc || (ulNum!=ulToRead)) return SANE_STATUS_INVAL;
-      *size -=ulToRead;
+      requested_size -=ulToRead;
       buffer_ptr += ulToRead;
       read_size += ulToRead;
     }
@@ -2354,11 +2355,12 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
     DBG (5, "Entered usbcalls UsbBulkWrite with bulk_out_ep = 0x%02x\n",devices[dn].bulk_out_ep);
     DBG (5, "Entered usbcalls UsbBulkWrite with interface_nr = %d\n",devices[dn].interface_nr);
     DBG (5, "Entered usbcalls UsbBulkWrite with usbcalls_timeout = %d\n",usbcalls_timeout);
-    while (*size)
+    size_t requested_size = *size;
+    while (requested_size)
     {
-      ULONG ulToWrite = (*size>MAX_RW)?MAX_RW:*size;
+      ULONG ulToWrite = (requested_size>MAX_RW)?MAX_RW:requested_size;
 
-      DBG (5, "size requested to write = %lu, ulToWrite = %lu\n",(unsigned long) *size,ulToWrite);
+      DBG (5, "size requested to write = %lu, ulToWrite = %lu\n",(unsigned long) requested_size,ulToWrite);
       if (devices[dn].bulk_out_ep){
         rc = UsbBulkWrite (dh, devices[dn].bulk_out_ep, devices[dn].interface_nr,
                                ulToWrite, (char*) buffer, usbcalls_timeout);
@@ -2370,10 +2372,10 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
           return SANE_STATUS_INVAL;
       }
       if (rc) return SANE_STATUS_INVAL;
-      *size -=ulToWrite;
+      requested_size -=ulToWrite;
       buffer += ulToWrite;
       write_size += ulToWrite;
-      DBG (5, "size = %d, write_size = %d\n",*size, write_size);
+      DBG (5, "size = %d, write_size = %d\n", requested_size, write_size);
     }
 #else /* not HAVE_USBCALLS */
     {

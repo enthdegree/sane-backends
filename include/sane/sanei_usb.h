@@ -205,10 +205,12 @@ extern SANE_Status sanei_usb_testing_enable_replay(SANE_String_Const path,
  *
  * Initializes sanei_usb for recording communication with the scanner. This
  * function must be called before sanei_usb_init().
-*
-* @param path Path to the XML data file.
+ *
+ * @param path Path to the XML data file.
+ * @param be_name The name of the backend to enable recording for.
  */
-extern SANE_Status sanei_usb_testing_enable_record(SANE_String_Const path);
+extern SANE_Status sanei_usb_testing_enable_record(SANE_String_Const path,
+                                                   SANE_String_Const be_name);
 
 /** Returns backend name for testing.
  *

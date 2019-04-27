@@ -193,6 +193,7 @@ static sanei_usb_testing_mode testing_mode = sanei_usb_testing_mode_disabled;
 static int testing_development_mode = 0;
 int testing_known_commands_input_failed = 0;
 unsigned testing_last_known_seq = 0;
+SANE_String testing_record_backend = NULL;
 xmlNode* testing_append_commands_node = NULL;
 
 // XML file from which we read testing data
@@ -516,10 +517,13 @@ void fail_test()
 {
 }
 
-SANE_Status sanei_usb_testing_enable_record(SANE_String_Const path)
+SANE_Status sanei_usb_testing_enable_record(SANE_String_Const path, SANE_String_Const be_name)
 {
-  (void) path;
-  return SANE_STATUS_UNSUPPORTED;
+  testing_mode = sanei_usb_testing_mode_record;
+  testing_record_backend = strdup(be_name);
+  testing_xml_path = strdup(path);
+
+  return SANE_STATUS_GOOD;
 }
 
 static xmlNode* sanei_xml_find_first_child_with_name(xmlNode* parent,
@@ -985,7 +989,8 @@ static SANE_Status sanei_usb_testing_init()
 
   if (testing_mode == sanei_usb_testing_mode_record)
     {
-      return SANE_STATUS_UNSUPPORTED;
+      testing_xml_doc = xmlNewDoc((const xmlChar*)"1.0");
+      return SANE_STATUS_GOOD;
     }
 
   if (device_number != 0)
@@ -1137,8 +1142,13 @@ static SANE_Status sanei_usb_testing_init()
 
 static void sanei_usb_testing_exit()
 {
-  if (testing_development_mode)
+  if (testing_development_mode || testing_mode == sanei_usb_testing_mode_record)
     {
+      if (testing_mode == sanei_usb_testing_mode_record)
+        {
+          xmlAddNextSibling(testing_append_commands_node, xmlNewText((const xmlChar*)"\n  "));
+          free(testing_record_backend);
+        }
       xmlSaveFileEnc(testing_xml_path, testing_xml_doc, "UTF-8");
     }
   xmlFreeDoc(testing_xml_doc);
@@ -2087,6 +2097,62 @@ sanei_usb_get_endpoint (SANE_Int dn, SANE_Int ep_type)
     }
 }
 
+static void sanei_usb_record_open(SANE_Int dn)
+{
+  xmlNode* e_root = xmlNewNode(NULL, (const xmlChar*) "device_capture");
+  xmlDocSetRootElement(testing_xml_doc, e_root);
+  xmlNewProp(e_root, (const xmlChar*)"backend", (const xmlChar*) testing_record_backend);
+
+  xmlNode* e_description = xmlNewChild(e_root, NULL, (const xmlChar*) "description", NULL);
+  sanei_xml_set_hex_attr(e_description, "id_vendor", devices[dn].vendor);
+  sanei_xml_set_hex_attr(e_description, "id_product", devices[dn].product);
+
+  xmlNode* e_configurations = xmlNewChild(e_description, NULL,
+                                          (const xmlChar*) "configurations", NULL);
+  xmlNode* e_configuration = xmlNewChild(e_configurations, NULL,
+                                         (const xmlChar*) "configuration", NULL);
+  sanei_xml_set_uint_attr(e_configuration, "number", 1);
+
+  xmlNode* e_interface = xmlNewChild(e_configuration, NULL, (const xmlChar*) "interface", NULL);
+  sanei_xml_set_uint_attr(e_interface, "number", devices[dn].interface_nr);
+
+  struct endpoint_data_desc {
+    const char* transfer_type;
+    const char* direction;
+    SANE_Int ep_address;
+  };
+
+  struct endpoint_data_desc endpoints[8] =
+  {
+    { "BULK", "IN", devices[dn].bulk_in_ep },
+    { "BULK", "OUT", devices[dn].bulk_out_ep },
+    { "ISOCHRONOUS", "IN", devices[dn].iso_in_ep },
+    { "ISOCHRONOUS", "OUT", devices[dn].iso_out_ep },
+    { "INTERRUPT", "IN", devices[dn].int_in_ep },
+    { "INTERRUPT", "OUT", devices[dn].int_out_ep },
+    { "CONTROL", "IN", devices[dn].control_in_ep },
+    { "CONTROL", "OUT", devices[dn].control_out_ep }
+  };
+
+  for (int i = 0; i < 8; ++i)
+    {
+      if (endpoints[i].ep_address)
+        {
+          xmlNode* e_endpoint = xmlNewChild(e_interface, NULL, (const xmlChar*)"endpoint", NULL);
+          xmlNewProp(e_endpoint, (const xmlChar*)"transfer_type",
+                     (const xmlChar*) endpoints[i].transfer_type);
+          sanei_xml_set_uint_attr(e_endpoint, "number", endpoints[i].ep_address & 0x0f);
+          xmlNewProp(e_endpoint, (const xmlChar*)"direction",
+                     (const xmlChar*) endpoints[i].direction);
+          sanei_xml_set_hex_attr(e_endpoint, "address", endpoints[i].ep_address);
+        }
+    }
+  xmlNode* e_transactions = xmlNewChild(e_root, NULL, (const xmlChar*)"transactions", NULL);
+
+  // add an empty node so that we have something to append to
+  testing_append_commands_node =  xmlAddChild(e_transactions, xmlNewText((const xmlChar*)""));;
+}
+
 SANE_Status
 sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 {
@@ -2645,7 +2711,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 
   if (testing_mode == sanei_usb_testing_mode_record)
     {
-      // ZZTODO: record the USB state
+      sanei_usb_record_open(devcount);
     }
 
   devices[devcount].open = SANE_TRUE;

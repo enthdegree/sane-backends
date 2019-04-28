@@ -1262,6 +1262,77 @@ sanei_usb_set_endpoint (SANE_Int dn, SANE_Int ep_type, SANE_Int ep)
     }
 }
 
+#if HAVE_LIBUSB_LEGACY || HAVE_LIBUSB || HAVE_USBCALLS
+static const char* sanei_usb_transfer_type_desc(SANE_Int transfer_type)
+{
+  switch (transfer_type)
+    {
+      case USB_ENDPOINT_TYPE_INTERRUPT: return "interrupt";
+      case USB_ENDPOINT_TYPE_BULK: return "bulk";
+      case USB_ENDPOINT_TYPE_ISOCHRONOUS: return "isochronous";
+      case USB_ENDPOINT_TYPE_CONTROL: return "control";
+    }
+  return NULL;
+}
+
+// Similar sanei_usb_set_endpoint, but ignors duplicate endpoints
+static void sanei_usb_add_endpoint(device_list_type* device,
+                                   SANE_Int transfer_type,
+                                   SANE_Int ep_address,
+                                   SANE_Int ep_direction)
+{
+  DBG(5, "%s: direction: %d, address: %d, transfer_type: %d\n",
+      __func__, ep_direction, ep_address, transfer_type);
+
+  SANE_Int* ep_in = NULL;
+  SANE_Int* ep_out = NULL;
+  const char* transfer_type_msg = sanei_usb_transfer_type_desc(transfer_type);
+
+  switch (transfer_type)
+    {
+      case USB_ENDPOINT_TYPE_INTERRUPT:
+        ep_in = &device->int_in_ep;
+        ep_out = &device->int_out_ep;
+        break;
+      case USB_ENDPOINT_TYPE_BULK:
+        ep_in = &device->bulk_in_ep;
+        ep_out = &device->bulk_out_ep;
+        break;
+      case USB_ENDPOINT_TYPE_ISOCHRONOUS:
+        ep_in = &device->iso_in_ep;
+        ep_out = &device->iso_out_ep;
+        break;
+      case USB_ENDPOINT_TYPE_CONTROL:
+        ep_in = &device->control_in_ep;
+        ep_out = &device->control_out_ep;
+        break;
+    }
+
+  DBG(5, "%s: found %s-%s endpoint (address 0x%02x)\n",
+      __func__, transfer_type_msg, ep_direction ? "in" : "out",
+      ep_address);
+
+  if (ep_direction) // in
+    {
+      if (*ep_in)
+        DBG(3, "%s: we already have a %s-in endpoint "
+             "(address: 0x%02x), ignoring the new one\n",
+            __func__, transfer_type_msg, *ep_in);
+      else
+        *ep_in = ep_address;
+    }
+  else
+    {
+      if (*ep_out)
+        DBG(3, "%s: we already have a %s-out endpoint "
+             "(address: 0x%02x), ignoring the new one\n",
+            __func__, transfer_type_msg, *ep_out);
+      else
+        *ep_out = ep_address;
+    }
+}
+#endif // HAVE_LIBUSB_LEGACY || HAVE_LIBUSB || HAVE_USBCALLS
+
 SANE_Int
 sanei_usb_get_endpoint (SANE_Int dn, SANE_Int ep_type)
 {
@@ -1460,132 +1531,12 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 		      DBG (5, "sanei_usb_open: endpoint nr: %d\n", num);
 		      transfer_type =
 			endpoint->bmAttributes & USB_ENDPOINT_TYPE_MASK;
-		      address =
-			endpoint->
-			bEndpointAddress & USB_ENDPOINT_ADDRESS_MASK;
 		      direction =
 			endpoint->bEndpointAddress & USB_ENDPOINT_DIR_MASK;
 
-		      DBG (5, "sanei_usb_open: direction: %d\n", direction);
-
-		      DBG (5,
-			   "sanei_usb_open: address: %d transfertype: %d\n",
-			   address, transfer_type);
-
-
-		      /* save the endpoints we need later */
-		      if (transfer_type == USB_ENDPOINT_TYPE_INTERRUPT)
-			{
-			  DBG (5,
-			       "sanei_usb_open: found interrupt-%s endpoint (address 0x%02x)\n",
-			       direction ? "in" : "out", address);
-			  if (direction)	/* in */
-			    {
-			      if (devices[devcount].int_in_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a int-in endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].int_in_ep);
-			      else
-				devices[devcount].int_in_ep =
-				  endpoint->bEndpointAddress;
-			    }
-			  else
-			    {
-			      if (devices[devcount].int_out_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a int-out endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].int_out_ep);
-			      else
-				devices[devcount].int_out_ep =
-				  endpoint->bEndpointAddress;
-			    }
-			}
-		      else if (transfer_type == USB_ENDPOINT_TYPE_BULK)
-			{
-			  DBG (5,
-			       "sanei_usb_open: found bulk-%s endpoint (address 0x%02x)\n",
-			       direction ? "in" : "out", address);
-			  if (direction)	/* in */
-			    {
-			      if (devices[devcount].bulk_in_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a bulk-in endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].bulk_in_ep);
-			      else
-				devices[devcount].bulk_in_ep =
-				  endpoint->bEndpointAddress;
-			    }
-			  else
-			    {
-			      if (devices[devcount].bulk_out_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a bulk-out endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].bulk_out_ep);
-			      else
-				devices[devcount].bulk_out_ep =
-				  endpoint->bEndpointAddress;
-			    }
-			}
-		      else if (transfer_type == USB_ENDPOINT_TYPE_ISOCHRONOUS)
-			{
-			  DBG (5,
-			       "sanei_usb_open: found isochronous-%s endpoint (address 0x%02x)\n",
-			       direction ? "in" : "out", address);
-			  if (direction)	/* in */
-			    {
-			      if (devices[devcount].iso_in_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a isochronous-in endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].iso_in_ep);
-			      else
-				devices[devcount].iso_in_ep =
-				  endpoint->bEndpointAddress;
-			    }
-			  else
-			    {
-			      if (devices[devcount].iso_out_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a isochronous-out endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].iso_out_ep);
-			      else
-				devices[devcount].iso_out_ep =
-				  endpoint->bEndpointAddress;
-			    }
-			}
-		      else if (transfer_type == USB_ENDPOINT_TYPE_CONTROL)
-			{
-			  DBG (5,
-			       "sanei_usb_open: found control-%s endpoint (address 0x%02x)\n",
-			       direction ? "in" : "out", address);
-			  if (direction)	/* in */
-			    {
-			      if (devices[devcount].control_in_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a control-in endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].control_in_ep);
-			      else
-				devices[devcount].control_in_ep =
-				  endpoint->bEndpointAddress;
-			    }
-			  else
-			    {
-			      if (devices[devcount].control_out_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a control-out endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].control_out_ep);
-			      else
-				devices[devcount].control_out_ep =
-				  endpoint->bEndpointAddress;
-			    }
-			}
+                      sanei_usb_add_endpoint(&devices[devcount], transfer_type,
+                                             endpoint->bEndpointAddress,
+                                             direction);
 		    }
 		}
 	    }
@@ -1769,124 +1720,39 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 		  for (num = 0; num < interface->bNumEndpoints; num++)
 		    {
 		      const struct libusb_endpoint_descriptor *endpoint;
-		      int address, direction, transfer_type;
+                      int direction, transfer_type, transfer_type_libusb;
 
 		      endpoint = &interface->endpoint[num];
 		      DBG (5, "sanei_usb_open: endpoint nr: %d\n", num);
 
-		      transfer_type = endpoint->bmAttributes & LIBUSB_TRANSFER_TYPE_MASK;
-		      address = endpoint->bEndpointAddress & LIBUSB_ENDPOINT_ADDRESS_MASK;
+                      transfer_type_libusb =
+                          endpoint->bmAttributes & LIBUSB_TRANSFER_TYPE_MASK;
 		      direction = endpoint->bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK;
 
-		      DBG (5, "sanei_usb_open: direction: %d\n", direction);
-		      DBG (5, "sanei_usb_open: address: %d transfertype: %d\n",
-			   address, transfer_type);
+                      // don't rely on LIBUSB_TRANSFER_TYPE_* mapping to
+                      // USB_ENDPOINT_TYPE_* even though they'll most likely be
+                      // the same
+                      switch (transfer_type_libusb)
+                        {
+                          case LIBUSB_TRANSFER_TYPE_INTERRUPT:
+                            transfer_type = USB_ENDPOINT_TYPE_INTERRUPT;
+                            break;
+                          case LIBUSB_TRANSFER_TYPE_BULK:
+                            transfer_type = USB_ENDPOINT_TYPE_BULK;
+                            break;
+                          case LIBUSB_TRANSFER_TYPE_ISOCHRONOUS:
+                            transfer_type = LIBUSB_TRANSFER_TYPE_ISOCHRONOUS;
+                            break;
+                          case LIBUSB_TRANSFER_TYPE_CONTROL:
+                            transfer_type = USB_ENDPOINT_TYPE_CONTROL;
+                            break;
 
-		      /* save the endpoints we need later */
-		      if (transfer_type == LIBUSB_TRANSFER_TYPE_INTERRUPT)
-			{
-			  DBG (5,
-			       "sanei_usb_open: found interrupt-%s endpoint (address 0x%02x)\n",
-			       direction ? "in" : "out", address);
-			  if (direction)	/* in */
-			    {
-			      if (devices[devcount].int_in_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a int-in endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].int_in_ep);
-			      else
-				devices[devcount].int_in_ep = endpoint->bEndpointAddress;
-			    }
-			  else
-			    {
-			      if (devices[devcount].int_out_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a int-out endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].int_out_ep);
-			      else
-				devices[devcount].int_out_ep = endpoint->bEndpointAddress;
-			    }
-			}
-		      else if (transfer_type == LIBUSB_TRANSFER_TYPE_BULK)
-			{
-			  DBG (5,
-			       "sanei_usb_open: found bulk-%s endpoint (address 0x%02x)\n",
-			       direction ? "in" : "out", address);
-			  if (direction)	/* in */
-			    {
-			      if (devices[devcount].bulk_in_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a bulk-in endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].bulk_in_ep);
-			      else
-				devices[devcount].bulk_in_ep = endpoint->bEndpointAddress;
-			    }
-			  else
-			    {
-			      if (devices[devcount].bulk_out_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a bulk-out endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].bulk_out_ep);
-			      else
-				devices[devcount].bulk_out_ep = endpoint->bEndpointAddress;
-			    }
-			}
-		      else if (transfer_type == LIBUSB_TRANSFER_TYPE_ISOCHRONOUS)
-			{
-			  DBG (5,
-			       "sanei_usb_open: found isochronous-%s endpoint (address 0x%02x)\n",
-			       direction ? "in" : "out", address);
-			  if (direction)	/* in */
-			    {
-			      if (devices[devcount].iso_in_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a isochronous-in endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].iso_in_ep);
-			      else
-				devices[devcount].iso_in_ep = endpoint->bEndpointAddress;
-			    }
-			  else
-			    {
-			      if (devices[devcount].iso_out_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a isochronous-out endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].iso_out_ep);
-			      else
-				devices[devcount].iso_out_ep = endpoint->bEndpointAddress;
-			    }
-			}
-		      else if (transfer_type == LIBUSB_TRANSFER_TYPE_CONTROL)
-			{
-			  DBG (5,
-			       "sanei_usb_open: found control-%s endpoint (address 0x%02x)\n",
-			       direction ? "in" : "out", address);
-			  if (direction)	/* in */
-			    {
-			      if (devices[devcount].control_in_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a control-in endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].control_in_ep);
-			      else
-				devices[devcount].control_in_ep = endpoint->bEndpointAddress;
-			    }
-			  else
-			    {
-			      if (devices[devcount].control_out_ep)
-				DBG (3,
-				     "sanei_usb_open: we already have a control-out endpoint "
-				     "(address: 0x%02x), ignoring the new one\n",
-				     devices[devcount].control_out_ep);
-			      else
-				devices[devcount].control_out_ep = endpoint->bEndpointAddress;
-			    }
-			}
+                        }
+
+                      sanei_usb_add_endpoint(&devices[devcount],
+                                             transfer_type,
+                                             endpoint->bEndpointAddress,
+                                             direction);
 		    }
 		}
 	    }
@@ -2016,62 +1882,21 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
               break;
             case USB_DT_ENDPOINT:
 	      endpoint = (struct usb_endpoint_descriptor*)pDescHead;
-              address = endpoint->bEndpointAddress;
 	      direction = endpoint->bEndpointAddress & USB_ENDPOINT_DIR_MASK;
 	      transfer_type = endpoint->bmAttributes & USB_ENDPOINT_TYPE_MASK;
-	      /* save the endpoints we need later */
-	      if (transfer_type == USB_ENDPOINT_TYPE_INTERRUPT)
-	      {
-   	       DBG (5, "sanei_usb_open: found interupt-%s endpoint (address %2x)\n",
-  	            direction ? "in" : "out", address);
-	       if (direction)	/* in */
-	       {
-	         if (devices[devcount].int_in_ep)
-		   DBG (3, "sanei_usb_open: we already have a int-in endpoint "
-		        "(address: %d), ignoring the new one\n",
-		        devices[devcount].int_in_ep);
-	         else
-		   devices[devcount].int_in_ep = endpoint->bEndpointAddress;
-	       }
-	       else
-	         if (devices[devcount].int_out_ep)
-		   DBG (3, "sanei_usb_open: we already have a int-out endpoint "
-		        "(address: %d), ignoring the new one\n",
-		        devices[devcount].int_out_ep);
-	         else
-		   devices[devcount].int_out_ep = endpoint->bEndpointAddress;
-	     }
-	     else if (transfer_type == USB_ENDPOINT_TYPE_BULK)
-	     {
-	       DBG (5, "sanei_usb_open: found bulk-%s endpoint (address %2x)\n",
-	            direction ? "in" : "out", address);
-	       if (direction)	/* in */
-	         {
-		   if (devices[devcount].bulk_in_ep)
-		     DBG (3, "sanei_usb_open: we already have a bulk-in endpoint "
-		          "(address: %d), ignoring the new one\n",
-		          devices[devcount].bulk_in_ep);
-		   else
-		     devices[devcount].bulk_in_ep = endpoint->bEndpointAddress;
-	         }
-	       else
-	         {
-	           if (devices[devcount].bulk_out_ep)
-		     DBG (3, "sanei_usb_open: we already have a bulk-out endpoint "
-		          "(address: %d), ignoring the new one\n",
-		          devices[devcount].bulk_out_ep);
-	           else
-		     devices[devcount].bulk_out_ep = endpoint->bEndpointAddress;
-	         }
-	       }
+
+              if (transfer_type == USB_ENDPOINT_TYPE_INTERRUPT ||
+                  transfer_type == USB_ENDPOINT_TYPE_BULK)
+                {
+                  sanei_usb_add_endpoint(&devices[devcount], transfer_type,
+                                         endpoint->bEndpointAddress, direction);
+                }
 	     /* ignore currently unsupported endpoints */
 	     else {
 	         DBG (5, "sanei_usb_open: ignoring %s-%s endpoint "
 		      "(address: %d)\n",
-		      transfer_type == USB_ENDPOINT_TYPE_CONTROL ? "control" :
-		      transfer_type == USB_ENDPOINT_TYPE_ISOCHRONOUS
-		      ? "isochronous" : "interrupt",
-		      direction ? "in" : "out", address);
+                      sanei_usb_transfer_type_desc(transfer_type),
+                      direction ? "in" : "out", address);
 	         continue;
 	          }
           break;

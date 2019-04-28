@@ -2256,7 +2256,8 @@ Parameters are separated by a blank from single-character options (e.g.\n\
                            %%m (model), %%t (type), %%i (index number), and\n\
                            %%n (newline)\n\
 -b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.pnm' `out%%d.tif'\n\
-                           `out%%d.png' or `out%%d.jpg' by default depending on --format\n");
+                           `out%%d.png' or `out%%d.jpg' by default depending on --format\n\
+                           This option is incompatible with --output-file.");
       printf ("\
     --batch-start=#        page number to start naming files with\n\
     --batch-count=#        how many pages to scan in batch mode\n\
@@ -2268,7 +2269,8 @@ Parameters are separated by a blank from single-character options (e.g.\n\
       printf ("\
     --accept-md5-only      only accept authorization requests using md5\n\
 -p, --progress             print progress messages\n\
--o, --output-file=PATH     save output to the given file instead of stdout\n\
+-o, --output-file=PATH     save output to the given file instead of stdout.\n\
+                           This option is incompatible with --batch.\n\
 -n, --dont-scan            only set options, don't actually scan\n\
 -T, --test                 test backend thoroughly\n\
 -A, --all-options          list all available backend options\n\
@@ -2277,6 +2279,12 @@ Parameters are separated by a blank from single-character options (e.g.\n\
 -B, --buffer-size=#        change input buffer size (in kB, default 32)\n");
       printf ("\
 -V, --version              print version information\n");
+    }
+
+  if (batch && output_file != NULL)
+    {
+      fprintf(stderr, "--batch and --output-file can't be used together.\n");
+      exit(1);
     }
 
   if (output_format == OUTPUT_UNKNOWN)

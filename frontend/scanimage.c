@@ -2093,8 +2093,23 @@ main (int argc, char **argv)
 	      exit(1);
 #endif
 	    }
-	  else
-	    output_format = OUTPUT_PNM;
+          else if (strcmp (optarg, "pnm") == 0)
+            {
+              output_format = OUTPUT_PNM;
+            }
+          else
+            {
+              fprintf(stderr, "Unknown output image format '%s'.\n", optarg);
+              fprintf(stderr, "Supported formats: pnm, tiff");
+#ifdef HAVE_LIBPNG
+              fprintf(stderr, ", png");
+#endif
+#ifdef HAVE_LIBJPEG
+              fprintf(stderr, ", jpeg");
+#endif
+              fprintf(stderr, ".\n");
+              exit(1);
+            }
 	  break;
 	case OPTION_MD5:
 	  accept_only_md5_auth = 1;

@@ -1971,6 +1971,43 @@ static void print_options(SANE_Device * device, SANE_Int num_dev_options, SANE_B
     fputc ('\n', stdout);
 }
 
+static int guess_output_format(const char* output_file)
+{
+  if (output_file == NULL)
+    {
+      printf("Output format is not set, using pnm as a default.\n");
+      return OUTPUT_PNM;
+    }
+
+  // if the user passes us a path with a known extension then he won't be surprised if we figure
+  // out correct --format option. No warning is necessary in that case.
+  const char* extension = strrchr(output_file, '.');
+  if (extension != NULL)
+    {
+      struct {
+        const char* extension;
+        int output_format;
+      } formats[] = {
+        { ".pnm", OUTPUT_PNM },
+        { ".png", OUTPUT_PNG },
+        { ".jpg", OUTPUT_JPEG },
+        { ".jpeg", OUTPUT_JPEG },
+        { ".tiff", OUTPUT_TIFF },
+        { ".tif", OUTPUT_TIFF }
+      };
+      for (unsigned i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i)
+        {
+          if (strcmp(extension, formats[i].extension) == 0)
+            return formats[i].output_format;
+        }
+    }
+
+  // it would be very confusing if user makes a typo in the filename and the output format changes.
+  // This is most likely not what the user wanted.
+  fprintf(stderr, "Could not guess output format from the given path and no --format given.\n");
+  exit(1);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -2288,10 +2325,7 @@ Parameters are separated by a blank from single-character options (e.g.\n\
     }
 
   if (output_format == OUTPUT_UNKNOWN)
-    {
-      printf("Output format is not set, using pnm as a default.\n");
-      output_format = OUTPUT_PNM;
-    }
+    output_format = guess_output_format(output_file);
 
   if (!devname)
     {

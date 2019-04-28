@@ -112,10 +112,11 @@ static struct option basic_options[] = {
   {0, 0, NULL, 0}
 };
 
-#define OUTPUT_PNM      0
-#define OUTPUT_TIFF     1
-#define OUTPUT_PNG      2
-#define OUTPUT_JPEG     3
+#define OUTPUT_UNKNOWN  0
+#define OUTPUT_PNM      1
+#define OUTPUT_TIFF     2
+#define OUTPUT_PNG      3
+#define OUTPUT_JPEG     4
 
 #define BASE_OPTSTRING	"d:hi:Lf:o:B::nvVTAbp"
 #define STRIP_HEIGHT	256	/* # lines we increment image height */
@@ -129,7 +130,7 @@ static int progress = 0;
 static const char* output_file = NULL;
 static int test;
 static int all;
-static int output_format = OUTPUT_PNM;
+static int output_format = OUTPUT_UNKNOWN;
 static int help;
 static int dont_scan = 0;
 static const char *prog_name;
@@ -2276,6 +2277,12 @@ Parameters are separated by a blank from single-character options (e.g.\n\
 -B, --buffer-size=#        change input buffer size (in kB, default 32)\n");
       printf ("\
 -V, --version              print version information\n");
+    }
+
+  if (output_format == OUTPUT_UNKNOWN)
+    {
+      printf("Output format is not set, using pnm as a default.\n");
+      output_format = OUTPUT_PNM;
     }
 
   if (!devname)

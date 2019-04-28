@@ -1853,7 +1853,7 @@ gl124_stop_action (Genesys_Device * dev)
 	   sane_strstatus (status));
       return status;
     }
-  usleep (100 * 1000);
+  sanei_genesys_usleep(100 * 1000);
 
   loop = 10;
   while (loop > 0)
@@ -1881,7 +1881,7 @@ gl124_stop_action (Genesys_Device * dev)
 	  return SANE_STATUS_GOOD;
 	}
 
-      usleep (100 * 1000);
+      sanei_genesys_usleep(100 * 1000);
       loop--;
     }
 
@@ -2039,7 +2039,7 @@ SANE_Status gl124_rewind(Genesys_Device * dev)
   RIE (gl124_begin_scan (dev, dev->reg, SANE_TRUE));
   do
     {
-      usleep(100*1000);
+      sanei_genesys_usleep(100*1000);
       RIE (sanei_genesys_read_register (dev, REG100, &byte));
     }
   while(byte & REG100_MOTMFLG);
@@ -2087,7 +2087,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       sanei_genesys_print_status (val);
     }
-  usleep (100000);                /* sleep 100 ms */
+  sanei_genesys_usleep(100000);                /* sleep 100 ms */
 
   /* second is reliable */
   status = sanei_genesys_get_status (dev, &val);
@@ -2191,7 +2191,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
               dev->scanhead_position_in_steps = 0;
 	      return SANE_STATUS_GOOD;
 	    }
-	  usleep (100000);        /* sleep 100 ms */
+          sanei_genesys_usleep(100000);        /* sleep 100 ms */
 	  ++loop;
 	}
 
@@ -2603,7 +2603,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
     {
       do
         {
-          usleep(10000);
+          sanei_genesys_usleep(10000);
           status = sanei_genesys_get_status (dev, &val);
           if (status != SANE_STATUS_GOOD)
            {
@@ -2619,7 +2619,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
              return status;
            }
         } while ((val & MOTORENB) || (val40 & REG100_MOTMFLG));
-        usleep(50000);
+        sanei_genesys_usleep(50000);
     }
 
   /* ensure head is parked in case of calibration */

@@ -506,7 +506,7 @@ gl846_set_adi_fe (Genesys_Device * dev, uint8_t set)
   status = sanei_genesys_get_status (dev, &val8);
   while (val8 & REG41_FEBUSY)
     {
-      usleep (10000);
+      sanei_genesys_usleep(10000);
       status = sanei_genesys_get_status (dev, &val8);
     };
 
@@ -1627,7 +1627,7 @@ gl846_stop_action (Genesys_Device * dev)
       DBG(DBG_error, "%s: failed to write register 01: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  usleep (100 * 1000);
+  sanei_genesys_usleep(100 * 1000);
 
   loop = 10;
   while (loop > 0)
@@ -1653,7 +1653,7 @@ gl846_stop_action (Genesys_Device * dev)
 	  return SANE_STATUS_GOOD;
 	}
 
-      usleep (100 * 1000);
+      sanei_genesys_usleep(100 * 1000);
       loop--;
     }
 
@@ -1761,7 +1761,7 @@ gl846_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       sanei_genesys_print_status (val);
     }
-  usleep (100000);		/* sleep 100 ms */
+  sanei_genesys_usleep(100000);		/* sleep 100 ms */
 
   /* second is reliable */
   status = sanei_genesys_get_status (dev, &val);
@@ -1855,7 +1855,7 @@ gl846_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	      DBGCOMPLETED;
 	      return SANE_STATUS_GOOD;
 	    }
-	  usleep (100000);	/* sleep 100 ms */
+          sanei_genesys_usleep(100000);	/* sleep 100 ms */
 	  ++loop;
 	}
 

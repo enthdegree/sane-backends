@@ -1781,7 +1781,7 @@ gl843_stop_action (Genesys_Device * dev)
       DBG(DBG_error, "%s: failed to write register 01: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  usleep (100 * 1000);
+  sanei_genesys_usleep(100 * 1000);
 
   loop = 10;
   while (loop > 0)
@@ -1808,7 +1808,7 @@ gl843_stop_action (Genesys_Device * dev)
 	  return SANE_STATUS_GOOD;
 	}
 
-      usleep (100 * 1000);
+      sanei_genesys_usleep(100 * 1000);
       loop--;
     }
 
@@ -2285,7 +2285,7 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
               gl843_xpa_motor_off(dev);
 	      return SANE_STATUS_GOOD;
 	    }
-	  usleep (100000);	/* sleep 100 ms */
+          sanei_genesys_usleep(100000);	/* sleep 100 ms */
 	  ++loop;
 	}
 
@@ -2329,7 +2329,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  usleep (100000);		/* sleep 100 ms */
+  sanei_genesys_usleep(100000);		/* sleep 100 ms */
 
   /* second is reliable */
   status = sanei_genesys_get_status (dev, &val);
@@ -2418,7 +2418,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	      DBG(DBG_proc, "%s: finished\n", __func__);
 	      return SANE_STATUS_GOOD;
 	    }
-	  usleep (100000);	/* sleep 100 ms */
+          sanei_genesys_usleep(100000);	/* sleep 100 ms */
 	  ++loop;
 	}
 
@@ -3640,7 +3640,7 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
   RIE (gl843_init_gpio (dev));
 
   gl843_feed (dev, 300);
-  usleep (100000);
+  sanei_genesys_usleep(100000);
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;

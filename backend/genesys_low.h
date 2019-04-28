@@ -1243,6 +1243,9 @@ extern SANE_Status sanei_gl124_init_cmd_set (Genesys_Device * dev);
 // same as usleep, except that it does nothing if testing mode is enabled
 extern void sanei_genesys_usleep(unsigned int useconds);
 
+// same as sanei_genesys_usleep just that the duration is in milliseconds
+extern void sanei_genesys_sleep_ms(unsigned int milliseconds);
+
 typedef struct Genesys_Vector
 {
   char* data;

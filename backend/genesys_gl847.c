@@ -528,7 +528,7 @@ gl847_set_ad_fe (Genesys_Device * dev, uint8_t set)
   status = sanei_genesys_get_status (dev, &val8);
   while (val8 & REG41_FEBUSY)
     {
-      sanei_genesys_usleep(10000);
+      sanei_genesys_sleep_ms(10);
       status = sanei_genesys_get_status (dev, &val8);
     };
 
@@ -1642,7 +1642,7 @@ gl847_stop_action (Genesys_Device * dev)
       DBG(DBG_error, "%s: failed to write register 01: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  sanei_genesys_usleep(100 * 1000);
+  sanei_genesys_sleep_ms(100);
 
   loop = 10;
   while (loop > 0)
@@ -1668,7 +1668,7 @@ gl847_stop_action (Genesys_Device * dev)
 	  return SANE_STATUS_GOOD;
 	}
 
-      sanei_genesys_usleep(100 * 1000);
+      sanei_genesys_sleep_ms(100);
       loop--;
     }
 
@@ -1773,7 +1773,7 @@ SANE_Status gl847_rewind(Genesys_Device * dev)
   RIE (gl847_begin_scan (dev, dev->reg, SANE_TRUE));
   do
     {
-      sanei_genesys_usleep(100*1000);
+      sanei_genesys_sleep_ms(100);
       RIE (sanei_genesys_read_register (dev, REG40, &byte));
     }
   while(byte & REG40_MOTMFLG);
@@ -1823,7 +1823,7 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       sanei_genesys_print_status (val);
     }
-  sanei_genesys_usleep(100000);		/* sleep 100 ms */
+  sanei_genesys_sleep_ms(100);
 
   /* second is reliable */
   status = sanei_genesys_get_status (dev, &val);
@@ -1918,7 +1918,7 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	      DBGCOMPLETED;
 	      return SANE_STATUS_GOOD;
 	    }
-          sanei_genesys_usleep(100000);	/* sleep 100 ms */
+          sanei_genesys_sleep_ms(100);
 	  ++loop;
 	}
 

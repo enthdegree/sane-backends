@@ -2877,7 +2877,7 @@ gl841_save_power(Genesys_Device * dev, SANE_Bool enable) {
 	    sanei_genesys_read_register(dev, REG6D, &val);
 	    sanei_genesys_write_register(dev, REG6D, val | 0x80);
 
-            sanei_genesys_usleep(1000);
+            sanei_genesys_sleep_ms(1);
 
 	    /*enable GPIO9*/
 	    sanei_genesys_read_register(dev, REG6C, &val);
@@ -2891,7 +2891,7 @@ gl841_save_power(Genesys_Device * dev, SANE_Bool enable) {
 	    sanei_genesys_read_register(dev, REG6B, &val);
 	    sanei_genesys_write_register(dev, REG6B, val & ~REG6B_GPO18);
 
-            sanei_genesys_usleep(1000);
+            sanei_genesys_sleep_ms(1);
 
 	    sanei_genesys_read_register(dev, REG6D, &val);
 	    sanei_genesys_write_register(dev, REG6D, val & ~0x80);
@@ -2920,7 +2920,7 @@ gl841_save_power(Genesys_Device * dev, SANE_Bool enable) {
 	    sanei_genesys_read_register(dev, REG6D, &val);
 	    sanei_genesys_write_register(dev, REG6D, val | 0x80);
 
-            sanei_genesys_usleep(10000);
+            sanei_genesys_sleep_ms(10);
 
 	    /*disable GPIO9*/
 	    sanei_genesys_read_register(dev, REG6C, &val);
@@ -3117,7 +3117,7 @@ gl841_stop_action (Genesys_Device * dev)
 	  return SANE_STATUS_GOOD;
 	}
 
-      sanei_genesys_usleep(100*1000);
+      sanei_genesys_sleep_ms(100);
       loop--;
     }
 
@@ -3223,7 +3223,7 @@ gl841_eject_document (Genesys_Device * dev)
 	      DBG(DBG_proc, "%s: finished\n", __func__);
 	      break;
 	    }
-          sanei_genesys_usleep(100000);	/* sleep 100 ms */
+          sanei_genesys_sleep_ms(100);
 	  --loop;
 	}
 
@@ -3269,7 +3269,7 @@ gl841_eject_document (Genesys_Device * dev)
 	  break;
 	}
 
-      sanei_genesys_usleep(100000);	/* sleep 100 ms */
+      sanei_genesys_sleep_ms(100);
       ++loop;
     }
 
@@ -3306,11 +3306,11 @@ gl841_load_document (Genesys_Device * dev)
 	  /* when loading OK, document is here */
 	  dev->document = SANE_TRUE;
 
-          // give user 1000ms to place document correctly
-          sanei_genesys_usleep(1000000);
+          // give user some time to place document correctly
+          sanei_genesys_sleep_ms(1000);
 	  break;
 	}
-      sanei_genesys_usleep(100000);	/* sleep 100 ms */
+      sanei_genesys_sleep_ms(100);
       --loop;
     }
 
@@ -3537,7 +3537,7 @@ gl841_feed (Genesys_Device * dev, int steps)
 	  dev->scanhead_position_in_steps += steps;
 	  return SANE_STATUS_GOOD;
       }
-      sanei_genesys_usleep(100000);	/* sleep 100 ms */
+      sanei_genesys_sleep_ms(100);
       ++loop;
   }
 
@@ -3593,7 +3593,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       sanei_genesys_print_status (val);
     }
-  sanei_genesys_usleep(100000);		/* sleep 100 ms */
+  sanei_genesys_sleep_ms(100);
 
   /* second is reliable */
   status = sanei_genesys_get_status (dev, &val);
@@ -3672,7 +3672,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	      DBG(DBG_proc, "%s: finished\n", __func__);
 	      return SANE_STATUS_GOOD;
 	    }
-          sanei_genesys_usleep(100000);	/* sleep 100 ms */
+          sanei_genesys_sleep_ms(100);
 	  ++loop;
 	}
 

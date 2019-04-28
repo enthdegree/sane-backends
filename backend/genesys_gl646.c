@@ -2473,7 +2473,7 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		  break;	/* leave for loop */
 		}
 
-              sanei_genesys_usleep(10000UL);	/* sleep 100 ms */
+              sanei_genesys_usleep(100000UL);	/* sleep 100 ms */
 	    }
 	}
     }
@@ -2509,7 +2509,7 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		  break;	/* leave while loop */
 		}
 
-              sanei_genesys_usleep(10000UL);	/* sleep 100 ms */
+              sanei_genesys_usleep(100000UL);	/* sleep 100 ms */
 	    }
 	}
     }

@@ -981,6 +981,14 @@ SANE_String sanei_usb_testing_get_backend()
   return ret;
 }
 
+SANE_Bool sanei_usb_is_replay_mode_enabled()
+{
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    return SANE_TRUE;
+
+  return SANE_FALSE;
+}
+
 static void sanei_usb_add_endpoint(device_list_type* device,
                                    SANE_Int transfer_type,
                                    SANE_Int ep_address,

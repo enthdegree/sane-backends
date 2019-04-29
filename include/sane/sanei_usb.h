@@ -219,6 +219,11 @@ extern SANE_Status sanei_usb_testing_enable_record(SANE_String_Const path,
  */
 extern SANE_String sanei_usb_testing_get_backend();
 
+/** Returns SANE_TRUE if replay testing mode is enabled, i.e. whether we are working with fake
+ * scan data.
+ */
+extern SANE_Bool sanei_usb_is_replay_mode_enabled();
+
 /** Initialize sanei_usb.
  *
  * Call this before any other sanei_usb function.

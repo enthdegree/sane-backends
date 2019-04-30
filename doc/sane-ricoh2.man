@@ -13,6 +13,7 @@ SP-100SU
 .br
 SP-111SU
 .br
+SG-3100SNw
 .RE
 .PP
 .SH FILES

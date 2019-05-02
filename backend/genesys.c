@@ -6026,6 +6026,7 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
   dev->model = genesys_usb_device_list[i].model;
   dev->vendorId = genesys_usb_device_list[i].vendor;
   dev->productId = genesys_usb_device_list[i].product;
+  dev->usb_mode = 0;            /* i.e. unset */
   dev->already_initialized = SANE_FALSE;
 
   DBG(DBG_info, "%s: found %s flatbed scanner %s at %s\n", __func__, dev->model->vendor,

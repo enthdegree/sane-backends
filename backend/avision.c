@@ -7506,10 +7506,15 @@ reader_process (void *data)
           return status;
         }
       }
-      /* we can set anything here without fear because the process will terminate soon and take our changes with it */
+      /* We run in a separate process or thread.  In the latter case,
+         any change we make to s before the reader_process invocation
+         needs to be reverted. */
+      SANE_Int lines = s->params.lines;
       s->page += 1;
       s->params.lines = -line;
       exit_status = reader_process (s);
+      s->params.lines = lines;
+      s->page -= 1;
     }
     /* TODO:
     * else {

@@ -763,17 +763,20 @@ static char* sanei_binary_to_hex_data(const char* data, size_t size,
   return hex_data;
 }
 
+
+static void sanei_xml_set_data(xmlNode* node, const char* data)
+{
+  // FIXME: remove existing children
+  xmlAddChild(node, xmlNewText((const xmlChar*)data));
+}
+
 // Writes binary data to XML node as a child text node in the hex format of
 // '00 11 ab 3f'.
 static void sanei_xml_set_hex_data(xmlNode* node, const char* data,
                                    size_t size)
 {
   char* hex_data = sanei_binary_to_hex_data(data, size, NULL);
-
-  // FIXME: remove existing children
-
-  xmlNode* e_content = xmlNewText((const xmlChar*)hex_data);
-  xmlAddChild(node, e_content);
+  sanei_xml_set_data(node, hex_data);
   free(hex_data);
 }
 
@@ -2948,7 +2951,7 @@ static int sanei_usb_replay_next_read_bulk_packet_size(SANE_Int dn)
 
 static void sanei_usb_record_read_bulk(xmlNode* node, SANE_Int dn,
                                        SANE_Byte* buffer,
-                                       size_t size, size_t read_size)
+                                       size_t size, ssize_t read_size)
 {
   int node_was_null = node == NULL;
   if (node_was_null)
@@ -2967,7 +2970,14 @@ static void sanei_usb_record_read_bulk(xmlNode* node, SANE_Int dn,
     }
   else
     {
-      sanei_xml_set_hex_data(e_tx, (const char*)buffer, read_size);
+      if (read_size >= 0)
+        {
+          sanei_xml_set_hex_data(e_tx, (const char*)buffer, read_size);
+        }
+      else
+        {
+          xmlNewProp(e_tx, (const xmlChar*)"error", (const xmlChar*)"timeout");
+        }
     }
 
   node = sanei_xml_append_command(node, node_was_null, e_tx);
@@ -3845,7 +3855,7 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 
 static void sanei_usb_record_read_int(xmlNode* node,
                                       SANE_Int dn, SANE_Byte* buffer,
-                                      size_t size, size_t read_size)
+                                      size_t size, ssize_t read_size)
 {
   (void) size;
 
@@ -3867,7 +3877,14 @@ static void sanei_usb_record_read_int(xmlNode* node,
     }
   else
     {
-      sanei_xml_set_hex_data(e_tx, (const char*)buffer, read_size);
+      if (read_size >= 0)
+        {
+          sanei_xml_set_hex_data(e_tx, (const char*)buffer, read_size);
+        }
+      else
+        {
+          xmlNewProp(e_tx, (const xmlChar*)"error", (const xmlChar*)"timeout");
+        }
     }
 
   node = sanei_xml_append_command(node, node_was_null, e_tx);

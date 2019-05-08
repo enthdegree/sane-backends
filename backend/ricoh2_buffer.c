@@ -97,7 +97,7 @@ ricoh2_buffer_create (SANE_Int  size,
   self->remain_in_line = pixels_per_line;
 
 
-  DBG (100,
+  DBG (192,
        "size = %d pixels_per_line = %d info_size = %d rgb? = %d pos = %d\n",
        self->size,
        self->pixels_per_line,
@@ -121,12 +121,12 @@ static SANE_Byte *
 ricoh2_buffer_get_internal_buffer (ricoh2_buffer *self)
 {
   assert (self);
-  DBG (100, "engaging a buffer of size %d\n", self->size);
+  DBG (192, "engaging a buffer of size %d\n", self->size);
 
   self->current_position = 0;
   self->remain_in_line = self->pixels_per_line;
 
-  DBG (100, "remain in line = %d\n", self->remain_in_line);
+  DBG (192, "remain in line = %d\n", self->remain_in_line);
 
   return self->data;
 }
@@ -136,7 +136,7 @@ ricoh2_buffer_get_bytes_remain (ricoh2_buffer *self)
 {
   assert (self);
 
-  DBG (100,
+  DBG (192,
        "bytes remain in the buffer %d\n",
        self->size - self->current_position);
 
@@ -168,7 +168,7 @@ ricoh2_buffer_get_data (ricoh2_buffer *self,
   bytes_per_pixel = self->is_rgb ? 3 : 1;
   bytes_per_color = self->pixels_per_line + self->info_size;
 
-  DBG (2,
+  DBG (192,
        "trying to get %d bytes from the buffer, "
        "while %d bytes in the line\n",
        dest_size,
@@ -181,7 +181,7 @@ ricoh2_buffer_get_data (ricoh2_buffer *self,
        min (dest_size / bytes_per_pixel, self->remain_in_line))
     {
 
-      DBG (2,
+      DBG (192,
            "providing %d bytes to the user (until the end of the line), "
            "position in buffer is %d\n",
            pixels_to_copy * bytes_per_pixel,
@@ -212,12 +212,12 @@ ricoh2_buffer_get_data (ricoh2_buffer *self,
           if (self->is_rgb)
             self->current_position += 2 * bytes_per_color;
           self->remain_in_line = self->pixels_per_line;
-          DBG (100,
+          DBG (192,
                "Line feed, new position is %d\n",
                self->current_position);
         }
 
-      DBG (100,
+      DBG (192,
            "left in the buffer: %d\n",
            self->size - self->current_position);
     }

@@ -3597,7 +3597,7 @@ gl646_led_calibration (Genesys_Device * dev)
   /* colors * bytes_per_color * scan lines */
   total_size = settings.pixels * channels * 2 * 1;
 
-  line = malloc (total_size);
+  line = (uint8_t*) malloc(total_size);
   if (!line)
     {
       DBG(DBG_error, "%s: failed to allocate %d bytes\n", __func__, total_size);
@@ -4808,7 +4808,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   size *= bpp;
   if (settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     size *= 3;
-  *data = malloc (size);
+  *data = (uint8_t*) malloc(size);
   if (!*data)
     {
       DBG(DBG_error, "%s: failed to allocate %d bytes of memory\n", __func__, size);

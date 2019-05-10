@@ -2477,7 +2477,7 @@ gl124_search_start_position (Genesys_Device * dev)
 
   size = pixels * dev->model->search_lines;
 
-  data = malloc (size);
+  data = (uint8_t*) malloc (size);
   if (!data)
     {
       DBG(DBG_error, "%s: failed to allocate memory\n", __func__);
@@ -2988,7 +2988,7 @@ move_to_calibration_area (Genesys_Device * dev)
     }
 
   size = pixels * 3;
-  line = malloc (size);
+  line = (uint8_t*) malloc (size);
   if (!line)
     return SANE_STATUS_NO_MEM;
 
@@ -3088,7 +3088,7 @@ gl124_led_calibration (Genesys_Device * dev)
     }
 
   total_size = num_pixels * channels * (depth/8) * 1;        /* colors * bytes_per_color * scan lines */
-  line = malloc (total_size);
+  line = (uint8_t*) malloc (total_size);
   if (!line)
     return SANE_STATUS_NO_MEM;
 
@@ -3281,11 +3281,11 @@ gl124_offset_calibration (Genesys_Device * dev)
   /* allocate memory for scans */
   total_size = pixels * channels * lines * (bpp/8);        /* colors * bytes_per_color * scan lines */
 
-  first_line = malloc (total_size);
+  first_line = (uint8_t*) malloc(total_size);
   if (!first_line)
     return SANE_STATUS_NO_MEM;
 
-  second_line = malloc (total_size);
+  second_line = (uint8_t*) malloc(total_size);
   if (!second_line)
     {
       free (first_line);
@@ -3463,7 +3463,7 @@ gl124_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   total_size = pixels * channels * (16/bpp) * lines;
 
-  line = malloc (total_size);
+  line = (uint8_t*) malloc(total_size);
   if (!line)
     return SANE_STATUS_NO_MEM;
 

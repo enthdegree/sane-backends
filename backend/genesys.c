@@ -69,7 +69,7 @@
 static SANE_Int num_devices = 0;
 static Genesys_Device *first_dev = 0;
 static Genesys_Scanner *first_handle = 0;
-static const SANE_Device **devlist = 0;
+static SANE_Device **devlist = 0;
 /* Array of newly attached devices */
 static Genesys_Device **new_dev = 0;
 /* Length of new_dev array */
@@ -988,7 +988,7 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
   else
     channels = 1;
 
-  shading_data = malloc (pixels_per_line * 4 * channels);	/* 16 bit black, 16 bit white */
+  shading_data = (uint8_t*) malloc (pixels_per_line * 4 * channels);	/* 16 bit black, 16 bit white */
   if (!shading_data)
     {
       DBG(DBG_error, "%s: failed to allocate memory\n", __func__);
@@ -1040,7 +1040,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 
   /* transformed image data */
   size = width * height;
-  image = malloc (size);
+  image = (uint8_t*) malloc (size);
   if (!image)
     {
       DBG(DBG_error, "%s: failed to allocate memory\n", __func__);
@@ -1429,14 +1429,14 @@ genesys_coarse_calibration (Genesys_Device * dev)
     25.4;
   /*       1        1               mm                      1/inch        inch/mm */
 
-  calibration_data = malloc (size);
+  calibration_data = (uint8_t*) malloc (size);
   if (!calibration_data)
     {
       DBG(DBG_error, "%s: failed to allocate memory(%d bytes)\n", __func__, size);
       return SANE_STATUS_NO_MEM;
     }
 
-  all_data = calloc (1, size * 4);
+  all_data = (uint8_t*) calloc (1, size * 4);
 
   status = dev->model->cmd_set->set_fe (dev, AFE_INIT);
   if (status != SANE_STATUS_GOOD)
@@ -1590,7 +1590,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
       memcpy (all_data + i * size, calibration_data, size);
       if (i == 3)		/* last line */
 	{
-	  SANE_Byte *all_data_8 = malloc (size * 4 / 2);
+      SANE_Byte *all_data_8 = (SANE_Byte*) malloc (size * 4 / 2);
 	  unsigned int count;
 
 	  for (count = 0; count < (unsigned int) (size * 4 / 2); count++)
@@ -1743,7 +1743,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 
   dev->average_size = channels * 2 * pixels_per_line;
 
-  dev->dark_average_data = malloc (dev->average_size);
+  dev->dark_average_data = (uint8_t*) malloc(dev->average_size);
   if (!dev->dark_average_data)
     {
       DBG(DBG_error, "%s: failed to allocate average memory\n", __func__);
@@ -1753,7 +1753,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   /* size is size in bytes for scanarea: bytes_per_line * lines */
   size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
 
-  calibration_data = malloc (size);
+  calibration_data = (uint8_t*) malloc(size);
   if (!calibration_data)
     {
       DBG(DBG_error, "%s: failed to allocate calibration data memory\n", __func__);
@@ -1860,7 +1860,7 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
   FREE_IFNOT_NULL (dev->dark_average_data);
 
   dev->average_size = channels * 2 * pixels_per_line;
-  dev->dark_average_data = malloc (dev->average_size);
+  dev->dark_average_data = (uint8_t*) malloc(dev->average_size);
   if (!dev->dark_average_data)
     {
       DBG(DBG_error, "%s: failed to allocate average memory\n", __func__);
@@ -1955,7 +1955,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   if (dev->white_average_data)
     free (dev->white_average_data);
 
-  dev->white_average_data = malloc (channels * 2 * pixels_per_line);
+  dev->white_average_data = (uint8_t*) malloc(channels * 2 * pixels_per_line);
   if (!dev->white_average_data)
     {
       DBG(DBG_error, "%s: failed to allocate average memory\n", __func__);
@@ -1964,7 +1964,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 
   size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
 
-  calibration_data = malloc (size);
+  calibration_data = (uint8_t*) malloc(size);
   if (!calibration_data)
     {
       DBG(DBG_error, "%s: failed to allocate calibration memory\n", __func__);
@@ -2096,7 +2096,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   dev->average_size = channels * 2 * pixels_per_line;
 
-  dev->white_average_data = malloc (dev->average_size);
+  dev->white_average_data = (uint8_t*) malloc(dev->average_size);
   if (!dev->white_average_data)
     {
       DBG(DBG_error, "%s: failed to allocate white average memory\n", __func__);
@@ -2106,7 +2106,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (dev->dark_average_data)
     free (dev->dark_average_data);
 
-  dev->dark_average_data = malloc (channels * 2 * pixels_per_line);
+  dev->dark_average_data = (uint8_t*) malloc(channels * 2 * pixels_per_line);
   if (!dev->dark_average_data)
     {
       DBG(DBG_error, "%s: failed to allocate dark average memory\n", __func__);
@@ -2115,7 +2115,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   size = channels * 2 * pixels_per_line * dev->calib_lines;
 
-  calibration_data = malloc (size);
+  calibration_data = (uint8_t*) malloc(size);
   if (!calibration_data)
     {
       DBG(DBG_error, "%s: failed to allocate calibration memory\n", __func__);
@@ -2789,7 +2789,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   length = words_per_color * 3 * 2;
 
   /* allocate computed size */
-  shading_data = malloc (length);
+  shading_data = (uint8_t*) malloc(length);
   if (!shading_data)
     {
       DBG (DBG_error, "%s: failed to allocate memory\n", __func__);
@@ -2964,7 +2964,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
         words_per_color=pixels_per_line*2;
         length = words_per_color * 3 * 2;
         free(shading_data);
-        shading_data = malloc (length);
+        shading_data = (uint8_t*) malloc(length);
         if (!shading_data)
           {
             DBG (DBG_error, "%s: failed to allocate memory\n", __func__);
@@ -3159,7 +3159,7 @@ genesys_save_calibration (Genesys_Device * dev)
   else
     {
       /* create a new cache entry and insert it in the linked list */
-      cache = malloc (sizeof (Genesys_Calibration_Cache));
+      cache = (Genesys_Calibration_Cache*) malloc(sizeof (Genesys_Calibration_Cache));
       if (!cache)
 	return SANE_STATUS_NO_MEM;
 
@@ -3550,7 +3550,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
   if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION))
     {
       FREE_IFNOT_NULL (dev->dark_average_data);
-      dev->dark_average_data = malloc (dev->average_size);
+      dev->dark_average_data = (uint8_t*) malloc(dev->average_size);
       memset (dev->dark_average_data, 0x0f, dev->average_size);
       /* XXX STEF XXX
        * with black point in white shading, build an average black
@@ -3668,11 +3668,11 @@ genesys_warmup_lamp (Genesys_Device * dev)
     }
 
   dev->model->cmd_set->init_regs_for_warmup (dev, dev->reg, &channels, &total_size);
-  first_line = malloc (total_size);
+  first_line = (uint8_t*) malloc(total_size);
   if (!first_line)
     return SANE_STATUS_NO_MEM;
 
-  second_line = malloc (total_size);
+  second_line = (uint8_t*) malloc(total_size);
   if (!second_line)
     {
       free(first_line);
@@ -5214,7 +5214,7 @@ GENESYS_STATIC char *calibration_filename(Genesys_Device *currdev)
   unsigned int i;
 
   /* allocate space for result */
-  tmpstr=malloc(PATH_MAX);
+  tmpstr = (char*) malloc(PATH_MAX);
   if(tmpstr==NULL)
     {
       return NULL;
@@ -5390,7 +5390,7 @@ init_options (Genesys_Scanner * s)
           min_dpi=model->xdpi_values[count];
         }
     }
-  dpi_list = malloc ((count + 1) * sizeof (SANE_Word));
+  dpi_list = (SANE_Word*) malloc((count + 1) * sizeof(SANE_Word));
   if (!dpi_list)
     return SANE_STATUS_NO_MEM;
   dpi_list[0] = count;
@@ -6000,7 +6000,7 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
       if (vendor == genesys_usb_device_list[i].vendor &&
 	  product == genesys_usb_device_list[i].product)
 	{
-	  dev = malloc (sizeof (*dev));
+      dev = (Genesys_Device*) malloc(sizeof (*dev));
 	  if (!dev)
 	    return SANE_STATUS_NO_MEM;
 	  break;
@@ -6061,11 +6061,11 @@ attach_one_device (SANE_String_Const devname)
 	  if (new_dev)
             {
               tmp_dev = new_dev;
-	      new_dev = realloc (new_dev, new_dev_alloced * sizeof (new_dev[0]));
+              new_dev = (Genesys_Device**) realloc(new_dev, new_dev_alloced * sizeof (new_dev[0]));
             }
 	  else
             {
-	      new_dev = malloc (new_dev_alloced * sizeof (new_dev[0]));
+              new_dev = (Genesys_Device**) malloc(new_dev_alloced * sizeof (new_dev[0]));
               tmp_dev = NULL;
             }
 	  if (!new_dev)
@@ -6520,7 +6520,7 @@ sane_exit (void)
 }
 
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
+sane_get_devices(const SANE_Device *** device_list, SANE_Bool local_only)
 {
   Genesys_Device *dev, *prev;
   SANE_Int index;
@@ -6536,7 +6536,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   if (devlist)
     free (devlist);
 
-  devlist = malloc ((num_devices + 1) * sizeof (devlist[0]));
+  devlist = (SANE_Device**) malloc((num_devices + 1) * sizeof (devlist[0]));
   if (!devlist)
     return SANE_STATUS_NO_MEM;
 
@@ -6550,7 +6550,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
       sanei_usb_find_devices (dev->vendorId, dev->productId, check_present);
       if (present)
 	{
-	  sane_device = malloc (sizeof (*sane_device));
+      sane_device = (SANE_Device*) malloc(sizeof (*sane_device));
 	  if (!sane_device)
 	    return SANE_STATUS_NO_MEM;
 	  sane_device->name = dev->file_name;
@@ -6601,7 +6601,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     }
   devlist[index] = 0;
 
-  *device_list = devlist;
+  *((SANE_Device ***)device_list) = devlist;
 
   DBGCOMPLETED;
 
@@ -6669,7 +6669,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     }
 
 
-  s = malloc (sizeof (*s));
+  s = (Genesys_Scanner*) malloc(sizeof (*s));
   if (!s)
     return SANE_STATUS_NO_MEM;
 
@@ -6842,7 +6842,7 @@ sane_close (SANE_Handle handle)
 const SANE_Option_Descriptor *
 sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
-  Genesys_Scanner *s = handle;
+  Genesys_Scanner *s = (Genesys_Scanner*) handle;
 
   if ((unsigned) option >= NUM_OPTIONS)
     return 0;
@@ -6913,7 +6913,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_COLOR_FILTER:
     case OPT_CALIBRATION_FILE:
     case OPT_SOURCE:
-      strcpy (val, s->val[option].s);
+      strcpy((char*) val, s->val[option].s);
       break;
 
       /* word array options */
@@ -7002,7 +7002,7 @@ static SANE_Status set_calibration_value (Genesys_Scanner * s, int option, void 
 
   /* try to load file */
   tmp=dev->calib_file;
-  dev->calib_file=val;
+  dev->calib_file = (char*) val;
   status=sanei_genesys_read_calibration (dev);
 
   /* file exists but is invalid, so fall back to previous cache file
@@ -7017,10 +7017,10 @@ static SANE_Status set_calibration_value (Genesys_Scanner * s, int option, void 
   /* now we can set file name value */
   if (s->val[option].s)
     free (s->val[option].s);
-  s->val[option].s = strdup (val);
+  s->val[option].s = strdup((char*) val);
   if (tmp)
     free (tmp);
-  dev->calib_file = strdup (val);
+  dev->calib_file = strdup((char*) val);
   DBG(DBG_info, "%s: Calibration filename set to:\n", __func__);
   DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file);
 
@@ -7109,11 +7109,11 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
     case OPT_SOURCE:
-      if (strcmp (s->val[option].s, val) != 0)
+      if (strcmp (s->val[option].s, (char*) val) != 0)
 	{			/* something changed */
 	  if (s->val[option].s)
 	    free (s->val[option].s);
-	  s->val[option].s = strdup (val);
+      s->val[option].s = strdup((char*) val);
 
           /* change geometry constraint to the new source value */
           if (strcmp (s->val[option].s, FLATBED) == 0)
@@ -7150,7 +7150,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     case OPT_MODE:
       if (s->val[option].s)
 	free (s->val[option].s);
-      s->val[option].s = strdup (val);
+      s->val[option].s = strdup((char*) val);
 
       if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	{
@@ -7212,7 +7212,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     case OPT_COLOR_FILTER:
       if (s->val[option].s)
 	free (s->val[option].s);
-      s->val[option].s = strdup (val);
+      s->val[option].s = strdup((char*) val);
       RIE (calc_parameters (s));
       break;
     case OPT_CALIBRATION_FILE:
@@ -7351,7 +7351,7 @@ SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
 		     SANE_Action action, void *val, SANE_Int * info)
 {
-  Genesys_Scanner *s = handle;
+  Genesys_Scanner *s = (Genesys_Scanner*) handle;
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word cap;
   SANE_Int myinfo = 0;
@@ -7434,7 +7434,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
-  Genesys_Scanner *s = handle;
+  Genesys_Scanner *s = (Genesys_Scanner*) handle;
   SANE_Status status;
 
   DBGSTART;
@@ -7469,7 +7469,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 SANE_Status
 sane_start (SANE_Handle handle)
 {
-  Genesys_Scanner *s = handle;
+  Genesys_Scanner *s = (Genesys_Scanner*) handle;
   SANE_Status status=SANE_STATUS_GOOD;
 
   DBGSTART;
@@ -7561,7 +7561,7 @@ SANE_Status
 sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	   SANE_Int * len)
 {
-  Genesys_Scanner *s = handle;
+  Genesys_Scanner *s = (Genesys_Scanner*) handle;
   Genesys_Device *dev;
   SANE_Status status=SANE_STATUS_GOOD;
   size_t local_len;
@@ -7694,7 +7694,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 void
 sane_cancel (SANE_Handle handle)
 {
-  Genesys_Scanner *s = handle;
+  Genesys_Scanner *s = (Genesys_Scanner*) handle;
   SANE_Status status = SANE_STATUS_GOOD;
 
   DBGSTART;
@@ -7769,7 +7769,7 @@ sane_cancel (SANE_Handle handle)
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
-  Genesys_Scanner *s = handle;
+  Genesys_Scanner *s = (Genesys_Scanner*) handle;
 
   DBG(DBG_proc, "%s: handle = %p, non_blocking = %s\n", __func__, handle,
       non_blocking == SANE_TRUE ? "true" : "false");
@@ -7787,7 +7787,7 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
-  Genesys_Scanner *s = handle;
+  Genesys_Scanner *s = (Genesys_Scanner*) handle;
 
   DBG(DBG_proc, "%s: handle = %p, fd = %p\n", __func__, handle, (void *) fd);
 

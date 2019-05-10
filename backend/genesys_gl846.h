@@ -570,7 +570,7 @@ static Gpio_Profile gpios[]={
 
 typedef struct
 {
-  char    *model;
+  const char *model;
   uint8_t dramsel;
   /* shading data address */
   uint8_t rd0;

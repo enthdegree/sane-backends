@@ -85,7 +85,7 @@ sanei_genesys_init_cmd_set (Genesys_Device * dev)
 /* Write data to a pnm file (e.g. calibration). For debugging only */
 /* data is RGB or grey, with little endian byte order */
 SANE_Status
-sanei_genesys_write_pnm_file (char *filename, uint8_t * data, int depth,
+sanei_genesys_write_pnm_file (const char *filename, uint8_t * data, int depth,
 			      int channels, int pixels_per_line, int lines)
 {
   FILE *out;

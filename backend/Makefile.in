@@ -717,9 +717,9 @@ libsane_genesys_la_DEPENDENCIES = $(COMMON_LIBS) libgenesys.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 nodist_libsane_genesys_la_OBJECTS = libsane_genesys_la-genesys-s.lo
 libsane_genesys_la_OBJECTS = $(nodist_libsane_genesys_la_OBJECTS)
-libsane_genesys_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
-	$(AM_CFLAGS) $(CFLAGS) $(libsane_genesys_la_LDFLAGS) \
+libsane_genesys_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(libsane_genesys_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
 libsane_gphoto2_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(COMMON_LIBS) \
 	libgphoto2_i.la ../sanei/sanei_init_debug.lo \
@@ -1593,6 +1593,24 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CXXFLAGS) $(CXXFLAGS)
+AM_V_CXX = $(am__v_CXX_@AM_V@)
+am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
+am__v_CXX_0 = @echo "  CXX     " $@;
+am__v_CXX_1 = 
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
+am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
+am__v_CXXLD_0 = @echo "  CXXLD   " $@;
+am__v_CXXLD_1 = 
 SOURCES = $(libabaton_la_SOURCES) $(libagfafocus_la_SOURCES) \
 	$(libapple_la_SOURCES) $(libartec_la_SOURCES) \
 	$(libartec_eplus48u_la_SOURCES) $(libas6e_la_SOURCES) \
@@ -2055,8 +2073,8 @@ EXTRA_DIST = sane_strstatus.c stubs.c saned.conf.in abaton.conf.in \
 	coolscan3.conf.in dc25.conf.in dc210.conf.in dc240.conf.in \
 	dell1600n_net.conf.in dmc.conf.in epjitsu.conf.in \
 	epson.conf.in epson2.conf.in epsonds.conf.in fujitsu.conf.in \
-	genesys.conf.in genesys_conv.c genesys_conv_hlp.c \
-	genesys_devices.c gphoto2.conf.in gt68xx.conf.in \
+	genesys.conf.in genesys_conv.cc genesys_conv_hlp.cc \
+	genesys_devices.cc gphoto2.conf.in gt68xx.conf.in \
 	gt68xx_devices.c gt68xx_generic.c gt68xx_generic.h \
 	gt68xx_gt6801.c gt68xx_gt6801.h gt68xx_gt6816.c \
 	gt68xx_gt6816.h gt68xx_high.c gt68xx_high.h gt68xx_low.c \
@@ -2405,9 +2423,9 @@ nodist_libsane_fujitsu_la_SOURCES = fujitsu-s.c
 libsane_fujitsu_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=fujitsu
 libsane_fujitsu_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_fujitsu_la_LIBADD = $(COMMON_LIBS) libfujitsu.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_magic.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
-libgenesys_la_SOURCES = genesys.c genesys.h genesys_gl646.c genesys_gl646.h genesys_gl841.c genesys_gl841.h genesys_gl843.c genesys_gl843.h genesys_gl846.c genesys_gl846.h genesys_gl847.c genesys_gl847.h genesys_gl124.c genesys_gl124.h genesys_low.c genesys_low.h
+libgenesys_la_SOURCES = genesys.cc genesys.h genesys_gl646.cc genesys_gl646.h genesys_gl841.cc genesys_gl841.h genesys_gl843.cc genesys_gl843.h genesys_gl846.cc genesys_gl846.h genesys_gl847.cc genesys_gl847.h genesys_gl124.cc genesys_gl124.h genesys_low.cc genesys_low.h
 libgenesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
-nodist_libsane_genesys_la_SOURCES = genesys-s.c
+nodist_libsane_genesys_la_SOURCES = genesys-s.cc
 libsane_genesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
 libsane_genesys_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_genesys_la_LIBADD = $(COMMON_LIBS) libgenesys.la  ../sanei/sanei_magic.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
@@ -2836,7 +2854,7 @@ all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
-.SUFFIXES: .conf.in .conf .c .lo .o .obj
+.SUFFIXES: .conf.in .conf .c .cc .lo .o .obj
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -3022,7 +3040,7 @@ libfujitsu.la: $(libfujitsu_la_OBJECTS) $(libfujitsu_la_DEPENDENCIES) $(EXTRA_li
 	$(AM_V_CCLD)$(LINK)  $(libfujitsu_la_OBJECTS) $(libfujitsu_la_LIBADD) $(LIBS)
 
 libgenesys.la: $(libgenesys_la_OBJECTS) $(libgenesys_la_DEPENDENCIES) $(EXTRA_libgenesys_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(LINK)  $(libgenesys_la_OBJECTS) $(libgenesys_la_LIBADD) $(LIBS)
+	$(AM_V_CXXLD)$(CXXLINK)  $(libgenesys_la_OBJECTS) $(libgenesys_la_LIBADD) $(LIBS)
 
 libgphoto2_i.la: $(libgphoto2_i_la_OBJECTS) $(libgphoto2_i_la_DEPENDENCIES) $(EXTRA_libgphoto2_i_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK)  $(libgphoto2_i_la_OBJECTS) $(libgphoto2_i_la_LIBADD) $(LIBS)
@@ -3238,7 +3256,7 @@ libsane-fujitsu.la: $(libsane_fujitsu_la_OBJECTS) $(libsane_fujitsu_la_DEPENDENC
 	$(AM_V_CCLD)$(libsane_fujitsu_la_LINK)  $(libsane_fujitsu_la_OBJECTS) $(libsane_fujitsu_la_LIBADD) $(LIBS)
 
 libsane-genesys.la: $(libsane_genesys_la_OBJECTS) $(libsane_genesys_la_DEPENDENCIES) $(EXTRA_libsane_genesys_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libsane_genesys_la_LINK)  $(libsane_genesys_la_OBJECTS) $(libsane_genesys_la_LIBADD) $(LIBS)
+	$(AM_V_CXXLD)$(libsane_genesys_la_LINK)  $(libsane_genesys_la_OBJECTS) $(libsane_genesys_la_LIBADD) $(LIBS)
 
 libsane-gphoto2.la: $(libsane_gphoto2_la_OBJECTS) $(libsane_gphoto2_la_DEPENDENCIES) $(EXTRA_libsane_gphoto2_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libsane_gphoto2_la_LINK)  $(libsane_gphoto2_la_OBJECTS) $(libsane_gphoto2_la_LIBADD) $(LIBS)
@@ -4074,62 +4092,6 @@ libfujitsu_la-fujitsu.lo: fujitsu.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libfujitsu_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libfujitsu_la-fujitsu.lo `test -f 'fujitsu.c' || echo '$(srcdir)/'`fujitsu.c
 
-libgenesys_la-genesys.lo: genesys.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libgenesys_la-genesys.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys.Tpo -c -o libgenesys_la-genesys.lo `test -f 'genesys.c' || echo '$(srcdir)/'`genesys.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys.Tpo $(DEPDIR)/libgenesys_la-genesys.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='genesys.c' object='libgenesys_la-genesys.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libgenesys_la-genesys.lo `test -f 'genesys.c' || echo '$(srcdir)/'`genesys.c
-
-libgenesys_la-genesys_gl646.lo: genesys_gl646.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libgenesys_la-genesys_gl646.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_gl646.Tpo -c -o libgenesys_la-genesys_gl646.lo `test -f 'genesys_gl646.c' || echo '$(srcdir)/'`genesys_gl646.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys_gl646.Tpo $(DEPDIR)/libgenesys_la-genesys_gl646.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='genesys_gl646.c' object='libgenesys_la-genesys_gl646.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libgenesys_la-genesys_gl646.lo `test -f 'genesys_gl646.c' || echo '$(srcdir)/'`genesys_gl646.c
-
-libgenesys_la-genesys_gl841.lo: genesys_gl841.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libgenesys_la-genesys_gl841.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_gl841.Tpo -c -o libgenesys_la-genesys_gl841.lo `test -f 'genesys_gl841.c' || echo '$(srcdir)/'`genesys_gl841.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys_gl841.Tpo $(DEPDIR)/libgenesys_la-genesys_gl841.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='genesys_gl841.c' object='libgenesys_la-genesys_gl841.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libgenesys_la-genesys_gl841.lo `test -f 'genesys_gl841.c' || echo '$(srcdir)/'`genesys_gl841.c
-
-libgenesys_la-genesys_gl843.lo: genesys_gl843.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libgenesys_la-genesys_gl843.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_gl843.Tpo -c -o libgenesys_la-genesys_gl843.lo `test -f 'genesys_gl843.c' || echo '$(srcdir)/'`genesys_gl843.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys_gl843.Tpo $(DEPDIR)/libgenesys_la-genesys_gl843.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='genesys_gl843.c' object='libgenesys_la-genesys_gl843.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libgenesys_la-genesys_gl843.lo `test -f 'genesys_gl843.c' || echo '$(srcdir)/'`genesys_gl843.c
-
-libgenesys_la-genesys_gl846.lo: genesys_gl846.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libgenesys_la-genesys_gl846.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_gl846.Tpo -c -o libgenesys_la-genesys_gl846.lo `test -f 'genesys_gl846.c' || echo '$(srcdir)/'`genesys_gl846.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys_gl846.Tpo $(DEPDIR)/libgenesys_la-genesys_gl846.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='genesys_gl846.c' object='libgenesys_la-genesys_gl846.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libgenesys_la-genesys_gl846.lo `test -f 'genesys_gl846.c' || echo '$(srcdir)/'`genesys_gl846.c
-
-libgenesys_la-genesys_gl847.lo: genesys_gl847.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libgenesys_la-genesys_gl847.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_gl847.Tpo -c -o libgenesys_la-genesys_gl847.lo `test -f 'genesys_gl847.c' || echo '$(srcdir)/'`genesys_gl847.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys_gl847.Tpo $(DEPDIR)/libgenesys_la-genesys_gl847.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='genesys_gl847.c' object='libgenesys_la-genesys_gl847.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libgenesys_la-genesys_gl847.lo `test -f 'genesys_gl847.c' || echo '$(srcdir)/'`genesys_gl847.c
-
-libgenesys_la-genesys_gl124.lo: genesys_gl124.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libgenesys_la-genesys_gl124.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_gl124.Tpo -c -o libgenesys_la-genesys_gl124.lo `test -f 'genesys_gl124.c' || echo '$(srcdir)/'`genesys_gl124.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys_gl124.Tpo $(DEPDIR)/libgenesys_la-genesys_gl124.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='genesys_gl124.c' object='libgenesys_la-genesys_gl124.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libgenesys_la-genesys_gl124.lo `test -f 'genesys_gl124.c' || echo '$(srcdir)/'`genesys_gl124.c
-
-libgenesys_la-genesys_low.lo: genesys_low.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libgenesys_la-genesys_low.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_low.Tpo -c -o libgenesys_la-genesys_low.lo `test -f 'genesys_low.c' || echo '$(srcdir)/'`genesys_low.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys_low.Tpo $(DEPDIR)/libgenesys_la-genesys_low.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='genesys_low.c' object='libgenesys_la-genesys_low.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libgenesys_la-genesys_low.lo `test -f 'genesys_low.c' || echo '$(srcdir)/'`genesys_low.c
-
 libgphoto2_i_la-gphoto2.lo: gphoto2.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgphoto2_i_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libgphoto2_i_la-gphoto2.lo -MD -MP -MF $(DEPDIR)/libgphoto2_i_la-gphoto2.Tpo -c -o libgphoto2_i_la-gphoto2.lo `test -f 'gphoto2.c' || echo '$(srcdir)/'`gphoto2.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgphoto2_i_la-gphoto2.Tpo $(DEPDIR)/libgphoto2_i_la-gphoto2.Plo
@@ -4816,13 +4778,6 @@ libsane_fujitsu_la-fujitsu-s.lo: fujitsu-s.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_fujitsu_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libsane_fujitsu_la-fujitsu-s.lo `test -f 'fujitsu-s.c' || echo '$(srcdir)/'`fujitsu-s.c
 
-libsane_genesys_la-genesys-s.lo: genesys-s.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_genesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libsane_genesys_la-genesys-s.lo -MD -MP -MF $(DEPDIR)/libsane_genesys_la-genesys-s.Tpo -c -o libsane_genesys_la-genesys-s.lo `test -f 'genesys-s.c' || echo '$(srcdir)/'`genesys-s.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libsane_genesys_la-genesys-s.Tpo $(DEPDIR)/libsane_genesys_la-genesys-s.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='genesys-s.c' object='libsane_genesys_la-genesys-s.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_genesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libsane_genesys_la-genesys-s.lo `test -f 'genesys-s.c' || echo '$(srcdir)/'`genesys-s.c
-
 libsane_gphoto2_la-gphoto2-s.lo: gphoto2-s.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_gphoto2_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libsane_gphoto2_la-gphoto2-s.lo -MD -MP -MF $(DEPDIR)/libsane_gphoto2_la-gphoto2-s.Tpo -c -o libsane_gphoto2_la-gphoto2-s.lo `test -f 'gphoto2-s.c' || echo '$(srcdir)/'`gphoto2-s.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libsane_gphoto2_la-gphoto2-s.Tpo $(DEPDIR)/libsane_gphoto2_la-gphoto2-s.Plo
@@ -5432,6 +5387,93 @@ libxerox_mfp_la-xerox_mfp-tcp.lo: xerox_mfp-tcp.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libxerox_mfp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libxerox_mfp_la-xerox_mfp-tcp.lo `test -f 'xerox_mfp-tcp.c' || echo '$(srcdir)/'`xerox_mfp-tcp.c
 
+.cc.o:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
+
+.cc.obj:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.cc.lo:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+
+libgenesys_la-genesys.lo: genesys.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgenesys_la-genesys.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys.Tpo -c -o libgenesys_la-genesys.lo `test -f 'genesys.cc' || echo '$(srcdir)/'`genesys.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys.Tpo $(DEPDIR)/libgenesys_la-genesys.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='genesys.cc' object='libgenesys_la-genesys.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgenesys_la-genesys.lo `test -f 'genesys.cc' || echo '$(srcdir)/'`genesys.cc
+
+libgenesys_la-genesys_gl646.lo: genesys_gl646.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgenesys_la-genesys_gl646.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_gl646.Tpo -c -o libgenesys_la-genesys_gl646.lo `test -f 'genesys_gl646.cc' || echo '$(srcdir)/'`genesys_gl646.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys_gl646.Tpo $(DEPDIR)/libgenesys_la-genesys_gl646.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='genesys_gl646.cc' object='libgenesys_la-genesys_gl646.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgenesys_la-genesys_gl646.lo `test -f 'genesys_gl646.cc' || echo '$(srcdir)/'`genesys_gl646.cc
+
+libgenesys_la-genesys_gl841.lo: genesys_gl841.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgenesys_la-genesys_gl841.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_gl841.Tpo -c -o libgenesys_la-genesys_gl841.lo `test -f 'genesys_gl841.cc' || echo '$(srcdir)/'`genesys_gl841.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys_gl841.Tpo $(DEPDIR)/libgenesys_la-genesys_gl841.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='genesys_gl841.cc' object='libgenesys_la-genesys_gl841.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgenesys_la-genesys_gl841.lo `test -f 'genesys_gl841.cc' || echo '$(srcdir)/'`genesys_gl841.cc
+
+libgenesys_la-genesys_gl843.lo: genesys_gl843.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgenesys_la-genesys_gl843.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_gl843.Tpo -c -o libgenesys_la-genesys_gl843.lo `test -f 'genesys_gl843.cc' || echo '$(srcdir)/'`genesys_gl843.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys_gl843.Tpo $(DEPDIR)/libgenesys_la-genesys_gl843.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='genesys_gl843.cc' object='libgenesys_la-genesys_gl843.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgenesys_la-genesys_gl843.lo `test -f 'genesys_gl843.cc' || echo '$(srcdir)/'`genesys_gl843.cc
+
+libgenesys_la-genesys_gl846.lo: genesys_gl846.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgenesys_la-genesys_gl846.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_gl846.Tpo -c -o libgenesys_la-genesys_gl846.lo `test -f 'genesys_gl846.cc' || echo '$(srcdir)/'`genesys_gl846.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys_gl846.Tpo $(DEPDIR)/libgenesys_la-genesys_gl846.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='genesys_gl846.cc' object='libgenesys_la-genesys_gl846.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgenesys_la-genesys_gl846.lo `test -f 'genesys_gl846.cc' || echo '$(srcdir)/'`genesys_gl846.cc
+
+libgenesys_la-genesys_gl847.lo: genesys_gl847.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgenesys_la-genesys_gl847.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_gl847.Tpo -c -o libgenesys_la-genesys_gl847.lo `test -f 'genesys_gl847.cc' || echo '$(srcdir)/'`genesys_gl847.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys_gl847.Tpo $(DEPDIR)/libgenesys_la-genesys_gl847.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='genesys_gl847.cc' object='libgenesys_la-genesys_gl847.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgenesys_la-genesys_gl847.lo `test -f 'genesys_gl847.cc' || echo '$(srcdir)/'`genesys_gl847.cc
+
+libgenesys_la-genesys_gl124.lo: genesys_gl124.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgenesys_la-genesys_gl124.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_gl124.Tpo -c -o libgenesys_la-genesys_gl124.lo `test -f 'genesys_gl124.cc' || echo '$(srcdir)/'`genesys_gl124.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys_gl124.Tpo $(DEPDIR)/libgenesys_la-genesys_gl124.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='genesys_gl124.cc' object='libgenesys_la-genesys_gl124.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgenesys_la-genesys_gl124.lo `test -f 'genesys_gl124.cc' || echo '$(srcdir)/'`genesys_gl124.cc
+
+libgenesys_la-genesys_low.lo: genesys_low.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libgenesys_la-genesys_low.lo -MD -MP -MF $(DEPDIR)/libgenesys_la-genesys_low.Tpo -c -o libgenesys_la-genesys_low.lo `test -f 'genesys_low.cc' || echo '$(srcdir)/'`genesys_low.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgenesys_la-genesys_low.Tpo $(DEPDIR)/libgenesys_la-genesys_low.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='genesys_low.cc' object='libgenesys_la-genesys_low.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libgenesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libgenesys_la-genesys_low.lo `test -f 'genesys_low.cc' || echo '$(srcdir)/'`genesys_low.cc
+
+libsane_genesys_la-genesys-s.lo: genesys-s.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_genesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libsane_genesys_la-genesys-s.lo -MD -MP -MF $(DEPDIR)/libsane_genesys_la-genesys-s.Tpo -c -o libsane_genesys_la-genesys-s.lo `test -f 'genesys-s.cc' || echo '$(srcdir)/'`genesys-s.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libsane_genesys_la-genesys-s.Tpo $(DEPDIR)/libsane_genesys_la-genesys-s.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='genesys-s.cc' object='libsane_genesys_la-genesys-s.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libsane_genesys_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libsane_genesys_la-genesys-s.lo `test -f 'genesys-s.cc' || echo '$(srcdir)/'`genesys-s.cc
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
@@ -5662,6 +5704,10 @@ all: becfg
 # FIXME: % is a GNU extension... This is only thing left requiring
 # use to use GNU make.
 %-s.c: $(srcdir)/stubs.c
+	$(AM_V_at)rm -f $@
+	$(AM_V_at)$(LN_S) $(srcdir)/stubs.c $@
+
+%-s.cc: $(srcdir)/stubs.c
 	$(AM_V_at)rm -f $@
 	$(AM_V_at)$(LN_S) $(srcdir)/stubs.c $@
 

@@ -54,7 +54,7 @@
 
 #define FUNC_NAME(f) f ## _8
 
-#include "genesys_conv_hlp.c"
+#include "genesys_conv_hlp.cc"
 
 #undef FUNC_NAME
 
@@ -69,7 +69,7 @@
 
 #define FUNC_NAME(f) f ## _16
 
-#include "genesys_conv_hlp.c"
+#include "genesys_conv_hlp.cc"
 
 #undef FUNC_NAME
 

@@ -55,6 +55,17 @@ if test "${ac_cv_c_compiler_gnu}" = "yes"; then
 fi # ac_cv_c_compiler_gnu
 ])
 
+# SANE_SET_AM_CXXFLAGS()
+# Set default AM_CXXFLAGS.
+AC_DEFUN([SANE_SET_AM_CXXFLAGS],
+[
+AX_CXX_COMPILE_STDCXX_11([noext], [mandatory])
+if test "${ac_cv_cxx_compiler_gnu}" = "yes"; then
+  AM_CXXFLAGS="$AM_CXXFLAGS -std=c++11"
+fi # ac_cv_cxx_compiler_gnu
+])
+
+
 dnl SANE_CHECK_MISSING_HEADERS
 dnl Do some sanity checks. It doesn't make sense to proceed if those headers
 dnl aren't present.

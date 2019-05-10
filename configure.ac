@@ -40,6 +40,7 @@ dnl ******************************************************************
 dnl  Set up the compiler and linker
 dnl ******************************************************************
 AC_PROG_CC
+AC_PROG_CXX
 AM_PROG_CC_C_O
 sane_save_CC=$CC
 AC_PROG_CC_C99                  dnl enables extensions to ISO C99 :-(
@@ -80,6 +81,7 @@ dnl ***********************************************************************
 dnl set compiler/linker flags
 dnl ***********************************************************************
 SANE_SET_AM_CFLAGS([$is_release])
+SANE_SET_AM_CXXFLAGS
 SANE_SET_AM_LDFLAGS
 
 dnl ***********************************************************************

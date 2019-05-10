@@ -1871,7 +1871,7 @@ void sane_cancel (SANE_Handle h)
         /* signal the reader, if any */
         if (sanei_thread_is_valid (pss->child))
         {
-            DBG( DL_INFO, ">>>>>>>> killing reader_process <<<<<<<<\n" );
+            DBG( DL_INFO, "---- killing reader_process ----\n" );
 
             sigemptyset(&(act.sa_mask));
             act.sa_flags = 0;

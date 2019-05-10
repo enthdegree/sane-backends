@@ -1107,7 +1107,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 				      int height);
 
 extern SANE_Status
-sanei_genesys_write_pnm_file (char *filename, uint8_t * data, int depth,
+sanei_genesys_write_pnm_file (const char *filename, uint8_t * data, int depth,
 			      int channels, int pixels_per_line, int lines);
 
 extern SANE_Status

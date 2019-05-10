@@ -4025,7 +4025,7 @@ gl841_search_start_position (Genesys_Device * dev)
 
   size = pixels * dev->model->search_lines;
 
-  data = malloc (size);
+  data = (uint8_t*) malloc (size);
   if (!data)
     {
       DBG(DBG_error, "%s: failed to allocate memory\n", __func__);
@@ -4468,7 +4468,7 @@ gl841_led_calibration (Genesys_Device * dev)
 
   total_size = num_pixels * channels * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
-  line = malloc (total_size);
+  line = (uint8_t*) malloc (total_size);
   if (!line)
     return SANE_STATUS_NO_MEM;
 
@@ -4679,7 +4679,7 @@ ad_fe_offset_calibration (Genesys_Device * dev)
   num_pixels = dev->current_setup.pixels;
   total_size = num_pixels * 3 * 2 * 1;
 
-  line = malloc (total_size);
+  line = (uint8_t*) malloc(total_size);
   if (line==NULL)
     {
       DBGCOMPLETED;
@@ -4810,11 +4810,11 @@ gl841_offset_calibration (Genesys_Device * dev)
 
   total_size = num_pixels * channels * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
-  first_line = malloc (total_size);
+  first_line = (uint8_t*) malloc(total_size);
   if (!first_line)
     return SANE_STATUS_NO_MEM;
 
-  second_line = malloc (total_size);
+  second_line = (uint8_t*) malloc(total_size);
   if (!second_line)
     {
       free (first_line);
@@ -5219,7 +5219,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   total_size = num_pixels * channels * 2 * lines;	/* colors * bytes_per_color * scan lines */
 
-  line = malloc (total_size);
+  line = (uint8_t*) malloc(total_size);
   if (!line)
     return SANE_STATUS_NO_MEM;
 
@@ -5589,7 +5589,7 @@ gl841_init (Genesys_Device * dev)
 
   size = dev->current_setup.pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
-  line = malloc (size);
+  line = (uint8_t*) malloc(size);
   if (!line)
     return SANE_STATUS_NO_MEM;
 
@@ -5715,7 +5715,7 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   depth = 8;
   pixels = (dev->sensor.sensor_pixels * dpi) / dev->sensor.optical_res;
   size = pixels * channels * lines * (depth / 8);
-  data = malloc (size);
+  data = (uint8_t*) malloc(size);
   if (!data)
     {
       DBG(DBG_error, "%s: failed to allocate memory\n", __func__);

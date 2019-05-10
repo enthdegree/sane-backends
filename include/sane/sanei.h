@@ -89,6 +89,10 @@
 
 #include <sane/sane.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** @name Public macros and functions
  * @{
  */
@@ -167,5 +171,8 @@ extern SANE_Status sanei_check_value (const SANE_Option_Descriptor * opt,
 extern SANE_Status sanei_constrain_value (const SANE_Option_Descriptor * opt,
 					  void * value, SANE_Word * info);
 
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* sanei_h */

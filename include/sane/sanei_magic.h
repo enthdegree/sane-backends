@@ -57,6 +57,10 @@
 #ifndef SANEI_MAGIC_H
 #define SANEI_MAGIC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Initialize sanei_magic.
  *
  * Call this before any other sanei_magic function.
@@ -218,5 +222,9 @@ sanei_magic_findTurn(SANE_Parameters * params, SANE_Byte * buffer,
 extern SANE_Status
 sanei_magic_turn(SANE_Parameters * params, SANE_Byte * buffer,
   int angle);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* SANEI_MAGIC_H */

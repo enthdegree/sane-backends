@@ -113,9 +113,9 @@ typedef struct Ricoh2_device_info {
 Ricoh2_device_info;
 
 static Ricoh2_device_info supported_devices[] = {
-  { 0x0448, "Aficio SP111SU"   },
   { 0x042c, "Aficio SP100SU"   },
-  { 0x0438, "Aficio SG3100SNw" }
+  { 0x0438, "Aficio SG3100SNw" },
+  { 0x0448, "Aficio SP111SU"   }
 };
 
 static SANE_String_Const mode_list[] = {

@@ -450,7 +450,7 @@ for details.
 .TP
 .B ricoh2
 The ricoh2 backend provides access to the following Ricoh flatbed
-scanners: SP-100SU, SP-111SU, and SG-3100SNw. See
+scanners: SG-3100SNw, SP-100SU, and SP-111SU. See
 .BR sane\-ricoh2 (5)
 for details.
 .TP

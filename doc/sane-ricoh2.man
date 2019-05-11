@@ -9,11 +9,11 @@ library implements a SANE (Scanner Access Now Easy) backend that
 provides access to the following Ricoh flatbed scanners:
 .PP
 .RS
+SG-3100SNw
+.br
 SP-100SU
 .br
 SP-111SU
-.br
-SG-3100SNw
 .RE
 .PP
 .SH FILES
@@ -52,6 +52,6 @@ environment variable controls the debug level for this backend. Higher
 debug levels increase the verbosity of the output.
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+sane(7), sane\-usb(5)
 .SH AUTHOR
 Stanislav Yuzvinsky

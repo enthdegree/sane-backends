@@ -52,102 +52,6 @@
 #include "genesys_gl846.h"
 
 /****************************************************************************
- Low level function
- ****************************************************************************/
-
-/* ------------------------------------------------------------------------ */
-/*                  Read and write RAM, registers and AFE                   */
-/* ------------------------------------------------------------------------ */
-
-
-/** @brief read scanned data
- * Read in 0xeff0 maximum sized blocks. This read is done in 2
- * parts if not multple of 512. First read is rounded to a multiple of 512 bytes, last read fetches the
- * remainder. Read addr is always 0x10000000 with the memory layout setup.
- * @param dev device to read data from
- * @param addr address within ASIC memory space, unused but kept for API
- * @param data pointer where to store the read data
- * @param len size to read
- */
-static SANE_Status
-gl846_bulk_read_data (Genesys_Device * dev, uint8_t addr,
-		      uint8_t * data, size_t len)
-{
-  SANE_Status status;
-  size_t size, target;
-  uint8_t outdata[8];
-  uint8_t *buffer;
-
-  DBG(DBG_io, "%s: requesting %lu bytes at addr=0x%02x\n", __func__, (u_long) len, addr);
-
-  if (len == 0)
-    return SANE_STATUS_GOOD;
-
-  target = len;
-  buffer = data;
-
-  /* loop until computed data size is read */
-  while (target)
-    {
-      if (target > 0xeff0)
-	{
-	  size = 0xeff0;
-	}
-      else
-	{
-	  size = target;
-	}
-
-      /* hard coded 0x10000000 addr */
-      outdata[0] = 0;
-      outdata[1] = 0;
-      outdata[2] = 0;
-      outdata[3] = 0x10;
-
-      /* data size to transfer */
-      outdata[4] = (size & 0xff);
-      outdata[5] = ((size >> 8) & 0xff);
-      outdata[6] = ((size >> 16) & 0xff);
-      outdata[7] = ((size >> 24) & 0xff);
-
-      status =
-	sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			       VALUE_BUFFER, 0x00, sizeof (outdata),
-			       outdata);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "%s failed while writing command: %s\n",
-	       __func__, sane_strstatus (status));
-	  return status;
-	}
-
-      DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) size);
-      status = sanei_usb_read_bulk (dev->dn, buffer, &size);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
-
-      DBG(DBG_io2, "%s: read %lu bytes, %lu remaining\n", __func__,
-          (u_long) size, (u_long) (target - size));
-
-      target -= size;
-      buffer += size;
-    }
-
-  if (DBG_LEVEL >= DBG_data && dev->binary!=NULL)
-    {
-      fwrite(data, len, 1, dev->binary);
-    }
-
-  DBGCOMPLETED;
-
-  return SANE_STATUS_GOOD;
-}
-
-/****************************************************************************
  Mid level functions
  ****************************************************************************/
 
@@ -3538,7 +3442,7 @@ static Genesys_Command_Set gl846_cmd_set = {
 
   sanei_genesys_bulk_write_register,
   NULL,
-  gl846_bulk_read_data,
+  sanei_genesys_bulk_read_data,
 
   gl846_update_hardware_sensors,
 

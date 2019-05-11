@@ -180,72 +180,6 @@ gl646_bulk_write_register (Genesys_Device * dev,
   return status;
 }
 
-/* Write bulk data (e.g. shading, gamma) */
-static SANE_Status
-gl646_bulk_write_data (Genesys_Device * dev, uint8_t addr,
-		       uint8_t * data, size_t len)
-{
-  SANE_Status status;
-  size_t size;
-  uint8_t outdata[8];
-
-  DBG(DBG_io, "%s writing %lu bytes\n", __func__, (u_long) len);
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_SET_REGISTER, INDEX, 1, &addr);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s failed while setting register: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  while (len)
-    {
-      if (len > BULKOUT_MAXSIZE)
-	size = BULKOUT_MAXSIZE;
-      else
-	size = len;
-
-      outdata[0] = BULK_OUT;
-      outdata[1] = BULK_RAM;
-      outdata[2] = 0x00;
-      outdata[3] = 0x00;
-      outdata[4] = (size & 0xff);
-      outdata[5] = ((size >> 8) & 0xff);
-      outdata[6] = ((size >> 16) & 0xff);
-      outdata[7] = ((size >> 24) & 0xff);
-
-      status =
-	sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			       VALUE_BUFFER, INDEX, sizeof (outdata),
-			       outdata);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s failed while writing command: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
-
-      status = sanei_usb_write_bulk (dev->dn, data, &size);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s failed while writing bulk data: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
-
-      DBG(DBG_io2, "%s wrote %lu bytes, %lu remaining\n", __func__, (u_long) size,
-          (u_long) (len - size));
-
-      len -= size;
-      data += size;
-    }
-
-  DBG(DBG_io, "%s: end\n", __func__);
-
-  return status;
-}
-
 /**
  * reads value from gpio endpoint
  */
@@ -1353,7 +1287,7 @@ gl646_asic_test (Genesys_Device * dev)
       return status;
     }
 
-  status = gl646_bulk_write_data (dev, 0x3c, data, size);
+  status = sanei_genesys_bulk_write_data(dev, 0x3c, data, size);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write data: %s\n", __func__, sane_strstatus(status));
@@ -1651,7 +1585,7 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
       return status;
     }
 
-  status = gl646_bulk_write_data (dev, 0x3c, (uint8_t *) table, steps * 2);
+  status = sanei_genesys_bulk_write_data(dev, 0x3c, (uint8_t *) table, steps * 2);
   if (status != SANE_STATUS_GOOD)
     {
 #ifdef WORDS_BIGENDIAN
@@ -3457,7 +3391,7 @@ gl646_send_gamma_table (Genesys_Device * dev)
     }
 
   /* send data */
-  status = gl646_bulk_write_data (dev, 0x3c, (uint8_t *) gamma, size * 2 * 3);
+  status = sanei_genesys_bulk_write_data(dev, 0x3c, (uint8_t *) gamma, size * 2 * 3);
   if (status != SANE_STATUS_GOOD)
     {
       free (gamma);
@@ -5191,7 +5125,7 @@ write_control (Genesys_Device * dev, int resolution)
       DBG(DBG_error, "%s: failed to set up control address\n", __func__);
       return SANE_STATUS_INVAL;
     }
-  status = gl646_bulk_write_data (dev, 0x3c, control, 4);
+  status = sanei_genesys_bulk_write_data(dev, 0x3c, control, 4);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set up control\n", __func__);
@@ -5493,7 +5427,7 @@ static Genesys_Command_Set gl646_cmd_set = {
   NULL,
 
   gl646_bulk_write_register,
-  gl646_bulk_write_data,
+  sanei_genesys_bulk_write_data,
   gl646_bulk_read_data,
 
   gl646_update_hardware_sensors,

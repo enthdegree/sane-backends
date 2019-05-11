@@ -344,7 +344,7 @@ SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
 SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
                                           size_t len)
 {
-    // supported: GL841, GL843
+    // supported: GL646, GL841, GL843
     SANE_Status status;
     size_t size;
     uint8_t outdata[8];

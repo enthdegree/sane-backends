@@ -53,48 +53,6 @@
 
 #include "genesys_gl646.h"
 
-/**
- * returns the value hold by a 3 word register
- * @param regs register set from which reading the value
- * @param regnum number of the register to read
- * @return 24 bit value of the register
- */
-static uint32_t
-gl646_get_triple_reg (Genesys_Register_Set * regs, int regnum)
-{
-  Genesys_Register_Set *r = NULL;
-  uint32_t ret = 0;
-
-  r = sanei_genesys_get_address (regs, regnum);
-  ret = r->value;
-  r = sanei_genesys_get_address (regs, regnum + 1);
-  ret = (ret << 8) + r->value;
-  r = sanei_genesys_get_address (regs, regnum + 2);
-  ret = (ret << 8) + r->value;
-
-  return ret;
-}
-
-/**
- * returns the value hold by a 2 word register
- * @param regs register set from which reading the value
- * @param regnum number of the register to read
- * @return 16 bit value of the register
- */
-static uint32_t
-gl646_get_double_reg (Genesys_Register_Set * regs, int regnum)
-{
-  Genesys_Register_Set *r = NULL;
-  uint32_t ret = 0;
-
-  r = sanei_genesys_get_address (regs, regnum);
-  ret = r->value;
-  r = sanei_genesys_get_address (regs, regnum + 1);
-  ret = (ret << 8) + r->value;
-
-  return ret;
-}
-
 /* Write to many registers */
 static SANE_Status
 gl646_bulk_write_register (Genesys_Device * dev,
@@ -152,27 +110,30 @@ gl646_bulk_write_register (Genesys_Device * dev,
     {
       for (i = 0; i < size; i += 2)
 	{
-	  DBG(DBG_io2, "reg[0x%02x] = 0x%02x\n", buffer[i], buffer[i + 1]);
+          DBG(DBG_io2, "reg[0x%02x] = 0x%02x\n", buffer[i], buffer[i + 1]);
 	}
       /* when full size, decode register content */
       if (elems > 60)
 	{
-	  DBG(DBG_io2, "DPISET   =%d\n",
-	      gl646_get_double_reg (reg, REG_DPISET));
-	  DBG(DBG_io2, "DUMMY    =%d\n",
-	      sanei_genesys_get_address (reg, REG_DUMMY)->value);
-	  DBG(DBG_io2, "STRPIXEL =%d\n",
-	      gl646_get_double_reg (reg, REG_STRPIXEL));
-	  DBG(DBG_io2, "ENDPIXEL =%d\n",
-	      gl646_get_double_reg (reg, REG_ENDPIXEL));
-	  DBG(DBG_io2, "LINCNT   =%d\n",
-	      gl646_get_triple_reg (reg, REG_LINCNT));
-	  DBG(DBG_io2, "MAXWD    =%d\n",
-	      gl646_get_triple_reg (reg, REG_MAXWD));
-	  DBG(DBG_io2, "LPERIOD  =%d\n",
-	      gl646_get_double_reg (reg, REG_LPERIOD));
-	  DBG(DBG_io2, "FEEDL    =%d\n",
-	      gl646_get_triple_reg (reg, REG_FEEDL));
+          uint16_t value16 = 0;
+          uint32_t value32 = 0;
+
+          sanei_genesys_get_double(reg, REG_DPISET, &value16);
+          DBG(DBG_io2, "DPISET   =%d\n", value16);
+          DBG(DBG_io2, "DUMMY    =%d\n",
+              sanei_genesys_get_address (reg, REG_DUMMY)->value);
+          sanei_genesys_get_double(reg, REG_STRPIXEL, &value16);
+          DBG(DBG_io2, "STRPIXEL =%d\n", value16);
+          sanei_genesys_get_double(reg, REG_ENDPIXEL, &value16);
+          DBG(DBG_io2, "ENDPIXEL =%d\n", value16);
+          sanei_genesys_get_triple(reg, REG_LINCNT, &value32);
+          DBG(DBG_io2, "LINCNT   =%d\n", value32);
+          sanei_genesys_get_triple(reg, REG_MAXWD, &value32);
+          DBG(DBG_io2, "MAXWD    =%d\n", value32);
+          sanei_genesys_get_double(reg, REG_LPERIOD, &value16);
+          DBG(DBG_io2, "LPERIOD  =%d\n", value16);
+          sanei_genesys_get_triple(reg, REG_FEEDL, &value32);
+          DBG(DBG_io2, "FEEDL    =%d\n", value32);
 	}
     }
 
@@ -226,31 +187,6 @@ gl646_bulk_read_data (Genesys_Device * dev, uint8_t addr,
     }
   return status;
 }
-
-#if 0
-static SANE_Status
-read_triple_reg (Genesys_Device * dev, int index, unsigned int *words)
-{
-  SANE_Status status;
-  uint8_t value;
-
-  DBG(DBG_proc, "%s\n", __func__);
-
-  RIE (sanei_genesys_read_register (dev, index + 2, &value));
-  *words = value;
-  RIE (sanei_genesys_read_register (dev, index + 1, &value));
-  *words += (value * 256);
-  RIE (sanei_genesys_read_register (dev, index, &value));
-  if (dev->model->asic_type == GENESYS_GL646)
-    *words += ((value & 0x03) * 256 * 256);
-  else
-    *words += ((value & 0x0f) * 256 * 256);
-
-  DBG(DBG_proc, "%s: value=%d\n", __func__, *words);
-  return status;
-}
-#endif
-
 
 static SANE_Bool
 gl646_get_fast_feed_bit (Genesys_Register_Set * regs)
@@ -321,30 +257,6 @@ gl646_test_motor_flag_bit (SANE_Byte val)
   if (val & REG41_MOTMFLG)
     return SANE_TRUE;
   return SANE_FALSE;
-}
-
-static void
-gl646_set_triple_reg (Genesys_Register_Set * regs, int regnum, uint32_t value)
-{
-  Genesys_Register_Set *r = NULL;
-
-  r = sanei_genesys_get_address (regs, regnum);
-  r->value = LOBYTE (HIWORD (value));
-  r = sanei_genesys_get_address (regs, regnum + 1);
-  r->value = HIBYTE (LOWORD (value));
-  r = sanei_genesys_get_address (regs, regnum + 2);
-  r->value = LOBYTE (LOWORD (value));
-}
-
-static void
-gl646_set_double_reg (Genesys_Register_Set * regs, int regnum, uint16_t value)
-{
-  Genesys_Register_Set *r = NULL;
-
-  r = sanei_genesys_get_address (regs, regnum);
-  r->value = HIBYTE (LOWORD (value));
-  r = sanei_genesys_get_address (regs, regnum + 1);
-  r->value = LOBYTE (LOWORD (value));
 }
 
 /**
@@ -908,12 +820,12 @@ gl646_setup_registers (Genesys_Device * dev,
    * color mode */
   if (dev->model->is_cis == SANE_TRUE)
     {
-      gl646_set_triple_reg (regs, REG_LINCNT, linecnt * 3);
+      sanei_genesys_set_triple(regs, REG_LINCNT, linecnt * 3);
       linecnt *= channels;
     }
   else
     {
-      gl646_set_triple_reg (regs, REG_LINCNT, linecnt);
+      sanei_genesys_set_triple(regs, REG_LINCNT, linecnt);
     }
 
   /* scanner's x coordinates are expressed in physical DPI but they must be divided by cksel */
@@ -924,8 +836,8 @@ gl646_setup_registers (Genesys_Device * dev,
       sx /= 2;
       ex /= 2;
     }
-  gl646_set_double_reg (regs, REG_STRPIXEL, sx);
-  gl646_set_double_reg (regs, REG_ENDPIXEL, ex);
+  sanei_genesys_set_double(regs, REG_STRPIXEL, sx);
+  sanei_genesys_set_double(regs, REG_ENDPIXEL, ex);
   DBG(DBG_info, "%s: startx=%d, endx=%d, half_ccd=%d\n", __func__, sx, ex, half_ccd);
 
   /* words_per_line must be computed according to the scan's resolution */
@@ -946,10 +858,10 @@ gl646_setup_registers (Genesys_Device * dev,
   dev->wpl = words_per_line;
 
   DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
-  gl646_set_triple_reg (regs, REG_MAXWD, words_per_line);
+  sanei_genesys_set_triple(regs, REG_MAXWD, words_per_line);
 
-  gl646_set_double_reg (regs, REG_DPISET, sensor->dpiset);
-  gl646_set_double_reg (regs, REG_LPERIOD, sensor->exposure);
+  sanei_genesys_set_double(regs, REG_DPISET, sensor->dpiset);
+  sanei_genesys_set_double(regs, REG_LPERIOD, sensor->exposure);
 
   /* move distance must be adjusted to take into account the extra lines
    * read to reorder data */
@@ -1073,7 +985,7 @@ gl646_setup_registers (Genesys_Device * dev,
     }
 
   DBG(DBG_info, "%s: final move=%d\n", __func__, feedl);
-  gl646_set_triple_reg (regs, REG_FEEDL, feedl);
+  sanei_genesys_set_triple(regs, REG_FEEDL, feedl);
 
   regs[reg_0x65].value = motor->mtrpwm;
 
@@ -1089,8 +1001,8 @@ gl646_setup_registers (Genesys_Device * dev,
       z1 = 0;
       z2 = 0;
     }
-  gl646_set_double_reg (regs, REG_Z1MOD, z1);
-  gl646_set_double_reg (regs, REG_Z2MOD, z2);
+  sanei_genesys_set_double(regs, REG_Z1MOD, z1);
+  sanei_genesys_set_double(regs, REG_Z2MOD, z2);
   regs[reg_0x6b].value = motor->steps2;
   regs[reg_0x6c].value =
     (regs[reg_0x6c].value & REG6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16)
@@ -2811,7 +2723,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* backward , no actual data scanned TODO more setup flags to avoid this register manipulations ? */
   dev->reg[reg_0x02].value |= REG02_MTRREV;
   dev->reg[reg_0x01].value &= ~REG01_SCAN;
-  gl646_set_triple_reg (dev->reg, REG_FEEDL, 65535);
+  sanei_genesys_set_triple(dev->reg, REG_FEEDL, 65535);
 
   /* sets frontend */
   status = gl646_set_fe (dev, AFE_SET, settings.xres);
@@ -3075,11 +2987,11 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   /* enforce needed LINCNT, getting rid of extra lines for color reordering */
   if (dev->model->is_cis == SANE_FALSE)
     {
-      gl646_set_triple_reg (dev->reg, REG_LINCNT, dev->calib_lines);
+      sanei_genesys_set_triple(dev->reg, REG_LINCNT, dev->calib_lines);
     }
   else
     {
-      gl646_set_triple_reg (dev->reg, REG_LINCNT, dev->calib_lines * 3);
+      sanei_genesys_set_triple(dev->reg, REG_LINCNT, dev->calib_lines * 3);
     }
 
   /* copy reg to calib_reg */
@@ -4252,7 +4164,9 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
 
   /* returned value to higher level warmup function */
   *channels = 1;
-  lines = gl646_get_triple_reg (local_reg, REG_LINCNT) + 1;
+  uint32_t value = 0;
+  RIE(sanei_genesys_get_triple(local_reg, REG_LINCNT, &value));
+  lines = value + 1;
   *total_size = lines * settings.pixels;
 
   /* now registers are ok, write them to scanner */
@@ -4320,7 +4234,9 @@ gl646_repark_head (Genesys_Device * dev)
       return status;
     }
 
-  expected = gl646_get_triple_reg (dev->reg, REG_FEEDL);
+  uint32_t value32 = 0;
+  RIE(sanei_genesys_get_triple(dev->reg, REG_FEEDL, &value32));
+  expected = value32;
   do
     {
       usleep (100 * 1000);
@@ -4669,11 +4585,15 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   /* allocate memory fo scan : LINCNT may have been adjusted for CCD reordering */
   if (dev->model->is_cis == SANE_TRUE)
     {
-      lines = gl646_get_triple_reg (dev->reg, REG_LINCNT) / 3;
+      uint32_t value = 0;
+      RIE(sanei_genesys_get_triple(dev->reg, REG_LINCNT, &value));
+      lines = value / 3;
     }
   else
     {
-      lines = gl646_get_triple_reg (dev->reg, REG_LINCNT) + 1;
+      uint32_t value = 0;
+      RIE(sanei_genesys_get_triple(dev->reg, REG_LINCNT, &value));
+      lines = value + 1;
     }
   size = lines * settings.pixels;
   if (settings.depth == 16)

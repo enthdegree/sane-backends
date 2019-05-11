@@ -341,6 +341,64 @@ SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
     return SANE_STATUS_GOOD;
 }
 
+SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
+                                          size_t len)
+{
+    SANE_Status status;
+    size_t size;
+    uint8_t outdata[8];
+
+    DBGSTART;
+    DBG(DBG_io, "%s writing %lu bytes\n", __func__, (u_long) len);
+
+    status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
+                                   VALUE_SET_REGISTER, INDEX, 1, &addr);
+    if (status != SANE_STATUS_GOOD) {
+        DBG(DBG_error, "%s failed while setting register: %s\n", __func__, sane_strstatus(status));
+        return status;
+    }
+
+    while (len) {
+        if(len>65472)
+          size=65472;
+        else
+          size = len;
+
+        outdata[0] = BULK_OUT;
+        outdata[1] = BULK_RAM;
+        outdata[2] = 0x00;
+        outdata[3] = 0x00;
+        outdata[4] = (size & 0xff);
+        outdata[5] = ((size >> 8) & 0xff);
+        outdata[6] = ((size >> 16) & 0xff);
+        outdata[7] = ((size >> 24) & 0xff);
+
+        status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
+                                       VALUE_BUFFER, 0x00, sizeof (outdata), outdata);
+
+        if (status != SANE_STATUS_GOOD) {
+            DBG(DBG_error, "%s failed while writing command: %s\n", __func__, sane_strstatus(status));
+            return status;
+        }
+
+        status = sanei_usb_write_bulk (dev->dn, data, &size);
+        if (status != SANE_STATUS_GOOD) {
+            DBG(DBG_error, "%s failed while writing bulk data: %s\n", __func__,
+                sane_strstatus(status));
+            return status;
+        }
+
+        DBG(DBG_io2, "%s: wrote %lu bytes, %lu remaining\n", __func__, (u_long) size,
+            (u_long) (len - size));
+
+        len -= size;
+        data += size;
+    }
+
+    DBGCOMPLETED;
+    return status;
+}
+
 /** @brief write to one high (addr >= 0x100) register
  * write to a register which address is higher than 0xff.
  * @param dev opened device to write to

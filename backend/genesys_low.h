@@ -997,6 +997,9 @@ extern unsigned sanei_genesys_get_bulk_max_size(Genesys_Device * dev);
 extern SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
                                                 size_t len);
 
+extern SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
+                                                 size_t len);
+
 extern SANE_Status sanei_genesys_get_status (Genesys_Device * dev, uint8_t * status);
 
 extern void sanei_genesys_print_status (uint8_t val);

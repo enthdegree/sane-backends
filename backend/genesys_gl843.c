@@ -55,74 +55,6 @@
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
 
-
-/**
- * Write bulk data (e.g. gamma or shading data) */
-static SANE_Status
-gl843_bulk_write_data (Genesys_Device * dev, uint8_t addr,
-		       uint8_t * data, size_t len)
-{
-  SANE_Status status;
-  size_t size;
-  uint8_t outdata[8];
-
-  DBGSTART;
-  DBG(DBG_io, "%s writing %lu bytes\n", __func__, (u_long) len);
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_SET_REGISTER, INDEX, 1, &addr);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s failed while setting register: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  while (len)
-    {
-      if(len>65472)
-        size=65472;
-      else
-        size = len;
-
-      outdata[0] = BULK_OUT;
-      outdata[1] = BULK_RAM;
-      outdata[2] = 0x00;
-      outdata[3] = 0x00;
-      outdata[4] = (size & 0xff);
-      outdata[5] = ((size >> 8) & 0xff);
-      outdata[6] = ((size >> 16) & 0xff);
-      outdata[7] = ((size >> 24) & 0xff);
-
-      status =
-	sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			       VALUE_BUFFER, INDEX, sizeof (outdata),
-			       outdata);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s failed while writing command: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
-
-      status = sanei_usb_write_bulk (dev->dn, data, &size);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s failed while writing bulk data: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
-
-      DBG(DBG_io2, "%s: wrote %lu bytes, %lu remaining\n", __func__, (u_long) size,
-          (u_long) (len - size));
-
-      len -= size;
-      data += size;
-    }
-
-  DBGCOMPLETED;
-  return status;
-}
-
 /* Set address for writing data */
 static SANE_Status
 gl843_set_buffer_address (Genesys_Device * dev, uint32_t addr)
@@ -174,7 +106,7 @@ write_data (Genesys_Device * dev, uint32_t addr, uint32_t size,
     }
 
   /* write actual data */
-  status = gl843_bulk_write_data (dev, 0x28, data, size);
+  status = sanei_genesys_bulk_write_data(dev, 0x28, data, size);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed while writing bulk write data: %s\n", __func__,
@@ -2933,7 +2865,7 @@ gl843_send_gamma_table (Genesys_Device * dev)
     }
 
   /* send data */
-  status = gl843_bulk_write_data (dev, 0x28, (uint8_t *) gamma, size * 2 * 3);
+  status = sanei_genesys_bulk_write_data(dev, 0x28, (uint8_t *) gamma, size * 2 * 3);
   if (status != SANE_STATUS_GOOD)
     {
       free (gamma);
@@ -4197,7 +4129,7 @@ static Genesys_Command_Set gl843_cmd_set = {
   NULL,
 
   sanei_genesys_bulk_write_register,
-  gl843_bulk_write_data,
+  sanei_genesys_bulk_write_data,
   sanei_genesys_bulk_read_data,
 
   gl843_update_hardware_sensors,

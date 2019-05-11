@@ -1107,6 +1107,8 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 				      int start_pixel, int dpi, int width,
 				      int height);
 
+extern SANE_Status sanei_genesys_write_file(char *filename, uint8_t* data, size_t length);
+
 extern SANE_Status
 sanei_genesys_write_pnm_file (const char *filename, uint8_t * data, int depth,
 			      int channels, int pixels_per_line, int lines);
@@ -1239,5 +1241,28 @@ extern SANE_Status sanei_gl843_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl846_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl847_init_cmd_set (Genesys_Device * dev);
 extern SANE_Status sanei_gl124_init_cmd_set (Genesys_Device * dev);
+
+// same as usleep, except that it does nothing if testing mode is enabled
+extern void sanei_genesys_usleep(unsigned int useconds);
+
+// same as sanei_genesys_usleep just that the duration is in milliseconds
+extern void sanei_genesys_sleep_ms(unsigned int milliseconds);
+
+typedef struct Genesys_Vector
+{
+  char* data;
+  size_t capacity; // capacity in elements
+  size_t size; // size in elements
+  size_t element_size;
+} Genesys_Vector;
+
+extern Genesys_Vector sanei_gl_vector_create(size_t element_size);
+extern void sanei_gl_vector_reserve(Genesys_Vector* v, size_t count);
+extern void sanei_gl_vector_resize(Genesys_Vector* v, size_t count);
+extern void sanei_gl_vector_append(Genesys_Vector* v, void* data, size_t count);
+extern void sanei_gl_vector_append_zero(Genesys_Vector* v, size_t count);
+extern void* sanei_gl_vector_get_element(Genesys_Vector* v, size_t i);
+extern void sanei_gl_vector_set_element(Genesys_Vector* v, void* data, size_t i);
+extern void sanei_gl_vector_destroy(Genesys_Vector* v);
 
 #endif /* not GENESYS_LOW_H */

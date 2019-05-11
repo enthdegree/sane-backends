@@ -45,6 +45,7 @@
 #define BACKEND_NAME genesys_low
 
 #include "genesys_low.h"
+#include "assert.h"
 
 /* ------------------------------------------------------------------------ */
 /*                  functions calling ASIC specific functions               */
@@ -81,6 +82,23 @@ sanei_genesys_init_cmd_set (Genesys_Device * dev)
 /* ------------------------------------------------------------------------ */
 /*                  General IO and debugging functions                      */
 /* ------------------------------------------------------------------------ */
+
+SANE_Status sanei_genesys_write_file(char *filename, uint8_t * data, size_t length)
+{
+    FILE *out;
+
+    out = fopen (filename, "w");
+    if (!out) {
+        DBG(DBG_error, "%s: could nor open %s for writing: %s\n", __func__, filename,
+            strerror(errno));
+        return SANE_STATUS_INVAL;
+    }
+    fwrite(data, 1, length, out);
+    fclose(out);
+
+    DBG(DBG_proc, "%s: finished\n", __func__);
+    return SANE_STATUS_GOOD;
+}
 
 /* Write data to a pnm file (e.g. calibration). For debugging only */
 /* data is RGB or grey, with little endian byte order */
@@ -2221,4 +2239,99 @@ sanei_genesys_load_lut (unsigned char * lut,
   return ret;
 }
 
-/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */
+Genesys_Vector sanei_gl_vector_create(size_t element_size)
+{
+  Genesys_Vector ret;
+  ret.data = NULL;
+  ret.size = 0;
+  ret.capacity = 0;
+  ret.element_size = element_size;
+  return ret;
+}
+
+void sanei_gl_vector_reserve(Genesys_Vector* v, size_t count)
+{
+  if (count <= v->capacity)
+    return;
+
+  char* new_data = malloc(count * v->element_size);
+  if (v->data != NULL)
+    {
+      memcpy(new_data, v->data, v->size * v->element_size);
+      free(v->data);
+    }
+  v->data = new_data;
+  v->capacity = count;
+}
+
+static void sanei_gl_vector_grow(Genesys_Vector* v, size_t min_size)
+{
+  size_t new_capacity = v->capacity * 2;
+
+  if (new_capacity < 16)
+    new_capacity = 16;
+
+  if (new_capacity < min_size)
+    new_capacity = min_size;
+
+  sanei_gl_vector_reserve(v, new_capacity);
+}
+
+static void* sanei_gl_vector_get_element_nocheck(Genesys_Vector* v, size_t i)
+{
+  return v->data + v->element_size * i;
+}
+
+void sanei_gl_vector_resize(Genesys_Vector* v, size_t count)
+{
+  if (count <= v->size)
+    {
+      v->size = count;
+      return;
+    }
+
+  if (count > v->capacity)
+    sanei_gl_vector_reserve(v, count);
+
+  memset(sanei_gl_vector_get_element(v, v->size), 0, (count - v->size) * v->element_size);
+  v->size = count;
+}
+
+void sanei_gl_vector_append(Genesys_Vector* v, void* data, size_t count)
+{
+  if (v->size + count > v->capacity)
+    sanei_gl_vector_grow(v, count);
+
+  memcpy(sanei_gl_vector_get_element_nocheck(v, v->size), data, count * v->element_size);
+  v->size = v->size + count;
+}
+
+void sanei_gl_vector_append_zero(Genesys_Vector* v, size_t count)
+{
+  if (v->size + count > v->capacity)
+    sanei_gl_vector_grow(v, count);
+
+  memset(sanei_gl_vector_get_element_nocheck(v, v->size), 0, count * v->element_size);
+  v->size = v->size + count;
+}
+
+void* sanei_gl_vector_get_element(Genesys_Vector* v, size_t i)
+{
+  assert(v->data != NULL);
+  assert(i < v->size);
+  return sanei_gl_vector_get_element_nocheck(v, i);
+}
+
+void sanei_gl_vector_set_element(Genesys_Vector* v, void* data, size_t i)
+{
+  memcpy(sanei_gl_vector_get_element(v, i), data, v->element_size);
+}
+
+void sanei_gl_vector_destroy(Genesys_Vector* v)
+{
+  if (v->data != NULL)
+    free(v->data);
+  v->size = 0;
+  v->capacity = 0;
+  v->element_size = 0;
+}

@@ -63,25 +63,6 @@
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
 
-/* for debugging transfer rate*/
-/*
-#include <sys/time.h>
-static struct timeval start_time;
-static void
-starttime(){
-    gettimeofday(&start_time,NULL);
-}
-static void
-printtime(char *p) {
-    struct timeval t;
-    long long int dif;
-    gettimeofday(&t,NULL);
-    dif = t.tv_sec - start_time.tv_sec;
-    dif = dif*1000000 + t.tv_usec - start_time.tv_usec;
-    fprintf(stderr,"%s %lluµs\n",p,dif);
-}
-*/
-
 /* Set address for writing data */
 static SANE_Status
 gl841_set_buffer_address_gamma (Genesys_Device * dev, uint32_t addr)

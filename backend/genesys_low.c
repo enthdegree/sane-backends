@@ -197,7 +197,7 @@ SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
                                          size_t len)
 {
     SANE_Status status;
-    size_t size, target, read, done;
+    size_t size, target;
     uint8_t outdata[8], *buffer;
 
     DBG(DBG_io, "%s: requesting %lu bytes (unused addr=0x%02x)\n", __func__, (u_long) len,addr);
@@ -237,34 +237,12 @@ SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
             return status;
         }
 
-        // blocks must be multiple of 512 except the last block
-        read = size;
-        read /= 512;
-        read *= 512;
-
-        if(read > 0) {
-            DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) read);
-            status = sanei_usb_read_bulk (dev->dn, data, &read);
-            if (status != SANE_STATUS_GOOD) {
-                DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
-                    sane_strstatus(status));
-                return status;
-            }
-        }
-
-        // read less than 512 bytes remainder
-        if (read < size) {
-            done = read;
-            read = size - read;
-            DBG(DBG_io2, "%s: trying to read remaining %lu bytes of data\n", __func__,
-                (u_long) read);
-
-            status = sanei_usb_read_bulk (dev->dn, data+done, &read);
-            if (status != SANE_STATUS_GOOD) {
-                DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
-                    sane_strstatus(status));
-                return status;
-            }
+        DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) size);
+        status = sanei_usb_read_bulk(dev->dn, data, &size);
+        if (status != SANE_STATUS_GOOD) {
+            DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
+                sane_strstatus(status));
+            return status;
         }
 
         DBG(DBG_io2, "%s: read %lu bytes, %lu remaining\n", __func__,

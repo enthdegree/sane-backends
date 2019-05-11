@@ -74,7 +74,7 @@ gl846_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 		      uint8_t * data, size_t len)
 {
   SANE_Status status;
-  size_t size, target, read, done;
+  size_t size, target;
   uint8_t outdata[8];
   uint8_t *buffer;
 
@@ -121,39 +121,13 @@ gl846_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 	  return status;
 	}
 
-      /* blocks must be multiple of 512 but not last block */
-      read = size;
-      if (read >= 512)
-	{
-	  read /= 512;
-	  read *= 512;
-	}
-
-      DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) read);
-      status = sanei_usb_read_bulk (dev->dn, buffer, &read);
+      DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) size);
+      status = sanei_usb_read_bulk (dev->dn, buffer, &size);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
 	      sane_strstatus(status));
 	  return status;
-	}
-      done=read;
-      DBG(DBG_io2, "%s: %lu bytes of data read\n", __func__, (u_long) done);
-
-      /* read less than 512 bytes remainder */
-      if (read < size)
-	{
-	  read = size - read;
-	  DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) read);
-	  status = sanei_usb_read_bulk (dev->dn, buffer+done, &read);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
-          done=read;
-          DBG(DBG_io2, "%s: %lu bytes of data read\n", __func__, (u_long) done);
 	}
 
       DBG(DBG_io2, "%s: read %lu bytes, %lu remaining\n", __func__,

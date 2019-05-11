@@ -242,11 +242,6 @@ gl843_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 	size = 0xF000;
       else
 	size = len;
-      if (size >= 512)
-	{
-	  size /= 512;
-	  size *= 512;
-	}
 
       DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) size);
 

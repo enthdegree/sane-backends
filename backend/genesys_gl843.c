@@ -3397,11 +3397,9 @@ gl843_offset_calibration (Genesys_Device * dev)
 
       if (DBG_LEVEL >= DBG_data)
 	{
-	  for (i = 0; i < 3; i++)
-	    {
-	      sprintf (title, "offset_%d_%03d.pnm", i, dev->frontend.offset[i]);
-	      sanei_genesys_write_pnm_file (title, second_line, bpp, channels, pixels, lines);
-	    }
+          sprintf(title, "gl843_offset_%03d_%03d_%03d.pnm", dev->frontend.offset[0],
+                  dev->frontend.offset[1], dev->frontend.offset[2]);
+          sanei_genesys_write_pnm_file(title, second_line, bpp, channels, pixels, lines);
 	}
 
       for (i = 0; i < 3; i++)

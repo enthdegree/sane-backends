@@ -204,6 +204,11 @@ SANE_Status sanei_genesys_bulk_read_data_send_header(Genesys_Device* dev, size_t
         outdata[1] = 0;
         outdata[2] = 0;
         outdata[3] = 0x10;
+    } else if (dev->model->asic_type == GENESYS_GL841) {
+        outdata[0] = BULK_IN;
+        outdata[1] = BULK_RAM;
+        outdata[2] = VALUE_BUFFER & 0xff;
+        outdata[3] = (VALUE_BUFFER >> 8) & 0xff;
     } else {
         outdata[0] = BULK_IN;
         outdata[1] = BULK_RAM;

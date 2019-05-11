@@ -197,83 +197,6 @@ printtime(char *p) {
 }
 */
 
-/* Read bulk data (e.g. scanned data) */
-static SANE_Status
-gl841_bulk_read_data (Genesys_Device * dev, uint8_t addr,
-			      uint8_t * data, size_t len)
-{
-  SANE_Status status;
-  size_t size, target;
-  uint8_t outdata[8], *buffer;
-
-  DBG(DBG_io, "%s: requesting %lu bytes\n", __func__, (u_long) len);
-
-  if (len == 0)
-      return SANE_STATUS_GOOD;
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_SET_REGISTER, INDEX, 1, &addr);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s failed while setting register: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  outdata[0] = BULK_IN;
-  outdata[1] = BULK_RAM;
-  outdata[2] = VALUE_BUFFER & 0xff;
-  outdata[3] = (VALUE_BUFFER >> 8) & 0xff;
-  outdata[4] = (len & 0xff);
-  outdata[5] = ((len >> 8) & 0xff);
-  outdata[6] = ((len >> 16) & 0xff);
-  outdata[7] = ((len >> 24) & 0xff);
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			   VALUE_BUFFER, INDEX, sizeof (outdata), outdata);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s failed while writing command: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  target = len;
-  buffer = data;
-  while (target)
-    {
-      if (target > BULKIN_MAXSIZE)
-	size = BULKIN_MAXSIZE;
-      else
-	size = target;
-
-      DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) size);
-
-      status = sanei_usb_read_bulk (dev->dn, data, &size);
-
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
-
-      DBG(DBG_io2, "%s read %lu bytes, %lu remaining\n", __func__, (u_long) size,
-          (u_long) (target - size));
-
-      target -= size;
-      data += size;
-    }
-
-
-  if (DBG_LEVEL >= DBG_data && dev->binary!=NULL)
-    {
-      fwrite(buffer, len, 1, dev->binary);
-    }
-  DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
-}
-
 /* Set address for writing data */
 static SANE_Status
 gl841_set_buffer_address_gamma (Genesys_Device * dev, uint32_t addr)
@@ -690,9 +613,7 @@ sanei_gl841_asic_test (Genesys_Device * dev)
       return status;
     }
 
-  status =
-    gl841_bulk_read_data (dev, 0x45, (uint8_t *) verify_data,
-				  verify_size);
+  status = sanei_genesys_bulk_read_data(dev, 0x45, (uint8_t *) verify_data, verify_size);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk read data: %s\n", __func__, sane_strstatus(status));
@@ -6116,7 +6037,7 @@ static Genesys_Command_Set gl841_cmd_set = {
 
   gl841_bulk_write_register,
   gl841_bulk_write_data,
-  gl841_bulk_read_data,
+  sanei_genesys_bulk_read_data,
 
   gl841_update_hardware_sensors,
 

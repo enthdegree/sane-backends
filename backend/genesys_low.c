@@ -193,6 +193,223 @@ sanei_genesys_set_reg_from_set (Genesys_Register_Set * reg, uint16_t address,
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
 
+extern unsigned sanei_genesys_get_bulk_max_size(Genesys_Device * dev)
+{
+    /*  Genesys supports 0xFE00 maximum size in general, wheraus GL646 supports
+        0xFFC0. We use 0xF000 because that's the packet limit in the Linux usbmon
+        USB capture stack. By default it limits packet size to b_size / 5 where
+        b_size is the size of the ring buffer. By default it's 300*1024, so the
+        packet is limited 61440 without any visibility to acquiring software.
+    */
+    if (dev->model->asic_type == GENESYS_GL124 ||
+        dev->model->asic_type == GENESYS_GL846 ||
+        dev->model->asic_type == GENESYS_GL847) {
+        return 0xeff0;
+    }
+    return 0xf000;
+}
+
+SANE_Status sanei_genesys_bulk_read_data_send_header(Genesys_Device* dev, size_t len)
+{
+    SANE_Status status;
+
+    uint8_t outdata[8];
+    if (dev->model->asic_type == GENESYS_GL124 ||
+        dev->model->asic_type == GENESYS_GL846 ||
+        dev->model->asic_type == GENESYS_GL847)
+    {
+        // hard coded 0x10000000 address
+        outdata[0] = 0;
+        outdata[1] = 0;
+        outdata[2] = 0;
+        outdata[3] = 0x10;
+    } else if (dev->model->asic_type == GENESYS_GL841 ||
+               dev->model->asic_type == GENESYS_GL843) {
+        outdata[0] = BULK_IN;
+        outdata[1] = BULK_RAM;
+        outdata[2] = VALUE_BUFFER & 0xff;
+        outdata[3] = (VALUE_BUFFER >> 8) & 0xff;
+    } else {
+        outdata[0] = BULK_IN;
+        outdata[1] = BULK_RAM;
+        outdata[2] = 0x00;
+        outdata[3] = 0x00;
+    }
+
+    /* data size to transfer */
+    outdata[4] = (len & 0xff);
+    outdata[5] = ((len >> 8) & 0xff);
+    outdata[6] = ((len >> 16) & 0xff);
+    outdata[7] = ((len >> 24) & 0xff);
+
+    status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
+                                   VALUE_BUFFER, 0x00, sizeof(outdata), outdata);
+
+    if (status != SANE_STATUS_GOOD) {
+        DBG(DBG_error, "%s failed while writing command: %s\n",
+            __func__, sane_strstatus (status));
+        return status;
+    }
+    return SANE_STATUS_GOOD;
+}
+
+SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
+                                         size_t len)
+{
+    // currently supported: GL646, GL841, GL843, GL846, GL847, GL124
+    SANE_Status status;
+    size_t size, target;
+    uint8_t *buffer;
+
+    unsigned is_addr_used = 1;
+    unsigned has_header_before_each_chunk = 0;
+    if (dev->model->asic_type == GENESYS_GL124 ||
+        dev->model->asic_type == GENESYS_GL846 ||
+        dev->model->asic_type == GENESYS_GL847)
+    {
+        is_addr_used = 0;
+        has_header_before_each_chunk = 1;
+    }
+
+    if (is_addr_used) {
+        DBG(DBG_io, "%s: requesting %lu bytes from 0x%02x addr\n", __func__, (u_long) len, addr);
+    } else {
+        DBG(DBG_io, "%s: requesting %lu bytes\n", __func__, (u_long) len);
+    }
+
+    if (len == 0)
+        return SANE_STATUS_GOOD;
+
+    if (is_addr_used) {
+        status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
+                                       VALUE_SET_REGISTER, 0x00, 1, &addr);
+        if (status != SANE_STATUS_GOOD) {
+            DBG(DBG_error, "%s failed while setting register: %s\n", __func__,
+                sane_strstatus(status));
+            return status;
+        }
+    }
+
+    target = len;
+    buffer = data;
+
+    size_t max_in_size = sanei_genesys_get_bulk_max_size(dev);
+
+    if (!has_header_before_each_chunk) {
+        status = sanei_genesys_bulk_read_data_send_header(dev, len);
+        if (status != SANE_STATUS_GOOD)
+            return status;
+    }
+
+    // loop until computed data size is read
+    while (target) {
+        if (target > max_in_size) {
+            size = max_in_size;
+        } else {
+            size = target;
+        }
+
+        if (has_header_before_each_chunk) {
+            status = sanei_genesys_bulk_read_data_send_header(dev, size);
+            if (status != SANE_STATUS_GOOD)
+                return status;
+        }
+
+        DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) size);
+
+        status = sanei_usb_read_bulk(dev->dn, data, &size);
+
+        if (status != SANE_STATUS_GOOD) {
+            DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
+                sane_strstatus(status));
+            return status;
+        }
+
+        DBG(DBG_io2, "%s: read %lu bytes, %lu remaining\n", __func__,
+            (u_long) size, (u_long) (target - size));
+
+        target -= size;
+        data += size;
+    }
+
+    if (DBG_LEVEL >= DBG_data && dev->binary!=NULL) {
+        fwrite(buffer, len, 1, dev->binary);
+    }
+
+    DBGCOMPLETED;
+
+    return SANE_STATUS_GOOD;
+}
+
+SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
+                                          size_t len)
+{
+    // supported: GL646, GL841, GL843
+    SANE_Status status;
+    size_t size;
+    uint8_t outdata[8];
+
+    DBGSTART;
+    DBG(DBG_io, "%s writing %lu bytes\n", __func__, (u_long) len);
+
+    status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
+                                   VALUE_SET_REGISTER, INDEX, 1, &addr);
+    if (status != SANE_STATUS_GOOD) {
+        DBG(DBG_error, "%s failed while setting register: %s\n", __func__, sane_strstatus(status));
+        return status;
+    }
+
+    size_t max_out_size = sanei_genesys_get_bulk_max_size(dev);
+
+    while (len) {
+        if (len > max_out_size)
+            size = max_out_size;
+        else
+            size = len;
+
+        if (dev->model->asic_type == GENESYS_GL841) {
+            outdata[0] = BULK_OUT;
+            outdata[1] = BULK_RAM;
+            outdata[2] = VALUE_BUFFER & 0xff;
+            outdata[3] = (VALUE_BUFFER >> 8) & 0xff;
+        } else {
+            outdata[0] = BULK_OUT;
+            outdata[1] = BULK_RAM;
+            outdata[2] = 0x00;
+            outdata[3] = 0x00;
+        }
+
+        outdata[4] = (size & 0xff);
+        outdata[5] = ((size >> 8) & 0xff);
+        outdata[6] = ((size >> 16) & 0xff);
+        outdata[7] = ((size >> 24) & 0xff);
+
+        status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
+                                       VALUE_BUFFER, 0x00, sizeof (outdata), outdata);
+
+        if (status != SANE_STATUS_GOOD) {
+            DBG(DBG_error, "%s failed while writing command: %s\n", __func__, sane_strstatus(status));
+            return status;
+        }
+
+        status = sanei_usb_write_bulk (dev->dn, data, &size);
+        if (status != SANE_STATUS_GOOD) {
+            DBG(DBG_error, "%s failed while writing bulk data: %s\n", __func__,
+                sane_strstatus(status));
+            return status;
+        }
+
+        DBG(DBG_io2, "%s: wrote %lu bytes, %lu remaining\n", __func__, (u_long) size,
+            (u_long) (len - size));
+
+        len -= size;
+        data += size;
+    }
+
+    DBGCOMPLETED;
+    return status;
+}
+
 /** @brief write to one high (addr >= 0x100) register
  * write to a register which address is higher than 0xff.
  * @param dev opened device to write to
@@ -1028,20 +1245,83 @@ sanei_genesys_bulk_write_register (Genesys_Device * dev,
 			           Genesys_Register_Set * reg,
                                    size_t elems)
 {
-  SANE_Status status = SANE_STATUS_GOOD;
-  size_t i;
+    SANE_Status status = SANE_STATUS_GOOD;
+    size_t i;
 
-  for (i = 0; i < elems && status == SANE_STATUS_GOOD; i++)
+    if (dev->model->asic_type == GENESYS_GL646 ||
+        dev->model->asic_type == GENESYS_GL841)
     {
-      if (reg[i].address != 0)
-	{
-	  status =
-	    sanei_genesys_write_register (dev, reg[i].address, reg[i].value);
-	}
+        uint8_t outdata[8];
+        uint8_t buffer[GENESYS_MAX_REGS * 2];
+        size_t size;
+        unsigned int i;
+
+        /* handle differently sized register sets, reg[0x00] may be the last one */
+        i = 0;
+        while ((i < elems) && (reg[i].address != 0))
+            i++;
+        elems = i;
+        size = i * 2;
+
+        /* copy registers and values in data buffer */
+        for (i = 0; i < size; i += 2) {
+            buffer[i] = reg[i / 2].address;
+            buffer[i + 1] = reg[i / 2].value;
+        }
+
+        DBG(DBG_io, "%s (elems= %lu, size = %lu)\n", __func__, (u_long) elems, (u_long) size);
+
+        if (dev->model->asic_type == GENESYS_GL646) {
+            outdata[0] = BULK_OUT;
+            outdata[1] = BULK_REGISTER;
+            outdata[2] = 0x00;
+            outdata[3] = 0x00;
+            outdata[4] = (size & 0xff);
+            outdata[5] = ((size >> 8) & 0xff);
+            outdata[6] = ((size >> 16) & 0xff);
+            outdata[7] = ((size >> 24) & 0xff);
+
+            status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
+                                           VALUE_BUFFER, INDEX, sizeof(outdata), outdata);
+
+            if (status != SANE_STATUS_GOOD) {
+                DBG(DBG_error, "%s: failed while writing command: %s\n", __func__, sane_strstatus(status));
+                return status;
+            }
+
+            status = sanei_usb_write_bulk (dev->dn, buffer, &size);
+            if (status != SANE_STATUS_GOOD) {
+                DBG(DBG_error, "%s: failed while writing bulk data: %s\n", __func__, sane_strstatus(status));
+                return status;
+            }
+        } else {
+            size_t c;
+            for (i = 0; i < elems;) {
+                c = elems - i;
+                if (c > 32)  /*32 is max on GL841. checked that.*/
+                    c = 32;
+                status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
+                                               VALUE_SET_REGISTER, INDEX, c * 2, buffer + i * 2);
+                if (status != SANE_STATUS_GOOD)
+                {
+                    DBG(DBG_error, "%s: failed while writing command: %s\n", __func__,
+                        sane_strstatus(status));
+                    return status;
+                }
+
+                i += c;
+            }
+        }
+    } else {
+        for (i = 0; i < elems && status == SANE_STATUS_GOOD; i++) {
+            if (reg[i].address != 0) {
+                status = sanei_genesys_write_register (dev, reg[i].address, reg[i].value);
+            }
+        }
     }
 
-  DBG (DBG_io, "%s: wrote %lu registers\n", __func__, (u_long) elems);
-  return status;
+    DBG (DBG_io, "%s: wrote %lu registers\n", __func__, (u_long) elems);
+    return status;
 }
 
 
@@ -1055,7 +1335,7 @@ sanei_genesys_bulk_write_register (Genesys_Device * dev,
  * @param data pointer to the data to write
  */
 SANE_Status
-sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * data)
+sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_t * data)
 {
   uint8_t outdata[8];
   size_t written,blksize;
@@ -1084,8 +1364,8 @@ sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * da
 
   /* write addr and size for AHB */
   status =
-    sanei_usb_control_msg (dn, REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER,
-			   0x01, 8, outdata);
+    sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER,
+                          0x01, 8, outdata);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed while setting addr and size: %s\n", __func__,
@@ -1093,19 +1373,21 @@ sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * da
       return status;
     }
 
+  size_t max_out_size = sanei_genesys_get_bulk_max_size(dev);
+
   /* write actual data */
   written = 0;
   do
     {
-      if (size - written > BULKOUT_MAXSIZE)
+      if (size - written > max_out_size)
         {
-          blksize = BULKOUT_MAXSIZE;
+          blksize = max_out_size;
         }
       else
         {
           blksize = size - written;
         }
-      status = sanei_usb_write_bulk (dn, data + written, &blksize);
+      status = sanei_usb_write_bulk(dev->dn, data + written, &blksize);
       if (status != SANE_STATUS_GOOD)
         {
           DBG (DBG_error,
@@ -1251,7 +1533,7 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
       RIEF (sanei_genesys_write_register (dev, 0xc5+2*i, gamma[size*2*i+1]), gamma);
       RIEF (sanei_genesys_write_register (dev, 0xc6+2*i, gamma[size*2*i]), gamma);
 
-      status = sanei_genesys_write_ahb(dev->dn, 0x01000000 + 0x200 * i, (size-1) * 2, gamma + i * size * 2+2);
+      status = sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2, gamma + i * size * 2+2);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,

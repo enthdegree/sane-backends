@@ -54,199 +54,6 @@
 #include "genesys_gl646.h"
 
 /**
- * returns the value hold by a 3 word register
- * @param regs register set from which reading the value
- * @param regnum number of the register to read
- * @return 24 bit value of the register
- */
-static uint32_t
-gl646_get_triple_reg (Genesys_Register_Set * regs, int regnum)
-{
-  Genesys_Register_Set *r = NULL;
-  uint32_t ret = 0;
-
-  r = sanei_genesys_get_address (regs, regnum);
-  ret = r->value;
-  r = sanei_genesys_get_address (regs, regnum + 1);
-  ret = (ret << 8) + r->value;
-  r = sanei_genesys_get_address (regs, regnum + 2);
-  ret = (ret << 8) + r->value;
-
-  return ret;
-}
-
-/**
- * returns the value hold by a 2 word register
- * @param regs register set from which reading the value
- * @param regnum number of the register to read
- * @return 16 bit value of the register
- */
-static uint32_t
-gl646_get_double_reg (Genesys_Register_Set * regs, int regnum)
-{
-  Genesys_Register_Set *r = NULL;
-  uint32_t ret = 0;
-
-  r = sanei_genesys_get_address (regs, regnum);
-  ret = r->value;
-  r = sanei_genesys_get_address (regs, regnum + 1);
-  ret = (ret << 8) + r->value;
-
-  return ret;
-}
-
-/* Write to many registers */
-static SANE_Status
-gl646_bulk_write_register (Genesys_Device * dev,
-			   Genesys_Register_Set * reg, size_t elems)
-{
-  SANE_Status status;
-  uint8_t outdata[8];
-  uint8_t buffer[GENESYS_MAX_REGS * 2];
-  size_t size;
-  unsigned int i;
-
-  /* handle differently sized register sets, reg[0x00] may be the last one */
-  i = 0;
-  while ((i < elems) && (reg[i].address != 0))
-    i++;
-  elems = i;
-  size = i * 2;
-
-  DBG(DBG_io, "%s (elems= %lu, size = %lu)\n", __func__, (u_long) elems, (u_long) size);
-
-
-  outdata[0] = BULK_OUT;
-  outdata[1] = BULK_REGISTER;
-  outdata[2] = 0x00;
-  outdata[3] = 0x00;
-  outdata[4] = (size & 0xff);
-  outdata[5] = ((size >> 8) & 0xff);
-  outdata[6] = ((size >> 16) & 0xff);
-  outdata[7] = ((size >> 24) & 0xff);
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			   VALUE_BUFFER, INDEX, sizeof (outdata), outdata);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed while writing command: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  /* copy registers and values in data buffer */
-  for (i = 0; i < size; i += 2)
-    {
-      buffer[i] = reg[i / 2].address;
-      buffer[i + 1] = reg[i / 2].value;
-    }
-
-  status = sanei_usb_write_bulk (dev->dn, buffer, &size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed while writing bulk data: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  if (DBG_LEVEL >= DBG_io2)
-    {
-      for (i = 0; i < size; i += 2)
-	{
-	  DBG(DBG_io2, "reg[0x%02x] = 0x%02x\n", buffer[i], buffer[i + 1]);
-	}
-      /* when full size, decode register content */
-      if (elems > 60)
-	{
-	  DBG(DBG_io2, "DPISET   =%d\n",
-	      gl646_get_double_reg (reg, REG_DPISET));
-	  DBG(DBG_io2, "DUMMY    =%d\n",
-	      sanei_genesys_get_address (reg, REG_DUMMY)->value);
-	  DBG(DBG_io2, "STRPIXEL =%d\n",
-	      gl646_get_double_reg (reg, REG_STRPIXEL));
-	  DBG(DBG_io2, "ENDPIXEL =%d\n",
-	      gl646_get_double_reg (reg, REG_ENDPIXEL));
-	  DBG(DBG_io2, "LINCNT   =%d\n",
-	      gl646_get_triple_reg (reg, REG_LINCNT));
-	  DBG(DBG_io2, "MAXWD    =%d\n",
-	      gl646_get_triple_reg (reg, REG_MAXWD));
-	  DBG(DBG_io2, "LPERIOD  =%d\n",
-	      gl646_get_double_reg (reg, REG_LPERIOD));
-	  DBG(DBG_io2, "FEEDL    =%d\n",
-	      gl646_get_triple_reg (reg, REG_FEEDL));
-	}
-    }
-
-  DBG(DBG_io, "%s: wrote %lu bytes, %lu registers\n", __func__, (u_long) size, (u_long) elems);
-  return status;
-}
-
-/* Write bulk data (e.g. shading, gamma) */
-static SANE_Status
-gl646_bulk_write_data (Genesys_Device * dev, uint8_t addr,
-		       uint8_t * data, size_t len)
-{
-  SANE_Status status;
-  size_t size;
-  uint8_t outdata[8];
-
-  DBG(DBG_io, "%s writing %lu bytes\n", __func__, (u_long) len);
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_SET_REGISTER, INDEX, 1, &addr);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s failed while setting register: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  while (len)
-    {
-      if (len > BULKOUT_MAXSIZE)
-	size = BULKOUT_MAXSIZE;
-      else
-	size = len;
-
-      outdata[0] = BULK_OUT;
-      outdata[1] = BULK_RAM;
-      outdata[2] = 0x00;
-      outdata[3] = 0x00;
-      outdata[4] = (size & 0xff);
-      outdata[5] = ((size >> 8) & 0xff);
-      outdata[6] = ((size >> 16) & 0xff);
-      outdata[7] = ((size >> 24) & 0xff);
-
-      status =
-	sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			       VALUE_BUFFER, INDEX, sizeof (outdata),
-			       outdata);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s failed while writing command: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
-
-      status = sanei_usb_write_bulk (dev->dn, data, &size);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s failed while writing bulk data: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
-
-      DBG(DBG_io2, "%s wrote %lu bytes, %lu remaining\n", __func__, (u_long) size,
-          (u_long) (len - size));
-
-      len -= size;
-      data += size;
-    }
-
-  DBG(DBG_io, "%s: end\n", __func__);
-
-  return status;
-}
-
-/**
  * reads value from gpio endpoint
  */
 static SANE_Status
@@ -285,97 +92,13 @@ static SANE_Status
 gl646_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 		      uint8_t * data, size_t len)
 {
-  SANE_Status status;
-  size_t size;
-  uint8_t outdata[8];
-
-  DBG(DBG_io, "%s: requesting %lu bytes\n", __func__, (u_long) len);
-
-  /* write requested size */
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_SET_REGISTER, INDEX, 1, &addr);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s failed while setting register: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  outdata[0] = BULK_IN;
-  outdata[1] = BULK_RAM;
-  outdata[2] = 0x00;
-  outdata[3] = 0x00;
-  outdata[4] = (len & 0xff);
-  outdata[5] = ((len >> 8) & 0xff);
-  outdata[6] = ((len >> 16) & 0xff);
-  outdata[7] = ((len >> 24) & 0xff);
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			   VALUE_BUFFER, INDEX, sizeof (outdata), outdata);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s failed while writing command: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  while (len)
-    {
-      if (len > GL646_BULKIN_MAXSIZE)
-	size = GL646_BULKIN_MAXSIZE;
-      else
-	size = len;
-
-      DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) size);
-      status = sanei_usb_read_bulk (dev->dn, data, &size);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
-
-      DBG(DBG_io2, "%s read %lu bytes, %lu remaining\n", __func__, (u_long) size,
-          (u_long) (len - size));
-
-      len -= size;
-      data += size;
-    }
-
-  if (dev->model->is_sheetfed == SANE_TRUE)
+  SANE_Status status = sanei_genesys_bulk_read_data(dev, addr, data, len);
+  if (status == SANE_STATUS_GOOD && dev->model->is_sheetfed == SANE_TRUE)
     {
       gl646_detect_document_end (dev);
     }
-
-  DBG(DBG_io, "%s: end\n", __func__);
-
   return status;
 }
-
-#if 0
-static SANE_Status
-read_triple_reg (Genesys_Device * dev, int index, unsigned int *words)
-{
-  SANE_Status status;
-  uint8_t value;
-
-  DBG(DBG_proc, "%s\n", __func__);
-
-  RIE (sanei_genesys_read_register (dev, index + 2, &value));
-  *words = value;
-  RIE (sanei_genesys_read_register (dev, index + 1, &value));
-  *words += (value * 256);
-  RIE (sanei_genesys_read_register (dev, index, &value));
-  if (dev->model->asic_type == GENESYS_GL646)
-    *words += ((value & 0x03) * 256 * 256);
-  else
-    *words += ((value & 0x0f) * 256 * 256);
-
-  DBG(DBG_proc, "%s: value=%d\n", __func__, *words);
-  return status;
-}
-#endif
-
 
 static SANE_Bool
 gl646_get_fast_feed_bit (Genesys_Register_Set * regs)
@@ -446,30 +169,6 @@ gl646_test_motor_flag_bit (SANE_Byte val)
   if (val & REG41_MOTMFLG)
     return SANE_TRUE;
   return SANE_FALSE;
-}
-
-static void
-gl646_set_triple_reg (Genesys_Register_Set * regs, int regnum, uint32_t value)
-{
-  Genesys_Register_Set *r = NULL;
-
-  r = sanei_genesys_get_address (regs, regnum);
-  r->value = LOBYTE (HIWORD (value));
-  r = sanei_genesys_get_address (regs, regnum + 1);
-  r->value = HIBYTE (LOWORD (value));
-  r = sanei_genesys_get_address (regs, regnum + 2);
-  r->value = LOBYTE (LOWORD (value));
-}
-
-static void
-gl646_set_double_reg (Genesys_Register_Set * regs, int regnum, uint16_t value)
-{
-  Genesys_Register_Set *r = NULL;
-
-  r = sanei_genesys_get_address (regs, regnum);
-  r->value = HIBYTE (LOWORD (value));
-  r = sanei_genesys_get_address (regs, regnum + 1);
-  r->value = LOBYTE (LOWORD (value));
 }
 
 /**
@@ -1033,12 +732,12 @@ gl646_setup_registers (Genesys_Device * dev,
    * color mode */
   if (dev->model->is_cis == SANE_TRUE)
     {
-      gl646_set_triple_reg (regs, REG_LINCNT, linecnt * 3);
+      sanei_genesys_set_triple(regs, REG_LINCNT, linecnt * 3);
       linecnt *= channels;
     }
   else
     {
-      gl646_set_triple_reg (regs, REG_LINCNT, linecnt);
+      sanei_genesys_set_triple(regs, REG_LINCNT, linecnt);
     }
 
   /* scanner's x coordinates are expressed in physical DPI but they must be divided by cksel */
@@ -1049,8 +748,8 @@ gl646_setup_registers (Genesys_Device * dev,
       sx /= 2;
       ex /= 2;
     }
-  gl646_set_double_reg (regs, REG_STRPIXEL, sx);
-  gl646_set_double_reg (regs, REG_ENDPIXEL, ex);
+  sanei_genesys_set_double(regs, REG_STRPIXEL, sx);
+  sanei_genesys_set_double(regs, REG_ENDPIXEL, ex);
   DBG(DBG_info, "%s: startx=%d, endx=%d, half_ccd=%d\n", __func__, sx, ex, half_ccd);
 
   /* words_per_line must be computed according to the scan's resolution */
@@ -1071,10 +770,10 @@ gl646_setup_registers (Genesys_Device * dev,
   dev->wpl = words_per_line;
 
   DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
-  gl646_set_triple_reg (regs, REG_MAXWD, words_per_line);
+  sanei_genesys_set_triple(regs, REG_MAXWD, words_per_line);
 
-  gl646_set_double_reg (regs, REG_DPISET, sensor->dpiset);
-  gl646_set_double_reg (regs, REG_LPERIOD, sensor->exposure);
+  sanei_genesys_set_double(regs, REG_DPISET, sensor->dpiset);
+  sanei_genesys_set_double(regs, REG_LPERIOD, sensor->exposure);
 
   /* move distance must be adjusted to take into account the extra lines
    * read to reorder data */
@@ -1198,7 +897,7 @@ gl646_setup_registers (Genesys_Device * dev,
     }
 
   DBG(DBG_info, "%s: final move=%d\n", __func__, feedl);
-  gl646_set_triple_reg (regs, REG_FEEDL, feedl);
+  sanei_genesys_set_triple(regs, REG_FEEDL, feedl);
 
   regs[reg_0x65].value = motor->mtrpwm;
 
@@ -1214,8 +913,8 @@ gl646_setup_registers (Genesys_Device * dev,
       z1 = 0;
       z2 = 0;
     }
-  gl646_set_double_reg (regs, REG_Z1MOD, z1);
-  gl646_set_double_reg (regs, REG_Z2MOD, z2);
+  sanei_genesys_set_double(regs, REG_Z1MOD, z1);
+  sanei_genesys_set_double(regs, REG_Z2MOD, z2);
   regs[reg_0x6b].value = motor->steps2;
   regs[reg_0x6c].value =
     (regs[reg_0x6c].value & REG6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16)
@@ -1412,7 +1111,7 @@ gl646_asic_test (Genesys_Device * dev)
       return status;
     }
 
-  status = gl646_bulk_write_data (dev, 0x3c, data, size);
+  status = sanei_genesys_bulk_write_data(dev, 0x3c, data, size);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write data: %s\n", __func__, sane_strstatus(status));
@@ -1710,7 +1409,7 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
       return status;
     }
 
-  status = gl646_bulk_write_data (dev, 0x3c, (uint8_t *) table, steps * 2);
+  status = sanei_genesys_bulk_write_data(dev, 0x3c, (uint8_t *) table, steps * 2);
   if (status != SANE_STATUS_GOOD)
     {
 #ifdef WORDS_BIGENDIAN
@@ -2244,9 +1943,8 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
   local_reg[3].value = exposure_time / 256;	/* highbyte */
   local_reg[4].value = exposure_time & 255;	/* lowbyte */
 
-  status = gl646_bulk_write_register (dev, local_reg,
-				      sizeof (local_reg) /
-				      sizeof (local_reg[0]));
+  status = sanei_genesys_bulk_write_register(dev, local_reg,
+                                             sizeof (local_reg) / sizeof (local_reg[0]));
   if (status != SANE_STATUS_GOOD)
     DBG(DBG_error, "%s: Failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
 
@@ -2373,8 +2071,7 @@ gl646_load_document (Genesys_Device * dev)
       DBG(DBG_error, "%s: failed to send slope table 1: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  status =
-    gl646_bulk_write_register (dev, regs, sizeof (regs) / sizeof (regs[0]));
+  status = sanei_genesys_bulk_write_register(dev, regs, sizeof(regs) / sizeof(regs[0]));
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
@@ -2414,8 +2111,7 @@ gl646_load_document (Genesys_Device * dev)
   regs[1].value = 0x71;
   regs[4].value = 1;
   regs[5].value = 8;
-  status =
-    gl646_bulk_write_register (dev, regs, sizeof (regs) / sizeof (regs[0]));
+  status = sanei_genesys_bulk_write_register(dev, regs, sizeof(regs) / sizeof(regs[0]));
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write idle registers: %s\n", __func__,
@@ -2622,8 +2318,7 @@ gl646_eject_document (Genesys_Device * dev)
       DBG(DBG_error, "%s: failed to send slope table 1: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  status =
-    gl646_bulk_write_register (dev, regs, sizeof (regs) / sizeof (regs[0]));
+  status = sanei_genesys_bulk_write_register(dev, regs, sizeof(regs) / sizeof(regs[0]));
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
@@ -2689,9 +2384,8 @@ gl646_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   else
     local_reg[2].value = 0x00;	/* do not start motor yet */
 
-  status = gl646_bulk_write_register (dev, local_reg,
-				      sizeof (local_reg) /
-				      sizeof (local_reg[0]));
+  status = sanei_genesys_bulk_write_register(dev, local_reg,
+                                             sizeof(local_reg) / sizeof(local_reg[0]));
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -2936,7 +2630,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* backward , no actual data scanned TODO more setup flags to avoid this register manipulations ? */
   dev->reg[reg_0x02].value |= REG02_MTRREV;
   dev->reg[reg_0x01].value &= ~REG01_SCAN;
-  gl646_set_triple_reg (dev->reg, REG_FEEDL, 65535);
+  sanei_genesys_set_triple(dev->reg, REG_FEEDL, 65535);
 
   /* sets frontend */
   status = gl646_set_fe (dev, AFE_SET, settings.xres);
@@ -2948,9 +2642,8 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
 
   /* write scan registers */
-  status = gl646_bulk_write_register (dev, dev->reg,
-				      sizeof (dev->reg) /
-				      sizeof (dev->reg[0]));
+  status = sanei_genesys_bulk_write_register(dev, dev->reg,
+                                             sizeof (dev->reg) / sizeof (dev->reg[0]));
   if (status != SANE_STATUS_GOOD)
     DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
 
@@ -3200,11 +2893,11 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   /* enforce needed LINCNT, getting rid of extra lines for color reordering */
   if (dev->model->is_cis == SANE_FALSE)
     {
-      gl646_set_triple_reg (dev->reg, REG_LINCNT, dev->calib_lines);
+      sanei_genesys_set_triple(dev->reg, REG_LINCNT, dev->calib_lines);
     }
   else
     {
-      gl646_set_triple_reg (dev->reg, REG_LINCNT, dev->calib_lines * 3);
+      sanei_genesys_set_triple(dev->reg, REG_LINCNT, dev->calib_lines * 3);
     }
 
   /* copy reg to calib_reg */
@@ -3516,7 +3209,7 @@ gl646_send_gamma_table (Genesys_Device * dev)
     }
 
   /* send data */
-  status = gl646_bulk_write_data (dev, 0x3c, (uint8_t *) gamma, size * 2 * 3);
+  status = sanei_genesys_bulk_write_data(dev, 0x3c, (uint8_t *) gamma, size * 2 * 3);
   if (status != SANE_STATUS_GOOD)
     {
       free (gamma);
@@ -4377,12 +4070,14 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
 
   /* returned value to higher level warmup function */
   *channels = 1;
-  lines = gl646_get_triple_reg (local_reg, REG_LINCNT) + 1;
+  uint32_t value = 0;
+  RIE(sanei_genesys_get_triple(local_reg, REG_LINCNT, &value));
+  lines = value + 1;
   *total_size = lines * settings.pixels;
 
   /* now registers are ok, write them to scanner */
   RIE (gl646_set_fe (dev, AFE_SET, settings.xres));
-  RIE (gl646_bulk_write_register (dev, local_reg, GENESYS_GL646_MAX_REGS));
+  RIE(sanei_genesys_bulk_write_register(dev, local_reg, GENESYS_GL646_MAX_REGS));
 
   DBGCOMPLETED;
   return status;
@@ -4430,7 +4125,7 @@ gl646_repark_head (Genesys_Device * dev)
   /* TODO seems wrong ... no effective scan */
   dev->reg[reg_0x01].value &= ~REG01_SCAN;
 
-  status = gl646_bulk_write_register (dev, dev->reg, GENESYS_GL646_MAX_REGS);
+  status = sanei_genesys_bulk_write_register(dev, dev->reg, GENESYS_GL646_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to send registers: %s\n", __func__, sane_strstatus(status));
@@ -4445,7 +4140,9 @@ gl646_repark_head (Genesys_Device * dev)
       return status;
     }
 
-  expected = gl646_get_triple_reg (dev->reg, REG_FEEDL);
+  uint32_t value32 = 0;
+  RIE(sanei_genesys_get_triple(dev->reg, REG_FEEDL, &value32));
+  expected = value32;
   do
     {
       usleep (100 * 1000);
@@ -4574,7 +4271,7 @@ gl646_init (Genesys_Device * dev)
       usleep (100000UL);	/* sleep 100 ms */
 
       /* Write initial registers */
-      RIE (gl646_bulk_write_register (dev, dev->reg, GENESYS_GL646_MAX_REGS));
+      RIE(sanei_genesys_bulk_write_register(dev, dev->reg, GENESYS_GL646_MAX_REGS));
 
       /* Test ASIC and RAM */
       if (!(dev->model->flags & GENESYS_FLAG_LAZY_INIT))
@@ -4794,11 +4491,15 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   /* allocate memory fo scan : LINCNT may have been adjusted for CCD reordering */
   if (dev->model->is_cis == SANE_TRUE)
     {
-      lines = gl646_get_triple_reg (dev->reg, REG_LINCNT) / 3;
+      uint32_t value = 0;
+      RIE(sanei_genesys_get_triple(dev->reg, REG_LINCNT, &value));
+      lines = value / 3;
     }
   else
     {
-      lines = gl646_get_triple_reg (dev->reg, REG_LINCNT) + 1;
+      uint32_t value = 0;
+      RIE(sanei_genesys_get_triple(dev->reg, REG_LINCNT, &value));
+      lines = value + 1;
     }
   size = lines * settings.pixels;
   if (settings.depth == 16)
@@ -4865,9 +4566,8 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
     }
 
   /* write scan registers */
-  status = gl646_bulk_write_register (dev, dev->reg,
-				      sizeof (dev->reg) /
-				      sizeof (dev->reg[0]));
+  status = sanei_genesys_bulk_write_register(dev, dev->reg,
+                                             sizeof (dev->reg) / sizeof (dev->reg[0]));
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
@@ -5250,7 +4950,7 @@ write_control (Genesys_Device * dev, int resolution)
       DBG(DBG_error, "%s: failed to set up control address\n", __func__);
       return SANE_STATUS_INVAL;
     }
-  status = gl646_bulk_write_data (dev, 0x3c, control, 4);
+  status = sanei_genesys_bulk_write_data(dev, 0x3c, control, 4);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set up control\n", __func__);
@@ -5551,8 +5251,8 @@ static Genesys_Command_Set gl646_cmd_set = {
   gl646_slow_back_home,
   NULL,
 
-  gl646_bulk_write_register,
-  gl646_bulk_write_data,
+  sanei_genesys_bulk_write_register,
+  sanei_genesys_bulk_write_data,
   gl646_bulk_read_data,
 
   gl646_update_hardware_sensors,

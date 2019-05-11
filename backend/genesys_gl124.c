@@ -48,124 +48,6 @@
 #include "genesys_gl124.h"
 
 /****************************************************************************
- Low level function
- ****************************************************************************/
-
-/* ------------------------------------------------------------------------ */
-/*                  Read and write RAM, registers and AFE                   */
-/* ------------------------------------------------------------------------ */
-
-
-/** @brief read scanned data
- * Read in 0xeff0 maximum sized blocks. This read is done in 2
- * parts if not multple of 512. First read is rounded to a multiple of 512 bytes, last read fetches the
- * remainder. Read addr is always 0x10000000 with the memory layout setup.
- * @param dev device to read data from
- * @param addr address within ASIC emory space
- * @param data pointer where to store the read data
- * @param len size to read
- */
-static SANE_Status
-gl124_bulk_read_data (Genesys_Device * dev, uint8_t addr,
-		      uint8_t * data, size_t len)
-{
-  SANE_Status status;
-  size_t size, target, read, done;
-  uint8_t outdata[8], *buffer;
-
-  DBG(DBG_io, "%s: requesting %lu bytes (unused addr=0x%02x)\n", __func__, (u_long) len,addr);
-
-  if (len == 0)
-    return SANE_STATUS_GOOD;
-
-  target = len;
-  buffer = data;
-
-  /* loop until computed data size is read */
-  while (target)
-    {
-      if (target > 0xeff0)
-	{
-	  size = 0xeff0;
-	}
-      else
-	{
-	  size = target;
-	}
-
-      /* hard coded 0x10000000 addr */
-      outdata[0] = 0;
-      outdata[1] = 0;
-      outdata[2] = 0;
-      outdata[3] = 0x10;
-
-      /* data size to transfer */
-      outdata[4] = (size & 0xff);
-      outdata[5] = ((size >> 8) & 0xff);
-      outdata[6] = ((size >> 16) & 0xff);
-      outdata[7] = ((size >> 24) & 0xff);
-
-      status =
-	sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			       VALUE_BUFFER, 0x00, sizeof (outdata),
-			       outdata);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "%s failed while writing command: %s\n",
-	       __func__, sane_strstatus (status));
-	  return status;
-	}
-
-      /* blocks must be multiple of 512 but not last block */
-      read = size;
-      read /= 512;
-      read *= 512;
-
-      if(read>0)
-        {
-          DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) read);
-          status = sanei_usb_read_bulk (dev->dn, data, &read);
-          if (status != SANE_STATUS_GOOD)
-            {
-              DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
-                  sane_strstatus(status));
-              return status;
-            }
-        }
-
-      /* read less than 512 bytes remainder */
-      if (read < size)
-	{
-          done = read;
-	  read = size - read;
-	  DBG(DBG_io2, "%s: trying to read remaining %lu bytes of data\n", __func__, (u_long) read);
-	  status = sanei_usb_read_bulk (dev->dn, data+done, &read);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
-	}
-
-      DBG (DBG_io2, "%s: read %lu bytes, %lu remaining\n", __func__,
-	   (u_long) size, (u_long) (target - size));
-
-      target -= size;
-      data += size;
-    }
-
-  if (DBG_LEVEL >= DBG_data && dev->binary!=NULL)
-    {
-      fwrite(buffer, len, 1, dev->binary);
-    }
-
-  DBGCOMPLETED;
-
-  return SANE_STATUS_GOOD;
-}
-
-/****************************************************************************
  Mid level functions
  ****************************************************************************/
 
@@ -686,8 +568,7 @@ gl124_send_slope_table (Genesys_Device * dev, int table_nr,
     }
 
   /* slope table addresses are fixed */
-  status =
-    sanei_genesys_write_ahb(dev->dn, 0x10000000 + 0x4000 * table_nr, steps * 2, table);
+  status = sanei_genesys_write_ahb(dev, 0x10000000 + 0x4000 * table_nr, steps * 2, table);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -2927,7 +2808,7 @@ gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
         }
       RIE (sanei_genesys_read_register (dev, 0xd0+i, &val));
       addr = val * 8192 + 0x10000000;
-      status = sanei_genesys_write_ahb(dev->dn, addr, pixels*dev->segnb, buffer);
+      status = sanei_genesys_write_ahb(dev, addr, pixels*dev->segnb, buffer);
       if (status != SANE_STATUS_GOOD)
         {
           DBG(DBG_error, "%s; write to AHB failed (%s)\n", __func__, sane_strstatus(status));
@@ -3876,7 +3757,7 @@ static Genesys_Command_Set gl124_cmd_set = {
 
   sanei_genesys_bulk_write_register,
   NULL,
-  gl124_bulk_read_data,
+  sanei_genesys_bulk_read_data,
 
   gl124_update_hardware_sensors,
 

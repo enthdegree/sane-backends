@@ -193,52 +193,111 @@ sanei_genesys_set_reg_from_set (Genesys_Register_Set * reg, uint16_t address,
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
 
-SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
-                                         size_t len)
+SANE_Status sanei_genesys_bulk_read_data_send_header(Genesys_Device* dev, size_t len)
 {
     SANE_Status status;
-    size_t size, target;
-    uint8_t outdata[8], *buffer;
 
-    DBG(DBG_io, "%s: requesting %lu bytes (unused addr=0x%02x)\n", __func__, (u_long) len,addr);
-
-    if (len == 0)
-        return SANE_STATUS_GOOD;
-
-    target = len;
-    buffer = data;
-
-    // loop until computed data size is read
-    while (target) {
-        if (target > 0xeff0) {
-            size = 0xeff0;
-        } else {
-            size = target;
-        }
-
+    uint8_t outdata[8];
+    if (dev->model->asic_type == GENESYS_GL124) {
         // hard coded 0x10000000 address
         outdata[0] = 0;
         outdata[1] = 0;
         outdata[2] = 0;
         outdata[3] = 0x10;
+    } else {
+        outdata[0] = BULK_IN;
+        outdata[1] = BULK_RAM;
+        outdata[2] = 0x00;
+        outdata[3] = 0x00;
+    }
 
-        /* data size to transfer */
-        outdata[4] = (size & 0xff);
-        outdata[5] = ((size >> 8) & 0xff);
-        outdata[6] = ((size >> 16) & 0xff);
-        outdata[7] = ((size >> 24) & 0xff);
+    /* data size to transfer */
+    outdata[4] = (len & 0xff);
+    outdata[5] = ((len >> 8) & 0xff);
+    outdata[6] = ((len >> 16) & 0xff);
+    outdata[7] = ((len >> 24) & 0xff);
 
-        status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-                                       VALUE_BUFFER, 0x00, sizeof(outdata), outdata);
+    status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
+                                   VALUE_BUFFER, 0x00, sizeof(outdata), outdata);
 
+    if (status != SANE_STATUS_GOOD) {
+        DBG(DBG_error, "%s failed while writing command: %s\n",
+            __func__, sane_strstatus (status));
+        return status;
+    }
+    return SANE_STATUS_GOOD;
+}
+
+SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
+                                         size_t len)
+{
+    SANE_Status status;
+    size_t size, target;
+    uint8_t *buffer;
+
+    unsigned is_addr_used = 1;
+    unsigned has_header_before_each_chunk = 0;
+    if (dev->model->asic_type == GENESYS_GL124) {
+        is_addr_used = 0;
+        has_header_before_each_chunk = 1;
+    }
+
+    if (is_addr_used) {
+        DBG(DBG_io, "%s: requesting %lu bytes from 0x%02x addr\n", __func__, (u_long) len, addr);
+    } else {
+        DBG(DBG_io, "%s: requesting %lu bytes\n", __func__, (u_long) len);
+    }
+
+    if (len == 0)
+        return SANE_STATUS_GOOD;
+
+    if (is_addr_used) {
+        status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
+                                       VALUE_SET_REGISTER, 0x00, 1, &addr);
         if (status != SANE_STATUS_GOOD) {
-            DBG(DBG_error, "%s failed while writing command: %s\n",
-                __func__, sane_strstatus (status));
+            DBG(DBG_error, "%s failed while setting register: %s\n", __func__,
+                sane_strstatus(status));
             return status;
+        }
+    }
+
+    target = len;
+    buffer = data;
+
+    /*  Genesys supports 0xFE00 maximum size in general, wheraus GL646 supports
+        0xFFC0. We use 0xF000 because that's the packet limit in the Linux usbmon
+        USB capture stack. By default it limits packet size to b_size / 5 where
+        b_size is the size of the ring buffer. By default it's 300*1024, so the
+        packet is limited 61440 without any visibility to acquiring software.
+    */
+    size_t max_in_size = 0xf000;
+    if (dev->model->asic_type == GENESYS_GL124)
+        max_in_size = 0xeff0;
+
+    if (!has_header_before_each_chunk) {
+        status = sanei_genesys_bulk_read_data_send_header(dev, len);
+        if (status != SANE_STATUS_GOOD)
+            return status;
+    }
+
+    // loop until computed data size is read
+    while (target) {
+        if (target > max_in_size) {
+            size = max_in_size;
+        } else {
+            size = target;
+        }
+
+        if (has_header_before_each_chunk) {
+            status = sanei_genesys_bulk_read_data_send_header(dev, size);
+            if (status != SANE_STATUS_GOOD)
+                return status;
         }
 
         DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) size);
+
         status = sanei_usb_read_bulk(dev->dn, data, &size);
+
         if (status != SANE_STATUS_GOOD) {
             DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
                 sane_strstatus(status));

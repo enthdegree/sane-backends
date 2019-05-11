@@ -285,70 +285,11 @@ static SANE_Status
 gl646_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 		      uint8_t * data, size_t len)
 {
-  SANE_Status status;
-  size_t size;
-  uint8_t outdata[8];
-
-  DBG(DBG_io, "%s: requesting %lu bytes\n", __func__, (u_long) len);
-
-  /* write requested size */
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_SET_REGISTER, INDEX, 1, &addr);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s failed while setting register: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  outdata[0] = BULK_IN;
-  outdata[1] = BULK_RAM;
-  outdata[2] = 0x00;
-  outdata[3] = 0x00;
-  outdata[4] = (len & 0xff);
-  outdata[5] = ((len >> 8) & 0xff);
-  outdata[6] = ((len >> 16) & 0xff);
-  outdata[7] = ((len >> 24) & 0xff);
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			   VALUE_BUFFER, INDEX, sizeof (outdata), outdata);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s failed while writing command: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  while (len)
-    {
-      if (len > GL646_BULKIN_MAXSIZE)
-	size = GL646_BULKIN_MAXSIZE;
-      else
-	size = len;
-
-      DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) size);
-      status = sanei_usb_read_bulk (dev->dn, data, &size);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
-
-      DBG(DBG_io2, "%s read %lu bytes, %lu remaining\n", __func__, (u_long) size,
-          (u_long) (len - size));
-
-      len -= size;
-      data += size;
-    }
-
-  if (dev->model->is_sheetfed == SANE_TRUE)
+  SANE_Status status = sanei_genesys_bulk_read_data(dev, addr, data, len);
+  if (status == SANE_STATUS_GOOD && dev->model->is_sheetfed == SANE_TRUE)
     {
       gl646_detect_document_end (dev);
     }
-
-  DBG(DBG_io, "%s: end\n", __func__);
-
   return status;
 }
 

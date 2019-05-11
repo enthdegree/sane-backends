@@ -568,8 +568,7 @@ gl124_send_slope_table (Genesys_Device * dev, int table_nr,
     }
 
   /* slope table addresses are fixed */
-  status =
-    sanei_genesys_write_ahb(dev->dn, 0x10000000 + 0x4000 * table_nr, steps * 2, table);
+  status = sanei_genesys_write_ahb(dev, 0x10000000 + 0x4000 * table_nr, steps * 2, table);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -2809,7 +2808,7 @@ gl124_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
         }
       RIE (sanei_genesys_read_register (dev, 0xd0+i, &val));
       addr = val * 8192 + 0x10000000;
-      status = sanei_genesys_write_ahb(dev->dn, addr, pixels*dev->segnb, buffer);
+      status = sanei_genesys_write_ahb(dev, addr, pixels*dev->segnb, buffer);
       if (status != SANE_STATUS_GOOD)
         {
           DBG(DBG_error, "%s; write to AHB failed (%s)\n", __func__, sane_strstatus(status));

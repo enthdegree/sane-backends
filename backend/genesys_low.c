@@ -1261,7 +1261,7 @@ sanei_genesys_bulk_write_register (Genesys_Device * dev,
  * @param data pointer to the data to write
  */
 SANE_Status
-sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * data)
+sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_t * data)
 {
   uint8_t outdata[8];
   size_t written,blksize;
@@ -1290,8 +1290,8 @@ sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * da
 
   /* write addr and size for AHB */
   status =
-    sanei_usb_control_msg (dn, REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER,
-			   0x01, 8, outdata);
+    sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER,
+                          0x01, 8, outdata);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed while setting addr and size: %s\n", __func__,
@@ -1311,7 +1311,7 @@ sanei_genesys_write_ahb (SANE_Int dn, uint32_t addr, uint32_t size, uint8_t * da
         {
           blksize = size - written;
         }
-      status = sanei_usb_write_bulk (dn, data + written, &blksize);
+      status = sanei_usb_write_bulk(dev->dn, data + written, &blksize);
       if (status != SANE_STATUS_GOOD)
         {
           DBG (DBG_error,
@@ -1457,7 +1457,7 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
       RIEF (sanei_genesys_write_register (dev, 0xc5+2*i, gamma[size*2*i+1]), gamma);
       RIEF (sanei_genesys_write_register (dev, 0xc6+2*i, gamma[size*2*i]), gamma);
 
-      status = sanei_genesys_write_ahb(dev->dn, 0x01000000 + 0x200 * i, (size-1) * 2, gamma + i * size * 2+2);
+      status = sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2, gamma + i * size * 2+2);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,

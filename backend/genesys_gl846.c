@@ -1312,12 +1312,6 @@ gl846_init_scan_regs (Genesys_Device * dev,
   bytes_per_line = (bytes_per_line * channels * depth) / 8;
 
   requested_buffer_size = 8 * bytes_per_line;
-  /* we must use a round number of bytes_per_line */
-  /* XXX STEF XXX
-  if (requested_buffer_size > BULKIN_MAXSIZE)
-    requested_buffer_size =
-      (BULKIN_MAXSIZE / bytes_per_line) * bytes_per_line;
-  */
 
   read_buffer_size =
     2 * requested_buffer_size +

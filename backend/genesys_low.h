@@ -203,15 +203,6 @@
 #define BULK_RAM		0x00
 #define BULK_REGISTER		0x11
 
-/*  Genesys supports 0xFE00 maximum size in general, wheraus GL646 supports
-    0xFFC0. We use 0xF000 because that's the packet limit in the Linux usbmon
-    USB capture stack. By default it limits packet size to b_size / 5 where
-    b_size is the size of the ring buffer. By default it's 300*1024, so the
-    packet is limited 61440 without any visibility to acquiring software.
-*/
-#define BULKIN_MAXSIZE          0xF000
-#define GL646_BULKIN_MAXSIZE    0xF000
-#define GL646_BULKIN_MINSIZE    0x0800
 #define BULKOUT_MAXSIZE         0xF000
 
 /* AFE values */
@@ -1000,6 +991,8 @@ sanei_genesys_bulk_write_register (Genesys_Device * dev,
                                    size_t elems);
 
 extern SANE_Status sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val);
+
+extern unsigned sanei_genesys_get_bulk_max_size(Genesys_Device * dev);
 
 extern SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
                                                 size_t len);

@@ -193,6 +193,22 @@ sanei_genesys_set_reg_from_set (Genesys_Register_Set * reg, uint16_t address,
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
 
+extern unsigned sanei_genesys_get_bulk_max_size(Genesys_Device * dev)
+{
+    /*  Genesys supports 0xFE00 maximum size in general, wheraus GL646 supports
+        0xFFC0. We use 0xF000 because that's the packet limit in the Linux usbmon
+        USB capture stack. By default it limits packet size to b_size / 5 where
+        b_size is the size of the ring buffer. By default it's 300*1024, so the
+        packet is limited 61440 without any visibility to acquiring software.
+    */
+    if (dev->model->asic_type == GENESYS_GL124 ||
+        dev->model->asic_type == GENESYS_GL846 ||
+        dev->model->asic_type == GENESYS_GL847) {
+        return 0xeff0;
+    }
+    return 0xf000;
+}
+
 SANE_Status sanei_genesys_bulk_read_data_send_header(Genesys_Device* dev, size_t len)
 {
     SANE_Status status;
@@ -277,18 +293,7 @@ SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
     target = len;
     buffer = data;
 
-    /*  Genesys supports 0xFE00 maximum size in general, wheraus GL646 supports
-        0xFFC0. We use 0xF000 because that's the packet limit in the Linux usbmon
-        USB capture stack. By default it limits packet size to b_size / 5 where
-        b_size is the size of the ring buffer. By default it's 300*1024, so the
-        packet is limited 61440 without any visibility to acquiring software.
-    */
-    size_t max_in_size = 0xf000;
-    if (dev->model->asic_type == GENESYS_GL124 ||
-        dev->model->asic_type == GENESYS_GL846 ||
-        dev->model->asic_type == GENESYS_GL847) {
-        max_in_size = 0xeff0;
-    }
+    size_t max_in_size = sanei_genesys_get_bulk_max_size(dev);
 
     if (!has_header_before_each_chunk) {
         status = sanei_genesys_bulk_read_data_send_header(dev, len);

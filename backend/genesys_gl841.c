@@ -2710,9 +2710,9 @@ dummy \ scanned lines
 
   requested_buffer_size = 8 * bytes_per_line;
   /* we must use a round number of bytes_per_line */
-  if (requested_buffer_size > BULKIN_MAXSIZE)
+  if (requested_buffer_size > sanei_genesys_get_bulk_max_size(dev))
     requested_buffer_size =
-      (BULKIN_MAXSIZE / bytes_per_line) * bytes_per_line;
+      (sanei_genesys_get_bulk_max_size(dev) / bytes_per_line) * bytes_per_line;
 
   read_buffer_size =
     2 * requested_buffer_size +

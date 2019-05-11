@@ -199,7 +199,9 @@ SANE_Status sanei_genesys_bulk_read_data_send_header(Genesys_Device* dev, size_t
 
     uint8_t outdata[8];
     if (dev->model->asic_type == GENESYS_GL124 ||
-        dev->model->asic_type == GENESYS_GL846) {
+        dev->model->asic_type == GENESYS_GL846 ||
+        dev->model->asic_type == GENESYS_GL847)
+    {
         // hard coded 0x10000000 address
         outdata[0] = 0;
         outdata[1] = 0;
@@ -238,6 +240,7 @@ SANE_Status sanei_genesys_bulk_read_data_send_header(Genesys_Device* dev, size_t
 SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
                                          size_t len)
 {
+    // currently supported: GL646, GL841, GL843, GL846, GL847, GL124
     SANE_Status status;
     size_t size, target;
     uint8_t *buffer;
@@ -245,7 +248,9 @@ SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
     unsigned is_addr_used = 1;
     unsigned has_header_before_each_chunk = 0;
     if (dev->model->asic_type == GENESYS_GL124 ||
-        dev->model->asic_type == GENESYS_GL846) {
+        dev->model->asic_type == GENESYS_GL846 ||
+        dev->model->asic_type == GENESYS_GL847)
+    {
         is_addr_used = 0;
         has_header_before_each_chunk = 1;
     }
@@ -280,8 +285,10 @@ SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
     */
     size_t max_in_size = 0xf000;
     if (dev->model->asic_type == GENESYS_GL124 ||
-        dev->model->asic_type == GENESYS_GL846)
+        dev->model->asic_type == GENESYS_GL846 ||
+        dev->model->asic_type == GENESYS_GL847) {
         max_in_size = 0xeff0;
+    }
 
     if (!has_header_before_each_chunk) {
         status = sanei_genesys_bulk_read_data_send_header(dev, len);

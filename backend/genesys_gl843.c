@@ -3335,12 +3335,10 @@ gl843_offset_calibration (Genesys_Device * dev)
   RIEF2 (sanei_genesys_read_data_from_scanner (dev, first_line, total_size), first_line, second_line);
   if (DBG_LEVEL >= DBG_data)
     {
-      for (i = 0; i < 3; i++)
-	{
-          char fn[30];
-          snprintf(fn, 30, "gl843_offset_%d_%03d.pnm", i, bottom[i]);
-          sanei_genesys_write_pnm_file(fn, first_line, bpp, channels, pixels, lines);
-	}
+      char fn[40];
+      snprintf(fn, 40, "gl843_bottom_offset_%03d_%03d_%03d.pnm",
+               bottom[0], bottom[1], bottom[2]);
+      sanei_genesys_write_pnm_file(fn, first_line, bpp, channels, pixels, lines);
     }
 
   for (i = 0; i < 3; i++)

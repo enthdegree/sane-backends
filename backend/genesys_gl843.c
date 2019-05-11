@@ -194,76 +194,6 @@ write_data (Genesys_Device * dev, uint32_t addr, uint32_t size,
   return status;
 }
 
-
-static SANE_Status
-gl843_bulk_read_data (Genesys_Device * dev, uint8_t addr,
-		      uint8_t * data, size_t len)
-{
-  SANE_Status status;
-  size_t size;
-  uint8_t outdata[8];
-
-  DBGSTART;
-  DBG(DBG_io, "%s: requesting %lu bytes from 0x%02x addr\n", __func__, (u_long) len, addr);
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_SET_REGISTER, 0, 1, &addr);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set register address %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  if (len == 0)
-    return SANE_STATUS_GOOD;
-
-  outdata[0] = BULK_IN;
-  outdata[1] = BULK_RAM;
-  outdata[2] = VALUE_BUFFER;
-  outdata[3] = 0;
-  outdata[4] = (len & 0xff);
-  outdata[5] = ((len >> 8) & 0xff);
-  outdata[6] = ((len >> 16) & 0xff);
-  outdata[7] = ((len >> 24) & 0xff);
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			   VALUE_BUFFER, INDEX, sizeof (outdata), outdata);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s failed while writing command: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  while (len)
-    {
-      if (len > 0xF000)
-	size = 0xF000;
-      else
-	size = len;
-
-      DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) size);
-
-      status = sanei_usb_read_bulk (dev->dn, data, &size);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
-
-      DBG(DBG_io2, "%s read %lu bytes, %lu remaining\n", __func__, (u_long) size,
-          (u_long) (len - size));
-
-      len -= size;
-      data += size;
-    }
-
-  DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
-}
-
 /****************************************************************************
  Mid level functions
  ****************************************************************************/
@@ -4268,7 +4198,7 @@ static Genesys_Command_Set gl843_cmd_set = {
 
   sanei_genesys_bulk_write_register,
   gl843_bulk_write_data,
-  gl843_bulk_read_data,
+  sanei_genesys_bulk_read_data,
 
   gl843_update_hardware_sensors,
 

@@ -833,6 +833,8 @@ struct Genesys_Device
 
   SANE_String file_name;
   SANE_String calib_file;
+  SANE_Int force_calibration; // if enabled, no calibration data will be loaded
+                              // or saved to files
   Genesys_Model *model;
 
   Genesys_Register_Set reg[256];

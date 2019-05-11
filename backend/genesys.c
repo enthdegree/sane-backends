@@ -5904,6 +5904,19 @@ init_options (Genesys_Scanner * s)
   s->val[OPT_CLEAR_CALIBRATION].b = 0;
   s->last_val[OPT_CLEAR_CALIBRATION].b = 0;
 
+  /* force calibration cache button */
+  s->opt[OPT_FORCE_CALIBRATION].name = "force-calibration";
+  s->opt[OPT_FORCE_CALIBRATION].title = SANE_I18N("Force calibration");
+  s->opt[OPT_FORCE_CALIBRATION].desc = SANE_I18N("Force calibration ignoring all and any calibration caches");
+  s->opt[OPT_FORCE_CALIBRATION].type = SANE_TYPE_BUTTON;
+  s->opt[OPT_FORCE_CALIBRATION].unit = SANE_UNIT_NONE;
+  s->opt[OPT_FORCE_CALIBRATION].size = 0;
+  s->opt[OPT_FORCE_CALIBRATION].constraint_type = SANE_CONSTRAINT_NONE;
+  s->opt[OPT_FORCE_CALIBRATION].cap =
+    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
+  s->val[OPT_FORCE_CALIBRATION].b = 0;
+  s->last_val[OPT_FORCE_CALIBRATION].b = 0;
+
   RIE (calc_parameters (s));
 
   DBGCOMPLETED;
@@ -6686,6 +6699,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->white_average_data = NULL;
   s->dev->dark_average_data = NULL;
   s->dev->calibration_cache = NULL;
+  s->dev->force_calibration = 0;
   s->dev->calib_file = NULL;
   s->dev->img_buffer = NULL;
   s->dev->line_interp = 0;
@@ -6716,16 +6730,18 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   RIE (s->dev->model->cmd_set->update_hardware_sensors (s));
 
   /* here is the place to fetch a stored calibration cache */
-  tmpstr=calibration_filename(s->dev);
-  s->val[OPT_CALIBRATION_FILE].s = strdup (tmpstr);
-  s->dev->calib_file = strdup (tmpstr);
-  DBG(DBG_info, "%s: Calibration filename set to:\n", __func__);
-  DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file);
-  free(tmpstr);
+  if (s->dev->force_calibration == 0)
+    {
+      tmpstr=calibration_filename(s->dev);
+      s->val[OPT_CALIBRATION_FILE].s = strdup (tmpstr);
+      s->dev->calib_file = strdup (tmpstr);
+      DBG(DBG_info, "%s: Calibration filename set to:\n", __func__);
+      DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file);
+      free(tmpstr);
 
-  /* now open file, fetch calibration records */
-
-  sanei_genesys_read_calibration (s->dev);
+      /* now open file, fetch calibration records */
+      sanei_genesys_read_calibration (s->dev);
+    }
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -6783,7 +6799,8 @@ sane_close (SANE_Handle handle)
     }
 
   /* here is the place to store calibration cache */
-  write_calibration (s->dev);
+  if (s->dev->force_calibration == 0)
+    write_calibration (s->dev);
 
   for (cache = s->dev->calibration_cache; cache; cache = next_cache)
     {
@@ -7216,7 +7233,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       RIE (calc_parameters (s));
       break;
     case OPT_CALIBRATION_FILE:
-      RIE(set_calibration_value (s, option, val));
+      if (s->dev->force_calibration == 0)
+        RIE(set_calibration_value (s, option, val));
       break;
     case OPT_LAMP_OFF_TIME:
     case OPT_EXPIRATION_TIME:
@@ -7335,6 +7353,24 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       s->dev->calibration_cache = NULL;
       /* remove file */
       unlink (s->dev->calib_file);
+      /* signals that sensors will have to be read again */
+      *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+      break;
+    case OPT_FORCE_CALIBRATION:
+      s->dev->force_calibration = 1;
+      if (s->dev->calibration_cache != NULL)
+        {
+          for (cache = s->dev->calibration_cache; cache; cache = next_cache)
+            {
+              next_cache = cache->next;
+              free (cache->dark_average_data);
+              free (cache->white_average_data);
+              free (cache);
+            }
+        }
+      s->dev->calibration_cache = NULL;
+
+      FREE_IFNOT_NULL(s->dev->calib_file);
       /* signals that sensors will have to be read again */
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;

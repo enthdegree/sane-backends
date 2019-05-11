@@ -473,7 +473,7 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 
 	if( sanei_thread_is_valid( scanner->reader_pid )) {
 
-		DBG( _DBG_PROC, ">>>>>>>> killing reader_process <<<<<<<<\n" );
+                DBG( _DBG_PROC, "---- killing reader_process ----\n" );
 
 		/* tell the driver to stop scanning */
 		if( -1 != scanner->hw->fd ) {

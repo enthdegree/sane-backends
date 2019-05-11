@@ -393,7 +393,7 @@ static SANE_Status do_cancel( U12_Scanner *scanner, SANE_Bool closepipe )
 
 	if( sanei_thread_is_valid (scanner->reader_pid) ) {
 
-		DBG( _DBG_PROC, ">>>>>>>> killing reader_process <<<<<<<<\n" );
+                DBG( _DBG_PROC, "---- killing reader_process ----\n" );
 
 		cancelRead = SANE_TRUE;
 

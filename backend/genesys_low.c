@@ -358,11 +358,13 @@ SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, ui
         return status;
     }
 
+    size_t max_out_size = sanei_genesys_get_bulk_max_size(dev);
+
     while (len) {
-        if(len>65472)
-          size=65472;
+        if (len > max_out_size)
+            size = max_out_size;
         else
-          size = len;
+            size = len;
 
         outdata[0] = BULK_OUT;
         outdata[1] = BULK_RAM;
@@ -1299,13 +1301,15 @@ sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8
       return status;
     }
 
+  size_t max_out_size = sanei_genesys_get_bulk_max_size(dev);
+
   /* write actual data */
   written = 0;
   do
     {
-      if (size - written > BULKOUT_MAXSIZE)
+      if (size - written > max_out_size)
         {
-          blksize = BULKOUT_MAXSIZE;
+          blksize = max_out_size;
         }
       else
         {

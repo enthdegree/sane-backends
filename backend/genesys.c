@@ -1062,7 +1062,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 
   memcpy (data, image, size);
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file ("laplace.pnm", image, 8, 1, width, height);
+    sanei_genesys_write_pnm_file("gl_laplace.pnm", image, 8, 1, width, height);
 
   /* apply X direction sobel filter
      -1  0  1
@@ -1087,7 +1087,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 	  level = current;
       }
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file ("xsobel.pnm", image, 8, 1, width, height);
+    sanei_genesys_write_pnm_file("gl_xsobel.pnm", image, 8, 1, width, height);
 
   /* set up detection level */
   level = level / 3;
@@ -1109,8 +1109,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
       left += x;
     }
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file ("detected-xsobel.pnm", image, 8, 1, width,
-				  height);
+    sanei_genesys_write_pnm_file("gl_detected-xsobel.pnm", image, 8, 1, width, height);
   left = left / count;
 
   /* turn it in CCD pixel at full sensor optical resolution */
@@ -1140,7 +1139,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 	  level = current;
       }
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file ("ysobel.pnm", image, 8, 1, width, height);
+    sanei_genesys_write_pnm_file("gl_ysobel.pnm", image, 8, 1, width, height);
 
   /* set up detection level */
   level = level / 3;
@@ -1163,8 +1162,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 	  top += y;
 	}
       if (DBG_LEVEL >= DBG_data)
-	sanei_genesys_write_pnm_file ("detected-ysobel.pnm", image, 8, 1,
-				      width, height);
+        sanei_genesys_write_pnm_file("gl_detected-ysobel.pnm", image, 8, 1, width, height);
       top = top / count;
 
       /* bottom of black stripe is of fixed witdh, this hardcoded value
@@ -1596,12 +1594,10 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	  for (count = 0; count < (unsigned int) (size * 4 / 2); count++)
 	    all_data_8[count] = all_data[count * 2 + 1];
 	  status =
-	    sanei_genesys_write_pnm_file ("coarse.pnm", all_data_8, 8,
-					  channels, size / 6, 4);
+            sanei_genesys_write_pnm_file("gl_coarse.pnm", all_data_8, 8, channels, size / 6, 4);
 	  if (status != SANE_STATUS_GOOD)
 	    {
-              DBG(DBG_error, "%s: sanei_genesys_write_pnm_file failed: %s\n", __func__,
-                  sane_strstatus(status));
+              DBG(DBG_error, "%s: failed: %s\n", __func__, sane_strstatus(status));
 	      return status;
 	    }
 	}
@@ -1822,12 +1818,10 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 
   if (DBG_LEVEL >= DBG_data)
     {
-      sanei_genesys_write_pnm_file ("black_shading.pnm", calibration_data, 16,
-				    channels, pixels_per_line,
-				    dev->calib_lines);
-      sanei_genesys_write_pnm_file ("black_average.pnm",
-				    dev->dark_average_data, 16, channels,
-				    pixels_per_line, 1);
+      sanei_genesys_write_pnm_file("gl_black_shading.pnm", calibration_data, 16,
+                                   channels, pixels_per_line, dev->calib_lines);
+      sanei_genesys_write_pnm_file("gl_black_average.pnm",
+                                    dev->dark_average_data, 16, channels, pixels_per_line, 1);
     }
 
   free (calibration_data);
@@ -2031,18 +2025,16 @@ genesys_white_shading_calibration (Genesys_Device * dev)
     }
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file ("white_shading.pnm", calibration_data, 16,
-				  channels, pixels_per_line,
-				  dev->calib_lines);
+    sanei_genesys_write_pnm_file("gl_white_shading.pnm", calibration_data, 16,
+                                 channels, pixels_per_line, dev->calib_lines);
 
   genesys_average_data (dev->white_average_data, calibration_data,
 			dev->calib_lines,
 			pixels_per_line * channels);
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file ("white_average.pnm",
-				  dev->white_average_data, 16, channels,
-				  pixels_per_line, 1);
+    sanei_genesys_write_pnm_file("gl_white_average.pnm", dev->white_average_data, 16, channels,
+                                 pixels_per_line, 1);
 
   free (calibration_data);
 
@@ -2172,15 +2164,15 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
     {
       if (dev->model->is_cis)
         {
-          sanei_genesys_write_pnm_file ("black_white_shading.pnm", calibration_data,
-                                        16, 1, pixels_per_line*channels,
-                                        dev->calib_lines);
+          sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data,
+                                       16, 1, pixels_per_line*channels,
+                                       dev->calib_lines);
         }
       else
         {
-          sanei_genesys_write_pnm_file ("black_white_shading.pnm", calibration_data,
-                                        16, channels, pixels_per_line,
-                                        dev->calib_lines);
+          sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data,
+                                       16, channels, pixels_per_line,
+                                       dev->calib_lines);
         }
     }
 
@@ -2249,12 +2241,12 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   if (DBG_LEVEL >= DBG_data)
     {
-      sanei_genesys_write_pnm_file ("white_average.pnm",
-				    dev->white_average_data, 16, channels,
-				    pixels_per_line, 1);
-      sanei_genesys_write_pnm_file ("dark_average.pnm",
-				    dev->dark_average_data, 16, channels,
-				    pixels_per_line, 1);
+      sanei_genesys_write_pnm_file("gl_white_average.pnm",
+                                   dev->white_average_data, 16, channels,
+                                   pixels_per_line, 1);
+      sanei_genesys_write_pnm_file("gl_dark_average.pnm",
+                                   dev->dark_average_data, 16, channels,
+                                   pixels_per_line, 1);
     }
 
   free (calibration_data);
@@ -3747,14 +3739,10 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	  second_average /= pixel;
 	  if (DBG_LEVEL >= DBG_data)
 	    {
-	      sanei_genesys_write_pnm_file ("warmup1.pnm", first_line, 8,
-					    channels,
-					    total_size / (lines * channels),
-					    lines);
-	      sanei_genesys_write_pnm_file ("warmup2.pnm", second_line, 8,
-					    channels,
-					    total_size / (lines * channels),
-					    lines);
+              sanei_genesys_write_pnm_file("gl_warmup1.pnm", first_line, 8, channels,
+                                           total_size / (lines * channels), lines);
+              sanei_genesys_write_pnm_file("gl_warmup2.pnm", second_line, 8, channels,
+                                           total_size / (lines * channels), lines);
 	    }
 	  DBG(DBG_info, "%s: average 1 = %.2f, average 2 = %.2f\n", __func__, first_average,
 	      second_average);
@@ -6446,12 +6434,9 @@ genesys_buffer_image(Genesys_Scanner *s)
   s->params.lines = total / s->params.bytes_per_line;
   if (DBG_LEVEL >= DBG_io2)
     {
-      sanei_genesys_write_pnm_file ("unprocessed.pnm",
-				    dev->img_buffer,
-				    s->params.depth,
-				    s->params.format==SANE_FRAME_RGB ? 3:1,
-				    s->params.pixels_per_line,
-				    s->params.lines);
+      sanei_genesys_write_pnm_file("gl_unprocessed.pnm", dev->img_buffer, s->params.depth,
+                                   s->params.format==SANE_FRAME_RGB ? 3 : 1,
+                                   s->params.pixels_per_line, s->params.lines);
     }
 
   return SANE_STATUS_GOOD;

@@ -2507,8 +2507,8 @@ gl124_search_start_position (Genesys_Device * dev)
     }
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file ("search_position.pnm", data, 8, 1, pixels,
-				  dev->model->search_lines);
+    sanei_genesys_write_pnm_file("gl124_search_position.pnm", data, 8, 1, pixels,
+                                 dev->model->search_lines);
 
   status = gl124_end_scan (dev, local_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
@@ -3004,7 +3004,7 @@ move_to_calibration_area (Genesys_Device * dev)
 
   if (DBG_LEVEL >= DBG_data)
     {
-      sanei_genesys_write_pnm_file ("movetocalarea.pnm", line, 8, 3, pixels, 1);
+      sanei_genesys_write_pnm_file("gl124_movetocalarea.pnm", line, 8, 3, pixels, 1);
     }
 
   /* cleanup before return */
@@ -3033,7 +3033,6 @@ gl124_led_calibration (Genesys_Device * dev)
   int channels, depth;
   int avg[3];
   int turn;
-  char fn[20];
   uint16_t exp[3],target;
   Sensor_Profile *sensor;
   SANE_Bool acceptable;
@@ -3121,8 +3120,9 @@ gl124_led_calibration (Genesys_Device * dev)
 
       if (DBG_LEVEL >= DBG_data)
 	{
-	  snprintf (fn, 20, "led_%02d.pnm", turn);
-	  sanei_genesys_write_pnm_file (fn, line, depth, channels, num_pixels, 1);
+          char fn[30];
+          snprintf(fn, 30, "gl124_led_%02d.pnm", turn);
+          sanei_genesys_write_pnm_file(fn, line, depth, channels, num_pixels, 1);
 	}
 
       /* compute average */
@@ -3229,7 +3229,6 @@ gl124_offset_calibration (Genesys_Device * dev)
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t *first_line, *second_line, reg0a;
   unsigned int channels, bpp;
-  char title[32];
   int pass = 0, avg, total_size;
   int topavg, bottomavg, resolution, lines;
   int top, bottom, black_pixels, pixels;
@@ -3310,8 +3309,9 @@ gl124_offset_calibration (Genesys_Device * dev)
   RIEF2 (sanei_genesys_read_data_from_scanner (dev, first_line, total_size), first_line, second_line);
   if (DBG_LEVEL >= DBG_data)
    {
-      snprintf(title,20,"offset%03d.pnm",bottom);
-      sanei_genesys_write_pnm_file (title, first_line, bpp, channels, pixels, lines);
+      char title[30];
+      snprintf(title, 30, "gl124_offset%03d.pnm", bottom);
+      sanei_genesys_write_pnm_file(title, first_line, bpp, channels, pixels, lines);
    }
 
   bottomavg = dark_average (first_line, pixels, lines, channels, black_pixels);
@@ -3350,8 +3350,9 @@ gl124_offset_calibration (Genesys_Device * dev)
 
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sprintf (title, "offset%03d.pnm", dev->frontend.offset[1]);
-	  sanei_genesys_write_pnm_file (title, second_line, bpp, channels, pixels, lines);
+          char title[30];
+          snprintf(title, 30, "gl124_offset%03d.pnm", dev->frontend.offset[1]);
+          sanei_genesys_write_pnm_file(title, second_line, bpp, channels, pixels, lines);
 	}
 
       avg = dark_average (second_line, pixels, lines, channels, black_pixels);
@@ -3472,7 +3473,7 @@ gl124_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   RIEF (sanei_genesys_read_data_from_scanner (dev, line, total_size), line);
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file ("coarse.pnm", line, bpp, channels, pixels, lines);
+    sanei_genesys_write_pnm_file("gl124_coarse.pnm", line, bpp, channels, pixels, lines);
 
   /* average value on each channel */
   for (j = 0; j < channels; j++)

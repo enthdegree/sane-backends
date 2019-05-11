@@ -3068,10 +3068,8 @@ gl646_search_start_position (Genesys_Device * dev)
 	}
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sanei_genesys_write_pnm_file ("search_position.pnm",
-					data,
-					settings.depth,
-					1, settings.pixels, settings.lines);
+          sanei_genesys_write_pnm_file("gl646_search_position.pnm", data, settings.depth, 1,
+                                       settings.pixels, settings.lines);
 	}
     }
   else
@@ -3545,7 +3543,6 @@ gl646_led_calibration (Genesys_Device * dev)
   unsigned int channels;
   int avg[3], avga, avge;
   int turn;
-  char fn[20];
   uint16_t expr, expg, expb;
   Genesys_Settings settings;
   SANE_Int resolution;
@@ -3643,10 +3640,9 @@ gl646_led_calibration (Genesys_Device * dev)
 
       if (DBG_LEVEL >= DBG_data)
 	{
-	  snprintf (fn, 20, "led_%02d.pnm", turn);
-	  sanei_genesys_write_pnm_file (fn,
-					line,
-					16, channels, settings.pixels, 1);
+          char fn[30];
+          snprintf(fn, 30, "gl646_led_%02d.pnm", turn);
+          sanei_genesys_write_pnm_file(fn, line, 16, channels, settings.pixels, 1);
 	}
 
       acceptable = SANE_TRUE;
@@ -3759,7 +3755,6 @@ ad_fe_offset_calibration (Genesys_Device * dev)
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t *line;
   unsigned int channels;
-  char title[32];
   int pass = 0;
   SANE_Int resolution;
   Genesys_Settings settings;
@@ -3815,7 +3810,8 @@ ad_fe_offset_calibration (Genesys_Device * dev)
 	}
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sprintf (title, "offset%03d.pnm", (int)bottom);
+          char title[30];
+          snprintf(title, 30, "gl646_offset%03d.pnm", (int)bottom);
 	  sanei_genesys_write_pnm_file (title, line, 8, channels,
 					settings.pixels, settings.lines);
 	}
@@ -3867,7 +3863,6 @@ gl646_offset_calibration (Genesys_Device * dev)
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t *first_line, *second_line;
   unsigned int channels;
-  char title[32];
   int pass = 0, avg;
   SANE_Int resolution;
   Genesys_Settings settings;
@@ -3940,9 +3935,10 @@ gl646_offset_calibration (Genesys_Device * dev)
     }
   if (DBG_LEVEL >= DBG_data)
     {
-      sprintf (title, "offset%03d.pnm", bottom);
-      sanei_genesys_write_pnm_file (title, first_line, 8, channels,
-				    settings.pixels, settings.lines);
+      char title[30];
+      snprintf(title, 30, "gl646_offset%03d.pnm", bottom);
+      sanei_genesys_write_pnm_file(title, first_line, 8, channels,
+                                   settings.pixels, settings.lines);
     }
   bottomavg =
     dark_average (first_line, settings.pixels, settings.lines, channels,
@@ -3967,7 +3963,8 @@ gl646_offset_calibration (Genesys_Device * dev)
 
   if (DBG_LEVEL >= DBG_data)
     {
-      sprintf (title, "offset%03d.pnm", top);
+      char title[30];
+      snprintf(title, 30, "gl646_offset%03d.pnm", top);
       sanei_genesys_write_pnm_file (title, second_line, 8, channels,
 				    settings.pixels, settings.lines);
     }
@@ -4000,7 +3997,8 @@ gl646_offset_calibration (Genesys_Device * dev)
 
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sprintf (title, "offset%03d.pnm", dev->frontend.offset[1]);
+          char title[30];
+          snprintf(title, 30, "gl646_offset%03d.pnm", dev->frontend.offset[1]);
 	  sanei_genesys_write_pnm_file (title, second_line, 8, channels,
 					settings.pixels, settings.lines);
 	}
@@ -4036,9 +4034,8 @@ gl646_offset_calibration (Genesys_Device * dev)
           DBG(DBG_error, "%s: failed to scan final line\n", __func__);
 	  return status;
 	}
-      sanei_genesys_write_pnm_file ("offset-final.pnm", second_line, 8,
-				    channels, settings.pixels,
-				    settings.lines);
+      sanei_genesys_write_pnm_file("gl646_offset-final.pnm", second_line, 8, channels,
+                                   settings.pixels, settings.lines);
       free (second_line);
     }
 
@@ -4112,10 +4109,8 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sprintf (title, "alternative_coarse%02d.pnm", (int)pass);
-	  sanei_genesys_write_pnm_file (title, line, 8,
-					channels, settings.pixels,
-					settings.lines);
+          sprintf (title, "gl646_alternative_coarse%02d.pnm", (int)pass);
+          sanei_genesys_write_pnm_file(title, line, 8, channels, settings.pixels, settings.lines);
 	}
       pass++;
 
@@ -4250,10 +4245,8 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sprintf (title, "coarse_gain%02d.pnm", (int)pass);
-	  sanei_genesys_write_pnm_file (title, line, 8,
-					channels, settings.pixels,
-					settings.lines);
+          sprintf (title, "gl646_coarse_gain%02d.pnm", (int)pass);
+          sanei_genesys_write_pnm_file(title, line, 8, channels, settings.pixels, settings.lines);
 	}
       pass++;
 
@@ -5416,7 +5409,7 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	}
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sprintf (title, "search_strip_%s%02d.pnm", forward ? "fwd" : "bwd",
+          sprintf (title, "gl646_search_strip_%s%02d.pnm", forward ? "fwd" : "bwd",
 		   (int)pass);
 	  sanei_genesys_write_pnm_file (title, data, settings.depth, 1,
 					settings.pixels, settings.lines);

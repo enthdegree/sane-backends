@@ -4055,8 +4055,8 @@ gl841_search_start_position (Genesys_Device * dev)
     }
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file ("search_position.pnm", data, 8, 1, pixels,
-				  dev->model->search_lines);
+    sanei_genesys_write_pnm_file("gl841_search_position.pnm", data, 8, 1, pixels,
+                                 dev->model->search_lines);
 
   status = gl841_end_scan (dev, local_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
@@ -4408,7 +4408,6 @@ gl841_led_calibration (Genesys_Device * dev)
   int channels;
   int avg[3], avga, avge;
   int turn;
-  char fn[20];
   uint16_t exp[3], target;
   Genesys_Register_Set *r;
   int move;
@@ -4512,12 +4511,9 @@ gl841_led_calibration (Genesys_Device * dev)
       RIE (sanei_genesys_read_data_from_scanner (dev, line, total_size));
 
       if (DBG_LEVEL >= DBG_data) {
-	  snprintf(fn,20,"led_%d.pnm",turn);
-	  sanei_genesys_write_pnm_file (fn,
-					line,
-					16,
-					channels,
-					num_pixels, 1);
+          char fn[30];
+          snprintf(fn, 30, "gl841_led_%d.pnm", turn);
+          sanei_genesys_write_pnm_file(fn, line, 16, channels, num_pixels, 1);
       }
 
      /* compute average */
@@ -4639,7 +4635,6 @@ ad_fe_offset_calibration (Genesys_Device * dev)
   int i;
   int average;
   int turn;
-  char fn[20];
   int top;
   int bottom;
   int target;
@@ -4709,8 +4704,9 @@ ad_fe_offset_calibration (Genesys_Device * dev)
       sanei_genesys_read_data_from_scanner (dev, line, total_size);
       gl841_stop_action (dev);
       if (DBG_LEVEL >= DBG_data) {
-	  snprintf(fn,20,"offset_%02d.pnm",turn);
-	  sanei_genesys_write_pnm_file (fn, line, 8, 3, num_pixels, 1);
+          char fn[30];
+          snprintf(fn, 30, "gl841_offset_%02d.pnm", turn);
+          sanei_genesys_write_pnm_file(fn, line, 8, 3, num_pixels, 1);
       }
 
       /* search for minimal value */
@@ -4766,7 +4762,6 @@ gl841_offset_calibration (Genesys_Device * dev)
   int min1[3],min2[3];
   int cmin[3],cmax[3];
   int turn;
-  char fn[20];
   SANE_Bool acceptable = SANE_FALSE;
   int mintgt = 0x400;
 
@@ -4875,12 +4870,9 @@ gl841_offset_calibration (Genesys_Device * dev)
       RIEF2 (sanei_genesys_read_data_from_scanner (dev, first_line, total_size), first_line, second_line);
 
       if (DBG_LEVEL >= DBG_data) {
-	  snprintf(fn,20,"offset1_%02d.pnm",turn);
-	  sanei_genesys_write_pnm_file (fn,
-					first_line,
-					16,
-					channels,
-					num_pixels, 1);
+          char fn[30];
+          snprintf(fn, 30, "gl841_offset1_%02d.pnm", turn);
+          sanei_genesys_write_pnm_file(fn, first_line, 16, channels, num_pixels, 1);
       }
 
       acceptable = SANE_TRUE;
@@ -4994,12 +4986,9 @@ gl841_offset_calibration (Genesys_Device * dev)
       RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
 
       if (DBG_LEVEL >= DBG_data) {
-	  snprintf(fn,20,"offset2_%02d.pnm",turn);
-	  sanei_genesys_write_pnm_file (fn,
-					second_line,
-					16,
-					channels,
-					num_pixels, 1);
+          char fn[30];
+          snprintf(fn, 30, "gl841_offset2_%02d.pnm", turn);
+          sanei_genesys_write_pnm_file(fn, second_line, 16, channels, num_pixels, 1);
       }
 
       acceptable = SANE_TRUE;
@@ -5227,7 +5216,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   RIEF (sanei_genesys_read_data_from_scanner (dev, line, total_size), line);
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file ("coarse.pnm", line, 16, channels, num_pixels, lines);
+    sanei_genesys_write_pnm_file("gl841_coarse.pnm", line, 16, channels, num_pixels, lines);
 
   /* average high level for each channel and compute gain
      to reach the target code
@@ -5798,10 +5787,9 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   pass = 0;
   if (DBG_LEVEL >= DBG_data)
     {
-      sprintf (title, "search_strip_%s_%s%02u.pnm", black ? "black" : "white",
-	       forward ? "fwd" : "bwd", pass);
-      sanei_genesys_write_pnm_file (title, data, depth, channels, pixels,
-				    lines);
+      sprintf(title, "gl841_search_strip_%s_%s%02u.pnm", black ? "black" : "white",
+              forward ? "fwd" : "bwd", pass);
+      sanei_genesys_write_pnm_file(title, data, depth, channels, pixels, lines);
     }
 
   /* loop until strip is found or maximum pass number done */
@@ -5850,10 +5838,9 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 
       if (DBG_LEVEL >= DBG_data)
 	{
-	  sprintf (title, "search_strip_%s_%s%02u.pnm",
-		   black ? "black" : "white", forward ? "fwd" : "bwd", pass);
-	  sanei_genesys_write_pnm_file (title, data, depth, channels, pixels,
-					lines);
+          sprintf(title, "gl841_search_strip_%s_%s%02u.pnm",
+                  black ? "black" : "white", forward ? "fwd" : "bwd", pass);
+          sanei_genesys_write_pnm_file(title, data, depth, channels, pixels, lines);
 	}
 
       /* search data to find black strip */

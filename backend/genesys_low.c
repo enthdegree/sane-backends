@@ -193,6 +193,96 @@ sanei_genesys_set_reg_from_set (Genesys_Register_Set * reg, uint16_t address,
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
 
+SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
+                                         size_t len)
+{
+    SANE_Status status;
+    size_t size, target, read, done;
+    uint8_t outdata[8], *buffer;
+
+    DBG(DBG_io, "%s: requesting %lu bytes (unused addr=0x%02x)\n", __func__, (u_long) len,addr);
+
+    if (len == 0)
+        return SANE_STATUS_GOOD;
+
+    target = len;
+    buffer = data;
+
+    // loop until computed data size is read
+    while (target) {
+        if (target > 0xeff0) {
+            size = 0xeff0;
+        } else {
+            size = target;
+        }
+
+        // hard coded 0x10000000 address
+        outdata[0] = 0;
+        outdata[1] = 0;
+        outdata[2] = 0;
+        outdata[3] = 0x10;
+
+        /* data size to transfer */
+        outdata[4] = (size & 0xff);
+        outdata[5] = ((size >> 8) & 0xff);
+        outdata[6] = ((size >> 16) & 0xff);
+        outdata[7] = ((size >> 24) & 0xff);
+
+        status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
+                                       VALUE_BUFFER, 0x00, sizeof(outdata), outdata);
+
+        if (status != SANE_STATUS_GOOD) {
+            DBG(DBG_error, "%s failed while writing command: %s\n",
+                __func__, sane_strstatus (status));
+            return status;
+        }
+
+        // blocks must be multiple of 512 except the last block
+        read = size;
+        read /= 512;
+        read *= 512;
+
+        if(read > 0) {
+            DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) read);
+            status = sanei_usb_read_bulk (dev->dn, data, &read);
+            if (status != SANE_STATUS_GOOD) {
+                DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
+                    sane_strstatus(status));
+                return status;
+            }
+        }
+
+        // read less than 512 bytes remainder
+        if (read < size) {
+            done = read;
+            read = size - read;
+            DBG(DBG_io2, "%s: trying to read remaining %lu bytes of data\n", __func__,
+                (u_long) read);
+
+            status = sanei_usb_read_bulk (dev->dn, data+done, &read);
+            if (status != SANE_STATUS_GOOD) {
+                DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
+                    sane_strstatus(status));
+                return status;
+            }
+        }
+
+        DBG(DBG_io2, "%s: read %lu bytes, %lu remaining\n", __func__,
+            (u_long) size, (u_long) (target - size));
+
+        target -= size;
+        data += size;
+    }
+
+    if (DBG_LEVEL >= DBG_data && dev->binary!=NULL) {
+        fwrite(buffer, len, 1, dev->binary);
+    }
+
+    DBGCOMPLETED;
+
+    return SANE_STATUS_GOOD;
+}
+
 /** @brief write to one high (addr >= 0x100) register
  * write to a register which address is higher than 0xff.
  * @param dev opened device to write to

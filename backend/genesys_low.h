@@ -1001,6 +1001,9 @@ sanei_genesys_bulk_write_register (Genesys_Device * dev,
 
 extern SANE_Status sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val);
 
+extern SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
+                                                size_t len);
+
 extern SANE_Status sanei_genesys_get_status (Genesys_Device * dev, uint8_t * status);
 
 extern void sanei_genesys_print_status (uint8_t val);

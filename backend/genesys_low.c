@@ -1245,20 +1245,62 @@ sanei_genesys_bulk_write_register (Genesys_Device * dev,
 			           Genesys_Register_Set * reg,
                                    size_t elems)
 {
-  SANE_Status status = SANE_STATUS_GOOD;
-  size_t i;
+    SANE_Status status = SANE_STATUS_GOOD;
+    size_t i;
 
-  for (i = 0; i < elems && status == SANE_STATUS_GOOD; i++)
-    {
-      if (reg[i].address != 0)
-	{
-	  status =
-	    sanei_genesys_write_register (dev, reg[i].address, reg[i].value);
-	}
+    if (dev->model->asic_type == GENESYS_GL646) {
+        uint8_t outdata[8];
+        uint8_t buffer[GENESYS_MAX_REGS * 2];
+        size_t size;
+        unsigned int i;
+
+        /* handle differently sized register sets, reg[0x00] may be the last one */
+        i = 0;
+        while ((i < elems) && (reg[i].address != 0))
+            i++;
+        elems = i;
+        size = i * 2;
+
+        DBG(DBG_io, "%s (elems= %lu, size = %lu)\n", __func__, (u_long) elems, (u_long) size);
+
+        outdata[0] = BULK_OUT;
+        outdata[1] = BULK_REGISTER;
+        outdata[2] = 0x00;
+        outdata[3] = 0x00;
+        outdata[4] = (size & 0xff);
+        outdata[5] = ((size >> 8) & 0xff);
+        outdata[6] = ((size >> 16) & 0xff);
+        outdata[7] = ((size >> 24) & 0xff);
+
+        status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
+                                       VALUE_BUFFER, INDEX, sizeof(outdata), outdata);
+
+        if (status != SANE_STATUS_GOOD) {
+            DBG(DBG_error, "%s: failed while writing command: %s\n", __func__, sane_strstatus(status));
+            return status;
+        }
+
+        /* copy registers and values in data buffer */
+        for (i = 0; i < size; i += 2) {
+            buffer[i] = reg[i / 2].address;
+            buffer[i + 1] = reg[i / 2].value;
+        }
+
+        status = sanei_usb_write_bulk (dev->dn, buffer, &size);
+        if (status != SANE_STATUS_GOOD) {
+            DBG(DBG_error, "%s: failed while writing bulk data: %s\n", __func__, sane_strstatus(status));
+            return status;
+        }
+    } else {
+        for (i = 0; i < elems && status == SANE_STATUS_GOOD; i++) {
+            if (reg[i].address != 0) {
+                status = sanei_genesys_write_register (dev, reg[i].address, reg[i].value);
+            }
+        }
     }
 
-  DBG (DBG_io, "%s: wrote %lu registers\n", __func__, (u_long) elems);
-  return status;
+    DBG (DBG_io, "%s: wrote %lu registers\n", __func__, (u_long) elems);
+    return status;
 }
 
 

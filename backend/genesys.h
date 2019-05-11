@@ -135,6 +135,7 @@ enum Genesys_Option
   OPT_BUTTON_GROUP,
   OPT_CALIBRATE,
   OPT_CLEAR_CALIBRATION,
+  OPT_FORCE_CALIBRATION,
 
   /* must come last: */
   NUM_OPTIONS

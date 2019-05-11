@@ -3369,6 +3369,11 @@ gl843_offset_calibration (Genesys_Device * dev)
 
   pass = 0;
 
+  // FIXME: we'll leak debug image if we encounter errors below
+  Genesys_Vector debug_image = sanei_gl_vector_create(1);
+  size_t debug_image_lines = 0;
+  Genesys_Vector debug_image_info = sanei_gl_vector_create(1);
+
   /* loop until acceptable level */
   while ((pass < 32)
 	 && ((top[0] - bottom[0] > 1)
@@ -3394,10 +3399,13 @@ gl843_offset_calibration (Genesys_Device * dev)
 
       if (DBG_LEVEL >= DBG_data)
 	{
-          char fn[30];
-          snprintf(fn, 30, "gl843_offset_%03d_%03d_%03d.pnm", dev->frontend.offset[0],
-                   dev->frontend.offset[1], dev->frontend.offset[2]);
-          sanei_genesys_write_pnm_file(fn, second_line, bpp, channels, pixels, lines);
+          char title[100];
+          snprintf(title, 100, "lines: %d pixels_per_line: %d offsets[0..2]: %d %d %d\n",
+                   lines, pixels,
+                   dev->frontend.offset[0], dev->frontend.offset[1], dev->frontend.offset[2]);
+          sanei_gl_vector_append(&debug_image_info, title, strlen(title));
+          sanei_gl_vector_append(&debug_image, second_line, total_size);
+          debug_image_lines += lines;
 	}
 
       for (i = 0; i < 3; i++)
@@ -3421,6 +3429,18 @@ gl843_offset_calibration (Genesys_Device * dev)
 	    }
 	}
     }
+
+  if (DBG_LEVEL >= DBG_data)
+    {
+      sanei_genesys_write_file("gl843_offset_all_desc.txt",
+                               (uint8_t*)debug_image_info.data, debug_image_info.size);
+      sanei_genesys_write_pnm_file("gl843_offset_all.pnm",
+                                   (uint8_t*)debug_image.data, bpp, channels, pixels, debug_image_lines);
+    }
+
+  sanei_gl_vector_destroy(&debug_image);
+  sanei_gl_vector_destroy(&debug_image_info);
+
   DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__, dev->frontend.offset[0],
       dev->frontend.offset[1], dev->frontend.offset[2]);
 

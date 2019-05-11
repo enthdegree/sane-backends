@@ -344,6 +344,7 @@ SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
 SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
                                           size_t len)
 {
+    // supported: GL841, GL843
     SANE_Status status;
     size_t size;
     uint8_t outdata[8];
@@ -366,10 +367,18 @@ SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, ui
         else
             size = len;
 
-        outdata[0] = BULK_OUT;
-        outdata[1] = BULK_RAM;
-        outdata[2] = 0x00;
-        outdata[3] = 0x00;
+        if (dev->model->asic_type == GENESYS_GL841) {
+            outdata[0] = BULK_OUT;
+            outdata[1] = BULK_RAM;
+            outdata[2] = VALUE_BUFFER & 0xff;
+            outdata[3] = (VALUE_BUFFER >> 8) & 0xff;
+        } else {
+            outdata[0] = BULK_OUT;
+            outdata[1] = BULK_RAM;
+            outdata[2] = 0x00;
+            outdata[3] = 0x00;
+        }
+
         outdata[4] = (size & 0xff);
         outdata[5] = ((size >> 8) & 0xff);
         outdata[6] = ((size >> 16) & 0xff);

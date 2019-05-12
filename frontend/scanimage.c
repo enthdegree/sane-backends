@@ -93,6 +93,7 @@ static struct option basic_options[] = {
   {"help", no_argument, NULL, 'h'},
   {"verbose", no_argument, NULL, 'v'},
   {"progress", no_argument, NULL, 'p'},
+  {"output-file", required_argument, NULL, 'o'},
   {"test", no_argument, NULL, 'T'},
   {"all-options", no_argument, NULL, 'A'},
   {"version", no_argument, NULL, 'V'},
@@ -111,12 +112,13 @@ static struct option basic_options[] = {
   {0, 0, NULL, 0}
 };
 
-#define OUTPUT_PNM      0
-#define OUTPUT_TIFF     1
-#define OUTPUT_PNG      2
-#define OUTPUT_JPEG     3
+#define OUTPUT_UNKNOWN  0
+#define OUTPUT_PNM      1
+#define OUTPUT_TIFF     2
+#define OUTPUT_PNG      3
+#define OUTPUT_JPEG     4
 
-#define BASE_OPTSTRING	"d:hi:Lf:B::nvVTAbp"
+#define BASE_OPTSTRING	"d:hi:Lf:o:B::nvVTAbp"
 #define STRIP_HEIGHT	256	/* # lines we increment image height */
 
 static struct option *all_options;
@@ -125,9 +127,10 @@ static int *option_number;
 static SANE_Handle device;
 static int verbose;
 static int progress = 0;
+static const char* output_file = NULL;
 static int test;
 static int all;
-static int output_format = OUTPUT_PNM;
+static int output_format = OUTPUT_UNKNOWN;
 static int help;
 static int dont_scan = 0;
 static const char *prog_name;
@@ -1968,6 +1971,43 @@ static void print_options(SANE_Device * device, SANE_Int num_dev_options, SANE_B
     fputc ('\n', stdout);
 }
 
+static int guess_output_format(const char* output_file)
+{
+  if (output_file == NULL)
+    {
+      printf("Output format is not set, using pnm as a default.\n");
+      return OUTPUT_PNM;
+    }
+
+  // if the user passes us a path with a known extension then he won't be surprised if we figure
+  // out correct --format option. No warning is necessary in that case.
+  const char* extension = strrchr(output_file, '.');
+  if (extension != NULL)
+    {
+      struct {
+        const char* extension;
+        int output_format;
+      } formats[] = {
+        { ".pnm", OUTPUT_PNM },
+        { ".png", OUTPUT_PNG },
+        { ".jpg", OUTPUT_JPEG },
+        { ".jpeg", OUTPUT_JPEG },
+        { ".tiff", OUTPUT_TIFF },
+        { ".tif", OUTPUT_TIFF }
+      };
+      for (unsigned i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i)
+        {
+          if (strcmp(extension, formats[i].extension) == 0)
+            return formats[i].output_format;
+        }
+    }
+
+  // it would be very confusing if user makes a typo in the filename and the output format changes.
+  // This is most likely not what the user wanted.
+  fprintf(stderr, "Could not guess output format from the given path and no --format given.\n");
+  exit(1);
+}
+
 int
 main (int argc, char **argv)
 {
@@ -2033,6 +2073,9 @@ main (int argc, char **argv)
 	case 'p':
           progress = 1;
 	  break;
+        case 'o':
+          output_file = optarg;
+          break;
 	case 'B':
           if (optarg)
 	    buffer_size = 1024 * atoi(optarg);
@@ -2088,8 +2131,23 @@ main (int argc, char **argv)
 	      exit(1);
 #endif
 	    }
-	  else
-	    output_format = OUTPUT_PNM;
+          else if (strcmp (optarg, "pnm") == 0)
+            {
+              output_format = OUTPUT_PNM;
+            }
+          else
+            {
+              fprintf(stderr, "Unknown output image format '%s'.\n", optarg);
+              fprintf(stderr, "Supported formats: pnm, tiff");
+#ifdef HAVE_LIBPNG
+              fprintf(stderr, ", png");
+#endif
+#ifdef HAVE_LIBJPEG
+              fprintf(stderr, ", jpeg");
+#endif
+              fprintf(stderr, ".\n");
+              exit(1);
+            }
 	  break;
 	case OPTION_MD5:
 	  accept_only_md5_auth = 1;
@@ -2235,7 +2293,8 @@ Parameters are separated by a blank from single-character options (e.g.\n\
                            %%m (model), %%t (type), %%i (index number), and\n\
                            %%n (newline)\n\
 -b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.pnm' `out%%d.tif'\n\
-                           `out%%d.png' or `out%%d.jpg' by default depending on --format\n");
+                           `out%%d.png' or `out%%d.jpg' by default depending on --format\n\
+                           This option is incompatible with --output-file.");
       printf ("\
     --batch-start=#        page number to start naming files with\n\
     --batch-count=#        how many pages to scan in batch mode\n\
@@ -2247,6 +2306,8 @@ Parameters are separated by a blank from single-character options (e.g.\n\
       printf ("\
     --accept-md5-only      only accept authorization requests using md5\n\
 -p, --progress             print progress messages\n\
+-o, --output-file=PATH     save output to the given file instead of stdout.\n\
+                           This option is incompatible with --batch.\n\
 -n, --dont-scan            only set options, don't actually scan\n\
 -T, --test                 test backend thoroughly\n\
 -A, --all-options          list all available backend options\n\
@@ -2256,6 +2317,15 @@ Parameters are separated by a blank from single-character options (e.g.\n\
       printf ("\
 -V, --version              print version information\n");
     }
+
+  if (batch && output_file != NULL)
+    {
+      fprintf(stderr, "--batch and --output-file can't be used together.\n");
+      exit(1);
+    }
+
+  if (output_format == OUTPUT_UNKNOWN)
+    output_format = guess_output_format(output_file);
 
   if (!devname)
     {
@@ -2389,6 +2459,7 @@ Parameters are separated by a blank from single-character options (e.g.\n\
 	    case 'd':
 	    case 'h':
 	    case 'p':
+            case 'o':
 	    case 'v':
 	    case 'V':
 	    case 'T':
@@ -2535,7 +2606,19 @@ List of available devices:", prog_name);
 	}
 
       if (!batch)
-        ofp = stdout;
+        {
+          ofp = stdout;
+          if (output_file != NULL)
+            {
+              ofp = fopen(output_file, "w");
+              if (ofp == NULL)
+                {
+                  fprintf(stderr, "%s: could not open input file '%s', "
+                          "exiting\n", prog_name, output_file);
+                  scanimage_exit(1);
+                }
+            }
+        }
 
       if (batch)
 	{
@@ -2662,6 +2745,14 @@ List of available devices:", prog_name);
 			}
 		    }
 		}
+              else
+                {
+                  if (output_file && ofp)
+                    {
+                      fclose(ofp);
+                      ofp = NULL;
+                    }
+                }
 	      break;
 	    default:
 	      if (batch)
@@ -2673,6 +2764,15 @@ List of available devices:", prog_name);
 		    }
 		  unlink (part_path);
 		}
+              else
+                {
+                  if (output_file && ofp)
+                    {
+                      fclose(ofp);
+                      ofp = NULL;
+                    }
+                  unlink (output_file);
+                }
 	      break;
 	    }			/* switch */
 	  n += batch_increment;

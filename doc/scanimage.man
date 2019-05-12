@@ -24,6 +24,7 @@ scanimage \- scan an image
 .RB [ \-\-batch\-double ]
 .RB [ \-\-accept\-md5\-only ]
 .RB [ \-p | \-\-progress ]
+.RB [ \-o | \-\-output-file ]
 .RB [ \-n | \-\-dont\-scan ]
 .RB [ \-T | \-\-test ]
 .RB [ \-A | \-\-all-options ]
@@ -101,7 +102,8 @@ will attempt to open the first available device.
 The
 .B \-\-format
 .I format
-option selects how image data is written to standard output.
+option selects how image data is written to standard output or the file specified by
+the \-\-output\-file option.
 .I format
 can be
 .BR pnm ,
@@ -111,7 +113,7 @@ or
 .BR jpeg .
 If
 .B \-\-format
-is not used, PNM is written.
+is not specified, PNM is written by default.
 .PP
 The
 .B \-i
@@ -169,6 +171,7 @@ to.  Each page is written out to a single file.  If
 .I format
 is not specified, the default of out%d.pnm (or out%d.tif for \-\-format tiff,
 out%d.png for \-\-format png or out%d.jpg for \-\- format jpeg) will be used.
+This option is incompatible with the \-\-output\-path option.
 .I format
 is given as a printf style string with one integer parameter.
 .B \-\-batch\-start
@@ -213,6 +216,16 @@ prints a progress counter. It shows how much image data of the current image has
 already been received by
 .B scanimage
 (in percent).
+.PP
+The
+.B \-o
+or
+.B \-\-output\-file
+option requests that
+.B scanimage
+saves the scanning output to the given path. This option is incompatible with the
+\-\-batch option. The program will try to guess \-\-format from the file name.
+If that is not possible, it will print an error message and exit.
 .PP
 The
 .B \-n

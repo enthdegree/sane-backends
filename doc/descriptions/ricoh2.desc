@@ -24,17 +24,17 @@
 :mfg "Ricoh"                      ; name a manufacturer
 :url "http://www.ricoh.com/"      ; manufacturer's URL
 
-:model "SP-111SU"                 ; name models for above-specified mfg.
-:status :basic                    ; :minimal, :basic, :good, :complete
-                                  ; :untested, or :unsupported
-:interface "USB"                  ; interface type of the device:
-                                  ; "SCSI", "USB", "Parport (EPP)",
-                                  ; "Parport (SPP)", "Parport (ECP)",
-                                  ; "Serial port", "IEEE-1394", "JetDirect",
-                                  ; or "Proprietary".
-:usbid "0x05ca" "0x0448"          ; Vendor and product ids of an USB device
+:model "SG-3100SNw"
+:status :basic
+:interface "USB"
+:usbid "0x05ca" "0x0438"
 
 :model "SP-100SU"
 :status :untested
 :interface "USB"
 :usbid "0x05ca" "0x042c"
+
+:model "SP-111SU"
+:status :basic
+:interface "USB"
+:usbid "0x05ca" "0x0448"

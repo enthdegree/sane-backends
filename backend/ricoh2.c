@@ -106,6 +106,18 @@ typedef struct Ricoh2_Device {
 }
 Ricoh2_Device;
 
+typedef struct Ricoh2_device_info {
+  SANE_Int          product_id;
+  SANE_String_Const device_name;
+}
+Ricoh2_device_info;
+
+static Ricoh2_device_info supported_devices[] = {
+  { 0x042c, "Aficio SP100SU"   },
+  { 0x0438, "Aficio SG3100SNw" },
+  { 0x0448, "Aficio SP111SU"   }
+};
+
 static SANE_String_Const mode_list[] = {
   SANE_VALUE_SCAN_MODE_COLOR,
   SANE_VALUE_SCAN_MODE_GRAY,
@@ -137,14 +149,18 @@ lookup_handle(SANE_Handle handle)
   return NULL;
 }
 
-static const char* get_model_by_productid(SANE_Int id)
+static SANE_String_Const get_model_by_productid(SANE_Int id)
 {
-  switch (id)
+  size_t i = 0;
+  for (; i < sizeof (supported_devices) / sizeof (supported_devices[0]); ++i)
     {
-    case 0x0448: return "Aficio SP111SU";
-    case 0x042c: return "Aficio SP100SU";
-    default:     return "Unidentified device";
+      if (supported_devices[i].product_id == id)
+        {
+          return supported_devices[i].device_name;
+        }
     }
+
+  return "Unidentified device";
 }
 
 static SANE_Status
@@ -261,6 +277,8 @@ init_options(Ricoh2_Device *dev)
 SANE_Status
 sane_init (SANE_Int *vc, SANE_Auth_Callback __sane_unused__ cb)
 {
+  size_t i = 0;
+
   DBG_INIT ();
 
   DBG(2, "sane_init\n");
@@ -269,8 +287,11 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback __sane_unused__ cb)
   sanei_usb_set_timeout (USB_TIMEOUT_MS);
 
   num_devices = 0;
-  sanei_usb_find_devices (0x5ca, 0x042c, attach);
-  sanei_usb_find_devices (0x5ca, 0x0448, attach);
+
+  for (; i < sizeof (supported_devices) / sizeof (supported_devices[0]); ++i)
+    {
+      sanei_usb_find_devices (0x5ca, supported_devices[i].product_id, attach);
+    }
 
   if (vc)
     *vc = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, 0);

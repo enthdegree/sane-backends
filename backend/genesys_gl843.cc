@@ -548,6 +548,10 @@ gl843_init_registers (Genesys_Device * dev)
 
   // various AFE settings
   SETREG(0x7d, 0x00);
+
+  // GPOLED[x]: LED vs GPIO settings
+  SETREG(0x7e, 0x00);
+
   SETREG (0x7f, 0x00);
   SETREG (0x80, 0x00);
   if (dev->model->model_id != MODEL_CANON_CANOSCAN_4400F)

@@ -1936,6 +1936,10 @@ genesys_white_shading_calibration (Genesys_Device * dev)
       status = (dev->model->cmd_set->rewind
                 ? dev->model->cmd_set->rewind (dev)
                 : dev->model->cmd_set->slow_back_home (dev, SANE_TRUE));
+      if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+        {
+          dev->model->cmd_set->move_to_ta(dev);
+        }
     }
 
   status =

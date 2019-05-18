@@ -957,6 +957,8 @@ struct Genesys_Device
     // for sheetfed scanner's, is TRUE when there is a document in the scanner
     SANE_Bool document = 0;
 
+    SANE_Bool needs_home_ta = 0;
+
     Genesys_Buffer read_buffer;
     Genesys_Buffer lines_buffer;
     Genesys_Buffer shrink_buffer;

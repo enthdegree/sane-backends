@@ -2264,21 +2264,30 @@ static SANE_Status gl843_xpa_motor_off(Genesys_Device *dev)
 
   DBGSTART;
 
-  /* unset GPOADF */
-  RIE (sanei_genesys_read_register (dev, REG6B, &val));
-  val &= ~REG6B_GPOADF;
-  RIE (sanei_genesys_write_register (dev, REG6B, val));
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+        RIE(sanei_genesys_read_register(dev, REG6C, &val));
+        val |= REG6C_GPIO14;
+        RIE(sanei_genesys_write_register(dev, REG6C, val));
 
-  RIE (sanei_genesys_read_register (dev, REGA8, &val));
-  val |= REGA8_GPO27;
-  RIE (sanei_genesys_write_register (dev, REGA8, val));
+        RIE(sanei_genesys_read_register(dev, REGA6, &val));
+        val &= ~REGA6_GPIO17;
+        RIE(sanei_genesys_write_register(dev, REGA6,val));
+    } else {
+        /* unset GPOADF */
+        RIE (sanei_genesys_read_register (dev, REG6B, &val));
+        val &= ~REG6B_GPOADF;
+        RIE (sanei_genesys_write_register (dev, REG6B, val));
 
-  RIE (sanei_genesys_read_register (dev, REGA9, &val));
-  val &= ~REGA9_GPO31;
-  RIE (sanei_genesys_write_register (dev, REGA9, val));
+        RIE (sanei_genesys_read_register (dev, REGA8, &val));
+        val |= REGA8_GPO27;
+        RIE (sanei_genesys_write_register (dev, REGA8, val));
 
-  DBGCOMPLETED;
-  return status;
+        RIE (sanei_genesys_read_register (dev, REGA9, &val));
+        val &= ~REGA9_GPO31;
+        RIE (sanei_genesys_write_register (dev, REGA9, val));
+    }
+    DBGCOMPLETED;
+    return status;
 }
 
 
@@ -2288,35 +2297,45 @@ static SANE_Status gl843_xpa_motor_off(Genesys_Device *dev)
  */
 static SANE_Status gl843_xpa_motor_on(Genesys_Device *dev)
 {
-  uint8_t val;
-  SANE_Status status=SANE_STATUS_GOOD;
+    uint8_t val;
+    SANE_Status status=SANE_STATUS_GOOD;
 
-  DBGSTART;
+    DBGSTART;
 
-  /* set MULTFILM et GPOADF */
-  RIE (sanei_genesys_read_register (dev, REG6B, &val));
-  val |=REG6B_MULTFILM|REG6B_GPOADF;
-  RIE (sanei_genesys_write_register (dev, REG6B, val));
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+        RIE(sanei_genesys_read_register(dev, REG6C, &val));
+        val &= ~REG6C_GPIO14;
+        RIE(sanei_genesys_write_register(dev, REG6C, val));
 
-  RIE (sanei_genesys_read_register (dev, REG6C, &val));
-  val &= ~REG6C_GPIO15;
-  RIE (sanei_genesys_write_register (dev, REG6C, val));
+        RIE(sanei_genesys_read_register(dev, REGA6, &val));
+        val |= REGA6_GPIO17;
+        RIE(sanei_genesys_write_register(dev, REGA6,val));
+    } else {
+        /* set MULTFILM et GPOADF */
+        RIE (sanei_genesys_read_register (dev, REG6B, &val));
+        val |=REG6B_MULTFILM|REG6B_GPOADF;
+        RIE (sanei_genesys_write_register (dev, REG6B, val));
 
-  /* Motor power ? No move at all without this one */
-  RIE (sanei_genesys_read_register (dev, REGA6, &val));
-  val |= REGA6_GPIO20;
-  RIE (sanei_genesys_write_register(dev,REGA6,val));
+        RIE (sanei_genesys_read_register (dev, REG6C, &val));
+        val &= ~REG6C_GPIO15;
+        RIE (sanei_genesys_write_register (dev, REG6C, val));
 
-  RIE (sanei_genesys_read_register (dev, REGA8, &val));
-  val &= ~REGA8_GPO27;
-  RIE (sanei_genesys_write_register (dev, REGA8, val));
+        /* Motor power ? No move at all without this one */
+        RIE (sanei_genesys_read_register (dev, REGA6, &val));
+        val |= REGA6_GPIO20;
+        RIE (sanei_genesys_write_register(dev,REGA6,val));
 
-  RIE (sanei_genesys_read_register (dev, REGA9, &val));
-  val |= REGA9_GPO32|REGA9_GPO31;
-  RIE (sanei_genesys_write_register (dev, REGA9, val));
+        RIE (sanei_genesys_read_register (dev, REGA8, &val));
+        val &= ~REGA8_GPO27;
+        RIE (sanei_genesys_write_register (dev, REGA8, val));
 
-  DBGCOMPLETED;
-  return status;
+        RIE (sanei_genesys_read_register (dev, REGA9, &val));
+        val |= REGA9_GPO32|REGA9_GPO31;
+        RIE (sanei_genesys_write_register (dev, REGA9, val));
+    }
+
+    DBGCOMPLETED;
+    return status;
 }
 
 
@@ -2405,11 +2424,21 @@ gl843_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
         /* enable XPA lamp motor */
         if (r03 & REG03_XPASEL)
           {
+            dev->needs_home_ta = SANE_TRUE;
             RIE(gl843_xpa_motor_on(dev));
           }
 
         /* blinking led */
         RIE (sanei_genesys_write_register (dev, REG7E, 0x01));
+        break;
+      case GPO_CS8600F:
+        r03 = sanei_genesys_read_reg_from_set (reg, REG03);
+        /* enable XPA lamp motor */
+        if (r03 & REG03_XPASEL)
+          {
+            dev->needs_home_ta = SANE_TRUE;
+            RIE(gl843_xpa_motor_on(dev));
+          }
         break;
       case GPO_CS4400F:
       case GPO_CS8400F:
@@ -2548,14 +2577,10 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
 	      DBG(DBG_proc, "%s: finished\n", __func__);
 
-              /* clear GPOADF to avoid reparking again */
-              sanei_genesys_read_register (dev, REG6B, &val);
-              val &= ~REG6B_GPOADF;
-              sanei_genesys_write_register (dev, REG6B, val);
+          gl843_xpa_motor_off(dev);
+          dev->needs_home_ta = SANE_FALSE;
 
-              /* disable XPA slider motor */
-              gl843_xpa_motor_off(dev);
-	      return SANE_STATUS_GOOD;
+          return SANE_STATUS_GOOD;
 	    }
           sanei_genesys_sleep_ms(100);
 	  ++loop;
@@ -2580,6 +2605,10 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   int loop = 0;
 
   DBG(DBG_proc, "%s (wait_until_home = %d)\n", __func__, wait_until_home);
+
+  if (dev->needs_home_ta) {
+    RIE(gl843_park_xpa_lamp(dev));
+  }
 
   /* regular slow back home */
   dev->scanhead_position_in_steps = 0;
@@ -2815,6 +2844,14 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev)
   else
     channels = 1;
 
+  int flags = SCAN_FLAG_DISABLE_SHADING |
+              SCAN_FLAG_DISABLE_GAMMA |
+              SCAN_FLAG_SINGLE_LINE |
+              SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+    flags |= SCAN_FLAG_USE_XPA;
+
   status = gl843_init_scan_regs (dev,
 				 dev->calib_reg,
 				 dev->settings.xres,
@@ -2827,11 +2864,8 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev)
 				 16,
 				 channels,
 				 dev->settings.scan_mode,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+                 dev->settings.color_filter,
+                 flags);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
@@ -2925,10 +2959,14 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
     }
   while (status == SANE_STATUS_GOOD && !(val & FEEDFSH));
 
+  // looks like the scanner locks up if we scan immediately after feeding
+  sanei_genesys_sleep_ms(100);
+
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
+static SANE_Status gl843_move_to_ta (Genesys_Device * dev);
 
 /* init registers for shading calibration */
 /* shading calibration is done at dpihw */
@@ -2952,13 +2990,24 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
   dev->calib_resolution = resolution;
   dev->calib_pixels = dev->sensor.sensor_pixels/factor;
 
-  /* distance to move to reach white target */
+  int flags = SCAN_FLAG_DISABLE_SHADING |
+              SCAN_FLAG_DISABLE_GAMMA |
+              SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
+              SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
   if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
-    move = SANE_UNFIX(dev->model->y_offset_calib_ta);
+  {
+    // FIXME: we should handle moving to TA in the caller, this function should only setup the
+    // registers.
+    gl843_move_to_ta(dev);
+    move = 0; // already at dev->model->y_offset_calib_ta implicitly
+    flags |= SCAN_FLAG_USE_XPA;
+  }
   else
     move = SANE_UNFIX(dev->model->y_offset_calib);
 
   move = (move * resolution) / MM_PER_INCH;
+
 
   status = gl843_init_scan_regs (dev,
 				 dev->calib_reg,
@@ -2971,11 +3020,8 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
 				 16,
 				 dev->calib_channels,
 				 dev->settings.scan_mode,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+                 dev->settings.color_filter,
+                 flags);
 
   // the pixel number may be updated to conform to scanner constraints
   dev->calib_pixels = dev->current_setup.pixels;
@@ -3043,8 +3089,15 @@ gl843_init_regs_for_scan (Genesys_Device * dev)
 
   move_dpi = dev->motor.base_ydpi;
 
+  flags = 0;
   if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
-    move = SANE_UNFIX(dev->model->y_offset_ta);
+  {
+    // FIXME: we should handle moving to TA in the caller, this function should only setup the
+    // registers.
+    gl843_move_to_ta(dev);
+    move = SANE_UNFIX(dev->model->y_offset_ta) - SANE_UNFIX(dev->model->y_offset_calib_ta);
+    flags |= SCAN_FLAG_USE_XPA;
+  }
   else
     move = SANE_UNFIX(dev->model->y_offset);
 
@@ -3063,8 +3116,6 @@ gl843_init_regs_for_scan (Genesys_Device * dev)
 
   start += dev->settings.tl_x;
   start = (start * dev->sensor.optical_res) / MM_PER_INCH;
-
-  flags = 0;
 
   /* enable emulated lineart from gray data */
   if(dev->settings.scan_mode == SCAN_MODE_LINEART
@@ -3396,6 +3447,15 @@ gl843_offset_calibration (Genesys_Device * dev)
   DBG(DBG_io, "%s: pixels      =%d\n", __func__, pixels);
   DBG(DBG_io, "%s: black_pixels=%d\n", __func__, black_pixels);
 
+  int flags = SCAN_FLAG_DISABLE_SHADING |
+              SCAN_FLAG_DISABLE_GAMMA |
+              SCAN_FLAG_SINGLE_LINE |
+              SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+  {
+    flags |= SCAN_FLAG_USE_XPA;
+  }
 
   status = gl843_init_scan_regs (dev,
 				 dev->calib_reg,
@@ -3409,10 +3469,7 @@ gl843_offset_calibration (Genesys_Device * dev)
 				 channels,
 				 SCAN_MODE_COLOR,
 				 0,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+                 flags);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
@@ -3602,6 +3659,16 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   bpp=8;
   pixels = dev->sensor.sensor_pixels / factor;
 
+  int flags = SCAN_FLAG_DISABLE_SHADING |
+              SCAN_FLAG_DISABLE_GAMMA |
+              SCAN_FLAG_SINGLE_LINE |
+              SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+  {
+    flags |= SCAN_FLAG_USE_XPA;
+  }
+
   status = gl843_init_scan_regs (dev,
 				 dev->calib_reg,
 				 resolution,
@@ -3614,10 +3681,7 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
                                  channels,
                                  SCAN_MODE_COLOR,
 				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+                 flags);
   gl843_set_motor_power (dev->calib_reg, SANE_FALSE);
 
   if (status != SANE_STATUS_GOOD)

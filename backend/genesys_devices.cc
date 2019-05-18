@@ -1992,12 +1992,12 @@ static Genesys_Model canon_8600f_model = {
   SANE_FIX(0.0),        // Start of white strip in mm (y)
   SANE_FIX(8.0),        // Start of black mark in mm (x)
 
-  SANE_FIX(8.0),        // Start of scan area in TA mode in mm (x)
-  SANE_FIX(13.00),      // Start of scan area in TA mode in mm (y)
-  SANE_FIX(217.9),      // Size of scan area in TA mode in mm (x)
-  SANE_FIX(250.0),      // Size of scan area in TA mode in mm (y)
+  SANE_FIX(95.0),       // x_offset_ta
+  SANE_FIX(26.0),       // y_offset_ta
+  SANE_FIX(70.0),       // x_size_ta
+  SANE_FIX(230.0),      // y_size_ta
 
-  SANE_FIX(40.0),       // Start of white strip in TA mode in mm (y)
+  SANE_FIX(12.5),       // y_offset_calib
 
   SANE_FIX(0.0),        // Size of scan area after paper sensor stops
                         // sensing document in mm
@@ -2014,6 +2014,7 @@ static Genesys_Model canon_8600f_model = {
   DAC_CS8600F,
   GPO_CS8600F,
   MOTOR_CS8600F,
+  GENESYS_FLAG_HAS_UTA |
   GENESYS_FLAG_LAZY_INIT |
   GENESYS_FLAG_OFFSET_CALIBRATION |
   GENESYS_FLAG_STAGGERED_LINE |

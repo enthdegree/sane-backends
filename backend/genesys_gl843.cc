@@ -2821,6 +2821,9 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
 				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
 
+  // the pixel number may be updated to conform to scanner constraints
+  dev->calib_pixels = dev->current_setup.pixels;
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));

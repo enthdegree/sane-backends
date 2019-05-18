@@ -3458,8 +3458,16 @@ gl843_offset_calibration (Genesys_Device * dev)
   dpihw = sanei_genesys_compute_dpihw (dev, dev->settings.xres);
   factor = dev->sensor.optical_res / dpihw;
   resolution = dpihw;
-  pixels = dev->sensor.sensor_pixels / factor;
+
+  int target_pixels = dev->sensor.sensor_pixels / factor;
   black_pixels = dev->sensor.black_pixels / factor;
+
+  struct GenesysPhysicalParams params =
+      gl843_compute_physical_params(dev, dev->settings.xres, dev->settings.xres, target_pixels, lines,
+                                    bpp, channels, 0);
+
+  pixels = params.output_pixels;
+
   DBG(DBG_io, "%s: dpihw       =%d\n", __func__, dpihw);
   DBG(DBG_io, "%s: factor      =%d\n", __func__, factor);
   DBG(DBG_io, "%s: resolution  =%d\n", __func__, resolution);
@@ -3482,7 +3490,7 @@ gl843_offset_calibration (Genesys_Device * dev)
 				 resolution,
 				 0,
 				 0,
-				 pixels,
+                                 target_pixels,
 				 lines,
 				 bpp,
 				 channels,
@@ -3680,7 +3688,12 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   resolution=dpihw;
   lines=10;
   bpp=8;
-  pixels = dev->sensor.sensor_pixels / factor;
+  int target_pixels = dev->sensor.sensor_pixels / factor;
+
+  struct GenesysPhysicalParams params =
+      gl843_compute_physical_params(dev, dpi, dpi, target_pixels, lines, bpp, channels, 0);
+
+  pixels = params.output_pixels;
 
   int flags = SCAN_FLAG_DISABLE_SHADING |
               SCAN_FLAG_DISABLE_GAMMA |
@@ -3698,7 +3711,7 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 				 resolution,
 				 0,
 				 0,
-				 pixels,
+                                 target_pixels,
                                  lines,
                                  bpp,
                                  channels,

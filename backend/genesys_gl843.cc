@@ -1784,6 +1784,20 @@ gl843_calculate_current_setup (Genesys_Device * dev)
       dev->settings.yres, dev->settings.lines, dev->settings.pixels,
       dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
 
+  xres = dev->settings.xres;
+  yres = dev->settings.yres;
+
+  /* we have 2 domains for ccd: xres below or above half ccd max dpi */
+  if ((dev->sensor.optical_res < 4 * xres) ||
+      !(dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE))
+    {
+      half_ccd = SANE_FALSE;
+    }
+  else
+    {
+      half_ccd = SANE_TRUE;
+    }
+
   /* channels */
   if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
@@ -1796,10 +1810,14 @@ gl843_calculate_current_setup (Genesys_Device * dev)
     depth = 1;
 
   /* start */
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    start = SANE_UNFIX (dev->model->x_offset) / 4;
+  if(dev->settings.scan_method==SCAN_METHOD_TRANSPARENCY)
+      start = SANE_UNFIX (dev->model->x_offset_ta);
   else
-    start = SANE_UNFIX (dev->model->x_offset);
+      start = SANE_UNFIX (dev->model->x_offset);
+
+  if (half_ccd)
+    start /= 4;
+
   start += dev->settings.tl_x;
   start = (start * dev->sensor.optical_res) / MM_PER_INCH;
 
@@ -1810,8 +1828,6 @@ gl843_calculate_current_setup (Genesys_Device * dev)
       oflags=OPTICAL_FLAG_USE_XPA;
     }
 
-  xres = dev->settings.xres;
-  yres = dev->settings.yres;
   startx = start;
   pixels = dev->settings.pixels;
   lines = dev->settings.lines;
@@ -1823,19 +1839,6 @@ gl843_calculate_current_setup (Genesys_Device * dev)
       "Startpos      : %g\n"
       "Depth/Channels: %u/%u\n\n",
       __func__, xres, yres, lines, pixels, startx, depth, channels);
-
-/* half_ccd */
-  /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if ((dev->sensor.optical_res < 4 * xres) ||
-      !(dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE))
-    {
-      half_ccd = SANE_FALSE;
-    }
-  else
-    {
-      half_ccd = SANE_TRUE;
-    }
-
 
   /* optical_res */
   optical_res = dev->sensor.optical_res;
@@ -2960,7 +2963,11 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
   dev->calib_pixels = dev->sensor.sensor_pixels/factor;
 
   /* distance to move to reach white target */
-  move = SANE_UNFIX (dev->model->y_offset_calib);
+  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+    move = SANE_UNFIX(dev->model->y_offset_calib_ta);
+  else
+    move = SANE_UNFIX(dev->model->y_offset_calib);
+
   move = (move * resolution) / MM_PER_INCH;
 
   status = gl843_init_scan_regs (dev,
@@ -3046,16 +3053,24 @@ gl843_init_regs_for_scan (Genesys_Device * dev)
 
   move_dpi = dev->motor.base_ydpi;
 
-  move = SANE_UNFIX (dev->model->y_offset);
+  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+    move = SANE_UNFIX(dev->model->y_offset_ta);
+  else
+    move = SANE_UNFIX(dev->model->y_offset);
+
   move += dev->settings.tl_y;
   move = (move * move_dpi) / MM_PER_INCH;
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* start */
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    start = SANE_UNFIX (dev->model->x_offset) / 4;
+  if(dev->settings.scan_method==SCAN_METHOD_TRANSPARENCY)
+      start = SANE_UNFIX (dev->model->x_offset_ta);
   else
-    start = SANE_UNFIX (dev->model->x_offset);
+      start = SANE_UNFIX (dev->model->x_offset);
+
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    start /= 4; // FIXME: compute half_mode here and check it instead of specific model
+
   start += dev->settings.tl_x;
   start = (start * dev->sensor.optical_res) / MM_PER_INCH;
 

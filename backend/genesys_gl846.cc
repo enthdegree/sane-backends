@@ -2114,6 +2114,7 @@ gl846_init_regs_for_shading (Genesys_Device * dev)
   memcpy (dev->calib_reg, dev->reg, GENESYS_GL846_MAX_REGS * sizeof (Genesys_Register_Set));
 
   dev->calib_resolution = sanei_genesys_compute_dpihw(dev,dev->settings.xres);
+  dev->calib_total_bytes_to_read = 0;
   dev->calib_lines = dev->model->shading_lines;
   if(dev->calib_resolution==4800)
     dev->calib_lines *= 2;

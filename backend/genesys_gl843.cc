@@ -2593,7 +2593,7 @@ gl843_search_start_position (Genesys_Device * dev)
       return status;
     }
 
-  size = pixels * dev->model->search_lines;
+  size = dev->read_bytes_left;
 
   std::vector<uint8_t> data(size);
 
@@ -2827,6 +2827,8 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
       return status;
     }
 
+  dev->calib_total_bytes_to_read = dev->read_bytes_left;
+
   dev->scanhead_position_in_steps += dev->calib_lines + move;
   sanei_genesys_get_double(dev->calib_reg,REG_STRPIXEL,&strpixel);
   DBG(DBG_info, "%s: STRPIXEL=%d\n", __func__, strpixel);
@@ -3032,7 +3034,7 @@ gl843_led_calibration (Genesys_Device * dev)
        (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
 
 
-  total_size = num_pixels * channels * (depth / 8) * 1;	/* colors * bytes_per_color * scan lines */
+  total_size = dev->read_bytes_left;
 
   std::vector<uint8_t> line(total_size);
 
@@ -3224,6 +3226,7 @@ gl843_offset_calibration (Genesys_Device * dev)
   DBG(DBG_io, "%s: pixels      =%d\n", __func__, pixels);
   DBG(DBG_io, "%s: black_pixels=%d\n", __func__, black_pixels);
 
+
   status = gl843_init_scan_regs (dev,
 				 dev->calib_reg,
 				 resolution,
@@ -3248,7 +3251,7 @@ gl843_offset_calibration (Genesys_Device * dev)
   gl843_set_motor_power (dev->calib_reg, SANE_FALSE);
 
   /* allocate memory for scans */
-  total_size = pixels * channels * lines * (bpp / 8);	/* colors * bytes_per_color * scan lines */
+  total_size = dev->read_bytes_left;
 
   std::vector<uint8_t> first_line(total_size);
   std::vector<uint8_t> second_line(total_size);
@@ -3456,7 +3459,7 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   RIE (dev->model->cmd_set->bulk_write_register
        (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
 
-  total_size = pixels * channels * (bpp/8) * lines;
+  total_size = dev->read_bytes_left;
 
   std::vector<uint8_t> line(total_size);
 
@@ -3832,8 +3835,6 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi;
   depth = 8;
   pixels = (dev->sensor.sensor_pixels * dpi) / dev->sensor.optical_res;
-  size = pixels * channels * lines * (depth / 8);
-  std::vector<uint8_t> data(size);
 
   dev->scanhead_position_in_steps = 0;
 
@@ -3859,6 +3860,9 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
       DBG(DBG_error, "%s: failed to setup for scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
+
+  size = dev->read_bytes_left;
+  std::vector<uint8_t> data(size);
 
   /* set up for reverse or forward */
   r = sanei_genesys_get_address (local_reg, REG02);

@@ -934,6 +934,8 @@ struct Genesys_Device
     size_t calib_lines = 0;
     size_t calib_channels = 0;
     size_t calib_resolution = 0;
+     // bytes to read from USB when calibrating. If 0, this is not set
+    size_t calib_total_bytes_to_read = 0;
 
     std::vector<uint8_t> white_average_data;
     std::vector<uint8_t> dark_average_data;

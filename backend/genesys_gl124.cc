@@ -2488,6 +2488,7 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
       dev->calib_lines /= 2;
     }
   dev->calib_resolution = resolution;
+  dev->calib_total_bytes_to_read = 0;
   factor=dev->sensor.optical_res/resolution;
   dev->calib_pixels = dev->sensor.sensor_pixels/factor;
 

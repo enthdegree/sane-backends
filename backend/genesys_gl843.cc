@@ -2012,6 +2012,17 @@ gl843_start_action (Genesys_Device * dev)
 }
 
 static SANE_Status
+gl843_stop_action_no_move(Genesys_Device* dev, Genesys_Register_Set* reg)
+{
+    uint8_t val = sanei_genesys_read_reg_from_set(reg, REG01);
+    val &= ~REG01_SCAN;
+    sanei_genesys_set_reg_from_set(reg, REG01, val);
+    SANE_Status ret = sanei_genesys_write_register(dev, REG01, val);
+    sanei_genesys_sleep_ms(100);
+    return ret;
+}
+
+static SANE_Status
 gl843_stop_action (Genesys_Device * dev)
 {
   SANE_Status status;
@@ -2797,6 +2808,7 @@ gl843_search_start_position (Genesys_Device * dev)
       DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
       return status;
     }
+  RIE(gl843_stop_action_no_move(dev, local_reg));
 
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file("gl843_search_position.pnm", data.data(), 8, 1, pixels,
@@ -3299,6 +3311,7 @@ gl843_led_calibration (Genesys_Device * dev)
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
       RIE (gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
       RIE (sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
+      RIE(gl843_stop_action_no_move(dev, dev->calib_reg));
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -3501,6 +3514,8 @@ gl843_offset_calibration (Genesys_Device * dev)
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
   RIE(gl843_begin_scan(dev, dev->calib_reg, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
+  RIE(gl843_stop_action_no_move(dev, dev->calib_reg));
+
   if (DBG_LEVEL >= DBG_data)
     {
       char fn[40];
@@ -3528,6 +3543,7 @@ gl843_offset_calibration (Genesys_Device * dev)
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
   RIE(gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size));
+  RIE(gl843_stop_action_no_move(dev, dev->calib_reg));
 
   for (i = 0; i < 3; i++)
     {
@@ -3563,6 +3579,7 @@ gl843_offset_calibration (Genesys_Device * dev)
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
       RIE(gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
       RIE(sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size));
+      RIE(gl843_stop_action_no_move(dev, dev->calib_reg));
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -3704,6 +3721,7 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   RIE(gl843_set_fe(dev, AFE_SET));
   RIE(gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner (dev, line.data(), total_size));
+  RIE(gl843_stop_action_no_move(dev, dev->calib_reg));
 
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file("gl843_coarse.pnm", line.data(), bpp, channels, pixels, lines);

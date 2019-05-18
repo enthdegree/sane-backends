@@ -1268,6 +1268,9 @@ extern
 int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres);
 
 extern
+int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, int xres);
+
+extern
 Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_type, int exposure);
 
 extern

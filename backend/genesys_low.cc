@@ -1787,6 +1787,29 @@ int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres)
   return dev->sensor.optical_res;
 }
 
+// sanei_genesys_compute_dpihw returns the dpihw that is written to register.
+// However the number of pixels depends on half_ccd mode
+int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, int xres)
+{
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      // real resolution is half of the "official" resolution - half_ccd mode
+      int hwres = dev->sensor.optical_res / 4;
+
+      if (xres <= hwres / 4)
+        {
+          return hwres / 4;
+        }
+      if (xres <= hwres / 2)
+        {
+          return hwres / 2;
+        }
+      return hwres;
+    }
+
+  return sanei_genesys_compute_dpihw(dev, xres);
+}
+
 /** @brief motor profile
  * search for the database of motor profiles and get the best one. Each
  * profile is at full step and at a reference exposure. Use first entry

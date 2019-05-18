@@ -2999,7 +2999,7 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
     dev->calib_lines = dev->model->shading_ta_lines;
   else
     dev->calib_lines = dev->model->shading_lines;
-  dpihw=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
+  dpihw=sanei_genesys_compute_dpihw_calibration(dev,dev->settings.xres);
   factor=dev->sensor.optical_res/dpihw;
   resolution=dpihw;
 
@@ -3455,7 +3455,7 @@ gl843_offset_calibration (Genesys_Device * dev)
   bpp = 8;
 
   /* compute divider factor to compute final pixels number */
-  dpihw = sanei_genesys_compute_dpihw (dev, dev->settings.xres);
+  dpihw = sanei_genesys_compute_dpihw_calibration (dev, dev->settings.xres);
   factor = dev->sensor.optical_res / dpihw;
   resolution = dpihw;
 
@@ -3663,7 +3663,7 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   int bpp;
 
   DBG(DBG_proc, "%s: dpi = %d\n", __func__, dpi);
-  dpihw=sanei_genesys_compute_dpihw(dev, dpi);
+  dpihw=sanei_genesys_compute_dpihw_calibration(dev, dpi);
   factor=dev->sensor.optical_res/dpihw;
 
   /* coarse gain calibration is always done in color mode */
@@ -3848,7 +3848,8 @@ gl843_init_regs_for_warmup (Genesys_Device * dev,
   /* setup scan */
   *channels=3;
   resolution=600;
-  dpihw=sanei_genesys_compute_dpihw(dev, resolution);
+  dpihw=sanei_genesys_compute_dpihw_calibration(dev, resolution);
+  resolution=dpihw;
   factor=dev->sensor.optical_res/dpihw;
   num_pixels=dev->sensor.sensor_pixels/(factor*2);
   *total_size = num_pixels * 3 * 1;
@@ -4414,6 +4415,16 @@ gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
       sanei_genesys_get_double(dev->reg,REG_ENDPIXEL,&endpixel);
       strpixel*=tgtime;
       endpixel*=tgtime;
+
+      if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F && dev->current_setup.half_ccd)
+        {
+          int optical_res = dev->sensor.optical_res / 4;
+          int dpiset_real = dpiset / 4;
+          int half_ccd_factor = optical_res /
+              sanei_genesys_compute_dpihw_calibration(dev, dpiset_real);
+          strpixel /= half_ccd_factor;
+          endpixel /= half_ccd_factor;
+        }
 
       /* 16 bit words, 2 words per color, 3 color channels */
       offset=(strpixel-startx)*2*2*3;

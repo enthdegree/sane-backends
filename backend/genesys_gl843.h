@@ -570,22 +570,28 @@ static Gpio_layout gpios[]={
 typedef struct {
   int sensor_type;      /**> sensor id */
   int dpi;              /**> maximum dpi for which data are valid */
-  int exposure;         /**> exposure */
+
+  // exposure. The value of LPERIOD register depend on it
+  int exposure;
   int ck1map;           /**> CK1MAP */
   int ck3map;           /**> CK2MAP */
   int ck4map;           /**> CK3MAP */
-  int segcnt;           /**> SEGCNT */
-  int tg0cnt;           /**> TG0CNT */
-  int expdummy;         /**> exposure dummy */
-  int expr;             /**> initial red exposure */
-  int expg;             /**> initial green exposure */
-  int expb;             /**> initial blue exposure */
+  int segcnt;           /**> SEGCNT */ // FIXME: not used
+  int tg0cnt;           /**> TG0CNT */ // FIXME: not used
+  int expdummy;         /**> exposure dummy */ // FIXME: not used
+  int expr;             /**> initial red exposure */ // FIXME: not used
+  int expg;             /**> initial green exposure */ // FIXME: not used
+  int expb;             /**> initial blue exposure */ // FIXME: not used
   uint8_t reg0c;        /**> register 0x0c value */
   uint8_t reg70;        /**> register 0x70 value */
   uint8_t reg71;        /**> register 0x71 value */
   uint8_t reg9e;        /**> register 0x9e value */
   uint8_t regaa;        /**> either undocumented or mapping to somewhere else */
+
+  // 0x10-0x15 define the exposure and may be modified during calibration.
   uint8_t regs_0x10_0x1d[14];
+  // 0x5b-0x5c defines download address and is later overwritten
+  // 0x5d is unused.
   uint8_t regs_0x52_0x5e[13];
 } Sensor_Profile;
 

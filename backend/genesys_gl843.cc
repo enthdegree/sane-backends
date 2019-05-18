@@ -383,6 +383,10 @@ gl843_bulk_full_size (void)
 static void
 gl843_init_registers (Genesys_Device * dev)
 {
+  // Within this function SENSOR_DEF marker documents that a register is part
+  // of the sensors definition and the actual value is set in
+  // gl843_setup_sensor().
+
   DBGSTART;
 
   memset (dev->reg, 0, GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
@@ -398,21 +402,33 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0x08, 0x00);
   SETREG (0x09, 0x00);
   SETREG (0x0a, 0x00);
+
+  // This register controls clock and RAM settings and is further modified in
+  // gl843_boot
   SETREG (0x0b, 0x6a);
-  SETREG (0x10, 0x00);
-  SETREG (0x11, 0x00);
-  SETREG (0x12, 0x00);
-  SETREG (0x13, 0x00);
-  SETREG (0x14, 0x00);
-  SETREG (0x15, 0x00);
-  SETREG (0x16, 0x33);
-  SETREG (0x17, 0x1c);
-  SETREG (0x18, 0x10);
-  SETREG (0x19, 0x2a);
-  SETREG (0x1a, 0x04);
-  SETREG (0x1b, 0x00);
-  SETREG (0x1c, 0x20);
-  SETREG (0x1d, 0x04);
+
+  // EXPR[0:15], EXPG[0:15], EXPB[0:15]: Exposure time settings.
+  SETREG(0x10, 0x00); // SENSOR_DEF
+  SETREG(0x11, 0x00); // SENSOR_DEF
+  SETREG(0x12, 0x00); // SENSOR_DEF
+  SETREG(0x13, 0x00); // SENSOR_DEF
+  SETREG(0x14, 0x00); // SENSOR_DEF
+  SETREG(0x15, 0x00); // SENSOR_DEF
+
+  // CCD signal settings.
+  SETREG(0x16, 0x33); // SENSOR_DEF
+  SETREG(0x17, 0x1c); // SENSOR_DEF
+  SETREG(0x18, 0x10); // SENSOR_DEF
+
+  // EXPDMY[0:7]: Exposure time of dummy lines.
+  SETREG(0x19, 0x2a); // SENSOR_DEF
+
+  // Various CCD clock settings.
+  SETREG(0x1a, 0x04); // SENSOR_DEF
+  SETREG(0x1b, 0x00); // SENSOR_DEF
+  SETREG(0x1c, 0x20); // SENSOR_DEF
+  SETREG(0x1d, 0x04); // SENSOR_DEF
+
   SETREG (0x1e, 0x10);
   SETREG (0x1f, 0x01);
   SETREG (0x20, 0x10);
@@ -431,58 +447,114 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0x31, 0x14);
   SETREG (0x32, 0x27);
   SETREG (0x33, 0xec);
+
+  // DUMMY: CCD dummy and optically black pixel count
   SETREG (0x34, 0x24);
   SETREG (0x35, 0x00);
   SETREG (0x36, 0xff);
   SETREG (0x37, 0xff);
-  SETREG (0x38, 0x55);
-  SETREG (0x39, 0xf0);
-  SETREG (0x3d, 0x00);
+
+  // LPERIOD: Line period or exposure time for CCD or CIS. // ZZTODO 0x59d8
+  SETREG(0x38, 0x55); // SENSOR_DEF
+  SETREG(0x39, 0xf0); // SENSOR_DEF
+
+  // FEEDL[0:24]: The number of steps of motor movement.
+  SETREG(0x3d, 0x00);
   SETREG (0x3e, 0x00);
   SETREG (0x3f, 0x01);
-  SETREG (0x52, 0x01);
-  SETREG (0x53, 0x04);
-  SETREG (0x54, 0x07);
-  SETREG (0x55, 0x0a);
-  SETREG (0x56, 0x0d);
-  SETREG (0x57, 0x10);
-  SETREG (0x58, 0x1b);
-  SETREG (0x59, 0x00);
-  SETREG (0x5a, 0x40);
+
+  // Latch points for high and low bytes of R, G and B channels of AFE. If
+  // multiple clocks per pixel are consumed, then the setting defines during
+  // which clock the corresponding value will be read.
+  // RHI[0:4]: The latch point for high byte of R channel.
+  // RLOW[0:4]: The latch point for low byte of R channel.
+  // GHI[0:4]: The latch point for high byte of G channel.
+  // GLOW[0:4]: The latch point for low byte of G channel.
+  // BHI[0:4]: The latch point for high byte of B channel.
+  // BLOW[0:4]: The latch point for low byte of B channel.
+  SETREG(0x52, 0x01); // SENSOR_DEF
+  SETREG(0x53, 0x04); // SENSOR_DEF
+  SETREG(0x54, 0x07); // SENSOR_DEF
+  SETREG(0x55, 0x0a); // SENSOR_DEF
+  SETREG(0x56, 0x0d); // SENSOR_DEF
+  SETREG(0x57, 0x10); // SENSOR_DEF
+
+  // VSMP[0:4]: The position of the image sampling pulse for AFE in cycles.
+  // VSMPW[0:2]: The length of the image sampling pulse for AFE in cycles.
+  SETREG(0x58, 0x1b); // SENSOR_DEF
+
+  SETREG(0x59, 0x00); // SENSOR_DEF
+  SETREG(0x5a, 0x40); // SENSOR_DEF
+
+  // 0x5b-0x5c: GMMADDR[0:15] address for gamma or motor tables download
+  // SENSOR_DEF
+
+  // DECSEL[0:2]: The number of deceleratino steps after touching home sensor
+  // STOPTIM[0:4]: The stop duration between change of directions in
+  // backtracking
   SETREG (0x5e, 0x23);
+  // FMOVDEC: The number of deceleration steps in table 5 for auto-go-home
   SETREG (0x5f, 0x01);
+  // Z1MOD[0:20]
   SETREG (0x60, 0x00);
   SETREG (0x61, 0x00);
   SETREG (0x62, 0x00);
+
+  // Z2MOD[0:20]
   SETREG (0x63, 0x00);
   SETREG (0x64, 0x00);
   SETREG (0x65, 0x00);
+
+  // STEPSEL[0:1]. Motor movement step mode selection for tables 1-3 in
+  // scanning mode.
+  // MTRPWM[0:5]. Motor phase PWM duty cycle setting for tables 1-3
   SETREG (0x67, 0x7f);
+  // FSTPSEL[0:1]: Motor movement step mode selection for tables 4-5 in
+  // command mode.
+  // FASTPWM[5:0]: Motor phase PWM duty cycle setting for tables 4-5
   SETREG (0x68, 0x7f);
+
+  // FSHDEC[0:7]: The number of deceleration steps after scanning is finished
+  // (table 3)
   SETREG (0x69, 0x01);
+
+  // FMOVNO[0:7] The number of acceleration or deceleration steps for fast
+  // moving (table 4)
   SETREG (0x6a, 0x04);
+  // GPIO-related register bits
   SETREG (0x6b, 0x30);
-  SETREG (0x70, 0x01);
-  SETREG (0x71, 0x03);
+  // 0x6c, 0x6d, 0x6e, 0x6f are set according to gpio tables. See
+  // gl843_init_gpio.
+
+  // RSH[0:4]: The position of rising edge of CCD RS signal in cycles
+  // RSL[0:4]: The position of falling edge of CCD RS signal in cycles
+  // CPH[0:4]: The position of rising edge of CCD CP signal in cycles.
+  // CPL[0:4]: The position of falling edge of CCD CP signal in cycles
+  SETREG(0x70, 0x01); // SENSOR_DEF
+  SETREG(0x71, 0x03); // SENSOR_DEF
   SETREG (0x72, 0x04);
   SETREG (0x73, 0x05);
 
-  /* CKxMAP */
-  SETREG (0x74, 0x00);
-  SETREG (0x75, 0x00);
-  SETREG (0x76, 0x3c);
-  SETREG (0x77, 0x00);
-  SETREG (0x78, 0x00);
-  SETREG (0x79, 0x9f);
-  SETREG (0x7a, 0x00);
-  SETREG (0x7b, 0x00);
-  SETREG (0x7c, 0x55);
+  // CK1MAP[0:17], CK3MAP[0:17], CK4MAP[0:17]: CCD clock bit mapping setting.
+  SETREG(0x74, 0x00); // SENSOR_DEF
+  SETREG(0x75, 0x00); // SENSOR_DEF
+  SETREG(0x76, 0x3c); // SENSOR_DEF
+  SETREG(0x77, 0x00); // SENSOR_DEF
+  SETREG(0x78, 0x00); // SENSOR_DEF
+  SETREG(0x79, 0x9f); // SENSOR_DEF
+  SETREG(0x7a, 0x00); // SENSOR_DEF
+  SETREG(0x7b, 0x00); // SENSOR_DEF
+  SETREG(0x7c, 0x55); // SENSOR_DEF
 
-  SETREG (0x7d, 0x00);
+  // various AFE settings
+  SETREG(0x7d, 0x00);
   SETREG (0x7f, 0x00);
   SETREG (0x80, 0x00);
   if (dev->model->model_id != MODEL_CANON_CANOSCAN_4400F)
     {
+      // NOTE: Historical code. None of the following 6 registers are
+      // documented in the datasheet. Their default value is 0, so probably it's
+      // not a bad idea to leave this here.
       SETREG (0x81, 0x00);
       SETREG (0x82, 0x00);
       SETREG (0x83, 0x00);
@@ -490,6 +562,7 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0x85, 0x00);
       SETREG (0x86, 0x00);
     }
+
   SETREG (0x87, 0x00);
   SETREG (0x9d, 0x04);
   SETREG (0x9e, 0x00);

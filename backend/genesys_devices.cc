@@ -1098,8 +1098,8 @@ static Genesys_Gpo Gpo[] = {
   /* Canon LiDE 80 */
   {
     GPO_CANONLIDE80,
-   {0x28, 0x90}, /* 6c, 6d */
-   {0x75, 0x80}, /* 6e, 6f */
+   {0x28, 0x90},
+   {0x75, 0x80},
   }
 };
 

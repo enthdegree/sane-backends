@@ -325,8 +325,14 @@ struct Genesys_Sensor {
 typedef struct
 {
   uint8_t gpo_id;	/**< id of the gpo description */
-  uint8_t value[2];	/**< registers 0x6c and 0x6d on gl843 */
-  uint8_t enable[2];	/**< registers 0x6e and 0x6F on gl843 */
+
+  // registers 0x6c and 0x6d on GL841, GL842, GL843, GL846, GL848 and possibly
+  // others
+  uint8_t value[2];
+
+  // registers 0x6e and 0x6f on GL841, GL842, GL843, GL846, GL848 and possibly
+  // others
+  uint8_t enable[2];
 } Genesys_Gpo;
 
 typedef struct

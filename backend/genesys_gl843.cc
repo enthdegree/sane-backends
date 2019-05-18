@@ -1267,6 +1267,108 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   return SANE_STATUS_GOOD;
 }
 
+struct GenesysPhysicalParams {
+    float xres;
+
+    // whether CCD operates as half-resolution or full resolution at a specific resolution
+    SANE_Bool half_ccd;
+
+    // the optical resolution of the scanner.
+    unsigned optical_resolution;
+
+    // the number of pixels at the optical resolution.
+    unsigned optical_pixels;
+
+    // the number of bytes in the output of a single line directly from scanner
+    unsigned optical_line_bytes;
+
+    // the resolution of the output data.
+    unsigned output_resolution;
+
+    // the number of pixels in output data
+    unsigned output_pixels;
+
+    // the number of bytes in the output of a single line
+    unsigned output_line_bytes;
+
+    // the number of lines in the output of the scanner. This must be larger than the user
+    // requested number due to line staggering and color channel shifting.
+    unsigned output_line_count;
+
+    // the number of staggered lines (i.e. lines that overlap during scanning due to line being
+    // thinner than the CCD element)
+    unsigned num_staggered_lines;
+
+    // the number of lines that color channels shift due to different physical positions of
+    // different color channels
+    unsigned max_color_shift_lines;
+};
+
+// computes physical parameters for specific scan setup
+static struct GenesysPhysicalParams
+    gl843_compute_physical_params(Genesys_Device* dev, float xres, float yres, float pixels,
+                                  float lines,
+                                  unsigned depth, unsigned channels, unsigned flags)
+{
+    struct GenesysPhysicalParams params;
+    memset(&params, 0, sizeof(params));
+
+    params.xres = xres;
+
+    if (dev->sensor.optical_res < 4 * xres ||
+        !(dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE))
+    {
+        params.half_ccd = SANE_FALSE;
+    } else {
+        params.half_ccd = SANE_TRUE;
+    }
+
+    params.optical_resolution = dev->sensor.optical_res;
+    if (params.half_ccd)
+        params.optical_resolution /= 4;
+
+    if (flags & SCAN_FLAG_USE_OPTICAL_RES) {
+        params.output_resolution = params.optical_resolution;
+    } else {
+        // resolution is choosen from a fixed list and can be used directly
+        // unless we have ydpi higher than sensor's maximum one
+        if (xres > params.optical_resolution)
+            params.output_resolution = params.optical_resolution;
+        else
+            params.output_resolution = xres;
+    }
+
+    // compute rounded up number of optical pixels
+    params.optical_pixels = (pixels * params.optical_resolution) / xres;
+    if (params.optical_pixels * xres < pixels * params.optical_resolution)
+        params.optical_pixels++;
+
+    // ensure the number of optical pixels is divisible by 2
+    if (params.optical_pixels & 1)
+        params.optical_pixels++;
+
+    params.output_pixels =
+        (params.optical_pixels * params.output_resolution) / params.optical_resolution;
+
+    // Note: staggering is not applied for calibration. Staggering starts at 2400 dpi
+    params.num_staggered_lines = 0;
+    if ((yres > 1200) &&
+        ((flags & SCAN_FLAG_IGNORE_LINE_DISTANCE) == 0) &&
+        (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
+    {
+        params.num_staggered_lines = (4 * yres) / dev->motor.base_ydpi;
+    }
+
+    params.max_color_shift_lines = sanei_genesys_compute_max_shift(dev, channels, yres, flags);
+
+    params.output_line_count = lines + params.max_color_shift_lines + params.num_staggered_lines;
+
+    params.optical_line_bytes = (params.optical_pixels * channels * depth) / 8;
+    params.output_line_bytes = (params.output_pixels * channels * depth) / 8;
+
+    return params;
+}
+
 /* set up registers for an actual scan
  *
  * this function sets up the scanner to scan in normal or single line mode
@@ -1286,24 +1388,17 @@ gl843_init_scan_regs (Genesys_Device * dev,
 		      int color_filter,
                       unsigned int flags)
 {
-  int used_res;
-  int start, used_pixels;
-  int bytes_per_line;
+  int start;
   int move;
-  unsigned int lincnt;          /**> line count to scan */
   unsigned int oflags, mflags;  /**> optical and motor flags */
   int exposure;
-  int stagger;
 
   int slope_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
   int scan_power_mode = 0;
-  int max_shift;
   size_t requested_buffer_size, read_buffer_size;
 
-  SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
-  int optical_res;
   SANE_Status status;
 
   DBG(DBG_info, "%s:\n"
@@ -1315,32 +1410,10 @@ gl843_init_scan_regs (Genesys_Device * dev,
       "Flags         : %x\n\n",
       __func__, xres, yres, lines, pixels, startx, starty, depth, channels, flags);
 
+  struct GenesysPhysicalParams params =
+      gl843_compute_physical_params(dev, xres, yres, pixels, lines, depth, channels, flags);
 
-  /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (dev->sensor.optical_res < 4 * xres ||
-      !(dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE))
-    {
-      half_ccd = SANE_FALSE;
-    }
-  else
-    {
-      half_ccd = SANE_TRUE;
-    }
-
-  /* optical_res */
-  optical_res = dev->sensor.optical_res;
-  if (half_ccd)
-    optical_res /= 4;
-
-  /* stagger starting at 2400, and not applied for calibration */
-  stagger = 0;
-  if (   (yres>1200)
-      && ((flags & SCAN_FLAG_IGNORE_LINE_DISTANCE)==0)
-      && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-    {
-      stagger = (4 * yres) / dev->motor.base_ydpi;
-    }
-  DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
+  DBG(DBG_info, "%s : stagger=%d lines\n", __func__, params.num_staggered_lines);
 
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
@@ -1354,43 +1427,17 @@ gl843_init_scan_regs (Genesys_Device * dev,
     oflags |= OPTICAL_FLAG_DISABLE_LAMP;
   if (flags & SCAN_FLAG_CALIBRATION)
     oflags |= OPTICAL_FLAG_DISABLE_DOUBLE;
-  if(stagger)
+  if (params.num_staggered_lines)
     oflags |= OPTICAL_FLAG_STAGGER;
   if (flags & SCAN_FLAG_USE_XPA)
     oflags |= OPTICAL_FLAG_USE_XPA;
 
-  /** @brief compute used resolution */
-  if (flags & SCAN_FLAG_USE_OPTICAL_RES)
-    {
-      used_res = optical_res;
-    }
-  else
-    {
-      /* resolution is choosen from a fixed list and can be used directly
-       * unless we have ydpi higher than sensor's maximum one */
-      if(xres>optical_res)
-        used_res=optical_res;
-      else
-        used_res = xres;
-    }
 
   /* compute scan parameters values */
   /* pixels are allways given at full optical resolution */
   /* use detected left margin and fixed value */
   /* start */
   start = startx;
-
-  /* compute correct pixels number */
-  used_pixels = (pixels * optical_res) / xres;
-  DBG(DBG_info, "%s: used_pixels=%d\n", __func__, used_pixels);
-
-  /* round up pixels number if needed */
-  if (used_pixels * xres < pixels * optical_res)
-    used_pixels++;
-
-  /* we want even number of pixels here */
-  if(used_pixels & 1)
-    used_pixels++;
 
   dummy = 0;
   /* dummy = 1;  XXX STEF XXX */
@@ -1411,7 +1458,7 @@ gl843_init_scan_regs (Genesys_Device * dev,
     }
   else
     {
-      exposure = gl843_compute_exposure (dev, used_res, oflags);
+      exposure = gl843_compute_exposure (dev, params.output_resolution, oflags);
       scan_step_type = sanei_genesys_compute_step_type(gl843_motors, dev->model->motor_type, exposure);
     }
 
@@ -1436,12 +1483,12 @@ gl843_init_scan_regs (Genesys_Device * dev,
   status = gl843_init_optical_regs_scan (dev,
 					 reg,
 					 exposure,
-					 used_res,
+                                         params.output_resolution,
 					 start,
-					 used_pixels,
+                                         params.optical_pixels,
 					 channels,
 					 depth,
-					 half_ccd,
+                                         params.half_ccd,
                                          color_filter,
                                          oflags);
   if (status != SANE_STATUS_GOOD)
@@ -1463,13 +1510,6 @@ gl843_init_scan_regs (Genesys_Device * dev,
       dev->ld_shift_b = dev->model->ld_shift_b;
     }
 
-  /* max_shift */
-  /* scanned area must be enlarged by max color shift needed */
-  max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,flags);
-
-  /* lines to scan */
-  lincnt = lines + max_shift + stagger;
-
   /* add tl_y to base movement */
   move = starty;
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
@@ -1488,7 +1528,8 @@ gl843_init_scan_regs (Genesys_Device * dev,
                                        exposure,
                                        slope_dpi,
                                        scan_step_type,
-                                       dev->model->is_cis ? lincnt * channels : lincnt,
+                                       dev->model->is_cis ? params.output_line_count * channels
+                                                          : params.output_line_count,
                                        dummy,
                                        move,
                                        scan_power_mode,
@@ -1496,20 +1537,14 @@ gl843_init_scan_regs (Genesys_Device * dev,
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  /*** prepares data reordering ***/
-
-  /* words_per_line */
-  bytes_per_line = (used_pixels * used_res) / optical_res;
-  bytes_per_line = (bytes_per_line * channels * depth) / 8;
-
   /* since we don't have sheetfed scanners to handle,
    * use huge read buffer */
   /* TODO find the best size according to settings */
-  requested_buffer_size = 16 * bytes_per_line;
+  requested_buffer_size = 16 * params.output_line_bytes;
 
   read_buffer_size =
     2 * requested_buffer_size +
-    ((max_shift + stagger) * used_pixels * channels * depth) / 8;
+    (params.max_color_shift_lines + params.num_staggered_lines) * params.optical_line_bytes;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -1523,23 +1558,22 @@ gl843_init_scan_regs (Genesys_Device * dev,
     dev->out_buffer.clear();
     dev->out_buffer.alloc((8 * dev->settings.pixels * channels * depth) / 8);
 
-  dev->read_bytes_left = bytes_per_line * lincnt;
+  dev->read_bytes_left = params.output_line_bytes * params.output_line_count;
 
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
-
-  dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
+  dev->current_setup.pixels = params.output_pixels;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
-  dev->current_setup.lines = lincnt;
+  dev->current_setup.lines = params.output_line_count;
   dev->current_setup.depth = depth;
   dev->current_setup.channels = channels;
   dev->current_setup.exposure_time = exposure;
-  dev->current_setup.xres = used_res;
+  dev->current_setup.xres = params.output_resolution;
   dev->current_setup.yres = yres;
-  dev->current_setup.half_ccd = half_ccd;
-  dev->current_setup.stagger = stagger;
-  dev->current_setup.max_shift = max_shift + stagger;
+  dev->current_setup.half_ccd = params.half_ccd;
+  dev->current_setup.stagger = params.num_staggered_lines;
+  dev->current_setup.max_shift = params.max_color_shift_lines + params.num_staggered_lines;
 
   dev->total_bytes_read = 0;
   if (depth == 1)

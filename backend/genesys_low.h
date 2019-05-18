@@ -764,6 +764,7 @@ typedef struct Genesys_Model
   SANE_Word buttons;		/* Button flags, described existing buttons for the model */
   /*@} */
   SANE_Int shading_lines;	/* how many lines are used for shading calibration */
+  SANE_Int shading_ta_lines; // how many lines are used for shading calibration in TA mode
   SANE_Int search_lines;	/* how many lines are used to search start position */
 } Genesys_Model;
 

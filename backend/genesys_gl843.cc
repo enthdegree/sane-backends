@@ -2983,10 +2983,14 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
   memcpy (dev->calib_reg, dev->reg, GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
 
   dev->calib_channels = 3;
-  dev->calib_lines = dev->model->shading_lines;
+  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+    dev->calib_lines = dev->model->shading_ta_lines;
+  else
+    dev->calib_lines = dev->model->shading_lines;
   dpihw=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
   factor=dev->sensor.optical_res/dpihw;
   resolution=dpihw;
+
   dev->calib_resolution = resolution;
   dev->calib_pixels = dev->sensor.sensor_pixels/factor;
 

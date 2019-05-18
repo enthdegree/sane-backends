@@ -1571,6 +1571,7 @@ static Genesys_Model umax_astra_4500_model = {
   /* untested, values set by hmg */
   GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
   20,
+  0,        // shading_ta_lines
   200
 };
 
@@ -1628,6 +1629,7 @@ static Genesys_Model canon_lide_50_model = {
   GENESYS_HAS_EMAIL_SW |
   GENESYS_HAS_COPY_SW,
   280,
+  0,        // shading_ta_lines
   400
 };
 
@@ -1680,6 +1682,7 @@ static Genesys_Model panasonic_kvss080_model = {
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW ,
   100,
+  0,        // shading_ta_lines
   100
 };
 
@@ -1736,6 +1739,7 @@ static Genesys_Model hp4850c_model = {
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   100,
+  0,        // shading_ta_lines
   100
 };
 
@@ -1792,6 +1796,7 @@ static Genesys_Model hpg4010_model = {
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   100,
+  0,        // shading_ta_lines
   100
 };
 
@@ -1848,6 +1853,7 @@ static Genesys_Model hpg4050_model = {
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   100,
+  0,        // shading_ta_lines
   100
 };
 
@@ -1908,6 +1914,7 @@ static Genesys_Model canon_4400f_model = {
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   100,
+  0,        // shading_ta_lines
   100
 };
 
@@ -1967,6 +1974,7 @@ static Genesys_Model canon_8400f_model = {
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   100,
+  0,        // shading_ta_lines
   100
 };
 
@@ -2026,6 +2034,7 @@ static Genesys_Model canon_8600f_model = {
   GENESYS_FLAG_HALF_CCD_MODE,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   50,       // shading_lines
+  50,       // shading_ta_lines
   100
 };
 
@@ -2082,6 +2091,7 @@ static Genesys_Model canon_lide_100_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
   50,
+  0,        // shading_ta_lines
   400
 };
 
@@ -2136,6 +2146,7 @@ static Genesys_Model canon_lide_110_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
   50,
+  0,        // shading_ta_lines
   400
 };
 
@@ -2190,6 +2201,7 @@ static Genesys_Model canon_lide_120_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
   50,
+  0,        // shading_ta_lines
   400
 };
 
@@ -2245,6 +2257,7 @@ static Genesys_Model canon_lide_210_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_EXTRA_SW,
   60,
+  0,        // shading_ta_lines
   400
 };
 
@@ -2299,6 +2312,7 @@ static Genesys_Model canon_lide_220_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_EXTRA_SW,
   60,
+  0,        // shading_ta_lines
   400
 };
 
@@ -2353,6 +2367,7 @@ static Genesys_Model canon_5600f_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
   50,
+  0,        // shading_ta_lines
   400
 };
 
@@ -2407,6 +2422,7 @@ static Genesys_Model canon_lide_700f_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
   70,
+  0,        // shading_ta_lines
   400
 };
 
@@ -2463,6 +2479,7 @@ static Genesys_Model canon_lide_200_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
   50,
+  0,        // shading_ta_lines
   400
 };
 
@@ -2522,6 +2539,7 @@ static Genesys_Model canon_lide_60_model = {
     | GENESYS_HAS_FILE_SW
     | GENESYS_HAS_EMAIL_SW,
   300,
+  0,        // shading_ta_lines
   400
 };                                /* this is completely untested -- hmg */
 
@@ -2578,6 +2596,7 @@ static Genesys_Model canon_lide_80_model = {
   GENESYS_HAS_EMAIL_SW |
   GENESYS_HAS_COPY_SW,
   160, /* 280 @2400 */
+  0,        // shading_ta_lines
   400
 };
 
@@ -2635,6 +2654,7 @@ static Genesys_Model hp2300c_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW,
   40,
+  0,        // shading_ta_lines
   132
 };
 
@@ -2691,6 +2711,7 @@ Genesys_Model hp2400c_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_SCAN_SW,
   20,
+  0,        // shading_ta_lines
   132
 };
 
@@ -2746,6 +2767,7 @@ Genesys_Model visioneer_xp200_model = {
     | GENESYS_FLAG_OFFSET_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   120,
+  0,        // shading_ta_lines
   132
 };
 
@@ -2801,6 +2823,7 @@ static Genesys_Model hp3670c_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_SCAN_SW,
   20,
+  0,        // shading_ta_lines
   200
 };
 
@@ -2850,6 +2873,7 @@ static Genesys_Model plustek_st12_model = {
   GENESYS_FLAG_UNTESTED | GENESYS_FLAG_14BIT_GAMMA,        /* Which flags are needed for this scanner? */
   GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
   20,
+  0,        // shading_ta_lines
   200
 };
 
@@ -2904,6 +2928,7 @@ static Genesys_Model plustek_st24_model = {
     | GENESYS_FLAG_OFFSET_CALIBRATION,
   GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
   20,
+  0,        // shading_ta_lines
   200
 };
 
@@ -2960,6 +2985,7 @@ static Genesys_Model medion_md5345_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_POWER_SW | GENESYS_HAS_OCR_SW | GENESYS_HAS_SCAN_SW,
   40,
+  0,        // shading_ta_lines
   200
 };
 
@@ -3014,6 +3040,7 @@ static Genesys_Model visioneer_xp300_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
+  0,        // shading_ta_lines
   400
 };
 
@@ -3067,6 +3094,7 @@ static Genesys_Model syscan_docketport_665_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
+  0,        // shading_ta_lines
   400
 };
 
@@ -3120,6 +3148,7 @@ static Genesys_Model visioneer_roadwarrior_model = {
     | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
+  0,        // shading_ta_lines
   400
 };
 
@@ -3173,6 +3202,7 @@ static Genesys_Model syscan_docketport_465_model = {
     | GENESYS_FLAG_UNTESTED,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
   300,
+  0,        // shading_ta_lines
   400
 };
 
@@ -3226,6 +3256,7 @@ static Genesys_Model visioneer_xp100_r3_model = {
     | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
+  0,        // shading_ta_lines
   400
 };
 
@@ -3279,6 +3310,7 @@ static Genesys_Model pentax_dsmobile_600_model = {
     | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
+  0,        // shading_ta_lines
   400
 };
 
@@ -3332,6 +3364,7 @@ static Genesys_Model syscan_docketport_467_model = {
     | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
+  0,        // shading_ta_lines
   400
 };
 
@@ -3386,6 +3419,7 @@ static Genesys_Model syscan_docketport_685_model = {
     | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
+  0,        // shading_ta_lines
   400
 };
 
@@ -3440,6 +3474,7 @@ static Genesys_Model syscan_docketport_485_model = {
     | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
+  0,        // shading_ta_lines
   400
 };
 
@@ -3495,6 +3530,7 @@ static Genesys_Model dct_docketport_487_model = {
     | GENESYS_FLAG_UNTESTED,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
+  0,        // shading_ta_lines
   400
 };
 
@@ -3551,6 +3587,7 @@ static Genesys_Model visioneer_7100_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_POWER_SW | GENESYS_HAS_OCR_SW | GENESYS_HAS_SCAN_SW,
   40,
+  0,        // shading_ta_lines
   200
 };
 
@@ -3607,6 +3644,7 @@ static Genesys_Model xerox_2400_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_POWER_SW | GENESYS_HAS_OCR_SW | GENESYS_HAS_SCAN_SW,
   40,
+  0,        // shading_ta_lines
   200
 };
 
@@ -3661,6 +3699,7 @@ static Genesys_Model xerox_travelscanner_model = {
     | GENESYS_FLAG_DARK_CALIBRATION,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
   100,
+  0,        // shading_ta_lines
   400
 };
 
@@ -3716,6 +3755,7 @@ static Genesys_Model plustek_3600_model = {
       | GENESYS_FLAG_NO_CALIBRATION,*/
   GENESYS_HAS_NO_BUTTONS,
   7,
+  0,        // shading_ta_lines
   200
 };
 
@@ -3775,6 +3815,7 @@ static Genesys_Model hpn6310_model = {
 
   GENESYS_HAS_NO_BUTTONS,
   100,
+  0,        // shading_ta_lines
   100
 };
 
@@ -3828,6 +3869,7 @@ static Genesys_Model plustek_3800_model = {
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_NO_BUTTONS,        /* TODO there are 4 buttons to support */
   100,
+  0,        // shading_ta_lines
   100
 };
 
@@ -3881,6 +3923,7 @@ static Genesys_Model canon_formula101_model = {
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_NO_BUTTONS ,
   100,
+  0,        // shading_ta_lines
   100
 };
 

@@ -917,6 +917,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
       && dev->model->ccd_type != CCD_G4050
       && dev->model->ccd_type != CCD_CS4400F
       && dev->model->ccd_type != CCD_CS8400F
+      && dev->model->ccd_type != CCD_CS8600F
       && dev->model->ccd_type != CCD_DSMOBILE600
       && dev->model->ccd_type != CCD_XP300
       && dev->model->ccd_type != CCD_DP665
@@ -2836,6 +2837,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     case CCD_G4050:
     case CCD_CS4400F:
     case CCD_CS8400F:
+    case CCD_CS8600F:
       target_code = 0xe000;
       o = 0;
       compute_coefficients (dev,
@@ -3091,6 +3093,9 @@ genesys_flatbed_calibration (Genesys_Device * dev)
   yres = dev->sensor.optical_res;
   if (dev->settings.yres <= dev->sensor.optical_res / 2)
     yres /= 2;
+
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    yres = 1200;
 
   /* do offset calibration if needed */
   if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)

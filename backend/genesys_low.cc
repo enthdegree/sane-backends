@@ -1765,7 +1765,7 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
  */
 int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres)
 {
-  /* some scanners use alxways hardware dpi for sensor */
+  /* some scanners use always hardware dpi for sensor */
   if (dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE)
     {
       return dev->sensor.optical_res;
@@ -1954,7 +1954,7 @@ Motor_Profile *profile;
             i++;
           }
 
-        /* return used steps and acceleration sum */
+        // return used steps and taken time
         *steps=i/factor;
 	return sum;
 }

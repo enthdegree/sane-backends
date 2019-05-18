@@ -8,7 +8,7 @@
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
    Copyright (C) 2010 Jack McGill <jmcgill85258@yahoo.com>
    Copyright (C) 2010 Andrey Loginov <avloginov@gmail.com>,
-		   xerox travelscan device entry
+                   xerox travelscan device entry
    Copyright (C) 2010 Chris Berry <s0457957@sms.ed.ac.uk> and Michael Rickmann <mrickma@gwdg.de>
                  for Plustek Opticbook 3600 support
 
@@ -213,8 +213,15 @@ static Genesys_Frontend Wolfson[] = {
    , {0x60, 0x5c, 0x6c}        /* 0x20, 0x21, 0x22 */
    , {0x8a, 0x9f, 0xc2} /* 0x28, 0x29, 0x2a */
    , {0x00, 0x00, 0x00}
-   }
-  ,
+   },
+  {
+    DAC_CS8600F,
+    { 0x00, 0x23, 0x24, 0x2f },
+    { 0x00, 0x00, 0x00 },
+    { 0x67, 0x69, 0x68 }, // 0x20, 0x21, 0x22
+    { 0xdb, 0xda, 0xd7 }, // 0x28, 0x29, 0x2a
+    { 0x00, 0x00, 0x00 },
+  },
   {DAC_IMG101,
      {0x78, 0xf0, 0x00, 0x00}
    , {0x00, 0x00, 0x00}
@@ -725,6 +732,29 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_CS8600F;
+    sensor.optical_res = 4800;
+    sensor.black_pixels = 31;
+    sensor.dummy_pixel = 20;
+    sensor.CCD_start_xoffset = 0; // not used at the moment
+    // 11372 pixels at 1200 dpi
+    sensor.sensor_pixels = 11372*4;
+    sensor.fau_gain_white_ref = 160;
+    sensor.gain_white_ref = 160;
+    sensor.regs_0x08_0x0b = { 0x00, 0x00, 0x00, 0x00 }; // not used
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x9c, 0x40, 0x9c, 0x40, 0x9c, 0x40, 0x13, 0x15, 0x10, 0x2a, 0x30, 0x00, 0x20, 0x75
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x0c, 0x0f, 0x00, 0x03, 0x06, 0x09, 0x6b, 0x00, 0x40, 0x00, 0x00, 0x00, 0x1f
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_HP_N6310;
     sensor.optical_res = 2400;
     sensor.black_pixels = 96;
@@ -1083,6 +1113,12 @@ static Genesys_Gpo Gpo[] = {
    {0x9a, 0xdf},
    {0xfe, 0x60},
   }
+  /* CanoScan 8600F */
+  ,
+  { GPO_CS8600F,
+    { 0x20, 0x7c },
+    { 0xff, 0x00 },
+  }
   /* Canon Image formula 101 */
   ,
   {GPO_IMG101,
@@ -1388,6 +1424,20 @@ static Genesys_Motor Motor[] = {
 		     { 3961, 240, 246, 0.8 }, /* quarter step */
 	       },
    },
+  },
+  {
+    MOTOR_CS8600F,
+    2400,
+    9600,
+    2,
+    1,
+    { /* motor slopes */
+      { /* power mode 0 */
+        { 3961, 240, 246, 0.8 }, /* full step   */
+        { 3961, 240, 246, 0.8 }, /* half step   */
+        { 3961, 240, 246, 0.8 }, /* quarter step */
+      },
+    },
   },
   {MOTOR_CANONLIDE110,                /* Canon LiDE 110 */
    4800,
@@ -1920,6 +1970,63 @@ static Genesys_Model canon_8400f_model = {
   100
 };
 
+
+static Genesys_Model canon_8600f_model = {
+  "canon-canoscan-8600f",       // name
+  "Canon",                      // Device vendor string
+  "Canoscan 8600f",             // Device model name
+  MODEL_CANON_CANOSCAN_8600F,
+  GENESYS_GL843,                // ASIC type
+  NULL,
+
+  { 4800, 2400, 1200, 600, 400, 300, 0}, // TODO: resolutions for non-XPA mode
+  { 4800, 2400, 1200, 600, 400, 300, 0}, // TODO: resolutions for non-XPA mode
+  { 16, 8, 0 },         // possible depths in gray mode
+  { 16, 8, 0 },         // possible depths in color mode
+
+  SANE_FIX(24.0),        // Start of scan area in mm (x)
+  SANE_FIX(10.0),        // Start of scan area in mm (y)
+  SANE_FIX(216.0),      // Size of scan area in mm (x)
+  SANE_FIX(297.0),      // Size of scan area in mm (y)
+
+  SANE_FIX(0.0),        // Start of white strip in mm (y)
+  SANE_FIX(8.0),        // Start of black mark in mm (x)
+
+  SANE_FIX(8.0),        // Start of scan area in TA mode in mm (x)
+  SANE_FIX(13.00),      // Start of scan area in TA mode in mm (y)
+  SANE_FIX(217.9),      // Size of scan area in TA mode in mm (x)
+  SANE_FIX(250.0),      // Size of scan area in TA mode in mm (y)
+
+  SANE_FIX(40.0),       // Start of white strip in TA mode in mm (y)
+
+  SANE_FIX(0.0),        // Size of scan area after paper sensor stops
+                        // sensing document in mm
+  SANE_FIX(0.0),        // Amount of feeding needed to eject document
+                        // after finishing scanning in mm
+
+  0, 48, 96,            // RGB CCD Line-distance correction in line number
+
+  COLOR_ORDER_RGB,      // Order of the CCD/CIS colors
+
+  SANE_FALSE,            // Is this a CIS scanner?
+  SANE_FALSE,           // Is this a sheetfed scanner?
+  CCD_CS8600F,
+  DAC_CS8600F,
+  GPO_CS8600F,
+  MOTOR_CS8600F,
+  GENESYS_FLAG_LAZY_INIT |
+  GENESYS_FLAG_OFFSET_CALIBRATION |
+  GENESYS_FLAG_STAGGERED_LINE |
+  GENESYS_FLAG_SKIP_WARMUP |
+  GENESYS_FLAG_DARK_CALIBRATION |
+  GENESYS_FLAG_FULL_HWDPI_MODE |
+  GENESYS_FLAG_CUSTOM_GAMMA |
+  GENESYS_FLAG_SHADING_REPARK |
+  GENESYS_FLAG_HALF_CCD_MODE,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
+  50,       // shading_lines
+  100
+};
 
 
 static Genesys_Model canon_lide_100_model = {
@@ -3813,6 +3920,7 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x03f0, 0x4605, &hpg4050_model},
   {0x04a9, 0x2228, &canon_4400f_model},
   {0x04a9, 0x221e, &canon_8400f_model},
+  {0x04a9, 0x2229, &canon_8600f_model},
   /* GL845 devices */
   {0x07b3, 0x1300, &plustek_3800_model},
   /* GL846 devices */

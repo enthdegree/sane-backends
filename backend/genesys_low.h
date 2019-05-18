@@ -390,6 +390,7 @@ enum Genesys_Model_Type
   MODEL_HP_SCANJET_G4050,
   MODEL_CANON_CANOSCAN_4400F,
   MODEL_CANON_CANOSCAN_8400F,
+  MODEL_CANON_CANOSCAN_8600F,
   MODEL_CANON_LIDE_100,
   MODEL_CANON_LIDE_110,
   MODEL_CANON_LIDE_120,
@@ -446,6 +447,7 @@ enum Genesys_Dac_Type
   DAC_PLUSTEK_3600,
   DAC_CANONLIDE700,
   DAC_CS8400F,
+  DAC_CS8600F,
   DAC_IMG101,
   DAC_PLUSTEK3800,
   DAC_CANONLIDE80,
@@ -478,6 +480,7 @@ enum Genesys_Sensor_Type
   CIS_CANONLIDE700,
   CCD_CS4400F,
   CCD_CS8400F,
+  CCD_CS8600F,
   CCD_IMG101,
   CCD_PLUSTEK3800,
   CIS_CANONLIDE210,
@@ -510,6 +513,7 @@ enum Genesys_Gpo_Type
   GPO_CANONLIDE700,
   GPO_CS4400F,
   GPO_CS8400F,
+  GPO_CS8600F,
   GPO_IMG101,
   GPO_PLUSTEK3800,
   GPO_CANONLIDE80,
@@ -538,6 +542,7 @@ enum Genesys_Motor_Type
   MOTOR_PLUSTEK_3600,
   MOTOR_CANONLIDE700,
   MOTOR_CS8400F,
+  MOTOR_CS8600F,
   MOTOR_IMG101,
   MOTOR_PLUSTEK3800,
   MOTOR_CANONLIDE210,
@@ -1033,7 +1038,7 @@ typedef struct {
 	int motor_type;	 /**< motor id */
 	int exposure;    /**< exposure for the slope table */
         int step_type;   /**< default step type for given exposure */
-	uint32_t *table; /**< 0 terminated slope table at full step */
+        uint32_t *table;  // 0-terminated slope table at full step (i.e. step_type == 0)
 } Motor_Profile;
 
 #define FULL_STEP       0

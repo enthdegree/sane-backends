@@ -393,11 +393,42 @@ gl843_init_registers (Genesys_Device * dev)
 
   /* default to KV-SS080 */
   SETREG (0xa2, 0x0f);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0xa2, 0x1f);
+    }
   SETREG (0x01, 0x00);
   SETREG (0x02, 0x78);
   SETREG (0x03, 0x1f);
   SETREG (0x04, 0x10);
+
+  // fine tune upon device description
   SETREG (0x05, 0x80);
+  if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
+      dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
+      dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    {
+      SETREG (0x05, 0x08);
+    }
+
+  dev->reg[reg_0x05].value &= ~REG05_DPIHW;
+  switch (dev->sensor.optical_res)
+    {
+    case 600:
+      dev->reg[reg_0x05].value |= REG05_DPIHW_600;
+      break;
+    case 1200:
+      dev->reg[reg_0x05].value |= REG05_DPIHW_1200;
+      break;
+    case 2400:
+      dev->reg[reg_0x05].value |= REG05_DPIHW_2400;
+      break;
+    case 4800:
+      dev->reg[reg_0x05].value |= REG05_DPIHW_4800;
+      break;
+    }
+
+  // TODO: on 8600F the windows driver turns off GAIN4 which is recommended
   SETREG (0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
   SETREG (0x08, 0x00);
   SETREG (0x09, 0x00);
@@ -407,6 +438,11 @@ gl843_init_registers (Genesys_Device * dev)
   // gl843_boot
   SETREG (0x0b, 0x6a);
 
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x0b, 0x89);
+    }
+
   // EXPR[0:15], EXPG[0:15], EXPB[0:15]: Exposure time settings.
   SETREG(0x10, 0x00); // SENSOR_DEF
   SETREG(0x11, 0x00); // SENSOR_DEF
@@ -414,7 +450,12 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG(0x13, 0x00); // SENSOR_DEF
   SETREG(0x14, 0x00); // SENSOR_DEF
   SETREG(0x15, 0x00); // SENSOR_DEF
-
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      sanei_genesys_set_double(dev->reg,REG_EXPR,0x9c40);
+      sanei_genesys_set_double(dev->reg,REG_EXPG,0x9c40);
+      sanei_genesys_set_double(dev->reg,REG_EXPB,0x9c40);
+    }
   // CCD signal settings.
   SETREG(0x16, 0x33); // SENSOR_DEF
   SETREG(0x17, 0x1c); // SENSOR_DEF
@@ -430,18 +471,40 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG(0x1d, 0x04); // SENSOR_DEF
 
   SETREG (0x1e, 0x10);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x1e, 0x20);
+    }
+
   SETREG (0x1f, 0x01);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x1f, 0xff);
+    }
+
   SETREG (0x20, 0x10);
   SETREG (0x21, 0x04);
   SETREG (0x22, 0x01);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x22, 0xc8);
+    }
+
   SETREG (0x23, 0x01);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x23, 0xc8);
+    }
+
   SETREG (0x24, 0x04);
   SETREG (0x25, 0x00);
   SETREG (0x26, 0x00);
   SETREG (0x27, 0x00);
   SETREG (0x2c, 0x02);
   SETREG (0x2d, 0x58);
+  // BWHI[0:7]: high level of black and white threshold
   SETREG (0x2e, 0x80);
+  // BWLOW[0:7]: low level of black and white threshold
   SETREG (0x2f, 0x80);
   SETREG (0x30, 0x00);
   SETREG (0x31, 0x14);
@@ -450,11 +513,18 @@ gl843_init_registers (Genesys_Device * dev)
 
   // DUMMY: CCD dummy and optically black pixel count
   SETREG (0x34, 0x24);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x34, 0x14);
+    }
+
+  // MAXWD: If available buffer size is less than 2*MAXWD words, then
+  // "buffer full" state will be set.
   SETREG (0x35, 0x00);
   SETREG (0x36, 0xff);
   SETREG (0x37, 0xff);
 
-  // LPERIOD: Line period or exposure time for CCD or CIS. // ZZTODO 0x59d8
+  // LPERIOD: Line period or exposure time for CCD or CIS.
   SETREG(0x38, 0x55); // SENSOR_DEF
   SETREG(0x39, 0xf0); // SENSOR_DEF
 
@@ -493,8 +563,18 @@ gl843_init_registers (Genesys_Device * dev)
   // STOPTIM[0:4]: The stop duration between change of directions in
   // backtracking
   SETREG (0x5e, 0x23);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x5e, 0x1f);
+    }
+
   // FMOVDEC: The number of deceleration steps in table 5 for auto-go-home
   SETREG (0x5f, 0x01);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x5f, 0xf0);
+    }
+
   // Z1MOD[0:20]
   SETREG (0x60, 0x00);
   SETREG (0x61, 0x00);
@@ -517,12 +597,26 @@ gl843_init_registers (Genesys_Device * dev)
   // FSHDEC[0:7]: The number of deceleration steps after scanning is finished
   // (table 3)
   SETREG (0x69, 0x01);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x69, 64);
+    }
 
   // FMOVNO[0:7] The number of acceleration or deceleration steps for fast
   // moving (table 4)
   SETREG (0x6a, 0x04);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x69, 64);
+    }
+
   // GPIO-related register bits
   SETREG (0x6b, 0x30);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x6b, 0x72);
+    }
+
   // 0x6c, 0x6d, 0x6e, 0x6f are set according to gpio tables. See
   // gl843_init_gpio.
 
@@ -534,6 +628,14 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG(0x71, 0x03); // SENSOR_DEF
   SETREG (0x72, 0x04);
   SETREG (0x73, 0x05);
+
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x70, 0x00);
+      SETREG(0x71, 0x02);
+      SETREG(0x72, 0x02);
+      SETREG(0x73, 0x04);
+    }
 
   // CK1MAP[0:17], CK3MAP[0:17], CK4MAP[0:17]: CCD clock bit mapping setting.
   SETREG(0x74, 0x00); // SENSOR_DEF
@@ -552,8 +654,14 @@ gl843_init_registers (Genesys_Device * dev)
   // GPOLED[x]: LED vs GPIO settings
   SETREG(0x7e, 0x00);
 
+  // BSMPDLY, VSMPDLY
+  // LEDCNT[0:1]: Controls led blinking and its period
   SETREG (0x7f, 0x00);
+
+  // VRHOME, VRMOVE, VRBACK, VRSCAN: Vref settings of the motor driver IC for
+  // moving in various situations.
   SETREG (0x80, 0x00);
+
   if (dev->model->model_id != MODEL_CANON_CANOSCAN_4400F)
     {
       // NOTE: Historical code. None of the following 6 registers are
@@ -568,8 +676,63 @@ gl843_init_registers (Genesys_Device * dev)
     }
 
   SETREG (0x87, 0x00);
-  SETREG (0x9d, 0x04);
-  SETREG (0x9e, 0x00);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x87, 0x02);
+    }
+
+  // MTRPLS[0:7]: The width of the ADF motor trigger signal pulse.
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x94, 0xff);
+    }
+
+  // 0x95-0x97: SCANLEN[0:19]: Controls when paper jam bit is set in sheetfed
+  // scanners.
+
+  // ONDUR[0:15]: The duration of PWM ON phase for LAMP control
+  // OFFDUR[0:15]: The duration of PWM OFF phase for LAMP control
+  // both of the above are in system clocks
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x98, 0x00);
+      SETREG(0x99, 0x00);
+      SETREG(0x9a, 0x00);
+      SETREG(0x9b, 0x00);
+    }
+
+  // RMADLY[0:1], MOTLAG, CMODE, STEPTIM, MULDMYLN, IFRS
+  SETREG(0x9d, 0x04);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0x9d, 0x08); // additionally sets the multiplier for slope tables
+    }
+
+
+  // SEL3INV, TGSTIME[0:2], TGWTIME[0:2]
+  SETREG (0x9e, 0x00); // SENSOR_DEF
+
+  // RFHSET[0:4]: Refresh time of SDRAM in units of 2us
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0xa2, 0x1f);
+    }
+
+  // 0xa6-0xa9: controls gpio, see gl843_gpio_init
+
+  // GPOM9, MULSTOP[0-2], NODECEL, TB3TB1, TB5TB2, FIX16CLK.
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0xab, 0x00);
+    }
+
+  // VRHOME[3:2], VRMOVE[3:2], VRBACK[3:2]: Vref setting of the motor driver IC
+  // for various situations.
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      SETREG(0xac, 0x00);
+    }
+
   if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F)
     {
       SETREG (0x0c, 0x00);
@@ -577,7 +740,6 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0xab, 0x50);
     }
 
-  /* so many time burnt for this register ....*/
   if (dev->model->model_id != MODEL_CANON_CANOSCAN_4400F
    && dev->model->model_id != MODEL_CANON_CANOSCAN_8400F)
     {
@@ -590,7 +752,6 @@ gl843_init_registers (Genesys_Device * dev)
       dev->model->model_id == MODEL_HP_SCANJET_4850C)
     {
       SETREG (0x03, 0x1d);
-      SETREG (0x05, 0x08);
       SETREG (0x06, 0xd0); /* SCANMOD=110, PWRBIT and no GAIN4 */
       SETREG (0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
       SETREG (0x0a, 0x18);
@@ -663,24 +824,6 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0x9d, 0x08);      /* STEPTIM=2        */
     }
 
-  /* fine tune upon device description */
-  dev->reg[reg_0x05].value &= ~REG05_DPIHW;
-  switch (dev->sensor.optical_res)
-    {
-    case 600:
-      dev->reg[reg_0x05].value |= REG05_DPIHW_600;
-      break;
-    case 1200:
-      dev->reg[reg_0x05].value |= REG05_DPIHW_1200;
-      break;
-    case 2400:
-      dev->reg[reg_0x05].value |= REG05_DPIHW_2400;
-      break;
-    case 4800:
-      dev->reg[reg_0x05].value |= REG05_DPIHW_4800;
-      break;
-    }
-
   /* initalize calibration reg */
   memcpy (dev->calib_reg, dev->reg, GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
 
@@ -750,6 +893,7 @@ gl843_set_fe (Genesys_Device * dev, uint8_t set)
     }
 
   /* check analog frontend type */
+  // FIXME: looks like we write to that register with initial data
   RIE (sanei_genesys_read_register (dev, REG04, &val));
   if ((val & REG04_FESET) != 0x00)
     {
@@ -1136,7 +1280,11 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
     }
 
   r = sanei_genesys_get_address (reg, REG03);
-  r->value &= ~REG03_AVEENB;
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    r->value |= REG03_AVEENB;
+  else
+    r->value &= ~REG03_AVEENB;
+
   if (flags & OPTICAL_FLAG_DISABLE_LAMP)
     r->value &= ~REG03_LAMPPWR;
   else
@@ -1648,7 +1796,10 @@ gl843_calculate_current_setup (Genesys_Device * dev)
     depth = 1;
 
   /* start */
-  start = SANE_UNFIX (dev->model->x_offset);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    start = SANE_UNFIX (dev->model->x_offset) / 4;
+  else
+    start = SANE_UNFIX (dev->model->x_offset);
   start += dev->settings.tl_x;
   start = (start * dev->sensor.optical_res) / MM_PER_INCH;
 
@@ -2897,7 +3048,10 @@ gl843_init_regs_for_scan (Genesys_Device * dev)
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* start */
-  start = SANE_UNFIX (dev->model->x_offset);
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    start = SANE_UNFIX (dev->model->x_offset) / 4;
+  else
+    start = SANE_UNFIX (dev->model->x_offset);
   start += dev->settings.tl_x;
   start = (start * dev->sensor.optical_res) / MM_PER_INCH;
 
@@ -3681,30 +3835,54 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
   /* Set default values for registers */
   gl843_init_registers (dev);
 
-  RIE (sanei_genesys_write_register (dev, REG6B, 0x02));
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      // turns on vref control for maximum current of the motor driver
+      RIE(sanei_genesys_write_register (dev, REG6B, 0x72));
+    }
+  else
+    {
+      RIE(sanei_genesys_write_register (dev, REG6B, 0x02));
+    }
 
   /* Write initial registers */
   RIE (dev->model->cmd_set->bulk_write_register (dev, dev->reg, GENESYS_GL843_MAX_REGS));
 
-  /* Enable DRAM by setting a rising edge on bit 3 of reg 0x0b */
+  // Enable DRAM by setting a rising edge on bit 3 of reg 0x0b
   val = dev->reg[reg_0x0b].value & REG0B_DRAMSEL;
   val = (val | REG0B_ENBDRAM);
   RIE (sanei_genesys_write_register (dev, REG0B, val));
   dev->reg[reg_0x0b].value = val;
-  /* URB    14  control  0x40 0x0c 0x8c 0x10 len     1 wrote 0xb4 */
-  RIE (sanei_genesys_write_0x8c (dev, 0x10, 0xb4));
+
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      RIE (sanei_genesys_write_0x8c (dev, 0x10, 0xc8));
+    }
+  else
+    {
+      RIE (sanei_genesys_write_0x8c (dev, 0x10, 0xb4));
+    }
 
   /* CLKSET */
-  val = (dev->reg[reg_0x0b].value & ~REG0B_CLKSET) | REG0B_48MHZ;
+  int clock_freq = REG0B_48MHZ;
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    clock_freq = REG0B_60MHZ;
+
+  val = (dev->reg[reg_0x0b].value & ~REG0B_CLKSET) | clock_freq;
+
   RIE (sanei_genesys_write_register (dev, REG0B, val));
   dev->reg[reg_0x0b].value = val;
 
   /* prevent further writings by bulk write register */
   dev->reg[reg_0x0b].address = 0x00;
 
-  /* set up end access */
-  sanei_genesys_write_register (dev, REGA7, 0x04);
-  sanei_genesys_write_register (dev, REGA9, 0x00);
+  if (dev->model->model_id != MODEL_CANON_CANOSCAN_8600F)
+    {
+      // set up end access
+      // FIXME: this is overwritten in gl843_init_gpio
+      sanei_genesys_write_register(dev, REGA7, 0x04);
+      sanei_genesys_write_register(dev, REGA9, 0x00);
+    }
 
   /* set RAM read address */
   RIE (sanei_genesys_write_register (dev, REG29, 0x00));

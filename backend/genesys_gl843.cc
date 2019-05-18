@@ -3630,8 +3630,8 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   int i, j, channels;
   SANE_Status status = SANE_STATUS_GOOD;
   int max[3];
-  float gain[3],coeff;
-  int val, code, lines;
+  float coeff;
+  int val, lines;
   int resolution;
   int bpp;
 
@@ -3737,18 +3737,35 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	}
       max[j] = max[j] / (pixels/2);
 
-      gain[j] = ((float) dev->sensor.gain_white_ref*coeff) / max[j];
+      /*  the flow of data through the frontend ADC is as follows (see e.g. VM8192 datasheet)
+          input
+          -> apply offset (o = i + 260mV * (DAC[7:0]-127.5)/127.5) ->
+          -> apply gain (o = i * 208/(283-PGA[7:0])
+          -> ADC
 
-      /* turn logical gain value into gain code, checking for overflow */
-      code = 283 - 208 / gain[j];
+          Here we have some input data that was acquired with zero gain (PGA==0).
+          We want to compute gain such that the output would approach full ADC range (controlled by
+          gain_white_ref).
+
+          We want to solve the following for {PGA}:
+
+          {input} * 208 / (283 - 0) = {output}
+          {input} * 208 / (283 - {PGA}) = {target output}
+
+          The solution is the following equation:
+
+          {PGA} = 283 * (1 - {output} / {target output})
+      */
+      float gain = ((float) max[j] / (dev->sensor.gain_white_ref*coeff));
+      int code = 283 * (1 - gain);
       if (code > 255)
 	code = 255;
       else if (code < 0)
 	code = 0;
       dev->frontend.gain[j] = code;
 
-      DBG(DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__, j, max[j], gain[j],
-          dev->frontend.gain[j]);
+      DBG(DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__, j, max[j], gain,
+          code);
     }
 
   if (dev->model->is_cis)

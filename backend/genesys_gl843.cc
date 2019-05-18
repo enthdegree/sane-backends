@@ -1947,11 +1947,15 @@ gl843_set_lamp_power (Genesys_Device * dev,
     {
       val &= ~REG03_LAMPPWR;
       sanei_genesys_set_reg_from_set (regs, REG03, val);
-      for (i = 0; i < 6; i++)
-	{
-	  r = sanei_genesys_get_address (regs, 0x10 + i);
-	  r->value = 0x00;
-	}
+      if (dev->model->model_id != MODEL_CANON_CANOSCAN_8600F)
+        {
+          // FIXME: datasheet says we shouldn't set exposure to zero
+          for (i = 0; i < 6; i++)
+            {
+              r = sanei_genesys_get_address (regs, 0x10 + i);
+              r->value = 0x00;
+            }
+        }
     }
 }
 

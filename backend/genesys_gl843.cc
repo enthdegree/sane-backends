@@ -2581,16 +2581,6 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   DBG(DBG_proc, "%s (wait_until_home = %d)\n", __func__, wait_until_home);
 
-  if (dev->model->gpo_type == GPO_G4050)
-    {
-      /* test if we need to park XPA lamp, we check GPOADF */
-      RIE (sanei_genesys_read_register (dev, REG6B, &val));
-      if(val & REG6B_GPOADF)
-        {
-          RIE(gl843_park_xpa_lamp(dev));
-        }
-    }
-
   /* regular slow back home */
   dev->scanhead_position_in_steps = 0;
 

@@ -1343,9 +1343,15 @@ static struct GenesysPhysicalParams
     if (params.optical_pixels * xres < pixels * params.optical_resolution)
         params.optical_pixels++;
 
-    // ensure the number of optical pixels is divisible by 2
-    if (params.optical_pixels & 1)
-        params.optical_pixels++;
+    // ensure the number of optical pixels is divisible by 2.
+    // In half-CCD mode optical_pixels is 4x larger than the actual physical number
+    if (params.half_ccd) {
+        if (params.optical_pixels & 0x7)
+            params.optical_pixels = (params.optical_pixels & ~0x7) + 8;
+    } else {
+        if (params.optical_pixels & 1)
+            params.optical_pixels++;
+    }
 
     params.output_pixels =
         (params.optical_pixels * params.output_resolution) / params.optical_resolution;

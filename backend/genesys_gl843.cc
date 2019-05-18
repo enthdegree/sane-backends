@@ -3414,7 +3414,9 @@ dark_average_channel (uint8_t * data, unsigned int pixels, unsigned int lines,
     {
       avg[k] = 0;
       count = 0;
-      for (i = 0; i < lines; i++)
+      // FIXME: start with the second line because the black pixels often have noise on the first
+      // line; the cause is probably incorrectly cleaned up previous scan
+      for (i = 1; i < lines; i++)
 	{
 	  for (j = 0; j < black; j++)
 	    {
@@ -3730,7 +3732,9 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   for (j = 0; j < channels; j++)
     {
       max[j] = 0;
-      for (i = pixels/4; i < (pixels*3/4); i++)
+      // FIXME: start from the second line because the first line often has artifacts. Probably
+      // caused by unclean cleanup of previous scans
+      for (i = pixels/4 + pixels; i < (pixels*3/4) + pixels; i++)
 	{
           if(bpp==16)
             {

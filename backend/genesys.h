@@ -47,6 +47,10 @@
 #ifndef GENESYS_H
 #define GENESYS_H
 
+#ifndef BACKEND_NAME
+# define BACKEND_NAME genesys
+#endif
+
 #include "genesys_low.h"
 
 #ifndef PATH_MAX

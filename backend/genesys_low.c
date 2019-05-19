@@ -41,8 +41,8 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 */
-#undef BACKEND_NAME
-#define BACKEND_NAME genesys_low
+
+#define DEBUG_DECLARE_ONLY
 
 #include "genesys_low.h"
 #include "assert.h"

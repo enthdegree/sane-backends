@@ -46,8 +46,8 @@
  *
  * This file handles GL846 and GL845 ASICs since they are really close to each other.
  */
-#undef BACKEND_NAME
-#define BACKEND_NAME genesys_gl846
+
+#define DEBUG_DECLARE_ONLY
 
 #include "genesys_gl846.h"
 

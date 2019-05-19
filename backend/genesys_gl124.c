@@ -42,8 +42,7 @@
    If you do not wish that, delete this exception notice.
 */
 
-#undef BACKEND_NAME
-#define BACKEND_NAME genesys_gl124
+#define DEBUG_DECLARE_ONLY
 
 #include "genesys_gl124.h"
 

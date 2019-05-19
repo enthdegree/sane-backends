@@ -1757,7 +1757,7 @@ gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
  * @returns SANE_STATUS_GOOD on success
  */
 #if 0                           /* disabled to fix #7 */
-GENESYS_STATIC
+static
 SANE_Status gl847_rewind(Genesys_Device * dev)
 {
   SANE_Status status;
@@ -1796,7 +1796,7 @@ SANE_Status gl847_rewind(Genesys_Device * dev)
  * @param wait_until_home true to make the function waiting for head
  * to be home before returning, if fals returne immediately
  * @returns SANE_STATUS_GOO on success */
-GENESYS_STATIC
+static
 SANE_Status
 gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {

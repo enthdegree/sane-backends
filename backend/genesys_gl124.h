@@ -685,7 +685,7 @@ static Motor_Profile motors[]={
 	{0, 0, 0, NULL},
 };
 /* *INDENT-ON* */
-GENESYS_STATIC
+static
 SANE_Status gl124_init_scan_regs (Genesys_Device * dev,
                                   Genesys_Register_Set * reg,
 				  float xres,        /*dpi */
@@ -715,10 +715,10 @@ static SANE_Status gl124_send_shading_data (Genesys_Device * dev, uint8_t * data
 
 static SANE_Status gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse);
 
-GENESYS_STATIC SANE_Status
+static SANE_Status
 gl124_stop_action (Genesys_Device * dev);
 
-GENESYS_STATIC SANE_Status
+static SANE_Status
 gl124_send_slope_table (Genesys_Device * dev, int table_nr,
 			uint16_t * slope_table, int steps);
 

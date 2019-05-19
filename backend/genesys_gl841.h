@@ -373,7 +373,7 @@ enum
  * prototypes declaration in case of unit testing
  */
 
-GENESYS_STATIC
+static
 int gl841_exposure_time(Genesys_Device *dev,
                     float slope_dpi,
                     int scan_step_type,

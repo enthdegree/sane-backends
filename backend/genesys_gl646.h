@@ -255,15 +255,15 @@ static SANE_Status gl646_set_fe (Genesys_Device * dev, uint8_t set, int dpi);
 
 static SANE_Status gl646_public_set_fe (Genesys_Device * dev, uint8_t set);
 
-GENESYS_STATIC
+static
 SANE_Status
 gl646_save_power (Genesys_Device * dev, SANE_Bool enable);
 
-GENESYS_STATIC
+static
 SANE_Status
 gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home);
 
-GENESYS_STATIC
+static
 SANE_Status
 gl646_move_to_ta (Genesys_Device * dev);
 
@@ -279,7 +279,7 @@ gl646_move_to_ta (Genesys_Device * dev);
  * @param ycorrection true if scanner's Y geometry must be taken into account to
  * 		     compute Y, ie add top margins
  */
-GENESYS_STATIC SANE_Status
+static SANE_Status
 setup_for_scan (Genesys_Device *device,
 		Genesys_Register_Set *regs,
 		Genesys_Settings settings,

@@ -81,8 +81,6 @@
 
 #include "../include/_stdint.h"
 
-#define GENESYS_STATIC static
-
 #define DBG_error0      0	/* errors/warnings printed even with devuglevel 0 */
 #define DBG_error       1	/* fatal errors */
 #define DBG_init        2	/* initialization and scanning time messages */

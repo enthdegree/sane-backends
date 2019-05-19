@@ -2726,7 +2726,7 @@ compute_shifted_coefficients (Genesys_Device * dev,
   }
 }
 
-GENESYS_STATIC SANE_Status
+static SANE_Status
 genesys_send_shading_coefficient (Genesys_Device * dev)
 {
   SANE_Status status;
@@ -3194,7 +3194,7 @@ genesys_save_calibration (Genesys_Device * dev)
  * @param dev device to calibrate
  * @return SANE_STATUS_GOOD if everything when all right, else the error code.
  */
-GENESYS_STATIC SANE_Status
+static SANE_Status
 genesys_flatbed_calibration (Genesys_Device * dev)
 {
   SANE_Status status;
@@ -5191,7 +5191,7 @@ SANE_Range *range=NULL;
  * @param currdev current scanner device
  * @return an allocated string containing a file name
  */
-GENESYS_STATIC char *calibration_filename(Genesys_Device *currdev)
+static char *calibration_filename(Genesys_Device *currdev)
 {
   char *tmpstr;
   char *ptr;
@@ -5923,7 +5923,7 @@ check_present (SANE_String_Const devname)
  * Insert the given device into the backend list of devices.
  * @param dev device to add
  */
-GENESYS_STATIC void add_device(Genesys_Device *dev)
+static void add_device(Genesys_Device *dev)
 {
   ++num_devices;
   dev->next = first_dev;

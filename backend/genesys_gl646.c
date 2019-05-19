@@ -1850,7 +1850,7 @@ gl646_set_lamp_power (Genesys_Device * dev,
  * @param enable SANE_TRUE to enable power saving, SANE_FALSE to leave it
  * @return allways SANE_STATUS_GOOD
  */
-GENESYS_STATIC
+static
 SANE_Status
 gl646_save_power (Genesys_Device * dev, SANE_Bool enable)
 {
@@ -2532,7 +2532,7 @@ gl646_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
  * @param dev scanner's device
  * @param wait_until_home true if the function waits until head parked
  */
-GENESYS_STATIC
+static
 SANE_Status
 gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
@@ -2953,7 +2953,7 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
  * @param xcorrection take x geometry correction into account (fixed and detected offsets)
  * @param ycorrection take y geometry correction into account
  */
-GENESYS_STATIC SANE_Status
+static SANE_Status
 setup_for_scan (Genesys_Device * dev,
                 Genesys_Register_Set *regs,
                 Genesys_Settings settings,
@@ -4415,7 +4415,7 @@ gl646_init (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
-GENESYS_STATIC
+static
 SANE_Status
 gl646_move_to_ta (Genesys_Device * dev)
 {
@@ -4444,7 +4444,7 @@ gl646_move_to_ta (Genesys_Device * dev)
  * @param shading SANE_TRUE to enable shading correction
  * @param data pointer for the data
  */
-GENESYS_STATIC SANE_Status
+static SANE_Status
 simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 	     SANE_Bool forward, SANE_Bool shading, unsigned char **data)
 {

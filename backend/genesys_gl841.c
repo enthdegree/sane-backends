@@ -788,7 +788,7 @@ gl841_init_registers (Genesys_Device * dev)
 /* Send slope table for motor movement
    slope_table in machine byte order
  */
-GENESYS_STATIC SANE_Status
+static SANE_Status
 gl841_send_slope_table (Genesys_Device * dev, int table_nr,
 			      uint16_t * slope_table, int steps)
 {
@@ -1277,7 +1277,7 @@ gl841_init_motor_regs_off(Genesys_Register_Set * reg,
  * @param ydpi motor target resolution
  * @return SANE_STATUS_GOOD on success
  */
-GENESYS_STATIC SANE_Status gl841_write_freq(Genesys_Device *dev, unsigned int ydpi)
+static SANE_Status gl841_write_freq(Genesys_Device *dev, unsigned int ydpi)
 {
 SANE_Status status;
 /**< fast table */
@@ -2125,7 +2125,7 @@ gl841_get_led_exposure(Genesys_Device * dev)
  * Compute exposure time for the device and the given scan resolution,
  * also compute scan_power_mode
  */
-GENESYS_STATIC int
+static int
 gl841_exposure_time(Genesys_Device *dev,
                     float slope_dpi,
                     int scan_step_type,
@@ -2170,7 +2170,7 @@ int led_exposure;
  * @param dev device
  * @param yres motor resolution
  */
-GENESYS_STATIC int
+static int
 gl841_scan_step_type(Genesys_Device *dev, int yres)
 {
 int scan_step_type=0;
@@ -2204,7 +2204,7 @@ int scan_step_type=0;
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-GENESYS_STATIC
+static
 SANE_Status
 gl841_init_scan_regs (Genesys_Device * dev,
 		      Genesys_Register_Set * reg,
@@ -4108,7 +4108,7 @@ gl841_send_gamma_table (Genesys_Device * dev)
 
 -needs working coarse/gain
 */
-GENESYS_STATIC SANE_Status
+static SANE_Status
 gl841_led_calibration (Genesys_Device * dev)
 {
   int num_pixels;
@@ -4460,7 +4460,7 @@ ad_fe_offset_calibration (Genesys_Device * dev)
 
 this function expects the slider to be where?
 */
-GENESYS_STATIC SANE_Status
+static SANE_Status
 gl841_offset_calibration (Genesys_Device * dev)
 {
   int num_pixels;
@@ -4857,7 +4857,7 @@ gl841_offset_calibration (Genesys_Device * dev)
   a reasonable shape. the fine calibration of the upper and lower bounds will
   be done with shading.
  */
-GENESYS_STATIC SANE_Status
+static SANE_Status
 gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 {
   int num_pixels;
@@ -5649,7 +5649,7 @@ gl841_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
  * Send shading calibration data. The buffer is considered to always hold values
  * for all the channels.
  */
-GENESYS_STATIC
+static
 SANE_Status
 gl841_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
 {

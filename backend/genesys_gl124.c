@@ -530,7 +530,7 @@ gl124_init_registers (Genesys_Device * dev)
  * @param slope_table pointer to 16 bit values array of the slope table
  * @param steps number of elemnts in the slope table
  */
-GENESYS_STATIC SANE_Status
+static SANE_Status
 gl124_send_slope_table (Genesys_Device * dev, int table_nr,
 			uint16_t * slope_table, int steps)
 {
@@ -1334,7 +1334,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-GENESYS_STATIC
+static
 SANE_Status
 gl124_init_scan_regs (Genesys_Device * dev,
                       Genesys_Register_Set * reg,
@@ -2022,7 +2022,7 @@ gl124_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
  * @param dev device to rewind
  * @returns SANE_STATUS_GOOD on success
  */
-GENESYS_STATIC
+static
 SANE_Status gl124_rewind(Genesys_Device * dev)
 {
   SANE_Status status;
@@ -2060,7 +2060,7 @@ SANE_Status gl124_rewind(Genesys_Device * dev)
  * @param wait_until_home true to make the function waiting for head
  * to be home before returning, if fals returne immediately
  * @returns SANE_STATUS_GOO on success */
-GENESYS_STATIC
+static
 SANE_Status
 gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {

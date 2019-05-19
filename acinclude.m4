@@ -26,14 +26,15 @@ dnl
 AC_DEFUN([SANE_SET_AM_CFLAGS],
 [
 if test "${ac_cv_c_compiler_gnu}" = "yes"; then
-  DEFAULT_CFLAGS="\
+  DEFAULT_WARNINGS="\
       -Wall"
   EXTRA_WARNINGS="\
       -Wextra \
       -pedantic"
 
-  for flag in $DEFAULT_CFLAGS; do
+  for flag in $DEFAULT_WARNINGS; do
     JAPHAR_GREP_AM_CFLAGS($flag, [ AM_CFLAGS="$AM_CFLAGS $flag" ])
+    JAPHAR_GREP_AM_CXXFLAGS($flag, [ AM_CXXFLAGS="$AM_CXXFLAGS $flag" ])
   done
 
   AC_ARG_ENABLE(warnings,
@@ -43,6 +44,7 @@ if test "${ac_cv_c_compiler_gnu}" = "yes"; then
       if eval "test x$enable_warnings = xyes"; then
         for flag in $EXTRA_WARNINGS; do
           JAPHAR_GREP_AM_CFLAGS($flag, [ AM_CFLAGS="$AM_CFLAGS $flag" ])
+          JAPHAR_GREP_AM_CXXFLAGS($flag, [ AM_CXXFLAGS="$AM_CXXFLAGS $flag" ])
         done
       fi
     ],
@@ -50,6 +52,7 @@ if test "${ac_cv_c_compiler_gnu}" = "yes"; then
        # Warnings enabled by default (development)
        for flag in $EXTRA_WARNINGS; do
          JAPHAR_GREP_AM_CFLAGS($flag, [ AM_CFLAGS="$AM_CFLAGS $flag" ])
+         JAPHAR_GREP_AM_CXXFLAGS($flag, [ AM_CXXFLAGS="$AM_CXXFLAGS $flag" ])
        done
     fi])
 fi # ac_cv_c_compiler_gnu
@@ -395,6 +398,20 @@ dnl From Japhar.  Report changes to japhar@hungry.com
 dnl
 AC_DEFUN([JAPHAR_GREP_AM_CFLAGS],
 [case "$AM_CFLAGS" in
+"$1" | "$1 "* | *" $1" | *" $1 "* )
+  ifelse($#, 3, [$3], [:])
+  ;;
+*)
+  $2
+  ;;
+esac
+])
+
+dnl
+dnl JAPHAR_GREP_AM_CXXFLAGS(flag, cmd_if_missing, cmd_if_present)
+dnl
+AC_DEFUN([JAPHAR_GREP_AM_CXXFLAGS],
+[case "$AM_CXXFLAGS" in
 "$1" | "$1 "* | *" $1" | *" $1 "* )
   ifelse($#, 3, [$3], [:])
   ;;

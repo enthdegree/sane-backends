@@ -19413,19 +19413,28 @@ fi
 
 
 if test "${ac_cv_c_compiler_gnu}" = "yes"; then
-  DEFAULT_CFLAGS="\
+  DEFAULT_WARNINGS="\
       -Wall"
   EXTRA_WARNINGS="\
       -Wextra \
       -pedantic"
 
-  for flag in $DEFAULT_CFLAGS; do
+  for flag in $DEFAULT_WARNINGS; do
     case "$AM_CFLAGS" in
 "$flag" | "$flag "* | *" $flag" | *" $flag "* )
   :
   ;;
 *)
    AM_CFLAGS="$AM_CFLAGS $flag"
+  ;;
+esac
+
+    case "$AM_CXXFLAGS" in
+"$flag" | "$flag "* | *" $flag" | *" $flag "* )
+  :
+  ;;
+*)
+   AM_CXXFLAGS="$AM_CXXFLAGS $flag"
   ;;
 esac
 
@@ -19445,6 +19454,15 @@ if test "${enable_warnings+set}" = set; then :
   ;;
 esac
 
+          case "$AM_CXXFLAGS" in
+"$flag" | "$flag "* | *" $flag" | *" $flag "* )
+  :
+  ;;
+*)
+   AM_CXXFLAGS="$AM_CXXFLAGS $flag"
+  ;;
+esac
+
         done
       fi
 
@@ -19458,6 +19476,15 @@ else
   ;;
 *)
    AM_CFLAGS="$AM_CFLAGS $flag"
+  ;;
+esac
+
+         case "$AM_CXXFLAGS" in
+"$flag" | "$flag "* | *" $flag" | *" $flag "* )
+  :
+  ;;
+*)
+   AM_CXXFLAGS="$AM_CXXFLAGS $flag"
   ;;
 esac
 

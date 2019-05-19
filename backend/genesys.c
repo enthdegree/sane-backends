@@ -58,7 +58,6 @@
  * SANE backend for Genesys Logic GL646/GL841/GL842/GL843/GL846/GL847/GL124 based scanners
  */
 
-#define BUILD 2511
 #define BACKEND_NAME genesys
 
 #include "genesys.h"
@@ -6450,8 +6449,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   SANE_Status status;
 
   DBG_INIT ();
-  DBG(DBG_init, "SANE Genesys backend version %d.%d build %d from %s\n",
-      SANE_CURRENT_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
+  DBG(DBG_init, "SANE Genesys backend version %d.%d from %s\n",
+      SANE_CURRENT_MAJOR, V_MINOR, PACKAGE_STRING);
 #ifdef HAVE_LIBUSB
   DBG(DBG_init, "SANE Genesys backend built with libusb-1.0\n");
 #endif
@@ -6460,7 +6459,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 #endif
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, 0);
 
   DBG(DBG_proc, "%s: authorize %s null\n", __func__, authorize ? "!=" : "==");
 

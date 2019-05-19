@@ -59,8 +59,8 @@ fi # ac_cv_c_compiler_gnu
 # Set default AM_CXXFLAGS.
 AC_DEFUN([SANE_SET_AM_CXXFLAGS],
 [
-AX_CXX_COMPILE_STDCXX_11([noext], [mandatory])
-if test "${ac_cv_cxx_compiler_gnu}" = "yes"; then
+AX_CXX_COMPILE_STDCXX_11([noext], [optional])
+if test "${ac_cv_cxx_compiler_gnu}" = "yes" -a "${ax_cv_cxx_compile_cxx11}" = "yes"; then
   AM_CXXFLAGS="$AM_CXXFLAGS -std=c++11"
 fi # ac_cv_cxx_compiler_gnu
 ])
@@ -573,6 +573,13 @@ for be in ${BACKENDS}; do
     canon_pp|hpsj5s)
     if test "${sane_cv_use_libieee1284}" != "yes"; then
       echo "*** $be backend requires libieee1284 library - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    ;;
+
+    genesys)
+    if test "${ax_cv_cxx_compile_cxx11}" != "yes"; then
+      echo "*** $be backend requires C++11 support - $DISABLE_MSG"
       backend_supported="no"
     fi
     ;;

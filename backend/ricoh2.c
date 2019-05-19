@@ -90,11 +90,11 @@ typedef struct Ricoh2_Device {
   SANE_Device           sane;
   SANE_Bool             active;
 
-  // options
+  /* options */
   SANE_Option_Descriptor opt[NUM_OPTIONS];
   Option_Value           val[NUM_OPTIONS];
 
-  // acquiring session
+  /* acquiring session */
   SANE_Int       dn;
   SANE_Bool      cancelled;
   Scan_Mode      mode;
@@ -186,7 +186,7 @@ attach (SANE_String_Const devname)
       return SANE_STATUS_NO_MEM;
     }
 
-  DBG (2, "attach %s\n", devname);
+  DBG (8, "attach %s\n", devname);
   status = sanei_usb_open (devname, &dn);
   if (status != SANE_STATUS_GOOD)
     {
@@ -227,7 +227,7 @@ init_options(Ricoh2_Device *dev)
 {
   SANE_Option_Descriptor *od;
 
-  DBG (2, "init_options: dev = %p\n", (void *) dev);
+  DBG (8, "init_options: dev = %p\n", (void *) dev);
 
   /* number of options */
   od = &(dev->opt[OPT_NUM_OPTS]);
@@ -281,7 +281,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback __sane_unused__ cb)
 
   DBG_INIT ();
 
-  DBG(2, "sane_init\n");
+  DBG(8, ">sane_init\n");
 
   sanei_usb_init ();
   sanei_usb_set_timeout (USB_TIMEOUT_MS);
@@ -295,7 +295,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback __sane_unused__ cb)
 
   if (vc)
     *vc = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, 0);
-  DBG(2, "sane_init: end\n");
+  DBG(8, "<sane_init\n");
 
   initialized = SANE_TRUE;
 
@@ -309,7 +309,7 @@ sane_get_devices (const SANE_Device ***dl,
   Ricoh2_Device *device = NULL;
   SANE_Int i = 0;
 
-  DBG(2, "sane_get_devices\n");
+  DBG(8, ">sane_get_devices\n");
 
   num_devices = 0;
   sanei_usb_find_devices (0x5ca, 0x042c, attach);
@@ -331,7 +331,10 @@ sane_get_devices (const SANE_Device ***dl,
 
   sane_devices[i] = NULL;
   *dl = sane_devices;
+
   DBG(2, "found %i devices\n", i);
+  DBG(8, "<sane_get_devices\n");
+
   return SANE_STATUS_GOOD;
 }
 
@@ -341,7 +344,7 @@ sane_open (SANE_String_Const name, SANE_Handle *handle)
   Ricoh2_Device *device;
   SANE_Status status;
 
-  DBG (2, "sane_open: devicename=\"%s\", handle=%p\n", name,
+  DBG (8, ">sane_open: devicename=\"%s\", handle=%p\n", name,
        (void *) handle);
 
   CHECK_IF (initialized);
@@ -363,7 +366,7 @@ sane_open (SANE_String_Const name, SANE_Handle *handle)
 
   if (!device)
     {
-      DBG (2, "sane_open: Not a Ricoh device\n");
+      DBG (1, "sane_open: Not a Ricoh device\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -371,7 +374,7 @@ sane_open (SANE_String_Const name, SANE_Handle *handle)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  DBG (2, "sane_open: end\n");
+  DBG (8, "<sane_open\n");
 
   return SANE_STATUS_GOOD;
 }
@@ -381,7 +384,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
   Ricoh2_Device *device;
 
-  DBG (100, "sane_get_option_descriptor: handle=%p, option = %d\n",
+  DBG (8, "<sane_get_option_descriptor: handle=%p, option = %d\n",
        (void *) handle, option);
 
   if (!initialized)
@@ -396,7 +399,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   if (device->opt[option].name)
     {
-      DBG (100, "sane_get_option_descriptor: name=%s\n",
+      DBG (8, ">sane_get_option_descriptor: name=%s\n",
            device->opt[option].name);
     }
 
@@ -413,8 +416,8 @@ sane_control_option (SANE_Handle handle,
   Ricoh2_Device *device;
   SANE_Status status;
 
-  DBG (2,
-       "sane_control_option: handle=%p, opt=%d, act=%d, val=%p, info=%p\n",
+  DBG (8,
+       ">sane_control_option: handle=%p, opt=%d, act=%d, val=%p, info=%p\n",
        (void *) handle, option, action, (void *) value, (void *) info);
 
   CHECK_IF (initialized);
@@ -433,16 +436,16 @@ sane_control_option (SANE_Handle handle,
       switch (option)
         {
         case OPT_RESOLUTION:
-          DBG (100,
-               "Setting value to default value of %d for option %s\n",
+          DBG (2,
+               "Setting value to default value of '%d' for option '%s'\n",
                default_resolution,
                device->opt[option].name);
           device->val[option].w = default_resolution;
           break;
 
         case OPT_MODE:
-          DBG (100,
-               "Setting value to default value of %s for option %s\n",
+          DBG (2,
+               "Setting value to default value of '%s' for option '%s'\n",
                (SANE_String_Const) default_mode,
                device->opt[option].name);
           strcpy (device->val[option].s, default_mode);
@@ -472,16 +475,16 @@ sane_control_option (SANE_Handle handle,
       switch (option)
         {
         case OPT_RESOLUTION:
-          DBG (100,
-               "Setting value to %d for option %s\n",
+          DBG (2,
+               "Setting value to '%d' for option '%s'\n",
                *(SANE_Word *) value,
                device->opt[option].name);
           device->val[option].w = *(SANE_Word *) value;
           break;
 
         case OPT_MODE:
-          DBG (100,
-               "Setting value to %s for option %s\n",
+          DBG (2,
+               "Setting value to '%s' for option '%s'\n",
                (SANE_String_Const)value,
                device->opt[option].name);
           strcpy (device->val[option].s, value);
@@ -499,7 +502,7 @@ sane_control_option (SANE_Handle handle,
         case OPT_NUM_OPTS:
         case OPT_RESOLUTION:
           *(SANE_Word *) value = device->val[option].w;
-          DBG (100, "Option value = %d (%s)\n", *(SANE_Word *) value,
+          DBG (2, "Option value = %d (%s)\n", *(SANE_Word *) value,
                device->opt[option].name);
           break;
         case OPT_MODE:
@@ -514,6 +517,7 @@ sane_control_option (SANE_Handle handle,
       return SANE_STATUS_INVAL;
     }
 
+  DBG (8, "<sane_control_option\n");
   return SANE_STATUS_GOOD;
 }
 
@@ -540,7 +544,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
 {
   Ricoh2_Device *device;
 
-  DBG (2, "sane_get_parameters: handle=%p, params=%p\n", (void *) handle,
+  DBG (8, "sane_get_parameters: handle=%p, params=%p\n", (void *) handle,
        (void *) params);
 
   CHECK_IF (initialized);
@@ -571,7 +575,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
       params->bytes_per_line *= 3;
     }
 
-  DBG (2, "sane_get_parametrs: format = %s bytes_per_line = %d "
+  DBG (8, ">sane_get_parameters: format = %s bytes_per_line = %d "
           "depth = %d "
           "pixels_per_line = %d "
           "lines = %d\n",
@@ -606,7 +610,7 @@ send_receive (SANE_Int dn, Send_Receive_Pair *transfer)
 
   /* send a command */
   io_size = MAX_COMMAND_SIZE;
-  DBG (255, "sending a packet of size %lu\n", io_size);
+  DBG (128, "sending a packet of size %lu\n", io_size);
   memcpy (send_buffer, transfer->send_buffer, transfer->to_send);
   status = sanei_usb_write_bulk (dn, send_buffer, &io_size);
   if (status != SANE_STATUS_GOOD)
@@ -617,7 +621,7 @@ send_receive (SANE_Int dn, Send_Receive_Pair *transfer)
 
   /* receive a result */
   io_size = transfer->to_receive;
-  DBG (255, "receiving a packet of size %lu\n", io_size);
+  DBG (128, "receiving a packet of size %lu\n", io_size);
   if (io_size)
     {
       status = sanei_usb_read_bulk (dn, transfer->receive_buffer, &io_size);
@@ -641,7 +645,7 @@ static SANE_Status
 init_scan(SANE_Int dn, Scan_Mode mode, SANE_Int resolution)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  SANE_Byte dummy_buffer[11]; // the longest expected reply
+  SANE_Byte dummy_buffer[11]; /* the longest expected reply */
   size_t i;
 
   SANE_Byte urb_init[] = { 0x03, 0x09, 0x01 };
@@ -673,11 +677,33 @@ init_scan(SANE_Int dn, Scan_Mode mode, SANE_Int resolution)
        && (status == SANE_STATUS_GOOD);
        ++i)
     {
-      DBG (255, "sending initialization packet %zi\n", i);
+      DBG (128, "sending initialization packet %zi\n", i);
       status = send_receive (dn, transfer + i);
     }
 
   return status;
+}
+
+void
+teardown_scan(SANE_Int dn)
+{
+  SANE_Byte cancel_command[] = { 0x03, 0x0a };
+  SANE_Byte end_command[]    = { 0x03, 0x09, 0x01 };
+  SANE_Byte dummy_buffer;
+  Send_Receive_Pair transfer;
+
+  DBG (128, "Sending cancel command\n");
+  transfer.send_buffer = cancel_command;
+  transfer.to_send = sizeof (cancel_command);
+  transfer.receive_buffer = &dummy_buffer;
+  transfer.to_receive = 0;
+  send_receive (dn, &transfer);
+
+  transfer.send_buffer = end_command;
+  transfer.to_send = sizeof (end_command);
+  transfer.receive_buffer = &dummy_buffer;
+  transfer.to_receive = 1;
+  send_receive (dn, &transfer);
 }
 
 SANE_Status
@@ -688,7 +714,7 @@ sane_start (SANE_Handle handle)
   SANE_Int pixels_per_line;
   SANE_Int resolution_factor = 1;
 
-  DBG (2, "sane_start: handle=%p\n", (void *) handle);
+  DBG (8, ">sane_start: handle=%p\n", (void *) handle);
 
   CHECK_IF (initialized);
   device = lookup_handle (handle);
@@ -757,7 +783,7 @@ sane_start (SANE_Handle handle)
                             INFO_SIZE * resolution_factor,
                             device->mode == SCAN_MODE_COLOR);
 
-  DBG (2, "sane_start: to read %lu\n", device->bytes_to_read);
+  DBG (8, "<sane_start: %lu bytes to read\n", device->bytes_to_read);
 
   return SANE_STATUS_GOOD;
 }
@@ -769,15 +795,12 @@ sane_read (SANE_Handle handle,
            SANE_Int   *length)
 {
   SANE_Byte read_next_command[] = { 0x03, 0x0E, 0x04, 0, 0, 0, 0, 240 };
-  SANE_Byte cancel_command[]    = { 0x03, 0x0a };
-  SANE_Byte end_command[]       = { 0x03, 0x09, 0x01 };
 
   Ricoh2_Device *device;
   SANE_Status status;
   Send_Receive_Pair transfer;
-  SANE_Byte dummy_buf;
 
-  DBG (2, "sane_read: handle=%p, data=%p, maxlen = %d, length=%p\n",
+  DBG (16, ">sane_read: handle=%p, data=%p, maxlen = %d, length=%p\n",
        (void *) handle, (void *) data, maxlen, (void *) length);
 
   CHECK_IF (initialized);
@@ -786,8 +809,10 @@ sane_read (SANE_Handle handle,
   CHECK_IF (length);
   CHECK_IF (maxlen);
 
-  // EOF has already been reached before or acquisition process hasn't
-  // been initiated at all
+  /*
+  EOF has already been reached before or acquisition process hasn't
+  been initiated at all
+  */
   if (device->bytes_to_read <= 0)
     {
       return SANE_STATUS_EOF;
@@ -802,13 +827,12 @@ sane_read (SANE_Handle handle,
       transfer.to_receive = MAX_LINE_SIZE;
       read_next_command[7] = transfer.to_receive / 256;
 
-      DBG (2, "Receiving data of size %zi\n", transfer.to_receive);
+      DBG (128, "Receiving data of size %zi\n", transfer.to_receive);
 
       status = send_receive (device->dn, &transfer);
       if (status != SANE_STATUS_GOOD)
         {
           device->bytes_to_read = 0;
-          device->cancelled = SANE_TRUE;
           return status;
         }
     }
@@ -819,48 +843,24 @@ sane_read (SANE_Handle handle,
 
   device->bytes_to_read -= *length;
 
-  DBG (2,
+  DBG (128,
        "Read length %d, left to read %lu\n",
        *length,
        device->bytes_to_read);
 
-  DBG (2,
+  DBG (128,
        "%d bytes remain in the buffer\n",
        ricoh2_buffer_get_bytes_remain(device->buffer));
 
-  // either we've just reached expected data size
-  // or the user has cancelled the process
-  if ((device->bytes_to_read <= 0) || (device->cancelled))
-    {
-      DBG (2, "Sending cancel command\n");
-      transfer.send_buffer = cancel_command;
-      transfer.to_send = sizeof (cancel_command);
-      transfer.receive_buffer = &dummy_buf;
-      transfer.to_receive = 0;
-      send_receive(device->dn, &transfer);
-
-      transfer.send_buffer = end_command;
-      transfer.to_send = sizeof (end_command);
-      transfer.receive_buffer = &dummy_buf;
-      transfer.to_receive = 1;
-      send_receive(device->dn, &transfer);
-
-      sanei_usb_close(device->dn);
-
-      ricoh2_buffer_dispose(device->buffer);
-      device->buffer = NULL;
-    }
-
-  if (device->cancelled)
-    {
-      device->cancelled = SANE_FALSE;
-      return SANE_STATUS_CANCELLED;
-    }
-
+  /* we've just reached expected data size */
   if (device->bytes_to_read <= 0)
     {
+      ricoh2_buffer_dispose(device->buffer);
+      device->buffer = NULL;
       return SANE_STATUS_EOF;
     }
+
+  DBG (16, "<sane_read\n");
 
   return SANE_STATUS_GOOD;
 }
@@ -869,7 +869,7 @@ SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   Ricoh2_Device *device;
-  DBG (2, "sane_set_io_mode: handle = %p, non_blocking = %d\n",
+  DBG (8, "sane_set_io_mode: handle = %p, non_blocking = %d\n",
        (void *) handle, non_blocking);
 
   CHECK_IF (initialized);
@@ -886,7 +886,7 @@ SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int *fd)
 {
   Ricoh2_Device *device;
-  DBG (2, "sane_get_select_fd: handle = %p, fd %s 0\n", (void *) handle,
+  DBG (8, "sane_get_select_fd: handle = %p, fd %s 0\n", (void *) handle,
        fd ? "!=" : "=");
 
   CHECK_IF (initialized);
@@ -901,15 +901,29 @@ sane_cancel (SANE_Handle handle)
 {
   Ricoh2_Device *device;
 
-  DBG (2, "sane_cancel: handle = %p\n", (void *) handle);
+  DBG (8, ">sane_cancel: handle = %p\n", (void *) handle);
 
   if (!initialized)
     return;
 
-  if (!(device = lookup_handle(handle)))
+  if (!(device = lookup_handle (handle)))
     return;
 
+  if (device->cancelled)
+	return;
+
   device->cancelled = SANE_TRUE;
+
+  teardown_scan (device->dn);
+  if (device->buffer)
+    {
+      ricoh2_buffer_dispose (device->buffer);
+      device->buffer = NULL;
+    }
+
+  sanei_usb_close(device->dn);
+
+  DBG (8, "<sane_cancel\n");
 }
 
 void
@@ -917,7 +931,7 @@ sane_close (SANE_Handle handle)
 {
   Ricoh2_Device *device;
 
-  DBG (2, ">sane_close\n");
+  DBG (8, ">sane_close\n");
 
   if (!initialized)
     return;
@@ -926,9 +940,9 @@ sane_close (SANE_Handle handle)
   if (!device)
     return;
 
-  sanei_usb_exit();
+  /* noop */
 
-  DBG (2, "<sane_close\n");
+  DBG (8, "<sane_close\n");
 }
 
 void
@@ -936,7 +950,7 @@ sane_exit (void)
 {
   Ricoh2_Device *device, *next;
 
-  DBG (2, "sane_exit\n");
+  DBG (8, ">sane_exit\n");
 
   if (!initialized)
     return;
@@ -952,4 +966,6 @@ sane_exit (void)
 
   sanei_usb_exit ();
   initialized = SANE_FALSE;
+
+  DBG (8, "<sane_exit\n");
 }

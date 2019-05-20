@@ -1785,7 +1785,8 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
       return status;
     }
 
-  usleep (200 * 1000);		/* wait 200 ms: lamp needs some time to get dark */
+  // wait some time to let lamp to get dark
+  sanei_genesys_sleep_ms(200);
 
   status = dev->model->cmd_set->begin_scan (dev, dev->calib_reg, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
@@ -1997,7 +1998,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
     }
 
   if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)
-    usleep (500 * 1000);	/* wait 500ms to make sure lamp is bright again */
+    sanei_genesys_sleep_ms(500); // make sure lamp is bright again
 
   status = dev->model->cmd_set->begin_scan (dev, dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
@@ -3611,7 +3612,7 @@ genesys_wait_not_moving (Genesys_Device * dev, int mseconds)
 
       if (dev->model->cmd_set->test_motor_flag_bit (value))
 	{
-	  usleep (100 * 1000);
+          sanei_genesys_sleep_ms(100);
 	  mseconds -= 100;
 	  DBG(DBG_io, "%s: motor is moving, %d mseconds to go\n", __func__, mseconds);
 	}
@@ -3697,7 +3698,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
       do
 	{
 	  sanei_genesys_test_buffer_empty (dev, &empty);
-          usleep (100 * 1000);
+          sanei_genesys_sleep_ms(100);
 	}
       while (empty);
       RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
@@ -3989,9 +3990,8 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
            + sanei_genesys_read_reg_from_set (dev->reg, 0x3f);
   do
     {
-      /* wait 1/10th of second between each test to avoid
-         overloading USB and CPU */
-      usleep (100 * 1000);
+      // wait some time between each test to avoid overloading USB and CPU
+      sanei_genesys_sleep_ms(100);
       status = sanei_genesys_read_feed_steps (dev, &steps);
       if (status != SANE_STATUS_GOOD)
         {
@@ -4012,9 +4012,9 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
   /* and scanning start before reading data                                        */
 /* the valid data check already waits until the scanner delivers data. this here leads to unnecessary buffer full conditions in the scanner.
   if (dev->model->cmd_set->get_fast_feed_bit (dev->reg))
-    usleep (1000 * 1000);
+    sanei_genesys_sleep_ms(1000);
   else
-    usleep (500 * 1000);
+    sanei_genesys_sleep_ms(500);
 */
   /* then we wait for at least one word of valid scan data
 
@@ -4023,7 +4023,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
     {
       do
 	{
-	  usleep (100 * 1000);
+          sanei_genesys_sleep_ms(100);
 	  status = sanei_genesys_read_valid_words (dev, &steps);
 	  if (status != SANE_STATUS_GOOD)
 	    {

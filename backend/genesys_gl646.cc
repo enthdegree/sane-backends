@@ -1521,7 +1521,7 @@ gl646_wm_hp3670 (Genesys_Device * dev, uint8_t set, int dpi)
 	  DBG(DBG_error, "%s: reset failed: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
-      usleep (200000UL);
+      sanei_genesys_sleep_ms(200);
       RIE (sanei_genesys_write_register (dev, 0x50, 0x00));
       sanei_genesys_init_fe (dev);
       status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
@@ -2008,7 +2008,7 @@ gl646_load_document (Genesys_Device * dev)
 	    {
               DBG(DBG_warn, "%s: no paper detected\n", __func__);
 	    }
-	  usleep (200000UL);	/* sleep 200 ms */
+          sanei_genesys_sleep_ms(200);
 	  count++;
 	}
       while (((val & 0x04) != 0x04) && (count < 300));	/* 1 min time out */
@@ -2093,7 +2093,7 @@ gl646_load_document (Genesys_Device * dev)
 	  DBG(DBG_error, "%s: failed to read status: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
-      usleep (200000UL);	/* sleep 200 ms */
+      sanei_genesys_sleep_ms(200);
       count++;
     }
   while ((val & REG41_MOTMFLG) && (count < 300));
@@ -2256,7 +2256,7 @@ gl646_eject_document (Genesys_Device * dev)
   /* wait for motor to stop */
   do
     {
-      usleep (200000UL);
+      sanei_genesys_sleep_ms(200);
       status = sanei_genesys_get_status (dev, &state);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -2343,7 +2343,7 @@ gl646_eject_document (Genesys_Device * dev)
 	  DBG(DBG_error, "%s: failed to read status: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
-      usleep (200000UL);	/* sleep 200 ms */
+      sanei_genesys_sleep_ms(200);
       count++;
     }
   while (((state & REG41_HOMESNR) == 0) && (count < 150));
@@ -2473,7 +2473,7 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		  break;	/* leave for loop */
 		}
 
-	      usleep (10000UL);	/* sleep 100 ms */
+              sanei_genesys_sleep_ms(100);
 	    }
 	}
     }
@@ -2509,7 +2509,7 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		  break;	/* leave while loop */
 		}
 
-	      usleep (10000UL);	/* sleep 100 ms */
+              sanei_genesys_sleep_ms(100);
 	    }
 	}
     }
@@ -2572,7 +2572,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	  DBG(DBG_error, "%s: failed to stop motor: %s\n", __func__, sane_strstatus(status));
 	  return SANE_STATUS_IO_ERROR;
 	}
-      usleep (200000UL);
+      sanei_genesys_sleep_ms(200);
     }
 
   /* when scanhead is moving then wait until scanhead stops or timeout */
@@ -2592,7 +2592,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	  DBG(DBG_info, "%s: already at home and not moving\n", __func__);
 	  return SANE_STATUS_GOOD;
 	}
-      usleep (100 * 1000);	/* sleep 100 ms (todo: fixed to really sleep 100 ms) */
+      sanei_genesys_sleep_ms(100);
     }
 
   if (!i)			/* the loop counted down to 0, scanner still is busy */
@@ -2678,10 +2678,10 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	    {
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
 	      DBG(DBG_proc, "%s: end\n", __func__);
-	      usleep (500000);	/* sleep 500 ms before returning */
+              sanei_genesys_sleep_ms(500);
 	      return SANE_STATUS_GOOD;
 	    }
-	  usleep (100000);	/* sleep 100 ms */
+          sanei_genesys_sleep_ms(100);
           ++loop;
 	}
 
@@ -4137,7 +4137,7 @@ gl646_repark_head (Genesys_Device * dev)
   expected = value32;
   do
     {
-      usleep (100 * 1000);
+      sanei_genesys_sleep_ms(100);
       status = sanei_genesys_read_feed_steps (dev, &steps);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -4260,7 +4260,7 @@ gl646_init (Genesys_Device * dev)
 
       /* ASIC reset */
       RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
-      usleep (100000UL);	/* sleep 100 ms */
+      sanei_genesys_sleep_ms(100);
 
       /* Write initial registers */
       RIE(sanei_genesys_bulk_write_register(dev, dev->reg, GENESYS_GL646_MAX_REGS));
@@ -4580,7 +4580,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   count = 0;
   do
     {
-      usleep (10000UL);
+      sanei_genesys_sleep_ms(10);
       RIE (sanei_genesys_get_status (dev, &val));
       if (DBG_LEVEL > DBG_info)
 	{

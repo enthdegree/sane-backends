@@ -1139,7 +1139,7 @@ sanei_genesys_test_buffer_empty (Genesys_Device * dev, SANE_Bool * empty)
   uint8_t val = 0;
   SANE_Status status;
 
-  usleep(1000);
+  sanei_genesys_sleep_ms(1);
   status = sanei_genesys_get_status (dev, &val);
   if (status != SANE_STATUS_GOOD)
     {
@@ -1152,7 +1152,7 @@ sanei_genesys_test_buffer_empty (Genesys_Device * dev, SANE_Bool * empty)
       /* fix timing issue on USB3 (or just may be too fast) hardware
        * spotted by John S. Weber <jweber53@gmail.com>
        */
-      usleep(1000);
+      sanei_genesys_sleep_ms(1);
       DBG(DBG_io2, "%s: buffer is empty\n", __func__);
       *empty = SANE_TRUE;
       return SANE_STATUS_GOOD;
@@ -1191,7 +1191,7 @@ sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
 	}
       if (words == 0)
 	{
-	  usleep (10000);	/* wait 10 msec */
+          sanei_genesys_sleep_ms(10);
 	  time_count++;
 	}
     }
@@ -1701,7 +1701,7 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
 	   sane_strstatus (status));
       return status;
     }
-  usleep (10000);
+  sanei_genesys_sleep_ms(10);
   status = sanei_genesys_get_status (dev, &val);
   if (status != SANE_STATUS_GOOD)
     {
@@ -1723,8 +1723,7 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
   loop = 0;
   do
     {
-      /* wait 100 ms */
-      usleep (100000);
+      sanei_genesys_sleep_ms(100);
       status = sanei_genesys_get_status (dev, &val);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -2237,6 +2236,16 @@ sanei_genesys_load_lut (unsigned char * lut,
 
   DBGCOMPLETED;
   return ret;
+}
+
+void sanei_genesys_usleep(unsigned int useconds)
+{
+  usleep(useconds);
+}
+
+void sanei_genesys_sleep_ms(unsigned int milliseconds)
+{
+  sanei_genesys_usleep(milliseconds * 1000);
 }
 
 Genesys_Vector sanei_gl_vector_create(size_t element_size)

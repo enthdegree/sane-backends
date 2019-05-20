@@ -63,7 +63,7 @@
 #include "genesys.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_magic.h"
-#include "genesys_devices.c"
+#include "genesys_devices.cc"
 
 static SANE_Int num_devices = 0;
 static Genesys_Device *first_dev = 0;
@@ -4108,7 +4108,7 @@ sanei_genesys_buffer_consume (Genesys_Buffer * buf, size_t size)
 }
 
 
-#include "genesys_conv.c"
+#include "genesys_conv.cc"
 
 static SANE_Status accurate_line_read(Genesys_Device * dev,
                                       SANE_Byte *buffer,

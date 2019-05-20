@@ -52,6 +52,10 @@
 #include <stdio.h>
 #include <sane/sane.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** Search configuration file \a name along directory list and return file
  * pointer if such a file exists.
  *
@@ -171,5 +175,9 @@ extern SANE_Status sanei_configure_attach (
  *         operating system's path separator
  */
 extern const char *sanei_config_get_paths (void);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif	/* sanei_config_h */

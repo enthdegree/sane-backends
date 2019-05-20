@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.11\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
-"POT-Creation-Date: 2019-02-23 13:21-0500\n"
+"POT-Creation-Date: 2019-05-10 23:33+0300\n"
 "PO-Revision-Date: 2007-12-17 23:00+0100\n"
 "Last-Translator: Harri Järvi <harri.jarvi@tut.fi>\n"
 "Language-Team: Debian l10n Finnish <debian-l10n-finnish@lists.debian."
@@ -27,31 +27,31 @@ msgid "Standard"
 msgstr ""
 
 #: include/sane/saneopts.h:157 backend/artec_eplus48u.c:2884
-#: backend/epson.c:3298 backend/epson2.c:1290 backend/genesys.c:5629
+#: backend/epson.c:3298 backend/epson2.c:1290 backend/genesys.cc:5409
 #: backend/gt68xx.c:696 backend/hp3500.c:1019 backend/hp-option.c:3300
 #: backend/kvs1025_opt.c:639 backend/kvs20xx_opt.c:285
 #: backend/kvs40xx_opt.c:506 backend/leo.c:823 backend/lexmark.c:199
 #: backend/ma1509.c:551 backend/matsushita.c:1135 backend/microtek2.h:599
-#: backend/mustek.c:4373 backend/mustek_usb.c:301
-#: backend/mustek_usb2.c:465 backend/pixma_sane_options.c:160
-#: backend/plustek.c:808 backend/plustek_pp.c:747 backend/sceptre.c:702
-#: backend/snapscan-options.c:550 backend/teco1.c:1095
-#: backend/teco2.c:1910 backend/teco3.c:920 backend/test.c:647
-#: backend/u12.c:546 backend/umax.c:5176 backend/umax_pp.c:580
+#: backend/mustek.c:4373 backend/mustek_usb.c:301 backend/mustek_usb2.c:465
+#: backend/pixma_sane_options.c:160 backend/plustek.c:808
+#: backend/plustek_pp.c:747 backend/sceptre.c:702
+#: backend/snapscan-options.c:550 backend/teco1.c:1095 backend/teco2.c:1910
+#: backend/teco3.c:920 backend/test.c:647 backend/u12.c:546
+#: backend/umax.c:5176 backend/umax_pp.c:580
 #, no-c-format
 msgid "Geometry"
 msgstr "Geometria"
 
 #: include/sane/saneopts.h:158 backend/artec_eplus48u.c:2805
-#: backend/canon.c:1493 backend/genesys.c:5689 backend/gt68xx.c:665
+#: backend/canon.c:1493 backend/genesys.cc:5469 backend/gt68xx.c:665
 #: backend/hp-option.c:2956 backend/kvs1025_opt.c:703 backend/leo.c:871
 #: backend/ma1509.c:599 backend/matsushita.c:1189 backend/microtek2.h:600
-#: backend/mustek.c:4421 backend/mustek_usb.c:349
-#: backend/mustek_usb2.c:431 backend/niash.c:754 backend/plustek.c:854
-#: backend/plustek_pp.c:793 backend/sceptre.c:750
-#: backend/snapscan-options.c:617 backend/stv680.c:1067
-#: backend/teco1.c:1143 backend/teco2.c:1958 backend/teco3.c:968
-#: backend/u12.c:592 backend/umax.c:5226 backend/umax_pp.c:629
+#: backend/mustek.c:4421 backend/mustek_usb.c:349 backend/mustek_usb2.c:431
+#: backend/niash.c:754 backend/plustek.c:854 backend/plustek_pp.c:793
+#: backend/sceptre.c:750 backend/snapscan-options.c:617
+#: backend/stv680.c:1067 backend/teco1.c:1143 backend/teco2.c:1958
+#: backend/teco3.c:968 backend/u12.c:592 backend/umax.c:5226
+#: backend/umax_pp.c:629
 #, no-c-format
 msgid "Enhancement"
 msgstr "Parannus"
@@ -293,8 +293,8 @@ msgstr "Sido X- ja Y-tarkkuus"
 
 #: include/sane/saneopts.h:206 backend/hp3900_sane.c:428
 #: backend/hp3900_sane.c:1021 backend/hp3900_sane.c:1421
-#: backend/hp-option.c:3238 backend/mustek_usb2.c:121
-#: backend/plustek.c:236 backend/plustek_pp.c:205 backend/u12.c:157
+#: backend/hp-option.c:3238 backend/mustek_usb2.c:121 backend/plustek.c:236
+#: backend/plustek_pp.c:205 backend/u12.c:157
 #, no-c-format
 msgid "Negative"
 msgstr "Negatiivi"
@@ -1515,91 +1515,90 @@ msgstr "Filmin tyyppi"
 msgid "Select the film type"
 msgstr "Valitsee rasterin"
 
-#: backend/canon_dr.c:408 backend/epjitsu.c:233 backend/epson.c:501
+#: backend/canon_dr.c:411 backend/epjitsu.c:233 backend/epson.c:501
 #: backend/epson2.c:115 backend/fujitsu.c:675 backend/gt68xx.c:148
 #: backend/hp3900_sane.c:418 backend/hp3900_sane.c:427
 #: backend/hp3900_sane.c:1017 backend/hp5590.c:92 backend/ma1509.c:108
 #: backend/magicolor.c:181 backend/mustek.c:156 backend/mustek.c:160
-#: backend/mustek.c:164 backend/pixma.c:920
-#: backend/pixma_sane_options.c:92 backend/snapscan-options.c:86
-#: backend/test.c:192 backend/umax.c:181
+#: backend/mustek.c:164 backend/pixma.c:920 backend/pixma_sane_options.c:92
+#: backend/snapscan-options.c:86 backend/test.c:192 backend/umax.c:181
 #, no-c-format
 msgid "Flatbed"
 msgstr "Taso"
 
-#: backend/canon_dr.c:409 backend/epjitsu.c:234 backend/fujitsu.c:676
+#: backend/canon_dr.c:412 backend/epjitsu.c:234 backend/fujitsu.c:676
 #: backend/kodak.c:140
 #, no-c-format
 msgid "ADF Front"
 msgstr ""
 
-#: backend/canon_dr.c:410 backend/epjitsu.c:235 backend/fujitsu.c:677
+#: backend/canon_dr.c:413 backend/epjitsu.c:235 backend/fujitsu.c:677
 #: backend/kodak.c:141
 #, fuzzy, no-c-format
 msgid "ADF Back"
 msgstr "ADF"
 
-#: backend/canon_dr.c:411 backend/epjitsu.c:236 backend/fujitsu.c:678
+#: backend/canon_dr.c:414 backend/epjitsu.c:236 backend/fujitsu.c:678
 #: backend/hp5590.c:94 backend/kodak.c:142 backend/pixma.c:931
 #, fuzzy, no-c-format
 msgid "ADF Duplex"
 msgstr "Kaksipuolinen"
 
-#: backend/canon_dr.c:412
+#: backend/canon_dr.c:415
 #, fuzzy, no-c-format
 msgid "Card Front"
 msgstr "Tulosta"
 
-#: backend/canon_dr.c:413
+#: backend/canon_dr.c:416
 #, no-c-format
 msgid "Card Back"
 msgstr ""
 
-#: backend/canon_dr.c:414
+#: backend/canon_dr.c:417
 #, fuzzy, no-c-format
 msgid "Card Duplex"
 msgstr "Kaksipuolinen"
 
-#: backend/canon_dr.c:421 backend/epson.c:599 backend/epson.c:3096
-#: backend/epson2.c:201 backend/fujitsu.c:695 backend/genesys.c:89
-#: backend/genesys.c:96 backend/gt68xx_low.h:136 backend/hp-option.c:3096
+#: backend/canon_dr.c:424 backend/epson.c:599 backend/epson.c:3096
+#: backend/epson2.c:201 backend/fujitsu.c:695 backend/genesys.cc:89
+#: backend/genesys.cc:96 backend/gt68xx_low.h:136 backend/hp-option.c:3096
 #, no-c-format
 msgid "Red"
 msgstr "Punainen"
 
-#: backend/canon_dr.c:422 backend/epson.c:600 backend/epson.c:3092
-#: backend/epson2.c:202 backend/fujitsu.c:696 backend/genesys.c:90
-#: backend/genesys.c:97 backend/gt68xx_low.h:137 backend/hp-option.c:3097
+#: backend/canon_dr.c:425 backend/epson.c:600 backend/epson.c:3092
+#: backend/epson2.c:202 backend/fujitsu.c:696 backend/genesys.cc:90
+#: backend/genesys.cc:97 backend/gt68xx_low.h:137 backend/hp-option.c:3097
 #, no-c-format
 msgid "Green"
 msgstr "Vihreä"
 
-#: backend/canon_dr.c:423 backend/epson.c:601 backend/epson.c:3100
-#: backend/epson2.c:203 backend/fujitsu.c:697 backend/genesys.c:91
-#: backend/genesys.c:98 backend/gt68xx_low.h:138 backend/hp-option.c:3098
+#: backend/canon_dr.c:426 backend/epson.c:601 backend/epson.c:3100
+#: backend/epson2.c:203 backend/fujitsu.c:697 backend/genesys.cc:91
+#: backend/genesys.cc:98 backend/gt68xx_low.h:138 backend/hp-option.c:3098
 #, no-c-format
 msgid "Blue"
 msgstr "Sininen"
 
-#: backend/canon_dr.c:424
+#: backend/canon_dr.c:427
 #, fuzzy, no-c-format
 msgid "Enhance Red"
 msgstr "Parannus"
 
-#: backend/canon_dr.c:425
+#: backend/canon_dr.c:428
 #, fuzzy, no-c-format
 msgid "Enhance Green"
 msgstr "Parannus"
 
-#: backend/canon_dr.c:426
+#: backend/canon_dr.c:429
 #, fuzzy, no-c-format
 msgid "Enhance Blue"
 msgstr "Parannus"
 
-#: backend/canon_dr.c:428 backend/epson.c:556 backend/epson.c:564
+#: backend/canon_dr.c:431 backend/epson.c:556 backend/epson.c:564
 #: backend/epson.c:576 backend/epson.c:598 backend/epson2.c:165
 #: backend/epson2.c:173 backend/epson2.c:185 backend/epson2.c:200
-#: backend/epson2.c:214 backend/fujitsu.c:701 backend/genesys.c:99
+#: backend/epson2.c:214 backend/fujitsu.c:701 backend/genesys.cc:99
 #: backend/leo.c:109 backend/matsushita.c:138 backend/matsushita.c:159
 #: backend/matsushita.c:191 backend/matsushita.c:213
 #: backend/snapscan-options.c:91
@@ -1607,18 +1606,18 @@ msgstr "Parannus"
 msgid "None"
 msgstr "Ei mikään"
 
-#: backend/canon_dr.c:429 backend/fujitsu.c:702
+#: backend/canon_dr.c:432 backend/fujitsu.c:702
 #, no-c-format
 msgid "JPEG"
 msgstr ""
 
-#: backend/canon_dr.c:2449 backend/fujitsu.c:4113 backend/genesys.c:5780
+#: backend/canon_dr.c:2477 backend/fujitsu.c:4113 backend/genesys.cc:5560
 #: backend/kvs1025_opt.c:910
 #, no-c-format
 msgid "Software blank skip percentage"
 msgstr ""
 
-#: backend/canon_dr.c:2450 backend/fujitsu.c:4114
+#: backend/canon_dr.c:2478 backend/fujitsu.c:4114
 #, no-c-format
 msgid "Request driver to discard pages with low percentage of dark pixels"
 msgstr ""
@@ -1818,13 +1817,12 @@ msgstr "A4"
 msgid "Max"
 msgstr "Koko alue"
 
-#: backend/epson.c:2813 backend/epson2.c:976 backend/genesys.c:5546
+#: backend/epson.c:2813 backend/epson2.c:976 backend/genesys.cc:5326
 #: backend/gt68xx.c:451 backend/hp-option.c:2917 backend/kvs1025_opt.c:521
-#: backend/kvs20xx_opt.c:171 backend/kvs40xx_opt.c:320
-#: backend/ma1509.c:501 backend/matsushita.c:1084 backend/microtek2.h:598
-#: backend/mustek.c:4215 backend/mustek_usb.c:256
-#: backend/mustek_usb2.c:344 backend/niash.c:734 backend/plustek.c:721
-#: backend/plustek_pp.c:658 backend/sceptre.c:673
+#: backend/kvs20xx_opt.c:171 backend/kvs40xx_opt.c:320 backend/ma1509.c:501
+#: backend/matsushita.c:1084 backend/microtek2.h:598 backend/mustek.c:4215
+#: backend/mustek_usb.c:256 backend/mustek_usb2.c:344 backend/niash.c:734
+#: backend/plustek.c:721 backend/plustek_pp.c:658 backend/sceptre.c:673
 #: backend/snapscan-options.c:354 backend/stv680.c:1030
 #: backend/teco2.c:1882 backend/test.c:306 backend/u12.c:473
 #: backend/umax.c:5054
@@ -2329,7 +2327,7 @@ msgstr "Gamma"
 msgid "Gamma curve, from light to dark, but upper two may not work"
 msgstr ""
 
-#: backend/fujitsu.c:3393 backend/genesys.c:5843
+#: backend/fujitsu.c:3393 backend/genesys.cc:5623
 #: backend/pixma_sane_options.c:335
 #, fuzzy, no-c-format
 msgid "Threshold curve"
@@ -2703,7 +2701,7 @@ msgstr ""
 msgid "Maximum diameter of lone dots to remove from scan."
 msgstr ""
 
-#: backend/fujitsu.c:4100 backend/genesys.c:5771
+#: backend/fujitsu.c:4100 backend/genesys.cc:5551
 #, no-c-format
 msgid "Software crop"
 msgstr ""
@@ -2981,167 +2979,167 @@ msgstr ""
 msgid "Duplex switch"
 msgstr "Kaksipuolinen"
 
-#: backend/genesys.c:5772
+#: backend/genesys.cc:5552
 #, no-c-format
 msgid "Request backend to remove border from pages digitally"
 msgstr ""
 
-#: backend/genesys.c:5781 backend/kvs1025_opt.c:912
+#: backend/genesys.cc:5561 backend/kvs1025_opt.c:912
 #, no-c-format
 msgid "Request driver to discard pages with low numbers of dark pixels"
 msgstr ""
 
-#: backend/genesys.c:5792 backend/kvs1025_opt.c:892
+#: backend/genesys.cc:5572 backend/kvs1025_opt.c:892
 #, no-c-format
 msgid "Software derotate"
 msgstr ""
 
-#: backend/genesys.c:5793 backend/kvs1025_opt.c:894
+#: backend/genesys.cc:5573 backend/kvs1025_opt.c:894
 #, no-c-format
 msgid "Request driver to detect and correct 90 degree image rotation"
 msgstr ""
 
-#: backend/genesys.c:5824 backend/pixma_sane_options.c:314
+#: backend/genesys.cc:5604 backend/pixma_sane_options.c:314
 #, fuzzy, no-c-format
 msgid "Extras"
 msgstr "Hyvin nopea"
 
-#: backend/genesys.c:5844 backend/pixma_sane_options.c:336
+#: backend/genesys.cc:5624 backend/pixma_sane_options.c:336
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
 msgstr ""
 
-#: backend/genesys.c:5853
+#: backend/genesys.cc:5633
 #, no-c-format
 msgid "Disable dynamic lineart"
 msgstr ""
 
-#: backend/genesys.c:5855
+#: backend/genesys.cc:5635
 #, no-c-format
 msgid ""
 "Disable use of a software adaptive algorithm to generate lineart relying "
 "instead on hardware lineart."
 msgstr ""
 
-#: backend/genesys.c:5871
+#: backend/genesys.cc:5651
 #, fuzzy, no-c-format
 msgid "Disable interpolation"
 msgstr "Poista peruutus."
 
-#: backend/genesys.c:5874
+#: backend/genesys.cc:5654
 #, no-c-format
 msgid ""
 "When using high resolutions where the horizontal resolution is smaller "
 "than the vertical resolution this disables horizontal interpolation."
 msgstr ""
 
-#: backend/genesys.c:5883
+#: backend/genesys.cc:5663
 #, fuzzy, no-c-format
 msgid "Color filter"
 msgstr "Väriviivapiirros"
 
-#: backend/genesys.c:5886
+#: backend/genesys.cc:5666
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
 
-#: backend/genesys.c:5912
+#: backend/genesys.cc:5692
 #, fuzzy, no-c-format
 msgid "Calibration file"
 msgstr "Kalibrointi"
 
-#: backend/genesys.c:5913
+#: backend/genesys.cc:5693
 #, fuzzy, no-c-format
 msgid "Specify the calibration file to use"
 msgstr "Määrää kalibraatiotavan"
 
-#: backend/genesys.c:5930
+#: backend/genesys.cc:5710
 #, fuzzy, no-c-format
 msgid "Calibration cache expiration time"
 msgstr "Kalibrointitila"
 
-#: backend/genesys.c:5931
+#: backend/genesys.cc:5711
 #, no-c-format
 msgid ""
 "Time (in minutes) before a cached calibration expires. A value of 0 "
 "means cache is not used. A negative value means cache never expires."
 msgstr ""
 
-#: backend/genesys.c:5941
+#: backend/genesys.cc:5721
 #, fuzzy, no-c-format
 msgid "Lamp off time"
 msgstr "Valo pois"
 
-#: backend/genesys.c:5944
+#: backend/genesys.cc:5724
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value "
 "of 0 means, that the lamp won't be turned off."
 msgstr ""
 
-#: backend/genesys.c:5954
+#: backend/genesys.cc:5734
 #, fuzzy, no-c-format
 msgid "Lamp off during scan"
 msgstr "Raakakalibrointi"
 
-#: backend/genesys.c:5955
+#: backend/genesys.cc:5735
 #, no-c-format
 msgid "The lamp will be turned off during scan. "
 msgstr ""
 
-#: backend/genesys.c:5983 backend/genesys.c:5984
+#: backend/genesys.cc:5763 backend/genesys.cc:5764
 #, fuzzy, no-c-format
 msgid "File button"
 msgstr "Odota painiketta"
 
-#: backend/genesys.c:6036 backend/genesys.c:6037
+#: backend/genesys.cc:5816 backend/genesys.cc:5817
 #, no-c-format
 msgid "OCR button"
 msgstr ""
 
-#: backend/genesys.c:6050 backend/genesys.c:6051
+#: backend/genesys.cc:5830 backend/genesys.cc:5831
 #, fuzzy, no-c-format
 msgid "Power button"
 msgstr "Odota painiketta"
 
-#: backend/genesys.c:6064 backend/genesys.c:6065
+#: backend/genesys.cc:5844 backend/genesys.cc:5845
 #, fuzzy, no-c-format
 msgid "Extra button"
 msgstr "Odota painiketta"
 
-#: backend/genesys.c:6078 backend/gt68xx.c:755
+#: backend/genesys.cc:5858 backend/gt68xx.c:755
 #, fuzzy, no-c-format
 msgid "Need calibration"
 msgstr "Raakakalibrointi"
 
-#: backend/genesys.c:6079 backend/gt68xx.c:756
+#: backend/genesys.cc:5859 backend/gt68xx.c:756
 #, fuzzy, no-c-format
 msgid "The scanner needs calibration for the current settings"
 msgstr "Pakottaa kalibroinnin ennen kuvanlukua."
 
-#: backend/genesys.c:6091 backend/gt68xx.c:780 backend/gt68xx.c:781
+#: backend/genesys.cc:5871 backend/gt68xx.c:780 backend/gt68xx.c:781
 #: backend/pixma_sane_options.c:226 backend/plustek.c:1080
 #, fuzzy, no-c-format
 msgid "Buttons"
 msgstr "Painikkeen tila"
 
-#: backend/genesys.c:6100 backend/gt68xx.c:787 backend/hp5400_sane.c:392
+#: backend/genesys.cc:5880 backend/gt68xx.c:787 backend/hp5400_sane.c:392
 #: backend/hp-option.h:97 backend/niash.c:726 backend/plustek.c:941
 #, no-c-format
 msgid "Calibrate"
 msgstr "Kalibroi"
 
-#: backend/genesys.c:6102 backend/gt68xx.c:789
+#: backend/genesys.cc:5882 backend/gt68xx.c:789
 #, fuzzy, no-c-format
 msgid "Start calibration using special sheet"
 msgstr "Aloita kalibrointi."
 
-#: backend/genesys.c:6116 backend/gt68xx.c:802
+#: backend/genesys.cc:5896 backend/gt68xx.c:802
 #, fuzzy, no-c-format
 msgid "Clear calibration"
 msgstr "Raakakalibrointi"
 
-#: backend/genesys.c:6117 backend/gt68xx.c:803
+#: backend/genesys.cc:5897 backend/gt68xx.c:803
 #, fuzzy, no-c-format
 msgid "Clear calibration cache"
 msgstr "Kalibrointitila"
@@ -3841,8 +3839,8 @@ msgstr "Sulje lamppu"
 msgid "Shut off scanner lamp."
 msgstr "Sulkee kuvanlukijan lampun."
 
-#: backend/kvs1025.h:51 backend/kvs20xx_opt.c:295
-#: backend/kvs40xx_opt.c:516 backend/matsushita.h:219
+#: backend/kvs1025.h:51 backend/kvs20xx_opt.c:295 backend/kvs40xx_opt.c:516
+#: backend/matsushita.h:219
 #, no-c-format
 msgid "Paper size"
 msgstr "Paperin koko"
@@ -3853,8 +3851,7 @@ msgstr "Paperin koko"
 msgid "Automatic separation"
 msgstr "Automaattinen osiointi"
 
-#: backend/kvs1025.h:53 backend/kvs20xx_opt.c:307
-#: backend/kvs40xx_opt.c:531
+#: backend/kvs1025.h:53 backend/kvs20xx_opt.c:307 backend/kvs40xx_opt.c:531
 #, fuzzy, no-c-format
 msgid "Landscape"
 msgstr "A5 vaaka"
@@ -3869,38 +3866,34 @@ msgstr ""
 msgid "Long paper mode"
 msgstr ""
 
-#: backend/kvs1025.h:57 backend/kvs20xx_opt.c:230
-#: backend/kvs40xx_opt.c:393
+#: backend/kvs1025.h:57 backend/kvs20xx_opt.c:230 backend/kvs40xx_opt.c:393
 #, no-c-format
 msgid "Length control mode"
 msgstr ""
 
-#: backend/kvs1025.h:58 backend/kvs20xx_opt.c:242
-#: backend/kvs40xx_opt.c:416
+#: backend/kvs1025.h:58 backend/kvs20xx_opt.c:242 backend/kvs40xx_opt.c:416
 #, fuzzy, no-c-format
 msgid "Manual feed mode"
 msgstr "Manuaalinen esitarkennus"
 
-#: backend/kvs1025.h:59 backend/kvs20xx_opt.c:254
-#: backend/kvs40xx_opt.c:428
+#: backend/kvs1025.h:59 backend/kvs20xx_opt.c:254 backend/kvs40xx_opt.c:428
 #, fuzzy, no-c-format
 msgid "Manual feed timeout"
 msgstr "Manuaalinen esitarkennus"
 
-#: backend/kvs1025.h:60 backend/kvs20xx_opt.c:267
-#: backend/kvs40xx_opt.c:441
+#: backend/kvs1025.h:60 backend/kvs20xx_opt.c:267 backend/kvs40xx_opt.c:441
 #, no-c-format
 msgid "Double feed detection"
 msgstr ""
 
-#: backend/kvs1025.h:63 backend/kvs20xx_opt.c:205
-#: backend/kvs40xx_opt.c:354 backend/matsushita.h:223
+#: backend/kvs1025.h:63 backend/kvs20xx_opt.c:205 backend/kvs40xx_opt.c:354
+#: backend/matsushita.h:223
 #, no-c-format
 msgid "Enable Duplex (Dual-Sided) Scanning"
 msgstr "Kaksipuolinen kuvanluku"
 
-#: backend/kvs1025.h:65 backend/kvs20xx_opt.c:296
-#: backend/kvs40xx_opt.c:517 backend/matsushita.h:225
+#: backend/kvs1025.h:65 backend/kvs20xx_opt.c:296 backend/kvs40xx_opt.c:517
+#: backend/matsushita.h:225
 #, no-c-format
 msgid "Physical size of the paper in the ADF"
 msgstr "Paperin koko syöttölaitteessa"

@@ -26,14 +26,15 @@ dnl
 AC_DEFUN([SANE_SET_AM_CFLAGS],
 [
 if test "${ac_cv_c_compiler_gnu}" = "yes"; then
-  DEFAULT_CFLAGS="\
+  DEFAULT_WARNINGS="\
       -Wall"
   EXTRA_WARNINGS="\
       -Wextra \
       -pedantic"
 
-  for flag in $DEFAULT_CFLAGS; do
+  for flag in $DEFAULT_WARNINGS; do
     JAPHAR_GREP_AM_CFLAGS($flag, [ AM_CFLAGS="$AM_CFLAGS $flag" ])
+    JAPHAR_GREP_AM_CXXFLAGS($flag, [ AM_CXXFLAGS="$AM_CXXFLAGS $flag" ])
   done
 
   AC_ARG_ENABLE(warnings,
@@ -43,6 +44,7 @@ if test "${ac_cv_c_compiler_gnu}" = "yes"; then
       if eval "test x$enable_warnings = xyes"; then
         for flag in $EXTRA_WARNINGS; do
           JAPHAR_GREP_AM_CFLAGS($flag, [ AM_CFLAGS="$AM_CFLAGS $flag" ])
+          JAPHAR_GREP_AM_CXXFLAGS($flag, [ AM_CXXFLAGS="$AM_CXXFLAGS $flag" ])
         done
       fi
     ],
@@ -50,10 +52,22 @@ if test "${ac_cv_c_compiler_gnu}" = "yes"; then
        # Warnings enabled by default (development)
        for flag in $EXTRA_WARNINGS; do
          JAPHAR_GREP_AM_CFLAGS($flag, [ AM_CFLAGS="$AM_CFLAGS $flag" ])
+         JAPHAR_GREP_AM_CXXFLAGS($flag, [ AM_CXXFLAGS="$AM_CXXFLAGS $flag" ])
        done
     fi])
 fi # ac_cv_c_compiler_gnu
 ])
+
+# SANE_SET_AM_CXXFLAGS()
+# Set default AM_CXXFLAGS.
+AC_DEFUN([SANE_SET_AM_CXXFLAGS],
+[
+AX_CXX_COMPILE_STDCXX_11([noext], [optional])
+if test "${ac_cv_cxx_compiler_gnu}" = "yes" -a "${ax_cv_cxx_compile_cxx11}" = "yes"; then
+  AM_CXXFLAGS="$AM_CXXFLAGS -std=c++11"
+fi # ac_cv_cxx_compiler_gnu
+])
+
 
 dnl SANE_CHECK_MISSING_HEADERS
 dnl Do some sanity checks. It doesn't make sense to proceed if those headers
@@ -394,6 +408,20 @@ esac
 ])
 
 dnl
+dnl JAPHAR_GREP_AM_CXXFLAGS(flag, cmd_if_missing, cmd_if_present)
+dnl
+AC_DEFUN([JAPHAR_GREP_AM_CXXFLAGS],
+[case "$AM_CXXFLAGS" in
+"$1" | "$1 "* | *" $1" | *" $1 "* )
+  ifelse($#, 3, [$3], [:])
+  ;;
+*)
+  $2
+  ;;
+esac
+])
+
+dnl
 dnl   SANE_CHECK_U_TYPES
 dnl
 AC_DEFUN([SANE_CHECK_U_TYPES],
@@ -562,6 +590,13 @@ for be in ${BACKENDS}; do
     canon_pp|hpsj5s)
     if test "${sane_cv_use_libieee1284}" != "yes"; then
       echo "*** $be backend requires libieee1284 library - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    ;;
+
+    genesys)
+    if test "${ax_cv_cxx_compile_cxx11}" != "yes"; then
+      echo "*** $be backend requires C++11 support - $DISABLE_MSG"
       backend_supported="no"
     fi
     ;;

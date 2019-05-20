@@ -5,6 +5,10 @@
 /* Now define the wrappers (we could use aliases here, but go for
    robustness for now...: */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 SANE_Status
 sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 {
@@ -83,3 +87,7 @@ sane_exit (void)
 {
   ENTRY(exit) ();
 }
+
+#ifdef __cplusplus
+} // extern "C"
+#endif

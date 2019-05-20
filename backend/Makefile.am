@@ -29,6 +29,10 @@ EXTRA_DIST += stubs.c
 	$(AM_V_at)rm -f $@
 	$(AM_V_at)$(LN_S) $(srcdir)/stubs.c $@
 
+%-s.cc: $(srcdir)/stubs.c
+	$(AM_V_at)rm -f $@
+	$(AM_V_at)$(LN_S) $(srcdir)/stubs.c $@
+
 dll-preload.h:
 	$(AM_V_at)rm -f $@
 	$(AM_V_at)list="$(PRELOADABLE_BACKENDS)"; for be in $$list; do \
@@ -476,16 +480,16 @@ libsane_fujitsu_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_fujitsu_la_LIBADD = $(COMMON_LIBS) libfujitsu.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_magic.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += fujitsu.conf.in
 
-libgenesys_la_SOURCES = genesys.c genesys.h genesys_gl646.c genesys_gl646.h genesys_gl841.c genesys_gl841.h genesys_gl843.c genesys_gl843.h genesys_gl846.c genesys_gl846.h genesys_gl847.c genesys_gl847.h genesys_gl124.c genesys_gl124.h genesys_low.c genesys_low.h
+libgenesys_la_SOURCES = genesys.cc genesys.h genesys_gl646.cc genesys_gl646.h genesys_gl841.cc genesys_gl841.h genesys_gl843.cc genesys_gl843.h genesys_gl846.cc genesys_gl846.h genesys_gl847.cc genesys_gl847.h genesys_gl124.cc genesys_gl124.h genesys_low.cc genesys_low.h
 libgenesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
 
-nodist_libsane_genesys_la_SOURCES = genesys-s.c
+nodist_libsane_genesys_la_SOURCES = genesys-s.cc
 libsane_genesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
 libsane_genesys_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_genesys_la_LIBADD = $(COMMON_LIBS) libgenesys.la  ../sanei/sanei_magic.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += genesys.conf.in
 # TODO: Why are this distributed but not compiled?
-EXTRA_DIST += genesys_conv.c genesys_conv_hlp.c genesys_devices.c
+EXTRA_DIST += genesys_conv.cc genesys_conv_hlp.cc genesys_devices.cc
 
 libgphoto2_i_la_SOURCES = gphoto2.c gphoto2.h
 libgphoto2_i_la_CPPFLAGS = $(AM_CPPFLAGS) $(GPHOTO2_CPPFLAGS) -DBACKEND_NAME=gphoto2

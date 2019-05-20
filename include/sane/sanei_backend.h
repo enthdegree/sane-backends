@@ -113,6 +113,10 @@
 /** @name Declaration of entry points:
  * @{
  */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern SANE_Status ENTRY(init) (SANE_Int *, SANE_Auth_Callback);
 extern SANE_Status ENTRY(get_devices) (const SANE_Device ***, SANE_Bool);
 extern SANE_Status ENTRY(open) (SANE_String_Const, SANE_Handle *);
@@ -129,6 +133,10 @@ extern SANE_Status ENTRY(get_select_fd) (SANE_Handle, SANE_Int *);
 extern void ENTRY(cancel) (SANE_Handle);
 extern void ENTRY(close) (SANE_Handle);
 extern void ENTRY(exit) (void);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #ifndef STUBS
 /* Now redirect sane_* calls to backend's functions: */

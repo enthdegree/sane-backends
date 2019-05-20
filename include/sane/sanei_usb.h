@@ -68,6 +68,10 @@
 
 #include <stdlib.h> /* for size_t */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* USB spec defines */
 #ifndef USB_CLASS_PER_INTERFACE
 /* Also defined in libusb */
@@ -520,6 +524,10 @@ sanei_usb_set_altinterface (SANE_Int dn, SANE_Int alternate);
 
 extern SANE_Status
 sanei_usb_get_descriptor( SANE_Int dn, struct sanei_usb_dev_descriptor *desc );
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 /*------------------------------------------------------*/
 #endif /* sanei_usb_h */

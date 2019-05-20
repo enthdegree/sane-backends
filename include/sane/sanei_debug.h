@@ -9,6 +9,10 @@
 
 #include <sane/sanei.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** @name Public macros
  * These macros can be used in backends and other SANE-related
  * code.
@@ -149,5 +153,9 @@ extern void sanei_init_debug (const char * backend, int * debug_level_var);
 # define IF_DBG(x)      x
 
 #endif /* NDEBUG */
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* _SANEI_DEBUG_H */

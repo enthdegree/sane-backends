@@ -2254,7 +2254,7 @@ void sanei_gl_vector_reserve(Genesys_Vector* v, size_t count)
   if (count <= v->capacity)
     return;
 
-  char* new_data = malloc(count * v->element_size);
+  char* new_data = (char *) malloc(count * v->element_size);
   if (v->data != NULL)
     {
       memcpy(new_data, v->data, v->size * v->element_size);

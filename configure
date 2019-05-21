@@ -638,6 +638,7 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 AM_LDFLAGS
+AM_CXXFLAGS
 AM_CFLAGS
 AM_CPPFLAGS
 WITH_API_HTML_FALSE
@@ -19495,7 +19496,7 @@ fi
 fi # ac_cv_c_compiler_gnu
 
 
-  ax_cxx_compile_alternatives="11 0x"    ax_cxx_compile_cxx11_required=false
+      ax_cxx_compile_cxx11_required=false
   ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -19812,17 +19813,16 @@ $as_echo "$ax_cv_cxx_compile_cxx11" >&6; }
 
 
     if test x$ac_success = xno; then
-                for alternative in ${ax_cxx_compile_alternatives}; do
-      for switch in -std=c++${alternative} +std=c++${alternative} "-h std=c++${alternative}"; do
-        cachevar=`$as_echo "ax_cv_cxx_compile_cxx11_$switch" | $as_tr_sh`
-        { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CXX supports C++11 features with $switch" >&5
+                for switch in -std=c++11 -std=c++0x +std=c++11 "-h std=c++11"; do
+      cachevar=`$as_echo "ax_cv_cxx_compile_cxx11_$switch" | $as_tr_sh`
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $CXX supports C++11 features with $switch" >&5
 $as_echo_n "checking whether $CXX supports C++11 features with $switch... " >&6; }
 if eval \${$cachevar+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_save_CXX="$CXX"
-           CXX="$CXX $switch"
-           cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+         CXX="$CXX $switch"
+         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 
@@ -20117,21 +20117,17 @@ else
   eval $cachevar=no
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-           CXX="$ac_save_CXX"
+         CXX="$ac_save_CXX"
 fi
 eval ac_res=\$$cachevar
 	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
 $as_echo "$ac_res" >&6; }
-        if eval test x\$$cachevar = xyes; then
-          CXX="$CXX $switch"
-          if test -n "$CXXCPP" ; then
-            CXXCPP="$CXXCPP $switch"
-          fi
-          ac_success=yes
-          break
+      if eval test x\$$cachevar = xyes; then
+        CXX="$CXX $switch"
+        if test -n "$CXXCPP" ; then
+          CXXCPP="$CXXCPP $switch"
         fi
-      done
-      if test x$ac_success = xyes; then
+        ac_success=yes
         break
       fi
     done
@@ -20157,7 +20153,6 @@ $as_echo "$as_me: No compiler with C++11 support was found" >&6;}
 $as_echo "#define HAVE_CXX11 1" >>confdefs.h
 
   fi
-
 
 
 if test "${ac_cv_cxx_compiler_gnu}" = "yes" -a "${ax_cv_cxx_compile_cxx11}" = "yes"; then
@@ -24286,8 +24281,6 @@ main ()
     if (*(data + i) != *(data3 + i))
       return 14;
   close (fd);
-  free (data);
-  free (data3);
   return 0;
 }
 _ACEOF
@@ -26533,6 +26526,7 @@ else
   WITH_API_HTML_TRUE='#'
   WITH_API_HTML_FALSE=
 fi
+
 
 
 
@@ -29769,6 +29763,7 @@ fi
 echo "-> Variables used for compilation/linking:"
 echo AM_CPPFLAGS=\"${AM_CPPFLAGS}\"
 echo AM_CFLAGS=\"${AM_CFLAGS}\"
+echo AM_CXXFLAGS=\"${AM_CXXFLAGS}\"
 echo AM_LDFLAGS=\"${AM_LDFLAGS}\"
 echo LIBS=\"${LIBS}\"
 echo "-> Installation directories:"

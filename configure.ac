@@ -780,6 +780,7 @@ dnl ***********************************************************************
 
 AC_SUBST(AM_CPPFLAGS)
 AC_SUBST(AM_CFLAGS)
+AC_SUBST(AM_CXXFLAGS)
 AC_SUBST(AM_LDFLAGS)
 
 AC_CONFIG_FILES([Makefile lib/Makefile sanei/Makefile frontend/Makefile \
@@ -797,6 +798,7 @@ dnl ***********************************************************************
 echo "-> Variables used for compilation/linking:"
 echo AM_CPPFLAGS=\"${AM_CPPFLAGS}\"
 echo AM_CFLAGS=\"${AM_CFLAGS}\"
+echo AM_CXXFLAGS=\"${AM_CXXFLAGS}\"
 echo AM_LDFLAGS=\"${AM_LDFLAGS}\"
 echo LIBS=\"${LIBS}\"
 echo "-> Installation directories:"

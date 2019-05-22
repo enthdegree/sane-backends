@@ -62,8 +62,6 @@ compile:debian-9-full:
   - make -C doc html-pages
   - rm -rf lists && mkdir lists && mv doc/*.html lists/
   - cd doc && doxygen doxygen-sanei.conf
-  cache:
-    untracked: true
   artifacts:
     paths:
     - configure

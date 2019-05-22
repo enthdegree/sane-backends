@@ -65,6 +65,7 @@ compile:debian-9-full:
   artifacts:
     paths:
     - configure
+    - config.status
     - lists
     - doc/sanei-html
     expire_in: 1 day

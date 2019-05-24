@@ -83,7 +83,7 @@ sanei_genesys_init_cmd_set (Genesys_Device * dev)
 /*                  General IO and debugging functions                      */
 /* ------------------------------------------------------------------------ */
 
-SANE_Status sanei_genesys_write_file(char *filename, uint8_t * data, size_t length)
+SANE_Status sanei_genesys_write_file(const char *filename, uint8_t * data, size_t length)
 {
     FILE *out;
 

@@ -971,8 +971,6 @@ struct Genesys_Device
 
     std::list<Genesys_Calibration_Cache> calibration_cache;
 
-    Genesys_Device* next = nullptr;
-
     // used red line-distance shift
     SANE_Int ld_shift_r = 0;
     // used green line-distance shift

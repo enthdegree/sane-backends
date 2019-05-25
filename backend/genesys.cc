@@ -70,11 +70,12 @@
 #include <vector>
 
 static SANE_Int num_devices = 0;
-static Genesys_Device *first_dev = 0;
 
 StaticInit<std::list<Genesys_Scanner>> s_scanners;
+StaticInit<std::vector<SANE_Device>> s_sane_devices;
+StaticInit<std::vector<SANE_Device*>> s_sane_devices_ptrs;
+StaticInit<std::list<Genesys_Device>> s_devices;
 
-static SANE_Device **devlist = 0;
 /* Array of newly attached devices */
 static Genesys_Device **new_dev = 0;
 /* Length of new_dev array */
@@ -5037,7 +5038,6 @@ static char *calibration_filename(Genesys_Device *currdev)
   char *tmpstr;
   char *ptr;
   char filename[80];
-  Genesys_Device *dev;
   unsigned int count;
   unsigned int i;
 
@@ -5079,11 +5079,9 @@ static char *calibration_filename(Genesys_Device *currdev)
   /* count models of the same names if several scanners attached */
   if(num_devices>1)
     {
-      for (dev = first_dev; dev; dev = dev->next)
-        {
-          if (dev->model->model_id == currdev->model->model_id)
-            {
-              count++;
+        for (const auto& dev : *s_devices) {
+            if (dev.model->model_id == currdev->model->model_id) {
+                count++;
             }
         }
     }
@@ -5762,17 +5760,6 @@ check_present (SANE_String_Const devname) noexcept
   return SANE_STATUS_GOOD;
 }
 
-/** @brief add a scanner device
- * Insert the given device into the backend list of devices.
- * @param dev device to add
- */
-static void add_device(Genesys_Device *dev)
-{
-  ++num_devices;
-  dev->next = first_dev;
-  first_dev = dev;
-}
-
 static SANE_Status
 attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 {
@@ -5793,12 +5780,10 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
       return SANE_STATUS_INVAL;
     }
 
-  for (dev = first_dev; dev; dev = dev->next)
-    {
-      if (strcmp (dev->file_name, devname) == 0)
-	{
+    for (auto& dev : *s_devices) {
+        if (strcmp(dev.file_name, devname) == 0) {
 	  if (devp)
-	    *devp = dev;
+                *devp = &dev;
 	  DBG(DBG_info, "%s: device `%s' was already in device list\n", __func__, devname);
 	  return SANE_STATUS_GOOD;
 	}
@@ -5838,29 +5823,32 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
         }
     }
 
+  bool found_dev = false;
   for (i = 0; i < MAX_SCANNERS && genesys_usb_device_list[i].model != 0; i++)
     {
       if (vendor == genesys_usb_device_list[i].vendor &&
 	  product == genesys_usb_device_list[i].product)
 	{
-      dev = new Genesys_Device;
-	  break;
+            found_dev = true;
+            break;
 	}
     }
 
-  if (!dev)
-    {
+    if (!found_dev) {
       DBG(DBG_error, "%s: vendor 0x%xd product 0x%xd is not supported by this backend\n", __func__,
 	   vendor, product);
       return SANE_STATUS_INVAL;
     }
 
-  dev->file_name = strdup (devname);
-  if (!dev->file_name)
-    {
-      delete dev;
-      return SANE_STATUS_NO_MEM;
+    char* new_devname = strdup (devname);
+    if (!new_devname) {
+        return SANE_STATUS_NO_MEM;
     }
+
+    ++num_devices; // TODO: use s_devices.size()
+    s_devices->push_back(Genesys_Device());
+    dev = &s_devices->back();
+    dev->file_name = new_devname;
 
   dev->model = genesys_usb_device_list[i].model;
   dev->vendorId = genesys_usb_device_list[i].vendor;
@@ -5870,7 +5858,6 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 
   DBG(DBG_info, "%s: found %s flatbed scanner %s at %s\n", __func__, dev->model->vendor,
       dev->model->model, dev->file_name);
-  add_device(dev);
 
   if (devp)
     *devp = dev;
@@ -6283,6 +6270,9 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   sanei_magic_init();
 
   s_scanners.init();
+  s_devices.init();
+  s_sane_devices.init();
+  s_sane_devices_ptrs.init();
   genesys_init_sensor_tables();
 
   DBG(DBG_info, "%s: %s endian machine\n", __func__,
@@ -6295,8 +6285,6 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   /* set up to no devices at first */
   num_devices = 0;
-  first_dev = 0;
-  devlist = 0;
 
   /* cold-plug case :detection of allready connected scanners */
   status = probe_genesys_devices ();
@@ -6318,18 +6306,7 @@ extern "C" SANE_Status sane_init(SANE_Int * version_code, SANE_Auth_Callback aut
 void
 sane_exit_impl(void)
 {
-  Genesys_Device *dev, *next;
-
   DBGSTART;
-  for (dev = first_dev; dev; dev = next)
-    {
-      next = dev->next;
-      delete dev;
-    }
-  first_dev = 0;
-  if (devlist)
-    free (devlist);
-  devlist = 0;
 
   sanei_usb_exit();
 
@@ -6346,10 +6323,6 @@ void sane_exit()
 SANE_Status
 sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  Genesys_Device *dev, *prev;
-  SANE_Int index;
-  SANE_Device *sane_device;
-
   DBG(DBG_proc, "%s: start: local_only = %s\n", __func__,
       local_only == SANE_TRUE ? "true" : "false");
 
@@ -6357,75 +6330,31 @@ sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
   sanei_usb_scan_devices ();
   probe_genesys_devices ();
 
-  if (devlist)
-    free (devlist);
+    s_sane_devices->clear();
+    s_sane_devices_ptrs->clear();
+    s_sane_devices->reserve(num_devices);
+    s_sane_devices_ptrs->reserve(num_devices + 1);
 
-  devlist = (SANE_Device**) malloc((num_devices + 1) * sizeof (devlist[0]));
-  if (!devlist)
-    return SANE_STATUS_NO_MEM;
-
-  prev = NULL;
-  index = 0;
-  dev = first_dev;
-  while (dev != NULL)
-    {
-      /* check if device removed */
-      present = SANE_FALSE;
-      sanei_usb_find_devices (dev->vendorId, dev->productId, check_present);
-      if (present)
-	{
-      sane_device = (SANE_Device*) malloc(sizeof (*sane_device));
-	  if (!sane_device)
-	    return SANE_STATUS_NO_MEM;
-	  sane_device->name = dev->file_name;
-	  sane_device->vendor = dev->model->vendor;
-	  sane_device->model = dev->model->model;
-	  sane_device->type = strdup ("flatbed scanner");
-	  devlist[index] = sane_device;
-	  index++;
-	  prev = dev;
-	  dev = dev->next;
-	}
-      else
-	{
-	  /* remove device from internal list */
-	  /* case 1 : removed device is first_dev */
-	  if (prev == NULL)
-	    {
-	      /* test for another dev */
-	      if (dev->next == NULL)
-		{
-		  /* empty the whole list */
-          delete dev;
-		  first_dev = NULL;
-		  num_devices = 0;
-		  dev = NULL;
-		}
-	      else
-		{
-		  /* assign new start */
-		  first_dev = dev->next;
-		  num_devices--;
-          delete dev;
-	          dev = first_dev;
-		}
-	    }
-	  /* case 2 : removed device is not first_dev */
-	  else
-	    {
-	      /* link previous dev to next dev */
-	      prev->next = dev->next;
-          delete dev;
-	      num_devices--;
-
-	      /* next loop */
-	      dev = prev->next;
-	    }
-	}
+    for (auto dev_it = s_devices->begin(); dev_it != s_devices->end();) {
+        present = SANE_FALSE;
+        sanei_usb_find_devices(dev_it->vendorId, dev_it->productId, check_present);
+        if (present) {
+            s_sane_devices->emplace_back();
+            auto& sane_device = s_sane_devices->back();
+            sane_device.name = dev_it->file_name;
+            sane_device.vendor = dev_it->model->vendor;
+            sane_device.model = dev_it->model->model;
+            sane_device.type = "flatbed scanner";
+            s_sane_devices_ptrs->push_back(&sane_device);
+            dev_it++;
+        } else {
+            dev_it = s_devices->erase(dev_it);
+            num_devices -= 1;
+        }
     }
-  devlist[index] = 0;
+    s_sane_devices_ptrs->push_back(nullptr);
 
-  *((SANE_Device ***)device_list) = devlist;
+    *((SANE_Device ***)device_list) = s_sane_devices_ptrs->data();
 
   DBGCOMPLETED;
 
@@ -6455,9 +6384,12 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   if (devicename[0] && strcmp ("genesys", devicename) != 0)
     {
       /* search for the given devicename in the device list */
-      for (dev = first_dev; dev; dev = dev->next)
-	if (strcmp (dev->file_name, devicename) == 0)
-	  break;
+        for (auto& d : *s_devices) {
+            if (strcmp(d.file_name, devicename) == 0) {
+                dev = &d;
+                break;
+            }
+        }
 
       if (!dev)
 	{
@@ -6469,12 +6401,11 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     }
   else
     {
-      /* empty devicename or "genesys" -> use first device */
-      dev = first_dev;
-      if (dev)
-	{
-	  devicename = dev->file_name;
-	  DBG(DBG_info, "%s: empty devicename, trying `%s'\n", __func__, devicename);
+        // empty devicename or "genesys" -> use first device
+        if (!s_devices->empty()) {
+            dev = &s_devices->front();
+            devicename = dev->file_name;
+            DBG(DBG_info, "%s: empty devicename, trying `%s'\n", __func__, devicename);
 	}
     }
 

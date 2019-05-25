@@ -67,7 +67,7 @@ void Genesys_Device::clear()
     binarize_buffer.clear();
     local_buffer.clear();
 
-    FREE_IFNOT_NULL(calib_file);
+    calib_file.clear();
 
     calibration_cache.clear();
 

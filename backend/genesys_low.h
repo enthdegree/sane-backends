@@ -88,6 +88,7 @@
 #include <list>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #define DBG_error0      0	/* errors/warnings printed even with devuglevel 0 */
@@ -902,7 +903,7 @@ struct Genesys_Device
     SANE_Int usb_mode = 0;
 
     SANE_String file_name = nullptr;
-    SANE_String calib_file = nullptr;
+    std::string calib_file;
 
     // if enabled, no calibration data will be loaded or saved to files
     SANE_Int force_calibration = 0;

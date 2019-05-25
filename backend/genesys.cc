@@ -5923,7 +5923,7 @@ probe_genesys_devices (void)
 
 /**
  * reads previously cached calibration data
- * from file define in dev->calib_file
+ * from file defined in dev->calib_file
  */
 SANE_Status
 sanei_genesys_read_calibration (Genesys_Device * dev)
@@ -5936,10 +5936,10 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
   DBGSTART;
 
   /* open calibration cache file */
-  fp = fopen (dev->calib_file, "rb");
+  fp = fopen(dev->calib_file.c_str(), "rb");
   if (!fp)
     {
-      DBG(DBG_info, "%s: Cannot open %s\n", __func__, dev->calib_file);
+      DBG(DBG_info, "%s: Cannot open %s\n", __func__, dev->calib_file.c_str());
       DBGCOMPLETED;
       return SANE_STATUS_IO_ERROR;
     }
@@ -6027,10 +6027,10 @@ write_calibration (Genesys_Device * dev)
   uint32_t size = 0;
 
   DBGSTART;
-  fp = fopen (dev->calib_file, "wb");
+  fp = fopen (dev->calib_file.c_str(), "wb");
   if (!fp)
     {
-      DBG(DBG_info, "%s: Cannot open %s for writing\n", __func__, dev->calib_file);
+      DBG(DBG_info, "%s: Cannot open %s for writing\n", __func__, dev->calib_file.c_str());
       return;
     }
 
@@ -6362,7 +6362,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->parking = SANE_FALSE;
   s->dev->read_active = SANE_FALSE;
   s->dev->force_calibration = 0;
-  s->dev->calib_file = NULL;
   s->dev->line_interp = 0;
   s->dev->line_count = 0;
   s->dev->segnb = 0;
@@ -6391,9 +6390,9 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     {
       tmpstr=calibration_filename(s->dev);
       s->val[OPT_CALIBRATION_FILE].s = strdup (tmpstr);
-      s->dev->calib_file = strdup (tmpstr);
+      s->dev->calib_file = tmpstr;
       DBG(DBG_info, "%s: Calibration filename set to:\n", __func__);
-      DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file);
+      DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file.c_str());
       free(tmpstr);
 
       /* now open file, fetch calibration records */
@@ -6674,13 +6673,12 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
 static SANE_Status set_calibration_value (Genesys_Scanner * s, int option, void *val)
 {
   SANE_Status status=SANE_STATUS_GOOD;
-  char *tmp;
   Genesys_Device *dev=s->dev;
 
   DBGSTART;
 
   /* try to load file */
-  tmp=dev->calib_file;
+  std::string prev_calib_file = dev->calib_file;
   dev->calib_file = (char*) val;
   status=sanei_genesys_read_calibration (dev);
 
@@ -6688,7 +6686,7 @@ static SANE_Status set_calibration_value (Genesys_Scanner * s, int option, void 
    * an re-read it */
   if (status!=SANE_STATUS_IO_ERROR && status!=SANE_STATUS_GOOD)
     {
-      dev->calib_file=tmp;
+      dev->calib_file = prev_calib_file;
       status=sanei_genesys_read_calibration (dev);
       return status;
     }
@@ -6697,11 +6695,9 @@ static SANE_Status set_calibration_value (Genesys_Scanner * s, int option, void 
   if (s->val[option].s)
     free (s->val[option].s);
   s->val[option].s = strdup((char*) val);
-  if (tmp)
-    free (tmp);
-  dev->calib_file = strdup((char*) val);
+  dev->calib_file = (char*) val;
   DBG(DBG_info, "%s: Calibration filename set to:\n", __func__);
-  DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file);
+  DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file.c_str());
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -7003,15 +6999,15 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       s->dev->calibration_cache.clear();
 
       /* remove file */
-      unlink (s->dev->calib_file);
+      unlink(s->dev->calib_file.c_str());
       /* signals that sensors will have to be read again */
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
     case OPT_FORCE_CALIBRATION:
       s->dev->force_calibration = 1;
       s->dev->calibration_cache.clear();
+      s->dev->calib_file.clear();
 
-      FREE_IFNOT_NULL(s->dev->calib_file);
       /* signals that sensors will have to be read again */
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;

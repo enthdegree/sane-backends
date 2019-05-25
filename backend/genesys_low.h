@@ -85,6 +85,7 @@
 #include <array>
 #include <cstring>
 #include <functional>
+#include <list>
 #include <memory>
 #include <stdexcept>
 #include <vector>
@@ -838,19 +839,21 @@ typedef struct Genesys_Buffer
 
 struct Genesys_Calibration_Cache
 {
-  Genesys_Current_Setup used_setup;/* used to check if entry is compatible */
-  time_t last_calibration;
+    Genesys_Calibration_Cache() = default;
+    ~Genesys_Calibration_Cache() = default;
 
-  Genesys_Frontend frontend;
-  Genesys_Sensor sensor;
+    // used to check if entry is compatible
+    Genesys_Current_Setup used_setup = {};
+    time_t last_calibration = 0;
 
-  size_t calib_pixels;
-  size_t calib_channels;
-  size_t average_size;
-  uint8_t *white_average_data;
-  uint8_t *dark_average_data;
+    Genesys_Frontend frontend = {};
+    Genesys_Sensor sensor;
 
-  struct Genesys_Calibration_Cache *next;
+    size_t calib_pixels = 0;
+    size_t calib_channels = 0;
+    size_t average_size = 0;
+    uint8_t* white_average_data = nullptr;
+    uint8_t* dark_average_data = nullptr;
 };
 
 /**
@@ -944,7 +947,7 @@ struct Genesys_Device
     // look up table used in dynamic rasterization
     unsigned char lineart_lut[256] = {};
 
-    Genesys_Calibration_Cache* calibration_cache = nullptr;
+    std::list<Genesys_Calibration_Cache> calibration_cache;
 
     Genesys_Device* next = nullptr;
 

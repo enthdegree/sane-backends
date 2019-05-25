@@ -2936,43 +2936,44 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 static SANE_Status
 genesys_restore_calibration (Genesys_Device * dev)
 {
+  // TODO: reindent
+
   SANE_Status status;
-  Genesys_Calibration_Cache *cache;
 
   DBGSTART;
 
   /* if no cache or no function to evaluate cache entry ther can be no match */
   if (!dev->model->cmd_set->is_compatible_calibration
-      || dev->calibration_cache == NULL)
+      || dev->calibration_cache.empty())
     return SANE_STATUS_UNSUPPORTED;
 
   /* we walk the link list of calibration cache in search for a
    * matching one */
-  for (cache = dev->calibration_cache; cache; cache = cache->next)
+  for (auto& cache : dev->calibration_cache)
     {
-      status = dev->model->cmd_set->is_compatible_calibration (dev, cache, SANE_FALSE);
+      status = dev->model->cmd_set->is_compatible_calibration (dev, &cache, SANE_FALSE);
       /* SANE_STATUS_GOOD, a matching cache has been found
        * so we use it to populate calibration data
        */
       if (status == SANE_STATUS_GOOD)
 	{
-	  memcpy (&dev->frontend, &cache->frontend, sizeof (dev->frontend));
+          memcpy (&dev->frontend, &cache.frontend, sizeof (dev->frontend));
           /* we don't restore the gamma fields */
-      memcpy (dev->sensor.regs_0x10_0x1d.data(), cache->sensor.regs_0x10_0x1d.data(), 6);
+          memcpy (dev->sensor.regs_0x10_0x1d.data(), cache.sensor.regs_0x10_0x1d.data(), 6);
 
-	  dev->average_size = cache->average_size;
-	  dev->calib_pixels = cache->calib_pixels;
-	  dev->calib_channels = cache->calib_channels;
+          dev->average_size = cache.average_size;
+          dev->calib_pixels = cache.calib_pixels;
+          dev->calib_channels = cache.calib_channels;
 
-      dev->white_average_data.clear();
-      dev->white_average_data.resize(cache->average_size);
-      dev->dark_average_data.clear();
-      dev->dark_average_data.resize(cache->average_size);
+          dev->white_average_data.clear();
+          dev->white_average_data.resize(cache.average_size);
+          dev->dark_average_data.clear();
+          dev->dark_average_data.resize(cache.average_size);
 
-      std::memcpy(dev->dark_average_data.data(),
-                  cache->dark_average_data, dev->average_size);
-      std::memcpy(dev->white_average_data.data(),
-                  cache->white_average_data, dev->average_size);
+          std::memcpy(dev->dark_average_data.data(),
+                      cache.dark_average_data, dev->average_size);
+          std::memcpy(dev->white_average_data.data(),
+                      cache.white_average_data, dev->average_size);
 
 
         if(dev->model->cmd_set->send_shading_data==NULL)
@@ -3008,7 +3009,7 @@ static SANE_Status
 genesys_save_calibration (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_UNSUPPORTED;
-  Genesys_Calibration_Cache *cache = NULL;
+
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
 #endif
@@ -3018,64 +3019,60 @@ genesys_save_calibration (Genesys_Device * dev)
   if (!dev->model->cmd_set->is_compatible_calibration)
     return SANE_STATUS_UNSUPPORTED;
 
-  if (dev->calibration_cache != NULL)
+  auto found_cache_it = dev->calibration_cache.end();
+  for (auto cache_it = dev->calibration_cache.begin(); cache_it != dev->calibration_cache.end();
+       cache_it++)
     {
-      for (cache = dev->calibration_cache; cache; cache = cache->next)
-	{
-	  status = dev->model->cmd_set->is_compatible_calibration (dev, cache, SANE_TRUE);
-	  if (status == SANE_STATUS_UNSUPPORTED)
-	    {
-	      continue;
-	    }
-	  else if (status != SANE_STATUS_GOOD)
-	    {
-              DBG(DBG_error, "%s: fail while checking compatibility: %s\n", __func__,
-                  sane_strstatus(status));
-	      return status;
-	    }
-	  break;
-	}
+      status = dev->model->cmd_set->is_compatible_calibration (dev, &*cache_it, SANE_TRUE);
+      if (status == SANE_STATUS_UNSUPPORTED)
+        {
+          continue;
+        }
+      else if (status != SANE_STATUS_GOOD)
+        {
+          DBG(DBG_error, "%s: fail while checking compatibility: %s\n", __func__,
+              sane_strstatus(status));
+          return status;
+        }
+      found_cache_it = cache_it;
+      break;
     }
 
   /* if we found on overridable cache, we reuse it */
-  if (cache)
+  if (found_cache_it != dev->calibration_cache.end())
     {
-          free(cache->dark_average_data);
-          free(cache->white_average_data);
+      free(found_cache_it->dark_average_data);
+      free(found_cache_it->white_average_data);
     }
   else
     {
       /* create a new cache entry and insert it in the linked list */
-      cache = (Genesys_Calibration_Cache*) malloc(sizeof (Genesys_Calibration_Cache));
-      if (!cache)
-	return SANE_STATUS_NO_MEM;
-
-      memset (cache, 0, sizeof (Genesys_Calibration_Cache));
-
-      cache->next = dev->calibration_cache;
-      dev->calibration_cache = cache;
+      dev->calibration_cache.push_back(Genesys_Calibration_Cache());
+      found_cache_it = std::prev(dev->calibration_cache.end());
     }
 
-  cache->average_size = dev->average_size;
+  found_cache_it->average_size = dev->average_size;
 
-  cache->dark_average_data = (uint8_t *) malloc (cache->average_size);
-  if (!cache->dark_average_data)
+  found_cache_it->dark_average_data = (uint8_t *) malloc (found_cache_it->average_size);
+  if (!found_cache_it->dark_average_data)
     return SANE_STATUS_NO_MEM;
-  cache->white_average_data = (uint8_t *) malloc (cache->average_size);
-  if (!cache->white_average_data)
+  found_cache_it->white_average_data = (uint8_t *) malloc (found_cache_it->average_size);
+  if (!found_cache_it->white_average_data)
     return SANE_STATUS_NO_MEM;
 
-  memcpy (&cache->used_setup, &dev->current_setup, sizeof (cache->used_setup));
-  memcpy (&cache->frontend, &dev->frontend, sizeof (cache->frontend));
-  memcpy (&cache->sensor, &dev->sensor, sizeof (cache->sensor));
+  memcpy (&found_cache_it->used_setup, &dev->current_setup, sizeof (found_cache_it->used_setup));
+  memcpy (&found_cache_it->frontend, &dev->frontend, sizeof (found_cache_it->frontend));
+  memcpy (&found_cache_it->sensor, &dev->sensor, sizeof (found_cache_it->sensor));
 
-  cache->calib_pixels = dev->calib_pixels;
-  cache->calib_channels = dev->calib_channels;
-  memcpy(cache->dark_average_data, dev->dark_average_data.data(), cache->average_size);
-  memcpy(cache->white_average_data, dev->white_average_data.data(), cache->average_size);
+  found_cache_it->calib_pixels = dev->calib_pixels;
+  found_cache_it->calib_channels = dev->calib_channels;
+  memcpy(found_cache_it->dark_average_data, dev->dark_average_data.data(),
+         found_cache_it->average_size);
+  memcpy(found_cache_it->white_average_data, dev->white_average_data.data(),
+         found_cache_it->average_size);
 #ifdef HAVE_SYS_TIME_H
   gettimeofday(&time,NULL);
-  cache->last_calibration = time.tv_sec;
+  found_cache_it->last_calibration = time.tv_sec;
 #endif
 
   DBGCOMPLETED;
@@ -6033,7 +6030,6 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
   FILE *fp;
   uint8_t vers = 0;
   uint32_t size = 0;
-  struct Genesys_Calibration_Cache *cache;
   SANE_Status status=SANE_STATUS_GOOD;
 
   DBGSTART;
@@ -6065,32 +6061,19 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
       return SANE_STATUS_INVAL;
     }
 
-  /* clear device calibration cache */
-  while(dev->calibration_cache!=NULL)
-    {
-      cache=dev->calibration_cache;
-      dev->calibration_cache=dev->calibration_cache->next;
-      free(cache);
-    }
+  dev->calibration_cache.clear();
 
   /* loop on cache records in file */
   while (!feof (fp) && status==SANE_STATUS_GOOD)
     {
       DBG(DBG_info, "%s: reading one record\n", __func__);
-      cache = (struct Genesys_Calibration_Cache *) malloc (sizeof (*cache));
-
-      if (!cache)
-	{
-	  DBG(DBG_error, "%s: could not allocate cache struct\n", __func__);
-	  break;
-	}
+      Genesys_Calibration_Cache cache;
 
 #define BILT1( x )							\
       do								\
 	{								\
 	  if ((x) < 1)							\
 	    {								\
-	      free(cache);						\
 	      DBG(DBG_warn, "%s: partial calibration record\n", __func__); \
               status=SANE_STATUS_EOF;                                   \
 	      break;							\
@@ -6098,54 +6081,49 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
 	} while(0)
 
 
-      if (fread (&cache->used_setup, sizeof (cache->used_setup), 1, fp) < 1)
+      if (fread (&cache.used_setup, sizeof (cache.used_setup), 1, fp) < 1)
 	{			/* eof is only detected here */
-	  free (cache);
           status=SANE_STATUS_GOOD;
 	  break;
 	}
-      BILT1 (fread (&cache->last_calibration, sizeof (cache->last_calibration), 1, fp));
-      BILT1 (fread (&cache->frontend, sizeof (cache->frontend), 1, fp));
-      BILT1(cache->sensor.fread(fp));
-      BILT1 (fread (&cache->calib_pixels, sizeof (cache->calib_pixels), 1, fp));
-      BILT1 (fread (&cache->calib_channels, sizeof (cache->calib_channels), 1, fp));
-      BILT1 (fread (&cache->average_size, sizeof (cache->average_size), 1, fp));
+      BILT1 (fread (&cache.last_calibration, sizeof (cache.last_calibration), 1, fp));
+      BILT1 (fread (&cache.frontend, sizeof (cache.frontend), 1, fp));
+      BILT1(cache.sensor.fread(fp));
+      BILT1 (fread (&cache.calib_pixels, sizeof (cache.calib_pixels), 1, fp));
+      BILT1 (fread (&cache.calib_channels, sizeof (cache.calib_channels), 1, fp));
+      BILT1 (fread (&cache.average_size, sizeof (cache.average_size), 1, fp));
 
-      cache->white_average_data = (uint8_t *) malloc (cache->average_size);
-      cache->dark_average_data = (uint8_t *) malloc (cache->average_size);
+      cache.white_average_data = (uint8_t *) malloc (cache.average_size);
+      cache.dark_average_data = (uint8_t *) malloc (cache.average_size);
 
-      if (!cache->white_average_data || !cache->dark_average_data)
+      if (!cache.white_average_data || !cache.dark_average_data)
 	{
           status=SANE_STATUS_NO_MEM;
-	  FREE_IFNOT_NULL (cache->white_average_data);
-	  FREE_IFNOT_NULL (cache->dark_average_data);
-	  free (cache);
+          FREE_IFNOT_NULL (cache.white_average_data);
+          FREE_IFNOT_NULL (cache.dark_average_data);
 	  DBG(DBG_error, "%s: could not allocate space for average data\n", __func__);
 	  break;
 	}
 
-      if (fread (cache->white_average_data, cache->average_size, 1, fp) < 1)
+      if (fread (cache.white_average_data, cache.average_size, 1, fp) < 1)
 	{
           status=SANE_STATUS_EOF;
           DBG(DBG_warn, "%s: partial calibration record\n", __func__);
-	  free (cache->white_average_data);
-	  free (cache->dark_average_data);
-	  free (cache);
+          free (cache.white_average_data);
+          free (cache.dark_average_data);
 	  break;
 	}
-      if (fread (cache->dark_average_data, cache->average_size, 1, fp) < 1)
+      if (fread (cache.dark_average_data, cache.average_size, 1, fp) < 1)
 	{
 	  DBG(DBG_warn, "%s: partial calibration record\n", __func__);
-	  free (cache->white_average_data);
-	  free (cache->dark_average_data);
-	  free (cache);
+          free (cache.white_average_data);
+          free (cache.dark_average_data);
           status=SANE_STATUS_EOF;
 	  break;
 	}
 #undef BILT1
       DBG(DBG_info, "%s: adding record to list\n", __func__);
-      cache->next = dev->calibration_cache;
-      dev->calibration_cache = cache;
+      dev->calibration_cache.push_back(cache);
     }
 
   fclose (fp);
@@ -6159,7 +6137,6 @@ write_calibration (Genesys_Device * dev)
   FILE *fp;
   uint8_t vers = 0;
   uint32_t size = 0;
-  struct Genesys_Calibration_Cache *cache;
 
   DBGSTART;
   fp = fopen (dev->calib_file, "wb");
@@ -6174,17 +6151,17 @@ write_calibration (Genesys_Device * dev)
   size = sizeof (struct Genesys_Calibration_Cache);
   fwrite (&size, 4, 1, fp);
 
-  for (cache = dev->calibration_cache; cache; cache = cache->next)
+  for (auto& cache : dev->calibration_cache)
     {
-      fwrite (&cache->used_setup, sizeof (cache->used_setup), 1, fp);
-      fwrite (&cache->last_calibration, sizeof (cache->last_calibration), 1, fp);
-      fwrite (&cache->frontend, sizeof (cache->frontend), 1, fp);
-      cache->sensor.fwrite(fp);
-      fwrite (&cache->calib_pixels, sizeof (cache->calib_pixels), 1, fp);
-      fwrite (&cache->calib_channels, sizeof (cache->calib_channels), 1, fp);
-      fwrite (&cache->average_size, sizeof (cache->average_size), 1, fp);
-      fwrite (cache->white_average_data, cache->average_size, 1, fp);
-      fwrite (cache->dark_average_data, cache->average_size, 1, fp);
+      fwrite(&cache.used_setup, sizeof (cache.used_setup), 1, fp);
+      fwrite(&cache.last_calibration, sizeof (cache.last_calibration), 1, fp);
+      fwrite(&cache.frontend, sizeof (cache.frontend), 1, fp);
+      cache.sensor.fwrite(fp);
+      fwrite(&cache.calib_pixels, sizeof (cache.calib_pixels), 1, fp);
+      fwrite(&cache.calib_channels, sizeof (cache.calib_channels), 1, fp);
+      fwrite(&cache.average_size, sizeof (cache.average_size), 1, fp);
+      fwrite(cache.white_average_data, cache.average_size, 1, fp);
+      fwrite(cache.dark_average_data, cache.average_size, 1, fp);
     }
   DBGCOMPLETED;
   fclose (fp);
@@ -6588,7 +6565,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->local_buffer.buffer = NULL;
   s->dev->parking = SANE_FALSE;
   s->dev->read_active = SANE_FALSE;
-  s->dev->calibration_cache = NULL;
   s->dev->force_calibration = 0;
   s->dev->calib_file = NULL;
   s->dev->img_buffer = NULL;
@@ -6773,7 +6749,6 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
   SANE_Word *table ,tmp;
   uint16_t *gamma;
   SANE_Status status = SANE_STATUS_GOOD;
-  Genesys_Calibration_Cache *cache;
 
   switch (option)
     {
@@ -6889,10 +6864,10 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
       /* scanner needs calibration for current mode unless a matching
        * calibration cache is found */
       *(SANE_Bool *) val = SANE_TRUE;
-      for (cache = s->dev->calibration_cache; cache; cache = cache->next)
+      for (auto& cache : s->dev->calibration_cache)
 	{
 	  if (s->dev->model->
-	      cmd_set->is_compatible_calibration (s->dev, cache, SANE_FALSE) == SANE_STATUS_GOOD)
+              cmd_set->is_compatible_calibration (s->dev, &cache, SANE_FALSE) == SANE_STATUS_GOOD)
 	    {
 	      *(SANE_Bool *) val = SANE_FALSE;
 	    }
@@ -6952,7 +6927,6 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
   SANE_Word *table;
   unsigned int i;
   SANE_Range *x_range, *y_range;
-  Genesys_Calibration_Cache *cache, *next_cache;
 
   switch (option)
     {
@@ -7238,17 +7212,12 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       break;
     case OPT_CLEAR_CALIBRATION:
       /* clear calibration cache */
-      if (s->dev->calibration_cache != NULL)
-	{
-	  for (cache = s->dev->calibration_cache; cache; cache = next_cache)
-	    {
-	      next_cache = cache->next;
-	      free (cache->dark_average_data);
-	      free (cache->white_average_data);
-	      free (cache);
-	    }
-	}
-      s->dev->calibration_cache = NULL;
+      for (auto& cache : s->dev->calibration_cache) {
+          free (cache.dark_average_data);
+          free (cache.white_average_data);
+      }
+      s->dev->calibration_cache.clear();
+
       /* remove file */
       unlink (s->dev->calib_file);
       /* signals that sensors will have to be read again */
@@ -7256,17 +7225,11 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       break;
     case OPT_FORCE_CALIBRATION:
       s->dev->force_calibration = 1;
-      if (s->dev->calibration_cache != NULL)
-        {
-          for (cache = s->dev->calibration_cache; cache; cache = next_cache)
-            {
-              next_cache = cache->next;
-              free (cache->dark_average_data);
-              free (cache->white_average_data);
-              free (cache);
-            }
-        }
-      s->dev->calibration_cache = NULL;
+      for (auto& cache : s->dev->calibration_cache) {
+          free (cache.dark_average_data);
+          free (cache.white_average_data);
+      }
+      s->dev->calibration_cache.clear();
 
       FREE_IFNOT_NULL(s->dev->calib_file);
       /* signals that sensors will have to be read again */

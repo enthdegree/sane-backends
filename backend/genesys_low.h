@@ -111,26 +111,6 @@
       }	\
   } while (SANE_FALSE)
 
-#define RIEF(function, mem)                                   \
-  do { status = function;                               \
-    if (status != SANE_STATUS_GOOD) \
-      { \
-	 free(mem); \
-	 DBG(DBG_error, "%s: %s\n", __func__, sane_strstatus (status)); \
-	 return status;      \
-      } \
-  } while (SANE_FALSE)
-
-#define RIEF2(function, mem1, mem2)                                   \
-  do { status = function;                               \
-    if (status != SANE_STATUS_GOOD) \
-	  { \
-		 free(mem1); \
-		 free(mem2); \
-		 return status;      \
-	  } \
-  } while (SANE_FALSE)
-
 #define DBGSTART DBG (DBG_proc, "%s start\n", __func__);
 #define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __func__);
 

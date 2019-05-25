@@ -64,7 +64,10 @@
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_magic.h"
 #include "genesys_devices.cc"
+
+#include <cstring>
 #include <exception>
+#include <vector>
 
 static SANE_Int num_devices = 0;
 static Genesys_Device *first_dev = 0;
@@ -968,7 +971,6 @@ SANE_Status
 sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
 {
   SANE_Status status;
-  uint8_t *shading_data, *shading_data_ptr;
   int channels;
   int i;
 
@@ -988,14 +990,10 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
   else
     channels = 1;
 
-  shading_data = (uint8_t*) malloc (pixels_per_line * 4 * channels);	/* 16 bit black, 16 bit white */
-  if (!shading_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  // 16 bit black, 16 bit white
+  std::vector<uint8_t> shading_data(pixels_per_line * 4 * channels, 0);
 
-  shading_data_ptr = shading_data;
+  uint8_t* shading_data_ptr = shading_data.data();
 
   for (i = 0; i < pixels_per_line * channels; i++)
     {
@@ -1006,9 +1004,8 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
     }
 
   status = genesys_send_offset_and_shading (dev,
-                                            shading_data,
+                                            shading_data.data(),
                                             pixels_per_line * 4 * channels);
-  free (shading_data);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to send shading data: %s\n", __func__,
@@ -1030,7 +1027,6 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 {
   int x, y;
   int current, left, top = 0;
-  uint8_t *image;
   int size, count;
   int level = 80;		/* edge threshold level */
 
@@ -1040,15 +1036,10 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 
   /* transformed image data */
   size = width * height;
-  image = (uint8_t*) malloc (size);
-  if (!image)
-    {
-      DBG(DBG_error, "%s: failed to allocate memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> image(size, 0);
 
   /* laplace filter to denoise picture */
-  memcpy (image, data, size);	/* to initialize unprocessed part of the image buffer */
+  memcpy(image.data(), data, size);	// to initialize unprocessed part of the image buffer
   for (y = 1; y < height - 1; y++)
     for (x = 1; x < width - 1; x++)
       {
@@ -1060,9 +1051,9 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 	   data[(y + 1) * width + x - 1]) / 16;
       }
 
-  memcpy (data, image, size);
+  memcpy (data, image.data(), size);
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_laplace.pnm", image, 8, 1, width, height);
+    sanei_genesys_write_pnm_file("gl_laplace.pnm", image.data(), 8, 1, width, height);
 
   /* apply X direction sobel filter
      -1  0  1
@@ -1087,7 +1078,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 	  level = current;
       }
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_xsobel.pnm", image, 8, 1, width, height);
+    sanei_genesys_write_pnm_file("gl_xsobel.pnm", image.data(), 8, 1, width, height);
 
   /* set up detection level */
   level = level / 3;
@@ -1109,7 +1100,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
       left += x;
     }
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_detected-xsobel.pnm", image, 8, 1, width, height);
+    sanei_genesys_write_pnm_file("gl_detected-xsobel.pnm", image.data(), 8, 1, width, height);
   left = left / count;
 
   /* turn it in CCD pixel at full sensor optical resolution */
@@ -1139,7 +1130,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 	  level = current;
       }
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_ysobel.pnm", image, 8, 1, width, height);
+    sanei_genesys_write_pnm_file("gl_ysobel.pnm", image.data(), 8, 1, width, height);
 
   /* set up detection level */
   level = level / 3;
@@ -1162,7 +1153,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 	  top += y;
 	}
       if (DBG_LEVEL >= DBG_data)
-        sanei_genesys_write_pnm_file("gl_detected-ysobel.pnm", image, 8, 1, width, height);
+        sanei_genesys_write_pnm_file("gl_detected-ysobel.pnm", image.data(), 8, 1, width, height);
       top = top / count;
 
       /* bottom of black stripe is of fixed witdh, this hardcoded value
@@ -1197,7 +1188,6 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
           SANE_UNFIX (dev->model->y_offset_calib));
     }
 
-  free (image);
   DBG(DBG_proc, "%s: CCD_start_xoffset = %d, left = %d, top = %d\n", __func__,
       dev->sensor.CCD_start_xoffset, left, top);
 
@@ -1408,7 +1398,6 @@ genesys_coarse_calibration (Genesys_Device * dev)
   uint8_t offset[4] = { 0xa0, 0x00, 0xa0, 0x40 };	/* first value isn't used */
   uint16_t white[12], dark[12];
   int i, j;
-  uint8_t *calibration_data, *all_data;
 
   DBG(DBG_info, "%s (scan_mode = %d)\n", __func__, dev->settings.scan_mode);
 
@@ -1427,21 +1416,13 @@ genesys_coarse_calibration (Genesys_Device * dev)
     25.4;
   /*       1        1               mm                      1/inch        inch/mm */
 
-  calibration_data = (uint8_t*) malloc (size);
-  if (!calibration_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate memory(%d bytes)\n", __func__, size);
-      return SANE_STATUS_NO_MEM;
-    }
-
-  all_data = (uint8_t*) calloc (1, size * 4);
+  std::vector<uint8_t> calibration_data(size);
+  std::vector<uint8_t> all_data(size * 4, 1);
 
   status = dev->model->cmd_set->set_fe (dev, AFE_INIT);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set frontend: %s\n", __func__, sane_strstatus(status));
-      free(all_data);
-      free(calibration_data);
       return status;
     }
 
@@ -1578,23 +1559,23 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	}
 
       status =
-	sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
+    sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: Failed to read data: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
 
-      memcpy (all_data + i * size, calibration_data, size);
+      std::memcpy(all_data.data() + i * size, calibration_data.data(), size);
       if (i == 3)		/* last line */
 	{
-      SANE_Byte *all_data_8 = (SANE_Byte*) malloc (size * 4 / 2);
+          std::vector<uint8_t> all_data_8(size * 4 / 2);
 	  unsigned int count;
 
 	  for (count = 0; count < (unsigned int) (size * 4 / 2); count++)
 	    all_data_8[count] = all_data[count * 2 + 1];
 	  status =
-            sanei_genesys_write_pnm_file("gl_coarse.pnm", all_data_8, 8, channels, size / 6, 4);
+            sanei_genesys_write_pnm_file("gl_coarse.pnm", all_data_8.data(), 8, channels, size / 6, 4);
 	  if (status != SANE_STATUS_GOOD)
 	    {
               DBG(DBG_error, "%s: failed: %s\n", __func__, sane_strstatus(status));
@@ -1612,11 +1593,11 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	{
 	  for (j = 0; j < 3; j++)
 	    {
-	      genesys_average_white (dev, 3, j, calibration_data, size,
+          genesys_average_white (dev, 3, j, calibration_data.data(), size,
 				     &white_average);
 	      white[i * 3 + j] = white_average;
 	      dark[i * 3 + j] =
-		genesys_average_black (dev, j, calibration_data,
+        genesys_average_black (dev, j, calibration_data.data(),
 				       black_pixels);
               DBG(DBG_info, "%s: white[%d]=%d, black[%d]=%d\n", __func__,
                   i * 3 + j, white[i * 3 + j], i * 3 + j, dark[i * 3 + j]);
@@ -1624,12 +1605,12 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	}
       else			/* one color-component modes */
 	{
-	  genesys_average_white (dev, 1, 0, calibration_data, size,
+      genesys_average_white (dev, 1, 0, calibration_data.data(), size,
 				 &white_average);
 	  white[i * 3 + 0] = white[i * 3 + 1] = white[i * 3 + 2] =
 	    white_average;
 	  dark[i * 3 + 0] = dark[i * 3 + 1] = dark[i * 3 + 2] =
-	    genesys_average_black (dev, 0, calibration_data, black_pixels);
+        genesys_average_black (dev, 0, calibration_data.data(), black_pixels);
 	}
 
       if (i == 3)
@@ -1674,7 +1655,6 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	}
     }				/* for (i = 0; i < 4; i++) */
 
-  free(all_data);
   DBG(DBG_info, "%s: final: sign: %d/%d/%d, gain: %d/%d/%d, offset: %d/%d/%d\n", __func__,
       dev->frontend.sign[0], dev->frontend.sign[1], dev->frontend.sign[2],
       dev->frontend.gain[0], dev->frontend.gain[1], dev->frontend.gain[2],
@@ -1726,7 +1706,6 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   size_t size;
   uint32_t pixels_per_line;
   uint8_t channels;
-  uint8_t *calibration_data;
   SANE_Bool motor;
 
   DBGSTART;
@@ -1749,12 +1728,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   /* size is size in bytes for scanarea: bytes_per_line * lines */
   size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
 
-  calibration_data = (uint8_t*) malloc(size);
-  if (!calibration_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate calibration data memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> calibration_data(size);
 
   motor=SANE_TRUE;
   if (dev->model->flags & GENESYS_FLAG_SHADING_NO_MOVE)
@@ -1781,7 +1755,6 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 					      cmd_set->bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -1792,15 +1765,13 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   status = dev->model->cmd_set->begin_scan (dev, dev->calib_reg, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: Failed to begin scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-  status = sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
+  status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -1808,24 +1779,21 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-  genesys_average_data (dev->dark_average_data, calibration_data,
+  genesys_average_data (dev->dark_average_data, calibration_data.data(),
 			dev->calib_lines,
 			pixels_per_line * channels);
 
   if (DBG_LEVEL >= DBG_data)
     {
-      sanei_genesys_write_pnm_file("gl_black_shading.pnm", calibration_data, 16,
+      sanei_genesys_write_pnm_file("gl_black_shading.pnm", calibration_data.data(), 16,
                                    channels, pixels_per_line, dev->calib_lines);
       sanei_genesys_write_pnm_file("gl_black_average.pnm",
                                     dev->dark_average_data, 16, channels, pixels_per_line, 1);
     }
-
-  free (calibration_data);
 
   DBGCOMPLETED;
 
@@ -1938,7 +1906,6 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   SANE_Status status;
   size_t size;
   uint32_t pixels_per_line;
-  uint8_t *calibration_data;
   uint8_t channels;
   SANE_Bool motor;
 
@@ -1959,12 +1926,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 
   size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
 
-  calibration_data = (uint8_t*) malloc(size);
-  if (!calibration_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate calibration memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> calibration_data(size);
 
   motor=SANE_TRUE;
   if (dev->model->flags & GENESYS_FLAG_SHADING_NO_MOVE)
@@ -1993,7 +1955,6 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 					      cmd_set->bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2004,15 +1965,13 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   status = dev->model->cmd_set->begin_scan (dev, dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: Failed to begin scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-  status = sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
+  status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2020,24 +1979,21 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_white_shading.pnm", calibration_data, 16,
+    sanei_genesys_write_pnm_file("gl_white_shading.pnm", calibration_data.data(), 16,
                                  channels, pixels_per_line, dev->calib_lines);
 
-  genesys_average_data (dev->white_average_data, calibration_data,
+  genesys_average_data (dev->white_average_data, calibration_data.data(),
 			dev->calib_lines,
 			pixels_per_line * channels);
 
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file("gl_white_average.pnm", dev->white_average_data, 16, channels,
                                  pixels_per_line, 1);
-
-  free (calibration_data);
 
   /* in case we haven't done dark calibration, build dummy data from white_average */
   if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION))
@@ -2070,7 +2026,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   SANE_Status status;
   size_t size;
   uint32_t pixels_per_line;
-  uint8_t *calibration_data, *average_white, *average_dark;
+  uint8_t *average_white, *average_dark;
   uint8_t channels;
   unsigned int x;
   int y;
@@ -2108,12 +2064,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   size = channels * 2 * pixels_per_line * dev->calib_lines;
 
-  calibration_data = (uint8_t*) malloc(size);
-  if (!calibration_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate calibration memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> calibration_data(size);
 
   motor=SANE_TRUE;
   if (dev->model->flags & GENESYS_FLAG_SHADING_NO_MOVE)
@@ -2131,7 +2082,6 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 					      cmd_set->bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2140,15 +2090,13 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-  status = sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
+  status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2156,7 +2104,6 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: Failed to end scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2165,13 +2112,13 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
     {
       if (dev->model->is_cis)
         {
-          sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data,
+          sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data.data(),
                                        16, 1, pixels_per_line*channels,
                                        dev->calib_lines);
         }
       else
         {
-          sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data,
+          sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data.data(),
                                        16, channels, pixels_per_line,
                                        dev->calib_lines);
         }
@@ -2249,8 +2196,6 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
                                    dev->dark_average_data, 16, channels,
                                    pixels_per_line, 1);
     }
-
-  free (calibration_data);
 
   DBGCOMPLETED;
 
@@ -2733,7 +2678,6 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 {
   SANE_Status status;
   uint32_t pixels_per_line;
-  uint8_t *shading_data;	/**> contains 16bit words in little endian */
   uint8_t channels;
   int o;
   unsigned int length;		/**> number of shading calibration data words */
@@ -2782,13 +2726,8 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   length = words_per_color * 3 * 2;
 
   /* allocate computed size */
-  shading_data = (uint8_t*) malloc(length);
-  if (!shading_data)
-    {
-      DBG (DBG_error, "%s: failed to allocate memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
-  memset (shading_data, 0, length);
+  // contains 16bit words in little endian
+  std::vector<uint8_t> shading_data(length, 0);
 
   /* TARGET/(Wn-Dn) = white gain -> ~1.xxx then it is multiplied by 0x2000
      or 0x4000 to give an integer
@@ -2831,7 +2770,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       target_code = 0xdc00;
       o = 4;
       compute_planar_coefficients (dev,
-				   shading_data,
+                   shading_data.data(),
 				   factor,
 				   pixels_per_line,
 				   words_per_color,
@@ -2848,7 +2787,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       cmat[1] = 0;		/* green is first */
       cmat[2] = 1;		/* blue is second */
       compute_planar_coefficients (dev,
-				   shading_data,
+                   shading_data.data(),
 				   1,
 				   pixels_per_line,
 				   words_per_color,
@@ -2866,7 +2805,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       	  o = o - dev->sensor.dummy_pixel / 2;
        }
       compute_coefficients (dev,
-			    shading_data,
+                shading_data.data(),
 			    pixels_per_line,
 			    3,
                             cmat,
@@ -2882,7 +2821,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       	  o = o - dev->sensor.dummy_pixel;
        }
       compute_coefficients (dev,
-			    shading_data,
+                shading_data.data(),
 			    pixels_per_line,
 			    3,
                             cmat,
@@ -2907,7 +2846,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
           o = +2;
         }
       compute_coefficients (dev,
-			    shading_data,
+                shading_data.data(),
 			    pixels_per_line,
 			    3,
                             cmat,
@@ -2923,7 +2862,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       target_code = 0xe000;
       o = 0;
       compute_coefficients (dev,
-			    shading_data,
+                shading_data.data(),
 			    pixels_per_line,
 			    3,
                             cmat,
@@ -2956,16 +2895,10 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
           }
         words_per_color=pixels_per_line*2;
         length = words_per_color * 3 * 2;
-        free(shading_data);
-        shading_data = (uint8_t*) malloc(length);
-        if (!shading_data)
-          {
-            DBG (DBG_error, "%s: failed to allocate memory\n", __func__);
-            return SANE_STATUS_NO_MEM;
-          }
-        memset (shading_data, 0, length);
+        shading_data.clear();
+        shading_data.resize(length, 0);
         compute_planar_coefficients (dev,
-                                     shading_data,
+                                     shading_data.data(),
                                      1,
                                      pixels_per_line,
                                      words_per_color,
@@ -2977,7 +2910,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CCD_CANONLIDE35:
       compute_averaged_planar (dev,
-			       shading_data,
+                               shading_data.data(),
                                pixels_per_line,
                                words_per_color,
                                channels,
@@ -2988,7 +2921,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CIS_CANONLIDE80:
       compute_averaged_planar (dev,
-			       shading_data,
+                               shading_data.data(),
                                pixels_per_line,
                                words_per_color,
                                channels,
@@ -2999,7 +2932,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CCD_PLUSTEK_3600:
       compute_shifted_coefficients (dev,
-			            shading_data,
+                        shading_data.data(),
 			            pixels_per_line,
 			            channels,
 			            cmat,
@@ -3016,8 +2949,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     }
 
   /* do the actual write of shading calibration data to the scanner */
-  status = genesys_send_offset_and_shading (dev, shading_data, length);
-  free (shading_data);
+  status = genesys_send_offset_and_shading (dev, shading_data.data(), length);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "%s: failed to send shading data: %s\n", __func__,
@@ -3641,7 +3573,6 @@ genesys_wait_not_moving (Genesys_Device * dev, int mseconds)
 static SANE_Status
 genesys_warmup_lamp (Genesys_Device * dev)
 {
-  uint8_t *first_line, *second_line;
   int seconds = 0;
   int pixel;
   int channels, total_size;
@@ -3661,49 +3592,39 @@ genesys_warmup_lamp (Genesys_Device * dev)
     }
 
   dev->model->cmd_set->init_regs_for_warmup (dev, dev->reg, &channels, &total_size);
-  first_line = (uint8_t*) malloc(total_size);
-  if (!first_line)
-    return SANE_STATUS_NO_MEM;
-
-  second_line = (uint8_t*) malloc(total_size);
-  if (!second_line)
-    {
-      free(first_line);
-      DBGCOMPLETED;
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> first_line(total_size);
+  std::vector<uint8_t> second_line(total_size);
 
   do
     {
       DBG(DBG_info, "%s: one more loop\n", __func__);
-      RIEF2 (dev->model->cmd_set->begin_scan (dev, dev->reg, SANE_FALSE), first_line, second_line);
+      RIE(dev->model->cmd_set->begin_scan(dev, dev->reg, SANE_FALSE));
       do
 	{
 	  sanei_genesys_test_buffer_empty (dev, &empty);
 	}
       while (empty);
 
-      status = sanei_genesys_read_data_from_scanner (dev, first_line, total_size);
+      status = sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
       if (status != SANE_STATUS_GOOD)
 	{
-	  RIEF2 (sanei_genesys_read_data_from_scanner
-	       (dev, first_line, total_size), first_line, second_line);
+      RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
 	}
 
-      RIEF2 (dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE), first_line, second_line);
+      RIE(dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE));
 
       sleep (1);		/* sleep 1 s */
       seconds++;
 
-      RIEF2 (dev->model->cmd_set->begin_scan (dev, dev->reg, SANE_FALSE), first_line, second_line);
+      RIE(dev->model->cmd_set->begin_scan(dev, dev->reg, SANE_FALSE));
       do
 	{
 	  sanei_genesys_test_buffer_empty (dev, &empty);
           sanei_genesys_sleep_ms(100);
 	}
       while (empty);
-      RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
-      RIEF2 (dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE), first_line, second_line);
+      RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
+      RIE(dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE));
 
       /* compute difference between the two scans */
       for (pixel = 0; pixel < total_size; pixel++)
@@ -3740,9 +3661,9 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	  second_average /= pixel;
 	  if (DBG_LEVEL >= DBG_data)
 	    {
-              sanei_genesys_write_pnm_file("gl_warmup1.pnm", first_line, 8, channels,
+              sanei_genesys_write_pnm_file("gl_warmup1.pnm", first_line.data(), 8, channels,
                                            total_size / (lines * channels), lines);
-              sanei_genesys_write_pnm_file("gl_warmup2.pnm", second_line, 8, channels,
+              sanei_genesys_write_pnm_file("gl_warmup2.pnm", second_line.data(), 8, channels,
                                            total_size / (lines * channels), lines);
 	    }
 	  DBG(DBG_info, "%s: average 1 = %.2f, average 2 = %.2f\n", __func__, first_average,
@@ -3768,9 +3689,6 @@ genesys_warmup_lamp (Genesys_Device * dev)
     {
       DBG(DBG_info, "%s: warmup succeeded after %d seconds\n", __func__, seconds);
     }
-
-  free (first_line);
-  free (second_line);
 
   DBGCOMPLETED;
 

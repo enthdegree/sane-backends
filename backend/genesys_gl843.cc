@@ -46,6 +46,8 @@
 
 #include "genesys_gl843.h"
 
+#include <vector>
+
 /****************************************************************************
  Low level function
  ****************************************************************************/
@@ -615,13 +617,12 @@ gl843_send_slope_table (Genesys_Device * dev, int table_nr,
 			uint16_t * slope_table, int steps)
 {
   SANE_Status status;
-  uint8_t *table;
   int i;
   char msg[10000];
 
   DBG(DBG_proc, "%s (table_nr = %d, steps = %d)\n", __func__, table_nr, steps);
 
-  table = (uint8_t *) malloc (steps * 2);
+  std::vector<uint8_t> table(steps * 2);
   for (i = 0; i < steps; i++)
     {
       table[i * 2] = slope_table[i] & 0xff;
@@ -641,14 +642,13 @@ gl843_send_slope_table (Genesys_Device * dev, int table_nr,
 
   /* slope table addresses are fixed : 0x4000,  0x4800,  0x5000,  0x5800,  0x6000 */
   /* XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14); */
-  status = write_data (dev, 0x4000 + 0x800 * table_nr, steps * 2, table);
+  status = write_data (dev, 0x4000 + 0x800 * table_nr, steps * 2, table.data());
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: write data failed writing slope table %d (%s)\n", __func__, table_nr,
           sane_strstatus(status));
     }
 
-  free (table);
   DBGCOMPLETED;
   return status;
 }
@@ -2440,7 +2440,6 @@ gl843_search_start_position (Genesys_Device * dev)
 {
   int size;
   SANE_Status status;
-  uint8_t *data;
   Genesys_Register_Set local_reg[GENESYS_GL843_MAX_REGS];
   int steps;
 
@@ -2486,17 +2485,11 @@ gl843_search_start_position (Genesys_Device * dev)
 
   size = pixels * dev->model->search_lines;
 
-  data = (uint8_t*) malloc (size);
-  if (!data)
-    {
-      DBG(DBG_error, "%s: failed to allocate memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> data(size);
 
   status = gl843_begin_scan (dev, local_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2507,22 +2500,20 @@ gl843_search_start_position (Genesys_Device * dev)
   while (steps);
 
   /* now we're on target, we can read data */
-  status = sanei_genesys_read_data_from_scanner (dev, data, size);
+  status = sanei_genesys_read_data_from_scanner(dev, data.data(), size);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl843_search_position.pnm", data, 8, 1, pixels,
+    sanei_genesys_write_pnm_file("gl843_search_position.pnm", data.data(), 8, 1, pixels,
                                  dev->model->search_lines);
 
   status = gl843_end_scan (dev, local_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2531,17 +2522,15 @@ gl843_search_start_position (Genesys_Device * dev)
   memcpy (dev->reg, local_reg, GENESYS_GL843_MAX_REGS * sizeof (Genesys_Register_Set));
 
   status =
-    sanei_genesys_search_reference_point (dev, data, 0, dpi, pixels,
+    sanei_genesys_search_reference_point (dev, data.data(), 0, dpi, pixels,
 					  dev->model->search_lines);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG(DBG_error, "%s: failed to set search reference point: %s\n", __func__,
           sane_strstatus(status));
       return status;
     }
 
-  free (data);
   return SANE_STATUS_GOOD;
 }
 
@@ -2831,7 +2820,6 @@ gl843_send_gamma_table (Genesys_Device * dev)
 {
   int size;
   SANE_Status status;
-  uint8_t *gamma;
   int i;
 
   DBGSTART;
@@ -2839,9 +2827,7 @@ gl843_send_gamma_table (Genesys_Device * dev)
   size = 256;
 
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
-  gamma = (uint8_t *) malloc (size * 2 * 3);
-  if (!gamma)
-    return SANE_STATUS_NO_MEM;
+  std::vector<uint8_t> gamma(size * 2 * 3);
 
   /* copy sensor specific's gamma tables */
   for (i = 0; i < size; i++)
@@ -2858,22 +2844,19 @@ gl843_send_gamma_table (Genesys_Device * dev)
   status = gl843_set_buffer_address (dev, 0x0000);
   if (status != SANE_STATUS_GOOD)
     {
-      free (gamma);
       DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
   /* send data */
-  status = sanei_genesys_bulk_write_data(dev, 0x28, (uint8_t *) gamma, size * 2 * 3);
+  status = sanei_genesys_bulk_write_data(dev, 0x28, gamma.data(), size * 2 * 3);
   if (status != SANE_STATUS_GOOD)
     {
-      free (gamma);
       DBG(DBG_error, "%s: failed to send gamma table: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
   DBG(DBG_proc, "%s: completed\n", __func__);
-  free (gamma);
   return SANE_STATUS_GOOD;
 }
 
@@ -2888,7 +2871,6 @@ gl843_led_calibration (Genesys_Device * dev)
   int num_pixels;
   int total_size;
   int used_res;
-  uint8_t *line;
   int i, j;
   SANE_Status status = SANE_STATUS_GOOD;
   int val;
@@ -2942,9 +2924,7 @@ gl843_led_calibration (Genesys_Device * dev)
 
   total_size = num_pixels * channels * (depth / 8) * 1;	/* colors * bytes_per_color * scan lines */
 
-  line = (uint8_t*) malloc(total_size);
-  if (!line)
-    return SANE_STATUS_NO_MEM;
+  std::vector<uint8_t> line(total_size);
 
 /*
    we try to get equal bright leds here:
@@ -2981,13 +2961,13 @@ gl843_led_calibration (Genesys_Device * dev)
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
       RIE (gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
-      RIE (sanei_genesys_read_data_from_scanner (dev, line, total_size));
+      RIE (sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
       if (DBG_LEVEL >= DBG_data)
 	{
           char fn[30];
           snprintf(fn, 30, "gl843_led_%02d.pnm", turn);
-          sanei_genesys_write_pnm_file(fn, line, depth, channels, num_pixels, 1);
+          sanei_genesys_write_pnm_file(fn, line.data(), depth, channels, num_pixels, 1);
 	}
 
       acceptable = SANE_TRUE;
@@ -3060,9 +3040,6 @@ gl843_led_calibration (Genesys_Device * dev)
 
   DBG(DBG_info, "%s: acceptable exposure: %d,%d,%d\n", __func__, expr, expg, expb);
 
-  /* cleanup before return */
-  free (line);
-
   gl843_slow_back_home (dev, SANE_TRUE);
 
   DBG(DBG_proc, "%s: completed\n", __func__);
@@ -3113,7 +3090,6 @@ static SANE_Status
 gl843_offset_calibration (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  uint8_t *first_line, *second_line;
   unsigned int channels, bpp;
   int pass, total_size, i, resolution, lines;
   int topavg[3], bottomavg[3], avg[3];
@@ -3164,16 +3140,8 @@ gl843_offset_calibration (Genesys_Device * dev)
   /* allocate memory for scans */
   total_size = pixels * channels * lines * (bpp / 8);	/* colors * bytes_per_color * scan lines */
 
-  first_line = (uint8_t*) malloc(total_size);
-  if (!first_line)
-    return SANE_STATUS_NO_MEM;
-
-  second_line = (uint8_t*) malloc(total_size);
-  if (!second_line)
-    {
-      free (first_line);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> first_line(total_size);
+  std::vector<uint8_t> second_line(total_size);
 
   /* init gain and offset */
   for (i = 0; i < 3; i++)
@@ -3182,24 +3150,24 @@ gl843_offset_calibration (Genesys_Device * dev)
       dev->frontend.offset[i] = bottom[i];
       dev->frontend.gain[i] = 0;
     }
-  RIEF2 (gl843_set_fe (dev, AFE_SET), first_line, second_line);
+  RIE(gl843_set_fe(dev, AFE_SET));
 
   /* scan with obttom AFE settings */
-  RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS), first_line, second_line);
+  RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
-  RIEF2 (gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
-  RIEF2 (sanei_genesys_read_data_from_scanner (dev, first_line, total_size), first_line, second_line);
+  RIE(gl843_begin_scan(dev, dev->calib_reg, SANE_TRUE));
+  RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
   if (DBG_LEVEL >= DBG_data)
     {
       char fn[40];
       snprintf(fn, 40, "gl843_bottom_offset_%03d_%03d_%03d.pnm",
                bottom[0], bottom[1], bottom[2]);
-      sanei_genesys_write_pnm_file(fn, first_line, bpp, channels, pixels, lines);
+      sanei_genesys_write_pnm_file(fn, first_line.data(), bpp, channels, pixels, lines);
     }
 
   for (i = 0; i < 3; i++)
     {
-      bottomavg[i] = dark_average_channel (first_line, pixels, lines, channels, black_pixels, i);
+      bottomavg[i] = dark_average_channel(first_line.data(), pixels, lines, channels, black_pixels, i);
       DBG(DBG_io2, "%s: bottom avg %d=%d\n", __func__, i, bottomavg[i]);
     }
 
@@ -3209,17 +3177,17 @@ gl843_offset_calibration (Genesys_Device * dev)
       top[i] = 255;
       dev->frontend.offset[i] = top[i];
     }
-  RIEF2 (gl843_set_fe (dev, AFE_SET), first_line, second_line);
+  RIE(gl843_set_fe (dev, AFE_SET));
 
   /* scan with top AFE values */
-  RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS), first_line, second_line);
+  RIE(dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
-  RIEF2 (gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
-  RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
+  RIE(gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+  RIE(sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size));
 
   for (i = 0; i < 3; i++)
     {
-      topavg[i] = dark_average_channel (second_line, pixels, lines, channels, black_pixels, i);
+      topavg[i] = dark_average_channel(second_line.data(), pixels, lines, channels, black_pixels, i);
       DBG(DBG_io2, "%s: top avg %d=%d\n", __func__, i, topavg[i]);
     }
 
@@ -3245,13 +3213,13 @@ gl843_offset_calibration (Genesys_Device * dev)
 	      dev->frontend.offset[i] = (top[i] + bottom[i]) / 2;
 	    }
 	}
-      RIEF2 (gl843_set_fe (dev, AFE_SET), first_line, second_line);
+      RIE(gl843_set_fe (dev, AFE_SET));
 
       /* scan with no move */
-      RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS), first_line, second_line);
+      RIE(dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
-      RIEF2 (gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
-      RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
+      RIE(gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+      RIE(sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size));
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -3260,13 +3228,13 @@ gl843_offset_calibration (Genesys_Device * dev)
                    lines, pixels,
                    dev->frontend.offset[0], dev->frontend.offset[1], dev->frontend.offset[2]);
           sanei_gl_vector_append(&debug_image_info, title, strlen(title));
-          sanei_gl_vector_append(&debug_image, second_line, total_size);
+          sanei_gl_vector_append(&debug_image, second_line.data(), total_size);
           debug_image_lines += lines;
 	}
 
       for (i = 0; i < 3; i++)
 	{
-	  avg[i] = dark_average_channel (second_line, pixels, lines, channels, black_pixels, i);
+          avg[i] = dark_average_channel(second_line.data(), pixels, lines, channels, black_pixels, i);
 	  DBG(DBG_info, "%s: avg[%d]=%d offset=%d\n", __func__, i, avg[i], dev->frontend.offset[i]);
 	}
 
@@ -3300,10 +3268,6 @@ gl843_offset_calibration (Genesys_Device * dev)
   DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__, dev->frontend.offset[0],
       dev->frontend.offset[1], dev->frontend.offset[2]);
 
-  /* cleanup before return */
-  free (first_line);
-  free (second_line);
-
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
@@ -3323,7 +3287,6 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 {
   int pixels, factor, dpihw;
   int total_size;
-  uint8_t *line;
   int i, j, channels;
   SANE_Status status = SANE_STATUS_GOOD;
   int max[3];
@@ -3389,16 +3352,14 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   total_size = pixels * channels * (16/bpp) * lines;
 
-  line = (uint8_t*) malloc(total_size);
-  if (!line)
-    return SANE_STATUS_NO_MEM;
+  std::vector<uint8_t> line(total_size);
 
-  RIEF (gl843_set_fe(dev, AFE_SET), line);
-  RIEF (gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE), line);
-  RIEF (sanei_genesys_read_data_from_scanner (dev, line, total_size), line);
+  RIE(gl843_set_fe(dev, AFE_SET));
+  RIE(gl843_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+  RIE(sanei_genesys_read_data_from_scanner (dev, line.data(), total_size));
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl843_coarse.pnm", line, bpp, channels, pixels, lines);
+    sanei_genesys_write_pnm_file("gl843_coarse.pnm", line.data(), bpp, channels, pixels, lines);
 
   /* average value on each channel */
   for (j = 0; j < channels; j++)
@@ -3457,8 +3418,6 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       dev->frontend.gain[0] = dev->frontend.gain[1];
       dev->frontend.gain[2] = dev->frontend.gain[1];
     }
-
-  free (line);
 
   RIE (gl843_stop_action (dev));
 
@@ -3743,7 +3702,6 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   SANE_Status status;
   Genesys_Register_Set local_reg[GENESYS_GL843_MAX_REGS];
   size_t size;
-  uint8_t *data;
   int steps, depth, dpi;
   unsigned int pass, count, found, x, y;
   Genesys_Register_Set *r;
@@ -3769,12 +3727,8 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   depth = 8;
   pixels = (dev->sensor.sensor_pixels * dpi) / dev->sensor.optical_res;
   size = pixels * channels * lines * (depth / 8);
-  data = (uint8_t*) malloc(size);
-  if (!data)
-    {
-      DBG(DBG_error, "%s: failed to allocate memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> data(size);
+
   dev->scanhead_position_in_steps = 0;
 
   memcpy (local_reg, dev->reg,
@@ -3796,7 +3750,6 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 				 SCAN_FLAG_DISABLE_GAMMA);
   if (status != SANE_STATUS_GOOD)
     {
-      free(data);
       DBG(DBG_error, "%s: failed to setup for scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -3812,7 +3765,6 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   status = dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL843_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
-      free(data);
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -3820,7 +3772,6 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   status = gl843_begin_scan (dev, local_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -3831,10 +3782,9 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   while (steps);
 
   /* now we're on target, we can read data */
-  status = sanei_genesys_read_data_from_scanner (dev, data, size);
+  status = sanei_genesys_read_data_from_scanner(dev, data.data(), size);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -3842,7 +3792,6 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   status = gl843_stop_action (dev);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG(DBG_error, "%s: gl843_stop_action failed\n", __func__);
       return status;
     }
@@ -3853,7 +3802,7 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
       char fn[40];
       snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
                black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
-      sanei_genesys_write_pnm_file(fn, data, depth, channels, pixels, lines);
+      sanei_genesys_write_pnm_file(fn, data.data(), depth, channels, pixels, lines);
     }
 
   /* loop until strip is found or maximum pass number done */
@@ -3873,8 +3822,7 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
       status = gl843_begin_scan (dev, local_reg, SANE_TRUE);
       if (status != SANE_STATUS_GOOD)
 	{
-	  free (data);
-	  DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
+          DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
 
@@ -3884,18 +3832,16 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
       while (steps);
 
       /* now we're on target, we can read data */
-      status = sanei_genesys_read_data_from_scanner (dev, data, size);
+      status = sanei_genesys_read_data_from_scanner(dev, data.data(), size);
       if (status != SANE_STATUS_GOOD)
 	{
-	  free (data);
-	  DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
+          DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
 
       status = gl843_stop_action (dev);
       if (status != SANE_STATUS_GOOD)
 	{
-	  free (data);
 	  DBG(DBG_error, "%s: gl843_stop_action failed\n", __func__);
 	  return status;
 	}
@@ -3905,7 +3851,7 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
           char fn[40];
           snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
                    black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
-          sanei_genesys_write_pnm_file(fn, data, depth, channels, pixels, lines);
+          sanei_genesys_write_pnm_file(fn, data.data(), depth, channels, pixels, lines);
 	}
 
       /* search data to find black strip */
@@ -3985,7 +3931,6 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	}
       pass++;
     }
-  free (data);
   if (found)
     {
       status = SANE_STATUS_GOOD;
@@ -4010,7 +3955,6 @@ gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
 {
   SANE_Status status;
   uint32_t final_size, length, i;
-  uint8_t *final_data;
   uint8_t *buffer;
   int count,offset;
   unsigned int tgtime;
@@ -4057,16 +4001,10 @@ gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   /* compute and allocate size for final data */
   final_size = ((length+251) / 252) * 256;
   DBG(DBG_io, "%s: final shading size=%04x (length=%d)\n", __func__, final_size, length);
-  final_data = (uint8_t *) malloc (final_size);
-  if(final_data==NULL)
-    {
-      DBG(DBG_error, "%s: failed to allocate memory for shading data\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
-  memset(final_data,0x00,final_size);
+  std::vector<uint8_t> final_data(final_size, 0);
 
   /* copy regular shading data to the expected layout */
-  buffer = final_data;
+  buffer = final_data.data();
   count = 0;
 
   /* loop over calibration data */
@@ -4085,17 +4023,15 @@ gl843_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
-      free(final_data);
       return status;
     }
 
-  status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, final_data, count);
+  status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, final_data.data(), count);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to send shading table: %s\n", __func__, sane_strstatus(status));
     }
 
-  free(final_data);
   DBGCOMPLETED;
   return status;
 }

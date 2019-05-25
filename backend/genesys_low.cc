@@ -47,6 +47,8 @@
 #include "genesys_low.h"
 #include "assert.h"
 
+#include <vector>
+
 /* ------------------------------------------------------------------------ */
 /*                  functions calling ASIC specific functions               */
 /* ------------------------------------------------------------------------ */
@@ -1437,17 +1439,12 @@ SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
                                                 uint8_t *gamma)
 {
   int i;
-  uint16_t value, *lut=NULL;
+  uint16_t value;
 
   if(dev->settings.contrast!=0 || dev->settings.brightness!=0)
     {
-      lut=(uint16_t *)malloc(65536*2);
-      if(lut==NULL)
-        {
-          free(gamma);
-          return SANE_STATUS_NO_MEM;
-        }
-      sanei_genesys_load_lut((unsigned char *)lut,
+      std::vector<uint16_t> lut(65536);
+      sanei_genesys_load_lut((unsigned char *)lut.data(),
                              bits,
                              bits,
                              0,
@@ -1490,12 +1487,6 @@ SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
         }
     }
 
-
-  if(lut!=NULL)
-    {
-      free(lut);
-    }
-
   return SANE_STATUS_GOOD;
 }
 
@@ -1511,7 +1502,7 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
 {
   int size;
   int i;
-  uint8_t *gamma, val;
+  uint8_t val;
   SANE_Status status;
 
   DBGSTART;
@@ -1519,27 +1510,22 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
   size = 256 + 1;
 
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
-  gamma = (uint8_t *) malloc (size * 2 * 3);
-  if (!gamma)
-    {
-      return SANE_STATUS_NO_MEM;
-    }
-  memset(gamma, 255, size*3*2);
+  std::vector<uint8_t> gamma(size * 2 * 3, 255);
 
-  RIE(sanei_genesys_generate_gamma_buffer(dev, 16, 65535, size, gamma));
+  RIE(sanei_genesys_generate_gamma_buffer(dev, 16, 65535, size, gamma.data()));
 
   /* loop sending gamma tables NOTE: 0x01000000 not 0x10000000 */
   for (i = 0; i < 3; i++)
     {
       /* clear corresponding GMM_N bit */
-      RIEF (sanei_genesys_read_register (dev, 0xbd, &val), gamma);
+      RIE(sanei_genesys_read_register(dev, 0xbd, &val));
       val &= ~(0x01 << i);
-      RIEF (sanei_genesys_write_register (dev, 0xbd, val), gamma);
+      RIE(sanei_genesys_write_register(dev, 0xbd, val));
 
       /* clear corresponding GMM_F bit */
-      RIEF (sanei_genesys_read_register (dev, 0xbe, &val), gamma);
+      RIE(sanei_genesys_read_register(dev, 0xbe, &val));
       val &= ~(0x01 << i);
-      RIEF (sanei_genesys_write_register (dev, 0xbe, val), gamma);
+      RIE(sanei_genesys_write_register(dev, 0xbe, val));
 
       // FIXME: currently the last word of each gamma table is not initialied, so to work around
       // unstable data, just set it to 0 which is the most likely value of uninitialized memory
@@ -1548,10 +1534,10 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
       gamma[size * 2 * i + size * 2 - 1] = 0;
 
       /* set GMM_Z */
-      RIEF (sanei_genesys_write_register (dev, 0xc5+2*i, gamma[size*2*i+1]), gamma);
-      RIEF (sanei_genesys_write_register (dev, 0xc6+2*i, gamma[size*2*i]), gamma);
+      RIE(sanei_genesys_write_register (dev, 0xc5+2*i, gamma[size*2*i+1]));
+      RIE(sanei_genesys_write_register (dev, 0xc6+2*i, gamma[size*2*i]));
 
-      status = sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2, gamma + i * size * 2+2);
+      status = sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2, gamma.data() + i * size * 2+2);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -1561,7 +1547,6 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
 	}
     }
 
-  free (gamma);
   DBGCOMPLETED;
   return status;
 }

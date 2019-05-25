@@ -51,6 +51,8 @@
 
 #include "genesys_gl846.h"
 
+#include <vector>
+
 /****************************************************************************
  Mid level functions
  ****************************************************************************/
@@ -445,7 +447,6 @@ gl846_send_slope_table (Genesys_Device * dev, int table_nr,
 			uint16_t * slope_table, int steps)
 {
   SANE_Status status;
-  uint8_t *table;
   int i;
   char msg[10000];
 
@@ -459,7 +460,7 @@ gl846_send_slope_table (Genesys_Device * dev, int table_nr,
       return SANE_STATUS_INVAL;
     }
 
-  table = (uint8_t *) malloc (steps * 2);
+  std::vector<uint8_t> table(steps * 2);
   for (i = 0; i < steps; i++)
     {
       table[i * 2] = slope_table[i] & 0xff;
@@ -477,14 +478,13 @@ gl846_send_slope_table (Genesys_Device * dev, int table_nr,
     }
 
   /* slope table addresses are fixed */
-  status = sanei_genesys_write_ahb(dev, 0x10000000 + 0x4000 * table_nr, steps * 2, table);
+  status = sanei_genesys_write_ahb(dev, 0x10000000 + 0x4000 * table_nr, steps * 2, table.data());
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: write to AHB failed writing slope table %d (%s)\n", __func__, table_nr,
           sane_strstatus(status));
     }
 
-  free (table);
   DBGCOMPLETED;
   return status;
 }
@@ -1877,7 +1877,6 @@ gl846_search_start_position (Genesys_Device * dev)
 {
   int size;
   SANE_Status status;
-  uint8_t *data;
   Genesys_Register_Set local_reg[GENESYS_GL846_MAX_REGS];
   int steps;
 
@@ -1915,17 +1914,11 @@ gl846_search_start_position (Genesys_Device * dev)
 
   size = pixels * dev->model->search_lines;
 
-  data = (uint8_t*) malloc (size);
-  if (!data)
-    {
-      DBG(DBG_error, "%s: failed to allocate memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> data(size);
 
   status = gl846_begin_scan (dev, local_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -1936,22 +1929,20 @@ gl846_search_start_position (Genesys_Device * dev)
   while (steps);
 
   /* now we're on target, we can read data */
-  status = sanei_genesys_read_data_from_scanner (dev, data, size);
+  status = sanei_genesys_read_data_from_scanner(dev, data.data(), size);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl846_search_position.pnm", data, 8, 1, pixels,
+    sanei_genesys_write_pnm_file("gl846_search_position.pnm", data.data(), 8, 1, pixels,
                                  dev->model->search_lines);
 
   status = gl846_end_scan (dev, local_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -1963,17 +1954,15 @@ gl846_search_start_position (Genesys_Device * dev)
 /*TODO: find out where sanei_genesys_search_reference_point
   stores information, and use that correctly*/
   status =
-    sanei_genesys_search_reference_point (dev, data, 0, dpi, pixels,
+    sanei_genesys_search_reference_point (dev, data.data(), 0, dpi, pixels,
 					  dev->model->search_lines);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG(DBG_error, "%s: failed to set search reference point: %s\n", __func__,
           sane_strstatus(status));
       return status;
     }
 
-  free (data);
   return SANE_STATUS_GOOD;
 }
 
@@ -2310,7 +2299,7 @@ gl846_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   uint32_t dpiset, dpihw, strpixel, endpixel;
   uint16_t tempo;
   uint32_t lines, channels;
-  uint8_t val,*buffer,*ptr,*src;
+  uint8_t val,*ptr,*src;
 
   DBGSTART;
   DBG(DBG_io2, "%s: writing %d bytes of shading data\n", __func__, size);
@@ -2356,9 +2345,8 @@ gl846_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
   strpixel*=2*2;
   pixels*=2*2;
 
-  /* allocate temporary buffer */
-  buffer=(uint8_t *)malloc(pixels);
-  memset(buffer,0,pixels);
+  std::vector<uint8_t> buffer(pixels, 0);
+
   DBG(DBG_io2, "%s: using chunks of %d (0x%04x) bytes\n", __func__, pixels, pixels);
 
   /* base addr of data has been written in reg D0-D4 in 4K word, so AHB address
@@ -2369,7 +2357,7 @@ gl846_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
     {
       /* build up actual shading data by copying the part from the full width one
        * to the one corresponding to SHDAREA */
-      ptr=buffer;
+      ptr = buffer.data();
 
       /* iterate on both sensor segment */
       for(x=0;x<pixels;x+=4*factor)
@@ -2387,18 +2375,16 @@ gl846_send_shading_data (Genesys_Device * dev, uint8_t * data, int size)
           ptr+=4;
         }
 
-      RIEF (sanei_genesys_read_register (dev, 0xd0+i, &val), buffer);
+      RIE(sanei_genesys_read_register(dev, 0xd0+i, &val));
       addr = val * 8192 + 0x10000000;
-      status = sanei_genesys_write_ahb(dev, addr, pixels, buffer);
+      status = sanei_genesys_write_ahb(dev, addr, pixels, buffer.data());
       if (status != SANE_STATUS_GOOD)
         {
           DBG(DBG_error, "%s; write to AHB failed (%s)\n", __func__, sane_strstatus(status));
-          free(buffer);
           return status;
         }
     }
 
-  free(buffer);
   DBGCOMPLETED;
 
   return status;
@@ -2415,7 +2401,6 @@ gl846_led_calibration (Genesys_Device * dev)
   int num_pixels;
   int total_size;
   int used_res;
-  uint8_t *line;
   int i, j;
   SANE_Status status = SANE_STATUS_GOOD;
   int val;
@@ -2470,9 +2455,7 @@ gl846_led_calibration (Genesys_Device * dev)
     }
 
   total_size = num_pixels * channels * (depth/8) * 1;	/* colors * bytes_per_color * scan lines */
-  line = (uint8_t*) malloc (total_size);
-  if (!line)
-    return SANE_STATUS_NO_MEM;
+  std::vector<uint8_t> line(total_size);
 
   /* initial loop values and boundaries */
   exp[0]=sensor->expr;
@@ -2499,20 +2482,20 @@ gl846_led_calibration (Genesys_Device * dev)
       sanei_genesys_set_double(dev->calib_reg,REG_EXPB,exp[2]);
 
       /* write registers and scan data */
-      RIEF (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS), line);
+      RIE(dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS));
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
-      RIEF (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE), line);
-      RIEF (sanei_genesys_read_data_from_scanner (dev, line, total_size), line);
+      RIE(gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+      RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
       /* stop scanning */
-      RIEF (gl846_stop_action (dev), line);
+      RIE(gl846_stop_action(dev));
 
       if (DBG_LEVEL >= DBG_data)
 	{
           char fn[30];
           snprintf(fn, 30, "gl846_led_%02d.pnm", turn);
-	  sanei_genesys_write_pnm_file (fn, line, depth, channels, num_pixels, 1);
+          sanei_genesys_write_pnm_file(fn, line.data(), depth, channels, num_pixels, 1);
 	}
 
       /* compute average */
@@ -2571,9 +2554,6 @@ gl846_led_calibration (Genesys_Device * dev)
   dev->sensor.regs_0x10_0x1d[3] = exp[1] & 0xff;
   dev->sensor.regs_0x10_0x1d[4] = (exp[2] >> 8) & 0xff;
   dev->sensor.regs_0x10_0x1d[5] = exp[2] & 0xff;
-
-  /* cleanup before return */
-  free (line);
 
   /* go back home */
   if(move>20)
@@ -2803,7 +2783,6 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   SANE_Status status;
   Genesys_Register_Set local_reg[GENESYS_GL846_MAX_REGS];
   size_t size;
-  uint8_t *data;
   int steps, depth, dpi;
   unsigned int pass, count, found, x, y;
   char title[80];
@@ -2840,12 +2819,8 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   depth = 8;
   pixels = (dev->sensor.sensor_pixels * dpi) / dev->sensor.optical_res;
   size = pixels * channels * lines * (depth / 8);
-  data = (uint8_t*) malloc (size);
-  if (!data)
-    {
-      DBG(DBG_error, "%s: failed to allocate memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> data(size);
+
   dev->scanhead_position_in_steps = 0;
 
   memcpy (local_reg, dev->reg,
@@ -2866,7 +2841,6 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 				 SCAN_FLAG_DISABLE_GAMMA);
   if (status != SANE_STATUS_GOOD)
     {
-      free(data);
       DBG(DBG_error, "%s: failed to setup for scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2882,7 +2856,6 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   status = dev->model->cmd_set->bulk_write_register (dev, local_reg, GENESYS_GL846_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
-      free(data);
       DBG(DBG_error, "%s: Failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2890,7 +2863,6 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   status = gl846_begin_scan (dev, local_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2901,10 +2873,9 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   while (steps);
 
   /* now we're on target, we can read data */
-  status = sanei_genesys_read_data_from_scanner (dev, data, size);
+  status = sanei_genesys_read_data_from_scanner(dev, data.data(), size);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2912,7 +2883,6 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   status = gl846_stop_action (dev);
   if (status != SANE_STATUS_GOOD)
     {
-      free (data);
       DBG(DBG_error, "%s: gl846_stop_action failed\n", __func__);
       return status;
     }
@@ -2922,7 +2892,7 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
     {
       sprintf(title, "gl846_search_strip_%s_%s%02d.pnm",
               black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
-      sanei_genesys_write_pnm_file(title, data, depth, channels, pixels, lines);
+      sanei_genesys_write_pnm_file(title, data.data(), depth, channels, pixels, lines);
     }
 
   /* loop until strip is found or maximum pass number done */
@@ -2941,7 +2911,6 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
       status = gl846_begin_scan (dev, local_reg, SANE_TRUE);
       if (status != SANE_STATUS_GOOD)
 	{
-	  free (data);
 	  DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
@@ -2952,10 +2921,9 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
       while (steps);
 
       /* now we're on target, we can read data */
-      status = sanei_genesys_read_data_from_scanner (dev, data, size);
+      status = sanei_genesys_read_data_from_scanner(dev, data.data(), size);
       if (status != SANE_STATUS_GOOD)
 	{
-	  free (data);
 	  DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
@@ -2963,7 +2931,6 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
       status = gl846_stop_action (dev);
       if (status != SANE_STATUS_GOOD)
 	{
-	  free (data);
 	  DBG(DBG_error, "%s: gl846_stop_action failed\n", __func__);
 	  return status;
 	}
@@ -2972,7 +2939,7 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	{
           sprintf(title, "gl846_search_strip_%s_%s%02d.pnm",
                   black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
-          sanei_genesys_write_pnm_file (title, data, depth, channels, pixels, lines);
+          sanei_genesys_write_pnm_file(title, data.data(), depth, channels, pixels, lines);
 	}
 
       /* search data to find black strip */
@@ -3052,7 +3019,7 @@ gl846_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	}
       pass++;
     }
-  free (data);
+
   if (found)
     {
       status = SANE_STATUS_GOOD;
@@ -3109,7 +3076,7 @@ static SANE_Status
 gl846_offset_calibration (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  uint8_t *first_line, *second_line, reg04;
+  uint8_t reg04;
   unsigned int channels, bpp;
   int pass = 0, avg, total_size;
   int topavg, bottomavg, resolution, lines;
@@ -3160,16 +3127,8 @@ gl846_offset_calibration (Genesys_Device * dev)
   /* allocate memory for scans */
   total_size = pixels * channels * lines * (bpp/8);	/* colors * bytes_per_color * scan lines */
 
-  first_line = (uint8_t*) malloc (total_size);
-  if (!first_line)
-    return SANE_STATUS_NO_MEM;
-
-  second_line = (uint8_t*) malloc (total_size);
-  if (!second_line)
-    {
-      free (first_line);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> first_line(total_size);
+  std::vector<uint8_t> second_line(total_size);
 
   /* init gain */
   dev->frontend.gain[0] = 0;
@@ -3182,19 +3141,19 @@ gl846_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[1] = bottom;
   dev->frontend.offset[2] = bottom;
 
-  RIEF2 (gl846_set_fe(dev, AFE_SET), first_line, second_line);
-  RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS), first_line, second_line);
+  RIE(gl846_set_fe(dev, AFE_SET));
+  RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg, GENESYS_GL846_MAX_REGS));
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
-  RIEF2 (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
-  RIEF2 (sanei_genesys_read_data_from_scanner (dev, first_line, total_size), first_line, second_line);
+  RIE(gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+  RIE(sanei_genesys_read_data_from_scanner (dev, first_line.data(), total_size));
   if (DBG_LEVEL >= DBG_data)
    {
       char fn[30];
       snprintf(fn, 30, "gl846_offset%03d.pnm", bottom);
-      sanei_genesys_write_pnm_file(fn, first_line, bpp, channels, pixels, lines);
+      sanei_genesys_write_pnm_file(fn, first_line.data(), bpp, channels, pixels, lines);
    }
 
-  bottomavg = dark_average (first_line, pixels, lines, channels, black_pixels);
+  bottomavg = dark_average(first_line.data(), pixels, lines, channels, black_pixels);
   DBG(DBG_io2, "%s: bottom avg=%d\n", __func__, bottomavg);
 
   /* now top value */
@@ -3202,13 +3161,13 @@ gl846_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[0] = top;
   dev->frontend.offset[1] = top;
   dev->frontend.offset[2] = top;
-  RIEF2 (gl846_set_fe(dev, AFE_SET), first_line, second_line);
-  RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS), first_line, second_line);
+  RIE(gl846_set_fe(dev, AFE_SET));
+  RIE(dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS));
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
-  RIEF2 (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
-  RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
+  RIE(gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+  RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
 
-  topavg = dark_average (second_line, pixels, lines, channels, black_pixels);
+  topavg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
   DBG(DBG_io2, "%s: top avg=%d\n", __func__, topavg);
 
   /* loop until acceptable level */
@@ -3222,20 +3181,20 @@ gl846_offset_calibration (Genesys_Device * dev)
       dev->frontend.offset[2] = (top + bottom) / 2;
 
       /* scan with no move */
-      RIEF2 (gl846_set_fe(dev, AFE_SET), first_line, second_line);
-      RIEF2 (dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS), first_line, second_line);
+      RIE(gl846_set_fe(dev, AFE_SET));
+      RIE(dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg, GENESYS_GL846_MAX_REGS));
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
-      RIEF2 (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE), first_line, second_line);
-      RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
+      RIE(gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+      RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
 
       if (DBG_LEVEL >= DBG_data)
 	{
           char fn[30];
           snprintf(fn, 30, "gl846_offset%03d.pnm", dev->frontend.offset[1]);
-          sanei_genesys_write_pnm_file(fn, second_line, bpp, channels, pixels, lines);
+          sanei_genesys_write_pnm_file(fn, second_line.data(), bpp, channels, pixels, lines);
 	}
 
-      avg = dark_average (second_line, pixels, lines, channels, black_pixels);
+      avg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
       DBG(DBG_info, "%s: avg=%d offset=%d\n", __func__, avg, dev->frontend.offset[1]);
 
       /* compute new boundaries */
@@ -3253,10 +3212,6 @@ gl846_offset_calibration (Genesys_Device * dev)
   DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__, dev->frontend.offset[0],
       dev->frontend.offset[1], dev->frontend.offset[2]);
 
-  /* cleanup before return */
-  free (first_line);
-  free (second_line);
-
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
@@ -3266,7 +3221,7 @@ gl846_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 {
   int pixels;
   int total_size;
-  uint8_t *line, reg04;
+  uint8_t reg04;
   int i, j, channels;
   SANE_Status status = SANE_STATUS_GOOD;
   int max[3];
@@ -3332,16 +3287,14 @@ gl846_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
   total_size = pixels * channels * (16/bpp) * lines;
 
-  line = (uint8_t*) malloc (total_size);
-  if (!line)
-    return SANE_STATUS_NO_MEM;
+  std::vector<uint8_t> line(total_size);
 
-  RIEF (gl846_set_fe(dev, AFE_SET), line);
-  RIEF (gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE), line);
-  RIEF (sanei_genesys_read_data_from_scanner (dev, line, total_size), line);
+  RIE(gl846_set_fe(dev, AFE_SET));
+  RIE(gl846_begin_scan (dev, dev->calib_reg, SANE_TRUE));
+  RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl846_coarse.pnm", line, bpp, channels, pixels, lines);
+    sanei_genesys_write_pnm_file("gl846_coarse.pnm", line.data(), bpp, channels, pixels, lines);
 
   /* average value on each channel */
   for (j = 0; j < channels; j++)
@@ -3380,8 +3333,6 @@ gl846_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	dev->frontend.gain[0] = dev->frontend.gain[2];
       dev->frontend.gain[2] = dev->frontend.gain[1] = dev->frontend.gain[0];
     }
-
-  free (line);
 
   RIE (gl846_stop_action (dev));
 

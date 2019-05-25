@@ -52,6 +52,8 @@
 
 #include "genesys_gl646.h"
 
+#include <vector>
+
 /**
  * reads value from gpio endpoint
  */
@@ -1027,8 +1029,6 @@ gl646_asic_test (Genesys_Device * dev)
 {
   SANE_Status status;
   uint8_t val;
-  uint8_t *data;
-  uint8_t *verify_data;
   size_t size, verify_size;
   unsigned int i;
 
@@ -1080,20 +1080,8 @@ gl646_asic_test (Genesys_Device * dev)
      otherwise the read doesn't succeed the second time after the scanner has
      been plugged in. Very strange. */
 
-  data = (uint8_t *) malloc (size);
-  if (!data)
-    {
-      DBG(DBG_error, "%s: could not allocate memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
-
-  verify_data = (uint8_t *) malloc (verify_size);
-  if (!verify_data)
-    {
-      free (data);
-      DBG(DBG_error, "%s: could not allocate memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> data(size);
+  std::vector<uint8_t> verify_data(verify_size);
 
   for (i = 0; i < (size - 1); i += 2)
     {
@@ -1105,17 +1093,13 @@ gl646_asic_test (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
-      free (data);
-      free (verify_data);
       return status;
     }
 
-  status = sanei_genesys_bulk_write_data(dev, 0x3c, data, size);
+  status = sanei_genesys_bulk_write_data(dev, 0x3c, data.data(), size);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write data: %s\n", __func__, sane_strstatus(status));
-      free (data);
-      free (verify_data);
       return status;
     }
 
@@ -1123,18 +1107,14 @@ gl646_asic_test (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
-      free (data);
-      free (verify_data);
       return status;
     }
 
   status =
-    gl646_bulk_read_data (dev, 0x45, (uint8_t *) verify_data, verify_size);
+    gl646_bulk_read_data (dev, 0x45, verify_data.data(), verify_size);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk read data: %s\n", __func__, sane_strstatus(status));
-      free (data);
-      free (verify_data);
       return status;
     }
 
@@ -1145,14 +1125,9 @@ gl646_asic_test (Genesys_Device * dev)
       if (verify_data[i + 2] != data[i])
 	{
 	  DBG(DBG_error, "%s: data verification error\n", __func__);
-	  free (data);
-	  free (verify_data);
-	  return SANE_STATUS_IO_ERROR;
+          return SANE_STATUS_IO_ERROR;
 	}
     }
-
-  free (data);
-  free (verify_data);
 
   DBG(DBG_info, "%s: end\n", __func__);
 
@@ -1386,41 +1361,28 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
   else				/* reserved */
     return SANE_STATUS_INVAL;
 
-#ifdef WORDS_BIGENDIAN
-  table = (uint8_t *) malloc (steps * 2);
+  std::vector<uint8_t> table(steps * 2);
   for (i = 0; i < steps; i++)
     {
       table[i * 2] = slope_table[i] & 0xff;
       table[i * 2 + 1] = slope_table[i] >> 8;
     }
-#else
-  table = (uint8_t *) slope_table;
-#endif
 
   status =
     sanei_genesys_set_buffer_address (dev, start_address + table_nr * 0x100);
   if (status != SANE_STATUS_GOOD)
     {
-#ifdef WORDS_BIGENDIAN
-      free (table);
-#endif
       DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-  status = sanei_genesys_bulk_write_data(dev, 0x3c, (uint8_t *) table, steps * 2);
+  status = sanei_genesys_bulk_write_data(dev, 0x3c, table.data(), steps * 2);
   if (status != SANE_STATUS_GOOD)
     {
-#ifdef WORDS_BIGENDIAN
-      free (table);
-#endif
       DBG(DBG_error, "%s: failed to send slope table: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-#ifdef WORDS_BIGENDIAN
-  free (table);
-#endif
   DBG(DBG_proc, "%s: end\n", __func__);
   return status;
 }
@@ -3153,7 +3115,6 @@ gl646_send_gamma_table (Genesys_Device * dev)
   int size;
   int address;
   SANE_Status status;
-  uint8_t *gamma;
   int bits;
 
   DBGSTART;
@@ -3171,13 +3132,9 @@ gl646_send_gamma_table (Genesys_Device * dev)
     }
 
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
-  gamma = (uint8_t *) malloc (size * 2 * 3);
-  if (gamma==NULL)
-    {
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> gamma(size * 2 * 3);
 
-  RIE(sanei_genesys_generate_gamma_buffer(dev, bits, size-1, size, gamma));
+  RIE(sanei_genesys_generate_gamma_buffer(dev, bits, size-1, size, gamma.data()));
 
   /* table address */
   switch (dev->reg[reg_0x05].value >> 6)
@@ -3192,7 +3149,6 @@ gl646_send_gamma_table (Genesys_Device * dev)
       address = 0x20000;
       break;
     default:
-      free (gamma);
       return SANE_STATUS_INVAL;
     }
 
@@ -3200,20 +3156,17 @@ gl646_send_gamma_table (Genesys_Device * dev)
   status = sanei_genesys_set_buffer_address (dev, address);
   if (status != SANE_STATUS_GOOD)
     {
-      free (gamma);
       DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
   /* send data */
-  status = sanei_genesys_bulk_write_data(dev, 0x3c, (uint8_t *) gamma, size * 2 * 3);
+  status = sanei_genesys_bulk_write_data(dev, 0x3c, gamma.data(), size * 2 * 3);
   if (status != SANE_STATUS_GOOD)
     {
-      free (gamma);
       DBG(DBG_error, "%s: failed to send gamma table: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  free (gamma);
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -4451,7 +4404,6 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   SANE_Status status = SANE_STATUS_INVAL;
   unsigned int size, lines, x, y, bpp;
   SANE_Bool empty, split;
-  unsigned char *buffer;
   int count;
   uint8_t val;
 
@@ -4611,13 +4563,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
       && settings.scan_mode == SCAN_MODE_COLOR)
     {
       /* alloc one line sized working buffer */
-      buffer = (unsigned char *) malloc (settings.pixels * 3 * bpp);
-      if (buffer == NULL)
-	{
-	  DBG(DBG_error, "%s: failed to allocate %d bytes of memory\n", __func__,
-	      settings.pixels * 3);
-	  return SANE_STATUS_NO_MEM;
-	}
+      std::vector<uint8_t> buffer(settings.pixels * 3 * bpp);
 
       /* reorder one line of data and put it back to buffer */
       if (bpp == 1)
@@ -4635,7 +4581,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 			    x];
 		}
 	      /* copy line back */
-	      memcpy ((*data) + settings.pixels * 3 * y, buffer,
+              memcpy ((*data) + settings.pixels * 3 * y, buffer.data(),
 		      settings.pixels * 3);
 	    }
 	}
@@ -4663,11 +4609,10 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 			    x * 2 + 1];
 		}
 	      /* copy line back */
-	      memcpy ((*data) + settings.pixels * 6 * y, buffer,
+              memcpy ((*data) + settings.pixels * 6 * y, buffer.data(),
 		      settings.pixels * 6);
 	    }
 	}
-      free (buffer);
     }
 
   /* end scan , waiting the motor to stop if needed (if moving), but without ejecting doc */

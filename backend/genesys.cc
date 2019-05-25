@@ -5920,9 +5920,7 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
       if (vendor == genesys_usb_device_list[i].vendor &&
 	  product == genesys_usb_device_list[i].product)
 	{
-      dev = (Genesys_Device*) malloc(sizeof (*dev));
-	  if (!dev)
-	    return SANE_STATUS_NO_MEM;
+      dev = new Genesys_Device;
 	  break;
 	}
     }
@@ -5934,12 +5932,10 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
       return SANE_STATUS_INVAL;
     }
 
-  memset(dev, 0x00, sizeof(Genesys_Device));
-
   dev->file_name = strdup (devname);
   if (!dev->file_name)
     {
-      free(dev);
+      delete dev;
       return SANE_STATUS_NO_MEM;
     }
 
@@ -6437,11 +6433,8 @@ sane_exit_impl(void)
   DBGSTART;
   for (dev = first_dev; dev; dev = next)
     {
-      /* sane_close() free many fields, not much things left to
-       * do here */
       next = dev->next;
-      free (dev->file_name);
-      free (dev);
+      delete dev;
     }
   first_dev = 0;
   first_handle = 0;
@@ -6514,7 +6507,7 @@ sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
 	      if (dev->next == NULL)
 		{
 		  /* empty the whole list */
-		  free (dev);
+          delete dev;
 		  first_dev = NULL;
 		  num_devices = 0;
 		  dev = NULL;
@@ -6524,7 +6517,7 @@ sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
 		  /* assign new start */
 		  first_dev = dev->next;
 		  num_devices--;
-		  free (dev);
+          delete dev;
 	          dev = first_dev;
 		}
 	    }
@@ -6533,7 +6526,7 @@ sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
 	    {
 	      /* link previous dev to next dev */
 	      prev->next = dev->next;
-	      free (dev);
+          delete dev;
 	      num_devices--;
 
 	      /* next loop */
@@ -6696,7 +6689,6 @@ void
 sane_close_impl(SANE_Handle handle)
 {
   Genesys_Scanner *prev, *s;
-  Genesys_Calibration_Cache *cache, *next_cache;
   SANE_Status status;
 
   DBGSTART;
@@ -6747,24 +6739,6 @@ sane_close_impl(SANE_Handle handle)
   if (s->dev->force_calibration == 0)
     write_calibration (s->dev);
 
-  for (cache = s->dev->calibration_cache; cache; cache = next_cache)
-    {
-      next_cache = cache->next;
-      free (cache->dark_average_data);
-      free (cache->white_average_data);
-      free (cache);
-    }
-
-  sanei_genesys_buffer_free (&(s->dev->read_buffer));
-  sanei_genesys_buffer_free (&(s->dev->lines_buffer));
-  sanei_genesys_buffer_free (&(s->dev->shrink_buffer));
-  sanei_genesys_buffer_free (&(s->dev->out_buffer));
-  sanei_genesys_buffer_free (&(s->dev->binarize_buffer));
-  sanei_genesys_buffer_free (&(s->dev->local_buffer));
-  FREE_IFNOT_NULL (s->dev->white_average_data);
-  FREE_IFNOT_NULL (s->dev->dark_average_data);
-  FREE_IFNOT_NULL (s->dev->calib_file);
-
   /* free allocated gamma tables */
   FREE_IFNOT_NULL (s->dev->sensor.gamma_table[0]);
   FREE_IFNOT_NULL (s->dev->sensor.gamma_table[1]);
@@ -6785,6 +6759,8 @@ sane_close_impl(SANE_Handle handle)
   else
     first_handle = s->next;
 
+  s->dev->clear();
+
   /* LAMP OFF : same register across all the ASICs */
   sanei_genesys_write_register (s->dev, 0x03, 0x00);
 
@@ -6796,6 +6772,7 @@ sane_close_impl(SANE_Handle handle)
   sanei_usb_reset (s->dev->dn);
 
   sanei_usb_close (s->dev->dn);
+  // not freeing s->dev because it's in the dev list
   free (s);
 
   DBGCOMPLETED;

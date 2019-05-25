@@ -83,6 +83,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstring>
 #include <functional>
 #include <memory>
 #include <stdexcept>
@@ -875,93 +876,130 @@ struct Genesys_Calibration_Cache
  */
 struct Genesys_Device
 {
-  SANE_Int dn;
-  SANE_Word vendorId;			/**< USB vendor identifier */
-  SANE_Word productId;			/**< USB product identifier */
+    Genesys_Device() = default;
+    ~Genesys_Device();
 
-  // USB mode:
-  // 0: not set
-  // 1: USB 1.1
-  // 2: USB 2.0
-  SANE_Int usb_mode;
+    // frees commonly used data
+    void clear();
 
-  SANE_String file_name;
-  SANE_String calib_file;
-  SANE_Int force_calibration; // if enabled, no calibration data will be loaded
-                              // or saved to files
-  Genesys_Model *model;
+    SANE_Int dn = 0;
+    SANE_Word vendorId = 0;			/**< USB vendor identifier */
+    SANE_Word productId = 0;			/**< USB product identifier */
 
-  Genesys_Register_Set reg[256];
-  Genesys_Register_Set calib_reg[256];
-  Genesys_Settings settings;
-  Genesys_Frontend frontend;
-  Genesys_Sensor sensor;
-  Genesys_Gpo gpo;
-  Genesys_Motor motor;
-  uint16_t slope_table0[256];
-  uint16_t slope_table1[256];
-  uint8_t  control[6];
-  time_t init_date;
+    // USB mode:
+    // 0: not set
+    // 1: USB 1.1
+    // 2: USB 2.0
+    SANE_Int usb_mode = 0;
 
-  size_t average_size;
-  size_t calib_pixels;	/**< number of pixels used during shading calibration */
-  size_t calib_lines;	/**< number of lines used during shading calibration */
-  size_t calib_channels;
-  size_t calib_resolution;
-  uint8_t *white_average_data;
-  uint8_t *dark_average_data;
-  uint16_t dark[3];
+    SANE_String file_name = nullptr;
+    SANE_String calib_file = nullptr;
 
-  SANE_Bool already_initialized;
-  SANE_Int scanhead_position_in_steps;
-  SANE_Int lamp_off_time;
+    // if enabled, no calibration data will be loaded or saved to files
+    SANE_Int force_calibration = 0;
+    Genesys_Model *model = nullptr;
 
-  SANE_Bool read_active;
-  SANE_Bool parking;		/**< signal wether the park command has been issued */
-  SANE_Bool document;		/**< for sheetfed scanner's, is TRUE when there
-				   is a document in the scanner */
+    Genesys_Register_Set reg[256] = {};
+    Genesys_Register_Set calib_reg[256] = {};
+    Genesys_Settings settings = {};
+    Genesys_Frontend frontend = {};
+    Genesys_Sensor sensor;
+    Genesys_Gpo gpo = {};
+    Genesys_Motor motor = {};
+    uint16_t slope_table0[256] = {};
+    uint16_t slope_table1[256] = {};
+    uint8_t  control[6] = {};
+    time_t init_date = 0;
 
-  Genesys_Buffer read_buffer;
-  Genesys_Buffer lines_buffer;
-  Genesys_Buffer shrink_buffer;
-  Genesys_Buffer out_buffer;
-  Genesys_Buffer binarize_buffer; /**< buffer for digital lineart from gray data */
-  Genesys_Buffer local_buffer;    /**< local buffer for gray data during dynamix lineart */
+    size_t average_size = 0;
+    // number of pixels used during shading calibration
+    size_t calib_pixels = 0;
+    // number of lines used during shading calibration
+    size_t calib_lines = 0;
+    size_t calib_channels = 0;
+    size_t calib_resolution = 0;
+    uint8_t *white_average_data = nullptr;
+    uint8_t *dark_average_data = nullptr;
+    uint16_t dark[3] = {};
 
-  size_t read_bytes_left;	/**< bytes to read from scanner */
+    SANE_Bool already_initialized = 0;
+    SANE_Int scanhead_position_in_steps = 0;
+    SANE_Int lamp_off_time = 0;
 
-  size_t total_bytes_read;	/**< total bytes read sent to frontend */
-  size_t total_bytes_to_read;	/**< total bytes read to be sent to frontend */
-  size_t wpl;			/**< asic's word per line */
+    SANE_Bool read_active = 0;
+    // signal wether the park command has been issued
+    SANE_Bool parking = 0;
 
-  Genesys_Current_Setup current_setup; /* contains the real used values */
+    // for sheetfed scanner's, is TRUE when there is a document in the scanner
+    SANE_Bool document = 0;
 
-  /**< look up table used in dynamic rasterization */
-  unsigned char lineart_lut[256];
+    Genesys_Buffer read_buffer = {};
+    Genesys_Buffer lines_buffer = {};
+    Genesys_Buffer shrink_buffer = {};
+    Genesys_Buffer out_buffer = {};
 
-  Genesys_Calibration_Cache *calibration_cache;
+    // buffer for digital lineart from gray data
+    Genesys_Buffer binarize_buffer = {};
+    // local buffer for gray data during dynamix lineart
+    Genesys_Buffer local_buffer = {};
 
-  struct Genesys_Device *next;
+    // bytes to read from scanner
+    size_t read_bytes_left = 0;
 
-  SANE_Int ld_shift_r;		/**< used red line-distance shift*/
-  SANE_Int ld_shift_g;		/**< used green line-distance shift*/
-  SANE_Int ld_shift_b;		/**< used blue line-distance shift*/
-  int segnb;       /**< number of segments composing the sensor */
-  int line_interp; /**< number of lines used in line interpolation */
-  int line_count;  /**< number of scan lines used during scan */
-  size_t bpl;      /**< bytes per full scan widthline */
-  size_t dist;     /**< bytes distance between an odd and an even pixel */
-  size_t len;      /**< number of even pixels */
-  size_t cur;      /**< current pixel position within sub window */
-  size_t skip;     /**< number of bytes to skip at start of line */
-  size_t *order;   /**< array describing the order of the sub-segments of the sensor */
-  Genesys_Buffer oe_buffer; /**< buffer to handle even/odd data */
+    // total bytes read sent to frontend
+    size_t total_bytes_read = 0;
+    // total bytes read to be sent to frontend
+    size_t total_bytes_to_read = 0;
+    //  asic's word per line
+    size_t wpl = 0;
 
-  SANE_Bool buffer_image; /**< when true the scanned picture is first buffered
-			   * to allow software image enhancements */
-  SANE_Byte *img_buffer; /**< image buffer where the scanned picture is stored */
+    // contains the real used values
+    Genesys_Current_Setup current_setup = {};
 
-  FILE *binary; /**< binary logger file */
+    // look up table used in dynamic rasterization
+    unsigned char lineart_lut[256] = {};
+
+    Genesys_Calibration_Cache* calibration_cache = nullptr;
+
+    Genesys_Device* next = nullptr;
+
+    // used red line-distance shift
+    SANE_Int ld_shift_r = 0;
+    // used green line-distance shift
+    SANE_Int ld_shift_g = 0;
+    // used blue line-distance shift
+    SANE_Int ld_shift_b = 0;
+    // number of segments composing the sensor
+    int segnb = 0;
+    // number of lines used in line interpolation
+    int line_interp = 0;
+    // number of scan lines used during scan
+    int line_count = 0;
+    // bytes per full scan widthline
+    size_t bpl = 0;
+    // bytes distance between an odd and an even pixel
+    size_t dist = 0;
+    // number of even pixels
+    size_t len = 0;
+    // current pixel position within sub window
+    size_t cur = 0;
+    // number of bytes to skip at start of line
+    size_t skip = 0;
+
+    // array describing the order of the sub-segments of the sensor
+    size_t* order = nullptr;
+
+    // buffer to handle even/odd data
+    Genesys_Buffer oe_buffer = {};
+
+    // when true the scanned picture is first buffered to allow software image enhancements
+    SANE_Bool buffer_image = 0;
+
+    // image buffer where the scanned picture is stored
+    SANE_Byte *img_buffer = nullptr;
+
+    // binary logger file
+    FILE *binary = nullptr;
 };
 
 typedef struct Genesys_USB_Device_Entry

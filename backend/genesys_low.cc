@@ -49,6 +49,37 @@
 
 #include <vector>
 
+
+Genesys_Device::~Genesys_Device()
+{
+    clear();
+
+    if (file_name != nullptr)
+        free(file_name);
+}
+
+void Genesys_Device::clear()
+{
+    sanei_genesys_buffer_free(&(read_buffer));
+    sanei_genesys_buffer_free(&(lines_buffer));
+    sanei_genesys_buffer_free(&(shrink_buffer));
+    sanei_genesys_buffer_free(&(out_buffer));
+    sanei_genesys_buffer_free(&(binarize_buffer));
+    sanei_genesys_buffer_free(&(local_buffer));
+
+    FREE_IFNOT_NULL(white_average_data);
+    FREE_IFNOT_NULL(dark_average_data);
+    FREE_IFNOT_NULL(calib_file);
+
+    Genesys_Calibration_Cache* next_cache = nullptr;
+    for (Genesys_Calibration_Cache* cache = calibration_cache; cache; cache = next_cache) {
+        next_cache = cache->next;
+        free(cache->dark_average_data);
+        free(cache->white_average_data);
+        free(cache);
+    }
+}
+
 /* ------------------------------------------------------------------------ */
 /*                  functions calling ASIC specific functions               */
 /* ------------------------------------------------------------------------ */

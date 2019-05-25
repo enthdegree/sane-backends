@@ -6739,11 +6739,6 @@ sane_close_impl(SANE_Handle handle)
   if (s->dev->force_calibration == 0)
     write_calibration (s->dev);
 
-  /* free allocated gamma tables */
-  FREE_IFNOT_NULL (s->dev->sensor.gamma_table[0]);
-  FREE_IFNOT_NULL (s->dev->sensor.gamma_table[1]);
-  FREE_IFNOT_NULL (s->dev->sensor.gamma_table[2]);
-
   s->dev->already_initialized = SANE_FALSE;
 
    /* for an handful of bytes .. */
@@ -6881,15 +6876,15 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
       table = (SANE_Word *) val;
       if (strcmp (s->val[OPT_COLOR_FILTER].s, "Red") == 0)
 	{
-	  gamma = s->dev->sensor.gamma_table[GENESYS_RED];
+      gamma = s->dev->sensor.gamma_table[GENESYS_RED].data();
 	}
       else if (strcmp (s->val[OPT_COLOR_FILTER].s, "Blue") == 0)
 	{
-	  gamma = s->dev->sensor.gamma_table[GENESYS_BLUE];
+      gamma = s->dev->sensor.gamma_table[GENESYS_BLUE].data();
 	}
       else
 	{
-	  gamma = s->dev->sensor.gamma_table[GENESYS_GREEN];
+      gamma = s->dev->sensor.gamma_table[GENESYS_GREEN].data();
 	}
       for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
 	{
@@ -7219,17 +7214,17 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  /* restore default sensor gamma table */
 	  /* currently there is no sensor's specific gamma table,
 	   * tables are built by sanei_genesys_create_gamma_table */
-	  sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_RED],
+      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_RED].data(),
 					    s->opt[OPT_GAMMA_VECTOR_R].size / sizeof (SANE_Word),
 					    s->opt[OPT_GAMMA_VECTOR_R].constraint.range->max,
 					    s->opt[OPT_GAMMA_VECTOR_R].constraint.range->max,
 					    s->dev->sensor.gamma[GENESYS_RED]);
-	  sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_GREEN],
+      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_GREEN].data(),
 					    s->opt[OPT_GAMMA_VECTOR_G].size / sizeof (SANE_Word),
 					    s->opt[OPT_GAMMA_VECTOR_G].constraint.range->max,
 					    s->opt[OPT_GAMMA_VECTOR_G].constraint.range->max,
 					    s->dev->sensor.gamma[GENESYS_GREEN]);
-	  sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_BLUE],
+      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_BLUE].data(),
 					    s->opt[OPT_GAMMA_VECTOR_B].size / sizeof (SANE_Word),
 					    s->opt[OPT_GAMMA_VECTOR_B].constraint.range->max,
 					    s->opt[OPT_GAMMA_VECTOR_B].constraint.range->max,

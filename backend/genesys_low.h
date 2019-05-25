@@ -277,20 +277,24 @@ struct AssignableArray : public std::array<T, Size> {
 };
 
 struct Genesys_Sensor {
+
+    Genesys_Sensor() = default;
+    ~Genesys_Sensor() = default;
+
     // id of the sensor description
-    uint8_t sensor_id;
-    int optical_res;
-    int black_pixels;
+    uint8_t sensor_id = 0;
+    int optical_res = 0;
+    int black_pixels = 0;
     // value of the dummy register
-    int dummy_pixel;
+    int dummy_pixel = 0;
     // last pixel of CCD margin at optical resolution
-    int CCD_start_xoffset;
+    int CCD_start_xoffset = 0;
     // total pixels used by the sensor
-    int sensor_pixels;
+    int sensor_pixels = 0;
     // TA CCD target code (reference gain)
-    int fau_gain_white_ref;
+    int fau_gain_white_ref = 0;
     // CCD target code (reference gain)
-    int gain_white_ref;
+    int gain_white_ref = 0;
 
     AssignableArray<uint8_t, 4> regs_0x08_0x0b;
     // Initial exposure values, EXPR, EXPG and EXPB are contained in 0x10-0x15
@@ -301,7 +305,7 @@ struct Genesys_Sensor {
     AssignableArray<float, 3> gamma;
 
     // sensor-specific gamma tables
-    AssignableArray<uint16_t*, 3> gamma_table;
+    std::vector<uint16_t> gamma_table[3];
 
     size_t fread(FILE* fp)
     {

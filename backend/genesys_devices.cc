@@ -274,7 +274,6 @@ void genesys_init_sensor_tables()
         0x13, 0x17, 0x03, 0x07, 0x0b, 0x0f, 0x23, 0x00, 0xc1, 0x00, 0x00, 0x00, 0x00
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -297,7 +296,6 @@ void genesys_init_sensor_tables()
         0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0xc1, 0x00, 0x00, 0x00, 0x00
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -320,7 +318,6 @@ void genesys_init_sensor_tables()
         0x17, 0x03, 0x07, 0x0b, 0x0f, 0x13, 0x03, 0x00, 0xc1, 0x00, 0x00, 0x00, 0x00
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -343,7 +340,6 @@ void genesys_init_sensor_tables()
         0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x23, 0x00, 0xc1, 0x00, 0x00, 0x00, 0x00
     };
     sensor.gamma = {2.38, 2.35, 2.34};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -366,7 +362,6 @@ void genesys_init_sensor_tables()
         0x0b, 0x0f, 0x13, 0x17, 0x03, 0x07, 0x63, 0x00, 0xc1, 0x00, 0x0e, 0x00, 0x00
     };
     sensor.gamma = {2.1, 2.1, 2.1};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -389,7 +384,6 @@ void genesys_init_sensor_tables()
         0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0xc1, 0x06, 0x0b, 0x10, 0x16
     };
     sensor.gamma = {2.1, 2.1, 2.1};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -412,7 +406,6 @@ void genesys_init_sensor_tables()
         0x05, 0x07, 0x00, 0x00, 0x00, 0x00, 0x3a, 0x03, 0x40, 0x00, 0x00, 0x00, 0x00
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -435,7 +428,6 @@ void genesys_init_sensor_tables()
         0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0xc1, 0x06, 0x0b, 0x10, 0x16
     };
     sensor.gamma = {2.1, 2.1, 2.1};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -458,7 +450,6 @@ void genesys_init_sensor_tables()
         0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0x15, 0x05, 0x0a, 0x0f, 0x00
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -481,7 +472,6 @@ void genesys_init_sensor_tables()
         0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x54, 0x03, 0x00, 0x00, 0x00, 0x00, 0x01
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -504,7 +494,6 @@ void genesys_init_sensor_tables()
         0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x54, 0x03, 0x00, 0x00, 0x00, 0x00, 0x01
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -527,7 +516,6 @@ void genesys_init_sensor_tables()
         0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x54, 0x03, 0x00, 0x00, 0x00, 0x00, 0x01
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -550,7 +538,6 @@ void genesys_init_sensor_tables()
         0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x54, 0x03, 0x00, 0x00, 0x00, 0x00, 0x01
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -573,7 +560,6 @@ void genesys_init_sensor_tables()
         0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x54, 0x03, 0x00, 0x00, 0x00, 0x00, 0x01
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -596,7 +582,6 @@ void genesys_init_sensor_tables()
         0x03, 0x07, 0x00, 0x00, 0x00, 0x00, 0x2a, 0xe1, 0x55, 0x00, 0x00, 0x00, 0x41
     };
     sensor.gamma = {1.7, 1.7, 1.7};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -621,7 +606,6 @@ void genesys_init_sensor_tables()
         0x07, 0x03, 0x00, 0x00, 0x00, 0x00, 0x2a, 0xe1, 0x55, 0x00, 0x00, 0x00, 0x41
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -644,7 +628,6 @@ void genesys_init_sensor_tables()
         0x03, 0x07, 0x00, 0x00, 0x00, 0x00, 0x2a, 0xe1, 0x55, 0x00, 0x00, 0x00, 0x41
     };
     sensor.gamma = {1.7, 1.7, 1.7};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -667,7 +650,6 @@ void genesys_init_sensor_tables()
         0x0c, 0x0f, 0x00, 0x03, 0x06, 0x09, 0x6b, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x23
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -691,7 +673,6 @@ void genesys_init_sensor_tables()
         0x0b, 0x0e, 0x11, 0x02, 0x05, 0x08, 0x63, 0x00, 0x40, 0x00, 0x00, 0x00, 0x6f
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -716,7 +697,6 @@ void genesys_init_sensor_tables()
         0x0a, 0x0d, 0x00, 0x03, 0x06, 0x08, 0x5b, 0x00, 0x40, 0x00, 0x00, 0x00, 0x3f
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -741,7 +721,6 @@ void genesys_init_sensor_tables()
         0x0a, 0x0d, 0x00, 0x03, 0x06, 0x08, 0x5b, 0x00, 0x40, 0x00, 0x00, 0x00, 0x3f
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -764,7 +743,6 @@ void genesys_init_sensor_tables()
         0x0b, 0x0e, 0x11, 0x02, 0x05, 0x08, 0x63, 0x00, 0x40, 0x00, 0x00, 0x06, 0x6f
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -787,7 +765,6 @@ void genesys_init_sensor_tables()
         0x00, 0x02, 0x04, 0x06, 0x04, 0x04, 0x04, 0x04, 0x1a, 0x00, 0xc0, 0x00, 0x00
     };
     sensor.gamma = {2.1, 2.1, 2.1};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -811,7 +788,6 @@ void genesys_init_sensor_tables()
         0x04, 0x06, 0x00, 0x02, 0x04, 0x04, 0x04, 0x04, 0x3a, 0x00, 0x00, 0x00, 0x1f
     };
     sensor.gamma = {2.1, 2.1, 2.1};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -834,7 +810,6 @@ void genesys_init_sensor_tables()
         0x00, 0x02, 0x04, 0x06, 0x04, 0x04, 0x04, 0x04, 0x1a, 0x00, 0xc0, 0x00, 0x00
     };
     sensor.gamma = {2.1, 2.1, 2.1};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -857,7 +832,6 @@ void genesys_init_sensor_tables()
         0x00, 0x02, 0x04, 0x06, 0x04, 0x04, 0x04, 0x04, 0x1a, 0x00, 0xc0, 0x00, 0x00
     };
     sensor.gamma = {2.1, 2.1, 2.1};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -880,7 +854,6 @@ void genesys_init_sensor_tables()
         0x07, 0x0a, 0x0c, 0x00, 0x02, 0x06, 0x22, 0x69, 0x40, 0x00, 0x00, 0x00, 0x02
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -903,7 +876,6 @@ void genesys_init_sensor_tables()
         0x02, 0x04, 0x06, 0x08, 0x0a, 0x00, 0x59, 0x31, 0x40, 0x00, 0x00, 0x00, 0x1f
     };
     sensor.gamma = {1.7, 1.7, 1.7};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -926,7 +898,6 @@ void genesys_init_sensor_tables()
         0x02, 0x04, 0x06, 0x08, 0x0a, 0x00, 0x59, 0x31, 0x40, 0x00, 0x00, 0x00, 0x1f
     };
     sensor.gamma = {1.7, 1.7, 1.7};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 
 
@@ -953,7 +924,6 @@ void genesys_init_sensor_tables()
         0x03, 0x07, 0x00, 0x00, 0x00, 0x00, 0x29, 0x69, 0x55, 0x00, 0x00, 0x20, 0x41
     };
     sensor.gamma = {1.0, 1.0, 1.0};
-    sensor.gamma_table = {NULL, NULL, NULL};
     s_sensors->push_back(sensor);
 }
 

@@ -5150,15 +5150,10 @@ gl841_init (Genesys_Device * dev)
 
   for(i=0;i<3;i++)
     {
-      if (dev->sensor.gamma_table[i] == NULL)
+      if (dev->sensor.gamma_table[i].empty())
         {
-          dev->sensor.gamma_table[i] = (uint16_t *) malloc (2 * size);
-          if (dev->sensor.gamma_table[i] == NULL)
-            {
-              DBG(DBG_error,"%s: could not allocate memory for gamma table %d\n", __func__, i);
-              return SANE_STATUS_NO_MEM;
-            }
-          sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
+          dev->sensor.gamma_table[i].resize(size, 0);
+          sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i].data(),
                                             size,
                                             65535,
                                             65535,

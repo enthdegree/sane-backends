@@ -40,7 +40,7 @@ if have_usblib
 sane_find_scanner_SOURCES += check-usb-chip.c
 endif
 sane_find_scanner_LDADD = ../sanei/libsanei.la ../lib/liblib.la \
-			  $(USB_LIBS) $(IEEE1284_LIBS) $(SCSI_LIBS) \
+                          $(USB_LIBS) $(IEEE1284_LIBS) $(SCSI_LIBS) $(XML_LIBS) \
 			  ../backend/sane_strstatus.lo
 
 gamma4scanimage_SOURCES = gamma4scanimage.c

@@ -5,7 +5,7 @@
 ##  included LICENSE file for license information.
 
 AM_CPPFLAGS += -I. -I$(srcdir) -I$(top_builddir)/include \
- -I$(top_srcdir)/include $(USB_CFLAGS)
+ -I$(top_srcdir)/include $(USB_CFLAGS) $(XML_CFLAGS)
 
 noinst_LTLIBRARIES = libsanei.la
 

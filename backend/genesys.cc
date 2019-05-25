@@ -74,13 +74,6 @@ StaticInit<std::vector<SANE_Device>> s_sane_devices;
 StaticInit<std::vector<SANE_Device*>> s_sane_devices_ptrs;
 StaticInit<std::list<Genesys_Device>> s_devices;
 
-/* Array of newly attached devices */
-static Genesys_Device **new_dev = 0;
-/* Length of new_dev array */
-static SANE_Int new_dev_len = 0;
-/* Number of entries alloced for new_dev */
-static SANE_Int new_dev_alloced = 0;
-
 static SANE_String_Const mode_list[] = {
   SANE_VALUE_SCAN_MODE_COLOR,
   SANE_VALUE_SCAN_MODE_GRAY,
@@ -5867,38 +5860,9 @@ attach_one_device_impl(SANE_String_Const devname)
 {
   Genesys_Device *dev;
   SANE_Status status;
-  Genesys_Device **tmp_dev;
 
   RIE (attach (devname, &dev, SANE_FALSE));
 
-  if (dev)
-    {
-      /* Keep track of newly attached devices so we can set options as
-         necessary.  */
-      tmp_dev=NULL;
-      /* increase device list capacity if needed */
-      if (new_dev_len >= new_dev_alloced)
-	{
-	  new_dev_alloced += 4;
-	  if (new_dev)
-            {
-              tmp_dev = new_dev;
-              new_dev = (Genesys_Device**) realloc(new_dev, new_dev_alloced * sizeof (new_dev[0]));
-            }
-	  else
-            {
-              new_dev = (Genesys_Device**) malloc(new_dev_alloced * sizeof (new_dev[0]));
-              tmp_dev = NULL;
-            }
-	  if (!new_dev)
-	    {
-              FREE_IFNOT_NULL(tmp_dev)
-              DBG(DBG_error, "%s: out of memory\n", __func__);
-	      return SANE_STATUS_NO_MEM;
-	    }
-	}
-      new_dev[new_dev_len++] = dev;
-    }
   return SANE_STATUS_GOOD;
 }
 
@@ -5933,10 +5897,6 @@ probe_genesys_devices (void)
 
   DBGSTART;
 
-  new_dev = 0;
-  new_dev_len = 0;
-  new_dev_alloced = 0;
-
   /* set configuration options structure : no option for this backend */
   config.descriptors = NULL;
   config.values = NULL;
@@ -5945,12 +5905,6 @@ probe_genesys_devices (void)
   /* generic configure and attach function */
   status = sanei_configure_attach (GENESYS_CONFIG_FILE, &config,
 				   config_attach_genesys);
-
-  if (new_dev_alloced > 0)
-    {
-      new_dev_len = new_dev_alloced = 0;
-      free (new_dev);
-    }
 
   DBG(DBG_info, "%s: %d devices currently attached\n", __func__, (int) s_devices->size());
 

@@ -19,7 +19,7 @@ prepare:
   script:
   - find -path ./.git -prune -o -type f | xargs tools/style-check.sh
   - sed -i '/^AC_INIT/s/,.*/,m4_esyscmd_s([git describe --dirty]),/' configure.ac
-  - autoconf --force
+  - ./autogen.sh
   artifacts:
     paths:
     - configure
@@ -28,6 +28,7 @@ prepare:
 .compile_template: &compile_definition
   stage: compile
   script:
+  - ./autogen.sh
   - ./configure $CONFIGURE_OPTS
   - make -j2 -k $MAKE_FLAGS
 
@@ -94,6 +95,7 @@ archive:
   dependencies:
   - compile:debian-9-full
   before_script:
+  - ./autogen.sh
   - ./config.status --quiet || ./configure "$CONFIGURE_MINI"
   script:
   - make dist

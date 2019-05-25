@@ -81,6 +81,9 @@
 
 #include "../include/_stdint.h"
 
+#include <memory>
+#include <stdexcept>
+
 #define DBG_error0      0	/* errors/warnings printed even with devuglevel 0 */
 #define DBG_error       1	/* fatal errors */
 #define DBG_init        2	/* initialization and scanning time messages */
@@ -1262,5 +1265,56 @@ extern void sanei_gl_vector_append_zero(Genesys_Vector* v, size_t count);
 extern void* sanei_gl_vector_get_element(Genesys_Vector* v, size_t i);
 extern void sanei_gl_vector_set_element(Genesys_Vector* v, void* data, size_t i);
 extern void sanei_gl_vector_destroy(Genesys_Vector* v);
+
+class SaneException : std::exception {
+public:
+    SaneException(SANE_Status status) : status_(status) {}
+
+    SANE_Status status() const { return status_; }
+    virtual const char* what() const noexcept override { return sane_strstatus(status_); }
+private:
+    SANE_Status status_;
+};
+
+template<class F>
+SANE_Status wrap_exceptions_to_status_code(const char* func, F&& function)
+{
+    try {
+        return function();
+    } catch (const SaneException& exc) {
+        return exc.status();
+    } catch (const std::bad_alloc& exc) {
+        return SANE_STATUS_NO_MEM;
+    } catch (const std::exception& exc) {
+        DBG(DBG_error, "%s: got uncaught exception: %s", func, exc.what());
+        return SANE_STATUS_INVAL;
+    } catch (...) {
+        DBG(DBG_error, "%s: got unknown uncaught exception", func);
+        return SANE_STATUS_INVAL;
+    }
+}
+
+template<class F>
+void catch_all_exceptions(const char* func, F&& function)
+{
+    try {
+        function();
+    } catch (const SaneException& exc) {
+        // ignore, this will already be logged
+    } catch (const std::bad_alloc& exc) {
+        // ignore, this will already be logged
+    } catch (const std::exception& exc) {
+        DBG(DBG_error, "%s: got uncaught exception: %s", func, exc.what());
+    } catch (...) {
+        DBG(DBG_error, "%s: got unknown uncaught exception", func);
+    }
+}
+
+inline void wrap_status_code_to_exception(SANE_Status status)
+{
+    if (status == SANE_STATUS_GOOD)
+        return;
+    throw SaneException(status);
+}
 
 #endif /* not GENESYS_LOW_H */

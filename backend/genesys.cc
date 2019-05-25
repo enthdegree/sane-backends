@@ -175,14 +175,13 @@ sanei_genesys_init_structs (Genesys_Device * dev)
   unsigned int i, sensor_ok = 0, gpo_ok = 0, motor_ok = 0;
 
   /* initialize the sensor data stuff */
-  for (i = 0; i < sizeof (Sensor) / sizeof (Genesys_Sensor); i++)
-    {
-      if (dev->model->ccd_type == Sensor[i].sensor_id)
-	{
-	  memcpy (&dev->sensor, &Sensor[i], sizeof (Genesys_Sensor));
-	  sensor_ok = 1;
-	}
-    }
+  for (const auto& sensor : *s_sensors) {
+      if (dev->model->ccd_type == sensor.sensor_id) {
+          dev->sensor = sensor;
+          sensor_ok = 1;
+          break;
+      }
+  }
 
   /* initialize the GPO data stuff */
   for (i = 0; i < sizeof (Gpo) / sizeof (Genesys_Gpo); i++)
@@ -2993,7 +2992,7 @@ genesys_restore_calibration (Genesys_Device * dev)
 	{
 	  memcpy (&dev->frontend, &cache->frontend, sizeof (dev->frontend));
           /* we don't restore the gamma fields */
-	  memcpy (dev->sensor.regs_0x10_0x1d, cache->sensor.regs_0x10_0x1d, 6);
+      memcpy (dev->sensor.regs_0x10_0x1d.data(), cache->sensor.regs_0x10_0x1d.data(), 6);
 	  free (dev->dark_average_data);
 	  free (dev->white_average_data);
 
@@ -6149,8 +6148,7 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
 	}
       BILT1 (fread (&cache->last_calibration, sizeof (cache->last_calibration), 1, fp));
       BILT1 (fread (&cache->frontend, sizeof (cache->frontend), 1, fp));
-      /* the gamma (and later) fields are not stored */
-      BILT1 (fread (&cache->sensor, offsetof (Genesys_Sensor, gamma[0]), 1, fp));
+      BILT1(cache->sensor.fread(fp));
       BILT1 (fread (&cache->calib_pixels, sizeof (cache->calib_pixels), 1, fp));
       BILT1 (fread (&cache->calib_channels, sizeof (cache->calib_channels), 1, fp));
       BILT1 (fread (&cache->average_size, sizeof (cache->average_size), 1, fp));
@@ -6223,9 +6221,7 @@ write_calibration (Genesys_Device * dev)
       fwrite (&cache->used_setup, sizeof (cache->used_setup), 1, fp);
       fwrite (&cache->last_calibration, sizeof (cache->last_calibration), 1, fp);
       fwrite (&cache->frontend, sizeof (cache->frontend), 1, fp);
-      /* the gamma (and later) fields are not stored */
-      fwrite (&cache->sensor, offsetof (Genesys_Sensor, gamma[0]), 1, fp);
-
+      cache->sensor.fwrite(fp);
       fwrite (&cache->calib_pixels, sizeof (cache->calib_pixels), 1, fp);
       fwrite (&cache->calib_channels, sizeof (cache->calib_channels), 1, fp);
       fwrite (&cache->average_size, sizeof (cache->average_size), 1, fp);
@@ -6399,6 +6395,8 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   /* init sanei_magic */
   sanei_magic_init();
+
+  genesys_init_sensor_tables();
 
   DBG(DBG_info, "%s: %s endian machine\n", __func__,
 #ifdef WORDS_BIGENDIAN

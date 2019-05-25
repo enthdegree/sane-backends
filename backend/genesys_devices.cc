@@ -249,601 +249,713 @@ static Genesys_Frontend Wolfson[] = {
  * CCD_start_xoffset, and overall number of sensor pixels
  * registers 0x08-0x0b, 0x10-0x1d and 0x52-0x5e
  */
-static Genesys_Sensor Sensor[] = {
-  /* 0: UMAX */
-  {CCD_UMAX,
-   1200, 48, 64, 0, 10800, 210, 230,
-   {0x01, 0x03, 0x05, 0x07}
-   ,
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x05, 0x31, 0x2a, 0x00, 0x00,
-    0x00, 0x02}
-   ,
-   {0x13, 0x17, 0x03, 0x07, 0x0b, 0x0f, 0x23, 0x00, 0xc1, 0x00, 0x00, 0x00,
-    0x00}
-   ,
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}}
-  ,
-  /* 1: Plustek OpticPro S12/ST12 */
-  {CCD_ST12,
-   600, 48, 85, 152, 5416, 210, 230,
-   {0x02, 0x00, 0x06, 0x04} ,
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2b, 0x08, 0x20, 0x2a, 0x00, 0x00, 0x0c, 0x03} ,
-   {0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0xc1, 0x00, 0x00, 0x00, 0x00} ,
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}
-  }
-  ,
-  /* 2: Plustek OpticPro S24/ST24 */
-  {CCD_ST24,
-   1200,
-   48, 64, 0, 10800, 210, 230,
-   {0x0e, 0x0c, 0x00, 0x0c} ,
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x08, 0x31, 0x2a, 0x00, 0x00, 0x00, 0x02} ,
-   {0x17, 0x03, 0x07, 0x0b, 0x0f, 0x13, 0x03, 0x00, 0xc1, 0x00, 0x00, 0x00, 0x00} ,
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}
-  }
-  ,
-  /* 3: MD6471 */
-  {CCD_5345,
-   1200,
-   48,
-   16, 0, 10872,
-   190, 190,
-   {0x0d, 0x0f, 0x11, 0x13} ,
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0b, 0x0a, 0x30, 0x2a, 0x00, 0x00, 0x00, 0x03} ,
-   {0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x23, 0x00, 0xc1, 0x00, 0x00, 0x00, 0x00} ,
-   {2.38, 2.35, 2.34},
-   {NULL, NULL, NULL}
-  }
-  ,
-  /* 4: HP2400c */
-  {CCD_HP2400,
-   1200,
-   48,
-   15, 0, 10872, 210, 200,
-   {0x14, 0x15, 0x00, 0x00} /* registers 0x08-0x0b */ ,
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xbf, 0x08, 0x3f, 0x2a, 0x00, 0x00, 0x00, 0x02} ,
-   {0x0b, 0x0f, 0x13, 0x17, 0x03, 0x07, 0x63, 0x00, 0xc1, 0x00, 0x0e, 0x00, 0x00} ,
-   {2.1, 2.1, 2.1},
-   {NULL, NULL, NULL}
-  }
-  ,
-  /* 5: HP2300c */
-  {CCD_HP2300,
-   600,
-   48,
-   20, 0, 5368, 180, 180,        /* 5376 */
-   {0x16, 0x00, 0x01, 0x03} ,
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xb7, 0x0a, 0x20, 0x2a, 0x6a, 0x8a, 0x00, 0x05} ,
-   {0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0xc1, 0x06, 0x0b, 0x10, 0x16} ,
-   {2.1, 2.1, 2.1},
-   {NULL, NULL, NULL}
-  }
-  ,
-  /* CANOLIDE35 */
-  {CCD_CANONLIDE35,
-   1200,
-   87,                                /* (black) */
-   87,                                /* (dummy) */
-   0,                                /* (startxoffset) */
-   10400,                        /* sensor_pixels */
-   0,
-   0,
-   {0x00, 0x00, 0x00, 0x00},
-   {0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x02, 0x00, 0x50,
-    0x00, 0x00, 0x00, 0x02        /* TODO(these do no harm, but may be neccessery for CCD) */
-    },
-   {0x05, 0x07,
-    0x00, 0x00, 0x00, 0x00,        /*[GB](HI|LOW) not needed for cis */
-    0x3a, 0x03,
-    0x40,                        /*TODO: bit7 */
-    0x00, 0x00, 0x00, 0x00        /*TODO (these do no harm, but may be neccessery for CCD) */
-    }
-   ,
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}
-  }
-  ,
-  /* 7: Strobe XP200 */
-  {CIS_XP200, 600,
-   5,
-   38, 0, 5200, 200, 200, /* 5125 */
-   {0x16, 0x00, 0x01, 0x03} ,
-   {0x14, 0x50, 0x0c, 0x80, 0x0a, 0x28, 0xb7, 0x0a, 0x20, 0x2a, 0x6a, 0x8a, 0x00, 0x05} ,
-   {0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0xc1, 0x06, 0x0b, 0x10, 0x16} ,
-   {2.1, 2.1, 2.1},
-   {NULL, NULL, NULL}
-   }
-  ,
-  /* HP3670 */
-  {CCD_HP3670,1200,
-   48,
-   16, 0, 10872,
-   210, 200,
-   {0x00, 0x0a, 0x0b, 0x0d} ,
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x07, 0x20, 0x2a, 0x00, 0x00, 0xc0, 0x43} ,
-   {0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0x15, 0x05, 0x0a, 0x0f, 0x00},
-   {1.00, 1.00, 1.00},
-   {NULL, NULL, NULL}
-  }
-  ,
-  /* Syscan DP 665 */
-  {CCD_DP665, 600,
-   27,                                /*(black) */
-   27,                                /* (dummy) */
-   0,                                /* (startxoffset) */
-   2496,                        /*sensor_pixels */
-   210,
-   200,
-   {0x00, 0x00, 0x00, 0x00},
-   {0x11, 0x00, 0x11, 0x00, 0x11, 0x00, 0x00, 0x02, 0x04, 0x50,
-    0x10, 0x00, 0x20, 0x02
-    },
-   {0x04, 0x05,
-    0x00, 0x00, 0x00, 0x00,        /*[GB](HI|LOW) not needed for cis */
-    0x54, 0x03,
-    0x00,                        /*TODO: bit7 */
-    0x00, 0x00, 0x00, 0x01        /*TODO (these do no harm, but may be neccessery for CCD) */
-    }
-   ,
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}
-  }
-  ,
-  /* Visioneer Roadwarrior */
-  {CCD_ROADWARRIOR, 600,
-   27,                                /*(black) */
-   27,                                /* (dummy) */
-   0,                                /* (startxoffset) */
-   5200,                        /*sensor_pixels */
-   210,
-   200,
-   {0x00, 0x00, 0x00, 0x00},
-   {0x11, 0x00, 0x11, 0x00, 0x11, 0x00, 0x00, 0x02, 0x04, 0x50,
-    0x10, 0x00, 0x20, 0x02
-    },
-   {0x04, 0x05,
-    0x00, 0x00, 0x00, 0x00,        /*[GB](HI|LOW) not needed for cis */
-    0x54, 0x03,
-    0x00,                        /*TODO: bit7 */
-    0x00, 0x00, 0x00, 0x01        /*TODO (these do no harm, but may be neccessery for CCD) */
-    }
-   ,
-  {1.0, 1.0, 1.0},
-  {NULL, NULL, NULL}
-  }
-,
-  /* Pentax DS Mobile 600 */
-  {CCD_DSMOBILE600, 600,
-   28,                                /*(black) */
-   28,                                /* (dummy) */
-   0,                                /* (startxoffset) */
-   5200,                        /*sensor_pixels */
-   210,
-   200,
-   {0x00, 0x00, 0x00, 0x00},
-   {0x15, 0x44, 0x15, 0x44, 0x15, 0x44, 0x00, 0x02, 0x04, 0x50,
-    0x10, 0x00, 0x20, 0x02
-    },
-   {0x04, 0x05,
-    0x00, 0x00, 0x00, 0x00,        /*[GB](HI|LOW) not needed for cis */
-    0x54, 0x03,
-    0x00,                        /*TODO: bit7 */
-    0x00, 0x00, 0x00, 0x01        /*TODO (these do no harm, but may be neccessery for CCD) */
-    }
-   ,
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}
-  }
-  ,
-  /* 13: Strobe XP300 */
-  {CCD_XP300, 600,
-   27,                                /*(black) */
-   27,                                /* (dummy) */
-   0,                                /* (startxoffset) */
-   10240,                        /*sensor_pixels */
-   210,
-   200,
-   {0x00, 0x00, 0x00, 0x00},
-   {0x11, 0x00, 0x11, 0x00, 0x11, 0x00, 0x00, 0x02, 0x04, 0x50,
-    0x10, 0x00, 0x20, 0x02
-    },
-   {0x04, 0x05,
-    0x00, 0x00, 0x00, 0x00,        /*[GB](HI|LOW) not needed for cis */
-    0x54, 0x03,
-    0x00,                        /*TODO: bit7 */
-    0x00, 0x00, 0x00, 0x01        /*TODO (these do no harm, but may be neccessery for CCD) */
-    }
-   ,
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}
-  }
-  ,
-  /* 13: Strobe XP300 */
-  {CCD_DP685, 600,
-   27,                                /*(black) */
-   27,                                /* (dummy) */
-   0,                                /* (startxoffset) */
-   5020,                        /*sensor_pixels */
-   210,
-   200,
-   {0x00, 0x00, 0x00, 0x00},
-   {0x11, 0x00, 0x11, 0x00, 0x11, 0x00, 0x00, 0x02, 0x04, 0x50,
-    0x10, 0x00, 0x20, 0x02
-    },
-   {0x04, 0x05,
-    0x00, 0x00, 0x00, 0x00,        /*[GB](HI|LOW) not needed for cis */
-    0x54, 0x03,
-    0x00,                        /*TODO: bit7 */
-    0x00, 0x00, 0x00, 0x01        /*TODO (these do no harm, but may be neccessery for CCD) */
-    }
-   ,
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}
-   }
-  ,
-  /* CANONLIDE200 */
-  {CIS_CANONLIDE200,
-   4800,        /* optical resolution */
-   87*4,        /* black pixels */
-   16*4,        /* dummy pixels */
-   320*8,        /* CCD_startx_offset 323 */
-   5136*8,
-   210,
-   200,
-   {0x00, 0x00, 0x00, 0x00},
-   /* reg 0x10 - 0x1d */
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* EXPR/EXPG/EXPB */
-    0x10, 0x08, 0x00, 0xff, 0x34, 0x00, 0x02, 0x04 },
-   /* reg 0x52 - 0x5e */
-   {0x03, 0x07,
-    0x00, 0x00, 0x00, 0x00,
-    0x2a, 0xe1,
-    0x55,
-    0x00, 0x00, 0x00,
-    0x41
-    }
-   ,
-   {1.7, 1.7, 1.7},
-   {NULL, NULL, NULL}
-   }
-  ,
-  /* CANONLIDE700 */
-  {CIS_CANONLIDE700,
-   4800,        /* optical resolution */
-   73*8,        /* black pixels 73 at 600 dpi */
-   16*8,        /* dummy pixels */
-   384*8,        /* CCD_startx_offset 384 at 600 dpi */
-   5188*8,        /* 8x5570 segments , 5187+1 for rounding */
-   210,
-   200,
-   {0x00, 0x00, 0x00, 0x00},
-   /* reg 0x10 - 0x1d */
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* EXPR/EXPG/EXPB */
-    0x10, 0x08, 0x00, 0xff, 0x34, 0x00, 0x02, 0x04 },
-   /* reg 0x52 - 0x5e */
-   {0x07, 0x03,
-    0x00, 0x00, 0x00, 0x00,
-    0x2a, 0xe1,
-    0x55,
-    0x00, 0x00, 0x00,
-    0x41
-    }
-   ,
-  {1.0, 1.0, 1.0},
-  {NULL, NULL, NULL}
-  }
-  ,
-  /* CANONLIDE100 */
-  {CIS_CANONLIDE100,
-   2400,        /* optical resolution */
-   87*4,        /* black pixels */
-   16*4,        /* dummy pixels 16 */
-   320*4,        /* 323 */
-   5136*4,      /* 10272 */
-   210,
-   200,
-   {0x00, 0x00, 0x00, 0x00},
-   /* reg 0x10 - 0x15 */
-   {0x01, 0xc1, 0x01, 0x26, 0x00, 0xe5, /* EXPR/EXPG/EXPB */
-   /* reg 0x16 - 0x1d 0x19=0x50*/
-    0x10, 0x08, 0x00, 0x50, 0x34, 0x00, 0x02, 0x04 },
-   /* reg 0x52 - 0x5e */
-   {0x03, 0x07,
-    0x00, 0x00, 0x00, 0x00,
-    0x2a, 0xe1,
-    0x55,
-    0x00, 0x00, 0x00,
-    0x41
-    }
-   ,
-   {1.7, 1.7, 1.7},
-   {NULL, NULL, NULL}
-  }
-  ,
-  {CCD_KVSS080,
-   600,
-   38, /* black pixels on left */
-   38, /* 36 dummy pixels */
-   152,
-   5376, /* 5100-> 5200 */
-   160, /* TAU white ref */
-   160, /* gain white ref */
-   /* 08    09    0a    0b */
-   {0x00, 0x00, 0x00, 0x6a} ,
-   /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x1c, 0x00, 0x2a, 0x2c, 0x00, 0x20, 0x04} , /* 18=00 at 600 dpi */
-   /* 52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e */
-   {0x0c, 0x0f, 0x00, 0x03, 0x06, 0x09, 0x6b, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x23} ,
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}
-   }
-  ,
-  {CCD_G4050,
-   4800,
-   50*8,        /* black_pixels */
-   58,                /* 31 at 600 dpi dummy_pixels 58 at 1200 */
-   152,
-   5360*8,      /* 5360 max at 600 dpi */
-   160,
-   160,
-   /* 08    09    0a    0b */
-   {0x00, 0x00, 0x18, 0x69} ,
-   /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
-   {0x2c, 0x09, 0x22, 0xb8, 0x10, 0xf0, 0x33, 0x0c, 0x00, 0x2a, 0x30, 0x00, 0x00, 0x08} ,
-   /* 52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e */
-   {0x0b, 0x0e, 0x11, 0x02, 0x05, 0x08, 0x63, 0x00, 0x40, 0x00, 0x00, 0x00, 0x6f} ,
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}
-   }
-  ,
-  {CCD_CS4400F,
-   4800,
-   50*8,        /* black_pixels */
-   20,                /* 31 at 600 dpi dummy_pixels 58 at 1200 */
-   152,
-   5360*8,      /* 5360 max at 600 dpi */
-   160,
-   160,
-   /* 08    09    0a    0b */
-   {0x00, 0x00, 0x18, 0x69} ,
-   /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
-   {0x9c, 0x40, 0x9c, 0x40, 0x9c, 0x40, 0x13, 0x0a, 0x10, 0x2a, 0x30, 0x00, 0x00, 0x6b},
-   /* 52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e */
-   {0x0a, 0x0d, 0x00, 0x03, 0x06, 0x08, 0x5b, 0x00, 0x40, 0x00, 0x00, 0x00, 0x3f},
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}
-   }
-  ,
-  {CCD_CS8400F,
-   4800,
-   50*8,        /* black_pixels */
-   20,                /* 31 at 600 dpi dummy_pixels 58 at 1200 */
-   152,
-   5360*8,      /* 5360 max at 600 dpi */
-   160,
-   160,
-   /* 08    09    0a    0b */
-   {0x00, 0x00, 0x18, 0x69} ,
-   /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
-   {0x9c, 0x40, 0x9c, 0x40, 0x9c, 0x40, 0x13, 0x0a, 0x10, 0x2a, 0x30, 0x00, 0x00, 0x6b},
-   /* 52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e */
-   {0x0a, 0x0d, 0x00, 0x03, 0x06, 0x08, 0x5b, 0x00, 0x40, 0x00, 0x00, 0x00, 0x3f},
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}
-   }
-  ,
-  /* HP N6310 */
-  {CCD_HP_N6310,
-   2400,
-   96,
-   26,
-   128,
-   42720,
-   210,
-   230,
-   /* 08    09    0a    0b */
-   {0x00, 0x10, 0x10, 0x0c} ,
-   /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d */
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x0c, 0x02, 0x2a, 0x30, 0x00, 0x00, 0x08} ,
-   /* 52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e */
-   {0x0b, 0x0e, 0x11, 0x02, 0x05, 0x08, 0x63, 0x00, 0x40, 0x00, 0x00, 0x06, 0x6f} ,
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}
-  }
-  ,
+StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 
-  /* CANONLIDE110 */
-  {CIS_CANONLIDE110,
-   2400,        /* optical resolution */
-   87,                /* black pixels */
-   16,                /* dummy pixels 16 */
-   303,                /* 303 */
-   5168*4,        /* total pixels */
-   210,
-   200,
-   {0x00, 0x00, 0x00, 0x00},
-   /* reg 0x10 - 0x15 : EXPR, EXPG and EXPB */
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-   /* reg 0x16 - 0x1d */
-    0x10, 0x04, 0x00, 0x01, 0x30, 0x00, 0x02, 0x01 },
-   /* reg 0x52 - 0x5e */
-   {
-    0x00, 0x02, 0x04, 0x06, 0x04, 0x04, 0x04, 0x04,
-    0x1a, 0x00, 0xc0, 0x00, 0x00
-    }
-   ,
-   {2.1, 2.1, 2.1},
-   {NULL, NULL, NULL}}
-  ,
+void genesys_init_sensor_tables()
+{
+    s_sensors.init();
 
-  /* CANONLIDE120 */
-  {CIS_CANONLIDE120,
-   2400,        /* optical resolution */
-   87,          /* black pixels */
-   16,          /* dummy pixels 16 */
-   303,
-   /* SEGCNT at 600 DPI by number of segments */
-   5104*4,      /* total pixels */
-   210,
-   200,
-   {0x00, 0x00, 0x00, 0x00},
-   /* reg 0x10 - 0x15 : EXPR, EXPG and EXPB */
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-   /* reg 0x16 - 0x1d */
-    0x15, 0x04, 0x00, 0x01, 0x30, 0x00, 0x02, 0x01 },
-   /* reg 0x52 - 0x5e */
-   {
-   /* 52    53    54    55    56    57    58    59 */
-    0x04, 0x06, 0x00, 0x02, 0x04, 0x04, 0x04, 0x04,
-   /* 5a    5b    5c    5d    5e */
-    0x3a, 0x00, 0x00, 0x00, 0x1f
-    }
-   ,
-   {2.1, 2.1, 2.1},
-   {NULL, NULL, NULL}}
-  ,
-  /* CANON LIDE 210 sensor */
-  {CIS_CANONLIDE210,
-   2400,        /* optical resolution */
-   87,                /* black pixels */
-   16,                /* dummy pixels 16 */
-   303,                /* 303 */
-   5168*4,        /* total pixels */
-   210,
-   200,
-   {0x00, 0x00, 0x00, 0x00},
-   /* reg 0x10 - 0x15 : EXPR, EXPG and EXPB */
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-   /* reg 0x16 - 0x1d */
-    0x10, 0x04, 0x00, 0x01, 0x30, 0x00, 0x02, 0x01 },
-   /* reg 0x52 - 0x5e */
-   {
-    0x00, 0x02, 0x04, 0x06, 0x04, 0x04, 0x04, 0x04,
-    0x1a, 0x00, 0xc0, 0x00, 0x00
-    }
-   ,
-   {2.1, 2.1, 2.1},
-   {NULL, NULL, NULL}}
-  ,
-  /* CANON LIDE 220 sensor */
-  {CIS_CANONLIDE220,
-   2400,        /* optical resolution */
-   87,                /* black pixels */
-   16,                /* dummy pixels 16 */
-   303,                /* 303 */
-   5168*4,        /* total pixels */
-   210,
-   200,
-   {0x00, 0x00, 0x00, 0x00},
-   /* reg 0x10 - 0x15 : EXPR, EXPG and EXPB */
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-   /* reg 0x16 - 0x1d */
-    0x10, 0x04, 0x00, 0x01, 0x30, 0x00, 0x02, 0x01 },
-   /* reg 0x52 - 0x5e */
-   {
-    0x00, 0x02, 0x04, 0x06, 0x04, 0x04, 0x04, 0x04,
-    0x1a, 0x00, 0xc0, 0x00, 0x00
-    }
-   ,
-   {2.1, 2.1, 2.1},
-   {NULL, NULL, NULL}}
-  ,
-  {CCD_PLUSTEK_3600,
-   1200,
-   87,                                /*(black) */
-   87,                                /* (dummy) */
-   0,                                /* (startxoffset) */
-   10100,                        /*sensor_pixels */
-   210,
-   230,
-   {0x00, 0x00, 0x00, 0x00},
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x0b, 0x11, 0x2a,
-    0x00, 0x00, 0x00, 0xc4        /* TODO(these do no harm, but may be neccessery for CCD) */
-   },
-   {0x07, 0x0a,
-    0x0c, 0x00, 0x02, 0x06,        /*[GB](HI|LOW) not needed for cis */
-    0x22, 0x69,
-    0x40,                        /*TODO: bit7 */
-    0x00, 0x00, 0x00, 0x02        /*TODO (these do no harm, but may be neccessery for CCD) */
-   }
-   ,
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}}
-  ,
-  /* Canon Image formula 101 */
-  {CCD_IMG101,
-   1200,        /* optical resolution */
-   31,
-   31,
-   0,
-   10800,
-   210,
-   200,
-   {0x60, 0x00, 0x00, 0x8b},
-   /* reg 0x10 - 0x15 */
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* EXPR/EXPG/EXPB */
-   /* reg 0x16 - 0x1d 0x19=0x50*/
-    0xbb, 0x13, 0x10, 0x2a, 0x34, 0x00, 0x20, 0x06 },
-   /* reg 0x52 - 0x5e */
-   {0x02, 0x04,
-    0x06, 0x08, 0x0a, 0x00,
-    0x59, 0x31,
-    0x40,
-    0x00, 0x00, 0x00,
-    0x1f
-    }
-   ,
-   {1.7, 1.7, 1.7},
-   {NULL, NULL, NULL}
-  }
-  ,
-  /* Plustek OpticBook 3800 */
-  {CCD_PLUSTEK3800,
-   1200,        /* optical resolution */
-   31,
-   31,
-   0,
-   10200,
-   210,
-   200,
-   {0x60, 0x00, 0x00, 0x8b},
-   /* reg 0x10 - 0x15 */
-   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* EXPR/EXPG/EXPB */
-   /* reg 0x16 - 0x1d 0x19=0x50*/
-    0xbb, 0x13, 0x10, 0x2a, 0x34, 0x00, 0x20, 0x06 },
-   /* reg 0x52 - 0x5e */
-   {0x02, 0x04,
-    0x06, 0x08, 0x0a, 0x00,
-    0x59, 0x31,
-    0x40,
-    0x00, 0x00, 0x00,
-    0x1f
-    }
-   ,
-   {1.7, 1.7, 1.7},
-   {NULL, NULL, NULL}
-  },
-  /* CANOLIDE80 */
-  {CIS_CANONLIDE80,
-   1200, /* real hardware limit is 2400 */
-   20,   /* black pixels */
-   6,    /* expdummy 6 */
-   /* tuned to give 3*8 multiple startx coordinate during  shading calibration */
-   34,    /* CCD_start_xoffset 14=>3, 20=>2 */
-   10240, /* 10400, too wide=>10288 in shading data 10240~, 10208 too short for shading, max shading data = 10240 pixels, endpix-startpix=10208 */
-   150,
-   150,
-   {0x00, 0x05, 0x07, 0x09}, /* in fact ,maps to 0x70-0x73 for GL841 */
-   /* [0x10-0x15] values are initial led exposure values */
-   /* 10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d*/
-   {0x10, 0x00, 0x10, 0x00, 0x05, 0x00, 0x00, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04},
-   {0x03, 0x07, 0x00, 0x00, 0x00, 0x00, 0x29, 0x69, 0x55, 0x00, 0x00, 0x20, 0x41} ,
-   {1.0, 1.0, 1.0},
-   {NULL, NULL, NULL}}
-};
+    Genesys_Sensor sensor;
+    sensor.sensor_id = CCD_UMAX;
+    sensor.optical_res = 1200;
+    sensor.black_pixels = 48;
+    sensor.dummy_pixel = 64;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 10800;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 230;
+    sensor.regs_0x08_0x0b = {0x01, 0x03, 0x05, 0x07};
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x05, 0x31, 0x2a, 0x00, 0x00, 0x00, 0x02
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x13, 0x17, 0x03, 0x07, 0x0b, 0x0f, 0x23, 0x00, 0xc1, 0x00, 0x00, 0x00, 0x00
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_ST12;
+    sensor.optical_res = 600;
+    sensor.black_pixels = 48;
+    sensor.dummy_pixel = 85;
+    sensor.CCD_start_xoffset = 152;
+    sensor.sensor_pixels = 5416;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 230;
+    sensor.regs_0x08_0x0b = {0x02, 0x00, 0x06, 0x04};
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2b, 0x08, 0x20, 0x2a, 0x00, 0x00, 0x0c, 0x03
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0xc1, 0x00, 0x00, 0x00, 0x00
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_ST24;
+    sensor.optical_res = 1200;
+    sensor.black_pixels = 48;
+    sensor.dummy_pixel = 64;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 10800;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 230;
+    sensor.regs_0x08_0x0b = {0x0e, 0x0c, 0x00, 0x0c} ,
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x08, 0x31, 0x2a, 0x00, 0x00, 0x00, 0x02
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x17, 0x03, 0x07, 0x0b, 0x0f, 0x13, 0x03, 0x00, 0xc1, 0x00, 0x00, 0x00, 0x00
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_5345;
+    sensor.optical_res = 1200;
+    sensor.black_pixels = 48;
+    sensor.dummy_pixel = 16;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 10872;
+    sensor.fau_gain_white_ref = 190;
+    sensor.gain_white_ref = 190;
+    sensor.regs_0x08_0x0b = {0x0d, 0x0f, 0x11, 0x13} ,
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0b, 0x0a, 0x30, 0x2a, 0x00, 0x00, 0x00, 0x03
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x23, 0x00, 0xc1, 0x00, 0x00, 0x00, 0x00
+    };
+    sensor.gamma = {2.38, 2.35, 2.34};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_HP2400;
+    sensor.optical_res = 1200,
+    sensor.black_pixels = 48;
+    sensor.dummy_pixel = 15;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 10872;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x14, 0x15, 0x00, 0x00};
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xbf, 0x08, 0x3f, 0x2a, 0x00, 0x00, 0x00, 0x02
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x0b, 0x0f, 0x13, 0x17, 0x03, 0x07, 0x63, 0x00, 0xc1, 0x00, 0x0e, 0x00, 0x00
+    };
+    sensor.gamma = {2.1, 2.1, 2.1};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_HP2300;
+    sensor.optical_res = 600;
+    sensor.black_pixels = 48;
+    sensor.dummy_pixel = 20;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 5368;
+    sensor.fau_gain_white_ref = 180;
+    sensor.gain_white_ref = 180;
+    sensor.regs_0x08_0x0b = {0x16, 0x00, 0x01, 0x03} ,
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xb7, 0x0a, 0x20, 0x2a, 0x6a, 0x8a, 0x00, 0x05
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0xc1, 0x06, 0x0b, 0x10, 0x16
+    };
+    sensor.gamma = {2.1, 2.1, 2.1};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_CANONLIDE35;
+    sensor.optical_res = 1200;
+    sensor.black_pixels = 87;
+    sensor.dummy_pixel = 87;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 10400;
+    sensor.fau_gain_white_ref = 0;
+    sensor.gain_white_ref = 0;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = { // TODO: 1a-1d: these do no harm, but may be neccessery for CCD
+        0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x02, 0x00, 0x50, 0x00, 0x00, 0x00, 0x02
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = { // [GB](HI|LOW) not needed for cis, TODO 5b-5e
+        0x05, 0x07, 0x00, 0x00, 0x00, 0x00, 0x3a, 0x03, 0x40, 0x00, 0x00, 0x00, 0x00
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CIS_XP200;
+    sensor.optical_res = 600;
+    sensor.black_pixels = 5;
+    sensor.dummy_pixel = 38;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 5200;
+    sensor.fau_gain_white_ref = 200;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x16, 0x00, 0x01, 0x03} ,
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x14, 0x50, 0x0c, 0x80, 0x0a, 0x28, 0xb7, 0x0a, 0x20, 0x2a, 0x6a, 0x8a, 0x00, 0x05
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0xc1, 0x06, 0x0b, 0x10, 0x16
+    };
+    sensor.gamma = {2.1, 2.1, 2.1};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_HP3670;
+    sensor.optical_res = 1200;
+    sensor.black_pixels = 48;
+    sensor.dummy_pixel = 16;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 10872;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x00, 0x0a, 0x0b, 0x0d} ,
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x07, 0x20, 0x2a, 0x00, 0x00, 0xc0, 0x43
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0x15, 0x05, 0x0a, 0x0f, 0x00
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_DP665;
+    sensor.optical_res = 600;
+    sensor.black_pixels = 27;
+    sensor.dummy_pixel = 27;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 2496;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x11, 0x00, 0x11, 0x00, 0x11, 0x00, 0x00, 0x02, 0x04, 0x50, 0x10, 0x00, 0x20, 0x02
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = { // [GB](HI|LOW) not needed for cis, TODO 5b-5e
+        0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x54, 0x03, 0x00, 0x00, 0x00, 0x00, 0x01
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_ROADWARRIOR;
+    sensor.optical_res = 600;
+    sensor.black_pixels = 27;
+    sensor.dummy_pixel = 27;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 5200;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x11, 0x00, 0x11, 0x00, 0x11, 0x00, 0x00, 0x02, 0x04, 0x50, 0x10, 0x00, 0x20, 0x02
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = { // [GB](HI|LOW) not needed for cis, TODO 5b-5e
+        0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x54, 0x03, 0x00, 0x00, 0x00, 0x00, 0x01
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_DSMOBILE600;
+    sensor.optical_res = 600;
+    sensor.black_pixels = 28;
+    sensor.dummy_pixel = 28;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 5200;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x15, 0x44, 0x15, 0x44, 0x15, 0x44, 0x00, 0x02, 0x04, 0x50, 0x10, 0x00, 0x20, 0x02
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = { // [GB](HI|LOW) not needed for cis, TODO 5b-5e
+        0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x54, 0x03, 0x00, 0x00, 0x00, 0x00, 0x01
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_XP300;
+    sensor.optical_res = 600;
+    sensor.black_pixels = 27;
+    sensor.dummy_pixel = 27;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 10240;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x11, 0x00, 0x11, 0x00, 0x11, 0x00, 0x00, 0x02, 0x04, 0x50, 0x10, 0x00, 0x20, 0x02
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = { // [GB](HI|LOW) not needed for cis, TODO 5b-5e
+        0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x54, 0x03, 0x00, 0x00, 0x00, 0x00, 0x01
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_DP685;
+    sensor.optical_res = 600;
+    sensor.black_pixels = 27;
+    sensor.dummy_pixel = 27;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 5020;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x11, 0x00, 0x11, 0x00, 0x11, 0x00, 0x00, 0x02, 0x04, 0x50, 0x10, 0x00, 0x20, 0x02
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = { // [GB](HI|LOW) not needed for cis, TODO 5b-5e
+        0x04, 0x05, 0x00, 0x00, 0x00, 0x00, 0x54, 0x03, 0x00, 0x00, 0x00, 0x00, 0x01
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CIS_CANONLIDE200;
+    sensor.optical_res = 4800;
+    sensor.black_pixels = 87*4;
+    sensor.dummy_pixel = 16*4;
+    sensor.CCD_start_xoffset = 320*8;
+    sensor.sensor_pixels = 5136*8;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x08, 0x00, 0xff, 0x34, 0x00, 0x02, 0x04
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x03, 0x07, 0x00, 0x00, 0x00, 0x00, 0x2a, 0xe1, 0x55, 0x00, 0x00, 0x00, 0x41
+    };
+    sensor.gamma = {1.7, 1.7, 1.7};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CIS_CANONLIDE700;
+    sensor.optical_res = 4800;
+    sensor.black_pixels = 73*8; // black pixels 73 at 600 dpi
+    sensor.dummy_pixel = 16*8;
+    // 384 at 600 dpi
+    sensor.CCD_start_xoffset = 384*8;
+    // 8x5570 segments, 5187+1 for rounding
+    sensor.sensor_pixels = 5188*8;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x08, 0x00, 0xff, 0x34, 0x00, 0x02, 0x04
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x07, 0x03, 0x00, 0x00, 0x00, 0x00, 0x2a, 0xe1, 0x55, 0x00, 0x00, 0x00, 0x41
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CIS_CANONLIDE100;
+    sensor.optical_res = 2400;
+    sensor.black_pixels = 87*4,        /* black pixels */
+    sensor.dummy_pixel = 16*4;
+    sensor.CCD_start_xoffset = 320*4;
+    sensor.sensor_pixels = 5136*4;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x01, 0xc1, 0x01, 0x26, 0x00, 0xe5, 0x10, 0x08, 0x00, 0x50, 0x34, 0x00, 0x02, 0x04
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x03, 0x07, 0x00, 0x00, 0x00, 0x00, 0x2a, 0xe1, 0x55, 0x00, 0x00, 0x00, 0x41
+    };
+    sensor.gamma = {1.7, 1.7, 1.7};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_KVSS080;
+    sensor.optical_res = 600;
+    sensor.black_pixels = 38;
+    sensor.dummy_pixel = 38;
+    sensor.CCD_start_xoffset = 152;
+    sensor.sensor_pixels = 5376;
+    sensor.fau_gain_white_ref = 160;
+    sensor.gain_white_ref = 160;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x6a} ,
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x1c, 0x00, 0x2a, 0x2c, 0x00, 0x20, 0x04
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x0c, 0x0f, 0x00, 0x03, 0x06, 0x09, 0x6b, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x23
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_G4050;
+    sensor.optical_res = 4800;
+    sensor.black_pixels = 50*8;
+    // 31 at 600 dpi dummy_pixels 58 at 1200
+    sensor.dummy_pixel = 58;
+    sensor.CCD_start_xoffset = 152;
+    sensor.sensor_pixels = 5360*8;
+    sensor.fau_gain_white_ref = 160;
+    sensor.gain_white_ref = 160;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x18, 0x69} ,
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x2c, 0x09, 0x22, 0xb8, 0x10, 0xf0, 0x33, 0x0c, 0x00, 0x2a, 0x30, 0x00, 0x00, 0x08
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x0b, 0x0e, 0x11, 0x02, 0x05, 0x08, 0x63, 0x00, 0x40, 0x00, 0x00, 0x00, 0x6f
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_CS4400F;
+    sensor.optical_res = 4800;
+    sensor.black_pixels = 50*8;
+    // 31 at 600 dpi, 58 at 1200 dpi
+    sensor.dummy_pixel = 20;
+    sensor.CCD_start_xoffset = 152;
+    // 5360 max at 600 dpi
+    sensor.sensor_pixels = 5360*8;
+    sensor.fau_gain_white_ref = 160;
+    sensor.gain_white_ref = 160;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x18, 0x69} ,
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x9c, 0x40, 0x9c, 0x40, 0x9c, 0x40, 0x13, 0x0a, 0x10, 0x2a, 0x30, 0x00, 0x00, 0x6b
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x0a, 0x0d, 0x00, 0x03, 0x06, 0x08, 0x5b, 0x00, 0x40, 0x00, 0x00, 0x00, 0x3f
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_CS8400F;
+    sensor.optical_res = 4800;
+    sensor.black_pixels = 50*8;
+    // 31 at 600 dpi, 58 at 1200 dpi
+    sensor.dummy_pixel = 20;
+    sensor.CCD_start_xoffset = 152;
+    // 5360 max at 600 dpi
+    sensor.sensor_pixels = 5360*8;
+    sensor.fau_gain_white_ref = 160;
+    sensor.gain_white_ref = 160;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x18, 0x69} ,
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x9c, 0x40, 0x9c, 0x40, 0x9c, 0x40, 0x13, 0x0a, 0x10, 0x2a, 0x30, 0x00, 0x00, 0x6b
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x0a, 0x0d, 0x00, 0x03, 0x06, 0x08, 0x5b, 0x00, 0x40, 0x00, 0x00, 0x00, 0x3f
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_HP_N6310;
+    sensor.optical_res = 2400;
+    sensor.black_pixels = 96;
+    sensor.dummy_pixel = 26;
+    sensor.CCD_start_xoffset = 128;
+    sensor.sensor_pixels = 42720;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 230;
+    sensor.regs_0x08_0x0b = {0x00, 0x10, 0x10, 0x0c} ,
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x0c, 0x02, 0x2a, 0x30, 0x00, 0x00, 0x08
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x0b, 0x0e, 0x11, 0x02, 0x05, 0x08, 0x63, 0x00, 0x40, 0x00, 0x00, 0x06, 0x6f
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CIS_CANONLIDE110;
+    sensor.optical_res = 2400;
+    sensor.black_pixels = 87;
+    sensor.dummy_pixel = 16;
+    sensor.CCD_start_xoffset = 303;
+    sensor.sensor_pixels = 5168*4;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x04, 0x00, 0x01, 0x30, 0x00, 0x02, 0x01
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x00, 0x02, 0x04, 0x06, 0x04, 0x04, 0x04, 0x04, 0x1a, 0x00, 0xc0, 0x00, 0x00
+    };
+    sensor.gamma = {2.1, 2.1, 2.1};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CIS_CANONLIDE120;
+    sensor.optical_res = 2400;
+    sensor.black_pixels = 87;
+    sensor.dummy_pixel = 16;
+    sensor.CCD_start_xoffset = 303;
+    // SEGCNT at 600 DPI by number of segments
+    sensor.sensor_pixels = 5104*4;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x15, 0x04, 0x00, 0x01, 0x30, 0x00, 0x02, 0x01
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x04, 0x06, 0x00, 0x02, 0x04, 0x04, 0x04, 0x04, 0x3a, 0x00, 0x00, 0x00, 0x1f
+    };
+    sensor.gamma = {2.1, 2.1, 2.1};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CIS_CANONLIDE210;
+    sensor.optical_res = 2400;
+    sensor.black_pixels = 87;
+    sensor.dummy_pixel = 16;
+    sensor.CCD_start_xoffset = 303;
+    sensor.sensor_pixels = 5168*4;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200,
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x04, 0x00, 0x01, 0x30, 0x00, 0x02, 0x01
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x00, 0x02, 0x04, 0x06, 0x04, 0x04, 0x04, 0x04, 0x1a, 0x00, 0xc0, 0x00, 0x00
+    };
+    sensor.gamma = {2.1, 2.1, 2.1};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CIS_CANONLIDE220;
+    sensor.optical_res = 2400;
+    sensor.black_pixels = 87;
+    sensor.dummy_pixel = 16;
+    sensor.CCD_start_xoffset = 303;
+    sensor.sensor_pixels = 5168*4;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x04, 0x00, 0x01, 0x30, 0x00, 0x02, 0x01
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x00, 0x02, 0x04, 0x06, 0x04, 0x04, 0x04, 0x04, 0x1a, 0x00, 0xc0, 0x00, 0x00
+    };
+    sensor.gamma = {2.1, 2.1, 2.1};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_PLUSTEK_3600;
+    sensor.optical_res = 1200;
+    sensor.black_pixels = 87;
+    sensor.dummy_pixel = 87;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 10100;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 230;
+    sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x33, 0x0b, 0x11, 0x2a, 0x00, 0x00, 0x00, 0xc4
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {  // [GB](HI|LOW) not needed for cis, TODO 5b-5e
+        0x07, 0x0a, 0x0c, 0x00, 0x02, 0x06, 0x22, 0x69, 0x40, 0x00, 0x00, 0x00, 0x02
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_IMG101;
+    sensor.optical_res = 1200;
+    sensor.black_pixels = 31;
+    sensor.dummy_pixel = 31;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 10800;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x60, 0x00, 0x00, 0x8b},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xbb, 0x13, 0x10, 0x2a, 0x34, 0x00, 0x20, 0x06
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x02, 0x04, 0x06, 0x08, 0x0a, 0x00, 0x59, 0x31, 0x40, 0x00, 0x00, 0x00, 0x1f
+    };
+    sensor.gamma = {1.7, 1.7, 1.7};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CCD_PLUSTEK3800;
+    sensor.optical_res = 1200;
+    sensor.black_pixels = 31;
+    sensor.dummy_pixel = 31;
+    sensor.CCD_start_xoffset = 0;
+    sensor.sensor_pixels = 10200;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.regs_0x08_0x0b = {0x60, 0x00, 0x00, 0x8b},
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xbb, 0x13, 0x10, 0x2a, 0x34, 0x00, 0x20, 0x06
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x02, 0x04, 0x06, 0x08, 0x0a, 0x00, 0x59, 0x31, 0x40, 0x00, 0x00, 0x00, 0x1f
+    };
+    sensor.gamma = {1.7, 1.7, 1.7};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = CIS_CANONLIDE80,
+    sensor.optical_res = 1200; // real hardware limit is 2400
+    sensor.black_pixels = 20;
+    sensor.dummy_pixel = 6;
+    // tuned to give 3*8 multiple startx coordinate during shading calibration
+    sensor.CCD_start_xoffset = 34; // 14=>3, 20=>2
+    // 10400, too wide=>10288 in shading data 10240~
+    // 10208 too short for shading, max shading data = 10240 pixels, endpix-startpix=10208
+    sensor.sensor_pixels = 10240;
+    sensor.fau_gain_white_ref = 150;
+    sensor.gain_white_ref = 150;
+    // maps to 0x70-0x73 for GL841
+    sensor.regs_0x08_0x0b = {0x00, 0x05, 0x07, 0x09};
+    //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
+    sensor.regs_0x10_0x1d = {
+        0x10, 0x00, 0x10, 0x00, 0x05, 0x00, 0x00, 0x01, 0x00, 0x06, 0x00, 0x00, 0x00, 0x04
+    };
+    //    52    53    54    55    56    57    58    59   5a    5b     5c    5d    5e
+    sensor.regs_0x52_0x5e = {
+        0x03, 0x07, 0x00, 0x00, 0x00, 0x00, 0x29, 0x69, 0x55, 0x00, 0x00, 0x20, 0x41
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.gamma_table = {NULL, NULL, NULL};
+    s_sensors->push_back(sensor);
+}
 
 /** for General Purpose Output specific settings:
  * initial GPO value (registers 0x66-0x67/0x6c-0x6d)

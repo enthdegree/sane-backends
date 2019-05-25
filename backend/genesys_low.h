@@ -260,22 +260,80 @@ typedef struct
   uint8_t reg2[3];    /**< extra control registers */
 } Genesys_Frontend;
 
-typedef struct
-{
-  uint8_t sensor_id;	       /**< id of the sensor description */
-  int optical_res;
-  int black_pixels;
-  int dummy_pixel;              /* value of dummy register. */
-  int CCD_start_xoffset;	/* last pixel of CCD margin at optical resolution */
-  int sensor_pixels;		/* total pixels used by the sensor */
-  int fau_gain_white_ref;	/* TA CCD target code (reference gain) */
-  int gain_white_ref;		/* CCD target code (reference gain) */
-  uint8_t regs_0x08_0x0b[4];
-  uint8_t regs_0x10_0x1d[14];
-  uint8_t regs_0x52_0x5e[13];
-  float gamma[3];		/**< red, green and blue gamma coefficient for default gamma tables */
-  uint16_t *gamma_table[3];	/**< sensor specific gamma tables */
-} Genesys_Sensor;
+template<class T, size_t Size>
+struct AssignableArray : public std::array<T, Size> {
+    AssignableArray() = default;
+    AssignableArray(const AssignableArray&) = default;
+    AssignableArray& operator=(const AssignableArray&) = default;
+
+    AssignableArray& operator=(std::initializer_list<T> init)
+    {
+        if (init.size() != std::array<T, Size>::size())
+            throw std::runtime_error("An array of incorrect size assigned");
+        std::copy(init.begin(), init.end(), std::array<T, Size>::begin());
+        return *this;
+    }
+};
+
+struct Genesys_Sensor {
+    // id of the sensor description
+    uint8_t sensor_id;
+    int optical_res;
+    int black_pixels;
+    // value of the dummy register
+    int dummy_pixel;
+    // last pixel of CCD margin at optical resolution
+    int CCD_start_xoffset;
+    // total pixels used by the sensor
+    int sensor_pixels;
+    // TA CCD target code (reference gain)
+    int fau_gain_white_ref;
+    // CCD target code (reference gain)
+    int gain_white_ref;
+
+    AssignableArray<uint8_t, 4> regs_0x08_0x0b;
+    // Initial exposure values, EXPR, EXPG and EXPB are contained in 0x10-0x15
+    AssignableArray<uint8_t, 14> regs_0x10_0x1d;
+    AssignableArray<uint8_t, 13> regs_0x52_0x5e;
+
+    // red, green and blue gamma coefficient for default gamma tables
+    AssignableArray<float, 3> gamma;
+
+    // sensor-specific gamma tables
+    AssignableArray<uint16_t*, 3> gamma_table;
+
+    size_t fread(FILE* fp)
+    {
+        bool success = true;
+        success &= 1 == ::fread(&sensor_id, sizeof(sensor_id), 1, fp);
+        success &= 1 == ::fread(&optical_res, sizeof(optical_res), 1, fp);
+        success &= 1 == ::fread(&black_pixels, sizeof(black_pixels), 1, fp);
+        success &= 1 == ::fread(&dummy_pixel, sizeof(dummy_pixel), 1, fp);
+        success &= 1 == ::fread(&CCD_start_xoffset, sizeof(CCD_start_xoffset), 1, fp);
+        success &= 1 == ::fread(&sensor_pixels, sizeof(sensor_pixels), 1, fp);
+        success &= 1 == ::fread(&fau_gain_white_ref, sizeof(fau_gain_white_ref), 1, fp);
+        success &= 1 == ::fread(&gain_white_ref, sizeof(gain_white_ref), 1, fp);
+        success &= 1 == ::fread(&regs_0x08_0x0b, sizeof(regs_0x08_0x0b), 1, fp);
+        success &= 1 == ::fread(&regs_0x10_0x1d, sizeof(regs_0x10_0x1d), 1, fp);
+        success &= 1 == ::fread(&regs_0x52_0x5e, sizeof(regs_0x52_0x5e), 1, fp);
+        return success ? 1 : 0;
+    }
+
+    void fwrite(FILE* fp) const
+    {
+        ::fwrite(&sensor_id, sizeof(sensor_id), 1, fp);
+        ::fwrite(&optical_res, sizeof(optical_res), 1, fp);
+        ::fwrite(&black_pixels, sizeof(black_pixels), 1, fp);
+        ::fwrite(&dummy_pixel, sizeof(dummy_pixel), 1, fp);
+        ::fwrite(&CCD_start_xoffset, sizeof(CCD_start_xoffset), 1, fp);
+        ::fwrite(&sensor_pixels, sizeof(sensor_pixels), 1, fp);
+        ::fwrite(&fau_gain_white_ref, sizeof(fau_gain_white_ref), 1, fp);
+        ::fwrite(&gain_white_ref, sizeof(gain_white_ref), 1, fp);
+        ::fwrite(&regs_0x08_0x0b, sizeof(regs_0x08_0x0b), 1, fp);
+        ::fwrite(&regs_0x10_0x1d, sizeof(regs_0x10_0x1d), 1, fp);
+        ::fwrite(&regs_0x52_0x5e, sizeof(regs_0x52_0x5e), 1, fp);
+    }
+};
 
 typedef struct
 {
@@ -1354,5 +1412,8 @@ public:
 private:
     std::unique_ptr<T> ptr_;
 };
+
+extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
+void genesys_init_sensor_tables();
 
 #endif /* not GENESYS_LOW_H */

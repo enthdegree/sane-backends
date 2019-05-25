@@ -1111,11 +1111,8 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   words_per_line *= channels;
   dev->wpl = words_per_line;
 
-  if(dev->oe_buffer.buffer!=NULL)
-    {
-      sanei_genesys_buffer_free (&(dev->oe_buffer));
-    }
-  RIE (sanei_genesys_buffer_alloc (&(dev->oe_buffer), dev->wpl));
+    dev->oe_buffer.clear();
+    dev->oe_buffer.alloc(dev->wpl);
 
   /* MAXWD is expressed in 4 words unit */
   sanei_genesys_set_triple(reg, REG_MAXWD, (words_per_line >> 2));
@@ -1332,21 +1329,17 @@ gl847_init_scan_regs (Genesys_Device * dev,
     2 * requested_buffer_size +
     ((max_shift + stagger) * used_pixels * channels * depth) / 8;
 
-  RIE (sanei_genesys_buffer_free (&(dev->read_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->read_buffer), read_buffer_size));
+    dev->read_buffer.clear();
+    dev->read_buffer.alloc(read_buffer_size);
 
-  RIE (sanei_genesys_buffer_free (&(dev->lines_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->lines_buffer), read_buffer_size));
+    dev->lines_buffer.clear();
+    dev->lines_buffer.alloc(read_buffer_size);
 
-  RIE (sanei_genesys_buffer_free (&(dev->shrink_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->shrink_buffer),
-				   requested_buffer_size));
+    dev->shrink_buffer.clear();
+    dev->shrink_buffer.alloc(requested_buffer_size);
 
-  RIE (sanei_genesys_buffer_free (&(dev->out_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->out_buffer),
-				   (8 * dev->settings.pixels * channels *
-				    depth) / 8));
-
+    dev->out_buffer.clear();
+    dev->out_buffer.alloc((8 * dev->settings.pixels * channels * depth) / 8);
 
   dev->read_bytes_left = bytes_per_line * lincnt;
 

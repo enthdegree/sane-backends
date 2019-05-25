@@ -3903,88 +3903,77 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
    we move the available data to the beginning.
  */
 
-SANE_Status
-sanei_genesys_buffer_alloc (Genesys_Buffer * buf, size_t size)
+void Genesys_Buffer::alloc(size_t size)
 {
-  buf->buffer = (SANE_Byte *) malloc (size);
-  if (!buf->buffer)
-    return SANE_STATUS_NO_MEM;
-  buf->avail = 0;
-  buf->pos = 0;
-  buf->size = size;
-  return SANE_STATUS_GOOD;
+    buffer_.resize(size);
+    avail_ = 0;
+    pos_ = 0;
 }
 
-SANE_Status
-sanei_genesys_buffer_free (Genesys_Buffer * buf)
+void Genesys_Buffer::clear()
 {
-  SANE_Byte *tmp = buf->buffer;
-  buf->avail = 0;
-  buf->size = 0;
-  buf->pos = 0;
-  buf->buffer = NULL;
-  if (tmp)
-    free (tmp);
-  return SANE_STATUS_GOOD;
+    buffer_.clear();
+    avail_ = 0;
+    pos_ = 0;
 }
 
-SANE_Byte *
-sanei_genesys_buffer_get_write_pos (Genesys_Buffer * buf, size_t size)
+void Genesys_Buffer::reset()
 {
-  if (buf->avail + size > buf->size)
-    return NULL;
-  if (buf->pos + buf->avail + size > buf->size)
+    avail_ = 0;
+    pos_ = 0;
+}
+
+uint8_t* Genesys_Buffer::get_write_pos(size_t size)
+{
+    if (avail_ + size > buffer_.size())
+        return nullptr;
+    if (pos_ + avail_ + size > buffer_.size())
     {
-      memmove (buf->buffer, buf->buffer + buf->pos, buf->avail);
-      buf->pos = 0;
+        std::memmove(buffer_.data(), buffer_.data() + pos_, avail_);
+        pos_ = 0;
     }
-  return buf->buffer + buf->pos + buf->avail;
+    return buffer_.data() + pos_ + avail_;
 }
 
-SANE_Byte *
-sanei_genesys_buffer_get_read_pos (Genesys_Buffer * buf)
+uint8_t* Genesys_Buffer::get_read_pos()
 {
-  return buf->buffer + buf->pos;
+    return buffer_.data() + pos_;
 }
 
-SANE_Status
-sanei_genesys_buffer_produce (Genesys_Buffer * buf, size_t size)
+void Genesys_Buffer::produce(size_t size)
 {
-  if (size > buf->size - buf->avail)
-    return SANE_STATUS_INVAL;
-  buf->avail += size;
-  return SANE_STATUS_GOOD;
+    if (size > buffer_.size() - avail_)
+        throw std::runtime_error("buffer size exceeded");
+    avail_ += size;
 }
 
-SANE_Status
-sanei_genesys_buffer_consume (Genesys_Buffer * buf, size_t size)
+void Genesys_Buffer::consume(size_t size)
 {
-  if (size > buf->avail)
-    return SANE_STATUS_INVAL;
-  buf->avail -= size;
-  buf->pos += size;
-  return SANE_STATUS_GOOD;
+  if (size > avail_)
+      throw std::runtime_error("no more data in buffer");
+    avail_ -= size;
+    pos_ += size;
 }
 
 
 #include "genesys_conv.cc"
 
 static SANE_Status accurate_line_read(Genesys_Device * dev,
-                                      SANE_Byte *buffer,
-                                      size_t size)
+                                      Genesys_Buffer& buffer)
 {
+    buffer.reset();
+
   SANE_Status status;
-  status = dev->model->cmd_set->bulk_read_data (dev, 0x45, buffer, size);
+  status = dev->model->cmd_set->bulk_read_data(dev, 0x45, buffer.get_write_pos(buffer.size()),
+                                               buffer.size());
   if (status != SANE_STATUS_GOOD)
     {
-      DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__, (u_long) size,
+      DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__, (u_long) buffer.size(),
           sane_strstatus(status));
       return SANE_STATUS_IO_ERROR;
     }
 
-  /* done reading */
-  dev->oe_buffer.avail = size;
-  dev->oe_buffer.pos = 0;
+    buffer.produce(buffer.size());
   return status;
 }
 
@@ -4001,13 +3990,13 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
   SANE_Status status;
 
       /* fill buffer if needed */
-      if (dev->oe_buffer.avail == 0)
+      if (dev->oe_buffer.avail() == 0)
 	{
-	  status = accurate_line_read(dev,dev->oe_buffer.buffer,dev->oe_buffer.size);
+          status = accurate_line_read(dev, dev->oe_buffer);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-		  (u_long) dev->oe_buffer.size, sane_strstatus(status));
+                  (u_long) dev->oe_buffer.size(), sane_strstatus(status));
 	      return SANE_STATUS_IO_ERROR;
 	    }
 	}
@@ -4021,7 +4010,7 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
           if(((dev->line_count/dev->current_setup.channels) % dev->line_interp)==0)
             {
 	      /* copy pixel when line matches */
-	      work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->oe_buffer.pos];
+              work_buffer_dst[count] = dev->oe_buffer.get_read_pos()[dev->cur];
               count++;
             }
 
@@ -4031,19 +4020,19 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
 	  /* go to next line if needed */
 	  if (dev->cur == dev->len)
 	    {
-	      dev->oe_buffer.pos += dev->bpl;
+              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->bpl);
 	      dev->cur = 0;
               dev->line_count++;
 	    }
 
 	  /* read a new buffer if needed */
-	  if (dev->oe_buffer.pos >= dev->oe_buffer.avail)
+          if (dev->oe_buffer.pos() >= dev->oe_buffer.avail())
 	    {
-              status = accurate_line_read(dev,dev->oe_buffer.buffer,dev->oe_buffer.size);
+              status = accurate_line_read(dev, dev->oe_buffer);
               if (status != SANE_STATUS_GOOD)
                 {
                   DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-                      (u_long) dev->oe_buffer.size, sane_strstatus(status));
+                      (u_long) dev->oe_buffer.size(), sane_strstatus(status));
                   return SANE_STATUS_IO_ERROR;
                 }
 	    }
@@ -4070,13 +4059,13 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
     depth = 1;
 
       /* fill buffer if needed */
-      if (dev->oe_buffer.avail == 0)
+      if (dev->oe_buffer.avail() == 0)
 	{
-	  status = accurate_line_read(dev,dev->oe_buffer.buffer,dev->oe_buffer.size);
+          status = accurate_line_read(dev, dev->oe_buffer);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-		  (u_long) dev->oe_buffer.size, sane_strstatus(status));
+                  (u_long) dev->oe_buffer.size(), sane_strstatus(status));
 	      return SANE_STATUS_IO_ERROR;
 	    }
 	}
@@ -4089,7 +4078,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
           if(dev->settings.double_xres==SANE_TRUE)
             {
 	      /* copy only even pixel */
-	      work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->oe_buffer.pos];
+              work_buffer_dst[count] = dev->oe_buffer.get_read_pos()[dev->cur];
               /* update counter and pointer */
               count++;
               dev->cur++;
@@ -4111,7 +4100,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
                               for(n=0;n<dev->segnb;n++)
                                 {
                                       work_buffer_dst[k] = work_buffer_dst[k] << 1;
-                                      if((dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist*dev->order[n] + dev->oe_buffer.pos])&(128>>i))
+                                      if((dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]])&(128>>i))
                                         {
                                           work_buffer_dst[k] |= 1;
                                         }
@@ -4129,7 +4118,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
                         {
                           for(n=0;n<dev->segnb;n++)
                             {
-                                  work_buffer_dst[count+n] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist*dev->order[n] + dev->oe_buffer.pos];
+                                  work_buffer_dst[count+n] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]];
                             }
                           /* update counter and pointer */
                           count += dev->segnb;
@@ -4142,8 +4131,8 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
                         {
                           for(n=0;n<dev->segnb;n++)
                             {
-                                  work_buffer_dst[count+n*2] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist*dev->order[n] + dev->oe_buffer.pos];
-                                  work_buffer_dst[count+n*2+1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist*dev->order[n] + dev->oe_buffer.pos+1];
+                                  work_buffer_dst[count+n*2] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]];
+                                  work_buffer_dst[count+n*2+1] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n] + 1];
                             }
                           /* update counter and pointer */
                           count += dev->segnb*2;
@@ -4155,18 +4144,18 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
 	  /* go to next line if needed */
 	  if (dev->cur == dev->len)
 	    {
-	      dev->oe_buffer.pos += dev->bpl;
+              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->bpl);
 	      dev->cur = 0;
 	    }
 
 	  /* read a new buffer if needed */
-	  if (dev->oe_buffer.pos >= dev->oe_buffer.avail)
+          if (dev->oe_buffer.pos() >= dev->oe_buffer.avail())
 	    {
-              status = accurate_line_read(dev,dev->oe_buffer.buffer,dev->oe_buffer.size);
+              status = accurate_line_read(dev, dev->oe_buffer);
               if (status != SANE_STATUS_GOOD)
                 {
                   DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-                      (u_long) dev->oe_buffer.size, sane_strstatus(status));
+                      (u_long) dev->oe_buffer.size(), sane_strstatus(status));
                   return SANE_STATUS_IO_ERROR;
                 }
 	    }
@@ -4197,10 +4186,9 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 	return status;
     }
 
-  space = dev->read_buffer.size - dev->read_buffer.avail;
+  space = dev->read_buffer.size() - dev->read_buffer.avail();
 
-  work_buffer_dst = sanei_genesys_buffer_get_write_pos (&(dev->read_buffer),
-							space);
+  work_buffer_dst = dev->read_buffer.get_write_pos(space);
 
   size = space;
 
@@ -4263,7 +4251,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 
   dev->read_bytes_left -= size;
 
-  RIE (sanei_genesys_buffer_produce (&(dev->read_buffer), size));
+  dev->read_buffer.produce(size);
 
   DBGCOMPLETED;
 
@@ -4381,7 +4369,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
        ((dev->total_bytes_to_read - dev->total_bytes_read) * 8UL) /
        (dev->settings.pixels * channels * depth));
   DBG(DBG_info, "%s: %lu lines left by input\n", __func__,
-       ((dev->read_bytes_left + dev->read_buffer.avail) * 8UL) /
+       ((dev->read_bytes_left + dev->read_buffer.avail()) * 8UL) /
        (src_pixels * channels * depth));
 
   if (channels == 1)
@@ -4459,19 +4447,18 @@ Problems with the first approach:
 
       dst_buffer = &(dev->lines_buffer);
 
-      work_buffer_src = sanei_genesys_buffer_get_read_pos (src_buffer);
-      bytes = src_buffer->avail;
+      work_buffer_src = src_buffer->get_read_pos();
+      bytes = src_buffer->avail();
 
 /*how many bytes can be processed here?*/
 /*we are greedy. we work as much as possible*/
-      if (bytes > dst_buffer->size - dst_buffer->avail)
-	bytes = dst_buffer->size - dst_buffer->avail;
+      if (bytes > dst_buffer->size() - dst_buffer->avail())
+        bytes = dst_buffer->size() - dst_buffer->avail();
 
       dst_lines = (bytes * 8) / (src_pixels * channels * depth);
       bytes = (dst_lines * src_pixels * channels * depth) / 8;
 
-      work_buffer_dst = sanei_genesys_buffer_get_write_pos (dst_buffer,
-							    bytes);
+      work_buffer_dst = dst_buffer->get_write_pos(bytes);
 
       DBG(DBG_info, "%s: reordering %d lines\n", __func__, dst_lines);
 
@@ -4572,9 +4559,8 @@ Problems with the first approach:
 	      return SANE_STATUS_IO_ERROR;
 	    }
 
-	  RIE (sanei_genesys_buffer_produce (dst_buffer, bytes));
-
-	  RIE (sanei_genesys_buffer_consume (src_buffer, bytes));
+            dst_buffer->produce(bytes);
+            src_buffer->consume(bytes);
 	}
       src_buffer = dst_buffer;
     }
@@ -4591,8 +4577,8 @@ Problems with the first approach:
 
       dst_buffer = &(dev->shrink_buffer);
 
-      work_buffer_src = sanei_genesys_buffer_get_read_pos (src_buffer);
-      bytes = src_buffer->avail;
+      work_buffer_src = src_buffer->get_read_pos();
+      bytes = src_buffer->avail();
 
       extra =
 	(dev->current_setup.max_shift * src_pixels * channels * depth) / 8;
@@ -4605,14 +4591,13 @@ Problems with the first approach:
 
 /*how many bytes can be processed here?*/
 /*we are greedy. we work as much as possible*/
-      if (bytes > dst_buffer->size - dst_buffer->avail)
-	bytes = dst_buffer->size - dst_buffer->avail;
+      if (bytes > dst_buffer->size() - dst_buffer->avail())
+        bytes = dst_buffer->size() - dst_buffer->avail();
 
       dst_lines = (bytes * 8) / (src_pixels * channels * depth);
       bytes = (dst_lines * src_pixels * channels * depth) / 8;
 
-      work_buffer_dst =
-	sanei_genesys_buffer_get_write_pos (dst_buffer, bytes);
+      work_buffer_dst = dst_buffer->get_write_pos(bytes);
 
       DBG(DBG_info, "%s: un-ccd-ing %d lines\n", __func__, dst_lines);
 
@@ -4637,9 +4622,8 @@ Problems with the first approach:
 	      return SANE_STATUS_IO_ERROR;
 	    }
 
-	  RIE (sanei_genesys_buffer_produce (dst_buffer, bytes));
-
-	  RIE (sanei_genesys_buffer_consume (src_buffer, bytes));
+            dst_buffer->produce(bytes);
+            src_buffer->consume(bytes);
 	}
       src_buffer = dst_buffer;
     }
@@ -4650,23 +4634,22 @@ Problems with the first approach:
 
       dst_buffer = &(dev->out_buffer);
 
-      work_buffer_src = sanei_genesys_buffer_get_read_pos (src_buffer);
-      bytes = src_buffer->avail;
+      work_buffer_src = src_buffer->get_read_pos();
+      bytes = src_buffer->avail();
 
 /*lines in input*/
       dst_lines = (bytes * 8) / (src_pixels * channels * depth);
 
       /* how many lines can be processed here?      */
       /* we are greedy. we work as much as possible */
-      bytes = dst_buffer->size - dst_buffer->avail;
+      bytes = dst_buffer->size() - dst_buffer->avail();
 
       if (dst_lines > (bytes * 8) / (dev->settings.pixels * channels * depth))
 	dst_lines = (bytes * 8) / (dev->settings.pixels * channels * depth);
 
       bytes = (dst_lines * dev->settings.pixels * channels * depth) / 8;
 
-      work_buffer_dst =
-	sanei_genesys_buffer_get_write_pos (dst_buffer, bytes);
+      work_buffer_dst = dst_buffer->get_write_pos(bytes);
 
       DBG(DBG_info, "%s: shrinking %d lines\n", __func__, dst_lines);
 
@@ -4700,21 +4683,20 @@ Problems with the first approach:
 
           /* we just consumed this many bytes*/
 	  bytes = (dst_lines * src_pixels * channels * depth) / 8;
-	  RIE (sanei_genesys_buffer_consume (src_buffer, bytes));
+            src_buffer->consume(bytes);
 
           /* we just created this many bytes*/
 	  bytes = (dst_lines * dev->settings.pixels * channels * depth) / 8;
-	  RIE (sanei_genesys_buffer_produce (dst_buffer, bytes));
-
+            dst_buffer->produce(bytes);
 	}
       src_buffer = dst_buffer;
     }
 
   /* move data to destination */
-  bytes = src_buffer->avail;
+  bytes = src_buffer->avail();
   if (bytes > *len)
     bytes = *len;
-  work_buffer_src = sanei_genesys_buffer_get_read_pos (src_buffer);
+  work_buffer_src = src_buffer->get_read_pos();
 
   if (needs_reverse)
     {
@@ -4740,7 +4722,7 @@ Problems with the first approach:
   /* count bytes sent to frontend */
   dev->total_bytes_read += *len;
 
-  RIE (sanei_genesys_buffer_consume (src_buffer, bytes));
+    src_buffer->consume(bytes);
 
   /* end scan if all needed data have been read */
    if(dev->total_bytes_read >= dev->total_bytes_to_read)
@@ -6523,12 +6505,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 
   s->dev = dev;
   s->scanning = SANE_FALSE;
-  s->dev->read_buffer.buffer = NULL;
-  s->dev->lines_buffer.buffer = NULL;
-  s->dev->shrink_buffer.buffer = NULL;
-  s->dev->out_buffer.buffer = NULL;
-  s->dev->binarize_buffer.buffer = NULL;
-  s->dev->local_buffer.buffer = NULL;
   s->dev->parking = SANE_FALSE;
   s->dev->read_active = SANE_FALSE;
   s->dev->force_calibration = 0;
@@ -6537,7 +6513,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->line_interp = 0;
   s->dev->line_count = 0;
   s->dev->segnb = 0;
-  s->dev->oe_buffer.buffer=NULL;
   s->dev->binary=NULL;
 
   *handle = s;
@@ -7358,10 +7333,10 @@ SANE_Status sane_start_impl(SANE_Handle handle)
   /* allocate intermediate buffer when doing dynamic lineart */
   if(s->dev->settings.dynamic_lineart==SANE_TRUE)
     {
-      RIE (sanei_genesys_buffer_free (&(s->dev->binarize_buffer)));
-      RIE (sanei_genesys_buffer_alloc (&(s->dev->binarize_buffer), s->dev->settings.pixels));
-      RIE (sanei_genesys_buffer_free (&(s->dev->local_buffer)));
-      RIE (sanei_genesys_buffer_alloc (&(s->dev->local_buffer), s->dev->binarize_buffer.size * 8));
+        s->dev->binarize_buffer.clear();
+        s->dev->binarize_buffer.alloc(s->dev->settings.pixels);
+        s->dev->local_buffer.clear();
+        s->dev->local_buffer.alloc(s->dev->binarize_buffer.size() * 8);
     }
 
   /* if one of the software enhancement option is selected,
@@ -7500,39 +7475,40 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
       if(dev->settings.dynamic_lineart==SANE_TRUE)
         {
           /* if buffer is empty, fill it with genesys_read_ordered_data */
-          if(dev->binarize_buffer.avail==0)
+          if(dev->binarize_buffer.avail() == 0)
             {
               /* store gray data */
-              local_len=dev->local_buffer.size;
-              status = genesys_read_ordered_data (dev, dev->local_buffer.buffer, &local_len);
+              local_len=dev->local_buffer.size();
+              dev->local_buffer.reset();
+              status = genesys_read_ordered_data (dev, dev->local_buffer.get_write_pos(local_len),
+                                                  &local_len);
+              dev->local_buffer.produce(local_len);
 
               /* binarize data is read successful */
               if(status==SANE_STATUS_GOOD)
                 {
-                  dev->local_buffer.avail=local_len;
-                  dev->local_buffer.pos=0;
-                  dev->binarize_buffer.avail=local_len/8;
-                  dev->binarize_buffer.pos=0;
+                    dev->binarize_buffer.reset();
                   genesys_gray_lineart (dev,
-                                        dev->local_buffer.buffer,
-                                        dev->binarize_buffer.buffer,
+                                        dev->local_buffer.get_read_pos(),
+                                        dev->binarize_buffer.get_write_pos(local_len / 8),
                                         dev->settings.pixels,
                                         local_len/dev->settings.pixels,
                                         dev->settings.threshold);
+                    dev->binarize_buffer.produce(local_len / 8);
                 }
 
             }
 
           /* return data from lineart buffer if any, up to the available amount */
           local_len = max_len;
-          if((size_t)max_len>dev->binarize_buffer.avail)
+          if((size_t)max_len>dev->binarize_buffer.avail())
             {
-              local_len=dev->binarize_buffer.avail;
+              local_len=dev->binarize_buffer.avail();
             }
           if(local_len)
             {
-              memcpy(buf,sanei_genesys_buffer_get_read_pos (&(dev->binarize_buffer)),local_len);
-	      RIE (sanei_genesys_buffer_consume (&(dev->binarize_buffer), local_len));
+              memcpy(buf, dev->binarize_buffer.get_read_pos(), local_len);
+              dev->binarize_buffer.consume(local_len);
             }
         }
       else

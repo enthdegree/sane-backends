@@ -60,12 +60,12 @@ Genesys_Device::~Genesys_Device()
 
 void Genesys_Device::clear()
 {
-    sanei_genesys_buffer_free(&(read_buffer));
-    sanei_genesys_buffer_free(&(lines_buffer));
-    sanei_genesys_buffer_free(&(shrink_buffer));
-    sanei_genesys_buffer_free(&(out_buffer));
-    sanei_genesys_buffer_free(&(binarize_buffer));
-    sanei_genesys_buffer_free(&(local_buffer));
+    read_buffer.clear();
+    lines_buffer.clear();
+    shrink_buffer.clear();
+    out_buffer.clear();
+    binarize_buffer.clear();
+    local_buffer.clear();
 
     FREE_IFNOT_NULL(calib_file);
 
@@ -1666,7 +1666,6 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
   /* Set analog frontend */
   RIE (dev->model->cmd_set->set_fe (dev, AFE_INIT));
 
-  dev->oe_buffer.buffer = NULL;
   dev->already_initialized = SANE_TRUE;
 
   /* Move to home if needed */

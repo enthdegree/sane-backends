@@ -829,13 +829,35 @@ typedef struct Genesys_Current_Setup
     SANE_Int max_shift;	/* max shift of any ccd component, including staggered pixels*/
 } Genesys_Current_Setup;
 
-typedef struct Genesys_Buffer
+struct Genesys_Buffer
 {
-  SANE_Byte *buffer;
-  size_t size;
-  size_t pos;	/* current position in read buffer */
-  size_t avail;	/* data bytes currently in buffer */
-} Genesys_Buffer;
+    Genesys_Buffer() = default;
+
+    size_t size() const { return buffer_.size(); }
+    size_t avail() const { return avail_; }
+    size_t pos() const { return pos_; }
+
+    // TODO: refactor code that uses this function to no longer use it
+    void set_pos(size_t pos) { pos_ = pos; }
+
+    void alloc(size_t size);
+    void clear();
+
+    void reset();
+
+    uint8_t* get_write_pos(size_t size);
+    uint8_t* get_read_pos(); // TODO: mark as const
+
+    void produce(size_t size);
+    void consume(size_t size);
+
+private:
+    std::vector<uint8_t> buffer_;
+    // current position in read buffer
+    size_t pos_ = 0;
+    // data bytes currently in buffer
+    size_t avail_ = 0;
+};
 
 struct Genesys_Calibration_Cache
 {
@@ -921,10 +943,10 @@ struct Genesys_Device
     // for sheetfed scanner's, is TRUE when there is a document in the scanner
     SANE_Bool document = 0;
 
-    Genesys_Buffer read_buffer = {};
-    Genesys_Buffer lines_buffer = {};
-    Genesys_Buffer shrink_buffer = {};
-    Genesys_Buffer out_buffer = {};
+    Genesys_Buffer read_buffer;
+    Genesys_Buffer lines_buffer;
+    Genesys_Buffer shrink_buffer;
+    Genesys_Buffer out_buffer;
 
     // buffer for digital lineart from gray data
     Genesys_Buffer binarize_buffer = {};
@@ -1208,24 +1230,6 @@ sanei_genesys_test_buffer_empty (Genesys_Device * dev, SANE_Bool * empty);
 extern SANE_Status
 sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
 				      size_t size);
-
-extern SANE_Status
-sanei_genesys_buffer_alloc(Genesys_Buffer * buf, size_t size);
-
-extern SANE_Status
-sanei_genesys_buffer_free(Genesys_Buffer * buf);
-
-extern SANE_Byte *
-sanei_genesys_buffer_get_write_pos(Genesys_Buffer * buf, size_t size);
-
-extern SANE_Byte *
-sanei_genesys_buffer_get_read_pos(Genesys_Buffer * buf);
-
-extern SANE_Status
-sanei_genesys_buffer_produce(Genesys_Buffer * buf, size_t size);
-
-extern SANE_Status
-sanei_genesys_buffer_consume(Genesys_Buffer * buf, size_t size);
 
 extern SANE_Status
 sanei_genesys_set_double(Genesys_Register_Set *regs, uint16_t addr, uint16_t value);

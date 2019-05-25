@@ -935,19 +935,17 @@ gl646_setup_registers (Genesys_Device * dev,
     2 * requested_buffer_size +
     ((max_shift + stagger) * scan_settings.pixels * channels * depth) / 8;
 
-  RIE (sanei_genesys_buffer_free (&(dev->read_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->read_buffer), read_buffer_size));
+    dev->read_buffer.clear();
+    dev->read_buffer.alloc(read_buffer_size);
 
-  RIE (sanei_genesys_buffer_free (&(dev->lines_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->lines_buffer), read_buffer_size));
+    dev->lines_buffer.clear();
+    dev->lines_buffer.alloc(read_buffer_size);
 
-  RIE (sanei_genesys_buffer_free (&(dev->shrink_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->shrink_buffer),
-				   requested_buffer_size));
+    dev->shrink_buffer.clear();
+    dev->shrink_buffer.alloc(requested_buffer_size);
 
-  RIE (sanei_genesys_buffer_free (&(dev->out_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->out_buffer),
-				   8 * scan_settings.pixels * channels * bpp));
+    dev->out_buffer.clear();
+    dev->out_buffer.alloc(8 * scan_settings.pixels * channels * bpp);
 
   /* scan bytes to read */
   dev->read_bytes_left = words_per_line * linecnt;

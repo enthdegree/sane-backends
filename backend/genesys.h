@@ -148,18 +148,29 @@ enum Genesys_Option
 
 /** Scanner object. Should have better be called Session than Scanner
  */
-typedef struct Genesys_Scanner
+struct Genesys_Scanner
 {
-  struct Genesys_Scanner *next;	    /**< Next scanner in list */
-  Genesys_Device *dev;		    /**< Low-level device object */
+    Genesys_Scanner() = default;
+    ~Genesys_Scanner() = default;
 
-  /* SANE data */
-  SANE_Bool scanning;			   /**< We are currently scanning */
-  SANE_Option_Descriptor opt[NUM_OPTIONS]; /**< Option descriptors */
-  Option_Value val[NUM_OPTIONS];	   /**< Option values */
-  Option_Value last_val[NUM_OPTIONS];	   /**< Option values as read by the frontend. used for sensors. */
-  SANE_Parameters params;		   /**< SANE Parameters */
-  SANE_Int bpp_list[5];			   /**< */
-} Genesys_Scanner;
+    // Next scanner in list
+    struct Genesys_Scanner *next;
+
+    // Low-level device object
+    Genesys_Device* dev = nullptr;
+
+    // SANE data
+    // We are currently scanning
+    SANE_Bool scanning;
+    // Option descriptors
+    SANE_Option_Descriptor opt[NUM_OPTIONS];
+    // Option values
+    Option_Value val[NUM_OPTIONS];
+    // Option values as read by the frontend. used for sensors.
+    Option_Value last_val[NUM_OPTIONS];
+    // SANE Parameters
+    SANE_Parameters params = {};
+    SANE_Int bpp_list[5] = {};
+};
 
 #endif /* not GENESYS_H */

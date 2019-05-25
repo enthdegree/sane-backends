@@ -71,7 +71,9 @@
 
 static SANE_Int num_devices = 0;
 static Genesys_Device *first_dev = 0;
-static Genesys_Scanner *first_handle = 0;
+
+StaticInit<std::list<Genesys_Scanner>> s_scanners;
+
 static SANE_Device **devlist = 0;
 /* Array of newly attached devices */
 static Genesys_Device **new_dev = 0;
@@ -6298,6 +6300,7 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   /* init sanei_magic */
   sanei_magic_init();
 
+  s_scanners.init();
   genesys_init_sensor_tables();
 
   DBG(DBG_info, "%s: %s endian machine\n", __func__,
@@ -6311,7 +6314,6 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   /* set up to no devices at first */
   num_devices = 0;
   first_dev = 0;
-  first_handle = 0;
   devlist = 0;
 
   /* cold-plug case :detection of allready connected scanners */
@@ -6343,7 +6345,6 @@ sane_exit_impl(void)
       delete dev;
     }
   first_dev = 0;
-  first_handle = 0;
   if (devlist)
     free (devlist);
   devlist = 0;
@@ -6462,7 +6463,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 {
   Genesys_Device *dev;
   SANE_Status status;
-  Genesys_Scanner *s;
   char *tmpstr;
 
   DBG(DBG_proc, "%s: start (devicename = `%s')\n", __func__, devicename);
@@ -6518,9 +6518,8 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     }
 
 
-  s = (Genesys_Scanner*) malloc(sizeof (*s));
-  if (!s)
-    return SANE_STATUS_NO_MEM;
+  s_scanners->push_back(Genesys_Scanner());
+  auto* s = &s_scanners->back();
 
   s->dev = dev;
   s->scanning = SANE_FALSE;
@@ -6541,9 +6540,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->oe_buffer.buffer=NULL;
   s->dev->binary=NULL;
 
-  /* insert newly opened handle into list of open handles: */
-  s->next = first_handle;
-  first_handle = s;
   *handle = s;
 
   if (!dev->already_initialized)
@@ -6591,24 +6587,26 @@ SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle* handle)
 void
 sane_close_impl(SANE_Handle handle)
 {
-  Genesys_Scanner *prev, *s;
   SANE_Status status;
 
   DBGSTART;
 
   /* remove handle from list of open handles: */
-  prev = 0;
-  for (s = first_handle; s; s = s->next)
+  auto it = s_scanners->end();
+  for (auto it2 = s_scanners->begin(); it2 != s_scanners->end(); it2++)
     {
-      if (s == handle)
-	break;
-      prev = s;
+      if (&*it2 == handle) {
+          it = it2;
+          break;
+        }
     }
-  if (!s)
+  if (it == s_scanners->end())
     {
       DBG(DBG_error, "%s: invalid handle %p\n", __func__, handle);
       return;			/* oops, not a handle we know about */
     }
+
+  Genesys_Scanner* s = &*it;
 
   /* eject document for sheetfed scanners */
   if (s->dev->model->is_sheetfed == SANE_TRUE)
@@ -6652,11 +6650,6 @@ sane_close_impl(SANE_Handle handle)
   free ((void *)(size_t)s->opt[OPT_TL_X].constraint.range);
   free ((void *)(size_t)s->opt[OPT_TL_Y].constraint.range);
 
-  if (prev)
-    prev->next = s->next;
-  else
-    first_handle = s->next;
-
   s->dev->clear();
 
   /* LAMP OFF : same register across all the ASICs */
@@ -6671,7 +6664,8 @@ sane_close_impl(SANE_Handle handle)
 
   sanei_usb_close (s->dev->dn);
   // not freeing s->dev because it's in the dev list
-  free (s);
+
+  s_scanners->erase(it);
 
   DBGCOMPLETED;
 }

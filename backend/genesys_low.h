@@ -852,8 +852,8 @@ struct Genesys_Calibration_Cache
     size_t calib_pixels = 0;
     size_t calib_channels = 0;
     size_t average_size = 0;
-    uint8_t* white_average_data = nullptr;
-    uint8_t* dark_average_data = nullptr;
+    std::vector<uint8_t> white_average_data;
+    std::vector<uint8_t> dark_average_data;
 };
 
 /**

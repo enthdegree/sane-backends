@@ -69,11 +69,6 @@ void Genesys_Device::clear()
 
     FREE_IFNOT_NULL(calib_file);
 
-    for (auto& cache : calibration_cache) {
-        free(cache.dark_average_data);
-        free(cache.white_average_data);
-    }
-
     calibration_cache.clear();
 
     white_average_data.clear();

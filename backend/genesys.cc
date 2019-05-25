@@ -5912,8 +5912,10 @@ init_options (Genesys_Scanner * s)
 }
 
 static SANE_Bool present;
+
+// this function is passed to C API, it must not throw
 static SANE_Status
-check_present (SANE_String_Const devname)
+check_present (SANE_String_Const devname) noexcept
 {
   present=SANE_TRUE;
   DBG(DBG_io, "%s: %s detected.\n", __func__, devname);
@@ -6042,7 +6044,7 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 }
 
 static SANE_Status
-attach_one_device (SANE_String_Const devname)
+attach_one_device_impl(SANE_String_Const devname)
 {
   Genesys_Device *dev;
   SANE_Status status;
@@ -6081,9 +6083,19 @@ attach_one_device (SANE_String_Const devname)
   return SANE_STATUS_GOOD;
 }
 
+static SANE_Status attach_one_device(SANE_String_Const devname)
+{
+    return wrap_exceptions_to_status_code(__func__, [=]()
+    {
+        return attach_one_device_impl(devname);
+    });
+}
+
 /* configuration framework functions */
+
+// this function is passed to C API, it must not throw
 static SANE_Status
-config_attach_genesys (SANEI_Config __sane_unused__ *config, const char *devname)
+config_attach_genesys(SANEI_Config __sane_unused__ *config, const char *devname) noexcept
 {
   /* the devname has been processed and is ready to be used
    * directly. Since the backend is an USB only one, we can

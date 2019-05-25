@@ -69,8 +69,6 @@
 #include <exception>
 #include <vector>
 
-static SANE_Int num_devices = 0;
-
 StaticInit<std::list<Genesys_Scanner>> s_scanners;
 StaticInit<std::vector<SANE_Device>> s_sane_devices;
 StaticInit<std::vector<SANE_Device*>> s_sane_devices_ptrs;
@@ -5077,8 +5075,7 @@ static char *calibration_filename(Genesys_Device *currdev)
    */
   count=0;
   /* count models of the same names if several scanners attached */
-  if(num_devices>1)
-    {
+    if(s_devices->size() > 1) {
         for (const auto& dev : *s_devices) {
             if (dev.model->model_id == currdev->model->model_id) {
                 count++;
@@ -5845,7 +5842,6 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
         return SANE_STATUS_NO_MEM;
     }
 
-    ++num_devices; // TODO: use s_devices.size()
     s_devices->push_back(Genesys_Device());
     dev = &s_devices->back();
     dev->file_name = new_devname;
@@ -5956,7 +5952,7 @@ probe_genesys_devices (void)
       free (new_dev);
     }
 
-  DBG(DBG_info, "%s: %d devices currently attached\n", __func__, num_devices);
+  DBG(DBG_info, "%s: %d devices currently attached\n", __func__, (int) s_devices->size());
 
   DBGCOMPLETED;
 
@@ -6283,9 +6279,6 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
 #endif
     );
 
-  /* set up to no devices at first */
-  num_devices = 0;
-
   /* cold-plug case :detection of allready connected scanners */
   status = probe_genesys_devices ();
 
@@ -6332,8 +6325,8 @@ sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
 
     s_sane_devices->clear();
     s_sane_devices_ptrs->clear();
-    s_sane_devices->reserve(num_devices);
-    s_sane_devices_ptrs->reserve(num_devices + 1);
+    s_sane_devices->reserve(s_devices->size());
+    s_sane_devices_ptrs->reserve(s_devices->size() + 1);
 
     for (auto dev_it = s_devices->begin(); dev_it != s_devices->end();) {
         present = SANE_FALSE;
@@ -6349,7 +6342,6 @@ sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
             dev_it++;
         } else {
             dev_it = s_devices->erase(dev_it);
-            num_devices -= 1;
         }
     }
     s_sane_devices_ptrs->push_back(nullptr);

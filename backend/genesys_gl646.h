@@ -328,7 +328,7 @@ simple_move (Genesys_Device * dev, SANE_Int distance);
  */
 static SANE_Status
 simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
-	     SANE_Bool shading, unsigned char **data);
+             SANE_Bool shading, std::vector<uint8_t>& data);
 
 /**
  * Send the stop scan command

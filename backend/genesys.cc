@@ -1713,16 +1713,11 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
 
-  FREE_IFNOT_NULL (dev->dark_average_data);
 
   dev->average_size = channels * 2 * pixels_per_line;
 
-  dev->dark_average_data = (uint8_t*) malloc(dev->average_size);
-  if (!dev->dark_average_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate average memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  dev->dark_average_data.clear();
+  dev->dark_average_data.resize(dev->average_size);
 
   /* size is size in bytes for scanarea: bytes_per_line * lines */
   size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
@@ -1782,16 +1777,15 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
       return status;
     }
 
-  genesys_average_data (dev->dark_average_data, calibration_data.data(),
-			dev->calib_lines,
-			pixels_per_line * channels);
+  genesys_average_data(dev->dark_average_data.data(), calibration_data.data(),
+                       dev->calib_lines, pixels_per_line * channels);
 
   if (DBG_LEVEL >= DBG_data)
     {
       sanei_genesys_write_pnm_file("gl_black_shading.pnm", calibration_data.data(), 16,
                                    channels, pixels_per_line, dev->calib_lines);
-      sanei_genesys_write_pnm_file("gl_black_average.pnm",
-                                    dev->dark_average_data, 16, channels, pixels_per_line, 1);
+      sanei_genesys_write_pnm_file("gl_black_average.pnm", dev->dark_average_data.data(), 16,
+                                   channels, pixels_per_line, 1);
     }
 
   DBGCOMPLETED;
@@ -1819,16 +1813,9 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
 
-  FREE_IFNOT_NULL (dev->dark_average_data);
-
   dev->average_size = channels * 2 * pixels_per_line;
-  dev->dark_average_data = (uint8_t*) malloc(dev->average_size);
-  if (!dev->dark_average_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate average memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
-  memset (dev->dark_average_data, 0x00, channels * 2 * pixels_per_line);
+  dev->dark_average_data.clear();
+  dev->dark_average_data.resize(dev->average_size, 0);
 
   /* we average values on 'the left' where CCD pixels are under casing and
      give darkest values. We then use these as dummy dark calibration */
@@ -1913,15 +1900,8 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
 
-  if (dev->white_average_data)
-    free (dev->white_average_data);
-
-  dev->white_average_data = (uint8_t*) malloc(channels * 2 * pixels_per_line);
-  if (!dev->white_average_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate average memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  dev->white_average_data.clear();
+  dev->white_average_data.resize(channels * 2 * pixels_per_line);
 
   size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
 
@@ -1986,13 +1966,13 @@ genesys_white_shading_calibration (Genesys_Device * dev)
     sanei_genesys_write_pnm_file("gl_white_shading.pnm", calibration_data.data(), 16,
                                  channels, pixels_per_line, dev->calib_lines);
 
-  genesys_average_data (dev->white_average_data, calibration_data.data(),
+  genesys_average_data (dev->white_average_data.data(), calibration_data.data(),
 			dev->calib_lines,
 			pixels_per_line * channels);
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_white_average.pnm", dev->white_average_data, 16, channels,
-                                 pixels_per_line, 1);
+    sanei_genesys_write_pnm_file("gl_white_average.pnm", dev->white_average_data.data(), 16,
+                                 channels, pixels_per_line, 1);
 
   /* in case we haven't done dark calibration, build dummy data from white_average */
   if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION))
@@ -2039,27 +2019,13 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
 
-  if (dev->white_average_data)
-    free (dev->white_average_data);
-
   dev->average_size = channels * 2 * pixels_per_line;
 
-  dev->white_average_data = (uint8_t*) malloc(dev->average_size);
-  if (!dev->white_average_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate white average memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  dev->white_average_data.clear();
+  dev->white_average_data.resize(dev->average_size);
 
-  if (dev->dark_average_data)
-    free (dev->dark_average_data);
-
-  dev->dark_average_data = (uint8_t*) malloc(channels * 2 * pixels_per_line);
-  if (!dev->dark_average_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate dark average memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  dev->dark_average_data.clear();
+  dev->dark_average_data.resize(channels * 2 * pixels_per_line);
 
   size = channels * 2 * pixels_per_line * dev->calib_lines;
 
@@ -2124,8 +2090,8 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
     }
 
 
-  average_white = dev->white_average_data;
-  average_dark = dev->dark_average_data;
+  average_white = dev->white_average_data.data();
+  average_dark = dev->dark_average_data.data();
 
   for (x = 0; x < pixels_per_line * channels; x++)
     {
@@ -2189,10 +2155,10 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (DBG_LEVEL >= DBG_data)
     {
       sanei_genesys_write_pnm_file("gl_white_average.pnm",
-                                   dev->white_average_data, 16, channels,
+                                   dev->white_average_data.data(), 16, channels,
                                    pixels_per_line, 1);
       sanei_genesys_write_pnm_file("gl_dark_average.pnm",
-                                   dev->dark_average_data, 16, channels,
+                                   dev->dark_average_data.data(), 16, channels,
                                    pixels_per_line, 1);
     }
 
@@ -2993,23 +2959,20 @@ genesys_restore_calibration (Genesys_Device * dev)
 	  memcpy (&dev->frontend, &cache->frontend, sizeof (dev->frontend));
           /* we don't restore the gamma fields */
       memcpy (dev->sensor.regs_0x10_0x1d.data(), cache->sensor.regs_0x10_0x1d.data(), 6);
-	  free (dev->dark_average_data);
-	  free (dev->white_average_data);
 
 	  dev->average_size = cache->average_size;
 	  dev->calib_pixels = cache->calib_pixels;
 	  dev->calib_channels = cache->calib_channels;
 
-	  dev->dark_average_data = (uint8_t *) malloc (cache->average_size);
-	  dev->white_average_data = (uint8_t *) malloc (cache->average_size);
+      dev->white_average_data.clear();
+      dev->white_average_data.resize(cache->average_size);
+      dev->dark_average_data.clear();
+      dev->dark_average_data.resize(cache->average_size);
 
-	  if (!dev->dark_average_data || !dev->white_average_data)
-	    return SANE_STATUS_NO_MEM;
-
-	  memcpy (dev->dark_average_data,
-		  cache->dark_average_data, dev->average_size);
-	  memcpy (dev->white_average_data,
-		  cache->white_average_data, dev->average_size);
+      std::memcpy(dev->dark_average_data.data(),
+                  cache->dark_average_data, dev->average_size);
+      std::memcpy(dev->white_average_data.data(),
+                  cache->white_average_data, dev->average_size);
 
 
         if(dev->model->cmd_set->send_shading_data==NULL)
@@ -3108,8 +3071,8 @@ genesys_save_calibration (Genesys_Device * dev)
 
   cache->calib_pixels = dev->calib_pixels;
   cache->calib_channels = dev->calib_channels;
-  memcpy (cache->dark_average_data, dev->dark_average_data, cache->average_size);
-  memcpy (cache->white_average_data, dev->white_average_data, cache->average_size);
+  memcpy(cache->dark_average_data, dev->dark_average_data.data(), cache->average_size);
+  memcpy(cache->white_average_data, dev->white_average_data.data(), cache->average_size);
 #ifdef HAVE_SYS_TIME_H
   gettimeofday(&time,NULL);
   cache->last_calibration = time.tv_sec;
@@ -3473,9 +3436,8 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
    * of white calibration */
   if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION))
     {
-      FREE_IFNOT_NULL (dev->dark_average_data);
-      dev->dark_average_data = (uint8_t*) malloc(dev->average_size);
-      memset (dev->dark_average_data, 0x0f, dev->average_size);
+      dev->dark_average_data.clear();
+      dev->dark_average_data.resize(dev->average_size, 0x0f);
       /* XXX STEF XXX
        * with black point in white shading, build an average black
        * pixel and use it to fill the dark_average
@@ -6626,8 +6588,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->local_buffer.buffer = NULL;
   s->dev->parking = SANE_FALSE;
   s->dev->read_active = SANE_FALSE;
-  s->dev->white_average_data = NULL;
-  s->dev->dark_average_data = NULL;
   s->dev->calibration_cache = NULL;
   s->dev->force_calibration = 0;
   s->dev->calib_file = NULL;

@@ -67,8 +67,6 @@ void Genesys_Device::clear()
     sanei_genesys_buffer_free(&(binarize_buffer));
     sanei_genesys_buffer_free(&(local_buffer));
 
-    FREE_IFNOT_NULL(white_average_data);
-    FREE_IFNOT_NULL(dark_average_data);
     FREE_IFNOT_NULL(calib_file);
 
     Genesys_Calibration_Cache* next_cache = nullptr;
@@ -78,6 +76,9 @@ void Genesys_Device::clear()
         free(cache->white_average_data);
         free(cache);
     }
+
+    white_average_data.clear();
+    dark_average_data.clear();
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1660,8 +1661,8 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
   RIE (dev->model->cmd_set->asic_boot (dev, cold));
 
   /* now hardware part is OK, set up device struct */
-  FREE_IFNOT_NULL (dev->white_average_data);
-  FREE_IFNOT_NULL (dev->dark_average_data);
+  dev->white_average_data.clear();
+  dev->dark_average_data.clear();
 
   dev->settings.color_filter = 0;
 

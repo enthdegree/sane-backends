@@ -5099,8 +5099,8 @@ gl841_init (Genesys_Device * dev)
 	}
     }
 
-  dev->dark_average_data = NULL;
-  dev->white_average_data = NULL;
+  dev->dark_average_data.clear();
+  dev->white_average_data.clear();
 
   dev->settings.color_filter = 0;
 

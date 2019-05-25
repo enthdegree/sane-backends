@@ -922,8 +922,9 @@ struct Genesys_Device
     size_t calib_lines = 0;
     size_t calib_channels = 0;
     size_t calib_resolution = 0;
-    uint8_t *white_average_data = nullptr;
-    uint8_t *dark_average_data = nullptr;
+
+    std::vector<uint8_t> white_average_data;
+    std::vector<uint8_t> dark_average_data;
     uint16_t dark[3] = {};
 
     SANE_Bool already_initialized = 0;

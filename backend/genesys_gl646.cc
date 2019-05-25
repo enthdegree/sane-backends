@@ -4144,8 +4144,8 @@ gl646_init (Genesys_Device * dev)
   /* if scanning session hasn't been initialized, set it up */
   if (!dev->already_initialized)
     {
-      dev->dark_average_data = NULL;
-      dev->white_average_data = NULL;
+      dev->dark_average_data.clear();
+      dev->white_average_data.clear();
 
       dev->settings.color_filter = 1;	/* green filter by default */
       gettimeofday (&tv, NULL);

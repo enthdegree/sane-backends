@@ -1339,23 +1339,6 @@ extern void sanei_genesys_usleep(unsigned int useconds);
 // same as sanei_genesys_usleep just that the duration is in milliseconds
 extern void sanei_genesys_sleep_ms(unsigned int milliseconds);
 
-typedef struct Genesys_Vector
-{
-  char* data;
-  size_t capacity; // capacity in elements
-  size_t size; // size in elements
-  size_t element_size;
-} Genesys_Vector;
-
-extern Genesys_Vector sanei_gl_vector_create(size_t element_size);
-extern void sanei_gl_vector_reserve(Genesys_Vector* v, size_t count);
-extern void sanei_gl_vector_resize(Genesys_Vector* v, size_t count);
-extern void sanei_gl_vector_append(Genesys_Vector* v, void* data, size_t count);
-extern void sanei_gl_vector_append_zero(Genesys_Vector* v, size_t count);
-extern void* sanei_gl_vector_get_element(Genesys_Vector* v, size_t i);
-extern void sanei_gl_vector_set_element(Genesys_Vector* v, void* data, size_t i);
-extern void sanei_gl_vector_destroy(Genesys_Vector* v);
-
 class SaneException : std::exception {
 public:
     SaneException(SANE_Status status) : status_(status) {}

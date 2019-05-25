@@ -46,6 +46,7 @@
 
 #include "genesys_gl843.h"
 
+#include <string>
 #include <vector>
 
 /****************************************************************************
@@ -3189,10 +3190,9 @@ gl843_offset_calibration (Genesys_Device * dev)
 
   pass = 0;
 
-  // FIXME: we'll leak debug image if we encounter errors below
-  Genesys_Vector debug_image = sanei_gl_vector_create(1);
+  std::vector<uint8_t> debug_image;
   size_t debug_image_lines = 0;
-  Genesys_Vector debug_image_info = sanei_gl_vector_create(1);
+  std::string debug_image_info;
 
   /* loop until acceptable level */
   while ((pass < 32)
@@ -3223,8 +3223,8 @@ gl843_offset_calibration (Genesys_Device * dev)
           snprintf(title, 100, "lines: %d pixels_per_line: %d offsets[0..2]: %d %d %d\n",
                    lines, pixels,
                    dev->frontend.offset[0], dev->frontend.offset[1], dev->frontend.offset[2]);
-          sanei_gl_vector_append(&debug_image_info, title, strlen(title));
-          sanei_gl_vector_append(&debug_image, second_line.data(), total_size);
+          debug_image_info += title;
+          std::copy(second_line.begin(), second_line.end(), std::back_inserter(debug_image));
           debug_image_lines += lines;
 	}
 
@@ -3253,13 +3253,10 @@ gl843_offset_calibration (Genesys_Device * dev)
   if (DBG_LEVEL >= DBG_data)
     {
       sanei_genesys_write_file("gl843_offset_all_desc.txt",
-                               (uint8_t*)debug_image_info.data, debug_image_info.size);
+                               (uint8_t*) debug_image_info.data(), debug_image_info.size());
       sanei_genesys_write_pnm_file("gl843_offset_all.pnm",
-                                   (uint8_t*)debug_image.data, bpp, channels, pixels, debug_image_lines);
+                                   debug_image.data(), bpp, channels, pixels, debug_image_lines);
     }
-
-  sanei_gl_vector_destroy(&debug_image);
-  sanei_gl_vector_destroy(&debug_image_info);
 
   DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__, dev->frontend.offset[0],
       dev->frontend.offset[1], dev->frontend.offset[2]);

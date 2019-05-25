@@ -6070,7 +6070,6 @@ genesys_buffer_image(Genesys_Scanner *s)
   size_t read_size;   /**> size of reads */
   int lines;	      /** number of lines of the scan */
   Genesys_Device *dev = s->dev;
-  SANE_Byte *lineart=NULL;
 
   /* compute maximum number of lines for the scan */
   if (s->params.lines > 0)
@@ -6099,14 +6098,7 @@ genesys_buffer_image(Genesys_Scanner *s)
   /* read size */
   read_size = size / 2;
 
-  /* allocate memory */
-  dev->img_buffer = (SANE_Byte *) malloc (size);
-  if (dev->img_buffer == NULL)
-    {
-      DBG(DBG_error, "%s: digital processing requires too much memory.\nConsider disabling it\n",
-          __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  dev->img_buffer.resize(size);
 
   /* loop reading data until we reach maximum or EOF */
   total = 0;
@@ -6117,10 +6109,9 @@ genesys_buffer_image(Genesys_Scanner *s)
 	{
 	  len = read_size;
 	}
-      status = genesys_read_ordered_data (dev, dev->img_buffer + total, &len);
+      status = genesys_read_ordered_data(dev, dev->img_buffer.data() + total, &len);
       if (status != SANE_STATUS_EOF && status != SANE_STATUS_GOOD)
 	{
-	  free (s->dev->img_buffer);
 	  DBG(DBG_error, "%s: %s buffering failed\n", __func__, sane_strstatus(status));
 	  return status;
 	}
@@ -6130,14 +6121,7 @@ genesys_buffer_image(Genesys_Scanner *s)
       if (total + read_size > size && status != SANE_STATUS_EOF)
 	{
 	  size += read_size;
-	  dev->img_buffer = (SANE_Byte *) realloc (dev->img_buffer, size);
-	  if (dev->img_buffer == NULL)
-	    {
-	      DBG(DBG_error0,
-		 "%s: digital processing requires too much memory.\nConsider disabling it\n",
-		 __func__);
-	      return SANE_STATUS_NO_MEM;
-	    }
+          dev->img_buffer.resize(size);
 	}
     }
 
@@ -6157,21 +6141,14 @@ genesys_buffer_image(Genesys_Scanner *s)
   if(s->dev->settings.dynamic_lineart==SANE_TRUE)
     {
       total/=8;
-      lineart=(SANE_Byte *)malloc(total);
-      if (lineart == NULL)
-        {
-          DBG(DBG_error0,
-              "%s: digital processing requires too much memory.\nConsider disabling it\n",
-              __func__);
-          return SANE_STATUS_NO_MEM;
-        }
+      std::vector<uint8_t> lineart(total);
+
       genesys_gray_lineart (dev,
-                            dev->img_buffer,
-                            lineart,
+                            dev->img_buffer.data(),
+                            lineart.data(),
                             dev->settings.pixels,
                             (total*8)/dev->settings.pixels,
                             dev->settings.threshold);
-      free(dev->img_buffer);
       dev->img_buffer = lineart;
     }
 
@@ -6183,7 +6160,7 @@ genesys_buffer_image(Genesys_Scanner *s)
   s->params.lines = total / s->params.bytes_per_line;
   if (DBG_LEVEL >= DBG_io2)
     {
-      sanei_genesys_write_pnm_file("gl_unprocessed.pnm", dev->img_buffer, s->params.depth,
+      sanei_genesys_write_pnm_file("gl_unprocessed.pnm", dev->img_buffer.data(), s->params.depth,
                                    s->params.format==SANE_FRAME_RGB ? 3 : 1,
                                    s->params.pixels_per_line, s->params.lines);
     }
@@ -6386,7 +6363,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->read_active = SANE_FALSE;
   s->dev->force_calibration = 0;
   s->dev->calib_file = NULL;
-  s->dev->img_buffer = NULL;
   s->dev->line_interp = 0;
   s->dev->line_count = 0;
   s->dev->segnb = 0;
@@ -7229,7 +7205,7 @@ SANE_Status sane_start_impl(SANE_Handle handle)
       if (s->val[OPT_SWSKIP].w && IS_ACTIVE(OPT_SWSKIP))
         {
           status = sanei_magic_isBlank(&s->params,
-				       s->dev->img_buffer,
+                                       s->dev->img_buffer.data(),
                                        SANE_UNFIX(s->val[OPT_SWSKIP].w));
           if(status == SANE_STATUS_NO_DOCS)
             {
@@ -7400,7 +7376,7 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
         {
           local_len=dev->total_bytes_to_read-dev->total_bytes_read;
         }
-      memcpy(buf,dev->img_buffer+dev->total_bytes_read,local_len);
+      memcpy(buf, dev->img_buffer.data() + dev->total_bytes_read, local_len);
       dev->total_bytes_read+=local_len;
     }
 
@@ -7437,11 +7413,7 @@ void sane_cancel_impl(SANE_Handle handle)
 
   s->scanning = SANE_FALSE;
   s->dev->read_active = SANE_FALSE;
-  if(s->dev->img_buffer!=NULL)
-    {
-      free(s->dev->img_buffer);
-      s->dev->img_buffer=NULL;
-    }
+  s->dev->img_buffer.clear();
 
   /* no need to end scan if we are parking the head */
   if(s->dev->parking==SANE_FALSE)

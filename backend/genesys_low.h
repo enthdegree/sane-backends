@@ -1004,7 +1004,7 @@ struct Genesys_Device
     SANE_Bool buffer_image = 0;
 
     // image buffer where the scanned picture is stored
-    SANE_Byte *img_buffer = nullptr;
+    std::vector<uint8_t> img_buffer;
 
     // binary logger file
     FILE *binary = nullptr;

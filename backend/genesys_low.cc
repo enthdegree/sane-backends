@@ -2329,3 +2329,22 @@ void sanei_gl_vector_destroy(Genesys_Vector* v)
   v->capacity = 0;
   v->element_size = 0;
 }
+
+static std::unique_ptr<std::vector<std::function<void()>>> s_functions_run_at_backend_exit;
+
+void add_function_to_run_at_backend_exit(std::function<void()> function)
+{
+    if (!s_functions_run_at_backend_exit)
+        s_functions_run_at_backend_exit.reset(new std::vector<std::function<void()>>());
+    s_functions_run_at_backend_exit->push_back(std::move(function));
+}
+
+void run_functions_at_backend_exit()
+{
+    for (auto it = s_functions_run_at_backend_exit->rbegin();
+         it != s_functions_run_at_backend_exit->rend(); ++it)
+    {
+        (*it)();
+    }
+    s_functions_run_at_backend_exit.release();
+}

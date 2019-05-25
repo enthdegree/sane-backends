@@ -81,8 +81,12 @@
 
 #include "../include/_stdint.h"
 
+#include <algorithm>
+#include <array>
+#include <functional>
 #include <memory>
 #include <stdexcept>
+#include <vector>
 
 #define DBG_error0      0	/* errors/warnings printed even with devuglevel 0 */
 #define DBG_error       1	/* fatal errors */
@@ -1316,5 +1320,39 @@ inline void wrap_status_code_to_exception(SANE_Status status)
         return;
     throw SaneException(status);
 }
+
+void add_function_to_run_at_backend_exit(std::function<void()> function);
+
+// calls functions added via add_function_to_run_at_backend_exit() in reverse order of being
+// added.
+void run_functions_at_backend_exit();
+
+template<class T>
+class StaticInit {
+public:
+    StaticInit() = default;
+    StaticInit(const StaticInit&) = delete;
+    StaticInit& operator=(const StaticInit&) = delete;
+
+    template<class... Args>
+    void init(Args&& ... args)
+    {
+        ptr_ = std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+        add_function_to_run_at_backend_exit([this](){ deinit(); });
+    }
+
+    void deinit()
+    {
+        ptr_.release();
+    }
+
+    const T* operator->() const { return ptr_.get(); }
+    T* operator->() { return ptr_.get(); }
+    const T& operator*() const { return *ptr_.get(); }
+    T& operator*() { return *ptr_.get(); }
+
+private:
+    std::unique_ptr<T> ptr_;
+};
 
 #endif /* not GENESYS_LOW_H */

@@ -6453,6 +6453,8 @@ sane_exit_impl(void)
 
   sanei_usb_exit();
 
+  run_functions_at_backend_exit();
+
   DBGCOMPLETED;
 }
 

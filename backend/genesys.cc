@@ -64,6 +64,7 @@
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_magic.h"
 #include "genesys_devices.cc"
+#include <exception>
 
 static SANE_Int num_devices = 0;
 static Genesys_Device *first_dev = 0;
@@ -5911,8 +5912,10 @@ init_options (Genesys_Scanner * s)
 }
 
 static SANE_Bool present;
+
+// this function is passed to C API, it must not throw
 static SANE_Status
-check_present (SANE_String_Const devname)
+check_present (SANE_String_Const devname) noexcept
 {
   present=SANE_TRUE;
   DBG(DBG_io, "%s: %s detected.\n", __func__, devname);
@@ -6041,7 +6044,7 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 }
 
 static SANE_Status
-attach_one_device (SANE_String_Const devname)
+attach_one_device_impl(SANE_String_Const devname)
 {
   Genesys_Device *dev;
   SANE_Status status;
@@ -6080,9 +6083,19 @@ attach_one_device (SANE_String_Const devname)
   return SANE_STATUS_GOOD;
 }
 
+static SANE_Status attach_one_device(SANE_String_Const devname)
+{
+    return wrap_exceptions_to_status_code(__func__, [=]()
+    {
+        return attach_one_device_impl(devname);
+    });
+}
+
 /* configuration framework functions */
+
+// this function is passed to C API, it must not throw
 static SANE_Status
-config_attach_genesys (SANEI_Config __sane_unused__ *config, const char *devname)
+config_attach_genesys(SANEI_Config __sane_unused__ *config, const char *devname) noexcept
 {
   /* the devname has been processed and is ready to be used
    * directly. Since the backend is an USB only one, we can
@@ -6444,7 +6457,7 @@ genesys_buffer_image(Genesys_Scanner *s)
 /* -------------------------- SANE API functions ------------------------- */
 
 SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   SANE_Status status;
 
@@ -6491,8 +6504,17 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   return status;
 }
 
+
+extern "C" SANE_Status sane_init(SANE_Int * version_code, SANE_Auth_Callback authorize)
+{
+    return wrap_exceptions_to_status_code(__func__, [=]()
+    {
+        return sane_init_impl(version_code, authorize);
+    });
+}
+
 void
-sane_exit (void)
+sane_exit_impl(void)
 {
   Genesys_Device *dev, *next;
 
@@ -6516,8 +6538,13 @@ sane_exit (void)
   DBGCOMPLETED;
 }
 
+void sane_exit()
+{
+    catch_all_exceptions(__func__, [](){ sane_exit_impl(); });
+}
+
 SANE_Status
-sane_get_devices(const SANE_Device *** device_list, SANE_Bool local_only)
+sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
 {
   Genesys_Device *dev, *prev;
   SANE_Int index;
@@ -6605,8 +6632,16 @@ sane_get_devices(const SANE_Device *** device_list, SANE_Bool local_only)
   return SANE_STATUS_GOOD;
 }
 
+SANE_Status sane_get_devices(const SANE_Device *** device_list, SANE_Bool local_only)
+{
+    return wrap_exceptions_to_status_code(__func__, [=]()
+    {
+        return sane_get_devices_impl(device_list, local_only);
+    });
+}
+
 SANE_Status
-sane_open (SANE_String_Const devicename, SANE_Handle * handle)
+sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 {
   Genesys_Device *dev;
   SANE_Status status;
@@ -6731,8 +6766,16 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   return SANE_STATUS_GOOD;
 }
 
+SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle* handle)
+{
+    return wrap_exceptions_to_status_code(__func__, [=]()
+    {
+        return sane_open_impl(devicename, handle);
+    });
+}
+
 void
-sane_close (SANE_Handle handle)
+sane_close_impl(SANE_Handle handle)
 {
   Genesys_Scanner *prev, *s;
   Genesys_Calibration_Cache *cache, *next_cache;
@@ -6840,8 +6883,16 @@ sane_close (SANE_Handle handle)
   DBGCOMPLETED;
 }
 
+void sane_close(SANE_Handle handle)
+{
+    catch_all_exceptions(__func__, [=]()
+    {
+        sane_close_impl(handle);
+    });
+}
+
 const SANE_Option_Descriptor *
-sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
+sane_get_option_descriptor_impl(SANE_Handle handle, SANE_Int option)
 {
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
 
@@ -6850,6 +6901,19 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   DBG(DBG_io2, "%s: option = %s (%d)\n", __func__, s->opt[option].name, option);
   return s->opt + option;
 }
+
+
+const SANE_Option_Descriptor *
+sane_get_option_descriptor(SANE_Handle handle, SANE_Int option)
+{
+    const SANE_Option_Descriptor* ret = NULL;
+    catch_all_exceptions(__func__, [&]()
+    {
+        ret = sane_get_option_descriptor_impl(handle, option);
+    });
+    return ret;
+}
+
 
 /* gets an option , called by sane_control_option */
 static SANE_Status
@@ -7368,8 +7432,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 
 /* sets and gets scanner option values */
 SANE_Status
-sane_control_option (SANE_Handle handle, SANE_Int option,
-		     SANE_Action action, void *val, SANE_Int * info)
+sane_control_option_impl(SANE_Handle handle, SANE_Int option,
+                         SANE_Action action, void *val, SANE_Int * info)
 {
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -7449,10 +7513,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   return status;
 }
 
+SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option,
+                                SANE_Action action, void *val, SANE_Int * info)
+{
+    return wrap_exceptions_to_status_code(__func__, [=]()
+    {
+        return sane_control_option_impl(handle, option, action, val, info);
+    });
+}
 
-
-SANE_Status
-sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
+SANE_Status sane_get_parameters_impl(SANE_Handle handle, SANE_Parameters* params)
 {
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
   SANE_Status status;
@@ -7486,8 +7556,15 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status
-sane_start (SANE_Handle handle)
+SANE_Status sane_get_parameters(SANE_Handle handle, SANE_Parameters* params)
+{
+    return wrap_exceptions_to_status_code(__func__, [=]()
+    {
+        return sane_get_parameters_impl(handle, params);
+    });
+}
+
+SANE_Status sane_start_impl(SANE_Handle handle)
 {
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
   SANE_Status status=SANE_STATUS_GOOD;
@@ -7577,9 +7654,16 @@ sane_start (SANE_Handle handle)
   return status;
 }
 
+SANE_Status sane_start(SANE_Handle handle)
+{
+    return wrap_exceptions_to_status_code(__func__, [=]()
+    {
+        return sane_start_impl(handle);
+    });
+}
+
 SANE_Status
-sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
-	   SANE_Int * len)
+sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
 {
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
   Genesys_Device *dev;
@@ -7711,8 +7795,15 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   return status;
 }
 
-void
-sane_cancel (SANE_Handle handle)
+SANE_Status sane_read(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
+{
+    return wrap_exceptions_to_status_code(__func__, [=]()
+    {
+        return sane_read_impl(handle, buf, max_len, len);
+    });
+}
+
+void sane_cancel_impl(SANE_Handle handle)
 {
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -7786,8 +7877,13 @@ sane_cancel (SANE_Handle handle)
   return;
 }
 
+void sane_cancel(SANE_Handle handle)
+{
+    catch_all_exceptions(__func__, [=]() { sane_cancel_impl(handle); });
+}
+
 SANE_Status
-sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+sane_set_io_mode_impl(SANE_Handle handle, SANE_Bool non_blocking)
 {
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
 
@@ -7805,7 +7901,16 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 }
 
 SANE_Status
-sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+sane_set_io_mode(SANE_Handle handle, SANE_Bool non_blocking)
+{
+    return wrap_exceptions_to_status_code(__func__, [=]()
+    {
+        return sane_set_io_mode_impl(handle, non_blocking);
+    });
+}
+
+SANE_Status
+sane_get_select_fd_impl(SANE_Handle handle, SANE_Int * fd)
 {
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
 
@@ -7817,6 +7922,15 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
       return SANE_STATUS_INVAL;
     }
   return SANE_STATUS_UNSUPPORTED;
+}
+
+SANE_Status
+sane_get_select_fd(SANE_Handle handle, SANE_Int * fd)
+{
+    return wrap_exceptions_to_status_code(__func__, [=]()
+    {
+        return sane_get_select_fd_impl(handle, fd);
+    });
 }
 
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

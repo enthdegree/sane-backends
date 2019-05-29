@@ -52,6 +52,8 @@
 
 #include "genesys_gl646.h"
 
+#include <vector>
+
 /**
  * reads value from gpio endpoint
  */
@@ -933,19 +935,17 @@ gl646_setup_registers (Genesys_Device * dev,
     2 * requested_buffer_size +
     ((max_shift + stagger) * scan_settings.pixels * channels * depth) / 8;
 
-  RIE (sanei_genesys_buffer_free (&(dev->read_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->read_buffer), read_buffer_size));
+    dev->read_buffer.clear();
+    dev->read_buffer.alloc(read_buffer_size);
 
-  RIE (sanei_genesys_buffer_free (&(dev->lines_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->lines_buffer), read_buffer_size));
+    dev->lines_buffer.clear();
+    dev->lines_buffer.alloc(read_buffer_size);
 
-  RIE (sanei_genesys_buffer_free (&(dev->shrink_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->shrink_buffer),
-				   requested_buffer_size));
+    dev->shrink_buffer.clear();
+    dev->shrink_buffer.alloc(requested_buffer_size);
 
-  RIE (sanei_genesys_buffer_free (&(dev->out_buffer)));
-  RIE (sanei_genesys_buffer_alloc (&(dev->out_buffer),
-				   8 * scan_settings.pixels * channels * bpp));
+    dev->out_buffer.clear();
+    dev->out_buffer.alloc(8 * scan_settings.pixels * channels * bpp);
 
   /* scan bytes to read */
   dev->read_bytes_left = words_per_line * linecnt;
@@ -1027,8 +1027,6 @@ gl646_asic_test (Genesys_Device * dev)
 {
   SANE_Status status;
   uint8_t val;
-  uint8_t *data;
-  uint8_t *verify_data;
   size_t size, verify_size;
   unsigned int i;
 
@@ -1080,20 +1078,8 @@ gl646_asic_test (Genesys_Device * dev)
      otherwise the read doesn't succeed the second time after the scanner has
      been plugged in. Very strange. */
 
-  data = (uint8_t *) malloc (size);
-  if (!data)
-    {
-      DBG(DBG_error, "%s: could not allocate memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
-
-  verify_data = (uint8_t *) malloc (verify_size);
-  if (!verify_data)
-    {
-      free (data);
-      DBG(DBG_error, "%s: could not allocate memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> data(size);
+  std::vector<uint8_t> verify_data(verify_size);
 
   for (i = 0; i < (size - 1); i += 2)
     {
@@ -1105,17 +1091,13 @@ gl646_asic_test (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
-      free (data);
-      free (verify_data);
       return status;
     }
 
-  status = sanei_genesys_bulk_write_data(dev, 0x3c, data, size);
+  status = sanei_genesys_bulk_write_data(dev, 0x3c, data.data(), size);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write data: %s\n", __func__, sane_strstatus(status));
-      free (data);
-      free (verify_data);
       return status;
     }
 
@@ -1123,18 +1105,14 @@ gl646_asic_test (Genesys_Device * dev)
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
-      free (data);
-      free (verify_data);
       return status;
     }
 
   status =
-    gl646_bulk_read_data (dev, 0x45, (uint8_t *) verify_data, verify_size);
+    gl646_bulk_read_data (dev, 0x45, verify_data.data(), verify_size);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk read data: %s\n", __func__, sane_strstatus(status));
-      free (data);
-      free (verify_data);
       return status;
     }
 
@@ -1145,14 +1123,9 @@ gl646_asic_test (Genesys_Device * dev)
       if (verify_data[i + 2] != data[i])
 	{
 	  DBG(DBG_error, "%s: data verification error\n", __func__);
-	  free (data);
-	  free (verify_data);
-	  return SANE_STATUS_IO_ERROR;
+          return SANE_STATUS_IO_ERROR;
 	}
     }
-
-  free (data);
-  free (verify_data);
 
   DBG(DBG_info, "%s: end\n", __func__);
 
@@ -1367,10 +1340,6 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
   int dpihw;
   int start_address;
   SANE_Status status;
-  uint8_t *table;
-#ifdef WORDS_BIGENDIAN
-  int i;
-#endif
 
   DBG(DBG_proc, "%s (table_nr = %d, steps = %d)=%d .. %d\n", __func__, table_nr, steps,
       slope_table[0], slope_table[steps - 1]);
@@ -1386,41 +1355,28 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
   else				/* reserved */
     return SANE_STATUS_INVAL;
 
-#ifdef WORDS_BIGENDIAN
-  table = (uint8_t *) malloc (steps * 2);
-  for (i = 0; i < steps; i++)
+  std::vector<uint8_t> table(steps * 2);
+  for (int i = 0; i < steps; i++)
     {
       table[i * 2] = slope_table[i] & 0xff;
       table[i * 2 + 1] = slope_table[i] >> 8;
     }
-#else
-  table = (uint8_t *) slope_table;
-#endif
 
   status =
     sanei_genesys_set_buffer_address (dev, start_address + table_nr * 0x100);
   if (status != SANE_STATUS_GOOD)
     {
-#ifdef WORDS_BIGENDIAN
-      free (table);
-#endif
       DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-  status = sanei_genesys_bulk_write_data(dev, 0x3c, (uint8_t *) table, steps * 2);
+  status = sanei_genesys_bulk_write_data(dev, 0x3c, table.data(), steps * 2);
   if (status != SANE_STATUS_GOOD)
     {
-#ifdef WORDS_BIGENDIAN
-      free (table);
-#endif
       DBG(DBG_error, "%s: failed to send slope table: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-#ifdef WORDS_BIGENDIAN
-  free (table);
-#endif
   DBG(DBG_proc, "%s: end\n", __func__);
   return status;
 }
@@ -2708,7 +2664,6 @@ static SANE_Status
 gl646_search_start_position (Genesys_Device * dev)
 {
   SANE_Status status;
-  unsigned char *data = NULL;
   Genesys_Settings settings;
   unsigned int resolution, x, y;
 
@@ -2735,8 +2690,8 @@ gl646_search_start_position (Genesys_Device * dev)
   settings.dynamic_lineart = SANE_FALSE;
 
   /* scan the desired area */
-  status =
-    simple_scan (dev, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, &data);
+  std::vector<uint8_t> data;
+  status = simple_scan(dev, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, data);
 
   /* process data if scan is OK */
   if (status == SANE_STATUS_GOOD)
@@ -2760,21 +2715,20 @@ gl646_search_start_position (Genesys_Device * dev)
 	}
       if (DBG_LEVEL >= DBG_data)
 	{
-          sanei_genesys_write_pnm_file("gl646_search_position.pnm", data, settings.depth, 1,
+          sanei_genesys_write_pnm_file("gl646_search_position.pnm", data.data(), settings.depth, 1,
                                        settings.pixels, settings.lines);
 	}
     }
   else
     {
       DBG(DBG_error, "%s: simple_scan failed\n", __func__);
-      free (data);
       DBGCOMPLETED;
       return status;
     }
 
   /* now search reference points on the data */
   status =
-    sanei_genesys_search_reference_point (dev, data,
+    sanei_genesys_search_reference_point (dev, data.data(),
 					  dev->sensor.CCD_start_xoffset,
 					  resolution, settings.pixels,
 					  settings.lines);
@@ -2784,7 +2738,6 @@ gl646_search_start_position (Genesys_Device * dev)
           sane_strstatus(status));
     }
 
-  free (data);
   DBGCOMPLETED;
   return status;
 }
@@ -3153,7 +3106,6 @@ gl646_send_gamma_table (Genesys_Device * dev)
   int size;
   int address;
   SANE_Status status;
-  uint8_t *gamma;
   int bits;
 
   DBGSTART;
@@ -3171,13 +3123,9 @@ gl646_send_gamma_table (Genesys_Device * dev)
     }
 
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
-  gamma = (uint8_t *) malloc (size * 2 * 3);
-  if (gamma==NULL)
-    {
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> gamma(size * 2 * 3);
 
-  RIE(sanei_genesys_generate_gamma_buffer(dev, bits, size-1, size, gamma));
+  RIE(sanei_genesys_generate_gamma_buffer(dev, bits, size-1, size, gamma.data()));
 
   /* table address */
   switch (dev->reg[reg_0x05].value >> 6)
@@ -3192,7 +3140,6 @@ gl646_send_gamma_table (Genesys_Device * dev)
       address = 0x20000;
       break;
     default:
-      free (gamma);
       return SANE_STATUS_INVAL;
     }
 
@@ -3200,20 +3147,17 @@ gl646_send_gamma_table (Genesys_Device * dev)
   status = sanei_genesys_set_buffer_address (dev, address);
   if (status != SANE_STATUS_GOOD)
     {
-      free (gamma);
       DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
   /* send data */
-  status = sanei_genesys_bulk_write_data(dev, 0x3c, (uint8_t *) gamma, size * 2 * 3);
+  status = sanei_genesys_bulk_write_data(dev, 0x3c, gamma.data(), size * 2 * 3);
   if (status != SANE_STATUS_GOOD)
     {
-      free (gamma);
       DBG(DBG_error, "%s: failed to send gamma table: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  free (gamma);
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -3228,7 +3172,6 @@ static SANE_Status
 gl646_led_calibration (Genesys_Device * dev)
 {
   int total_size;
-  uint8_t *line;
   unsigned int i, j;
   SANE_Status status = SANE_STATUS_GOOD;
   int val;
@@ -3286,12 +3229,7 @@ gl646_led_calibration (Genesys_Device * dev)
   /* colors * bytes_per_color * scan lines */
   total_size = settings.pixels * channels * 2 * 1;
 
-  line = (uint8_t*) malloc(total_size);
-  if (!line)
-    {
-      DBG(DBG_error, "%s: failed to allocate %d bytes\n", __func__, total_size);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> line(total_size);
 
 /*
    we try to get equal bright leds here:
@@ -3321,11 +3259,9 @@ gl646_led_calibration (Genesys_Device * dev)
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
 
-      status =
-	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &line);
+      status = simple_scan(dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, line);
       if (status != SANE_STATUS_GOOD)
 	{
-          free(line);
           DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
@@ -3334,7 +3270,7 @@ gl646_led_calibration (Genesys_Device * dev)
 	{
           char fn[30];
           snprintf(fn, 30, "gl646_led_%02d.pnm", turn);
-          sanei_genesys_write_pnm_file(fn, line, 16, channels, settings.pixels, 1);
+          sanei_genesys_write_pnm_file(fn, line.data(), 16, channels, settings.pixels, 1);
 	}
 
       acceptable = SANE_TRUE;
@@ -3392,9 +3328,6 @@ gl646_led_calibration (Genesys_Device * dev)
 
   DBG(DBG_info,"%s: acceptable exposure: 0x%04x,0x%04x,0x%04x\n", __func__, expr, expg, expb);
 
-  /* cleanup before return */
-  free (line);
-
   DBGCOMPLETED;
   return status;
 }
@@ -3445,7 +3378,6 @@ static SANE_Status
 ad_fe_offset_calibration (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  uint8_t *line;
   unsigned int channels;
   int pass = 0;
   SANE_Int resolution;
@@ -3484,6 +3416,8 @@ ad_fe_offset_calibration (Genesys_Device * dev)
   dev->frontend.gain[1] = 0;
   dev->frontend.gain[2] = 0;
 
+  std::vector<uint8_t> line;
+
   /* scan with no move */
   bottom = 1;
   do
@@ -3493,10 +3427,9 @@ ad_fe_offset_calibration (Genesys_Device * dev)
       dev->frontend.offset[1] = bottom;
       dev->frontend.offset[2] = bottom;
       status =
-	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &line);
+        simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, line);
       if (status != SANE_STATUS_GOOD)
 	{
-          free(line);
           DBG(DBG_error, "%s: failed to scan first line\n", __func__);
 	  return status;
 	}
@@ -3504,7 +3437,7 @@ ad_fe_offset_calibration (Genesys_Device * dev)
 	{
           char title[30];
           snprintf(title, 30, "gl646_offset%03d.pnm", (int)bottom);
-	  sanei_genesys_write_pnm_file (title, line, 8, channels,
+          sanei_genesys_write_pnm_file (title, line.data(), 8, channels,
 					settings.pixels, settings.lines);
 	}
 
@@ -3523,7 +3456,6 @@ ad_fe_offset_calibration (Genesys_Device * dev)
 	    }
 	}
 
-      free (line);
       DBG(DBG_io2, "%s: pass=%d, min=%d\n", __func__, pass, min);
       bottom++;
     }
@@ -3553,7 +3485,6 @@ static SANE_Status
 gl646_offset_calibration (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  uint8_t *first_line, *second_line;
   unsigned int channels;
   int pass = 0, avg;
   SANE_Int resolution;
@@ -3616,12 +3547,12 @@ gl646_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[0] = bottom;
   dev->frontend.offset[1] = bottom;
   dev->frontend.offset[2] = bottom;
-  status =
-    simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE,
-		 &first_line);
+
+  std::vector<uint8_t> first_line, second_line;
+
+  status = simple_scan(dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, first_line);
   if (status != SANE_STATUS_GOOD)
     {
-      free(first_line);
       DBG(DBG_error, "%s: failed to scan first line\n", __func__);
       return status;
     }
@@ -3629,13 +3560,11 @@ gl646_offset_calibration (Genesys_Device * dev)
     {
       char title[30];
       snprintf(title, 30, "gl646_offset%03d.pnm", bottom);
-      sanei_genesys_write_pnm_file(title, first_line, 8, channels,
+      sanei_genesys_write_pnm_file(title, first_line.data(), 8, channels,
                                    settings.pixels, settings.lines);
     }
-  bottomavg =
-    dark_average (first_line, settings.pixels, settings.lines, channels,
-		  black_pixels);
-  free (first_line);
+  bottomavg = dark_average(first_line.data(), settings.pixels, settings.lines, channels,
+                           black_pixels);
   DBG(DBG_io2, "%s: bottom avg=%d\n", __func__, bottomavg);
 
   /* now top value */
@@ -3643,12 +3572,9 @@ gl646_offset_calibration (Genesys_Device * dev)
   dev->frontend.offset[0] = top;
   dev->frontend.offset[1] = top;
   dev->frontend.offset[2] = top;
-  status =
-    simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE,
-		 &second_line);
+  status = simple_scan(dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, second_line);
   if (status != SANE_STATUS_GOOD)
     {
-      free(second_line);
       DBG(DBG_error, "%s: failed to scan first line\n", __func__);
       return status;
     }
@@ -3657,13 +3583,11 @@ gl646_offset_calibration (Genesys_Device * dev)
     {
       char title[30];
       snprintf(title, 30, "gl646_offset%03d.pnm", top);
-      sanei_genesys_write_pnm_file (title, second_line, 8, channels,
+      sanei_genesys_write_pnm_file (title, second_line.data(), 8, channels,
 				    settings.pixels, settings.lines);
     }
-  topavg =
-    dark_average (second_line, settings.pixels, settings.lines, channels,
-		  black_pixels);
-  free (second_line);
+  topavg = dark_average(second_line.data(), settings.pixels, settings.lines, channels,
+                        black_pixels);
   DBG(DBG_io2, "%s: top avg=%d\n", __func__, topavg);
 
   /* loop until acceptable level */
@@ -3677,12 +3601,9 @@ gl646_offset_calibration (Genesys_Device * dev)
       dev->frontend.offset[2] = (top + bottom) / 2;
 
       /* scan with no move */
-      status =
-	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE,
-		     &second_line);
+      status = simple_scan(dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, second_line);
       if (status != SANE_STATUS_GOOD)
 	{
-          free(second_line);
           DBG(DBG_error, "%s: failed to scan first line\n", __func__);
 	  return status;
 	}
@@ -3691,15 +3612,14 @@ gl646_offset_calibration (Genesys_Device * dev)
 	{
           char title[30];
           snprintf(title, 30, "gl646_offset%03d.pnm", dev->frontend.offset[1]);
-	  sanei_genesys_write_pnm_file (title, second_line, 8, channels,
+          sanei_genesys_write_pnm_file (title, second_line.data(), 8, channels,
 					settings.pixels, settings.lines);
 	}
 
       avg =
-	dark_average (second_line, settings.pixels, settings.lines, channels,
+        dark_average (second_line.data(), settings.pixels, settings.lines, channels,
 		      black_pixels);
       DBG(DBG_info, "%s: avg=%d offset=%d\n", __func__, avg, dev->frontend.offset[1]);
-      free (second_line);
 
       /* compute new boundaries */
       if (topavg == avg)
@@ -3717,18 +3637,14 @@ gl646_offset_calibration (Genesys_Device * dev)
   /* in case of debug do a final scan to get result */
   if (DBG_LEVEL >= DBG_data)
     {
-      status =
-	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE,
-		     &second_line);
+      status = simple_scan(dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, second_line);
       if (status != SANE_STATUS_GOOD)
 	{
-          free(second_line);
           DBG(DBG_error, "%s: failed to scan final line\n", __func__);
 	  return status;
 	}
-      sanei_genesys_write_pnm_file("gl646_offset-final.pnm", second_line, 8, channels,
+      sanei_genesys_write_pnm_file("gl646_offset-final.pnm", second_line.data(), 8, channels,
                                    settings.pixels, settings.lines);
-      free (second_line);
     }
 
   DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__, dev->frontend.offset[0],
@@ -3743,7 +3659,6 @@ gl646_offset_calibration (Genesys_Device * dev)
 static SANE_Status
 ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 {
-  uint8_t *line;
   unsigned int i, channels, val;
   unsigned int size, count, resolution, pass;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -3785,15 +3700,16 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   average = 0;
   pass = 0;
 
+  std::vector<uint8_t> line;
+
   /* loop until each channel raises to acceptable level */
   while ((average < dev->sensor.gain_white_ref) && (pass < 30))
     {
       /* scan with no move */
       status =
-	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &line);
+        simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, line);
       if (status != SANE_STATUS_GOOD)
 	{
-          free(line);
           DBG(DBG_error, "%s: failed to scan first line\n", __func__);
 	  return status;
 	}
@@ -3802,7 +3718,8 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       if (DBG_LEVEL >= DBG_data)
 	{
           sprintf (title, "gl646_alternative_coarse%02d.pnm", (int)pass);
-          sanei_genesys_write_pnm_file(title, line, 8, channels, settings.pixels, settings.lines);
+          sanei_genesys_write_pnm_file(title, line.data(), 8, channels, settings.pixels,
+                                       settings.lines);
 	}
       pass++;
 
@@ -3824,7 +3741,6 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       dev->frontend.gain[2] = dev->frontend.gain[0];
 
       DBG(DBG_proc, "%s: average = %.2f, gain = %d\n", __func__, average, dev->frontend.gain[0]);
-      free (line);
     }
 
   DBG(DBG_info, "%s: gains=(%d,%d,%d)\n", __func__, dev->frontend.gain[0], dev->frontend.gain[1],
@@ -3843,7 +3759,6 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 static SANE_Status
 gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 {
-  uint8_t *line;
   unsigned int i, j, k, channels, val, maximum, idx;
   unsigned int count, resolution, pass;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -3919,6 +3834,8 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
     }
   pass = 0;
 
+  std::vector<uint8_t> line;
+
   /* loop until each channel raises to acceptable level */
   while (((average[0] < dev->sensor.gain_white_ref)
 	  || (average[1] < dev->sensor.gain_white_ref)
@@ -3926,10 +3843,9 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
     {
       /* scan with no move */
       status =
-	simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, &line);
+        simple_scan (dev, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, line);
       if (status != SANE_STATUS_GOOD)
 	{
-          free(line);
           DBG(DBG_error, "%s: failed to scan first line\n", __func__);
 	  return status;
 	}
@@ -3938,7 +3854,8 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
       if (DBG_LEVEL >= DBG_data)
 	{
           sprintf (title, "gl646_coarse_gain%02d.pnm", (int)pass);
-          sanei_genesys_write_pnm_file(title, line, 8, channels, settings.pixels, settings.lines);
+          sanei_genesys_write_pnm_file(title, line.data(), 8, channels, settings.pixels,
+                                       settings.lines);
 	}
       pass++;
 
@@ -3988,7 +3905,6 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	  DBG(DBG_proc, "%s: channel %d, average = %.2f, gain = %d\n", __func__, k, average[k],
 	      dev->frontend.gain[k]);
 	}
-      free (line);
     }
 
   if (channels < 3)
@@ -4191,8 +4107,8 @@ gl646_init (Genesys_Device * dev)
   /* if scanning session hasn't been initialized, set it up */
   if (!dev->already_initialized)
     {
-      dev->dark_average_data = NULL;
-      dev->white_average_data = NULL;
+      dev->dark_average_data.clear();
+      dev->white_average_data.clear();
 
       dev->settings.color_filter = 1;	/* green filter by default */
       gettimeofday (&tv, NULL);
@@ -4225,15 +4141,10 @@ gl646_init (Genesys_Device * dev)
 
       for(i=0;i<3;i++)
         {
-          if (dev->sensor.gamma_table[i] == NULL)
+          if (dev->sensor.gamma_table[i].empty())
             {
-              dev->sensor.gamma_table[i] = (uint16_t *) malloc (2 * size);
-              if (dev->sensor.gamma_table[i] == NULL)
-                {
-                  DBG(DBG_error, "%s: could not allocate memory for gamma table %d\n", __func__, i);
-                  return SANE_STATUS_NO_MEM;
-                }
-              sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
+              dev->sensor.gamma_table[i].resize(size, 0);
+              sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i].data(),
                                                 size,
                                                 size - 1,
                                                 size - 1,
@@ -4446,12 +4357,11 @@ gl646_move_to_ta (Genesys_Device * dev)
  */
 static SANE_Status
 simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
-	     SANE_Bool forward, SANE_Bool shading, unsigned char **data)
+             SANE_Bool forward, SANE_Bool shading, std::vector<uint8_t>& data)
 {
   SANE_Status status = SANE_STATUS_INVAL;
   unsigned int size, lines, x, y, bpp;
   SANE_Bool empty, split;
-  unsigned char *buffer;
   int count;
   uint8_t val;
 
@@ -4501,12 +4411,9 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   size *= bpp;
   if (settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     size *= 3;
-  *data = (uint8_t*) malloc(size);
-  if (!*data)
-    {
-      DBG(DBG_error, "%s: failed to allocate %d bytes of memory\n", __func__, size);
-      return SANE_STATUS_NO_MEM;
-    }
+  data.clear();
+  data.resize(size);
+
   DBG(DBG_io, "%s: allocated %d bytes of memory for %d lines\n", __func__, size, lines);
 
   /* put back real line number in settings */
@@ -4516,7 +4423,6 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   status = gl646_set_fe (dev, AFE_SET, settings.xres);
   if (status != SANE_STATUS_GOOD)
     {
-      free (*data);
       DBG(DBG_error, "%s: failed to set frontend: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -4563,7 +4469,6 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
-      free (*data);
       return status;
     }
 
@@ -4571,7 +4476,6 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   status = gl646_begin_scan (dev, dev->reg, move);
   if (status != SANE_STATUS_GOOD)
     {
-      free (*data);
       DBG(DBG_error, "%s: failed to begin scan: \n", __func__);
       return status;
     }
@@ -4592,16 +4496,14 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   while (empty && count < 1000);
   if (count == 1000)
     {
-      free (*data);
       DBG(DBG_error, "%s: failed toread data\n", __func__);
       return SANE_STATUS_IO_ERROR;
     }
 
   /* now we're on target, we can read data */
-  status = sanei_genesys_read_data_from_scanner (dev, *data, size);
+  status = sanei_genesys_read_data_from_scanner (dev, data.data(), size);
   if (status != SANE_STATUS_GOOD)
     {
-      free (*data);
       DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -4611,13 +4513,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
       && settings.scan_mode == SCAN_MODE_COLOR)
     {
       /* alloc one line sized working buffer */
-      buffer = (unsigned char *) malloc (settings.pixels * 3 * bpp);
-      if (buffer == NULL)
-	{
-	  DBG(DBG_error, "%s: failed to allocate %d bytes of memory\n", __func__,
-	      settings.pixels * 3);
-	  return SANE_STATUS_NO_MEM;
-	}
+      std::vector<uint8_t> buffer(settings.pixels * 3 * bpp);
 
       /* reorder one line of data and put it back to buffer */
       if (bpp == 1)
@@ -4627,15 +4523,12 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 	      /* reorder line */
 	      for (x = 0; x < settings.pixels; x++)
 		{
-		  buffer[x * 3] = (*data)[y * settings.pixels * 3 + x];
-		  buffer[x * 3 + 1] =
-		    (*data)[y * settings.pixels * 3 + settings.pixels + x];
-		  buffer[x * 3 + 2] =
-		    (*data)[y * settings.pixels * 3 + 2 * settings.pixels +
-			    x];
+                  buffer[x * 3] = data[y * settings.pixels * 3 + x];
+                  buffer[x * 3 + 1] = data[y * settings.pixels * 3 + settings.pixels + x];
+                  buffer[x * 3 + 2] = data[y * settings.pixels * 3 + 2 * settings.pixels + x];
 		}
 	      /* copy line back */
-	      memcpy ((*data) + settings.pixels * 3 * y, buffer,
+              memcpy (data.data() + settings.pixels * 3 * y, buffer.data(),
 		      settings.pixels * 3);
 	    }
 	}
@@ -4646,35 +4539,24 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
 	      /* reorder line */
 	      for (x = 0; x < settings.pixels; x++)
 		{
-		  buffer[x * 6] = (*data)[y * settings.pixels * 6 + x * 2];
-		  buffer[x * 6 + 1] =
-		    (*data)[y * settings.pixels * 6 + x * 2 + 1];
-		  buffer[x * 6 + 2] =
-		    (*data)[y * settings.pixels * 6 + 2 * settings.pixels +
-			    x * 2];
-		  buffer[x * 6 + 3] =
-		    (*data)[y * settings.pixels * 6 + 2 * settings.pixels +
-			    x * 2 + 1];
-		  buffer[x * 6 + 4] =
-		    (*data)[y * settings.pixels * 6 + 4 * settings.pixels +
-			    x * 2];
-		  buffer[x * 6 + 5] =
-		    (*data)[y * settings.pixels * 6 + 4 * settings.pixels +
-			    x * 2 + 1];
+                  buffer[x * 6] = data[y * settings.pixels * 6 + x * 2];
+                  buffer[x * 6 + 1] = data[y * settings.pixels * 6 + x * 2 + 1];
+                  buffer[x * 6 + 2] = data[y * settings.pixels * 6 + 2 * settings.pixels + x * 2];
+                  buffer[x * 6 + 3] = data[y * settings.pixels * 6 + 2 * settings.pixels + x * 2 + 1];
+                  buffer[x * 6 + 4] = data[y * settings.pixels * 6 + 4 * settings.pixels + x * 2];
+                  buffer[x * 6 + 5] = data[y * settings.pixels * 6 + 4 * settings.pixels + x * 2 + 1];
 		}
 	      /* copy line back */
-	      memcpy ((*data) + settings.pixels * 6 * y, buffer,
+              memcpy (data.data() + settings.pixels * 6 * y, buffer.data(),
 		      settings.pixels * 6);
 	    }
 	}
-      free (buffer);
     }
 
   /* end scan , waiting the motor to stop if needed (if moving), but without ejecting doc */
   status = end_scan (dev, dev->reg, SANE_TRUE, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (*data);
       DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -4694,7 +4576,6 @@ static SANE_Status
 simple_move (Genesys_Device * dev, SANE_Int distance)
 {
   SANE_Status status;
-  unsigned char *data = NULL;
   Genesys_Settings settings;
 
   DBG(DBG_proc, "%s: %d mm\n", __func__, distance);
@@ -4717,13 +4598,13 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
   settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
-  status = simple_scan (dev, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, &data);
+  std::vector<uint8_t> data;
+  status = simple_scan (dev, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, data);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: simple_scan failed\n", __func__);
     }
 
-  free (data);
   DBGCOMPLETED
   return status;
 }
@@ -5050,7 +4931,6 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   SANE_Bool half_ccd = SANE_FALSE;
   Genesys_Settings settings;
   int res = get_closest_resolution (dev->model->ccd_type, 75, SANE_FALSE);
-  unsigned char *data = NULL;
   unsigned int pass, count, found, x, y;
   char title[80];
 
@@ -5094,23 +4974,24 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
   /* detection pass done */
   pass = 0;
 
+  std::vector<uint8_t> data;
+
   /* loop until strip is found or maximum pass number done */
   while (pass < 20 && !found)
     {
       /* scan a full width strip */
       status =
-	simple_scan (dev, settings, SANE_TRUE, forward, SANE_FALSE, &data);
+        simple_scan (dev, settings, SANE_TRUE, forward, SANE_FALSE, data);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: simple_scan failed\n", __func__);
-	  free (data);
 	  return status;
 	}
       if (DBG_LEVEL >= DBG_data)
 	{
           sprintf (title, "gl646_search_strip_%s%02d.pnm", forward ? "fwd" : "bwd",
 		   (int)pass);
-	  sanei_genesys_write_pnm_file (title, data, settings.depth, 1,
+          sanei_genesys_write_pnm_file (title, data.data(), settings.depth, 1,
 					settings.pixels, settings.lines);
 	}
 
@@ -5189,7 +5070,6 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 	}
       pass++;
     }
-  free (data);
   if (found)
     {
       status = SANE_STATUS_GOOD;

@@ -64,18 +64,15 @@
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_magic.h"
 #include "genesys_devices.cc"
-#include <exception>
 
-static SANE_Int num_devices = 0;
-static Genesys_Device *first_dev = 0;
-static Genesys_Scanner *first_handle = 0;
-static SANE_Device **devlist = 0;
-/* Array of newly attached devices */
-static Genesys_Device **new_dev = 0;
-/* Length of new_dev array */
-static SANE_Int new_dev_len = 0;
-/* Number of entries alloced for new_dev */
-static SANE_Int new_dev_alloced = 0;
+#include <cstring>
+#include <exception>
+#include <vector>
+
+StaticInit<std::list<Genesys_Scanner>> s_scanners;
+StaticInit<std::vector<SANE_Device>> s_sane_devices;
+StaticInit<std::vector<SANE_Device*>> s_sane_devices_ptrs;
+StaticInit<std::list<Genesys_Device>> s_devices;
 
 static SANE_String_Const mode_list[] = {
   SANE_VALUE_SCAN_MODE_COLOR,
@@ -172,14 +169,13 @@ sanei_genesys_init_structs (Genesys_Device * dev)
   unsigned int i, sensor_ok = 0, gpo_ok = 0, motor_ok = 0;
 
   /* initialize the sensor data stuff */
-  for (i = 0; i < sizeof (Sensor) / sizeof (Genesys_Sensor); i++)
-    {
-      if (dev->model->ccd_type == Sensor[i].sensor_id)
-	{
-	  memcpy (&dev->sensor, &Sensor[i], sizeof (Genesys_Sensor));
-	  sensor_ok = 1;
-	}
-    }
+  for (const auto& sensor : *s_sensors) {
+      if (dev->model->ccd_type == sensor.sensor_id) {
+          dev->sensor = sensor;
+          sensor_ok = 1;
+          break;
+      }
+  }
 
   /* initialize the GPO data stuff */
   for (i = 0; i < sizeof (Gpo) / sizeof (Genesys_Gpo); i++)
@@ -968,7 +964,6 @@ SANE_Status
 sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
 {
   SANE_Status status;
-  uint8_t *shading_data, *shading_data_ptr;
   int channels;
   int i;
 
@@ -988,14 +983,10 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
   else
     channels = 1;
 
-  shading_data = (uint8_t*) malloc (pixels_per_line * 4 * channels);	/* 16 bit black, 16 bit white */
-  if (!shading_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  // 16 bit black, 16 bit white
+  std::vector<uint8_t> shading_data(pixels_per_line * 4 * channels, 0);
 
-  shading_data_ptr = shading_data;
+  uint8_t* shading_data_ptr = shading_data.data();
 
   for (i = 0; i < pixels_per_line * channels; i++)
     {
@@ -1006,9 +997,8 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
     }
 
   status = genesys_send_offset_and_shading (dev,
-                                            shading_data,
+                                            shading_data.data(),
                                             pixels_per_line * 4 * channels);
-  free (shading_data);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to send shading data: %s\n", __func__,
@@ -1030,7 +1020,6 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 {
   int x, y;
   int current, left, top = 0;
-  uint8_t *image;
   int size, count;
   int level = 80;		/* edge threshold level */
 
@@ -1040,15 +1029,10 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 
   /* transformed image data */
   size = width * height;
-  image = (uint8_t*) malloc (size);
-  if (!image)
-    {
-      DBG(DBG_error, "%s: failed to allocate memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> image(size, 0);
 
   /* laplace filter to denoise picture */
-  memcpy (image, data, size);	/* to initialize unprocessed part of the image buffer */
+  memcpy(image.data(), data, size);	// to initialize unprocessed part of the image buffer
   for (y = 1; y < height - 1; y++)
     for (x = 1; x < width - 1; x++)
       {
@@ -1060,9 +1044,9 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 	   data[(y + 1) * width + x - 1]) / 16;
       }
 
-  memcpy (data, image, size);
+  memcpy (data, image.data(), size);
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_laplace.pnm", image, 8, 1, width, height);
+    sanei_genesys_write_pnm_file("gl_laplace.pnm", image.data(), 8, 1, width, height);
 
   /* apply X direction sobel filter
      -1  0  1
@@ -1087,7 +1071,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 	  level = current;
       }
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_xsobel.pnm", image, 8, 1, width, height);
+    sanei_genesys_write_pnm_file("gl_xsobel.pnm", image.data(), 8, 1, width, height);
 
   /* set up detection level */
   level = level / 3;
@@ -1109,7 +1093,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
       left += x;
     }
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_detected-xsobel.pnm", image, 8, 1, width, height);
+    sanei_genesys_write_pnm_file("gl_detected-xsobel.pnm", image.data(), 8, 1, width, height);
   left = left / count;
 
   /* turn it in CCD pixel at full sensor optical resolution */
@@ -1139,7 +1123,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 	  level = current;
       }
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_ysobel.pnm", image, 8, 1, width, height);
+    sanei_genesys_write_pnm_file("gl_ysobel.pnm", image.data(), 8, 1, width, height);
 
   /* set up detection level */
   level = level / 3;
@@ -1162,7 +1146,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
 	  top += y;
 	}
       if (DBG_LEVEL >= DBG_data)
-        sanei_genesys_write_pnm_file("gl_detected-ysobel.pnm", image, 8, 1, width, height);
+        sanei_genesys_write_pnm_file("gl_detected-ysobel.pnm", image.data(), 8, 1, width, height);
       top = top / count;
 
       /* bottom of black stripe is of fixed witdh, this hardcoded value
@@ -1197,7 +1181,6 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
           SANE_UNFIX (dev->model->y_offset_calib));
     }
 
-  free (image);
   DBG(DBG_proc, "%s: CCD_start_xoffset = %d, left = %d, top = %d\n", __func__,
       dev->sensor.CCD_start_xoffset, left, top);
 
@@ -1408,7 +1391,6 @@ genesys_coarse_calibration (Genesys_Device * dev)
   uint8_t offset[4] = { 0xa0, 0x00, 0xa0, 0x40 };	/* first value isn't used */
   uint16_t white[12], dark[12];
   int i, j;
-  uint8_t *calibration_data, *all_data;
 
   DBG(DBG_info, "%s (scan_mode = %d)\n", __func__, dev->settings.scan_mode);
 
@@ -1427,21 +1409,13 @@ genesys_coarse_calibration (Genesys_Device * dev)
     25.4;
   /*       1        1               mm                      1/inch        inch/mm */
 
-  calibration_data = (uint8_t*) malloc (size);
-  if (!calibration_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate memory(%d bytes)\n", __func__, size);
-      return SANE_STATUS_NO_MEM;
-    }
-
-  all_data = (uint8_t*) calloc (1, size * 4);
+  std::vector<uint8_t> calibration_data(size);
+  std::vector<uint8_t> all_data(size * 4, 1);
 
   status = dev->model->cmd_set->set_fe (dev, AFE_INIT);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set frontend: %s\n", __func__, sane_strstatus(status));
-      free(all_data);
-      free(calibration_data);
       return status;
     }
 
@@ -1578,23 +1552,23 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	}
 
       status =
-	sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
+    sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: Failed to read data: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
 
-      memcpy (all_data + i * size, calibration_data, size);
+      std::memcpy(all_data.data() + i * size, calibration_data.data(), size);
       if (i == 3)		/* last line */
 	{
-      SANE_Byte *all_data_8 = (SANE_Byte*) malloc (size * 4 / 2);
+          std::vector<uint8_t> all_data_8(size * 4 / 2);
 	  unsigned int count;
 
 	  for (count = 0; count < (unsigned int) (size * 4 / 2); count++)
 	    all_data_8[count] = all_data[count * 2 + 1];
 	  status =
-            sanei_genesys_write_pnm_file("gl_coarse.pnm", all_data_8, 8, channels, size / 6, 4);
+            sanei_genesys_write_pnm_file("gl_coarse.pnm", all_data_8.data(), 8, channels, size / 6, 4);
 	  if (status != SANE_STATUS_GOOD)
 	    {
               DBG(DBG_error, "%s: failed: %s\n", __func__, sane_strstatus(status));
@@ -1612,11 +1586,11 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	{
 	  for (j = 0; j < 3; j++)
 	    {
-	      genesys_average_white (dev, 3, j, calibration_data, size,
+          genesys_average_white (dev, 3, j, calibration_data.data(), size,
 				     &white_average);
 	      white[i * 3 + j] = white_average;
 	      dark[i * 3 + j] =
-		genesys_average_black (dev, j, calibration_data,
+        genesys_average_black (dev, j, calibration_data.data(),
 				       black_pixels);
               DBG(DBG_info, "%s: white[%d]=%d, black[%d]=%d\n", __func__,
                   i * 3 + j, white[i * 3 + j], i * 3 + j, dark[i * 3 + j]);
@@ -1624,12 +1598,12 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	}
       else			/* one color-component modes */
 	{
-	  genesys_average_white (dev, 1, 0, calibration_data, size,
+      genesys_average_white (dev, 1, 0, calibration_data.data(), size,
 				 &white_average);
 	  white[i * 3 + 0] = white[i * 3 + 1] = white[i * 3 + 2] =
 	    white_average;
 	  dark[i * 3 + 0] = dark[i * 3 + 1] = dark[i * 3 + 2] =
-	    genesys_average_black (dev, 0, calibration_data, black_pixels);
+        genesys_average_black (dev, 0, calibration_data.data(), black_pixels);
 	}
 
       if (i == 3)
@@ -1674,7 +1648,6 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	}
     }				/* for (i = 0; i < 4; i++) */
 
-  free(all_data);
   DBG(DBG_info, "%s: final: sign: %d/%d/%d, gain: %d/%d/%d, offset: %d/%d/%d\n", __func__,
       dev->frontend.sign[0], dev->frontend.sign[1], dev->frontend.sign[2],
       dev->frontend.gain[0], dev->frontend.gain[1], dev->frontend.gain[2],
@@ -1726,7 +1699,6 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   size_t size;
   uint32_t pixels_per_line;
   uint8_t channels;
-  uint8_t *calibration_data;
   SANE_Bool motor;
 
   DBGSTART;
@@ -1735,26 +1707,16 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
 
-  FREE_IFNOT_NULL (dev->dark_average_data);
 
   dev->average_size = channels * 2 * pixels_per_line;
 
-  dev->dark_average_data = (uint8_t*) malloc(dev->average_size);
-  if (!dev->dark_average_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate average memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  dev->dark_average_data.clear();
+  dev->dark_average_data.resize(dev->average_size);
 
   /* size is size in bytes for scanarea: bytes_per_line * lines */
   size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
 
-  calibration_data = (uint8_t*) malloc(size);
-  if (!calibration_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate calibration data memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> calibration_data(size);
 
   motor=SANE_TRUE;
   if (dev->model->flags & GENESYS_FLAG_SHADING_NO_MOVE)
@@ -1781,7 +1743,6 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 					      cmd_set->bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -1792,15 +1753,13 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   status = dev->model->cmd_set->begin_scan (dev, dev->calib_reg, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: Failed to begin scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-  status = sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
+  status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -1808,24 +1767,20 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-  genesys_average_data (dev->dark_average_data, calibration_data,
-			dev->calib_lines,
-			pixels_per_line * channels);
+  genesys_average_data(dev->dark_average_data.data(), calibration_data.data(),
+                       dev->calib_lines, pixels_per_line * channels);
 
   if (DBG_LEVEL >= DBG_data)
     {
-      sanei_genesys_write_pnm_file("gl_black_shading.pnm", calibration_data, 16,
+      sanei_genesys_write_pnm_file("gl_black_shading.pnm", calibration_data.data(), 16,
                                    channels, pixels_per_line, dev->calib_lines);
-      sanei_genesys_write_pnm_file("gl_black_average.pnm",
-                                    dev->dark_average_data, 16, channels, pixels_per_line, 1);
+      sanei_genesys_write_pnm_file("gl_black_average.pnm", dev->dark_average_data.data(), 16,
+                                   channels, pixels_per_line, 1);
     }
-
-  free (calibration_data);
 
   DBGCOMPLETED;
 
@@ -1852,16 +1807,9 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
 
-  FREE_IFNOT_NULL (dev->dark_average_data);
-
   dev->average_size = channels * 2 * pixels_per_line;
-  dev->dark_average_data = (uint8_t*) malloc(dev->average_size);
-  if (!dev->dark_average_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate average memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
-  memset (dev->dark_average_data, 0x00, channels * 2 * pixels_per_line);
+  dev->dark_average_data.clear();
+  dev->dark_average_data.resize(dev->average_size, 0);
 
   /* we average values on 'the left' where CCD pixels are under casing and
      give darkest values. We then use these as dummy dark calibration */
@@ -1938,7 +1886,6 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   SANE_Status status;
   size_t size;
   uint32_t pixels_per_line;
-  uint8_t *calibration_data;
   uint8_t channels;
   SANE_Bool motor;
 
@@ -1947,24 +1894,12 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
 
-  if (dev->white_average_data)
-    free (dev->white_average_data);
-
-  dev->white_average_data = (uint8_t*) malloc(channels * 2 * pixels_per_line);
-  if (!dev->white_average_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate average memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  dev->white_average_data.clear();
+  dev->white_average_data.resize(channels * 2 * pixels_per_line);
 
   size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
 
-  calibration_data = (uint8_t*) malloc(size);
-  if (!calibration_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate calibration memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> calibration_data(size);
 
   motor=SANE_TRUE;
   if (dev->model->flags & GENESYS_FLAG_SHADING_NO_MOVE)
@@ -1993,7 +1928,6 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 					      cmd_set->bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2004,15 +1938,13 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   status = dev->model->cmd_set->begin_scan (dev, dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: Failed to begin scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-  status = sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
+  status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2020,24 +1952,21 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_white_shading.pnm", calibration_data, 16,
+    sanei_genesys_write_pnm_file("gl_white_shading.pnm", calibration_data.data(), 16,
                                  channels, pixels_per_line, dev->calib_lines);
 
-  genesys_average_data (dev->white_average_data, calibration_data,
+  genesys_average_data (dev->white_average_data.data(), calibration_data.data(),
 			dev->calib_lines,
 			pixels_per_line * channels);
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_white_average.pnm", dev->white_average_data, 16, channels,
-                                 pixels_per_line, 1);
-
-  free (calibration_data);
+    sanei_genesys_write_pnm_file("gl_white_average.pnm", dev->white_average_data.data(), 16,
+                                 channels, pixels_per_line, 1);
 
   /* in case we haven't done dark calibration, build dummy data from white_average */
   if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION))
@@ -2070,7 +1999,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   SANE_Status status;
   size_t size;
   uint32_t pixels_per_line;
-  uint8_t *calibration_data, *average_white, *average_dark;
+  uint8_t *average_white, *average_dark;
   uint8_t channels;
   unsigned int x;
   int y;
@@ -2084,36 +2013,17 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
 
-  if (dev->white_average_data)
-    free (dev->white_average_data);
-
   dev->average_size = channels * 2 * pixels_per_line;
 
-  dev->white_average_data = (uint8_t*) malloc(dev->average_size);
-  if (!dev->white_average_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate white average memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  dev->white_average_data.clear();
+  dev->white_average_data.resize(dev->average_size);
 
-  if (dev->dark_average_data)
-    free (dev->dark_average_data);
-
-  dev->dark_average_data = (uint8_t*) malloc(channels * 2 * pixels_per_line);
-  if (!dev->dark_average_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate dark average memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  dev->dark_average_data.clear();
+  dev->dark_average_data.resize(channels * 2 * pixels_per_line);
 
   size = channels * 2 * pixels_per_line * dev->calib_lines;
 
-  calibration_data = (uint8_t*) malloc(size);
-  if (!calibration_data)
-    {
-      DBG(DBG_error, "%s: failed to allocate calibration memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> calibration_data(size);
 
   motor=SANE_TRUE;
   if (dev->model->flags & GENESYS_FLAG_SHADING_NO_MOVE)
@@ -2131,7 +2041,6 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 					      cmd_set->bulk_full_size ());
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2140,15 +2049,13 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-  status = sanei_genesys_read_data_from_scanner (dev, calibration_data, size);
+  status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2156,7 +2063,6 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
-      free (calibration_data);
       DBG(DBG_error, "%s: Failed to end scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
@@ -2165,21 +2071,21 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
     {
       if (dev->model->is_cis)
         {
-          sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data,
+          sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data.data(),
                                        16, 1, pixels_per_line*channels,
                                        dev->calib_lines);
         }
       else
         {
-          sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data,
+          sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data.data(),
                                        16, channels, pixels_per_line,
                                        dev->calib_lines);
         }
     }
 
 
-  average_white = dev->white_average_data;
-  average_dark = dev->dark_average_data;
+  average_white = dev->white_average_data.data();
+  average_dark = dev->dark_average_data.data();
 
   for (x = 0; x < pixels_per_line * channels; x++)
     {
@@ -2243,14 +2149,12 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (DBG_LEVEL >= DBG_data)
     {
       sanei_genesys_write_pnm_file("gl_white_average.pnm",
-                                   dev->white_average_data, 16, channels,
+                                   dev->white_average_data.data(), 16, channels,
                                    pixels_per_line, 1);
       sanei_genesys_write_pnm_file("gl_dark_average.pnm",
-                                   dev->dark_average_data, 16, channels,
+                                   dev->dark_average_data.data(), 16, channels,
                                    pixels_per_line, 1);
     }
-
-  free (calibration_data);
 
   DBGCOMPLETED;
 
@@ -2733,7 +2637,6 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 {
   SANE_Status status;
   uint32_t pixels_per_line;
-  uint8_t *shading_data;	/**> contains 16bit words in little endian */
   uint8_t channels;
   int o;
   unsigned int length;		/**> number of shading calibration data words */
@@ -2782,13 +2685,8 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   length = words_per_color * 3 * 2;
 
   /* allocate computed size */
-  shading_data = (uint8_t*) malloc(length);
-  if (!shading_data)
-    {
-      DBG (DBG_error, "%s: failed to allocate memory\n", __func__);
-      return SANE_STATUS_NO_MEM;
-    }
-  memset (shading_data, 0, length);
+  // contains 16bit words in little endian
+  std::vector<uint8_t> shading_data(length, 0);
 
   /* TARGET/(Wn-Dn) = white gain -> ~1.xxx then it is multiplied by 0x2000
      or 0x4000 to give an integer
@@ -2831,7 +2729,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       target_code = 0xdc00;
       o = 4;
       compute_planar_coefficients (dev,
-				   shading_data,
+                   shading_data.data(),
 				   factor,
 				   pixels_per_line,
 				   words_per_color,
@@ -2848,7 +2746,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       cmat[1] = 0;		/* green is first */
       cmat[2] = 1;		/* blue is second */
       compute_planar_coefficients (dev,
-				   shading_data,
+                   shading_data.data(),
 				   1,
 				   pixels_per_line,
 				   words_per_color,
@@ -2866,7 +2764,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       	  o = o - dev->sensor.dummy_pixel / 2;
        }
       compute_coefficients (dev,
-			    shading_data,
+                shading_data.data(),
 			    pixels_per_line,
 			    3,
                             cmat,
@@ -2882,7 +2780,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       	  o = o - dev->sensor.dummy_pixel;
        }
       compute_coefficients (dev,
-			    shading_data,
+                shading_data.data(),
 			    pixels_per_line,
 			    3,
                             cmat,
@@ -2907,7 +2805,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
           o = +2;
         }
       compute_coefficients (dev,
-			    shading_data,
+                shading_data.data(),
 			    pixels_per_line,
 			    3,
                             cmat,
@@ -2923,7 +2821,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       target_code = 0xe000;
       o = 0;
       compute_coefficients (dev,
-			    shading_data,
+                shading_data.data(),
 			    pixels_per_line,
 			    3,
                             cmat,
@@ -2956,16 +2854,10 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
           }
         words_per_color=pixels_per_line*2;
         length = words_per_color * 3 * 2;
-        free(shading_data);
-        shading_data = (uint8_t*) malloc(length);
-        if (!shading_data)
-          {
-            DBG (DBG_error, "%s: failed to allocate memory\n", __func__);
-            return SANE_STATUS_NO_MEM;
-          }
-        memset (shading_data, 0, length);
+        shading_data.clear();
+        shading_data.resize(length, 0);
         compute_planar_coefficients (dev,
-                                     shading_data,
+                                     shading_data.data(),
                                      1,
                                      pixels_per_line,
                                      words_per_color,
@@ -2977,7 +2869,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CCD_CANONLIDE35:
       compute_averaged_planar (dev,
-			       shading_data,
+                               shading_data.data(),
                                pixels_per_line,
                                words_per_color,
                                channels,
@@ -2988,7 +2880,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CIS_CANONLIDE80:
       compute_averaged_planar (dev,
-			       shading_data,
+                               shading_data.data(),
                                pixels_per_line,
                                words_per_color,
                                channels,
@@ -2999,7 +2891,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
       break;
     case CCD_PLUSTEK_3600:
       compute_shifted_coefficients (dev,
-			            shading_data,
+                        shading_data.data(),
 			            pixels_per_line,
 			            channels,
 			            cmat,
@@ -3016,8 +2908,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     }
 
   /* do the actual write of shading calibration data to the scanner */
-  status = genesys_send_offset_and_shading (dev, shading_data, length);
-  free (shading_data);
+  status = genesys_send_offset_and_shading (dev, shading_data.data(), length);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "%s: failed to send shading data: %s\n", __func__,
@@ -3039,47 +2930,37 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 static SANE_Status
 genesys_restore_calibration (Genesys_Device * dev)
 {
+  // TODO: reindent
+
   SANE_Status status;
-  Genesys_Calibration_Cache *cache;
 
   DBGSTART;
 
   /* if no cache or no function to evaluate cache entry ther can be no match */
   if (!dev->model->cmd_set->is_compatible_calibration
-      || dev->calibration_cache == NULL)
+      || dev->calibration_cache.empty())
     return SANE_STATUS_UNSUPPORTED;
 
   /* we walk the link list of calibration cache in search for a
    * matching one */
-  for (cache = dev->calibration_cache; cache; cache = cache->next)
+  for (auto& cache : dev->calibration_cache)
     {
-      status = dev->model->cmd_set->is_compatible_calibration (dev, cache, SANE_FALSE);
+      status = dev->model->cmd_set->is_compatible_calibration (dev, &cache, SANE_FALSE);
       /* SANE_STATUS_GOOD, a matching cache has been found
        * so we use it to populate calibration data
        */
       if (status == SANE_STATUS_GOOD)
 	{
-	  memcpy (&dev->frontend, &cache->frontend, sizeof (dev->frontend));
+          memcpy (&dev->frontend, &cache.frontend, sizeof (dev->frontend));
           /* we don't restore the gamma fields */
-	  memcpy (dev->sensor.regs_0x10_0x1d, cache->sensor.regs_0x10_0x1d, 6);
-	  free (dev->dark_average_data);
-	  free (dev->white_average_data);
+          memcpy (dev->sensor.regs_0x10_0x1d.data(), cache.sensor.regs_0x10_0x1d.data(), 6);
 
-	  dev->average_size = cache->average_size;
-	  dev->calib_pixels = cache->calib_pixels;
-	  dev->calib_channels = cache->calib_channels;
+          dev->average_size = cache.average_size;
+          dev->calib_pixels = cache.calib_pixels;
+          dev->calib_channels = cache.calib_channels;
 
-	  dev->dark_average_data = (uint8_t *) malloc (cache->average_size);
-	  dev->white_average_data = (uint8_t *) malloc (cache->average_size);
-
-	  if (!dev->dark_average_data || !dev->white_average_data)
-	    return SANE_STATUS_NO_MEM;
-
-	  memcpy (dev->dark_average_data,
-		  cache->dark_average_data, dev->average_size);
-	  memcpy (dev->white_average_data,
-		  cache->white_average_data, dev->average_size);
-
+          dev->dark_average_data = cache.dark_average_data;
+          dev->white_average_data = cache.white_average_data;
 
         if(dev->model->cmd_set->send_shading_data==NULL)
           {
@@ -3114,7 +2995,7 @@ static SANE_Status
 genesys_save_calibration (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_UNSUPPORTED;
-  Genesys_Calibration_Cache *cache = NULL;
+
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
 #endif
@@ -3124,64 +3005,48 @@ genesys_save_calibration (Genesys_Device * dev)
   if (!dev->model->cmd_set->is_compatible_calibration)
     return SANE_STATUS_UNSUPPORTED;
 
-  if (dev->calibration_cache != NULL)
+  auto found_cache_it = dev->calibration_cache.end();
+  for (auto cache_it = dev->calibration_cache.begin(); cache_it != dev->calibration_cache.end();
+       cache_it++)
     {
-      for (cache = dev->calibration_cache; cache; cache = cache->next)
-	{
-	  status = dev->model->cmd_set->is_compatible_calibration (dev, cache, SANE_TRUE);
-	  if (status == SANE_STATUS_UNSUPPORTED)
-	    {
-	      continue;
-	    }
-	  else if (status != SANE_STATUS_GOOD)
-	    {
-              DBG(DBG_error, "%s: fail while checking compatibility: %s\n", __func__,
-                  sane_strstatus(status));
-	      return status;
-	    }
-	  break;
-	}
+      status = dev->model->cmd_set->is_compatible_calibration (dev, &*cache_it, SANE_TRUE);
+      if (status == SANE_STATUS_UNSUPPORTED)
+        {
+          continue;
+        }
+      else if (status != SANE_STATUS_GOOD)
+        {
+          DBG(DBG_error, "%s: fail while checking compatibility: %s\n", __func__,
+              sane_strstatus(status));
+          return status;
+        }
+      found_cache_it = cache_it;
+      break;
     }
 
   /* if we found on overridable cache, we reuse it */
-  if (cache)
-    {
-          free(cache->dark_average_data);
-          free(cache->white_average_data);
-    }
-  else
+  if (found_cache_it == dev->calibration_cache.end())
     {
       /* create a new cache entry and insert it in the linked list */
-      cache = (Genesys_Calibration_Cache*) malloc(sizeof (Genesys_Calibration_Cache));
-      if (!cache)
-	return SANE_STATUS_NO_MEM;
-
-      memset (cache, 0, sizeof (Genesys_Calibration_Cache));
-
-      cache->next = dev->calibration_cache;
-      dev->calibration_cache = cache;
+      dev->calibration_cache.push_back(Genesys_Calibration_Cache());
+      found_cache_it = std::prev(dev->calibration_cache.end());
     }
 
-  cache->average_size = dev->average_size;
+  found_cache_it->average_size = dev->average_size;
 
-  cache->dark_average_data = (uint8_t *) malloc (cache->average_size);
-  if (!cache->dark_average_data)
-    return SANE_STATUS_NO_MEM;
-  cache->white_average_data = (uint8_t *) malloc (cache->average_size);
-  if (!cache->white_average_data)
-    return SANE_STATUS_NO_MEM;
+  found_cache_it->dark_average_data = dev->dark_average_data;
+  found_cache_it->white_average_data = dev->white_average_data;
 
-  memcpy (&cache->used_setup, &dev->current_setup, sizeof (cache->used_setup));
-  memcpy (&cache->frontend, &dev->frontend, sizeof (cache->frontend));
-  memcpy (&cache->sensor, &dev->sensor, sizeof (cache->sensor));
+  memcpy (&found_cache_it->used_setup, &dev->current_setup, sizeof (found_cache_it->used_setup));
+  memcpy (&found_cache_it->frontend, &dev->frontend, sizeof (found_cache_it->frontend));
+  memcpy (&found_cache_it->sensor, &dev->sensor, sizeof (found_cache_it->sensor));
 
-  cache->calib_pixels = dev->calib_pixels;
-  cache->calib_channels = dev->calib_channels;
-  memcpy (cache->dark_average_data, dev->dark_average_data, cache->average_size);
-  memcpy (cache->white_average_data, dev->white_average_data, cache->average_size);
+  found_cache_it->calib_pixels = dev->calib_pixels;
+  found_cache_it->calib_channels = dev->calib_channels;
+
 #ifdef HAVE_SYS_TIME_H
   gettimeofday(&time,NULL);
-  cache->last_calibration = time.tv_sec;
+  found_cache_it->last_calibration = time.tv_sec;
 #endif
 
   DBGCOMPLETED;
@@ -3542,9 +3407,8 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
    * of white calibration */
   if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION))
     {
-      FREE_IFNOT_NULL (dev->dark_average_data);
-      dev->dark_average_data = (uint8_t*) malloc(dev->average_size);
-      memset (dev->dark_average_data, 0x0f, dev->average_size);
+      dev->dark_average_data.clear();
+      dev->dark_average_data.resize(dev->average_size, 0x0f);
       /* XXX STEF XXX
        * with black point in white shading, build an average black
        * pixel and use it to fill the dark_average
@@ -3641,7 +3505,6 @@ genesys_wait_not_moving (Genesys_Device * dev, int mseconds)
 static SANE_Status
 genesys_warmup_lamp (Genesys_Device * dev)
 {
-  uint8_t *first_line, *second_line;
   int seconds = 0;
   int pixel;
   int channels, total_size;
@@ -3661,49 +3524,39 @@ genesys_warmup_lamp (Genesys_Device * dev)
     }
 
   dev->model->cmd_set->init_regs_for_warmup (dev, dev->reg, &channels, &total_size);
-  first_line = (uint8_t*) malloc(total_size);
-  if (!first_line)
-    return SANE_STATUS_NO_MEM;
-
-  second_line = (uint8_t*) malloc(total_size);
-  if (!second_line)
-    {
-      free(first_line);
-      DBGCOMPLETED;
-      return SANE_STATUS_NO_MEM;
-    }
+  std::vector<uint8_t> first_line(total_size);
+  std::vector<uint8_t> second_line(total_size);
 
   do
     {
       DBG(DBG_info, "%s: one more loop\n", __func__);
-      RIEF2 (dev->model->cmd_set->begin_scan (dev, dev->reg, SANE_FALSE), first_line, second_line);
+      RIE(dev->model->cmd_set->begin_scan(dev, dev->reg, SANE_FALSE));
       do
 	{
 	  sanei_genesys_test_buffer_empty (dev, &empty);
 	}
       while (empty);
 
-      status = sanei_genesys_read_data_from_scanner (dev, first_line, total_size);
+      status = sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
       if (status != SANE_STATUS_GOOD)
 	{
-	  RIEF2 (sanei_genesys_read_data_from_scanner
-	       (dev, first_line, total_size), first_line, second_line);
+      RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
 	}
 
-      RIEF2 (dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE), first_line, second_line);
+      RIE(dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE));
 
       sleep (1);		/* sleep 1 s */
       seconds++;
 
-      RIEF2 (dev->model->cmd_set->begin_scan (dev, dev->reg, SANE_FALSE), first_line, second_line);
+      RIE(dev->model->cmd_set->begin_scan(dev, dev->reg, SANE_FALSE));
       do
 	{
 	  sanei_genesys_test_buffer_empty (dev, &empty);
           sanei_genesys_sleep_ms(100);
 	}
       while (empty);
-      RIEF2 (sanei_genesys_read_data_from_scanner (dev, second_line, total_size), first_line, second_line);
-      RIEF2 (dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE), first_line, second_line);
+      RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
+      RIE(dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE));
 
       /* compute difference between the two scans */
       for (pixel = 0; pixel < total_size; pixel++)
@@ -3740,9 +3593,9 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	  second_average /= pixel;
 	  if (DBG_LEVEL >= DBG_data)
 	    {
-              sanei_genesys_write_pnm_file("gl_warmup1.pnm", first_line, 8, channels,
+              sanei_genesys_write_pnm_file("gl_warmup1.pnm", first_line.data(), 8, channels,
                                            total_size / (lines * channels), lines);
-              sanei_genesys_write_pnm_file("gl_warmup2.pnm", second_line, 8, channels,
+              sanei_genesys_write_pnm_file("gl_warmup2.pnm", second_line.data(), 8, channels,
                                            total_size / (lines * channels), lines);
 	    }
 	  DBG(DBG_info, "%s: average 1 = %.2f, average 2 = %.2f\n", __func__, first_average,
@@ -3768,9 +3621,6 @@ genesys_warmup_lamp (Genesys_Device * dev)
     {
       DBG(DBG_info, "%s: warmup succeeded after %d seconds\n", __func__, seconds);
     }
-
-  free (first_line);
-  free (second_line);
 
   DBGCOMPLETED;
 
@@ -4045,88 +3895,77 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
    we move the available data to the beginning.
  */
 
-SANE_Status
-sanei_genesys_buffer_alloc (Genesys_Buffer * buf, size_t size)
+void Genesys_Buffer::alloc(size_t size)
 {
-  buf->buffer = (SANE_Byte *) malloc (size);
-  if (!buf->buffer)
-    return SANE_STATUS_NO_MEM;
-  buf->avail = 0;
-  buf->pos = 0;
-  buf->size = size;
-  return SANE_STATUS_GOOD;
+    buffer_.resize(size);
+    avail_ = 0;
+    pos_ = 0;
 }
 
-SANE_Status
-sanei_genesys_buffer_free (Genesys_Buffer * buf)
+void Genesys_Buffer::clear()
 {
-  SANE_Byte *tmp = buf->buffer;
-  buf->avail = 0;
-  buf->size = 0;
-  buf->pos = 0;
-  buf->buffer = NULL;
-  if (tmp)
-    free (tmp);
-  return SANE_STATUS_GOOD;
+    buffer_.clear();
+    avail_ = 0;
+    pos_ = 0;
 }
 
-SANE_Byte *
-sanei_genesys_buffer_get_write_pos (Genesys_Buffer * buf, size_t size)
+void Genesys_Buffer::reset()
 {
-  if (buf->avail + size > buf->size)
-    return NULL;
-  if (buf->pos + buf->avail + size > buf->size)
+    avail_ = 0;
+    pos_ = 0;
+}
+
+uint8_t* Genesys_Buffer::get_write_pos(size_t size)
+{
+    if (avail_ + size > buffer_.size())
+        return nullptr;
+    if (pos_ + avail_ + size > buffer_.size())
     {
-      memmove (buf->buffer, buf->buffer + buf->pos, buf->avail);
-      buf->pos = 0;
+        std::memmove(buffer_.data(), buffer_.data() + pos_, avail_);
+        pos_ = 0;
     }
-  return buf->buffer + buf->pos + buf->avail;
+    return buffer_.data() + pos_ + avail_;
 }
 
-SANE_Byte *
-sanei_genesys_buffer_get_read_pos (Genesys_Buffer * buf)
+uint8_t* Genesys_Buffer::get_read_pos()
 {
-  return buf->buffer + buf->pos;
+    return buffer_.data() + pos_;
 }
 
-SANE_Status
-sanei_genesys_buffer_produce (Genesys_Buffer * buf, size_t size)
+void Genesys_Buffer::produce(size_t size)
 {
-  if (size > buf->size - buf->avail)
-    return SANE_STATUS_INVAL;
-  buf->avail += size;
-  return SANE_STATUS_GOOD;
+    if (size > buffer_.size() - avail_)
+        throw std::runtime_error("buffer size exceeded");
+    avail_ += size;
 }
 
-SANE_Status
-sanei_genesys_buffer_consume (Genesys_Buffer * buf, size_t size)
+void Genesys_Buffer::consume(size_t size)
 {
-  if (size > buf->avail)
-    return SANE_STATUS_INVAL;
-  buf->avail -= size;
-  buf->pos += size;
-  return SANE_STATUS_GOOD;
+  if (size > avail_)
+      throw std::runtime_error("no more data in buffer");
+    avail_ -= size;
+    pos_ += size;
 }
 
 
 #include "genesys_conv.cc"
 
 static SANE_Status accurate_line_read(Genesys_Device * dev,
-                                      SANE_Byte *buffer,
-                                      size_t size)
+                                      Genesys_Buffer& buffer)
 {
+    buffer.reset();
+
   SANE_Status status;
-  status = dev->model->cmd_set->bulk_read_data (dev, 0x45, buffer, size);
+  status = dev->model->cmd_set->bulk_read_data(dev, 0x45, buffer.get_write_pos(buffer.size()),
+                                               buffer.size());
   if (status != SANE_STATUS_GOOD)
     {
-      DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__, (u_long) size,
+      DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__, (u_long) buffer.size(),
           sane_strstatus(status));
       return SANE_STATUS_IO_ERROR;
     }
 
-  /* done reading */
-  dev->oe_buffer.avail = size;
-  dev->oe_buffer.pos = 0;
+    buffer.produce(buffer.size());
   return status;
 }
 
@@ -4143,13 +3982,13 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
   SANE_Status status;
 
       /* fill buffer if needed */
-      if (dev->oe_buffer.avail == 0)
+      if (dev->oe_buffer.avail() == 0)
 	{
-	  status = accurate_line_read(dev,dev->oe_buffer.buffer,dev->oe_buffer.size);
+          status = accurate_line_read(dev, dev->oe_buffer);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-		  (u_long) dev->oe_buffer.size, sane_strstatus(status));
+                  (u_long) dev->oe_buffer.size(), sane_strstatus(status));
 	      return SANE_STATUS_IO_ERROR;
 	    }
 	}
@@ -4163,7 +4002,7 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
           if(((dev->line_count/dev->current_setup.channels) % dev->line_interp)==0)
             {
 	      /* copy pixel when line matches */
-	      work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->oe_buffer.pos];
+              work_buffer_dst[count] = dev->oe_buffer.get_read_pos()[dev->cur];
               count++;
             }
 
@@ -4173,19 +4012,19 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
 	  /* go to next line if needed */
 	  if (dev->cur == dev->len)
 	    {
-	      dev->oe_buffer.pos += dev->bpl;
+              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->bpl);
 	      dev->cur = 0;
               dev->line_count++;
 	    }
 
 	  /* read a new buffer if needed */
-	  if (dev->oe_buffer.pos >= dev->oe_buffer.avail)
+          if (dev->oe_buffer.pos() >= dev->oe_buffer.avail())
 	    {
-              status = accurate_line_read(dev,dev->oe_buffer.buffer,dev->oe_buffer.size);
+              status = accurate_line_read(dev, dev->oe_buffer);
               if (status != SANE_STATUS_GOOD)
                 {
                   DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-                      (u_long) dev->oe_buffer.size, sane_strstatus(status));
+                      (u_long) dev->oe_buffer.size(), sane_strstatus(status));
                   return SANE_STATUS_IO_ERROR;
                 }
 	    }
@@ -4212,13 +4051,13 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
     depth = 1;
 
       /* fill buffer if needed */
-      if (dev->oe_buffer.avail == 0)
+      if (dev->oe_buffer.avail() == 0)
 	{
-	  status = accurate_line_read(dev,dev->oe_buffer.buffer,dev->oe_buffer.size);
+          status = accurate_line_read(dev, dev->oe_buffer);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-		  (u_long) dev->oe_buffer.size, sane_strstatus(status));
+                  (u_long) dev->oe_buffer.size(), sane_strstatus(status));
 	      return SANE_STATUS_IO_ERROR;
 	    }
 	}
@@ -4231,7 +4070,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
           if(dev->settings.double_xres==SANE_TRUE)
             {
 	      /* copy only even pixel */
-	      work_buffer_dst[count] = dev->oe_buffer.buffer[dev->cur + dev->oe_buffer.pos];
+              work_buffer_dst[count] = dev->oe_buffer.get_read_pos()[dev->cur];
               /* update counter and pointer */
               count++;
               dev->cur++;
@@ -4253,7 +4092,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
                               for(n=0;n<dev->segnb;n++)
                                 {
                                       work_buffer_dst[k] = work_buffer_dst[k] << 1;
-                                      if((dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist*dev->order[n] + dev->oe_buffer.pos])&(128>>i))
+                                      if((dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]])&(128>>i))
                                         {
                                           work_buffer_dst[k] |= 1;
                                         }
@@ -4271,7 +4110,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
                         {
                           for(n=0;n<dev->segnb;n++)
                             {
-                                  work_buffer_dst[count+n] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist*dev->order[n] + dev->oe_buffer.pos];
+                                  work_buffer_dst[count+n] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]];
                             }
                           /* update counter and pointer */
                           count += dev->segnb;
@@ -4284,8 +4123,8 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
                         {
                           for(n=0;n<dev->segnb;n++)
                             {
-                                  work_buffer_dst[count+n*2] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist*dev->order[n] + dev->oe_buffer.pos];
-                                  work_buffer_dst[count+n*2+1] = dev->oe_buffer.buffer[dev->cur + dev->skip + dev->dist*dev->order[n] + dev->oe_buffer.pos+1];
+                                  work_buffer_dst[count+n*2] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]];
+                                  work_buffer_dst[count+n*2+1] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n] + 1];
                             }
                           /* update counter and pointer */
                           count += dev->segnb*2;
@@ -4297,18 +4136,18 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
 	  /* go to next line if needed */
 	  if (dev->cur == dev->len)
 	    {
-	      dev->oe_buffer.pos += dev->bpl;
+              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->bpl);
 	      dev->cur = 0;
 	    }
 
 	  /* read a new buffer if needed */
-	  if (dev->oe_buffer.pos >= dev->oe_buffer.avail)
+          if (dev->oe_buffer.pos() >= dev->oe_buffer.avail())
 	    {
-              status = accurate_line_read(dev,dev->oe_buffer.buffer,dev->oe_buffer.size);
+              status = accurate_line_read(dev, dev->oe_buffer);
               if (status != SANE_STATUS_GOOD)
                 {
                   DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-                      (u_long) dev->oe_buffer.size, sane_strstatus(status));
+                      (u_long) dev->oe_buffer.size(), sane_strstatus(status));
                   return SANE_STATUS_IO_ERROR;
                 }
 	    }
@@ -4339,10 +4178,9 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 	return status;
     }
 
-  space = dev->read_buffer.size - dev->read_buffer.avail;
+  space = dev->read_buffer.size() - dev->read_buffer.avail();
 
-  work_buffer_dst = sanei_genesys_buffer_get_write_pos (&(dev->read_buffer),
-							space);
+  work_buffer_dst = dev->read_buffer.get_write_pos(space);
 
   size = space;
 
@@ -4405,7 +4243,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 
   dev->read_bytes_left -= size;
 
-  RIE (sanei_genesys_buffer_produce (&(dev->read_buffer), size));
+  dev->read_buffer.produce(size);
 
   DBGCOMPLETED;
 
@@ -4523,7 +4361,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
        ((dev->total_bytes_to_read - dev->total_bytes_read) * 8UL) /
        (dev->settings.pixels * channels * depth));
   DBG(DBG_info, "%s: %lu lines left by input\n", __func__,
-       ((dev->read_bytes_left + dev->read_buffer.avail) * 8UL) /
+       ((dev->read_bytes_left + dev->read_buffer.avail()) * 8UL) /
        (src_pixels * channels * depth));
 
   if (channels == 1)
@@ -4601,19 +4439,18 @@ Problems with the first approach:
 
       dst_buffer = &(dev->lines_buffer);
 
-      work_buffer_src = sanei_genesys_buffer_get_read_pos (src_buffer);
-      bytes = src_buffer->avail;
+      work_buffer_src = src_buffer->get_read_pos();
+      bytes = src_buffer->avail();
 
 /*how many bytes can be processed here?*/
 /*we are greedy. we work as much as possible*/
-      if (bytes > dst_buffer->size - dst_buffer->avail)
-	bytes = dst_buffer->size - dst_buffer->avail;
+      if (bytes > dst_buffer->size() - dst_buffer->avail())
+        bytes = dst_buffer->size() - dst_buffer->avail();
 
       dst_lines = (bytes * 8) / (src_pixels * channels * depth);
       bytes = (dst_lines * src_pixels * channels * depth) / 8;
 
-      work_buffer_dst = sanei_genesys_buffer_get_write_pos (dst_buffer,
-							    bytes);
+      work_buffer_dst = dst_buffer->get_write_pos(bytes);
 
       DBG(DBG_info, "%s: reordering %d lines\n", __func__, dst_lines);
 
@@ -4714,9 +4551,8 @@ Problems with the first approach:
 	      return SANE_STATUS_IO_ERROR;
 	    }
 
-	  RIE (sanei_genesys_buffer_produce (dst_buffer, bytes));
-
-	  RIE (sanei_genesys_buffer_consume (src_buffer, bytes));
+            dst_buffer->produce(bytes);
+            src_buffer->consume(bytes);
 	}
       src_buffer = dst_buffer;
     }
@@ -4733,8 +4569,8 @@ Problems with the first approach:
 
       dst_buffer = &(dev->shrink_buffer);
 
-      work_buffer_src = sanei_genesys_buffer_get_read_pos (src_buffer);
-      bytes = src_buffer->avail;
+      work_buffer_src = src_buffer->get_read_pos();
+      bytes = src_buffer->avail();
 
       extra =
 	(dev->current_setup.max_shift * src_pixels * channels * depth) / 8;
@@ -4747,14 +4583,13 @@ Problems with the first approach:
 
 /*how many bytes can be processed here?*/
 /*we are greedy. we work as much as possible*/
-      if (bytes > dst_buffer->size - dst_buffer->avail)
-	bytes = dst_buffer->size - dst_buffer->avail;
+      if (bytes > dst_buffer->size() - dst_buffer->avail())
+        bytes = dst_buffer->size() - dst_buffer->avail();
 
       dst_lines = (bytes * 8) / (src_pixels * channels * depth);
       bytes = (dst_lines * src_pixels * channels * depth) / 8;
 
-      work_buffer_dst =
-	sanei_genesys_buffer_get_write_pos (dst_buffer, bytes);
+      work_buffer_dst = dst_buffer->get_write_pos(bytes);
 
       DBG(DBG_info, "%s: un-ccd-ing %d lines\n", __func__, dst_lines);
 
@@ -4779,9 +4614,8 @@ Problems with the first approach:
 	      return SANE_STATUS_IO_ERROR;
 	    }
 
-	  RIE (sanei_genesys_buffer_produce (dst_buffer, bytes));
-
-	  RIE (sanei_genesys_buffer_consume (src_buffer, bytes));
+            dst_buffer->produce(bytes);
+            src_buffer->consume(bytes);
 	}
       src_buffer = dst_buffer;
     }
@@ -4792,23 +4626,22 @@ Problems with the first approach:
 
       dst_buffer = &(dev->out_buffer);
 
-      work_buffer_src = sanei_genesys_buffer_get_read_pos (src_buffer);
-      bytes = src_buffer->avail;
+      work_buffer_src = src_buffer->get_read_pos();
+      bytes = src_buffer->avail();
 
 /*lines in input*/
       dst_lines = (bytes * 8) / (src_pixels * channels * depth);
 
       /* how many lines can be processed here?      */
       /* we are greedy. we work as much as possible */
-      bytes = dst_buffer->size - dst_buffer->avail;
+      bytes = dst_buffer->size() - dst_buffer->avail();
 
       if (dst_lines > (bytes * 8) / (dev->settings.pixels * channels * depth))
 	dst_lines = (bytes * 8) / (dev->settings.pixels * channels * depth);
 
       bytes = (dst_lines * dev->settings.pixels * channels * depth) / 8;
 
-      work_buffer_dst =
-	sanei_genesys_buffer_get_write_pos (dst_buffer, bytes);
+      work_buffer_dst = dst_buffer->get_write_pos(bytes);
 
       DBG(DBG_info, "%s: shrinking %d lines\n", __func__, dst_lines);
 
@@ -4842,21 +4675,20 @@ Problems with the first approach:
 
           /* we just consumed this many bytes*/
 	  bytes = (dst_lines * src_pixels * channels * depth) / 8;
-	  RIE (sanei_genesys_buffer_consume (src_buffer, bytes));
+            src_buffer->consume(bytes);
 
           /* we just created this many bytes*/
 	  bytes = (dst_lines * dev->settings.pixels * channels * depth) / 8;
-	  RIE (sanei_genesys_buffer_produce (dst_buffer, bytes));
-
+            dst_buffer->produce(bytes);
 	}
       src_buffer = dst_buffer;
     }
 
   /* move data to destination */
-  bytes = src_buffer->avail;
+  bytes = src_buffer->avail();
   if (bytes > *len)
     bytes = *len;
-  work_buffer_src = sanei_genesys_buffer_get_read_pos (src_buffer);
+  work_buffer_src = src_buffer->get_read_pos();
 
   if (needs_reverse)
     {
@@ -4882,7 +4714,7 @@ Problems with the first approach:
   /* count bytes sent to frontend */
   dev->total_bytes_read += *len;
 
-  RIE (sanei_genesys_buffer_consume (src_buffer, bytes));
+    src_buffer->consume(bytes);
 
   /* end scan if all needed data have been read */
    if(dev->total_bytes_read >= dev->total_bytes_to_read)
@@ -5197,7 +5029,6 @@ static char *calibration_filename(Genesys_Device *currdev)
   char *tmpstr;
   char *ptr;
   char filename[80];
-  Genesys_Device *dev;
   unsigned int count;
   unsigned int i;
 
@@ -5237,13 +5068,10 @@ static char *calibration_filename(Genesys_Device *currdev)
    */
   count=0;
   /* count models of the same names if several scanners attached */
-  if(num_devices>1)
-    {
-      for (dev = first_dev; dev; dev = dev->next)
-        {
-          if (dev->model->model_id == currdev->model->model_id)
-            {
-              count++;
+    if(s_devices->size() > 1) {
+        for (const auto& dev : *s_devices) {
+            if (dev.model->model_id == currdev->model->model_id) {
+                count++;
             }
         }
     }
@@ -5922,17 +5750,6 @@ check_present (SANE_String_Const devname) noexcept
   return SANE_STATUS_GOOD;
 }
 
-/** @brief add a scanner device
- * Insert the given device into the backend list of devices.
- * @param dev device to add
- */
-static void add_device(Genesys_Device *dev)
-{
-  ++num_devices;
-  dev->next = first_dev;
-  first_dev = dev;
-}
-
 static SANE_Status
 attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 {
@@ -5953,12 +5770,10 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
       return SANE_STATUS_INVAL;
     }
 
-  for (dev = first_dev; dev; dev = dev->next)
-    {
-      if (strcmp (dev->file_name, devname) == 0)
-	{
+    for (auto& dev : *s_devices) {
+        if (strcmp(dev.file_name, devname) == 0) {
 	  if (devp)
-	    *devp = dev;
+                *devp = &dev;
 	  DBG(DBG_info, "%s: device `%s' was already in device list\n", __func__, devname);
 	  return SANE_STATUS_GOOD;
 	}
@@ -5998,33 +5813,31 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
         }
     }
 
+  bool found_dev = false;
   for (i = 0; i < MAX_SCANNERS && genesys_usb_device_list[i].model != 0; i++)
     {
       if (vendor == genesys_usb_device_list[i].vendor &&
 	  product == genesys_usb_device_list[i].product)
 	{
-      dev = (Genesys_Device*) malloc(sizeof (*dev));
-	  if (!dev)
-	    return SANE_STATUS_NO_MEM;
-	  break;
+            found_dev = true;
+            break;
 	}
     }
 
-  if (!dev)
-    {
+    if (!found_dev) {
       DBG(DBG_error, "%s: vendor 0x%xd product 0x%xd is not supported by this backend\n", __func__,
 	   vendor, product);
       return SANE_STATUS_INVAL;
     }
 
-  memset(dev, 0x00, sizeof(Genesys_Device));
-
-  dev->file_name = strdup (devname);
-  if (!dev->file_name)
-    {
-      free(dev);
-      return SANE_STATUS_NO_MEM;
+    char* new_devname = strdup (devname);
+    if (!new_devname) {
+        return SANE_STATUS_NO_MEM;
     }
+
+    s_devices->push_back(Genesys_Device());
+    dev = &s_devices->back();
+    dev->file_name = new_devname;
 
   dev->model = genesys_usb_device_list[i].model;
   dev->vendorId = genesys_usb_device_list[i].vendor;
@@ -6034,7 +5847,6 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 
   DBG(DBG_info, "%s: found %s flatbed scanner %s at %s\n", __func__, dev->model->vendor,
       dev->model->model, dev->file_name);
-  add_device(dev);
 
   if (devp)
     *devp = dev;
@@ -6048,38 +5860,9 @@ attach_one_device_impl(SANE_String_Const devname)
 {
   Genesys_Device *dev;
   SANE_Status status;
-  Genesys_Device **tmp_dev;
 
   RIE (attach (devname, &dev, SANE_FALSE));
 
-  if (dev)
-    {
-      /* Keep track of newly attached devices so we can set options as
-         necessary.  */
-      tmp_dev=NULL;
-      /* increase device list capacity if needed */
-      if (new_dev_len >= new_dev_alloced)
-	{
-	  new_dev_alloced += 4;
-	  if (new_dev)
-            {
-              tmp_dev = new_dev;
-              new_dev = (Genesys_Device**) realloc(new_dev, new_dev_alloced * sizeof (new_dev[0]));
-            }
-	  else
-            {
-              new_dev = (Genesys_Device**) malloc(new_dev_alloced * sizeof (new_dev[0]));
-              tmp_dev = NULL;
-            }
-	  if (!new_dev)
-	    {
-              FREE_IFNOT_NULL(tmp_dev)
-              DBG(DBG_error, "%s: out of memory\n", __func__);
-	      return SANE_STATUS_NO_MEM;
-	    }
-	}
-      new_dev[new_dev_len++] = dev;
-    }
   return SANE_STATUS_GOOD;
 }
 
@@ -6114,10 +5897,6 @@ probe_genesys_devices (void)
 
   DBGSTART;
 
-  new_dev = 0;
-  new_dev_len = 0;
-  new_dev_alloced = 0;
-
   /* set configuration options structure : no option for this backend */
   config.descriptors = NULL;
   config.values = NULL;
@@ -6127,13 +5906,7 @@ probe_genesys_devices (void)
   status = sanei_configure_attach (GENESYS_CONFIG_FILE, &config,
 				   config_attach_genesys);
 
-  if (new_dev_alloced > 0)
-    {
-      new_dev_len = new_dev_alloced = 0;
-      free (new_dev);
-    }
-
-  DBG(DBG_info, "%s: %d devices currently attached\n", __func__, num_devices);
+  DBG(DBG_info, "%s: %d devices currently attached\n", __func__, (int) s_devices->size());
 
   DBGCOMPLETED;
 
@@ -6150,7 +5923,7 @@ probe_genesys_devices (void)
 
 /**
  * reads previously cached calibration data
- * from file define in dev->calib_file
+ * from file defined in dev->calib_file
  */
 SANE_Status
 sanei_genesys_read_calibration (Genesys_Device * dev)
@@ -6158,16 +5931,15 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
   FILE *fp;
   uint8_t vers = 0;
   uint32_t size = 0;
-  struct Genesys_Calibration_Cache *cache;
   SANE_Status status=SANE_STATUS_GOOD;
 
   DBGSTART;
 
   /* open calibration cache file */
-  fp = fopen (dev->calib_file, "rb");
+  fp = fopen(dev->calib_file.c_str(), "rb");
   if (!fp)
     {
-      DBG(DBG_info, "%s: Cannot open %s\n", __func__, dev->calib_file);
+      DBG(DBG_info, "%s: Cannot open %s\n", __func__, dev->calib_file.c_str());
       DBGCOMPLETED;
       return SANE_STATUS_IO_ERROR;
     }
@@ -6190,32 +5962,19 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
       return SANE_STATUS_INVAL;
     }
 
-  /* clear device calibration cache */
-  while(dev->calibration_cache!=NULL)
-    {
-      cache=dev->calibration_cache;
-      dev->calibration_cache=dev->calibration_cache->next;
-      free(cache);
-    }
+  dev->calibration_cache.clear();
 
   /* loop on cache records in file */
   while (!feof (fp) && status==SANE_STATUS_GOOD)
     {
       DBG(DBG_info, "%s: reading one record\n", __func__);
-      cache = (struct Genesys_Calibration_Cache *) malloc (sizeof (*cache));
-
-      if (!cache)
-	{
-	  DBG(DBG_error, "%s: could not allocate cache struct\n", __func__);
-	  break;
-	}
+      Genesys_Calibration_Cache cache;
 
 #define BILT1( x )							\
       do								\
 	{								\
 	  if ((x) < 1)							\
 	    {								\
-	      free(cache);						\
 	      DBG(DBG_warn, "%s: partial calibration record\n", __func__); \
               status=SANE_STATUS_EOF;                                   \
 	      break;							\
@@ -6223,55 +5982,36 @@ sanei_genesys_read_calibration (Genesys_Device * dev)
 	} while(0)
 
 
-      if (fread (&cache->used_setup, sizeof (cache->used_setup), 1, fp) < 1)
+      if (fread (&cache.used_setup, sizeof (cache.used_setup), 1, fp) < 1)
 	{			/* eof is only detected here */
-	  free (cache);
           status=SANE_STATUS_GOOD;
 	  break;
 	}
-      BILT1 (fread (&cache->last_calibration, sizeof (cache->last_calibration), 1, fp));
-      BILT1 (fread (&cache->frontend, sizeof (cache->frontend), 1, fp));
-      /* the gamma (and later) fields are not stored */
-      BILT1 (fread (&cache->sensor, offsetof (Genesys_Sensor, gamma[0]), 1, fp));
-      BILT1 (fread (&cache->calib_pixels, sizeof (cache->calib_pixels), 1, fp));
-      BILT1 (fread (&cache->calib_channels, sizeof (cache->calib_channels), 1, fp));
-      BILT1 (fread (&cache->average_size, sizeof (cache->average_size), 1, fp));
+      BILT1 (fread (&cache.last_calibration, sizeof (cache.last_calibration), 1, fp));
+      BILT1 (fread (&cache.frontend, sizeof (cache.frontend), 1, fp));
+      BILT1(cache.sensor.fread(fp));
+      BILT1 (fread (&cache.calib_pixels, sizeof (cache.calib_pixels), 1, fp));
+      BILT1 (fread (&cache.calib_channels, sizeof (cache.calib_channels), 1, fp));
+      BILT1 (fread (&cache.average_size, sizeof (cache.average_size), 1, fp));
 
-      cache->white_average_data = (uint8_t *) malloc (cache->average_size);
-      cache->dark_average_data = (uint8_t *) malloc (cache->average_size);
+      cache.white_average_data.resize(cache.average_size);
+      cache.dark_average_data.resize(cache.average_size);
 
-      if (!cache->white_average_data || !cache->dark_average_data)
-	{
-          status=SANE_STATUS_NO_MEM;
-	  FREE_IFNOT_NULL (cache->white_average_data);
-	  FREE_IFNOT_NULL (cache->dark_average_data);
-	  free (cache);
-	  DBG(DBG_error, "%s: could not allocate space for average data\n", __func__);
-	  break;
-	}
-
-      if (fread (cache->white_average_data, cache->average_size, 1, fp) < 1)
+      if (fread(cache.white_average_data.data(), cache.average_size, 1, fp) < 1)
 	{
           status=SANE_STATUS_EOF;
           DBG(DBG_warn, "%s: partial calibration record\n", __func__);
-	  free (cache->white_average_data);
-	  free (cache->dark_average_data);
-	  free (cache);
 	  break;
 	}
-      if (fread (cache->dark_average_data, cache->average_size, 1, fp) < 1)
+      if (fread(cache.dark_average_data.data(), cache.average_size, 1, fp) < 1)
 	{
 	  DBG(DBG_warn, "%s: partial calibration record\n", __func__);
-	  free (cache->white_average_data);
-	  free (cache->dark_average_data);
-	  free (cache);
           status=SANE_STATUS_EOF;
 	  break;
 	}
 #undef BILT1
       DBG(DBG_info, "%s: adding record to list\n", __func__);
-      cache->next = dev->calibration_cache;
-      dev->calibration_cache = cache;
+      dev->calibration_cache.push_back(std::move(cache));
     }
 
   fclose (fp);
@@ -6285,13 +6025,12 @@ write_calibration (Genesys_Device * dev)
   FILE *fp;
   uint8_t vers = 0;
   uint32_t size = 0;
-  struct Genesys_Calibration_Cache *cache;
 
   DBGSTART;
-  fp = fopen (dev->calib_file, "wb");
+  fp = fopen (dev->calib_file.c_str(), "wb");
   if (!fp)
     {
-      DBG(DBG_info, "%s: Cannot open %s for writing\n", __func__, dev->calib_file);
+      DBG(DBG_info, "%s: Cannot open %s for writing\n", __func__, dev->calib_file.c_str());
       return;
     }
 
@@ -6300,19 +6039,17 @@ write_calibration (Genesys_Device * dev)
   size = sizeof (struct Genesys_Calibration_Cache);
   fwrite (&size, 4, 1, fp);
 
-  for (cache = dev->calibration_cache; cache; cache = cache->next)
+  for (auto& cache : dev->calibration_cache)
     {
-      fwrite (&cache->used_setup, sizeof (cache->used_setup), 1, fp);
-      fwrite (&cache->last_calibration, sizeof (cache->last_calibration), 1, fp);
-      fwrite (&cache->frontend, sizeof (cache->frontend), 1, fp);
-      /* the gamma (and later) fields are not stored */
-      fwrite (&cache->sensor, offsetof (Genesys_Sensor, gamma[0]), 1, fp);
-
-      fwrite (&cache->calib_pixels, sizeof (cache->calib_pixels), 1, fp);
-      fwrite (&cache->calib_channels, sizeof (cache->calib_channels), 1, fp);
-      fwrite (&cache->average_size, sizeof (cache->average_size), 1, fp);
-      fwrite (cache->white_average_data, cache->average_size, 1, fp);
-      fwrite (cache->dark_average_data, cache->average_size, 1, fp);
+      fwrite(&cache.used_setup, sizeof (cache.used_setup), 1, fp);
+      fwrite(&cache.last_calibration, sizeof (cache.last_calibration), 1, fp);
+      fwrite(&cache.frontend, sizeof (cache.frontend), 1, fp);
+      cache.sensor.fwrite(fp);
+      fwrite(&cache.calib_pixels, sizeof (cache.calib_pixels), 1, fp);
+      fwrite(&cache.calib_channels, sizeof (cache.calib_channels), 1, fp);
+      fwrite(&cache.average_size, sizeof (cache.average_size), 1, fp);
+      fwrite(cache.white_average_data.data(), cache.average_size, 1, fp);
+      fwrite(cache.dark_average_data.data(), cache.average_size, 1, fp);
     }
   DBGCOMPLETED;
   fclose (fp);
@@ -6333,7 +6070,6 @@ genesys_buffer_image(Genesys_Scanner *s)
   size_t read_size;   /**> size of reads */
   int lines;	      /** number of lines of the scan */
   Genesys_Device *dev = s->dev;
-  SANE_Byte *lineart=NULL;
 
   /* compute maximum number of lines for the scan */
   if (s->params.lines > 0)
@@ -6362,14 +6098,7 @@ genesys_buffer_image(Genesys_Scanner *s)
   /* read size */
   read_size = size / 2;
 
-  /* allocate memory */
-  dev->img_buffer = (SANE_Byte *) malloc (size);
-  if (dev->img_buffer == NULL)
-    {
-      DBG(DBG_error, "%s: digital processing requires too much memory.\nConsider disabling it\n",
-          __func__);
-      return SANE_STATUS_NO_MEM;
-    }
+  dev->img_buffer.resize(size);
 
   /* loop reading data until we reach maximum or EOF */
   total = 0;
@@ -6380,10 +6109,9 @@ genesys_buffer_image(Genesys_Scanner *s)
 	{
 	  len = read_size;
 	}
-      status = genesys_read_ordered_data (dev, dev->img_buffer + total, &len);
+      status = genesys_read_ordered_data(dev, dev->img_buffer.data() + total, &len);
       if (status != SANE_STATUS_EOF && status != SANE_STATUS_GOOD)
 	{
-	  free (s->dev->img_buffer);
 	  DBG(DBG_error, "%s: %s buffering failed\n", __func__, sane_strstatus(status));
 	  return status;
 	}
@@ -6393,14 +6121,7 @@ genesys_buffer_image(Genesys_Scanner *s)
       if (total + read_size > size && status != SANE_STATUS_EOF)
 	{
 	  size += read_size;
-	  dev->img_buffer = (SANE_Byte *) realloc (dev->img_buffer, size);
-	  if (dev->img_buffer == NULL)
-	    {
-	      DBG(DBG_error0,
-		 "%s: digital processing requires too much memory.\nConsider disabling it\n",
-		 __func__);
-	      return SANE_STATUS_NO_MEM;
-	    }
+          dev->img_buffer.resize(size);
 	}
     }
 
@@ -6420,21 +6141,14 @@ genesys_buffer_image(Genesys_Scanner *s)
   if(s->dev->settings.dynamic_lineart==SANE_TRUE)
     {
       total/=8;
-      lineart=(SANE_Byte *)malloc(total);
-      if (lineart == NULL)
-        {
-          DBG(DBG_error0,
-              "%s: digital processing requires too much memory.\nConsider disabling it\n",
-              __func__);
-          return SANE_STATUS_NO_MEM;
-        }
+      std::vector<uint8_t> lineart(total);
+
       genesys_gray_lineart (dev,
-                            dev->img_buffer,
-                            lineart,
+                            dev->img_buffer.data(),
+                            lineart.data(),
                             dev->settings.pixels,
                             (total*8)/dev->settings.pixels,
                             dev->settings.threshold);
-      free(dev->img_buffer);
       dev->img_buffer = lineart;
     }
 
@@ -6446,7 +6160,7 @@ genesys_buffer_image(Genesys_Scanner *s)
   s->params.lines = total / s->params.bytes_per_line;
   if (DBG_LEVEL >= DBG_io2)
     {
-      sanei_genesys_write_pnm_file("gl_unprocessed.pnm", dev->img_buffer, s->params.depth,
+      sanei_genesys_write_pnm_file("gl_unprocessed.pnm", dev->img_buffer.data(), s->params.depth,
                                    s->params.format==SANE_FRAME_RGB ? 3 : 1,
                                    s->params.pixels_per_line, s->params.lines);
     }
@@ -6482,6 +6196,12 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   /* init sanei_magic */
   sanei_magic_init();
 
+  s_scanners.init();
+  s_devices.init();
+  s_sane_devices.init();
+  s_sane_devices_ptrs.init();
+  genesys_init_sensor_tables();
+
   DBG(DBG_info, "%s: %s endian machine\n", __func__,
 #ifdef WORDS_BIGENDIAN
        "big"
@@ -6489,12 +6209,6 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
        "little"
 #endif
     );
-
-  /* set up to no devices at first */
-  num_devices = 0;
-  first_dev = 0;
-  first_handle = 0;
-  devlist = 0;
 
   /* cold-plug case :detection of allready connected scanners */
   status = probe_genesys_devices ();
@@ -6516,24 +6230,11 @@ extern "C" SANE_Status sane_init(SANE_Int * version_code, SANE_Auth_Callback aut
 void
 sane_exit_impl(void)
 {
-  Genesys_Device *dev, *next;
-
   DBGSTART;
-  for (dev = first_dev; dev; dev = next)
-    {
-      /* sane_close() free many fields, not much things left to
-       * do here */
-      next = dev->next;
-      free (dev->file_name);
-      free (dev);
-    }
-  first_dev = 0;
-  first_handle = 0;
-  if (devlist)
-    free (devlist);
-  devlist = 0;
 
   sanei_usb_exit();
+
+  run_functions_at_backend_exit();
 
   DBGCOMPLETED;
 }
@@ -6546,10 +6247,6 @@ void sane_exit()
 SANE_Status
 sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  Genesys_Device *dev, *prev;
-  SANE_Int index;
-  SANE_Device *sane_device;
-
   DBG(DBG_proc, "%s: start: local_only = %s\n", __func__,
       local_only == SANE_TRUE ? "true" : "false");
 
@@ -6557,75 +6254,30 @@ sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
   sanei_usb_scan_devices ();
   probe_genesys_devices ();
 
-  if (devlist)
-    free (devlist);
+    s_sane_devices->clear();
+    s_sane_devices_ptrs->clear();
+    s_sane_devices->reserve(s_devices->size());
+    s_sane_devices_ptrs->reserve(s_devices->size() + 1);
 
-  devlist = (SANE_Device**) malloc((num_devices + 1) * sizeof (devlist[0]));
-  if (!devlist)
-    return SANE_STATUS_NO_MEM;
-
-  prev = NULL;
-  index = 0;
-  dev = first_dev;
-  while (dev != NULL)
-    {
-      /* check if device removed */
-      present = SANE_FALSE;
-      sanei_usb_find_devices (dev->vendorId, dev->productId, check_present);
-      if (present)
-	{
-      sane_device = (SANE_Device*) malloc(sizeof (*sane_device));
-	  if (!sane_device)
-	    return SANE_STATUS_NO_MEM;
-	  sane_device->name = dev->file_name;
-	  sane_device->vendor = dev->model->vendor;
-	  sane_device->model = dev->model->model;
-	  sane_device->type = strdup ("flatbed scanner");
-	  devlist[index] = sane_device;
-	  index++;
-	  prev = dev;
-	  dev = dev->next;
-	}
-      else
-	{
-	  /* remove device from internal list */
-	  /* case 1 : removed device is first_dev */
-	  if (prev == NULL)
-	    {
-	      /* test for another dev */
-	      if (dev->next == NULL)
-		{
-		  /* empty the whole list */
-		  free (dev);
-		  first_dev = NULL;
-		  num_devices = 0;
-		  dev = NULL;
-		}
-	      else
-		{
-		  /* assign new start */
-		  first_dev = dev->next;
-		  num_devices--;
-		  free (dev);
-	          dev = first_dev;
-		}
-	    }
-	  /* case 2 : removed device is not first_dev */
-	  else
-	    {
-	      /* link previous dev to next dev */
-	      prev->next = dev->next;
-	      free (dev);
-	      num_devices--;
-
-	      /* next loop */
-	      dev = prev->next;
-	    }
-	}
+    for (auto dev_it = s_devices->begin(); dev_it != s_devices->end();) {
+        present = SANE_FALSE;
+        sanei_usb_find_devices(dev_it->vendorId, dev_it->productId, check_present);
+        if (present) {
+            s_sane_devices->emplace_back();
+            auto& sane_device = s_sane_devices->back();
+            sane_device.name = dev_it->file_name;
+            sane_device.vendor = dev_it->model->vendor;
+            sane_device.model = dev_it->model->model;
+            sane_device.type = "flatbed scanner";
+            s_sane_devices_ptrs->push_back(&sane_device);
+            dev_it++;
+        } else {
+            dev_it = s_devices->erase(dev_it);
+        }
     }
-  devlist[index] = 0;
+    s_sane_devices_ptrs->push_back(nullptr);
 
-  *((SANE_Device ***)device_list) = devlist;
+    *((SANE_Device ***)device_list) = s_sane_devices_ptrs->data();
 
   DBGCOMPLETED;
 
@@ -6645,7 +6297,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 {
   Genesys_Device *dev;
   SANE_Status status;
-  Genesys_Scanner *s;
   char *tmpstr;
 
   DBG(DBG_proc, "%s: start (devicename = `%s')\n", __func__, devicename);
@@ -6656,9 +6307,12 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   if (devicename[0] && strcmp ("genesys", devicename) != 0)
     {
       /* search for the given devicename in the device list */
-      for (dev = first_dev; dev; dev = dev->next)
-	if (strcmp (dev->file_name, devicename) == 0)
-	  break;
+        for (auto& d : *s_devices) {
+            if (strcmp(d.file_name, devicename) == 0) {
+                dev = &d;
+                break;
+            }
+        }
 
       if (!dev)
 	{
@@ -6670,12 +6324,11 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     }
   else
     {
-      /* empty devicename or "genesys" -> use first device */
-      dev = first_dev;
-      if (dev)
-	{
-	  devicename = dev->file_name;
-	  DBG(DBG_info, "%s: empty devicename, trying `%s'\n", __func__, devicename);
+        // empty devicename or "genesys" -> use first device
+        if (!s_devices->empty()) {
+            dev = &s_devices->front();
+            devicename = dev->file_name;
+            DBG(DBG_info, "%s: empty devicename, trying `%s'\n", __func__, devicename);
 	}
     }
 
@@ -6701,35 +6354,19 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     }
 
 
-  s = (Genesys_Scanner*) malloc(sizeof (*s));
-  if (!s)
-    return SANE_STATUS_NO_MEM;
+  s_scanners->push_back(Genesys_Scanner());
+  auto* s = &s_scanners->back();
 
   s->dev = dev;
   s->scanning = SANE_FALSE;
-  s->dev->read_buffer.buffer = NULL;
-  s->dev->lines_buffer.buffer = NULL;
-  s->dev->shrink_buffer.buffer = NULL;
-  s->dev->out_buffer.buffer = NULL;
-  s->dev->binarize_buffer.buffer = NULL;
-  s->dev->local_buffer.buffer = NULL;
   s->dev->parking = SANE_FALSE;
   s->dev->read_active = SANE_FALSE;
-  s->dev->white_average_data = NULL;
-  s->dev->dark_average_data = NULL;
-  s->dev->calibration_cache = NULL;
   s->dev->force_calibration = 0;
-  s->dev->calib_file = NULL;
-  s->dev->img_buffer = NULL;
   s->dev->line_interp = 0;
   s->dev->line_count = 0;
   s->dev->segnb = 0;
-  s->dev->oe_buffer.buffer=NULL;
   s->dev->binary=NULL;
 
-  /* insert newly opened handle into list of open handles: */
-  s->next = first_handle;
-  first_handle = s;
   *handle = s;
 
   if (!dev->already_initialized)
@@ -6753,9 +6390,9 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     {
       tmpstr=calibration_filename(s->dev);
       s->val[OPT_CALIBRATION_FILE].s = strdup (tmpstr);
-      s->dev->calib_file = strdup (tmpstr);
+      s->dev->calib_file = tmpstr;
       DBG(DBG_info, "%s: Calibration filename set to:\n", __func__);
-      DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file);
+      DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file.c_str());
       free(tmpstr);
 
       /* now open file, fetch calibration records */
@@ -6777,25 +6414,26 @@ SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle* handle)
 void
 sane_close_impl(SANE_Handle handle)
 {
-  Genesys_Scanner *prev, *s;
-  Genesys_Calibration_Cache *cache, *next_cache;
   SANE_Status status;
 
   DBGSTART;
 
   /* remove handle from list of open handles: */
-  prev = 0;
-  for (s = first_handle; s; s = s->next)
+  auto it = s_scanners->end();
+  for (auto it2 = s_scanners->begin(); it2 != s_scanners->end(); it2++)
     {
-      if (s == handle)
-	break;
-      prev = s;
+      if (&*it2 == handle) {
+          it = it2;
+          break;
+        }
     }
-  if (!s)
+  if (it == s_scanners->end())
     {
       DBG(DBG_error, "%s: invalid handle %p\n", __func__, handle);
       return;			/* oops, not a handle we know about */
     }
+
+  Genesys_Scanner* s = &*it;
 
   /* eject document for sheetfed scanners */
   if (s->dev->model->is_sheetfed == SANE_TRUE)
@@ -6829,29 +6467,6 @@ sane_close_impl(SANE_Handle handle)
   if (s->dev->force_calibration == 0)
     write_calibration (s->dev);
 
-  for (cache = s->dev->calibration_cache; cache; cache = next_cache)
-    {
-      next_cache = cache->next;
-      free (cache->dark_average_data);
-      free (cache->white_average_data);
-      free (cache);
-    }
-
-  sanei_genesys_buffer_free (&(s->dev->read_buffer));
-  sanei_genesys_buffer_free (&(s->dev->lines_buffer));
-  sanei_genesys_buffer_free (&(s->dev->shrink_buffer));
-  sanei_genesys_buffer_free (&(s->dev->out_buffer));
-  sanei_genesys_buffer_free (&(s->dev->binarize_buffer));
-  sanei_genesys_buffer_free (&(s->dev->local_buffer));
-  FREE_IFNOT_NULL (s->dev->white_average_data);
-  FREE_IFNOT_NULL (s->dev->dark_average_data);
-  FREE_IFNOT_NULL (s->dev->calib_file);
-
-  /* free allocated gamma tables */
-  FREE_IFNOT_NULL (s->dev->sensor.gamma_table[0]);
-  FREE_IFNOT_NULL (s->dev->sensor.gamma_table[1]);
-  FREE_IFNOT_NULL (s->dev->sensor.gamma_table[2]);
-
   s->dev->already_initialized = SANE_FALSE;
 
    /* for an handful of bytes .. */
@@ -6862,10 +6477,7 @@ sane_close_impl(SANE_Handle handle)
   free ((void *)(size_t)s->opt[OPT_TL_X].constraint.range);
   free ((void *)(size_t)s->opt[OPT_TL_Y].constraint.range);
 
-  if (prev)
-    prev->next = s->next;
-  else
-    first_handle = s->next;
+  s->dev->clear();
 
   /* LAMP OFF : same register across all the ASICs */
   sanei_genesys_write_register (s->dev, 0x03, 0x00);
@@ -6878,7 +6490,9 @@ sane_close_impl(SANE_Handle handle)
   sanei_usb_reset (s->dev->dn);
 
   sanei_usb_close (s->dev->dn);
-  free (s);
+  // not freeing s->dev because it's in the dev list
+
+  s_scanners->erase(it);
 
   DBGCOMPLETED;
 }
@@ -6923,7 +6537,6 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
   SANE_Word *table ,tmp;
   uint16_t *gamma;
   SANE_Status status = SANE_STATUS_GOOD;
-  Genesys_Calibration_Cache *cache;
 
   switch (option)
     {
@@ -6986,15 +6599,15 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
       table = (SANE_Word *) val;
       if (strcmp (s->val[OPT_COLOR_FILTER].s, "Red") == 0)
 	{
-	  gamma = s->dev->sensor.gamma_table[GENESYS_RED];
+      gamma = s->dev->sensor.gamma_table[GENESYS_RED].data();
 	}
       else if (strcmp (s->val[OPT_COLOR_FILTER].s, "Blue") == 0)
 	{
-	  gamma = s->dev->sensor.gamma_table[GENESYS_BLUE];
+      gamma = s->dev->sensor.gamma_table[GENESYS_BLUE].data();
 	}
       else
 	{
-	  gamma = s->dev->sensor.gamma_table[GENESYS_GREEN];
+      gamma = s->dev->sensor.gamma_table[GENESYS_GREEN].data();
 	}
       for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
 	{
@@ -7039,10 +6652,10 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
       /* scanner needs calibration for current mode unless a matching
        * calibration cache is found */
       *(SANE_Bool *) val = SANE_TRUE;
-      for (cache = s->dev->calibration_cache; cache; cache = cache->next)
+      for (auto& cache : s->dev->calibration_cache)
 	{
 	  if (s->dev->model->
-	      cmd_set->is_compatible_calibration (s->dev, cache, SANE_FALSE) == SANE_STATUS_GOOD)
+              cmd_set->is_compatible_calibration (s->dev, &cache, SANE_FALSE) == SANE_STATUS_GOOD)
 	    {
 	      *(SANE_Bool *) val = SANE_FALSE;
 	    }
@@ -7060,13 +6673,12 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
 static SANE_Status set_calibration_value (Genesys_Scanner * s, int option, void *val)
 {
   SANE_Status status=SANE_STATUS_GOOD;
-  char *tmp;
   Genesys_Device *dev=s->dev;
 
   DBGSTART;
 
   /* try to load file */
-  tmp=dev->calib_file;
+  std::string prev_calib_file = dev->calib_file;
   dev->calib_file = (char*) val;
   status=sanei_genesys_read_calibration (dev);
 
@@ -7074,7 +6686,7 @@ static SANE_Status set_calibration_value (Genesys_Scanner * s, int option, void 
    * an re-read it */
   if (status!=SANE_STATUS_IO_ERROR && status!=SANE_STATUS_GOOD)
     {
-      dev->calib_file=tmp;
+      dev->calib_file = prev_calib_file;
       status=sanei_genesys_read_calibration (dev);
       return status;
     }
@@ -7083,11 +6695,9 @@ static SANE_Status set_calibration_value (Genesys_Scanner * s, int option, void 
   if (s->val[option].s)
     free (s->val[option].s);
   s->val[option].s = strdup((char*) val);
-  if (tmp)
-    free (tmp);
-  dev->calib_file = strdup((char*) val);
+  dev->calib_file = (char*) val;
   DBG(DBG_info, "%s: Calibration filename set to:\n", __func__);
-  DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file);
+  DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file.c_str());
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -7102,7 +6712,6 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
   SANE_Word *table;
   unsigned int i;
   SANE_Range *x_range, *y_range;
-  Genesys_Calibration_Cache *cache, *next_cache;
 
   switch (option)
     {
@@ -7324,17 +6933,17 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  /* restore default sensor gamma table */
 	  /* currently there is no sensor's specific gamma table,
 	   * tables are built by sanei_genesys_create_gamma_table */
-	  sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_RED],
+      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_RED].data(),
 					    s->opt[OPT_GAMMA_VECTOR_R].size / sizeof (SANE_Word),
 					    s->opt[OPT_GAMMA_VECTOR_R].constraint.range->max,
 					    s->opt[OPT_GAMMA_VECTOR_R].constraint.range->max,
 					    s->dev->sensor.gamma[GENESYS_RED]);
-	  sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_GREEN],
+      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_GREEN].data(),
 					    s->opt[OPT_GAMMA_VECTOR_G].size / sizeof (SANE_Word),
 					    s->opt[OPT_GAMMA_VECTOR_G].constraint.range->max,
 					    s->opt[OPT_GAMMA_VECTOR_G].constraint.range->max,
 					    s->dev->sensor.gamma[GENESYS_GREEN]);
-	  sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_BLUE],
+      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_BLUE].data(),
 					    s->opt[OPT_GAMMA_VECTOR_B].size / sizeof (SANE_Word),
 					    s->opt[OPT_GAMMA_VECTOR_B].constraint.range->max,
 					    s->opt[OPT_GAMMA_VECTOR_B].constraint.range->max,
@@ -7387,38 +6996,18 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
     case OPT_CLEAR_CALIBRATION:
-      /* clear calibration cache */
-      if (s->dev->calibration_cache != NULL)
-	{
-	  for (cache = s->dev->calibration_cache; cache; cache = next_cache)
-	    {
-	      next_cache = cache->next;
-	      free (cache->dark_average_data);
-	      free (cache->white_average_data);
-	      free (cache);
-	    }
-	}
-      s->dev->calibration_cache = NULL;
+      s->dev->calibration_cache.clear();
+
       /* remove file */
-      unlink (s->dev->calib_file);
+      unlink(s->dev->calib_file.c_str());
       /* signals that sensors will have to be read again */
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
     case OPT_FORCE_CALIBRATION:
       s->dev->force_calibration = 1;
-      if (s->dev->calibration_cache != NULL)
-        {
-          for (cache = s->dev->calibration_cache; cache; cache = next_cache)
-            {
-              next_cache = cache->next;
-              free (cache->dark_average_data);
-              free (cache->white_average_data);
-              free (cache);
-            }
-        }
-      s->dev->calibration_cache = NULL;
+      s->dev->calibration_cache.clear();
+      s->dev->calib_file.clear();
 
-      FREE_IFNOT_NULL(s->dev->calib_file);
       /* signals that sensors will have to be read again */
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
@@ -7593,10 +7182,10 @@ SANE_Status sane_start_impl(SANE_Handle handle)
   /* allocate intermediate buffer when doing dynamic lineart */
   if(s->dev->settings.dynamic_lineart==SANE_TRUE)
     {
-      RIE (sanei_genesys_buffer_free (&(s->dev->binarize_buffer)));
-      RIE (sanei_genesys_buffer_alloc (&(s->dev->binarize_buffer), s->dev->settings.pixels));
-      RIE (sanei_genesys_buffer_free (&(s->dev->local_buffer)));
-      RIE (sanei_genesys_buffer_alloc (&(s->dev->local_buffer), s->dev->binarize_buffer.size * 8));
+        s->dev->binarize_buffer.clear();
+        s->dev->binarize_buffer.alloc(s->dev->settings.pixels);
+        s->dev->local_buffer.clear();
+        s->dev->local_buffer.alloc(s->dev->binarize_buffer.size() * 8);
     }
 
   /* if one of the software enhancement option is selected,
@@ -7612,7 +7201,7 @@ SANE_Status sane_start_impl(SANE_Handle handle)
       if (s->val[OPT_SWSKIP].w && IS_ACTIVE(OPT_SWSKIP))
         {
           status = sanei_magic_isBlank(&s->params,
-				       s->dev->img_buffer,
+                                       s->dev->img_buffer.data(),
                                        SANE_UNFIX(s->val[OPT_SWSKIP].w));
           if(status == SANE_STATUS_NO_DOCS)
             {
@@ -7735,39 +7324,40 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
       if(dev->settings.dynamic_lineart==SANE_TRUE)
         {
           /* if buffer is empty, fill it with genesys_read_ordered_data */
-          if(dev->binarize_buffer.avail==0)
+          if(dev->binarize_buffer.avail() == 0)
             {
               /* store gray data */
-              local_len=dev->local_buffer.size;
-              status = genesys_read_ordered_data (dev, dev->local_buffer.buffer, &local_len);
+              local_len=dev->local_buffer.size();
+              dev->local_buffer.reset();
+              status = genesys_read_ordered_data (dev, dev->local_buffer.get_write_pos(local_len),
+                                                  &local_len);
+              dev->local_buffer.produce(local_len);
 
               /* binarize data is read successful */
               if(status==SANE_STATUS_GOOD)
                 {
-                  dev->local_buffer.avail=local_len;
-                  dev->local_buffer.pos=0;
-                  dev->binarize_buffer.avail=local_len/8;
-                  dev->binarize_buffer.pos=0;
+                    dev->binarize_buffer.reset();
                   genesys_gray_lineart (dev,
-                                        dev->local_buffer.buffer,
-                                        dev->binarize_buffer.buffer,
+                                        dev->local_buffer.get_read_pos(),
+                                        dev->binarize_buffer.get_write_pos(local_len / 8),
                                         dev->settings.pixels,
                                         local_len/dev->settings.pixels,
                                         dev->settings.threshold);
+                    dev->binarize_buffer.produce(local_len / 8);
                 }
 
             }
 
           /* return data from lineart buffer if any, up to the available amount */
           local_len = max_len;
-          if((size_t)max_len>dev->binarize_buffer.avail)
+          if((size_t)max_len>dev->binarize_buffer.avail())
             {
-              local_len=dev->binarize_buffer.avail;
+              local_len=dev->binarize_buffer.avail();
             }
           if(local_len)
             {
-              memcpy(buf,sanei_genesys_buffer_get_read_pos (&(dev->binarize_buffer)),local_len);
-	      RIE (sanei_genesys_buffer_consume (&(dev->binarize_buffer), local_len));
+              memcpy(buf, dev->binarize_buffer.get_read_pos(), local_len);
+              dev->binarize_buffer.consume(local_len);
             }
         }
       else
@@ -7782,7 +7372,7 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
         {
           local_len=dev->total_bytes_to_read-dev->total_bytes_read;
         }
-      memcpy(buf,dev->img_buffer+dev->total_bytes_read,local_len);
+      memcpy(buf, dev->img_buffer.data() + dev->total_bytes_read, local_len);
       dev->total_bytes_read+=local_len;
     }
 
@@ -7819,11 +7409,7 @@ void sane_cancel_impl(SANE_Handle handle)
 
   s->scanning = SANE_FALSE;
   s->dev->read_active = SANE_FALSE;
-  if(s->dev->img_buffer!=NULL)
-    {
-      free(s->dev->img_buffer);
-      s->dev->img_buffer=NULL;
-    }
+  s->dev->img_buffer.clear();
 
   /* no need to end scan if we are parking the head */
   if(s->dev->parking==SANE_FALSE)

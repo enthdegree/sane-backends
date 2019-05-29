@@ -336,7 +336,7 @@ genesys_crop(Genesys_Scanner *s)
 
   /* first find edges if any */
   status = sanei_magic_findEdges (&s->params,
-				  dev->img_buffer,
+                                  dev->img_buffer.data(),
 				  dev->settings.xres,
 				  dev->settings.yres,
 				  &top,
@@ -353,7 +353,7 @@ genesys_crop(Genesys_Scanner *s)
 
   /* now crop the image */
   status =
-    sanei_magic_crop (&(s->params), dev->img_buffer, top, bottom, left, right);
+    sanei_magic_crop (&(s->params), dev->img_buffer.data(), top, bottom, left, right);
   if (status)
     {
       DBG (DBG_warn, "%s: failed to crop\n", __func__);
@@ -390,7 +390,7 @@ genesys_deskew(Genesys_Scanner *s)
       bg=0xff;
     }
   status = sanei_magic_findSkew (&s->params,
-				 dev->img_buffer,
+                                 dev->img_buffer.data(),
 				 dev->sensor.optical_res,
 				 dev->sensor.optical_res,
                                  &x,
@@ -405,7 +405,7 @@ genesys_deskew(Genesys_Scanner *s)
   /* rotate image slope is in [-PI/2,PI/2]
    * positive values rotate trigonometric direction wise */
   status = sanei_magic_rotate (&s->params,
-			       dev->img_buffer,
+                               dev->img_buffer.data(),
                                x,
                                y,
                                slope,
@@ -427,7 +427,7 @@ static SANE_Status
 genesys_despeck(Genesys_Scanner *s)
 {
   if(sanei_magic_despeck(&s->params,
-                         s->dev->img_buffer,
+                         s->dev->img_buffer.data(),
                          s->val[OPT_DESPECK].w)!=SANE_STATUS_GOOD)
   {
     DBG (DBG_error, "%s: bad despeck, bailing\n",__func__);
@@ -447,7 +447,7 @@ genesys_derotate (Genesys_Scanner * s)
 
   DBGSTART;
   status = sanei_magic_findTurn (&s->params,
-				 s->dev->img_buffer,
+                                 s->dev->img_buffer.data(),
 				 resolution,
                                  resolution,
                                  &angle);
@@ -460,7 +460,7 @@ genesys_derotate (Genesys_Scanner * s)
     }
 
   /* apply rotation angle found */
-  status = sanei_magic_turn (&s->params, s->dev->img_buffer, angle);
+  status = sanei_magic_turn (&s->params, s->dev->img_buffer.data(), angle);
   if (status)
     {
       DBG (DBG_warn, "%s: failed : %d\n", __func__, status);

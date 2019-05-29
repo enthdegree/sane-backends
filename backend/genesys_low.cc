@@ -47,6 +47,34 @@
 #include "genesys_low.h"
 #include "assert.h"
 
+#include <vector>
+
+
+Genesys_Device::~Genesys_Device()
+{
+    clear();
+
+    if (file_name != nullptr)
+        free(file_name);
+}
+
+void Genesys_Device::clear()
+{
+    read_buffer.clear();
+    lines_buffer.clear();
+    shrink_buffer.clear();
+    out_buffer.clear();
+    binarize_buffer.clear();
+    local_buffer.clear();
+
+    calib_file.clear();
+
+    calibration_cache.clear();
+
+    white_average_data.clear();
+    dark_average_data.clear();
+}
+
 /* ------------------------------------------------------------------------ */
 /*                  functions calling ASIC specific functions               */
 /* ------------------------------------------------------------------------ */
@@ -1437,17 +1465,12 @@ SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
                                                 uint8_t *gamma)
 {
   int i;
-  uint16_t value, *lut=NULL;
+  uint16_t value;
 
   if(dev->settings.contrast!=0 || dev->settings.brightness!=0)
     {
-      lut=(uint16_t *)malloc(65536*2);
-      if(lut==NULL)
-        {
-          free(gamma);
-          return SANE_STATUS_NO_MEM;
-        }
-      sanei_genesys_load_lut((unsigned char *)lut,
+      std::vector<uint16_t> lut(65536);
+      sanei_genesys_load_lut((unsigned char *)lut.data(),
                              bits,
                              bits,
                              0,
@@ -1490,12 +1513,6 @@ SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
         }
     }
 
-
-  if(lut!=NULL)
-    {
-      free(lut);
-    }
-
   return SANE_STATUS_GOOD;
 }
 
@@ -1511,7 +1528,7 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
 {
   int size;
   int i;
-  uint8_t *gamma, val;
+  uint8_t val;
   SANE_Status status;
 
   DBGSTART;
@@ -1519,27 +1536,22 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
   size = 256 + 1;
 
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
-  gamma = (uint8_t *) malloc (size * 2 * 3);
-  if (!gamma)
-    {
-      return SANE_STATUS_NO_MEM;
-    }
-  memset(gamma, 255, size*3*2);
+  std::vector<uint8_t> gamma(size * 2 * 3, 255);
 
-  RIE(sanei_genesys_generate_gamma_buffer(dev, 16, 65535, size, gamma));
+  RIE(sanei_genesys_generate_gamma_buffer(dev, 16, 65535, size, gamma.data()));
 
   /* loop sending gamma tables NOTE: 0x01000000 not 0x10000000 */
   for (i = 0; i < 3; i++)
     {
       /* clear corresponding GMM_N bit */
-      RIEF (sanei_genesys_read_register (dev, 0xbd, &val), gamma);
+      RIE(sanei_genesys_read_register(dev, 0xbd, &val));
       val &= ~(0x01 << i);
-      RIEF (sanei_genesys_write_register (dev, 0xbd, val), gamma);
+      RIE(sanei_genesys_write_register(dev, 0xbd, val));
 
       /* clear corresponding GMM_F bit */
-      RIEF (sanei_genesys_read_register (dev, 0xbe, &val), gamma);
+      RIE(sanei_genesys_read_register(dev, 0xbe, &val));
       val &= ~(0x01 << i);
-      RIEF (sanei_genesys_write_register (dev, 0xbe, val), gamma);
+      RIE(sanei_genesys_write_register(dev, 0xbe, val));
 
       // FIXME: currently the last word of each gamma table is not initialied, so to work around
       // unstable data, just set it to 0 which is the most likely value of uninitialized memory
@@ -1548,10 +1560,10 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
       gamma[size * 2 * i + size * 2 - 1] = 0;
 
       /* set GMM_Z */
-      RIEF (sanei_genesys_write_register (dev, 0xc5+2*i, gamma[size*2*i+1]), gamma);
-      RIEF (sanei_genesys_write_register (dev, 0xc6+2*i, gamma[size*2*i]), gamma);
+      RIE(sanei_genesys_write_register (dev, 0xc5+2*i, gamma[size*2*i+1]));
+      RIE(sanei_genesys_write_register (dev, 0xc6+2*i, gamma[size*2*i]));
 
-      status = sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2, gamma + i * size * 2+2);
+      status = sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2, gamma.data() + i * size * 2+2);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -1561,7 +1573,6 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
 	}
     }
 
-  free (gamma);
   DBGCOMPLETED;
   return status;
 }
@@ -1610,15 +1621,10 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
   size = 256;
   for(i=0;i<3;i++)
     {
-      FREE_IFNOT_NULL (dev->sensor.gamma_table[i]);
-      dev->sensor.gamma_table[i] = (uint16_t *) malloc (2 * size);
-      if (dev->sensor.gamma_table[i] == NULL)
-        {
-          DBG (DBG_error, "%s: could not allocate memory for gamma table %d\n",
-               __func__, i);
-          return SANE_STATUS_NO_MEM;
-        }
-      sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
+      dev->sensor.gamma_table[i].clear();
+      dev->sensor.gamma_table[i].resize(size, 0);
+
+      sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i].data(),
                                         size,
                                         65535,
                                         65535,
@@ -1649,8 +1655,8 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
   RIE (dev->model->cmd_set->asic_boot (dev, cold));
 
   /* now hardware part is OK, set up device struct */
-  FREE_IFNOT_NULL (dev->white_average_data);
-  FREE_IFNOT_NULL (dev->dark_average_data);
+  dev->white_average_data.clear();
+  dev->dark_average_data.clear();
 
   dev->settings.color_filter = 0;
 
@@ -1660,7 +1666,6 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
   /* Set analog frontend */
   RIE (dev->model->cmd_set->set_fe (dev, AFE_INIT));
 
-  dev->oe_buffer.buffer = NULL;
   dev->already_initialized = SANE_TRUE;
 
   /* Move to home if needed */
@@ -2248,99 +2253,21 @@ void sanei_genesys_sleep_ms(unsigned int milliseconds)
   sanei_genesys_usleep(milliseconds * 1000);
 }
 
-Genesys_Vector sanei_gl_vector_create(size_t element_size)
+static std::unique_ptr<std::vector<std::function<void()>>> s_functions_run_at_backend_exit;
+
+void add_function_to_run_at_backend_exit(std::function<void()> function)
 {
-  Genesys_Vector ret;
-  ret.data = NULL;
-  ret.size = 0;
-  ret.capacity = 0;
-  ret.element_size = element_size;
-  return ret;
+    if (!s_functions_run_at_backend_exit)
+        s_functions_run_at_backend_exit.reset(new std::vector<std::function<void()>>());
+    s_functions_run_at_backend_exit->push_back(std::move(function));
 }
 
-void sanei_gl_vector_reserve(Genesys_Vector* v, size_t count)
+void run_functions_at_backend_exit()
 {
-  if (count <= v->capacity)
-    return;
-
-  char* new_data = (char *) malloc(count * v->element_size);
-  if (v->data != NULL)
+    for (auto it = s_functions_run_at_backend_exit->rbegin();
+         it != s_functions_run_at_backend_exit->rend(); ++it)
     {
-      memcpy(new_data, v->data, v->size * v->element_size);
-      free(v->data);
+        (*it)();
     }
-  v->data = new_data;
-  v->capacity = count;
-}
-
-static void sanei_gl_vector_grow(Genesys_Vector* v, size_t min_size)
-{
-  size_t new_capacity = v->capacity * 2;
-
-  if (new_capacity < 16)
-    new_capacity = 16;
-
-  if (new_capacity < min_size)
-    new_capacity = min_size;
-
-  sanei_gl_vector_reserve(v, new_capacity);
-}
-
-static void* sanei_gl_vector_get_element_nocheck(Genesys_Vector* v, size_t i)
-{
-  return v->data + v->element_size * i;
-}
-
-void sanei_gl_vector_resize(Genesys_Vector* v, size_t count)
-{
-  if (count <= v->size)
-    {
-      v->size = count;
-      return;
-    }
-
-  if (count > v->capacity)
-    sanei_gl_vector_reserve(v, count);
-
-  memset(sanei_gl_vector_get_element(v, v->size), 0, (count - v->size) * v->element_size);
-  v->size = count;
-}
-
-void sanei_gl_vector_append(Genesys_Vector* v, void* data, size_t count)
-{
-  if (v->size + count > v->capacity)
-    sanei_gl_vector_grow(v, count);
-
-  memcpy(sanei_gl_vector_get_element_nocheck(v, v->size), data, count * v->element_size);
-  v->size = v->size + count;
-}
-
-void sanei_gl_vector_append_zero(Genesys_Vector* v, size_t count)
-{
-  if (v->size + count > v->capacity)
-    sanei_gl_vector_grow(v, count);
-
-  memset(sanei_gl_vector_get_element_nocheck(v, v->size), 0, count * v->element_size);
-  v->size = v->size + count;
-}
-
-void* sanei_gl_vector_get_element(Genesys_Vector* v, size_t i)
-{
-  assert(v->data != NULL);
-  assert(i < v->size);
-  return sanei_gl_vector_get_element_nocheck(v, i);
-}
-
-void sanei_gl_vector_set_element(Genesys_Vector* v, void* data, size_t i)
-{
-  memcpy(sanei_gl_vector_get_element(v, i), data, v->element_size);
-}
-
-void sanei_gl_vector_destroy(Genesys_Vector* v)
-{
-  if (v->data != NULL)
-    free(v->data);
-  v->size = 0;
-  v->capacity = 0;
-  v->element_size = 0;
+    s_functions_run_at_backend_exit.release();
 }

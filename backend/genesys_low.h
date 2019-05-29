@@ -81,8 +81,15 @@
 
 #include "../include/_stdint.h"
 
+#include <algorithm>
+#include <array>
+#include <cstring>
+#include <functional>
+#include <list>
 #include <memory>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 #define DBG_error0      0	/* errors/warnings printed even with devuglevel 0 */
 #define DBG_error       1	/* fatal errors */
@@ -104,26 +111,6 @@
         DBG(DBG_error, "%s: %s\n", __func__, sane_strstatus (status)); \
 	return status; \
       }	\
-  } while (SANE_FALSE)
-
-#define RIEF(function, mem)                                   \
-  do { status = function;                               \
-    if (status != SANE_STATUS_GOOD) \
-      { \
-	 free(mem); \
-	 DBG(DBG_error, "%s: %s\n", __func__, sane_strstatus (status)); \
-	 return status;      \
-      } \
-  } while (SANE_FALSE)
-
-#define RIEF2(function, mem1, mem2)                                   \
-  do { status = function;                               \
-    if (status != SANE_STATUS_GOOD) \
-	  { \
-		 free(mem1); \
-		 free(mem2); \
-		 return status;      \
-	  } \
   } while (SANE_FALSE)
 
 #define DBGSTART DBG (DBG_proc, "%s start\n", __func__);
@@ -256,22 +243,84 @@ typedef struct
   uint8_t reg2[3];    /**< extra control registers */
 } Genesys_Frontend;
 
-typedef struct
-{
-  uint8_t sensor_id;	       /**< id of the sensor description */
-  int optical_res;
-  int black_pixels;
-  int dummy_pixel;              /* value of dummy register. */
-  int CCD_start_xoffset;	/* last pixel of CCD margin at optical resolution */
-  int sensor_pixels;		/* total pixels used by the sensor */
-  int fau_gain_white_ref;	/* TA CCD target code (reference gain) */
-  int gain_white_ref;		/* CCD target code (reference gain) */
-  uint8_t regs_0x08_0x0b[4];
-  uint8_t regs_0x10_0x1d[14];
-  uint8_t regs_0x52_0x5e[13];
-  float gamma[3];		/**< red, green and blue gamma coefficient for default gamma tables */
-  uint16_t *gamma_table[3];	/**< sensor specific gamma tables */
-} Genesys_Sensor;
+template<class T, size_t Size>
+struct AssignableArray : public std::array<T, Size> {
+    AssignableArray() = default;
+    AssignableArray(const AssignableArray&) = default;
+    AssignableArray& operator=(const AssignableArray&) = default;
+
+    AssignableArray& operator=(std::initializer_list<T> init)
+    {
+        if (init.size() != std::array<T, Size>::size())
+            throw std::runtime_error("An array of incorrect size assigned");
+        std::copy(init.begin(), init.end(), std::array<T, Size>::begin());
+        return *this;
+    }
+};
+
+struct Genesys_Sensor {
+
+    Genesys_Sensor() = default;
+    ~Genesys_Sensor() = default;
+
+    // id of the sensor description
+    uint8_t sensor_id = 0;
+    int optical_res = 0;
+    int black_pixels = 0;
+    // value of the dummy register
+    int dummy_pixel = 0;
+    // last pixel of CCD margin at optical resolution
+    int CCD_start_xoffset = 0;
+    // total pixels used by the sensor
+    int sensor_pixels = 0;
+    // TA CCD target code (reference gain)
+    int fau_gain_white_ref = 0;
+    // CCD target code (reference gain)
+    int gain_white_ref = 0;
+
+    AssignableArray<uint8_t, 4> regs_0x08_0x0b;
+    // Initial exposure values, EXPR, EXPG and EXPB are contained in 0x10-0x15
+    AssignableArray<uint8_t, 14> regs_0x10_0x1d;
+    AssignableArray<uint8_t, 13> regs_0x52_0x5e;
+
+    // red, green and blue gamma coefficient for default gamma tables
+    AssignableArray<float, 3> gamma;
+
+    // sensor-specific gamma tables
+    std::vector<uint16_t> gamma_table[3];
+
+    size_t fread(FILE* fp)
+    {
+        bool success = true;
+        success &= 1 == ::fread(&sensor_id, sizeof(sensor_id), 1, fp);
+        success &= 1 == ::fread(&optical_res, sizeof(optical_res), 1, fp);
+        success &= 1 == ::fread(&black_pixels, sizeof(black_pixels), 1, fp);
+        success &= 1 == ::fread(&dummy_pixel, sizeof(dummy_pixel), 1, fp);
+        success &= 1 == ::fread(&CCD_start_xoffset, sizeof(CCD_start_xoffset), 1, fp);
+        success &= 1 == ::fread(&sensor_pixels, sizeof(sensor_pixels), 1, fp);
+        success &= 1 == ::fread(&fau_gain_white_ref, sizeof(fau_gain_white_ref), 1, fp);
+        success &= 1 == ::fread(&gain_white_ref, sizeof(gain_white_ref), 1, fp);
+        success &= 1 == ::fread(&regs_0x08_0x0b, sizeof(regs_0x08_0x0b), 1, fp);
+        success &= 1 == ::fread(&regs_0x10_0x1d, sizeof(regs_0x10_0x1d), 1, fp);
+        success &= 1 == ::fread(&regs_0x52_0x5e, sizeof(regs_0x52_0x5e), 1, fp);
+        return success ? 1 : 0;
+    }
+
+    void fwrite(FILE* fp) const
+    {
+        ::fwrite(&sensor_id, sizeof(sensor_id), 1, fp);
+        ::fwrite(&optical_res, sizeof(optical_res), 1, fp);
+        ::fwrite(&black_pixels, sizeof(black_pixels), 1, fp);
+        ::fwrite(&dummy_pixel, sizeof(dummy_pixel), 1, fp);
+        ::fwrite(&CCD_start_xoffset, sizeof(CCD_start_xoffset), 1, fp);
+        ::fwrite(&sensor_pixels, sizeof(sensor_pixels), 1, fp);
+        ::fwrite(&fau_gain_white_ref, sizeof(fau_gain_white_ref), 1, fp);
+        ::fwrite(&gain_white_ref, sizeof(gain_white_ref), 1, fp);
+        ::fwrite(&regs_0x08_0x0b, sizeof(regs_0x08_0x0b), 1, fp);
+        ::fwrite(&regs_0x10_0x1d, sizeof(regs_0x10_0x1d), 1, fp);
+        ::fwrite(&regs_0x52_0x5e, sizeof(regs_0x52_0x5e), 1, fp);
+    }
+};
 
 typedef struct
 {
@@ -781,29 +830,53 @@ typedef struct Genesys_Current_Setup
     SANE_Int max_shift;	/* max shift of any ccd component, including staggered pixels*/
 } Genesys_Current_Setup;
 
-typedef struct Genesys_Buffer
+struct Genesys_Buffer
 {
-  SANE_Byte *buffer;
-  size_t size;
-  size_t pos;	/* current position in read buffer */
-  size_t avail;	/* data bytes currently in buffer */
-} Genesys_Buffer;
+    Genesys_Buffer() = default;
+
+    size_t size() const { return buffer_.size(); }
+    size_t avail() const { return avail_; }
+    size_t pos() const { return pos_; }
+
+    // TODO: refactor code that uses this function to no longer use it
+    void set_pos(size_t pos) { pos_ = pos; }
+
+    void alloc(size_t size);
+    void clear();
+
+    void reset();
+
+    uint8_t* get_write_pos(size_t size);
+    uint8_t* get_read_pos(); // TODO: mark as const
+
+    void produce(size_t size);
+    void consume(size_t size);
+
+private:
+    std::vector<uint8_t> buffer_;
+    // current position in read buffer
+    size_t pos_ = 0;
+    // data bytes currently in buffer
+    size_t avail_ = 0;
+};
 
 struct Genesys_Calibration_Cache
 {
-  Genesys_Current_Setup used_setup;/* used to check if entry is compatible */
-  time_t last_calibration;
+    Genesys_Calibration_Cache() = default;
+    ~Genesys_Calibration_Cache() = default;
 
-  Genesys_Frontend frontend;
-  Genesys_Sensor sensor;
+    // used to check if entry is compatible
+    Genesys_Current_Setup used_setup = {};
+    time_t last_calibration = 0;
 
-  size_t calib_pixels;
-  size_t calib_channels;
-  size_t average_size;
-  uint8_t *white_average_data;
-  uint8_t *dark_average_data;
+    Genesys_Frontend frontend = {};
+    Genesys_Sensor sensor;
 
-  struct Genesys_Calibration_Cache *next;
+    size_t calib_pixels = 0;
+    size_t calib_channels = 0;
+    size_t average_size = 0;
+    std::vector<uint8_t> white_average_data;
+    std::vector<uint8_t> dark_average_data;
 };
 
 /**
@@ -813,93 +886,129 @@ struct Genesys_Calibration_Cache
  */
 struct Genesys_Device
 {
-  SANE_Int dn;
-  SANE_Word vendorId;			/**< USB vendor identifier */
-  SANE_Word productId;			/**< USB product identifier */
+    Genesys_Device() = default;
+    ~Genesys_Device();
 
-  // USB mode:
-  // 0: not set
-  // 1: USB 1.1
-  // 2: USB 2.0
-  SANE_Int usb_mode;
+    // frees commonly used data
+    void clear();
 
-  SANE_String file_name;
-  SANE_String calib_file;
-  SANE_Int force_calibration; // if enabled, no calibration data will be loaded
-                              // or saved to files
-  Genesys_Model *model;
+    SANE_Int dn = 0;
+    SANE_Word vendorId = 0;			/**< USB vendor identifier */
+    SANE_Word productId = 0;			/**< USB product identifier */
 
-  Genesys_Register_Set reg[256];
-  Genesys_Register_Set calib_reg[256];
-  Genesys_Settings settings;
-  Genesys_Frontend frontend;
-  Genesys_Sensor sensor;
-  Genesys_Gpo gpo;
-  Genesys_Motor motor;
-  uint16_t slope_table0[256];
-  uint16_t slope_table1[256];
-  uint8_t  control[6];
-  time_t init_date;
+    // USB mode:
+    // 0: not set
+    // 1: USB 1.1
+    // 2: USB 2.0
+    SANE_Int usb_mode = 0;
 
-  size_t average_size;
-  size_t calib_pixels;	/**< number of pixels used during shading calibration */
-  size_t calib_lines;	/**< number of lines used during shading calibration */
-  size_t calib_channels;
-  size_t calib_resolution;
-  uint8_t *white_average_data;
-  uint8_t *dark_average_data;
-  uint16_t dark[3];
+    SANE_String file_name = nullptr;
+    std::string calib_file;
 
-  SANE_Bool already_initialized;
-  SANE_Int scanhead_position_in_steps;
-  SANE_Int lamp_off_time;
+    // if enabled, no calibration data will be loaded or saved to files
+    SANE_Int force_calibration = 0;
+    Genesys_Model *model = nullptr;
 
-  SANE_Bool read_active;
-  SANE_Bool parking;		/**< signal wether the park command has been issued */
-  SANE_Bool document;		/**< for sheetfed scanner's, is TRUE when there
-				   is a document in the scanner */
+    Genesys_Register_Set reg[256] = {};
+    Genesys_Register_Set calib_reg[256] = {};
+    Genesys_Settings settings = {};
+    Genesys_Frontend frontend = {};
+    Genesys_Sensor sensor;
+    Genesys_Gpo gpo = {};
+    Genesys_Motor motor = {};
+    uint16_t slope_table0[256] = {};
+    uint16_t slope_table1[256] = {};
+    uint8_t  control[6] = {};
+    time_t init_date = 0;
 
-  Genesys_Buffer read_buffer;
-  Genesys_Buffer lines_buffer;
-  Genesys_Buffer shrink_buffer;
-  Genesys_Buffer out_buffer;
-  Genesys_Buffer binarize_buffer; /**< buffer for digital lineart from gray data */
-  Genesys_Buffer local_buffer;    /**< local buffer for gray data during dynamix lineart */
+    size_t average_size = 0;
+    // number of pixels used during shading calibration
+    size_t calib_pixels = 0;
+    // number of lines used during shading calibration
+    size_t calib_lines = 0;
+    size_t calib_channels = 0;
+    size_t calib_resolution = 0;
 
-  size_t read_bytes_left;	/**< bytes to read from scanner */
+    std::vector<uint8_t> white_average_data;
+    std::vector<uint8_t> dark_average_data;
+    uint16_t dark[3] = {};
 
-  size_t total_bytes_read;	/**< total bytes read sent to frontend */
-  size_t total_bytes_to_read;	/**< total bytes read to be sent to frontend */
-  size_t wpl;			/**< asic's word per line */
+    SANE_Bool already_initialized = 0;
+    SANE_Int scanhead_position_in_steps = 0;
+    SANE_Int lamp_off_time = 0;
 
-  Genesys_Current_Setup current_setup; /* contains the real used values */
+    SANE_Bool read_active = 0;
+    // signal wether the park command has been issued
+    SANE_Bool parking = 0;
 
-  /**< look up table used in dynamic rasterization */
-  unsigned char lineart_lut[256];
+    // for sheetfed scanner's, is TRUE when there is a document in the scanner
+    SANE_Bool document = 0;
 
-  Genesys_Calibration_Cache *calibration_cache;
+    Genesys_Buffer read_buffer;
+    Genesys_Buffer lines_buffer;
+    Genesys_Buffer shrink_buffer;
+    Genesys_Buffer out_buffer;
 
-  struct Genesys_Device *next;
+    // buffer for digital lineart from gray data
+    Genesys_Buffer binarize_buffer = {};
+    // local buffer for gray data during dynamix lineart
+    Genesys_Buffer local_buffer = {};
 
-  SANE_Int ld_shift_r;		/**< used red line-distance shift*/
-  SANE_Int ld_shift_g;		/**< used green line-distance shift*/
-  SANE_Int ld_shift_b;		/**< used blue line-distance shift*/
-  int segnb;       /**< number of segments composing the sensor */
-  int line_interp; /**< number of lines used in line interpolation */
-  int line_count;  /**< number of scan lines used during scan */
-  size_t bpl;      /**< bytes per full scan widthline */
-  size_t dist;     /**< bytes distance between an odd and an even pixel */
-  size_t len;      /**< number of even pixels */
-  size_t cur;      /**< current pixel position within sub window */
-  size_t skip;     /**< number of bytes to skip at start of line */
-  size_t *order;   /**< array describing the order of the sub-segments of the sensor */
-  Genesys_Buffer oe_buffer; /**< buffer to handle even/odd data */
+    // bytes to read from scanner
+    size_t read_bytes_left = 0;
 
-  SANE_Bool buffer_image; /**< when true the scanned picture is first buffered
-			   * to allow software image enhancements */
-  SANE_Byte *img_buffer; /**< image buffer where the scanned picture is stored */
+    // total bytes read sent to frontend
+    size_t total_bytes_read = 0;
+    // total bytes read to be sent to frontend
+    size_t total_bytes_to_read = 0;
+    //  asic's word per line
+    size_t wpl = 0;
 
-  FILE *binary; /**< binary logger file */
+    // contains the real used values
+    Genesys_Current_Setup current_setup = {};
+
+    // look up table used in dynamic rasterization
+    unsigned char lineart_lut[256] = {};
+
+    std::list<Genesys_Calibration_Cache> calibration_cache;
+
+    // used red line-distance shift
+    SANE_Int ld_shift_r = 0;
+    // used green line-distance shift
+    SANE_Int ld_shift_g = 0;
+    // used blue line-distance shift
+    SANE_Int ld_shift_b = 0;
+    // number of segments composing the sensor
+    int segnb = 0;
+    // number of lines used in line interpolation
+    int line_interp = 0;
+    // number of scan lines used during scan
+    int line_count = 0;
+    // bytes per full scan widthline
+    size_t bpl = 0;
+    // bytes distance between an odd and an even pixel
+    size_t dist = 0;
+    // number of even pixels
+    size_t len = 0;
+    // current pixel position within sub window
+    size_t cur = 0;
+    // number of bytes to skip at start of line
+    size_t skip = 0;
+
+    // array describing the order of the sub-segments of the sensor
+    size_t* order = nullptr;
+
+    // buffer to handle even/odd data
+    Genesys_Buffer oe_buffer = {};
+
+    // when true the scanned picture is first buffered to allow software image enhancements
+    SANE_Bool buffer_image = 0;
+
+    // image buffer where the scanned picture is stored
+    std::vector<uint8_t> img_buffer;
+
+    // binary logger file
+    FILE *binary = nullptr;
 };
 
 typedef struct Genesys_USB_Device_Entry
@@ -1122,24 +1231,6 @@ sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
 				      size_t size);
 
 extern SANE_Status
-sanei_genesys_buffer_alloc(Genesys_Buffer * buf, size_t size);
-
-extern SANE_Status
-sanei_genesys_buffer_free(Genesys_Buffer * buf);
-
-extern SANE_Byte *
-sanei_genesys_buffer_get_write_pos(Genesys_Buffer * buf, size_t size);
-
-extern SANE_Byte *
-sanei_genesys_buffer_get_read_pos(Genesys_Buffer * buf);
-
-extern SANE_Status
-sanei_genesys_buffer_produce(Genesys_Buffer * buf, size_t size);
-
-extern SANE_Status
-sanei_genesys_buffer_consume(Genesys_Buffer * buf, size_t size);
-
-extern SANE_Status
 sanei_genesys_set_double(Genesys_Register_Set *regs, uint16_t addr, uint16_t value);
 
 extern SANE_Status
@@ -1249,23 +1340,6 @@ extern void sanei_genesys_usleep(unsigned int useconds);
 // same as sanei_genesys_usleep just that the duration is in milliseconds
 extern void sanei_genesys_sleep_ms(unsigned int milliseconds);
 
-typedef struct Genesys_Vector
-{
-  char* data;
-  size_t capacity; // capacity in elements
-  size_t size; // size in elements
-  size_t element_size;
-} Genesys_Vector;
-
-extern Genesys_Vector sanei_gl_vector_create(size_t element_size);
-extern void sanei_gl_vector_reserve(Genesys_Vector* v, size_t count);
-extern void sanei_gl_vector_resize(Genesys_Vector* v, size_t count);
-extern void sanei_gl_vector_append(Genesys_Vector* v, void* data, size_t count);
-extern void sanei_gl_vector_append_zero(Genesys_Vector* v, size_t count);
-extern void* sanei_gl_vector_get_element(Genesys_Vector* v, size_t i);
-extern void sanei_gl_vector_set_element(Genesys_Vector* v, void* data, size_t i);
-extern void sanei_gl_vector_destroy(Genesys_Vector* v);
-
 class SaneException : std::exception {
 public:
     SaneException(SANE_Status status) : status_(status) {}
@@ -1316,5 +1390,42 @@ inline void wrap_status_code_to_exception(SANE_Status status)
         return;
     throw SaneException(status);
 }
+
+void add_function_to_run_at_backend_exit(std::function<void()> function);
+
+// calls functions added via add_function_to_run_at_backend_exit() in reverse order of being
+// added.
+void run_functions_at_backend_exit();
+
+template<class T>
+class StaticInit {
+public:
+    StaticInit() = default;
+    StaticInit(const StaticInit&) = delete;
+    StaticInit& operator=(const StaticInit&) = delete;
+
+    template<class... Args>
+    void init(Args&& ... args)
+    {
+        ptr_ = std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+        add_function_to_run_at_backend_exit([this](){ deinit(); });
+    }
+
+    void deinit()
+    {
+        ptr_.release();
+    }
+
+    const T* operator->() const { return ptr_.get(); }
+    T* operator->() { return ptr_.get(); }
+    const T& operator*() const { return *ptr_.get(); }
+    T& operator*() { return *ptr_.get(); }
+
+private:
+    std::unique_ptr<T> ptr_;
+};
+
+extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
+void genesys_init_sensor_tables();
 
 #endif /* not GENESYS_LOW_H */

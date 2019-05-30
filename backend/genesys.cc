@@ -1713,8 +1713,13 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   dev->dark_average_data.clear();
   dev->dark_average_data.resize(dev->average_size);
 
-  /* size is size in bytes for scanarea: bytes_per_line * lines */
-  size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
+    // FIXME: the current calculation is likely incorrect on non-GENESYS_GL843 implementations,
+    // but this needs checking
+    if (dev->model->asic_type == GENESYS_GL843) {
+        size = channels * 2 * pixels_per_line * dev->calib_lines;
+    } else {
+        size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
+    }
 
   std::vector<uint8_t> calibration_data(size);
 
@@ -1897,7 +1902,13 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   dev->white_average_data.clear();
   dev->white_average_data.resize(channels * 2 * pixels_per_line);
 
-  size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
+    // FIXME: the current calculation is likely incorrect on non-GENESYS_GL843 implementations,
+    // but this needs checking
+    if (dev->model->asic_type == GENESYS_GL843) {
+        size = channels * 2 * pixels_per_line * dev->calib_lines;
+    } else {
+        size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
+    }
 
   std::vector<uint8_t> calibration_data(size);
 

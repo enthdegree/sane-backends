@@ -3343,7 +3343,7 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
   RIE (dev->model->cmd_set->bulk_write_register
        (dev, dev->calib_reg, GENESYS_GL843_MAX_REGS));
 
-  total_size = pixels * channels * (16/bpp) * lines;
+  total_size = pixels * channels * (bpp/8) * lines;
 
   std::vector<uint8_t> line(total_size);
 

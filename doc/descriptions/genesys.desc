@@ -181,6 +181,13 @@
 :status :unsupported
 :comment "GL847 based, to be added to the genesys backend"
 
+:model "CanoScan 8600F"
+:url "unsupported/canon-8600.html"
+:interface "USB"
+:usbid "0x04a9" "0x2229"
+:status :basic
+:comment "normal and transparency scans work up to 1200 dpi resolution"
+
 :model "CanoScan 700F"
 :interface "USB"
 :usbid "0x04a9" "0x1907"

@@ -325,8 +325,14 @@ struct Genesys_Sensor {
 typedef struct
 {
   uint8_t gpo_id;	/**< id of the gpo description */
-  uint8_t value[2];	/**< registers 0x6c and 0x6d on gl843 */
-  uint8_t enable[2];	/**< registers 0x6e and 0x6F on gl843 */
+
+  // registers 0x6c and 0x6d on GL841, GL842, GL843, GL846, GL848 and possibly
+  // others
+  uint8_t value[2];
+
+  // registers 0x6e and 0x6f on GL841, GL842, GL843, GL846, GL848 and possibly
+  // others
+  uint8_t enable[2];
 } Genesys_Gpo;
 
 typedef struct
@@ -384,6 +390,7 @@ enum Genesys_Model_Type
   MODEL_HP_SCANJET_G4050,
   MODEL_CANON_CANOSCAN_4400F,
   MODEL_CANON_CANOSCAN_8400F,
+  MODEL_CANON_CANOSCAN_8600F,
   MODEL_CANON_LIDE_100,
   MODEL_CANON_LIDE_110,
   MODEL_CANON_LIDE_120,
@@ -440,6 +447,7 @@ enum Genesys_Dac_Type
   DAC_PLUSTEK_3600,
   DAC_CANONLIDE700,
   DAC_CS8400F,
+  DAC_CS8600F,
   DAC_IMG101,
   DAC_PLUSTEK3800,
   DAC_CANONLIDE80,
@@ -472,6 +480,7 @@ enum Genesys_Sensor_Type
   CIS_CANONLIDE700,
   CCD_CS4400F,
   CCD_CS8400F,
+  CCD_CS8600F,
   CCD_IMG101,
   CCD_PLUSTEK3800,
   CIS_CANONLIDE210,
@@ -504,6 +513,7 @@ enum Genesys_Gpo_Type
   GPO_CANONLIDE700,
   GPO_CS4400F,
   GPO_CS8400F,
+  GPO_CS8600F,
   GPO_IMG101,
   GPO_PLUSTEK3800,
   GPO_CANONLIDE80,
@@ -532,6 +542,7 @@ enum Genesys_Motor_Type
   MOTOR_PLUSTEK_3600,
   MOTOR_CANONLIDE700,
   MOTOR_CS8400F,
+  MOTOR_CS8600F,
   MOTOR_IMG101,
   MOTOR_PLUSTEK3800,
   MOTOR_CANONLIDE210,
@@ -753,6 +764,7 @@ typedef struct Genesys_Model
   SANE_Word buttons;		/* Button flags, described existing buttons for the model */
   /*@} */
   SANE_Int shading_lines;	/* how many lines are used for shading calibration */
+  SANE_Int shading_ta_lines; // how many lines are used for shading calibration in TA mode
   SANE_Int search_lines;	/* how many lines are used to search start position */
 } Genesys_Model;
 
@@ -928,6 +940,8 @@ struct Genesys_Device
     size_t calib_lines = 0;
     size_t calib_channels = 0;
     size_t calib_resolution = 0;
+     // bytes to read from USB when calibrating. If 0, this is not set
+    size_t calib_total_bytes_to_read = 0;
 
     std::vector<uint8_t> white_average_data;
     std::vector<uint8_t> dark_average_data;
@@ -943,6 +957,8 @@ struct Genesys_Device
 
     // for sheetfed scanner's, is TRUE when there is a document in the scanner
     SANE_Bool document = 0;
+
+    SANE_Bool needs_home_ta = 0;
 
     Genesys_Buffer read_buffer;
     Genesys_Buffer lines_buffer;
@@ -1025,7 +1041,7 @@ typedef struct {
 	int motor_type;	 /**< motor id */
 	int exposure;    /**< exposure for the slope table */
         int step_type;   /**< default step type for given exposure */
-	uint32_t *table; /**< 0 terminated slope table at full step */
+        uint32_t *table;  // 0-terminated slope table at full step (i.e. step_type == 0)
 } Motor_Profile;
 
 #define FULL_STEP       0
@@ -1250,6 +1266,9 @@ sanei_genesys_asic_init(Genesys_Device *dev, SANE_Bool cold);
 
 extern
 int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres);
+
+extern
+int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, int xres);
 
 extern
 Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_type, int exposure);

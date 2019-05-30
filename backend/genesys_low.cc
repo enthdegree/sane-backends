@@ -1765,7 +1765,7 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
  */
 int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres)
 {
-  /* some scanners use alxways hardware dpi for sensor */
+  /* some scanners use always hardware dpi for sensor */
   if (dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE)
     {
       return dev->sensor.optical_res;
@@ -1785,6 +1785,29 @@ int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres)
       return dev->sensor.optical_res / 2;
     }
   return dev->sensor.optical_res;
+}
+
+// sanei_genesys_compute_dpihw returns the dpihw that is written to register.
+// However the number of pixels depends on half_ccd mode
+int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, int xres)
+{
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+      // real resolution is half of the "official" resolution - half_ccd mode
+      int hwres = dev->sensor.optical_res / 4;
+
+      if (xres <= hwres / 4)
+        {
+          return hwres / 4;
+        }
+      if (xres <= hwres / 2)
+        {
+          return hwres / 2;
+        }
+      return hwres;
+    }
+
+  return sanei_genesys_compute_dpihw(dev, xres);
 }
 
 /** @brief motor profile
@@ -1954,7 +1977,7 @@ Motor_Profile *profile;
             i++;
           }
 
-        /* return used steps and acceleration sum */
+        // return used steps and taken time
         *steps=i/factor;
 	return sum;
 }

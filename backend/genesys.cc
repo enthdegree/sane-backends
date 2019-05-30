@@ -917,6 +917,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
       && dev->model->ccd_type != CCD_G4050
       && dev->model->ccd_type != CCD_CS4400F
       && dev->model->ccd_type != CCD_CS8400F
+      && dev->model->ccd_type != CCD_CS8600F
       && dev->model->ccd_type != CCD_DSMOBILE600
       && dev->model->ccd_type != CCD_XP300
       && dev->model->ccd_type != CCD_DP665
@@ -1715,7 +1716,9 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 
     // FIXME: the current calculation is likely incorrect on non-GENESYS_GL843 implementations,
     // but this needs checking
-    if (dev->model->asic_type == GENESYS_GL843) {
+    if (dev->calib_total_bytes_to_read > 0) {
+        size = dev->calib_total_bytes_to_read;
+    } else if (dev->model->asic_type == GENESYS_GL843) {
         size = channels * 2 * pixels_per_line * dev->calib_lines;
     } else {
         size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
@@ -1904,7 +1907,9 @@ genesys_white_shading_calibration (Genesys_Device * dev)
 
     // FIXME: the current calculation is likely incorrect on non-GENESYS_GL843 implementations,
     // but this needs checking
-    if (dev->model->asic_type == GENESYS_GL843) {
+    if (dev->calib_total_bytes_to_read > 0) {
+        size = dev->calib_total_bytes_to_read;
+    } else if (dev->model->asic_type == GENESYS_GL843) {
         size = channels * 2 * pixels_per_line * dev->calib_lines;
     } else {
         size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
@@ -1931,6 +1936,10 @@ genesys_white_shading_calibration (Genesys_Device * dev)
       status = (dev->model->cmd_set->rewind
                 ? dev->model->cmd_set->rewind (dev)
                 : dev->model->cmd_set->slow_back_home (dev, SANE_TRUE));
+      if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+        {
+          dev->model->cmd_set->move_to_ta(dev);
+        }
     }
 
   status =
@@ -2032,7 +2041,10 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   dev->dark_average_data.clear();
   dev->dark_average_data.resize(channels * 2 * pixels_per_line);
 
-  size = channels * 2 * pixels_per_line * dev->calib_lines;
+  if (dev->calib_total_bytes_to_read > 0)
+    size = dev->calib_total_bytes_to_read;
+  else
+    size = channels * 2 * pixels_per_line * dev->calib_lines;
 
   std::vector<uint8_t> calibration_data(size);
 
@@ -2829,6 +2841,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
     case CCD_G4050:
     case CCD_CS4400F:
     case CCD_CS8400F:
+    case CCD_CS8600F:
       target_code = 0xe000;
       o = 0;
       compute_coefficients (dev,
@@ -3084,6 +3097,9 @@ genesys_flatbed_calibration (Genesys_Device * dev)
   yres = dev->sensor.optical_res;
   if (dev->settings.yres <= dev->sensor.optical_res / 2)
     yres /= 2;
+
+  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    yres = 1200;
 
   /* do offset calibration if needed */
   if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)

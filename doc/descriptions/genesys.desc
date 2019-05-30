@@ -186,7 +186,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x2229"
 :status :basic
-:comment "GL841 based, to be added to genesys backend"
+:comment "normal and transparency scans work up to 1200 dpi resolution"
 
 :model "CanoScan 700F"
 :interface "USB"

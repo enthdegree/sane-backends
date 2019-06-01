@@ -19,6 +19,7 @@ $ make install
      (b) missing development packages
          - libusb-dev or libusb-devel or libusb-compat-devel
          - libjpeg-dev or libjpeg8-dev or libjpeg-turbo-devel or turbojpeg-devel
+         - libpng-dev or similar
 
 2.2. Get the latest SANE backend from git:
       You can download "daily git snapshot" from here:

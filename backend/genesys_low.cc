@@ -207,7 +207,7 @@ sanei_genesys_read_reg_from_set (Genesys_Register_Set * reg,
 {
   SANE_Int i;
 
-  for (i = 0; i < GENESYS_MAX_REGS && reg[i].address; i++)
+  for (i = 0; i < GENESYS_MAX_REGS; i++)
     {
       if (reg[i].address == address)
 	{
@@ -224,7 +224,7 @@ sanei_genesys_set_reg_from_set (Genesys_Register_Set * reg, uint16_t address,
 {
   SANE_Int i;
 
-  for (i = 0; i < GENESYS_MAX_REGS && reg[i].address; i++)
+  for (i = 0; i < GENESYS_MAX_REGS; i++)
     {
       if (reg[i].address == address)
 	{

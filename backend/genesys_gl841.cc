@@ -734,11 +734,6 @@ gl841_init_registers (Genesys_Device * dev)
       dev->reg.find_reg(0x6b).value |= REG6B_GPO18;
       dev->reg.find_reg(0x6b).value &= ~REG6B_GPO17;
     }
-  if (dev->model->gpo_type == GPO_CANONLIDE80)
-    {
-      dev->reg.find_reg(0x6b).value |= REG6B_GPO18;
-      dev->reg.find_reg(0x6b).value &= ~REG6B_GPO17;
-    }
 
   if (dev->model->gpo_type == GPO_XP300)
     {

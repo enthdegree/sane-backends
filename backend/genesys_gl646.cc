@@ -3054,7 +3054,7 @@ gl646_send_gamma_table (Genesys_Device * dev)
   DBGSTART;
 
   /* gamma table size */
-  if (dev->reg.find_reg(0x05).value & REG05_GMMTYPE)
+  if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA)
     {
       size = 16384;
       bits = 14;
@@ -4072,7 +4072,7 @@ gl646_init (Genesys_Device * dev)
       gl646_init_regs (dev);
 
       /* build default gamma tables */
-      if (dev->reg.find_reg(0x05).value & REG05_GMMTYPE)
+      if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA)
 	size = 16384;
       else
 	size = 4096;

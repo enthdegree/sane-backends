@@ -727,6 +727,25 @@ sanei_genesys_create_gamma_table (std::vector<uint16_t>& gamma_table, int size,
   DBG(DBG_proc, "%s: completed\n", __func__);
 }
 
+void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
+                                              std::vector<uint16_t>& gamma_table, float gamma)
+{
+    int size = 0;
+    int max = 0;
+    if (dev->model->asic_type == GENESYS_GL646) {
+        if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA) {
+            size = 16384;
+        } else {
+            size = 4096;
+        }
+        max = size - 1;
+    } else {
+        size = 256;
+        max = 65535;
+    }
+    sanei_genesys_create_gamma_table(gamma_table, size, max, max, gamma);
+}
+
 
 /* computes the exposure_time on the basis of the given vertical dpi,
    the number of pixels the ccd needs to send,

@@ -5038,7 +5038,6 @@ gl841_init (Genesys_Device * dev)
   SANE_Status status;
   uint8_t val;
   size_t size;
-  int i;
 
   DBG_INIT ();
   DBGSTART;
@@ -5103,16 +5102,10 @@ gl841_init (Genesys_Device * dev)
 	}
     }
 
-  /* initalize sensor gamma tables */
-  size = 256;
-
-  for(i=0;i<3;i++)
-    {
-          sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
-                                            size,
-                                            65535,
-                                            65535,
-                                            dev->sensor.gamma[i]);
+    // initalize sensor gamma tables
+    for (int i = 0; i<3; i++) {
+        sanei_genesys_create_default_gamma_table(dev, dev->sensor.gamma_table[i],
+                                                 dev->sensor.gamma[i]);
     }
 
   /* send gamma tables */

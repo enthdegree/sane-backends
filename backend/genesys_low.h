@@ -1554,6 +1554,9 @@ sanei_genesys_create_gamma_table (std::vector<uint16_t>& gamma_table, int size,
                                   float maximum, float gamma_max,
                                   float gamma);
 
+void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
+                                              std::vector<uint16_t>& gamma_table, float gamma);
+
 extern SANE_Status sanei_genesys_send_gamma_table (Genesys_Device * dev);
 
 extern SANE_Status sanei_genesys_start_motor (Genesys_Device * dev);

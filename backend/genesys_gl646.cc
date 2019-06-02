@@ -4020,7 +4020,6 @@ gl646_init (Genesys_Device * dev)
   struct timeval tv;
   uint8_t cold = 0, val = 0;
   uint32_t addr = 0xdead;
-  int size, i;
   size_t len;
 
   DBG_INIT ();
@@ -4071,23 +4070,9 @@ gl646_init (Genesys_Device * dev)
       /* Set default values for registers */
       gl646_init_regs (dev);
 
-      /* build default gamma tables */
-      if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA)
-	size = 16384;
-      else
-	size = 4096;
-
-      for(i=0;i<3;i++)
-        {
-          if (dev->sensor.gamma_table[i].empty())
-            {
-              dev->sensor.gamma_table[i].resize(size, 0);
-              sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
-                                                size,
-                                                size - 1,
-                                                size - 1,
-                                                dev->sensor.gamma[i]);
-            }
+        for(int i=0; i < 3; i++) {
+            sanei_genesys_create_default_gamma_table(dev, dev->sensor.gamma_table[i],
+                                                     dev->sensor.gamma[i]);
         }
 
       /* Init shading data */

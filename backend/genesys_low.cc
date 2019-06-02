@@ -1376,8 +1376,6 @@ sanei_genesys_asic_init (Genesys_Device * dev, int /*max_regs*/)
   SANE_Status status;
   uint8_t val;
   SANE_Bool cold = SANE_TRUE;
-  int size;     /**< size of the device's gamma table */
-  int i;
 
   DBGSTART;
 
@@ -1400,15 +1398,10 @@ sanei_genesys_asic_init (Genesys_Device * dev, int /*max_regs*/)
       dev->usb_mode = 2;
     }
 
-  /* setup gamma tables */
-  size = 256;
-  for(i=0;i<3;i++)
-    {
-      sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
-                                        size,
-                                        65535,
-                                        65535,
-                                        dev->sensor.gamma[i]);
+    // initalize sensor gamma tables
+    for (int i = 0; i<3; i++) {
+        sanei_genesys_create_default_gamma_table(dev, dev->sensor.gamma_table[i],
+                                                 dev->sensor.gamma[i]);
     }
 
   /* check if the device has already been initialized and powered up

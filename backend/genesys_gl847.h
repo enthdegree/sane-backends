@@ -327,6 +327,7 @@
  * this function sets up the scanner to scan in normal or single line mode
  */
 static SANE_Status gl847_init_scan_regs (Genesys_Device * dev,
+                                         const Genesys_Sensor& sensor,
                       Genesys_Register_Set * reg,
                       float xres,	/*dpi */
 		      float yres,	/*dpi */
@@ -340,7 +341,8 @@ static SANE_Status gl847_init_scan_regs (Genesys_Device * dev,
                       unsigned int flags);
 
 /* Send the low-level scan command */
-static SANE_Status gl847_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool start_motor);
+static SANE_Status gl847_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                     Genesys_Register_Set * reg, SANE_Bool start_motor);
 
 /* Send the stop scan command */
 static SANE_Status gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool check_stop);

@@ -1255,14 +1255,15 @@ std::vector<uint16_t> get_gamma_table(Genesys_Device* dev, const Genesys_Sensor&
  * @returns SANE_STATUS_GOOD or SANE_STATUS_NO_MEM
  */
 SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
+                                                const Genesys_Sensor& sensor,
                                                 int bits,
                                                 int max,
                                                 int size,
                                                 uint8_t *gamma)
 {
-    std::vector<uint16_t> rgamma = get_gamma_table(dev, dev->sensor, GENESYS_RED);
-    std::vector<uint16_t> ggamma = get_gamma_table(dev, dev->sensor, GENESYS_GREEN);
-    std::vector<uint16_t> bgamma = get_gamma_table(dev, dev->sensor, GENESYS_BLUE);
+    std::vector<uint16_t> rgamma = get_gamma_table(dev, sensor, GENESYS_RED);
+    std::vector<uint16_t> ggamma = get_gamma_table(dev, sensor, GENESYS_GREEN);
+    std::vector<uint16_t> bgamma = get_gamma_table(dev, sensor, GENESYS_BLUE);
 
   if(dev->settings.contrast!=0 || dev->settings.brightness!=0)
     {
@@ -1321,7 +1322,7 @@ SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
  * @param dev device to write to
  */
 SANE_Status
-sanei_genesys_send_gamma_table (Genesys_Device * dev)
+sanei_genesys_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
   int size;
   int i;
@@ -1335,7 +1336,7 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
   std::vector<uint8_t> gamma(size * 2 * 3, 255);
 
-  RIE(sanei_genesys_generate_gamma_buffer(dev, 16, 65535, size, gamma.data()));
+  RIE(sanei_genesys_generate_gamma_buffer(dev, sensor, 16, 65535, size, gamma.data()));
 
   /* loop sending gamma tables NOTE: 0x01000000 not 0x10000000 */
   for (i = 0; i < 3; i++)
@@ -1385,7 +1386,7 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
  * @return SANE_STATUS_GOOD in case of success
  */
 SANE_Status
-sanei_genesys_asic_init (Genesys_Device * dev, int /*max_regs*/)
+sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
 {
   SANE_Status status;
   uint8_t val;
@@ -1444,8 +1445,10 @@ sanei_genesys_asic_init (Genesys_Device * dev, int /*max_regs*/)
   /* duplicate initial values into calibration registers */
   dev->calib_reg = dev->reg;
 
+  const auto& sensor = sanei_genesys_find_sensor_any(dev);
+
   /* Set analog frontend */
-  RIE (dev->model->cmd_set->set_fe (dev, AFE_INIT));
+  RIE (dev->model->cmd_set->set_fe(dev, sensor, AFE_INIT));
 
   dev->already_initialized = SANE_TRUE;
 
@@ -1544,12 +1547,12 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
  * @param xres x resolution of the scan
  * @return the hardware dpi to use
  */
-int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres)
+int sanei_genesys_compute_dpihw(Genesys_Device *dev, const Genesys_Sensor& sensor, int xres)
 {
   /* some scanners use always hardware dpi for sensor */
   if (dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE)
     {
-      return dev->sensor.optical_res;
+      return sensor.optical_res;
     }
 
   /* can't be below 600 dpi */
@@ -1557,25 +1560,26 @@ int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres)
     {
       return 600;
     }
-  if (xres <= dev->sensor.optical_res / 4)
+  if (xres <= sensor.optical_res / 4)
     {
-      return dev->sensor.optical_res / 4;
+      return sensor.optical_res / 4;
     }
-  if (xres <= dev->sensor.optical_res / 2)
+  if (xres <= sensor.optical_res / 2)
     {
-      return dev->sensor.optical_res / 2;
+      return sensor.optical_res / 2;
     }
-  return dev->sensor.optical_res;
+  return sensor.optical_res;
 }
 
 // sanei_genesys_compute_dpihw returns the dpihw that is written to register.
 // However the number of pixels depends on half_ccd mode
-int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, int xres)
+int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, const Genesys_Sensor& sensor,
+                                            int xres)
 {
   if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
     {
       // real resolution is half of the "official" resolution - half_ccd mode
-      int hwres = dev->sensor.optical_res / 4;
+      int hwres = sensor.optical_res / 4;
 
       if (xres <= hwres / 4)
         {
@@ -1588,7 +1592,7 @@ int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, int xres)
       return hwres;
     }
 
-  return sanei_genesys_compute_dpihw(dev, xres);
+  return sanei_genesys_compute_dpihw(dev, sensor, xres);
 }
 
 /** @brief motor profile
@@ -1824,6 +1828,7 @@ int sanei_genesys_get_lowest_dpi(Genesys_Device *dev)
  * then given time. */
 SANE_Status
 sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
+                                         const Genesys_Sensor& sensor,
 				 Genesys_Calibration_Cache * cache,
 				 int for_overwrite)
 {
@@ -1841,7 +1846,7 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
       return SANE_STATUS_UNSUPPORTED;
     }
 
-  status = dev->model->cmd_set->calculate_current_setup (dev);
+  status = dev->model->cmd_set->calculate_current_setup(dev, sensor);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "%s: failed to calculate current setup: %s\n", __func__,
@@ -1857,16 +1862,16 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
   if (dev->model->is_cis == SANE_FALSE)
     {
       resolution = dev->settings.xres;
-      if(resolution>dev->sensor.optical_res)
+      if(resolution>sensor.optical_res)
         {
-          resolution=dev->sensor.optical_res;
+          resolution=sensor.optical_res;
         }
       compatible = (resolution == ((int) cache->used_setup.xres));
     }
   else
     {
-      resolution=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
-      compatible = (resolution == ((int) sanei_genesys_compute_dpihw(dev,cache->used_setup.xres)));
+      resolution=sanei_genesys_compute_dpihw(dev, sensor, dev->settings.xres);
+      compatible = (resolution == ((int) sanei_genesys_compute_dpihw(dev, sensor,cache->used_setup.xres)));
     }
   DBG (DBG_io, "%s: after resolution check current compatible=%d\n", __func__, compatible);
   if (dev->current_setup.half_ccd != cache->used_setup.half_ccd)

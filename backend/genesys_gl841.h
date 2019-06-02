@@ -257,7 +257,7 @@
  */
 
 static
-int gl841_exposure_time(Genesys_Device *dev,
+int gl841_exposure_time(Genesys_Device *dev, const Genesys_Sensor& sensor,
                     float slope_dpi,
                     int scan_step_type,
                     int start,

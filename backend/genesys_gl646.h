@@ -165,9 +165,11 @@
 
 #include "genesys.h"
 
-static SANE_Status gl646_set_fe (Genesys_Device * dev, uint8_t set, int dpi);
+static SANE_Status gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                uint8_t set, int dpi);
 
-static SANE_Status gl646_public_set_fe (Genesys_Device * dev, uint8_t set);
+static SANE_Status gl646_public_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                       uint8_t set);
 
 static
 SANE_Status
@@ -195,6 +197,7 @@ gl646_move_to_ta (Genesys_Device * dev);
  */
 static SANE_Status
 setup_for_scan (Genesys_Device *device,
+                const Genesys_Sensor& sensor,
 		Genesys_Register_Set *regs,
 		Genesys_Settings settings,
 		SANE_Bool split,
@@ -208,6 +211,7 @@ setup_for_scan (Genesys_Device *device,
  * */
 static SANE_Status
 gl646_setup_registers (Genesys_Device * dev,
+                       const Genesys_Sensor& sensor,
 		       Genesys_Register_Set * regs,
 		       Genesys_Settings scan_settings,
 		       uint16_t * slope_table1,
@@ -241,8 +245,9 @@ simple_move (Genesys_Device * dev, SANE_Int distance);
  * @param data     pointer that will point to the scanned data
  */
 static SANE_Status
-simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
-             SANE_Bool shading, std::vector<uint8_t>& data);
+simple_scan(Genesys_Device * dev, const Genesys_Sensor& sensor,
+            Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
+            SANE_Bool shading, std::vector<uint8_t>& data);
 
 /**
  * Send the stop scan command
@@ -253,7 +258,8 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 /**
  * writes control data to an area behind the last motor table.
  */
-static SANE_Status write_control (Genesys_Device * dev, int resolution);
+static SANE_Status write_control (Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                  int resolution);
 
 
 /**

@@ -878,11 +878,13 @@ typedef struct Genesys_Command_Set
     SANE_Status (*init) (Genesys_Device * dev);
 
     SANE_Status (*init_regs_for_warmup) (Genesys_Device * dev,
+                                         const Genesys_Sensor& sensor,
 					 Genesys_Register_Set * regs,
 					 int *channels, int *total_size);
-    SANE_Status (*init_regs_for_coarse_calibration) (Genesys_Device * dev);
-    SANE_Status (*init_regs_for_shading) (Genesys_Device * dev);
-    SANE_Status (*init_regs_for_scan) (Genesys_Device * dev);
+    SANE_Status (*init_regs_for_coarse_calibration) (Genesys_Device * dev,
+                                                     const Genesys_Sensor& sensor);
+    SANE_Status (*init_regs_for_shading) (Genesys_Device * dev, const Genesys_Sensor& sensor);
+    SANE_Status (*init_regs_for_scan) (Genesys_Device * dev, const Genesys_Sensor& sensor);
 
     SANE_Bool (*get_filter_bit) (Genesys_Register_Set * reg);
     SANE_Bool (*get_lineart_bit) (Genesys_Register_Set * reg);
@@ -893,16 +895,17 @@ typedef struct Genesys_Command_Set
     SANE_Bool (*test_buffer_empty_bit) (SANE_Byte val);
     SANE_Bool (*test_motor_flag_bit) (SANE_Byte val);
 
-    SANE_Status (*set_fe) (Genesys_Device * dev, uint8_t set);
+    SANE_Status (*set_fe) (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set);
     SANE_Status (*set_powersaving) (Genesys_Device * dev, int delay);
     SANE_Status (*save_power) (Genesys_Device * dev, SANE_Bool enable);
 
   void (*set_motor_power) (Genesys_Register_Set * regs, SANE_Bool set);
-  void (*set_lamp_power) (Genesys_Device * dev,
+  void (*set_lamp_power) (Genesys_Device * dev, const Genesys_Sensor& sensor,
 			  Genesys_Register_Set * regs,
 			  SANE_Bool set);
 
     SANE_Status (*begin_scan) (Genesys_Device * dev,
+                               const Genesys_Sensor& sensor,
 			       Genesys_Register_Set * regs,
 			       SANE_Bool start_motor);
     SANE_Status (*end_scan) (Genesys_Device * dev,
@@ -912,12 +915,13 @@ typedef struct Genesys_Command_Set
     /**
      * Send gamma tables to ASIC
      */
-    SANE_Status (*send_gamma_table) (Genesys_Device * dev);
+    SANE_Status (*send_gamma_table) (Genesys_Device * dev, const Genesys_Sensor& sensor);
 
     SANE_Status (*search_start_position) (Genesys_Device * dev);
-    SANE_Status (*offset_calibration) (Genesys_Device * dev);
-    SANE_Status (*coarse_gain_calibration) (Genesys_Device * dev, int dpi);
-    SANE_Status (*led_calibration) (Genesys_Device * dev);
+    SANE_Status (*offset_calibration) (Genesys_Device * dev, const Genesys_Sensor& sensor);
+    SANE_Status (*coarse_gain_calibration) (Genesys_Device * dev,
+                                            const Genesys_Sensor& sensor, int dpi);
+    SANE_Status (*led_calibration) (Genesys_Device * dev, Genesys_Sensor& sensor);
 
     SANE_Status (*slow_back_home) (Genesys_Device * dev, SANE_Bool wait_until_home);
     SANE_Status (*rewind) (Genesys_Device * dev);
@@ -958,10 +962,12 @@ typedef struct Genesys_Command_Set
     /**
      * search for an black or white area in forward or reverse
      * direction */
-    SANE_Status (*search_strip) (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black);
+    SANE_Status (*search_strip) (Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                 SANE_Bool forward, SANE_Bool black);
 
     SANE_Status (*is_compatible_calibration) (
 	Genesys_Device * dev,
+        const Genesys_Sensor& sensor,
 	Genesys_Calibration_Cache *cache,
         SANE_Bool for_overwrite);
 
@@ -974,12 +980,13 @@ typedef struct Genesys_Command_Set
     /**
      * write shading data calibration to ASIC
      */
-    SANE_Status (*send_shading_data) (Genesys_Device * dev, uint8_t * data, int size);
+    SANE_Status (*send_shading_data) (Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                      uint8_t * data, int size);
 
     /**
      * calculate current scan setup
      */
-    SANE_Status (*calculate_current_setup) (Genesys_Device * dev);
+    SANE_Status (*calculate_current_setup) (Genesys_Device * dev, const Genesys_Sensor& sensor);
 
     /**
      * cold boot init function
@@ -990,6 +997,7 @@ typedef struct Genesys_Command_Set
      * Scan register setting interface
      */
     SANE_Status (*init_scan_regs) (Genesys_Device * dev,
+                                   const Genesys_Sensor& sensor,
 				   Genesys_Register_Set * reg,
 				   float xres,
 				   float yres,
@@ -1242,7 +1250,6 @@ struct Genesys_Device
     Genesys_Register_Set calib_reg;
     Genesys_Settings settings;
     Genesys_Frontend frontend;
-    Genesys_Sensor sensor;
     Genesys_Gpo gpo;
     Genesys_Motor motor;
     uint16_t slope_table0[256] = {};
@@ -1472,8 +1479,14 @@ extern void sanei_genesys_init_fe (Genesys_Device * dev);
 
 extern void sanei_genesys_init_structs (Genesys_Device * dev);
 
+const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev);
+Genesys_Sensor& sanei_genesys_find_sensor_any_for_write(Genesys_Device* dev);
+const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi);
+Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi);
+
 extern SANE_Status
-sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line);
+sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                 int pixels_per_line);
 
 extern SANE_Status sanei_genesys_read_valid_words (Genesys_Device * dev,
 						  unsigned int *steps);
@@ -1556,7 +1569,7 @@ void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
 std::vector<uint16_t> get_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                       int color);
 
-extern SANE_Status sanei_genesys_send_gamma_table (Genesys_Device * dev);
+SANE_Status sanei_genesys_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& sensor);
 
 extern SANE_Status sanei_genesys_start_motor (Genesys_Device * dev);
 
@@ -1636,11 +1649,10 @@ sanei_genesys_wait_for_home(Genesys_Device *dev);
 extern SANE_Status
 sanei_genesys_asic_init(Genesys_Device *dev, SANE_Bool cold);
 
-extern
-int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres);
+int sanei_genesys_compute_dpihw(Genesys_Device *dev, const Genesys_Sensor& sensor, int xres);
 
-extern
-int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, int xres);
+int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, const Genesys_Sensor& sensor,
+                                            int xres);
 
 extern
 Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_type, int exposure);
@@ -1677,7 +1689,7 @@ extern SANE_Status
 sanei_genesys_read_calibration (Genesys_Device * dev);
 
 extern SANE_Status
-sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
+sanei_genesys_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
 				 Genesys_Calibration_Cache * cache,
 				 int for_overwrite);
 
@@ -1710,6 +1722,7 @@ sanei_genesys_load_lut (unsigned char * lut,
 
 extern SANE_Status
 sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
+                                    const Genesys_Sensor& sensor,
                                     int bits,
                                     int max,
                                     int size,

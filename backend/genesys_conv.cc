@@ -374,7 +374,7 @@ cleanup:
  * SANE_STATUS_GOOD
  */
 static SANE_Status
-genesys_deskew(Genesys_Scanner *s)
+genesys_deskew(Genesys_Scanner *s, const Genesys_Sensor& sensor)
 {
   SANE_Status status;
   Genesys_Device *dev = s->dev;
@@ -391,8 +391,8 @@ genesys_deskew(Genesys_Scanner *s)
     }
   status = sanei_magic_findSkew (&s->params,
                                  dev->img_buffer.data(),
-				 dev->sensor.optical_res,
-				 dev->sensor.optical_res,
+                                 sensor.optical_res,
+                                 sensor.optical_res,
                                  &x,
                                  &y,
                                  &slope);

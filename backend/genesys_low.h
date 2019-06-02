@@ -504,6 +504,34 @@ public:
         push_back(GenesysRegisterSetting(address, value));
     }
 
+    size_t fread(FILE* fp)
+    {
+        bool success = true;
+        clear();
+        uint32_t count = 0;
+        success &= 1 == ::fread(&count, sizeof(count), 1, fp);
+        for (uint32_t i = 0; i < count && success; ++i) {
+            GenesysRegisterSetting reg;
+            success &= 1 == ::fread(&reg.address, sizeof(reg.address), 1, fp);
+            success &= 1 == ::fread(&reg.value, sizeof(reg.value), 1, fp);
+            success &= 1 == ::fread(&reg.mask, sizeof(reg.mask), 1, fp);
+            push_back(reg);
+        }
+        return success ? 1 : 0;
+    }
+
+    void fwrite(FILE* fp) const
+    {
+        uint32_t count = size();
+        ::fwrite(&count, sizeof(count), 1, fp);
+        for (uint32_t i = 0; i < count; ++i) {
+            const auto& reg = (*this)[i];
+            ::fwrite(&reg.address, sizeof(reg.address), 1, fp);
+            ::fwrite(&reg.value, sizeof(reg.value), 1, fp);
+            ::fwrite(&reg.mask, sizeof(reg.mask), 1, fp);
+        }
+    }
+
 private:
     std::vector<GenesysRegisterSetting> regs_;
 };
@@ -567,16 +595,7 @@ struct Genesys_Sensor {
         success &= 1 == ::fread(&gain_white_ref, sizeof(gain_white_ref), 1, fp);
         success &= 1 == ::fread(&exposure, sizeof(exposure), 1, fp);
 
-        custom_regs.clear();
-        uint32_t custom_regs_count = 0;
-        success &= 1 == ::fread(&custom_regs_count, sizeof(custom_regs_count), 1, fp);
-        for (uint32_t i = 0; i < custom_regs_count && success; ++i) {
-            GenesysRegisterSetting reg;
-            success &= 1 == ::fread(&reg.address, sizeof(reg.address), 1, fp);
-            success &= 1 == ::fread(&reg.value, sizeof(reg.value), 1, fp);
-            success &= 1 == ::fread(&reg.mask, sizeof(reg.mask), 1, fp);
-            custom_regs.push_back(reg);
-        }
+        success &= custom_regs.fread(fp);
         return success ? 1 : 0;
     }
 
@@ -591,13 +610,7 @@ struct Genesys_Sensor {
         ::fwrite(&fau_gain_white_ref, sizeof(fau_gain_white_ref), 1, fp);
         ::fwrite(&gain_white_ref, sizeof(gain_white_ref), 1, fp);
         ::fwrite(&exposure, sizeof(exposure), 1, fp);
-        uint32_t custom_regs_count = custom_regs.size();
-        ::fwrite(&custom_regs_count, sizeof(custom_regs_count), 1, fp);
-        for (uint32_t i = 0; i < custom_regs_count; ++i) {
-            ::fwrite(&custom_regs[i].address, sizeof(custom_regs[i].address), 1, fp);
-            ::fwrite(&custom_regs[i].value, sizeof(custom_regs[i].value), 1, fp);
-            ::fwrite(&custom_regs[i].mask, sizeof(custom_regs[i].mask), 1, fp);
-        }
+        custom_regs.fwrite(fp);
     }
 
     int get_ccd_size_divisor_for_dpi(int xres) const

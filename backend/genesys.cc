@@ -1293,7 +1293,7 @@ genesys_adjust_gain (double *applied_multi,
 
 /* todo: is return status necessary (unchecked?) */
 static SANE_Status
-genesys_average_white (Genesys_Device * dev, int channels, int channel,
+genesys_average_white (Genesys_Device * dev, Genesys_Sensor& sensor, int channels, int channel,
 		       uint8_t * data, int size, int *max_average)
 {
   int gain_white_ref, sum, range;
@@ -1305,9 +1305,9 @@ genesys_average_white (Genesys_Device * dev, int channels, int channel,
   range = size / 50;
 
   if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)	/* transparency mode */
-    gain_white_ref = dev->sensor.fau_gain_white_ref * 256;
+    gain_white_ref = sensor.fau_gain_white_ref * 256;
   else
-    gain_white_ref = dev->sensor.gain_white_ref * 256;
+    gain_white_ref = sensor.gain_white_ref * 256;
 
   if (range < 1)
     range = 1;
@@ -1587,7 +1587,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	{
 	  for (j = 0; j < 3; j++)
 	    {
-          genesys_average_white (dev, 3, j, calibration_data.data(), size,
+          genesys_average_white (dev, dev->sensor, 3, j, calibration_data.data(), size,
 				     &white_average);
 	      white[i * 3 + j] = white_average;
 	      dark[i * 3 + j] =
@@ -1599,7 +1599,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	}
       else			/* one color-component modes */
 	{
-      genesys_average_white (dev, 1, 0, calibration_data.data(), size,
+      genesys_average_white (dev, dev->sensor, 1, 0, calibration_data.data(), size,
 				 &white_average);
 	  white[i * 3 + 0] = white[i * 3 + 1] = white[i * 3 + 2] =
 	    white_average;

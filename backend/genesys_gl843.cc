@@ -3486,11 +3486,7 @@ gl843_offset_calibration (Genesys_Device * dev)
     session.params.color_filter = 0;
     session.params.flags = flags;
 
-    // FIXME: this will need clean up once resolution logic is simpler
-    ScanSession tmp_session = session;
-    tmp_session.params.xres = dev->settings.xres;
-    tmp_session.params.yres = dev->settings.yres;
-    GenesysPhysicalParams params = gl843_compute_physical_params(dev, tmp_session.params);
+    GenesysPhysicalParams params = gl843_compute_physical_params(dev, session.params);
 
     pixels = params.output_pixels;
 
@@ -3716,12 +3712,7 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = flags;
 
-    // FIXME: this will need clean up once resolution logic is simpler
-    ScanSession tmp_session = session;
-    tmp_session.params.xres = dpi;
-    tmp_session.params.yres = dpi;
-    GenesysPhysicalParams params = gl843_compute_physical_params(dev, tmp_session.params);
-
+    GenesysPhysicalParams params = gl843_compute_physical_params(dev, session.params);
     pixels = params.output_pixels;
 
     status = gl843_init_scan_regs(dev, &dev->calib_reg, session);

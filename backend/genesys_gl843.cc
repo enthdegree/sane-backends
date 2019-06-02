@@ -3007,9 +3007,7 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   else
       start = SANE_UNFIX (dev->model->x_offset);
 
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    start /= 4; // FIXME: compute half_mode here and check it instead of specific model
-
+  start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
   start += dev->settings.tl_x;
   start = (start * sensor.optical_res) / MM_PER_INCH;
 

@@ -182,7 +182,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
     {
       if (dev->model->gpo_type == Gpo[i].gpo_id)
 	{
-	  memcpy (&dev->gpo, &Gpo[i], sizeof (Genesys_Gpo));
+          dev->gpo = Gpo[i];
 	  gpo_ok = 1;
 	}
     }
@@ -220,7 +220,7 @@ sanei_genesys_init_fe (Genesys_Device * dev)
     {
       if (dev->model->dac_type == Wolfson[i].fe_id)
 	{
-	  memcpy (&dev->frontend, &Wolfson[i], sizeof (Genesys_Frontend));
+          dev->frontend = Wolfson[i];
 	  return;
 	}
     }
@@ -2968,7 +2968,7 @@ genesys_restore_calibration (Genesys_Device * dev)
        */
       if (status == SANE_STATUS_GOOD)
 	{
-          memcpy (&dev->frontend, &cache.frontend, sizeof (dev->frontend));
+          dev->frontend = cache.frontend;
           /* we don't restore the gamma fields */
           dev->sensor.exposure = cache.sensor.exposure;
 
@@ -3054,9 +3054,9 @@ genesys_save_calibration (Genesys_Device * dev)
   found_cache_it->dark_average_data = dev->dark_average_data;
   found_cache_it->white_average_data = dev->white_average_data;
 
-  memcpy (&found_cache_it->used_setup, &dev->current_setup, sizeof (found_cache_it->used_setup));
-  memcpy (&found_cache_it->frontend, &dev->frontend, sizeof (found_cache_it->frontend));
-  memcpy (&found_cache_it->sensor, &dev->sensor, sizeof (found_cache_it->sensor));
+  found_cache_it->used_setup = dev->current_setup;
+  found_cache_it->frontend = dev->frontend;
+  found_cache_it->sensor = dev->sensor;
 
   found_cache_it->calib_pixels = dev->calib_pixels;
   found_cache_it->calib_channels = dev->calib_channels;

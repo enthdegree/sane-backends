@@ -1198,10 +1198,10 @@ struct Genesys_Calibration_Cache
     ~Genesys_Calibration_Cache() = default;
 
     // used to check if entry is compatible
-    Genesys_Current_Setup used_setup = {};
+    Genesys_Current_Setup used_setup;
     time_t last_calibration = 0;
 
-    Genesys_Frontend frontend = {};
+    Genesys_Frontend frontend;
     Genesys_Sensor sensor;
 
     size_t calib_pixels = 0;
@@ -1243,10 +1243,10 @@ struct Genesys_Device
 
     Genesys_Register_Set reg;
     Genesys_Register_Set calib_reg;
-    Genesys_Settings settings = {};
-    Genesys_Frontend frontend = {};
+    Genesys_Settings settings;
+    Genesys_Frontend frontend;
     Genesys_Sensor sensor;
-    Genesys_Gpo gpo = {};
+    Genesys_Gpo gpo;
     Genesys_Motor motor;
     uint16_t slope_table0[256] = {};
     uint16_t slope_table1[256] = {};
@@ -1301,7 +1301,7 @@ struct Genesys_Device
     size_t wpl = 0;
 
     // contains the real used values
-    Genesys_Current_Setup current_setup = {};
+    Genesys_Current_Setup current_setup;
 
     // look up table used in dynamic rasterization
     unsigned char lineart_lut[256] = {};

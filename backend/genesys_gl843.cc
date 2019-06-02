@@ -3198,15 +3198,18 @@ gl843_send_gamma_table (Genesys_Device * dev)
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
   std::vector<uint8_t> gamma(size * 2 * 3);
 
-  /* copy sensor specific's gamma tables */
-  for (i = 0; i < size; i++)
-    {
-      gamma[i * 2 + size * 0 + 0] = dev->sensor.gamma_table[GENESYS_RED][i] & 0xff;
-      gamma[i * 2 + size * 0 + 1] = (dev->sensor.gamma_table[GENESYS_RED][i] >> 8) & 0xff;
-      gamma[i * 2 + size * 2 + 0] = dev->sensor.gamma_table[GENESYS_GREEN][i] & 0xff;
-      gamma[i * 2 + size * 2 + 1] = (dev->sensor.gamma_table[GENESYS_GREEN][i] >> 8) & 0xff;
-      gamma[i * 2 + size * 4 + 0] = dev->sensor.gamma_table[GENESYS_BLUE][i] & 0xff;
-      gamma[i * 2 + size * 4 + 1] = (dev->sensor.gamma_table[GENESYS_BLUE][i] >> 8) & 0xff;
+    std::vector<uint16_t> rgamma = get_gamma_table(dev, dev->sensor, GENESYS_RED);
+    std::vector<uint16_t> ggamma = get_gamma_table(dev, dev->sensor, GENESYS_GREEN);
+    std::vector<uint16_t> bgamma = get_gamma_table(dev, dev->sensor, GENESYS_BLUE);
+
+    // copy sensor specific's gamma tables
+    for (i = 0; i < size; i++) {
+        gamma[i * 2 + size * 0 + 0] = rgamma[i] & 0xff;
+        gamma[i * 2 + size * 0 + 1] = (rgamma[i] >> 8) & 0xff;
+        gamma[i * 2 + size * 2 + 0] = ggamma[i] & 0xff;
+        gamma[i * 2 + size * 2 + 1] = (ggamma[i] >> 8) & 0xff;
+        gamma[i * 2 + size * 4 + 0] = bgamma[i] & 0xff;
+        gamma[i * 2 + size * 4 + 1] = (bgamma[i] >> 8) & 0xff;
     }
 
   /* send address */

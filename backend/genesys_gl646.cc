@@ -4070,11 +4070,6 @@ gl646_init (Genesys_Device * dev)
       /* Set default values for registers */
       gl646_init_regs (dev);
 
-        for(int i=0; i < 3; i++) {
-            sanei_genesys_create_default_gamma_table(dev, dev->sensor.gamma_table[i],
-                                                     dev->sensor.gamma[i]);
-        }
-
       /* Init shading data */
       RIE (sanei_genesys_init_shading_data (dev, dev->sensor.sensor_pixels));
 

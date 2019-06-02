@@ -746,7 +746,6 @@ void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
     sanei_genesys_create_gamma_table(gamma_table, size, max, max, gamma);
 }
 
-
 /* computes the exposure_time on the basis of the given vertical dpi,
    the number of pixels the ccd needs to send,
    the step_type and the corresponding maximum speed from the motor struct */
@@ -6562,14 +6561,15 @@ sane_get_option_descriptor(SANE_Handle handle, SANE_Int option)
     return ret;
 }
 
-
 /* gets an option , called by sane_control_option */
 static SANE_Status
 get_option_value (Genesys_Scanner * s, int option, void *val)
 {
   unsigned int i;
-  SANE_Word *table ,tmp;
-  uint16_t *gamma;
+  SANE_Word tmp;
+  SANE_Word* table = nullptr;
+  std::vector<uint16_t> gamma_table;
+  unsigned option_size = 0;
   SANE_Status status = SANE_STATUS_GOOD;
 
   switch (option)
@@ -6631,43 +6631,53 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
       /* word array options */
     case OPT_GAMMA_VECTOR:
       table = (SANE_Word *) val;
-      if (strcmp (s->val[OPT_COLOR_FILTER].s, "Red") == 0)
-	{
-      gamma = s->dev->sensor.gamma_table[GENESYS_RED].data();
-	}
-      else if (strcmp (s->val[OPT_COLOR_FILTER].s, "Blue") == 0)
-	{
-      gamma = s->dev->sensor.gamma_table[GENESYS_BLUE].data();
-	}
-      else
-	{
-      gamma = s->dev->sensor.gamma_table[GENESYS_GREEN].data();
-	}
-      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
-	{
-	  table[i] = gamma[i];
-	}
-      break;
+        if (strcmp (s->val[OPT_COLOR_FILTER].s, "Red") == 0) {
+            gamma_table = get_gamma_table(s->dev, s->dev->sensor, GENESYS_RED);
+        } else if (strcmp (s->val[OPT_COLOR_FILTER].s, "Blue") == 0) {
+            gamma_table = get_gamma_table(s->dev, s->dev->sensor, GENESYS_BLUE);
+        } else {
+            gamma_table = get_gamma_table(s->dev, s->dev->sensor, GENESYS_GREEN);
+        }
+        option_size = s->opt[option].size / sizeof (SANE_Word);
+        if (gamma_table.size() != option_size) {
+            throw std::runtime_error("The size of the gamma tables does not match");
+        }
+        for (i = 0; i < option_size; i++) {
+            table[i] = gamma_table[i];
+        }
+        break;
     case OPT_GAMMA_VECTOR_R:
       table = (SANE_Word *) val;
-      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
-	{
-	  table[i] = s->dev->sensor.gamma_table[GENESYS_RED][i];
+        gamma_table = get_gamma_table(s->dev, s->dev->sensor, GENESYS_RED);
+        option_size = s->opt[option].size / sizeof (SANE_Word);
+        if (gamma_table.size() != option_size) {
+            throw std::runtime_error("The size of the gamma tables does not match");
+        }
+        for (i = 0; i < option_size; i++) {
+            table[i] = gamma_table[i];
 	}
       break;
     case OPT_GAMMA_VECTOR_G:
       table = (SANE_Word *) val;
-      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
-	{
-	  table[i] = s->dev->sensor.gamma_table[GENESYS_GREEN][i];
-	}
+        gamma_table = get_gamma_table(s->dev, s->dev->sensor, GENESYS_GREEN);
+        option_size = s->opt[option].size / sizeof (SANE_Word);
+        if (gamma_table.size() != option_size) {
+            throw std::runtime_error("The size of the gamma tables does not match");
+        }
+        for (i = 0; i < option_size; i++) {
+            table[i] = gamma_table[i];
+        }
       break;
     case OPT_GAMMA_VECTOR_B:
       table = (SANE_Word *) val;
-      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
-	{
-	  table[i] = s->dev->sensor.gamma_table[GENESYS_BLUE][i];
-	}
+        gamma_table = get_gamma_table(s->dev, s->dev->sensor, GENESYS_BLUE);
+        option_size = s->opt[option].size / sizeof (SANE_Word);
+        if (gamma_table.size() != option_size) {
+            throw std::runtime_error("The size of the gamma tables does not match");
+        }
+        for (i = 0; i < option_size; i++) {
+            table[i] = gamma_table[i];
+        }
       break;
       /* sensors */
     case OPT_SCAN_SW:
@@ -6746,6 +6756,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
   SANE_Word *table;
   unsigned int i;
   SANE_Range *x_range, *y_range;
+  unsigned option_size = 0;
 
   switch (option)
     {
@@ -6964,56 +6975,48 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  DISABLE (OPT_GAMMA_VECTOR_R);
 	  DISABLE (OPT_GAMMA_VECTOR_G);
 	  DISABLE (OPT_GAMMA_VECTOR_B);
-	  /* restore default sensor gamma table */
-	  /* currently there is no sensor's specific gamma table,
-	   * tables are built by sanei_genesys_create_gamma_table */
-      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_RED],
-					    s->opt[OPT_GAMMA_VECTOR_R].size / sizeof (SANE_Word),
-					    s->opt[OPT_GAMMA_VECTOR_R].constraint.range->max,
-					    s->opt[OPT_GAMMA_VECTOR_R].constraint.range->max,
-					    s->dev->sensor.gamma[GENESYS_RED]);
-      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_GREEN],
-					    s->opt[OPT_GAMMA_VECTOR_G].size / sizeof (SANE_Word),
-					    s->opt[OPT_GAMMA_VECTOR_G].constraint.range->max,
-					    s->opt[OPT_GAMMA_VECTOR_G].constraint.range->max,
-					    s->dev->sensor.gamma[GENESYS_GREEN]);
-      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_BLUE],
-					    s->opt[OPT_GAMMA_VECTOR_B].size / sizeof (SANE_Word),
-					    s->opt[OPT_GAMMA_VECTOR_B].constraint.range->max,
-					    s->opt[OPT_GAMMA_VECTOR_B].constraint.range->max,
-					    s->dev->sensor.gamma[GENESYS_BLUE]);
+            for (auto& table : s->dev->gamma_override_tables) {
+                table.clear();
+            }
 	}
       break;
 
     case OPT_GAMMA_VECTOR:
       table = (SANE_Word *) val;
-      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
-	{
-	  s->dev->sensor.gamma_table[GENESYS_RED][i] = table[i];
-	  s->dev->sensor.gamma_table[GENESYS_GREEN][i] = table[i];
-	  s->dev->sensor.gamma_table[GENESYS_BLUE][i] = table[i];
-	}
+        option_size = s->opt[option].size / sizeof (SANE_Word);
+
+        s->dev->gamma_override_tables[GENESYS_RED].resize(option_size);
+        s->dev->gamma_override_tables[GENESYS_GREEN].resize(option_size);
+        s->dev->gamma_override_tables[GENESYS_BLUE].resize(option_size);
+        for (i = 0; i < option_size; i++) {
+            s->dev->gamma_override_tables[GENESYS_RED][i] = table[i];
+            s->dev->gamma_override_tables[GENESYS_GREEN][i] = table[i];
+            s->dev->gamma_override_tables[GENESYS_BLUE][i] = table[i];
+        }
       break;
     case OPT_GAMMA_VECTOR_R:
       table = (SANE_Word *) val;
-      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
-	{
-	  s->dev->sensor.gamma_table[GENESYS_RED][i] = table[i];
-	}
+        option_size = s->opt[option].size / sizeof (SANE_Word);
+        s->dev->gamma_override_tables[GENESYS_RED].resize(option_size);
+        for (i = 0; i < option_size; i++) {
+            s->dev->gamma_override_tables[GENESYS_RED][i] = table[i];
+        }
       break;
     case OPT_GAMMA_VECTOR_G:
       table = (SANE_Word *) val;
-      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
-	{
-	  s->dev->sensor.gamma_table[GENESYS_GREEN][i] = table[i];
-	}
+        option_size = s->opt[option].size / sizeof (SANE_Word);
+        s->dev->gamma_override_tables[GENESYS_GREEN].resize(option_size);
+        for (i = 0; i < option_size; i++) {
+            s->dev->gamma_override_tables[GENESYS_GREEN][i] = table[i];
+        }
       break;
     case OPT_GAMMA_VECTOR_B:
       table = (SANE_Word *) val;
-      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
-	{
-	  s->dev->sensor.gamma_table[GENESYS_BLUE][i] = table[i];
-	}
+        option_size = s->opt[option].size / sizeof (SANE_Word);
+        s->dev->gamma_override_tables[GENESYS_BLUE].resize(option_size);
+        for (i = 0; i < option_size; i++) {
+            s->dev->gamma_override_tables[GENESYS_BLUE][i] = table[i];
+        }
       break;
     case OPT_CALIBRATE:
       status = s->dev->model->cmd_set->save_power (s->dev, SANE_FALSE);

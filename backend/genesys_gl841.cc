@@ -5102,12 +5102,6 @@ gl841_init (Genesys_Device * dev)
 	}
     }
 
-    // initalize sensor gamma tables
-    for (int i = 0; i<3; i++) {
-        sanei_genesys_create_default_gamma_table(dev, dev->sensor.gamma_table[i],
-                                                 dev->sensor.gamma[i]);
-    }
-
   /* send gamma tables */
   status = gl841_send_gamma_table (dev);
   if (status != SANE_STATUS_GOOD)

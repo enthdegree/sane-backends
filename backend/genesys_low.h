@@ -536,9 +536,6 @@ struct Genesys_Sensor {
     // red, green and blue gamma coefficient for default gamma tables
     AssignableArray<float, 3> gamma;
 
-    // sensor-specific gamma tables
-    std::vector<uint16_t> gamma_table[3];
-
     size_t fread(FILE* fp)
     {
         bool success = true;
@@ -1263,6 +1260,10 @@ struct Genesys_Device
      // bytes to read from USB when calibrating. If 0, this is not set
     size_t calib_total_bytes_to_read = 0;
 
+    // gamma overrides. If a respective array is not empty then it means that the gamma for that
+    // color is overridden.
+    std::vector<uint16_t> gamma_override_tables[3];
+
     std::vector<uint8_t> white_average_data;
     std::vector<uint8_t> dark_average_data;
     uint16_t dark[3] = {};
@@ -1549,13 +1550,11 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
 				   unsigned int *final_exposure,
 				   int power_mode);
 
-extern void
-sanei_genesys_create_gamma_table (std::vector<uint16_t>& gamma_table, int size,
-                                  float maximum, float gamma_max,
-                                  float gamma);
-
 void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
                                               std::vector<uint16_t>& gamma_table, float gamma);
+
+std::vector<uint16_t> get_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                      int color);
 
 extern SANE_Status sanei_genesys_send_gamma_table (Genesys_Device * dev);
 

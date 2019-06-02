@@ -1231,6 +1231,19 @@ sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8
   return status;
 }
 
+
+std::vector<uint16_t> get_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                      int color)
+{
+    if (!dev->gamma_override_tables[color].empty()) {
+        return dev->gamma_override_tables[color];
+    } else {
+        std::vector<uint16_t> ret;
+        sanei_genesys_create_default_gamma_table(dev, ret, sensor.gamma[color]);
+        return ret;
+    }
+}
+
 /** @brief generates gamma buffer to transfer
  * Generates gamma table buffer to send to ASIC. Applies
  * contrast and brightness if set.
@@ -1247,8 +1260,9 @@ SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
                                                 int size,
                                                 uint8_t *gamma)
 {
-  int i;
-  uint16_t value;
+    std::vector<uint16_t> rgamma = get_gamma_table(dev, dev->sensor, GENESYS_RED);
+    std::vector<uint16_t> ggamma = get_gamma_table(dev, dev->sensor, GENESYS_GREEN);
+    std::vector<uint16_t> bgamma = get_gamma_table(dev, dev->sensor, GENESYS_BLUE);
 
   if(dev->settings.contrast!=0 || dev->settings.brightness!=0)
     {
@@ -1260,19 +1274,19 @@ SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
                              max,
                              dev->settings.contrast,
                              dev->settings.brightness);
-      for (i = 0; i < size; i++)
+      for (int i = 0; i < size; i++)
         {
-          value=dev->sensor.gamma_table[GENESYS_RED][i];
+          uint16_t value=rgamma[i];
           value=lut[value];
           gamma[i * 2 + size * 0 + 0] = value & 0xff;
           gamma[i * 2 + size * 0 + 1] = (value >> 8) & 0xff;
 
-          value=dev->sensor.gamma_table[GENESYS_GREEN][i];
+          value=ggamma[i];
           value=lut[value];
           gamma[i * 2 + size * 2 + 0] = value & 0xff;
           gamma[i * 2 + size * 2 + 1] = (value >> 8) & 0xff;
 
-          value=dev->sensor.gamma_table[GENESYS_BLUE][i];
+          value=bgamma[i];
           value=lut[value];
           gamma[i * 2 + size * 4 + 0] = value & 0xff;
           gamma[i * 2 + size * 4 + 1] = (value >> 8) & 0xff;
@@ -1280,17 +1294,17 @@ SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
     }
   else
     {
-      for (i = 0; i < size; i++)
+      for (int i = 0; i < size; i++)
         {
-          value=dev->sensor.gamma_table[GENESYS_RED][i];
+          uint16_t value=rgamma[i];
           gamma[i * 2 + size * 0 + 0] = value & 0xff;
           gamma[i * 2 + size * 0 + 1] = (value >> 8) & 0xff;
 
-          value=dev->sensor.gamma_table[GENESYS_GREEN][i];
+          value=ggamma[i];
           gamma[i * 2 + size * 2 + 0] = value & 0xff;
           gamma[i * 2 + size * 2 + 1] = (value >> 8) & 0xff;
 
-          value=dev->sensor.gamma_table[GENESYS_BLUE][i];
+          value=bgamma[i];
           gamma[i * 2 + size * 4 + 0] = value & 0xff;
           gamma[i * 2 + size * 4 + 1] = (value >> 8) & 0xff;
         }
@@ -1396,12 +1410,6 @@ sanei_genesys_asic_init (Genesys_Device * dev, int /*max_regs*/)
   else
     {
       dev->usb_mode = 2;
-    }
-
-    // initalize sensor gamma tables
-    for (int i = 0; i<3; i++) {
-        sanei_genesys_create_default_gamma_table(dev, dev->sensor.gamma_table[i],
-                                                 dev->sensor.gamma[i]);
     }
 
   /* check if the device has already been initialized and powered up

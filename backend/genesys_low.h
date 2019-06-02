@@ -147,7 +147,6 @@
 #define GENESYS_FLAG_DARK_WHITE_CALIBRATION (1 << 12) /**< yet another calibration method. does white and dark shading in one run, depending on a black and a white strip*/
 #define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /**< allow custom gamma tables */
 #define GENESYS_FLAG_NO_CALIBRATION   (1 << 14)       /**< allow scanners to use skip the calibration, needed for sheetfed scanners */
-#define GENESYS_FLAG_HALF_CCD_MODE    (1 << 15)       /**< scanner has setting for half ccd mode */
 #define GENESYS_FLAG_SIS_SENSOR       (1 << 16)       /**< handling of multi-segments sensors in software */
 #define GENESYS_FLAG_SHADING_NO_MOVE  (1 << 17)       /**< scanner doesn't move sensor during shading calibration */
 #define GENESYS_FLAG_SHADING_REPARK   (1 << 18)       /**< repark head between shading scans */
@@ -424,6 +423,9 @@ struct Genesys_Sensor {
     // id of the sensor description
     uint8_t sensor_id = 0;
     int optical_res = 0;
+    // half or quarter CCD mode
+    bool half_ccd_mode = false;
+
     int black_pixels = 0;
     // value of the dummy register
     int dummy_pixel = 0;

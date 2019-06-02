@@ -2740,7 +2740,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   DBG(DBG_proc, "%s: start\n", __func__);
 
   /* when shading all (full width) line, we must adapt to half_ccd case */
-  if (dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE)
+  if (dev->sensor.half_ccd_mode)
     {
       /* walk the master mode list to find if half_ccd */
       if (is_half_ccd (dev->model->ccd_type, dev->settings.xres, SANE_TRUE) ==
@@ -4891,7 +4891,7 @@ gl646_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
 
   DBG(DBG_proc, "%s: start\n", __func__);
   /* adapt to half_ccd case */
-  if (dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE)
+  if (dev->sensor.half_ccd_mode)
     {
       /* walk the master mode list to find if half_ccd */
       if (is_half_ccd (dev->model->ccd_type, res, SANE_TRUE) == SANE_TRUE)

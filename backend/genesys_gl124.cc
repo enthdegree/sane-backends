@@ -168,10 +168,10 @@ SANE_Status status=SANE_STATUS_GOOD;
  * @param xres required horizontal resolution
  * @return SANE_TRUE if half CCD mode enabled
  */
-static SANE_Bool compute_half_ccd(Genesys_Model *model, int xres)
+static SANE_Bool compute_half_ccd(Genesys_Sensor* sensor, int xres)
 {
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (xres<=300 && (model->flags & GENESYS_FLAG_HALF_CCD_MODE))
+  if (xres<=300 && sensor->half_ccd_mode)
     {
       return SANE_TRUE;
     }
@@ -1300,7 +1300,7 @@ gl124_init_scan_regs (Genesys_Device * dev,
       "Flags         : %x\n\n",
       __func__, xres, yres, lines, pixels, startx, starty, depth, channels, flags);
 
-  half_ccd=compute_half_ccd(dev->model, xres);
+  half_ccd=compute_half_ccd(&dev->sensor, xres);
 
   /* optical_res */
   optical_res = dev->sensor.optical_res;
@@ -1567,7 +1567,7 @@ gl124_calculate_current_setup (Genesys_Device * dev)
   pixels = dev->settings.pixels;
   lines = dev->settings.lines;
 
-  half_ccd=compute_half_ccd(dev->model, xres);
+  half_ccd=compute_half_ccd(&dev->sensor, xres);
 
   DBG(DBG_info,
       "%s:\n"
@@ -2401,7 +2401,7 @@ gl124_init_regs_for_shading (Genesys_Device * dev)
   resolution=dpihw;
 
   /* if half CCD mode, use half resolution */
-  if(compute_half_ccd(dev->model, dev->settings.xres)==SANE_TRUE)
+  if(compute_half_ccd(&dev->sensor, dev->settings.xres)==SANE_TRUE)
     {
       resolution /= 2;
       dev->calib_lines /= 2;
@@ -2560,7 +2560,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev)
   /* start */
   start = SANE_UNFIX (dev->model->x_offset);
   start += dev->settings.tl_x;
-  if(compute_half_ccd(dev->model, dev->settings.xres)==SANE_TRUE)
+  if(compute_half_ccd(&dev->sensor, dev->settings.xres)==SANE_TRUE)
     {
       start /=2;
     }
@@ -2820,7 +2820,7 @@ gl124_led_calibration (Genesys_Device * dev)
   channels = 3;
   depth=16;
   dpihw=sanei_genesys_compute_dpihw(dev, dev->settings.xres);
-  half_ccd=compute_half_ccd(dev->model, dev->settings.xres);
+  half_ccd=compute_half_ccd(&dev->sensor, dev->settings.xres);
   if(half_ccd==SANE_TRUE)
     {
       resolution = dpihw/2;

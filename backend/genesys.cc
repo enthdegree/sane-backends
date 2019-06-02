@@ -2281,10 +2281,9 @@ compute_averaged_planar (Genesys_Device * dev,
  */
   res = dev->settings.xres;
 
-  /* duplicate half-ccd logic */
-  if ((dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE) &&
-      dev->settings.xres <= dev->sensor.optical_res / 2)
-    res *= 2;
+    if (dev->sensor.half_ccd_mode && dev->settings.xres <= dev->sensor.optical_res / 2) {
+        res *= 2;
+    }
 
   /* this should be evenly dividable */
   basepixels = dev->sensor.optical_res / res;
@@ -2575,7 +2574,7 @@ compute_shifted_coefficients (Genesys_Device * dev,
   unsigned int patch_cnt = offset * 3;                          /* at start, offset of first patch */
 
   x = dev->settings.xres;
-  if ((dev->model->flags & GENESYS_FLAG_HALF_CCD_MODE) &&
+  if ((dev->sensor.half_ccd_mode) &&
       (dev->settings.xres <= dev->sensor.optical_res / 2))
     x *= 2;							/* scanner is using half-ccd mode */
   basepixels = dev->sensor.optical_res / x;			/*this should be evenly dividable */

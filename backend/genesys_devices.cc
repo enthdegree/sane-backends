@@ -331,6 +331,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_5345;
     sensor.optical_res = 1200;
+    sensor.half_ccd_mode = true;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 16;
     sensor.CCD_start_xoffset = 0;
@@ -375,6 +376,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_HP2300;
     sensor.optical_res = 600;
+    sensor.half_ccd_mode = true;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 20;
     sensor.CCD_start_xoffset = 0;
@@ -397,6 +399,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_CANONLIDE35;
     sensor.optical_res = 1200;
+    sensor.half_ccd_mode = true;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 87;
     sensor.CCD_start_xoffset = 0;
@@ -686,6 +689,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_CS4400F;
     sensor.optical_res = 4800;
+    sensor.half_ccd_mode = true; // FIXME: actually quarter CCD mode
     sensor.black_pixels = 50*8;
     // 31 at 600 dpi, 58 at 1200 dpi
     sensor.dummy_pixel = 20;
@@ -734,6 +738,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_CS8600F;
     sensor.optical_res = 4800;
+    sensor.half_ccd_mode = true; // FIXME: actually quarter CCD mode
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 20;
     sensor.CCD_start_xoffset = 0; // not used at the moment
@@ -757,6 +762,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_HP_N6310;
     sensor.optical_res = 2400;
+    // sensor.half_ccd_mode = true; Possibly half CCD, needs checking
     sensor.black_pixels = 96;
     sensor.dummy_pixel = 26;
     sensor.CCD_start_xoffset = 128;
@@ -779,6 +785,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CIS_CANONLIDE110;
     sensor.optical_res = 2400;
+    sensor.half_ccd_mode = true;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.CCD_start_xoffset = 303;
@@ -801,6 +808,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CIS_CANONLIDE120;
     sensor.optical_res = 2400;
+    sensor.half_ccd_mode = true;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.CCD_start_xoffset = 303;
@@ -824,12 +832,13 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CIS_CANONLIDE210;
     sensor.optical_res = 2400;
+    sensor.half_ccd_mode = true;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.CCD_start_xoffset = 303;
     sensor.sensor_pixels = 5168*4;
     sensor.fau_gain_white_ref = 210;
-    sensor.gain_white_ref = 200,
+    sensor.gain_white_ref = 200;
     sensor.regs_0x08_0x0b = {0x00, 0x00, 0x00, 0x00},
     //    10    11    12    13    14    15    16    17    18    19    1a    1b    1c    1d
     sensor.regs_0x10_0x1d = {
@@ -846,6 +855,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CIS_CANONLIDE220;
     sensor.optical_res = 2400;
+    sensor.half_ccd_mode = true;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.CCD_start_xoffset = 303;
@@ -868,6 +878,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_PLUSTEK_3600;
     sensor.optical_res = 1200;
+    sensor.half_ccd_mode = true;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 87;
     sensor.CCD_start_xoffset = 0;
@@ -934,6 +945,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CIS_CANONLIDE80,
     sensor.optical_res = 1200; // real hardware limit is 2400
+    sensor.half_ccd_mode = true;
     sensor.black_pixels = 20;
     sensor.dummy_pixel = 6;
     // tuned to give 3*8 multiple startx coordinate during shading calibration
@@ -1622,8 +1634,7 @@ static Genesys_Model canon_lide_50_model = {
   GENESYS_FLAG_SKIP_WARMUP |
   GENESYS_FLAG_OFFSET_CALIBRATION |
   GENESYS_FLAG_DARK_WHITE_CALIBRATION |
-  GENESYS_FLAG_CUSTOM_GAMMA |
-  GENESYS_FLAG_HALF_CCD_MODE,
+  GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW |
   GENESYS_HAS_FILE_SW |
   GENESYS_HAS_EMAIL_SW |
@@ -1910,7 +1921,6 @@ static Genesys_Model canon_4400f_model = {
   GENESYS_FLAG_SKIP_WARMUP |
   GENESYS_FLAG_DARK_CALIBRATION |
   GENESYS_FLAG_FULL_HWDPI_MODE |
-  GENESYS_FLAG_HALF_CCD_MODE |                /* actually quarter CCD mode ... */
   GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   100,
@@ -2030,8 +2040,7 @@ static Genesys_Model canon_8600f_model = {
   GENESYS_FLAG_DARK_CALIBRATION |
   GENESYS_FLAG_FULL_HWDPI_MODE |
   GENESYS_FLAG_CUSTOM_GAMMA |
-  GENESYS_FLAG_SHADING_REPARK |
-  GENESYS_FLAG_HALF_CCD_MODE,
+  GENESYS_FLAG_SHADING_REPARK,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   50,       // shading_lines
   50,       // shading_ta_lines
@@ -2141,7 +2150,6 @@ static Genesys_Model canon_lide_110_model = {
       GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_HALF_CCD_MODE
     | GENESYS_FLAG_SHADING_REPARK
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
@@ -2196,7 +2204,6 @@ static Genesys_Model canon_lide_120_model = {
       GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_HALF_CCD_MODE
     | GENESYS_FLAG_SHADING_REPARK
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
@@ -2252,7 +2259,6 @@ static Genesys_Model canon_lide_210_model = {
       GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_HALF_CCD_MODE
     | GENESYS_FLAG_SHADING_REPARK
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_EXTRA_SW,
@@ -2307,7 +2313,6 @@ static Genesys_Model canon_lide_220_model = {
       GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_HALF_CCD_MODE
     | GENESYS_FLAG_SHADING_REPARK
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_EXTRA_SW,
@@ -2531,8 +2536,7 @@ static Genesys_Model canon_lide_60_model = {
     | GENESYS_FLAG_SKIP_WARMUP
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_WHITE_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_HALF_CCD_MODE,
+    | GENESYS_FLAG_CUSTOM_GAMMA,
 
   GENESYS_HAS_COPY_SW             /* Has four buttons: COPY, SCAN, PDF, EMAIL */
     | GENESYS_HAS_SCAN_SW
@@ -2589,8 +2593,7 @@ static Genesys_Model canon_lide_80_model = {
   GENESYS_FLAG_SKIP_WARMUP |
   GENESYS_FLAG_OFFSET_CALIBRATION |
   GENESYS_FLAG_DARK_WHITE_CALIBRATION |
-  GENESYS_FLAG_CUSTOM_GAMMA |
-  GENESYS_FLAG_HALF_CCD_MODE,
+  GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW |
   GENESYS_HAS_FILE_SW |
   GENESYS_HAS_EMAIL_SW |
@@ -2650,7 +2653,6 @@ static Genesys_Model hp2300c_model = {
     | GENESYS_FLAG_SEARCH_START
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_HALF_CCD_MODE
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW,
   40,
@@ -2980,7 +2982,6 @@ static Genesys_Model medion_md5345_model = {
     | GENESYS_FLAG_STAGGERED_LINE
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_HALF_CCD_MODE
     | GENESYS_FLAG_SHADING_NO_MOVE
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_POWER_SW | GENESYS_HAS_OCR_SW | GENESYS_HAS_SCAN_SW,
@@ -3583,7 +3584,6 @@ static Genesys_Model visioneer_7100_model = {
     | GENESYS_FLAG_STAGGERED_LINE
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_HALF_CCD_MODE
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_POWER_SW | GENESYS_HAS_OCR_SW | GENESYS_HAS_SCAN_SW,
   40,
@@ -3640,7 +3640,6 @@ static Genesys_Model xerox_2400_model = {
     | GENESYS_FLAG_STAGGERED_LINE
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_HALF_CCD_MODE
     | GENESYS_FLAG_CUSTOM_GAMMA,
   GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_POWER_SW | GENESYS_HAS_OCR_SW | GENESYS_HAS_SCAN_SW,
   40,
@@ -3750,8 +3749,7 @@ static Genesys_Model plustek_3600_model = {
 	  | GENESYS_FLAG_SKIP_WARMUP
 	  | GENESYS_FLAG_DARK_CALIBRATION
 	  | GENESYS_FLAG_OFFSET_CALIBRATION
-	    | GENESYS_FLAG_LAZY_INIT
-	    | GENESYS_FLAG_HALF_CCD_MODE,/*
+            | GENESYS_FLAG_LAZY_INIT,/*
       | GENESYS_FLAG_NO_CALIBRATION,*/
   GENESYS_HAS_NO_BUTTONS,
   7,
@@ -3811,7 +3809,6 @@ static Genesys_Model hpn6310_model = {
     | GENESYS_FLAG_CUSTOM_GAMMA
     | GENESYS_FLAG_SKIP_WARMUP
    | GENESYS_FLAG_NO_CALIBRATION,
-/*     | GENESYS_FLAG_HALF_CCD_MODE,*/
 
   GENESYS_HAS_NO_BUTTONS,
   100,

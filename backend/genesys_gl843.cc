@@ -1447,107 +1447,113 @@ struct ScanSessionParams {
 
 struct ScanSession {
     ScanSessionParams params;
-};
 
-struct GenesysPhysicalParams {
+    // whether the session setup has been computed via gl843_compute_session()
+    bool computed = false;
+
     // whether CCD operates as half-resolution or full resolution at a specific resolution
-    SANE_Bool half_ccd;
+    SANE_Bool half_ccd = 0;
 
     // the optical resolution of the scanner.
-    unsigned optical_resolution;
+    unsigned optical_resolution = 0;
 
     // the number of pixels at the optical resolution.
-    unsigned optical_pixels;
+    unsigned optical_pixels = 0;
 
     // the number of bytes in the output of a single line directly from scanner
-    unsigned optical_line_bytes;
+    unsigned optical_line_bytes = 0;
 
     // the resolution of the output data.
-    unsigned output_resolution;
+    unsigned output_resolution = 0;
 
     // the number of pixels in output data
-    unsigned output_pixels;
+    unsigned output_pixels = 0;
 
     // the number of bytes in the output of a single line
-    unsigned output_line_bytes;
+    unsigned output_line_bytes = 0;
 
     // the number of lines in the output of the scanner. This must be larger than the user
     // requested number due to line staggering and color channel shifting.
-    unsigned output_line_count;
+    unsigned output_line_count = 0;
 
     // the number of staggered lines (i.e. lines that overlap during scanning due to line being
     // thinner than the CCD element)
-    unsigned num_staggered_lines;
+    unsigned num_staggered_lines = 0;
 
     // the number of lines that color channels shift due to different physical positions of
     // different color channels
-    unsigned max_color_shift_lines;
+    unsigned max_color_shift_lines = 0;
+
+    void assert_computed() const
+    {
+        if (!computed) {
+            throw std::runtime_error("ScanSession is not computed");
+        }
+    }
 };
 
 // computes physical parameters for specific scan setup
-static struct GenesysPhysicalParams
-    gl843_compute_physical_params(Genesys_Device* dev, const ScanSessionParams& sp)
+static void gl843_compute_session(Genesys_Device* dev, ScanSession& s)
 {
-    GenesysPhysicalParams p;
-
-    if (dev->sensor.optical_res < 4 * sp.xres ||
+    s.params.assert_valid();
+    if (dev->sensor.optical_res < 4 * s.params.xres ||
         !(dev->sensor.half_ccd_mode))
     {
-        p.half_ccd = SANE_FALSE;
+        s.half_ccd = SANE_FALSE;
     } else {
-        p.half_ccd = SANE_TRUE;
+        s.half_ccd = SANE_TRUE;
     }
 
-    p.optical_resolution = dev->sensor.optical_res;
-    if (p.half_ccd)
-        p.optical_resolution /= 4;
+    s.optical_resolution = dev->sensor.optical_res;
+    if (s.half_ccd)
+        s.optical_resolution /= 4;
 
-    if (sp.flags & SCAN_FLAG_USE_OPTICAL_RES) {
-        p.output_resolution = p.optical_resolution;
+    if (s.params.flags & SCAN_FLAG_USE_OPTICAL_RES) {
+        s.output_resolution = s.optical_resolution;
     } else {
         // resolution is choosen from a fixed list and can be used directly
         // unless we have ydpi higher than sensor's maximum one
-        if (sp.xres > p.optical_resolution)
-            p.output_resolution = p.optical_resolution;
+        if (s.params.xres > s.optical_resolution)
+            s.output_resolution = s.optical_resolution;
         else
-            p.output_resolution = sp.xres;
+            s.output_resolution = s.params.xres;
     }
 
     // compute rounded up number of optical pixels
-    p.optical_pixels = (sp.pixels * p.optical_resolution) / sp.xres;
-    if (p.optical_pixels * sp.xres < sp.pixels * p.optical_resolution)
-        p.optical_pixels++;
+    s.optical_pixels = (s.params.pixels * s.optical_resolution) / s.params.xres;
+    if (s.optical_pixels * s.params.xres < s.params.pixels * s.optical_resolution)
+        s.optical_pixels++;
 
     // ensure the number of optical pixels is divisible by 2.
     // In half-CCD mode optical_pixels is 4x larger than the actual physical number
-    if (p.half_ccd) {
-        if (p.optical_pixels & 0x7)
-            p.optical_pixels = (p.optical_pixels & ~0x7) + 8;
+    if (s.half_ccd) {
+        if (s.optical_pixels & 0x7)
+            s.optical_pixels = (s.optical_pixels & ~0x7) + 8;
     } else {
-        if (p.optical_pixels & 1)
-            p.optical_pixels++;
+        if (s.optical_pixels & 1)
+            s.optical_pixels++;
     }
 
-    p.output_pixels =
-        (p.optical_pixels * p.output_resolution) / p.optical_resolution;
+    s.output_pixels =
+        (s.optical_pixels * s.output_resolution) / s.optical_resolution;
 
     // Note: staggering is not applied for calibration. Staggering starts at 2400 dpi
-    p.num_staggered_lines = 0;
-    if ((sp.yres > 1200) &&
-        ((sp.flags & SCAN_FLAG_IGNORE_LINE_DISTANCE) == 0) &&
+    s.num_staggered_lines = 0;
+    if ((s.params.yres > 1200) &&
+        ((s.params.flags & SCAN_FLAG_IGNORE_LINE_DISTANCE) == 0) &&
         (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
     {
-        p.num_staggered_lines = (4 * sp.yres) / dev->motor.base_ydpi;
+        s.num_staggered_lines = (4 * s.params.yres) / dev->motor.base_ydpi;
     }
 
-    p.max_color_shift_lines = sanei_genesys_compute_max_shift(dev, sp.channels, sp.yres, sp.flags);
+    s.max_color_shift_lines = sanei_genesys_compute_max_shift(dev, s.params.channels,
+                                                              s.params.yres, s.params.flags);
 
-    p.output_line_count = sp.lines + p.max_color_shift_lines + p.num_staggered_lines;
+    s.output_line_count = s.params.lines + s.max_color_shift_lines + s.num_staggered_lines;
 
-    p.optical_line_bytes = (p.optical_pixels * sp.channels * sp.depth) / 8;
-    p.output_line_bytes = (p.output_pixels * sp.channels * sp.depth) / 8;
-
-    return p;
+    s.optical_line_bytes = (s.optical_pixels * s.params.channels * s.params.depth) / 8;
+    s.output_line_bytes = (s.output_pixels * s.params.channels * s.params.depth) / 8;
+    s.computed = true;
 }
 
 /* set up registers for an actual scan
@@ -1557,7 +1563,7 @@ static struct GenesysPhysicalParams
 static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, Genesys_Register_Set* reg,
                                         ScanSession& session)
 {
-    session.params.assert_valid();
+    session.assert_computed();
 
   int start;
   int move;
@@ -1583,9 +1589,7 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, Genesys_Register_Se
       session.params.pixels, session.params.startx, session.params.starty,
       session.params.depth, session.params.channels, session.params.flags);
 
-    GenesysPhysicalParams params = gl843_compute_physical_params(dev, session.params);
-
-  DBG(DBG_info, "%s : stagger=%d lines\n", __func__, params.num_staggered_lines);
+  DBG(DBG_info, "%s : stagger=%d lines\n", __func__, session.num_staggered_lines);
 
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
@@ -1599,7 +1603,7 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, Genesys_Register_Se
     oflags |= OPTICAL_FLAG_DISABLE_LAMP;
   if (session.params.flags & SCAN_FLAG_CALIBRATION)
     oflags |= OPTICAL_FLAG_DISABLE_DOUBLE;
-  if (params.num_staggered_lines)
+  if (session.num_staggered_lines)
     oflags |= OPTICAL_FLAG_STAGGER;
   if (session.params.flags & SCAN_FLAG_USE_XPA)
     oflags |= OPTICAL_FLAG_USE_XPA;
@@ -1630,7 +1634,7 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, Genesys_Register_Se
     }
   else
     {
-      exposure = gl843_compute_exposure (dev, params.output_resolution, oflags);
+      exposure = gl843_compute_exposure (dev, session.output_resolution, oflags);
       scan_step_type = sanei_genesys_compute_step_type(gl843_motors, dev->model->motor_type, exposure);
     }
 
@@ -1655,12 +1659,12 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, Genesys_Register_Se
   status = gl843_init_optical_regs_scan (dev,
 					 reg,
 					 exposure,
-                                         params.output_resolution,
+                                         session.output_resolution,
 					 start,
-                                         params.optical_pixels,
+                                         session.optical_pixels,
                                          session.params.channels,
                                          session.params.depth,
-                                         params.half_ccd,
+                                         session.half_ccd,
                                          session.params.color_filter,
                                          oflags);
   if (status != SANE_STATUS_GOOD)
@@ -1700,8 +1704,8 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, Genesys_Register_Se
                                        exposure,
                                        slope_dpi,
                                        scan_step_type,
-                                       dev->model->is_cis ? params.output_line_count * session.params.channels
-                                                          : params.output_line_count,
+                                       dev->model->is_cis ? session.output_line_count * session.params.channels
+                                                          : session.output_line_count,
                                        dummy,
                                        move,
                                        scan_power_mode,
@@ -1712,11 +1716,11 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, Genesys_Register_Se
   /* since we don't have sheetfed scanners to handle,
    * use huge read buffer */
   /* TODO find the best size according to settings */
-  requested_buffer_size = 16 * params.output_line_bytes;
+  requested_buffer_size = 16 * session.output_line_bytes;
 
   read_buffer_size =
     2 * requested_buffer_size +
-    (params.max_color_shift_lines + params.num_staggered_lines) * params.optical_line_bytes;
+    (session.max_color_shift_lines + session.num_staggered_lines) * session.optical_line_bytes;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -1730,22 +1734,22 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, Genesys_Register_Se
     dev->out_buffer.clear();
     dev->out_buffer.alloc((8 * dev->settings.pixels * session.params.channels * session.params.depth) / 8);
 
-  dev->read_bytes_left = params.output_line_bytes * params.output_line_count;
+  dev->read_bytes_left = session.output_line_bytes * session.output_line_count;
 
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
-  dev->current_setup.pixels = params.output_pixels;
+  dev->current_setup.pixels = session.output_pixels;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
-  dev->current_setup.lines = params.output_line_count;
+  dev->current_setup.lines = session.output_line_count;
   dev->current_setup.depth = session.params.depth;
   dev->current_setup.channels = session.params.channels;
   dev->current_setup.exposure_time = exposure;
-  dev->current_setup.xres = params.output_resolution;
+  dev->current_setup.xres = session.output_resolution;
   dev->current_setup.yres = session.params.yres;
-  dev->current_setup.half_ccd = params.half_ccd;
-  dev->current_setup.stagger = params.num_staggered_lines;
-  dev->current_setup.max_shift = params.max_color_shift_lines + params.num_staggered_lines;
+  dev->current_setup.half_ccd = session.half_ccd;
+  dev->current_setup.stagger = session.num_staggered_lines;
+  dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
   dev->total_bytes_read = 0;
   if (session.params.depth == 1)
@@ -2673,6 +2677,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
                             SCAN_FLAG_DISABLE_GAMMA |
                             SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
                             SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    gl843_compute_session(dev, session);
 
     status = gl843_init_scan_regs(dev, &local_reg, session);
 
@@ -2777,6 +2782,8 @@ gl843_search_start_position (Genesys_Device * dev)
                             SCAN_FLAG_DISABLE_GAMMA |
                             SCAN_FLAG_IGNORE_LINE_DISTANCE |
                             SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
+    gl843_compute_session(dev, session);
+
     status = gl843_init_scan_regs(dev, &local_reg, session);
   if (status != SANE_STATUS_GOOD)
     {
@@ -2884,6 +2891,7 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev)
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = flags;
+    gl843_compute_session(dev, session);
 
     status = gl843_init_scan_regs(dev, &dev->calib_reg, session);
 
@@ -2943,6 +2951,7 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
                             SCAN_FLAG_DISABLE_GAMMA |
                             SCAN_FLAG_FEEDING |
                             SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    gl843_compute_session(dev, session);
 
     status = gl843_init_scan_regs(dev, &local_reg, session);
   if (status != SANE_STATUS_GOOD)
@@ -3047,6 +3056,7 @@ gl843_init_regs_for_shading (Genesys_Device * dev)
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = flags;
+    gl843_compute_session(dev, session);
 
     status = gl843_init_scan_regs(dev, &dev->calib_reg, session);
 
@@ -3163,6 +3173,7 @@ gl843_init_regs_for_scan (Genesys_Device * dev)
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = flags;
+    gl843_compute_session(dev, session);
 
     status = gl843_init_scan_regs(dev, &dev->reg, session);
 
@@ -3269,6 +3280,7 @@ gl843_led_calibration (Genesys_Device * dev)
                             SCAN_FLAG_DISABLE_GAMMA |
                             SCAN_FLAG_SINGLE_LINE |
                             SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    gl843_compute_session(dev, session);
 
     status = gl843_init_scan_regs(dev, &dev->calib_reg, session);
 
@@ -3485,10 +3497,8 @@ gl843_offset_calibration (Genesys_Device * dev)
     session.params.scan_mode = SCAN_MODE_COLOR;
     session.params.color_filter = 0;
     session.params.flags = flags;
-
-    GenesysPhysicalParams params = gl843_compute_physical_params(dev, session.params);
-
-    pixels = params.output_pixels;
+    gl843_compute_session(dev, session);
+    pixels = session.output_pixels;
 
     DBG(DBG_io, "%s: dpihw       =%d\n", __func__, dpihw);
     DBG(DBG_io, "%s: factor      =%d\n", __func__, factor);
@@ -3711,9 +3721,8 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, int dpi)
     session.params.scan_mode = SCAN_MODE_COLOR;
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = flags;
-
-    GenesysPhysicalParams params = gl843_compute_physical_params(dev, session.params);
-    pixels = params.output_pixels;
+    gl843_compute_session(dev, session);
+    pixels = session.output_pixels;
 
     status = gl843_init_scan_regs(dev, &dev->calib_reg, session);
   gl843_set_motor_power(&dev->calib_reg, SANE_FALSE);
@@ -3868,6 +3877,7 @@ gl843_init_regs_for_warmup (Genesys_Device * dev,
                             SCAN_FLAG_DISABLE_GAMMA |
                             SCAN_FLAG_SINGLE_LINE |
                             SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    gl843_compute_session(dev, session);
 
     status = gl843_init_scan_regs(dev, reg, session);
 
@@ -4166,6 +4176,7 @@ gl843_search_strip (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black)
     session.params.scan_mode = SCAN_MODE_GRAY;
     session.params.color_filter = 0;
     session.params.flags = SCAN_FLAG_DISABLE_SHADING | SCAN_FLAG_DISABLE_SHADING;
+    gl843_compute_session(dev, session);
 
     status = gl843_init_scan_regs(dev, &local_reg, session);
   if (status != SANE_STATUS_GOOD)

@@ -1014,55 +1014,62 @@ typedef struct Genesys_Model
 #define SCAN_MODE_GRAY           2 	/**< gray scan mode */
 #define SCAN_MODE_COLOR          4 	/**< color scan mode */
 
-typedef struct
+struct Genesys_Settings
 {
-  int scan_method;		/* todo: change >=2: Transparency, 0x88: negative film */
-  int scan_mode;		/* todo: change 0,1 = lineart, halftone; 2 = gray, 3 = 3pass color, 4=single pass color */
-  int xres;			/**< horizontal dpi */
-  int yres;			/**< vertical dpi */
+    // TODO: change >=2: Transparency, 0x88: negative film
+    int scan_method = 0;
+    // TODO: change 0,1 = lineart, halftone; 2 = gray, 3 = 3pass color, 4=single pass color
+    int scan_mode = 0;
+    // horizontal dpi
+    int xres = 0;
+    // vertical dpi
+    int yres = 0;
 
-  double tl_x;			/* x start on scan table in mm */
-  double tl_y;			/* y start on scan table in mm */
+    //x start on scan table in mm
+    double tl_x = 0;
+    // y start on scan table in mm
+    double tl_y = 0;
 
-  unsigned int lines;		/**< number of lines at scan resolution */
-  unsigned int pixels;		/**< number of pixels at scan resolution */
+    // number of lines at scan resolution
+    unsigned int lines = 0;
+    // number of pixels at scan resolution
+    unsigned int pixels = 0;
 
-  unsigned int depth;/* bit depth of the scan */
+    // bit depth of the scan
+    unsigned int depth = 0;
 
-  /* todo : remove these fields ? */
-  int exposure_time;
+    /* todo : remove these fields ? */
+    int exposure_time = 0;
 
-  unsigned int color_filter;
+    unsigned int color_filter = 0;
 
-  /**< true if scan is true gray, false if monochrome scan */
-  int true_gray;
+    // true if scan is true gray, false if monochrome scan
+    int true_gray = 0;
 
-  /**< lineart threshold */
-  int threshold;
+    // lineart threshold
+    int threshold = 0;
 
-  /**< lineart threshold curve for dynamic rasterization */
-  int threshold_curve;
+    // lineart threshold curve for dynamic rasterization
+    int threshold_curve = 0;
 
-  /**< Disable interpolation for xres<yres*/
-  int disable_interpolation;
+    // Disable interpolation for xres<yres
+    int disable_interpolation = 0;
 
-  /**< Use double x resolution internally to provide better
-   * quality */
-  int double_xres;
+    // Use double x resolution internally to provide better quality
+    int double_xres = 0;
 
-  /**< true is lineart is generated from gray data by
-   * the dynamic rasterization algo */
-  int dynamic_lineart;
+    // true is lineart is generated from gray data by the dynamic rasterization algoright
+    int dynamic_lineart = 0;
 
-  /**< value for contrast enhancement in the [-100..100] range */
-  int contrast;
+    // value for contrast enhancement in the [-100..100] range
+    int contrast = 0;
 
-  /**< value for brightness enhancement in the [-100..100] range */
-  int brightness;
+    // value for brightness enhancement in the [-100..100] range
+    int brightness = 0;
 
-  /**< cahe entries expiration time */
-  int expiration_time;
-} Genesys_Settings;
+    // cache entries expiration time
+    int expiration_time = 0;
+};
 
 struct Genesys_Current_Setup
 {

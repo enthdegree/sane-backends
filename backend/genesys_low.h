@@ -380,36 +380,6 @@ private:
     std::vector<GenesysRegister> registers_;
 };
 
-/** @brief Data structure to set up analog frontend.
- * The analog frontend converts analog value from image sensor to
- * digital value. It has its own control registers which are set up
- * with this structure. The values are written using sanei_genesys_fe_write_data.
- * The actual register addresses they map to depends on the frontend used.
- * @see sanei_genesys_fe_write_data
- */
-struct Genesys_Frontend
-{
-    Genesys_Frontend() = default;
-
-    // id of the frontend description
-    uint8_t fe_id = 0;
-
-    // values to set up frontend control register, they usually map to analog register 0x00 to 0x03
-    std::array<uint8_t, 4> reg = {};
-
-    // sets the sign of the digital value
-    std::array<uint8_t, 3> sign = {};
-
-    // amplification to apply to signal, most often maps to frontend register 0x28-0x2a
-    std::array<uint8_t, 3> offset = {};
-
-    // amplification to apply to signal, most often maps to frontend register 0x28-0x2a
-    std::array<uint8_t, 3> gain = {};
-
-    // extra control registers
-    std::array<uint8_t, 3> reg2 = {};
-};
-
 template<class T, size_t Size>
 struct AssignableArray : public std::array<T, Size> {
     AssignableArray() = default;
@@ -522,6 +492,54 @@ public:
 private:
     std::vector<GenesysRegisterSetting> regs_;
 };
+
+struct GenesysFrontendLayout
+{
+    std::array<uint16_t, 3> offset_addr = {};
+    std::array<uint16_t, 3> gain_addr = {};
+};
+
+/** @brief Data structure to set up analog frontend.
+    The analog frontend converts analog value from image sensor to digital value. It has its own
+    control registers which are set up with this structure. The values are written using
+    sanei_genesys_fe_write_data.
+ */
+struct Genesys_Frontend
+{
+    Genesys_Frontend() = default;
+
+    // id of the frontend description
+    uint8_t fe_id = 0;
+
+    // all registers of the frontend
+    GenesysRegisterSettingSet regs;
+
+    // extra control registers
+    std::array<uint8_t, 3> reg2 = {};
+
+    GenesysFrontendLayout layout;
+
+    void set_offset(unsigned which, uint8_t value)
+    {
+        regs.set_value(layout.offset_addr[which], value);
+    }
+
+    void set_gain(unsigned which, uint8_t value)
+    {
+        regs.set_value(layout.gain_addr[which], value);
+    }
+
+    uint8_t get_offset(unsigned which) const
+    {
+        return regs.get_value(layout.offset_addr[which]);
+    }
+
+    uint8_t get_gain(unsigned which) const
+    {
+        return regs.get_value(layout.gain_addr[which]);
+    }
+};
+
 
 struct SensorExposure {
     uint16_t red, green, blue;

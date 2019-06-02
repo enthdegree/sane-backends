@@ -552,7 +552,6 @@ gl124_set_ti_fe (Genesys_Device * dev, uint8_t set)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   int i;
-  uint16_t val;
 
   DBGSTART;
   if (set == AFE_INIT)
@@ -572,13 +571,13 @@ gl124_set_ti_fe (Genesys_Device * dev, uint8_t set)
     }
 
   /* write values to analog frontend */
-  for (i = 1; i < 4; i++)
+  for (uint16_t addr = 0x01; addr < 0x04; addr++)
     {
-      val = dev->frontend.reg[i];
-      status = sanei_genesys_fe_write_data (dev, i, val);
+      status = sanei_genesys_fe_write_data(dev, addr, dev->frontend.regs.get_value(addr));
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG(DBG_error, "%s: failed to write reg %d: %s\n", __func__, i, sane_strstatus(status));
+          DBG(DBG_error, "%s: failed to write reg %d: %s\n", __func__, addr,
+              sane_strstatus(status));
 	  return status;
 	}
     }
@@ -594,8 +593,7 @@ gl124_set_ti_fe (Genesys_Device * dev, uint8_t set)
   /* these are not really sign for this AFE */
   for (i = 0; i < 3; i++)
     {
-      val = dev->frontend.sign[i];
-      status = sanei_genesys_fe_write_data (dev, 0x05 + i, val);
+      status = sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.regs.get_value(0x24 + i));
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -3063,15 +3061,15 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
   std::vector<uint8_t> second_line(total_size);
 
   /* init gain */
-  dev->frontend.gain[0] = 0;
-  dev->frontend.gain[1] = 0;
-  dev->frontend.gain[2] = 0;
+  dev->frontend.set_gain(0, 0);
+  dev->frontend.set_gain(1, 0);
+  dev->frontend.set_gain(2, 0);
 
   /* scan with no move */
   bottom = 10;
-  dev->frontend.offset[0] = bottom;
-  dev->frontend.offset[1] = bottom;
-  dev->frontend.offset[2] = bottom;
+  dev->frontend.set_offset(0, bottom);
+  dev->frontend.set_offset(1, bottom);
+  dev->frontend.set_offset(2, bottom);
 
   RIE(gl124_set_fe(dev, sensor, AFE_SET));
   RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
@@ -3090,9 +3088,9 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   /* now top value */
   top = 255;
-  dev->frontend.offset[0] = top;
-  dev->frontend.offset[1] = top;
-  dev->frontend.offset[2] = top;
+  dev->frontend.set_offset(0, top);
+  dev->frontend.set_offset(1, top);
+  dev->frontend.set_offset(2, top);
   RIE(gl124_set_fe(dev, sensor, AFE_SET));
   RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
@@ -3108,9 +3106,9 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
       pass++;
 
       /* settings for new scan */
-      dev->frontend.offset[0] = (top + bottom) / 2;
-      dev->frontend.offset[1] = (top + bottom) / 2;
-      dev->frontend.offset[2] = (top + bottom) / 2;
+      dev->frontend.set_offset(0, (top + bottom) / 2);
+      dev->frontend.set_offset(1, (top + bottom) / 2);
+      dev->frontend.set_offset(2, (top + bottom) / 2);
 
       /* scan with no move */
       RIE(gl124_set_fe(dev, sensor, AFE_SET));
@@ -3122,27 +3120,29 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
       if (DBG_LEVEL >= DBG_data)
 	{
           char title[30];
-          snprintf(title, 30, "gl124_offset%03d.pnm", dev->frontend.offset[1]);
+          snprintf(title, 30, "gl124_offset%03d.pnm", dev->frontend.get_offset(1));
           sanei_genesys_write_pnm_file(title, second_line.data(), bpp, channels, pixels, lines);
 	}
 
       avg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
-      DBG(DBG_info, "%s: avg=%d offset=%d\n", __func__, avg, dev->frontend.offset[1]);
+      DBG(DBG_info, "%s: avg=%d offset=%d\n", __func__, avg, dev->frontend.get_offset(1));
 
       /* compute new boundaries */
       if (topavg == avg)
 	{
 	  topavg = avg;
-	  top = dev->frontend.offset[1];
+          top = dev->frontend.get_offset(1);
 	}
       else
 	{
 	  bottomavg = avg;
-	  bottom = dev->frontend.offset[1];
+          bottom = dev->frontend.get_offset(1);
 	}
     }
-  DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__, dev->frontend.offset[0],
-      dev->frontend.offset[1], dev->frontend.offset[2]);
+  DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__,
+      dev->frontend.get_offset(0),
+      dev->frontend.get_offset(1),
+      dev->frontend.get_offset(2));
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -3276,25 +3276,28 @@ gl124_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
 	code = 255;
       else if (code < 0)
 	code = 0;
-      dev->frontend.gain[j] = code;
+      dev->frontend.set_gain(j, code);
 
       DBG(DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__, j, max[j],
-          gain[j], dev->frontend.gain[j]);
+          gain[j], dev->frontend.get_gain(j));
     }
 
-  if (dev->model->is_cis)
-    {
-      if (dev->frontend.gain[0] > dev->frontend.gain[1])
-	dev->frontend.gain[0] = dev->frontend.gain[1];
-      if (dev->frontend.gain[0] > dev->frontend.gain[2])
-	dev->frontend.gain[0] = dev->frontend.gain[2];
-      dev->frontend.gain[2] = dev->frontend.gain[1] = dev->frontend.gain[0];
+    if (dev->model->is_cis) {
+        uint8_t gain0 = dev->frontend.get_gain(0);
+        if (gain0 > dev->frontend.get_gain(1)) {
+            gain0 = dev->frontend.get_gain(1);
+        }
+        if (gain0 > dev->frontend.get_gain(2)) {
+            gain0 = dev->frontend.get_gain(2);
+        }
+        dev->frontend.set_gain(0, gain0);
+        dev->frontend.set_gain(1, gain0);
+        dev->frontend.set_gain(2, gain0);
     }
 
-  if (channels == 1)
-    {
-      dev->frontend.gain[0] = dev->frontend.gain[1];
-      dev->frontend.gain[2] = dev->frontend.gain[1];
+    if (channels == 1) {
+        dev->frontend.set_gain(0, dev->frontend.get_gain(1));
+        dev->frontend.set_gain(2, dev->frontend.get_gain(1));
     }
 
   RIE (gl124_stop_action (dev));

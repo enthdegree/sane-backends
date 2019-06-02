@@ -1313,11 +1313,10 @@ sanei_genesys_calculate_zmode (uint32_t exposure_time,
 }
 
 
-static void
-genesys_adjust_gain (double *applied_multi,
-		     uint8_t * new_gain, double multi, uint8_t gain)
+static uint8_t genesys_adjust_gain(double* applied_multi, double multi, uint8_t gain)
 {
   double voltage, original_voltage;
+  uint8_t new_gain = 0;
 
   DBG(DBG_proc, "%s: multi=%f, gain=%d\n", __func__, multi, gain);
 
@@ -1326,17 +1325,18 @@ genesys_adjust_gain (double *applied_multi,
 
   voltage *= multi;
 
-  *new_gain = (uint8_t) ((voltage - 0.5) * 4);
-  if (*new_gain > 0x0e)
-    *new_gain = 0x0e;
+  new_gain = (uint8_t) ((voltage - 0.5) * 4);
+  if (new_gain > 0x0e)
+    new_gain = 0x0e;
 
-  voltage = 0.5 + (*new_gain) * 0.25;
+  voltage = 0.5 + (new_gain) * 0.25;
 
   *applied_multi = voltage / original_voltage;
 
-  DBG(DBG_proc, "%s: orig voltage=%.2f, new voltage=%.2f, *applied_multi=%f, *new_gain=%d\n",
-      __func__, original_voltage, voltage, *applied_multi, *new_gain);
-  return;
+  DBG(DBG_proc, "%s: orig voltage=%.2f, new voltage=%.2f, *applied_multi=%f, new_gain=%d\n",
+      __func__, original_voltage, voltage, *applied_multi, new_gain);
+
+  return new_gain;
 }
 
 
@@ -1468,23 +1468,20 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
       return status;
     }
 
-  dev->frontend.sign[0] = 0;
-  dev->frontend.sign[1] = 0;
-  dev->frontend.sign[2] = 0;
-  dev->frontend.gain[0] = 2;
-  dev->frontend.gain[1] = 2;
-  dev->frontend.gain[2] = 2;	/* todo: ?  was 2 */
-  dev->frontend.offset[0] = offset[0];
-  dev->frontend.offset[1] = offset[0];
-  dev->frontend.offset[2] = offset[0];
+  dev->frontend.set_gain(0, 2);
+  dev->frontend.set_gain(1, 2);
+  dev->frontend.set_gain(2, 2); // TODO: ?  was 2
+  dev->frontend.set_offset(0, offset[0]);
+  dev->frontend.set_offset(1, offset[0]);
+  dev->frontend.set_offset(2, offset[0]);
 
   for (i = 0; i < 4; i++)	/* read 4 lines */
     {
       if (i < 3)		/* first 3 lines */
         {
-	  dev->frontend.offset[0] = offset[i];
-          dev->frontend.offset[1] = offset[i];
-	  dev->frontend.offset[2] = offset[i];
+          dev->frontend.set_offset(0, offset[i]);
+          dev->frontend.set_offset(1, offset[i]);
+          dev->frontend.set_offset(2, offset[i]);
         }
 
       if (i == 1)		/* second line */
@@ -1498,24 +1495,26 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
             gain_white_ref = sensor.gain_white_ref * 256;
 	  /* white and black are defined downwards */
 
-	  genesys_adjust_gain (&applied_multi,
-			       &dev->frontend.gain[0],
-			       gain_white_ref / (white[0] - dark[0]),
-			       dev->frontend.gain[0]);
-	  genesys_adjust_gain (&applied_multi,
-			       &dev->frontend.gain[1],
-			       gain_white_ref / (white[1] - dark[1]),
-			       dev->frontend.gain[1]);
-	  genesys_adjust_gain (&applied_multi,
-			       &dev->frontend.gain[2],
-			       gain_white_ref / (white[2] - dark[2]),
-			       dev->frontend.gain[2]);
-
-	  dev->frontend.gain[0] = dev->frontend.gain[1] =
-	    dev->frontend.gain[2] = 2;
+            uint8_t gain0 = genesys_adjust_gain(&applied_multi,
+                                                gain_white_ref / (white[0] - dark[0]),
+                                                dev->frontend.get_gain(0));
+            uint8_t gain1 = genesys_adjust_gain(&applied_multi,
+                                                gain_white_ref / (white[1] - dark[1]),
+                                                dev->frontend.get_gain(1));
+            uint8_t gain2 = genesys_adjust_gain(&applied_multi,
+                                                gain_white_ref / (white[2] - dark[2]),
+                                                dev->frontend.get_gain(2));
+            // FIXME: looks like overwritten data. Are the above calculations doing
+            // anything at all?
+            dev->frontend.set_gain(0, gain0);
+            dev->frontend.set_gain(1, gain1);
+            dev->frontend.set_gain(2, gain2);
+            dev->frontend.set_gain(0, 2);
+            dev->frontend.set_gain(1, 2);
+            dev->frontend.set_gain(2, 2);
 
 	  status =
-	    sanei_genesys_fe_write_data (dev, 0x28, dev->frontend.gain[0]);
+            sanei_genesys_fe_write_data(dev, 0x28, dev->frontend.get_gain(0));
 	  if (status != SANE_STATUS_GOOD)	/* todo: this was 0x28 + 3 ? */
 	    {
               DBG(DBG_error, "%s: Failed to write gain[0]: %s\n", __func__, sane_strstatus(status));
@@ -1523,7 +1522,7 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 	    }
 
 	  status =
-	    sanei_genesys_fe_write_data (dev, 0x29, dev->frontend.gain[1]);
+            sanei_genesys_fe_write_data(dev, 0x29, dev->frontend.get_gain(1));
 	  if (status != SANE_STATUS_GOOD)
 	    {
               DBG(DBG_error, "%s: Failed to write gain[1]: %s\n", __func__, sane_strstatus(status));
@@ -1531,7 +1530,7 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 	    }
 
 	  status =
-	    sanei_genesys_fe_write_data (dev, 0x2a, dev->frontend.gain[2]);
+            sanei_genesys_fe_write_data(dev, 0x2a, dev->frontend.get_gain(2));
 	  if (status != SANE_STATUS_GOOD)
 	    {
               DBG(DBG_error, "%s: Failed to write gain[2]: %s\n", __func__, sane_strstatus(status));
@@ -1553,15 +1552,17 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 	      y = x - x * (offset[i - 1] / 2) / 254 - dark[(i - 1) * 3 + j];
 	      rate = (x - DARK_VALUE - y) * 254 / x + 0.5;
 
-	      dev->frontend.offset[j] = (uint8_t) (rate);
+                uint8_t curr_offset = static_cast<uint8_t>(rate);
 
-	      if (dev->frontend.offset[j] > 0x7f)
-		dev->frontend.offset[j] = 0x7f;
-	      dev->frontend.offset[j] <<= 1;
+                if (curr_offset > 0x7f) {
+                    curr_offset = 0x7f;
+                }
+                curr_offset <<= 1;
+                dev->frontend.set_offset(j, curr_offset);
 	    }
 	}
       status =
-	sanei_genesys_fe_write_data (dev, 0x20, dev->frontend.offset[0]);
+        sanei_genesys_fe_write_data(dev, 0x20, dev->frontend.get_offset(0));
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: Failed to write offset[0]: %s\n", __func__, sane_strstatus(status));
@@ -1569,7 +1570,7 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 	}
 
       status =
-	sanei_genesys_fe_write_data (dev, 0x21, dev->frontend.offset[1]);
+        sanei_genesys_fe_write_data(dev, 0x21, dev->frontend.get_offset(1));
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: Failed to write offset[1]: %s\n", __func__, sane_strstatus(status));
@@ -1577,7 +1578,7 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 	}
 
       status =
-	sanei_genesys_fe_write_data (dev, 0x22, dev->frontend.offset[2]);
+        sanei_genesys_fe_write_data(dev, 0x22, dev->frontend.get_offset(2));
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: Failed to write offset[2]: %s\n", __func__, sane_strstatus(status));
@@ -1585,12 +1586,13 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 	}
 
       DBG(DBG_info,
-          "%s: doing scan: sign: %d/%d/%d, gain: %d/%d/%d, offset: %d/%d/%d\n", __func__,
-          dev->frontend.sign[0], dev->frontend.sign[1],
-          dev->frontend.sign[2], dev->frontend.gain[0],
-          dev->frontend.gain[1], dev->frontend.gain[2],
-          dev->frontend.offset[0], dev->frontend.offset[1],
-          dev->frontend.offset[2]);
+          "%s: doing scan: gain: %d/%d/%d, offset: %d/%d/%d\n", __func__,
+          dev->frontend.get_gain(0),
+          dev->frontend.get_gain(1),
+          dev->frontend.get_gain(2),
+          dev->frontend.get_offset(0),
+          dev->frontend.get_offset(1),
+          dev->frontend.get_offset(2));
 
       status =
         dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
@@ -1697,11 +1699,13 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 	}
     }				/* for (i = 0; i < 4; i++) */
 
-  DBG(DBG_info, "%s: final: sign: %d/%d/%d, gain: %d/%d/%d, offset: %d/%d/%d\n", __func__,
-      dev->frontend.sign[0], dev->frontend.sign[1], dev->frontend.sign[2],
-      dev->frontend.gain[0], dev->frontend.gain[1], dev->frontend.gain[2],
-      dev->frontend.offset[0], dev->frontend.offset[1],
-      dev->frontend.offset[2]);
+  DBG(DBG_info, "%s: final: gain: %d/%d/%d, offset: %d/%d/%d\n", __func__,
+      dev->frontend.get_gain(0),
+      dev->frontend.get_gain(1),
+      dev->frontend.get_gain(2),
+      dev->frontend.get_offset(0),
+      dev->frontend.get_offset(1),
+      dev->frontend.get_offset(2));
   DBGCOMPLETED;
 
   return status;

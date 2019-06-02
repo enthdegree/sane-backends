@@ -786,7 +786,13 @@ gl843_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
 
   for (i = 1; i <= 3; i++)
     {
-      status = sanei_genesys_fe_write_data (dev, i, dev->frontend.reg[i]);
+        // FIXME: BUG: we should initialize dev->frontend before first use. Right now it's
+        // initialized during genesys_coarse_calibration()
+        if (dev->frontend.regs.empty()) {
+            status = sanei_genesys_fe_write_data(dev, i, 0x00);
+        } else {
+            status = sanei_genesys_fe_write_data(dev, i, dev->frontend.regs.get_value(0x00 + i));
+        }
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: writing reg[%d] failed: %s\n", __func__, i, sane_strstatus(status));
@@ -803,8 +809,12 @@ gl843_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
 
   for (i = 0; i < 3; i++)
     {
-      status =
-	sanei_genesys_fe_write_data (dev, 0x20 + i, dev->frontend.offset[i]);
+        // FIXME: BUG: see above
+        if (dev->frontend.regs.empty()) {
+            status = sanei_genesys_fe_write_data(dev, 0x20 + i, 0x00);
+        } else {
+            status = sanei_genesys_fe_write_data(dev, 0x20 + i, dev->frontend.get_offset(i));
+        }
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: writing offset[%d] failed: %s\n", __func__, i,
@@ -817,9 +827,13 @@ gl843_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
     {
       for (i = 0; i < 3; i++)
 	{
-	  status =
-	    sanei_genesys_fe_write_data (dev, 0x24 + i,
-					 dev->frontend.sign[i]);
+            // FIXME: BUG: see above
+            if (dev->frontend.regs.empty()) {
+                status = sanei_genesys_fe_write_data(dev, 0x24 + i, 0x00);
+            } else {
+                status = sanei_genesys_fe_write_data(dev, 0x24 + i,
+                                                     dev->frontend.regs.get_value(0x24 + i));
+            }
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_error, "%s: writing sign[%d] failed: %s\n", __func__, i,
@@ -831,8 +845,12 @@ gl843_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
 
   for (i = 0; i < 3; i++)
     {
-      status =
-	sanei_genesys_fe_write_data (dev, 0x28 + i, dev->frontend.gain[i]);
+        // FIXME: BUG: see above
+        if (dev->frontend.regs.empty()) {
+            status = sanei_genesys_fe_write_data(dev, 0x28 + i, 0x00);
+        } else {
+            status = sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
+        }
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: writing gain[%d] failed: %s\n", __func__, i, sane_strstatus(status));
@@ -3432,8 +3450,8 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
   for (i = 0; i < 3; i++)
     {
       bottom[i] = 10;
-      dev->frontend.offset[i] = bottom[i];
-      dev->frontend.gain[i] = 0;
+      dev->frontend.set_offset(i, bottom[i]);
+      dev->frontend.set_gain(i, 0);
     }
   RIE(gl843_set_fe(dev, calib_sensor, AFE_SET));
 
@@ -3462,7 +3480,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
   for (i = 0; i < 3; i++)
     {
       top[i] = 255;
-      dev->frontend.offset[i] = top[i];
+      dev->frontend.set_offset(i, top[i]);
     }
   RIE(gl843_set_fe(dev, calib_sensor, AFE_SET));
 
@@ -3497,7 +3515,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
 	{
 	  if (top[i] - bottom[i] > 1)
 	    {
-	      dev->frontend.offset[i] = (top[i] + bottom[i]) / 2;
+              dev->frontend.set_offset(i, (top[i] + bottom[i]) / 2);
 	    }
 	}
       RIE(gl843_set_fe(dev, calib_sensor, AFE_SET));
@@ -3514,7 +3532,9 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
           char title[100];
           snprintf(title, 100, "lines: %d pixels_per_line: %d offsets[0..2]: %d %d %d\n",
                    lines, pixels,
-                   dev->frontend.offset[0], dev->frontend.offset[1], dev->frontend.offset[2]);
+                   dev->frontend.get_offset(0),
+                   dev->frontend.get_offset(1),
+                   dev->frontend.get_offset(2));
           debug_image_info += title;
           std::copy(second_line.begin(), second_line.end(), std::back_inserter(debug_image));
           debug_image_lines += lines;
@@ -3523,7 +3543,8 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
       for (i = 0; i < 3; i++)
 	{
           avg[i] = dark_average_channel(second_line.data(), pixels, lines, channels, black_pixels, i);
-	  DBG(DBG_info, "%s: avg[%d]=%d offset=%d\n", __func__, i, avg[i], dev->frontend.offset[i]);
+          DBG(DBG_info, "%s: avg[%d]=%d offset=%d\n", __func__, i, avg[i],
+              dev->frontend.get_offset(i));
 	}
 
       /* compute new boundaries */
@@ -3532,12 +3553,12 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
 	  if (topavg[i] >= avg[i])
 	    {
 	      topavg[i] = avg[i];
-	      top[i] = dev->frontend.offset[i];
+              top[i] = dev->frontend.get_offset(i);
 	    }
 	  else
 	    {
 	      bottomavg[i] = avg[i];
-	      bottom[i] = dev->frontend.offset[i];
+              bottom[i] = dev->frontend.get_offset(i);
 	    }
 	}
     }
@@ -3550,8 +3571,10 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
                                    debug_image.data(), bpp, channels, pixels, debug_image_lines);
     }
 
-  DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__, dev->frontend.offset[0],
-      dev->frontend.offset[1], dev->frontend.offset[2]);
+  DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__,
+      dev->frontend.get_offset(0),
+      dev->frontend.get_offset(1),
+      dev->frontend.get_offset(2));
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -3715,25 +3738,28 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
 	code = 255;
       else if (code < 0)
 	code = 0;
-      dev->frontend.gain[j] = code;
+      dev->frontend.set_gain(j, code);
 
       DBG(DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__, j, max[j], gain,
           code);
     }
 
-  if (dev->model->is_cis)
-    {
-      if (dev->frontend.gain[0] > dev->frontend.gain[1])
-	dev->frontend.gain[0] = dev->frontend.gain[1];
-      if (dev->frontend.gain[0] > dev->frontend.gain[2])
-	dev->frontend.gain[0] = dev->frontend.gain[2];
-      dev->frontend.gain[2] = dev->frontend.gain[1] = dev->frontend.gain[0];
+    if (dev->model->is_cis) {
+        uint8_t gain0 = dev->frontend.get_gain(0);
+        if (gain0 > dev->frontend.get_gain(1)) {
+            gain0 = dev->frontend.get_gain(1);
+        }
+        if (gain0 > dev->frontend.get_gain(2)) {
+            gain0 = dev->frontend.get_gain(2);
+        }
+        dev->frontend.set_gain(0, gain0);
+        dev->frontend.set_gain(1, gain0);
+        dev->frontend.set_gain(2, gain0);
     }
 
-  if (channels == 1)
-    {
-      dev->frontend.gain[0] = dev->frontend.gain[1];
-      dev->frontend.gain[2] = dev->frontend.gain[1];
+    if (channels == 1) {
+        dev->frontend.set_gain(0, dev->frontend.get_gain(1));
+        dev->frontend.set_gain(2, dev->frontend.get_gain(1));
     }
 
   RIE (gl843_stop_action (dev));

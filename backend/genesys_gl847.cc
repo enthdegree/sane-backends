@@ -501,7 +501,6 @@ gl847_set_ad_fe (Genesys_Device * dev, uint8_t set)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   int i;
-  uint16_t val;
   uint8_t val8;
 
   DBGSTART;
@@ -530,15 +529,13 @@ gl847_set_ad_fe (Genesys_Device * dev, uint8_t set)
     }
 
   /* write them to analog frontend */
-  val = dev->frontend.reg[0];
-  status = sanei_genesys_fe_write_data (dev, 0x00, val);
+  status = sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to write reg0: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  val = dev->frontend.reg[1];
-  status = sanei_genesys_fe_write_data (dev, 0x01, val);
+  status = sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to write reg1: %s\n", __func__, sane_strstatus(status));
@@ -547,8 +544,7 @@ gl847_set_ad_fe (Genesys_Device * dev, uint8_t set)
 
   for (i = 0; i < 3; i++)
     {
-      val = dev->frontend.gain[i];
-      status = sanei_genesys_fe_write_data (dev, 0x02 + i, val);
+      status = sanei_genesys_fe_write_data(dev, 0x02 + i, dev->frontend.get_gain(i));
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: failed to write gain %d: %s\n", __func__, i, sane_strstatus(status));
@@ -557,8 +553,7 @@ gl847_set_ad_fe (Genesys_Device * dev, uint8_t set)
     }
   for (i = 0; i < 3; i++)
     {
-      val = dev->frontend.offset[i];
-      status = sanei_genesys_fe_write_data (dev, 0x05 + i, val);
+      status = sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.get_offset(i));
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: failed to write offset %d: %s\n", __func__, i,
@@ -3207,15 +3202,15 @@ gl847_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
   std::vector<uint8_t> second_line(total_size);
 
   /* init gain */
-  dev->frontend.gain[0] = 0;
-  dev->frontend.gain[1] = 0;
-  dev->frontend.gain[2] = 0;
+  dev->frontend.set_gain(0, 0);
+  dev->frontend.set_gain(1, 0);
+  dev->frontend.set_gain(2, 0);
 
   /* scan with no move */
   bottom = 10;
-  dev->frontend.offset[0] = bottom;
-  dev->frontend.offset[1] = bottom;
-  dev->frontend.offset[2] = bottom;
+  dev->frontend.set_offset(0, bottom);
+  dev->frontend.set_offset(1, bottom);
+  dev->frontend.set_offset(2, bottom);
 
   RIE(gl847_set_fe(dev, sensor, AFE_SET));
   RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
@@ -3234,9 +3229,9 @@ gl847_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   /* now top value */
   top = 255;
-  dev->frontend.offset[0] = top;
-  dev->frontend.offset[1] = top;
-  dev->frontend.offset[2] = top;
+  dev->frontend.set_offset(0, top);
+  dev->frontend.set_offset(1, top);
+  dev->frontend.set_offset(2, top);
   RIE(gl847_set_fe(dev, sensor, AFE_SET));
   RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
@@ -3252,9 +3247,9 @@ gl847_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
       pass++;
 
       /* settings for new scan */
-      dev->frontend.offset[0] = (top + bottom) / 2;
-      dev->frontend.offset[1] = (top + bottom) / 2;
-      dev->frontend.offset[2] = (top + bottom) / 2;
+      dev->frontend.set_offset(0, (top + bottom) / 2);
+      dev->frontend.set_offset(1, (top + bottom) / 2);
+      dev->frontend.set_offset(2, (top + bottom) / 2);
 
       /* scan with no move */
       RIE(gl847_set_fe(dev, sensor, AFE_SET));
@@ -3266,27 +3261,29 @@ gl847_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
       if (DBG_LEVEL >= DBG_data)
 	{
           char fn[30];
-          snprintf(fn, 30, "gl847_offset%03d.pnm", dev->frontend.offset[1]);
+          snprintf(fn, 30, "gl847_offset%03d.pnm", dev->frontend.get_offset(1));
           sanei_genesys_write_pnm_file(fn, second_line.data(), bpp, channels, pixels, lines);
 	}
 
       avg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
-      DBG(DBG_info, "%s: avg=%d offset=%d\n", __func__, avg, dev->frontend.offset[1]);
+      DBG(DBG_info, "%s: avg=%d offset=%d\n", __func__, avg, dev->frontend.get_offset(1));
 
       /* compute new boundaries */
       if (topavg == avg)
 	{
 	  topavg = avg;
-	  top = dev->frontend.offset[1];
+          top = dev->frontend.get_offset(1);
 	}
       else
 	{
 	  bottomavg = avg;
-	  bottom = dev->frontend.offset[1];
+          bottom = dev->frontend.get_offset(1);
 	}
     }
-  DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__, dev->frontend.offset[0],
-      dev->frontend.offset[1], dev->frontend.offset[2]);
+  DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__,
+      dev->frontend.get_offset(0),
+      dev->frontend.get_offset(1),
+      dev->frontend.get_offset(2));
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -3408,25 +3405,28 @@ gl847_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
 	code = 255;
       else if (code < 0)
 	code = 0;
-      dev->frontend.gain[j] = code;
+      dev->frontend.set_gain(j, code);
 
       DBG(DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__, j, max[j], gain[j],
-          dev->frontend.gain[j]);
+          dev->frontend.get_gain(j));
     }
 
-  if (dev->model->is_cis)
-    {
-      if (dev->frontend.gain[0] > dev->frontend.gain[1])
-	dev->frontend.gain[0] = dev->frontend.gain[1];
-      if (dev->frontend.gain[0] > dev->frontend.gain[2])
-	dev->frontend.gain[0] = dev->frontend.gain[2];
-      dev->frontend.gain[2] = dev->frontend.gain[1] = dev->frontend.gain[0];
+    if (dev->model->is_cis) {
+        uint8_t gain0 = dev->frontend.get_gain(0);
+        if (gain0 > dev->frontend.get_gain(1)) {
+            gain0 = dev->frontend.get_gain(1);
+        }
+        if (gain0 > dev->frontend.get_gain(2)) {
+            gain0 = dev->frontend.get_gain(2);
+        }
+        dev->frontend.set_gain(0, gain0);
+        dev->frontend.set_gain(1, gain0);
+        dev->frontend.set_gain(2, gain0);
     }
 
-  if (channels == 1)
-    {
-      dev->frontend.gain[0] = dev->frontend.gain[1];
-      dev->frontend.gain[2] = dev->frontend.gain[1];
+    if (channels == 1) {
+        dev->frontend.set_gain(0, dev->frontend.get_gain(1));
+        dev->frontend.set_gain(2, dev->frontend.get_gain(1));
     }
 
   RIE (gl847_stop_action (dev));

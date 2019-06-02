@@ -1369,7 +1369,6 @@ gl646_set_ad_fe (Genesys_Device * dev, uint8_t set)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   int i;
-  uint16_t val;
 
   DBG(DBG_proc, "%s(): start\n", __func__);
   if (set == AFE_INIT)
@@ -1379,15 +1378,13 @@ gl646_set_ad_fe (Genesys_Device * dev, uint8_t set)
       dev->frontend = dev->frontend_initial;
 
       /* write them to analog frontend */
-      val = dev->frontend.reg[0];
-      status = sanei_genesys_fe_write_data (dev, 0x00, val);
+      status = sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: failed to write reg0: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
-      val = dev->frontend.reg[1];
-      status = sanei_genesys_fe_write_data (dev, 0x01, val);
+      status = sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: failed to write reg1: %s\n", __func__, sane_strstatus(status));
@@ -1398,8 +1395,7 @@ gl646_set_ad_fe (Genesys_Device * dev, uint8_t set)
     {
       for (i = 0; i < 3; i++)
 	{
-	  val = dev->frontend.gain[i];
-	  status = sanei_genesys_fe_write_data (dev, 0x02 + i, val);
+          status = sanei_genesys_fe_write_data(dev, 0x02 + i, dev->frontend.get_gain(i));
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_error, "%s: failed to write gain %d: %s\n", __func__, i,
@@ -1409,8 +1405,7 @@ gl646_set_ad_fe (Genesys_Device * dev, uint8_t set)
 	}
       for (i = 0; i < 3; i++)
 	{
-	  val = dev->frontend.offset[i];
-	  status = sanei_genesys_fe_write_data (dev, 0x05 + i, val);
+          status = sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.get_offset(i));
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_error, "%s: failed to write offset %d: %s\n", __func__, i,
@@ -1461,13 +1456,13 @@ gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set,
       sanei_genesys_sleep_ms(200);
       RIE (sanei_genesys_write_register (dev, 0x50, 0x00));
       dev->frontend = dev->frontend_initial;
-      status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
+      status = sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: writing reg1 failed: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
-      status = sanei_genesys_fe_write_data (dev, 0x02, dev->frontend.reg[2]);
+      status = sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.regs.get_value(0x02));
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: writing reg2 failed: %s\n", __func__, sane_strstatus(status));
@@ -1497,7 +1492,7 @@ gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set,
       break;
     default:			/* AFE_SET */
       /* mode setup */
-      i = dev->frontend.reg[3];
+      i = dev->frontend.regs.get_value(0x03);
       if (dpi > sensor.optical_res / 2)
 	{
 	  /* fe_reg_0x03 must be 0x12 for 1200 dpi in DAC_WOLFSON_HP3670.
@@ -1515,15 +1510,15 @@ gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set,
       for (i = 0; i < 3; i++)
 	{
 	  status =
-	    sanei_genesys_fe_write_data (dev, 0x20 + i,
-					 dev->frontend.offset[i]);
+            sanei_genesys_fe_write_data(dev, 0x20 + i, dev->frontend.get_offset(i));
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_error, "%s: writing offset%d failed: %s\n", __func__, i,
 		  sane_strstatus (status));
 	      return status;
 	    }
-	  status = sanei_genesys_fe_write_data (dev, 0x24 + i, dev->frontend.sign[i]);	/* MSB/LSB ? */
+          status = sanei_genesys_fe_write_data(dev, 0x24 + i,
+                                               dev->frontend.regs.get_value(0x24 + i));	/* MSB/LSB ? */
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_error, "%s: writing sign%d failed: %s\n", __func__, i,
@@ -1536,8 +1531,7 @@ gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set,
       for (i = 0; i < 3; i++)
 	{
 	  status =
-	    sanei_genesys_fe_write_data (dev, 0x28 + i,
-					 dev->frontend.gain[i]);
+            sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_error, "%s: writing gain%d failed: %s\n", __func__, i,
@@ -1635,13 +1629,13 @@ gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, in
      && dev->model->ccd_type != CCD_HP3670
      && dev->model->ccd_type != CCD_HP2400) */
   {
-    status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
+    status = sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
     if (status != SANE_STATUS_GOOD)
       {
         DBG(DBG_error, "%s: writing reg0 failed: %s\n", __func__, sane_strstatus(status));
 	return status;
       }
-    status = sanei_genesys_fe_write_data (dev, 0x02, dev->frontend.reg[2]);
+    status = sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.regs.get_value(0x02));
     if (status != SANE_STATUS_GOOD)
       {
         DBG(DBG_error, "%s: writing reg2 failed: %s\n", __func__, sane_strstatus(status));
@@ -1650,7 +1644,7 @@ gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, in
   }
 
   /* start with reg3 */
-  status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.reg[3]);
+  status = sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x03));
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: writing reg3 failed: %s\n", __func__, sane_strstatus(status));
@@ -1663,8 +1657,8 @@ gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, in
       for (i = 0; i < 3; i++)
 	{
 	  status =
-	    sanei_genesys_fe_write_data (dev, 0x24 + i,
-					 dev->frontend.sign[i]);
+            sanei_genesys_fe_write_data(dev, 0x24 + i,
+                                         dev->frontend.regs.get_value(0x24 + i));
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_error, "%s: writing sign[%d] failed: %s\n", __func__, i,
@@ -1673,8 +1667,7 @@ gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, in
 	    }
 
 	  status =
-	    sanei_genesys_fe_write_data (dev, 0x28 + i,
-					 dev->frontend.gain[i]);
+            sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_error, "%s: writing gain[%d] failed: %s\n", __func__, i,
@@ -1683,8 +1676,7 @@ gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, in
 	    }
 
 	  status =
-	    sanei_genesys_fe_write_data (dev, 0x20 + i,
-					 dev->frontend.offset[i]);
+            sanei_genesys_fe_write_data(dev, 0x20 + i, dev->frontend.get_offset(i));
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_error, "%s: writing offset[%d] failed: %s\n", __func__, i,
@@ -1699,13 +1691,13 @@ gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, in
          case CCD_HP3670:
 
          status =
-         sanei_genesys_fe_write_data (dev, 0x23, dev->frontend.offset[1]);
+         sanei_genesys_fe_write_data(dev, 0x23, dev->frontend.get_offset(1));
          if (status != SANE_STATUS_GOOD)
          {
          DBG(DBG_error, "%s: writing offset[1] failed: %s\n", __func__, sane_strstatus(status));
          return status;
          }
-         status = sanei_genesys_fe_write_data (dev, 0x28, dev->frontend.gain[1]);
+         status = sanei_genesys_fe_write_data(dev, 0x28, dev->frontend.get_gain(1));
          if (status != SANE_STATUS_GOOD)
          {
          DBG(DBG_error, "%s: writing gain[1] failed: %s\n", __func__, sane_strstatus (status));
@@ -1715,7 +1707,7 @@ gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, in
     }
 
   /* end with reg1 */
-  status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
+  status = sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: writing reg1 failed: %s\n", __func__, sane_strstatus(status));
@@ -3366,9 +3358,9 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
   settings.dynamic_lineart = SANE_FALSE;
 
   /* scan first line of data with no gain */
-  dev->frontend.gain[0] = 0;
-  dev->frontend.gain[1] = 0;
-  dev->frontend.gain[2] = 0;
+  dev->frontend.set_gain(0, 0);
+  dev->frontend.set_gain(1, 0);
+  dev->frontend.set_gain(2, 0);
 
   std::vector<uint8_t> line;
 
@@ -3377,9 +3369,9 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
   do
     {
       pass++;
-      dev->frontend.offset[0] = bottom;
-      dev->frontend.offset[1] = bottom;
-      dev->frontend.offset[2] = bottom;
+      dev->frontend.set_offset(0, bottom);
+      dev->frontend.set_offset(1, bottom);
+      dev->frontend.set_offset(2, bottom);
       status =
         simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, line);
       if (status != SANE_STATUS_GOOD)
@@ -3420,8 +3412,10 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
       return SANE_STATUS_INVAL;
     }
 
-  DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__, dev->frontend.offset[0],
-      dev->frontend.offset[1], dev->frontend.offset[2]);
+  DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__,
+      dev->frontend.get_offset(0),
+      dev->frontend.get_offset(1),
+      dev->frontend.get_offset(2));
   DBG(DBG_proc, "%s: end\n", __func__);
   return status;
 }
@@ -3492,15 +3486,15 @@ gl646_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   /* scan first line of data with no gain, but with offset from
    * last calibration */
-  dev->frontend.gain[0] = 0;
-  dev->frontend.gain[1] = 0;
-  dev->frontend.gain[2] = 0;
+  dev->frontend.set_gain(0, 0);
+  dev->frontend.set_gain(1, 0);
+  dev->frontend.set_gain(2, 0);
 
   /* scan with no move */
   bottom = 90;
-  dev->frontend.offset[0] = bottom;
-  dev->frontend.offset[1] = bottom;
-  dev->frontend.offset[2] = bottom;
+  dev->frontend.set_offset(0, bottom);
+  dev->frontend.set_offset(1, bottom);
+  dev->frontend.set_offset(2, bottom);
 
   std::vector<uint8_t> first_line, second_line;
 
@@ -3523,9 +3517,9 @@ gl646_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   /* now top value */
   top = 231;
-  dev->frontend.offset[0] = top;
-  dev->frontend.offset[1] = top;
-  dev->frontend.offset[2] = top;
+  dev->frontend.set_offset(0, top);
+  dev->frontend.set_offset(1, top);
+  dev->frontend.set_offset(2, top);
   status = simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, second_line);
   if (status != SANE_STATUS_GOOD)
     {
@@ -3550,9 +3544,9 @@ gl646_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
       pass++;
 
       /* settings for new scan */
-      dev->frontend.offset[0] = (top + bottom) / 2;
-      dev->frontend.offset[1] = (top + bottom) / 2;
-      dev->frontend.offset[2] = (top + bottom) / 2;
+      dev->frontend.set_offset(0, (top + bottom) / 2);
+      dev->frontend.set_offset(1, (top + bottom) / 2);
+      dev->frontend.set_offset(2, (top + bottom) / 2);
 
       /* scan with no move */
       status = simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, second_line);
@@ -3565,7 +3559,7 @@ gl646_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
       if (DBG_LEVEL >= DBG_data)
 	{
           char title[30];
-          snprintf(title, 30, "gl646_offset%03d.pnm", dev->frontend.offset[1]);
+          snprintf(title, 30, "gl646_offset%03d.pnm", dev->frontend.get_offset(1));
           sanei_genesys_write_pnm_file (title, second_line.data(), 8, channels,
 					settings.pixels, settings.lines);
 	}
@@ -3573,18 +3567,18 @@ gl646_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
       avg =
         dark_average (second_line.data(), settings.pixels, settings.lines, channels,
 		      black_pixels);
-      DBG(DBG_info, "%s: avg=%d offset=%d\n", __func__, avg, dev->frontend.offset[1]);
+      DBG(DBG_info, "%s: avg=%d offset=%d\n", __func__, avg, dev->frontend.get_offset(1));
 
       /* compute new boundaries */
       if (topavg == avg)
 	{
 	  topavg = avg;
-	  top = dev->frontend.offset[1];
+          top = dev->frontend.get_offset(1);
 	}
       else
 	{
 	  bottomavg = avg;
-	  bottom = dev->frontend.offset[1];
+          bottom = dev->frontend.get_offset(1);
 	}
     }
 
@@ -3601,8 +3595,10 @@ gl646_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
                                    settings.pixels, settings.lines);
     }
 
-  DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__, dev->frontend.offset[0],
-      dev->frontend.offset[1], dev->frontend.offset[2]);
+  DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__,
+      dev->frontend.get_offset(0),
+      dev->frontend.get_offset(1),
+      dev->frontend.get_offset(2));
   DBG(DBG_proc, "%s: end\n", __func__);
   return status;
 }
@@ -3647,9 +3643,9 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
   size = channels * settings.pixels * settings.lines;
 
   /* start gain value */
-  dev->frontend.gain[0] = 1;
-  dev->frontend.gain[1] = 1;
-  dev->frontend.gain[2] = 1;
+  dev->frontend.set_gain(0, 1);
+  dev->frontend.set_gain(1, 1);
+  dev->frontend.set_gain(2, 1);
 
   average = 0;
   pass = 0;
@@ -3688,17 +3684,23 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
 	}
       average = average / count;
 
-      /* adjusts gain for the channel */
-      if (average < sensor.gain_white_ref)
-	dev->frontend.gain[0]++;
-      dev->frontend.gain[1] = dev->frontend.gain[0];
-      dev->frontend.gain[2] = dev->frontend.gain[0];
+        uint8_t gain0 = dev->frontend.get_gain(0);
+        // adjusts gain for the channel
+        if (average < sensor.gain_white_ref) {
+            gain0 += 1;
+        }
 
-      DBG(DBG_proc, "%s: average = %.2f, gain = %d\n", __func__, average, dev->frontend.gain[0]);
+        dev->frontend.set_gain(0, gain0);
+        dev->frontend.set_gain(1, gain0);
+        dev->frontend.set_gain(2, gain0);
+
+      DBG(DBG_proc, "%s: average = %.2f, gain = %d\n", __func__, average, gain0);
     }
 
-  DBG(DBG_info, "%s: gains=(%d,%d,%d)\n", __func__, dev->frontend.gain[0], dev->frontend.gain[1],
-      dev->frontend.gain[2]);
+  DBG(DBG_info, "%s: gains=(%d,%d,%d)\n", __func__,
+      dev->frontend.get_gain(0),
+      dev->frontend.get_gain(1),
+      dev->frontend.get_gain(2));
   DBGCOMPLETED;
   return status;
 }
@@ -3767,9 +3769,9 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
   settings.dynamic_lineart = SANE_FALSE;
 
   /* start gain value */
-  dev->frontend.gain[0] = 1;
-  dev->frontend.gain[1] = 1;
-  dev->frontend.gain[2] = 1;
+  dev->frontend.set_gain(0, 1);
+  dev->frontend.set_gain(1, 1);
+  dev->frontend.set_gain(2, 1);
 
   if (channels > 1)
     {
@@ -3854,21 +3856,22 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
 
 	  /* adjusts gain for the channel */
           if (average[k] < sensor.gain_white_ref)
-	    dev->frontend.gain[k]++;
+            dev->frontend.set_gain(k, dev->frontend.get_gain(k) + 1);
 
 	  DBG(DBG_proc, "%s: channel %d, average = %.2f, gain = %d\n", __func__, k, average[k],
-	      dev->frontend.gain[k]);
+              dev->frontend.get_gain(k));
 	}
     }
 
-  if (channels < 3)
-    {
-      dev->frontend.gain[1] = dev->frontend.gain[0];
-      dev->frontend.gain[2] = dev->frontend.gain[0];
+    if (channels < 3) {
+        dev->frontend.set_gain(1, dev->frontend.get_gain(0));
+        dev->frontend.set_gain(2, dev->frontend.get_gain(0));
     }
 
-  DBG(DBG_info, "%s: gains=(%d,%d,%d)\n", __func__, dev->frontend.gain[0], dev->frontend.gain[1],
-      dev->frontend.gain[2]);
+  DBG(DBG_info, "%s: gains=(%d,%d,%d)\n", __func__,
+      dev->frontend.get_gain(0),
+      dev->frontend.get_gain(1),
+      dev->frontend.get_gain(2));
   DBGCOMPLETED;
   return status;
 }

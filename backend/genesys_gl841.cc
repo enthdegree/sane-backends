@@ -829,19 +829,19 @@ gl841_set_lide80_fe (Genesys_Device * dev, uint8_t set)
       dev->frontend = dev->frontend_initial;
 
       /* write them to analog frontend */
-      status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
+      status = sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: writing reg 0x00 failed: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
-      status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.reg[1]);
+      status = sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x01));
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: writing reg 0x03 failed: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
-      status = sanei_genesys_fe_write_data (dev, 0x06, dev->frontend.reg[2]);
+      status = sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.regs.get_value(0x02));
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: writing reg 0x06 failed: %s\n", __func__, sane_strstatus(status));
@@ -851,19 +851,19 @@ gl841_set_lide80_fe (Genesys_Device * dev, uint8_t set)
 
   if (set == AFE_SET)
     {
-      status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
+      status = sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: writing reg 0x00 failed: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
-      status = sanei_genesys_fe_write_data (dev, 0x06, dev->frontend.offset[0]);
+      status = sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.regs.get_value(0x20));
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: writing offset failed: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
-      status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.gain[0]);
+      status = sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x28));
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: writing gain failed: %s\n", __func__, sane_strstatus(status));
@@ -896,14 +896,14 @@ gl841_set_ad_fe (Genesys_Device * dev, uint8_t set)
       dev->frontend = dev->frontend_initial;
 
       /* write them to analog frontend */
-      status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
+      status = sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
       if (status != SANE_STATUS_GOOD)
             {
         DBG(DBG_error, "%s: writing reg 0x00 failed: %s\n", __func__, sane_strstatus(status));
       	return status;
             }
 
-      status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
+      status = sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
       if (status != SANE_STATUS_GOOD)
             {
         DBG(DBG_error, "%s: writing reg 0x01 failed: %s\n", __func__, sane_strstatus(status));
@@ -925,14 +925,14 @@ gl841_set_ad_fe (Genesys_Device * dev, uint8_t set)
   if (set == AFE_SET)
     {
       /* write them to analog frontend */
-      status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
+      status = sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
       if (status != SANE_STATUS_GOOD)
             {
         DBG(DBG_error, "%s: writing reg 0x00 failed: %s\n", __func__, sane_strstatus(status));
       	return status;
             }
 
-      status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
+      status = sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
       if (status != SANE_STATUS_GOOD)
             {
         DBG(DBG_error, "%s: writing reg 0x01 failed: %s\n", __func__, sane_strstatus(status));
@@ -940,7 +940,7 @@ gl841_set_ad_fe (Genesys_Device * dev, uint8_t set)
             }
 
       /* Write fe 0x02 (red gain)*/
-      status = sanei_genesys_fe_write_data (dev, 0x02, dev->frontend.gain[0]);
+      status = sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.get_gain(0));
       if (status != SANE_STATUS_GOOD)
             {
         DBG(DBG_error, "%s: writing fe 0x02 (gain r) fail: %s\n", __func__, sane_strstatus(status));
@@ -948,7 +948,7 @@ gl841_set_ad_fe (Genesys_Device * dev, uint8_t set)
             }
 
       /* Write fe 0x03 (green gain)*/
-      status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.gain[1]);
+      status = sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.get_gain(1));
       if (status != SANE_STATUS_GOOD)
             {
         DBG(DBG_error, "%s: writing fe 0x03 (gain g) fail: %s\n", __func__, sane_strstatus(status));
@@ -956,7 +956,7 @@ gl841_set_ad_fe (Genesys_Device * dev, uint8_t set)
             }
 
       /* Write fe 0x04 (blue gain)*/
-      status = sanei_genesys_fe_write_data (dev, 0x04, dev->frontend.gain[2]);
+      status = sanei_genesys_fe_write_data(dev, 0x04, dev->frontend.get_gain(2));
       if (status != SANE_STATUS_GOOD)
             {
         DBG(DBG_error, "%s: writing fe 0x04 (gain b) fail: %s\n", __func__, sane_strstatus(status));
@@ -965,7 +965,7 @@ gl841_set_ad_fe (Genesys_Device * dev, uint8_t set)
 
       /* Write fe 0x05 (red offset)*/
       status =
-    	  sanei_genesys_fe_write_data (dev, 0x05, dev->frontend.offset[0]);
+          sanei_genesys_fe_write_data(dev, 0x05, dev->frontend.get_offset(0));
       if (status != SANE_STATUS_GOOD)
             {
         DBG(DBG_error, "%s: write fe 0x05 (offset r) fail: %s\n", __func__, sane_strstatus(status));
@@ -974,7 +974,7 @@ gl841_set_ad_fe (Genesys_Device * dev, uint8_t set)
 
       /* Write fe 0x06 (green offset)*/
       status =
-    	  sanei_genesys_fe_write_data (dev, 0x06, dev->frontend.offset[1]);
+          sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.get_offset(1));
       if (status != SANE_STATUS_GOOD)
             {
         DBG(DBG_error, "%s: write fe 0x06 (offset g) fail: %s\n", __func__, sane_strstatus(status));
@@ -983,7 +983,7 @@ gl841_set_ad_fe (Genesys_Device * dev, uint8_t set)
 
       /* Write fe 0x07 (blue offset)*/
       status =
-    	  sanei_genesys_fe_write_data (dev, 0x07, dev->frontend.offset[2]);
+          sanei_genesys_fe_write_data(dev, 0x07, dev->frontend.get_offset(2));
       if (status != SANE_STATUS_GOOD)
             {
         DBG(DBG_error, "%s: write fe 0x07 (offset b) fail: %s\n", __func__, sane_strstatus(status));
@@ -1064,13 +1064,13 @@ gl841_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
   /*if (dev->model->ccd_type!=CCD_HP2300 && dev->model->ccd_type!=CCD_HP2400) */
   {
 
-    status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
+    status = sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
     if (status != SANE_STATUS_GOOD)
       {
         DBG(DBG_error, "%s: writing reg0 failed: %s\n", __func__, sane_strstatus(status));
 	return status;
       }
-    status = sanei_genesys_fe_write_data (dev, 0x02, dev->frontend.reg[2]);
+    status = sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.regs.get_value(0x02));
     if (status != SANE_STATUS_GOOD)
       {
         DBG(DBG_error, "%s: writing reg2 failed: %s\n", __func__, sane_strstatus(status));
@@ -1078,14 +1078,14 @@ gl841_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
       }
   }
 
-  status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
+  status = sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: writing reg1 failed: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-  status = sanei_genesys_fe_write_data (dev, 0x03, dev->frontend.reg[3]);
+  status = sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x03));
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: writing reg3 failed: %s\n", __func__, sane_strstatus(status));
@@ -1116,7 +1116,7 @@ gl841_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
   for (i = 0; i < 3; i++)
       {
 	status =
-	  sanei_genesys_fe_write_data (dev, 0x24 + i, dev->frontend.sign[i]);
+          sanei_genesys_fe_write_data(dev, 0x24 + i, dev->frontend.regs.get_value(0x24 + i));
 	if (status != SANE_STATUS_GOOD)
 	  {
 	    DBG(DBG_error, "%s: writing sign[%d] failed: %s\n", __func__, i,
@@ -1125,7 +1125,7 @@ gl841_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
 	  }
 
 	status =
-	  sanei_genesys_fe_write_data (dev, 0x28 + i, dev->frontend.gain[i]);
+          sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
 	if (status != SANE_STATUS_GOOD)
 	  {
 	    DBG(DBG_error, "%s: writing gain[%d] failed: %s\n", __func__, i,
@@ -1134,8 +1134,8 @@ gl841_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
 	  }
 
 	status =
-	  sanei_genesys_fe_write_data (dev, 0x20 + i,
-				       dev->frontend.offset[i]);
+          sanei_genesys_fe_write_data(dev, 0x20 + i,
+                                       dev->frontend.get_offset(i));
 	if (status != SANE_STATUS_GOOD)
 	  {
 	    DBG(DBG_error, "%s: writing offset[%d] failed: %s\n", __func__, i,
@@ -4299,9 +4299,9 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   std::vector<uint8_t> line(total_size);
 
-  dev->frontend.gain[0] = 0x00;
-  dev->frontend.gain[1] = 0x00;
-  dev->frontend.gain[2] = 0x00;
+  dev->frontend.set_gain(0, 0);
+  dev->frontend.set_gain(1, 0);
+  dev->frontend.set_gain(2, 0);
 
   /* loop on scan until target offset is reached */
   turn=0;
@@ -4310,9 +4310,9 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
   top=255;
   do {
       /* set up offset mid range */
-      dev->frontend.offset[0] = (top+bottom)/2;
-      dev->frontend.offset[1] = (top+bottom)/2;
-      dev->frontend.offset[2] = (top+bottom)/2;
+      dev->frontend.set_offset(0, (top + bottom) / 2);
+      dev->frontend.set_offset(1, (top + bottom) / 2);
+      dev->frontend.set_offset(2, (top + bottom) / 2);
 
       /* scan line */
       DBG(DBG_info, "%s: starting line reading\n", __func__);
@@ -4349,11 +4349,14 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
       turn++;
   } while ((top-bottom)>1 && turn < 100);
 
-  dev->frontend.offset[0]=0;
-  dev->frontend.offset[1]=0;
-  dev->frontend.offset[2]=0;
-  DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__, dev->frontend.offset[0],
-      dev->frontend.offset[1], dev->frontend.offset[2]);
+  // FIXME: don't overwrite the calibrated values
+  dev->frontend.set_offset(0, 0);
+  dev->frontend.set_offset(1, 0);
+  dev->frontend.set_offset(2, 0);
+  DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__,
+      dev->frontend.get_offset(0),
+      dev->frontend.get_offset(1),
+      dev->frontend.get_offset(2));
   DBGCOMPLETED;
   return status;
 }
@@ -4443,9 +4446,9 @@ gl841_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
  * signal").
  *
  */
-  dev->frontend.gain[0] = 0x00;
-  dev->frontend.gain[1] = 0x00;
-  dev->frontend.gain[2] = 0x00;
+  dev->frontend.set_gain(0, 0);
+  dev->frontend.set_gain(1, 0);
+  dev->frontend.set_gain(2, 0);
   offh[0] = 0xff;
   offh[1] = 0xff;
   offh[2] = 0xff;
@@ -4460,7 +4463,7 @@ gl841_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
       for (j=0; j < channels; j++) {
 	  off[j] = (offh[j]+offl[j])/2;
-	  dev->frontend.offset[j] = off[j];
+          dev->frontend.set_offset(j, off[j]);
       }
 
       status = gl841_set_fe(dev, sensor, AFE_SET);
@@ -4573,7 +4576,7 @@ gl841_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
       for (j=0; j < channels; j++) {
 	  off[j] = (offh[j]+offl[j])/2;
-	  dev->frontend.offset[j] = off[j];
+          dev->frontend.set_offset(j, off[j]);
       }
 
       status = gl841_set_fe(dev, sensor, AFE_SET);
@@ -4711,7 +4714,7 @@ gl841_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 	  off[j] = 255;
       if (off[j] < 0)
 	  off[j] = 0;
-      dev->frontend.offset[j] = off[j];
+      dev->frontend.set_offset(j, off[j]);
   }
 
   DBG(DBG_info, "%s: final offsets: %d,%d,%d\n", __func__, off[0], off[1], off[2]);
@@ -4721,15 +4724,15 @@ gl841_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 	  off[0] = off[1];
       if (off[0] < off[2])
 	  off[0] = off[2];
-      dev->frontend.offset[0] = off[0];
-      dev->frontend.offset[1] = off[0];
-      dev->frontend.offset[2] = off[0];
+      dev->frontend.set_offset(0, off[0]);
+      dev->frontend.set_offset(1, off[0]);
+      dev->frontend.set_offset(2, off[0]);
   }
 
   if (channels == 1)
     {
-      dev->frontend.offset[1] = dev->frontend.offset[0];
-      dev->frontend.offset[2] = dev->frontend.offset[0];
+      dev->frontend.set_offset(1, dev->frontend.get_offset(0));
+      dev->frontend.set_offset(2, dev->frontend.get_offset(0));
     }
 
   DBG(DBG_proc, "%s: completed\n", __func__);
@@ -4839,25 +4842,28 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
 
       gain[j] = 65535.0/max[j];
 
+      uint8_t out_gain = 0;
+
       if (dev->model->dac_type == DAC_CANONLIDE35 ||
 	  dev->model->dac_type == DAC_WOLFSON_XP300 ||
 	  dev->model->dac_type == DAC_WOLFSON_DSM600)
         {
 	  gain[j] *= 0.69;/*seems we don't get the real maximum. empirically derived*/
 	  if (283 - 208/gain[j] > 255)
-	      dev->frontend.gain[j] = 255;
+              out_gain = 255;
 	  else if (283 - 208/gain[j] < 0)
-	      dev->frontend.gain[j] = 0;
+              out_gain = 0;
 	  else
-	      dev->frontend.gain[j] = 283 - 208/gain[j];
+              out_gain = 283 - 208/gain[j];
         }
       else if (dev->model->dac_type == DAC_CANONLIDE80)
         {
-	      dev->frontend.gain[j] = gain[j]*12;
+              out_gain = gain[j]*12;
         }
+      dev->frontend.set_gain(j, out_gain);
 
       DBG(DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__, j, max[j], gain[j],
-          dev->frontend.gain[j]);
+          out_gain);
     }
 
   for (j = 0; j < channels; j++)
@@ -4882,22 +4888,28 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
 
     }
 
-  if (dev->model->is_cis) {
-      if (dev->frontend.gain[0] > dev->frontend.gain[1])
-	  dev->frontend.gain[0] = dev->frontend.gain[1];
-      if (dev->frontend.gain[0] > dev->frontend.gain[2])
-	  dev->frontend.gain[0] = dev->frontend.gain[2];
-      dev->frontend.gain[2] = dev->frontend.gain[1] = dev->frontend.gain[0];
-  }
+    if (dev->model->is_cis) {
+        uint8_t gain0 = dev->frontend.get_gain(0);
+        if (gain0 > dev->frontend.get_gain(1)) {
+            gain0 = dev->frontend.get_gain(1);
+        }
+        if (gain0 > dev->frontend.get_gain(2)) {
+            gain0 = dev->frontend.get_gain(2);
+        }
+        dev->frontend.set_gain(0, gain0);
+        dev->frontend.set_gain(1, gain0);
+        dev->frontend.set_gain(2, gain0);
+    }
 
-  if (channels == 1)
-  {
-      dev->frontend.gain[0] = dev->frontend.gain[1];
-      dev->frontend.gain[2] = dev->frontend.gain[1];
-  }
+    if (channels == 1) {
+        dev->frontend.set_gain(0, dev->frontend.get_gain(1));
+        dev->frontend.set_gain(2, dev->frontend.get_gain(1));
+    }
 
-  DBG(DBG_info, "%s: gain=(%d,%d,%d)\n", __func__, dev->frontend.gain[0], dev->frontend.gain[1],
-      dev->frontend.gain[2]);
+  DBG(DBG_info, "%s: gain=(%d,%d,%d)\n", __func__,
+      dev->frontend.get_gain(0),
+      dev->frontend.get_gain(1),
+      dev->frontend.get_gain(2));
 
   RIE (gl841_stop_action (dev));
 
@@ -4925,12 +4937,12 @@ gl841_init_regs_for_warmup (Genesys_Device * dev,
   *local_reg = dev->reg;
 
 /* okay.. these should be defaults stored somewhere */
-  dev->frontend.gain[0] = 0x00;
-  dev->frontend.gain[1] = 0x00;
-  dev->frontend.gain[2] = 0x00;
-  dev->frontend.offset[0] = 0x80;
-  dev->frontend.offset[1] = 0x80;
-  dev->frontend.offset[2] = 0x80;
+  dev->frontend.set_gain(0, 0);
+  dev->frontend.set_gain(1, 0);
+  dev->frontend.set_gain(2, 0);
+  dev->frontend.set_offset(0, 0x80);
+  dev->frontend.set_offset(1, 0x80);
+  dev->frontend.set_offset(2, 0x80);
 
   status = gl841_init_scan_regs (dev, sensor,
 				 local_reg,
@@ -5246,9 +5258,9 @@ gl841_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
    * since we don't have calibrated the sensor yet */
   if(!black && forward)
     {
-      dev->frontend.gain[0] = 0xff;
-      dev->frontend.gain[1] = 0xff;
-      dev->frontend.gain[2] = 0xff;
+      dev->frontend.set_gain(0, 0xff);
+      dev->frontend.set_gain(1, 0xff);
+      dev->frontend.set_gain(2, 0xff);
     }
 
   gl841_set_fe(dev, sensor, AFE_SET);

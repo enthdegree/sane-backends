@@ -586,27 +586,60 @@ struct Genesys_Gpo
     uint8_t enable[2] = { 0, 0 };
 };
 
-typedef struct
+struct Genesys_Motor_Slope
 {
-  SANE_Int maximum_start_speed; /* maximum speed allowed when accelerating from standstill. Unit: pixeltime/step */
-  SANE_Int maximum_speed;       /* maximum speed allowed. Unit: pixeltime/step */
-  SANE_Int minimum_steps;       /* number of steps used for default curve */
-  float g;                      /* power for non-linear acceleration curves. */
-/* vs*(1-i^g)+ve*(i^g) where
-   vs = start speed, ve = end speed,
-   i = 0.0 for first entry and i = 1.0 for last entry in default table*/
-} Genesys_Motor_Slope;
+    Genesys_Motor_Slope() = default;
+    Genesys_Motor_Slope(int p_maximum_start_speed, int p_maximum_speed, int p_minimum_steps,
+                        float p_g) :
+        maximum_start_speed(p_maximum_start_speed),
+        maximum_speed(p_maximum_speed),
+        minimum_steps(p_minimum_steps),
+        g(p_g)
+    {}
+
+    // maximum speed allowed when accelerating from standstill. Unit: pixeltime/step
+    int maximum_start_speed = 0;
+    // maximum speed allowed. Unit: pixeltime/step
+    int maximum_speed = 0;
+    // number of steps used for default curve
+    int minimum_steps = 0;
+
+    /*  power for non-linear acceleration curves.
+        vs*(1-i^g)+ve*(i^g) where
+        vs = start speed, ve = end speed,
+        i = 0.0 for first entry and i = 1.0 for last entry in default table
+    */
+    float g = 0;
+};
 
 
-typedef struct
+struct Genesys_Motor
 {
-  uint8_t motor_id;	         /**< id of the motor description */
-  SANE_Int base_ydpi;		 /* motor base steps. Unit: 1/" */
-  SANE_Int optical_ydpi;	 /* maximum resolution in y-direction. Unit: 1/"  */
-  SANE_Int max_step_type;        /* maximum step type. 0-2 */
-  SANE_Int power_mode_count;        /* number of power modes*/
-  Genesys_Motor_Slope slopes[2][3]; /* slopes to derive individual slopes from */
-} Genesys_Motor;
+    Genesys_Motor() = default;
+    Genesys_Motor(uint8_t p_motor_id, int p_base_ydpi, int p_optical_ydpi, int p_max_step_type,
+                  int p_power_mode_count,
+                  const std::vector<std::vector<Genesys_Motor_Slope>>& p_slopes) :
+        motor_id(p_motor_id),
+        base_ydpi(p_base_ydpi),
+        optical_ydpi(p_optical_ydpi),
+        max_step_type(p_max_step_type),
+        power_mode_count(p_power_mode_count),
+        slopes(p_slopes)
+    {}
+
+    // id of the motor description
+    uint8_t motor_id = 0;
+    // motor base steps. Unit: 1/inch
+    int base_ydpi = 0;
+    // maximum resolution in y-direction. Unit: 1/inch
+    int optical_ydpi = 0;
+    // maximum step type. 0-2
+    int max_step_type = 0;
+    // number of power modes
+    int power_mode_count = 0;
+    // slopes to derive individual slopes from
+    std::vector<std::vector<Genesys_Motor_Slope>> slopes;
+};
 
 typedef enum Genesys_Color_Order
 {
@@ -1191,7 +1224,7 @@ struct Genesys_Device
     Genesys_Frontend frontend = {};
     Genesys_Sensor sensor;
     Genesys_Gpo gpo = {};
-    Genesys_Motor motor = {};
+    Genesys_Motor motor;
     uint16_t slope_table0[256] = {};
     uint16_t slope_table1[256] = {};
     uint8_t  control[6] = {};

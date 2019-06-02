@@ -192,7 +192,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
     {
       if (dev->model->motor_type == Motor[i].motor_id)
 	{
-	  memcpy (&dev->motor, &Motor[i], sizeof (Genesys_Motor));
+          dev->motor = Motor[i];
 	  motor_ok = 1;
 	}
     }

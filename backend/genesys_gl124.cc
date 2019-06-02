@@ -559,8 +559,7 @@ gl124_set_ti_fe (Genesys_Device * dev, uint8_t set)
     {
       DBG (DBG_proc, "%s: setting DAC %u\n", __func__, dev->model->dac_type);
 
-      /* sets to default values */
-      sanei_genesys_init_fe (dev);
+      dev->frontend = dev->frontend_initial;
     }
 
   /* start writing to DAC */
@@ -642,7 +641,7 @@ gl124_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
   if (set == AFE_INIT)
     {
       DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
-      sanei_genesys_init_fe (dev);
+      dev->frontend = dev->frontend_initial;
     }
 
   RIE (sanei_genesys_read_register (dev, REG0A, &val));

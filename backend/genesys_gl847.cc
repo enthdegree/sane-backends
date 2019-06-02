@@ -518,8 +518,7 @@ gl847_set_ad_fe (Genesys_Device * dev, uint8_t set)
     {
       DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
 
-      /* sets to default values */
-      sanei_genesys_init_fe (dev);
+      dev->frontend = dev->frontend_initial;
     }
 
   /* reset DAC */

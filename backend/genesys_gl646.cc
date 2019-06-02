@@ -1376,8 +1376,7 @@ gl646_set_ad_fe (Genesys_Device * dev, uint8_t set)
     {
       DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
 
-      /* sets to default values */
-      sanei_genesys_init_fe (dev);
+      dev->frontend = dev->frontend_initial;
 
       /* write them to analog frontend */
       val = dev->frontend.reg[0];
@@ -1461,7 +1460,7 @@ gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set,
 	}
       sanei_genesys_sleep_ms(200);
       RIE (sanei_genesys_write_register (dev, 0x50, 0x00));
-      sanei_genesys_init_fe (dev);
+      dev->frontend = dev->frontend_initial;
       status = sanei_genesys_fe_write_data (dev, 0x01, dev->frontend.reg[1]);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -1595,7 +1594,7 @@ gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, in
   if (set == AFE_INIT)
     {
       DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
-      sanei_genesys_init_fe (dev);
+      dev->frontend = dev->frontend_initial;
 
       /* reset only done on init */
       status = sanei_genesys_fe_write_data (dev, 0x04, 0x80);
@@ -3890,7 +3889,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
 
   DBG(DBG_proc, "%s: start\n", __func__);
 
-  sanei_genesys_init_fe (dev);
+  dev->frontend = dev->frontend_initial;
 
   resolution = get_closest_resolution (dev->model->ccd_type, 300, SANE_FALSE);
 

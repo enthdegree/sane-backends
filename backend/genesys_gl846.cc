@@ -497,9 +497,7 @@ gl846_set_adi_fe (Genesys_Device * dev, uint8_t set)
   if (set == AFE_INIT)
     {
       DBG (DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
-
-      /* sets to default values */
-      sanei_genesys_init_fe (dev);
+      dev->frontend = dev->frontend_initial;
     }
 
   /* write them to analog frontend */

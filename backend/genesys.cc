@@ -218,6 +218,7 @@ void
 sanei_genesys_init_structs (Genesys_Device * dev)
 {
   unsigned int i, gpo_ok = 0, motor_ok = 0;
+    bool fe_ok = false;
 
   /* initialize the GPO data stuff */
   for (i = 0; i < sizeof (Gpo) / sizeof (Genesys_Gpo); i++)
@@ -239,10 +240,18 @@ sanei_genesys_init_structs (Genesys_Device * dev)
 	}
     }
 
+    for (i = 0; i < sizeof (Wolfson) / sizeof (Genesys_Frontend); i++) {
+        if (dev->model->dac_type == Wolfson[i].fe_id) {
+            dev->frontend_initial = Wolfson[i];
+            fe_ok = true;
+            break;
+        }
+    }
+
   /* sanity check */
-  if (motor_ok == 0 || gpo_ok == 0)
+  if (motor_ok == 0 || gpo_ok == 0 || !fe_ok)
     {
-      DBG(DBG_error0, "%s: bad description(s) for ccd/gpo/motor=%d/%d/%d\n", __func__,
+      DBG(DBG_error0, "%s: bad description(s) for fe/gpo/motor=%d/%d/%d\n", __func__,
           dev->model->ccd_type, dev->model->gpo_type, dev->model->motor_type);
     }
 
@@ -250,26 +259,6 @@ sanei_genesys_init_structs (Genesys_Device * dev)
   dev->ld_shift_r = dev->model->ld_shift_r;
   dev->ld_shift_g = dev->model->ld_shift_g;
   dev->ld_shift_b = dev->model->ld_shift_b;
-}
-
-void
-sanei_genesys_init_fe (Genesys_Device * dev)
-{
-  unsigned int i;
-
-  DBGSTART;
-  for (i = 0; i < sizeof (Wolfson) / sizeof (Genesys_Frontend); i++)
-    {
-      if (dev->model->dac_type == Wolfson[i].fe_id)
-	{
-          dev->frontend = Wolfson[i];
-	  return;
-	}
-    }
-  DBG(DBG_error0, "%s: failed to find description for dac_type %d\n", __func__,
-      dev->model->dac_type);
-  DBG(DBG_info, "%s: dac_type %d set up\n", __func__, dev->model->dac_type);
-  DBGCOMPLETED;
 }
 
 /* main function for slope creation */

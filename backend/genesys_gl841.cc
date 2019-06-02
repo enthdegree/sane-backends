@@ -826,8 +826,7 @@ gl841_set_lide80_fe (Genesys_Device * dev, uint8_t set)
     {
       DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
 
-      /* sets to default values */
-      sanei_genesys_init_fe (dev);
+      dev->frontend = dev->frontend_initial;
 
       /* write them to analog frontend */
       status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
@@ -894,8 +893,7 @@ gl841_set_ad_fe (Genesys_Device * dev, uint8_t set)
     {
       DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
 
-      /* sets to default values */
-      sanei_genesys_init_fe (dev);
+      dev->frontend = dev->frontend_initial;
 
       /* write them to analog frontend */
       status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
@@ -1025,7 +1023,7 @@ gl841_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
   if (set == AFE_INIT)
     {
       DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
-      sanei_genesys_init_fe (dev);
+      dev->frontend = dev->frontend_initial;
 
       /* reset only done on init */
       status = sanei_genesys_fe_write_data (dev, 0x04, 0x80);

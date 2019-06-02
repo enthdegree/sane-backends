@@ -1292,7 +1292,7 @@ struct Genesys_Device
     Genesys_Register_Set reg;
     Genesys_Register_Set calib_reg;
     Genesys_Settings settings;
-    Genesys_Frontend frontend;
+    Genesys_Frontend frontend, frontend_initial;
     Genesys_Gpo gpo;
     Genesys_Motor motor;
     uint16_t slope_table0[256] = {};
@@ -1521,8 +1521,6 @@ extern void sanei_genesys_print_status (uint8_t val);
 
 extern SANE_Status
 sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_t * data);
-
-extern void sanei_genesys_init_fe (Genesys_Device * dev);
 
 extern void sanei_genesys_init_structs (Genesys_Device * dev);
 

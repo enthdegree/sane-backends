@@ -308,11 +308,11 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi,i
   dpihw=sanei_genesys_compute_dpihw(dev,dpi);
   sensor=get_sensor_profile(dev->model->ccd_type, dpihw, flags);
 
-  for (i = 0x06; i < 0x0e; i++)
+  for (i = 0; i < 0x1e - 0x16; i++)
     {
-      r = sanei_genesys_get_address (regs, 0x10 + i);
+      r = sanei_genesys_get_address(regs, 0x16 + i);
       if (r)
-	r->value = sensor->regs_0x10_0x1d[i];
+        r->value = sensor->regs_0x16_0x1d[i];
     }
   for (i = 0; i < 9; i++)
     {

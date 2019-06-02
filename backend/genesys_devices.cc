@@ -388,7 +388,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_5345;
     sensor.optical_res = 1200;
-    sensor.half_ccd_mode = true;
+    sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 16;
     sensor.CCD_start_xoffset = 0;
@@ -471,7 +471,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_HP2300;
     sensor.optical_res = 600;
-    sensor.half_ccd_mode = true;
+    sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 20;
     sensor.CCD_start_xoffset = 0;
@@ -513,7 +513,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_CANONLIDE35;
     sensor.optical_res = 1200;
-    sensor.half_ccd_mode = true;
+    sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 87;
     sensor.CCD_start_xoffset = 0;
@@ -1188,7 +1188,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_CS4400F;
     sensor.optical_res = 4800;
-    sensor.half_ccd_mode = true; // FIXME: actually quarter CCD mode
+    sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 50*8;
     // 31 at 600 dpi, 58 at 1200 dpi
     sensor.dummy_pixel = 20;
@@ -1277,7 +1277,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_CS8600F;
     sensor.optical_res = 4800;
-    sensor.half_ccd_mode = true; // FIXME: actually quarter CCD mode
+    sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 20;
     sensor.CCD_start_xoffset = 0; // not used at the moment
@@ -1375,7 +1375,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_HP_N6310;
     sensor.optical_res = 2400;
-    // sensor.half_ccd_mode = true; Possibly half CCD, needs checking
+    // sensor.ccd_size_divisor = 2; Possibly half CCD, needs checking
     sensor.black_pixels = 96;
     sensor.dummy_pixel = 26;
     sensor.CCD_start_xoffset = 128;
@@ -1417,7 +1417,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CIS_CANONLIDE110;
     sensor.optical_res = 2400;
-    sensor.half_ccd_mode = true;
+    sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.CCD_start_xoffset = 303;
@@ -1459,7 +1459,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CIS_CANONLIDE120;
     sensor.optical_res = 2400;
-    sensor.half_ccd_mode = true;
+    sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.CCD_start_xoffset = 303;
@@ -1502,7 +1502,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CIS_CANONLIDE210;
     sensor.optical_res = 2400;
-    sensor.half_ccd_mode = true;
+    sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.CCD_start_xoffset = 303;
@@ -1544,7 +1544,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CIS_CANONLIDE220;
     sensor.optical_res = 2400;
-    sensor.half_ccd_mode = true;
+    sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.CCD_start_xoffset = 303;
@@ -1586,7 +1586,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_PLUSTEK_3600;
     sensor.optical_res = 1200;
-    sensor.half_ccd_mode = true;
+    sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 87;
     sensor.CCD_start_xoffset = 0;
@@ -1710,7 +1710,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CIS_CANONLIDE80,
     sensor.optical_res = 1200; // real hardware limit is 2400
-    sensor.half_ccd_mode = true;
+    sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 20;
     sensor.dummy_pixel = 6;
     // tuned to give 3*8 multiple startx coordinate during shading calibration

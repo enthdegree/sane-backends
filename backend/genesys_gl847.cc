@@ -1163,14 +1163,13 @@ gl847_init_scan_regs (Genesys_Device * dev,
        __func__, xres, yres, lines, pixels, startx, starty, depth, channels, flags);
 
   /* we may have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (sensor.optical_res < 2 * xres ||
-      !(sensor.half_ccd_mode))
+  if (sensor.get_ccd_size_divisor_for_dpi(xres) > 1)
     {
-      half_ccd = SANE_FALSE;
+      half_ccd = SANE_TRUE;
     }
   else
     {
-      half_ccd = SANE_TRUE;
+      half_ccd = SANE_FALSE;
     }
 
   /* optical_res */
@@ -1444,14 +1443,10 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
 /* half_ccd */
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if ((sensor.optical_res < 2 * xres) ||
-      !(sensor.half_ccd_mode))
-    {
-      half_ccd = SANE_FALSE;
-    }
-  else
-    {
-      half_ccd = SANE_TRUE;
+    if (sensor.get_ccd_size_divisor_for_dpi(xres) > 1) {
+        half_ccd = SANE_TRUE;
+    } else {
+        half_ccd = SANE_FALSE;
     }
 
   /* optical_res */

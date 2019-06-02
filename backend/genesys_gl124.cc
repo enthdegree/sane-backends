@@ -171,7 +171,7 @@ SANE_Status status=SANE_STATUS_GOOD;
 static SANE_Bool compute_half_ccd(const Genesys_Sensor& sensor, int xres)
 {
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (xres<=300 && sensor.half_ccd_mode)
+  if (xres<=300 && sensor.ccd_size_divisor > 1)
     {
       return SANE_TRUE;
     }

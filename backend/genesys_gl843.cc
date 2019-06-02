@@ -1375,12 +1375,11 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
                                   const Genesys_Sensor& sensor)
 {
     s.params.assert_valid();
-    if (sensor.optical_res < 4 * s.params.xres ||
-        !(sensor.half_ccd_mode))
+    if (sensor.get_ccd_size_divisor_for_dpi(s.params.xres) > 1)
     {
-        s.half_ccd = SANE_FALSE;
-    } else {
         s.half_ccd = SANE_TRUE;
+    } else {
+        s.half_ccd = SANE_FALSE;
     }
 
     s.optical_resolution = sensor.optical_res;
@@ -1680,14 +1679,13 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   yres = dev->settings.yres;
 
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if ((sensor.optical_res < 4 * xres) ||
-      !(sensor.half_ccd_mode))
+  if (sensor.get_ccd_size_divisor_for_dpi(xres) > 1)
     {
-      half_ccd = SANE_FALSE;
+      half_ccd = SANE_TRUE;
     }
   else
     {
-      half_ccd = SANE_TRUE;
+      half_ccd = SANE_FALSE;
     }
 
   /* channels */

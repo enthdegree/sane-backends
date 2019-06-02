@@ -2238,11 +2238,10 @@ independent of our calculated values:
 
 /* half_ccd */
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (sensor.optical_res  < 2 * xres ||
-      !(sensor.half_ccd_mode)) {
-      half_ccd = SANE_FALSE;
-  } else {
+  if (sensor.get_ccd_size_divisor_for_dpi(xres) > 1) {
       half_ccd = SANE_TRUE;
+  } else {
+      half_ccd = SANE_FALSE;
   }
 
 /* optical_res */
@@ -2604,11 +2603,10 @@ static SANE_Status gl841_calculate_current_setup(Genesys_Device * dev, const Gen
 
 /* half_ccd */
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if ((sensor.optical_res  < 2 * xres) ||
-     !(sensor.half_ccd_mode)) {
-      half_ccd = SANE_FALSE;
-  } else {
+  if (sensor.get_ccd_size_divisor_for_dpi(xres) > 1) {
       half_ccd = SANE_TRUE;
+  } else {
+      half_ccd = SANE_FALSE;
   }
 
 /* optical_res */

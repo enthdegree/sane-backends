@@ -529,8 +529,8 @@ struct Genesys_Sensor {
     // whether the sensor is transparency sensor.
     bool is_transparency = false;
 
-    // half or quarter CCD mode
-    bool half_ccd_mode = false;
+    // CCD may present itself as half or quarter-size CCD on certain resolutions
+    int ccd_size_divisor = 1;
 
     int black_pixels = 0;
     // value of the dummy register
@@ -598,6 +598,14 @@ struct Genesys_Sensor {
             ::fwrite(&custom_regs[i].value, sizeof(custom_regs[i].value), 1, fp);
             ::fwrite(&custom_regs[i].mask, sizeof(custom_regs[i].mask), 1, fp);
         }
+    }
+
+    int get_ccd_size_divisor_for_dpi(int xres) const
+    {
+        if (ccd_size_divisor > 1 && xres * ccd_size_divisor <= optical_res) {
+            return ccd_size_divisor;
+        }
+        return 1;
     }
 };
 

@@ -2340,7 +2340,8 @@ compute_averaged_planar (Genesys_Device * dev, const Genesys_Sensor& sensor,
  */
   res = dev->settings.xres;
 
-    if (sensor.half_ccd_mode && dev->settings.xres <= sensor.optical_res / 2) {
+    if (sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres) > 1)
+    {
         res *= 2;
     }
 
@@ -2634,8 +2635,7 @@ compute_shifted_coefficients (Genesys_Device * dev,
   unsigned int patch_cnt = offset * 3;                          /* at start, offset of first patch */
 
   x = dev->settings.xres;
-  if ((sensor.half_ccd_mode) &&
-      (dev->settings.xres <= sensor.optical_res / 2))
+  if (sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres) > 1)
     x *= 2;							/* scanner is using half-ccd mode */
   basepixels = sensor.optical_res / x;			/*this should be evenly dividable */
 

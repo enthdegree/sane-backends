@@ -1767,8 +1767,8 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
 
-
-  dev->average_size = channels * 2 * pixels_per_line;
+  uint32_t out_pixels_per_line = pixels_per_line + dev->calib_pixels_offset;
+  dev->average_size = channels * 2 * out_pixels_per_line;
 
   dev->dark_average_data.clear();
   dev->dark_average_data.resize(dev->average_size);
@@ -1836,7 +1836,12 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
       return status;
     }
 
-  genesys_average_data(dev->dark_average_data.data(), calibration_data.data(),
+  std::fill(dev->dark_average_data.begin(),
+            dev->dark_average_data.begin() + dev->calib_pixels_offset * channels,
+            0x00);
+
+  genesys_average_data(dev->dark_average_data.data() + dev->calib_pixels_offset * channels,
+                       calibration_data.data(),
                        dev->calib_lines, pixels_per_line * channels);
 
   if (DBG_LEVEL >= DBG_data)
@@ -1844,7 +1849,7 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
       sanei_genesys_write_pnm_file("gl_black_shading.pnm", calibration_data.data(), 16,
                                    channels, pixels_per_line, dev->calib_lines);
       sanei_genesys_write_pnm_file("gl_black_average.pnm", dev->dark_average_data.data(), 16,
-                                   channels, pixels_per_line, 1);
+                                   channels, out_pixels_per_line, 1);
     }
 
   DBGCOMPLETED;
@@ -1872,7 +1877,9 @@ genesys_dummy_dark_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
 
-  dev->average_size = channels * 2 * pixels_per_line;
+  uint32_t out_pixels_per_line = pixels_per_line + dev->calib_pixels_offset;
+
+  dev->average_size = channels * 2 * out_pixels_per_line;
   dev->dark_average_data.clear();
   dev->dark_average_data.resize(dev->average_size, 0);
 
@@ -1927,7 +1934,7 @@ genesys_dummy_dark_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
   DBG(DBG_proc, "%s: dummy1=%d, dummy2=%d, dummy3=%d \n", __func__, dummy1, dummy2, dummy3);
 
   /* fill dark_average */
-  for (x = 0; x < pixels_per_line; x++)
+  for (x = 0; x < out_pixels_per_line; x++)
     {
       dev->dark_average_data[channels * 2 * x] = dummy1 & 0xff;
       dev->dark_average_data[channels * 2 * x + 1] = dummy1 >> 8;
@@ -1959,8 +1966,10 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
 
+  uint32_t out_pixels_per_line = pixels_per_line + dev->calib_pixels_offset;
+
   dev->white_average_data.clear();
-  dev->white_average_data.resize(channels * 2 * pixels_per_line);
+  dev->white_average_data.resize(channels * 2 * out_pixels_per_line);
 
     // FIXME: the current calculation is likely incorrect on non-GENESYS_GL843 implementations,
     // but this needs checking
@@ -2035,13 +2044,17 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
     sanei_genesys_write_pnm_file("gl_white_shading.pnm", calibration_data.data(), 16,
                                  channels, pixels_per_line, dev->calib_lines);
 
-  genesys_average_data (dev->white_average_data.data(), calibration_data.data(),
-			dev->calib_lines,
+  std::fill(dev->dark_average_data.begin(),
+            dev->dark_average_data.begin() + dev->calib_pixels_offset * channels,
+            0x00);
+
+  genesys_average_data (dev->white_average_data.data() + dev->calib_pixels_offset * channels,
+                        calibration_data.data(), dev->calib_lines,
 			pixels_per_line * channels);
 
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file("gl_white_average.pnm", dev->white_average_data.data(), 16,
-                                 channels, pixels_per_line, 1);
+                                 channels, out_pixels_per_line, 1);
 
   /* in case we haven't done dark calibration, build dummy data from white_average */
   if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION))
@@ -2088,13 +2101,15 @@ genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Senso
   pixels_per_line = dev->calib_pixels;
   channels = dev->calib_channels;
 
-  dev->average_size = channels * 2 * pixels_per_line;
+  uint32_t out_pixels_per_line = pixels_per_line + dev->calib_pixels_offset;
+
+  dev->average_size = channels * 2 * out_pixels_per_line;
 
   dev->white_average_data.clear();
   dev->white_average_data.resize(dev->average_size);
 
   dev->dark_average_data.clear();
-  dev->dark_average_data.resize(channels * 2 * pixels_per_line);
+  dev->dark_average_data.resize(dev->average_size);
 
   if (dev->calib_total_bytes_to_read > 0)
     size = dev->calib_total_bytes_to_read;
@@ -2160,8 +2175,15 @@ genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Senso
     }
 
 
-  average_white = dev->white_average_data.data();
-  average_dark = dev->dark_average_data.data();
+  std::fill(dev->dark_average_data.begin(),
+            dev->dark_average_data.begin() + dev->calib_pixels_offset * channels,
+            0x00);
+  std::fill(dev->white_average_data.begin(),
+            dev->white_average_data.begin() + dev->calib_pixels_offset * channels,
+            0x00);
+
+  average_white = dev->white_average_data.data() + dev->calib_pixels_offset * channels;
+  average_dark = dev->dark_average_data.data() + dev->calib_pixels_offset * channels;
 
   for (x = 0; x < pixels_per_line * channels; x++)
     {
@@ -2226,10 +2248,10 @@ genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Senso
     {
       sanei_genesys_write_pnm_file("gl_white_average.pnm",
                                    dev->white_average_data.data(), 16, channels,
-                                   pixels_per_line, 1);
+                                   out_pixels_per_line, 1);
       sanei_genesys_write_pnm_file("gl_dark_average.pnm",
                                    dev->dark_average_data.data(), 16, channels,
-                                   pixels_per_line, 1);
+                                   out_pixels_per_line, 1);
     }
 
   DBGCOMPLETED;
@@ -2722,7 +2744,7 @@ genesys_send_shading_coefficient(Genesys_Device * dev, const Genesys_Sensor& sen
 
   DBGSTART;
 
-  pixels_per_line = dev->calib_pixels;
+  pixels_per_line = dev->calib_pixels + dev->calib_pixels_offset;
   channels = dev->calib_channels;
 
   /* we always build data for three channels, even for gray

@@ -2882,8 +2882,28 @@ gl843_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
   const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution,
                                                        dev->settings.scan_method);
 
+    if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY &&
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F &&
+        dev->settings.xres == 4800)
+    {
+        float offset = SANE_UNFIX(dev->model->x_offset_ta);
+        offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
+        offset = (offset * calib_sensor.optical_res) / MM_PER_INCH;
+
+        unsigned size = SANE_UNFIX(dev->model->x_size_ta);
+        size /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
+        size = (size * calib_sensor.optical_res) / MM_PER_INCH;
+
+        dev->calib_pixels_offset = offset;
+        dev->calib_pixels = size;
+    }
+    else
+    {
+        dev->calib_pixels_offset = 0;
+        dev->calib_pixels = calib_sensor.sensor_pixels / factor;
+    }
+
   dev->calib_resolution = resolution;
-  dev->calib_pixels = calib_sensor.sensor_pixels/factor;
 
   int flags = SCAN_FLAG_DISABLE_SHADING |
               SCAN_FLAG_DISABLE_GAMMA |
@@ -2906,7 +2926,7 @@ gl843_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
-    session.params.startx = 0;
+    session.params.startx = dev->calib_pixels_offset;
     session.params.starty = move;
     session.params.pixels = dev->calib_pixels;
     session.params.lines = dev->calib_lines;
@@ -3341,7 +3361,21 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
                                                        dev->settings.scan_method);
 
   int target_pixels = calib_sensor.sensor_pixels / factor;
+  int start_pixel = 0;
   black_pixels = calib_sensor.black_pixels / factor;
+
+    if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY &&
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F &&
+        dev->settings.xres == 4800)
+    {
+        start_pixel = SANE_UNFIX(dev->model->x_offset_ta);
+        start_pixel /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
+        start_pixel = (start_pixel * calib_sensor.optical_res) / MM_PER_INCH;
+
+        target_pixels = SANE_UNFIX(dev->model->x_size_ta);
+        target_pixels /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
+        target_pixels = (target_pixels * calib_sensor.optical_res) / MM_PER_INCH;
+    }
 
   int flags = SCAN_FLAG_DISABLE_SHADING |
               SCAN_FLAG_DISABLE_GAMMA |
@@ -3356,7 +3390,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
-    session.params.startx = 0;
+    session.params.startx = start_pixel;
     session.params.starty = 0;
     session.params.pixels = target_pixels;
     session.params.lines = lines;
@@ -4304,7 +4338,7 @@ gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
       strpixel*=tgtime;
       endpixel*=tgtime;
 
-      if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F && dev->current_setup.ccd_size_divisor > 1)
+      if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
         {
           int optical_res = sensor.optical_res / dev->current_setup.ccd_size_divisor;
           int dpiset_real = dpiset / dev->current_setup.ccd_size_divisor;

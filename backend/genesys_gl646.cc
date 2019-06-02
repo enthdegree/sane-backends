@@ -995,29 +995,13 @@ gl646_setup_registers (Genesys_Device * dev,
 static void
 gl646_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs)
 {
-  GenesysRegister *r;
-  int i;
+    DBG(DBG_proc, "%s: start\n", __func__);
 
-  DBG(DBG_proc, "%s: start\n", __func__);
-  for (i = 0; i < 4; i++)
-    {
-      r = sanei_genesys_get_address (regs, 0x08 + i);
-      r->value = dev->sensor.regs_0x08_0x0b[i];
+    for (const auto& reg_setting : dev->sensor.custom_regs) {
+        regs->set8(reg_setting.address, reg_setting.value);
     }
 
-  for (i = 0; i < 14; i++)
-    {
-      r = sanei_genesys_get_address (regs, 0x10 + i);
-      r->value = dev->sensor.regs_0x10_0x1d[i];
-    }
-
-  for (i = 0; i < 13; i++)
-    {
-      r = sanei_genesys_get_address (regs, 0x52 + i);
-      r->value = dev->sensor.regs_0x52_0x5e[i];
-    }
-  DBG(DBG_proc, "%s: end\n", __func__);
-
+    DBG(DBG_proc, "%s: end\n", __func__);
 }
 
 /** Test if the ASIC works
@@ -3197,22 +3181,20 @@ gl646_led_calibration (Genesys_Device * dev)
 
   Sensor_Master uint8_t regs_0x10_0x15[6];
  */
-
-  expr = (dev->sensor.regs_0x10_0x1d[0] << 8) | dev->sensor.regs_0x10_0x1d[1];
-  expg = (dev->sensor.regs_0x10_0x1d[2] << 8) | dev->sensor.regs_0x10_0x1d[3];
-  expb = (dev->sensor.regs_0x10_0x1d[4] << 8) | dev->sensor.regs_0x10_0x1d[5];
+  expr = (dev->sensor.custom_regs.get_value(0x10) << 8) | dev->sensor.custom_regs.get_value(0x11);
+  expg = (dev->sensor.custom_regs.get_value(0x12) << 8) | dev->sensor.custom_regs.get_value(0x13);
+  expb = (dev->sensor.custom_regs.get_value(0x14) << 8) | dev->sensor.custom_regs.get_value(0x15);
 
   turn = 0;
 
   do
     {
-
-      dev->sensor.regs_0x10_0x1d[0] = (expr >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[1] = expr & 0xff;
-      dev->sensor.regs_0x10_0x1d[2] = (expg >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[3] = expg & 0xff;
-      dev->sensor.regs_0x10_0x1d[4] = (expb >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[5] = expb & 0xff;
+      dev->sensor.custom_regs.set_value(0x10, (expr >> 8) & 0xff);
+      dev->sensor.custom_regs.set_value(0x11, expr & 0xff);
+      dev->sensor.custom_regs.set_value(0x12, (expg >> 8) & 0xff);
+      dev->sensor.custom_regs.set_value(0x13, expg & 0xff);
+      dev->sensor.custom_regs.set_value(0x14, (expb >> 8) & 0xff);
+      dev->sensor.custom_regs.set_value(0x15, expb & 0xff);
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
 

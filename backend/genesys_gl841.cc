@@ -207,27 +207,22 @@ sanei_gl841_setup_sensor (Genesys_Device * dev,
 			  Genesys_Register_Set * regs,
 			  SANE_Bool extended, SANE_Bool half_ccd)
 {
-  GenesysRegister *r;
-  int i;
+    DBG(DBG_proc, "%s\n", __func__);
 
-  DBG(DBG_proc, "%s\n", __func__);
+    // that one is tricky at least
+    for (uint16_t addr = 0x08; addr <= 0x0b; ++addr) {
+        regs->set8(0x70 + addr - 0x08, dev->sensor.custom_regs.get_value(addr));
+    }
 
-  /* that one is tricky at least ....*/
-  r = sanei_genesys_get_address (regs, 0x70);
-  for (i = 0; i < 4; i++, r++)
-    r->value = dev->sensor.regs_0x08_0x0b[i];
+    // ignore registers in range [0x10..0x16)
+    for (uint16_t addr = 0x16; addr < 0x1e; ++addr) {
+        regs->set8(addr, dev->sensor.custom_regs.get_value(addr));
+    }
 
-  r = sanei_genesys_get_address (regs, 0x16);
-  for (i = 0x06; i < 0x0a; i++, r++)
-    r->value = dev->sensor.regs_0x10_0x1d[i];
-
-  r = sanei_genesys_get_address (regs, 0x1a);
-  for (i = 0x0a; i < 0x0e; i++, r++)
-    r->value = dev->sensor.regs_0x10_0x1d[i];
-
-  r = sanei_genesys_get_address (regs, 0x52);
-  for (i = 0; i < 9; i++, r++)
-    r->value = dev->sensor.regs_0x52_0x5e[i];
+    // ignore registers in range [0x5b..0x5e]
+    for (uint16_t addr = 0x52; addr < 0x52 + 9; ++addr) {
+        regs->set8(addr, dev->sensor.custom_regs.get_value(addr));
+    }
 
   /* don't go any further if no extended setup */
   if (!extended)
@@ -240,6 +235,7 @@ sanei_gl841_setup_sensor (Genesys_Device * dev,
     {
       if (half_ccd)
 	{
+          GenesysRegister* r;
 	  /* settings for CCD used at half is max resolution */
 	  r = sanei_genesys_get_address (regs, 0x70);
 	  r->value = 0x00;
@@ -256,12 +252,16 @@ sanei_gl841_setup_sensor (Genesys_Device * dev,
 	}
       else
 	{
+          GenesysRegister* r;
 	  /* swap latch times */
 	  r = sanei_genesys_get_address (regs, 0x18);
 	  r->value = 0x30;
-	  r = sanei_genesys_get_address (regs, 0x52);
-	  for (i = 0; i < 6; i++, r++)
-	    r->value = dev->sensor.regs_0x52_0x5e[(i + 3) % 6];
+          regs->set8(0x52, dev->sensor.custom_regs.get_value(0x55));
+          regs->set8(0x53, dev->sensor.custom_regs.get_value(0x56));
+          regs->set8(0x54, dev->sensor.custom_regs.get_value(0x57));
+          regs->set8(0x55, dev->sensor.custom_regs.get_value(0x52));
+          regs->set8(0x56, dev->sensor.custom_regs.get_value(0x53));
+          regs->set8(0x57, dev->sensor.custom_regs.get_value(0x54));
 	  r = sanei_genesys_get_address (regs, 0x58);
 	  r->value = 0x20 | (r->value & 0x03);	/* VSMP=4 */
 	}
@@ -271,6 +271,7 @@ sanei_gl841_setup_sensor (Genesys_Device * dev,
   if (dev->model->ccd_type == CCD_HP2300)
     {
       /* settings for CCD used at half is max resolution */
+      GenesysRegister* r;
       if (half_ccd)
 	{
 	  r = sanei_genesys_get_address (regs, 0x70);
@@ -1910,10 +1911,12 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 	    r->value = 0x01;/* 0x0101 is as off as possible */
 	else
           { /* EXP[R,G,B] only matter for CIS scanners */
-	    if (dev->sensor.regs_0x10_0x1d[i] == 0x00)
-		r->value = 0x01; /*0x00 will not be accepted*/
-	    else
-		r->value = dev->sensor.regs_0x10_0x1d[i];
+              uint8_t value = dev->sensor.custom_regs.get_value(0x10 + i);
+              if (value == 0x00) {
+                  r->value = 0x01; /*0x00 will not be accepted*/
+              } else {
+                  r->value = value;
+              }
           }
     }
 
@@ -2059,9 +2062,10 @@ gl841_get_led_exposure(Genesys_Device * dev)
     if (!dev->model->is_cis)
 	return 0;
     d = dev->reg.find_reg(0x19).value;
-    r = dev->sensor.regs_0x10_0x1d[1] | (dev->sensor.regs_0x10_0x1d[0] << 8);
-    g = dev->sensor.regs_0x10_0x1d[3] | (dev->sensor.regs_0x10_0x1d[2] << 8);
-    b = dev->sensor.regs_0x10_0x1d[5] | (dev->sensor.regs_0x10_0x1d[4] << 8);
+
+    r = (dev->sensor.custom_regs.get_value(0x10) << 8) | dev->sensor.custom_regs.get_value(0x11);
+    g = (dev->sensor.custom_regs.get_value(0x12) << 8) | dev->sensor.custom_regs.get_value(0x13);
+    b = (dev->sensor.custom_regs.get_value(0x14) << 8) | dev->sensor.custom_regs.get_value(0x15);
 
     m = r;
     if (m < g)
@@ -2782,10 +2786,12 @@ gl841_set_lamp_power (Genesys_Device * dev,
 
       r = sanei_genesys_get_address (regs, 0x10);
       for (i = 0; i < 6; i++, r++) {
-	if (dev->sensor.regs_0x10_0x1d[i] == 0x00)
-	  r->value = 0x01;/*0x00 will not be accepted*/
-	else
-	  r->value = dev->sensor.regs_0x10_0x1d[i];
+          uint8_t value = dev->sensor.custom_regs.get_value(0x10 + i);
+          if (value == 0x00) {
+              r->value = 0x01; /*0x00 will not be accepted*/
+          } else {
+              r->value = value;
+          }
       }
       r = sanei_genesys_get_address (regs, 0x19);
       r->value = 0x50;
@@ -4103,9 +4109,9 @@ gl841_led_calibration (Genesys_Device * dev)
      adjust exposure times
  */
 
-  exp[0] = (dev->sensor.regs_0x10_0x1d[0] << 8) | dev->sensor.regs_0x10_0x1d[1];
-  exp[1] = (dev->sensor.regs_0x10_0x1d[2] << 8) | dev->sensor.regs_0x10_0x1d[3];
-  exp[2] = (dev->sensor.regs_0x10_0x1d[4] << 8) | dev->sensor.regs_0x10_0x1d[5];
+  exp[0] = (dev->sensor.custom_regs.get_value(0x10) << 8) | dev->sensor.custom_regs.get_value(0x11);
+  exp[1] = (dev->sensor.custom_regs.get_value(0x12) << 8) | dev->sensor.custom_regs.get_value(0x13);
+  exp[2] = (dev->sensor.custom_regs.get_value(0x14) << 8) | dev->sensor.custom_regs.get_value(0x15);
 
   turn = 0;
   /* max exposure is set to ~2 time initial average
@@ -4115,17 +4121,17 @@ gl841_led_calibration (Genesys_Device * dev)
 
   do {
 
-      dev->sensor.regs_0x10_0x1d[0] = (exp[0] >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[1] = exp[0] & 0xff;
-      dev->sensor.regs_0x10_0x1d[2] = (exp[1] >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[3] = exp[1] & 0xff;
-      dev->sensor.regs_0x10_0x1d[4] = (exp[2] >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[5] = exp[2] & 0xff;
+      dev->sensor.custom_regs.set_value(0x10, (exp[0] >> 8) & 0xff);
+      dev->sensor.custom_regs.set_value(0x11, exp[0] & 0xff);
+      dev->sensor.custom_regs.set_value(0x12, (exp[1] >> 8) & 0xff);
+      dev->sensor.custom_regs.set_value(0x13, exp[1] & 0xff);
+      dev->sensor.custom_regs.set_value(0x14, (exp[2] >> 8) & 0xff);
+      dev->sensor.custom_regs.set_value(0x15, exp[2] & 0xff);
 
       r = &(dev->calib_reg.find_reg(0x10));
       for (i = 0; i < 6; i++, r++) {
-	  r->value = dev->sensor.regs_0x10_0x1d[i];
-	  RIE (sanei_genesys_write_register (dev, 0x10+i, dev->sensor.regs_0x10_0x1d[i]));
+          r->value = dev->sensor.custom_regs.get_value(0x10 + i);
+          RIE(sanei_genesys_write_register(dev, 0x10+i, r->value));
       }
 
       RIE(sanei_genesys_bulk_write_register(dev, dev->calib_reg));

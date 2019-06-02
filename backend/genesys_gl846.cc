@@ -223,18 +223,12 @@ gl846_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   DBGSTART;
   dpihw=sanei_genesys_compute_dpihw(dev,dpi);
 
-  for (i = 0x06; i < 0x0e; i++)
-    {
-      r = sanei_genesys_get_address (regs, 0x10 + i);
-      if (r)
-	r->value = dev->sensor.regs_0x10_0x1d[i];
+    for (uint16_t addr = 0x16; addr < 0x1e; addr++) {
+        regs->set8(addr, dev->sensor.custom_regs.get_value(addr));
     }
 
-  for (i = 0; i < 9; i++)
-    {
-      r = sanei_genesys_get_address (regs, 0x52 + i);
-      if (r)
-	r->value = dev->sensor.regs_0x52_0x5e[i];
+    for (uint16_t addr = 0x52; addr < 0x52 + 9; addr++) {
+        regs->set8(addr, dev->sensor.custom_regs.get_value(addr));
     }
 
   /* set EXPDUMMY and CKxMAP */
@@ -244,21 +238,21 @@ gl846_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
   sanei_genesys_set_reg_from_set(regs,REG_EXPDMY,(uint8_t)((sensor->expdummy) & 0xff));
 
   /* if no calibration has been done, set default values for exposures */
-  exp=dev->sensor.regs_0x10_0x1d[0]*256+dev->sensor.regs_0x10_0x1d[1];
+  exp = (dev->sensor.custom_regs.get_value(0x10) << 8) | dev->sensor.custom_regs.get_value(0x11);
   if(exp==0)
     {
       exp=sensor->expr;
     }
   sanei_genesys_set_double(regs,REG_EXPR,exp);
 
-  exp=dev->sensor.regs_0x10_0x1d[2]*256+dev->sensor.regs_0x10_0x1d[3];
+  exp = (dev->sensor.custom_regs.get_value(0x12) << 8) | dev->sensor.custom_regs.get_value(0x13);
   if(exp==0)
     {
       exp=sensor->expg;
     }
   sanei_genesys_set_double(regs,REG_EXPG,exp);
 
-  exp=dev->sensor.regs_0x10_0x1d[4]*256+dev->sensor.regs_0x10_0x1d[5];
+  exp = (dev->sensor.custom_regs.get_value(0x14) << 8) | dev->sensor.custom_regs.get_value(0x15);
   if(exp==0)
     {
       exp=sensor->expb;
@@ -2531,12 +2525,12 @@ gl846_led_calibration (Genesys_Device * dev)
   sanei_genesys_set_double(&dev->reg,REG_EXPB,exp[2]);
 
   /* store in this struct since it is the one used by cache calibration */
-  dev->sensor.regs_0x10_0x1d[0] = (exp[0] >> 8) & 0xff;
-  dev->sensor.regs_0x10_0x1d[1] = exp[0] & 0xff;
-  dev->sensor.regs_0x10_0x1d[2] = (exp[1] >> 8) & 0xff;
-  dev->sensor.regs_0x10_0x1d[3] = exp[1] & 0xff;
-  dev->sensor.regs_0x10_0x1d[4] = (exp[2] >> 8) & 0xff;
-  dev->sensor.regs_0x10_0x1d[5] = exp[2] & 0xff;
+  dev->sensor.custom_regs.set_value(0x10, (exp[0] >> 8) & 0xff);
+  dev->sensor.custom_regs.set_value(0x11, exp[0] & 0xff);
+  dev->sensor.custom_regs.set_value(0x12, (exp[1] >> 8) & 0xff);
+  dev->sensor.custom_regs.set_value(0x13, exp[1] & 0xff);
+  dev->sensor.custom_regs.set_value(0x14, (exp[2] >> 8) & 0xff);
+  dev->sensor.custom_regs.set_value(0x15, exp[2] & 0xff);
 
   /* go back home */
   if(move>20)

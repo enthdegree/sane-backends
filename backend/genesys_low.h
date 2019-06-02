@@ -415,6 +415,69 @@ struct AssignableArray : public std::array<T, Size> {
     }
 };
 
+struct GenesysRegisterSetting {
+    GenesysRegisterSetting() = default;
+
+    GenesysRegisterSetting(uint16_t p_address, uint8_t p_value) :
+        address(p_address), value(p_value)
+    {}
+
+    GenesysRegisterSetting(uint16_t p_address, uint8_t p_value, uint8_t p_mask) :
+        address(p_address), value(p_value), mask(p_mask)
+    {}
+
+    uint16_t address = 0;
+    uint8_t value = 0;
+    uint8_t mask = 0xff;
+};
+
+class GenesysRegisterSettingSet {
+public:
+    using container = std::vector<GenesysRegisterSetting>;
+    using iterator = typename container::iterator;
+    using const_iterator = typename container::const_iterator;
+
+    GenesysRegisterSettingSet() = default;
+    GenesysRegisterSettingSet(std::initializer_list<GenesysRegisterSetting> ilist) : regs_(ilist) {}
+
+    iterator begin() { return regs_.begin(); }
+    const_iterator begin() const { return regs_.begin(); }
+    iterator end() { return regs_.end(); }
+    const_iterator end() const { return regs_.end(); }
+
+    GenesysRegisterSetting& operator[](size_t i) { return regs_[i]; }
+    const GenesysRegisterSetting& operator[](size_t i) const { return regs_[i]; }
+
+    size_t size() const { return regs_.size(); }
+    bool empty() const { return regs_.empty(); }
+    void clear() { regs_.clear(); }
+
+    void push_back(GenesysRegisterSetting reg) { regs_.push_back(reg); }
+
+    uint8_t get_value(uint16_t address) const
+    {
+        for (const auto& reg : regs_) {
+            if (reg.address == address)
+                return reg.value;
+        }
+        throw std::runtime_error("Unknown register");
+    }
+
+    void set_value(uint16_t address, uint8_t value)
+    {
+        for (auto& reg : regs_) {
+            if (reg.address == address) {
+                reg.value = value;
+                return;
+            }
+        }
+        throw std::runtime_error("Unknown register");
+    }
+
+private:
+    std::vector<GenesysRegisterSetting> regs_;
+};
+
 struct Genesys_Sensor {
 
     Genesys_Sensor() = default;
@@ -438,10 +501,9 @@ struct Genesys_Sensor {
     // CCD target code (reference gain)
     int gain_white_ref = 0;
 
-    AssignableArray<uint8_t, 4> regs_0x08_0x0b;
     // Initial exposure values, EXPR, EXPG and EXPB are contained in 0x10-0x15
-    AssignableArray<uint8_t, 14> regs_0x10_0x1d;
-    AssignableArray<uint8_t, 13> regs_0x52_0x5e;
+    // FIXME: move exposure to separate variable
+    GenesysRegisterSettingSet custom_regs;
 
     // red, green and blue gamma coefficient for default gamma tables
     AssignableArray<float, 3> gamma;
@@ -460,9 +522,17 @@ struct Genesys_Sensor {
         success &= 1 == ::fread(&sensor_pixels, sizeof(sensor_pixels), 1, fp);
         success &= 1 == ::fread(&fau_gain_white_ref, sizeof(fau_gain_white_ref), 1, fp);
         success &= 1 == ::fread(&gain_white_ref, sizeof(gain_white_ref), 1, fp);
-        success &= 1 == ::fread(&regs_0x08_0x0b, sizeof(regs_0x08_0x0b), 1, fp);
-        success &= 1 == ::fread(&regs_0x10_0x1d, sizeof(regs_0x10_0x1d), 1, fp);
-        success &= 1 == ::fread(&regs_0x52_0x5e, sizeof(regs_0x52_0x5e), 1, fp);
+
+        custom_regs.clear();
+        uint32_t custom_regs_count = 0;
+        success &= 1 == ::fread(&custom_regs_count, sizeof(custom_regs_count), 1, fp);
+        for (uint32_t i = 0; i < custom_regs_count && success; ++i) {
+            GenesysRegisterSetting reg;
+            success &= 1 == ::fread(&reg.address, sizeof(reg.address), 1, fp);
+            success &= 1 == ::fread(&reg.value, sizeof(reg.value), 1, fp);
+            success &= 1 == ::fread(&reg.mask, sizeof(reg.mask), 1, fp);
+            custom_regs.push_back(reg);
+        }
         return success ? 1 : 0;
     }
 
@@ -476,9 +546,13 @@ struct Genesys_Sensor {
         ::fwrite(&sensor_pixels, sizeof(sensor_pixels), 1, fp);
         ::fwrite(&fau_gain_white_ref, sizeof(fau_gain_white_ref), 1, fp);
         ::fwrite(&gain_white_ref, sizeof(gain_white_ref), 1, fp);
-        ::fwrite(&regs_0x08_0x0b, sizeof(regs_0x08_0x0b), 1, fp);
-        ::fwrite(&regs_0x10_0x1d, sizeof(regs_0x10_0x1d), 1, fp);
-        ::fwrite(&regs_0x52_0x5e, sizeof(regs_0x52_0x5e), 1, fp);
+        uint32_t custom_regs_count = custom_regs.size();
+        ::fwrite(&custom_regs_count, sizeof(custom_regs_count), 1, fp);
+        for (uint32_t i = 0; i < custom_regs_count; ++i) {
+            ::fwrite(&custom_regs[i].address, sizeof(custom_regs[i].address), 1, fp);
+            ::fwrite(&custom_regs[i].value, sizeof(custom_regs[i].value), 1, fp);
+            ::fwrite(&custom_regs[i].mask, sizeof(custom_regs[i].mask), 1, fp);
+        }
     }
 };
 

@@ -1932,11 +1932,10 @@ gl843_set_lamp_power (Genesys_Device * dev,
     {
       val |= REG03_LAMPPWR;
       sanei_genesys_set_reg_from_set (regs, REG03, val);
-      for (i = 0; i < 6; i++)
-	{
-	  r = sanei_genesys_get_address (regs, 0x10 + i);
-	  r->value = dev->sensor.regs_0x10_0x1d[i];
-	}
+
+        for (uint16_t addr = 0x10; addr < 0x16; addr++) {
+            regs->set8(addr, dev->sensor.custom_regs.get_value(addr));
+        }
     }
   else
     {
@@ -3219,7 +3218,6 @@ gl843_led_calibration (Genesys_Device * dev)
   int avg[3], avga, avge;
   int turn;
   uint16_t expr, expg, expb;
-  GenesysRegister *r;
 
   SANE_Bool acceptable = SANE_FALSE;
 
@@ -3272,27 +3270,25 @@ gl843_led_calibration (Genesys_Device * dev)
      adjust exposure times
  */
 
-  expr = (dev->sensor.regs_0x10_0x1d[0] << 8) | dev->sensor.regs_0x10_0x1d[1];
-  expg = (dev->sensor.regs_0x10_0x1d[2] << 8) | dev->sensor.regs_0x10_0x1d[3];
-  expb = (dev->sensor.regs_0x10_0x1d[4] << 8) | dev->sensor.regs_0x10_0x1d[5];
+  expr = (dev->sensor.custom_regs.get_value(0x10) << 8) | dev->sensor.custom_regs.get_value(0x11);
+  expg = (dev->sensor.custom_regs.get_value(0x12) << 8) | dev->sensor.custom_regs.get_value(0x13);
+  expb = (dev->sensor.custom_regs.get_value(0x14) << 8) | dev->sensor.custom_regs.get_value(0x15);
 
   turn = 0;
 
   do
     {
 
-      dev->sensor.regs_0x10_0x1d[0] = (expr >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[1] = expr & 0xff;
-      dev->sensor.regs_0x10_0x1d[2] = (expg >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[3] = expg & 0xff;
-      dev->sensor.regs_0x10_0x1d[4] = (expb >> 8) & 0xff;
-      dev->sensor.regs_0x10_0x1d[5] = expb & 0xff;
+      dev->sensor.custom_regs.set_value(0x10, (expr >> 8) & 0xff);
+      dev->sensor.custom_regs.set_value(0x11, expr & 0xff);
+      dev->sensor.custom_regs.set_value(0x12, (expg >> 8) & 0xff);
+      dev->sensor.custom_regs.set_value(0x13, expg & 0xff);
+      dev->sensor.custom_regs.set_value(0x14, (expb >> 8) & 0xff);
+      dev->sensor.custom_regs.set_value(0x15, expb & 0xff);
 
-      for (i = 0; i < 6; i++)
-	{
-          r = sanei_genesys_get_address(&dev->calib_reg, 0x10 + i);
-	  r->value = dev->sensor.regs_0x10_0x1d[i];
-	}
+      for (uint16_t addr = 0x10; addr < 0x16; addr++) {
+          dev->calib_reg.set8(addr, dev->sensor.custom_regs.get_value(addr));
+      }
 
       RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
 

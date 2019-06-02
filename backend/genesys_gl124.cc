@@ -902,14 +902,14 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi, 
   DBGSTART;
 
     // we start at 6, 0-5 is a 16 bits cache for exposure
-    for (int i = 0x06; i < 0x0e; i++) {
-        regs->set8(0x10 + i, dev->sensor.regs_0x10_0x1d[i]);
+    for (uint16_t addr = 0x16; addr < 0x1e; addr++) {
+        regs->set8(addr, dev->sensor.custom_regs.get_value(addr));
     }
 
     // skip writing 5d,5e which is AFE address because
-    // they are not deifned in register set */
-    for (int i = 0; i < 11; i++) {
-        regs->set8(0x52 + i, dev->sensor.regs_0x52_0x5e[i]);
+    // they are not defined in register set */
+    for (uint16_t addr = 0x52; addr < 0x52 + 11; addr++) {
+        regs->set8(addr, dev->sensor.custom_regs.get_value(addr));
     }
 
   /* set EXPDUMMY and CKxMAP */
@@ -933,21 +933,21 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi, 
   sanei_genesys_set_double(regs,REG_EXPDMY,sensor->expdummy);
 
   /* if no calibration has been done, set default values for exposures */
-  exp=dev->sensor.regs_0x10_0x1d[0]*256+dev->sensor.regs_0x10_0x1d[1];
+  exp = dev->sensor.custom_regs.get_value(0x10)*256 + dev->sensor.custom_regs.get_value(0x11);
   if(exp==0)
     {
       exp=sensor->expr;
     }
   sanei_genesys_set_triple(regs,REG_EXPR,exp);
 
-  exp=dev->sensor.regs_0x10_0x1d[2]*256+dev->sensor.regs_0x10_0x1d[3];
+  exp = dev->sensor.custom_regs.get_value(0x12)*256 + dev->sensor.custom_regs.get_value(0x13);
   if(exp==0)
     {
       exp=sensor->expg;
     }
   sanei_genesys_set_triple(regs,REG_EXPG,exp);
 
-  exp=dev->sensor.regs_0x10_0x1d[4]*256+dev->sensor.regs_0x10_0x1d[5];
+  exp = dev->sensor.custom_regs.get_value(0x14)*256 + dev->sensor.custom_regs.get_value(0x15);
   if(exp==0)
     {
       exp=sensor->expb;
@@ -2942,12 +2942,12 @@ gl124_led_calibration (Genesys_Device * dev)
   sanei_genesys_set_triple(&dev->reg,REG_EXPB,exp[2]);
 
   /* store in this struct since it is the one used by cache calibration */
-  dev->sensor.regs_0x10_0x1d[0] = (exp[0] >> 8) & 0xff;
-  dev->sensor.regs_0x10_0x1d[1] = exp[0] & 0xff;
-  dev->sensor.regs_0x10_0x1d[2] = (exp[1] >> 8) & 0xff;
-  dev->sensor.regs_0x10_0x1d[3] = exp[1] & 0xff;
-  dev->sensor.regs_0x10_0x1d[4] = (exp[2] >> 8) & 0xff;
-  dev->sensor.regs_0x10_0x1d[5] = exp[2] & 0xff;
+  dev->sensor.custom_regs.set_value(0x10, (exp[0] >> 8) & 0xff);
+  dev->sensor.custom_regs.set_value(0x11, exp[0] & 0xff);
+  dev->sensor.custom_regs.set_value(0x12, (exp[1] >> 8) & 0xff);
+  dev->sensor.custom_regs.set_value(0x13, exp[1] & 0xff);
+  dev->sensor.custom_regs.set_value(0x14, (exp[2] >> 8) & 0xff);
+  dev->sensor.custom_regs.set_value(0x15, exp[2] & 0xff);
 
   DBGCOMPLETED;
   return status;

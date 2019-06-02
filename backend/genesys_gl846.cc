@@ -203,10 +203,8 @@ static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi)
  */
 static int gl846_compute_exposure(Genesys_Device *dev, int xres)
 {
-  Sensor_Profile *sensor;
-
-  sensor=get_sensor_profile(dev->model->ccd_type, xres);
-  return sensor->exposure;
+    Sensor_Profile* sensor_profile=get_sensor_profile(dev->model->ccd_type, xres);
+    return sensor_profile->exposure;
 }
 
 
@@ -216,7 +214,6 @@ static void
 gl846_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
 {
   GenesysRegister *r;
-  Sensor_Profile *sensor;
   int dpihw;
   uint16_t exp;
 
@@ -233,41 +230,41 @@ gl846_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi)
 
   /* set EXPDUMMY and CKxMAP */
   dpihw=sanei_genesys_compute_dpihw(dev,dpi);
-  sensor=get_sensor_profile(dev->model->ccd_type, dpihw);
+  Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw);
 
-  sanei_genesys_set_reg_from_set(regs,REG_EXPDMY,(uint8_t)((sensor->expdummy) & 0xff));
+  sanei_genesys_set_reg_from_set(regs,REG_EXPDMY,(uint8_t)((sensor_profile->expdummy) & 0xff));
 
   /* if no calibration has been done, set default values for exposures */
   exp = dev->sensor.exposure.red;
   if(exp==0)
     {
-      exp=sensor->expr;
+      exp=sensor_profile->expr;
     }
   sanei_genesys_set_double(regs,REG_EXPR,exp);
 
   exp = dev->sensor.exposure.green;
   if(exp==0)
     {
-      exp=sensor->expg;
+      exp=sensor_profile->expg;
     }
   sanei_genesys_set_double(regs,REG_EXPG,exp);
 
   exp = dev->sensor.exposure.blue;
   if(exp==0)
     {
-      exp=sensor->expb;
+      exp=sensor_profile->expb;
     }
   sanei_genesys_set_double(regs,REG_EXPB,exp);
 
-  sanei_genesys_set_triple(regs,REG_CK1MAP,sensor->ck1map);
-  sanei_genesys_set_triple(regs,REG_CK3MAP,sensor->ck3map);
-  sanei_genesys_set_triple(regs,REG_CK4MAP,sensor->ck4map);
+  sanei_genesys_set_triple(regs,REG_CK1MAP,sensor_profile->ck1map);
+  sanei_genesys_set_triple(regs,REG_CK3MAP,sensor_profile->ck3map);
+  sanei_genesys_set_triple(regs,REG_CK4MAP,sensor_profile->ck4map);
 
   /* order of the sub-segments */
-  dev->order=sensor->order;
+  dev->order=sensor_profile->order;
 
   r = sanei_genesys_get_address (regs, 0x17);
-  r->value = sensor->r17;
+  r->value = sensor_profile->r17;
 
   DBGCOMPLETED;
 }
@@ -865,7 +862,6 @@ gl846_init_optical_regs_scan (Genesys_Device * dev,
   unsigned int bytes;
   GenesysRegister *r;
   SANE_Status status;
-  Sensor_Profile *sensor;
 
   DBG(DBG_proc, "%s :  exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
       "half_ccd=%d, flags=%x\n", __func__, exposure_time, used_res, start, pixels, channels, depth,
@@ -883,7 +879,7 @@ gl846_init_optical_regs_scan (Genesys_Device * dev,
   DBG(DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
   /* sensor parameters */
-  sensor=get_sensor_profile(dev->model->ccd_type, dpihw);
+  Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw);
   gl846_setup_sensor (dev, reg, dpihw);
   dpiset = used_res * cksel;
 
@@ -917,7 +913,7 @@ gl846_init_optical_regs_scan (Genesys_Device * dev,
    * of the sensor crossed by the scan area */
   if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR && segnb>1)
     {
-      dev->dist = sensor->segcnt;
+      dev->dist = sensor_profile->segcnt;
     }
 
   /* use a segcnt rounded to next even number */
@@ -2385,7 +2381,6 @@ gl846_led_calibration (Genesys_Device * dev)
   int avg[3], top[3], bottom[3];
   int turn;
   uint16_t exp[3];
-  Sensor_Profile *sensor;
   float move;
   SANE_Bool acceptable;
 
@@ -2403,7 +2398,7 @@ gl846_led_calibration (Genesys_Device * dev)
   channels = 3;
   depth=16;
   used_res=sanei_genesys_compute_dpihw(dev,dev->settings.xres);
-  sensor=get_sensor_profile(dev->model->ccd_type, used_res);
+  Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, used_res);
   num_pixels = (dev->sensor.sensor_pixels*used_res)/dev->sensor.optical_res;
 
   /* initial calibration reg values */
@@ -2435,9 +2430,9 @@ gl846_led_calibration (Genesys_Device * dev)
   std::vector<uint8_t> line(total_size);
 
   /* initial loop values and boundaries */
-  exp[0]=sensor->expr;
-  exp[1]=sensor->expg;
-  exp[2]=sensor->expb;
+  exp[0]=sensor_profile->expr;
+  exp[1]=sensor_profile->expg;
+  exp[2]=sensor_profile->expb;
 
   bottom[0]=29000;
   bottom[1]=29000;

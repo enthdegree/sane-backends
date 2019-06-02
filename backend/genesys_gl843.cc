@@ -300,42 +300,41 @@ static void
 gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi,int flags)
 {
   GenesysRegister *r;
-  Sensor_Profile *sensor;
   int i,dpihw;
 
   DBGSTART;
 
   dpihw=sanei_genesys_compute_dpihw(dev,dpi);
-  sensor=get_sensor_profile(dev->model->ccd_type, dpihw, flags);
+  Sensor_Profile* sensor_profile=get_sensor_profile(dev->model->ccd_type, dpihw, flags);
 
   for (i = 0; i < 0x1e - 0x16; i++)
     {
       r = sanei_genesys_get_address(regs, 0x16 + i);
       if (r)
-        r->value = sensor->regs_0x16_0x1d[i];
+        r->value = sensor_profile->regs_0x16_0x1d[i];
     }
   for (i = 0; i < 9; i++)
     {
       r = sanei_genesys_get_address (regs, 0x52 + i);
       if (r)
-	r->value = sensor->regs_0x52_0x5e[i];
+        r->value = sensor_profile->regs_0x52_0x5e[i];
     }
 
   /* specific registers */
   r = sanei_genesys_get_address (regs, 0x0c);
   if (r)
     {
-      r->value = sensor->reg0c;
+      r->value = sensor_profile->reg0c;
     }
   r = sanei_genesys_get_address (regs, 0x70);
   if (r)
     {
-      r->value = sensor->reg70;
+      r->value = sensor_profile->reg70;
     }
   r = sanei_genesys_get_address (regs, 0x71);
   if (r)
     {
-      r->value = sensor->reg71;
+      r->value = sensor_profile->reg71;
     }
   r = sanei_genesys_get_address (regs, 0x7d);
   if (r)
@@ -348,19 +347,19 @@ gl843_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi,i
   r = sanei_genesys_get_address (regs, 0x9e);
   if (r)
     {
-      r->value = sensor->reg9e;
+      r->value = sensor_profile->reg9e;
     }
   /* undocumented register */
   r = sanei_genesys_get_address (regs, 0xaa);
   if (r)
     {
-      r->value = sensor->regaa;
+      r->value = sensor_profile->regaa;
     }
 
   /* CKxMAP */
-  sanei_genesys_set_triple(regs,REG_CK1MAP,sensor->ck1map);
-  sanei_genesys_set_triple(regs,REG_CK3MAP,sensor->ck3map);
-  sanei_genesys_set_triple(regs,REG_CK4MAP,sensor->ck4map);
+  sanei_genesys_set_triple(regs,REG_CK1MAP,sensor_profile->ck1map);
+  sanei_genesys_set_triple(regs,REG_CK3MAP,sensor_profile->ck3map);
+  sanei_genesys_set_triple(regs,REG_CK4MAP,sensor_profile->ck4map);
 
   DBGCOMPLETED;
 }
@@ -1153,10 +1152,8 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
  */
 static int gl843_compute_exposure(Genesys_Device *dev, int xres, int flags)
 {
-  Sensor_Profile *sensor;
-
-  sensor=get_sensor_profile(dev->model->ccd_type, xres, flags);
-  return sensor->exposure;
+    Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, xres, flags);
+    return sensor_profile->exposure;
 }
 
 /** @brief setup optical related registers

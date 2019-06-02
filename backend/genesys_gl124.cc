@@ -674,10 +674,8 @@ gl124_set_fe (Genesys_Device * dev, uint8_t set)
  */
 static int gl124_compute_exposure(Genesys_Device *dev, int xres, int half_ccd)
 {
-  Sensor_Profile *sensor;
-
-  sensor=get_sensor_profile(dev->model->ccd_type, xres, half_ccd);
-  return sensor->exposure;
+  Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, xres, half_ccd);
+  return sensor_profile->exposure;
 }
 
 
@@ -895,7 +893,6 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
 static void
 gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi, int half_ccd)
 {
-  Sensor_Profile *sensor;
   int dpihw;
   uint32_t exp;
 
@@ -914,52 +911,52 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi, 
 
   /* set EXPDUMMY and CKxMAP */
   dpihw=sanei_genesys_compute_dpihw(dev,dpi);
-  sensor=get_sensor_profile(dev->model->ccd_type, dpihw, half_ccd);
+    Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw, half_ccd);
 
-    regs->set8(0x18, sensor->reg18);
-    regs->set8(0x20, sensor->reg20);
-    regs->set8(0x61, sensor->reg61);
-    regs->set8(0x98, sensor->reg98);
-    if (sensor->reg16 != 0) {
-        regs->set8(0x16, sensor->reg16);
+    regs->set8(0x18, sensor_profile->reg18);
+    regs->set8(0x20, sensor_profile->reg20);
+    regs->set8(0x61, sensor_profile->reg61);
+    regs->set8(0x98, sensor_profile->reg98);
+    if (sensor_profile->reg16 != 0) {
+        regs->set8(0x16, sensor_profile->reg16);
     }
-    if (sensor->reg70 != 0) {
-        regs->set8(0x70, sensor->reg70);
+    if (sensor_profile->reg70 != 0) {
+        regs->set8(0x70, sensor_profile->reg70);
     }
 
 
-  sanei_genesys_set_triple(regs,REG_SEGCNT,sensor->segcnt);
-  sanei_genesys_set_double(regs,REG_TG0CNT,sensor->tg0cnt);
-  sanei_genesys_set_double(regs,REG_EXPDMY,sensor->expdummy);
+  sanei_genesys_set_triple(regs,REG_SEGCNT,sensor_profile->segcnt);
+  sanei_genesys_set_double(regs,REG_TG0CNT,sensor_profile->tg0cnt);
+  sanei_genesys_set_double(regs,REG_EXPDMY,sensor_profile->expdummy);
 
   /* if no calibration has been done, set default values for exposures */
   exp = dev->sensor.exposure.red;
   if(exp==0)
     {
-      exp=sensor->expr;
+      exp=sensor_profile->expr;
     }
   sanei_genesys_set_triple(regs,REG_EXPR,exp);
 
   exp =dev->sensor.exposure.green;
   if(exp==0)
     {
-      exp=sensor->expg;
+      exp=sensor_profile->expg;
     }
   sanei_genesys_set_triple(regs,REG_EXPG,exp);
 
   exp = dev->sensor.exposure.blue;
   if(exp==0)
     {
-      exp=sensor->expb;
+      exp=sensor_profile->expb;
     }
   sanei_genesys_set_triple(regs,REG_EXPB,exp);
 
-  sanei_genesys_set_triple(regs,REG_CK1MAP,sensor->ck1map);
-  sanei_genesys_set_triple(regs,REG_CK3MAP,sensor->ck3map);
-  sanei_genesys_set_triple(regs,REG_CK4MAP,sensor->ck4map);
+  sanei_genesys_set_triple(regs,REG_CK1MAP,sensor_profile->ck1map);
+  sanei_genesys_set_triple(regs,REG_CK3MAP,sensor_profile->ck3map);
+  sanei_genesys_set_triple(regs,REG_CK4MAP,sensor_profile->ck4map);
 
   /* order of the sub-segments */
-  dev->order=sensor->order;
+  dev->order=sensor_profile->order;
 
   DBGCOMPLETED;
 }
@@ -1528,7 +1525,6 @@ gl124_calculate_current_setup (Genesys_Device * dev)
   SANE_Bool half_ccd;
 
   int max_shift, dpihw;
-  Sensor_Profile *sensor;
 
   int optical_res;
 
@@ -1605,8 +1601,8 @@ gl124_calculate_current_setup (Genesys_Device * dev)
   /* compute hw dpi for sensor */
   dpihw=sanei_genesys_compute_dpihw(dev,used_res);
 
-  sensor=get_sensor_profile(dev->model->ccd_type, dpihw, half_ccd);
-  dev->segnb=sensor->reg98 & 0x0f;
+  Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw, half_ccd);
+  dev->segnb=sensor_profile->reg98 & 0x0f;
 
   /* stagger */
   if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
@@ -2807,7 +2803,6 @@ gl124_led_calibration (Genesys_Device * dev)
   int avg[3];
   int turn;
   uint16_t exp[3],target;
-  Sensor_Profile *sensor;
   SANE_Bool acceptable;
   SANE_Bool half_ccd;
 
@@ -2829,7 +2824,7 @@ gl124_led_calibration (Genesys_Device * dev)
     {
       resolution = dpihw;
     }
-  sensor=get_sensor_profile(dev->model->ccd_type, dpihw, half_ccd);
+  Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw, half_ccd);
   num_pixels = (dev->sensor.sensor_pixels*resolution)/dev->sensor.optical_res;
 
   /* initial calibration reg values */
@@ -2863,9 +2858,9 @@ gl124_led_calibration (Genesys_Device * dev)
   std::vector<uint8_t> line(total_size);
 
   /* initial loop values and boundaries */
-  exp[0]=sensor->expr;
-  exp[1]=sensor->expg;
-  exp[2]=sensor->expb;
+  exp[0]=sensor_profile->expr;
+  exp[1]=sensor_profile->expg;
+  exp[2]=sensor_profile->expb;
   target=dev->sensor.gain_white_ref*256;
 
   turn = 0;

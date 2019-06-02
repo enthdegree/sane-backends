@@ -222,7 +222,7 @@ gl646_stop_motor (Genesys_Device * dev)
  * @return the closest resolution for the sensor and mode
  */
 static int
-get_lowest_resolution (int sensor, SANE_Bool color)
+get_lowest_resolution(int sensor_id, SANE_Bool color)
 {
   int i, nb;
   int dpi;
@@ -233,7 +233,7 @@ get_lowest_resolution (int sensor, SANE_Bool color)
   while (i < nb)
     {
       /* computes distance and keep mode if it is closer than previous */
-      if (sensor == sensor_master[i].sensor
+      if (sensor_id == sensor_master[i].sensor
 	  && sensor_master[i].color == color)
 	{
 	  if (sensor_master[i].dpi < dpi)
@@ -255,7 +255,7 @@ get_lowest_resolution (int sensor, SANE_Bool color)
  * @return the closest resolution for the sensor and mode
  */
 static int
-get_closest_resolution (int sensor, int required, SANE_Bool color)
+get_closest_resolution (int sensor_id, int required, SANE_Bool color)
 {
   int i, nb;
   int dist, dpi;
@@ -267,7 +267,7 @@ get_closest_resolution (int sensor, int required, SANE_Bool color)
   while (i < nb)
     {
       /* exit on perfect match */
-      if (sensor == sensor_master[i].sensor
+      if (sensor_id == sensor_master[i].sensor
 	  && sensor_master[i].dpi == required
 	  && sensor_master[i].color == color)
 	{
@@ -275,7 +275,7 @@ get_closest_resolution (int sensor, int required, SANE_Bool color)
 	  return required;
 	}
       /* computes distance and keep mode if it is closer than previous */
-      if (sensor == sensor_master[i].sensor
+      if (sensor_id == sensor_master[i].sensor
 	  && sensor_master[i].color == color)
 	{
 	  if (abs (sensor_master[i].dpi - required) < dist)
@@ -299,7 +299,7 @@ get_closest_resolution (int sensor, int required, SANE_Bool color)
  * @return SANE_TRUE if half ccd is used
  */
 static SANE_Bool
-is_half_ccd (int sensor, int required, SANE_Bool color)
+is_half_ccd (int sensor_id, int required, SANE_Bool color)
 {
   int i, nb;
 
@@ -308,7 +308,7 @@ is_half_ccd (int sensor, int required, SANE_Bool color)
   while (i < nb)
     {
       /* exit on perfect match */
-      if (sensor == sensor_master[i].sensor
+      if (sensor_id == sensor_master[i].sensor
 	  && sensor_master[i].dpi == required
 	  && sensor_master[i].color == color)
 	{
@@ -330,7 +330,7 @@ is_half_ccd (int sensor, int required, SANE_Bool color)
  * @return cksel value for mode
  */
 static int
-get_cksel (int sensor, int required, SANE_Bool color)
+get_cksel (int sensor_id, int required, SANE_Bool color)
 {
   int i, nb;
 
@@ -339,7 +339,7 @@ get_cksel (int sensor, int required, SANE_Bool color)
   while (i < nb)
     {
       /* exit on perfect match */
-      if (sensor == sensor_master[i].sensor
+      if (sensor_id == sensor_master[i].sensor
 	  && sensor_master[i].dpi == required
 	  && sensor_master[i].color == color)
 	{
@@ -391,7 +391,7 @@ gl646_setup_registers (Genesys_Device * dev,
 {
   SANE_Status status = SANE_STATUS_GOOD;
   int i, nb;
-  Sensor_Master *sensor = NULL;
+  Sensor_Master *sensor_mst = NULL;
   Motor_Master *motor = NULL;
   Sensor_Settings *settings = NULL;
   GenesysRegister *r;
@@ -429,11 +429,11 @@ gl646_setup_registers (Genesys_Device * dev,
 	  && sensor_master[i].dpi == xresolution
 	  && sensor_master[i].color == color)
 	{
-	  sensor = &sensor_master[i];
+          sensor_mst = &sensor_master[i];
 	}
       i++;
     }
-  if (sensor == NULL)
+  if (sensor_mst == NULL)
     {
       DBG(DBG_error, "%s: unable to find settings for sensor %d at %d dpi color=%d\n", __func__,
           dev->model->ccd_type, xresolution, color);
@@ -466,8 +466,8 @@ gl646_setup_registers (Genesys_Device * dev,
   nb = sizeof (sensor_settings) / sizeof (Sensor_Settings);
   while (i < nb)
     {
-      if (sensor->sensor == sensor_settings[i].sensor
-	  && sensor->cksel == sensor_settings[i].cksel)
+      if (sensor_mst->sensor == sensor_settings[i].sensor
+          && sensor_mst->cksel == sensor_settings[i].cksel)
 	{
 	  settings = &sensor_settings[i];
 	}
@@ -476,20 +476,20 @@ gl646_setup_registers (Genesys_Device * dev,
   if (settings == NULL)
     {
       DBG(DBG_error, "%s: unable to find settings for sensor %d with '%d' ccd timing\n", __func__,
-          sensor->sensor, sensor->cksel);
+          sensor_mst->sensor, sensor_mst->cksel);
       return SANE_STATUS_INVAL;
     }
 
   /* half_ccd if manual clock programming or dpi is half dpiset */
-  half_ccd = sensor->half_ccd;
+  half_ccd = sensor_mst->half_ccd;
 
   /* now apply values from settings to registers */
-  if (sensor->regs_0x10_0x15 != NULL)
+  if (sensor_mst->regs_0x10_0x15 != NULL)
     {
       for (i = 0; i < 6; i++)
 	{
 	  r = sanei_genesys_get_address (regs, 0x10 + i);
-	  r->value = sensor->regs_0x10_0x15[i];
+          r->value = sensor_mst->regs_0x10_0x15[i];
 	}
     }
   else
@@ -674,10 +674,10 @@ gl646_setup_registers (Genesys_Device * dev,
     }
 
   /* cktoggle, ckdelay and cksel at once, cktdelay=2 => half_ccd for md5345 */
-  regs->find_reg(0x18).value = sensor->r18;
+  regs->find_reg(0x18).value = sensor_mst->r18;
 
   /* manual CCD/2 clock programming => half_ccd for hp2300 */
-  regs->find_reg(0x1d).value = sensor->r1d;
+  regs->find_reg(0x1d).value = sensor_mst->r1d;
 
   /* HP2400 1200dpi mode tuning */
 
@@ -742,8 +742,8 @@ gl646_setup_registers (Genesys_Device * dev,
     }
 
   /* scanner's x coordinates are expressed in physical DPI but they must be divided by cksel */
-  sx = startx / sensor->cksel;
-  ex = endx / sensor->cksel;
+  sx = startx / sensor_mst->cksel;
+  ex = endx / sensor_mst->cksel;
   if (half_ccd == SANE_TRUE)
     {
       sx /= 2;
@@ -755,7 +755,7 @@ gl646_setup_registers (Genesys_Device * dev,
 
   /* words_per_line must be computed according to the scan's resolution */
   /* in fact, words_per_line _gives_ the actual scan resolution */
-  words_per_line = (((endx - startx) * sensor->xdpi) / dev->sensor.optical_res);
+  words_per_line = (((endx - startx) * sensor_mst->xdpi) / dev->sensor.optical_res);
   bpp=depth/8;
   if (depth == 1)
     {
@@ -773,8 +773,8 @@ gl646_setup_registers (Genesys_Device * dev,
   DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
   sanei_genesys_set_triple(regs, REG_MAXWD, words_per_line);
 
-  sanei_genesys_set_double(regs, REG_DPISET, sensor->dpiset);
-  sanei_genesys_set_double(regs, REG_LPERIOD, sensor->exposure);
+  sanei_genesys_set_double(regs, REG_DPISET, sensor_mst->dpiset);
+  sanei_genesys_set_double(regs, REG_LPERIOD, sensor_mst->exposure);
 
   /* move distance must be adjusted to take into account the extra lines
    * read to reorder data */
@@ -903,7 +903,7 @@ gl646_setup_registers (Genesys_Device * dev,
   regs->find_reg(0x65).value = motor->mtrpwm;
 
   sanei_genesys_calculate_zmode2 (regs->find_reg(0x02).value & REG02_FASTFED,
-				  sensor->exposure,
+                                  sensor_mst->exposure,
 				  slope_table1,
 				  motor->steps1,
 				  move, motor->fwdbwd, &z1, &z2);
@@ -954,12 +954,12 @@ gl646_setup_registers (Genesys_Device * dev,
   dev->read_active = SANE_TRUE;
 
   dev->current_setup.pixels =
-    ((endx - startx) * sensor->xdpi) / dev->sensor.optical_res;
+    ((endx - startx) * sensor_mst->xdpi) / dev->sensor.optical_res;
   dev->current_setup.lines = linecnt;
   dev->current_setup.depth = depth;
   dev->current_setup.channels = channels;
-  dev->current_setup.exposure_time = sensor->exposure;
-  dev->current_setup.xres = sensor->xdpi;
+  dev->current_setup.exposure_time = sensor_mst->exposure;
+  dev->current_setup.xres = sensor_mst->xdpi;
   dev->current_setup.yres = motor->ydpi;
   dev->current_setup.half_ccd = half_ccd;
   dev->current_setup.stagger = stagger;

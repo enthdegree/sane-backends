@@ -1550,9 +1550,9 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
 				   int power_mode);
 
 extern void
-sanei_genesys_create_gamma_table (uint16_t * gamma_table, int size,
-				  float maximum, float gamma_max,
-				  float gamma);
+sanei_genesys_create_gamma_table (std::vector<uint16_t>& gamma_table, int size,
+                                  float maximum, float gamma_max,
+                                  float gamma);
 
 extern SANE_Status sanei_genesys_send_gamma_table (Genesys_Device * dev);
 

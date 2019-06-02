@@ -4082,7 +4082,7 @@ gl646_init (Genesys_Device * dev)
           if (dev->sensor.gamma_table[i].empty())
             {
               dev->sensor.gamma_table[i].resize(size, 0);
-              sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i].data(),
+              sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
                                                 size,
                                                 size - 1,
                                                 size - 1,

@@ -1404,10 +1404,7 @@ sanei_genesys_asic_init (Genesys_Device * dev, int /*max_regs*/)
   size = 256;
   for(i=0;i<3;i++)
     {
-      dev->sensor.gamma_table[i].clear();
-      dev->sensor.gamma_table[i].resize(size, 0);
-
-      sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i].data(),
+      sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
                                         size,
                                         65535,
                                         65535,

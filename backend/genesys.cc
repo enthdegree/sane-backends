@@ -706,17 +706,15 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
  * @return a gamma table filled with the computed values
  * */
 void
-sanei_genesys_create_gamma_table (uint16_t * gamma_table, int size,
-				  float maximum, float gamma_max, float gamma)
+sanei_genesys_create_gamma_table (std::vector<uint16_t>& gamma_table, int size,
+                                  float maximum, float gamma_max, float gamma)
 {
+    gamma_table.clear();
+    gamma_table.resize(size, 0);
+
   int i;
   float value;
 
-  if(gamma_table==NULL)
-    {
-      DBG(DBG_proc, "%s: gamma table is NULL\n", __func__);
-      return;
-    }
   DBG(DBG_proc, "%s: size = %d, ""maximum = %g, gamma_max = %g, gamma = %g\n", __func__, size,
       maximum, gamma_max, gamma);
   for (i = 0; i < size; i++)
@@ -6950,17 +6948,17 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  /* restore default sensor gamma table */
 	  /* currently there is no sensor's specific gamma table,
 	   * tables are built by sanei_genesys_create_gamma_table */
-      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_RED].data(),
+      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_RED],
 					    s->opt[OPT_GAMMA_VECTOR_R].size / sizeof (SANE_Word),
 					    s->opt[OPT_GAMMA_VECTOR_R].constraint.range->max,
 					    s->opt[OPT_GAMMA_VECTOR_R].constraint.range->max,
 					    s->dev->sensor.gamma[GENESYS_RED]);
-      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_GREEN].data(),
+      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_GREEN],
 					    s->opt[OPT_GAMMA_VECTOR_G].size / sizeof (SANE_Word),
 					    s->opt[OPT_GAMMA_VECTOR_G].constraint.range->max,
 					    s->opt[OPT_GAMMA_VECTOR_G].constraint.range->max,
 					    s->dev->sensor.gamma[GENESYS_GREEN]);
-      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_BLUE].data(),
+      sanei_genesys_create_gamma_table (s->dev->sensor.gamma_table[GENESYS_BLUE],
 					    s->opt[OPT_GAMMA_VECTOR_B].size / sizeof (SANE_Word),
 					    s->opt[OPT_GAMMA_VECTOR_B].constraint.range->max,
 					    s->opt[OPT_GAMMA_VECTOR_B].constraint.range->max,

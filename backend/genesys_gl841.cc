@@ -5108,15 +5108,11 @@ gl841_init (Genesys_Device * dev)
 
   for(i=0;i<3;i++)
     {
-      if (dev->sensor.gamma_table[i].empty())
-        {
-          dev->sensor.gamma_table[i].resize(size, 0);
-          sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i].data(),
+          sanei_genesys_create_gamma_table (dev->sensor.gamma_table[i],
                                             size,
                                             65535,
                                             65535,
                                             dev->sensor.gamma[i]);
-        }
     }
 
   /* send gamma tables */

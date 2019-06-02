@@ -1064,20 +1064,30 @@ typedef struct
   int expiration_time;
 } Genesys_Settings;
 
-typedef struct Genesys_Current_Setup
+struct Genesys_Current_Setup
 {
-    int pixels;         /* pixel count expected from scanner */
-    int lines;          /* line count expected from scanner */
-    int depth;          /* depth expected from scanner */
-    int channels;       /* channel count expected from scanner */
-    int scan_method;	/* scanning method: flatbed or XPA */
-    int exposure_time;  /* used exposure time */
-    float xres;         /* used xres */
-    float yres;         /* used yres*/
-    SANE_Bool half_ccd; /* half ccd mode */
-    SANE_Int stagger;
-    SANE_Int max_shift;	/* max shift of any ccd component, including staggered pixels*/
-} Genesys_Current_Setup;
+    // pixel count expected from scanner
+    int pixels = 0;
+    // line count expected from scanner
+    int lines = 0;
+    // depth expected from scanner
+    int depth = 0;
+    // channel count expected from scanner
+    int channels = 0;
+    // scanning method: flatbed or XPA
+    int scan_method = 0;
+    // used exposure time
+    int exposure_time = 0;
+    // used xres
+    float xres = 0;
+    // used yres
+    float yres = 0;
+    // half ccd mode
+    SANE_Bool half_ccd = 0;
+    SANE_Int stagger = 0;
+    //  max shift of any ccd component, including staggered pixels
+    SANE_Int max_shift = 0;
+};
 
 struct Genesys_Buffer
 {

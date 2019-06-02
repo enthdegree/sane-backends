@@ -476,8 +476,6 @@ typedef struct {
   uint8_t r17;		/**> TG width */
 } Sensor_Profile;
 
-/* *INDENT-OFF* */
-
 /**
  * order of the scanned pixel
  */
@@ -490,7 +488,6 @@ static Sensor_Profile sensors[]={
 	{CCD_IMG101, 1200, 11000,  60, 159, 85, 5136, 255,  0,  0,  0, order_01  , 0x13},
 	{CCD_PLUSTEK3800, 1200, 11000,  60, 159, 85, 5136, 255,  0,  0,  0, order_01  , 0x13},
 };
-/* *INDENT-ON* */
 
 /* base motor slopes in full step unit */
 /* target=((exposure * dpi) / base_dpi)>>step_type; */
@@ -500,7 +497,6 @@ static uint32_t img101_high[] = {22000, 22000, 22000, 18450, 15974, 14284, 13054
  * database of motor profiles
  */
 
-/* *INDENT-OFF* */
 static Motor_Profile gl846_motors[]={
         /* Image Formula 101 */
 	{MOTOR_IMG101,  11000, HALF_STEP , img101_high},
@@ -509,6 +505,3 @@ static Motor_Profile gl846_motors[]={
 	/* end of database entry */
 	{0,  0, 0, NULL},
 };
-/* *INDENT-ON* */
-
-/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

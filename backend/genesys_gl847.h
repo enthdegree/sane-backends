@@ -437,8 +437,6 @@ typedef struct {
   uint8_t r17;		/**> TG width */
 } Sensor_Profile;
 
-/* *INDENT-OFF* */
-
 static size_t order_01[]={0,1};
 static size_t order_0213[]={0,2,1,3};
 static size_t order_0246[]={0,2,4,6,1,3,5,7};
@@ -474,7 +472,6 @@ static Sensor_Profile sensors[]={
 	{CIS_CANONLIDE700, 2400, 10576, 135, 249, 85, 5187, 255, 2798, 1558,  972, new_order , 0x08},
 	{CIS_CANONLIDE700, 4800, 10576, 135, 249, 85, 5187, 255, 2798, 1558,  972, order_0145, 0x06},
 };
-/* *INDENT-ON* */
 
 /* base motor sopes in full step unit */
 /* target=((exposure * dpi) / base_dpi)>>step_type; */
@@ -494,7 +491,6 @@ static uint32_t lide200_max[] = { 124992, 124992, 124992, 124992, 124992, 124992
  * database of motor profiles
  */
 
-/* *INDENT-OFF* */
 static Motor_Profile gl847_motors[]={
         /* LiDE 100 */
 	{MOTOR_CANONLIDE100,  2848, HALF_STEP   , lide200_base},
@@ -521,6 +517,3 @@ static Motor_Profile gl847_motors[]={
 	/* end of database entry */
 	{0,  0, 0, NULL},
 };
-/* *INDENT-ON* */
-
-/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

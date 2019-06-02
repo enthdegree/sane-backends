@@ -7536,5 +7536,3 @@ sane_get_select_fd(SANE_Handle handle, SANE_Int * fd)
         return sane_get_select_fd_impl(handle, fd);
     });
 }
-
-/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

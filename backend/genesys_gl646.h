@@ -347,7 +347,6 @@ static uint8_t xp200_gray[6]={0x05, 0x0a, 0x0f, 0xa0, 0x10, 0x10};
  * master sensor settings, for a given sensor and dpi,
  * it gives exposure and CCD time
  */
-/* *INDENT-OFF* */
 static Sensor_Master sensor_master[] = {
   /* HP3670 master settings */
   {CCD_HP3670,  75, SANE_TRUE ,   75,  4879,  300, 4, 42, NULL, SANE_FALSE, 0x33, 0x43},
@@ -592,4 +591,3 @@ static Sensor_Settings sensor_settings[] = {
    {0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83} /* half ccd settings */
   },
 };
-/* *INDENT-ON* */

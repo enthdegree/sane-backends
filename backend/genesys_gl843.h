@@ -560,7 +560,6 @@ static uint32_t motor_speeds_cs8600f[] = {
  * database of motor profiles
  */
 
-/* *INDENT-OFF* */
 static Motor_Profile gl843_motors[]={
         /* KV-SS080 */
 	{MOTOR_KVSS080,   8000, 1, kvss080},
@@ -575,6 +574,3 @@ static Motor_Profile gl843_motors[]={
   { MOTOR_CS8600F, 0x59d8, 2, motor_speeds_cs8600f }, // FIXME: if the exposure is lower then we'll select another motor
   { 0, 0, 0, NULL },
 };
-/* *INDENT-ON* */
-
-/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

@@ -3647,5 +3647,3 @@ sanei_gl124_init_cmd_set (Genesys_Device * dev)
   dev->model->cmd_set = &gl124_cmd_set;
   return SANE_STATUS_GOOD;
 }
-
-/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

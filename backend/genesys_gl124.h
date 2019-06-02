@@ -395,8 +395,6 @@ typedef struct {
 static size_t order_01[]={0,1};
 static size_t order_0213[]={0,2,1,3};
 
-/* *INDENT-OFF* */
-
 /** @brief database of sensor profiles
  * database of sensor profiles giving for each sensor and a given resolution, the period, and timings
  * to setup the sensor for the scan.
@@ -463,7 +461,7 @@ static Motor_Profile motors[]={
 	{MOTOR_CANONLIDE210, 20864, 2, lide210_max},
 	{0, 0, 0, NULL},
 };
-/* *INDENT-ON* */
+
 static
 SANE_Status gl124_init_scan_regs (Genesys_Device * dev,
                                   Genesys_Register_Set * reg,
@@ -500,5 +498,3 @@ gl124_stop_action (Genesys_Device * dev);
 static SANE_Status
 gl124_send_slope_table (Genesys_Device * dev, int table_nr,
 			uint16_t * slope_table, int steps);
-
-/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

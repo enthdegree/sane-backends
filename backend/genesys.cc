@@ -1381,8 +1381,7 @@ genesys_average_black (Genesys_Device * dev, int channel,
 
 /* todo: check; it works but the lines 1, 2, and 3 are too dark even with the
    same offset and gain settings? */
-static SANE_Status
-genesys_coarse_calibration (Genesys_Device * dev)
+static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 {
   int size;
   int black_pixels;
@@ -1395,8 +1394,8 @@ genesys_coarse_calibration (Genesys_Device * dev)
 
   DBG(DBG_info, "%s (scan_mode = %d)\n", __func__, dev->settings.scan_mode);
 
-  black_pixels = dev->sensor.black_pixels
-    * dev->settings.xres / dev->sensor.optical_res;
+  black_pixels = sensor.black_pixels
+    * dev->settings.xres / sensor.optical_res;
 
   if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     channels = 3;
@@ -1445,9 +1444,9 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	  double gain_white_ref;
 
 	  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)	/* Transparency */
-	    gain_white_ref = dev->sensor.fau_gain_white_ref * 256;
+            gain_white_ref = sensor.fau_gain_white_ref * 256;
 	  else
-	    gain_white_ref = dev->sensor.gain_white_ref * 256;
+            gain_white_ref = sensor.gain_white_ref * 256;
 	  /* white and black are defined downwards */
 
 	  genesys_adjust_gain (&applied_multi,
@@ -1587,7 +1586,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	{
 	  for (j = 0; j < 3; j++)
 	    {
-          genesys_average_white (dev, dev->sensor, 3, j, calibration_data.data(), size,
+          genesys_average_white (dev, sensor, 3, j, calibration_data.data(), size,
 				     &white_average);
 	      white[i * 3 + j] = white_average;
 	      dark[i * 3 + j] =
@@ -1599,7 +1598,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	}
       else			/* one color-component modes */
 	{
-      genesys_average_white (dev, dev->sensor, 1, 0, calibration_data.data(), size,
+      genesys_average_white (dev, sensor, 1, 0, calibration_data.data(), size,
 				 &white_average);
 	  white[i * 3 + 0] = white[i * 3 + 1] = white[i * 3 + 2] =
 	    white_average;
@@ -3125,7 +3124,7 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 	  return status;
 	}
 
-      status = genesys_coarse_calibration (dev);
+      status = genesys_coarse_calibration(dev, dev->sensor);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: failed to do coarse gain calibration: %s\n", __func__,
@@ -3177,7 +3176,7 @@ genesys_flatbed_calibration (Genesys_Device * dev)
 	      return status;
 	    }
 
-	  status = genesys_coarse_calibration (dev);
+          status = genesys_coarse_calibration(dev, dev->sensor);
 	  if (status != SANE_STATUS_GOOD)
 	    {
               DBG(DBG_error, "%s: failed to do static calibration: %s\n", __func__,
@@ -3359,7 +3358,7 @@ genesys_sheetfed_calibration (Genesys_Device * dev)
 	  return status;
 	}
 
-      status = genesys_coarse_calibration (dev);
+      status = genesys_coarse_calibration(dev, dev->sensor);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: failed to do static calibration: %s\n", __func__, sane_strstatus(status));

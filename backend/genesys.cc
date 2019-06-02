@@ -906,7 +906,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, uint8_t * data,
     }
 
   /* gl646, gl84[123] case */
-  dpihw = sanei_genesys_read_reg_from_set (dev->reg, 0x05) >> 6;
+  dpihw = dev->reg.get8(0x05) >> 6;
 
   /* TODO invert the test so only the 2 models behaving like that are
    * tested instead of adding all the others */
@@ -1545,7 +1545,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
           dev->frontend.offset[2]);
 
       status =
-	dev->model->cmd_set->begin_scan (dev, dev->calib_reg, SANE_FALSE);
+        dev->model->cmd_set->begin_scan(dev, &dev->calib_reg, SANE_FALSE);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: Failed to begin scan: %s\n", __func__, sane_strstatus(status));
@@ -1577,7 +1577,7 @@ genesys_coarse_calibration (Genesys_Device * dev)
 	    }
 	}
 
-      status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
+      status = dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: Failed to end scan: %s\n", __func__, sane_strstatus(status));
@@ -1736,19 +1736,17 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
    * because they have a calibration sheet with a sufficient black strip                */
   if (dev->model->is_sheetfed == SANE_FALSE)
     {
-      dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_FALSE);
-      dev->model->cmd_set->set_motor_power (dev->calib_reg, motor);
+      dev->model->cmd_set->set_lamp_power(dev, &dev->calib_reg, SANE_FALSE);
+      dev->model->cmd_set->set_motor_power(&dev->calib_reg, motor);
     }
   else
     {
-      dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
-      dev->model->cmd_set->set_motor_power (dev->calib_reg, motor);
+      dev->model->cmd_set->set_lamp_power(dev, &dev->calib_reg, SANE_TRUE);
+      dev->model->cmd_set->set_motor_power(&dev->calib_reg, motor);
     }
 
   status =
-    dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
-					      dev->model->
-					      cmd_set->bulk_full_size ());
+    dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
@@ -1758,7 +1756,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   // wait some time to let lamp to get dark
   sanei_genesys_sleep_ms(200);
 
-  status = dev->model->cmd_set->begin_scan (dev, dev->calib_reg, SANE_FALSE);
+  status = dev->model->cmd_set->begin_scan(dev, &dev->calib_reg, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: Failed to begin scan: %s\n", __func__, sane_strstatus(status));
@@ -1772,7 +1770,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
       return status;
     }
 
-  status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
+  status = dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
@@ -1924,8 +1922,8 @@ genesys_white_shading_calibration (Genesys_Device * dev)
     }
 
   /* turn on motor and lamp power */
-  dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
-  dev->model->cmd_set->set_motor_power (dev->calib_reg, motor);
+  dev->model->cmd_set->set_lamp_power(dev, &dev->calib_reg, SANE_TRUE);
+  dev->model->cmd_set->set_motor_power(&dev->calib_reg, motor);
 
   /* if needed, go back before doing next scan */
   if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK)
@@ -1943,9 +1941,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
     }
 
   status =
-    dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
-					      dev->model->
-					      cmd_set->bulk_full_size ());
+    dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
@@ -1955,7 +1951,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)
     sanei_genesys_sleep_ms(500); // make sure lamp is bright again
 
-  status = dev->model->cmd_set->begin_scan (dev, dev->calib_reg, SANE_TRUE);
+  status = dev->model->cmd_set->begin_scan(dev, &dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: Failed to begin scan: %s\n", __func__, sane_strstatus(status));
@@ -1969,7 +1965,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
       return status;
     }
 
-  status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
+  status = dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
@@ -2055,20 +2051,18 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
     }
 
   /* turn on motor and lamp power */
-  dev->model->cmd_set->set_lamp_power (dev, dev->calib_reg, SANE_TRUE);
-  dev->model->cmd_set->set_motor_power (dev->calib_reg, motor);
+  dev->model->cmd_set->set_lamp_power(dev, &dev->calib_reg, SANE_TRUE);
+  dev->model->cmd_set->set_motor_power(&dev->calib_reg, motor);
 
   status =
-    dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
-					      dev->model->
-					      cmd_set->bulk_full_size ());
+    dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-  status = dev->model->cmd_set->begin_scan (dev, dev->calib_reg, SANE_FALSE);
+  status = dev->model->cmd_set->begin_scan(dev, &dev->calib_reg, SANE_FALSE);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -2083,7 +2077,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
       return status;
     }
 
-  status = dev->model->cmd_set->end_scan (dev, dev->calib_reg, SANE_TRUE);
+  status = dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: Failed to end scan: %s\n", __func__, sane_strstatus(status));
@@ -2677,7 +2671,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
    * to the next one, which allow to write the 3 channels in 1 write
    * during genesys_send_shading_coefficient, some values are words, other bytes
    * hence the x2 factor */
-  switch (sanei_genesys_read_reg_from_set (dev->reg, 0x05) >> 6)
+  switch (dev->reg.get8(0x05) >> 6)
     {
       /* 600 dpi */
     case 0:
@@ -2716,7 +2710,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
      Wn = white average for column n
      Dn = dark average for column n
    */
-  if (dev->model->cmd_set->get_gain4_bit (dev->calib_reg))
+  if (dev->model->cmd_set->get_gain4_bit(&dev->calib_reg))
     coeff = 0x4000;
   else
     coeff = 0x2000;
@@ -3550,14 +3544,14 @@ genesys_warmup_lamp (Genesys_Device * dev)
       return status;
     }
 
-  dev->model->cmd_set->init_regs_for_warmup (dev, dev->reg, &channels, &total_size);
+  dev->model->cmd_set->init_regs_for_warmup(dev, &dev->reg, &channels, &total_size);
   std::vector<uint8_t> first_line(total_size);
   std::vector<uint8_t> second_line(total_size);
 
   do
     {
       DBG(DBG_info, "%s: one more loop\n", __func__);
-      RIE(dev->model->cmd_set->begin_scan(dev, dev->reg, SANE_FALSE));
+      RIE(dev->model->cmd_set->begin_scan(dev, &dev->reg, SANE_FALSE));
       do
 	{
 	  sanei_genesys_test_buffer_empty (dev, &empty);
@@ -3570,12 +3564,12 @@ genesys_warmup_lamp (Genesys_Device * dev)
       RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
 	}
 
-      RIE(dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE));
+      RIE(dev->model->cmd_set->end_scan(dev, &dev->reg, SANE_TRUE));
 
       sleep (1);		/* sleep 1 s */
       seconds++;
 
-      RIE(dev->model->cmd_set->begin_scan(dev, dev->reg, SANE_FALSE));
+      RIE(dev->model->cmd_set->begin_scan(dev, &dev->reg, SANE_FALSE));
       do
 	{
 	  sanei_genesys_test_buffer_empty (dev, &empty);
@@ -3583,13 +3577,13 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	}
       while (empty);
       RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
-      RIE(dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE));
+      RIE(dev->model->cmd_set->end_scan(dev, &dev->reg, SANE_TRUE));
 
       /* compute difference between the two scans */
       for (pixel = 0; pixel < total_size; pixel++)
 	{
           /* 16 bit data */
-	  if (dev->model->cmd_set->get_bitset_bit (dev->reg))
+          if (dev->model->cmd_set->get_bitset_bit(&dev->reg))
 	    {
 	      first_average += (first_line[pixel] + first_line[pixel + 1] * 256);
 	      second_average += (second_line[pixel] + second_line[pixel + 1] * 256);
@@ -3601,7 +3595,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	      second_average += second_line[pixel];
 	    }
 	}
-      if (dev->model->cmd_set->get_bitset_bit (dev->reg))
+      if (dev->model->cmd_set->get_bitset_bit(&dev->reg))
 	{
 	  first_average /= pixel;
 	  second_average /= pixel;
@@ -3825,7 +3819,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
   /* no lamp during scan */
   if(lamp_off == SANE_TRUE)
     {
-      dev->model->cmd_set->set_lamp_power (dev, dev->reg, SANE_FALSE);
+      dev->model->cmd_set->set_lamp_power(dev, &dev->reg, SANE_FALSE);
     }
 
   /* GL124 is using SHDAREA, so we have to wait for scan to be set up before
@@ -3844,9 +3838,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 
   /* now send registers for scan */
   status =
-    dev->model->cmd_set->bulk_write_register (dev, dev->reg,
-					      dev->model->
-					      cmd_set->bulk_full_size ());
+    dev->model->cmd_set->bulk_write_register(dev, dev->reg);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write registers, status = %d\n", __func__, status);
@@ -3854,7 +3846,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
     }
 
   /* start effective scan */
-  status = dev->model->cmd_set->begin_scan (dev, dev->reg, SANE_TRUE);
+  status = dev->model->cmd_set->begin_scan(dev, &dev->reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
@@ -3863,9 +3855,9 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 
   /*do we really need this? the valid data check should be sufficent -- pierre*/
   /* waits for head to reach scanning position */
-  expected = sanei_genesys_read_reg_from_set (dev->reg, 0x3d) * 65536
-           + sanei_genesys_read_reg_from_set (dev->reg, 0x3e) * 256
-           + sanei_genesys_read_reg_from_set (dev->reg, 0x3f);
+  expected = dev->reg.get8(0x3d) * 65536
+           + dev->reg.get8(0x3e) * 256
+           + dev->reg.get8(0x3f);
   do
     {
       // wait some time between each test to avoid overloading USB and CPU
@@ -4746,7 +4738,7 @@ Problems with the first approach:
   /* end scan if all needed data have been read */
    if(dev->total_bytes_read >= dev->total_bytes_to_read)
     {
-      dev->model->cmd_set->end_scan (dev, dev->reg, SANE_TRUE);
+      dev->model->cmd_set->end_scan(dev, &dev->reg, SANE_TRUE);
       if (dev->model->is_sheetfed == SANE_TRUE)
         {
           dev->model->cmd_set->eject_document (dev);
@@ -7441,7 +7433,7 @@ void sane_cancel_impl(SANE_Handle handle)
   /* no need to end scan if we are parking the head */
   if(s->dev->parking==SANE_FALSE)
     {
-      status = s->dev->model->cmd_set->end_scan (s->dev, s->dev->reg, SANE_TRUE);
+      status = s->dev->model->cmd_set->end_scan(s->dev, &s->dev->reg, SANE_TRUE);
       if (status != SANE_STATUS_GOOD)
         {
           DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));

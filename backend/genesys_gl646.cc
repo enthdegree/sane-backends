@@ -104,7 +104,7 @@ gl646_bulk_read_data (Genesys_Device * dev, uint8_t addr,
 static SANE_Bool
 gl646_get_fast_feed_bit (Genesys_Register_Set * regs)
 {
-  Genesys_Register_Set *r = NULL;
+  GenesysRegister *r = NULL;
 
   r = sanei_genesys_get_address (regs, 0x02);
   if (r && (r->value & REG02_FASTFED))
@@ -115,7 +115,7 @@ gl646_get_fast_feed_bit (Genesys_Register_Set * regs)
 static SANE_Bool
 gl646_get_filter_bit (Genesys_Register_Set * regs)
 {
-  Genesys_Register_Set *r = NULL;
+  GenesysRegister *r = NULL;
 
   r = sanei_genesys_get_address (regs, 0x04);
   if (r && (r->value & REG04_FILTER))
@@ -126,7 +126,7 @@ gl646_get_filter_bit (Genesys_Register_Set * regs)
 static SANE_Bool
 gl646_get_lineart_bit (Genesys_Register_Set * regs)
 {
-  Genesys_Register_Set *r = NULL;
+  GenesysRegister *r = NULL;
 
   r = sanei_genesys_get_address (regs, 0x04);
   if (r && (r->value & REG04_LINEART))
@@ -137,7 +137,7 @@ gl646_get_lineart_bit (Genesys_Register_Set * regs)
 static SANE_Bool
 gl646_get_bitset_bit (Genesys_Register_Set * regs)
 {
-  Genesys_Register_Set *r = NULL;
+  GenesysRegister *r = NULL;
 
   r = sanei_genesys_get_address (regs, 0x04);
   if (r && (r->value & REG04_BITSET))
@@ -148,7 +148,7 @@ gl646_get_bitset_bit (Genesys_Register_Set * regs)
 static SANE_Bool
 gl646_get_gain4_bit (Genesys_Register_Set * regs)
 {
-  Genesys_Register_Set *r = NULL;
+  GenesysRegister *r = NULL;
 
   r = sanei_genesys_get_address (regs, 0x06);
   if (r && (r->value & REG06_GAIN4))
@@ -394,7 +394,7 @@ gl646_setup_registers (Genesys_Device * dev,
   Sensor_Master *sensor = NULL;
   Motor_Master *motor = NULL;
   Sensor_Settings *settings = NULL;
-  Genesys_Register_Set *r;
+  GenesysRegister *r;
   unsigned int used1, used2, vfinal;
   unsigned int bpp;   /**> bytes per pixel */
   uint32_t z1, z2;
@@ -550,76 +550,76 @@ gl646_setup_registers (Genesys_Device * dev,
   /* R01 */
   /* now setup other registers for final scan (ie with shading enabled) */
   /* watch dog + shading + scan enable */
-  regs[reg_0x01].value |= REG01_DOGENB | REG01_DVDSET | REG01_SCAN;
+  regs->find_reg(0x01).value |= REG01_DOGENB | REG01_DVDSET | REG01_SCAN;
   if (dev->model->is_cis == SANE_TRUE)
-    regs[reg_0x01].value |= REG01_CISSET;
+    regs->find_reg(0x01).value |= REG01_CISSET;
   else
-    regs[reg_0x01].value &= ~REG01_CISSET;
+    regs->find_reg(0x01).value &= ~REG01_CISSET;
 
   /* if device has no calibration, don't enable shading correction */
   if (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
     {
-      regs[reg_0x01].value &= ~REG01_DVDSET;
+      regs->find_reg(0x01).value &= ~REG01_DVDSET;
     }
 
-  regs[reg_0x01].value &= ~REG01_FASTMOD;
+  regs->find_reg(0x01).value &= ~REG01_FASTMOD;
   if (motor->fastmod)
-    regs[reg_0x01].value |= REG01_FASTMOD;
+    regs->find_reg(0x01).value |= REG01_FASTMOD;
 
   /* R02 */
   /* allow moving when buffer full by default */
   if (dev->model->is_sheetfed == SANE_FALSE)
-    dev->reg[reg_0x02].value &= ~REG02_ACDCDIS;
+    dev->reg.find_reg(0x02).value &= ~REG02_ACDCDIS;
   else
-    dev->reg[reg_0x02].value |= REG02_ACDCDIS;
+    dev->reg.find_reg(0x02).value |= REG02_ACDCDIS;
 
   /* setup motor power and direction */
-  regs[reg_0x02].value |= REG02_MTRPWR;
-  regs[reg_0x02].value &= ~REG02_MTRREV;
+  regs->find_reg(0x02).value |= REG02_MTRPWR;
+  regs->find_reg(0x02).value &= ~REG02_MTRREV;
 
   /* fastfed enabled (2 motor slope tables) */
   if (motor->fastfed)
-    regs[reg_0x02].value |= REG02_FASTFED;
+    regs->find_reg(0x02).value |= REG02_FASTFED;
   else
-    regs[reg_0x02].value &= ~REG02_FASTFED;
+    regs->find_reg(0x02).value &= ~REG02_FASTFED;
 
   /* step type */
-  regs[reg_0x02].value &= ~REG02_STEPSEL;
+  regs->find_reg(0x02).value &= ~REG02_STEPSEL;
   switch (motor->steptype)
     {
     case FULL_STEP:
       break;
     case HALF_STEP:
-      regs[reg_0x02].value |= 1;
+      regs->find_reg(0x02).value |= 1;
       break;
     case QUATER_STEP:
-      regs[reg_0x02].value |= 2;
+      regs->find_reg(0x02).value |= 2;
       break;
     default:
-      regs[reg_0x02].value |= 3;
+      regs->find_reg(0x02).value |= 3;
       break;
     }
 
   /* if sheetfed, no AGOHOME */
   if (dev->model->is_sheetfed == SANE_TRUE)
     {
-      regs[reg_0x02].value &= ~REG02_AGOHOME;
+      regs->find_reg(0x02).value &= ~REG02_AGOHOME;
     }
   else
     {
-      regs[reg_0x02].value |= REG02_AGOHOME;
+      regs->find_reg(0x02).value |= REG02_AGOHOME;
     }
 
   /* R03 */
-  regs[reg_0x03].value &= ~REG03_AVEENB;
-  /* regs[reg_0x03].value |= REG03_AVEENB; */
-  regs[reg_0x03].value &= ~REG03_LAMPDOG;
+  regs->find_reg(0x03).value &= ~REG03_AVEENB;
+  /* regs->find_reg(0x03).value |= REG03_AVEENB; */
+  regs->find_reg(0x03).value &= ~REG03_LAMPDOG;
 
   /* select XPA */
-  regs[reg_0x03].value &= ~REG03_XPASEL;
+  regs->find_reg(0x03).value &= ~REG03_XPASEL;
   if (scan_settings.scan_method == SCAN_METHOD_TRANSPARENCY)
     {
-      regs[reg_0x03].value |= REG03_XPASEL;
+      regs->find_reg(0x03).value |= REG03_XPASEL;
     }
 
   /* R04 */
@@ -627,84 +627,84 @@ gl646_setup_registers (Genesys_Device * dev,
   switch (depth)
     {
     case 1:
-      regs[reg_0x04].value &= ~REG04_BITSET;
-      regs[reg_0x04].value |= REG04_LINEART;
+      regs->find_reg(0x04).value &= ~REG04_BITSET;
+      regs->find_reg(0x04).value |= REG04_LINEART;
       break;
     case 8:
-      regs[reg_0x04].value &= ~(REG04_LINEART | REG04_BITSET);
+      regs->find_reg(0x04).value &= ~(REG04_LINEART | REG04_BITSET);
       break;
     case 16:
-      regs[reg_0x04].value &= ~REG04_LINEART;
-      regs[reg_0x04].value |= REG04_BITSET;
+      regs->find_reg(0x04).value &= ~REG04_LINEART;
+      regs->find_reg(0x04).value |= REG04_BITSET;
       break;
     }
 
   /* R05 */
-  regs[reg_0x05].value &= ~REG05_DPIHW;
+  regs->find_reg(0x05).value &= ~REG05_DPIHW;
   switch (dev->sensor.optical_res)
     {
     case 600:
-      regs[reg_0x05].value |= REG05_DPIHW_600;
+      regs->find_reg(0x05).value |= REG05_DPIHW_600;
       break;
     case 1200:
-      regs[reg_0x05].value |= REG05_DPIHW_1200;
+      regs->find_reg(0x05).value |= REG05_DPIHW_1200;
       break;
     case 2400:
-      regs[reg_0x05].value |= REG05_DPIHW_2400;
+      regs->find_reg(0x05).value |= REG05_DPIHW_2400;
       break;
     default:
-      regs[reg_0x05].value |= REG05_DPIHW;
+      regs->find_reg(0x05).value |= REG05_DPIHW;
     }
 
   /* gamma enable for scans */
   if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA)
-    regs[reg_0x05].value |= REG05_GMM14BIT;
+    regs->find_reg(0x05).value |= REG05_GMM14BIT;
 
-  regs[reg_0x05].value &= ~REG05_GMMENB;
+  regs->find_reg(0x05).value &= ~REG05_GMMENB;
 
   /* true CIS gray if needed */
   if (dev->model->is_cis == SANE_TRUE && color == SANE_FALSE
       && dev->settings.true_gray)
     {
-      regs[reg_0x05].value |= REG05_LEDADD;
+      regs->find_reg(0x05).value |= REG05_LEDADD;
     }
   else
     {
-      regs[reg_0x05].value &= ~REG05_LEDADD;
+      regs->find_reg(0x05).value &= ~REG05_LEDADD;
     }
 
   /* cktoggle, ckdelay and cksel at once, cktdelay=2 => half_ccd for md5345 */
-  regs[reg_0x18].value = sensor->r18;
+  regs->find_reg(0x18).value = sensor->r18;
 
   /* manual CCD/2 clock programming => half_ccd for hp2300 */
-  regs[reg_0x1d].value = sensor->r1d;
+  regs->find_reg(0x1d).value = sensor->r1d;
 
   /* HP2400 1200dpi mode tuning */
 
   if (dev->model->ccd_type == CCD_HP2400)
     {
       /* reset count of dummy lines to zero */
-      regs[reg_0x1e].value &= ~REG1E_LINESEL;
+      regs->find_reg(0x1e).value &= ~REG1E_LINESEL;
       if (scan_settings.xres >= 1200)
         {
           /* there must be one dummy line */
-          regs[reg_0x1e].value |= 1 & REG1E_LINESEL;
+          regs->find_reg(0x1e).value |= 1 & REG1E_LINESEL;
 
           /* GPO12 need to be set to zero */
-          regs[reg_0x66].value &= ~0x20;
+          regs->find_reg(0x66).value &= ~0x20;
         }
         else
         {
           /* set GPO12 back to one */
-          regs[reg_0x66].value |= 0x20;
+          regs->find_reg(0x66).value |= 0x20;
         }
     }
 
   /* motor steps used */
-  regs[reg_0x21].value = motor->steps1;
-  regs[reg_0x22].value = motor->fwdbwd;
-  regs[reg_0x23].value = motor->fwdbwd;
-  regs[reg_0x24].value = motor->steps1;
+  regs->find_reg(0x21).value = motor->steps1;
+  regs->find_reg(0x22).value = motor->fwdbwd;
+  regs->find_reg(0x23).value = motor->fwdbwd;
+  regs->find_reg(0x24).value = motor->steps1;
 
   /* scanned area height must be enlarged by max color shift needed */
   max_shift=sanei_genesys_compute_max_shift(dev,channels,scan_settings.yres,0);
@@ -900,9 +900,9 @@ gl646_setup_registers (Genesys_Device * dev,
   DBG(DBG_info, "%s: final move=%d\n", __func__, feedl);
   sanei_genesys_set_triple(regs, REG_FEEDL, feedl);
 
-  regs[reg_0x65].value = motor->mtrpwm;
+  regs->find_reg(0x65).value = motor->mtrpwm;
 
-  sanei_genesys_calculate_zmode2 (regs[reg_0x02].value & REG02_FASTFED,
+  sanei_genesys_calculate_zmode2 (regs->find_reg(0x02).value & REG02_FASTFED,
 				  sensor->exposure,
 				  slope_table1,
 				  motor->steps1,
@@ -916,9 +916,9 @@ gl646_setup_registers (Genesys_Device * dev,
     }
   sanei_genesys_set_double(regs, REG_Z1MOD, z1);
   sanei_genesys_set_double(regs, REG_Z2MOD, z2);
-  regs[reg_0x6b].value = motor->steps2;
-  regs[reg_0x6c].value =
-    (regs[reg_0x6c].value & REG6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16)
+  regs->find_reg(0x6b).value = motor->steps2;
+  regs->find_reg(0x6c).value =
+    (regs->find_reg(0x6c).value & REG6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16)
 								   & 0x07);
 
   RIE (write_control (dev, xresolution));
@@ -995,7 +995,7 @@ gl646_setup_registers (Genesys_Device * dev,
 static void
 gl646_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs)
 {
-  Genesys_Register_Set *r;
+  GenesysRegister *r;
   int i;
 
   DBG(DBG_proc, "%s: start\n", __func__);
@@ -1132,13 +1132,6 @@ gl646_asic_test (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
-/* returns the max register bulk size */
-static int
-gl646_bulk_full_size (void)
-{
-  return GENESYS_GL646_MAX_REGS;
-}
-
 /**
  * Set all registers to default values after init
  * @param dev scannerr's device to set
@@ -1146,187 +1139,186 @@ gl646_bulk_full_size (void)
 static void
 gl646_init_regs (Genesys_Device * dev)
 {
-  int nr, addr;
+  int addr;
 
   DBG(DBG_proc, "%s\n", __func__);
 
-  nr = 0;
-  memset (dev->reg, 0, GENESYS_MAX_REGS * sizeof (Genesys_Register_Set));
+    dev->reg.clear();
 
-  for (addr = 1; addr <= 0x0b; addr++)
-    dev->reg[nr++].address = addr;
-  for (addr = 0x10; addr <= 0x29; addr++)
-    dev->reg[nr++].address = addr;
-  for (addr = 0x2c; addr <= 0x39; addr++)
-    dev->reg[nr++].address = addr;
-  for (addr = 0x3d; addr <= 0x3f; addr++)
-    dev->reg[nr++].address = addr;
-  for (addr = 0x52; addr <= 0x5e; addr++)
-    dev->reg[nr++].address = addr;
-  for (addr = 0x60; addr <= 0x6d; addr++)
-    dev->reg[nr++].address = addr;
+    for (addr = 1; addr <= 0x0b; addr++)
+        dev->reg.init_reg(addr, 0);
+    for (addr = 0x10; addr <= 0x29; addr++)
+        dev->reg.init_reg(addr, 0);
+    for (addr = 0x2c; addr <= 0x39; addr++)
+        dev->reg.init_reg(addr, 0);
+    for (addr = 0x3d; addr <= 0x3f; addr++)
+        dev->reg.init_reg(addr, 0);
+    for (addr = 0x52; addr <= 0x5e; addr++)
+        dev->reg.init_reg(addr, 0);
+    for (addr = 0x60; addr <= 0x6d; addr++)
+        dev->reg.init_reg(addr, 0);
 
-  dev->reg[reg_0x01].value = 0x20 /*0x22 */ ;	/* enable shading, CCD, color, 1M */
-  dev->reg[reg_0x02].value = 0x30 /*0x38 */ ;	/* auto home, one-table-move, full step */
+  dev->reg.find_reg(0x01).value = 0x20 /*0x22 */ ;	/* enable shading, CCD, color, 1M */
+  dev->reg.find_reg(0x02).value = 0x30 /*0x38 */ ;	/* auto home, one-table-move, full step */
   if (dev->model->motor_type == MOTOR_5345)
-    dev->reg[reg_0x02].value |= 0x01;	/* half-step */
+    dev->reg.find_reg(0x02).value |= 0x01;	/* half-step */
   switch (dev->model->motor_type)
     {
     case MOTOR_5345:
-      dev->reg[reg_0x02].value |= 0x01;	/* half-step */
+      dev->reg.find_reg(0x02).value |= 0x01;	/* half-step */
       break;
     case MOTOR_XP200:
       /* for this sheetfed scanner, no AGOHOME, nor backtracking */
-      dev->reg[reg_0x02].value = 0x50;
+      dev->reg.find_reg(0x02).value = 0x50;
       break;
     default:
       break;
     }
-  dev->reg[reg_0x03].value = 0x1f /*0x17 */ ;	/* lamp on */
-  dev->reg[reg_0x04].value = 0x13 /*0x03 */ ;	/* 8 bits data, 16 bits A/D, color, Wolfson fe *//* todo: according to spec, 0x0 is reserved? */
+  dev->reg.find_reg(0x03).value = 0x1f /*0x17 */ ;	/* lamp on */
+  dev->reg.find_reg(0x04).value = 0x13 /*0x03 */ ;	/* 8 bits data, 16 bits A/D, color, Wolfson fe *//* todo: according to spec, 0x0 is reserved? */
   switch (dev->model->dac_type)
     {
     case DAC_AD_XP200:
-      dev->reg[reg_0x04].value = 0x12;
+      dev->reg.find_reg(0x04).value = 0x12;
       break;
     default:
       /* Wolfson frontend */
-      dev->reg[reg_0x04].value = 0x13;
+      dev->reg.find_reg(0x04).value = 0x13;
       break;
     }
 
-  dev->reg[reg_0x05].value = 0x00;	/* 12 bits gamma, disable gamma, 24 clocks/pixel */
+  dev->reg.find_reg(0x05).value = 0x00;	/* 12 bits gamma, disable gamma, 24 clocks/pixel */
   switch (dev->sensor.optical_res)
     {
     case 600:
-      dev->reg[reg_0x05].value |= REG05_DPIHW_600;
+      dev->reg.find_reg(0x05).value |= REG05_DPIHW_600;
       break;
     case 1200:
-      dev->reg[reg_0x05].value |= REG05_DPIHW_1200;
+      dev->reg.find_reg(0x05).value |= REG05_DPIHW_1200;
       break;
     case 2400:
-      dev->reg[reg_0x05].value |= REG05_DPIHW_2400;
+      dev->reg.find_reg(0x05).value |= REG05_DPIHW_2400;
       break;
     default:
-      dev->reg[reg_0x05].value |= REG05_DPIHW;
+      dev->reg.find_reg(0x05).value |= REG05_DPIHW;
       break;
     }
   if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA)
-    dev->reg[reg_0x05].value |= REG05_GMM14BIT;
+    dev->reg.find_reg(0x05).value |= REG05_GMM14BIT;
   if (dev->model->dac_type == DAC_AD_XP200)
-    dev->reg[reg_0x05].value |= 0x01;	/* 12 clocks/pixel */
+    dev->reg.find_reg(0x05).value |= 0x01;	/* 12 clocks/pixel */
 
   if (dev->model->ccd_type == CCD_HP2300)
-    dev->reg[reg_0x06].value = 0x00;	/* PWRBIT off, shading gain=4, normal AFE image capture */
+    dev->reg.find_reg(0x06).value = 0x00;	/* PWRBIT off, shading gain=4, normal AFE image capture */
   else
-    dev->reg[reg_0x06].value = 0x18;	/* PWRBIT on, shading gain=8, normal AFE image capture */
+    dev->reg.find_reg(0x06).value = 0x18;	/* PWRBIT on, shading gain=8, normal AFE image capture */
 
 
-  gl646_setup_sensor (dev, dev->reg);
+  gl646_setup_sensor(dev, &dev->reg);
 
-  dev->reg[reg_0x1e].value = 0xf0;	/* watch-dog time */
+  dev->reg.find_reg(0x1e).value = 0xf0;	/* watch-dog time */
 
   switch (dev->model->ccd_type)
     {
     case CCD_HP2300:
-      dev->reg[reg_0x1e].value = 0xf0;
-      dev->reg[reg_0x1f].value = 0x10;
-      dev->reg[reg_0x20].value = 0x20;
+      dev->reg.find_reg(0x1e).value = 0xf0;
+      dev->reg.find_reg(0x1f).value = 0x10;
+      dev->reg.find_reg(0x20).value = 0x20;
       break;
     case CCD_HP2400:
-      dev->reg[reg_0x1e].value = 0x80;
-      dev->reg[reg_0x1f].value = 0x10;
-      dev->reg[reg_0x20].value = 0x20;
+      dev->reg.find_reg(0x1e).value = 0x80;
+      dev->reg.find_reg(0x1f).value = 0x10;
+      dev->reg.find_reg(0x20).value = 0x20;
       break;
     case CCD_HP3670:
-      dev->reg[reg_0x19].value = 0x2a;
-      dev->reg[reg_0x1e].value = 0x80;
-      dev->reg[reg_0x1f].value = 0x10;
-      dev->reg[reg_0x20].value = 0x20;
+      dev->reg.find_reg(0x19).value = 0x2a;
+      dev->reg.find_reg(0x1e).value = 0x80;
+      dev->reg.find_reg(0x1f).value = 0x10;
+      dev->reg.find_reg(0x20).value = 0x20;
       break;
     case CIS_XP200:
-      dev->reg[reg_0x1e].value = 0x10;
-      dev->reg[reg_0x1f].value = 0x01;
-      dev->reg[reg_0x20].value = 0x50;
+      dev->reg.find_reg(0x1e).value = 0x10;
+      dev->reg.find_reg(0x1f).value = 0x01;
+      dev->reg.find_reg(0x20).value = 0x50;
       break;
     default:
-      dev->reg[reg_0x1f].value = 0x01;
-      dev->reg[reg_0x20].value = 0x50;
+      dev->reg.find_reg(0x1f).value = 0x01;
+      dev->reg.find_reg(0x20).value = 0x50;
       break;
     }
 
-  dev->reg[reg_0x21].value = 0x08 /*0x20 */ ;	/* table one steps number for forward slope curve of the acc/dec */
-  dev->reg[reg_0x22].value = 0x10 /*0x08 */ ;	/* steps number of the forward steps for start/stop */
-  dev->reg[reg_0x23].value = 0x10 /*0x08 */ ;	/* steps number of the backward steps for start/stop */
-  dev->reg[reg_0x24].value = 0x08 /*0x20 */ ;	/* table one steps number backward slope curve of the acc/dec */
-  dev->reg[reg_0x25].value = 0x00;	/* scan line numbers (7000) */
-  dev->reg[reg_0x26].value = 0x00 /*0x1b */ ;
-  dev->reg[reg_0x27].value = 0xd4 /*0x58 */ ;
-  dev->reg[reg_0x28].value = 0x01;	/* PWM duty for lamp control */
-  dev->reg[reg_0x29].value = 0xff;
+  dev->reg.find_reg(0x21).value = 0x08 /*0x20 */ ;	/* table one steps number for forward slope curve of the acc/dec */
+  dev->reg.find_reg(0x22).value = 0x10 /*0x08 */ ;	/* steps number of the forward steps for start/stop */
+  dev->reg.find_reg(0x23).value = 0x10 /*0x08 */ ;	/* steps number of the backward steps for start/stop */
+  dev->reg.find_reg(0x24).value = 0x08 /*0x20 */ ;	/* table one steps number backward slope curve of the acc/dec */
+  dev->reg.find_reg(0x25).value = 0x00;	/* scan line numbers (7000) */
+  dev->reg.find_reg(0x26).value = 0x00 /*0x1b */ ;
+  dev->reg.find_reg(0x27).value = 0xd4 /*0x58 */ ;
+  dev->reg.find_reg(0x28).value = 0x01;	/* PWM duty for lamp control */
+  dev->reg.find_reg(0x29).value = 0xff;
 
-  dev->reg[reg_0x2c].value = 0x02;	/* set resolution (600 DPI) */
-  dev->reg[reg_0x2d].value = 0x58;
-  dev->reg[reg_0x2e].value = 0x78;	/* set black&white threshold high level */
-  dev->reg[reg_0x2f].value = 0x7f;	/* set black&white threshold low level */
+  dev->reg.find_reg(0x2c).value = 0x02;	/* set resolution (600 DPI) */
+  dev->reg.find_reg(0x2d).value = 0x58;
+  dev->reg.find_reg(0x2e).value = 0x78;	/* set black&white threshold high level */
+  dev->reg.find_reg(0x2f).value = 0x7f;	/* set black&white threshold low level */
 
-  dev->reg[reg_0x30].value = 0x00;	/* begin pixel position (16) */
-  dev->reg[reg_0x31].value = dev->sensor.dummy_pixel /*0x10 */ ;	/* TGW + 2*TG_SHLD + x  */
-  dev->reg[reg_0x32].value = 0x2a /*0x15 */ ;	/* end pixel position (5390) */
-  dev->reg[reg_0x33].value = 0xf8 /*0x0e */ ;	/* TGW + 2*TG_SHLD + y   */
-  dev->reg[reg_0x34].value = dev->sensor.dummy_pixel;
-  dev->reg[reg_0x35].value = 0x01 /*0x00 */ ;	/* set maximum word size per line, for buffer full control (10800) */
-  dev->reg[reg_0x36].value = 0x00 /*0x2a */ ;
-  dev->reg[reg_0x37].value = 0x00 /*0x30 */ ;
-  dev->reg[reg_0x38].value = HIBYTE (dev->settings.exposure_time) /*0x2a */ ;	/* line period (exposure time = 11000 pixels) */
-  dev->reg[reg_0x39].value = LOBYTE (dev->settings.exposure_time) /*0xf8 */ ;
-  dev->reg[reg_0x3d].value = 0x00;	/* set feed steps number of motor move */
-  dev->reg[reg_0x3e].value = 0x00;
-  dev->reg[reg_0x3f].value = 0x01 /*0x00 */ ;
+  dev->reg.find_reg(0x30).value = 0x00;	/* begin pixel position (16) */
+  dev->reg.find_reg(0x31).value = dev->sensor.dummy_pixel /*0x10 */ ;	/* TGW + 2*TG_SHLD + x  */
+  dev->reg.find_reg(0x32).value = 0x2a /*0x15 */ ;	/* end pixel position (5390) */
+  dev->reg.find_reg(0x33).value = 0xf8 /*0x0e */ ;	/* TGW + 2*TG_SHLD + y   */
+  dev->reg.find_reg(0x34).value = dev->sensor.dummy_pixel;
+  dev->reg.find_reg(0x35).value = 0x01 /*0x00 */ ;	/* set maximum word size per line, for buffer full control (10800) */
+  dev->reg.find_reg(0x36).value = 0x00 /*0x2a */ ;
+  dev->reg.find_reg(0x37).value = 0x00 /*0x30 */ ;
+  dev->reg.find_reg(0x38).value = HIBYTE (dev->settings.exposure_time) /*0x2a */ ;	/* line period (exposure time = 11000 pixels) */
+  dev->reg.find_reg(0x39).value = LOBYTE (dev->settings.exposure_time) /*0xf8 */ ;
+  dev->reg.find_reg(0x3d).value = 0x00;	/* set feed steps number of motor move */
+  dev->reg.find_reg(0x3e).value = 0x00;
+  dev->reg.find_reg(0x3f).value = 0x01 /*0x00 */ ;
 
-  dev->reg[reg_0x60].value = 0x00;	/* Z1MOD, 60h:61h:(6D b5:b3), remainder for start/stop */
-  dev->reg[reg_0x61].value = 0x00;	/* (21h+22h)/LPeriod */
-  dev->reg[reg_0x62].value = 0x00;	/* Z2MODE, 62h:63h:(6D b2:b0), remainder for start scan */
-  dev->reg[reg_0x63].value = 0x00;	/* (3Dh+3Eh+3Fh)/LPeriod for one-table mode,(21h+1Fh)/LPeriod */
-  dev->reg[reg_0x64].value = 0x00;	/* motor PWM frequency */
-  dev->reg[reg_0x65].value = 0x00;	/* PWM duty cycle for table one motor phase (63 = max) */
+  dev->reg.find_reg(0x60).value = 0x00;	/* Z1MOD, 60h:61h:(6D b5:b3), remainder for start/stop */
+  dev->reg.find_reg(0x61).value = 0x00;	/* (21h+22h)/LPeriod */
+  dev->reg.find_reg(0x62).value = 0x00;	/* Z2MODE, 62h:63h:(6D b2:b0), remainder for start scan */
+  dev->reg.find_reg(0x63).value = 0x00;	/* (3Dh+3Eh+3Fh)/LPeriod for one-table mode,(21h+1Fh)/LPeriod */
+  dev->reg.find_reg(0x64).value = 0x00;	/* motor PWM frequency */
+  dev->reg.find_reg(0x65).value = 0x00;	/* PWM duty cycle for table one motor phase (63 = max) */
   if (dev->model->motor_type == MOTOR_5345)
-    dev->reg[reg_0x65].value = 0x02;	/* PWM duty cycle for table one motor phase (63 = max) */
-  dev->reg[reg_0x66].value = dev->gpo.value[0];
-  dev->reg[reg_0x67].value = dev->gpo.value[1];
-  dev->reg[reg_0x68].value = dev->gpo.enable[0];
-  dev->reg[reg_0x69].value = dev->gpo.enable[1];
+    dev->reg.find_reg(0x65).value = 0x02;	/* PWM duty cycle for table one motor phase (63 = max) */
+  dev->reg.find_reg(0x66).value = dev->gpo.value[0];
+  dev->reg.find_reg(0x67).value = dev->gpo.value[1];
+  dev->reg.find_reg(0x68).value = dev->gpo.enable[0];
+  dev->reg.find_reg(0x69).value = dev->gpo.enable[1];
 
   switch (dev->model->motor_type)
     {
     case MOTOR_HP2300:
     case MOTOR_HP2400:
-      dev->reg[reg_0x6a].value = 0x7f;	/* table two steps number for acc/dec */
-      dev->reg[reg_0x6b].value = 0x78;	/* table two steps number for acc/dec */
-      dev->reg[reg_0x6d].value = 0x7f;
+      dev->reg.find_reg(0x6a).value = 0x7f;	/* table two steps number for acc/dec */
+      dev->reg.find_reg(0x6b).value = 0x78;	/* table two steps number for acc/dec */
+      dev->reg.find_reg(0x6d).value = 0x7f;
       break;
     case MOTOR_5345:
-      dev->reg[reg_0x6a].value = 0x42;	/* table two fast moving step type, PWM duty for table two */
-      dev->reg[reg_0x6b].value = 0xff;	/* table two steps number for acc/dec */
-      dev->reg[reg_0x6d].value = 0x41;	/* select deceleration steps whenever go home (0), accel/decel stop time (31 * LPeriod) */
+      dev->reg.find_reg(0x6a).value = 0x42;	/* table two fast moving step type, PWM duty for table two */
+      dev->reg.find_reg(0x6b).value = 0xff;	/* table two steps number for acc/dec */
+      dev->reg.find_reg(0x6d).value = 0x41;	/* select deceleration steps whenever go home (0), accel/decel stop time (31 * LPeriod) */
       break;
     case MOTOR_XP200:
-      dev->reg[reg_0x6a].value = 0x7f;	/* table two fast moving step type, PWM duty for table two */
-      dev->reg[reg_0x6b].value = 0x08;	/* table two steps number for acc/dec */
-      dev->reg[reg_0x6d].value = 0x01;	/* select deceleration steps whenever go home (0), accel/decel stop time (31 * LPeriod) */
+      dev->reg.find_reg(0x6a).value = 0x7f;	/* table two fast moving step type, PWM duty for table two */
+      dev->reg.find_reg(0x6b).value = 0x08;	/* table two steps number for acc/dec */
+      dev->reg.find_reg(0x6d).value = 0x01;	/* select deceleration steps whenever go home (0), accel/decel stop time (31 * LPeriod) */
       break;
     case MOTOR_HP3670:
-      dev->reg[reg_0x6a].value = 0x41;	/* table two steps number for acc/dec */
-      dev->reg[reg_0x6b].value = 0xc8;	/* table two steps number for acc/dec */
-      dev->reg[reg_0x6d].value = 0x7f;
+      dev->reg.find_reg(0x6a).value = 0x41;	/* table two steps number for acc/dec */
+      dev->reg.find_reg(0x6b).value = 0xc8;	/* table two steps number for acc/dec */
+      dev->reg.find_reg(0x6d).value = 0x7f;
       break;
     default:
-      dev->reg[reg_0x6a].value = 0x40;	/* table two fast moving step type, PWM duty for table two */
-      dev->reg[reg_0x6b].value = 0xff;	/* table two steps number for acc/dec */
-      dev->reg[reg_0x6d].value = 0x01;	/* select deceleration steps whenever go home (0), accel/decel stop time (31 * LPeriod) */
+      dev->reg.find_reg(0x6a).value = 0x40;	/* table two fast moving step type, PWM duty for table two */
+      dev->reg.find_reg(0x6b).value = 0xff;	/* table two steps number for acc/dec */
+      dev->reg.find_reg(0x6d).value = 0x01;	/* select deceleration steps whenever go home (0), accel/decel stop time (31 * LPeriod) */
       break;
     }
-  dev->reg[reg_0x6c].value = 0x00;	/* peroid times for LPeriod, expR,expG,expB, Z1MODE, Z2MODE (one period time) */
+  dev->reg.find_reg(0x6c).value = 0x00;	/* peroid times for LPeriod, expR,expG,expB, Z1MODE, Z2MODE (one period time) */
 }
 
 
@@ -1344,7 +1336,7 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
   DBG(DBG_proc, "%s (table_nr = %d, steps = %d)=%d .. %d\n", __func__, table_nr, steps,
       slope_table[0], slope_table[steps - 1]);
 
-  dpihw = dev->reg[reg_0x05].value >> 6;
+  dpihw = dev->reg.find_reg(0x05).value >> 6;
 
   if (dpihw == 0)		/* 600 dpi */
     start_address = 0x08000;
@@ -1586,14 +1578,14 @@ gl646_set_fe (Genesys_Device * dev, uint8_t set, int dpi)
       AFE_POWER_SAVE ? "powersave" : "huh?", dpi);
 
   /* Analog Device type frontend */
-  if ((dev->reg[reg_0x04].value & REG04_FESET) == 0x02)
+  if ((dev->reg.find_reg(0x04).value & REG04_FESET) == 0x02)
     return gl646_set_ad_fe (dev, set);
 
   /* Wolfson type frontend */
-  if ((dev->reg[reg_0x04].value & REG04_FESET) != 0x03)
+  if ((dev->reg.find_reg(0x04).value & REG04_FESET) != 0x03)
     {
       DBG(DBG_proc, "%s(): unsupported frontend type %d\n", __func__,
-          dev->reg[reg_0x04].value & REG04_FESET);
+          dev->reg.find_reg(0x04).value & REG04_FESET);
       return SANE_STATUS_UNSUPPORTED;
     }
 
@@ -1831,40 +1823,29 @@ static SANE_Status
 gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  Genesys_Register_Set local_reg[6];
+  Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
   int rate, exposure_time, tgtime, time;
 
   DBG(DBG_proc, "%s (delay = %d)\n", __func__, delay);
 
-  local_reg[0].address = 0x01;
-  local_reg[0].value = sanei_genesys_read_reg_from_set (dev->reg, 0x01);	/* disable fastmode */
-
-  local_reg[1].address = 0x03;
-  local_reg[1].value = sanei_genesys_read_reg_from_set (dev->reg, 0x03);	/* Lamp power control */
-
-  local_reg[2].address = 0x05;
-  local_reg[2].value = sanei_genesys_read_reg_from_set (dev->reg, 0x05) & ~REG05_BASESEL;	/* 24 clocks/pixel */
-
-  local_reg[3].address = 0x38;	/* line period low */
-  local_reg[3].value = 0x00;
-
-  local_reg[4].address = 0x39;	/* line period high */
-  local_reg[4].value = 0x00;
-
-  local_reg[5].address = 0x6c;	/* period times for LPeriod, expR,expG,expB, Z1MODE, Z2MODE */
-  local_reg[5].value = 0x00;
+  local_reg.init_reg(0x01, dev->reg.get8(0x01));	// disable fastmode
+  local_reg.init_reg(0x03, dev->reg.get8(0x03));        // Lamp power control
+  local_reg.init_reg(0x05, dev->reg.get8(0x05) & ~REG05_BASESEL);   // 24 clocks/pixel
+  local_reg.init_reg(0x38, 0x00); // line period low
+  local_reg.init_reg(0x39, 0x00); //line period high
+  local_reg.init_reg(0x6c, 0x00); // period times for LPeriod, expR,expG,expB, Z1MODE, Z2MODE
 
   if (!delay)
-    local_reg[1].value = local_reg[1].value & 0xf0;	/* disable lampdog and set lamptime = 0 */
+    local_reg.find_reg(0x03).value &= 0xf0;	/* disable lampdog and set lamptime = 0 */
   else if (delay < 20)
-    local_reg[1].value = (local_reg[1].value & 0xf0) | 0x09;	/* enable lampdog and set lamptime = 1 */
+    local_reg.find_reg(0x03).value = (local_reg.get8(0x03) & 0xf0) | 0x09;	/* enable lampdog and set lamptime = 1 */
   else
-    local_reg[1].value = (local_reg[1].value & 0xf0) | 0x0f;	/* enable lampdog and set lamptime = 7 */
+    local_reg.find_reg(0x03).value = (local_reg.get8(0x03) & 0xf0) | 0x0f;	/* enable lampdog and set lamptime = 7 */
 
   time = delay * 1000 * 60;	/* -> msec */
   exposure_time =
     (uint32_t) (time * 32000.0 /
-		(24.0 * 64.0 * (local_reg[1].value & REG03_LAMPTIM) *
+                (24.0 * 64.0 * (local_reg.get8(0x03) & REG03_LAMPTIM) *
 		 1024.0) + 0.5);
   /* 32000 = system clock, 24 = clocks per pixel */
   rate = (exposure_time + 65536) / 65536;
@@ -1889,17 +1870,16 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
       tgtime = 0;
     }
 
-  local_reg[5].value |= tgtime << 6;
+  local_reg.find_reg(0x6c).value |= tgtime << 6;
   exposure_time /= rate;
 
   if (exposure_time > 65535)
     exposure_time = 65535;
 
-  local_reg[3].value = exposure_time / 256;	/* highbyte */
-  local_reg[4].value = exposure_time & 255;	/* lowbyte */
+  local_reg.find_reg(0x38).value = exposure_time / 256;
+  local_reg.find_reg(0x39).value = exposure_time & 255;
 
-  status = sanei_genesys_bulk_write_register(dev, local_reg,
-                                             sizeof (local_reg) / sizeof (local_reg[0]));
+  status = sanei_genesys_bulk_write_register(dev, local_reg);
   if (status != SANE_STATUS_GOOD)
     DBG(DBG_error, "%s: Failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
 
@@ -1922,7 +1902,9 @@ static SANE_Status
 gl646_load_document (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  Genesys_Register_Set regs[11];
+
+  // FIXME: sequential not really needed in this case
+  Genesys_Register_Set regs(Genesys_Register_Set::SEQUENTIAL);
   unsigned int used, vfinal, count;
   uint16_t slope_table[255];
   uint8_t val;
@@ -1976,38 +1958,27 @@ gl646_load_document (Genesys_Device * dev)
     }
 
   /* set up to fast move before scan then move until document is detected */
-  regs[0].address = 0x01;
-  regs[0].value = 0x90;
+  regs.init_reg(0x01, 0x90);
 
   /* AGOME, 2 slopes motor moving */
-  regs[1].address = 0x02;
-  regs[1].value = 0x79;
+  regs.init_reg(0x02, 0x79);
 
   /* motor feeding steps to 0 */
-  regs[2].address = 0x3d;
-  regs[2].value = 0;
-  regs[3].address = 0x3e;
-  regs[3].value = 0;
-  regs[4].address = 0x3f;
-  regs[4].value = 0;
+  regs.init_reg(0x3d, 0);
+  regs.init_reg(0x3e, 0);
+  regs.init_reg(0x3f, 0);
 
   /* 50 fast moving steps */
-  regs[5].address = 0x6b;
-  regs[5].value = 50;
+  regs.init_reg(0x6b, 50);
 
   /* set GPO */
-  regs[6].address = 0x66;
-  regs[6].value = 0x30;
+  regs.init_reg(0x66, 0x30);
 
   /* stesp NO */
-  regs[7].address = 0x21;
-  regs[7].value = 4;
-  regs[8].address = 0x22;
-  regs[8].value = 1;
-  regs[9].address = 0x23;
-  regs[9].value = 1;
-  regs[10].address = 0x24;
-  regs[10].value = 4;
+  regs.init_reg(0x21, 4);
+  regs.init_reg(0x22, 1);
+  regs.init_reg(0x23, 1);
+  regs.init_reg(0x24, 4);
 
   /* generate slope table 2 */
   sanei_genesys_generate_slope_table (slope_table,
@@ -2026,7 +1997,7 @@ gl646_load_document (Genesys_Device * dev)
       DBG(DBG_error, "%s: failed to send slope table 1: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  status = sanei_genesys_bulk_write_register(dev, regs, sizeof(regs) / sizeof(regs[0]));
+  status = sanei_genesys_bulk_write_register(dev, regs);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
@@ -2063,10 +2034,10 @@ gl646_load_document (Genesys_Device * dev)
   dev->document = SANE_TRUE;
 
   /* set up to idle */
-  regs[1].value = 0x71;
-  regs[4].value = 1;
-  regs[5].value = 8;
-  status = sanei_genesys_bulk_write_register(dev, regs, sizeof(regs) / sizeof(regs[0]));
+  regs.set8(0x02, 0x71);
+  regs.set8(0x3f, 1);
+  regs.set8(0x6b, 8);
+  status = sanei_genesys_bulk_write_register(dev, regs);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write idle registers: %s\n", __func__,
@@ -2160,7 +2131,9 @@ static SANE_Status
 gl646_eject_document (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  Genesys_Register_Set regs[11];
+
+  // FIXME: SEQUENTIAL not really needed in this case
+  Genesys_Register_Set regs((Genesys_Register_Set::SEQUENTIAL));
   unsigned int used, vfinal, count;
   uint16_t slope_table[255];
   uint8_t gpio, state;
@@ -2223,38 +2196,27 @@ gl646_eject_document (Genesys_Device * dev)
   while (state & REG41_MOTMFLG);
 
   /* set up to fast move before scan then move until document is detected */
-  regs[0].address = 0x01;
-  regs[0].value = 0xb0;
+  regs.init_reg(0x01, 0xb0);
 
   /* AGOME, 2 slopes motor moving , eject 'backward' */
-  regs[1].address = 0x02;
-  regs[1].value = 0x5d;
+  regs.init_reg(0x02, 0x5d);
 
   /* motor feeding steps to 119880 */
-  regs[2].address = 0x3d;
-  regs[2].value = 1;
-  regs[3].address = 0x3e;
-  regs[3].value = 0xd4;
-  regs[4].address = 0x3f;
-  regs[4].value = 0x48;
+  regs.init_reg(0x3d, 1);
+  regs.init_reg(0x3e, 0xd4);
+  regs.init_reg(0x3f, 0x48);
 
   /* 60 fast moving steps */
-  regs[5].address = 0x6b;
-  regs[5].value = 60;
+  regs.init_reg(0x6b, 60);
 
   /* set GPO */
-  regs[6].address = 0x66;
-  regs[6].value = 0x30;
+  regs.init_reg(0x66, 0x30);
 
   /* stesp NO */
-  regs[7].address = 0x21;
-  regs[7].value = 4;
-  regs[8].address = 0x22;
-  regs[8].value = 1;
-  regs[9].address = 0x23;
-  regs[9].value = 1;
-  regs[10].address = 0x24;
-  regs[10].value = 4;
+  regs.init_reg(0x21, 4);
+  regs.init_reg(0x22, 1);
+  regs.init_reg(0x23, 1);
+  regs.init_reg(0x24, 4);
 
   /* generate slope table 2 */
   sanei_genesys_generate_slope_table (slope_table,
@@ -2273,7 +2235,7 @@ gl646_eject_document (Genesys_Device * dev)
       DBG(DBG_error, "%s: failed to send slope table 1: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  status = sanei_genesys_bulk_write_register(dev, regs, sizeof(regs) / sizeof(regs[0]));
+  status = sanei_genesys_bulk_write_register(dev, regs);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
@@ -2323,24 +2285,21 @@ gl646_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		  SANE_Bool start_motor)
 {
   SANE_Status status;
-  Genesys_Register_Set local_reg[3];
+  // FIXME: SEQUENTIAL not really needed in this case
+  Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
 
   DBG(DBG_proc, "%s\n", __func__);
 
-  local_reg[0].address = 0x03;
-  local_reg[0].value = sanei_genesys_read_reg_from_set (reg, 0x03);
+    local_reg.init_reg(0x03, sanei_genesys_read_reg_from_set(reg, 0x03));
+    local_reg.init_reg(0x01, sanei_genesys_read_reg_from_set(reg, 0x01) | REG01_SCAN);	/* set scan bit */
 
-  local_reg[1].address = 0x01;
-  local_reg[1].value = sanei_genesys_read_reg_from_set (reg, 0x01) | REG01_SCAN;	/* set scan bit */
+    if (start_motor) {
+        local_reg.init_reg(0x0f, 0x01);
+    } else {
+        local_reg.init_reg(0x0f, 0x00); // do not start motor yet
+    }
 
-  local_reg[2].address = 0x0f;
-  if (start_motor)
-    local_reg[2].value = 0x01;
-  else
-    local_reg[2].value = 0x00;	/* do not start motor yet */
-
-  status = sanei_genesys_bulk_write_register(dev, local_reg,
-                                             sizeof(local_reg) / sizeof(local_reg[0]));
+  status = sanei_genesys_bulk_write_register(dev, local_reg);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -2574,7 +2533,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
-  status = setup_for_scan (dev, dev->reg, settings, SANE_TRUE, SANE_TRUE, SANE_TRUE);
+  status = setup_for_scan(dev, &dev->reg, settings, SANE_TRUE, SANE_TRUE, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup for scan: %s\n", __func__, sane_strstatus(status));
@@ -2583,9 +2542,9 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
 
   /* backward , no actual data scanned TODO more setup flags to avoid this register manipulations ? */
-  dev->reg[reg_0x02].value |= REG02_MTRREV;
-  dev->reg[reg_0x01].value &= ~REG01_SCAN;
-  sanei_genesys_set_triple(dev->reg, REG_FEEDL, 65535);
+  dev->reg.find_reg(0x02).value |= REG02_MTRREV;
+  dev->reg.find_reg(0x01).value &= ~REG01_SCAN;
+  sanei_genesys_set_triple(&dev->reg, REG_FEEDL, 65535);
 
   /* sets frontend */
   status = gl646_set_fe (dev, AFE_SET, settings.xres);
@@ -2597,8 +2556,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
 
   /* write scan registers */
-  status = sanei_genesys_bulk_write_register(dev, dev->reg,
-                                             sizeof (dev->reg) / sizeof (dev->reg[0]));
+  status = sanei_genesys_bulk_write_register(dev, dev->reg);
   if (status != SANE_STATUS_GOOD)
     DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
 
@@ -2610,7 +2568,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
 
   /* starts scan */
-  status = gl646_begin_scan (dev, dev->reg, SANE_TRUE);
+  status = gl646_begin_scan(dev, &dev->reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to begin scan: \n", __func__);
@@ -2643,7 +2601,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
       /* when we come here then the scanner needed too much time for this, so we better stop the motor */
       gl646_stop_motor (dev);
-      end_scan (dev, dev->reg, SANE_TRUE, SANE_FALSE);
+      end_scan(dev, &dev->reg, SANE_TRUE, SANE_FALSE);
       DBG(DBG_error, "%s: timeout while waiting for scanhead to go home\n", __func__);
       return SANE_STATUS_IO_ERROR;
     }
@@ -2822,7 +2780,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 
   /* we don't want top offset, but we need right margin to be the same
    * than the one for the final scan */
-  status = setup_for_scan (dev, dev->reg, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
+  status = setup_for_scan(dev, &dev->reg, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
 
   /* used when sending shading calibration data */
   dev->calib_pixels = settings.pixels;
@@ -2833,26 +2791,25 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
     }
 
   /* no shading */
-  dev->reg[reg_0x01].value &= ~REG01_DVDSET;
-  dev->reg[reg_0x02].value |= REG02_ACDCDIS;	/* ease backtracking */
-  dev->reg[reg_0x02].value &= ~(REG02_FASTFED | REG02_AGOHOME);
-  dev->reg[reg_0x05].value &= ~REG05_GMMENB;
-  gl646_set_motor_power (dev->reg, SANE_FALSE);
+  dev->reg.find_reg(0x01).value &= ~REG01_DVDSET;
+  dev->reg.find_reg(0x02).value |= REG02_ACDCDIS;	/* ease backtracking */
+  dev->reg.find_reg(0x02).value &= ~(REG02_FASTFED | REG02_AGOHOME);
+  dev->reg.find_reg(0x05).value &= ~REG05_GMMENB;
+  gl646_set_motor_power(&dev->reg, SANE_FALSE);
 
   /* TODO another flag to setup regs ? */
   /* enforce needed LINCNT, getting rid of extra lines for color reordering */
   if (dev->model->is_cis == SANE_FALSE)
     {
-      sanei_genesys_set_triple(dev->reg, REG_LINCNT, dev->calib_lines);
+      sanei_genesys_set_triple(&dev->reg, REG_LINCNT, dev->calib_lines);
     }
   else
     {
-      sanei_genesys_set_triple(dev->reg, REG_LINCNT, dev->calib_lines * 3);
+      sanei_genesys_set_triple(&dev->reg, REG_LINCNT, dev->calib_lines * 3);
     }
 
   /* copy reg to calib_reg */
-  memcpy (dev->calib_reg, dev->reg,
-	  GENESYS_GL646_MAX_REGS * sizeof (Genesys_Register_Set));
+  dev->calib_reg = dev->reg;
 
   /* this is an hack to make calibration cache working .... */
   /* if we don't do this, cache will be identified at the shading calibration
@@ -2885,11 +2842,11 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
       dev->scanhead_position_in_steps = 0;
     }
 
-  RIE(setup_for_scan (dev, dev->reg, dev->settings, SANE_FALSE, SANE_TRUE, SANE_TRUE));
+  RIE(setup_for_scan(dev, &dev->reg, dev->settings, SANE_FALSE, SANE_TRUE, SANE_TRUE));
 
   /* gamma is only enabled at final scan time */
   if (dev->settings.depth < 16)
-    dev->reg[reg_0x05].value |= REG05_GMMENB;
+    dev->reg.find_reg(0x05).value |= REG05_GMMENB;
 
   DBGCOMPLETED;
   return status;
@@ -3052,22 +3009,22 @@ setup_for_scan (Genesys_Device * dev,
   /* now post-process values for register and options fine tuning */
 
   /* select color filter based on settings */
-  regs[reg_0x04].value &= ~REG04_FILTER;
+  regs->find_reg(0x04).value &= ~REG04_FILTER;
   if (channels == 1)
     {
       switch (settings.color_filter)
 	{
 	  /* red */
 	case 0:
-	  regs[reg_0x04].value |= 0x04;
+          regs->find_reg(0x04).value |= 0x04;
 	  break;
 	  /* green */
 	case 1:
-	  regs[reg_0x04].value |= 0x08;
+          regs->find_reg(0x04).value |= 0x08;
 	  break;
 	  /* blue */
 	case 2:
-	  regs[reg_0x04].value |= 0x0c;
+          regs->find_reg(0x04).value |= 0x0c;
 	  break;
 	default:
 	  break;
@@ -3111,7 +3068,7 @@ gl646_send_gamma_table (Genesys_Device * dev)
   DBGSTART;
 
   /* gamma table size */
-  if (dev->reg[reg_0x05].value & REG05_GMMTYPE)
+  if (dev->reg.find_reg(0x05).value & REG05_GMMTYPE)
     {
       size = 16384;
       bits = 14;
@@ -3128,7 +3085,7 @@ gl646_send_gamma_table (Genesys_Device * dev)
   RIE(sanei_genesys_generate_gamma_buffer(dev, bits, size-1, size, gamma.data()));
 
   /* table address */
-  switch (dev->reg[reg_0x05].value >> 6)
+  switch (dev->reg.find_reg(0x05).value >> 6)
     {
     case 0:			/* 600 dpi */
       address = 0x09000;
@@ -3957,7 +3914,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   settings.dynamic_lineart = SANE_FALSE;
 
   /* setup for scan */
-  status = setup_for_scan (dev, dev->reg, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
+  status = setup_for_scan(dev, &dev->reg, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: setup_for_scan failed (%s)\n", __func__, sane_strstatus(status));
@@ -3965,13 +3922,13 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
     }
 
   /* we are not going to move, so clear these bits */
-  dev->reg[reg_0x02].value &= ~(REG02_FASTFED | REG02_AGOHOME);
+  dev->reg.find_reg(0x02).value &= ~(REG02_FASTFED | REG02_AGOHOME);
 
   /* don't enable any correction for this scan */
-  dev->reg[reg_0x01].value &= ~REG01_DVDSET;
+  dev->reg.find_reg(0x01).value &= ~REG01_DVDSET;
 
   /* copy to local_reg */
-  memcpy (local_reg, dev->reg, (GENESYS_GL646_MAX_REGS + 1) * sizeof (Genesys_Register_Set));
+  *local_reg = dev->reg;
 
   /* turn off motor during this scan */
   gl646_set_motor_power (local_reg, SANE_FALSE);
@@ -3979,13 +3936,13 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   /* returned value to higher level warmup function */
   *channels = 1;
   uint32_t value = 0;
-  RIE(sanei_genesys_get_triple(local_reg, REG_LINCNT, &value));
+  sanei_genesys_get_triple(local_reg, REG_LINCNT, &value);
   lines = value + 1;
   *total_size = lines * settings.pixels;
 
   /* now registers are ok, write them to scanner */
   RIE (gl646_set_fe (dev, AFE_SET, settings.xres));
-  RIE(sanei_genesys_bulk_write_register(dev, local_reg, GENESYS_GL646_MAX_REGS));
+  RIE(sanei_genesys_bulk_write_register(dev, *local_reg));
 
   DBGCOMPLETED;
   return status;
@@ -4023,7 +3980,7 @@ gl646_repark_head (Genesys_Device * dev)
   settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
-  status = setup_for_scan (dev, dev->reg, settings, SANE_FALSE, SANE_FALSE, SANE_FALSE);
+  status = setup_for_scan(dev, &dev->reg, settings, SANE_FALSE, SANE_FALSE, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup for scan: %s\n", __func__, sane_strstatus(status));
@@ -4031,9 +3988,9 @@ gl646_repark_head (Genesys_Device * dev)
     }
 
   /* TODO seems wrong ... no effective scan */
-  dev->reg[reg_0x01].value &= ~REG01_SCAN;
+  dev->reg.find_reg(0x01).value &= ~REG01_SCAN;
 
-  status = sanei_genesys_bulk_write_register(dev, dev->reg, GENESYS_GL646_MAX_REGS);
+  status = sanei_genesys_bulk_write_register(dev, dev->reg);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to send registers: %s\n", __func__, sane_strstatus(status));
@@ -4041,7 +3998,7 @@ gl646_repark_head (Genesys_Device * dev)
     }
 
   /* start scan */
-  status = gl646_begin_scan (dev, dev->reg, SANE_TRUE);
+  status = gl646_begin_scan(dev, &dev->reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to begin scan: \n", __func__);
@@ -4049,7 +4006,7 @@ gl646_repark_head (Genesys_Device * dev)
     }
 
   uint32_t value32 = 0;
-  RIE(sanei_genesys_get_triple(dev->reg, REG_FEEDL, &value32));
+  sanei_genesys_get_triple(&dev->reg, REG_FEEDL, &value32);
   expected = value32;
   do
     {
@@ -4134,7 +4091,7 @@ gl646_init (Genesys_Device * dev)
       gl646_init_regs (dev);
 
       /* build default gamma tables */
-      if (dev->reg[reg_0x05].value & REG05_GMMTYPE)
+      if (dev->reg.find_reg(0x05).value & REG05_GMMTYPE)
 	size = 16384;
       else
 	size = 4096;
@@ -4156,8 +4113,7 @@ gl646_init (Genesys_Device * dev)
       RIE (sanei_genesys_init_shading_data (dev, dev->sensor.sensor_pixels));
 
       /* initial calibration reg values */
-      memcpy (dev->calib_reg, dev->reg,
-	      (GENESYS_GL646_MAX_REGS + 1) * sizeof (Genesys_Register_Set));
+      dev->calib_reg = dev->reg;
     }
 
   /* execute physical unit init only if cold */
@@ -4174,7 +4130,7 @@ gl646_init (Genesys_Device * dev)
       sanei_genesys_sleep_ms(100);
 
       /* Write initial registers */
-      RIE(sanei_genesys_bulk_write_register(dev, dev->reg, GENESYS_GL646_MAX_REGS));
+      RIE(sanei_genesys_bulk_write_register(dev, dev->reg));
 
       /* Test ASIC and RAM */
       if (!(dev->model->flags & GENESYS_FLAG_LAZY_INIT))
@@ -4383,7 +4339,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
     {
       split = SANE_TRUE;
     }
-  status = setup_for_scan (dev, dev->reg, settings, split, SANE_FALSE, SANE_FALSE);
+  status = setup_for_scan (dev, &dev->reg, settings, split, SANE_FALSE, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: setup_for_scan failed (%s)\n", __func__, sane_strstatus(status));
@@ -4394,13 +4350,13 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
   if (dev->model->is_cis == SANE_TRUE)
     {
       uint32_t value = 0;
-      RIE(sanei_genesys_get_triple(dev->reg, REG_LINCNT, &value));
+      sanei_genesys_get_triple(&dev->reg, REG_LINCNT, &value);
       lines = value / 3;
     }
   else
     {
       uint32_t value = 0;
-      RIE(sanei_genesys_get_triple(dev->reg, REG_LINCNT, &value));
+      sanei_genesys_get_triple(&dev->reg, REG_LINCNT, &value);
       lines = value + 1;
     }
   size = lines * settings.pixels;
@@ -4428,44 +4384,43 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
     }
 
   /* no shading correction and not watch dog for simple scan */
-  dev->reg[reg_0x01].value &= ~(REG01_DVDSET | REG01_DOGENB);
+  dev->reg.find_reg(0x01).value &= ~(REG01_DVDSET | REG01_DOGENB);
   if (shading == SANE_TRUE)
     {
-      dev->reg[reg_0x01].value |= REG01_DVDSET;
+      dev->reg.find_reg(0x01).value |= REG01_DVDSET;
     }
 
   /* enable gamma table for the scan */
-  dev->reg[reg_0x05].value |= REG05_GMMENB;
+  dev->reg.find_reg(0x05).value |= REG05_GMMENB;
 
   /* one table movement for simple scan */
-  dev->reg[reg_0x02].value &= ~REG02_FASTFED;
+  dev->reg.find_reg(0x02).value &= ~REG02_FASTFED;
 
   if (move == SANE_FALSE)
     {
       /* clear motor power flag if no move */
-      dev->reg[reg_0x02].value &= ~REG02_MTRPWR;
+      dev->reg.find_reg(0x02).value &= ~REG02_MTRPWR;
 
       /* no automatic go home if no movement */
-      dev->reg[reg_0x02].value &= ~REG02_AGOHOME;
+      dev->reg.find_reg(0x02).value &= ~REG02_AGOHOME;
     }
   if (forward == SANE_FALSE)
     {
-      dev->reg[reg_0x02].value |= REG02_MTRREV;
+      dev->reg.find_reg(0x02).value |= REG02_MTRREV;
     }
   else
     {
-      dev->reg[reg_0x02].value &= ~REG02_MTRREV;
+      dev->reg.find_reg(0x02).value &= ~REG02_MTRREV;
     }
 
   /* no automatic go home when using XPA */
   if (settings.scan_method == SCAN_METHOD_TRANSPARENCY)
     {
-      dev->reg[reg_0x02].value &= ~REG02_AGOHOME;
+      dev->reg.find_reg(0x02).value &= ~REG02_AGOHOME;
     }
 
   /* write scan registers */
-  status = sanei_genesys_bulk_write_register(dev, dev->reg,
-                                             sizeof (dev->reg) / sizeof (dev->reg[0]));
+  status = sanei_genesys_bulk_write_register(dev, dev->reg);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
@@ -4473,7 +4428,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
     }
 
   /* starts scan */
-  status = gl646_begin_scan (dev, dev->reg, move);
+  status = gl646_begin_scan(dev, &dev->reg, move);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to begin scan: \n", __func__);
@@ -4554,7 +4509,7 @@ simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move,
     }
 
   /* end scan , waiting the motor to stop if needed (if moving), but without ejecting doc */
-  status = end_scan (dev, dev->reg, SANE_TRUE, SANE_FALSE);
+  status = end_scan(dev, &dev->reg, SANE_TRUE, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
@@ -5100,8 +5055,6 @@ static Genesys_Command_Set gl646_cmd_set = {
   gl646_get_fast_feed_bit,
   gl646_test_buffer_empty_bit,
   gl646_test_motor_flag_bit,
-
-  gl646_bulk_full_size,
 
   gl646_public_set_fe,
   gl646_set_powersaving,

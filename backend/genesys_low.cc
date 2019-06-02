@@ -197,44 +197,6 @@ sanei_genesys_write_pnm_file (const char *filename, uint8_t * data, int depth,
   return SANE_STATUS_GOOD;
 }
 
-/* the following 2 functions are used to handle registers in a
-   way that doesn't depend on the actual ASIC type */
-
-/* Reads a register from a register set */
-SANE_Byte
-sanei_genesys_read_reg_from_set (Genesys_Register_Set * reg,
-				 uint16_t address)
-{
-  SANE_Int i;
-
-  for (i = 0; i < GENESYS_MAX_REGS; i++)
-    {
-      if (reg[i].address == address)
-	{
-	  return reg[i].value;
-	}
-    }
-  return 0;
-}
-
-/* Reads a register from a register set */
-void
-sanei_genesys_set_reg_from_set (Genesys_Register_Set * reg, uint16_t address,
-				SANE_Byte value)
-{
-  SANE_Int i;
-
-  for (i = 0; i < GENESYS_MAX_REGS; i++)
-    {
-      if (reg[i].address == address)
-	{
-	  reg[i].value = value;
-	  break;
-	}
-    }
-}
-
-
 /* ------------------------------------------------------------------------ */
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
@@ -751,16 +713,15 @@ sanei_genesys_fe_read_data (Genesys_Device * dev, uint8_t addr,
 {
   SANE_Status status;
   uint8_t value;
-  Genesys_Register_Set reg[1];
+  Genesys_Register_Set reg;
 
 
   DBG(DBG_proc, "%s: start\n", __func__);
 
-  reg[0].address = 0x50;
-  reg[0].value = addr;
+  reg.init_reg(0x50, addr);
 
   /* set up read address */
-  status = dev->model->cmd_set->bulk_write_register (dev, reg, 1);
+  status = dev->model->cmd_set->bulk_write_register(dev, reg);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed while bulk writing registers: %s\n", __func__,
@@ -792,23 +753,20 @@ sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
 			     uint16_t data)
 {
   SANE_Status status;
-  Genesys_Register_Set reg[3];
+  Genesys_Register_Set reg(Genesys_Register_Set::SEQUENTIAL);
 
   DBG(DBG_io, "%s (0x%02x, 0x%04x)\n", __func__, addr, data);
 
-  reg[0].address = 0x51;
-  reg[0].value = addr;
-  reg[1].address = 0x3a;
-  reg[1].value = (data / 256) & 0xff;
-  reg[2].address = 0x3b;
-  reg[2].value = data & 0xff;
-  if (dev->model->asic_type == GENESYS_GL124)
-    {
-     reg[1].address = 0x5d;
-     reg[2].address = 0x5e;
+    reg.init_reg(0x51, addr);
+    if (dev->model->asic_type == GENESYS_GL124) {
+        reg.init_reg(0x5d, (data / 256) & 0xff);
+        reg.init_reg(0x5e, data & 0xff);
+    } else {
+        reg.init_reg(0x3a, (data / 256) & 0xff);
+        reg.init_reg(0x3b, data & 0xff);
     }
 
-  status = dev->model->cmd_set->bulk_write_register (dev, reg, 3);
+  status = dev->model->cmd_set->bulk_write_register(dev, reg);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed while bulk writing registers: %s\n", __func__,
@@ -991,171 +949,6 @@ sanei_genesys_read_scancnt (Genesys_Device * dev, unsigned int *words)
   return SANE_STATUS_GOOD;
 }
 
-/**
- * Find register in set
- * @param regs register set to search
- * @param addr addres of the searched register
- * @return a Genesys_Register_Set pointer corresponding to the required
- * address in ASIC space. Or NULL if not found.
- */
-Genesys_Register_Set *
-sanei_genesys_get_address (Genesys_Register_Set * regs, uint16_t addr)
-{
-  int i;
-  for (i = 0; i < GENESYS_MAX_REGS; i++)
-    {
-      if (regs[i].address == addr)
-	return &regs[i];
-    }
-  DBG(DBG_error, "%s: failed to find address for register 0x%02x, crash expected !\n", __func__,
-      addr);
-  return NULL;
-}
-
-/**
- * set a 16 bit value in the given register set.
- * @param regs register set where to set values
- * @param addr address of the first register index to set
- * @param value value to set
- * @return SANE_STATUS_INVAL if the index doesn't exist in register set
- */
-SANE_Status
-sanei_genesys_set_double(Genesys_Register_Set *regs, uint16_t addr, uint16_t value)
-{
-  Genesys_Register_Set *r;
-
-  /* high byte */
-  r = sanei_genesys_get_address (regs, addr);
-  if(r==NULL)
-    {
-      return SANE_STATUS_INVAL;
-    }
-  r->value = HIBYTE (value);
-
-  /* low byte */
-  r = sanei_genesys_get_address (regs, addr+1);
-  if(r==NULL)
-    {
-      return SANE_STATUS_INVAL;
-    }
-  r->value = LOBYTE (value);
-
-  return SANE_STATUS_GOOD;
-}
-
-/**
- * set a 24 bit value in the given register set.
- * @param regs register set where to set values
- * @param addr address of the first register index to set
- * @param value value to set
- * @return SANE_STATUS_INVAL if the index doesn't exist in register set
- */
-SANE_Status
-sanei_genesys_set_triple(Genesys_Register_Set *regs, uint16_t addr, uint32_t value)
-{
-  Genesys_Register_Set *r;
-
-  /* low byte of highword */
-  r = sanei_genesys_get_address (regs, addr);
-  if(r==NULL)
-    {
-      return SANE_STATUS_INVAL;
-    }
-  r->value = LOBYTE (HIWORD(value));
-
-  /* high byte of low word */
-  r = sanei_genesys_get_address (regs, addr+1);
-  if(r==NULL)
-    {
-      return SANE_STATUS_INVAL;
-    }
-  r->value = HIBYTE (LOWORD(value));
-
-  /* low byte of low word */
-  r = sanei_genesys_get_address (regs, addr+2);
-  if(r==NULL)
-    {
-      return SANE_STATUS_INVAL;
-    }
-  r->value = LOBYTE (LOWORD(value));
-
-  return SANE_STATUS_GOOD;
-}
-
-/**
- * get a 16 bit value in the given register set.
- * @param regs register set where to read values
- * @param addr address of the first register index to read
- * @param value value to set
- * @return SANE_STATUS_INVAL if the index doesn't exist in register set
- */
-SANE_Status
-sanei_genesys_get_double(Genesys_Register_Set *regs, uint16_t addr, uint16_t *value)
-{
-  Genesys_Register_Set *r;
-  uint16_t result=0;
-
-  /* high byte */
-  r = sanei_genesys_get_address (regs, addr);
-  if(r==NULL)
-    {
-      return SANE_STATUS_INVAL;
-    }
-  result=r->value<<8;
-
-  /* low byte */
-  r = sanei_genesys_get_address (regs, addr+1);
-  if(r==NULL)
-    {
-      return SANE_STATUS_INVAL;
-    }
-  result+=r->value;
-
-  *value=result;
-  return SANE_STATUS_GOOD;
-}
-
-/**
- * get a 24 bit value in the given register set.
- * @param regs register set where to read values
- * @param addr address of the first register index to read
- * @param value value to set
- * @return SANE_STATUS_INVAL if the index doesn't exist in register set
- */
-SANE_Status
-sanei_genesys_get_triple(Genesys_Register_Set *regs, uint16_t addr, uint32_t *value)
-{
-  Genesys_Register_Set *r;
-  uint32_t result=0;
-
-  /* low byte of highword */
-  r = sanei_genesys_get_address (regs, addr);
-  if(r==NULL)
-    {
-      return SANE_STATUS_INVAL;
-    }
-  result=r->value<<16;
-
-  /* high byte of low word */
-  r = sanei_genesys_get_address (regs, addr+1);
-  if(r==NULL)
-    {
-      return SANE_STATUS_INVAL;
-    }
-  result+=(r->value<<8);
-
-  /* low byte of low word */
-  r = sanei_genesys_get_address (regs, addr+2);
-  if(r==NULL)
-    {
-      return SANE_STATUS_INVAL;
-    }
-  result+=r->value;
-
-  *value=result;
-  return SANE_STATUS_GOOD;
-}
-
 /** @brief Check if the scanner's internal data buffer is empty
  * @param *dev device to test for data
  * @param *empty return value
@@ -1286,46 +1079,35 @@ sanei_genesys_read_feed_steps (Genesys_Device * dev, unsigned int *steps)
  * @param reg pointer to an array of registers
  * @param elems size of the array
  */
-SANE_Status
-sanei_genesys_bulk_write_register (Genesys_Device * dev,
-			           Genesys_Register_Set * reg,
-                                   size_t elems)
+SANE_Status sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Register_Set& reg)
 {
     SANE_Status status = SANE_STATUS_GOOD;
-    size_t i;
 
     if (dev->model->asic_type == GENESYS_GL646 ||
         dev->model->asic_type == GENESYS_GL841)
     {
         uint8_t outdata[8];
-        uint8_t buffer[GENESYS_MAX_REGS * 2];
-        size_t size;
-        unsigned int i;
-
-        /* handle differently sized register sets, reg[0x00] may be the last one */
-        i = 0;
-        while ((i < elems) && (reg[i].address != 0))
-            i++;
-        elems = i;
-        size = i * 2;
+        std::vector<uint8_t> buffer;
+        buffer.reserve(reg.size() * 2);
 
         /* copy registers and values in data buffer */
-        for (i = 0; i < size; i += 2) {
-            buffer[i] = reg[i / 2].address;
-            buffer[i + 1] = reg[i / 2].value;
+        for (const auto& r : reg) {
+            buffer.push_back(r.address);
+            buffer.push_back(r.value);
         }
 
-        DBG(DBG_io, "%s (elems= %lu, size = %lu)\n", __func__, (u_long) elems, (u_long) size);
+        DBG(DBG_io, "%s (elems= %lu, size = %lu)\n", __func__, (u_long) reg.size(),
+            (u_long) buffer.size());
 
         if (dev->model->asic_type == GENESYS_GL646) {
             outdata[0] = BULK_OUT;
             outdata[1] = BULK_REGISTER;
             outdata[2] = 0x00;
             outdata[3] = 0x00;
-            outdata[4] = (size & 0xff);
-            outdata[5] = ((size >> 8) & 0xff);
-            outdata[6] = ((size >> 16) & 0xff);
-            outdata[7] = ((size >> 24) & 0xff);
+            outdata[4] = (buffer.size() & 0xff);
+            outdata[5] = ((buffer.size() >> 8) & 0xff);
+            outdata[6] = ((buffer.size() >> 16) & 0xff);
+            outdata[7] = ((buffer.size() >> 24) & 0xff);
 
             status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
                                            VALUE_BUFFER, INDEX, sizeof(outdata), outdata);
@@ -1335,19 +1117,20 @@ sanei_genesys_bulk_write_register (Genesys_Device * dev,
                 return status;
             }
 
-            status = sanei_usb_write_bulk (dev->dn, buffer, &size);
+            size_t write_size = buffer.size();
+            status = sanei_usb_write_bulk (dev->dn, buffer.data(), &write_size);
             if (status != SANE_STATUS_GOOD) {
                 DBG(DBG_error, "%s: failed while writing bulk data: %s\n", __func__, sane_strstatus(status));
                 return status;
             }
         } else {
-            size_t c;
-            for (i = 0; i < elems;) {
-                c = elems - i;
+            for (size_t i = 0; i < reg.size();) {
+                size_t c = reg.size() - i;
                 if (c > 32)  /*32 is max on GL841. checked that.*/
                     c = 32;
                 status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-                                               VALUE_SET_REGISTER, INDEX, c * 2, buffer + i * 2);
+                                               VALUE_SET_REGISTER, INDEX, c * 2,
+                                               buffer.data() + i * 2);
                 if (status != SANE_STATUS_GOOD)
                 {
                     DBG(DBG_error, "%s: failed while writing command: %s\n", __func__,
@@ -1359,14 +1142,14 @@ sanei_genesys_bulk_write_register (Genesys_Device * dev,
             }
         }
     } else {
-        for (i = 0; i < elems && status == SANE_STATUS_GOOD; i++) {
-            if (reg[i].address != 0) {
-                status = sanei_genesys_write_register (dev, reg[i].address, reg[i].value);
-            }
+        for (const auto& r : reg) {
+            status = sanei_genesys_write_register (dev, r.address, r.value);
+            if (status != SANE_STATUS_GOOD)
+                break;
         }
     }
 
-    DBG (DBG_io, "%s: wrote %lu registers\n", __func__, (u_long) elems);
+    DBG (DBG_io, "%s: wrote %lu registers\n", __func__, (u_long) reg.size());
     return status;
 }
 
@@ -1661,7 +1444,7 @@ sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
   dev->settings.color_filter = 0;
 
   /* duplicate initial values into calibration registers */
-  memcpy (dev->calib_reg, dev->reg, max_regs * sizeof (Genesys_Register_Set));
+  dev->calib_reg = dev->reg;
 
   /* Set analog frontend */
   RIE (dev->model->cmd_set->set_fe (dev, AFE_INIT));

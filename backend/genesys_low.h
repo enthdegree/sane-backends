@@ -1,4 +1,4 @@
-/* sane - Scanner Access Now Easy.
+﻿/* sane - Scanner Access Now Easy.
 
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -217,11 +217,169 @@
 #define FEBUSY	        0x02
 #define MOTORENB	0x01
 
-typedef struct Genesys_Register_Set
+#define GENESYS_MAX_REGS 256
+
+struct GenesysRegister {
+    uint16_t address = 0;
+    uint8_t value = 0;
+};
+
+inline bool operator<(const GenesysRegister& lhs, const GenesysRegister& rhs)
 {
-  uint16_t address;
-  uint8_t value;
-} Genesys_Register_Set;
+    return lhs.address < rhs.address;
+}
+
+class Genesys_Register_Set {
+public:
+    using container = std::vector<GenesysRegister>;
+    using iterator = typename container::iterator;
+    using const_iterator = typename container::const_iterator;
+
+    enum Options {
+        SEQUENTIAL = 1
+    };
+
+    Genesys_Register_Set()
+    {
+        registers_.reserve(GENESYS_MAX_REGS);
+    }
+
+    // by default the register set is sorted by address. In certain cases it's importand to send
+    // the registers in certain order: use the SEQUENTIAL option for that
+    Genesys_Register_Set(Options opts) : Genesys_Register_Set()
+    {
+        if ((opts & SEQUENTIAL) == SEQUENTIAL) {
+            sorted_ = false;
+        }
+    }
+
+    void init_reg(uint16_t address, uint8_t default_value)
+    {
+        if (find_reg_index(address) >= 0) {
+            set8(address, default_value);
+            return;
+        }
+        GenesysRegister reg;
+        reg.address = address;
+        reg.value = default_value;
+        registers_.push_back(reg);
+        if (sorted_)
+            std::sort(registers_.begin(), registers_.end());
+    }
+
+    void remove_reg(uint16_t address)
+    {
+        int i = find_reg_index(address);
+        if (i < 0) {
+            throw std::runtime_error("the register does not exist");
+        }
+        registers_.erase(registers_.begin() + i);
+    }
+
+    GenesysRegister& find_reg(uint16_t address)
+    {
+        int i = find_reg_index(address);
+        if (i < 0) {
+            throw std::runtime_error("the register does not exist");
+        }
+        return registers_[i];
+    }
+
+    const GenesysRegister& find_reg(uint16_t address) const
+    {
+        int i = find_reg_index(address);
+        if (i < 0) {
+            throw std::runtime_error("the register does not exist");
+        }
+        return registers_[i];
+    }
+
+    GenesysRegister* find_reg_address(uint16_t address)
+    {
+        return &find_reg(address);
+    }
+
+    const GenesysRegister* find_reg_address(uint16_t address) const
+    {
+        return &find_reg(address);
+    }
+
+    void set8(uint16_t address, uint8_t value)
+    {
+        find_reg(address).value = value;
+    }
+
+    void set8_mask(uint16_t address, uint8_t value, uint8_t mask)
+    {
+        auto& reg = find_reg(address);
+        reg.value = (reg.value & ~mask) | value;
+    }
+
+    void set16(uint16_t address, uint16_t value)
+    {
+        find_reg(address).value = (value >> 8) & 0xff;
+        find_reg(address + 1).value = value & 0xff;
+    }
+
+    void set24(uint16_t address, uint32_t value)
+    {
+        find_reg(address).value = (value >> 16) & 0xff;
+        find_reg(address + 1).value = (value >> 8) & 0xff;
+        find_reg(address + 2).value = value & 0xff;
+    }
+
+    uint8_t get8(uint16_t address) const
+    {
+        return find_reg(address).value;
+    }
+
+    uint16_t get16(uint16_t address) const
+    {
+        return (find_reg(address).value << 8) | find_reg(address + 1).value;
+    }
+
+    uint32_t get24(uint16_t address) const
+    {
+        return (find_reg(address).value << 16) |
+               (find_reg(address + 1).value << 8) |
+                find_reg(address + 2).value;
+    }
+
+    void clear() { registers_.clear(); }
+    size_t size() const { return registers_.size(); }
+
+    iterator begin() { return registers_.begin(); }
+    const_iterator begin() const { return registers_.begin(); }
+
+    iterator end() { return registers_.end(); }
+    const_iterator end() const { return registers_.end(); }
+
+private:
+    int find_reg_index(uint16_t address) const
+    {
+        if (!sorted_) {
+            for (size_t i = 0; i < registers_.size(); i++) {
+                if (registers_[i].address == address) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        GenesysRegister search;
+        search.address = address;
+        auto it = std::lower_bound(registers_.begin(), registers_.end(), search);
+        if (it == registers_.end())
+            return -1;
+        if (it->address != address)
+            return -1;
+        return std::distance(registers_.begin(), it);
+    }
+
+    // registers are stored in a sorted vector
+    bool sorted_ = true;
+    std::vector<GenesysRegister> registers_;
+};
 
 /** @brief Data structure to set up analog frontend.
  * The analog frontend converts analog value from image sensor to
@@ -377,8 +535,6 @@ Genesys_Color_Order;
 #define GENESYS_GL848	 848
 #define GENESYS_GL123	 123
 #define GENESYS_GL124	 124
-
-#define GENESYS_MAX_REGS 256
 
 enum Genesys_Model_Type
 {
@@ -591,8 +747,6 @@ typedef struct Genesys_Command_Set
     SANE_Bool (*test_buffer_empty_bit) (SANE_Byte val);
     SANE_Bool (*test_motor_flag_bit) (SANE_Byte val);
 
-  int (*bulk_full_size) (void);
-
     SANE_Status (*set_fe) (Genesys_Device * dev, uint8_t set);
     SANE_Status (*set_powersaving) (Genesys_Device * dev, int delay);
     SANE_Status (*save_power) (Genesys_Device * dev, SANE_Bool enable);
@@ -623,8 +777,8 @@ typedef struct Genesys_Command_Set
     SANE_Status (*rewind) (Genesys_Device * dev);
 
     SANE_Status (*bulk_write_register) (Genesys_Device * dev,
-					Genesys_Register_Set * reg,
-					size_t elems);
+                                        Genesys_Register_Set& reg);
+
     SANE_Status (*bulk_write_data) (Genesys_Device * dev, uint8_t addr,
 				    uint8_t * data, size_t len);
 
@@ -921,8 +1075,8 @@ struct Genesys_Device
     SANE_Int force_calibration = 0;
     Genesys_Model *model = nullptr;
 
-    Genesys_Register_Set reg[256] = {};
-    Genesys_Register_Set calib_reg[256] = {};
+    Genesys_Register_Set reg;
+    Genesys_Register_Set calib_reg;
     Genesys_Settings settings = {};
     Genesys_Frontend frontend = {};
     Genesys_Sensor sensor;
@@ -1091,13 +1245,26 @@ typedef struct {
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/
 
-extern Genesys_Register_Set *sanei_genesys_get_address (Genesys_Register_Set * regs, uint16_t addr);
+inline GenesysRegister* sanei_genesys_get_address(Genesys_Register_Set* regs, uint16_t addr)
+{
+    auto* ret = regs->find_reg_address(addr);
+    if (ret == nullptr) {
+        DBG(DBG_error, "%s: failed to find address for register 0x%02x, crash expected !\n",
+            __func__, addr);
+    }
+    return ret;
+}
 
-extern SANE_Byte
-sanei_genesys_read_reg_from_set (Genesys_Register_Set * regs, uint16_t address);
+inline uint8_t sanei_genesys_read_reg_from_set(Genesys_Register_Set* regs, uint16_t address)
+{
+    return regs->get8(address);
+}
 
-extern void
-sanei_genesys_set_reg_from_set (Genesys_Register_Set * regs, uint16_t address, SANE_Byte value);
+inline void sanei_genesys_set_reg_from_set(Genesys_Register_Set* regs, uint16_t address,
+                                           uint8_t value)
+{
+    regs->set8(address, value);
+}
 
 extern SANE_Status sanei_genesys_init_cmd_set (Genesys_Device * dev);
 
@@ -1114,9 +1281,8 @@ extern SANE_Status
 sanei_genesys_write_hregister (Genesys_Device * dev, uint16_t reg, uint8_t val);
 
 extern SANE_Status
-sanei_genesys_bulk_write_register (Genesys_Device * dev,
-			           Genesys_Register_Set * reg,
-                                   size_t elems);
+sanei_genesys_bulk_write_register(Genesys_Device * dev,
+                                   Genesys_Register_Set& reg);
 
 extern SANE_Status sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val);
 
@@ -1246,17 +1412,25 @@ extern SANE_Status
 sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
 				      size_t size);
 
-extern SANE_Status
-sanei_genesys_set_double(Genesys_Register_Set *regs, uint16_t addr, uint16_t value);
+inline void sanei_genesys_set_double(Genesys_Register_Set* regs, uint16_t addr, uint16_t value)
+{
+    regs->set16(addr, value);
+}
 
-extern SANE_Status
-sanei_genesys_set_triple(Genesys_Register_Set *regs, uint16_t addr, uint32_t value);
+inline void sanei_genesys_set_triple(Genesys_Register_Set* regs, uint16_t addr, uint32_t value)
+{
+    regs->set24(addr, value);
+}
 
-extern SANE_Status
-sanei_genesys_get_double(Genesys_Register_Set *regs, uint16_t addr, uint16_t *value);
+inline void sanei_genesys_get_double(Genesys_Register_Set* regs, uint16_t addr, uint16_t* value)
+{
+    *value = regs->get16(addr);
+}
 
-extern SANE_Status
-sanei_genesys_get_triple(Genesys_Register_Set *regs, uint16_t addr, uint32_t *value);
+inline void sanei_genesys_get_triple(Genesys_Register_Set* regs, uint16_t addr, uint32_t* value)
+{
+    *value = regs->get24(addr);
+}
 
 extern SANE_Status
 sanei_genesys_wait_for_home(Genesys_Device *dev);
@@ -1379,10 +1553,10 @@ SANE_Status wrap_exceptions_to_status_code(const char* func, F&& function)
     } catch (const std::bad_alloc& exc) {
         return SANE_STATUS_NO_MEM;
     } catch (const std::exception& exc) {
-        DBG(DBG_error, "%s: got uncaught exception: %s", func, exc.what());
+        DBG(DBG_error, "%s: got uncaught exception: %s\n", func, exc.what());
         return SANE_STATUS_INVAL;
     } catch (...) {
-        DBG(DBG_error, "%s: got unknown uncaught exception", func);
+        DBG(DBG_error, "%s: got unknown uncaught exception\n", func);
         return SANE_STATUS_INVAL;
     }
 }
@@ -1393,13 +1567,13 @@ void catch_all_exceptions(const char* func, F&& function)
     try {
         function();
     } catch (const SaneException& exc) {
-        // ignore, this will already be logged
+        DBG(DBG_error, "%s: got exception: %s\n", func, exc.what());
     } catch (const std::bad_alloc& exc) {
-        // ignore, this will already be logged
+        DBG(DBG_error, "%s: got exception: could not allocate memory: %s\n", func, exc.what());
     } catch (const std::exception& exc) {
-        DBG(DBG_error, "%s: got uncaught exception: %s", func, exc.what());
+        DBG(DBG_error, "%s: got uncaught exception: %s\n", func, exc.what());
     } catch (...) {
-        DBG(DBG_error, "%s: got unknown uncaught exception", func);
+        DBG(DBG_error, "%s: got unknown uncaught exception\n", func);
     }
 }
 

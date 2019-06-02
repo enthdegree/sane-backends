@@ -2302,7 +2302,7 @@ gl124_search_start_position (Genesys_Device * dev)
   dev->reg = local_reg;
 
   status =
-    sanei_genesys_search_reference_point (dev, data.data(), 0, dpi, pixels,
+    sanei_genesys_search_reference_point (dev, dev->sensor, data.data(), 0, dpi, pixels,
 					  dev->model->search_lines);
   if (status != SANE_STATUS_GOOD)
     {

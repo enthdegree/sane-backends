@@ -1015,7 +1015,8 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line)
    takes gray level 8 bits data and find
    first CCD usable pixel and top of scanning area */
 SANE_Status
-sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
+sanei_genesys_search_reference_point (Genesys_Device * dev, Genesys_Sensor& sensor,
+                                      uint8_t * data,
 				      int start_pixel, int dpi, int width,
 				      int height)
 {
@@ -1098,8 +1099,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
   left = left / count;
 
   /* turn it in CCD pixel at full sensor optical resolution */
-  dev->sensor.CCD_start_xoffset =
-    start_pixel + (left * dev->sensor.optical_res) / dpi;
+  sensor.CCD_start_xoffset = start_pixel + (left * sensor.optical_res) / dpi;
 
   /* find top edge by detecting black strip */
   /* apply Y direction sobel filter
@@ -1183,7 +1183,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
     }
 
   DBG(DBG_proc, "%s: CCD_start_xoffset = %d, left = %d, top = %d\n", __func__,
-      dev->sensor.CCD_start_xoffset, left, top);
+      sensor.CCD_start_xoffset, left, top);
 
   return SANE_STATUS_GOOD;
 }

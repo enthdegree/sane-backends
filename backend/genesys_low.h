@@ -1561,9 +1561,10 @@ extern SANE_Status sanei_genesys_start_motor (Genesys_Device * dev);
 extern SANE_Status sanei_genesys_stop_motor (Genesys_Device * dev);
 
 extern SANE_Status
-sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
-				      int start_pixel, int dpi, int width,
-				      int height);
+sanei_genesys_search_reference_point(Genesys_Device * dev, Genesys_Sensor& sensor,
+                                     uint8_t * data,
+                                     int start_pixel, int dpi, int width,
+                                     int height);
 
 extern SANE_Status sanei_genesys_write_file(const char *filename, uint8_t* data, size_t length);
 

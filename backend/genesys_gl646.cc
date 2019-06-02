@@ -2672,7 +2672,7 @@ gl646_search_start_position (Genesys_Device * dev)
 
   /* now search reference points on the data */
   status =
-    sanei_genesys_search_reference_point (dev, data.data(),
+    sanei_genesys_search_reference_point (dev, dev->sensor, data.data(),
 					  dev->sensor.CCD_start_xoffset,
 					  resolution, settings.pixels,
 					  settings.lines);

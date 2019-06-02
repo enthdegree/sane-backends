@@ -3702,7 +3702,7 @@ gl841_search_start_position (Genesys_Device * dev)
 /*TODO: find out where sanei_genesys_search_reference_point
   stores information, and use that correctly*/
   status =
-    sanei_genesys_search_reference_point (dev, data.data(), 0, dpi, pixels,
+    sanei_genesys_search_reference_point (dev, dev->sensor, data.data(), 0, dpi, pixels,
 					  dev->model->search_lines);
   if (status != SANE_STATUS_GOOD)
     {

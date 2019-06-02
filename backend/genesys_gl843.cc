@@ -2131,6 +2131,7 @@ static SANE_Status gl843_xpa_motor_off(Genesys_Device *dev)
     if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
         RIE(sanei_genesys_read_register(dev, REG6C, &val));
         val |= REG6C_GPIO14;
+        val &= ~REG6C_GPIO10;
         RIE(sanei_genesys_write_register(dev, REG6C, val));
 
         RIE(sanei_genesys_read_register(dev, REGA6, &val));
@@ -2169,6 +2170,9 @@ static SANE_Status gl843_xpa_motor_on(Genesys_Device *dev)
     if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
         RIE(sanei_genesys_read_register(dev, REG6C, &val));
         val &= ~REG6C_GPIO14;
+        if (dev->current_setup.xres >= 2400) {
+            val |= REG6C_GPIO10;
+        }
         RIE(sanei_genesys_write_register(dev, REG6C, val));
 
         RIE(sanei_genesys_read_register(dev, REGA6, &val));

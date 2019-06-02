@@ -391,19 +391,6 @@ struct Genesys_Frontend
 {
     Genesys_Frontend() = default;
 
-    Genesys_Frontend(uint8_t p_fe_id, const std::array<uint8_t, 4>& p_reg,
-                     const std::array<uint8_t, 3>& p_sign,
-                     const std::array<uint8_t, 3>& p_offset,
-                     const std::array<uint8_t, 3>& p_gain,
-                     const std::array<uint8_t, 3>& p_reg2) :
-        fe_id(p_fe_id),
-        reg(p_reg),
-        sign(p_sign),
-        offset(p_offset),
-        gain(p_gain),
-        reg2(p_reg2)
-    {}
-
     // id of the frontend description
     uint8_t fe_id = 0;
 
@@ -1878,5 +1865,6 @@ private:
 
 extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 void genesys_init_sensor_tables();
+void genesys_init_frontend_tables();
 
 #endif /* not GENESYS_LOW_H */

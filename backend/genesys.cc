@@ -240,9 +240,9 @@ sanei_genesys_init_structs (Genesys_Device * dev)
 	}
     }
 
-    for (i = 0; i < sizeof (Wolfson) / sizeof (Genesys_Frontend); i++) {
-        if (dev->model->dac_type == Wolfson[i].fe_id) {
-            dev->frontend_initial = Wolfson[i];
+    for (const auto& frontend : *s_frontends) {
+        if (dev->model->dac_type == frontend.fe_id) {
+            dev->frontend_initial = frontend;
             fe_ok = true;
             break;
         }
@@ -6297,6 +6297,7 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   s_sane_devices.init();
   s_sane_devices_ptrs.init();
   genesys_init_sensor_tables();
+  genesys_init_frontend_tables();
 
   DBG(DBG_info, "%s: %s endian machine\n", __func__,
 #ifdef WORDS_BIGENDIAN

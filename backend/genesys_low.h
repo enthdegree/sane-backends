@@ -387,18 +387,41 @@ private:
  * The actual register addresses they map to depends on the frontend used.
  * @see sanei_genesys_fe_write_data
  */
-typedef struct
+struct Genesys_Frontend
 {
-  uint8_t fe_id;      /**< id of the frontend description */
-  uint8_t reg[4];     /**< values to set up frontend control register, they
- 		      usually map to analog register 0x00 to 0x03 */
-  uint8_t sign[3];    /**< sets the sign of the digital value */
-  uint8_t offset[3];  /**< offset correction to apply to signal, most often
-			maps to frontend register 0x20-0x22 */
-  uint8_t gain[3];     /**< amplification to apply to signal, most often
-			maps to frontend register 0x28-0x2a */
-  uint8_t reg2[3];    /**< extra control registers */
-} Genesys_Frontend;
+    Genesys_Frontend() = default;
+
+    Genesys_Frontend(uint8_t p_fe_id, const std::array<uint8_t, 4>& p_reg,
+                     const std::array<uint8_t, 3>& p_sign,
+                     const std::array<uint8_t, 3>& p_offset,
+                     const std::array<uint8_t, 3>& p_gain,
+                     const std::array<uint8_t, 3>& p_reg2) :
+        fe_id(p_fe_id),
+        reg(p_reg),
+        sign(p_sign),
+        offset(p_offset),
+        gain(p_gain),
+        reg2(p_reg2)
+    {}
+
+    // id of the frontend description
+    uint8_t fe_id = 0;
+
+    // values to set up frontend control register, they usually map to analog register 0x00 to 0x03
+    std::array<uint8_t, 4> reg = {};
+
+    // sets the sign of the digital value
+    std::array<uint8_t, 3> sign = {};
+
+    // amplification to apply to signal, most often maps to frontend register 0x28-0x2a
+    std::array<uint8_t, 3> offset = {};
+
+    // amplification to apply to signal, most often maps to frontend register 0x28-0x2a
+    std::array<uint8_t, 3> gain = {};
+
+    // extra control registers
+    std::array<uint8_t, 3> reg2 = {};
+};
 
 template<class T, size_t Size>
 struct AssignableArray : public std::array<T, Size> {

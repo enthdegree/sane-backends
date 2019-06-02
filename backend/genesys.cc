@@ -2970,9 +2970,7 @@ genesys_restore_calibration (Genesys_Device * dev)
 	{
           memcpy (&dev->frontend, &cache.frontend, sizeof (dev->frontend));
           /* we don't restore the gamma fields */
-          for (uint16_t addr = 0x10; addr < 0x16; ++addr) {
-              dev->sensor.custom_regs.set_value(addr, cache.sensor.custom_regs.get_value(addr));
-          }
+          dev->sensor.exposure = cache.sensor.exposure;
 
           dev->average_size = cache.average_size;
           dev->calib_pixels = cache.calib_pixels;

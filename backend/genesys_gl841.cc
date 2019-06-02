@@ -1821,7 +1821,6 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     unsigned int words_per_line;
     unsigned int end;
     unsigned int dpiset;
-    unsigned int i;
     GenesysRegister* r;
     SANE_Status status;
     uint16_t expavg, expr, expb, expg;
@@ -1905,19 +1904,12 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 	r->value |= REG03_LAMPPWR;
 
     /* exposure times */
-    r = sanei_genesys_get_address (reg, 0x10);
-    for (i = 0; i < 6; i++, r++) {
-	if (flags & OPTICAL_FLAG_DISABLE_LAMP)
-	    r->value = 0x01;/* 0x0101 is as off as possible */
-	else
-          { /* EXP[R,G,B] only matter for CIS scanners */
-              uint8_t value = dev->sensor.custom_regs.get_value(0x10 + i);
-              if (value == 0x00) {
-                  r->value = 0x01; /*0x00 will not be accepted*/
-              } else {
-                  r->value = value;
-              }
-          }
+    if (flags & OPTICAL_FLAG_DISABLE_LAMP) {
+        // 0x0101 is as off as possible
+        sanei_genesys_set_exposure(*reg, {0x0101, 0x0101, 0x0101});
+    } else {
+        // EXP[R,G,B] only matter for CIS scanners
+        sanei_genesys_set_exposure(*reg, sanei_genesys_fixup_exposure(dev->sensor.exposure));
     }
 
     r = sanei_genesys_get_address (reg, 0x19);
@@ -2063,9 +2055,9 @@ gl841_get_led_exposure(Genesys_Device * dev)
 	return 0;
     d = dev->reg.find_reg(0x19).value;
 
-    r = (dev->sensor.custom_regs.get_value(0x10) << 8) | dev->sensor.custom_regs.get_value(0x11);
-    g = (dev->sensor.custom_regs.get_value(0x12) << 8) | dev->sensor.custom_regs.get_value(0x13);
-    b = (dev->sensor.custom_regs.get_value(0x14) << 8) | dev->sensor.custom_regs.get_value(0x15);
+    r = dev->sensor.exposure.red;
+    g = dev->sensor.exposure.green;
+    b = dev->sensor.exposure.blue;
 
     m = r;
     if (m < g)
@@ -2784,15 +2776,9 @@ gl841_set_lamp_power (Genesys_Device * dev,
 								       0x03) |
 				      REG03_LAMPPWR);
 
-      r = sanei_genesys_get_address (regs, 0x10);
-      for (i = 0; i < 6; i++, r++) {
-          uint8_t value = dev->sensor.custom_regs.get_value(0x10 + i);
-          if (value == 0x00) {
-              r->value = 0x01; /*0x00 will not be accepted*/
-          } else {
-              r->value = value;
-          }
-      }
+      sanei_genesys_set_exposure(*regs,
+                                 sanei_genesys_fixup_exposure(dev->sensor.exposure));
+
       r = sanei_genesys_get_address (regs, 0x19);
       r->value = 0x50;
     }
@@ -4041,7 +4027,6 @@ gl841_led_calibration (Genesys_Device * dev)
   int avg[3], avga, avge;
   int turn;
   uint16_t exp[3], target;
-  GenesysRegister *r;
   int move;
 
   SANE_Bool acceptable = SANE_FALSE;
@@ -4109,9 +4094,9 @@ gl841_led_calibration (Genesys_Device * dev)
      adjust exposure times
  */
 
-  exp[0] = (dev->sensor.custom_regs.get_value(0x10) << 8) | dev->sensor.custom_regs.get_value(0x11);
-  exp[1] = (dev->sensor.custom_regs.get_value(0x12) << 8) | dev->sensor.custom_regs.get_value(0x13);
-  exp[2] = (dev->sensor.custom_regs.get_value(0x14) << 8) | dev->sensor.custom_regs.get_value(0x15);
+  exp[0] = dev->sensor.exposure.red;
+  exp[1] = dev->sensor.exposure.green;
+  exp[2] = dev->sensor.exposure.blue;
 
   turn = 0;
   /* max exposure is set to ~2 time initial average
@@ -4120,19 +4105,17 @@ gl841_led_calibration (Genesys_Device * dev)
   target=dev->sensor.gain_white_ref*256;
 
   do {
+        dev->sensor.exposure.red = exp[0];
+        dev->sensor.exposure.green = exp[1];
+        dev->sensor.exposure.blue = exp[2];
 
-      dev->sensor.custom_regs.set_value(0x10, (exp[0] >> 8) & 0xff);
-      dev->sensor.custom_regs.set_value(0x11, exp[0] & 0xff);
-      dev->sensor.custom_regs.set_value(0x12, (exp[1] >> 8) & 0xff);
-      dev->sensor.custom_regs.set_value(0x13, exp[1] & 0xff);
-      dev->sensor.custom_regs.set_value(0x14, (exp[2] >> 8) & 0xff);
-      dev->sensor.custom_regs.set_value(0x15, exp[2] & 0xff);
-
-      r = &(dev->calib_reg.find_reg(0x10));
-      for (i = 0; i < 6; i++, r++) {
-          r->value = dev->sensor.custom_regs.get_value(0x10 + i);
-          RIE(sanei_genesys_write_register(dev, 0x10+i, r->value));
-      }
+        sanei_genesys_set_exposure(dev->calib_reg, dev->sensor.exposure);
+        RIE(sanei_genesys_write_register(dev, 0x10, (dev->sensor.exposure.red >> 8) & 0xff));
+        RIE(sanei_genesys_write_register(dev, 0x11, dev->sensor.exposure.red & 0xff));
+        RIE(sanei_genesys_write_register(dev, 0x12, (dev->sensor.exposure.green >> 8) & 0xff));
+        RIE(sanei_genesys_write_register(dev, 0x13, dev->sensor.exposure.green & 0xff));
+        RIE(sanei_genesys_write_register(dev, 0x14, (dev->sensor.exposure.blue >> 8) & 0xff));
+        RIE(sanei_genesys_write_register(dev, 0x15, dev->sensor.exposure.blue & 0xff));
 
       RIE(sanei_genesys_bulk_write_register(dev, dev->calib_reg));
 

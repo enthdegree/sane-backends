@@ -1371,7 +1371,7 @@ sanei_genesys_send_gamma_table (Genesys_Device * dev)
  * @return SANE_STATUS_GOOD in case of success
  */
 SANE_Status
-sanei_genesys_asic_init (Genesys_Device * dev, int max_regs)
+sanei_genesys_asic_init (Genesys_Device * dev, int /*max_regs*/)
 {
   SANE_Status status;
   uint8_t val;

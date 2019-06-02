@@ -478,6 +478,10 @@ private:
     std::vector<GenesysRegisterSetting> regs_;
 };
 
+struct SensorExposure {
+    uint16_t red, green, blue;
+};
+
 struct Genesys_Sensor {
 
     Genesys_Sensor() = default;
@@ -501,8 +505,9 @@ struct Genesys_Sensor {
     // CCD target code (reference gain)
     int gain_white_ref = 0;
 
-    // Initial exposure values, EXPR, EXPG and EXPB are contained in 0x10-0x15
-    // FIXME: move exposure to separate variable
+    // red, green and blue initial exposure values
+    SensorExposure exposure;
+
     GenesysRegisterSettingSet custom_regs;
 
     // red, green and blue gamma coefficient for default gamma tables
@@ -522,6 +527,7 @@ struct Genesys_Sensor {
         success &= 1 == ::fread(&sensor_pixels, sizeof(sensor_pixels), 1, fp);
         success &= 1 == ::fread(&fau_gain_white_ref, sizeof(fau_gain_white_ref), 1, fp);
         success &= 1 == ::fread(&gain_white_ref, sizeof(gain_white_ref), 1, fp);
+        success &= 1 == ::fread(&exposure, sizeof(exposure), 1, fp);
 
         custom_regs.clear();
         uint32_t custom_regs_count = 0;
@@ -546,6 +552,7 @@ struct Genesys_Sensor {
         ::fwrite(&sensor_pixels, sizeof(sensor_pixels), 1, fp);
         ::fwrite(&fau_gain_white_ref, sizeof(fau_gain_white_ref), 1, fp);
         ::fwrite(&gain_white_ref, sizeof(gain_white_ref), 1, fp);
+        ::fwrite(&exposure, sizeof(exposure), 1, fp);
         uint32_t custom_regs_count = custom_regs.size();
         ::fwrite(&custom_regs_count, sizeof(custom_regs_count), 1, fp);
         for (uint32_t i = 0; i < custom_regs_count; ++i) {
@@ -1506,6 +1513,35 @@ inline void sanei_genesys_get_double(Genesys_Register_Set* regs, uint16_t addr, 
 inline void sanei_genesys_get_triple(Genesys_Register_Set* regs, uint16_t addr, uint32_t* value)
 {
     *value = regs->get24(addr);
+}
+
+inline void sanei_genesys_set_exposure(Genesys_Register_Set& regs, const SensorExposure& exposure)
+{
+    regs.set8(0x10, (exposure.red >> 8) & 0xff);
+    regs.set8(0x11, exposure.red & 0xff);
+    regs.set8(0x12, (exposure.green >> 8) & 0xff);
+    regs.set8(0x13, exposure.green & 0xff);
+    regs.set8(0x14, (exposure.blue >> 8) & 0xff);
+    regs.set8(0x15, exposure.blue & 0xff);
+}
+
+inline uint16_t sanei_genesys_fixup_exposure_value(uint16_t value)
+{
+    if ((value & 0xff00) == 0) {
+        value |= 0x100;
+    }
+    if ((value & 0x00ff) == 0) {
+        value |= 0x1;
+    }
+    return value;
+}
+
+inline SensorExposure sanei_genesys_fixup_exposure(SensorExposure exposure)
+{
+    exposure.red = sanei_genesys_fixup_exposure_value(exposure.red);
+    exposure.green = sanei_genesys_fixup_exposure_value(exposure.green);
+    exposure.blue = sanei_genesys_fixup_exposure_value(exposure.blue);
+    return exposure;
 }
 
 extern SANE_Status

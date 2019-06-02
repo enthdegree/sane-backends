@@ -1923,8 +1923,6 @@ static void
 gl843_set_lamp_power (Genesys_Device * dev,
 		      Genesys_Register_Set * regs, SANE_Bool set)
 {
-  GenesysRegister *r;
-  int i;
   uint8_t val;
 
   val = sanei_genesys_read_reg_from_set (regs, REG03);
@@ -1933,9 +1931,7 @@ gl843_set_lamp_power (Genesys_Device * dev,
       val |= REG03_LAMPPWR;
       sanei_genesys_set_reg_from_set (regs, REG03, val);
 
-        for (uint16_t addr = 0x10; addr < 0x16; addr++) {
-            regs->set8(addr, dev->sensor.custom_regs.get_value(addr));
-        }
+        sanei_genesys_set_exposure(*regs, dev->sensor.exposure);
     }
   else
     {
@@ -1944,11 +1940,7 @@ gl843_set_lamp_power (Genesys_Device * dev,
       if (dev->model->model_id != MODEL_CANON_CANOSCAN_8600F)
         {
           // FIXME: datasheet says we shouldn't set exposure to zero
-          for (i = 0; i < 6; i++)
-            {
-              r = sanei_genesys_get_address (regs, 0x10 + i);
-              r->value = 0x00;
-            }
+          sanei_genesys_set_exposure(*regs, {0, 0, 0});
         }
     }
 }
@@ -3270,25 +3262,20 @@ gl843_led_calibration (Genesys_Device * dev)
      adjust exposure times
  */
 
-  expr = (dev->sensor.custom_regs.get_value(0x10) << 8) | dev->sensor.custom_regs.get_value(0x11);
-  expg = (dev->sensor.custom_regs.get_value(0x12) << 8) | dev->sensor.custom_regs.get_value(0x13);
-  expb = (dev->sensor.custom_regs.get_value(0x14) << 8) | dev->sensor.custom_regs.get_value(0x15);
+  expr = dev->sensor.exposure.red;
+  expg = dev->sensor.exposure.green;
+  expb = dev->sensor.exposure.blue;
 
   turn = 0;
 
   do
     {
 
-      dev->sensor.custom_regs.set_value(0x10, (expr >> 8) & 0xff);
-      dev->sensor.custom_regs.set_value(0x11, expr & 0xff);
-      dev->sensor.custom_regs.set_value(0x12, (expg >> 8) & 0xff);
-      dev->sensor.custom_regs.set_value(0x13, expg & 0xff);
-      dev->sensor.custom_regs.set_value(0x14, (expb >> 8) & 0xff);
-      dev->sensor.custom_regs.set_value(0x15, expb & 0xff);
+      dev->sensor.exposure.red = expr;
+      dev->sensor.exposure.green = expg;
+      dev->sensor.exposure.blue = expb;
 
-      for (uint16_t addr = 0x10; addr < 0x16; addr++) {
-          dev->calib_reg.set8(addr, dev->sensor.custom_regs.get_value(addr));
-      }
+      sanei_genesys_set_exposure(dev->calib_reg, dev->sensor.exposure);
 
       RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
 

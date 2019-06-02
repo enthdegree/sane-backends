@@ -933,21 +933,21 @@ gl124_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs, int dpi, 
   sanei_genesys_set_double(regs,REG_EXPDMY,sensor->expdummy);
 
   /* if no calibration has been done, set default values for exposures */
-  exp = dev->sensor.custom_regs.get_value(0x10)*256 + dev->sensor.custom_regs.get_value(0x11);
+  exp = dev->sensor.exposure.red;
   if(exp==0)
     {
       exp=sensor->expr;
     }
   sanei_genesys_set_triple(regs,REG_EXPR,exp);
 
-  exp = dev->sensor.custom_regs.get_value(0x12)*256 + dev->sensor.custom_regs.get_value(0x13);
+  exp =dev->sensor.exposure.green;
   if(exp==0)
     {
       exp=sensor->expg;
     }
   sanei_genesys_set_triple(regs,REG_EXPG,exp);
 
-  exp = dev->sensor.custom_regs.get_value(0x14)*256 + dev->sensor.custom_regs.get_value(0x15);
+  exp = dev->sensor.exposure.blue;
   if(exp==0)
     {
       exp=sensor->expb;
@@ -2942,12 +2942,9 @@ gl124_led_calibration (Genesys_Device * dev)
   sanei_genesys_set_triple(&dev->reg,REG_EXPB,exp[2]);
 
   /* store in this struct since it is the one used by cache calibration */
-  dev->sensor.custom_regs.set_value(0x10, (exp[0] >> 8) & 0xff);
-  dev->sensor.custom_regs.set_value(0x11, exp[0] & 0xff);
-  dev->sensor.custom_regs.set_value(0x12, (exp[1] >> 8) & 0xff);
-  dev->sensor.custom_regs.set_value(0x13, exp[1] & 0xff);
-  dev->sensor.custom_regs.set_value(0x14, (exp[2] >> 8) & 0xff);
-  dev->sensor.custom_regs.set_value(0x15, exp[2] & 0xff);
+  dev->sensor.exposure.red = exp[0];
+  dev->sensor.exposure.green = exp[1];
+  dev->sensor.exposure.blue = exp[2];
 
   DBGCOMPLETED;
   return status;

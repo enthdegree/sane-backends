@@ -1000,6 +1000,8 @@ gl646_setup_sensor (Genesys_Device * dev, Genesys_Register_Set * regs)
     for (const auto& reg_setting : dev->sensor.custom_regs) {
         regs->set8(reg_setting.address, reg_setting.value);
     }
+    // FIXME: all other drivers don't set exposure here
+    sanei_genesys_set_exposure(*regs, dev->sensor.exposure);
 
     DBG(DBG_proc, "%s: end\n", __func__);
 }
@@ -3181,20 +3183,17 @@ gl646_led_calibration (Genesys_Device * dev)
 
   Sensor_Master uint8_t regs_0x10_0x15[6];
  */
-  expr = (dev->sensor.custom_regs.get_value(0x10) << 8) | dev->sensor.custom_regs.get_value(0x11);
-  expg = (dev->sensor.custom_regs.get_value(0x12) << 8) | dev->sensor.custom_regs.get_value(0x13);
-  expb = (dev->sensor.custom_regs.get_value(0x14) << 8) | dev->sensor.custom_regs.get_value(0x15);
+  expr = dev->sensor.exposure.red;
+  expg = dev->sensor.exposure.green;
+  expb = dev->sensor.exposure.blue;
 
   turn = 0;
 
   do
     {
-      dev->sensor.custom_regs.set_value(0x10, (expr >> 8) & 0xff);
-      dev->sensor.custom_regs.set_value(0x11, expr & 0xff);
-      dev->sensor.custom_regs.set_value(0x12, (expg >> 8) & 0xff);
-      dev->sensor.custom_regs.set_value(0x13, expg & 0xff);
-      dev->sensor.custom_regs.set_value(0x14, (expb >> 8) & 0xff);
-      dev->sensor.custom_regs.set_value(0x15, expb & 0xff);
+      dev->sensor.exposure.red = expr;
+      dev->sensor.exposure.green = expg;
+      dev->sensor.exposure.blue = expb;
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
 

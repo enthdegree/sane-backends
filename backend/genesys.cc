@@ -3565,7 +3565,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
 
       RIE(dev->model->cmd_set->end_scan(dev, &dev->reg, SANE_TRUE));
 
-      sleep (1);		/* sleep 1 s */
+      sanei_genesys_sleep_ms(1000);
       seconds++;
 
       RIE(dev->model->cmd_set->begin_scan(dev, &dev->reg, SANE_FALSE));
@@ -3627,7 +3627,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	}
 
       /* sleep another second before next loop */
-      sleep (1);
+      sanei_genesys_sleep_ms(1000);
       seconds++;
     }
   while (seconds < WARMUP_TIME);

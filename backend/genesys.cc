@@ -183,16 +183,34 @@ const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev)
     throw std::runtime_error("Given device does not have sensor defined");
 }
 
-const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi)
+const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
+                                                int scan_method)
 {
-    (void) dpi; // TODO: this will be used in the future once we support multiple sensors
-    return sanei_genesys_find_sensor_any(dev);
+    bool is_transparency = scan_method == SCAN_METHOD_TRANSPARENCY;
+    for (const auto& sensor : *s_sensors) {
+        if (dev->model->ccd_type == sensor.sensor_id &&
+                (sensor.min_resolution == -1 || dpi >= sensor.min_resolution) &&
+                (sensor.max_resolution == -1 || dpi <= sensor.max_resolution) &&
+                sensor.is_transparency == is_transparency) {
+            return sensor;
+        }
+    }
+    throw std::runtime_error("Given device does not have sensor defined");
 }
 
-Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi)
+Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,
+                                                    int scan_method)
 {
-    (void) dpi; // TODO: this will be used in the future once we support multiple sensors
-    return sanei_genesys_find_sensor_any_for_write(dev);
+    bool is_transparency = scan_method == SCAN_METHOD_TRANSPARENCY;
+    for (auto& sensor : *s_sensors) {
+        if (dev->model->ccd_type == sensor.sensor_id &&
+                (sensor.min_resolution == -1 || dpi >= sensor.min_resolution) &&
+                (sensor.max_resolution == -1 || dpi <= sensor.max_resolution) &&
+                sensor.is_transparency == is_transparency) {
+            return sensor;
+        }
+    }
+    throw std::runtime_error("Given device does not have sensor defined");
 }
 
 
@@ -3798,8 +3816,8 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 	}
     }
 
-    // FIXME: we should pick current sensor according to scan settings
-    auto& sensor = sanei_genesys_find_sensor_for_write(dev, dev->settings.xres);
+    auto& sensor = sanei_genesys_find_sensor_for_write(dev, dev->settings.xres,
+                                                       dev->settings.scan_method);
 
   /* send gamma tables. They have been set to device or user value
    * when setting option value */
@@ -7296,7 +7314,8 @@ SANE_Status sane_start_impl(SANE_Handle handle)
       /* deskew image if required */
       if(s->val[OPT_SWDESKEW].b == SANE_TRUE)
         {
-          const auto& sensor = sanei_genesys_find_sensor(s->dev, s->dev->settings.xres);
+          const auto& sensor = sanei_genesys_find_sensor(s->dev, s->dev->settings.xres,
+                                                         s->dev->settings.scan_method);
           RIE(genesys_deskew(s, sensor));
         }
 

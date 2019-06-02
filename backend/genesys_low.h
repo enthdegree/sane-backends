@@ -477,6 +477,13 @@ public:
 
     void push_back(GenesysRegisterSetting reg) { regs_.push_back(reg); }
 
+    void merge(const GenesysRegisterSettingSet& other)
+    {
+        for (const auto& reg : other) {
+            set_value(reg.address, reg.value);
+        }
+    }
+
     uint8_t get_value(uint16_t address) const
     {
         for (const auto& reg : regs_) {
@@ -494,7 +501,7 @@ public:
                 return;
             }
         }
-        throw std::runtime_error("Unknown register");
+        push_back(GenesysRegisterSetting(address, value));
     }
 
 private:
@@ -513,6 +520,15 @@ struct Genesys_Sensor {
     // id of the sensor description
     uint8_t sensor_id = 0;
     int optical_res = 0;
+
+    // the minimum and maximum resolution this sensor is usable at. -1 means that the resolution
+    // can be any.
+    int min_resolution = -1;
+    int max_resolution = -1;
+
+    // whether the sensor is transparency sensor.
+    bool is_transparency = false;
+
     // half or quarter CCD mode
     bool half_ccd_mode = false;
 
@@ -530,6 +546,8 @@ struct Genesys_Sensor {
 
     // red, green and blue initial exposure values
     SensorExposure exposure;
+
+    int exposure_lperiod = -1;
 
     GenesysRegisterSettingSet custom_regs;
 
@@ -1481,8 +1499,10 @@ extern void sanei_genesys_init_structs (Genesys_Device * dev);
 
 const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev);
 Genesys_Sensor& sanei_genesys_find_sensor_any_for_write(Genesys_Device* dev);
-const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi);
-Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi);
+const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
+                                                int scan_method = SCAN_METHOD_FLATBED);
+Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,
+                                                    int scan_method = SCAN_METHOD_FLATBED);
 
 extern SANE_Status
 sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,

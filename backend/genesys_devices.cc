@@ -1296,6 +1296,7 @@ void genesys_init_sensor_tables()
             int exposure;
             int is_transparency;
             GenesysRegisterSettingSet extra_custom_regs;
+            GenesysRegisterSettingSet custom_fe_regs;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -1325,7 +1326,8 @@ void genesys_init_sensor_tables()
                     { 0x58, 0x6b },
                     { 0x59, 0x00 },
                     { 0x5a, 0x40 },
-                }
+                },
+                {},
             },
             { -1, 1200, 0x5dc0, true, {
                     { 0x74, 0x03 }, { 0x75, 0xf0 }, { 0x76, 0xf0 },
@@ -1354,6 +1356,7 @@ void genesys_init_sensor_tables()
                     { 0x59, 0x00 },
                     { 0x5a, 0x40 },
                 },
+                {},
             },
             { 2400, 2400, 0x5dc0, true, {
                     { 0x74, 0x03 }, { 0x75, 0xfe }, { 0x76, 0x00 },
@@ -1381,7 +1384,8 @@ void genesys_init_sensor_tables()
                     { 0x58, 0x6b },
                     { 0x59, 0x00 },
                     { 0x5a, 0x40 },
-                }
+                },
+                {},
             },
             { 4800, 4800, 0x5dc0, true, {
                     { 0x74, 0x03 }, { 0x75, 0xff }, { 0x76, 0xff },
@@ -1412,6 +1416,8 @@ void genesys_init_sensor_tables()
                     { 0x59, 0x00 },
                     { 0x5a, 0x40 },
                 },
+                {   { 0x03, 0x1f },
+                },
             },
         };
 
@@ -1424,6 +1430,7 @@ void genesys_init_sensor_tables()
             sensor.exposure_lperiod = setting.exposure;
             sensor.custom_regs = base_custom_regs;
             sensor.custom_regs.merge(setting.extra_custom_regs);
+            sensor.custom_fe_regs = setting.custom_fe_regs;
             s_sensors->push_back(sensor);
         }
     }

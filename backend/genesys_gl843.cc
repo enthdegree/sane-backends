@@ -793,6 +793,13 @@ gl843_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
 	  return status;
 	}
     }
+    for (const auto& reg : sensor.custom_fe_regs) {
+        status = sanei_genesys_fe_write_data(dev, reg.address, reg.value);
+        if (status != SANE_STATUS_GOOD) {
+            DBG(DBG_error, "%s: writing reg[%d] failed: %s\n", __func__, i, sane_strstatus(status));
+            return status;
+        }
+    }
 
   for (i = 0; i < 3; i++)
     {

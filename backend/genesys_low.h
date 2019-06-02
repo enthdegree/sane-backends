@@ -578,6 +578,7 @@ struct Genesys_Sensor {
     int exposure_lperiod = -1;
 
     GenesysRegisterSettingSet custom_regs;
+    GenesysRegisterSettingSet custom_fe_regs;
 
     // red, green and blue gamma coefficient for default gamma tables
     AssignableArray<float, 3> gamma;

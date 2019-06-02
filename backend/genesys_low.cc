@@ -1579,7 +1579,7 @@ int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, const Genesys_S
   if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
     {
       // real resolution is half of the "official" resolution - half_ccd mode
-      int hwres = sensor.optical_res / 4;
+      int hwres = sensor.optical_res / sensor.get_ccd_size_divisor_for_dpi(xres);
 
       if (xres <= hwres / 4)
         {
@@ -1874,10 +1874,10 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
       compatible = (resolution == ((int) sanei_genesys_compute_dpihw(dev, sensor,cache->used_setup.xres)));
     }
   DBG (DBG_io, "%s: after resolution check current compatible=%d\n", __func__, compatible);
-  if (dev->current_setup.half_ccd != cache->used_setup.half_ccd)
+  if (dev->current_setup.ccd_size_divisor != cache->used_setup.ccd_size_divisor)
     {
       DBG (DBG_io, "%s: half_ccd=%d, used=%d\n", __func__,
-	   dev->current_setup.half_ccd, cache->used_setup.half_ccd);
+           dev->current_setup.ccd_size_divisor, cache->used_setup.ccd_size_divisor);
       compatible = 0;
     }
   if (dev->current_setup.scan_method != cache->used_setup.scan_method)

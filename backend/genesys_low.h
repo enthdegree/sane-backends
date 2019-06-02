@@ -602,8 +602,11 @@ struct Genesys_Sensor {
 
     int get_ccd_size_divisor_for_dpi(int xres) const
     {
-        if (ccd_size_divisor > 1 && xres * ccd_size_divisor <= optical_res) {
-            return ccd_size_divisor;
+        if (ccd_size_divisor >= 4 && xres * 4 <= optical_res) {
+            return 4;
+        }
+        if (ccd_size_divisor >= 2 && xres * 2 <= optical_res) {
+            return 2;
         }
         return 1;
     }
@@ -1187,7 +1190,7 @@ struct Genesys_Current_Setup
     // used yres
     float yres = 0;
     // half ccd mode
-    SANE_Bool half_ccd = 0;
+    unsigned ccd_size_divisor = 1;
     SANE_Int stagger = 0;
     //  max shift of any ccd component, including staggered pixels
     SANE_Int max_shift = 0;

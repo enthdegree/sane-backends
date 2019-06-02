@@ -1048,7 +1048,7 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
  * @param pixels logical number of pixels to use
  * @param channels number of color channles used (1 or 3)
  * @param depth bit depth of the scan (1, 8 or 16 bits)
- * @param half_ccd SANE_TRUE if timings are such that x coordiantes must be halved
+ * @param ccd_size_divisor SANE_TRUE specifies how much x coordinates must be shrunk
  * @param color_filter to choose the color channel used in gray scans
  * @param flags to drive specific settings such no calibration, XPA use ...
  * @return SANE_STATUS_GOOD if OK
@@ -1063,7 +1063,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 			      unsigned int pixels,
 			      int channels,
 			      int depth,
-			      SANE_Bool half_ccd,
+                              unsigned ccd_size_divisor,
                               int color_filter,
                               int flags)
 {
@@ -1077,8 +1077,8 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   SANE_Status status;
 
   DBG(DBG_proc, "%s :  exposure=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
-      "half_ccd=%d, flags=%x\n", __func__, exposure, used_res, start, pixels, channels, depth,
-      half_ccd, flags);
+      "ccd_size_divisor=%d, flags=%x\n", __func__, exposure, used_res, start, pixels, channels,
+      depth, ccd_size_divisor, flags);
 
   /* tgtime */
   tgtime=1;
@@ -1236,16 +1236,8 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   else
     r->value |= REG05_GMMENB;
 
-  if(half_ccd)
-    {
-      sanei_genesys_set_double(reg,REG_DPISET,dpiset*4);
-      DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset*4);
-    }
-  else
-    {
-      sanei_genesys_set_double(reg,REG_DPISET,dpiset);
-      DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);
-    }
+  sanei_genesys_set_double(reg, REG_DPISET, dpiset * ccd_size_divisor);
+  DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset * ccd_size_divisor);
 
   sanei_genesys_set_double(reg,REG_STRPIXEL,startx/tgtime);
   sanei_genesys_set_double(reg,REG_ENDPIXEL,endx/tgtime);
@@ -1330,7 +1322,7 @@ struct ScanSession {
     bool computed = false;
 
     // whether CCD operates as half-resolution or full resolution at a specific resolution
-    SANE_Bool half_ccd = 0;
+    unsigned ccd_size_divisor = 1;
 
     // the optical resolution of the scanner.
     unsigned optical_resolution = 0;
@@ -1370,21 +1362,22 @@ struct ScanSession {
     }
 };
 
+static unsigned align_int_up(unsigned num, unsigned alignment)
+{
+    unsigned mask = alignment - 1;
+    if (num & mask)
+        num = (num & ~mask) + alignment;
+    return num;
+}
+
 // computes physical parameters for specific scan setup
 static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
                                   const Genesys_Sensor& sensor)
 {
     s.params.assert_valid();
-    if (sensor.get_ccd_size_divisor_for_dpi(s.params.xres) > 1)
-    {
-        s.half_ccd = SANE_TRUE;
-    } else {
-        s.half_ccd = SANE_FALSE;
-    }
+    s.ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(s.params.xres);
 
-    s.optical_resolution = sensor.optical_res;
-    if (s.half_ccd)
-        s.optical_resolution /= 4;
+    s.optical_resolution = sensor.optical_res / s.ccd_size_divisor;
 
     if (s.params.flags & SCAN_FLAG_USE_OPTICAL_RES) {
         s.output_resolution = s.optical_resolution;
@@ -1403,14 +1396,8 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
         s.optical_pixels++;
 
     // ensure the number of optical pixels is divisible by 2.
-    // In half-CCD mode optical_pixels is 4x larger than the actual physical number
-    if (s.half_ccd) {
-        if (s.optical_pixels & 0x7)
-            s.optical_pixels = (s.optical_pixels & ~0x7) + 8;
-    } else {
-        if (s.optical_pixels & 1)
-            s.optical_pixels++;
-    }
+    // In quarter-CCD mode optical_pixels is 4x larger than the actual physical number
+    s.optical_pixels = align_int_up(s.optical_pixels, 2 * s.ccd_size_divisor);
 
     s.output_pixels =
         (s.optical_pixels * s.output_resolution) / s.optical_resolution;
@@ -1538,7 +1525,7 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Senso
                                          session.optical_pixels,
                                          session.params.channels,
                                          session.params.depth,
-                                         session.half_ccd,
+                                         session.ccd_size_divisor,
                                          session.params.color_filter,
                                          oflags);
   if (status != SANE_STATUS_GOOD)
@@ -1621,7 +1608,7 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Senso
   dev->current_setup.exposure_time = exposure;
   dev->current_setup.xres = session.output_resolution;
   dev->current_setup.yres = session.params.yres;
-  dev->current_setup.half_ccd = session.half_ccd;
+  dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
   dev->current_setup.stagger = session.num_staggered_lines;
   dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
@@ -1662,7 +1649,6 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   int max_shift;
 
-  SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
 
   DBG(DBG_info, "%s settings:\n"
@@ -1679,14 +1665,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   yres = dev->settings.yres;
 
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (sensor.get_ccd_size_divisor_for_dpi(xres) > 1)
-    {
-      half_ccd = SANE_TRUE;
-    }
-  else
-    {
-      half_ccd = SANE_FALSE;
-    }
+  unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(xres);
 
   /* channels */
   if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
@@ -1705,8 +1684,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   else
       start = SANE_UNFIX (dev->model->x_offset);
 
-  if (half_ccd)
-    start /= 4;
+  start /= ccd_size_divisor;
 
   start += dev->settings.tl_x;
   start = (start * sensor.optical_res) / MM_PER_INCH;
@@ -1724,12 +1702,10 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
       __func__, xres, yres, lines, pixels, startx, depth, channels);
 
   /* optical_res */
-  optical_res = sensor.optical_res;
-  if (half_ccd)
-    optical_res /= 4;
+  optical_res = sensor.optical_res / ccd_size_divisor;
 
   /* stagger */
-  if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
+  if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
     stagger = (4 * yres) / dev->motor.base_ydpi;
   else
     stagger = 0;
@@ -1783,7 +1759,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   dev->current_setup.exposure_time = exposure;
   dev->current_setup.xres = used_res;
   dev->current_setup.yres = yres;
-  dev->current_setup.half_ccd = half_ccd;
+  dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 
@@ -4326,10 +4302,10 @@ gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
       strpixel*=tgtime;
       endpixel*=tgtime;
 
-      if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F && dev->current_setup.half_ccd)
+      if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F && dev->current_setup.ccd_size_divisor > 1)
         {
-          int optical_res = sensor.optical_res / 4;
-          int dpiset_real = dpiset / 4;
+          int optical_res = sensor.optical_res / dev->current_setup.ccd_size_divisor;
+          int dpiset_real = dpiset / dev->current_setup.ccd_size_divisor;
           int half_ccd_factor = optical_res /
               sanei_genesys_compute_dpihw_calibration(dev, sensor, dpiset_real);
           strpixel /= half_ccd_factor;

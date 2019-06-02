@@ -2490,7 +2490,7 @@ dummy \ scanned lines
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
   dev->current_setup.yres = yres;
-  dev->current_setup.half_ccd = half_ccd;
+  dev->current_setup.ccd_size_divisor = half_ccd ? 2 : 1;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 
@@ -2734,7 +2734,7 @@ dummy \ scanned lines
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
   dev->current_setup.yres = yres;
-  dev->current_setup.half_ccd = half_ccd;
+  dev->current_setup.ccd_size_divisor = half_ccd ? 2 : 1;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 
@@ -5023,7 +5023,7 @@ gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
 
   DBG(DBG_proc, "%s: checking\n", __func__);
 
-  if (dev->current_setup.half_ccd != cache->used_setup.half_ccd)
+  if (dev->current_setup.ccd_size_divisor != cache->used_setup.ccd_size_divisor)
     return SANE_STATUS_UNSUPPORTED;
 
   /* a cache entry expires after 30 minutes for non sheetfed scanners */
@@ -5505,7 +5505,6 @@ gl841_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
 {
   SANE_Status status = SANE_STATUS_GOOD;
   uint32_t length, x, factor, pixels, i;
-  uint32_t half;
   uint32_t lines, channels;
   uint16_t dpiset, dpihw, strpixel ,endpixel, beginpixel;
   uint8_t *ptr,*src;
@@ -5547,10 +5546,10 @@ gl841_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
   /* compute deletion/average factor */
   sanei_genesys_get_double(&dev->reg,REG_DPISET,&dpiset);
   dpihw = gl841_get_dpihw(dev);
-  half=dev->current_setup.half_ccd+1;
+  unsigned ccd_size_divisor = dev->current_setup.ccd_size_divisor;
   factor=dpihw/dpiset;
-  DBG(DBG_io2, "%s: dpihw=%d, dpiset=%d, half_ccd=%d, factor=%d\n", __func__, dpihw, dpiset,
-      half-1,factor);
+  DBG(DBG_io2, "%s: dpihw=%d, dpiset=%d, ccd_size_divisor=%d, factor=%d\n", __func__, dpihw, dpiset,
+      ccd_size_divisor, factor);
 
   /* binary data logging */
   if(DBG_LEVEL>=DBG_data)
@@ -5572,7 +5571,7 @@ gl841_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
   /* shading pixel begin is start pixel minus start pixel during shading
    * calibration. Currently only cases handled are full and half ccd resolution.
    */
-  beginpixel = sensor.CCD_start_xoffset / half;
+  beginpixel = sensor.CCD_start_xoffset / ccd_size_divisor;
   beginpixel += sensor.dummy_pixel + 1;
   DBG(DBG_io2, "%s: ORIGIN PIXEL=%d\n", __func__, beginpixel);
   beginpixel = (strpixel-beginpixel*2*2)/factor;

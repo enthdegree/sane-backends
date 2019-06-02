@@ -4372,7 +4372,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
       "\texposure_time: %d\n"
       "\txres: %g\n"
       "\tyres: %g\n"
-      "\thalf_ccd: %s\n"
+      "\tccd_size_divisor: %d\n"
       "\tstagger: %d\n"
       "\tmax_shift: %d\n",
       __func__,
@@ -4383,7 +4383,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
       dev->current_setup.exposure_time,
       dev->current_setup.xres,
       dev->current_setup.yres,
-      dev->current_setup.half_ccd ? "yes" : "no",
+      dev->current_setup.ccd_size_divisor,
       dev->current_setup.stagger, dev->current_setup.max_shift);
 
   /* prepare conversion */

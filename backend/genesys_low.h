@@ -563,18 +563,28 @@ struct Genesys_Sensor {
     }
 };
 
-typedef struct
+struct Genesys_Gpo
 {
-  uint8_t gpo_id;	/**< id of the gpo description */
+    Genesys_Gpo() = default;
 
-  // registers 0x6c and 0x6d on GL841, GL842, GL843, GL846, GL848 and possibly
-  // others
-  uint8_t value[2];
+    Genesys_Gpo(uint8_t id, const std::array<uint8_t, 2>& v, const std::array<uint8_t, 2>& e)
+    {
+        gpo_id = id;
+        value[0] = v[0];
+        value[1] = v[1];
+        enable[0] = e[0];
+        enable[1] = e[1];
+    }
 
-  // registers 0x6e and 0x6f on GL841, GL842, GL843, GL846, GL848 and possibly
-  // others
-  uint8_t enable[2];
-} Genesys_Gpo;
+    // Genesys_Gpo
+    uint8_t gpo_id = 0;
+
+    // registers 0x6c and 0x6d on GL841, GL842, GL843, GL846, GL848 and possibly others
+    uint8_t value[2] = { 0, 0 };
+
+    // registers 0x6e and 0x6f on GL841, GL842, GL843, GL846, GL848 and possibly others
+    uint8_t enable[2] = { 0, 0 };
+};
 
 typedef struct
 {

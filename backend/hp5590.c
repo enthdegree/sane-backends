@@ -1,8 +1,8 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2007 Ilia Sotnikov <hostcc@gmail.com>
    HP ScanJet 4570c support by Markham Thomas
-   ADF page detection and high DPI fixes by Bernard Badr
-   scanbd integration by Damiano Scaramuzza and Bernard Badr
+   ADF page detection and high DPI fixes by Bernard Badeer
+   scanbd integration by Damiano Scaramuzza and Bernard Badeer
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -83,7 +83,7 @@
 #define MY_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 /* #define HAS_WORKING_COLOR_48 */
-#define BUILD           7
+#define BUILD           8
 #define USB_TIMEOUT     30 * 1000
 
 static SANE_Word
@@ -94,6 +94,15 @@ res_list[] = { 6, 100, 200, 300, 600, 1200, 2400 };
 #define SANE_VALUE_SCAN_SOURCE_ADF_DUPLEX       SANE_I18N("ADF Duplex")
 #define SANE_VALUE_SCAN_SOURCE_TMA_SLIDES       SANE_I18N("TMA Slides")
 #define SANE_VALUE_SCAN_SOURCE_TMA_NEGATIVES    SANE_I18N("TMA Negatives")
+static SANE_String_Const
+sources_list[] = {
+  SANE_VALUE_SCAN_SOURCE_FLATBED,
+  SANE_VALUE_SCAN_SOURCE_ADF,
+  SANE_VALUE_SCAN_SOURCE_ADF_DUPLEX,
+  SANE_VALUE_SCAN_SOURCE_TMA_SLIDES,
+  SANE_VALUE_SCAN_SOURCE_TMA_NEGATIVES,
+  NULL
+};
 
 #define SANE_VALUE_SCAN_MODE_COLOR_24           SANE_VALUE_SCAN_MODE_COLOR
 #define SANE_VALUE_SCAN_MODE_COLOR_48           SANE_I18N("Color (48 bits)")
@@ -108,7 +117,15 @@ res_list[] = { 6, 100, 200, 300, 600, 1200, 2400 };
 #define SANE_NAME_BUTTON_PRESSED                "button-pressed"
 #define SANE_TITLE_BUTTON_PRESSED               SANE_I18N("Last button pressed")
 #define SANE_DESC_BUTTON_PRESSED                SANE_I18N("Get ID of last button pressed (read only)")
-#define BUTTON_PRESSED_BUTTONNAME_MAX_LEN 32
+#define SANE_NAME_LCD_COUNTER                   "counter-value"
+#define SANE_TITLE_LCD_COUNTER                  SANE_I18N("LCD counter")
+#define SANE_DESC_LCD_COUNTER                   SANE_I18N("Get value of LCD counter (read only)")
+#define SANE_NAME_COLOR_LED                     "color-led"
+#define SANE_TITLE_COLOR_LED                    SANE_I18N("Color LED indicator")
+#define SANE_DESC_COLOR_LED                     SANE_I18N("Get value of LED indicator (read only)")
+#define SANE_NAME_DOC_IN_ADF                    "doc-in-adf"
+#define SANE_TITLE_DOC_IN_ADF                   SANE_I18N("Document available in ADF")
+#define SANE_DESC_DOC_IN_ADF                    SANE_I18N("Get state of document-available indicator in ADF (read only)")
 #define SANE_NAME_OVERWRITE_EOP_PIXEL           "hide-eop-pixel"
 #define SANE_TITLE_OVERWRITE_EOP_PIXEL          SANE_I18N("Hide end-of-page pixel")
 #define SANE_DESC_OVERWRITE_EOP_PIXEL           SANE_I18N("Hide end-of-page indicator pixels and overwrite with neighbor pixels")
@@ -120,6 +137,56 @@ res_list[] = { 6, 100, 200, 300, 600, 1200, 2400 };
 #define SANE_TITLE_TRAILING_LINES_COLOR         SANE_I18N("RGB or gray color value for filling mode 'color'")
 #define SANE_DESC_TRAILING_LINES_COLOR          SANE_I18N("Color value for trailing lines filling mode 'color'. "\
                                                           "RGB color as r*65536+256*g+b or gray value (default=violet or gray)")
+
+#define BUTTON_PRESSED_VALUE_COUNT 11
+#define BUTTON_PRESSED_VALUE_NONE_KEY "none"
+#define BUTTON_PRESSED_VALUE_POWER_KEY "power"
+#define BUTTON_PRESSED_VALUE_SCAN_KEY "scan"
+#define BUTTON_PRESSED_VALUE_COLLECT_KEY "collect"
+#define BUTTON_PRESSED_VALUE_FILE_KEY "file"
+#define BUTTON_PRESSED_VALUE_EMAIL_KEY "email"
+#define BUTTON_PRESSED_VALUE_COPY_KEY "copy"
+#define BUTTON_PRESSED_VALUE_UP_KEY "up"
+#define BUTTON_PRESSED_VALUE_DOWN_KEY "down"
+#define BUTTON_PRESSED_VALUE_MODE_KEY "mode"
+#define BUTTON_PRESSED_VALUE_CANCEL_KEY "cancel"
+#define BUTTON_PRESSED_VALUE_MAX_KEY_LEN 32
+static SANE_String_Const
+buttonstate_list[] = {
+  BUTTON_PRESSED_VALUE_NONE_KEY,
+  BUTTON_PRESSED_VALUE_POWER_KEY,
+  BUTTON_PRESSED_VALUE_SCAN_KEY,
+  BUTTON_PRESSED_VALUE_COLLECT_KEY,
+  BUTTON_PRESSED_VALUE_FILE_KEY,
+  BUTTON_PRESSED_VALUE_EMAIL_KEY,
+  BUTTON_PRESSED_VALUE_COPY_KEY,
+  BUTTON_PRESSED_VALUE_UP_KEY,
+  BUTTON_PRESSED_VALUE_DOWN_KEY,
+  BUTTON_PRESSED_VALUE_MODE_KEY,
+  BUTTON_PRESSED_VALUE_CANCEL_KEY,
+  NULL
+};
+
+#define COLOR_LED_VALUE_COUNT 2
+#define COLOR_LED_VALUE_COLOR_KEY "color"
+#define COLOR_LED_VALUE_BLACKWHITE_KEY "black_white"
+#define COLOR_LED_VALUE_MAX_KEY_LEN 32
+static SANE_String_Const
+colorledstate_list[] = {
+  COLOR_LED_VALUE_COLOR_KEY,
+  COLOR_LED_VALUE_BLACKWHITE_KEY,
+  NULL
+};
+
+#define LCD_COUNTER_VALUE_MIN 1
+#define LCD_COUNTER_VALUE_MAX 99
+#define LCD_COUNTER_VALUE_QUANT 1
+static SANE_Range
+lcd_counter_range = {
+  LCD_COUNTER_VALUE_MIN,
+  LCD_COUNTER_VALUE_MAX,
+  LCD_COUNTER_VALUE_QUANT
+};
 
 #define TRAILING_LINES_MODE_RAW 0
 #define TRAILING_LINES_MODE_LAST 1
@@ -135,7 +202,17 @@ res_list[] = { 6, 100, 200, 300, 600, 1200, 2400 };
 #define TRAILING_LINES_MODE_WHITE_KEY "white"
 #define TRAILING_LINES_MODE_BLACK_KEY "black"
 #define TRAILING_LINES_MODE_COLOR_KEY "color"
-#define TRAILING_LINES_MODE_MAX_VALUE_LEN 24
+#define TRAILING_LINES_MODE_MAX_KEY_LEN 24
+static SANE_String_Const
+trailingmode_list[] = {
+  TRAILING_LINES_MODE_RAW_KEY,
+  TRAILING_LINES_MODE_LAST_KEY,
+  TRAILING_LINES_MODE_RASTER_KEY,
+  TRAILING_LINES_MODE_WHITE_KEY,
+  TRAILING_LINES_MODE_BLACK_KEY,
+  TRAILING_LINES_MODE_COLOR_KEY,
+  NULL
+};
 
 #define MAX_SCAN_SOURCE_VALUE_LEN       24
 #define MAX_SCAN_MODE_VALUE_LEN         24
@@ -166,6 +243,9 @@ enum hp5590_opt_idx {
   HP5590_OPT_LAMP_TIMEOUT,
   HP5590_OPT_WAIT_FOR_BUTTON,
   HP5590_OPT_BUTTON_PRESSED,
+  HP5590_OPT_COLOR_LED,
+  HP5590_OPT_LCD_COUNTER,
+  HP5590_OPT_DOC_IN_ADF,
   HP5590_OPT_PREVIEW,
   HP5590_OPT_OVERWRITE_EOP_PIXEL,
   HP5590_OPT_TRAILING_LINES_MODE,
@@ -527,13 +607,6 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
   struct hp5590_scanner         *ptr;
   SANE_Option_Descriptor        *opts;
-  unsigned int                  available_sources;
-  SANE_String_Const             *sources_list;
-  unsigned int                  source_idx;
-  SANE_String_Const             *fillmode_list;
-  unsigned int                  fillmode_idx;
-  SANE_String_Const             *buttonstate_list;
-  unsigned int                  buttonstate_idx;
 
   DBG (DBG_proc, "%s: device name: %s\n", __func__, devicename);
 
@@ -658,18 +731,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   opts[HP5590_OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   opts[HP5590_OPT_MODE].constraint.string_list = mode_list;
 
-  available_sources = 6; /* Show all features, check on feature in command line evaluation. */
-  sources_list = malloc (available_sources * sizeof (SANE_String_Const));
-  if (!sources_list)
-    return SANE_STATUS_NO_MEM;
-  source_idx = 0;
-  sources_list[source_idx++] = SANE_VALUE_SCAN_SOURCE_FLATBED;
-  sources_list[source_idx++] = SANE_VALUE_SCAN_SOURCE_ADF;
-  sources_list[source_idx++] = SANE_VALUE_SCAN_SOURCE_ADF_DUPLEX;
-  sources_list[source_idx++] = SANE_VALUE_SCAN_SOURCE_TMA_SLIDES;
-  sources_list[source_idx++] = SANE_VALUE_SCAN_SOURCE_TMA_NEGATIVES;
-  sources_list[source_idx++] = NULL;
-
+  /* Show all features, check on feature in command line evaluation. */
   opts[HP5590_OPT_SOURCE].name = SANE_NAME_SCAN_SOURCE;
   opts[HP5590_OPT_SOURCE].title = SANE_TITLE_SCAN_SOURCE;
   opts[HP5590_OPT_SOURCE].desc = SANE_DESC_SCAN_SOURCE;
@@ -710,22 +772,45 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   opts[HP5590_OPT_WAIT_FOR_BUTTON].constraint_type = SANE_CONSTRAINT_NONE;
   opts[HP5590_OPT_WAIT_FOR_BUTTON].constraint.string_list = NULL;
 
-  buttonstate_list = malloc ((TRAILING_LINES_MODE_VALUE_COUNT + 1) * sizeof (SANE_String_Const));
-  if (!buttonstate_list)
-    return SANE_STATUS_NO_MEM;
-  buttonstate_idx = 0;
-  buttonstate_list[buttonstate_idx++] = "read-only";
-  buttonstate_list[buttonstate_idx++] = NULL;
-
   opts[HP5590_OPT_BUTTON_PRESSED].name = SANE_NAME_BUTTON_PRESSED;
   opts[HP5590_OPT_BUTTON_PRESSED].title = SANE_TITLE_BUTTON_PRESSED;
   opts[HP5590_OPT_BUTTON_PRESSED].desc = SANE_DESC_BUTTON_PRESSED;
   opts[HP5590_OPT_BUTTON_PRESSED].type = SANE_TYPE_STRING;
   opts[HP5590_OPT_BUTTON_PRESSED].unit = SANE_UNIT_NONE;
-  opts[HP5590_OPT_BUTTON_PRESSED].size = BUTTON_PRESSED_BUTTONNAME_MAX_LEN;
+  opts[HP5590_OPT_BUTTON_PRESSED].size = BUTTON_PRESSED_VALUE_MAX_KEY_LEN;
   opts[HP5590_OPT_BUTTON_PRESSED].cap =  SANE_CAP_HARD_SELECT | SANE_CAP_SOFT_DETECT;
-  opts[HP5590_OPT_BUTTON_PRESSED].constraint_type = SANE_CONSTRAINT_NONE;
+  opts[HP5590_OPT_BUTTON_PRESSED].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   opts[HP5590_OPT_BUTTON_PRESSED].constraint.string_list = buttonstate_list;
+
+  opts[HP5590_OPT_COLOR_LED].name = SANE_NAME_COLOR_LED;
+  opts[HP5590_OPT_COLOR_LED].title = SANE_TITLE_COLOR_LED;
+  opts[HP5590_OPT_COLOR_LED].desc = SANE_DESC_COLOR_LED;
+  opts[HP5590_OPT_COLOR_LED].type = SANE_TYPE_STRING;
+  opts[HP5590_OPT_COLOR_LED].unit = SANE_UNIT_NONE;
+  opts[HP5590_OPT_COLOR_LED].size = COLOR_LED_VALUE_MAX_KEY_LEN;
+  opts[HP5590_OPT_COLOR_LED].cap =  SANE_CAP_HARD_SELECT | SANE_CAP_SOFT_DETECT;
+  opts[HP5590_OPT_COLOR_LED].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+  opts[HP5590_OPT_COLOR_LED].constraint.string_list = colorledstate_list;
+
+  opts[HP5590_OPT_LCD_COUNTER].name = SANE_NAME_LCD_COUNTER;
+  opts[HP5590_OPT_LCD_COUNTER].title = SANE_TITLE_LCD_COUNTER;
+  opts[HP5590_OPT_LCD_COUNTER].desc = SANE_DESC_LCD_COUNTER;
+  opts[HP5590_OPT_LCD_COUNTER].type = SANE_TYPE_INT;
+  opts[HP5590_OPT_LCD_COUNTER].unit = SANE_UNIT_NONE;
+  opts[HP5590_OPT_LCD_COUNTER].size = sizeof(SANE_Int);
+  opts[HP5590_OPT_LCD_COUNTER].cap =  SANE_CAP_HARD_SELECT | SANE_CAP_SOFT_DETECT;
+  opts[HP5590_OPT_LCD_COUNTER].constraint_type = SANE_CONSTRAINT_RANGE;
+  opts[HP5590_OPT_LCD_COUNTER].constraint.range = &lcd_counter_range;
+
+  opts[HP5590_OPT_DOC_IN_ADF].name = SANE_NAME_DOC_IN_ADF;
+  opts[HP5590_OPT_DOC_IN_ADF].title = SANE_TITLE_DOC_IN_ADF;
+  opts[HP5590_OPT_DOC_IN_ADF].desc = SANE_DESC_DOC_IN_ADF;
+  opts[HP5590_OPT_DOC_IN_ADF].type = SANE_TYPE_BOOL;
+  opts[HP5590_OPT_DOC_IN_ADF].unit = SANE_UNIT_NONE;
+  opts[HP5590_OPT_DOC_IN_ADF].size = sizeof(SANE_Bool);
+  opts[HP5590_OPT_DOC_IN_ADF].cap =  SANE_CAP_HARD_SELECT | SANE_CAP_SOFT_DETECT;
+  opts[HP5590_OPT_DOC_IN_ADF].constraint_type = SANE_CONSTRAINT_NONE;
+  opts[HP5590_OPT_DOC_IN_ADF].constraint.range = NULL;
 
   opts[HP5590_OPT_PREVIEW].name = SANE_NAME_PREVIEW;
   opts[HP5590_OPT_PREVIEW].title = SANE_TITLE_PREVIEW;
@@ -747,34 +832,22 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   opts[HP5590_OPT_OVERWRITE_EOP_PIXEL].constraint_type = SANE_CONSTRAINT_NONE;
   opts[HP5590_OPT_OVERWRITE_EOP_PIXEL].constraint.string_list = NULL;
 
-  fillmode_list = malloc ((TRAILING_LINES_MODE_VALUE_COUNT + 1) * sizeof (SANE_String_Const));
-  if (!fillmode_list)
-    return SANE_STATUS_NO_MEM;
-  fillmode_idx = 0;
-  fillmode_list[fillmode_idx++] = TRAILING_LINES_MODE_RAW_KEY;
-  fillmode_list[fillmode_idx++] = TRAILING_LINES_MODE_LAST_KEY;
-  fillmode_list[fillmode_idx++] = TRAILING_LINES_MODE_RASTER_KEY;
-  fillmode_list[fillmode_idx++] = TRAILING_LINES_MODE_WHITE_KEY;
-  fillmode_list[fillmode_idx++] = TRAILING_LINES_MODE_BLACK_KEY;
-  fillmode_list[fillmode_idx++] = TRAILING_LINES_MODE_COLOR_KEY;
-  fillmode_list[fillmode_idx++] = NULL;
-
   opts[HP5590_OPT_TRAILING_LINES_MODE].name = SANE_NAME_TRAILING_LINES_MODE;
   opts[HP5590_OPT_TRAILING_LINES_MODE].title = SANE_TITLE_TRAILING_LINES_MODE;
   opts[HP5590_OPT_TRAILING_LINES_MODE].desc = SANE_DESC_TRAILING_LINES_MODE;
   opts[HP5590_OPT_TRAILING_LINES_MODE].type = SANE_TYPE_STRING;
   opts[HP5590_OPT_TRAILING_LINES_MODE].unit = SANE_UNIT_NONE;
-  opts[HP5590_OPT_TRAILING_LINES_MODE].size = TRAILING_LINES_MODE_MAX_VALUE_LEN;
+  opts[HP5590_OPT_TRAILING_LINES_MODE].size = TRAILING_LINES_MODE_MAX_KEY_LEN;
   opts[HP5590_OPT_TRAILING_LINES_MODE].cap =  SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   opts[HP5590_OPT_TRAILING_LINES_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-  opts[HP5590_OPT_TRAILING_LINES_MODE].constraint.string_list = fillmode_list;
+  opts[HP5590_OPT_TRAILING_LINES_MODE].constraint.string_list = trailingmode_list;
 
   opts[HP5590_OPT_TRAILING_LINES_COLOR].name = SANE_NAME_TRAILING_LINES_COLOR;
   opts[HP5590_OPT_TRAILING_LINES_COLOR].title = SANE_TITLE_TRAILING_LINES_COLOR;
   opts[HP5590_OPT_TRAILING_LINES_COLOR].desc = SANE_DESC_TRAILING_LINES_COLOR;
   opts[HP5590_OPT_TRAILING_LINES_COLOR].type = SANE_TYPE_INT;
   opts[HP5590_OPT_TRAILING_LINES_COLOR].unit = SANE_UNIT_NONE;
-  opts[HP5590_OPT_TRAILING_LINES_COLOR].size = sizeof(SANE_Bool);
+  opts[HP5590_OPT_TRAILING_LINES_COLOR].size = sizeof(SANE_Int);
   opts[HP5590_OPT_TRAILING_LINES_COLOR].cap =  SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   opts[HP5590_OPT_TRAILING_LINES_COLOR].constraint_type = SANE_CONSTRAINT_NONE;
   opts[HP5590_OPT_TRAILING_LINES_COLOR].constraint.string_list = NULL;
@@ -826,6 +899,50 @@ read_button_pressed(SANE_Handle handle, enum button_status * button_pressed)
     }
   DBG (DBG_verbose, "%s: Button pressed = %d\n", __func__, status);
   *button_pressed = status;
+  return SANE_STATUS_GOOD;
+}
+
+/******************************************************************************/
+SANE_Status
+read_lcd_and_led_values(SANE_Handle handle,
+        SANE_Int * lcd_counter,
+        enum color_led_status * color_led)
+{
+  struct hp5590_scanner * scanner = handle;
+  *lcd_counter = 1;
+  *color_led = LED_COLOR;
+  DBG (DBG_verbose, "%s: Reading LCD and LED values (device_number = %u) (device_name = %s)\n",
+        __func__, scanner->dn, scanner->sane.name);
+  SANE_Status ret = hp5590_read_lcd_and_led (scanner->dn, scanner->proto_flags, lcd_counter, color_led);
+  if (ret != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_proc, "%s: Error reading LCD and LED values (%u)\n", __func__, ret);
+      return ret;
+    }
+  DBG (DBG_verbose, "%s: LCD = %d, LED = %s\n", __func__, *lcd_counter,
+        *color_led == LED_BLACKWHITE ? COLOR_LED_VALUE_BLACKWHITE_KEY : COLOR_LED_VALUE_COLOR_KEY);
+  return SANE_STATUS_GOOD;
+}
+
+/******************************************************************************/
+SANE_Status
+read_doc_in_adf_value(SANE_Handle handle,
+        SANE_Bool * doc_in_adf)
+{
+  struct hp5590_scanner * scanner = handle;
+  DBG (DBG_verbose, "%s: Reading state of document-available in ADF (device_number = %u) (device_name = %s)\n",
+        __func__, scanner->dn, scanner->sane.name);
+  SANE_Status ret = hp5590_is_data_available (scanner->dn, scanner->proto_flags);
+  if (ret == SANE_STATUS_GOOD)
+    *doc_in_adf = SANE_TRUE;
+  else if (ret == SANE_STATUS_NO_DOCS)
+    *doc_in_adf = SANE_FALSE;
+  else
+    {
+      DBG (DBG_proc, "%s: Error reading state of document-available in ADF (%u)\n", __func__, ret);
+      return ret;
+    }
+  DBG (DBG_verbose, "%s: doc_in_adf = %s\n", __func__, *doc_in_adf == SANE_FALSE ? "false" : "true");
   return SANE_STATUS_GOOD;
 }
 
@@ -956,39 +1073,75 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             return ret;
           switch (button_pressed) {
             case BUTTON_POWER:
-              strncpy (value, "power", scanner->opts[option].size);
+              strncpy (value, BUTTON_PRESSED_VALUE_POWER_KEY, scanner->opts[option].size);
               break;
             case BUTTON_SCAN:
-              strncpy (value, "scan", scanner->opts[option].size);
+              strncpy (value, BUTTON_PRESSED_VALUE_SCAN_KEY, scanner->opts[option].size);
               break;
             case BUTTON_COLLECT:
-              strncpy (value, "collect", scanner->opts[option].size);
+              strncpy (value, BUTTON_PRESSED_VALUE_COLLECT_KEY, scanner->opts[option].size);
               break;
             case BUTTON_FILE:
-              strncpy (value, "file", scanner->opts[option].size);
+              strncpy (value, BUTTON_PRESSED_VALUE_FILE_KEY, scanner->opts[option].size);
               break;
             case BUTTON_EMAIL:
-              strncpy (value, "email", scanner->opts[option].size);
+              strncpy (value, BUTTON_PRESSED_VALUE_EMAIL_KEY, scanner->opts[option].size);
               break;
             case BUTTON_COPY:
-              strncpy (value, "copy", scanner->opts[option].size);
+              strncpy (value, BUTTON_PRESSED_VALUE_COPY_KEY, scanner->opts[option].size);
               break;
             case BUTTON_UP:
-              strncpy (value, "up", scanner->opts[option].size);
+              strncpy (value, BUTTON_PRESSED_VALUE_UP_KEY, scanner->opts[option].size);
               break;
             case BUTTON_DOWN:
-              strncpy (value, "down", scanner->opts[option].size);
+              strncpy (value, BUTTON_PRESSED_VALUE_DOWN_KEY, scanner->opts[option].size);
               break;
             case BUTTON_MODE:
-              strncpy (value, "mode", scanner->opts[option].size);
+              strncpy (value, BUTTON_PRESSED_VALUE_MODE_KEY, scanner->opts[option].size);
               break;
             case BUTTON_CANCEL:
-              strncpy (value, "cancel", scanner->opts[option].size);
+              strncpy (value, BUTTON_PRESSED_VALUE_CANCEL_KEY, scanner->opts[option].size);
               break;
             case BUTTON_NONE:
             default:
-              strncpy (value, "none", scanner->opts[option].size);
+              strncpy (value, BUTTON_PRESSED_VALUE_NONE_KEY, scanner->opts[option].size);
           }
+        }
+
+      if (option == HP5590_OPT_COLOR_LED)
+        {
+          SANE_Int lcd_counter = 0;
+          enum color_led_status color_led = LED_COLOR;
+          SANE_Status ret = read_lcd_and_led_values(scanner, &lcd_counter, &color_led);
+          if (ret != SANE_STATUS_GOOD)
+            return ret;
+          switch (color_led) {
+            case LED_BLACKWHITE:
+              strncpy (value, COLOR_LED_VALUE_BLACKWHITE_KEY, scanner->opts[option].size);
+              break;
+            case LED_COLOR:
+            default:
+              strncpy (value, COLOR_LED_VALUE_COLOR_KEY, scanner->opts[option].size);
+          }
+        }
+
+      if (option == HP5590_OPT_LCD_COUNTER)
+        {
+          SANE_Int lcd_counter = 0;
+          enum color_led_status color_led = LED_COLOR;
+          SANE_Status ret = read_lcd_and_led_values(scanner, &lcd_counter, &color_led);
+          if (ret != SANE_STATUS_GOOD)
+            return ret;
+          *(SANE_Int *) value = lcd_counter;
+        }
+
+      if (option == HP5590_OPT_DOC_IN_ADF)
+        {
+          SANE_Bool doc_in_adf = SANE_FALSE;
+          SANE_Status ret = read_doc_in_adf_value(scanner, &doc_in_adf);
+          if (ret != SANE_STATUS_GOOD)
+            return ret;
+          *(SANE_Bool *) value = doc_in_adf;
         }
 
       if (option == HP5590_OPT_PREVIEW)
@@ -1206,6 +1359,21 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       if (option == HP5590_OPT_BUTTON_PRESSED)
         {
           DBG(DBG_verbose, "State of buttons is read only. Setting of state will be ignored.\n");
+        }
+
+      if (option == HP5590_OPT_COLOR_LED)
+        {
+          DBG(DBG_verbose, "State of color LED indicator is read only. Setting of state will be ignored.\n");
+        }
+
+      if (option == HP5590_OPT_LCD_COUNTER)
+        {
+          DBG(DBG_verbose, "Value of LCD counter is read only. Setting of value will be ignored.\n");
+        }
+
+      if (option == HP5590_OPT_DOC_IN_ADF)
+        {
+          DBG(DBG_verbose, "Value of document-available indicator is read only. Setting of value will be ignored.\n");
         }
 
       if (option == HP5590_OPT_PREVIEW)

@@ -1,8 +1,8 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2007 Ilia Sotnikov <hostcc@gmail.com>
    HP ScanJet 4570c support by Markham Thomas
-   ADF page detection and high DPI fixes by Bernard Badr
-   scanbd integration by Damiano Scaramuzza and Bernard Badr
+   ADF page detection and high DPI fixes by Bernard Badeer
+   scanbd integration by Damiano Scaramuzza and Bernard Badeer
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -160,6 +160,7 @@ hp5590_models[] = {
 #define CMD_GET_IMAGE_PARAMS    0x0034
 #define CMD_START_SCAN          0x051b
 #define CMD_BUTTON_STATUS       0x0020
+#define CMD_LCD_STATUS          0x0021
 
 struct init_resp
 {
@@ -825,7 +826,28 @@ hp5590_read_eeprom_all_cmd (SANE_Int dn,
   if (ret != SANE_STATUS_GOOD)
     return ret;
 
-  /* FIXME: Debug output */
+  DBG (DBG_verbose, "hp5590_read_eeprom_all_cmd: rc = %d\n", ret);
+  {
+    const int LEN = 4096;
+    char buf[LEN];
+    char* p = buf;
+    for (size_t i = 0; i < sizeof(eeprom); ++i) {
+      if (i % 16 == 0) {
+        int n = sprintf(p, "\n%04x ", (int)i);
+        if (n < 0) {
+          break;
+        }
+        p += n;
+      }
+      int n = sprintf(p, " %02x", eeprom[i]);
+      if (n < 0 ) {
+        break;
+      }
+      p += n;
+    }
+    *p = '\0';
+    DBG (DBG_verbose, "dump:%s\n", buf);
+  }
 
   return SANE_STATUS_GOOD;
 }
@@ -1987,6 +2009,47 @@ hp5590_read_buttons (SANE_Int dn,
 
   if (button_status & BUTTON_FLAG_CANCEL)
     *status = BUTTON_CANCEL;
+
+  return SANE_STATUS_GOOD;
+}
+
+/******************************************************************************/
+static SANE_Status
+hp5590_read_lcd_and_led (SANE_Int dn,
+                     enum proto_flags proto_flags,
+                     SANE_Int * lcd_counter,
+                     enum color_led_status * color_led)
+{
+  SANE_Status ret;
+
+  DBG (DBG_proc, "%s\n", __func__);
+
+  hp5590_cmds_assert (lcd_counter != NULL);
+  hp5590_cmds_assert (color_led != NULL);
+
+  /*
+   * Read LCD status bytes and get current value of counter and
+   * state of color/black_white LED.
+   * data[0x29]: LCD counter value, data[0x2a]: 1=color / 2=black_white.
+   */
+  uint8_t data[0x30];
+  ret = hp5590_cmd (dn,
+                    proto_flags,
+                    CMD_IN | CMD_VERIFY,
+                    CMD_LCD_STATUS,
+                    (unsigned char *) &data,
+                    sizeof (data), CORE_NONE);
+  if (ret != SANE_STATUS_GOOD)
+    return ret;
+
+  *lcd_counter = data[0x29];
+  if (data[0x2a] == 2) {
+    *color_led = LED_BLACKWHITE;
+  } else {
+    *color_led = LED_COLOR;
+  }
+  DBG (DBG_cmds, "LCD and LED values: lcd=%d, led=%s\n", *lcd_counter,
+       *color_led == LED_BLACKWHITE ? "black_white" : "color");
 
   return SANE_STATUS_GOOD;
 }

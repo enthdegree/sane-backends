@@ -101,6 +101,12 @@ enum button_status
   BUTTON_CANCEL
 };
 
+enum color_led_status
+{
+  LED_COLOR = 1,
+  LED_BLACKWHITE
+};
+
 enum hp5590_lamp_state
 {
   LAMP_STATE_TURNOFF = 1,

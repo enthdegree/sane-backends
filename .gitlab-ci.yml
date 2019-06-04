@@ -19,10 +19,9 @@ prepare:
   script:
   - find -path ./.git -prune -o -type f | xargs tools/style-check.sh
   - sed -i '/^AC_INIT/s/,.*/,m4_esyscmd_s([git describe --dirty]),/' configure.ac
-  - ./autogen.sh
   artifacts:
     paths:
-    - configure
+    - configure.ac
     expire_in: 1 day
 
 .compile_template: &compile_definition
@@ -65,8 +64,7 @@ compile:debian-9-full:
   - cd doc && doxygen doxygen-sanei.conf
   artifacts:
     paths:
-    - configure
-    - config.status
+    - configure.ac
     - lists
     - doc/sanei-html
     expire_in: 1 day
@@ -96,7 +94,7 @@ archive:
   - compile:debian-9-full
   before_script:
   - ./autogen.sh
-  - ./config.status --quiet || ./configure "$CONFIGURE_MINI"
+  - ./configure "$CONFIGURE_MINI"
   script:
   - make dist
   artifacts:

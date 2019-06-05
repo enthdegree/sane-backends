@@ -95,6 +95,8 @@ archive:
   stage: archive
   dependencies:
   - compile:debian-9-full
+  script:
+  - true
   artifacts:
     paths:
     - sane-backends-*.tar.gz

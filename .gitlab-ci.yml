@@ -31,9 +31,10 @@ prepare:
   stage: compile
   script:
   - mkdir build
-  - tar xaf sane-backends-*.tar.gz -C build --strip-components=1
-  - cd build && ./configure $CONFIGURE_OPTS
-  - make -C build -j2 -k $MAKE_FLAGS
+  - cd build
+  - tar xaf ../sane-backends-*.tar.gz --strip-components=1
+  - ./configure $CONFIGURE_OPTS
+  - make -j2 -k $MAKE_FLAGS
 
 compile:debian-8-mini:
   image: $REGISTRY_HUB:debian-8-mini

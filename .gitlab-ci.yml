@@ -32,7 +32,7 @@ prepare:
   script:
   - mkdir build
   - cd build
-  - tar xaf ../sane-backends-*.tar.gz --strip-components=1
+  - tar xzf ../sane-backends-*.tar.gz --strip-components=1
   - ./configure $CONFIGURE_OPTS
   - make -j2 -k $MAKE_FLAGS
 

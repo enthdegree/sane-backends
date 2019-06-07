@@ -22,6 +22,7 @@ http://www.sane-project.org/sane-frontends.html.
 Quick install:
 ==============
 
+./autogen.sh    # only if you just cloned the git repository
 ./configure
 make
 make install
@@ -55,6 +56,20 @@ installed.
         - libieee1284 (>=0.1.5): For some parallel port backends.
 
         - libgphoto2 (>=2.0): For the gphoto2 backend.
+
+If you got the source straight from the git repository, as opposed to
+a source tarball, you will need a few more utilities.  These utilities
+should normally *not* be needed for source archives downloaded from
+the project's website at http://www.sane-project.org/.
+
+        - autoconf (>= 2.69) as well as the autoconf-archive (for the
+          AX_CXX_COMPILE_STDCXX and AX_CXX_COMPILE_STDCXX_11 macros)
+
+        - automake (>=1.15)
+
+        - libtool (>=2.4.6)
+
+        - gettext (>=0.19.8)
 
 SANE should build on most Unix-like systems. Support for OS/2, MacOS X, BeOS,
 and Microsoft Windows is also available. For more details look at the

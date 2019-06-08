@@ -590,7 +590,7 @@ gl646_setup_registers (Genesys_Device * dev,
     dev->reg.find_reg(0x02).value |= REG02_ACDCDIS;
 
   /* setup motor power and direction */
-  regs->find_reg(0x02).value |= REG02_MTRPWR;
+  sanei_genesys_set_motor_power(*regs, true);
   regs->find_reg(0x02).value &= ~REG02_MTRREV;
 
   /* fastfed enabled (2 motor slope tables) */
@@ -4273,8 +4273,7 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   if (move == SANE_FALSE)
     {
-      /* clear motor power flag if no move */
-      dev->reg.find_reg(0x02).value &= ~REG02_MTRPWR;
+      sanei_genesys_set_motor_power(dev->reg, false);
 
       /* no automatic go home if no movement */
       dev->reg.find_reg(0x02).value &= ~REG02_AGOHOME;

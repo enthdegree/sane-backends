@@ -668,7 +668,7 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   /* compute register 02 value */
   r = sanei_genesys_get_address (reg, REG02);
   r->value = 0x00;
-  r->value |= REG02_MTRPWR;
+  sanei_genesys_set_motor_power(*reg, true);
 
   if (use_fast_fed)
     r->value |= REG02_FASTFED;

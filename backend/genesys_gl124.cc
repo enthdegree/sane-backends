@@ -760,7 +760,6 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
 
   /* compute register 02 value */
     uint8_t r02 = REG02_NOTHOME;
-    r02 |= REG02_MTRPWR;
 
     if (use_fast_fed) {
         r02 |= REG02_FASTFED;
@@ -778,6 +777,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
     }
 
     reg->set8(REG02, r02);
+    sanei_genesys_set_motor_power(*reg, true);
 
   /* SCANFED */
   sanei_genesys_set_double(reg,REG_SCANFED,4);

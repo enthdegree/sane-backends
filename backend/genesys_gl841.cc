@@ -634,7 +634,7 @@ gl841_init_registers (Genesys_Device * dev)
 
     dev->reg.find_reg(0x02).value = 0x30 /*0x38 */ ;	/* auto home, one-table-move, full step */
     dev->reg.find_reg(0x02).value |= REG02_AGOHOME;
-    dev->reg.find_reg(0x02).value |= REG02_MTRPWR;
+    sanei_genesys_set_motor_power(dev->reg, true);
     dev->reg.find_reg(0x02).value |= REG02_FASTFED;
 
     dev->reg.find_reg(0x03).value = 0x1f /*0x17 */ ;	/* lamp on */

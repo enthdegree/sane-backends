@@ -207,6 +207,11 @@ struct Genesys_Scanner
     // Option values
     Option_Value val[NUM_OPTIONS];
 
+    SANE_Word pos_top_left_y = 0;
+    SANE_Word pos_top_left_x = 0;
+    SANE_Word pos_bottom_right_y = 0;
+    SANE_Word pos_bottom_right_x = 0;
+
     // Button states
     GenesysButton buttons[NUM_BUTTONS];
 

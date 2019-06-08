@@ -4861,10 +4861,10 @@ calc_parameters (Genesys_Scanner * s)
   color_filter = s->val[OPT_COLOR_FILTER].s;
   depth = s->val[OPT_BIT_DEPTH].w;
   resolution = s->val[OPT_RESOLUTION].w;
-  tl_x = SANE_UNFIX (s->val[OPT_TL_X].w);
-  tl_y = SANE_UNFIX (s->val[OPT_TL_Y].w);
-  br_x = SANE_UNFIX (s->val[OPT_BR_X].w);
-  br_y = SANE_UNFIX (s->val[OPT_BR_Y].w);
+    tl_x = SANE_UNFIX(s->pos_top_left_x);
+    tl_y = SANE_UNFIX(s->pos_top_left_y);
+    br_x = SANE_UNFIX(s->pos_bottom_right_x);
+    br_y = SANE_UNFIX(s->pos_bottom_right_y);
 
   s->params.last_frame = SANE_TRUE;	/* only single pass scanning supported */
 
@@ -5349,7 +5349,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_TL_X].unit = SANE_UNIT_MM;
   s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_TL_X].constraint.range = x_range;
-  s->val[OPT_TL_X].w = 0;
+  s->pos_top_left_x = 0;
 
   /* top-left y */
   s->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
@@ -5359,7 +5359,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
   s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_TL_Y].constraint.range = y_range;
-  s->val[OPT_TL_Y].w = 0;
+  s->pos_top_left_y = 0;
 
   /* bottom-right x */
   s->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
@@ -5369,7 +5369,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_BR_X].unit = SANE_UNIT_MM;
   s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_BR_X].constraint.range = x_range;
-  s->val[OPT_BR_X].w = x_range->max;
+  s->pos_bottom_right_x = x_range->max;
 
   /* bottom-right y */
   s->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
@@ -5379,7 +5379,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
   s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_BR_Y].constraint.range = y_range;
-  s->val[OPT_BR_Y].w = y_range->max;
+  s->pos_bottom_right_y = y_range->max;
 
   /* "Enhancement" group: */
   s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
@@ -6617,7 +6617,6 @@ static SANE_Status
 get_option_value (Genesys_Scanner * s, int option, void *val)
 {
   unsigned int i;
-  SANE_Word tmp;
   SANE_Word* table = nullptr;
   std::vector<uint16_t> gamma_table;
   unsigned option_size = 0;
@@ -6630,24 +6629,17 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     {
       /* geometry */
     case OPT_TL_X:
+        *reinterpret_cast<SANE_Word*>(val) = s->pos_top_left_x;
+        break;
     case OPT_TL_Y:
+        *reinterpret_cast<SANE_Word*>(val) = s->pos_top_left_y;
+        break;
     case OPT_BR_X:
+        *reinterpret_cast<SANE_Word*>(val) = s->pos_bottom_right_x;
+        break;
     case OPT_BR_Y:
-      *(SANE_Word *) val = s->val[option].w;
-      /* switch coordinate to keep them coherent */
-      if (s->val[OPT_TL_X].w >= s->val[OPT_BR_X].w)
-        {
-          tmp=s->val[OPT_BR_X].w;
-          s->val[OPT_BR_X].w=s->val[OPT_TL_X].w;
-          s->val[OPT_TL_X].w=tmp;
-        }
-      if (s->val[OPT_TL_Y].w >= s->val[OPT_BR_Y].w)
-        {
-          tmp=s->val[OPT_BR_Y].w;
-          s->val[OPT_BR_Y].w=s->val[OPT_TL_Y].w;
-          s->val[OPT_TL_Y].w=tmp;
-        }
-      break;
+        *reinterpret_cast<SANE_Word*>(val) = s->pos_bottom_right_y;
+        break;
       /* word options: */
     case OPT_NUM_OPTS:
     case OPT_RESOLUTION:
@@ -6817,13 +6809,25 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
   switch (option)
     {
     case OPT_TL_X:
+        s->pos_top_left_x = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_TL_Y:
+        s->pos_top_left_y = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_BR_X:
+        s->pos_bottom_right_x = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_BR_Y:
-      s->val[option].w = *(SANE_Word *) val;
-      RIE (calc_parameters (s));
-      *myinfo |= SANE_INFO_RELOAD_PARAMS;
-      break;
+        s->pos_bottom_right_y = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_RESOLUTION:
     case OPT_THRESHOLD:
     case OPT_THRESHOLD_CURVE:
@@ -6910,13 +6914,13 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
           free((void *)(size_t)s->opt[OPT_TL_X].constraint.range);
           free((void *)(size_t)s->opt[OPT_TL_Y].constraint.range);
           s->opt[OPT_TL_X].constraint.range = x_range;
-          s->val[OPT_TL_X].w = 0;
+          s->pos_top_left_x = 0;
           s->opt[OPT_TL_Y].constraint.range = y_range;
-          s->val[OPT_TL_Y].w = 0;
+          s->pos_top_left_y = 0;
           s->opt[OPT_BR_X].constraint.range = x_range;
-          s->val[OPT_BR_Y].w = y_range->max;
+          s->pos_bottom_right_x = x_range->max;
           s->opt[OPT_BR_Y].constraint.range = y_range;
-          s->val[OPT_BR_X].w = x_range->max;
+          s->pos_bottom_right_y = y_range->max;
 
           /* signals reload */
 	  *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
@@ -7227,7 +7231,7 @@ SANE_Status sane_get_parameters_impl(SANE_Handle handle, SANE_Parameters* params
        */
       if (s->dev->model->is_sheetfed == SANE_TRUE
           && s->dev->buffer_image == SANE_FALSE
-	  && s->val[OPT_BR_Y].w == s->opt[OPT_BR_Y].constraint.range->max)
+          && s->pos_bottom_right_y == s->opt[OPT_BR_Y].constraint.range->max)
 	{
 	  params->lines = -1;
 	}
@@ -7253,12 +7257,12 @@ SANE_Status sane_start_impl(SANE_Handle handle)
 
   DBGSTART;
 
-  if (s->val[OPT_TL_X].w >= s->val[OPT_BR_X].w)
+  if (s->pos_top_left_x >= s->pos_bottom_right_x)
     {
       DBG(DBG_error0, "%s: top left x >= bottom right x --- exiting\n", __func__);
       return SANE_STATUS_INVAL;
     }
-  if (s->val[OPT_TL_Y].w >= s->val[OPT_BR_Y].w)
+  if (s->pos_top_left_y >= s->pos_bottom_right_y)
     {
       DBG(DBG_error0, "%s: top left y >= bottom right y --- exiting\n", __func__);
       return SANE_STATUS_INVAL;

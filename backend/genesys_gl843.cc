@@ -1177,8 +1177,9 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   r = sanei_genesys_get_address (reg, REG03);
   if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
     r->value |= REG03_AVEENB;
-  else
+  else {
     r->value &= ~REG03_AVEENB;
+  }
 
     // FIXME: we probably don't need to set exposure to registers at this point. It was this way
     // before a refactor.
@@ -1190,6 +1191,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
     {
       r->value |= REG03_XPASEL;
     }
+    reg->state.is_xpa_on = flags & OPTICAL_FLAG_USE_XPA;
 
   /* BW threshold */
   r = sanei_genesys_get_address (reg, REG2E);
@@ -2175,7 +2177,7 @@ gl843_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
 		  SANE_Bool start_motor)
 {
   SANE_Status status;
-  uint8_t val,r03;
+  uint8_t val;
   uint16_t dpiset, dpihw;
 
   DBGSTART;
@@ -2211,31 +2213,23 @@ gl843_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
 	     RIE (sanei_genesys_write_register (dev, REGA6, 0x44));
 	  }
 
-        /* turn on XPA lamp if XPA is selected and lamp power on*/
-        r03 = sanei_genesys_read_reg_from_set (reg, REG03);
-        if ((r03 & REG03_XPASEL) && (r03 & REG03_LAMPPWR))
-          {
-            RIE(gl843_xpa_lamp_on(dev));
-          }
+            if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
+                RIE(gl843_xpa_lamp_on(dev));
+            }
 
-        /* enable XPA lamp motor */
-        if (r03 & REG03_XPASEL)
-          {
-            dev->needs_home_ta = SANE_TRUE;
-            RIE(gl843_xpa_motor_on(dev));
-          }
+            if (reg->state.is_xpa_on) {
+                dev->needs_home_ta = SANE_TRUE;
+                RIE(gl843_xpa_motor_on(dev));
+            }
 
         /* blinking led */
         RIE (sanei_genesys_write_register (dev, REG7E, 0x01));
         break;
       case GPO_CS8600F:
-        r03 = sanei_genesys_read_reg_from_set (reg, REG03);
-        /* enable XPA lamp motor */
-        if (r03 & REG03_XPASEL)
-          {
-            dev->needs_home_ta = SANE_TRUE;
-            RIE(gl843_xpa_motor_on(dev));
-          }
+            if (reg->state.is_xpa_on) {
+                dev->needs_home_ta = SANE_TRUE;
+                RIE(gl843_xpa_motor_on(dev));
+            }
         break;
       case GPO_CS4400F:
       case GPO_CS8400F:
@@ -2281,10 +2275,9 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   /* post scan gpio */
   RIE(sanei_genesys_write_register(dev,0x7e,0x00));
 
-  /* turn off XPA lamp if XPA is selected and lamp power on*/
-  val = sanei_genesys_read_reg_from_set (reg, REG03);
-  if (val & (REG03_XPASEL|REG03_LAMPPWR))
-    {
+    // turn off XPA lamp if needed
+    // BUG: the if condition below probably shouldn't be enabled when XPA is off
+    if (reg->state.is_xpa_on || reg->state.is_lamp_on) {
       sanei_genesys_read_register (dev, REGA6, &val);
 
       /* switch on regular lamp */

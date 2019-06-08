@@ -1101,6 +1101,7 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
             }
         }
     }
+    regs.state.is_lamp_on = set;
 }
 
 void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set)

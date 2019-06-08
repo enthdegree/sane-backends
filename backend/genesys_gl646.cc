@@ -636,6 +636,7 @@ gl646_setup_registers (Genesys_Device * dev,
     if (params.flags & SCAN_FLAG_USE_XPA) {
       regs->find_reg(0x03).value |= REG03_XPASEL;
     }
+    regs->state.is_xpa_on = params.flags & SCAN_FLAG_USE_XPA;
 
   /* R04 */
   /* monochrome / color scan */

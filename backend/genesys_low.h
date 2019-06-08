@@ -254,11 +254,19 @@ inline bool operator<(const GenesysRegister& lhs, const GenesysRegister& rhs)
     return lhs.address < rhs.address;
 }
 
+struct GenesysRegisterSetState {
+    bool is_lamp_on = false;
+    bool is_xpa_on = false;
+};
+
 class Genesys_Register_Set {
 public:
     using container = std::vector<GenesysRegister>;
     using iterator = typename container::iterator;
     using const_iterator = typename container::const_iterator;
+
+    // FIXME: this shouldn't live here, but in a separate struct that contains Genesys_Register_Set
+    GenesysRegisterSetState state;
 
     enum Options {
         SEQUENTIAL = 1

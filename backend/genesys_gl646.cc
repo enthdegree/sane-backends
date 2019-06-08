@@ -2867,11 +2867,9 @@ setup_for_scan (Genesys_Device * dev,
                 SANE_Bool ycorrection)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  SANE_Bool color;
   SANE_Int depth;
   int channels;
   uint16_t startx = 0, endx, pixels;
-  int move = 0;
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
@@ -2879,12 +2877,10 @@ setup_for_scan (Genesys_Device * dev,
   if (settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
       channels = 3;
-      color = SANE_TRUE;
     }
   else
     {
       channels = 1;
-      color = SANE_FALSE;
     }
 
   depth=settings.depth;
@@ -2901,39 +2897,49 @@ setup_for_scan (Genesys_Device * dev,
         }
     }
 
-  /* compute distance to move */
-  move = 0;
-  /* XXX STEF XXX MD5345 -> optical_ydpi, other base_ydpi => half/full step ? */
-  if (split == SANE_FALSE)
-    {
-      if (dev->model->is_sheetfed == SANE_FALSE)
-	{
-	  if (ycorrection == SANE_TRUE)
-	    {
-	      move =
-		(SANE_UNFIX (dev->model->y_offset) *
-		 dev->motor.optical_ydpi) / MM_PER_INCH;
+    // compute distance to move
+    float move = 0;
+    // XXX STEF XXX MD5345 -> optical_ydpi, other base_ydpi => half/full step ? */
+    if (split == SANE_FALSE) {
+        if (dev->model->is_sheetfed == SANE_FALSE) {
+            if (ycorrection == SANE_TRUE) {
+                move = SANE_UNFIX(dev->model->y_offset);
 	    }
 
-	  /* add tl_y to base movement */
-	  move += (settings.tl_y * dev->motor.optical_ydpi) / MM_PER_INCH;
-
+            // add tl_y to base movement
 	}
-      else
-	{
-	  move += (settings.tl_y * dev->motor.optical_ydpi) / MM_PER_INCH;
-	}
+        move += settings.tl_y;
 
-      DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
-
-      /* security check */
-      if (move < 0)
-	{
-	  DBG(DBG_error, "%s: overriding negative move value %d\n", __func__, move);
-	  move = 0;
+        if (move < 0) {
+            DBG(DBG_error, "%s: overriding negative move value %f\n", __func__, move);
+            move = 0;
 	}
     }
-  DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
+    move = (move * dev->motor.optical_ydpi) / MM_PER_INCH;
+    DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
+
+    float start = settings.tl_x;
+    if (xcorrection) {
+        if (settings.scan_method == ScanMethod::FLATBED) {
+            start += SANE_UNFIX(dev->model->x_offset);
+        } else {
+            start += SANE_UNFIX(dev->model->x_offset_ta);
+        }
+    }
+    start = (start * sensor.optical_res) / MM_PER_INCH;
+
+    SetupParams params;
+    params.xres = settings.xres;
+    params.yres = settings.yres;
+    params.startx = start;
+    params.starty = move;
+    params.pixels = settings.pixels;
+    params.lines = settings.lines;
+    params.depth = depth;
+    params.channels = channels;
+    params.scan_mode = settings.scan_mode;
+    params.color_filter = settings.color_filter;
+    params.flags = 0;
 
   /* pixels are allways given at full CCD optical resolution */
   /* use detected left margin and fixed value */
@@ -2943,18 +2949,6 @@ setup_for_scan (Genesys_Device * dev,
         startx = sensor.CCD_start_xoffset;
       else
         startx = sensor.dummy_pixel;
-      if (settings.scan_method == ScanMethod::FLATBED)
-	{
-	  startx +=
-            ((SANE_UNFIX (dev->model->x_offset) * sensor.optical_res) /
-	     MM_PER_INCH);
-	}
-      else
-	{
-	  startx +=
-	    ((SANE_UNFIX (dev->model->x_offset_ta) *
-              sensor.optical_res) / MM_PER_INCH);
-	}
     }
   else
     {
@@ -2962,16 +2956,17 @@ setup_for_scan (Genesys_Device * dev,
       startx = sensor.dummy_pixel;
     }
 
+
   /* add x coordinates : expressed in sensor max dpi */
-  startx += (settings.tl_x * sensor.optical_res) / MM_PER_INCH;
+  startx += start;
 
   /* stagger works with odd start cordinates */
   if (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)
     startx |= 1;
 
-  pixels = (settings.pixels * sensor.optical_res) / settings.xres;
+  pixels = (params.pixels * sensor.optical_res) / params.xres;
   /* special requirement for 400 dpi on 1200 dpi sensors */
-  if (settings.xres == 400)
+  if (params.xres == 400)
     {
       pixels = (pixels / 6) * 6;
     }
@@ -2985,11 +2980,11 @@ setup_for_scan (Genesys_Device * dev,
 				  settings,
 				  dev->slope_table0,
 				  dev->slope_table1,
-				  settings.xres,
-				  move,
-				  settings.lines,
-				  startx, endx, color,
-                                  depth);
+                                  params.xres,
+                                  params.starty,
+                                  params.lines,
+                                  startx, endx, params.channels == 3,
+                                  params.depth);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed setup registers: %s\n", __func__, sane_strstatus(status));
@@ -3000,9 +2995,9 @@ setup_for_scan (Genesys_Device * dev,
 
   /* select color filter based on settings */
   regs->find_reg(0x04).value &= ~REG04_FILTER;
-  if (channels == 1)
+  if (params.channels == 1)
     {
-      switch (settings.color_filter)
+      switch (params.color_filter)
 	{
 	  /* red */
 	case 0:

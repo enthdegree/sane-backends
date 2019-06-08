@@ -941,8 +941,10 @@ typedef struct Genesys_Command_Set
 					 Genesys_Register_Set * regs,
 					 int *channels, int *total_size);
     SANE_Status (*init_regs_for_coarse_calibration) (Genesys_Device * dev,
-                                                     const Genesys_Sensor& sensor);
-    SANE_Status (*init_regs_for_shading) (Genesys_Device * dev, const Genesys_Sensor& sensor);
+                                                     const Genesys_Sensor& sensor,
+                                                     Genesys_Register_Set& regs);
+    SANE_Status (*init_regs_for_shading) (Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                          Genesys_Register_Set& regs);
     SANE_Status (*init_regs_for_scan) (Genesys_Device * dev, const Genesys_Sensor& sensor);
 
     SANE_Bool (*get_filter_bit) (Genesys_Register_Set * reg);
@@ -977,16 +979,19 @@ typedef struct Genesys_Command_Set
     SANE_Status (*send_gamma_table) (Genesys_Device * dev, const Genesys_Sensor& sensor);
 
     SANE_Status (*search_start_position) (Genesys_Device * dev);
-    SANE_Status (*offset_calibration) (Genesys_Device * dev, const Genesys_Sensor& sensor);
+    SANE_Status (*offset_calibration) (Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set& regs);
     SANE_Status (*coarse_gain_calibration) (Genesys_Device * dev,
-                                            const Genesys_Sensor& sensor, int dpi);
-    SANE_Status (*led_calibration) (Genesys_Device * dev, Genesys_Sensor& sensor);
+                                            const Genesys_Sensor& sensor,
+                                            Genesys_Register_Set& regs, int dpi);
+    SANE_Status (*led_calibration) (Genesys_Device * dev, Genesys_Sensor& sensor,
+                                    Genesys_Register_Set& regs);
 
     SANE_Status (*slow_back_home) (Genesys_Device * dev, SANE_Bool wait_until_home);
     SANE_Status (*rewind) (Genesys_Device * dev);
 
     SANE_Status (*bulk_write_register) (Genesys_Device * dev,
-                                        Genesys_Register_Set& reg);
+                                        Genesys_Register_Set& regs);
 
     SANE_Status (*bulk_write_data) (Genesys_Device * dev, uint8_t addr,
 				    uint8_t * data, size_t len);
@@ -1509,7 +1514,7 @@ sanei_genesys_write_hregister (Genesys_Device * dev, uint16_t reg, uint8_t val);
 
 extern SANE_Status
 sanei_genesys_bulk_write_register(Genesys_Device * dev,
-                                   Genesys_Register_Set& reg);
+                                   Genesys_Register_Set& regs);
 
 extern SANE_Status sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val);
 

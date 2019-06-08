@@ -2696,9 +2696,11 @@ gl646_search_start_position (Genesys_Device * dev)
  * sets up register for coarse gain calibration
  */
 static SANE_Status
-gl646_init_regs_for_coarse_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
+gl646_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set& regs)
 {
     (void) sensor;
+    (void) regs;
 
   DBG(DBG_proc, "%s\n", __func__);
   DBG(DBG_proc, "%s: end\n", __func__);
@@ -2722,8 +2724,10 @@ gl646_init_regs_for_coarse_calibration (Genesys_Device * dev, const Genesys_Sens
  * @return SANE_STATUS_GOOD if success, else error code
  */
 static SANE_Status
-gl646_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
+gl646_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                            Genesys_Register_Set& regs)
 {
+    (void) regs;
   SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
   /* 1: no half_ccd, 2: use half number of pixels */
@@ -3120,8 +3124,9 @@ gl646_send_gamma_table (Genesys_Device * dev, const Genesys_Sensor& sensor)
  * currently limited to the XP200
  */
 static SANE_Status
-gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor)
+gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Register_Set& regs)
 {
+    (void) regs;
   int total_size;
   unsigned int i, j;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -3430,8 +3435,10 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
  * @return SANE_STATUS_GOOD if success, else error code is failure
 */
 static SANE_Status
-gl646_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
+gl646_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                         Genesys_Register_Set& regs)
 {
+    (void) regs;
   SANE_Status status = SANE_STATUS_GOOD;
   unsigned int channels;
   int pass = 0, avg;
@@ -3607,8 +3614,10 @@ gl646_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
  * Alternative coarse gain calibration
  */
 static SANE_Status
-ad_fe_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor, int dpi)
+ad_fe_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                              Genesys_Register_Set& regs, int dpi)
 {
+    (void) regs;
   unsigned int i, channels, val;
   unsigned int size, count, resolution, pass;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -3713,7 +3722,8 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
  * @param dpi resolutnio to calibrate at
  */
 static SANE_Status
-gl646_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor, int dpi)
+gl646_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                              Genesys_Register_Set& regs, int dpi)
 {
   unsigned int i, j, k, channels, val, maximum, idx;
   unsigned int count, resolution, pass;
@@ -3724,7 +3734,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
 
   if (dev->model->ccd_type == CIS_XP200)
     {
-      return ad_fe_coarse_gain_calibration (dev, sensor, sensor.optical_res);
+      return ad_fe_coarse_gain_calibration (dev, sensor, regs, sensor.optical_res);
     }
   DBGSTART;
 

@@ -3177,7 +3177,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
   /* do offset calibration if needed */
   if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
     {
-      status = dev->model->cmd_set->offset_calibration (dev, sensor);
+      status = dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: offset calibration failed: %s\n", __func__, sane_strstatus(status));
@@ -3185,7 +3185,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 	}
 
       /* since all the registers are set up correctly, just use them */
-      status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, yres);
+      status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, yres);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: coarse gain calibration: %s\n", __func__, sane_strstatus(status));
@@ -3197,7 +3197,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
     /* since we have 2 gain calibration proc, skip second if first one was
        used. */
     {
-      status = dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor);
+      status = dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: failed to send calibration registers: %s\n", __func__,
@@ -3218,7 +3218,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
   if (dev->model->is_cis)
     {
       /* the afe now sends valid data for doing led calibration */
-      status = dev->model->cmd_set->led_calibration(dev, sensor);
+      status = dev->model->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: led calibration failed: %s\n", __func__, sane_strstatus(status));
@@ -3228,7 +3228,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
       /* calibrate afe again to match new exposure */
       if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
 	{
-          status = dev->model->cmd_set->offset_calibration (dev, sensor);
+          status = dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 	  if (status != SANE_STATUS_GOOD)
 	    {
               DBG(DBG_error, "%s: offset calibration failed: %s\n", __func__, sane_strstatus(status));
@@ -3237,7 +3237,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 
 	  /* since all the registers are set up correctly, just use them */
 
-          status = dev->model->cmd_set->coarse_gain_calibration (dev, sensor, yres);
+          status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, yres);
 	  if (status != SANE_STATUS_GOOD)
 	    {
               DBG(DBG_error, "%s: coarse gain calibration: %s\n", __func__, sane_strstatus(status));
@@ -3248,8 +3248,8 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 	/* since we have 2 gain calibration proc, skip second if first one was
 	   used. */
 	{
-	  status =
-            dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor);
+          status = dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor,
+                                                                         dev->calib_reg);
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      DBG(DBG_error, "%s: failed to send calibration registers: %s\n", __func__,
@@ -3286,7 +3286,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
     }
 
   /* shading calibration */
-  status = dev->model->cmd_set->init_regs_for_shading(dev, sensor);
+  status = dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to send shading registers: %s\n", __func__,
@@ -3398,7 +3398,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
 
   if (dev->model->is_cis)
     {
-      status = dev->model->cmd_set->led_calibration(dev, sensor);
+      status = dev->model->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: led calibration failed: %s\n", __func__, sane_strstatus(status));
@@ -3409,7 +3409,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
   /* calibrate afe */
   if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
     {
-      status = dev->model->cmd_set->offset_calibration (dev, sensor);
+      status = dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: offset calibration failed: %s\n", __func__, sane_strstatus(status));
@@ -3418,7 +3418,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
 
       /* since all the registers are set up correctly, just use them */
 
-      status = dev->model->cmd_set->coarse_gain_calibration (dev, sensor, xres);
+      status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, xres);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: coarse gain calibration: %s\n", __func__, sane_strstatus(status));
@@ -3429,8 +3429,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
     /* since we have 2 gain calibration proc, skip second if first one was
        used. */
     {
-      status =
-        dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor);
+      status = dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: failed to send calibration registers: %s\n", __func__,
@@ -3459,7 +3458,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
 	  return status;
 	}
 
-      status = dev->model->cmd_set->init_regs_for_shading(dev, sensor);
+      status = dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG(DBG_error, "%s: failed to do set up registers for shading calibration: %s\n",
@@ -3487,7 +3486,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
       return status;
     }
 
-  status = dev->model->cmd_set->init_regs_for_shading(dev, sensor);
+  status = dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to do set up registers for shading calibration: %s\n", __func__,

@@ -2734,14 +2734,15 @@ gl843_search_start_position (Genesys_Device * dev)
  * sets up register for coarse gain calibration
  * todo: check it for scanners using it */
 static SANE_Status
-gl843_init_regs_for_coarse_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
+gl843_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set& regs)
 {
   SANE_Status status;
   uint8_t channels;
   uint8_t cksel;
 
   DBGSTART;
-  cksel = (dev->calib_reg.find_reg(0x18).value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
+  cksel = (regs.find_reg(0x18).value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
 
   /* set line size */
   if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
@@ -2772,19 +2773,19 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev, const Genesys_Sens
     session.params.flags = flags;
     gl843_compute_session(dev, session, sensor);
 
-    status = gl843_init_scan_regs(dev, sensor, &dev->calib_reg, session);
+    status = gl843_init_scan_regs(dev, sensor, &regs, session);
 
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  gl843_set_motor_power (&dev->calib_reg, SANE_FALSE);
+  gl843_set_motor_power (&regs, SANE_FALSE);
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
       sensor.optical_res / cksel, dev->settings.xres);
 
-  status = dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
+  status = dev->model->cmd_set->bulk_write_register(dev, regs);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
@@ -2884,7 +2885,8 @@ static SANE_Status gl843_move_to_ta (Genesys_Device * dev);
 /* init registers for shading calibration */
 /* shading calibration is done at dpihw */
 static SANE_Status
-gl843_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
+gl843_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                            Genesys_Register_Set& regs)
 {
   SANE_Status status;
   int move, resolution, dpihw, factor;
@@ -2893,7 +2895,7 @@ gl843_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
   DBGSTART;
 
   /* initial calibration reg values */
-  dev->calib_reg = dev->reg;
+  regs = dev->reg;
 
   dev->calib_channels = 3;
   if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
@@ -2962,7 +2964,7 @@ gl843_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
     session.params.flags = flags;
     gl843_compute_session(dev, session, calib_sensor);
 
-    status = gl843_init_scan_regs(dev, calib_sensor, &dev->calib_reg, session);
+    status = gl843_init_scan_regs(dev, calib_sensor, &regs, session);
 
   // the pixel number may be updated to conform to scanner constraints
   dev->calib_pixels = dev->current_setup.pixels;
@@ -2976,10 +2978,10 @@ gl843_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
   dev->calib_total_bytes_to_read = dev->read_bytes_left;
 
   dev->scanhead_position_in_steps += dev->calib_lines + move;
-  sanei_genesys_get_double(&dev->calib_reg,REG_STRPIXEL,&strpixel);
+  sanei_genesys_get_double(&regs,REG_STRPIXEL,&strpixel);
   DBG(DBG_info, "%s: STRPIXEL=%d\n", __func__, strpixel);
 
-  status = dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
+  status = dev->model->cmd_set->bulk_write_register(dev, regs);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
@@ -3143,7 +3145,7 @@ gl843_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor)
 -needs working coarse/gain
 */
 static SANE_Status
-gl843_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor)
+gl843_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Register_Set& regs)
 {
   int num_pixels;
   int total_size;
@@ -3171,7 +3173,7 @@ gl843_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor)
     (calib_sensor.sensor_pixels * used_res) / calib_sensor.optical_res;
 
   /* initial calibration reg values */
-  dev->calib_reg = dev->reg;
+  regs = dev->reg;
 
     ScanSession session;
     session.params.xres = used_res;
@@ -3190,7 +3192,7 @@ gl843_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor)
                             SCAN_FLAG_IGNORE_LINE_DISTANCE;
     gl843_compute_session(dev, session, calib_sensor);
 
-    status = gl843_init_scan_regs(dev, calib_sensor, &dev->calib_reg, session);
+    status = gl843_init_scan_regs(dev, calib_sensor, &regs, session);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -3198,7 +3200,7 @@ gl843_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor)
       return status;
     }
 
-  RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
+  RIE(dev->model->cmd_set->bulk_write_register(dev, regs));
 
   total_size = dev->read_bytes_left;
 
@@ -3225,14 +3227,14 @@ gl843_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor)
       calib_sensor.exposure.green = expg;
       calib_sensor.exposure.blue = expb;
 
-      sanei_genesys_set_exposure(dev->calib_reg, calib_sensor.exposure);
+      sanei_genesys_set_exposure(regs, calib_sensor.exposure);
 
-      RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
+      RIE(dev->model->cmd_set->bulk_write_register(dev, regs));
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
-      RIE (gl843_begin_scan(dev, calib_sensor, &dev->calib_reg, SANE_TRUE));
+      RIE (gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE));
       RIE (sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
-      RIE(gl843_stop_action_no_move(dev, &dev->calib_reg));
+      RIE(gl843_stop_action_no_move(dev, &regs));
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -3362,7 +3364,8 @@ dark_average_channel (uint8_t * data, unsigned int pixels, unsigned int lines,
  * @param dev device to calibrate
  */
 static SANE_Status
-gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
+gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                         Genesys_Register_Set& regs)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   unsigned int channels, bpp;
@@ -3432,13 +3435,13 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
     DBG(DBG_io, "%s: resolution  =%d\n", __func__, resolution);
     DBG(DBG_io, "%s: pixels      =%d\n", __func__, pixels);
     DBG(DBG_io, "%s: black_pixels=%d\n", __func__, black_pixels);
-    status = gl843_init_scan_regs(dev, calib_sensor, &dev->calib_reg, session);
+    status = gl843_init_scan_regs(dev, calib_sensor, &regs, session);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  gl843_set_motor_power(&dev->calib_reg, SANE_FALSE);
+  gl843_set_motor_power(&regs, SANE_FALSE);
 
   /* allocate memory for scans */
   total_size = dev->read_bytes_left;
@@ -3456,11 +3459,11 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
   RIE(gl843_set_fe(dev, calib_sensor, AFE_SET));
 
   /* scan with obttom AFE settings */
-  RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
+  RIE(dev->model->cmd_set->bulk_write_register(dev, regs));
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
-  RIE(gl843_begin_scan(dev, calib_sensor, &dev->calib_reg, SANE_TRUE));
+  RIE(gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
-  RIE(gl843_stop_action_no_move(dev, &dev->calib_reg));
+  RIE(gl843_stop_action_no_move(dev, &regs));
 
   if (DBG_LEVEL >= DBG_data)
     {
@@ -3485,11 +3488,11 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
   RIE(gl843_set_fe(dev, calib_sensor, AFE_SET));
 
   /* scan with top AFE values */
-  RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
+  RIE(dev->model->cmd_set->bulk_write_register(dev, regs));
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
-  RIE(gl843_begin_scan(dev, calib_sensor, &dev->calib_reg, SANE_TRUE));
+  RIE(gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size));
-  RIE(gl843_stop_action_no_move(dev, &dev->calib_reg));
+  RIE(gl843_stop_action_no_move(dev, &regs));
 
   for (i = 0; i < 3; i++)
     {
@@ -3521,11 +3524,11 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
       RIE(gl843_set_fe(dev, calib_sensor, AFE_SET));
 
       /* scan with no move */
-      RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
+      RIE(dev->model->cmd_set->bulk_write_register(dev, regs));
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
-      RIE(gl843_begin_scan(dev, calib_sensor, &dev->calib_reg, SANE_TRUE));
+      RIE(gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE));
       RIE(sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size));
-      RIE(gl843_stop_action_no_move(dev, &dev->calib_reg));
+      RIE(gl843_stop_action_no_move(dev, &regs));
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -3591,7 +3594,8 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
   be done with shading.
  */
 static SANE_Status
-gl843_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor, int dpi)
+gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                              Genesys_Register_Set& regs, int dpi)
 {
   int pixels, factor, dpihw;
   int total_size;
@@ -3659,8 +3663,8 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
     gl843_compute_session(dev, session, calib_sensor);
     pixels = session.output_pixels;
 
-    status = gl843_init_scan_regs(dev, calib_sensor, &dev->calib_reg, session);
-  gl843_set_motor_power(&dev->calib_reg, SANE_FALSE);
+    status = gl843_init_scan_regs(dev, calib_sensor, &regs, session);
+  gl843_set_motor_power(&regs, SANE_FALSE);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -3668,16 +3672,16 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
       return status;
     }
 
-  RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
+  RIE(dev->model->cmd_set->bulk_write_register(dev, regs));
 
   total_size = dev->read_bytes_left;
 
   std::vector<uint8_t> line(total_size);
 
   RIE(gl843_set_fe(dev, calib_sensor, AFE_SET));
-  RIE(gl843_begin_scan(dev, calib_sensor, &dev->calib_reg, SANE_TRUE));
+  RIE(gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner (dev, line.data(), total_size));
-  RIE(gl843_stop_action_no_move(dev, &dev->calib_reg));
+  RIE(gl843_stop_action_no_move(dev, &regs));
 
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file("gl843_coarse.pnm", line.data(), bpp, channels, pixels, lines);

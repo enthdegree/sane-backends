@@ -1578,7 +1578,8 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Senso
     dev->shrink_buffer.alloc(requested_buffer_size);
 
     dev->out_buffer.clear();
-    dev->out_buffer.alloc((8 * dev->settings.pixels * session.params.channels * session.params.depth) / 8);
+    dev->out_buffer.alloc((8 * session.params.pixels * session.params.channels *
+                           session.params.depth) / 8);
 
   dev->read_bytes_left = session.output_line_bytes * session.output_line_count;
 
@@ -1598,14 +1599,14 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Senso
   dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
   dev->total_bytes_read = 0;
-  if (session.params.depth == 1)
-    dev->total_bytes_to_read =
-      ((dev->settings.pixels * dev->settings.lines) / 8 +
-       (((dev->settings.pixels * dev->settings.lines) % 8) ? 1 : 0)) *
-      session.params.channels;
-  else
-    dev->total_bytes_to_read =
-      dev->settings.pixels * dev->settings.lines * session.params.channels * (session.params.depth / 8);
+    if (session.params.depth == 1) {
+        dev->total_bytes_to_read = ((session.params.pixels * session.params.lines) / 8 +
+            (((session.params.pixels * session.params.lines) % 8) ? 1 : 0)) *
+                session.params.channels;
+    } else {
+        dev->total_bytes_to_read = session.params.pixels * session.params.lines *
+                session.params.channels * (session.params.depth / 8);
+    }
 
   DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
 

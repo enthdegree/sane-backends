@@ -358,7 +358,6 @@ static int get_cksel(int sensor_id, int required, unsigned channels)
  * the device.
  * @param dev          pointer to a struct describing the device
  * @param regs         register set to fill
- * @param scan_settings scan's settings
  * @param slope_table1 first motor table to fill
  * @param slope_table2 second motor table to fill
  * @return SANE_STATUS_GOOD if registers could be set, SANE_STATUS_INVAL if
@@ -372,7 +371,6 @@ gl646_setup_registers (Genesys_Device * dev,
                        const Genesys_Sensor& sensor,
 		       Genesys_Register_Set * regs,
                        SetupParams& params,
-		       Genesys_Settings scan_settings,
 		       uint16_t * slope_table1,
 		       uint16_t * slope_table2,
                        bool xcorrection)
@@ -635,8 +633,7 @@ gl646_setup_registers (Genesys_Device * dev,
 
   /* select XPA */
   regs->find_reg(0x03).value &= ~REG03_XPASEL;
-  if (scan_settings.scan_method == ScanMethod::TRANSPARENCY)
-    {
+    if (params.flags & SCAN_FLAG_USE_XPA) {
       regs->find_reg(0x03).value |= REG03_XPASEL;
     }
 
@@ -703,7 +700,7 @@ gl646_setup_registers (Genesys_Device * dev,
     {
       /* reset count of dummy lines to zero */
       regs->find_reg(0x1e).value &= ~REG1E_LINESEL;
-      if (scan_settings.xres >= 1200)
+      if (params.xres >= 1200)
         {
           /* there must be one dummy line */
           regs->find_reg(0x1e).value |= 1 & REG1E_LINESEL;
@@ -725,21 +722,20 @@ gl646_setup_registers (Genesys_Device * dev,
   regs->find_reg(0x24).value = motor->steps1;
 
   /* scanned area height must be enlarged by max color shift needed */
-  max_shift=sanei_genesys_compute_max_shift(dev,params.channels,scan_settings.yres,0);
+  max_shift=sanei_genesys_compute_max_shift(dev,params.channels, params.yres, 0);
 
   /* we adjust linecnt according to real motor dpi */
-  linecnt = (linecnt * motor->ydpi) / scan_settings.yres + max_shift;
+  linecnt = (linecnt * motor->ydpi) / params.yres + max_shift;
 
   /* at QUATER_STEP lines are 'staggered' and need correction */
   stagger = 0;
   if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
     {
       /* for HP3670, stagger happens only at >=1200 dpi */
-      if ((dev->model->motor_type != MOTOR_HP3670
-	   && dev->model->motor_type != MOTOR_HP2400)
-          || scan_settings.yres >= sensor.optical_res)
+      if ((dev->model->motor_type != MOTOR_HP3670 && dev->model->motor_type != MOTOR_HP2400)
+          || params.yres >= (unsigned) sensor.optical_res)
 	{
-	  stagger = (4 * scan_settings.yres) / dev->motor.base_ydpi;
+          stagger = (4 * params.yres) / dev->motor.base_ydpi;
 	}
     }
   linecnt += stagger;
@@ -951,7 +947,7 @@ gl646_setup_registers (Genesys_Device * dev,
   requested_buffer_size = 8 * words_per_line;
   read_buffer_size =
     2 * requested_buffer_size +
-    ((max_shift + stagger) * scan_settings.pixels * params.channels * params.depth) / 8;
+    ((max_shift + stagger) * params.pixels * params.channels * params.depth) / 8;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -963,7 +959,7 @@ gl646_setup_registers (Genesys_Device * dev,
     dev->shrink_buffer.alloc(requested_buffer_size);
 
     dev->out_buffer.clear();
-    dev->out_buffer.alloc(8 * scan_settings.pixels * params.channels * bpp);
+    dev->out_buffer.alloc(8 * params.pixels * params.channels * bpp);
 
   /* scan bytes to read */
   dev->read_bytes_left = words_per_line * linecnt;
@@ -988,15 +984,12 @@ gl646_setup_registers (Genesys_Device * dev,
    * read_bytes_left is the number of bytes to read from the scanner
    */
   dev->total_bytes_read = 0;
-  if (params.depth == 1)
-    dev->total_bytes_to_read =
-      ((scan_settings.pixels * scan_settings.lines) / 8 +
-       (((scan_settings.pixels * scan_settings.lines) % 8) ? 1 : 0)) *
-      params.channels;
-  else {
-    dev->total_bytes_to_read =
-      scan_settings.pixels * scan_settings.lines * params.channels * bpp;
-  }
+    if (params.depth == 1) {
+        dev->total_bytes_to_read = ((params.pixels * params.lines) / 8 +
+            (((params.pixels * params.lines) % 8) ? 1 : 0)) * params.channels;
+    } else {
+        dev->total_bytes_to_read = params.pixels * params.lines * params.channels * bpp;
+    }
 
     /* select color filter based on settings */
     regs->find_reg(0x04).value &= ~REG04_FILTER;
@@ -2976,13 +2969,16 @@ setup_for_scan (Genesys_Device * dev,
     params.scan_mode = settings.scan_mode;
     params.color_filter = settings.color_filter;
     params.flags = 0;
+    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+        params.flags |= SCAN_FLAG_USE_XPA;
+    }
 
     uint16_t slope_table0[256] = {};
     uint16_t slope_table1[256] = {};
 
   /* set up correct values for scan (gamma and shading enabled) */
-  status = gl646_setup_registers(dev, sensor, regs, params, settings,
-                                 slope_table0, slope_table1, xcorrection);
+  status = gl646_setup_registers(dev, sensor, regs, params, slope_table0, slope_table1,
+                                 xcorrection);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed setup registers: %s\n", __func__, sane_strstatus(status));

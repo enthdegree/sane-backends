@@ -213,7 +213,6 @@ static SANE_Status
 gl646_setup_registers (Genesys_Device * dev,
                        const Genesys_Sensor& sensor,
                        Genesys_Register_Set * regs, SetupParams& params,
-                       Genesys_Settings scan_settings,
                        uint16_t * slope_table1,
                        uint16_t * slope_table2,
                        bool xcorrection);

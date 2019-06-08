@@ -1290,7 +1290,7 @@ gl846_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
     dev->shrink_buffer.alloc(requested_buffer_size);
 
     dev->out_buffer.clear();
-    dev->out_buffer.alloc((8 * dev->settings.pixels * params.channels * params.depth) / 8);
+    dev->out_buffer.alloc((8 * params.pixels * params.channels * params.depth) / 8);
 
   dev->read_bytes_left = bytes_per_line * lincnt;
 
@@ -1313,7 +1313,7 @@ gl846_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
   /* scan bytes to send to the frontend */
   /* theory :
      target_size =
-     (dev->settings.pixels * dev->settings.lines * channels * depth) / 8;
+     (params.pixels * params.lines * channels * depth) / 8;
      but it suffers from integer overflow so we do the following:
 
      1 bit color images store color data byte-wise, eg byte 0 contains
@@ -1327,12 +1327,12 @@ gl846_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
   dev->total_bytes_read = 0;
   if (params.depth == 1)
     dev->total_bytes_to_read =
-      ((dev->settings.pixels * dev->settings.lines) / 8 +
-       (((dev->settings.pixels * dev->settings.lines) % 8) ? 1 : 0)) *
+      ((params.pixels * params.lines) / 8 +
+       (((params.pixels * params.lines) % 8) ? 1 : 0)) *
       params.channels;
   else
     dev->total_bytes_to_read =
-      dev->settings.pixels * dev->settings.lines * params.channels * (params.depth / 8);
+      params.pixels * params.lines * params.channels * (params.depth / 8);
 
   DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
 /* END TODO */

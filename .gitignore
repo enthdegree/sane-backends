@@ -32,6 +32,14 @@ Makefile.in
 /mkinstalldirs
 /test-driver
 
+#  Gettext stuff
+/ABOUT-NLS
+/po/*
+!/po/*.po
+!/po/LINGUAS
+!/po/Makevars
+!/po/POTFILES.in
+
 # `make check` artifacts
 test-suite.log
 /testsuite/sanei/sanei_*_test

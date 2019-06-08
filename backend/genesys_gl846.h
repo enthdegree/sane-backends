@@ -342,18 +342,8 @@
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-static SANE_Status gl846_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                      Genesys_Register_Set * reg,
-                      float xres,	/*dpi */
-		      float yres,	/*dpi */
-		      float startx,	/*optical_res, from dummy_pixel+1 */
-		      float starty,	/*base_ydpi, from home! */
-		      float pixels,
-		      float lines,
-		      unsigned int depth,
-		      unsigned int channels,
-		      int color_filter,
-                      unsigned int flags);
+static SANE_Status gl846_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                        Genesys_Register_Set * reg, SetupParams& params);
 
 /* Send the low-level scan command */
 static SANE_Status gl846_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,

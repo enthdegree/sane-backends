@@ -1112,20 +1112,12 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
  * this function sets up the scanner to scan in normal or single line mode
  */
 static SANE_Status
-gl847_init_scan_regs (Genesys_Device * dev,
-                      const Genesys_Sensor& sensor,
-                      Genesys_Register_Set * reg,
-                      float xres,	/*dpi */
-		      float yres,	/*dpi */
-		      float startx,	/*optical_res, from dummy_pixel+1 */
-		      float starty,	/*base_ydpi, from home! */
-		      float pixels,
-		      float lines,
-		      unsigned int depth,
-		      unsigned int channels,
-		      int color_filter,
-                      unsigned int flags)
+gl847_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Register_Set * reg,
+                     SetupParams& params)
+
 {
+    params.assert_valid();
+
   int used_res;
   int start, used_pixels;
   int bytes_per_line;
@@ -1154,10 +1146,10 @@ gl847_init_scan_regs (Genesys_Device * dev,
       "Startpos      : %g/%g\n"
       "Depth/Channels: %u/%u\n"
       "Flags         : %x\n\n",
-       __func__, xres, yres, lines, pixels, startx, starty, depth, channels, flags);
+       __func__, params.xres, params.yres, params.lines, params.pixels, params.startx, params.starty, params.depth, params.channels, params.flags);
 
   /* we may have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (sensor.get_ccd_size_divisor_for_dpi(xres) > 1)
+  if (sensor.get_ccd_size_divisor_for_dpi(params.xres) > 1)
     {
       half_ccd = SANE_TRUE;
     }
@@ -1173,20 +1165,20 @@ gl847_init_scan_regs (Genesys_Device * dev,
 
   /* stagger */
   if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-    stagger = (4 * yres) / dev->motor.base_ydpi;
+    stagger = (4 * params.yres) / dev->motor.base_ydpi;
   else
     stagger = 0;
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
 
   /* used_res */
-  if (flags & SCAN_FLAG_USE_OPTICAL_RES)
+  if (params.flags & SCAN_FLAG_USE_OPTICAL_RES)
     {
       used_res = optical_res;
     }
   else
     {
       /* resolution is choosen from a list */
-      used_res = xres;
+      used_res = params.xres;
     }
 
   /* compute scan parameters values */
@@ -1194,28 +1186,28 @@ gl847_init_scan_regs (Genesys_Device * dev,
   /* use detected left margin and fixed value */
   /* start */
   /* add x coordinates */
-  start = startx;
+  start = params.startx;
 
   if (stagger > 0)
     start |= 1;
 
   /* compute correct pixels number */
   /* pixels */
-  used_pixels = (pixels * optical_res) / xres;
+  used_pixels = (params.pixels * optical_res) / params.xres;
 
   /* round up pixels number if needed */
-  if (used_pixels * xres < pixels * optical_res)
+  if (used_pixels * params.xres < params.pixels * optical_res)
     used_pixels++;
 
-  dummy = 3-channels;
+  dummy = 3-params.channels;
 
 /* slope_dpi */
 /* cis color scan is effectively a gray scan with 3 gray lines per color
    line and a FILTER of 0 */
   if (dev->model->is_cis)
-    slope_dpi = yres * channels;
+    slope_dpi = params.yres * params.channels;
   else
-    slope_dpi = yres;
+    slope_dpi = params.yres;
 
   slope_dpi = slope_dpi * (1 + dummy);
 
@@ -1228,20 +1220,20 @@ gl847_init_scan_regs (Genesys_Device * dev,
 /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
    * to generate 1 lineart data */
-  if ((flags & SCAN_FLAG_DYNAMIC_LINEART) && (dev->settings.scan_mode == ScanColorMode::LINEART))
+  if ((params.flags & SCAN_FLAG_DYNAMIC_LINEART) && (dev->settings.scan_mode == ScanColorMode::LINEART))
     {
-      depth = 8;
+      params.depth = 8;
     }
 
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
    */
   oflags = 0;
-  if(flags & SCAN_FLAG_DISABLE_SHADING)
+  if(params.flags & SCAN_FLAG_DISABLE_SHADING)
     oflags |= OPTICAL_FLAG_DISABLE_SHADING;
-  if(flags & SCAN_FLAG_DISABLE_GAMMA)
+  if(params.flags & SCAN_FLAG_DISABLE_GAMMA)
     oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
-  if(flags & SCAN_FLAG_DISABLE_LAMP)
+  if(params.flags & SCAN_FLAG_DISABLE_LAMP)
     oflags |= OPTICAL_FLAG_DISABLE_LAMP;
 
   if (dev->model->is_cis && dev->settings.true_gray)
@@ -1255,10 +1247,10 @@ gl847_init_scan_regs (Genesys_Device * dev,
 					 used_res,
 					 start,
 					 used_pixels,
-					 channels,
-					 depth,
+                                         params.channels,
+                                         params.depth,
 					 half_ccd,
-					 color_filter,
+                                         params.color_filter,
                                          oflags);
 
   if (status != SANE_STATUS_GOOD)
@@ -1267,19 +1259,19 @@ gl847_init_scan_regs (Genesys_Device * dev,
 /*** motor parameters ***/
 
   /* max_shift */
-  max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,flags);
+  max_shift=sanei_genesys_compute_max_shift(dev,params.channels,params.yres,params.flags);
 
   /* lincnt */
-  lincnt = lines + max_shift + stagger;
+  lincnt = params.lines + max_shift + stagger;
 
   /* add tl_y to base movement */
-  move = starty;
+  move = params.starty;
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
   mflags=0;
-  if(flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)
+  if(params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)
     mflags |= MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
-  if(flags & SCAN_FLAG_FEEDING)
+  if(params.flags & SCAN_FLAG_FEEDING)
     mflags |= MOTOR_FLAG_FEED;
 
   status = gl847_init_motor_regs_scan (dev, sensor,
@@ -1288,7 +1280,7 @@ gl847_init_scan_regs (Genesys_Device * dev,
                                        slope_dpi,
                                        scan_step_type,
                                        dev->model->is_cis ? lincnt *
-                                       channels : lincnt, dummy, move,
+                                       params.channels : lincnt, dummy, move,
                                        scan_power_mode,
                                        mflags);
 
@@ -1300,13 +1292,13 @@ gl847_init_scan_regs (Genesys_Device * dev,
 
 /* words_per_line */
   bytes_per_line = (used_pixels * used_res) / optical_res;
-  bytes_per_line = (bytes_per_line * channels * depth) / 8;
+  bytes_per_line = (bytes_per_line * params.channels * params.depth) / 8;
 
   requested_buffer_size = 8 * bytes_per_line;
 
   read_buffer_size =
     2 * requested_buffer_size +
-    ((max_shift + stagger) * used_pixels * channels * depth) / 8;
+    ((max_shift + stagger) * used_pixels * params.channels * params.depth) / 8;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -1318,7 +1310,7 @@ gl847_init_scan_regs (Genesys_Device * dev,
     dev->shrink_buffer.alloc(requested_buffer_size);
 
     dev->out_buffer.clear();
-    dev->out_buffer.alloc((8 * dev->settings.pixels * channels * depth) / 8);
+    dev->out_buffer.alloc((8 * dev->settings.pixels * params.channels * params.depth) / 8);
 
   dev->read_bytes_left = bytes_per_line * lincnt;
 
@@ -1328,11 +1320,11 @@ gl847_init_scan_regs (Genesys_Device * dev,
 
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   dev->current_setup.lines = lincnt;
-  dev->current_setup.depth = depth;
-  dev->current_setup.channels = channels;
+  dev->current_setup.depth = params.depth;
+  dev->current_setup.channels = params.channels;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
-  dev->current_setup.yres = yres;
+  dev->current_setup.yres = params.yres;
   dev->current_setup.ccd_size_divisor = half_ccd ? 2 : 1;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
@@ -1353,14 +1345,14 @@ gl847_init_scan_regs (Genesys_Device * dev,
    */
 
   dev->total_bytes_read = 0;
-  if (depth == 1)
+  if (params.depth == 1)
     dev->total_bytes_to_read =
       ((dev->settings.pixels * dev->settings.lines) / 8 +
        (((dev->settings.pixels * dev->settings.lines) % 8) ? 1 : 0)) *
-      channels;
+      params.channels;
   else
     dev->total_bytes_to_read =
-      dev->settings.pixels * dev->settings.lines * channels * (depth / 8);
+      dev->settings.pixels * dev->settings.lines * params.channels * (params.depth / 8);
 
   DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
 /* END TODO */
@@ -1818,20 +1810,24 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* TODO add scan_mode to the API */
   scan_mode = dev->settings.scan_mode;
   dev->settings.scan_mode = ScanColorMode::LINEART;
-  status = gl847_init_scan_regs (dev, sensor,
-                        &local_reg,
-			resolution,
-			resolution,
-			100,
-			30000,
-			100,
-			100,
-			8,
-			1,
-			0,
-			SCAN_FLAG_DISABLE_SHADING |
-			SCAN_FLAG_DISABLE_GAMMA |
-			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+
+    SetupParams params;
+    params.xres = resolution;
+    params.yres = resolution;
+    params.startx = 100;
+    params.starty = 30000;
+    params.pixels = 100;
+    params.lines = 100;
+    params.depth = 8;
+    params.channels = 1;
+    params.scan_mode = ScanColorMode::GRAY;
+    params.color_filter = 0;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl847_init_scan_regs(dev, sensor, &local_reg, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set up registers: %s\n", __func__, sane_strstatus(status));
@@ -1922,11 +1918,23 @@ gl847_search_start_position (Genesys_Device * dev)
   // whith employ different sensors with potentially different settings.
   auto& sensor = sanei_genesys_find_sensor_for_write(dev, dpi);
 
-  status = gl847_init_scan_regs (dev, sensor, &local_reg, dpi, dpi, 0, 0,	/*we should give a small offset here~60 steps */
-				 600, dev->model->search_lines, 8, 1, 1,	/*green */
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+    SetupParams params;
+    params.xres = dpi;
+    params.yres = dpi;
+    params.startx =  0;
+    params.starty =  0; /*we should give a small offset here~60 steps */
+    params.pixels = 600;
+    params.lines = dev->model->search_lines;
+    params.depth = 8;
+    params.channels =  1;
+    params.scan_mode = ScanColorMode::GRAY;
+    params.color_filter = 1;	/*green */
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl847_init_scan_regs(dev, sensor, &local_reg, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set up registers: %s\n", __func__, sane_strstatus(status));
@@ -2015,24 +2023,28 @@ gl847_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
   /* set line size */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
-  else
+  else {
     channels = 1;
+  }
 
-  status = gl847_init_scan_regs (dev, sensor,
-                                 &regs,
-				 dev->settings.xres,
-				 dev->settings.yres,
-				 0,
-				 0,
-                                 sensor.optical_res / cksel,
-				 20,
-				 16,
-				 channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = dev->settings.yres;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = sensor.optical_res / cksel;
+    params.lines = 20;
+    params.depth = 16;
+    params.channels = channels;
+    params.scan_mode = dev->settings.scan_mode;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl847_init_scan_regs(dev, sensor, &regs, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: Failed to setup scan: %s\n", __func__, sane_strstatus(status));
@@ -2074,21 +2086,25 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
   const auto& sensor = sanei_genesys_find_sensor(dev, resolution);
-  status = gl847_init_scan_regs (dev, sensor,
-                        &local_reg,
-			resolution,
-			resolution,
-			0,
-			steps,
-			100,
-			3,
-			8,
-			3,
-			dev->settings.color_filter,
-			SCAN_FLAG_DISABLE_SHADING |
-			SCAN_FLAG_DISABLE_GAMMA |
-                        SCAN_FLAG_FEEDING |
-			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+
+    SetupParams params;
+    params.xres = resolution;
+    params.yres = resolution;
+    params.startx = 0;
+    params.starty = steps;
+    params.pixels = 100;
+    params.lines = 3;
+    params.depth = 8;
+    params.channels = 3;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_FEEDING |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl847_init_scan_regs(dev, sensor, &local_reg, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set up registers: %s\n", __func__, sane_strstatus(status));
@@ -2170,21 +2186,23 @@ gl847_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
       move=40;
     }
 
-  status = gl847_init_scan_regs (dev, sensor,
-                                 &regs,
-                                 dev->calib_resolution,
-				 dev->calib_resolution,
-				 0,
-				 move,
-				 dev->calib_pixels,
-				 dev->calib_lines,
-                                 16,
-				 dev->calib_channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-  				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+    SetupParams params;
+    params.xres = dev->calib_resolution;
+    params.yres = dev->calib_resolution;
+    params.startx = 0;
+    params.starty = move;
+    params.pixels = dev->calib_pixels;
+    params.lines = dev->calib_lines;
+    params.depth = 16;
+    params.channels = dev->calib_channels;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl847_init_scan_regs(dev, sensor, &regs, params);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -2298,18 +2316,20 @@ gl847_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   /* backtracking isn't handled well, so don't enable it */
   flags |= SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
 
-  status = gl847_init_scan_regs (dev, sensor,
-                                 &dev->reg,
-				 dev->settings.xres,
-				 dev->settings.yres,
-				 start,
-				 move,
-				 dev->settings.pixels,
-				 dev->settings.lines,
-				 depth,
-				 channels,
-                                 dev->settings.color_filter,
-                                 flags);
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = dev->settings.yres;
+    params.startx = start;
+    params.starty = move;
+    params.pixels = dev->settings.pixels;
+    params.lines = dev->settings.lines;
+    params.depth = depth;
+    params.channels = channels;
+    params.scan_mode = dev->settings.scan_mode;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = flags;
+
+    status = gl847_init_scan_regs(dev, sensor, &dev->reg, params);
 
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -2464,22 +2484,24 @@ gl847_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
   /* initial calibration reg values */
   regs = dev->reg;
 
-  /* set up for the calibration scan */
-  status = gl847_init_scan_regs (dev, sensor,
-                                 &regs,
-				 used_res,
-				 used_res,
-				 0,
-				 0,
-				 num_pixels,
-                                 1,
-                                 depth,
-                                 channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+    SetupParams params;
+    params.xres = used_res;
+    params.yres = used_res;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = num_pixels;
+    params.lines = 1;
+    params.depth = depth;
+    params.channels = channels;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl847_init_scan_regs(dev, sensor, &regs, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
@@ -2886,19 +2908,22 @@ gl847_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   local_reg = dev->reg;
 
-  status = gl847_init_scan_regs (dev, sensor,
-                                 &local_reg,
-				 dpi,
-				 dpi,
-				 0,
-				 0,
-				 pixels,
-				 lines,
-				 depth,
-				 channels,
-				 0,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA);
+    SetupParams params;
+    params.xres = dpi;
+    params.yres = dpi;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = pixels;
+    params.lines = lines;
+    params.depth = depth;
+    params.channels = channels;
+    params.scan_mode = ScanColorMode::GRAY;
+    params.color_filter = 0;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA;
+
+    status = gl847_init_scan_regs(dev, sensor, &local_reg, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup for scan: %s\n", __func__, sane_strstatus(status));
@@ -3164,21 +3189,24 @@ gl847_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
   black_pixels = (sensor.black_pixels * resolution) / sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
-  status = gl847_init_scan_regs (dev, sensor,
-                                 &regs,
-				 resolution,
-				 resolution,
-				 0,
-				 0,
-				 pixels,
-				 lines,
-				 bpp,
-				 channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+    SetupParams params;
+    params.xres = resolution;
+    params.yres = resolution;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = pixels;
+    params.lines = lines;
+    params.depth = bpp;
+    params.channels = channels;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl847_init_scan_regs(dev, sensor, &regs, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
@@ -3324,21 +3352,24 @@ gl847_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   bpp=8;
   pixels = (sensor.sensor_pixels * resolution) / sensor.optical_res;
 
-  status = gl847_init_scan_regs (dev, sensor,
-                                 &regs,
-				 resolution,
-				 resolution,
-				 0,
-				 0,
-				 pixels,
-                                 lines,
-                                 bpp,
-                                 channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+    SetupParams params;
+    params.xres = resolution;
+    params.yres = resolution;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = pixels;
+    params.lines = lines;
+    params.depth = bpp;
+    params.channels = channels;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl847_init_scan_regs(dev, sensor, &regs, params);
+
   gl847_set_motor_power(&regs, SANE_FALSE);
 
   if (status != SANE_STATUS_GOOD)

@@ -361,13 +361,6 @@ static int get_cksel(int sensor_id, int required, int channels)
  * @param scan_settings scan's settings
  * @param slope_table1 first motor table to fill
  * @param slope_table2 second motor table to fill
- * @param resolution   dpi of the scan
- * @param move         distance to move (at scan's dpi) before scan
- * @param linecnt      number of lines to scan at scan's dpi
- * @param startx       start of scan area on CCD at CCD's optical resolution
- * @param endx         end of scan area on CCD at CCD's optical resolution
- * @param color        SANE_TRUE is color scan
- * @param depth        1, 8 or 16 bits data sample
  * @return SANE_STATUS_GOOD if registers could be set, SANE_STATUS_INVAL if
  * conditions can't be met.
  * @note No harcoded SENSOR or MOTOR 'names' should be present and

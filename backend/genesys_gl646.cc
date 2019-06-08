@@ -618,7 +618,7 @@ gl646_setup_registers (Genesys_Device * dev,
 
   /* select XPA */
   regs->find_reg(0x03).value &= ~REG03_XPASEL;
-  if (scan_settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+  if (scan_settings.scan_method == ScanMethod::TRANSPARENCY)
     {
       regs->find_reg(0x03).value |= REG03_XPASEL;
     }
@@ -2502,7 +2502,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
 
   /* setup for a backward scan of 65535 steps, with no actual data reading */
-  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_method = ScanMethod::FLATBED;
   settings.scan_mode = SCAN_MODE_COLOR;
   settings.xres = get_lowest_resolution (dev->model->ccd_type, SANE_FALSE);
   settings.yres = settings.xres;
@@ -2622,7 +2622,7 @@ gl646_search_start_position (Genesys_Device * dev)
   auto& sensor = sanei_genesys_find_sensor_for_write(dev, resolution);
 
   /* fill settings for a gray level scan */
-  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_method = ScanMethod::FLATBED;
   settings.scan_mode = SCAN_MODE_GRAY;
   settings.xres = resolution;
   settings.yres = resolution;
@@ -2829,7 +2829,7 @@ gl646_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   /* park head after calibration if needed */
   if (dev->scanhead_position_in_steps > 0
-      && dev->settings.scan_method == SCAN_METHOD_FLATBED)
+      && dev->settings.scan_method == ScanMethod::FLATBED)
     {
       RIE(gl646_slow_back_home (dev, SANE_TRUE));
       dev->scanhead_position_in_steps = 0;
@@ -2878,7 +2878,7 @@ setup_for_scan (Genesys_Device * dev,
       __func__,
       settings.xres, settings.yres, settings.lines, settings.pixels,
       settings.tl_x, settings.tl_y, settings.scan_mode,
-      settings.scan_method == SCAN_METHOD_FLATBED ? "flatbed" : "XPA");
+      settings.scan_method == ScanMethod::FLATBED ? "flatbed" : "XPA");
 
   if (settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
     {
@@ -2947,7 +2947,7 @@ setup_for_scan (Genesys_Device * dev,
         startx = sensor.CCD_start_xoffset;
       else
         startx = sensor.dummy_pixel;
-      if (settings.scan_method == SCAN_METHOD_FLATBED)
+      if (settings.scan_method == ScanMethod::FLATBED)
 	{
 	  startx +=
             ((SANE_UNFIX (dev->model->x_offset) * sensor.optical_res) /
@@ -3161,7 +3161,7 @@ gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor)
     }
 
   /* offset calibration is always done in color mode */
-  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_method = ScanMethod::FLATBED;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -3340,7 +3340,7 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
     (sensor.black_pixels * resolution) / sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
-  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_method = ScanMethod::FLATBED;
   settings.scan_mode = SCAN_MODE_COLOR;
   settings.xres = resolution;
   settings.yres = resolution;
@@ -3467,7 +3467,7 @@ gl646_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
     (sensor.black_pixels * resolution) / sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
-  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_method = ScanMethod::FLATBED;
   settings.scan_mode = SCAN_MODE_COLOR;
   settings.xres = resolution;
   settings.yres = resolution;
@@ -3624,7 +3624,7 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
   channels = 3;
   settings.scan_mode = SCAN_MODE_COLOR;
 
-  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_method = ScanMethod::FLATBED;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -3749,7 +3749,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_y = 0;
-  if (settings.scan_method == SCAN_METHOD_FLATBED)
+  if (settings.scan_method == ScanMethod::FLATBED)
     {
       settings.tl_x = 0;
       settings.pixels = (sensor.sensor_pixels * resolution) / sensor.optical_res;
@@ -3897,7 +3897,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   resolution = get_closest_resolution (dev->model->ccd_type, 300, SANE_FALSE);
 
   /* set up for a half width 2 lines gray scan without moving */
-  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_method = ScanMethod::FLATBED;
   settings.scan_mode = SCAN_MODE_GRAY;
   settings.xres = resolution;
   settings.yres = resolution;
@@ -3964,7 +3964,7 @@ gl646_repark_head (Genesys_Device * dev)
 
   DBG(DBG_proc, "%s: start\n", __func__);
 
-  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_method = ScanMethod::FLATBED;
   settings.scan_mode = SCAN_MODE_COLOR;
   settings.xres =
     get_closest_resolution (dev->model->ccd_type, 75, SANE_FALSE);
@@ -4400,7 +4400,7 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
     }
 
   /* no automatic go home when using XPA */
-  if (settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+  if (settings.scan_method == ScanMethod::TRANSPARENCY)
     {
       dev->reg.find_reg(0x02).value &= ~REG02_AGOHOME;
     }
@@ -4526,7 +4526,7 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
   const auto& sensor = sanei_genesys_find_sensor(dev, resolution);
 
   /* TODO give a no AGOHOME flag */
-  settings.scan_method = SCAN_METHOD_TRANSPARENCY;
+  settings.scan_method = ScanMethod::TRANSPARENCY;
   settings.scan_mode = SCAN_MODE_COLOR;
   settings.xres = resolution;
   settings.yres = resolution;
@@ -4815,8 +4815,9 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
     }
   if (dev->current_setup.scan_method != cache->used_setup.scan_method)
     {
-      DBG(DBG_io, "%s: current method=%d, used=%d\n", __func__, dev->current_setup.scan_method,
-          cache->used_setup.scan_method);
+      DBG(DBG_io, "%s: current method=%d, used=%d\n", __func__,
+          static_cast<unsigned>(dev->current_setup.scan_method),
+          static_cast<unsigned>(cache->used_setup.scan_method));
       compatible = 0;
     }
   if (!compatible)
@@ -4873,7 +4874,7 @@ gl646_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor, SANE_Bool
     }
 
   /* we set up for a lowest available resolution color grey scan, full width */
-  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_method = ScanMethod::FLATBED;
   settings.scan_mode = SCAN_MODE_GRAY;
   settings.xres = res;
   settings.yres = res;

@@ -900,6 +900,13 @@ enum Genesys_Motor_Type
   MOTOR_CANONLIDE120
 };
 
+enum class ScanMethod {
+    // normal scan method
+    FLATBED = 0,
+    // scan using transparency adaptor
+    TRANSPARENCY = 1
+};
+
 /* Forward typedefs */
 typedef struct Genesys_Device Genesys_Device;
 struct Genesys_Scanner;
@@ -1049,7 +1056,7 @@ typedef struct Genesys_Command_Set
 				   float lines,
 				   unsigned int depth,
 				   unsigned int channels,
-				   int scan_method,
+                                   ScanMethod scan_method,
 				   int scan_mode,
 				   int color_filter,
 				   unsigned int flags);
@@ -1118,10 +1125,6 @@ typedef struct Genesys_Model
   SANE_Int search_lines;	/* how many lines are used to search start position */
 } Genesys_Model;
 
-#define SCAN_METHOD_FLATBED      0     /**< normal scan method */
-#define SCAN_METHOD_TRANSPARENCY 2     /**< scan using transparency adaptor */
-#define SCAN_METHOD_NEGATIVE     0x88  /**< scan using negative adaptor */
-
 #define SCAN_MODE_LINEART        0 	/**< lineart scan mode */
 #define SCAN_MODE_HALFTONE       1 	/**< halftone scan mode */
 #define SCAN_MODE_GRAY           2 	/**< gray scan mode */
@@ -1129,8 +1132,8 @@ typedef struct Genesys_Model
 
 struct Genesys_Settings
 {
-    // TODO: change >=2: Transparency, 0x88: negative film
-    int scan_method = 0;
+    ScanMethod scan_method = ScanMethod::FLATBED;
+
     // TODO: change 0,1 = lineart, halftone; 2 = gray, 3 = 3pass color, 4=single pass color
     int scan_mode = 0;
     // horizontal dpi
@@ -1194,8 +1197,8 @@ struct Genesys_Current_Setup
     int depth = 0;
     // channel count expected from scanner
     int channels = 0;
-    // scanning method: flatbed or XPA
-    int scan_method = 0;
+
+    ScanMethod scan_method = ScanMethod::FLATBED;
     // used exposure time
     int exposure_time = 0;
     // used xres
@@ -1526,9 +1529,9 @@ extern void sanei_genesys_init_structs (Genesys_Device * dev);
 const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev);
 Genesys_Sensor& sanei_genesys_find_sensor_any_for_write(Genesys_Device* dev);
 const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
-                                                int scan_method = SCAN_METHOD_FLATBED);
+                                                ScanMethod scan_method = ScanMethod::FLATBED);
 Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,
-                                                    int scan_method = SCAN_METHOD_FLATBED);
+                                                    ScanMethod scan_method = ScanMethod::FLATBED);
 
 extern SANE_Status
 sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,

@@ -1704,7 +1704,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     depth = 1;
 
   /* start */
-  if(dev->settings.scan_method==SCAN_METHOD_TRANSPARENCY)
+  if(dev->settings.scan_method==ScanMethod::TRANSPARENCY)
       start = SANE_UNFIX (dev->model->x_offset_ta);
   else
       start = SANE_UNFIX (dev->model->x_offset);
@@ -2754,7 +2754,7 @@ gl843_init_regs_for_coarse_calibration (Genesys_Device * dev, const Genesys_Sens
               SCAN_FLAG_SINGLE_LINE |
               SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY) {
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         flags |= SCAN_FLAG_USE_XPA;
     }
 
@@ -2896,7 +2896,7 @@ gl843_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
   dev->calib_reg = dev->reg;
 
   dev->calib_channels = 3;
-  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
     dev->calib_lines = dev->model->shading_ta_lines;
   else
     dev->calib_lines = dev->model->shading_lines;
@@ -2907,7 +2907,7 @@ gl843_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
   const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution,
                                                        dev->settings.scan_method);
 
-    if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY &&
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY &&
         dev->model->model_id == MODEL_CANON_CANOSCAN_8600F &&
         dev->settings.xres == 4800)
     {
@@ -2935,7 +2935,7 @@ gl843_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
               SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
               SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
   {
     // FIXME: we should handle moving to TA in the caller, this function should only setup the
     // registers.
@@ -3031,7 +3031,7 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   move_dpi = dev->motor.base_ydpi;
 
   flags = 0;
-  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
   {
     // FIXME: we should handle moving to TA in the caller, this function should only setup the
     // registers.
@@ -3047,7 +3047,7 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* start */
-  if(dev->settings.scan_method==SCAN_METHOD_TRANSPARENCY)
+  if(dev->settings.scan_method==ScanMethod::TRANSPARENCY)
       start = SANE_UNFIX (dev->model->x_offset_ta);
   else
       start = SANE_UNFIX (dev->model->x_offset);
@@ -3389,7 +3389,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
   int start_pixel = 0;
   black_pixels = calib_sensor.black_pixels / factor;
 
-    if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY &&
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY &&
         dev->model->model_id == MODEL_CANON_CANOSCAN_8600F &&
         dev->settings.xres == 4800)
     {
@@ -3407,7 +3407,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
               SCAN_FLAG_SINGLE_LINE |
               SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
   {
     flags |= SCAN_FLAG_USE_XPA;
   }
@@ -3636,7 +3636,7 @@ gl843_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
               SCAN_FLAG_SINGLE_LINE |
               SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
   {
     flags |= SCAN_FLAG_USE_XPA;
   }

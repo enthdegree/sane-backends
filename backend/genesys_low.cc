@@ -1883,7 +1883,8 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
   if (dev->current_setup.scan_method != cache->used_setup.scan_method)
     {
       DBG (DBG_io, "%s: current method=%d, used=%d\n", __func__,
-	   dev->current_setup.scan_method, cache->used_setup.scan_method);
+           static_cast<unsigned>(dev->current_setup.scan_method),
+           static_cast<unsigned>(cache->used_setup.scan_method));
       compatible = 0;
     }
   if (!compatible)
@@ -1900,7 +1901,7 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
       gettimeofday (&time, NULL);
       if ((time.tv_sec - cache->last_calibration > dev->settings.expiration_time*60)
           && (dev->model->is_sheetfed == SANE_FALSE)
-          && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
+          && (dev->settings.scan_method == ScanMethod::FLATBED))
         {
           DBG (DBG_proc, "%s: expired entry, non compatible cache\n", __func__);
           return SANE_STATUS_UNSUPPORTED;

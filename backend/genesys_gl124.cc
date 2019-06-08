@@ -1265,7 +1265,7 @@ gl124_init_scan_regs (Genesys_Device * dev,
 		      float lines,
 		      unsigned int depth,
 		      unsigned int channels,
-		      __sane_unused__ int scan_method,
+                      __sane_unused__ ScanMethod scan_method,
                       int scan_mode,
 		      int color_filter,
                       unsigned int flags)

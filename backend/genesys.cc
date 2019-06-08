@@ -184,9 +184,9 @@ const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev)
 }
 
 const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
-                                                int scan_method)
+                                                ScanMethod scan_method)
 {
-    bool is_transparency = scan_method == SCAN_METHOD_TRANSPARENCY;
+    bool is_transparency = scan_method == ScanMethod::TRANSPARENCY;
     for (const auto& sensor : *s_sensors) {
         if (dev->model->ccd_type == sensor.sensor_id &&
                 (sensor.min_resolution == -1 || dpi >= sensor.min_resolution) &&
@@ -199,9 +199,9 @@ const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
 }
 
 Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,
-                                                    int scan_method)
+                                                    ScanMethod scan_method)
 {
-    bool is_transparency = scan_method == SCAN_METHOD_TRANSPARENCY;
+    bool is_transparency = scan_method == ScanMethod::TRANSPARENCY;
     for (auto& sensor : *s_sensors) {
         if (dev->model->ccd_type == sensor.sensor_id &&
                 (sensor.min_resolution == -1 || dpi >= sensor.min_resolution) &&
@@ -1353,7 +1353,7 @@ genesys_average_white (Genesys_Device * dev, Genesys_Sensor& sensor, int channel
 
   range = size / 50;
 
-  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)	/* transparency mode */
+  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)	/* transparency mode */
     gain_white_ref = sensor.fau_gain_white_ref * 256;
   else
     gain_white_ref = sensor.gain_white_ref * 256;
@@ -1489,7 +1489,7 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 	  double applied_multi;
 	  double gain_white_ref;
 
-	  if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)	/* Transparency */
+          if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)	/* Transparency */
             gain_white_ref = sensor.fau_gain_white_ref * 256;
 	  else
             gain_white_ref = sensor.gain_white_ref * 256;
@@ -1995,7 +1995,7 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
       status = (dev->model->cmd_set->rewind
                 ? dev->model->cmd_set->rewind (dev)
                 : dev->model->cmd_set->slow_back_home (dev, SANE_TRUE));
-      if (dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+      if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
         {
           dev->model->cmd_set->move_to_ta(dev);
         }
@@ -3759,7 +3759,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
   /* wait for lamp warmup : until a warmup for TRANSPARENCY is designed, skip
    * it when scanning from XPA. */
   if (!(dev->model->flags & GENESYS_FLAG_SKIP_WARMUP)
-    && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
+    && (dev->settings.scan_method == ScanMethod::FLATBED))
     {
       RIE (genesys_warmup_lamp (dev));
     }
@@ -3807,7 +3807,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
     }
 
   /* move to calibration area for transparency adapter */
-  if ((dev->settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+  if ((dev->settings.scan_method == ScanMethod::TRANSPARENCY)
       && dev->model->cmd_set->move_to_ta != NULL)
     {
       status=dev->model->cmd_set->move_to_ta(dev);
@@ -4948,9 +4948,9 @@ calc_parameters (Genesys_Scanner * s)
     }
 
     if (s->source == STR_FLATBED) {
-        s->dev->settings.scan_method = SCAN_METHOD_FLATBED;
+        s->dev->settings.scan_method = ScanMethod::FLATBED;
     } else { 				/* transparency */
-        s->dev->settings.scan_method = SCAN_METHOD_TRANSPARENCY;
+        s->dev->settings.scan_method = ScanMethod::TRANSPARENCY;
     }
 
   s->dev->settings.lines = s->params.lines;

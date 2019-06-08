@@ -1440,7 +1440,7 @@ sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
   dev->white_average_data.clear();
   dev->dark_average_data.clear();
 
-  dev->settings.color_filter = 0;
+  dev->settings.color_filter = ColorFilter::RED;
 
   /* duplicate initial values into calibration registers */
   dev->calib_reg = dev->reg;

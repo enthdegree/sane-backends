@@ -991,7 +991,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
 			      int channels,
 			      int depth,
 			      SANE_Bool half_ccd,
-                              int color_filter,
+                              ColorFilter color_filter,
                               int flags)
 {
   unsigned int words_per_line, segcnt;
@@ -1097,15 +1097,17 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
     {
       switch (color_filter)
 	{
-	case 0:
-	  r->value |= 0x10;        /* red filter */
-	  break;
-	case 2:
-	  r->value |= 0x30;        /* blue filter */
-	  break;
-	default:
-	  r->value |= 0x20;        /* green filter */
-	  break;
+            case ColorFilter::RED:
+                r->value |= 0x10;
+                break;
+            case ColorFilter::BLUE:
+                r->value |= 0x30;
+                break;
+            case ColorFilter::GREEN:
+                r->value |= 0x20;
+                break;
+            default:
+                break; // should not happen
 	}
     }
 
@@ -2029,7 +2031,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     params.depth = 8;
     params.channels = 1;
     params.scan_mode = ScanColorMode::GRAY;
-    params.color_filter = 0;
+    params.color_filter = ColorFilter::RED;
     params.flags = SCAN_FLAG_DISABLE_SHADING |
                    SCAN_FLAG_DISABLE_GAMMA |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
@@ -2233,7 +2235,7 @@ gl124_search_start_position (Genesys_Device * dev)
     params.depth = 8;
     params.channels = 1;
     params.scan_mode = ScanColorMode::GRAY;
-    params.color_filter = 1;        /*green */
+    params.color_filter = ColorFilter::GREEN;
     params.flags = SCAN_FLAG_DISABLE_SHADING |
                    SCAN_FLAG_DISABLE_GAMMA |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE |
@@ -2422,7 +2424,7 @@ gl124_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
     params.depth = 16;
     params.channels = dev->calib_channels;
     params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    params.color_filter = 0;
+    params.color_filter = ColorFilter::RED;
     params.flags = SCAN_FLAG_DISABLE_SHADING |
                    SCAN_FLAG_DISABLE_GAMMA |
                    SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |

@@ -237,6 +237,13 @@ enum class ScanColorMode : unsigned {
     COLOR_SINGLE_PASS
 };
 
+enum class ColorFilter : unsigned {
+    RED = 0,
+    GREEN,
+    BLUE,
+    NONE
+};
+
 struct GenesysRegister {
     uint16_t address = 0;
     uint8_t value = 0;
@@ -1146,7 +1153,7 @@ struct Genesys_Settings
     // bit depth of the scan
     unsigned int depth = 0;
 
-    unsigned int color_filter = 0;
+    ColorFilter color_filter = ColorFilter::NONE;
 
     // true if scan is true gray, false if monochrome scan
     int true_gray = 0;
@@ -1196,7 +1203,7 @@ struct SetupParams {
 
     ScanColorMode scan_mode = static_cast<ScanColorMode>(NOT_SET);
 
-    unsigned color_filter = NOT_SET;
+    ColorFilter color_filter = static_cast<ColorFilter>(NOT_SET);
 
     unsigned flags = NOT_SET;
 
@@ -1204,7 +1211,8 @@ struct SetupParams {
     {
         if (xres == NOT_SET || yres == NOT_SET || startx < 0 || starty < 0 ||
             pixels == NOT_SET || lines == NOT_SET ||depth == NOT_SET || channels == NOT_SET ||
-            scan_mode == static_cast<ScanColorMode>(NOT_SET) || color_filter == NOT_SET ||
+            scan_mode == static_cast<ScanColorMode>(NOT_SET) ||
+            color_filter == static_cast<ColorFilter>(NOT_SET) ||
             flags == NOT_SET)
         {
             throw std::runtime_error("SetupParams are not valid");

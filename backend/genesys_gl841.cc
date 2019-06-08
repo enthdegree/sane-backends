@@ -1817,7 +1817,7 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 			     int channels,
 			     int depth,
 			     SANE_Bool half_ccd,
-			     int color_filter,
+                             ColorFilter color_filter,
 			     int flags
     )
 {
@@ -1955,18 +1955,18 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
       {
 	switch (color_filter)
 	  {
-	  case 0:
-	    r->value |= 0x14;	/* red filter */
-	    break;
-	  case 1:
-	    r->value |= 0x18;	/* green filter */
-	    break;
-	  case 2:
-	    r->value |= 0x1c;	/* blue filter */
-	    break;
-	  default:
-	    r->value |= 0x10;	/* no filter */
-	    break;
+            case ColorFilter::RED:
+                r->value |= 0x14;
+                break;
+            case ColorFilter::GREEN:
+                r->value |= 0x18;
+                break;
+            case ColorFilter::BLUE:
+                r->value |= 0x1c;
+                break;
+            default:
+                r->value |= 0x10;
+                break;
 	  }
       }
     else
@@ -3629,7 +3629,7 @@ gl841_search_start_position (Genesys_Device * dev)
     params.depth = 8;
     params.channels = 1;
     params.scan_mode = ScanColorMode::GRAY;
-    params.color_filter = 1; /*green*/
+    params.color_filter = ColorFilter::GREEN;
     params.flags = SCAN_FLAG_DISABLE_SHADING |
                    SCAN_FLAG_DISABLE_GAMMA |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE |
@@ -5084,7 +5084,7 @@ gl841_init (Genesys_Device * dev)
   dev->dark_average_data.clear();
   dev->white_average_data.clear();
 
-  dev->settings.color_filter = 0;
+  dev->settings.color_filter = ColorFilter::RED;
 
   /* ASIC reset */
   RIE (sanei_genesys_write_register (dev, 0x0e, 0x01));
@@ -5152,7 +5152,7 @@ gl841_init (Genesys_Device * dev)
     params.depth = 16;
     params.channels = 3;
     params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    params.color_filter = 0;
+    params.color_filter = ColorFilter::RED;
     params.flags = SCAN_FLAG_DISABLE_SHADING |
                    SCAN_FLAG_DISABLE_GAMMA |
                    SCAN_FLAG_SINGLE_LINE |
@@ -5299,7 +5299,7 @@ gl841_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
     params.depth = depth;
     params.channels = channels;
     params.scan_mode = ScanColorMode::GRAY;
-    params.color_filter = 0;
+    params.color_filter = ColorFilter::RED;
     params.flags = SCAN_FLAG_DISABLE_SHADING | SCAN_FLAG_DISABLE_GAMMA;
 
     status = gl841_init_scan_regs(dev, sensor, &local_reg, params);

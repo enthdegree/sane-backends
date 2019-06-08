@@ -1089,7 +1089,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 			      int channels,
 			      int depth,
                               unsigned ccd_size_divisor,
-                              int color_filter,
+                              ColorFilter color_filter,
                               int flags)
 {
   unsigned int words_per_line;
@@ -1220,15 +1220,17 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
     {
       switch (color_filter)
 	{
-	case 0:
-	  r->value |= 0x14;	/* red filter */
-	  break;
-	case 2:
-	  r->value |= 0x1c;	/* blue filter */
-	  break;
-	default:
-	  r->value |= 0x18;	/* green filter */
-	  break;
+            case ColorFilter::RED:
+                r->value |= 0x14;
+                break;
+            case ColorFilter::BLUE:
+                r->value |= 0x1c;
+                break;
+            case ColorFilter::GREEN:
+                r->value |= 0x18;
+                break;
+            default:
+                break; // should not happen
 	}
     }
   else
@@ -2607,7 +2609,7 @@ gl843_search_start_position (Genesys_Device * dev)
     session.params.depth = 8;
     session.params.channels = 1;
     session.params.scan_mode = ScanColorMode::GRAY;
-    session.params.color_filter = 1; // green
+    session.params.color_filter = ColorFilter::GREEN;
     session.params.flags =  SCAN_FLAG_DISABLE_SHADING |
                             SCAN_FLAG_DISABLE_GAMMA |
                             SCAN_FLAG_IGNORE_LINE_DISTANCE |
@@ -2779,7 +2781,7 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
     session.params.depth = 8;
     session.params.channels = 3;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    session.params.color_filter = 0;
+    session.params.color_filter = ColorFilter::RED;
     session.params.flags =  SCAN_FLAG_DISABLE_SHADING |
                             SCAN_FLAG_DISABLE_GAMMA |
                             SCAN_FLAG_FEEDING |
@@ -3369,7 +3371,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
     session.params.depth = bpp;
     session.params.channels = channels;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    session.params.color_filter = 0;
+    session.params.color_filter = ColorFilter::RED;
     session.params.flags = flags;
     gl843_compute_session(dev, session, calib_sensor);
     pixels = session.output_pixels;
@@ -4062,7 +4064,7 @@ gl843_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
     session.params.depth = depth;
     session.params.channels = channels;
     session.params.scan_mode = ScanColorMode::GRAY;
-    session.params.color_filter = 0;
+    session.params.color_filter = ColorFilter::RED;
     session.params.flags = SCAN_FLAG_DISABLE_SHADING | SCAN_FLAG_DISABLE_SHADING;
     gl843_compute_session(dev, session, calib_sensor);
 

@@ -1683,7 +1683,7 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 	    {
 	      switch (dev->settings.color_filter)
 		{
-		case 0:
+                case ColorFilter::RED:
 		default:
 		  dev->dark[0] =
 		    (uint16_t) (1.6925 * dark[i * 3 + 0] +
@@ -1691,14 +1691,14 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 		  dev->dark[1] = dev->dark[2] = dev->dark[0];
 		  break;
 
-		case 1:
+                case ColorFilter::GREEN:
 		  dev->dark[1] =
 		    (uint16_t) (1.4013 * dark[i * 3 + 1] +
 				(1.3147 - 1.0) * 256);
 		  dev->dark[0] = dev->dark[2] = dev->dark[1];
 		  break;
 
-		case 2:
+                case ColorFilter::BLUE:
 		  dev->dark[2] =
 		    (uint16_t) (1.2931 * dark[i * 3 + 2] +
 				(1.1558 - 1.0) * 256);
@@ -4951,13 +4951,13 @@ calc_parameters (Genesys_Scanner * s)
 
     // color filter
     if (s->color_filter == "Red") {
-        s->dev->settings.color_filter = 0;
+        s->dev->settings.color_filter = ColorFilter::RED;
     } else if (s->color_filter == "Green") {
-        s->dev->settings.color_filter = 1;
+        s->dev->settings.color_filter = ColorFilter::GREEN;
     } else if (s->color_filter == "Blue") {
-        s->dev->settings.color_filter = 2;
+        s->dev->settings.color_filter = ColorFilter::BLUE;
     } else {
-        s->dev->settings.color_filter = 3;
+        s->dev->settings.color_filter = ColorFilter::NONE;
     }
 
     // true gray

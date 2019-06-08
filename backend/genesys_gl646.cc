@@ -1002,16 +1002,13 @@ gl646_setup_registers (Genesys_Device * dev,
     regs->find_reg(0x04).value &= ~REG04_FILTER;
     if (params.channels == 1) {
         switch (params.color_filter) {
-            /* red */
-            case 0:
+            case ColorFilter::RED:
                 regs->find_reg(0x04).value |= 0x04;
                 break;
-            /* green */
-            case 1:
+            case ColorFilter::GREEN:
                 regs->find_reg(0x04).value |= 0x08;
                 break;
-            /* blue */
-            case 2:
+            case ColorFilter::BLUE:
                 regs->find_reg(0x04).value |= 0x0c;
                 break;
             default:
@@ -2550,7 +2547,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   settings.pixels = 600;
   settings.lines = 1;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
@@ -2669,7 +2666,7 @@ gl646_search_start_position (Genesys_Device * dev)
   settings.pixels = 600;
   settings.lines = dev->model->search_lines;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
@@ -3133,7 +3130,7 @@ gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
     (sensor.sensor_pixels * resolution) / sensor.optical_res;
   settings.lines = 1;
   settings.depth = 16;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
@@ -3310,7 +3307,7 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
     (sensor.sensor_pixels * resolution) / sensor.optical_res;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
@@ -3431,7 +3428,7 @@ gl646_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
     (sensor.sensor_pixels * resolution) / sensor.optical_res;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
@@ -3588,7 +3585,7 @@ ad_fe_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
     (sensor.sensor_pixels * resolution) / sensor.optical_res;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
@@ -3711,7 +3708,7 @@ gl646_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
     }
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
@@ -3734,7 +3731,12 @@ gl646_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
       average[0] = 255;
       average[1] = 255;
       average[2] = 255;
-      idx = dev->settings.color_filter;
+        switch (dev->settings.color_filter) {
+            case ColorFilter::RED: idx = 0; break;
+            case ColorFilter::GREEN: idx = 1; break;
+            case ColorFilter::BLUE: idx = 2; break;
+            default: idx = 0; break; // should not happen
+        }
       average[idx] = 0;
     }
   pass = 0;
@@ -3856,7 +3858,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
     (sensor.sensor_pixels * resolution) / sensor.optical_res;
   settings.lines = 2;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
@@ -3921,7 +3923,7 @@ gl646_repark_head (Genesys_Device * dev)
   settings.pixels = 600;
   settings.lines = 4;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
@@ -4017,7 +4019,7 @@ gl646_init (Genesys_Device * dev)
       dev->dark_average_data.clear();
       dev->white_average_data.clear();
 
-      dev->settings.color_filter = 1;	/* green filter by default */
+      dev->settings.color_filter = ColorFilter::GREEN;
       gettimeofday (&tv, NULL);
       dev->init_date = tv.tv_sec;
 
@@ -4466,7 +4468,7 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
     (sensor.sensor_pixels * settings.xres) / sensor.optical_res;
   settings.lines = (distance * settings.xres) / MM_PER_INCH;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
@@ -4819,7 +4821,7 @@ gl646_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor, SANE_Bool
   /* 15 mm at at time */
   settings.lines = (15 * settings.yres) / MM_PER_INCH;	/* may become a parameter from genesys_devices.c */
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;

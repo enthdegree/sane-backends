@@ -76,6 +76,7 @@
 
 #define STR_FLATBED "Flatbed"
 #define STR_TRANSPARENCY_ADAPTER "Transparency Adapter"
+#define STR_TRANSPARENCY_ADAPTER_INFRARED "Transparency Adapter Infrared"
 
 #ifndef SANE_I18N
 #define SANE_I18N(text) text

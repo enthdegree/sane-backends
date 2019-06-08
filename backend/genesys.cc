@@ -103,6 +103,13 @@ static SANE_String_Const source_list[] = {
   0
 };
 
+static const char* source_list_infrared[] = {
+    SANE_I18N(STR_FLATBED),
+    SANE_I18N(STR_TRANSPARENCY_ADAPTER),
+    SANE_I18N(STR_TRANSPARENCY_ADAPTER_INFRARED),
+    0
+};
+
 static SANE_Range swdespeck_range = {
   1,
   9,
@@ -4947,8 +4954,10 @@ calc_parameters (Genesys_Scanner * s)
 
     if (s->source == STR_FLATBED) {
         s->dev->settings.scan_method = ScanMethod::FLATBED;
-    } else { 				/* transparency */
+    } else if (s->source == STR_TRANSPARENCY_ADAPTER) {
         s->dev->settings.scan_method = ScanMethod::TRANSPARENCY;
+    } else if (s->source == STR_TRANSPARENCY_ADAPTER_INFRARED) {
+        s->dev->settings.scan_method = ScanMethod::TRANSPARENCY_INFRARED;
     }
 
   s->dev->settings.lines = s->params.lines;
@@ -5252,7 +5261,11 @@ init_options (Genesys_Scanner * s)
   s->source = STR_FLATBED;
   if (model->flags & GENESYS_FLAG_HAS_UTA)
     {
-      ENABLE (OPT_SOURCE);
+        ENABLE (OPT_SOURCE);
+        if (model->flags & GENESYS_FLAG_HAS_UTA_INFRARED) {
+            s->opt[OPT_SOURCE].size = max_string_size(source_list_infrared);
+            s->opt[OPT_SOURCE].constraint.string_list = source_list_infrared;
+        }
     }
   else
     {

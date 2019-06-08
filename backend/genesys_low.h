@@ -151,6 +151,8 @@
 #define GENESYS_FLAG_SHADING_NO_MOVE  (1 << 17)       /**< scanner doesn't move sensor during shading calibration */
 #define GENESYS_FLAG_SHADING_REPARK   (1 << 18)       /**< repark head between shading scans */
 #define GENESYS_FLAG_FULL_HWDPI_MODE  (1 << 19)       /**< scanner always use maximum hw dpi to setup the sensor */
+// scanner has infrared transparency scanning capability
+#define GENESYS_FLAG_HAS_UTA_INFRARED (1 << 20)
 
 #define GENESYS_HAS_NO_BUTTONS       0              /**< scanner has no supported button */
 #define GENESYS_HAS_SCAN_SW          (1 << 0)       /**< scanner has SCAN button */
@@ -222,7 +224,9 @@ enum class ScanMethod {
     // normal scan method
     FLATBED = 0,
     // scan using transparency adaptor
-    TRANSPARENCY = 1
+    TRANSPARENCY = 1,
+    // scan using transparency adaptor via infrared channel
+    TRANSPARENCY_INFRARED = 2
 };
 
 struct GenesysRegister {

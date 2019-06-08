@@ -1316,8 +1316,6 @@ struct Genesys_Device
     Genesys_Frontend frontend, frontend_initial;
     Genesys_Gpo gpo;
     Genesys_Motor motor;
-    uint16_t slope_table0[256] = {};
-    uint16_t slope_table1[256] = {};
     uint8_t  control[6] = {};
     time_t init_date = 0;
 

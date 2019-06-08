@@ -418,6 +418,7 @@ gl646_setup_registers (Genesys_Device * dev,
       {
         pixels = (pixels / 6) * 6;
       }
+    /* TODO check for pixel width overflow */
     uint32_t endx = startx + pixels;
 
     bool color = params.channels == 3;
@@ -2972,12 +2973,12 @@ setup_for_scan (Genesys_Device * dev,
     params.color_filter = settings.color_filter;
     params.flags = 0;
 
-
-  /* TODO check for pixel width overflow */
+    uint16_t slope_table0[256] = {};
+    uint16_t slope_table1[256] = {};
 
   /* set up correct values for scan (gamma and shading enabled) */
   status = gl646_setup_registers(dev, sensor, regs, params, settings,
-                                 dev->slope_table0, dev->slope_table1, xcorrection);
+                                 slope_table0, slope_table1, xcorrection);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed setup registers: %s\n", __func__, sane_strstatus(status));
@@ -3011,7 +3012,7 @@ setup_for_scan (Genesys_Device * dev,
 
   /* send computed slope tables */
   status =
-    gl646_send_slope_table (dev, 0, dev->slope_table0,
+    gl646_send_slope_table (dev, 0, slope_table0,
 			    sanei_genesys_read_reg_from_set (regs, 0x21));
   if (status != SANE_STATUS_GOOD)
     {
@@ -3020,7 +3021,7 @@ setup_for_scan (Genesys_Device * dev,
     }
 
   status =
-    gl646_send_slope_table (dev, 1, dev->slope_table1,
+    gl646_send_slope_table (dev, 1, slope_table1,
 			    sanei_genesys_read_reg_from_set (regs, 0x6b));
   if (status != SANE_STATUS_GOOD)
     {

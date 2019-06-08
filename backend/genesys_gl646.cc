@@ -2967,6 +2967,7 @@ setup_for_scan (Genesys_Device * dev,
     params.lines = settings.lines;
     params.depth = depth;
     params.channels = channels;
+    params.scan_method = dev->settings.scan_method;
     params.scan_mode = settings.scan_mode;
     params.color_filter = settings.color_filter;
     params.flags = 0;

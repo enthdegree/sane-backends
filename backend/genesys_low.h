@@ -1201,6 +1201,8 @@ struct SetupParams {
     // the number of channels
     unsigned channels = NOT_SET;
 
+    ScanMethod scan_method = static_cast<ScanMethod>(NOT_SET);
+
     ScanColorMode scan_mode = static_cast<ScanColorMode>(NOT_SET);
 
     ColorFilter color_filter = static_cast<ColorFilter>(NOT_SET);
@@ -1211,6 +1213,7 @@ struct SetupParams {
     {
         if (xres == NOT_SET || yres == NOT_SET || startx < 0 || starty < 0 ||
             pixels == NOT_SET || lines == NOT_SET ||depth == NOT_SET || channels == NOT_SET ||
+            scan_method == static_cast<ScanMethod>(NOT_SET) ||
             scan_mode == static_cast<ScanColorMode>(NOT_SET) ||
             color_filter == static_cast<ColorFilter>(NOT_SET) ||
             flags == NOT_SET)

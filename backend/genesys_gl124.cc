@@ -1497,12 +1497,6 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
   int depth;
   int start;
 
-  float xres;                        /*dpi */
-  float yres;                        /*dpi */
-  float startx;                        /*optical_res, from dummy_pixel+1 */
-  float pixels;
-  float lines;
-
   int used_res;
   int used_pixels;
   unsigned int lincnt;
@@ -1533,30 +1527,29 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
   start += dev->settings.tl_x;
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = dev->settings.yres;
+    params.startx = start;
+    params.starty = 0; // not used
+    params.pixels = dev->settings.pixels;
+    params.lines = dev->settings.lines;
+    params.depth = depth;
+    params.channels = channels;
+    params.scan_mode = dev->settings.scan_mode;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = 0;
 
-  xres = dev->settings.xres;
-  yres = dev->settings.yres;
-  startx = start;
-  pixels = dev->settings.pixels;
-  lines = dev->settings.lines;
+  half_ccd=compute_half_ccd(sensor, params.xres);
 
-  half_ccd=compute_half_ccd(sensor, xres);
-
-  DBG(DBG_info,
-      "%s:\n"
-      "Resolution    : %gDPI/%gDPI\n"
-      "Lines         : %g\n"
-      "PPL           : %g\n"
-      "Startpos      : %g\n"
-      "Half ccd      : %d\n"
-      "Depth/Channels: %u/%u\n\n",
-      __func__, xres, yres, lines, pixels, startx, depth, half_ccd, channels);
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, params);
 
   /* optical_res */
   optical_res = sensor.optical_res;
 
-  if(xres<=optical_res)
-    used_res = xres;
+  if (params.xres <= (unsigned) optical_res)
+    used_res = params.xres;
   else
     used_res=optical_res;
 
@@ -1565,15 +1558,15 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
   /* use detected left margin  and fixed value */
 
   /* compute correct pixels number */
-  used_pixels = (pixels * optical_res) / xres;
+  used_pixels = (params.pixels * optical_res) / params.xres;
   DBG (DBG_info, "%s: used_pixels=%d\n", __func__, used_pixels);
 
   /* exposure */
-  exposure_time = gl124_compute_exposure (dev, xres, half_ccd);
+  exposure_time = gl124_compute_exposure (dev, params.xres, half_ccd);
   DBG (DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
   /* max_shift */
-  max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,0);
+  max_shift=sanei_genesys_compute_max_shift(dev, params.channels, params.yres, 0);
 
   /* compute hw dpi for sensor */
   dpihw=sanei_genesys_compute_dpihw(dev, sensor,used_res);
@@ -1583,22 +1576,22 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
 
   /* stagger */
   if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-    stagger = (4 * yres) / dev->motor.base_ydpi;
+    stagger = (4 * params.yres) / dev->motor.base_ydpi;
   else
     stagger = 0;
   DBG (DBG_info, "%s: stagger=%d lines\n", __func__, stagger);
 
   /* lincnt */
-  lincnt = lines + max_shift + stagger;
+  lincnt = params.lines + max_shift + stagger;
 
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   DBG (DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;
-  dev->current_setup.depth = depth;
-  dev->current_setup.channels = channels;
+  dev->current_setup.depth = params.depth;
+  dev->current_setup.channels = params.channels;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
-  dev->current_setup.yres = yres;
+  dev->current_setup.yres = params.yres;
   dev->current_setup.ccd_size_divisor = half_ccd ? 2 : 1;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;

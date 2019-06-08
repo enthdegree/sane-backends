@@ -1364,12 +1364,6 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   int depth;
   int start;
 
-  float xres;			/*dpi */
-  float yres;			/*dpi */
-  float startx;			/*optical_res, from dummy_pixel+1 */
-  float pixels;
-  float lines;
-
   int used_res;
   int used_pixels;
   unsigned int lincnt;
@@ -1402,24 +1396,25 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   start += dev->settings.tl_x;
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = dev->settings.yres;
+    params.startx = start; // not used
+    params.starty = 0; // not used
+    params.pixels = dev->settings.pixels;
+    params.lines = dev->settings.lines;
+    params.depth = depth;
+    params.channels = channels;
+    params.scan_mode = dev->settings.scan_mode;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = 0;
 
-  xres = dev->settings.xres;	/*dpi */
-  yres = dev->settings.yres;	/*dpi */
-  startx = start;		/*optical_res, from dummy_pixel+1 */
-  pixels = dev->settings.pixels;
-  lines = dev->settings.lines;
-
-  DBG(DBG_info, "%s settings:\n"
-      "Resolution    : %gDPI/%gDPI\n"
-      "Lines         : %g\n"
-      "PPL           : %g\n"
-      "Startpos      : %g\n"
-      "Depth/Channels: %u/%u\n\n",
-      __func__, xres, yres, lines, pixels, startx, depth, channels);
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, params);
 
 /* half_ccd */
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-    if (sensor.get_ccd_size_divisor_for_dpi(xres) > 1) {
+    if (sensor.get_ccd_size_divisor_for_dpi(params.xres) > 1) {
         half_ccd = SANE_TRUE;
     } else {
         half_ccd = SANE_FALSE;
@@ -1430,29 +1425,30 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   /* stagger */
   if (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)
-    stagger = (4 * yres) / dev->motor.base_ydpi;
+    stagger = (4 * params.yres) / dev->motor.base_ydpi;
   else
     stagger = 0;
   DBG(DBG_info, "%s: stagger=%d lines\n", __func__, stagger);
 
   /* resolution is choosen from a fixed list */
-  used_res = xres;
+  used_res = params.xres;
 
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
 
   /* compute correct pixels number */
-  used_pixels = (pixels * optical_res) / used_res;
-  dummy = 3-channels;
+  used_pixels = (params.pixels * optical_res) / used_res;
+  dummy = 3 - params.channels;
 
   /* slope_dpi */
   /* cis color scan is effectively a gray scan with 3 gray lines per color
    line and a FILTER of 0 */
-  if (dev->model->is_cis)
-    slope_dpi = yres * channels;
-  else
-    slope_dpi = yres;
+    if (dev->model->is_cis) {
+        slope_dpi = params.yres * params.channels;
+    } else {
+        slope_dpi = params.yres;
+    }
 
   slope_dpi = slope_dpi * (1 + dummy);
 
@@ -1460,18 +1456,18 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
   /* max_shift */
-  max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,0);
+  max_shift = sanei_genesys_compute_max_shift(dev, params.channels, params.yres, 0);
 
   /* lincnt */
-  lincnt = lines + max_shift + stagger;
+  lincnt = params.lines + max_shift + stagger;
 
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   dev->current_setup.lines = lincnt;
-  dev->current_setup.depth = depth;
-  dev->current_setup.channels = channels;
+  dev->current_setup.depth = params.depth;
+  dev->current_setup.channels = params.channels;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
-  dev->current_setup.yres = yres;
+  dev->current_setup.yres = params.yres;
   dev->current_setup.ccd_size_divisor = half_ccd ? 2 : 1;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;

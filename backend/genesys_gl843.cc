@@ -1621,12 +1621,6 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   int depth;
   int start;
 
-  float xres;			/*dpi */
-  float yres;			/*dpi */
-  float startx;			/*optical_res, from dummy_pixel+1 */
-  float pixels;
-  float lines;
-
   int used_res;
   int used_pixels;
   unsigned int lincnt;
@@ -1640,11 +1634,8 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
 
-  xres = dev->settings.xres;
-  yres = dev->settings.yres;
-
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(xres);
+  unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
 
   /* channels */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
@@ -1668,39 +1659,44 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   start += dev->settings.tl_x;
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
-  startx = start;
-  pixels = dev->settings.pixels;
-  lines = dev->settings.lines;
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = dev->settings.yres;
+    params.startx = start; // not used
+    params.starty = 0; // not used
+    params.pixels = dev->settings.pixels;
+    params.lines = dev->settings.lines;
+    params.depth = depth;
+    params.channels = channels;
+    params.scan_mode = dev->settings.scan_mode;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = 0;
 
-  DBG(DBG_info, "%s settings:\n"
-      "Resolution    : %gDPI/%gDPI\n"
-      "Lines         : %g\n"
-      "PPL           : %g\n"
-      "Startpos      : %g\n"
-      "Depth/Channels: %u/%u\n\n",
-      __func__, xres, yres, lines, pixels, startx, depth, channels);
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, params);
 
   /* optical_res */
   optical_res = sensor.optical_res / ccd_size_divisor;
 
   /* stagger */
   if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-    stagger = (4 * yres) / dev->motor.base_ydpi;
+    stagger = (4 * params.yres) / dev->motor.base_ydpi;
   else
     stagger = 0;
   DBG(DBG_info, "%s: stagger=%d lines\n", __func__, stagger);
 
-  if(xres<=optical_res)
-    used_res = xres;
-  else
-    used_res=optical_res;
+    if (params.xres <= (unsigned) optical_res) {
+        used_res = params.xres;
+    } else {
+        used_res = optical_res;
+    }
 
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
 
   /* compute correct pixels number */
-  used_pixels = (pixels * optical_res) / xres;
+  used_pixels = (params.pixels * optical_res) / params.xres;
   DBG(DBG_info, "%s: used_pixels=%d\n", __func__, used_pixels);
 
   /* exposure */
@@ -1711,7 +1707,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
 
   /* it seems base_dpi of the G4050 motor is changed above 600 dpi*/
-  if (dev->model->motor_type == MOTOR_G4050 && yres>600)
+  if (dev->model->motor_type == MOTOR_G4050 && params.yres>600)
     {
       dev->ld_shift_r = (dev->model->ld_shift_r*3800)/dev->motor.base_ydpi;
       dev->ld_shift_g = (dev->model->ld_shift_g*3800)/dev->motor.base_ydpi;
@@ -1725,19 +1721,19 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     }
 
   /* scanned area must be enlarged by max color shift needed */
-  max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,0);
+    max_shift = sanei_genesys_compute_max_shift(dev, params.channels, params.yres, 0);
 
   /* lincnt */
-  lincnt = lines + max_shift + stagger;
+  lincnt = params.lines + max_shift + stagger;
 
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;
-  dev->current_setup.depth = depth;
-  dev->current_setup.channels = channels;
+  dev->current_setup.depth = params.depth;
+  dev->current_setup.channels = params.channels;
   dev->current_setup.exposure_time = exposure;
   dev->current_setup.xres = used_res;
-  dev->current_setup.yres = yres;
+  dev->current_setup.yres = params.yres;
   dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;

@@ -2135,32 +2135,42 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
  * XPA light
  * @param dev device to set up
  */
-static SANE_Status gl843_xpa_lamp_on(Genesys_Device *dev)
+static SANE_Status gl843_set_xpa_lamp_power(Genesys_Device *dev, bool set)
 {
-  uint8_t val;
-  SANE_Status status=SANE_STATUS_GOOD;
+    SANE_Status status = SANE_STATUS_GOOD;
+    uint8_t val = 0;
+    DBGSTART;
 
-  DBGSTART;
+    if (set) {
+        RIE(sanei_genesys_read_register(dev, REGA6, &val));
 
-  /* REGA6 */
-  RIE(sanei_genesys_read_register(dev, REGA6, &val));
+        // cut regular lamp power
+        val &= ~(REGA6_GPIO24 | REGA6_GPIO23);
 
-  /* cut regular lamp power */
-  val &= ~(REGA6_GPIO24|REGA6_GPIO23);
+        // set XPA lamp power
+        val |= REGA6_GPIO22 | REGA6_GPIO21 | REGA6_GPIO19;
 
-  /* set XPA lamp power */
-  val |= REGA6_GPIO22 | REGA6_GPIO21 | REGA6_GPIO19;
+        RIE(sanei_genesys_write_register(dev, REGA6, val));
 
-  RIE(sanei_genesys_write_register(dev, REGA6, val));
+        RIE(sanei_genesys_read_register(dev, REGA7, &val));
+        val|=REGA7_GPOE24; /* lamp 1 off GPOE 24 */
+        val|=REGA7_GPOE23; /* lamp 2 off GPOE 23 */
+        val|=REGA7_GPOE22; /* full XPA lamp power */
+        RIE(sanei_genesys_write_register(dev, REGA7, val));
+    } else {
+        RIE(sanei_genesys_read_register(dev, REGA6, &val));
 
-  RIE(sanei_genesys_read_register(dev, REGA7, &val));
-  val|=REGA7_GPOE24; /* lamp 1 off GPOE 24 */
-  val|=REGA7_GPOE23; /* lamp 2 off GPOE 23 */
-  val|=REGA7_GPOE22; /* full XPA lamp power */
-  RIE(sanei_genesys_write_register(dev, REGA7, val));
+        // switch on regular lamp
+        val |= REGA6_GPIO23;
 
-  DBGCOMPLETED;
-  return status;
+        // no XPA lamp power (2 bits for level: __11 ____)
+        val &= ~(REGA6_GPIO22 | REGA6_GPIO21);
+
+        RIE(sanei_genesys_write_register(dev, REGA6, val));
+    }
+
+    DBGCOMPLETED;
+    return status;
 }
 
 /* Send the low-level scan command */
@@ -2206,7 +2216,7 @@ gl843_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
 	  }
 
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
-                RIE(gl843_xpa_lamp_on(dev));
+                RIE(gl843_set_xpa_lamp_power(dev, true));
             }
 
             if (reg->state.is_xpa_on) {
@@ -2258,7 +2268,6 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		SANE_Bool check_stop)
 {
   SANE_Status status;
-  uint8_t val;
 
   DBG(DBG_proc, "%s (check_stop = %d)\n", __func__, check_stop);
   if (reg == NULL)
@@ -2270,15 +2279,7 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     // turn off XPA lamp if needed
     // BUG: the if condition below probably shouldn't be enabled when XPA is off
     if (reg->state.is_xpa_on || reg->state.is_lamp_on) {
-      sanei_genesys_read_register (dev, REGA6, &val);
-
-      /* switch on regular lamp */
-      val |= 0x40;
-
-      /* no XPA lamp power (2 bits for level: __11 ____) */
-      val &= ~0x30;
-
-      RIE (sanei_genesys_write_register (dev, REGA6, val));
+        gl843_set_xpa_lamp_power(dev, false);
     }
 
   if (dev->model->is_sheetfed == SANE_TRUE)

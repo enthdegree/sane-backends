@@ -98,8 +98,8 @@ static SANE_String_Const cis_color_filter_list[] = {
 };
 
 static SANE_String_Const source_list[] = {
-  SANE_I18N (FLATBED),
-  SANE_I18N (TRANSPARENCY_ADAPTER),
+  SANE_I18N (STR_FLATBED),
+  SANE_I18N (STR_TRANSPARENCY_ADAPTER),
   0
 };
 
@@ -4947,7 +4947,7 @@ calc_parameters (Genesys_Scanner * s)
         s->dev->settings.scan_mode = SCAN_MODE_LINEART;
     }
 
-    if (s->source == FLATBED) {
+    if (s->source == STR_FLATBED) {
         s->dev->settings.scan_method = SCAN_METHOD_FLATBED;
     } else { 				/* transparency */
         s->dev->settings.scan_method = SCAN_METHOD_TRANSPARENCY;
@@ -5251,7 +5251,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_SOURCE].size = max_string_size (source_list);
   s->opt[OPT_SOURCE].constraint.string_list = source_list;
-  s->source = FLATBED;
+  s->source = STR_FLATBED;
   if (model->flags & GENESYS_FLAG_HAS_UTA)
     {
       ENABLE (OPT_SOURCE);
@@ -6956,7 +6956,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
             s->source = reinterpret_cast<const char*>(val);
 
             // change geometry constraint to the new source value
-            if (s->source == FLATBED)
+            if (s->source == STR_FLATBED)
             {
               x_range=create_range(s->dev->model->x_size);
               y_range=create_range(s->dev->model->y_size);

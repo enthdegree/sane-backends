@@ -74,8 +74,8 @@
 /* Maximum time for lamp warm-up */
 #define WARMUP_TIME 65
 
-#define FLATBED "Flatbed"
-#define TRANSPARENCY_ADAPTER "Transparency Adapter"
+#define STR_FLATBED "Flatbed"
+#define STR_TRANSPARENCY_ADAPTER "Transparency Adapter"
 
 #ifndef SANE_I18N
 #define SANE_I18N(text) text

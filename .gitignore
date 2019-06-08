@@ -15,6 +15,7 @@ libtool
 
 # files generated during autogen.sh step
 Makefile.in
+/INSTALL
 /aclocal.m4
 /ar-lib
 /compile

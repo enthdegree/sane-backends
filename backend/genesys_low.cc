@@ -2105,9 +2105,9 @@ void debug_dump(unsigned level, const SetupParams& params)
         "Pixels per line : %u\n"
         "Depth : %u\n"
         "Channels : %u\n"
-        "Start position X/Y : %.3f/%.3f\n"
-        "Scan mode : %d\n",
-        "Color filter : %d\n",
+        "Start position X/Y : %g / %g\n"
+        "Scan mode : %d\n"
+        "Color filter : %d\n"
         "Flags : %x\n",
         params.xres, params.yres,
         params.lines, params.pixels,

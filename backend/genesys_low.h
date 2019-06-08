@@ -85,6 +85,7 @@
 #include <array>
 #include <cstring>
 #include <functional>
+#include <limits>
 #include <list>
 #include <memory>
 #include <stdexcept>
@@ -1173,35 +1174,40 @@ struct Genesys_Settings
 };
 
 struct SetupParams {
+
+    static constexpr unsigned NOT_SET = std::numeric_limits<unsigned>::max();
+
     // resolution in x direction
-    float xres = -1;
+    unsigned xres = NOT_SET;
     // resolution in y direction
-    float yres = -1;
+    unsigned yres = NOT_SET;
     // start pixel in X direction, from dummy_pixel + 1
     float startx = -1;
     // start pixel in Y direction, counted according to base_ydpi
     float starty = -1;
     // the number of pixels in X direction
-    float pixels = -1;
+    unsigned pixels = NOT_SET;
     // the number of pixels in Y direction
-    float lines = -1;
+    unsigned lines = NOT_SET;
     // the depth of the scan in bits. Allowed are 1, 8, 16
-    int depth = -1;
+    unsigned depth = NOT_SET;
     // the number of channels
-    int channels = -1;
+    unsigned channels = NOT_SET;
 
-    ScanColorMode scan_mode = ScanColorMode::LINEART;
+    ScanColorMode scan_mode = static_cast<ScanColorMode>(NOT_SET);
 
-    int color_filter = -1;
+    unsigned color_filter = NOT_SET;
 
-    int flags = -1;
+    unsigned flags = NOT_SET;
 
     void assert_valid() const
     {
-        if (xres < 0 || yres < 0 || startx < 0 || starty < 0 || pixels < 0 || lines < 0 ||
-            depth < 0 || channels < 0 || color_filter < 0 || flags < 0)
+        if (xres == NOT_SET || yres == NOT_SET || startx < 0 || starty < 0 ||
+            pixels == NOT_SET || lines == NOT_SET ||depth == NOT_SET || channels == NOT_SET ||
+            scan_mode == static_cast<ScanColorMode>(NOT_SET) || color_filter == NOT_SET ||
+            flags == NOT_SET)
         {
-            throw std::runtime_error("ScanGenesysPhysicalParams are not valid");
+            throw std::runtime_error("SetupParams are not valid");
         }
     }
 };

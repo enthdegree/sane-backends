@@ -4851,14 +4851,10 @@ max_string_size (const SANE_String_Const strings[])
 static SANE_Status
 calc_parameters (Genesys_Scanner * s)
 {
-  SANE_String mode, source, color_filter;
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Int depth = 0, resolution = 0;
   double tl_x = 0, tl_y = 0, br_x = 0, br_y = 0;
 
-  mode = s->val[OPT_MODE].s;
-  source = s->val[OPT_SOURCE].s;
-  color_filter = s->val[OPT_COLOR_FILTER].s;
   depth = s->val[OPT_BIT_DEPTH].w;
   resolution = s->val[OPT_RESOLUTION].w;
     tl_x = SANE_UNFIX(s->pos_top_left_x);
@@ -4868,16 +4864,18 @@ calc_parameters (Genesys_Scanner * s)
 
   s->params.last_frame = SANE_TRUE;	/* only single pass scanning supported */
 
-  if (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0
-      || strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0)
-    s->params.format = SANE_FRAME_GRAY;
-  else				/* Color */
-    s->params.format = SANE_FRAME_RGB;
+    if (s->mode == SANE_VALUE_SCAN_MODE_GRAY || s->mode == SANE_VALUE_SCAN_MODE_LINEART) {
+        s->params.format = SANE_FRAME_GRAY;
+    } else {
+        s->params.format = SANE_FRAME_RGB;
+    }
 
-  if (strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0)
-    s->params.depth = 1;
-  else
-    s->params.depth = depth;
+    if (s->mode == SANE_VALUE_SCAN_MODE_LINEART) {
+        s->params.depth = 1;
+    } else {
+        s->params.depth = depth;
+    }
+
   s->dev->settings.depth = depth;
 
   /* interpolation */
@@ -4940,23 +4938,25 @@ calc_parameters (Genesys_Scanner * s)
       s->params.pixels_per_line = 8 * s->params.bytes_per_line;
     }
 
-  if (s->params.format == SANE_FRAME_RGB)
-    s->params.bytes_per_line *= 3;
+    if (s->params.format == SANE_FRAME_RGB) {
+        s->params.bytes_per_line *= 3;
+    }
 
-  if (strcmp (mode, SANE_VALUE_SCAN_MODE_COLOR) == 0)
-    s->dev->settings.scan_mode = SCAN_MODE_COLOR;
-  else if (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
-    s->dev->settings.scan_mode = SCAN_MODE_GRAY;
-  else if (strcmp (mode, SANE_TITLE_HALFTONE) == 0)
-    s->dev->settings.scan_mode = SCAN_MODE_HALFTONE;
-  else				/* Lineart */
-    s->dev->settings.scan_mode = SCAN_MODE_LINEART;
+    if (s->mode == SANE_VALUE_SCAN_MODE_COLOR) {
+        s->dev->settings.scan_mode = SCAN_MODE_COLOR;
+    } else if (s->mode == SANE_VALUE_SCAN_MODE_GRAY) {
+        s->dev->settings.scan_mode = SCAN_MODE_GRAY;
+    } else if (s->mode == SANE_TITLE_HALFTONE) {
+        s->dev->settings.scan_mode = SCAN_MODE_HALFTONE;
+    } else {				/* Lineart */
+        s->dev->settings.scan_mode = SCAN_MODE_LINEART;
+    }
 
-  /* TODO: change and check */
-  if (strcmp (source, FLATBED) == 0)
-    s->dev->settings.scan_method = SCAN_METHOD_FLATBED;
-  else				/* transparency */
-    s->dev->settings.scan_method = SCAN_METHOD_TRANSPARENCY;
+    if (s->source == FLATBED) {
+        s->dev->settings.scan_method = SCAN_METHOD_FLATBED;
+    } else { 				/* transparency */
+        s->dev->settings.scan_method = SCAN_METHOD_TRANSPARENCY;
+    }
 
   s->dev->settings.lines = s->params.lines;
   s->dev->settings.pixels = s->params.pixels_per_line;
@@ -4966,21 +4966,23 @@ calc_parameters (Genesys_Scanner * s)
   /* threshold setting */
   s->dev->settings.threshold = 2.55 * (SANE_UNFIX (s->val[OPT_THRESHOLD].w));
 
-  /* color filter */
-  if (strcmp (color_filter, "Red") == 0)
-    s->dev->settings.color_filter = 0;
-  else if (strcmp (color_filter, "Green") == 0)
-    s->dev->settings.color_filter = 1;
-  else if (strcmp (color_filter, "Blue") == 0)
-    s->dev->settings.color_filter = 2;
-  else
-    s->dev->settings.color_filter = 3;
+    // color filter
+    if (s->color_filter == "Red") {
+        s->dev->settings.color_filter = 0;
+    } else if (s->color_filter == "Green") {
+        s->dev->settings.color_filter = 1;
+    } else if (s->color_filter == "Blue") {
+        s->dev->settings.color_filter = 2;
+    } else {
+        s->dev->settings.color_filter = 3;
+    }
 
-  /* true gray */
-  if (strcmp (color_filter, "None") == 0)
-    s->dev->settings.true_gray = 1;
-  else
-    s->dev->settings.true_gray = 0;
+    // true gray
+    if (s->color_filter == "None") {
+        s->dev->settings.true_gray = 1;
+    } else {
+        s->dev->settings.true_gray = 0;
+    }
 
   /* dynamic lineart */
   s->dev->settings.dynamic_lineart = SANE_FALSE;
@@ -5254,7 +5256,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_MODE].size = max_string_size (mode_list);
   s->opt[OPT_MODE].constraint.string_list = mode_list;
-  s->val[OPT_MODE].s = strdup (SANE_VALUE_SCAN_MODE_GRAY);
+  s->mode = SANE_VALUE_SCAN_MODE_GRAY;
 
   /* scan source */
   s->opt[OPT_SOURCE].name = SANE_NAME_SCAN_SOURCE;
@@ -5264,7 +5266,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_SOURCE].size = max_string_size (source_list);
   s->opt[OPT_SOURCE].constraint.string_list = source_list;
-  s->val[OPT_SOURCE].s = strdup (FLATBED);
+  s->source = FLATBED;
   if (model->flags & GENESYS_FLAG_HAS_UTA)
     {
       ENABLE (OPT_SOURCE);
@@ -5587,14 +5589,14 @@ init_options (Genesys_Scanner * s)
     {
       s->opt[OPT_COLOR_FILTER].size = max_string_size (color_filter_list);
       s->opt[OPT_COLOR_FILTER].constraint.string_list = color_filter_list;
-      s->val[OPT_COLOR_FILTER].s = strdup (s->opt[OPT_COLOR_FILTER].constraint.string_list[1]);
+      s->color_filter = s->opt[OPT_COLOR_FILTER].constraint.string_list[1];
     }
   else
     {
       s->opt[OPT_COLOR_FILTER].size = max_string_size (cis_color_filter_list);
       s->opt[OPT_COLOR_FILTER].constraint.string_list = cis_color_filter_list;
       /* default to "None" ie true gray */
-      s->val[OPT_COLOR_FILTER].s = strdup (s->opt[OPT_COLOR_FILTER].constraint.string_list[3]);
+      s->color_filter = s->opt[OPT_COLOR_FILTER].constraint.string_list[3];
     }
 
   /* no support for color filter for cis+gl646 scanners */
@@ -5612,7 +5614,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_CALIBRATION_FILE].size = PATH_MAX;
   s->opt[OPT_CALIBRATION_FILE].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
   s->opt[OPT_CALIBRATION_FILE].constraint_type = SANE_CONSTRAINT_NONE;
-  s->val[OPT_CALIBRATION_FILE].s = NULL;
+  s->calibration_file.clear();
   /* disable option if ran as root */
 #ifdef HAVE_GETUID
   if(geteuid()==0)
@@ -6473,7 +6475,7 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   if (s->dev->force_calibration == 0)
     {
       tmpstr=calibration_filename(s->dev);
-      s->val[OPT_CALIBRATION_FILE].s = strdup (tmpstr);
+      s->calibration_file = tmpstr;
       s->dev->calib_file = tmpstr;
       DBG(DBG_info, "%s: Calibration filename set to:\n", __func__);
       DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file.c_str());
@@ -6555,9 +6557,6 @@ sane_close_impl(SANE_Handle handle)
 
    /* for an handful of bytes .. */
   free ((void *)(size_t)s->opt[OPT_RESOLUTION].constraint.word_list);
-  free (s->val[OPT_SOURCE].s);
-  free (s->val[OPT_MODE].s);
-  free (s->val[OPT_COLOR_FILTER].s);
   free ((void *)(size_t)s->opt[OPT_TL_X].constraint.range);
   free ((void *)(size_t)s->opt[OPT_TL_Y].constraint.range);
 
@@ -6668,18 +6667,24 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
 
       /* string options: */
     case OPT_MODE:
+        std::strcpy(reinterpret_cast<char*>(val), s->mode.c_str());
+        break;
     case OPT_COLOR_FILTER:
+        std::strcpy(reinterpret_cast<char*>(val), s->color_filter.c_str());
+        break;
     case OPT_CALIBRATION_FILE:
+        std::strcpy(reinterpret_cast<char*>(val), s->calibration_file.c_str());
+        break;
     case OPT_SOURCE:
-      strcpy((char*) val, s->val[option].s);
-      break;
+        std::strcpy(reinterpret_cast<char*>(val), s->source.c_str());
+        break;
 
       /* word array options */
     case OPT_GAMMA_VECTOR:
       table = (SANE_Word *) val;
-        if (strcmp (s->val[OPT_COLOR_FILTER].s, "Red") == 0) {
+        if (s->color_filter == "Red") {
             gamma_table = get_gamma_table(s->dev, sensor, GENESYS_RED);
-        } else if (strcmp (s->val[OPT_COLOR_FILTER].s, "Blue") == 0) {
+        } else if (s->color_filter == "Blue") {
             gamma_table = get_gamma_table(s->dev, sensor, GENESYS_BLUE);
         } else {
             gamma_table = get_gamma_table(s->dev, sensor, GENESYS_GREEN);
@@ -6759,7 +6764,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
 /** @brief set calibration file value
  * Set calibration file value. Load new cache values from file if it exists,
  * else creates the file*/
-static SANE_Status set_calibration_value (Genesys_Scanner * s, int option, void *val)
+static SANE_Status set_calibration_value(Genesys_Scanner* s, const char* val)
 {
   SANE_Status status=SANE_STATUS_GOOD;
   Genesys_Device *dev=s->dev;
@@ -6768,7 +6773,7 @@ static SANE_Status set_calibration_value (Genesys_Scanner * s, int option, void 
 
   /* try to load file */
   std::string prev_calib_file = dev->calib_file;
-  dev->calib_file = (char*) val;
+  dev->calib_file = val;
   status=sanei_genesys_read_calibration (dev);
 
   /* file exists but is invalid, so fall back to previous cache file
@@ -6780,11 +6785,8 @@ static SANE_Status set_calibration_value (Genesys_Scanner * s, int option, void 
       return status;
     }
 
-  /* now we can set file name value */
-  if (s->val[option].s)
-    free (s->val[option].s);
-  s->val[option].s = strdup((char*) val);
-  dev->calib_file = (char*) val;
+  s->calibration_file = val;
+  dev->calib_file = val;
   DBG(DBG_info, "%s: Calibration filename set to:\n", __func__);
   DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file.c_str());
 
@@ -6888,14 +6890,11 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
     case OPT_SOURCE:
-      if (strcmp (s->val[option].s, (char*) val) != 0)
-	{			/* something changed */
-	  if (s->val[option].s)
-	    free (s->val[option].s);
-      s->val[option].s = strdup((char*) val);
+        if (s->source != reinterpret_cast<const char*>(val)) {
+            s->source = reinterpret_cast<const char*>(val);
 
-          /* change geometry constraint to the new source value */
-          if (strcmp (s->val[option].s, FLATBED) == 0)
+            // change geometry constraint to the new source value
+            if (s->source == FLATBED)
             {
               x_range=create_range(s->dev->model->x_size);
               y_range=create_range(s->dev->model->y_size);
@@ -6927,11 +6926,9 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	}
       break;
     case OPT_MODE:
-      if (s->val[option].s)
-	free (s->val[option].s);
-      s->val[option].s = strdup((char*) val);
+      s->mode = reinterpret_cast<const char*>(val);
 
-      if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
+      if (s->mode == SANE_VALUE_SCAN_MODE_LINEART)
 	{
 	  ENABLE (OPT_THRESHOLD);
 	  ENABLE (OPT_THRESHOLD_CURVE);
@@ -6947,7 +6944,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  DISABLE (OPT_THRESHOLD);
 	  DISABLE (OPT_THRESHOLD_CURVE);
 	  DISABLE (OPT_DISABLE_DYNAMIC_LINEART);
-	  if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_GRAY) == 0)
+          if (s->mode == SANE_VALUE_SCAN_MODE_GRAY)
 	    {
               if (s->dev->model->asic_type != GENESYS_GL646 || !s->dev->model->is_cis)
                 {
@@ -6970,7 +6967,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       /* if custom gamma, toggle gamma table options according to the mode */
       if (s->val[OPT_CUSTOM_GAMMA].b == SANE_TRUE)
 	{
-	  if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
+          if (s->mode == SANE_VALUE_SCAN_MODE_COLOR)
 	    {
 	      DISABLE (OPT_GAMMA_VECTOR);
 	      ENABLE (OPT_GAMMA_VECTOR_R);
@@ -6989,14 +6986,12 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
     case OPT_COLOR_FILTER:
-      if (s->val[option].s)
-	free (s->val[option].s);
-      s->val[option].s = strdup((char*) val);
+      s->color_filter = reinterpret_cast<const char*>(val);
       RIE (calc_parameters (s));
       break;
     case OPT_CALIBRATION_FILE:
       if (s->dev->force_calibration == 0)
-        RIE(set_calibration_value (s, option, val));
+        RIE(set_calibration_value(s, reinterpret_cast<const char*>(val)));
       break;
     case OPT_LAMP_OFF_TIME:
     case OPT_EXPIRATION_TIME:
@@ -7014,7 +7009,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 
       if (s->val[OPT_CUSTOM_GAMMA].b == SANE_TRUE)
 	{
-	  if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
+          if (s->mode == SANE_VALUE_SCAN_MODE_COLOR)
 	    {
 	      DISABLE (OPT_GAMMA_VECTOR);
 	      ENABLE (OPT_GAMMA_VECTOR_R);

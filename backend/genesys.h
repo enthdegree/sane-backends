@@ -212,6 +212,9 @@ struct Genesys_Scanner
     SANE_Word pos_bottom_right_y = 0;
     SANE_Word pos_bottom_right_x = 0;
 
+    std::string mode, source, color_filter;
+
+    std::string calibration_file;
     // Button states
     GenesysButton buttons[NUM_BUTTONS];
 

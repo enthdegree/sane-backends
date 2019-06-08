@@ -222,7 +222,7 @@ gl646_stop_motor (Genesys_Device * dev)
  * @return the closest resolution for the sensor and mode
  */
 static int
-get_lowest_resolution(int sensor_id, SANE_Bool color)
+get_lowest_resolution(int sensor_id, int channels)
 {
   int i, nb;
   int dpi;
@@ -234,7 +234,7 @@ get_lowest_resolution(int sensor_id, SANE_Bool color)
     {
       /* computes distance and keep mode if it is closer than previous */
       if (sensor_id == sensor_master[i].sensor
-	  && sensor_master[i].color == color)
+          && sensor_master[i].channels == channels)
 	{
 	  if (sensor_master[i].dpi < dpi)
 	    {
@@ -255,7 +255,7 @@ get_lowest_resolution(int sensor_id, SANE_Bool color)
  * @return the closest resolution for the sensor and mode
  */
 static int
-get_closest_resolution (int sensor_id, int required, SANE_Bool color)
+get_closest_resolution(int sensor_id, int required, int channels)
 {
   int i, nb;
   int dist, dpi;
@@ -269,14 +269,14 @@ get_closest_resolution (int sensor_id, int required, SANE_Bool color)
       /* exit on perfect match */
       if (sensor_id == sensor_master[i].sensor
 	  && sensor_master[i].dpi == required
-	  && sensor_master[i].color == color)
+          && sensor_master[i].channels == channels)
 	{
 	  DBG(DBG_info, "%s: match found for %d\n", __func__, required);
 	  return required;
 	}
       /* computes distance and keep mode if it is closer than previous */
       if (sensor_id == sensor_master[i].sensor
-	  && sensor_master[i].color == color)
+          && sensor_master[i].channels == channels)
 	{
 	  if (abs (sensor_master[i].dpi - required) < dist)
 	    {
@@ -298,8 +298,7 @@ get_closest_resolution (int sensor_id, int required, SANE_Bool color)
  * @param color true is color mode
  * @return SANE_TRUE if half ccd is used
  */
-static SANE_Bool
-is_half_ccd (int sensor_id, int required, SANE_Bool color)
+static SANE_Bool is_half_ccd(int sensor_id, int required, int channels)
 {
   int i, nb;
 
@@ -310,7 +309,7 @@ is_half_ccd (int sensor_id, int required, SANE_Bool color)
       /* exit on perfect match */
       if (sensor_id == sensor_master[i].sensor
 	  && sensor_master[i].dpi == required
-	  && sensor_master[i].color == color)
+          && sensor_master[i].channels == channels)
 	{
 	  DBG(DBG_io, "%s: match found for %d (half_ccd=%d)\n", __func__, required,
 	      sensor_master[i].half_ccd);
@@ -329,8 +328,7 @@ is_half_ccd (int sensor_id, int required, SANE_Bool color)
  * @param color true is color mode
  * @return cksel value for mode
  */
-static int
-get_cksel (int sensor_id, int required, SANE_Bool color)
+static int get_cksel(int sensor_id, int required, int channels)
 {
   int i, nb;
 
@@ -341,7 +339,7 @@ get_cksel (int sensor_id, int required, SANE_Bool color)
       /* exit on perfect match */
       if (sensor_id == sensor_master[i].sensor
 	  && sensor_master[i].dpi == required
-	  && sensor_master[i].color == color)
+          && sensor_master[i].channels == channels)
 	{
 	  DBG(DBG_io, "%s: match found for %d (cksel=%d)\n", __func__, required,
 	      sensor_master[i].cksel);
@@ -459,7 +457,7 @@ gl646_setup_registers (Genesys_Device * dev,
     {
       if (dev->model->ccd_type == sensor_master[i].sensor
 	  && sensor_master[i].dpi == xresolution
-          && sensor_master[i].color == (params.channels == 3))
+          && sensor_master[i].channels == params.channels)
 	{
           sensor_mst = &sensor_master[i];
 	}
@@ -480,7 +478,7 @@ gl646_setup_registers (Genesys_Device * dev,
     {
       if (dev->model->motor_type == motor_master[i].motor
           && motor_master[i].dpi == resolution
-          && motor_master[i].color == (params.channels == 3))
+          && motor_master[i].channels == params.channels)
 	{
 	  motor = &motor_master[i];
 	}
@@ -2552,7 +2550,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* setup for a backward scan of 65535 steps, with no actual data reading */
   settings.scan_method = ScanMethod::FLATBED;
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-  settings.xres = get_lowest_resolution (dev->model->ccd_type, SANE_FALSE);
+  settings.xres = get_lowest_resolution(dev->model->ccd_type, 1);
   settings.yres = settings.xres;
   settings.tl_x = 0;
   settings.tl_y = 0;
@@ -2662,7 +2660,7 @@ gl646_search_start_position (Genesys_Device * dev)
   DBG(DBG_proc, "%s: start\n", __func__);
 
   /* we scan at 300 dpi */
-  resolution = get_closest_resolution (dev->model->ccd_type, 300, SANE_FALSE);
+  resolution = get_closest_resolution(dev->model->ccd_type, 300, 1);
 
   // FIXME: the current approach of doing search only for one resolution does not work on scanners
   // whith employ different sensors with potentially different settings.
@@ -2782,26 +2780,27 @@ gl646_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   DBG(DBG_proc, "%s: start\n", __func__);
 
-  /* when shading all (full width) line, we must adapt to half_ccd case */
+  /* fill settings for scan : always a color scan */
+  int channels = 3;
+
   if (sensor.ccd_size_divisor > 1)
     {
-      /* walk the master mode list to find if half_ccd */
-      if (is_half_ccd (dev->model->ccd_type, dev->settings.xres, SANE_TRUE) ==
-	  SANE_TRUE)
+      // when shading all (full width) line, we must adapt to half_ccd case
+      if (is_half_ccd(dev->model->ccd_type, dev->settings.xres, channels) == SANE_TRUE)
 	{
 	  half_ccd = 2;
 	}
     }
 
-  /* fill settings for scan : always a color scan */
   settings.scan_method = dev->settings.scan_method;
   settings.scan_mode = dev->settings.scan_mode;
   if (dev->model->is_cis == SANE_FALSE)
     {
+      // FIXME: always a color scan, but why don't we set scan_mode to COLOR_SINGLE_PASS always?
       settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     }
   settings.xres = sensor.optical_res / half_ccd;
-  cksel = get_cksel (dev->model->ccd_type, dev->settings.xres, SANE_TRUE);
+  cksel = get_cksel(dev->model->ccd_type, dev->settings.xres, channels);
   settings.xres = settings.xres / cksel;
   settings.yres = settings.xres;
   settings.tl_x = 0;
@@ -3121,20 +3120,15 @@ gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
   /* get led calibration resolution */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
-      resolution =
-        get_closest_resolution (dev->model->ccd_type, sensor.optical_res,
-				SANE_TRUE);
-      settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
       channels = 3;
+      settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     }
   else
     {
-      resolution =
-        get_closest_resolution (dev->model->ccd_type, sensor.optical_res,
-				SANE_FALSE);
-      settings.scan_mode = ScanColorMode::GRAY;
       channels = 1;
+      settings.scan_mode = ScanColorMode::GRAY;
     }
+  resolution = get_closest_resolution(dev->model->ccd_type, sensor.optical_res, channels);
 
   /* offset calibration is always done in color mode */
   settings.scan_method = ScanMethod::FLATBED;
@@ -3307,10 +3301,8 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
   unsigned int bottom, black_pixels;
 
   DBG(DBG_proc, "%s: start\n", __func__);
-  resolution =
-    get_closest_resolution (dev->model->ccd_type, sensor.optical_res,
-			    SANE_TRUE);
   channels = 3;
+  resolution = get_closest_resolution(dev->model->ccd_type, sensor.optical_res, channels);
   black_pixels =
     (sensor.black_pixels * resolution) / sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
@@ -3426,19 +3418,12 @@ gl646_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
-  if (dev->settings.xres > sensor.optical_res)
-    {
-      resolution =
-        get_closest_resolution (dev->model->ccd_type, sensor.optical_res,
-				SANE_TRUE);
+    channels = 3;
+    if (dev->settings.xres > sensor.optical_res) {
+        resolution = get_closest_resolution(dev->model->ccd_type, sensor.optical_res, channels);
+    } else {
+        resolution = get_closest_resolution(dev->model->ccd_type, dev->settings.xres, channels);
     }
-  else
-    {
-      resolution =
-	get_closest_resolution (dev->model->ccd_type, dev->settings.xres,
-				SANE_TRUE);
-    }
-  channels = 3;
   black_pixels =
     (sensor.black_pixels * resolution) / sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
@@ -3597,8 +3582,8 @@ ad_fe_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
-  resolution = get_closest_resolution (dev->model->ccd_type, dpi, SANE_TRUE);
   channels = 3;
+  resolution = get_closest_resolution(dev->model->ccd_type, dpi, channels);
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
 
   settings.scan_method = ScanMethod::FLATBED;
@@ -3710,15 +3695,10 @@ gl646_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   channels = 3;
 
   /* we are searching a sensor resolution */
-  if (dpi > sensor.optical_res)
-    {
-      resolution = sensor.optical_res;
-    }
-  else
-    {
-      resolution =
-	get_closest_resolution (dev->model->ccd_type, dev->settings.xres,
-				SANE_TRUE);
+    if (dpi > sensor.optical_res) {
+        resolution = sensor.optical_res;
+    } else {
+        resolution = get_closest_resolution(dev->model->ccd_type, dev->settings.xres, channels);
     }
 
   settings.scan_method = dev->settings.scan_method;
@@ -3870,7 +3850,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
 
   dev->frontend = dev->frontend_initial;
 
-  resolution = get_closest_resolution (dev->model->ccd_type, 300, SANE_FALSE);
+  resolution = get_closest_resolution(dev->model->ccd_type, 300, 1);
 
   /* set up for a half width 2 lines gray scan without moving */
   settings.scan_method = ScanMethod::FLATBED;
@@ -3941,8 +3921,7 @@ gl646_repark_head (Genesys_Device * dev)
 
   settings.scan_method = ScanMethod::FLATBED;
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-  settings.xres =
-    get_closest_resolution (dev->model->ccd_type, 75, SANE_FALSE);
+  settings.xres = get_closest_resolution(dev->model->ccd_type, 75, 1);
   settings.yres = settings.xres;
   settings.tl_x = 0;
   settings.tl_y = 5;
@@ -4479,7 +4458,7 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
 
   DBG(DBG_proc, "%s: %d mm\n", __func__, distance);
 
-  int resolution = get_lowest_resolution (dev->model->ccd_type, SANE_TRUE);
+  int resolution = get_lowest_resolution(dev->model->ccd_type, 3);
 
   const auto& sensor = sanei_genesys_find_sensor(dev, resolution);
 
@@ -4815,7 +4794,7 @@ gl646_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor, SANE_Bool
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool half_ccd = SANE_FALSE;
   Genesys_Settings settings;
-  int res = get_closest_resolution (dev->model->ccd_type, 75, SANE_FALSE);
+  int res = get_closest_resolution(dev->model->ccd_type, 75, 1);
   unsigned int pass, count, found, x, y;
   char title[80];
 
@@ -4824,7 +4803,8 @@ gl646_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor, SANE_Bool
   if (sensor.ccd_size_divisor > 1)
     {
       /* walk the master mode list to find if half_ccd */
-      if (is_half_ccd (dev->model->ccd_type, res, SANE_TRUE) == SANE_TRUE)
+      // FIXME: possibly wrong channel count for is_half_ccd
+      if (is_half_ccd (dev->model->ccd_type, res, 3) == SANE_TRUE)
 	{
 	  half_ccd = SANE_TRUE;
 	}

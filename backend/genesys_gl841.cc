@@ -2561,17 +2561,17 @@ static SANE_Status gl841_calculate_current_setup(Genesys_Device * dev, const Gen
       "Scan mode : %d\n\n",
       __func__,
       dev->settings.yres, dev->settings.lines, dev->settings.pixels,
-      dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
+      dev->settings.tl_x, dev->settings.tl_y, static_cast<unsigned>(dev->settings.scan_mode));
 
 /* channels */
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
   else
     channels = 1;
 
 /* depth */
   depth = dev->settings.depth;
-  if (dev->settings.scan_mode == 0)
+  if (dev->settings.scan_mode == ScanColorMode::LINEART)
       depth = 1;
 
 /* start */
@@ -3295,7 +3295,7 @@ gl841_detect_document_end (Genesys_Device * dev)
           DBG(DBG_proc, "%s: finished\n", __func__);
           return SANE_STATUS_GOOD;
         }
-      if (dev->settings.scan_mode == SCAN_MODE_COLOR && dev->model->is_cis)
+      if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS && dev->model->is_cis)
         {
           scancnt/=3;
         }
@@ -3744,7 +3744,7 @@ gl841_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
   cksel = (regs.find_reg(0x18).value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
 
   /* set line size */
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
   else
     channels = 1;
@@ -3881,19 +3881,19 @@ gl841_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   DBG(DBG_info, "%s:\nResolution: %uDPI\n"
       "Lines     : %u\nPPL       : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\n\n", __func__,
       dev->settings.yres, dev->settings.lines, dev->settings.pixels, dev->settings.tl_x,
-      dev->settings.tl_y, dev->settings.scan_mode);
+      dev->settings.tl_y, static_cast<unsigned>(dev->settings.scan_mode));
 
   gl841_slow_back_home(dev,SANE_TRUE);
 
 /* channels */
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
   else
     channels = 1;
 
 /* depth */
   depth = dev->settings.depth;
-  if (dev->settings.scan_mode == SCAN_MODE_LINEART)
+  if (dev->settings.scan_mode == ScanColorMode::LINEART)
       depth = 1;
 
 
@@ -3950,7 +3950,7 @@ gl841_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   /* true gray (led add for cis scanners) */
   if(dev->model->is_cis && dev->settings.true_gray
-    && dev->settings.scan_mode != SCAN_MODE_COLOR
+    && dev->settings.scan_mode != ScanColorMode::COLOR_SINGLE_PASS
     && dev->model->ccd_type != CIS_CANONLIDE80)
     {
       // on Lide 80 the LEDADD bit results in only red LED array being lit
@@ -3959,7 +3959,7 @@ gl841_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
     }
 
   /* enable emulated lineart from gray data */
-  if(dev->settings.scan_mode == SCAN_MODE_LINEART
+  if(dev->settings.scan_mode == ScanColorMode::LINEART
      && dev->settings.dynamic_lineart)
     {
       flags |= SCAN_FLAG_DYNAMIC_LINEART;

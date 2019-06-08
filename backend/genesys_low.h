@@ -229,6 +229,14 @@ enum class ScanMethod {
     TRANSPARENCY_INFRARED = 2
 };
 
+enum class ScanColorMode {
+    LINEART = 0,
+    HALFTONE,
+    GRAY,
+    COLOR_MULTI_PASS, // TODO: maybe unused
+    COLOR_SINGLE_PASS
+};
+
 struct GenesysRegister {
     uint16_t address = 0;
     uint8_t value = 0;
@@ -1066,7 +1074,7 @@ typedef struct Genesys_Command_Set
 				   unsigned int depth,
 				   unsigned int channels,
                                    ScanMethod scan_method,
-				   int scan_mode,
+                                   ScanColorMode scan_mode,
 				   int color_filter,
 				   unsigned int flags);
 
@@ -1134,17 +1142,11 @@ typedef struct Genesys_Model
   SANE_Int search_lines;	/* how many lines are used to search start position */
 } Genesys_Model;
 
-#define SCAN_MODE_LINEART        0 	/**< lineart scan mode */
-#define SCAN_MODE_HALFTONE       1 	/**< halftone scan mode */
-#define SCAN_MODE_GRAY           2 	/**< gray scan mode */
-#define SCAN_MODE_COLOR          4 	/**< color scan mode */
-
 struct Genesys_Settings
 {
     ScanMethod scan_method = ScanMethod::FLATBED;
+    ScanColorMode scan_mode = ScanColorMode::LINEART;
 
-    // TODO: change 0,1 = lineart, halftone; 2 = gray, 3 = 3pass color, 4=single pass color
-    int scan_mode = 0;
     // horizontal dpi
     int xres = 0;
     // vertical dpi

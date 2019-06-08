@@ -1228,7 +1228,7 @@ gl847_init_scan_regs (Genesys_Device * dev,
 /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
    * to generate 1 lineart data */
-  if ((flags & SCAN_FLAG_DYNAMIC_LINEART) && (dev->settings.scan_mode == SCAN_MODE_LINEART))
+  if ((flags & SCAN_FLAG_DYNAMIC_LINEART) && (dev->settings.scan_mode == ScanColorMode::LINEART))
     {
       depth = 8;
     }
@@ -1402,17 +1402,17 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
       "Startpos  : %.3f/%.3f\n"
       "Scan mode : %d\n\n", __func__,
       dev->settings.yres, dev->settings.lines, dev->settings.pixels,
-      dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
+      dev->settings.tl_x, dev->settings.tl_y, static_cast<unsigned>(dev->settings.scan_mode));
 
   /* channels */
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
   else
     channels = 1;
 
   /* depth */
   depth = dev->settings.depth;
-  if (dev->settings.scan_mode == 0)
+  if (dev->settings.scan_mode == ScanColorMode::LINEART)
     depth = 1;
 
   /* start */
@@ -1774,7 +1774,7 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   float resolution;
   uint8_t val;
   int loop = 0;
-  int scan_mode;
+  ScanColorMode scan_mode;
 
   DBG(DBG_proc, "%s (wait_until_home = %d)\n", __func__, wait_until_home);
 
@@ -1822,8 +1822,8 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
   /* TODO add scan_mode to the API */
-  scan_mode= dev->settings.scan_mode;
-  dev->settings.scan_mode=SCAN_MODE_LINEART;
+  scan_mode = dev->settings.scan_mode;
+  dev->settings.scan_mode = ScanColorMode::LINEART;
   status = gl847_init_scan_regs (dev, sensor,
                         &local_reg,
 			resolution,
@@ -1845,7 +1845,7 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return status;
     }
 
-  dev->settings.scan_mode=scan_mode;
+  dev->settings.scan_mode = scan_mode;
 
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
@@ -2019,7 +2019,7 @@ gl847_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
   cksel = (regs.find_reg(0x18).value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
 
   /* set line size */
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
   else
     channels = 1;
@@ -2229,17 +2229,17 @@ gl847_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   DBG(DBG_info, "%s settings:\nResolution: %uDPI\n"
       "Lines     : %u\nPPL       : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\n\n", __func__,
       dev->settings.yres, dev->settings.lines, dev->settings.pixels,
-      dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
+      dev->settings.tl_x, dev->settings.tl_y, static_cast<unsigned>(dev->settings.scan_mode));
 
  /* channels */
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
   else
     channels = 1;
 
   /* depth */
   depth = dev->settings.depth;
-  if (dev->settings.scan_mode == SCAN_MODE_LINEART)
+  if (dev->settings.scan_mode == ScanColorMode::LINEART)
     depth = 1;
 
 
@@ -2297,7 +2297,7 @@ gl847_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   flags = 0;
 
   /* emulated lineart from gray data is required for now */
-  if(dev->settings.scan_mode == SCAN_MODE_LINEART
+  if(dev->settings.scan_mode == ScanColorMode::LINEART
      && dev->settings.dynamic_lineart)
     {
       flags |= SCAN_FLAG_DYNAMIC_LINEART;

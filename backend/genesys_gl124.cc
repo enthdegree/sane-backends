@@ -687,7 +687,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
 			    unsigned int scan_lines,
 			    unsigned int scan_dummy,
 			    unsigned int feed_steps,
-			    int scan_mode,
+                            ScanColorMode scan_mode,
                             unsigned int flags)
 {
   SANE_Status status;
@@ -705,7 +705,8 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   DBGSTART;
   DBG(DBG_info, "%s : scan_exposure_time=%d, scan_yres=%g, scan_step_type=%d, scan_lines=%d, "
       "scan_dummy=%d, feed_steps=%d, scan_mode=%d, flags=%x\n", __func__, scan_exposure_time,
-      scan_yres, scan_step_type, scan_lines, scan_dummy, feed_steps, scan_mode, flags);
+      scan_yres, scan_step_type, scan_lines, scan_dummy, feed_steps,
+      static_cast<unsigned>(scan_mode), flags);
 
   /* we never use fast fed since we do manual feed for the scans */
   use_fast_fed=0;
@@ -713,7 +714,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
 
   /* enforce motor minimal scan speed
    * @TODO extend motor struct for this value */
-  if (scan_mode == SCAN_MODE_COLOR)
+  if (scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
       min_speed = 900;
     }
@@ -801,7 +802,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
   fast_dpi=yres;
 
   /*
-  if (scan_mode != SCAN_MODE_COLOR)
+  if (scan_mode != ScanColorMode::COLOR_SINGLE_PASS)
     {
       fast_dpi*=3;
     }
@@ -1266,7 +1267,7 @@ gl124_init_scan_regs (Genesys_Device * dev,
 		      unsigned int depth,
 		      unsigned int channels,
                       __sane_unused__ ScanMethod scan_method,
-                      int scan_mode,
+                      ScanColorMode scan_mode,
 		      int color_filter,
                       unsigned int flags)
 {
@@ -1376,7 +1377,7 @@ gl124_init_scan_regs (Genesys_Device * dev,
   /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
    * to generate 1 lineart data */
-  if ((flags & SCAN_FLAG_DYNAMIC_LINEART) && (scan_mode == SCAN_MODE_LINEART))
+  if ((flags & SCAN_FLAG_DYNAMIC_LINEART) && (scan_mode == ScanColorMode::LINEART))
     {
       depth = 8;
     }
@@ -1541,17 +1542,17 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
       __func__,
       dev->settings.xres,
       dev->settings.yres, dev->settings.lines, dev->settings.pixels,
-      dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
+      dev->settings.tl_x, dev->settings.tl_y, static_cast<unsigned>(dev->settings.scan_mode));
 
   /* channels */
-  if (dev->settings.scan_mode == 4)        /* single pass color */
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
   else
     channels = 1;
 
   /* depth */
   depth = dev->settings.depth;
-  if (dev->settings.scan_mode == 0)
+  if (dev->settings.scan_mode == ScanColorMode::LINEART)
     depth = 1;
 
   /* start */
@@ -2057,7 +2058,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
                                  8,
                                  1,
                                  dev->settings.scan_method,
-                                 SCAN_MODE_GRAY,
+                                 ScanColorMode::GRAY,
                                  0,
                                  SCAN_FLAG_DISABLE_SHADING |
                                  SCAN_FLAG_DISABLE_GAMMA |
@@ -2162,7 +2163,7 @@ gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse)
                                  8,
                                  3,
                                  dev->settings.scan_method,
-                                 SCAN_MODE_COLOR,
+                                 ScanColorMode::COLOR_SINGLE_PASS,
                                  dev->settings.color_filter,
                                  SCAN_FLAG_DISABLE_SHADING |
                                  SCAN_FLAG_DISABLE_GAMMA |
@@ -2259,7 +2260,7 @@ gl124_search_start_position (Genesys_Device * dev)
                                  8,
                                  1,
                                  dev->settings.scan_method,
-                                 SCAN_MODE_GRAY,
+                                 ScanColorMode::GRAY,
 				 1,        /*green */
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -2346,7 +2347,7 @@ gl124_init_regs_for_coarse_calibration(Genesys_Device* dev, const Genesys_Sensor
   cksel = (regs.find_reg(0x18).value & REG18_CKSEL) + 1;        /* clock speed = 1..4 clocks */
 
   /* set line size */
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)        /* single pass color */
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
   else
     channels = 1;
@@ -2444,7 +2445,7 @@ gl124_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
 				 16,
 				 dev->calib_channels,
                                  dev->settings.scan_method,
-                                 SCAN_MODE_COLOR,
+                                 ScanColorMode::COLOR_SINGLE_PASS,
 				 0,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -2497,7 +2498,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
       dev->settings.pixels,
       dev->settings.tl_x,
       dev->settings.tl_y,
-      dev->settings.scan_mode);
+      static_cast<unsigned>(dev->settings.scan_mode));
 
   /* wait for motor to stop first */
   status = sanei_genesys_get_status (dev, &val);
@@ -2541,14 +2542,14 @@ gl124_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   RIE (gl124_slow_back_home (dev, SANE_TRUE));
 
   /* channels */
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
   else
     channels = 1;
 
   /* depth */
   depth = dev->settings.depth;
-  if (dev->settings.scan_mode == SCAN_MODE_LINEART)
+  if (dev->settings.scan_mode == ScanColorMode::LINEART)
     depth = 1;
 
   /* y (motor) distance to move to reach scanned area */
@@ -2582,7 +2583,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   flags = 0;
 
   /* enable emulated lineart from gray data */
-  if(dev->settings.scan_mode == SCAN_MODE_LINEART
+  if(dev->settings.scan_mode == ScanColorMode::LINEART
      && dev->settings.dynamic_lineart)
     {
       flags |= SCAN_FLAG_DYNAMIC_LINEART;
@@ -2769,7 +2770,7 @@ move_to_calibration_area (Genesys_Device * dev, const Genesys_Sensor& sensor,
                                  8,
                                  3,
                                  dev->settings.scan_method,
-                                 SCAN_MODE_COLOR,
+                                 ScanColorMode::COLOR_SINGLE_PASS,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -2861,7 +2862,7 @@ gl124_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
                                  depth,
                                  channels,
                                  dev->settings.scan_method,
-                                 SCAN_MODE_COLOR,
+                                 ScanColorMode::COLOR_SINGLE_PASS,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -3044,7 +3045,7 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
 				 bpp,
 				 channels,
                                  dev->settings.scan_method,
-                                 SCAN_MODE_COLOR,
+                                 ScanColorMode::COLOR_SINGLE_PASS,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -3216,7 +3217,7 @@ gl124_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
                                  bpp,
                                  channels,
                                  dev->settings.scan_method,
-                                 SCAN_MODE_COLOR,
+                                 ScanColorMode::COLOR_SINGLE_PASS,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
@@ -3343,7 +3344,7 @@ gl124_init_regs_for_warmup (Genesys_Device * dev,
 				 8,
 				 *channels,
                                  dev->settings.scan_method,
-                                 SCAN_MODE_COLOR,
+                                 ScanColorMode::COLOR_SINGLE_PASS,
 				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |

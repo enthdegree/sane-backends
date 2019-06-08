@@ -474,7 +474,7 @@ SANE_Status gl124_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& se
                                   unsigned int depth,
                                   unsigned int channels,
                                   ScanMethod scan_method,
-                                  int scan_mode,
+                                  ScanColorMode scan_mode,
                                   int color_filter,
                                   unsigned int flags);
 

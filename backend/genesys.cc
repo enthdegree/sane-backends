@@ -964,7 +964,8 @@ genesys_send_offset_and_shading (Genesys_Device * dev, const Genesys_Sensor& sen
   /* TODO invert the test so only the 2 models behaving like that are
    * tested instead of adding all the others */
   /* many scanners send coefficient for lineart/gray like in color mode */
-  if (dev->settings.scan_mode < 2
+  if ((dev->settings.scan_mode == ScanColorMode::LINEART ||
+       dev->settings.scan_mode == ScanColorMode::HALFTONE)
       && dev->model->ccd_type != CCD_PLUSTEK3800
       && dev->model->ccd_type != CCD_KVSS080
       && dev->model->ccd_type != CCD_G4050
@@ -1033,10 +1034,15 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sen
 
   DBG(DBG_proc, "%s (pixels_per_line = %d)\n", __func__, pixels_per_line);
 
-  if (dev->settings.scan_mode >= 2)	/* 3 pass or single pass color */
-    channels = 3;
-  else
-    channels = 1;
+    // BUG: GRAY shouldn't probably be in the if condition below. Discovered when refactoring
+    if (dev->settings.scan_mode == ScanColorMode::GRAY ||
+        dev->settings.scan_mode == ScanColorMode::COLOR_MULTI_PASS ||
+        dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
+    {
+        channels = 3;
+    } else {
+        channels = 1;
+    }
 
   // 16 bit black, 16 bit white
   std::vector<uint8_t> shading_data(pixels_per_line * 4 * channels, 0);
@@ -1409,7 +1415,7 @@ genesys_average_black (Genesys_Device * dev, int channel,
 
   sum = 0;
 
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
       data += (channel * 2);
       pixel_step = 3 * 2;
@@ -1446,12 +1452,12 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
   uint16_t white[12], dark[12];
   int i, j;
 
-  DBG(DBG_info, "%s (scan_mode = %d)\n", __func__, dev->settings.scan_mode);
+  DBG(DBG_info, "%s (scan_mode = %d)\n", __func__, static_cast<unsigned>(dev->settings.scan_mode));
 
   black_pixels = sensor.black_pixels
     * dev->settings.xres / sensor.optical_res;
 
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
   else
     channels = 1;
@@ -1638,7 +1644,7 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
           DBG(DBG_error, "%s: Failed to end scan: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
-      if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+      if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
 	{
 	  for (j = 0; j < 3; j++)
 	    {
@@ -1664,7 +1670,7 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 
       if (i == 3)
 	{
-	  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+          if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
 	    {
 	      /* todo: huh? */
 	      dev->dark[0] =
@@ -4148,7 +4154,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
   int depth,i,n,k;
 
   depth = dev->settings.depth;
-  if (dev->settings.scan_mode == SCAN_MODE_LINEART && dev->settings.dynamic_lineart==SANE_FALSE)
+  if (dev->settings.scan_mode == ScanColorMode::LINEART && dev->settings.dynamic_lineart==SANE_FALSE)
     depth = 1;
 
       /* fill buffer if needed */
@@ -4942,13 +4948,13 @@ calc_parameters (Genesys_Scanner * s)
     }
 
     if (s->mode == SANE_VALUE_SCAN_MODE_COLOR) {
-        s->dev->settings.scan_mode = SCAN_MODE_COLOR;
+        s->dev->settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     } else if (s->mode == SANE_VALUE_SCAN_MODE_GRAY) {
-        s->dev->settings.scan_mode = SCAN_MODE_GRAY;
+        s->dev->settings.scan_mode = ScanColorMode::GRAY;
     } else if (s->mode == SANE_TITLE_HALFTONE) {
-        s->dev->settings.scan_mode = SCAN_MODE_HALFTONE;
+        s->dev->settings.scan_mode = ScanColorMode::HALFTONE;
     } else {				/* Lineart */
-        s->dev->settings.scan_mode = SCAN_MODE_LINEART;
+        s->dev->settings.scan_mode = ScanColorMode::LINEART;
     }
 
     if (s->source == STR_FLATBED) {
@@ -4988,7 +4994,7 @@ calc_parameters (Genesys_Scanner * s)
   /* dynamic lineart */
   s->dev->settings.dynamic_lineart = SANE_FALSE;
   s->dev->settings.threshold_curve=0;
-    if (!s->disable_dynamic_lineart && s->dev->settings.scan_mode == SCAN_MODE_LINEART) {
+    if (!s->disable_dynamic_lineart && s->dev->settings.scan_mode == ScanColorMode::LINEART) {
         s->dev->settings.dynamic_lineart = SANE_TRUE;
     }
 
@@ -4997,7 +5003,7 @@ calc_parameters (Genesys_Scanner * s)
    * dynamic_lineart */
   if(s->dev->settings.xres > 600
      && s->dev->model->asic_type==GENESYS_GL847
-     && s->dev->settings.scan_mode == SCAN_MODE_LINEART)
+     && s->dev->settings.scan_mode == ScanColorMode::LINEART)
    {
       s->dev->settings.dynamic_lineart = SANE_TRUE;
    }

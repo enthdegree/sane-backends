@@ -2503,7 +2503,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   /* setup for a backward scan of 65535 steps, with no actual data reading */
   settings.scan_method = ScanMethod::FLATBED;
-  settings.scan_mode = SCAN_MODE_COLOR;
+  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = get_lowest_resolution (dev->model->ccd_type, SANE_FALSE);
   settings.yres = settings.xres;
   settings.tl_x = 0;
@@ -2623,7 +2623,7 @@ gl646_search_start_position (Genesys_Device * dev)
 
   /* fill settings for a gray level scan */
   settings.scan_method = ScanMethod::FLATBED;
-  settings.scan_mode = SCAN_MODE_GRAY;
+  settings.scan_mode = ScanColorMode::GRAY;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -2752,7 +2752,7 @@ gl646_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
   settings.scan_mode = dev->settings.scan_mode;
   if (dev->model->is_cis == SANE_FALSE)
     {
-      settings.scan_mode = SCAN_MODE_COLOR;
+      settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     }
   settings.xres = sensor.optical_res / half_ccd;
   cksel = get_cksel (dev->model->ccd_type, dev->settings.xres, SANE_TRUE);
@@ -2881,10 +2881,10 @@ setup_for_scan (Genesys_Device * dev,
       "Lines     : %u\nPixels    : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\nScan method: %s\n\n",
       __func__,
       settings.xres, settings.yres, settings.lines, settings.pixels,
-      settings.tl_x, settings.tl_y, settings.scan_mode,
+      settings.tl_x, settings.tl_y, static_cast<unsigned>(settings.scan_mode),
       settings.scan_method == ScanMethod::FLATBED ? "flatbed" : "XPA");
 
-  if (settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
       channels = 3;
       color = SANE_TRUE;
@@ -2896,7 +2896,7 @@ setup_for_scan (Genesys_Device * dev,
     }
 
   depth=settings.depth;
-  if (settings.scan_mode == SCAN_MODE_LINEART)
+  if (settings.scan_mode == ScanColorMode::LINEART)
     {
       if (settings.dynamic_lineart == SANE_TRUE)
         {
@@ -3148,12 +3148,12 @@ gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
     }
 
   /* get led calibration resolution */
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
       resolution =
         get_closest_resolution (dev->model->ccd_type, sensor.optical_res,
 				SANE_TRUE);
-      settings.scan_mode = SCAN_MODE_COLOR;
+      settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
       channels = 3;
     }
   else
@@ -3161,7 +3161,7 @@ gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
       resolution =
         get_closest_resolution (dev->model->ccd_type, sensor.optical_res,
 				SANE_FALSE);
-      settings.scan_mode = SCAN_MODE_GRAY;
+      settings.scan_mode = ScanColorMode::GRAY;
       channels = 1;
     }
 
@@ -3346,7 +3346,7 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
   settings.scan_method = ScanMethod::FLATBED;
-  settings.scan_mode = SCAN_MODE_COLOR;
+  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -3475,7 +3475,7 @@ gl646_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
   settings.scan_method = ScanMethod::FLATBED;
-  settings.scan_mode = SCAN_MODE_COLOR;
+  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -3631,7 +3631,7 @@ ad_fe_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   /* resolution is the one from the final scan          */
   resolution = get_closest_resolution (dev->model->ccd_type, dpi, SANE_TRUE);
   channels = 3;
-  settings.scan_mode = SCAN_MODE_COLOR;
+  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
 
   settings.scan_method = ScanMethod::FLATBED;
   settings.xres = resolution;
@@ -3755,7 +3755,7 @@ gl646_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
     }
 
   settings.scan_method = dev->settings.scan_method;
-  settings.scan_mode = SCAN_MODE_COLOR;
+  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_y = 0;
@@ -3908,7 +3908,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
 
   /* set up for a half width 2 lines gray scan without moving */
   settings.scan_method = ScanMethod::FLATBED;
-  settings.scan_mode = SCAN_MODE_GRAY;
+  settings.scan_mode = ScanColorMode::GRAY;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -3975,7 +3975,7 @@ gl646_repark_head (Genesys_Device * dev)
   DBG(DBG_proc, "%s: start\n", __func__);
 
   settings.scan_method = ScanMethod::FLATBED;
-  settings.scan_mode = SCAN_MODE_COLOR;
+  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres =
     get_closest_resolution (dev->model->ccd_type, 75, SANE_FALSE);
   settings.yres = settings.xres;
@@ -4361,7 +4361,7 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
   else
     bpp = 1;
   size *= bpp;
-  if (settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     size *= 3;
   data.clear();
   data.resize(size);
@@ -4461,7 +4461,7 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   /* in case of CIS scanner, we must reorder data */
   if (dev->model->is_cis == SANE_TRUE
-      && settings.scan_mode == SCAN_MODE_COLOR)
+      && settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
       /* alloc one line sized working buffer */
       std::vector<uint8_t> buffer(settings.pixels * 3 * bpp);
@@ -4537,7 +4537,7 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
 
   /* TODO give a no AGOHOME flag */
   settings.scan_method = ScanMethod::TRANSPARENCY;
-  settings.scan_mode = SCAN_MODE_COLOR;
+  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_y = 0;
@@ -4795,7 +4795,7 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
   /* build minimal current_setup for calibration cache use only, it will be better
    * computed when during setup for scan
    */
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
       dev->current_setup.channels = 3;
     }
@@ -4885,7 +4885,7 @@ gl646_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor, SANE_Bool
 
   /* we set up for a lowest available resolution color grey scan, full width */
   settings.scan_method = ScanMethod::FLATBED;
-  settings.scan_mode = SCAN_MODE_GRAY;
+  settings.scan_mode = ScanColorMode::GRAY;
   settings.xres = res;
   settings.yres = res;
   settings.tl_x = 0;

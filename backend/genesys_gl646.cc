@@ -1762,25 +1762,6 @@ gl646_public_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t
   return gl646_set_fe(dev, sensor, set, dev->settings.yres);
 }
 
-static void
-gl646_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
-{
-  if (set)
-    {
-      sanei_genesys_set_reg_from_set (regs, 0x02,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x02) |
-				      REG02_MTRPWR);
-    }
-  else
-    {
-      sanei_genesys_set_reg_from_set (regs, 0x02,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x02) &
-				      ~REG02_MTRPWR);
-    }
-}
-
 /**
  * enters or leaves power saving mode
  * limited to AFE for now.
@@ -2798,7 +2779,7 @@ gl646_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
   dev->reg.find_reg(0x02).value |= REG02_ACDCDIS;	/* ease backtracking */
   dev->reg.find_reg(0x02).value &= ~(REG02_FASTFED | REG02_AGOHOME);
   dev->reg.find_reg(0x05).value &= ~REG05_GMMENB;
-  gl646_set_motor_power(&dev->reg, SANE_FALSE);
+  sanei_genesys_set_motor_power(dev->reg, false);
 
   /* TODO another flag to setup regs ? */
   /* enforce needed LINCNT, getting rid of extra lines for color reordering */
@@ -3858,7 +3839,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   *local_reg = dev->reg;
 
   /* turn off motor during this scan */
-  gl646_set_motor_power (local_reg, SANE_FALSE);
+  sanei_genesys_set_motor_power(*local_reg, false);
 
   /* returned value to higher level warmup function */
   *channels = 1;
@@ -4938,7 +4919,6 @@ static Genesys_Command_Set gl646_cmd_set = {
   gl646_public_set_fe,
   gl646_set_powersaving,
   gl646_save_power,
-  gl646_set_motor_power,
 
   gl646_begin_scan,
   gl646_end_scan,

@@ -1799,12 +1799,12 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
   if (dev->model->is_sheetfed == SANE_FALSE)
     {
         sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, false);
-      dev->model->cmd_set->set_motor_power(&dev->calib_reg, motor);
+        sanei_genesys_set_motor_power(dev->calib_reg, motor);
     }
   else
     {
         sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
-      dev->model->cmd_set->set_motor_power(&dev->calib_reg, motor);
+        sanei_genesys_set_motor_power(dev->calib_reg, motor);
     }
 
   status =
@@ -1994,7 +1994,7 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
 
     // turn on motor and lamp power
     sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
-  dev->model->cmd_set->set_motor_power(&dev->calib_reg, motor);
+    sanei_genesys_set_motor_power(dev->calib_reg, motor);
 
   /* if needed, go back before doing next scan */
   if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK)
@@ -2129,7 +2129,7 @@ genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Senso
 
     // turn on motor and lamp power
     sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
-  dev->model->cmd_set->set_motor_power(&dev->calib_reg, motor);
+    sanei_genesys_set_motor_power(dev->calib_reg, motor);
 
   status =
     dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);

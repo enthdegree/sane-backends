@@ -1478,28 +1478,6 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   return SANE_STATUS_GOOD;
 }
 
-static void
-gl847_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
-{
-
-  DBG(DBG_proc, "%s\n", __func__);
-
-  if (set)
-    {
-      sanei_genesys_set_reg_from_set (regs, REG02,
-				      sanei_genesys_read_reg_from_set (regs,
-								       REG02)
-				      | REG02_MTRPWR);
-    }
-  else
-    {
-      sanei_genesys_set_reg_from_set (regs, REG02,
-				      sanei_genesys_read_reg_from_set (regs,
-								       REG02)
-				      & ~REG02_MTRPWR);
-    }
-}
-
 /*for fast power saving methods only, like disabling certain amplifiers*/
 static SANE_Status
 gl847_save_power (Genesys_Device * dev, SANE_Bool enable)
@@ -2510,7 +2488,7 @@ gl847_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
   turn = 0;
 
   /* no move during led calibration */
-  gl847_set_motor_power(&regs, SANE_FALSE);
+  sanei_genesys_set_motor_power(regs, false);
   do
     {
       /* set up exposure */
@@ -3197,7 +3175,7 @@ gl847_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  gl847_set_motor_power(&regs, SANE_FALSE);
+  sanei_genesys_set_motor_power(regs, false);
 
   /* allocate memory for scans */
   total_size = pixels * channels * lines * (bpp/8);	/* colors * bytes_per_color * scan lines */
@@ -3356,7 +3334,7 @@ gl847_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
     status = gl847_init_scan_regs(dev, sensor, &regs, params);
 
-  gl847_set_motor_power(&regs, SANE_FALSE);
+    sanei_genesys_set_motor_power(regs, false);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -3468,8 +3446,6 @@ static Genesys_Command_Set gl847_cmd_set = {
   gl847_set_fe,
   gl847_set_powersaving,
   gl847_save_power,
-
-  gl847_set_motor_power,
 
   gl847_begin_scan,
   gl847_end_scan,

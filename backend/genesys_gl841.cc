@@ -2700,28 +2700,6 @@ dummy \ scanned lines
   return SANE_STATUS_GOOD;
 }
 
-static void
-gl841_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
-{
-
-  DBG(DBG_proc, "%s\n", __func__);
-
-  if (set)
-    {
-      sanei_genesys_set_reg_from_set (regs, 0x02,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x02) |
-				      REG02_MTRPWR);
-    }
-  else
-    {
-      sanei_genesys_set_reg_from_set (regs, 0x02,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x02) &
-				      ~REG02_MTRPWR);
-    }
-}
-
 /*for fast power saving methods only, like disabling certain amplifiers*/
 static SANE_Status gl841_save_power(Genesys_Device * dev, SANE_Bool enable)
 {
@@ -5604,8 +5582,6 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_set_fe,
   gl841_set_powersaving,
   gl841_save_power,
-
-  gl841_set_motor_power,
 
   gl841_begin_scan,
   gl841_end_scan,

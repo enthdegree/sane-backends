@@ -1103,6 +1103,16 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
     }
 }
 
+void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set)
+{
+    static const uint8_t REG02_MTRPWR = 0x10;
+
+    if (set) {
+        regs.find_reg(0x02).value |= REG02_MTRPWR;
+    } else {
+        regs.find_reg(0x02).value &= ~REG02_MTRPWR;
+    }
+}
 
 /**
  * Write to many registers at once

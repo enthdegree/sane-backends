@@ -1603,28 +1603,6 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
   return SANE_STATUS_GOOD;
 }
 
-static void
-gl124_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
-{
-
-  DBG(DBG_proc, "%s\n", __func__);
-
-  if (set)
-    {
-      sanei_genesys_set_reg_from_set (regs, REG02,
-				      sanei_genesys_read_reg_from_set (regs,
-								       REG02)
-				      | REG02_MTRPWR);
-    }
-  else
-    {
-      sanei_genesys_set_reg_from_set (regs, REG02,
-				      sanei_genesys_read_reg_from_set (regs,
-								       REG02)
-				      & ~REG02_MTRPWR);
-    }
-}
-
 /**
  * for fast power saving methods only, like disabling certain amplifiers
  * @param dev device to use
@@ -2329,7 +2307,7 @@ gl124_init_regs_for_coarse_calibration(Genesys_Device* dev, const Genesys_Sensor
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  gl124_set_motor_power(&regs, SANE_FALSE);
+  sanei_genesys_set_motor_power(regs, false);
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
       sensor.optical_res / cksel, dev->settings.xres);
@@ -2408,7 +2386,7 @@ gl124_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
     status = gl124_init_scan_regs(dev, sensor, &regs, params);
 
-  gl124_set_motor_power(&regs, SANE_FALSE);
+    sanei_genesys_set_motor_power(regs, false);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -2839,7 +2817,7 @@ gl124_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
   turn = 0;
 
   /* no move during led calibration */
-  gl124_set_motor_power (&regs, SANE_FALSE);
+  sanei_genesys_set_motor_power(regs, false);
   do
     {
       /* set up exposure */
@@ -3011,7 +2989,7 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  gl124_set_motor_power (&regs, SANE_FALSE);
+  sanei_genesys_set_motor_power(regs, false);
 
   /* allocate memory for scans */
   total_size = pixels * channels * lines * (bpp/8);        /* colors * bytes_per_color * scan lines */
@@ -3180,7 +3158,7 @@ gl124_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
     status = gl124_init_scan_regs(dev, sensor, &regs, params);
 
-  gl124_set_motor_power(&regs, SANE_FALSE);
+    sanei_genesys_set_motor_power(regs, false);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -3320,7 +3298,7 @@ gl124_init_regs_for_warmup (Genesys_Device * dev,
 
   *total_size = num_pixels * 3 * 1;        /* colors * bytes_per_color * scan lines */
 
-  gl124_set_motor_power (reg, SANE_FALSE);
+  sanei_genesys_set_motor_power(*reg, false);
   RIE (dev->model->cmd_set->bulk_write_register(dev, *reg));
 
   DBGCOMPLETED;
@@ -3576,8 +3554,6 @@ static Genesys_Command_Set gl124_cmd_set = {
   gl124_set_fe,
   gl124_set_powersaving,
   gl124_save_power,
-
-  gl124_set_motor_power,
 
   gl124_begin_scan,
   gl124_end_scan,

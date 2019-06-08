@@ -1745,28 +1745,6 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   return SANE_STATUS_GOOD;
 }
 
-static void
-gl843_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
-{
-
-  DBG(DBG_proc, "%s\n", __func__);
-
-  if (set)
-    {
-      sanei_genesys_set_reg_from_set (regs, REG02,
-				      sanei_genesys_read_reg_from_set (regs,
-								       REG02)
-				      | REG02_MTRPWR);
-    }
-  else
-    {
-      sanei_genesys_set_reg_from_set (regs, REG02,
-				      sanei_genesys_read_reg_from_set (regs,
-								       REG02)
-				      & ~REG02_MTRPWR);
-    }
-}
-
 /**
  * for fast power saving methods only, like disabling certain amplifiers
  * @param dev device to use
@@ -2710,7 +2688,7 @@ gl843_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  gl843_set_motor_power (&regs, SANE_FALSE);
+  sanei_genesys_set_motor_power(regs, false);
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
       sensor.optical_res / cksel, dev->settings.xres);
@@ -3369,7 +3347,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  gl843_set_motor_power(&regs, SANE_FALSE);
+  sanei_genesys_set_motor_power(regs, false);
 
   /* allocate memory for scans */
   total_size = dev->read_bytes_left;
@@ -3593,7 +3571,7 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
     pixels = session.output_pixels;
 
     status = gl843_init_scan_regs(dev, calib_sensor, &regs, session);
-  gl843_set_motor_power(&regs, SANE_FALSE);
+    sanei_genesys_set_motor_power(regs, false);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -3763,7 +3741,7 @@ gl843_init_regs_for_warmup (Genesys_Device * dev,
       return status;
     }
 
-  gl843_set_motor_power (reg, SANE_FALSE);
+  sanei_genesys_set_motor_power(*reg, false);
   RIE(dev->model->cmd_set->bulk_write_register(dev, *reg));
 
   DBGCOMPLETED;
@@ -4378,8 +4356,6 @@ static Genesys_Command_Set gl843_cmd_set = {
   gl843_set_fe,
   gl843_set_powersaving,
   gl843_save_power,
-
-  gl843_set_motor_power,
 
   gl843_begin_scan,
   gl843_end_scan,

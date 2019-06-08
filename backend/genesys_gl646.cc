@@ -5042,7 +5042,6 @@ static Genesys_Command_Set gl646_cmd_set = {
   gl646_move_to_ta,
   NULL,
   NULL,
-  NULL,
   NULL
 };
 

@@ -5669,7 +5669,6 @@ static Genesys_Command_Set gl841_cmd_set = {
   NULL,
   gl841_send_shading_data,
   gl841_calculate_current_setup,
-  NULL,
   NULL
 };
 

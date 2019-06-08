@@ -1058,25 +1058,6 @@ typedef struct Genesys_Command_Set
      */
     SANE_Status (*asic_boot) (Genesys_Device * dev, SANE_Bool cold);
 
-    /**
-     * Scan register setting interface
-     */
-    SANE_Status (*init_scan_regs) (Genesys_Device * dev,
-                                   const Genesys_Sensor& sensor,
-				   Genesys_Register_Set * reg,
-				   float xres,
-				   float yres,
-				   float startx,
-				   float starty,
-				   float pixels,
-				   float lines,
-				   unsigned int depth,
-				   unsigned int channels,
-                                   ScanMethod scan_method,
-                                   ScanColorMode scan_mode,
-				   int color_filter,
-				   unsigned int flags);
-
 } Genesys_Command_Set;
 
 /** @brief structure to describe a scanner model

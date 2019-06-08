@@ -3635,8 +3635,7 @@ static Genesys_Command_Set gl124_cmd_set = {
   NULL,
   gl124_send_shading_data,
   gl124_calculate_current_setup,
-  gl124_boot,
-  gl124_init_scan_regs
+  gl124_boot
 };
 
 SANE_Status

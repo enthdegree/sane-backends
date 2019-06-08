@@ -3484,8 +3484,7 @@ static Genesys_Command_Set gl847_cmd_set = {
   NULL,
   gl847_send_shading_data,
   gl847_calculate_current_setup,
-  gl847_boot,
-  NULL
+  gl847_boot
 };
 
 SANE_Status

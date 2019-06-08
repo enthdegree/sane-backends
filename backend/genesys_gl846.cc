@@ -3365,8 +3365,7 @@ static Genesys_Command_Set gl846_cmd_set = {
   NULL,
   gl846_send_shading_data,
   gl846_calculate_current_setup,
-  gl846_boot,
-  NULL
+  gl846_boot
 };
 
 SANE_Status

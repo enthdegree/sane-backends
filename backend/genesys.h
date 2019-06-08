@@ -204,11 +204,27 @@ struct Genesys_Scanner
     SANE_Bool scanning;
     // Option descriptors
     SANE_Option_Descriptor opt[NUM_OPTIONS];
-    // Option values
-    Option_Value val[NUM_OPTIONS];
 
+    // Option values
     SANE_Word bit_depth = 0;
     SANE_Word resolution = 0;
+    bool preview = false;
+    SANE_Word threshold = 0;
+    SANE_Word threshold_curve = 0;
+    bool disable_dynamic_lineart = false;
+    bool disable_interpolation = false;
+    bool lamp_off = false;
+    SANE_Word lamp_off_time = 0;
+    bool swdeskew = false;
+    bool swcrop = false;
+    bool swdespeck = false;
+    bool swderotate = false;
+    SANE_Word swskip = 0;
+    SANE_Word despeck = 0;
+    SANE_Word contrast = 0;
+    SANE_Word brightness = 0;
+    SANE_Word expiration_time = 0;
+    bool custom_gamma = false;
 
     SANE_Word pos_top_left_y = 0;
     SANE_Word pos_top_left_x = 0;

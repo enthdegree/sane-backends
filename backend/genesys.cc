@@ -4876,8 +4876,7 @@ calc_parameters (Genesys_Scanner * s)
     s->dev->settings.depth = s->bit_depth;
 
   /* interpolation */
-  s->dev->settings.disable_interpolation =
-    s->val[OPT_DISABLE_INTERPOLATION].w == SANE_TRUE;
+  s->dev->settings.disable_interpolation = s->disable_interpolation;
 
   // FIXME: use correct sensor
   const auto& sensor = sanei_genesys_find_sensor_any(s->dev);
@@ -4959,8 +4958,8 @@ calc_parameters (Genesys_Scanner * s)
   s->dev->settings.tl_x = tl_x;
   s->dev->settings.tl_y = tl_y;
 
-  /* threshold setting */
-  s->dev->settings.threshold = 2.55 * (SANE_UNFIX (s->val[OPT_THRESHOLD].w));
+    // threshold setting
+    s->dev->settings.threshold = 2.55 * (SANE_UNFIX(s->threshold));
 
     // color filter
     if (s->color_filter == "Red") {
@@ -4983,11 +4982,9 @@ calc_parameters (Genesys_Scanner * s)
   /* dynamic lineart */
   s->dev->settings.dynamic_lineart = SANE_FALSE;
   s->dev->settings.threshold_curve=0;
-  if(s->val[OPT_DISABLE_DYNAMIC_LINEART].w ==SANE_FALSE
-   &&s->dev->settings.scan_mode == SCAN_MODE_LINEART)
-   {
-      s->dev->settings.dynamic_lineart = SANE_TRUE;
-   }
+    if (!s->disable_dynamic_lineart && s->dev->settings.scan_mode == SCAN_MODE_LINEART) {
+        s->dev->settings.dynamic_lineart = SANE_TRUE;
+    }
 
   /* hardware lineart works only when we don't have interleave data
    * for GL847 scanners, ie up to 600 DPI, then we have to rely on
@@ -4999,18 +4996,14 @@ calc_parameters (Genesys_Scanner * s)
       s->dev->settings.dynamic_lineart = SANE_TRUE;
    }
 
-  /* threshold curve for dynamic rasterization */
-  s->dev->settings.threshold_curve=s->val[OPT_THRESHOLD_CURVE].w;
+    // threshold curve for dynamic rasterization
+    s->dev->settings.threshold_curve = s->threshold_curve;
 
   /* some digital processing requires the whole picture to be buffered */
   /* no digital processing takes place when doing preview, or when bit depth is
    * higher than 8 bits */
-  if ((s->val[OPT_SWDESPECK].b
-    || s->val[OPT_SWCROP].b
-    || s->val[OPT_SWDESKEW].b
-    || s->val[OPT_SWDEROTATE].b
-    ||(SANE_UNFIX(s->val[OPT_SWSKIP].w)>0))
-    && (!s->val[OPT_PREVIEW].b)
+  if ((s->swdespeck || s->swcrop || s->swdeskew || s->swderotate ||(SANE_UNFIX(s->swskip)>0))
+    && (!s->preview)
     && (s->bit_depth <= 8))
     {
       s->dev->buffer_image=SANE_TRUE;
@@ -5023,8 +5016,8 @@ calc_parameters (Genesys_Scanner * s)
   /* brigthness and contrast only for for 8 bit scans */
   if(s->bit_depth <= 8)
     {
-      s->dev->settings.contrast=(s->val[OPT_CONTRAST].w*127)/100;
-      s->dev->settings.brightness=(s->val[OPT_BRIGHTNESS].w*127)/100;
+      s->dev->settings.contrast = (s->contrast * 127) / 100;
+      s->dev->settings.brightness = (s->brightness * 127) / 100;
     }
   else
     {
@@ -5033,7 +5026,7 @@ calc_parameters (Genesys_Scanner * s)
     }
 
   /* cache expiration time */
-   s->dev->settings.expiration_time=s->val[OPT_EXPIRATION_TIME].w;
+   s->dev->settings.expiration_time = s->expiration_time;
 
   return status;
 }
@@ -5089,8 +5082,6 @@ init_gamma_vector_option (Genesys_Scanner * scanner, int option)
       scanner->opt[option].size = 256 * sizeof (SANE_Word);
       scanner->opt[option].constraint.range = &u16_range;
     }
-  /* default value is NULL */
-  scanner->val[option].wa = NULL;
 }
 
 /**
@@ -5222,7 +5213,6 @@ init_options (Genesys_Scanner * s)
   DBGSTART;
 
   memset (s->opt, 0, sizeof (s->opt));
-  memset (s->val, 0, sizeof (s->val));
 
   for (option = 0; option < NUM_OPTIONS; ++option)
     {
@@ -5278,7 +5268,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_PREVIEW].type = SANE_TYPE_BOOL;
   s->opt[OPT_PREVIEW].unit = SANE_UNIT_NONE;
   s->opt[OPT_PREVIEW].constraint_type = SANE_CONSTRAINT_NONE;
-  s->val[OPT_PREVIEW].w = SANE_FALSE;
+  s->preview = false;
 
   /* bit depth */
   s->opt[OPT_BIT_DEPTH].name = SANE_NAME_BIT_DEPTH;
@@ -5392,7 +5382,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_CUSTOM_GAMMA].desc = SANE_DESC_CUSTOM_GAMMA;
   s->opt[OPT_CUSTOM_GAMMA].type = SANE_TYPE_BOOL;
   s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_ADVANCED;
-  s->val[OPT_CUSTOM_GAMMA].b = SANE_FALSE;
+  s->custom_gamma = false;
 
   /* grayscale gamma vector */
   s->opt[OPT_GAMMA_VECTOR].name = SANE_NAME_GAMMA_VECTOR;
@@ -5438,7 +5428,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SWDESKEW].desc = "Request backend to rotate skewed pages digitally";
   s->opt[OPT_SWDESKEW].type = SANE_TYPE_BOOL;
   s->opt[OPT_SWDESKEW].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
-  s->val[OPT_SWDESKEW].b = SANE_FALSE;
+  s->swdeskew = false;
 
   /* software deskew */
   s->opt[OPT_SWDESPECK].name = "swdespeck";
@@ -5446,7 +5436,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SWDESPECK].desc = "Request backend to remove lone dots digitally";
   s->opt[OPT_SWDESPECK].type = SANE_TYPE_BOOL;
   s->opt[OPT_SWDESPECK].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
-  s->val[OPT_SWDESPECK].b = SANE_FALSE;
+  s->swdespeck = false;
 
   /* software despeckle radius */
   s->opt[OPT_DESPECK].name = "despeck";
@@ -5457,7 +5447,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_DESPECK].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_DESPECK].constraint.range = &swdespeck_range;
   s->opt[OPT_DESPECK].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
-  s->val[OPT_DESPECK].w = 1;
+  s->despeck = 1;
 
   /* crop by software */
   s->opt[OPT_SWCROP].name = "swcrop";
@@ -5466,7 +5456,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SWCROP].type = SANE_TYPE_BOOL;
   s->opt[OPT_SWCROP].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   s->opt[OPT_SWCROP].unit = SANE_UNIT_NONE;
-  s->val[OPT_SWCROP].b = SANE_FALSE;
+  s->swcrop = false;
 
   /* Software blank page skip */
   s->opt[OPT_SWSKIP].name = "swskip";
@@ -5477,8 +5467,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SWSKIP].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_SWSKIP].constraint.range = &(percentage_range);
   s->opt[OPT_SWSKIP].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
-  /* disable by default */
-  s->val[OPT_SWSKIP].w = 0;
+  s->swskip = 0;    // disable by default
 
   /* Software Derotate */
   s->opt[OPT_SWDEROTATE].name = "swderotate";
@@ -5487,7 +5476,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SWDEROTATE].type = SANE_TYPE_BOOL;
   s->opt[OPT_SWDEROTATE].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   s->opt[OPT_SWDEROTATE].unit = SANE_UNIT_NONE;
-  s->val[OPT_SWDEROTATE].b = SANE_FALSE;
+  s->swderotate = false;
 
   /* Software brightness */
   s->opt[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
@@ -5498,8 +5487,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_BRIGHTNESS].constraint.range = &(enhance_range);
   s->opt[OPT_BRIGHTNESS].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-  /* disable by default */
-  s->val[OPT_BRIGHTNESS].w = 0;
+  s->brightness = 0;    // disable by default
 
   /* Sowftware contrast */
   s->opt[OPT_CONTRAST].name = SANE_NAME_CONTRAST;
@@ -5510,8 +5498,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_CONTRAST].constraint.range = &(enhance_range);
   s->opt[OPT_CONTRAST].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-  /* disable by default */
-  s->val[OPT_CONTRAST].w = 0;
+  s->contrast = 0;  // disable by default
 
   /* "Extras" group: */
   s->opt[OPT_EXTRAS_GROUP].title = SANE_I18N ("Extras");
@@ -5529,7 +5516,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_THRESHOLD].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_THRESHOLD].constraint.range = &percentage_range;
-  s->val[OPT_THRESHOLD].w = SANE_FIX (50);
+  s->threshold = SANE_FIX(50);
 
   /* BW threshold curve */
   s->opt[OPT_THRESHOLD_CURVE].name = "threshold-curve";
@@ -5539,7 +5526,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_THRESHOLD_CURVE].unit = SANE_UNIT_NONE;
   s->opt[OPT_THRESHOLD_CURVE].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_THRESHOLD_CURVE].constraint.range = &threshold_curve_range;
-  s->val[OPT_THRESHOLD_CURVE].w = 50;
+  s->threshold_curve = 50;
 
   /* dynamic linart */
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].name = "disable-dynamic-lineart";
@@ -5549,7 +5536,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].type = SANE_TYPE_BOOL;
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].unit = SANE_UNIT_NONE;
   s->opt[OPT_DISABLE_DYNAMIC_LINEART].constraint_type = SANE_CONSTRAINT_NONE;
-  s->val[OPT_DISABLE_DYNAMIC_LINEART].w = SANE_FALSE;
+  s->disable_dynamic_lineart = false;
 
   /* fastmod is required for hw lineart to work */
   if ((s->dev->model->asic_type == GENESYS_GL646)
@@ -5569,7 +5556,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_DISABLE_INTERPOLATION].type = SANE_TYPE_BOOL;
   s->opt[OPT_DISABLE_INTERPOLATION].unit = SANE_UNIT_NONE;
   s->opt[OPT_DISABLE_INTERPOLATION].constraint_type = SANE_CONSTRAINT_NONE;
-  s->val[OPT_DISABLE_INTERPOLATION].w = SANE_FALSE;
+  s->disable_interpolation = false;
 
   /* color filter */
   s->opt[OPT_COLOR_FILTER].name = "color-filter";
@@ -5627,7 +5614,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_EXPIRATION_TIME].unit = SANE_UNIT_NONE;
   s->opt[OPT_EXPIRATION_TIME].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_EXPIRATION_TIME].constraint.range = &expiration_range;
-  s->val[OPT_EXPIRATION_TIME].w = 60;	/* 60 minutes by default */
+  s->expiration_time = 60;  // 60 minutes by default
 
   /* Powersave time (turn lamp off) */
   s->opt[OPT_LAMP_OFF_TIME].name = "lamp-off-time";
@@ -5640,7 +5627,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_LAMP_OFF_TIME].unit = SANE_UNIT_NONE;
   s->opt[OPT_LAMP_OFF_TIME].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_LAMP_OFF_TIME].constraint.range = &time_range;
-  s->val[OPT_LAMP_OFF_TIME].w = 15;	/* 15 minutes */
+  s->lamp_off_time = 15;    // 15 minutes
 
   /* turn lamp off during scan */
   s->opt[OPT_LAMP_OFF].name = "lamp-off-scan";
@@ -5649,7 +5636,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_LAMP_OFF].type = SANE_TYPE_BOOL;
   s->opt[OPT_LAMP_OFF].unit = SANE_UNIT_NONE;
   s->opt[OPT_LAMP_OFF].constraint_type = SANE_CONSTRAINT_NONE;
-  s->val[OPT_LAMP_OFF].w = SANE_FALSE;
+  s->lamp_off = false;
 
   s->opt[OPT_SENSOR_GROUP].title = SANE_TITLE_SENSORS;
   s->opt[OPT_SENSOR_GROUP].desc = SANE_DESC_SENSORS;
@@ -5749,7 +5736,6 @@ init_options (Genesys_Scanner * s)
       SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_EXTRA_SW].cap = SANE_CAP_INACTIVE;
-  s->val[OPT_EXTRA_SW].b = 0;
 
   /* calibration needed */
   s->opt[OPT_NEED_CALIBRATION_SW].name = "need-calibration";
@@ -5762,7 +5748,6 @@ init_options (Genesys_Scanner * s)
       SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_NEED_CALIBRATION_SW].cap = SANE_CAP_INACTIVE;
-  s->val[OPT_NEED_CALIBRATION_SW].b = 0;
 
   /* button group */
   s->opt[OPT_BUTTON_GROUP].title = SANE_I18N ("Buttons");
@@ -5785,7 +5770,6 @@ init_options (Genesys_Scanner * s)
       SANE_CAP_AUTOMATIC;
   else
     s->opt[OPT_CALIBRATE].cap = SANE_CAP_INACTIVE;
-  s->val[OPT_CALIBRATE].b = 0;
 
   /* clear calibration cache button */
   s->opt[OPT_CLEAR_CALIBRATION].name = "clear-calibration";
@@ -5797,7 +5781,6 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_CLEAR_CALIBRATION].constraint_type = SANE_CONSTRAINT_NONE;
   s->opt[OPT_CLEAR_CALIBRATION].cap =
     SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
-  s->val[OPT_CLEAR_CALIBRATION].b = 0;
 
   /* force calibration cache button */
   s->opt[OPT_FORCE_CALIBRATION].name = "force-calibration";
@@ -5809,7 +5792,6 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_FORCE_CALIBRATION].constraint_type = SANE_CONSTRAINT_NONE;
   s->opt[OPT_FORCE_CALIBRATION].cap =
     SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
-  s->val[OPT_FORCE_CALIBRATION].b = 0;
 
   RIE (calc_parameters (s));
 
@@ -6645,26 +6627,56 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
         *reinterpret_cast<SANE_Word*>(val) = s->bit_depth;
         break;
     case OPT_PREVIEW:
+        *reinterpret_cast<SANE_Word*>(val) = s->preview;
+        break;
     case OPT_THRESHOLD:
+        *reinterpret_cast<SANE_Word*>(val) = s->threshold;
+        break;
     case OPT_THRESHOLD_CURVE:
+        *reinterpret_cast<SANE_Word*>(val) = s->threshold_curve;
+        break;
     case OPT_DISABLE_DYNAMIC_LINEART:
+        *reinterpret_cast<SANE_Word*>(val) = s->disable_dynamic_lineart;
+        break;
     case OPT_DISABLE_INTERPOLATION:
+        *reinterpret_cast<SANE_Word*>(val) = s->disable_interpolation;
+        break;
     case OPT_LAMP_OFF:
+        *reinterpret_cast<SANE_Word*>(val) = s->lamp_off;
+        break;
     case OPT_LAMP_OFF_TIME:
+        *reinterpret_cast<SANE_Word*>(val) = s->lamp_off_time;
+        break;
     case OPT_SWDESKEW:
+        *reinterpret_cast<SANE_Word*>(val) = s->swdeskew;
+        break;
     case OPT_SWCROP:
+        *reinterpret_cast<SANE_Word*>(val) = s->swcrop;
+        break;
     case OPT_SWDESPECK:
+        *reinterpret_cast<SANE_Word*>(val) = s->swdespeck;
+        break;
     case OPT_SWDEROTATE:
+        *reinterpret_cast<SANE_Word*>(val) = s->swderotate;
+        break;
     case OPT_SWSKIP:
+        *reinterpret_cast<SANE_Word*>(val) = s->swskip;
+        break;
     case OPT_DESPECK:
+        *reinterpret_cast<SANE_Word*>(val) = s->despeck;
+        break;
     case OPT_CONTRAST:
+        *reinterpret_cast<SANE_Word*>(val) = s->contrast;
+        break;
     case OPT_BRIGHTNESS:
+        *reinterpret_cast<SANE_Word*>(val) = s->brightness;
+        break;
     case OPT_EXPIRATION_TIME:
-      *(SANE_Word *) val = s->val[option].w;
-      break;
+        *reinterpret_cast<SANE_Word*>(val) = s->expiration_time;
+        break;
     case OPT_CUSTOM_GAMMA:
-      *(SANE_Word *) val = s->val[option].w;
-      break;
+        *reinterpret_cast<SANE_Word*>(val) = s->custom_gamma;
+        break;
 
       /* string options: */
     case OPT_MODE:
@@ -6837,31 +6849,76 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_THRESHOLD:
+        s->threshold = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_THRESHOLD_CURVE:
+        s->threshold_curve = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_DISABLE_DYNAMIC_LINEART:
+        s->disable_dynamic_lineart = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_SWCROP:
+        s->swcrop = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_SWDESKEW:
+        s->swdeskew = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_DESPECK:
+        s->despeck = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_SWDEROTATE:
+        s->swderotate = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_SWSKIP:
+        s->swskip = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_DISABLE_INTERPOLATION:
+        s->disable_interpolation = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_LAMP_OFF:
+        s->lamp_off = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_PREVIEW:
+        s->preview = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_BRIGHTNESS:
+        s->brightness = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_CONTRAST:
-      s->val[option].w = *(SANE_Word *) val;
-      RIE (calc_parameters (s));
-      *myinfo |= SANE_INFO_RELOAD_PARAMS;
-      break;
+        s->contrast = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_SWDESPECK:
-      s->val[option].w = *(SANE_Word *) val;
-      if (s->val[OPT_SWDESPECK].b == SANE_TRUE)
-	{
-          ENABLE(OPT_DESPECK);
-        }
-      else
-        {
-          DISABLE(OPT_DESPECK);
+        s->swdespeck = *reinterpret_cast<SANE_Word*>(val);
+        if (s->swdespeck) {
+            ENABLE(OPT_DESPECK);
+        } else {
+            DISABLE(OPT_DESPECK);
         }
       RIE (calc_parameters (s));
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
@@ -6970,7 +7027,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       RIE (calc_parameters (s));
 
       /* if custom gamma, toggle gamma table options according to the mode */
-      if (s->val[OPT_CUSTOM_GAMMA].b == SANE_TRUE)
+      if (s->custom_gamma)
 	{
           if (s->mode == SANE_VALUE_SCAN_MODE_COLOR)
 	    {
@@ -6999,21 +7056,24 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         RIE(set_calibration_value(s, reinterpret_cast<const char*>(val)));
       break;
     case OPT_LAMP_OFF_TIME:
+        if (*reinterpret_cast<SANE_Word*>(val) != s->lamp_off_time) {
+            s->lamp_off_time = *reinterpret_cast<SANE_Word*>(val);
+            RIE(s->dev->model->cmd_set->set_powersaving(s->dev, s->lamp_off_time));
+        }
+        break;
     case OPT_EXPIRATION_TIME:
-      if (*(SANE_Word *) val != s->val[option].w)
-	{
-	  s->val[option].w = *(SANE_Word *) val;
-	  RIE (s->dev->model->cmd_set->
-	       set_powersaving (s->dev, s->val[option].w));
+        if (*reinterpret_cast<SANE_Word*>(val) != s->expiration_time) {
+            s->expiration_time = *reinterpret_cast<SANE_Word*>(val);
+            // BUG: this is most likely not intended behavior, found out during refactor
+            RIE(s->dev->model->cmd_set->set_powersaving(s->dev, s->expiration_time));
 	}
-      break;
+        break;
 
     case OPT_CUSTOM_GAMMA:
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-      s->val[OPT_CUSTOM_GAMMA].b = *(SANE_Bool *) val;
+        s->custom_gamma = *reinterpret_cast<SANE_Bool*>(val);
 
-      if (s->val[OPT_CUSTOM_GAMMA].b == SANE_TRUE)
-	{
+        if (s->custom_gamma) {
           if (s->mode == SANE_VALUE_SCAN_MODE_COLOR)
 	    {
 	      DISABLE (OPT_GAMMA_VECTOR);
@@ -7272,7 +7332,7 @@ SANE_Status sane_start_impl(SANE_Handle handle)
      parameters will be overwritten below, but that's OK.  */
 
   RIE (calc_parameters (s));
-  RIE (genesys_start_scan (s->dev, s->val[OPT_LAMP_OFF].w));
+  RIE(genesys_start_scan(s->dev, s->lamp_off));
 
   s->scanning = SANE_TRUE;
 
@@ -7295,11 +7355,10 @@ SANE_Status sane_start_impl(SANE_Handle handle)
 
       /* check if we need to skip this page, sheetfed scanners
        * can go to next doc while flatbed ones can't */
-      if (s->val[OPT_SWSKIP].w && IS_ACTIVE(OPT_SWSKIP))
-        {
+        if (s->swskip > 0 && IS_ACTIVE(OPT_SWSKIP)) {
           status = sanei_magic_isBlank(&s->params,
                                        s->dev->img_buffer.data(),
-                                       SANE_UNFIX(s->val[OPT_SWSKIP].w));
+                                       SANE_UNFIX(s->swskip));
           if(status == SANE_STATUS_NO_DOCS)
             {
               if (s->dev->model->is_sheetfed == SANE_TRUE)
@@ -7311,30 +7370,22 @@ SANE_Status sane_start_impl(SANE_Handle handle)
             }
         }
 
-      /* deskew image if required */
-      if(s->val[OPT_SWDESKEW].b == SANE_TRUE)
-        {
+        if (s->swdeskew) {
           const auto& sensor = sanei_genesys_find_sensor(s->dev, s->dev->settings.xres,
                                                          s->dev->settings.scan_method);
           RIE(genesys_deskew(s, sensor));
         }
 
-      /* despeck image if required */
-      if(s->val[OPT_SWDESPECK].b == SANE_TRUE)
-        {
-          RIE(genesys_despeck(s));
+        if (s->swdespeck) {
+            RIE(genesys_despeck(s));
         }
 
-      /* crop image if required */
-      if(s->val[OPT_SWCROP].b == SANE_TRUE)
-        {
-          RIE(genesys_crop(s));
+        if(s->swcrop) {
+            RIE(genesys_crop(s));
         }
 
-      /* de-rotate image if required */
-      if(s->val[OPT_SWDEROTATE].b == SANE_TRUE)
-        {
-          RIE(genesys_derotate(s));
+        if(s->swderotate) {
+            RIE(genesys_derotate(s));
         }
     }
 

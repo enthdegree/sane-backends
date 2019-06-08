@@ -428,7 +428,7 @@ genesys_despeck(Genesys_Scanner *s)
 {
   if(sanei_magic_despeck(&s->params,
                          s->dev->img_buffer.data(),
-                         s->val[OPT_DESPECK].w)!=SANE_STATUS_GOOD)
+                         s->despeck)!=SANE_STATUS_GOOD)
   {
     DBG (DBG_error, "%s: bad despeck, bailing\n",__func__);
   }

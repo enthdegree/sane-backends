@@ -1009,9 +1009,31 @@ gl646_setup_registers (Genesys_Device * dev,
       ((scan_settings.pixels * scan_settings.lines) / 8 +
        (((scan_settings.pixels * scan_settings.lines) % 8) ? 1 : 0)) *
       channels;
-  else
+  else {
     dev->total_bytes_to_read =
       scan_settings.pixels * scan_settings.lines * channels * bpp;
+  }
+
+    /* select color filter based on settings */
+    regs->find_reg(0x04).value &= ~REG04_FILTER;
+    if (params.channels == 1) {
+        switch (params.color_filter) {
+            /* red */
+            case 0:
+                regs->find_reg(0x04).value |= 0x04;
+                break;
+            /* green */
+            case 1:
+                regs->find_reg(0x04).value |= 0x08;
+                break;
+            /* blue */
+            case 2:
+                regs->find_reg(0x04).value |= 0x0c;
+                break;
+            default:
+                break;
+        }
+    }
 
   DBG(DBG_proc, "%s: end\n", __func__);
   return SANE_STATUS_GOOD;
@@ -2983,31 +3005,6 @@ setup_for_scan (Genesys_Device * dev,
     {
       DBG(DBG_error, "%s: failed setup registers: %s\n", __func__, sane_strstatus(status));
       return status;
-    }
-
-  /* now post-process values for register and options fine tuning */
-
-  /* select color filter based on settings */
-  regs->find_reg(0x04).value &= ~REG04_FILTER;
-  if (params.channels == 1)
-    {
-      switch (params.color_filter)
-	{
-	  /* red */
-	case 0:
-          regs->find_reg(0x04).value |= 0x04;
-	  break;
-	  /* green */
-	case 1:
-          regs->find_reg(0x04).value |= 0x08;
-	  break;
-	  /* blue */
-	case 2:
-          regs->find_reg(0x04).value |= 0x0c;
-	  break;
-	default:
-	  break;
-	}
     }
 
   /* send computed slope tables */

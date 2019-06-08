@@ -4723,7 +4723,6 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
       dev->current_setup.channels = 1;
     }
   dev->current_setup.xres = dev->settings.xres;
-  dev->current_setup.scan_method = dev->settings.scan_method;
 
   DBG(DBG_io, "%s: requested=(%d,%f), tested=(%d,%f)\n", __func__, dev->current_setup.channels,
       dev->current_setup.xres, cache->used_setup.channels, cache->used_setup.xres);
@@ -4742,11 +4741,11 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
       compatible =
 	(dev->current_setup.channels == cache->used_setup.channels);
     }
-  if (dev->current_setup.scan_method != cache->used_setup.scan_method)
+  if (dev->current_setup.params.scan_method != cache->used_setup.params.scan_method)
     {
       DBG(DBG_io, "%s: current method=%d, used=%d\n", __func__,
-          static_cast<unsigned>(dev->current_setup.scan_method),
-          static_cast<unsigned>(cache->used_setup.scan_method));
+          static_cast<unsigned>(dev->current_setup.params.scan_method),
+          static_cast<unsigned>(cache->used_setup.params.scan_method));
       compatible = 0;
     }
   if (!compatible)

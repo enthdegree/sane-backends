@@ -1853,7 +1853,6 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
 	   sane_strstatus (status));
       return status;
     }
-  dev->current_setup.scan_method = dev->settings.scan_method;
 
   DBG (DBG_proc, "%s: checking\n", __func__);
 
@@ -1880,11 +1879,11 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
            dev->current_setup.ccd_size_divisor, cache->used_setup.ccd_size_divisor);
       compatible = 0;
     }
-  if (dev->current_setup.scan_method != cache->used_setup.scan_method)
+  if (dev->current_setup.params.scan_method != cache->used_setup.params.scan_method)
     {
       DBG (DBG_io, "%s: current method=%d, used=%d\n", __func__,
-           static_cast<unsigned>(dev->current_setup.scan_method),
-           static_cast<unsigned>(cache->used_setup.scan_method));
+           static_cast<unsigned>(dev->current_setup.params.scan_method),
+           static_cast<unsigned>(cache->used_setup.params.scan_method));
       compatible = 0;
     }
   if (!compatible)

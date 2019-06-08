@@ -1237,7 +1237,6 @@ struct Genesys_Current_Setup
     // channel count expected from scanner
     int channels = 0;
 
-    ScanMethod scan_method = ScanMethod::FLATBED;
     // used exposure time
     int exposure_time = 0;
     // used xres

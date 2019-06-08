@@ -2081,3 +2081,18 @@ void run_functions_at_backend_exit()
     }
     s_functions_run_at_backend_exit.release();
 }
+
+void debug_dump(unsigned level, const Genesys_Settings& settings)
+{
+    DBG(level, "settings:\n"
+        "Resolution X/Y : %u / %u dpi\n"
+        "Lines : %u\n"
+        "Pixels per line : %u\n"
+        "Depth : %u\n"
+        "Start position X/Y : %.3f/%.3f\n"
+        "Scan mode : %d\n\n",
+        settings.xres, settings.yres,
+        settings.lines, settings.pixels, settings.depth,
+        settings.tl_x, settings.tl_y,
+        static_cast<unsigned>(settings.scan_mode));
+}

@@ -2552,16 +2552,8 @@ static SANE_Status gl841_calculate_current_setup(Genesys_Device * dev, const Gen
   SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
 
-  DBG(DBG_info,
-      "%s:\n"
-      "Resolution: %uDPI\n"
-      "Lines     : %u\n"
-      "PPL       : %u\n"
-      "Startpos  : %.3f/%.3f\n"
-      "Scan mode : %d\n\n",
-      __func__,
-      dev->settings.yres, dev->settings.lines, dev->settings.pixels,
-      dev->settings.tl_x, dev->settings.tl_y, static_cast<unsigned>(dev->settings.scan_mode));
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, dev->settings);
 
 /* channels */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
@@ -3878,10 +3870,8 @@ gl841_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   SANE_Status status;
 
-  DBG(DBG_info, "%s:\nResolution: %uDPI\n"
-      "Lines     : %u\nPPL       : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\n\n", __func__,
-      dev->settings.yres, dev->settings.lines, dev->settings.pixels, dev->settings.tl_x,
-      dev->settings.tl_y, static_cast<unsigned>(dev->settings.scan_mode));
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, dev->settings);
 
   gl841_slow_back_home(dev,SANE_TRUE);
 

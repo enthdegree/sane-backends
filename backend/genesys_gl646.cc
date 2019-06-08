@@ -2876,13 +2876,8 @@ setup_for_scan (Genesys_Device * dev,
   uint16_t startx = 0, endx, pixels;
   int move = 0;
 
-  DBGSTART;
-  DBG(DBG_info, "%s settings:\nResolution: %ux%uDPI\n"
-      "Lines     : %u\nPixels    : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\nScan method: %s\n\n",
-      __func__,
-      settings.xres, settings.yres, settings.lines, settings.pixels,
-      settings.tl_x, settings.tl_y, static_cast<unsigned>(settings.scan_mode),
-      settings.scan_method == ScanMethod::FLATBED ? "flatbed" : "XPA");
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, dev->settings);
 
   if (settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {

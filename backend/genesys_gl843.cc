@@ -1676,15 +1676,8 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   int optical_res;
 
-  DBG(DBG_info, "%s settings:\n"
-      "Resolution: %ux%uDPI\n"
-      "Lines     : %u\n"
-      "PPL       : %u\n"
-      "Startpos  : %.3f/%.3f\n"
-      "Scan mode : %d\n\n", __func__,
-      dev->settings.xres,
-      dev->settings.yres, dev->settings.lines, dev->settings.pixels,
-      dev->settings.tl_x, dev->settings.tl_y, static_cast<unsigned>(dev->settings.scan_mode));
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, dev->settings);
 
   xres = dev->settings.xres;
   yres = dev->settings.yres;
@@ -3006,15 +2999,8 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   SANE_Status status;
 
-  DBG(DBG_info, "%s settings:\nResolution: %ux%uDPI\n"
-      "Lines     : %u\npixels    : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\n\n", __func__,
-      dev->settings.xres,
-      dev->settings.yres,
-      dev->settings.lines,
-      dev->settings.pixels,
-      dev->settings.tl_x,
-      dev->settings.tl_y,
-      static_cast<unsigned>(dev->settings.scan_mode));
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, dev->settings);
 
   /* ensure head is parked in case of calibration */
   gl843_slow_back_home (dev, SANE_TRUE);

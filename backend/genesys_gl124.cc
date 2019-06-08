@@ -1532,17 +1532,8 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
 
   int optical_res;
 
-  DBG(DBG_info,
-      "%s:\n"
-      "Resolution: %ux%uDPI\n"
-      "Lines     : %u\n"
-      "PPL       : %u\n"
-      "Startpos  : %.3f/%.3f\n"
-      "Scan mode : %d\n\n",
-      __func__,
-      dev->settings.xres,
-      dev->settings.yres, dev->settings.lines, dev->settings.pixels,
-      dev->settings.tl_x, dev->settings.tl_y, static_cast<unsigned>(dev->settings.scan_mode));
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, dev->settings);
 
   /* channels */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
@@ -2490,15 +2481,8 @@ gl124_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   SANE_Status status;
 
-  DBG(DBG_info, "%s:\nResolution: %ux%uDPI\n"
-      "Lines     : %u\npixels    : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\n\n", __func__,
-      dev->settings.xres,
-      dev->settings.yres,
-      dev->settings.lines,
-      dev->settings.pixels,
-      dev->settings.tl_x,
-      dev->settings.tl_y,
-      static_cast<unsigned>(dev->settings.scan_mode));
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, dev->settings);
 
   /* wait for motor to stop first */
   status = sanei_genesys_get_status (dev, &val);

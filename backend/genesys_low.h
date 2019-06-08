@@ -1892,4 +1892,6 @@ extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 void genesys_init_sensor_tables();
 void genesys_init_frontend_tables();
 
+void debug_dump(unsigned level, const Genesys_Settings& settings);
+
 #endif /* not GENESYS_LOW_H */

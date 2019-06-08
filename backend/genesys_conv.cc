@@ -443,13 +443,12 @@ genesys_derotate (Genesys_Scanner * s)
 {
   SANE_Status status;
   int angle = 0;
-  int resolution = s->val[OPT_RESOLUTION].w;
 
   DBGSTART;
   status = sanei_magic_findTurn (&s->params,
                                  s->dev->img_buffer.data(),
-				 resolution,
-                                 resolution,
+                                 s->resolution,
+                                 s->resolution,
                                  &angle);
 
   if (status)

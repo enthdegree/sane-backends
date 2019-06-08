@@ -4852,11 +4852,8 @@ static SANE_Status
 calc_parameters (Genesys_Scanner * s)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  SANE_Int depth = 0, resolution = 0;
   double tl_x = 0, tl_y = 0, br_x = 0, br_y = 0;
 
-  depth = s->val[OPT_BIT_DEPTH].w;
-  resolution = s->val[OPT_RESOLUTION].w;
     tl_x = SANE_UNFIX(s->pos_top_left_x);
     tl_y = SANE_UNFIX(s->pos_top_left_y);
     br_x = SANE_UNFIX(s->pos_bottom_right_x);
@@ -4873,10 +4870,10 @@ calc_parameters (Genesys_Scanner * s)
     if (s->mode == SANE_VALUE_SCAN_MODE_LINEART) {
         s->params.depth = 1;
     } else {
-        s->params.depth = depth;
+        s->params.depth = s->bit_depth;
     }
 
-  s->dev->settings.depth = depth;
+    s->dev->settings.depth = s->bit_depth;
 
   /* interpolation */
   s->dev->settings.disable_interpolation =
@@ -4885,17 +4882,16 @@ calc_parameters (Genesys_Scanner * s)
   // FIXME: use correct sensor
   const auto& sensor = sanei_genesys_find_sensor_any(s->dev);
 
-  /* hardware settings */
-  if (resolution > sensor.optical_res &&
-      s->dev->settings.disable_interpolation)
-    s->dev->settings.xres = sensor.optical_res;
-  else
-    s->dev->settings.xres = resolution;
-  s->dev->settings.yres = resolution;
+    // hardware settings
+    if (s->resolution > sensor.optical_res && s->dev->settings.disable_interpolation) {
+        s->dev->settings.xres = sensor.optical_res;
+    } else {
+        s->dev->settings.xres = s->resolution;
+    }
+    s->dev->settings.yres = s->resolution;
 
-  s->params.lines = ((br_y - tl_y) * s->dev->settings.yres) / MM_PER_INCH;
-  s->params.pixels_per_line =
-    ((br_x - tl_x) * resolution) / MM_PER_INCH;
+    s->params.lines = ((br_y - tl_y) * s->dev->settings.yres) / MM_PER_INCH;
+    s->params.pixels_per_line = ((br_x - tl_x) * s->resolution) / MM_PER_INCH;
 
   /* we need an even pixels number
    * TODO invert test logic or generalize behaviour across all ASICs */
@@ -5015,7 +5011,7 @@ calc_parameters (Genesys_Scanner * s)
     || s->val[OPT_SWDEROTATE].b
     ||(SANE_UNFIX(s->val[OPT_SWSKIP].w)>0))
     && (!s->val[OPT_PREVIEW].b)
-    && (s->val[OPT_BIT_DEPTH].w <= 8))
+    && (s->bit_depth <= 8))
     {
       s->dev->buffer_image=SANE_TRUE;
     }
@@ -5025,7 +5021,7 @@ calc_parameters (Genesys_Scanner * s)
     }
 
   /* brigthness and contrast only for for 8 bit scans */
-  if(s->val[OPT_BIT_DEPTH].w <= 8)
+  if(s->bit_depth <= 8)
     {
       s->dev->settings.contrast=(s->val[OPT_CONTRAST].w*127)/100;
       s->dev->settings.brightness=(s->val[OPT_BRIGHTNESS].w*127)/100;
@@ -5238,7 +5234,6 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
   s->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
-  s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
   /* "Mode" group: */
   s->opt[OPT_MODE_GROUP].title = SANE_I18N ("Scan Mode");
@@ -5295,7 +5290,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_BIT_DEPTH].constraint.word_list = 0;
   s->opt[OPT_BIT_DEPTH].constraint.word_list = s->bpp_list;
   create_bpp_list (s, model->bpp_gray_values);
-  s->val[OPT_BIT_DEPTH].w = 8;
+  s->bit_depth = 8;
   if (s->opt[OPT_BIT_DEPTH].constraint.word_list[0] < 2)
     DISABLE (OPT_BIT_DEPTH);
 
@@ -5321,7 +5316,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
   s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
   s->opt[OPT_RESOLUTION].constraint.word_list = dpi_list;
-  s->val[OPT_RESOLUTION].w = min_dpi;
+  s->resolution = min_dpi;
 
   /* "Geometry" group: */
   s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N ("Geometry");
@@ -6641,8 +6636,14 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
         break;
       /* word options: */
     case OPT_NUM_OPTS:
+        *reinterpret_cast<SANE_Word*>(val) = NUM_OPTIONS;
+        break;
     case OPT_RESOLUTION:
+        *reinterpret_cast<SANE_Word*>(val) = s->resolution;
+        break;
     case OPT_BIT_DEPTH:
+        *reinterpret_cast<SANE_Word*>(val) = s->bit_depth;
+        break;
     case OPT_PREVIEW:
     case OPT_THRESHOLD:
     case OPT_THRESHOLD_CURVE:
@@ -6831,6 +6832,10 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_RESOLUTION:
+        s->resolution = *reinterpret_cast<SANE_Word*>(val);
+        RIE (calc_parameters(s));
+        *myinfo |= SANE_INFO_RELOAD_PARAMS;
+        break;
     case OPT_THRESHOLD:
     case OPT_THRESHOLD_CURVE:
     case OPT_DISABLE_DYNAMIC_LINEART:
@@ -6863,8 +6868,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       break;
     /* software enhancement functions only apply to 8 or 1 bits data */
     case OPT_BIT_DEPTH:
-      s->val[option].w = *(SANE_Word *) val;
-      if(s->val[OPT_BIT_DEPTH].w>8)
+        s->bit_depth = *reinterpret_cast<SANE_Word*>(val);
+        if(s->bit_depth>8)
         {
           DISABLE(OPT_SWDESKEW);
           DISABLE(OPT_SWDESPECK);

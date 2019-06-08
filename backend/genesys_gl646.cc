@@ -421,8 +421,6 @@ gl646_setup_registers (Genesys_Device * dev,
     /* TODO check for pixel width overflow */
     uint32_t endx = startx + pixels;
 
-    bool color = params.channels == 3;
-
   SANE_Status status = SANE_STATUS_GOOD;
   int i, nb;
   Sensor_Master *sensor_mst = NULL;
@@ -433,7 +431,7 @@ gl646_setup_registers (Genesys_Device * dev,
   unsigned int bpp;   /**> bytes per pixel */
   uint32_t z1, z2;
   uint16_t ex, sx;
-  int channels = 1, stagger, words_per_line, max_shift;
+  int stagger, words_per_line, max_shift;
   size_t requested_buffer_size;
   size_t read_buffer_size;
   SANE_Bool half_ccd = SANE_FALSE;
@@ -461,7 +459,7 @@ gl646_setup_registers (Genesys_Device * dev,
     {
       if (dev->model->ccd_type == sensor_master[i].sensor
 	  && sensor_master[i].dpi == xresolution
-	  && sensor_master[i].color == color)
+          && sensor_master[i].color == (params.channels == 3))
 	{
           sensor_mst = &sensor_master[i];
 	}
@@ -469,8 +467,8 @@ gl646_setup_registers (Genesys_Device * dev,
     }
   if (sensor_mst == NULL)
     {
-      DBG(DBG_error, "%s: unable to find settings for sensor %d at %d dpi color=%d\n", __func__,
-          dev->model->ccd_type, xresolution, color);
+      DBG(DBG_error, "%s: unable to find settings for sensor %d at %d dpi channels=%d\n", __func__,
+          dev->model->ccd_type, xresolution, params.channels);
       return SANE_STATUS_INVAL;
     }
 
@@ -482,7 +480,7 @@ gl646_setup_registers (Genesys_Device * dev,
     {
       if (dev->model->motor_type == motor_master[i].motor
           && motor_master[i].dpi == resolution
-	  && motor_master[i].color == color)
+          && motor_master[i].color == (params.channels == 3))
 	{
 	  motor = &motor_master[i];
 	}
@@ -491,7 +489,7 @@ gl646_setup_registers (Genesys_Device * dev,
   if (motor == NULL)
     {
       DBG(DBG_error, "%s: unable to find settings for motor %d at %d dpi, color=%d\n", __func__,
-          dev->model->motor_type, resolution, color);
+          dev->model->motor_type, resolution, params.channels);
       return SANE_STATUS_INVAL;
     }
 
@@ -575,11 +573,6 @@ gl646_setup_registers (Genesys_Device * dev,
 				      motor->vstart2, motor->vend2,
 				      motor->steps2, motor->g2, &used2,
 				      &vfinal);
-
-  if (color == SANE_TRUE)
-    channels = 3;
-  else
-    channels = 1;
 
   /* R01 */
   /* now setup other registers for final scan (ie with shading enabled) */
@@ -697,7 +690,7 @@ gl646_setup_registers (Genesys_Device * dev,
   regs->find_reg(0x05).value &= ~REG05_GMMENB;
 
   /* true CIS gray if needed */
-  if (dev->model->is_cis == SANE_TRUE && color == SANE_FALSE
+  if (dev->model->is_cis == SANE_TRUE && params.channels == 1
       && dev->settings.true_gray)
     {
       regs->find_reg(0x05).value |= REG05_LEDADD;
@@ -741,7 +734,7 @@ gl646_setup_registers (Genesys_Device * dev,
   regs->find_reg(0x24).value = motor->steps1;
 
   /* scanned area height must be enlarged by max color shift needed */
-  max_shift=sanei_genesys_compute_max_shift(dev,channels,scan_settings.yres,0);
+  max_shift=sanei_genesys_compute_max_shift(dev,params.channels,scan_settings.yres,0);
 
   /* we adjust linecnt according to real motor dpi */
   linecnt = (linecnt * motor->ydpi) / scan_settings.yres + max_shift;
@@ -768,7 +761,7 @@ gl646_setup_registers (Genesys_Device * dev,
   if (dev->model->is_cis == SANE_TRUE)
     {
       sanei_genesys_set_triple(regs, REG_LINCNT, linecnt * 3);
-      linecnt *= channels;
+      linecnt *= params.channels;
     }
   else
     {
@@ -801,7 +794,7 @@ gl646_setup_registers (Genesys_Device * dev,
       words_per_line *= bpp;
     }
   dev->bpl = words_per_line;
-  words_per_line *= channels;
+  words_per_line *= params.channels;
   dev->wpl = words_per_line;
 
   DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
@@ -967,7 +960,7 @@ gl646_setup_registers (Genesys_Device * dev,
   requested_buffer_size = 8 * words_per_line;
   read_buffer_size =
     2 * requested_buffer_size +
-    ((max_shift + stagger) * scan_settings.pixels * channels * params.depth) / 8;
+    ((max_shift + stagger) * scan_settings.pixels * params.channels * params.depth) / 8;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -979,7 +972,7 @@ gl646_setup_registers (Genesys_Device * dev,
     dev->shrink_buffer.alloc(requested_buffer_size);
 
     dev->out_buffer.clear();
-    dev->out_buffer.alloc(8 * scan_settings.pixels * channels * bpp);
+    dev->out_buffer.alloc(8 * scan_settings.pixels * params.channels * bpp);
 
   /* scan bytes to read */
   dev->read_bytes_left = words_per_line * linecnt;
@@ -991,7 +984,7 @@ gl646_setup_registers (Genesys_Device * dev,
     ((endx - startx) * sensor_mst->xdpi) / sensor.optical_res;
   dev->current_setup.lines = linecnt;
   dev->current_setup.depth = params.depth;
-  dev->current_setup.channels = channels;
+  dev->current_setup.channels = params.channels;
   dev->current_setup.exposure_time = sensor_mst->exposure;
   dev->current_setup.xres = sensor_mst->xdpi;
   dev->current_setup.yres = motor->ydpi;
@@ -1008,10 +1001,10 @@ gl646_setup_registers (Genesys_Device * dev,
     dev->total_bytes_to_read =
       ((scan_settings.pixels * scan_settings.lines) / 8 +
        (((scan_settings.pixels * scan_settings.lines) % 8) ? 1 : 0)) *
-      channels;
+      params.channels;
   else {
     dev->total_bytes_to_read =
-      scan_settings.pixels * scan_settings.lines * channels * bpp;
+      scan_settings.pixels * scan_settings.lines * params.channels * bpp;
   }
 
     /* select color filter based on settings */

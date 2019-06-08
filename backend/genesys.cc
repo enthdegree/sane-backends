@@ -186,12 +186,11 @@ const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev)
 const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
                                                 ScanMethod scan_method)
 {
-    bool is_transparency = scan_method == ScanMethod::TRANSPARENCY;
     for (const auto& sensor : *s_sensors) {
         if (dev->model->ccd_type == sensor.sensor_id &&
                 (sensor.min_resolution == -1 || dpi >= sensor.min_resolution) &&
                 (sensor.max_resolution == -1 || dpi <= sensor.max_resolution) &&
-                sensor.is_transparency == is_transparency) {
+                sensor.method == scan_method) {
             return sensor;
         }
     }
@@ -201,12 +200,11 @@ const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
 Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,
                                                     ScanMethod scan_method)
 {
-    bool is_transparency = scan_method == ScanMethod::TRANSPARENCY;
     for (auto& sensor : *s_sensors) {
         if (dev->model->ccd_type == sensor.sensor_id &&
                 (sensor.min_resolution == -1 || dpi >= sensor.min_resolution) &&
                 (sensor.max_resolution == -1 || dpi <= sensor.max_resolution) &&
-                sensor.is_transparency == is_transparency) {
+                sensor.method == scan_method) {
             return sensor;
         }
     }

@@ -218,6 +218,13 @@
 
 #define GENESYS_MAX_REGS 256
 
+enum class ScanMethod {
+    // normal scan method
+    FLATBED = 0,
+    // scan using transparency adaptor
+    TRANSPARENCY = 1
+};
+
 struct GenesysRegister {
     uint16_t address = 0;
     uint8_t value = 0;
@@ -559,8 +566,8 @@ struct Genesys_Sensor {
     int min_resolution = -1;
     int max_resolution = -1;
 
-    // whether the sensor is transparency sensor.
-    bool is_transparency = false;
+    // the scan method used with the sensor
+    ScanMethod method = ScanMethod::FLATBED;
 
     // CCD may present itself as half or quarter-size CCD on certain resolutions
     int ccd_size_divisor = 1;
@@ -898,13 +905,6 @@ enum Genesys_Motor_Type
   MOTOR_CANONLIDE210,
   MOTOR_CANONLIDE80,
   MOTOR_CANONLIDE120
-};
-
-enum class ScanMethod {
-    // normal scan method
-    FLATBED = 0,
-    // scan using transparency adaptor
-    TRANSPARENCY = 1
 };
 
 /* Forward typedefs */

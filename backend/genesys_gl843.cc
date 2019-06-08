@@ -1490,10 +1490,10 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Senso
   /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
    * to generate 1 lineart data */
-  if ((session.params.flags & SCAN_FLAG_DYNAMIC_LINEART) && (session.params.scan_mode == ScanColorMode::LINEART))
-    {
-      session.params.depth = 8;
+    if (session.params.flags & SCAN_FLAG_DYNAMIC_LINEART) {
+        session.params.depth = 8;
     }
+
   /* no 16 bit gamma for this ASIC */
   if (session.params.depth == 16)
     {

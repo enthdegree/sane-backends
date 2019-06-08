@@ -1217,9 +1217,8 @@ gl847_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
 /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
    * to generate 1 lineart data */
-  if ((params.flags & SCAN_FLAG_DYNAMIC_LINEART) && (dev->settings.scan_mode == ScanColorMode::LINEART))
-    {
-      params.depth = 8;
+    if (params.flags & SCAN_FLAG_DYNAMIC_LINEART) {
+        params.depth = 8;
     }
 
   /* we enable true gray for cis scanners only, and just when doing

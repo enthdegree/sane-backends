@@ -942,10 +942,7 @@ gl846_init_optical_regs_scan (Genesys_Device * dev,
   r = sanei_genesys_get_address (reg, REG03);
   r->value &= ~REG03_AVEENB;
 
-  if (flags & OPTICAL_FLAG_DISABLE_LAMP)
-    r->value &= ~REG03_LAMPPWR;
-  else
-    r->value |= REG03_LAMPPWR;
+    sanei_genesys_set_lamp_power(dev, sensor, *reg, !(flags & OPTICAL_FLAG_DISABLE_LAMP));
 
   /* BW threshold */
   r = sanei_genesys_get_address (reg, 0x2e);

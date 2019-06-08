@@ -1901,25 +1901,7 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     */
     r = sanei_genesys_get_address (reg, 0x03);
     r->value |= REG03_AVEENB;
-    if (flags & OPTICAL_FLAG_DISABLE_LAMP)
-	r->value &= ~REG03_LAMPPWR;
-    else
-	r->value |= REG03_LAMPPWR;
-
-    /* exposure times */
-    if (flags & OPTICAL_FLAG_DISABLE_LAMP) {
-        // 0x0101 is as off as possible
-        sanei_genesys_set_exposure(*reg, {0x0101, 0x0101, 0x0101});
-    } else {
-        // EXP[R,G,B] only matter for CIS scanners
-        sanei_genesys_set_exposure(*reg, sanei_genesys_fixup_exposure(sensor.exposure));
-    }
-
-    r = sanei_genesys_get_address (reg, 0x19);
-    if (flags & OPTICAL_FLAG_DISABLE_LAMP)
-	r->value = 0xff;
-    else
-	r->value = 0x50;
+    sanei_genesys_set_lamp_power(dev, sensor, *reg, !(flags & OPTICAL_FLAG_DISABLE_LAMP));
 
     /* BW threshold */
     r = sanei_genesys_get_address (reg, 0x2e);

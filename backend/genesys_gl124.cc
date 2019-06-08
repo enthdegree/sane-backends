@@ -1066,10 +1066,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
       DBG (DBG_io, "%s: enabling AVEENB\n", __func__);
     }
 
-  if (flags & OPTICAL_FLAG_DISABLE_LAMP)
-    r->value &= ~REG03_LAMPPWR;
-  else
-    r->value |= REG03_LAMPPWR;
+    sanei_genesys_set_lamp_power(dev, sensor, *reg, !(flags & OPTICAL_FLAG_DISABLE_LAMP));
 
   /* BW threshold */
   RIE (sanei_genesys_write_register (dev, REG114, dev->settings.threshold));

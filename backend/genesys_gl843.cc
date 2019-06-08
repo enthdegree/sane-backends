@@ -1180,10 +1180,9 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   else
     r->value &= ~REG03_AVEENB;
 
-  if (flags & OPTICAL_FLAG_DISABLE_LAMP)
-    r->value &= ~REG03_LAMPPWR;
-  else
-    r->value |= REG03_LAMPPWR;
+    // FIXME: we probably don't need to set exposure to registers at this point. It was this way
+    // before a refactor.
+    sanei_genesys_set_lamp_power(dev, sensor, *reg, !(flags & OPTICAL_FLAG_DISABLE_LAMP));
 
   /* select XPA */
   r->value &= ~REG03_XPASEL;

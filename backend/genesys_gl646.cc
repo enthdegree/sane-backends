@@ -222,7 +222,7 @@ gl646_stop_motor (Genesys_Device * dev)
  * @return the closest resolution for the sensor and mode
  */
 static int
-get_lowest_resolution(int sensor_id, int channels)
+get_lowest_resolution(int sensor_id, unsigned channels)
 {
   int i, nb;
   int dpi;
@@ -255,7 +255,7 @@ get_lowest_resolution(int sensor_id, int channels)
  * @return the closest resolution for the sensor and mode
  */
 static int
-get_closest_resolution(int sensor_id, int required, int channels)
+get_closest_resolution(int sensor_id, int required, unsigned channels)
 {
   int i, nb;
   int dist, dpi;
@@ -298,7 +298,7 @@ get_closest_resolution(int sensor_id, int required, int channels)
  * @param color true is color mode
  * @return SANE_TRUE if half ccd is used
  */
-static SANE_Bool is_half_ccd(int sensor_id, int required, int channels)
+static SANE_Bool is_half_ccd(int sensor_id, int required, unsigned channels)
 {
   int i, nb;
 
@@ -328,7 +328,7 @@ static SANE_Bool is_half_ccd(int sensor_id, int required, int channels)
  * @param color true is color mode
  * @return cksel value for mode
  */
-static int get_cksel(int sensor_id, int required, int channels)
+static int get_cksel(int sensor_id, int required, unsigned channels)
 {
   int i, nb;
 

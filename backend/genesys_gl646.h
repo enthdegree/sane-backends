@@ -282,7 +282,7 @@ typedef struct
   /* key */
   SANE_Int motor;
   SANE_Int dpi;
-  int channels;
+  unsigned channels;
 
   /* settings */
   SANE_Int ydpi;		/* real motor dpi, may be different from the resolution */
@@ -309,7 +309,7 @@ typedef struct
   /* key */
   SANE_Int sensor;	/**< sensor identifier */
   SANE_Int dpi;		/**< required dpi */
-  int channels;     // 3 channels if color scan, 1 channel for gray scan
+  unsigned channels;     // 3 channels if color scan, 1 channel for gray scan
 
   /* settings */
   SANE_Int xdpi;		/**< real sensor dpi, may be different from the required resolution */

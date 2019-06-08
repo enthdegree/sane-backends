@@ -1277,7 +1277,7 @@ gl124_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
   size_t requested_buffer_size, read_buffer_size;
 
   SANE_Bool half_ccd;                /* false: full CCD res is used, true, half max CCD res is used */
-  int optical_res;
+  unsigned optical_res;
   SANE_Status status;
 
     DBG(DBG_info, "%s ", __func__);

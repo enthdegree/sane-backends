@@ -52,6 +52,7 @@
 #endif
 
 #include "genesys_low.h"
+#include <queue>
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024
@@ -145,6 +146,45 @@ enum Genesys_Option
   NUM_OPTIONS
 };
 
+enum GenesysButtonName : unsigned {
+    BUTTON_SCAN_SW = 0,
+    BUTTON_FILE_SW,
+    BUTTON_EMAIL_SW,
+    BUTTON_COPY_SW,
+    BUTTON_PAGE_LOADED_SW,
+    BUTTON_OCR_SW,
+    BUTTON_POWER_SW,
+    BUTTON_EXTRA_SW,
+    NUM_BUTTONS
+};
+
+GenesysButtonName genesys_option_to_button(int option);
+
+class GenesysButton {
+public:
+    void write(bool value)
+    {
+        if (value == value_) {
+            return;
+        }
+        values_to_read_.push(value);
+        value_ = value;
+    }
+
+    bool read()
+    {
+        if (values_to_read_.empty()) {
+            return value_;
+        }
+        bool ret = values_to_read_.front();
+        values_to_read_.pop();
+        return ret;
+    }
+
+private:
+    bool value_ = false;
+    std::queue<bool> values_to_read_;
+};
 
 /** Scanner object. Should have better be called Session than Scanner
  */
@@ -166,8 +206,10 @@ struct Genesys_Scanner
     SANE_Option_Descriptor opt[NUM_OPTIONS];
     // Option values
     Option_Value val[NUM_OPTIONS];
-    // Option values as read by the frontend. used for sensors.
-    Option_Value last_val[NUM_OPTIONS];
+
+    // Button states
+    GenesysButton buttons[NUM_BUTTONS];
+
     // SANE Parameters
     SANE_Parameters params = {};
     SANE_Int bpp_list[5] = {};

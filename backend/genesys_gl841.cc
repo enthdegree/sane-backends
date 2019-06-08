@@ -5201,28 +5201,21 @@ gl841_update_hardware_sensors (Genesys_Scanner * s)
   if (s->dev->model->gpo_type == GPO_CANONLIDE35
    || s->dev->model->gpo_type == GPO_CANONLIDE80)
     {
-      RIE(sanei_genesys_read_register(s->dev, REG6D, &val));
-
-      if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
-	s->val[OPT_SCAN_SW].b = (val & 0x01) == 0;
-      if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
-	s->val[OPT_FILE_SW].b = (val & 0x02) == 0;
-      if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
-	s->val[OPT_EMAIL_SW].b = (val & 0x04) == 0;
-      if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
-	s->val[OPT_COPY_SW].b = (val & 0x08) == 0;
+        RIE(sanei_genesys_read_register(s->dev, REG6D, &val));
+        s->buttons[BUTTON_SCAN_SW].write((val & 0x01) == 0);
+        s->buttons[BUTTON_FILE_SW].write((val & 0x02) == 0);
+        s->buttons[BUTTON_EMAIL_SW].write((val & 0x04) == 0);
+        s->buttons[BUTTON_COPY_SW].write((val & 0x08) == 0);
     }
 
   if (s->dev->model->gpo_type == GPO_XP300 ||
       s->dev->model->gpo_type == GPO_DP665 ||
       s->dev->model->gpo_type == GPO_DP685)
     {
-      RIE(sanei_genesys_read_register(s->dev, REG6D, &val));
+        RIE(sanei_genesys_read_register(s->dev, REG6D, &val));
 
-      if (s->val[OPT_PAGE_LOADED_SW].b == s->last_val[OPT_PAGE_LOADED_SW].b)
-	s->val[OPT_PAGE_LOADED_SW].b = (val & 0x01) == 0;
-      if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
-	s->val[OPT_SCAN_SW].b = (val & 0x02) == 0;
+        s->buttons[BUTTON_PAGE_LOADED_SW].write((val & 0x01) == 0);
+        s->buttons[BUTTON_SCAN_SW].write((val & 0x02) == 0);
     }
 
   return status;

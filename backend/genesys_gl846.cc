@@ -2726,14 +2726,10 @@ gl846_update_hardware_sensors (Genesys_Scanner * s)
     }
   RIE (sanei_genesys_read_register (s->dev, REG6D, &val));
 
-  if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
-    s->val[OPT_SCAN_SW].b = (val & scan) == 0;
-  if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
-    s->val[OPT_FILE_SW].b = (val & file) == 0;
-  if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
-    s->val[OPT_EMAIL_SW].b = (val & email) == 0;
-  if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
-    s->val[OPT_COPY_SW].b = (val & copy) == 0;
+    s->buttons[BUTTON_SCAN_SW].write((val & scan) == 0);
+    s->buttons[BUTTON_FILE_SW].write((val & file) == 0);
+    s->buttons[BUTTON_EMAIL_SW].write((val & email) == 0);
+    s->buttons[BUTTON_COPY_SW].write((val & copy) == 0);
 
   return status;
 }

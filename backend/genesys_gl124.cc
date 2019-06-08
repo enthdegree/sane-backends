@@ -3574,27 +3574,18 @@ gl124_update_hardware_sensors (Genesys_Scanner * s)
   if((s->dev->model->gpo_type == GPO_CANONLIDE110)
     ||(s->dev->model->gpo_type == GPO_CANONLIDE120))
     {
-      if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
-        s->val[OPT_SCAN_SW].b = (val & 0x01) == 0;
-      if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
-        s->val[OPT_FILE_SW].b = (val & 0x08) == 0;
-      if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
-        s->val[OPT_EMAIL_SW].b = (val & 0x04) == 0;
-      if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
-        s->val[OPT_COPY_SW].b = (val & 0x02) == 0;
+        s->buttons[BUTTON_SCAN_SW].write((val & 0x01) == 0);
+        s->buttons[BUTTON_FILE_SW].write((val & 0x08) == 0);
+        s->buttons[BUTTON_EMAIL_SW].write((val & 0x04) == 0);
+        s->buttons[BUTTON_COPY_SW].write((val & 0x02) == 0);
     }
   else
     { /* LiDE 210 case */
-      if (s->val[OPT_EXTRA_SW].b == s->last_val[OPT_EXTRA_SW].b)
-        s->val[OPT_EXTRA_SW].b = (val & 0x01) == 0;
-      if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
-        s->val[OPT_SCAN_SW].b = (val & 0x02) == 0;
-      if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
-        s->val[OPT_COPY_SW].b = (val & 0x04) == 0;
-      if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
-        s->val[OPT_EMAIL_SW].b = (val & 0x08) == 0;
-      if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
-        s->val[OPT_FILE_SW].b = (val & 0x10) == 0;
+        s->buttons[BUTTON_EXTRA_SW].write((val & 0x01) == 0);
+        s->buttons[BUTTON_SCAN_SW].write((val & 0x02) == 0);
+        s->buttons[BUTTON_COPY_SW].write((val & 0x04) == 0);
+        s->buttons[BUTTON_EMAIL_SW].write((val & 0x08) == 0);
+        s->buttons[BUTTON_FILE_SW].write((val & 0x10) == 0);
     }
   return status;
 }

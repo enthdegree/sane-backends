@@ -5671,8 +5671,6 @@ init_options (Genesys_Scanner * s)
       SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_SCAN_SW].cap = SANE_CAP_INACTIVE;
-  s->val[OPT_SCAN_SW].b = 0;
-  s->last_val[OPT_SCAN_SW].b = 0;
 
   /* SANE_NAME_FILE is not for buttons */
   s->opt[OPT_FILE_SW].name = "file";
@@ -5685,8 +5683,6 @@ init_options (Genesys_Scanner * s)
       SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_FILE_SW].cap = SANE_CAP_INACTIVE;
-  s->val[OPT_FILE_SW].b = 0;
-  s->last_val[OPT_FILE_SW].b = 0;
 
   s->opt[OPT_EMAIL_SW].name = SANE_NAME_EMAIL;
   s->opt[OPT_EMAIL_SW].title = SANE_TITLE_EMAIL;
@@ -5698,8 +5694,6 @@ init_options (Genesys_Scanner * s)
       SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_EMAIL_SW].cap = SANE_CAP_INACTIVE;
-  s->val[OPT_EMAIL_SW].b = 0;
-  s->last_val[OPT_EMAIL_SW].b = 0;
 
   s->opt[OPT_COPY_SW].name = SANE_NAME_COPY;
   s->opt[OPT_COPY_SW].title = SANE_TITLE_COPY;
@@ -5711,8 +5705,6 @@ init_options (Genesys_Scanner * s)
       SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_COPY_SW].cap = SANE_CAP_INACTIVE;
-  s->val[OPT_COPY_SW].b = 0;
-  s->last_val[OPT_COPY_SW].b = 0;
 
   s->opt[OPT_PAGE_LOADED_SW].name = SANE_NAME_PAGE_LOADED;
   s->opt[OPT_PAGE_LOADED_SW].title = SANE_TITLE_PAGE_LOADED;
@@ -5724,8 +5716,6 @@ init_options (Genesys_Scanner * s)
       SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_PAGE_LOADED_SW].cap = SANE_CAP_INACTIVE;
-  s->val[OPT_PAGE_LOADED_SW].b = 0;
-  s->last_val[OPT_PAGE_LOADED_SW].b = 0;
 
   /* OCR button */
   s->opt[OPT_OCR_SW].name = "ocr";
@@ -5738,8 +5728,6 @@ init_options (Genesys_Scanner * s)
       SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_OCR_SW].cap = SANE_CAP_INACTIVE;
-  s->val[OPT_OCR_SW].b = 0;
-  s->last_val[OPT_OCR_SW].b = 0;
 
   /* power button */
   s->opt[OPT_POWER_SW].name = "power";
@@ -5752,8 +5740,6 @@ init_options (Genesys_Scanner * s)
       SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_POWER_SW].cap = SANE_CAP_INACTIVE;
-  s->val[OPT_POWER_SW].b = 0;
-  s->last_val[OPT_POWER_SW].b = 0;
 
   /* extra button */
   s->opt[OPT_EXTRA_SW].name = "extra";
@@ -5767,7 +5753,6 @@ init_options (Genesys_Scanner * s)
   else
     s->opt[OPT_EXTRA_SW].cap = SANE_CAP_INACTIVE;
   s->val[OPT_EXTRA_SW].b = 0;
-  s->last_val[OPT_EXTRA_SW].b = 0;
 
   /* calibration needed */
   s->opt[OPT_NEED_CALIBRATION_SW].name = "need-calibration";
@@ -5781,7 +5766,6 @@ init_options (Genesys_Scanner * s)
   else
     s->opt[OPT_NEED_CALIBRATION_SW].cap = SANE_CAP_INACTIVE;
   s->val[OPT_NEED_CALIBRATION_SW].b = 0;
-  s->last_val[OPT_NEED_CALIBRATION_SW].b = 0;
 
   /* button group */
   s->opt[OPT_BUTTON_GROUP].title = SANE_I18N ("Buttons");
@@ -5805,7 +5789,6 @@ init_options (Genesys_Scanner * s)
   else
     s->opt[OPT_CALIBRATE].cap = SANE_CAP_INACTIVE;
   s->val[OPT_CALIBRATE].b = 0;
-  s->last_val[OPT_CALIBRATE].b = 0;
 
   /* clear calibration cache button */
   s->opt[OPT_CLEAR_CALIBRATION].name = "clear-calibration";
@@ -5818,7 +5801,6 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_CLEAR_CALIBRATION].cap =
     SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
   s->val[OPT_CLEAR_CALIBRATION].b = 0;
-  s->last_val[OPT_CLEAR_CALIBRATION].b = 0;
 
   /* force calibration cache button */
   s->opt[OPT_FORCE_CALIBRATION].name = "force-calibration";
@@ -5831,7 +5813,6 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_FORCE_CALIBRATION].cap =
     SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
   s->val[OPT_FORCE_CALIBRATION].b = 0;
-  s->last_val[OPT_FORCE_CALIBRATION].b = 0;
 
   RIE (calc_parameters (s));
 
@@ -6762,8 +6743,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_POWER_SW:
     case OPT_EXTRA_SW:
       RIE (s->dev->model->cmd_set->update_hardware_sensors (s));
-      *(SANE_Bool *) val = s->val[option].b;
-      s->last_val[option].b = *(SANE_Bool *) val;
+      *(SANE_Bool *) val = s->buttons[genesys_option_to_button(option)].read();
       break;
     case OPT_NEED_CALIBRATION_SW:
       /* scanner needs calibration for current mode unless a matching
@@ -7632,4 +7612,19 @@ sane_get_select_fd(SANE_Handle handle, SANE_Int * fd)
     {
         return sane_get_select_fd_impl(handle, fd);
     });
+}
+
+GenesysButtonName genesys_option_to_button(int option)
+{
+    switch (option) {
+    case OPT_SCAN_SW: return BUTTON_SCAN_SW;
+    case OPT_FILE_SW: return BUTTON_FILE_SW;
+    case OPT_EMAIL_SW: return BUTTON_EMAIL_SW;
+    case OPT_COPY_SW: return BUTTON_COPY_SW;
+    case OPT_PAGE_LOADED_SW: return BUTTON_PAGE_LOADED_SW;
+    case OPT_OCR_SW: return BUTTON_OCR_SW;
+    case OPT_POWER_SW: return BUTTON_POWER_SW;
+    case OPT_EXTRA_SW: return BUTTON_EXTRA_SW;
+    default: throw std::runtime_error("Unknown option to convert to button index");
+    }
 }

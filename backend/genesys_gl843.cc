@@ -4011,24 +4011,19 @@ gl843_update_hardware_sensors (Genesys_Scanner * s)
 
   switch (s->dev->model->gpo_type)
     {
-      case GPO_KVSS080:
-        if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
-          s->val[OPT_SCAN_SW].b = (val & 0x04) == 0;
-        break;
-      case GPO_G4050:
-        if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
-          s->val[OPT_SCAN_SW].b = (val & 0x01) == 0;
-        if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
-          s->val[OPT_FILE_SW].b = (val & 0x02) == 0;
-        if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
-          s->val[OPT_EMAIL_SW].b = (val & 0x04) == 0;
-        if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
-          s->val[OPT_COPY_SW].b = (val & 0x08) == 0;
-        break;
-      case GPO_CS4400F:
-      case GPO_CS8400F:
-      default:
-        break;
+        case GPO_KVSS080:
+            s->buttons[BUTTON_SCAN_SW].write((val & 0x04) == 0);
+            break;
+        case GPO_G4050:
+            s->buttons[BUTTON_SCAN_SW].write((val & 0x01) == 0);
+            s->buttons[BUTTON_FILE_SW].write((val & 0x02) == 0);
+            s->buttons[BUTTON_EMAIL_SW].write((val & 0x04) == 0);
+            s->buttons[BUTTON_COPY_SW].write((val & 0x08) == 0);
+            break;
+        case GPO_CS4400F:
+        case GPO_CS8400F:
+        default:
+            break;
     }
 
   return status;

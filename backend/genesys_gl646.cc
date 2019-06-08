@@ -4556,7 +4556,7 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
 
 /**
  * update the status of the required sensor in the scanner session
- * the last_val fileds are used to make events 'sticky'
+ * the button fileds are used to make events 'sticky'
  */
 static SANE_Status
 gl646_update_hardware_sensors (Genesys_Scanner * session)
@@ -4576,109 +4576,90 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
     }
   DBG(DBG_io, "%s: GPIO=0x%02x\n", __func__, value);
 
-  /* scan button */
-  if ((dev->model->buttons & GENESYS_HAS_SCAN_SW)
-      && session->val[OPT_SCAN_SW].b == session->last_val[OPT_SCAN_SW].b)
-    {
-      switch (dev->model->gpo_type)
-	{
+    // scan button
+    if (dev->model->buttons & GENESYS_HAS_SCAN_SW) {
+        switch (dev->model->gpo_type) {
 	case GPO_XP200:
-	  session->val[OPT_SCAN_SW].b = ((value & 0x02) != 0);
-	  break;
+            session->buttons[BUTTON_SCAN_SW].write((value & 0x02) != 0);
+            break;
 	case GPO_5345:
-	  session->val[OPT_SCAN_SW].b = (value == 0x16);
-	  break;
+            session->buttons[BUTTON_SCAN_SW].write(value == 0x16);
+            break;
 	case GPO_HP2300:
-	  session->val[OPT_SCAN_SW].b = (value == 0x6c);
-	  break;
+            session->buttons[BUTTON_SCAN_SW].write(value == 0x6c);
+            break;
 	case GPO_HP3670:
 	case GPO_HP2400:
-	  session->val[OPT_SCAN_SW].b = ((value & 0x20) == 0);
-	  break;
+            session->buttons[BUTTON_SCAN_SW].write((value & 0x20) == 0);
+            break;
 	default:
-	  return SANE_STATUS_UNSUPPORTED;
+            return SANE_STATUS_UNSUPPORTED;
 	}
     }
 
-  /* email button */
-  if ((dev->model->buttons & GENESYS_HAS_EMAIL_SW)
-      && session->val[OPT_EMAIL_SW].b == session->last_val[OPT_EMAIL_SW].b)
-    {
-      switch (dev->model->gpo_type)
-	{
+    // email button
+    if (dev->model->buttons & GENESYS_HAS_EMAIL_SW) {
+        switch (dev->model->gpo_type) {
 	case GPO_5345:
-	  session->val[OPT_EMAIL_SW].b = (value == 0x12);
-	  break;
+            session->buttons[BUTTON_EMAIL_SW].write(value == 0x12);
+            break;
 	case GPO_HP3670:
 	case GPO_HP2400:
-	  session->val[OPT_EMAIL_SW].b = ((value & 0x08) == 0);
-	  break;
+            session->buttons[BUTTON_EMAIL_SW].write((value & 0x08) == 0);
+            break;
 	default:
-	  return SANE_STATUS_UNSUPPORTED;
+            return SANE_STATUS_UNSUPPORTED;
 	}
     }
 
-  /* copy button */
-  if ((dev->model->buttons & GENESYS_HAS_COPY_SW)
-      && session->val[OPT_COPY_SW].b == session->last_val[OPT_COPY_SW].b)
-    {
-      switch (dev->model->gpo_type)
-	{
+    // copy button
+    if (dev->model->buttons & GENESYS_HAS_COPY_SW) {
+        switch (dev->model->gpo_type) {
 	case GPO_5345:
-	  session->val[OPT_COPY_SW].b = (value == 0x11);
-	  break;
+            session->buttons[BUTTON_COPY_SW].write(value == 0x11);
+            break;
 	case GPO_HP2300:
-	  session->val[OPT_COPY_SW].b = (value == 0x5c);
-	  break;
+            session->buttons[BUTTON_COPY_SW].write(value == 0x5c);
+            break;
 	case GPO_HP3670:
 	case GPO_HP2400:
-	  session->val[OPT_COPY_SW].b = ((value & 0x10) == 0);
-	  break;
+            session->buttons[BUTTON_COPY_SW].write((value & 0x10) == 0);
+            break;
 	default:
 	  return SANE_STATUS_UNSUPPORTED;
 	}
     }
 
-  /* power button */
-  if ((dev->model->buttons & GENESYS_HAS_POWER_SW)
-      && session->val[OPT_POWER_SW].b == session->last_val[OPT_POWER_SW].b)
-    {
-      switch (dev->model->gpo_type)
-	{
+    // power button
+    if (dev->model->buttons & GENESYS_HAS_POWER_SW) {
+        switch (dev->model->gpo_type) {
 	case GPO_5345:
-	  session->val[OPT_POWER_SW].b = (value == 0x14);
-	  break;
+            session->buttons[BUTTON_POWER_SW].write(value == 0x14);
+            break;
 	default:
-	  return SANE_STATUS_UNSUPPORTED;
+            return SANE_STATUS_UNSUPPORTED;
 	}
     }
 
-  /* ocr button */
-  if ((dev->model->buttons & GENESYS_HAS_OCR_SW)
-      && session->val[OPT_OCR_SW].b == session->last_val[OPT_OCR_SW].b)
-    {
-      switch (dev->model->gpo_type)
-	{
+    // ocr button
+    if (dev->model->buttons & GENESYS_HAS_OCR_SW) {
+        switch (dev->model->gpo_type) {
 	case GPO_5345:
-	  session->val[OPT_OCR_SW].b = (value == 0x13);
-	  break;
+            session->buttons[BUTTON_OCR_SW].write(value == 0x13);
+            break;
 	default:
-	  return SANE_STATUS_UNSUPPORTED;
+            return SANE_STATUS_UNSUPPORTED;
 	}
     }
 
-  /* document detection */
-  if ((dev->model->buttons & GENESYS_HAS_PAGE_LOADED_SW)
-      && session->val[OPT_PAGE_LOADED_SW].b ==
-      session->last_val[OPT_PAGE_LOADED_SW].b)
-    {
-      switch (dev->model->gpo_type)
-	{
+    // document detection
+    if (dev->model->buttons & GENESYS_HAS_PAGE_LOADED_SW) {
+        switch (dev->model->gpo_type) {
 	case GPO_XP200:
-	  session->val[OPT_PAGE_LOADED_SW].b = ((value & 0x04) != 0);
-	  break;
+            session->buttons[BUTTON_PAGE_LOADED_SW].write((value & 0x04) != 0);
+            break;
 	default:
-	  return SANE_STATUS_UNSUPPORTED;
+            return SANE_STATUS_UNSUPPORTED;
 	}
     }
 

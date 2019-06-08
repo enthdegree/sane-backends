@@ -983,13 +983,7 @@ typedef struct Genesys_Command_Set
     SANE_Status (*bulk_read_data) (Genesys_Device * dev, uint8_t addr,
 				   uint8_t * data, size_t len);
 
-  /* Updates hardware sensor information in Genesys_Scanner.val[].
-     If possible, just get information for given option.
-     The sensor state in Genesys_Scanner.val[] should be merged with the
-     new sensor state, using the information that was last read by the frontend
-     in Genesys_Scanner.last_val[], in such a way that a button up/down
-     relative to Genesys_Scanner.last_val[] is not lost.
-   */
+  // Updates hardware sensor information in Genesys_Scanner.val[].
   SANE_Status (*update_hardware_sensors) (struct Genesys_Scanner * s);
 
     /* functions for sheetfed scanners */

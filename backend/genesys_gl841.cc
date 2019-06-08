@@ -2156,20 +2156,11 @@ int scan_step_type=0;
  */
 static
 SANE_Status
-gl841_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
-		      Genesys_Register_Set * reg,
-		      float xres,/*dpi*/
-		      float yres,/*dpi*/
-		      float startx,/*optical_res, from dummy_pixel+1*/
-		      float starty,/*base_ydpi, from home!*/
-		      float pixels,
-		      float lines,
-		      unsigned int depth,
-		      unsigned int channels,
-		      int color_filter,
-		      unsigned int flags
-		      )
+gl841_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Register_Set * reg,
+                     SetupParams& params)
 {
+    params.assert_valid();
+
   int used_res;
   int start, used_pixels;
   int bytes_per_line;
@@ -2200,10 +2191,10 @@ gl841_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
       "Startpos      : %g/%g\n"
       "Depth/Channels: %u/%u\n"
       "Flags         : %x\n\n",
-      __func__, xres, yres, lines, pixels,
-      startx, starty,
-      depth, channels,
-      flags);
+      __func__, params.xres, params.yres, params.lines, params.pixels,
+      params.startx, params.starty,
+      params.depth,  params.channels,
+      params.flags);
 
 /*
 results:
@@ -2236,7 +2227,7 @@ independent of our calculated values:
 
 /* half_ccd */
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (sensor.get_ccd_size_divisor_for_dpi(xres) > 1) {
+  if (sensor.get_ccd_size_divisor_for_dpi(params.xres) > 1) {
       half_ccd = SANE_TRUE;
   } else {
       half_ccd = SANE_FALSE;
@@ -2251,17 +2242,17 @@ independent of our calculated values:
 /* stagger */
 
   if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-    stagger = (4 * yres) / dev->motor.base_ydpi;
+    stagger = (4 * params.yres) / dev->motor.base_ydpi;
   else
     stagger = 0;
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
 
 /* used_res */
-  i = optical_res / xres;
+  i = optical_res / params.xres;
 
 /* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
 
-  if (i < 2 || (flags & SCAN_FLAG_USE_OPTICAL_RES)) /* optical_res >= xres > optical_res/2 */
+  if (i < 2 || (params.flags & SCAN_FLAG_USE_OPTICAL_RES)) /* optical_res >= xres > optical_res/2 */
       used_res = optical_res;
   else if (i < 3)  /* optical_res/2 >= xres > optical_res/3 */
       used_res = optical_res/2;
@@ -2287,7 +2278,7 @@ independent of our calculated values:
   /* use detected left margin  and fixed value */
   /* start */
   /* add x coordinates */
-  start = ((sensor.CCD_start_xoffset + startx) * used_res) / sensor.optical_res;
+  start = ((sensor.CCD_start_xoffset + params.startx) * used_res) / sensor.optical_res;
 
   /* needs to be aligned for used_res */
   start = (start * optical_res) / used_res;
@@ -2309,10 +2300,10 @@ independent of our calculated values:
 
   /* compute correct pixels number */
   /* pixels */
-  used_pixels = (pixels * optical_res) / xres;
+  used_pixels = (params.pixels * optical_res) / params.xres;
 
   /* round up pixels number if needed */
-  if (used_pixels * xres < pixels * optical_res)
+  if (used_pixels * params.xres < params.pixels * optical_res)
       used_pixels++;
 
 /* dummy */
@@ -2346,13 +2337,13 @@ dummy \ scanned lines
 /* cis color scan is effectively a gray scan with 3 gray lines per color
    line and a FILTER of 0 */
   if (dev->model->is_cis)
-      slope_dpi = yres*channels;
+      slope_dpi = params.yres* params.channels;
   else
-      slope_dpi = yres;
+      slope_dpi = params.yres;
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-  scan_step_type = gl841_scan_step_type(dev, yres);
+  scan_step_type = gl841_scan_step_type(dev, params.yres);
   exposure_time = gl841_exposure_time(dev, sensor,
                     slope_dpi,
                     scan_step_type,
@@ -2364,25 +2355,25 @@ dummy \ scanned lines
   /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
    * to generate 1 lineart data */
-  if(flags & SCAN_FLAG_DYNAMIC_LINEART)
+  if(params.flags & SCAN_FLAG_DYNAMIC_LINEART)
     {
-      depth=8;
+      params.depth=8;
     }
 
   oflags=0;
-  if (flags & SCAN_FLAG_DISABLE_SHADING)
+  if (params.flags & SCAN_FLAG_DISABLE_SHADING)
     {
       oflags |= OPTICAL_FLAG_DISABLE_SHADING;
     }
-  if ((flags & SCAN_FLAG_DISABLE_GAMMA) || (depth==16))
+  if ((params.flags & SCAN_FLAG_DISABLE_GAMMA) || (params.depth==16))
     {
       oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
     }
-  if (flags & SCAN_FLAG_DISABLE_LAMP)
+  if (params.flags & SCAN_FLAG_DISABLE_LAMP)
     {
       oflags |= OPTICAL_FLAG_DISABLE_LAMP;
     }
-  if (flags & SCAN_FLAG_ENABLE_LEDADD)
+  if (params.flags & SCAN_FLAG_ENABLE_LEDADD)
     {
       oflags |= OPTICAL_FLAG_ENABLE_LEDADD;
     }
@@ -2393,10 +2384,10 @@ dummy \ scanned lines
 					used_res,
 					start,
 					used_pixels,
-					channels,
-					depth,
+                                         params.channels,
+                                        params.depth,
 					half_ccd,
-					color_filter,
+                                        params.color_filter,
                                         oflags);
   if (status != SANE_STATUS_GOOD)
     {
@@ -2406,13 +2397,13 @@ dummy \ scanned lines
 /*** motor parameters ***/
 
   /* scanned area must be enlarged by max color shift needed */
-  max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,flags);
+  max_shift=sanei_genesys_compute_max_shift(dev, params.channels,params.yres,params.flags);
 
   /* lincnt */
-  lincnt = lines + max_shift + stagger;
+  lincnt = params.lines + max_shift + stagger;
 
   /* add tl_y to base movement */
-  move = starty;
+  move = params.starty;
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
   /* subtract current head position */
@@ -2427,19 +2418,19 @@ dummy \ scanned lines
 /*  move = ((move + dummy) / (dummy + 1)) * (dummy + 1);
     DBG(DBG_info, "%s: move=%d steps\n", __func__, move);*/
 
-  if (flags & SCAN_FLAG_SINGLE_LINE)
-      status = gl841_init_motor_regs_off(reg, dev->model->is_cis?lincnt*channels:lincnt);
+  if (params.flags & SCAN_FLAG_SINGLE_LINE)
+      status = gl841_init_motor_regs_off(reg, dev->model->is_cis?lincnt* params.channels:lincnt);
   else
       status = gl841_init_motor_regs_scan(dev, sensor,
 					  reg,
 					  exposure_time,
 					  slope_dpi,
 					  scan_step_type,
-					  dev->model->is_cis?lincnt*channels:lincnt,
+                                          dev->model->is_cis?lincnt* params.channels:lincnt,
 					  dummy,
 					  move,
 					  scan_power_mode,
-					  (flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)?
+                                          (params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)?
 					  MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE:0
 	  );
 
@@ -2451,7 +2442,7 @@ dummy \ scanned lines
 
 /* words_per_line */
   bytes_per_line = (used_pixels * used_res) / optical_res;
-  bytes_per_line = (bytes_per_line * channels * depth) / 8;
+  bytes_per_line = (bytes_per_line *  params.channels * params.depth) / 8;
 
   requested_buffer_size = 8 * bytes_per_line;
   /* we must use a round number of bytes_per_line */
@@ -2461,7 +2452,7 @@ dummy \ scanned lines
 
   read_buffer_size =
     2 * requested_buffer_size +
-    ((max_shift + stagger) * used_pixels * channels * depth) / 8;
+    ((max_shift + stagger) * used_pixels *  params.channels * params.depth) / 8;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -2473,7 +2464,7 @@ dummy \ scanned lines
     dev->shrink_buffer.alloc(requested_buffer_size);
 
     dev->out_buffer.clear();
-    dev->out_buffer.alloc((8 * dev->settings.pixels * channels * depth) / 8);
+    dev->out_buffer.alloc((8 * dev->settings.pixels *  params.channels * params.depth) / 8);
 
   dev->read_bytes_left = bytes_per_line * lincnt;
 
@@ -2483,11 +2474,11 @@ dummy \ scanned lines
 
   dev->current_setup.pixels = (used_pixels * used_res)/optical_res;
   dev->current_setup.lines = lincnt;
-  dev->current_setup.depth = depth;
-  dev->current_setup.channels = channels;
+  dev->current_setup.depth = params.depth;
+  dev->current_setup.channels =  params.channels;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
-  dev->current_setup.yres = yres;
+  dev->current_setup.yres = params.yres;
   dev->current_setup.ccd_size_divisor = half_ccd ? 2 : 1;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
@@ -2508,14 +2499,14 @@ dummy \ scanned lines
    */
 
   dev->total_bytes_read = 0;
-  if (depth == 1)
+  if (params.depth == 1)
       dev->total_bytes_to_read =
 	  ((dev->settings.pixels * dev->settings.lines) / 8 +
 	   (((dev->settings.pixels * dev->settings.lines)%8)?1:0)
-	      ) * channels;
+              ) *  params.channels;
   else
       dev->total_bytes_to_read =
-	  dev->settings.pixels * dev->settings.lines * channels * (depth / 8);
+          dev->settings.pixels * dev->settings.lines *  params.channels * (params.depth / 8);
 
   DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
 /* END TODO */
@@ -3638,21 +3629,24 @@ gl841_search_start_position (Genesys_Device * dev)
   // whith employ different sensors with potentially different settings.
   auto& sensor = sanei_genesys_find_sensor_for_write(dev, dpi);
 
-  status = gl841_init_scan_regs (dev, sensor,
-                                 &local_reg,
-				 dpi,
-				 dpi,
-				 0,
-				 0,/*we should give a small offset here~60 steps*/
-				 600,
-				 dev->model->search_lines,
-				 8,
-				 1,
-				 1,/*green*/
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE);
+    SetupParams params;
+    params.xres = dpi;
+    params.yres = dpi;
+    params.startx = 0;
+    params.starty = 0; /*we should give a small offset here~60 steps*/
+    params.pixels = 600;
+    params.lines = dev->model->search_lines;
+    params.depth = 8;
+    params.channels = 1;
+    params.scan_mode = ScanColorMode::GRAY;
+    params.color_filter = 1; /*green*/
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE |
+                   SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
+
+    status = gl841_init_scan_regs(dev, sensor, &local_reg, params);
+
   if(status!=SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to init scan registers: %s\n", __func__, sane_strstatus(status));
@@ -3738,25 +3732,28 @@ gl841_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
   /* set line size */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
-  else
+  else {
     channels = 1;
+  }
 
-  status = gl841_init_scan_regs (dev, sensor,
-                                 &regs,
-				 dev->settings.xres,
-				 dev->settings.yres,
-				 0,
-				 0,
-                                 sensor.optical_res / cksel, /* XXX STEF XXX !!! */
-				 20,
-				 16,
-				 channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE
-      );
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = dev->settings.yres;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = sensor.optical_res / cksel; /* XXX STEF XXX !!! */
+    params.lines = 20;
+    params.depth = 16;
+    params.channels = channels;
+    params.scan_mode = dev->settings.scan_mode;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl841_init_scan_regs(dev, sensor, &regs, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
@@ -3820,22 +3817,26 @@ gl841_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   dev->calib_channels = 3;
   dev->calib_lines = dev->model->shading_lines;
-  status = gl841_init_scan_regs (dev, sensor,
-                                 &regs,
-				 dev->settings.xres,
-				 ydpi,
-				 0,
-				 starty,
-                                 (sensor.sensor_pixels * dev->settings.xres) / sensor.optical_res,
-				 dev->calib_lines,
-				 16,
-				 dev->calib_channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-                                 SCAN_FLAG_USE_OPTICAL_RES |
-				 /*SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |*/
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = ydpi;
+    params.startx = 0;
+    params.starty = starty;
+    params.pixels = (sensor.sensor_pixels * dev->settings.xres) / sensor.optical_res;
+    params.lines = dev->calib_lines;
+    params.depth = 16;
+    params.channels = dev->calib_channels;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_USE_OPTICAL_RES |
+                   /*SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |*/
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl841_init_scan_regs(dev, sensor, &regs, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
@@ -3955,18 +3956,20 @@ gl841_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
       flags |= SCAN_FLAG_DYNAMIC_LINEART;
     }
 
-  status = gl841_init_scan_regs (dev, sensor,
-                                 &dev->reg,
-				 dev->settings.xres,
-				 dev->settings.yres,
-				 start,
-				 move,
-				 dev->settings.pixels,
-				 dev->settings.lines,
-				 depth,
-				 channels,
-				 dev->settings.color_filter,
-				 flags);
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = dev->settings.yres;
+    params.startx = start;
+    params.starty = move;
+    params.pixels = dev->settings.pixels;
+    params.lines = dev->settings.lines;
+    params.depth = depth;
+    params.channels = channels;
+    params.scan_mode = dev->settings.scan_mode;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = flags;
+
+    status = gl841_init_scan_regs(dev, sensor, &dev->reg, params);
 
   if (status != SANE_STATUS_GOOD)
       return status;
@@ -4060,23 +4063,24 @@ gl841_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
   /* offset calibration is always done in color mode */
   channels = 3;
 
-  status = gl841_init_scan_regs (dev, sensor,
-                                 &regs,
-				 dev->settings.xres,
-				 dev->settings.yres,
-				 0,
-				 0,
-                                 (sensor.sensor_pixels*dev->settings.xres) / sensor.optical_res,
-				 1,
-				 16,
-				 channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES
-      );
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = dev->settings.yres;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = (sensor.sensor_pixels*dev->settings.xres) / sensor.optical_res;
+    params.lines = 1;
+    params.depth = 16;
+    params.channels = channels;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE |
+                   SCAN_FLAG_USE_OPTICAL_RES;
+
+    status = gl841_init_scan_regs(dev, sensor, &regs, params);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -4264,22 +4268,24 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
       return status;
     }
 
-  status = gl841_init_scan_regs (dev, sensor,
-                                 &regs,
-				 dev->settings.xres,
-				 dev->settings.yres,
-				 0,
-				 0,
-                                 (sensor.sensor_pixels*dev->settings.xres) / sensor.optical_res,
-				 1,
-				 8,
-				 3,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES);
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = dev->settings.yres;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = (sensor.sensor_pixels*dev->settings.xres) / sensor.optical_res;
+    params.lines = 1;
+    params.depth = 8;
+    params.channels = 3;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE |
+                   SCAN_FLAG_USE_OPTICAL_RES;
+
+    status = gl841_init_scan_regs(dev, sensor, &regs, params);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -4389,24 +4395,25 @@ gl841_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
   /* offset calibration is always done in color mode */
   channels = 3;
 
-  status = gl841_init_scan_regs (dev, sensor,
-                                 &regs,
-				 dev->settings.xres,
-				 dev->settings.yres,
-				 0,
-				 0,
-                                 (sensor.sensor_pixels*dev->settings.xres) / sensor.optical_res,
-				 1,
-				 16,
-				 channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES |
-				 SCAN_FLAG_DISABLE_LAMP
-				 );
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = dev->settings.yres;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = (sensor.sensor_pixels*dev->settings.xres) / sensor.optical_res;
+    params.lines = 1;
+    params.depth = 16;
+    params.channels = channels;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE |
+                   SCAN_FLAG_USE_OPTICAL_RES |
+                   SCAN_FLAG_DISABLE_LAMP;
+
+    status = gl841_init_scan_regs(dev, sensor, &regs, params);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -4776,23 +4783,24 @@ gl841_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   /* coarse gain calibration is allways done in color mode */
   channels = 3;
 
-  status = gl841_init_scan_regs (dev, sensor,
-                                 &regs,
-				 dev->settings.xres,
-				 dev->settings.yres,
-				 0,
-				 0,
-                                 (sensor.sensor_pixels*dev->settings.xres) / sensor.optical_res,
-				 lines,
-				 16,
-				 channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES
-      );
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = dev->settings.yres;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = (sensor.sensor_pixels*dev->settings.xres) / sensor.optical_res;
+    params.lines = lines;
+    params.depth = 16;
+    params.channels = channels;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE |
+                   SCAN_FLAG_USE_OPTICAL_RES;
+
+    status = gl841_init_scan_regs(dev, sensor, &regs, params);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -4939,23 +4947,28 @@ gl841_init_regs_for_warmup (Genesys_Device * dev,
   dev->frontend.set_offset(1, 0x80);
   dev->frontend.set_offset(2, 0x80);
 
-  status = gl841_init_scan_regs (dev, sensor,
-				 local_reg,
-                                 sensor.optical_res,
-				 dev->settings.yres,
-                                 sensor.dummy_pixel,
-				 0,
-				 num_pixels,
-				 1,
-				 16,
-				 *channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES
-      );
+    SetupParams params;
+    params.xres = sensor.optical_res;
+    params.yres = dev->settings.yres;
+    params.startx = sensor.dummy_pixel;
+    params.starty = 0;
+    params.pixels = num_pixels;
+    params.lines = 1;
+    params.depth = 16;
+    params.channels = *channels;
+      if (*channels == 3) {
+          params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+      } else {
+          params.scan_mode = ScanColorMode::GRAY;
+      }
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE |
+                   SCAN_FLAG_USE_OPTICAL_RES;
+
+    status = gl841_init_scan_regs(dev, sensor, local_reg, params);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -5139,23 +5152,24 @@ gl841_init (Genesys_Device * dev)
   Genesys_Register_Set& regs = dev->calib_reg;
   regs = dev->reg;
 
-  status = gl841_init_scan_regs (dev, sensor,
-                                 &regs,
-				 300,
-				 300,
-				 0,
-				 0,
-                                 (16 * 300) / sensor.optical_res,
-				 1,
-				 16,
-				 3,
-				 0,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
-				 SCAN_FLAG_USE_OPTICAL_RES
-      );
+    SetupParams params;
+    params.xres = 300;
+    params.yres = 300;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = (16 * 300) / sensor.optical_res;
+    params.lines = 1;
+    params.depth = 16;
+    params.channels = 3;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = 0;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE |
+                   SCAN_FLAG_USE_OPTICAL_RES;
+
+    status = gl841_init_scan_regs(dev, sensor, &regs, params);
 
   RIE(sanei_genesys_bulk_write_register(dev, regs));
 
@@ -5285,18 +5299,21 @@ gl841_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   local_reg = dev->reg;
 
-  status = gl841_init_scan_regs (dev, sensor,
-                                 &local_reg,
-				 dpi,
-				 dpi,
-				 0,
-                                 0,
-                                 pixels,
-                                 lines,
-                                 depth,
-                                 channels,
-                                 0,
-                                 SCAN_FLAG_DISABLE_SHADING | SCAN_FLAG_DISABLE_GAMMA);
+    SetupParams params;
+    params.xres = dpi;
+    params.yres = dpi;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = pixels;
+    params.lines = lines;
+    params.depth = depth;
+    params.channels = channels;
+    params.scan_mode = ScanColorMode::GRAY;
+    params.color_filter = 0;
+    params.flags = SCAN_FLAG_DISABLE_SHADING | SCAN_FLAG_DISABLE_GAMMA;
+
+    status = gl841_init_scan_regs(dev, sensor, &local_reg, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup for scan: %s\n", __func__, sane_strstatus(status));

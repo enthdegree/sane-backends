@@ -1586,6 +1586,7 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Senso
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
+  dev->current_setup.params = session.params;
   dev->current_setup.pixels = session.output_pixels;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = session.output_line_count;
@@ -1726,6 +1727,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   /* lincnt */
   lincnt = params.lines + max_shift + stagger;
 
+  dev->current_setup.params = params;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;

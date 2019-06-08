@@ -1313,7 +1313,7 @@ gl847_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
-
+  dev->current_setup.params = params;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   dev->current_setup.lines = lincnt;
   dev->current_setup.depth = params.depth;
@@ -1461,6 +1461,7 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   /* lincnt */
   lincnt = params.lines + max_shift + stagger;
 
+  dev->current_setup.params = params;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   dev->current_setup.lines = lincnt;
   dev->current_setup.depth = params.depth;

@@ -2461,7 +2461,7 @@ dummy \ scanned lines
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
-
+  dev->current_setup.params = params;
   dev->current_setup.pixels = (used_pixels * used_res)/optical_res;
   dev->current_setup.lines = lincnt;
   dev->current_setup.depth = params.depth;
@@ -2683,6 +2683,7 @@ dummy \ scanned lines
 
     lincnt = params.lines + max_shift + stagger;
 
+  dev->current_setup.params = params;
   dev->current_setup.pixels = (used_pixels * used_res)/optical_res;
   dev->current_setup.lines = lincnt;
   dev->current_setup.depth = params.depth;

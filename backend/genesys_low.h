@@ -1222,6 +1222,9 @@ struct SetupParams {
 
 struct Genesys_Current_Setup
 {
+    // params used for this setup
+    SetupParams params;
+
     // pixel count expected from scanner
     int pixels = 0;
     // line count expected from scanner

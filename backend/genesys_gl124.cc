@@ -1462,6 +1462,7 @@ gl124_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
   dev->read_active = SANE_TRUE;
 
 
+  dev->current_setup.params = params;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;
@@ -1584,6 +1585,7 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
   /* lincnt */
   lincnt = params.lines + max_shift + stagger;
 
+  dev->current_setup.params = params;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   DBG (DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;

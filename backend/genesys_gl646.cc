@@ -967,6 +967,7 @@ gl646_setup_registers (Genesys_Device * dev,
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
+  dev->current_setup.params = params;
   dev->current_setup.pixels =
     ((endx - startx) * sensor_mst->xdpi) / sensor.optical_res;
   dev->current_setup.lines = linecnt;

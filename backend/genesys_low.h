@@ -1164,9 +1164,6 @@ struct Genesys_Settings
     // bit depth of the scan
     unsigned int depth = 0;
 
-    /* todo : remove these fields ? */
-    int exposure_time = 0;
-
     unsigned int color_filter = 0;
 
     // true if scan is true gray, false if monochrome scan
@@ -1180,9 +1177,6 @@ struct Genesys_Settings
 
     // Disable interpolation for xres<yres
     int disable_interpolation = 0;
-
-    // Use double x resolution internally to provide better quality
-    int double_xres = 0;
 
     // true is lineart is generated from gray data by the dynamic rasterization algoright
     int dynamic_lineart = 0;

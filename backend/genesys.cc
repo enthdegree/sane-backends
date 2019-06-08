@@ -923,7 +923,7 @@ sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 	    }
 	}
     }
-  return dev->settings.exposure_time;
+  return 11000;
 }
 
 
@@ -4173,70 +4173,47 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
       count = 0;
       while (count < size)
 	{
-          if(dev->settings.double_xres==SANE_TRUE)
-            {
-	      /* copy only even pixel */
-              work_buffer_dst[count] = dev->oe_buffer.get_read_pos()[dev->cur];
-              /* update counter and pointer */
-              count++;
-              dev->cur++;
-            }
-          else
-            {
-                  if(depth==1)
-                    {
-                      while (dev->cur < dev->len && count < size)
-                        {
-                          for(n=0;n<dev->segnb;n++)
-                            {
-                                  work_buffer_dst[count+n] = 0;
+            if (depth==1) {
+                while (dev->cur < dev->len && count < size) {
+                    for (n=0; n<dev->segnb; n++) {
+                        work_buffer_dst[count+n] = 0;
+                    }
+                    /* interleaving is at bit level */
+                    for (i=0;i<8;i++) {
+                        k=count+(i*dev->segnb)/8;
+                        for (n=0;n<dev->segnb;n++) {
+                            work_buffer_dst[k] = work_buffer_dst[k] << 1;
+                            if ((dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]])&(128>>i)) {
+                                work_buffer_dst[k] |= 1;
                             }
-                          /* interleaving is at bit level */
-                          for(i=0;i<8;i++)
-                            {
-                              k=count+(i*dev->segnb)/8;
-                              for(n=0;n<dev->segnb;n++)
-                                {
-                                      work_buffer_dst[k] = work_buffer_dst[k] << 1;
-                                      if((dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]])&(128>>i))
-                                        {
-                                          work_buffer_dst[k] |= 1;
-                                        }
-                                }
-                            }
+                        }
+                    }
 
-                          /* update counter and pointer */
-                          count += dev->segnb;
-                          dev->cur++;
-                        }
+                    /* update counter and pointer */
+                    count += dev->segnb;
+                    dev->cur++;
+                }
+            }
+            if (depth==8) {
+                 while (dev->cur < dev->len && count < size) {
+                    for (n=0;n<dev->segnb;n++) {
+                        work_buffer_dst[count+n] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]];
                     }
-                  if(depth==8)
-                    {
-                      while (dev->cur < dev->len && count < size)
-                        {
-                          for(n=0;n<dev->segnb;n++)
-                            {
-                                  work_buffer_dst[count+n] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]];
-                            }
-                          /* update counter and pointer */
-                          count += dev->segnb;
-                          dev->cur++;
-                        }
+                    /* update counter and pointer */
+                    count += dev->segnb;
+                    dev->cur++;
+                }
+            }
+            if (depth==16) {
+                while (dev->cur < dev->len && count < size) {
+                    for (n=0;n<dev->segnb;n++) {
+                        work_buffer_dst[count+n*2] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]];
+                        work_buffer_dst[count+n*2+1] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n] + 1];
                     }
-                  if(depth==16)
-                    {
-                      while (dev->cur < dev->len && count < size)
-                        {
-                          for(n=0;n<dev->segnb;n++)
-                            {
-                                  work_buffer_dst[count+n*2] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]];
-                                  work_buffer_dst[count+n*2+1] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n] + 1];
-                            }
-                          /* update counter and pointer */
-                          count += dev->segnb*2;
-                          dev->cur+=2;
-                        }
-                    }
+                    /* update counter and pointer */
+                    count += dev->segnb*2;
+                    dev->cur+=2;
+                }
             }
 
 	  /* go to next line if needed */

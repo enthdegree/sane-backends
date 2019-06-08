@@ -1260,8 +1260,8 @@ gl646_init_regs (Genesys_Device * dev)
   dev->reg.find_reg(0x35).value = 0x01 /*0x00 */ ;	/* set maximum word size per line, for buffer full control (10800) */
   dev->reg.find_reg(0x36).value = 0x00 /*0x2a */ ;
   dev->reg.find_reg(0x37).value = 0x00 /*0x30 */ ;
-  dev->reg.find_reg(0x38).value = HIBYTE (dev->settings.exposure_time) /*0x2a */ ;	/* line period (exposure time = 11000 pixels) */
-  dev->reg.find_reg(0x39).value = LOBYTE (dev->settings.exposure_time) /*0xf8 */ ;
+  dev->reg.find_reg(0x38).value = 0x2a; // line period (exposure time = 11000 pixels) */
+  dev->reg.find_reg(0x39).value = 0xf8;
   dev->reg.find_reg(0x3d).value = 0x00;	/* set feed steps number of motor move */
   dev->reg.find_reg(0x3e).value = 0x00;
   dev->reg.find_reg(0x3f).value = 0x01 /*0x00 */ ;
@@ -2515,7 +2515,6 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres);
@@ -2635,7 +2634,6 @@ gl646_search_start_position (Genesys_Device * dev)
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* scan the desired area */
@@ -2769,7 +2767,6 @@ gl646_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   settings.disable_interpolation = dev->settings.disable_interpolation;
   settings.threshold = dev->settings.threshold;
-  settings.exposure_time = dev->settings.exposure_time;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* keep account of the movement for final scan move */
@@ -3174,7 +3171,6 @@ gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* colors * bytes_per_color * scan lines */
@@ -3354,7 +3350,6 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* scan first line of data with no gain */
@@ -3483,7 +3478,6 @@ gl646_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* scan first line of data with no gain, but with offset from
@@ -3641,7 +3635,6 @@ ad_fe_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   size = channels * settings.pixels * settings.lines;
@@ -3770,7 +3763,6 @@ gl646_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* start gain value */
@@ -3916,7 +3908,6 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* setup for scan */
@@ -3983,7 +3974,6 @@ gl646_repark_head (Genesys_Device * dev)
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres);
@@ -4079,22 +4069,6 @@ gl646_init (Genesys_Device * dev)
       dev->settings.color_filter = 1;	/* green filter by default */
       gettimeofday (&tv, NULL);
       dev->init_date = tv.tv_sec;
-
-      switch (dev->model->motor_type)
-	{
-	  /* set to 11111 to spot bugs, sanei_genesys_exposure_time should
-	     have obsoleted this field  */
-	case MOTOR_5345:
-	  dev->settings.exposure_time = 11111;
-	  break;
-
-	case MOTOR_ST24:
-	  dev->settings.exposure_time = 11000;
-	  break;
-	default:
-	  dev->settings.exposure_time = 11000;
-	  break;
-	}
 
       /* Set default values for registers */
       gl646_init_regs (dev);
@@ -4545,7 +4519,6 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   std::vector<uint8_t> data;
@@ -4898,7 +4871,6 @@ gl646_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor, SANE_Bool
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* signals if a strip of the given color has been found */

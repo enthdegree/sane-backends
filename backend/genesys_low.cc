@@ -1070,6 +1070,39 @@ sanei_genesys_read_feed_steps (Genesys_Device * dev, unsigned int *steps)
   return SANE_STATUS_GOOD;
 }
 
+void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                  Genesys_Register_Set& regs, bool set)
+{
+    static const uint8_t REG03_LAMPPWR = 0x10;
+
+    if (set) {
+        regs.find_reg(0x03).value |= REG03_LAMPPWR;
+
+        if (dev->model->asic_type == GENESYS_GL841) {
+            sanei_genesys_set_exposure(regs, sanei_genesys_fixup_exposure(sensor.exposure));
+            regs.set8(0x19, 0x50);
+        }
+
+        if (dev->model->asic_type == GENESYS_GL843) {
+            sanei_genesys_set_exposure(regs, sensor.exposure);
+        }
+    } else {
+        regs.find_reg(0x03).value &= ~REG03_LAMPPWR;
+
+        if (dev->model->asic_type == GENESYS_GL841) {
+            sanei_genesys_set_exposure(regs, {0x0101, 0x0101, 0x0101});
+            regs.set8(0x19, 0xff);
+        }
+
+        if (dev->model->asic_type == GENESYS_GL843) {
+            if (dev->model->model_id != MODEL_CANON_CANOSCAN_8600F) {
+                // BUG: datasheet says we shouldn't set exposure to zero
+                sanei_genesys_set_exposure(regs, {0, 0, 0});
+            }
+        }
+    }
+}
+
 
 /**
  * Write to many registers at once

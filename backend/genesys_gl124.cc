@@ -1625,30 +1625,6 @@ gl124_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
     }
 }
 
-static void
-gl124_set_lamp_power (Genesys_Device * dev, const Genesys_Sensor& sensor,
-		      Genesys_Register_Set * regs, SANE_Bool set)
-{
-    (void) sensor;
-  if (dev == NULL || regs==NULL)
-    return;
-
-  if (set)
-    {
-      sanei_genesys_set_reg_from_set (regs, 0x03,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x03)
-				      | REG03_LAMPPWR);
-    }
-  else
-    {
-      sanei_genesys_set_reg_from_set (regs, 0x03,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x03)
-				      & ~REG03_LAMPPWR);
-    }
-}
-
 /**
  * for fast power saving methods only, like disabling certain amplifiers
  * @param dev device to use
@@ -3602,7 +3578,6 @@ static Genesys_Command_Set gl124_cmd_set = {
   gl124_save_power,
 
   gl124_set_motor_power,
-  gl124_set_lamp_power,
 
   gl124_begin_scan,
   gl124_end_scan,

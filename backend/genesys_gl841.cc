@@ -2722,43 +2722,6 @@ gl841_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
     }
 }
 
-static void
-gl841_set_lamp_power (Genesys_Device * dev, const Genesys_Sensor& sensor,
-		      Genesys_Register_Set * regs, SANE_Bool set)
-{
-    (void) dev;
-  GenesysRegister* r;
-  int i;
-
-  if (set)
-    {
-      sanei_genesys_set_reg_from_set (regs, 0x03,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x03) |
-				      REG03_LAMPPWR);
-
-      sanei_genesys_set_exposure(*regs,
-                                 sanei_genesys_fixup_exposure(sensor.exposure));
-
-      r = sanei_genesys_get_address (regs, 0x19);
-      r->value = 0x50;
-    }
-  else
-    {
-      sanei_genesys_set_reg_from_set (regs, 0x03,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x03) &
-				      ~REG03_LAMPPWR);
-
-      r = sanei_genesys_get_address (regs, 0x10);
-      for (i = 0; i < 6; i++, r++) {
-	r->value = 0x01;/* 0x0101 is as off as possible */
-      }
-      r = sanei_genesys_get_address (regs, 0x19);
-      r->value = 0xff;
-    }
-}
-
 /*for fast power saving methods only, like disabling certain amplifiers*/
 static SANE_Status gl841_save_power(Genesys_Device * dev, SANE_Bool enable)
 {
@@ -5643,7 +5606,6 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_save_power,
 
   gl841_set_motor_power,
-  gl841_set_lamp_power,
 
   gl841_begin_scan,
   gl841_end_scan,

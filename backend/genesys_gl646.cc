@@ -1781,28 +1781,6 @@ gl646_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
     }
 }
 
-static void
-gl646_set_lamp_power (Genesys_Device * dev, const Genesys_Sensor& sensor,
-		      Genesys_Register_Set * regs, SANE_Bool set)
-{
-    (void) sensor;
-  if (dev)
-    {
-      if (set)
-	{
-	  sanei_genesys_set_reg_from_set (regs, 0x03,
-					  sanei_genesys_read_reg_from_set
-					  (regs, 0x03) | REG03_LAMPPWR);
-	}
-      else
-	{
-	  sanei_genesys_set_reg_from_set (regs, 0x03,
-					  sanei_genesys_read_reg_from_set
-					  (regs, 0x03) & ~REG03_LAMPPWR);
-	}
-    }
-}
-
 /**
  * enters or leaves power saving mode
  * limited to AFE for now.
@@ -4961,7 +4939,6 @@ static Genesys_Command_Set gl646_cmd_set = {
   gl646_set_powersaving,
   gl646_save_power,
   gl646_set_motor_power,
-  gl646_set_lamp_power,
 
   gl646_begin_scan,
   gl646_end_scan,

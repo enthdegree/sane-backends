@@ -976,9 +976,6 @@ typedef struct Genesys_Command_Set
     SANE_Status (*save_power) (Genesys_Device * dev, SANE_Bool enable);
 
   void (*set_motor_power) (Genesys_Register_Set * regs, SANE_Bool set);
-  void (*set_lamp_power) (Genesys_Device * dev, const Genesys_Sensor& sensor,
-			  Genesys_Register_Set * regs,
-			  SANE_Bool set);
 
     SANE_Status (*begin_scan) (Genesys_Device * dev,
                                const Genesys_Sensor& sensor,
@@ -1581,6 +1578,9 @@ extern SANE_Status sanei_genesys_read_scancnt (Genesys_Device * dev,
 
 extern SANE_Status sanei_genesys_read_feed_steps (Genesys_Device * dev,
 						  unsigned int *steps);
+
+void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                  Genesys_Register_Set& regs, bool set);
 
 extern void
 sanei_genesys_calculate_zmode2 (SANE_Bool two_table,

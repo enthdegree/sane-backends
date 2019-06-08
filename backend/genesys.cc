@@ -1798,12 +1798,12 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
    * because they have a calibration sheet with a sufficient black strip                */
   if (dev->model->is_sheetfed == SANE_FALSE)
     {
-      dev->model->cmd_set->set_lamp_power(dev, sensor, &dev->calib_reg, SANE_FALSE);
+        sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, false);
       dev->model->cmd_set->set_motor_power(&dev->calib_reg, motor);
     }
   else
     {
-      dev->model->cmd_set->set_lamp_power(dev, sensor, &dev->calib_reg, SANE_TRUE);
+        sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
       dev->model->cmd_set->set_motor_power(&dev->calib_reg, motor);
     }
 
@@ -1992,8 +1992,8 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
       motor=SANE_FALSE;
     }
 
-  /* turn on motor and lamp power */
-  dev->model->cmd_set->set_lamp_power(dev, sensor, &dev->calib_reg, SANE_TRUE);
+    // turn on motor and lamp power
+    sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
   dev->model->cmd_set->set_motor_power(&dev->calib_reg, motor);
 
   /* if needed, go back before doing next scan */
@@ -2127,8 +2127,8 @@ genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Senso
       motor=SANE_FALSE;
     }
 
-  /* turn on motor and lamp power */
-  dev->model->cmd_set->set_lamp_power(dev, sensor, &dev->calib_reg, SANE_TRUE);
+    // turn on motor and lamp power
+    sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
   dev->model->cmd_set->set_motor_power(&dev->calib_reg, motor);
 
   status =
@@ -3906,7 +3906,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
   /* no lamp during scan */
   if(lamp_off == SANE_TRUE)
     {
-      dev->model->cmd_set->set_lamp_power(dev, sensor, &dev->reg, SANE_FALSE);
+        sanei_genesys_set_lamp_power(dev, sensor, dev->reg, false);
     }
 
   /* GL124 is using SHDAREA, so we have to wait for scan to be set up before

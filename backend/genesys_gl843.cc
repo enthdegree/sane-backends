@@ -1767,32 +1767,6 @@ gl843_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
     }
 }
 
-static void
-gl843_set_lamp_power (Genesys_Device * dev, const Genesys_Sensor& sensor,
-		      Genesys_Register_Set * regs, SANE_Bool set)
-{
-  uint8_t val;
-
-  val = sanei_genesys_read_reg_from_set (regs, REG03);
-  if (set)
-    {
-      val |= REG03_LAMPPWR;
-      sanei_genesys_set_reg_from_set (regs, REG03, val);
-
-        sanei_genesys_set_exposure(*regs, sensor.exposure);
-    }
-  else
-    {
-      val &= ~REG03_LAMPPWR;
-      sanei_genesys_set_reg_from_set (regs, REG03, val);
-      if (dev->model->model_id != MODEL_CANON_CANOSCAN_8600F)
-        {
-          // FIXME: datasheet says we shouldn't set exposure to zero
-          sanei_genesys_set_exposure(*regs, {0, 0, 0});
-        }
-    }
-}
-
 /**
  * for fast power saving methods only, like disabling certain amplifiers
  * @param dev device to use
@@ -4406,7 +4380,6 @@ static Genesys_Command_Set gl843_cmd_set = {
   gl843_save_power,
 
   gl843_set_motor_power,
-  gl843_set_lamp_power,
 
   gl843_begin_scan,
   gl843_end_scan,

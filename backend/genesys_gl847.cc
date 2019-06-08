@@ -1500,24 +1500,6 @@ gl847_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
     }
 }
 
-static void
-gl847_set_lamp_power (Genesys_Device __sane_unused__ * dev, const Genesys_Sensor& /*sensor*/,
-		      Genesys_Register_Set * regs, SANE_Bool set)
-{
-  if (set)
-    {
-      sanei_genesys_set_reg_from_set (regs, REG03,
-				      sanei_genesys_read_reg_from_set (regs, REG03)
-				      | REG03_LAMPPWR);
-    }
-  else
-    {
-      sanei_genesys_set_reg_from_set (regs, REG03,
-				      sanei_genesys_read_reg_from_set (regs, REG03)
-				      & ~REG03_LAMPPWR);
-    }
-}
-
 /*for fast power saving methods only, like disabling certain amplifiers*/
 static SANE_Status
 gl847_save_power (Genesys_Device * dev, SANE_Bool enable)
@@ -3488,7 +3470,6 @@ static Genesys_Command_Set gl847_cmd_set = {
   gl847_save_power,
 
   gl847_set_motor_power,
-  gl847_set_lamp_power,
 
   gl847_begin_scan,
   gl847_end_scan,

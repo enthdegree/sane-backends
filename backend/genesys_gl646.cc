@@ -380,16 +380,48 @@ static SANE_Status
 gl646_setup_registers (Genesys_Device * dev,
                        const Genesys_Sensor& sensor,
 		       Genesys_Register_Set * regs,
+                       SetupParams& params,
 		       Genesys_Settings scan_settings,
 		       uint16_t * slope_table1,
 		       uint16_t * slope_table2,
-		       SANE_Int resolution,
-		       uint32_t move,
-		       uint32_t linecnt,
-		       uint16_t startx,
-		       uint16_t endx, SANE_Bool color,
-                       SANE_Int depth)
+                       bool xcorrection)
 {
+    int resolution = params.xres;
+    uint32_t move = params.starty;
+    uint32_t linecnt = params.lines;
+
+    uint32_t startx = 0;
+    /* pixels are allways given at full CCD optical resolution */
+    /* use detected left margin and fixed value */
+    if (xcorrection == SANE_TRUE) {
+        if (sensor.CCD_start_xoffset > 0) {
+            startx = sensor.CCD_start_xoffset;
+        } else {
+            startx = sensor.dummy_pixel;
+        }
+    } else {
+        // startx cannot be below dummy pixel value
+        startx = sensor.dummy_pixel;
+    }
+
+    /* add x coordinates : expressed in sensor max dpi */
+    startx += params.startx;
+
+    /* stagger works with odd start cordinates */
+    if (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE) {
+        startx |= 1;
+    }
+
+    uint32_t pixels = (params.pixels * sensor.optical_res) / params.xres;
+    /* special requirement for 400 dpi on 1200 dpi sensors */
+    if (params.xres == 400)
+      {
+        pixels = (pixels / 6) * 6;
+      }
+    uint32_t endx = startx + pixels;
+
+    bool color = params.channels == 3;
+
   SANE_Status status = SANE_STATUS_GOOD;
   int i, nb;
   Sensor_Master *sensor_mst = NULL;
@@ -448,7 +480,7 @@ gl646_setup_registers (Genesys_Device * dev,
   while (i < nb)
     {
       if (dev->model->motor_type == motor_master[i].motor
-	  && motor_master[i].dpi == resolution
+          && motor_master[i].dpi == resolution
 	  && motor_master[i].color == color)
 	{
 	  motor = &motor_master[i];
@@ -625,7 +657,7 @@ gl646_setup_registers (Genesys_Device * dev,
 
   /* R04 */
   /* monochrome / color scan */
-  switch (depth)
+  switch (params.depth)
     {
     case 1:
       regs->find_reg(0x04).value &= ~REG04_BITSET;
@@ -757,8 +789,8 @@ gl646_setup_registers (Genesys_Device * dev,
   /* words_per_line must be computed according to the scan's resolution */
   /* in fact, words_per_line _gives_ the actual scan resolution */
   words_per_line = (((endx - startx) * sensor_mst->xdpi) / sensor.optical_res);
-  bpp=depth/8;
-  if (depth == 1)
+  bpp=params.depth/8;
+  if (params.depth == 1)
     {
       words_per_line = (words_per_line+7)/8 ;
       bpp=1;
@@ -907,7 +939,7 @@ gl646_setup_registers (Genesys_Device * dev,
                                   sensor_mst->exposure,
 				  slope_table1,
 				  motor->steps1,
-				  move, motor->fwdbwd, &z1, &z2);
+                                  move, motor->fwdbwd, &z1, &z2);
 
   /* no z1/z2 for sheetfed scanners */
   if (dev->model->is_sheetfed == SANE_TRUE)
@@ -934,7 +966,7 @@ gl646_setup_registers (Genesys_Device * dev,
   requested_buffer_size = 8 * words_per_line;
   read_buffer_size =
     2 * requested_buffer_size +
-    ((max_shift + stagger) * scan_settings.pixels * channels * depth) / 8;
+    ((max_shift + stagger) * scan_settings.pixels * channels * params.depth) / 8;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -957,7 +989,7 @@ gl646_setup_registers (Genesys_Device * dev,
   dev->current_setup.pixels =
     ((endx - startx) * sensor_mst->xdpi) / sensor.optical_res;
   dev->current_setup.lines = linecnt;
-  dev->current_setup.depth = depth;
+  dev->current_setup.depth = params.depth;
   dev->current_setup.channels = channels;
   dev->current_setup.exposure_time = sensor_mst->exposure;
   dev->current_setup.xres = sensor_mst->xdpi;
@@ -971,7 +1003,7 @@ gl646_setup_registers (Genesys_Device * dev,
    * read_bytes_left is the number of bytes to read from the scanner
    */
   dev->total_bytes_read = 0;
-  if (depth == 1)
+  if (params.depth == 1)
     dev->total_bytes_to_read =
       ((scan_settings.pixels * scan_settings.lines) / 8 +
        (((scan_settings.pixels * scan_settings.lines) % 8) ? 1 : 0)) *
@@ -2869,7 +2901,6 @@ setup_for_scan (Genesys_Device * dev,
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Int depth;
   int channels;
-  uint16_t startx = 0, endx, pixels;
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
@@ -2941,50 +2972,12 @@ setup_for_scan (Genesys_Device * dev,
     params.color_filter = settings.color_filter;
     params.flags = 0;
 
-  /* pixels are allways given at full CCD optical resolution */
-  /* use detected left margin and fixed value */
-  if (xcorrection == SANE_TRUE)
-    {
-      if (sensor.CCD_start_xoffset > 0)
-        startx = sensor.CCD_start_xoffset;
-      else
-        startx = sensor.dummy_pixel;
-    }
-  else
-    {
-      /* startx cannot be below dummy pixel value */
-      startx = sensor.dummy_pixel;
-    }
-
-
-  /* add x coordinates : expressed in sensor max dpi */
-  startx += start;
-
-  /* stagger works with odd start cordinates */
-  if (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)
-    startx |= 1;
-
-  pixels = (params.pixels * sensor.optical_res) / params.xres;
-  /* special requirement for 400 dpi on 1200 dpi sensors */
-  if (params.xres == 400)
-    {
-      pixels = (pixels / 6) * 6;
-    }
-  endx = startx + pixels;
 
   /* TODO check for pixel width overflow */
 
   /* set up correct values for scan (gamma and shading enabled) */
-  status = gl646_setup_registers (dev, sensor,
-				  regs,
-				  settings,
-				  dev->slope_table0,
-				  dev->slope_table1,
-                                  params.xres,
-                                  params.starty,
-                                  params.lines,
-                                  startx, endx, params.channels == 3,
-                                  params.depth);
+  status = gl646_setup_registers(dev, sensor, regs, params, settings,
+                                 dev->slope_table0, dev->slope_table1, xcorrection);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed setup registers: %s\n", __func__, sane_strstatus(status));

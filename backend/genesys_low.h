@@ -233,7 +233,6 @@ enum class ScanColorMode {
     LINEART = 0,
     HALFTONE,
     GRAY,
-    COLOR_MULTI_PASS, // TODO: maybe unused
     COLOR_SINGLE_PASS
 };
 

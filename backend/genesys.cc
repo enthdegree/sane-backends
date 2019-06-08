@@ -1036,7 +1036,6 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sen
 
     // BUG: GRAY shouldn't probably be in the if condition below. Discovered when refactoring
     if (dev->settings.scan_mode == ScanColorMode::GRAY ||
-        dev->settings.scan_mode == ScanColorMode::COLOR_MULTI_PASS ||
         dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
         channels = 3;

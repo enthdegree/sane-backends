@@ -1900,5 +1900,6 @@ void genesys_init_sensor_tables();
 void genesys_init_frontend_tables();
 
 void debug_dump(unsigned level, const Genesys_Settings& settings);
+void debug_dump(unsigned level, const SetupParams& params);
 
 #endif /* not GENESYS_LOW_H */

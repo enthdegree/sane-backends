@@ -1435,16 +1435,8 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Senso
 
   SANE_Status status;
 
-  DBG(DBG_info, "%s:\n"
-      "Resolution    : %gDPI/%gDPI\n"
-      "Lines         : %g\n"
-      "PPL           : %g\n"
-      "Startpos      : %g/%g\n"
-      "Depth/Channels: %u/%u\n"
-      "Flags         : %x\n\n",
-      __func__, session.params.xres, session.params.yres, session.params.lines,
-      session.params.pixels, session.params.startx, session.params.starty,
-      session.params.depth, session.params.channels, session.params.flags);
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, session.params);
 
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, session.num_staggered_lines);
 

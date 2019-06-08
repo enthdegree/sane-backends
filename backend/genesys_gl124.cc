@@ -1278,15 +1278,8 @@ gl124_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
   int optical_res;
   SANE_Status status;
 
-  DBG(DBG_info,
-      "%s:\n"
-      "Resolution    : %gDPI/%gDPI\n"
-      "Lines         : %g\n"
-      "PPL           : %g\n"
-      "Startpos      : %g/%g\n"
-      "Depth/Channels: %u/%u\n"
-      "Flags         : %x\n\n",
-      __func__, params.xres, params.yres, params.lines, params.pixels, params.startx, params.starty, params.depth, params.channels, params.flags);
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, params);
 
   half_ccd=compute_half_ccd(sensor, params.xres);
 

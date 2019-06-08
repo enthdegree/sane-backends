@@ -2096,3 +2096,24 @@ void debug_dump(unsigned level, const Genesys_Settings& settings)
         settings.tl_x, settings.tl_y,
         static_cast<unsigned>(settings.scan_mode));
 }
+
+void debug_dump(unsigned level, const SetupParams& params)
+{
+    DBG(level, "settings:\n"
+        "Resolution X/Y : %u / %u dpi\n"
+        "Lines : %u\n"
+        "Pixels per line : %u\n"
+        "Depth : %u\n"
+        "Channels : %u\n"
+        "Start position X/Y : %.3f/%.3f\n"
+        "Scan mode : %d\n",
+        "Color filter : %d\n",
+        "Flags : %x\n",
+        params.xres, params.yres,
+        params.lines, params.pixels,
+        params.depth, params.channels,
+        params.startx, params.starty,
+        static_cast<unsigned>(params.scan_mode),
+        static_cast<unsigned>(params.color_filter),
+        params.flags);
+}

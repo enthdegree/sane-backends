@@ -221,7 +221,7 @@
 
 #define GENESYS_MAX_REGS 256
 
-enum class ScanMethod {
+enum class ScanMethod : unsigned {
     // normal scan method
     FLATBED = 0,
     // scan using transparency adaptor
@@ -230,7 +230,7 @@ enum class ScanMethod {
     TRANSPARENCY_INFRARED = 2
 };
 
-enum class ScanColorMode {
+enum class ScanColorMode : unsigned {
     LINEART = 0,
     HALFTONE,
     GRAY,

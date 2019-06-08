@@ -28,6 +28,7 @@ Makefile.in
 /depcomp
 /install-sh
 /ltmain.sh
+/ltmain.sh.orig
 /m4/
 /missing
 /mkinstalldirs

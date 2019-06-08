@@ -1306,42 +1306,8 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   return SANE_STATUS_GOOD;
 }
 
-struct ScanSessionParams {
-    // resolution in x direction
-    float xres = -1;
-    // resolution in y direction
-    float yres = -1;
-    // start pixel in X direction, from dummy_pixel + 1
-    float startx = -1;
-    // start pixel in Y direction, counted according to base_ydpi
-    float starty = -1;
-    // the number of pixels in X direction
-    float pixels = -1;
-    // the number of pixels in Y direction
-    float lines = -1;
-    // the depth of the scan in bits. Allowed are 1, 8, 16
-    int depth = -1;
-    // the number of channels
-    int channels = -1;
-
-    ScanColorMode scan_mode = ScanColorMode::LINEART;
-
-    int color_filter = -1;
-
-    int flags = -1;
-
-    void assert_valid() const
-    {
-        if (xres < 0 || yres < 0 || startx < 0 || starty < 0 || pixels < 0 || lines < 0 ||
-            depth < 0 || channels < 0 || color_filter < 0 || flags < 0)
-        {
-            throw std::runtime_error("ScanGenesysPhysicalParams are not valid");
-        }
-    }
-};
-
 struct ScanSession {
-    ScanSessionParams params;
+    SetupParams params;
 
     // whether the session setup has been computed via gl843_compute_session()
     bool computed = false;

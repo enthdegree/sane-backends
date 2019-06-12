@@ -14,20 +14,25 @@ stages:
   - archive
 
 prepare:
-  image: $REGISTRY_HUB:debian-9-base
+  image: $REGISTRY_HUB:debian-9-full
   stage: prepare
   script:
   - find -path ./.git -prune -o -type f | xargs tools/style-check.sh
   - sed -i '/^AC_INIT/s/,.*/,m4_esyscmd_s([git describe --dirty]),/' configure.ac
-  - autoconf --force
+  - ./autogen.sh
+  - ./configure
+  - make dist
   artifacts:
     paths:
-    - configure
+    - sane-backends-*.tar.gz
     expire_in: 1 day
 
 .compile_template: &compile_definition
   stage: compile
   script:
+  - mkdir build
+  - cd build
+  - tar xzf ../sane-backends-*.tar.gz --strip-components=1
   - ./configure $CONFIGURE_OPTS
   - make -j2 -k $MAKE_FLAGS
 
@@ -59,13 +64,12 @@ compile:debian-9-full:
     MAKE_FLAGS: "CFLAGS=-Werror CXXFLAGS=-Werror"
   <<: *compile_definition
   after_script:
-  - make -C doc html-pages
-  - rm -rf lists && mkdir lists && mv doc/*.html lists/
-  - cd doc && doxygen doxygen-sanei.conf
+  - make -C build/doc html-pages
+  - rm -rf lists && mkdir lists && mv build/doc/*.html lists/
+  - cd build/doc && doxygen doxygen-sanei.conf && mv sanei-html ../../doc
   artifacts:
     paths:
-    - configure
-    - config.status
+    - sane-backends-*.tar.gz
     - lists
     - doc/sanei-html
     expire_in: 1 day
@@ -90,13 +94,10 @@ compile:alpine-3.9-musl:
 
 archive:
   stage: archive
-  image: $REGISTRY_HUB:debian-9-full
   dependencies:
   - compile:debian-9-full
-  before_script:
-  - ./config.status --quiet || ./configure "$CONFIGURE_MINI"
   script:
-  - make dist
+  - /bin/true
   artifacts:
     paths:
     - sane-backends-*.tar.gz

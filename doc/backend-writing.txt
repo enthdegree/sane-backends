@@ -49,8 +49,7 @@ for more complex stuff acinclude.m4 is the right file. After changes in one
 of these files, "autoreconf" should be called.  This will then call a
 chain of autotools, such as autoconf to generate configure, autoheader
 to generate include/sane/config.h.in, and automake to generate various
-Makefile.in's from Makefile.am's.  All changes made by "autoreconf" must
-be commited together.
+Makefile.in's from Makefile.am's.
 
 When running configure, the Makefiles in the main and sub-directories are
 created from their respective Makefile.in files. Also include/sane/config.h

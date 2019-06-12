@@ -60,6 +60,7 @@ for file in "$@"; do
         *.jpg) ;;
         *.png) ;;
         *.pnm) ;;
+        *.patch) ;;                 # patch output may have trailing lines or whitespace
         Makefile.in) ;;             # skip automake outputs
         */Makefile.in) ;;
         aclocal.m4) ;;              # skip autoconf outputs

@@ -799,7 +799,7 @@ check_for_driver (const char *devname)
   char *path;
   char fullname[NAMESIZE];
   char dir[NAMESIZE];
-  int count = 0, offset = 0;
+  int count = 0, offset = 0, valid;
 
   path = getenv ("PATH");
   if (!path)
@@ -808,21 +808,29 @@ check_for_driver (const char *devname)
     {
       memset (fullname, '\0', sizeof (fullname));
       memset (dir, '\0', sizeof (dir));
+      valid = 1;
       while ((path[count] != ':') && (path[count] != '\0'))
 	{
-	  dir[count - offset] = path[count];
+	  /* prevent writing data, which are out of bounds */
+	  if ((unsigned int)(count - offset) < sizeof (dir))
+	    dir[count - offset] = path[count];
+	  else
+	    valid = 0;
 	  count++;
 	}
-      /* use sizeof(fullname)-1 to make sure there is at least one padded null byte */
-      strncpy (fullname, dir, sizeof(fullname)-1);
-      /* take into account that fullname already contains non-null bytes */
-      strncat (fullname, "/", sizeof(fullname)-strlen(fullname)-1);
-      strncat (fullname, devname, sizeof(fullname)-strlen(fullname)-1);
-      if (!stat (fullname, &statbuf))
+	if (valid == 1)
 	{
-	  modes = statbuf.st_mode;
-	  if (S_ISREG (modes))
-	    return (1);		/* found as6edriver */
+        /* use sizeof(fullname)-1 to make sure there is at least one padded null byte */
+        strncpy (fullname, dir, sizeof(fullname)-1);
+        /* take into account that fullname already contains non-null bytes */
+        strncat (fullname, "/", sizeof(fullname)-strlen(fullname)-1);
+        strncat (fullname, devname, sizeof(fullname)-strlen(fullname)-1);
+        if (!stat (fullname, &statbuf))
+	  {
+	    modes = statbuf.st_mode;
+	    if (S_ISREG (modes))
+	      return (1);		/* found as6edriver */
+	  }
 	}
       if (path[count] == '\0')
 	return (0);		/* end of path --no driver found */

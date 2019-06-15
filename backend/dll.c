@@ -1191,6 +1191,9 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
       dev_name = "";
     }
 
+  if (!be_name)
+    return SANE_STATUS_NO_MEM;
+
   if (!be_name[0])
     be = first_backend;
   else

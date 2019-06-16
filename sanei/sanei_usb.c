@@ -63,7 +63,9 @@
 #include <dirent.h>
 #include <time.h>
 
+#if WITH_USB_RECORD_REPLAY
 #include <libxml/tree.h>
+#endif
 
 #ifdef HAVE_RESMGR
 #include <resmgr.h>
@@ -190,6 +192,8 @@ sanei_usb_testing_mode;
 
 // Whether testing mode has been enabled
 static sanei_usb_testing_mode testing_mode = sanei_usb_testing_mode_disabled;
+
+#if WITH_USB_RECORD_REPLAY
 static int testing_development_mode = 0;
 int testing_known_commands_input_failed = 0;
 unsigned testing_last_known_seq = 0;
@@ -200,7 +204,7 @@ xmlNode* testing_append_commands_node = NULL;
 SANE_String testing_xml_path = NULL;
 xmlDoc* testing_xml_doc = NULL;
 xmlNode* testing_xml_next_tx_node = NULL;
-
+#endif // WITH_USB_RECORD_REPLAY
 
 #if defined(HAVE_LIBUSB_LEGACY) || defined(HAVE_LIBUSB)
 static int libusb_timeout = 30 * 1000;	/* 30 seconds */
@@ -483,6 +487,7 @@ sanei_libusb_strerror (int errcode)
 }
 #endif /* HAVE_LIBUSB */
 
+#if WITH_USB_RECORD_REPLAY
 SANE_Status sanei_usb_testing_enable_replay(SANE_String_Const path,
                                             int development_mode)
 {
@@ -1166,6 +1171,36 @@ static void sanei_usb_testing_exit()
   free(testing_xml_path);
   xmlCleanupParser();
 }
+#else // WITH_USB_RECORD_REPLAY
+SANE_Status sanei_usb_testing_enable_replay(SANE_String_Const path,
+                                            int development_mode)
+{
+  (void) path;
+  (void) development_mode;
+
+  DBG(1, "USB record-replay mode support is missing\n");
+  return SANE_STATUS_UNSUPPORTED;
+}
+
+SANE_Status sanei_usb_testing_enable_record(SANE_String_Const path, SANE_String_Const be_name)
+{
+  (void) path;
+  (void) be_name;
+
+  DBG(1, "USB record-replay mode support is missing\n");
+  return SANE_STATUS_UNSUPPORTED;
+}
+
+SANE_String sanei_usb_testing_get_backend()
+{
+  return NULL;
+}
+
+SANE_Bool sanei_usb_is_replay_mode_enabled()
+{
+  return SANE_FALSE;
+}
+#endif // WITH_USB_RECORD_REPLAY
 
 void
 sanei_usb_init (void)
@@ -1185,6 +1220,7 @@ sanei_usb_init (void)
   if(device_number==0)
     memset (devices, 0, sizeof (devices));
 
+#if WITH_USB_RECORD_REPLAY
   if (testing_mode != sanei_usb_testing_mode_disabled)
     {
       if (initialized == 0)
@@ -1202,6 +1238,7 @@ sanei_usb_init (void)
           return;
         }
     }
+#endif
 
   /* initialize USB with old libusb library */
 #ifdef HAVE_LIBUSB_LEGACY
@@ -1263,6 +1300,7 @@ int i;
   /* if we reach 0, free allocated resources */
   if(initialized==0)
     {
+#if WITH_USB_RECORD_REPLAY
       if (testing_mode != sanei_usb_testing_mode_disabled)
         {
           sanei_usb_testing_exit();
@@ -1270,6 +1308,7 @@ int i;
           if (testing_mode == sanei_usb_testing_mode_replay)
             return;
         }
+#endif // WITH_USB_RECORD_REPLAY
 
       /* free allocated resources */
       DBG (4, "%s: freeing resources\n", __func__);
@@ -2108,6 +2147,7 @@ sanei_usb_get_endpoint (SANE_Int dn, SANE_Int ep_type)
     }
 }
 
+#if WITH_USB_RECORD_REPLAY
 static void sanei_usb_record_open(SANE_Int dn)
 {
   xmlNode* e_root = xmlNewNode(NULL, (const xmlChar*) "device_capture");
@@ -2163,6 +2203,7 @@ static void sanei_usb_record_open(SANE_Int dn)
   // add an empty node so that we have something to append to
   testing_append_commands_node =  xmlAddChild(e_transactions, xmlNewText((const xmlChar*)""));;
 }
+#endif // WITH_USB_RECORD_REPLAY
 
 SANE_Status
 sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
@@ -2722,7 +2763,12 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 
   if (testing_mode == sanei_usb_testing_mode_record)
     {
+#if WITH_USB_RECORD_REPLAY
       sanei_usb_record_open(devcount);
+#else
+      DBG (1, "USB record-replay mode support is missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
 
   devices[devcount].open = SANE_TRUE;
@@ -2933,6 +2979,7 @@ sanei_usb_reset (SANE_Int __sane_unused__ dn)
   return SANE_STATUS_GOOD;
 }
 
+#if WITH_USB_RECORD_REPLAY
 // returns non-negative value on success, -1 on failure
 static int sanei_usb_replay_next_read_bulk_packet_size(SANE_Int dn)
 {
@@ -3084,6 +3131,7 @@ static int sanei_usb_replay_read_bulk(SANE_Int dn, SANE_Byte* buffer,
     }
   return total_got_size;
 }
+#endif // WITH_USB_RECORD_REPLAY
 
 SANE_Status
 sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
@@ -3106,7 +3154,12 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 
   if (testing_mode == sanei_usb_testing_mode_replay)
     {
+#if WITH_USB_RECORD_REPLAY
       read_size = sanei_usb_replay_read_bulk(dn, buffer, *size);
+#else
+      DBG(1, "%s: USB record-replay mode support missing\n", __func__);
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
   else if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
@@ -3217,7 +3270,12 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 
   if (testing_mode == sanei_usb_testing_mode_record)
     {
+#if WITH_USB_RECORD_REPLAY
       sanei_usb_record_read_bulk(NULL, dn, buffer, *size, read_size);
+#else
+      DBG (1, "USB record-replay mode support is missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
 
   if (read_size < 0)
@@ -3250,6 +3308,7 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   return SANE_STATUS_GOOD;
 }
 
+#if WITH_USB_RECORD_REPLAY
 static int sanei_usb_record_write_bulk(xmlNode* node, SANE_Int dn,
                                        const SANE_Byte* buffer,
                                        size_t size, size_t write_size)
@@ -3406,6 +3465,7 @@ static int sanei_usb_replay_write_bulk(SANE_Int dn, const SANE_Byte* buffer,
     }
   return total_wrote_size;
 }
+#endif
 
 SANE_Status
 sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
@@ -3430,7 +3490,12 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
 
   if (testing_mode == sanei_usb_testing_mode_replay)
     {
+#if WITH_USB_RECORD_REPLAY
       write_size = sanei_usb_replay_write_bulk(dn, buffer, *size);
+#else
+      DBG (1, "USB record-replay mode support is missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
   else if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
@@ -3541,7 +3606,12 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
 
   if (testing_mode == sanei_usb_testing_mode_record)
     {
+#if WITH_USB_RECORD_REPLAY
       sanei_usb_record_write_bulk(NULL, dn, buffer, *size, write_size);
+#else
+      DBG (1, "USB record-replay mode support is missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
 
   if (write_size < 0)
@@ -3565,6 +3635,7 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
   return SANE_STATUS_GOOD;
 }
 
+#if WITH_USB_RECORD_REPLAY
 static void
 sanei_usb_record_control_msg(xmlNode* node,
                              SANE_Int dn, SANE_Int rtype, SANE_Int req,
@@ -3717,6 +3788,7 @@ sanei_usb_replay_control_msg(SANE_Int dn, SANE_Int rtype, SANE_Int req,
   free(tx_data);
   return SANE_STATUS_GOOD;
 }
+#endif
 
 SANE_Status
 sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
@@ -3737,8 +3809,13 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 
   if (testing_mode == sanei_usb_testing_mode_replay)
     {
+#if WITH_USB_RECORD_REPLAY
       return sanei_usb_replay_control_msg(dn, rtype, req, value, index, len,
                                           data);
+#else
+      DBG (1, "USB record-replay mode support is missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
   if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
@@ -3854,13 +3931,19 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 
   if (testing_mode == sanei_usb_testing_mode_record)
     {
+#if WITH_USB_RECORD_REPLAY
       // TODO: record in the error code path too
       sanei_usb_record_control_msg(NULL, dn, rtype, req, value, index, len,
                                    data);
+#else
+      DBG (1, "USB record-replay mode support is missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
   return SANE_STATUS_GOOD;
 }
 
+#if WITH_USB_RECORD_REPLAY
 static void sanei_usb_record_read_int(xmlNode* node,
                                       SANE_Int dn, SANE_Byte* buffer,
                                       size_t size, ssize_t read_size)
@@ -3978,6 +4061,7 @@ static int sanei_usb_replay_read_int(SANE_Int dn, SANE_Byte* buffer,
   free(tx_data);
   return tx_data_size;
 }
+#endif // WITH_USB_RECORD_REPLAY
 
 SANE_Status
 sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
@@ -4003,7 +4087,12 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
        (unsigned long) *size);
   if (testing_mode == sanei_usb_testing_mode_replay)
     {
+#if WITH_USB_RECORD_REPLAY
       read_size = sanei_usb_replay_read_int(dn, buffer, *size);
+#else
+      DBG (1, "USB record-replay mode support is missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
   else if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
@@ -4103,7 +4192,12 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 
   if (testing_mode == sanei_usb_testing_mode_record)
     {
+#if WITH_USB_RECORD_REPLAY
       sanei_usb_record_read_int(NULL, dn, buffer, *size, read_size);
+#else
+      DBG (1, "USB record-replay mode support is missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
 
   if (read_size < 0)
@@ -4138,6 +4232,7 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   return SANE_STATUS_GOOD;
 }
 
+#if WITH_USB_RECORD_REPLAY
 static SANE_Status sanei_usb_replay_set_configuration(SANE_Int dn,
                                                       SANE_Int configuration)
 {
@@ -4185,8 +4280,9 @@ static void sanei_usb_record_set_configuration(SANE_Int dn,
                                                SANE_Int configuration)
 {
   (void) dn; (void) configuration;
-  // ZZTODO
+  // TODO
 }
+#endif // WITH_USB_RECORD_REPLAY
 
 SANE_Status
 sanei_usb_set_configuration (SANE_Int dn, SANE_Int configuration)
@@ -4203,12 +4299,22 @@ sanei_usb_set_configuration (SANE_Int dn, SANE_Int configuration)
 
   if (testing_mode == sanei_usb_testing_mode_record)
     {
+#if WITH_USB_RECORD_REPLAY
       sanei_usb_record_set_configuration(dn, configuration);
+#else
+      DBG (1, "USB record-replay mode support is missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
 
   if (testing_mode == sanei_usb_testing_mode_replay)
     {
+#if WITH_USB_RECORD_REPLAY
       return sanei_usb_replay_set_configuration(dn, configuration);
+#else
+      DBG (1, "USB record-replay mode support is missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
   else if (devices[dn].method == sanei_usb_method_scanner_driver)
     {

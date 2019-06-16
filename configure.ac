@@ -81,7 +81,7 @@ dnl ***********************************************************************
 dnl set compiler/linker flags
 dnl ***********************************************************************
 SANE_SET_AM_CFLAGS([$is_release])
-SANE_SET_AM_CXXFLAGS
+AX_CXX_COMPILE_STDCXX_11([noext], [optional])
 SANE_SET_AM_LDFLAGS
 
 dnl ***********************************************************************

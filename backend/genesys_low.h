@@ -1,4 +1,4 @@
-/* sane - Scanner Access Now Easy.
+﻿/* sane - Scanner Access Now Easy.
 
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -147,7 +147,6 @@
 #define GENESYS_FLAG_DARK_WHITE_CALIBRATION (1 << 12) /**< yet another calibration method. does white and dark shading in one run, depending on a black and a white strip*/
 #define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /**< allow custom gamma tables */
 #define GENESYS_FLAG_NO_CALIBRATION   (1 << 14)       /**< allow scanners to use skip the calibration, needed for sheetfed scanners */
-#define GENESYS_FLAG_HALF_CCD_MODE    (1 << 15)       /**< scanner has setting for half ccd mode */
 #define GENESYS_FLAG_SIS_SENSOR       (1 << 16)       /**< handling of multi-segments sensors in software */
 #define GENESYS_FLAG_SHADING_NO_MOVE  (1 << 17)       /**< scanner doesn't move sensor during shading calibration */
 #define GENESYS_FLAG_SHADING_REPARK   (1 << 18)       /**< repark head between shading scans */
@@ -217,31 +216,169 @@
 #define FEBUSY	        0x02
 #define MOTORENB	0x01
 
-typedef struct Genesys_Register_Set
-{
-  uint16_t address;
-  uint8_t value;
-} Genesys_Register_Set;
+#define GENESYS_MAX_REGS 256
 
-/** @brief Data structure to set up analog frontend.
- * The analog frontend converts analog value from image sensor to
- * digital value. It has its own control registers which are set up
- * with this structure. The values are written using sanei_genesys_fe_write_data.
- * The actual register addresses they map to depends on the frontend used.
- * @see sanei_genesys_fe_write_data
- */
-typedef struct
+struct GenesysRegister {
+    uint16_t address = 0;
+    uint8_t value = 0;
+};
+
+inline bool operator<(const GenesysRegister& lhs, const GenesysRegister& rhs)
 {
-  uint8_t fe_id;      /**< id of the frontend description */
-  uint8_t reg[4];     /**< values to set up frontend control register, they
- 		      usually map to analog register 0x00 to 0x03 */
-  uint8_t sign[3];    /**< sets the sign of the digital value */
-  uint8_t offset[3];  /**< offset correction to apply to signal, most often
-			maps to frontend register 0x20-0x22 */
-  uint8_t gain[3];     /**< amplification to apply to signal, most often
-			maps to frontend register 0x28-0x2a */
-  uint8_t reg2[3];    /**< extra control registers */
-} Genesys_Frontend;
+    return lhs.address < rhs.address;
+}
+
+class Genesys_Register_Set {
+public:
+    using container = std::vector<GenesysRegister>;
+    using iterator = typename container::iterator;
+    using const_iterator = typename container::const_iterator;
+
+    enum Options {
+        SEQUENTIAL = 1
+    };
+
+    Genesys_Register_Set()
+    {
+        registers_.reserve(GENESYS_MAX_REGS);
+    }
+
+    // by default the register set is sorted by address. In certain cases it's importand to send
+    // the registers in certain order: use the SEQUENTIAL option for that
+    Genesys_Register_Set(Options opts) : Genesys_Register_Set()
+    {
+        if ((opts & SEQUENTIAL) == SEQUENTIAL) {
+            sorted_ = false;
+        }
+    }
+
+    void init_reg(uint16_t address, uint8_t default_value)
+    {
+        if (find_reg_index(address) >= 0) {
+            set8(address, default_value);
+            return;
+        }
+        GenesysRegister reg;
+        reg.address = address;
+        reg.value = default_value;
+        registers_.push_back(reg);
+        if (sorted_)
+            std::sort(registers_.begin(), registers_.end());
+    }
+
+    void remove_reg(uint16_t address)
+    {
+        int i = find_reg_index(address);
+        if (i < 0) {
+            throw std::runtime_error("the register does not exist");
+        }
+        registers_.erase(registers_.begin() + i);
+    }
+
+    GenesysRegister& find_reg(uint16_t address)
+    {
+        int i = find_reg_index(address);
+        if (i < 0) {
+            throw std::runtime_error("the register does not exist");
+        }
+        return registers_[i];
+    }
+
+    const GenesysRegister& find_reg(uint16_t address) const
+    {
+        int i = find_reg_index(address);
+        if (i < 0) {
+            throw std::runtime_error("the register does not exist");
+        }
+        return registers_[i];
+    }
+
+    GenesysRegister* find_reg_address(uint16_t address)
+    {
+        return &find_reg(address);
+    }
+
+    const GenesysRegister* find_reg_address(uint16_t address) const
+    {
+        return &find_reg(address);
+    }
+
+    void set8(uint16_t address, uint8_t value)
+    {
+        find_reg(address).value = value;
+    }
+
+    void set8_mask(uint16_t address, uint8_t value, uint8_t mask)
+    {
+        auto& reg = find_reg(address);
+        reg.value = (reg.value & ~mask) | value;
+    }
+
+    void set16(uint16_t address, uint16_t value)
+    {
+        find_reg(address).value = (value >> 8) & 0xff;
+        find_reg(address + 1).value = value & 0xff;
+    }
+
+    void set24(uint16_t address, uint32_t value)
+    {
+        find_reg(address).value = (value >> 16) & 0xff;
+        find_reg(address + 1).value = (value >> 8) & 0xff;
+        find_reg(address + 2).value = value & 0xff;
+    }
+
+    uint8_t get8(uint16_t address) const
+    {
+        return find_reg(address).value;
+    }
+
+    uint16_t get16(uint16_t address) const
+    {
+        return (find_reg(address).value << 8) | find_reg(address + 1).value;
+    }
+
+    uint32_t get24(uint16_t address) const
+    {
+        return (find_reg(address).value << 16) |
+               (find_reg(address + 1).value << 8) |
+                find_reg(address + 2).value;
+    }
+
+    void clear() { registers_.clear(); }
+    size_t size() const { return registers_.size(); }
+
+    iterator begin() { return registers_.begin(); }
+    const_iterator begin() const { return registers_.begin(); }
+
+    iterator end() { return registers_.end(); }
+    const_iterator end() const { return registers_.end(); }
+
+private:
+    int find_reg_index(uint16_t address) const
+    {
+        if (!sorted_) {
+            for (size_t i = 0; i < registers_.size(); i++) {
+                if (registers_[i].address == address) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        GenesysRegister search;
+        search.address = address;
+        auto it = std::lower_bound(registers_.begin(), registers_.end(), search);
+        if (it == registers_.end())
+            return -1;
+        if (it->address != address)
+            return -1;
+        return std::distance(registers_.begin(), it);
+    }
+
+    // registers are stored in a sorted vector
+    bool sorted_ = true;
+    std::vector<GenesysRegister> registers_;
+};
 
 template<class T, size_t Size>
 struct AssignableArray : public std::array<T, Size> {
@@ -258,6 +395,156 @@ struct AssignableArray : public std::array<T, Size> {
     }
 };
 
+struct GenesysRegisterSetting {
+    GenesysRegisterSetting() = default;
+
+    GenesysRegisterSetting(uint16_t p_address, uint8_t p_value) :
+        address(p_address), value(p_value)
+    {}
+
+    GenesysRegisterSetting(uint16_t p_address, uint8_t p_value, uint8_t p_mask) :
+        address(p_address), value(p_value), mask(p_mask)
+    {}
+
+    uint16_t address = 0;
+    uint8_t value = 0;
+    uint8_t mask = 0xff;
+};
+
+class GenesysRegisterSettingSet {
+public:
+    using container = std::vector<GenesysRegisterSetting>;
+    using iterator = typename container::iterator;
+    using const_iterator = typename container::const_iterator;
+
+    GenesysRegisterSettingSet() = default;
+    GenesysRegisterSettingSet(std::initializer_list<GenesysRegisterSetting> ilist) : regs_(ilist) {}
+
+    iterator begin() { return regs_.begin(); }
+    const_iterator begin() const { return regs_.begin(); }
+    iterator end() { return regs_.end(); }
+    const_iterator end() const { return regs_.end(); }
+
+    GenesysRegisterSetting& operator[](size_t i) { return regs_[i]; }
+    const GenesysRegisterSetting& operator[](size_t i) const { return regs_[i]; }
+
+    size_t size() const { return regs_.size(); }
+    bool empty() const { return regs_.empty(); }
+    void clear() { regs_.clear(); }
+
+    void push_back(GenesysRegisterSetting reg) { regs_.push_back(reg); }
+
+    void merge(const GenesysRegisterSettingSet& other)
+    {
+        for (const auto& reg : other) {
+            set_value(reg.address, reg.value);
+        }
+    }
+
+    uint8_t get_value(uint16_t address) const
+    {
+        for (const auto& reg : regs_) {
+            if (reg.address == address)
+                return reg.value;
+        }
+        throw std::runtime_error("Unknown register");
+    }
+
+    void set_value(uint16_t address, uint8_t value)
+    {
+        for (auto& reg : regs_) {
+            if (reg.address == address) {
+                reg.value = value;
+                return;
+            }
+        }
+        push_back(GenesysRegisterSetting(address, value));
+    }
+
+    size_t fread(FILE* fp)
+    {
+        bool success = true;
+        clear();
+        uint32_t count = 0;
+        success &= 1 == ::fread(&count, sizeof(count), 1, fp);
+        for (uint32_t i = 0; i < count && success; ++i) {
+            GenesysRegisterSetting reg;
+            success &= 1 == ::fread(&reg.address, sizeof(reg.address), 1, fp);
+            success &= 1 == ::fread(&reg.value, sizeof(reg.value), 1, fp);
+            success &= 1 == ::fread(&reg.mask, sizeof(reg.mask), 1, fp);
+            push_back(reg);
+        }
+        return success ? 1 : 0;
+    }
+
+    void fwrite(FILE* fp) const
+    {
+        uint32_t count = size();
+        ::fwrite(&count, sizeof(count), 1, fp);
+        for (uint32_t i = 0; i < count; ++i) {
+            const auto& reg = (*this)[i];
+            ::fwrite(&reg.address, sizeof(reg.address), 1, fp);
+            ::fwrite(&reg.value, sizeof(reg.value), 1, fp);
+            ::fwrite(&reg.mask, sizeof(reg.mask), 1, fp);
+        }
+    }
+
+private:
+    std::vector<GenesysRegisterSetting> regs_;
+};
+
+struct GenesysFrontendLayout
+{
+    std::array<uint16_t, 3> offset_addr = {};
+    std::array<uint16_t, 3> gain_addr = {};
+};
+
+/** @brief Data structure to set up analog frontend.
+    The analog frontend converts analog value from image sensor to digital value. It has its own
+    control registers which are set up with this structure. The values are written using
+    sanei_genesys_fe_write_data.
+ */
+struct Genesys_Frontend
+{
+    Genesys_Frontend() = default;
+
+    // id of the frontend description
+    uint8_t fe_id = 0;
+
+    // all registers of the frontend
+    GenesysRegisterSettingSet regs;
+
+    // extra control registers
+    std::array<uint8_t, 3> reg2 = {};
+
+    GenesysFrontendLayout layout;
+
+    void set_offset(unsigned which, uint8_t value)
+    {
+        regs.set_value(layout.offset_addr[which], value);
+    }
+
+    void set_gain(unsigned which, uint8_t value)
+    {
+        regs.set_value(layout.gain_addr[which], value);
+    }
+
+    uint8_t get_offset(unsigned which) const
+    {
+        return regs.get_value(layout.offset_addr[which]);
+    }
+
+    uint8_t get_gain(unsigned which) const
+    {
+        return regs.get_value(layout.gain_addr[which]);
+    }
+};
+
+
+struct SensorExposure {
+    uint16_t red, green, blue;
+};
+
 struct Genesys_Sensor {
 
     Genesys_Sensor() = default;
@@ -266,6 +553,18 @@ struct Genesys_Sensor {
     // id of the sensor description
     uint8_t sensor_id = 0;
     int optical_res = 0;
+
+    // the minimum and maximum resolution this sensor is usable at. -1 means that the resolution
+    // can be any.
+    int min_resolution = -1;
+    int max_resolution = -1;
+
+    // whether the sensor is transparency sensor.
+    bool is_transparency = false;
+
+    // CCD may present itself as half or quarter-size CCD on certain resolutions
+    int ccd_size_divisor = 1;
+
     int black_pixels = 0;
     // value of the dummy register
     int dummy_pixel = 0;
@@ -278,16 +577,16 @@ struct Genesys_Sensor {
     // CCD target code (reference gain)
     int gain_white_ref = 0;
 
-    AssignableArray<uint8_t, 4> regs_0x08_0x0b;
-    // Initial exposure values, EXPR, EXPG and EXPB are contained in 0x10-0x15
-    AssignableArray<uint8_t, 14> regs_0x10_0x1d;
-    AssignableArray<uint8_t, 13> regs_0x52_0x5e;
+    // red, green and blue initial exposure values
+    SensorExposure exposure;
+
+    int exposure_lperiod = -1;
+
+    GenesysRegisterSettingSet custom_regs;
+    GenesysRegisterSettingSet custom_fe_regs;
 
     // red, green and blue gamma coefficient for default gamma tables
     AssignableArray<float, 3> gamma;
-
-    // sensor-specific gamma tables
-    std::vector<uint16_t> gamma_table[3];
 
     size_t fread(FILE* fp)
     {
@@ -300,9 +599,9 @@ struct Genesys_Sensor {
         success &= 1 == ::fread(&sensor_pixels, sizeof(sensor_pixels), 1, fp);
         success &= 1 == ::fread(&fau_gain_white_ref, sizeof(fau_gain_white_ref), 1, fp);
         success &= 1 == ::fread(&gain_white_ref, sizeof(gain_white_ref), 1, fp);
-        success &= 1 == ::fread(&regs_0x08_0x0b, sizeof(regs_0x08_0x0b), 1, fp);
-        success &= 1 == ::fread(&regs_0x10_0x1d, sizeof(regs_0x10_0x1d), 1, fp);
-        success &= 1 == ::fread(&regs_0x52_0x5e, sizeof(regs_0x52_0x5e), 1, fp);
+        success &= 1 == ::fread(&exposure, sizeof(exposure), 1, fp);
+
+        success &= custom_regs.fread(fp);
         return success ? 1 : 0;
     }
 
@@ -316,46 +615,99 @@ struct Genesys_Sensor {
         ::fwrite(&sensor_pixels, sizeof(sensor_pixels), 1, fp);
         ::fwrite(&fau_gain_white_ref, sizeof(fau_gain_white_ref), 1, fp);
         ::fwrite(&gain_white_ref, sizeof(gain_white_ref), 1, fp);
-        ::fwrite(&regs_0x08_0x0b, sizeof(regs_0x08_0x0b), 1, fp);
-        ::fwrite(&regs_0x10_0x1d, sizeof(regs_0x10_0x1d), 1, fp);
-        ::fwrite(&regs_0x52_0x5e, sizeof(regs_0x52_0x5e), 1, fp);
+        ::fwrite(&exposure, sizeof(exposure), 1, fp);
+        custom_regs.fwrite(fp);
+    }
+
+    int get_ccd_size_divisor_for_dpi(int xres) const
+    {
+        if (ccd_size_divisor >= 4 && xres * 4 <= optical_res) {
+            return 4;
+        }
+        if (ccd_size_divisor >= 2 && xres * 2 <= optical_res) {
+            return 2;
+        }
+        return 1;
     }
 };
 
-typedef struct
+struct Genesys_Gpo
 {
-  uint8_t gpo_id;	/**< id of the gpo description */
+    Genesys_Gpo() = default;
 
-  // registers 0x6c and 0x6d on GL841, GL842, GL843, GL846, GL848 and possibly
-  // others
-  uint8_t value[2];
+    Genesys_Gpo(uint8_t id, const std::array<uint8_t, 2>& v, const std::array<uint8_t, 2>& e)
+    {
+        gpo_id = id;
+        value[0] = v[0];
+        value[1] = v[1];
+        enable[0] = e[0];
+        enable[1] = e[1];
+    }
 
-  // registers 0x6e and 0x6f on GL841, GL842, GL843, GL846, GL848 and possibly
-  // others
-  uint8_t enable[2];
-} Genesys_Gpo;
+    // Genesys_Gpo
+    uint8_t gpo_id = 0;
 
-typedef struct
+    // registers 0x6c and 0x6d on GL841, GL842, GL843, GL846, GL848 and possibly others
+    uint8_t value[2] = { 0, 0 };
+
+    // registers 0x6e and 0x6f on GL841, GL842, GL843, GL846, GL848 and possibly others
+    uint8_t enable[2] = { 0, 0 };
+};
+
+struct Genesys_Motor_Slope
 {
-  SANE_Int maximum_start_speed; /* maximum speed allowed when accelerating from standstill. Unit: pixeltime/step */
-  SANE_Int maximum_speed;       /* maximum speed allowed. Unit: pixeltime/step */
-  SANE_Int minimum_steps;       /* number of steps used for default curve */
-  float g;                      /* power for non-linear acceleration curves. */
-/* vs*(1-i^g)+ve*(i^g) where
-   vs = start speed, ve = end speed,
-   i = 0.0 for first entry and i = 1.0 for last entry in default table*/
-} Genesys_Motor_Slope;
+    Genesys_Motor_Slope() = default;
+    Genesys_Motor_Slope(int p_maximum_start_speed, int p_maximum_speed, int p_minimum_steps,
+                        float p_g) :
+        maximum_start_speed(p_maximum_start_speed),
+        maximum_speed(p_maximum_speed),
+        minimum_steps(p_minimum_steps),
+        g(p_g)
+    {}
+
+    // maximum speed allowed when accelerating from standstill. Unit: pixeltime/step
+    int maximum_start_speed = 0;
+    // maximum speed allowed. Unit: pixeltime/step
+    int maximum_speed = 0;
+    // number of steps used for default curve
+    int minimum_steps = 0;
+
+    /*  power for non-linear acceleration curves.
+        vs*(1-i^g)+ve*(i^g) where
+        vs = start speed, ve = end speed,
+        i = 0.0 for first entry and i = 1.0 for last entry in default table
+    */
+    float g = 0;
+};
 
 
-typedef struct
+struct Genesys_Motor
 {
-  uint8_t motor_id;	         /**< id of the motor description */
-  SANE_Int base_ydpi;		 /* motor base steps. Unit: 1/" */
-  SANE_Int optical_ydpi;	 /* maximum resolution in y-direction. Unit: 1/"  */
-  SANE_Int max_step_type;        /* maximum step type. 0-2 */
-  SANE_Int power_mode_count;        /* number of power modes*/
-  Genesys_Motor_Slope slopes[2][3]; /* slopes to derive individual slopes from */
-} Genesys_Motor;
+    Genesys_Motor() = default;
+    Genesys_Motor(uint8_t p_motor_id, int p_base_ydpi, int p_optical_ydpi, int p_max_step_type,
+                  int p_power_mode_count,
+                  const std::vector<std::vector<Genesys_Motor_Slope>>& p_slopes) :
+        motor_id(p_motor_id),
+        base_ydpi(p_base_ydpi),
+        optical_ydpi(p_optical_ydpi),
+        max_step_type(p_max_step_type),
+        power_mode_count(p_power_mode_count),
+        slopes(p_slopes)
+    {}
+
+    // id of the motor description
+    uint8_t motor_id = 0;
+    // motor base steps. Unit: 1/inch
+    int base_ydpi = 0;
+    // maximum resolution in y-direction. Unit: 1/inch
+    int optical_ydpi = 0;
+    // maximum step type. 0-2
+    int max_step_type = 0;
+    // number of power modes
+    int power_mode_count = 0;
+    // slopes to derive individual slopes from
+    std::vector<std::vector<Genesys_Motor_Slope>> slopes;
+};
 
 typedef enum Genesys_Color_Order
 {
@@ -377,8 +729,6 @@ Genesys_Color_Order;
 #define GENESYS_GL848	 848
 #define GENESYS_GL123	 123
 #define GENESYS_GL124	 124
-
-#define GENESYS_MAX_REGS 256
 
 enum Genesys_Model_Type
 {
@@ -576,11 +926,13 @@ typedef struct Genesys_Command_Set
     SANE_Status (*init) (Genesys_Device * dev);
 
     SANE_Status (*init_regs_for_warmup) (Genesys_Device * dev,
+                                         const Genesys_Sensor& sensor,
 					 Genesys_Register_Set * regs,
 					 int *channels, int *total_size);
-    SANE_Status (*init_regs_for_coarse_calibration) (Genesys_Device * dev);
-    SANE_Status (*init_regs_for_shading) (Genesys_Device * dev);
-    SANE_Status (*init_regs_for_scan) (Genesys_Device * dev);
+    SANE_Status (*init_regs_for_coarse_calibration) (Genesys_Device * dev,
+                                                     const Genesys_Sensor& sensor);
+    SANE_Status (*init_regs_for_shading) (Genesys_Device * dev, const Genesys_Sensor& sensor);
+    SANE_Status (*init_regs_for_scan) (Genesys_Device * dev, const Genesys_Sensor& sensor);
 
     SANE_Bool (*get_filter_bit) (Genesys_Register_Set * reg);
     SANE_Bool (*get_lineart_bit) (Genesys_Register_Set * reg);
@@ -591,18 +943,17 @@ typedef struct Genesys_Command_Set
     SANE_Bool (*test_buffer_empty_bit) (SANE_Byte val);
     SANE_Bool (*test_motor_flag_bit) (SANE_Byte val);
 
-  int (*bulk_full_size) (void);
-
-    SANE_Status (*set_fe) (Genesys_Device * dev, uint8_t set);
+    SANE_Status (*set_fe) (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set);
     SANE_Status (*set_powersaving) (Genesys_Device * dev, int delay);
     SANE_Status (*save_power) (Genesys_Device * dev, SANE_Bool enable);
 
   void (*set_motor_power) (Genesys_Register_Set * regs, SANE_Bool set);
-  void (*set_lamp_power) (Genesys_Device * dev,
+  void (*set_lamp_power) (Genesys_Device * dev, const Genesys_Sensor& sensor,
 			  Genesys_Register_Set * regs,
 			  SANE_Bool set);
 
     SANE_Status (*begin_scan) (Genesys_Device * dev,
+                               const Genesys_Sensor& sensor,
 			       Genesys_Register_Set * regs,
 			       SANE_Bool start_motor);
     SANE_Status (*end_scan) (Genesys_Device * dev,
@@ -612,19 +963,20 @@ typedef struct Genesys_Command_Set
     /**
      * Send gamma tables to ASIC
      */
-    SANE_Status (*send_gamma_table) (Genesys_Device * dev);
+    SANE_Status (*send_gamma_table) (Genesys_Device * dev, const Genesys_Sensor& sensor);
 
     SANE_Status (*search_start_position) (Genesys_Device * dev);
-    SANE_Status (*offset_calibration) (Genesys_Device * dev);
-    SANE_Status (*coarse_gain_calibration) (Genesys_Device * dev, int dpi);
-    SANE_Status (*led_calibration) (Genesys_Device * dev);
+    SANE_Status (*offset_calibration) (Genesys_Device * dev, const Genesys_Sensor& sensor);
+    SANE_Status (*coarse_gain_calibration) (Genesys_Device * dev,
+                                            const Genesys_Sensor& sensor, int dpi);
+    SANE_Status (*led_calibration) (Genesys_Device * dev, Genesys_Sensor& sensor);
 
     SANE_Status (*slow_back_home) (Genesys_Device * dev, SANE_Bool wait_until_home);
     SANE_Status (*rewind) (Genesys_Device * dev);
 
     SANE_Status (*bulk_write_register) (Genesys_Device * dev,
-					Genesys_Register_Set * reg,
-					size_t elems);
+                                        Genesys_Register_Set& reg);
+
     SANE_Status (*bulk_write_data) (Genesys_Device * dev, uint8_t addr,
 				    uint8_t * data, size_t len);
 
@@ -658,10 +1010,12 @@ typedef struct Genesys_Command_Set
     /**
      * search for an black or white area in forward or reverse
      * direction */
-    SANE_Status (*search_strip) (Genesys_Device * dev, SANE_Bool forward, SANE_Bool black);
+    SANE_Status (*search_strip) (Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                 SANE_Bool forward, SANE_Bool black);
 
     SANE_Status (*is_compatible_calibration) (
 	Genesys_Device * dev,
+        const Genesys_Sensor& sensor,
 	Genesys_Calibration_Cache *cache,
         SANE_Bool for_overwrite);
 
@@ -674,12 +1028,13 @@ typedef struct Genesys_Command_Set
     /**
      * write shading data calibration to ASIC
      */
-    SANE_Status (*send_shading_data) (Genesys_Device * dev, uint8_t * data, int size);
+    SANE_Status (*send_shading_data) (Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                      uint8_t * data, int size);
 
     /**
      * calculate current scan setup
      */
-    SANE_Status (*calculate_current_setup) (Genesys_Device * dev);
+    SANE_Status (*calculate_current_setup) (Genesys_Device * dev, const Genesys_Sensor& sensor);
 
     /**
      * cold boot init function
@@ -690,6 +1045,7 @@ typedef struct Genesys_Command_Set
      * Scan register setting interface
      */
     SANE_Status (*init_scan_regs) (Genesys_Device * dev,
+                                   const Genesys_Sensor& sensor,
 				   Genesys_Register_Set * reg,
 				   float xres,
 				   float yres,
@@ -777,70 +1133,87 @@ typedef struct Genesys_Model
 #define SCAN_MODE_GRAY           2 	/**< gray scan mode */
 #define SCAN_MODE_COLOR          4 	/**< color scan mode */
 
-typedef struct
+struct Genesys_Settings
 {
-  int scan_method;		/* todo: change >=2: Transparency, 0x88: negative film */
-  int scan_mode;		/* todo: change 0,1 = lineart, halftone; 2 = gray, 3 = 3pass color, 4=single pass color */
-  int xres;			/**< horizontal dpi */
-  int yres;			/**< vertical dpi */
+    // TODO: change >=2: Transparency, 0x88: negative film
+    int scan_method = 0;
+    // TODO: change 0,1 = lineart, halftone; 2 = gray, 3 = 3pass color, 4=single pass color
+    int scan_mode = 0;
+    // horizontal dpi
+    int xres = 0;
+    // vertical dpi
+    int yres = 0;
 
-  double tl_x;			/* x start on scan table in mm */
-  double tl_y;			/* y start on scan table in mm */
+    //x start on scan table in mm
+    double tl_x = 0;
+    // y start on scan table in mm
+    double tl_y = 0;
 
-  unsigned int lines;		/**< number of lines at scan resolution */
-  unsigned int pixels;		/**< number of pixels at scan resolution */
+    // number of lines at scan resolution
+    unsigned int lines = 0;
+    // number of pixels at scan resolution
+    unsigned int pixels = 0;
 
-  unsigned int depth;/* bit depth of the scan */
+    // bit depth of the scan
+    unsigned int depth = 0;
 
-  /* todo : remove these fields ? */
-  int exposure_time;
+    /* todo : remove these fields ? */
+    int exposure_time = 0;
 
-  unsigned int color_filter;
+    unsigned int color_filter = 0;
 
-  /**< true if scan is true gray, false if monochrome scan */
-  int true_gray;
+    // true if scan is true gray, false if monochrome scan
+    int true_gray = 0;
 
-  /**< lineart threshold */
-  int threshold;
+    // lineart threshold
+    int threshold = 0;
 
-  /**< lineart threshold curve for dynamic rasterization */
-  int threshold_curve;
+    // lineart threshold curve for dynamic rasterization
+    int threshold_curve = 0;
 
-  /**< Disable interpolation for xres<yres*/
-  int disable_interpolation;
+    // Disable interpolation for xres<yres
+    int disable_interpolation = 0;
 
-  /**< Use double x resolution internally to provide better
-   * quality */
-  int double_xres;
+    // Use double x resolution internally to provide better quality
+    int double_xres = 0;
 
-  /**< true is lineart is generated from gray data by
-   * the dynamic rasterization algo */
-  int dynamic_lineart;
+    // true is lineart is generated from gray data by the dynamic rasterization algoright
+    int dynamic_lineart = 0;
 
-  /**< value for contrast enhancement in the [-100..100] range */
-  int contrast;
+    // value for contrast enhancement in the [-100..100] range
+    int contrast = 0;
 
-  /**< value for brightness enhancement in the [-100..100] range */
-  int brightness;
+    // value for brightness enhancement in the [-100..100] range
+    int brightness = 0;
 
-  /**< cahe entries expiration time */
-  int expiration_time;
-} Genesys_Settings;
+    // cache entries expiration time
+    int expiration_time = 0;
+};
 
-typedef struct Genesys_Current_Setup
+struct Genesys_Current_Setup
 {
-    int pixels;         /* pixel count expected from scanner */
-    int lines;          /* line count expected from scanner */
-    int depth;          /* depth expected from scanner */
-    int channels;       /* channel count expected from scanner */
-    int scan_method;	/* scanning method: flatbed or XPA */
-    int exposure_time;  /* used exposure time */
-    float xres;         /* used xres */
-    float yres;         /* used yres*/
-    SANE_Bool half_ccd; /* half ccd mode */
-    SANE_Int stagger;
-    SANE_Int max_shift;	/* max shift of any ccd component, including staggered pixels*/
-} Genesys_Current_Setup;
+    // pixel count expected from scanner
+    int pixels = 0;
+    // line count expected from scanner
+    int lines = 0;
+    // depth expected from scanner
+    int depth = 0;
+    // channel count expected from scanner
+    int channels = 0;
+    // scanning method: flatbed or XPA
+    int scan_method = 0;
+    // used exposure time
+    int exposure_time = 0;
+    // used xres
+    float xres = 0;
+    // used yres
+    float yres = 0;
+    // half ccd mode
+    unsigned ccd_size_divisor = 1;
+    SANE_Int stagger = 0;
+    //  max shift of any ccd component, including staggered pixels
+    SANE_Int max_shift = 0;
+};
 
 struct Genesys_Buffer
 {
@@ -878,10 +1251,10 @@ struct Genesys_Calibration_Cache
     ~Genesys_Calibration_Cache() = default;
 
     // used to check if entry is compatible
-    Genesys_Current_Setup used_setup = {};
+    Genesys_Current_Setup used_setup;
     time_t last_calibration = 0;
 
-    Genesys_Frontend frontend = {};
+    Genesys_Frontend frontend;
     Genesys_Sensor sensor;
 
     size_t calib_pixels = 0;
@@ -921,13 +1294,12 @@ struct Genesys_Device
     SANE_Int force_calibration = 0;
     Genesys_Model *model = nullptr;
 
-    Genesys_Register_Set reg[256] = {};
-    Genesys_Register_Set calib_reg[256] = {};
-    Genesys_Settings settings = {};
-    Genesys_Frontend frontend = {};
-    Genesys_Sensor sensor;
-    Genesys_Gpo gpo = {};
-    Genesys_Motor motor = {};
+    Genesys_Register_Set reg;
+    Genesys_Register_Set calib_reg;
+    Genesys_Settings settings;
+    Genesys_Frontend frontend, frontend_initial;
+    Genesys_Gpo gpo;
+    Genesys_Motor motor;
     uint16_t slope_table0[256] = {};
     uint16_t slope_table1[256] = {};
     uint8_t  control[6] = {};
@@ -942,6 +1314,14 @@ struct Genesys_Device
     size_t calib_resolution = 0;
      // bytes to read from USB when calibrating. If 0, this is not set
     size_t calib_total_bytes_to_read = 0;
+    // certain scanners support much higher resolution when scanning transparency, but we can't
+    // read whole width of the scanner as a single line at that resolution. Thus for stuff like
+    // calibration we want to read only the possible calibration area.
+    size_t calib_pixels_offset = 0;
+
+    // gamma overrides. If a respective array is not empty then it means that the gamma for that
+    // color is overridden.
+    std::vector<uint16_t> gamma_override_tables[3];
 
     std::vector<uint8_t> white_average_data;
     std::vector<uint8_t> dark_average_data;
@@ -981,7 +1361,7 @@ struct Genesys_Device
     size_t wpl = 0;
 
     // contains the real used values
-    Genesys_Current_Setup current_setup = {};
+    Genesys_Current_Setup current_setup;
 
     // look up table used in dynamic rasterization
     unsigned char lineart_lut[256] = {};
@@ -1091,13 +1471,26 @@ typedef struct {
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/
 
-extern Genesys_Register_Set *sanei_genesys_get_address (Genesys_Register_Set * regs, uint16_t addr);
+inline GenesysRegister* sanei_genesys_get_address(Genesys_Register_Set* regs, uint16_t addr)
+{
+    auto* ret = regs->find_reg_address(addr);
+    if (ret == nullptr) {
+        DBG(DBG_error, "%s: failed to find address for register 0x%02x, crash expected !\n",
+            __func__, addr);
+    }
+    return ret;
+}
 
-extern SANE_Byte
-sanei_genesys_read_reg_from_set (Genesys_Register_Set * regs, uint16_t address);
+inline uint8_t sanei_genesys_read_reg_from_set(Genesys_Register_Set* regs, uint16_t address)
+{
+    return regs->get8(address);
+}
 
-extern void
-sanei_genesys_set_reg_from_set (Genesys_Register_Set * regs, uint16_t address, SANE_Byte value);
+inline void sanei_genesys_set_reg_from_set(Genesys_Register_Set* regs, uint16_t address,
+                                           uint8_t value)
+{
+    regs->set8(address, value);
+}
 
 extern SANE_Status sanei_genesys_init_cmd_set (Genesys_Device * dev);
 
@@ -1114,9 +1507,8 @@ extern SANE_Status
 sanei_genesys_write_hregister (Genesys_Device * dev, uint16_t reg, uint8_t val);
 
 extern SANE_Status
-sanei_genesys_bulk_write_register (Genesys_Device * dev,
-			           Genesys_Register_Set * reg,
-                                   size_t elems);
+sanei_genesys_bulk_write_register(Genesys_Device * dev,
+                                   Genesys_Register_Set& reg);
 
 extern SANE_Status sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val);
 
@@ -1135,12 +1527,18 @@ extern void sanei_genesys_print_status (uint8_t val);
 extern SANE_Status
 sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_t * data);
 
-extern void sanei_genesys_init_fe (Genesys_Device * dev);
-
 extern void sanei_genesys_init_structs (Genesys_Device * dev);
 
+const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev);
+Genesys_Sensor& sanei_genesys_find_sensor_any_for_write(Genesys_Device* dev);
+const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
+                                                int scan_method = SCAN_METHOD_FLATBED);
+Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,
+                                                    int scan_method = SCAN_METHOD_FLATBED);
+
 extern SANE_Status
-sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line);
+sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                 int pixels_per_line);
 
 extern SANE_Status sanei_genesys_read_valid_words (Genesys_Device * dev,
 						  unsigned int *steps);
@@ -1217,21 +1615,23 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
 				   unsigned int *final_exposure,
 				   int power_mode);
 
-extern void
-sanei_genesys_create_gamma_table (uint16_t * gamma_table, int size,
-				  float maximum, float gamma_max,
-				  float gamma);
+void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
+                                              std::vector<uint16_t>& gamma_table, float gamma);
 
-extern SANE_Status sanei_genesys_send_gamma_table (Genesys_Device * dev);
+std::vector<uint16_t> get_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                      int color);
+
+SANE_Status sanei_genesys_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& sensor);
 
 extern SANE_Status sanei_genesys_start_motor (Genesys_Device * dev);
 
 extern SANE_Status sanei_genesys_stop_motor (Genesys_Device * dev);
 
 extern SANE_Status
-sanei_genesys_search_reference_point (Genesys_Device * dev, uint8_t * data,
-				      int start_pixel, int dpi, int width,
-				      int height);
+sanei_genesys_search_reference_point(Genesys_Device * dev, Genesys_Sensor& sensor,
+                                     uint8_t * data,
+                                     int start_pixel, int dpi, int width,
+                                     int height);
 
 extern SANE_Status sanei_genesys_write_file(const char *filename, uint8_t* data, size_t length);
 
@@ -1246,17 +1646,54 @@ extern SANE_Status
 sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
 				      size_t size);
 
-extern SANE_Status
-sanei_genesys_set_double(Genesys_Register_Set *regs, uint16_t addr, uint16_t value);
+inline void sanei_genesys_set_double(Genesys_Register_Set* regs, uint16_t addr, uint16_t value)
+{
+    regs->set16(addr, value);
+}
 
-extern SANE_Status
-sanei_genesys_set_triple(Genesys_Register_Set *regs, uint16_t addr, uint32_t value);
+inline void sanei_genesys_set_triple(Genesys_Register_Set* regs, uint16_t addr, uint32_t value)
+{
+    regs->set24(addr, value);
+}
 
-extern SANE_Status
-sanei_genesys_get_double(Genesys_Register_Set *regs, uint16_t addr, uint16_t *value);
+inline void sanei_genesys_get_double(Genesys_Register_Set* regs, uint16_t addr, uint16_t* value)
+{
+    *value = regs->get16(addr);
+}
 
-extern SANE_Status
-sanei_genesys_get_triple(Genesys_Register_Set *regs, uint16_t addr, uint32_t *value);
+inline void sanei_genesys_get_triple(Genesys_Register_Set* regs, uint16_t addr, uint32_t* value)
+{
+    *value = regs->get24(addr);
+}
+
+inline void sanei_genesys_set_exposure(Genesys_Register_Set& regs, const SensorExposure& exposure)
+{
+    regs.set8(0x10, (exposure.red >> 8) & 0xff);
+    regs.set8(0x11, exposure.red & 0xff);
+    regs.set8(0x12, (exposure.green >> 8) & 0xff);
+    regs.set8(0x13, exposure.green & 0xff);
+    regs.set8(0x14, (exposure.blue >> 8) & 0xff);
+    regs.set8(0x15, exposure.blue & 0xff);
+}
+
+inline uint16_t sanei_genesys_fixup_exposure_value(uint16_t value)
+{
+    if ((value & 0xff00) == 0) {
+        value |= 0x100;
+    }
+    if ((value & 0x00ff) == 0) {
+        value |= 0x1;
+    }
+    return value;
+}
+
+inline SensorExposure sanei_genesys_fixup_exposure(SensorExposure exposure)
+{
+    exposure.red = sanei_genesys_fixup_exposure_value(exposure.red);
+    exposure.green = sanei_genesys_fixup_exposure_value(exposure.green);
+    exposure.blue = sanei_genesys_fixup_exposure_value(exposure.blue);
+    return exposure;
+}
 
 extern SANE_Status
 sanei_genesys_wait_for_home(Genesys_Device *dev);
@@ -1264,11 +1701,10 @@ sanei_genesys_wait_for_home(Genesys_Device *dev);
 extern SANE_Status
 sanei_genesys_asic_init(Genesys_Device *dev, SANE_Bool cold);
 
-extern
-int sanei_genesys_compute_dpihw(Genesys_Device *dev, int xres);
+int sanei_genesys_compute_dpihw(Genesys_Device *dev, const Genesys_Sensor& sensor, int xres);
 
-extern
-int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, int xres);
+int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, const Genesys_Sensor& sensor,
+                                            int xres);
 
 extern
 Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_type, int exposure);
@@ -1305,7 +1741,7 @@ extern SANE_Status
 sanei_genesys_read_calibration (Genesys_Device * dev);
 
 extern SANE_Status
-sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
+sanei_genesys_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
 				 Genesys_Calibration_Cache * cache,
 				 int for_overwrite);
 
@@ -1338,6 +1774,7 @@ sanei_genesys_load_lut (unsigned char * lut,
 
 extern SANE_Status
 sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
+                                    const Genesys_Sensor& sensor,
                                     int bits,
                                     int max,
                                     int size,
@@ -1379,10 +1816,10 @@ SANE_Status wrap_exceptions_to_status_code(const char* func, F&& function)
     } catch (const std::bad_alloc& exc) {
         return SANE_STATUS_NO_MEM;
     } catch (const std::exception& exc) {
-        DBG(DBG_error, "%s: got uncaught exception: %s", func, exc.what());
+        DBG(DBG_error, "%s: got uncaught exception: %s\n", func, exc.what());
         return SANE_STATUS_INVAL;
     } catch (...) {
-        DBG(DBG_error, "%s: got unknown uncaught exception", func);
+        DBG(DBG_error, "%s: got unknown uncaught exception\n", func);
         return SANE_STATUS_INVAL;
     }
 }
@@ -1393,13 +1830,13 @@ void catch_all_exceptions(const char* func, F&& function)
     try {
         function();
     } catch (const SaneException& exc) {
-        // ignore, this will already be logged
+        DBG(DBG_error, "%s: got exception: %s\n", func, exc.what());
     } catch (const std::bad_alloc& exc) {
-        // ignore, this will already be logged
+        DBG(DBG_error, "%s: got exception: could not allocate memory: %s\n", func, exc.what());
     } catch (const std::exception& exc) {
-        DBG(DBG_error, "%s: got uncaught exception: %s", func, exc.what());
+        DBG(DBG_error, "%s: got uncaught exception: %s\n", func, exc.what());
     } catch (...) {
-        DBG(DBG_error, "%s: got unknown uncaught exception", func);
+        DBG(DBG_error, "%s: got unknown uncaught exception\n", func);
     }
 }
 
@@ -1446,5 +1883,6 @@ private:
 
 extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 void genesys_init_sensor_tables();
+void genesys_init_frontend_tables();
 
 #endif /* not GENESYS_LOW_H */

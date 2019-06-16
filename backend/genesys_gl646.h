@@ -165,95 +165,11 @@
 
 #include "genesys.h"
 
-enum
-{
-  reg_0x01 = 0,
-  reg_0x02,
-  reg_0x03,
-  reg_0x04,
-  reg_0x05,
-  reg_0x06,
-  reg_0x07,
-  reg_0x08,
-  reg_0x09,
-  reg_0x0a,
-  reg_0x0b,
-  reg_0x10,
-  reg_0x11,
-  reg_0x12,
-  reg_0x13,
-  reg_0x14,
-  reg_0x15,
-  reg_0x16,
-  reg_0x17,
-  reg_0x18,
-  reg_0x19,
-  reg_0x1a,
-  reg_0x1b,
-  reg_0x1c,
-  reg_0x1d,
-  reg_0x1e,
-  reg_0x1f,
-  reg_0x20,
-  reg_0x21,
-  reg_0x22,
-  reg_0x23,
-  reg_0x24,
-  reg_0x25,
-  reg_0x26,
-  reg_0x27,
-  reg_0x28,
-  reg_0x29,
-  reg_0x2c,
-  reg_0x2d,
-  reg_0x2e,
-  reg_0x2f,
-  reg_0x30,
-  reg_0x31,
-  reg_0x32,
-  reg_0x33,
-  reg_0x34,
-  reg_0x35,
-  reg_0x36,
-  reg_0x37,
-  reg_0x38,
-  reg_0x39,
-  reg_0x3d,
-  reg_0x3e,
-  reg_0x3f,
-  reg_0x52,
-  reg_0x53,
-  reg_0x54,
-  reg_0x55,
-  reg_0x56,
-  reg_0x57,
-  reg_0x58,
-  reg_0x59,
-  reg_0x5a,
-  reg_0x5b,
-  reg_0x5c,
-  reg_0x5d,
-  reg_0x5e,
-  reg_0x60,
-  reg_0x61,
-  reg_0x62,
-  reg_0x63,
-  reg_0x64,
-  reg_0x65,
-  reg_0x66,
-  reg_0x67,
-  reg_0x68,
-  reg_0x69,
-  reg_0x6a,
-  reg_0x6b,
-  reg_0x6c,
-  reg_0x6d,
-  GENESYS_GL646_MAX_REGS
-};
+static SANE_Status gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                uint8_t set, int dpi);
 
-static SANE_Status gl646_set_fe (Genesys_Device * dev, uint8_t set, int dpi);
-
-static SANE_Status gl646_public_set_fe (Genesys_Device * dev, uint8_t set);
+static SANE_Status gl646_public_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                       uint8_t set);
 
 static
 SANE_Status
@@ -281,6 +197,7 @@ gl646_move_to_ta (Genesys_Device * dev);
  */
 static SANE_Status
 setup_for_scan (Genesys_Device *device,
+                const Genesys_Sensor& sensor,
 		Genesys_Register_Set *regs,
 		Genesys_Settings settings,
 		SANE_Bool split,
@@ -294,6 +211,7 @@ setup_for_scan (Genesys_Device *device,
  * */
 static SANE_Status
 gl646_setup_registers (Genesys_Device * dev,
+                       const Genesys_Sensor& sensor,
 		       Genesys_Register_Set * regs,
 		       Genesys_Settings scan_settings,
 		       uint16_t * slope_table1,
@@ -327,8 +245,9 @@ simple_move (Genesys_Device * dev, SANE_Int distance);
  * @param data     pointer that will point to the scanned data
  */
 static SANE_Status
-simple_scan (Genesys_Device * dev, Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
-             SANE_Bool shading, std::vector<uint8_t>& data);
+simple_scan(Genesys_Device * dev, const Genesys_Sensor& sensor,
+            Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
+            SANE_Bool shading, std::vector<uint8_t>& data);
 
 /**
  * Send the stop scan command
@@ -339,7 +258,8 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 /**
  * writes control data to an area behind the last motor table.
  */
-static SANE_Status write_control (Genesys_Device * dev, int resolution);
+static SANE_Status write_control (Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                  int resolution);
 
 
 /**
@@ -433,7 +353,6 @@ static uint8_t xp200_gray[6]={0x05, 0x0a, 0x0f, 0xa0, 0x10, 0x10};
  * master sensor settings, for a given sensor and dpi,
  * it gives exposure and CCD time
  */
-/* *INDENT-OFF* */
 static Sensor_Master sensor_master[] = {
   /* HP3670 master settings */
   {CCD_HP3670,  75, SANE_TRUE ,   75,  4879,  300, 4, 42, NULL, SANE_FALSE, 0x33, 0x43},
@@ -678,4 +597,3 @@ static Sensor_Settings sensor_settings[] = {
    {0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83} /* half ccd settings */
   },
 };
-/* *INDENT-ON* */

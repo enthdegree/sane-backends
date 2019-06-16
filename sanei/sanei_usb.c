@@ -2169,8 +2169,8 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 
 	  if (ret < 0)
 	    {
-	      DBG (1, "sanei_usb_read_bulk: read failed: %s\n",
-		   sanei_libusb_strerror (ret));
+              DBG (1, "sanei_usb_read_bulk: read failed (still got %d bytes): %s\n",
+                   rsize, sanei_libusb_strerror (ret));
 
 	      read_size = -1;
 	    }

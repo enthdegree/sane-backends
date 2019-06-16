@@ -320,161 +320,14 @@
 #define REG_CK3MAP      0x77
 #define REG_CK4MAP      0x7a
 
-/**
- * writable scanner registers */
-enum
-{
-  reg_0x01 = 0,
-  reg_0x02,
-  reg_0x03,
-  reg_0x04,
-  reg_0x05,
-  reg_0x06,
-  reg_0x08,
-  reg_0x09,
-  reg_0x0a,
-  reg_0x0b,
-  reg_0x0c,
-  reg_0x0d,
-  reg_0x0e,
-  reg_0x0f,
-  reg_0x10,
-  reg_0x11,
-  reg_0x12,
-  reg_0x13,
-  reg_0x14,
-  reg_0x15,
-  reg_0x16,
-  reg_0x17,
-  reg_0x18,
-  reg_0x19,
-  reg_0x1a,
-  reg_0x1b,
-  reg_0x1c,
-  reg_0x1d,
-  reg_0x1e,
-  reg_0x1f,
-  reg_0x20,
-  reg_0x21,
-  reg_0x22,
-  reg_0x23,
-  reg_0x24,
-  reg_0x25,
-  reg_0x26,
-  reg_0x27,
-  reg_0x2c,
-  reg_0x2d,
-  reg_0x2e,
-  reg_0x2f,
-  reg_0x30,
-  reg_0x31,
-  reg_0x32,
-  reg_0x33,
-  reg_0x34,
-  reg_0x35,
-  reg_0x36,
-  reg_0x37,
-  reg_0x38,
-  reg_0x39,
-  reg_0x3a,
-  reg_0x3b,
-  reg_0x3d,
-  reg_0x3e,
-  reg_0x3f,
-  reg_0x51,
-  reg_0x52,
-  reg_0x53,
-  reg_0x54,
-  reg_0x55,
-  reg_0x56,
-  reg_0x57,
-  reg_0x58,
-  reg_0x59,
-  reg_0x5a,
-  reg_0x5e,
-  reg_0x5f,
-  reg_0x60,
-  reg_0x61,
-  reg_0x62,
-  reg_0x63,
-  reg_0x64,
-  reg_0x65,
-  reg_0x67,
-  reg_0x68,
-  reg_0x69,
-  reg_0x6a,
-  reg_0x6b,
-  reg_0x6c,
-  reg_0x6d,
-  reg_0x6e,
-  reg_0x6f,
-  reg_0x74,
-  reg_0x75,
-  reg_0x76,
-  reg_0x77,
-  reg_0x78,
-  reg_0x79,
-  reg_0x7a,
-  reg_0x7b,
-  reg_0x7c,
-  reg_0x7d,
-  reg_0x87,
-  reg_0x9d,
-  reg_0xa2,
-  reg_0xa3,
-  reg_0xa4,
-  reg_0xa5,
-  reg_0xa6,
-  reg_0xa7,
-  reg_0xa8,
-  reg_0xa9,
-  reg_0xbd,
-  reg_0xbe,
-  reg_0xc5,
-  reg_0xc6,
-  reg_0xc7,
-  reg_0xc8,
-  reg_0xc9,
-  reg_0xca,
-  reg_0xd0,
-  reg_0xd1,
-  reg_0xd2,
-  reg_0xe0,
-  reg_0xe1,
-  reg_0xe2,
-  reg_0xe3,
-  reg_0xe4,
-  reg_0xe5,
-  reg_0xe6,
-  reg_0xe7,
-  reg_0xe8,
-  reg_0xe9,
-  reg_0xea,
-  reg_0xeb,
-  reg_0xec,
-  reg_0xed,
-  reg_0xee,
-  reg_0xef,
-  reg_0xf0,
-  reg_0xf1,
-  reg_0xf2,
-  reg_0xf3,
-  reg_0xf4,
-  reg_0xf5,
-  reg_0xf6,
-  reg_0xf7,
-  reg_0xf8,
-  reg_0xfe,
-  GENESYS_GL847_MAX_REGS
-};
-
-#define SETREG(adr,val) {dev->reg[reg_##adr].address=adr;dev->reg[reg_##adr].value=val;}
+#define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
 
 /** set up registers for an actual scan
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
 static SANE_Status gl847_init_scan_regs (Genesys_Device * dev,
+                                         const Genesys_Sensor& sensor,
                       Genesys_Register_Set * reg,
                       float xres,	/*dpi */
 		      float yres,	/*dpi */
@@ -488,7 +341,8 @@ static SANE_Status gl847_init_scan_regs (Genesys_Device * dev,
                       unsigned int flags);
 
 /* Send the low-level scan command */
-static SANE_Status gl847_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool start_motor);
+static SANE_Status gl847_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                     Genesys_Register_Set * reg, SANE_Bool start_motor);
 
 /* Send the stop scan command */
 static SANE_Status gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool check_stop);
@@ -585,8 +439,6 @@ typedef struct {
   uint8_t r17;		/**> TG width */
 } Sensor_Profile;
 
-/* *INDENT-OFF* */
-
 static size_t order_01[]={0,1};
 static size_t order_0213[]={0,2,1,3};
 static size_t order_0246[]={0,2,4,6,1,3,5,7};
@@ -622,7 +474,6 @@ static Sensor_Profile sensors[]={
 	{CIS_CANONLIDE700, 2400, 10576, 135, 249, 85, 5187, 255, 2798, 1558,  972, new_order , 0x08},
 	{CIS_CANONLIDE700, 4800, 10576, 135, 249, 85, 5187, 255, 2798, 1558,  972, order_0145, 0x06},
 };
-/* *INDENT-ON* */
 
 /* base motor sopes in full step unit */
 /* target=((exposure * dpi) / base_dpi)>>step_type; */
@@ -642,7 +493,6 @@ static uint32_t lide200_max[] = { 124992, 124992, 124992, 124992, 124992, 124992
  * database of motor profiles
  */
 
-/* *INDENT-OFF* */
 static Motor_Profile gl847_motors[]={
         /* LiDE 100 */
 	{MOTOR_CANONLIDE100,  2848, HALF_STEP   , lide200_base},
@@ -669,6 +519,3 @@ static Motor_Profile gl847_motors[]={
 	/* end of database entry */
 	{0,  0, 0, NULL},
 };
-/* *INDENT-ON* */
-
-/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

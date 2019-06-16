@@ -2054,6 +2054,8 @@ sanei_genesys_load_lut (unsigned char * lut,
 
 void sanei_genesys_usleep(unsigned int useconds)
 {
+  if (sanei_usb_is_replay_mode_enabled() == SANE_TRUE)
+    return;
   usleep(useconds);
 }
 

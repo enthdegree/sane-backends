@@ -9,12 +9,12 @@ $ make
 $ make install
 
 
-2. Step by step install on Linux 2.6.* and 3.*, both with udev:
-===============================================================
+2. Step by step install on Linux >=2.6, with udev:
+==================================================
 
 2.1. Install with your preferred package manager:
      (a) the development environment for your Linux distibution
-         - mandatory: gcc, make, kernel header files
+         - mandatory: gcc, make, kernel header files, autoconf, autoconf-archive
          - optional:  git
      (b) missing development packages
          - libusb-dev or libusb-devel or libusb-compat-devel
@@ -42,6 +42,7 @@ $ make install
       We install a new SANE dynamically linked shared object library in
       /usr/local/lib beside your system's SANE library.
 
+      $ ./autogen.sh
       $ ./configure
       $ make && sudo make install
 

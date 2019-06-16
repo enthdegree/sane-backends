@@ -595,7 +595,7 @@ for be in ${BACKENDS}; do
     ;;
 
     genesys)
-    if test "${ax_cv_cxx_compile_cxx11}" != "yes"; then
+    if test "${HAVE_CXX11}" != "1"; then
       echo "*** $be backend requires C++11 support - $DISABLE_MSG"
       backend_supported="no"
     fi

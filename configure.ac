@@ -383,9 +383,9 @@ AC_ARG_WITH(usb,
 AS_IF([test xno != "x$with_usb"],
   [have_usb=no
    AS_CASE(x$host_os,           dnl odd-ball operating systems first
-    [beos*],
+    [xbeos*],
       [AC_CHECK_HEADER(be/drivers/USB_scanner.h, [have_usb=yes])],
-    [os2*],
+    [xos2*],
       [AC_CHECK_HEADER(usbcalls.h,
         [AC_CHECK_LIB(usbcall, UsbQueryNumberDevices,
           [USB_LIBS="-lusbcall"

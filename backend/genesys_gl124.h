@@ -463,20 +463,8 @@ static Motor_Profile motors[]={
 };
 
 static
-SANE_Status gl124_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                  Genesys_Register_Set * reg,
-				  float xres,        /*dpi */
-				  float yres,        /*dpi */
-				  float startx,        /*optical_res, from dummy_pixel+1 */
-				  float starty,        /*base_ydpi, from home! */
-                                  float pixels,
-                                  float lines,
-                                  unsigned int depth,
-                                  unsigned int channels,
-                                  int scan_method,
-                                  int scan_mode,
-                                  int color_filter,
-                                  unsigned int flags);
+SANE_Status gl124_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                 Genesys_Register_Set * reg, SetupParams& params);
 
 static SANE_Status gl124_start_action (Genesys_Device * dev);
 static SANE_Status

@@ -1070,6 +1070,50 @@ sanei_genesys_read_feed_steps (Genesys_Device * dev, unsigned int *steps)
   return SANE_STATUS_GOOD;
 }
 
+void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                  Genesys_Register_Set& regs, bool set)
+{
+    static const uint8_t REG03_LAMPPWR = 0x10;
+
+    if (set) {
+        regs.find_reg(0x03).value |= REG03_LAMPPWR;
+
+        if (dev->model->asic_type == GENESYS_GL841) {
+            sanei_genesys_set_exposure(regs, sanei_genesys_fixup_exposure(sensor.exposure));
+            regs.set8(0x19, 0x50);
+        }
+
+        if (dev->model->asic_type == GENESYS_GL843) {
+            sanei_genesys_set_exposure(regs, sensor.exposure);
+        }
+    } else {
+        regs.find_reg(0x03).value &= ~REG03_LAMPPWR;
+
+        if (dev->model->asic_type == GENESYS_GL841) {
+            sanei_genesys_set_exposure(regs, {0x0101, 0x0101, 0x0101});
+            regs.set8(0x19, 0xff);
+        }
+
+        if (dev->model->asic_type == GENESYS_GL843) {
+            if (dev->model->model_id != MODEL_CANON_CANOSCAN_8600F) {
+                // BUG: datasheet says we shouldn't set exposure to zero
+                sanei_genesys_set_exposure(regs, {0, 0, 0});
+            }
+        }
+    }
+    regs.state.is_lamp_on = set;
+}
+
+void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set)
+{
+    static const uint8_t REG02_MTRPWR = 0x10;
+
+    if (set) {
+        regs.find_reg(0x02).value |= REG02_MTRPWR;
+    } else {
+        regs.find_reg(0x02).value &= ~REG02_MTRPWR;
+    }
+}
 
 /**
  * Write to many registers at once
@@ -1440,7 +1484,7 @@ sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
   dev->white_average_data.clear();
   dev->dark_average_data.clear();
 
-  dev->settings.color_filter = 0;
+  dev->settings.color_filter = ColorFilter::RED;
 
   /* duplicate initial values into calibration registers */
   dev->calib_reg = dev->reg;
@@ -1853,7 +1897,6 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
 	   sane_strstatus (status));
       return status;
     }
-  dev->current_setup.scan_method = dev->settings.scan_method;
 
   DBG (DBG_proc, "%s: checking\n", __func__);
 
@@ -1880,10 +1923,11 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
            dev->current_setup.ccd_size_divisor, cache->used_setup.ccd_size_divisor);
       compatible = 0;
     }
-  if (dev->current_setup.scan_method != cache->used_setup.scan_method)
+  if (dev->current_setup.params.scan_method != cache->used_setup.params.scan_method)
     {
       DBG (DBG_io, "%s: current method=%d, used=%d\n", __func__,
-	   dev->current_setup.scan_method, cache->used_setup.scan_method);
+           static_cast<unsigned>(dev->current_setup.params.scan_method),
+           static_cast<unsigned>(cache->used_setup.params.scan_method));
       compatible = 0;
     }
   if (!compatible)
@@ -1900,7 +1944,7 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
       gettimeofday (&time, NULL);
       if ((time.tv_sec - cache->last_calibration > dev->settings.expiration_time*60)
           && (dev->model->is_sheetfed == SANE_FALSE)
-          && (dev->settings.scan_method == SCAN_METHOD_FLATBED))
+          && (dev->settings.scan_method == ScanMethod::FLATBED))
         {
           DBG (DBG_proc, "%s: expired entry, non compatible cache\n", __func__);
           return SANE_STATUS_UNSUPPORTED;
@@ -2079,4 +2123,40 @@ void run_functions_at_backend_exit()
         (*it)();
     }
     s_functions_run_at_backend_exit.release();
+}
+
+void debug_dump(unsigned level, const Genesys_Settings& settings)
+{
+    DBG(level, "settings:\n"
+        "Resolution X/Y : %u / %u dpi\n"
+        "Lines : %u\n"
+        "Pixels per line : %u\n"
+        "Depth : %u\n"
+        "Start position X/Y : %.3f/%.3f\n"
+        "Scan mode : %d\n\n",
+        settings.xres, settings.yres,
+        settings.lines, settings.pixels, settings.depth,
+        settings.tl_x, settings.tl_y,
+        static_cast<unsigned>(settings.scan_mode));
+}
+
+void debug_dump(unsigned level, const SetupParams& params)
+{
+    DBG(level, "settings:\n"
+        "Resolution X/Y : %u / %u dpi\n"
+        "Lines : %u\n"
+        "Pixels per line : %u\n"
+        "Depth : %u\n"
+        "Channels : %u\n"
+        "Start position X/Y : %g / %g\n"
+        "Scan mode : %d\n"
+        "Color filter : %d\n"
+        "Flags : %x\n",
+        params.xres, params.yres,
+        params.lines, params.pixels,
+        params.depth, params.channels,
+        params.startx, params.starty,
+        static_cast<unsigned>(params.scan_mode),
+        static_cast<unsigned>(params.color_filter),
+        params.flags);
 }

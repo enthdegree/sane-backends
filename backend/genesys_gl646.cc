@@ -222,7 +222,7 @@ gl646_stop_motor (Genesys_Device * dev)
  * @return the closest resolution for the sensor and mode
  */
 static int
-get_lowest_resolution(int sensor_id, SANE_Bool color)
+get_lowest_resolution(int sensor_id, unsigned channels)
 {
   int i, nb;
   int dpi;
@@ -234,7 +234,7 @@ get_lowest_resolution(int sensor_id, SANE_Bool color)
     {
       /* computes distance and keep mode if it is closer than previous */
       if (sensor_id == sensor_master[i].sensor
-	  && sensor_master[i].color == color)
+          && sensor_master[i].channels == channels)
 	{
 	  if (sensor_master[i].dpi < dpi)
 	    {
@@ -255,7 +255,7 @@ get_lowest_resolution(int sensor_id, SANE_Bool color)
  * @return the closest resolution for the sensor and mode
  */
 static int
-get_closest_resolution (int sensor_id, int required, SANE_Bool color)
+get_closest_resolution(int sensor_id, int required, unsigned channels)
 {
   int i, nb;
   int dist, dpi;
@@ -269,14 +269,14 @@ get_closest_resolution (int sensor_id, int required, SANE_Bool color)
       /* exit on perfect match */
       if (sensor_id == sensor_master[i].sensor
 	  && sensor_master[i].dpi == required
-	  && sensor_master[i].color == color)
+          && sensor_master[i].channels == channels)
 	{
 	  DBG(DBG_info, "%s: match found for %d\n", __func__, required);
 	  return required;
 	}
       /* computes distance and keep mode if it is closer than previous */
       if (sensor_id == sensor_master[i].sensor
-	  && sensor_master[i].color == color)
+          && sensor_master[i].channels == channels)
 	{
 	  if (abs (sensor_master[i].dpi - required) < dist)
 	    {
@@ -298,8 +298,7 @@ get_closest_resolution (int sensor_id, int required, SANE_Bool color)
  * @param color true is color mode
  * @return SANE_TRUE if half ccd is used
  */
-static SANE_Bool
-is_half_ccd (int sensor_id, int required, SANE_Bool color)
+static SANE_Bool is_half_ccd(int sensor_id, int required, unsigned channels)
 {
   int i, nb;
 
@@ -310,7 +309,7 @@ is_half_ccd (int sensor_id, int required, SANE_Bool color)
       /* exit on perfect match */
       if (sensor_id == sensor_master[i].sensor
 	  && sensor_master[i].dpi == required
-	  && sensor_master[i].color == color)
+          && sensor_master[i].channels == channels)
 	{
 	  DBG(DBG_io, "%s: match found for %d (half_ccd=%d)\n", __func__, required,
 	      sensor_master[i].half_ccd);
@@ -329,8 +328,7 @@ is_half_ccd (int sensor_id, int required, SANE_Bool color)
  * @param color true is color mode
  * @return cksel value for mode
  */
-static int
-get_cksel (int sensor_id, int required, SANE_Bool color)
+static int get_cksel(int sensor_id, int required, unsigned channels)
 {
   int i, nb;
 
@@ -341,7 +339,7 @@ get_cksel (int sensor_id, int required, SANE_Bool color)
       /* exit on perfect match */
       if (sensor_id == sensor_master[i].sensor
 	  && sensor_master[i].dpi == required
-	  && sensor_master[i].color == color)
+          && sensor_master[i].channels == channels)
 	{
 	  DBG(DBG_io, "%s: match found for %d (cksel=%d)\n", __func__, required,
 	      sensor_master[i].cksel);
@@ -360,16 +358,8 @@ get_cksel (int sensor_id, int required, SANE_Bool color)
  * the device.
  * @param dev          pointer to a struct describing the device
  * @param regs         register set to fill
- * @param scan_settings scan's settings
  * @param slope_table1 first motor table to fill
  * @param slope_table2 second motor table to fill
- * @param resolution   dpi of the scan
- * @param move         distance to move (at scan's dpi) before scan
- * @param linecnt      number of lines to scan at scan's dpi
- * @param startx       start of scan area on CCD at CCD's optical resolution
- * @param endx         end of scan area on CCD at CCD's optical resolution
- * @param color        SANE_TRUE is color scan
- * @param depth        1, 8 or 16 bits data sample
  * @return SANE_STATUS_GOOD if registers could be set, SANE_STATUS_INVAL if
  * conditions can't be met.
  * @note No harcoded SENSOR or MOTOR 'names' should be present and
@@ -380,16 +370,46 @@ static SANE_Status
 gl646_setup_registers (Genesys_Device * dev,
                        const Genesys_Sensor& sensor,
 		       Genesys_Register_Set * regs,
-		       Genesys_Settings scan_settings,
+                       SetupParams& params,
 		       uint16_t * slope_table1,
 		       uint16_t * slope_table2,
-		       SANE_Int resolution,
-		       uint32_t move,
-		       uint32_t linecnt,
-		       uint16_t startx,
-		       uint16_t endx, SANE_Bool color,
-                       SANE_Int depth)
+                       bool xcorrection)
 {
+    int resolution = params.xres;
+    uint32_t move = params.starty;
+    uint32_t linecnt = params.lines;
+
+    uint32_t startx = 0;
+    /* pixels are allways given at full CCD optical resolution */
+    /* use detected left margin and fixed value */
+    if (xcorrection == SANE_TRUE) {
+        if (sensor.CCD_start_xoffset > 0) {
+            startx = sensor.CCD_start_xoffset;
+        } else {
+            startx = sensor.dummy_pixel;
+        }
+    } else {
+        // startx cannot be below dummy pixel value
+        startx = sensor.dummy_pixel;
+    }
+
+    /* add x coordinates : expressed in sensor max dpi */
+    startx += params.startx;
+
+    /* stagger works with odd start cordinates */
+    if (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE) {
+        startx |= 1;
+    }
+
+    uint32_t pixels = (params.pixels * sensor.optical_res) / params.xres;
+    /* special requirement for 400 dpi on 1200 dpi sensors */
+    if (params.xres == 400)
+      {
+        pixels = (pixels / 6) * 6;
+      }
+    /* TODO check for pixel width overflow */
+    uint32_t endx = startx + pixels;
+
   SANE_Status status = SANE_STATUS_GOOD;
   int i, nb;
   Sensor_Master *sensor_mst = NULL;
@@ -400,7 +420,7 @@ gl646_setup_registers (Genesys_Device * dev,
   unsigned int bpp;   /**> bytes per pixel */
   uint32_t z1, z2;
   uint16_t ex, sx;
-  int channels = 1, stagger, words_per_line, max_shift;
+  int stagger, words_per_line, max_shift;
   size_t requested_buffer_size;
   size_t read_buffer_size;
   SANE_Bool half_ccd = SANE_FALSE;
@@ -428,7 +448,7 @@ gl646_setup_registers (Genesys_Device * dev,
     {
       if (dev->model->ccd_type == sensor_master[i].sensor
 	  && sensor_master[i].dpi == xresolution
-	  && sensor_master[i].color == color)
+          && sensor_master[i].channels == params.channels)
 	{
           sensor_mst = &sensor_master[i];
 	}
@@ -436,8 +456,8 @@ gl646_setup_registers (Genesys_Device * dev,
     }
   if (sensor_mst == NULL)
     {
-      DBG(DBG_error, "%s: unable to find settings for sensor %d at %d dpi color=%d\n", __func__,
-          dev->model->ccd_type, xresolution, color);
+      DBG(DBG_error, "%s: unable to find settings for sensor %d at %d dpi channels=%d\n", __func__,
+          dev->model->ccd_type, xresolution, params.channels);
       return SANE_STATUS_INVAL;
     }
 
@@ -448,8 +468,8 @@ gl646_setup_registers (Genesys_Device * dev,
   while (i < nb)
     {
       if (dev->model->motor_type == motor_master[i].motor
-	  && motor_master[i].dpi == resolution
-	  && motor_master[i].color == color)
+          && motor_master[i].dpi == resolution
+          && motor_master[i].channels == params.channels)
 	{
 	  motor = &motor_master[i];
 	}
@@ -458,7 +478,7 @@ gl646_setup_registers (Genesys_Device * dev,
   if (motor == NULL)
     {
       DBG(DBG_error, "%s: unable to find settings for motor %d at %d dpi, color=%d\n", __func__,
-          dev->model->motor_type, resolution, color);
+          dev->model->motor_type, resolution, params.channels);
       return SANE_STATUS_INVAL;
     }
 
@@ -543,11 +563,6 @@ gl646_setup_registers (Genesys_Device * dev,
 				      motor->steps2, motor->g2, &used2,
 				      &vfinal);
 
-  if (color == SANE_TRUE)
-    channels = 3;
-  else
-    channels = 1;
-
   /* R01 */
   /* now setup other registers for final scan (ie with shading enabled) */
   /* watch dog + shading + scan enable */
@@ -575,7 +590,7 @@ gl646_setup_registers (Genesys_Device * dev,
     dev->reg.find_reg(0x02).value |= REG02_ACDCDIS;
 
   /* setup motor power and direction */
-  regs->find_reg(0x02).value |= REG02_MTRPWR;
+  sanei_genesys_set_motor_power(*regs, true);
   regs->find_reg(0x02).value &= ~REG02_MTRREV;
 
   /* fastfed enabled (2 motor slope tables) */
@@ -618,14 +633,14 @@ gl646_setup_registers (Genesys_Device * dev,
 
   /* select XPA */
   regs->find_reg(0x03).value &= ~REG03_XPASEL;
-  if (scan_settings.scan_method == SCAN_METHOD_TRANSPARENCY)
-    {
+    if (params.flags & SCAN_FLAG_USE_XPA) {
       regs->find_reg(0x03).value |= REG03_XPASEL;
     }
+    regs->state.is_xpa_on = params.flags & SCAN_FLAG_USE_XPA;
 
   /* R04 */
   /* monochrome / color scan */
-  switch (depth)
+  switch (params.depth)
     {
     case 1:
       regs->find_reg(0x04).value &= ~REG04_BITSET;
@@ -664,7 +679,7 @@ gl646_setup_registers (Genesys_Device * dev,
   regs->find_reg(0x05).value &= ~REG05_GMMENB;
 
   /* true CIS gray if needed */
-  if (dev->model->is_cis == SANE_TRUE && color == SANE_FALSE
+  if (dev->model->is_cis == SANE_TRUE && params.channels == 1
       && dev->settings.true_gray)
     {
       regs->find_reg(0x05).value |= REG05_LEDADD;
@@ -686,7 +701,7 @@ gl646_setup_registers (Genesys_Device * dev,
     {
       /* reset count of dummy lines to zero */
       regs->find_reg(0x1e).value &= ~REG1E_LINESEL;
-      if (scan_settings.xres >= 1200)
+      if (params.xres >= 1200)
         {
           /* there must be one dummy line */
           regs->find_reg(0x1e).value |= 1 & REG1E_LINESEL;
@@ -708,21 +723,20 @@ gl646_setup_registers (Genesys_Device * dev,
   regs->find_reg(0x24).value = motor->steps1;
 
   /* scanned area height must be enlarged by max color shift needed */
-  max_shift=sanei_genesys_compute_max_shift(dev,channels,scan_settings.yres,0);
+  max_shift=sanei_genesys_compute_max_shift(dev,params.channels, params.yres, 0);
 
   /* we adjust linecnt according to real motor dpi */
-  linecnt = (linecnt * motor->ydpi) / scan_settings.yres + max_shift;
+  linecnt = (linecnt * motor->ydpi) / params.yres + max_shift;
 
   /* at QUATER_STEP lines are 'staggered' and need correction */
   stagger = 0;
   if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
     {
       /* for HP3670, stagger happens only at >=1200 dpi */
-      if ((dev->model->motor_type != MOTOR_HP3670
-	   && dev->model->motor_type != MOTOR_HP2400)
-          || scan_settings.yres >= sensor.optical_res)
+      if ((dev->model->motor_type != MOTOR_HP3670 && dev->model->motor_type != MOTOR_HP2400)
+          || params.yres >= (unsigned) sensor.optical_res)
 	{
-	  stagger = (4 * scan_settings.yres) / dev->motor.base_ydpi;
+          stagger = (4 * params.yres) / dev->motor.base_ydpi;
 	}
     }
   linecnt += stagger;
@@ -735,7 +749,7 @@ gl646_setup_registers (Genesys_Device * dev,
   if (dev->model->is_cis == SANE_TRUE)
     {
       sanei_genesys_set_triple(regs, REG_LINCNT, linecnt * 3);
-      linecnt *= channels;
+      linecnt *= params.channels;
     }
   else
     {
@@ -757,8 +771,8 @@ gl646_setup_registers (Genesys_Device * dev,
   /* words_per_line must be computed according to the scan's resolution */
   /* in fact, words_per_line _gives_ the actual scan resolution */
   words_per_line = (((endx - startx) * sensor_mst->xdpi) / sensor.optical_res);
-  bpp=depth/8;
-  if (depth == 1)
+  bpp=params.depth/8;
+  if (params.depth == 1)
     {
       words_per_line = (words_per_line+7)/8 ;
       bpp=1;
@@ -768,7 +782,7 @@ gl646_setup_registers (Genesys_Device * dev,
       words_per_line *= bpp;
     }
   dev->bpl = words_per_line;
-  words_per_line *= channels;
+  words_per_line *= params.channels;
   dev->wpl = words_per_line;
 
   DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
@@ -907,7 +921,7 @@ gl646_setup_registers (Genesys_Device * dev,
                                   sensor_mst->exposure,
 				  slope_table1,
 				  motor->steps1,
-				  move, motor->fwdbwd, &z1, &z2);
+                                  move, motor->fwdbwd, &z1, &z2);
 
   /* no z1/z2 for sheetfed scanners */
   if (dev->model->is_sheetfed == SANE_TRUE)
@@ -934,7 +948,7 @@ gl646_setup_registers (Genesys_Device * dev,
   requested_buffer_size = 8 * words_per_line;
   read_buffer_size =
     2 * requested_buffer_size +
-    ((max_shift + stagger) * scan_settings.pixels * channels * depth) / 8;
+    ((max_shift + stagger) * params.pixels * params.channels * params.depth) / 8;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -946,7 +960,7 @@ gl646_setup_registers (Genesys_Device * dev,
     dev->shrink_buffer.alloc(requested_buffer_size);
 
     dev->out_buffer.clear();
-    dev->out_buffer.alloc(8 * scan_settings.pixels * channels * bpp);
+    dev->out_buffer.alloc(8 * params.pixels * params.channels * bpp);
 
   /* scan bytes to read */
   dev->read_bytes_left = words_per_line * linecnt;
@@ -954,11 +968,12 @@ gl646_setup_registers (Genesys_Device * dev,
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
+  dev->current_setup.params = params;
   dev->current_setup.pixels =
     ((endx - startx) * sensor_mst->xdpi) / sensor.optical_res;
   dev->current_setup.lines = linecnt;
-  dev->current_setup.depth = depth;
-  dev->current_setup.channels = channels;
+  dev->current_setup.depth = params.depth;
+  dev->current_setup.channels = params.channels;
   dev->current_setup.exposure_time = sensor_mst->exposure;
   dev->current_setup.xres = sensor_mst->xdpi;
   dev->current_setup.yres = motor->ydpi;
@@ -971,14 +986,30 @@ gl646_setup_registers (Genesys_Device * dev,
    * read_bytes_left is the number of bytes to read from the scanner
    */
   dev->total_bytes_read = 0;
-  if (depth == 1)
-    dev->total_bytes_to_read =
-      ((scan_settings.pixels * scan_settings.lines) / 8 +
-       (((scan_settings.pixels * scan_settings.lines) % 8) ? 1 : 0)) *
-      channels;
-  else
-    dev->total_bytes_to_read =
-      scan_settings.pixels * scan_settings.lines * channels * bpp;
+    if (params.depth == 1) {
+        dev->total_bytes_to_read = ((params.pixels * params.lines) / 8 +
+            (((params.pixels * params.lines) % 8) ? 1 : 0)) * params.channels;
+    } else {
+        dev->total_bytes_to_read = params.pixels * params.lines * params.channels * bpp;
+    }
+
+    /* select color filter based on settings */
+    regs->find_reg(0x04).value &= ~REG04_FILTER;
+    if (params.channels == 1) {
+        switch (params.color_filter) {
+            case ColorFilter::RED:
+                regs->find_reg(0x04).value |= 0x04;
+                break;
+            case ColorFilter::GREEN:
+                regs->find_reg(0x04).value |= 0x08;
+                break;
+            case ColorFilter::BLUE:
+                regs->find_reg(0x04).value |= 0x0c;
+                break;
+            default:
+                break;
+        }
+    }
 
   DBG(DBG_proc, "%s: end\n", __func__);
   return SANE_STATUS_GOOD;
@@ -1260,8 +1291,8 @@ gl646_init_regs (Genesys_Device * dev)
   dev->reg.find_reg(0x35).value = 0x01 /*0x00 */ ;	/* set maximum word size per line, for buffer full control (10800) */
   dev->reg.find_reg(0x36).value = 0x00 /*0x2a */ ;
   dev->reg.find_reg(0x37).value = 0x00 /*0x30 */ ;
-  dev->reg.find_reg(0x38).value = HIBYTE (dev->settings.exposure_time) /*0x2a */ ;	/* line period (exposure time = 11000 pixels) */
-  dev->reg.find_reg(0x39).value = LOBYTE (dev->settings.exposure_time) /*0xf8 */ ;
+  dev->reg.find_reg(0x38).value = 0x2a; // line period (exposure time = 11000 pixels) */
+  dev->reg.find_reg(0x39).value = 0xf8;
   dev->reg.find_reg(0x3d).value = 0x00;	/* set feed steps number of motor move */
   dev->reg.find_reg(0x3e).value = 0x00;
   dev->reg.find_reg(0x3f).value = 0x01 /*0x00 */ ;
@@ -1730,47 +1761,6 @@ static SANE_Status
 gl646_public_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
 {
   return gl646_set_fe(dev, sensor, set, dev->settings.yres);
-}
-
-static void
-gl646_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
-{
-  if (set)
-    {
-      sanei_genesys_set_reg_from_set (regs, 0x02,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x02) |
-				      REG02_MTRPWR);
-    }
-  else
-    {
-      sanei_genesys_set_reg_from_set (regs, 0x02,
-				      sanei_genesys_read_reg_from_set (regs,
-								       0x02) &
-				      ~REG02_MTRPWR);
-    }
-}
-
-static void
-gl646_set_lamp_power (Genesys_Device * dev, const Genesys_Sensor& sensor,
-		      Genesys_Register_Set * regs, SANE_Bool set)
-{
-    (void) sensor;
-  if (dev)
-    {
-      if (set)
-	{
-	  sanei_genesys_set_reg_from_set (regs, 0x03,
-					  sanei_genesys_read_reg_from_set
-					  (regs, 0x03) | REG03_LAMPPWR);
-	}
-      else
-	{
-	  sanei_genesys_set_reg_from_set (regs, 0x03,
-					  sanei_genesys_read_reg_from_set
-					  (regs, 0x03) & ~REG03_LAMPPWR);
-	}
-    }
 }
 
 /**
@@ -2502,20 +2492,19 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
 
   /* setup for a backward scan of 65535 steps, with no actual data reading */
-  settings.scan_method = SCAN_METHOD_FLATBED;
-  settings.scan_mode = SCAN_MODE_COLOR;
-  settings.xres = get_lowest_resolution (dev->model->ccd_type, SANE_FALSE);
+  settings.scan_method = ScanMethod::FLATBED;
+  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+  settings.xres = get_lowest_resolution(dev->model->ccd_type, 1);
   settings.yres = settings.xres;
   settings.tl_x = 0;
   settings.tl_y = 0;
   settings.pixels = 600;
   settings.lines = 1;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres);
@@ -2615,15 +2604,15 @@ gl646_search_start_position (Genesys_Device * dev)
   DBG(DBG_proc, "%s: start\n", __func__);
 
   /* we scan at 300 dpi */
-  resolution = get_closest_resolution (dev->model->ccd_type, 300, SANE_FALSE);
+  resolution = get_closest_resolution(dev->model->ccd_type, 300, 1);
 
   // FIXME: the current approach of doing search only for one resolution does not work on scanners
   // whith employ different sensors with potentially different settings.
   auto& sensor = sanei_genesys_find_sensor_for_write(dev, resolution);
 
   /* fill settings for a gray level scan */
-  settings.scan_method = SCAN_METHOD_FLATBED;
-  settings.scan_mode = SCAN_MODE_GRAY;
+  settings.scan_method = ScanMethod::FLATBED;
+  settings.scan_mode = ScanColorMode::GRAY;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -2631,11 +2620,10 @@ gl646_search_start_position (Genesys_Device * dev)
   settings.pixels = 600;
   settings.lines = dev->model->search_lines;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* scan the desired area */
@@ -2696,9 +2684,11 @@ gl646_search_start_position (Genesys_Device * dev)
  * sets up register for coarse gain calibration
  */
 static SANE_Status
-gl646_init_regs_for_coarse_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
+gl646_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set& regs)
 {
     (void) sensor;
+    (void) regs;
 
   DBG(DBG_proc, "%s\n", __func__);
   DBG(DBG_proc, "%s: end\n", __func__);
@@ -2722,8 +2712,10 @@ gl646_init_regs_for_coarse_calibration (Genesys_Device * dev, const Genesys_Sens
  * @return SANE_STATUS_GOOD if success, else error code
  */
 static SANE_Status
-gl646_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
+gl646_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                            Genesys_Register_Set& regs)
 {
+    (void) regs;
   SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
   /* 1: no half_ccd, 2: use half number of pixels */
@@ -2732,26 +2724,27 @@ gl646_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   DBG(DBG_proc, "%s: start\n", __func__);
 
-  /* when shading all (full width) line, we must adapt to half_ccd case */
+  /* fill settings for scan : always a color scan */
+  int channels = 3;
+
   if (sensor.ccd_size_divisor > 1)
     {
-      /* walk the master mode list to find if half_ccd */
-      if (is_half_ccd (dev->model->ccd_type, dev->settings.xres, SANE_TRUE) ==
-	  SANE_TRUE)
+      // when shading all (full width) line, we must adapt to half_ccd case
+      if (is_half_ccd(dev->model->ccd_type, dev->settings.xres, channels) == SANE_TRUE)
 	{
 	  half_ccd = 2;
 	}
     }
 
-  /* fill settings for scan : always a color scan */
   settings.scan_method = dev->settings.scan_method;
   settings.scan_mode = dev->settings.scan_mode;
   if (dev->model->is_cis == SANE_FALSE)
     {
-      settings.scan_mode = SCAN_MODE_COLOR;
+      // FIXME: always a color scan, but why don't we set scan_mode to COLOR_SINGLE_PASS always?
+      settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     }
   settings.xres = sensor.optical_res / half_ccd;
-  cksel = get_cksel (dev->model->ccd_type, dev->settings.xres, SANE_TRUE);
+  cksel = get_cksel(dev->model->ccd_type, dev->settings.xres, channels);
   settings.xres = settings.xres / cksel;
   settings.yres = settings.xres;
   settings.tl_x = 0;
@@ -2765,7 +2758,6 @@ gl646_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   settings.disable_interpolation = dev->settings.disable_interpolation;
   settings.threshold = dev->settings.threshold;
-  settings.exposure_time = dev->settings.exposure_time;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* keep account of the movement for final scan move */
@@ -2788,7 +2780,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
   dev->reg.find_reg(0x02).value |= REG02_ACDCDIS;	/* ease backtracking */
   dev->reg.find_reg(0x02).value &= ~(REG02_FASTFED | REG02_AGOHOME);
   dev->reg.find_reg(0x05).value &= ~REG05_GMMENB;
-  gl646_set_motor_power(&dev->reg, SANE_FALSE);
+  sanei_genesys_set_motor_power(dev->reg, false);
 
   /* TODO another flag to setup regs ? */
   /* enforce needed LINCNT, getting rid of extra lines for color reordering */
@@ -2829,7 +2821,7 @@ gl646_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   /* park head after calibration if needed */
   if (dev->scanhead_position_in_steps > 0
-      && dev->settings.scan_method == SCAN_METHOD_FLATBED)
+      && dev->settings.scan_method == ScanMethod::FLATBED)
     {
       RIE(gl646_slow_back_home (dev, SANE_TRUE));
       dev->scanhead_position_in_steps = 0;
@@ -2866,33 +2858,23 @@ setup_for_scan (Genesys_Device * dev,
                 SANE_Bool ycorrection)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  SANE_Bool color;
   SANE_Int depth;
   int channels;
-  uint16_t startx = 0, endx, pixels;
-  int move = 0;
 
-  DBGSTART;
-  DBG(DBG_info, "%s settings:\nResolution: %ux%uDPI\n"
-      "Lines     : %u\nPixels    : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\nScan method: %s\n\n",
-      __func__,
-      settings.xres, settings.yres, settings.lines, settings.pixels,
-      settings.tl_x, settings.tl_y, settings.scan_mode,
-      settings.scan_method == SCAN_METHOD_FLATBED ? "flatbed" : "XPA");
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, dev->settings);
 
-  if (settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
       channels = 3;
-      color = SANE_TRUE;
     }
   else
     {
       channels = 1;
-      color = SANE_FALSE;
     }
 
   depth=settings.depth;
-  if (settings.scan_mode == SCAN_MODE_LINEART)
+  if (settings.scan_mode == ScanColorMode::LINEART)
     {
       if (settings.dynamic_lineart == SANE_TRUE)
         {
@@ -2905,129 +2887,69 @@ setup_for_scan (Genesys_Device * dev,
         }
     }
 
-  /* compute distance to move */
-  move = 0;
-  /* XXX STEF XXX MD5345 -> optical_ydpi, other base_ydpi => half/full step ? */
-  if (split == SANE_FALSE)
-    {
-      if (dev->model->is_sheetfed == SANE_FALSE)
-	{
-	  if (ycorrection == SANE_TRUE)
-	    {
-	      move =
-		(SANE_UNFIX (dev->model->y_offset) *
-		 dev->motor.optical_ydpi) / MM_PER_INCH;
+    // compute distance to move
+    float move = 0;
+    // XXX STEF XXX MD5345 -> optical_ydpi, other base_ydpi => half/full step ? */
+    if (split == SANE_FALSE) {
+        if (dev->model->is_sheetfed == SANE_FALSE) {
+            if (ycorrection == SANE_TRUE) {
+                move = SANE_UNFIX(dev->model->y_offset);
 	    }
 
-	  /* add tl_y to base movement */
-	  move += (settings.tl_y * dev->motor.optical_ydpi) / MM_PER_INCH;
-
+            // add tl_y to base movement
 	}
-      else
-	{
-	  move += (settings.tl_y * dev->motor.optical_ydpi) / MM_PER_INCH;
-	}
+        move += settings.tl_y;
 
-      DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
-
-      /* security check */
-      if (move < 0)
-	{
-	  DBG(DBG_error, "%s: overriding negative move value %d\n", __func__, move);
-	  move = 0;
+        if (move < 0) {
+            DBG(DBG_error, "%s: overriding negative move value %f\n", __func__, move);
+            move = 0;
 	}
     }
-  DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
+    move = (move * dev->motor.optical_ydpi) / MM_PER_INCH;
+    DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
-  /* pixels are allways given at full CCD optical resolution */
-  /* use detected left margin and fixed value */
-  if (xcorrection == SANE_TRUE)
-    {
-      if (sensor.CCD_start_xoffset > 0)
-        startx = sensor.CCD_start_xoffset;
-      else
-        startx = sensor.dummy_pixel;
-      if (settings.scan_method == SCAN_METHOD_FLATBED)
-	{
-	  startx +=
-            ((SANE_UNFIX (dev->model->x_offset) * sensor.optical_res) /
-	     MM_PER_INCH);
-	}
-      else
-	{
-	  startx +=
-	    ((SANE_UNFIX (dev->model->x_offset_ta) *
-              sensor.optical_res) / MM_PER_INCH);
-	}
+    float start = settings.tl_x;
+    if (xcorrection) {
+        if (settings.scan_method == ScanMethod::FLATBED) {
+            start += SANE_UNFIX(dev->model->x_offset);
+        } else {
+            start += SANE_UNFIX(dev->model->x_offset_ta);
+        }
     }
-  else
-    {
-      /* startx cannot be below dummy pixel value */
-      startx = sensor.dummy_pixel;
+    start = (start * sensor.optical_res) / MM_PER_INCH;
+
+    SetupParams params;
+    params.xres = settings.xres;
+    params.yres = settings.yres;
+    params.startx = start;
+    params.starty = move;
+    params.pixels = settings.pixels;
+    params.lines = settings.lines;
+    params.depth = depth;
+    params.channels = channels;
+    params.scan_method = dev->settings.scan_method;
+    params.scan_mode = settings.scan_mode;
+    params.color_filter = settings.color_filter;
+    params.flags = 0;
+    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+        params.flags |= SCAN_FLAG_USE_XPA;
     }
 
-  /* add x coordinates : expressed in sensor max dpi */
-  startx += (settings.tl_x * sensor.optical_res) / MM_PER_INCH;
-
-  /* stagger works with odd start cordinates */
-  if (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)
-    startx |= 1;
-
-  pixels = (settings.pixels * sensor.optical_res) / settings.xres;
-  /* special requirement for 400 dpi on 1200 dpi sensors */
-  if (settings.xres == 400)
-    {
-      pixels = (pixels / 6) * 6;
-    }
-  endx = startx + pixels;
-
-  /* TODO check for pixel width overflow */
+    uint16_t slope_table0[256] = {};
+    uint16_t slope_table1[256] = {};
 
   /* set up correct values for scan (gamma and shading enabled) */
-  status = gl646_setup_registers (dev, sensor,
-				  regs,
-				  settings,
-				  dev->slope_table0,
-				  dev->slope_table1,
-				  settings.xres,
-				  move,
-				  settings.lines,
-				  startx, endx, color,
-                                  depth);
+  status = gl646_setup_registers(dev, sensor, regs, params, slope_table0, slope_table1,
+                                 xcorrection);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed setup registers: %s\n", __func__, sane_strstatus(status));
       return status;
     }
 
-  /* now post-process values for register and options fine tuning */
-
-  /* select color filter based on settings */
-  regs->find_reg(0x04).value &= ~REG04_FILTER;
-  if (channels == 1)
-    {
-      switch (settings.color_filter)
-	{
-	  /* red */
-	case 0:
-          regs->find_reg(0x04).value |= 0x04;
-	  break;
-	  /* green */
-	case 1:
-          regs->find_reg(0x04).value |= 0x08;
-	  break;
-	  /* blue */
-	case 2:
-          regs->find_reg(0x04).value |= 0x0c;
-	  break;
-	default:
-	  break;
-	}
-    }
-
   /* send computed slope tables */
   status =
-    gl646_send_slope_table (dev, 0, dev->slope_table0,
+    gl646_send_slope_table (dev, 0, slope_table0,
 			    sanei_genesys_read_reg_from_set (regs, 0x21));
   if (status != SANE_STATUS_GOOD)
     {
@@ -3036,7 +2958,7 @@ setup_for_scan (Genesys_Device * dev,
     }
 
   status =
-    gl646_send_slope_table (dev, 1, dev->slope_table1,
+    gl646_send_slope_table (dev, 1, slope_table1,
 			    sanei_genesys_read_reg_from_set (regs, 0x6b));
   if (status != SANE_STATUS_GOOD)
     {
@@ -3120,8 +3042,9 @@ gl646_send_gamma_table (Genesys_Device * dev, const Genesys_Sensor& sensor)
  * currently limited to the XP200
  */
 static SANE_Status
-gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor)
+gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Register_Set& regs)
 {
+    (void) regs;
   int total_size;
   unsigned int i, j;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -3143,25 +3066,20 @@ gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor)
     }
 
   /* get led calibration resolution */
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
-      resolution =
-        get_closest_resolution (dev->model->ccd_type, sensor.optical_res,
-				SANE_TRUE);
-      settings.scan_mode = SCAN_MODE_COLOR;
       channels = 3;
+      settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     }
   else
     {
-      resolution =
-        get_closest_resolution (dev->model->ccd_type, sensor.optical_res,
-				SANE_FALSE);
-      settings.scan_mode = SCAN_MODE_GRAY;
       channels = 1;
+      settings.scan_mode = ScanColorMode::GRAY;
     }
+  resolution = get_closest_resolution(dev->model->ccd_type, sensor.optical_res, channels);
 
   /* offset calibration is always done in color mode */
-  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_method = ScanMethod::FLATBED;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -3170,11 +3088,10 @@ gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor)
     (sensor.sensor_pixels * resolution) / sensor.optical_res;
   settings.lines = 1;
   settings.depth = 16;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* colors * bytes_per_color * scan lines */
@@ -3332,16 +3249,14 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
   unsigned int bottom, black_pixels;
 
   DBG(DBG_proc, "%s: start\n", __func__);
-  resolution =
-    get_closest_resolution (dev->model->ccd_type, sensor.optical_res,
-			    SANE_TRUE);
   channels = 3;
+  resolution = get_closest_resolution(dev->model->ccd_type, sensor.optical_res, channels);
   black_pixels =
     (sensor.black_pixels * resolution) / sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
-  settings.scan_method = SCAN_METHOD_FLATBED;
-  settings.scan_mode = SCAN_MODE_COLOR;
+  settings.scan_method = ScanMethod::FLATBED;
+  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -3350,11 +3265,10 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
     (sensor.sensor_pixels * resolution) / sensor.optical_res;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* scan first line of data with no gain */
@@ -3430,8 +3344,10 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
  * @return SANE_STATUS_GOOD if success, else error code is failure
 */
 static SANE_Status
-gl646_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
+gl646_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                         Genesys_Register_Set& regs)
 {
+    (void) regs;
   SANE_Status status = SANE_STATUS_GOOD;
   unsigned int channels;
   int pass = 0, avg;
@@ -3450,25 +3366,18 @@ gl646_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
-  if (dev->settings.xres > sensor.optical_res)
-    {
-      resolution =
-        get_closest_resolution (dev->model->ccd_type, sensor.optical_res,
-				SANE_TRUE);
+    channels = 3;
+    if (dev->settings.xres > sensor.optical_res) {
+        resolution = get_closest_resolution(dev->model->ccd_type, sensor.optical_res, channels);
+    } else {
+        resolution = get_closest_resolution(dev->model->ccd_type, dev->settings.xres, channels);
     }
-  else
-    {
-      resolution =
-	get_closest_resolution (dev->model->ccd_type, dev->settings.xres,
-				SANE_TRUE);
-    }
-  channels = 3;
   black_pixels =
     (sensor.black_pixels * resolution) / sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
-  settings.scan_method = SCAN_METHOD_FLATBED;
-  settings.scan_mode = SCAN_MODE_COLOR;
+  settings.scan_method = ScanMethod::FLATBED;
+  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -3477,11 +3386,10 @@ gl646_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
     (sensor.sensor_pixels * resolution) / sensor.optical_res;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* scan first line of data with no gain, but with offset from
@@ -3607,8 +3515,10 @@ gl646_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
  * Alternative coarse gain calibration
  */
 static SANE_Status
-ad_fe_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor, int dpi)
+ad_fe_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                              Genesys_Register_Set& regs, int dpi)
 {
+    (void) regs;
   unsigned int i, channels, val;
   unsigned int size, count, resolution, pass;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -3620,11 +3530,11 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
 
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
-  resolution = get_closest_resolution (dev->model->ccd_type, dpi, SANE_TRUE);
   channels = 3;
-  settings.scan_mode = SCAN_MODE_COLOR;
+  resolution = get_closest_resolution(dev->model->ccd_type, dpi, channels);
+  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
 
-  settings.scan_method = SCAN_METHOD_FLATBED;
+  settings.scan_method = ScanMethod::FLATBED;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -3633,11 +3543,10 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
     (sensor.sensor_pixels * resolution) / sensor.optical_res;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   size = channels * settings.pixels * settings.lines;
@@ -3713,7 +3622,8 @@ ad_fe_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
  * @param dpi resolutnio to calibrate at
  */
 static SANE_Status
-gl646_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor, int dpi)
+gl646_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                              Genesys_Register_Set& regs, int dpi)
 {
   unsigned int i, j, k, channels, val, maximum, idx;
   unsigned int count, resolution, pass;
@@ -3724,7 +3634,7 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
 
   if (dev->model->ccd_type == CIS_XP200)
     {
-      return ad_fe_coarse_gain_calibration (dev, sensor, sensor.optical_res);
+      return ad_fe_coarse_gain_calibration (dev, sensor, regs, sensor.optical_res);
     }
   DBGSTART;
 
@@ -3733,23 +3643,18 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
   channels = 3;
 
   /* we are searching a sensor resolution */
-  if (dpi > sensor.optical_res)
-    {
-      resolution = sensor.optical_res;
-    }
-  else
-    {
-      resolution =
-	get_closest_resolution (dev->model->ccd_type, dev->settings.xres,
-				SANE_TRUE);
+    if (dpi > sensor.optical_res) {
+        resolution = sensor.optical_res;
+    } else {
+        resolution = get_closest_resolution(dev->model->ccd_type, dev->settings.xres, channels);
     }
 
   settings.scan_method = dev->settings.scan_method;
-  settings.scan_mode = SCAN_MODE_COLOR;
+  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_y = 0;
-  if (settings.scan_method == SCAN_METHOD_FLATBED)
+  if (settings.scan_method == ScanMethod::FLATBED)
     {
       settings.tl_x = 0;
       settings.pixels = (sensor.sensor_pixels * resolution) / sensor.optical_res;
@@ -3761,11 +3666,10 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
     }
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* start gain value */
@@ -3785,7 +3689,12 @@ gl646_coarse_gain_calibration (Genesys_Device * dev, const Genesys_Sensor& senso
       average[0] = 255;
       average[1] = 255;
       average[2] = 255;
-      idx = dev->settings.color_filter;
+        switch (dev->settings.color_filter) {
+            case ColorFilter::RED: idx = 0; break;
+            case ColorFilter::GREEN: idx = 1; break;
+            case ColorFilter::BLUE: idx = 2; break;
+            default: idx = 0; break; // should not happen
+        }
       average[idx] = 0;
     }
   pass = 0;
@@ -3894,11 +3803,11 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
 
   dev->frontend = dev->frontend_initial;
 
-  resolution = get_closest_resolution (dev->model->ccd_type, 300, SANE_FALSE);
+  resolution = get_closest_resolution(dev->model->ccd_type, 300, 1);
 
   /* set up for a half width 2 lines gray scan without moving */
-  settings.scan_method = SCAN_METHOD_FLATBED;
-  settings.scan_mode = SCAN_MODE_GRAY;
+  settings.scan_method = ScanMethod::FLATBED;
+  settings.scan_mode = ScanColorMode::GRAY;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -3907,11 +3816,10 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
     (sensor.sensor_pixels * resolution) / sensor.optical_res;
   settings.lines = 2;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* setup for scan */
@@ -3932,7 +3840,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   *local_reg = dev->reg;
 
   /* turn off motor during this scan */
-  gl646_set_motor_power (local_reg, SANE_FALSE);
+  sanei_genesys_set_motor_power(*local_reg, false);
 
   /* returned value to higher level warmup function */
   *channels = 1;
@@ -3964,21 +3872,19 @@ gl646_repark_head (Genesys_Device * dev)
 
   DBG(DBG_proc, "%s: start\n", __func__);
 
-  settings.scan_method = SCAN_METHOD_FLATBED;
-  settings.scan_mode = SCAN_MODE_COLOR;
-  settings.xres =
-    get_closest_resolution (dev->model->ccd_type, 75, SANE_FALSE);
+  settings.scan_method = ScanMethod::FLATBED;
+  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+  settings.xres = get_closest_resolution(dev->model->ccd_type, 75, 1);
   settings.yres = settings.xres;
   settings.tl_x = 0;
   settings.tl_y = 5;
   settings.pixels = 600;
   settings.lines = 4;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres);
@@ -4071,25 +3977,9 @@ gl646_init (Genesys_Device * dev)
       dev->dark_average_data.clear();
       dev->white_average_data.clear();
 
-      dev->settings.color_filter = 1;	/* green filter by default */
+      dev->settings.color_filter = ColorFilter::GREEN;
       gettimeofday (&tv, NULL);
       dev->init_date = tv.tv_sec;
-
-      switch (dev->model->motor_type)
-	{
-	  /* set to 11111 to spot bugs, sanei_genesys_exposure_time should
-	     have obsoleted this field  */
-	case MOTOR_5345:
-	  dev->settings.exposure_time = 11111;
-	  break;
-
-	case MOTOR_ST24:
-	  dev->settings.exposure_time = 11000;
-	  break;
-	default:
-	  dev->settings.exposure_time = 11000;
-	  break;
-	}
 
       /* Set default values for registers */
       gl646_init_regs (dev);
@@ -4351,7 +4241,7 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
   else
     bpp = 1;
   size *= bpp;
-  if (settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     size *= 3;
   data.clear();
   data.resize(size);
@@ -4384,8 +4274,7 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   if (move == SANE_FALSE)
     {
-      /* clear motor power flag if no move */
-      dev->reg.find_reg(0x02).value &= ~REG02_MTRPWR;
+      sanei_genesys_set_motor_power(dev->reg, false);
 
       /* no automatic go home if no movement */
       dev->reg.find_reg(0x02).value &= ~REG02_AGOHOME;
@@ -4400,7 +4289,7 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
     }
 
   /* no automatic go home when using XPA */
-  if (settings.scan_method == SCAN_METHOD_TRANSPARENCY)
+  if (settings.scan_method == ScanMethod::TRANSPARENCY)
     {
       dev->reg.find_reg(0x02).value &= ~REG02_AGOHOME;
     }
@@ -4451,7 +4340,7 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   /* in case of CIS scanner, we must reorder data */
   if (dev->model->is_cis == SANE_TRUE
-      && settings.scan_mode == SCAN_MODE_COLOR)
+      && settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
       /* alloc one line sized working buffer */
       std::vector<uint8_t> buffer(settings.pixels * 3 * bpp);
@@ -4521,13 +4410,13 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
 
   DBG(DBG_proc, "%s: %d mm\n", __func__, distance);
 
-  int resolution = get_lowest_resolution (dev->model->ccd_type, SANE_TRUE);
+  int resolution = get_lowest_resolution(dev->model->ccd_type, 3);
 
   const auto& sensor = sanei_genesys_find_sensor(dev, resolution);
 
   /* TODO give a no AGOHOME flag */
-  settings.scan_method = SCAN_METHOD_TRANSPARENCY;
-  settings.scan_mode = SCAN_MODE_COLOR;
+  settings.scan_method = ScanMethod::TRANSPARENCY;
+  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_y = 0;
@@ -4536,11 +4425,10 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
     (sensor.sensor_pixels * settings.xres) / sensor.optical_res;
   settings.lines = (distance * settings.xres) / MM_PER_INCH;
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   std::vector<uint8_t> data;
@@ -4556,7 +4444,7 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
 
 /**
  * update the status of the required sensor in the scanner session
- * the last_val fileds are used to make events 'sticky'
+ * the button fileds are used to make events 'sticky'
  */
 static SANE_Status
 gl646_update_hardware_sensors (Genesys_Scanner * session)
@@ -4576,109 +4464,90 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
     }
   DBG(DBG_io, "%s: GPIO=0x%02x\n", __func__, value);
 
-  /* scan button */
-  if ((dev->model->buttons & GENESYS_HAS_SCAN_SW)
-      && session->val[OPT_SCAN_SW].b == session->last_val[OPT_SCAN_SW].b)
-    {
-      switch (dev->model->gpo_type)
-	{
+    // scan button
+    if (dev->model->buttons & GENESYS_HAS_SCAN_SW) {
+        switch (dev->model->gpo_type) {
 	case GPO_XP200:
-	  session->val[OPT_SCAN_SW].b = ((value & 0x02) != 0);
-	  break;
+            session->buttons[BUTTON_SCAN_SW].write((value & 0x02) != 0);
+            break;
 	case GPO_5345:
-	  session->val[OPT_SCAN_SW].b = (value == 0x16);
-	  break;
+            session->buttons[BUTTON_SCAN_SW].write(value == 0x16);
+            break;
 	case GPO_HP2300:
-	  session->val[OPT_SCAN_SW].b = (value == 0x6c);
-	  break;
+            session->buttons[BUTTON_SCAN_SW].write(value == 0x6c);
+            break;
 	case GPO_HP3670:
 	case GPO_HP2400:
-	  session->val[OPT_SCAN_SW].b = ((value & 0x20) == 0);
-	  break;
+            session->buttons[BUTTON_SCAN_SW].write((value & 0x20) == 0);
+            break;
 	default:
-	  return SANE_STATUS_UNSUPPORTED;
+            return SANE_STATUS_UNSUPPORTED;
 	}
     }
 
-  /* email button */
-  if ((dev->model->buttons & GENESYS_HAS_EMAIL_SW)
-      && session->val[OPT_EMAIL_SW].b == session->last_val[OPT_EMAIL_SW].b)
-    {
-      switch (dev->model->gpo_type)
-	{
+    // email button
+    if (dev->model->buttons & GENESYS_HAS_EMAIL_SW) {
+        switch (dev->model->gpo_type) {
 	case GPO_5345:
-	  session->val[OPT_EMAIL_SW].b = (value == 0x12);
-	  break;
+            session->buttons[BUTTON_EMAIL_SW].write(value == 0x12);
+            break;
 	case GPO_HP3670:
 	case GPO_HP2400:
-	  session->val[OPT_EMAIL_SW].b = ((value & 0x08) == 0);
-	  break;
+            session->buttons[BUTTON_EMAIL_SW].write((value & 0x08) == 0);
+            break;
 	default:
-	  return SANE_STATUS_UNSUPPORTED;
+            return SANE_STATUS_UNSUPPORTED;
 	}
     }
 
-  /* copy button */
-  if ((dev->model->buttons & GENESYS_HAS_COPY_SW)
-      && session->val[OPT_COPY_SW].b == session->last_val[OPT_COPY_SW].b)
-    {
-      switch (dev->model->gpo_type)
-	{
+    // copy button
+    if (dev->model->buttons & GENESYS_HAS_COPY_SW) {
+        switch (dev->model->gpo_type) {
 	case GPO_5345:
-	  session->val[OPT_COPY_SW].b = (value == 0x11);
-	  break;
+            session->buttons[BUTTON_COPY_SW].write(value == 0x11);
+            break;
 	case GPO_HP2300:
-	  session->val[OPT_COPY_SW].b = (value == 0x5c);
-	  break;
+            session->buttons[BUTTON_COPY_SW].write(value == 0x5c);
+            break;
 	case GPO_HP3670:
 	case GPO_HP2400:
-	  session->val[OPT_COPY_SW].b = ((value & 0x10) == 0);
-	  break;
+            session->buttons[BUTTON_COPY_SW].write((value & 0x10) == 0);
+            break;
 	default:
 	  return SANE_STATUS_UNSUPPORTED;
 	}
     }
 
-  /* power button */
-  if ((dev->model->buttons & GENESYS_HAS_POWER_SW)
-      && session->val[OPT_POWER_SW].b == session->last_val[OPT_POWER_SW].b)
-    {
-      switch (dev->model->gpo_type)
-	{
+    // power button
+    if (dev->model->buttons & GENESYS_HAS_POWER_SW) {
+        switch (dev->model->gpo_type) {
 	case GPO_5345:
-	  session->val[OPT_POWER_SW].b = (value == 0x14);
-	  break;
+            session->buttons[BUTTON_POWER_SW].write(value == 0x14);
+            break;
 	default:
-	  return SANE_STATUS_UNSUPPORTED;
+            return SANE_STATUS_UNSUPPORTED;
 	}
     }
 
-  /* ocr button */
-  if ((dev->model->buttons & GENESYS_HAS_OCR_SW)
-      && session->val[OPT_OCR_SW].b == session->last_val[OPT_OCR_SW].b)
-    {
-      switch (dev->model->gpo_type)
-	{
+    // ocr button
+    if (dev->model->buttons & GENESYS_HAS_OCR_SW) {
+        switch (dev->model->gpo_type) {
 	case GPO_5345:
-	  session->val[OPT_OCR_SW].b = (value == 0x13);
-	  break;
+            session->buttons[BUTTON_OCR_SW].write(value == 0x13);
+            break;
 	default:
-	  return SANE_STATUS_UNSUPPORTED;
+            return SANE_STATUS_UNSUPPORTED;
 	}
     }
 
-  /* document detection */
-  if ((dev->model->buttons & GENESYS_HAS_PAGE_LOADED_SW)
-      && session->val[OPT_PAGE_LOADED_SW].b ==
-      session->last_val[OPT_PAGE_LOADED_SW].b)
-    {
-      switch (dev->model->gpo_type)
-	{
+    // document detection
+    if (dev->model->buttons & GENESYS_HAS_PAGE_LOADED_SW) {
+        switch (dev->model->gpo_type) {
 	case GPO_XP200:
-	  session->val[OPT_PAGE_LOADED_SW].b = ((value & 0x04) != 0);
-	  break;
+            session->buttons[BUTTON_PAGE_LOADED_SW].write((value & 0x04) != 0);
+            break;
 	default:
-	  return SANE_STATUS_UNSUPPORTED;
+            return SANE_STATUS_UNSUPPORTED;
 	}
     }
 
@@ -4804,7 +4673,7 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
   /* build minimal current_setup for calibration cache use only, it will be better
    * computed when during setup for scan
    */
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
       dev->current_setup.channels = 3;
     }
@@ -4813,7 +4682,6 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
       dev->current_setup.channels = 1;
     }
   dev->current_setup.xres = dev->settings.xres;
-  dev->current_setup.scan_method = dev->settings.scan_method;
 
   DBG(DBG_io, "%s: requested=(%d,%f), tested=(%d,%f)\n", __func__, dev->current_setup.channels,
       dev->current_setup.xres, cache->used_setup.channels, cache->used_setup.xres);
@@ -4832,10 +4700,11 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
       compatible =
 	(dev->current_setup.channels == cache->used_setup.channels);
     }
-  if (dev->current_setup.scan_method != cache->used_setup.scan_method)
+  if (dev->current_setup.params.scan_method != cache->used_setup.params.scan_method)
     {
-      DBG(DBG_io, "%s: current method=%d, used=%d\n", __func__, dev->current_setup.scan_method,
-          cache->used_setup.scan_method);
+      DBG(DBG_io, "%s: current method=%d, used=%d\n", __func__,
+          static_cast<unsigned>(dev->current_setup.params.scan_method),
+          static_cast<unsigned>(cache->used_setup.params.scan_method));
       compatible = 0;
     }
   if (!compatible)
@@ -4876,7 +4745,7 @@ gl646_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor, SANE_Bool
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool half_ccd = SANE_FALSE;
   Genesys_Settings settings;
-  int res = get_closest_resolution (dev->model->ccd_type, 75, SANE_FALSE);
+  int res = get_closest_resolution(dev->model->ccd_type, 75, 1);
   unsigned int pass, count, found, x, y;
   char title[80];
 
@@ -4885,15 +4754,16 @@ gl646_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor, SANE_Bool
   if (sensor.ccd_size_divisor > 1)
     {
       /* walk the master mode list to find if half_ccd */
-      if (is_half_ccd (dev->model->ccd_type, res, SANE_TRUE) == SANE_TRUE)
+      // FIXME: possibly wrong channel count for is_half_ccd
+      if (is_half_ccd (dev->model->ccd_type, res, 3) == SANE_TRUE)
 	{
 	  half_ccd = SANE_TRUE;
 	}
     }
 
   /* we set up for a lowest available resolution color grey scan, full width */
-  settings.scan_method = SCAN_METHOD_FLATBED;
-  settings.scan_mode = SCAN_MODE_GRAY;
+  settings.scan_method = ScanMethod::FLATBED;
+  settings.scan_mode = ScanColorMode::GRAY;
   settings.xres = res;
   settings.yres = res;
   settings.tl_x = 0;
@@ -4907,11 +4777,10 @@ gl646_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor, SANE_Bool
   /* 15 mm at at time */
   settings.lines = (15 * settings.yres) / MM_PER_INCH;	/* may become a parameter from genesys_devices.c */
   settings.depth = 8;
-  settings.color_filter = 0;
+  settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-  settings.exposure_time = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
   /* signals if a strip of the given color has been found */
@@ -5050,8 +4919,6 @@ static Genesys_Command_Set gl646_cmd_set = {
   gl646_public_set_fe,
   gl646_set_powersaving,
   gl646_save_power,
-  gl646_set_motor_power,
-  gl646_set_lamp_power,
 
   gl646_begin_scan,
   gl646_end_scan,
@@ -5081,7 +4948,6 @@ static Genesys_Command_Set gl646_cmd_set = {
 
   gl646_is_compatible_calibration,
   gl646_move_to_ta,
-  NULL,
   NULL,
   NULL,
   NULL

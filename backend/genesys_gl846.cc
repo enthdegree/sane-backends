@@ -428,7 +428,7 @@ gl846_init_registers (Genesys_Device * dev)
  */
 static SANE_Status
 gl846_send_slope_table (Genesys_Device * dev, int table_nr,
-			uint16_t * slope_table, int steps)
+                        uint16_t * slope_table, int steps)
 {
   SANE_Status status;
   int i;
@@ -455,9 +455,9 @@ gl846_send_slope_table (Genesys_Device * dev, int table_nr,
     {
       sprintf (msg, "write slope %d (%d)=", table_nr, steps);
       for (i = 0; i < steps; i++)
-	{
-	  sprintf (msg+strlen(msg), "%d", slope_table[i]);
-	}
+        {
+          sprintf (msg+strlen(msg), "%d", slope_table[i]);
+        }
       DBG (DBG_io, "%s: %s\n", __func__, msg);
     }
 
@@ -504,14 +504,14 @@ gl846_set_adi_fe (Genesys_Device * dev, uint8_t set)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "%s: failed to write reg0: %s\n", __func__,
-	   sane_strstatus (status));
+           sane_strstatus (status));
       return status;
     }
   status = sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "%s: failed to write reg1: %s\n", __func__,
-	   sane_strstatus (status));
+           sane_strstatus (status));
       return status;
     }
 
@@ -519,23 +519,23 @@ gl846_set_adi_fe (Genesys_Device * dev, uint8_t set)
     {
       status = sanei_genesys_fe_write_data(dev, 0x02 + i, dev->frontend.get_gain(i));
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "%s: failed to write gain %d: %s\n", __func__, i,
-	       sane_strstatus (status));
-	  return status;
-	}
+        {
+          DBG (DBG_error,
+               "%s: failed to write gain %d: %s\n", __func__, i,
+               sane_strstatus (status));
+          return status;
+        }
     }
   for (i = 0; i < 3; i++)
     {
       status = sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.get_offset(i));
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "%s: failed to write offset %d: %s\n", __func__, i,
-	       sane_strstatus (status));
-	  return status;
-	}
+        {
+          DBG (DBG_error,
+               "%s: failed to write offset %d: %s\n", __func__, i,
+               sane_strstatus (status));
+          return status;
+        }
     }
 
   DBGCOMPLETED;
@@ -589,12 +589,12 @@ gl846_init_motor_regs_scan (Genesys_Device * dev,
                             const Genesys_Sensor& sensor,
                             Genesys_Register_Set * reg,
                             unsigned int scan_exposure_time,
-			    float scan_yres,
-			    int scan_step_type,
-			    unsigned int scan_lines,
-			    unsigned int scan_dummy,
-			    unsigned int feed_steps,
-			    int scan_power_mode,
+                            float scan_yres,
+                            int scan_step_type,
+                            unsigned int scan_lines,
+                            unsigned int scan_dummy,
+                            unsigned int feed_steps,
+                            int scan_power_mode,
                             unsigned int flags)
 {
   SANE_Status status;
@@ -634,7 +634,7 @@ gl846_init_motor_regs_scan (Genesys_Device * dev,
   /* compute register 02 value */
   r = sanei_genesys_get_address (reg, REG02);
   r->value = 0x00;
-  r->value |= REG02_MTRPWR;
+  sanei_genesys_set_motor_power(*reg, true);
 
   if (use_fast_fed)
     r->value |= REG02_FASTFED;
@@ -780,10 +780,10 @@ gl846_init_motor_regs_scan (Genesys_Device * dev,
   r->value = min_restep;
 
   sanei_genesys_calculate_zmode2(use_fast_fed,
-			         scan_exposure_time*ccdlmt*tgtime,
-				 scan_table,
-				 scan_steps*factor,
-				 feedl,
+                                 scan_exposure_time*ccdlmt*tgtime,
+                                 scan_table,
+                                 scan_steps*factor,
+                                 feedl,
                                  min_restep*factor,
                                  &z1,
                                  &z2);
@@ -845,14 +845,14 @@ gl846_init_motor_regs_scan (Genesys_Device * dev,
 static SANE_Status
 gl846_init_optical_regs_scan (Genesys_Device * dev,
                               const Genesys_Sensor& sensor,
-			      Genesys_Register_Set * reg,
-			      unsigned int exposure_time,
-			      int used_res,
-			      unsigned int start,
-			      unsigned int pixels,
-			      int channels,
-			      int depth,
-			      SANE_Bool half_ccd, int color_filter, int flags)
+                              Genesys_Register_Set * reg,
+                              unsigned int exposure_time,
+                              int used_res,
+                              unsigned int start,
+                              unsigned int pixels,
+                              int channels,
+                              int depth,
+                              SANE_Bool half_ccd, ColorFilter color_filter, int flags)
 {
   unsigned int words_per_line;
   unsigned int startx, endx, used_pixels;
@@ -942,10 +942,7 @@ gl846_init_optical_regs_scan (Genesys_Device * dev,
   r = sanei_genesys_get_address (reg, REG03);
   r->value &= ~REG03_AVEENB;
 
-  if (flags & OPTICAL_FLAG_DISABLE_LAMP)
-    r->value &= ~REG03_LAMPPWR;
-  else
-    r->value |= REG03_LAMPPWR;
+    sanei_genesys_set_lamp_power(dev, sensor, *reg, !(flags & OPTICAL_FLAG_DISABLE_LAMP));
 
   /* BW threshold */
   r = sanei_genesys_get_address (reg, 0x2e);
@@ -974,17 +971,19 @@ gl846_init_optical_regs_scan (Genesys_Device * dev,
   if (channels == 1)
     {
       switch (color_filter)
-	{
-	case 0:
-	  r->value |= 0x24;	/* red filter */
-	  break;
-	case 2:
-	  r->value |= 0x2c;	/* blue filter */
-	  break;
-	default:
-	  r->value |= 0x28;	/* green filter */
-	  break;
-	}
+        {
+            case ColorFilter::RED:
+                r->value |= 0x24;
+                break;
+            case ColorFilter::BLUE:
+                r->value |= 0x2c;
+                break;
+            case ColorFilter::GREEN:
+                r->value |= 0x28;
+                break;
+            default:
+                break; // should not happen
+        }
     }
   else
     r->value |= 0x20;		/* mono */
@@ -1023,16 +1022,16 @@ gl846_init_optical_regs_scan (Genesys_Device * dev,
       r = sanei_genesys_get_address (reg, 0x87);
       r->value &= ~REG87_LEDADD;
       if (channels == 1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
-	{
-	  r->value |= REG87_LEDADD;
-	}
+        {
+          r->value |= REG87_LEDADD;
+        }
       /* RGB weighting
       r = sanei_genesys_get_address (reg, 0x01);
       r->value &= ~REG01_TRUEGRAY;
       if (channels == 1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
-	{
-	  r->value |= REG01_TRUEGRAY;
-	}*/
+        {
+          r->value |= REG01_TRUEGRAY;
+        }*/
     }
 
   /* words(16bit) before gamma, conversion to 8 bit or lineart*/
@@ -1097,19 +1096,11 @@ gl846_init_optical_regs_scan (Genesys_Device * dev,
  * this function sets up the scanner to scan in normal or single line mode
  */
 static SANE_Status
-gl846_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                      Genesys_Register_Set * reg,
-                      float xres,	/*dpi */
-		      float yres,	/*dpi */
-		      float startx,	/*optical_res, from dummy_pixel+1 */
-		      float starty,	/*base_ydpi, from home! */
-		      float pixels,
-		      float lines,
-		      unsigned int depth,
-		      unsigned int channels,
-		      int color_filter,
-                      unsigned int flags)
+gl846_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Register_Set * reg,
+                     SetupParams& params)
 {
+    params.assert_valid();
+
   int used_res;
   int start, used_pixels;
   int bytes_per_line;
@@ -1131,17 +1122,11 @@ gl846_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
   int optical_res;
   SANE_Status status;
 
-  DBG(DBG_info, "%s settings:\n"
-      "Resolution    : %gDPI/%gDPI\n"
-      "Lines         : %g\n"
-      "PPL           : %g\n"
-      "Startpos      : %g/%g\n"
-      "Depth/Channels: %u/%u\n"
-      "Flags         : %x\n\n",
-      __func__, xres, yres, lines, pixels, startx, starty, depth, channels, flags);
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, params);
 
   /* we may have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (sensor.get_ccd_size_divisor_for_dpi(xres) > 1)
+  if (sensor.get_ccd_size_divisor_for_dpi(params.xres) > 1)
     {
       half_ccd = SANE_TRUE;
     }
@@ -1157,20 +1142,20 @@ gl846_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   /* stagger */
   if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-    stagger = (4 * yres) / dev->motor.base_ydpi;
+    stagger = (4 * params.yres) / dev->motor.base_ydpi;
   else
     stagger = 0;
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
 
   /* used_res */
-  if (flags & SCAN_FLAG_USE_OPTICAL_RES)
+  if (params.flags & SCAN_FLAG_USE_OPTICAL_RES)
     {
       used_res = optical_res;
     }
   else
     {
       /* resolution is choosen from a list */
-      used_res = xres;
+      used_res = params.xres;
     }
 
   /* compute scan parameters values */
@@ -1178,28 +1163,28 @@ gl846_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
   /* use detected left margin and fixed value */
   /* start */
   /* add x coordinates */
-  start = startx;
+  start = params.startx;
 
   if (stagger > 0)
     start |= 1;
 
   /* compute correct pixels number */
   /* pixels */
-  used_pixels = (pixels * optical_res) / xres;
+  used_pixels = (params.pixels * optical_res) / params.xres;
 
   /* round up pixels number if needed */
-  if (used_pixels * xres < pixels * optical_res)
+  if (used_pixels * params.xres < params.pixels * optical_res)
     used_pixels++;
 
-  dummy = 3-channels;
+  dummy = 3-params.channels;
 
 /* slope_dpi */
 /* cis color scan is effectively a gray scan with 3 gray lines per color
    line and a FILTER of 0 */
   if (dev->model->is_cis)
-    slope_dpi = yres * channels;
+    slope_dpi = params.yres * params.channels;
   else
-    slope_dpi = yres;
+    slope_dpi = params.yres;
 
   slope_dpi = slope_dpi * (1 + dummy);
 
@@ -1212,20 +1197,19 @@ gl846_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
 /*** optical parameters ***/
   /* in case of dynamic lineart, we use an internal 8 bit gray scan
    * to generate 1 lineart data */
-  if ((flags & SCAN_FLAG_DYNAMIC_LINEART) && (dev->settings.scan_mode == SCAN_MODE_LINEART))
-    {
-      depth = 8;
+    if (params.flags & SCAN_FLAG_DYNAMIC_LINEART) {
+        params.depth = 8;
     }
 
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
    */
   oflags = 0;
-  if(flags & SCAN_FLAG_DISABLE_SHADING)
+  if(params.flags & SCAN_FLAG_DISABLE_SHADING)
     oflags |= OPTICAL_FLAG_DISABLE_SHADING;
-  if(flags & SCAN_FLAG_DISABLE_GAMMA)
+  if(params.flags & SCAN_FLAG_DISABLE_GAMMA)
     oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
-  if(flags & SCAN_FLAG_DISABLE_LAMP)
+  if(params.flags & SCAN_FLAG_DISABLE_LAMP)
     oflags |= OPTICAL_FLAG_DISABLE_LAMP;
 
   if (dev->model->is_cis && dev->settings.true_gray)
@@ -1234,15 +1218,15 @@ gl846_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
     }
 
   status = gl846_init_optical_regs_scan (dev, sensor,
-					 reg,
-					 exposure_time,
-					 used_res,
-					 start,
-					 used_pixels,
-					 channels,
-					 depth,
-					 half_ccd,
-					 color_filter,
+                                         reg,
+                                         exposure_time,
+                                         used_res,
+                                         start,
+                                         used_pixels,
+                                         params.channels,
+                                         params.depth,
+                                         half_ccd,
+                                         params.color_filter,
                                          oflags);
 
   if (status != SANE_STATUS_GOOD)
@@ -1251,19 +1235,19 @@ gl846_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
 /*** motor parameters ***/
 
   /* max_shift */
-  max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,flags);
+  max_shift=sanei_genesys_compute_max_shift(dev,params.channels,params.yres,params.flags);
 
   /* lincnt */
-  lincnt = lines + max_shift + stagger;
+  lincnt = params.lines + max_shift + stagger;
 
   /* add tl_y to base movement */
-  move = starty;
+  move = params.starty;
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
   mflags=0;
-  if(flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)
+  if(params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)
     mflags |= MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
-  if(flags & SCAN_FLAG_FEEDING)
+  if(params.flags & SCAN_FLAG_FEEDING)
     mflags |= MOTOR_FLAG_FEED;
 
   status = gl846_init_motor_regs_scan (dev, sensor,
@@ -1272,7 +1256,7 @@ gl846_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
                                        slope_dpi,
                                        scan_step_type,
                                        dev->model->is_cis ? lincnt *
-                                       channels : lincnt, dummy, move,
+                                       params.channels : lincnt, dummy, move,
                                        scan_power_mode,
                                        mflags);
 
@@ -1284,13 +1268,13 @@ gl846_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
 /* words_per_line */
   bytes_per_line = (used_pixels * used_res) / optical_res;
-  bytes_per_line = (bytes_per_line * channels * depth) / 8;
+  bytes_per_line = (bytes_per_line * params.channels * params.depth) / 8;
 
   requested_buffer_size = 8 * bytes_per_line;
 
   read_buffer_size =
     2 * requested_buffer_size +
-    ((max_shift + stagger) * used_pixels * channels * depth) / 8;
+    ((max_shift + stagger) * used_pixels * params.channels * params.depth) / 8;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -1302,21 +1286,21 @@ gl846_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
     dev->shrink_buffer.alloc(requested_buffer_size);
 
     dev->out_buffer.clear();
-    dev->out_buffer.alloc((8 * dev->settings.pixels * channels * depth) / 8);
+    dev->out_buffer.alloc((8 * params.pixels * params.channels * params.depth) / 8);
 
   dev->read_bytes_left = bytes_per_line * lincnt;
 
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
-
+  dev->current_setup.params = params;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   dev->current_setup.lines = lincnt;
-  dev->current_setup.depth = depth;
-  dev->current_setup.channels = channels;
+  dev->current_setup.depth = params.depth;
+  dev->current_setup.channels = params.channels;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
-  dev->current_setup.yres = yres;
+  dev->current_setup.yres = params.yres;
   dev->current_setup.ccd_size_divisor = half_ccd ? 2 : 1;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
@@ -1325,7 +1309,7 @@ gl846_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
   /* scan bytes to send to the frontend */
   /* theory :
      target_size =
-     (dev->settings.pixels * dev->settings.lines * channels * depth) / 8;
+     (params.pixels * params.lines * channels * depth) / 8;
      but it suffers from integer overflow so we do the following:
 
      1 bit color images store color data byte-wise, eg byte 0 contains
@@ -1337,14 +1321,14 @@ gl846_init_scan_regs (Genesys_Device * dev, const Genesys_Sensor& sensor,
    */
 
   dev->total_bytes_read = 0;
-  if (depth == 1)
+  if (params.depth == 1)
     dev->total_bytes_to_read =
-      ((dev->settings.pixels * dev->settings.lines) / 8 +
-       (((dev->settings.pixels * dev->settings.lines) % 8) ? 1 : 0)) *
-      channels;
+      ((params.pixels * params.lines) / 8 +
+       (((params.pixels * params.lines) % 8) ? 1 : 0)) *
+      params.channels;
   else
     dev->total_bytes_to_read =
-      dev->settings.pixels * dev->settings.lines * channels * (depth / 8);
+      params.pixels * params.lines * params.channels * (params.depth / 8);
 
   DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
 /* END TODO */
@@ -1360,12 +1344,6 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   int depth;
   int start;
 
-  float xres;			/*dpi */
-  float yres;			/*dpi */
-  float startx;			/*optical_res, from dummy_pixel+1 */
-  float pixels;
-  float lines;
-
   int used_res;
   int used_pixels;
   unsigned int lincnt;
@@ -1379,24 +1357,18 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
 
-  DBG(DBG_info, "%s settings:\n"
-      "Resolution: %uDPI\n"
-      "Lines     : %u\n"
-      "PPL       : %u\n"
-      "Startpos  : %.3f/%.3f\n"
-      "Scan mode : %d\n\n", __func__,
-      dev->settings.yres, dev->settings.lines, dev->settings.pixels,
-      dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, dev->settings);
 
   /* channels */
-  if (dev->settings.scan_mode == 4)	/* single pass color */
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
   else
     channels = 1;
 
   /* depth */
   depth = dev->settings.depth;
-  if (dev->settings.scan_mode == 0)
+  if (dev->settings.scan_mode == ScanColorMode::LINEART)
     depth = 1;
 
   /* start */
@@ -1405,23 +1377,26 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
 
-  xres = dev->settings.xres;	/*dpi */
-  yres = dev->settings.yres;	/*dpi */
-  startx = start;		/*optical_res, from dummy_pixel+1 */
-  pixels = dev->settings.pixels;
-  lines = dev->settings.lines;
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = dev->settings.yres;
+    params.startx = start; // not used
+    params.starty = 0; // not used
+    params.pixels = dev->settings.pixels;
+    params.lines = dev->settings.lines;
+    params.depth = depth;
+    params.channels = channels;
+    params.scan_method = dev->settings.scan_method;
+    params.scan_mode = dev->settings.scan_mode;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = 0;
 
-  DBG(DBG_info, "%s settings:\n"
-      "Resolution    : %gDPI/%gDPI\n"
-      "Lines         : %g\n"
-      "PPL           : %g\n"
-      "Startpos      : %g\n"
-      "Depth/Channels: %u/%u\n\n",
-      __func__, xres, yres, lines, pixels, startx, depth, channels);
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, params);
 
 /* half_ccd */
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-    if (sensor.get_ccd_size_divisor_for_dpi(xres) > 1) {
+    if (sensor.get_ccd_size_divisor_for_dpi(params.xres) > 1) {
         half_ccd = SANE_TRUE;
     } else {
         half_ccd = SANE_FALSE;
@@ -1432,94 +1407,54 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   /* stagger */
   if (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)
-    stagger = (4 * yres) / dev->motor.base_ydpi;
+    stagger = (4 * params.yres) / dev->motor.base_ydpi;
   else
     stagger = 0;
   DBG(DBG_info, "%s: stagger=%d lines\n", __func__, stagger);
 
   /* resolution is choosen from a fixed list */
-  used_res = xres;
+  used_res = params.xres;
 
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
 
   /* compute correct pixels number */
-  used_pixels = (pixels * optical_res) / used_res;
-  dummy = 3-channels;
+  used_pixels = (params.pixels * optical_res) / used_res;
+  dummy = 3 - params.channels;
 
-  /* slope_dpi */
   /* cis color scan is effectively a gray scan with 3 gray lines per color
    line and a FILTER of 0 */
-  if (dev->model->is_cis)
-    slope_dpi = yres * channels;
-  else
-    slope_dpi = yres;
+    if (dev->model->is_cis) {
+        slope_dpi = params.yres * params.channels;
+    } else {
+        slope_dpi = params.yres;
+    }
 
   slope_dpi = slope_dpi * (1 + dummy);
 
   exposure_time = gl846_compute_exposure (dev, used_res);
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
-  /* max_shift */
-  max_shift=sanei_genesys_compute_max_shift(dev,channels,yres,0);
+    max_shift = sanei_genesys_compute_max_shift(dev, params.channels, params.yres, 0);
 
   /* lincnt */
-  lincnt = lines + max_shift + stagger;
+  lincnt = params.lines + max_shift + stagger;
 
+  dev->current_setup.params = params;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   dev->current_setup.lines = lincnt;
-  dev->current_setup.depth = depth;
-  dev->current_setup.channels = channels;
+  dev->current_setup.depth = params.depth;
+  dev->current_setup.channels = params.channels;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
-  dev->current_setup.yres = yres;
+  dev->current_setup.yres = params.yres;
   dev->current_setup.ccd_size_divisor = half_ccd ? 2 : 1;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
-}
-
-static void
-gl846_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
-{
-
-  DBG(DBG_proc, "%s\n", __func__);
-
-  if (set)
-    {
-      sanei_genesys_set_reg_from_set (regs, REG02,
-				      sanei_genesys_read_reg_from_set (regs,
-								       REG02)
-				      | REG02_MTRPWR);
-    }
-  else
-    {
-      sanei_genesys_set_reg_from_set (regs, REG02,
-				      sanei_genesys_read_reg_from_set (regs,
-								       REG02)
-				      & ~REG02_MTRPWR);
-    }
-}
-
-static void
-gl846_set_lamp_power (Genesys_Device __sane_unused__ * dev, const Genesys_Sensor& /*sensor*/,
-		      Genesys_Register_Set * regs, SANE_Bool set)
-{
-  if (set)
-    {
-      sanei_genesys_set_reg_from_set (regs, REG03,
-				      sanei_genesys_read_reg_from_set (regs, REG03)
-				      | REG03_LAMPPWR);
-    }
-  else
-    {
-      sanei_genesys_set_reg_from_set (regs, REG03,
-				      sanei_genesys_read_reg_from_set (regs, REG03)
-				      & ~REG03_LAMPPWR);
-    }
 }
 
 /*for fast power saving methods only, like disabling certain amplifiers*/
@@ -1601,24 +1536,24 @@ gl846_stop_action (Genesys_Device * dev)
     {
       status = sanei_genesys_get_status (dev, &val);
       if (DBG_LEVEL >= DBG_io)
-	{
-	  sanei_genesys_print_status (val);
-	}
+        {
+          sanei_genesys_print_status (val);
+        }
       status = sanei_genesys_read_register (dev, REG40, &val40);
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
+        {
+          DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
           DBGCOMPLETED;
-	  return status;
-	}
+          return status;
+        }
 
       /* if scanner is in command mode, we are done */
       if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG)
-	  && !(val & REG41_MOTORENB))
-	{
+          && !(val & REG41_MOTORENB))
+        {
           DBGCOMPLETED;
-	  return SANE_STATUS_GOOD;
-	}
+          return SANE_STATUS_GOOD;
+        }
 
       sanei_genesys_sleep_ms(100);
       loop--;
@@ -1631,7 +1566,7 @@ gl846_stop_action (Genesys_Device * dev)
 /* Send the low-level scan command */
 static SANE_Status
 gl846_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Register_Set * reg,
-		  SANE_Bool start_motor)
+                  SANE_Bool start_motor)
 {
     (void) sensor;
   SANE_Status status;
@@ -1675,7 +1610,7 @@ gl846_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
 /* Send the stop scan command */
 static SANE_Status
 gl846_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
-		SANE_Bool check_stop)
+                SANE_Bool check_stop)
 {
   SANE_Status status;
 
@@ -1691,10 +1626,10 @@ gl846_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     {
       status = gl846_stop_action (dev);
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to stop: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        {
+          DBG(DBG_error, "%s: failed to stop: %s\n", __func__, sane_strstatus(status));
+          return status;
+        }
     }
 
   DBGCOMPLETED;
@@ -1711,7 +1646,7 @@ gl846_slow_back_home (Genesys_Device * dev,  SANE_Bool wait_until_home)
   float resolution;
   uint8_t val;
   int loop = 0;
-  int scan_mode;
+  ScanColorMode scan_mode;
 
   DBG(DBG_proc, "%s (wait_until_home = %d)\n", __func__, wait_until_home);
 
@@ -1760,21 +1695,26 @@ gl846_slow_back_home (Genesys_Device * dev,  SANE_Bool wait_until_home)
 
   /* TODO add scan_mode to the API */
   scan_mode= dev->settings.scan_mode;
-  dev->settings.scan_mode=SCAN_MODE_LINEART;
-  status = gl846_init_scan_regs (dev, sensor,
-                        &local_reg,
-			resolution,
-			resolution,
-			100,
-			30000,
-			100,
-			100,
-			8,
-			1,
-			0,
-			SCAN_FLAG_DISABLE_SHADING |
-			SCAN_FLAG_DISABLE_GAMMA |
-			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+  dev->settings.scan_mode = ScanColorMode::LINEART;
+
+    SetupParams params;
+    params.xres = resolution;
+    params.yres = resolution;
+    params.startx = 100;
+    params.starty = 30000;
+    params.pixels = 100;
+    params.lines = 100;
+    params.depth = 8;
+    params.channels = 1;
+    params.scan_method = dev->settings.scan_method;
+    params.scan_mode = ScanColorMode::GRAY;
+    params.color_filter = ColorFilter::RED;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl846_init_scan_regs(dev, sensor, &local_reg, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set up registers: %s\n", __func__, sane_strstatus(status));
@@ -1808,26 +1748,26 @@ gl846_slow_back_home (Genesys_Device * dev,  SANE_Bool wait_until_home)
   if (wait_until_home)
     {
       while (loop < 300)	/* do not wait longer then 30 seconds */
-	{
-	  status = sanei_genesys_get_status (dev, &val);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
+        {
+          status = sanei_genesys_get_status (dev, &val);
+          if (status != SANE_STATUS_GOOD)
+            {
+              DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__,
+                  sane_strstatus(status));
+              return status;
+            }
 
-	  if (val & HOMESNR)	/* home sensor */
-	    {
-	      DBG(DBG_info, "%s: reached home position\n", __func__);
+          if (val & HOMESNR)	/* home sensor */
+            {
+              DBG(DBG_info, "%s: reached home position\n", __func__);
               gl846_stop_action (dev);
               dev->scanhead_position_in_steps = 0;
-	      DBGCOMPLETED;
-	      return SANE_STATUS_GOOD;
-	    }
+              DBGCOMPLETED;
+              return SANE_STATUS_GOOD;
+            }
           sanei_genesys_sleep_ms(100);
-	  ++loop;
-	}
+          ++loop;
+        }
 
       /* when we come here then the scanner needed too much time for this, so we better stop the motor */
       gl846_stop_action (dev);
@@ -1864,11 +1804,24 @@ gl846_search_start_position (Genesys_Device * dev)
   // whith employ different sensors with potentially different settings.
   auto& sensor = sanei_genesys_find_sensor_for_write(dev, dpi);
 
-  status = gl846_init_scan_regs (dev, sensor, &local_reg, dpi, dpi, 0, 0,	/*we should give a small offset here~60 steps */
-				 600, dev->model->search_lines, 8, 1, 1,	/*green */
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+    SetupParams params;
+    params.xres = dpi;
+    params.yres =  dpi;
+    params.startx = 0;
+    params.starty =  0;	/*we should give a small offset here~60 steps */
+    params.pixels = 600;
+    params.lines = dev->model->search_lines;
+    params.depth = 8;
+    params.channels = 1;
+    params.scan_method = dev->settings.scan_method;
+    params.scan_mode = ScanColorMode::GRAY;
+    params.color_filter = ColorFilter::GREEN;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl846_init_scan_regs(dev, sensor, &local_reg, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set up registers: %s\n", __func__, sane_strstatus(status));
@@ -1927,7 +1880,7 @@ gl846_search_start_position (Genesys_Device * dev)
   stores information, and use that correctly*/
   status =
     sanei_genesys_search_reference_point (dev, sensor, data.data(), 0, dpi, pixels,
-					  dev->model->search_lines);
+                                          dev->model->search_lines);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set search reference point: %s\n", __func__,
@@ -1942,7 +1895,8 @@ gl846_search_start_position (Genesys_Device * dev)
  * sets up register for coarse gain calibration
  * todo: check it for scanners using it */
 static SANE_Status
-gl846_init_regs_for_coarse_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
+gl846_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set& regs)
 {
   SANE_Status status;
   uint8_t channels;
@@ -1951,29 +1905,34 @@ gl846_init_regs_for_coarse_calibration (Genesys_Device * dev, const Genesys_Sens
   DBG(DBG_proc, "%s\n", __func__);
 
 
-  cksel = (dev->calib_reg.find_reg(0x18).value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
+  cksel = (regs.find_reg(0x18).value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
 
   /* set line size */
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
-  else
+  else {
     channels = 1;
+  }
 
-  status = gl846_init_scan_regs (dev, sensor,
-                                 &dev->calib_reg,
-				 dev->settings.xres,
-				 dev->settings.yres,
-				 0,
-				 0,
-                                 sensor.optical_res / cksel,
-				 20,
-				 16,
-				 channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = dev->settings.yres;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = sensor.optical_res / cksel;
+    params.lines = 20;
+    params.depth = 16;
+    params.channels = channels;
+    params.scan_method = dev->settings.scan_method;
+    params.scan_mode = dev->settings.scan_mode;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl846_init_scan_regs(dev, sensor, &regs, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: Failed to setup scan: %s\n", __func__, sane_strstatus(status));
@@ -1983,7 +1942,7 @@ gl846_init_regs_for_coarse_calibration (Genesys_Device * dev, const Genesys_Sens
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
       sensor.optical_res / cksel, dev->settings.xres);
 
-  status = dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
+  status = dev->model->cmd_set->bulk_write_register(dev, regs);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: Failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
@@ -2015,21 +1974,26 @@ gl846_feed (Genesys_Device * dev, unsigned int steps)
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
   const auto& sensor = sanei_genesys_find_sensor(dev, resolution);
-  status = gl846_init_scan_regs (dev, sensor,
-                        &local_reg,
-			resolution,
-			resolution,
-			0,
-			steps,
-			100,
-			3,
-			8,
-			3,
-			dev->settings.color_filter,
-			SCAN_FLAG_DISABLE_SHADING |
-			SCAN_FLAG_DISABLE_GAMMA |
-                        SCAN_FLAG_FEEDING |
-			SCAN_FLAG_IGNORE_LINE_DISTANCE);
+
+    SetupParams params;
+    params.xres = resolution;
+    params.yres = resolution;
+    params.startx = 0;
+    params.starty = steps;
+    params.pixels = 100;
+    params.lines = 3;
+    params.depth = 8;
+    params.channels = 3;
+    params.scan_method = dev->settings.scan_method;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_FEEDING |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl846_init_scan_regs(dev, sensor, &local_reg, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to set up registers: %s\n", __func__, sane_strstatus(status));
@@ -2082,7 +2046,8 @@ gl846_feed (Genesys_Device * dev, unsigned int steps)
 
 /* init registers for shading calibration */
 static SANE_Status
-gl846_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
+gl846_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                            Genesys_Register_Set& regs)
 {
   SANE_Status status;
   float move;
@@ -2091,7 +2056,7 @@ gl846_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
   dev->calib_channels = 3;
 
   /* initial calibration reg values */
-  dev->calib_reg = dev->reg;
+  regs = dev->reg;
 
   dev->calib_resolution = sanei_genesys_compute_dpihw(dev, sensor, dev->settings.xres);
   dev->calib_total_bytes_to_read = 0;
@@ -2110,21 +2075,24 @@ gl846_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
       move=40;
     }
 
-  status = gl846_init_scan_regs (dev, sensor,
-                                 &dev->calib_reg,
-                                 dev->calib_resolution,
-				 dev->calib_resolution,
-				 0,
-				 move,
-				 dev->calib_pixels,
-				 dev->calib_lines,
-                                 16,
-				 dev->calib_channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-  				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+    SetupParams params;
+    params.xres = dev->calib_resolution;
+    params.yres = dev->calib_resolution;
+    params.startx = 0;
+    params.starty = move;
+    params.pixels = dev->calib_pixels;
+    params.lines = dev->calib_lines;
+    params.depth = 16;
+    params.channels = dev->calib_channels;
+    params.scan_method = dev->settings.scan_method;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl846_init_scan_regs(dev, sensor, &regs, params);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -2132,7 +2100,7 @@ gl846_init_regs_for_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
       return status;
     }
 
-  status = dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
+  status = dev->model->cmd_set->bulk_write_register(dev, regs);
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
@@ -2160,20 +2128,18 @@ gl846_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   SANE_Status status;
 
-  DBG(DBG_info, "%s settings:\nResolution: %uDPI\n"
-      "Lines     : %u\nPPL       : %u\nStartpos  : %.3f/%.3f\nScan mode : %d\n\n", __func__,
-      dev->settings.yres, dev->settings.lines, dev->settings.pixels,
-      dev->settings.tl_x, dev->settings.tl_y, dev->settings.scan_mode);
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, dev->settings);
 
  /* channels */
-  if (dev->settings.scan_mode == SCAN_MODE_COLOR)	/* single pass color */
+  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
   else
     channels = 1;
 
   /* depth */
   depth = dev->settings.depth;
-  if (dev->settings.scan_mode == SCAN_MODE_LINEART)
+  if (dev->settings.scan_mode == ScanColorMode::LINEART)
     depth = 1;
 
 
@@ -2231,7 +2197,7 @@ gl846_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   flags = 0;
 
   /* emulated lineart from gray data is required for now */
-  if(dev->settings.scan_mode == SCAN_MODE_LINEART
+  if(dev->settings.scan_mode == ScanColorMode::LINEART
      && dev->settings.dynamic_lineart)
     {
       flags |= SCAN_FLAG_DYNAMIC_LINEART;
@@ -2240,18 +2206,21 @@ gl846_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   /* backtracking isn't handled well, so don't enable it */
   flags |= SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
 
-  status = gl846_init_scan_regs (dev, sensor,
-                                 &dev->reg,
-				 dev->settings.xres,
-				 dev->settings.yres,
-				 start,
-				 move,
-				 dev->settings.pixels,
-				 dev->settings.lines,
-				 depth,
-				 channels,
-                                 dev->settings.color_filter,
-                                 flags);
+    SetupParams params;
+    params.xres = dev->settings.xres;
+    params.yres = dev->settings.yres;
+    params.startx = start;
+    params.starty = move;
+    params.pixels = dev->settings.pixels;
+    params.lines = dev->settings.lines;
+    params.depth = depth;
+    params.channels = channels;
+    params.scan_method = dev->settings.scan_method;
+    params.scan_mode = dev->settings.scan_mode;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = flags;
+
+    status = gl846_init_scan_regs(dev, sensor, &dev->reg, params);
 
   if (status != SANE_STATUS_GOOD)
     return status;
@@ -2371,7 +2340,7 @@ gl846_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
  * @param dev device to calibrate
  */
 static SANE_Status
-gl846_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor)
+gl846_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Register_Set& regs)
 {
   int num_pixels;
   int total_size;
@@ -2404,24 +2373,27 @@ gl846_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor)
   num_pixels = (sensor.sensor_pixels*used_res)/sensor.optical_res;
 
   /* initial calibration reg values */
-  dev->calib_reg = dev->reg;
+  regs = dev->reg;
 
-  /* set up for the calibration scan */
-  status = gl846_init_scan_regs (dev, sensor,
-                                 &dev->calib_reg,
-				 used_res,
-				 used_res,
-				 0,
-				 0,
-				 num_pixels,
-                                 1,
-                                 depth,
-                                 channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+    SetupParams params;
+    params.xres = used_res;
+    params.yres = used_res;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = num_pixels;
+    params.lines = 1;
+    params.depth = depth;
+    params.channels = channels;
+    params.scan_method = dev->settings.scan_method;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl846_init_scan_regs(dev, sensor, &regs, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
@@ -2447,50 +2419,50 @@ gl846_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor)
   turn = 0;
 
   /* no move during led calibration */
-  gl846_set_motor_power (&dev->calib_reg, SANE_FALSE);
+  sanei_genesys_set_motor_power(regs, false);
   do
     {
       /* set up exposure */
-      sanei_genesys_set_double(&dev->calib_reg,REG_EXPR,exp[0]);
-      sanei_genesys_set_double(&dev->calib_reg,REG_EXPG,exp[1]);
-      sanei_genesys_set_double(&dev->calib_reg,REG_EXPB,exp[2]);
+      sanei_genesys_set_double(&regs,REG_EXPR,exp[0]);
+      sanei_genesys_set_double(&regs,REG_EXPG,exp[1]);
+      sanei_genesys_set_double(&regs,REG_EXPB,exp[2]);
 
       /* write registers and scan data */
-      RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
+      RIE(dev->model->cmd_set->bulk_write_register(dev, regs));
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
-      RIE(gl846_begin_scan(dev, sensor, &dev->calib_reg, SANE_TRUE));
+      RIE(gl846_begin_scan(dev, sensor, &regs, SANE_TRUE));
       RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
       /* stop scanning */
       RIE(gl846_stop_action(dev));
 
       if (DBG_LEVEL >= DBG_data)
-	{
+        {
           char fn[30];
           snprintf(fn, 30, "gl846_led_%02d.pnm", turn);
           sanei_genesys_write_pnm_file(fn, line.data(), depth, channels, num_pixels, 1);
-	}
+        }
 
       /* compute average */
       for (j = 0; j < channels; j++)
-	{
-	  avg[j] = 0;
-	  for (i = 0; i < num_pixels; i++)
-	    {
-	      if (dev->model->is_cis)
-		val =
-		  line[i * 2 + j * 2 * num_pixels + 1] * 256 +
-		  line[i * 2 + j * 2 * num_pixels];
-	      else
-		val =
-		  line[i * 2 * channels + 2 * j + 1] * 256 +
-		  line[i * 2 * channels + 2 * j];
-	      avg[j] += val;
-	    }
+        {
+          avg[j] = 0;
+          for (i = 0; i < num_pixels; i++)
+            {
+              if (dev->model->is_cis)
+                val =
+                  line[i * 2 + j * 2 * num_pixels + 1] * 256 +
+                  line[i * 2 + j * 2 * num_pixels];
+              else
+                val =
+                  line[i * 2 * channels + 2 * j + 1] * 256 +
+                  line[i * 2 * channels + 2 * j];
+              avg[j] += val;
+            }
 
-	  avg[j] /= num_pixels;
-	}
+          avg[j] /= num_pixels;
+        }
 
       DBG(DBG_info, "%s: average: %d,%d,%d\n", __func__, avg[0], avg[1], avg[2]);
 
@@ -2726,14 +2698,10 @@ gl846_update_hardware_sensors (Genesys_Scanner * s)
     }
   RIE (sanei_genesys_read_register (s->dev, REG6D, &val));
 
-  if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
-    s->val[OPT_SCAN_SW].b = (val & scan) == 0;
-  if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
-    s->val[OPT_FILE_SW].b = (val & file) == 0;
-  if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
-    s->val[OPT_EMAIL_SW].b = (val & email) == 0;
-  if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
-    s->val[OPT_COPY_SW].b = (val & copy) == 0;
+    s->buttons[BUTTON_SCAN_SW].write((val & scan) == 0);
+    s->buttons[BUTTON_FILE_SW].write((val & file) == 0);
+    s->buttons[BUTTON_EMAIL_SW].write((val & email) == 0);
+    s->buttons[BUTTON_COPY_SW].write((val & copy) == 0);
 
   return status;
 }
@@ -2781,7 +2749,7 @@ gl846_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
   for (x = 0; x < MAX_RESOLUTIONS; x++)
     {
       if (dev->model->xdpi_values[x] > 0 && dev->model->xdpi_values[x] < dpi)
-	dpi = dev->model->xdpi_values[x];
+        dpi = dev->model->xdpi_values[x];
     }
   channels = 1;
   /* 10 MM */
@@ -2797,19 +2765,22 @@ gl846_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   local_reg = dev->reg;
 
-  status = gl846_init_scan_regs (dev, sensor,
-                                 &local_reg,
-				 dpi,
-				 dpi,
-				 0,
-				 0,
-				 pixels,
-				 lines,
-				 depth,
-				 channels,
-				 0,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA);
+    SetupParams params;
+    params.xres = dpi;
+    params.yres = dpi;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = pixels;
+    params.lines = lines;
+    params.depth = depth;
+    params.channels = channels;
+    params.scan_mode = ScanColorMode::GRAY;
+    params.color_filter = ColorFilter::RED;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA;
+
+    status = gl846_init_scan_regs(dev, sensor, &local_reg, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup for scan: %s\n", __func__, sane_strstatus(status));
@@ -2872,122 +2843,122 @@ gl846_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
     {
       status = dev->model->cmd_set->bulk_write_register(dev, local_reg);
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: Failed to bulk write registers: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
+        {
+          DBG(DBG_error, "%s: Failed to bulk write registers: %s\n", __func__,
+              sane_strstatus(status));
+          return status;
+        }
 
       /* now start scan */
       status = gl846_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        {
+          DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
+          return status;
+        }
 
       /* waits for valid data */
       do
-	sanei_genesys_test_buffer_empty (dev, &steps);
+        sanei_genesys_test_buffer_empty (dev, &steps);
       while (steps);
 
       /* now we're on target, we can read data */
       status = sanei_genesys_read_data_from_scanner(dev, data.data(), size);
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        {
+          DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
+          return status;
+        }
 
       status = gl846_stop_action (dev);
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: gl846_stop_action failed\n", __func__);
-	  return status;
-	}
+        {
+          DBG(DBG_error, "%s: gl846_stop_action failed\n", __func__);
+          return status;
+        }
 
       if (DBG_LEVEL >= DBG_data)
-	{
+        {
           sprintf(title, "gl846_search_strip_%s_%s%02d.pnm",
                   black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
           sanei_genesys_write_pnm_file(title, data.data(), depth, channels, pixels, lines);
-	}
+        }
 
       /* search data to find black strip */
       /* when searching forward, we only need one line of the searched color since we
        * will scan forward. But when doing backward search, we need all the area of the
        * same color */
       if (forward)
-	{
-	  for (y = 0; y < lines && !found; y++)
-	    {
-	      count = 0;
-	      /* count of white/black pixels depending on the color searched */
-	      for (x = 0; x < pixels; x++)
-		{
-		  /* when searching for black, detect white pixels */
-		  if (black && data[y * pixels + x] > 90)
-		    {
-		      count++;
-		    }
-		  /* when searching for white, detect black pixels */
-		  if (!black && data[y * pixels + x] < 60)
-		    {
-		      count++;
-		    }
-		}
+        {
+          for (y = 0; y < lines && !found; y++)
+            {
+              count = 0;
+              /* count of white/black pixels depending on the color searched */
+              for (x = 0; x < pixels; x++)
+                {
+                  /* when searching for black, detect white pixels */
+                  if (black && data[y * pixels + x] > 90)
+                    {
+                      count++;
+                    }
+                  /* when searching for white, detect black pixels */
+                  if (!black && data[y * pixels + x] < 60)
+                    {
+                      count++;
+                    }
+                }
 
-	      /* at end of line, if count >= 3%, line is not fully of the desired color
-	       * so we must go to next line of the buffer */
-	      /* count*100/pixels < 3 */
-	      if ((count * 100) / pixels < 3)
-		{
-		  found = 1;
-		  DBG(DBG_data, "%s: strip found forward during pass %d at line %d\n", __func__,
-		      pass, y);
-		}
-	      else
-		{
-		  DBG(DBG_data, "%s: pixels=%d, count=%d (%d%%)\n", __func__, pixels, count,
-		      (100 * count) / pixels);
-		}
-	    }
-	}
+              /* at end of line, if count >= 3%, line is not fully of the desired color
+               * so we must go to next line of the buffer */
+              /* count*100/pixels < 3 */
+              if ((count * 100) / pixels < 3)
+                {
+                  found = 1;
+                  DBG(DBG_data, "%s: strip found forward during pass %d at line %d\n", __func__,
+                      pass, y);
+                }
+              else
+                {
+                  DBG(DBG_data, "%s: pixels=%d, count=%d (%d%%)\n", __func__, pixels, count,
+                      (100 * count) / pixels);
+                }
+            }
+        }
       else			/* since calibration scans are done forward, we need the whole area
-				   to be of the required color when searching backward */
-	{
-	  count = 0;
-	  for (y = 0; y < lines; y++)
-	    {
-	      /* count of white/black pixels depending on the color searched */
-	      for (x = 0; x < pixels; x++)
-		{
-		  /* when searching for black, detect white pixels */
-		  if (black && data[y * pixels + x] > 90)
-		    {
-		      count++;
-		    }
-		  /* when searching for white, detect black pixels */
-		  if (!black && data[y * pixels + x] < 60)
-		    {
-		      count++;
-		    }
-		}
-	    }
+                                   to be of the required color when searching backward */
+        {
+          count = 0;
+          for (y = 0; y < lines; y++)
+            {
+              /* count of white/black pixels depending on the color searched */
+              for (x = 0; x < pixels; x++)
+                {
+                  /* when searching for black, detect white pixels */
+                  if (black && data[y * pixels + x] > 90)
+                    {
+                      count++;
+                    }
+                  /* when searching for white, detect black pixels */
+                  if (!black && data[y * pixels + x] < 60)
+                    {
+                      count++;
+                    }
+                }
+            }
 
-	  /* at end of area, if count >= 3%, area is not fully of the desired color
-	   * so we must go to next buffer */
-	  if ((count * 100) / (pixels * lines) < 3)
-	    {
-	      found = 1;
-	      DBG(DBG_data, "%s: strip found backward during pass %d \n", __func__, pass);
-	    }
-	  else
-	    {
-	      DBG(DBG_data, "%s: pixels=%d, count=%d (%d%%)\n", __func__, pixels, count,
-		  (100 * count) / pixels);
-	    }
-	}
+          /* at end of area, if count >= 3%, area is not fully of the desired color
+           * so we must go to next buffer */
+          if ((count * 100) / (pixels * lines) < 3)
+            {
+              found = 1;
+              DBG(DBG_data, "%s: strip found backward during pass %d \n", __func__, pass);
+            }
+          else
+            {
+              DBG(DBG_data, "%s: pixels=%d, count=%d (%d%%)\n", __func__, pixels, count,
+                  (100 * count) / pixels);
+            }
+        }
       pass++;
     }
 
@@ -3011,7 +2982,7 @@ gl846_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
  */
 static int
 dark_average (uint8_t * data, unsigned int pixels, unsigned int lines,
-	      unsigned int channels, unsigned int black)
+              unsigned int channels, unsigned int black)
 {
   unsigned int i, j, k, average, count;
   unsigned int avg[3];
@@ -3023,16 +2994,16 @@ dark_average (uint8_t * data, unsigned int pixels, unsigned int lines,
       avg[k] = 0;
       count = 0;
       for (i = 0; i < lines; i++)
-	{
-	  for (j = 0; j < black; j++)
-	    {
-	      val = data[i * channels * pixels + j + k];
-	      avg[k] += val;
-	      count++;
-	    }
-	}
+        {
+          for (j = 0; j < black; j++)
+            {
+              val = data[i * channels * pixels + j + k];
+              avg[k] += val;
+              count++;
+            }
+        }
       if (count)
-	avg[k] /= count;
+        avg[k] /= count;
       DBG(DBG_info, "%s: avg[%d] = %d\n", __func__, k, avg[k]);
     }
   average = 0;
@@ -3044,7 +3015,8 @@ dark_average (uint8_t * data, unsigned int pixels, unsigned int lines,
 }
 
 static SANE_Status
-gl846_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
+gl846_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                         Genesys_Register_Set& regs)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t reg04;
@@ -3073,27 +3045,31 @@ gl846_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
   black_pixels = (sensor.black_pixels * resolution) / sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
-  status = gl846_init_scan_regs (dev, sensor,
-                                 &dev->calib_reg,
-				 resolution,
-				 resolution,
-				 0,
-				 0,
-				 pixels,
-				 lines,
-				 bpp,
-				 channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
+    SetupParams params;
+    params.xres = resolution;
+    params.yres = resolution;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = pixels;
+    params.lines = lines;
+    params.depth = bpp;
+    params.channels = channels;
+    params.scan_method = dev->settings.scan_method;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl846_init_scan_regs(dev, sensor, &regs, params);
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  gl846_set_motor_power (&dev->calib_reg, SANE_FALSE);
+  sanei_genesys_set_motor_power(regs, false);
 
   /* allocate memory for scans */
   total_size = pixels * channels * lines * (bpp/8);	/* colors * bytes_per_color * scan lines */
@@ -3113,9 +3089,9 @@ gl846_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
   dev->frontend.set_offset(2, bottom);
 
   RIE(gl846_set_fe(dev, sensor, AFE_SET));
-  RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
+  RIE(dev->model->cmd_set->bulk_write_register(dev, regs));
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
-  RIE(gl846_begin_scan(dev, sensor, &dev->calib_reg, SANE_TRUE));
+  RIE(gl846_begin_scan(dev, sensor, &regs, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner (dev, first_line.data(), total_size));
   if (DBG_LEVEL >= DBG_data)
    {
@@ -3133,9 +3109,9 @@ gl846_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
   dev->frontend.set_offset(1, top);
   dev->frontend.set_offset(2, top);
   RIE(gl846_set_fe(dev, sensor, AFE_SET));
-  RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
+  RIE(dev->model->cmd_set->bulk_write_register(dev, regs));
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
-  RIE(gl846_begin_scan(dev, sensor, &dev->calib_reg, SANE_TRUE));
+  RIE(gl846_begin_scan(dev, sensor, &regs, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
 
   topavg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
@@ -3153,32 +3129,32 @@ gl846_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
 
       /* scan with no move */
       RIE(gl846_set_fe(dev, sensor, AFE_SET));
-      RIE(dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
+      RIE(dev->model->cmd_set->bulk_write_register(dev, regs));
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
-      RIE(gl846_begin_scan(dev, sensor, &dev->calib_reg, SANE_TRUE));
+      RIE(gl846_begin_scan(dev, sensor, &regs, SANE_TRUE));
       RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
 
       if (DBG_LEVEL >= DBG_data)
-	{
+        {
           char fn[30];
           snprintf(fn, 30, "gl846_offset%03d.pnm", dev->frontend.get_offset(1));
           sanei_genesys_write_pnm_file(fn, second_line.data(), bpp, channels, pixels, lines);
-	}
+        }
 
       avg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
       DBG(DBG_info, "%s: avg=%d offset=%d\n", __func__, avg, dev->frontend.get_offset(1));
 
       /* compute new boundaries */
       if (topavg == avg)
-	{
-	  topavg = avg;
+        {
+          topavg = avg;
           top = dev->frontend.get_offset(1);
-	}
+        }
       else
-	{
-	  bottomavg = avg;
+        {
+          bottomavg = avg;
           bottom = dev->frontend.get_offset(1);
-	}
+        }
     }
   DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__,
       dev->frontend.get_offset(0),
@@ -3190,7 +3166,8 @@ gl846_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
 }
 
 static SANE_Status
-gl846_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor, int dpi)
+gl846_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                              Genesys_Register_Set& regs, int dpi)
 {
   int pixels;
   int total_size;
@@ -3232,22 +3209,26 @@ gl846_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   bpp=8;
   pixels = (sensor.sensor_pixels * resolution) / sensor.optical_res;
 
-  status = gl846_init_scan_regs (dev, sensor,
-                                 &dev->calib_reg,
-				 resolution,
-				 resolution,
-				 0,
-				 0,
-				 pixels,
-                                 lines,
-                                 bpp,
-                                 channels,
-				 dev->settings.color_filter,
-				 SCAN_FLAG_DISABLE_SHADING |
-				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_SINGLE_LINE |
-				 SCAN_FLAG_IGNORE_LINE_DISTANCE);
-  gl846_set_motor_power(&dev->calib_reg, SANE_FALSE);
+    SetupParams params;
+    params.xres = resolution;
+    params.yres = resolution;
+    params.startx = 0;
+    params.starty = 0;
+    params.pixels = pixels;
+    params.lines = lines;
+    params.depth = bpp;
+    params.channels = channels;
+    params.scan_method = dev->settings.scan_method;
+    params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    params.color_filter = dev->settings.color_filter;
+    params.flags = SCAN_FLAG_DISABLE_SHADING |
+                   SCAN_FLAG_DISABLE_GAMMA |
+                   SCAN_FLAG_SINGLE_LINE |
+                   SCAN_FLAG_IGNORE_LINE_DISTANCE;
+
+    status = gl846_init_scan_regs(dev, sensor, &regs, params);
+
+    sanei_genesys_set_motor_power(regs, false);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -3255,14 +3236,14 @@ gl846_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
       return status;
     }
 
-  RIE (dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg));
+  RIE (dev->model->cmd_set->bulk_write_register(dev, regs));
 
   total_size = pixels * channels * (16/bpp) * lines;
 
   std::vector<uint8_t> line(total_size);
 
   RIE(gl846_set_fe(dev, sensor, AFE_SET));
-  RIE(gl846_begin_scan(dev, sensor, &dev->calib_reg, SANE_TRUE));
+  RIE(gl846_begin_scan(dev, sensor, &regs, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
   if (DBG_LEVEL >= DBG_data)
@@ -3273,14 +3254,14 @@ gl846_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
     {
       max[j] = 0;
       for (i = pixels/4; i < (pixels*3/4); i++)
-	{
-	  if (dev->model->is_cis)
-	    val = line[i + j * pixels];
-	  else
-	    val = line[i * channels + j];
+        {
+          if (dev->model->is_cis)
+            val = line[i + j * pixels];
+          else
+            val = line[i * channels + j];
 
-	  max[j] += val;
-	}
+          max[j] += val;
+        }
       max[j] = max[j] / (pixels/2);
 
       gain[j] = ((float) sensor.gain_white_ref*coeff) / max[j];
@@ -3288,9 +3269,9 @@ gl846_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
       /* turn logical gain value into gain code, checking for overflow */
       code = 283 - 208 / gain[j];
       if (code > 255)
-	code = 255;
+        code = 255;
       else if (code < 0)
-	code = 0;
+        code = 0;
       dev->frontend.set_gain(j, code);
 
       DBG(DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__, j, max[j], gain[j],
@@ -3341,9 +3322,6 @@ static Genesys_Command_Set gl846_cmd_set = {
   gl846_set_powersaving,
   gl846_save_power,
 
-  gl846_set_motor_power,
-  gl846_set_lamp_power,
-
   gl846_begin_scan,
   gl846_end_scan,
 
@@ -3373,8 +3351,7 @@ static Genesys_Command_Set gl846_cmd_set = {
   NULL,
   gl846_send_shading_data,
   gl846_calculate_current_setup,
-  gl846_boot,
-  NULL
+  gl846_boot
 };
 
 SANE_Status

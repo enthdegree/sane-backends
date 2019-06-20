@@ -85,6 +85,7 @@
 #include <array>
 #include <cstring>
 #include <functional>
+#include <limits>
 #include <list>
 #include <memory>
 #include <stdexcept>
@@ -151,6 +152,8 @@
 #define GENESYS_FLAG_SHADING_NO_MOVE  (1 << 17)       /**< scanner doesn't move sensor during shading calibration */
 #define GENESYS_FLAG_SHADING_REPARK   (1 << 18)       /**< repark head between shading scans */
 #define GENESYS_FLAG_FULL_HWDPI_MODE  (1 << 19)       /**< scanner always use maximum hw dpi to setup the sensor */
+// scanner has infrared transparency scanning capability
+#define GENESYS_FLAG_HAS_UTA_INFRARED (1 << 20)
 
 #define GENESYS_HAS_NO_BUTTONS       0              /**< scanner has no supported button */
 #define GENESYS_HAS_SCAN_SW          (1 << 0)       /**< scanner has SCAN button */
@@ -218,6 +221,29 @@
 
 #define GENESYS_MAX_REGS 256
 
+enum class ScanMethod : unsigned {
+    // normal scan method
+    FLATBED = 0,
+    // scan using transparency adaptor
+    TRANSPARENCY = 1,
+    // scan using transparency adaptor via infrared channel
+    TRANSPARENCY_INFRARED = 2
+};
+
+enum class ScanColorMode : unsigned {
+    LINEART = 0,
+    HALFTONE,
+    GRAY,
+    COLOR_SINGLE_PASS
+};
+
+enum class ColorFilter : unsigned {
+    RED = 0,
+    GREEN,
+    BLUE,
+    NONE
+};
+
 struct GenesysRegister {
     uint16_t address = 0;
     uint8_t value = 0;
@@ -228,11 +254,19 @@ inline bool operator<(const GenesysRegister& lhs, const GenesysRegister& rhs)
     return lhs.address < rhs.address;
 }
 
+struct GenesysRegisterSetState {
+    bool is_lamp_on = false;
+    bool is_xpa_on = false;
+};
+
 class Genesys_Register_Set {
 public:
     using container = std::vector<GenesysRegister>;
     using iterator = typename container::iterator;
     using const_iterator = typename container::const_iterator;
+
+    // FIXME: this shouldn't live here, but in a separate struct that contains Genesys_Register_Set
+    GenesysRegisterSetState state;
 
     enum Options {
         SEQUENTIAL = 1
@@ -559,8 +593,8 @@ struct Genesys_Sensor {
     int min_resolution = -1;
     int max_resolution = -1;
 
-    // whether the sensor is transparency sensor.
-    bool is_transparency = false;
+    // the scan method used with the sensor
+    ScanMethod method = ScanMethod::FLATBED;
 
     // CCD may present itself as half or quarter-size CCD on certain resolutions
     int ccd_size_divisor = 1;
@@ -930,8 +964,10 @@ typedef struct Genesys_Command_Set
 					 Genesys_Register_Set * regs,
 					 int *channels, int *total_size);
     SANE_Status (*init_regs_for_coarse_calibration) (Genesys_Device * dev,
-                                                     const Genesys_Sensor& sensor);
-    SANE_Status (*init_regs_for_shading) (Genesys_Device * dev, const Genesys_Sensor& sensor);
+                                                     const Genesys_Sensor& sensor,
+                                                     Genesys_Register_Set& regs);
+    SANE_Status (*init_regs_for_shading) (Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                          Genesys_Register_Set& regs);
     SANE_Status (*init_regs_for_scan) (Genesys_Device * dev, const Genesys_Sensor& sensor);
 
     SANE_Bool (*get_filter_bit) (Genesys_Register_Set * reg);
@@ -947,11 +983,6 @@ typedef struct Genesys_Command_Set
     SANE_Status (*set_powersaving) (Genesys_Device * dev, int delay);
     SANE_Status (*save_power) (Genesys_Device * dev, SANE_Bool enable);
 
-  void (*set_motor_power) (Genesys_Register_Set * regs, SANE_Bool set);
-  void (*set_lamp_power) (Genesys_Device * dev, const Genesys_Sensor& sensor,
-			  Genesys_Register_Set * regs,
-			  SANE_Bool set);
-
     SANE_Status (*begin_scan) (Genesys_Device * dev,
                                const Genesys_Sensor& sensor,
 			       Genesys_Register_Set * regs,
@@ -966,16 +997,19 @@ typedef struct Genesys_Command_Set
     SANE_Status (*send_gamma_table) (Genesys_Device * dev, const Genesys_Sensor& sensor);
 
     SANE_Status (*search_start_position) (Genesys_Device * dev);
-    SANE_Status (*offset_calibration) (Genesys_Device * dev, const Genesys_Sensor& sensor);
+    SANE_Status (*offset_calibration) (Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set& regs);
     SANE_Status (*coarse_gain_calibration) (Genesys_Device * dev,
-                                            const Genesys_Sensor& sensor, int dpi);
-    SANE_Status (*led_calibration) (Genesys_Device * dev, Genesys_Sensor& sensor);
+                                            const Genesys_Sensor& sensor,
+                                            Genesys_Register_Set& regs, int dpi);
+    SANE_Status (*led_calibration) (Genesys_Device * dev, Genesys_Sensor& sensor,
+                                    Genesys_Register_Set& regs);
 
     SANE_Status (*slow_back_home) (Genesys_Device * dev, SANE_Bool wait_until_home);
     SANE_Status (*rewind) (Genesys_Device * dev);
 
     SANE_Status (*bulk_write_register) (Genesys_Device * dev,
-                                        Genesys_Register_Set& reg);
+                                        Genesys_Register_Set& regs);
 
     SANE_Status (*bulk_write_data) (Genesys_Device * dev, uint8_t addr,
 				    uint8_t * data, size_t len);
@@ -983,13 +1017,7 @@ typedef struct Genesys_Command_Set
     SANE_Status (*bulk_read_data) (Genesys_Device * dev, uint8_t addr,
 				   uint8_t * data, size_t len);
 
-  /* Updates hardware sensor information in Genesys_Scanner.val[].
-     If possible, just get information for given option.
-     The sensor state in Genesys_Scanner.val[] should be merged with the
-     new sensor state, using the information that was last read by the frontend
-     in Genesys_Scanner.last_val[], in such a way that a button up/down
-     relative to Genesys_Scanner.last_val[] is not lost.
-   */
+  // Updates hardware sensor information in Genesys_Scanner.val[].
   SANE_Status (*update_hardware_sensors) (struct Genesys_Scanner * s);
 
     /* functions for sheetfed scanners */
@@ -1040,25 +1068,6 @@ typedef struct Genesys_Command_Set
      * cold boot init function
      */
     SANE_Status (*asic_boot) (Genesys_Device * dev, SANE_Bool cold);
-
-    /**
-     * Scan register setting interface
-     */
-    SANE_Status (*init_scan_regs) (Genesys_Device * dev,
-                                   const Genesys_Sensor& sensor,
-				   Genesys_Register_Set * reg,
-				   float xres,
-				   float yres,
-				   float startx,
-				   float starty,
-				   float pixels,
-				   float lines,
-				   unsigned int depth,
-				   unsigned int channels,
-				   int scan_method,
-				   int scan_mode,
-				   int color_filter,
-				   unsigned int flags);
 
 } Genesys_Command_Set;
 
@@ -1124,21 +1133,11 @@ typedef struct Genesys_Model
   SANE_Int search_lines;	/* how many lines are used to search start position */
 } Genesys_Model;
 
-#define SCAN_METHOD_FLATBED      0     /**< normal scan method */
-#define SCAN_METHOD_TRANSPARENCY 2     /**< scan using transparency adaptor */
-#define SCAN_METHOD_NEGATIVE     0x88  /**< scan using negative adaptor */
-
-#define SCAN_MODE_LINEART        0 	/**< lineart scan mode */
-#define SCAN_MODE_HALFTONE       1 	/**< halftone scan mode */
-#define SCAN_MODE_GRAY           2 	/**< gray scan mode */
-#define SCAN_MODE_COLOR          4 	/**< color scan mode */
-
 struct Genesys_Settings
 {
-    // TODO: change >=2: Transparency, 0x88: negative film
-    int scan_method = 0;
-    // TODO: change 0,1 = lineart, halftone; 2 = gray, 3 = 3pass color, 4=single pass color
-    int scan_mode = 0;
+    ScanMethod scan_method = ScanMethod::FLATBED;
+    ScanColorMode scan_mode = ScanColorMode::LINEART;
+
     // horizontal dpi
     int xres = 0;
     // vertical dpi
@@ -1157,10 +1156,7 @@ struct Genesys_Settings
     // bit depth of the scan
     unsigned int depth = 0;
 
-    /* todo : remove these fields ? */
-    int exposure_time = 0;
-
-    unsigned int color_filter = 0;
+    ColorFilter color_filter = ColorFilter::NONE;
 
     // true if scan is true gray, false if monochrome scan
     int true_gray = 0;
@@ -1173,9 +1169,6 @@ struct Genesys_Settings
 
     // Disable interpolation for xres<yres
     int disable_interpolation = 0;
-
-    // Use double x resolution internally to provide better quality
-    int double_xres = 0;
 
     // true is lineart is generated from gray data by the dynamic rasterization algoright
     int dynamic_lineart = 0;
@@ -1190,8 +1183,54 @@ struct Genesys_Settings
     int expiration_time = 0;
 };
 
+struct SetupParams {
+
+    static constexpr unsigned NOT_SET = std::numeric_limits<unsigned>::max();
+
+    // resolution in x direction
+    unsigned xres = NOT_SET;
+    // resolution in y direction
+    unsigned yres = NOT_SET;
+    // start pixel in X direction, from dummy_pixel + 1
+    float startx = -1;
+    // start pixel in Y direction, counted according to base_ydpi
+    float starty = -1;
+    // the number of pixels in X direction
+    unsigned pixels = NOT_SET;
+    // the number of pixels in Y direction
+    unsigned lines = NOT_SET;
+    // the depth of the scan in bits. Allowed are 1, 8, 16
+    unsigned depth = NOT_SET;
+    // the number of channels
+    unsigned channels = NOT_SET;
+
+    ScanMethod scan_method = static_cast<ScanMethod>(NOT_SET);
+
+    ScanColorMode scan_mode = static_cast<ScanColorMode>(NOT_SET);
+
+    ColorFilter color_filter = static_cast<ColorFilter>(NOT_SET);
+
+    unsigned flags = NOT_SET;
+
+    void assert_valid() const
+    {
+        if (xres == NOT_SET || yres == NOT_SET || startx < 0 || starty < 0 ||
+            pixels == NOT_SET || lines == NOT_SET ||depth == NOT_SET || channels == NOT_SET ||
+            scan_method == static_cast<ScanMethod>(NOT_SET) ||
+            scan_mode == static_cast<ScanColorMode>(NOT_SET) ||
+            color_filter == static_cast<ColorFilter>(NOT_SET) ||
+            flags == NOT_SET)
+        {
+            throw std::runtime_error("SetupParams are not valid");
+        }
+    }
+};
+
 struct Genesys_Current_Setup
 {
+    // params used for this setup
+    SetupParams params;
+
     // pixel count expected from scanner
     int pixels = 0;
     // line count expected from scanner
@@ -1200,8 +1239,7 @@ struct Genesys_Current_Setup
     int depth = 0;
     // channel count expected from scanner
     int channels = 0;
-    // scanning method: flatbed or XPA
-    int scan_method = 0;
+
     // used exposure time
     int exposure_time = 0;
     // used xres
@@ -1300,8 +1338,6 @@ struct Genesys_Device
     Genesys_Frontend frontend, frontend_initial;
     Genesys_Gpo gpo;
     Genesys_Motor motor;
-    uint16_t slope_table0[256] = {};
-    uint16_t slope_table1[256] = {};
     uint8_t  control[6] = {};
     time_t init_date = 0;
 
@@ -1508,7 +1544,7 @@ sanei_genesys_write_hregister (Genesys_Device * dev, uint16_t reg, uint8_t val);
 
 extern SANE_Status
 sanei_genesys_bulk_write_register(Genesys_Device * dev,
-                                   Genesys_Register_Set& reg);
+                                   Genesys_Register_Set& regs);
 
 extern SANE_Status sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val);
 
@@ -1532,9 +1568,9 @@ extern void sanei_genesys_init_structs (Genesys_Device * dev);
 const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev);
 Genesys_Sensor& sanei_genesys_find_sensor_any_for_write(Genesys_Device* dev);
 const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
-                                                int scan_method = SCAN_METHOD_FLATBED);
+                                                ScanMethod scan_method = ScanMethod::FLATBED);
 Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,
-                                                    int scan_method = SCAN_METHOD_FLATBED);
+                                                    ScanMethod scan_method = ScanMethod::FLATBED);
 
 extern SANE_Status
 sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
@@ -1548,6 +1584,11 @@ extern SANE_Status sanei_genesys_read_scancnt (Genesys_Device * dev,
 
 extern SANE_Status sanei_genesys_read_feed_steps (Genesys_Device * dev,
 						  unsigned int *steps);
+
+void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                  Genesys_Register_Set& regs, bool set);
+
+void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set);
 
 extern void
 sanei_genesys_calculate_zmode2 (SANE_Bool two_table,
@@ -1884,5 +1925,8 @@ private:
 extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 void genesys_init_sensor_tables();
 void genesys_init_frontend_tables();
+
+void debug_dump(unsigned level, const Genesys_Settings& settings);
+void debug_dump(unsigned level, const SetupParams& params);
 
 #endif /* not GENESYS_LOW_H */

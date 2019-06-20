@@ -52,6 +52,7 @@
 #endif
 
 #include "genesys_low.h"
+#include <queue>
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024
@@ -73,8 +74,9 @@
 /* Maximum time for lamp warm-up */
 #define WARMUP_TIME 65
 
-#define FLATBED "Flatbed"
-#define TRANSPARENCY_ADAPTER "Transparency Adapter"
+#define STR_FLATBED "Flatbed"
+#define STR_TRANSPARENCY_ADAPTER "Transparency Adapter"
+#define STR_TRANSPARENCY_ADAPTER_INFRARED "Transparency Adapter Infrared"
 
 #ifndef SANE_I18N
 #define SANE_I18N(text) text
@@ -145,6 +147,45 @@ enum Genesys_Option
   NUM_OPTIONS
 };
 
+enum GenesysButtonName : unsigned {
+    BUTTON_SCAN_SW = 0,
+    BUTTON_FILE_SW,
+    BUTTON_EMAIL_SW,
+    BUTTON_COPY_SW,
+    BUTTON_PAGE_LOADED_SW,
+    BUTTON_OCR_SW,
+    BUTTON_POWER_SW,
+    BUTTON_EXTRA_SW,
+    NUM_BUTTONS
+};
+
+GenesysButtonName genesys_option_to_button(int option);
+
+class GenesysButton {
+public:
+    void write(bool value)
+    {
+        if (value == value_) {
+            return;
+        }
+        values_to_read_.push(value);
+        value_ = value;
+    }
+
+    bool read()
+    {
+        if (values_to_read_.empty()) {
+            return value_;
+        }
+        bool ret = values_to_read_.front();
+        values_to_read_.pop();
+        return ret;
+    }
+
+private:
+    bool value_ = false;
+    std::queue<bool> values_to_read_;
+};
 
 /** Scanner object. Should have better be called Session than Scanner
  */
@@ -164,10 +205,39 @@ struct Genesys_Scanner
     SANE_Bool scanning;
     // Option descriptors
     SANE_Option_Descriptor opt[NUM_OPTIONS];
+
     // Option values
-    Option_Value val[NUM_OPTIONS];
-    // Option values as read by the frontend. used for sensors.
-    Option_Value last_val[NUM_OPTIONS];
+    SANE_Word bit_depth = 0;
+    SANE_Word resolution = 0;
+    bool preview = false;
+    SANE_Word threshold = 0;
+    SANE_Word threshold_curve = 0;
+    bool disable_dynamic_lineart = false;
+    bool disable_interpolation = false;
+    bool lamp_off = false;
+    SANE_Word lamp_off_time = 0;
+    bool swdeskew = false;
+    bool swcrop = false;
+    bool swdespeck = false;
+    bool swderotate = false;
+    SANE_Word swskip = 0;
+    SANE_Word despeck = 0;
+    SANE_Word contrast = 0;
+    SANE_Word brightness = 0;
+    SANE_Word expiration_time = 0;
+    bool custom_gamma = false;
+
+    SANE_Word pos_top_left_y = 0;
+    SANE_Word pos_top_left_x = 0;
+    SANE_Word pos_bottom_right_y = 0;
+    SANE_Word pos_bottom_right_x = 0;
+
+    std::string mode, source, color_filter;
+
+    std::string calibration_file;
+    // Button states
+    GenesysButton buttons[NUM_BUTTONS];
+
     // SANE Parameters
     SANE_Parameters params = {};
     SANE_Int bpp_list[5] = {};

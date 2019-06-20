@@ -428,7 +428,7 @@ genesys_despeck(Genesys_Scanner *s)
 {
   if(sanei_magic_despeck(&s->params,
                          s->dev->img_buffer.data(),
-                         s->val[OPT_DESPECK].w)!=SANE_STATUS_GOOD)
+                         s->despeck)!=SANE_STATUS_GOOD)
   {
     DBG (DBG_error, "%s: bad despeck, bailing\n",__func__);
   }
@@ -443,13 +443,12 @@ genesys_derotate (Genesys_Scanner * s)
 {
   SANE_Status status;
   int angle = 0;
-  int resolution = s->val[OPT_RESOLUTION].w;
 
   DBGSTART;
   status = sanei_magic_findTurn (&s->params,
                                  s->dev->img_buffer.data(),
-				 resolution,
-                                 resolution,
+                                 s->resolution,
+                                 s->resolution,
                                  &angle);
 
   if (status)

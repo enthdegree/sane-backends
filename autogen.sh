@@ -11,7 +11,7 @@ patch "$srcdir/ltmain.sh" "$srcdir/ltmain.sh.patch"
 # not diagnosed by autoreconf itself (or could use some extra help
 # explaining what to do in those cases).
 
-if grep AX_CXX_COMPILE_STDCXX configure >/dev/null 2>&1; then
+if grep AX_CXX_COMPILE_STDCXX "$srcdir/configure" >/dev/null 2>&1; then
     cat <<EOF
 It seems 'aclocal' could not find the autoconf macros used to check
 for C++ standard's compliance.

@@ -38,6 +38,7 @@ Makefile.in
 /ABOUT-NLS
 /po/*
 !/po/*.po
+/po/en@*quot.po
 !/po/LINGUAS
 !/po/Makevars
 !/po/POTFILES.in

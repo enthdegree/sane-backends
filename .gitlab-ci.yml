@@ -18,7 +18,6 @@ prepare:
   stage: prepare
   script:
   - find -path ./.git -prune -o -type f | xargs tools/style-check.sh
-  - sed -i '/^AC_INIT/s/,.*/,m4_esyscmd_s([git describe --dirty]),/' configure.ac
   - ./autogen.sh
   - ./configure
   - make dist

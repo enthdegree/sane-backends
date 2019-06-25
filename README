@@ -71,6 +71,8 @@ the project's website at http://www.sane-project.org/.
 
         - gettext (>=0.19.8)
 
+        - git (>= 2.1.4)
+
 SANE should build on most Unix-like systems. Support for OS/2, MacOS X, BeOS,
 and Microsoft Windows is also available. For more details look at the
 operating system specific README.* files. For a detailed support matrix, see:

@@ -6647,4 +6647,3 @@ msgstr "Визначає зсув каналу зеленого"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Визначає зсув каналу синього"
-

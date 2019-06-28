@@ -191,10 +191,10 @@ typedef enum
 sanei_usb_testing_mode;
 
 // Whether testing mode has been enabled
-static sanei_usb_testing_mode testing_mode = sanei_usb_testing_mode_disabled;
+sanei_usb_testing_mode testing_mode = sanei_usb_testing_mode_disabled;
 
 #if WITH_USB_RECORD_REPLAY
-static int testing_development_mode = 0;
+int testing_development_mode = 0;
 int testing_known_commands_input_failed = 0;
 unsigned testing_last_known_seq = 0;
 SANE_String testing_record_backend = NULL;
@@ -577,7 +577,7 @@ static int sanei_xml_get_prop_uint(xmlNode* node, const char* name)
   return attr_uint;
 }
 
-static void sanei_xml_print_seq_if_any(xmlNode* node, const char* parent_fun)
+void sanei_xml_print_seq_if_any(xmlNode* node, const char* parent_fun)
 {
   char* attr = sanei_xml_get_prop(node, "seq");
   if (attr == NULL)
@@ -627,7 +627,7 @@ static int sanei_xml_is_transaction_ignored(xmlNode* node)
 static xmlNode* sanei_xml_skip_non_tx_nodes(xmlNode* node)
 {
   const char* known_node_names[] = {
-    "control_tx", "bulk_tx", "interrupt_tx", "known_commands_end"
+    "control_tx", "bulk_tx", "interrupt_tx", "debug", "known_commands_end"
   };
 
   while (node != NULL)
@@ -653,7 +653,7 @@ static xmlNode* sanei_xml_skip_non_tx_nodes(xmlNode* node)
   return node;
 }
 
-static int sanei_xml_is_known_commands_end(xmlNode* node)
+int sanei_xml_is_known_commands_end(xmlNode* node)
 {
   if (!testing_development_mode || node == NULL)
     return 0;
@@ -667,7 +667,7 @@ static xmlNode* sanei_xml_peek_next_tx_node()
 }
 
 // returns next transaction node that is not get_descriptor
-static xmlNode* sanei_xml_get_next_tx_node()
+xmlNode* sanei_xml_get_next_tx_node()
 {
   xmlNode* next = testing_xml_next_tx_node;
 
@@ -802,8 +802,8 @@ static void sanei_xml_set_hex_attr(xmlNode* node, const char* attr_name,
   xmlNewProp(node, (const xmlChar*)attr_name, (const xmlChar*)buf);
 }
 
-static void sanei_xml_set_uint_attr(xmlNode* node, const char* attr_name,
-                                    unsigned attr_value)
+void sanei_xml_set_uint_attr(xmlNode* node, const char* attr_name,
+                             unsigned attr_value)
 {
   const int buf_size = 128;
   char buf[buf_size];
@@ -811,8 +811,8 @@ static void sanei_xml_set_uint_attr(xmlNode* node, const char* attr_name,
   xmlNewProp(node, (const xmlChar*)attr_name, (const xmlChar*)buf);
 }
 
-static xmlNode* sanei_xml_append_command(xmlNode* sibling,
-                                         int indent, xmlNode* e_command)
+xmlNode* sanei_xml_append_command(xmlNode* sibling,
+                                  int indent, xmlNode* e_command)
 {
   if (indent)
     {
@@ -831,7 +831,7 @@ static void sanei_xml_command_common_props(xmlNode* node, int endpoint_number,
   xmlNewProp(node, (const xmlChar*)"direction", (const xmlChar*)direction);
 }
 
-static void sanei_xml_record_seq(xmlNode* node)
+void sanei_xml_record_seq(xmlNode* node)
 {
   int seq = sanei_xml_get_prop_uint(node, "seq");
   if (seq > 0)
@@ -842,7 +842,7 @@ static void sanei_xml_break()
 {
 }
 
-static void sanei_xml_break_if_needed(xmlNode* node)
+void sanei_xml_break_if_needed(xmlNode* node)
 {
   char* attr = sanei_xml_get_prop(node, "debug_break");
   if (attr != NULL)
@@ -853,8 +853,8 @@ static void sanei_xml_break_if_needed(xmlNode* node)
 }
 
 // returns 1 on success
-static int sanei_usb_check_attr(xmlNode* node, const char* attr_name,
-                                const char* expected, const char* parent_fun)
+int sanei_usb_check_attr(xmlNode* node, const char* attr_name,
+                         const char* expected, const char* parent_fun)
 {
   char* attr = sanei_xml_get_prop(node, attr_name);
   if (attr == NULL)

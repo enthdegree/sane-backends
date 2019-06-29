@@ -19,6 +19,7 @@ prepare:
   script:
   - find -path ./.git -prune -o -type f | xargs tools/style-check.sh
   - ./autogen.sh
+  - ./tools/create-changelog.sh
   - ./configure
   - make dist
   artifacts:

@@ -1,3 +1,20 @@
+commit 82cd8f245cf26879b3f94348d4069dcec8d49f21 (tag: RELEASE_1_0_27, tag: 1.0.27)
+Author: m. allan noah <kitno455@gmail.com>
+Date:   2017-05-22 11:16:40 -0400
+
+    SANE-backends release 1.0.27
+
+    Moved old changelogs to new directory, and excluded them from
+    release tarball.
+
+    Improved release docs.
+
+    Updated config.* files
+
+    Bumped version numbers.
+
+    Wrote release notes.
+
 commit 16f3060061a17cbc54f3415a7e2abc1c35f3fcd2
 Author: Rolf Bensch <roben-guest@alioth.debian.org>
 Date:   Sat May 20 14:13:19 2017 +0200

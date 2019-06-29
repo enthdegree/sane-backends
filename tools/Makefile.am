@@ -35,6 +35,7 @@ EXTRA_DIST = check-po.awk libtool-get-dll-ext mustek600iin-off.c \
 	     RenSaneDlls.cmd README xerox
 EXTRA_DIST += style-check.sh
 EXTRA_DIST += create-changelog.sh
+EXTRA_DIST += update-upstreams.sh
 
 sane_find_scanner_SOURCES = sane-find-scanner.c
 if have_usblib

@@ -12,8 +12,8 @@ dist_doc_DATA = AUTHORS ChangeLog COPYING LICENSE NEWS PROBLEMS PROJECTS \
  README.hp-ux README.linux README.netbsd README.openbsd README.os2 \
  README.solaris README.unixware2 README.unixware7 README.windows \
  README.zeta
-EXTRA_DIST = $(PACKAGE).lsm
-EXTRA_DIST += .editorconfig
+
+EXTRA_DIST  = .editorconfig
 EXTRA_DIST += po/README
 
 #
@@ -70,24 +70,13 @@ libcheck:
 installcheck-local:
 	cd testsuite && $(MAKE) test.local
 
-$(distdir).lsm: dist $(PACKAGE).lsm
-	( cat $(PACKAGE).lsm | \
-	  sed -e "s|_DATE_|`date +%d%b%y`|g" |\
-	  sed -e "s|_VERSION_|$(VERSION)|g" | \
-	  sed -e "s|_T_S_|`find $(distdir).tar.gz -printf "%4k"`|g" |\
-	  sed -e "s|_L_S_|`find $(PACKAGE).lsm -printf "%4k"`|g" >\
-	$(distdir).lsm \
-	)
-lsm: $(distdir).lsm
-
 md5: dist
 	md5sum $(distdir).tar.gz > $(distdir).tar.gz.md5
 
-sane-backends: lsm md5
+sane-backends: md5
 
 # Clean files created by custom targets in this file.
 clean-local:
-	rm -f sane-backends-*.lsm
 	rm -f $(distdir).tar.gz.md5
 
 # Clean files created by configure

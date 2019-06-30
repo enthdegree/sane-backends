@@ -104,8 +104,6 @@ sane-backends/
     General building instructions.
   * README.aix README.beos (...):
     Platform-dependent building and usage instructions.
-  * sane-backends.lsm:
-    The .lsm file as used for the ibiblio archive.
 
 sane-backends/backend/
   This is where the actual backend code is placed. As an example the file
@@ -439,7 +437,7 @@ DOCUMENTATION
   manpage link won't work anyway and version will be outdated soon.
 
 * When your backend is included in the SANE distribution, add an entry to
-  doc/sane.man, AUTHORS and sane-backends.lsm. The sane.man entry should point
+  doc/sane.man and AUTHORS. The sane.man entry should point
   to your documentation (man-page, website, readme).  Also move your .desc
   file from "doc/descriptions-external" to "doc/descriptions" and update
   them.

@@ -3193,7 +3193,7 @@ gl124_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl124_coarse.pnm", line.data(), bpp, channels, pixels, lines);
+    sanei_genesys_write_pnm_file("gl124_gain.pnm", line.data(), bpp, channels, pixels, lines);
 
   /* average value on each channel */
   for (j = 0; j < channels; j++)

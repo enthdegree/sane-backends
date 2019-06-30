@@ -3582,7 +3582,7 @@ ad_fe_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
 	{
-          sprintf (title, "gl646_alternative_coarse%02d.pnm", (int)pass);
+          sprintf (title, "gl646_alternative_gain%02d.pnm", (int)pass);
           sanei_genesys_write_pnm_file(title, line.data(), 8, channels, settings.pixels,
                                        settings.lines);
 	}
@@ -3724,7 +3724,7 @@ gl646_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
 	{
-          sprintf (title, "gl646_coarse_gain%02d.pnm", (int)pass);
+          sprintf (title, "gl646_gain%02d.pnm", (int)pass);
           sanei_genesys_write_pnm_file(title, line.data(), 8, channels, settings.pixels,
                                        settings.lines);
 	}

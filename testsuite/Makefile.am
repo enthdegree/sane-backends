@@ -26,17 +26,17 @@ test.local:
 	@echo "**** Testing $(SCANIMAGE) with device $(DEVICE)"
 	@if echo "---> Trying flatbed scanner" && \
 	  $(SCANIMAGE) -d $(DEVICE) -T && \
-	  echo "<--- Flatbed scanner succeded" && \
+	  echo "<--- Flatbed scanner succeeded" && \
 	  echo "---> Trying three pass flatbed scanner" && \
 	  $(SCANIMAGE) -d $(DEVICE) --mode Color --three-pass=yes   -T && \
-	  echo "<--- Three pass scanner succeded" && \
+	  echo "<--- Three pass scanner succeeded" && \
 	  echo "---> Trying hand scanner" && \
 	  $(SCANIMAGE) -d $(DEVICE) --hand-scanner=yes -T && \
-	  echo "<--- Hand scanner succeded" && \
+	  echo "<--- Hand scanner succeeded" && \
 	  echo "---> Checking 16 bit color mode" && \
 	  $(SCANIMAGE) -d $(DEVICE) $(OPTIONS) && \
 	  cmp -s $(TESTFILE) $(OUTFILE) && \
-	  echo "<--- 16 bit color mode succeded" && \
+	  echo "<--- 16 bit color mode succeeded" && \
 	  rm $(OUTFILE) ; \
 	then echo ; echo ; echo "**** All tests passed" ; \
 	else echo ; echo; \

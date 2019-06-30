@@ -54,6 +54,6 @@ control messages. Use libusb instead.
 Parport-scanners:
 -----------------
 I don't have any information about these. Please contact me or the SANE mailing
-list if you succeded in using one of these.
+list if you succeeded in using one of these.
 
 2003-04-24 Henning Meier-Geinitz <henning@meier-geinitz.de>

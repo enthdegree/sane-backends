@@ -1167,7 +1167,7 @@ CalibrateScanElements ()
       CallFunctionWithParameter (0x91, 0);	/*Stop engine. */
 
      /*Note: if first read failed, junk would be calculated, but if previous
-	read was succeded, but last one failed, previous data'ld be used.
+	read was succeeded, but last one failed, previous data'ld be used.
      */
      for(Temp = 0, j = 0; j < 2570; j++)
      Temp += FilteredBuffer[j];

@@ -51,6 +51,6 @@ and detach scripts.  See tools/openbsd for an example.
 Parport-scanners:
 -----------------
 I don't have any information about these. Please contact me or the SANE mailing
-list if you succeded in using one of these.
+list if you succeeded in using one of these.
 
 2005-12-23 Henning Meier-Geinitz <henning@meier-geinitz.de>

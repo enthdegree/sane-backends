@@ -1932,5 +1932,6 @@ void genesys_init_frontend_tables();
 
 void debug_dump(unsigned level, const Genesys_Settings& settings);
 void debug_dump(unsigned level, const SetupParams& params);
+void debug_dump(unsigned level, const Genesys_Current_Setup& setup);
 
 #endif /* not GENESYS_LOW_H */

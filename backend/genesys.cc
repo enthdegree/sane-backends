@@ -4352,28 +4352,8 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
       return SANE_STATUS_INVAL;
     }
 
-
-  DBG(DBG_info, "%s: dumping current_setup:\n"
-      "\tpixels: %d\n"
-      "\tlines: %d\n"
-      "\tdepth: %d\n"
-      "\tchannels: %d\n"
-      "\texposure_time: %d\n"
-      "\txres: %g\n"
-      "\tyres: %g\n"
-      "\tccd_size_divisor: %d\n"
-      "\tstagger: %d\n"
-      "\tmax_shift: %d\n",
-      __func__,
-      dev->current_setup.pixels,
-      dev->current_setup.lines,
-      dev->current_setup.depth,
-      dev->current_setup.channels,
-      dev->current_setup.exposure_time,
-      dev->current_setup.xres,
-      dev->current_setup.yres,
-      dev->current_setup.ccd_size_divisor,
-      dev->current_setup.stagger, dev->current_setup.max_shift);
+    DBG(DBG_info, "%s: ", __func__);
+    debug_dump(DBG_info, dev->current_setup);
 
   /* prepare conversion */
   /* current settings */

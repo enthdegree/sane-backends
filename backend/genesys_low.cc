@@ -2115,6 +2115,45 @@ void run_functions_at_backend_exit()
     s_functions_run_at_backend_exit.release();
 }
 
+#if (defined(__GNUC__) || defined(__CLANG__)) && (defined(__linux__) || defined(__APPLE__))
+extern "C" char* __cxa_get_globals();
+#endif
+
+static unsigned num_uncaught_exceptions()
+{
+#if __cplusplus >= 201703L
+    int count = std::uncaught_exceptions();
+    return count >= 0 ? count : 0;
+#elif (defined(__GNUC__) || defined(__CLANG__)) && (defined(__linux__) || defined(__APPLE__))
+    // the format of the __cxa_eh_globals struct is enshrined into the Itanium C++ ABI and it's
+    // very unlikely we'll get issues referencing it directly
+    char* cxa_eh_globals_ptr = __cxa_get_globals();
+    return *reinterpret_cast<unsigned*>(cxa_eh_globals_ptr + sizeof(void*));
+#else
+    return std::uncaught_exception() ? 1 : 0;
+#endif
+}
+
+DebugMessageHelper::DebugMessageHelper(const char* func)
+{
+    func_ = func;
+    num_exceptions_on_enter_ = num_uncaught_exceptions();
+    DBG(DBG_proc, "%s: start", func_);
+}
+
+DebugMessageHelper::~DebugMessageHelper()
+{
+    if (num_exceptions_on_enter_ < num_uncaught_exceptions()) {
+        if (status_) {
+            DBG(DBG_error, "%s: failed during %s", func_, status_);
+        } else {
+            DBG(DBG_error, "%s: failed", func_);
+        }
+    } else {
+        DBG(DBG_proc, "%s: completed", func_);
+    }
+}
+
 void debug_dump(unsigned level, const Genesys_Settings& settings)
 {
     DBG(level, "settings:\n"

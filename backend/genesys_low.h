@@ -1851,6 +1851,22 @@ extern void sanei_genesys_usleep(unsigned int useconds);
 // same as sanei_genesys_usleep just that the duration is in milliseconds
 extern void sanei_genesys_sleep_ms(unsigned int milliseconds);
 
+class DebugMessageHelper {
+public:
+    DebugMessageHelper(const char* func);
+    ~DebugMessageHelper();
+
+    void status(const char* status) { status_ = status; }
+    void clear() { status_ = nullptr; }
+
+private:
+    const char* func_ = nullptr;
+    const char* status_ = nullptr;
+    unsigned num_exceptions_on_enter_ = 0;
+};
+
+#define DBG_HELPER(var) DebugMessageHelper var(__func__)
+
 template<class F>
 SANE_Status wrap_exceptions_to_status_code(const char* func, F&& function)
 {

@@ -1354,7 +1354,7 @@ gl847_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
+static void
 gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
   int channels;
@@ -1472,7 +1472,6 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   dev->current_setup.max_shift = max_shift + stagger;
 
   DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
 }
 
 /*for fast power saving methods only, like disabling certain amplifiers*/
@@ -1798,7 +1797,19 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   RIE (dev->model->cmd_set->bulk_write_register(dev, local_reg));
 
-  status = gl847_start_action (dev);
+    try {
+        status = gl847_start_action (dev);
+    } catch (...) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl847_stop_action(dev);
+        } catch (...) {}
+        try {
+            // restore original registers
+            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
+        } catch (...) {}
+        throw;
+    }
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
@@ -2083,7 +2094,19 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
   /* send registers */
   RIE (dev->model->cmd_set->bulk_write_register(dev, local_reg));
 
-  status = gl847_start_action (dev);
+    try {
+        status = gl847_start_action (dev);
+    } catch (...) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl847_stop_action(dev);
+        } catch (...) {}
+        try {
+            // restore original registers
+            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
+        } catch (...) {}
+        throw;
+    }
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
@@ -3329,7 +3352,14 @@ gl847_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
                    SCAN_FLAG_SINGLE_LINE |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    status = gl847_init_scan_regs(dev, sensor, &regs, params);
+    try {
+        status = gl847_init_scan_regs(dev, sensor, &regs, params);
+    } catch (...) {
+        try {
+            sanei_genesys_set_motor_power(regs, false);
+        } catch (...) {}
+        throw;
+    }
 
     sanei_genesys_set_motor_power(regs, false);
 
@@ -3350,7 +3380,7 @@ gl847_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl847_coarse.pnm", line.data(), bpp, channels, pixels, lines);
+    sanei_genesys_write_pnm_file("gl847_gain.pnm", line.data(), bpp, channels, pixels, lines);
 
   /* average value on each channel */
   for (j = 0; j < channels; j++)
@@ -3426,6 +3456,8 @@ gl847_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 static Genesys_Command_Set gl847_cmd_set = {
   "gl847-generic",		/* the name of this set */
 
+  nullptr,
+
   gl847_init,
   NULL, /*gl847_init_regs_for_warmup*/
   gl847_init_regs_for_coarse_calibration,
@@ -3455,6 +3487,7 @@ static Genesys_Command_Set gl847_cmd_set = {
   gl847_coarse_gain_calibration,
   gl847_led_calibration,
 
+  NULL,
   gl847_slow_back_home,
   NULL, /* disable gl847_rewind, see #7 */
 

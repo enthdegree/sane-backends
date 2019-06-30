@@ -1031,22 +1031,6 @@ gl841_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
 	{
 	  DBG(DBG_error, "%s: reset fe failed: %s\n", __func__, sane_strstatus(status));
 	  return status;
-          /*
-	  if (dev->model->ccd_type == CCD_HP2300
-	      || dev->model->ccd_type == CCD_HP2400)
-	    {
-	      val = 0x07;
-	      status =
-		sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT,
-				       REQUEST_REGISTER, GPIO_OUTPUT_ENABLE,
-				       INDEX, 1, &val);
-	      if (status != SANE_STATUS_GOOD)
-		{
-		  DBG(DBG_error, "%s failed resetting frontend: %s\n", __func__,
-		      sane_strstatus(status));
-		  return status;
-		}
-	    }*/
 	}
       DBG(DBG_proc, "%s(): frontend reset complete\n", __func__);
     }
@@ -1055,8 +1039,10 @@ gl841_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
   if (set == AFE_POWER_SAVE)
     {
       status = sanei_genesys_fe_write_data (dev, 0x01, 0x02);
-      if (status != SANE_STATUS_GOOD)
+      if (status != SANE_STATUS_GOOD) {
         DBG(DBG_error, "%s: writing data failed: %s\n", __func__, sane_strstatus(status));
+        return status;
+      }
       return status;
     }
 
@@ -2487,7 +2473,7 @@ dummy \ scanned lines
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
   int channels;
   int depth;
@@ -2679,7 +2665,6 @@ dummy \ scanned lines
   dev->current_setup.max_shift = max_shift + stagger;
 
   DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
 }
 
 /*for fast power saving methods only, like disabling certain amplifiers*/
@@ -3010,8 +2995,21 @@ gl841_eject_document (Genesys_Device * dev)
       return status;
     }
 
-  status = gl841_start_action (dev);
-  if (status != SANE_STATUS_GOOD)
+    try {
+        status = gl841_start_action (dev);
+    } catch (...) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl841_stop_action(dev);
+        } catch (...) {}
+        try {
+            // restore original registers
+            sanei_genesys_bulk_write_register(dev, dev->reg);
+        } catch (...) {}
+        throw;
+    }
+
+    if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
       gl841_stop_action (dev);
@@ -3170,8 +3168,15 @@ gl841_detect_document_end (Genesys_Device * dev)
        * might have been slow to read data, so we re-evaluate the
        * amount of data to scan form the hardware settings
        */
-      status=sanei_genesys_read_scancnt(dev,&scancnt);
-      if(status!=SANE_STATUS_GOOD)
+        try {
+            status = sanei_genesys_read_scancnt(dev, &scancnt);
+        } catch (...) {
+            dev->total_bytes_to_read = dev->total_bytes_read;
+            dev->read_bytes_left = 0;
+            throw;
+        }
+
+        if(status!=SANE_STATUS_GOOD)
         {
           dev->total_bytes_to_read = dev->total_bytes_read;
           dev->read_bytes_left = 0;
@@ -3327,7 +3332,20 @@ gl841_feed (Genesys_Device * dev, int steps)
       return status;
     }
 
-  status = gl841_start_action (dev);
+    try {
+        status = gl841_start_action (dev);
+    } catch (...) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl841_stop_action (dev);
+        } catch (...) {}
+        try {
+            // send original registers
+            sanei_genesys_bulk_write_register(dev, dev->reg);
+        } catch (...) {}
+        throw;
+    }
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
@@ -3462,7 +3480,19 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   RIE (sanei_genesys_bulk_write_register(dev, local_reg));
 
-  status = gl841_start_action (dev);
+    try {
+        status = gl841_start_action (dev);
+    } catch (...) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl841_stop_action(dev);
+        } catch (...) {}
+        try {
+            sanei_genesys_bulk_write_register(dev, dev->reg);
+        } catch (...) {}
+        throw;
+    }
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
@@ -3776,8 +3806,6 @@ gl841_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
-
-  gl841_slow_back_home(dev,SANE_TRUE);
 
 /* channels */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
@@ -4728,7 +4756,7 @@ gl841_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
   if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl841_coarse.pnm", line.data(), 16, channels, num_pixels, lines);
+    sanei_genesys_write_pnm_file("gl841_gain.pnm", line.data(), 16, channels, num_pixels, lines);
 
   /* average high level for each channel and compute gain
      to reach the target code
@@ -4790,11 +4818,7 @@ gl841_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 	  DBG (DBG_error0, "****                                      ****\n");
 	  DBG (DBG_error0, "**********************************************\n");
 	  DBG (DBG_error0, "**********************************************\n");
-#ifdef SANE_STATUS_HW_LOCKED
-	  return SANE_STATUS_HW_LOCKED;
-#else
           return SANE_STATUS_JAMMED;
-#endif
         }
 
     }
@@ -4921,12 +4945,11 @@ sanei_gl841_repark_head (Genesys_Device * dev)
   return status;
 }
 
-static SANE_Status
+static bool
 gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
 				 Genesys_Calibration_Cache *cache,
 				 int for_overwrite)
 {
-  SANE_Status status;
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
 #endif
@@ -4936,22 +4959,15 @@ gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
   /* calibration cache not working yet for this model */
   if (dev->model->ccd_type == CCD_PLUSTEK_3600)
     {
-      return SANE_STATUS_UNSUPPORTED;
+      return false;
     }
 
-  status = gl841_calculate_current_setup (dev, sensor);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to calculate current setup: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    gl841_calculate_current_setup (dev, sensor);
 
   DBG(DBG_proc, "%s: checking\n", __func__);
 
   if (dev->current_setup.ccd_size_divisor != cache->used_setup.ccd_size_divisor)
-    return SANE_STATUS_UNSUPPORTED;
+    return false;
 
   /* a cache entry expires after 30 minutes for non sheetfed scanners */
   /* this is not taken into account when overwriting cache entries    */
@@ -4963,13 +4979,13 @@ gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
           && (dev->model->is_sheetfed == SANE_FALSE))
         {
           DBG(DBG_proc, "%s: expired entry, non compatible cache\n", __func__);
-          return SANE_STATUS_UNSUPPORTED;
+          return false;
         }
     }
 #endif
 
   DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
+  return true;
 }
 
 /*
@@ -5547,6 +5563,8 @@ gl841_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
 static Genesys_Command_Set gl841_cmd_set = {
   "gl841-generic",		/* the name of this set */
 
+  [](Genesys_Device* dev) -> bool { (void) dev; return true; },
+
   gl841_init,
   gl841_init_regs_for_warmup,
   gl841_init_regs_for_coarse_calibration,
@@ -5576,6 +5594,7 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_coarse_gain_calibration,
   gl841_led_calibration,
 
+  NULL,
   gl841_slow_back_home,
   NULL,
 

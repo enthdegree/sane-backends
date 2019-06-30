@@ -1189,7 +1189,7 @@ SANE_Status sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Regi
         for (const auto& r : reg) {
             status = sanei_genesys_write_register (dev, r.address, r.value);
             if (status != SANE_STATUS_GOOD)
-                break;
+                return status;
         }
     }
 
@@ -1870,33 +1870,23 @@ int sanei_genesys_get_lowest_dpi(Genesys_Device *dev)
  * flatbed cache entries are considred too old and then expires if they
  * are older than the expiration time option, forcing calibration at least once
  * then given time. */
-SANE_Status
-sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
-                                         const Genesys_Sensor& sensor,
-				 Genesys_Calibration_Cache * cache,
-				 int for_overwrite)
+bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                             Genesys_Calibration_Cache * cache, int for_overwrite)
 {
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
 #endif
   int compatible = 1, resolution;
-  SANE_Status status;
 
   DBGSTART;
 
   if(dev->model->cmd_set->calculate_current_setup==NULL)
     {
       DBG (DBG_proc, "%s: no calculate_setup, non compatible cache\n", __func__);
-      return SANE_STATUS_UNSUPPORTED;
+      return false;
     }
 
-  status = dev->model->cmd_set->calculate_current_setup(dev, sensor);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "%s: failed to calculate current setup: %s\n", __func__,
-	   sane_strstatus (status));
-      return status;
-    }
+    dev->model->cmd_set->calculate_current_setup(dev, sensor);
 
   DBG (DBG_proc, "%s: checking\n", __func__);
 
@@ -1933,7 +1923,7 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
   if (!compatible)
     {
       DBG (DBG_proc, "%s: completed, non compatible cache\n", __func__);
-      return SANE_STATUS_UNSUPPORTED;
+      return false;
     }
 
   /* a cache entry expires after afetr expiration time for non sheetfed scanners */
@@ -1947,13 +1937,13 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
           && (dev->settings.scan_method == ScanMethod::FLATBED))
         {
           DBG (DBG_proc, "%s: expired entry, non compatible cache\n", __func__);
-          return SANE_STATUS_UNSUPPORTED;
+          return false;
         }
     }
 #endif
 
   DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
+  return true;
 }
 
 
@@ -2125,6 +2115,45 @@ void run_functions_at_backend_exit()
     s_functions_run_at_backend_exit.release();
 }
 
+#if (defined(__GNUC__) || defined(__CLANG__)) && (defined(__linux__) || defined(__APPLE__))
+extern "C" char* __cxa_get_globals();
+#endif
+
+static unsigned num_uncaught_exceptions()
+{
+#if __cplusplus >= 201703L
+    int count = std::uncaught_exceptions();
+    return count >= 0 ? count : 0;
+#elif (defined(__GNUC__) || defined(__CLANG__)) && (defined(__linux__) || defined(__APPLE__))
+    // the format of the __cxa_eh_globals struct is enshrined into the Itanium C++ ABI and it's
+    // very unlikely we'll get issues referencing it directly
+    char* cxa_eh_globals_ptr = __cxa_get_globals();
+    return *reinterpret_cast<unsigned*>(cxa_eh_globals_ptr + sizeof(void*));
+#else
+    return std::uncaught_exception() ? 1 : 0;
+#endif
+}
+
+DebugMessageHelper::DebugMessageHelper(const char* func)
+{
+    func_ = func;
+    num_exceptions_on_enter_ = num_uncaught_exceptions();
+    DBG(DBG_proc, "%s: start", func_);
+}
+
+DebugMessageHelper::~DebugMessageHelper()
+{
+    if (num_exceptions_on_enter_ < num_uncaught_exceptions()) {
+        if (status_) {
+            DBG(DBG_error, "%s: failed during %s", func_, status_);
+        } else {
+            DBG(DBG_error, "%s: failed", func_);
+        }
+    } else {
+        DBG(DBG_proc, "%s: completed", func_);
+    }
+}
+
 void debug_dump(unsigned level, const Genesys_Settings& settings)
 {
     DBG(level, "settings:\n"
@@ -2159,4 +2188,27 @@ void debug_dump(unsigned level, const SetupParams& params)
         static_cast<unsigned>(params.scan_mode),
         static_cast<unsigned>(params.color_filter),
         params.flags);
+}
+
+void debug_dump(unsigned level, const Genesys_Current_Setup& setup)
+{
+    DBG(level, "current_setup:\n"
+        "Pixels: %d\n"
+        "Lines: %d\n"
+        "Depth: %d\n"
+        "Channels: %d\n"
+        "exposure_time: %d\n"
+        "Resolution X/Y: %g %g\n"
+        "ccd_size_divisor: %d\n"
+        "stagger: %d\n"
+        "max_shift: %d\n",
+        setup.pixels,
+        setup.lines,
+        setup.depth,
+        setup.channels,
+        setup.exposure_time,
+        setup.xres, setup.yres,
+        setup.ccd_size_divisor,
+        setup.stagger,
+        setup.max_shift);
 }

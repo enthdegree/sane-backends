@@ -102,6 +102,16 @@
 #define DBG_io2         7	/* io functions that are called very often */
 #define DBG_data        8	/* log image data */
 
+class SaneException : std::exception {
+public:
+    SaneException(SANE_Status status) : status_(status) {}
+
+    SANE_Status status() const { return status_; }
+    virtual const char* what() const noexcept override { return sane_strstatus(status_); }
+private:
+    SANE_Status status_;
+};
+
 /**
  * call a function and return on error
  */
@@ -113,6 +123,15 @@
 	return status; \
       }	\
   } while (SANE_FALSE)
+
+// call a function and throw an exception on error
+#define TIE(function)                                                                              \
+    do {                                                                                           \
+        SANE_Status tmp_status = function;                                                         \
+        if (tmp_status != SANE_STATUS_GOOD) {                                                      \
+            throw SaneException(tmp_status);                                                       \
+        }                                                                                          \
+    } while (false)
 
 #define DBGSTART DBG (DBG_proc, "%s start\n", __func__);
 #define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __func__);
@@ -956,6 +975,8 @@ typedef struct Genesys_Command_Set
 
   /*@} */
 
+    bool (*needs_home_before_init_regs_for_scan) (Genesys_Device* dev);
+
   /** For ASIC initialization */
     SANE_Status (*init) (Genesys_Device * dev);
 
@@ -1005,6 +1026,7 @@ typedef struct Genesys_Command_Set
     SANE_Status (*led_calibration) (Genesys_Device * dev, Genesys_Sensor& sensor,
                                     Genesys_Register_Set& regs);
 
+    void (*wait_for_motor_stop) (Genesys_Device* dev);
     SANE_Status (*slow_back_home) (Genesys_Device * dev, SANE_Bool wait_until_home);
     SANE_Status (*rewind) (Genesys_Device * dev);
 
@@ -1041,11 +1063,8 @@ typedef struct Genesys_Command_Set
     SANE_Status (*search_strip) (Genesys_Device * dev, const Genesys_Sensor& sensor,
                                  SANE_Bool forward, SANE_Bool black);
 
-    SANE_Status (*is_compatible_calibration) (
-	Genesys_Device * dev,
-        const Genesys_Sensor& sensor,
-	Genesys_Calibration_Cache *cache,
-        SANE_Bool for_overwrite);
+    bool (*is_compatible_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                       Genesys_Calibration_Cache* cache, SANE_Bool for_overwrite);
 
     /* functions for transparency adapter */
     /**
@@ -1059,10 +1078,8 @@ typedef struct Genesys_Command_Set
     SANE_Status (*send_shading_data) (Genesys_Device * dev, const Genesys_Sensor& sensor,
                                       uint8_t * data, int size);
 
-    /**
-     * calculate current scan setup
-     */
-    SANE_Status (*calculate_current_setup) (Genesys_Device * dev, const Genesys_Sensor& sensor);
+    // calculate current scan setup
+    void (*calculate_current_setup) (Genesys_Device * dev, const Genesys_Sensor& sensor);
 
     /**
      * cold boot init function
@@ -1781,7 +1798,7 @@ int sanei_genesys_get_lowest_dpi(Genesys_Device *dev);
 extern SANE_Status
 sanei_genesys_read_calibration (Genesys_Device * dev);
 
-extern SANE_Status
+extern bool
 sanei_genesys_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
 				 Genesys_Calibration_Cache * cache,
 				 int for_overwrite);
@@ -1837,15 +1854,21 @@ extern void sanei_genesys_usleep(unsigned int useconds);
 // same as sanei_genesys_usleep just that the duration is in milliseconds
 extern void sanei_genesys_sleep_ms(unsigned int milliseconds);
 
-class SaneException : std::exception {
+class DebugMessageHelper {
 public:
-    SaneException(SANE_Status status) : status_(status) {}
+    DebugMessageHelper(const char* func);
+    ~DebugMessageHelper();
 
-    SANE_Status status() const { return status_; }
-    virtual const char* what() const noexcept override { return sane_strstatus(status_); }
+    void status(const char* status) { status_ = status; }
+    void clear() { status_ = nullptr; }
+
 private:
-    SANE_Status status_;
+    const char* func_ = nullptr;
+    const char* status_ = nullptr;
+    unsigned num_exceptions_on_enter_ = 0;
 };
+
+#define DBG_HELPER(var) DebugMessageHelper var(__func__)
 
 template<class F>
 SANE_Status wrap_exceptions_to_status_code(const char* func, F&& function)
@@ -1928,5 +1951,6 @@ void genesys_init_frontend_tables();
 
 void debug_dump(unsigned level, const Genesys_Settings& settings);
 void debug_dump(unsigned level, const SetupParams& params);
+void debug_dump(unsigned level, const Genesys_Current_Setup& setup);
 
 #endif /* not GENESYS_LOW_H */

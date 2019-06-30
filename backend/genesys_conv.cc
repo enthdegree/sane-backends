@@ -346,7 +346,7 @@ genesys_crop(Genesys_Scanner *s)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_info, "%s: bad or no edges, bailing\n", __func__);
-      goto cleanup;
+      return SANE_STATUS_GOOD;
     }
   DBG (DBG_io, "%s: t:%d b:%d l:%d r:%d\n", __func__, top, bottom, left,
        right);
@@ -357,13 +357,12 @@ genesys_crop(Genesys_Scanner *s)
   if (status)
     {
       DBG (DBG_warn, "%s: failed to crop\n", __func__);
-      goto cleanup;
+      return SANE_STATUS_GOOD;
     }
 
   /* update counters to new image size */
   dev->total_bytes_to_read = s->params.bytes_per_line * s->params.lines;
 
-cleanup:
   DBG (DBG_proc, "%s: completed\n", __func__);
   return SANE_STATUS_GOOD;
 }

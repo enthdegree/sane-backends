@@ -95,3 +95,6 @@ distclean-local:
 	rm -f include/byteorder.h
 
 ACLOCAL_AMFLAGS = -I m4
+
+# Make potential issues stick out when running `make distcheck`.
+DISTCHECK_CONFIGURE_FLAGS  = --enable-silent-rules

@@ -47,6 +47,3 @@ width_options     = --width=75
 #  Locale categories, in addition to LC_MESSAGES, for which message
 #  catalogs are to be used.
 EXTRA_LOCALE_CATEGORIES =
-
-EXTRA_DIST  = README
-EXTRA_DIST += Rules-automake

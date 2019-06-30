@@ -14,6 +14,7 @@ dist_doc_DATA = AUTHORS ChangeLog COPYING LICENSE NEWS PROBLEMS PROJECTS \
  README.zeta
 EXTRA_DIST = $(PACKAGE).lsm
 EXTRA_DIST += .editorconfig
+EXTRA_DIST += po/README
 
 #
 # Keep the .gitignore files sorted, and use this target to do it.

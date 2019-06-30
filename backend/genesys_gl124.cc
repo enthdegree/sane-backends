@@ -2455,9 +2455,6 @@ gl124_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
 
-  /* ensure head is parked in case of calibration */
-  RIE (gl124_slow_back_home (dev, SANE_TRUE));
-
   /* channels */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
@@ -3532,6 +3529,8 @@ gl124_update_hardware_sensors (Genesys_Scanner * s)
 /** the gl124 command set */
 static Genesys_Command_Set gl124_cmd_set = {
   "gl124-generic",                /* the name of this set */
+
+  [](Genesys_Device* dev) -> bool { (void) dev; return true; },
 
   gl124_init,
   gl124_init_regs_for_warmup,

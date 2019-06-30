@@ -975,6 +975,8 @@ typedef struct Genesys_Command_Set
 
   /*@} */
 
+    bool (*needs_home_before_init_regs_for_scan) (Genesys_Device* dev);
+
   /** For ASIC initialization */
     SANE_Status (*init) (Genesys_Device * dev);
 

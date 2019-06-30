@@ -2939,9 +2939,6 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
 
-  /* ensure head is parked in case of calibration */
-  gl843_slow_back_home (dev, SANE_TRUE);
-
   /* channels */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
@@ -4358,6 +4355,8 @@ gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
 /** the gl843 command set */
 static Genesys_Command_Set gl843_cmd_set = {
   "gl843-generic",		/* the name of this set */
+
+  [](Genesys_Device* dev) -> bool { (void) dev; return true; },
 
   gl843_init,
   gl843_init_regs_for_warmup,

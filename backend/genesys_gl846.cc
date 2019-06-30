@@ -3332,6 +3332,8 @@ gl846_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 static Genesys_Command_Set gl846_cmd_set = {
   "gl846-generic",		/* the name of this set */
 
+  nullptr,
+
   gl846_init,
   NULL,
   gl846_init_regs_for_coarse_calibration,

@@ -3807,8 +3807,6 @@ gl841_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
 
-  gl841_slow_back_home(dev,SANE_TRUE);
-
 /* channels */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     channels = 3;
@@ -5564,6 +5562,8 @@ gl841_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
 /** the gl841 command set */
 static Genesys_Command_Set gl841_cmd_set = {
   "gl841-generic",		/* the name of this set */
+
+  [](Genesys_Device* dev) -> bool { (void) dev; return true; },
 
   gl841_init,
   gl841_init_regs_for_warmup,

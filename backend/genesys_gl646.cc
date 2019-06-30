@@ -2813,6 +2813,11 @@ gl646_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
   return status;
 }
 
+static bool gl646_needs_home_before_init_regs_for_scan(Genesys_Device* dev)
+{
+    return (dev->scanhead_position_in_steps > 0 &&
+            dev->settings.scan_method == ScanMethod::FLATBED);
+}
 
 /**
  * set up registers for the actual scan. The scan's parameters are given
@@ -2824,14 +2829,6 @@ gl646_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   SANE_Status status;
 
   DBGSTART;
-
-  /* park head after calibration if needed */
-  if (dev->scanhead_position_in_steps > 0
-      && dev->settings.scan_method == ScanMethod::FLATBED)
-    {
-      RIE(gl646_slow_back_home (dev, SANE_TRUE));
-      dev->scanhead_position_in_steps = 0;
-    }
 
   RIE(setup_for_scan(dev, sensor, &dev->reg, dev->settings, SANE_FALSE, SANE_TRUE, SANE_TRUE));
 
@@ -4906,6 +4903,8 @@ gl646_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor, SANE_Bool
 /** the gl646 command set */
 static Genesys_Command_Set gl646_cmd_set = {
   "gl646-generic",		/* the name of this set */
+
+  gl646_needs_home_before_init_regs_for_scan,
 
   gl646_init,
   gl646_init_regs_for_warmup,

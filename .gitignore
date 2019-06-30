@@ -30,6 +30,7 @@ Makefile.in
 /ltmain.sh
 /ltmain.sh.orig
 /m4/
+!/m4/byteorder.m4
 /missing
 /mkinstalldirs
 /test-driver

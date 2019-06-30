@@ -760,4 +760,4 @@ void vsyslog(int priority, const char *format, va_list args);
 ])
 ])
 
-m4_include([m4-sane/byteorder.m4])
+m4_include([m4/byteorder.m4])

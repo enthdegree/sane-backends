@@ -1107,10 +1107,6 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 
   /* tgtime */
   tgtime=1;
-  if (dev->model->ccd_type == CCD_G4050 && used_res>2400)
-    {
-      tgtime=2;
-    }
   DBG(DBG_io2, "%s: tgtime=%d\n", __func__, tgtime);
 
   /* to manage high resolution device while keeping good
@@ -4277,7 +4273,6 @@ gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
   uint32_t final_size, length, i;
   uint8_t *buffer;
   int count,offset;
-  unsigned int tgtime;
   unsigned int cksel;
   GenesysRegister *r;
   uint16_t dpiset, strpixel, endpixel, startx, factor;
@@ -4294,13 +4289,8 @@ gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
       r = sanei_genesys_get_address(&dev->reg, REG18);
       cksel= (r->value & REG18_CKSEL)+1;
       sanei_genesys_get_double(&dev->reg,REG_DPISET,&strpixel);
-      tgtime=1;
       sanei_genesys_get_double(&dev->reg,REG_DPISET,&dpiset);
       factor=sensor.optical_res/sanei_genesys_compute_dpihw(dev, sensor, dpiset);
-      if (dev->model->ccd_type == CCD_G4050 && dpiset>2400)
-        {
-          tgtime=2;
-        }
 
       /* start coordinate in optical dpi coordinates */
       startx = (sensor.dummy_pixel / cksel) / factor;

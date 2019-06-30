@@ -1488,7 +1488,7 @@ gl124_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
+static void
 gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
   int channels;
@@ -1597,7 +1597,6 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
   dev->current_setup.max_shift = max_shift + stagger;
 
   DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
 }
 
 /**

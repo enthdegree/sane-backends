@@ -2487,7 +2487,7 @@ dummy \ scanned lines
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
   int channels;
   int depth;
@@ -2679,7 +2679,6 @@ dummy \ scanned lines
   dev->current_setup.max_shift = max_shift + stagger;
 
   DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
 }
 
 /*for fast power saving methods only, like disabling certain amplifiers*/
@@ -4926,7 +4925,6 @@ gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
 				 Genesys_Calibration_Cache *cache,
 				 int for_overwrite)
 {
-  SANE_Status status;
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
 #endif
@@ -4939,14 +4937,7 @@ gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
       return SANE_STATUS_UNSUPPORTED;
     }
 
-  status = gl841_calculate_current_setup (dev, sensor);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to calculate current setup: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    gl841_calculate_current_setup (dev, sensor);
 
   DBG(DBG_proc, "%s: checking\n", __func__);
 

@@ -1354,7 +1354,7 @@ gl847_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
+static void
 gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
   int channels;
@@ -1472,7 +1472,6 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   dev->current_setup.max_shift = max_shift + stagger;
 
   DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
 }
 
 /*for fast power saving methods only, like disabling certain amplifiers*/

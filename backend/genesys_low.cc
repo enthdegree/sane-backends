@@ -1880,7 +1880,6 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
   struct timeval time;
 #endif
   int compatible = 1, resolution;
-  SANE_Status status;
 
   DBGSTART;
 
@@ -1890,13 +1889,7 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
       return SANE_STATUS_UNSUPPORTED;
     }
 
-  status = dev->model->cmd_set->calculate_current_setup(dev, sensor);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "%s: failed to calculate current setup: %s\n", __func__,
-	   sane_strstatus (status));
-      return status;
-    }
+    dev->model->cmd_set->calculate_current_setup(dev, sensor);
 
   DBG (DBG_proc, "%s: checking\n", __func__);
 

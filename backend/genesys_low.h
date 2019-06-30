@@ -1059,10 +1059,8 @@ typedef struct Genesys_Command_Set
     SANE_Status (*send_shading_data) (Genesys_Device * dev, const Genesys_Sensor& sensor,
                                       uint8_t * data, int size);
 
-    /**
-     * calculate current scan setup
-     */
-    SANE_Status (*calculate_current_setup) (Genesys_Device * dev, const Genesys_Sensor& sensor);
+    // calculate current scan setup
+    void (*calculate_current_setup) (Genesys_Device * dev, const Genesys_Sensor& sensor);
 
     /**
      * cold boot init function

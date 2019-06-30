@@ -1616,7 +1616,7 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Senso
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
+static void
 gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
   int channels;
@@ -1743,7 +1743,6 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   dev->current_setup.max_shift = max_shift + stagger;
 
   DBG(DBG_proc, "%s: completed\n", __func__);
-  return SANE_STATUS_GOOD;
 }
 
 /**

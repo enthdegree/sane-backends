@@ -102,6 +102,16 @@
 #define DBG_io2         7	/* io functions that are called very often */
 #define DBG_data        8	/* log image data */
 
+class SaneException : std::exception {
+public:
+    SaneException(SANE_Status status) : status_(status) {}
+
+    SANE_Status status() const { return status_; }
+    virtual const char* what() const noexcept override { return sane_strstatus(status_); }
+private:
+    SANE_Status status_;
+};
+
 /**
  * call a function and return on error
  */
@@ -113,6 +123,15 @@
 	return status; \
       }	\
   } while (SANE_FALSE)
+
+// call a function and throw an exception on error
+#define TIE(function)                                                                              \
+    do {                                                                                           \
+        SANE_Status tmp_status = function;                                                         \
+        if (tmp_status != SANE_STATUS_GOOD) {                                                      \
+            throw SaneException(tmp_status);                                                       \
+        }                                                                                          \
+    } while (false)
 
 #define DBGSTART DBG (DBG_proc, "%s start\n", __func__);
 #define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __func__);
@@ -1831,16 +1850,6 @@ extern void sanei_genesys_usleep(unsigned int useconds);
 
 // same as sanei_genesys_usleep just that the duration is in milliseconds
 extern void sanei_genesys_sleep_ms(unsigned int milliseconds);
-
-class SaneException : std::exception {
-public:
-    SaneException(SANE_Status status) : status_(status) {}
-
-    SANE_Status status() const { return status_; }
-    virtual const char* what() const noexcept override { return sane_strstatus(status_); }
-private:
-    SANE_Status status_;
-};
 
 template<class F>
 SANE_Status wrap_exceptions_to_status_code(const char* func, F&& function)

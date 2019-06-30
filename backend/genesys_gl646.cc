@@ -4648,13 +4648,13 @@ write_control (Genesys_Device * dev, const Genesys_Sensor& sensor, int resolutio
 
 /**
  * check if a stored calibration is compatible with requested scan.
- * @return SANE_STATUS_GOOD if compatible, SANE_STATUS_UNSUPPORTED if not.
+ * @return true if compatible, false if not.
  * Whenever an error is met, it is returned.
  * @param dev scanner device
  * @param cache cache entry to test
  * @param for_overwrite reserved for future use ...
  */
-static SANE_Status
+static bool
 gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
 				 Genesys_Calibration_Cache * cache,
 				 int for_overwrite)
@@ -4668,7 +4668,7 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
   DBG(DBG_proc, "%s: start (for_overwrite=%d)\n", __func__, for_overwrite);
 
   if (cache == NULL)
-    return SANE_STATUS_UNSUPPORTED;
+    return false;
 
   /* build minimal current_setup for calibration cache use only, it will be better
    * computed when during setup for scan
@@ -4710,7 +4710,7 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
   if (!compatible)
     {
       DBG(DBG_proc, "%s: completed, non compatible cache\n", __func__);
-      return SANE_STATUS_UNSUPPORTED;
+      return false;
     }
 
   /* a cache entry expires after 30 minutes for non sheetfed scanners */
@@ -4723,13 +4723,13 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
           && (dev->model->is_sheetfed == SANE_FALSE))
         {
           DBG(DBG_proc, "%s: expired entry, non compatible cache\n", __func__);
-          return SANE_STATUS_UNSUPPORTED;
+          return false;
         }
     }
 #endif
 
   DBG(DBG_proc, "%s: completed, cache compatible\n", __func__);
-  return SANE_STATUS_GOOD;
+  return true;
 }
 
 /**

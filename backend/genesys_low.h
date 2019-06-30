@@ -1041,11 +1041,8 @@ typedef struct Genesys_Command_Set
     SANE_Status (*search_strip) (Genesys_Device * dev, const Genesys_Sensor& sensor,
                                  SANE_Bool forward, SANE_Bool black);
 
-    SANE_Status (*is_compatible_calibration) (
-	Genesys_Device * dev,
-        const Genesys_Sensor& sensor,
-	Genesys_Calibration_Cache *cache,
-        SANE_Bool for_overwrite);
+    bool (*is_compatible_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                       Genesys_Calibration_Cache* cache, SANE_Bool for_overwrite);
 
     /* functions for transparency adapter */
     /**
@@ -1779,7 +1776,7 @@ int sanei_genesys_get_lowest_dpi(Genesys_Device *dev);
 extern SANE_Status
 sanei_genesys_read_calibration (Genesys_Device * dev);
 
-extern SANE_Status
+extern bool
 sanei_genesys_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
 				 Genesys_Calibration_Cache * cache,
 				 int for_overwrite);

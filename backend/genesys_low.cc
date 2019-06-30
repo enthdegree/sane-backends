@@ -1870,11 +1870,8 @@ int sanei_genesys_get_lowest_dpi(Genesys_Device *dev)
  * flatbed cache entries are considred too old and then expires if they
  * are older than the expiration time option, forcing calibration at least once
  * then given time. */
-SANE_Status
-sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
-                                         const Genesys_Sensor& sensor,
-				 Genesys_Calibration_Cache * cache,
-				 int for_overwrite)
+bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
+                                             Genesys_Calibration_Cache * cache, int for_overwrite)
 {
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
@@ -1886,7 +1883,7 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
   if(dev->model->cmd_set->calculate_current_setup==NULL)
     {
       DBG (DBG_proc, "%s: no calculate_setup, non compatible cache\n", __func__);
-      return SANE_STATUS_UNSUPPORTED;
+      return false;
     }
 
     dev->model->cmd_set->calculate_current_setup(dev, sensor);
@@ -1926,7 +1923,7 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
   if (!compatible)
     {
       DBG (DBG_proc, "%s: completed, non compatible cache\n", __func__);
-      return SANE_STATUS_UNSUPPORTED;
+      return false;
     }
 
   /* a cache entry expires after afetr expiration time for non sheetfed scanners */
@@ -1940,13 +1937,13 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev,
           && (dev->settings.scan_method == ScanMethod::FLATBED))
         {
           DBG (DBG_proc, "%s: expired entry, non compatible cache\n", __func__);
-          return SANE_STATUS_UNSUPPORTED;
+          return false;
         }
     }
 #endif
 
   DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
+  return true;
 }
 
 

@@ -3047,11 +3047,7 @@ genesys_restore_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
    * matching one */
   for (auto& cache : dev->calibration_cache)
     {
-      status = dev->model->cmd_set->is_compatible_calibration(dev, sensor, &cache, SANE_FALSE);
-      /* SANE_STATUS_GOOD, a matching cache has been found
-       * so we use it to populate calibration data
-       */
-      if (status == SANE_STATUS_GOOD)
+      if (dev->model->cmd_set->is_compatible_calibration(dev, sensor, &cache, SANE_FALSE))
 	{
           dev->frontend = cache.frontend;
           /* we don't restore the gamma fields */
@@ -3078,15 +3074,6 @@ genesys_restore_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
           DBG(DBG_proc, "%s: restored\n", __func__);
 	  return SANE_STATUS_GOOD;
 	}
-
-      /* here status is either SANE_STATUS_UNSUPPORTED which mean tested cache
-       * entry doesn't match, or an fatal error */
-      if (status != SANE_STATUS_UNSUPPORTED)
-	{
-          DBG(DBG_error, "%s: fail while checking compatibility: %s\n", __func__,
-              sane_strstatus(status));
-          return status;
-	}
     }
   DBG(DBG_proc, "%s: completed(nothing found)\n", __func__);
   return SANE_STATUS_UNSUPPORTED;
@@ -3096,8 +3083,6 @@ genesys_restore_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 static SANE_Status
 genesys_save_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
-  SANE_Status status = SANE_STATUS_UNSUPPORTED;
-
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
 #endif
@@ -3111,19 +3096,11 @@ genesys_save_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
   for (auto cache_it = dev->calibration_cache.begin(); cache_it != dev->calibration_cache.end();
        cache_it++)
     {
-      status = dev->model->cmd_set->is_compatible_calibration(dev, sensor, &*cache_it, SANE_TRUE);
-      if (status == SANE_STATUS_UNSUPPORTED)
+      if (dev->model->cmd_set->is_compatible_calibration(dev, sensor, &*cache_it, SANE_TRUE))
         {
-          continue;
+          found_cache_it = cache_it;
+          break;
         }
-      else if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: fail while checking compatibility: %s\n", __func__,
-              sane_strstatus(status));
-          return status;
-        }
-      found_cache_it = cache_it;
-      break;
     }
 
   /* if we found on overridable cache, we reuse it */
@@ -6753,8 +6730,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
       *(SANE_Bool *) val = SANE_TRUE;
       for (auto& cache : s->dev->calibration_cache)
 	{
-	  if (s->dev->model->
-              cmd_set->is_compatible_calibration(s->dev, sensor, &cache, SANE_FALSE) == SANE_STATUS_GOOD)
+	  if (s->dev->model->cmd_set->is_compatible_calibration(s->dev, sensor, &cache, SANE_FALSE))
 	    {
 	      *(SANE_Bool *) val = SANE_FALSE;
 	    }

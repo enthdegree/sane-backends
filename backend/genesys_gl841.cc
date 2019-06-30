@@ -4920,7 +4920,7 @@ sanei_gl841_repark_head (Genesys_Device * dev)
   return status;
 }
 
-static SANE_Status
+static bool
 gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
 				 Genesys_Calibration_Cache *cache,
 				 int for_overwrite)
@@ -4934,7 +4934,7 @@ gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
   /* calibration cache not working yet for this model */
   if (dev->model->ccd_type == CCD_PLUSTEK_3600)
     {
-      return SANE_STATUS_UNSUPPORTED;
+      return false;
     }
 
     gl841_calculate_current_setup (dev, sensor);
@@ -4942,7 +4942,7 @@ gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
   DBG(DBG_proc, "%s: checking\n", __func__);
 
   if (dev->current_setup.ccd_size_divisor != cache->used_setup.ccd_size_divisor)
-    return SANE_STATUS_UNSUPPORTED;
+    return false;
 
   /* a cache entry expires after 30 minutes for non sheetfed scanners */
   /* this is not taken into account when overwriting cache entries    */
@@ -4954,13 +4954,13 @@ gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
           && (dev->model->is_sheetfed == SANE_FALSE))
         {
           DBG(DBG_proc, "%s: expired entry, non compatible cache\n", __func__);
-          return SANE_STATUS_UNSUPPORTED;
+          return false;
         }
     }
 #endif
 
   DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
+  return true;
 }
 
 /*

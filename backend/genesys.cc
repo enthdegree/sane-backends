@@ -3257,6 +3257,10 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
       return status;
     }
 
+  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
+      RIE(dev->model->cmd_set->move_to_ta(dev));
+  }
+
   /* shading calibration */
   status = dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
   if (status != SANE_STATUS_GOOD)
@@ -3892,6 +3896,10 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
         dev->model->cmd_set->slow_back_home)
     {
         RIE(dev->model->cmd_set->slow_back_home(dev, SANE_TRUE));
+    }
+
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
+        RIE(dev->model->cmd_set->move_to_ta(dev));
     }
 
   status = dev->model->cmd_set->init_regs_for_scan(dev, sensor);

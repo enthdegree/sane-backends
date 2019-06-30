@@ -2868,9 +2868,8 @@ gl843_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
   {
-    // FIXME: we should handle moving to TA in the caller, this function should only setup the
-    // registers.
-    gl843_move_to_ta(dev);
+        // note: move_to_ta() function has already been called and the sensor is at the
+        // transparency adapter
     move = 0; // already at dev->model->y_offset_calib_ta implicitly
     flags |= SCAN_FLAG_USE_XPA;
   }
@@ -2955,9 +2954,8 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   flags = 0;
   if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
   {
-    // FIXME: we should handle moving to TA in the caller, this function should only setup the
-    // registers.
-    gl843_move_to_ta(dev);
+        // note: move_to_ta() function has already been called and the sensor is at the
+        // transparency adapter
     move = SANE_UNFIX(dev->model->y_offset_ta) - SANE_UNFIX(dev->model->y_offset_calib_ta);
     flags |= SCAN_FLAG_USE_XPA;
   }

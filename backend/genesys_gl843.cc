@@ -1129,7 +1129,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   dpiset = used_res * cksel;
 
   /* start and end coordinate in optical dpi coordinates */
-  startx = (start + sensor.dummy_pixel * tgtime)/cksel;
+  startx = (start + sensor.dummy_pixel)/cksel;
 
   used_pixels=pixels/cksel;
   endx = startx + used_pixels;
@@ -1267,8 +1267,8 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   sanei_genesys_set_double(reg, REG_DPISET, dpiset * ccd_size_divisor);
   DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset * ccd_size_divisor);
 
-  sanei_genesys_set_double(reg,REG_STRPIXEL,startx/tgtime);
-  sanei_genesys_set_double(reg,REG_ENDPIXEL,endx/tgtime);
+  sanei_genesys_set_double(reg, REG_STRPIXEL, startx);
+  sanei_genesys_set_double(reg, REG_ENDPIXEL, endx);
 
   /* words(16bit) before gamma, conversion to 8 bit or lineart */
   words_per_line = (used_pixels * dpiset) / dpihw;
@@ -1303,7 +1303,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   DBG(DBG_io2, "%s: exposure used=%d\n", __func__, exposure/tgtime);
 
   r = sanei_genesys_get_address (reg, REG_DUMMY);
-  r->value = sensor.dummy_pixel * tgtime;
+  r->value = sensor.dummy_pixel;
 
   DBGCOMPLETED;
   return SANE_STATUS_GOOD;
@@ -4303,13 +4303,11 @@ gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
         }
 
       /* start coordinate in optical dpi coordinates */
-      startx = ((sensor.dummy_pixel * tgtime)/cksel)/factor;
+      startx = (sensor.dummy_pixel / cksel) / factor;
 
       /* current scan coordinates */
       sanei_genesys_get_double(&dev->reg,REG_STRPIXEL,&strpixel);
       sanei_genesys_get_double(&dev->reg,REG_ENDPIXEL,&endpixel);
-      strpixel*=tgtime;
-      endpixel*=tgtime;
 
       if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
         {

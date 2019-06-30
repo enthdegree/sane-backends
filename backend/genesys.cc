@@ -6337,7 +6337,7 @@ SANE_Status sane_get_devices(const SANE_Device *** device_list, SANE_Bool local_
 SANE_Status
 sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 {
-  Genesys_Device *dev;
+  Genesys_Device *dev = nullptr;
   SANE_Status status;
   char *tmpstr;
 

@@ -4936,6 +4936,7 @@ static Genesys_Command_Set gl646_cmd_set = {
   gl646_coarse_gain_calibration,
   gl646_led_calibration,
 
+  NULL,
   gl646_slow_back_home,
   NULL,
 

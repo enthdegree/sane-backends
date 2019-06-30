@@ -2419,6 +2419,25 @@ gl124_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
   return SANE_STATUS_GOOD;
 }
 
+static void gl124_wait_for_motor_stop(Genesys_Device* dev)
+{
+    DBG_HELPER(dbg);
+    uint8_t val40, val;
+
+    TIE(sanei_genesys_get_status(dev, &val));
+    TIE(sanei_genesys_read_register(dev, REG100, &val40));
+
+    if ((val & MOTORENB) == 0 && (val40 & REG100_MOTMFLG) == 0)
+        return;
+
+    do {
+        sanei_genesys_sleep_ms(10);
+        TIE(sanei_genesys_get_status(dev, &val));
+        TIE(sanei_genesys_read_register(dev, REG100, &val40));
+    } while ((val & MOTORENB) ||(val40 & REG100_MOTMFLG));
+    sanei_genesys_sleep_ms(50);
+}
+
 /** @brief set up registers for the actual scan
  */
 static SANE_Status
@@ -2430,50 +2449,11 @@ gl124_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   float move;
   int move_dpi;
   float start;
-  uint8_t val40,val;
 
   SANE_Status status;
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
-
-  /* wait for motor to stop first */
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-   {
-     DBG (DBG_error, "%s: failed to read status: %s\n", __func__, sane_strstatus (status));
-     DBGCOMPLETED;
-     return status;
-   }
-  status = sanei_genesys_read_register (dev, REG100, &val40);
-  if (status != SANE_STATUS_GOOD)
-   {
-     DBG (DBG_error, "%s: failed to read reg100: %s\n", __func__, sane_strstatus (status));
-     DBGCOMPLETED;
-     return status;
-   }
-  if((val & MOTORENB) || (val40 & REG100_MOTMFLG))
-    {
-      do
-        {
-          sanei_genesys_sleep_ms(10);
-          status = sanei_genesys_get_status (dev, &val);
-          if (status != SANE_STATUS_GOOD)
-           {
-             DBG (DBG_error, "%s: failed to read status: %s\n", __func__, sane_strstatus (status));
-             DBGCOMPLETED;
-             return status;
-           }
-          status = sanei_genesys_read_register (dev, REG100, &val40);
-          if (status != SANE_STATUS_GOOD)
-           {
-             DBG (DBG_error, "%s: failed to read reg100: %s\n", __func__, sane_strstatus (status));
-             DBGCOMPLETED;
-             return status;
-           }
-        } while ((val & MOTORENB) || (val40 & REG100_MOTMFLG));
-        sanei_genesys_sleep_ms(50);
-    }
 
   /* ensure head is parked in case of calibration */
   RIE (gl124_slow_back_home (dev, SANE_TRUE));
@@ -3582,6 +3562,7 @@ static Genesys_Command_Set gl124_cmd_set = {
   gl124_coarse_gain_calibration,
   gl124_led_calibration,
 
+  gl124_wait_for_motor_stop,
   gl124_slow_back_home,
   gl124_rewind,
 

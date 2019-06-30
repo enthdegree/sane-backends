@@ -5594,6 +5594,7 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_coarse_gain_calibration,
   gl841_led_calibration,
 
+  NULL,
   gl841_slow_back_home,
   NULL,
 

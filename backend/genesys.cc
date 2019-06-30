@@ -3883,6 +3883,10 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
         }
     }
 
+    if (dev->model->cmd_set->wait_for_motor_stop) {
+        dev->model->cmd_set->wait_for_motor_stop(dev);
+    }
+
   status = dev->model->cmd_set->init_regs_for_scan(dev, sensor);
   if (status != SANE_STATUS_GOOD)
     {

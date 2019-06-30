@@ -3485,6 +3485,7 @@ static Genesys_Command_Set gl847_cmd_set = {
   gl847_coarse_gain_calibration,
   gl847_led_calibration,
 
+  NULL,
   gl847_slow_back_home,
   NULL, /* disable gl847_rewind, see #7 */
 

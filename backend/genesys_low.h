@@ -1024,6 +1024,7 @@ typedef struct Genesys_Command_Set
     SANE_Status (*led_calibration) (Genesys_Device * dev, Genesys_Sensor& sensor,
                                     Genesys_Register_Set& regs);
 
+    void (*wait_for_motor_stop) (Genesys_Device* dev);
     SANE_Status (*slow_back_home) (Genesys_Device * dev, SANE_Bool wait_until_home);
     SANE_Status (*rewind) (Genesys_Device * dev);
 

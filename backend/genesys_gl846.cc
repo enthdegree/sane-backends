@@ -3361,6 +3361,7 @@ static Genesys_Command_Set gl846_cmd_set = {
   gl846_coarse_gain_calibration,
   gl846_led_calibration,
 
+  NULL,
   gl846_slow_back_home,
   NULL,
 

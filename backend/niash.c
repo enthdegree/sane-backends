@@ -768,6 +768,7 @@ _InitOptions (TScanner * s)
             SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE |
             SANE_CAP_EMULATED;
           pVal->w = 50;
+          break;
 
         default:
           DBG (DBG_ERR, "Uninitialised option %d\n", i);

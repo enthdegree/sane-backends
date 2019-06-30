@@ -87,7 +87,7 @@
 :model "SCX-4x16"
 :interface "USB"
 :usbid "0x04e8" "0x3409"
-:status :untested
+:status :unsupported
 
 :model "SCX-6x20"
 :interface "USB"

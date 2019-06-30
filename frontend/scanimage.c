@@ -1975,7 +1975,7 @@ static int guess_output_format(const char* output_file)
 {
   if (output_file == NULL)
     {
-      printf("Output format is not set, using pnm as a default.\n");
+      fprintf(stderr, "Output format is not set, using pnm as a default.\n");
       return OUTPUT_PNM;
     }
 

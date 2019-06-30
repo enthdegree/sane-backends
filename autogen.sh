@@ -4,6 +4,8 @@ test -n "$srcdir" || srcdir=.
 
 autoreconf --force --install --verbose --warnings=all "$srcdir"
 patch "$srcdir/ltmain.sh" "$srcdir/ltmain.sh.patch"
+patch "$srcdir/po/Rules-quot" "$srcdir/Rules-quot.patch"
+autoreconf "$srcdir"
 
 # Taken from https://gitlab.com/utsushi/utsushi/blob/master/bootstrap
 #

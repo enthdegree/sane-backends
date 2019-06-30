@@ -1991,6 +1991,7 @@ option_get (TScanner * scanner, SANE_Int optid, void *result)
 	  /* scanner buttons */
 	case opt_button_0:
 	  get_button_status (scanner);
+          // fall through
 	case opt_button_1:
 	case opt_button_2:
 	case opt_button_3:

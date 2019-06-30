@@ -1912,6 +1912,7 @@ static void motorP96SetupRunTable( pScanData ps )
 			    case 3:
 					if (*(p.pb + 2))
 					    bColor = 1;
+                                        // fall through
 			    case 2:
 					if (*(p.pb + 1))
 			    		bColor++;

@@ -609,9 +609,10 @@ sane_control_option (SANE_Handle handle, SANE_Int iOpt,
 	{
 	case optResolution:
 	case optTLX: case optTLY: case optBRX: case optBRY:
-	  if (pnInfo) (*pnInfo) |= SANE_INFO_RELOAD_PARAMS;
-	  /* fall through side effect free */
+          if (pnInfo) (*pnInfo) |= SANE_INFO_RELOAD_PARAMS;
+
 #ifdef SM3600_SUPPORT_EXPOSURE
+        // fall through
 	case optBrightness:
 	case optContrast:
 #endif

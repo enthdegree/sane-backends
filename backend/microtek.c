@@ -3444,6 +3444,7 @@ sane_control_option (SANE_Handle handle,
     case OPT_RESOLUTION:
       if (info)
 	*info |= SANE_INFO_RELOAD_PARAMS;
+      // fall through
     case OPT_SPEED:
     case OPT_PREVIEW:
     case OPT_BACKTRACK:

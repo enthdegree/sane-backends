@@ -1611,7 +1611,7 @@ main (int argc, char **argv)
 	      usage (0);
 	      exit (0);
 	    }
-
+          // fall through
 	default:
 	  printf ("unknown option: -%c, try -h for help\n", (*ap)[1]);
 	  exit (0);

@@ -2261,7 +2261,7 @@ main (int argc, char **argv)
 	      printf ("default device is `%s'\n", defdevname);
 	    scanimage_exit (0);
 	  }
-
+          // fall through
 	case 'V':
 	  printf ("scanimage (%s) %s; backend version %d.%d.%d\n", PACKAGE,
 		  VERSION, SANE_VERSION_MAJOR (version_code),

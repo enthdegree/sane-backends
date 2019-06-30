@@ -2306,6 +2306,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_Y:
 	  if (info && s->val[option].w != *(SANE_Word *) val)
 	    *info |= SANE_INFO_RELOAD_PARAMS;
+          // fall through
 	case OPT_NUM_OPTS:
 	case OPT_THRESHOLD:
 	  /* xxx theoretically, we could use OPT_THRESHOLD in

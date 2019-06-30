@@ -10239,7 +10239,7 @@ moveToOrigin (void)
       end[0] = 0x19;
       end[1] = 0xD5;
       end[4] = 0x1B;
-
+      // fall through
     case 1220:
     case 2000:
       w = 300;
@@ -11226,6 +11226,7 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
 	  }
       else
 	y += 80;
+      // fall through
     default:
       y += 8;
       break;

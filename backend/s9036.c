@@ -1022,6 +1022,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_Y:
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_PARAMS;
+          // fall through
 	case OPT_BRIGHT_ADJUST:
 	case OPT_CONTR_ADJUST:
 	  s->val[option] = *(SANE_Word *) val;

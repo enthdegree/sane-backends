@@ -2002,14 +2002,27 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   RIE(gl124_setup_scan_gpio(dev,resolution));
 
-  status = gl124_start_action (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
-      gl124_stop_action (dev);
-      /* restore original registers */
-      dev->model->cmd_set->bulk_write_register(dev, dev->reg);
-      return status;
+    try {
+        status = gl124_start_action (dev);
+    } catch (...) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl124_stop_action (dev);
+        } catch (...) {}
+        try {
+            // restore original registers
+            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
+        } catch (...) {}
+        throw;
+    }
+    if (status != SANE_STATUS_GOOD) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl124_stop_action (dev);
+        } catch (...) {}
+        /* restore original registers */
+        dev->model->cmd_set->bulk_write_register(dev, dev->reg);
+        return status;
     }
 
   /* post scan gpio : without that HOMSNR is unreliable */
@@ -3152,7 +3165,14 @@ gl124_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
                    SCAN_FLAG_SINGLE_LINE |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    status = gl124_init_scan_regs(dev, sensor, &regs, params);
+    try {
+        status = gl124_init_scan_regs(dev, sensor, &regs, params);
+    } catch (...) {
+        try {
+            sanei_genesys_set_motor_power(regs, false);
+        } catch (...) {}
+        throw;
+    }
 
     sanei_genesys_set_motor_power(regs, false);
 

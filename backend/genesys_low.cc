@@ -1189,7 +1189,7 @@ SANE_Status sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Regi
         for (const auto& r : reg) {
             status = sanei_genesys_write_register (dev, r.address, r.value);
             if (status != SANE_STATUS_GOOD)
-                break;
+                return status;
         }
     }
 

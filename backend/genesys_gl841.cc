@@ -1031,22 +1031,6 @@ gl841_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
 	{
 	  DBG(DBG_error, "%s: reset fe failed: %s\n", __func__, sane_strstatus(status));
 	  return status;
-          /*
-	  if (dev->model->ccd_type == CCD_HP2300
-	      || dev->model->ccd_type == CCD_HP2400)
-	    {
-	      val = 0x07;
-	      status =
-		sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT,
-				       REQUEST_REGISTER, GPIO_OUTPUT_ENABLE,
-				       INDEX, 1, &val);
-	      if (status != SANE_STATUS_GOOD)
-		{
-		  DBG(DBG_error, "%s failed resetting frontend: %s\n", __func__,
-		      sane_strstatus(status));
-		  return status;
-		}
-	    }*/
 	}
       DBG(DBG_proc, "%s(): frontend reset complete\n", __func__);
     }
@@ -1055,8 +1039,10 @@ gl841_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
   if (set == AFE_POWER_SAVE)
     {
       status = sanei_genesys_fe_write_data (dev, 0x01, 0x02);
-      if (status != SANE_STATUS_GOOD)
+      if (status != SANE_STATUS_GOOD) {
         DBG(DBG_error, "%s: writing data failed: %s\n", __func__, sane_strstatus(status));
+        return status;
+      }
       return status;
     }
 
@@ -3009,8 +2995,21 @@ gl841_eject_document (Genesys_Device * dev)
       return status;
     }
 
-  status = gl841_start_action (dev);
-  if (status != SANE_STATUS_GOOD)
+    try {
+        status = gl841_start_action (dev);
+    } catch (...) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl841_stop_action(dev);
+        } catch (...) {}
+        try {
+            // restore original registers
+            sanei_genesys_bulk_write_register(dev, dev->reg);
+        } catch (...) {}
+        throw;
+    }
+
+    if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
       gl841_stop_action (dev);
@@ -3169,8 +3168,15 @@ gl841_detect_document_end (Genesys_Device * dev)
        * might have been slow to read data, so we re-evaluate the
        * amount of data to scan form the hardware settings
        */
-      status=sanei_genesys_read_scancnt(dev,&scancnt);
-      if(status!=SANE_STATUS_GOOD)
+        try {
+            status = sanei_genesys_read_scancnt(dev, &scancnt);
+        } catch (...) {
+            dev->total_bytes_to_read = dev->total_bytes_read;
+            dev->read_bytes_left = 0;
+            throw;
+        }
+
+        if(status!=SANE_STATUS_GOOD)
         {
           dev->total_bytes_to_read = dev->total_bytes_read;
           dev->read_bytes_left = 0;
@@ -3326,7 +3332,20 @@ gl841_feed (Genesys_Device * dev, int steps)
       return status;
     }
 
-  status = gl841_start_action (dev);
+    try {
+        status = gl841_start_action (dev);
+    } catch (...) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl841_stop_action (dev);
+        } catch (...) {}
+        try {
+            // send original registers
+            sanei_genesys_bulk_write_register(dev, dev->reg);
+        } catch (...) {}
+        throw;
+    }
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
@@ -3461,7 +3480,19 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   RIE (sanei_genesys_bulk_write_register(dev, local_reg));
 
-  status = gl841_start_action (dev);
+    try {
+        status = gl841_start_action (dev);
+    } catch (...) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl841_stop_action(dev);
+        } catch (...) {}
+        try {
+            sanei_genesys_bulk_write_register(dev, dev->reg);
+        } catch (...) {}
+        throw;
+    }
+
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
@@ -4789,11 +4820,7 @@ gl841_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 	  DBG (DBG_error0, "****                                      ****\n");
 	  DBG (DBG_error0, "**********************************************\n");
 	  DBG (DBG_error0, "**********************************************\n");
-#ifdef SANE_STATUS_HW_LOCKED
-	  return SANE_STATUS_HW_LOCKED;
-#else
           return SANE_STATUS_JAMMED;
-#endif
         }
 
     }

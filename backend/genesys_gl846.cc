@@ -1731,7 +1731,19 @@ gl846_slow_back_home (Genesys_Device * dev,  SANE_Bool wait_until_home)
 
   RIE (dev->model->cmd_set->bulk_write_register(dev, local_reg));
 
-  status = gl846_start_action (dev);
+    try {
+        status = gl846_start_action(dev);
+    } catch (...) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl846_stop_action(dev);
+        } catch (...) {}
+        try {
+            // restore original registers
+            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
+        } catch (...) {}
+        throw;
+    }
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
@@ -2016,7 +2028,19 @@ gl846_feed (Genesys_Device * dev, unsigned int steps)
   /* send registers */
   RIE (dev->model->cmd_set->bulk_write_register(dev, local_reg));
 
-  status = gl846_start_action (dev);
+    try {
+        status = gl846_start_action (dev);
+    } catch (...) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl846_stop_action(dev);
+        } catch (...) {}
+        try {
+            // restore original registers
+            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
+        } catch (...) {}
+        throw;
+    }
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
@@ -3225,9 +3249,14 @@ gl846_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
                    SCAN_FLAG_SINGLE_LINE |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    status = gl846_init_scan_regs(dev, sensor, &regs, params);
-
-    sanei_genesys_set_motor_power(regs, false);
+    try {
+        status = gl846_init_scan_regs(dev, sensor, &regs, params);
+    } catch (...) {
+        try {
+            sanei_genesys_set_motor_power(regs, false);
+        } catch (...) {}
+        throw;
+    }
 
   if (status != SANE_STATUS_GOOD)
     {

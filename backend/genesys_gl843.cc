@@ -1948,7 +1948,11 @@ gl843_detect_document_end (Genesys_Device * dev)
       DBG(DBG_io, "%s: read_bytes_left=%d\n", __func__, read_bytes_left);
 
       /* get lines read */
-      status = sanei_genesys_read_scancnt (dev, &scancnt);
+        try {
+            status = sanei_genesys_read_scancnt(dev, &scancnt);
+        } catch (...) {
+            flines = 0;
+        }
       if (status != SANE_STATUS_GOOD)
 	{
 	  flines = 0;
@@ -2330,7 +2334,19 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
   /* write to scanner and start action */
   RIE (dev->model->cmd_set->bulk_write_register(dev, local_reg));
   RIE(gl843_set_xpa_motor_power(dev, true));
-  status = gl843_start_action (dev);
+    try {
+        status = gl843_start_action (dev);
+    } catch (...) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl843_stop_action(dev);
+        } catch (...) {}
+        try {
+            // restore original registers
+            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
+        } catch (...) {}
+        throw;
+    }
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
@@ -2464,7 +2480,19 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   RIE (dev->model->cmd_set->bulk_write_register(dev, local_reg));
 
-  status = gl843_start_action (dev);
+    try {
+        status = gl843_start_action (dev);
+    } catch (...) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl843_stop_action(dev);
+        } catch (...) {}
+        try {
+            // restore original registers
+            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
+        } catch (...) {}
+        throw;
+    }
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
@@ -2747,7 +2775,19 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
   /* send registers */
   RIE (dev->model->cmd_set->bulk_write_register(dev, local_reg));
 
-  status = gl843_start_action (dev);
+    try {
+        status = gl843_start_action (dev);
+    } catch (...) {
+        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
+        try {
+            gl843_stop_action(dev);
+        } catch (...) {}
+        try {
+            // restore original registers
+            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
+        } catch (...) {}
+        throw;
+    }
   if (status != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
@@ -3554,7 +3594,15 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
     gl843_compute_session(dev, session, calib_sensor);
     pixels = session.output_pixels;
 
-    status = gl843_init_scan_regs(dev, calib_sensor, &regs, session);
+    try {
+        status = gl843_init_scan_regs(dev, calib_sensor, &regs, session);
+    } catch (...) {
+        try {
+            sanei_genesys_set_motor_power(regs, false);
+        } catch (...) {}
+        throw;
+    }
+
     sanei_genesys_set_motor_power(regs, false);
 
   if (status != SANE_STATUS_GOOD)

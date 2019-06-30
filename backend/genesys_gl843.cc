@@ -1106,7 +1106,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
       depth, ccd_size_divisor, flags);
 
   /* tgtime */
-  tgtime=1;
+  tgtime = exposure / 65536 + 1;
   DBG(DBG_io2, "%s: tgtime=%d\n", __func__, tgtime);
 
   /* to manage high resolution device while keeping good

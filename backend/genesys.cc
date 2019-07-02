@@ -3154,6 +3154,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
   /* do offset calibration if needed */
   if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
     {
+      sanei_usb_testing_record_message("offset_calibration");
       status = dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -3162,6 +3163,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 	}
 
       /* since all the registers are set up correctly, just use them */
+      sanei_usb_testing_record_message("coarse_gain_calibration");
       status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, yres);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -3174,6 +3176,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
     /* since we have 2 gain calibration proc, skip second if first one was
        used. */
     {
+      sanei_usb_testing_record_message("init_regs_for_coarse_calibration");
       status = dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -3182,6 +3185,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 	  return status;
 	}
 
+      sanei_usb_testing_record_message("genesys_coarse_calibration");
       status = genesys_coarse_calibration(dev, sensor);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -3195,6 +3199,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
   if (dev->model->is_cis)
     {
       /* the afe now sends valid data for doing led calibration */
+      sanei_usb_testing_record_message("led_calibration");
       status = dev->model->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -3205,6 +3210,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
       /* calibrate afe again to match new exposure */
       if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
 	{
+          sanei_usb_testing_record_message("offset_calibration");
           status = dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -3214,6 +3220,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 
 	  /* since all the registers are set up correctly, just use them */
 
+          sanei_usb_testing_record_message("coarse_gain_calibration");
           status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, yres);
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -3225,6 +3232,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 	/* since we have 2 gain calibration proc, skip second if first one was
 	   used. */
 	{
+          sanei_usb_testing_record_message("init_regs_for_coarse_calibration");
           status = dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor,
                                                                          dev->calib_reg);
 	  if (status != SANE_STATUS_GOOD)
@@ -3234,6 +3242,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 	      return status;
 	    }
 
+          sanei_usb_testing_record_message("genesys_coarse_calibration");
           status = genesys_coarse_calibration(dev, sensor);
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -3255,6 +3264,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
     }
 
   /* send default shading data */
+  sanei_usb_testing_record_message("sanei_genesys_init_shading_data");
   status = sanei_genesys_init_shading_data(dev, sensor, pixels_per_line);
   if (status != SANE_STATUS_GOOD)
     {
@@ -3267,6 +3277,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
   }
 
   /* shading calibration */
+  sanei_usb_testing_record_message("init_regs_for_shading");
   status = dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
   if (status != SANE_STATUS_GOOD)
     {
@@ -3277,6 +3288,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 
   if (dev->model->flags & GENESYS_FLAG_DARK_WHITE_CALIBRATION)
     {
+      sanei_usb_testing_record_message("genesys_dark_white_shading_calibration");
       status = genesys_dark_white_shading_calibration (dev, sensor);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -3289,6 +3301,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
     {
       if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)
 	{
+          sanei_usb_testing_record_message("genesys_dark_shading_calibration");
           status = genesys_dark_shading_calibration(dev, sensor);
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -3298,6 +3311,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 	    }
 	}
 
+      sanei_usb_testing_record_message("genesys_white_shading_calibration");
       status = genesys_white_shading_calibration (dev, sensor);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -3309,6 +3323,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 
   if(dev->model->cmd_set->send_shading_data==NULL)
     {
+      sanei_usb_testing_record_message("genesys_send_shading_coefficient");
       status = genesys_send_shading_coefficient(dev, sensor);
       if (status != SANE_STATUS_GOOD)
         {

@@ -1958,6 +1958,23 @@ genesys_dummy_dark_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
 }
 
 
+static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
+{
+    if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK) {
+        // rewind keeps registers and slopes table intact from previous scan but is not
+        // available on all supported chipsets (or may cause scan artifacts, see #7)
+        if (dev->model->cmd_set->rewind) {
+            TIE(dev->model->cmd_set->rewind(dev));
+        } else {
+            TIE(dev->model->cmd_set->slow_back_home(dev, SANE_TRUE));
+        }
+
+        if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
+            dev->model->cmd_set->move_to_ta(dev);
+        }
+    }
+}
+
 static SANE_Status
 genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
@@ -1998,21 +2015,6 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
     // turn on motor and lamp power
     sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
     sanei_genesys_set_motor_power(dev->calib_reg, motor);
-
-  /* if needed, go back before doing next scan */
-  if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK)
-    {
-      /* rewind keeps registers and slopes table intact from previous
-         scan but is not available on all supported chipsets (or may
-         cause scan artifacts, see #7) */
-      status = (dev->model->cmd_set->rewind
-                ? dev->model->cmd_set->rewind (dev)
-                : dev->model->cmd_set->slow_back_home (dev, SANE_TRUE));
-      if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
-        {
-          dev->model->cmd_set->move_to_ta(dev);
-        }
-    }
 
   status =
     dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
@@ -3299,6 +3301,9 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
     }
   else
     {
+      DBG(DBG_proc, "%s : genesys_dark_shading_calibration dev->calib_reg ", __func__);
+      debug_dump(DBG_proc, dev->calib_reg);
+
       if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)
 	{
           sanei_usb_testing_record_message("genesys_dark_shading_calibration");
@@ -3310,6 +3315,8 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
               return status;
 	    }
 	}
+
+      genesys_repark_sensor_before_shading(dev);
 
       sanei_usb_testing_record_message("init_regs_for_shading2");
       RIE(dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg));
@@ -3503,6 +3510,8 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
         dev->model->cmd_set->eject_document (dev);
         throw;
     }
+
+  genesys_repark_sensor_before_shading(dev);
 
   status = dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
   if (status != SANE_STATUS_GOOD)

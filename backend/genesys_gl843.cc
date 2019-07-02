@@ -3574,7 +3574,6 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   int total_size;
   int i, j, channels;
   SANE_Status status = SANE_STATUS_GOOD;
-  int max[3];
   float coeff;
   int val, lines;
   int resolution;
@@ -3671,7 +3670,7 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   /* average value on each channel */
   for (j = 0; j < channels; j++)
     {
-      max[j] = 0;
+      std::vector<uint16_t> values;
       // FIXME: start from the second line because the first line often has artifacts. Probably
       // caused by unclean cleanup of previous scans
       for (i = pixels/4 + pixels; i < (pixels*3/4) + pixels; i++)
@@ -3695,9 +3694,16 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 	    val = line[i * channels + j];
             }
 
-	    max[j] += val;
+            values.push_back(val);
 	}
-      max[j] = max[j] / (pixels/2);
+
+        // pick target value at 95th percentile of all values. There may be a lot of black values
+        // in transparency scans for example
+        std::sort(values.begin(), values.end());
+        uint16_t target_value = values[unsigned((values.size() - 1) * 0.95)];
+        if (bpp == 16) {
+            target_value /= 256;
+        }
 
       /*  the flow of data through the frontend ADC is as follows (see e.g. VM8192 datasheet)
           input
@@ -3718,7 +3724,7 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
           {PGA} = 283 * (1 - {output} / {target output})
       */
-      float gain = ((float) max[j] / (calib_sensor.gain_white_ref*coeff));
+      float gain = ((float) target_value / (calib_sensor.gain_white_ref*coeff));
       int code = 283 * (1 - gain);
       if (code > 255)
 	code = 255;
@@ -3726,8 +3732,8 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 	code = 0;
       dev->frontend.set_gain(j, code);
 
-      DBG(DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__, j, max[j], gain,
-          code);
+      DBG(DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__, j, target_value,
+          gain, code);
     }
 
     if (dev->model->is_cis) {

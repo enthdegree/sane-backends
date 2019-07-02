@@ -3311,6 +3311,9 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 	    }
 	}
 
+      sanei_usb_testing_record_message("init_regs_for_shading2");
+      RIE(dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg));
+
       sanei_usb_testing_record_message("genesys_white_shading_calibration");
       status = genesys_white_shading_calibration (dev, sensor);
       if (status != SANE_STATUS_GOOD)

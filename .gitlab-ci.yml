@@ -94,11 +94,15 @@ compile:alpine-3.10-musl:
   <<: *compile_definition
 
 archive:
+  image: $REGISTRY_HUB:debian-9-full
   stage: archive
   dependencies:
   - compile:debian-9-full
   script:
-  - /bin/true
+  - tar xzf sane-backends-*.tar.gz --strip-components=1
+  - rm sane-backends-*.tar.gz
+  - ./configure
+  - make distcheck
   artifacts:
     paths:
     - sane-backends-*.tar.gz

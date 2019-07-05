@@ -1,0 +1,129 @@
+/* sane - Scanner Access Now Easy.
+
+   Copyright (C) 2019 Povilas Kanapickas <povilas@radix.lt>
+
+   This file is part of the SANE package.
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2 of the
+   License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+   MA 02111-1307, USA.
+
+   As a special exception, the authors of SANE give permission for
+   additional uses of the libraries contained in this release of SANE.
+
+   The exception is that, if you link a SANE library with other files
+   to produce an executable, this does not by itself cause the
+   resulting executable to be covered by the GNU General Public
+   License.  Your use of that executable is in no way restricted on
+   account of linking the SANE library code into it.
+
+   This exception does not, however, invalidate any other reasons why
+   the executable file might be covered by the GNU General Public
+   License.
+
+   If you submit changes to SANE to the maintainers to be included in
+   a subsequent release, you agree by submitting the changes that
+   those changes may be distributed with this exception intact.
+
+   If you write modifications of your own for SANE, it is your choice
+   whether to permit this exception to apply to your modifications.
+   If you do not wish that, delete this exception notice.
+*/
+
+#ifndef BACKEND_GENESYS_ERROR_H
+#define BACKEND_GENESYS_ERROR_H
+
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_backend.h"
+
+#include <stdexcept>
+#include <cstring>
+#include <string>
+
+#define DBG_error0      0	/* errors/warnings printed even with devuglevel 0 */
+#define DBG_error       1	/* fatal errors */
+#define DBG_init        2	/* initialization and scanning time messages */
+#define DBG_warn        3	/* warnings and non-fatal errors */
+#define DBG_info        4	/* informational messages */
+#define DBG_proc        5	/* starting/finishing functions */
+#define DBG_io          6	/* io functions */
+#define DBG_io2         7	/* io functions that are called very often */
+#define DBG_data        8	/* log image data */
+
+class SaneException : std::exception {
+public:
+    SaneException(SANE_Status status) : status_(status)
+    {
+        set_msg(nullptr);
+    }
+
+    SaneException(SANE_Status status, const char* msg) : status_(status)
+    {
+        set_msg(msg);
+    }
+
+    SaneException(const char* msg) : SaneException(SANE_STATUS_INVAL, msg) {}
+
+    SANE_Status status() const { return status_; }
+    virtual const char* what() const noexcept override { return msg_.c_str(); }
+
+private:
+
+    void set_msg(const char* msg)
+    {
+        const char* status_msg = sane_strstatus(status_);
+        std::size_t status_msg_len = std::strlen(status_msg);
+
+        if (msg) {
+            std::size_t msg_len = std::strlen(msg);
+            msg_.reserve(msg_len + status_msg_len + 3);
+            msg_ = msg;
+            msg_ += " : ";
+            msg_ += status_msg;
+            return;
+        }
+
+        msg_.reserve(status_msg_len);
+        msg_ = status_msg;
+    }
+
+    std::string msg_;
+    SANE_Status status_;
+};
+
+/**
+ * call a function and return on error
+ */
+#define RIE(function)                                   \
+  do { status = function;                               \
+    if (status != SANE_STATUS_GOOD) \
+      { \
+        DBG(DBG_error, "%s: %s\n", __func__, sane_strstatus (status)); \
+        return status; \
+      }	\
+  } while (SANE_FALSE)
+
+// call a function and throw an exception on error
+#define TIE(function)                                                                              \
+    do {                                                                                           \
+        SANE_Status tmp_status = function;                                                         \
+        if (tmp_status != SANE_STATUS_GOOD) {                                                      \
+            throw SaneException(tmp_status);                                                       \
+        }                                                                                          \
+    } while (false)
+
+#define DBGSTART DBG (DBG_proc, "%s start\n", __func__);
+#define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __func__);
+
+#endif // BACKEND_GENESYS_ERROR_H

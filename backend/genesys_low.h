@@ -81,6 +81,8 @@
 
 #include "../include/_stdint.h"
 
+#include "genesys_error.h"
+
 #include <algorithm>
 #include <array>
 #include <cstring>
@@ -91,81 +93,6 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-
-#define DBG_error0      0	/* errors/warnings printed even with devuglevel 0 */
-#define DBG_error       1	/* fatal errors */
-#define DBG_init        2	/* initialization and scanning time messages */
-#define DBG_warn        3	/* warnings and non-fatal errors */
-#define DBG_info        4	/* informational messages */
-#define DBG_proc        5	/* starting/finishing functions */
-#define DBG_io          6	/* io functions */
-#define DBG_io2         7	/* io functions that are called very often */
-#define DBG_data        8	/* log image data */
-
-class SaneException : std::exception {
-public:
-    SaneException(SANE_Status status) : status_(status)
-    {
-        set_msg(nullptr);
-    }
-
-    SaneException(SANE_Status status, const char* msg) : status_(status)
-    {
-        set_msg(msg);
-    }
-
-    SaneException(const char* msg) : SaneException(SANE_STATUS_INVAL, msg) {}
-
-    SANE_Status status() const { return status_; }
-    virtual const char* what() const noexcept override { return msg_.c_str(); }
-
-private:
-
-    void set_msg(const char* msg)
-    {
-        const char* status_msg = sane_strstatus(status_);
-        std::size_t status_msg_len = std::strlen(status_msg);
-
-        if (msg) {
-            std::size_t msg_len = std::strlen(msg);
-            msg_.reserve(msg_len + status_msg_len + 3);
-            msg_ = msg;
-            msg_ += " : ";
-            msg_ += status_msg;
-            return;
-        }
-
-        msg_.reserve(status_msg_len);
-        msg_ = status_msg;
-    }
-
-    std::string msg_;
-    SANE_Status status_;
-};
-
-/**
- * call a function and return on error
- */
-#define RIE(function)                                   \
-  do { status = function;                               \
-    if (status != SANE_STATUS_GOOD) \
-      { \
-        DBG(DBG_error, "%s: %s\n", __func__, sane_strstatus (status)); \
-	return status; \
-      }	\
-  } while (SANE_FALSE)
-
-// call a function and throw an exception on error
-#define TIE(function)                                                                              \
-    do {                                                                                           \
-        SANE_Status tmp_status = function;                                                         \
-        if (tmp_status != SANE_STATUS_GOOD) {                                                      \
-            throw SaneException(tmp_status);                                                       \
-        }                                                                                          \
-    } while (false)
-
-#define DBGSTART DBG (DBG_proc, "%s start\n", __func__);
-#define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __func__);
 
 #define FREE_IFNOT_NULL(x)		if(x!=NULL) { free(x); x=NULL;}
 

@@ -1812,63 +1812,6 @@ extern void sanei_genesys_usleep(unsigned int useconds);
 // same as sanei_genesys_usleep just that the duration is in milliseconds
 extern void sanei_genesys_sleep_ms(unsigned int milliseconds);
 
-class DebugMessageHelper {
-public:
-    DebugMessageHelper(const char* func);
-    ~DebugMessageHelper();
-
-    void status(const char* status) { status_ = status; }
-    void clear() { status_ = nullptr; }
-
-private:
-    const char* func_ = nullptr;
-    const char* status_ = nullptr;
-    unsigned num_exceptions_on_enter_ = 0;
-};
-
-#define DBG_HELPER(var) DebugMessageHelper var(__func__)
-
-template<class F>
-SANE_Status wrap_exceptions_to_status_code(const char* func, F&& function)
-{
-    try {
-        return function();
-    } catch (const SaneException& exc) {
-        return exc.status();
-    } catch (const std::bad_alloc& exc) {
-        return SANE_STATUS_NO_MEM;
-    } catch (const std::exception& exc) {
-        DBG(DBG_error, "%s: got uncaught exception: %s\n", func, exc.what());
-        return SANE_STATUS_INVAL;
-    } catch (...) {
-        DBG(DBG_error, "%s: got unknown uncaught exception\n", func);
-        return SANE_STATUS_INVAL;
-    }
-}
-
-template<class F>
-void catch_all_exceptions(const char* func, F&& function)
-{
-    try {
-        function();
-    } catch (const SaneException& exc) {
-        DBG(DBG_error, "%s: got exception: %s\n", func, exc.what());
-    } catch (const std::bad_alloc& exc) {
-        DBG(DBG_error, "%s: got exception: could not allocate memory: %s\n", func, exc.what());
-    } catch (const std::exception& exc) {
-        DBG(DBG_error, "%s: got uncaught exception: %s\n", func, exc.what());
-    } catch (...) {
-        DBG(DBG_error, "%s: got unknown uncaught exception\n", func);
-    }
-}
-
-inline void wrap_status_code_to_exception(SANE_Status status)
-{
-    if (status == SANE_STATUS_GOOD)
-        return;
-    throw SaneException(status);
-}
-
 void add_function_to_run_at_backend_exit(std::function<void()> function);
 
 // calls functions added via add_function_to_run_at_backend_exit() in reverse order of being

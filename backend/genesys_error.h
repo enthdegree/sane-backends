@@ -44,6 +44,7 @@
 #ifndef BACKEND_GENESYS_ERROR_H
 #define BACKEND_GENESYS_ERROR_H
 
+#include "../include/sane/config.h"
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei_backend.h"
 
@@ -125,5 +126,62 @@ private:
 
 #define DBGSTART DBG (DBG_proc, "%s start\n", __func__);
 #define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __func__);
+
+class DebugMessageHelper {
+public:
+    DebugMessageHelper(const char* func);
+    ~DebugMessageHelper();
+
+    void status(const char* status) { status_ = status; }
+    void clear() { status_ = nullptr; }
+
+private:
+    const char* func_ = nullptr;
+    const char* status_ = nullptr;
+    unsigned num_exceptions_on_enter_ = 0;
+};
+
+#define DBG_HELPER(var) DebugMessageHelper var(__func__)
+
+template<class F>
+SANE_Status wrap_exceptions_to_status_code(const char* func, F&& function)
+{
+    try {
+        return function();
+    } catch (const SaneException& exc) {
+        return exc.status();
+    } catch (const std::bad_alloc& exc) {
+        return SANE_STATUS_NO_MEM;
+    } catch (const std::exception& exc) {
+        DBG(DBG_error, "%s: got uncaught exception: %s\n", func, exc.what());
+        return SANE_STATUS_INVAL;
+    } catch (...) {
+        DBG(DBG_error, "%s: got unknown uncaught exception\n", func);
+        return SANE_STATUS_INVAL;
+    }
+}
+
+template<class F>
+void catch_all_exceptions(const char* func, F&& function)
+{
+    try {
+        function();
+    } catch (const SaneException& exc) {
+        DBG(DBG_error, "%s: got exception: %s\n", func, exc.what());
+    } catch (const std::bad_alloc& exc) {
+        DBG(DBG_error, "%s: got exception: could not allocate memory: %s\n", func, exc.what());
+    } catch (const std::exception& exc) {
+        DBG(DBG_error, "%s: got uncaught exception: %s\n", func, exc.what());
+    } catch (...) {
+        DBG(DBG_error, "%s: got unknown uncaught exception\n", func);
+    }
+}
+
+inline void wrap_status_code_to_exception(SANE_Status status)
+{
+    if (status == SANE_STATUS_GOOD)
+        return;
+    throw SaneException(status);
+}
 
 #endif // BACKEND_GENESYS_ERROR_H

@@ -430,7 +430,7 @@ static SANE_Status
 gl846_send_slope_table (Genesys_Device * dev, int table_nr,
                         uint16_t * slope_table, int steps)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int i;
   char msg[10000];
 
@@ -560,7 +560,7 @@ static SANE_Status
 gl846_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
 {
     (void) sensor;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s (%s)\n", __func__, set == AFE_INIT ? "init" : set == AFE_SET ? "set" :
       set == AFE_POWER_SAVE ? "powersave" : "huh?");
@@ -597,7 +597,7 @@ gl846_init_motor_regs_scan (Genesys_Device * dev,
                             int scan_power_mode,
                             unsigned int flags)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int use_fast_fed;
   unsigned int fast_dpi;
   uint16_t scan_table[SLOPE_TABLE_SIZE];
@@ -859,7 +859,7 @@ gl846_init_optical_regs_scan (Genesys_Device * dev,
   unsigned int dpiset, dpihw,segnb,cksel,factor;
   unsigned int bytes;
   GenesysRegister *r;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s :  exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
       "half_ccd=%d, flags=%x\n", __func__, exposure_time, used_res, start, pixels, channels, depth,
@@ -1120,7 +1120,7 @@ gl846_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
 
   SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, params);
@@ -1488,7 +1488,7 @@ gl846_start_action (Genesys_Device * dev)
 static SANE_Status
 gl846_stop_action (Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val40, val;
   unsigned int loop;
 
@@ -1568,7 +1568,7 @@ gl846_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
                   SANE_Bool start_motor)
 {
     (void) sensor;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   GenesysRegister *r;
 
@@ -1611,7 +1611,7 @@ static SANE_Status
 gl846_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
                 SANE_Bool check_stop)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s (check_stop = %d)\n", __func__, check_stop);
   if (reg == NULL)
@@ -1640,7 +1640,7 @@ static SANE_Status
 gl846_slow_back_home (Genesys_Device * dev,  SANE_Bool wait_until_home)
 {
   Genesys_Register_Set local_reg;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   float resolution;
   uint8_t val;
@@ -1797,7 +1797,7 @@ static SANE_Status
 gl846_search_start_position (Genesys_Device * dev)
 {
   int size;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set local_reg;
   int steps;
 
@@ -1909,7 +1909,7 @@ static SANE_Status
 gl846_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
                                        Genesys_Register_Set& regs)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t channels;
   uint8_t cksel;
 
@@ -1972,7 +1972,7 @@ static SANE_Status
 gl846_feed (Genesys_Device * dev, unsigned int steps)
 {
   Genesys_Register_Set local_reg;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   float resolution;
   uint8_t val;
@@ -2072,7 +2072,7 @@ static SANE_Status
 gl846_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
                             Genesys_Register_Set& regs)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   float move;
 
   DBGSTART;
@@ -2149,7 +2149,7 @@ gl846_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   int move_dpi;
   float start;
 
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
@@ -2619,7 +2619,7 @@ gl846_init_memory_layout (Genesys_Device * dev)
 static SANE_Status
 gl846_boot (Genesys_Device * dev, SANE_Bool cold)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
   DBGSTART;
@@ -2691,7 +2691,7 @@ gl846_boot (Genesys_Device * dev, SANE_Bool cold)
  */
 static SANE_Status gl846_init(Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG_INIT ();
   DBGSTART;
@@ -2743,7 +2743,7 @@ gl846_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
                    SANE_Bool forward, SANE_Bool black)
 {
   unsigned int pixels, lines, channels;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set local_reg;
   size_t size;
   int steps, depth, dpi;

@@ -61,6 +61,7 @@
 #define DEBUG_NOT_STATIC
 
 #include "genesys.h"
+#include "genesys_sanei.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_magic.h"
 #include "genesys_devices.cc"
@@ -944,7 +945,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, const Genesys_Sensor& sen
 {
   int dpihw;
   int start_address;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s: (size = %d)\n", __func__, size);
 
@@ -1019,7 +1020,7 @@ SANE_Status
 sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
                                  int pixels_per_line)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int channels;
   int i;
 
@@ -1446,7 +1447,7 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
   int black_pixels;
   int white_average;
   int channels;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t offset[4] = { 0xa0, 0x00, 0xa0, 0x40 };	/* first value isn't used */
   uint16_t white[12], dark[12];
   int i, j;
@@ -1758,7 +1759,7 @@ genesys_average_data (uint8_t * average_data,
 static SANE_Status
 genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   size_t size;
   uint32_t pixels_per_line;
   uint8_t channels;
@@ -1958,7 +1959,7 @@ genesys_dummy_dark_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
 static SANE_Status
 genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   size_t size;
   uint32_t pixels_per_line;
   uint8_t channels;
@@ -2087,7 +2088,7 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
 static SANE_Status
 genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   size_t size;
   uint32_t pixels_per_line;
   uint8_t *average_white, *average_dark;
@@ -2736,7 +2737,7 @@ compute_shifted_coefficients (Genesys_Device * dev,
 static SANE_Status
 genesys_send_shading_coefficient(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint32_t pixels_per_line;
   uint8_t channels;
   int o;
@@ -3133,7 +3134,7 @@ genesys_save_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 static SANE_Status
 genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint32_t pixels_per_line;
   int yres;
 
@@ -3566,7 +3567,7 @@ static SANE_Status
 genesys_wait_not_moving (Genesys_Device * dev, int mseconds)
 {
   uint8_t value;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s: waiting %d mseconds for motor to stop\n", __func__, mseconds);
   while (mseconds > 0)
@@ -3735,7 +3736,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
 static SANE_Status
 genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   unsigned int steps, expected;
   SANE_Bool empty;
 
@@ -4068,7 +4069,7 @@ static SANE_Status accurate_line_read(Genesys_Device * dev,
 {
     buffer.reset();
 
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   status = dev->model->cmd_set->bulk_read_data(dev, 0x45, buffer.get_write_pos(buffer.size()),
                                                buffer.size());
   if (status != SANE_STATUS_GOOD)
@@ -4092,7 +4093,7 @@ static SANE_Status
 genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, size_t size)
 {
   size_t count;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
       /* fill buffer if needed */
       if (dev->oe_buffer.avail() == 0)
@@ -4156,7 +4157,7 @@ static SANE_Status
 genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, size_t size)
 {
   size_t count;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int depth,i,n,k;
 
   depth = dev->settings.depth;
@@ -4254,7 +4255,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 {
   size_t size;
   size_t space;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t *work_buffer_dst;
 
   DBGSTART;
@@ -4348,7 +4349,7 @@ static SANE_Status
 genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
 			   size_t * len)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   size_t bytes, extra;
   unsigned int channels, depth, src_pixels;
   unsigned int ccd_shift[12], shift_count;
@@ -5180,7 +5181,7 @@ static SANE_Status
 init_options (Genesys_Scanner * s)
 {
   SANE_Int option, count, min_dpi;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word *dpi_list;
   Genesys_Model *model = s->dev->model;
   SANE_Range *x_range, *y_range;
@@ -5792,9 +5793,9 @@ check_present (SANE_String_Const devname) noexcept
 static SANE_Status
 attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 {
+    DBG_HELPER(dbg);
+
   Genesys_Device *dev = 0;
-  SANE_Int dn, vendor, product;
-  SANE_Status status;
   unsigned int i;
 
 
@@ -5820,23 +5821,13 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 
   DBG(DBG_info, "%s: trying to open device `%s'\n", __func__, devname);
 
-  status = sanei_usb_open (devname, &dn);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_warn, "%s: couldn't open device `%s': %s\n", __func__, devname,
-	   sane_strstatus (status));
-      return status;
-    }
-  else
+    UsbDevice usb_dev;
+
+    usb_dev.open(devname);
     DBG(DBG_info, "%s: device `%s' successfully opened\n", __func__, devname);
 
-  status = sanei_usb_get_vendor_product (dn, &vendor, &product);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: couldn't get vendor and product ids of device `%s': %s\n", __func__,
-          devname, sane_strstatus (status));
-      return status;
-    }
+    int vendor, product;
+    usb_dev.get_vendor_product(vendor, product);
 
   /* KV-SS080 is an auxiliary device which requires a master device to be here */
   if(vendor == 0x04da && product == 0x100f)
@@ -5845,10 +5836,8 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
       sanei_usb_find_devices (vendor, 0x1006, check_present);
       sanei_usb_find_devices (vendor, 0x1007, check_present);
       sanei_usb_find_devices (vendor, 0x1010, check_present);
-      if(present==SANE_FALSE)
-        {
-          DBG(DBG_error, "%s: master device not present\n", __func__);
-          return SANE_STATUS_INVAL;
+        if (present == SANE_FALSE) {
+            throw SaneException("master device not present");
         }
     }
 
@@ -5874,7 +5863,7 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
         return SANE_STATUS_NO_MEM;
     }
 
-    s_devices->push_back(Genesys_Device());
+    s_devices->emplace_back();
     dev = &s_devices->back();
     dev->file_name = new_devname;
 
@@ -5887,18 +5876,19 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
   DBG(DBG_info, "%s: found %s flatbed scanner %s at %s\n", __func__, dev->model->vendor,
       dev->model->model, dev->file_name);
 
-  if (devp)
-    *devp = dev;
-  sanei_usb_close (dn);
-  DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
+    if (devp) {
+        *devp = dev;
+    }
+
+    usb_dev.close();
+    return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
 attach_one_device_impl(SANE_String_Const devname)
 {
   Genesys_Device *dev;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   RIE (attach (devname, &dev, SANE_FALSE));
 
@@ -5932,7 +5922,7 @@ static SANE_Status
 probe_genesys_devices (void)
 {
   SANEI_Config config;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBGSTART;
 
@@ -6213,7 +6203,7 @@ genesys_buffer_image(Genesys_Scanner *s)
 SANE_Status
 sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG_INIT ();
   DBG(DBG_init, "SANE Genesys backend version %d.%d from %s\n",
@@ -6336,11 +6326,12 @@ SANE_Status sane_get_devices(const SANE_Device *** device_list, SANE_Bool local_
 SANE_Status
 sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 {
+    DBG_HELPER(dbg);
   Genesys_Device *dev = nullptr;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   char *tmpstr;
 
-  DBG(DBG_proc, "%s: start (devicename = `%s')\n", __func__, devicename);
+    DBG(DBG_proc, "%s: devicename = `%s')\n", __func__, devicename);
 
   /* devicename="" or devicename="genesys" are default values that use
    * first available device
@@ -6386,13 +6377,9 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
       DBG(DBG_error0, "         scanner and what does (not) work.\n");
     }
 
-  status = sanei_usb_open (dev->file_name, &dev->dn);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_warn, "%s: couldn't open device `%s': %s\n", __func__, dev->file_name,
-          sane_strstatus(status));
-      return status;
-    }
+    dbg.vstatus("open device '%s'", dev->file_name);
+    dev->usb_dev.open(dev->file_name);
+    dbg.clear();
 
 
   s_scanners->push_back(Genesys_Scanner());
@@ -6442,8 +6429,7 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
       sanei_genesys_read_calibration (s->dev);
     }
 
-  DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
+    return SANE_STATUS_GOOD;
 }
 
 SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle* handle)
@@ -6457,7 +6443,7 @@ SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle* handle)
 void
 sane_close_impl(SANE_Handle handle)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBGSTART;
 
@@ -6522,15 +6508,13 @@ sane_close_impl(SANE_Handle handle)
   /* LAMP OFF : same register across all the ASICs */
   sanei_genesys_write_register (s->dev, 0x03, 0x00);
 
-  /* clear before closing */
-  sanei_usb_clear_halt (s->dev->dn);
+    catch_all_exceptions(__func__, [&](){ s->dev->usb_dev.clear_halt(); });
 
-  /* we need this to avoid these ASIC getting stuck
-   * in bulk writes */
-  sanei_usb_reset (s->dev->dn);
+    // we need this to avoid these ASIC getting stuck in bulk writes
+    catch_all_exceptions(__func__, [&](){ s->dev->usb_dev.reset(); });
 
-  sanei_usb_close (s->dev->dn);
-  // not freeing s->dev because it's in the dev list
+    // not freeing s->dev because it's in the dev list
+    catch_all_exceptions(__func__, [&](){ s->dev->usb_dev.close(); });
 
   s_scanners->erase(it);
 
@@ -7250,7 +7234,7 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option,
 SANE_Status sane_get_parameters_impl(SANE_Handle handle, SANE_Parameters* params)
 {
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBGSTART;
 

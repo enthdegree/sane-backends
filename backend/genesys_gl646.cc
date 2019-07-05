@@ -57,35 +57,28 @@
 /**
  * reads value from gpio endpoint
  */
-static SANE_Status
-gl646_gpio_read (SANE_Int dn, uint8_t * value)
+static void gl646_gpio_read(UsbDevice& usb_dev, uint8_t* value)
 {
-  return sanei_usb_control_msg (dn, REQUEST_TYPE_IN,
-				REQUEST_REGISTER, GPIO_READ, INDEX, 1, value);
+    DBG_HELPER(dbg);
+    usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER, GPIO_READ, INDEX, 1, value);
 }
 
 /**
  * writes the given value to gpio endpoint
  */
-static SANE_Status
-gl646_gpio_write (SANE_Int dn, uint8_t value)
+static void gl646_gpio_write(UsbDevice& usb_dev, uint8_t value)
 {
-  DBG(DBG_proc, "%s(0x%02x)\n", __func__, value);
-  return sanei_usb_control_msg (dn, REQUEST_TYPE_OUT,
-				REQUEST_REGISTER, GPIO_WRITE,
-				INDEX, 1, &value);
+    DBG_HELPER_ARGS(dbg, "(0x%02x)", value);
+    usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, GPIO_WRITE, INDEX, 1, &value);
 }
 
 /**
  * writes the given value to gpio output enable endpoint
  */
-static SANE_Status
-gl646_gpio_output_enable (SANE_Int dn, uint8_t value)
+static void gl646_gpio_output_enable(UsbDevice& usb_dev, uint8_t value)
 {
-  DBG(DBG_proc, "%s(0x%02x)\n", __func__, value);
-  return sanei_usb_control_msg (dn, REQUEST_TYPE_OUT,
-				REQUEST_REGISTER, GPIO_OUTPUT_ENABLE,
-				INDEX, 1, &value);
+    DBG_HELPER_ARGS(dbg, "(0x%02x)", value);
+    usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, GPIO_OUTPUT_ENABLE, INDEX, 1, &value);
 }
 
 /* Read bulk data (e.g. scanned data) */
@@ -1046,7 +1039,7 @@ gl646_setup_sensor (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_
 static SANE_Status
 gl646_asic_test (Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   size_t size, verify_size;
   unsigned int i;
@@ -1354,7 +1347,7 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
 {
   int dpihw;
   int start_address;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s (table_nr = %d, steps = %d)=%d .. %d\n", __func__, table_nr, steps,
       slope_table[0], slope_table[steps - 1]);
@@ -1501,12 +1494,7 @@ gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set,
 	  DBG(DBG_error, "%s: writing reg2 failed: %s\n", __func__, sane_strstatus(status));
 	  return status;
 	}
-      status = gl646_gpio_output_enable (dev->dn, 0x07);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to enable GPIO: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        gl646_gpio_output_enable(dev->usb_dev, 0x07);
       break;
     case AFE_POWER_SAVE:
       status = sanei_genesys_fe_write_data (dev, 0x01, 0x06);
@@ -1586,7 +1574,7 @@ gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set,
 static SANE_Status
 gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, int dpi)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int i;
   uint8_t val;
 
@@ -1635,12 +1623,7 @@ gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, in
       if (dev->model->ccd_type == CCD_HP2300)
 	{
 	  val = 0x07;
-	  status = gl646_gpio_output_enable (dev->dn, val);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to enable GPIO: %s\n", __func__, sane_strstatus(status));
-	      return status;
-	    }
+            gl646_gpio_output_enable(dev->usb_dev, val);
 	}
       return status;
     }
@@ -1912,13 +1895,8 @@ gl646_load_document (Genesys_Device * dev)
       count = 0;
       do
 	{
-	  status = gl646_gpio_read (dev->dn, &val);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to read paper sensor %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
+            gl646_gpio_read(dev->usb_dev, &val);
+
 	  DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, val);
 	  if ((val & 0x04) != 0x04)
 	    {
@@ -2048,7 +2026,7 @@ gl646_detect_document_end (Genesys_Device * dev)
     {
       print_status (val);
     }
-  status = gl646_gpio_read (dev->dn, &gpio);
+    gl646_gpio_read(dev->usb_dev, &gpio);
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
 
   /* detect document event. There one event when the document go in,
@@ -2121,13 +2099,9 @@ gl646_eject_document (Genesys_Device * dev)
   /* at the end there will be noe more document */
   dev->document = SANE_FALSE;
 
-  /* first check for document event */
-  status = gl646_gpio_read (dev->dn, &gpio);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read paper sensor %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // first check for document event
+    gl646_gpio_read(dev->usb_dev, &gpio);
+
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
 
   /* test status : paper event + HOMESNR -> no more doc ? */
@@ -2244,13 +2218,9 @@ gl646_eject_document (Genesys_Device * dev)
     }
   while (((state & REG41_HOMESNR) == 0) && (count < 150));
 
-  /* read GPIO on exit */
-  status = gl646_gpio_read (dev->dn, &gpio);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read paper sensor %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // read GPIO on exit
+    gl646_gpio_read(dev->usb_dev, &gpio);
+
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
 
   DBG(DBG_proc, "%s: end\n", __func__);
@@ -2263,7 +2233,7 @@ gl646_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
 		  SANE_Bool start_motor)
 {
     (void) sensor;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   // FIXME: SEQUENTIAL not really needed in this case
   Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
 
@@ -2430,7 +2400,7 @@ static
 SANE_Status
 gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
   uint8_t val;
   int i;
@@ -2605,7 +2575,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 static SANE_Status
 gl646_search_start_position (Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
   unsigned int resolution, x, y;
 
@@ -2826,7 +2796,7 @@ static bool gl646_needs_home_before_init_regs_for_scan(Genesys_Device* dev)
 static SANE_Status
 gl646_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBGSTART;
 
@@ -2981,7 +2951,7 @@ gl646_send_gamma_table (Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
   int size;
   int address;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int bits;
 
   DBGSTART;
@@ -3869,7 +3839,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
 static SANE_Status
 gl646_repark_head (Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
   unsigned int expected, steps;
 
@@ -3947,7 +3917,7 @@ gl646_repark_head (Genesys_Device * dev)
 static SANE_Status
 gl646_init (Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   struct timeval tv;
   uint8_t cold = 0, val = 0;
   uint32_t addr = 0xdead;
@@ -3998,10 +3968,9 @@ gl646_init (Genesys_Device * dev)
   if (cold)
     {
       DBG(DBG_info, "%s: device is cold\n", __func__);
-      val = 0x04;
-      RIE (sanei_usb_control_msg
-	   (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_INIT,
-	    INDEX, 1, &val));
+
+        val = 0x04;
+        dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_INIT, INDEX, 1, &val);
 
       /* ASIC reset */
       RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
@@ -4038,31 +4007,15 @@ gl646_init (Genesys_Device * dev)
       sanei_genesys_write_register (dev, 0x68, dev->gpo.enable[0]);
       sanei_genesys_write_register (dev, 0x69, dev->gpo.enable[1]);
 
-      /* enable GPIO */
-      val = 6;
-      status = gl646_gpio_output_enable (dev->dn, val);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: GPO enable failed ... %s\n", __func__, sane_strstatus(status));
-          return status;
-	}
-      val = 0;
+        // enable GPIO
+        gl646_gpio_output_enable(dev->usb_dev, 6);
 
-      /* writes 0 to GPIO */
-      status = gl646_gpio_write (dev->dn, val);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: GPO write failed ... %s\n", __func__, sane_strstatus(status));
-          return status;
-	}
+        // writes 0 to GPIO
+        gl646_gpio_write(dev->usb_dev, 0);
 
-      /* clear GPIO enable */
-      status = gl646_gpio_output_enable (dev->dn, val);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: GPO disable failed ... %s\n", __func__, sane_strstatus(status));
-          return status;
-	}
+        // clear GPIO enable
+        gl646_gpio_output_enable(dev->usb_dev, 0);
+
       sanei_genesys_write_register (dev, 0x66, 0x10);
       sanei_genesys_write_register (dev, 0x66, 0x00);
       sanei_genesys_write_register (dev, 0x66, 0x10);
@@ -4407,7 +4360,7 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
 static SANE_Status
 simple_move (Genesys_Device * dev, SANE_Int distance)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
 
   DBG(DBG_proc, "%s: %d mm\n", __func__, distance);
@@ -4453,18 +4406,10 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 {
   Genesys_Device *dev = session->dev;
   uint8_t value;
-  SANE_Status status;
 
-  /* do what is needed to get a new set of events, but try to not loose
-     any of them.
-   */
-  status = gl646_gpio_read (dev->dn, &value);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read GPIO %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-  DBG(DBG_io, "%s: GPIO=0x%02x\n", __func__, value);
+    // do what is needed to get a new set of events, but try to not loose any of them.
+    gl646_gpio_read(dev->usb_dev, &value);
+    DBG(DBG_io, "%s: GPIO=0x%02x\n", __func__, value);
 
     // scan button
     if (dev->model->buttons & GENESYS_HAS_SCAN_SW) {
@@ -4577,14 +4522,14 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	}
     }
 
-  return status;
+    return SANE_STATUS_GOOD;
 }
 
 
 static SANE_Status
 write_control (Genesys_Device * dev, const Genesys_Sensor& sensor, int resolution)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t control[4];
   uint32_t addr = 0xdead;
 

@@ -129,19 +129,34 @@ private:
 
 class DebugMessageHelper {
 public:
+    static constexpr unsigned MAX_BUF_SIZE = 120;
+
     DebugMessageHelper(const char* func);
+    DebugMessageHelper(const char* func, const char* format, ...)
+    #ifdef __GNUC__
+        __attribute__((format(printf, 3, 4)))
+    #endif
+    ;
+
     ~DebugMessageHelper();
 
-    void status(const char* status) { status_ = status; }
-    void clear() { status_ = nullptr; }
+    void status(const char* msg) { vstatus("%s", msg); }
+    void vstatus(const char* format, ...)
+    #ifdef __GNUC__
+        __attribute__((format(printf, 2, 3)))
+    #endif
+    ;
+
+    void clear() { msg_[0] = '\n'; }
 
 private:
     const char* func_ = nullptr;
-    const char* status_ = nullptr;
+    char msg_[MAX_BUF_SIZE];
     unsigned num_exceptions_on_enter_ = 0;
 };
 
 #define DBG_HELPER(var) DebugMessageHelper var(__func__)
+#define DBG_HELPER_ARGS(var, ...) DebugMessageHelper var(__func__, __VA_ARGS__)
 
 template<class F>
 SANE_Status wrap_exceptions_to_status_code(const char* func, F&& function)

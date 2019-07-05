@@ -44,6 +44,11 @@
 #define DEBUG_DECLARE_ONLY
 
 #include "genesys_error.h"
+#include <cstdarg>
+#include <cstdio>
+
+extern "C" void sanei_debug_msg(int level, int max_level, const char *be, const char *fmt,
+                                va_list ap);
 
 #if (defined(__GNUC__) || defined(__CLANG__)) && (defined(__linux__) || defined(__APPLE__))
 extern "C" char* __cxa_get_globals();
@@ -68,18 +73,43 @@ DebugMessageHelper::DebugMessageHelper(const char* func)
 {
     func_ = func;
     num_exceptions_on_enter_ = num_uncaught_exceptions();
-    DBG(DBG_proc, "%s: start", func_);
+    msg_[0] = '\0';
+    DBG(DBG_proc, "%s: start\n", func_);
 }
+
+DebugMessageHelper::DebugMessageHelper(const char* func, const char* format, ...)
+{
+    func_ = func;
+    num_exceptions_on_enter_ = num_uncaught_exceptions();
+    msg_[0] = '\0';
+    DBG(DBG_proc, "%s: start\n", func_);
+    DBG(DBG_proc, "%s: ", func_);
+
+    std::va_list args;
+    va_start(args, format);
+    sanei_debug_msg(DBG_proc, DBG_LEVEL, STRINGIFY(BACKEND_NAME), format, args);
+    va_end(args);
+    DBG(DBG_proc, "\n");
+}
+
 
 DebugMessageHelper::~DebugMessageHelper()
 {
     if (num_exceptions_on_enter_ < num_uncaught_exceptions()) {
-        if (status_) {
-            DBG(DBG_error, "%s: failed during %s", func_, status_);
+        if (msg_[0] != '\0') {
+            DBG(DBG_error, "%s: failed during %s\n", func_, msg_);
         } else {
-            DBG(DBG_error, "%s: failed", func_);
+            DBG(DBG_error, "%s: failed\n", func_);
         }
     } else {
-        DBG(DBG_proc, "%s: completed", func_);
+        DBG(DBG_proc, "%s: completed\n", func_);
     }
+}
+
+void DebugMessageHelper::vstatus(const char* format, ...)
+{
+    std::va_list args;
+    va_start(args, format);
+    std::vsnprintf(msg_, MAX_BUF_SIZE, format, args);
+    va_end(args);
 }

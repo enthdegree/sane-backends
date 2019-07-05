@@ -497,7 +497,7 @@ static SANE_Status
 gl124_send_slope_table (Genesys_Device * dev, int table_nr,
 			uint16_t * slope_table, int steps)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int i;
   char msg[10000];
 
@@ -630,7 +630,7 @@ static SANE_Status
 gl124_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
 {
     (void) sensor;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
   DBG(DBG_proc, "%s (%s)\n", __func__, set == AFE_INIT ? "init" : set == AFE_SET ? "set" : set ==
@@ -690,7 +690,7 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
                             ScanColorMode scan_mode,
                             unsigned int flags)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int use_fast_fed;
   unsigned int lincnt, fast_dpi;
   uint16_t scan_table[SLOPE_TABLE_SIZE];
@@ -999,7 +999,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   unsigned int dpiset, cksel, dpihw, factor;
   unsigned int bytes;
   GenesysRegister *r;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint32_t expmax, exp;
 
   DBG(DBG_proc, "%s :  exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
@@ -1275,7 +1275,7 @@ gl124_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
 
   SANE_Bool half_ccd;                /* false: full CCD res is used, true, half max CCD res is used */
   unsigned optical_res;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, params);
@@ -1646,7 +1646,7 @@ gl124_start_action (Genesys_Device * dev)
 static SANE_Status
 gl124_stop_action (Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val40, val;
   unsigned int loop;
 
@@ -1736,7 +1736,7 @@ gl124_stop_action (Genesys_Device * dev)
 static SANE_Status
 gl124_setup_scan_gpio(Genesys_Device *dev, int resolution)
 {
-SANE_Status status;
+SANE_Status status = SANE_STATUS_GOOD;
 uint8_t val;
 
   DBGSTART;
@@ -1793,7 +1793,7 @@ gl124_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
 {
     (void) sensor;
 
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
   DBGSTART;
@@ -1830,7 +1830,7 @@ static SANE_Status
 gl124_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		SANE_Bool check_stop)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s (check_stop = %d)\n", __func__, check_stop);
   if (reg == NULL)
@@ -1863,7 +1863,7 @@ gl124_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 static
 SANE_Status gl124_rewind(Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t byte;
 
   DBGSTART;
@@ -1905,7 +1905,7 @@ SANE_Status
 gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
   Genesys_Register_Set local_reg;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   uint8_t val;
   float resolution;
@@ -2072,7 +2072,7 @@ static SANE_Status
 gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse)
 {
   Genesys_Register_Set local_reg;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   float resolution;
   uint8_t val;
@@ -2169,7 +2169,7 @@ static SANE_Status
 gl124_search_start_position (Genesys_Device * dev)
 {
   int size;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set local_reg = dev->reg;
   int steps;
 
@@ -2277,7 +2277,7 @@ static SANE_Status
 gl124_init_regs_for_coarse_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                        Genesys_Register_Set& regs)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t channels;
   uint8_t cksel;
 
@@ -2339,7 +2339,7 @@ static SANE_Status
 gl124_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
                             Genesys_Register_Set& regs)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int move, resolution, dpihw, factor;
 
   DBGSTART;
@@ -2450,7 +2450,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   int move_dpi;
   float start;
 
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
@@ -3415,7 +3415,7 @@ gl124_init_memory_layout (Genesys_Device * dev)
 static SANE_Status
 gl124_init(Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG_INIT ();
   DBGSTART;
@@ -3433,7 +3433,7 @@ gl124_init(Genesys_Device * dev)
 static SANE_Status
 gl124_boot (Genesys_Device * dev, SANE_Bool cold)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
   DBGSTART;

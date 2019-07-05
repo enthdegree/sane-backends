@@ -61,7 +61,7 @@
 static SANE_Status
 gl843_set_buffer_address (Genesys_Device * dev, uint32_t addr)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_io, "%s: setting address to 0x%05x\n", __func__, addr & 0xffff);
 
@@ -715,7 +715,7 @@ static SANE_Status
 gl843_send_slope_table (Genesys_Device * dev, int table_nr,
 			uint16_t * slope_table, int steps)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int i;
   char msg[10000];
 
@@ -758,7 +758,7 @@ static SANE_Status
 gl843_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
 {
     (void) sensor;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   int i;
 
@@ -876,7 +876,7 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
 			    int scan_power_mode,
                             unsigned int flags)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int use_fast_fed, coeff;
   unsigned int lincnt;
   uint16_t scan_table[1024];
@@ -1099,7 +1099,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   unsigned int tgtime;          /**> exposure time multiplier */
   unsigned int cksel;           /**> clock per system pixel time in capturing image */
   GenesysRegister *r;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s :  exposure=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
       "ccd_size_divisor=%d, flags=%x\n", __func__, exposure, used_res, start, pixels, channels,
@@ -1432,7 +1432,7 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Senso
   int scan_power_mode = 0;
   size_t requested_buffer_size, read_buffer_size;
 
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, session.params);
@@ -1750,7 +1750,7 @@ static SANE_Status
 gl843_save_power (Genesys_Device * dev, SANE_Bool enable)
 {
   uint8_t val;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s: enable = %d\n", __func__, enable);
   if (dev == NULL)
@@ -1804,7 +1804,7 @@ gl843_stop_action_no_move(Genesys_Device* dev, Genesys_Register_Set* reg)
 static SANE_Status
 gl843_stop_action (Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val40, val;
   unsigned int loop;
 
@@ -1881,7 +1881,7 @@ gl843_stop_action (Genesys_Device * dev)
 static SANE_Status
 gl843_get_paper_sensor (Genesys_Device * dev, SANE_Bool * paper_loaded)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
   status = sanei_genesys_read_register (dev, REG6D, &val);
@@ -2177,7 +2177,7 @@ static SANE_Status
 gl843_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Register_Set * reg,
 		  SANE_Bool start_motor)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   uint16_t dpiset, dpihw;
 
@@ -2266,7 +2266,7 @@ static SANE_Status
 gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		SANE_Bool check_stop)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s (check_stop = %d)\n", __func__, check_stop);
   if (reg == NULL)
@@ -2305,7 +2305,7 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
 {
   Genesys_Register_Set local_reg;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   uint8_t val;
   int loop = 0;
@@ -2392,7 +2392,7 @@ static SANE_Status
 gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
   Genesys_Register_Set local_reg;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   uint8_t val;
   float resolution;
@@ -2542,7 +2542,7 @@ static SANE_Status
 gl843_search_start_position (Genesys_Device * dev)
 {
   int size;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set local_reg;
   int steps;
 
@@ -2652,7 +2652,7 @@ static SANE_Status
 gl843_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
                                        Genesys_Register_Set& regs)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t channels;
   uint8_t cksel;
 
@@ -2720,7 +2720,7 @@ static SANE_Status
 gl843_feed (Genesys_Device * dev, unsigned int steps)
 {
   Genesys_Register_Set local_reg;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   float resolution;
   uint8_t val;
@@ -2817,7 +2817,7 @@ static SANE_Status
 gl843_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
                             Genesys_Register_Set& regs)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int move, resolution, dpihw, factor;
   uint16_t strpixel;
 
@@ -2933,7 +2933,7 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   int move_dpi;
   float start;
 
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
@@ -3014,7 +3014,7 @@ static SANE_Status
 gl843_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
   int size;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int i;
 
   DBGSTART;
@@ -3819,7 +3819,7 @@ gl843_init_gpio (Genesys_Device * dev)
 static SANE_Status
 gl843_boot (Genesys_Device * dev, SANE_Bool cold)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
   DBGSTART;
@@ -3922,7 +3922,7 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
 static SANE_Status
 gl843_init (Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG_INIT ();
   DBGSTART;
@@ -4005,7 +4005,7 @@ gl843_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
                     SANE_Bool forward, SANE_Bool black)
 {
   unsigned int pixels, lines, channels;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set local_reg;
   size_t size;
   int steps, depth, dpi;
@@ -4264,7 +4264,7 @@ static SANE_Status
 gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
                          uint8_t * data, int size)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint32_t final_size, length, i;
   uint8_t *buffer;
   int count,offset;

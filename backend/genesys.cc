@@ -945,7 +945,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, const Genesys_Sensor& sen
 {
   int dpihw;
   int start_address;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s: (size = %d)\n", __func__, size);
 
@@ -1020,7 +1020,7 @@ SANE_Status
 sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
                                  int pixels_per_line)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int channels;
   int i;
 
@@ -1447,7 +1447,7 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
   int black_pixels;
   int white_average;
   int channels;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t offset[4] = { 0xa0, 0x00, 0xa0, 0x40 };	/* first value isn't used */
   uint16_t white[12], dark[12];
   int i, j;
@@ -1759,7 +1759,7 @@ genesys_average_data (uint8_t * average_data,
 static SANE_Status
 genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   size_t size;
   uint32_t pixels_per_line;
   uint8_t channels;
@@ -1959,7 +1959,7 @@ genesys_dummy_dark_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
 static SANE_Status
 genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   size_t size;
   uint32_t pixels_per_line;
   uint8_t channels;
@@ -2088,7 +2088,7 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
 static SANE_Status
 genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   size_t size;
   uint32_t pixels_per_line;
   uint8_t *average_white, *average_dark;
@@ -2737,7 +2737,7 @@ compute_shifted_coefficients (Genesys_Device * dev,
 static SANE_Status
 genesys_send_shading_coefficient(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint32_t pixels_per_line;
   uint8_t channels;
   int o;
@@ -3134,7 +3134,7 @@ genesys_save_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
 static SANE_Status
 genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint32_t pixels_per_line;
   int yres;
 
@@ -3567,7 +3567,7 @@ static SANE_Status
 genesys_wait_not_moving (Genesys_Device * dev, int mseconds)
 {
   uint8_t value;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s: waiting %d mseconds for motor to stop\n", __func__, mseconds);
   while (mseconds > 0)
@@ -3736,7 +3736,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
 static SANE_Status
 genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   unsigned int steps, expected;
   SANE_Bool empty;
 
@@ -4069,7 +4069,7 @@ static SANE_Status accurate_line_read(Genesys_Device * dev,
 {
     buffer.reset();
 
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   status = dev->model->cmd_set->bulk_read_data(dev, 0x45, buffer.get_write_pos(buffer.size()),
                                                buffer.size());
   if (status != SANE_STATUS_GOOD)
@@ -4093,7 +4093,7 @@ static SANE_Status
 genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, size_t size)
 {
   size_t count;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
       /* fill buffer if needed */
       if (dev->oe_buffer.avail() == 0)
@@ -4157,7 +4157,7 @@ static SANE_Status
 genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, size_t size)
 {
   size_t count;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int depth,i,n,k;
 
   depth = dev->settings.depth;
@@ -4255,7 +4255,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 {
   size_t size;
   size_t space;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t *work_buffer_dst;
 
   DBGSTART;
@@ -4349,7 +4349,7 @@ static SANE_Status
 genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
 			   size_t * len)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   size_t bytes, extra;
   unsigned int channels, depth, src_pixels;
   unsigned int ccd_shift[12], shift_count;
@@ -5181,7 +5181,7 @@ static SANE_Status
 init_options (Genesys_Scanner * s)
 {
   SANE_Int option, count, min_dpi;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word *dpi_list;
   Genesys_Model *model = s->dev->model;
   SANE_Range *x_range, *y_range;
@@ -5888,7 +5888,7 @@ static SANE_Status
 attach_one_device_impl(SANE_String_Const devname)
 {
   Genesys_Device *dev;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   RIE (attach (devname, &dev, SANE_FALSE));
 
@@ -5922,7 +5922,7 @@ static SANE_Status
 probe_genesys_devices (void)
 {
   SANEI_Config config;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBGSTART;
 
@@ -6203,7 +6203,7 @@ genesys_buffer_image(Genesys_Scanner *s)
 SANE_Status
 sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG_INIT ();
   DBG(DBG_init, "SANE Genesys backend version %d.%d from %s\n",
@@ -6328,7 +6328,7 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 {
     DBG_HELPER(dbg);
   Genesys_Device *dev = nullptr;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   char *tmpstr;
 
     DBG(DBG_proc, "%s: devicename = `%s')\n", __func__, devicename);
@@ -6443,7 +6443,7 @@ SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle* handle)
 void
 sane_close_impl(SANE_Handle handle)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBGSTART;
 
@@ -7234,7 +7234,7 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option,
 SANE_Status sane_get_parameters_impl(SANE_Handle handle, SANE_Parameters* params)
 {
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBGSTART;
 

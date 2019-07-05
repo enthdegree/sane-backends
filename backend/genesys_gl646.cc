@@ -1039,7 +1039,7 @@ gl646_setup_sensor (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_
 static SANE_Status
 gl646_asic_test (Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   size_t size, verify_size;
   unsigned int i;
@@ -1347,7 +1347,7 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
 {
   int dpihw;
   int start_address;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s (table_nr = %d, steps = %d)=%d .. %d\n", __func__, table_nr, steps,
       slope_table[0], slope_table[steps - 1]);
@@ -1574,7 +1574,7 @@ gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set,
 static SANE_Status
 gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, int dpi)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int i;
   uint8_t val;
 
@@ -2233,7 +2233,7 @@ gl646_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
 		  SANE_Bool start_motor)
 {
     (void) sensor;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   // FIXME: SEQUENTIAL not really needed in this case
   Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
 
@@ -2400,7 +2400,7 @@ static
 SANE_Status
 gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
   uint8_t val;
   int i;
@@ -2575,7 +2575,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 static SANE_Status
 gl646_search_start_position (Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
   unsigned int resolution, x, y;
 
@@ -2796,7 +2796,7 @@ static bool gl646_needs_home_before_init_regs_for_scan(Genesys_Device* dev)
 static SANE_Status
 gl646_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   DBGSTART;
 
@@ -2951,7 +2951,7 @@ gl646_send_gamma_table (Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
   int size;
   int address;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   int bits;
 
   DBGSTART;
@@ -3839,7 +3839,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
 static SANE_Status
 gl646_repark_head (Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
   unsigned int expected, steps;
 
@@ -3917,7 +3917,7 @@ gl646_repark_head (Genesys_Device * dev)
 static SANE_Status
 gl646_init (Genesys_Device * dev)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   struct timeval tv;
   uint8_t cold = 0, val = 0;
   uint32_t addr = 0xdead;
@@ -4360,7 +4360,7 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
 static SANE_Status
 simple_move (Genesys_Device * dev, SANE_Int distance)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
 
   DBG(DBG_proc, "%s: %d mm\n", __func__, distance);
@@ -4529,7 +4529,7 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 static SANE_Status
 write_control (Genesys_Device * dev, const Genesys_Sensor& sensor, int resolution)
 {
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t control[4];
   uint32_t addr = 0xdead;
 

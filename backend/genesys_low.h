@@ -82,6 +82,7 @@
 #include "../include/_stdint.h"
 
 #include "genesys_error.h"
+#include "genesys_sanei.h"
 
 #include <algorithm>
 #include <array>
@@ -1290,7 +1291,7 @@ struct Genesys_Device
     // frees commonly used data
     void clear();
 
-    SANE_Int dn = 0;
+    UsbDevice usb_dev;
     SANE_Word vendorId = 0;			/**< USB vendor identifier */
     SANE_Word productId = 0;			/**< USB product identifier */
 

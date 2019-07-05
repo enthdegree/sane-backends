@@ -217,9 +217,9 @@ extern unsigned sanei_genesys_get_bulk_max_size(Genesys_Device * dev)
     return 0xf000;
 }
 
-SANE_Status sanei_genesys_bulk_read_data_send_header(Genesys_Device* dev, size_t len)
+void sanei_genesys_bulk_read_data_send_header(Genesys_Device* dev, size_t len)
 {
-    SANE_Status status;
+    DBG_HELPER(dbg);
 
     uint8_t outdata[8];
     if (dev->model->asic_type == GENESYS_GL124 ||
@@ -250,22 +250,16 @@ SANE_Status sanei_genesys_bulk_read_data_send_header(Genesys_Device* dev, size_t
     outdata[6] = ((len >> 16) & 0xff);
     outdata[7] = ((len >> 24) & 0xff);
 
-    status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-                                   VALUE_BUFFER, 0x00, sizeof(outdata), outdata);
-
-    if (status != SANE_STATUS_GOOD) {
-        DBG(DBG_error, "%s failed while writing command: %s\n",
-            __func__, sane_strstatus (status));
-        return status;
-    }
-    return SANE_STATUS_GOOD;
+    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x00,
+                             sizeof(outdata), outdata);
 }
 
 SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
                                          size_t len)
 {
+    DBG_HELPER(dbg);
+
     // currently supported: GL646, GL841, GL843, GL846, GL847, GL124
-    SANE_Status status;
     size_t size, target;
     uint8_t *buffer;
 
@@ -289,13 +283,8 @@ SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
         return SANE_STATUS_GOOD;
 
     if (is_addr_used) {
-        status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-                                       VALUE_SET_REGISTER, 0x00, 1, &addr);
-        if (status != SANE_STATUS_GOOD) {
-            DBG(DBG_error, "%s failed while setting register: %s\n", __func__,
-                sane_strstatus(status));
-            return status;
-        }
+        dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, 0x00,
+                                 1, &addr);
     }
 
     target = len;
@@ -304,9 +293,7 @@ SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
     size_t max_in_size = sanei_genesys_get_bulk_max_size(dev);
 
     if (!has_header_before_each_chunk) {
-        status = sanei_genesys_bulk_read_data_send_header(dev, len);
-        if (status != SANE_STATUS_GOOD)
-            return status;
+        sanei_genesys_bulk_read_data_send_header(dev, len);
     }
 
     // loop until computed data size is read
@@ -318,20 +305,12 @@ SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
         }
 
         if (has_header_before_each_chunk) {
-            status = sanei_genesys_bulk_read_data_send_header(dev, size);
-            if (status != SANE_STATUS_GOOD)
-                return status;
+            sanei_genesys_bulk_read_data_send_header(dev, size);
         }
 
         DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) size);
 
-        status = sanei_usb_read_bulk(dev->dn, data, &size);
-
-        if (status != SANE_STATUS_GOOD) {
-            DBG(DBG_error, "%s failed while reading bulk data: %s\n", __func__,
-                sane_strstatus(status));
-            return status;
-        }
+        dev->usb_dev.bulk_read(data, &size);
 
         DBG(DBG_io2, "%s: read %lu bytes, %lu remaining\n", __func__,
             (u_long) size, (u_long) (target - size));
@@ -344,28 +323,23 @@ SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
         fwrite(buffer, len, 1, dev->binary);
     }
 
-    DBGCOMPLETED;
-
     return SANE_STATUS_GOOD;
 }
 
 SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
                                           size_t len)
 {
+    DBG_HELPER(dbg);
+
     // supported: GL646, GL841, GL843
-    SANE_Status status;
     size_t size;
     uint8_t outdata[8];
 
-    DBGSTART;
     DBG(DBG_io, "%s writing %lu bytes\n", __func__, (u_long) len);
 
-    status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-                                   VALUE_SET_REGISTER, INDEX, 1, &addr);
-    if (status != SANE_STATUS_GOOD) {
-        DBG(DBG_error, "%s failed while setting register: %s\n", __func__, sane_strstatus(status));
-        return status;
-    }
+    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
+                             1, &addr);
+
 
     size_t max_out_size = sanei_genesys_get_bulk_max_size(dev);
 
@@ -392,20 +366,10 @@ SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, ui
         outdata[6] = ((size >> 16) & 0xff);
         outdata[7] = ((size >> 24) & 0xff);
 
-        status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-                                       VALUE_BUFFER, 0x00, sizeof (outdata), outdata);
+        dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x00,
+                                 sizeof(outdata), outdata);
 
-        if (status != SANE_STATUS_GOOD) {
-            DBG(DBG_error, "%s failed while writing command: %s\n", __func__, sane_strstatus(status));
-            return status;
-        }
-
-        status = sanei_usb_write_bulk (dev->dn, data, &size);
-        if (status != SANE_STATUS_GOOD) {
-            DBG(DBG_error, "%s failed while writing bulk data: %s\n", __func__,
-                sane_strstatus(status));
-            return status;
-        }
+        dev->usb_dev.bulk_write(data, &size);
 
         DBG(DBG_io2, "%s: wrote %lu bytes, %lu remaining\n", __func__, (u_long) size,
             (u_long) (len - size));
@@ -414,8 +378,7 @@ SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, ui
         data += size;
     }
 
-    DBGCOMPLETED;
-    return status;
+    return SANE_STATUS_GOOD;
 }
 
 /** @brief write to one high (addr >= 0x100) register
@@ -427,24 +390,20 @@ SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, ui
 SANE_Status
 sanei_genesys_write_hregister (Genesys_Device * dev, uint16_t reg, uint8_t val)
 {
-  SANE_Status status;
+    DBG_HELPER(dbg);
+
   uint8_t buffer[2];
 
   buffer[0]=reg & 0xff;
   buffer[1]=val;
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			   0x100 | VALUE_SET_REGISTER, INDEX, 2, buffer);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s (0x%02x, 0x%02x): failed : %s\n", __func__, reg, val,
-          sane_strstatus(status));
-      return status;
-    }
 
-  DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, reg, val);
 
-  return status;
+    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, 0x100 | VALUE_SET_REGISTER, INDEX,
+                             2, buffer);
+
+    DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, reg, val);
+
+    return SANE_STATUS_GOOD;
 }
 
 /** @brief read from one high (addr >= 0x100) register
@@ -457,18 +416,13 @@ sanei_genesys_write_hregister (Genesys_Device * dev, uint16_t reg, uint8_t val)
 SANE_Status
 sanei_genesys_read_hregister (Genesys_Device * dev, uint16_t reg, uint8_t * val)
 {
-  SANE_Status status;
+    DBG_HELPER(dbg);
+
   SANE_Byte value[2];
 
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_IN, REQUEST_BUFFER,
-			   0x100 | VALUE_GET_REGISTER, 0x22+((reg & 0xff)<<8), 2, value);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s (0x%02x): failed while reading register: %s\n", __func__, reg,
-          sane_strstatus(status));
-      return status;
-    }
+    dev->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_BUFFER, 0x100 | VALUE_GET_REGISTER,
+                             0x22+((reg & 0xff)<<8), 2, value);
+
   *val=value[0];
   DBG(DBG_io2, "%s(0x%02x)=0x%02x\n", __func__, reg, *val);
 
@@ -476,9 +430,9 @@ sanei_genesys_read_hregister (Genesys_Device * dev, uint16_t reg, uint8_t * val)
   if((value[1] & 0xff) != 0x55)
     {
       DBG(DBG_error,"%s: invalid read, scanner unplugged ?\n", __func__);
-      status=SANE_STATUS_IO_ERROR;
+        return SANE_STATUS_IO_ERROR;
     }
-  return status;
+    return SANE_STATUS_GOOD;
 }
 
 /**
@@ -488,24 +442,19 @@ URB    10  control  0x40 0x04 0x83 0x00 len     2 wrote 0xa6 0x04
 static SANE_Status
 sanei_genesys_write_gl847_register (Genesys_Device * dev, uint8_t reg, uint8_t val)
 {
-  SANE_Status status;
+    DBG_HELPER(dbg);
+
   uint8_t buffer[2];
 
   buffer[0]=reg;
   buffer[1]=val;
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			   VALUE_SET_REGISTER, INDEX, 2, buffer);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s (0x%02x, 0x%02x): failed : %s\n", __func__, reg, val,
-          sane_strstatus(status));
-      return status;
-    }
+
+    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_SET_REGISTER, INDEX,
+                             2, buffer);
 
   DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, reg, val);
 
-  return status;
+    return SANE_STATUS_GOOD;
 }
 
 /**
@@ -514,7 +463,8 @@ sanei_genesys_write_gl847_register (Genesys_Device * dev, uint8_t reg, uint8_t v
 SANE_Status
 sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val)
 {
-  SANE_Status status;
+    DBG_HELPER(dbg);
+
   SANE_Byte reg8;
 
   /* 16 bit register address space */
@@ -533,29 +483,16 @@ sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val)
     }
 
   reg8=reg & 0xff;
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_SET_REGISTER, INDEX, 1, &reg8);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s (0x%02x, 0x%02x): failed while setting register: %s\n", __func__, reg, val,
-          sane_strstatus(status));
-      return status;
-    }
 
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_WRITE_REGISTER, INDEX, 1, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s (0x%02x, 0x%02x): failed while writing register value: %s\n", __func__,
-          reg, val, sane_strstatus(status));
-      return status;
-    }
+    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
+                             1, &reg8);
+
+    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_WRITE_REGISTER, INDEX,
+                             1, &val);
 
   DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, reg, val);
 
-  return status;
+    return SANE_STATUS_GOOD;
 }
 
 /**
@@ -567,20 +504,12 @@ sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val)
  * @param val value to write
  */
 SANE_Status
-sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val)
+sanei_genesys_write_0x8c(Genesys_Device * dev, uint8_t index, uint8_t val)
 {
-  SANE_Status status;
-
-  DBG(DBG_io, "%s: 0x%02x,0x%02x\n", __func__, index, val);
-
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_BUF_ENDACCESS, index, 1, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed %s\n", __func__, sane_strstatus(status));
-    }
-  return status;
+    DBG_HELPER_ARGS(dbg, "0x%02x,0x%02x", index, val);
+    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_BUF_ENDACCESS, index,
+                             1, &val);
+    return SANE_STATUS_GOOD;
 }
 
 /* read reg 0x41:
@@ -589,18 +518,13 @@ sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val)
 static SANE_Status
 sanei_genesys_read_gl847_register (Genesys_Device * dev, uint16_t reg, uint8_t * val)
 {
+    DBG_HELPER(dbg);
   SANE_Status status;
   SANE_Byte value[2];
 
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_IN, REQUEST_BUFFER,
-			   VALUE_GET_REGISTER, 0x22+(reg<<8), 2, value);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s (0x%02x): failed while setting register: %s\n", __func__, reg,
-          sane_strstatus(status));
-      return status;
-    }
+    dev->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_BUFFER, VALUE_GET_REGISTER, 0x22+(reg<<8),
+                             2, value);
+
   *val=value[0];
   DBG(DBG_io2, "%s(0x%02x)=0x%02x\n", __func__, reg, *val);
 
@@ -617,7 +541,8 @@ sanei_genesys_read_gl847_register (Genesys_Device * dev, uint16_t reg, uint8_t *
 SANE_Status
 sanei_genesys_read_register (Genesys_Device * dev, uint16_t reg, uint8_t * val)
 {
-  SANE_Status status;
+    DBG_HELPER(dbg);
+
   SANE_Byte reg8;
 
   /* 16 bit register address space */
@@ -634,32 +559,19 @@ sanei_genesys_read_register (Genesys_Device * dev, uint16_t reg, uint8_t * val)
     return sanei_genesys_read_gl847_register(dev, reg, val);
 
   /* 8 bit register address space */
-  reg8=(SANE_Byte)(reg& 0Xff);
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			   VALUE_SET_REGISTER, INDEX, 1, &reg8);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s (0x%02x, 0x%02x): failed while setting register: %s\n", __func__,
-          reg, *val, sane_strstatus(status));
-      return status;
-    }
+    reg8=(SANE_Byte)(reg& 0Xff);
+
+    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
+                             1, &reg8);
 
   *val = 0;
 
-  status =
-    sanei_usb_control_msg (dev->dn, REQUEST_TYPE_IN, REQUEST_REGISTER,
-			   VALUE_READ_REGISTER, INDEX, 1, val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s (0x%02x, 0x%02x): failed while reading register value: %s\n", __func__,
-          reg, *val, sane_strstatus(status));
-      return status;
-    }
+    dev->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_READ_REGISTER, INDEX,
+                             1, val);
 
   DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, reg, *val);
 
-  return status;
+    return SANE_STATUS_GOOD;
 }
 
 /* Set address for writing data */
@@ -1125,6 +1037,8 @@ void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set)
  */
 SANE_Status sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Register_Set& reg)
 {
+    DBG_HELPER(dbg);
+
     SANE_Status status = SANE_STATUS_GOOD;
 
     if (dev->model->asic_type == GENESYS_GL646 ||
@@ -1153,34 +1067,20 @@ SANE_Status sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Regi
             outdata[6] = ((buffer.size() >> 16) & 0xff);
             outdata[7] = ((buffer.size() >> 24) & 0xff);
 
-            status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-                                           VALUE_BUFFER, INDEX, sizeof(outdata), outdata);
-
-            if (status != SANE_STATUS_GOOD) {
-                DBG(DBG_error, "%s: failed while writing command: %s\n", __func__, sane_strstatus(status));
-                return status;
-            }
+            dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, INDEX,
+                                     sizeof(outdata), outdata);
 
             size_t write_size = buffer.size();
-            status = sanei_usb_write_bulk (dev->dn, buffer.data(), &write_size);
-            if (status != SANE_STATUS_GOOD) {
-                DBG(DBG_error, "%s: failed while writing bulk data: %s\n", __func__, sane_strstatus(status));
-                return status;
-            }
+
+            dev->usb_dev.bulk_write(buffer.data(), &write_size);
         } else {
             for (size_t i = 0; i < reg.size();) {
                 size_t c = reg.size() - i;
                 if (c > 32)  /*32 is max on GL841. checked that.*/
                     c = 32;
-                status = sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-                                               VALUE_SET_REGISTER, INDEX, c * 2,
-                                               buffer.data() + i * 2);
-                if (status != SANE_STATUS_GOOD)
-                {
-                    DBG(DBG_error, "%s: failed while writing command: %s\n", __func__,
-                        sane_strstatus(status));
-                    return status;
-                }
+
+                dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_SET_REGISTER,
+                                         INDEX, c * 2, buffer.data() + i * 2);
 
                 i += c;
             }
@@ -1210,6 +1110,8 @@ SANE_Status sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Regi
 SANE_Status
 sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_t * data)
 {
+    DBG_HELPER(dbg);
+
   uint8_t outdata[8];
   size_t written,blksize;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -1235,16 +1137,8 @@ sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8
       DBG (DBG_io, "%s: %s\n", __func__, msg);
     }
 
-  /* write addr and size for AHB */
-  status =
-    sanei_usb_control_msg(dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER,
-                          0x01, 8, outdata);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed while setting addr and size: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    // write addr and size for AHB
+    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x01, 8, outdata);
 
   size_t max_out_size = sanei_genesys_get_bulk_max_size(dev);
 
@@ -1260,14 +1154,8 @@ sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8
         {
           blksize = size - written;
         }
-      status = sanei_usb_write_bulk(dev->dn, data + written, &blksize);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG (DBG_error,
-               "sanei_genesys_write_ahb: failed while writing bulk data: %s\n",
-               sane_strstatus (status));
-          return status;
-        }
+        dev->usb_dev.bulk_write(data + written, &blksize);
+
       written += blksize;
     }
   while (written < size);
@@ -1432,20 +1320,17 @@ sanei_genesys_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& senso
 SANE_Status
 sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
 {
+    DBG_HELPER(dbg);
+
   SANE_Status status;
   uint8_t val;
   SANE_Bool cold = SANE_TRUE;
 
   DBGSTART;
 
-  /* URB    16  control  0xc0 0x0c 0x8e 0x0b len     1 read  0x00 */
-  status = sanei_usb_control_msg (dev->dn, REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_GET_REGISTER, 0x00, 1, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "%s: request register failed %s\n", __func__,
-           sane_strstatus (status));
-      return status;
-    }
+    // URB    16  control  0xc0 0x0c 0x8e 0x0b len     1 read  0x00 */
+    dev->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_GET_REGISTER, 0x00, 1, &val);
+
   DBG (DBG_io2, "%s: value=0x%02x\n", __func__, val);
   DBG (DBG_info, "%s: device is %s\n", __func__, (val & 0x08) ? "USB 1.0" : "USB2.0");
   if (val & 0x08)
@@ -1503,8 +1388,7 @@ sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
   /* Set powersaving (default = 15 minutes) */
   RIE (dev->model->cmd_set->set_powersaving (dev, 15));
 
-  DBGCOMPLETED;
-  return status;
+    return status;
 }
 
 /**

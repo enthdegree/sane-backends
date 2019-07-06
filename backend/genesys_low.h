@@ -635,6 +635,9 @@ struct Genesys_Sensor {
 
     // id of the sensor description
     uint8_t sensor_id = 0;
+
+    // sensor resolution in CCD pixels. Note that we may read more than one CCD pixel per logical
+    // pixel, see ccd_pixels_per_system_pixel()
     int optical_res = 0;
 
     // the minimum and maximum resolution this sensor is usable at. -1 means that the resolution
@@ -680,6 +683,14 @@ struct Genesys_Sensor {
             return 2;
         }
         return 1;
+    }
+
+    // how many CCD pixels are processed per system pixel time. This corresponds to CKSEL + 1
+    unsigned ccd_pixels_per_system_pixel() const
+    {
+        // same on GL646, GL841, GL843, GL846, GL847, GL124
+        constexpr unsigned REG_0x18_CKSEL = 0x03;
+        return (custom_regs.get_value(0x18) & REG_0x18_CKSEL) + 1;
     }
 
     bool operator==(const Genesys_Sensor& other) const
@@ -1262,7 +1273,8 @@ struct SetupParams {
     float startx = -1;
     // start pixel in Y direction, counted according to base_ydpi
     float starty = -1;
-    // the number of pixels in X direction
+    // the number of pixels in X direction. Note that each logical pixel may correspond to more
+    // than one CCD pixel, see CKSEL and GenesysSensor::ccd_pixels_per_system_pixel()
     unsigned pixels = NOT_SET;
     // the number of pixels in Y direction
     unsigned lines = NOT_SET;

@@ -1151,11 +1151,10 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
                               int flags)
 {
   unsigned int words_per_line;
-  unsigned int startx, endx, used_pixels;
+  unsigned int startx, endx;
   unsigned int dpiset, dpihw, factor;
   unsigned int bytes;
   unsigned int tgtime;          /**> exposure time multiplier */
-  unsigned int cksel;           /**> clock per system pixel time in capturing image */
   GenesysRegister *r;
   SANE_Status status = SANE_STATUS_GOOD;
 
@@ -1176,22 +1175,19 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   /* sensor parameters */
   gl843_setup_sensor (dev, sensor, reg, dpihw, flags);
 
-  /* resolution is divided according to CKSEL which is known once sensor is set up */
-  r = sanei_genesys_get_address (reg, REG18);
-  cksel= (r->value & REG18_CKSEL)+1;
-  DBG(DBG_io2, "%s: cksel=%d\n", __func__, cksel);
-  dpiset = used_res * cksel;
+    // resolution is divided according to CKSEL
+    unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
+    DBG(DBG_io2, "%s: ccd_pixels_per_system_pixel=%d\n", __func__, ccd_pixels_per_system_pixel );
+    dpiset = used_res * ccd_pixels_per_system_pixel ;
 
-  /* start and end coordinate in optical dpi coordinates */
-  startx = (start + sensor.dummy_pixel)/cksel;
+    // start and end coordinate in optical dpi coordinates
+    startx = (start + sensor.dummy_pixel) / ccd_pixels_per_system_pixel ;
+    endx = startx + pixels / ccd_pixels_per_system_pixel;
 
-  used_pixels=pixels/cksel;
-  endx = startx + used_pixels;
-
-  /* pixel coordinate factor correction when used dpihw is not maximal one */
-  startx/=factor;
-  endx/=factor;
-  used_pixels=endx-startx;
+    // pixel coordinate factor correction when used dpihw is not maximal one
+    startx /= factor;
+    endx /= factor;
+    unsigned used_pixels = endx - startx;
 
   /* in case of stagger we have to start at an odd coordinate */
   if ((flags & OPTICAL_FLAG_STAGGER)
@@ -2712,10 +2708,8 @@ gl843_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
 {
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t channels;
-  uint8_t cksel;
 
   DBGSTART;
-  cksel = (regs.find_reg(0x18).value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
 
   /* set line size */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
@@ -2737,7 +2731,7 @@ gl843_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
     session.params.yres = dev->settings.yres;
     session.params.startx = 0;
     session.params.starty = 0;
-    session.params.pixels = sensor.optical_res / cksel; // XXX STEF XXX dpi instead of pixels!
+    session.params.pixels = sensor.optical_res / sensor.ccd_pixels_per_system_pixel();
     session.params.lines = 20;
     session.params.depth = 16;
     session.params.channels = channels;
@@ -2757,7 +2751,7 @@ gl843_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
   sanei_genesys_set_motor_power(regs, false);
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
-      sensor.optical_res / cksel, dev->settings.xres);
+      sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
 
   status = dev->model->cmd_set->bulk_write_register(dev, regs);
   if (status != SANE_STATUS_GOOD)
@@ -4326,7 +4320,6 @@ gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
   uint32_t final_size, length, i;
   uint8_t *buffer;
   int count,offset;
-  unsigned int cksel;
   GenesysRegister *r;
   uint16_t dpiset, strpixel, endpixel, startx, factor;
 
@@ -4340,13 +4333,12 @@ gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
       /* recompute STRPIXEL used shading calibration so we can
        * compute offset within data for SHDAREA case */
       r = sanei_genesys_get_address(&dev->reg, REG18);
-      cksel= (r->value & REG18_CKSEL)+1;
       sanei_genesys_get_double(&dev->reg,REG_DPISET,&strpixel);
       sanei_genesys_get_double(&dev->reg,REG_DPISET,&dpiset);
       factor=sensor.optical_res/sanei_genesys_compute_dpihw(dev, sensor, dpiset);
 
       /* start coordinate in optical dpi coordinates */
-      startx = (sensor.dummy_pixel / cksel) / factor;
+      startx = (sensor.dummy_pixel / sensor.ccd_pixels_per_system_pixel()) / factor;
 
       /* current scan coordinates */
       sanei_genesys_get_double(&dev->reg,REG_STRPIXEL,&strpixel);

@@ -870,8 +870,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
                               SANE_Bool half_ccd, ColorFilter color_filter, int flags)
 {
   unsigned int words_per_line;
-  unsigned int startx, endx, used_pixels;
-  unsigned int dpiset, dpihw,segnb,cksel,factor;
+    unsigned dpiset, dpihw, segnb, factor;
   unsigned int bytes;
   GenesysRegister *r;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -880,28 +879,24 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
       "half_ccd=%d, flags=%x\n", __func__, exposure_time, used_res, start, pixels, channels, depth,
       half_ccd, flags);
 
-  /* resolution is divided according to CKSEL */
-  r = sanei_genesys_get_address (reg, REG18);
-  cksel= (r->value & REG18_CKSEL)+1;
-  DBG(DBG_io2, "%s: cksel=%d\n", __func__, cksel);
+    // resolution is divided according to ccd_pixels_per_system_pixel()
+    unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
+    DBG(DBG_io2, "%s: ccd_pixels_per_system_pixel=%d\n", __func__, ccd_pixels_per_system_pixel);
 
-  /* to manage high resolution device while keeping good
-   * low resolution scanning speed, we make hardware dpi vary */
-  dpihw=sanei_genesys_compute_dpihw(dev, sensor, used_res * cksel);
+    // to manage high resolution device while keeping good low resolution scanning speed, we make
+    // hardware dpi vary
+    dpihw = sanei_genesys_compute_dpihw(dev, sensor, used_res * ccd_pixels_per_system_pixel);
   factor=sensor.optical_res/dpihw;
   DBG(DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
   /* sensor parameters */
   Sensor_Profile* sensor_profile=get_sensor_profile(dev->model->ccd_type, dpihw);
   gl847_setup_sensor(dev, sensor, reg, dpihw);
-  dpiset = used_res * cksel;
+    dpiset = used_res * ccd_pixels_per_system_pixel;
 
-  /* start and end coordinate in optical dpi coordinates */
-  startx = start/cksel+sensor.CCD_start_xoffset;
-  used_pixels=pixels/cksel;
-
-  /* end of sensor window */
-  endx = startx + used_pixels;
+    // start and end coordinate in optical dpi coordinates
+    unsigned startx = start / ccd_pixels_per_system_pixel + sensor.CCD_start_xoffset;
+    unsigned endx = startx + pixels / ccd_pixels_per_system_pixel;
 
   /* sensors are built from 600 dpi segments for LiDE 100/200
    * and 1200 dpi for the 700F */
@@ -914,10 +909,9 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
       segnb=1;
     }
 
-  /* compute pixel coordinate in the given dpihw space,
-   * taking segments into account */
-  startx/=factor*segnb;
-  endx/=factor*segnb;
+    // compute pixel coordinate in the given dpihw space, taking segments into account
+    startx /= factor*segnb;
+    endx /= factor*segnb;
   dev->len=endx-startx;
   dev->dist=0;
   dev->skip=0;
@@ -931,7 +925,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
 
   /* use a segcnt rounded to next even number */
   endx += ((dev->dist+1)&0xfffe)*(segnb-1);
-  used_pixels=endx-startx;
+    unsigned used_pixels = endx - startx;
 
   status = gl847_set_fe(dev, sensor, AFE_SET);
   if (status != SANE_STATUS_GOOD)
@@ -1977,12 +1971,8 @@ gl847_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
 {
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t channels;
-  uint8_t cksel;
 
   DBG(DBG_proc, "%s\n", __func__);
-
-
-  cksel = (regs.find_reg(0x18).value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
 
   /* set line size */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
@@ -1996,7 +1986,7 @@ gl847_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
     params.yres = dev->settings.yres;
     params.startx = 0;
     params.starty = 0;
-    params.pixels = sensor.optical_res / cksel;
+    params.pixels = sensor.optical_res / sensor.ccd_pixels_per_system_pixel();
     params.lines = 20;
     params.depth = 16;
     params.channels = channels;
@@ -2017,7 +2007,7 @@ gl847_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
     }
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
-      sensor.optical_res / cksel, dev->settings.xres);
+      sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
 
   status =
     dev->model->cmd_set->bulk_write_register(dev, regs);

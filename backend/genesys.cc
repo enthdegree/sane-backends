@@ -2895,14 +2895,16 @@ genesys_send_shading_coefficient(Genesys_Device * dev, const Genesys_Sensor& sen
     case CCD_HP3670:
     case CCD_HP2400:
       target_code = 0xe000;
-      /* offset is cksel dependent, but we can't use this in common code */
+            // offset is dependent on ccd_pixels_per_system_pixel(), but we couldn't use this in
+            // common code previously.
+            // FIXME: use sensor.ccd_pixels_per_system_pixel()
       if(dev->settings.xres<=300)
         {
-          o = -10; /* OK for <=300 */
+                o = -10;
         }
       else if(dev->settings.xres<=600)
         {
-          o = -6;  /* ok at 600 */
+                o = -6;
         }
       else
         {

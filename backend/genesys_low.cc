@@ -235,8 +235,8 @@ void sanei_genesys_bulk_read_data_send_header(Genesys_Device* dev, size_t len)
                dev->model->asic_type == GENESYS_GL843) {
         outdata[0] = BULK_IN;
         outdata[1] = BULK_RAM;
-        outdata[2] = VALUE_BUFFER & 0xff;
-        outdata[3] = (VALUE_BUFFER >> 8) & 0xff;
+        outdata[2] = 0x82; //
+        outdata[3] = 0x00;
     } else {
         outdata[0] = BULK_IN;
         outdata[1] = BULK_RAM;
@@ -352,11 +352,13 @@ SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, ui
         if (dev->model->asic_type == GENESYS_GL841) {
             outdata[0] = BULK_OUT;
             outdata[1] = BULK_RAM;
-            outdata[2] = VALUE_BUFFER & 0xff;
-            outdata[3] = (VALUE_BUFFER >> 8) & 0xff;
+            // both 0x82 and 0x00 works on GL841.
+            outdata[2] = 0x82;
+            outdata[3] = 0x00;
         } else {
             outdata[0] = BULK_OUT;
             outdata[1] = BULK_RAM;
+            // 8600F uses 0x82, but 0x00 works too. 8400F uses 0x02 for certain transactions.
             outdata[2] = 0x00;
             outdata[3] = 0x00;
         }

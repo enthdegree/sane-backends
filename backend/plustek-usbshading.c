@@ -2258,8 +2258,8 @@ usb_PrepareCalibration( Plustek_Device *dev )
 	regs[0x3b] = regs[0x3c] = regs[0x3d] = 1;
 	regs[0x45] &= ~0x10;
 
-	memset( a_wWhiteShading, 0, _SHADING_BUF );
-	memset( a_wDarkShading,  0, _SHADING_BUF );
+        memset( a_wWhiteShading, 0, _SHADING_BUF * sizeof(a_wWhiteShading[0]) );
+        memset( a_wDarkShading,  0, _SHADING_BUF * sizeof(a_wDarkShading[0]) );
 
 	scan->skipCoarseCalib = SANE_FALSE;
 
@@ -3127,8 +3127,8 @@ usb_DownloadShadingData( Plustek_Device *dev, u_char what )
 					if (scan->skipCoarseCalib) {
 
 						DBG( _DBG_INFO, "...cleaning shading buffer\n" );
-						memset( a_wWhiteShading, 0, _SHADING_BUF );
-						memset( a_wDarkShading,  0, _SHADING_BUF );
+                                                memset( a_wWhiteShading, 0, _SHADING_BUF * sizeof(a_wWhiteShading[0]) );
+                                                memset( a_wDarkShading,  0, _SHADING_BUF * sizeof(a_wDarkShading[0]) );
 
 						regs[0x40] = 0x3f;
 						regs[0x41] = 0xff;

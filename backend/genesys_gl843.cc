@@ -4333,7 +4333,6 @@ gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
       /* recompute STRPIXEL used shading calibration so we can
        * compute offset within data for SHDAREA case */
       r = sanei_genesys_get_address(&dev->reg, REG18);
-      sanei_genesys_get_double(&dev->reg,REG_DPISET,&strpixel);
       sanei_genesys_get_double(&dev->reg,REG_DPISET,&dpiset);
       factor=sensor.optical_res/sanei_genesys_compute_dpihw(dev, sensor, dpiset);
 

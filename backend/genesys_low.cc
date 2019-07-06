@@ -2059,3 +2059,11 @@ void debug_dump(unsigned level, const Genesys_Current_Setup& setup)
         setup.stagger,
         setup.max_shift);
 }
+
+void debug_dump(unsigned level, const Genesys_Register_Set& regs)
+{
+    DBG(level, "register_set:\n");
+    for (const auto& reg : regs) {
+        DBG(level, "    %04x=%02x\n", reg.address, reg.value);
+    }
+}

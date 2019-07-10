@@ -1,5 +1,5 @@
 ;;;  utsushi.desc                               -*- emacs-lisp -*- (sort of)
-;;;  Copyright (C) 2015-2018  Olaf Meeuwissen
+;;;  Copyright (C) 2015-2019  Olaf Meeuwissen
 ;;;
 ;;;  License: GPL-3.0+
 ;;;  Author : Olaf Meeuwissen
@@ -67,6 +67,11 @@
 
 :model     "DS-535"
 :interface "USB"
+:status    :good
+
+:model     "DS-535"
+:interface "USB"
+:usbid     "0x04b8" "0x017a"
 :status    :good
 
 :model     "DS-560"
@@ -899,6 +904,18 @@
 :status    :good
 :comment   "LX-10xxx"
 
+:model     "PID 1162"
+:interface "USB"
+:usbid     "0x04b8" "0x1162"
+:status    :good
+:comment   "EWM7xxTR"
+
+:model     "PID 1163"
+:interface "USB"
+:usbid     "0x04b8" "0x1163"
+:status    :good
+:comment   "EPM5xxT"
+
 :model     "PID 1164"
 :interface "USB"
 :usbid     "0x04b8" "0x1164"
@@ -917,7 +934,25 @@
 :status    :good
 :comment   "L61x0"
 
+:model     "PID 1169"
+:interface "USB"
+:usbid     "0x04b8" "0x1169"
+:status    :good
+:comment   "EWM7xxTR"
+
+:model     "PID 116A"
+:interface "USB"
+:usbid     "0x04b8" "0x116a"
+:status    :good
+:comment   "EWM7xxTR"
+
 :model     "PID 116B"
 :interface "USB"
 :usbid     "0x04b8" "0x116b"
 :status    :good
+
+:model     "PID 116E"
+:interface "USB"
+:usbid     "0x04b8" "0x116e"
+:status    :good
+:comment   "EWM7xxTR"

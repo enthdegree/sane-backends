@@ -1843,10 +1843,10 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
     }
 
   std::fill(dev->dark_average_data.begin(),
-            dev->dark_average_data.begin() + dev->calib_pixels_offset * channels,
+            dev->dark_average_data.begin() + dev->calib_pixels_offset * channels * 2,
             0x00);
 
-  genesys_average_data(dev->dark_average_data.data() + dev->calib_pixels_offset * channels,
+  genesys_average_data(dev->dark_average_data.data() + dev->calib_pixels_offset * channels * 2,
                        calibration_data.data(),
                        dev->calib_lines, pixels_per_line * channels);
 
@@ -2053,10 +2053,10 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
                                  channels, pixels_per_line, dev->calib_lines);
 
   std::fill(dev->dark_average_data.begin(),
-            dev->dark_average_data.begin() + dev->calib_pixels_offset * channels,
+            dev->dark_average_data.begin() + dev->calib_pixels_offset * channels * 2,
             0x00);
 
-  genesys_average_data (dev->white_average_data.data() + dev->calib_pixels_offset * channels,
+  genesys_average_data (dev->white_average_data.data() + dev->calib_pixels_offset * channels * 2,
                         calibration_data.data(), dev->calib_lines,
 			pixels_per_line * channels);
 
@@ -2184,14 +2184,14 @@ genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Senso
 
 
   std::fill(dev->dark_average_data.begin(),
-            dev->dark_average_data.begin() + dev->calib_pixels_offset * channels,
+            dev->dark_average_data.begin() + dev->calib_pixels_offset * channels * 2,
             0x00);
   std::fill(dev->white_average_data.begin(),
-            dev->white_average_data.begin() + dev->calib_pixels_offset * channels,
+            dev->white_average_data.begin() + dev->calib_pixels_offset * channels * 2,
             0x00);
 
-  average_white = dev->white_average_data.data() + dev->calib_pixels_offset * channels;
-  average_dark = dev->dark_average_data.data() + dev->calib_pixels_offset * channels;
+  average_white = dev->white_average_data.data() + dev->calib_pixels_offset * channels * 2;
+  average_dark = dev->dark_average_data.data() + dev->calib_pixels_offset * channels * 2;
 
   for (x = 0; x < pixels_per_line * channels; x++)
     {

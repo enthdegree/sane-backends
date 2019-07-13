@@ -2121,6 +2121,7 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
 
             RIE(sanei_genesys_read_register(dev, REGA6, &val));
             val |= REGA6_GPIO17;
+            val &= ~REGA6_GPIO23;
             RIE(sanei_genesys_write_register(dev, REGA6,val));
         } else {
             RIE(sanei_genesys_read_register(dev, REG6C, &val));
@@ -2130,6 +2131,7 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
 
             RIE(sanei_genesys_read_register(dev, REGA6, &val));
             val &= ~REGA6_GPIO17;
+            val &= ~REGA6_GPIO23;
             RIE(sanei_genesys_write_register(dev, REGA6,val));
         }
         DBGCOMPLETED;

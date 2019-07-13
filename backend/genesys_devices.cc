@@ -1661,7 +1661,7 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            { -1, 1200, 24000, ScanMethod::TRANSPARENCY, {
+            { -1, 1200, 45000, ScanMethod::TRANSPARENCY, {
                     { 0x74, 0x03 }, { 0x75, 0xf0 }, { 0x76, 0xf0 },
                     { 0x77, 0x03 }, { 0x78, 0xfe }, { 0x79, 0x00 },
                     { 0x7a, 0x00 }, { 0x7b, 0x92 }, { 0x7c, 0x49 },
@@ -1690,7 +1690,7 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            { 2400, 2400, 24000, ScanMethod::TRANSPARENCY, {
+            { 2400, 2400, 45000, ScanMethod::TRANSPARENCY, {
                     { 0x74, 0x03 }, { 0x75, 0xfe }, { 0x76, 0x00 },
                     { 0x77, 0x03 }, { 0x78, 0xfe }, { 0x79, 0x00 },
                     { 0x7a, 0x00 }, { 0x7b, 0x92 }, { 0x7c, 0x49 },
@@ -1719,7 +1719,7 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            { 4800, 4800, 24000, ScanMethod::TRANSPARENCY, {
+            { 4800, 4800, 45000, ScanMethod::TRANSPARENCY, {
                     { 0x74, 0x03 }, { 0x75, 0xff }, { 0x76, 0xff },
                     { 0x77, 0x03 }, { 0x78, 0xff }, { 0x79, 0xff },
                     { 0x7a, 0x00 }, { 0x7b, 0x92 }, { 0x7c, 0x49 },

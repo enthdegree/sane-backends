@@ -142,6 +142,7 @@ enum Genesys_Option
   OPT_CALIBRATE,
   OPT_CLEAR_CALIBRATION,
   OPT_FORCE_CALIBRATION,
+  OPT_IGNORE_OFFSETS,
 
   /* must come last: */
   NUM_OPTIONS

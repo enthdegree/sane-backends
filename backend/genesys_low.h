@@ -1512,6 +1512,10 @@ struct Genesys_Device
 
     // if enabled, no calibration data will be loaded or saved to files
     SANE_Int force_calibration = 0;
+    // if enabled, will ignore the scan offsets and start scanning at true origin. This allows
+    // acquiring the positions of the black and white strips and the actual scan area
+    bool ignore_offsets = false;
+
     Genesys_Model *model = nullptr;
 
     Genesys_Register_Set reg;

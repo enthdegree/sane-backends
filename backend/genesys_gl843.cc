@@ -3037,16 +3037,26 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   move_dpi = dev->motor.base_ydpi;
 
   flags = 0;
+
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
-  {
+    {
         // note: move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
-        move = SANE_UNFIX(dev->model->y_offset_ta) - SANE_UNFIX(dev->model->y_offset_sensor_to_ta);
-    flags |= SCAN_FLAG_USE_XPA;
-  }
-  else
-    move = SANE_UNFIX(dev->model->y_offset);
+        if (dev->ignore_offsets) {
+            move = 0;
+        } else {
+            move = SANE_UNFIX(dev->model->y_offset_ta) -
+                   SANE_UNFIX(dev->model->y_offset_sensor_to_ta);
+        }
+        flags |= SCAN_FLAG_USE_XPA;
+    } else {
+        if (dev->ignore_offsets) {
+            move = 0;
+        } else {
+            move = SANE_UNFIX(dev->model->y_offset);
+        }
+    }
 
   move += dev->settings.tl_y;
   move = (move * move_dpi) / MM_PER_INCH;

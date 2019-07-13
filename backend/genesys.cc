@@ -5823,6 +5823,18 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_FORCE_CALIBRATION].cap =
     SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
 
+    // ignore offsets option
+    s->opt[OPT_IGNORE_OFFSETS].name = "ignore-internal-offsets";
+    s->opt[OPT_IGNORE_OFFSETS].title = SANE_I18N("Ignore internal offsets");
+    s->opt[OPT_IGNORE_OFFSETS].desc =
+        SANE_I18N("Acquires the image including the internal calibration areas of the scanner");
+    s->opt[OPT_IGNORE_OFFSETS].type = SANE_TYPE_BUTTON;
+    s->opt[OPT_IGNORE_OFFSETS].unit = SANE_UNIT_NONE;
+    s->opt[OPT_IGNORE_OFFSETS].size = 0;
+    s->opt[OPT_IGNORE_OFFSETS].constraint_type = SANE_CONSTRAINT_NONE;
+    s->opt[OPT_IGNORE_OFFSETS].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT |
+                                     SANE_CAP_ADVANCED;
+
   RIE (calc_parameters (s));
 
   DBGCOMPLETED;
@@ -7112,6 +7124,10 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
 
+        case OPT_IGNORE_OFFSETS: {
+            s->dev->ignore_offsets = true;
+            break;
+        }
     default:
       DBG(DBG_warn, "%s: can't set unknown option %d\n", __func__, option);
     }

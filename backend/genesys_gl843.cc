@@ -579,8 +579,8 @@ gl843_init_registers (Genesys_Device * dev)
     // CPL[0:4]: The position of falling edge of CCD CP signal in cycles
     SETREG(0x70, 0x01); // SENSOR_DEF
     SETREG(0x71, 0x03); // SENSOR_DEF
-    SETREG(0x72, 0x04);
-    SETREG(0x73, 0x05);
+    SETREG(0x72, 0x04); // SENSOR_DEF
+    SETREG(0x73, 0x05); // SENSOR_DEF
 
     if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
         SETREG(0x70, 0x01);

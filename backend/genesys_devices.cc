@@ -1639,6 +1639,8 @@ void genesys_init_sensor_tables()
                     { 0x0c, 0x00 },
                     { 0x70, 0x00 },
                     { 0x71, 0x02 },
+                    { 0x72, 0x02 },
+                    { 0x73, 0x04 },
                     { 0x9e, 0x2d },
                     { 0xaa, 0x00 },
                     { 0x16, 0x13 },
@@ -1668,6 +1670,8 @@ void genesys_init_sensor_tables()
                     { 0x0c, 0x00 },
                     { 0x70, 0x00 },
                     { 0x71, 0x02 },
+                    { 0x72, 0x02 },
+                    { 0x73, 0x04 },
                     { 0x9e, 0x2d },
                     { 0xaa, 0x00 },
                     { 0x16, 0x13 },
@@ -1697,6 +1701,8 @@ void genesys_init_sensor_tables()
                     { 0x0c, 0x00 },
                     { 0x70, 0x00 },
                     { 0x71, 0x02 },
+                    { 0x72, 0x02 },
+                    { 0x73, 0x04 },
                     { 0x9e, 0x2d },
                     { 0xaa, 0x00 },
                     { 0x16, 0x13 },
@@ -1782,20 +1788,17 @@ void genesys_init_sensor_tables()
             },
         };
 
-        auto base_custom_regs = sensor.custom_regs;
         for (const CustomSensorSettings& setting : custom_settings)
         {
             sensor.min_resolution = setting.min_resolution;
             sensor.max_resolution = setting.max_resolution;
             sensor.method = setting.method;
             sensor.exposure_lperiod = setting.exposure_lperiod;
-            sensor.custom_regs = base_custom_regs;
-            sensor.custom_regs.merge(setting.extra_custom_regs);
+            sensor.custom_regs = setting.extra_custom_regs;
             sensor.custom_fe_regs = setting.custom_fe_regs;
             s_sensors->push_back(sensor);
         }
     }
-    s_sensors->push_back(sensor);
 
 
     sensor = Genesys_Sensor();

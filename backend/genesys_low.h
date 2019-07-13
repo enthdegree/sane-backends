@@ -1168,6 +1168,7 @@ typedef struct Genesys_Model
   SANE_Int bpp_gray_values[MAX_DPI];	/* possible depths in gray mode */
   SANE_Int bpp_color_values[MAX_DPI];	/* possible depths in color mode */
 
+    // All offsets below are with respect to the sensor home position
   SANE_Fixed x_offset;		/* Start of scan area in mm */
   SANE_Fixed y_offset;		/* Start of scan area in mm (Amount of
 				   feeding needed to get to the medium) */
@@ -1182,7 +1183,7 @@ typedef struct Genesys_Model
   SANE_Fixed x_size_ta;		/* Size of scan area in TA mode in mm */
   SANE_Fixed y_size_ta;		/* Size of scan area in TA mode in mm */
 
-  // The amount of sensor movement needed to align with the lamp for transparency scanning
+  // The position of the sensor when it's aligned with the lamp for transparency scanning
   SANE_Fixed y_offset_sensor_to_ta;
 
   SANE_Fixed y_offset_calib_ta;	/* Start of white strip in TA mode in mm */

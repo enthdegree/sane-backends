@@ -1366,10 +1366,13 @@ genesys_average_white (Genesys_Device * dev, Genesys_Sensor& sensor, int channel
 
   range = size / 50;
 
-  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)	/* transparency mode */
-    gain_white_ref = sensor.fau_gain_white_ref * 256;
-  else
-    gain_white_ref = sensor.gain_white_ref * 256;
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        gain_white_ref = sensor.fau_gain_white_ref * 256;
+    } else {
+        gain_white_ref = sensor.gain_white_ref * 256;
+    }
 
   if (range < 1)
     range = 1;
@@ -1502,11 +1505,15 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 	  double applied_multi;
 	  double gain_white_ref;
 
-          if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)	/* Transparency */
-            gain_white_ref = sensor.fau_gain_white_ref * 256;
-	  else
-            gain_white_ref = sensor.gain_white_ref * 256;
-	  /* white and black are defined downwards */
+            if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+                dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+            {
+                gain_white_ref = sensor.fau_gain_white_ref * 256;
+            } else {
+                gain_white_ref = sensor.gain_white_ref * 256;
+            }
+
+            // white and black are defined downwards
 
             uint8_t gain0 = genesys_adjust_gain(&applied_multi,
                                                 gain_white_ref / (white[0] - dark[0]),
@@ -1779,6 +1786,11 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
   dev->dark_average_data.clear();
   dev->dark_average_data.resize(dev->average_size);
 
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) {
+        // FIXME: dark shading currently not supported on infrared transparency scans
+        return SANE_STATUS_GOOD;
+    }
+
     // FIXME: the current calculation is likely incorrect on non-GENESYS_GL843 implementations,
     // but this needs checking
     if (dev->calib_total_bytes_to_read > 0) {
@@ -1969,7 +1981,9 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
             TIE(dev->model->cmd_set->slow_back_home(dev, SANE_TRUE));
         }
 
-        if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
+        if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+            dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+        {
             dev->model->cmd_set->move_to_ta(dev);
         }
     }
@@ -3274,7 +3288,9 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
       return status;
     }
 
-  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
+  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+      dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+  {
       RIE(dev->model->cmd_set->move_to_ta(dev));
   }
 
@@ -3846,8 +3862,9 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
     }
 
   /* move to calibration area for transparency adapter */
-  if ((dev->settings.scan_method == ScanMethod::TRANSPARENCY)
-      && dev->model->cmd_set->move_to_ta != NULL)
+    if ((dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) &&
+        dev->model->cmd_set->move_to_ta != NULL)
     {
       status=dev->model->cmd_set->move_to_ta(dev);
       if (status != SANE_STATUS_GOOD)
@@ -3930,7 +3947,9 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
         RIE(dev->model->cmd_set->slow_back_home(dev, SANE_TRUE));
     }
 
-    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
         RIE(dev->model->cmd_set->move_to_ta(dev));
     }
 

@@ -1750,9 +1750,9 @@ extern void sanei_genesys_init_structs (Genesys_Device * dev);
 const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev);
 Genesys_Sensor& sanei_genesys_find_sensor_any_for_write(Genesys_Device* dev);
 const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
-                                                ScanMethod scan_method = ScanMethod::FLATBED);
+                                                ScanMethod scan_method);
 Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,
-                                                    ScanMethod scan_method = ScanMethod::FLATBED);
+                                                    ScanMethod scan_method);
 
 extern SANE_Status
 sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,

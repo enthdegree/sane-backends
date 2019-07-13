@@ -2492,7 +2492,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   local_reg = dev->reg;
   resolution=sanei_genesys_get_lowest_ydpi(dev);
 
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution);
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, ScanMethod::FLATBED);
 
     ScanSession session;
     session.params.xres = resolution;
@@ -2614,7 +2614,7 @@ gl843_search_start_position (Genesys_Device * dev)
 
     // FIXME: the current approach of doing search only for one resolution does not work on scanners
     // whith employ different sensors with potentially different settings.
-    auto& sensor = sanei_genesys_find_sensor_for_write(dev, dpi);
+    auto& sensor = sanei_genesys_find_sensor_for_write(dev, dpi, ScanMethod::FLATBED);
 
     ScanSession session;
     session.params.xres = dpi;
@@ -2786,7 +2786,7 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
 
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution);
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, ScanMethod::FLATBED);
 
     ScanSession session;
     session.params.xres = resolution;

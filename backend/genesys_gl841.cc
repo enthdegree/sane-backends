@@ -3557,7 +3557,7 @@ gl841_search_start_position (Genesys_Device * dev)
 
   // FIXME: the current approach of doing search only for one resolution does not work on scanners
   // whith employ different sensors with potentially different settings.
-  auto& sensor = sanei_genesys_find_sensor_for_write(dev, dpi);
+    auto& sensor = sanei_genesys_find_sensor_for_write(dev, dpi, ScanMethod::FLATBED);
 
     SetupParams params;
     params.xres = dpi;

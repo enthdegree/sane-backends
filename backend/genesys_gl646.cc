@@ -4119,7 +4119,7 @@ gl646_move_to_ta (Genesys_Device * dev)
   SANE_Status status = SANE_STATUS_GOOD;
 
   DBGSTART;
-  if (simple_move (dev, SANE_UNFIX (dev->model->y_offset_calib_ta)) !=
+  if (simple_move(dev, SANE_UNFIX(dev->model->y_offset_sensor_to_ta)) !=
       SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to move to calibration area\n", __func__);

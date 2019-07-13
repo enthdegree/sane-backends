@@ -1182,6 +1182,9 @@ typedef struct Genesys_Model
   SANE_Fixed x_size_ta;		/* Size of scan area in TA mode in mm */
   SANE_Fixed y_size_ta;		/* Size of scan area in TA mode in mm */
 
+  // The amount of sensor movement needed to align with the lamp for transparency scanning
+  SANE_Fixed y_offset_sensor_to_ta;
+
   SANE_Fixed y_offset_calib_ta;	/* Start of white strip in TA mode in mm */
 
   SANE_Fixed post_scan;		/* Size of scan area after paper sensor stops

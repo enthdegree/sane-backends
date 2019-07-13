@@ -2743,6 +2743,7 @@ static Genesys_Model umax_astra_4500_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX (0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -2794,6 +2795,7 @@ static Genesys_Model canon_lide_50_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX (0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -2851,6 +2853,7 @@ static Genesys_Model panasonic_kvss080_model = {
   SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX (0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -2904,6 +2907,7 @@ static Genesys_Model hp4850c_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -2961,6 +2965,7 @@ static Genesys_Model hpg4010_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3018,6 +3023,7 @@ static Genesys_Model hpg4050_model = {
   SANE_FIX (217.9),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (250.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (40.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3076,6 +3082,7 @@ static Genesys_Model canon_4400f_model = {
   SANE_FIX (217.9),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (250.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (40.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3136,6 +3143,7 @@ static Genesys_Model canon_8400f_model = {
   SANE_FIX (217.9),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (250.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (40.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3191,12 +3199,13 @@ static Genesys_Model canon_8600f_model = {
   SANE_FIX(0.0),        // Start of white strip in mm (y)
   SANE_FIX(8.0),        // Start of black mark in mm (x)
 
-  SANE_FIX(95.0),       // x_offset_ta
+  SANE_FIX(85.0),       // x_offset_ta
   SANE_FIX(26.0),       // y_offset_ta
   SANE_FIX(70.0),       // x_size_ta
   SANE_FIX(230.0),      // y_size_ta
 
-  SANE_FIX(12.5),       // y_offset_calib
+  SANE_FIX(11.5),       // y_offset_sensor_to_ta
+  SANE_FIX(14.0),       // y_offset_calib_ta
 
   SANE_FIX(0.0),        // Size of scan area after paper sensor stops
                         // sensing document in mm
@@ -3255,6 +3264,7 @@ static Genesys_Model canon_lide_100_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3311,6 +3321,7 @@ static Genesys_Model canon_lide_110_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3365,6 +3376,7 @@ static Genesys_Model canon_lide_120_model = {
   SANE_FIX (100.0),              /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),              /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3420,6 +3432,7 @@ static Genesys_Model canon_lide_210_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3474,6 +3487,7 @@ static Genesys_Model canon_lide_220_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3528,6 +3542,7 @@ static Genesys_Model canon_5600f_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3583,6 +3598,7 @@ static Genesys_Model canon_lide_700f_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3640,6 +3656,7 @@ static Genesys_Model canon_lide_200_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3696,6 +3713,7 @@ static Genesys_Model canon_lide_60_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3753,6 +3771,7 @@ static Genesys_Model canon_lide_80_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3811,6 +3830,7 @@ static Genesys_Model hp2300c_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3868,6 +3888,7 @@ Genesys_Model hp2400c_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3925,6 +3946,7 @@ Genesys_Model visioneer_xp200_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -3980,6 +4002,7 @@ static Genesys_Model hp3670c_model = {
   SANE_FIX (25.6),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (78.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (76.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -4036,6 +4059,7 @@ static Genesys_Model plustek_st12_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -4086,6 +4110,7 @@ static Genesys_Model plustek_st24_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -4141,6 +4166,7 @@ static Genesys_Model medion_md5345_model = {
   SANE_FIX (0.00),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (0.00),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.00),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -4197,6 +4223,7 @@ static Genesys_Model visioneer_xp300_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (26.5),                /* Size of scan area after paper sensor stops
@@ -4252,6 +4279,7 @@ static Genesys_Model syscan_docketport_665_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (17.5),                /* Size of scan area after paper sensor stops
@@ -4306,6 +4334,7 @@ static Genesys_Model visioneer_roadwarrior_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (16.0),                /* Size of scan area after paper sensor stops
@@ -4360,6 +4389,7 @@ static Genesys_Model syscan_docketport_465_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (16.0),                /* Size of scan area after paper sensor stops
@@ -4414,6 +4444,7 @@ static Genesys_Model visioneer_xp100_r3_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (16.0),                /* Size of scan area after paper sensor stops
@@ -4468,6 +4499,7 @@ static Genesys_Model pentax_dsmobile_600_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (16.0),                /* Size of scan area after paper sensor stops
@@ -4522,6 +4554,7 @@ static Genesys_Model syscan_docketport_467_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (16.0),                /* Size of scan area after paper sensor stops
@@ -4576,6 +4609,7 @@ static Genesys_Model syscan_docketport_685_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (26.5),                /* Size of scan area after paper sensor stops
@@ -4631,6 +4665,7 @@ static Genesys_Model syscan_docketport_485_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (26.5),                /* Size of scan area after paper sensor stops
@@ -4686,6 +4721,7 @@ static Genesys_Model dct_docketport_487_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (26.5),                /* Size of scan area after paper sensor stops
@@ -4742,6 +4778,7 @@ static Genesys_Model visioneer_7100_model = {
   SANE_FIX (0.00),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (0.00),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.00),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -4798,6 +4835,7 @@ static Genesys_Model xerox_2400_model = {
   SANE_FIX (0.00),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (0.00),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.00),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -4855,6 +4893,7 @@ static Genesys_Model xerox_travelscanner_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (16.0),                /* Size of scan area after paper sensor stops
@@ -4908,6 +4947,7 @@ static Genesys_Model plustek_3600_model = {
   SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -4965,6 +5005,7 @@ static Genesys_Model hpn6310_model = {
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0),                /* Size of scan area after paper sensor stops
@@ -5024,6 +5065,7 @@ static Genesys_Model plustek_3800_model = {
   SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
@@ -5078,6 +5120,7 @@ static Genesys_Model canon_formula101_model = {
   SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (x) */
   SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (y) */
 
+  SANE_FIX(0.0),                // y_offset_sensor_to_ta
   SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops

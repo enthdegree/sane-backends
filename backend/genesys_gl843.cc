@@ -2900,7 +2900,7 @@ gl843_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
         offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         offset = (offset * calib_sensor.optical_res) / MM_PER_INCH;
 
-        unsigned size = SANE_UNFIX(dev->model->x_size_ta);
+        float size = SANE_UNFIX(dev->model->x_size_ta);
         size /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         size = (size * calib_sensor.optical_res) / MM_PER_INCH;
 
@@ -2924,7 +2924,8 @@ gl843_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
   {
         // note: move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
-    move = 0; // already at dev->model->y_offset_calib_ta implicitly
+        move = SANE_UNFIX(dev->model->y_offset_calib_ta) -
+               SANE_UNFIX(dev->model->y_offset_sensor_to_ta);
     flags |= SCAN_FLAG_USE_XPA;
   }
   else
@@ -3010,7 +3011,7 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   {
         // note: move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
-    move = SANE_UNFIX(dev->model->y_offset_ta) - SANE_UNFIX(dev->model->y_offset_calib_ta);
+        move = SANE_UNFIX(dev->model->y_offset_ta) - SANE_UNFIX(dev->model->y_offset_sensor_to_ta);
     flags |= SCAN_FLAG_USE_XPA;
   }
   else
@@ -4038,7 +4039,7 @@ gl843_move_to_ta (Genesys_Device * dev)
   DBGSTART;
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
-  feed = 16*(SANE_UNFIX (dev->model->y_offset_calib_ta) * resolution) / MM_PER_INCH;
+  feed = 16*(SANE_UNFIX (dev->model->y_offset_sensor_to_ta) * resolution) / MM_PER_INCH;
   status = gl843_feed (dev, feed);
   if (status != SANE_STATUS_GOOD)
     {

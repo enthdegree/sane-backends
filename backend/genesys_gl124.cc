@@ -921,19 +921,11 @@ static void gl124_setup_sensor(Genesys_Device * dev,
  * @param flags optical flags (@see )
  * @return SANE_STATUS_GOOD if OK
  */
-static SANE_Status
-gl124_init_optical_regs_scan (Genesys_Device * dev,
-                              const Genesys_Sensor& sensor,
-			      Genesys_Register_Set * reg,
-			      unsigned int exposure_time,
-			      int used_res,
-			      unsigned int start,
-			      unsigned int pixels,
-			      int channels,
-			      int depth,
-			      SANE_Bool half_ccd,
-                              ColorFilter color_filter,
-                              int flags)
+static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                         Genesys_Register_Set* reg, unsigned int exposure_time,
+                                         int used_res, unsigned int start, unsigned int pixels,
+                                         int channels, int depth, SANE_Bool half_ccd,
+                                         ColorFilter color_filter, int flags)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
                          "half_ccd=%d, flags=%x\n",
@@ -1174,8 +1166,6 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   DBG (DBG_io2, "%s: exposure_time used=%d\n", __func__, exposure_time);
 
   sanei_genesys_set_double(reg,REG_DUMMY,sensor.dummy_pixel);
-
-  return SANE_STATUS_GOOD;
 }
 
 /** set up registers for an actual scan
@@ -1309,21 +1299,10 @@ gl124_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
       oflags |= OPTICAL_FLAG_ENABLE_LEDADD;
     }
 
-  /* now _LOGICAL_ optical values used are known, setup registers */
-  status = gl124_init_optical_regs_scan (dev,
-                                         sensor,
-					 reg,
-					 exposure_time,
-					 used_res,
-					 start,
-					 used_pixels,
-                                         params.channels,
-                                         params.depth,
-					 half_ccd,
-                                         params.color_filter,
-                                         oflags);
-  if (status != SANE_STATUS_GOOD)
-    return status;
+    // now _LOGICAL_ optical values used are known, setup registers
+    gl124_init_optical_regs_scan(dev, sensor, reg, exposure_time, used_res, start, used_pixels,
+                                 params.channels, params.depth, half_ccd, params.color_filter,
+                                 oflags);
 
   /*** motor parameters ***/
 

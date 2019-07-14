@@ -1520,20 +1520,12 @@ gl841_init_optical_regs_off(Genesys_Register_Set * reg)
     return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-gl841_init_optical_regs_scan(Genesys_Device * dev,
-                             const Genesys_Sensor& sensor,
-			     Genesys_Register_Set * reg,
-			     unsigned int exposure_time,
-			     unsigned int used_res,
-			     unsigned int start,
-			     unsigned int pixels,
-			     int channels,
-			     int depth,
-			     SANE_Bool half_ccd,
-                             ColorFilter color_filter,
-			     int flags
-    )
+static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                         Genesys_Register_Set* reg, unsigned int exposure_time,
+                                         unsigned int used_res, unsigned int start,
+                                         unsigned int pixels, int channels,
+                                         int depth, SANE_Bool half_ccd, ColorFilter color_filter,
+                                         int flags)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, "
                          "depth=%d, half_ccd=%d, flags=%x",
@@ -1727,8 +1719,6 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 
     r = sanei_genesys_get_address (reg, 0x34);
     r->value = sensor.dummy_pixel;
-
-    return SANE_STATUS_GOOD;
 }
 
 static int
@@ -2049,21 +2039,9 @@ dummy \ scanned lines
       oflags |= OPTICAL_FLAG_ENABLE_LEDADD;
     }
 
-  status = gl841_init_optical_regs_scan(dev, sensor,
-					reg,
-					exposure_time,
-					used_res,
-					start,
-					used_pixels,
-                                         params.channels,
-                                        params.depth,
-					half_ccd,
-                                        params.color_filter,
-                                        oflags);
-  if (status != SANE_STATUS_GOOD)
-    {
-      return status;
-    }
+    gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, used_res, start, used_pixels,
+                                 params.channels, params.depth, half_ccd, params.color_filter,
+                                 oflags);
 
 /*** motor parameters ***/
 

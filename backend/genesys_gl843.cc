@@ -1059,19 +1059,11 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
  * @param flags to drive specific settings such no calibration, XPA use ...
  * @return SANE_STATUS_GOOD if OK
  */
-static SANE_Status
-gl843_init_optical_regs_scan (Genesys_Device * dev,
-                              const Genesys_Sensor& sensor,
-			      Genesys_Register_Set * reg,
-			      unsigned int exposure,
-			      int used_res,
-			      unsigned int start,
-			      unsigned int pixels,
-			      int channels,
-			      int depth,
-                              unsigned ccd_size_divisor,
-                              ColorFilter color_filter,
-                              int flags)
+static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                         Genesys_Register_Set* reg, unsigned int exposure,
+                                         int used_res, unsigned int start, unsigned int pixels,
+                                         int channels, int depth, unsigned ccd_size_divisor,
+                                         ColorFilter color_filter, int flags)
 {
     DBG_HELPER_ARGS(dbg, "exposure=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
                          "ccd_size_divisor=%d, flags=%x",
@@ -1270,8 +1262,6 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
 
   r = sanei_genesys_get_address (reg, REG_DUMMY);
   r->value = sensor.dummy_pixel;
-
-  return SANE_STATUS_GOOD;
 }
 
 struct ScanSession {
@@ -1467,20 +1457,11 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Senso
       oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
     }
 
-  /* now _LOGICAL_ optical values used are known, setup registers */
-  status = gl843_init_optical_regs_scan (dev, sensor,
-                                         reg,
-					 exposure,
-                                         session.output_resolution,
-					 start,
-                                         session.optical_pixels,
-                                         session.params.channels,
-                                         session.params.depth,
-                                         session.ccd_size_divisor,
-                                         session.params.color_filter,
-                                         oflags);
-  if (status != SANE_STATUS_GOOD)
-    return status;
+    // now _LOGICAL_ optical values used are known, setup registers
+    gl843_init_optical_regs_scan(dev, sensor, reg, exposure, session.output_resolution, start,
+                                 session.optical_pixels, session.params.channels,
+                                 session.params.depth,  session.ccd_size_divisor,
+                                 session.params.color_filter, oflags);
 
   /*** motor parameters ***/
 

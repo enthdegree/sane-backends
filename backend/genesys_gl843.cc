@@ -2382,13 +2382,8 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
 
       while (loop < 600)	/* do not wait longer then 60 seconds */
 	{
-	  status = sanei_genesys_get_status (dev, &val);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
+            sanei_genesys_get_status(dev, &val);
+
           if (DBG_LEVEL >= DBG_io2)
             {
               sanei_genesys_print_status (val);
@@ -2433,22 +2428,14 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* regular slow back home */
   dev->scanhead_position_in_steps = 0;
 
-  /* first read gives HOME_SENSOR true */
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // first read gives HOME_SENSOR true
+    sanei_genesys_get_status(dev, &val);
+
   sanei_genesys_sleep_ms(100);
 
-  /* second is reliable */
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // second is reliable
+    sanei_genesys_get_status(dev, &val);
+
   if (DBG_LEVEL >= DBG_io)
     {
       sanei_genesys_print_status (val);
@@ -2530,13 +2517,8 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
       while (loop < 300)	/* do not wait longer then 30 seconds */
 	{
-	  status = sanei_genesys_get_status (dev, &val);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
+            sanei_genesys_get_status(dev, &val);
+
           if (DBG_LEVEL >= DBG_io2)
             {
               sanei_genesys_print_status (val);
@@ -2808,13 +2790,10 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
       return status;
     }
 
-  /* wait until feed count reaches the required value, but do not
-   * exceed 30s */
-  do
-    {
-          status = sanei_genesys_get_status (dev, &val);
-    }
-  while (status == SANE_STATUS_GOOD && !(val & FEEDFSH));
+    // wait until feed count reaches the required value, but do not exceed 30s
+    do {
+        sanei_genesys_get_status(dev, &val);
+    } while (!(val & FEEDFSH));
 
   // looks like the scanner locks up if we scan immediately after feeding
   sanei_genesys_sleep_ms(100);

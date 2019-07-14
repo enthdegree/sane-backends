@@ -2745,7 +2745,7 @@ gl841_stop_action (Genesys_Device * dev)
   uint8_t val40, val;
   unsigned int loop;
 
-    sanei_genesys_get_status (dev, &val);
+    sanei_genesys_get_status(dev, &val);
   if (DBG_LEVEL >= DBG_io)
     {
       sanei_genesys_print_status (val);
@@ -2826,12 +2826,7 @@ gl841_eject_document (Genesys_Device * dev)
   local_reg.clear();
   val = 0;
 
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read status register: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_get_status(dev, &val);
 
   status = gl841_stop_action (dev);
   if (status != SANE_STATUS_GOOD)
@@ -3199,12 +3194,7 @@ gl841_feed (Genesys_Device * dev, int steps)
   loop = 0;
   while (loop < 300)		/* do not wait longer then 30 seconds */
   {
-      status = sanei_genesys_get_status (dev, &val);
-      if (status != SANE_STATUS_GOOD)
-      {
-          DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
-	  return status;
-      }
+        sanei_genesys_get_status(dev, &val);
 
       if (!(val & REG41_MOTORENB))	/* motor enabled */
       {
@@ -3254,26 +3244,18 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
   gl841_save_power(dev, SANE_FALSE);
 
-  /* first read gives HOME_SENSOR true */
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // first read gives HOME_SENSOR true
+    sanei_genesys_get_status(dev, &val);
+
   if (DBG_LEVEL >= DBG_io)
     {
       sanei_genesys_print_status (val);
     }
   sanei_genesys_sleep_ms(100);
 
-  /* second is reliable */
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // second is reliable
+    sanei_genesys_get_status(dev, &val);
+
   if (DBG_LEVEL >= DBG_io)
     {
       sanei_genesys_print_status (val);
@@ -3349,13 +3331,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       while (loop < 300)		/* do not wait longer then 30 seconds */
 	{
-	  status = sanei_genesys_get_status (dev, &val);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
+        sanei_genesys_get_status(dev, &val);
 
 	  if (val & REG41_HOMESNR)	/* home sensor */
 	    {
@@ -4804,7 +4780,7 @@ gl841_init (Genesys_Device * dev)
   /* Check if the device has already been initialized and powered up */
   if (dev->already_initialized)
     {
-      RIE (sanei_genesys_get_status (dev, &val));
+        sanei_genesys_get_status(dev, &val);
       if (val & REG41_PWRBIT)
 	{
 	  DBG(DBG_info, "%s: already initialized\n", __func__);

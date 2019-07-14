@@ -1805,12 +1805,7 @@ gl646_load_document (Genesys_Device * dev)
       return SANE_STATUS_GOOD;
     }
 
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read status: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_get_status(dev, &val);
 
   /* HOMSNR is set if a document is inserted */
   if ((val & REG41_HOMESNR))
@@ -1890,12 +1885,7 @@ gl646_load_document (Genesys_Device * dev)
   count = 0;
   do
     {
-      status = sanei_genesys_get_status (dev, &val);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to read status: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        sanei_genesys_get_status(dev, &val);
       sanei_genesys_sleep_ms(200);
       count++;
     }
@@ -1931,8 +1921,8 @@ gl646_detect_document_end (Genesys_Device * dev)
   uint8_t val, gpio;
   unsigned int bytes_left, lines;
 
-  /* test for document presence */
-  RIE (sanei_genesys_get_status (dev, &val));
+    // test for document presence
+    sanei_genesys_get_status(dev, &val);
   if (DBG_LEVEL > DBG_info)
     {
       print_status (val);
@@ -2013,13 +2003,9 @@ gl646_eject_document (Genesys_Device * dev)
 
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
 
-  /* test status : paper event + HOMESNR -> no more doc ? */
-  status = sanei_genesys_get_status (dev, &state);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read status: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // test status : paper event + HOMESNR -> no more doc ?
+    sanei_genesys_get_status(dev, &state);
+
   DBG(DBG_info, "%s: state=0x%02x\n", __func__, state);
   if (DBG_LEVEL > DBG_info)
     {
@@ -2042,12 +2028,7 @@ gl646_eject_document (Genesys_Device * dev)
   do
     {
       sanei_genesys_sleep_ms(200);
-      status = sanei_genesys_get_status (dev, &state);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to read status: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        sanei_genesys_get_status(dev, &state);
     }
   while (state & REG41_MOTMFLG);
 
@@ -2105,12 +2086,8 @@ gl646_eject_document (Genesys_Device * dev)
   count = 0;
   do
     {
-      status = sanei_genesys_get_status (dev, &state);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to read status: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        sanei_genesys_get_status(dev, &state);
+
       print_status (state);
       sanei_genesys_sleep_ms(200);
       count++;
@@ -2164,12 +2141,8 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   /* we need to compute scanfsh before cancelling scan */
   if (dev->model->is_sheetfed == SANE_TRUE)
     {
-      status = sanei_genesys_get_status (dev, &val);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to read register: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        sanei_genesys_get_status(dev, &val);
+
       if (val & REG41_SCANFSH)
 	scanfsh = 1;
       if (DBG_LEVEL > DBG_io2)
@@ -2200,13 +2173,8 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 	{
 	  for (i = 0; i < 30; i++)	/* do not wait longer than wait 3 seconds */
 	    {
-	      status = sanei_genesys_get_status (dev, &val);
-	      if (status != SANE_STATUS_GOOD)
-		{
-		  DBG(DBG_error, "%s: failed to read register: %s\n", __func__,
-		      sane_strstatus(status));
-		  return status;
-		}
+            sanei_genesys_get_status(dev, &val);
+
 	      if (val & REG41_SCANFSH)
 		scanfsh = 1;
 	      if (DBG_LEVEL > DBG_io2)
@@ -2230,13 +2198,8 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 	{
 	  for (i = 0; i < 300; i++)	/* do not wait longer than wait 30 seconds */
 	    {
-	      status = sanei_genesys_get_status (dev, &val);
-	      if (status != SANE_STATUS_GOOD)
-		{
-		  DBG(DBG_error, "%s: failed to read register: %s\n", __func__,
-		      sane_strstatus(status));
-		  return status;
-		}
+            sanei_genesys_get_status(dev, &val);
+
 	      if (val & REG41_SCANFSH)
 		scanfsh = 1;
 	      if (DBG_LEVEL > DBG_io)
@@ -2290,12 +2253,8 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   int i;
   int loop = 0;
 
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_get_status(dev, &val);
+
   if (DBG_LEVEL > DBG_io)
     {
       print_status (val);
@@ -2326,13 +2285,8 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   val = REG41_MOTMFLG;
   for (i = 400; i > 0 && (val & REG41_MOTMFLG); i--)	/* do not wait longer than 40 seconds, count down to get i = 0 when busy */
     {
-      status = sanei_genesys_get_status (dev, &val);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: Failed to read home sensor & motor status: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
+        sanei_genesys_get_status(dev, &val);
+
       if (((val & (REG41_MOTMFLG | REG41_HOMESNR)) == REG41_HOMESNR))	/* at home and motor is off */
 	{
 	  DBG(DBG_info, "%s: already at home and not moving\n", __func__);
@@ -2412,13 +2366,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       while (loop < 300)		/* do not wait longer then 30 seconds */
 	{
-	  status = sanei_genesys_get_status (dev, &val);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: Failed to read home sensor: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
+        sanei_genesys_get_status(dev, &val);
 
 	  if (val & 0x08)	/* home sensor */
 	    {
@@ -3767,11 +3715,9 @@ gl646_init (Genesys_Device * dev)
   uint32_t addr = 0xdead;
   size_t len;
 
-  /* to detect real power up condition, we write to REG41
-   * with pwrbit set, then read it back. When scanner is cold (just replugged)
-   * PWRBIT will be set in the returned value
-   */
-  RIE (sanei_genesys_get_status (dev, &cold));
+    // to detect real power up condition, we write to REG41 with pwrbit set, then read it back. When
+    // scanner is cold (just replugged) PWRBIT will be set in the returned value
+    sanei_genesys_get_status(dev, &cold);
   DBG(DBG_info, "%s: status=0x%02x\n", __func__, cold);
   cold = !(cold & REG41_PWRBIT);
   if (cold)
@@ -4087,7 +4033,7 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
   do
     {
       sanei_genesys_sleep_ms(10);
-      RIE (sanei_genesys_get_status (dev, &val));
+        sanei_genesys_get_status(dev, &val);
       if (DBG_LEVEL > DBG_info)
 	{
 	  print_status (val);

@@ -3568,7 +3568,7 @@ genesys_wait_not_moving (Genesys_Device * dev, int mseconds)
   DBG(DBG_proc, "%s: waiting %d mseconds for motor to stop\n", __func__, mseconds);
   while (mseconds > 0)
     {
-      RIE (sanei_genesys_get_status (dev, &value));
+        sanei_genesys_get_status(dev, &value);
 
       if (dev->model->cmd_set->test_motor_flag_bit (value))
 	{

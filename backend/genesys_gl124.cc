@@ -1861,26 +1861,18 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* post scan gpio : without that HOMSNR is unreliable */
   gl124_homsnr_gpio(dev);
 
-  /* first read gives HOME_SENSOR true */
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // first read gives HOME_SENSOR true
+    sanei_genesys_get_status(dev, &val);
+
   if (DBG_LEVEL >= DBG_io)
     {
       sanei_genesys_print_status (val);
     }
   sanei_genesys_sleep_ms(100);
 
-  /* second is reliable */
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // second is reliable
+    sanei_genesys_get_status(dev, &val);
+
   if (DBG_LEVEL >= DBG_io)
     {
       sanei_genesys_print_status (val);
@@ -1980,13 +1972,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
       while (loop < 300)        /* do not wait longer then 30 seconds */
 	{
-	  status = sanei_genesys_get_status (dev, &val);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
+        sanei_genesys_get_status(dev, &val);
 
 	  if (val & HOMESNR)        /* home sensor */
 	    {
@@ -2103,13 +2089,10 @@ gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse)
       return status;
     }
 
-  /* wait until feed count reaches the required value, but do not
-   * exceed 30s */
-  do
-    {
-          status = sanei_genesys_get_status (dev, &val);
-    }
-  while (status == SANE_STATUS_GOOD && !(val & FEEDFSH));
+    // wait until feed count reaches the required value, but do not exceed 30s
+    do {
+        sanei_genesys_get_status(dev, &val);
+    } while (!(val & FEEDFSH));
 
   /* then stop scanning */
   RIE(gl124_stop_action (dev));
@@ -2354,7 +2337,7 @@ static void gl124_wait_for_motor_stop(Genesys_Device* dev)
     DBG_HELPER(dbg);
     uint8_t val40, val;
 
-    TIE(sanei_genesys_get_status(dev, &val));
+    sanei_genesys_get_status(dev, &val);
     sanei_genesys_read_register(dev, REG100, &val40);
 
     if ((val & MOTORENB) == 0 && (val40 & REG100_MOTMFLG) == 0)
@@ -2362,7 +2345,7 @@ static void gl124_wait_for_motor_stop(Genesys_Device* dev)
 
     do {
         sanei_genesys_sleep_ms(10);
-        TIE(sanei_genesys_get_status(dev, &val));
+        sanei_genesys_get_status(dev, &val);
         sanei_genesys_read_register(dev, REG100, &val40);
     } while ((val & MOTORENB) ||(val40 & REG100_MOTMFLG));
     sanei_genesys_sleep_ms(50);

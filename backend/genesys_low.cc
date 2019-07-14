@@ -640,16 +640,14 @@ sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
 
 /** read the status register
  */
-SANE_Status
-sanei_genesys_get_status (Genesys_Device * dev, uint8_t * status)
+void sanei_genesys_get_status(Genesys_Device* dev, uint8_t* status)
 {
     DBG_HELPER(dbg);
     if (dev->model->asic_type == GENESYS_GL124) {
         sanei_genesys_read_hregister(dev, 0x101, status);
-        return SANE_STATUS_GOOD;
+        return;
     }
     sanei_genesys_read_register(dev, 0x41, status);
-    return SANE_STATUS_GOOD;
 }
 
 /**
@@ -814,15 +812,9 @@ sanei_genesys_test_buffer_empty (Genesys_Device * dev, SANE_Bool * empty)
 {
     DBG_HELPER(dbg);
   uint8_t val = 0;
-  SANE_Status status = SANE_STATUS_GOOD;
 
   sanei_genesys_sleep_ms(1);
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read buffer status: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_get_status(dev, &val);
 
   if (dev->model->cmd_set->test_buffer_empty_bit (val))
     {
@@ -1343,26 +1335,11 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
   /* clear the parking status whatever the outcome of the function */
   dev->parking=SANE_FALSE;
 
-  /* read initial status, if head isn't at home and motor is on
-   * we are parking, so we wait.
-   * gl847/gl124 need 2 reads for reliable results */
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "%s: failed to read home sensor: %s\n", __func__,
-	   sane_strstatus (status));
-      return status;
-    }
+    // read initial status, if head isn't at home and motor is on we are parking, so we wait.
+    // gl847/gl124 need 2 reads for reliable results
+    sanei_genesys_get_status(dev, &val);
   sanei_genesys_sleep_ms(10);
-  status = sanei_genesys_get_status (dev, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "%s: failed to read home sensor: %s\n", __func__,
-	   sane_strstatus (status));
-      return status;
-    }
+    sanei_genesys_get_status(dev, &val);
 
   /* if at home, return */
   if(val & HOMESNR)
@@ -1377,25 +1354,17 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
   do
     {
       sanei_genesys_sleep_ms(100);
-      status = sanei_genesys_get_status (dev, &val);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "%s: failed to read home sensor: %s\n", __func__,
-	       sane_strstatus (status));
-	  return status;
-	}
+        sanei_genesys_get_status(dev, &val);
+
           if (DBG_LEVEL >= DBG_io2)
             {
               sanei_genesys_print_status (val);
             }
       ++loop;
-    }
-  while (loop < max && !(val & HOMESNR) && status == SANE_STATUS_GOOD);
+    } while (loop < max && !(val & HOMESNR));
 
   /* if after the timeout, head is still not parked, error out */
-  if(loop >= max && !(val & HOMESNR) && status == SANE_STATUS_GOOD)
-    {
+    if (loop >= max && !(val & HOMESNR)) {
       DBG (DBG_error, "%s: failed to reach park position %ds\n", __func__, max/10);
       return SANE_STATUS_IO_ERROR;
     }

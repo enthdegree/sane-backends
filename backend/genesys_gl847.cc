@@ -557,20 +557,18 @@ static void gl847_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
 }
 
 
-/** @brief set up motor related register for scan
- */
-static SANE_Status
-gl847_init_motor_regs_scan (Genesys_Device * dev,
-                            const Genesys_Sensor& sensor,
-                            Genesys_Register_Set * reg,
-                            unsigned int scan_exposure_time,
-			    float scan_yres,
-			    int scan_step_type,
-			    unsigned int scan_lines,
-			    unsigned int scan_dummy,
-			    unsigned int feed_steps,
-			    int scan_power_mode,
-                            unsigned int flags)
+// @brief set up motor related register for scan
+static void gl847_init_motor_regs_scan(Genesys_Device* dev,
+                                       const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set* reg,
+                                       unsigned int scan_exposure_time,
+                                       float scan_yres,
+                                       int scan_step_type,
+                                       unsigned int scan_lines,
+                                       unsigned int scan_dummy,
+                                       unsigned int feed_steps,
+                                       int scan_power_mode,
+                                       unsigned int flags)
 {
     DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, can_yres=%g, scan_step_type=%d, scan_lines=%d, "
                          "scan_dummy=%d, feed_steps=%d, scan_power_mode=%d, flags=%x",
@@ -772,8 +770,6 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
 
   r = sanei_genesys_get_address (reg, REG_FMOVDEC);
   r->value = fast_steps;
-
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -1054,7 +1050,6 @@ gl847_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
 
   SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
-  SANE_Status status = SANE_STATUS_GOOD;
 
     debug_dump(DBG_info, params);
 
@@ -1167,24 +1162,16 @@ gl847_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
   mflags=0;
-  if(params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)
-    mflags |= MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
-  if(params.flags & SCAN_FLAG_FEEDING)
-    mflags |= MOTOR_FLAG_FEED;
+    if (params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE) {
+        mflags |= MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
+    }
+    if (params.flags & SCAN_FLAG_FEEDING) {
+        mflags |= MOTOR_FLAG_FEED;
+  }
 
-  status = gl847_init_motor_regs_scan (dev, sensor,
-                                       reg,
-                                       exposure_time,
-                                       slope_dpi,
-                                       scan_step_type,
-                                       dev->model->is_cis ? lincnt *
-                                       params.channels : lincnt, dummy, move,
-                                       scan_power_mode,
-                                       mflags);
-
-  if (status != SANE_STATUS_GOOD)
-    return status;
-
+    gl847_init_motor_regs_scan(dev, sensor, reg, exposure_time, slope_dpi, scan_step_type,
+                               dev->model->is_cis ? lincnt * params.channels : lincnt, dummy, move,
+                               scan_power_mode, mflags);
 
   /*** prepares data reordering ***/
 

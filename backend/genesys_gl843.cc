@@ -829,18 +829,17 @@ static void gl843_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
 }
 
 
-static SANE_Status
-gl843_init_motor_regs_scan (Genesys_Device * dev,
-                            const Genesys_Sensor& sensor,
-                            Genesys_Register_Set * reg,
-                            unsigned int exposure,
-			    float scan_yres,
-			    int scan_step_type,
-			    unsigned int scan_lines,
-			    unsigned int scan_dummy,
-			    unsigned int feed_steps,
-			    int scan_power_mode,
-                            unsigned int flags)
+static void gl843_init_motor_regs_scan(Genesys_Device* dev,
+                                       const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set* reg,
+                                       unsigned int exposure,
+                                       float scan_yres,
+                                       int scan_step_type,
+                                       unsigned int scan_lines,
+                                       unsigned int scan_dummy,
+                                       unsigned int feed_steps,
+                                       int scan_power_mode,
+                                       unsigned int flags)
 {
     DBG_HELPER_ARGS(dbg, "exposure=%d, scan_yres=%g, scan_step_type=%d, scan_lines=%d, scan_dummy=%d, "
                          "feed_steps=%d, scan_power_mode=%d, flags=%x",
@@ -1020,8 +1019,6 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
           }
         }
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -1375,8 +1372,6 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Senso
   int scan_power_mode = 0;
   size_t requested_buffer_size, read_buffer_size;
 
-  SANE_Status status = SANE_STATUS_GOOD;
-
     debug_dump(DBG_info, session.params);
 
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, session.num_staggered_lines);
@@ -1467,27 +1462,22 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Senso
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
 
-  mflags=0;
-  if(session.params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)
-    mflags|=MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
-  if(session.params.flags & SCAN_FLAG_FEEDING)
-    mflags|=MOTOR_FLAG_FEED;
-  if (session.params.flags & SCAN_FLAG_USE_XPA)
-    mflags |= MOTOR_FLAG_USE_XPA;
+    mflags = 0;
+    if (session.params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE) {
+        mflags |= MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
+    }
+    if (session.params.flags & SCAN_FLAG_FEEDING) {
+        mflags |= MOTOR_FLAG_FEED;
+    }
+    if (session.params.flags & SCAN_FLAG_USE_XPA) {
+        mflags |= MOTOR_FLAG_USE_XPA;
+    }
 
-  status = gl843_init_motor_regs_scan (dev, sensor,
-                                       reg,
-                                       exposure,
-                                       slope_dpi,
-                                       scan_step_type,
-                                       dev->model->is_cis ? session.output_line_count * session.params.channels
-                                                          : session.output_line_count,
-                                       dummy,
-                                       move,
-                                       scan_power_mode,
-                                       mflags);
-  if (status != SANE_STATUS_GOOD)
-    return status;
+    unsigned scan_lines = dev->model->is_cis ? session.output_line_count * session.params.channels
+                                             : session.output_line_count;
+
+    gl843_init_motor_regs_scan(dev, sensor, reg, exposure, slope_dpi, scan_step_type,
+                               scan_lines, dummy, move, scan_power_mode,  mflags);
 
   /* since we don't have sheetfed scanners to handle,
    * use huge read buffer */

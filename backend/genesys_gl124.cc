@@ -617,18 +617,17 @@ static int gl124_compute_exposure(Genesys_Device *dev, int xres, int half_ccd)
 }
 
 
-static SANE_Status
-gl124_init_motor_regs_scan (Genesys_Device * dev,
-                            const Genesys_Sensor& sensor,
-                            Genesys_Register_Set * reg,
-                            unsigned int scan_exposure_time,
-			    float scan_yres,
-			    int scan_step_type,
-			    unsigned int scan_lines,
-			    unsigned int scan_dummy,
-			    unsigned int feed_steps,
-                            ScanColorMode scan_mode,
-                            unsigned int flags)
+static void gl124_init_motor_regs_scan(Genesys_Device* dev,
+                                       const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set* reg,
+                                       unsigned int scan_exposure_time,
+                                       float scan_yres,
+                                       int scan_step_type,
+                                       unsigned int scan_lines,
+                                       unsigned int scan_dummy,
+                                       unsigned int feed_steps,
+                                       ScanColorMode scan_mode,
+                                       unsigned int flags)
 {
     DBG_HELPER(dbg);
   int use_fast_fed;
@@ -811,8 +810,6 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
 
   /* FMOVDEC */
   sanei_genesys_set_double(reg,REG_FMOVDEC,fast_steps);
-
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -1190,7 +1187,6 @@ gl124_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
 
   SANE_Bool half_ccd;                /* false: full CCD res is used, true, half max CCD res is used */
   unsigned optical_res;
-  SANE_Status status = SANE_STATUS_GOOD;
 
     debug_dump(DBG_info, params);
 
@@ -1310,24 +1306,16 @@ gl124_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
   move = params.starty;
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
-  mflags=0;
-  if(params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)
-    mflags|=MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
-  if(params.flags & SCAN_FLAG_FEEDING)
-    mflags|=MOTOR_FLAG_FEED;
-
-  status = gl124_init_motor_regs_scan (dev, sensor,
-                                       reg,
-                                       exposure_time,
-                                       slope_dpi,
-                                       scan_step_type,
-                                       dev->model->is_cis ? lincnt * params.channels : lincnt,
-                                       dummy,
-                                       move,
-                                       params.scan_mode,
-                                       mflags);
-  if (status != SANE_STATUS_GOOD)
-    return status;
+    mflags = 0;
+    if (params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE) {
+        mflags |= MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
+    }
+    if (params.flags & SCAN_FLAG_FEEDING) {
+        mflags |= MOTOR_FLAG_FEED;
+    }
+    gl124_init_motor_regs_scan(dev, sensor, reg, exposure_time, slope_dpi, scan_step_type,
+                               dev->model->is_cis ? lincnt * params.channels : lincnt,
+                               dummy, move, params.scan_mode, mflags);
 
   /*** prepares data reordering ***/
 

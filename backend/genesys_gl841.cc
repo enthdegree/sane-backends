@@ -882,12 +882,8 @@ static void gl841_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
 #define MOTOR_ACTION_GO_HOME    2
 #define MOTOR_ACTION_HOME_FREE  3
 
-/** @brief turn off motor
- *
- */
-static SANE_Status
-gl841_init_motor_regs_off(Genesys_Register_Set * reg,
-			  unsigned int scan_lines)
+// @brief turn off motor
+static void gl841_init_motor_regs_off(Genesys_Register_Set* reg, unsigned int scan_lines)
 {
     DBG_HELPER_ARGS(dbg, "scan_lines=%d", scan_lines);
     unsigned int feedl;
@@ -945,8 +941,6 @@ gl841_init_motor_regs_off(Genesys_Register_Set * reg,
 
     r = sanei_genesys_get_address (reg, 0x5f);
     r->value = 0;
-
-    return SANE_STATUS_GOOD;
 }
 
 /** @brief write motor table frequency
@@ -1152,19 +1146,18 @@ HOME_FREE: 3
     return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-gl841_init_motor_regs_scan(Genesys_Device * dev, const Genesys_Sensor& sensor,
-		      Genesys_Register_Set * reg,
-		      unsigned int scan_exposure_time,/*pixel*/
-		      float scan_yres,/*dpi, motor resolution*/
-		      int scan_step_type,/*0: full, 1: half, 2: quarter*/
-		      unsigned int scan_lines,/*lines, scan resolution*/
-		      unsigned int scan_dummy,
-/*number of scan lines to add in a scan_lines line*/
-		      unsigned int feed_steps,/*1/base_ydpi*/
-/*maybe float for half/quarter step resolution?*/
-		      int scan_power_mode,
-		      unsigned int flags)
+static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set* reg,
+                                       unsigned int scan_exposure_time,/*pixel*/
+                                       float scan_yres,/*dpi, motor resolution*/
+                                       int scan_step_type,/*0: full, 1: half, 2: quarter*/
+                                       unsigned int scan_lines,/*lines, scan resolution*/
+                                       unsigned int scan_dummy,
+                                       // number of scan lines to add in a scan_lines line
+                                       unsigned int feed_steps,/*1/base_ydpi*/
+                                       // maybe float for half/quarter step resolution?
+                                       int scan_power_mode,
+                                       unsigned int flags)
 {
     DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, scan_yres=%g, scan_step_type=%d, scan_lines=%d,"
                          " scan_dummy=%d, feed_steps=%d, scan_power_mode=%d, flags=%x",
@@ -1464,8 +1457,6 @@ HOME_FREE: 3
 
     r = sanei_genesys_get_address (reg, 0x5f);
     r->value = (fast_slope_steps >> 1) + (fast_slope_steps & 1);
-
-    return SANE_STATUS_GOOD;
 }
 
 static int
@@ -1826,7 +1817,6 @@ gl841_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
 
   SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
-  SANE_Status status = SANE_STATUS_GOOD;
   unsigned int oflags;          /**> optical flags */
 
     debug_dump(DBG_info, params);
@@ -2041,24 +2031,16 @@ dummy \ scanned lines
 /*  move = ((move + dummy) / (dummy + 1)) * (dummy + 1);
     DBG(DBG_info, "%s: move=%d steps\n", __func__, move);*/
 
-  if (params.flags & SCAN_FLAG_SINGLE_LINE)
-      status = gl841_init_motor_regs_off(reg, dev->model->is_cis?lincnt* params.channels:lincnt);
-  else
-      status = gl841_init_motor_regs_scan(dev, sensor,
-					  reg,
-					  exposure_time,
-					  slope_dpi,
-					  scan_step_type,
-                                          dev->model->is_cis?lincnt* params.channels:lincnt,
-					  dummy,
-					  move,
-					  scan_power_mode,
-                                          (params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)?
-					  MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE:0
-	  );
+    if (params.flags & SCAN_FLAG_SINGLE_LINE) {
+        gl841_init_motor_regs_off(reg, dev->model->is_cis?lincnt* params.channels:lincnt);
+    } else {
+        gl841_init_motor_regs_scan(dev, sensor, reg, exposure_time, slope_dpi, scan_step_type,
+                                   dev->model->is_cis?lincnt* params.channels:lincnt,
+                                   dummy, move, scan_power_mode,
+                                   (params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)?
+                                   MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE:0);
+  }
 
-  if (status != SANE_STATUS_GOOD)
-      return status;
 
 
   /*** prepares data reordering ***/
@@ -2534,7 +2516,7 @@ gl841_stop_action (Genesys_Device * dev)
 
   gl841_init_optical_regs_off(&local_reg);
 
-  gl841_init_motor_regs_off(&local_reg,0);
+    gl841_init_motor_regs_off(&local_reg,0);
     sanei_genesys_bulk_write_register(dev, local_reg);
 
   /* looks like writing the right registers to zero is enough to get the chip

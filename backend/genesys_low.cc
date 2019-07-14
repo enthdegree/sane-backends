@@ -82,29 +82,19 @@ void Genesys_Device::clear()
 /**
  * setup the hardware dependent functions
  */
-SANE_Status
-sanei_genesys_init_cmd_set (Genesys_Device * dev)
+void sanei_genesys_init_cmd_set(Genesys_Device* dev)
 {
   DBG_INIT ();
     DBG_HELPER(dbg);
-  switch (dev->model->asic_type)
-    {
-    case GENESYS_GL646:
-      return sanei_gl646_init_cmd_set (dev);
-    case GENESYS_GL841:
-      return sanei_gl841_init_cmd_set (dev);
-    case GENESYS_GL843:
-      return sanei_gl843_init_cmd_set (dev);
-    case GENESYS_GL845: /* since only a few reg bits differs
-                           we handle both together */
-    case GENESYS_GL846:
-      return sanei_gl846_init_cmd_set (dev);
-    case GENESYS_GL847:
-      return sanei_gl847_init_cmd_set (dev);
-    case GENESYS_GL124:
-      return sanei_gl124_init_cmd_set (dev);
-    default:
-      return SANE_STATUS_INVAL;
+    switch (dev->model->asic_type) {
+        case GENESYS_GL646: sanei_gl646_init_cmd_set(dev); break;
+        case GENESYS_GL841: sanei_gl841_init_cmd_set(dev); break;
+        case GENESYS_GL843: sanei_gl843_init_cmd_set(dev); break;
+        case GENESYS_GL845: // since only a few reg bits differs we handle both together
+        case GENESYS_GL846: sanei_gl846_init_cmd_set(dev); break;
+        case GENESYS_GL847: sanei_gl847_init_cmd_set(dev); break;
+        case GENESYS_GL124: sanei_gl124_init_cmd_set(dev); break;
+        default: throw SaneException(SANE_STATUS_INVAL, "unknown ASIC type");
     }
 }
 

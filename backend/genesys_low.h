@@ -1711,7 +1711,7 @@ inline void sanei_genesys_set_reg_from_set(Genesys_Register_Set* regs, uint16_t 
     regs->set8(address, value);
 }
 
-extern SANE_Status sanei_genesys_init_cmd_set (Genesys_Device * dev);
+extern void sanei_genesys_init_cmd_set(Genesys_Device* dev);
 
 extern void sanei_genesys_read_register(Genesys_Device* dev, uint16_t reg, uint8_t* val);
 
@@ -1983,12 +1983,12 @@ extern void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */
 /*---------------------------------------------------------------------------*/
-extern SANE_Status sanei_gl646_init_cmd_set (Genesys_Device * dev);
-extern SANE_Status sanei_gl841_init_cmd_set (Genesys_Device * dev);
-extern SANE_Status sanei_gl843_init_cmd_set (Genesys_Device * dev);
-extern SANE_Status sanei_gl846_init_cmd_set (Genesys_Device * dev);
-extern SANE_Status sanei_gl847_init_cmd_set (Genesys_Device * dev);
-extern SANE_Status sanei_gl124_init_cmd_set (Genesys_Device * dev);
+extern void sanei_gl646_init_cmd_set(Genesys_Device* dev);
+extern void sanei_gl841_init_cmd_set(Genesys_Device* dev);
+extern void sanei_gl843_init_cmd_set(Genesys_Device* dev);
+extern void sanei_gl846_init_cmd_set(Genesys_Device* dev);
+extern void sanei_gl847_init_cmd_set(Genesys_Device* dev);
+extern void sanei_gl124_init_cmd_set(Genesys_Device* dev);
 
 // same as usleep, except that it does nothing if testing mode is enabled
 extern void sanei_genesys_usleep(unsigned int useconds);

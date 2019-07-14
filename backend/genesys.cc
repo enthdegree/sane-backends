@@ -6256,11 +6256,7 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 
   RIE (init_options (s));
 
-  if (sanei_genesys_init_cmd_set (s->dev) != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error0, "This device doesn't have a valid command set!!\n");
-      return SANE_STATUS_IO_ERROR;
-    }
+    sanei_genesys_init_cmd_set(s->dev);
 
   // FIXME: we create sensor tables for the sensor, this should happen when we know which sensor
   // we will select

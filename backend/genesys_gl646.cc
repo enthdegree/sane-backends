@@ -4506,9 +4506,7 @@ static Genesys_Command_Set gl646_cmd_set = {
   NULL
 };
 
-SANE_Status
-sanei_gl646_init_cmd_set (Genesys_Device * dev)
+void sanei_gl646_init_cmd_set(Genesys_Device* dev)
 {
   dev->model->cmd_set = &gl646_cmd_set;
-  return SANE_STATUS_GOOD;
 }

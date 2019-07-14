@@ -4338,9 +4338,7 @@ static Genesys_Command_Set gl843_cmd_set = {
   gl843_boot
 };
 
-SANE_Status
-sanei_gl843_init_cmd_set (Genesys_Device * dev)
+void sanei_gl843_init_cmd_set(Genesys_Device* dev)
 {
   dev->model->cmd_set = &gl843_cmd_set;
-  return SANE_STATUS_GOOD;
 }

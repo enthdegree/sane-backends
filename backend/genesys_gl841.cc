@@ -3537,7 +3537,7 @@ gl841_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& sensor)
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
   std::vector<uint8_t> gamma(size * 2 * 3);
 
-  RIE(sanei_genesys_generate_gamma_buffer(dev, sensor, 16, 65535, size, gamma.data()));
+    sanei_genesys_generate_gamma_buffer(dev, sensor, 16, 65535, size, gamma.data());
 
   /* send address */
   status = gl841_set_buffer_address_gamma (dev, 0x00000);

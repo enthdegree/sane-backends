@@ -1974,13 +1974,12 @@ sanei_genesys_load_lut (unsigned char * lut,
                         int slope,
                         int offset);
 
-extern SANE_Status
-sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
+extern void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
                                     const Genesys_Sensor& sensor,
                                     int bits,
                                     int max,
                                     int size,
-                                    uint8_t *gamma);
+                                    uint8_t* gamma);
 
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */

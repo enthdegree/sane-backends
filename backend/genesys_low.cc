@@ -1089,12 +1089,12 @@ std::vector<uint16_t> get_gamma_table(Genesys_Device* dev, const Genesys_Sensor&
  * @param gamma allocated gamma buffer to fill
  * @returns SANE_STATUS_GOOD or SANE_STATUS_NO_MEM
  */
-SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
+void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
                                                 const Genesys_Sensor& sensor,
                                                 int bits,
                                                 int max,
                                                 int size,
-                                                uint8_t *gamma)
+                                                uint8_t* gamma)
 {
     DBG_HELPER(dbg);
     std::vector<uint16_t> rgamma = get_gamma_table(dev, sensor, GENESYS_RED);
@@ -1146,8 +1146,6 @@ SANE_Status sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
           gamma[i * 2 + size * 4 + 1] = (value >> 8) & 0xff;
         }
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -1171,7 +1169,7 @@ sanei_genesys_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& senso
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
   std::vector<uint8_t> gamma(size * 2 * 3, 255);
 
-  RIE(sanei_genesys_generate_gamma_buffer(dev, sensor, 16, 65535, size, gamma.data()));
+    sanei_genesys_generate_gamma_buffer(dev, sensor, 16, 65535, size, gamma.data());
 
     // loop sending gamma tables NOTE: 0x01000000 not 0x10000000
     for (i = 0; i < 3; i++) {

@@ -450,8 +450,7 @@ static void sanei_genesys_write_gl847_register(Genesys_Device* dev, uint8_t reg,
 /**
  * Write to one ASIC register
  */
-SANE_Status
-sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val)
+void sanei_genesys_write_register(Genesys_Device* dev, uint16_t reg, uint8_t val)
 {
     DBG_HELPER(dbg);
 
@@ -460,7 +459,7 @@ sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val)
     // 16 bit register address space
     if (reg > 255) {
         sanei_genesys_write_hregister(dev, reg, val);
-        return SANE_STATUS_GOOD;
+        return;
     }
 
   /* route to gl847 function if needed */
@@ -470,7 +469,7 @@ sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val)
   || dev->model->asic_type==GENESYS_GL124)
     {
         sanei_genesys_write_gl847_register(dev, reg, val);
-        return SANE_STATUS_GOOD;
+        return;
     }
 
   reg8=reg & 0xff;
@@ -482,8 +481,7 @@ sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val)
                              1, &val);
 
   DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, reg, val);
-
-    return SANE_STATUS_GOOD;
+    return;
 }
 
 /**
@@ -563,7 +561,7 @@ void sanei_genesys_read_register(Genesys_Device* dev, uint16_t reg, uint8_t* val
 SANE_Status
 sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr)
 {
-  SANE_Status status = SANE_STATUS_GOOD;
+    DBG_HELPER(dbg);
 
   if(dev->model->asic_type==GENESYS_GL847
   || dev->model->asic_type==GENESYS_GL845
@@ -578,24 +576,12 @@ sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr)
 
   addr = addr >> 4;
 
-  status = sanei_genesys_write_register (dev, 0x2b, (addr & 0xff));
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed while writing low byte: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_write_register(dev, 0x2b, (addr & 0xff));
 
   addr = addr >> 8;
-  status = sanei_genesys_write_register (dev, 0x2a, (addr & 0xff));
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed while writing high byte: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_write_register(dev, 0x2a, (addr & 0xff));
 
-  DBG(DBG_io, "%s: completed\n", __func__);
-
-  return status;
+  return SANE_STATUS_GOOD;
 }
 
 /**@brief read data from analog frontend (AFE)
@@ -1024,8 +1010,6 @@ SANE_Status sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Regi
 {
     DBG_HELPER(dbg);
 
-    SANE_Status status = SANE_STATUS_GOOD;
-
     if (dev->model->asic_type == GENESYS_GL646 ||
         dev->model->asic_type == GENESYS_GL841)
     {
@@ -1072,14 +1056,12 @@ SANE_Status sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Regi
         }
     } else {
         for (const auto& r : reg) {
-            status = sanei_genesys_write_register (dev, r.address, r.value);
-            if (status != SANE_STATUS_GOOD)
-                return status;
+            sanei_genesys_write_register(dev, r.address, r.value);
         }
     }
 
     DBG (DBG_io, "%s: wrote %lu registers\n", __func__, (u_long) reg.size());
-    return status;
+    return SANE_STATUS_GOOD;
 }
 
 
@@ -1259,12 +1241,12 @@ sanei_genesys_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& senso
         // clear corresponding GMM_N bit
         sanei_genesys_read_register(dev, 0xbd, &val);
       val &= ~(0x01 << i);
-      RIE(sanei_genesys_write_register(dev, 0xbd, val));
+        sanei_genesys_write_register(dev, 0xbd, val);
 
         // clear corresponding GMM_F bit
         sanei_genesys_read_register(dev, 0xbe, &val);
       val &= ~(0x01 << i);
-      RIE(sanei_genesys_write_register(dev, 0xbe, val));
+        sanei_genesys_write_register(dev, 0xbe, val);
 
       // FIXME: currently the last word of each gamma table is not initialied, so to work around
       // unstable data, just set it to 0 which is the most likely value of uninitialized memory
@@ -1273,8 +1255,8 @@ sanei_genesys_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& senso
       gamma[size * 2 * i + size * 2 - 1] = 0;
 
       /* set GMM_Z */
-      RIE(sanei_genesys_write_register (dev, 0xc5+2*i, gamma[size*2*i+1]));
-      RIE(sanei_genesys_write_register (dev, 0xc6+2*i, gamma[size*2*i]));
+        sanei_genesys_write_register(dev, 0xc5+2*i, gamma[size*2*i+1]);
+        sanei_genesys_write_register(dev, 0xc6+2*i, gamma[size*2*i]);
 
       status = sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2, gamma.data() + i * size * 2+2);
       if (status != SANE_STATUS_GOOD)

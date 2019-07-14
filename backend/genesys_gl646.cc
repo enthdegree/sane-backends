@@ -190,7 +190,9 @@ print_status (uint8_t val)
 static SANE_Status
 gl646_start_motor (Genesys_Device * dev)
 {
-  return sanei_genesys_write_register (dev, 0x0f, 0x01);
+    DBG_HELPER(dbg);
+    sanei_genesys_write_register(dev, 0x0f, 0x01);
+    return SANE_STATUS_GOOD;
 }
 
 
@@ -201,7 +203,9 @@ gl646_start_motor (Genesys_Device * dev)
 static SANE_Status
 gl646_stop_motor (Genesys_Device * dev)
 {
-  return sanei_genesys_write_register (dev, 0x0f, 0x00);
+    DBG_HELPER(dbg);
+    sanei_genesys_write_register(dev, 0x0f, 0x00);
+    return SANE_STATUS_GOOD;
 }
 
 
@@ -1040,20 +1044,10 @@ gl646_asic_test (Genesys_Device * dev)
   size_t size, verify_size;
   unsigned int i;
 
-  /* set and read exposure time, compare if it's the same */
-  status = sanei_genesys_write_register (dev, 0x38, 0xde);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to write register: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // set and read exposure time, compare if it's the same
+    sanei_genesys_write_register(dev, 0x38, 0xde);
 
-  status = sanei_genesys_write_register (dev, 0x39, 0xad);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to write register: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_write_register(dev, 0x39, 0xad);
 
   sanei_genesys_read_register(dev, 0x4e, &val);
 
@@ -1444,10 +1438,10 @@ gl646_set_ad_fe (Genesys_Device * dev, uint8_t set)
 static SANE_Status
 gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, int dpi)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
   int i;
 
-  DBGSTART;
   switch (set)
     {
     case AFE_INIT:
@@ -1458,7 +1452,7 @@ gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set,
 	  return status;
 	}
       sanei_genesys_sleep_ms(200);
-      RIE (sanei_genesys_write_register (dev, 0x50, 0x00));
+    sanei_genesys_write_register(dev, 0x50, 0x00);
       dev->frontend = dev->frontend_initial;
       status = sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
       if (status != SANE_STATUS_GOOD)
@@ -1540,7 +1534,6 @@ gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set,
 	}
     }
 
-  DBGCOMPLETED;
   return status;
 }
 
@@ -2064,6 +2057,7 @@ gl646_detect_document_end (Genesys_Device * dev)
 static SANE_Status
 gl646_eject_document (Genesys_Device * dev)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
 
   // FIXME: SEQUENTIAL not really needed in this case
@@ -2071,8 +2065,6 @@ gl646_eject_document (Genesys_Device * dev)
   unsigned int used, vfinal, count;
   uint16_t slope_table[255];
   uint8_t gpio, state;
-
-  DBG(DBG_proc, "%s: start\n", __func__);
 
   /* at the end there will be noe more document */
   dev->document = SANE_FALSE;
@@ -2104,13 +2096,8 @@ gl646_eject_document (Genesys_Device * dev)
       return status;
     }
 
-  /* there is a document inserted, eject it */
-  status = sanei_genesys_write_register (dev, 0x01, 0xb0);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to write register: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // there is a document inserted, eject it
+    sanei_genesys_write_register(dev, 0x01, 0xb0);
 
   /* wait for motor to stop */
   do
@@ -2201,7 +2188,6 @@ gl646_eject_document (Genesys_Device * dev)
 
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
 
-  DBG(DBG_proc, "%s: end\n", __func__);
   return status;
 }
 
@@ -2272,12 +2258,7 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   val = sanei_genesys_read_reg_from_set (reg, 0x01);
   val &= ~REG01_SCAN;
   sanei_genesys_set_reg_from_set (reg, 0x01, val);
-  status = sanei_genesys_write_register (dev, 0x01, val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to write register 01: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_write_register(dev, 0x01, val);
 
   /* for sheetfed scanners, we may have to eject document */
   if (dev->model->is_sheetfed == SANE_TRUE)
@@ -3950,8 +3931,8 @@ gl646_init (Genesys_Device * dev)
         val = 0x04;
         dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_INIT, INDEX, 1, &val);
 
-      /* ASIC reset */
-      RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
+        // ASIC reset
+        sanei_genesys_write_register(dev, 0x0e, 0x00);
       sanei_genesys_sleep_ms(100);
 
       /* Write initial registers */

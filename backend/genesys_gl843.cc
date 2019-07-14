@@ -61,23 +61,14 @@
 static SANE_Status
 gl843_set_buffer_address (Genesys_Device * dev, uint32_t addr)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_io, "%s: setting address to 0x%05x\n", __func__, addr & 0xffff);
 
-  status = sanei_genesys_write_register (dev, 0x5b, ((addr >> 8) & 0xff));
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed while writing high byte: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+  sanei_genesys_write_register(dev, 0x5b, ((addr >> 8) & 0xff));
 
-  status = sanei_genesys_write_register (dev, 0x5c, (addr & 0xff));
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed while writing low byte: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+  sanei_genesys_write_register(dev, 0x5c, (addr & 0xff));
 
   DBG(DBG_io, "%s: completed\n", __func__);
 
@@ -1813,7 +1804,6 @@ gl843_save_power (Genesys_Device * dev, SANE_Bool enable)
 {
     DBG_HELPER(dbg);
   uint8_t val;
-  SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s: enable = %d\n", __func__, enable);
     if (dev == NULL) {
@@ -1823,11 +1813,12 @@ gl843_save_power (Genesys_Device * dev, SANE_Bool enable)
     // switch KV-SS080 lamp off
     if (dev->model->gpo_type == GPO_KVSS080) {
         sanei_genesys_read_register(dev, REG6C, &val);
-      if(enable)
-        val &= 0xef;
-      else
-        val |= 0x10;
-      RIE(sanei_genesys_write_register(dev,REG6C,val));
+        if (enable) {
+            val &= 0xef;
+        } else {
+            val |= 0x10;
+        }
+        sanei_genesys_write_register(dev,REG6C,val);
     }
 
   return SANE_STATUS_GOOD;
@@ -1849,29 +1840,31 @@ gl843_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
 static SANE_Status
 gl843_start_action (Genesys_Device * dev)
 {
-  return sanei_genesys_write_register (dev, 0x0f, 0x01);
+    DBG_HELPER(dbg);
+    sanei_genesys_write_register(dev, 0x0f, 0x01);
+    return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
 gl843_stop_action_no_move(Genesys_Device* dev, Genesys_Register_Set* reg)
 {
+    DBG_HELPER(dbg);
     uint8_t val = sanei_genesys_read_reg_from_set(reg, REG01);
     val &= ~REG01_SCAN;
     sanei_genesys_set_reg_from_set(reg, REG01, val);
-    SANE_Status ret = sanei_genesys_write_register(dev, REG01, val);
+    sanei_genesys_write_register(dev, REG01, val);
     sanei_genesys_sleep_ms(100);
-    return ret;
+    return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
 gl843_stop_action (Genesys_Device * dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val40, val;
   unsigned int loop;
 
-  status = sanei_genesys_get_status (dev, &val);
+    sanei_genesys_get_status(dev, &val);
   if (DBG_LEVEL >= DBG_io)
     {
       sanei_genesys_print_status (val);
@@ -1891,18 +1884,14 @@ gl843_stop_action (Genesys_Device * dev)
   val = dev->reg.get8(REG01);
   val &= ~REG01_SCAN;
   dev->reg.set8(REG01, val);
-  status = sanei_genesys_write_register (dev, REG01, val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to write register 01: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+  sanei_genesys_write_register(dev, REG01, val);
+
   sanei_genesys_sleep_ms(100);
 
   loop = 10;
   while (loop > 0)
     {
-      status = sanei_genesys_get_status (dev, &val);
+        sanei_genesys_get_status(dev, &val);
       if (DBG_LEVEL >= DBG_io)
 	{
 	  sanei_genesys_print_status (val);
@@ -2092,28 +2081,27 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
 {
     DBG_HELPER(dbg);
     uint8_t val;
-    SANE_Status status = SANE_STATUS_GOOD;
 
     if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
 
         if (set) {
             sanei_genesys_read_register(dev, 0x6c, &val);
             val &= ~(REG6C_GPIO16 | REG6C_GPIO13);
-            RIE(sanei_genesys_write_register(dev, 0x6c, val));
+            sanei_genesys_write_register(dev, 0x6c, val);
 
             sanei_genesys_read_register(dev, 0xa9, &val);
             val |= REGA9_GPO30;
             val &= ~REGA9_GPO29;
-            RIE(sanei_genesys_write_register(dev, 0xa9,val));
+            sanei_genesys_write_register(dev, 0xa9, val);
         } else {
             sanei_genesys_read_register(dev, 0x6c, &val);
             val |= REG6C_GPIO16 | REG6C_GPIO13;
-            RIE(sanei_genesys_write_register(dev, 0x6c, val));
+            sanei_genesys_write_register(dev, 0x6c, val);
 
             sanei_genesys_read_register(dev, 0xa9, &val);
             val &= ~REGA9_GPO30;
             val |= REGA9_GPO29;
-            RIE(sanei_genesys_write_register(dev, 0xa9, val));
+            sanei_genesys_write_register(dev, 0xa9, val);
         }
     } else if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
         if (set) {
@@ -2122,59 +2110,59 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
             if (dev->current_setup.xres >= 2400) {
                 val |= REG6C_GPIO10;
             }
-            RIE(sanei_genesys_write_register(dev, REG6C, val));
+            sanei_genesys_write_register(dev, REG6C, val);
 
             sanei_genesys_read_register(dev, REGA6, &val);
             val |= REGA6_GPIO17;
             val &= ~REGA6_GPIO23;
-            RIE(sanei_genesys_write_register(dev, REGA6,val));
+            sanei_genesys_write_register(dev, REGA6, val);
         } else {
             sanei_genesys_read_register(dev, REG6C, &val);
             val |= REG6C_GPIO14;
             val &= ~REG6C_GPIO10;
-            RIE(sanei_genesys_write_register(dev, REG6C, val));
+            sanei_genesys_write_register(dev, REG6C, val);
 
             sanei_genesys_read_register(dev, REGA6, &val);
             val &= ~REGA6_GPIO17;
             val &= ~REGA6_GPIO23;
-            RIE(sanei_genesys_write_register(dev, REGA6,val));
+            sanei_genesys_write_register(dev, REGA6, val);
         }
     } else if (dev->model->model_id == MODEL_HP_SCANJET_G4050) {
         if (set) {
             // set MULTFILM et GPOADF
             sanei_genesys_read_register(dev, REG6B, &val);
             val |=REG6B_MULTFILM|REG6B_GPOADF;
-            RIE (sanei_genesys_write_register (dev, REG6B, val));
+            sanei_genesys_write_register(dev, REG6B, val);
 
             sanei_genesys_read_register(dev, REG6C, &val);
             val &= ~REG6C_GPIO15;
-            RIE (sanei_genesys_write_register (dev, REG6C, val));
+            sanei_genesys_write_register(dev, REG6C, val);
 
             /* Motor power ? No move at all without this one */
             sanei_genesys_read_register(dev, REGA6, &val);
             val |= REGA6_GPIO20;
-            RIE (sanei_genesys_write_register(dev,REGA6,val));
+            sanei_genesys_write_register(dev,REGA6,val);
 
             sanei_genesys_read_register(dev, REGA8, &val);
             val &= ~REGA8_GPO27;
-            RIE (sanei_genesys_write_register (dev, REGA8, val));
+            sanei_genesys_write_register(dev, REGA8, val);
 
             sanei_genesys_read_register(dev, REGA9, &val);
             val |= REGA9_GPO32|REGA9_GPO31;
-            RIE (sanei_genesys_write_register (dev, REGA9, val));
+            sanei_genesys_write_register(dev, REGA9, val);
         } else {
             // unset GPOADF
             sanei_genesys_read_register(dev, REG6B, &val);
             val &= ~REG6B_GPOADF;
-            RIE (sanei_genesys_write_register (dev, REG6B, val));
+            sanei_genesys_write_register(dev, REG6B, val);
 
             sanei_genesys_read_register(dev, REGA8, &val);
             val |= REGA8_GPO27;
-            RIE (sanei_genesys_write_register (dev, REGA8, val));
+            sanei_genesys_write_register(dev, REGA8, val);
 
             sanei_genesys_read_register(dev, REGA9, &val);
             val &= ~REGA9_GPO31;
-            RIE (sanei_genesys_write_register (dev, REGA9, val));
+            sanei_genesys_write_register(dev, REGA9, val);
         }
     }
 
@@ -2204,13 +2192,13 @@ static SANE_Status gl843_set_xpa_lamp_power(Genesys_Device *dev, bool set)
             val |= REGA6_GPIO22 | REGA6_GPIO21 | REGA6_GPIO19;
         }
 
-        RIE(sanei_genesys_write_register(dev, REGA6, val));
+        sanei_genesys_write_register(dev, REGA6, val);
 
         sanei_genesys_read_register(dev, REGA7, &val);
         val|=REGA7_GPOE24; /* lamp 1 off GPOE 24 */
         val|=REGA7_GPOE23; /* lamp 2 off GPOE 23 */
         val|=REGA7_GPOE22; /* full XPA lamp power */
-        RIE(sanei_genesys_write_register(dev, REGA7, val));
+        sanei_genesys_write_register(dev, REGA7, val);
     } else {
         sanei_genesys_read_register(dev, REGA6, &val);
 
@@ -2220,7 +2208,7 @@ static SANE_Status gl843_set_xpa_lamp_power(Genesys_Device *dev, bool set)
         // no XPA lamp power (2 bits for level: __11 ____)
         val &= ~(REGA6_GPIO22 | REGA6_GPIO21);
 
-        RIE(sanei_genesys_write_register(dev, REGA6, val));
+        sanei_genesys_write_register(dev, REGA6, val);
     }
 
     if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F &&
@@ -2229,11 +2217,11 @@ static SANE_Status gl843_set_xpa_lamp_power(Genesys_Device *dev, bool set)
         if (set) {
             sanei_genesys_read_register(dev, REG6C, &val);
             val |= REG6C_GPIO16;
-            RIE(sanei_genesys_write_register(dev, REG6C, val));
+            sanei_genesys_write_register(dev, REG6C, val);
         } else {
             sanei_genesys_read_register(dev, REG6C, &val);
             val &= ~REG6C_GPIO16;
-            RIE(sanei_genesys_write_register(dev, REG6C, val));
+            sanei_genesys_write_register(dev, REG6C, val);
         }
     }
 
@@ -2259,26 +2247,26 @@ gl843_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
     {
       /* KV case */
       case GPO_KVSS080:
-        RIE (sanei_genesys_write_register (dev, REGA9, 0x00));
-        RIE (sanei_genesys_write_register (dev, REGA6, 0xf6));
-        /* blinking led */
-        RIE (sanei_genesys_write_register (dev, 0x7e, 0x04));
-        break;
+            sanei_genesys_write_register(dev, REGA9, 0x00);
+            sanei_genesys_write_register(dev, REGA6, 0xf6);
+            // blinking led
+            sanei_genesys_write_register(dev, 0x7e, 0x04);
+            break;
       case GPO_G4050:
-        RIE (sanei_genesys_write_register (dev, REGA7, 0xfe));
-        RIE (sanei_genesys_write_register (dev, REGA8, 0x3e));
-        RIE (sanei_genesys_write_register (dev, REGA9, 0x06));
-        switch (dpihw)
+            sanei_genesys_write_register(dev, REGA7, 0xfe);
+            sanei_genesys_write_register(dev, REGA8, 0x3e);
+            sanei_genesys_write_register(dev, REGA9, 0x06);
+            switch (dpihw)
 	  {
 	   case 1200:
 	   case 2400:
 	   case 4800:
-	     RIE (sanei_genesys_write_register (dev, REG6C, 0x60));
-	     RIE (sanei_genesys_write_register (dev, REGA6, 0x46));
-	     break;
+                    sanei_genesys_write_register(dev, REG6C, 0x60);
+                    sanei_genesys_write_register(dev, REGA6, 0x46);
+                    break;
 	   default:		/* 600 dpi  case */
-	     RIE (sanei_genesys_write_register (dev, REG6C, 0x20));
-	     RIE (sanei_genesys_write_register (dev, REGA6, 0x44));
+                    sanei_genesys_write_register(dev, REG6C, 0x20);
+                    sanei_genesys_write_register(dev, REGA6, 0x44);
 	  }
 
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
@@ -2290,8 +2278,8 @@ gl843_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
                 RIE(gl843_set_xpa_motor_power(dev, true));
             }
 
-        /* blinking led */
-        RIE (sanei_genesys_write_register (dev, REG7E, 0x01));
+            // blinking led
+            sanei_genesys_write_register(dev, REG7E, 0x01);
         break;
       case GPO_CS8400F:
       case GPO_CS8600F:
@@ -2308,22 +2296,18 @@ gl843_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
         break;
     }
 
-  /* clear scan and feed count */
-  RIE (sanei_genesys_write_register
-       (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
+    // clear scan and feed count
+    sanei_genesys_write_register(dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT);
 
     // enable scan and motor
     sanei_genesys_read_register(dev, REG01, &val);
   val |= REG01_SCAN;
-  RIE (sanei_genesys_write_register (dev, REG01, val));
+    sanei_genesys_write_register(dev, REG01, val);
 
-  if (start_motor)
-    {
-      RIE (sanei_genesys_write_register (dev, REG0F, 1));
-    }
-  else
-    {
-      RIE (sanei_genesys_write_register (dev, REG0F, 0));
+    if (start_motor) {
+        sanei_genesys_write_register(dev, REG0F, 1);
+    } else {
+        sanei_genesys_write_register(dev, REG0F, 0);
     }
 
   return status;
@@ -2335,14 +2319,15 @@ static SANE_Status
 gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		SANE_Bool check_stop)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
 
   DBG(DBG_proc, "%s (check_stop = %d)\n", __func__, check_stop);
-  if (reg == NULL)
-    return SANE_STATUS_INVAL;
-
-  /* post scan gpio */
-  RIE(sanei_genesys_write_register(dev,0x7e,0x00));
+    if (reg == NULL) {
+        return SANE_STATUS_INVAL;
+    }
+    // post scan gpio
+    sanei_genesys_write_register(dev, 0x7e, 0x00);
 
     // turn off XPA lamp if needed
     // BUG: the if condition below probably shouldn't be enabled when XPA is off
@@ -2364,7 +2349,6 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 	}
     }
 
-  DBGCOMPLETED;
   return status;
 }
 
@@ -2373,13 +2357,12 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
  */
 static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
 {
+    DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
   SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   uint8_t val;
   int loop = 0;
-
-  DBGSTART;
 
   /* copy scan settings */
   local_reg = dev->reg;
@@ -2387,8 +2370,8 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
   /* set a huge feedl and reverse direction */
   sanei_genesys_set_triple(&local_reg,REG_FEEDL,0xbdcd);
 
-  /* clear scan and feed count */
-  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
+    // clear scan and feed count
+    sanei_genesys_write_register(dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT);
 
   /* set up for reverse and no scan */
   r = sanei_genesys_get_address (&local_reg, REG02);
@@ -2451,7 +2434,6 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
 
   /* we are not parked here.... should we fail ? */
   DBG(DBG_info, "%s: XPA lamp is not parked\n", __func__);
-  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -2460,6 +2442,7 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
 static SANE_Status
 gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
+    DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
   SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
@@ -2498,7 +2481,6 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
   if (val & HOMESNR)	/* is sensor at home? */
     {
-      DBGCOMPLETED;
       return SANE_STATUS_GOOD;
     }
 
@@ -2534,8 +2516,8 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return status;
     }
 
-  /* clear scan and feed count */
-  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
+    // clear scan and feed count
+    sanei_genesys_write_register(dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT);
 
   /* set up for reverse and no scan */
   r = sanei_genesys_get_address(&local_reg, REG02);
@@ -2601,7 +2583,6 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
 
   DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
-  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -2787,13 +2768,12 @@ gl843_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
 static SANE_Status
 gl843_feed (Genesys_Device * dev, unsigned int steps)
 {
+    DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
   SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   float resolution;
   uint8_t val;
-
-  DBGSTART;
 
   /* prepare local registers */
   local_reg = dev->reg;
@@ -2828,9 +2808,9 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
       return status;
     }
 
-  /* clear scan and feed count */
-  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT));
-  RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRMCNT));
+    // clear scan and feed count
+    sanei_genesys_write_register(dev, REG0D, REG0D_CLRLNCNT);
+    sanei_genesys_write_register(dev, REG0D, REG0D_CLRMCNT);
 
   /* set up for no scan */
   r = sanei_genesys_get_address(&local_reg, REG01);
@@ -2873,7 +2853,6 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
   // looks like the scanner locks up if we scan immediately after feeding
   sanei_genesys_sleep_ms(100);
 
-  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -3886,34 +3865,31 @@ GPIO(0xa8)=0x3e
 static SANE_Status
 gl843_init_gpio (Genesys_Device * dev)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
   int idx;
 
-  DBGSTART;
-
-  RIE (sanei_genesys_write_register (dev, REG6E, dev->gpo.enable[0]));
-  RIE (sanei_genesys_write_register (dev, REG6F, dev->gpo.enable[1]));
-  RIE (sanei_genesys_write_register (dev, REG6C, dev->gpo.value[0]));
-  RIE (sanei_genesys_write_register (dev, REG6D, dev->gpo.value[1]));
+    sanei_genesys_write_register(dev, REG6E, dev->gpo.enable[0]);
+    sanei_genesys_write_register(dev, REG6F, dev->gpo.enable[1]);
+    sanei_genesys_write_register(dev, REG6C, dev->gpo.value[0]);
+    sanei_genesys_write_register(dev, REG6D, dev->gpo.value[1]);
 
   idx=0;
   while(dev->model->gpo_type != gpios[idx].gpo_type && gpios[idx].gpo_type!=0)
     {
       idx++;
     }
-  if (gpios[idx].gpo_type!=0)
-    {
-      RIE (sanei_genesys_write_register (dev, REGA6, gpios[idx].ra6));
-      RIE (sanei_genesys_write_register (dev, REGA7, gpios[idx].ra7));
-      RIE (sanei_genesys_write_register (dev, REGA8, gpios[idx].ra8));
-      RIE (sanei_genesys_write_register (dev, REGA9, gpios[idx].ra9));
+    if (gpios[idx].gpo_type != 0) {
+        sanei_genesys_write_register(dev, REGA6, gpios[idx].ra6);
+        sanei_genesys_write_register(dev, REGA7, gpios[idx].ra7);
+        sanei_genesys_write_register(dev, REGA8, gpios[idx].ra8);
+        sanei_genesys_write_register(dev, REGA9, gpios[idx].ra9);
     }
   else
     {
       status=SANE_STATUS_INVAL;
     }
 
-  DBGCOMPLETED;
   return status;
 }
 
@@ -3928,10 +3904,9 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
-  if(cold)
-    {
-      RIE (sanei_genesys_write_register (dev, 0x0e, 0x01));
-      RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
+    if (cold) {
+        sanei_genesys_write_register(dev, 0x0e, 0x01);
+        sanei_genesys_write_register(dev, 0x0e, 0x00);
     }
 
   if(dev->usb_mode == 1)
@@ -3954,14 +3929,11 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
   /* Set default values for registers */
   gl843_init_registers (dev);
 
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    {
-      // turns on vref control for maximum current of the motor driver
-      RIE(sanei_genesys_write_register (dev, REG6B, 0x72));
-    }
-  else
-    {
-      RIE(sanei_genesys_write_register (dev, REG6B, 0x02));
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+        // turns on vref control for maximum current of the motor driver
+        sanei_genesys_write_register(dev, REG6B, 0x72);
+    } else {
+        sanei_genesys_write_register(dev, REG6B, 0x02);
     }
 
   /* Write initial registers */
@@ -3970,7 +3942,7 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
   // Enable DRAM by setting a rising edge on bit 3 of reg 0x0b
   val = dev->reg.find_reg(0x0b).value & REG0B_DRAMSEL;
   val = (val | REG0B_ENBDRAM);
-  RIE (sanei_genesys_write_register (dev, REG0B, val));
+    sanei_genesys_write_register(dev, REG0B, val);
   dev->reg.find_reg(0x0b).value = val;
 
     if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
@@ -3991,7 +3963,7 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
 
   val = (dev->reg.find_reg(0x0b).value & ~REG0B_CLKSET) | clock_freq;
 
-  RIE (sanei_genesys_write_register (dev, REG0B, val));
+    sanei_genesys_write_register(dev, REG0B, val);
   dev->reg.find_reg(0x0b).value = val;
 
   /* prevent further writings by bulk write register */
@@ -4001,14 +3973,14 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
     {
       // set up end access
       // FIXME: this is overwritten in gl843_init_gpio
-      sanei_genesys_write_register(dev, REGA7, 0x04);
-      sanei_genesys_write_register(dev, REGA9, 0x00);
+        sanei_genesys_write_register(dev, REGA7, 0x04);
+        sanei_genesys_write_register(dev, REGA9, 0x00);
     }
 
-  /* set RAM read address */
-  RIE (sanei_genesys_write_register (dev, REG29, 0x00));
-  RIE (sanei_genesys_write_register (dev, REG2A, 0x00));
-  RIE (sanei_genesys_write_register (dev, REG2B, 0x00));
+    // set RAM read address
+    sanei_genesys_write_register(dev, REG29, 0x00);
+    sanei_genesys_write_register(dev, REG2A, 0x00);
+    sanei_genesys_write_register(dev, REG2B, 0x00);
 
   /* setup gpio */
   RIE (gl843_init_gpio (dev));

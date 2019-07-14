@@ -1718,8 +1718,7 @@ extern SANE_Status sanei_genesys_init_cmd_set (Genesys_Device * dev);
 
 extern void sanei_genesys_read_register(Genesys_Device* dev, uint16_t reg, uint8_t* val);
 
-extern SANE_Status
-sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val);
+extern void sanei_genesys_write_register(Genesys_Device* dev, uint16_t reg, uint8_t val);
 
 extern void sanei_genesys_read_hregister(Genesys_Device* dev, uint16_t reg, uint8_t* val);
 

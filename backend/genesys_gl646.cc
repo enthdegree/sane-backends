@@ -1291,18 +1291,14 @@ gl646_init_regs (Genesys_Device * dev)
 }
 
 
-/* Send slope table for motor movement
-   slope_table in machine byte order
-*/
-static SANE_Status
-gl646_send_slope_table (Genesys_Device * dev, int table_nr,
-			uint16_t * slope_table, int steps)
+// Send slope table for motor movement slope_table in machine byte order
+static void gl646_send_slope_table(Genesys_Device* dev, int table_nr, uint16_t* slope_table,
+                                   int steps)
 {
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d)=%d .. %d", table_nr, steps, slope_table[0],
                     slope_table[steps - 1]);
   int dpihw;
   int start_address;
-  SANE_Status status = SANE_STATUS_GOOD;
 
   dpihw = dev->reg.find_reg(0x05).value >> 6;
 
@@ -1312,8 +1308,9 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
     start_address = 0x10000;
   else if (dpihw == 2)		/* 2400 dpi */
     start_address = 0x1f800;
-  else				/* reserved */
-    return SANE_STATUS_INVAL;
+    else {
+        throw SaneException("Unexpected dpihw");
+    }
 
   std::vector<uint8_t> table(steps * 2);
   for (int i = 0; i < steps; i++)
@@ -1325,8 +1322,6 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
     sanei_genesys_set_buffer_address(dev, start_address + table_nr * 0x100);
 
     sanei_genesys_bulk_write_data(dev, 0x3c, table.data(), steps * 2);
-
-  return status;
 }
 
 // Set values of Analog Device type frontend
@@ -1705,17 +1700,12 @@ gl646_load_document (Genesys_Device * dev)
 				      51,
 				      2400,
 				      6000, 2400, 50, 0.25, &used, &vfinal);
-/* document loading:
- * send regs
- * start motor
- * wait e1 status to become e0
- */
-  status = gl646_send_slope_table (dev, 1, slope_table, 50);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to send slope table 1: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // document loading:
+    // send regs
+    // start motor
+    // wait e1 status to become e0
+    gl646_send_slope_table(dev, 1, slope_table, 50);
+
     sanei_genesys_bulk_write_register(dev, regs);
 
   status = gl646_start_motor (dev);
@@ -1904,17 +1894,12 @@ gl646_eject_document (Genesys_Device * dev)
 				      61,
 				      1600,
 				      10000, 1600, 60, 0.25, &used, &vfinal);
-/* document eject:
- * send regs
- * start motor
- * wait c1 status to become c8 : HOMESNR and ~MOTFLAG
- */
-  status = gl646_send_slope_table (dev, 1, slope_table, 60);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to send slope table 1: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // document eject:
+    // send regs
+    // start motor
+    // wait c1 status to become c8 : HOMESNR and ~MOTFLAG
+    gl646_send_slope_table(dev, 1, slope_table, 60);
+
     sanei_genesys_bulk_write_register(dev, regs);
 
   status = gl646_start_motor (dev);
@@ -2574,24 +2559,10 @@ setup_for_scan (Genesys_Device * dev,
       return status;
     }
 
-  /* send computed slope tables */
-  status =
-    gl646_send_slope_table (dev, 0, slope_table0,
-			    sanei_genesys_read_reg_from_set (regs, 0x21));
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to send slope table 0: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // send computed slope tables
+    gl646_send_slope_table(dev, 0, slope_table0, sanei_genesys_read_reg_from_set (regs, 0x21));
 
-  status =
-    gl646_send_slope_table (dev, 1, slope_table1,
-			    sanei_genesys_read_reg_from_set (regs, 0x6b));
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to send slope table 1: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl646_send_slope_table(dev, 1, slope_table1, sanei_genesys_read_reg_from_set (regs, 0x6b));
 
   return status;
 }

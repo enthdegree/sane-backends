@@ -442,20 +442,17 @@ gl847_init_registers (Genesys_Device * dev)
  * @param slope_table pointer to 16 bit values array of the slope table
  * @param steps number of elements in the slope table
  */
-static SANE_Status
-gl847_send_slope_table (Genesys_Device * dev, int table_nr,
-			uint16_t * slope_table, int steps)
+static void gl847_send_slope_table(Genesys_Device* dev, int table_nr, uint16_t* slope_table,
+                                   int steps)
 {
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
-  SANE_Status status = SANE_STATUS_GOOD;
   int i;
   char msg[10000];
 
   /* sanity check */
   if(table_nr<0 || table_nr>4)
     {
-      DBG (DBG_error, "%s: invalid table number %d!\n", __func__, table_nr);
-      return SANE_STATUS_INVAL;
+        throw SaneException("invalid table number %d", table_nr);
     }
 
   std::vector<uint8_t> table(steps * 2);
@@ -477,8 +474,6 @@ gl847_send_slope_table (Genesys_Device * dev, int table_nr,
 
     // slope table addresses are fixed
     sanei_genesys_write_ahb(dev, 0x10000000 + 0x4000 * table_nr, steps * 2, table.data());
-
-  return status;
 }
 
 /**
@@ -581,7 +576,6 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
                          "scan_dummy=%d, feed_steps=%d, scan_power_mode=%d, flags=%x",
                     scan_exposure_time, scan_yres, scan_step_type, scan_lines, scan_dummy,
                     feed_steps, scan_power_mode, flags);
-  SANE_Status status = SANE_STATUS_GOOD;
   int use_fast_fed;
   unsigned int fast_dpi;
   uint16_t scan_table[SLOPE_TABLE_SIZE];
@@ -639,8 +633,8 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
                             factor,
                             dev->model->motor_type,
                             gl847_motors);
-  RIE(gl847_send_slope_table (dev, SCAN_TABLE, scan_table, scan_steps*factor));
-  RIE(gl847_send_slope_table (dev, BACKTRACK_TABLE, scan_table, scan_steps*factor));
+    gl847_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps * factor);
+    gl847_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps * factor);
 
   /* fast table */
   fast_dpi=sanei_genesys_get_lowest_ydpi(dev);
@@ -663,9 +657,9 @@ gl847_init_motor_regs_scan (Genesys_Device * dev,
   /* manual override of high start value */
   fast_table[0]=fast_table[1];
 
-  RIE(gl847_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps*factor));
-  RIE(gl847_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps*factor));
-  RIE(gl847_send_slope_table (dev, HOME_TABLE, fast_table, fast_steps*factor));
+    gl847_send_slope_table(dev, STOP_TABLE, fast_table, fast_steps * factor);
+    gl847_send_slope_table(dev, FAST_TABLE, fast_table, fast_steps * factor);
+    gl847_send_slope_table(dev, HOME_TABLE, fast_table, fast_steps * factor);
 
   /* correct move distance by acceleration and deceleration amounts */
   feedl=feed_steps;

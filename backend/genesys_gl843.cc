@@ -74,12 +74,9 @@ static void gl843_set_buffer_address(Genesys_Device* dev, uint32_t addr)
  * @param size size of the chunk of data
  * @param data pointer to the data to write
  */
-static SANE_Status
-write_data (Genesys_Device * dev, uint32_t addr, uint32_t size,
-	    uint8_t * data)
+static void write_data(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_t* data)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
 
     gl843_set_buffer_address(dev, addr);
 
@@ -88,7 +85,6 @@ write_data (Genesys_Device * dev, uint32_t addr, uint32_t size,
 
     // set back address to 0
     gl843_set_buffer_address(dev, 0);
-  return status;
 }
 
 /****************************************************************************
@@ -724,16 +720,12 @@ gl843_init_registers (Genesys_Device * dev)
   dev->calib_reg = dev->reg;
 }
 
-/* Send slope table for motor movement
-   slope_table in machine byte order
- */
-static SANE_Status
-gl843_send_slope_table (Genesys_Device * dev, int table_nr,
-			uint16_t * slope_table, int steps)
+// Send slope table for motor movement slope_table in machine byte order
+static void gl843_send_slope_table(Genesys_Device* dev, int table_nr, uint16_t* slope_table,
+                                   int steps)
 {
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
 
-  SANE_Status status = SANE_STATUS_GOOD;
   int i;
   char msg[10000];
 
@@ -754,17 +746,9 @@ gl843_send_slope_table (Genesys_Device * dev, int table_nr,
       DBG(DBG_io, "%s: %s\n", __func__, msg);
     }
 
-
-  /* slope table addresses are fixed : 0x4000,  0x4800,  0x5000,  0x5800,  0x6000 */
-  /* XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14); */
-  status = write_data (dev, 0x4000 + 0x800 * table_nr, steps * 2, table.data());
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: write data failed writing slope table %d (%s)\n", __func__, table_nr,
-          sane_strstatus(status));
-    }
-
-  return status;
+    // slope table addresses are fixed : 0x4000,  0x4800,  0x5000,  0x5800,  0x6000
+    // XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14);
+    write_data(dev, 0x4000 + 0x800 * table_nr, steps * 2, table.data());
 }
 
 
@@ -863,7 +847,6 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
                     exposure, scan_yres, scan_step_type, scan_lines, scan_dummy, feed_steps,
                     scan_power_mode, flags);
 
-  SANE_Status status = SANE_STATUS_GOOD;
   int use_fast_fed, coeff;
   unsigned int lincnt;
   uint16_t scan_table[1024];
@@ -915,8 +898,8 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
                             factor,
                             dev->model->motor_type,
                             gl843_motors);
-  RIE(gl843_send_slope_table (dev, SCAN_TABLE, scan_table, scan_steps*factor));
-  RIE(gl843_send_slope_table (dev, BACKTRACK_TABLE, scan_table, scan_steps*factor));
+    gl843_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps * factor);
+    gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps * factor);
 
   /* STEPNO */
   r = sanei_genesys_get_address (reg, REG_STEPNO);
@@ -941,9 +924,9 @@ gl843_init_motor_regs_scan (Genesys_Device * dev,
                             factor,
                             dev->model->motor_type,
                             gl843_motors);
-  RIE(gl843_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps*factor));
-  RIE(gl843_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps*factor));
-  RIE(gl843_send_slope_table (dev, HOME_TABLE, fast_table, fast_steps*factor));
+    gl843_send_slope_table(dev, STOP_TABLE, fast_table, fast_steps * factor);
+    gl843_send_slope_table(dev, FAST_TABLE, fast_table, fast_steps * factor);
+    gl843_send_slope_table(dev, HOME_TABLE, fast_table, fast_steps * factor);
 
   /* FASTNO */
   r = sanei_genesys_get_address (reg, REG_FASTNO);

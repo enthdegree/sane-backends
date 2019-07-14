@@ -484,6 +484,5 @@ static SANE_Status gl124_feed (Genesys_Device * dev, unsigned int steps, int rev
 static SANE_Status
 gl124_stop_action (Genesys_Device * dev);
 
-static SANE_Status
-gl124_send_slope_table (Genesys_Device * dev, int table_nr,
-			uint16_t * slope_table, int steps);
+static void gl124_send_slope_table(Genesys_Device* dev, int table_nr, uint16_t* slope_table,
+                                   int steps);

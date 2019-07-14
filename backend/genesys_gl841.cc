@@ -695,17 +695,13 @@ gl841_init_registers (Genesys_Device * dev)
   DBG(DBG_proc, "%s complete\n", __func__);
 }
 
-/* Send slope table for motor movement
-   slope_table in machine byte order
- */
-static SANE_Status
-gl841_send_slope_table (Genesys_Device * dev, int table_nr,
-			      uint16_t * slope_table, int steps)
+// Send slope table for motor movement slope_table in machine byte order
+static void gl841_send_slope_table(Genesys_Device* dev, int table_nr, uint16_t* slope_table,
+                                   int steps)
 {
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
   int dpihw;
   int start_address;
-  SANE_Status status = SANE_STATUS_GOOD;
   char msg[4000];
 /*#ifdef WORDS_BIGENDIAN*/
   int i;
@@ -719,8 +715,9 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
     start_address = 0x10000;
   else if (dpihw == 2)		/* 2400 dpi */
     start_address = 0x20000;
-  else				/* reserved */
-    return SANE_STATUS_INVAL;
+    else {
+        throw SaneException("Unexpected dpihw");
+    }
 
   std::vector<uint8_t> table(steps * 2);
   for(i = 0; i < steps; i++) {
@@ -741,8 +738,6 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
     sanei_genesys_set_buffer_address(dev, start_address + table_nr * 0x200);
 
     sanei_genesys_bulk_write_data(dev, 0x3c, table.data(), steps * 2);
-
-  return status;
 }
 
 static void gl841_set_lide80_fe(Genesys_Device* dev, uint8_t set)
@@ -1011,7 +1006,6 @@ gl841_init_motor_regs(Genesys_Device * dev,
 		      unsigned int flags)
 {
     DBG_HELPER_ARGS(dbg, "feed_steps=%d, action=%d, flags=%x", feed_steps, action, flags);
-    SANE_Status status = SANE_STATUS_GOOD;
     unsigned int fast_exposure;
     int scan_power_mode;
     int use_fast_fed = 0;
@@ -1023,11 +1017,11 @@ gl841_init_motor_regs(Genesys_Device * dev,
 
     memset(fast_slope_table,0xff,512);
 
-    gl841_send_slope_table (dev, 0, fast_slope_table, 256);
-    gl841_send_slope_table (dev, 1, fast_slope_table, 256);
-    gl841_send_slope_table (dev, 2, fast_slope_table, 256);
-    gl841_send_slope_table (dev, 3, fast_slope_table, 256);
-    gl841_send_slope_table (dev, 4, fast_slope_table, 256);
+    gl841_send_slope_table(dev, 0, fast_slope_table, 256);
+    gl841_send_slope_table(dev, 1, fast_slope_table, 256);
+    gl841_send_slope_table(dev, 2, fast_slope_table, 256);
+    gl841_send_slope_table(dev, 3, fast_slope_table, 256);
+    gl841_send_slope_table(dev, 4, fast_slope_table, 256);
 
     gl841_write_freq(dev, dev->motor.base_ydpi / 4);
 
@@ -1132,10 +1126,7 @@ HOME_FREE: 3
 
     r->value &= ~0x40;
 
-    status = gl841_send_slope_table (dev, 3, fast_slope_table, 256);
-
-    if (status != SANE_STATUS_GOOD)
-	return status;
+    gl841_send_slope_table(dev, 3, fast_slope_table, 256);
 
     r = sanei_genesys_get_address(reg, 0x67);
     r->value = 0x3f;
@@ -1179,7 +1170,6 @@ gl841_init_motor_regs_scan(Genesys_Device * dev, const Genesys_Sensor& sensor,
                          " scan_dummy=%d, feed_steps=%d, scan_power_mode=%d, flags=%x",
                     scan_exposure_time, scan_yres, scan_step_type, scan_lines, scan_dummy,
                     feed_steps, scan_power_mode, flags);
-    SANE_Status status = SANE_STATUS_GOOD;
     unsigned int fast_exposure;
     int use_fast_fed = 0;
     int dummy_power_mode;
@@ -1209,11 +1199,11 @@ gl841_init_motor_regs_scan(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
     memset(slow_slope_table,0xff,512);
 
-    gl841_send_slope_table (dev, 0, slow_slope_table, 256);
-    gl841_send_slope_table (dev, 1, slow_slope_table, 256);
-    gl841_send_slope_table (dev, 2, slow_slope_table, 256);
-    gl841_send_slope_table (dev, 3, slow_slope_table, 256);
-    gl841_send_slope_table (dev, 4, slow_slope_table, 256);
+    gl841_send_slope_table(dev, 0, slow_slope_table, 256);
+    gl841_send_slope_table(dev, 1, slow_slope_table, 256);
+    gl841_send_slope_table(dev, 2, slow_slope_table, 256);
+    gl841_send_slope_table(dev, 3, slow_slope_table, 256);
+    gl841_send_slope_table(dev, 4, slow_slope_table, 256);
 
     /* motor frequency table */
     gl841_write_freq(dev, scan_yres);
@@ -1386,35 +1376,19 @@ HOME_FREE: 3
     else
 	r->value &= ~0x40;
 
-    status = gl841_send_slope_table (dev, 0, slow_slope_table, 256);
+    gl841_send_slope_table(dev, 0, slow_slope_table, 256);
 
-    if (status != SANE_STATUS_GOOD)
-	return status;
+    gl841_send_slope_table(dev, 1, back_slope_table, 256);
 
-    status = gl841_send_slope_table (dev, 1, back_slope_table, 256);
-
-    if (status != SANE_STATUS_GOOD)
-	return status;
-
-    status = gl841_send_slope_table (dev, 2, slow_slope_table, 256);
-
-    if (status != SANE_STATUS_GOOD)
-	return status;
+    gl841_send_slope_table(dev, 2, slow_slope_table, 256);
 
     if (use_fast_fed) {
-	status = gl841_send_slope_table (dev, 3, fast_slope_table, 256);
-
-	if (status != SANE_STATUS_GOOD)
-	    return status;
+        gl841_send_slope_table(dev, 3, fast_slope_table, 256);
     }
 
-    if (flags & MOTOR_FLAG_AUTO_GO_HOME){
-	status = gl841_send_slope_table (dev, 4, fast_slope_table, 256);
-
-	if (status != SANE_STATUS_GOOD)
-	    return status;
+    if (flags & MOTOR_FLAG_AUTO_GO_HOME) {
+        gl841_send_slope_table(dev, 4, fast_slope_table, 256);
     }
-
 
 /* now reg 0x21 and 0x24 are available, we can calculate reg 0x22 and 0x23,
    reg 0x60-0x62 and reg 0x63-0x65

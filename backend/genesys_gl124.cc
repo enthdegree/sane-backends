@@ -491,20 +491,17 @@ gl124_init_registers (Genesys_Device * dev)
  * @param slope_table pointer to 16 bit values array of the slope table
  * @param steps number of elemnts in the slope table
  */
-static SANE_Status
-gl124_send_slope_table (Genesys_Device * dev, int table_nr,
-			uint16_t * slope_table, int steps)
+static void gl124_send_slope_table(Genesys_Device* dev, int table_nr, uint16_t* slope_table,
+                                   int steps)
 {
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
-  SANE_Status status = SANE_STATUS_GOOD;
   int i;
   char msg[10000];
 
   /* sanity check */
   if(table_nr<0 || table_nr>4)
     {
-      DBG (DBG_error, "%s: invalid table number %d!\n", __func__, table_nr);
-      return SANE_STATUS_INVAL;
+        throw SaneException("invalid table number");
     }
 
   std::vector<uint8_t> table(steps * 2);
@@ -526,8 +523,6 @@ gl124_send_slope_table (Genesys_Device * dev, int table_nr,
 
     // slope table addresses are fixed
     sanei_genesys_write_ahb(dev, 0x10000000 + 0x4000 * table_nr, steps * 2, table.data());
-
-  return status;
 }
 
 /** @brief * Set register values of 'special' ti type frontend
@@ -636,7 +631,6 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
                             unsigned int flags)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int use_fast_fed;
   unsigned int lincnt, fast_dpi;
   uint16_t scan_table[SLOPE_TABLE_SIZE];
@@ -737,8 +731,8 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
                             factor,
                             dev->model->motor_type,
                             motors);
-  RIE(gl124_send_slope_table (dev, SCAN_TABLE, scan_table, scan_steps));
-  RIE(gl124_send_slope_table (dev, BACKTRACK_TABLE, scan_table, scan_steps));
+    gl124_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps);
+    gl124_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps);
 
   /* STEPNO */
   sanei_genesys_set_double(reg,REG_STEPNO,scan_steps);
@@ -761,8 +755,8 @@ gl124_init_motor_regs_scan (Genesys_Device * dev,
                             factor,
                             dev->model->motor_type,
                             motors);
-  RIE(gl124_send_slope_table (dev, STOP_TABLE, fast_table, fast_steps));
-  RIE(gl124_send_slope_table (dev, FAST_TABLE, fast_table, fast_steps));
+    gl124_send_slope_table(dev, STOP_TABLE, fast_table, fast_steps);
+    gl124_send_slope_table(dev, FAST_TABLE, fast_table, fast_steps);
 
   /* FASTNO */
   sanei_genesys_set_double(reg,REG_FASTNO,fast_steps);

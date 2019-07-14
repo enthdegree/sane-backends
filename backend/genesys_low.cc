@@ -708,9 +708,8 @@ genesys_dpiset (Genesys_Register_Set * reg)
 /** read the number of valid words in scanner's RAM
  * ie registers 42-43-44
  */
-/*candidate for moving into chip specific files?*/
-SANE_Status
-sanei_genesys_read_valid_words (Genesys_Device * dev, unsigned int *words)
+// candidate for moving into chip specific files?
+void sanei_genesys_read_valid_words(Genesys_Device* dev, unsigned int* words)
 {
     DBG_HELPER(dbg);
   uint8_t value;
@@ -764,7 +763,6 @@ sanei_genesys_read_valid_words (Genesys_Device * dev, unsigned int *words)
     }
 
   DBG(DBG_proc, "%s: %d words\n", __func__, *words);
-  return SANE_STATUS_GOOD;
 }
 
 /** read the number of lines scanned
@@ -836,23 +834,15 @@ sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
 				      size_t size)
 {
     DBG_HELPER_ARGS(dbg, "size = %lu bytes", (u_long) size);
-  SANE_Status status = SANE_STATUS_GOOD;
   int time_count = 0;
   unsigned int words = 0;
 
   if (size & 1)
     DBG(DBG_info, "WARNING %s: odd number of bytes\n", __func__);
 
-  /* wait until buffer not empty for up to 5 seconds */
-  do
-    {
-      status = sanei_genesys_read_valid_words (dev, &words);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: checking for empty buffer failed: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
+    // wait until buffer not empty for up to 5 seconds
+    do {
+        sanei_genesys_read_valid_words (dev, &words);
       if (words == 0)
 	{
           sanei_genesys_sleep_ms(10);

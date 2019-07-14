@@ -1753,8 +1753,7 @@ extern SANE_Status
 sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
                                  int pixels_per_line);
 
-extern SANE_Status sanei_genesys_read_valid_words (Genesys_Device * dev,
-						  unsigned int *steps);
+extern void sanei_genesys_read_valid_words(Genesys_Device* dev, unsigned int* steps);
 
 extern void sanei_genesys_read_scancnt(Genesys_Device* dev, unsigned int* steps);
 

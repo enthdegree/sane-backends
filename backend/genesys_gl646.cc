@@ -1947,8 +1947,8 @@ gl646_detect_document_end (Genesys_Device * dev)
       DBG(DBG_io, "%s: total_bytes_read   =%lu\n", __func__, (u_long) dev->total_bytes_read);
       DBG(DBG_io, "%s: read_bytes_left    =%lu\n", __func__, (u_long) dev->read_bytes_left);
 
-      /* amount of data available from scanner is what to scan */
-      status = sanei_genesys_read_valid_words (dev, &bytes_left);
+        // amount of data available from scanner is what to scan
+        sanei_genesys_read_valid_words(dev, &bytes_left);
 
       /* we add the number of lines needed to read the last part of the document in */
       lines =

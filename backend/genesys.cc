@@ -3975,13 +3975,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
       do
 	{
           sanei_genesys_sleep_ms(100);
-	  status = sanei_genesys_read_valid_words (dev, &steps);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to read valid words: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
+            sanei_genesys_read_valid_words(dev, &steps);
 	}
       while (steps < 1);
     }

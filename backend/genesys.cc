@@ -1807,13 +1807,7 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
         sanei_genesys_set_motor_power(dev->calib_reg, motor);
     }
 
-  status =
     dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
 
   // wait some time to let lamp to get dark
   sanei_genesys_sleep_ms(200);
@@ -2010,13 +2004,7 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
     sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
     sanei_genesys_set_motor_power(dev->calib_reg, motor);
 
-  status =
     dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
 
   if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)
     sanei_genesys_sleep_ms(500); // make sure lamp is bright again
@@ -2126,13 +2114,7 @@ genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Senso
     sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
     sanei_genesys_set_motor_power(dev->calib_reg, motor);
 
-  status =
     dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
 
   status = dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
 
@@ -3944,14 +3926,8 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
         }
     }
 
-  /* now send registers for scan */
-  status =
+    // now send registers for scan
     dev->model->cmd_set->bulk_write_register(dev, dev->reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk write registers, status = %d\n", __func__, status);
-      return status;
-    }
 
   /* start effective scan */
   status = dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_TRUE);

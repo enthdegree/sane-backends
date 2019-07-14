@@ -2724,9 +2724,7 @@ gl841_set_powersaving (Genesys_Device * dev,
   local_reg.set8(0x38, exposure_time >> 8);
   local_reg.set8(0x39, exposure_time & 255);	/* lowbyte */
 
-  status = sanei_genesys_bulk_write_register(dev, local_reg);
-  if (status != SANE_STATUS_GOOD)
-    DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
+    sanei_genesys_bulk_write_register(dev, local_reg);
 
   return status;
 }
@@ -2744,11 +2742,10 @@ gl841_stop_action (Genesys_Device * dev)
 {
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val40, val;
   unsigned int loop;
 
-  status = sanei_genesys_get_status (dev, &val);
+    sanei_genesys_get_status (dev, &val);
   if (DBG_LEVEL >= DBG_io)
     {
       sanei_genesys_print_status (val);
@@ -2768,12 +2765,7 @@ gl841_stop_action (Genesys_Device * dev)
   gl841_init_optical_regs_off(&local_reg);
 
   gl841_init_motor_regs_off(&local_reg,0);
-  status = sanei_genesys_bulk_write_register(dev, local_reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_bulk_write_register(dev, local_reg);
 
   /* looks like writing the right registers to zero is enough to get the chip
      out of scan mode into command mode, actually triggering(writing to
@@ -2856,12 +2848,7 @@ gl841_eject_document (Genesys_Device * dev)
   gl841_init_motor_regs(dev, sensor, &local_reg,
 			65536,MOTOR_ACTION_FEED,0);
 
-  status = sanei_genesys_bulk_write_register(dev, local_reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_bulk_write_register(dev, local_reg);
 
     try {
         status = gl841_start_action (dev);
@@ -2870,10 +2857,11 @@ gl841_eject_document (Genesys_Device * dev)
         try {
             gl841_stop_action(dev);
         } catch (...) {}
-        try {
-            // restore original registers
+        // restore original registers
+        catch_all_exceptions(__func__, [&]()
+        {
             sanei_genesys_bulk_write_register(dev, dev->reg);
-        } catch (...) {}
+        });
         throw;
     }
 
@@ -2881,8 +2869,11 @@ gl841_eject_document (Genesys_Device * dev)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
       gl841_stop_action (dev);
-      /* send original registers */
-      sanei_genesys_bulk_write_register(dev, dev->reg);
+        // restore original registers
+        catch_all_exceptions(__func__, [&]()
+        {
+            sanei_genesys_bulk_write_register(dev, dev->reg);
+        });
       return status;
     }
 
@@ -3119,12 +3110,7 @@ gl841_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
         local_reg.init_reg(0x0f, 0x00);
     }
 
-  status = sanei_genesys_bulk_write_register(dev, local_reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_bulk_write_register(dev, local_reg);
 
   return status;
 }
@@ -3181,12 +3167,7 @@ gl841_feed (Genesys_Device * dev, int steps)
 
   gl841_init_motor_regs(dev, sensor, &local_reg, steps,MOTOR_ACTION_FEED,0);
 
-  status = sanei_genesys_bulk_write_register(dev, local_reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_bulk_write_register(dev, local_reg);
 
     try {
         status = gl841_start_action (dev);
@@ -3195,10 +3176,11 @@ gl841_feed (Genesys_Device * dev, int steps)
         try {
             gl841_stop_action (dev);
         } catch (...) {}
-        try {
-            // send original registers
+        // restore original registers
+        catch_all_exceptions(__func__, [&]()
+        {
             sanei_genesys_bulk_write_register(dev, dev->reg);
-        } catch (...) {}
+        });
         throw;
     }
 
@@ -3206,8 +3188,11 @@ gl841_feed (Genesys_Device * dev, int steps)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
       gl841_stop_action (dev);
-      /* send original registers */
-      sanei_genesys_bulk_write_register(dev, dev->reg);
+        // restore original registers
+        catch_all_exceptions(__func__, [&]()
+        {
+            sanei_genesys_bulk_write_register(dev, dev->reg);
+        });
       return status;
     }
 
@@ -3331,7 +3316,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   r = sanei_genesys_get_address(&local_reg, REG01);
   r->value &= ~REG01_SCAN;
 
-  RIE (sanei_genesys_bulk_write_register(dev, local_reg));
+    sanei_genesys_bulk_write_register(dev, local_reg);
 
     try {
         status = gl841_start_action (dev);
@@ -3340,9 +3325,11 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
         try {
             gl841_stop_action(dev);
         } catch (...) {}
-        try {
+        // restore original registers
+        catch_all_exceptions(__func__, [&]()
+        {
             sanei_genesys_bulk_write_register(dev, dev->reg);
-        } catch (...) {}
+        });
         throw;
     }
 
@@ -3350,8 +3337,11 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
       gl841_stop_action (dev);
-      /* send original registers */
-      sanei_genesys_bulk_write_register(dev, dev->reg);
+        // restore original registers
+        catch_all_exceptions(__func__, [&]()
+        {
+            sanei_genesys_bulk_write_register(dev, dev->reg);
+        });
       return status;
     }
 
@@ -3435,13 +3425,8 @@ gl841_search_start_position (Genesys_Device * dev)
       return status;
     }
 
-  /* send to scanner */
-  status = sanei_genesys_bulk_write_register(dev, local_reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // send to scanner
+    sanei_genesys_bulk_write_register(dev, local_reg);
 
   size = pixels * dev->model->search_lines;
 
@@ -3542,13 +3527,7 @@ gl841_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
       sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
 
-  status = sanei_genesys_bulk_write_register(dev, regs);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
+    sanei_genesys_bulk_write_register(dev, regs);
 
 /*  if (DBG_LEVEL >= DBG_info)
     sanei_gl841_print_registers (regs);*/
@@ -3623,12 +3602,7 @@ gl841_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
   dev->calib_pixels = dev->current_setup.pixels;
   dev->scanhead_position_in_steps += dev->calib_lines + starty;
 
-  status = sanei_genesys_bulk_write_register(dev, regs);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_bulk_write_register(dev, regs);
 
   return SANE_STATUS_GOOD;
 }
@@ -3859,7 +3833,7 @@ gl841_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
       return status;
     }
 
-  RIE(sanei_genesys_bulk_write_register(dev, regs));
+    sanei_genesys_bulk_write_register(dev, regs);
 
   num_pixels = dev->current_setup.pixels;
 
@@ -3898,7 +3872,7 @@ gl841_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
         sanei_genesys_write_register(dev, 0x14, (sensor.exposure.blue >> 8) & 0xff);
         sanei_genesys_write_register(dev, 0x15, sensor.exposure.blue & 0xff);
 
-      RIE(sanei_genesys_bulk_write_register(dev, regs));
+        sanei_genesys_bulk_write_register(dev, regs);
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
       RIE(gl841_begin_scan(dev, sensor, &regs, SANE_TRUE));
@@ -4084,7 +4058,7 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
       /* scan line */
       DBG(DBG_info, "%s: starting line reading\n", __func__);
-      sanei_genesys_bulk_write_register(dev, regs);
+        sanei_genesys_bulk_write_register(dev, regs);
       gl841_set_fe(dev, sensor, AFE_SET);
       gl841_begin_scan(dev, sensor, &regs, SANE_TRUE);
       sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
@@ -4228,7 +4202,7 @@ gl841_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   do {
 
-      RIE(sanei_genesys_bulk_write_register(dev, regs));
+        sanei_genesys_bulk_write_register(dev, regs);
 
       for (j=0; j < channels; j++) {
 	  off[j] = (offh[j]+offl[j])/2;
@@ -4357,7 +4331,7 @@ gl841_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       }
 
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
-      RIE(sanei_genesys_bulk_write_register(dev, regs));
+        sanei_genesys_bulk_write_register(dev, regs);
       RIE(gl841_begin_scan(dev, sensor, &regs, SANE_TRUE));
       RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
 
@@ -4575,7 +4549,7 @@ gl841_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
       return status;
     }
 
-  RIE(sanei_genesys_bulk_write_register(dev, regs));
+    sanei_genesys_bulk_write_register(dev, regs);
 
   num_pixels = dev->current_setup.pixels;
 
@@ -4742,7 +4716,7 @@ gl841_init_regs_for_warmup (Genesys_Device * dev,
 
   *total_size = num_pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
-  RIE(sanei_genesys_bulk_write_register(dev, *local_reg));
+    sanei_genesys_bulk_write_register(dev, *local_reg);
 
   return status;
 }
@@ -4850,8 +4824,8 @@ gl841_init (Genesys_Device * dev)
   /* Set default values for registers */
   gl841_init_registers (dev);
 
-  /* Write initial registers */
-  RIE(sanei_genesys_bulk_write_register(dev, dev->reg));
+    // Write initial registers
+    sanei_genesys_bulk_write_register(dev, dev->reg);
 
   /* Test ASIC and RAM */
   if (!(dev->model->flags & GENESYS_FLAG_LAZY_INIT))
@@ -4919,7 +4893,7 @@ gl841_init (Genesys_Device * dev)
 
     status = gl841_init_scan_regs(dev, sensor, &regs, params);
 
-  RIE(sanei_genesys_bulk_write_register(dev, regs));
+    sanei_genesys_bulk_write_register(dev, regs);
 
   size = dev->current_setup.pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
@@ -5070,18 +5044,13 @@ gl841_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   /* set up for reverse or forward */
   r = sanei_genesys_get_address(&local_reg, 0x02);
-  if (forward)
-    r->value &= ~4;
-  else
-    r->value |= 4;
-
-
-  status = sanei_genesys_bulk_write_register(dev, local_reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
-      return status;
+    if (forward) {
+        r->value &= ~4;
+    } else {
+        r->value |= 4;
     }
+
+    sanei_genesys_bulk_write_register(dev, local_reg);
 
   status = gl841_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
@@ -5122,13 +5091,7 @@ gl841_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
   found = 0;
   while (pass < length && !found)
     {
-      status = sanei_genesys_bulk_write_register(dev, local_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
+        sanei_genesys_bulk_write_register(dev, local_reg);
 
       /* now start scan */
       status = gl841_begin_scan(dev, sensor, &local_reg, SANE_TRUE);

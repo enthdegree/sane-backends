@@ -591,14 +591,8 @@ sanei_genesys_fe_read_data (Genesys_Device * dev, uint8_t addr,
 
   reg.init_reg(0x50, addr);
 
-  /* set up read address */
-  status = dev->model->cmd_set->bulk_write_register(dev, reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed while bulk writing registers: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    // set up read address
+    dev->model->cmd_set->bulk_write_register(dev, reg);
 
     // read data
     sanei_genesys_read_register(dev, 0x46, &value);
@@ -635,13 +629,7 @@ sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
         reg.init_reg(0x3b, data & 0xff);
     }
 
-  status = dev->model->cmd_set->bulk_write_register(dev, reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed while bulk writing registers: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->bulk_write_register(dev, reg);
 
   return status;
 }
@@ -993,7 +981,7 @@ void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set)
  * @param reg pointer to an array of registers
  * @param elems size of the array
  */
-SANE_Status sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Register_Set& reg)
+void sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Register_Set& reg)
 {
     DBG_HELPER(dbg);
 
@@ -1048,7 +1036,6 @@ SANE_Status sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Regi
     }
 
     DBG (DBG_io, "%s: wrote %lu registers\n", __func__, (u_long) reg.size());
-    return SANE_STATUS_GOOD;
 }
 
 

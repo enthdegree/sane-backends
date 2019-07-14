@@ -387,8 +387,7 @@ SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, ui
  * @param reg LSB of register address
  * @param val value to write
  */
-SANE_Status
-sanei_genesys_write_hregister (Genesys_Device * dev, uint16_t reg, uint8_t val)
+void sanei_genesys_write_hregister(Genesys_Device* dev, uint16_t reg, uint8_t val)
 {
     DBG_HELPER(dbg);
 
@@ -402,8 +401,6 @@ sanei_genesys_write_hregister (Genesys_Device * dev, uint16_t reg, uint8_t val)
                              2, buffer);
 
     DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, reg, val);
-
-    return SANE_STATUS_GOOD;
 }
 
 /** @brief read from one high (addr >= 0x100) register
@@ -463,10 +460,10 @@ sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val)
 
   SANE_Byte reg8;
 
-  /* 16 bit register address space */
-  if(reg>255)
-    {
-      return sanei_genesys_write_hregister(dev, reg, val);
+    // 16 bit register address space
+    if (reg > 255) {
+        sanei_genesys_write_hregister(dev, reg, val);
+        return SANE_STATUS_GOOD;
     }
 
   /* route to gl847 function if needed */
@@ -541,9 +538,8 @@ sanei_genesys_read_register (Genesys_Device * dev, uint16_t reg, uint8_t * val)
 
   SANE_Byte reg8;
 
-  /* 16 bit register address space */
-  if(reg>255)
-    {
+    // 16 bit register address space
+    if (reg > 255) {
         sanei_genesys_read_hregister(dev, reg, val);
         return SANE_STATUS_GOOD;
     }

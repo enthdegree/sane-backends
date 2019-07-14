@@ -506,11 +506,9 @@ void sanei_genesys_write_0x8c(Genesys_Device* dev, uint8_t index, uint8_t val)
 /* read reg 0x41:
  * URB   164  control  0xc0 0x04 0x8e 0x4122 len     2 read  0xfc 0x55
  */
-static SANE_Status
-sanei_genesys_read_gl847_register (Genesys_Device * dev, uint16_t reg, uint8_t * val)
+static void sanei_genesys_read_gl847_register(Genesys_Device* dev, uint16_t reg, uint8_t* val)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Byte value[2];
 
     dev->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_BUFFER, VALUE_GET_REGISTER, 0x22+(reg<<8),
@@ -522,10 +520,8 @@ sanei_genesys_read_gl847_register (Genesys_Device * dev, uint16_t reg, uint8_t *
   /* check usb link status */
   if((value[1] & 0xff) != 0x55)
     {
-      DBG(DBG_error,"%s: invalid read, scanner unplugged ?\n", __func__);
-      status=SANE_STATUS_IO_ERROR;
+      throw SaneException(SANE_STATUS_IO_ERROR, "invalid read, scanner unplugged?");
     }
-  return status;
 }
 
 /* Read from one register */
@@ -542,12 +538,15 @@ sanei_genesys_read_register (Genesys_Device * dev, uint16_t reg, uint8_t * val)
         return SANE_STATUS_GOOD;
     }
 
-  /* route to gl847 function if needed */
-  if(dev->model->asic_type==GENESYS_GL847
-  || dev->model->asic_type==GENESYS_GL845
-  || dev->model->asic_type==GENESYS_GL846
-  || dev->model->asic_type==GENESYS_GL124)
-    return sanei_genesys_read_gl847_register(dev, reg, val);
+    // route to gl847 function if needed
+    if (dev->model->asic_type==GENESYS_GL847
+        || dev->model->asic_type==GENESYS_GL845
+        || dev->model->asic_type==GENESYS_GL846
+        || dev->model->asic_type==GENESYS_GL124)
+    {
+        sanei_genesys_read_gl847_register(dev, reg, val);
+        return SANE_STATUS_GOOD;
+    }
 
   /* 8 bit register address space */
     reg8=(SANE_Byte)(reg& 0Xff);

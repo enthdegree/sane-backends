@@ -484,11 +484,9 @@ gl847_send_slope_table (Genesys_Device * dev, int table_nr,
 /**
  * Set register values of Analog Device type frontend
  * */
-static SANE_Status
-gl847_set_ad_fe (Genesys_Device * dev, uint8_t set)
+static void gl847_set_ad_fe(Genesys_Device* dev, uint8_t set)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int i;
   uint8_t val8;
 
@@ -521,8 +519,6 @@ gl847_set_ad_fe (Genesys_Device * dev, uint8_t set)
     for (i = 0; i < 3; i++) {
         sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.get_offset(i));
     }
-
-  return status;
 }
 
 static SANE_Status
@@ -543,9 +539,8 @@ uint8_t val;
   return SANE_STATUS_GOOD;
 }
 
-/* Set values of analog frontend */
-static SANE_Status
-gl847_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
+// Set values of analog frontend
+static void gl847_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set)
 {
     DBG_HELPER_ARGS(dbg, "%s", set == AFE_INIT ? "init" :
                                set == AFE_SET ? "set" :
@@ -553,21 +548,17 @@ gl847_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
 
     (void) sensor;
 
-  uint8_t val;
-
+    uint8_t val;
     sanei_genesys_read_register(dev, REG04, &val);
+    uint8_t frontend_type = val & REG04_FESET;
 
-  /* route to AD devices */
-  if ((val & REG04_FESET) == 0x02)
-    {
-      return gl847_set_ad_fe (dev, set);
+    // route to AD devices
+    if (frontend_type == 0x02) {
+        gl847_set_ad_fe(dev, set);
+        return;
     }
 
-  /* for now there is no support yet for wolfson fe */
-  DBG(DBG_proc, "%s(): unsupported frontend type %d\n", __func__,
-      dev->reg.find_reg(0x04).value & REG04_FESET);
-
-  return SANE_STATUS_UNSUPPORTED;
+    throw SaneException("unsupported frontend type %d", frontend_type);
 }
 
 
@@ -829,7 +820,6 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
     unsigned dpiset, dpihw, segnb, factor;
   unsigned int bytes;
   GenesysRegister *r;
-  SANE_Status status = SANE_STATUS_GOOD;
 
     // resolution is divided according to ccd_pixels_per_system_pixel()
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
@@ -879,12 +869,7 @@ gl847_init_optical_regs_scan (Genesys_Device * dev,
   endx += ((dev->dist+1)&0xfffe)*(segnb-1);
     unsigned used_pixels = endx - startx;
 
-  status = gl847_set_fe(dev, sensor, AFE_SET);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set frontend: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl847_set_fe(dev, sensor, AFE_SET);
 
   /* enable shading */
   r = sanei_genesys_get_address (reg, REG01);
@@ -3038,7 +3023,7 @@ gl847_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
   dev->frontend.set_offset(1, bottom);
   dev->frontend.set_offset(2, bottom);
 
-  RIE(gl847_set_fe(dev, sensor, AFE_SET));
+    gl847_set_fe(dev, sensor, AFE_SET);
     dev->model->cmd_set->bulk_write_register(dev, regs);
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
   RIE(gl847_begin_scan(dev, sensor, &regs, SANE_TRUE));
@@ -3058,7 +3043,7 @@ gl847_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
   dev->frontend.set_offset(0, top);
   dev->frontend.set_offset(1, top);
   dev->frontend.set_offset(2, top);
-  RIE(gl847_set_fe(dev, sensor, AFE_SET));
+    gl847_set_fe(dev, sensor, AFE_SET);
     dev->model->cmd_set->bulk_write_register(dev, regs);
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
   RIE(gl847_begin_scan(dev, sensor, &regs, SANE_TRUE));
@@ -3077,8 +3062,8 @@ gl847_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       dev->frontend.set_offset(1, (top + bottom) / 2);
       dev->frontend.set_offset(2, (top + bottom) / 2);
 
-      /* scan with no move */
-      RIE(gl847_set_fe(dev, sensor, AFE_SET));
+        // scan with no move
+        gl847_set_fe(dev, sensor, AFE_SET);
         dev->model->cmd_set->bulk_write_register(dev, regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
       RIE(gl847_begin_scan(dev, sensor, &regs, SANE_TRUE));
@@ -3196,7 +3181,7 @@ gl847_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   std::vector<uint8_t> line(total_size);
 
-  RIE(gl847_set_fe(dev, sensor, AFE_SET));
+    gl847_set_fe(dev, sensor, AFE_SET);
   RIE(gl847_begin_scan(dev, sensor, &regs, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 

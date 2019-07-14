@@ -536,11 +536,9 @@ gl124_send_slope_table (Genesys_Device * dev, int table_nr,
  * @param dev device owning the AFE
  * @param set flag AFE_INIT to specify the AFE must be reset before writing data
  * */
-static SANE_Status
-gl124_set_ti_fe (Genesys_Device * dev, uint8_t set)
+static void gl124_set_ti_fe(Genesys_Device* dev, uint8_t set)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int i;
 
   if (set == AFE_INIT)
@@ -576,20 +574,16 @@ gl124_set_ti_fe (Genesys_Device * dev, uint8_t set)
     {
         sanei_genesys_fe_write_data(dev, 0x00, 0x11);
     }
-
-  return status;
 }
 
 
-/* Set values of analog frontend */
-static SANE_Status
-gl124_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set)
+// Set values of analog frontend
+static void gl124_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set)
 {
     DBG_HELPER_ARGS(dbg, "%s", set == AFE_INIT ? "init" :
                                set == AFE_SET ? "set" :
                                set == AFE_POWER_SAVE ? "powersave" : "huh?");
     (void) sensor;
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
   if (set == AFE_INIT)
@@ -604,18 +598,14 @@ gl124_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set)
   switch ((val & REG0A_SIFSEL)>>REG0AS_SIFSEL)
     {
     case 3:
-      status=gl124_set_ti_fe (dev, set);
+            gl124_set_ti_fe(dev, set);
       break;
     case 0:
     case 1:
     case 2:
     default:
-      DBG(DBG_error, "%s: unsupported analog FE 0x%02x\n", __func__, val);
-      status=SANE_STATUS_INVAL;
-      break;
+            throw SaneException("unsupported analog FE 0x%02x", val);
     }
-
-  return status;
 }
 
 
@@ -953,7 +943,6 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   unsigned int dpiset, dpihw, factor;
   unsigned int bytes;
   GenesysRegister *r;
-  SANE_Status status = SANE_STATUS_GOOD;
   uint32_t expmax, exp;
 
     // resolution is divided according to ccd_pixels_per_system_pixel
@@ -980,13 +969,7 @@ gl124_init_optical_regs_scan (Genesys_Device * dev,
   endx/=factor;
     unsigned used_pixels = endx - startx;
 
-  status = gl124_set_fe(dev, sensor, AFE_SET);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "%s: failed to set frontend: %s\n", __func__,
-	   sane_strstatus (status));
-      return status;
-    }
+    gl124_set_fe(dev, sensor, AFE_SET);
 
   /* enable shading */
   r = sanei_genesys_get_address (reg, REG01);
@@ -2850,7 +2833,7 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
   dev->frontend.set_offset(1, bottom);
   dev->frontend.set_offset(2, bottom);
 
-  RIE(gl124_set_fe(dev, sensor, AFE_SET));
+    gl124_set_fe(dev, sensor, AFE_SET);
     dev->model->cmd_set->bulk_write_register(dev, regs);
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
   RIE(gl124_begin_scan(dev, sensor, &regs, SANE_TRUE));
@@ -2870,7 +2853,7 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
   dev->frontend.set_offset(0, top);
   dev->frontend.set_offset(1, top);
   dev->frontend.set_offset(2, top);
-  RIE(gl124_set_fe(dev, sensor, AFE_SET));
+    gl124_set_fe(dev, sensor, AFE_SET);
     dev->model->cmd_set->bulk_write_register(dev, regs);
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
   RIE(gl124_begin_scan(dev, sensor, &regs, SANE_TRUE));
@@ -2889,8 +2872,8 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       dev->frontend.set_offset(1, (top + bottom) / 2);
       dev->frontend.set_offset(2, (top + bottom) / 2);
 
-      /* scan with no move */
-      RIE(gl124_set_fe(dev, sensor, AFE_SET));
+        // scan with no move
+        gl124_set_fe(dev, sensor, AFE_SET);
         dev->model->cmd_set->bulk_write_register(dev, regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
       RIE(gl124_begin_scan(dev, sensor, &regs, SANE_TRUE));
@@ -3017,7 +3000,7 @@ gl124_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   std::vector<uint8_t> line(total_size);
 
-  RIE(gl124_set_fe(dev, sensor, AFE_SET));
+    gl124_set_fe(dev, sensor, AFE_SET);
   RIE(gl124_begin_scan(dev, sensor, &regs, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 

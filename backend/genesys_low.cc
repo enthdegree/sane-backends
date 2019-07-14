@@ -1257,8 +1257,8 @@ sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
-  /* Set analog frontend */
-  RIE (dev->model->cmd_set->set_fe(dev, sensor, AFE_INIT));
+    // Set analog frontend
+    dev->model->cmd_set->set_fe(dev, sensor, AFE_INIT);
 
   dev->already_initialized = SANE_TRUE;
 

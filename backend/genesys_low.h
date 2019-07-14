@@ -1061,7 +1061,7 @@ struct Genesys_Command_Set
     SANE_Bool (*test_buffer_empty_bit) (SANE_Byte val);
     SANE_Bool (*test_motor_flag_bit) (SANE_Byte val);
 
-    SANE_Status (*set_fe) (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set);
+    void (*set_fe) (Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set);
     SANE_Status (*set_powersaving) (Genesys_Device * dev, int delay);
     SANE_Status (*save_power) (Genesys_Device * dev, SANE_Bool enable);
 

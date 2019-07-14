@@ -1454,12 +1454,7 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
   std::vector<uint8_t> calibration_data(size);
   std::vector<uint8_t> all_data(size * 4, 1);
 
-  status = dev->model->cmd_set->set_fe(dev, sensor, AFE_INIT);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set frontend: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->set_fe(dev, sensor, AFE_INIT);
 
   dev->frontend.set_gain(0, 2);
   dev->frontend.set_gain(1, 2);

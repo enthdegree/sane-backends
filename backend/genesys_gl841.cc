@@ -745,11 +745,9 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
   return status;
 }
 
-static SANE_Status
-gl841_set_lide80_fe (Genesys_Device * dev, uint8_t set)
+static void gl841_set_lide80_fe(Genesys_Device* dev, uint8_t set)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
 
   if (set == AFE_INIT)
     {
@@ -769,22 +767,19 @@ gl841_set_lide80_fe (Genesys_Device * dev, uint8_t set)
         sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.regs.get_value(0x20));
         sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x28));
     }
-
-  return status;
 }
 
-/* Set values of Analog Device type frontend */
-static SANE_Status
-gl841_set_ad_fe (Genesys_Device * dev, uint8_t set)
+// Set values of Analog Device type frontend
+static void gl841_set_ad_fe(Genesys_Device* dev, uint8_t set)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int i;
 
   /* special case for LiDE 80 analog frontend */
   if(dev->model->dac_type==DAC_CANONLIDE80)
     {
-      return gl841_set_lide80_fe(dev, set);
+        gl841_set_lide80_fe(dev, set);
+        return;
     }
 
   if (set == AFE_INIT)
@@ -827,32 +822,27 @@ gl841_set_ad_fe (Genesys_Device * dev, uint8_t set)
         // Write fe 0x07 (blue offset)
         sanei_genesys_fe_write_data(dev, 0x07, dev->frontend.get_offset(2));
           }
-
-  return status;
 }
 
-/* Set values of analog frontend */
-static SANE_Status
-gl841_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
+// Set values of analog frontend
+static void gl841_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set)
 {
     DBG_HELPER_ARGS(dbg, "%s", set == AFE_INIT ? "init" :
                                set == AFE_SET ? "set" :
                                set == AFE_POWER_SAVE ? "powersave" : "huh?");
     (void) sensor;
-  SANE_Status status = SANE_STATUS_GOOD;
   int i;
 
   /* Analog Device type frontend */
-  if ((dev->reg.find_reg(0x04).value & REG04_FESET) == 0x02)
-    {
-      return gl841_set_ad_fe (dev, set);
+    uint8_t frontend_type = dev->reg.find_reg(0x04).value & REG04_FESET;
+
+    if (frontend_type == 0x02) {
+        gl841_set_ad_fe(dev, set);
+        return;
     }
 
-  if ((dev->reg.find_reg(0x04).value & REG04_FESET) != 0x00)
-    {
-      DBG(DBG_proc, "%s(): unsupported frontend type %d\n", __func__,
-          dev->reg.find_reg(0x04).value & REG04_FESET);
-      return SANE_STATUS_UNSUPPORTED;
+    if (frontend_type != 0x00) {
+        throw SaneException("unsupported frontend type %d", frontend_type);
     }
 
   if (set == AFE_INIT)
@@ -869,7 +859,7 @@ gl841_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
   if (set == AFE_POWER_SAVE)
     {
         sanei_genesys_fe_write_data (dev, 0x01, 0x02);
-        return status;
+        return;
     }
 
   /* todo :  base this test on cfg reg3 or a CCD family flag to be created */
@@ -891,8 +881,6 @@ gl841_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
         sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
         sanei_genesys_fe_write_data(dev, 0x20 + i, dev->frontend.get_offset(i));
       }
-
-  return SANE_STATUS_GOOD;
 }
 
 #define MOTOR_ACTION_FEED       1
@@ -1554,17 +1542,11 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     unsigned int end;
     unsigned int dpiset;
     GenesysRegister* r;
-    SANE_Status status = SANE_STATUS_GOOD;
     uint16_t expavg, expr, expb, expg;
 
     end = start + pixels;
 
-    status = gl841_set_fe(dev, sensor, AFE_SET);
-    if (status != SANE_STATUS_GOOD)
-    {
-        DBG(DBG_error, "%s: failed to set frontend: %s\n", __func__, sane_strstatus(status));
-	return status;
-    }
+    gl841_set_fe(dev, sensor, AFE_SET);
 
     /* adjust used_res for chosen dpihw */
     used_res = used_res * gl841_get_dpihw(dev) / sensor.optical_res;
@@ -4004,13 +3986,7 @@ gl841_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
           dev->frontend.set_offset(j, off[j]);
       }
 
-      status = gl841_set_fe(dev, sensor, AFE_SET);
-
-      if (status != SANE_STATUS_GOOD)
-      {
-          DBG(DBG_error, "%s: failed to setup frontend: %s\n", __func__, sane_strstatus(status));
-	  return status;
-      }
+        gl841_set_fe(dev, sensor, AFE_SET);
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
       RIE(gl841_begin_scan(dev, sensor, &regs, SANE_TRUE));
@@ -4117,13 +4093,7 @@ gl841_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
           dev->frontend.set_offset(j, off[j]);
       }
 
-      status = gl841_set_fe(dev, sensor, AFE_SET);
-
-      if (status != SANE_STATUS_GOOD)
-      {
-        DBG(DBG_error, "%s: failed to setup frontend: %s\n", __func__, sane_strstatus(status));
-	  return status;
-      }
+        gl841_set_fe(dev, sensor, AFE_SET);
 
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         sanei_genesys_bulk_write_register(dev, regs);
@@ -4630,8 +4600,8 @@ gl841_init (Genesys_Device * dev)
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
-  /* Set analog frontend */
-  RIE (gl841_set_fe(dev, sensor, AFE_INIT));
+    // Set analog frontend
+    gl841_set_fe(dev, sensor, AFE_INIT);
 
   /* Move home */
   RIE (gl841_slow_back_home (dev, SANE_TRUE));

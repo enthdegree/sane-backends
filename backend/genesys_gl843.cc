@@ -768,9 +768,8 @@ gl843_send_slope_table (Genesys_Device * dev, int table_nr,
 }
 
 
-/* Set values of analog frontend */
-static SANE_Status
-gl843_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
+// Set values of analog frontend
+static void gl843_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set)
 {
     DBG_HELPER_ARGS(dbg, "%s", set == AFE_INIT ? "init" :
                                set == AFE_SET ? "set" :
@@ -790,10 +789,9 @@ gl843_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
     sanei_genesys_read_register(dev, REG04, &val);
   if ((val & REG04_FESET) != 0x00)
     {
-      /* for now there is no support for AD fe */
-      DBG(DBG_proc, "%s(): unsupported frontend type %d\n", __func__,
-          dev->reg.find_reg(0x04).value & REG04_FESET);
-      return SANE_STATUS_UNSUPPORTED;
+        // for now there is no support for AD fe
+        throw SaneException(SANE_STATUS_UNSUPPORTED, "unsupported frontend type %d",
+                            val & REG04_FESET);
     }
 
   DBG(DBG_proc, "%s(): frontend reset complete\n", __func__);
@@ -844,8 +842,6 @@ gl843_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
             sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
         }
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -1086,7 +1082,6 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   unsigned int bytes;
   unsigned int tgtime;          /**> exposure time multiplier */
   GenesysRegister *r;
-  SANE_Status status = SANE_STATUS_GOOD;
 
   /* tgtime */
   tgtime = exposure / 65536 + 1;
@@ -1123,12 +1118,7 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
       endx++;
     }
 
-  status = gl843_set_fe(dev, sensor, AFE_SET);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set frontend: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl843_set_fe(dev, sensor, AFE_SET);
 
   /* enable shading */
   r = sanei_genesys_get_address (reg, REG01);
@@ -3325,7 +3315,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       dev->frontend.set_offset(i, bottom[i]);
       dev->frontend.set_gain(i, 0);
     }
-  RIE(gl843_set_fe(dev, calib_sensor, AFE_SET));
+    gl843_set_fe(dev, calib_sensor, AFE_SET);
 
     // scan with obttom AFE settings
     dev->model->cmd_set->bulk_write_register(dev, regs);
@@ -3354,7 +3344,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       top[i] = 255;
       dev->frontend.set_offset(i, top[i]);
     }
-  RIE(gl843_set_fe(dev, calib_sensor, AFE_SET));
+    gl843_set_fe(dev, calib_sensor, AFE_SET);
 
     // scan with top AFE values
     dev->model->cmd_set->bulk_write_register(dev, regs);
@@ -3390,7 +3380,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
               dev->frontend.set_offset(i, (top[i] + bottom[i]) / 2);
 	    }
 	}
-      RIE(gl843_set_fe(dev, calib_sensor, AFE_SET));
+        gl843_set_fe(dev, calib_sensor, AFE_SET);
 
         // scan with no move
         dev->model->cmd_set->bulk_write_register(dev, regs);
@@ -3555,7 +3545,7 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   std::vector<uint8_t> line(total_size);
 
-  RIE(gl843_set_fe(dev, calib_sensor, AFE_SET));
+    gl843_set_fe(dev, calib_sensor, AFE_SET);
   RIE(gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner (dev, line.data(), total_size));
   RIE(gl843_stop_action_no_move(dev, &regs));

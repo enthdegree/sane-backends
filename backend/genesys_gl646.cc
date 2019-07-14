@@ -932,8 +932,8 @@ gl646_setup_registers (Genesys_Device * dev,
 
   RIE (write_control (dev, sensor, xresolution));
 
-  /* setup analog frontend */
-  RIE (gl646_set_fe(dev, sensor, AFE_SET, xresolution));
+    // setup analog frontend
+    gl646_set_fe(dev, sensor, AFE_SET, xresolution);
 
   /* now we're done with registers setup values used by data transfer */
   /* we setup values needed for the data transfer */
@@ -1329,12 +1329,10 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
   return status;
 }
 
-/* Set values of Analog Device type frontend */
-static SANE_Status
-gl646_set_ad_fe (Genesys_Device * dev, uint8_t set)
+// Set values of Analog Device type frontend
+static void gl646_set_ad_fe(Genesys_Device* dev, uint8_t set)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int i;
 
   if (set == AFE_INIT)
@@ -1363,8 +1361,6 @@ gl646_set_ad_fe (Genesys_Device * dev, uint8_t set)
      {
         sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.reg[0] | 0x04);
      } */
-
-  return status;
 }
 
 /** set up analog frontend
@@ -1374,11 +1370,9 @@ gl646_set_ad_fe (Genesys_Device * dev, uint8_t set)
  * @param dpi resolution of the scan since it affects settings
  * @return SANE_STATUS_GOOD if evrithing OK
  */
-static SANE_Status
-gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, int dpi)
+static void gl646_wm_hp3670(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set, int dpi)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int i;
 
   switch (set)
@@ -1395,7 +1389,7 @@ gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set,
     case AFE_POWER_SAVE:
         sanei_genesys_fe_write_data(dev, 0x01, 0x06);
         sanei_genesys_fe_write_data(dev, 0x06, 0x0f);
-        return status;
+            return;
       break;
     default:			/* AFE_SET */
       /* mode setup */
@@ -1421,8 +1415,6 @@ gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set,
             sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
         }
     }
-
-  return status;
 }
 
 /** Set values of analog frontend
@@ -1430,26 +1422,24 @@ gl646_wm_hp3670(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set,
  * @param set action to execute
  * @param dpi dpi to setup the AFE
  * @return error or SANE_STATUS_GOOD */
-static SANE_Status
-gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, int dpi)
+static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set, int dpi)
 {
     DBG_HELPER_ARGS(dbg, "%s,%d", set == AFE_INIT ? "init" :
                                   set == AFE_SET ? "set" :
                                   set == AFE_POWER_SAVE ? "powersave" : "huh?", dpi);
-  SANE_Status status = SANE_STATUS_GOOD;
   int i;
   uint8_t val;
 
   /* Analog Device type frontend */
-  if ((dev->reg.find_reg(0x04).value & REG04_FESET) == 0x02)
-    return gl646_set_ad_fe (dev, set);
+    uint8_t frontend_type = dev->reg.find_reg(0x04).value & REG04_FESET;
+    if (frontend_type == 0x02) {
+        gl646_set_ad_fe(dev, set);
+        return;
+    }
 
   /* Wolfson type frontend */
-  if ((dev->reg.find_reg(0x04).value & REG04_FESET) != 0x03)
-    {
-      DBG(DBG_proc, "%s(): unsupported frontend type %d\n", __func__,
-          dev->reg.find_reg(0x04).value & REG04_FESET);
-      return SANE_STATUS_UNSUPPORTED;
+    if (frontend_type != 0x03) {
+        throw SaneException("unsupported frontend type %d", frontend_type);
     }
 
   /* per frontend function to keep code clean */
@@ -1457,8 +1447,8 @@ gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, in
     {
     case DAC_WOLFSON_HP3670:
     case DAC_WOLFSON_HP2400:
-      return gl646_wm_hp3670(dev, sensor, set, dpi);
-      break;
+            gl646_wm_hp3670(dev, sensor, set, dpi);
+            return;
     default:
       DBG(DBG_proc, "%s(): using old method\n", __func__);
       break;
@@ -1479,13 +1469,13 @@ gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, in
 	  val = 0x07;
             gl646_gpio_output_enable(dev->usb_dev, val);
 	}
-      return status;
+        return;
     }
 
     // set fontend to power saving mode
     if (set == AFE_POWER_SAVE) {
         sanei_genesys_fe_write_data(dev, 0x01, 0x02);
-        return status;
+        return;
     }
 
   /* here starts AFE_SET */
@@ -1523,8 +1513,6 @@ gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, in
 
     // end with reg1
     sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
-
-  return SANE_STATUS_GOOD;
 }
 
 /** Set values of analog frontend
@@ -1533,10 +1521,9 @@ gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set, in
  * @param dev device to set
  * @param set action to execute
  * @return error or SANE_STATUS_GOOD */
-static SANE_Status
-gl646_public_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
+static void gl646_public_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set)
 {
-  return gl646_set_fe(dev, sensor, set, dev->settings.yres);
+    gl646_set_fe(dev, sensor, set, dev->settings.yres);
 }
 
 /**
@@ -1556,7 +1543,7 @@ gl646_save_power (Genesys_Device * dev, SANE_Bool enable)
 
   if (enable)
     {
-      /* gl646_set_fe(dev, sensor, AFE_POWER_SAVE); */
+        // gl646_set_fe(dev, sensor, AFE_POWER_SAVE);
     }
   else
     {
@@ -2187,13 +2174,8 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   dev->reg.find_reg(0x01).value &= ~REG01_SCAN;
   sanei_genesys_set_triple(&dev->reg, REG_FEEDL, 65535);
 
-  /* sets frontend */
-  status = gl646_set_fe(dev, sensor, AFE_SET, settings.xres);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set frontend: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // sets frontend
+    gl646_set_fe(dev, sensor, AFE_SET, settings.xres);
 
   /* write scan registers */
     try {
@@ -3474,8 +3456,8 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   lines = value + 1;
   *total_size = lines * settings.pixels;
 
-  /* now registers are ok, write them to scanner */
-  RIE (gl646_set_fe(dev, sensor, AFE_SET, settings.xres));
+    // now registers are ok, write them to scanner
+    gl646_set_fe(dev, sensor, AFE_SET, settings.xres);
     sanei_genesys_bulk_write_register(dev, *local_reg);
 
   return status;
@@ -3635,8 +3617,8 @@ gl646_init (Genesys_Device * dev)
       RIE (gl646_set_powersaving (dev, 15));
     }				/* end if cold */
 
-  /* Set analog frontend */
-  RIE (gl646_set_fe(dev, sensor, AFE_INIT, 0));
+    // Set analog frontend
+    gl646_set_fe(dev, sensor, AFE_INIT, 0);
 
   /* GPO enabling for XP200 */
   if (dev->model->ccd_type == CIS_XP200)
@@ -3824,13 +3806,8 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
   /* put back real line number in settings */
   settings.lines = lines;
 
-  /* initialize frontend */
-  status = gl646_set_fe(dev, sensor, AFE_SET, settings.xres);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set frontend: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // initialize frontend
+    gl646_set_fe(dev, sensor, AFE_SET, settings.xres);
 
   /* no shading correction and not watch dog for simple scan */
   dev->reg.find_reg(0x01).value &= ~(REG01_DVDSET | REG01_DOGENB);

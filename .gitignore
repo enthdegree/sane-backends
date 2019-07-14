@@ -54,3 +54,6 @@ test-suite.log
 /testsuite/sanei/test_wire.out
 /testsuite/sanei/test_wire.trs
 /testsuite/tools/*.res
+
+# `make dist` artifacts
+/sane-backends-*.tar.gz

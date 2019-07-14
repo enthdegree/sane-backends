@@ -152,13 +152,14 @@ static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi, int half_ccd
 static SANE_Status
 gl124_homsnr_gpio(Genesys_Device *dev)
 {
+    DBG_HELPER(dbg);
 uint8_t val;
 SANE_Status status=SANE_STATUS_GOOD;
 
-  RIE (sanei_genesys_read_register (dev, REG32, &val));
+    sanei_genesys_read_register(dev, REG32, &val);
   val &= ~REG32_GPIO10;
   RIE (sanei_genesys_write_register (dev, REG32, val));
-  return status;
+    return SANE_STATUS_GOOD;
 }
 
 /**@brief compute half ccd mode
@@ -627,8 +628,9 @@ gl124_set_ti_fe (Genesys_Device * dev, uint8_t set)
 
 /* Set values of analog frontend */
 static SANE_Status
-gl124_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
+gl124_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set)
 {
+    DBG_HELPER(dbg);
     (void) sensor;
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
@@ -642,7 +644,7 @@ gl124_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
       dev->frontend = dev->frontend_initial;
     }
 
-  RIE (sanei_genesys_read_register (dev, REG0A, &val));
+    sanei_genesys_read_register(dev, REG0A, &val);
 
   /* route to correct analog FE */
   switch ((val & REG0A_SIFSEL)>>REG0AS_SIFSEL)
@@ -659,7 +661,6 @@ gl124_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
       break;
     }
 
-  DBGCOMPLETED;
   return status;
 }
 
@@ -1644,11 +1645,10 @@ gl124_start_action (Genesys_Device * dev)
 static SANE_Status
 gl124_stop_action (Genesys_Device * dev)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val40, val;
   unsigned int loop;
-
-  DBGSTART;
 
   /* post scan gpio : without that HOMSNR is unreliable */
   gl124_homsnr_gpio(dev);
@@ -1659,19 +1659,12 @@ gl124_stop_action (Genesys_Device * dev)
       sanei_genesys_print_status (val);
     }
 
-  status = sanei_genesys_read_register (dev, REG100, &val40);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read reg100: %s\n", __func__, sane_strstatus(status));
-      DBGCOMPLETED;
-      return status;
-    }
+    sanei_genesys_read_register(dev, REG100, &val40);
 
   /* only stop action if needed */
   if (!(val40 & REG100_DATAENB) && !(val40 & REG100_MOTMFLG))
     {
       DBG (DBG_info, "%s: already stopped\n", __func__);
-      DBGCOMPLETED;
       return SANE_STATUS_GOOD;
     }
 
@@ -1697,21 +1690,12 @@ gl124_stop_action (Genesys_Device * dev)
 	{
 	  sanei_genesys_print_status (val);
 	}
-      status = sanei_genesys_read_register (dev, REG100, &val40);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "%s: failed to read home sensor: %s\n", __func__,
-	       sane_strstatus (status));
-	  DBGCOMPLETED;
-	  return status;
-	}
+    sanei_genesys_read_register(dev, REG100, &val40);
 
       /* if scanner is in command mode, we are done */
       if (!(val40 & REG100_DATAENB) && !(val40 & REG100_MOTMFLG)
 	  && !(val & MOTORENB))
 	{
-	  DBGCOMPLETED;
 	  return SANE_STATUS_GOOD;
 	}
 
@@ -1719,7 +1703,6 @@ gl124_stop_action (Genesys_Device * dev)
       loop--;
     }
 
-  DBGCOMPLETED;
   return SANE_STATUS_IO_ERROR;
 }
 
@@ -1736,9 +1719,9 @@ gl124_setup_scan_gpio(Genesys_Device *dev, int resolution)
 {
 SANE_Status status = SANE_STATUS_GOOD;
 uint8_t val;
+    DBG_HELPER(dbg);
 
-  DBGSTART;
-  RIE (sanei_genesys_read_register (dev, REG32, &val));
+    sanei_genesys_read_register(dev, REG32, &val);
 
   /* LiDE 110, 210 and 220 cases */
   if(dev->model->gpo_type != GPO_CANONLIDE120)
@@ -1779,7 +1762,6 @@ uint8_t val;
     }
   val |= 0x02;
   RIE (sanei_genesys_write_register (dev, REG32, val));
-  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -1789,12 +1771,12 @@ static SANE_Status
 gl124_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Register_Set * reg,
 		  SANE_Bool start_motor)
 {
+    DBG_HELPER(dbg);
     (void) sensor;
 
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
-  DBGSTART;
   if (reg == NULL)
     return SANE_STATUS_INVAL;
 
@@ -1804,8 +1786,8 @@ gl124_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
   /* clear scan and feed count */
   RIE (sanei_genesys_write_register (dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT));
 
-  /* enable scan and motor */
-  RIE (sanei_genesys_read_register (dev, REG01, &val));
+    // enable scan and motor
+    sanei_genesys_read_register(dev, REG01, &val);
   val |= REG01_SCAN;
   RIE (sanei_genesys_write_register (dev, REG01, val));
 
@@ -1818,8 +1800,7 @@ gl124_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
       RIE (sanei_genesys_write_register (dev, REG0F, 0));
     }
 
-  DBGCOMPLETED;
-  return status;
+  return SANE_STATUS_GOOD;
 }
 
 
@@ -1863,11 +1844,10 @@ SANE_Status gl124_rewind(Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t byte;
+    DBG_HELPER(dbg);
 
-  DBGSTART;
-
-  /* set motor reverse */
-  RIE (sanei_genesys_read_register (dev, 0x02, &byte));
+    // set motor reverse
+    sanei_genesys_read_register(dev, 0x02, &byte);
   byte |= 0x04;
   RIE (sanei_genesys_write_register(dev, 0x02, byte));
 
@@ -1877,18 +1857,17 @@ SANE_Status gl124_rewind(Genesys_Device * dev)
   RIE (gl124_begin_scan (dev, sensor, &dev->reg, SANE_TRUE));
   do
     {
-      sanei_genesys_sleep_ms(100);
-      RIE (sanei_genesys_read_register (dev, REG100, &byte));
+        sanei_genesys_sleep_ms(100);
+        sanei_genesys_read_register(dev, REG100, &byte);
     }
   while(byte & REG100_MOTMFLG);
   RIE (gl124_end_scan (dev, &dev->reg, SANE_TRUE));
 
-  /* restore direction */
-  RIE (sanei_genesys_read_register (dev, 0x02, &byte));
+    // restore direction
+    sanei_genesys_read_register(dev, 0x02, &byte);
   byte &= 0xfb;
   RIE (sanei_genesys_write_register(dev, 0x02, byte));
-  DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
+    return SANE_STATUS_GOOD;
 }
 
 
@@ -2421,7 +2400,7 @@ static void gl124_wait_for_motor_stop(Genesys_Device* dev)
     uint8_t val40, val;
 
     TIE(sanei_genesys_get_status(dev, &val));
-    TIE(sanei_genesys_read_register(dev, REG100, &val40));
+    sanei_genesys_read_register(dev, REG100, &val40);
 
     if ((val & MOTORENB) == 0 && (val40 & REG100_MOTMFLG) == 0)
         return;
@@ -2429,7 +2408,7 @@ static void gl124_wait_for_motor_stop(Genesys_Device* dev)
     do {
         sanei_genesys_sleep_ms(10);
         TIE(sanei_genesys_get_status(dev, &val));
-        TIE(sanei_genesys_read_register(dev, REG100, &val40));
+        sanei_genesys_read_register(dev, REG100, &val40);
     } while ((val & MOTORENB) ||(val40 & REG100_MOTMFLG));
     sanei_genesys_sleep_ms(50);
 }
@@ -2530,13 +2509,13 @@ static SANE_Status
 gl124_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
                          uint8_t * data, int size)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
   uint32_t addr, length, strpixel ,endpixel, x, factor, segcnt, pixels, i;
   uint32_t lines, channels;
   uint16_t dpiset,dpihw;
   uint8_t val,*ptr,*src;
 
-  DBGSTART;
   DBG( DBG_io2, "%s: writing %d bytes of shading data\n",__func__,size);
 
   /* logical size of a color as seen by generic code of the frontend */
@@ -2632,7 +2611,7 @@ gl124_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
           /* next shading coefficient */
           ptr+=4;
         }
-      RIE (sanei_genesys_read_register (dev, 0xd0+i, &val));
+        sanei_genesys_read_register(dev, 0xd0+i, &val);
       addr = val * 8192 + 0x10000000;
       status = sanei_genesys_write_ahb(dev, addr, pixels*dev->segnb, buffer.data());
       if (status != SANE_STATUS_GOOD)
@@ -2641,8 +2620,6 @@ gl124_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
           return status;
         }
     }
-
-  DBGCOMPLETED;
 
   return status;
 }
@@ -2920,6 +2897,7 @@ static SANE_Status
 gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
                          Genesys_Register_Set& regs)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t reg0a;
   unsigned int channels, bpp;
@@ -2927,13 +2905,10 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
   int topavg, bottomavg, resolution, lines;
   int top, bottom, black_pixels, pixels;
 
-  DBGSTART;
-
-  /* no gain nor offset for TI AFE */
-  RIE (sanei_genesys_read_register (dev, REG0A, &reg0a));
+    // no gain nor offset for TI AFE
+    sanei_genesys_read_register(dev, REG0A, &reg0a);
   if(((reg0a & REG0A_SIFSEL)>>REG0AS_SIFSEL)==3)
     {
-      DBGCOMPLETED;
       return status;
     }
 
@@ -3063,7 +3038,6 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       dev->frontend.get_offset(1),
       dev->frontend.get_offset(2));
 
-  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -3081,6 +3055,7 @@ static SANE_Status
 gl124_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
                               Genesys_Register_Set& regs, int dpi)
 {
+    DBG_HELPER(dbg);
   int pixels;
   int total_size;
   uint8_t reg0a;
@@ -3094,8 +3069,8 @@ gl124_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   DBG(DBG_proc, "%s: dpi = %d\n", __func__, dpi);
 
-  /* no gain nor offset for TI AFE */
-  RIE (sanei_genesys_read_register (dev, REG0A, &reg0a));
+    // no gain nor offset for TI AFE
+    sanei_genesys_read_register(dev, REG0A, &reg0a);
   if(((reg0a & REG0A_SIFSEL)>>REG0AS_SIFSEL)==3)
     {
       DBGCOMPLETED;
@@ -3232,7 +3207,6 @@ gl124_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   status = gl124_slow_back_home (dev, SANE_TRUE);
 
-  DBGCOMPLETED;
   return status;
 }
 
@@ -3432,8 +3406,6 @@ gl124_boot (Genesys_Device * dev, SANE_Bool cold)
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
-  DBGSTART;
-
   /* reset ASIC in case of cold boot */
   if(cold)
     {
@@ -3444,17 +3416,16 @@ gl124_boot (Genesys_Device * dev, SANE_Bool cold)
   /* enable GPOE 17 */
   RIE (sanei_genesys_write_register (dev, 0x36, 0x01));
 
-  /* set GPIO 17 */
-  RIE (sanei_genesys_read_register (dev, 0x33, &val));
+    // set GPIO 17
+    sanei_genesys_read_register(dev, 0x33, &val);
   val |= 0x01;
   RIE (sanei_genesys_write_register (dev, 0x33, val));
 
-  /* test CHKVER */
-  RIE (sanei_genesys_read_register (dev, REG100, &val));
-  if (val & REG100_CHKVER)
-    {
-      RIE (sanei_genesys_read_register (dev, 0x00, &val));
-      DBG(DBG_info, "%s: reported version for genesys chip is 0x%02x\n", __func__, val);
+    // test CHKVER
+    sanei_genesys_read_register(dev, REG100, &val);
+    if (val & REG100_CHKVER) {
+        sanei_genesys_read_register(dev, 0x00, &val);
+        DBG(DBG_info, "%s: reported version for genesys chip is 0x%02x\n", __func__, val);
     }
 
   /* Set default values for registers */
@@ -3482,7 +3453,6 @@ gl124_boot (Genesys_Device * dev, SANE_Bool cold)
   /* setup internal memory layout */
   RIE (gl124_init_memory_layout (dev));
 
-  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 
@@ -3493,10 +3463,10 @@ gl124_update_hardware_sensors (Genesys_Scanner * s)
   /* do what is needed to get a new set of events, but try to not loose
      any of them.
    */
-  SANE_Status status = SANE_STATUS_GOOD;
-  uint8_t val=0;
+    DBG_HELPER(dbg);
+    uint8_t val = 0;
 
-  RIE (sanei_genesys_read_register (s->dev, REG31, &val));
+    sanei_genesys_read_register(s->dev, REG31, &val);
 
   /* TODO : for the next scanner special case,
    * add another per scanner button profile struct to avoid growing
@@ -3518,7 +3488,7 @@ gl124_update_hardware_sensors (Genesys_Scanner * s)
         s->buttons[BUTTON_EMAIL_SW].write((val & 0x08) == 0);
         s->buttons[BUTTON_FILE_SW].write((val & 0x10) == 0);
     }
-  return status;
+  return SANE_STATUS_GOOD;
 }
 
 

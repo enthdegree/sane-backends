@@ -1055,24 +1055,16 @@ gl646_asic_test (Genesys_Device * dev)
       return status;
     }
 
-  status = sanei_genesys_read_register (dev, 0x4e, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read register: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+  sanei_genesys_read_register(dev, 0x4e, &val);
+
   if (val != 0xde)		/* value of register 0x38 */
     {
       DBG(DBG_error, "%s: register contains invalid value\n", __func__);
       return SANE_STATUS_IO_ERROR;
     }
 
-  status = sanei_genesys_read_register (dev, 0x4f, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read register: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_read_register(dev, 0x4f, &val);
+
   if (val != 0xad)		/* value of register 0x39 */
     {
       DBG(DBG_error, "%s: register contains invalid value\n", __func__);

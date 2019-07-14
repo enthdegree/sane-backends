@@ -332,24 +332,16 @@ sanei_gl841_asic_test (Genesys_Device * dev)
       return status;
     }
 
-  status = sanei_genesys_read_register (dev, 0x38, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read register: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_read_register(dev, 0x38, &val);
+
   if (val != 0xde)		/* value of register 0x38 */
     {
       DBG(DBG_error, "%s: register contains invalid value\n", __func__);
       return SANE_STATUS_IO_ERROR;
     }
 
-  status = sanei_genesys_read_register (dev, 0x39, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read register: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_read_register(dev, 0x39, &val);
+
   if (val != 0xad)		/* value of register 0x39 */
     {
       DBG(DBG_error, "%s: register contains invalid value\n", __func__);
@@ -2844,12 +2836,11 @@ gl841_start_action (Genesys_Device * dev)
 static SANE_Status
 gl841_stop_action (Genesys_Device * dev)
 {
+    DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val40, val;
   unsigned int loop;
-
-  DBG(DBG_proc, "%s\n", __func__);
 
   status = sanei_genesys_get_status (dev, &val);
   if (DBG_LEVEL >= DBG_io)
@@ -2857,19 +2848,12 @@ gl841_stop_action (Genesys_Device * dev)
       sanei_genesys_print_status (val);
     }
 
-  status = sanei_genesys_read_register(dev, 0x40, &val40);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
-      DBGCOMPLETED;
-      return status;
-    }
+    sanei_genesys_read_register(dev, 0x40, &val40);
 
   /* only stop action if needed */
   if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG))
     {
       DBG(DBG_info, "%s: already stopped\n", __func__);
-      DBGCOMPLETED;
       return SANE_STATUS_GOOD;
     }
 
@@ -2890,24 +2874,15 @@ gl841_stop_action (Genesys_Device * dev)
      register 0x0f) seems to be unnecessary */
 
   loop = 10;
-  while (loop > 0)
-    {
-      status = sanei_genesys_read_register(dev, 0x40, &val40);
-      if (DBG_LEVEL >= DBG_io)
-	{
-	  sanei_genesys_print_status (val);
+    while (loop > 0) {
+        sanei_genesys_read_register(dev, 0x40, &val40);
+        if (DBG_LEVEL >= DBG_io) {
+            sanei_genesys_print_status(val);
         }
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
-	  DBGCOMPLETED;
-	  return status;
-	}
 
       /* if scanner is in command mode, we are done */
       if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG))
 	{
-	  DBGCOMPLETED;
 	  return SANE_STATUS_GOOD;
 	}
 
@@ -2915,24 +2890,19 @@ gl841_stop_action (Genesys_Device * dev)
       loop--;
     }
 
-  DBGCOMPLETED;
   return SANE_STATUS_IO_ERROR;
 }
 
 static SANE_Status
 gl841_get_paper_sensor(Genesys_Device * dev, SANE_Bool * paper_loaded)
 {
-  SANE_Status status = SANE_STATUS_GOOD;
-  uint8_t val;
+    DBG_HELPER(dbg);
+    uint8_t val;
 
-  status = sanei_genesys_read_register(dev, REG6D, &val);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read gpio: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-  *paper_loaded = (val & 0x1) == 0;
-  return SANE_STATUS_GOOD;
+    sanei_genesys_read_register(dev, REG6D, &val);
+
+    *paper_loaded = (val & 0x1) == 0;
+    return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
@@ -3141,13 +3111,12 @@ gl841_load_document (Genesys_Device * dev)
 static SANE_Status
 gl841_detect_document_end (Genesys_Device * dev)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool paper_loaded;
   unsigned int scancnt = 0, lincnt, postcnt;
   uint8_t val;
   size_t total_bytes_to_read;
-
-  DBG(DBG_proc, "%s: begin\n", __func__);
 
   RIE (gl841_get_paper_sensor (dev, &paper_loaded));
 
@@ -3182,15 +3151,15 @@ gl841_detect_document_end (Genesys_Device * dev)
         }
       DBG(DBG_io, "%s: scancnt=%u lines\n", __func__, scancnt);
 
-      RIE(sanei_genesys_read_register(dev, 0x25, &val));
-      lincnt=65536*val;
-      RIE(sanei_genesys_read_register(dev, 0x26, &val));
-      lincnt+=256*val;
-      RIE(sanei_genesys_read_register(dev, 0x27, &val));
-      lincnt+=val;
-      DBG(DBG_io, "%s: lincnt=%u lines\n", __func__, lincnt);
-      postcnt=(SANE_UNFIX(dev->model->post_scan)/MM_PER_INCH)*dev->settings.yres;
-      DBG(DBG_io, "%s: postcnt=%u lines\n", __func__, postcnt);
+        sanei_genesys_read_register(dev, 0x25, &val);
+        lincnt = 65536 * val;
+        sanei_genesys_read_register(dev, 0x26, &val);
+        lincnt += 256 * val;
+        sanei_genesys_read_register(dev, 0x27, &val);
+        lincnt += val;
+        DBG(DBG_io, "%s: lincnt=%u lines\n", __func__, lincnt);
+        postcnt = (SANE_UNFIX(dev->model->post_scan)/MM_PER_INCH) * dev->settings.yres;
+        DBG(DBG_io, "%s: postcnt=%u lines\n", __func__, postcnt);
 
       /* the current scancnt is also the final one, so we use it to
        * compute total bytes to read. We also add the line count to eject document */
@@ -3208,7 +3177,6 @@ gl841_detect_document_end (Genesys_Device * dev)
         }
     }
 
-  DBG(DBG_proc, "%s: finished\n", __func__);
   return SANE_STATUS_GOOD;
 }
 
@@ -3218,19 +3186,17 @@ static SANE_Status
 gl841_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Register_Set * reg,
 			SANE_Bool start_motor)
 {
+    DBG_HELPER(dbg);
     (void) sensor;
   SANE_Status status = SANE_STATUS_GOOD;
   // FIXME: SEQUENTIAL not really needed in this case
   Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
   uint8_t val;
 
-  DBG(DBG_proc, "%s\n", __func__);
-
-  if (dev->model->gpo_type == GPO_CANONLIDE80)
-    {
-      RIE (sanei_genesys_read_register (dev, REG6B, &val));
-      val = REG6B_GPO18;
-      RIE (sanei_genesys_write_register (dev, REG6B, val));
+    if (dev->model->gpo_type == GPO_CANONLIDE80) {
+        sanei_genesys_read_register(dev, REG6B, &val);
+        val = REG6B_GPO18;
+        RIE(sanei_genesys_write_register(dev, REG6B, val));
     }
 
     if (dev->model->ccd_type != CCD_PLUSTEK_3600) {
@@ -3256,8 +3222,6 @@ gl841_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
       DBG(DBG_error, "%s: failed to bulk write registers: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-
-  DBG(DBG_proc, "%s: completed\n", __func__);
 
   return status;
 }
@@ -3379,6 +3343,7 @@ gl841_feed (Genesys_Device * dev, int steps)
 static SANE_Status
 gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
+    DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
   SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
@@ -3394,18 +3359,16 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return SANE_STATUS_GOOD;
     }
 
-  /* reset gpio pin */
-  if (dev->model->gpo_type == GPO_CANONLIDE35)
-    {
-      RIE (sanei_genesys_read_register (dev, REG6C, &val));
-      val = dev->gpo.value[0];
-      RIE (sanei_genesys_write_register (dev, REG6C, val));
+    // reset gpio pin
+    if (dev->model->gpo_type == GPO_CANONLIDE35) {
+        sanei_genesys_read_register(dev, REG6C, &val);
+        val = dev->gpo.value[0];
+        RIE(sanei_genesys_write_register(dev, REG6C, val));
     }
-  if (dev->model->gpo_type == GPO_CANONLIDE80)
-    {
-      RIE (sanei_genesys_read_register (dev, REG6B, &val));
-      val = REG6B_GPO18 | REG6B_GPO17;
-      RIE (sanei_genesys_write_register (dev, REG6B, val));
+    if (dev->model->gpo_type == GPO_CANONLIDE80) {
+        sanei_genesys_read_register(dev, REG6B, &val);
+        val = REG6B_GPO18 | REG6B_GPO17;
+        RIE(sanei_genesys_write_register(dev, REG6B, val));
     }
   gl841_save_power(dev, SANE_FALSE);
 
@@ -3524,7 +3487,6 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
 
   DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
-  DBG(DBG_proc, "%s: finished\n", __func__);
   return SANE_STATUS_GOOD;
 }
 
@@ -5118,27 +5080,28 @@ gl841_init (Genesys_Device * dev)
 static SANE_Status
 gl841_update_hardware_sensors (Genesys_Scanner * s)
 {
+    DBG_HELPER(dbg);
+    SANE_Status status = SANE_STATUS_GOOD;
   /* do what is needed to get a new set of events, but try to not lose
      any of them.
    */
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
-  if (s->dev->model->gpo_type == GPO_CANONLIDE35
-   || s->dev->model->gpo_type == GPO_CANONLIDE80)
+    if (s->dev->model->gpo_type == GPO_CANONLIDE35
+        || s->dev->model->gpo_type == GPO_CANONLIDE80)
     {
-        RIE(sanei_genesys_read_register(s->dev, REG6D, &val));
+        sanei_genesys_read_register(s->dev, REG6D, &val);
         s->buttons[BUTTON_SCAN_SW].write((val & 0x01) == 0);
         s->buttons[BUTTON_FILE_SW].write((val & 0x02) == 0);
         s->buttons[BUTTON_EMAIL_SW].write((val & 0x04) == 0);
         s->buttons[BUTTON_COPY_SW].write((val & 0x08) == 0);
     }
 
-  if (s->dev->model->gpo_type == GPO_XP300 ||
-      s->dev->model->gpo_type == GPO_DP665 ||
-      s->dev->model->gpo_type == GPO_DP685)
+    if (s->dev->model->gpo_type == GPO_XP300 ||
+        s->dev->model->gpo_type == GPO_DP665 ||
+        s->dev->model->gpo_type == GPO_DP685)
     {
-        RIE(sanei_genesys_read_register(s->dev, REG6D, &val));
+        sanei_genesys_read_register(s->dev, REG6D, &val);
 
         s->buttons[BUTTON_PAGE_LOADED_SW].write((val & 0x01) == 0);
         s->buttons[BUTTON_SCAN_SW].write((val & 0x02) == 0);

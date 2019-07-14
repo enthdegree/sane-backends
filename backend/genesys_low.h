@@ -1026,7 +1026,7 @@ typedef struct Genesys_Calibration_Cache  Genesys_Calibration_Cache;
  * same command set, but may have different optical resolution and other
  * parameters.
  */
-typedef struct Genesys_Command_Set
+struct Genesys_Command_Set
 {
   /** @name Identification */
   /*@{ */
@@ -1132,8 +1132,8 @@ typedef struct Genesys_Command_Set
     /**
      * write shading data calibration to ASIC
      */
-    SANE_Status (*send_shading_data) (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                      uint8_t * data, int size);
+    void (*send_shading_data) (Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t* data,
+                               int size);
 
     // calculate current scan setup
     void (*calculate_current_setup) (Genesys_Device * dev, const Genesys_Sensor& sensor);
@@ -1143,7 +1143,7 @@ typedef struct Genesys_Command_Set
      */
     SANE_Status (*asic_boot) (Genesys_Device * dev, SANE_Bool cold);
 
-} Genesys_Command_Set;
+};
 
 /** @brief structure to describe a scanner model
  * This structure describes a model. It is composed of information on the

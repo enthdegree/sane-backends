@@ -948,15 +948,14 @@ genesys_send_offset_and_shading (Genesys_Device * dev, const Genesys_Sensor& sen
     DBG_HELPER_ARGS(dbg, "(size = %d)", size);
   int dpihw;
   int start_address;
-  SANE_Status status = SANE_STATUS_GOOD;
 
   /* ASIC higher than gl843 doesn't have register 2A/2B, so we route to
    * a per ASIC shading data loading function if available.
    * It is also used for scanners using SHDAREA */
   if(dev->model->cmd_set->send_shading_data!=NULL)
     {
-        status=dev->model->cmd_set->send_shading_data(dev, sensor, data, size);
-        return status;
+        dev->model->cmd_set->send_shading_data(dev, sensor, data, size);
+        return SANE_STATUS_GOOD;
     }
 
   /* gl646, gl84[123] case */

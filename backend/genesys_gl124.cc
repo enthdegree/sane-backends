@@ -2405,12 +2405,10 @@ gl124_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
  * Send shading calibration data. The buffer is considered to always hold values
  * for all the channels.
  */
-static SANE_Status
-gl124_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                         uint8_t * data, int size)
+static void gl124_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                    uint8_t* data, int size)
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint32_t addr, length, strpixel ,endpixel, x, factor, segcnt, pixels, i;
   uint32_t lines, channels;
   uint16_t dpiset,dpihw;
@@ -2513,8 +2511,6 @@ gl124_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
       addr = val * 8192 + 0x10000000;
         sanei_genesys_write_ahb(dev, addr, pixels*dev->segnb, buffer.data());
     }
-
-  return status;
 }
 
 

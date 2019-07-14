@@ -2135,12 +2135,10 @@ gl846_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
  * Send shading calibration data. The buffer is considered to always hold values
  * for all the channels.
  */
-static SANE_Status
-gl846_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                         uint8_t * data, int size)
+static void gl846_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                    uint8_t* data, int size)
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint32_t addr, length, i, x, factor, pixels;
   uint32_t dpiset, dpihw, strpixel, endpixel;
   uint16_t tempo;
@@ -2222,8 +2220,6 @@ gl846_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
       addr = val * 8192 + 0x10000000;
         sanei_genesys_write_ahb(dev, addr, pixels, buffer.data());
     }
-
-  return status;
 }
 
 /** @brief calibrates led exposure

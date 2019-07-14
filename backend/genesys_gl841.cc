@@ -5019,13 +5019,10 @@ gl841_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
  * Send shading calibration data. The buffer is considered to always hold values
  * for all the channels.
  */
-static
-SANE_Status
-gl841_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                         uint8_t * data, int size)
+static void gl841_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                    uint8_t* data, int size)
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint32_t length, x, factor, pixels, i;
   uint32_t lines, channels;
   uint16_t dpiset, dpihw, strpixel ,endpixel, beginpixel;
@@ -5039,7 +5036,7 @@ gl841_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
         // shading data whole line
         dev->model->cmd_set->bulk_write_data(dev, 0x3c, data, size);
-      return status;
+        return;
     }
 
   /* data is whole line, we extract only the part for the scanned area */
@@ -5115,8 +5112,6 @@ gl841_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
         sanei_genesys_set_buffer_address(dev, 0x5400*i);
         dev->model->cmd_set->bulk_write_data(dev, 0x3c, buffer.data(), pixels);
     }
-
-  return status;
 }
 
 

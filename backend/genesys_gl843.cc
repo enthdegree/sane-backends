@@ -4209,12 +4209,10 @@ gl843_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
  * Send shading calibration data. The buffer is considered to always hold values
  * for all the channels.
  */
-static SANE_Status
-gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                         uint8_t * data, int size)
+static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                    uint8_t* data, int size)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint32_t final_size, length, i;
   uint8_t *buffer;
   int count,offset;
@@ -4280,8 +4278,6 @@ gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
     sanei_genesys_set_buffer_address(dev, 0);
 
     dev->model->cmd_set->bulk_write_data (dev, 0x3c, final_data.data(), count);
-
-  return status;
 }
 
 

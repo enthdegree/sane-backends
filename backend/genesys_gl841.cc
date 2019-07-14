@@ -298,7 +298,6 @@ sanei_gl841_asic_test (Genesys_Device * dev)
 {
     DBG_HELPER(dbg);
 
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   size_t size, verify_size;
   unsigned int i;
@@ -342,12 +341,7 @@ sanei_gl841_asic_test (Genesys_Device * dev)
       data[i + 1] = (i / 2) % 256;
     }
 
-  status = sanei_genesys_set_buffer_address (dev, 0x0000);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_set_buffer_address(dev, 0x0000);
 
 /*  status = sanei_genesys_bulk_write_data(dev, 0x3c, data, size);
   if (status != SANE_STATUS_GOOD)
@@ -358,12 +352,7 @@ sanei_gl841_asic_test (Genesys_Device * dev)
       return status;
       }*/
 
-  status = sanei_genesys_set_buffer_address (dev, 0x0000);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_set_buffer_address(dev, 0x0000);
 
     sanei_genesys_bulk_read_data(dev, 0x45, verify_data.data(), verify_size);
 
@@ -722,6 +711,7 @@ static SANE_Status
 gl841_send_slope_table (Genesys_Device * dev, int table_nr,
 			      uint16_t * slope_table, int steps)
 {
+    DBG_HELPER(dbg);
   int dpihw;
   int start_address;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -759,13 +749,7 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
       DBG(DBG_io, "%s: %s\n", __func__, msg);
     }
 
-  status =
-    sanei_genesys_set_buffer_address (dev, start_address + table_nr * 0x200);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_set_buffer_address(dev, start_address + table_nr * 0x200);
 
   status = sanei_genesys_bulk_write_data(dev, 0x3c, table.data(), steps * 2);
   if (status != SANE_STATUS_GOOD)
@@ -774,7 +758,6 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
       return status;
     }
 
-  DBG(DBG_proc, "%s: completed\n", __func__);
   return status;
 }
 
@@ -5375,26 +5358,20 @@ SANE_Status
 gl841_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
                          uint8_t * data, int size)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
   uint32_t length, x, factor, pixels, i;
   uint32_t lines, channels;
   uint16_t dpiset, dpihw, strpixel ,endpixel, beginpixel;
   uint8_t *ptr,*src;
 
-  DBGSTART;
   DBG(DBG_io2, "%s: writing %d bytes of shading data\n", __func__, size);
 
   /* old method if no SHDAREA */
   if((dev->reg.find_reg(0x01).value & REG01_SHDAREA) == 0)
     {
-      /* start address */
-      status = sanei_genesys_set_buffer_address (dev, 0x0000);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__,
-              sane_strstatus(status));
-          return status;
-        }
+        // start address
+        sanei_genesys_set_buffer_address(dev, 0x0000);
 
       /* shading data whole line */
       status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, data, size);
@@ -5404,7 +5381,6 @@ gl841_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
               sane_strstatus(status));
           return status;
         }
-      DBGCOMPLETED;
       return status;
     }
 
@@ -5477,12 +5453,10 @@ gl841_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
           ptr+=4;
         }
 
-      /* 0x5400 alignment for LIDE80 internal memory */
-      RIE(sanei_genesys_set_buffer_address(dev, 0x5400*i));
+        // 0x5400 alignment for LIDE80 internal memory
+        sanei_genesys_set_buffer_address(dev, 0x5400*i);
       RIE(dev->model->cmd_set->bulk_write_data(dev, 0x3c, buffer.data(), pixels));
     }
-
-  DBGCOMPLETED;
 
   return status;
 }

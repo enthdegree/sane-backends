@@ -557,9 +557,8 @@ void sanei_genesys_read_register(Genesys_Device* dev, uint16_t reg, uint8_t* val
   DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, reg, *val);
 }
 
-/* Set address for writing data */
-SANE_Status
-sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr)
+// Set address for writing data
+void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 {
     DBG_HELPER(dbg);
 
@@ -569,7 +568,7 @@ sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr)
   || dev->model->asic_type==GENESYS_GL124)
     {
       DBG(DBG_warn, "%s: shouldn't be used for GL846+ ASICs\n", __func__);
-      return SANE_STATUS_GOOD;
+      return;
     }
 
   DBG(DBG_io, "%s: setting address to 0x%05x\n", __func__, addr & 0xfffffff0);
@@ -580,8 +579,6 @@ sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr)
 
   addr = addr >> 8;
     sanei_genesys_write_register(dev, 0x2a, (addr & 0xff));
-
-  return SANE_STATUS_GOOD;
 }
 
 /**@brief read data from analog frontend (AFE)

@@ -945,6 +945,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, const Genesys_Sensor& sen
                                  uint8_t * data,
 				 int size)
 {
+    DBG_HELPER(dbg);
   int dpihw;
   int start_address;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -957,7 +958,6 @@ genesys_send_offset_and_shading (Genesys_Device * dev, const Genesys_Sensor& sen
   if(dev->model->cmd_set->send_shading_data!=NULL)
     {
         status=dev->model->cmd_set->send_shading_data(dev, sensor, data, size);
-        DBGCOMPLETED;
         return status;
     }
 
@@ -995,15 +995,11 @@ genesys_send_offset_and_shading (Genesys_Device * dev, const Genesys_Sensor& sen
       else			/* reserved */
 	return SANE_STATUS_INVAL;
     }
-  else				/* color */
-    start_address = 0x00;
-
-  status = sanei_genesys_set_buffer_address (dev, start_address);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
-      return status;
+    else { // color
+        start_address = 0x00;
     }
+
+    sanei_genesys_set_buffer_address(dev, start_address);
 
   status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, data, size);
   if (status != SANE_STATUS_GOOD)
@@ -1011,8 +1007,6 @@ genesys_send_offset_and_shading (Genesys_Device * dev, const Genesys_Sensor& sen
       DBG(DBG_error, "%s: failed to send shading table: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-
-  DBGCOMPLETED;
 
   return SANE_STATUS_GOOD;
 }

@@ -1788,8 +1788,7 @@ sanei_genesys_calculate_zmode (uint32_t exposure_time,
 			       uint8_t fwdstep, uint8_t tgtime,
 			       uint32_t * z1, uint32_t * z2);
 
-extern SANE_Status
-sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr);
+extern void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr);
 
 /** @brief Reads data from frontend register.
  * Reads data from the given frontend register. May be used to query

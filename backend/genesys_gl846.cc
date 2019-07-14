@@ -1791,10 +1791,10 @@ gl846_search_start_position (Genesys_Device * dev)
       return status;
     }
 
-  /* waits for valid data */
-  do
-    sanei_genesys_test_buffer_empty (dev, &steps);
-  while (steps);
+        // waits for valid data
+        do {
+            sanei_genesys_test_buffer_empty(dev, &steps);
+        } while (steps);
 
   /* now we're on target, we can read data */
   status = sanei_genesys_read_data_from_scanner(dev, data.data(), size);
@@ -2722,10 +2722,10 @@ gl846_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
       return status;
     }
 
-  /* waits for valid data */
-  do
-    sanei_genesys_test_buffer_empty (dev, &steps);
-  while (steps);
+        // waits for valid data
+        do {
+            sanei_genesys_test_buffer_empty(dev, &steps);
+        } while (steps);
 
   /* now we're on target, we can read data */
   status = sanei_genesys_read_data_from_scanner(dev, data.data(), size);
@@ -2764,10 +2764,10 @@ gl846_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
           return status;
         }
 
-      /* waits for valid data */
-      do
-        sanei_genesys_test_buffer_empty (dev, &steps);
-      while (steps);
+        // waits for valid data
+        do {
+            sanei_genesys_test_buffer_empty(dev, &steps);
+        } while (steps);
 
       /* now we're on target, we can read data */
       status = sanei_genesys_read_data_from_scanner(dev, data.data(), size);

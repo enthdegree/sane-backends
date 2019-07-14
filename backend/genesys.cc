@@ -3629,7 +3629,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
       RIE(dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_FALSE));
       do
 	{
-	  sanei_genesys_test_buffer_empty (dev, &empty);
+        sanei_genesys_test_buffer_empty(dev, &empty);
 	}
       while (empty);
 
@@ -3650,7 +3650,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
       RIE(dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_FALSE));
       do
 	{
-	  sanei_genesys_test_buffer_empty (dev, &empty);
+        sanei_genesys_test_buffer_empty(dev, &empty);
           sanei_genesys_sleep_ms(100);
 	}
       while (empty);
@@ -3954,13 +3954,10 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
         }
     }
   while (steps < expected);
-
-  /* wait for buffers to be filled */
-  do
-    {
-      RIE (sanei_genesys_test_buffer_empty (dev, &empty));
-    }
-  while (empty);
+        // wait for buffers to be filled
+        do {
+            sanei_genesys_test_buffer_empty(dev, &empty);
+        } while (empty);
 
   /* when doing one or two-table movement, let the motor settle to scanning speed */
   /* and scanning start before reading data                                        */

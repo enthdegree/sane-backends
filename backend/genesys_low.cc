@@ -807,8 +807,7 @@ sanei_genesys_read_scancnt (Genesys_Device * dev, unsigned int *words)
  * @param *empty return value
  * @return empty will be set to SANE_TRUE if there is no scanned data.
  **/
-SANE_Status
-sanei_genesys_test_buffer_empty (Genesys_Device * dev, SANE_Bool * empty)
+void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empty)
 {
     DBG_HELPER(dbg);
   uint8_t val = 0;
@@ -824,13 +823,12 @@ sanei_genesys_test_buffer_empty (Genesys_Device * dev, SANE_Bool * empty)
       sanei_genesys_sleep_ms(1);
       DBG(DBG_io2, "%s: buffer is empty\n", __func__);
       *empty = SANE_TRUE;
-      return SANE_STATUS_GOOD;
+      return;
     }
 
   *empty = SANE_FALSE;
 
   DBG(DBG_io, "%s: buffer is filled\n", __func__);
-  return SANE_STATUS_GOOD;
 }
 
 

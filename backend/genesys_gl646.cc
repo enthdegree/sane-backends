@@ -4038,7 +4038,7 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
 	{
 	  print_status (val);
 	}
-      RIE (sanei_genesys_test_buffer_empty (dev, &empty));
+        sanei_genesys_test_buffer_empty(dev, &empty);
       count++;
     }
   while (empty && count < 1000);

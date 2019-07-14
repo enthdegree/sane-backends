@@ -49,6 +49,7 @@
 #include "../include/sane/sanei_backend.h"
 
 #include <stdexcept>
+#include <cstdarg>
 #include <cstring>
 #include <string>
 
@@ -65,17 +66,24 @@
 class SaneException : std::exception {
 public:
     SaneException(SANE_Status status);
-    SaneException(SANE_Status status, const char* msg);
+    SaneException(SANE_Status status, const char* format, ...)
+    #ifdef __GNUC__
+        __attribute__((format(printf, 3, 4)))
+    #endif
+    ;
 
-    SaneException(const char* msg);
-
+    SaneException(const char* format, ...)
+    #ifdef __GNUC__
+        __attribute__((format(printf, 2, 3)))
+    #endif
+    ;
 
     SANE_Status status() const;
     const char* what() const noexcept override;
 
 private:
 
-    void set_msg(const char* msg);
+    void set_msg(const char* format, std::va_list vlist);
 
     std::string msg_;
     SANE_Status status_;

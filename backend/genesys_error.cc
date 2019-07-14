@@ -71,16 +71,24 @@ static unsigned num_uncaught_exceptions()
 
 SaneException::SaneException(SANE_Status status) : status_(status)
 {
-    set_msg(nullptr);
+    std::va_list args;
+    set_msg(nullptr, args);
 }
 
-SaneException::SaneException(SANE_Status status, const char* msg) : status_(status)
+SaneException::SaneException(SANE_Status status, const char* format, ...) : status_(status)
 {
-    set_msg(msg);
+    std::va_list args;
+    va_start(args, format);
+    set_msg(format, args);
+    va_end(args);
 }
 
-SaneException::SaneException(const char* msg) : SaneException(SANE_STATUS_INVAL, msg)
+SaneException::SaneException(const char* format, ...) : status_(SANE_STATUS_INVAL)
 {
+    std::va_list args;
+    va_start(args, format);
+    set_msg(format, args);
+    va_end(args);
 }
 
 SANE_Status SaneException::status() const
@@ -93,22 +101,34 @@ const char* SaneException::what() const noexcept
     return msg_.c_str();
 }
 
-void SaneException::set_msg(const char* msg)
+void SaneException::set_msg(const char* format, std::va_list vlist)
 {
     const char* status_msg = sane_strstatus(status_);
     std::size_t status_msg_len = std::strlen(status_msg);
 
-    if (msg) {
-        std::size_t msg_len = std::strlen(msg);
-        msg_.reserve(msg_len + status_msg_len + 3);
-        msg_ = msg;
+    if (format == nullptr) {
+        msg_.reserve(status_msg_len);
+        msg_ = status_msg;
+        return;
+    }
+
+    int msg_len = std::vsnprintf(nullptr, 0, format, vlist);
+    if (msg_len < 0) {
+        const char* formatting_error_msg = "(error formatting arguments)";
+        msg_.reserve(std::strlen(formatting_error_msg) + 3 + status_msg_len);
+        msg_ = formatting_error_msg;
         msg_ += " : ";
         msg_ += status_msg;
         return;
     }
 
-    msg_.reserve(status_msg_len);
-    msg_ = status_msg;
+    msg_.reserve(msg_len + status_msg_len + 3);
+    msg_.resize(msg_len + 1, ' ');
+    std::vsnprintf(&msg_[0], msg_len + 1, format, vlist);
+    msg_.resize(msg_len, ' ');
+
+    msg_ += " : ";
+    msg_ += status_msg;
 }
 
 DebugMessageHelper::DebugMessageHelper(const char* func)

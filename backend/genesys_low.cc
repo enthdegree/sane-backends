@@ -432,8 +432,7 @@ void sanei_genesys_read_hregister(Genesys_Device* dev, uint16_t reg, uint8_t* va
  * Write to one GL847 ASIC register
 URB    10  control  0x40 0x04 0x83 0x00 len     2 wrote 0xa6 0x04
  */
-static SANE_Status
-sanei_genesys_write_gl847_register (Genesys_Device * dev, uint8_t reg, uint8_t val)
+static void sanei_genesys_write_gl847_register(Genesys_Device* dev, uint8_t reg, uint8_t val)
 {
     DBG_HELPER(dbg);
 
@@ -446,8 +445,6 @@ sanei_genesys_write_gl847_register (Genesys_Device * dev, uint8_t reg, uint8_t v
                              2, buffer);
 
   DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, reg, val);
-
-    return SANE_STATUS_GOOD;
 }
 
 /**
@@ -472,7 +469,8 @@ sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val)
   || dev->model->asic_type==GENESYS_GL846
   || dev->model->asic_type==GENESYS_GL124)
     {
-      return sanei_genesys_write_gl847_register(dev, reg, val);
+        sanei_genesys_write_gl847_register(dev, reg, val);
+        return SANE_STATUS_GOOD;
     }
 
   reg8=reg & 0xff;

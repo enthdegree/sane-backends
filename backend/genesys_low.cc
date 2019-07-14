@@ -770,8 +770,7 @@ sanei_genesys_read_valid_words (Genesys_Device * dev, unsigned int *words)
 /** read the number of lines scanned
  * ie registers 4b-4c-4d
  */
-SANE_Status
-sanei_genesys_read_scancnt (Genesys_Device * dev, unsigned int *words)
+void sanei_genesys_read_scancnt(Genesys_Device* dev, unsigned int* words)
 {
     DBG_HELPER(dbg);
   uint8_t value;
@@ -799,7 +798,6 @@ sanei_genesys_read_scancnt (Genesys_Device * dev, unsigned int *words)
     }
 
   DBG(DBG_proc, "%s: %d lines\n", __func__, *words);
-  return SANE_STATUS_GOOD;
 }
 
 /** @brief Check if the scanner's internal data buffer is empty

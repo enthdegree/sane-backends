@@ -1947,18 +1947,13 @@ gl843_detect_document_end (Genesys_Device * dev)
       read_bytes_left = (int) dev->read_bytes_left;
       DBG(DBG_io, "%s: read_bytes_left=%d\n", __func__, read_bytes_left);
 
-      /* get lines read */
+        // get lines read
         try {
-            status = sanei_genesys_read_scancnt(dev, &scancnt);
+            sanei_genesys_read_scancnt(dev, &scancnt);
         } catch (...) {
             flines = 0;
         }
-      if (status != SANE_STATUS_GOOD)
-	{
-	  flines = 0;
-	}
-      else
-	{
+
 	  /* compute number of line read */
 	  tmp = (int) dev->total_bytes_read;
           if (depth == 1 || dev->settings.scan_mode == ScanColorMode::LINEART)
@@ -1970,7 +1965,6 @@ gl843_detect_document_end (Genesys_Device * dev)
 	  flines = scancnt - flines;
 
 	  DBG(DBG_io, "%s: %d scanned but not read lines\n", __func__, flines);
-	}
 
       /* adjust number of bytes to read
        * we need to read the final bytes which are word per line * number of last lines

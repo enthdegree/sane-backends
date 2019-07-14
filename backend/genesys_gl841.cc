@@ -3020,20 +3020,13 @@ gl841_detect_document_end (Genesys_Device * dev)
        * amount of data to scan form the hardware settings
        */
         try {
-            status = sanei_genesys_read_scancnt(dev, &scancnt);
+            sanei_genesys_read_scancnt(dev, &scancnt);
         } catch (...) {
             dev->total_bytes_to_read = dev->total_bytes_read;
             dev->read_bytes_left = 0;
             throw;
         }
 
-        if(status!=SANE_STATUS_GOOD)
-        {
-          dev->total_bytes_to_read = dev->total_bytes_read;
-          dev->read_bytes_left = 0;
-          DBG(DBG_proc, "%s: finished\n", __func__);
-          return SANE_STATUS_GOOD;
-        }
       if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS && dev->model->is_cis)
         {
           scancnt/=3;

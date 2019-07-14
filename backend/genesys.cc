@@ -999,12 +999,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, const Genesys_Sensor& sen
 
     sanei_genesys_set_buffer_address(dev, start_address);
 
-  status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, data, size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to send shading table: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->bulk_write_data(dev, 0x3c, data, size);
 
   return SANE_STATUS_GOOD;
 }

@@ -93,14 +93,8 @@ write_data (Genesys_Device * dev, uint32_t addr, uint32_t size,
       return status;
     }
 
-  /* write actual data */
-  status = sanei_genesys_bulk_write_data(dev, 0x28, data, size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed while writing bulk write data: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    // write actual data
+    sanei_genesys_bulk_write_data(dev, 0x28, data, size);
 
   /* set back address to 0 */
   status = gl843_set_buffer_address (dev, 0);
@@ -3089,13 +3083,8 @@ gl843_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor)
       return status;
     }
 
-  /* send data */
-  status = sanei_genesys_bulk_write_data(dev, 0x28, gamma.data(), size * 2 * 3);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to send gamma table: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // send data
+    sanei_genesys_bulk_write_data(dev, 0x28, gamma.data(), size * 2 * 3);
 
   return SANE_STATUS_GOOD;
 }
@@ -4362,11 +4351,7 @@ gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
     // send data
     sanei_genesys_set_buffer_address(dev, 0);
 
-  status = dev->model->cmd_set->bulk_write_data (dev, 0x3c, final_data.data(), count);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to send shading table: %s\n", __func__, sane_strstatus(status));
-    }
+    dev->model->cmd_set->bulk_write_data (dev, 0x3c, final_data.data(), count);
 
   return status;
 }

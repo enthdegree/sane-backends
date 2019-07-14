@@ -1038,7 +1038,6 @@ static SANE_Status
 gl646_asic_test (Genesys_Device * dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   size_t size, verify_size;
   unsigned int i;
@@ -1081,14 +1080,7 @@ gl646_asic_test (Genesys_Device * dev)
     }
 
     sanei_genesys_set_buffer_address(dev, 0x0000);
-
-  status = sanei_genesys_bulk_write_data(dev, 0x3c, data.data(), size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk write data: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
+    sanei_genesys_bulk_write_data(dev, 0x3c, data.data(), size);
     sanei_genesys_set_buffer_address(dev, 0x0000);
 
     gl646_bulk_read_data(dev, 0x45, verify_data.data(), verify_size);
@@ -1332,12 +1324,7 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
 
     sanei_genesys_set_buffer_address(dev, start_address + table_nr * 0x100);
 
-  status = sanei_genesys_bulk_write_data(dev, 0x3c, table.data(), steps * 2);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to send slope table: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_bulk_write_data(dev, 0x3c, table.data(), steps * 2);
 
   return status;
 }
@@ -2899,13 +2886,9 @@ gl646_send_gamma_table (Genesys_Device * dev, const Genesys_Sensor& sensor)
     // send address
     sanei_genesys_set_buffer_address(dev, address);
 
-  /* send data */
-  status = sanei_genesys_bulk_write_data(dev, 0x3c, gamma.data(), size * 2 * 3);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to send gamma table: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // send data
+    sanei_genesys_bulk_write_data(dev, 0x3c, gamma.data(), size * 2 * 3);
+
   return SANE_STATUS_GOOD;
 }
 
@@ -4450,12 +4433,8 @@ write_control (Genesys_Device * dev, const Genesys_Sensor& sensor, int resolutio
   DBG(DBG_info, "%s: control write=0x%02x 0x%02x 0x%02x 0x%02x\n", __func__, control[0], control[1],
       control[2], control[3]);
     sanei_genesys_set_buffer_address(dev, addr);
-  status = sanei_genesys_bulk_write_data(dev, 0x3c, control, 4);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set up control\n", __func__);
-      return SANE_STATUS_INVAL;
-    }
+    sanei_genesys_bulk_write_data(dev, 0x3c, control, 4);
+
   return status;
 }
 

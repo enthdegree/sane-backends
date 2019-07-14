@@ -323,8 +323,7 @@ void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* d
     }
 }
 
-SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
-                                          size_t len)
+void sanei_genesys_bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data, size_t len)
 {
     DBG_HELPER_ARGS(dbg, "writing %lu bytes", (u_long) len);
 
@@ -334,7 +333,6 @@ SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, ui
 
     dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
                              1, &addr);
-
 
     size_t max_out_size = sanei_genesys_get_bulk_max_size(dev);
 
@@ -374,8 +372,6 @@ SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, ui
         len -= size;
         data += size;
     }
-
-    return SANE_STATUS_GOOD;
 }
 
 /** @brief write to one high (addr >= 0x100) register

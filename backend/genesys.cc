@@ -1520,29 +1520,9 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
             dev->frontend.set_gain(1, 2);
             dev->frontend.set_gain(2, 2);
 
-	  status =
-            sanei_genesys_fe_write_data(dev, 0x28, dev->frontend.get_gain(0));
-	  if (status != SANE_STATUS_GOOD)	/* todo: this was 0x28 + 3 ? */
-	    {
-              DBG(DBG_error, "%s: Failed to write gain[0]: %s\n", __func__, sane_strstatus(status));
-	      return status;
-	    }
-
-	  status =
-            sanei_genesys_fe_write_data(dev, 0x29, dev->frontend.get_gain(1));
-	  if (status != SANE_STATUS_GOOD)
-	    {
-              DBG(DBG_error, "%s: Failed to write gain[1]: %s\n", __func__, sane_strstatus(status));
-	      return status;
-	    }
-
-	  status =
-            sanei_genesys_fe_write_data(dev, 0x2a, dev->frontend.get_gain(2));
-	  if (status != SANE_STATUS_GOOD)
-	    {
-              DBG(DBG_error, "%s: Failed to write gain[2]: %s\n", __func__, sane_strstatus(status));
-	      return status;
-	    }
+        sanei_genesys_fe_write_data(dev, 0x28, dev->frontend.get_gain(0));
+        sanei_genesys_fe_write_data(dev, 0x29, dev->frontend.get_gain(1));
+        sanei_genesys_fe_write_data(dev, 0x2a, dev->frontend.get_gain(2));
 	}
 
       if (i == 3)		/* last line */
@@ -1568,29 +1548,9 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
                 dev->frontend.set_offset(j, curr_offset);
 	    }
 	}
-      status =
         sanei_genesys_fe_write_data(dev, 0x20, dev->frontend.get_offset(0));
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: Failed to write offset[0]: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
-
-      status =
         sanei_genesys_fe_write_data(dev, 0x21, dev->frontend.get_offset(1));
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: Failed to write offset[1]: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
-
-      status =
         sanei_genesys_fe_write_data(dev, 0x22, dev->frontend.get_offset(2));
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: Failed to write offset[2]: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
 
       DBG(DBG_info,
           "%s: doing scan: gain: %d/%d/%d, offset: %d/%d/%d\n", __func__,

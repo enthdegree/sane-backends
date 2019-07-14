@@ -757,47 +757,17 @@ gl841_set_lide80_fe (Genesys_Device * dev, uint8_t set)
 
       dev->frontend = dev->frontend_initial;
 
-      /* write them to analog frontend */
-      status = sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: writing reg 0x00 failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
-      status = sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x01));
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: writing reg 0x03 failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
-      status = sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.regs.get_value(0x02));
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: writing reg 0x06 failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        // write them to analog frontend
+        sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
+        sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x01));
+        sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.regs.get_value(0x02));
     }
 
   if (set == AFE_SET)
     {
-      status = sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: writing reg 0x00 failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
-      status = sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.regs.get_value(0x20));
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: writing offset failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
-      status = sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x28));
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: writing gain failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
+        sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.regs.get_value(0x20));
+        sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x28));
     }
 
   return status;
@@ -823,100 +793,39 @@ gl841_set_ad_fe (Genesys_Device * dev, uint8_t set)
 
       dev->frontend = dev->frontend_initial;
 
-      /* write them to analog frontend */
-      status = sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
-      if (status != SANE_STATUS_GOOD)
-            {
-        DBG(DBG_error, "%s: writing reg 0x00 failed: %s\n", __func__, sane_strstatus(status));
-      	return status;
-            }
+        // write them to analog frontend
+        sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
 
-      status = sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
-      if (status != SANE_STATUS_GOOD)
-            {
-        DBG(DBG_error, "%s: writing reg 0x01 failed: %s\n", __func__, sane_strstatus(status));
-        return status;
-            }
+        sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
 
-      for (i = 0; i < 6; i++)
-        {
-    	status =
-    	  sanei_genesys_fe_write_data (dev, 0x02 + i, 0x00);
-    	if (status != SANE_STATUS_GOOD)
-    	  {
-            DBG(DBG_error, "%s: writing sign[%d] failed: %s\n", __func__, 0x02 + i,
-                sane_strstatus(status));
-    	    return status;
-    	  }
+        for (i = 0; i < 6; i++) {
+            sanei_genesys_fe_write_data(dev, 0x02 + i, 0x00);
         }
     }
   if (set == AFE_SET)
     {
-      /* write them to analog frontend */
-      status = sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
-      if (status != SANE_STATUS_GOOD)
-            {
-        DBG(DBG_error, "%s: writing reg 0x00 failed: %s\n", __func__, sane_strstatus(status));
-      	return status;
-            }
+        // write them to analog frontend
+        sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
 
-      status = sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
-      if (status != SANE_STATUS_GOOD)
-            {
-        DBG(DBG_error, "%s: writing reg 0x01 failed: %s\n", __func__, sane_strstatus(status));
-        return status;
-            }
+        sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
 
-      /* Write fe 0x02 (red gain)*/
-      status = sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.get_gain(0));
-      if (status != SANE_STATUS_GOOD)
-            {
-        DBG(DBG_error, "%s: writing fe 0x02 (gain r) fail: %s\n", __func__, sane_strstatus(status));
-        return status;
-            }
+        // Write fe 0x02 (red gain)
+        sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.get_gain(0));
 
-      /* Write fe 0x03 (green gain)*/
-      status = sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.get_gain(1));
-      if (status != SANE_STATUS_GOOD)
-            {
-        DBG(DBG_error, "%s: writing fe 0x03 (gain g) fail: %s\n", __func__, sane_strstatus(status));
-        return status;
-            }
+        // Write fe 0x03 (green gain)
+        sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.get_gain(1));
 
-      /* Write fe 0x04 (blue gain)*/
-      status = sanei_genesys_fe_write_data(dev, 0x04, dev->frontend.get_gain(2));
-      if (status != SANE_STATUS_GOOD)
-            {
-        DBG(DBG_error, "%s: writing fe 0x04 (gain b) fail: %s\n", __func__, sane_strstatus(status));
-        return status;
-            }
+        // Write fe 0x04 (blue gain)
+        sanei_genesys_fe_write_data(dev, 0x04, dev->frontend.get_gain(2));
 
-      /* Write fe 0x05 (red offset)*/
-      status =
-          sanei_genesys_fe_write_data(dev, 0x05, dev->frontend.get_offset(0));
-      if (status != SANE_STATUS_GOOD)
-            {
-        DBG(DBG_error, "%s: write fe 0x05 (offset r) fail: %s\n", __func__, sane_strstatus(status));
-        return status;
-            }
+        // Write fe 0x05 (red offset)
+        sanei_genesys_fe_write_data(dev, 0x05, dev->frontend.get_offset(0));
 
-      /* Write fe 0x06 (green offset)*/
-      status =
-          sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.get_offset(1));
-      if (status != SANE_STATUS_GOOD)
-            {
-        DBG(DBG_error, "%s: write fe 0x06 (offset g) fail: %s\n", __func__, sane_strstatus(status));
-        return status;
-            }
+        // Write fe 0x06 (green offset)
+        sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.get_offset(1));
 
-      /* Write fe 0x07 (blue offset)*/
-      status =
-          sanei_genesys_fe_write_data(dev, 0x07, dev->frontend.get_offset(2));
-      if (status != SANE_STATUS_GOOD)
-            {
-        DBG(DBG_error, "%s: write fe 0x07 (offset b) fail: %s\n", __func__, sane_strstatus(status));
-        return status;
-            }
+        // Write fe 0x07 (blue offset)
+        sanei_genesys_fe_write_data(dev, 0x07, dev->frontend.get_offset(2));
           }
 
   return status;
@@ -951,109 +860,36 @@ gl841_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
       DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
       dev->frontend = dev->frontend_initial;
 
-      /* reset only done on init */
-      status = sanei_genesys_fe_write_data (dev, 0x04, 0x80);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: reset fe failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        // reset only done on init
+        sanei_genesys_fe_write_data (dev, 0x04, 0x80);
       DBG(DBG_proc, "%s(): frontend reset complete\n", __func__);
     }
 
 
   if (set == AFE_POWER_SAVE)
     {
-      status = sanei_genesys_fe_write_data (dev, 0x01, 0x02);
-      if (status != SANE_STATUS_GOOD) {
-        DBG(DBG_error, "%s: writing data failed: %s\n", __func__, sane_strstatus(status));
+        sanei_genesys_fe_write_data (dev, 0x01, 0x02);
         return status;
-      }
-      return status;
     }
 
   /* todo :  base this test on cfg reg3 or a CCD family flag to be created */
   /*if (dev->model->ccd_type!=CCD_HP2300 && dev->model->ccd_type!=CCD_HP2400) */
   {
-
-    status = sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
-    if (status != SANE_STATUS_GOOD)
-      {
-        DBG(DBG_error, "%s: writing reg0 failed: %s\n", __func__, sane_strstatus(status));
-	return status;
-      }
-    status = sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.regs.get_value(0x02));
-    if (status != SANE_STATUS_GOOD)
-      {
-        DBG(DBG_error, "%s: writing reg2 failed: %s\n", __func__, sane_strstatus(status));
-	return status;
-      }
+    sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
+    sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.regs.get_value(0x02));
   }
 
-  status = sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: writing reg1 failed: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  status = sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x03));
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: writing reg3 failed: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  status = sanei_genesys_fe_write_data (dev, 0x06, dev->frontend.reg2[0]);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: writing reg6 failed: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  status = sanei_genesys_fe_write_data (dev, 0x08, dev->frontend.reg2[1]);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: writing reg8 failed: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  status = sanei_genesys_fe_write_data (dev, 0x09, dev->frontend.reg2[2]);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: writing reg9 failed: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
+    sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x03));
+    sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.reg2[0]);
+    sanei_genesys_fe_write_data(dev, 0x08, dev->frontend.reg2[1]);
+    sanei_genesys_fe_write_data(dev, 0x09, dev->frontend.reg2[2]);
 
   for (i = 0; i < 3; i++)
       {
-	status =
-          sanei_genesys_fe_write_data(dev, 0x24 + i, dev->frontend.regs.get_value(0x24 + i));
-	if (status != SANE_STATUS_GOOD)
-	  {
-	    DBG(DBG_error, "%s: writing sign[%d] failed: %s\n", __func__, i,
-		sane_strstatus(status));
-	    return status;
-	  }
-
-	status =
-          sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
-	if (status != SANE_STATUS_GOOD)
-	  {
-	    DBG(DBG_error, "%s: writing gain[%d] failed: %s\n", __func__, i,
-		sane_strstatus(status));
-	    return status;
-	  }
-
-	status =
-          sanei_genesys_fe_write_data(dev, 0x20 + i,
-                                       dev->frontend.get_offset(i));
-	if (status != SANE_STATUS_GOOD)
-	  {
-	    DBG(DBG_error, "%s: writing offset[%d] failed: %s\n", __func__, i,
-		sane_strstatus(status));
-	    return status;
-	  }
+        sanei_genesys_fe_write_data(dev, 0x24 + i, dev->frontend.regs.get_value(0x24 + i));
+        sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
+        sanei_genesys_fe_write_data(dev, 0x20 + i, dev->frontend.get_offset(i));
       }
 
   return SANE_STATUS_GOOD;

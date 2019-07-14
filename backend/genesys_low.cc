@@ -612,12 +612,9 @@ sanei_genesys_fe_read_data (Genesys_Device * dev, uint8_t addr,
  * @param addr AFE rister address
  * @param data value to write to AFE register
  **/
-SANE_Status
-sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
-			     uint16_t data)
+void sanei_genesys_fe_write_data(Genesys_Device* dev, uint8_t addr, uint16_t data)
 {
     DBG_HELPER_ARGS(dbg, "0x%02x, 0x%04x", addr, data);
-  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set reg(Genesys_Register_Set::SEQUENTIAL);
 
     reg.init_reg(0x51, addr);
@@ -630,8 +627,6 @@ sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
     }
 
     dev->model->cmd_set->bulk_write_register(dev, reg);
-
-  return status;
 }
 
 /* ------------------------------------------------------------------------ */

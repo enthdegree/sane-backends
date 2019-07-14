@@ -1794,9 +1794,7 @@ sanei_genesys_fe_read_data (Genesys_Device * dev, uint8_t addr,
  * Writes data to analog frontend register at the given address.
  * The use and address of registers change from model to model.
  */
-extern SANE_Status
-sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
-			     uint16_t data);
+extern void sanei_genesys_fe_write_data(Genesys_Device* dev, uint8_t addr, uint16_t data);
 
 extern SANE_Int
 sanei_genesys_exposure_time2 (Genesys_Device * dev,

@@ -550,62 +550,31 @@ gl124_set_ti_fe (Genesys_Device * dev, uint8_t set)
       dev->frontend = dev->frontend_initial;
     }
 
-  /* start writing to DAC */
-  status = sanei_genesys_fe_write_data (dev, 0x00, 0x80);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "%s: failed to write reg0: %s\n", __func__,
-	   sane_strstatus (status));
-      return status;
-    }
+    // start writing to DAC
+    sanei_genesys_fe_write_data(dev, 0x00, 0x80);
 
   /* write values to analog frontend */
   for (uint16_t addr = 0x01; addr < 0x04; addr++)
     {
-      status = sanei_genesys_fe_write_data(dev, addr, dev->frontend.regs.get_value(addr));
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to write reg %d: %s\n", __func__, addr,
-              sane_strstatus(status));
-	  return status;
-	}
+        sanei_genesys_fe_write_data(dev, addr, dev->frontend.regs.get_value(addr));
     }
 
-  status = sanei_genesys_fe_write_data (dev, 0x04, 0x00);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "%s: failed to write reg4: %s\n", __func__,
-	   sane_strstatus (status));
-      return status;
-    }
+        sanei_genesys_fe_write_data (dev, 0x04, 0x00);
 
   /* these are not really sign for this AFE */
   for (i = 0; i < 3; i++)
     {
-      status = sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.regs.get_value(0x24 + i));
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "%s: failed to write reg %d: %s\n", __func__, i+5,
-	       sane_strstatus (status));
-	  return status;
-	}
+        sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.regs.get_value(0x24 + i));
     }
 
   /* close writing to DAC */
   if(dev->model->dac_type == DAC_CANONLIDE120)
     {
-      status = sanei_genesys_fe_write_data (dev, 0x00, 0x01);
+        sanei_genesys_fe_write_data(dev, 0x00, 0x01);
     }
   else
     {
-      status = sanei_genesys_fe_write_data (dev, 0x00, 0x11);
-    }
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "%s: failed to write reg0: %s\n", __func__,
-	   sane_strstatus (status));
-      return status;
+        sanei_genesys_fe_write_data(dev, 0x00, 0x11);
     }
 
   return status;

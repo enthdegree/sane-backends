@@ -792,7 +792,6 @@ gl843_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
                                set == AFE_SET ? "set" :
                                set == AFE_POWER_SAVE ? "powersave" : "huh?");
     (void) sensor;
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   int i;
 
@@ -820,38 +819,23 @@ gl843_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
         // FIXME: BUG: we should initialize dev->frontend before first use. Right now it's
         // initialized during genesys_coarse_calibration()
         if (dev->frontend.regs.empty()) {
-            status = sanei_genesys_fe_write_data(dev, i, 0x00);
+            sanei_genesys_fe_write_data(dev, i, 0x00);
         } else {
-            status = sanei_genesys_fe_write_data(dev, i, dev->frontend.regs.get_value(0x00 + i));
+            sanei_genesys_fe_write_data(dev, i, dev->frontend.regs.get_value(0x00 + i));
         }
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: writing reg[%d] failed: %s\n", __func__, i, sane_strstatus(status));
-	  return status;
-	}
     }
     for (const auto& reg : sensor.custom_fe_regs) {
-        status = sanei_genesys_fe_write_data(dev, reg.address, reg.value);
-        if (status != SANE_STATUS_GOOD) {
-            DBG(DBG_error, "%s: writing reg[%d] failed: %s\n", __func__, i, sane_strstatus(status));
-            return status;
-        }
+        sanei_genesys_fe_write_data(dev, reg.address, reg.value);
     }
 
   for (i = 0; i < 3; i++)
     {
         // FIXME: BUG: see above
         if (dev->frontend.regs.empty()) {
-            status = sanei_genesys_fe_write_data(dev, 0x20 + i, 0x00);
+            sanei_genesys_fe_write_data(dev, 0x20 + i, 0x00);
         } else {
-            status = sanei_genesys_fe_write_data(dev, 0x20 + i, dev->frontend.get_offset(i));
+            sanei_genesys_fe_write_data(dev, 0x20 + i, dev->frontend.get_offset(i));
         }
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: writing offset[%d] failed: %s\n", __func__, i,
-	      sane_strstatus(status));
-	  return status;
-	}
     }
 
   if (dev->model->ccd_type == CCD_KVSS080)
@@ -860,17 +844,10 @@ gl843_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
 	{
             // FIXME: BUG: see above
             if (dev->frontend.regs.empty()) {
-                status = sanei_genesys_fe_write_data(dev, 0x24 + i, 0x00);
+                sanei_genesys_fe_write_data(dev, 0x24 + i, 0x00);
             } else {
-                status = sanei_genesys_fe_write_data(dev, 0x24 + i,
-                                                     dev->frontend.regs.get_value(0x24 + i));
+                sanei_genesys_fe_write_data(dev, 0x24 + i, dev->frontend.regs.get_value(0x24 + i));
             }
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: writing sign[%d] failed: %s\n", __func__, i,
-		  sane_strstatus(status));
-	      return status;
-	    }
 	}
     }
 
@@ -878,15 +855,10 @@ gl843_set_fe (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set)
     {
         // FIXME: BUG: see above
         if (dev->frontend.regs.empty()) {
-            status = sanei_genesys_fe_write_data(dev, 0x28 + i, 0x00);
+            sanei_genesys_fe_write_data(dev, 0x28 + i, 0x00);
         } else {
-            status = sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
+            sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
         }
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: writing gain[%d] failed: %s\n", __func__, i, sane_strstatus(status));
-	  return status;
-	}
     }
 
   return SANE_STATUS_GOOD;

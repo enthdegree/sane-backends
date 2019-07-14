@@ -940,10 +940,8 @@ sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 
    The data needs to be of size "size", and in little endian byte order.
  */
-static SANE_Status
-genesys_send_offset_and_shading (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                 uint8_t * data,
-				 int size)
+static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                            uint8_t* data, int size)
 {
     DBG_HELPER_ARGS(dbg, "(size = %d)", size);
   int dpihw;
@@ -955,7 +953,7 @@ genesys_send_offset_and_shading (Genesys_Device * dev, const Genesys_Sensor& sen
   if(dev->model->cmd_set->send_shading_data!=NULL)
     {
         dev->model->cmd_set->send_shading_data(dev, sensor, data, size);
-        return SANE_STATUS_GOOD;
+        return;
     }
 
   /* gl646, gl84[123] case */
@@ -983,14 +981,15 @@ genesys_send_offset_and_shading (Genesys_Device * dev, const Genesys_Sensor& sen
       && dev->model->ccd_type != CCD_HP3670
       && dev->model->ccd_type != CCD_5345)	/* lineart, halftone */
     {
-      if (dpihw == 0)		/* 600 dpi */
-	start_address = 0x02a00;
-      else if (dpihw == 1)	/* 1200 dpi */
-	start_address = 0x05500;
-      else if (dpihw == 2)	/* 2400 dpi */
-	start_address = 0x0a800;
-      else			/* reserved */
-	return SANE_STATUS_INVAL;
+        if (dpihw == 0) {		/* 600 dpi */
+            start_address = 0x02a00;
+        } else if (dpihw == 1) {	/* 1200 dpi */
+            start_address = 0x05500;
+        } else if (dpihw == 2) {	/* 2400 dpi */
+            start_address = 0x0a800;
+        } else {			/* reserved */
+            throw SaneException("unknown dpihw");
+        }
     }
     else { // color
         start_address = 0x00;
@@ -999,8 +998,6 @@ genesys_send_offset_and_shading (Genesys_Device * dev, const Genesys_Sensor& sen
     sanei_genesys_set_buffer_address(dev, start_address);
 
     dev->model->cmd_set->bulk_write_data(dev, 0x3c, data, size);
-
-  return SANE_STATUS_GOOD;
 }
 
 /* ? */
@@ -1046,14 +1043,8 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sen
       *shading_data_ptr++ = 0x40;	/* white hi -> 0x4000 */
     }
 
-  status = genesys_send_offset_and_shading (dev, sensor,
-                                            shading_data.data(),
-                                            pixels_per_line * 4 * channels);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to send shading data: %s\n", __func__,
-	  sane_strstatus (status));
-    }
+    genesys_send_offset_and_shading(dev, sensor, shading_data.data(),
+                                    pixels_per_line * 4 * channels);
 
   return status;
 }
@@ -2671,7 +2662,6 @@ static SANE_Status
 genesys_send_shading_coefficient(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint32_t pixels_per_line;
   uint8_t channels;
   int o;
@@ -2944,13 +2934,8 @@ genesys_send_shading_coefficient(Genesys_Device * dev, const Genesys_Sensor& sen
       break;
     }
 
-  /* do the actual write of shading calibration data to the scanner */
-  status = genesys_send_offset_and_shading (dev, sensor, shading_data.data(), length);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "%s: failed to send shading data: %s\n", __func__,
-	  sane_strstatus (status));
-    }
+    // do the actual write of shading calibration data to the scanner
+    genesys_send_offset_and_shading(dev, sensor, shading_data.data(), length);
 
   return SANE_STATUS_GOOD;
 }

@@ -1904,8 +1904,7 @@ inline SensorExposure sanei_genesys_fixup_exposure(SensorExposure exposure)
     return exposure;
 }
 
-extern SANE_Status
-sanei_genesys_wait_for_home(Genesys_Device *dev);
+extern void sanei_genesys_wait_for_home(Genesys_Device* dev);
 
 extern SANE_Status
 sanei_genesys_asic_init(Genesys_Device *dev, SANE_Bool cold);

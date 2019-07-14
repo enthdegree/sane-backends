@@ -3697,13 +3697,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
    * we check we are not still parking before starting a new scan */
   if (dev->parking == SANE_TRUE)
     {
-      status = sanei_genesys_wait_for_home (dev);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to wait for head to park: %s\n", __func__,
-              sane_strstatus(status));
-          return status;
-        }
+        sanei_genesys_wait_for_home(dev);
     }
 
   /* disable power saving*/
@@ -6336,12 +6330,7 @@ sane_close_impl(SANE_Handle handle)
        * to reach home position */
       if(s->dev->parking==SANE_TRUE)
         {
-          status = sanei_genesys_wait_for_home (s->dev);
-          if (status != SANE_STATUS_GOOD)
-            {
-              DBG(DBG_error, "%s: failed to wait for head to park: %s\n", __func__,
-                  sane_strstatus(status));
-            }
+            sanei_genesys_wait_for_home(s->dev);
         }
     }
 

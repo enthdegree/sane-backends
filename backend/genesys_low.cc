@@ -1285,11 +1285,9 @@ sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
 /**
  * Wait for the scanning head to park
  */
-SANE_Status
-sanei_genesys_wait_for_home (Genesys_Device * dev)
+void sanei_genesys_wait_for_home(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   int loop;
   int max=300;
@@ -1308,7 +1306,7 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
     {
 	  DBG (DBG_info,
 	       "%s: already at home\n", __func__);
-	  return status;
+        return;
     }
 
   /* loop for 30 s max, polling home sensor */
@@ -1327,11 +1325,9 @@ sanei_genesys_wait_for_home (Genesys_Device * dev)
 
   /* if after the timeout, head is still not parked, error out */
     if (loop >= max && !(val & HOMESNR)) {
-      DBG (DBG_error, "%s: failed to reach park position %ds\n", __func__, max/10);
-      return SANE_STATUS_IO_ERROR;
+        DBG (DBG_error, "%s: failed to reach park position in %dseconds\n", __func__, max/10);
+        throw SaneException(SANE_STATUS_IO_ERROR, "failed to reach park position");
     }
-
-  return status;
 }
 
 /**@brief compute hardware sensor dpi to use

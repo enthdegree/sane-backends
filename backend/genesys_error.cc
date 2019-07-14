@@ -69,6 +69,48 @@ static unsigned num_uncaught_exceptions()
 #endif
 }
 
+SaneException::SaneException(SANE_Status status) : status_(status)
+{
+    set_msg(nullptr);
+}
+
+SaneException::SaneException(SANE_Status status, const char* msg) : status_(status)
+{
+    set_msg(msg);
+}
+
+SaneException::SaneException(const char* msg) : SaneException(SANE_STATUS_INVAL, msg)
+{
+}
+
+SANE_Status SaneException::status() const
+{
+    return status_;
+}
+
+const char* SaneException::what() const noexcept
+{
+    return msg_.c_str();
+}
+
+void SaneException::set_msg(const char* msg)
+{
+    const char* status_msg = sane_strstatus(status_);
+    std::size_t status_msg_len = std::strlen(status_msg);
+
+    if (msg) {
+        std::size_t msg_len = std::strlen(msg);
+        msg_.reserve(msg_len + status_msg_len + 3);
+        msg_ = msg;
+        msg_ += " : ";
+        msg_ += status_msg;
+        return;
+    }
+
+    msg_.reserve(status_msg_len);
+    msg_ = status_msg;
+}
+
 DebugMessageHelper::DebugMessageHelper(const char* func)
 {
     func_ = func;

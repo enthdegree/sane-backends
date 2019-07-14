@@ -124,9 +124,6 @@ private:
         }                                                                                          \
     } while (false)
 
-#define DBGSTART DBG (DBG_proc, "%s start\n", __func__);
-#define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __func__);
-
 class DebugMessageHelper {
 public:
     static constexpr unsigned MAX_BUF_SIZE = 120;

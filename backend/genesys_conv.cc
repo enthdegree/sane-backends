@@ -83,6 +83,7 @@ genesys_reverse_bits(
     uint8_t *dst_data,
     size_t bytes)
 {
+    DBG_HELPER(dbg);
     size_t i;
     for(i = 0; i < bytes; i++) {
 	*dst_data++ = ~ *src_data++;
@@ -101,6 +102,7 @@ genesys_reverse_bits(
 static SANE_Status
 binarize_line(Genesys_Device * dev, uint8_t *src, uint8_t *dst, int width)
 {
+    DBG_HELPER(dbg);
   int j, windowX, sum = 0;
   int thresh;
   int offset, addCol, dropCol;
@@ -192,6 +194,7 @@ genesys_gray_lineart(
     size_t lines,
     uint8_t threshold)
 {
+    DBG_HELPER(dbg);
   size_t y;
 
   DBG(DBG_io2, "%s: converting %lu lines of %lu pixels\n", __func__, (unsigned long)lines,
@@ -220,6 +223,7 @@ genesys_shrink_lines_1 (
     unsigned int dst_pixels,
     unsigned int channels)
 {
+    DBG_HELPER(dbg);
   unsigned int dst_x, src_x, y, c, cnt;
   unsigned int avg[3], val;
   uint8_t *src = (uint8_t *) src_data;
@@ -325,14 +329,13 @@ genesys_shrink_lines_1 (
 static SANE_Status
 genesys_crop(Genesys_Scanner *s)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Device *dev = s->dev;
   int top = 0;
   int bottom = 0;
   int left = 0;
   int right = 0;
-
-  DBG (DBG_proc, "%s: start\n", __func__);
 
   /* first find edges if any */
   status = sanei_magic_findEdges (&s->params,
@@ -363,7 +366,6 @@ genesys_crop(Genesys_Scanner *s)
   /* update counters to new image size */
   dev->total_bytes_to_read = s->params.bytes_per_line * s->params.lines;
 
-  DBG (DBG_proc, "%s: completed\n", __func__);
   return SANE_STATUS_GOOD;
 }
 
@@ -375,13 +377,12 @@ genesys_crop(Genesys_Scanner *s)
 static SANE_Status
 genesys_deskew(Genesys_Scanner *s, const Genesys_Sensor& sensor)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Device *dev = s->dev;
 
   int x = 0, y = 0, bg;
   double slope = 0;
-
-  DBG (DBG_proc, "%s: start\n", __func__);
 
   bg=0;
   if(s->params.format==SANE_FRAME_GRAY && s->params.depth == 1)
@@ -414,7 +415,6 @@ genesys_deskew(Genesys_Scanner *s, const Genesys_Sensor& sensor)
       DBG (DBG_error, "%s: rotate error: %s", __func__, sane_strstatus(status));
     }
 
-  DBG (DBG_proc, "%s: completed\n", __func__);
   return SANE_STATUS_GOOD;
 }
 
@@ -425,6 +425,7 @@ genesys_deskew(Genesys_Scanner *s, const Genesys_Sensor& sensor)
 static SANE_Status
 genesys_despeck(Genesys_Scanner *s)
 {
+    DBG_HELPER(dbg);
   if(sanei_magic_despeck(&s->params,
                          s->dev->img_buffer.data(),
                          s->despeck)!=SANE_STATUS_GOOD)
@@ -440,10 +441,10 @@ genesys_despeck(Genesys_Scanner *s)
 static SANE_Status
 genesys_derotate (Genesys_Scanner * s)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
   int angle = 0;
 
-  DBGSTART;
   status = sanei_magic_findTurn (&s->params,
                                  s->dev->img_buffer.data(),
                                  s->resolution,
@@ -453,7 +454,6 @@ genesys_derotate (Genesys_Scanner * s)
   if (status)
     {
       DBG (DBG_warn, "%s: failed : %d\n", __func__, status);
-      DBGCOMPLETED;
       return SANE_STATUS_GOOD;
     }
 
@@ -462,13 +462,11 @@ genesys_derotate (Genesys_Scanner * s)
   if (status)
     {
       DBG (DBG_warn, "%s: failed : %d\n", __func__, status);
-      DBGCOMPLETED;
       return SANE_STATUS_GOOD;
     }
 
   /* update counters to new image size */
   s->dev->total_bytes_to_read = s->params.bytes_per_line * s->params.lines;
 
-  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }

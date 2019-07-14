@@ -3906,12 +3906,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
     {
       // wait some time between each test to avoid overloading USB and CPU
       sanei_genesys_sleep_ms(100);
-      status = sanei_genesys_read_feed_steps (dev, &steps);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: Failed to read feed steps: %s\n", __func__, sane_strstatus(status));
-          return status;
-        }
+        sanei_genesys_read_feed_steps (dev, &steps);
     }
   while (steps < expected);
         // wait for buffers to be filled

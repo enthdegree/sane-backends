@@ -2747,12 +2747,7 @@ gl841_eject_document (Genesys_Device * dev)
       feed_mm += SANE_UNFIX(dev->model->post_scan);
     }
 
-  status = sanei_genesys_read_feed_steps(dev, &init_steps);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read feed steps: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+        sanei_genesys_read_feed_steps(dev, &init_steps);
 
   /* now feed for extra <number> steps */
   loop = 0;
@@ -2760,12 +2755,7 @@ gl841_eject_document (Genesys_Device * dev)
     {
       unsigned int steps;
 
-      status = sanei_genesys_read_feed_steps(dev, &steps);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to read feed steps: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        sanei_genesys_read_feed_steps(dev, &steps);
 
       DBG(DBG_info, "%s: init_steps: %d, steps: %d\n", __func__, init_steps, steps);
 

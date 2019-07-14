@@ -856,8 +856,7 @@ sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
 
   return SANE_STATUS_GOOD;
 }
-SANE_Status
-sanei_genesys_read_feed_steps (Genesys_Device * dev, unsigned int *steps)
+void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps)
 {
     DBG_HELPER(dbg);
   uint8_t value;
@@ -887,7 +886,6 @@ sanei_genesys_read_feed_steps (Genesys_Device * dev, unsigned int *steps)
     }
 
   DBG(DBG_proc, "%s: %d steps\n", __func__, *steps);
-  return SANE_STATUS_GOOD;
 }
 
 void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sensor,

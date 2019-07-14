@@ -1757,8 +1757,7 @@ extern void sanei_genesys_read_valid_words(Genesys_Device* dev, unsigned int* st
 
 extern void sanei_genesys_read_scancnt(Genesys_Device* dev, unsigned int* steps);
 
-extern SANE_Status sanei_genesys_read_feed_steps (Genesys_Device * dev,
-						  unsigned int *steps);
+extern void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps);
 
 void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                   Genesys_Register_Set& regs, bool set);

@@ -3539,12 +3539,7 @@ gl646_repark_head (Genesys_Device * dev)
   do
     {
       sanei_genesys_sleep_ms(100);
-      status = sanei_genesys_read_feed_steps (dev, &steps);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to read feed steps: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        sanei_genesys_read_feed_steps (dev, &steps);
     }
   while (steps < expected);
 

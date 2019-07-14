@@ -254,8 +254,8 @@ void sanei_genesys_bulk_read_data_send_header(Genesys_Device* dev, size_t len)
                              sizeof(outdata), outdata);
 }
 
-SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
-                                         size_t len)
+void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
+                                  size_t len)
 {
     DBG_HELPER(dbg);
 
@@ -280,7 +280,7 @@ SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
     }
 
     if (len == 0)
-        return SANE_STATUS_GOOD;
+        return;
 
     if (is_addr_used) {
         dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, 0x00,
@@ -322,8 +322,6 @@ SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
     if (DBG_LEVEL >= DBG_data && dev->binary!=NULL) {
         fwrite(buffer, len, 1, dev->binary);
     }
-
-    return SANE_STATUS_GOOD;
 }
 
 SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
@@ -905,11 +903,10 @@ SANE_Status
 sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
 				      size_t size)
 {
+    DBG_HELPER_ARGS(dbg, "(size = %lu bytes)", (u_long) size);
   SANE_Status status = SANE_STATUS_GOOD;
   int time_count = 0;
   unsigned int words = 0;
-
-  DBG(DBG_proc, "%s (size = %lu bytes)\n", __func__, (u_long) size);
 
   if (size & 1)
     DBG(DBG_info, "WARNING %s: odd number of bytes\n", __func__);
@@ -938,14 +935,8 @@ sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
       return SANE_STATUS_IO_ERROR;
     }
 
-  status = dev->model->cmd_set->bulk_read_data (dev, 0x45, data, size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: reading bulk data failed: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->bulk_read_data(dev, 0x45, data, size);
 
-  DBG(DBG_proc, "%s: completed\n", __func__);
   return SANE_STATUS_GOOD;
 }
 SANE_Status

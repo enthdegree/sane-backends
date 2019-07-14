@@ -308,12 +308,12 @@ static void sanei_gl841_setup_sensor(Genesys_Device * dev, const Genesys_Sensor&
 static SANE_Status
 sanei_gl841_asic_test (Genesys_Device * dev)
 {
+    DBG_HELPER(dbg);
+
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   size_t size, verify_size;
   unsigned int i;
-
-  DBG(DBG_proc, "%s\n", __func__);
 
   return SANE_STATUS_INVAL;
 
@@ -395,12 +395,7 @@ sanei_gl841_asic_test (Genesys_Device * dev)
       return status;
     }
 
-  status = sanei_genesys_bulk_read_data(dev, 0x45, verify_data.data(), verify_size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk read data: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_bulk_read_data(dev, 0x45, verify_data.data(), verify_size);
 
   /* todo: why i + 2 ? */
   for (i = 0; i < size; i++)
@@ -421,8 +416,6 @@ sanei_gl841_asic_test (Genesys_Device * dev)
 	  return SANE_STATUS_IO_ERROR;
 	}
     }
-
-  DBG(DBG_info, "%s: completed\n", __func__);
 
   return SANE_STATUS_GOOD;
 }

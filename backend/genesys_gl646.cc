@@ -82,18 +82,13 @@ static void gl646_gpio_output_enable(UsbDevice& usb_dev, uint8_t value)
 }
 
 /* Read bulk data (e.g. scanned data) */
-static SANE_Status
-gl646_bulk_read_data (Genesys_Device * dev, uint8_t addr,
-		      uint8_t * data, size_t len)
+static void gl646_bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t* data, size_t len)
 {
-    SANE_Status status = sanei_genesys_bulk_read_data(dev, addr, data, len);
-    if (status != SANE_STATUS_GOOD) {
-        return status;
-    }
+    DBG_HELPER(dbg);
+    sanei_genesys_bulk_read_data(dev, addr, data, len);
     if (dev->model->is_sheetfed == SANE_TRUE) {
         gl646_detect_document_end (dev);
     }
-    return status;
 }
 
 static SANE_Bool
@@ -1039,12 +1034,11 @@ gl646_setup_sensor (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_
 static SANE_Status
 gl646_asic_test (Genesys_Device * dev)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   size_t size, verify_size;
   unsigned int i;
-
-  DBG(DBG_proc, "%s: start\n", __func__);
 
   /* set and read exposure time, compare if it's the same */
   status = sanei_genesys_write_register (dev, 0x38, 0xde);
@@ -1122,13 +1116,7 @@ gl646_asic_test (Genesys_Device * dev)
       return status;
     }
 
-  status =
-    gl646_bulk_read_data (dev, 0x45, verify_data.data(), verify_size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk read data: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl646_bulk_read_data(dev, 0x45, verify_data.data(), verify_size);
 
   /* i + 2 is needed as the changed address goes into effect only after one
      data word is sent. */
@@ -1140,8 +1128,6 @@ gl646_asic_test (Genesys_Device * dev)
           return SANE_STATUS_IO_ERROR;
 	}
     }
-
-  DBG(DBG_info, "%s: end\n", __func__);
 
   return SANE_STATUS_GOOD;
 }
@@ -3917,14 +3903,14 @@ gl646_repark_head (Genesys_Device * dev)
 static SANE_Status
 gl646_init (Genesys_Device * dev)
 {
+    DBG_INIT();
+    DBG_HELPER(dbg);
+
   SANE_Status status = SANE_STATUS_GOOD;
   struct timeval tv;
   uint8_t cold = 0, val = 0;
   uint32_t addr = 0xdead;
   size_t len;
-
-  DBG_INIT ();
-  DBG(DBG_proc, "%s: start\n", __func__);
 
   /* to detect real power up condition, we write to REG41
    * with pwrbit set, then read it back. When scanner is cold (just replugged)
@@ -4046,26 +4032,16 @@ gl646_init (Genesys_Device * dev)
 	}
       sanei_usb_set_timeout (2 * 1000);
       len = 6;
-      status = gl646_bulk_read_data (dev, 0x45, dev->control, len);
-      /* for some reason, read fails here for MD6471, HP2300 and XP200
-       * one time out of 2 scanimage launches
-       */
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_warn, "%s: failed to read control\n", __func__);
-	  status = gl646_bulk_read_data (dev, 0x45, dev->control, len);
-	}
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_warn, "%s: failed to read control\n", __func__);
-	  return SANE_STATUS_INVAL;
-	}
-      else
-	{
-	  DBG(DBG_info, "%s: control read=0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n", __func__,
-	      dev->control[0], dev->control[1], dev->control[2], dev->control[3], dev->control[4],
-	      dev->control[5]);
-	}
+        // for some reason, read fails here for MD6471, HP2300 and XP200 one time out of
+        // 2 scanimage launches
+        try {
+            gl646_bulk_read_data(dev, 0x45, dev->control, len);
+        } catch (...) {
+            gl646_bulk_read_data(dev, 0x45, dev->control, len);
+        }
+        DBG(DBG_info, "%s: control read=0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n", __func__,
+            dev->control[0], dev->control[1], dev->control[2], dev->control[3], dev->control[4],
+            dev->control[5]);
       sanei_usb_set_timeout (30 * 1000);
     }
   else
@@ -4108,7 +4084,6 @@ gl646_init (Genesys_Device * dev)
   /* here session and device are initialized */
   dev->already_initialized = SANE_TRUE;
 
-  DBG(DBG_proc, "%s: end\n", __func__);
   return SANE_STATUS_GOOD;
 }
 

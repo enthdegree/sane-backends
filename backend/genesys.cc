@@ -4120,20 +4120,14 @@ void Genesys_Buffer::consume(size_t size)
 static SANE_Status accurate_line_read(Genesys_Device * dev,
                                       Genesys_Buffer& buffer)
 {
+    DBG_HELPER(dbg);
     buffer.reset();
 
-  SANE_Status status = SANE_STATUS_GOOD;
-  status = dev->model->cmd_set->bulk_read_data(dev, 0x45, buffer.get_write_pos(buffer.size()),
-                                               buffer.size());
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__, (u_long) buffer.size(),
-          sane_strstatus(status));
-      return SANE_STATUS_IO_ERROR;
-    }
+    dev->model->cmd_set->bulk_read_data(dev, 0x45, buffer.get_write_pos(buffer.size()),
+                                        buffer.size());
 
     buffer.produce(buffer.size());
-  return status;
+    return SANE_STATUS_GOOD;
 }
 
 /** @brief fill buffer while reducing vertical resolution
@@ -4306,12 +4300,11 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
 static SANE_Status
 genesys_fill_read_buffer (Genesys_Device * dev)
 {
+    DBG_HELPER(dbg);
   size_t size;
   size_t space;
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t *work_buffer_dst;
-
-  DBGSTART;
 
   /* for sheetfed scanner, we must check is document is shorter than
    * the requested scan */
@@ -4365,21 +4358,27 @@ genesys_fill_read_buffer (Genesys_Device * dev)
     {
       /* line interpolation */
       status = genesys_fill_line_interp_buffer (dev, work_buffer_dst, size);
+      if (status != SANE_STATUS_GOOD)
+      {
+          DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__, (u_long) size,
+              sane_strstatus(status));
+          return SANE_STATUS_IO_ERROR;
+      }
     }
   else if (dev->segnb>1)
     {
       /* multi-segment sensors processing */
       status = genesys_fill_segmented_buffer (dev, work_buffer_dst, size);
+      if (status != SANE_STATUS_GOOD)
+      {
+          DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__, (u_long) size,
+              sane_strstatus(status));
+          return SANE_STATUS_IO_ERROR;
+      }
     }
   else /* regular case with no extra copy */
     {
-      status = dev->model->cmd_set->bulk_read_data (dev, 0x45, work_buffer_dst, size);
-    }
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__, (u_long) size,
-          sane_strstatus(status));
-      return SANE_STATUS_IO_ERROR;
+        dev->model->cmd_set->bulk_read_data(dev, 0x45, work_buffer_dst, size);
     }
 
   if (size > dev->read_bytes_left)
@@ -4388,8 +4387,6 @@ genesys_fill_read_buffer (Genesys_Device * dev)
   dev->read_bytes_left -= size;
 
   dev->read_buffer.produce(size);
-
-  DBGCOMPLETED;
 
   return SANE_STATUS_GOOD;
 }

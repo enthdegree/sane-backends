@@ -580,12 +580,9 @@ void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr)
  * @param data placeholder for the result
  * @return SANE_STATUS_GOOD is OK, else the error code
  */
-SANE_Status
-sanei_genesys_fe_read_data (Genesys_Device * dev, uint8_t addr,
-			     uint16_t *data)
+void sanei_genesys_fe_read_data (Genesys_Device* dev, uint8_t addr, uint16_t* data)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t value;
   Genesys_Register_Set reg;
 
@@ -601,8 +598,6 @@ sanei_genesys_fe_read_data (Genesys_Device * dev, uint8_t addr,
     *data += value;
 
   DBG(DBG_io, "%s (0x%02x, 0x%04x)\n", __func__, addr, *data);
-
-  return status;
 }
 
 /*@brief write data to analog frontend

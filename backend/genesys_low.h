@@ -1786,9 +1786,7 @@ extern void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr)
  * Reads data from the given frontend register. May be used to query
  * analog frontend status by reading the right register.
  */
-extern SANE_Status
-sanei_genesys_fe_read_data (Genesys_Device * dev, uint8_t addr,
-			    uint16_t *data);
+extern void sanei_genesys_fe_read_data(Genesys_Device* dev, uint8_t addr, uint16_t* data);
 /** @brief Write data to frontend register.
  * Writes data to analog frontend register at the given address.
  * The use and address of registers change from model to model.

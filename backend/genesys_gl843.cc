@@ -57,18 +57,14 @@
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
 
-/* Set address for writing data */
-static SANE_Status
-gl843_set_buffer_address (Genesys_Device * dev, uint32_t addr)
+// Set address for writing data
+static void gl843_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 {
     DBG_HELPER_ARGS(dbg, "setting address to 0x%05x", addr & 0xffff);
-  SANE_Status status = SANE_STATUS_GOOD;
 
   sanei_genesys_write_register(dev, 0x5b, ((addr >> 8) & 0xff));
 
   sanei_genesys_write_register(dev, 0x5c, (addr & 0xff));
-
-  return status;
 }
 
 /**
@@ -85,25 +81,13 @@ write_data (Genesys_Device * dev, uint32_t addr, uint32_t size,
     DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
 
-  status = gl843_set_buffer_address (dev, addr);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed while setting address for bulk write data: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    gl843_set_buffer_address(dev, addr);
 
     // write actual data
     sanei_genesys_bulk_write_data(dev, 0x28, data, size);
 
-  /* set back address to 0 */
-  status = gl843_set_buffer_address (dev, 0);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed setting to default RAM address: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    // set back address to 0
+    gl843_set_buffer_address(dev, 0);
   return status;
 }
 
@@ -3015,13 +2999,8 @@ gl843_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor)
         gamma[i * 2 + size * 4 + 1] = (bgamma[i] >> 8) & 0xff;
     }
 
-  /* send address */
-  status = gl843_set_buffer_address (dev, 0x0000);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // send address
+    gl843_set_buffer_address(dev, 0x0000);
 
     // send data
     sanei_genesys_bulk_write_data(dev, 0x28, gamma.data(), size * 2 * 3);

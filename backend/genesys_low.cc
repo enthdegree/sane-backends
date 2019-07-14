@@ -1026,14 +1026,12 @@ void sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Register_Se
  * @param size size of the chunk of data
  * @param data pointer to the data to write
  */
-SANE_Status
-sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_t * data)
+void sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_t* data)
 {
     DBG_HELPER(dbg);
 
   uint8_t outdata[8];
   size_t written,blksize;
-  SANE_Status status = SANE_STATUS_GOOD;
   int i;
   char msg[100]="AHB=";
 
@@ -1078,8 +1076,6 @@ sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8
       written += blksize;
     }
   while (written < size);
-
-  return status;
 }
 
 
@@ -1211,14 +1207,8 @@ sanei_genesys_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& senso
         sanei_genesys_write_register(dev, 0xc5+2*i, gamma[size*2*i+1]);
         sanei_genesys_write_register(dev, 0xc6+2*i, gamma[size*2*i]);
 
-      status = sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2, gamma.data() + i * size * 2+2);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "%s: write to AHB failed writing table %d (%s)\n", __func__,
-	       i, sane_strstatus (status));
-          break;
-	}
+        sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2,
+                                gamma.data() + i * size * 2+2);
     }
 
   return status;

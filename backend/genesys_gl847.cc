@@ -475,13 +475,8 @@ gl847_send_slope_table (Genesys_Device * dev, int table_nr,
       DBG (DBG_io, "%s: %s\n", __func__, msg);
     }
 
-  /* slope table addresses are fixed */
-  status = sanei_genesys_write_ahb(dev, 0x10000000 + 0x4000 * table_nr, steps * 2, table.data());
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: write to AHB failed writing slope table %d (%s)\n", __func__, table_nr,
-          sane_strstatus(status));
-    }
+    // slope table addresses are fixed
+    sanei_genesys_write_ahb(dev, 0x10000000 + 0x4000 * table_nr, steps * 2, table.data());
 
   return status;
 }
@@ -2304,12 +2299,7 @@ gl847_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
             sanei_genesys_read_register(dev, 0xd0+i, &val);
       addr = val * 8192 + 0x10000000;
-      status = sanei_genesys_write_ahb(dev, addr, pixels, buffer.data());
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s; write to AHB failed (%s)\n", __func__, sane_strstatus(status));
-          return status;
-        }
+        sanei_genesys_write_ahb(dev, addr, pixels, buffer.data());
     }
 
   return status;

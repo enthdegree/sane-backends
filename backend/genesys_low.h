@@ -1737,8 +1737,8 @@ extern void sanei_genesys_get_status(Genesys_Device* dev, uint8_t* status);
 
 extern void sanei_genesys_print_status (uint8_t val);
 
-extern SANE_Status
-sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_t * data);
+extern void sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size,
+                                    uint8_t* data);
 
 extern void sanei_genesys_init_structs (Genesys_Device * dev);
 

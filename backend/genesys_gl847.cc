@@ -2724,10 +2724,9 @@ gl847_init_memory_layout (Genesys_Device * dev)
 static SANE_Status
 gl847_boot (Genesys_Device * dev, SANE_Bool cold)
 {
+    DBG_HELPER(dgb);
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
-
-  DBGSTART;
 
   /* reset ASIC if cold boot */
   if(cold)
@@ -2760,9 +2759,9 @@ gl847_boot (Genesys_Device * dev, SANE_Bool cold)
   SETREG (0x08, REG08_CIS_LINE);
   RIE (sanei_genesys_write_register (dev, 0x08, dev->reg.find_reg(0x08).value));
 
-  /* set up end access */
-  RIE (sanei_genesys_write_0x8c (dev, 0x10, 0x0b));
-  RIE (sanei_genesys_write_0x8c (dev, 0x13, 0x0e));
+    // set up end access
+    sanei_genesys_write_0x8c(dev, 0x10, 0x0b);
+    sanei_genesys_write_0x8c(dev, 0x13, 0x0e);
 
   /* setup gpio */
   RIE (gl847_init_gpio (dev));
@@ -2773,7 +2772,6 @@ gl847_boot (Genesys_Device * dev, SANE_Bool cold)
   SETREG (0xf8, 0x01);
   RIE (sanei_genesys_write_register (dev, 0xf8, dev->reg.find_reg(0xf8).value));
 
-  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 

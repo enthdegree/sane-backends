@@ -496,13 +496,11 @@ sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val)
  * @param index index of the command
  * @param val value to write
  */
-SANE_Status
-sanei_genesys_write_0x8c(Genesys_Device * dev, uint8_t index, uint8_t val)
+void sanei_genesys_write_0x8c(Genesys_Device* dev, uint8_t index, uint8_t val)
 {
     DBG_HELPER_ARGS(dbg, "0x%02x,0x%02x", index, val);
-    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_BUF_ENDACCESS, index,
-                             1, &val);
-    return SANE_STATUS_GOOD;
+    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_BUF_ENDACCESS, index, 1,
+                             &val);
 }
 
 /* read reg 0x41:

@@ -1730,7 +1730,7 @@ extern SANE_Status
 sanei_genesys_bulk_write_register(Genesys_Device * dev,
                                    Genesys_Register_Set& regs);
 
-extern SANE_Status sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val);
+extern void sanei_genesys_write_0x8c(Genesys_Device* dev, uint8_t index, uint8_t val);
 
 extern unsigned sanei_genesys_get_bulk_max_size(Genesys_Device * dev);
 

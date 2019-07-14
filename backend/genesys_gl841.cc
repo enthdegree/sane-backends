@@ -565,7 +565,7 @@ gl841_init_lide80 (Genesys_Device * dev)
   sanei_genesys_read_register (dev, REG6B, &val);
   sanei_genesys_write_register (dev, REG6B, 0x06);
 
-  sanei_genesys_write_0x8c (dev, 0x10, 0x94);
+    sanei_genesys_write_0x8c(dev, 0x10, 0x94);
   sanei_genesys_write_register (dev, 0x09, 0x10);
 
   /* set up GPIO : no address, so no bulk write, doesn't written directly either ? */

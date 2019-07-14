@@ -3953,6 +3953,7 @@ gl843_init_gpio (Genesys_Device * dev)
 static SANE_Status
 gl843_boot (Genesys_Device * dev, SANE_Bool cold)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
@@ -3972,7 +3973,7 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
     {
       val = 0x11;
     }
-  RIE (sanei_genesys_write_0x8c (dev, 0x0f, val));
+    sanei_genesys_write_0x8c(dev, 0x0f, val);
 
   /* test CHKVER */
   RIE (sanei_genesys_read_register (dev, REG40, &val));
@@ -4005,16 +4006,14 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
   dev->reg.find_reg(0x0b).value = val;
 
     if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
-        RIE(sanei_genesys_write_0x8c(dev, 0x1e, 0x01));
-        RIE(sanei_genesys_write_0x8c(dev, 0x10, 0xb4));
-        RIE(sanei_genesys_write_0x8c(dev, 0x0f, 0x02));
+        sanei_genesys_write_0x8c(dev, 0x1e, 0x01);
+        sanei_genesys_write_0x8c(dev, 0x10, 0xb4);
+        sanei_genesys_write_0x8c(dev, 0x0f, 0x02);
     }
     else if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
-        RIE(sanei_genesys_write_0x8c(dev, 0x10, 0xc8));
-    }
-  else
-    {
-      RIE (sanei_genesys_write_0x8c (dev, 0x10, 0xb4));
+        sanei_genesys_write_0x8c(dev, 0x10, 0xc8);
+    } else {
+        sanei_genesys_write_0x8c(dev, 0x10, 0xb4);
     }
 
   /* CLKSET */

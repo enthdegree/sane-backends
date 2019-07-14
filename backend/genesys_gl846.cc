@@ -2609,10 +2609,9 @@ gl846_init_memory_layout (Genesys_Device * dev)
 static SANE_Status
 gl846_boot (Genesys_Device * dev, SANE_Bool cold)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
-
-  DBGSTART;
 
   /* reset ASIC if cold boot */
   if(cold)
@@ -2629,7 +2628,7 @@ gl846_boot (Genesys_Device * dev, SANE_Bool cold)
     {
       val = 0x11;
     }
-  RIE (sanei_genesys_write_0x8c (dev, 0x0f, val));
+    sanei_genesys_write_0x8c(dev, 0x0f, val);
 
   /* test CHKVER */
   RIE (sanei_genesys_read_register (dev, REG40, &val));
@@ -2658,9 +2657,9 @@ gl846_boot (Genesys_Device * dev, SANE_Bool cold)
       RIE (sanei_genesys_write_register (dev, 0x08, dev->reg.find_reg(0x08).value));
     }
 
-  /* set up clocks */
-  RIE (sanei_genesys_write_0x8c (dev, 0x10, 0x0e));
-  RIE (sanei_genesys_write_0x8c (dev, 0x13, 0x0e));
+    // set up clocks
+    sanei_genesys_write_0x8c(dev, 0x10, 0x0e);
+    sanei_genesys_write_0x8c(dev, 0x13, 0x0e);
 
   /* setup gpio */
   RIE (gl846_init_gpio (dev));
@@ -2671,7 +2670,6 @@ gl846_boot (Genesys_Device * dev, SANE_Bool cold)
   SETREG (0xf8, 0x05);
   RIE (sanei_genesys_write_register (dev, 0xf8, dev->reg.find_reg(0xf8).value));
 
-  DBGCOMPLETED;
   return SANE_STATUS_GOOD;
 }
 

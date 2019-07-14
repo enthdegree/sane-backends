@@ -3428,6 +3428,7 @@ gl124_init(Genesys_Device * dev)
 static SANE_Status
 gl124_boot (Genesys_Device * dev, SANE_Bool cold)
 {
+    DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
@@ -3467,9 +3468,9 @@ gl124_boot (Genesys_Device * dev, SANE_Bool cold)
   RIE (sanei_genesys_write_register (dev, REG0B, val));
   dev->reg.remove_reg(0x0b);
 
-  /* set up end access */
-  RIE (sanei_genesys_write_0x8c (dev, 0x10, 0x0b));
-  RIE (sanei_genesys_write_0x8c (dev, 0x13, 0x0e));
+    //set up end access
+    sanei_genesys_write_0x8c(dev, 0x10, 0x0b);
+    sanei_genesys_write_0x8c(dev, 0x13, 0x0e);
 
   /* CIS_LINE */
   SETREG (0x08, REG08_CIS_LINE);

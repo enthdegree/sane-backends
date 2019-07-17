@@ -4,6 +4,7 @@ Installation Instructions
 1. Quick install:
 =================
 
+$ ./autogen.sh          # only if you just cloned the git repository
 $ ./configure
 $ make
 $ make install
@@ -42,7 +43,7 @@ $ make install
       We install a new SANE dynamically linked shared object library in
       /usr/local/lib beside your system's SANE library.
 
-      $ ./autogen.sh
+      $ ./autogen.sh          # only if you just cloned the git repository
       $ ./configure
       $ make && sudo make install
 

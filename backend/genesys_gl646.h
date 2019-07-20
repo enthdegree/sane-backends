@@ -173,9 +173,7 @@ static void gl646_save_power(Genesys_Device* dev, SANE_Bool enable);
 
 static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home);
 
-static
-SANE_Status
-gl646_move_to_ta (Genesys_Device * dev);
+static void gl646_move_to_ta(Genesys_Device* dev);
 
 /**
  * sets up the scanner for a scan, registers, gamma tables, shading tables

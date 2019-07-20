@@ -1123,7 +1123,7 @@ struct Genesys_Command_Set
     /**
      * move scanning head to transparency adapter
      */
-    SANE_Status (*move_to_ta) (Genesys_Device * dev);
+    void (*move_to_ta) (Genesys_Device* dev);
 
     /**
      * write shading data calibration to ASIC

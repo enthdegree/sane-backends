@@ -3048,7 +3048,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
   if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
       dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
   {
-      RIE(dev->model->cmd_set->move_to_ta(dev));
+      dev->model->cmd_set->move_to_ta(dev);
   }
 
   /* shading calibration */
@@ -3510,13 +3510,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
          dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) &&
         dev->model->cmd_set->move_to_ta != NULL)
     {
-      status=dev->model->cmd_set->move_to_ta(dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to move to start of transparency adapter: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->move_to_ta(dev);
     }
 
   /* load document if needed (for sheetfed scanner for instance) */
@@ -3584,7 +3578,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        RIE(dev->model->cmd_set->move_to_ta(dev));
+        dev->model->cmd_set->move_to_ta(dev);
     }
 
     dev->model->cmd_set->init_regs_for_scan(dev, sensor);

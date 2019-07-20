@@ -3454,19 +3454,15 @@ static void gl646_init(Genesys_Device* dev)
   dev->already_initialized = SANE_TRUE;
 }
 
-static
-SANE_Status
-gl646_move_to_ta (Genesys_Device * dev)
+static void gl646_move_to_ta(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
 
   if (simple_move(dev, SANE_UNFIX(dev->model->y_offset_sensor_to_ta)) != SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to move to calibration area\n", __func__);
-      return status;
+      return;
     }
-  return status;
 }
 
 

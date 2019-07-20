@@ -2564,7 +2564,7 @@ static void gl843_feed(Genesys_Device* dev, unsigned int steps)
   sanei_genesys_sleep_ms(100);
 }
 
-static SANE_Status gl843_move_to_ta (Genesys_Device * dev);
+static void gl843_move_to_ta(Genesys_Device* dev);
 
 // init registers for shading calibration shading calibration is done at dpihw
 static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -3640,19 +3640,15 @@ static void gl843_update_hardware_sensors(Genesys_Scanner* s)
  * Move sensor to the calibration of the transparency adapator (XPA).
  * @param dev device to use
  */
-static SANE_Status
-gl843_move_to_ta (Genesys_Device * dev)
+static void gl843_move_to_ta(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   float resolution;
   unsigned int feed;
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
   feed = 16*(SANE_UNFIX (dev->model->y_offset_sensor_to_ta) * resolution) / MM_PER_INCH;
     gl843_feed(dev, feed);
-
-  return status;
 }
 
 

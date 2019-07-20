@@ -1115,7 +1115,7 @@ struct Genesys_Command_Set
     /**
      * eject document from scanner
      */
-    SANE_Status (*eject_document) (Genesys_Device * dev);
+    void (*eject_document) (Genesys_Device* dev);
     /**
      * search for an black or white area in forward or reverse
      * direction */

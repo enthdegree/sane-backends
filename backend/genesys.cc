@@ -3278,7 +3278,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
             return status;
         }
     } catch (...) {
-        dev->model->cmd_set->eject_document(dev);
+        catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
         throw;
     }
 
@@ -3345,7 +3345,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
                 return status;
             }
         } catch (...) {
-            dev->model->cmd_set->eject_document(dev);
+            catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
             throw;
         }
 
@@ -3365,7 +3365,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
                 return status;
             }
         } catch (...) {
-            dev->model->cmd_set->eject_document(dev);
+            catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
             throw;
         }
       forward = SANE_FALSE;
@@ -3382,7 +3382,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
             return status;
         }
     } catch (...) {
-        dev->model->cmd_set->eject_document (dev);
+        catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
         throw;
     }
 
@@ -3404,7 +3404,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
             return status;
         }
     } catch (...) {
-        dev->model->cmd_set->eject_document (dev);
+        catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
         throw;
     }
 
@@ -3439,13 +3439,8 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
   /* save the calibration data */
   genesys_save_calibration (dev, sensor);
 
-  /* and finally eject calibration sheet */
-  status = dev->model->cmd_set->eject_document (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to eject document: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // and finally eject calibration sheet
+    dev->model->cmd_set->eject_document(dev);
 
   /* resotre settings */
   dev->settings.xres = xres;
@@ -6227,7 +6222,7 @@ sane_close_impl(SANE_Handle handle)
   /* eject document for sheetfed scanners */
   if (s->dev->model->is_sheetfed == SANE_TRUE)
     {
-      s->dev->model->cmd_set->eject_document (s->dev);
+        catch_all_exceptions(__func__, [&](){ s->dev->model->cmd_set->eject_document(s->dev); });
     }
   else
     {
@@ -7292,12 +7287,7 @@ void sane_cancel_impl(SANE_Handle handle)
     }
   else
     {				/* in case of sheetfed scanners, we have to eject the document if still present */
-      status = s->dev->model->cmd_set->eject_document (s->dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to eject document: %s\n", __func__, sane_strstatus(status));
-	  return;
-	}
+        s->dev->model->cmd_set->eject_document(s->dev);
     }
 
   /* enable power saving mode unless we are parking .... */

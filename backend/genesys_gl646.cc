@@ -1787,11 +1787,9 @@ gl646_detect_document_end (Genesys_Device * dev)
  * TODO we currently rely on AGOHOME not being set for sheetfed scanners,
  * maybe check this flag in eject to let the document being eject automaticaly
  */
-static SANE_Status
-gl646_eject_document (Genesys_Device * dev)
+static void gl646_eject_document(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
 
   // FIXME: SEQUENTIAL not really needed in this case
   Genesys_Register_Set regs((Genesys_Register_Set::SEQUENTIAL));
@@ -1822,7 +1820,7 @@ gl646_eject_document (Genesys_Device * dev)
       dev->document = SANE_FALSE;
       DBG(DBG_info, "%s: no more document to eject\n", __func__);
       DBG(DBG_proc, "%s: end\n", __func__);
-      return status;
+      return;
     }
 
     // there is a document inserted, eject it
@@ -1892,8 +1890,6 @@ gl646_eject_document (Genesys_Device * dev)
     gl646_gpio_read(dev->usb_dev, &gpio);
 
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
-
-  return status;
 }
 
 // Send the low-level scan command
@@ -1952,12 +1948,7 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     {
       if (eject == SANE_TRUE && dev->document == SANE_TRUE)
 	{
-	  status = gl646_eject_document (dev);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to eject document\n", __func__);
-	      return status;
-	    }
+            gl646_eject_document(dev);
 	}
       if (check_stop)
 	{

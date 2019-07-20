@@ -2530,8 +2530,7 @@ static void gl841_get_paper_sensor(Genesys_Device* dev, SANE_Bool * paper_loaded
     *paper_loaded = (val & 0x1) == 0;
 }
 
-static SANE_Status
-gl841_eject_document (Genesys_Device * dev)
+static void gl841_eject_document(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
@@ -2545,7 +2544,7 @@ gl841_eject_document (Genesys_Device * dev)
     {
       DBG(DBG_proc, "%s: there is no \"eject sheet\"-concept for non sheet fed\n", __func__);
       DBG(DBG_proc, "%s: finished\n", __func__);
-      return SANE_STATUS_GOOD;
+      return;
     }
 
 
@@ -2606,10 +2605,11 @@ gl841_eject_document (Genesys_Device * dev)
 
       if (loop == 0)
 	{
-	  /* when we come here then the scanner needed too much time for this, so we better stop the motor */
-	  gl841_stop_action (dev);
-	  DBG(DBG_error, "%s: timeout while waiting for scanhead to go home\n", __func__);
-	  return SANE_STATUS_IO_ERROR;
+          // when we come here then the scanner needed too much time for this, so we better stop
+          // the motor
+          catch_all_exceptions(__func__, [&](){ gl841_stop_action(dev); });
+          throw SaneException(SANE_STATUS_IO_ERROR,
+                              "timeout while waiting for scanhead to go home");
 	}
     }
 
@@ -2643,8 +2643,6 @@ gl841_eject_document (Genesys_Device * dev)
         gl841_stop_action(dev);
 
   dev->document = SANE_FALSE;
-
-  return SANE_STATUS_GOOD;
 }
 
 

@@ -1775,13 +1775,10 @@ static void gl843_get_paper_sensor(Genesys_Device* dev, SANE_Bool * paper_loaded
     *paper_loaded = (val & 0x1) == 0;
 }
 
-static SANE_Status
-gl843_eject_document (Genesys_Device * dev)
+static void gl843_eject_document(Genesys_Device* dev)
 {
+    (void) dev;
     DBG_HELPER(dbg);
-  if (dev == NULL)
-    return SANE_STATUS_INVAL;
-  return SANE_STATUS_GOOD;
 }
 
 

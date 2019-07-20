@@ -3547,8 +3547,8 @@ gl646_init (Genesys_Device * dev)
       /* Set default values for registers */
       gl646_init_regs (dev);
 
-      /* Init shading data */
-      RIE (sanei_genesys_init_shading_data(dev, sensor, sensor.sensor_pixels));
+        // Init shading data
+        sanei_genesys_init_shading_data(dev, sensor, sensor.sensor_pixels);
 
       /* initial calibration reg values */
       dev->calib_reg = dev->reg;

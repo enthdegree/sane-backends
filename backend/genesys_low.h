@@ -1804,9 +1804,8 @@ const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
 Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,
                                                     ScanMethod scan_method);
 
-extern SANE_Status
-sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                 int pixels_per_line);
+extern void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                            int pixels_per_line);
 
 extern void sanei_genesys_read_valid_words(Genesys_Device* dev, unsigned int* steps);
 

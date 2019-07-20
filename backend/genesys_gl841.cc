@@ -4438,8 +4438,8 @@ gl841_init (Genesys_Device * dev)
   /* Move home */
   RIE (gl841_slow_back_home (dev, SANE_TRUE));
 
-  /* Init shading data */
-  RIE (sanei_genesys_init_shading_data(dev, sensor, sensor.sensor_pixels));
+    // Init shading data
+    sanei_genesys_init_shading_data(dev, sensor, sensor.sensor_pixels);
 
   /* ensure head is correctly parked, and check lock */
   if (dev->model->flags & GENESYS_FLAG_REPARK)

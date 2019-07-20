@@ -1000,13 +1000,11 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
     dev->model->cmd_set->bulk_write_data(dev, 0x3c, data, size);
 }
 
-/* ? */
-SANE_Status
-sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                 int pixels_per_line)
+// ?
+void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                     int pixels_per_line)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int channels;
   int i;
 
@@ -1017,7 +1015,7 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sen
    || dev->model->ccd_type==CCD_CS4400F
    || dev->model->ccd_type==CCD_CS8400F
    || dev->model->cmd_set->send_shading_data!=NULL)
-    return SANE_STATUS_GOOD;
+        return;
 
   DBG(DBG_proc, "%s (pixels_per_line = %d)\n", __func__, pixels_per_line);
 
@@ -1045,8 +1043,6 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sen
 
     genesys_send_offset_and_shading(dev, sensor, shading_data.data(),
                                     pixels_per_line * 4 * channels);
-
-  return status;
 }
 
 
@@ -3174,12 +3170,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 
   /* send default shading data */
   sanei_usb_testing_record_message("sanei_genesys_init_shading_data");
-  status = sanei_genesys_init_shading_data(dev, sensor, pixels_per_line);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to init shading process: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_init_shading_data(dev, sensor, pixels_per_line);
 
   if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
       dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)

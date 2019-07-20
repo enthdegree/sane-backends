@@ -1955,6 +1955,9 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
         if (set) {
             sanei_genesys_read_register(dev, 0x6c, &val);
             val &= ~(REG6C_GPIO16 | REG6C_GPIO13);
+            if (dev->current_setup.xres >= 2400) {
+                val &= ~REG6C_GPIO10;
+            }
             sanei_genesys_write_register(dev, 0x6c, val);
 
             sanei_genesys_read_register(dev, 0xa9, &val);

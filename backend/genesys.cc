@@ -1659,8 +1659,7 @@ genesys_average_data (uint8_t * average_data,
  * @param dev scanner's device
  * @return SANE_STATUS_GOOD if OK, else an error
  */
-static SANE_Status
-genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void genesys_dark_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   size_t size;
@@ -1680,7 +1679,7 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
 
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) {
         // FIXME: dark shading currently not supported on infrared transparency scans
-        return SANE_STATUS_GOOD;
+        return;
     }
 
     // FIXME: the current calculation is likely incorrect on non-GENESYS_GL843 implementations,
@@ -1740,8 +1739,6 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
       sanei_genesys_write_pnm_file("gl_black_average.pnm", dev->dark_average_data.data(), 16,
                                    channels, out_pixels_per_line, 1);
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 /*
@@ -1853,11 +1850,9 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
     }
 }
 
-static SANE_Status
-genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void genesys_white_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER_ARGS(dbg, "lines = %d", (unsigned int)dev->calib_lines);
-  SANE_Status status = SANE_STATUS_GOOD;
   size_t size;
   uint32_t pixels_per_line;
   uint8_t channels;
@@ -1931,15 +1926,12 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
     {
         dev->model->cmd_set->slow_back_home(dev, SANE_TRUE);
     }
-
-  return status;
 }
 
-/* This calibration uses a scan over the calibration target, comprising a
- * black and a white strip. (So the motor must be on.)
- */
-static SANE_Status
-genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
+// This calibration uses a scan over the calibration target, comprising a black and a white strip.
+// (So the motor must be on.)
+static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
+                                                   const Genesys_Sensor& sensor)
 {
     DBG_HELPER_ARGS(dbg, "lines = %d", (unsigned int)dev->calib_lines);
   size_t size;
@@ -2085,8 +2077,6 @@ genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Senso
                                    dev->dark_average_data.data(), 16, channels,
                                    out_pixels_per_line, 1);
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 /* computes one coefficient given bright-dark value
@@ -2953,7 +2943,6 @@ static SANE_Status
 genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint32_t pixels_per_line;
 
     unsigned coarse_res = sensor.optical_res;
@@ -3045,13 +3034,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
   if (dev->model->flags & GENESYS_FLAG_DARK_WHITE_CALIBRATION)
     {
       sanei_usb_testing_record_message("genesys_dark_white_shading_calibration");
-      status = genesys_dark_white_shading_calibration (dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to do dark+white shading calibration: %s\n", __func__,
-              sane_strstatus(status));
-	  return status;
-	}
+        genesys_dark_white_shading_calibration(dev, sensor);
     }
   else
     {
@@ -3061,13 +3044,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
       if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)
 	{
           sanei_usb_testing_record_message("genesys_dark_shading_calibration");
-          status = genesys_dark_shading_calibration(dev, sensor);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-              DBG(DBG_error, "%s: failed to do dark shading calibration: %s\n", __func__,
-                  sane_strstatus(status));
-              return status;
-	    }
+            genesys_dark_shading_calibration(dev, sensor);
 	}
 
       genesys_repark_sensor_before_shading(dev);
@@ -3076,13 +3053,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
         dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
       sanei_usb_testing_record_message("genesys_white_shading_calibration");
-      status = genesys_white_shading_calibration (dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to do white shading calibration: %s\n", __func__,
-              sane_strstatus(status));
-	  return status;
-	}
+        genesys_white_shading_calibration(dev, sensor);
     }
 
   if(dev->model->cmd_set->send_shading_data==NULL)
@@ -3113,7 +3084,6 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool forward = SANE_TRUE;
   int xres;
 
@@ -3183,13 +3153,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
         dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
         try {
-            status = genesys_dark_shading_calibration(dev, sensor);
-            if (status != SANE_STATUS_GOOD) {
-                dev->model->cmd_set->eject_document(dev);
-                DBG(DBG_error, "%s: failed to do dark shading calibration: %s\n", __func__,
-                    sane_strstatus(status));
-                return status;
-            }
+            genesys_dark_shading_calibration(dev, sensor);
         } catch (...) {
             catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
             throw;
@@ -3211,12 +3175,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
     dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
     try {
-        status = genesys_white_shading_calibration(dev, sensor);
-        if (status != SANE_STATUS_GOOD) {
-            dev->model->cmd_set->eject_document(dev);
-            DBG(DBG_error, "%s: failed eject target: %s\n", __func__, sane_strstatus(status));
-            return status;
-        }
+        genesys_white_shading_calibration(dev, sensor);
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
         throw;

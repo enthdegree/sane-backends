@@ -4914,19 +4914,10 @@ calc_parameters (Genesys_Scanner * s)
 }
 
 
-static SANE_Status
-create_bpp_list (Genesys_Scanner * s, SANE_Int * bpp)
+static void create_bpp_list (Genesys_Scanner * s, const std::vector<unsigned>& bpp)
 {
-  int count;
-
-  for (count = 0; bpp[count] != 0; count++)
-    ;
-  s->bpp_list[0] = count;
-  for (count = 0; bpp[count] != 0; count++)
-    {
-      s->bpp_list[s->bpp_list[0] - count] = bpp[count];
-    }
-  return SANE_STATUS_GOOD;
+    s->bpp_list[0] = bpp.size();
+    std::reverse_copy(bpp.begin(), bpp.end(), s->bpp_list + 1);
 }
 
 /** @brief this function initialize a gamma vector based on the ASIC:

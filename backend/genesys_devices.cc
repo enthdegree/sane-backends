@@ -2930,8 +2930,8 @@ void genesys_init_usb_device_tables()
 
   {1200, 600, 300, 150, 75},        /* possible x-resolutions */
   {2400, 1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (3.5),                /* Start of scan area in mm  (x) */
   SANE_FIX (7.5),                /* Start of scan area in mm (y) */
@@ -2984,8 +2984,8 @@ void genesys_init_usb_device_tables()
 
   {      1200, 600, 400, 300, 240, 200, 150, 75},        /* possible x-resolutions */
   {2400, 1200, 600, 400, 300, 240, 200, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (0.42),                /* Start of scan area in mm  (x) */
   SANE_FIX (7.9),                /* Start of scan area in mm (y) */
@@ -3044,8 +3044,8 @@ void genesys_init_usb_device_tables()
 
   { 600, /* 500, 400,*/ 300, 200, 150, 100, 75},        /* possible x-resolutions */
   { 1200, 600, /* 500, 400, */ 300, 200, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (7.2),                /* Start of scan area in mm  (x) */
   SANE_FIX (14.7),                /* Start of scan area in mm (y) */
@@ -3100,8 +3100,8 @@ void genesys_init_usb_device_tables()
 
   {2400, 1200, 600, 400, 300, 200, 150, 100},
   {2400, 1200, 600, 400, 300, 200, 150, 100},
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (7.9),        /* Start of scan area in mm  (x) */
   SANE_FIX (5.9),        /* Start of scan area in mm (y) */
@@ -3160,8 +3160,8 @@ void genesys_init_usb_device_tables()
 
   { 2400, 1200, 600, 400, 300, 200, 150, 100},
   { 2400, 1200, 600, 400, 300, 200, 150, 100},
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (8.0),                /* Start of scan area in mm  (x) */
   SANE_FIX (13.00),                /* Start of scan area in mm (y) */
@@ -3220,8 +3220,8 @@ void genesys_init_usb_device_tables()
 
   { 2400, 1200, 600, 400, 300, 200, 150, 100},
   { 2400, 1200, 600, 400, 300, 200, 150, 100},
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (8.0),                /* Start of scan area in mm  (x) */
   SANE_FIX (13.00),                /* Start of scan area in mm (y) */
@@ -3280,8 +3280,8 @@ void genesys_init_usb_device_tables()
 
   { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100},
   { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100},
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (6.0),                /* Start of scan area in mm  (x) */
   SANE_FIX (13.00),                /* Start of scan area in mm (y) */
@@ -3342,8 +3342,8 @@ void genesys_init_usb_device_tables()
 
   { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
   { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX(3.5),                // x_offset
   SANE_FIX(17.00),              // y_offset
@@ -3406,8 +3406,8 @@ void genesys_init_usb_device_tables()
 
   { 4800, 2400, 1200, 600, 400, 300 }, // TODO: resolutions for non-XPA mode
   { 4800, 2400, 1200, 600, 400, 300 }, // TODO: resolutions for non-XPA mode
-  { 16, 8, 0 },         // possible depths in gray mode
-  { 16, 8, 0 },         // possible depths in color mode
+  { 16, 8},         // possible depths in gray mode
+  { 16, 8},         // possible depths in color mode
 
   SANE_FIX(24.0),        // Start of scan area in mm (x)
   SANE_FIX(10.0),        // Start of scan area in mm (y)
@@ -3468,8 +3468,8 @@ void genesys_init_usb_device_tables()
 
   {4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },        /* possible x-resolutions */
   {4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (1.1),                /* Start of scan area in mm (x) */
   SANE_FIX (8.3),                /* Start of scan area in mm (y) */
@@ -3527,8 +3527,8 @@ void genesys_init_usb_device_tables()
 
   {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },        /* possible x-resolutions */
   {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (2.2),                /* Start of scan area in mm (x) */
   SANE_FIX (9.0),                /* Start of scan area in mm (y) */
@@ -3584,8 +3584,8 @@ void genesys_init_usb_device_tables()
 
   {4800, 2400, 1200, 600, 300, 150, 100, 75 },        /* possible x-resolutions */
   {4800, 2400, 1200, 600, 300, 150, 100, 75 },        /* possible y-resolutions */
-  {16, 8, 0},                    /* possible depths in gray mode */
-  {16, 8, 0},                    /* possible depths in color mode */
+  {16, 8},                    /* possible depths in gray mode */
+  {16, 8},                    /* possible depths in color mode */
 
   SANE_FIX (0.0),               /* Start of scan area in mm (x) */
   SANE_FIX (8.0),                /* Start of scan area in mm (y) */
@@ -3641,8 +3641,8 @@ void genesys_init_usb_device_tables()
 
   {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },        /* possible x-resolutions */
   {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (2.2),                /* Start of scan area in mm (x) */
   SANE_FIX (8.7),                /* Start of scan area in mm (y) */
@@ -3698,8 +3698,8 @@ void genesys_init_usb_device_tables()
 
   {4800, 2400, 1200, 600, 300, 150, 100, 75},        /* possible x-resolutions */
   {4800, 2400, 1200, 600, 300, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (2.2),                /* Start of scan area in mm (x) */
   SANE_FIX (8.7),                /* Start of scan area in mm (y) */
@@ -3755,8 +3755,8 @@ void genesys_init_usb_device_tables()
 
   {1200, 600, 400, 300, 200, 150, 100, 75},        /* possible x-resolutions */
   {1200, 600, 400, 300, 200, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (1.1),                /* Start of scan area in mm  (x) */
   SANE_FIX (8.3),                /* Start of scan area in mm (y) */
@@ -3813,8 +3813,8 @@ void genesys_init_usb_device_tables()
 
   {4800, 2400, 1200, 600, 300, 200, 150, 100, 75},        /* possible x-resolutions */
   {4800, 2400, 1200, 600, 300, 200, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (3.1),                /* Start of scan area in mm  (x) */
   SANE_FIX (8.1),                /* Start of scan area in mm (y) */
@@ -3871,8 +3871,8 @@ void genesys_init_usb_device_tables()
 
   {4800, 2400, 1200, 600, 300, 200, 150, 100, 75},        /* possible x-resolutions */
   {4800, 2400, 1200, 600, 300, 200, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (1.1),                /* Start of scan area in mm  (x) */
   SANE_FIX (8.3),                /* Start of scan area in mm (y) */
@@ -3929,8 +3929,8 @@ void genesys_init_usb_device_tables()
 
   {1200, 600, 300, 150, 75},        /* possible x-resolutions */
   {2400, 1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (0.42),                /* Start of scan area in mm  (x) */
   SANE_FIX (7.9),                /* Start of scan area in mm (y) */
@@ -3991,8 +3991,8 @@ void genesys_init_usb_device_tables()
 
   {      1200, 600, 400, 300, 240, 150, 100, 75},        /* possible x-resolutions */
   {2400, 1200, 600, 400, 300, 240, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
   SANE_FIX (0.42),                /* Start of scan area in mm  (x)   0.42 */
   SANE_FIX (7.90),                /* Start of scan area in mm (y)    7.90 */
   SANE_FIX (216.07),                /* Size of scan area in mm (x)   218.00 */
@@ -4050,8 +4050,8 @@ void genesys_init_usb_device_tables()
 
   {600, 300, 150, 75},        /* possible x-resolutions */
   {1200, 600, 300, 150, 75},        /* possible y-resolutions, motor can go up to 1200 dpi */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (2.0),                /* Start of scan area in mm (x_offset) */
   SANE_FIX (7.5),                /* Start of scan area in mm (y_offset) */
@@ -4109,8 +4109,8 @@ void genesys_init_usb_device_tables()
 
   {1200, 600, 300, 150, 100, 50},        /* possible x-resolutions */
   {1200, 600, 300, 150, 100, 50},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (6.5),                /* Start of scan area in mm  (x) */
   SANE_FIX (2.5),                /* Start of scan area in mm (y) */
@@ -4168,8 +4168,8 @@ void genesys_init_usb_device_tables()
 
   {600, 300, 200, 100, 75 },        /* possible x-resolutions */
   {600, 300, 200, 100, 75 },        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (0.5),                /* Start of scan area in mm  (x) */
   SANE_FIX (16.0),                /* Start of scan area in mm (y) */
@@ -4226,8 +4226,8 @@ void genesys_init_usb_device_tables()
 
   {1200, 600, 300, 150, 100, 75},        /* possible x-resolutions */
   {1200, 600, 300, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (8.5),                /* Start of scan area in mm  (x) */
   SANE_FIX (11.0),                /* Start of scan area in mm (y) */
@@ -4285,8 +4285,8 @@ void genesys_init_usb_device_tables()
 
   {600, 300, 150, 75},        /* possible x-resolutions */
   {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (3.5),                /* Start of scan area in mm  (x) */
   SANE_FIX (7.5),                /* Start of scan area in mm (y) */
@@ -4337,8 +4337,8 @@ void genesys_init_usb_device_tables()
 
   {1200, 600, 300, 150, 75},        /* possible x-resolutions */
   {2400, 1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (3.5),                /* Start of scan area in mm  (x) */
   SANE_FIX (7.5),                /* Start of scan area in mm (y) */
@@ -4394,8 +4394,8 @@ void genesys_init_usb_device_tables()
 
   {1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible x-resolutions */
   {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX ( 0.30),                /* Start of scan area in mm  (x) */
   SANE_FIX ( 0.80),                /* 2.79 < Start of scan area in mm (y) */
@@ -4452,8 +4452,8 @@ void genesys_init_usb_device_tables()
 
   {600, 300, 150, 75},        /* possible x-resolutions */
   {600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
   SANE_FIX (1.0),                /* Start of scan area in mm (y) */
@@ -4509,8 +4509,8 @@ void genesys_init_usb_device_tables()
 
   {600, 300, 150, 75},        /* possible x-resolutions */
   {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
   SANE_FIX (0.0),                /* Start of scan area in mm (y) */
@@ -4565,8 +4565,8 @@ void genesys_init_usb_device_tables()
 
   {600, 300, 150, 75},        /* possible x-resolutions */
   {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
   SANE_FIX (0.0),                /* Start of scan area in mm (y) */
@@ -4621,8 +4621,8 @@ void genesys_init_usb_device_tables()
 
   {600, 300, 150, 75},        /* possible x-resolutions */
   {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
   SANE_FIX (0.0),                /* Start of scan area in mm (y) */
@@ -4678,8 +4678,8 @@ void genesys_init_usb_device_tables()
 
   {600, 300, 150, 75},        /* possible x-resolutions */
   {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
   SANE_FIX (0.0),                /* Start of scan area in mm (y) */
@@ -4734,8 +4734,8 @@ void genesys_init_usb_device_tables()
 
   {600, 300, 150, 75},        /* possible x-resolutions */
   {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
   SANE_FIX (0.0),                /* Start of scan area in mm (y) */
@@ -4792,8 +4792,8 @@ void genesys_init_usb_device_tables()
 
   {600, 300, 150, 75},        /* possible x-resolutions */
   {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
   SANE_FIX (0.0),                /* Start of scan area in mm (y) */
@@ -4848,8 +4848,8 @@ void genesys_init_usb_device_tables()
 
   {600, 300, 150, 75},        /* possible x-resolutions */
   {600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
   SANE_FIX (1.0),                /* Start of scan area in mm (y) */
@@ -4907,8 +4907,8 @@ void genesys_init_usb_device_tables()
 
   {600, 300, 150, 75},        /* possible x-resolutions */
   {600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
   SANE_FIX (1.0),                /* Start of scan area in mm (y) */
@@ -4965,8 +4965,8 @@ void genesys_init_usb_device_tables()
 
   {600, 300, 150, 75},        /* possible x-resolutions */
   {600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
   SANE_FIX (1.0),                /* Start of scan area in mm (y) */
@@ -5024,8 +5024,8 @@ void genesys_init_usb_device_tables()
 
   {1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible x-resolutions */
   {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX ( 4.00),                /* Start of scan area in mm  (x) */
   SANE_FIX ( 0.80),                /* 2.79 < Start of scan area in mm (y) */
@@ -5083,8 +5083,8 @@ void genesys_init_usb_device_tables()
 
   {1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible x-resolutions */
   {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX ( 4.00),                /* Start of scan area in mm  (x) */
   SANE_FIX ( 0.80),                /* 2.79 < Start of scan area in mm (y) */
@@ -5142,8 +5142,8 @@ void genesys_init_usb_device_tables()
 
   {600, 300, 150, 75},        /* possible x-resolutions */
   {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (4.0),                /* Start of scan area in mm  (x) */
   SANE_FIX (0.0),                /* Start of scan area in mm (y) */
@@ -5198,8 +5198,8 @@ void genesys_init_usb_device_tables()
   NULL,
   {/*1200,*/ 600, 400, 300, 200, 150, 100, 75},                /* possible x-resolutions */
   {/*2400,*/ 1200, 600, 400, 300, 200, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (0.42),/*SANE_FIX (0.42),                 Start of scan area in mm  (x) */
   SANE_FIX (6.75),/*SANE_FIX (7.9),                 Start of scan area in mm (y) */
@@ -5258,8 +5258,8 @@ void genesys_init_usb_device_tables()
   { 2400, 1200, 600, 400, 300, 200, 150, 100, 75},
   { 2400, 1200, 600, 400, 300, 200, 150, 100, 75},
 
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (6),                 /* Start of scan area in mm  (x) */
   SANE_FIX (2),                 /* Start of scan area in mm (y) */
@@ -5319,8 +5319,8 @@ void genesys_init_usb_device_tables()
 
   {1200, 600, 300, 150, 100, 75},        /* possible x-resolutions */
   {1200, 600, 300, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (7.2),                /* Start of scan area in mm  (x) */
   SANE_FIX (14.7),                /* Start of scan area in mm (y) */
@@ -5375,8 +5375,8 @@ void genesys_init_usb_device_tables()
 
   {1200, 600, 300, 150, 100, 75},        /* possible x-resolutions */
   {1200, 600, 300, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8, 0},                        /* possible depths in gray mode */
-  {16, 8, 0},                        /* possible depths in color mode */
+  {16, 8},                        /* possible depths in gray mode */
+  {16, 8},                        /* possible depths in color mode */
 
   SANE_FIX (7.2),                /* Start of scan area in mm  (x) */
   SANE_FIX (14.7),                /* Start of scan area in mm (y) */

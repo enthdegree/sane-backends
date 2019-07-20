@@ -1174,10 +1174,9 @@ struct Genesys_Model
     std::vector<unsigned> ydpi_values;
 
     // possible depths in gray mode
-    SANE_Int bpp_gray_values[MAX_DPI] = {};
-
+    std::vector<unsigned> bpp_gray_values;
     // possible depths in color mode
-    SANE_Int bpp_color_values[MAX_DPI] = {};
+    std::vector<unsigned> bpp_color_values;
 
     // All offsets below are with respect to the sensor home position
 

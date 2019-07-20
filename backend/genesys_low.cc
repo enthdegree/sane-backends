@@ -1517,7 +1517,8 @@ int sanei_genesys_compute_dpihw(Genesys_Device *dev, const Genesys_Sensor& senso
 int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, const Genesys_Sensor& sensor,
                                             int xres)
 {
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
     {
       // real resolution is half of the "official" resolution - half_ccd mode
       int hwres = sensor.optical_res / sensor.get_ccd_size_divisor_for_dpi(xres);

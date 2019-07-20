@@ -1709,7 +1709,10 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
         start = SANE_UNFIX(dev->model->x_offset);
     }
 
-  start /= ccd_size_divisor;
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+        // FIXME: this is probably just an artifact of a bug elsewhere
+        start /= ccd_size_divisor;
+    }
 
   start += dev->settings.tl_x;
   start = (start * sensor.optical_res) / MM_PER_INCH;
@@ -3071,7 +3074,11 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
         start = SANE_UNFIX(dev->model->x_offset);
     }
 
-  start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+        // FIXME: this is probably just an artifact of a bug elsewhere
+        start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
+    }
+
   start += dev->settings.tl_x;
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
@@ -3978,9 +3985,12 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
   RIE (sanei_genesys_write_register (dev, REG0B, val));
   dev->reg.find_reg(0x0b).value = val;
 
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    {
-      RIE (sanei_genesys_write_0x8c (dev, 0x10, 0xc8));
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+        RIE(sanei_genesys_write_0x8c(dev, 0x1e, 0x01));
+        RIE(sanei_genesys_write_0x8c(dev, 0x10, 0xb4));
+    }
+    else if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+        RIE(sanei_genesys_write_0x8c(dev, 0x10, 0xc8));
     }
   else
     {

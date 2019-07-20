@@ -2123,8 +2123,7 @@ static void gl124_wait_for_motor_stop(Genesys_Device* dev)
 
 /** @brief set up registers for the actual scan
  */
-static SANE_Status
-gl124_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void gl124_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   int channels;
@@ -2194,8 +2193,6 @@ gl124_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
     params.flags = flags;
 
     gl124_init_scan_regs(dev, sensor, &dev->reg, params);
-
-  return SANE_STATUS_GOOD;
 }
 
 /**

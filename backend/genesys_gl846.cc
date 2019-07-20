@@ -1827,8 +1827,7 @@ static void gl846_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
 
 /** @brief set up registers for the actual scan
  */
-static SANE_Status
-gl846_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void gl846_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   int channels;
@@ -1925,8 +1924,6 @@ gl846_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
     params.flags = flags;
 
     gl846_init_scan_regs(dev, sensor, &dev->reg, params);
-
-  return SANE_STATUS_GOOD;
 }
 
 

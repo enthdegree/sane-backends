@@ -2677,8 +2677,7 @@ static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
 
 /** @brief set up registers for the actual scan
  */
-static SANE_Status
-gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void gl843_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   int channels;
@@ -2771,8 +2770,6 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
     gl843_compute_session(dev, session, sensor);
 
     gl843_init_scan_regs(dev, sensor, &dev->reg, session);
-
-  return SANE_STATUS_GOOD;
 }
 
 /**

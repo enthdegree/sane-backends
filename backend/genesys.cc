@@ -3662,13 +3662,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
         RIE(dev->model->cmd_set->move_to_ta(dev));
     }
 
-  status = dev->model->cmd_set->init_regs_for_scan(dev, sensor);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to do init registers for scan: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->init_regs_for_scan(dev, sensor);
 
   /* no lamp during scan */
   if(lamp_off == SANE_TRUE)

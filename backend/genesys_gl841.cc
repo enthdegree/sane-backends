@@ -3157,10 +3157,8 @@ static void gl841_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
     sanei_genesys_bulk_write_register(dev, regs);
 }
 
-/* set up registers for the actual scan
- */
-static SANE_Status
-gl841_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
+// set up registers for the actual scan
+static void gl841_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   int channels;
@@ -3267,8 +3265,6 @@ gl841_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
     params.flags = flags;
 
     gl841_init_scan_regs(dev, sensor, &dev->reg, params);
-
-  return SANE_STATUS_GOOD;
 }
 
 

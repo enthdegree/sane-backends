@@ -1051,7 +1051,7 @@ struct Genesys_Command_Set
                                               Genesys_Register_Set& regs);
     void (*init_regs_for_shading) (Genesys_Device* dev, const Genesys_Sensor& sensor,
                                    Genesys_Register_Set& regs);
-    SANE_Status (*init_regs_for_scan) (Genesys_Device * dev, const Genesys_Sensor& sensor);
+    void (*init_regs_for_scan) (Genesys_Device* dev, const Genesys_Sensor& sensor);
 
     SANE_Bool (*get_filter_bit) (Genesys_Register_Set * reg);
     SANE_Bool (*get_lineart_bit) (Genesys_Register_Set * reg);

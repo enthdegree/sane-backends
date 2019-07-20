@@ -2335,19 +2335,15 @@ static bool gl646_needs_home_before_init_regs_for_scan(Genesys_Device* dev)
  * set up registers for the actual scan. The scan's parameters are given
  * through the device settings. It allocates the scan buffers.
  */
-static SANE_Status
-gl646_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void gl646_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
 
     setup_for_scan(dev, sensor, &dev->reg, dev->settings, SANE_FALSE, SANE_TRUE, SANE_TRUE);
 
   /* gamma is only enabled at final scan time */
   if (dev->settings.depth < 16)
     dev->reg.find_reg(0x05).value |= REG05_GMMENB;
-
-  return status;
 }
 
 /**

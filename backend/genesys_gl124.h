@@ -468,9 +468,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 static void gl124_start_action(Genesys_Device* dev);
 static void gl124_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                              Genesys_Register_Set* reg, SANE_Bool start_motor);
-static SANE_Status
-gl124_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
-		SANE_Bool check_stop);
+static void gl124_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop);
 static void gl124_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home);
 static SANE_Status gl124_init(Genesys_Device * dev);
 static void gl124_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,

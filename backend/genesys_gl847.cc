@@ -1464,27 +1464,15 @@ static void gl847_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 }
 
 
-/* Send the stop scan command */
-static SANE_Status
-gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
-		SANE_Bool check_stop)
+// Send the stop scan command
+static void gl847_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop)
 {
+    (void) reg;
     DBG_HELPER_ARGS(dbg, "check_stop = %d", check_stop);
-  SANE_Status status = SANE_STATUS_GOOD;
 
-  if (reg == NULL)
-    return SANE_STATUS_INVAL;
-
-  if (dev->model->is_sheetfed == SANE_TRUE)
-    {
-      status = SANE_STATUS_GOOD;
-    }
-  else				/* flat bed scanners */
-    {
+    if (dev->model->is_sheetfed != SANE_TRUE) {
         gl847_stop_action(dev);
     }
-
-  return status;
 }
 
 /** rewind scan
@@ -1514,7 +1502,7 @@ SANE_Status gl847_rewind(Genesys_Device * dev)
         sanei_genesys_read_register(dev, REG40, &byte);
     }
   while(byte & REG40_MOTMFLG);
-  RIE (gl847_end_scan (dev, dev->reg, SANE_TRUE));
+    gl847_end_scan(dev, dev->reg, SANE_TRUE);
 
     // restore direction
     sanei_genesys_read_register(dev, 0x02, &byte);
@@ -1714,16 +1702,12 @@ gl847_search_start_position (Genesys_Device * dev)
       return status;
     }
 
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl847_search_position.pnm", data.data(), 8, 1, pixels,
-                                 dev->model->search_lines);
-
-  status = gl847_end_scan(dev, &local_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
-      return status;
+    if (DBG_LEVEL >= DBG_data) {
+        sanei_genesys_write_pnm_file("gl847_search_position.pnm", data.data(), 8, 1, pixels,
+                                     dev->model->search_lines);
     }
+
+    gl847_end_scan(dev, &local_reg, SANE_TRUE);
 
   /* update regs to copy ASIC internal state */
   dev->reg = local_reg;

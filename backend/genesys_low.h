@@ -1071,9 +1071,7 @@ struct Genesys_Command_Set
 
     void (*begin_scan) (Genesys_Device* dev, const Genesys_Sensor& sensor,
                         Genesys_Register_Set* regs, SANE_Bool start_motor);
-    SANE_Status (*end_scan) (Genesys_Device * dev,
-			     Genesys_Register_Set * regs,
-			     SANE_Bool check_stop);
+    void (*end_scan) (Genesys_Device* dev, Genesys_Register_Set* regs, SANE_Bool check_stop);
 
     /**
      * Send gamma tables to ASIC

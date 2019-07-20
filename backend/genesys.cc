@@ -1560,12 +1560,8 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
         sanei_genesys_write_pnm_file("gl_coarse.pnm", all_data_8.data(), 8, channels, size / 6, 4);
 	}
 
-      status = dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: Failed to end scan: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
+
       if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
 	{
 	  for (j = 0; j < 3; j++)
@@ -1747,12 +1743,7 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
       return status;
     }
 
-  status = dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
 
   std::fill(dev->dark_average_data.begin(),
             dev->dark_average_data.begin() + dev->calib_pixels_offset * channels * 2,
@@ -1940,12 +1931,7 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
       return status;
     }
 
-  status = dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
 
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file("gl_white_shading.pnm", calibration_data.data(), 16,
@@ -2042,12 +2028,7 @@ genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Senso
       return status;
     }
 
-  status = dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: Failed to end scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
 
   if (DBG_LEVEL >= DBG_data)
     {
@@ -3537,7 +3518,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
             RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
         }
 
-      RIE(dev->model->cmd_set->end_scan(dev, &dev->reg, SANE_TRUE));
+            dev->model->cmd_set->end_scan(dev, &dev->reg, SANE_TRUE);
 
       sanei_genesys_sleep_ms(1000);
       seconds++;
@@ -3550,7 +3531,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	}
       while (empty);
       RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
-      RIE(dev->model->cmd_set->end_scan(dev, &dev->reg, SANE_TRUE));
+        dev->model->cmd_set->end_scan(dev, &dev->reg, SANE_TRUE);
 
       /* compute difference between the two scans */
       for (pixel = 0; pixel < total_size; pixel++)
@@ -7240,7 +7221,6 @@ void sane_cancel_impl(SANE_Handle handle)
 {
     DBG_HELPER(dbg);
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
-  SANE_Status status = SANE_STATUS_GOOD;
 
   /* end binary logging if needed */
   if (s->dev->binary!=NULL)
@@ -7256,12 +7236,7 @@ void sane_cancel_impl(SANE_Handle handle)
   /* no need to end scan if we are parking the head */
   if(s->dev->parking==SANE_FALSE)
     {
-      status = s->dev->model->cmd_set->end_scan(s->dev, &s->dev->reg, SANE_TRUE);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
-          return;
-        }
+        s->dev->model->cmd_set->end_scan(s->dev, &s->dev->reg, SANE_TRUE);
     }
 
   /* park head if flatbed scanner */

@@ -1914,13 +1914,11 @@ static void gl646_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 }
 
 
-/* Send the stop scan command */
-static SANE_Status
-end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
-	  SANE_Bool check_stop, SANE_Bool eject)
+// Send the stop scan command
+static void end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop,
+                     SANE_Bool eject)
 {
     DBG_HELPER_ARGS(dbg, "check_stop = %d, eject = %d", check_stop, eject);
-  SANE_Status status = SANE_STATUS_GOOD;
   int i = 0;
   uint8_t val, scanfsh = 0;
 
@@ -2006,14 +2004,10 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     }
 
   DBG(DBG_proc, "%s: end (i=%u)\n", __func__, i);
-
-  return status;
 }
 
-/* Send the stop scan command */
-static SANE_Status
-gl646_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
-		SANE_Bool check_stop)
+// Send the stop scan command
+static void gl646_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop)
 {
   return end_scan (dev, reg, check_stop, SANE_FALSE);
 }
@@ -3765,13 +3759,8 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
 	}
     }
 
-  /* end scan , waiting the motor to stop if needed (if moving), but without ejecting doc */
-  status = end_scan(dev, &dev->reg, SANE_TRUE, SANE_FALSE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // end scan , waiting the motor to stop if needed (if moving), but without ejecting doc
+    end_scan(dev, &dev->reg, SANE_TRUE, SANE_FALSE);
 
   return status;
 }

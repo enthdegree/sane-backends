@@ -349,8 +349,8 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 static void gl846_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                              Genesys_Register_Set* reg, SANE_Bool start_motor);
 
-/* Send the stop scan command */
-static SANE_Status gl846_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool check_stop);
+// Send the stop scan command
+static void gl846_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop);
 
 static SANE_Status gl846_init (Genesys_Device * dev);
 

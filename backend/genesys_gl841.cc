@@ -2789,24 +2789,15 @@ static void gl841_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 }
 
 
-/* Send the stop scan command */
-static SANE_Status
-gl841_end_scan (Genesys_Device * dev, Genesys_Register_Set __sane_unused__ * reg,
-		      SANE_Bool check_stop)
+// Send the stop scan command
+static void gl841_end_scan(Genesys_Device* dev, Genesys_Register_Set __sane_unused__* reg,
+                           SANE_Bool check_stop)
 {
     DBG_HELPER_ARGS(dbg, "check_stop = %d", check_stop);
-  SANE_Status status = SANE_STATUS_GOOD;
 
-  if (dev->model->is_sheetfed == SANE_TRUE)
-    {
-      status = SANE_STATUS_GOOD;
-    }
-  else				/* flat bed scanners */
-    {
+    if (dev->model->is_sheetfed != SANE_TRUE) {
         gl841_stop_action(dev);
     }
-
-  return status;
 }
 
 // Moves the slider to steps
@@ -3048,16 +3039,12 @@ gl841_search_start_position (Genesys_Device * dev)
       return status;
     }
 
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl841_search_position.pnm", data.data(), 8, 1, pixels,
-                                 dev->model->search_lines);
-
-  status = gl841_end_scan(dev, &local_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
-      return status;
+    if (DBG_LEVEL >= DBG_data) {
+        sanei_genesys_write_pnm_file("gl841_search_position.pnm", data.data(), 8, 1, pixels,
+                                     dev->model->search_lines);
     }
+
+    gl841_end_scan(dev, &local_reg, SANE_TRUE);
 
   /* update regs to copy ASIC internal state */
   dev->reg = local_reg;
@@ -4285,7 +4272,6 @@ gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
 static SANE_Status
 gl841_init (Genesys_Device * dev)
 {
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   size_t size;
 
@@ -4388,7 +4374,7 @@ gl841_init (Genesys_Device * dev)
 
   sanei_usb_set_timeout(30 * 1000);/* 30 seconds*/
 
-  RIE (gl841_end_scan(dev, &regs, SANE_TRUE));
+    gl841_end_scan(dev, &regs, SANE_TRUE);
 
   regs = dev->reg;
 

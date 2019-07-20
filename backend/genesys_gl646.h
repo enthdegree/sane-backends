@@ -239,9 +239,8 @@ simple_scan(Genesys_Device * dev, const Genesys_Sensor& sensor,
 /**
  * Send the stop scan command
  * */
-static SANE_Status
-end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
-	  SANE_Bool check_stop, SANE_Bool eject);
+static void end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop,
+                     SANE_Bool eject);
 /**
  * writes control data to an area behind the last motor table.
  */

@@ -2062,7 +2062,6 @@ SANE_Status
 gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d\n", wait_until_home);
-  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
   uint8_t val;
   int i;
@@ -2129,12 +2128,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, ScanMethod::FLATBED);
 
-  status = setup_for_scan(dev, sensor, &dev->reg, settings, SANE_TRUE, SANE_TRUE, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup for scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    setup_for_scan(dev, sensor, &dev->reg, settings, SANE_TRUE, SANE_TRUE, SANE_TRUE);
 
   /* backward , no actual data scanned TODO more setup flags to avoid this register manipulations ? */
   dev->reg.find_reg(0x02).value |= REG02_MTRREV;
@@ -2359,9 +2353,9 @@ gl646_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
   /* keep account of the movement for final scan move */
   dev->scanhead_position_in_steps += settings.lines;
 
-  /* we don't want top offset, but we need right margin to be the same
-   * than the one for the final scan */
-  status = setup_for_scan(dev, sensor, &dev->reg, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
+    // we don't want top offset, but we need right margin to be the same than the one for the final
+    // scan
+    setup_for_scan(dev, sensor, &dev->reg, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
 
   /* used when sending shading calibration data */
   dev->calib_pixels = settings.pixels;
@@ -2418,7 +2412,7 @@ gl646_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
     DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
 
-  RIE(setup_for_scan(dev, sensor, &dev->reg, dev->settings, SANE_FALSE, SANE_TRUE, SANE_TRUE));
+    setup_for_scan(dev, sensor, &dev->reg, dev->settings, SANE_FALSE, SANE_TRUE, SANE_TRUE);
 
   /* gamma is only enabled at final scan time */
   if (dev->settings.depth < 16)
@@ -2438,17 +2432,15 @@ gl646_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
  * @param xcorrection take x geometry correction into account (fixed and detected offsets)
  * @param ycorrection take y geometry correction into account
  */
-static SANE_Status
-setup_for_scan (Genesys_Device * dev,
-                const Genesys_Sensor& sensor,
-                Genesys_Register_Set *regs,
-                Genesys_Settings settings,
-                SANE_Bool split,
-                SANE_Bool xcorrection,
-                SANE_Bool ycorrection)
+static void setup_for_scan(Genesys_Device* dev,
+                           const Genesys_Sensor& sensor,
+                           Genesys_Register_Set*regs,
+                           Genesys_Settings settings,
+                           SANE_Bool split,
+                           SANE_Bool xcorrection,
+                           SANE_Bool ycorrection)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Int depth;
   int channels;
 
@@ -2535,8 +2527,6 @@ setup_for_scan (Genesys_Device * dev,
     gl646_send_slope_table(dev, 0, slope_table0, sanei_genesys_read_reg_from_set (regs, 0x21));
 
     gl646_send_slope_table(dev, 1, slope_table1, sanei_genesys_read_reg_from_set (regs, 0x6b));
-
-  return status;
 }
 
 /**
@@ -3372,13 +3362,8 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   settings.threshold = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
-  /* setup for scan */
-  status = setup_for_scan(dev, sensor, &dev->reg, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: setup_for_scan failed (%s)\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // setup for scan
+    setup_for_scan(dev, sensor, &dev->reg, settings, SANE_TRUE, SANE_FALSE, SANE_FALSE);
 
   /* we are not going to move, so clear these bits */
   dev->reg.find_reg(0x02).value &= ~(REG02_FASTFED | REG02_AGOHOME);
@@ -3437,12 +3422,7 @@ gl646_repark_head (Genesys_Device * dev)
 
   const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, ScanMethod::FLATBED);
 
-  status = setup_for_scan(dev, sensor, &dev->reg, settings, SANE_FALSE, SANE_FALSE, SANE_FALSE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup for scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    setup_for_scan(dev, sensor, &dev->reg, settings, SANE_FALSE, SANE_FALSE, SANE_FALSE);
 
   /* TODO seems wrong ... no effective scan */
   dev->reg.find_reg(0x01).value &= ~REG01_SCAN;
@@ -3708,12 +3688,7 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
     {
       split = SANE_TRUE;
     }
-  status = setup_for_scan(dev, sensor, &dev->reg, settings, split, SANE_FALSE, SANE_FALSE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: setup_for_scan failed (%s)\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    setup_for_scan(dev, sensor, &dev->reg, settings, split, SANE_FALSE, SANE_FALSE);
 
   /* allocate memory fo scan : LINCNT may have been adjusted for CCD reordering */
   if (dev->model->is_cis == SANE_TRUE)

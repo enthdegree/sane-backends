@@ -193,14 +193,13 @@ gl646_move_to_ta (Genesys_Device * dev);
  * @param ycorrection true if scanner's Y geometry must be taken into account to
  * 		     compute Y, ie add top margins
  */
-static SANE_Status
-setup_for_scan (Genesys_Device *device,
-                const Genesys_Sensor& sensor,
-		Genesys_Register_Set *regs,
-		Genesys_Settings settings,
-		SANE_Bool split,
-		SANE_Bool xcorrection,
-		SANE_Bool ycorrection);
+static void setup_for_scan(Genesys_Device* device,
+                           const Genesys_Sensor& sensor,
+                           Genesys_Register_Set*regs,
+                           Genesys_Settings settings,
+                           SANE_Bool split,
+                           SANE_Bool xcorrection,
+                           SANE_Bool ycorrection);
 
 /**
  * sets up the registers for a scan corresponding to the settings.

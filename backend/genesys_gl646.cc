@@ -200,12 +200,10 @@ gl646_start_motor (Genesys_Device * dev)
  * stop scanner's motor
  * @param dev scanner's device
  */
-static SANE_Status
-gl646_stop_motor (Genesys_Device * dev)
+static void gl646_stop_motor(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     sanei_genesys_write_register(dev, 0x0f, 0x00);
-    return SANE_STATUS_GOOD;
 }
 
 
@@ -2095,12 +2093,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* stop motor if needed */
   if (val & REG41_MOTMFLG)
     {
-      status = gl646_stop_motor (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to stop motor: %s\n", __func__, sane_strstatus(status));
-	  return SANE_STATUS_IO_ERROR;
-	}
+        gl646_stop_motor(dev);
       sanei_genesys_sleep_ms(200);
     }
 
@@ -2193,8 +2186,9 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
           ++loop;
 	}
 
-      /* when we come here then the scanner needed too much time for this, so we better stop the motor */
-      gl646_stop_motor (dev);
+        // when we come here then the scanner needed too much time for this, so we better stop the
+        // motor
+        gl646_stop_motor(dev);
       end_scan(dev, &dev->reg, SANE_TRUE, SANE_FALSE);
       DBG(DBG_error, "%s: timeout while waiting for scanhead to go home\n", __func__);
       return SANE_STATUS_IO_ERROR;

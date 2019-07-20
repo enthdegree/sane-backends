@@ -2178,16 +2178,9 @@ gl646_search_start_position (Genesys_Device * dev)
   settings.threshold = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
-  /* scan the desired area */
-  std::vector<uint8_t> data;
-  status = simple_scan(dev, sensor, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, data);
-
-  /* process data if scan is OK */
-    if (status != SANE_STATUS_GOOD) {
-        DBG(DBG_error, "%s: simple_scan failed\n", __func__);
-        return status;
-    }
-
+    // scan the desired area
+    std::vector<uint8_t> data;
+    simple_scan(dev, sensor, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, data);
 
     /* handle stagger case : reorder gray data and thus loose some lines */
     if (dev->current_setup.stagger > 0)
@@ -2612,12 +2605,7 @@ gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
 
-      status = simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, line);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, line);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -2775,13 +2763,8 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
       dev->frontend.set_offset(0, bottom);
       dev->frontend.set_offset(1, bottom);
       dev->frontend.set_offset(2, bottom);
-      status =
         simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, line);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to scan first line\n", __func__);
-	  return status;
-	}
+
       if (DBG_LEVEL >= DBG_data)
 	{
           char title[30];
@@ -2895,12 +2878,8 @@ gl646_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   std::vector<uint8_t> first_line, second_line;
 
-  status = simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, first_line);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to scan first line\n", __func__);
-      return status;
-    }
+    simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, first_line);
+
   if (DBG_LEVEL >= DBG_data)
     {
       char title[30];
@@ -2917,12 +2896,7 @@ gl646_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
   dev->frontend.set_offset(0, top);
   dev->frontend.set_offset(1, top);
   dev->frontend.set_offset(2, top);
-  status = simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, second_line);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to scan first line\n", __func__);
-      return status;
-    }
+    simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, second_line);
 
   if (DBG_LEVEL >= DBG_data)
     {
@@ -2945,13 +2919,8 @@ gl646_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       dev->frontend.set_offset(1, (top + bottom) / 2);
       dev->frontend.set_offset(2, (top + bottom) / 2);
 
-      /* scan with no move */
-      status = simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, second_line);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to scan first line\n", __func__);
-	  return status;
-	}
+        // scan with no move
+        simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, second_line);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -2979,17 +2948,11 @@ gl646_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
 	}
     }
 
-  /* in case of debug do a final scan to get result */
-  if (DBG_LEVEL >= DBG_data)
-    {
-      status = simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, second_line);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to scan final line\n", __func__);
-	  return status;
-	}
-      sanei_genesys_write_pnm_file("gl646_offset-final.pnm", second_line.data(), 8, channels,
-                                   settings.pixels, settings.lines);
+    // in case of debug do a final scan to get result
+    if (DBG_LEVEL >= DBG_data) {
+        simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, second_line);
+        sanei_genesys_write_pnm_file("gl646_offset-final.pnm", second_line.data(), 8, channels,
+                                     settings.pixels, settings.lines);
     }
 
   DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__,
@@ -3051,14 +3014,8 @@ ad_fe_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   /* loop until each channel raises to acceptable level */
   while ((average < sensor.gain_white_ref) && (pass < 30))
     {
-      /* scan with no move */
-      status =
+        // scan with no move
         simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, line);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to scan first line\n", __func__);
-	  return status;
-	}
 
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
@@ -3192,14 +3149,8 @@ gl646_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
           || (average[1] < sensor.gain_white_ref)
           || (average[2] < sensor.gain_white_ref)) && (pass < 30))
     {
-      /* scan with no move */
-      status =
+        // scan with no move
         simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, line);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to scan first line\n", __func__);
-	  return status;
-	}
 
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
@@ -3581,10 +3532,9 @@ gl646_move_to_ta (Genesys_Device * dev)
  * @param shading SANE_TRUE to enable shading correction
  * @param data pointer for the data
  */
-static SANE_Status
-simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
-             Genesys_Settings settings, SANE_Bool move,
-             SANE_Bool forward, SANE_Bool shading, std::vector<uint8_t>& data)
+static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                        Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
+                        SANE_Bool shading, std::vector<uint8_t>& data)
 {
     DBG_HELPER_ARGS(dbg, "move=%d, forward=%d, shading=%d", move, forward, shading);
   unsigned int size, lines, x, y, bpp;
@@ -3696,10 +3646,9 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
       count++;
     }
   while (empty && count < 1000);
-  if (count == 1000)
-    {
-      DBG(DBG_error, "%s: failed toread data\n", __func__);
-      return SANE_STATUS_IO_ERROR;
+
+    if (count == 1000) {
+        throw SaneException(SANE_STATUS_IO_ERROR, "failed to read data");
     }
 
     // now we're on target, we can read data
@@ -3752,8 +3701,6 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
     // end scan , waiting the motor to stop if needed (if moving), but without ejecting doc
     end_scan(dev, &dev->reg, SANE_TRUE, SANE_FALSE);
-
-    return SANE_STATUS_GOOD;
 }
 
 /**
@@ -3792,11 +3739,8 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
   settings.dynamic_lineart = SANE_FALSE;
 
   std::vector<uint8_t> data;
-  status = simple_scan(dev, sensor, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, data);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: simple_scan failed\n", __func__);
-    }
+    simple_scan(dev, sensor, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, data);
+
 
   return status;
 }
@@ -4133,14 +4077,9 @@ gl646_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor, SANE_Bool
   /* loop until strip is found or maximum pass number done */
   while (pass < 20 && !found)
     {
-      /* scan a full width strip */
-      status =
+        // scan a full width strip
         simple_scan(dev, sensor, settings, SANE_TRUE, forward, SANE_FALSE, data);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: simple_scan failed\n", __func__);
-	  return status;
-	}
+
       if (DBG_LEVEL >= DBG_data)
 	{
           sprintf (title, "gl646_search_strip_%s%02d.pnm", forward ? "fwd" : "bwd",

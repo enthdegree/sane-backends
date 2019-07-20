@@ -231,10 +231,9 @@ simple_move (Genesys_Device * dev, SANE_Int distance);
  * @param shading  flag to tell if shading correction should be done
  * @param data     pointer that will point to the scanned data
  */
-static SANE_Status
-simple_scan(Genesys_Device * dev, const Genesys_Sensor& sensor,
-            Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
-            SANE_Bool shading, std::vector<uint8_t>& data);
+static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                        Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
+                        SANE_Bool shading, std::vector<uint8_t>& data);
 
 /**
  * Send the stop scan command

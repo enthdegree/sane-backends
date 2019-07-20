@@ -1923,7 +1923,6 @@ gl124_search_start_position (Genesys_Device * dev)
 {
     DBG_HELPER(dbg);
   int size;
-  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set local_reg = dev->reg;
   int steps;
 
@@ -1970,13 +1969,8 @@ gl124_search_start_position (Genesys_Device * dev)
         sanei_genesys_test_buffer_empty(dev, &steps);
     } while (steps);
 
-  /* now we're on target, we can read data */
-  status = sanei_genesys_read_data_from_scanner (dev, data.data(), size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // now we're on target, we can read data
+    sanei_genesys_read_data_from_scanner(dev, data.data(), size);
 
     if (DBG_LEVEL >= DBG_data) {
         sanei_genesys_write_pnm_file("gl124_search_position.pnm", data.data(), 8, 1, pixels,
@@ -2371,7 +2365,7 @@ move_to_calibration_area (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   DBG (DBG_info, "%s: starting line reading\n", __func__);
     gl124_begin_scan (dev, sensor, &regs, SANE_TRUE);
-  RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), size));
+    sanei_genesys_read_data_from_scanner(dev, line.data(), size);
 
     // stop scanning
     gl124_stop_action(dev);
@@ -2473,7 +2467,7 @@ gl124_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
         gl124_begin_scan (dev, sensor, &regs, SANE_TRUE);
-      RIE(sanei_genesys_read_data_from_scanner (dev, line.data(), total_size));
+        sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
         // stop scanning
         gl124_stop_action(dev);
@@ -2647,7 +2641,7 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
     dev->model->cmd_set->bulk_write_register(dev, regs);
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
     gl124_begin_scan(dev, sensor, &regs, SANE_TRUE);
-  RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
+    sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
   if (DBG_LEVEL >= DBG_data)
    {
       char title[30];
@@ -2667,7 +2661,7 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
     dev->model->cmd_set->bulk_write_register(dev, regs);
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
     gl124_begin_scan(dev, sensor, &regs, SANE_TRUE);
-  RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
+    sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
 
   topavg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
   DBG(DBG_io2, "%s: top avg=%d\n", __func__, topavg);
@@ -2687,7 +2681,7 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
         dev->model->cmd_set->bulk_write_register(dev, regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         gl124_begin_scan(dev, sensor, &regs, SANE_TRUE);
-      RIE(sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size));
+        sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -2804,7 +2798,7 @@ gl124_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
     gl124_set_fe(dev, sensor, AFE_SET);
     gl124_begin_scan(dev, sensor, &regs, SANE_TRUE);
-  RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
+    sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file("gl124_gain.pnm", line.data(), bpp, channels, pixels, lines);

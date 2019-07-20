@@ -2380,7 +2380,6 @@ gl843_search_start_position (Genesys_Device * dev)
 {
     DBG_HELPER(dbg);
   int size;
-  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set local_reg;
   int steps;
 
@@ -2430,13 +2429,9 @@ gl843_search_start_position (Genesys_Device * dev)
             sanei_genesys_test_buffer_empty(dev, &steps);
         } while (steps);
 
-  /* now we're on target, we can read data */
-  status = sanei_genesys_read_data_from_scanner(dev, data.data(), size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // now we're on target, we can read data
+    sanei_genesys_read_data_from_scanner(dev, data.data(), size);
+
     gl843_stop_action_no_move(dev, &local_reg);
 
     if (DBG_LEVEL >= DBG_data) {
@@ -2910,7 +2905,7 @@ gl843_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
         gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-      RIE (sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
+        sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
         gl843_stop_action_no_move(dev, &regs);
 
       if (DBG_LEVEL >= DBG_data)
@@ -3044,7 +3039,6 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
                          Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   unsigned int channels, bpp;
   int pass, total_size, i, resolution, lines;
   int topavg[3], bottomavg[3], avg[3];
@@ -3136,7 +3130,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
     dev->model->cmd_set->bulk_write_register(dev, regs);
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
     gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-  RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
+    sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
     gl843_stop_action_no_move(dev, &regs);
 
   if (DBG_LEVEL >= DBG_data)
@@ -3165,7 +3159,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
     dev->model->cmd_set->bulk_write_register(dev, regs);
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
     gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-  RIE(sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size));
+    sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
     gl843_stop_action_no_move(dev, &regs);
 
   for (i = 0; i < 3; i++)
@@ -3201,7 +3195,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
         dev->model->cmd_set->bulk_write_register(dev, regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-      RIE(sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size));
+        sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
         gl843_stop_action_no_move(dev, &regs);
 
       if (DBG_LEVEL >= DBG_data)
@@ -3354,7 +3348,7 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
     gl843_set_fe(dev, calib_sensor, AFE_SET);
     gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-  RIE(sanei_genesys_read_data_from_scanner (dev, line.data(), total_size));
+    sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
     gl843_stop_action_no_move(dev, &regs);
 
   if (DBG_LEVEL >= DBG_data)
@@ -3783,13 +3777,8 @@ gl843_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
             sanei_genesys_test_buffer_empty(dev, &steps);
         } while (steps);
 
-  /* now we're on target, we can read data */
-  status = sanei_genesys_read_data_from_scanner(dev, data.data(), size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // now we're on target, we can read data
+    sanei_genesys_read_data_from_scanner(dev, data.data(), size);
 
     gl843_stop_action(dev);
 
@@ -3816,13 +3805,8 @@ gl843_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
             sanei_genesys_test_buffer_empty(dev, &steps);
         } while (steps);
 
-      /* now we're on target, we can read data */
-      status = sanei_genesys_read_data_from_scanner(dev, data.data(), size);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        // now we're on target, we can read data
+        sanei_genesys_read_data_from_scanner(dev, data.data(), size);
 
         gl843_stop_action(dev);
 

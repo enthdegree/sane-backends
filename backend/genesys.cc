@@ -1541,13 +1541,7 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 
       dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
 
-      status =
-    sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: Failed to read data: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+      sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
 
       std::memcpy(all_data.data() + i * size, calibration_data.data(), size);
       if (i == 3)		/* last line */
@@ -1677,7 +1671,6 @@ static SANE_Status
 genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   size_t size;
   uint32_t pixels_per_line;
   uint8_t channels;
@@ -1736,12 +1729,7 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
 
     dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
 
-  status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
 
     dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
 
@@ -1924,12 +1912,7 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
 
     dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_TRUE);
 
-  status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
 
     dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
 
@@ -1976,7 +1959,6 @@ static SANE_Status
 genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER_ARGS(dbg, "lines = %d", (unsigned int)dev->calib_lines);
-  SANE_Status status = SANE_STATUS_GOOD;
   size_t size;
   uint32_t pixels_per_line;
   uint8_t *average_white, *average_dark;
@@ -2021,12 +2003,7 @@ genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Senso
 
     dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
 
-  status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
 
     dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
 
@@ -3510,12 +3487,10 @@ genesys_warmup_lamp (Genesys_Device * dev)
       while (empty);
 
         try {
-            status = sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
-            if (status != SANE_STATUS_GOOD) {
-                RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
-            }
+            sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
         } catch (...) {
-            RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
+            // FIXME: document why this retry is here
+            sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
         }
 
             dev->model->cmd_set->end_scan(dev, &dev->reg, SANE_TRUE);
@@ -3530,7 +3505,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
           sanei_genesys_sleep_ms(100);
 	}
       while (empty);
-      RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
+        sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
         dev->model->cmd_set->end_scan(dev, &dev->reg, SANE_TRUE);
 
       /* compute difference between the two scans */

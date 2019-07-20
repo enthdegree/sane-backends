@@ -1896,9 +1896,7 @@ extern void sanei_genesys_write_pnm_file(const char* filename, uint8_t* data, in
 
 extern void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empty);
 
-extern SANE_Status
-sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
-				      size_t size);
+extern void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, size_t size);
 
 inline void sanei_genesys_set_double(Genesys_Register_Set* regs, uint16_t addr, uint16_t value)
 {

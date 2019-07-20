@@ -809,10 +809,8 @@ void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empty)
 }
 
 
-/* Read data (e.g scanned image) from scan buffer */
-SANE_Status
-sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
-				      size_t size)
+// Read data (e.g scanned image) from scan buffer
+void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, size_t size)
 {
     DBG_HELPER_ARGS(dbg, "size = %lu bytes", (u_long) size);
   int time_count = 0;
@@ -834,13 +832,10 @@ sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
 
   if (words == 0)		/* timeout, buffer does not get filled */
     {
-      DBG(DBG_error, "%s: timeout, buffer does not get filled\n", __func__);
-      return SANE_STATUS_IO_ERROR;
+        throw SaneException(SANE_STATUS_IO_ERROR, "timeout, buffer does not get filled");
     }
 
     dev->model->cmd_set->bulk_read_data(dev, 0x45, data, size);
-
-  return SANE_STATUS_GOOD;
 }
 void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps)
 {

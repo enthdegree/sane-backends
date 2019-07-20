@@ -3587,7 +3587,6 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
              SANE_Bool forward, SANE_Bool shading, std::vector<uint8_t>& data)
 {
     DBG_HELPER_ARGS(dbg, "move=%d, forward=%d, shading=%d", move, forward, shading);
-  SANE_Status status = SANE_STATUS_INVAL;
   unsigned int size, lines, x, y, bpp;
   SANE_Bool empty, split;
   int count;
@@ -3703,13 +3702,8 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
       return SANE_STATUS_IO_ERROR;
     }
 
-  /* now we're on target, we can read data */
-  status = sanei_genesys_read_data_from_scanner (dev, data.data(), size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // now we're on target, we can read data
+    sanei_genesys_read_data_from_scanner(dev, data.data(), size);
 
   /* in case of CIS scanner, we must reorder data */
   if (dev->model->is_cis == SANE_TRUE
@@ -3759,7 +3753,7 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
     // end scan , waiting the motor to stop if needed (if moving), but without ejecting doc
     end_scan(dev, &dev->reg, SANE_TRUE, SANE_FALSE);
 
-  return status;
+    return SANE_STATUS_GOOD;
 }
 
 /**

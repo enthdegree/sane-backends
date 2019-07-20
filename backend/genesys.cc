@@ -1414,16 +1414,15 @@ genesys_average_black (Genesys_Device * dev, int channel,
 }
 
 
-/* todo: check; it works but the lines 1, 2, and 3 are too dark even with the
-   same offset and gain settings? */
-static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
+// todo: check; it works but the lines 1, 2, and 3 are too dark even with the
+// same offset and gain settings?
+static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {
     DBG_HELPER_ARGS(dbg, "scan_mode = %d", static_cast<unsigned>(dev->settings.scan_mode));
   int size;
   int black_pixels;
   int white_average;
   int channels;
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t offset[4] = { 0xa0, 0x00, 0xa0, 0x40 };	/* first value isn't used */
   uint16_t white[12], dark[12];
   int i, j;
@@ -1629,8 +1628,6 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
       dev->frontend.get_offset(0),
       dev->frontend.get_offset(1),
       dev->frontend.get_offset(2));
-
-  return status;
 }
 
 /* Averages image data.
@@ -3013,14 +3010,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
         dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
       sanei_usb_testing_record_message("genesys_coarse_calibration");
-      status = genesys_coarse_calibration(dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to do coarse gain calibration: %s\n", __func__,
-              sane_strstatus(status));
-	  return status;
-	}
-
+        genesys_coarse_calibration(dev, sensor);
     }
 
   if (dev->model->is_cis)
@@ -3063,13 +3053,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
             dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
           sanei_usb_testing_record_message("genesys_coarse_calibration");
-          status = genesys_coarse_calibration(dev, sensor);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-              DBG(DBG_error, "%s: failed to do static calibration: %s\n", __func__,
-                  sane_strstatus(status));
-	      return status;
-	    }
+        genesys_coarse_calibration(dev, sensor);
 	}
     }
 
@@ -3252,12 +3236,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
     {
         dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
-      status = genesys_coarse_calibration(dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to do static calibration: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        genesys_coarse_calibration(dev, sensor);
     }
 
   /* search for a full width black strip and then do a 16 bit scan to

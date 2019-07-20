@@ -1765,8 +1765,7 @@ static void gl843_stop_action(Genesys_Device* dev)
   throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
 }
 
-static SANE_Status
-gl843_get_paper_sensor (Genesys_Device * dev, SANE_Bool * paper_loaded)
+static void gl843_get_paper_sensor(Genesys_Device* dev, SANE_Bool * paper_loaded)
 {
     DBG_HELPER(dbg);
     uint8_t val;
@@ -1774,7 +1773,6 @@ gl843_get_paper_sensor (Genesys_Device * dev, SANE_Bool * paper_loaded)
     sanei_genesys_read_register(dev, REG6D, &val);
 
     *paper_loaded = (val & 0x1) == 0;
-    return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
@@ -1805,13 +1803,12 @@ static SANE_Status
 gl843_detect_document_end (Genesys_Device * dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool paper_loaded;
   unsigned int scancnt = 0;
   int flines, channels, depth, bytes_remain, sublines,
     bytes_to_flush, lines, sub_bytes, tmp, read_bytes_left;
 
-  RIE (gl843_get_paper_sensor (dev, &paper_loaded));
+    gl843_get_paper_sensor(dev, &paper_loaded);
 
   /* sheetfed scanner uses home sensor as paper present */
   if ((dev->document == SANE_TRUE) && !paper_loaded)

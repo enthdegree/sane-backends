@@ -2520,8 +2520,7 @@ static void gl841_stop_action(Genesys_Device* dev)
     throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
 }
 
-static SANE_Status
-gl841_get_paper_sensor(Genesys_Device * dev, SANE_Bool * paper_loaded)
+static void gl841_get_paper_sensor(Genesys_Device* dev, SANE_Bool * paper_loaded)
 {
     DBG_HELPER(dbg);
     uint8_t val;
@@ -2529,7 +2528,6 @@ gl841_get_paper_sensor(Genesys_Device * dev, SANE_Bool * paper_loaded)
     sanei_genesys_read_register(dev, REG6D, &val);
 
     *paper_loaded = (val & 0x1) == 0;
-    return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
@@ -2537,7 +2535,6 @@ gl841_eject_document (Genesys_Device * dev)
 {
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   SANE_Bool paper_loaded;
   unsigned int init_steps;
@@ -2583,7 +2580,7 @@ gl841_eject_document (Genesys_Device * dev)
         throw;
     }
 
-  RIE(gl841_get_paper_sensor(dev, &paper_loaded));
+    gl841_get_paper_sensor(dev, &paper_loaded);
   if (paper_loaded)
     {
       DBG(DBG_info, "%s: paper still loaded\n", __func__);
@@ -2595,7 +2592,7 @@ gl841_eject_document (Genesys_Device * dev)
       while (loop > 0)		/* do not wait longer then 30 seconds */
 	{
 
-	  RIE(gl841_get_paper_sensor(dev, &paper_loaded));
+        gl841_get_paper_sensor(dev, &paper_loaded);
 
 	  if (!paper_loaded)
 	    {
@@ -2655,13 +2652,12 @@ static SANE_Status
 gl841_load_document (Genesys_Device * dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool paper_loaded;
   int loop = 300;
   while (loop > 0)		/* do not wait longer then 30 seconds */
     {
 
-      RIE(gl841_get_paper_sensor(dev, &paper_loaded));
+        gl841_get_paper_sensor(dev, &paper_loaded);
 
       if (paper_loaded)
 	{
@@ -2697,13 +2693,12 @@ static SANE_Status
 gl841_detect_document_end (Genesys_Device * dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool paper_loaded;
   unsigned int scancnt = 0, lincnt, postcnt;
   uint8_t val;
   size_t total_bytes_to_read;
 
-  RIE (gl841_get_paper_sensor (dev, &paper_loaded));
+    gl841_get_paper_sensor(dev, &paper_loaded);
 
   /* sheetfed scanner uses home sensor as paper present */
   if ((dev->document == SANE_TRUE) && !paper_loaded)

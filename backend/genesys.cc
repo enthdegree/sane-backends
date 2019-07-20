@@ -3257,8 +3257,7 @@ genesys_wait_not_moving (Genesys_Device * dev, int mseconds)
  * wait lamp to be warm enough by scanning the same line until
  * differences between two scans are below a threshold
  */
-static SANE_Status
-genesys_warmup_lamp (Genesys_Device * dev)
+static void genesys_warmup_lamp(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   int seconds = 0;
@@ -3268,7 +3267,6 @@ genesys_warmup_lamp (Genesys_Device * dev)
   double second_average = 0;
   int difference = 255;
   int empty, lines = 3;
-    SANE_Status status = SANE_STATUS_GOOD;
 
   /* check if the current chipset implements warmup */
     if (dev->model->cmd_set->init_regs_for_warmup == NULL) {
@@ -3369,15 +3367,13 @@ genesys_warmup_lamp (Genesys_Device * dev)
 
   if (seconds >= WARMUP_TIME)
     {
-      DBG(DBG_error, "%s: warmup timed out after %d seconds. Lamp defective?\n", __func__, seconds);
-      status = SANE_STATUS_IO_ERROR;
+        throw SaneException(SANE_STATUS_IO_ERROR,
+                            "warmup timed out after %d seconds. Lamp defective?", seconds);
     }
   else
     {
       DBG(DBG_info, "%s: warmup succeeded after %d seconds\n", __func__, seconds);
     }
-
-  return status;
 }
 
 
@@ -3405,7 +3401,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
   if (!(dev->model->flags & GENESYS_FLAG_SKIP_WARMUP)
     && (dev->settings.scan_method == ScanMethod::FLATBED))
     {
-      RIE (genesys_warmup_lamp (dev));
+        genesys_warmup_lamp(dev);
     }
 
   /* set top left x and y values by scanning the internals if flatbed scanners */

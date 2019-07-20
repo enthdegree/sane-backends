@@ -169,9 +169,7 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
 
 static void gl646_public_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set);
 
-static
-SANE_Status
-gl646_save_power (Genesys_Device * dev, SANE_Bool enable);
+static void gl646_save_power(Genesys_Device* dev, SANE_Bool enable);
 
 static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home);
 

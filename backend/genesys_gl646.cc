@@ -1519,9 +1519,7 @@ static void gl646_public_set_fe(Genesys_Device* dev, const Genesys_Sensor& senso
  * @param enable SANE_TRUE to enable power saving, SANE_FALSE to leave it
  * @return allways SANE_STATUS_GOOD
  */
-static
-SANE_Status
-gl646_save_power (Genesys_Device * dev, SANE_Bool enable)
+static void gl646_save_power(Genesys_Device* dev, SANE_Bool enable)
 {
     DBG_HELPER_ARGS(dbg, "enable = %d", enable);
 
@@ -1535,8 +1533,6 @@ gl646_save_power (Genesys_Device * dev, SANE_Bool enable)
     {
       gl646_set_fe(dev, sensor, AFE_INIT, 0);
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 static SANE_Status

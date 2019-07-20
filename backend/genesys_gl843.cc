@@ -1671,15 +1671,10 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
  * @param dev device to use
  * @param enable true to set inot powersaving
  * */
-static SANE_Status
-gl843_save_power (Genesys_Device * dev, SANE_Bool enable)
+static void gl843_save_power(Genesys_Device* dev, SANE_Bool enable)
 {
     DBG_HELPER_ARGS(dbg, "enable = %d", enable);
   uint8_t val;
-
-    if (dev == NULL) {
-        return SANE_STATUS_INVAL;
-    }
 
     // switch KV-SS080 lamp off
     if (dev->model->gpo_type == GPO_KVSS080) {
@@ -1691,8 +1686,6 @@ gl843_save_power (Genesys_Device * dev, SANE_Bool enable)
         }
         sanei_genesys_write_register(dev,REG6C,val);
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 static SANE_Status

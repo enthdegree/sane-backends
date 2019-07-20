@@ -1487,14 +1487,10 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
  * @param dev device to use
  * @param enable true to set inot powersaving
  * */
-static SANE_Status
-gl124_save_power (Genesys_Device * dev, SANE_Bool enable)
+static void gl124_save_power(Genesys_Device* dev, SANE_Bool enable)
 {
+    (void) dev;
     DBG_HELPER_ARGS(dbg, "enable = %d", enable);
-  if (dev == NULL)
-    return SANE_STATUS_INVAL;
-
-  return SANE_STATUS_GOOD;
 }
 
 static SANE_Status

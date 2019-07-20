@@ -1339,15 +1339,11 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   dev->current_setup.max_shift = max_shift + stagger;
 }
 
-/*for fast power saving methods only, like disabling certain amplifiers*/
-static SANE_Status
-gl846_save_power (Genesys_Device * dev, SANE_Bool enable)
+// for fast power saving methods only, like disabling certain amplifiers
+static void gl846_save_power(Genesys_Device* dev, SANE_Bool enable)
 {
+    (void) dev;
     DBG_HELPER_ARGS(dbg, "enable = %d", enable);
-  if (dev == NULL)
-    return SANE_STATUS_INVAL;
-
-  return SANE_STATUS_GOOD;
 }
 
 static SANE_Status

@@ -3651,14 +3651,8 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
         sanei_genesys_wait_for_home(dev);
     }
 
-  /* disable power saving*/
-  status = dev->model->cmd_set->save_power (dev, SANE_FALSE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to disable power saving mode: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    // disable power saving
+    dev->model->cmd_set->save_power(dev, SANE_FALSE);
 
   /* wait for lamp warmup : until a warmup for TRANSPARENCY is designed, skip
    * it when scanning from XPA. */
@@ -6217,7 +6211,6 @@ void
 sane_close_impl(SANE_Handle handle)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
 
   /* remove handle from list of open handles: */
   auto it = s_scanners->end();
@@ -6251,13 +6244,8 @@ sane_close_impl(SANE_Handle handle)
         }
     }
 
-  /* enable power saving before leaving */
-  status = s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to enable power saving mode: %s\n", __func__,
-          sane_strstatus(status));
-    }
+    // enable power saving before leaving
+    s->dev->model->cmd_set->save_power(s->dev, SANE_TRUE);
 
     // here is the place to store calibration cache
     if (s->dev->force_calibration == 0) {
@@ -6864,20 +6852,19 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
             s->dev->gamma_override_tables[GENESYS_BLUE][i] = table[i];
         }
       break;
-    case OPT_CALIBRATE:
-      status = s->dev->model->cmd_set->save_power (s->dev, SANE_FALSE);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to disable power saving mode: %s\n", __func__,
-	      sane_strstatus(status));
-	}
-      else
-        status = genesys_scanner_calibration(s->dev, sensor);
-      /* not critical if this fails*/
-      s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
-      /* signals that sensors will have to be read again */
-      *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-      break;
+        case OPT_CALIBRATE: {
+            catch_all_exceptions(__func__, [&]()
+            {
+                s->dev->model->cmd_set->save_power(s->dev, SANE_FALSE);
+                TIE(genesys_scanner_calibration(s->dev, sensor));
+            });
+            catch_all_exceptions(__func__, [&]()
+            {
+                s->dev->model->cmd_set->save_power(s->dev, SANE_TRUE);
+            });
+            *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+            break;
+        }
     case OPT_CLEAR_CALIBRATION:
       s->dev->calibration_cache.clear();
 
@@ -7321,13 +7308,7 @@ void sane_cancel_impl(SANE_Handle handle)
   /* enable power saving mode unless we are parking .... */
   if(s->dev->parking==SANE_FALSE)
     {
-      status = s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to enable power saving mode: %s\n", __func__,
-              sane_strstatus(status));
-          return;
-        }
+        s->dev->model->cmd_set->save_power(s->dev, SANE_TRUE);
     }
 
   return;

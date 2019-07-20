@@ -2305,8 +2305,8 @@ dummy \ scanned lines
   dev->current_setup.max_shift = max_shift + stagger;
 }
 
-/*for fast power saving methods only, like disabling certain amplifiers*/
-static SANE_Status gl841_save_power(Genesys_Device * dev, SANE_Bool enable)
+// for fast power saving methods only, like disabling certain amplifiers
+static void gl841_save_power(Genesys_Device* dev, SANE_Bool enable)
 {
     DBG_HELPER_ARGS(dbg, "enable = %d", enable);
     uint8_t val;
@@ -2401,8 +2401,6 @@ static SANE_Status gl841_save_power(Genesys_Device * dev, SANE_Bool enable)
 	  }
 
     }
-
-    return SANE_STATUS_GOOD;
 }
 
 static SANE_Status

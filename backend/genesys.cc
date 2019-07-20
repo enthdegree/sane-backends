@@ -2550,8 +2550,7 @@ compute_shifted_coefficients (Genesys_Device * dev,
   }
 }
 
-static SANE_Status
-genesys_send_shading_coefficient(Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   uint32_t pixels_per_line;
@@ -2821,15 +2820,13 @@ genesys_send_shading_coefficient(Genesys_Device * dev, const Genesys_Sensor& sen
 			            256);        /* patch_size: contigous extent */
       break;
     default:
-      DBG (DBG_error, "%s: sensor %d not supported\n", __func__, dev->model->ccd_type);
-      return SANE_STATUS_UNSUPPORTED;
+        throw SaneException(SANE_STATUS_UNSUPPORTED, "sensor %d not supported",
+                            dev->model->ccd_type);
       break;
     }
 
     // do the actual write of shading calibration data to the scanner
     genesys_send_offset_and_shading(dev, sensor, shading_data.data(), length);
-
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -2869,7 +2866,7 @@ genesys_restore_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 
         if(dev->model->cmd_set->send_shading_data==NULL)
           {
-            TIE(genesys_send_shading_coefficient(dev, sensor));
+            genesys_send_shading_coefficient(dev, sensor);
           }
 
           DBG(DBG_proc, "%s: restored\n", __func__);
@@ -3059,13 +3056,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
   if(dev->model->cmd_set->send_shading_data==NULL)
     {
       sanei_usb_testing_record_message("genesys_send_shading_coefficient");
-      status = genesys_send_shading_coefficient(dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to send shading calibration coefficients: %s\n", __func__,
-              sane_strstatus(status));
-          return status;
-        }
+        genesys_send_shading_coefficient(dev, sensor);
     }
 
   return SANE_STATUS_GOOD;
@@ -3200,13 +3191,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
    * but not when using SHDAREA like GL124 */
   if(dev->model->cmd_set->send_shading_data==NULL)
     {
-      status = genesys_send_shading_coefficient(dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to send shading calibration coefficients: %s\n", __func__,
-              sane_strstatus(status));
-          return status;
-        }
+        genesys_send_shading_coefficient(dev, sensor);
     }
 
   /* save the calibration data */
@@ -3540,13 +3525,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
   if(  (dev->model->cmd_set->send_shading_data!=NULL)
    && !(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
     {
-      status = genesys_send_shading_coefficient(dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to send shading calibration coefficients: %s\n", __func__,
-              sane_strstatus(status));
-          return status;
-        }
+        genesys_send_shading_coefficient(dev, sensor);
     }
 
     // now send registers for scan

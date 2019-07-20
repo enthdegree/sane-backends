@@ -2646,8 +2646,7 @@ static void gl841_eject_document(Genesys_Device* dev)
 }
 
 
-static SANE_Status
-gl841_load_document (Genesys_Device * dev)
+static void gl841_load_document(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   SANE_Bool paper_loaded;
@@ -2674,12 +2673,9 @@ gl841_load_document (Genesys_Device * dev)
 
   if (loop == 0)
     {
-      /* when we come here then the user needed to much time for this */
-      DBG(DBG_error, "%s: timeout while waiting for document\n", __func__);
-      return SANE_STATUS_IO_ERROR;
+        // when we come here then the user needed to much time for this
+        throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for document");
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 /**

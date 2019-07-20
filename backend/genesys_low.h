@@ -1099,7 +1099,7 @@ struct Genesys_Command_Set
     /**
      * load document into scanner
      */
-    SANE_Status (*load_document) (Genesys_Device * dev);
+    void (*load_document) (Genesys_Device* dev);
     /**
      * detects is the scanned document has left scanner. In this
      * case it updates the amount of data to read and set up

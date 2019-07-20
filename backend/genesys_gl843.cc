@@ -1782,13 +1782,10 @@ static void gl843_eject_document(Genesys_Device* dev)
 }
 
 
-static SANE_Status
-gl843_load_document (Genesys_Device * dev)
+static void gl843_load_document(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  if (dev == NULL)
-    return SANE_STATUS_INVAL;
-  return SANE_STATUS_GOOD;
+    (void) dev;
 }
 
 /**

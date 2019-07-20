@@ -1598,11 +1598,9 @@ static void gl646_set_powersaving(Genesys_Device* dev, int delay /* in minutes *
  * HOMESNR becomes 1 ->document left sensor
  * paper event -> document is out
  */
-static SANE_Status
-gl646_load_document (Genesys_Device * dev)
+static void gl646_load_document(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
 
   // FIXME: sequential not really needed in this case
   Genesys_Register_Set regs(Genesys_Register_Set::SEQUENTIAL);
@@ -1615,7 +1613,7 @@ gl646_load_document (Genesys_Device * dev)
     {
       DBG(DBG_proc, "%s: nothing to load\n", __func__);
       DBG(DBG_proc, "%s: end\n", __func__);
-      return SANE_STATUS_GOOD;
+      return;
     }
 
     sanei_genesys_get_status(dev, &val);
@@ -1641,9 +1639,8 @@ gl646_load_document (Genesys_Device * dev)
       while (((val & 0x04) != 0x04) && (count < 300));	/* 1 min time out */
       if (count == 300)
 	{
-	  DBG(DBG_error, "%s: timeout waiting for document\n", __func__);
-	  return SANE_STATUS_NO_DOCS;
-	}
+        throw SaneException(SANE_STATUS_NO_DOCS, "timeout waiting for document");
+    }
     }
 
   /* set up to fast move before scan then move until document is detected */
@@ -1696,8 +1693,7 @@ gl646_load_document (Genesys_Device * dev)
   while ((val & REG41_MOTMFLG) && (count < 300));
   if (count == 300)
     {
-      DBG(DBG_error, "%s: can't load document\n", __func__);
-      return SANE_STATUS_JAMMED;
+      throw SaneException(SANE_STATUS_JAMMED, "can't load document");
     }
 
   /* when loading OK, document is here */
@@ -1708,8 +1704,6 @@ gl646_load_document (Genesys_Device * dev)
   regs.set8(0x3f, 1);
   regs.set8(0x6b, 8);
     sanei_genesys_bulk_write_register(dev, regs);
-
-  return status;
 }
 
 /**

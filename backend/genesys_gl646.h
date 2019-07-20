@@ -251,7 +251,7 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
  */
 static void gl646_init_regs (Genesys_Device * dev);
 
-static SANE_Status gl646_load_document (Genesys_Device * dev);
+static void gl646_load_document(Genesys_Device* dev);
 
 static SANE_Status
 gl646_detect_document_end (Genesys_Device * dev);

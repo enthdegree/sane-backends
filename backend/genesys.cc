@@ -3136,13 +3136,8 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
       return SANE_STATUS_UNSUPPORTED;
     }
 
-  /* first step, load document */
-  status = dev->model->cmd_set->load_document (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to load document: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // first step, load document
+    dev->model->cmd_set->load_document(dev);
 
   /* led, offset and gain calibration are influenced by scan
    * settings. So we set it to sensor resolution */
@@ -3546,12 +3541,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
   if (dev->model->is_sheetfed == SANE_TRUE
       && dev->model->cmd_set->load_document != NULL)
     {
-      status = dev->model->cmd_set->load_document (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to load document: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->load_document(dev);
     }
 
     auto& sensor = sanei_genesys_find_sensor_for_write(dev, dev->settings.xres,

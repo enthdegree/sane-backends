@@ -1093,7 +1093,7 @@ struct Genesys_Command_Set
     void (*bulk_read_data) (Genesys_Device * dev, uint8_t addr, uint8_t * data, size_t len);
 
   // Updates hardware sensor information in Genesys_Scanner.val[].
-  SANE_Status (*update_hardware_sensors) (struct Genesys_Scanner * s);
+  void (*update_hardware_sensors) (struct Genesys_Scanner* s);
 
     /* functions for sheetfed scanners */
     /**

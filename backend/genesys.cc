@@ -6001,8 +6001,8 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     // we will select
     dev->model->cmd_set->init(dev);
 
-  /* some hardware capabilities are detected through sensors */
-  RIE (s->dev->model->cmd_set->update_hardware_sensors (s));
+    // some hardware capabilities are detected through sensors
+    s->dev->model->cmd_set->update_hardware_sensors (s);
 
   /* here is the place to fetch a stored calibration cache */
   if (s->dev->force_calibration == 0)
@@ -6296,7 +6296,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_OCR_SW:
     case OPT_POWER_SW:
     case OPT_EXTRA_SW:
-      RIE (s->dev->model->cmd_set->update_hardware_sensors (s));
+        s->dev->model->cmd_set->update_hardware_sensors(s);
       *(SANE_Bool *) val = s->buttons[genesys_option_to_button(option)].read();
       break;
     case OPT_NEED_CALIBRATION_SW:

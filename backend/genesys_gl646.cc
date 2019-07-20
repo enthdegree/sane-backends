@@ -3708,8 +3708,7 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
  * update the status of the required sensor in the scanner session
  * the button fileds are used to make events 'sticky'
  */
-static SANE_Status
-gl646_update_hardware_sensors (Genesys_Scanner * session)
+static void gl646_update_hardware_sensors(Genesys_Scanner* session)
 {
     DBG_HELPER(dbg);
   Genesys_Device *dev = session->dev;
@@ -3736,7 +3735,7 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
             session->buttons[BUTTON_SCAN_SW].write((value & 0x20) == 0);
             break;
 	default:
-            return SANE_STATUS_UNSUPPORTED;
+                throw SaneException(SANE_STATUS_UNSUPPORTED, "unknown gpo type");
 	}
     }
 
@@ -3751,8 +3750,8 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
             session->buttons[BUTTON_EMAIL_SW].write((value & 0x08) == 0);
             break;
 	default:
-            return SANE_STATUS_UNSUPPORTED;
-	}
+                throw SaneException(SANE_STATUS_UNSUPPORTED, "unknown gpo type");
+    }
     }
 
     // copy button
@@ -3769,8 +3768,8 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
             session->buttons[BUTTON_COPY_SW].write((value & 0x10) == 0);
             break;
 	default:
-	  return SANE_STATUS_UNSUPPORTED;
-	}
+                throw SaneException(SANE_STATUS_UNSUPPORTED, "unknown gpo type");
+    }
     }
 
     // power button
@@ -3779,9 +3778,9 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	case GPO_5345:
             session->buttons[BUTTON_POWER_SW].write(value == 0x14);
             break;
-	default:
-            return SANE_STATUS_UNSUPPORTED;
-	}
+    default:
+                throw SaneException(SANE_STATUS_UNSUPPORTED, "unknown gpo type");
+    }
     }
 
     // ocr button
@@ -3791,8 +3790,8 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
             session->buttons[BUTTON_OCR_SW].write(value == 0x13);
             break;
 	default:
-            return SANE_STATUS_UNSUPPORTED;
-	}
+                throw SaneException(SANE_STATUS_UNSUPPORTED, "unknown gpo type");
+    }
     }
 
     // document detection
@@ -3801,9 +3800,9 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	case GPO_XP200:
             session->buttons[BUTTON_PAGE_LOADED_SW].write((value & 0x04) != 0);
             break;
-	default:
-            return SANE_STATUS_UNSUPPORTED;
-	}
+    default:
+                throw SaneException(SANE_STATUS_UNSUPPORTED, "unknown gpo type");
+    }
     }
 
   /* XPA detection */
@@ -3826,11 +3825,9 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 	    }
 	  break;
 	default:
-	  return SANE_STATUS_UNSUPPORTED;
-	}
+                throw SaneException(SANE_STATUS_UNSUPPORTED, "unknown gpo type");
     }
-
-    return SANE_STATUS_GOOD;
+    }
 }
 
 

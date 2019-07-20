@@ -3614,8 +3614,7 @@ static void gl843_init(Genesys_Device* dev)
     sanei_genesys_asic_init(dev, 0);
 }
 
-static SANE_Status
-gl843_update_hardware_sensors (Genesys_Scanner * s)
+static void gl843_update_hardware_sensors(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
   /* do what is needed to get a new set of events, but try to not lose
@@ -3641,8 +3640,6 @@ gl843_update_hardware_sensors (Genesys_Scanner * s)
         default:
             break;
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 /** @brief move sensor to transparency adaptor

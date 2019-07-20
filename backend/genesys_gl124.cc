@@ -3053,8 +3053,7 @@ static void gl124_boot(Genesys_Device* dev, SANE_Bool cold)
 }
 
 
-static SANE_Status
-gl124_update_hardware_sensors (Genesys_Scanner * s)
+static void gl124_update_hardware_sensors(Genesys_Scanner* s)
 {
   /* do what is needed to get a new set of events, but try to not loose
      any of them.
@@ -3084,7 +3083,6 @@ gl124_update_hardware_sensors (Genesys_Scanner * s)
         s->buttons[BUTTON_EMAIL_SW].write((val & 0x08) == 0);
         s->buttons[BUTTON_FILE_SW].write((val & 0x10) == 0);
     }
-  return SANE_STATUS_GOOD;
 }
 
 

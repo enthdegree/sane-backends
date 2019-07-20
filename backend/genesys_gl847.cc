@@ -2421,14 +2421,12 @@ static void gl847_init(Genesys_Device* dev)
     sanei_genesys_asic_init(dev, 0);
 }
 
-static SANE_Status
-gl847_update_hardware_sensors (Genesys_Scanner * s)
+static void gl847_update_hardware_sensors(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
   /* do what is needed to get a new set of events, but try to not lose
      any of them.
    */
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   uint8_t scan, file, email, copy;
   switch(s->dev->model->gpo_type)
@@ -2451,8 +2449,6 @@ gl847_update_hardware_sensors (Genesys_Scanner * s)
     s->buttons[BUTTON_FILE_SW].write((val & file) == 0);
     s->buttons[BUTTON_EMAIL_SW].write((val & email) == 0);
     s->buttons[BUTTON_COPY_SW].write((val & copy) == 0);
-
-  return status;
 }
 
 /** @brief search for a full width black or white strip.

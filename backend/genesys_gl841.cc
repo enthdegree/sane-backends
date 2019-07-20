@@ -4341,11 +4341,9 @@ static void gl841_init(Genesys_Device* dev)
   dev->already_initialized = SANE_TRUE;
 }
 
-static SANE_Status
-gl841_update_hardware_sensors (Genesys_Scanner * s)
+static void gl841_update_hardware_sensors(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
-    SANE_Status status = SANE_STATUS_GOOD;
   /* do what is needed to get a new set of events, but try to not lose
      any of them.
    */
@@ -4370,8 +4368,6 @@ gl841_update_hardware_sensors (Genesys_Scanner * s)
         s->buttons[BUTTON_PAGE_LOADED_SW].write((val & 0x01) == 0);
         s->buttons[BUTTON_SCAN_SW].write((val & 0x02) == 0);
     }
-
-  return status;
 }
 
 /** @brief search for a full width black or white strip.

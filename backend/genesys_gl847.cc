@@ -1539,9 +1539,7 @@ SANE_Status gl847_rewind(Genesys_Device * dev)
  * @param wait_until_home true to make the function waiting for head
  * to be home before returning, if fals returne immediately
  * @returns SANE_STATUS_GOO on success */
-static
-SANE_Status
-gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
+static void gl847_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
@@ -1576,7 +1574,7 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       DBG(DBG_info, "%s: already at home, completed\n", __func__);
       dev->scanhead_position_in_steps = 0;
-      return SANE_STATUS_GOOD;
+        return;
     }
 
   local_reg = dev->reg;
@@ -1646,20 +1644,19 @@ gl847_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
               gl847_stop_action (dev);
               dev->scanhead_position_in_steps = 0;
-	      return SANE_STATUS_GOOD;
+            return;
 	    }
           sanei_genesys_sleep_ms(100);
 	  ++loop;
 	}
 
-      /* when we come here then the scanner needed too much time for this, so we better stop the motor */
-      gl847_stop_action (dev);
-      DBG(DBG_error, "%s: timeout while waiting for scanhead to go home\n", __func__);
-      return SANE_STATUS_IO_ERROR;
+        // when we come here then the scanner needed too much time for this, so we better stop
+        // the motor
+        catch_all_exceptions(__func__, [&](){ gl847_stop_action(dev); });
+        throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
 
   DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
-  return SANE_STATUS_GOOD;
 }
 
 /* Automatically set top-left edge of the scan area by scanning a 200x200 pixels
@@ -2284,10 +2281,9 @@ gl847_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
   sensor.exposure.green = exp[1];
   sensor.exposure.blue = exp[2];
 
-  /* go back home */
-  if(move>20)
-    {
-      status=gl847_slow_back_home (dev, SANE_TRUE);
+    // go back home
+    if (move>20) {
+        gl847_slow_back_home(dev, SANE_TRUE);
     }
 
   return status;
@@ -3056,7 +3052,7 @@ gl847_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
     gl847_stop_action(dev);
 
-  status=gl847_slow_back_home (dev, SANE_TRUE);
+    gl847_slow_back_home(dev, SANE_TRUE);
 
   return status;
 }

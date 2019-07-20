@@ -1732,9 +1732,7 @@ SANE_Status gl124_rewind(Genesys_Device * dev)
  * @param wait_until_home true to make the function waiting for head
  * to be home before returning, if fals returne immediately
  * @returns SANE_STATUS_GOO on success */
-static
-SANE_Status
-gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
+static void gl124_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
@@ -1768,7 +1766,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       DBG (DBG_info, "%s: already at home, completed\n", __func__);
       dev->scanhead_position_in_steps = 0;
-      return SANE_STATUS_GOOD;
+        return;
     }
 
   /* feed a little first */
@@ -1839,7 +1837,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	    {
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
               dev->scanhead_position_in_steps = 0;
-	      return SANE_STATUS_GOOD;
+            return;
 	    }
           sanei_genesys_sleep_ms(100);
 	  ++loop;
@@ -1847,12 +1845,10 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
       /* when we come here then the scanner needed too much time for this, so we better stop the motor */
       gl124_stop_action (dev);
-      DBG(DBG_error, "%s: timeout while waiting for scanhead to go home\n", __func__);
-      return SANE_STATUS_IO_ERROR;
+        throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
 
   DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
-  return SANE_STATUS_GOOD;
 }
 
 /** @brief moves the slider to steps at motor base dpi
@@ -2907,7 +2903,7 @@ gl124_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
     gl124_stop_action(dev);
 
-  status = gl124_slow_back_home (dev, SANE_TRUE);
+    gl124_slow_back_home(dev, SANE_TRUE);
 
   return status;
 }

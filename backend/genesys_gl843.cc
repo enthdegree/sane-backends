@@ -2222,7 +2222,7 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 /** @brief park XPA lamp
  * park the XPA lamp if needed
  */
-static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
+static void gl843_park_xpa_lamp(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
@@ -2279,7 +2279,7 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
             gl843_set_xpa_motor_power(dev, false);
             dev->needs_home_ta = SANE_FALSE;
 
-          return SANE_STATUS_GOOD;
+            return;
 	    }
           sanei_genesys_sleep_ms(100);
 	  ++loop;
@@ -2287,25 +2287,22 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
 
   /* we are not parked here.... should we fail ? */
   DBG(DBG_info, "%s: XPA lamp is not parked\n", __func__);
-  return SANE_STATUS_GOOD;
 }
 
 /** @brief Moves the slider to the home (top) position slowly
  * */
-static SANE_Status
-gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
+static void gl843_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
-  SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   uint8_t val;
   float resolution;
   int loop = 0;
 
-  if (dev->needs_home_ta) {
-    RIE(gl843_park_xpa_lamp(dev));
-  }
+    if (dev->needs_home_ta) {
+        gl843_park_xpa_lamp(dev);
+    }
 
   /* regular slow back home */
   dev->scanhead_position_in_steps = 0;
@@ -2324,7 +2321,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
   if (val & HOMESNR)	/* is sensor at home? */
     {
-      return SANE_STATUS_GOOD;
+      return;
     }
 
   local_reg = dev->reg;
@@ -2393,20 +2390,19 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	    {
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
 	      DBG(DBG_proc, "%s: finished\n", __func__);
-	      return SANE_STATUS_GOOD;
+          return;
 	    }
           sanei_genesys_sleep_ms(100);
 	  ++loop;
 	}
 
-      /* when we come here then the scanner needed too much time for this, so we better stop the motor */
-      gl843_stop_action (dev);
-      DBG(DBG_error, "%s: timeout while waiting for scanhead to go home\n", __func__);
-      return SANE_STATUS_IO_ERROR;
+        // when we come here then the scanner needed too much time for this, so we better stop
+        // the motor
+        catch_all_exceptions(__func__, [&](){ gl843_stop_action(dev); });
+        throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
 
   DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
-  return SANE_STATUS_GOOD;
 }
 
 /* Automatically set top-left edge of the scan area by scanning a 200x200 pixels
@@ -3499,7 +3495,7 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
     gl843_stop_action(dev);
 
-  status=gl843_slow_back_home (dev, SANE_TRUE);
+    gl843_slow_back_home(dev, SANE_TRUE);
 
   return status;
 }

@@ -2057,9 +2057,7 @@ gl646_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
  * @param dev scanner's device
  * @param wait_until_home true if the function waits until head parked
  */
-static
-SANE_Status
-gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
+static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d\n", wait_until_home);
   Genesys_Settings settings;
@@ -2079,7 +2077,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   if (val & REG41_HOMESNR)	/* is sensor at home? */
     {
       DBG(DBG_info, "%s: end since already at home\n", __func__);
-      return SANE_STATUS_GOOD;
+      return;
     }
 
   /* stop motor if needed */
@@ -2099,15 +2097,14 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       if (((val & (REG41_MOTMFLG | REG41_HOMESNR)) == REG41_HOMESNR))	/* at home and motor is off */
 	{
 	  DBG(DBG_info, "%s: already at home and not moving\n", __func__);
-	  return SANE_STATUS_GOOD;
+      return;
 	}
       sanei_genesys_sleep_ms(100);
     }
 
   if (!i)			/* the loop counted down to 0, scanner still is busy */
     {
-      DBG(DBG_error, "%s: motor is still on: device busy\n", __func__);
-      return SANE_STATUS_DEVICE_BUSY;
+        throw SaneException(SANE_STATUS_DEVICE_BUSY, "motor is still on: device busy");
     }
 
   /* setup for a backward scan of 65535 steps, with no actual data reading */
@@ -2149,7 +2146,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   if (dev->model->is_sheetfed == SANE_TRUE)
     {
       DBG(DBG_proc, "%s: end \n", __func__);
-      return SANE_STATUS_GOOD;
+      return;
     }
 
     // starts scan
@@ -2167,23 +2164,21 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
 	      DBG(DBG_proc, "%s: end\n", __func__);
               sanei_genesys_sleep_ms(500);
-	      return SANE_STATUS_GOOD;
+            return;
 	    }
           sanei_genesys_sleep_ms(100);
           ++loop;
 	}
 
-        // when we come here then the scanner needed too much time for this, so we better stop the
-        // motor
-        gl646_stop_motor(dev);
-      end_scan(dev, &dev->reg, SANE_TRUE, SANE_FALSE);
-      DBG(DBG_error, "%s: timeout while waiting for scanhead to go home\n", __func__);
-      return SANE_STATUS_IO_ERROR;
+        // when we come here then the scanner needed too much time for this, so we better
+        // stop the motor
+        catch_all_exceptions(__func__, [&](){ gl646_stop_motor (dev); });
+        catch_all_exceptions(__func__, [&](){ end_scan(dev, &dev->reg, SANE_TRUE, SANE_FALSE); });
+        throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
 
 
   DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
-  return SANE_STATUS_GOOD;
 }
 
 /**
@@ -3442,8 +3437,8 @@ gl646_repark_head (Genesys_Device * dev)
     }
   while (steps < expected);
 
-  /* toggle motor flag, put an huge step number and redo move backward */
-  status = gl646_slow_back_home (dev, 1);
+    // toggle motor flag, put an huge step number and redo move backward
+    gl646_slow_back_home(dev, 1);
   return status;
 }
 
@@ -3624,7 +3619,7 @@ gl646_init (Genesys_Device * dev)
 	}
       else
 	{
-	  RIE (gl646_slow_back_home (dev, SANE_TRUE));
+        gl646_slow_back_home(dev, SANE_TRUE);
 	}
     }
 

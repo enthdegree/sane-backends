@@ -2886,9 +2886,8 @@ static void gl841_feed(Genesys_Device* dev, int steps)
     throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
 }
 
-/* Moves the slider to the home (top) position slowly */
-static SANE_Status
-gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
+// Moves the slider to the home (top) position slowly
+static void gl841_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
@@ -2900,7 +2899,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       DBG(DBG_proc, "%s: there is no \"home\"-concept for sheet fed\n", __func__);
       DBG(DBG_proc, "%s: finished\n", __func__);
-      return SANE_STATUS_GOOD;
+      return;
     }
 
     // reset gpio pin
@@ -2939,7 +2938,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       DBG(DBG_info, "%s: already at home, completed\n", __func__);
       dev->scanhead_position_in_steps = 0;
-      return SANE_STATUS_GOOD;
+      return;
     }
 
   /* end previous scan if any */
@@ -2991,20 +2990,19 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	    {
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
 	      DBG(DBG_proc, "%s: finished\n", __func__);
-	      return SANE_STATUS_GOOD;
+          return;
 	    }
           sanei_genesys_sleep_ms(100);
 	  ++loop;
 	}
 
-      /* when we come here then the scanner needed too much time for this, so we better stop the motor */
-      gl841_stop_action (dev);
-      DBG(DBG_error, "%s: timeout while waiting for scanhead to go home\n", __func__);
-      return SANE_STATUS_IO_ERROR;
+        // when we come here then the scanner needed too much time for this, so we better stop
+        // the motor
+        catch_all_exceptions(__func__, [&](){ gl841_stop_action(dev); });
+        throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
 
   DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
-  return SANE_STATUS_GOOD;
 }
 
 /* Automatically set top-left edge of the scan area by scanning a 200x200 pixels
@@ -4283,8 +4281,8 @@ sanei_gl841_repark_head (Genesys_Device * dev)
 
     gl841_feed(dev,232);
 
-  /* toggle motor flag, put an huge step number and redo move backward */
-  status = gl841_slow_back_home (dev, SANE_TRUE);
+    // toggle motor flag, put an huge step number and redo move backward
+    gl841_slow_back_home(dev, SANE_TRUE);
   return status;
 }
 
@@ -4380,8 +4378,8 @@ gl841_init (Genesys_Device * dev)
     // Set analog frontend
     gl841_set_fe(dev, sensor, AFE_INIT);
 
-  /* Move home */
-  RIE (gl841_slow_back_home (dev, SANE_TRUE));
+    // Move home
+    gl841_slow_back_home(dev, SANE_TRUE);
 
     // Init shading data
     sanei_genesys_init_shading_data(dev, sensor, sensor.sensor_pixels);

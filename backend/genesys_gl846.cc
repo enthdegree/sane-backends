@@ -1477,9 +1477,8 @@ gl846_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   return status;
 }
 
-/* Moves the slider to the home (top) postion slowly */
-static SANE_Status
-gl846_slow_back_home (Genesys_Device * dev,  SANE_Bool wait_until_home)
+// Moves the slider to the home (top) postion slowly
+static void gl846_slow_back_home(Genesys_Device* dev,  SANE_Bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
@@ -1514,7 +1513,7 @@ gl846_slow_back_home (Genesys_Device * dev,  SANE_Bool wait_until_home)
     {
       DBG(DBG_info, "%s: already at home, completed\n", __func__);
       dev->scanhead_position_in_steps = 0;
-      return SANE_STATUS_GOOD;
+      return;
     }
 
   local_reg = dev->reg;
@@ -1584,20 +1583,19 @@ gl846_slow_back_home (Genesys_Device * dev,  SANE_Bool wait_until_home)
               DBG(DBG_info, "%s: reached home position\n", __func__);
               gl846_stop_action (dev);
               dev->scanhead_position_in_steps = 0;
-              return SANE_STATUS_GOOD;
+              return;
             }
           sanei_genesys_sleep_ms(100);
           ++loop;
         }
 
-      /* when we come here then the scanner needed too much time for this, so we better stop the motor */
-      gl846_stop_action (dev);
-      DBG(DBG_error, "%s: timeout while waiting for scanhead to go home\n", __func__);
-      return SANE_STATUS_IO_ERROR;
+        // when we come here then the scanner needed too much time for this, so we better stop
+        // the motor
+        catch_all_exceptions(__func__, [&](){ gl846_stop_action(dev); });
+        throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
 
   DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
-  return SANE_STATUS_GOOD;
 }
 
 /* Automatically set top-left edge of the scan area by scanning a 200x200 pixels
@@ -2226,7 +2224,7 @@ gl846_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
   /* go back home */
   if(move>20)
     {
-      status=gl846_slow_back_home (dev, SANE_TRUE);
+        gl846_slow_back_home(dev, SANE_TRUE);
     }
 
   return status;
@@ -2932,7 +2930,7 @@ gl846_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
     gl846_stop_action(dev);
 
-  status=gl846_slow_back_home (dev, SANE_TRUE);
+    gl846_slow_back_home(dev, SANE_TRUE);
 
   return status;
 }

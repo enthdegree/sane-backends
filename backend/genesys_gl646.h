@@ -173,9 +173,7 @@ static
 SANE_Status
 gl646_save_power (Genesys_Device * dev, SANE_Bool enable);
 
-static
-SANE_Status
-gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home);
+static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home);
 
 static
 SANE_Status

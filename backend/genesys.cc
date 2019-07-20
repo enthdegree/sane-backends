@@ -1884,7 +1884,7 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
         if (dev->model->cmd_set->rewind) {
             TIE(dev->model->cmd_set->rewind(dev));
         } else {
-            TIE(dev->model->cmd_set->slow_back_home(dev, SANE_TRUE));
+            dev->model->cmd_set->slow_back_home(dev, SANE_TRUE);
         }
 
         if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
@@ -1987,7 +1987,7 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
 
   if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK)
     {
-	  status = dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
+        dev->model->cmd_set->slow_back_home(dev, SANE_TRUE);
     }
 
   return status;
@@ -3684,13 +3684,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 	    }
 
           dev->parking = SANE_FALSE;
-	  status = dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to move scanhead to home position: %s\n", __func__,
-                  sane_strstatus(status));
-	      return status;
-	    }
+        dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
 	  dev->scanhead_position_in_steps = 0;
 	}
       else
@@ -3699,13 +3693,8 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 	  /* TODO: check we can drop this since we cannot have the
 	     scanner's head wandering here */
           dev->parking = SANE_FALSE;
-	  status = dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to move scanhead to home position: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
+            dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
+
 	  dev->scanhead_position_in_steps = 0;
 	}
     }
@@ -3793,7 +3782,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
         dev->model->cmd_set->needs_home_before_init_regs_for_scan(dev) &&
         dev->model->cmd_set->slow_back_home)
     {
-        RIE(dev->model->cmd_set->slow_back_home(dev, SANE_TRUE));
+        dev->model->cmd_set->slow_back_home(dev, SANE_TRUE);
     }
 
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
@@ -4293,7 +4282,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
        && !(dev->model->flags & GENESYS_FLAG_MUST_WAIT)
        && dev->parking == SANE_FALSE)
         {
-          dev->model->cmd_set->slow_back_home (dev, SANE_FALSE);
+            dev->model->cmd_set->slow_back_home(dev, SANE_FALSE);
           dev->parking = SANE_TRUE;
         }
       return SANE_STATUS_EOF;
@@ -5956,7 +5945,7 @@ genesys_buffer_image(Genesys_Scanner *s)
   if (dev->model->is_sheetfed == SANE_FALSE &&
       dev->parking == SANE_FALSE)
     {
-      dev->model->cmd_set->slow_back_home (dev, dev->model->flags & GENESYS_FLAG_MUST_WAIT);
+        dev->model->cmd_set->slow_back_home(dev, dev->model->flags & GENESYS_FLAG_MUST_WAIT);
       dev->parking = !(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
     }
 
@@ -7194,7 +7183,7 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
        && !(dev->model->flags & GENESYS_FLAG_MUST_WAIT)
        && dev->parking == SANE_FALSE)
         {
-          dev->model->cmd_set->slow_back_home (dev, SANE_FALSE);
+            dev->model->cmd_set->slow_back_home(dev, SANE_FALSE);
           dev->parking = SANE_TRUE;
         }
       return SANE_STATUS_EOF;
@@ -7313,13 +7302,9 @@ void sane_cancel_impl(SANE_Handle handle)
     {
       if(s->dev->parking==SANE_FALSE)
         {
-          status = s->dev->model->cmd_set->slow_back_home (s->dev, s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
-          if (status != SANE_STATUS_GOOD)
-            {
-              DBG(DBG_error, "%s: failed to move scanhead to home position: %s\n", __func__,
-                  sane_strstatus(status));
-              return;
-            }
+            s->dev->model->cmd_set->slow_back_home (s->dev, s->dev->model->flags &
+                                                    GENESYS_FLAG_MUST_WAIT);
+
           s->dev->parking = !(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
         }
     }

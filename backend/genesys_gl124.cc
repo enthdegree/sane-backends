@@ -1588,8 +1588,7 @@ gl124_stop_action (Genesys_Device * dev)
  * @param resolution dpi of the target scan
  * @return SANE_STATUS_GOOD unless REG32 cannot be read
  */
-static SANE_Status
-gl124_setup_scan_gpio(Genesys_Device *dev, int resolution)
+static void gl124_setup_scan_gpio(Genesys_Device* dev, int resolution)
 {
 uint8_t val;
     DBG_HELPER(dbg);
@@ -1635,7 +1634,6 @@ uint8_t val;
     }
   val |= 0x02;
     sanei_genesys_write_register(dev, REG32, val);
-  return SANE_STATUS_GOOD;
 }
 
 /* Send the low-level scan command */
@@ -1647,14 +1645,14 @@ gl124_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
     DBG_HELPER(dbg);
     (void) sensor;
 
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
-  if (reg == NULL)
-    return SANE_STATUS_INVAL;
+    if (reg == NULL) {
+        return SANE_STATUS_INVAL;
+    }
 
-  /* set up GPIO for scan */
-  RIE(gl124_setup_scan_gpio(dev,dev->settings.yres));
+    // set up GPIO for scan
+    gl124_setup_scan_gpio(dev,dev->settings.yres);
 
     // clear scan and feed count
     sanei_genesys_write_register(dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT);
@@ -1829,7 +1827,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
     dev->model->cmd_set->bulk_write_register(dev, local_reg);
 
-  RIE(gl124_setup_scan_gpio(dev,resolution));
+    gl124_setup_scan_gpio(dev,resolution);
 
     try {
         gl124_start_action(dev);

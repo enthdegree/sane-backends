@@ -2434,16 +2434,12 @@ static void gl847_boot(Genesys_Device* dev, SANE_Bool cold)
  * initialize backend and ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
  */
-static SANE_Status gl847_init (Genesys_Device * dev)
+static void gl847_init(Genesys_Device* dev)
 {
-  SANE_Status status = SANE_STATUS_GOOD;
-
   DBG_INIT ();
     DBG_HELPER(dbg);
 
-  status=sanei_genesys_asic_init(dev, 0);
-
-  return status;
+    sanei_genesys_asic_init(dev, 0);
 }
 
 static SANE_Status

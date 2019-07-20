@@ -3028,17 +3028,12 @@ static void gl124_init_memory_layout(Genesys_Device* dev)
  * initialize backend and ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
  */
-static SANE_Status
-gl124_init(Genesys_Device * dev)
+static void gl124_init(Genesys_Device* dev)
 {
-  SANE_Status status = SANE_STATUS_GOOD;
-
   DBG_INIT ();
     DBG_HELPER(dbg);
 
-  status=sanei_genesys_asic_init(dev, 0);
-
-  return status;
+    sanei_genesys_asic_init(dev, 0);
 }
 
 

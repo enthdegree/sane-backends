@@ -4269,8 +4269,7 @@ gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
  * initialize ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
  */
-static SANE_Status
-gl841_init (Genesys_Device * dev)
+static void gl841_init(Genesys_Device* dev)
 {
   uint8_t val;
   size_t size;
@@ -4287,7 +4286,7 @@ gl841_init (Genesys_Device * dev)
       if (val & REG41_PWRBIT)
 	{
 	  DBG(DBG_info, "%s: already initialized\n", __func__);
-	  return SANE_STATUS_GOOD;
+      return;
 	}
     }
 
@@ -4381,8 +4380,6 @@ gl841_init (Genesys_Device * dev)
     // Set powersaving(default = 15 minutes)
     gl841_set_powersaving(dev, 15);
   dev->already_initialized = SANE_TRUE;
-
-  return SANE_STATUS_GOOD;
 }
 
 static SANE_Status

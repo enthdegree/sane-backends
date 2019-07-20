@@ -3394,8 +3394,7 @@ static void gl646_repark_head(Genesys_Device* dev)
  * @param dev device description of the scanner to initailize
  * @return SANE_STATUS_GOOD if success, error code if failure
  */
-static SANE_Status
-gl646_init (Genesys_Device * dev)
+static void gl646_init(Genesys_Device* dev)
 {
     DBG_INIT();
     DBG_HELPER(dbg);
@@ -3553,8 +3552,6 @@ gl646_init (Genesys_Device * dev)
 
   /* here session and device are initialized */
   dev->already_initialized = SANE_TRUE;
-
-  return SANE_STATUS_GOOD;
 }
 
 static

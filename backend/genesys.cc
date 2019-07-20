@@ -6134,9 +6134,9 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 
     sanei_genesys_init_cmd_set(s->dev);
 
-  // FIXME: we create sensor tables for the sensor, this should happen when we know which sensor
-  // we will select
-  RIE (dev->model->cmd_set->init(dev));
+    // FIXME: we create sensor tables for the sensor, this should happen when we know which sensor
+    // we will select
+    dev->model->cmd_set->init(dev);
 
   /* some hardware capabilities are detected through sensors */
   RIE (s->dev->model->cmd_set->update_hardware_sensors (s));

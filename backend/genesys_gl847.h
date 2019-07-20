@@ -336,7 +336,7 @@ static void gl847_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 // Send the stop scan command
 static void gl847_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop);
 
-static SANE_Status gl847_init (Genesys_Device * dev);
+static void gl847_init(Genesys_Device* dev);
 
 /** @brief moves the slider to steps at motor base dpi
  * @param dev device to work on

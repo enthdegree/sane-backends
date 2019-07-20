@@ -1043,7 +1043,7 @@ struct Genesys_Command_Set
     bool (*needs_home_before_init_regs_for_scan) (Genesys_Device* dev);
 
   /** For ASIC initialization */
-    SANE_Status (*init) (Genesys_Device * dev);
+    void (*init) (Genesys_Device* dev);
 
     SANE_Status (*init_regs_for_warmup) (Genesys_Device * dev,
                                          const Genesys_Sensor& sensor,
@@ -1951,8 +1951,7 @@ inline SensorExposure sanei_genesys_fixup_exposure(SensorExposure exposure)
 
 extern void sanei_genesys_wait_for_home(Genesys_Device* dev);
 
-extern SANE_Status
-sanei_genesys_asic_init(Genesys_Device *dev, SANE_Bool cold);
+extern void sanei_genesys_asic_init(Genesys_Device* dev, SANE_Bool cold);
 
 int sanei_genesys_compute_dpihw(Genesys_Device *dev, const Genesys_Sensor& sensor, int xres);
 

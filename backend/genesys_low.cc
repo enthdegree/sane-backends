@@ -1198,12 +1198,10 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
  * @param max_regs umber of maximum used registers
  * @return SANE_STATUS_GOOD in case of success
  */
-SANE_Status
-sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
+void sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
 {
     DBG_HELPER(dbg);
 
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   SANE_Bool cold = SANE_TRUE;
 
@@ -1238,7 +1236,7 @@ sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
   if (dev->already_initialized && !cold)
     {
       DBG (DBG_info, "%s: already initialized, nothing to do\n", __func__);
-      return SANE_STATUS_GOOD;
+        return;
     }
 
     // set up hardware and registers
@@ -1266,8 +1264,6 @@ sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
 
     // Set powersaving (default = 15 minutes)
     dev->model->cmd_set->set_powersaving(dev, 15);
-
-    return status;
 }
 
 /**

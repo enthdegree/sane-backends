@@ -1025,8 +1025,7 @@ gl646_setup_sensor (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_
 
 /** Test if the ASIC works
  */
-static SANE_Status
-gl646_asic_test (Genesys_Device * dev)
+static void gl646_asic_test(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   uint8_t val;
@@ -1042,16 +1041,14 @@ gl646_asic_test (Genesys_Device * dev)
 
   if (val != 0xde)		/* value of register 0x38 */
     {
-      DBG(DBG_error, "%s: register contains invalid value\n", __func__);
-      return SANE_STATUS_IO_ERROR;
+      throw SaneException("register contains invalid value");
     }
 
     sanei_genesys_read_register(dev, 0x4f, &val);
 
   if (val != 0xad)		/* value of register 0x39 */
     {
-      DBG(DBG_error, "%s: register contains invalid value\n", __func__);
-      return SANE_STATUS_IO_ERROR;
+      throw SaneException("register contains invalid value");
     }
 
   /* ram test: */
@@ -1082,12 +1079,9 @@ gl646_asic_test (Genesys_Device * dev)
     {
       if (verify_data[i + 2] != data[i])
 	{
-	  DBG(DBG_error, "%s: data verification error\n", __func__);
-          return SANE_STATUS_IO_ERROR;
+            throw SaneException("data verification error");
 	}
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 /**
@@ -3506,7 +3500,7 @@ gl646_init (Genesys_Device * dev)
       /* Test ASIC and RAM */
       if (!(dev->model->flags & GENESYS_FLAG_LAZY_INIT))
 	{
-	  RIE (gl646_asic_test (dev));
+        gl646_asic_test(dev);
 	}
 
       /* send gamma tables if needed */

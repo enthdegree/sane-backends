@@ -290,9 +290,8 @@ static void sanei_gl841_setup_sensor(Genesys_Device * dev, const Genesys_Sensor&
 
 /** Test if the ASIC works
  */
-/*TODO: make this functional*/
-static SANE_Status
-sanei_gl841_asic_test (Genesys_Device * dev)
+// TODO: make this functional
+static void sanei_gl841_asic_test(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
 
@@ -300,27 +299,24 @@ sanei_gl841_asic_test (Genesys_Device * dev)
   size_t size, verify_size;
   unsigned int i;
 
-  return SANE_STATUS_INVAL;
+    throw SaneException("not implemented");
 
     // set and read exposure time, compare if it's the same
     sanei_genesys_write_register(dev, 0x38, 0xde);
-
     sanei_genesys_write_register(dev, 0x39, 0xad);
 
     sanei_genesys_read_register(dev, 0x38, &val);
 
   if (val != 0xde)		/* value of register 0x38 */
     {
-      DBG(DBG_error, "%s: register contains invalid value\n", __func__);
-      return SANE_STATUS_IO_ERROR;
+        throw SaneException("register contains invalid value");
     }
 
     sanei_genesys_read_register(dev, 0x39, &val);
 
   if (val != 0xad)		/* value of register 0x39 */
     {
-      DBG(DBG_error, "%s: register contains invalid value\n", __func__);
-      return SANE_STATUS_IO_ERROR;
+        throw SaneException("register contains invalid value");
     }
 
   /* ram test: */
@@ -352,7 +348,6 @@ sanei_gl841_asic_test (Genesys_Device * dev)
     {
       if (verify_data[i] != data[i])
 	{
-	  DBG(DBG_error, "%s: data verification error\n", __func__);
 	  DBG(DBG_info, "0x%.8x: got %.2x %.2x %.2x %.2x, expected %.2x %.2x %.2x %.2x\n",
 	      i,
 	      verify_data[i],
@@ -363,11 +358,9 @@ sanei_gl841_asic_test (Genesys_Device * dev)
 	      data[i+1],
 	      data[i+2],
 	      data[i+3]);
-	  return SANE_STATUS_IO_ERROR;
+            throw SaneException("data verification error");
 	}
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 /*
@@ -4363,7 +4356,7 @@ gl841_init (Genesys_Device * dev)
   /* Test ASIC and RAM */
   if (!(dev->model->flags & GENESYS_FLAG_LAZY_INIT))
     {
-      RIE (sanei_gl841_asic_test (dev));
+        sanei_gl841_asic_test(dev);
     }
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);

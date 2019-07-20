@@ -1069,10 +1069,8 @@ struct Genesys_Command_Set
     SANE_Status (*set_powersaving) (Genesys_Device * dev, int delay);
     SANE_Status (*save_power) (Genesys_Device * dev, SANE_Bool enable);
 
-    SANE_Status (*begin_scan) (Genesys_Device * dev,
-                               const Genesys_Sensor& sensor,
-			       Genesys_Register_Set * regs,
-			       SANE_Bool start_motor);
+    void (*begin_scan) (Genesys_Device* dev, const Genesys_Sensor& sensor,
+                        Genesys_Register_Set* regs, SANE_Bool start_motor);
     SANE_Status (*end_scan) (Genesys_Device * dev,
 			     Genesys_Register_Set * regs,
 			     SANE_Bool check_stop);

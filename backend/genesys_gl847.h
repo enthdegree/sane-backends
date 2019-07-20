@@ -329,9 +329,9 @@
 static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                  Genesys_Register_Set* reg, SetupParams& params);
 
-/* Send the low-level scan command */
-static SANE_Status gl847_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                     Genesys_Register_Set * reg, SANE_Bool start_motor);
+// Send the low-level scan command
+static void gl847_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                             Genesys_Register_Set* reg, SANE_Bool start_motor);
 
 /* Send the stop scan command */
 static SANE_Status gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool check_stop);

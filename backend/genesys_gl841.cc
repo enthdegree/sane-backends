@@ -2772,15 +2772,13 @@ gl841_detect_document_end (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
-/* Send the low-level scan command */
-/* todo : is this that useful ? */
-static SANE_Status
-gl841_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Register_Set * reg,
-			SANE_Bool start_motor)
+// Send the low-level scan command
+// todo : is this that useful ?
+static void gl841_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                             Genesys_Register_Set* reg, SANE_Bool start_motor)
 {
     DBG_HELPER(dbg);
     (void) sensor;
-  SANE_Status status = SANE_STATUS_GOOD;
   // FIXME: SEQUENTIAL not really needed in this case
   Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
   uint8_t val;
@@ -2809,8 +2807,6 @@ gl841_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
     }
 
     sanei_genesys_bulk_write_register(dev, local_reg);
-
-  return status;
 }
 
 
@@ -3064,12 +3060,7 @@ gl841_search_start_position (Genesys_Device * dev)
 
   std::vector<uint8_t> data(size);
 
-  status = gl841_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl841_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {
@@ -3482,7 +3473,7 @@ gl841_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
         sanei_genesys_bulk_write_register(dev, regs);
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
-      RIE(gl841_begin_scan(dev, sensor, &regs, SANE_TRUE));
+        gl841_begin_scan(dev, sensor, &regs, SANE_TRUE);
       RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
       if (DBG_LEVEL >= DBG_data) {
@@ -3807,7 +3798,7 @@ gl841_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
         gl841_set_fe(dev, sensor, AFE_SET);
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
-      RIE(gl841_begin_scan(dev, sensor, &regs, SANE_TRUE));
+        gl841_begin_scan(dev, sensor, &regs, SANE_TRUE);
 
       RIE(sanei_genesys_read_data_from_scanner (dev, first_line.data(), total_size));
 
@@ -3915,7 +3906,7 @@ gl841_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         sanei_genesys_bulk_write_register(dev, regs);
-      RIE(gl841_begin_scan(dev, sensor, &regs, SANE_TRUE));
+        gl841_begin_scan(dev, sensor, &regs, SANE_TRUE);
       RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
 
       if (DBG_LEVEL >= DBG_data) {
@@ -4134,7 +4125,7 @@ gl841_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   std::vector<uint8_t> line(total_size);
 
-  RIE(gl841_begin_scan(dev, sensor, &regs, SANE_TRUE));
+    gl841_begin_scan(dev, sensor, &regs, SANE_TRUE);
   RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
   if (DBG_LEVEL >= DBG_data)
@@ -4471,7 +4462,7 @@ gl841_init (Genesys_Device * dev)
   std::vector<uint8_t> line(size);
 
   DBG(DBG_info, "%s: starting dummy data reading\n", __func__);
-  RIE(gl841_begin_scan(dev, sensor, &regs, SANE_TRUE));
+    gl841_begin_scan(dev, sensor, &regs, SANE_TRUE);
 
   sanei_usb_set_timeout(1000);/* 1 second*/
 
@@ -4608,12 +4599,7 @@ gl841_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
     sanei_genesys_bulk_write_register(dev, local_reg);
 
-  status = gl841_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl841_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {
@@ -4644,13 +4630,8 @@ gl841_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
     {
         sanei_genesys_bulk_write_register(dev, local_reg);
 
-      /* now start scan */
-      status = gl841_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error,"%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        //now start scan
+        gl841_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {

@@ -1420,14 +1420,12 @@ static void gl846_stop_action(Genesys_Device* dev)
   throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
 }
 
-/* Send the low-level scan command */
-static SANE_Status
-gl846_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Register_Set * reg,
-                  SANE_Bool start_motor)
+// Send the low-level scan command
+static void gl846_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                             Genesys_Register_Set* reg, SANE_Bool start_motor)
 {
     DBG_HELPER(dbg);
     (void) sensor;
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   GenesysRegister *r;
 
@@ -1453,8 +1451,6 @@ gl846_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
     } else {
         sanei_genesys_write_register(dev, REG0F, 0);
     }
-
-  return status;
 }
 
 
@@ -1653,12 +1649,7 @@ gl846_search_start_position (Genesys_Device * dev)
 
   std::vector<uint8_t> data(size);
 
-  status = gl846_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl846_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {
@@ -2177,7 +2168,7 @@ gl846_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
         dev->model->cmd_set->bulk_write_register(dev, regs);
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
-      RIE(gl846_begin_scan(dev, sensor, &regs, SANE_TRUE));
+        gl846_begin_scan(dev, sensor, &regs, SANE_TRUE);
       RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
         // stop scanning
@@ -2498,12 +2489,7 @@ gl846_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
     dev->model->cmd_set->bulk_write_register(dev, local_reg);
 
-  status = gl846_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl846_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {
@@ -2534,13 +2520,8 @@ gl846_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
     {
         dev->model->cmd_set->bulk_write_register(dev, local_reg);
 
-      /* now start scan */
-      status = gl846_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
-          return status;
-        }
+        // now start scan
+        gl846_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {
@@ -2763,7 +2744,7 @@ gl846_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
     gl846_set_fe(dev, sensor, AFE_SET);
     dev->model->cmd_set->bulk_write_register(dev, regs);
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
-  RIE(gl846_begin_scan(dev, sensor, &regs, SANE_TRUE));
+    gl846_begin_scan(dev, sensor, &regs, SANE_TRUE);
   RIE(sanei_genesys_read_data_from_scanner (dev, first_line.data(), total_size));
   if (DBG_LEVEL >= DBG_data)
    {
@@ -2783,7 +2764,7 @@ gl846_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
     gl846_set_fe(dev, sensor, AFE_SET);
     dev->model->cmd_set->bulk_write_register(dev, regs);
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
-  RIE(gl846_begin_scan(dev, sensor, &regs, SANE_TRUE));
+    gl846_begin_scan(dev, sensor, &regs, SANE_TRUE);
   RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
 
   topavg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
@@ -2803,7 +2784,7 @@ gl846_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
         gl846_set_fe(dev, sensor, AFE_SET);
         dev->model->cmd_set->bulk_write_register(dev, regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
-      RIE(gl846_begin_scan(dev, sensor, &regs, SANE_TRUE));
+        gl846_begin_scan(dev, sensor, &regs, SANE_TRUE);
       RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
 
       if (DBG_LEVEL >= DBG_data)
@@ -2913,7 +2894,7 @@ gl846_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   std::vector<uint8_t> line(total_size);
 
     gl846_set_fe(dev, sensor, AFE_SET);
-  RIE(gl846_begin_scan(dev, sensor, &regs, SANE_TRUE));
+    gl846_begin_scan(dev, sensor, &regs, SANE_TRUE);
   RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
   if (DBG_LEVEL >= DBG_data)

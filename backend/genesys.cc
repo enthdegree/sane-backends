@@ -1542,13 +1542,8 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
           dev->frontend.get_offset(1),
           dev->frontend.get_offset(2));
 
-      status =
-        dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: Failed to begin scan: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+
+      dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
 
       status =
     sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
@@ -1753,12 +1748,7 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
   // wait some time to let lamp to get dark
   sanei_genesys_sleep_ms(200);
 
-  status = dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: Failed to begin scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
 
   status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
   if (status != SANE_STATUS_GOOD)
@@ -1947,15 +1937,11 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
 
     dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
 
-  if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)
-    sanei_genesys_sleep_ms(500); // make sure lamp is bright again
-
-  status = dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: Failed to begin scan: %s\n", __func__, sane_strstatus(status));
-      return status;
+    if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION) {
+        sanei_genesys_sleep_ms(500); // make sure lamp is bright again
     }
+
+    dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_TRUE);
 
   status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
   if (status != SANE_STATUS_GOOD)
@@ -2057,13 +2043,7 @@ genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Senso
 
     dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
 
-  status = dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
 
   status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
   if (status != SANE_STATUS_GOOD)
@@ -3556,7 +3536,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
   do
     {
       DBG(DBG_info, "%s: one more loop\n", __func__);
-      RIE(dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_FALSE));
+        dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_FALSE);
       do
 	{
         sanei_genesys_test_buffer_empty(dev, &empty);
@@ -3577,7 +3557,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
       sanei_genesys_sleep_ms(1000);
       seconds++;
 
-      RIE(dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_FALSE));
+        dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_FALSE);
       do
 	{
         sanei_genesys_test_buffer_empty(dev, &empty);
@@ -3853,13 +3833,8 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
     // now send registers for scan
     dev->model->cmd_set->bulk_write_register(dev, dev->reg);
 
-  /* start effective scan */
-  status = dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
-      return SANE_STATUS_IO_ERROR;
-    }
+    // start effective scan
+    dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
 
   /*do we really need this? the valid data check should be sufficent -- pierre*/
   /* waits for head to reach scanning position */

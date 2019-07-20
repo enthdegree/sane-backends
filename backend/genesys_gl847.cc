@@ -1437,14 +1437,12 @@ static void gl847_stop_action(Genesys_Device* dev)
     throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
 }
 
-/* Send the low-level scan command */
-static SANE_Status
-gl847_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Register_Set * reg,
-		  SANE_Bool start_motor)
+// Send the low-level scan command
+static void gl847_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                             Genesys_Register_Set* reg, SANE_Bool start_motor)
 {
     DBG_HELPER(dbg);
     (void) sensor;
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   GenesysRegister *r;
 
@@ -1471,8 +1469,6 @@ gl847_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
     } else {
         sanei_genesys_write_register(dev, REG0F, 0);
     }
-
-  return status;
 }
 
 
@@ -1518,8 +1514,8 @@ SANE_Status gl847_rewind(Genesys_Device * dev)
   byte |= 0x04;
     sanei_genesys_write_register(dev, 0x02, byte);
 
-  /* and start scan, then wait completion */
-  RIE (gl847_begin_scan (dev, dev->reg, SANE_TRUE));
+    // and start scan, then wait completion
+    gl847_begin_scan(dev, dev->reg, SANE_TRUE);
   do
     {
       sanei_genesys_sleep_ms(100);
@@ -1715,12 +1711,7 @@ gl847_search_start_position (Genesys_Device * dev)
 
   std::vector<uint8_t> data(size);
 
-  status = gl847_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl847_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {
@@ -2238,7 +2229,7 @@ gl847_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
         dev->model->cmd_set->bulk_write_register(dev, regs);
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
-      RIE(gl847_begin_scan(dev, sensor, &regs, SANE_TRUE));
+        gl847_begin_scan(dev, sensor, &regs, SANE_TRUE);
       RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
         // stop scanning
@@ -2605,12 +2596,7 @@ gl847_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
     dev->model->cmd_set->bulk_write_register(dev, local_reg);
 
-  status = gl847_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl847_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {
@@ -2641,13 +2627,8 @@ gl847_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
     {
         dev->model->cmd_set->bulk_write_register(dev, local_reg);
 
-      /* now start scan */
-      status = gl847_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+            // now start scan
+            gl847_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {
@@ -2870,7 +2851,7 @@ gl847_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
     gl847_set_fe(dev, sensor, AFE_SET);
     dev->model->cmd_set->bulk_write_register(dev, regs);
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
-  RIE(gl847_begin_scan(dev, sensor, &regs, SANE_TRUE));
+    gl847_begin_scan(dev, sensor, &regs, SANE_TRUE);
   RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
   if (DBG_LEVEL >= DBG_data)
    {
@@ -2890,7 +2871,7 @@ gl847_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
     gl847_set_fe(dev, sensor, AFE_SET);
     dev->model->cmd_set->bulk_write_register(dev, regs);
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
-  RIE(gl847_begin_scan(dev, sensor, &regs, SANE_TRUE));
+    gl847_begin_scan(dev, sensor, &regs, SANE_TRUE);
   RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
 
   topavg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
@@ -2910,7 +2891,7 @@ gl847_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
         gl847_set_fe(dev, sensor, AFE_SET);
         dev->model->cmd_set->bulk_write_register(dev, regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
-      RIE(gl847_begin_scan(dev, sensor, &regs, SANE_TRUE));
+        gl847_begin_scan(dev, sensor, &regs, SANE_TRUE);
       RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
 
       if (DBG_LEVEL >= DBG_data)
@@ -3018,7 +2999,7 @@ gl847_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   std::vector<uint8_t> line(total_size);
 
     gl847_set_fe(dev, sensor, AFE_SET);
-  RIE(gl847_begin_scan(dev, sensor, &regs, SANE_TRUE));
+    gl847_begin_scan(dev, sensor, &regs, SANE_TRUE);
   RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
   if (DBG_LEVEL >= DBG_data)

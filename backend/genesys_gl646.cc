@@ -1930,14 +1930,12 @@ gl646_eject_document (Genesys_Device * dev)
   return status;
 }
 
-/* Send the low-level scan command */
-static SANE_Status
-gl646_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Register_Set * reg,
-		  SANE_Bool start_motor)
+// Send the low-level scan command
+static void gl646_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                             Genesys_Register_Set* reg, SANE_Bool start_motor)
 {
     DBG_HELPER(dbg);
     (void) sensor;
-  SANE_Status status = SANE_STATUS_GOOD;
   // FIXME: SEQUENTIAL not really needed in this case
   Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
 
@@ -1951,8 +1949,6 @@ gl646_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
     }
 
     sanei_genesys_bulk_write_register(dev, local_reg);
-
-  return status;
 }
 
 
@@ -2176,13 +2172,8 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return SANE_STATUS_GOOD;
     }
 
-  /* starts scan */
-  status = gl646_begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to begin scan: \n", __func__);
-      return status;
-    }
+    // starts scan
+    gl646_begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
 
   /* loop until head parked */
   if (wait_until_home)
@@ -3477,13 +3468,8 @@ gl646_repark_head (Genesys_Device * dev)
 
     sanei_genesys_bulk_write_register(dev, dev->reg);
 
-  /* start scan */
-  status = gl646_begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to begin scan: \n", __func__);
-      return status;
-    }
+    // start scan
+    gl646_begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
 
   uint32_t value32 = 0;
   sanei_genesys_get_triple(&dev->reg, REG_FEEDL, &value32);
@@ -3818,13 +3804,8 @@ simple_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
     // write scan registers
     sanei_genesys_bulk_write_register(dev, dev->reg);
 
-  /* starts scan */
-  status = gl646_begin_scan(dev, sensor, &dev->reg, move);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to begin scan: \n", __func__);
-      return status;
-    }
+    // starts scan
+    gl646_begin_scan(dev, sensor, &dev->reg, move);
 
   /* wait for buffers to be filled */
   count = 0;

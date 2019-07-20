@@ -3378,7 +3378,6 @@ static SANE_Status
 genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   unsigned int steps, expected;
   SANE_Bool empty;
 
@@ -3467,14 +3466,8 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
   /* build look up table for dynamic lineart */
   if(dev->settings.dynamic_lineart==SANE_TRUE)
     {
-      status = sanei_genesys_load_lut(dev->lineart_lut, 8, 8, 50, 205,
-                        dev->settings.threshold_curve,
-                        dev->settings.threshold-127);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to build lut\n", __func__);
-          return status;
-        }
+        sanei_genesys_load_lut(dev->lineart_lut, 8, 8, 50, 205, dev->settings.threshold_curve,
+                               dev->settings.threshold-127);
     }
 
     if (dev->model->cmd_set->wait_for_motor_stop) {

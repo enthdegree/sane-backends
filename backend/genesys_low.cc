@@ -1715,17 +1715,12 @@ int sanei_genesys_compute_max_shift(Genesys_Device *dev,
   * @param slope slope of the generated data
   * @param offset offset of the generated data
   */
-SANE_Status
-sanei_genesys_load_lut (unsigned char * lut,
-                        int in_bits,
-                        int out_bits,
-                        int out_min,
-                        int out_max,
-                        int slope,
-                        int offset)
+void sanei_genesys_load_lut(unsigned char* lut,
+                            int in_bits, int out_bits,
+                            int out_min, int out_max,
+                            int slope, int offset)
 {
     DBG_HELPER(dbg);
-  SANE_Status ret = SANE_STATUS_GOOD;
   int i, j;
   double shift, rise;
   int max_in_val = (1 << in_bits) - 1;
@@ -1776,8 +1771,6 @@ sanei_genesys_load_lut (unsigned char * lut,
 	  lut_p16++;
 	}
     }
-
-  return ret;
 }
 
 void sanei_genesys_usleep(unsigned int useconds)

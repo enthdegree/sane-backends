@@ -2002,14 +2002,10 @@ int sanei_genesys_compute_max_shift(Genesys_Device *dev,
                                     int yres,
                                     int flags);
 
-extern SANE_Status
-sanei_genesys_load_lut (unsigned char * lut,
-                        int in_bits,
-                        int out_bits,
-                        int out_min,
-                        int out_max,
-                        int slope,
-                        int offset);
+extern void sanei_genesys_load_lut(unsigned char* lut,
+                                   int in_bits, int out_bits,
+                                   int out_min, int out_max,
+                                   int slope, int offset);
 
 extern void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
                                     const Genesys_Sensor& sensor,

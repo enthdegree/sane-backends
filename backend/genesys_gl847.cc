@@ -2080,15 +2080,14 @@ static void gl847_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
  * data white enough.
  * @param dev device to calibrate
  */
-static SANE_Status
-gl847_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Register_Set& regs)
+static void gl847_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
+                                  Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   int num_pixels;
   int total_size;
   int used_res;
   int i, j;
-  SANE_Status status = SANE_STATUS_GOOD;
   int val;
   int channels, depth;
   int avg[3], top[3], bottom[3];
@@ -2236,8 +2235,6 @@ gl847_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
     if (move>20) {
         gl847_slow_back_home(dev, SANE_TRUE);
     }
-
-  return status;
 }
 
 /**

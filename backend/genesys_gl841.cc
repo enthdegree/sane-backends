@@ -3291,14 +3291,13 @@ static void gl841_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& se
 
 -needs working coarse/gain
 */
-static SANE_Status
-gl841_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Register_Set& regs)
+static void gl841_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
+                                  Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   int num_pixels;
   int total_size;
   int i, j;
-  SANE_Status status = SANE_STATUS_GOOD;
   int val;
   int channels;
   int avg[3], avga, avge;
@@ -3489,8 +3488,6 @@ gl841_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
   DBG(DBG_info,"%s: acceptable exposure: %d,%d,%d\n", __func__, exp[0], exp[1], exp[2]);
 
   gl841_slow_back_home(dev, SANE_TRUE);
-
-  return status;
 }
 
 /** @brief calibration for AD frontend devices

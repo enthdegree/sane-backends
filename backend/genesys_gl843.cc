@@ -2809,15 +2809,14 @@ static void gl843_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& se
 
 -needs working coarse/gain
 */
-static SANE_Status
-gl843_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Register_Set& regs)
+static void gl843_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
+                                  Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   int num_pixels;
   int total_size;
   int used_res;
   int i, j;
-  SANE_Status status = SANE_STATUS_GOOD;
   int val;
   int channels, depth;
   int avg[3], avga, avge;
@@ -2975,8 +2974,6 @@ gl843_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
   sensor.exposure = calib_sensor.exposure;
 
   gl843_slow_back_home (dev, SANE_TRUE);
-
-  return status;
 }
 
 

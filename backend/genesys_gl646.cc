@@ -2505,14 +2505,12 @@ static void gl646_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& se
  * area below scanner's top on white strip. The scope of this function is
  * currently limited to the XP200
  */
-static SANE_Status
-gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Register_Set& regs)
+static void gl646_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor, Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
     (void) regs;
   int total_size;
   unsigned int i, j;
-  SANE_Status status = SANE_STATUS_GOOD;
   int val;
   unsigned int channels;
   int avg[3], avga, avge;
@@ -2526,7 +2524,7 @@ gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
   if (!dev->model->is_cis)
     {
       DBG(DBG_proc, "%s: not a cis scanner, nothing to do...\n", __func__);
-      return SANE_STATUS_GOOD;
+      return;
     }
 
   /* get led calibration resolution */
@@ -2649,8 +2647,6 @@ gl646_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
   while (!acceptable && turn < 100);
 
   DBG(DBG_info,"%s: acceptable exposure: 0x%04x,0x%04x,0x%04x\n", __func__, expr, expg, expb);
-
-  return status;
 }
 
 /**

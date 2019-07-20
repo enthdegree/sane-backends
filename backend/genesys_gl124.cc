@@ -2370,8 +2370,8 @@ move_to_calibration_area (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
 -needs working coarse/gain
 */
-static SANE_Status
-gl124_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Register_Set& regs)
+static void gl124_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
+                                  Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   int num_pixels;
@@ -2379,7 +2379,6 @@ gl124_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
   int resolution;
   int dpihw;
   int i, j;
-  SANE_Status status = SANE_STATUS_GOOD;
   int val;
   int channels, depth;
   int avg[3];
@@ -2515,8 +2514,6 @@ gl124_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
   sensor.exposure.red = exp[0];
   sensor.exposure.green = exp[1];
   sensor.exposure.blue = exp[2];
-
-  return status;
 }
 
 /**

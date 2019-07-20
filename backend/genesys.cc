@@ -3006,12 +3006,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
     {
       /* the afe now sends valid data for doing led calibration */
       sanei_usb_testing_record_message("led_calibration");
-      status = dev->model->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: led calibration failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
 
       /* calibrate afe again to match new exposure */
       if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
@@ -3176,12 +3171,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
 
   if (dev->model->is_cis)
     {
-      status = dev->model->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: led calibration failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
     }
 
   /* calibrate afe */

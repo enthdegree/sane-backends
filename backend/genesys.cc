@@ -3373,9 +3373,8 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
 }
 
 
-/* High-level start of scanning */
-static SANE_Status
-genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
+// High-level start of scanning
+static void genesys_start_scan(Genesys_Device* dev, SANE_Bool lamp_off)
 {
     DBG_HELPER(dbg);
   unsigned int steps, expected;
@@ -3546,8 +3545,6 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 	}
       while (steps < 1);
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 /* this is _not_ a ringbuffer.
@@ -6733,7 +6730,7 @@ SANE_Status sane_start_impl(SANE_Handle handle)
      parameters will be overwritten below, but that's OK.  */
 
   RIE (calc_parameters (s));
-  RIE(genesys_start_scan(s->dev, s->lamp_off));
+    genesys_start_scan(s->dev, s->lamp_off);
 
   s->scanning = SANE_TRUE;
 

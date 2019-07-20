@@ -492,8 +492,7 @@ static void gl846_set_adi_fe(Genesys_Device* dev, uint8_t set)
     }
 }
 
-static SANE_Status
-gl846_homsnr_gpio(Genesys_Device *dev)
+static void gl846_homsnr_gpio(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
 uint8_t val;
@@ -501,8 +500,6 @@ uint8_t val;
     sanei_genesys_read_register(dev, REG6C, &val);
   val |= 0x41;
     sanei_genesys_write_register(dev, REG6C, val);
-
-  return SANE_STATUS_GOOD;
 }
 
 // Set values of analog frontend
@@ -1377,8 +1374,8 @@ gl846_stop_action (Genesys_Device * dev)
   uint8_t val40, val;
   unsigned int loop;
 
-  /* post scan gpio : without that HOMSNR is unreliable */
-  gl846_homsnr_gpio(dev);
+    // post scan gpio : without that HOMSNR is unreliable
+    gl846_homsnr_gpio(dev);
     sanei_genesys_get_status(dev, &val);
   if (DBG_LEVEL >= DBG_io)
     {
@@ -1509,8 +1506,8 @@ gl846_slow_back_home (Genesys_Device * dev,  SANE_Bool wait_until_home)
   int loop = 0;
   ScanColorMode scan_mode;
 
-  /* post scan gpio : without that HOMSNR is unreliable */
-  gl846_homsnr_gpio(dev);
+    // post scan gpio : without that HOMSNR is unreliable
+    gl846_homsnr_gpio(dev);
 
     // first read gives HOME_SENSOR true
     sanei_genesys_get_status(dev, &val);
@@ -1590,8 +1587,8 @@ gl846_slow_back_home (Genesys_Device * dev,  SANE_Bool wait_until_home)
         throw;
     }
 
-  /* post scan gpio : without that HOMSNR is unreliable */
-  gl846_homsnr_gpio(dev);
+    // post scan gpio : without that HOMSNR is unreliable
+    gl846_homsnr_gpio(dev);
 
   if (wait_until_home)
     {

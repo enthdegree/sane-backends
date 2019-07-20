@@ -149,8 +149,7 @@ static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi, int half_ccd
 }
 
 
-static SANE_Status
-gl124_homsnr_gpio(Genesys_Device *dev)
+static void gl124_homsnr_gpio(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
 uint8_t val;
@@ -158,7 +157,6 @@ uint8_t val;
     sanei_genesys_read_register(dev, REG32, &val);
   val &= ~REG32_GPIO10;
     sanei_genesys_write_register(dev, REG32, val);
-    return SANE_STATUS_GOOD;
 }
 
 /**@brief compute half ccd mode
@@ -1532,8 +1530,8 @@ gl124_stop_action (Genesys_Device * dev)
   uint8_t val40, val;
   unsigned int loop;
 
-  /* post scan gpio : without that HOMSNR is unreliable */
-  gl124_homsnr_gpio(dev);
+    // post scan gpio : without that HOMSNR is unreliable
+    gl124_homsnr_gpio(dev);
 
     sanei_genesys_get_status(dev, &val);
   if (DBG_LEVEL >= DBG_io)
@@ -1760,8 +1758,8 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   float resolution;
   int loop = 0;
 
-  /* post scan gpio : without that HOMSNR is unreliable */
-  gl124_homsnr_gpio(dev);
+    // post scan gpio : without that HOMSNR is unreliable
+    gl124_homsnr_gpio(dev);
 
     // first read gives HOME_SENSOR true
     sanei_genesys_get_status(dev, &val);
@@ -1847,8 +1845,8 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
         throw;
     }
 
-  /* post scan gpio : without that HOMSNR is unreliable */
-  gl124_homsnr_gpio(dev);
+    // post scan gpio : without that HOMSNR is unreliable
+    gl124_homsnr_gpio(dev);
 
   if (wait_until_home)
     {

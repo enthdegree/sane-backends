@@ -2323,8 +2323,7 @@ gl847_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
 /**
  * set up GPIO/GPOE for idle state
  */
-static SANE_Status
-gl847_init_gpio (Genesys_Device * dev)
+static void gl847_init_gpio(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   int idx=0;
@@ -2336,9 +2335,7 @@ gl847_init_gpio (Genesys_Device * dev)
     }
   if(gpios[idx].sensor_id==0)
     {
-      DBG(DBG_error, "%s: failed to find GPIO profile for sensor_id=%d\n", __func__,
-          dev->model->ccd_type);
-      return SANE_STATUS_INVAL;
+        throw SaneException("failed to find GPIO profile for sensor_id=%d", dev->model->ccd_type);
     }
 
     sanei_genesys_write_register(dev, REGA7, gpios[idx].ra7);
@@ -2355,8 +2352,6 @@ gl847_init_gpio (Genesys_Device * dev)
 
     sanei_genesys_write_register(dev, REGA8, gpios[idx].ra8);
     sanei_genesys_write_register(dev, REGA9, gpios[idx].ra9);
-
-  return SANE_STATUS_GOOD;
 }
 
 /**
@@ -2453,7 +2448,6 @@ static SANE_Status
 gl847_boot (Genesys_Device * dev, SANE_Bool cold)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
     // reset ASIC if cold boot
@@ -2489,11 +2483,11 @@ gl847_boot (Genesys_Device * dev, SANE_Bool cold)
     sanei_genesys_write_0x8c(dev, 0x10, 0x0b);
     sanei_genesys_write_0x8c(dev, 0x13, 0x0e);
 
-  /* setup gpio */
-  RIE (gl847_init_gpio (dev));
+    // setup gpio
+    gl847_init_gpio(dev);
 
-  /* setup internal memory layout */
-  RIE (gl847_init_memory_layout (dev));
+    // setup internal memory layout
+    gl847_init_memory_layout (dev);
 
   SETREG (0xf8, 0x01);
     sanei_genesys_write_register(dev, 0xf8, dev->reg.find_reg(0xf8).value);

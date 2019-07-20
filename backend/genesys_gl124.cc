@@ -3002,11 +3002,9 @@ gl124_init_regs_for_warmup (Genesys_Device * dev,
  * @param dev device to set up
  * @return SANE_STATUS_GOOD unless a GPIO register cannot be written
  */
-static SANE_Status
-gl124_init_gpio (Genesys_Device * dev)
+static void gl124_init_gpio(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int idx;
 
   /* per model GPIO layout */
@@ -3030,8 +3028,6 @@ gl124_init_gpio (Genesys_Device * dev)
     sanei_genesys_write_register(dev, REG35, gpios[idx].r35);
     sanei_genesys_write_register(dev, REG36, gpios[idx].r36);
     sanei_genesys_write_register(dev, REG38, gpios[idx].r38);
-
-  return status;
 }
 
 /**
@@ -3171,8 +3167,8 @@ gl124_boot (Genesys_Device * dev, SANE_Bool cold)
   SETREG (0x08, REG08_CIS_LINE);
     sanei_genesys_write_register(dev, 0x08, dev->reg.find_reg(0x08).value);
 
-  /* setup gpio */
-  RIE (gl124_init_gpio (dev));
+    // setup gpio
+    gl124_init_gpio(dev);
 
   /* setup internal memory layout */
   RIE (gl124_init_memory_layout (dev));

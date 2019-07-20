@@ -3594,11 +3594,9 @@ WRITE GPOE[17-21]= GPOE21 GPOE20 GPOE19 GPOE18
 genesys_write_register(0xa8,0x3e)
 GPIO(0xa8)=0x3e
  */
-static SANE_Status
-gl843_init_gpio (Genesys_Device * dev)
+static void gl843_init_gpio(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int idx;
 
     sanei_genesys_write_register(dev, REG6E, dev->gpo.enable[0]);
@@ -3619,10 +3617,8 @@ gl843_init_gpio (Genesys_Device * dev)
     }
   else
     {
-      status=SANE_STATUS_INVAL;
+        throw SaneException("Unknown gpo type %d", dev->model->gpo_type);
     }
-
-  return status;
 }
 
 
@@ -3633,7 +3629,6 @@ static SANE_Status
 gl843_boot (Genesys_Device * dev, SANE_Bool cold)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
     if (cold) {
@@ -3714,8 +3709,8 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
     sanei_genesys_write_register(dev, REG2A, 0x00);
     sanei_genesys_write_register(dev, REG2B, 0x00);
 
-  /* setup gpio */
-  RIE (gl843_init_gpio (dev));
+    // setup gpio
+    gl843_init_gpio(dev);
 
   gl843_feed (dev, 300);
   sanei_genesys_sleep_ms(100);

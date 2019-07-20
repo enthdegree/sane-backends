@@ -1153,67 +1153,112 @@ struct Genesys_Command_Set
  * This structure describes a model. It is composed of information on the
  * sensor, the motor, scanner geometry and flags to drive operation.
  */
-typedef struct Genesys_Model
+struct Genesys_Model
 {
-  SANE_String_Const name;
-  SANE_String_Const vendor;
-  SANE_String_Const model;
-  SANE_Int model_id;
+    Genesys_Model() = default;
 
-  SANE_Int asic_type;		/* ASIC type gl646 or gl841 */
-  Genesys_Command_Set *cmd_set;	/* pointers to low level functions */
+    const char* name = nullptr;
+    const char* vendor = nullptr;
+    const char* model = nullptr;
+    unsigned model_id = 0;
 
-  SANE_Int xdpi_values[MAX_RESOLUTIONS];	/* possible x resolutions */
-  SANE_Int ydpi_values[MAX_RESOLUTIONS];	/* possible y resolutions */
-  SANE_Int bpp_gray_values[MAX_DPI];	/* possible depths in gray mode */
-  SANE_Int bpp_color_values[MAX_DPI];	/* possible depths in color mode */
+    // ASIC type gl646 or gl841
+    unsigned asic_type = 0;
+
+    // pointers to low level functions
+    Genesys_Command_Set* cmd_set = nullptr;
+
+    // possible x resolutions
+    SANE_Int xdpi_values[MAX_RESOLUTIONS] = {};
+    // possible y resolutions
+    SANE_Int ydpi_values[MAX_RESOLUTIONS] = {};
+
+    // possible depths in gray mode
+    SANE_Int bpp_gray_values[MAX_DPI] = {};
+
+    // possible depths in color mode
+    SANE_Int bpp_color_values[MAX_DPI] = {};
 
     // All offsets below are with respect to the sensor home position
-  SANE_Fixed x_offset;		/* Start of scan area in mm */
-  SANE_Fixed y_offset;		/* Start of scan area in mm (Amount of
-				   feeding needed to get to the medium) */
-  SANE_Fixed x_size;		/* Size of scan area in mm */
-  SANE_Fixed y_size;		/* Size of scan area in mm */
 
-  SANE_Fixed y_offset_calib;	/* Start of white strip in mm */
-  SANE_Fixed x_offset_mark;	/* Start of black mark in mm */
+    // Start of scan area in mm
+    SANE_Fixed x_offset = 0;
 
-  SANE_Fixed x_offset_ta;	/* Start of scan area in TA mode in mm */
-  SANE_Fixed y_offset_ta;	/* Start of scan area in TA mode in mm */
-  SANE_Fixed x_size_ta;		/* Size of scan area in TA mode in mm */
-  SANE_Fixed y_size_ta;		/* Size of scan area in TA mode in mm */
+    // Start of scan area in mm (Amount of feeding needed to get to the medium)
+    SANE_Fixed y_offset = 0;
 
-  // The position of the sensor when it's aligned with the lamp for transparency scanning
-  SANE_Fixed y_offset_sensor_to_ta;
+    // Size of scan area in mm
+    SANE_Fixed x_size = 0;
 
-  SANE_Fixed y_offset_calib_ta;	/* Start of white strip in TA mode in mm */
+    // Size of scan area in mm
+    SANE_Fixed y_size = 0;
 
-  SANE_Fixed post_scan;		/* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_Fixed eject_feed;	/* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
+    // Start of white strip in mm
+    SANE_Fixed y_offset_calib = 0;
 
-  /* Line-distance correction (in pixel at optical_ydpi) for CCD scanners */
-  SANE_Int ld_shift_r;		/* red */
-  SANE_Int ld_shift_g;		/* green */
-  SANE_Int ld_shift_b;		/* blue */
+    // Start of black mark in mm
+    SANE_Fixed x_offset_mark = 0;
 
-  Genesys_Color_Order line_mode_color_order;	/* Order of the CCD/CIS colors */
+    // Start of scan area in TA mode in mm
+    SANE_Fixed x_offset_ta = 0;
 
-  SANE_Bool is_cis;		/* Is this a CIS or CCD scanner? */
-  SANE_Bool is_sheetfed;	/* Is this sheetfed scanner? */
+    // Start of scan area in TA mode in mm
+    SANE_Fixed y_offset_ta = 0;
 
-  SANE_Int ccd_type;		/* which SENSOR type do we have ? */
-  SANE_Int dac_type;		/* which DAC do we have ? */
-  SANE_Int gpo_type;		/* General purpose output type */
-  SANE_Int motor_type;		/* stepper motor type */
-  SANE_Word flags;		/* Which hacks are needed for this scanner? */
-  SANE_Word buttons;		/* Button flags, described existing buttons for the model */
-  /*@} */
-  SANE_Int shading_lines;	/* how many lines are used for shading calibration */
-  SANE_Int shading_ta_lines; // how many lines are used for shading calibration in TA mode
-  SANE_Int search_lines;	/* how many lines are used to search start position */
-} Genesys_Model;
+    // Size of scan area in TA mode in mm
+    SANE_Fixed x_size_ta = 0;
+
+    // Size of scan area in TA mode in mm
+    SANE_Fixed y_size_ta = 0;
+
+    // The position of the sensor when it's aligned with the lamp for transparency scanning
+    SANE_Fixed y_offset_sensor_to_ta = 0;
+
+    // Start of white strip in TA mode in mm
+    SANE_Fixed y_offset_calib_ta = 0;
+
+    // Size of scan area after paper sensor stop sensing document in mm
+    SANE_Fixed post_scan = 0;
+
+    // Amount of feeding needed to eject document after finishing scanning in mm
+    SANE_Fixed eject_feed = 0;
+
+    // Line-distance correction (in pixel at optical_ydpi) for CCD scanners
+    SANE_Int ld_shift_r = 0;
+    SANE_Int ld_shift_g = 0;
+    SANE_Int ld_shift_b = 0;
+
+    // Order of the CCD/CIS colors
+    Genesys_Color_Order line_mode_color_order = COLOR_ORDER_RGB;
+
+    // Is this a CIS or CCD scanner?
+    SANE_Bool is_cis = false;
+
+    // Is this sheetfed scanner?
+    SANE_Bool is_sheetfed = false;
+
+    // sensor type
+    SANE_Int ccd_type = 0;
+    // Digital-Analog converter type (TODO: rename to ADC)
+    SANE_Int dac_type = 0;
+    // General purpose output type
+    SANE_Int gpo_type = 0;
+    // stepper motor type
+    SANE_Int motor_type = 0;
+
+    // Which hacks are needed for this scanner?
+    SANE_Word flags = 0;
+
+    // Button flags, described existing buttons for the model
+    SANE_Word buttons = 0;
+
+    // how many lines are used for shading calibration
+    SANE_Int shading_lines = 0;
+    // how many lines are used for shading calibration in TA mode
+    SANE_Int shading_ta_lines = 0;
+    // how many lines are used to search start position
+    SANE_Int search_lines = 0;
+};
 
 struct Genesys_Settings
 {

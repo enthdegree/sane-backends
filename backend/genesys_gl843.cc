@@ -3244,15 +3244,13 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   a reasonable shape. the fine calibration of the upper and lower bounds will
   be done with shading.
  */
-static SANE_Status
-gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                              Genesys_Register_Set& regs, int dpi)
+static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                          Genesys_Register_Set& regs, int dpi)
 {
     DBG_HELPER_ARGS(dbg, "dpi = %d", dpi);
   int pixels, factor, dpihw;
   int total_size;
   int i, j, channels;
-  SANE_Status status = SANE_STATUS_GOOD;
   float coeff;
   int val, lines;
   int resolution;
@@ -3428,8 +3426,6 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
     gl843_stop_action(dev);
 
     gl843_slow_back_home(dev, SANE_TRUE);
-
-  return status;
 }
 
 // wait for lamp warmup by scanning the same line until difference

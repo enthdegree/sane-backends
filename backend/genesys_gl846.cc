@@ -2736,16 +2736,14 @@ static void gl846_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       dev->frontend.get_offset(2));
 }
 
-static SANE_Status
-gl846_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                              Genesys_Register_Set& regs, int dpi)
+static void gl846_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                          Genesys_Register_Set& regs, int dpi)
 {
     DBG_HELPER(dbg);
   int pixels;
   int total_size;
   uint8_t reg04;
   int i, j, channels;
-  SANE_Status status = SANE_STATUS_GOOD;
   int max[3];
   float gain[3],coeff;
   int val, code, lines;
@@ -2758,7 +2756,7 @@ gl846_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
     sanei_genesys_read_register(dev, REG04, &reg04);
   if ((reg04 & REG04_FESET) == 0x02)
     {
-      return status;
+      return;
     }
 
   /* coarse gain calibration is always done in color mode */
@@ -2864,8 +2862,6 @@ gl846_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
     gl846_stop_action(dev);
 
     gl846_slow_back_home(dev, SANE_TRUE);
-
-  return status;
 }
 
 

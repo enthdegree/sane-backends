@@ -1078,9 +1078,8 @@ struct Genesys_Command_Set
     void (*search_start_position) (Genesys_Device* dev);
     void (*offset_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
                                 Genesys_Register_Set& regs);
-    SANE_Status (*coarse_gain_calibration) (Genesys_Device * dev,
-                                            const Genesys_Sensor& sensor,
-                                            Genesys_Register_Set& regs, int dpi);
+    void (*coarse_gain_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                     Genesys_Register_Set& regs, int dpi);
     SANE_Status (*led_calibration) (Genesys_Device * dev, Genesys_Sensor& sensor,
                                     Genesys_Register_Set& regs);
 

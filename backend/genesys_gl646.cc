@@ -2939,15 +2939,13 @@ static void gl646_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 /** @brief gain calibration for Analog Device frontends
  * Alternative coarse gain calibration
  */
-static SANE_Status
-ad_fe_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                              Genesys_Register_Set& regs, int dpi)
+static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                          Genesys_Register_Set& regs, int dpi)
 {
     DBG_HELPER(dbg);
     (void) regs;
   unsigned int i, channels, val;
   unsigned int size, count, resolution, pass;
-  SANE_Status status = SANE_STATUS_GOOD;
   float average;
   Genesys_Settings settings;
   char title[32];
@@ -3028,7 +3026,6 @@ ad_fe_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
       dev->frontend.get_gain(0),
       dev->frontend.get_gain(1),
       dev->frontend.get_gain(2));
-  return status;
 }
 
 /**
@@ -3038,21 +3035,19 @@ ad_fe_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
  * @param dev device for scan
  * @param dpi resolutnio to calibrate at
  */
-static SANE_Status
-gl646_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                              Genesys_Register_Set& regs, int dpi)
+static void gl646_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                          Genesys_Register_Set& regs, int dpi)
 {
     DBG_HELPER(dbg);
   unsigned int i, j, k, channels, val, maximum, idx;
   unsigned int count, resolution, pass;
-  SANE_Status status = SANE_STATUS_GOOD;
   float average[3];
   Genesys_Settings settings;
   char title[32];
 
   if (dev->model->ccd_type == CIS_XP200)
     {
-      return ad_fe_coarse_gain_calibration (dev, sensor, regs, sensor.optical_res);
+      return ad_fe_coarse_gain_calibration(dev, sensor, regs, sensor.optical_res);
     }
 
   /* setup for a RGB scan, one full sensor's width line */
@@ -3192,7 +3187,6 @@ gl646_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
       dev->frontend.get_gain(0),
       dev->frontend.get_gain(1),
       dev->frontend.get_gain(2));
-  return status;
 }
 
 /**

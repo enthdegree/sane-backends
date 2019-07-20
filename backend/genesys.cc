@@ -2989,13 +2989,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 
       /* since all the registers are set up correctly, just use them */
       sanei_usb_testing_record_message("coarse_gain_calibration");
-      status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: coarse gain calibration: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
-
+        dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
     }
   else
     /* since we have 2 gain calibration proc, skip second if first one was
@@ -3028,12 +3022,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 	  /* since all the registers are set up correctly, just use them */
 
           sanei_usb_testing_record_message("coarse_gain_calibration");
-          status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-              DBG(DBG_error, "%s: coarse gain calibration: %s\n", __func__, sane_strstatus(status));
-	      return status;
-	    }
+        dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
 	}
       else
 	/* since we have 2 gain calibration proc, skip second if first one was
@@ -3202,12 +3191,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
 
       /* since all the registers are set up correctly, just use them */
 
-      status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, xres);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: coarse gain calibration: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, xres);
     }
   else
     /* since we have 2 gain calibration proc, skip second if first one was

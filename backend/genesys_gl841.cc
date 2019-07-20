@@ -3971,15 +3971,13 @@ static void gl841_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   a reasonable shape. the fine calibration of the upper and lower bounds will
   be done with shading.
  */
-static SANE_Status
-gl841_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                              Genesys_Register_Set& regs, int dpi)
+static void gl841_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                          Genesys_Register_Set& regs, int dpi)
 {
     DBG_HELPER_ARGS(dbg, "dpi=%d", dpi);
   int num_pixels;
   int total_size;
   int i, j, channels;
-  SANE_Status status = SANE_STATUS_GOOD;
   int max[3];
   float gain[3];
   int val;
@@ -4092,7 +4090,7 @@ gl841_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
 	  DBG (DBG_error0, "****                                      ****\n");
 	  DBG (DBG_error0, "**********************************************\n");
 	  DBG (DBG_error0, "**********************************************\n");
-          return SANE_STATUS_JAMMED;
+            throw SaneException(SANE_STATUS_JAMMED, "scanning head is locked");
         }
 
     }
@@ -4123,8 +4121,6 @@ gl841_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
     gl841_stop_action(dev);
 
   gl841_slow_back_home(dev, SANE_TRUE);
-
-  return status;
 }
 
 // wait for lamp warmup by scanning the same line until difference

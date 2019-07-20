@@ -2706,16 +2706,14 @@ static void gl124_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   a reasonable shape. the fine calibration of the upper and lower bounds will
   be done with shading.
  */
-static SANE_Status
-gl124_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                              Genesys_Register_Set& regs, int dpi)
+static void gl124_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                          Genesys_Register_Set& regs, int dpi)
 {
     DBG_HELPER_ARGS(dbg, "dpi = %d", dpi);
   int pixels;
   int total_size;
   uint8_t reg0a;
   int i, j, channels;
-  SANE_Status status = SANE_STATUS_GOOD;
   int max[3];
   float gain[3],coeff;
   int val, code, lines;
@@ -2726,7 +2724,7 @@ gl124_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
     sanei_genesys_read_register(dev, REG0A, &reg0a);
   if(((reg0a & REG0A_SIFSEL)>>REG0AS_SIFSEL)==3)
     {
-      return status;
+      return;
     }
 
   /* coarse gain calibration is always done in color mode */
@@ -2850,8 +2848,6 @@ gl124_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
     gl124_stop_action(dev);
 
     gl124_slow_back_home(dev, SANE_TRUE);
-
-  return status;
 }
 
 // wait for lamp warmup by scanning the same line until difference

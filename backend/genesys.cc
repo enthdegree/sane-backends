@@ -2933,8 +2933,7 @@ static void genesys_save_calibration(Genesys_Device* dev, const Genesys_Sensor& 
  * @param dev device to calibrate
  * @return SANE_STATUS_GOOD if everything when all right, else the error code.
  */
-static SANE_Status
-genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
+static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   uint32_t pixels_per_line;
@@ -3055,8 +3054,6 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
       sanei_usb_testing_record_message("genesys_send_shading_coefficient");
         genesys_send_shading_coefficient(dev, sensor);
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 /**
@@ -3069,7 +3066,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
  * @param dev device to calibrate
  * @return SANE_STATUS_GOOD if everything when all right, else the error code.
  */
-static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
+static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   SANE_Bool forward = SANE_TRUE;
@@ -3077,8 +3074,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
 
   if (dev->model->cmd_set->search_strip == NULL)
     {
-      DBG(DBG_error, "%s: no strip searching function available\n", __func__);
-      return SANE_STATUS_UNSUPPORTED;
+        throw SaneException(SANE_STATUS_UNSUPPORTED, "no strip searching function available");
     }
 
     // first step, load document
@@ -3199,21 +3195,21 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
 
   /* resotre settings */
   dev->settings.xres = xres;
-  return SANE_STATUS_GOOD;
 }
 
 /**
  * does the calibration process for a device
  * @param dev device to calibrate
  */
-static SANE_Status
-genesys_scanner_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
+static void genesys_scanner_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {
+    DBG_HELPER(dbg);
   if (dev->model->is_sheetfed == SANE_FALSE)
     {
-      return genesys_flatbed_calibration (dev, sensor);
+        genesys_flatbed_calibration(dev, sensor);
+        return;
     }
-  return genesys_sheetfed_calibration(dev, sensor);
+    genesys_sheetfed_calibration(dev, sensor);
 }
 
 /* unused function kept in case it may be usefull in the futur */
@@ -3459,14 +3455,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
        if (!(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
            &&dev->model->is_sheetfed == SANE_FALSE)
 	{
-          status = genesys_scanner_calibration(dev, sensor);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to do scanner calibration: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
-
+        genesys_scanner_calibration(dev, sensor);
           genesys_save_calibration (dev, sensor);
 	}
       else
@@ -6562,7 +6551,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
             catch_all_exceptions(__func__, [&]()
             {
                 s->dev->model->cmd_set->save_power(s->dev, SANE_FALSE);
-                TIE(genesys_scanner_calibration(s->dev, sensor));
+                genesys_scanner_calibration(s->dev, sensor);
             });
             catch_all_exceptions(__func__, [&]()
             {

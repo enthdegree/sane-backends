@@ -2702,12 +2702,10 @@ dark_average (uint8_t * data, unsigned int pixels, unsigned int lines,
   return average;
 }
 
-static SANE_Status
-gl847_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                         Genesys_Register_Set& regs)
+static void gl847_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                     Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t reg04;
   unsigned int channels, bpp;
   int pass = 0, avg, total_size;
@@ -2718,7 +2716,7 @@ gl847_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
     sanei_genesys_read_register(dev, REG04, &reg04);
   if ((reg04 & REG04_FESET) == 0x02)
     {
-      return status;
+      return;
     }
 
   /* offset calibration is always done in color mode */
@@ -2841,8 +2839,6 @@ gl847_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       dev->frontend.get_offset(0),
       dev->frontend.get_offset(1),
       dev->frontend.get_offset(2));
-
-  return SANE_STATUS_GOOD;
 }
 
 static SANE_Status

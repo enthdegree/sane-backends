@@ -2985,12 +2985,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
   if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
     {
       sanei_usb_testing_record_message("offset_calibration");
-      status = dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: offset calibration failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 
       /* since all the registers are set up correctly, just use them */
       sanei_usb_testing_record_message("coarse_gain_calibration");
@@ -3028,12 +3023,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
       if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
 	{
           sanei_usb_testing_record_message("offset_calibration");
-          status = dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-              DBG(DBG_error, "%s: offset calibration failed: %s\n", __func__, sane_strstatus(status));
-	      return status;
-	    }
+            dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 
 	  /* since all the registers are set up correctly, just use them */
 
@@ -3208,12 +3198,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
   /* calibrate afe */
   if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
     {
-      status = dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: offset calibration failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 
       /* since all the registers are set up correctly, just use them */
 

@@ -3500,12 +3500,10 @@ gl841_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
  * 0x0006 : is offset
  * We scan a line with no gain until average offset reaches the target
  */
-static SANE_Status
-ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                          Genesys_Register_Set& regs)
+static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                     Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int num_pixels;
   int total_size;
   int i;
@@ -3518,7 +3516,7 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
   /* don't impact 3600 behavior since we can't test it */
   if (dev->model->ccd_type == CCD_PLUSTEK_3600)
     {
-      return status;
+      return;
     }
 
     SetupParams params;
@@ -3604,7 +3602,6 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
       dev->frontend.get_offset(0),
       dev->frontend.get_offset(1),
       dev->frontend.get_offset(2));
-  return status;
 }
 
 /* this function does the offset calibration by scanning one line of the calibration
@@ -3614,15 +3611,13 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
 
 this function expects the slider to be where?
 */
-static SANE_Status
-gl841_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                         Genesys_Register_Set& regs)
+static void gl841_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                     Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   int num_pixels;
   int total_size;
   int i, j;
-  SANE_Status status = SANE_STATUS_GOOD;
   int val;
   int channels;
   int off[3],offh[3],offl[3],off1[3],off2[3];
@@ -3964,8 +3959,6 @@ gl841_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       dev->frontend.set_offset(1, dev->frontend.get_offset(0));
       dev->frontend.set_offset(2, dev->frontend.get_offset(0));
     }
-
-  return status;
 }
 
 

@@ -3021,9 +3021,8 @@ dark_average_channel (uint8_t * data, unsigned int pixels, unsigned int lines,
  * color line is scanned at a time. Scanning head doesn't move.
  * @param dev device to calibrate
  */
-static SANE_Status
-gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                         Genesys_Register_Set& regs)
+static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                     Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   unsigned int channels, bpp;
@@ -3233,8 +3232,6 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       dev->frontend.get_offset(0),
       dev->frontend.get_offset(1),
       dev->frontend.get_offset(2));
-
-  return SANE_STATUS_GOOD;
 }
 
 

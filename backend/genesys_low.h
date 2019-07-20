@@ -1076,8 +1076,8 @@ struct Genesys_Command_Set
     void (*send_gamma_table) (Genesys_Device* dev, const Genesys_Sensor& sensor);
 
     void (*search_start_position) (Genesys_Device* dev);
-    SANE_Status (*offset_calibration) (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                       Genesys_Register_Set& regs);
+    void (*offset_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                Genesys_Register_Set& regs);
     SANE_Status (*coarse_gain_calibration) (Genesys_Device * dev,
                                             const Genesys_Sensor& sensor,
                                             Genesys_Register_Set& regs, int dpi);

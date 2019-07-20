@@ -2695,11 +2695,9 @@ dark_average (uint8_t * data, unsigned int pixels, unsigned int lines,
  * we do simple scan until all black_pixels are higher than 0,
  * raising offset at each turn.
  */
-static SANE_Status
-ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   unsigned int channels;
   int pass = 0;
   SANE_Int resolution;
@@ -2775,15 +2773,13 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
   while (pass < 128 && min == 0);
   if (pass == 128)
     {
-      DBG(DBG_error, "%s: failed to find correct offset\n", __func__);
-      return SANE_STATUS_INVAL;
+        throw SaneException(SANE_STATUS_INVAL, "failed to find correct offset");
     }
 
   DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__,
       dev->frontend.get_offset(0),
       dev->frontend.get_offset(1),
       dev->frontend.get_offset(2));
-  return status;
 }
 
 #define DARK_TARGET 8
@@ -2795,13 +2791,11 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
  * @param dev scanner's device
  * @return SANE_STATUS_GOOD if success, else error code is failure
 */
-static SANE_Status
-gl646_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                         Genesys_Register_Set& regs)
+static void gl646_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                     Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
     (void) regs;
-  SANE_Status status = SANE_STATUS_GOOD;
   unsigned int channels;
   int pass = 0, avg;
   SANE_Int resolution;
@@ -2812,7 +2806,7 @@ gl646_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
   /* Analog Device fronted have a different calibration */
   if (dev->model->dac_type == DAC_AD_XP200)
     {
-      return ad_fe_offset_calibration (dev, sensor);
+        ad_fe_offset_calibration(dev, sensor);
     }
 
   DBG(DBG_proc, "%s: start\n", __func__); // TODO
@@ -2940,7 +2934,6 @@ gl646_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       dev->frontend.get_offset(0),
       dev->frontend.get_offset(1),
       dev->frontend.get_offset(2));
-  return status;
 }
 
 /** @brief gain calibration for Analog Device frontends

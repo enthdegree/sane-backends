@@ -1935,7 +1935,7 @@ gl843_detect_document_end (Genesys_Device * dev)
 }
 
 // enables or disables XPA slider motor
-static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
+static void gl843_set_xpa_motor_power(Genesys_Device* dev, bool set)
 {
     DBG_HELPER(dbg);
     uint8_t val;
@@ -2026,8 +2026,6 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
             sanei_genesys_write_register(dev, REGA9, val);
         }
     }
-
-    return SANE_STATUS_GOOD;
 }
 
 
@@ -2036,7 +2034,7 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
  * XPA light
  * @param dev device to set up
  */
-static void gl843_set_xpa_lamp_power(Genesys_Device *dev, bool set)
+static void gl843_set_xpa_lamp_power(Genesys_Device* dev, bool set)
 {
     DBG_HELPER(dbg);
 
@@ -2154,7 +2152,7 @@ gl843_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
 
             if (reg->state.is_xpa_on) {
                 dev->needs_home_ta = SANE_TRUE;
-                RIE(gl843_set_xpa_motor_power(dev, true));
+                gl843_set_xpa_motor_power(dev, true);
             }
 
             // blinking led
@@ -2167,7 +2165,7 @@ gl843_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
             }
             if (reg->state.is_xpa_on) {
                 dev->needs_home_ta = SANE_TRUE;
-                RIE(gl843_set_xpa_motor_power(dev, true));
+                gl843_set_xpa_motor_power(dev, true);
             }
         break;
       case GPO_CS4400F:
@@ -2254,7 +2252,7 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
 
     // write to scanner and start action
     dev->model->cmd_set->bulk_write_register(dev, local_reg);
-  RIE(gl843_set_xpa_motor_power(dev, true));
+    gl843_set_xpa_motor_power(dev, true);
     try {
         gl843_start_action(dev);
     } catch (...) {

@@ -3929,9 +3929,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
    * the requested scan */
   if (dev->model->is_sheetfed == SANE_TRUE)
     {
-      status = dev->model->cmd_set->detect_document_end (dev);
-      if (status != SANE_STATUS_GOOD)
-	return status;
+        dev->model->cmd_set->detect_document_end(dev);
     }
 
   space = dev->read_buffer.size() - dev->read_buffer.avail();

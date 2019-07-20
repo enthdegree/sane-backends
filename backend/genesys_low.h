@@ -1105,7 +1105,7 @@ struct Genesys_Command_Set
      * case it updates the amount of data to read and set up
      * flags in the dev struct
      */
-    SANE_Status (*detect_document_end) (Genesys_Device * dev);
+    void (*detect_document_end) (Genesys_Device* dev);
     /**
      * eject document from scanner
      */

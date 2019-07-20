@@ -1793,8 +1793,7 @@ static void gl843_load_document(Genesys_Device* dev)
  * to take it into account
  * used by sheetfed scanners
  */
-static SANE_Status
-gl843_detect_document_end (Genesys_Device * dev)
+static void gl843_detect_document_end(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   SANE_Bool paper_loaded;
@@ -1908,8 +1907,6 @@ gl843_detect_document_end (Genesys_Device * dev)
 	  DBG(DBG_io, "%s: no flushing needed\n", __func__);
 	}
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 // enables or disables XPA slider motor

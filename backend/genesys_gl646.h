@@ -253,8 +253,7 @@ static void gl646_init_regs (Genesys_Device * dev);
 
 static void gl646_load_document(Genesys_Device* dev);
 
-static SANE_Status
-gl646_detect_document_end (Genesys_Device * dev);
+static void gl646_detect_document_end(Genesys_Device* dev);
 
 #define FULL_STEP   0
 #define HALF_STEP   1

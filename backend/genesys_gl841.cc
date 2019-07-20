@@ -2683,8 +2683,7 @@ static void gl841_load_document(Genesys_Device* dev)
  * to take it into account
  * used by sheetfed scanners
  */
-static SANE_Status
-gl841_detect_document_end (Genesys_Device * dev)
+static void gl841_detect_document_end(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   SANE_Bool paper_loaded;
@@ -2743,8 +2742,6 @@ gl841_detect_document_end (Genesys_Device * dev)
           dev->total_bytes_to_read=total_bytes_to_read;
         }
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 // Send the low-level scan command

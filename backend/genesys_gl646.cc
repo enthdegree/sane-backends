@@ -1711,11 +1711,9 @@ static void gl646_load_document(Genesys_Device* dev)
  * to take it into account
  * used by sheetfed scanners
  */
-static SANE_Status
-gl646_detect_document_end (Genesys_Device * dev)
+static void gl646_detect_document_end(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val, gpio;
   unsigned int bytes_left, lines;
 
@@ -1771,8 +1769,6 @@ gl646_detect_document_end (Genesys_Device * dev)
       DBG(DBG_io, "%s: total_bytes_read   =%lu\n", __func__, (u_long) dev->total_bytes_read);
       DBG(DBG_io, "%s: read_bytes_left    =%lu\n", __func__, (u_long) dev->read_bytes_left);
     }
-
-  return status;
 }
 
 /**

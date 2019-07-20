@@ -2218,17 +2218,9 @@ gl646_search_start_position (Genesys_Device * dev)
                                      settings.pixels, settings.lines);
       }
 
-  /* now search reference points on the data */
-  status =
-    sanei_genesys_search_reference_point (dev, sensor, data.data(),
-                                          sensor.CCD_start_xoffset,
-					  resolution, settings.pixels,
-					  settings.lines);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set search reference point: %s\n", __func__,
-          sane_strstatus(status));
-    }
+    // now search reference points on the data
+    sanei_genesys_search_reference_point(dev, sensor, data.data(), sensor.CCD_start_xoffset,
+                                         resolution, settings.pixels, settings.lines);
 
   return status;
 }

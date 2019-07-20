@@ -1046,14 +1046,11 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
 }
 
 
-/* Find the position of the reference point:
-   takes gray level 8 bits data and find
-   first CCD usable pixel and top of scanning area */
-SANE_Status
-sanei_genesys_search_reference_point (Genesys_Device * dev, Genesys_Sensor& sensor,
-                                      uint8_t * data,
-				      int start_pixel, int dpi, int width,
-				      int height)
+// Find the position of the reference point: takes gray level 8 bits data and find
+// first CCD usable pixel and top of scanning area
+void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& sensor,
+                                          uint8_t* data, int start_pixel, int dpi, int width,
+                                          int height)
 {
     DBG_HELPER(dbg);
   int x, y;
@@ -1061,9 +1058,10 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, Genesys_Sensor& sens
   int size, count;
   int level = 80;		/* edge threshold level */
 
-  /*sanity check */
-  if ((width < 3) || (height < 3))
-    return SANE_STATUS_INVAL;
+    // sanity check
+    if ((width < 3) || (height < 3)) {
+        throw SaneException("invalid width or height");
+    }
 
   /* transformed image data */
   size = width * height;
@@ -1220,8 +1218,6 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, Genesys_Sensor& sens
 
   DBG(DBG_proc, "%s: CCD_start_xoffset = %d, left = %d, top = %d\n", __func__,
       sensor.CCD_start_xoffset, left, top);
-
-  return SANE_STATUS_GOOD;
 }
 
 

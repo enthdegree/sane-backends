@@ -1728,17 +1728,10 @@ gl847_search_start_position (Genesys_Device * dev)
   /* update regs to copy ASIC internal state */
   dev->reg = local_reg;
 
-/*TODO: find out where sanei_genesys_search_reference_point
-  stores information, and use that correctly*/
-  status =
+    // TODO: find out where sanei_genesys_search_reference_point stores information,
+    // and use that correctly
     sanei_genesys_search_reference_point(dev, sensor, data.data(), 0, dpi, pixels,
                                          dev->model->search_lines);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set search reference point: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
 
   return SANE_STATUS_GOOD;
 }

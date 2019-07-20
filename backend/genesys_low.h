@@ -1887,11 +1887,9 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
 
 extern void sanei_genesys_stop_motor(Genesys_Device* dev);
 
-extern SANE_Status
-sanei_genesys_search_reference_point(Genesys_Device * dev, Genesys_Sensor& sensor,
-                                     uint8_t * data,
-                                     int start_pixel, int dpi, int width,
-                                     int height);
+extern void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& sensor,
+                                                 uint8_t* data, int start_pixel, int dpi, int width,
+                                                 int height);
 
 extern void sanei_genesys_write_file(const char* filename, uint8_t* data, size_t length);
 

@@ -3378,11 +3378,9 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
  * so that the head goes to park position.
  * as a by-product, also check for lock
  */
-static SANE_Status
-gl646_repark_head (Genesys_Device * dev)
+static void gl646_repark_head(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
   unsigned int expected, steps;
 
@@ -3425,7 +3423,6 @@ gl646_repark_head (Genesys_Device * dev)
 
     // toggle motor flag, put an huge step number and redo move backward
     gl646_slow_back_home(dev, 1);
-  return status;
 }
 
 /* *
@@ -3588,20 +3585,9 @@ gl646_init (Genesys_Device * dev)
     {
       if (dev->model->flags & GENESYS_FLAG_REPARK)
 	{
-	  status = gl646_repark_head (dev);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      if (status == SANE_STATUS_INVAL)
-		{
-		  DBG(DBG_error0, "Your scanner is locked. Please move the lock switch to the "
-		      "unlocked position\n");
-		  return SANE_STATUS_JAMMED;
-		}
-	      else
-		DBG(DBG_error, "%s: gl646_repark_head failed: %s\n", __func__,
-		    sane_strstatus(status));
-	      return status;
-	    }
+            // FIXME: if repark fails, we should print an error message that the scanner is locked and
+            // the user should unlock the lock. We should also rethrow with SANE_STATUS_JAMMED
+            gl646_repark_head(dev);
 	}
       else
 	{

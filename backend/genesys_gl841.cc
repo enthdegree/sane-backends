@@ -4259,17 +4259,14 @@ gl841_init_regs_for_warmup (Genesys_Device * dev,
  * so that the head goes to park position.
  * as a by-product, also check for lock
  */
-static SANE_Status
-sanei_gl841_repark_head (Genesys_Device * dev)
+static void sanei_gl841_repark_head(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
 
     gl841_feed(dev,232);
 
     // toggle motor flag, put an huge step number and redo move backward
     gl841_slow_back_home(dev, SANE_TRUE);
-  return status;
 }
 
 static bool
@@ -4373,17 +4370,9 @@ gl841_init (Genesys_Device * dev)
   /* ensure head is correctly parked, and check lock */
   if (dev->model->flags & GENESYS_FLAG_REPARK)
     {
-      status = sanei_gl841_repark_head (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  if (status == SANE_STATUS_INVAL)
-	    DBG(DBG_error0, "Your scanner is locked. Please move the lock switch to the unlocked "
-		"position\n");
-	  else
-	    DBG(DBG_error, "%s: sanei_gl841_repark_head failed: %s\n", __func__,
-		sane_strstatus(status));
-	  return status;
-	}
+        // FIXME: if repark fails, we should print an error message that the scanner is locked and
+        // the user should unlock the lock. We should also rethrow with SANE_STATUS_JAMMED
+        sanei_gl841_repark_head(dev);
     }
 
   /* send gamma tables */

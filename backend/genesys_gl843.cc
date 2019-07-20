@@ -2820,8 +2820,7 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
 /**
  * This function sends gamma tables to ASIC
  */
-static SANE_Status
-gl843_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor)
+static void gl843_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   int size;
@@ -2851,8 +2850,6 @@ gl843_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor)
 
     // send data
     sanei_genesys_bulk_write_data(dev, 0x28, gamma.data(), size * 2 * 3);
-
-  return SANE_STATUS_GOOD;
 }
 
 /* this function does the led calibration by scanning one line of the calibration

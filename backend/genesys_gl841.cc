@@ -3310,16 +3310,12 @@ gl841_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   return SANE_STATUS_GOOD;
 }
 
-/*
- * this function sends generic gamma table (ie linear ones)
- * or the Sensor specific one if provided
- */
-static SANE_Status
-gl841_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& sensor)
+
+// this function sends generic gamma table (ie linear ones) or the Sensor specific one if provided
+static void gl841_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   int size;
-  SANE_Status status = SANE_STATUS_GOOD;
 
   size = 256;
 
@@ -3328,23 +3324,11 @@ gl841_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& sensor)
 
     sanei_genesys_generate_gamma_buffer(dev, sensor, 16, 65535, size, gamma.data());
 
-  /* send address */
-  status = gl841_set_buffer_address_gamma (dev, 0x00000);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set buffer address: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // send address
+    gl841_set_buffer_address_gamma (dev, 0x00000);
 
     // send data
     sanei_genesys_bulk_write_data(dev, 0x28, gamma.data(), size * 2 * 3);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to send gamma table: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -4375,14 +4359,8 @@ gl841_init (Genesys_Device * dev)
         sanei_gl841_repark_head(dev);
     }
 
-  /* send gamma tables */
-  status = gl841_send_gamma_table(dev, sensor);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to send initial gamma tables: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    // send gamma tables
+    gl841_send_gamma_table(dev, sensor);
 
   /* initial calibration reg values */
   Genesys_Register_Set& regs = dev->calib_reg;

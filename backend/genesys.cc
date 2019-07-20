@@ -3722,14 +3722,9 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
     auto& sensor = sanei_genesys_find_sensor_for_write(dev, dev->settings.xres,
                                                        dev->settings.scan_method);
 
-  /* send gamma tables. They have been set to device or user value
-   * when setting option value */
-  status = dev->model->cmd_set->send_gamma_table(dev, sensor);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to init gamma table: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // send gamma tables. They have been set to device or user value
+    // when setting option value */
+    dev->model->cmd_set->send_gamma_table(dev, sensor);
 
   /* try to use cached calibration first */
   if (!genesys_restore_calibration (dev, sensor))

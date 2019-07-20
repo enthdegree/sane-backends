@@ -2511,10 +2511,9 @@ static void setup_for_scan(Genesys_Device* dev,
 }
 
 /**
- * this function sen gamm table to ASIC
+ * this function send gamma table to ASIC
  */
-static SANE_Status
-gl646_send_gamma_table (Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void gl646_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   int size;
@@ -2551,7 +2550,7 @@ gl646_send_gamma_table (Genesys_Device * dev, const Genesys_Sensor& sensor)
       address = 0x20000;
       break;
     default:
-      return SANE_STATUS_INVAL;
+            throw SaneException("invalid dpi");
     }
 
     // send address
@@ -2559,8 +2558,6 @@ gl646_send_gamma_table (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
     // send data
     sanei_genesys_bulk_write_data(dev, 0x3c, gamma.data(), size * 2 * 3);
-
-  return SANE_STATUS_GOOD;
 }
 
 /** @brief this function does the led calibration.
@@ -3437,7 +3434,6 @@ gl646_init (Genesys_Device * dev)
     DBG_INIT();
     DBG_HELPER(dbg);
 
-  SANE_Status status = SANE_STATUS_GOOD;
   struct timeval tv;
   uint8_t cold = 0, val = 0;
   uint32_t addr = 0xdead;
@@ -3500,14 +3496,8 @@ gl646_init (Genesys_Device * dev)
         gl646_asic_test(dev);
 	}
 
-      /* send gamma tables if needed */
-      status = gl646_send_gamma_table(dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to send generic gamma tables: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
+        // send gamma tables if needed
+        gl646_send_gamma_table(dev, sensor);
 
         // Set powersaving(default = 15 minutes)
         gl646_set_powersaving(dev, 15);

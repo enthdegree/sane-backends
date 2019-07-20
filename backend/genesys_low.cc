@@ -1156,14 +1156,12 @@ void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
  * fontend. Used by gl846+ ASICs
  * @param dev device to write to
  */
-SANE_Status
-sanei_genesys_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& sensor)
+void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   int size;
   int i;
   uint8_t val;
-  SANE_Status status = SANE_STATUS_GOOD;
 
   size = 256 + 1;
 
@@ -1197,8 +1195,6 @@ sanei_genesys_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& senso
         sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2,
                                 gamma.data() + i * size * 2+2);
     }
-
-  return status;
 }
 
 /** @brief initialize device

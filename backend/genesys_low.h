@@ -1078,7 +1078,7 @@ struct Genesys_Command_Set
     /**
      * Send gamma tables to ASIC
      */
-    SANE_Status (*send_gamma_table) (Genesys_Device * dev, const Genesys_Sensor& sensor);
+    void (*send_gamma_table) (Genesys_Device* dev, const Genesys_Sensor& sensor);
 
     SANE_Status (*search_start_position) (Genesys_Device * dev);
     SANE_Status (*offset_calibration) (Genesys_Device * dev, const Genesys_Sensor& sensor,
@@ -1883,7 +1883,7 @@ void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
 std::vector<uint16_t> get_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                       int color);
 
-SANE_Status sanei_genesys_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& sensor);
+void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor);
 
 extern SANE_Status sanei_genesys_start_motor (Genesys_Device * dev);
 

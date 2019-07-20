@@ -112,21 +112,17 @@ void sanei_genesys_init_cmd_set(Genesys_Device* dev)
 /*                  General IO and debugging functions                      */
 /* ------------------------------------------------------------------------ */
 
-SANE_Status sanei_genesys_write_file(const char *filename, uint8_t * data, size_t length)
+void sanei_genesys_write_file(const char* filename, uint8_t* data, size_t length)
 {
     DBG_HELPER(dbg);
     FILE *out;
 
     out = fopen (filename, "w");
     if (!out) {
-        DBG(DBG_error, "%s: could nor open %s for writing: %s\n", __func__, filename,
-            strerror(errno));
-        return SANE_STATUS_INVAL;
+        throw SaneException("could not open %s for writing: %s", filename, strerror(errno));
     }
     fwrite(data, 1, length, out);
     fclose(out);
-
-    return SANE_STATUS_GOOD;
 }
 
 // Write data to a pnm file (e.g. calibration). For debugging only

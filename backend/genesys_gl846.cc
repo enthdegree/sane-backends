@@ -2548,7 +2548,7 @@ gl846_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
   SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set local_reg;
   size_t size;
-  int steps, depth, dpi;
+  int steps, depth;
   unsigned int pass, count, found, x, y;
   char title[80];
   GenesysRegister *r;
@@ -2562,13 +2562,9 @@ gl846_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
       return status;
     }
 
-  /* set up for a gray scan at lowest dpi */
-  dpi = 9600;
-  for (x = 0; x < MAX_RESOLUTIONS; x++)
-    {
-      if (dev->model->xdpi_values[x] > 0 && dev->model->xdpi_values[x] < dpi)
-        dpi = dev->model->xdpi_values[x];
-    }
+    // set up for a gray scan at lowest dpi
+    unsigned dpi = *std::min_element(dev->model->xdpi_values.begin(),
+                                     dev->model->xdpi_values.end());
   channels = 1;
   /* 10 MM */
   /* lines = (10 * dpi) / MM_PER_INCH; */

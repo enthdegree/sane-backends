@@ -5087,7 +5087,7 @@ static SANE_Status
 init_options (Genesys_Scanner * s)
 {
     DBG_HELPER(dbg);
-  SANE_Int option, count, min_dpi;
+  SANE_Int option;
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word *dpi_list;
   Genesys_Model *model = s->dev->model;
@@ -5170,20 +5170,15 @@ init_options (Genesys_Scanner * s)
     DISABLE (OPT_BIT_DEPTH);
 
   /* resolution */
-  min_dpi=200000;
-  for (count = 0; model->xdpi_values[count] != 0; count++)
-    {
-      if(model->xdpi_values[count]<min_dpi)
-        {
-          min_dpi=model->xdpi_values[count];
-        }
+    unsigned min_dpi = *std::min_element(model->xdpi_values.begin(), model->xdpi_values.end());
+
+    dpi_list = (SANE_Word*) malloc((model->xdpi_values.size() + 1) * sizeof(SANE_Word));
+    if (!dpi_list) {
+        return SANE_STATUS_NO_MEM;
     }
-  dpi_list = (SANE_Word*) malloc((count + 1) * sizeof(SANE_Word));
-  if (!dpi_list)
-    return SANE_STATUS_NO_MEM;
-  dpi_list[0] = count;
-  for (count = 0; model->xdpi_values[count] != 0; count++)
-    dpi_list[count + 1] = model->xdpi_values[count];
+    dpi_list[0] = model->xdpi_values.size();
+    std::copy(model->xdpi_values.begin(), model->xdpi_values.end(), dpi_list + 1);
+
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;

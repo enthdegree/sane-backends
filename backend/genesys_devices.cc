@@ -2928,8 +2928,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL646,
   NULL,
 
-  {1200, 600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {2400, 1200, 600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {1200, 600, 300, 150, 75},        /* possible x-resolutions */
+  {2400, 1200, 600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -2982,8 +2982,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL841,
   NULL,
 
-  {      1200, 600, 400, 300, 240, 200, 150, 75, 0},        /* possible x-resolutions */
-  {2400, 1200, 600, 400, 300, 240, 200, 150, 75, 0},        /* possible y-resolutions */
+  {      1200, 600, 400, 300, 240, 200, 150, 75},        /* possible x-resolutions */
+  {2400, 1200, 600, 400, 300, 240, 200, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3042,8 +3042,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL843,
   NULL,
 
-  { 600, /* 500, 400,*/ 300, 200, 150, 100, 75, 0},        /* possible x-resolutions */
-  { 1200, 600, /* 500, 400, */ 300, 200, 150, 100, 75, 0},        /* possible y-resolutions */
+  { 600, /* 500, 400,*/ 300, 200, 150, 100, 75},        /* possible x-resolutions */
+  { 1200, 600, /* 500, 400, */ 300, 200, 150, 100, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3098,8 +3098,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL843,
   NULL,
 
-  {2400, 1200, 600, 400, 300, 200, 150, 100, 0},
-  {2400, 1200, 600, 400, 300, 200, 150, 100, 0},
+  {2400, 1200, 600, 400, 300, 200, 150, 100},
+  {2400, 1200, 600, 400, 300, 200, 150, 100},
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3158,8 +3158,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL843,
   NULL,
 
-  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
-  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
+  { 2400, 1200, 600, 400, 300, 200, 150, 100},
+  { 2400, 1200, 600, 400, 300, 200, 150, 100},
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3218,8 +3218,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL843,
   NULL,
 
-  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
-  { 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
+  { 2400, 1200, 600, 400, 300, 200, 150, 100},
+  { 2400, 1200, 600, 400, 300, 200, 150, 100},
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3278,8 +3278,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL843,
   NULL,
 
-  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
-  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
+  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100},
+  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100},
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3340,8 +3340,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL843,
   NULL,
 
-  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
-  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100, 0},
+  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
+  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3404,8 +3404,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL843,                // ASIC type
   NULL,
 
-  { 4800, 2400, 1200, 600, 400, 300, 0}, // TODO: resolutions for non-XPA mode
-  { 4800, 2400, 1200, 600, 400, 300, 0}, // TODO: resolutions for non-XPA mode
+  { 4800, 2400, 1200, 600, 400, 300 }, // TODO: resolutions for non-XPA mode
+  { 4800, 2400, 1200, 600, 400, 300 }, // TODO: resolutions for non-XPA mode
   { 16, 8, 0 },         // possible depths in gray mode
   { 16, 8, 0 },         // possible depths in color mode
 
@@ -3466,8 +3466,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL847,
   NULL,
 
-  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75, 0},        /* possible x-resolutions */
-  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75, 0},        /* possible y-resolutions */
+  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },        /* possible x-resolutions */
+  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3525,8 +3525,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL124,
   NULL,
 
-  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},        /* possible x-resolutions */
-  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},        /* possible y-resolutions */
+  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },        /* possible x-resolutions */
+  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3582,8 +3582,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL124,
   NULL,
 
-  {4800, 2400, 1200, 600, 300, 150, 100, 75, 0},        /* possible x-resolutions */
-  {4800, 2400, 1200, 600, 300, 150, 100, 75, 0},        /* possible y-resolutions */
+  {4800, 2400, 1200, 600, 300, 150, 100, 75 },        /* possible x-resolutions */
+  {4800, 2400, 1200, 600, 300, 150, 100, 75 },        /* possible y-resolutions */
   {16, 8, 0},                    /* possible depths in gray mode */
   {16, 8, 0},                    /* possible depths in color mode */
 
@@ -3639,8 +3639,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL124,
   NULL,
 
-  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},        /* possible x-resolutions */
-  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75, 0},        /* possible y-resolutions */
+  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },        /* possible x-resolutions */
+  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3696,8 +3696,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL124, /* or a compatible one */
   NULL,
 
-  {4800, 2400, 1200, 600, 300, 150, 100, 75, 0},        /* possible x-resolutions */
-  {4800, 2400, 1200, 600, 300, 150, 100, 75, 0},        /* possible y-resolutions */
+  {4800, 2400, 1200, 600, 300, 150, 100, 75},        /* possible x-resolutions */
+  {4800, 2400, 1200, 600, 300, 150, 100, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3753,8 +3753,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL847,
   NULL,
 
-  {1200, 600, 400, 300, 200, 150, 100, 75, 0},        /* possible x-resolutions */
-  {1200, 600, 400, 300, 200, 150, 100, 75, 0},        /* possible y-resolutions */
+  {1200, 600, 400, 300, 200, 150, 100, 75},        /* possible x-resolutions */
+  {1200, 600, 400, 300, 200, 150, 100, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3811,8 +3811,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL847,
   NULL,
 
-  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75, 0},        /* possible x-resolutions */
-  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75, 0},        /* possible y-resolutions */
+  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75},        /* possible x-resolutions */
+  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3869,8 +3869,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL847,
   NULL,
 
-  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75, 0},        /* possible x-resolutions */
-  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75, 0},        /* possible y-resolutions */
+  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75},        /* possible x-resolutions */
+  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3927,8 +3927,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL841,
   NULL,
 
-  {1200, 600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {2400, 1200, 600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {1200, 600, 300, 150, 75},        /* possible x-resolutions */
+  {2400, 1200, 600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -3989,8 +3989,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL841,
   NULL,
 
-  {      1200, 600, 400, 300, 240, 150, 100, 75, 0},        /* possible x-resolutions */
-  {2400, 1200, 600, 400, 300, 240, 150, 100, 75, 0},        /* possible y-resolutions */
+  {      1200, 600, 400, 300, 240, 150, 100, 75},        /* possible x-resolutions */
+  {2400, 1200, 600, 400, 300, 240, 150, 100, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
   SANE_FIX (0.42),                /* Start of scan area in mm  (x)   0.42 */
@@ -4048,8 +4048,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL646,
   NULL,
 
-  {600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75, 0},        /* possible y-resolutions, motor can go up to 1200 dpi */
+  {600, 300, 150, 75},        /* possible x-resolutions */
+  {1200, 600, 300, 150, 75},        /* possible y-resolutions, motor can go up to 1200 dpi */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4107,8 +4107,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL646,
   NULL,
 
-  {1200, 600, 300, 150, 100, 50, 0},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 100, 50, 0},        /* possible y-resolutions */
+  {1200, 600, 300, 150, 100, 50},        /* possible x-resolutions */
+  {1200, 600, 300, 150, 100, 50},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4166,8 +4166,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL646,
   NULL,
 
-  {600, 300, 200, 100, 75, 0},        /* possible x-resolutions */
-  {600, 300, 200, 100, 75, 0},        /* possible y-resolutions */
+  {600, 300, 200, 100, 75 },        /* possible x-resolutions */
+  {600, 300, 200, 100, 75 },        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4224,8 +4224,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL646,
   NULL,
 
-  {1200, 600, 300, 150, 100, 75, 0},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 100, 75, 0},        /* possible y-resolutions */
+  {1200, 600, 300, 150, 100, 75},        /* possible x-resolutions */
+  {1200, 600, 300, 150, 100, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4283,8 +4283,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL646,
   NULL,
 
-  {600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {600, 300, 150, 75},        /* possible x-resolutions */
+  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4335,8 +4335,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL646,
   NULL,
 
-  {1200, 600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {2400, 1200, 600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {1200, 600, 300, 150, 75},        /* possible x-resolutions */
+  {2400, 1200, 600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4392,8 +4392,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL646,
   NULL,
 
-  {1200, 600, 400, 300, 200, 150, 100, 75, 50, 0},        /* possible x-resolutions */
-  {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50, 0},        /* possible y-resolutions */
+  {1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible x-resolutions */
+  {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4450,8 +4450,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL841,
   NULL,
 
-  {600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {600, 300, 150, 75},        /* possible x-resolutions */
+  {600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4507,8 +4507,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL841,
   NULL,
 
-  {600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {600, 300, 150, 75},        /* possible x-resolutions */
+  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4563,8 +4563,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL841,
   NULL,
 
-  {600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {600, 300, 150, 75},        /* possible x-resolutions */
+  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4619,8 +4619,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL841,
   NULL,
 
-  {600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {600, 300, 150, 75},        /* possible x-resolutions */
+  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4676,8 +4676,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL841,
   NULL,
 
-  {600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {600, 300, 150, 75},        /* possible x-resolutions */
+  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4732,8 +4732,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL841,
   NULL,
 
-  {600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {600, 300, 150, 75},        /* possible x-resolutions */
+  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4790,8 +4790,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL841,
   NULL,
 
-  {600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {600, 300, 150, 75},        /* possible x-resolutions */
+  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4846,8 +4846,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL841,
   NULL,
 
-  {600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {600, 300, 150, 75},        /* possible x-resolutions */
+  {600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4905,8 +4905,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL841,
   NULL,
 
-  {600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {600, 300, 150, 75},        /* possible x-resolutions */
+  {600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -4963,8 +4963,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL841,
   NULL,
 
-  {600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {600, 300, 150, 75},        /* possible x-resolutions */
+  {600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -5022,8 +5022,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL646,
   NULL,
 
-  {1200, 600, 400, 300, 200, 150, 100, 75, 50, 0},        /* possible x-resolutions */
-  {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50, 0},        /* possible y-resolutions */
+  {1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible x-resolutions */
+  {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -5081,8 +5081,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL646,
   NULL,
 
-  {1200, 600, 400, 300, 200, 150, 100, 75, 50, 0},        /* possible x-resolutions */
-  {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50, 0},        /* possible y-resolutions */
+  {1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible x-resolutions */
+  {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -5140,8 +5140,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL841,
   NULL,
 
-  {600, 300, 150, 75, 0},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75, 0},        /* possible y-resolutions */
+  {600, 300, 150, 75},        /* possible x-resolutions */
+  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -5196,8 +5196,8 @@ void genesys_init_usb_device_tables()
   MODEL_PLUSTEK_OPTICPRO_3600,
   GENESYS_GL841,
   NULL,
-  {/*1200,*/ 600, 400, 300, 200, 150, 100, 75, 0},                /* possible x-resolutions */
-  {/*2400,*/ 1200, 600, 400, 300, 200, 150, 100, 75, 0},        /* possible y-resolutions */
+  {/*1200,*/ 600, 400, 300, 200, 150, 100, 75},                /* possible x-resolutions */
+  {/*2400,*/ 1200, 600, 400, 300, 200, 150, 100, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -5255,8 +5255,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL847,
   NULL,
 
-  { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 0},
-  { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 0},
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 75},
+  { 2400, 1200, 600, 400, 300, 200, 150, 100, 75},
 
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
@@ -5317,8 +5317,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL845,
   NULL,
 
-  {1200, 600, 300, 150, 100, 75, 0},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 100, 75, 0},        /* possible y-resolutions */
+  {1200, 600, 300, 150, 100, 75},        /* possible x-resolutions */
+  {1200, 600, 300, 150, 100, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
@@ -5373,8 +5373,8 @@ void genesys_init_usb_device_tables()
   GENESYS_GL846,
   NULL,
 
-  {1200, 600, 300, 150, 100, 75, 0},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 100, 75, 0},        /* possible y-resolutions */
+  {1200, 600, 300, 150, 100, 75},        /* possible x-resolutions */
+  {1200, 600, 300, 150, 100, 75},        /* possible y-resolutions */
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 

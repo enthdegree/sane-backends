@@ -1169,9 +1169,9 @@ struct Genesys_Model
     Genesys_Command_Set* cmd_set = nullptr;
 
     // possible x resolutions
-    SANE_Int xdpi_values[MAX_RESOLUTIONS] = {};
+    std::vector<unsigned> xdpi_values;
     // possible y resolutions
-    SANE_Int ydpi_values[MAX_RESOLUTIONS] = {};
+    std::vector<unsigned> ydpi_values;
 
     // possible depths in gray mode
     SANE_Int bpp_gray_values[MAX_DPI] = {};

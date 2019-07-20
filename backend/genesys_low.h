@@ -1885,8 +1885,6 @@ std::vector<uint16_t> get_gamma_table(Genesys_Device* dev, const Genesys_Sensor&
 
 void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor);
 
-extern SANE_Status sanei_genesys_start_motor (Genesys_Device * dev);
-
 extern void sanei_genesys_stop_motor(Genesys_Device* dev);
 
 extern SANE_Status

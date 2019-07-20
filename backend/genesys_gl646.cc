@@ -187,12 +187,10 @@ print_status (uint8_t val)
  * start scanner's motor
  * @param dev scanner's device
  */
-static SANE_Status
-gl646_start_motor (Genesys_Device * dev)
+static void gl646_start_motor(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     sanei_genesys_write_register(dev, 0x0f, 0x01);
-    return SANE_STATUS_GOOD;
 }
 
 
@@ -1685,12 +1683,8 @@ gl646_load_document (Genesys_Device * dev)
 
     sanei_genesys_bulk_write_register(dev, regs);
 
-  status = gl646_start_motor (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
-      return SANE_STATUS_IO_ERROR;
-    }
+    gl646_start_motor(dev);
+
 
   count = 0;
   do
@@ -1879,12 +1873,7 @@ gl646_eject_document (Genesys_Device * dev)
 
     sanei_genesys_bulk_write_register(dev, regs);
 
-  status = gl646_start_motor (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus (status));
-      return SANE_STATUS_IO_ERROR;
-    }
+    gl646_start_motor(dev);
 
   /* loop until paper sensor tells paper is out, and till motor is running */
   /* use a 30 timeout */

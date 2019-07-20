@@ -1363,12 +1363,10 @@ gl846_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-gl846_start_action (Genesys_Device * dev)
+static void gl846_start_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     sanei_genesys_write_register(dev, 0x0f, 0x01);
-    return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
@@ -1579,9 +1577,8 @@ gl846_slow_back_home (Genesys_Device * dev,  SANE_Bool wait_until_home)
     dev->model->cmd_set->bulk_write_register(dev, local_reg);
 
     try {
-        status = gl846_start_action(dev);
+        gl846_start_action(dev);
     } catch (...) {
-        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
         try {
             gl846_stop_action(dev);
         } catch (...) {}
@@ -1591,17 +1588,6 @@ gl846_slow_back_home (Genesys_Device * dev,  SANE_Bool wait_until_home)
             dev->model->cmd_set->bulk_write_register(dev, dev->reg);
         });
         throw;
-    }
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
-      gl846_stop_action (dev);
-      // restore original registers
-      catch_all_exceptions(__func__, [&]()
-      {
-          dev->model->cmd_set->bulk_write_register(dev, dev->reg);
-      });
-      return status;
     }
 
   /* post scan gpio : without that HOMSNR is unreliable */
@@ -1831,9 +1817,8 @@ gl846_feed (Genesys_Device * dev, unsigned int steps)
     dev->model->cmd_set->bulk_write_register(dev, local_reg);
 
     try {
-        status = gl846_start_action (dev);
+        gl846_start_action(dev);
     } catch (...) {
-        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
         try {
             gl846_stop_action(dev);
         } catch (...) {}
@@ -1843,18 +1828,6 @@ gl846_feed (Genesys_Device * dev, unsigned int steps)
             dev->model->cmd_set->bulk_write_register(dev, dev->reg);
         });
         throw;
-    }
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
-      gl846_stop_action (dev);
-
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
-        });
-      return status;
     }
 
     // wait until feed count reaches the required value, but do not exceed 30s

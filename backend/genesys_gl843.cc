@@ -1707,12 +1707,10 @@ gl843_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
   return status;
 }
 
-static SANE_Status
-gl843_start_action (Genesys_Device * dev)
+static void gl843_start_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     sanei_genesys_write_register(dev, 0x0f, 0x01);
-    return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
@@ -2266,9 +2264,8 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
     dev->model->cmd_set->bulk_write_register(dev, local_reg);
   RIE(gl843_set_xpa_motor_power(dev, true));
     try {
-        status = gl843_start_action (dev);
+        gl843_start_action(dev);
     } catch (...) {
-        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
         try {
             gl843_stop_action(dev);
         } catch (...) {}
@@ -2278,16 +2275,6 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
             dev->model->cmd_set->bulk_write_register(dev, dev->reg);
         });
         throw;
-    }
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
-      gl843_stop_action (dev);
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
-        });
     }
 
       while (loop < 600)	/* do not wait longer then 60 seconds */
@@ -2392,9 +2379,8 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     dev->model->cmd_set->bulk_write_register(dev, local_reg);
 
     try {
-        status = gl843_start_action (dev);
+        gl843_start_action(dev);
     } catch (...) {
-        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
         try {
             gl843_stop_action(dev);
         } catch (...) {}
@@ -2404,16 +2390,6 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
             dev->model->cmd_set->bulk_write_register(dev, dev->reg);
         });
         throw;
-    }
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
-      gl843_stop_action (dev);
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
-        });
     }
 
   if (wait_until_home)
@@ -2652,9 +2628,8 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
     dev->model->cmd_set->bulk_write_register(dev, local_reg);
 
     try {
-        status = gl843_start_action (dev);
+        gl843_start_action(dev);
     } catch (...) {
-        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
         try {
             gl843_stop_action(dev);
         } catch (...) {}
@@ -2664,18 +2639,6 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
             dev->model->cmd_set->bulk_write_register(dev, dev->reg);
         });
         throw;
-    }
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
-      gl843_stop_action (dev);
-
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
-        });
-      return status;
     }
 
     // wait until feed count reaches the required value, but do not exceed 30s

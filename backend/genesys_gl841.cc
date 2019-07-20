@@ -2475,12 +2475,10 @@ gl841_set_powersaving (Genesys_Device * dev,
   return status;
 }
 
-static SANE_Status
-gl841_start_action (Genesys_Device * dev)
+static void gl841_start_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     sanei_genesys_write_register(dev, 0x0f, 0x01);
-    return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
@@ -2592,9 +2590,8 @@ gl841_eject_document (Genesys_Device * dev)
     sanei_genesys_bulk_write_register(dev, local_reg);
 
     try {
-        status = gl841_start_action (dev);
+        gl841_start_action(dev);
     } catch (...) {
-        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
         try {
             gl841_stop_action(dev);
         } catch (...) {}
@@ -2604,18 +2601,6 @@ gl841_eject_document (Genesys_Device * dev)
             sanei_genesys_bulk_write_register(dev, dev->reg);
         });
         throw;
-    }
-
-    if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
-      gl841_stop_action (dev);
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            sanei_genesys_bulk_write_register(dev, dev->reg);
-        });
-      return status;
     }
 
   RIE(gl841_get_paper_sensor(dev, &paper_loaded));
@@ -2894,9 +2879,8 @@ gl841_feed (Genesys_Device * dev, int steps)
     sanei_genesys_bulk_write_register(dev, local_reg);
 
     try {
-        status = gl841_start_action (dev);
+        gl841_start_action(dev);
     } catch (...) {
-        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
         try {
             gl841_stop_action (dev);
         } catch (...) {}
@@ -2906,18 +2890,6 @@ gl841_feed (Genesys_Device * dev, int steps)
             sanei_genesys_bulk_write_register(dev, dev->reg);
         });
         throw;
-    }
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
-      gl841_stop_action (dev);
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            sanei_genesys_bulk_write_register(dev, dev->reg);
-        });
-      return status;
     }
 
   loop = 0;
@@ -3030,9 +3002,8 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     sanei_genesys_bulk_write_register(dev, local_reg);
 
     try {
-        status = gl841_start_action (dev);
+        gl841_start_action(dev);
     } catch (...) {
-        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
         try {
             gl841_stop_action(dev);
         } catch (...) {}
@@ -3042,18 +3013,6 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
             sanei_genesys_bulk_write_register(dev, dev->reg);
         });
         throw;
-    }
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
-      gl841_stop_action (dev);
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            sanei_genesys_bulk_write_register(dev, dev->reg);
-        });
-      return status;
     }
 
   if (wait_until_home)

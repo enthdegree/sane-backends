@@ -1519,12 +1519,10 @@ gl124_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-gl124_start_action (Genesys_Device * dev)
+static void gl124_start_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     sanei_genesys_write_register(dev, 0x0f, 0x01);
-    return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
@@ -1836,9 +1834,8 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   RIE(gl124_setup_scan_gpio(dev,resolution));
 
     try {
-        status = gl124_start_action (dev);
+        gl124_start_action(dev);
     } catch (...) {
-        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
         try {
             gl124_stop_action (dev);
         } catch (...) {}
@@ -1848,18 +1845,6 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
             dev->model->cmd_set->bulk_write_register(dev, dev->reg);
         });
         throw;
-    }
-    if (status != SANE_STATUS_GOOD) {
-        DBG(DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus(status));
-        try {
-            gl124_stop_action (dev);
-        } catch (...) {}
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
-        });
-        return status;
     }
 
   /* post scan gpio : without that HOMSNR is unreliable */
@@ -1957,7 +1942,7 @@ gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse)
     dev->model->cmd_set->bulk_write_register(dev, local_reg);
 
     try {
-        status = gl124_start_action (dev);
+        gl124_start_action(dev);
     } catch (...) {
         catch_all_exceptions(__func__, [&]() { gl124_stop_action (dev); });
 
@@ -1967,18 +1952,6 @@ gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse)
             dev->model->cmd_set->bulk_write_register(dev, dev->reg);
         });
         throw;
-    }
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "%s: failed to start motor: %s\n", __func__, sane_strstatus (status));
-      catch_all_exceptions(__func__, [&](){ gl124_stop_action (dev); });
-
-      // restore original registers
-      catch_all_exceptions(__func__, [&]()
-      {
-          dev->model->cmd_set->bulk_write_register(dev, dev->reg);
-      });
-      return status;
     }
 
     // wait until feed count reaches the required value, but do not exceed 30s

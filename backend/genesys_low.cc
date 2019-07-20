@@ -1254,8 +1254,8 @@ sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
       return SANE_STATUS_GOOD;
     }
 
-  /* set up hardware and registers */
-  RIE (dev->model->cmd_set->asic_boot (dev, cold));
+    // set up hardware and registers
+    dev->model->cmd_set->asic_boot(dev, cold);
 
   /* now hardware part is OK, set up device struct */
   dev->white_average_data.clear();

@@ -2299,11 +2299,9 @@ static void gl846_init_gpio(Genesys_Device* dev)
 /**
  * set memory layout by filling values in dedicated registers
  */
-static SANE_Status
-gl846_init_memory_layout (Genesys_Device * dev)
+static void gl846_init_memory_layout(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int idx = 0, i;
   uint8_t val;
 
@@ -2316,8 +2314,7 @@ gl846_init_memory_layout (Genesys_Device * dev)
     }
   if(layouts[idx].model==NULL)
     {
-      DBG(DBG_error, "%s: failed to find memory layout for model %s!\n", __func__, dev->model->name);
-      return SANE_STATUS_INVAL;
+        throw SaneException("failed to find memory layout for model %s", dev->model->name);
     }
 
   /* CLKSET and DRAMSEL */
@@ -2333,18 +2330,14 @@ gl846_init_memory_layout (Genesys_Device * dev)
     {
       sanei_genesys_write_register(dev, 0xe0+i, layouts[idx].rx[i]);
     }
-
-  return status;
 }
 
 /* *
  * initialize ASIC from power on condition
  */
-static SANE_Status
-gl846_boot (Genesys_Device * dev, SANE_Bool cold)
+static void gl846_boot(Genesys_Device* dev, SANE_Bool cold)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
     // reset ASIC if cold boot
@@ -2396,13 +2389,11 @@ gl846_boot (Genesys_Device * dev, SANE_Bool cold)
     // setup gpio
     gl846_init_gpio(dev);
 
-  /* setup internal memory layout */
-  RIE (gl846_init_memory_layout (dev));
+    // setup internal memory layout
+    gl846_init_memory_layout(dev);
 
   SETREG (0xf8, 0x05);
     sanei_genesys_write_register(dev, 0xf8, dev->reg.find_reg(0xf8).value);
-
-  return SANE_STATUS_GOOD;
 }
 
 /**

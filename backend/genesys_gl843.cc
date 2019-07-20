@@ -3625,8 +3625,7 @@ static void gl843_init_gpio(Genesys_Device* dev)
 /* *
  * initialize ASIC from power on condition
  */
-static SANE_Status
-gl843_boot (Genesys_Device * dev, SANE_Bool cold)
+static void gl843_boot(Genesys_Device* dev, SANE_Bool cold)
 {
     DBG_HELPER(dbg);
   uint8_t val;
@@ -3714,8 +3713,6 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
 
   gl843_feed (dev, 300);
   sanei_genesys_sleep_ms(100);
-
-  return SANE_STATUS_GOOD;
 }
 
 /* *

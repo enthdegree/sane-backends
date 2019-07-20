@@ -1145,7 +1145,7 @@ struct Genesys_Command_Set
     /**
      * cold boot init function
      */
-    SANE_Status (*asic_boot) (Genesys_Device * dev, SANE_Bool cold);
+    void (*asic_boot) (Genesys_Device* dev, SANE_Bool cold);
 
 };
 

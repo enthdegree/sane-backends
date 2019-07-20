@@ -367,8 +367,7 @@ gl846_stop_action (Genesys_Device * dev);
 static SANE_Status
 gl846_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home);
 
-static SANE_Status
-gl846_boot (Genesys_Device * dev, SANE_Bool cold);
+static void gl846_boot(Genesys_Device* dev, SANE_Bool cold);
 
 
 

@@ -2444,8 +2444,7 @@ gl847_init_memory_layout (Genesys_Device * dev)
 /* *
  * initialize ASIC from power on condition
  */
-static SANE_Status
-gl847_boot (Genesys_Device * dev, SANE_Bool cold)
+static void gl847_boot(Genesys_Device* dev, SANE_Bool cold)
 {
     DBG_HELPER(dbg);
   uint8_t val;
@@ -2491,8 +2490,6 @@ gl847_boot (Genesys_Device * dev, SANE_Bool cold)
 
   SETREG (0xf8, 0x01);
     sanei_genesys_write_register(dev, 0xf8, dev->reg.find_reg(0xf8).value);
-
-  return SANE_STATUS_GOOD;
 }
 
 /**

@@ -3033,11 +3033,9 @@ static void gl124_init_gpio(Genesys_Device* dev)
 /**
  * set memory layout by filling values in dedicated registers
  */
-static SANE_Status
-gl124_init_memory_layout (Genesys_Device * dev)
+static void gl124_init_memory_layout(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int idx = 0;
 
   /* point to per model memory layout */
@@ -3095,8 +3093,6 @@ gl124_init_memory_layout (Genesys_Device * dev)
   sanei_genesys_write_register (dev, 0xf5, layouts[idx].re5);
   sanei_genesys_write_register (dev, 0xf6, layouts[idx].re6);
   sanei_genesys_write_register (dev, 0xf7, layouts[idx].re7);
-
-  return status;
 }
 
 /**
@@ -3120,11 +3116,9 @@ gl124_init(Genesys_Device * dev)
 /* *
  * initialize ASIC from power on condition
  */
-static SANE_Status
-gl124_boot (Genesys_Device * dev, SANE_Bool cold)
+static void gl124_boot(Genesys_Device* dev, SANE_Bool cold)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
 
     // reset ASIC in case of cold boot
@@ -3170,10 +3164,8 @@ gl124_boot (Genesys_Device * dev, SANE_Bool cold)
     // setup gpio
     gl124_init_gpio(dev);
 
-  /* setup internal memory layout */
-  RIE (gl124_init_memory_layout (dev));
-
-  return SANE_STATUS_GOOD;
+    // setup internal memory layout
+    gl124_init_memory_layout(dev);
 }
 
 

@@ -5712,7 +5712,6 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
     DBG_HELPER_ARGS(dbg, "devp %s NULL, may_wait = %d", devp ? "!=" : "==", may_wait);
 
   Genesys_Device *dev = 0;
-  unsigned int i;
 
   if (devp)
     *devp = 0;
@@ -5754,18 +5753,17 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
         }
     }
 
-  bool found_dev = false;
-  for (i = 0; i < MAX_SCANNERS && genesys_usb_device_list[i].model != 0; i++)
-    {
-      if (vendor == genesys_usb_device_list[i].vendor &&
-	  product == genesys_usb_device_list[i].product)
-	{
-            found_dev = true;
+    Genesys_USB_Device_Entry* found_usb_dev = nullptr;
+    for (auto& usb_dev : *s_usb_devices) {
+        if (usb_dev.vendor == static_cast<unsigned>(vendor) &&
+            usb_dev.product == static_cast<unsigned>(product))
+        {
+            found_usb_dev = &usb_dev;
             break;
-	}
+        }
     }
 
-    if (!found_dev) {
+    if (found_usb_dev == nullptr) {
       DBG(DBG_error, "%s: vendor 0x%xd product 0x%xd is not supported by this backend\n", __func__,
 	   vendor, product);
       return SANE_STATUS_INVAL;
@@ -5780,9 +5778,9 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
     dev = &s_devices->back();
     dev->file_name = new_devname;
 
-  dev->model = genesys_usb_device_list[i].model;
-  dev->vendorId = genesys_usb_device_list[i].vendor;
-  dev->productId = genesys_usb_device_list[i].product;
+    dev->model = &found_usb_dev->model;
+    dev->vendorId = found_usb_dev->vendor;
+    dev->productId = found_usb_dev->product;
   dev->usb_mode = 0;            /* i.e. unset */
   dev->already_initialized = SANE_FALSE;
 
@@ -6075,6 +6073,8 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   s_sane_devices_ptrs.init();
   genesys_init_sensor_tables();
   genesys_init_frontend_tables();
+    genesys_init_usb_device_tables();
+
 
   DBG(DBG_info, "%s: %s endian machine\n", __func__,
 #ifdef WORDS_BIGENDIAN

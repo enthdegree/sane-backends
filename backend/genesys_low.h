@@ -1630,12 +1630,19 @@ struct Genesys_Device
     FILE *binary = nullptr;
 };
 
-typedef struct Genesys_USB_Device_Entry
-{
-  SANE_Word vendor;			/**< USB vendor identifier */
-  SANE_Word product;			/**< USB product identifier */
-  Genesys_Model *model;			/**< Scanner model information */
-} Genesys_USB_Device_Entry;
+struct Genesys_USB_Device_Entry {
+
+    Genesys_USB_Device_Entry(unsigned v, unsigned p, const Genesys_Model& m) :
+        vendor(v), product(p), model(m)
+    {}
+
+    // USB vendor identifier
+    unsigned vendor;
+    // USB product identifier
+    unsigned product;
+    // Scanner model information
+    Genesys_Model model;
+};
 
 /**
  * structure for motor database
@@ -2037,6 +2044,7 @@ private:
 extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 void genesys_init_sensor_tables();
 void genesys_init_frontend_tables();
+void genesys_init_usb_device_tables();
 
 void debug_dump(unsigned level, const Genesys_Settings& settings);
 void debug_dump(unsigned level, const SetupParams& params);

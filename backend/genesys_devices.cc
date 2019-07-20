@@ -2914,9 +2914,13 @@ static Genesys_Motor Motor[] = {
    },},
 };
 
-/* here we have the various device settings...
- */
-static Genesys_Model umax_astra_4500_model = {
+StaticInit<std::vector<Genesys_USB_Device_Entry>> s_usb_devices;
+
+void genesys_init_usb_device_tables()
+{
+    s_usb_devices.init();
+
+    Genesys_Model umax_astra_4500_model = {
   "umax-astra-4500",                /* Name */
   "UMAX",                        /* Device vendor string */
   "Astra 4500",                        /* Device model name */
@@ -2967,8 +2971,10 @@ static Genesys_Model umax_astra_4500_model = {
   0,        // shading_ta_lines
   200
 };
+    s_usb_devices->emplace_back(0x0638, 0x0a10, umax_astra_4500_model);
 
-static Genesys_Model canon_lide_50_model = {
+
+    Genesys_Model canon_lide_50_model = {
   "canon-lide-50",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 35/40/50",                /* Device model name */
@@ -3025,8 +3031,10 @@ static Genesys_Model canon_lide_50_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x04a9, 0x2213, canon_lide_50_model);
 
-static Genesys_Model panasonic_kvss080_model = {
+
+    Genesys_Model panasonic_kvss080_model = {
   "panasonic-kv-ss080",                /* Name */
   "Panasonic",                        /* Device vendor string */
   "KV-SS080",                        /* Device model name */
@@ -3079,8 +3087,10 @@ static Genesys_Model panasonic_kvss080_model = {
   0,        // shading_ta_lines
   100
 };
+    s_usb_devices->emplace_back(0x04da, 0x100f, panasonic_kvss080_model);
 
-static Genesys_Model hp4850c_model = {
+
+    Genesys_Model hp4850c_model = {
   "hewlett-packard-scanjet-4850c",        /* Name */
   "Hewlett Packard",                        /* Device vendor string */
   "ScanJet 4850C",                        /* Device model name */
@@ -3137,8 +3147,10 @@ static Genesys_Model hp4850c_model = {
   0,        // shading_ta_lines
   100
 };
+    s_usb_devices->emplace_back(0x03f0, 0x1b05, hp4850c_model);
 
-static Genesys_Model hpg4010_model = {
+
+    Genesys_Model hpg4010_model = {
   "hewlett-packard-scanjet-g4010",        /* Name */
   "Hewlett Packard",                        /* Device vendor string */
   "ScanJet G4010",                        /* Device model name */
@@ -3195,8 +3207,10 @@ static Genesys_Model hpg4010_model = {
   0,        // shading_ta_lines
   100
 };
+    s_usb_devices->emplace_back(0x03f0, 0x4505, hpg4010_model);
 
-static Genesys_Model hpg4050_model = {
+
+    Genesys_Model hpg4050_model = {
   "hewlett-packard-scanjet-g4050",        /* Name */
   "Hewlett Packard",                        /* Device vendor string */
   "ScanJet G4050",                        /* Device model name */
@@ -3253,9 +3267,10 @@ static Genesys_Model hpg4050_model = {
   0,        // shading_ta_lines
   100
 };
+    s_usb_devices->emplace_back(0x03f0, 0x4605, hpg4050_model);
 
 
-static Genesys_Model canon_4400f_model = {
+    Genesys_Model canon_4400f_model = {
   "canon-canoscan-4400f",        /* Name */
   "Canon",                        /* Device vendor string */
   "Canoscan 4400f",                /* Device model name */
@@ -3314,9 +3329,10 @@ static Genesys_Model canon_4400f_model = {
   0,        // shading_ta_lines
   100
 };
+    s_usb_devices->emplace_back(0x04a9, 0x2228, canon_4400f_model);
 
 
-static Genesys_Model canon_8400f_model = {
+    Genesys_Model canon_8400f_model = {
   "canon-canoscan-8400f",        /* Name */
   "Canon",                        /* Device vendor string */
   "Canoscan 8400f",                /* Device model name */
@@ -3377,9 +3393,10 @@ static Genesys_Model canon_8400f_model = {
   50,                           // shading_ta_lines
   100
 };
+    s_usb_devices->emplace_back(0x04a9, 0x221e, canon_8400f_model);
 
 
-static Genesys_Model canon_8600f_model = {
+    Genesys_Model canon_8600f_model = {
   "canon-canoscan-8600f",       // name
   "Canon",                      // Device vendor string
   "Canoscan 8600f",             // Device model name
@@ -3438,9 +3455,10 @@ static Genesys_Model canon_8600f_model = {
   50,       // shading_ta_lines
   100
 };
+    s_usb_devices->emplace_back(0x04a9, 0x2229, canon_8600f_model);
 
 
-static Genesys_Model canon_lide_100_model = {
+    Genesys_Model canon_lide_100_model = {
   "canon-lide-100",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 100",                        /* Device model name */
@@ -3496,8 +3514,10 @@ static Genesys_Model canon_lide_100_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x04a9, 0x1904, canon_lide_100_model);
 
-static Genesys_Model canon_lide_110_model = {
+
+    Genesys_Model canon_lide_110_model = {
   "canon-lide-110",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 110",                        /* Device model name */
@@ -3551,8 +3571,10 @@ static Genesys_Model canon_lide_110_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x04a9, 0x1909, canon_lide_110_model);
 
-static Genesys_Model canon_lide_120_model = {
+
+    Genesys_Model canon_lide_120_model = {
   "canon-lide-120",              /* Name */
   "Canon",                       /* Device vendor string */
   "LiDE 120",                    /* Device model name */
@@ -3606,9 +3628,10 @@ static Genesys_Model canon_lide_120_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x04a9, 0x190e, canon_lide_120_model);
 
 
-static Genesys_Model canon_lide_210_model = {
+    Genesys_Model canon_lide_210_model = {
   "canon-lide-210",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 210",                        /* Device model name */
@@ -3662,8 +3685,10 @@ static Genesys_Model canon_lide_210_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x04a9, 0x190a, canon_lide_210_model);
 
-static Genesys_Model canon_lide_220_model = {
+
+    Genesys_Model canon_lide_220_model = {
   "canon-lide-220",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 220",                        /* Device model name */
@@ -3717,8 +3742,10 @@ static Genesys_Model canon_lide_220_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x04a9, 0x190f, canon_lide_220_model);
 
-static Genesys_Model canon_5600f_model = {
+
+    Genesys_Model canon_5600f_model = {
   "canon-5600f",                /* Name */
   "Canon",                        /* Device vendor string */
   "5600F",                        /* Device model name */
@@ -3773,8 +3800,10 @@ static Genesys_Model canon_5600f_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x04a9, 0x1906, canon_5600f_model);
 
-static Genesys_Model canon_lide_700f_model = {
+
+    Genesys_Model canon_lide_700f_model = {
   "canon-lide-700f",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 700F",                        /* Device model name */
@@ -3829,10 +3858,10 @@ static Genesys_Model canon_lide_700f_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x04a9, 0x1907, canon_lide_700f_model);
 
 
-
-static Genesys_Model canon_lide_200_model = {
+    Genesys_Model canon_lide_200_model = {
   "canon-lide-200",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 200",                        /* Device model name */
@@ -3887,9 +3916,10 @@ static Genesys_Model canon_lide_200_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x04a9, 0x1905, canon_lide_200_model);
 
 
-static Genesys_Model canon_lide_60_model = {
+    Genesys_Model canon_lide_60_model = {
   "canon-lide-60",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 60",                        /* Device model name */
@@ -3946,9 +3976,12 @@ static Genesys_Model canon_lide_60_model = {
   300,
   0,        // shading_ta_lines
   400
-};                                /* this is completely untested -- hmg */
+};
+    /* this is completely untested -- hmg */
+    s_usb_devices->emplace_back(0x04a9, 0x221c, canon_lide_60_model);
 
-static Genesys_Model canon_lide_80_model = {
+
+    Genesys_Model canon_lide_80_model = {
   "canon-lide-80",                /* Name */
   "Canon",                        /* Device vendor string */
   "LiDE 80",                        /* Device model name */
@@ -4004,9 +4037,10 @@ static Genesys_Model canon_lide_80_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x04a9, 0x2214, canon_lide_80_model);
 
 
-static Genesys_Model hp2300c_model = {
+    Genesys_Model hp2300c_model = {
   "hewlett-packard-scanjet-2300c",        /* Name */
   "Hewlett Packard",                /* Device vendor string */
   "ScanJet 2300c",                /* Device model name */
@@ -4062,9 +4096,10 @@ static Genesys_Model hp2300c_model = {
   0,        // shading_ta_lines
   132
 };
+    s_usb_devices->emplace_back(0x03f0, 0x0901, hp2300c_model);
 
-static
-Genesys_Model hp2400c_model = {
+
+    Genesys_Model hp2400c_model = {
   "hewlett-packard-scanjet-2400c",        /* Name */
   "Hewlett Packard",                /* Device vendor string */
   "ScanJet 2400c",                /* Device model name */
@@ -4120,9 +4155,10 @@ Genesys_Model hp2400c_model = {
   0,        // shading_ta_lines
   132
 };
+    s_usb_devices->emplace_back(0x03f0, 0x0a01, hp2400c_model);
 
-static
-Genesys_Model visioneer_xp200_model = {
+
+    Genesys_Model visioneer_xp200_model = {
   "visioneer-strobe-xp200",        /* Name */
   "Visioneer",                        /* Device vendor string */
   "Strobe XP200",                /* Device model name */
@@ -4177,8 +4213,10 @@ Genesys_Model visioneer_xp200_model = {
   0,        // shading_ta_lines
   132
 };
+    s_usb_devices->emplace_back(0x04a7, 0x0426, visioneer_xp200_model);
 
-static Genesys_Model hp3670c_model = {
+
+    Genesys_Model hp3670c_model = {
   "hewlett-packard-scanjet-3670c",        /* Name */
   "Hewlett Packard",                /* Device vendor string */
   "ScanJet 3670c",                /* Device model name */
@@ -4234,8 +4272,10 @@ static Genesys_Model hp3670c_model = {
   0,        // shading_ta_lines
   200
 };
+    s_usb_devices->emplace_back(0x03f0, 0x1405, hp3670c_model);
 
-static Genesys_Model plustek_st12_model = {
+
+    Genesys_Model plustek_st12_model = {
   "plustek-opticpro-st12",        /* Name */
   "Plustek",                        /* Device vendor string */
   "OpticPro ST12",                /* Device model name */
@@ -4285,8 +4325,9 @@ static Genesys_Model plustek_st12_model = {
   0,        // shading_ta_lines
   200
 };
+    s_usb_devices->emplace_back(0x07b3, 0x0600, plustek_st12_model);
 
-static Genesys_Model plustek_st24_model = {
+    Genesys_Model plustek_st24_model = {
   "plustek-opticpro-st24",        /* Name */
   "Plustek",                        /* Device vendor string */
   "OpticPro ST24",                /* Device model name */
@@ -4341,8 +4382,9 @@ static Genesys_Model plustek_st24_model = {
   0,        // shading_ta_lines
   200
 };
+    s_usb_devices->emplace_back(0x07b3, 0x0601, plustek_st24_model);
 
-static Genesys_Model medion_md5345_model = {
+    Genesys_Model medion_md5345_model = {
   "medion-md5345-model",        /* Name */
   "Medion",                        /* Device vendor string */
   "MD5345/MD6228/MD6471",        /* Device model name */
@@ -4398,8 +4440,9 @@ static Genesys_Model medion_md5345_model = {
   0,        // shading_ta_lines
   200
 };
+    s_usb_devices->emplace_back(0x0461, 0x0377, medion_md5345_model);
 
-static Genesys_Model visioneer_xp300_model = {
+    Genesys_Model visioneer_xp300_model = {
   "visioneer-strobe-xp300",                /* Name */
   "Visioneer",                        /* Device vendor string */
   "Strobe XP300",                        /* Device model name */
@@ -4454,8 +4497,9 @@ static Genesys_Model visioneer_xp300_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x04a7, 0x0474, visioneer_xp300_model);
 
-static Genesys_Model syscan_docketport_665_model = {
+    Genesys_Model syscan_docketport_665_model = {
   "syscan-docketport-665",                /* Name */
   "Syscan/Ambir",                        /* Device vendor string */
   "DocketPORT 665",                        /* Device model name */
@@ -4509,8 +4553,9 @@ static Genesys_Model syscan_docketport_665_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x0a82, 0x4803, syscan_docketport_665_model);
 
-static Genesys_Model visioneer_roadwarrior_model = {
+    Genesys_Model visioneer_roadwarrior_model = {
   "visioneer-roadwarrior",                /* Name */
   "Visioneer",                                /* Device vendor string */
   "Readwarrior",                        /* Device model name */
@@ -4564,8 +4609,9 @@ static Genesys_Model visioneer_roadwarrior_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x04a7, 0x0494, visioneer_roadwarrior_model);
 
-static Genesys_Model syscan_docketport_465_model = {
+    Genesys_Model syscan_docketport_465_model = {
   "syscan-docketport-465",                /* Name */
   "Syscan",                                /* Device vendor string */
   "DocketPORT 465",                        /* Device model name */
@@ -4619,8 +4665,10 @@ static Genesys_Model syscan_docketport_465_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x0a82, 0x4802, syscan_docketport_465_model);
 
-static Genesys_Model visioneer_xp100_r3_model = {
+
+    Genesys_Model visioneer_xp100_r3_model = {
   "visioneer-xp100-revision3",                /* Name */
   "Visioneer",                                /* Device vendor string */
   "XP100 Revision 3",                        /* Device model name */
@@ -4674,8 +4722,9 @@ static Genesys_Model visioneer_xp100_r3_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x04a7, 0x049b, visioneer_xp100_r3_model);
 
-static Genesys_Model pentax_dsmobile_600_model = {
+    Genesys_Model pentax_dsmobile_600_model = {
   "pentax-dsmobile-600",                /* Name */
   "Pentax",                                /* Device vendor string */
   "DSmobile 600",                        /* Device model name */
@@ -4729,8 +4778,11 @@ static Genesys_Model pentax_dsmobile_600_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x0a17, 0x3210, pentax_dsmobile_600_model);
+    // clone, only usb id is different
+    s_usb_devices->emplace_back(0x04f9, 0x2038, pentax_dsmobile_600_model);
 
-static Genesys_Model syscan_docketport_467_model = {
+    Genesys_Model syscan_docketport_467_model = {
   "syscan-docketport-467",                /* Name */
   "Syscan",                                /* Device vendor string */
   "DocketPORT 467",                        /* Device model name */
@@ -4784,8 +4836,9 @@ static Genesys_Model syscan_docketport_467_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x1dcc, 0x4812, syscan_docketport_467_model);
 
-static Genesys_Model syscan_docketport_685_model = {
+    Genesys_Model syscan_docketport_685_model = {
   "syscan-docketport-685",                /* Name */
   "Syscan/Ambir",                        /* Device vendor string */
   "DocketPORT 685",                        /* Device model name */
@@ -4841,7 +4894,10 @@ static Genesys_Model syscan_docketport_685_model = {
   400
 };
 
-static Genesys_Model syscan_docketport_485_model = {
+    s_usb_devices->emplace_back(0x0a82, 0x480c, syscan_docketport_685_model);
+
+
+    Genesys_Model syscan_docketport_485_model = {
   "syscan-docketport-485",                /* Name */
   "Syscan/Ambir",                        /* Device vendor string */
   "DocketPORT 485",                        /* Device model name */
@@ -4896,8 +4952,10 @@ static Genesys_Model syscan_docketport_485_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x0a82, 0x4800, syscan_docketport_485_model);
 
-static Genesys_Model dct_docketport_487_model = {
+
+    Genesys_Model dct_docketport_487_model = {
   "dct-docketport-487",                /* Name */
   "DCT",                        /* Device vendor string */
   "DocketPORT 487",                        /* Device model name */
@@ -4953,8 +5011,10 @@ static Genesys_Model dct_docketport_487_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x1dcc, 0x4810, dct_docketport_487_model);
 
-static Genesys_Model visioneer_7100_model = {
+
+    Genesys_Model visioneer_7100_model = {
   "visioneer-7100-model",        /* Name */
   "Visioneer",                        /* Device vendor string */
   "OneTouch 7100",        /* Device model name */
@@ -5010,8 +5070,10 @@ static Genesys_Model visioneer_7100_model = {
   0,        // shading_ta_lines
   200
 };
+    s_usb_devices->emplace_back(0x04a7, 0x0229, visioneer_7100_model);
 
-static Genesys_Model xerox_2400_model = {
+
+    Genesys_Model xerox_2400_model = {
   "xerox-2400-model",        /* Name */
   "Xerox",                /* Device vendor string */
   "OneTouch 2400",        /* Device model name */
@@ -5067,9 +5129,10 @@ static Genesys_Model xerox_2400_model = {
   0,        // shading_ta_lines
   200
 };
+    s_usb_devices->emplace_back(0x0461, 0x038b, xerox_2400_model);
 
 
-static Genesys_Model xerox_travelscanner_model = {
+    Genesys_Model xerox_travelscanner_model = {
   "xerox-travelscanner",                /* Name */
   "Xerox",                                /* Device vendor string */
   "Travelscanner 100",                        /* Device model name */
@@ -5123,8 +5186,10 @@ static Genesys_Model xerox_travelscanner_model = {
   0,        // shading_ta_lines
   400
 };
+    s_usb_devices->emplace_back(0x04a7, 0x04ac, xerox_travelscanner_model);
 
-static Genesys_Model plustek_3600_model = {
+
+    Genesys_Model plustek_3600_model = {
   "plustek-opticbook-3600",        /* Name */
   "PLUSTEK",                        /* Device vendor string */
   "OpticBook 3600",                /* Device model name */
@@ -5179,8 +5244,10 @@ static Genesys_Model plustek_3600_model = {
   0,        // shading_ta_lines
   200
 };
+    s_usb_devices->emplace_back(0x07b3, 0x0900, plustek_3600_model);
 
-static Genesys_Model hpn6310_model = {
+
+    Genesys_Model hpn6310_model = {
   "hewlett-packard-scanjet-N6310",        /* Name */
   "Hewlett Packard",                        /* Device vendor string */
   "ScanJet N6310",                        /* Device model name */
@@ -5239,9 +5306,10 @@ static Genesys_Model hpn6310_model = {
   0,        // shading_ta_lines
   100
 };
+    s_usb_devices->emplace_back(0x03f0, 0x4705, hpn6310_model);
 
 
-static Genesys_Model plustek_3800_model = {
+    Genesys_Model plustek_3800_model = {
   "plustek-opticbook-3800",        /* Name */
   "PLUSTEK",                        /* Device vendor string */
   "OpticBook 3800",                /* Device model name */
@@ -5294,9 +5362,10 @@ static Genesys_Model plustek_3800_model = {
   0,        // shading_ta_lines
   100
 };
+    s_usb_devices->emplace_back(0x07b3, 0x1300, plustek_3800_model);
 
 
-static Genesys_Model canon_formula101_model = {
+    Genesys_Model canon_formula101_model = {
   "canon-image-formula-101",                /* Name */
   "Canon",                        /* Device vendor string */
   "Image Formula 101",                        /* Device model name */
@@ -5349,62 +5418,5 @@ static Genesys_Model canon_formula101_model = {
   0,        // shading_ta_lines
   100
 };
-
-
-static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
-  /* GL646 devices */
-  {0x03f0, 0x0901, &hp2300c_model},
-  {0x03f0, 0x0a01, &hp2400c_model},
-  {0x03f0, 0x1405, &hp3670c_model},
-  {0x0461, 0x0377, &medion_md5345_model},
-  {0x04a7, 0x0229, &visioneer_7100_model},
-  {0x0461, 0x038b, &xerox_2400_model},
-  {0x04a7, 0x0426, &visioneer_xp200_model},
-  {0x0638, 0x0a10, &umax_astra_4500_model},
-  {0x07b3, 0x0600, &plustek_st12_model},
-  {0x07b3, 0x0601, &plustek_st24_model},
-  /* GL841 devices */
-  {0x04a7, 0x0474, &visioneer_xp300_model},
-  {0x04a7, 0x0494, &visioneer_roadwarrior_model},
-  {0x04a7, 0x049b, &visioneer_xp100_r3_model},
-  {0x04a7, 0x04ac, &xerox_travelscanner_model},
-  {0x04a9, 0x2213, &canon_lide_50_model},
-  {0x04a9, 0x221c, &canon_lide_60_model},
-  {0x04a9, 0x2214, &canon_lide_80_model},
-  {0x07b3, 0x0900, &plustek_3600_model},
-  {0x0a17, 0x3210, &pentax_dsmobile_600_model},
-  {0x04f9, 0x2038, &pentax_dsmobile_600_model}, /* clone, only usb id is different */
-  {0x0a82, 0x4800, &syscan_docketport_485_model},
-  {0x0a82, 0x4802, &syscan_docketport_465_model},
-  {0x0a82, 0x4803, &syscan_docketport_665_model},
-  {0x0a82, 0x480c, &syscan_docketport_685_model},
-  {0x1dcc, 0x4810, &dct_docketport_487_model},
-  {0x1dcc, 0x4812, &syscan_docketport_467_model},
-  /* GL843 devices */
-  {0x04da, 0x100f, &panasonic_kvss080_model},
-  {0x03f0, 0x1b05, &hp4850c_model},
-  {0x03f0, 0x4505, &hpg4010_model},
-  {0x03f0, 0x4605, &hpg4050_model},
-  {0x04a9, 0x2228, &canon_4400f_model},
-  {0x04a9, 0x221e, &canon_8400f_model},
-  {0x04a9, 0x2229, &canon_8600f_model},
-  /* GL845 devices */
-  {0x07b3, 0x1300, &plustek_3800_model},
-  /* GL846 devices */
-  {0x1083, 0x162e, &canon_formula101_model},
-  /* GL847 devices */
-  {0x04a9, 0x1904, &canon_lide_100_model},
-  {0x04a9, 0x1905, &canon_lide_200_model},
-  {0x04a9, 0x1906, &canon_5600f_model},
-  {0x04a9, 0x1907, &canon_lide_700f_model},
-  {0x03f0, 0x4705, &hpn6310_model},
-  /* GL124 devices */
-  {0x04a9, 0x1909, &canon_lide_110_model},
-  {0x04a9, 0x190e, &canon_lide_120_model},
-  {0x04a9, 0x190a, &canon_lide_210_model},
-  {0x04a9, 0x190f, &canon_lide_220_model},
-  {0, 0, NULL}
-};
-
-#define MAX_SCANNERS (sizeof(genesys_usb_device_list) / \
-        sizeof(genesys_usb_device_list[0]))
+    s_usb_devices->emplace_back(0x1083, 0x162e, canon_formula101_model);
+}

@@ -3218,14 +3218,11 @@ gl646_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
  * sets up the scanner's register for warming up. We scan 2 lines without moving.
  *
  */
-static SANE_Status
-gl646_init_regs_for_warmup (Genesys_Device * dev,
-                            const Genesys_Sensor& sensor,
-			    Genesys_Register_Set * local_reg,
-			    int *channels, int *total_size)
+static void gl646_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set* local_reg, int* channels,
+                                       int* total_size)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
   int resolution, lines;
 
@@ -3275,8 +3272,6 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
     // now registers are ok, write them to scanner
     gl646_set_fe(dev, sensor, AFE_SET, settings.xres);
     sanei_genesys_bulk_write_register(dev, *local_reg);
-
-  return status;
 }
 
 

@@ -3445,24 +3445,16 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   return status;
 }
 
-/*
- * wait for lamp warmup by scanning the same line until difference
- * between 2 scans is below a threshold
- */
-static SANE_Status
-gl843_init_regs_for_warmup (Genesys_Device * dev,
-                            const Genesys_Sensor& sensor,
-			    Genesys_Register_Set * reg,
-			    int *channels, int *total_size)
+// wait for lamp warmup by scanning the same line until difference
+// between 2 scans is below a threshold
+static void gl843_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set* reg, int* channels, int* total_size)
 {
     DBG_HELPER(dbg);
   int num_pixels;
   int dpihw;
   int resolution;
   int factor;
-
-  if (dev == NULL || reg == NULL || channels == NULL || total_size == NULL)
-    return SANE_STATUS_INVAL;
 
   /* setup scan */
   *channels=3;
@@ -3500,8 +3492,6 @@ gl843_init_regs_for_warmup (Genesys_Device * dev,
 
   sanei_genesys_set_motor_power(*reg, false);
     dev->model->cmd_set->bulk_write_register(dev, *reg);
-
-  return SANE_STATUS_GOOD;
 }
 
 /**

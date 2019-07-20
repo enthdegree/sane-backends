@@ -1045,10 +1045,8 @@ struct Genesys_Command_Set
   /** For ASIC initialization */
     void (*init) (Genesys_Device* dev);
 
-    SANE_Status (*init_regs_for_warmup) (Genesys_Device * dev,
-                                         const Genesys_Sensor& sensor,
-					 Genesys_Register_Set * regs,
-					 int *channels, int *total_size);
+    void (*init_regs_for_warmup) (Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                  Genesys_Register_Set* regs, int*channels, int* total_size);
     void (*init_regs_for_coarse_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
                                               Genesys_Register_Set& regs);
     SANE_Status (*init_regs_for_shading) (Genesys_Device * dev, const Genesys_Sensor& sensor,

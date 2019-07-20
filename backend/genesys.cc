@@ -3421,13 +3421,11 @@ genesys_warmup_lamp (Genesys_Device * dev)
   double second_average = 0;
   int difference = 255;
   int empty, lines = 3;
-  SANE_Status status = SANE_STATUS_IO_ERROR;
+    SANE_Status status = SANE_STATUS_GOOD;
 
   /* check if the current chipset implements warmup */
-  if(dev->model->cmd_set->init_regs_for_warmup==NULL)
-    {
-      DBG(DBG_error,"%s: init_regs_for_warmup not implemented\n", __func__);
-      return status;
+    if (dev->model->cmd_set->init_regs_for_warmup == NULL) {
+        throw SaneException("init_regs_for_warmup not implemented");
     }
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);

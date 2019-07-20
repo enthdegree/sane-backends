@@ -4144,20 +4144,14 @@ gl841_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
   return status;
 }
 
-/*
- * wait for lamp warmup by scanning the same line until difference
- * between 2 scans is below a threshold
- */
-static SANE_Status
-gl841_init_regs_for_warmup (Genesys_Device * dev,
-                            const Genesys_Sensor& sensor,
-				       Genesys_Register_Set * local_reg,
-				       int *channels, int *total_size)
+// wait for lamp warmup by scanning the same line until difference
+// between 2 scans is below a threshold
+static void gl841_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set* local_reg, int* channels,
+                                       int* total_size)
 {
     DBG_HELPER(dbg);
   int num_pixels = (int) (4 * 300);
-  SANE_Status status = SANE_STATUS_GOOD;
-
   *local_reg = dev->reg;
 
 /* okay.. these should be defaults stored somewhere */
@@ -4197,8 +4191,6 @@ gl841_init_regs_for_warmup (Genesys_Device * dev,
   *total_size = num_pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
     sanei_genesys_bulk_write_register(dev, *local_reg);
-
-  return status;
 }
 
 

@@ -1163,9 +1163,8 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-static SANE_Status
-gl124_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Register_Set* reg,
-                     SetupParams& params)
+static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                 Genesys_Register_Set* reg, SetupParams& params)
 {
     DBG_HELPER(dbg);
     params.assert_valid();
@@ -1374,8 +1373,6 @@ gl124_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys
       dev->settings.pixels * dev->settings.lines * params.channels * (params.depth / 8);
 
   DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
-
-  return SANE_STATUS_GOOD;
 }
 
 static void
@@ -1825,13 +1822,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
                    SCAN_FLAG_DISABLE_GAMMA |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    status = gl124_init_scan_regs(dev, sensor, &local_reg, params);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set up registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl124_init_scan_regs(dev, sensor, &local_reg, params);
 
     // clear scan and feed count
     sanei_genesys_write_register(dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT);
@@ -1940,13 +1931,7 @@ gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse)
                    SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    status = gl124_init_scan_regs(dev, sensor, &local_reg, params);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "%s: failed to set up registers: %s\n", __func__, sane_strstatus (status));
-      return status;
-    }
+    gl124_init_scan_regs(dev, sensor, &local_reg, params);
 
   /* set exposure to zero */
   sanei_genesys_set_triple(&local_reg,REG_EXPR,0);
@@ -2046,13 +2031,7 @@ gl124_search_start_position (Genesys_Device * dev)
                    SCAN_FLAG_IGNORE_LINE_DISTANCE |
                    SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
 
-    status = gl124_init_scan_regs(dev, sensor, &local_reg, params);
-
-  if (status!=SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to init scan registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl124_init_scan_regs(dev, sensor, &local_reg, params);
 
     // send to scanner
     dev->model->cmd_set->bulk_write_register(dev, local_reg);
@@ -2116,7 +2095,6 @@ gl124_init_regs_for_coarse_calibration(Genesys_Device* dev, const Genesys_Sensor
                                        Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t channels;
 
   /* set line size */
@@ -2144,13 +2122,8 @@ gl124_init_regs_for_coarse_calibration(Genesys_Device* dev, const Genesys_Sensor
                    SCAN_FLAG_FEEDING |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    status = gl124_init_scan_regs(dev, sensor, &regs, params);
+    gl124_init_scan_regs(dev, sensor, &regs, params);
 
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
   sanei_genesys_set_motor_power(regs, false);
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
@@ -2169,7 +2142,6 @@ gl124_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
                             Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int move, resolution, dpihw, factor;
 
   /* initial calibration reg values */
@@ -2221,16 +2193,13 @@ gl124_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
                    SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    status = gl124_init_scan_regs(dev, sensor, &regs, params);
-
-    sanei_genesys_set_motor_power(regs, false);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "%s: failed to setup scan: %s\n", __func__,
-	   sane_strstatus (status));
-      return status;
+    try {
+        gl124_init_scan_regs(dev, sensor, &regs, params);
+    } catch (...) {
+        catch_all_exceptions(__func__, [&](){ sanei_genesys_set_motor_power(regs, false); });
+        throw;
     }
+    sanei_genesys_set_motor_power(regs, false);
 
   dev->scanhead_position_in_steps += dev->calib_lines + move;
 
@@ -2337,10 +2306,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
     params.color_filter = dev->settings.color_filter;
     params.flags = flags;
 
-    status = gl124_init_scan_regs(dev, sensor, &dev->reg, params);
-
-  if (status != SANE_STATUS_GOOD)
-    return status;
+    gl124_init_scan_regs(dev, sensor, &dev->reg, params);
 
   return SANE_STATUS_GOOD;
 }
@@ -2495,13 +2461,7 @@ move_to_calibration_area (Genesys_Device * dev, const Genesys_Sensor& sensor,
                    SCAN_FLAG_SINGLE_LINE |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    status = gl124_init_scan_regs(dev, sensor, &regs, params);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus (status));
-      return status;
-    }
+    gl124_init_scan_regs(dev, sensor, &regs, params);
 
   size = pixels * 3;
   std::vector<uint8_t> line(size);
@@ -2586,13 +2546,7 @@ gl124_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
                    SCAN_FLAG_SINGLE_LINE |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    status = gl124_init_scan_regs(dev, sensor, &regs, params);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus (status));
-      return status;
-    }
+    gl124_init_scan_regs(dev, sensor, &regs, params);
 
   total_size = num_pixels * channels * (depth/8) * 1;        /* colors * bytes_per_color * scan lines */
   std::vector<uint8_t> line(total_size);
@@ -2768,13 +2722,8 @@ gl124_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
                    SCAN_FLAG_SINGLE_LINE |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    status = gl124_init_scan_regs(dev, sensor, &regs, params);
+    gl124_init_scan_regs(dev, sensor, &regs, params);
 
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
   sanei_genesys_set_motor_power(regs, false);
 
   /* allocate memory for scans */
@@ -2939,21 +2888,13 @@ gl124_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
     try {
-        status = gl124_init_scan_regs(dev, sensor, &regs, params);
+        gl124_init_scan_regs(dev, sensor, &regs, params);
     } catch (...) {
-        try {
-            sanei_genesys_set_motor_power(regs, false);
-        } catch (...) {}
+        catch_all_exceptions(__func__, [&](){ sanei_genesys_set_motor_power(regs, false); });
         throw;
     }
 
     sanei_genesys_set_motor_power(regs, false);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
 
     dev->model->cmd_set->bulk_write_register(dev, regs);
 
@@ -3048,7 +2989,6 @@ gl124_init_regs_for_warmup (Genesys_Device * dev,
 {
     DBG_HELPER(dbg);
   int num_pixels;
-  SANE_Status status = SANE_STATUS_GOOD;
 
   if (dev == NULL || reg == NULL || channels == NULL || total_size == NULL)
     return SANE_STATUS_INVAL;
@@ -3074,13 +3014,7 @@ gl124_init_regs_for_warmup (Genesys_Device * dev,
                    SCAN_FLAG_SINGLE_LINE |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    status = gl124_init_scan_regs(dev, sensor, reg, params);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl124_init_scan_regs(dev, sensor, reg, params);
 
   num_pixels = dev->current_setup.pixels;
 

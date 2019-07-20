@@ -462,9 +462,8 @@ static Motor_Profile motors[]={
 	{0, 0, 0, NULL},
 };
 
-static
-SANE_Status gl124_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                 Genesys_Register_Set * reg, SetupParams& params);
+static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                 Genesys_Register_Set* reg, SetupParams& params);
 
 static SANE_Status gl124_start_action (Genesys_Device * dev);
 static SANE_Status

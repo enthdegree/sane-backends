@@ -342,8 +342,8 @@
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-static SANE_Status gl846_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                        Genesys_Register_Set * reg, SetupParams& params);
+static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                 Genesys_Register_Set* reg, SetupParams& params);
 
 /* Send the low-level scan command */
 static SANE_Status gl846_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,

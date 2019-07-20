@@ -1350,13 +1350,10 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
     s.computed = true;
 }
 
-/* set up registers for an actual scan
- *
- * this function sets up the scanner to scan in normal or single line mode
- */
-static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                        Genesys_Register_Set* reg,
-                                        ScanSession& session)
+// set up registers for an actual scan this function sets up the scanner to scan in normal or single
+// line mode
+static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                 Genesys_Register_Set* reg, ScanSession& session)
 {
     DBG_HELPER(dbg);
     session.assert_computed();
@@ -1530,8 +1527,6 @@ static SANE_Status gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Senso
     }
 
   DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
-
-  return SANE_STATUS_GOOD;
 }
 
 static void
@@ -2383,13 +2378,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
                             SCAN_FLAG_IGNORE_LINE_DISTANCE;
     gl843_compute_session(dev, session, sensor);
 
-    status = gl843_init_scan_regs(dev, sensor, &local_reg, session);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set up registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl843_init_scan_regs(dev, sensor, &local_reg, session);
 
     // clear scan and feed count
     sanei_genesys_write_register(dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT);
@@ -2500,12 +2489,7 @@ gl843_search_start_position (Genesys_Device * dev)
                             SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
     gl843_compute_session(dev, session, sensor);
 
-    status = gl843_init_scan_regs(dev, sensor, &local_reg, session);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to bulk setup registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl843_init_scan_regs(dev, sensor, &local_reg, session);
 
     // send to scanner
     dev->model->cmd_set->bulk_write_register(dev, local_reg);
@@ -2570,7 +2554,6 @@ gl843_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
                                        Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t channels;
 
   /* set line size */
@@ -2604,13 +2587,8 @@ gl843_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
     session.params.flags = flags;
     gl843_compute_session(dev, session, sensor);
 
-    status = gl843_init_scan_regs(dev, sensor, &regs, session);
+    gl843_init_scan_regs(dev, sensor, &regs, session);
 
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
   sanei_genesys_set_motor_power(regs, false);
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
@@ -2660,12 +2638,7 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
                             SCAN_FLAG_IGNORE_LINE_DISTANCE;
     gl843_compute_session(dev, session, sensor);
 
-    status = gl843_init_scan_regs(dev, sensor, &local_reg, session);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to set up registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl843_init_scan_regs(dev, sensor, &local_reg, session);
 
     // clear scan and feed count
     sanei_genesys_write_register(dev, REG0D, REG0D_CLRLNCNT);
@@ -2725,7 +2698,6 @@ gl843_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
                             Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int move, resolution, dpihw, factor;
   uint16_t strpixel;
 
@@ -2807,16 +2779,10 @@ gl843_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
     session.params.flags = flags;
     gl843_compute_session(dev, session, calib_sensor);
 
-    status = gl843_init_scan_regs(dev, calib_sensor, &regs, session);
+    gl843_init_scan_regs(dev, calib_sensor, &regs, session);
 
   // the pixel number may be updated to conform to scanner constraints
   dev->calib_pixels = dev->current_setup.pixels;
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
 
   dev->calib_total_bytes_to_read = dev->read_bytes_left;
 
@@ -2841,8 +2807,6 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   float move;
   int move_dpi;
   float start;
-
-  SANE_Status status = SANE_STATUS_GOOD;
 
     debug_dump(DBG_info, dev->settings);
 
@@ -2926,10 +2890,7 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
     session.params.flags = flags;
     gl843_compute_session(dev, session, sensor);
 
-    status = gl843_init_scan_regs(dev, sensor, &dev->reg, session);
-
-  if (status != SANE_STATUS_GOOD)
-    return status;
+    gl843_init_scan_regs(dev, sensor, &dev->reg, session);
 
   return SANE_STATUS_GOOD;
 }
@@ -3025,13 +2986,7 @@ gl843_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
                             SCAN_FLAG_IGNORE_LINE_DISTANCE;
     gl843_compute_session(dev, session, calib_sensor);
 
-    status = gl843_init_scan_regs(dev, calib_sensor, &regs, session);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl843_init_scan_regs(dev, calib_sensor, &regs, session);
 
     dev->model->cmd_set->bulk_write_register(dev, regs);
 
@@ -3269,12 +3224,8 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
     DBG(DBG_io, "%s: resolution  =%d\n", __func__, resolution);
     DBG(DBG_io, "%s: pixels      =%d\n", __func__, pixels);
     DBG(DBG_io, "%s: black_pixels=%d\n", __func__, black_pixels);
-    status = gl843_init_scan_regs(dev, calib_sensor, &regs, session);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl843_init_scan_regs(dev, calib_sensor, &regs, session);
+
   sanei_genesys_set_motor_power(regs, false);
 
   /* allocate memory for scans */
@@ -3498,21 +3449,13 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
     pixels = session.output_pixels;
 
     try {
-        status = gl843_init_scan_regs(dev, calib_sensor, &regs, session);
+        gl843_init_scan_regs(dev, calib_sensor, &regs, session);
     } catch (...) {
-        try {
-            sanei_genesys_set_motor_power(regs, false);
-        } catch (...) {}
+        catch_all_exceptions(__func__, [&](){ sanei_genesys_set_motor_power(regs, false); });
         throw;
     }
 
     sanei_genesys_set_motor_power(regs, false);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
 
     dev->model->cmd_set->bulk_write_register(dev, regs);
 
@@ -3634,7 +3577,6 @@ gl843_init_regs_for_warmup (Genesys_Device * dev,
 {
     DBG_HELPER(dbg);
   int num_pixels;
-  SANE_Status status = SANE_STATUS_GOOD;
   int dpihw;
   int resolution;
   int factor;
@@ -3674,13 +3616,7 @@ gl843_init_regs_for_warmup (Genesys_Device * dev,
                             SCAN_FLAG_IGNORE_LINE_DISTANCE;
     gl843_compute_session(dev, session, calib_sensor);
 
-    status = gl843_init_scan_regs(dev, calib_sensor, reg, session);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl843_init_scan_regs(dev, calib_sensor, reg, session);
 
   sanei_genesys_set_motor_power(*reg, false);
     dev->model->cmd_set->bulk_write_register(dev, *reg);
@@ -3959,12 +3895,7 @@ gl843_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
     session.params.flags = SCAN_FLAG_DISABLE_SHADING | SCAN_FLAG_DISABLE_SHADING;
     gl843_compute_session(dev, session, calib_sensor);
 
-    status = gl843_init_scan_regs(dev, calib_sensor, &local_reg, session);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup for scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl843_init_scan_regs(dev, calib_sensor, &local_reg, session);
 
   size = dev->read_bytes_left;
   std::vector<uint8_t> data(size);

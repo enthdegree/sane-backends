@@ -1786,14 +1786,10 @@ int scan_step_type=0;
   return scan_step_type;
 }
 
-/* set up registers for an actual scan
- *
- * this function sets up the scanner to scan in normal or single line mode
- */
-static
-SANE_Status
-gl841_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Register_Set * reg,
-                     SetupParams& params)
+// set up registers for an actual scan this function sets up the scanner to scan in normal or single
+// line mode
+static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                 Genesys_Register_Set* reg, SetupParams& params)
 {
     DBG_HELPER(dbg);
     params.assert_valid();
@@ -2115,8 +2111,6 @@ dummy \ scanned lines
 
   DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
 /* END TODO */
-
-  return SANE_STATUS_GOOD;
 }
 
 static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor)
@@ -3128,13 +3122,7 @@ gl841_search_start_position (Genesys_Device * dev)
                    SCAN_FLAG_IGNORE_LINE_DISTANCE |
                    SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
 
-    status = gl841_init_scan_regs(dev, sensor, &local_reg, params);
-
-  if(status!=SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to init scan registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl841_init_scan_regs(dev, sensor, &local_reg, params);
 
     // send to scanner
     sanei_genesys_bulk_write_register(dev, local_reg);
@@ -3200,7 +3188,6 @@ gl841_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
                                        Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t channels;
 
   /* set line size */
@@ -3227,13 +3214,7 @@ gl841_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
                    SCAN_FLAG_SINGLE_LINE |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    status = gl841_init_scan_regs(dev, sensor, &regs, params);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl841_init_scan_regs(dev, sensor, &regs, params);
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
       sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
@@ -3253,7 +3234,6 @@ gl841_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
                             Genesys_Register_Set& regs)
 {
     DBG_HELPER_ARGS(dbg, "lines = %d", (int)(dev->calib_lines));
-  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Int ydpi;
   float starty=0;
 
@@ -3302,13 +3282,7 @@ gl841_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
                    /*SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |*/
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    status = gl841_init_scan_regs(dev, sensor, &regs, params);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl841_init_scan_regs(dev, sensor, &regs, params);
 
   dev->calib_pixels = dev->current_setup.pixels;
   dev->scanhead_position_in_steps += dev->calib_lines + starty;
@@ -3330,8 +3304,6 @@ gl841_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   float move;
   int move_dpi;
   float start;
-
-  SANE_Status status = SANE_STATUS_GOOD;
 
     debug_dump(DBG_info, dev->settings);
 
@@ -3429,10 +3401,7 @@ gl841_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
     params.color_filter = dev->settings.color_filter;
     params.flags = flags;
 
-    status = gl841_init_scan_regs(dev, sensor, &dev->reg, params);
-
-  if (status != SANE_STATUS_GOOD)
-      return status;
+    gl841_init_scan_regs(dev, sensor, &dev->reg, params);
 
   return SANE_STATUS_GOOD;
 }
@@ -3536,13 +3505,7 @@ gl841_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
                    SCAN_FLAG_IGNORE_LINE_DISTANCE |
                    SCAN_FLAG_USE_OPTICAL_RES;
 
-    status = gl841_init_scan_regs(dev, sensor, &regs, params);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl841_init_scan_regs(dev, sensor, &regs, params);
 
     sanei_genesys_bulk_write_register(dev, regs);
 
@@ -3739,13 +3702,7 @@ ad_fe_offset_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
                    SCAN_FLAG_IGNORE_LINE_DISTANCE |
                    SCAN_FLAG_USE_OPTICAL_RES;
 
-    status = gl841_init_scan_regs(dev, sensor, &regs, params);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl841_init_scan_regs(dev, sensor, &regs, params);
 
   num_pixels = dev->current_setup.pixels;
   total_size = num_pixels * 3 * 2 * 1;
@@ -3866,13 +3823,7 @@ gl841_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
                    SCAN_FLAG_USE_OPTICAL_RES |
                    SCAN_FLAG_DISABLE_LAMP;
 
-    status = gl841_init_scan_regs(dev, sensor, &regs, params);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl841_init_scan_regs(dev, sensor, &regs, params);
 
   num_pixels = dev->current_setup.pixels;
 
@@ -4240,13 +4191,7 @@ gl841_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
                    SCAN_FLAG_IGNORE_LINE_DISTANCE |
                    SCAN_FLAG_USE_OPTICAL_RES;
 
-    status = gl841_init_scan_regs(dev, sensor, &regs, params);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl841_init_scan_regs(dev, sensor, &regs, params);
 
     sanei_genesys_bulk_write_register(dev, regs);
 
@@ -4403,13 +4348,7 @@ gl841_init_regs_for_warmup (Genesys_Device * dev,
                    SCAN_FLAG_IGNORE_LINE_DISTANCE |
                    SCAN_FLAG_USE_OPTICAL_RES;
 
-    status = gl841_init_scan_regs(dev, sensor, local_reg, params);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl841_init_scan_regs(dev, sensor, local_reg, params);
 
   num_pixels = dev->current_setup.pixels;
 
@@ -4590,7 +4529,7 @@ gl841_init (Genesys_Device * dev)
                    SCAN_FLAG_IGNORE_LINE_DISTANCE |
                    SCAN_FLAG_USE_OPTICAL_RES;
 
-    status = gl841_init_scan_regs(dev, sensor, &regs, params);
+    gl841_init_scan_regs(dev, sensor, &regs, params);
 
     sanei_genesys_bulk_write_register(dev, regs);
 
@@ -4729,13 +4668,7 @@ gl841_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
     params.color_filter = ColorFilter::RED;
     params.flags = SCAN_FLAG_DISABLE_SHADING | SCAN_FLAG_DISABLE_GAMMA;
 
-    status = gl841_init_scan_regs(dev, sensor, &local_reg, params);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to setup for scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl841_init_scan_regs(dev, sensor, &local_reg, params);
 
   /* set up for reverse or forward */
   r = sanei_genesys_get_address(&local_reg, 0x02);

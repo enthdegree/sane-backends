@@ -207,13 +207,12 @@ setup_for_scan (Genesys_Device *device,
  * Builds motor slope tables. Computes buffer sizes and data amount to
  * transfer. It also sets up analog frontend.
  * */
-static SANE_Status
-gl646_setup_registers (Genesys_Device * dev,
-                       const Genesys_Sensor& sensor,
-                       Genesys_Register_Set * regs, SetupParams& params,
-                       uint16_t * slope_table1,
-                       uint16_t * slope_table2,
-                       bool xcorrection);
+static void gl646_setup_registers(Genesys_Device* dev,
+                                  const Genesys_Sensor& sensor,
+                                  Genesys_Register_Set* regs, SetupParams& params,
+                                  uint16_t* slope_table1,
+                                  uint16_t* slope_table2,
+                                  bool xcorrection);
 
 /**
  * Does a simple move of the given distance by doing a scan at lowest resolution
@@ -251,8 +250,7 @@ end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 /**
  * writes control data to an area behind the last motor table.
  */
-static SANE_Status write_control (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                  int resolution);
+static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int resolution);
 
 
 /**

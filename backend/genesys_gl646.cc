@@ -358,14 +358,13 @@ static int get_cksel(int sensor_id, int required, unsigned channels)
  * registers are set from settings tables and flags related
  * to the hardware capabilities.
  * */
-static SANE_Status
-gl646_setup_registers (Genesys_Device * dev,
-                       const Genesys_Sensor& sensor,
-		       Genesys_Register_Set * regs,
-                       SetupParams& params,
-		       uint16_t * slope_table1,
-		       uint16_t * slope_table2,
-                       bool xcorrection)
+static void gl646_setup_registers(Genesys_Device* dev,
+                                  const Genesys_Sensor& sensor,
+                                  Genesys_Register_Set* regs,
+                                  SetupParams& params,
+                                  uint16_t* slope_table1,
+                                  uint16_t* slope_table2,
+                                  bool xcorrection)
 {
     DBG_HELPER(dbg);
     int resolution = params.xres;
@@ -403,7 +402,6 @@ gl646_setup_registers (Genesys_Device * dev,
     /* TODO check for pixel width overflow */
     uint32_t endx = startx + pixels;
 
-  SANE_Status status = SANE_STATUS_GOOD;
   int i, nb;
   Sensor_Master *sensor_mst = NULL;
   Motor_Master *motor = NULL;
@@ -448,9 +446,8 @@ gl646_setup_registers (Genesys_Device * dev,
     }
   if (sensor_mst == NULL)
     {
-      DBG(DBG_error, "%s: unable to find settings for sensor %d at %d dpi channels=%d\n", __func__,
-          dev->model->ccd_type, xresolution, params.channels);
-      return SANE_STATUS_INVAL;
+        throw SaneException("unable to find settings for sensor %d at %d dpi channels=%d",
+                            dev->model->ccd_type, xresolution, params.channels);
     }
 
   /* for the given resolution, search for master
@@ -469,9 +466,8 @@ gl646_setup_registers (Genesys_Device * dev,
     }
   if (motor == NULL)
     {
-      DBG(DBG_error, "%s: unable to find settings for motor %d at %d dpi, color=%d\n", __func__,
-          dev->model->motor_type, resolution, params.channels);
-      return SANE_STATUS_INVAL;
+        throw SaneException("unable to find settings for motor %d at %d dpi, color=%d",
+                            dev->model->motor_type, resolution, params.channels);
     }
 
   /* now we can search for the specific sensor settings */
@@ -488,9 +484,8 @@ gl646_setup_registers (Genesys_Device * dev,
     }
   if (settings == NULL)
     {
-      DBG(DBG_error, "%s: unable to find settings for sensor %d with '%d' ccd timing\n", __func__,
-          sensor_mst->sensor, sensor_mst->cksel);
-      return SANE_STATUS_INVAL;
+        throw SaneException("unable to find settings for sensor %d with '%d' ccd timing",
+                            sensor_mst->sensor, sensor_mst->cksel);
     }
 
   /* half_ccd if manual clock programming or dpi is half dpiset */
@@ -928,7 +923,7 @@ gl646_setup_registers (Genesys_Device * dev,
     (regs->find_reg(0x6c).value & REG6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16)
 								   & 0x07);
 
-  RIE (write_control (dev, sensor, xresolution));
+    write_control(dev, sensor, xresolution);
 
     // setup analog frontend
     gl646_set_fe(dev, sensor, AFE_SET, xresolution);
@@ -1002,8 +997,6 @@ gl646_setup_registers (Genesys_Device * dev,
                 break;
         }
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -2535,14 +2528,8 @@ setup_for_scan (Genesys_Device * dev,
     uint16_t slope_table0[256] = {};
     uint16_t slope_table1[256] = {};
 
-  /* set up correct values for scan (gamma and shading enabled) */
-  status = gl646_setup_registers(dev, sensor, regs, params, slope_table0, slope_table1,
-                                 xcorrection);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed setup registers: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // set up correct values for scan (gamma and shading enabled)
+    gl646_setup_registers(dev, sensor, regs, params, slope_table0, slope_table1, xcorrection);
 
     // send computed slope tables
     gl646_send_slope_table(dev, 0, slope_table0, sanei_genesys_read_reg_from_set (regs, 0x21));
@@ -4060,17 +4047,15 @@ gl646_update_hardware_sensors (Genesys_Scanner * session)
 }
 
 
-static SANE_Status
-write_control (Genesys_Device * dev, const Genesys_Sensor& sensor, int resolution)
+static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int resolution)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t control[4];
   uint32_t addr = 0xdead;
 
   /* 2300 does not write to 'control' */
   if (dev->model->motor_type == MOTOR_HP2300)
-    return SANE_STATUS_GOOD;
+    return;
 
   /* MD6471/G2410/HP2300 and XP200 read/write data from an undocumented memory area which
    * is after the second slope table */
@@ -4086,8 +4071,7 @@ write_control (Genesys_Device * dev, const Genesys_Sensor& sensor, int resolutio
       addr = 0x1fa00;
       break;
     default:
-      DBG(DBG_error, "%s: failed to compute control address\n", __func__);
-      return SANE_STATUS_INVAL;
+        throw SaneException("failed to compute control address");
     }
 
   /* XP200 sets dpi, what other scanner put is unknown yet */
@@ -4115,8 +4099,6 @@ write_control (Genesys_Device * dev, const Genesys_Sensor& sensor, int resolutio
       control[2], control[3]);
     sanei_genesys_set_buffer_address(dev, addr);
     sanei_genesys_bulk_write_data(dev, 0x3c, control, 4);
-
-  return status;
 }
 
 /**

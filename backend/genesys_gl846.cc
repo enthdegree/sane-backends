@@ -1366,11 +1366,9 @@ static void gl846_start_action(Genesys_Device* dev)
     sanei_genesys_write_register(dev, 0x0f, 0x01);
 }
 
-static SANE_Status
-gl846_stop_action (Genesys_Device * dev)
+static void gl846_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val40, val;
   unsigned int loop;
 
@@ -1383,17 +1381,12 @@ gl846_stop_action (Genesys_Device * dev)
     }
 
     sanei_genesys_read_register(dev, REG40, &val40);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read home sensor: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
 
   /* only stop action if needed */
   if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG))
     {
       DBG(DBG_info, "%s: already stopped\n", __func__);
-      return SANE_STATUS_GOOD;
+      return;
     }
 
   /* ends scan */
@@ -1417,14 +1410,14 @@ gl846_stop_action (Genesys_Device * dev)
       if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG)
           && !(val & REG41_MOTORENB))
         {
-          return SANE_STATUS_GOOD;
+          return;
         }
 
       sanei_genesys_sleep_ms(100);
       loop--;
     }
 
-  return SANE_STATUS_IO_ERROR;
+  throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
 }
 
 /* Send the low-level scan command */
@@ -1482,12 +1475,7 @@ gl846_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     }
   else				/* flat bed scanners */
     {
-      status = gl846_stop_action (dev);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to stop: %s\n", __func__, sane_strstatus(status));
-          return status;
-        }
+        gl846_stop_action(dev);
     }
 
   return status;
@@ -1832,8 +1820,8 @@ gl846_feed (Genesys_Device * dev, unsigned int steps)
         sanei_genesys_get_status(dev, &val);
     } while (!(val & FEEDFSH));
 
-  /* then stop scanning */
-  RIE(gl846_stop_action (dev));
+    // then stop scanning
+    gl846_stop_action(dev);
 
   return SANE_STATUS_GOOD;
 }
@@ -2192,8 +2180,8 @@ gl846_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
       RIE(gl846_begin_scan(dev, sensor, &regs, SANE_TRUE));
       RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
-      /* stop scanning */
-      RIE(gl846_stop_action(dev));
+        // stop scanning
+        gl846_stop_action(dev);
 
       if (DBG_LEVEL >= DBG_data)
         {
@@ -2465,12 +2453,7 @@ gl846_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
     gl846_set_fe(dev, sensor, AFE_SET);
 
-  status = gl846_stop_action (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to stop: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl846_stop_action(dev);
 
     // set up for a gray scan at lowest dpi
     unsigned dpi = *std::min_element(dev->model->xdpi_values.begin(),
@@ -2535,12 +2518,7 @@ gl846_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
       return status;
     }
 
-  status = gl846_stop_action (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: gl846_stop_action failed\n", __func__);
-      return status;
-    }
+    gl846_stop_action(dev);
 
   pass = 0;
   if (DBG_LEVEL >= DBG_data)
@@ -2577,12 +2555,7 @@ gl846_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
           return status;
         }
 
-      status = gl846_stop_action (dev);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: gl846_stop_action failed\n", __func__);
-          return status;
-        }
+        gl846_stop_action(dev);
 
       if (DBG_LEVEL >= DBG_data)
         {
@@ -2988,7 +2961,7 @@ gl846_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
         dev->frontend.set_gain(2, gain0);
     }
 
-  RIE (gl846_stop_action (dev));
+    gl846_stop_action(dev);
 
   status=gl846_slow_back_home (dev, SANE_TRUE);
 

@@ -1713,8 +1713,7 @@ static void gl843_start_action(Genesys_Device* dev)
     sanei_genesys_write_register(dev, 0x0f, 0x01);
 }
 
-static SANE_Status
-gl843_stop_action_no_move(Genesys_Device* dev, Genesys_Register_Set* reg)
+static void gl843_stop_action_no_move(Genesys_Device* dev, Genesys_Register_Set* reg)
 {
     DBG_HELPER(dbg);
     uint8_t val = sanei_genesys_read_reg_from_set(reg, REG01);
@@ -1722,11 +1721,9 @@ gl843_stop_action_no_move(Genesys_Device* dev, Genesys_Register_Set* reg)
     sanei_genesys_set_reg_from_set(reg, REG01, val);
     sanei_genesys_write_register(dev, REG01, val);
     sanei_genesys_sleep_ms(100);
-    return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-gl843_stop_action (Genesys_Device * dev)
+static void gl843_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   uint8_t val40, val;
@@ -1745,7 +1742,7 @@ gl843_stop_action (Genesys_Device * dev)
   if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG))
     {
       DBG(DBG_info, "%s: already stopped\n", __func__);
-      return SANE_STATUS_GOOD;
+      return;
     }
 
   /* ends scan 646  */
@@ -1771,14 +1768,14 @@ gl843_stop_action (Genesys_Device * dev)
       if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG)
 	  && !(val & REG41_MOTORENB))
 	{
-	  return SANE_STATUS_GOOD;
+      return;
 	}
 
       sanei_genesys_sleep_ms(100);
       loop--;
     }
 
-  return SANE_STATUS_IO_ERROR;
+  throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
 }
 
 static SANE_Status
@@ -2222,12 +2219,7 @@ gl843_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     }
   else				/* flat bed scanners */
     {
-      status = gl843_stop_action (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to stop: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        gl843_stop_action(dev);
     }
 
   return status;
@@ -2493,7 +2485,7 @@ gl843_search_start_position (Genesys_Device * dev)
       DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
       return status;
     }
-  RIE(gl843_stop_action_no_move(dev, &local_reg));
+    gl843_stop_action_no_move(dev, &local_reg);
 
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file("gl843_search_position.pnm", data.data(), 8, 1, pixels,
@@ -2985,7 +2977,7 @@ gl843_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
       RIE (gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE));
       RIE (sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
-      RIE(gl843_stop_action_no_move(dev, &regs));
+        gl843_stop_action_no_move(dev, &regs);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -3055,7 +3047,7 @@ gl843_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
 
 	}
 
-      RIE (gl843_stop_action (dev));
+        gl843_stop_action (dev);
 
       turn++;
 
@@ -3211,7 +3203,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
   RIE(gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
-  RIE(gl843_stop_action_no_move(dev, &regs));
+    gl843_stop_action_no_move(dev, &regs);
 
   if (DBG_LEVEL >= DBG_data)
     {
@@ -3240,7 +3232,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
   RIE(gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size));
-  RIE(gl843_stop_action_no_move(dev, &regs));
+    gl843_stop_action_no_move(dev, &regs);
 
   for (i = 0; i < 3; i++)
     {
@@ -3276,7 +3268,7 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
       RIE(gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE));
       RIE(sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size));
-      RIE(gl843_stop_action_no_move(dev, &regs));
+        gl843_stop_action_no_move(dev, &regs);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -3429,7 +3421,7 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
     gl843_set_fe(dev, calib_sensor, AFE_SET);
   RIE(gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE));
   RIE(sanei_genesys_read_data_from_scanner (dev, line.data(), total_size));
-  RIE(gl843_stop_action_no_move(dev, &regs));
+    gl843_stop_action_no_move(dev, &regs);
 
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file("gl843_gain.pnm", line.data(), bpp, channels, pixels, lines);
@@ -3521,7 +3513,7 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
         dev->frontend.set_gain(2, dev->frontend.get_gain(1));
     }
 
-  RIE (gl843_stop_action (dev));
+    gl843_stop_action(dev);
 
   status=gl843_slow_back_home (dev, SANE_TRUE);
 
@@ -3811,12 +3803,7 @@ gl843_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
   GenesysRegister *r;
 
   gl843_set_fe(dev, sensor, AFE_SET);
-  status = gl843_stop_action (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to stop: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl843_stop_action(dev);
 
   /* set up for a gray scan at lowest dpi */
   dpi = sanei_genesys_get_lowest_dpi(dev);
@@ -3885,12 +3872,7 @@ gl843_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
       return status;
     }
 
-  status = gl843_stop_action (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: gl843_stop_action failed\n", __func__);
-      return status;
-    }
+    gl843_stop_action(dev);
 
   pass = 0;
   if (DBG_LEVEL >= DBG_data)
@@ -3928,12 +3910,7 @@ gl843_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
 	  return status;
 	}
 
-      status = gl843_stop_action (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: gl843_stop_action failed\n", __func__);
-	  return status;
-	}
+        gl843_stop_action(dev);
 
       if (DBG_LEVEL >= DBG_data)
 	{

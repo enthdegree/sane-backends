@@ -1382,8 +1382,7 @@ static void gl847_start_action(Genesys_Device* dev)
     sanei_genesys_write_register(dev, 0x0f, 0x01);
 }
 
-static SANE_Status
-gl847_stop_action (Genesys_Device * dev)
+static void gl847_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   uint8_t val40, val;
@@ -1403,7 +1402,7 @@ gl847_stop_action (Genesys_Device * dev)
   if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG))
     {
       DBG(DBG_info, "%s: already stopped\n", __func__);
-      return SANE_STATUS_GOOD;
+      return;
     }
 
   /* ends scan */
@@ -1428,14 +1427,14 @@ gl847_stop_action (Genesys_Device * dev)
       if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG)
 	  && !(val & REG41_MOTORENB))
 	{
-	  return SANE_STATUS_GOOD;
+      return;
 	}
 
       sanei_genesys_sleep_ms(100);
       loop--;
     }
 
-  return SANE_STATUS_IO_ERROR;
+    throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
 }
 
 /* Send the low-level scan command */
@@ -1494,12 +1493,7 @@ gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     }
   else				/* flat bed scanners */
     {
-      status = gl847_stop_action (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to stop: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        gl847_stop_action(dev);
     }
 
   return status;
@@ -1887,8 +1881,8 @@ gl847_feed (Genesys_Device * dev, unsigned int steps)
     }
   while (!(val & FEEDFSH));
 
-  /* then stop scanning */
-  RIE(gl847_stop_action (dev));
+    // then stop scanning
+    gl847_stop_action(dev);
 
   return SANE_STATUS_GOOD;
 }
@@ -2247,8 +2241,8 @@ gl847_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
       RIE(gl847_begin_scan(dev, sensor, &regs, SANE_TRUE));
       RIE(sanei_genesys_read_data_from_scanner(dev, line.data(), total_size));
 
-      /* stop scanning */
-      RIE(gl847_stop_action (dev));
+        // stop scanning
+        gl847_stop_action(dev);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -2566,12 +2560,7 @@ gl847_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
   GenesysRegister *r;
 
   gl847_set_fe(dev, sensor, AFE_SET);
-  status = gl847_stop_action (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to stop: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl847_stop_action(dev);
 
     // set up for a gray scan at lowest dpi
     unsigned dpi = *std::min_element(dev->model->xdpi_values.begin(),
@@ -2636,12 +2625,7 @@ gl847_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
       return status;
     }
 
-  status = gl847_stop_action (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: gl847_stop_action failed\n", __func__);
-      return status;
-    }
+    gl847_stop_action(dev);
 
   pass = 0;
   if (DBG_LEVEL >= DBG_data)
@@ -2678,12 +2662,7 @@ gl847_search_strip (Genesys_Device * dev, const Genesys_Sensor& sensor,
 	  return status;
 	}
 
-      status = gl847_stop_action (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: gl847_stop_action failed\n", __func__);
-	  return status;
-	}
+    gl847_stop_action(dev);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -3106,7 +3085,7 @@ gl847_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
         dev->frontend.set_gain(2, dev->frontend.get_gain(1));
     }
 
-  RIE (gl847_stop_action (dev));
+    gl847_stop_action(dev);
 
   status=gl847_slow_back_home (dev, SANE_TRUE);
 

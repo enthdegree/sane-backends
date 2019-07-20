@@ -361,8 +361,7 @@ static SANE_Status gl846_init (Genesys_Device * dev);
 static SANE_Status
 gl846_feed (Genesys_Device * dev, unsigned int steps);
 
-static SANE_Status
-gl846_stop_action (Genesys_Device * dev);
+static void gl846_stop_action(Genesys_Device* dev);
 
 static SANE_Status
 gl846_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home);

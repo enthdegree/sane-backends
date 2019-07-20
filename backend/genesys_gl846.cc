@@ -1771,10 +1771,9 @@ static void gl846_feed(Genesys_Device* dev, unsigned int steps)
 }
 
 
-/* init registers for shading calibration */
-static SANE_Status
-gl846_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                            Genesys_Register_Set& regs)
+// init registers for shading calibration
+static void gl846_init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   float move;
@@ -1824,8 +1823,6 @@ gl846_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   /* we use GENESYS_FLAG_SHADING_REPARK */
   dev->scanhead_position_in_steps = 0;
-
-  return SANE_STATUS_GOOD;
 }
 
 /** @brief set up registers for the actual scan

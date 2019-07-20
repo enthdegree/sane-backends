@@ -3096,10 +3096,9 @@ static void gl841_init_regs_for_coarse_calibration(Genesys_Device* dev,
 }
 
 
-/* init registers for shading calibration */
-static SANE_Status
-gl841_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                            Genesys_Register_Set& regs)
+// init registers for shading calibration
+static void gl841_init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                        Genesys_Register_Set& regs)
 {
     DBG_HELPER_ARGS(dbg, "lines = %d", (int)(dev->calib_lines));
   SANE_Int ydpi;
@@ -3156,8 +3155,6 @@ gl841_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
   dev->scanhead_position_in_steps += dev->calib_lines + starty;
 
     sanei_genesys_bulk_write_register(dev, regs);
-
-  return SANE_STATUS_GOOD;
 }
 
 /* set up registers for the actual scan

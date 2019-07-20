@@ -2235,13 +2235,11 @@ static void gl646_init_regs_for_coarse_calibration(Genesys_Device* dev,
  * @param dev scanner's device
  * @return SANE_STATUS_GOOD if success, else error code
  */
-static SANE_Status
-gl646_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                            Genesys_Register_Set& regs)
+static void gl646_init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                        Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
     (void) regs;
-  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
   /* 1: no half_ccd, 2: use half number of pixels */
   int half_ccd = 1;
@@ -2325,8 +2323,6 @@ gl646_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
   dev->current_setup.xres = dev->settings.xres;
   DBG(DBG_info, "%s:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n", __func__,
       dev->settings.xres, dev->settings.yres);
-
-  return status;
 }
 
 static bool gl646_needs_home_before_init_regs_for_scan(Genesys_Device* dev)

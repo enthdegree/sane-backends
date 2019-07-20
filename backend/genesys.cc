@@ -3079,13 +3079,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 
   /* shading calibration */
   sanei_usb_testing_record_message("init_regs_for_shading");
-  status = dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to send shading registers: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
   if (dev->model->flags & GENESYS_FLAG_DARK_WHITE_CALIBRATION)
     {
@@ -3118,7 +3112,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
       genesys_repark_sensor_before_shading(dev);
 
       sanei_usb_testing_record_message("init_regs_for_shading2");
-      RIE(dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg));
+        dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
       sanei_usb_testing_record_message("genesys_white_shading_calibration");
       status = genesys_white_shading_calibration (dev, sensor);
@@ -3257,13 +3251,8 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
             throw;
         }
 
-      status = dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to do set up registers for shading calibration: %s\n",
-	      __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
+
         try {
             status = genesys_dark_shading_calibration(dev, sensor);
             if (status != SANE_STATUS_GOOD) {
@@ -3296,13 +3285,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
 
   genesys_repark_sensor_before_shading(dev);
 
-  status = dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to do set up registers for shading calibration: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
     try {
         status = genesys_white_shading_calibration(dev, sensor);

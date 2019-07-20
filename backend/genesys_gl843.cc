@@ -2575,11 +2575,9 @@ static void gl843_feed(Genesys_Device* dev, unsigned int steps)
 
 static SANE_Status gl843_move_to_ta (Genesys_Device * dev);
 
-/* init registers for shading calibration */
-/* shading calibration is done at dpihw */
-static SANE_Status
-gl843_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                            Genesys_Register_Set& regs)
+// init registers for shading calibration shading calibration is done at dpihw
+static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                        Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   int move, resolution, dpihw, factor;
@@ -2675,8 +2673,6 @@ gl843_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
   DBG(DBG_info, "%s: STRPIXEL=%d\n", __func__, strpixel);
 
     dev->model->cmd_set->bulk_write_register(dev, regs);
-
-  return SANE_STATUS_GOOD;
 }
 
 /** @brief set up registers for the actual scan

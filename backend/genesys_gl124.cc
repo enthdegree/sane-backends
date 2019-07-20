@@ -2033,11 +2033,9 @@ static void gl124_init_regs_for_coarse_calibration(Genesys_Device* dev,
 }
 
 
-/* init registers for shading calibration */
-/* shading calibration is done at dpihw */
-static SANE_Status
-gl124_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                            Genesys_Register_Set& regs)
+// init registers for shading calibration shading calibration is done at dpihw
+static void gl124_init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                        Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   int move, resolution, dpihw, factor;
@@ -2102,8 +2100,6 @@ gl124_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
   dev->scanhead_position_in_steps += dev->calib_lines + move;
 
     dev->model->cmd_set->bulk_write_register(dev, regs);
-
-  return SANE_STATUS_GOOD;
 }
 
 static void gl124_wait_for_motor_stop(Genesys_Device* dev)

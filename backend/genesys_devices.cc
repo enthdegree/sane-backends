@@ -1648,6 +1648,88 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 }
             },
+            { -1, 600, 14400, ScanMethod::TRANSPARENCY, {
+                    { 0x16, 0x33 },
+                    { 0x17, 0x0c },
+                    { 0x18, 0x13 },
+                    { 0x19, 0x2a },
+                    { 0x1a, 0x30 },
+                    { 0x1b, 0x00 },
+                    { 0x1c, 0x00 },
+                    { 0x1d, 0x84 },
+                    { 0x1e, 0xa0 },
+                    { 0x52, 0x0d },
+                    { 0x53, 0x10 },
+                    { 0x54, 0x01 },
+                    { 0x55, 0x04 },
+                    { 0x56, 0x07 },
+                    { 0x57, 0x0a },
+                    { 0x58, 0x6b },
+                    { 0x59, 0x00 },
+                    { 0x5a, 0x40 },
+                    { 0x74, 0x00 }, { 0x75, 0x0e }, { 0x76, 0x3f },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x01 }, { 0x7b, 0xb6 }, { 0x7c, 0xdb },
+                    { 0x70, 0x01 }, { 0x71, 0x02 }, { 0x72, 0x03 }, { 0x73, 0x04 },
+                    { 0x80, 0x20 },
+                }, {}
+            },
+            { 1200, 1200, 28800, ScanMethod::TRANSPARENCY, {
+                    { 0x16, 0x33 },
+                    { 0x17, 0x0c },
+                    { 0x18, 0x11 },
+                    { 0x19, 0x2a },
+                    { 0x1a, 0x30 },
+                    { 0x1b, 0x00 },
+                    { 0x1c, 0x00 },
+                    { 0x1d, 0x84 },
+                    { 0x1e, 0xa0 },
+                    { 0x52, 0x0b },
+                    { 0x53, 0x0e },
+                    { 0x54, 0x11 },
+                    { 0x55, 0x02 },
+                    { 0x56, 0x05 },
+                    { 0x57, 0x08 },
+                    { 0x58, 0x63 },
+                    { 0x59, 0x00 },
+                    { 0x5a, 0x40 },
+                    { 0x70, 0x00 }, { 0x71, 0x01 }, { 0x72, 0x02 }, { 0x73, 0x03 },
+                    { 0x74, 0x00 }, { 0x75, 0x01 }, { 0x76, 0xff },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x02 }, { 0x7b, 0x49 }, { 0x7c, 0x24 },
+                    { 0x80, 0x29 },
+                }, {
+                    { 0x03, 0x1f },
+                },
+            },
+            { 2400, 2400, 28800, ScanMethod::TRANSPARENCY, {
+                    { 0x16, 0x33 },
+                    { 0x17, 0x0c },
+                    { 0x18, 0x10 },
+                    { 0x19, 0x2a },
+                    { 0x1a, 0x30 },
+                    { 0x1b, 0x00 },
+                    { 0x1c, 0x20 },
+                    { 0x1d, 0x84 },
+                    { 0x1e, 0xa0 },
+                    { 0x52, 0x02 },
+                    { 0x53, 0x05 },
+                    { 0x54, 0x08 },
+                    { 0x55, 0x0b },
+                    { 0x56, 0x0e },
+                    { 0x57, 0x11 },
+                    { 0x58, 0x1b },
+                    { 0x59, 0x00 },
+                    { 0x5a, 0x40 },
+                    { 0x70, 0x09 }, { 0x71, 0x0a }, { 0x72, 0x0b }, { 0x73, 0x0c },
+                    { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x00 },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x02 }, { 0x7b, 0x49 }, { 0x7c, 0x24 },
+                    { 0x80, 0x2b },
+                }, {
+                    { 0x03, 0x1f },
+                },
+            },
         };
 
         for (const CustomSensorSettings& setting : custom_settings)
@@ -3224,16 +3306,16 @@ static Genesys_Model canon_8400f_model = {
   SANE_FIX(219.9),              // x_size
   SANE_FIX(315.0),              // y_size
 
-  SANE_FIX(0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX(10.0),                /* Start of black mark in mm (x) */
+  SANE_FIX(0.0),                // y_offset_calib
+  SANE_FIX(10.0),               // x_offset_mark
 
-  SANE_FIX (8.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (13.00),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (217.9),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (250.0),                /* Size of scan area in TA mode in mm (y) */
+  SANE_FIX(100.0),              // x_offset_ta
+  SANE_FIX(50.00),              // y_offset_ta
+  SANE_FIX(100.0),               // x_size_ta
+  SANE_FIX(230.0),              // y_size_ta
 
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (40.0),                /* Start of white strip in TA mode in mm (y) */
+  SANE_FIX(22.0),               // y_offset_sensor_to_ta
+  SANE_FIX(25.0),               // y_offset_calib_ta
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
 				   sensing document in mm */
@@ -3252,6 +3334,7 @@ static Genesys_Model canon_8400f_model = {
   DAC_CS8400F,
   GPO_CS8400F,
   MOTOR_CS8400F,
+  GENESYS_FLAG_HAS_UTA |
   GENESYS_FLAG_LAZY_INIT |
   GENESYS_FLAG_OFFSET_CALIBRATION |
   GENESYS_FLAG_STAGGERED_LINE |
@@ -3262,7 +3345,7 @@ static Genesys_Model canon_8400f_model = {
   GENESYS_FLAG_SHADING_REPARK,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   100,
-  0,        // shading_ta_lines
+  50,                           // shading_ta_lines
   100
 };
 

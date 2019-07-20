@@ -1709,7 +1709,9 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
         start = SANE_UNFIX(dev->model->x_offset);
     }
 
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
         // FIXME: this is probably just an artifact of a bug elsewhere
         start /= ccd_size_divisor;
     }
@@ -2115,7 +2117,28 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
 
     DBGSTART;
 
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+
+        if (set) {
+            RIE(sanei_genesys_read_register(dev, 0x6c, &val));
+            val &= ~(REG6C_GPIO16 | REG6C_GPIO13);
+            RIE(sanei_genesys_write_register(dev, 0x6c, val));
+
+            RIE(sanei_genesys_read_register(dev, 0xa9, &val));
+            val |= REGA9_GPO30;
+            val &= ~REGA9_GPO29;
+            RIE(sanei_genesys_write_register(dev, 0xa9,val));
+        } else {
+            RIE(sanei_genesys_read_register(dev, 0x6c, &val));
+            val |= REG6C_GPIO16 | REG6C_GPIO13;
+            RIE(sanei_genesys_write_register(dev, 0x6c, val));
+
+            RIE(sanei_genesys_read_register(dev, 0xa9, &val));
+            val &= ~REGA9_GPO30;
+            val |= REGA9_GPO29;
+            RIE(sanei_genesys_write_register(dev, 0xa9, val));
+        }
+    } else if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
 
         if (set) {
             RIE(sanei_genesys_read_register(dev, REG6C, &val));
@@ -2140,11 +2163,7 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
             val &= ~REGA6_GPIO23;
             RIE(sanei_genesys_write_register(dev, REGA6,val));
         }
-        DBGCOMPLETED;
-        return status;
-    }
-
-    if (dev->model->model_id == MODEL_HP_SCANJET_G4050) {
+    } else if (dev->model->model_id == MODEL_HP_SCANJET_G4050) {
 
         if (set) {
             /* set MULTFILM et GPOADF */
@@ -2182,12 +2201,10 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
             val &= ~REGA9_GPO31;
             RIE (sanei_genesys_write_register (dev, REGA9, val));
         }
-        DBGCOMPLETED;
-        return status;
     }
 
     DBGCOMPLETED;
-    return status;
+    return SANE_STATUS_GOOD;
 }
 
 
@@ -2304,6 +2321,7 @@ gl843_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
         /* blinking led */
         RIE (sanei_genesys_write_register (dev, REG7E, 0x01));
         break;
+      case GPO_CS8400F:
       case GPO_CS8600F:
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
                 RIE(gl843_set_xpa_lamp_power(dev, true));
@@ -2314,7 +2332,6 @@ gl843_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
             }
         break;
       case GPO_CS4400F:
-      case GPO_CS8400F:
       default:
         break;
     }
@@ -3074,7 +3091,9 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
         start = SANE_UNFIX(dev->model->x_offset);
     }
 
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
         // FIXME: this is probably just an artifact of a bug elsewhere
         start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
     }
@@ -3985,9 +4004,10 @@ gl843_boot (Genesys_Device * dev, SANE_Bool cold)
   RIE (sanei_genesys_write_register (dev, REG0B, val));
   dev->reg.find_reg(0x0b).value = val;
 
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
         RIE(sanei_genesys_write_0x8c(dev, 0x1e, 0x01));
         RIE(sanei_genesys_write_0x8c(dev, 0x10, 0xb4));
+        RIE(sanei_genesys_write_0x8c(dev, 0x0f, 0x02));
     }
     else if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
         RIE(sanei_genesys_write_0x8c(dev, 0x10, 0xc8));

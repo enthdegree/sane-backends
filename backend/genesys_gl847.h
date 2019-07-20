@@ -342,8 +342,7 @@ static SANE_Status gl847_init (Genesys_Device * dev);
  * @param dev device to work on
  * @param steps number of steps to move
  * */
-static SANE_Status
-gl847_feed (Genesys_Device * dev, unsigned int steps);
+static void gl847_feed(Genesys_Device* dev, unsigned int steps);
 
 typedef struct
 {

@@ -2226,7 +2226,6 @@ static SANE_Status gl843_park_xpa_lamp (Genesys_Device * dev)
 {
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
-  SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   uint8_t val;
   int loop = 0;
@@ -2560,12 +2559,10 @@ gl843_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
  * @param dev device to work on
  * @param steps number of steps to move
  * */
-static SANE_Status
-gl843_feed (Genesys_Device * dev, unsigned int steps)
+static void gl843_feed(Genesys_Device* dev, unsigned int steps)
 {
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
-  SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   float resolution;
   uint8_t val;
@@ -2629,8 +2626,6 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
 
   // looks like the scanner locks up if we scan immediately after feeding
   sanei_genesys_sleep_ms(100);
-
-  return SANE_STATUS_GOOD;
 }
 
 static SANE_Status gl843_move_to_ta (Genesys_Device * dev);
@@ -3758,12 +3753,7 @@ gl843_move_to_ta (Genesys_Device * dev)
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
   feed = 16*(SANE_UNFIX (dev->model->y_offset_sensor_to_ta) * resolution) / MM_PER_INCH;
-  status = gl843_feed (dev, feed);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to move to XPA calibration area\n", __func__);
-      return status;
-    }
+    gl843_feed(dev, feed);
 
   return status;
 }

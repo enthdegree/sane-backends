@@ -1738,7 +1738,6 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
-  SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   uint8_t val;
   float resolution;
@@ -1775,12 +1774,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   /* feed a little first */
   if (dev->model->model_id == MODEL_CANON_LIDE_210)
     {
-      status = gl124_feed (dev, 20, SANE_TRUE);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to do initial feed: %s\n", __func__, sane_strstatus(status));
-          return status;
-        }
+        gl124_feed(dev, 20, SANE_TRUE);
     }
 
   local_reg = dev->reg;
@@ -1866,8 +1860,7 @@ gl124_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
  * @param steps number of steps to move
  * @param reverse true is moving backward
  * */
-static SANE_Status
-gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse)
+static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
 {
     DBG_HELPER_ARGS(dbg, "steps=%d", steps);
   Genesys_Register_Set local_reg;
@@ -1944,8 +1937,6 @@ gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse)
 
     // then stop scanning
     gl124_stop_action(dev);
-
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -2191,8 +2182,6 @@ gl124_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   int move_dpi;
   float start;
 
-  SANE_Status status = SANE_STATUS_GOOD;
-
     debug_dump(DBG_info, dev->settings);
 
   /* channels */
@@ -2215,12 +2204,7 @@ gl124_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
 
   if(channels*dev->settings.yres>=600 && move>700)
     {
-      status = gl124_feed (dev, move-500, SANE_FALSE);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG (DBG_error, "%s: failed to move to scan area\n",__func__);
-          return status;
-        }
+        gl124_feed(dev, move-500, SANE_FALSE);
       move=500;
     }
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);

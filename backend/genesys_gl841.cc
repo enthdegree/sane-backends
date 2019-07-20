@@ -2830,13 +2830,11 @@ gl841_end_scan (Genesys_Device * dev, Genesys_Register_Set __sane_unused__ * reg
   return status;
 }
 
-/* Moves the slider to steps */
-static SANE_Status
-gl841_feed (Genesys_Device * dev, int steps)
+// Moves the slider to steps
+static void gl841_feed(Genesys_Device* dev, int steps)
 {
     DBG_HELPER_ARGS(dbg, "steps = %d", steps);
   Genesys_Register_Set local_reg;
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   int loop;
 
@@ -2876,7 +2874,7 @@ gl841_feed (Genesys_Device * dev, int steps)
       {
           DBG(DBG_proc, "%s: finished\n", __func__);
 	  dev->scanhead_position_in_steps += steps;
-	  return SANE_STATUS_GOOD;
+            return;
       }
       sanei_genesys_sleep_ms(100);
       ++loop;
@@ -2885,8 +2883,7 @@ gl841_feed (Genesys_Device * dev, int steps)
   /* when we come here then the scanner needed too much time for this, so we better stop the motor */
   gl841_stop_action (dev);
 
-  DBG(DBG_error, "%s: timeout while waiting for scanhead to go home\n", __func__);
-  return SANE_STATUS_IO_ERROR;
+    throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
 }
 
 /* Moves the slider to the home (top) position slowly */
@@ -2895,7 +2892,6 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
-  SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   uint8_t val;
   int loop = 0;
@@ -3400,12 +3396,7 @@ gl841_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
       move = SANE_UNFIX (dev->model->y_offset_calib);
       move = (move * (dev->motor.base_ydpi)) / MM_PER_INCH;
       DBG(DBG_io, "%s: move=%d lines\n", __func__, move);
-      status = gl841_feed(dev, move);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to feed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        gl841_feed(dev, move);
     }
 
   /* offset calibration is always done in color mode */
@@ -4086,12 +4077,7 @@ gl841_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
       move = SANE_UNFIX (dev->model->y_offset_calib);
       move = (move * (dev->motor.base_ydpi)) / MM_PER_INCH;
       DBG(DBG_io, "%s: move=%d lines\n", __func__, move);
-      status = gl841_feed(dev, move);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to feed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        gl841_feed(dev, move);
     }
 
   /* coarse gain calibration is allways done in color mode */
@@ -4295,13 +4281,7 @@ sanei_gl841_repark_head (Genesys_Device * dev)
     DBG_HELPER(dbg);
   SANE_Status status = SANE_STATUS_GOOD;
 
-  status = gl841_feed(dev,232);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to feed: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    gl841_feed(dev,232);
 
   /* toggle motor flag, put an huge step number and redo move backward */
   status = gl841_slow_back_home (dev, SANE_TRUE);

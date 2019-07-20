@@ -477,7 +477,7 @@ static SANE_Status gl124_init(Genesys_Device * dev);
 static void gl124_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                     uint8_t* data, int size);
 
-static SANE_Status gl124_feed (Genesys_Device * dev, unsigned int steps, int reverse);
+static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse);
 
 static void gl124_stop_action(Genesys_Device* dev);
 

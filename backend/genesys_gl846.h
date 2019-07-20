@@ -358,8 +358,7 @@ static SANE_Status gl846_init (Genesys_Device * dev);
  * @param dev device to work on
  * @param steps number of steps to move
  * */
-static SANE_Status
-gl846_feed (Genesys_Device * dev, unsigned int steps);
+static void gl846_feed(Genesys_Device* dev, unsigned int steps);
 
 static void gl846_stop_action(Genesys_Device* dev);
 

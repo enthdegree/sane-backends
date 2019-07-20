@@ -1483,7 +1483,6 @@ gl846_slow_back_home (Genesys_Device * dev,  SANE_Bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
-  SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   float resolution;
   uint8_t val;
@@ -1741,12 +1740,10 @@ gl846_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
  * @param dev device to work on
  * @param steps number of steps to move in base_dpi line count
  * */
-static SANE_Status
-gl846_feed (Genesys_Device * dev, unsigned int steps)
+static void gl846_feed(Genesys_Device* dev, unsigned int steps)
 {
     DBG_HELPER_ARGS(dbg, "steps=%d\n", steps);
   Genesys_Register_Set local_reg;
-  SANE_Status status = SANE_STATUS_GOOD;
   GenesysRegister *r;
   float resolution;
   uint8_t val;
@@ -1813,8 +1810,6 @@ gl846_feed (Genesys_Device * dev, unsigned int steps)
 
     // then stop scanning
     gl846_stop_action(dev);
-
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -1888,8 +1883,6 @@ gl846_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   int move_dpi;
   float start;
 
-  SANE_Status status = SANE_STATUS_GOOD;
-
     debug_dump(DBG_info, dev->settings);
 
  /* channels */
@@ -1938,12 +1931,7 @@ gl846_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
    * move tuning */
   if(channels*dev->settings.yres>=600 && move>700)
     {
-      status = gl846_feed (dev, move-500);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to move to scan area\n", __func__);
-          return status;
-        }
+        gl846_feed(dev, move-500);
       move=500;
     }
 
@@ -2104,7 +2092,7 @@ gl846_led_calibration (Genesys_Device * dev, Genesys_Sensor& sensor, Genesys_Reg
   move = (move * (dev->motor.base_ydpi/4)) / MM_PER_INCH;
   if(move>20)
     {
-      RIE(gl846_feed (dev, move));
+        gl846_feed(dev, move);
     }
   DBG(DBG_io, "%s: move=%f steps\n", __func__, move);
 

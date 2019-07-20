@@ -1895,9 +1895,8 @@ sanei_genesys_search_reference_point(Genesys_Device * dev, Genesys_Sensor& senso
 
 extern SANE_Status sanei_genesys_write_file(const char *filename, uint8_t* data, size_t length);
 
-extern SANE_Status
-sanei_genesys_write_pnm_file (const char *filename, uint8_t * data, int depth,
-			      int channels, int pixels_per_line, int lines);
+extern void sanei_genesys_write_pnm_file(const char* filename, uint8_t* data, int depth,
+                                         int channels, int pixels_per_line, int lines);
 
 extern void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empty);
 

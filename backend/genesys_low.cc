@@ -129,11 +129,10 @@ SANE_Status sanei_genesys_write_file(const char *filename, uint8_t * data, size_
     return SANE_STATUS_GOOD;
 }
 
-/* Write data to a pnm file (e.g. calibration). For debugging only */
-/* data is RGB or grey, with little endian byte order */
-SANE_Status
-sanei_genesys_write_pnm_file (const char *filename, uint8_t * data, int depth,
-			      int channels, int pixels_per_line, int lines)
+// Write data to a pnm file (e.g. calibration). For debugging only
+// data is RGB or grey, with little endian byte order
+void sanei_genesys_write_pnm_file(const char* filename, uint8_t* data, int depth, int channels,
+                                  int pixels_per_line, int lines)
 {
     DBG_HELPER_ARGS(dbg, "depth=%d, channels=%d, ppl=%d, lines=%d", depth, channels,
                     pixels_per_line, lines);
@@ -143,9 +142,7 @@ sanei_genesys_write_pnm_file (const char *filename, uint8_t * data, int depth,
   out = fopen (filename, "w");
   if (!out)
     {
-      DBG(DBG_error, "%s: could nor open %s for writing: %s\n", __func__, filename,
-          strerror(errno));
-      return SANE_STATUS_INVAL;
+        throw SaneException("could not open %s for writing: %s\n", filename, strerror(errno));
     }
   if(depth==1)
     {
@@ -192,8 +189,6 @@ sanei_genesys_write_pnm_file (const char *filename, uint8_t * data, int depth,
 	}
     }
   fclose (out);
-
-  return SANE_STATUS_GOOD;
 }
 
 /* ------------------------------------------------------------------------ */

@@ -1561,13 +1561,7 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 
 	  for (count = 0; count < (unsigned int) (size * 4 / 2); count++)
 	    all_data_8[count] = all_data[count * 2 + 1];
-	  status =
-            sanei_genesys_write_pnm_file("gl_coarse.pnm", all_data_8.data(), 8, channels, size / 6, 4);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-              DBG(DBG_error, "%s: failed: %s\n", __func__, sane_strstatus(status));
-	      return status;
-	    }
+        sanei_genesys_write_pnm_file("gl_coarse.pnm", all_data_8.data(), 8, channels, size / 6, 4);
 	}
 
       status = dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);

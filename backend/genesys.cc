@@ -3607,8 +3607,7 @@ void Genesys_Buffer::consume(size_t size)
 
 #include "genesys_conv.cc"
 
-static SANE_Status accurate_line_read(Genesys_Device * dev,
-                                      Genesys_Buffer& buffer)
+static void accurate_line_read(Genesys_Device* dev, Genesys_Buffer& buffer)
 {
     DBG_HELPER(dbg);
     buffer.reset();
@@ -3617,7 +3616,6 @@ static SANE_Status accurate_line_read(Genesys_Device * dev,
                                         buffer.size());
 
     buffer.produce(buffer.size());
-    return SANE_STATUS_GOOD;
 }
 
 /** @brief fill buffer while reducing vertical resolution
@@ -3631,18 +3629,10 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
 {
     DBG_HELPER(dbg);
   size_t count;
-  SANE_Status status = SANE_STATUS_GOOD;
-
       /* fill buffer if needed */
       if (dev->oe_buffer.avail() == 0)
 	{
-          status = accurate_line_read(dev, dev->oe_buffer);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-                  (u_long) dev->oe_buffer.size(), sane_strstatus(status));
-	      return SANE_STATUS_IO_ERROR;
-	    }
+        accurate_line_read(dev, dev->oe_buffer);
 	}
 
       /* copy size bytes of data, copying from a line when line count matches */
@@ -3672,13 +3662,7 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
 	  /* read a new buffer if needed */
           if (dev->oe_buffer.pos() >= dev->oe_buffer.avail())
 	    {
-              status = accurate_line_read(dev, dev->oe_buffer);
-              if (status != SANE_STATUS_GOOD)
-                {
-                  DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-                      (u_long) dev->oe_buffer.size(), sane_strstatus(status));
-                  return SANE_STATUS_IO_ERROR;
-                }
+            accurate_line_read(dev, dev->oe_buffer);
 	    }
 	}
 
@@ -3696,7 +3680,6 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
 {
     DBG_HELPER(dbg);
   size_t count;
-  SANE_Status status = SANE_STATUS_GOOD;
   int depth,i,n,k;
 
   depth = dev->settings.depth;
@@ -3706,13 +3689,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
       /* fill buffer if needed */
       if (dev->oe_buffer.avail() == 0)
 	{
-          status = accurate_line_read(dev, dev->oe_buffer);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-                  (u_long) dev->oe_buffer.size(), sane_strstatus(status));
-	      return SANE_STATUS_IO_ERROR;
-	    }
+        accurate_line_read(dev, dev->oe_buffer);
 	}
 
       /* copy size bytes of data, copying from a subwindow of each line
@@ -3773,13 +3750,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
 	  /* read a new buffer if needed */
           if (dev->oe_buffer.pos() >= dev->oe_buffer.avail())
 	    {
-              status = accurate_line_read(dev, dev->oe_buffer);
-              if (status != SANE_STATUS_GOOD)
-                {
-                  DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-                      (u_long) dev->oe_buffer.size(), sane_strstatus(status));
-                  return SANE_STATUS_IO_ERROR;
-                }
+            accurate_line_read(dev, dev->oe_buffer);
 	    }
 	}
 

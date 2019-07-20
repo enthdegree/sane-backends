@@ -2878,16 +2878,15 @@ genesys_restore_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 }
 
 
-static SANE_Status
-genesys_save_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void genesys_save_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
 #endif
 
-  if (!dev->model->cmd_set->is_compatible_calibration)
-    return SANE_STATUS_UNSUPPORTED;
+    if (dev->model->cmd_set->is_compatible_calibration == nullptr)
+        return;
 
   auto found_cache_it = dev->calibration_cache.end();
   for (auto cache_it = dev->calibration_cache.begin(); cache_it != dev->calibration_cache.end();
@@ -2924,8 +2923,6 @@ genesys_save_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
   gettimeofday(&time,NULL);
   found_cache_it->last_calibration = time.tv_sec;
 #endif
-
-  return SANE_STATUS_GOOD;
 }
 
 /**
@@ -3194,8 +3191,8 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
         genesys_send_shading_coefficient(dev, sensor);
     }
 
-  /* save the calibration data */
-  genesys_save_calibration (dev, sensor);
+    // save the calibration data
+    genesys_save_calibration(dev, sensor);
 
     // and finally eject calibration sheet
     dev->model->cmd_set->eject_document(dev);

@@ -2147,11 +2147,9 @@ static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
  * @param dev  device stucture describing the scanner
  * @return SANE_STATUS_GOOD in cas of success, else failure code
  */
-static SANE_Status
-gl646_search_start_position (Genesys_Device * dev)
+static void gl646_search_start_position(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
   unsigned int resolution, x, y;
 
@@ -2208,8 +2206,6 @@ gl646_search_start_position (Genesys_Device * dev)
     // now search reference points on the data
     sanei_genesys_search_reference_point(dev, sensor, data.data(), sensor.CCD_start_xoffset,
                                          resolution, settings.pixels, settings.lines);
-
-  return status;
 }
 
 /**

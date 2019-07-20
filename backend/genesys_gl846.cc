@@ -1578,10 +1578,9 @@ static void gl846_slow_back_home(Genesys_Device* dev,  SANE_Bool wait_until_home
   DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
 }
 
-/* Automatically set top-left edge of the scan area by scanning a 200x200 pixels
-   area at 600 dpi from very top of scanner */
-static SANE_Status
-gl846_search_start_position (Genesys_Device * dev)
+// Automatically set top-left edge of the scan area by scanning a 200x200 pixels area at 600 dpi
+// from very top of scanner
+static void gl846_search_start_position(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   int size;
@@ -1649,8 +1648,6 @@ gl846_search_start_position (Genesys_Device * dev)
     // and use that correctly
     sanei_genesys_search_reference_point(dev, sensor, data.data(), 0, dpi, pixels,
                                         dev->model->search_lines);
-
-  return SANE_STATUS_GOOD;
 }
 
 // sets up register for coarse gain calibration

@@ -3551,13 +3551,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
       if ((dev->model->flags & GENESYS_FLAG_SEARCH_START)
 	  && (dev->model->y_offset_calib == 0))
 	{
-	  status = dev->model->cmd_set->search_start_position (dev);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to search start position: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
+        dev->model->cmd_set->search_start_position (dev);
 
           dev->parking = SANE_FALSE;
         dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);

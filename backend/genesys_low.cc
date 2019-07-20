@@ -75,6 +75,16 @@ void Genesys_Device::clear()
     dark_average_data.clear();
 }
 
+void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs)
+{
+    for (const auto& reg : regs) {
+        uint8_t val;
+        sanei_genesys_read_register(&dev, reg.address, &val);
+        val = (val & ~reg.mask) | (reg.value & reg.mask);
+        sanei_genesys_write_register(&dev, reg.address, val);
+    }
+}
+
 /* ------------------------------------------------------------------------ */
 /*                  functions calling ASIC specific functions               */
 /* ------------------------------------------------------------------------ */

@@ -476,6 +476,8 @@ void serialize(Stream& str, GenesysRegisterSetting& reg)
     serialize(str, reg.mask);
 }
 
+class Genesys_Device;
+
 class GenesysRegisterSettingSet {
 public:
     using container = std::vector<GenesysRegisterSetting>;
@@ -550,6 +552,8 @@ inline void serialize(std::ostream& str, GenesysRegisterSettingSet& reg)
 {
     serialize(str, reg.regs_);
 }
+
+void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs);
 
 struct GenesysFrontendLayout
 {

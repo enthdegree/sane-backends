@@ -1277,8 +1277,8 @@ sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
     dev->model->cmd_set->slow_back_home(dev, SANE_TRUE);
   dev->scanhead_position_in_steps = 0;
 
-  /* Set powersaving (default = 15 minutes) */
-  RIE (dev->model->cmd_set->set_powersaving (dev, 15));
+    // Set powersaving (default = 15 minutes)
+    dev->model->cmd_set->set_powersaving(dev, 15);
 
     return status;
 }

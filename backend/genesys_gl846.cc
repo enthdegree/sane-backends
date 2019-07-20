@@ -1346,14 +1346,10 @@ static void gl846_save_power(Genesys_Device* dev, SANE_Bool enable)
     DBG_HELPER_ARGS(dbg, "enable = %d", enable);
 }
 
-static SANE_Status
-gl846_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
+static void gl846_set_powersaving(Genesys_Device* dev, int delay /* in minutes */)
 {
+    (void) dev;
     DBG_HELPER_ARGS(dbg, "delay = %d", delay);
-  if (dev == NULL)
-    return SANE_STATUS_INVAL;
-
-  return SANE_STATUS_GOOD;
 }
 
 static void gl846_start_action(Genesys_Device* dev)

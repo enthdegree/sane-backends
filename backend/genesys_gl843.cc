@@ -1688,16 +1688,10 @@ static void gl843_save_power(Genesys_Device* dev, SANE_Bool enable)
     }
 }
 
-static SANE_Status
-gl843_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
+static void gl843_set_powersaving(Genesys_Device* dev, int delay /* in minutes */)
 {
+    (void) dev;
     DBG_HELPER_ARGS(dbg, "delay = %d", delay);
-  SANE_Status status = SANE_STATUS_GOOD;
-
-  if (dev == NULL)
-    return SANE_STATUS_INVAL;
-
-  return status;
 }
 
 static void gl843_start_action(Genesys_Device* dev)

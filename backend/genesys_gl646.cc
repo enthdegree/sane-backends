@@ -1535,11 +1535,9 @@ static void gl646_save_power(Genesys_Device* dev, SANE_Bool enable)
     }
 }
 
-static SANE_Status
-gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
+static void gl646_set_powersaving(Genesys_Device* dev, int delay /* in minutes */)
 {
     DBG_HELPER_ARGS(dbg, "delay = %d", delay);
-  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
   int rate, exposure_time, tgtime, time;
 
@@ -1595,8 +1593,6 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
   local_reg.find_reg(0x39).value = exposure_time & 255;
 
     sanei_genesys_bulk_write_register(dev, local_reg);
-
-  return status;
 }
 
 
@@ -3522,8 +3518,8 @@ gl646_init (Genesys_Device * dev)
 	  return status;
 	}
 
-      /* Set powersaving (default = 15 minutes) */
-      RIE (gl646_set_powersaving (dev, 15));
+        // Set powersaving(default = 15 minutes)
+        gl646_set_powersaving(dev, 15);
     }				/* end if cold */
 
     // Set analog frontend

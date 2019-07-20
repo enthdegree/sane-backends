@@ -6772,14 +6772,14 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     case OPT_LAMP_OFF_TIME:
         if (*reinterpret_cast<SANE_Word*>(val) != s->lamp_off_time) {
             s->lamp_off_time = *reinterpret_cast<SANE_Word*>(val);
-            RIE(s->dev->model->cmd_set->set_powersaving(s->dev, s->lamp_off_time));
+                s->dev->model->cmd_set->set_powersaving(s->dev, s->lamp_off_time);
         }
         break;
     case OPT_EXPIRATION_TIME:
         if (*reinterpret_cast<SANE_Word*>(val) != s->expiration_time) {
             s->expiration_time = *reinterpret_cast<SANE_Word*>(val);
             // BUG: this is most likely not intended behavior, found out during refactor
-            RIE(s->dev->model->cmd_set->set_powersaving(s->dev, s->expiration_time));
+                s->dev->model->cmd_set->set_powersaving(s->dev, s->expiration_time);
 	}
         break;
 

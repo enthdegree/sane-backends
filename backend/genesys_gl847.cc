@@ -1362,14 +1362,10 @@ static void gl847_save_power(Genesys_Device* dev, SANE_Bool enable)
     (void) dev;
 }
 
-static SANE_Status
-gl847_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
+static void gl847_set_powersaving(Genesys_Device* dev, int delay /* in minutes */)
 {
+    (void) dev;
     DBG_HELPER_ARGS(dbg, "delay = %d", delay);
-  if (dev == NULL)
-    return SANE_STATUS_INVAL;
-
-  return SANE_STATUS_GOOD;
 }
 
 static void gl847_start_action(Genesys_Device* dev)

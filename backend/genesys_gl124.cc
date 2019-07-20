@@ -1493,8 +1493,7 @@ static void gl124_save_power(Genesys_Device* dev, SANE_Bool enable)
     DBG_HELPER_ARGS(dbg, "enable = %d", enable);
 }
 
-static SANE_Status
-gl124_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
+static void gl124_set_powersaving(Genesys_Device* dev, int delay /* in minutes */)
 {
     DBG_HELPER_ARGS(dbg,  "delay = %d",  delay);
   GenesysRegister *r;
@@ -1509,8 +1508,6 @@ gl124_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
     {
       r->value |= 0x0f;
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 static void gl124_start_action(Genesys_Device* dev)

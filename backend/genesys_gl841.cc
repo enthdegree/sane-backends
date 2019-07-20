@@ -2403,12 +2403,9 @@ static void gl841_save_power(Genesys_Device* dev, SANE_Bool enable)
     }
 }
 
-static SANE_Status
-gl841_set_powersaving (Genesys_Device * dev,
-			     int delay /* in minutes */ )
+static void gl841_set_powersaving(Genesys_Device* dev, int delay /* in minutes */)
 {
     DBG_HELPER_ARGS(dbg, "delay = %d", delay);
-  SANE_Status status = SANE_STATUS_GOOD;
   // FIXME: SEQUENTIAL not really needed in this case
   Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
   int rate, exposure_time, tgtime, time;
@@ -2469,8 +2466,6 @@ gl841_set_powersaving (Genesys_Device * dev,
   local_reg.set8(0x39, exposure_time & 255);	/* lowbyte */
 
     sanei_genesys_bulk_write_register(dev, local_reg);
-
-  return status;
 }
 
 static void gl841_start_action(Genesys_Device* dev)
@@ -4451,8 +4446,8 @@ gl841_init (Genesys_Device * dev)
 
   regs = dev->reg;
 
-  /* Set powersaving (default = 15 minutes) */
-  RIE (gl841_set_powersaving (dev, 15));
+    // Set powersaving(default = 15 minutes)
+    gl841_set_powersaving(dev, 15);
   dev->already_initialized = SANE_TRUE;
 
   return SANE_STATUS_GOOD;

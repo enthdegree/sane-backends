@@ -3968,11 +3968,10 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
  * @param black SANE_TRUE if searching for a black strip, SANE_FALSE for a white strip
  * @return SANE_STATUS_GOOD if a matching strip is found, SANE_STATUS_UNSUPPORTED if not
  */
-static SANE_Status
-gl646_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor, SANE_Bool forward, SANE_Bool black)
+static void gl646_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, SANE_Bool forward,
+                               SANE_Bool black)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool half_ccd = SANE_FALSE;
   Genesys_Settings settings;
   int res = get_closest_resolution(dev->model->ccd_type, 75, 1);
@@ -4111,15 +4110,12 @@ gl646_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor, SANE_Bool
     }
   if (found)
     {
-      status = SANE_STATUS_GOOD;
       DBG(DBG_info, "%s: strip found\n", __func__);
     }
   else
     {
-      status = SANE_STATUS_UNSUPPORTED;
-      DBG(DBG_info, "%s: strip not found\n", __func__);
+        throw SaneException(SANE_STATUS_UNSUPPORTED, "%s strip not found", black ? "black" : "white");
     }
-  return status;
 }
 
 /** the gl646 command set */

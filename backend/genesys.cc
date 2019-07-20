@@ -3152,13 +3152,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
 
   /* go to a white area */
     try {
-        status = dev->model->cmd_set->search_strip(dev, sensor, forward, SANE_FALSE);
-        if (status != SANE_STATUS_GOOD) {
-            DBG(DBG_error, "%s: failed to find white strip: %s\n", __func__,
-                sane_strstatus(status));
-            dev->model->cmd_set->eject_document (dev);
-            return status;
-        }
+        dev->model->cmd_set->search_strip(dev, sensor, forward, SANE_FALSE);
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
         throw;
@@ -3193,13 +3187,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
     {
       /* seek black/white reverse/forward */
         try {
-            status = dev->model->cmd_set->search_strip(dev, sensor, forward, SANE_TRUE);
-            if (status != SANE_STATUS_GOOD) {
-                DBG(DBG_error, "%s: failed to find black strip: %s\n", __func__,
-                    sane_strstatus(status));
-                dev->model->cmd_set->eject_document(dev);
-                return status;
-            }
+            dev->model->cmd_set->search_strip(dev, sensor, forward, SANE_TRUE);
         } catch (...) {
             catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
             throw;
@@ -3225,13 +3213,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
 
   /* go to a white area */
     try {
-        status = dev->model->cmd_set->search_strip(dev, sensor, forward, SANE_FALSE);
-        if (status != SANE_STATUS_GOOD) {
-            DBG(DBG_error, "%s: failed to find white strip: %s\n", __func__,
-                sane_strstatus(status));
-            dev->model->cmd_set->eject_document (dev);
-            return status;
-        }
+        dev->model->cmd_set->search_strip(dev, sensor, forward, SANE_FALSE);
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
         throw;

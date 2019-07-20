@@ -1113,8 +1113,8 @@ struct Genesys_Command_Set
     /**
      * search for an black or white area in forward or reverse
      * direction */
-    SANE_Status (*search_strip) (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                 SANE_Bool forward, SANE_Bool black);
+    void (*search_strip) (Genesys_Device* dev, const Genesys_Sensor& sensor, SANE_Bool forward,
+                          SANE_Bool black);
 
     bool (*is_compatible_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
                                        Genesys_Calibration_Cache* cache, SANE_Bool for_overwrite);

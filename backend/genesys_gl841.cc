@@ -4372,13 +4372,11 @@ static void gl841_update_hardware_sensors(Genesys_Scanner* s)
  * @param black SANE_TRUE if searching for a black strip, SANE_FALSE for a white strip
  * @return SANE_STATUS_GOOD if a matching strip is found, SANE_STATUS_UNSUPPORTED if not
  */
-static SANE_Status
-gl841_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                   SANE_Bool forward, SANE_Bool black)
+static void gl841_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, SANE_Bool forward,
+                               SANE_Bool black)
 {
     DBG_HELPER_ARGS(dbg, "%s %s", black ? "black" : "white", forward ? "forward" : "reverse");
   unsigned int pixels, lines, channels;
-  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Register_Set local_reg;
   size_t size;
   int steps, depth;
@@ -4573,16 +4571,12 @@ gl841_search_strip(Genesys_Device * dev, const Genesys_Sensor& sensor,
 
   if (found)
     {
-      status = SANE_STATUS_GOOD;
       DBG(DBG_info, "%s: %s strip found\n", __func__, black ? "black" : "white");
     }
   else
     {
-      status = SANE_STATUS_UNSUPPORTED;
-      DBG(DBG_info, "%s: %s strip not found\n", __func__, black ? "black" : "white");
+        throw SaneException(SANE_STATUS_UNSUPPORTED, "%s strip not found", black ? "black" : "white");
     }
-
-  return status;
 }
 
 /**

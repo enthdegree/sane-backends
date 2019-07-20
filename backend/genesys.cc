@@ -1323,10 +1323,9 @@ static uint8_t genesys_adjust_gain(double* applied_multi, double multi, uint8_t 
 }
 
 
-/* todo: is return status necessary (unchecked?) */
-static SANE_Status
-genesys_average_white (Genesys_Device * dev, Genesys_Sensor& sensor, int channels, int channel,
-		       uint8_t * data, int size, int *max_average)
+// todo: is return status necessary (unchecked?)
+static void genesys_average_white(Genesys_Device* dev, Genesys_Sensor& sensor, int channels,
+                                  int channel, uint8_t* data, int size, int *max_average)
 {
 
     DBG_HELPER_ARGS(dbg, "channels=%d, channel=%d, size=%d", channels, channel, size);
@@ -1372,9 +1371,7 @@ genesys_average_white (Genesys_Device * dev, Genesys_Sensor& sensor, int channel
       gain_white_ref);
 
   if (*max_average >= gain_white_ref)
-    return SANE_STATUS_INVAL;
-
-  return SANE_STATUS_GOOD;
+        throw SaneException(SANE_STATUS_INVAL);
 }
 
 /* todo: understand, values are too high */
@@ -1559,8 +1556,7 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
 	{
 	  for (j = 0; j < 3; j++)
 	    {
-          genesys_average_white (dev, sensor, 3, j, calibration_data.data(), size,
-				     &white_average);
+            genesys_average_white(dev, sensor, 3, j, calibration_data.data(), size, &white_average);
 	      white[i * 3 + j] = white_average;
 	      dark[i * 3 + j] =
         genesys_average_black (dev, j, calibration_data.data(),
@@ -1571,8 +1567,7 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
 	}
       else			/* one color-component modes */
 	{
-      genesys_average_white (dev, sensor, 1, 0, calibration_data.data(), size,
-				 &white_average);
+        genesys_average_white(dev, sensor, 1, 0, calibration_data.data(), size, &white_average);
 	  white[i * 3 + 0] = white[i * 3 + 1] = white[i * 3 + 2] =
 	    white_average;
 	  dark[i * 3 + 0] = dark[i * 3 + 1] = dark[i * 3 + 2] =

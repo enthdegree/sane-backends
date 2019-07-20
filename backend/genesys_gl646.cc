@@ -2216,21 +2216,14 @@ gl646_search_start_position (Genesys_Device * dev)
  * internally overriden during effective calibration
  * sets up register for coarse gain calibration
  */
-static SANE_Status
-gl646_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                       Genesys_Register_Set& regs)
+static void gl646_init_regs_for_coarse_calibration(Genesys_Device* dev,
+                                                   const Genesys_Sensor& sensor,
+                                                   Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
+    (void) dev;
     (void) sensor;
     (void) regs;
-
-  /* to make compilers happy ... */
-  if (!dev)
-    {
-      return SANE_STATUS_INVAL;
-    }
-
-  return SANE_STATUS_GOOD;
 }
 
 

@@ -3051,12 +3051,11 @@ gl841_search_start_position (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
-/*
- * sets up register for coarse gain calibration
- * todo: check it for scanners using it */
-static SANE_Status
-gl841_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                       Genesys_Register_Set& regs)
+// sets up register for coarse gain calibration
+// todo: check it for scanners using it
+static void gl841_init_regs_for_coarse_calibration(Genesys_Device* dev,
+                                                   const Genesys_Sensor& sensor,
+                                                   Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   uint8_t channels;
@@ -3094,8 +3093,6 @@ gl841_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
 
 /*  if (DBG_LEVEL >= DBG_info)
     sanei_gl841_print_registers (regs);*/
-
-  return SANE_STATUS_GOOD;
 }
 
 

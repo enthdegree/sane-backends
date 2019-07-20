@@ -1653,12 +1653,11 @@ gl846_search_start_position (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
-/*
- * sets up register for coarse gain calibration
- * todo: check it for scanners using it */
-static SANE_Status
-gl846_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                       Genesys_Register_Set& regs)
+// sets up register for coarse gain calibration
+// todo: check it for scanners using it
+static void gl846_init_regs_for_coarse_calibration(Genesys_Device* dev,
+                                                   const Genesys_Sensor& sensor,
+                                                   Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   uint8_t channels;
@@ -1693,8 +1692,6 @@ gl846_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
         sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
 
     dev->model->cmd_set->bulk_write_register(dev, regs);
-
-  return SANE_STATUS_GOOD;
 }
 
 /** @brief moves the slider to steps at motor base dpi

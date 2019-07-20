@@ -1049,9 +1049,8 @@ struct Genesys_Command_Set
                                          const Genesys_Sensor& sensor,
 					 Genesys_Register_Set * regs,
 					 int *channels, int *total_size);
-    SANE_Status (*init_regs_for_coarse_calibration) (Genesys_Device * dev,
-                                                     const Genesys_Sensor& sensor,
-                                                     Genesys_Register_Set& regs);
+    void (*init_regs_for_coarse_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                              Genesys_Register_Set& regs);
     SANE_Status (*init_regs_for_shading) (Genesys_Device * dev, const Genesys_Sensor& sensor,
                                           Genesys_Register_Set& regs);
     SANE_Status (*init_regs_for_scan) (Genesys_Device * dev, const Genesys_Sensor& sensor);

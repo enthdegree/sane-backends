@@ -3010,13 +3010,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
        used. */
     {
       sanei_usb_testing_record_message("init_regs_for_coarse_calibration");
-      status = dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to send calibration registers: %s\n", __func__,
-              sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
       sanei_usb_testing_record_message("genesys_coarse_calibration");
       status = genesys_coarse_calibration(dev, sensor);
@@ -3066,14 +3060,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 	   used. */
 	{
           sanei_usb_testing_record_message("init_regs_for_coarse_calibration");
-          status = dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor,
-                                                                         dev->calib_reg);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to send calibration registers: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
+            dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
           sanei_usb_testing_record_message("genesys_coarse_calibration");
           status = genesys_coarse_calibration(dev, sensor);
@@ -3263,13 +3250,7 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
     /* since we have 2 gain calibration proc, skip second if first one was
        used. */
     {
-      status = dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to send calibration registers: %s\n", __func__,
-              sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
       status = genesys_coarse_calibration(dev, sensor);
       if (status != SANE_STATUS_GOOD)

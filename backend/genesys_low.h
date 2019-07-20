@@ -1085,7 +1085,7 @@ struct Genesys_Command_Set
 
     void (*wait_for_motor_stop) (Genesys_Device* dev);
     void (*slow_back_home) (Genesys_Device* dev, SANE_Bool wait_until_home);
-    SANE_Status (*rewind) (Genesys_Device * dev);
+    void (*rewind) (Genesys_Device* dev);
 
     void (*bulk_write_register) (Genesys_Device* dev, Genesys_Register_Set& regs);
 

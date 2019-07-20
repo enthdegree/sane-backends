@@ -1675,8 +1675,7 @@ static void gl124_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_
  * @param dev device to rewind
  * @returns SANE_STATUS_GOOD on success
  */
-static
-SANE_Status gl124_rewind(Genesys_Device * dev)
+static void gl124_rewind(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   uint8_t byte;
@@ -1702,7 +1701,6 @@ SANE_Status gl124_rewind(Genesys_Device * dev)
     sanei_genesys_read_register(dev, 0x02, &byte);
   byte &= 0xfb;
     sanei_genesys_write_register(dev, 0x02, byte);
-    return SANE_STATUS_GOOD;
 }
 
 

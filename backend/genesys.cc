@@ -1848,7 +1848,7 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
         // rewind keeps registers and slopes table intact from previous scan but is not
         // available on all supported chipsets (or may cause scan artifacts, see #7)
         if (dev->model->cmd_set->rewind) {
-            TIE(dev->model->cmd_set->rewind(dev));
+            dev->model->cmd_set->rewind(dev);
         } else {
             dev->model->cmd_set->slow_back_home(dev, SANE_TRUE);
         }
@@ -3048,7 +3048,8 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
   if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
       dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
   {
-      dev->model->cmd_set->move_to_ta(dev);
+      dev->model->cmd_set->
+              move_to_ta(dev);
   }
 
   /* shading calibration */

@@ -1481,11 +1481,9 @@ static void gl847_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_
  * @returns SANE_STATUS_GOOD on success
  */
 #if 0                           /* disabled to fix #7 */
-static
-SANE_Status gl847_rewind(Genesys_Device * dev)
+static void gl847_rewind(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t byte;
 
 
@@ -1508,8 +1506,6 @@ SANE_Status gl847_rewind(Genesys_Device * dev)
     sanei_genesys_read_register(dev, 0x02, &byte);
   byte &= 0xfb;
     sanei_genesys_write_register(dev, 0x02, byte);
-
-  return SANE_STATUS_GOOD;
 }
 #endif
 

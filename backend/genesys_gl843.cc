@@ -2059,9 +2059,19 @@ static void gl843_set_xpa_lamp_power(Genesys_Device *dev, bool set)
     LampSettings settings[] = {
         {   MODEL_CANON_CANOSCAN_8400F, ScanMethod::TRANSPARENCY, {
                 { 0xa6, 0x34, 0xf4 },
-                { 0xa7, 0xe0, 0xe0 },
+                { 0xa7, 0xe0, 0xe0 }, // BUG: should be 0x03
             }, {
                 { 0xa6, 0x40, 0x70 },
+            }
+        },
+        {   MODEL_CANON_CANOSCAN_8400F, ScanMethod::TRANSPARENCY_INFRARED, {
+                { 0x6c, 0x40, 0x40 },
+                { 0xa6, 0x01, 0xff },
+                { 0xa7, 0x03, 0x07 },
+            }, {
+                { 0x6c, 0x00, 0x40 },
+                { 0xa6, 0x00, 0xff },
+                { 0xa7, 0x07, 0x07 },
             }
         },
         {   MODEL_CANON_CANOSCAN_8600F, ScanMethod::TRANSPARENCY, {

@@ -1751,8 +1751,7 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
  * can be computed from previous calibration data (when doing offset
  * calibration ?)
  */
-static SANE_Status
-genesys_dummy_dark_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   uint32_t pixels_per_line;
@@ -1832,8 +1831,6 @@ genesys_dummy_dark_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
 	  dev->dark_average_data[channels * 2 * x + 5] = dummy3 >> 8;
 	}
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -1927,13 +1924,7 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
   /* in case we haven't done dark calibration, build dummy data from white_average */
   if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION))
     {
-      status = genesys_dummy_dark_shading(dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to do dummy dark shading calibration: %s\n", __func__,
-              sane_strstatus(status));
-	  return status;
-	}
+        genesys_dummy_dark_shading(dev, sensor);
     }
 
   if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK)

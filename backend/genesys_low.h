@@ -563,11 +563,6 @@ extern void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empt
 
 extern void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, size_t size);
 
-inline void sanei_genesys_set_triple(Genesys_Register_Set* regs, uint16_t addr, uint32_t value)
-{
-    regs->set24(addr, value);
-}
-
 inline void sanei_genesys_set_exposure(Genesys_Register_Set& regs, const SensorExposure& exposure)
 {
     regs.set8(0x10, (exposure.red >> 8) & 0xff);

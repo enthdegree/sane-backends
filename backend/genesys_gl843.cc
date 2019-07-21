@@ -862,7 +862,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     use_fast_fed=1;
 
   lincnt=scan_lines;
-  sanei_genesys_set_triple(reg,REG_LINCNT,lincnt);
+    reg->set24(REG_LINCNT, lincnt);
   DBG(DBG_io, "%s: lincnt=%d\n", __func__, lincnt);
 
   /* compute register 02 value */
@@ -946,12 +946,13 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
   /* get sure when don't insane value : XXX STEF XXX in this case we should
    * fall back to single table move */
-  if(dist<feedl)
-    feedl -= dist;
-  else
-    feedl = 1;
+    if (dist < feedl) {
+        feedl -= dist;
+    } else {
+        feedl = 1;
+    }
 
-  sanei_genesys_set_triple(reg,REG_FEEDL,feedl);
+    reg->set24(REG_FEEDL, feedl);
   DBG(DBG_io, "%s: feedl=%d\n", __func__, feedl);
 
   /* doesn't seem to matter that much */
@@ -969,10 +970,10 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
       z2=0;
     }
 
-  sanei_genesys_set_triple(reg,REG_Z1MOD,z1);
+    reg->set24(REG_Z1MOD, z1);
   DBG(DBG_info, "%s: z1 = %d\n", __func__, z1);
 
-  sanei_genesys_set_triple(reg,REG_Z2MOD,z2);
+    reg->set24(REG_Z2MOD, z2);
   DBG(DBG_info, "%s: z2 = %d\n", __func__, z2);
 
   r = sanei_genesys_get_address (reg, REG1E);
@@ -1232,10 +1233,10 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* MAXWD is expressed in 2 words unit */
   /* nousedspace = (mem_bank_range * 1024 / 256 -1 ) * 4; */
-  sanei_genesys_set_triple(reg,REG_MAXWD,(words_per_line)>>1);
+    reg->set24(REG_MAXWD, (words_per_line) >> 1);
   DBG(DBG_io2, "%s: words_per_line used=%d\n", __func__, words_per_line);
 
-    reg->set16(REG_LPERIOD,exposure/tgtime);
+    reg->set16(REG_LPERIOD, exposure / tgtime);
   DBG(DBG_io2, "%s: exposure used=%d\n", __func__, exposure/tgtime);
 
   r = sanei_genesys_get_address (reg, REG_DUMMY);
@@ -2189,7 +2190,7 @@ static void gl843_park_xpa_lamp(Genesys_Device* dev)
   local_reg = dev->reg;
 
   /* set a huge feedl and reverse direction */
-  sanei_genesys_set_triple(&local_reg,REG_FEEDL,0xbdcd);
+    local_reg.set24(REG_FEEDL, 0xbdcd);
 
     // clear scan and feed count
     dev->write_register(REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT);

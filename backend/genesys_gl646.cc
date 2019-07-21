@@ -728,12 +728,12 @@ static void gl646_setup_registers(Genesys_Device* dev,
    * color mode */
   if (dev->model->is_cis == SANE_TRUE)
     {
-      sanei_genesys_set_triple(regs, REG_LINCNT, linecnt * 3);
+      regs->set24(REG_LINCNT, linecnt * 3);
       linecnt *= params.channels;
     }
   else
     {
-      sanei_genesys_set_triple(regs, REG_LINCNT, linecnt);
+      regs->set24(REG_LINCNT, linecnt);
     }
 
   /* scanner's x coordinates are expressed in physical DPI but they must be divided by cksel */
@@ -761,7 +761,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   dev->wpl = words_per_line;
 
   DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
-  sanei_genesys_set_triple(regs, REG_MAXWD, words_per_line);
+    regs->set24(REG_MAXWD, words_per_line);
 
     regs->set16(REG_DPISET, sensor_mst->dpiset);
     regs->set16(REG_LPERIOD, sensor_mst->exposure);
@@ -888,7 +888,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
     }
 
   DBG(DBG_info, "%s: final move=%d\n", __func__, feedl);
-  sanei_genesys_set_triple(regs, REG_FEEDL, feedl);
+    regs->set24(REG_FEEDL, feedl);
 
   regs->find_reg(0x65).value = motor->mtrpwm;
 
@@ -2065,9 +2065,9 @@ static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
     setup_for_scan(dev, sensor, &dev->reg, settings, SANE_TRUE, SANE_TRUE, SANE_TRUE);
 
   /* backward , no actual data scanned TODO more setup flags to avoid this register manipulations ? */
-  dev->reg.find_reg(0x02).value |= REG02_MTRREV;
-  dev->reg.find_reg(0x01).value &= ~REG01_SCAN;
-  sanei_genesys_set_triple(&dev->reg, REG_FEEDL, 65535);
+    dev->reg.find_reg(0x02).value |= REG02_MTRREV;
+    dev->reg.find_reg(0x01).value &= ~REG01_SCAN;
+    dev->reg.set24(REG_FEEDL, 65535);
 
     // sets frontend
     gl646_set_fe(dev, sensor, AFE_SET, settings.xres);
@@ -2273,11 +2273,11 @@ static void gl646_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
   /* enforce needed LINCNT, getting rid of extra lines for color reordering */
   if (dev->model->is_cis == SANE_FALSE)
     {
-      sanei_genesys_set_triple(&dev->reg, REG_LINCNT, dev->calib_lines);
+        dev->reg.set24(REG_LINCNT, dev->calib_lines);
     }
   else
     {
-      sanei_genesys_set_triple(&dev->reg, REG_LINCNT, dev->calib_lines * 3);
+        dev->reg.set24(REG_LINCNT, dev->calib_lines * 3);
     }
 
   /* copy reg to calib_reg */

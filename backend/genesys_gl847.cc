@@ -251,9 +251,9 @@ static void gl847_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
     }
     regs->set16(REG_EXPB, exp);
 
-  sanei_genesys_set_triple(regs,REG_CK1MAP,sensor_profile->ck1map);
-  sanei_genesys_set_triple(regs,REG_CK3MAP,sensor_profile->ck3map);
-  sanei_genesys_set_triple(regs,REG_CK4MAP,sensor_profile->ck4map);
+    regs->set24(REG_CK1MAP,sensor_profile->ck1map);
+    regs->set24(REG_CK3MAP,sensor_profile->ck3map);
+    regs->set24(REG_CK4MAP,sensor_profile->ck4map);
 
   /* order of the sub-segments */
   dev->order=sensor_profile->order;
@@ -596,7 +596,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     }
   DBG(DBG_io, "%s: use_fast_fed=%d\n", __func__, use_fast_fed);
 
-  sanei_genesys_set_triple(reg, REG_LINCNT, scan_lines);
+    reg->set24(REG_LINCNT, scan_lines);
   DBG(DBG_io, "%s: lincnt=%d\n", __func__, scan_lines);
 
   /* compute register 02 value */
@@ -680,12 +680,13 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
   DBG(DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
 
   /* check for overflow */
-  if(dist<feedl)
-    feedl -= dist;
-  else
-    feedl = 0;
+    if (dist < feedl) {
+        feedl -= dist;
+    } else {
+        feedl = 0;
+    }
 
-  sanei_genesys_set_triple(reg,REG_FEEDL,feedl);
+    reg->set24(REG_FEEDL, feedl);
   DBG(DBG_io ,"%s: feedl=%d\n", __func__, feedl);
 
   r = sanei_genesys_get_address (reg, REG0C);
@@ -738,10 +739,10 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
                                  &z2);
 
   DBG(DBG_info, "%s: z1 = %d\n", __func__, z1);
-  sanei_genesys_set_triple(reg, REG60, z1 | (scan_step_type << (16+REG60S_STEPSEL)));
+    reg->set24(REG60, z1 | (scan_step_type << (16+REG60S_STEPSEL)));
 
   DBG(DBG_info, "%s: z2 = %d\n", __func__, z2);
-  sanei_genesys_set_triple(reg, REG63, z2 | (scan_step_type << (16+REG63S_FSTPSEL)));
+    reg->set24(REG63, z2 | (scan_step_type << (16+REG63S_FSTPSEL)));
 
   r = sanei_genesys_get_address (reg, 0x1e);
   r->value &= 0xf0;		/* 0 dummy lines */
@@ -1006,7 +1007,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dev->oe_buffer.alloc(dev->wpl);
 
   /* MAXWD is expressed in 4 words unit */
-  sanei_genesys_set_triple(reg, REG_MAXWD, (words_per_line >> 2));
+    reg->set24(REG_MAXWD, (words_per_line >> 2));
   DBG(DBG_io2, "%s: words_per_line used=%d\n", __func__, words_per_line);
 
     reg->set16(REG_LPERIOD, exposure_time);
@@ -1763,10 +1764,10 @@ static void gl847_feed(Genesys_Device* dev, unsigned int steps)
 
     gl847_init_scan_regs(dev, sensor, &local_reg, params);
 
-  /* set exposure to zero */
-  sanei_genesys_set_triple(&local_reg,REG_EXPR,0);
-  sanei_genesys_set_triple(&local_reg,REG_EXPG,0);
-  sanei_genesys_set_triple(&local_reg,REG_EXPB,0);
+    // set exposure to zero
+    local_reg.set24(REG_EXPR,0);
+    local_reg.set24(REG_EXPG,0);
+    local_reg.set24(REG_EXPB,0);
 
     // clear scan and feed count
     dev->write_register(REG0D, REG0D_CLRLNCNT);

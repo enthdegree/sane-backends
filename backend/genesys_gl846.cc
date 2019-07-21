@@ -240,21 +240,21 @@ static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
     {
       exp=sensor_profile->expr;
     }
-  sanei_genesys_set_double(regs,REG_EXPR,exp);
+    regs->set16(REG_EXPR, exp);
 
   exp = sensor.exposure.green;
   if(exp==0)
     {
       exp=sensor_profile->expg;
     }
-  sanei_genesys_set_double(regs,REG_EXPG,exp);
+    regs->set16(REG_EXPG, exp);
 
   exp = sensor.exposure.blue;
   if(exp==0)
     {
       exp=sensor_profile->expb;
     }
-  sanei_genesys_set_double(regs,REG_EXPB,exp);
+    regs->set16(REG_EXPB, exp);
 
   sanei_genesys_set_triple(regs,REG_CK1MAP,sensor_profile->ck1map);
   sanei_genesys_set_triple(regs,REG_CK3MAP,sensor_profile->ck3map);
@@ -967,11 +967,11 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   dev->segnb=segnb;
   dev->line_interp = 0;
 
-  sanei_genesys_set_double(reg,REG_DPISET,dpiset);
-  DBG (DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);
+    reg->set16(REG_DPISET,dpiset);
+    DBG (DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);
 
-  sanei_genesys_set_double(reg,REG_STRPIXEL,startx);
-  sanei_genesys_set_double(reg,REG_ENDPIXEL,endx);
+    reg->set16(REG_STRPIXEL,startx);
+    reg->set16(REG_ENDPIXEL,endx);
   DBG (DBG_io2, "%s: startx=%d\n", __func__, startx);
   DBG (DBG_io2, "%s: endx  =%d\n", __func__, endx);
 
@@ -993,7 +993,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   sanei_genesys_set_triple(reg, REG_MAXWD, (words_per_line >> 2));
   DBG (DBG_io2, "%s: words_per_line used=%d\n", __func__, words_per_line);
 
-  sanei_genesys_set_double(reg, REG_LPERIOD, exposure_time);
+    reg->set16(REG_LPERIOD, exposure_time);
   DBG (DBG_io2, "%s: exposure_time used=%d\n", __func__, exposure_time);
 
   r = sanei_genesys_get_address (reg, 0x34);
@@ -2073,10 +2073,10 @@ static void gl846_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
   sanei_genesys_set_motor_power(regs, false);
   do
     {
-      /* set up exposure */
-      sanei_genesys_set_double(&regs,REG_EXPR,exp[0]);
-      sanei_genesys_set_double(&regs,REG_EXPG,exp[1]);
-      sanei_genesys_set_double(&regs,REG_EXPB,exp[2]);
+        // set up exposure
+        regs.set16(REG_EXPR, exp[0]);
+        regs.set16(REG_EXPG, exp[1]);
+        regs.set16(REG_EXPB, exp[2]);
 
         // write registers and scan data
         dev->write_registers(regs);
@@ -2139,10 +2139,10 @@ static void gl846_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
 
   DBG(DBG_info, "%s: acceptable exposure: %d,%d,%d\n", __func__, exp[0], exp[1], exp[2]);
 
-  /* set these values as final ones for scan */
-  sanei_genesys_set_double(&dev->reg,REG_EXPR,exp[0]);
-  sanei_genesys_set_double(&dev->reg,REG_EXPG,exp[1]);
-  sanei_genesys_set_double(&dev->reg,REG_EXPB,exp[2]);
+    // set these values as final ones for scan
+    dev->reg.set16(REG_EXPR, exp[0]);
+    dev->reg.set16(REG_EXPG, exp[1]);
+    dev->reg.set16(REG_EXPB, exp[2]);
 
   /* store in this struct since it is the one used by cache calibration */
   sensor.exposure.red = exp[0];

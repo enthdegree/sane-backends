@@ -739,8 +739,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
   /* scanner's x coordinates are expressed in physical DPI but they must be divided by cksel */
     sx = startx / sensor_mst->cksel / ccd_size_divisor;
     ex = endx / sensor_mst->cksel / ccd_size_divisor;
-  sanei_genesys_set_double(regs, REG_STRPIXEL, sx);
-  sanei_genesys_set_double(regs, REG_ENDPIXEL, ex);
+    regs->set16(REG_STRPIXEL, sx);
+    regs->set16(REG_ENDPIXEL, ex);
     DBG(DBG_info, "%s: startx=%d, endx=%d, ccd_size_divisor=%d\n", __func__, sx, ex, ccd_size_divisor);
 
   /* words_per_line must be computed according to the scan's resolution */
@@ -763,8 +763,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
   DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
   sanei_genesys_set_triple(regs, REG_MAXWD, words_per_line);
 
-  sanei_genesys_set_double(regs, REG_DPISET, sensor_mst->dpiset);
-  sanei_genesys_set_double(regs, REG_LPERIOD, sensor_mst->exposure);
+    regs->set16(REG_DPISET, sensor_mst->dpiset);
+    regs->set16(REG_LPERIOD, sensor_mst->exposure);
 
   /* move distance must be adjusted to take into account the extra lines
    * read to reorder data */
@@ -904,8 +904,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
       z1 = 0;
       z2 = 0;
     }
-  sanei_genesys_set_double(regs, REG_Z1MOD, z1);
-  sanei_genesys_set_double(regs, REG_Z2MOD, z2);
+    regs->set16(REG_Z1MOD, z1);
+    regs->set16(REG_Z2MOD, z2);
   regs->find_reg(0x6b).value = motor->steps2;
   regs->find_reg(0x6c).value =
     (regs->find_reg(0x6c).value & REG6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16)

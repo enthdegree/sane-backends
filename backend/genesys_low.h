@@ -563,11 +563,6 @@ extern void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empt
 
 extern void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, size_t size);
 
-inline void sanei_genesys_set_double(Genesys_Register_Set* regs, uint16_t addr, uint16_t value)
-{
-    regs->set16(addr, value);
-}
-
 inline void sanei_genesys_set_triple(Genesys_Register_Set* regs, uint16_t addr, uint32_t value)
 {
     regs->set24(addr, value);

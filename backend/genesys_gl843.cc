@@ -1194,16 +1194,17 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
   /* enable gamma tables */
-  if (flags & OPTICAL_FLAG_DISABLE_GAMMA)
-    r->value &= ~REG05_GMMENB;
-  else
-    r->value |= REG05_GMMENB;
+    if (flags & OPTICAL_FLAG_DISABLE_GAMMA) {
+        r->value &= ~REG05_GMMENB;
+    } else {
+        r->value |= REG05_GMMENB;
+    }
 
-  sanei_genesys_set_double(reg, REG_DPISET, dpiset * ccd_size_divisor);
-  DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset * ccd_size_divisor);
+    reg->set16(REG_DPISET, dpiset * ccd_size_divisor);
+    DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset * ccd_size_divisor);
 
-  sanei_genesys_set_double(reg, REG_STRPIXEL, startx);
-  sanei_genesys_set_double(reg, REG_ENDPIXEL, endx);
+    reg->set16(REG_STRPIXEL, startx);
+    reg->set16(REG_ENDPIXEL, endx);
 
   /* words(16bit) before gamma, conversion to 8 bit or lineart */
   words_per_line = (used_pixels * dpiset) / dpihw;
@@ -1234,7 +1235,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   sanei_genesys_set_triple(reg,REG_MAXWD,(words_per_line)>>1);
   DBG(DBG_io2, "%s: words_per_line used=%d\n", __func__, words_per_line);
 
-  sanei_genesys_set_double(reg,REG_LPERIOD,exposure/tgtime);
+    reg->set16(REG_LPERIOD,exposure/tgtime);
   DBG(DBG_io2, "%s: exposure used=%d\n", __func__, exposure/tgtime);
 
   r = sanei_genesys_get_address (reg, REG_DUMMY);

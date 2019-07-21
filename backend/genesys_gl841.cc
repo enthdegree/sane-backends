@@ -1611,9 +1611,9 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 	if (expb < expavg)
 	  expavg = expb;
 
-        sanei_genesys_set_double(&dev->reg, REG_EXPR, expavg);
-        sanei_genesys_set_double(&dev->reg, REG_EXPG, expavg);
-        sanei_genesys_set_double(&dev->reg, REG_EXPB, expavg);
+        dev->reg.set16(REG_EXPR, expavg);
+        dev->reg.set16(REG_EXPG, expavg);
+        dev->reg.set16(REG_EXPB, expavg);
       }
 
     /* enable gamma tables */
@@ -1629,9 +1629,9 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     r = sanei_genesys_get_address (reg, 0x29);
     r->value = 255; /*<<<"magic" number, only suitable for cis*/
 
-    sanei_genesys_set_double(reg, REG_DPISET, dpiset);
-    sanei_genesys_set_double(reg, REG_STRPIXEL, start);
-    sanei_genesys_set_double(reg, REG_ENDPIXEL, end);
+    reg->set16(REG_DPISET, dpiset);
+    reg->set16(REG_STRPIXEL, start);
+    reg->set16(REG_ENDPIXEL, end);
     DBG(DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d\n", __func__, start, end);
 
     /* words(16bit) before gamma, conversion to 8 bit or lineart*/
@@ -1654,7 +1654,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     r = sanei_genesys_get_address (reg, 0x37);
     r->value = LOBYTE (LOWORD (words_per_line));
 
-    sanei_genesys_set_double(reg, REG_LPERIOD, exposure_time);
+    reg->set16(REG_LPERIOD, exposure_time);
 
     r = sanei_genesys_get_address (reg, 0x34);
     r->value = sensor.dummy_pixel;

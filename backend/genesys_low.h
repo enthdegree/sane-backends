@@ -573,11 +573,6 @@ inline void sanei_genesys_set_triple(Genesys_Register_Set* regs, uint16_t addr, 
     regs->set24(addr, value);
 }
 
-inline void sanei_genesys_get_triple(Genesys_Register_Set* regs, uint16_t addr, uint32_t* value)
-{
-    *value = regs->get24(addr);
-}
-
 inline void sanei_genesys_set_exposure(Genesys_Register_Set& regs, const SensorExposure& exposure)
 {
     regs.set8(0x10, (exposure.red >> 8) & 0xff);

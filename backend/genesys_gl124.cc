@@ -919,7 +919,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   unsigned int dpiset, dpihw, factor;
   unsigned int bytes;
   GenesysRegister *r;
-  uint32_t expmax, exp;
+  uint32_t expmax;
 
     // resolution is divided according to ccd_pixels_per_system_pixel
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
@@ -1058,17 +1058,10 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
       if (channels == 1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
 	{
 	  r->value |= REG60_LEDADD;
-          sanei_genesys_get_triple(reg,REG_EXPR,&expmax);
-          sanei_genesys_get_triple(reg,REG_EXPG,&exp);
-          if(exp>expmax)
-            {
-              expmax=exp;
-            }
-          sanei_genesys_get_triple(reg,REG_EXPB,&exp);
-          if(exp>expmax)
-            {
-              expmax=exp;
-            }
+            expmax = reg->get24(REG_EXPR);
+            expmax = std::max(expmax, reg->get24(REG_EXPG));
+            expmax = std::max(expmax, reg->get24(REG_EXPB));
+
           sanei_genesys_set_triple(&dev->reg,REG_EXPR,expmax);
           sanei_genesys_set_triple(&dev->reg,REG_EXPG,expmax);
           sanei_genesys_set_triple(&dev->reg,REG_EXPB,expmax);
@@ -1091,7 +1084,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   sanei_genesys_set_triple(reg,REG_STRPIXEL,startx/segnb);
   DBG (DBG_io2, "%s: strpixel used=%d\n", __func__, startx/segnb);
-  sanei_genesys_get_triple(reg,REG_SEGCNT,&segcnt);
+    segcnt = reg->get24(REG_SEGCNT);
   if(endx/segnb==segcnt)
     {
       endx=0;
@@ -2177,9 +2170,9 @@ static void gl124_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
 
   /* logical size of a color as seen by generic code of the frontend */
   length = (uint32_t) (size / 3);
-  sanei_genesys_get_triple(&dev->reg,REG_STRPIXEL,&strpixel);
-  sanei_genesys_get_triple(&dev->reg,REG_ENDPIXEL,&endpixel);
-  sanei_genesys_get_triple(&dev->reg,REG_SEGCNT,&segcnt);
+    strpixel = dev->reg.get24(REG_STRPIXEL);
+    endpixel = dev->reg.get24(REG_ENDPIXEL);
+    segcnt = dev->reg.get24(REG_SEGCNT);
   if(endpixel==0)
     {
       endpixel=segcnt;
@@ -2196,7 +2189,7 @@ static void gl124_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
   if(DBG_LEVEL>=DBG_data)
     {
       dev->binary=fopen("binary.pnm","wb");
-      sanei_genesys_get_triple(&dev->reg, REG_LINCNT, &lines);
+        lines = dev->reg.get24(REG_LINCNT);
       channels=dev->current_setup.channels;
       if(dev->binary!=NULL)
         {

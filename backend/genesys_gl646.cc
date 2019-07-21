@@ -3204,9 +3204,7 @@ static void gl646_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor
 
   /* returned value to higher level warmup function */
   *channels = 1;
-  uint32_t value = 0;
-  sanei_genesys_get_triple(local_reg, REG_LINCNT, &value);
-  lines = value + 1;
+    lines = local_reg->get24(REG_LINCNT) + 1;
   *total_size = lines * settings.pixels;
 
     // now registers are ok, write them to scanner
@@ -3253,9 +3251,7 @@ static void gl646_repark_head(Genesys_Device* dev)
     // start scan
     gl646_begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
 
-  uint32_t value32 = 0;
-  sanei_genesys_get_triple(&dev->reg, REG_FEEDL, &value32);
-  expected = value32;
+    expected = dev->reg.get24(REG_FEEDL);
   do
     {
       sanei_genesys_sleep_ms(100);
@@ -3478,15 +3474,11 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
   /* allocate memory fo scan : LINCNT may have been adjusted for CCD reordering */
   if (dev->model->is_cis == SANE_TRUE)
     {
-      uint32_t value = 0;
-      sanei_genesys_get_triple(&dev->reg, REG_LINCNT, &value);
-      lines = value / 3;
+        lines = dev->reg.get24(REG_LINCNT) / 3;
     }
   else
     {
-      uint32_t value = 0;
-      sanei_genesys_get_triple(&dev->reg, REG_LINCNT, &value);
-      lines = value + 1;
+        lines = dev->reg.get24(REG_LINCNT) + 1;
     }
   size = lines * settings.pixels;
   if (settings.depth == 16)

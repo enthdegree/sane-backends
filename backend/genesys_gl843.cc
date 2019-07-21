@@ -2080,8 +2080,8 @@ static void gl843_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     DBG_HELPER(dbg);
   uint16_t dpiset, dpihw;
 
-  /* get back the target dpihw */
-  sanei_genesys_get_double (reg, REG_DPISET, &dpiset);
+    // get back the target dpihw
+    dpiset = reg->get16(REG_DPISET);
     dpihw = sensor.get_register_hwdpi(dpiset);
 
   /* set up GPIO for scan */
@@ -2558,7 +2558,6 @@ static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
 {
     DBG_HELPER(dbg);
   int move, resolution, dpihw, factor;
-  uint16_t strpixel;
 
   /* initial calibration reg values */
   regs = dev->reg;
@@ -2646,8 +2645,6 @@ static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
   dev->calib_total_bytes_to_read = dev->read_bytes_left;
 
   dev->scanhead_position_in_steps += dev->calib_lines + move;
-  sanei_genesys_get_double(&regs,REG_STRPIXEL,&strpixel);
-  DBG(DBG_info, "%s: STRPIXEL=%d\n", __func__, strpixel);
 
     dev->write_registers(regs);
 }
@@ -3863,15 +3860,15 @@ static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
       /* recompute STRPIXEL used shading calibration so we can
        * compute offset within data for SHDAREA case */
       r = sanei_genesys_get_address(&dev->reg, REG18);
-      sanei_genesys_get_double(&dev->reg,REG_DPISET,&dpiset);
+        dpiset = dev->reg.get16(REG_DPISET);
         factor = sensor.optical_res / sensor.get_register_hwdpi(dpiset);
 
       /* start coordinate in optical dpi coordinates */
       startx = (sensor.dummy_pixel / sensor.ccd_pixels_per_system_pixel()) / factor;
 
       /* current scan coordinates */
-      sanei_genesys_get_double(&dev->reg,REG_STRPIXEL,&strpixel);
-      sanei_genesys_get_double(&dev->reg,REG_ENDPIXEL,&endpixel);
+        strpixel = dev->reg.get16(REG_STRPIXEL);
+        endpixel = dev->reg.get16(REG_ENDPIXEL);
 
       if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
         {

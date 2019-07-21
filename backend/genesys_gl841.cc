@@ -1600,9 +1600,9 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     if (flags & OPTICAL_FLAG_ENABLE_LEDADD)
       {
         r->value |= REG87_LEDADD;
-	sanei_genesys_get_double (reg, REG_EXPR, &expr);
-	sanei_genesys_get_double (reg, REG_EXPG, &expg);
-	sanei_genesys_get_double (reg, REG_EXPB, &expb);
+        expr = reg->get16(REG_EXPR);
+        expg = reg->get16(REG_EXPG);
+        expb = reg->get16(REG_EXPB);
 
 	/* use minimal exposure for best image quality */
 	expavg = expg;
@@ -4562,13 +4562,13 @@ static void gl841_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
 
   /* data is whole line, we extract only the part for the scanned area */
   length = (uint32_t) (size / 3);
-  sanei_genesys_get_double(&dev->reg,REG_STRPIXEL,&strpixel);
-  sanei_genesys_get_double(&dev->reg,REG_ENDPIXEL,&endpixel);
+    strpixel = dev->reg.get16(REG_STRPIXEL);
+    endpixel = dev->reg.get16(REG_ENDPIXEL);
   DBG(DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d\n", __func__, strpixel, endpixel,
       endpixel-strpixel);
 
   /* compute deletion/average factor */
-  sanei_genesys_get_double(&dev->reg,REG_DPISET,&dpiset);
+    dpiset = dev->reg.get16(REG_DPISET);
   dpihw = gl841_get_dpihw(dev);
   unsigned ccd_size_divisor = dev->current_setup.ccd_size_divisor;
   factor=dpihw/dpiset;

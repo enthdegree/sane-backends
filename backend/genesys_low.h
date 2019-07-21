@@ -573,11 +573,6 @@ inline void sanei_genesys_set_triple(Genesys_Register_Set* regs, uint16_t addr, 
     regs->set24(addr, value);
 }
 
-inline void sanei_genesys_get_double(Genesys_Register_Set* regs, uint16_t addr, uint16_t* value)
-{
-    *value = regs->get16(addr);
-}
-
 inline void sanei_genesys_get_triple(Genesys_Register_Set* regs, uint16_t addr, uint32_t* value)
 {
     *value = regs->get24(addr);

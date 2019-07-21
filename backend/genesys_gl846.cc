@@ -1916,7 +1916,6 @@ static void gl846_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
   uint32_t addr, length, i, x, factor, pixels;
   uint32_t dpiset, dpihw, strpixel, endpixel;
-  uint16_t tempo;
   uint32_t lines, channels;
   uint8_t val,*ptr,*src;
 
@@ -1927,14 +1926,11 @@ static void gl846_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
      write(0x10068000,0x00000dd8)
    */
   length = (uint32_t) (size / 3);
-  sanei_genesys_get_double(&dev->reg,REG_STRPIXEL,&tempo);
-  strpixel=tempo;
-  sanei_genesys_get_double(&dev->reg,REG_ENDPIXEL,&tempo);
-  endpixel=tempo;
+    strpixel = dev->reg.get16(REG_STRPIXEL);
+    endpixel = dev->reg.get16(REG_ENDPIXEL);
 
   /* compute deletion factor */
-  sanei_genesys_get_double(&dev->reg,REG_DPISET,&tempo);
-  dpiset=tempo;
+    dpiset = dev->reg.get16(REG_DPISET);
   DBG(DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d, DPISET=%d\n", __func__, strpixel, endpixel,
       endpixel-strpixel, dpiset);
     dpihw = sensor.get_register_hwdpi(dpiset);

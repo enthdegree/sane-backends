@@ -2187,7 +2187,7 @@ static void gl124_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
   DBG( DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d, SEGCNT=%d\n",__func__,strpixel,endpixel,endpixel-strpixel,segcnt);
 
   /* compute deletion factor */
-  sanei_genesys_get_double(&dev->reg,REG_DPISET,&dpiset);
+    dpiset = dev->reg.get16(REG_DPISET);
     dpihw = sensor.get_register_hwdpi(dpiset);
   factor=dpihw/dpiset;
   DBG( DBG_io2, "%s: factor=%d\n",__func__,factor);

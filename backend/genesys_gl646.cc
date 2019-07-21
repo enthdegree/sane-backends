@@ -1915,7 +1915,7 @@ static void end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool c
   /* ends scan */
     val = reg->get8(0x01);
     val &= ~REG01_SCAN;
-  sanei_genesys_set_reg_from_set (reg, 0x01, val);
+    reg->set8(0x01, val);
     dev->write_register(0x01, val);
 
   /* for sheetfed scanners, we may have to eject document */

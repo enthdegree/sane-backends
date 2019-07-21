@@ -415,12 +415,6 @@ inline GenesysRegister* sanei_genesys_get_address(Genesys_Register_Set* regs, ui
     return ret;
 }
 
-inline void sanei_genesys_set_reg_from_set(Genesys_Register_Set* regs, uint16_t address,
-                                           uint8_t value)
-{
-    regs->set8(address, value);
-}
-
 extern void sanei_genesys_init_cmd_set(Genesys_Device* dev);
 
 extern void sanei_genesys_read_register(Genesys_Device* dev, uint16_t reg, uint8_t* val);

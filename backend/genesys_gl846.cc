@@ -232,7 +232,7 @@ static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
     dpihw = sensor.get_register_hwdpi(dpi);
   Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw);
 
-  sanei_genesys_set_reg_from_set(regs,REG_EXPDMY,(uint8_t)((sensor_profile->expdummy) & 0xff));
+    regs->set8(REG_EXPDMY, (uint8_t)((sensor_profile->expdummy) & 0xff));
 
   /* if no calibration has been done, set default values for exposures */
   exp = sensor.exposure.red;

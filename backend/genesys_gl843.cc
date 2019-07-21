@@ -1701,7 +1701,7 @@ static void gl843_start_action(Genesys_Device* dev)
 static void gl843_stop_action_no_move(Genesys_Device* dev, Genesys_Register_Set* reg)
 {
     DBG_HELPER(dbg);
-    uint8_t val = sanei_genesys_read_reg_from_set(reg, REG01);
+    uint8_t val = reg->get8(REG01);
     val &= ~REG01_SCAN;
     sanei_genesys_set_reg_from_set(reg, REG01, val);
     dev->write_register(REG01, val);

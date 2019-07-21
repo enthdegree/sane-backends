@@ -342,7 +342,7 @@ void sanei_genesys_bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* d
  * @param reg LSB of register address
  * @param val value to write
  */
-void sanei_genesys_write_hregister(Genesys_Device* dev, uint16_t reg, uint8_t val)
+static void sanei_genesys_write_hregister(Genesys_Device* dev, uint16_t reg, uint8_t val)
 {
     DBG_HELPER(dbg);
 
@@ -365,7 +365,7 @@ void sanei_genesys_write_hregister(Genesys_Device* dev, uint16_t reg, uint8_t va
  * @param reg LSB of register address
  * @param val value to write
  */
-void sanei_genesys_read_hregister(Genesys_Device* dev, uint16_t reg, uint8_t* val)
+static void sanei_genesys_read_hregister(Genesys_Device* dev, uint16_t reg, uint8_t* val)
 {
     DBG_HELPER(dbg);
 
@@ -626,17 +626,12 @@ void sanei_genesys_print_status (uint8_t val)
 static int
 genesys_pixels_per_line (Genesys_Register_Set * reg)
 {
-  int pixels_per_line;
+    int pixels_per_line;
 
-  pixels_per_line =
-    sanei_genesys_read_reg_from_set (reg,
-				     0x32) * 256 +
-    sanei_genesys_read_reg_from_set (reg, 0x33);
-  pixels_per_line -=
-    (sanei_genesys_read_reg_from_set (reg, 0x30) * 256 +
-     sanei_genesys_read_reg_from_set (reg, 0x31));
+    pixels_per_line = reg->get8(0x32) * 256 + reg->get8(0x33);
+    pixels_per_line -= (reg->get8(0x30) * 256 + reg->get8(0x31));
 
-  return pixels_per_line;
+    return pixels_per_line;
 }
 
 /* returns dpiset from register set */
@@ -644,14 +639,7 @@ genesys_pixels_per_line (Genesys_Register_Set * reg)
 static int
 genesys_dpiset (Genesys_Register_Set * reg)
 {
-  int dpiset;
-
-  dpiset =
-    sanei_genesys_read_reg_from_set (reg,
-				     0x2c) * 256 +
-    sanei_genesys_read_reg_from_set (reg, 0x2d);
-
-  return dpiset;
+    return reg->get8(0x2c) * 256 + reg->get8(0x2d);
 }
 #endif
 

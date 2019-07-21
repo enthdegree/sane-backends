@@ -1878,8 +1878,8 @@ static void gl646_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
   // FIXME: SEQUENTIAL not really needed in this case
   Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
 
-    local_reg.init_reg(0x03, sanei_genesys_read_reg_from_set(reg, 0x03));
-    local_reg.init_reg(0x01, sanei_genesys_read_reg_from_set(reg, 0x01) | REG01_SCAN);	/* set scan bit */
+    local_reg.init_reg(0x03, reg->get8(0x03));
+    local_reg.init_reg(0x01, reg->get8(0x01) | REG01_SCAN);
 
     if (start_motor) {
         local_reg.init_reg(0x0f, 0x01);
@@ -1913,8 +1913,8 @@ static void end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool c
     }
 
   /* ends scan */
-  val = sanei_genesys_read_reg_from_set (reg, 0x01);
-  val &= ~REG01_SCAN;
+    val = reg->get8(0x01);
+    val &= ~REG01_SCAN;
   sanei_genesys_set_reg_from_set (reg, 0x01, val);
     dev->write_register(0x01, val);
 
@@ -2415,9 +2415,8 @@ static void setup_for_scan(Genesys_Device* dev,
     gl646_setup_registers(dev, sensor, regs, params, slope_table0, slope_table1, xcorrection);
 
     // send computed slope tables
-    gl646_send_slope_table(dev, 0, slope_table0, sanei_genesys_read_reg_from_set (regs, 0x21));
-
-    gl646_send_slope_table(dev, 1, slope_table1, sanei_genesys_read_reg_from_set (regs, 0x6b));
+    gl646_send_slope_table(dev, 0, slope_table0, regs->get8(0x21));
+    gl646_send_slope_table(dev, 1, slope_table1, regs->get8(0x6b));
 }
 
 /**

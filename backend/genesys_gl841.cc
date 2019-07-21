@@ -2724,13 +2724,13 @@ static void gl841_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     }
 
     if (dev->model->ccd_type != CCD_PLUSTEK_3600) {
-        local_reg.init_reg(0x03, sanei_genesys_read_reg_from_set(reg, 0x03) | REG03_LAMPPWR);
+        local_reg.init_reg(0x03, reg->get8(0x03) | REG03_LAMPPWR);
     } else {
         // TODO PLUSTEK_3600: why ??
-        local_reg.init_reg(0x03, sanei_genesys_read_reg_from_set(reg, 0x03));
+        local_reg.init_reg(0x03, reg->get8(0x03));
     }
 
-    local_reg.init_reg(0x01, sanei_genesys_read_reg_from_set(reg, 0x01) | REG01_SCAN);	/* set scan bit */
+    local_reg.init_reg(0x01, reg->get8(0x01) | REG01_SCAN);
     local_reg.init_reg(0x0d, 0x01);
 
     if (start_motor) {

@@ -6681,31 +6681,24 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
 static void set_calibration_value(Genesys_Scanner* s, const char* val)
 {
     DBG_HELPER(dbg);
-  Genesys_Device *dev=s->dev;
 
-  /* try to load file */
-  std::string prev_calib_file = dev->calib_file;
-  dev->calib_file = val;
+    std::string new_calib_path = val;
+    Genesys_Device::Calibration new_calibration;
 
     bool is_calib_success = false;
     catch_all_exceptions(__func__, [&]()
     {
-        is_calib_success = sanei_genesys_read_calibration(dev->calibration_cache, dev->calib_file);
+        is_calib_success = sanei_genesys_read_calibration(new_calibration, new_calib_path);
     });
 
-    // file exists but is invalid, so fall back to previous cache file an re-read it
     if (!is_calib_success) {
-        dev->calib_file = prev_calib_file;
-        if (!sanei_genesys_read_calibration(dev->calibration_cache, dev->calib_file)) {
-            throw SaneException("failed rereading calibration file");
-        }
         return;
     }
 
-  s->calibration_file = val;
-  dev->calib_file = val;
-  DBG(DBG_info, "%s: Calibration filename set to:\n", __func__);
-  DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file.c_str());
+    s->dev->calibration_cache = std::move(new_calibration);
+    s->dev->calib_file = new_calib_path;
+    s->calibration_file = new_calib_path;
+    DBG(DBG_info, "%s: Calibration filename set to '%s':\n", __func__, new_calib_path.c_str());
 }
 
 /* sets an option , called by sane_control_option */

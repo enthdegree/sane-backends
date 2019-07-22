@@ -243,4 +243,8 @@ struct Genesys_Scanner
     SANE_Int bpp_list[5] = {};
 };
 
+void write_calibration(std::ostream& str, Genesys_Device::Calibration& cache);
+bool read_calibration(std::istream& str, Genesys_Device::Calibration& cache,
+                      const std::string& path);
+
 #endif /* not GENESYS_H */

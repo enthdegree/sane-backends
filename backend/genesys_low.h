@@ -83,13 +83,14 @@
 
 #include "genesys_error.h"
 #include "genesys_sanei.h"
+#include "genesys_serialize.h"
 
 #include <algorithm>
 #include <array>
 #include <cstring>
 #include <functional>
+#include <iostream>
 #include <limits>
-#include <list>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -208,6 +209,19 @@ enum class ScanMethod : unsigned {
     TRANSPARENCY_INFRARED = 2
 };
 
+inline void serialize(std::istream& str, ScanMethod& x)
+{
+    unsigned value;
+    serialize(str, value);
+    x = static_cast<ScanMethod>(value);
+}
+
+inline void serialize(std::ostream& str, ScanMethod& x)
+{
+    unsigned value = static_cast<unsigned>(x);
+    serialize(str, value);
+}
+
 enum class ScanColorMode : unsigned {
     LINEART = 0,
     HALFTONE,
@@ -215,12 +229,38 @@ enum class ScanColorMode : unsigned {
     COLOR_SINGLE_PASS
 };
 
+inline void serialize(std::istream& str, ScanColorMode& x)
+{
+    unsigned value;
+    serialize(str, value);
+    x = static_cast<ScanColorMode>(value);
+}
+
+inline void serialize(std::ostream& str, ScanColorMode& x)
+{
+    unsigned value = static_cast<unsigned>(x);
+    serialize(str, value);
+}
+
 enum class ColorFilter : unsigned {
     RED = 0,
     GREEN,
     BLUE,
     NONE
 };
+
+inline void serialize(std::istream& str, ColorFilter& x)
+{
+    unsigned value;
+    serialize(str, value);
+    x = static_cast<ColorFilter>(value);
+}
+
+inline void serialize(std::ostream& str, ColorFilter& x)
+{
+    unsigned value = static_cast<unsigned>(x);
+    serialize(str, value);
+}
 
 struct GenesysRegister {
     uint16_t address = 0;
@@ -421,7 +461,20 @@ struct GenesysRegisterSetting {
     uint16_t address = 0;
     uint8_t value = 0;
     uint8_t mask = 0xff;
+
+    bool operator==(const GenesysRegisterSetting& other) const
+    {
+        return address == other.address && value == other.value && mask == other.mask;
+    }
 };
+
+template<class Stream>
+void serialize(Stream& str, GenesysRegisterSetting& reg)
+{
+    serialize(str, reg.address);
+    serialize(str, reg.value);
+    serialize(str, reg.mask);
+}
 
 class GenesysRegisterSettingSet {
 public:
@@ -473,42 +526,40 @@ public:
         push_back(GenesysRegisterSetting(address, value));
     }
 
-    size_t fread(FILE* fp)
-    {
-        bool success = true;
-        clear();
-        uint32_t count = 0;
-        success &= 1 == ::fread(&count, sizeof(count), 1, fp);
-        for (uint32_t i = 0; i < count && success; ++i) {
-            GenesysRegisterSetting reg;
-            success &= 1 == ::fread(&reg.address, sizeof(reg.address), 1, fp);
-            success &= 1 == ::fread(&reg.value, sizeof(reg.value), 1, fp);
-            success &= 1 == ::fread(&reg.mask, sizeof(reg.mask), 1, fp);
-            push_back(reg);
-        }
-        return success ? 1 : 0;
-    }
+    friend void serialize(std::istream& str, GenesysRegisterSettingSet& reg);
+    friend void serialize(std::ostream& str, GenesysRegisterSettingSet& reg);
 
-    void fwrite(FILE* fp) const
+    bool operator==(const GenesysRegisterSettingSet& other) const
     {
-        uint32_t count = size();
-        ::fwrite(&count, sizeof(count), 1, fp);
-        for (uint32_t i = 0; i < count; ++i) {
-            const auto& reg = (*this)[i];
-            ::fwrite(&reg.address, sizeof(reg.address), 1, fp);
-            ::fwrite(&reg.value, sizeof(reg.value), 1, fp);
-            ::fwrite(&reg.mask, sizeof(reg.mask), 1, fp);
-        }
+        return regs_ == other.regs_;
     }
 
 private:
     std::vector<GenesysRegisterSetting> regs_;
 };
 
+inline void serialize(std::istream& str, GenesysRegisterSettingSet& reg)
+{
+    reg.clear();
+    const size_t max_register_address =
+            1 << (sizeof(GenesysRegisterSetting::address) * CHAR_BIT);
+    serialize(str, reg.regs_, max_register_address);
+}
+
+inline void serialize(std::ostream& str, GenesysRegisterSettingSet& reg)
+{
+    serialize(str, reg.regs_);
+}
+
 struct GenesysFrontendLayout
 {
     std::array<uint16_t, 3> offset_addr = {};
     std::array<uint16_t, 3> gain_addr = {};
+
+    bool operator==(const GenesysFrontendLayout& other) const
+    {
+        return offset_addr == other.offset_addr && gain_addr == other.gain_addr;
+    }
 };
 
 /** @brief Data structure to set up analog frontend.
@@ -550,8 +601,28 @@ struct Genesys_Frontend
     {
         return regs.get_value(layout.gain_addr[which]);
     }
+
+    bool operator==(const Genesys_Frontend& other) const
+    {
+        return fe_id == other.fe_id &&
+            regs == other.regs &&
+            reg2 == other.reg2 &&
+            layout == other.layout;
+    }
 };
 
+template<class Stream>
+void serialize(Stream& str, Genesys_Frontend& x)
+{
+    serialize(str, x.fe_id);
+    serialize_newline(str);
+    serialize(str, x.regs);
+    serialize_newline(str);
+    serialize(str, x.reg2);
+    serialize_newline(str);
+    serialize(str, x.layout.offset_addr);
+    serialize(str, x.layout.gain_addr);
+}
 
 struct SensorExposure {
     uint16_t red, green, blue;
@@ -600,37 +671,6 @@ struct Genesys_Sensor {
     // red, green and blue gamma coefficient for default gamma tables
     AssignableArray<float, 3> gamma;
 
-    size_t fread(FILE* fp)
-    {
-        bool success = true;
-        success &= 1 == ::fread(&sensor_id, sizeof(sensor_id), 1, fp);
-        success &= 1 == ::fread(&optical_res, sizeof(optical_res), 1, fp);
-        success &= 1 == ::fread(&black_pixels, sizeof(black_pixels), 1, fp);
-        success &= 1 == ::fread(&dummy_pixel, sizeof(dummy_pixel), 1, fp);
-        success &= 1 == ::fread(&CCD_start_xoffset, sizeof(CCD_start_xoffset), 1, fp);
-        success &= 1 == ::fread(&sensor_pixels, sizeof(sensor_pixels), 1, fp);
-        success &= 1 == ::fread(&fau_gain_white_ref, sizeof(fau_gain_white_ref), 1, fp);
-        success &= 1 == ::fread(&gain_white_ref, sizeof(gain_white_ref), 1, fp);
-        success &= 1 == ::fread(&exposure, sizeof(exposure), 1, fp);
-
-        success &= custom_regs.fread(fp);
-        return success ? 1 : 0;
-    }
-
-    void fwrite(FILE* fp) const
-    {
-        ::fwrite(&sensor_id, sizeof(sensor_id), 1, fp);
-        ::fwrite(&optical_res, sizeof(optical_res), 1, fp);
-        ::fwrite(&black_pixels, sizeof(black_pixels), 1, fp);
-        ::fwrite(&dummy_pixel, sizeof(dummy_pixel), 1, fp);
-        ::fwrite(&CCD_start_xoffset, sizeof(CCD_start_xoffset), 1, fp);
-        ::fwrite(&sensor_pixels, sizeof(sensor_pixels), 1, fp);
-        ::fwrite(&fau_gain_white_ref, sizeof(fau_gain_white_ref), 1, fp);
-        ::fwrite(&gain_white_ref, sizeof(gain_white_ref), 1, fp);
-        ::fwrite(&exposure, sizeof(exposure), 1, fp);
-        custom_regs.fwrite(fp);
-    }
-
     int get_ccd_size_divisor_for_dpi(int xres) const
     {
         if (ccd_size_divisor >= 4 && xres * 4 <= optical_res) {
@@ -641,7 +681,58 @@ struct Genesys_Sensor {
         }
         return 1;
     }
+
+    bool operator==(const Genesys_Sensor& other) const
+    {
+        return sensor_id == other.sensor_id &&
+            optical_res == other.optical_res &&
+            min_resolution == other.min_resolution &&
+            max_resolution == other.max_resolution &&
+            method == other.method &&
+            ccd_size_divisor == other.ccd_size_divisor &&
+            black_pixels == other.black_pixels &&
+            dummy_pixel == other.dummy_pixel &&
+            CCD_start_xoffset == other.CCD_start_xoffset &&
+            sensor_pixels == other.sensor_pixels &&
+            fau_gain_white_ref == other.fau_gain_white_ref &&
+            gain_white_ref == other.gain_white_ref &&
+            exposure.blue == other.exposure.blue &&
+            exposure.green == other.exposure.green &&
+            exposure.red == other.exposure.red &&
+            exposure_lperiod == other.exposure_lperiod &&
+            custom_regs == other.custom_regs &&
+            custom_fe_regs == other.custom_fe_regs &&
+            gamma == other.gamma;
+    }
 };
+
+template<class Stream>
+void serialize(Stream& str, Genesys_Sensor& x)
+{
+    serialize(str, x.sensor_id);
+    serialize(str, x.optical_res);
+    serialize(str, x.min_resolution);
+    serialize(str, x.max_resolution);
+    serialize(str, x.method);
+    serialize(str, x.ccd_size_divisor);
+    serialize(str, x.black_pixels);
+    serialize(str, x.dummy_pixel);
+    serialize(str, x.CCD_start_xoffset);
+    serialize(str, x.sensor_pixels);
+    serialize(str, x.fau_gain_white_ref);
+    serialize(str, x.gain_white_ref);
+    serialize_newline(str);
+    serialize(str, x.exposure.blue);
+    serialize(str, x.exposure.green);
+    serialize(str, x.exposure.red);
+    serialize(str, x.exposure_lperiod);
+    serialize_newline(str);
+    serialize(str, x.custom_regs);
+    serialize_newline(str);
+    serialize(str, x.custom_fe_regs);
+    serialize_newline(str);
+    serialize(str, x.gamma);
+}
 
 struct Genesys_Gpo
 {
@@ -1200,7 +1291,40 @@ struct SetupParams {
             throw std::runtime_error("SetupParams are not valid");
         }
     }
+
+    bool operator==(const SetupParams& other) const
+    {
+        return xres == other.xres &&
+            yres == other.yres &&
+            startx == other.startx &&
+            starty == other.starty &&
+            pixels == other.pixels &&
+            lines == other.lines &&
+            depth == other.depth &&
+            channels == other.channels &&
+            scan_method == other.scan_method &&
+            scan_mode == other.scan_mode &&
+            color_filter == other.color_filter &&
+            flags == other.flags;
+    }
 };
+
+template<class Stream>
+void serialize(Stream& str, SetupParams& x)
+{
+    serialize(str, x.xres);
+    serialize(str, x.yres);
+    serialize(str, x.startx);
+    serialize(str, x.starty);
+    serialize(str, x.pixels);
+    serialize(str, x.lines);
+    serialize(str, x.depth);
+    serialize(str, x.channels);
+    serialize(str, x.scan_method);
+    serialize(str, x.scan_mode);
+    serialize(str, x.color_filter);
+    serialize(str, x.flags);
+}
 
 struct Genesys_Current_Setup
 {
@@ -1227,7 +1351,39 @@ struct Genesys_Current_Setup
     SANE_Int stagger = 0;
     //  max shift of any ccd component, including staggered pixels
     SANE_Int max_shift = 0;
+
+    bool operator==(const Genesys_Current_Setup& other) const
+    {
+        return params == other.params &&
+            pixels == other.pixels &&
+            lines == other.lines &&
+            depth == other.depth &&
+            channels == other.channels &&
+            exposure_time == other.exposure_time &&
+            xres == other.xres &&
+            yres == other.yres &&
+            ccd_size_divisor == other.ccd_size_divisor &&
+            stagger == other.stagger &&
+            max_shift == other.max_shift;
+    }
 };
+
+template<class Stream>
+void serialize(Stream& str, Genesys_Current_Setup& x)
+{
+    serialize(str, x.params);
+    serialize_newline(str);
+    serialize(str, x.pixels);
+    serialize(str, x.lines);
+    serialize(str, x.depth);
+    serialize(str, x.channels);
+    serialize(str, x.exposure_time);
+    serialize(str, x.xres);
+    serialize(str, x.yres);
+    serialize(str, x.ccd_size_divisor);
+    serialize(str, x.stagger);
+    serialize(str, x.max_shift);
+}
 
 struct Genesys_Buffer
 {
@@ -1276,7 +1432,40 @@ struct Genesys_Calibration_Cache
     size_t average_size = 0;
     std::vector<uint8_t> white_average_data;
     std::vector<uint8_t> dark_average_data;
+
+    bool operator==(const Genesys_Calibration_Cache& other) const
+    {
+        return used_setup == other.used_setup &&
+            last_calibration == other.last_calibration &&
+            frontend == other.frontend &&
+            sensor == other.sensor &&
+            calib_pixels == other.calib_pixels &&
+            calib_channels == other.calib_channels &&
+            average_size == other.average_size &&
+            white_average_data == other.white_average_data &&
+            dark_average_data == other.dark_average_data;
+    }
 };
+
+template<class Stream>
+void serialize(Stream& str, Genesys_Calibration_Cache& x)
+{
+    serialize(str, x.used_setup);
+    serialize_newline(str);
+    serialize(str, x.last_calibration);
+    serialize_newline(str);
+    serialize(str, x.frontend);
+    serialize_newline(str);
+    serialize(str, x.sensor);
+    serialize_newline(str);
+    serialize(str, x.calib_pixels);
+    serialize(str, x.calib_channels);
+    serialize(str, x.average_size);
+    serialize_newline(str);
+    serialize(str, x.white_average_data);
+    serialize_newline(str);
+    serialize(str, x.dark_average_data);
+}
 
 /**
  * Describes the current device status for the backend
@@ -1287,6 +1476,8 @@ struct Genesys_Device
 {
     Genesys_Device() = default;
     ~Genesys_Device();
+
+    using Calibration = std::vector<Genesys_Calibration_Cache>;
 
     // frees commonly used data
     void clear();
@@ -1378,7 +1569,7 @@ struct Genesys_Device
     // look up table used in dynamic rasterization
     unsigned char lineart_lut[256] = {};
 
-    std::list<Genesys_Calibration_Cache> calibration_cache;
+    Calibration calibration_cache;
 
     // used red line-distance shift
     SANE_Int ld_shift_r = 0;
@@ -1749,13 +1940,6 @@ int sanei_genesys_get_lowest_ydpi(Genesys_Device *dev);
  */
 extern
 int sanei_genesys_get_lowest_dpi(Genesys_Device *dev);
-
-/**
- * reads previously cached calibration data
- * from file
- */
-extern SANE_Status
-sanei_genesys_read_calibration (Genesys_Device * dev);
 
 extern bool
 sanei_genesys_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,

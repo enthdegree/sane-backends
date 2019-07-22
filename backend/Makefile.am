@@ -481,6 +481,7 @@ libsane_fujitsu_la_LIBADD = $(COMMON_LIBS) libfujitsu.la ../sanei/sanei_init_deb
 EXTRA_DIST += fujitsu.conf.in
 
 libgenesys_la_SOURCES = genesys.cc genesys.h genesys_sanei.h genesys_sanei.cc genesys_error.h genesys_error.cc \
+    genesys_serialize.h \
     genesys_gl646.cc genesys_gl646.h genesys_gl841.cc genesys_gl841.h \
     genesys_gl843.cc genesys_gl843.h genesys_gl846.cc genesys_gl846.h \
     genesys_gl847.cc genesys_gl847.h genesys_gl124.cc genesys_gl124.h \

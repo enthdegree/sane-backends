@@ -67,6 +67,8 @@
 #include "genesys_devices.cc"
 
 #include <cstring>
+#include <fstream>
+#include <list>
 #include <exception>
 #include <vector>
 
@@ -5948,140 +5950,72 @@ probe_genesys_devices (void)
    changes that don't change size -- at least for now, as we store most
    of Genesys_Calibration_Cache as is.
 */
-#define CALIBRATION_VERSION 1
+static const char* CALIBRATION_IDENT = "sane_genesys";
+static const int CALIBRATION_VERSION = 2;
+
+bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
+                      const std::string& path)
+{
+    std::string ident;
+    serialize(str, ident);
+
+    if (ident != CALIBRATION_IDENT) {
+        DBG(DBG_info, "%s: Incorrect calibration file '%s' header\n", __func__, path.c_str());
+        return false;
+    }
+
+    size_t version;
+    serialize(str, version);
+
+    if (version != CALIBRATION_VERSION) {
+        DBG(DBG_info, "%s: Incorrect calibration file '%s' version\n", __func__, path.c_str());
+        return false;
+    }
+
+    calibration.clear();
+    serialize(str, calibration);
+    return true;
+}
 
 /**
  * reads previously cached calibration data
  * from file defined in dev->calib_file
  */
-SANE_Status
-sanei_genesys_read_calibration (Genesys_Device * dev)
+static bool sanei_genesys_read_calibration(Genesys_Device::Calibration& calibration,
+                                           const std::string& path)
 {
-  FILE *fp;
-  uint8_t vers = 0;
-  uint32_t size = 0;
-  SANE_Status status=SANE_STATUS_GOOD;
+    DBG_HELPER(dbg);
 
-  DBGSTART;
-
-  /* open calibration cache file */
-  fp = fopen(dev->calib_file.c_str(), "rb");
-  if (!fp)
-    {
-      DBG(DBG_info, "%s: Cannot open %s\n", __func__, dev->calib_file.c_str());
-      DBGCOMPLETED;
-      return SANE_STATUS_IO_ERROR;
+    std::ifstream str;
+    str.open(path);
+    if (!str.is_open()) {
+        DBG(DBG_info, "%s: Cannot open %s\n", __func__, path.c_str());
+        return false;
     }
 
-  /* these two checks ensure that most bad things cannot happen */
-  fread (&vers, 1, 1, fp);
-  if (vers != CALIBRATION_VERSION)
-    {
-      DBG(DBG_info, "%s: Bad version\n", __func__);
-      fclose (fp);
-      DBGCOMPLETED;
-      return SANE_STATUS_INVAL;
-    }
-  fread (&size, 4, 1, fp);
-  if (size != sizeof (struct Genesys_Calibration_Cache))
-    {
-      DBG(DBG_info, "%s: Size of calibration cache struct differs\n", __func__);
-      fclose (fp);
-      DBGCOMPLETED;
-      return SANE_STATUS_INVAL;
-    }
-
-  dev->calibration_cache.clear();
-
-  /* loop on cache records in file */
-  while (!feof (fp) && status==SANE_STATUS_GOOD)
-    {
-      DBG(DBG_info, "%s: reading one record\n", __func__);
-      Genesys_Calibration_Cache cache;
-
-#define BILT1( x )							\
-      do								\
-	{								\
-	  if ((x) < 1)							\
-	    {								\
-	      DBG(DBG_warn, "%s: partial calibration record\n", __func__); \
-              status=SANE_STATUS_EOF;                                   \
-	      break;							\
-	    }								\
-	} while(0)
-
-
-      if (fread (&cache.used_setup, sizeof (cache.used_setup), 1, fp) < 1)
-	{			/* eof is only detected here */
-          status=SANE_STATUS_GOOD;
-	  break;
-	}
-      BILT1 (fread (&cache.last_calibration, sizeof (cache.last_calibration), 1, fp));
-      BILT1 (fread (&cache.frontend, sizeof (cache.frontend), 1, fp));
-      BILT1(cache.sensor.fread(fp));
-      BILT1 (fread (&cache.calib_pixels, sizeof (cache.calib_pixels), 1, fp));
-      BILT1 (fread (&cache.calib_channels, sizeof (cache.calib_channels), 1, fp));
-      BILT1 (fread (&cache.average_size, sizeof (cache.average_size), 1, fp));
-
-      cache.white_average_data.resize(cache.average_size);
-      cache.dark_average_data.resize(cache.average_size);
-
-      if (fread(cache.white_average_data.data(), cache.average_size, 1, fp) < 1)
-	{
-          status=SANE_STATUS_EOF;
-          DBG(DBG_warn, "%s: partial calibration record\n", __func__);
-	  break;
-	}
-      if (fread(cache.dark_average_data.data(), cache.average_size, 1, fp) < 1)
-	{
-	  DBG(DBG_warn, "%s: partial calibration record\n", __func__);
-          status=SANE_STATUS_EOF;
-	  break;
-	}
-#undef BILT1
-      DBG(DBG_info, "%s: adding record to list\n", __func__);
-      dev->calibration_cache.push_back(std::move(cache));
-    }
-
-  fclose (fp);
-  DBGCOMPLETED;
-  return status;
+    return read_calibration(str, calibration, path);
 }
 
-static void
-write_calibration (Genesys_Device * dev)
+void write_calibration(std::ostream& str, Genesys_Device::Calibration& calibration)
 {
-  FILE *fp;
-  uint8_t vers = 0;
-  uint32_t size = 0;
+    std::string ident = CALIBRATION_IDENT;
+    serialize(str, ident);
+    size_t version = CALIBRATION_VERSION;
+    serialize(str, version);
+    serialize_newline(str);
+    serialize(str, calibration);
+}
 
-  DBGSTART;
-  fp = fopen (dev->calib_file.c_str(), "wb");
-  if (!fp)
-    {
-      DBG(DBG_info, "%s: Cannot open %s for writing\n", __func__, dev->calib_file.c_str());
-      return;
+static void write_calibration(Genesys_Device::Calibration& calibration, const std::string& path)
+{
+    DBG_HELPER(dbg);
+
+    std::ofstream str;
+    str.open(path);
+    if (!str.is_open()) {
+        throw SaneException("Cannot open calibration for writing");
     }
-
-  vers = CALIBRATION_VERSION;
-  fwrite (&vers, 1, 1, fp);
-  size = sizeof (struct Genesys_Calibration_Cache);
-  fwrite (&size, 4, 1, fp);
-
-  for (auto& cache : dev->calibration_cache)
-    {
-      fwrite(&cache.used_setup, sizeof (cache.used_setup), 1, fp);
-      fwrite(&cache.last_calibration, sizeof (cache.last_calibration), 1, fp);
-      fwrite(&cache.frontend, sizeof (cache.frontend), 1, fp);
-      cache.sensor.fwrite(fp);
-      fwrite(&cache.calib_pixels, sizeof (cache.calib_pixels), 1, fp);
-      fwrite(&cache.calib_channels, sizeof (cache.calib_channels), 1, fp);
-      fwrite(&cache.average_size, sizeof (cache.average_size), 1, fp);
-      fwrite(cache.white_average_data.data(), cache.average_size, 1, fp);
-      fwrite(cache.dark_average_data.data(), cache.average_size, 1, fp);
-    }
-  DBGCOMPLETED;
-  fclose (fp);
+    write_calibration(str, calibration);
 }
 
 /** @brief buffer scanned picture
@@ -6425,8 +6359,10 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
       DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file.c_str());
       free(tmpstr);
 
-      /* now open file, fetch calibration records */
-      sanei_genesys_read_calibration (s->dev);
+        catch_all_exceptions(__func__, [&]()
+        {
+            sanei_genesys_read_calibration(s->dev->calibration_cache, s->dev->calib_file);
+        });
     }
 
     return SANE_STATUS_GOOD;
@@ -6492,9 +6428,11 @@ sane_close_impl(SANE_Handle handle)
           sane_strstatus(status));
     }
 
-  /* here is the place to store calibration cache */
-  if (s->dev->force_calibration == 0)
-    write_calibration (s->dev);
+    // here is the place to store calibration cache
+    if (s->dev->force_calibration == 0) {
+        catch_all_exceptions(__func__, [&](){ write_calibration(s->dev->calibration_cache,
+                                                                s->dev->calib_file); });
+    }
 
   s->dev->already_initialized = SANE_FALSE;
 
@@ -6740,34 +6678,34 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
 /** @brief set calibration file value
  * Set calibration file value. Load new cache values from file if it exists,
  * else creates the file*/
-static SANE_Status set_calibration_value(Genesys_Scanner* s, const char* val)
+static void set_calibration_value(Genesys_Scanner* s, const char* val)
 {
-  SANE_Status status=SANE_STATUS_GOOD;
+    DBG_HELPER(dbg);
   Genesys_Device *dev=s->dev;
-
-  DBGSTART;
 
   /* try to load file */
   std::string prev_calib_file = dev->calib_file;
   dev->calib_file = val;
-  status=sanei_genesys_read_calibration (dev);
 
-  /* file exists but is invalid, so fall back to previous cache file
-   * an re-read it */
-  if (status!=SANE_STATUS_IO_ERROR && status!=SANE_STATUS_GOOD)
+    bool is_calib_success = false;
+    catch_all_exceptions(__func__, [&]()
     {
-      dev->calib_file = prev_calib_file;
-      status=sanei_genesys_read_calibration (dev);
-      return status;
+        is_calib_success = sanei_genesys_read_calibration(dev->calibration_cache, dev->calib_file);
+    });
+
+    // file exists but is invalid, so fall back to previous cache file an re-read it
+    if (!is_calib_success) {
+        dev->calib_file = prev_calib_file;
+        if (!sanei_genesys_read_calibration(dev->calibration_cache, dev->calib_file)) {
+            throw SaneException("failed rereading calibration file");
+        }
+        return;
     }
 
   s->calibration_file = val;
   dev->calib_file = val;
   DBG(DBG_info, "%s: Calibration filename set to:\n", __func__);
   DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file.c_str());
-
-  DBGCOMPLETED;
-  return SANE_STATUS_GOOD;
 }
 
 /* sets an option , called by sane_control_option */
@@ -7015,9 +6953,10 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       RIE (calc_parameters (s));
       break;
     case OPT_CALIBRATION_FILE:
-      if (s->dev->force_calibration == 0)
-        RIE(set_calibration_value(s, reinterpret_cast<const char*>(val)));
-      break;
+            if (s->dev->force_calibration == 0) {
+                set_calibration_value(s, reinterpret_cast<const char*>(val));
+            }
+            break;
     case OPT_LAMP_OFF_TIME:
         if (*reinterpret_cast<SANE_Word*>(val) != s->lamp_off_time) {
             s->lamp_off_time = *reinterpret_cast<SANE_Word*>(val);

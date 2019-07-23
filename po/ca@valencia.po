@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.27git\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
-"POT-Creation-Date: 2019-05-10 23:33+0300\n"
+"POT-Creation-Date: 2019-07-23 12:14+0000\n"
 "PO-Revision-Date: 2018-09-10 00:37+0100\n"
 "Last-Translator: Antoni Bella Pérez <antonibella5@yahoo.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
@@ -28,7 +28,7 @@ msgid "Standard"
 msgstr "Estàndard"
 
 #: include/sane/saneopts.h:157 backend/artec_eplus48u.c:2884
-#: backend/epson.c:3298 backend/epson2.c:1290 backend/genesys.cc:5409
+#: backend/epson.c:3298 backend/epson2.c:1290 backend/genesys.cc:5294
 #: backend/gt68xx.c:696 backend/hp3500.c:1019 backend/hp-option.c:3300
 #: backend/kvs1025_opt.c:639 backend/kvs20xx_opt.c:285
 #: backend/kvs40xx_opt.c:506 backend/leo.c:823 backend/lexmark.c:199
@@ -44,7 +44,7 @@ msgid "Geometry"
 msgstr "Geometria"
 
 #: include/sane/saneopts.h:158 backend/artec_eplus48u.c:2805
-#: backend/canon.c:1493 backend/genesys.cc:5469 backend/gt68xx.c:665
+#: backend/canon.c:1493 backend/genesys.cc:5354 backend/gt68xx.c:665
 #: backend/hp-option.c:2956 backend/kvs1025_opt.c:703 backend/leo.c:871
 #: backend/ma1509.c:599 backend/matsushita.c:1189 backend/microtek2.h:600
 #: backend/mustek.c:4421 backend/mustek_usb.c:349 backend/mustek_usb2.c:431
@@ -1656,7 +1656,7 @@ msgstr "Cap"
 msgid "JPEG"
 msgstr "JPEG"
 
-#: backend/canon_dr.c:2477 backend/fujitsu.c:4113 backend/genesys.cc:5560
+#: backend/canon_dr.c:2477 backend/fujitsu.c:4113 backend/genesys.cc:5445
 #: backend/kvs1025_opt.c:910
 #, no-c-format
 msgid "Software blank skip percentage"
@@ -1864,7 +1864,7 @@ msgstr "A4"
 msgid "Max"
 msgstr "Màx"
 
-#: backend/epson.c:2813 backend/epson2.c:976 backend/genesys.cc:5326
+#: backend/epson.c:2813 backend/epson2.c:976 backend/genesys.cc:5207
 #: backend/gt68xx.c:451 backend/hp-option.c:2917 backend/kvs1025_opt.c:521
 #: backend/kvs20xx_opt.c:171 backend/kvs40xx_opt.c:320 backend/ma1509.c:501
 #: backend/matsushita.c:1084 backend/microtek2.h:598 backend/mustek.c:4215
@@ -2383,7 +2383,7 @@ msgstr ""
 "La corba amb interval, des de la llum a la foscor, però la part superior "
 "de les dues podria no funcionar"
 
-#: backend/fujitsu.c:3393 backend/genesys.cc:5623
+#: backend/fujitsu.c:3393 backend/genesys.cc:5505
 #: backend/pixma_sane_options.c:335
 #, no-c-format
 msgid "Threshold curve"
@@ -2804,7 +2804,7 @@ msgid "Maximum diameter of lone dots to remove from scan."
 msgstr ""
 "Diàmetre màxim dels punts solitaris per eliminar-los de l'escaneig."
 
-#: backend/fujitsu.c:4100 backend/genesys.cc:5551
+#: backend/fujitsu.c:4100 backend/genesys.cc:5436
 #, no-c-format
 msgid "Software crop"
 msgstr "Escapça per programari"
@@ -3096,49 +3096,49 @@ msgstr "Marcador de la densitat"
 msgid "Duplex switch"
 msgstr "Commuta a doble cara"
 
-#: backend/genesys.cc:5552
+#: backend/genesys.cc:5437
 #, no-c-format
 msgid "Request backend to remove border from pages digitally"
 msgstr ""
 "Sol·licita al dorsal que elimini la vora de les pàgines de forma digital"
 
-#: backend/genesys.cc:5561 backend/kvs1025_opt.c:912
+#: backend/genesys.cc:5446 backend/kvs1025_opt.c:912
 #, no-c-format
 msgid "Request driver to discard pages with low numbers of dark pixels"
 msgstr ""
 "Sol·licita al controlador que descarti les pàgines amb un nombre baix de "
 "píxels foscos"
 
-#: backend/genesys.cc:5572 backend/kvs1025_opt.c:892
+#: backend/genesys.cc:5456 backend/kvs1025_opt.c:892
 #, no-c-format
 msgid "Software derotate"
 msgstr "Treu el gir per programari"
 
-#: backend/genesys.cc:5573 backend/kvs1025_opt.c:894
+#: backend/genesys.cc:5457 backend/kvs1025_opt.c:894
 #, no-c-format
 msgid "Request driver to detect and correct 90 degree image rotation"
 msgstr ""
 "Sol·licita al controlador que detecti i corregisca el gir de 90 graus de "
 "la imatge"
 
-#: backend/genesys.cc:5604 backend/pixma_sane_options.c:314
+#: backend/genesys.cc:5486 backend/pixma_sane_options.c:314
 #, no-c-format
 msgid "Extras"
 msgstr "Extres"
 
-#: backend/genesys.cc:5624 backend/pixma_sane_options.c:336
+#: backend/genesys.cc:5506 backend/pixma_sane_options.c:336
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
 msgstr ""
 "La corba dinàmica del llindar, des de la llum a la foscor, normalment de "
 "50 a 65"
 
-#: backend/genesys.cc:5633
+#: backend/genesys.cc:5515
 #, no-c-format
 msgid "Disable dynamic lineart"
 msgstr "Inhabilita l'art lineal dinàmic"
 
-#: backend/genesys.cc:5635
+#: backend/genesys.cc:5517
 #, no-c-format
 msgid ""
 "Disable use of a software adaptive algorithm to generate lineart relying "
@@ -3147,12 +3147,12 @@ msgstr ""
 "Inhabilita l'ús d'un algorisme adaptatiu per programari que genera art "
 "lineal en comptes de per maquinari."
 
-#: backend/genesys.cc:5651
+#: backend/genesys.cc:5533
 #, no-c-format
 msgid "Disable interpolation"
 msgstr "Inhabilita la interpolació"
 
-#: backend/genesys.cc:5654
+#: backend/genesys.cc:5536
 #, no-c-format
 msgid ""
 "When using high resolutions where the horizontal resolution is smaller "
@@ -3162,33 +3162,33 @@ msgstr ""
 "més petita que la vertical, això inhabilitarà la interpolació "
 "horitzontal."
 
-#: backend/genesys.cc:5663
+#: backend/genesys.cc:5545
 #, no-c-format
 msgid "Color filter"
 msgstr "Filtre de color"
 
-#: backend/genesys.cc:5666
+#: backend/genesys.cc:5548
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
 "Quan s'usa gris o art lineal, aquesta opció seleccionarà el color a usar."
 
-#: backend/genesys.cc:5692
+#: backend/genesys.cc:5574
 #, no-c-format
 msgid "Calibration file"
 msgstr "Fitxer de calibratge"
 
-#: backend/genesys.cc:5693
+#: backend/genesys.cc:5575
 #, no-c-format
 msgid "Specify the calibration file to use"
 msgstr "Especifica el fitxer de calibratge a usar"
 
-#: backend/genesys.cc:5710
+#: backend/genesys.cc:5592
 #, no-c-format
 msgid "Calibration cache expiration time"
 msgstr "Temps de caducitat per a la memòria cau del calibratge"
 
-#: backend/genesys.cc:5711
+#: backend/genesys.cc:5593
 #, no-c-format
 msgid ""
 "Time (in minutes) before a cached calibration expires. A value of 0 "
@@ -3198,12 +3198,12 @@ msgstr ""
 "memòria cau. Un valor de 0 indicarà que no s'usarà la memòria cau. Un "
 "valor negatiu indicarà que la memòria cau no caducarà mai."
 
-#: backend/genesys.cc:5721
+#: backend/genesys.cc:5603
 #, no-c-format
 msgid "Lamp off time"
 msgstr "Temps per apagar la làmpada"
 
-#: backend/genesys.cc:5724
+#: backend/genesys.cc:5606
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value "
@@ -3212,72 +3212,82 @@ msgstr ""
 "La llum s'apagarà després del temps determinat (en minuts). Un valor de "
 "0 indicarà que no s'apagarà la làmpada."
 
-#: backend/genesys.cc:5734
+#: backend/genesys.cc:5616
 #, no-c-format
 msgid "Lamp off during scan"
 msgstr "Apaga la làmpada durant l'escaneig"
 
-#: backend/genesys.cc:5735
+#: backend/genesys.cc:5617
 #, no-c-format
 msgid "The lamp will be turned off during scan. "
 msgstr "La llum s'apagarà durant l'escaneig."
 
-#: backend/genesys.cc:5763 backend/genesys.cc:5764
+#: backend/genesys.cc:5643 backend/genesys.cc:5644
 #, no-c-format
 msgid "File button"
 msgstr "Botó de fitxer"
 
-#: backend/genesys.cc:5816 backend/genesys.cc:5817
+#: backend/genesys.cc:5688 backend/genesys.cc:5689
 #, no-c-format
 msgid "OCR button"
 msgstr "Botó OCR"
 
-#: backend/genesys.cc:5830 backend/genesys.cc:5831
+#: backend/genesys.cc:5700 backend/genesys.cc:5701
 #, no-c-format
 msgid "Power button"
 msgstr "Botó d'encesa"
 
-#: backend/genesys.cc:5844 backend/genesys.cc:5845
+#: backend/genesys.cc:5712 backend/genesys.cc:5713
 #, no-c-format
 msgid "Extra button"
 msgstr "Botó extra"
 
-#: backend/genesys.cc:5858 backend/gt68xx.c:755
+#: backend/genesys.cc:5724 backend/gt68xx.c:755
 #, no-c-format
 msgid "Need calibration"
 msgstr "Necessita calibratge"
 
-#: backend/genesys.cc:5859 backend/gt68xx.c:756
+#: backend/genesys.cc:5725 backend/gt68xx.c:756
 #, no-c-format
 msgid "The scanner needs calibration for the current settings"
 msgstr "L'escàner necessita calibratge per als ajustaments actuals"
 
-#: backend/genesys.cc:5871 backend/gt68xx.c:780 backend/gt68xx.c:781
+#: backend/genesys.cc:5735 backend/gt68xx.c:780 backend/gt68xx.c:781
 #: backend/pixma_sane_options.c:226 backend/plustek.c:1080
 #, no-c-format
 msgid "Buttons"
 msgstr "Botons"
 
-#: backend/genesys.cc:5880 backend/gt68xx.c:787 backend/hp5400_sane.c:392
+#: backend/genesys.cc:5744 backend/gt68xx.c:787 backend/hp5400_sane.c:392
 #: backend/hp-option.h:97 backend/niash.c:726 backend/plustek.c:941
 #, no-c-format
 msgid "Calibrate"
 msgstr "Calibratge"
 
-#: backend/genesys.cc:5882 backend/gt68xx.c:789
+#: backend/genesys.cc:5746 backend/gt68xx.c:789
 #, no-c-format
 msgid "Start calibration using special sheet"
 msgstr "Comença el calibratge emprant un full especial"
 
-#: backend/genesys.cc:5896 backend/gt68xx.c:802
+#: backend/genesys.cc:5758 backend/gt68xx.c:802
 #, no-c-format
 msgid "Clear calibration"
 msgstr "Neteja el calibratge"
 
-#: backend/genesys.cc:5897 backend/gt68xx.c:803
+#: backend/genesys.cc:5759 backend/gt68xx.c:803
 #, no-c-format
 msgid "Clear calibration cache"
 msgstr "Neteja la memòria cau del calibratge"
+
+#: backend/genesys.cc:5769
+#, fuzzy, no-c-format
+msgid "Force calibration"
+msgstr "Calibratge tosc"
+
+#: backend/genesys.cc:5770
+#, no-c-format
+msgid "Force calibration ignoring all and any calibration caches"
+msgstr ""
 
 #: backend/gt68xx.c:149 backend/ma1509.c:108 backend/mustek.c:164
 #: backend/snapscan-options.c:87 backend/umax.c:182
@@ -3630,47 +3640,77 @@ msgstr "Costats de la TMA"
 msgid "TMA Negatives"
 msgstr "TMA negatius"
 
-#: backend/hp5590.c:99
+#: backend/hp5590.c:108
 #, no-c-format
 msgid "Color (48 bits)"
 msgstr "Color (48 bits)"
 
-#: backend/hp5590.c:103
+#: backend/hp5590.c:112
 #, no-c-format
 msgid "Extend lamp timeout"
 msgstr "Amplia el temps d'espera de la làmpada"
 
-#: backend/hp5590.c:104
+#: backend/hp5590.c:113
 #, no-c-format
 msgid "Extends lamp timeout (from 15 minutes to 1 hour)"
 msgstr "Amplia el temps d'espera de la làmpada (de 15 minuts a 1 hora)"
 
-#: backend/hp5590.c:106
+#: backend/hp5590.c:115
 #, no-c-format
 msgid "Wait for button"
 msgstr "Espera pel botó"
 
-#: backend/hp5590.c:107
+#: backend/hp5590.c:116
 #, no-c-format
 msgid "Waits for button before scanning"
 msgstr "Espera pel botó abans d'escanejar"
 
-#: backend/hp5590.c:109
+#: backend/hp5590.c:118
 #, no-c-format
 msgid "Last button pressed"
 msgstr "Darrer botó premut"
 
-#: backend/hp5590.c:110
+#: backend/hp5590.c:119
 #, no-c-format
 msgid "Get ID of last button pressed (read only)"
 msgstr "Obtén l'ID de l'últim botó premut (només lectura)"
 
-#: backend/hp5590.c:113
+#: backend/hp5590.c:121
+#, fuzzy, no-c-format
+msgid "LCD counter"
+msgstr "Comptador d'escaneigs"
+
+#: backend/hp5590.c:122
+#, fuzzy, no-c-format
+msgid "Get value of LCD counter (read only)"
+msgstr "Obtén l'ID de l'últim botó premut (només lectura)"
+
+#: backend/hp5590.c:124
+#, fuzzy, no-c-format
+msgid "Color LED indicator"
+msgstr "Color per a l'art lineal"
+
+#: backend/hp5590.c:125
+#, fuzzy, no-c-format
+msgid "Get value of LED indicator (read only)"
+msgstr "Obtén l'ID de l'últim botó premut (només lectura)"
+
+#: backend/hp5590.c:127
+#, no-c-format
+msgid "Document available in ADF"
+msgstr ""
+
+#: backend/hp5590.c:128
+#, no-c-format
+msgid "Get state of document-available indicator in ADF (read only)"
+msgstr ""
+
+#: backend/hp5590.c:130
 #, no-c-format
 msgid "Hide end-of-page pixel"
 msgstr "Oculta el píxel del final de pàgina"
 
-#: backend/hp5590.c:114
+#: backend/hp5590.c:131
 #, no-c-format
 msgid ""
 "Hide end-of-page indicator pixels and overwrite with neighbor pixels"
@@ -3678,14 +3718,14 @@ msgstr ""
 "Oculta els píxels indicadors del final de pàgina i se sobreescriuen amb "
 "els píxels veïns"
 
-#: backend/hp5590.c:116
+#: backend/hp5590.c:133
 #, no-c-format
 msgid "Filling mode of trailing lines after scan data (ADF)"
 msgstr ""
 "Mode d'ompliment del final de les línies després d'obtindre les dades "
 "d'escaneig (ADF)"
 
-#: backend/hp5590.c:117
+#: backend/hp5590.c:134
 #, no-c-format
 msgid ""
 "raw = raw scan data, last = repeat last scan line, raster = b/w raster, "
@@ -3695,12 +3735,12 @@ msgstr ""
 "escanejada, raster = ràster en b/n, white = color blanc, black = color "
 "negre, color = valor del color RGB o gris"
 
-#: backend/hp5590.c:120
+#: backend/hp5590.c:137
 #, no-c-format
 msgid "RGB or gray color value for filling mode 'color'"
 msgstr "Valor del color RGB o gris per al mode ompliment del «color»"
 
-#: backend/hp5590.c:121
+#: backend/hp5590.c:138
 #, no-c-format
 msgid ""
 "Color value for trailing lines filling mode 'color'. RGB color as "

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.18\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
-"POT-Creation-Date: 2019-05-10 23:33+0300\n"
+"POT-Creation-Date: 2019-07-23 12:14+0000\n"
 "PO-Revision-Date: 2007-08-28 23:11+0200\n"
 "Last-Translator: Giuseppe Sacco <eppesuig@debian.org>\n"
 "Language-Team: italian translation project <tp@lists.linux.it>\n"
@@ -26,7 +26,7 @@ msgid "Standard"
 msgstr ""
 
 #: include/sane/saneopts.h:157 backend/artec_eplus48u.c:2884
-#: backend/epson.c:3298 backend/epson2.c:1290 backend/genesys.cc:5409
+#: backend/epson.c:3298 backend/epson2.c:1290 backend/genesys.cc:5294
 #: backend/gt68xx.c:696 backend/hp3500.c:1019 backend/hp-option.c:3300
 #: backend/kvs1025_opt.c:639 backend/kvs20xx_opt.c:285
 #: backend/kvs40xx_opt.c:506 backend/leo.c:823 backend/lexmark.c:199
@@ -42,7 +42,7 @@ msgid "Geometry"
 msgstr "Geometria"
 
 #: include/sane/saneopts.h:158 backend/artec_eplus48u.c:2805
-#: backend/canon.c:1493 backend/genesys.cc:5469 backend/gt68xx.c:665
+#: backend/canon.c:1493 backend/genesys.cc:5354 backend/gt68xx.c:665
 #: backend/hp-option.c:2956 backend/kvs1025_opt.c:703 backend/leo.c:871
 #: backend/ma1509.c:599 backend/matsushita.c:1189 backend/microtek2.h:600
 #: backend/mustek.c:4421 backend/mustek_usb.c:349 backend/mustek_usb2.c:431
@@ -1646,7 +1646,7 @@ msgstr "Nessuno"
 msgid "JPEG"
 msgstr ""
 
-#: backend/canon_dr.c:2477 backend/fujitsu.c:4113 backend/genesys.cc:5560
+#: backend/canon_dr.c:2477 backend/fujitsu.c:4113 backend/genesys.cc:5445
 #: backend/kvs1025_opt.c:910
 #, no-c-format
 msgid "Software blank skip percentage"
@@ -1852,7 +1852,7 @@ msgstr "A4"
 msgid "Max"
 msgstr "Massimo"
 
-#: backend/epson.c:2813 backend/epson2.c:976 backend/genesys.cc:5326
+#: backend/epson.c:2813 backend/epson2.c:976 backend/genesys.cc:5207
 #: backend/gt68xx.c:451 backend/hp-option.c:2917 backend/kvs1025_opt.c:521
 #: backend/kvs20xx_opt.c:171 backend/kvs40xx_opt.c:320 backend/ma1509.c:501
 #: backend/matsushita.c:1084 backend/microtek2.h:598 backend/mustek.c:4215
@@ -2368,7 +2368,7 @@ msgstr "Valore gamma"
 msgid "Gamma curve, from light to dark, but upper two may not work"
 msgstr ""
 
-#: backend/fujitsu.c:3393 backend/genesys.cc:5623
+#: backend/fujitsu.c:3393 backend/genesys.cc:5505
 #: backend/pixma_sane_options.c:335
 #, fuzzy, no-c-format
 msgid "Threshold curve"
@@ -2742,7 +2742,7 @@ msgstr ""
 msgid "Maximum diameter of lone dots to remove from scan."
 msgstr ""
 
-#: backend/fujitsu.c:4100 backend/genesys.cc:5551
+#: backend/fujitsu.c:4100 backend/genesys.cc:5436
 #, no-c-format
 msgid "Software crop"
 msgstr ""
@@ -3020,54 +3020,54 @@ msgstr "Controllo della densità"
 msgid "Duplex switch"
 msgstr "Scansione Duplex"
 
-#: backend/genesys.cc:5552
+#: backend/genesys.cc:5437
 #, no-c-format
 msgid "Request backend to remove border from pages digitally"
 msgstr ""
 
-#: backend/genesys.cc:5561 backend/kvs1025_opt.c:912
+#: backend/genesys.cc:5446 backend/kvs1025_opt.c:912
 #, no-c-format
 msgid "Request driver to discard pages with low numbers of dark pixels"
 msgstr ""
 
-#: backend/genesys.cc:5572 backend/kvs1025_opt.c:892
+#: backend/genesys.cc:5456 backend/kvs1025_opt.c:892
 #, no-c-format
 msgid "Software derotate"
 msgstr ""
 
-#: backend/genesys.cc:5573 backend/kvs1025_opt.c:894
+#: backend/genesys.cc:5457 backend/kvs1025_opt.c:894
 #, no-c-format
 msgid "Request driver to detect and correct 90 degree image rotation"
 msgstr ""
 
-#: backend/genesys.cc:5604 backend/pixma_sane_options.c:314
+#: backend/genesys.cc:5486 backend/pixma_sane_options.c:314
 #, no-c-format
 msgid "Extras"
 msgstr "Extra"
 
-#: backend/genesys.cc:5624 backend/pixma_sane_options.c:336
+#: backend/genesys.cc:5506 backend/pixma_sane_options.c:336
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
 msgstr ""
 
-#: backend/genesys.cc:5633
+#: backend/genesys.cc:5515
 #, no-c-format
 msgid "Disable dynamic lineart"
 msgstr ""
 
-#: backend/genesys.cc:5635
+#: backend/genesys.cc:5517
 #, no-c-format
 msgid ""
 "Disable use of a software adaptive algorithm to generate lineart relying "
 "instead on hardware lineart."
 msgstr ""
 
-#: backend/genesys.cc:5651
+#: backend/genesys.cc:5533
 #, no-c-format
 msgid "Disable interpolation"
 msgstr "Disattiva interpolazione"
 
-#: backend/genesys.cc:5654
+#: backend/genesys.cc:5536
 #, no-c-format
 msgid ""
 "When using high resolutions where the horizontal resolution is smaller "
@@ -3076,46 +3076,46 @@ msgstr ""
 "Quando si usano alte risoluzione con quella orizzontale minore della "
 "verticale, l'interpolazione orizzontale viene disabilitata."
 
-#: backend/genesys.cc:5663
+#: backend/genesys.cc:5545
 #, fuzzy, no-c-format
 msgid "Color filter"
 msgstr "Filtro colore"
 
-#: backend/genesys.cc:5666
+#: backend/genesys.cc:5548
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
 "Quando si usano i grigi o il binario questa opzione seleziona il colore "
 "usato."
 
-#: backend/genesys.cc:5692
+#: backend/genesys.cc:5574
 #, fuzzy, no-c-format
 msgid "Calibration file"
 msgstr "Calibrazione"
 
-#: backend/genesys.cc:5693
+#: backend/genesys.cc:5575
 #, fuzzy, no-c-format
 msgid "Specify the calibration file to use"
 msgstr "Definire la modalità di calibrazione"
 
-#: backend/genesys.cc:5710
+#: backend/genesys.cc:5592
 #, fuzzy, no-c-format
 msgid "Calibration cache expiration time"
 msgstr "Cache per la calibrazione"
 
-#: backend/genesys.cc:5711
+#: backend/genesys.cc:5593
 #, no-c-format
 msgid ""
 "Time (in minutes) before a cached calibration expires. A value of 0 "
 "means cache is not used. A negative value means cache never expires."
 msgstr ""
 
-#: backend/genesys.cc:5721
+#: backend/genesys.cc:5603
 #, no-c-format
 msgid "Lamp off time"
 msgstr "Durata spegnimento lampada"
 
-#: backend/genesys.cc:5724
+#: backend/genesys.cc:5606
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value "
@@ -3124,73 +3124,83 @@ msgstr ""
 "La lampada verrà spenta allo scadere del tempo impostato (in minuti). Il "
 "valore 0 indica che la lampada non deve mai essere spenta."
 
-#: backend/genesys.cc:5734
+#: backend/genesys.cc:5616
 #, fuzzy, no-c-format
 msgid "Lamp off during scan"
 msgstr "Calibrazione granulosa"
 
-#: backend/genesys.cc:5735
+#: backend/genesys.cc:5617
 #, fuzzy, no-c-format
 msgid "The lamp will be turned off during scan. "
 msgstr ""
 "Numero di minuti prima che la lampada venga spenta dopo la scansione"
 
-#: backend/genesys.cc:5763 backend/genesys.cc:5764
+#: backend/genesys.cc:5643 backend/genesys.cc:5644
 #, fuzzy, no-c-format
 msgid "File button"
 msgstr "Attendi il tasto"
 
-#: backend/genesys.cc:5816 backend/genesys.cc:5817
+#: backend/genesys.cc:5688 backend/genesys.cc:5689
 #, no-c-format
 msgid "OCR button"
 msgstr ""
 
-#: backend/genesys.cc:5830 backend/genesys.cc:5831
+#: backend/genesys.cc:5700 backend/genesys.cc:5701
 #, fuzzy, no-c-format
 msgid "Power button"
 msgstr "Attendi il tasto"
 
-#: backend/genesys.cc:5844 backend/genesys.cc:5845
+#: backend/genesys.cc:5712 backend/genesys.cc:5713
 #, fuzzy, no-c-format
 msgid "Extra button"
 msgstr "Attendi il tasto"
 
-#: backend/genesys.cc:5858 backend/gt68xx.c:755
+#: backend/genesys.cc:5724 backend/gt68xx.c:755
 #, fuzzy, no-c-format
 msgid "Need calibration"
 msgstr "Calibrazione granulosa"
 
-#: backend/genesys.cc:5859 backend/gt68xx.c:756
+#: backend/genesys.cc:5725 backend/gt68xx.c:756
 #, fuzzy, no-c-format
 msgid "The scanner needs calibration for the current settings"
 msgstr "Forza la calibrazione dello scanner prima della scansione"
 
-#: backend/genesys.cc:5871 backend/gt68xx.c:780 backend/gt68xx.c:781
+#: backend/genesys.cc:5735 backend/gt68xx.c:780 backend/gt68xx.c:781
 #: backend/pixma_sane_options.c:226 backend/plustek.c:1080
 #, no-c-format
 msgid "Buttons"
 msgstr "Pulsanti"
 
-#: backend/genesys.cc:5880 backend/gt68xx.c:787 backend/hp5400_sane.c:392
+#: backend/genesys.cc:5744 backend/gt68xx.c:787 backend/hp5400_sane.c:392
 #: backend/hp-option.h:97 backend/niash.c:726 backend/plustek.c:941
 #, no-c-format
 msgid "Calibrate"
 msgstr "Calibrazione"
 
-#: backend/genesys.cc:5882 backend/gt68xx.c:789
+#: backend/genesys.cc:5746 backend/gt68xx.c:789
 #, fuzzy, no-c-format
 msgid "Start calibration using special sheet"
 msgstr "Inizia la calibrazione."
 
-#: backend/genesys.cc:5896 backend/gt68xx.c:802
+#: backend/genesys.cc:5758 backend/gt68xx.c:802
 #, fuzzy, no-c-format
 msgid "Clear calibration"
 msgstr "Calibrazione granulosa"
 
-#: backend/genesys.cc:5897 backend/gt68xx.c:803
+#: backend/genesys.cc:5759 backend/gt68xx.c:803
 #, fuzzy, no-c-format
 msgid "Clear calibration cache"
 msgstr "Cache per la calibrazione"
+
+#: backend/genesys.cc:5769
+#, fuzzy, no-c-format
+msgid "Force calibration"
+msgstr "Calibrazione granulosa"
+
+#: backend/genesys.cc:5770
+#, no-c-format
+msgid "Force calibration ignoring all and any calibration caches"
+msgstr ""
 
 #: backend/gt68xx.c:149 backend/ma1509.c:108 backend/mustek.c:164
 #: backend/snapscan-options.c:87 backend/umax.c:182
@@ -3531,70 +3541,100 @@ msgstr "Diapositive"
 msgid "TMA Negatives"
 msgstr "Negativi"
 
-#: backend/hp5590.c:99
+#: backend/hp5590.c:108
 #, fuzzy, no-c-format
 msgid "Color (48 bits)"
 msgstr "Colore a 48 bit"
 
-#: backend/hp5590.c:103
+#: backend/hp5590.c:112
 #, fuzzy, no-c-format
 msgid "Extend lamp timeout"
 msgstr "Timeout della lampada"
 
-#: backend/hp5590.c:104
+#: backend/hp5590.c:113
 #, no-c-format
 msgid "Extends lamp timeout (from 15 minutes to 1 hour)"
 msgstr ""
 
-#: backend/hp5590.c:106
+#: backend/hp5590.c:115
 #, fuzzy, no-c-format
 msgid "Wait for button"
 msgstr "Attendi il tasto"
 
-#: backend/hp5590.c:107
+#: backend/hp5590.c:116
 #, fuzzy, no-c-format
 msgid "Waits for button before scanning"
 msgstr "Preriscaldamento della lampada prima della scansione"
 
-#: backend/hp5590.c:109
+#: backend/hp5590.c:118
 #, fuzzy, no-c-format
 msgid "Last button pressed"
 msgstr "Aggiorna lo stato del pulsante"
 
-#: backend/hp5590.c:110
+#: backend/hp5590.c:119
 #, no-c-format
 msgid "Get ID of last button pressed (read only)"
 msgstr ""
 
-#: backend/hp5590.c:113
+#: backend/hp5590.c:121
+#, fuzzy, no-c-format
+msgid "LCD counter"
+msgstr "Sorgente scanner"
+
+#: backend/hp5590.c:122
+#, no-c-format
+msgid "Get value of LCD counter (read only)"
+msgstr ""
+
+#: backend/hp5590.c:124
+#, fuzzy, no-c-format
+msgid "Color LED indicator"
+msgstr "Colore binario"
+
+#: backend/hp5590.c:125
+#, no-c-format
+msgid "Get value of LED indicator (read only)"
+msgstr ""
+
+#: backend/hp5590.c:127
+#, no-c-format
+msgid "Document available in ADF"
+msgstr ""
+
+#: backend/hp5590.c:128
+#, no-c-format
+msgid "Get state of document-available indicator in ADF (read only)"
+msgstr ""
+
+#: backend/hp5590.c:130
 #, no-c-format
 msgid "Hide end-of-page pixel"
 msgstr ""
 
-#: backend/hp5590.c:114
+#: backend/hp5590.c:131
 #, no-c-format
 msgid ""
 "Hide end-of-page indicator pixels and overwrite with neighbor pixels"
 msgstr ""
 
-#: backend/hp5590.c:116
+#: backend/hp5590.c:133
 #, no-c-format
 msgid "Filling mode of trailing lines after scan data (ADF)"
 msgstr ""
 
-#: backend/hp5590.c:117
+#: backend/hp5590.c:134
 #, no-c-format
 msgid ""
 "raw = raw scan data, last = repeat last scan line, raster = b/w raster, "
 "white = white color, black = black color, color = RGB or gray color value"
 msgstr ""
 
-#: backend/hp5590.c:120
+#: backend/hp5590.c:137
 #, no-c-format
 msgid "RGB or gray color value for filling mode 'color'"
 msgstr ""
 
-#: backend/hp5590.c:121
+#: backend/hp5590.c:138
 #, no-c-format
 msgid ""
 "Color value for trailing lines filling mode 'color'. RGB color as "

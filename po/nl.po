@@ -10,14 +10,13 @@ msgstr ""
 "Project-Id-Version: sane-backends.nl\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2019-07-23 12:14+0000\n"
-"PO-Revision-Date: 2017-05-19 17:02+0100\n"
-"Last-Translator: Martin Kho <mkho@posteo.net>\n"
-"Language-Team: English <kde-i18n-doc@kde.org>\n"
+"PO-Revision-Date: 2019-07-26 13:38+0900\n"
+"Last-Translator: Olaf Meeuwissen <paddy-hack@member.fsf.org>\n"
+"Language-Team:\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 2.0\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: include/sane/saneopts.h:154
@@ -2280,14 +2279,14 @@ msgid "Control pattern of halftone filter"
 msgstr "Regelpatroon van het halftoon filter"
 
 #: backend/fujitsu.c:3256
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Outline"
-msgstr "Omtrek"
+msgstr "Contour"
 
 #: backend/fujitsu.c:3257
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Perform outline extraction"
-msgstr "Voer omtrek extractie uit"
+msgstr "Extract contouren"
 
 #: backend/fujitsu.c:3268
 #, no-c-format
@@ -2396,9 +2395,9 @@ msgid "Matrix 5x5"
 msgstr "Matrix 5x5"
 
 #: backend/fujitsu.c:3451
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Remove 5 pixel square noise"
-msgstr "Verwijder 5 beeldpunten in een vierkant ruis"
+msgstr "Verwijder ruis met een 5 pixel vierkant"
 
 #: backend/fujitsu.c:3467
 #, no-c-format
@@ -2406,9 +2405,9 @@ msgid "Matrix 4x4"
 msgstr "Matrix 4x4"
 
 #: backend/fujitsu.c:3468
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Remove 4 pixel square noise"
-msgstr "Verwijder 4 beeldpunten in een vierkant ruis"
+msgstr "Verwijder ruis met een 4 pixel vierkant"
 
 #: backend/fujitsu.c:3484
 #, no-c-format
@@ -2416,9 +2415,9 @@ msgid "Matrix 3x3"
 msgstr "Matrix 3x3"
 
 #: backend/fujitsu.c:3485
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Remove 3 pixel square noise"
-msgstr "Verwijder 3 beeldpunten in een vierkant ruis"
+msgstr "Verwijder ruis met een 3 pixel vierkant"
 
 #: backend/fujitsu.c:3501
 #, no-c-format
@@ -3237,14 +3236,14 @@ msgid "Clear calibration cache"
 msgstr "Reset kalibratiecache"
 
 #: backend/genesys.cc:5769
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Force calibration"
-msgstr "Grove kalibratie"
+msgstr "Dwing kalibratie"
 
 #: backend/genesys.cc:5770
 #, no-c-format
 msgid "Force calibration ignoring all and any calibration caches"
-msgstr ""
+msgstr "Dwing kalibratie en negeer alle kalibratie caches"
 
 #: backend/gt68xx.c:149 backend/ma1509.c:108 backend/mustek.c:164
 #: backend/snapscan-options.c:87 backend/umax.c:182
@@ -3621,55 +3620,55 @@ msgid "Waits for button before scanning"
 msgstr "Wacht op een druk op de knop alvorens te scannen"
 
 #: backend/hp5590.c:118
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Last button pressed"
-msgstr "Werk de status van de knop bij"
+msgstr "Laatst gedrukte knop"
 
 #: backend/hp5590.c:119
 #, no-c-format
 msgid "Get ID of last button pressed (read only)"
-msgstr ""
+msgstr "Lees ID van de laatst gedrukte knop"
 
 #: backend/hp5590.c:121
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "LCD counter"
-msgstr "Scannerteller"
+msgstr "LCD teller"
 
 #: backend/hp5590.c:122
 #, no-c-format
 msgid "Get value of LCD counter (read only)"
-msgstr ""
+msgstr "Lees waarde van de LCD teller"
 
 #: backend/hp5590.c:124
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Color LED indicator"
-msgstr "Kleur lijntekening"
+msgstr "Kleur LED indicator"
 
 #: backend/hp5590.c:125
 #, no-c-format
 msgid "Get value of LED indicator (read only)"
-msgstr ""
+msgstr "Lees waarde van de LED indicator"
 
 #: backend/hp5590.c:127
 #, no-c-format
 msgid "Document available in ADF"
-msgstr ""
+msgstr "Document beschikbaar in de ADF"
 
 #: backend/hp5590.c:128
 #, no-c-format
 msgid "Get state of document-available indicator in ADF (read only)"
-msgstr ""
+msgstr "Lees status van de indicator voor beschikbare documenten in de ADF"
 
 #: backend/hp5590.c:130
 #, no-c-format
 msgid "Hide end-of-page pixel"
-msgstr ""
+msgstr "Verberg einde-van-pagina pixel"
 
 #: backend/hp5590.c:131
 #, no-c-format
 msgid ""
 "Hide end-of-page indicator pixels and overwrite with neighbor pixels"
-msgstr ""
+msgstr "Verberg einde-van-pagina pixels door vervanging met buurpixels"
 
 #: backend/hp5590.c:133
 #, no-c-format
@@ -6648,22 +6647,3 @@ msgstr "Stelt de compensatie in van het groene kanaal"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Stelt de compensatie in van het blauwe kanaal"
-
-#, fuzzy
-#~ msgid "IPC mode"
-#~ msgstr "Voorbeeldmodus"
-
-#~ msgid "problem not analyzed (unknown SCSI class)"
-#~ msgstr "probleem niet geanalyseerd (onbekende SCSI klasse)"
-
-#~ msgid "Grayscale"
-#~ msgstr "Grijstrap"
-
-#~ msgid "Binary"
-#~ msgstr "Binair (zwart/wit)"
-
-#~ msgid "Display a shortened resolution list"
-#~ msgstr "Toon een verkorte lijst met oplossende vermogens"
-
-#~ msgid "Black & White"
-#~ msgstr "Zwart/wit"

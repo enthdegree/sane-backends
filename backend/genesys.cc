@@ -3800,10 +3800,9 @@ static void genesys_fill_read_buffer(Genesys_Device* dev)
 /* this function does the effective data read in a manner that suits
    the scanner. It does data reordering and resizing if need.
    It also manages EOF and I/O errors, and line distance correction.
-   */
-static SANE_Status
-genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
-			   size_t * len)
+    Returns true on success, false on end-of-file.
+*/
+static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destination, size_t* len)
 {
     DBG_HELPER(dbg);
   size_t bytes, extra;
@@ -3822,9 +3821,8 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
 
   if (dev->read_active != SANE_TRUE)
     {
-      DBG(DBG_error, "%s: read not active!\n", __func__);
       *len = 0;
-      return SANE_STATUS_INVAL;
+        throw SaneException("read is not active");
     }
 
     debug_dump(DBG_info, dev->current_setup);
@@ -3867,9 +3865,6 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
   /* is there data left to scan */
   if (dev->total_bytes_read >= dev->total_bytes_to_read)
     {
-      DBG(DBG_proc, "%s: nothing more to scan: EOF\n", __func__);
-      *len = 0;
-
       /* issue park command immediatly in case scanner can handle it
        * so we save time */
       if (dev->model->is_sheetfed == SANE_FALSE
@@ -3879,7 +3874,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
             dev->model->cmd_set->slow_back_home(dev, SANE_FALSE);
           dev->parking = SANE_TRUE;
         }
-      return SANE_STATUS_EOF;
+        throw SaneException(SANE_STATUS_EOF, "nothing more to scan: EOF");
     }
 
   DBG(DBG_info, "%s: %lu lines left by output\n", __func__,
@@ -3949,12 +3944,9 @@ Problems with the first approach:
 /* maybe reorder components/bytes */
   if (needs_reorder)
     {
-/*not implemented for depth == 1.*/
-      if (depth == 1)
-	{
-	  DBG(DBG_error, "Can't reorder single bit data\n");
-	  return SANE_STATUS_INVAL;
-	}
+        if (depth == 1) {
+            throw SaneException("Can't reorder single bit data\n");
+        }
 
       dst_buffer = &(dev->lines_buffer);
 
@@ -4045,12 +4037,10 @@ Problems with the first approach:
 /* maybe reverse effects of ccd layout */
   if (needs_ccd)
     {
-/*should not happen with depth == 1.*/
-      if (depth == 1)
-	{
-	  DBG(DBG_error, "Can't reverse ccd for single bit data\n");
-	  return SANE_STATUS_INVAL;
-	}
+        // should not happen with depth == 1.
+        if (depth == 1) {
+            throw SaneException("Can't reverse ccd single bit data\n");
+        }
 
       dst_buffer = &(dev->shrink_buffer);
 
@@ -4180,7 +4170,6 @@ Problems with the first approach:
     }
 
   DBG(DBG_proc, "%s: completed, %lu bytes read\n", __func__, (u_long) bytes);
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -5388,7 +5377,6 @@ static SANE_Status
 genesys_buffer_image(Genesys_Scanner *s)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   size_t maximum;     /**> maximum bytes size of the scan */
   size_t len;	      /**> length of scanned data read */
   size_t total;	      /**> total of butes read */
@@ -5427,29 +5415,31 @@ genesys_buffer_image(Genesys_Scanner *s)
   dev->img_buffer.resize(size);
 
   /* loop reading data until we reach maximum or EOF */
-  total = 0;
-  while (total < maximum && status != SANE_STATUS_EOF)
-    {
+    total = 0;
+    while (total < maximum) {
       len = size - maximum;
       if (len > read_size)
 	{
 	  len = read_size;
 	}
 
-      status = genesys_read_ordered_data(dev, dev->img_buffer.data() + total, &len);
-      if (status != SANE_STATUS_EOF && status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: %s buffering failed\n", __func__, sane_strstatus(status));
-          return status;
-	}
+        try {
+            genesys_read_ordered_data(dev, dev->img_buffer.data() + total, &len);
+        } catch (const SaneException& e) {
+            if (e.status() == SANE_STATUS_EOF) {
+                // ideally we shouldn't end up here, but because computations are duplicated and
+                // slightly different everywhere in the genesys backend, we have no other choice
+                break;
+            }
+            throw;
+        }
       total += len;
 
-      /* do we need to enlarge read buffer ? */
-      if (total + read_size > size && status != SANE_STATUS_EOF)
-	{
-	  size += read_size;
-          dev->img_buffer.resize(size);
-	}
+        // do we need to enlarge read buffer ?
+        if (total + read_size > size) {
+            size += read_size;
+            dev->img_buffer.resize(size);
+        }
     }
 
   /* since digital processing is going to take place,
@@ -6639,7 +6629,6 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
     DBG_HELPER(dbg);
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
   Genesys_Device *dev;
-  SANE_Status status=SANE_STATUS_GOOD;
   size_t local_len;
 
   if (!s)
@@ -6712,23 +6701,17 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
               /* store gray data */
               local_len=dev->local_buffer.size();
               dev->local_buffer.reset();
-              status = genesys_read_ordered_data (dev, dev->local_buffer.get_write_pos(local_len),
-                                                  &local_len);
+                genesys_read_ordered_data(dev, dev->local_buffer.get_write_pos(local_len),
+                                          &local_len);
               dev->local_buffer.produce(local_len);
 
-              /* binarize data is read successful */
-              if(status==SANE_STATUS_GOOD)
-                {
-                    dev->binarize_buffer.reset();
-                  genesys_gray_lineart (dev,
-                                        dev->local_buffer.get_read_pos(),
-                                        dev->binarize_buffer.get_write_pos(local_len / 8),
-                                        dev->settings.pixels,
-                                        local_len/dev->settings.pixels,
-                                        dev->settings.threshold);
-                    dev->binarize_buffer.produce(local_len / 8);
-                }
-
+                dev->binarize_buffer.reset();
+                genesys_gray_lineart(dev, dev->local_buffer.get_read_pos(),
+                                     dev->binarize_buffer.get_write_pos(local_len / 8),
+                                     dev->settings.pixels,
+                                     local_len/dev->settings.pixels,
+                                     dev->settings.threshold);
+                dev->binarize_buffer.produce(local_len / 8);
             }
 
           /* return data from lineart buffer if any, up to the available amount */
@@ -6745,8 +6728,8 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
         }
       else
         {
-          /* most usual case, direct read of data from scanner */
-          status = genesys_read_ordered_data (dev, buf, &local_len);
+            // most usual case, direct read of data from scanner */
+            genesys_read_ordered_data(dev, buf, &local_len);
         }
     }
   else /* read data from buffer */
@@ -6765,7 +6748,7 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
       fprintf (stderr, "[genesys] sane_read: returning incorrect length!!\n");
     }
   DBG(DBG_proc, "%s: %d bytes returned\n", __func__, *len);
-  return status;
+    return SANE_STATUS_GOOD;
 }
 
 SANE_Status sane_read(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)

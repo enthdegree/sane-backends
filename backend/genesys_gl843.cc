@@ -1037,7 +1037,6 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
  * @param ccd_size_divisor SANE_TRUE specifies how much x coordinates must be shrunk
  * @param color_filter to choose the color channel used in gray scans
  * @param flags to drive specific settings such no calibration, XPA use ...
- * @return SANE_STATUS_GOOD if OK
  */
 static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure,
@@ -3659,7 +3658,6 @@ static void gl843_move_to_ta(Genesys_Device* dev)
  * @param dev scanner device
  * @param forward SANE_TRUE if searching forward, SANE_FALSE if searching backward
  * @param black SANE_TRUE if searching for a black strip, SANE_FALSE for a white strip
- * @return SANE_STATUS_GOOD if a matching strip is found, SANE_STATUS_UNSUPPORTED if not
  */
 static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, SANE_Bool forward,
                                SANE_Bool black)

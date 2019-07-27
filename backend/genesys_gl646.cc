@@ -350,8 +350,6 @@ static int get_cksel(int sensor_id, int required, unsigned channels)
  * @param regs         register set to fill
  * @param slope_table1 first motor table to fill
  * @param slope_table2 second motor table to fill
- * @return SANE_STATUS_GOOD if registers could be set, SANE_STATUS_INVAL if
- * conditions can't be met.
  * @note No harcoded SENSOR or MOTOR 'names' should be present and
  * registers are set from settings tables and flags related
  * to the hardware capabilities.
@@ -1346,7 +1344,6 @@ static void gl646_set_ad_fe(Genesys_Device* dev, uint8_t set)
  * @param dev device to set up
  * @param set action from AFE_SET, AFE_INIT and AFE_POWERSAVE
  * @param dpi resolution of the scan since it affects settings
- * @return SANE_STATUS_GOOD if evrithing OK
  */
 static void gl646_wm_hp3670(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set, int dpi)
 {
@@ -1399,7 +1396,7 @@ static void gl646_wm_hp3670(Genesys_Device* dev, const Genesys_Sensor& sensor, u
  * @param dev device to set
  * @param set action to execute
  * @param dpi dpi to setup the AFE
- * @return error or SANE_STATUS_GOOD */
+ */
 static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set, int dpi)
 {
     DBG_HELPER_ARGS(dbg, "%s,%d", set == AFE_INIT ? "init" :
@@ -1498,7 +1495,7 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
  * parameter to work effectively, hence the redirection
  * @param dev device to set
  * @param set action to execute
- * @return error or SANE_STATUS_GOOD */
+ */
 static void gl646_public_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set)
 {
     gl646_set_fe(dev, sensor, set, dev->settings.yres);
@@ -1509,7 +1506,6 @@ static void gl646_public_set_fe(Genesys_Device* dev, const Genesys_Sensor& senso
  * limited to AFE for now.
  * @param dev scanner's device
  * @param enable SANE_TRUE to enable power saving, SANE_FALSE to leave it
- * @return allways SANE_STATUS_GOOD
  */
 static void gl646_save_power(Genesys_Device* dev, SANE_Bool enable)
 {
@@ -2135,7 +2131,6 @@ static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
  * Automatically set top-left edge of the scan area by scanning an
  * area at 300 dpi from very top of scanner
  * @param dev  device stucture describing the scanner
- * @return SANE_STATUS_GOOD in cas of success, else failure code
  */
 static void gl646_search_start_position(Genesys_Device* dev)
 {
@@ -2219,7 +2214,6 @@ static void gl646_init_regs_for_coarse_calibration(Genesys_Device* dev,
  * We scan a full scan width area by the shading line number for the device
  * at either at full sensor's resolution or half depending upon half_ccd
  * @param dev scanner's device
- * @return SANE_STATUS_GOOD if success, else error code
  */
 static void gl646_init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                         Genesys_Register_Set& regs)
@@ -2775,7 +2769,6 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
  * genesys_search_start() must have been called so that the offsets and margins
  * are already known.
  * @param dev scanner's device
- * @return SANE_STATUS_GOOD if success, else error code is failure
 */
 static void gl646_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                      Genesys_Register_Set& regs)
@@ -3292,7 +3285,6 @@ static void gl646_repark_head(Genesys_Device* dev)
  * initialize ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
  * @param dev device description of the scanner to initailize
- * @return SANE_STATUS_GOOD if success, error code if failure
  */
 static void gl646_init(Genesys_Device* dev)
 {
@@ -3962,7 +3954,6 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
  * @param dev scanner device
  * @param forward SANE_TRUE if searching forward, SANE_FALSE if searching backward
  * @param black SANE_TRUE if searching for a black strip, SANE_FALSE for a white strip
- * @return SANE_STATUS_GOOD if a matching strip is found, SANE_STATUS_UNSUPPORTED if not
  */
 static void gl646_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, SANE_Bool forward,
                                SANE_Bool black)

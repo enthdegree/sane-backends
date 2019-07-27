@@ -908,7 +908,6 @@ static void gl124_setup_sensor(Genesys_Device * dev,
  *           must be halved
  * @param color_filter color channel to use as gray data
  * @param flags optical flags (@see )
- * @return SANE_STATUS_GOOD if OK
  */
 static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
@@ -1578,7 +1577,6 @@ static void gl124_stop_action(Genesys_Device* dev)
  * target resolution
  * @param *dev device to set up
  * @param resolution dpi of the target scan
- * @return SANE_STATUS_GOOD unless REG32 cannot be read
  */
 static void gl124_setup_scan_gpio(Genesys_Device* dev, int resolution)
 {
@@ -1673,7 +1671,6 @@ static void gl124_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_
 /** rewind scan
  * Move back by the same amount of distance than previous scan.
  * @param dev device to rewind
- * @returns SANE_STATUS_GOOD on success
  */
 static void gl124_rewind(Genesys_Device* dev)
 {
@@ -1709,7 +1706,7 @@ static void gl124_rewind(Genesys_Device* dev)
  * @param dev device to park
  * @param wait_until_home true to make the function waiting for head
  * to be home before returning, if fals returne immediately
- * @returns SANE_STATUS_GOO on success */
+ */
 static void gl124_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
@@ -2307,7 +2304,6 @@ static void gl124_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
  * This functions moves scanning head to calibration area
  * by doing a 600 dpi scan
  * @param dev scanner device
- * @return SANE_STATUS_GOOD on success, else the error code
  */
 static SANE_Status
 move_to_calibration_area (Genesys_Device * dev, const Genesys_Sensor& sensor,
@@ -2887,7 +2883,6 @@ static void gl124_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor
 /** @brief default GPIO values
  * set up GPIO/GPOE for idle state
  * @param dev device to set up
- * @return SANE_STATUS_GOOD unless a GPIO register cannot be written
  */
 static void gl124_init_gpio(Genesys_Device* dev)
 {

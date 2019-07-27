@@ -313,7 +313,6 @@ static void genesys_shrink_lines_1(uint8_t* src_data, uint8_t* dst_data,
 
 
 /** Look in image for likely left/right/bottom paper edges, then crop image.
- * Since failing to crop isn't fatal, we always return SANE_STATUS_GOOD .
  */
 static SANE_Status
 genesys_crop(Genesys_Scanner *s)
@@ -360,8 +359,6 @@ genesys_crop(Genesys_Scanner *s)
 
 /** Look in image for likely upper and left paper edges, then rotate
  * image so that upper left corner of paper is upper left of image.
- * @return since failure doens't prevent scanning, we always return
- * SANE_STATUS_GOOD
  */
 static SANE_Status
 genesys_deskew(Genesys_Scanner *s, const Genesys_Sensor& sensor)
@@ -408,8 +405,6 @@ genesys_deskew(Genesys_Scanner *s, const Genesys_Sensor& sensor)
 }
 
 /** remove lone dots
- * @return since failure doens't prevent scanning, we always return
- * SANE_STATUS_GOOD
  */
 static SANE_Status
 genesys_despeck(Genesys_Scanner *s)

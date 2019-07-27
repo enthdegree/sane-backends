@@ -1657,7 +1657,6 @@ genesys_average_data (uint8_t * average_data,
  * scans a white area with motor and lamp off to get the per CCD pixel offset
  * that will be used to compute shading coefficient
  * @param dev scanner's device
- * @return SANE_STATUS_GOOD if OK, else an error
  */
 static void genesys_dark_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
@@ -2931,7 +2930,6 @@ static void genesys_save_calibration(Genesys_Device* dev, const Genesys_Sensor& 
  * - gain calibration
  * - shading calibration
  * @param dev device to calibrate
- * @return SANE_STATUS_GOOD if everything when all right, else the error code.
  */
 static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {
@@ -3064,7 +3062,6 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
  * During calibration a predefined calibration sheet with specific black and white
  * areas is used.
  * @param dev device to calibrate
- * @return SANE_STATUS_GOOD if everything when all right, else the error code.
  */
 static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {

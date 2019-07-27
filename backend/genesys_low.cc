@@ -569,7 +569,6 @@ void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr)
  * @param dev device owning the AFE
  * @param addr register address to read
  * @param data placeholder for the result
- * @return SANE_STATUS_GOOD is OK, else the error code
  */
 void sanei_genesys_fe_read_data (Genesys_Device* dev, uint8_t addr, uint16_t* data)
 {
@@ -1074,7 +1073,6 @@ std::vector<uint16_t> get_gamma_table(Genesys_Device* dev, const Genesys_Sensor&
  * @param max value for gamma
  * @param size of the gamma table
  * @param gamma allocated gamma buffer to fill
- * @returns SANE_STATUS_GOOD or SANE_STATUS_NO_MEM
  */
 void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
                                                 const Genesys_Sensor& sensor,
@@ -1191,7 +1189,6 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
  *
  * @param dev device to initialize
  * @param max_regs umber of maximum used registers
- * @return SANE_STATUS_GOOD in case of success
  */
 void sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
 {

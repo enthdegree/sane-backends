@@ -1247,8 +1247,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
   if (params.flags & SCAN_FLAG_DISABLE_LAMP)
     oflags |= OPTICAL_FLAG_DISABLE_LAMP;
-  if (params.flags & SCAN_FLAG_CALIBRATION)
-    oflags |= OPTICAL_FLAG_DISABLE_DOUBLE;
 
   if (dev->model->is_cis && dev->settings.true_gray)
     {

@@ -1307,16 +1307,12 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
 
     s.optical_resolution = sensor.optical_res / s.ccd_size_divisor;
 
-    if (s.params.flags & SCAN_FLAG_USE_OPTICAL_RES) {
+    // resolution is choosen from a fixed list and can be used directly
+    // unless we have ydpi higher than sensor's maximum one
+    if (s.params.xres > s.optical_resolution)
         s.output_resolution = s.optical_resolution;
-    } else {
-        // resolution is choosen from a fixed list and can be used directly
-        // unless we have ydpi higher than sensor's maximum one
-        if (s.params.xres > s.optical_resolution)
-            s.output_resolution = s.optical_resolution;
-        else
-            s.output_resolution = s.params.xres;
-    }
+    else
+        s.output_resolution = s.params.xres;
 
     // compute rounded up number of optical pixels
     s.optical_pixels = (s.params.pixels * s.optical_resolution) / s.params.xres;
@@ -1382,8 +1378,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
   if (session.params.flags & SCAN_FLAG_DISABLE_LAMP)
     oflags |= OPTICAL_FLAG_DISABLE_LAMP;
-  if (session.params.flags & SCAN_FLAG_CALIBRATION)
-    oflags |= OPTICAL_FLAG_DISABLE_DOUBLE;
   if (session.num_staggered_lines)
     oflags |= OPTICAL_FLAG_STAGGER;
   if (session.params.flags & SCAN_FLAG_USE_XPA)

@@ -218,8 +218,6 @@ static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
   int dpihw;
   uint16_t exp;
 
-    dpihw = sensor.get_register_hwdpi(dpi);
-
     for (uint16_t addr = 0x16; addr < 0x1e; addr++) {
         regs->set8(addr, sensor.custom_regs.get_value(addr));
     }

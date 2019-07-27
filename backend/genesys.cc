@@ -3841,7 +3841,6 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
 			   size_t * len)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   size_t bytes, extra;
   unsigned int channels, depth, src_pixels;
   unsigned int ccd_shift[12], shift_count;
@@ -4029,53 +4028,35 @@ Problems with the first approach:
 		{
 		case 1:	/* RGB, chunky, 16 bit */
 #ifdef WORDS_BIGENDIAN
-		  status =
-		    genesys_reorder_components_endian_16 (work_buffer_src,
-							  work_buffer_dst,
-							  dst_lines,
-							  src_pixels, 3);
+            genesys_reorder_components_endian_16(work_buffer_src, work_buffer_dst, dst_lines,
+                                                 src_pixels, 3);
 		  break;
 #endif /*WORDS_BIGENDIAN */
 		case 0:	/* RGB, chunky, 8 bit */
-		  status = SANE_STATUS_GOOD;
 		  break;
 		case 2:	/* RGB, cis, 8 bit */
-		  status =
-		    genesys_reorder_components_cis_8 (work_buffer_src,
-						      work_buffer_dst,
-						      dst_lines, src_pixels);
+                genesys_reorder_components_cis_8(work_buffer_src, work_buffer_dst, dst_lines,
+                                                 src_pixels);
 		  break;
 		case 3:	/* RGB, cis, 16 bit */
-		  status =
-		    genesys_reorder_components_cis_16 (work_buffer_src,
-						       work_buffer_dst,
-						       dst_lines, src_pixels);
+                genesys_reorder_components_cis_16(work_buffer_src, work_buffer_dst, dst_lines,
+                                                  src_pixels);
 		  break;
 		case 4:	/* BGR, chunky, 8 bit */
-		  status =
-		    genesys_reorder_components_bgr_8 (work_buffer_src,
-						      work_buffer_dst,
-						      dst_lines, src_pixels);
+                genesys_reorder_components_bgr_8(work_buffer_src, work_buffer_dst, dst_lines,
+                                                 src_pixels);
 		  break;
 		case 5:	/* BGR, chunky, 16 bit */
-		  status =
-		    genesys_reorder_components_bgr_16 (work_buffer_src,
-						       work_buffer_dst,
-						       dst_lines, src_pixels);
+                genesys_reorder_components_bgr_16(work_buffer_src, work_buffer_dst, dst_lines,
+                                                  src_pixels);
 		  break;
 		case 6:	/* BGR, cis, 8 bit */
-		  status =
-		    genesys_reorder_components_cis_bgr_8 (work_buffer_src,
-							  work_buffer_dst,
-							  dst_lines,
-							  src_pixels);
+                genesys_reorder_components_cis_bgr_8(work_buffer_src, work_buffer_dst, dst_lines,
+                                                     src_pixels);
 		  break;
 		case 7:	/* BGR, cis, 16 bit */
-		  status =
-		    genesys_reorder_components_cis_bgr_16 (work_buffer_src,
-							   work_buffer_dst,
-							   dst_lines,
-							   src_pixels);
+                genesys_reorder_components_cis_bgr_16(work_buffer_src, work_buffer_dst, dst_lines,
+                                                      src_pixels);
 		  break;
 		}
 	    }
@@ -4084,26 +4065,10 @@ Problems with the first approach:
 #ifdef WORDS_BIGENDIAN
 	      if (depth == 16)
 		{
-		  status =
-		    genesys_reorder_components_endian_16 (work_buffer_src,
-							  work_buffer_dst,
-							  dst_lines,
-							  src_pixels, 1);
+            genesys_reorder_components_endian_16(work_buffer_src, work_buffer_dst, dst_lines,
+                                                 src_pixels, 1);
 		}
-	      else
-		{
-		  status = SANE_STATUS_GOOD;
-		}
-#else /*!WORDS_BIGENDIAN */
-	      status = SANE_STATUS_GOOD;
 #endif /*WORDS_BIGENDIAN */
-	    }
-
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to convert byte ordering(%s)\n", __func__,
-		  sane_strstatus(status));
-	      return SANE_STATUS_IO_ERROR;
 	    }
 
             dst_buffer->produce(bytes);
@@ -4151,24 +4116,13 @@ Problems with the first approach:
       if (dst_lines != 0)
 	{
 
-	  if (depth == 8)
-	    status = genesys_reverse_ccd_8 (work_buffer_src, work_buffer_dst,
-					    dst_lines,
-					    src_pixels * channels,
-					    ccd_shift, shift_count);
-	  else
-	    status = genesys_reverse_ccd_16 (work_buffer_src, work_buffer_dst,
-					     dst_lines,
-					     src_pixels * channels,
-					     ccd_shift, shift_count);
-
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to reverse ccd effects(%s)\n", __func__,
-		  sane_strstatus(status));
-	      return SANE_STATUS_IO_ERROR;
-	    }
-
+            if (depth == 8) {
+                genesys_reverse_ccd_8(work_buffer_src, work_buffer_dst, dst_lines,
+                                      src_pixels * channels, ccd_shift, shift_count);
+            } else {
+                genesys_reverse_ccd_16(work_buffer_src, work_buffer_dst, dst_lines,
+                                       src_pixels * channels, ccd_shift, shift_count);
+            }
             dst_buffer->produce(bytes);
             src_buffer->consume(bytes);
 	}
@@ -4203,30 +4157,14 @@ Problems with the first approach:
       if (dst_lines != 0)
 	{
 	  if (depth == 1)
-	    status = genesys_shrink_lines_1 (work_buffer_src,
-					     work_buffer_dst,
-					     dst_lines,
-					     src_pixels,
-					     dev->settings.pixels,
-                                             channels);
+            genesys_shrink_lines_1(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
+                                   dev->settings.pixels, channels);
 	  else if (depth == 8)
-	    status = genesys_shrink_lines_8 (work_buffer_src,
-					     work_buffer_dst,
-					     dst_lines,
-					     src_pixels,
-					     dev->settings.pixels, channels);
+            genesys_shrink_lines_8(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
+                                   dev->settings.pixels, channels);
 	  else
-	    status = genesys_shrink_lines_16 (work_buffer_src,
-					      work_buffer_dst,
-					      dst_lines,
-					      src_pixels,
-					      dev->settings.pixels, channels);
-
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to shrink lines(%s)\n", __func__, sane_strstatus(status));
-	      return SANE_STATUS_IO_ERROR;
-	    }
+            genesys_shrink_lines_16(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
+                                    dev->settings.pixels, channels);
 
           /* we just consumed this many bytes*/
 	  bytes = (dst_lines * src_pixels * channels * depth) / 8;
@@ -4247,12 +4185,7 @@ Problems with the first approach:
 
   if (needs_reverse)
     {
-      status = genesys_reverse_bits (work_buffer_src, destination, bytes);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to reverse bits(%s)\n", __func__, sane_strstatus(status));
-	  return SANE_STATUS_IO_ERROR;
-	}
+        genesys_reverse_bits(work_buffer_src, destination, bytes);
       *len = bytes;
     }
   else

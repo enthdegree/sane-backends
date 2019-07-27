@@ -77,18 +77,13 @@
 #undef BYTES_PER_COMPONENT
 #undef DOUBLE_BYTE
 
-static SANE_Status
-genesys_reverse_bits(
-    uint8_t *src_data,
-    uint8_t *dst_data,
-    size_t bytes)
+static void genesys_reverse_bits(uint8_t* src_data, uint8_t* dst_data, size_t bytes)
 {
     DBG_HELPER(dbg);
     size_t i;
     for(i = 0; i < bytes; i++) {
 	*dst_data++ = ~ *src_data++;
     }
-    return SANE_STATUS_GOOD;
 }
 
 /**
@@ -214,14 +209,10 @@ genesys_gray_lineart(
  * or grows it in case it is the opposite like when motor resolution is higher than
  * sensor's one.
  */
-static SANE_Status
-genesys_shrink_lines_1 (
-    uint8_t *src_data,
-    uint8_t *dst_data,
-    unsigned int lines,
-    unsigned int src_pixels,
-    unsigned int dst_pixels,
-    unsigned int channels)
+static void genesys_shrink_lines_1(uint8_t* src_data, uint8_t* dst_data,
+                                   unsigned int lines,
+                                   unsigned int src_pixels, unsigned int dst_pixels,
+                                   unsigned int channels)
 {
     DBG_HELPER(dbg);
   unsigned int dst_x, src_x, y, c, cnt;
@@ -318,8 +309,6 @@ genesys_shrink_lines_1 (
 	    }
 	}
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 

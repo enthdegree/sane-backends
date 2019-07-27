@@ -1243,53 +1243,6 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   r->value = sensor.dummy_pixel;
 }
 
-struct ScanSession {
-    SetupParams params;
-
-    // whether the session setup has been computed via gl843_compute_session()
-    bool computed = false;
-
-    // whether CCD operates as half-resolution or full resolution at a specific resolution
-    unsigned ccd_size_divisor = 1;
-
-    // the optical resolution of the scanner.
-    unsigned optical_resolution = 0;
-
-    // the number of pixels at the optical resolution.
-    unsigned optical_pixels = 0;
-
-    // the number of bytes in the output of a single line directly from scanner
-    unsigned optical_line_bytes = 0;
-
-    // the resolution of the output data.
-    unsigned output_resolution = 0;
-
-    // the number of pixels in output data
-    unsigned output_pixels = 0;
-
-    // the number of bytes in the output of a single line
-    unsigned output_line_bytes = 0;
-
-    // the number of lines in the output of the scanner. This must be larger than the user
-    // requested number due to line staggering and color channel shifting.
-    unsigned output_line_count = 0;
-
-    // the number of staggered lines (i.e. lines that overlap during scanning due to line being
-    // thinner than the CCD element)
-    unsigned num_staggered_lines = 0;
-
-    // the number of lines that color channels shift due to different physical positions of
-    // different color channels
-    unsigned max_color_shift_lines = 0;
-
-    void assert_computed() const
-    {
-        if (!computed) {
-            throw std::runtime_error("ScanSession is not computed");
-        }
-    }
-};
-
 static unsigned align_int_up(unsigned num, unsigned alignment)
 {
     unsigned mask = alignment - 1;

@@ -6606,19 +6606,19 @@ SANE_Status sane_start_impl(SANE_Handle handle)
         if (s->swdeskew) {
           const auto& sensor = sanei_genesys_find_sensor(s->dev, s->dev->settings.xres,
                                                          s->dev->settings.scan_method);
-          RIE(genesys_deskew(s, sensor));
+            catch_all_exceptions(__func__, [&](){ genesys_deskew(s, sensor); });
         }
 
         if (s->swdespeck) {
-            RIE(genesys_despeck(s));
+            catch_all_exceptions(__func__, [&](){ genesys_despeck(s); });
         }
 
         if(s->swcrop) {
-            RIE(genesys_crop(s));
+            catch_all_exceptions(__func__, [&](){ genesys_crop(s); });
         }
 
         if(s->swderotate) {
-            RIE(genesys_derotate(s));
+            catch_all_exceptions(__func__, [&](){ genesys_derotate(s); });
         }
     }
 

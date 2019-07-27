@@ -1171,11 +1171,8 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   dev->current_setup.params = params;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   dev->current_setup.lines = lincnt;
-  dev->current_setup.depth = params.depth;
-  dev->current_setup.channels = params.channels;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
-  dev->current_setup.yres = params.yres;
   dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
@@ -1310,11 +1307,8 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   dev->current_setup.params = params;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   dev->current_setup.lines = lincnt;
-  dev->current_setup.depth = params.depth;
-  dev->current_setup.channels = params.channels;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
-  dev->current_setup.yres = params.yres;
     dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
@@ -1914,7 +1908,7 @@ static void gl846_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
   uint32_t addr, length, i, x, factor, pixels;
   uint32_t dpiset, dpihw, strpixel, endpixel;
-  uint32_t lines, channels;
+  uint32_t lines;
   uint8_t val,*ptr,*src;
 
   /* shading data is plit in 3 (up to 5 with IR) areas
@@ -1939,7 +1933,7 @@ static void gl846_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
     {
       dev->binary=fopen("binary.pnm","wb");
         lines = dev->reg.get24(REG_LINCNT);
-      channels=dev->current_setup.channels;
+        unsigned channels = dev->current_setup.params.channels;
       if(dev->binary!=NULL)
         {
           fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels,lines/channels,255);

@@ -269,7 +269,10 @@ typedef struct
   unsigned channels;
 
   /* settings */
-  SANE_Int ydpi;		/* real motor dpi, may be different from the resolution */
+
+    // real motor dpi, may be different from the resolution. For the currently known motors it's the
+    // same
+    SANE_Int ydpi;
   SANE_Int steptype;		/* 0=full, 1=half, 2=quarter */
   SANE_Bool fastmod;		/* fast scanning 0/1 */
   SANE_Bool fastfed;		/* fast fed slope tables */

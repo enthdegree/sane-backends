@@ -230,17 +230,11 @@ struct Genesys_Current_Setup
     int pixels = 0;
     // line count expected from scanner
     int lines = 0;
-    // depth expected from scanner
-    int depth = 0;
-    // channel count expected from scanner
-    int channels = 0;
 
     // used exposure time
     int exposure_time = 0;
     // used xres
     float xres = 0;
-    // used yres
-    float yres = 0;
     // half ccd mode
     unsigned ccd_size_divisor = 1;
     SANE_Int stagger = 0;
@@ -252,11 +246,8 @@ struct Genesys_Current_Setup
         return params == other.params &&
             pixels == other.pixels &&
             lines == other.lines &&
-            depth == other.depth &&
-            channels == other.channels &&
             exposure_time == other.exposure_time &&
             xres == other.xres &&
-            yres == other.yres &&
             ccd_size_divisor == other.ccd_size_divisor &&
             stagger == other.stagger &&
             max_shift == other.max_shift;
@@ -270,11 +261,8 @@ void serialize(Stream& str, Genesys_Current_Setup& x)
     serialize_newline(str);
     serialize(str, x.pixels);
     serialize(str, x.lines);
-    serialize(str, x.depth);
-    serialize(str, x.channels);
     serialize(str, x.exposure_time);
     serialize(str, x.xres);
-    serialize(str, x.yres);
     serialize(str, x.ccd_size_divisor);
     serialize(str, x.stagger);
     serialize(str, x.max_shift);

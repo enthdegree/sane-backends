@@ -947,11 +947,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
   dev->current_setup.pixels =
     ((endx - startx) * sensor_mst->xdpi) / sensor.optical_res;
   dev->current_setup.lines = linecnt;
-  dev->current_setup.depth = params.depth;
-  dev->current_setup.channels = params.channels;
   dev->current_setup.exposure_time = sensor_mst->exposure;
   dev->current_setup.xres = sensor_mst->xdpi;
-  dev->current_setup.yres = motor->ydpi;
   dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
@@ -1734,17 +1731,13 @@ static void gl646_detect_document_end(Genesys_Device* dev)
         sanei_genesys_read_valid_words(dev, &bytes_left);
 
       /* we add the number of lines needed to read the last part of the document in */
-      lines =
-	(SANE_UNFIX (dev->model->y_offset) * dev->current_setup.yres) /
-	MM_PER_INCH;
+        lines = (SANE_UNFIX(dev->model->y_offset) * dev->current_setup.params.yres) / MM_PER_INCH;
       DBG(DBG_io, "%s: adding %d line to flush\n", __func__, lines);
       bytes_left += lines * dev->wpl;
-      if (dev->current_setup.depth > 8)
-	{
+        if (dev->current_setup.params.depth > 8) {
 	  bytes_left = 2 * bytes_left;
 	}
-      if (dev->current_setup.channels > 1)
-	{
+        if (dev->current_setup.params.channels > 1) {
 	  bytes_left = 3 * bytes_left;
 	}
       if (bytes_left < dev->read_bytes_left)
@@ -2256,7 +2249,7 @@ static void gl646_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
 
   /* used when sending shading calibration data */
   dev->calib_pixels = settings.pixels;
-  dev->calib_channels = dev->current_setup.channels;
+    dev->calib_channels = dev->current_setup.params.channels;
   if (dev->model->is_cis == SANE_FALSE)
     {
       dev->calib_channels = 3;
@@ -3857,31 +3850,26 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
    */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
-      dev->current_setup.channels = 3;
-    }
-  else
-    {
-      dev->current_setup.channels = 1;
+        dev->current_setup.params.channels = 3;
+    } else {
+        dev->current_setup.params.channels = 1;
     }
   dev->current_setup.xres = dev->settings.xres;
 
-  DBG(DBG_io, "%s: requested=(%d,%f), tested=(%d,%f)\n", __func__, dev->current_setup.channels,
-      dev->current_setup.xres, cache->used_setup.channels, cache->used_setup.xres);
+    DBG(DBG_io, "%s: requested=(%d,%f), tested=(%d,%f)\n", __func__,
+        dev->current_setup.params.channels, dev->current_setup.xres,
+        cache->used_setup.params.channels, cache->used_setup.xres);
 
   /* a calibration cache is compatible if color mode and x dpi match the user
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
   if (dev->model->is_cis == SANE_FALSE)
     {
-      compatible =
-	((dev->current_setup.channels == cache->used_setup.channels)
-	 && (((int) dev->current_setup.xres) ==
-	     ((int) cache->used_setup.xres)));
+        compatible = (dev->current_setup.params.channels == cache->used_setup.params.channels) &&
+                      (((int) dev->current_setup.xres) == ((int) cache->used_setup.xres));
+    } else {
+        compatible = dev->current_setup.params.channels == cache->used_setup.params.channels;
     }
-  else
-    {
-      compatible =
-	(dev->current_setup.channels == cache->used_setup.channels);
-    }
+
   if (dev->current_setup.params.scan_method != cache->used_setup.params.scan_method)
     {
       DBG(DBG_io, "%s: current method=%d, used=%d\n", __func__,

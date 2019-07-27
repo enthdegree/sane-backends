@@ -1711,22 +1711,19 @@ void debug_dump(unsigned level, const Genesys_Current_Setup& setup)
     DBG(level, "current_setup:\n"
         "Pixels: %d\n"
         "Lines: %d\n"
-        "Depth: %d\n"
-        "Channels: %d\n"
         "exposure_time: %d\n"
-        "Resolution X/Y: %g %g\n"
+        "Resolution X/Y: %g\n"
         "ccd_size_divisor: %d\n"
         "stagger: %d\n"
         "max_shift: %d\n",
         setup.pixels,
         setup.lines,
-        setup.depth,
-        setup.channels,
         setup.exposure_time,
-        setup.xres, setup.yres,
+        setup.xres,
         setup.ccd_size_divisor,
         setup.stagger,
         setup.max_shift);
+    debug_dump(level, setup.params);
 }
 
 void debug_dump(unsigned level, const Genesys_Register_Set& regs)

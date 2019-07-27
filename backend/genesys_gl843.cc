@@ -1453,11 +1453,8 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   dev->current_setup.pixels = session.output_pixels;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = session.output_line_count;
-  dev->current_setup.depth = session.params.depth;
-  dev->current_setup.channels = session.params.channels;
   dev->current_setup.exposure_time = exposure;
   dev->current_setup.xres = session.output_resolution;
-  dev->current_setup.yres = session.params.yres;
   dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
   dev->current_setup.stagger = session.num_staggered_lines;
   dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
@@ -1600,11 +1597,8 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;
-  dev->current_setup.depth = params.depth;
-  dev->current_setup.channels = params.channels;
   dev->current_setup.exposure_time = exposure;
   dev->current_setup.xres = used_res;
-  dev->current_setup.yres = params.yres;
   dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
@@ -1740,7 +1734,7 @@ static void gl843_detect_document_end(Genesys_Device* dev)
     DBG_HELPER(dbg);
   SANE_Bool paper_loaded;
   unsigned int scancnt = 0;
-  int flines, channels, depth, bytes_remain, sublines,
+  int flines, bytes_remain, sublines,
     bytes_to_flush, lines, sub_bytes, tmp, read_bytes_left;
 
     gl843_get_paper_sensor(dev, &paper_loaded);
@@ -1751,8 +1745,8 @@ static void gl843_detect_document_end(Genesys_Device* dev)
       DBG(DBG_info, "%s: no more document\n", __func__);
       dev->document = SANE_FALSE;
 
-      channels = dev->current_setup.channels;
-      depth = dev->current_setup.depth;
+        unsigned channels = dev->current_setup.params.channels;
+        unsigned depth = dev->current_setup.params.depth;
       read_bytes_left = (int) dev->read_bytes_left;
       DBG(DBG_io, "%s: read_bytes_left=%d\n", __func__, read_bytes_left);
 
@@ -1775,12 +1769,11 @@ static void gl843_detect_document_end(Genesys_Device* dev)
 
 	  DBG(DBG_io, "%s: %d scanned but not read lines\n", __func__, flines);
 
-      /* adjust number of bytes to read
-       * we need to read the final bytes which are word per line * number of last lines
-       * to have doc leaving feeder */
-      lines =
-	(SANE_UNFIX (dev->model->post_scan) * dev->current_setup.yres) /
-	MM_PER_INCH + flines;
+        // Adjust number of bytes to read. We need to read the final bytes which are word per
+        // line times number of last lines to have doc leaving feeder
+        lines = (SANE_UNFIX(dev->model->post_scan) * dev->current_setup.params.yres) / MM_PER_INCH +
+            flines;
+
       DBG(DBG_io, "%s: adding %d line to flush\n", __func__, lines);
 
       /* number of bytes to read from scanner to get document out of it after

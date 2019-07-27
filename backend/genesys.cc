@@ -3503,9 +3503,8 @@ static void genesys_fill_line_interp_buffer(Genesys_Device* dev, uint8_t* work_b
       while (count < size)
 	{
           /* line counter */
-          /* dev->line_interp holds the number of lines scanned for one line of data sent */
-          if(((dev->line_count/dev->current_setup.channels) % dev->line_interp)==0)
-            {
+        // dev->line_interp holds the number of lines scanned for one line of data sent
+        if (((dev->line_count / dev->current_setup.params.channels) % dev->line_interp) == 0) {
 	      /* copy pixel when line matches */
               work_buffer_dst[count] = dev->oe_buffer.get_read_pos()[dev->cur];
               count++;
@@ -3726,9 +3725,8 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
     debug_dump(DBG_info, dev->current_setup);
 
   /* prepare conversion */
-  /* current settings */
-  channels = dev->current_setup.channels;
-  depth = dev->current_setup.depth;
+    channels = dev->current_setup.params.channels;
+    depth = dev->current_setup.params.depth;
 
   src_pixels = dev->current_setup.pixels;
 
@@ -4153,7 +4151,7 @@ static void calc_parameters(Genesys_Scanner* s)
   if (s->dev->settings.xres >= 1200
       && (    s->dev->model->asic_type == GENESYS_GL124
            || s->dev->model->asic_type == GENESYS_GL847
-           || s->dev->current_setup.xres < s->dev->current_setup.yres
+           || s->dev->current_setup.xres < s->dev->current_setup.params.yres
          )
      )
     {

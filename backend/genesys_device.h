@@ -92,8 +92,7 @@ struct Genesys_Model
     const char* model = nullptr;
     unsigned model_id = 0;
 
-    // ASIC type gl646 or gl841
-    unsigned asic_type = 0;
+    AsicType asic_type = AsicType::UNKNOWN;
 
     // possible x resolutions
     std::vector<unsigned> xdpi_values;

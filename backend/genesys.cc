@@ -779,7 +779,7 @@ void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
 {
     int size = 0;
     int max = 0;
-    if (dev->model->asic_type == GENESYS_GL646) {
+    if (dev->model->asic_type == AsicType::GL646) {
         if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA) {
             size = 16384;
         } else {
@@ -1644,11 +1644,11 @@ static void genesys_dark_shading_calibration(Genesys_Device* dev, const Genesys_
         return;
     }
 
-    // FIXME: the current calculation is likely incorrect on non-GENESYS_GL843 implementations,
+    // FIXME: the current calculation is likely incorrect on non-GL843 implementations,
     // but this needs checking
     if (dev->calib_total_bytes_to_read > 0) {
         size = dev->calib_total_bytes_to_read;
-    } else if (dev->model->asic_type == GENESYS_GL843) {
+    } else if (dev->model->asic_type == AsicType::GL843) {
         size = channels * 2 * pixels_per_line * dev->calib_lines;
     } else {
         size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
@@ -1828,11 +1828,11 @@ static void genesys_white_shading_calibration(Genesys_Device* dev, const Genesys
   dev->white_average_data.clear();
   dev->white_average_data.resize(channels * 2 * out_pixels_per_line);
 
-    // FIXME: the current calculation is likely incorrect on non-GENESYS_GL843 implementations,
+    // FIXME: the current calculation is likely incorrect on non-GL843 implementations,
     // but this needs checking
     if (dev->calib_total_bytes_to_read > 0) {
         size = dev->calib_total_bytes_to_read;
-    } else if (dev->model->asic_type == GENESYS_GL843) {
+    } else if (dev->model->asic_type == AsicType::GL843) {
         size = channels * 2 * pixels_per_line * dev->calib_lines;
     } else {
         size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
@@ -4133,12 +4133,12 @@ static void calc_parameters(Genesys_Scanner* s)
 
   /* we need an even pixels number
    * TODO invert test logic or generalize behaviour across all ASICs */
-  if ((s->dev->model->flags & GENESYS_FLAG_SIS_SENSOR)
-      || s->dev->model->asic_type == GENESYS_GL847
-      || s->dev->model->asic_type == GENESYS_GL124
-      || s->dev->model->asic_type == GENESYS_GL845
-      || s->dev->model->asic_type == GENESYS_GL846
-      || s->dev->model->asic_type == GENESYS_GL843)
+    if ((s->dev->model->flags & GENESYS_FLAG_SIS_SENSOR) ||
+        s->dev->model->asic_type == AsicType::GL847 ||
+        s->dev->model->asic_type == AsicType::GL124 ||
+        s->dev->model->asic_type == AsicType::GL845 ||
+        s->dev->model->asic_type == AsicType::GL846 ||
+        s->dev->model->asic_type == AsicType::GL843)
     {
       if (s->dev->settings.xres <= 1200)
         s->params.pixels_per_line = (s->params.pixels_per_line/4)*4;
@@ -4148,12 +4148,10 @@ static void calc_parameters(Genesys_Scanner* s)
 
   /* corner case for true lineart for sensor with several segments
    * or when xres is doubled to match yres */
-  if (s->dev->settings.xres >= 1200
-      && (    s->dev->model->asic_type == GENESYS_GL124
-           || s->dev->model->asic_type == GENESYS_GL847
-           || s->dev->current_setup.xres < s->dev->current_setup.params.yres
-         )
-     )
+    if (s->dev->settings.xres >= 1200 && (
+                s->dev->model->asic_type == AsicType::GL124 ||
+                s->dev->model->asic_type == AsicType::GL847 ||
+                s->dev->current_setup.xres < s->dev->current_setup.params.yres))
     {
       s->params.pixels_per_line = (s->params.pixels_per_line/16)*16;
     }
@@ -4230,9 +4228,9 @@ static void calc_parameters(Genesys_Scanner* s)
   /* hardware lineart works only when we don't have interleave data
    * for GL847 scanners, ie up to 600 DPI, then we have to rely on
    * dynamic_lineart */
-  if(s->dev->settings.xres > 600
-     && s->dev->model->asic_type==GENESYS_GL847
-     && s->dev->settings.scan_mode == ScanColorMode::LINEART)
+    if (s->dev->settings.xres > 600 &&
+        s->dev->model->asic_type==AsicType::GL847 &&
+        s->dev->settings.scan_mode == ScanColorMode::LINEART)
    {
       s->dev->settings.dynamic_lineart = SANE_TRUE;
    }
@@ -4294,8 +4292,7 @@ init_gamma_vector_option (Genesys_Scanner * scanner, int option)
   scanner->opt[option].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
   scanner->opt[option].unit = SANE_UNIT_NONE;
   scanner->opt[option].constraint_type = SANE_CONSTRAINT_RANGE;
-  if (scanner->dev->model->asic_type == GENESYS_GL646)
-    {
+    if (scanner->dev->model->asic_type == AsicType::GL646) {
       if ((scanner->dev->model->flags & GENESYS_FLAG_14BIT_GAMMA) != 0)
 	{
 	  scanner->opt[option].size = 16384 * sizeof (SANE_Word);
@@ -4766,8 +4763,8 @@ static void init_options(Genesys_Scanner* s)
   s->disable_dynamic_lineart = false;
 
   /* fastmod is required for hw lineart to work */
-  if ((s->dev->model->asic_type == GENESYS_GL646)
-    &&(s->dev->model->motor_type != MOTOR_XP200))
+    if ((s->dev->model->asic_type == AsicType::GL646) &&
+        (s->dev->model->motor_type != MOTOR_XP200))
     {
       s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap = SANE_CAP_INACTIVE;
     }
@@ -4794,8 +4791,7 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_COLOR_FILTER].type = SANE_TYPE_STRING;
   s->opt[OPT_COLOR_FILTER].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   /* true gray not yet supported for GL847 and GL124 scanners */
-  if(!model->is_cis || model->asic_type==GENESYS_GL847 || model->asic_type==GENESYS_GL124)
-    {
+    if (!model->is_cis || model->asic_type==AsicType::GL847 || model->asic_type==AsicType::GL124) {
       s->opt[OPT_COLOR_FILTER].size = max_string_size (color_filter_list);
       s->opt[OPT_COLOR_FILTER].constraint.string_list = color_filter_list;
       s->color_filter = s->opt[OPT_COLOR_FILTER].constraint.string_list[1];
@@ -4808,9 +4804,8 @@ static void init_options(Genesys_Scanner* s)
       s->color_filter = s->opt[OPT_COLOR_FILTER].constraint.string_list[3];
     }
 
-  /* no support for color filter for cis+gl646 scanners */
-  if (model->asic_type == GENESYS_GL646 && model->is_cis)
-    {
+    // no support for color filter for cis+gl646 scanners
+    if (model->asic_type == AsicType::GL646 && model->is_cis) {
       DISABLE (OPT_COLOR_FILTER);
     }
 
@@ -6109,10 +6104,9 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  ENABLE (OPT_THRESHOLD);
 	  ENABLE (OPT_THRESHOLD_CURVE);
 	  DISABLE (OPT_BIT_DEPTH);
-          if (s->dev->model->asic_type != GENESYS_GL646 || !s->dev->model->is_cis)
-            {
-	      ENABLE (OPT_COLOR_FILTER);
-            }
+                if (s->dev->model->asic_type != AsicType::GL646 || !s->dev->model->is_cis) {
+                    ENABLE(OPT_COLOR_FILTER);
+                }
 	  ENABLE (OPT_DISABLE_DYNAMIC_LINEART);
 	}
       else
@@ -6122,10 +6116,9 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  DISABLE (OPT_DISABLE_DYNAMIC_LINEART);
           if (s->mode == SANE_VALUE_SCAN_MODE_GRAY)
 	    {
-              if (s->dev->model->asic_type != GENESYS_GL646 || !s->dev->model->is_cis)
-                {
-	          ENABLE (OPT_COLOR_FILTER);
-                }
+                    if (s->dev->model->asic_type != AsicType::GL646 || !s->dev->model->is_cis) {
+                        ENABLE(OPT_COLOR_FILTER);
+                    }
 	      create_bpp_list (s, s->dev->model->bpp_gray_values);
 	    }
 	  else

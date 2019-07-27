@@ -204,16 +204,6 @@
 #define MAX_RESOLUTIONS 13
 #define MAX_DPI 4
 
-#define GENESYS_GL646	 646
-#define GENESYS_GL841	 841
-#define GENESYS_GL843	 843
-#define GENESYS_GL845	 845
-#define GENESYS_GL846	 846
-#define GENESYS_GL847	 847
-#define GENESYS_GL848	 848
-#define GENESYS_GL123	 123
-#define GENESYS_GL124	 124
-
 /* Forward typedefs */
 struct Genesys_Scanner;
 typedef struct Genesys_Calibration_Cache  Genesys_Calibration_Cache;

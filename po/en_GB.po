@@ -8,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2019-07-23 12:14+0000\n"
 "PO-Revision-Date: 2019-07-26 09:45-0700\n"
-"Last-Translator: Andrew Coles <andrew_coles@yahoo.co.uk>\n"
+"Last-Translator: Ralph Little <littlesincanada@yahoo.co.uk>\n"
 "Language-Team: British English <kde-i18n-doc@kde.org>\n"
 "Language: en_GB\n"
 "MIME-Version: 1.0\n"
@@ -3149,7 +3149,7 @@ msgstr "Power button"
 msgid "Extra button"
 msgstr "Extra button"
 
-# Need->Needs? 
+# Need->Needs?
 #: backend/genesys.cc:5724 backend/gt68xx.c:755
 #, no-c-format
 msgid "Need calibration"

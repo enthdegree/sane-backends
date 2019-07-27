@@ -1475,11 +1475,11 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
            dev->current_setup.ccd_size_divisor, cache->used_setup.ccd_size_divisor);
       compatible = 0;
     }
-  if (dev->current_setup.params.scan_method != cache->used_setup.params.scan_method)
+  if (dev->session.params.scan_method != cache->params.scan_method)
     {
       DBG (DBG_io, "%s: current method=%d, used=%d\n", __func__,
-           static_cast<unsigned>(dev->current_setup.params.scan_method),
-           static_cast<unsigned>(cache->used_setup.params.scan_method));
+           static_cast<unsigned>(dev->session.params.scan_method),
+           static_cast<unsigned>(cache->params.scan_method));
       compatible = 0;
     }
   if (!compatible)
@@ -1722,7 +1722,6 @@ void debug_dump(unsigned level, const Genesys_Current_Setup& setup)
         setup.ccd_size_divisor,
         setup.stagger,
         setup.max_shift);
-    debug_dump(level, setup.params);
 }
 
 void debug_dump(unsigned level, const Genesys_Register_Set& regs)

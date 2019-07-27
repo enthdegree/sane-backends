@@ -1449,7 +1449,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
-  dev->current_setup.params = session.params;
+    dev->session = session;
   dev->current_setup.pixels = session.output_pixels;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = session.output_line_count;
@@ -1593,7 +1593,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   /* lincnt */
   lincnt = params.lines + max_shift + stagger;
 
-  dev->current_setup.params = params;
+    dev->session.params = params;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;
@@ -1745,8 +1745,8 @@ static void gl843_detect_document_end(Genesys_Device* dev)
       DBG(DBG_info, "%s: no more document\n", __func__);
       dev->document = SANE_FALSE;
 
-        unsigned channels = dev->current_setup.params.channels;
-        unsigned depth = dev->current_setup.params.depth;
+        unsigned channels = dev->session.params.channels;
+        unsigned depth = dev->session.params.depth;
       read_bytes_left = (int) dev->read_bytes_left;
       DBG(DBG_io, "%s: read_bytes_left=%d\n", __func__, read_bytes_left);
 
@@ -1771,7 +1771,7 @@ static void gl843_detect_document_end(Genesys_Device* dev)
 
         // Adjust number of bytes to read. We need to read the final bytes which are word per
         // line times number of last lines to have doc leaving feeder
-        lines = (SANE_UNFIX(dev->model->post_scan) * dev->current_setup.params.yres) / MM_PER_INCH +
+        lines = (SANE_UNFIX(dev->model->post_scan) * dev->session.params.yres) / MM_PER_INCH +
             flines;
 
       DBG(DBG_io, "%s: adding %d line to flush\n", __func__, lines);

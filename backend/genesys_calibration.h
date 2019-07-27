@@ -54,6 +54,7 @@ struct Genesys_Calibration_Cache
 
     // used to check if entry is compatible
     Genesys_Current_Setup used_setup;
+    SetupParams params;
     time_t last_calibration = 0;
 
     Genesys_Frontend frontend;
@@ -68,6 +69,7 @@ struct Genesys_Calibration_Cache
     bool operator==(const Genesys_Calibration_Cache& other) const
     {
         return used_setup == other.used_setup &&
+            params == other.params &&
             last_calibration == other.last_calibration &&
             frontend == other.frontend &&
             sensor == other.sensor &&
@@ -83,6 +85,8 @@ template<class Stream>
 void serialize(Stream& str, Genesys_Calibration_Cache& x)
 {
     serialize(str, x.used_setup);
+    serialize_newline(str);
+    serialize(str, x.params);
     serialize_newline(str);
     serialize(str, x.last_calibration);
     serialize_newline(str);

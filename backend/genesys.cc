@@ -2873,6 +2873,7 @@ static void genesys_save_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   found_cache_it->white_average_data = dev->white_average_data;
 
   found_cache_it->used_setup = dev->current_setup;
+  found_cache_it->params = dev->session.params;
   found_cache_it->frontend = dev->frontend;
   found_cache_it->sensor = sensor;
 
@@ -3504,7 +3505,7 @@ static void genesys_fill_line_interp_buffer(Genesys_Device* dev, uint8_t* work_b
 	{
           /* line counter */
         // dev->line_interp holds the number of lines scanned for one line of data sent
-        if (((dev->line_count / dev->current_setup.params.channels) % dev->line_interp) == 0) {
+        if (((dev->line_count / dev->session.params.channels) % dev->line_interp) == 0) {
 	      /* copy pixel when line matches */
               work_buffer_dst[count] = dev->oe_buffer.get_read_pos()[dev->cur];
               count++;
@@ -3723,10 +3724,11 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
     }
 
     debug_dump(DBG_info, dev->current_setup);
+    debug_dump(DBG_info, dev->session.params);
 
   /* prepare conversion */
-    channels = dev->current_setup.params.channels;
-    depth = dev->current_setup.params.depth;
+    channels = dev->session.params.channels;
+    depth = dev->session.params.depth;
 
   src_pixels = dev->current_setup.pixels;
 
@@ -4151,7 +4153,7 @@ static void calc_parameters(Genesys_Scanner* s)
     if (s->dev->settings.xres >= 1200 && (
                 s->dev->model->asic_type == AsicType::GL124 ||
                 s->dev->model->asic_type == AsicType::GL847 ||
-                s->dev->current_setup.xres < s->dev->current_setup.params.yres))
+                s->dev->current_setup.xres < s->dev->session.params.yres))
     {
       s->params.pixels_per_line = (s->params.pixels_per_line/16)*16;
     }

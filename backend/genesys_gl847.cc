@@ -1185,7 +1185,7 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
-  dev->current_setup.params = params;
+    dev->session.params = params;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
@@ -1322,7 +1322,7 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   /* lincnt */
   lincnt = params.lines + max_shift + stagger;
 
-  dev->current_setup.params = params;
+    dev->session.params = params;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
@@ -1988,7 +1988,7 @@ static void gl847_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
     {
       dev->binary=fopen("binary.pnm","wb");
         lines = dev->reg.get24(REG_LINCNT);
-        unsigned channels = dev->current_setup.params.channels;
+        unsigned channels = dev->session.params.channels;
       if(dev->binary!=NULL)
         {
           fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels,lines/channels,255);

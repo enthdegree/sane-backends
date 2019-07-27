@@ -287,6 +287,8 @@ struct Genesys_Device
 
     // contains the real used values
     Genesys_Current_Setup current_setup;
+    // contains computed data for the current setup
+    ScanSession session;
 
     // look up table used in dynamic rasterization
     unsigned char lineart_lut[256] = {};

@@ -5243,11 +5243,12 @@ static SANE_Status
 attach_one_device_impl(SANE_String_Const devname)
 {
   Genesys_Device *dev;
-  SANE_Status status = SANE_STATUS_GOOD;
-
-  RIE (attach (devname, &dev, SANE_FALSE));
-
-  return SANE_STATUS_GOOD;
+    SANE_Status status = attach(devname, &dev, SANE_FALSE);
+    if (status != SANE_STATUS_GOOD) {
+        DBG(DBG_info, "%s: failed to attach: %s\n", __func__, sane_strstatus(status));
+        return status;
+    }
+    return status;
 }
 
 static SANE_Status attach_one_device(SANE_String_Const devname)
@@ -5490,8 +5491,6 @@ genesys_buffer_image(Genesys_Scanner *s)
 SANE_Status
 sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-  SANE_Status status = SANE_STATUS_GOOD;
-
   DBG_INIT ();
     DBG_HELPER_ARGS(dbg, "authorize %s null", authorize ? "!=" : "==");
   DBG(DBG_init, "SANE Genesys backend version %d.%d from %s\n",
@@ -5529,10 +5528,8 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
 #endif
     );
 
-  /* cold-plug case :detection of allready connected scanners */
-  status = probe_genesys_devices ();
-
-  return status;
+    // cold-plug case :detection of allready connected scanners
+    return probe_genesys_devices ();
 }
 
 
@@ -5609,7 +5606,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 {
     DBG_HELPER_ARGS(dbg, "devicename = %s", devicename);
   Genesys_Device *dev = nullptr;
-  SANE_Status status = SANE_STATUS_GOOD;
   char *tmpstr;
 
   /* devicename="" or devicename="genesys" are default values that use
@@ -5628,7 +5624,11 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
       if (!dev)
 	{
 	  DBG(DBG_info, "%s: couldn't find `%s' in devlist, trying attach\n", __func__, devicename);
-	  RIE (attach (devicename, &dev, SANE_TRUE));
+            SANE_Status status = attach(devicename, &dev, SANE_TRUE);
+            if (status != SANE_STATUS_GOOD) {
+                DBG(DBG_info, "%s: failed to attach: %s\n", __func__, sane_strstatus(status));
+                return status;
+            }
 	}
       else
         DBG(DBG_info, "%s: found `%s' in devlist\n", __func__, dev->model->name);
@@ -6574,7 +6574,11 @@ SANE_Status sane_start_impl(SANE_Handle handle)
    * at the end */
   if (s->dev->buffer_image)
     {
-      RIE(genesys_buffer_image(s));
+        SANE_Status status = genesys_buffer_image(s);
+        if (status != SANE_STATUS_GOOD) {
+            DBG(DBG_info, "%s: failed to buffer image: %s\n", __func__, sane_strstatus(status));
+            return status;
+        }
 
       /* check if we need to skip this page, sheetfed scanners
        * can go to next doc while flatbed ones can't */

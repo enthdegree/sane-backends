@@ -3209,38 +3209,6 @@ static void genesys_scanner_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     genesys_sheetfed_calibration(dev, sensor);
 }
 
-/* unused function kept in case it may be usefull in the futur */
-#if 0
-static SANE_Status
-genesys_wait_not_moving (Genesys_Device * dev, int mseconds)
-{
-    DBG_HELPER(dbg);
-  uint8_t value;
-  SANE_Status status = SANE_STATUS_GOOD;
-
-  DBG(DBG_proc, "%s: waiting %d mseconds for motor to stop\n", __func__, mseconds);
-  while (mseconds > 0)
-    {
-        sanei_genesys_get_status(dev, &value);
-
-      if (dev->model->cmd_set->test_motor_flag_bit (value))
-	{
-          sanei_genesys_sleep_ms(100);
-	  mseconds -= 100;
-	  DBG(DBG_io, "%s: motor is moving, %d mseconds to go\n", __func__, mseconds);
-	}
-      else
-	{
-	  DBG(DBG_info, "%s: motor is not moving, exiting\n", __func__);
-	  return SANE_STATUS_GOOD;
-	}
-
-    }
-  DBG(DBG_error, "%s: motor is still moving, timeout exceeded\n", __func__);
-  return SANE_STATUS_DEVICE_BUSY;
-}
-#endif
-
 
 /* ------------------------------------------------------------------------ */
 /*                  High level (exported) functions                         */

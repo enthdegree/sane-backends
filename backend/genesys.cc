@@ -3673,8 +3673,8 @@ static void genesys_fill_line_interp_buffer(Genesys_Device* dev, uint8_t* work_b
  * back to back and must be interleaved to get usable by the other stages
  * of the backend
  */
-static SANE_Status
-genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, size_t size)
+static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buffer_dst,
+                                          size_t size)
 {
     DBG_HELPER(dbg);
   size_t count;
@@ -3751,8 +3751,6 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
             accurate_line_read(dev, dev->oe_buffer);
 	    }
 	}
-
-    return SANE_STATUS_GOOD;
 }
 
 /**
@@ -3764,7 +3762,6 @@ genesys_fill_read_buffer (Genesys_Device * dev)
     DBG_HELPER(dbg);
   size_t size;
   size_t space;
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t *work_buffer_dst;
 
   /* for sheetfed scanner, we must check is document is shorter than
@@ -3820,14 +3817,8 @@ genesys_fill_read_buffer (Genesys_Device * dev)
     }
   else if (dev->segnb>1)
     {
-      /* multi-segment sensors processing */
-      status = genesys_fill_segmented_buffer (dev, work_buffer_dst, size);
-      if (status != SANE_STATUS_GOOD)
-      {
-          DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__, (u_long) size,
-              sane_strstatus(status));
-          return SANE_STATUS_IO_ERROR;
-      }
+        // multi-segment sensors processing
+        genesys_fill_segmented_buffer(dev, work_buffer_dst, size);
     }
   else /* regular case with no extra copy */
     {

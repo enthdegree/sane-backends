@@ -4239,11 +4239,9 @@ max_string_size (const SANE_String_Const strings[])
   return max_size;
 }
 
-static SANE_Status
-calc_parameters (Genesys_Scanner * s)
+static void calc_parameters(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   double tl_x = 0, tl_y = 0, br_x = 0, br_y = 0;
 
     tl_x = SANE_UNFIX(s->pos_top_left_x);
@@ -4421,8 +4419,6 @@ calc_parameters (Genesys_Scanner * s)
 
   /* cache expiration time */
    s->dev->settings.expiration_time = s->expiration_time;
-
-  return status;
 }
 
 
@@ -4591,7 +4587,6 @@ init_options (Genesys_Scanner * s)
 {
     DBG_HELPER(dbg);
   SANE_Int option;
-  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word *dpi_list;
   Genesys_Model *model = s->dev->model;
   SANE_Range *x_range, *y_range;
@@ -5188,7 +5183,7 @@ init_options (Genesys_Scanner * s)
     s->opt[OPT_IGNORE_OFFSETS].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT |
                                      SANE_CAP_ADVANCED;
 
-  RIE (calc_parameters (s));
+    calc_parameters(s);
 
   return SANE_STATUS_GOOD;
 }
@@ -6101,92 +6096,92 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     {
     case OPT_TL_X:
         s->pos_top_left_x = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_TL_Y:
         s->pos_top_left_y = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_BR_X:
         s->pos_bottom_right_x = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_BR_Y:
         s->pos_bottom_right_y = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_RESOLUTION:
         s->resolution = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_THRESHOLD:
         s->threshold = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_THRESHOLD_CURVE:
         s->threshold_curve = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_DISABLE_DYNAMIC_LINEART:
         s->disable_dynamic_lineart = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_SWCROP:
         s->swcrop = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_SWDESKEW:
         s->swdeskew = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_DESPECK:
         s->despeck = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_SWDEROTATE:
         s->swderotate = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_SWSKIP:
         s->swskip = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_DISABLE_INTERPOLATION:
         s->disable_interpolation = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_LAMP_OFF:
         s->lamp_off = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_PREVIEW:
         s->preview = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_BRIGHTNESS:
         s->brightness = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_CONTRAST:
         s->contrast = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_SWDESPECK:
@@ -6196,7 +6191,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         } else {
             DISABLE(OPT_DESPECK);
         }
-      RIE (calc_parameters (s));
+        calc_parameters(s);
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
     /* software enhancement functions only apply to 8 or 1 bits data */
@@ -6224,7 +6219,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
           ENABLE(OPT_CONTRAST);
           ENABLE(OPT_BRIGHTNESS);
         }
-      RIE (calc_parameters (s));
+        calc_parameters(s);
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
     case OPT_SOURCE:
@@ -6300,7 +6295,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  else
 	    ENABLE (OPT_BIT_DEPTH);
 	}
-      RIE (calc_parameters (s));
+        calc_parameters(s);
 
       /* if custom gamma, toggle gamma table options according to the mode */
       if (s->custom_gamma)
@@ -6325,7 +6320,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       break;
     case OPT_COLOR_FILTER:
       s->color_filter = reinterpret_cast<const char*>(val);
-      RIE (calc_parameters (s));
+        calc_parameters(s);
       break;
     case OPT_CALIBRATION_FILE:
             if (s->dev->force_calibration == 0) {
@@ -6552,12 +6547,11 @@ SANE_Status sane_get_parameters_impl(SANE_Handle handle, SANE_Parameters* params
 {
     DBG_HELPER(dbg);
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
-  SANE_Status status = SANE_STATUS_GOOD;
 
   /* don't recompute parameters once data reading is active, ie during scan */
   if(s->dev->read_active == SANE_FALSE)
     {
-      RIE (calc_parameters (s));
+        calc_parameters(s);
     }
   if (params)
     {
@@ -6607,7 +6601,7 @@ SANE_Status sane_start_impl(SANE_Handle handle)
   /* First make sure we have a current parameter set.  Some of the
      parameters will be overwritten below, but that's OK.  */
 
-  RIE (calc_parameters (s));
+    calc_parameters(s);
     genesys_start_scan(s->dev, s->lamp_off);
 
   s->scanning = SANE_TRUE;

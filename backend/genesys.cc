@@ -4582,8 +4582,7 @@ static char *calibration_filename(Genesys_Device *currdev)
 }
 
 
-static SANE_Status
-init_options (Genesys_Scanner * s)
+static void init_options(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
   SANE_Int option;
@@ -4672,7 +4671,7 @@ init_options (Genesys_Scanner * s)
 
     dpi_list = (SANE_Word*) malloc((model->xdpi_values.size() + 1) * sizeof(SANE_Word));
     if (!dpi_list) {
-        return SANE_STATUS_NO_MEM;
+        throw SaneException(SANE_STATUS_NO_MEM);
     }
     dpi_list[0] = model->xdpi_values.size();
     std::copy(model->xdpi_values.begin(), model->xdpi_values.end(), dpi_list + 1);
@@ -4697,13 +4696,13 @@ init_options (Genesys_Scanner * s)
   x_range=create_range(model->x_size);
   if(x_range==NULL)
     {
-      return SANE_STATUS_NO_MEM;
+        throw SaneException(SANE_STATUS_NO_MEM);
     }
 
   y_range=create_range(model->y_size);
   if(y_range==NULL)
     {
-      return SANE_STATUS_NO_MEM;
+        throw SaneException(SANE_STATUS_NO_MEM);
     }
 
   /* top-left x */
@@ -5184,8 +5183,6 @@ init_options (Genesys_Scanner * s)
                                      SANE_CAP_ADVANCED;
 
     calc_parameters(s);
-
-  return SANE_STATUS_GOOD;
 }
 
 static SANE_Bool present;
@@ -5724,10 +5721,11 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 
   *handle = s;
 
-  if (!dev->already_initialized)
-    sanei_genesys_init_structs (dev);
+    if (!dev->already_initialized) {
+        sanei_genesys_init_structs (dev);
+    }
 
-  RIE (init_options (s));
+    init_options(s);
 
     sanei_genesys_init_cmd_set(s->dev);
 

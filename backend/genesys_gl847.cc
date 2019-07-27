@@ -2269,11 +2269,9 @@ static void gl847_init_gpio(Genesys_Device* dev)
 /**
  * set memory layout by filling values in dedicated registers
  */
-static SANE_Status
-gl847_init_memory_layout (Genesys_Device * dev)
+static void gl847_init_memory_layout(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int idx = 0;
   uint8_t val;
 
@@ -2349,8 +2347,6 @@ gl847_init_memory_layout (Genesys_Device * dev)
   sanei_genesys_write_register (dev, 0xf5, layouts[idx].re5);
   sanei_genesys_write_register (dev, 0xf6, layouts[idx].re6);
   sanei_genesys_write_register (dev, 0xf7, layouts[idx].re7);
-
-  return status;
 }
 
 /* *

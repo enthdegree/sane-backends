@@ -2305,14 +2305,12 @@ static void gl124_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
  * by doing a 600 dpi scan
  * @param dev scanner device
  */
-static SANE_Status
-move_to_calibration_area (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                          Genesys_Register_Set& regs)
+static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                     Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   int pixels;
   int size;
-  SANE_Status status = SANE_STATUS_GOOD;
 
   pixels = (sensor.sensor_pixels*600)/sensor.optical_res;
 
@@ -2355,8 +2353,6 @@ move_to_calibration_area (Genesys_Device * dev, const Genesys_Sensor& sensor,
     {
       sanei_genesys_write_pnm_file("gl124_movetocalarea.pnm", line.data(), 8, 3, pixels, 1);
     }
-
-  return status;
 }
 
 /* this function does the led calibration by scanning one line of the calibration

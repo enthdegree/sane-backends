@@ -3450,11 +3450,7 @@ static void gl646_move_to_ta(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
 
-  if (simple_move(dev, SANE_UNFIX(dev->model->y_offset_sensor_to_ta)) != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to move to calibration area\n", __func__);
-      return;
-    }
+    simple_move(dev, SANE_UNFIX(dev->model->y_offset_sensor_to_ta));
 }
 
 
@@ -3647,11 +3643,9 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
  * @param dev device of the scanner
  * @param distance distance to move in MM
  */
-static SANE_Status
-simple_move (Genesys_Device * dev, SANE_Int distance)
+static void simple_move(Genesys_Device* dev, SANE_Int distance)
 {
     DBG_HELPER_ARGS(dbg, "%d mm", distance);
-  SANE_Status status = SANE_STATUS_GOOD;
   Genesys_Settings settings;
 
   int resolution = get_lowest_resolution(dev->model->ccd_type, 3);
@@ -3677,9 +3671,6 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
 
   std::vector<uint8_t> data;
     simple_scan(dev, sensor, settings, SANE_TRUE, SANE_TRUE, SANE_FALSE, data);
-
-
-  return status;
 }
 
 /**

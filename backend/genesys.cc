@@ -5374,8 +5374,7 @@ static void write_calibration(Genesys_Device::Calibration& calibration, const st
  * In order to allow digital processing, we must be able to put all the
  * scanned picture in a buffer.
  */
-static SANE_Status
-genesys_buffer_image(Genesys_Scanner *s)
+static void genesys_buffer_image(Genesys_Scanner *s)
 {
     DBG_HELPER(dbg);
   size_t maximum;     /**> maximum bytes size of the scan */
@@ -5482,8 +5481,6 @@ genesys_buffer_image(Genesys_Scanner *s)
                                    s->params.format==SANE_FRAME_RGB ? 3 : 1,
                                    s->params.pixels_per_line, s->params.lines);
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 /* -------------------------- SANE API functions ------------------------- */
@@ -6574,11 +6571,7 @@ SANE_Status sane_start_impl(SANE_Handle handle)
    * at the end */
   if (s->dev->buffer_image)
     {
-        SANE_Status status = genesys_buffer_image(s);
-        if (status != SANE_STATUS_GOOD) {
-            DBG(DBG_info, "%s: failed to buffer image: %s\n", __func__, sane_strstatus(status));
-            return status;
-        }
+        genesys_buffer_image(s);
 
       /* check if we need to skip this page, sheetfed scanners
        * can go to next doc while flatbed ones can't */

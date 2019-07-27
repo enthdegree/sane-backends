@@ -3624,8 +3624,8 @@ static void accurate_line_read(Genesys_Device* dev, Genesys_Buffer& buffer)
  * must be read and bytes interleaved to get usable by the other stages
  * of the backend
  */
-static SANE_Status
-genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, size_t size)
+static void genesys_fill_line_interp_buffer(Genesys_Device* dev, uint8_t* work_buffer_dst,
+                                            size_t size)
 {
     DBG_HELPER(dbg);
   size_t count;
@@ -3665,8 +3665,6 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
             accurate_line_read(dev, dev->oe_buffer);
 	    }
 	}
-
-    return SANE_STATUS_GOOD;
 }
 
 /** @brief fill buffer for segmented sensors
@@ -3817,14 +3815,8 @@ genesys_fill_read_buffer (Genesys_Device * dev)
    */
   if (dev->line_interp>0)
     {
-      /* line interpolation */
-      status = genesys_fill_line_interp_buffer (dev, work_buffer_dst, size);
-      if (status != SANE_STATUS_GOOD)
-      {
-          DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__, (u_long) size,
-              sane_strstatus(status));
-          return SANE_STATUS_IO_ERROR;
-      }
+        // line interpolation
+        genesys_fill_line_interp_buffer(dev, work_buffer_dst, size);
     }
   else if (dev->segnb>1)
     {

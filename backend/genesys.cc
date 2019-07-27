@@ -3756,8 +3756,7 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
 /**
  *
  */
-static SANE_Status
-genesys_fill_read_buffer (Genesys_Device * dev)
+static void genesys_fill_read_buffer(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   size_t size;
@@ -3793,7 +3792,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 
   /* early out if our remaining buffer capacity is too low */
   if (size == 0)
-    return SANE_STATUS_GOOD;
+    return;
 
   DBG(DBG_io, "%s: reading %lu bytes\n", __func__, (u_long) size);
 
@@ -3831,8 +3830,6 @@ genesys_fill_read_buffer (Genesys_Device * dev)
   dev->read_bytes_left -= size;
 
   dev->read_buffer.produce(size);
-
-  return SANE_STATUS_GOOD;
 }
 
 /* this function does the effective data read in a manner that suits
@@ -3981,13 +3978,7 @@ Problems with the first approach:
   total_bytes_to_read and total_bytes_read help in that case.
  */
 
-  status = genesys_fill_read_buffer (dev);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: genesys_fill_read_buffer failed\n", __func__);
-      return status;
-    }
+    genesys_fill_read_buffer(dev);
 
   src_buffer = &(dev->read_buffer);
 

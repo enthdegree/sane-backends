@@ -12,6 +12,7 @@ stages:
   - prepare
   - compile
   - archive
+  - release
 
 prepare:
   image: $REGISTRY_HUB:debian-stretch-mini
@@ -108,3 +109,17 @@ archive:
     - sane-backends-*.tar.gz
     - lists
     - doc/sanei-html
+
+release:
+  image: alpine
+  stage: release
+  before_script:
+    - apk --no-cache add curl git jq
+  script:
+    - ./tools/create-release.sh
+  only:
+    - tags
+  when: manual
+  variables:
+    GIT_DEPTH: "3"
+  allow_failure: false

@@ -1,10 +1,51 @@
--*-Mode: outline-*-
-New with the development version, not yet released:
+<!-- -*- Mode: markdown -*- -->
 
-* Saned options where reorganized (See "man 8 saned" for details):
- o New: -l (listen), -D (daemonize), -o (once), -e (stderr), -u (user).
- o Removed: -s (syslog). Use '-a -d level -o -f' for the old behavior.
- o Changed: -d (debug). Use '-a -d level -o -f -e' for the old behavior.
+## New with 1.0.28 (released 2019-07-31)
+
+### Backends
+
+- adds a `ricoh2` backend
+- adds support for 40+ new scanner models
+- significantly changes `canon_dr`, `fujitsu`, `genesys`, `gt68xx`,
+  `hp5590` and, `pixma` backends
+- fixes bugs in `as6e`, `avision`, `mustek` and `plustek` backends
+- fixes scores of compiler warnings
+
+### Frontends
+
+- adds, changes and removes options for `saned` (see `man 8 saned` for
+  details)
+  - adds: `-l` (listen), `-D` (daemonize), `-o` (once), `-e` (stderr),
+    `-u` (user)
+  - removes: `-s` (syslog).
+    Use `-a -d level -o -f` for the old behavior
+  - changes: `-d` (debug).
+    Use `-a -d level -o -f -e` for the old behavior
+- `saned` now cancels scans if the data connections appears to have
+  gone away (after 4 seconds by default, configurable in `saned.conf`)
+- adds `--output-file` option to `scanimage`
+- adds `--help` option to `scan-find-scanner`
+- changes `sane-desc` to create relative hyperlinks
+
+### Documentation
+
+- adds translations for Catalan, Hebrew and Valencian
+- updates translations for British English, Dutch, German and
+  Ukrainian
+- marks unmaintained backends as such
+- documents USB workaround in `sane-usb` manual page
+
+### Build
+
+- requires a C++11 compatible compiler for the `genesys` backend
+- requires a JPEG library when building the `pixma` backend
+- fixes unneeded linking when not using preloadable backend support
+- disables pthread support for systems with non-integral `pthread_t`
+  type
+- fixes USB support detection on BeOS and OS/2 at `./configure` time
+- normalizes trailing whitespace in source code files.  If you have
+  local patches that no longer apply, have a look at the whitespace
+  ignoring options of `patch` and `git apply`.
 
 
 New with 1.0.27 (see Note 1), released 2017-05-22:

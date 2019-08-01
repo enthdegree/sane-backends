@@ -12,8 +12,6 @@
 
 :backend "ricoh2"                 ; name of backend
 :version "1.0"                    ; version of backend (or "unmaintained")
-:new :yes                         ; Is the backend new to this SANE release?
-                                  ; :yes or :no
 :manpage "sane-ricoh2"            ; name of manpage (if it exists)
 :url "http://www.ricoh.com/"      ; backend's web page
 

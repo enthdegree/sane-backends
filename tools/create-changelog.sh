@@ -4,7 +4,7 @@
 #
 # License: GPL-3.0+
 
-git log --date=iso8601 --decorate=short 1.0.27..HEAD \
+git log --date=iso8601 --decorate=short 1.0.28..HEAD \
     | sed 's/^[ \t]*$//' \
     > ChangeLog
 

@@ -12,8 +12,6 @@
 
 :backend "panamfs"               ; name of backend
 ;:version "1.0.0"                   ; version of backend (or "unmaintained")
-;:new :yes                         ; Is the backend new to this SANE release?
-                                  ; :yes or :no
 ;:manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://panasonic.net/pcc/support/fax/common/table/linuxdriver.html" ; backend's web page
 :comment "External backend made by panasonic."

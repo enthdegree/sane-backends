@@ -12,8 +12,6 @@
 
 :backend "cs3200f"               ; name of backend
 ;:version "0"                   ; version of backend (or "unmaintained")
-;:new :yes                         ; Is the backend new to this SANE release?
-                                  ; :yes or :no
 ;:manpage "sane-cs3200f"          ; name of manpage (if it exists)
 ;:url "http://www.luser.com/temp/" ; backend's web page
 :comment "Backend is in experimental CVS"

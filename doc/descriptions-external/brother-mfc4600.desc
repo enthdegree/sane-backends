@@ -12,8 +12,6 @@
 
 :backend "brother-mfc4600"               ; name of backend
 ;:version "0.42"                   ; version of backend (or "unmaintained")
-;:new :yes                         ; Is the backend new to this SANE release?
-                                  ; :yes or :no
 ;:manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://sourceforge.net/projects/brother-mfc"
 ;:comment ""

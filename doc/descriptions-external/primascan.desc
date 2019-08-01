@@ -12,8 +12,6 @@
 
 :backend "primascan"               ; name of backend
 ;:version "0.42"                   ; version of backend (or "unmaintained")
-;:new :yes                         ; Is the backend new to this SANE release?
-                                  ; :yes or :no
 ;:manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://www.geocities.com/trsh0101/index.html" ; backend's web page
 :comment "SANE backend and stand-alone program"

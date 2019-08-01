@@ -12,8 +12,6 @@
 
 :backend "brother2"               ; name of backend
 ;:version "1.0.0"                   ; version of backend (or "unmaintained")
-;:new :yes                         ; Is the backend new to this SANE release?
-                                  ; :yes or :no
 ;:manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://solutions.brother.com/linux/sol/printer/linux/sane_drivers.html" ; backend's web page
 :comment "External backend made by brother. As this software contains non-free parts, it can't be included into SANE. If you can't find your model here, please have a look at the brother website which contains the latest list."

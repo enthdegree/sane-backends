@@ -12,8 +12,6 @@
 
 :backend "template"               ; name of backend
 :version "0.42"                   ; version of backend (or "unmaintained")
-:new :yes                         ; Is the backend new to this SANE release?
-                                  ; :yes or :no
 :manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://www.luser.com/temp/" ; backend's web page
 :url "http://www.luser.com/b/"    ; another backend webpage

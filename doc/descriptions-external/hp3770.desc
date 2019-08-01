@@ -12,8 +12,6 @@
 
 :backend "hp3770" 	          ; name of backend
 ;:version "0.0"                   ; version of backend (or "unmaintained")
-;:new :yes                         ; Is the backend new to this SANE release?
-                                  ; :yes or :no
 ;:manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://www.cyberbaladeur.fr/telechargement.html" ; backend's web page
 :comment "This backend can't be added to the SANE distribution because it consists of binary-only code."

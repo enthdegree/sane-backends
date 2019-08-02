@@ -46,7 +46,12 @@
 
 #include <memory.h>
 #include <assert.h>
+
+#if defined(__APPLE__) && defined(__MACH__)
+#include <malloc/malloc.h>
+#else
 #include <malloc.h>
+#endif
 
 #include "../include/sane/sanei_debug.h"
 

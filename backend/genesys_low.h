@@ -1568,7 +1568,6 @@ struct Genesys_Device
     Genesys_Gpo gpo;
     Genesys_Motor motor;
     uint8_t  control[6] = {};
-    time_t init_date = 0;
 
     size_t average_size = 0;
     // number of pixels used during shading calibration
@@ -1590,11 +1589,9 @@ struct Genesys_Device
 
     std::vector<uint8_t> white_average_data;
     std::vector<uint8_t> dark_average_data;
-    uint16_t dark[3] = {};
 
     SANE_Bool already_initialized = 0;
     SANE_Int scanhead_position_in_steps = 0;
-    SANE_Int lamp_off_time = 0;
 
     SANE_Bool read_active = 0;
     // signal wether the park command has been issued
@@ -1611,9 +1608,9 @@ struct Genesys_Device
     Genesys_Buffer out_buffer;
 
     // buffer for digital lineart from gray data
-    Genesys_Buffer binarize_buffer = {};
+    Genesys_Buffer binarize_buffer;
     // local buffer for gray data during dynamix lineart
-    Genesys_Buffer local_buffer = {};
+    Genesys_Buffer local_buffer;
 
     // bytes to read from scanner
     size_t read_bytes_left = 0;

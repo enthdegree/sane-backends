@@ -1573,47 +1573,6 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
 	  dark[i * 3 + 0] = dark[i * 3 + 1] = dark[i * 3 + 2] =
         genesys_average_black (dev, 0, calibration_data.data(), black_pixels);
 	}
-
-      if (i == 3)
-	{
-          if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
-	    {
-	      /* todo: huh? */
-	      dev->dark[0] =
-		(uint16_t) (1.6925 * dark[i * 3 + 0] + 0.1895 * 256);
-	      dev->dark[1] =
-		(uint16_t) (1.4013 * dark[i * 3 + 1] + 0.3147 * 256);
-	      dev->dark[2] =
-		(uint16_t) (1.2931 * dark[i * 3 + 2] + 0.1558 * 256);
-	    }
-	  else			/* one color-component modes */
-	    {
-	      switch (dev->settings.color_filter)
-		{
-                case ColorFilter::RED:
-		default:
-		  dev->dark[0] =
-		    (uint16_t) (1.6925 * dark[i * 3 + 0] +
-				(1.1895 - 1.0) * 256);
-		  dev->dark[1] = dev->dark[2] = dev->dark[0];
-		  break;
-
-                case ColorFilter::GREEN:
-		  dev->dark[1] =
-		    (uint16_t) (1.4013 * dark[i * 3 + 1] +
-				(1.3147 - 1.0) * 256);
-		  dev->dark[0] = dev->dark[2] = dev->dark[1];
-		  break;
-
-                case ColorFilter::BLUE:
-		  dev->dark[2] =
-		    (uint16_t) (1.2931 * dark[i * 3 + 2] +
-				(1.1558 - 1.0) * 256);
-		  dev->dark[0] = dev->dark[1] = dev->dark[2];
-		  break;
-		}
-	    }
-	}
     }				/* for (i = 0; i < 4; i++) */
 
   DBG(DBG_info, "%s: final: gain: %d/%d/%d, offset: %d/%d/%d\n", __func__,

@@ -80,6 +80,12 @@ uint8_t Genesys_Device::read_register(uint16_t address)
     return value;
 }
 
+void Genesys_Device::write_register(uint16_t address, uint8_t value)
+{
+    sanei_genesys_write_register(this, address, value);
+    update_register_state(address, value);
+}
+
 void Genesys_Device::write_registers(Genesys_Register_Set& regs)
 {
     sanei_genesys_bulk_write_register(this, regs);
@@ -102,6 +108,6 @@ void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSett
     for (const auto& reg : regs) {
         uint8_t val = dev.read_register(reg.address);
         val = (val & ~reg.mask) | (reg.value & reg.mask);
-        sanei_genesys_write_register(&dev, reg.address, val);
+        dev.write_register(reg.address, val);
     }
 }

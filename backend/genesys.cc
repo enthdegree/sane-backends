@@ -5671,8 +5671,8 @@ sane_close_impl(SANE_Handle handle)
 
   s->dev->clear();
 
-  /* LAMP OFF : same register across all the ASICs */
-  sanei_genesys_write_register(s->dev, 0x03, 0x00);
+    // LAMP OFF : same register across all the ASICs */
+    s->dev->write_register(0x03, 0x00);
 
     catch_all_exceptions(__func__, [&](){ s->dev->usb_dev.clear_halt(); });
 

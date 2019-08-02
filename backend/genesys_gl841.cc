@@ -71,10 +71,10 @@ static void gl841_set_buffer_address_gamma(Genesys_Device* dev, uint32_t addr)
 
   addr = addr >> 4;
 
-    sanei_genesys_write_register(dev, 0x5c, (addr & 0xff));
+    dev->write_register(0x5c, (addr & 0xff));
 
   addr = addr >> 8;
-    sanei_genesys_write_register(dev, 0x5b, (addr & 0xff));
+    dev->write_register(0x5b, (addr & 0xff));
 }
 
 /****************************************************************************
@@ -298,8 +298,8 @@ static void sanei_gl841_asic_test(Genesys_Device* dev)
     throw SaneException("not implemented");
 
     // set and read exposure time, compare if it's the same
-    sanei_genesys_write_register(dev, 0x38, 0xde);
-    sanei_genesys_write_register(dev, 0x39, 0xad);
+    dev->write_register(0x38, 0xde);
+    dev->write_register(0x39, 0xad);
 
     uint8_t val = dev->read_register(0x38);
 
@@ -484,30 +484,30 @@ gl841_init_lide80 (Genesys_Device * dev)
 
     // specific scanner settings, clock and gpio first
     val = dev->read_register(REG6B);
-  sanei_genesys_write_register (dev, REG6B, 0x0c);
-  sanei_genesys_write_register (dev, 0x06, 0x10);
-  sanei_genesys_write_register (dev, REG6E, 0x6d);
-  sanei_genesys_write_register (dev, REG6F, 0x80);
-  sanei_genesys_write_register (dev, REG6B, 0x0e);
+    dev->write_register(REG6B, 0x0c);
+    dev->write_register(0x06, 0x10);
+    dev->write_register(REG6E, 0x6d);
+    dev->write_register(REG6F, 0x80);
+    dev->write_register(REG6B, 0x0e);
     val = dev->read_register(REG6C);
-  sanei_genesys_write_register (dev, REG6C, 0x00);
+    dev->write_register(REG6C, 0x00);
     val = dev->read_register(REG6D);
-  sanei_genesys_write_register (dev, REG6D, 0x8f);
+    dev->write_register(REG6D, 0x8f);
     val = dev->read_register(REG6B);
-  sanei_genesys_write_register (dev, REG6B, 0x0e);
+    dev->write_register(REG6B, 0x0e);
     val = dev->read_register(REG6B);
-  sanei_genesys_write_register (dev, REG6B, 0x0e);
+    dev->write_register(REG6B, 0x0e);
     val = dev->read_register(REG6B);
-  sanei_genesys_write_register (dev, REG6B, 0x0a);
+    dev->write_register(REG6B, 0x0a);
     val = dev->read_register(REG6B);
-  sanei_genesys_write_register (dev, REG6B, 0x02);
+    dev->write_register(REG6B, 0x02);
     val = dev->read_register(REG6B);
-  sanei_genesys_write_register (dev, REG6B, 0x06);
+    dev->write_register(REG6B, 0x06);
 
     (void) val; // FIXME: we don't use the information read from registers
 
     sanei_genesys_write_0x8c(dev, 0x10, 0x94);
-  sanei_genesys_write_register (dev, 0x09, 0x10);
+    dev->write_register(0x09, 0x10);
 
   /* set up GPIO : no address, so no bulk write, doesn't written directly either ? */
   /*
@@ -969,12 +969,12 @@ uint8_t *table;
           default:
             table=tdefault;
         }
-        sanei_genesys_write_register(dev, 0x66, 0x00);
-        sanei_genesys_write_register(dev, 0x5b, 0x0c);
-        sanei_genesys_write_register(dev, 0x5c, 0x00);
+        dev->write_register(0x66, 0x00);
+        dev->write_register(0x5b, 0x0c);
+        dev->write_register(0x5c, 0x00);
         sanei_genesys_bulk_write_data(dev, 0x28, table, 128);
-        sanei_genesys_write_register(dev, 0x5b, 0x00);
-        sanei_genesys_write_register(dev, 0x5c, 0x00);
+        dev->write_register(0x5b, 0x00);
+        dev->write_register(0x5c, 0x00);
     }
 }
 
@@ -2302,32 +2302,32 @@ static void gl841_save_power(Genesys_Device* dev, SANE_Bool enable)
    GPIO18 disabled*/
 
         uint8_t val = dev->read_register(REG6D);
-	    sanei_genesys_write_register(dev, REG6D, val | 0x80);
+        dev->write_register(REG6D, val | 0x80);
 
             sanei_genesys_sleep_ms(1);
 
 	    /*enable GPIO9*/
         val = dev->read_register(REG6C);
-	    sanei_genesys_write_register(dev, REG6C, val | 0x01);
+        dev->write_register(REG6C, val | 0x01);
 
 	    /*disable GPO17*/
         val = dev->read_register(REG6B);
-	    sanei_genesys_write_register(dev, REG6B, val & ~REG6B_GPO17);
+        dev->write_register(REG6B, val & ~REG6B_GPO17);
 
 	    /*disable GPO18*/
         val = dev->read_register(REG6B);
-	    sanei_genesys_write_register(dev, REG6B, val & ~REG6B_GPO18);
+        dev->write_register(REG6B, val & ~REG6B_GPO18);
 
             sanei_genesys_sleep_ms(1);
 
         val = dev->read_register(REG6D);
-	    sanei_genesys_write_register(dev, REG6D, val & ~0x80);
+        dev->write_register(REG6D, val & ~0x80);
 
 	}
 	if (dev->model->gpo_type == GPO_DP685)
 	  {
         uint8_t val = dev->read_register(REG6B);
-	    sanei_genesys_write_register(dev, REG6B, val & ~REG6B_GPO17);
+        dev->write_register(REG6B, val & ~REG6B_GPO17);
             dev->reg.find_reg(0x6b).value &= ~REG6B_GPO17;
             dev->calib_reg.find_reg(0x6b).value &= ~REG6B_GPO17;
 	  }
@@ -2345,27 +2345,27 @@ static void gl841_save_power(Genesys_Device* dev, SANE_Bool enable)
    GPIO18 enabled*/
 
         uint8_t val = dev->read_register(REG6D);
-	    sanei_genesys_write_register(dev, REG6D, val | 0x80);
+        dev->write_register(REG6D, val | 0x80);
 
             sanei_genesys_sleep_ms(10);
 
 	    /*disable GPIO9*/
         val = dev->read_register(REG6C);
-	    sanei_genesys_write_register(dev, REG6C, val & ~0x01);
+        dev->write_register(REG6C, val & ~0x01);
 
 	    /*enable GPIO10*/
         val = dev->read_register(REG6C);
-	    sanei_genesys_write_register(dev, REG6C, val | 0x02);
+        dev->write_register(REG6C, val | 0x02);
 
 	    /*enable GPO17*/
         val = dev->read_register(REG6B);
-	    sanei_genesys_write_register(dev, REG6B, val | REG6B_GPO17);
+        dev->write_register(REG6B, val | REG6B_GPO17);
             dev->reg.find_reg(0x6b).value |= REG6B_GPO17;
             dev->calib_reg.find_reg(0x6b).value |= REG6B_GPO17;
 
 	    /*enable GPO18*/
         val = dev->read_register(REG6B);
-	    sanei_genesys_write_register(dev, REG6B, val | REG6B_GPO18);
+        dev->write_register(REG6B, val | REG6B_GPO18);
             dev->reg.find_reg(0x6b).value |= REG6B_GPO18;
             dev->calib_reg.find_reg(0x6b).value |= REG6B_GPO18;
 
@@ -2374,7 +2374,7 @@ static void gl841_save_power(Genesys_Device* dev, SANE_Bool enable)
             || dev->model->gpo_type == GPO_DP685)
 	  {
         uint8_t val = dev->read_register(REG6B);
-	    sanei_genesys_write_register(dev, REG6B, val | REG6B_GPO17);
+        dev->write_register(REG6B, val | REG6B_GPO17);
             dev->reg.find_reg(0x6b).value |= REG6B_GPO17;
             dev->calib_reg.find_reg(0x6b).value |= REG6B_GPO17;
 	  }
@@ -2450,7 +2450,7 @@ static void gl841_set_powersaving(Genesys_Device* dev, int delay /* in minutes *
 static void gl841_start_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-    sanei_genesys_write_register(dev, 0x0f, 0x01);
+    dev->write_register(0x0f, 0x01);
 }
 
 static void gl841_stop_action(Genesys_Device* dev)
@@ -2741,7 +2741,7 @@ static void gl841_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     if (dev->model->gpo_type == GPO_CANONLIDE80) {
         val = dev->read_register(REG6B);
         val = REG6B_GPO18;
-        sanei_genesys_write_register(dev, REG6B, val);
+        dev->write_register(REG6B, val);
     }
 
     if (dev->model->ccd_type != CCD_PLUSTEK_3600) {
@@ -2850,12 +2850,12 @@ static void gl841_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
     if (dev->model->gpo_type == GPO_CANONLIDE35) {
         val = dev->read_register(REG6C);
         val = dev->gpo.value[0];
-        sanei_genesys_write_register(dev, REG6C, val);
+        dev->write_register(REG6C, val);
     }
     if (dev->model->gpo_type == GPO_CANONLIDE80) {
         val = dev->read_register(REG6B);
         val = REG6B_GPO18 | REG6B_GPO17;
-        sanei_genesys_write_register(dev, REG6B, val);
+        dev->write_register(REG6B, val);
     }
   gl841_save_power(dev, SANE_FALSE);
 
@@ -2888,7 +2888,7 @@ static void gl841_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
   /* end previous scan if any */
   r = sanei_genesys_get_address(&dev->reg, REG01);
   r->value &= ~REG01_SCAN;
-    sanei_genesys_write_register(dev, REG01, r->value);
+    dev->write_register(REG01, r->value);
 
   /* if motor is on, stop current action */
   if (val & REG41_MOTORENB)
@@ -3347,12 +3347,12 @@ static void gl841_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
         sensor.exposure.blue = exp[2];
 
         sanei_genesys_set_exposure(regs, sensor.exposure);
-        sanei_genesys_write_register(dev, 0x10, (sensor.exposure.red >> 8) & 0xff);
-        sanei_genesys_write_register(dev, 0x11, sensor.exposure.red & 0xff);
-        sanei_genesys_write_register(dev, 0x12, (sensor.exposure.green >> 8) & 0xff);
-        sanei_genesys_write_register(dev, 0x13, sensor.exposure.green & 0xff);
-        sanei_genesys_write_register(dev, 0x14, (sensor.exposure.blue >> 8) & 0xff);
-        sanei_genesys_write_register(dev, 0x15, sensor.exposure.blue & 0xff);
+        dev->write_register(0x10, (sensor.exposure.red >> 8) & 0xff);
+        dev->write_register(0x11, sensor.exposure.red & 0xff);
+        dev->write_register(0x12, (sensor.exposure.green >> 8) & 0xff);
+        dev->write_register(0x13, sensor.exposure.green & 0xff);
+        dev->write_register(0x14, (sensor.exposure.blue >> 8) & 0xff);
+        dev->write_register(0x15, sensor.exposure.blue & 0xff);
 
         dev->write_registers(regs);
 
@@ -4227,8 +4227,8 @@ static void gl841_init(Genesys_Device* dev)
   dev->settings.color_filter = ColorFilter::RED;
 
     // ASIC reset
-    sanei_genesys_write_register(dev, 0x0e, 0x01);
-    sanei_genesys_write_register(dev, 0x0e, 0x00);
+    dev->write_register(0x0e, 0x01);
+    dev->write_register(0x0e, 0x00);
 
   /* Set default values for registers */
   gl841_init_registers (dev);

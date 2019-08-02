@@ -523,10 +523,10 @@ void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 
   addr = addr >> 4;
 
-    sanei_genesys_write_register(dev, 0x2b, (addr & 0xff));
+    dev->write_register(0x2b, (addr & 0xff));
 
   addr = addr >> 8;
-    sanei_genesys_write_register(dev, 0x2a, (addr & 0xff));
+    dev->write_register(0x2a, (addr & 0xff));
 }
 
 /**@brief read data from analog frontend (AFE)
@@ -919,7 +919,7 @@ void sanei_genesys_bulk_write_register(Genesys_Device* dev, const Genesys_Regist
         }
     } else {
         for (const auto& r : reg) {
-            sanei_genesys_write_register(dev, r.address, r.value);
+            dev->write_register(r.address, r.value);
         }
     }
 
@@ -1094,12 +1094,12 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
         // clear corresponding GMM_N bit
         uint8_t val = dev->read_register(0xbd);
         val &= ~(0x01 << i);
-        sanei_genesys_write_register(dev, 0xbd, val);
+        dev->write_register(0xbd, val);
 
         // clear corresponding GMM_F bit
         val = dev->read_register(0xbe);
       val &= ~(0x01 << i);
-        sanei_genesys_write_register(dev, 0xbe, val);
+        dev->write_register(0xbe, val);
 
       // FIXME: currently the last word of each gamma table is not initialied, so to work around
       // unstable data, just set it to 0 which is the most likely value of uninitialized memory
@@ -1108,8 +1108,8 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
       gamma[size * 2 * i + size * 2 - 1] = 0;
 
       /* set GMM_Z */
-        sanei_genesys_write_register(dev, 0xc5+2*i, gamma[size*2*i+1]);
-        sanei_genesys_write_register(dev, 0xc6+2*i, gamma[size*2*i]);
+        dev->write_register(0xc5+2*i, gamma[size*2*i+1]);
+        dev->write_register(0xc6+2*i, gamma[size*2*i]);
 
         sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2,
                                 gamma.data() + i * size * 2+2);

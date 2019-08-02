@@ -190,7 +190,7 @@ print_status (uint8_t val)
 static void gl646_start_motor(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-    sanei_genesys_write_register(dev, 0x0f, 0x01);
+    dev->write_register(0x0f, 0x01);
 }
 
 
@@ -201,7 +201,7 @@ static void gl646_start_motor(Genesys_Device* dev)
 static void gl646_stop_motor(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-    sanei_genesys_write_register(dev, 0x0f, 0x00);
+    dev->write_register(0x0f, 0x00);
 }
 
 
@@ -1028,9 +1028,9 @@ static void gl646_asic_test(Genesys_Device* dev)
   unsigned int i;
 
     // set and read exposure time, compare if it's the same
-    sanei_genesys_write_register(dev, 0x38, 0xde);
+    dev->write_register(0x38, 0xde);
 
-    sanei_genesys_write_register(dev, 0x39, 0xad);
+    dev->write_register(0x39, 0xad);
 
     uint8_t val = dev->read_register(0x4e);
 
@@ -1354,7 +1354,7 @@ static void gl646_wm_hp3670(Genesys_Device* dev, const Genesys_Sensor& sensor, u
     case AFE_INIT:
         sanei_genesys_fe_write_data (dev, 0x04, 0x80);
       sanei_genesys_sleep_ms(200);
-    sanei_genesys_write_register(dev, 0x50, 0x00);
+    dev->write_register(0x50, 0x00);
       dev->frontend = dev->frontend_initial;
         sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
         sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.regs.get_value(0x02));
@@ -1809,7 +1809,7 @@ static void gl646_eject_document(Genesys_Device* dev)
     }
 
     // there is a document inserted, eject it
-    sanei_genesys_write_register(dev, 0x01, 0xb0);
+    dev->write_register(0x01, 0xb0);
 
   /* wait for motor to stop */
   do
@@ -1924,7 +1924,7 @@ static void end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool c
   val = sanei_genesys_read_reg_from_set (reg, 0x01);
   val &= ~REG01_SCAN;
   sanei_genesys_set_reg_from_set (reg, 0x01, val);
-    sanei_genesys_write_register(dev, 0x01, val);
+    dev->write_register(0x01, val);
 
   /* for sheetfed scanners, we may have to eject document */
   if (dev->model->is_sheetfed == SANE_TRUE)
@@ -3337,7 +3337,7 @@ static void gl646_init(Genesys_Device* dev)
         dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_INIT, INDEX, 1, &val);
 
         // ASIC reset
-        sanei_genesys_write_register(dev, 0x0e, 0x00);
+        dev->write_register(0x0e, 0x00);
       sanei_genesys_sleep_ms(100);
 
         // Write initial registers
@@ -3362,8 +3362,8 @@ static void gl646_init(Genesys_Device* dev)
   /* GPO enabling for XP200 */
   if (dev->model->ccd_type == CIS_XP200)
     {
-      sanei_genesys_write_register (dev, 0x68, dev->gpo.enable[0]);
-      sanei_genesys_write_register (dev, 0x69, dev->gpo.enable[1]);
+        dev->write_register(0x68, dev->gpo.enable[0]);
+        dev->write_register(0x69, dev->gpo.enable[1]);
 
         // enable GPIO
         gl646_gpio_output_enable(dev->usb_dev, 6);
@@ -3374,9 +3374,9 @@ static void gl646_init(Genesys_Device* dev)
         // clear GPIO enable
         gl646_gpio_output_enable(dev->usb_dev, 0);
 
-      sanei_genesys_write_register (dev, 0x66, 0x10);
-      sanei_genesys_write_register (dev, 0x66, 0x00);
-      sanei_genesys_write_register (dev, 0x66, 0x10);
+        dev->write_register(0x66, 0x10);
+        dev->write_register(0x66, 0x00);
+        dev->write_register(0x66, 0x10);
     }
 
   /* MD6471/G2410 and XP200 read/write data from an undocumented memory area which

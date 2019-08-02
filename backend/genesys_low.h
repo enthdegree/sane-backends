@@ -678,6 +678,12 @@ struct Genesys_Sensor {
     // red, green and blue gamma coefficient for default gamma tables
     AssignableArray<float, 3> gamma;
 
+    std::function<unsigned(const Genesys_Sensor&, unsigned)> get_logical_hwdpi_fun;
+    std::function<unsigned(const Genesys_Sensor&, unsigned)> get_register_hwdpi_fun;
+
+    unsigned get_logical_hwdpi(unsigned xres) const { return get_logical_hwdpi_fun(*this, xres); }
+    unsigned get_register_hwdpi(unsigned xres) const { return get_register_hwdpi_fun(*this, xres); }
+
     int get_ccd_size_divisor_for_dpi(int xres) const
     {
         if (ccd_size_divisor >= 4 && xres * 4 <= optical_res) {
@@ -1946,11 +1952,6 @@ inline SensorExposure sanei_genesys_fixup_exposure(SensorExposure exposure)
 extern void sanei_genesys_wait_for_home(Genesys_Device* dev);
 
 extern void sanei_genesys_asic_init(Genesys_Device* dev, SANE_Bool cold);
-
-int sanei_genesys_compute_dpihw(Genesys_Device *dev, const Genesys_Sensor& sensor, int xres);
-
-int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, const Genesys_Sensor& sensor,
-                                            int xres);
 
 extern
 Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_type, int exposure);

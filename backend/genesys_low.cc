@@ -1306,62 +1306,6 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
     }
 }
 
-/**@brief compute hardware sensor dpi to use
- * compute the sensor hardware dpi based on target resolution.
- * A lower dpihw enable faster scans.
- * @param dev device used for the scan
- * @param xres x resolution of the scan
- * @return the hardware dpi to use
- */
-int sanei_genesys_compute_dpihw(Genesys_Device *dev, const Genesys_Sensor& sensor, int xres)
-{
-  /* some scanners use always hardware dpi for sensor */
-  if (dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE)
-    {
-      return sensor.optical_res;
-    }
-
-  /* can't be below 600 dpi */
-  if (xres <= 600)
-    {
-      return 600;
-    }
-  if (xres <= sensor.optical_res / 4)
-    {
-      return sensor.optical_res / 4;
-    }
-  if (xres <= sensor.optical_res / 2)
-    {
-      return sensor.optical_res / 2;
-    }
-  return sensor.optical_res;
-}
-
-// sanei_genesys_compute_dpihw returns the dpihw that is written to register.
-// However the number of pixels depends on half_ccd mode
-int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, const Genesys_Sensor& sensor,
-                                            int xres)
-{
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    {
-      // real resolution is half of the "official" resolution - half_ccd mode
-      int hwres = sensor.optical_res / sensor.get_ccd_size_divisor_for_dpi(xres);
-
-      if (xres <= hwres / 4)
-        {
-          return hwres / 4;
-        }
-      if (xres <= hwres / 2)
-        {
-          return hwres / 2;
-        }
-      return hwres;
-    }
-
-  return sanei_genesys_compute_dpihw(dev, sensor, xres);
-}
-
 /** @brief motor profile
  * search for the database of motor profiles and get the best one. Each
  * profile is at full step and at a reference exposure. Use first entry
@@ -1597,8 +1541,8 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
     }
   else
     {
-      resolution=sanei_genesys_compute_dpihw(dev, sensor, dev->settings.xres);
-      compatible = (resolution == ((int) sanei_genesys_compute_dpihw(dev, sensor,cache->used_setup.xres)));
+        compatible = (sensor.get_register_hwdpi(dev->settings.xres) ==
+                      sensor.get_register_hwdpi(cache->used_setup.xres));
     }
   DBG (DBG_io, "%s: after resolution check current compatible=%d\n", __func__, compatible);
   if (dev->current_setup.ccd_size_divisor != cache->used_setup.ccd_size_divisor)

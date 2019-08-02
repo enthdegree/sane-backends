@@ -213,7 +213,7 @@ static void gl847_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
   int dpihw;
   uint16_t exp;
 
-  dpihw=sanei_genesys_compute_dpihw(dev, sensor, dpi);
+    dpihw = sensor.get_register_hwdpi(dpi);
 
     for (uint16_t addr = 0x16; addr < 0x1e; addr++) {
         regs->set8(addr, sensor.custom_regs.get_value(addr));
@@ -223,8 +223,8 @@ static void gl847_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
         regs->set8(addr, sensor.custom_regs.get_value(addr));
     }
 
-  /* set EXPDUMMY and CKxMAP */
-  dpihw=sanei_genesys_compute_dpihw(dev, sensor, dpi);
+    // set EXPDUMMY and CKxMAP
+    dpihw = sensor.get_register_hwdpi(dpi);
   Sensor_Profile* sensor_profile=get_sensor_profile(dev->model->ccd_type, dpihw);
 
   sanei_genesys_set_reg_from_set(regs,REG_EXPDMY,(uint8_t)((sensor_profile->expdummy) & 0xff));
@@ -809,7 +809,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     // to manage high resolution device while keeping good low resolution scanning speed, we make
     // hardware dpi vary
-    dpihw = sanei_genesys_compute_dpihw(dev, sensor, used_res * ccd_pixels_per_system_pixel);
+    dpihw = sensor.get_register_hwdpi(used_res * ccd_pixels_per_system_pixel);
   factor=sensor.optical_res/dpihw;
   DBG(DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
@@ -1835,7 +1835,7 @@ static void gl847_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
   /* initial calibration reg values */
   regs = dev->reg;
 
-  dev->calib_resolution = sanei_genesys_compute_dpihw(dev, sensor, dev->settings.xres);
+    dev->calib_resolution = sensor.get_register_hwdpi(dev->settings.xres);
   dev->calib_total_bytes_to_read = 0;
   dev->calib_lines = dev->model->shading_lines;
   if(dev->calib_resolution==4800)
@@ -2010,7 +2010,7 @@ static void gl847_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
   dpiset=tempo;
   DBG(DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d, DPISET=%d\n", __func__, strpixel, endpixel,
       endpixel-strpixel, dpiset);
-  dpihw=sanei_genesys_compute_dpihw(dev, sensor, dpiset);
+    dpihw = sensor.get_register_hwdpi(dpiset);
   factor=dpihw/dpiset;
   DBG(DBG_io2, "%s: factor=%d\n", __func__, factor);
 
@@ -2102,7 +2102,7 @@ static void gl847_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
   /* offset calibration is always done in color mode */
   channels = 3;
   depth=16;
-  used_res=sanei_genesys_compute_dpihw(dev, sensor, dev->settings.xres);
+    used_res = sensor.get_register_hwdpi(dev->settings.xres);
   Sensor_Profile* sensor_profile=get_sensor_profile(dev->model->ccd_type, used_res);
   num_pixels = (sensor.sensor_pixels*used_res)/sensor.optical_res;
 

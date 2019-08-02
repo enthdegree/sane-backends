@@ -996,7 +996,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
   if (!(dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE))
     {
       r->value = 0x50;
-      coeff=sensor.optical_res/sanei_genesys_compute_dpihw(dev, sensor, scan_yres);
+        coeff=sensor.optical_res / sensor.get_register_hwdpi(scan_yres);
       if (dev->model->motor_type == MOTOR_KVSS080)
         {
           if(coeff>=1)
@@ -1058,9 +1058,9 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   tgtime = exposure / 65536 + 1;
   DBG(DBG_io2, "%s: tgtime=%d\n", __func__, tgtime);
 
-  /* to manage high resolution device while keeping good
-   * low resolution scanning speed, we make hardware dpi vary */
-  dpihw=sanei_genesys_compute_dpihw(dev, sensor, used_res);
+    // to manage high resolution device while keeping good low resolution scanning speed, we make
+    // hardware dpi vary
+    dpihw = sensor.get_register_hwdpi(used_res);
   factor=sensor.optical_res/dpihw;
   DBG(DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
@@ -2089,7 +2089,7 @@ static void gl843_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
   /* get back the target dpihw */
   sanei_genesys_get_double (reg, REG_DPISET, &dpiset);
-  dpihw = sanei_genesys_compute_dpihw(dev, sensor, dpiset);
+    dpihw = sensor.get_register_hwdpi(dpiset);
 
   /* set up GPIO for scan */
   switch(dev->model->gpo_type)
@@ -2586,7 +2586,7 @@ static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
         dev->calib_lines = dev->model->shading_lines;
     }
 
-  dpihw = sanei_genesys_compute_dpihw_calibration(dev, sensor, dev->settings.xres);
+    dpihw = sensor.get_logical_hwdpi(dev->settings.xres);
   factor=sensor.optical_res/dpihw;
   resolution=dpihw;
 
@@ -3025,8 +3025,8 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   lines = 8;
   bpp = 8;
 
-  /* compute divider factor to compute final pixels number */
-  dpihw = sanei_genesys_compute_dpihw_calibration(dev, sensor, dev->settings.xres);
+    // compute divider factor to compute final pixels number
+    dpihw = sensor.get_logical_hwdpi(dev->settings.xres);
   factor = sensor.optical_res / dpihw;
   resolution = dpihw;
 
@@ -3246,7 +3246,7 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   int resolution;
   int bpp;
 
-  dpihw=sanei_genesys_compute_dpihw_calibration(dev, sensor, dpi);
+    dpihw = sensor.get_logical_hwdpi(dpi);
   factor=sensor.optical_res/dpihw;
 
   /* coarse gain calibration is always done in color mode */
@@ -3432,7 +3432,7 @@ static void gl843_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor
   /* setup scan */
   *channels=3;
   resolution=600;
-  dpihw=sanei_genesys_compute_dpihw_calibration(dev, sensor, resolution);
+    dpihw = sensor.get_logical_hwdpi(resolution);
   resolution=dpihw;
 
   const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution,
@@ -3878,7 +3878,7 @@ static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
        * compute offset within data for SHDAREA case */
       r = sanei_genesys_get_address(&dev->reg, REG18);
       sanei_genesys_get_double(&dev->reg,REG_DPISET,&dpiset);
-      factor=sensor.optical_res/sanei_genesys_compute_dpihw(dev, sensor, dpiset);
+        factor = sensor.optical_res / sensor.get_register_hwdpi(dpiset);
 
       /* start coordinate in optical dpi coordinates */
       startx = (sensor.dummy_pixel / sensor.ccd_pixels_per_system_pixel()) / factor;
@@ -3891,8 +3891,7 @@ static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
         {
           int optical_res = sensor.optical_res / dev->current_setup.ccd_size_divisor;
           int dpiset_real = dpiset / dev->current_setup.ccd_size_divisor;
-          int half_ccd_factor = optical_res /
-              sanei_genesys_compute_dpihw_calibration(dev, sensor, dpiset_real);
+          int half_ccd_factor = optical_res / sensor.get_logical_hwdpi(dpiset_real);
           strpixel /= half_ccd_factor;
           endpixel /= half_ccd_factor;
         }

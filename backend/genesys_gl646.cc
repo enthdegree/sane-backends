@@ -1579,7 +1579,7 @@ static void gl646_set_powersaving(Genesys_Device* dev, int delay /* in minutes *
   local_reg.find_reg(0x38).value = exposure_time / 256;
   local_reg.find_reg(0x39).value = exposure_time & 255;
 
-    sanei_genesys_bulk_write_register(dev, local_reg);
+    dev->write_registers(local_reg);
 }
 
 
@@ -1673,7 +1673,7 @@ static void gl646_load_document(Genesys_Device* dev)
     // wait e1 status to become e0
     gl646_send_slope_table(dev, 1, slope_table, 50);
 
-    sanei_genesys_bulk_write_register(dev, regs);
+    dev->write_registers(regs);
 
     gl646_start_motor(dev);
 
@@ -1698,7 +1698,7 @@ static void gl646_load_document(Genesys_Device* dev)
   regs.set8(0x02, 0x71);
   regs.set8(0x3f, 1);
   regs.set8(0x6b, 8);
-    sanei_genesys_bulk_write_register(dev, regs);
+    dev->write_registers(regs);
 }
 
 /**
@@ -1854,7 +1854,7 @@ static void gl646_eject_document(Genesys_Device* dev)
     // wait c1 status to become c8 : HOMESNR and ~MOTFLAG
     gl646_send_slope_table(dev, 1, slope_table, 60);
 
-    sanei_genesys_bulk_write_register(dev, regs);
+    dev->write_registers(regs);
 
     gl646_start_motor(dev);
 
@@ -1895,7 +1895,7 @@ static void gl646_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
         local_reg.init_reg(0x0f, 0x00); // do not start motor yet
     }
 
-    sanei_genesys_bulk_write_register(dev, local_reg);
+    dev->write_registers(local_reg);
 }
 
 
@@ -2082,7 +2082,7 @@ static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
 
   /* write scan registers */
     try {
-        sanei_genesys_bulk_write_register(dev, dev->reg);
+        dev->write_registers(dev->reg);
     } catch (...) {
         DBG(DBG_error, "%s: failed to bulk write registers\n", __func__);
     }
@@ -3224,7 +3224,7 @@ static void gl646_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor
 
     // now registers are ok, write them to scanner
     gl646_set_fe(dev, sensor, AFE_SET, settings.xres);
-    sanei_genesys_bulk_write_register(dev, *local_reg);
+    dev->write_registers(*local_reg);
 }
 
 
@@ -3261,7 +3261,7 @@ static void gl646_repark_head(Genesys_Device* dev)
   /* TODO seems wrong ... no effective scan */
   dev->reg.find_reg(0x01).value &= ~REG01_SCAN;
 
-    sanei_genesys_bulk_write_register(dev, dev->reg);
+    dev->write_registers(dev->reg);
 
     // start scan
     gl646_begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
@@ -3341,7 +3341,7 @@ static void gl646_init(Genesys_Device* dev)
       sanei_genesys_sleep_ms(100);
 
         // Write initial registers
-        sanei_genesys_bulk_write_register(dev, dev->reg);
+        dev->write_registers(dev->reg);
 
       /* Test ASIC and RAM */
       if (!(dev->model->flags & GENESYS_FLAG_LAZY_INIT))
@@ -3556,7 +3556,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     }
 
     // write scan registers
-    sanei_genesys_bulk_write_register(dev, dev->reg);
+    dev->write_registers(dev->reg);
 
     // starts scan
     gl646_begin_scan(dev, sensor, &dev->reg, move);

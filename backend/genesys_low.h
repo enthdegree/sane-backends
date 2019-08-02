@@ -438,7 +438,8 @@ extern void sanei_genesys_read_hregister(Genesys_Device* dev, uint16_t reg, uint
 
 extern void sanei_genesys_write_hregister(Genesys_Device* dev, uint16_t reg, uint8_t val);
 
-extern void sanei_genesys_bulk_write_register(Genesys_Device* dev, Genesys_Register_Set& regs);
+extern void sanei_genesys_bulk_write_register(Genesys_Device* dev,
+                                              const Genesys_Register_Set& regs);
 
 extern void sanei_genesys_write_0x8c(Genesys_Device* dev, uint8_t index, uint8_t val);
 

@@ -1775,7 +1775,7 @@ static void gl124_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
   r = sanei_genesys_get_address(&local_reg, REG02);
   r->value |= REG02_MTRREV;
 
-    sanei_genesys_bulk_write_register(dev, local_reg);
+    dev->write_registers(local_reg);
 
     gl124_setup_scan_gpio(dev,resolution);
 
@@ -1786,7 +1786,7 @@ static void gl124_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {
-            sanei_genesys_bulk_write_register(dev, dev->reg);
+            dev->write_registers(dev->reg);
         });
         throw;
     }
@@ -1879,7 +1879,7 @@ static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
     }
 
     // send registers
-    sanei_genesys_bulk_write_register(dev, local_reg);
+    dev->write_registers(local_reg);
 
     try {
         gl124_start_action(dev);
@@ -1889,7 +1889,7 @@ static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {
-            sanei_genesys_bulk_write_register(dev, dev->reg);
+            dev->write_registers(dev->reg);
         });
         throw;
     }
@@ -1943,7 +1943,7 @@ static void gl124_search_start_position(Genesys_Device* dev)
     gl124_init_scan_regs(dev, sensor, &local_reg, params);
 
     // send to scanner
-    sanei_genesys_bulk_write_register(dev, local_reg);
+    dev->write_registers(local_reg);
 
   size = pixels * dev->model->search_lines;
 
@@ -2014,7 +2014,7 @@ static void gl124_init_regs_for_coarse_calibration(Genesys_Device* dev,
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
       sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
 
-    sanei_genesys_bulk_write_register(dev, regs);
+    dev->write_registers(regs);
 }
 
 
@@ -2084,7 +2084,7 @@ static void gl124_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
 
   dev->scanhead_position_in_steps += dev->calib_lines + move;
 
-    sanei_genesys_bulk_write_register(dev, regs);
+    dev->write_registers(regs);
 }
 
 static void gl124_wait_for_motor_stop(Genesys_Device* dev)
@@ -2333,7 +2333,7 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
   std::vector<uint8_t> line(size);
 
     // write registers and scan data
-    sanei_genesys_bulk_write_register(dev, regs);
+    dev->write_registers(regs);
 
   DBG (DBG_info, "%s: starting line reading\n", __func__);
     gl124_begin_scan (dev, sensor, &regs, SANE_TRUE);
@@ -2432,7 +2432,7 @@ static void gl124_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
       sanei_genesys_set_triple(&regs,REG_EXPB,exp[2]);
 
         // write registers and scan data
-        sanei_genesys_bulk_write_register(dev, regs);
+        dev->write_registers(regs);
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
         gl124_begin_scan (dev, sensor, &regs, SANE_TRUE);
@@ -2602,7 +2602,7 @@ static void gl124_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   dev->frontend.set_offset(2, bottom);
 
     gl124_set_fe(dev, sensor, AFE_SET);
-    sanei_genesys_bulk_write_register(dev, regs);
+    dev->write_registers(regs);
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
     gl124_begin_scan(dev, sensor, &regs, SANE_TRUE);
     sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
@@ -2622,7 +2622,7 @@ static void gl124_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   dev->frontend.set_offset(1, top);
   dev->frontend.set_offset(2, top);
     gl124_set_fe(dev, sensor, AFE_SET);
-    sanei_genesys_bulk_write_register(dev, regs);
+    dev->write_registers(regs);
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
     gl124_begin_scan(dev, sensor, &regs, SANE_TRUE);
     sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
@@ -2642,7 +2642,7 @@ static void gl124_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
         // scan with no move
         gl124_set_fe(dev, sensor, AFE_SET);
-        sanei_genesys_bulk_write_register(dev, regs);
+        dev->write_registers(regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         gl124_begin_scan(dev, sensor, &regs, SANE_TRUE);
         sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
@@ -2749,7 +2749,7 @@ static void gl124_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
     sanei_genesys_set_motor_power(regs, false);
 
-    sanei_genesys_bulk_write_register(dev, regs);
+    dev->write_registers(regs);
 
   total_size = pixels * channels * (16/bpp) * lines;
 
@@ -2864,7 +2864,7 @@ static void gl124_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor
   *total_size = num_pixels * 3 * 1;        /* colors * bytes_per_color * scan lines */
 
   sanei_genesys_set_motor_power(*reg, false);
-    sanei_genesys_bulk_write_register(dev, *reg);
+    dev->write_registers(*reg);
 }
 
 /** @brief default GPIO values
@@ -3009,7 +3009,7 @@ static void gl124_boot(Genesys_Device* dev, SANE_Bool cold)
   gl124_init_registers (dev);
 
     // Write initial registers
-    sanei_genesys_bulk_write_register(dev, dev->reg);
+    dev->write_registers(dev->reg);
 
   /* tune reg 0B */
   val = REG0B_30MHZ | REG0B_ENBDRAM | REG0B_64M;

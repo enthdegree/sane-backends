@@ -542,7 +542,7 @@ void sanei_genesys_fe_read_data (Genesys_Device* dev, uint8_t addr, uint16_t* da
   reg.init_reg(0x50, addr);
 
     // set up read address
-    sanei_genesys_bulk_write_register(dev, reg);
+    dev->write_registers(reg);
 
     // read data
     uint8_t value = dev->read_register(0x46);
@@ -574,7 +574,7 @@ void sanei_genesys_fe_write_data(Genesys_Device* dev, uint8_t addr, uint16_t dat
         reg.init_reg(0x3b, data & 0xff);
     }
 
-    sanei_genesys_bulk_write_register(dev, reg);
+    dev->write_registers(reg);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -869,7 +869,7 @@ void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set)
  * @param reg pointer to an array of registers
  * @param elems size of the array
  */
-void sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Register_Set& reg)
+void sanei_genesys_bulk_write_register(Genesys_Device* dev, const Genesys_Register_Set& reg)
 {
     DBG_HELPER(dbg);
 

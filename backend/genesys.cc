@@ -1671,7 +1671,7 @@ static void genesys_dark_shading_calibration(Genesys_Device* dev, const Genesys_
         sanei_genesys_set_motor_power(dev->calib_reg, motor);
     }
 
-    sanei_genesys_bulk_write_register(dev, dev->calib_reg);
+    dev->write_registers(dev->calib_reg);
 
   // wait some time to let lamp to get dark
   sanei_genesys_sleep_ms(200);
@@ -1846,7 +1846,7 @@ static void genesys_white_shading_calibration(Genesys_Device* dev, const Genesys
     sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
     sanei_genesys_set_motor_power(dev->calib_reg, motor);
 
-    sanei_genesys_bulk_write_register(dev, dev->calib_reg);
+    dev->write_registers(dev->calib_reg);
 
     if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION) {
         sanei_genesys_sleep_ms(500); // make sure lamp is bright again
@@ -1932,7 +1932,7 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
     sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
     sanei_genesys_set_motor_power(dev->calib_reg, motor);
 
-    sanei_genesys_bulk_write_register(dev, dev->calib_reg);
+    dev->write_registers(dev->calib_reg);
 
     dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
 
@@ -3427,7 +3427,7 @@ static void genesys_start_scan(Genesys_Device* dev, SANE_Bool lamp_off)
     }
 
     // now send registers for scan
-    sanei_genesys_bulk_write_register(dev, dev->reg);
+    dev->write_registers(dev->reg);
 
     // start effective scan
     dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_TRUE);

@@ -3010,2503 +3010,2510 @@ void genesys_init_usb_device_tables()
 {
     s_usb_devices.init();
 
-    Genesys_Model umax_astra_4500_model = {
-  "umax-astra-4500",                /* Name */
-  "UMAX",                        /* Device vendor string */
-  "Astra 4500",                        /* Device model name */
-  MODEL_UMAX_ASTRA_4500,
-  GENESYS_GL646,
-  NULL,
-
-  {1200, 600, 300, 150, 75},        /* possible x-resolutions */
-  {2400, 1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (3.5),                /* Start of scan area in mm  (x) */
-  SANE_FIX (7.5),                /* Start of scan area in mm (y) */
-  SANE_FIX (218.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (299.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (1.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 8, 16,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_BGR,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_UMAX,
-  DAC_WOLFSON_UMAX,
-  GPO_UMAX,
-  MOTOR_UMAX,
-  GENESYS_FLAG_UNTESTED,        /* Which flags are needed for this scanner? */
-  /* untested, values set by hmg */
-  GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
-  20,
-  0,        // shading_ta_lines
-  200
-};
-    s_usb_devices->emplace_back(0x0638, 0x0a10, umax_astra_4500_model);
-
-
-    Genesys_Model canon_lide_50_model = {
-  "canon-lide-50",                /* Name */
-  "Canon",                        /* Device vendor string */
-  "LiDE 35/40/50",                /* Device model name */
-  MODEL_CANON_LIDE_50,
-  GENESYS_GL841,
-  NULL,
-
-  {      1200, 600, 400, 300, 240, 200, 150, 75},        /* possible x-resolutions */
-  {2400, 1200, 600, 400, 300, 240, 200, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (0.42),                /* Start of scan area in mm  (x) */
-  SANE_FIX (7.9),                /* Start of scan area in mm (y) */
-  SANE_FIX (218.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (299.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (6.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_CANONLIDE35,
-  DAC_CANONLIDE35,
-  GPO_CANONLIDE35,
-  MOTOR_CANONLIDE35,
-  GENESYS_FLAG_LAZY_INIT |         /* Which flags are needed for this scanner? */
-  GENESYS_FLAG_SKIP_WARMUP |
-  GENESYS_FLAG_OFFSET_CALIBRATION |
-  GENESYS_FLAG_DARK_WHITE_CALIBRATION |
-  GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW |
-  GENESYS_HAS_FILE_SW |
-  GENESYS_HAS_EMAIL_SW |
-  GENESYS_HAS_COPY_SW,
-  280,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x04a9, 0x2213, canon_lide_50_model);
-
-
-    Genesys_Model panasonic_kvss080_model = {
-  "panasonic-kv-ss080",                /* Name */
-  "Panasonic",                        /* Device vendor string */
-  "KV-SS080",                        /* Device model name */
-  MODEL_PANASONIC_KV_SS080,
-  GENESYS_GL843,
-  NULL,
-
-  { 600, /* 500, 400,*/ 300, 200, 150, 100, 75},        /* possible x-resolutions */
-  { 1200, 600, /* 500, 400, */ 300, 200, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (7.2),                /* Start of scan area in mm  (x) */
-  SANE_FIX (14.7),                /* Start of scan area in mm (y) */
-  SANE_FIX (217.7),                /* Size of scan area in mm (x) */
-  SANE_FIX (300.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (9.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 8, 16,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_KVSS080,
-  DAC_KVSS080,
-  GPO_KVSS080,
-  MOTOR_KVSS080,
-  GENESYS_FLAG_LAZY_INIT |
-  GENESYS_FLAG_SKIP_WARMUP |
-  GENESYS_FLAG_OFFSET_CALIBRATION |
-  GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW ,
-  100,
-  0,        // shading_ta_lines
-  100
-};
-    s_usb_devices->emplace_back(0x04da, 0x100f, panasonic_kvss080_model);
-
-
-    Genesys_Model hp4850c_model = {
-  "hewlett-packard-scanjet-4850c",        /* Name */
-  "Hewlett Packard",                        /* Device vendor string */
-  "ScanJet 4850C",                        /* Device model name */
-  MODEL_HP_SCANJET_4850C,
-  GENESYS_GL843,
-  NULL,
-
-  {2400, 1200, 600, 400, 300, 200, 150, 100},
-  {2400, 1200, 600, 400, 300, 200, 150, 100},
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (7.9),        /* Start of scan area in mm  (x) */
-  SANE_FIX (5.9),        /* Start of scan area in mm (y) */
-  SANE_FIX (219.6),      /* Size of scan area in mm (x) */
-  SANE_FIX (314.5),      /* Size of scan area in mm (y) */
-
-  SANE_FIX (3.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 24, 48,                        /* RGB CCD Line-distance correction in line number */
-				  /* 0 38 76 OK 1200/2400 */
-				  /* 0 24 48 OK [100,600] dpi */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_G4050,
-  DAC_G4050,
-  GPO_G4050,
-  MOTOR_G4050,
-  GENESYS_FLAG_LAZY_INIT |
-  GENESYS_FLAG_OFFSET_CALIBRATION |
-  GENESYS_FLAG_STAGGERED_LINE |
-  GENESYS_FLAG_SKIP_WARMUP |
-  GENESYS_FLAG_DARK_CALIBRATION |
-  GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
-  100,
-  0,        // shading_ta_lines
-  100
-};
-    s_usb_devices->emplace_back(0x03f0, 0x1b05, hp4850c_model);
-
-
-    Genesys_Model hpg4010_model = {
-  "hewlett-packard-scanjet-g4010",        /* Name */
-  "Hewlett Packard",                        /* Device vendor string */
-  "ScanJet G4010",                        /* Device model name */
-  MODEL_HP_SCANJET_G4010,
-  GENESYS_GL843,
-  NULL,
-
-  { 2400, 1200, 600, 400, 300, 200, 150, 100},
-  { 2400, 1200, 600, 400, 300, 200, 150, 100},
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (8.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (13.00),                /* Start of scan area in mm (y) */
-  SANE_FIX (217.9),                /* Size of scan area in mm (x) 5148 pixels at 600 dpi*/
-  SANE_FIX (315.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (3.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 24, 48,                        /* RGB CCD Line-distance correction in line number */
-				  /* 0 38 76 OK 1200/2400 */
-				  /* 0 24 48 OK [100,600] dpi */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_G4050,
-  DAC_G4050,
-  GPO_G4050,
-  MOTOR_G4050,
-  GENESYS_FLAG_LAZY_INIT |
-  GENESYS_FLAG_OFFSET_CALIBRATION |
-  GENESYS_FLAG_STAGGERED_LINE |
-  GENESYS_FLAG_SKIP_WARMUP |
-  GENESYS_FLAG_DARK_CALIBRATION |
-  GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
-  100,
-  0,        // shading_ta_lines
-  100
-};
-    s_usb_devices->emplace_back(0x03f0, 0x4505, hpg4010_model);
-
-
-    Genesys_Model hpg4050_model = {
-  "hewlett-packard-scanjet-g4050",        /* Name */
-  "Hewlett Packard",                        /* Device vendor string */
-  "ScanJet G4050",                        /* Device model name */
-  MODEL_HP_SCANJET_G4050,
-  GENESYS_GL843,
-  NULL,
-
-  { 2400, 1200, 600, 400, 300, 200, 150, 100},
-  { 2400, 1200, 600, 400, 300, 200, 150, 100},
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (8.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (13.00),                /* Start of scan area in mm (y) */
-  SANE_FIX (217.9),                /* Size of scan area in mm (x) 5148 pixels at 600 dpi*/
-  SANE_FIX (315.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (3.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (8.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (13.00),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (217.9),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (250.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (40.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 24, 48,                        /* RGB CCD Line-distance correction in line number */
-				  /* 0 38 76 OK 1200/2400 */
-				  /* 0 24 48 OK [100,600] dpi */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_G4050,
-  DAC_G4050,
-  GPO_G4050,
-  MOTOR_G4050,
-  GENESYS_FLAG_LAZY_INIT |
-  GENESYS_FLAG_OFFSET_CALIBRATION |
-  GENESYS_FLAG_STAGGERED_LINE |
-  GENESYS_FLAG_SKIP_WARMUP |
-  GENESYS_FLAG_DARK_CALIBRATION |
-  GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
-  100,
-  0,        // shading_ta_lines
-  100
-};
-    s_usb_devices->emplace_back(0x03f0, 0x4605, hpg4050_model);
-
-
-    Genesys_Model canon_4400f_model = {
-  "canon-canoscan-4400f",        /* Name */
-  "Canon",                        /* Device vendor string */
-  "Canoscan 4400f",                /* Device model name */
-  MODEL_CANON_CANOSCAN_4400F,
-  GENESYS_GL843,
-  NULL,
-
-  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100},
-  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100},
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (6.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (13.00),                /* Start of scan area in mm (y) */
-  SANE_FIX (217.9),                /* Size of scan area in mm (x) 5148 pixels at 600 dpi*/
-  SANE_FIX (315.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (3.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (8.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (13.00),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (217.9),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (250.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (40.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 24, 48,                        /* RGB CCD Line-distance correction in line number */
-				  /* 0 38 76 OK 1200/2400 */
-				  /* 0 24 48 OK [100,600] dpi */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_CS4400F,
-  DAC_G4050,
-  GPO_CS4400F,
-  MOTOR_G4050,
-  GENESYS_FLAG_NO_CALIBRATION |
-  GENESYS_FLAG_LAZY_INIT |
-  GENESYS_FLAG_OFFSET_CALIBRATION |
-  GENESYS_FLAG_STAGGERED_LINE |
-  GENESYS_FLAG_SKIP_WARMUP |
-  GENESYS_FLAG_DARK_CALIBRATION |
-  GENESYS_FLAG_FULL_HWDPI_MODE |
-  GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
-  100,
-  0,        // shading_ta_lines
-  100
-};
-    s_usb_devices->emplace_back(0x04a9, 0x2228, canon_4400f_model);
-
-
-    Genesys_Model canon_8400f_model = {
-  "canon-canoscan-8400f",        /* Name */
-  "Canon",                        /* Device vendor string */
-  "Canoscan 8400f",                /* Device model name */
-  MODEL_CANON_CANOSCAN_8400F,
-  GENESYS_GL843,
-  NULL,
-
-  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
-  { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX(3.5),                // x_offset
-  SANE_FIX(17.00),              // y_offset
-  SANE_FIX(219.9),              // x_size
-  SANE_FIX(315.0),              // y_size
-
-  SANE_FIX(0.0),                // y_offset_calib
-  SANE_FIX(10.0),               // x_offset_mark
-
-  SANE_FIX(100.0),              // x_offset_ta
-  SANE_FIX(50.00),              // y_offset_ta
-  SANE_FIX(100.0),               // x_size_ta
-  SANE_FIX(230.0),              // y_size_ta
-
-  SANE_FIX(22.0),               // y_offset_sensor_to_ta
-  SANE_FIX(25.0),               // y_offset_calib_ta
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 24, 48,                        /* RGB CCD Line-distance correction in line number */
-				  /* 0 38 76 OK 1200/2400 */
-				  /* 0 24 48 OK [100,600] dpi */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_CS8400F,
-  DAC_CS8400F,
-  GPO_CS8400F,
-  MOTOR_CS8400F,
-  GENESYS_FLAG_HAS_UTA |
-    GENESYS_FLAG_HAS_UTA_INFRARED |
-  GENESYS_FLAG_LAZY_INIT |
-  GENESYS_FLAG_OFFSET_CALIBRATION |
-  GENESYS_FLAG_STAGGERED_LINE |
-  GENESYS_FLAG_SKIP_WARMUP |
-  GENESYS_FLAG_DARK_CALIBRATION |
-  GENESYS_FLAG_FULL_HWDPI_MODE |
-  GENESYS_FLAG_CUSTOM_GAMMA |
-  GENESYS_FLAG_SHADING_REPARK,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
-  100,
-  50,                           // shading_ta_lines
-  100
-};
-    s_usb_devices->emplace_back(0x04a9, 0x221e, canon_8400f_model);
-
-
-    Genesys_Model canon_8600f_model = {
-  "canon-canoscan-8600f",       // name
-  "Canon",                      // Device vendor string
-  "Canoscan 8600f",             // Device model name
-  MODEL_CANON_CANOSCAN_8600F,
-  GENESYS_GL843,                // ASIC type
-  NULL,
-
-  { 4800, 2400, 1200, 600, 400, 300 }, // TODO: resolutions for non-XPA mode
-  { 4800, 2400, 1200, 600, 400, 300 }, // TODO: resolutions for non-XPA mode
-  { 16, 8},         // possible depths in gray mode
-  { 16, 8},         // possible depths in color mode
-
-  SANE_FIX(24.0),        // Start of scan area in mm (x)
-  SANE_FIX(10.0),        // Start of scan area in mm (y)
-  SANE_FIX(216.0),      // Size of scan area in mm (x)
-  SANE_FIX(297.0),      // Size of scan area in mm (y)
-
-  SANE_FIX(0.0),        // Start of white strip in mm (y)
-  SANE_FIX(8.0),        // Start of black mark in mm (x)
-
-  SANE_FIX(85.0),       // x_offset_ta
-  SANE_FIX(26.0),       // y_offset_ta
-  SANE_FIX(70.0),       // x_size_ta
-  SANE_FIX(230.0),      // y_size_ta
-
-  SANE_FIX(11.5),       // y_offset_sensor_to_ta
-  SANE_FIX(14.0),       // y_offset_calib_ta
-
-  SANE_FIX(0.0),        // Size of scan area after paper sensor stops
-                        // sensing document in mm
-  SANE_FIX(0.0),        // Amount of feeding needed to eject document
-                        // after finishing scanning in mm
-
-  0, 48, 96,            // RGB CCD Line-distance correction in line number
-
-  COLOR_ORDER_RGB,      // Order of the CCD/CIS colors
-
-  SANE_FALSE,            // Is this a CIS scanner?
-  SANE_FALSE,           // Is this a sheetfed scanner?
-  CCD_CS8600F,
-  DAC_CS8600F,
-  GPO_CS8600F,
-  MOTOR_CS8600F,
-  GENESYS_FLAG_HAS_UTA |
-  GENESYS_FLAG_HAS_UTA_INFRARED |
-  GENESYS_FLAG_LAZY_INIT |
-  GENESYS_FLAG_OFFSET_CALIBRATION |
-  GENESYS_FLAG_STAGGERED_LINE |
-  GENESYS_FLAG_SKIP_WARMUP |
-  GENESYS_FLAG_DARK_CALIBRATION |
-  GENESYS_FLAG_FULL_HWDPI_MODE |
-  GENESYS_FLAG_CUSTOM_GAMMA |
-  GENESYS_FLAG_SHADING_REPARK,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
-  50,       // shading_lines
-  50,       // shading_ta_lines
-  100
-};
-    s_usb_devices->emplace_back(0x04a9, 0x2229, canon_8600f_model);
-
-
-    Genesys_Model canon_lide_100_model = {
-  "canon-lide-100",                /* Name */
-  "Canon",                        /* Device vendor string */
-  "LiDE 100",                        /* Device model name */
-  MODEL_CANON_LIDE_100,
-  GENESYS_GL847,
-  NULL,
-
-  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },        /* possible x-resolutions */
-  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (1.1),                /* Start of scan area in mm (x) */
-  SANE_FIX (8.3),                /* Start of scan area in mm (y) */
-  SANE_FIX (216.07),                /* Size of scan area in mm (x) */
-  SANE_FIX (299.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (1.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CIS_CANONLIDE100,
-  DAC_CANONLIDE200,
-  GPO_CANONLIDE200,
-  MOTOR_CANONLIDE100,
-  /* Which flags are needed for this scanner? */
-      GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_SIS_SENSOR
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_SHADING_REPARK
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  50,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x04a9, 0x1904, canon_lide_100_model);
-
-
-    Genesys_Model canon_lide_110_model = {
-  "canon-lide-110",                /* Name */
-  "Canon",                        /* Device vendor string */
-  "LiDE 110",                        /* Device model name */
-  MODEL_CANON_LIDE_110,
-  GENESYS_GL124,
-  NULL,
-
-  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },        /* possible x-resolutions */
-  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (2.2),                /* Start of scan area in mm (x) */
-  SANE_FIX (9.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (216.70),                /* Size of scan area in mm (x) */
-  SANE_FIX (300.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (1.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CIS_CANONLIDE110,
-  DAC_CANONLIDE110,
-  GPO_CANONLIDE110,
-  MOTOR_CANONLIDE110,
-      GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_SHADING_REPARK
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  50,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x04a9, 0x1909, canon_lide_110_model);
-
-
-    Genesys_Model canon_lide_120_model = {
-  "canon-lide-120",              /* Name */
-  "Canon",                       /* Device vendor string */
-  "LiDE 120",                    /* Device model name */
-  MODEL_CANON_LIDE_120,
-  GENESYS_GL124,
-  NULL,
-
-  {4800, 2400, 1200, 600, 300, 150, 100, 75 },        /* possible x-resolutions */
-  {4800, 2400, 1200, 600, 300, 150, 100, 75 },        /* possible y-resolutions */
-  {16, 8},                    /* possible depths in gray mode */
-  {16, 8},                    /* possible depths in color mode */
-
-  SANE_FIX (0.0),               /* Start of scan area in mm (x) */
-  SANE_FIX (8.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (216.0),             /* Size of scan area in mm (x) */
-  SANE_FIX (300.0),              /* Size of scan area in mm (y) */
-
-  SANE_FIX (1.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),              /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),              /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                       /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,               /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                     /* Is this a CIS scanner? */
-  SANE_FALSE,                    /* Is this a sheetfed scanner? */
-  CIS_CANONLIDE120,
-  DAC_CANONLIDE120,
-  GPO_CANONLIDE120,
-  MOTOR_CANONLIDE120,
-      GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_SHADING_REPARK
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  50,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x04a9, 0x190e, canon_lide_120_model);
-
-
-    Genesys_Model canon_lide_210_model = {
-  "canon-lide-210",                /* Name */
-  "Canon",                        /* Device vendor string */
-  "LiDE 210",                        /* Device model name */
-  MODEL_CANON_LIDE_210,
-  GENESYS_GL124,
-  NULL,
-
-  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },        /* possible x-resolutions */
-  {4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (2.2),                /* Start of scan area in mm (x) */
-  SANE_FIX (8.7),                /* Start of scan area in mm (y) */
-  SANE_FIX (216.70),                /* Size of scan area in mm (x) */
-  SANE_FIX (297.5),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CIS_CANONLIDE210,
-  DAC_CANONLIDE110,
-  GPO_CANONLIDE210,
-  MOTOR_CANONLIDE210,
-      GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_SHADING_REPARK
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_EXTRA_SW,
-  60,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x04a9, 0x190a, canon_lide_210_model);
-
-
-    Genesys_Model canon_lide_220_model = {
-  "canon-lide-220",                /* Name */
-  "Canon",                        /* Device vendor string */
-  "LiDE 220",                        /* Device model name */
-  MODEL_CANON_LIDE_220,
-  GENESYS_GL124, /* or a compatible one */
-  NULL,
-
-  {4800, 2400, 1200, 600, 300, 150, 100, 75},        /* possible x-resolutions */
-  {4800, 2400, 1200, 600, 300, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (2.2),                /* Start of scan area in mm (x) */
-  SANE_FIX (8.7),                /* Start of scan area in mm (y) */
-  SANE_FIX (216.70),                /* Size of scan area in mm (x) */
-  SANE_FIX (297.5),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CIS_CANONLIDE220,
-  DAC_CANONLIDE110,
-  GPO_CANONLIDE210,
-  MOTOR_CANONLIDE210,
-      GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_SHADING_REPARK
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_EXTRA_SW,
-  60,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x04a9, 0x190f, canon_lide_220_model);
-
-
-    Genesys_Model canon_5600f_model = {
-  "canon-5600f",                /* Name */
-  "Canon",                        /* Device vendor string */
-  "5600F",                        /* Device model name */
-  MODEL_CANON_CANOSCAN_5600F,
-  GENESYS_GL847,
-  NULL,
-
-  {1200, 600, 400, 300, 200, 150, 100, 75},        /* possible x-resolutions */
-  {1200, 600, 400, 300, 200, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (1.1),                /* Start of scan area in mm  (x) */
-  SANE_FIX (8.3),                /* Start of scan area in mm (y) */
-  SANE_FIX (216.07),                /* Size of scan area in mm (x) */
-  SANE_FIX (299.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (3.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CIS_CANONLIDE200,
-  DAC_CANONLIDE200,
-  GPO_CANONLIDE200,
-  MOTOR_CANONLIDE200,
-  GENESYS_FLAG_UNTESTED                /* not working yet */
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_SIS_SENSOR
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  50,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x04a9, 0x1906, canon_5600f_model);
-
-
-    Genesys_Model canon_lide_700f_model = {
-  "canon-lide-700f",                /* Name */
-  "Canon",                        /* Device vendor string */
-  "LiDE 700F",                        /* Device model name */
-  MODEL_CANON_LIDE_700F,
-  GENESYS_GL847,
-  NULL,
-
-  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75},        /* possible x-resolutions */
-  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (3.1),                /* Start of scan area in mm  (x) */
-  SANE_FIX (8.1),                /* Start of scan area in mm (y) */
-  SANE_FIX (216.07),                /* Size of scan area in mm (x) */
-  SANE_FIX (297.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (1.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CIS_CANONLIDE700,
-  DAC_CANONLIDE700,
-  GPO_CANONLIDE700,
-  MOTOR_CANONLIDE700,
-      GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_SIS_SENSOR
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_SHADING_REPARK
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  70,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x04a9, 0x1907, canon_lide_700f_model);
-
-
-    Genesys_Model canon_lide_200_model = {
-  "canon-lide-200",                /* Name */
-  "Canon",                        /* Device vendor string */
-  "LiDE 200",                        /* Device model name */
-  MODEL_CANON_LIDE_200,
-  GENESYS_GL847,
-  NULL,
-
-  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75},        /* possible x-resolutions */
-  {4800, 2400, 1200, 600, 300, 200, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (1.1),                /* Start of scan area in mm  (x) */
-  SANE_FIX (8.3),                /* Start of scan area in mm (y) */
-  SANE_FIX (216.07),                /* Size of scan area in mm (x) */
-  SANE_FIX (299.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CIS_CANONLIDE200,
-  DAC_CANONLIDE200,
-  GPO_CANONLIDE200,
-  MOTOR_CANONLIDE200,
-      GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_SIS_SENSOR
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_SHADING_REPARK
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_FILE_SW,
-  50,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x04a9, 0x1905, canon_lide_200_model);
-
-
-    Genesys_Model canon_lide_60_model = {
-  "canon-lide-60",                /* Name */
-  "Canon",                        /* Device vendor string */
-  "LiDE 60",                        /* Device model name */
-  MODEL_CANON_LIDE_60,
-  GENESYS_GL841,
-  NULL,
-
-  {1200, 600, 300, 150, 75},        /* possible x-resolutions */
-  {2400, 1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (0.42),                /* Start of scan area in mm  (x) */
-  SANE_FIX (7.9),                /* Start of scan area in mm (y) */
-  SANE_FIX (218.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (299.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (6.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_CANONLIDE35,
-  DAC_CANONLIDE35,
-  GPO_CANONLIDE35,
-  MOTOR_CANONLIDE35,
-  GENESYS_FLAG_LAZY_INIT         /* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_DARK_WHITE_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-
-  GENESYS_HAS_COPY_SW             /* Has four buttons: COPY, SCAN, PDF, EMAIL */
-    | GENESYS_HAS_SCAN_SW
-    | GENESYS_HAS_FILE_SW
-    | GENESYS_HAS_EMAIL_SW,
-  300,
-  0,        // shading_ta_lines
-  400
-};
-    /* this is completely untested -- hmg */
-    s_usb_devices->emplace_back(0x04a9, 0x221c, canon_lide_60_model);
-
-
-    Genesys_Model canon_lide_80_model = {
-  "canon-lide-80",                /* Name */
-  "Canon",                        /* Device vendor string */
-  "LiDE 80",                        /* Device model name */
-  MODEL_CANON_LIDE_80,
-  GENESYS_GL841,
-  NULL,
-
-  {      1200, 600, 400, 300, 240, 150, 100, 75},        /* possible x-resolutions */
-  {2400, 1200, 600, 400, 300, 240, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-  SANE_FIX (0.42),                /* Start of scan area in mm  (x)   0.42 */
-  SANE_FIX (7.90),                /* Start of scan area in mm (y)    7.90 */
-  SANE_FIX (216.07),                /* Size of scan area in mm (x)   218.00 */
-  SANE_FIX (299.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (4.5),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CIS_CANONLIDE80,
-  DAC_CANONLIDE80,
-  GPO_CANONLIDE80,
-  MOTOR_CANONLIDE80,
-  GENESYS_FLAG_LAZY_INIT |         /* Which flags are needed for this scanner? */
-  GENESYS_FLAG_SKIP_WARMUP |
-  GENESYS_FLAG_OFFSET_CALIBRATION |
-  GENESYS_FLAG_DARK_WHITE_CALIBRATION |
-  GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW |
-  GENESYS_HAS_FILE_SW |
-  GENESYS_HAS_EMAIL_SW |
-  GENESYS_HAS_COPY_SW,
-  160, /* 280 @2400 */
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x04a9, 0x2214, canon_lide_80_model);
-
-
-    Genesys_Model hp2300c_model = {
-  "hewlett-packard-scanjet-2300c",        /* Name */
-  "Hewlett Packard",                /* Device vendor string */
-  "ScanJet 2300c",                /* Device model name */
-  MODEL_HP_SCANJET_2300C,
-  GENESYS_GL646,
-  NULL,
-
-  {600, 300, 150, 75},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75},        /* possible y-resolutions, motor can go up to 1200 dpi */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (2.0),                /* Start of scan area in mm (x_offset) */
-  SANE_FIX (7.5),                /* Start of scan area in mm (y_offset) */
-  SANE_FIX (215.9),                /* Size of scan area in mm (x) */
-  SANE_FIX (295.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (1.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  16, 8, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_HP2300,
-  DAC_WOLFSON_HP2300,
-  GPO_HP2300,
-  MOTOR_HP2300,
-  GENESYS_FLAG_14BIT_GAMMA
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_LAZY_INIT
-    | GENESYS_FLAG_SEARCH_START
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW,
-  40,
-  0,        // shading_ta_lines
-  132
-};
-    s_usb_devices->emplace_back(0x03f0, 0x0901, hp2300c_model);
-
-
-    Genesys_Model hp2400c_model = {
-  "hewlett-packard-scanjet-2400c",        /* Name */
-  "Hewlett Packard",                /* Device vendor string */
-  "ScanJet 2400c",                /* Device model name */
-  MODEL_HP_SCANJET_2400C,
-  GENESYS_GL646,
-  NULL,
-
-  {1200, 600, 300, 150, 100, 50},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 100, 50},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (6.5),                /* Start of scan area in mm  (x) */
-  SANE_FIX (2.5),                /* Start of scan area in mm (y) */
-  SANE_FIX (220.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (297.2),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (1.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 24, 48,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_HP2400,
-  DAC_WOLFSON_HP2400,
-  GPO_HP2400,
-  MOTOR_HP2400,
-      GENESYS_FLAG_LAZY_INIT
-    | GENESYS_FLAG_14BIT_GAMMA
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_STAGGERED_LINE
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_SCAN_SW,
-  20,
-  0,        // shading_ta_lines
-  132
-};
-    s_usb_devices->emplace_back(0x03f0, 0x0a01, hp2400c_model);
-
-
-    Genesys_Model visioneer_xp200_model = {
-  "visioneer-strobe-xp200",        /* Name */
-  "Visioneer",                        /* Device vendor string */
-  "Strobe XP200",                /* Device model name */
-  MODEL_VISIONEER_STROBE_XP200,
-  GENESYS_GL646,
-  NULL,
-
-  {600, 300, 200, 100, 75 },        /* possible x-resolutions */
-  {600, 300, 200, 100, 75 },        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (0.5),                /* Start of scan area in mm  (x) */
-  SANE_FIX (16.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (215.9),                /* Size of scan area in mm (x) */
-  SANE_FIX (297.2),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_TRUE,                        /* Is this a sheetfed scanner? */
-  CIS_XP200,
-  DAC_AD_XP200,                        /* Analog Device frontend */
-  GPO_XP200,
-  MOTOR_XP200,
-      GENESYS_FLAG_14BIT_GAMMA
-    | GENESYS_FLAG_LAZY_INIT
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_OFFSET_CALIBRATION,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
-  120,
-  0,        // shading_ta_lines
-  132
-};
-    s_usb_devices->emplace_back(0x04a7, 0x0426, visioneer_xp200_model);
-
-
-    Genesys_Model hp3670c_model = {
-  "hewlett-packard-scanjet-3670c",        /* Name */
-  "Hewlett Packard",                /* Device vendor string */
-  "ScanJet 3670c",                /* Device model name */
-  MODEL_HP_SCANJET_3670C,
-  GENESYS_GL646,
-  NULL,
-
-  {1200, 600, 300, 150, 100, 75},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (8.5),                /* Start of scan area in mm  (x) */
-  SANE_FIX (11.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (215.9),                /* Size of scan area in mm (x) */
-  SANE_FIX (300.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (1.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (104.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (55.6),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (25.6),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (78.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (76.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 24, 48,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_HP3670,
-  DAC_WOLFSON_HP3670,
-  GPO_HP3670,
-  MOTOR_HP3670,
-      GENESYS_FLAG_LAZY_INIT
-    | GENESYS_FLAG_14BIT_GAMMA
-    | GENESYS_FLAG_XPA
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_STAGGERED_LINE
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_SCAN_SW,
-  20,
-  0,        // shading_ta_lines
-  200
-};
-    s_usb_devices->emplace_back(0x03f0, 0x1405, hp3670c_model);
-
-
-    Genesys_Model plustek_st12_model = {
-  "plustek-opticpro-st12",        /* Name */
-  "Plustek",                        /* Device vendor string */
-  "OpticPro ST12",                /* Device model name */
-  MODEL_PLUSTEK_OPTICPRO_ST12,
-  GENESYS_GL646,
-  NULL,
-
-  {600, 300, 150, 75},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (3.5),                /* Start of scan area in mm  (x) */
-  SANE_FIX (7.5),                /* Start of scan area in mm (y) */
-  SANE_FIX (218.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (299.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (1.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 8, 16,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_BGR,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_ST12,
-  DAC_WOLFSON_ST12,
-  GPO_ST12,
-  MOTOR_UMAX,
-  GENESYS_FLAG_UNTESTED | GENESYS_FLAG_14BIT_GAMMA,        /* Which flags are needed for this scanner? */
-  GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
-  20,
-  0,        // shading_ta_lines
-  200
-};
-    s_usb_devices->emplace_back(0x07b3, 0x0600, plustek_st12_model);
-
-    Genesys_Model plustek_st24_model = {
-  "plustek-opticpro-st24",        /* Name */
-  "Plustek",                        /* Device vendor string */
-  "OpticPro ST24",                /* Device model name */
-  MODEL_PLUSTEK_OPTICPRO_ST24,
-  GENESYS_GL646,
-  NULL,
-
-  {1200, 600, 300, 150, 75},        /* possible x-resolutions */
-  {2400, 1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (3.5),                /* Start of scan area in mm  (x) */
-  SANE_FIX (7.5),                /* Start of scan area in mm (y) */
-  SANE_FIX (218.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (299.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (1.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 8, 16,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_BGR,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_ST24,
-  DAC_WOLFSON_ST24,
-  GPO_ST24,
-  MOTOR_ST24,
-  GENESYS_FLAG_UNTESTED
-    | GENESYS_FLAG_14BIT_GAMMA
-    | GENESYS_FLAG_LAZY_INIT
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_SEARCH_START
-    | GENESYS_FLAG_OFFSET_CALIBRATION,
-  GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
-  20,
-  0,        // shading_ta_lines
-  200
-};
-    s_usb_devices->emplace_back(0x07b3, 0x0601, plustek_st24_model);
-
-    Genesys_Model medion_md5345_model = {
-  "medion-md5345-model",        /* Name */
-  "Medion",                        /* Device vendor string */
-  "MD5345/MD6228/MD6471",        /* Device model name */
-  MODEL_MEDION_MD5345,
-  GENESYS_GL646,
-  NULL,
-
-  {1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible x-resolutions */
-  {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX ( 0.30),                /* Start of scan area in mm  (x) */
-  SANE_FIX ( 0.80),                /* 2.79 < Start of scan area in mm (y) */
-  SANE_FIX (220.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (296.4),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.00),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.00),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.00),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.00),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (0.00),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (0.00),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.00),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  48, 24, 0,                        /* RGB CCD Line-distance correction in pixel */
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_5345,
-  DAC_WOLFSON_5345,
-  GPO_5345,
-  MOTOR_5345,
-  GENESYS_FLAG_14BIT_GAMMA
-    | GENESYS_FLAG_LAZY_INIT
-    | GENESYS_FLAG_SEARCH_START
-    | GENESYS_FLAG_STAGGERED_LINE
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_SHADING_NO_MOVE
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_POWER_SW | GENESYS_HAS_OCR_SW | GENESYS_HAS_SCAN_SW,
-  40,
-  0,        // shading_ta_lines
-  200
-};
-    s_usb_devices->emplace_back(0x0461, 0x0377, medion_md5345_model);
-
-    Genesys_Model visioneer_xp300_model = {
-  "visioneer-strobe-xp300",                /* Name */
-  "Visioneer",                        /* Device vendor string */
-  "Strobe XP300",                        /* Device model name */
-  MODEL_VISIONEER_STROBE_XP300,
-  GENESYS_GL841,
-  NULL,
-
-  {600, 300, 150, 75},        /* possible x-resolutions */
-  {600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (1.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (435.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (511),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (26.5),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  /* this is larger than needed -- accounts for second sensor head, which is a
-     calibration item */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_TRUE,                        /* Is this a sheetfed scanner? */
-  CCD_XP300,
-  DAC_WOLFSON_XP300,
-  GPO_XP300,
-  MOTOR_XP300,
-  GENESYS_FLAG_LAZY_INIT         /* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
-  100,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x04a7, 0x0474, visioneer_xp300_model);
-
-    Genesys_Model syscan_docketport_665_model = {
-  "syscan-docketport-665",                /* Name */
-  "Syscan/Ambir",                        /* Device vendor string */
-  "DocketPORT 665",                        /* Device model name */
-  MODEL_SYSCAN_DOCKETPORT_665,
-  GENESYS_GL841,
-  NULL,
-
-  {600, 300, 150, 75},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (0.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (108.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (511),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (17.5),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_TRUE,                        /* Is this a sheetfed scanner? */
-  CCD_DP665,
-  DAC_WOLFSON_XP300,
-  GPO_DP665,
-  MOTOR_DP665,
-  GENESYS_FLAG_LAZY_INIT         /* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
-  100,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x0a82, 0x4803, syscan_docketport_665_model);
-
-    Genesys_Model visioneer_roadwarrior_model = {
-  "visioneer-roadwarrior",                /* Name */
-  "Visioneer",                                /* Device vendor string */
-  "Readwarrior",                        /* Device model name */
-  MODEL_VISIONEER_ROADWARRIOR,
-  GENESYS_GL841,
-  NULL,
-
-  {600, 300, 150, 75},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (0.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (220.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (511),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (16.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_TRUE,                        /* Is this a sheetfed scanner? */
-  CCD_ROADWARRIOR,
-  DAC_WOLFSON_XP300,
-  GPO_DP665,
-  MOTOR_ROADWARRIOR,
-  GENESYS_FLAG_LAZY_INIT         /* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_DARK_CALIBRATION,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
-  100,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x04a7, 0x0494, visioneer_roadwarrior_model);
-
-    Genesys_Model syscan_docketport_465_model = {
-  "syscan-docketport-465",                /* Name */
-  "Syscan",                                /* Device vendor string */
-  "DocketPORT 465",                        /* Device model name */
-  MODEL_SYSCAN_DOCKETPORT_465,
-  GENESYS_GL841,
-  NULL,
-
-  {600, 300, 150, 75},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (0.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (220.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (511),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (16.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_TRUE,                        /* Is this a sheetfed scanner? */
-  CCD_ROADWARRIOR,
-  DAC_WOLFSON_XP300,
-  GPO_DP665,
-  MOTOR_ROADWARRIOR,
-  GENESYS_FLAG_LAZY_INIT         /* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_NO_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_UNTESTED,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
-  300,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x0a82, 0x4802, syscan_docketport_465_model);
-
-
-    Genesys_Model visioneer_xp100_r3_model = {
-  "visioneer-xp100-revision3",                /* Name */
-  "Visioneer",                                /* Device vendor string */
-  "XP100 Revision 3",                        /* Device model name */
-  MODEL_VISIONEER_STROBE_XP100_REVISION3,
-  GENESYS_GL841,
-  NULL,
-
-  {600, 300, 150, 75},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (0.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (220.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (511),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (16.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_TRUE,                        /* Is this a sheetfed scanner? */
-  CCD_ROADWARRIOR,
-  DAC_WOLFSON_XP300,
-  GPO_DP665,
-  MOTOR_ROADWARRIOR,
-  GENESYS_FLAG_LAZY_INIT         /* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_DARK_CALIBRATION,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
-  100,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x04a7, 0x049b, visioneer_xp100_r3_model);
-
-    Genesys_Model pentax_dsmobile_600_model = {
-  "pentax-dsmobile-600",                /* Name */
-  "Pentax",                                /* Device vendor string */
-  "DSmobile 600",                        /* Device model name */
-  MODEL_PENTAX_DSMOBILE_600,
-  GENESYS_GL841,
-  NULL,
-
-  {600, 300, 150, 75},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (0.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (220.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (511),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (16.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_TRUE,                        /* Is this a sheetfed scanner? */
-  CCD_DSMOBILE600,
-  DAC_WOLFSON_DSM600,
-  GPO_DP665,
-  MOTOR_DSMOBILE_600,
-  GENESYS_FLAG_LAZY_INIT         /* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_DARK_CALIBRATION,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
-  100,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x0a17, 0x3210, pentax_dsmobile_600_model);
+    Genesys_Model model;
+    model.name = "umax-astra-4500";
+    model.vendor = "UMAX";
+    model.model = "Astra 4500";
+    model.model_id = MODEL_UMAX_ASTRA_4500;
+    model.asic_type = GENESYS_GL646;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 1200, 600, 300, 150, 75 };
+    model.ydpi_values = { 2400, 1200, 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(3.5);
+    model.y_offset = SANE_FIX(7.5);
+    model.x_size = SANE_FIX(218.0);
+    model.y_size = SANE_FIX(299.0);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(1.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 8;
+    model.ld_shift_b = 16;
+
+    model.line_mode_color_order = COLOR_ORDER_BGR;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_UMAX;
+    model.dac_type = DAC_WOLFSON_UMAX;
+    model.gpo_type = GPO_UMAX;
+    model.motor_type = MOTOR_UMAX;
+    model.flags = GENESYS_FLAG_UNTESTED;
+    model.buttons = GENESYS_HAS_NO_BUTTONS;
+    model.shading_lines = 20;
+    model.shading_ta_lines = 0;
+    model.search_lines = 200;
+
+    s_usb_devices->emplace_back(0x0638, 0x0a10, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-lide-50";
+    model.vendor = "Canon";
+    model.model = "LiDE 35/40/50";
+    model.model_id = MODEL_CANON_LIDE_50;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 1200, 600, 400, 300, 240, 200, 150, 75 };
+    model.ydpi_values = { 2400, 1200, 600, 400, 300, 240, 200, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.42);
+    model.y_offset = SANE_FIX(7.9);
+    model.x_size = SANE_FIX(218.0);
+    model.y_size = SANE_FIX(299.0);
+
+    model.y_offset_calib = SANE_FIX(6.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_CANONLIDE35;
+    model.dac_type = DAC_CANONLIDE35;
+    model.gpo_type = GPO_CANONLIDE35;
+    model.motor_type = MOTOR_CANONLIDE35;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_DARK_WHITE_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW |
+                    GENESYS_HAS_FILE_SW |
+                    GENESYS_HAS_EMAIL_SW |
+                    GENESYS_HAS_COPY_SW;
+    model.shading_lines = 280;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a9, 0x2213, model);
+
+
+    model = Genesys_Model();
+    model.name = "panasonic-kv-ss080";
+    model.vendor = "Panasonic";
+    model.model = "KV-SS080";
+    model.model_id = MODEL_PANASONIC_KV_SS080;
+    model.asic_type = GENESYS_GL843;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, /* 500, 400,*/ 300, 200, 150, 100, 75 };
+    model.ydpi_values = { 1200, 600, /* 500, 400, */ 300, 200, 150, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(7.2);
+    model.y_offset = SANE_FIX(14.7);
+    model.x_size = SANE_FIX(217.7);
+    model.y_size = SANE_FIX(300.0);
+
+    model.y_offset_calib = SANE_FIX(9.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(0.0);
+    model.y_size_ta = SANE_FIX(0.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 8;
+    model.ld_shift_b = 16;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_KVSS080;
+    model.dac_type = DAC_KVSS080;
+    model.gpo_type = GPO_KVSS080;
+    model.motor_type = MOTOR_KVSS080;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 100;
+
+    s_usb_devices->emplace_back(0x04da, 0x100f, model);
+
+
+    model = Genesys_Model();
+    model.name = "hewlett-packard-scanjet-4850c";
+    model.vendor = "Hewlett Packard";
+    model.model = "ScanJet 4850C";
+    model.model_id = MODEL_HP_SCANJET_4850C;
+    model.asic_type = GENESYS_GL843;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(7.9);
+    model.y_offset = SANE_FIX(5.9);
+    model.x_size = SANE_FIX(219.6);
+    model.y_size = SANE_FIX(314.5);
+
+    model.y_offset_calib = SANE_FIX(3.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 24;
+    model.ld_shift_b = 48;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_G4050;
+    model.dac_type = DAC_G4050;
+    model.gpo_type = GPO_G4050;
+    model.motor_type = MOTOR_G4050;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_STAGGERED_LINE |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 100;
+    s_usb_devices->emplace_back(0x03f0, 0x1b05, model);
+
+
+    model = Genesys_Model();
+    model.name = "hewlett-packard-scanjet-g4010";
+    model.vendor = "Hewlett Packard";
+    model.model = "ScanJet G4010";
+    model.model_id = MODEL_HP_SCANJET_G4010;
+    model.asic_type = GENESYS_GL843;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(8.0);
+    model.y_offset = SANE_FIX(13.00);
+    model.x_size = SANE_FIX(217.9);
+    model.y_size = SANE_FIX(315.0);
+
+    model.y_offset_calib = SANE_FIX(3.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 24;
+    model.ld_shift_b = 48;
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_G4050;
+    model.dac_type = DAC_G4050;
+    model.gpo_type = GPO_G4050;
+    model.motor_type = MOTOR_G4050;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_STAGGERED_LINE |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 100;
+
+    s_usb_devices->emplace_back(0x03f0, 0x4505, model);
+
+
+    model = Genesys_Model();
+    model.name = "hewlett-packard-scanjet-g4050";
+    model.vendor = "Hewlett Packard";
+    model.model = "ScanJet G4050";
+    model.model_id = MODEL_HP_SCANJET_G4050;
+    model.asic_type = GENESYS_GL843;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(8.0);
+    model.y_offset = SANE_FIX(13.00);
+    model.x_size = SANE_FIX(217.9);
+    model.y_size = SANE_FIX(315.0);
+
+    model.y_offset_calib = SANE_FIX(3.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(8.0);
+    model.y_offset_ta = SANE_FIX(13.00);
+    model.x_size_ta = SANE_FIX(217.9);
+    model.y_size_ta = SANE_FIX(250.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(40.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 24;
+    model.ld_shift_b = 48;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_G4050;
+    model.dac_type = DAC_G4050;
+    model.gpo_type = GPO_G4050;
+    model.motor_type = MOTOR_G4050;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_STAGGERED_LINE |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 100;
+
+    s_usb_devices->emplace_back(0x03f0, 0x4605, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-canoscan-4400f";
+    model.vendor = "Canon";
+    model.model = "Canoscan 4400f";
+    model.model_id = MODEL_CANON_CANOSCAN_4400F;
+    model.asic_type = GENESYS_GL843;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.ydpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(6.0);
+    model.y_offset = SANE_FIX(13.00);
+    model.x_size = SANE_FIX(217.9);
+    model.y_size = SANE_FIX(315.0);
+
+    model.y_offset_calib = SANE_FIX(3.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(8.0);
+    model.y_offset_ta = SANE_FIX(13.00);
+    model.x_size_ta = SANE_FIX(217.9);
+    model.y_size_ta = SANE_FIX(250.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(40.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 24;
+    model.ld_shift_b = 48;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_CS4400F;
+    model.dac_type = DAC_G4050;
+    model.gpo_type = GPO_CS4400F;
+    model.motor_type = MOTOR_G4050;
+    model.flags = GENESYS_FLAG_NO_CALIBRATION |
+                  GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_STAGGERED_LINE |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_FULL_HWDPI_MODE |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 100;
+
+    s_usb_devices->emplace_back(0x04a9, 0x2228, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-canoscan-8400f";
+    model.vendor = "Canon";
+    model.model = "Canoscan 8400f";
+    model.model_id = MODEL_CANON_CANOSCAN_8400F;
+    model.asic_type = GENESYS_GL843;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.ydpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(3.5);
+    model.y_offset = SANE_FIX(17.00);
+    model.x_size = SANE_FIX(219.9);
+    model.y_size = SANE_FIX(315.0);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(10.0);
+
+    model.x_offset_ta = SANE_FIX(100.0);
+    model.y_offset_ta = SANE_FIX(50.00);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(230.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(22.0);
+    model.y_offset_calib_ta = SANE_FIX(25.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 24;
+    model.ld_shift_b = 48;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_CS8400F;
+    model.dac_type = DAC_CS8400F;
+    model.gpo_type = GPO_CS8400F;
+    model.motor_type = MOTOR_CS8400F;
+    model.flags = GENESYS_FLAG_HAS_UTA |
+                  GENESYS_FLAG_HAS_UTA_INFRARED |
+                  GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_STAGGERED_LINE |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_FULL_HWDPI_MODE |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_SHADING_REPARK;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 50;
+    model.search_lines = 100;
+
+    s_usb_devices->emplace_back(0x04a9, 0x221e, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-canoscan-8600f";
+    model.vendor = "Canon";
+    model.model = "Canoscan 8600f";
+    model.model_id = MODEL_CANON_CANOSCAN_8600F;
+    model.asic_type = GENESYS_GL843;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300 }; // TODO: resolutions for non-XPA mode
+    model.ydpi_values = { 4800, 2400, 1200, 600, 400, 300 }; // TODO: resolutions for non-XPA mode
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(24.0);
+    model.y_offset = SANE_FIX(10.0);
+    model.x_size = SANE_FIX(216.0);
+    model.y_size = SANE_FIX(297.0);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(8.0);
+
+    model.x_offset_ta = SANE_FIX(85.0);
+    model.y_offset_ta = SANE_FIX(26.0);
+    model.x_size_ta = SANE_FIX(70.0);
+    model.y_size_ta = SANE_FIX(230.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(11.5);
+    model.y_offset_calib_ta = SANE_FIX(14.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 48;
+    model.ld_shift_b = 96;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_CS8600F;
+    model.dac_type = DAC_CS8600F;
+    model.gpo_type = GPO_CS8600F;
+    model.motor_type = MOTOR_CS8600F;
+    model.flags = GENESYS_FLAG_HAS_UTA |
+                  GENESYS_FLAG_HAS_UTA_INFRARED |
+                  GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_STAGGERED_LINE |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_FULL_HWDPI_MODE |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_SHADING_REPARK;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
+    model.shading_lines = 50;
+    model.shading_ta_lines = 50;
+    model.search_lines = 100;
+
+    s_usb_devices->emplace_back(0x04a9, 0x2229, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-lide-100";
+    model.vendor = "Canon";
+    model.model = "LiDE 100";
+    model.model_id = MODEL_CANON_LIDE_100;
+    model.asic_type = GENESYS_GL847;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
+    model.ydpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(1.1);
+    model.y_offset = SANE_FIX(8.3);
+    model.x_size = SANE_FIX(216.07);
+    model.y_size = SANE_FIX(299.0);
+
+    model.y_offset_calib = SANE_FIX(1.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CIS_CANONLIDE100;
+    model.dac_type = DAC_CANONLIDE200;
+    model.gpo_type = GPO_CANONLIDE200;
+    model.motor_type = MOTOR_CANONLIDE100;
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_SIS_SENSOR |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_SHADING_REPARK |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW |
+                    GENESYS_HAS_COPY_SW |
+                    GENESYS_HAS_EMAIL_SW |
+                    GENESYS_HAS_FILE_SW;
+    model.shading_lines = 50;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a9, 0x1904, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-lide-110";
+    model.vendor = "Canon";
+    model.model = "LiDE 110";
+    model.model_id = MODEL_CANON_LIDE_110;
+    model.asic_type = GENESYS_GL124;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
+    model.ydpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(2.2);
+    model.y_offset = SANE_FIX(9.0);
+    model.x_size = SANE_FIX(216.70);
+    model.y_size = SANE_FIX(300.0);
+
+    model.y_offset_calib = SANE_FIX(1.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CIS_CANONLIDE110;
+    model.dac_type = DAC_CANONLIDE110;
+    model.gpo_type = GPO_CANONLIDE110;
+    model.motor_type = MOTOR_CANONLIDE110;
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_SHADING_REPARK |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW |
+                    GENESYS_HAS_COPY_SW |
+                    GENESYS_HAS_EMAIL_SW |
+                    GENESYS_HAS_FILE_SW;
+    model.shading_lines = 50;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a9, 0x1909, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-lide-120";
+    model.vendor = "Canon";
+    model.model = "LiDE 120";
+    model.model_id = MODEL_CANON_LIDE_120;
+    model.asic_type = GENESYS_GL124;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
+    model.ydpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.0);
+    model.y_offset = SANE_FIX(8.0);
+    model.x_size = SANE_FIX(216.0);
+    model.y_size = SANE_FIX(300.0);
+
+    model.y_offset_calib = SANE_FIX(1.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CIS_CANONLIDE120;
+    model.dac_type = DAC_CANONLIDE120;
+    model.gpo_type = GPO_CANONLIDE120;
+    model.motor_type = MOTOR_CANONLIDE120;
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_SHADING_REPARK |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW |
+                    GENESYS_HAS_COPY_SW |
+                    GENESYS_HAS_EMAIL_SW |
+                    GENESYS_HAS_FILE_SW;
+    model.shading_lines = 50;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a9, 0x190e, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-lide-210";
+    model.vendor = "Canon";
+    model.model = "LiDE 210";
+    model.model_id = MODEL_CANON_LIDE_210;
+    model.asic_type = GENESYS_GL124;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
+    model.ydpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(2.2);
+    model.y_offset = SANE_FIX(8.7);
+    model.x_size = SANE_FIX(216.70);
+    model.y_size = SANE_FIX(297.5);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CIS_CANONLIDE210;
+    model.dac_type = DAC_CANONLIDE110;
+    model.gpo_type = GPO_CANONLIDE210;
+    model.motor_type = MOTOR_CANONLIDE210;
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_SHADING_REPARK |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW |
+                    GENESYS_HAS_COPY_SW |
+                    GENESYS_HAS_EMAIL_SW |
+                    GENESYS_HAS_FILE_SW |
+                    GENESYS_HAS_EXTRA_SW;
+    model.shading_lines = 60;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a9, 0x190a, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-lide-220";
+    model.vendor = "Canon";
+    model.model = "LiDE 220";
+    model.model_id = MODEL_CANON_LIDE_220;
+    model.asic_type = GENESYS_GL124; // or a compatible one
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
+    model.ydpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(2.2);
+    model.y_offset = SANE_FIX(8.7);
+    model.x_size = SANE_FIX(216.70);
+    model.y_size = SANE_FIX(297.5);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CIS_CANONLIDE220;
+    model.dac_type = DAC_CANONLIDE110;
+    model.gpo_type = GPO_CANONLIDE210;
+    model.motor_type = MOTOR_CANONLIDE210;
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_SHADING_REPARK |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW |
+                    GENESYS_HAS_COPY_SW |
+                    GENESYS_HAS_EMAIL_SW |
+                    GENESYS_HAS_FILE_SW |
+                    GENESYS_HAS_EXTRA_SW;
+    model.shading_lines = 60;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a9, 0x190f, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-5600f";
+    model.vendor = "Canon";
+    model.model = "5600F";
+    model.model_id = MODEL_CANON_CANOSCAN_5600F;
+    model.asic_type = GENESYS_GL847;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75 };
+    model.ydpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(1.1);
+    model.y_offset = SANE_FIX(8.3);
+    model.x_size = SANE_FIX(216.07);
+    model.y_size = SANE_FIX(299.0);
+
+    model.y_offset_calib = SANE_FIX(3.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CIS_CANONLIDE200;
+    model.dac_type = DAC_CANONLIDE200;
+    model.gpo_type = GPO_CANONLIDE200;
+    model.motor_type = MOTOR_CANONLIDE200;
+    model.flags = GENESYS_FLAG_UNTESTED |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_SIS_SENSOR |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW |
+                    GENESYS_HAS_COPY_SW |
+                    GENESYS_HAS_EMAIL_SW |
+                    GENESYS_HAS_FILE_SW;
+    model.shading_lines = 50;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a9, 0x1906, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-lide-700f";
+    model.vendor = "Canon";
+    model.model = "LiDE 700F";
+    model.model_id = MODEL_CANON_LIDE_700F;
+    model.asic_type = GENESYS_GL847;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
+    model.ydpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(3.1);
+    model.y_offset = SANE_FIX(8.1);
+    model.x_size = SANE_FIX(216.07);
+    model.y_size = SANE_FIX(297.0);
+
+    model.y_offset_calib = SANE_FIX(1.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CIS_CANONLIDE700;
+    model.dac_type = DAC_CANONLIDE700;
+    model.gpo_type = GPO_CANONLIDE700;
+    model.motor_type = MOTOR_CANONLIDE700;
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_SIS_SENSOR |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_SHADING_REPARK |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW |
+                    GENESYS_HAS_COPY_SW |
+                    GENESYS_HAS_EMAIL_SW |
+                    GENESYS_HAS_FILE_SW;
+    model.shading_lines = 70;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a9, 0x1907, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-lide-200";
+    model.vendor = "Canon";
+    model.model = "LiDE 200";
+    model.model_id = MODEL_CANON_LIDE_200;
+    model.asic_type = GENESYS_GL847;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
+    model.ydpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(1.1);
+    model.y_offset = SANE_FIX(8.3);
+    model.x_size = SANE_FIX(216.07);
+    model.y_size = SANE_FIX(299.0);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CIS_CANONLIDE200;
+    model.dac_type = DAC_CANONLIDE200;
+    model.gpo_type = GPO_CANONLIDE200;
+    model.motor_type = MOTOR_CANONLIDE200;
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_SIS_SENSOR |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_SHADING_REPARK |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW |
+                    GENESYS_HAS_COPY_SW |
+                    GENESYS_HAS_EMAIL_SW |
+                    GENESYS_HAS_FILE_SW;
+    model.shading_lines = 50;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a9, 0x1905, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-lide-60";
+    model.vendor = "Canon";
+    model.model = "LiDE 60";
+    model.model_id = MODEL_CANON_LIDE_60;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 1200, 600, 300, 150, 75 };
+    model.ydpi_values = { 2400, 1200, 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.42);
+    model.y_offset = SANE_FIX(7.9);
+    model.x_size = SANE_FIX(218.0);
+    model.y_size = SANE_FIX(299.0);
+
+    model.y_offset_calib = SANE_FIX(6.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_CANONLIDE35;
+    model.dac_type = DAC_CANONLIDE35;
+    model.gpo_type = GPO_CANONLIDE35;
+    model.motor_type = MOTOR_CANONLIDE35;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_DARK_WHITE_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+
+    model.buttons = GENESYS_HAS_COPY_SW |
+                    GENESYS_HAS_SCAN_SW |
+                    GENESYS_HAS_FILE_SW |
+                    GENESYS_HAS_EMAIL_SW;
+    model.shading_lines = 300;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+    // this is completely untested
+    s_usb_devices->emplace_back(0x04a9, 0x221c, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-lide-80";
+    model.vendor = "Canon";
+    model.model = "LiDE 80";
+    model.model_id = MODEL_CANON_LIDE_80;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = {      1200, 600, 400, 300, 240, 150, 100, 75 };
+    model.ydpi_values = { 2400, 1200, 600, 400, 300, 240, 150, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+    model.x_offset = SANE_FIX(0.42);
+    model.y_offset = SANE_FIX(7.90);
+    model.x_size = SANE_FIX(216.07);
+    model.y_size = SANE_FIX(299.0);
+
+    model.y_offset_calib = SANE_FIX(4.5);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CIS_CANONLIDE80;
+    model.dac_type = DAC_CANONLIDE80;
+    model.gpo_type = GPO_CANONLIDE80;
+    model.motor_type = MOTOR_CANONLIDE80;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_DARK_WHITE_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW |
+                    GENESYS_HAS_FILE_SW |
+                    GENESYS_HAS_EMAIL_SW |
+                    GENESYS_HAS_COPY_SW;
+    model.shading_lines = 160;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a9, 0x2214, model);
+
+
+    model = Genesys_Model();
+    model.name = "hewlett-packard-scanjet-2300c";
+    model.vendor = "Hewlett Packard";
+    model.model = "ScanJet 2300c";
+    model.model_id = MODEL_HP_SCANJET_2300C;
+    model.asic_type = GENESYS_GL646;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, 300, 150, 75 };
+    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(2.0);
+    model.y_offset = SANE_FIX(7.5);
+    model.x_size = SANE_FIX(215.9);
+    model.y_size = SANE_FIX(295.0);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(1.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 16;
+    model.ld_shift_g = 8;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_HP2300;
+    model.dac_type = DAC_WOLFSON_HP2300;
+    model.gpo_type = GPO_HP2300;
+    model.motor_type = MOTOR_HP2300;
+    model.flags = GENESYS_FLAG_14BIT_GAMMA |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SEARCH_START |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW;
+    model.shading_lines = 40;
+    model.shading_ta_lines = 0;
+    model.search_lines = 132;
+
+    s_usb_devices->emplace_back(0x03f0, 0x0901, model);
+
+
+    model = Genesys_Model();
+    model.name = "hewlett-packard-scanjet-2400c";
+    model.vendor = "Hewlett Packard";
+    model.model = "ScanJet 2400c";
+    model.model_id = MODEL_HP_SCANJET_2400C;
+    model.asic_type = GENESYS_GL646;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 1200, 600, 300, 150, 100, 50 };
+    model.ydpi_values = { 1200, 600, 300, 150, 100, 50 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(6.5);
+    model.y_offset = SANE_FIX(2.5);
+    model.x_size = SANE_FIX(220.0);
+    model.y_size = SANE_FIX(297.2);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(1.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 24;
+    model.ld_shift_b = 48;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_HP2400;
+    model.dac_type = DAC_WOLFSON_HP2400;
+    model.gpo_type = GPO_HP2400;
+    model.motor_type = MOTOR_HP2400;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_14BIT_GAMMA |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_STAGGERED_LINE |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_SCAN_SW;
+    model.shading_lines = 20;
+    model.shading_ta_lines = 0;
+    model.search_lines = 132;
+
+    s_usb_devices->emplace_back(0x03f0, 0x0a01, model);
+
+
+    model = Genesys_Model();
+    model.name = "visioneer-strobe-xp200";
+    model.vendor = "Visioneer";
+    model.model = "Strobe XP200";
+    model.model_id = MODEL_VISIONEER_STROBE_XP200;
+    model.asic_type = GENESYS_GL646;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, 300, 200, 100, 75 };
+    model.ydpi_values = { 600, 300, 200, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.5);
+    model.y_offset = SANE_FIX(16.0);
+    model.x_size = SANE_FIX(215.9);
+    model.y_size = SANE_FIX(297.2);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_TRUE;
+    model.ccd_type = CIS_XP200;
+    model.dac_type = DAC_AD_XP200;
+    model.gpo_type = GPO_XP200;
+    model.motor_type = MOTOR_XP200;
+    model.flags = GENESYS_FLAG_14BIT_GAMMA |
+                  GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_OFFSET_CALIBRATION;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
+    model.shading_lines = 120;
+    model.shading_ta_lines = 0;
+    model.search_lines = 132;
+
+    s_usb_devices->emplace_back(0x04a7, 0x0426, model);
+
+
+    model = Genesys_Model();
+    model.name = "hewlett-packard-scanjet-3670c";
+    model.vendor = "Hewlett Packard";
+    model.model = "ScanJet 3670c";
+    model.model_id = MODEL_HP_SCANJET_3670C;
+    model.asic_type = GENESYS_GL646;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 1200, 600, 300, 150, 100, 75 };
+    model.ydpi_values = { 1200, 600, 300, 150, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(8.5);
+    model.y_offset = SANE_FIX(11.0);
+    model.x_size = SANE_FIX(215.9);
+    model.y_size = SANE_FIX(300.0);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(1.0);
+
+    model.x_offset_ta = SANE_FIX(104.0);
+    model.y_offset_ta = SANE_FIX(55.6);
+    model.x_size_ta = SANE_FIX(25.6);
+    model.y_size_ta = SANE_FIX(78.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(76.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 24;
+    model.ld_shift_b = 48;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_HP3670;
+    model.dac_type = DAC_WOLFSON_HP3670;
+    model.gpo_type = GPO_HP3670;
+    model.motor_type = MOTOR_HP3670;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_14BIT_GAMMA |
+                  GENESYS_FLAG_XPA |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_STAGGERED_LINE |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_SCAN_SW;
+    model.shading_lines = 20;
+    model.shading_ta_lines = 0;
+    model.search_lines = 200;
+
+    s_usb_devices->emplace_back(0x03f0, 0x1405, model);
+
+
+    model = Genesys_Model();
+    model.name = "plustek-opticpro-st12";
+    model.vendor = "Plustek";
+    model.model = "OpticPro ST12";
+    model.model_id = MODEL_PLUSTEK_OPTICPRO_ST12;
+    model.asic_type = GENESYS_GL646;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, 300, 150, 75 };
+    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(3.5);
+    model.y_offset = SANE_FIX(7.5);
+    model.x_size = SANE_FIX(218.0);
+    model.y_size = SANE_FIX(299.0);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(1.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 8;
+    model.ld_shift_b = 16;
+
+    model.line_mode_color_order = COLOR_ORDER_BGR;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_ST12;
+    model.dac_type = DAC_WOLFSON_ST12;
+    model.gpo_type = GPO_ST12;
+    model.motor_type = MOTOR_UMAX;
+    model.flags = GENESYS_FLAG_UNTESTED | GENESYS_FLAG_14BIT_GAMMA;
+    model.buttons = GENESYS_HAS_NO_BUTTONS,
+    model.shading_lines = 20;
+    model.shading_ta_lines = 0;
+    model.search_lines = 200;
+
+    s_usb_devices->emplace_back(0x07b3, 0x0600, model);
+
+    model = Genesys_Model();
+    model.name = "plustek-opticpro-st24";
+    model.vendor = "Plustek";
+    model.model = "OpticPro ST24";
+    model.model_id = MODEL_PLUSTEK_OPTICPRO_ST24;
+    model.asic_type = GENESYS_GL646;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 1200, 600, 300, 150, 75 };
+    model.ydpi_values = { 2400, 1200, 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(3.5);
+    model.y_offset = SANE_FIX(7.5);
+    model.x_size = SANE_FIX(218.0);
+    model.y_size = SANE_FIX(299.0);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(1.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 8;
+    model.ld_shift_b = 16;
+
+    model.line_mode_color_order = COLOR_ORDER_BGR;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_ST24;
+    model.dac_type = DAC_WOLFSON_ST24;
+    model.gpo_type = GPO_ST24;
+    model.motor_type = MOTOR_ST24;
+    model.flags = GENESYS_FLAG_UNTESTED |
+                  GENESYS_FLAG_14BIT_GAMMA |
+                  GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_SEARCH_START |
+                  GENESYS_FLAG_OFFSET_CALIBRATION;
+    model.buttons = GENESYS_HAS_NO_BUTTONS,
+    model.shading_lines = 20;
+    model.shading_ta_lines = 0;
+    model.search_lines = 200;
+
+    s_usb_devices->emplace_back(0x07b3, 0x0601, model);
+
+    model = Genesys_Model();
+    model.name = "medion-md5345-model";
+    model.vendor = "Medion";
+    model.model = "MD5345/MD6228/MD6471";
+    model.model_id = MODEL_MEDION_MD5345;
+    model.asic_type = GENESYS_GL646;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
+    model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.30);
+    model.y_offset = SANE_FIX(0.80);
+    model.x_size = SANE_FIX(220.0);
+    model.y_size = SANE_FIX(296.4);
+
+    model.y_offset_calib = SANE_FIX(0.00);
+    model.x_offset_mark = SANE_FIX(0.00);
+
+    model.x_offset_ta = SANE_FIX(0.00);
+    model.y_offset_ta = SANE_FIX(0.00);
+    model.x_size_ta = SANE_FIX(0.00);
+    model.y_size_ta = SANE_FIX(0.00);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.00);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 48;
+    model.ld_shift_g = 24;
+    model.ld_shift_b = 0;
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_5345;
+    model.dac_type = DAC_WOLFSON_5345;
+    model.gpo_type = GPO_5345;
+    model.motor_type = MOTOR_5345;
+    model.flags = GENESYS_FLAG_14BIT_GAMMA |
+                  GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SEARCH_START |
+                  GENESYS_FLAG_STAGGERED_LINE |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_SHADING_NO_MOVE |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_COPY_SW |
+                    GENESYS_HAS_EMAIL_SW |
+                    GENESYS_HAS_POWER_SW |
+                    GENESYS_HAS_OCR_SW |
+                    GENESYS_HAS_SCAN_SW;
+    model.shading_lines = 40;
+    model.shading_ta_lines = 0;
+    model.search_lines = 200;
+
+    s_usb_devices->emplace_back(0x0461, 0x0377, model);
+
+    model = Genesys_Model();
+    model.name = "visioneer-strobe-xp300";
+    model.vendor = "Visioneer";
+    model.model = "Strobe XP300";
+    model.model_id = MODEL_VISIONEER_STROBE_XP300;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, 300, 150, 75 };
+    model.ydpi_values = { 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.0);
+    model.y_offset = SANE_FIX(1.0);
+    model.x_size = SANE_FIX(435.0);
+    model.y_size = SANE_FIX(511);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(26.5);
+    // this is larger than needed -- accounts for second sensor head, which is a calibration item
+    model.eject_feed = SANE_FIX(0.0);
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_TRUE;
+    model.ccd_type = CCD_XP300;
+    model.dac_type = DAC_WOLFSON_XP300;
+    model.gpo_type = GPO_XP300;
+    model.motor_type = MOTOR_XP300;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a7, 0x0474, model);
+
+    model = Genesys_Model();
+    model.name = "syscan-docketport-665";
+    model.vendor = "Syscan/Ambir";
+    model.model = "DocketPORT 665";
+    model.model_id = MODEL_SYSCAN_DOCKETPORT_665;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, 300, 150, 75 };
+    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.0);
+    model.y_offset = SANE_FIX(0.0);
+    model.x_size = SANE_FIX(108.0);
+    model.y_size = SANE_FIX(511);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(17.5);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_TRUE;
+    model.ccd_type = CCD_DP665;
+    model.dac_type = DAC_WOLFSON_XP300;
+    model.gpo_type = GPO_DP665;
+    model.motor_type = MOTOR_DP665;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x0a82, 0x4803, model);
+
+    model = Genesys_Model();
+    model.name = "visioneer-roadwarrior";
+    model.vendor = "Visioneer";
+    model.model = "Readwarrior";
+    model.model_id = MODEL_VISIONEER_ROADWARRIOR;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, 300, 150, 75 };
+    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.0);
+    model.y_offset = SANE_FIX(0.0);
+    model.x_size = SANE_FIX(220.0);
+    model.y_size = SANE_FIX(511);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(16.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_TRUE;
+    model.ccd_type = CCD_ROADWARRIOR;
+    model.dac_type = DAC_WOLFSON_XP300;
+    model.gpo_type = GPO_DP665;
+    model.motor_type = MOTOR_ROADWARRIOR;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_DARK_CALIBRATION;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a7, 0x0494, model);
+
+    model = Genesys_Model();
+    model.name = "syscan-docketport-465";
+    model.vendor = "Syscan";
+    model.model = "DocketPORT 465";
+    model.model_id = MODEL_SYSCAN_DOCKETPORT_465;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, 300, 150, 75 };
+    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.0);
+    model.y_offset = SANE_FIX(0.0);
+    model.x_size = SANE_FIX(220.0);
+    model.y_size = SANE_FIX(511);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(16.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_TRUE;
+    model.ccd_type = CCD_ROADWARRIOR;
+    model.dac_type = DAC_WOLFSON_XP300;
+    model.gpo_type = GPO_DP665;
+    model.motor_type = MOTOR_ROADWARRIOR;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_NO_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_UNTESTED;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW;
+    model.shading_lines = 300;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x0a82, 0x4802, model);
+
+
+    model = Genesys_Model();
+    model.name = "visioneer-xp100-revision3";
+    model.vendor = "Visioneer";
+    model.model = "XP100 Revision 3";
+    model.model_id = MODEL_VISIONEER_STROBE_XP100_REVISION3;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, 300, 150, 75 };
+    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.0);
+    model.y_offset = SANE_FIX(0.0);
+    model.x_size = SANE_FIX(220.0);
+    model.y_size = SANE_FIX(511);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(16.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_TRUE;
+    model.ccd_type = CCD_ROADWARRIOR;
+    model.dac_type = DAC_WOLFSON_XP300;
+    model.gpo_type = GPO_DP665;
+    model.motor_type = MOTOR_ROADWARRIOR;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_DARK_CALIBRATION;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a7, 0x049b, model);
+
+    model = Genesys_Model();
+    model.name = "pentax-dsmobile-600";
+    model.vendor = "Pentax";
+    model.model = "DSmobile 600";
+    model.model_id = MODEL_PENTAX_DSMOBILE_600;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, 300, 150, 75 };
+    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.0);
+    model.y_offset = SANE_FIX(0.0);
+    model.x_size = SANE_FIX(220.0);
+    model.y_size = SANE_FIX(511);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(16.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_TRUE;
+    model.ccd_type = CCD_DSMOBILE600;
+    model.dac_type = DAC_WOLFSON_DSM600;
+    model.gpo_type = GPO_DP665;
+    model.motor_type = MOTOR_DSMOBILE_600;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_DARK_CALIBRATION;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x0a17, 0x3210, model);
     // clone, only usb id is different
-    s_usb_devices->emplace_back(0x04f9, 0x2038, pentax_dsmobile_600_model);
-
-    Genesys_Model syscan_docketport_467_model = {
-  "syscan-docketport-467",                /* Name */
-  "Syscan",                                /* Device vendor string */
-  "DocketPORT 467",                        /* Device model name */
-  MODEL_SYSCAN_DOCKETPORT_467,
-  GENESYS_GL841,
-  NULL,
-
-  {600, 300, 150, 75},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (0.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (220.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (511),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (16.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_TRUE,                        /* Is this a sheetfed scanner? */
-  CCD_DSMOBILE600,
-  DAC_WOLFSON_DSM600,
-  GPO_DP665,
-  MOTOR_DSMOBILE_600,
-  GENESYS_FLAG_LAZY_INIT         /* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_DARK_CALIBRATION,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
-  100,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x1dcc, 0x4812, syscan_docketport_467_model);
-
-    Genesys_Model syscan_docketport_685_model = {
-  "syscan-docketport-685",                /* Name */
-  "Syscan/Ambir",                        /* Device vendor string */
-  "DocketPORT 685",                        /* Device model name */
-  MODEL_SYSCAN_DOCKETPORT_685,
-  GENESYS_GL841,
-  NULL,
-
-  {600, 300, 150, 75},        /* possible x-resolutions */
-  {600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (1.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (212.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (500),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (26.5),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  /* this is larger than needed -- accounts for second sensor head, which is a
-     calibration item */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_TRUE,                        /* Is this a sheetfed scanner? */
-  CCD_DP685,
-  DAC_WOLFSON_DSM600,
-  GPO_DP685,
-  MOTOR_XP300,
-  GENESYS_FLAG_LAZY_INIT         /* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_DARK_CALIBRATION,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
-  100,
-  0,        // shading_ta_lines
-  400
-};
-
-    s_usb_devices->emplace_back(0x0a82, 0x480c, syscan_docketport_685_model);
-
-
-    Genesys_Model syscan_docketport_485_model = {
-  "syscan-docketport-485",                /* Name */
-  "Syscan/Ambir",                        /* Device vendor string */
-  "DocketPORT 485",                        /* Device model name */
-  MODEL_SYSCAN_DOCKETPORT_485,
-  GENESYS_GL841,
-  NULL,
-
-  {600, 300, 150, 75},        /* possible x-resolutions */
-  {600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (1.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (435.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (511),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (26.5),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  /* this is larger than needed -- accounts for second sensor head, which is a
-     calibration item */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_TRUE,                        /* Is this a sheetfed scanner? */
-  CCD_XP300,
-  DAC_WOLFSON_XP300,
-  GPO_XP300,
-  MOTOR_XP300,
-  GENESYS_FLAG_LAZY_INIT         /* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_DARK_CALIBRATION,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
-  100,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x0a82, 0x4800, syscan_docketport_485_model);
-
-
-    Genesys_Model dct_docketport_487_model = {
-  "dct-docketport-487",                /* Name */
-  "DCT",                        /* Device vendor string */
-  "DocketPORT 487",                        /* Device model name */
-  MODEL_DCT_DOCKETPORT_487,
-  GENESYS_GL841,
-  NULL,
-
-  {600, 300, 150, 75},        /* possible x-resolutions */
-  {600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (0.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (1.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (435.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (511),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (26.5),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  /* this is larger than needed -- accounts for second sensor head, which is a
-     calibration item */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_TRUE,                        /* Is this a sheetfed scanner? */
-  CCD_XP300,
-  DAC_WOLFSON_XP300,
-  GPO_XP300,
-  MOTOR_XP300,
-  GENESYS_FLAG_LAZY_INIT         /* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_UNTESTED,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
-  100,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x1dcc, 0x4810, dct_docketport_487_model);
-
-
-    Genesys_Model visioneer_7100_model = {
-  "visioneer-7100-model",        /* Name */
-  "Visioneer",                        /* Device vendor string */
-  "OneTouch 7100",        /* Device model name */
-  MODEL_VISIONEER_7100,
-  GENESYS_GL646,
-  NULL,
-
-  {1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible x-resolutions */
-  {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX ( 4.00),                /* Start of scan area in mm  (x) */
-  SANE_FIX ( 0.80),                /* 2.79 < Start of scan area in mm (y) */
-  SANE_FIX (215.9),                /* Size of scan area in mm (x) */
-  SANE_FIX (296.4),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.00),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.00),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.00),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.00),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (0.00),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (0.00),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.00),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  48, 24, 0,                        /* RGB CCD Line-distance correction in pixel */
-/* 48, 24, 0, */
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_5345,
-  DAC_WOLFSON_5345,
-  GPO_5345,
-  MOTOR_5345,
-  GENESYS_FLAG_14BIT_GAMMA
-    | GENESYS_FLAG_LAZY_INIT
-    | GENESYS_FLAG_SEARCH_START
-    | GENESYS_FLAG_STAGGERED_LINE
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_POWER_SW | GENESYS_HAS_OCR_SW | GENESYS_HAS_SCAN_SW,
-  40,
-  0,        // shading_ta_lines
-  200
-};
-    s_usb_devices->emplace_back(0x04a7, 0x0229, visioneer_7100_model);
-
-
-    Genesys_Model xerox_2400_model = {
-  "xerox-2400-model",        /* Name */
-  "Xerox",                /* Device vendor string */
-  "OneTouch 2400",        /* Device model name */
-  MODEL_XEROX_2400,
-  GENESYS_GL646,
-  NULL,
-
-  {1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible x-resolutions */
-  {2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX ( 4.00),                /* Start of scan area in mm  (x) */
-  SANE_FIX ( 0.80),                /* 2.79 < Start of scan area in mm (y) */
-  SANE_FIX (215.9),                /* Size of scan area in mm (x) */
-  SANE_FIX (296.4),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.00),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.00),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.00),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.00),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (0.00),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (0.00),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.00),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  48, 24, 0,                        /* RGB CCD Line-distance correction in pixel */
-/* 48, 24, 0, */
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_5345,
-  DAC_WOLFSON_5345,
-  GPO_5345,
-  MOTOR_5345,
-  GENESYS_FLAG_14BIT_GAMMA
-    | GENESYS_FLAG_LAZY_INIT
-    | GENESYS_FLAG_SEARCH_START
-    | GENESYS_FLAG_STAGGERED_LINE
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_POWER_SW | GENESYS_HAS_OCR_SW | GENESYS_HAS_SCAN_SW,
-  40,
-  0,        // shading_ta_lines
-  200
-};
-    s_usb_devices->emplace_back(0x0461, 0x038b, xerox_2400_model);
-
-
-    Genesys_Model xerox_travelscanner_model = {
-  "xerox-travelscanner",                /* Name */
-  "Xerox",                                /* Device vendor string */
-  "Travelscanner 100",                        /* Device model name */
-  MODEL_XEROX_TRAVELSCANNER_100,
-  GENESYS_GL841,
-  NULL,
-
-  {600, 300, 150, 75},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (4.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (0.0),                /* Start of scan area in mm (y) */
-  SANE_FIX (220.0),                /* Size of scan area in mm (x) */
-  SANE_FIX (511),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (16.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_TRUE,                        /* Is this a CIS scanner? */
-  SANE_TRUE,                        /* Is this a sheetfed scanner? */
-  CCD_ROADWARRIOR,
-  DAC_WOLFSON_XP300,
-  GPO_DP665,
-  MOTOR_ROADWARRIOR,
-  GENESYS_FLAG_LAZY_INIT         /* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_DARK_CALIBRATION,
-  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE,
-  100,
-  0,        // shading_ta_lines
-  400
-};
-    s_usb_devices->emplace_back(0x04a7, 0x04ac, xerox_travelscanner_model);
-
-
-    Genesys_Model plustek_3600_model = {
-  "plustek-opticbook-3600",        /* Name */
-  "PLUSTEK",                        /* Device vendor string */
-  "OpticBook 3600",                /* Device model name */
-  MODEL_PLUSTEK_OPTICPRO_3600,
-  GENESYS_GL841,
-  NULL,
-  {/*1200,*/ 600, 400, 300, 200, 150, 100, 75},                /* possible x-resolutions */
-  {/*2400,*/ 1200, 600, 400, 300, 200, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (0.42),/*SANE_FIX (0.42),                 Start of scan area in mm  (x) */
-  SANE_FIX (6.75),/*SANE_FIX (7.9),                 Start of scan area in mm (y) */
-  SANE_FIX (216.0),/*SANE_FIX (216.0),                 Size of scan area in mm (x) */
-  SANE_FIX (297.0),/*SANE_FIX (297.0),                 Size of scan area in mm (y) */
-
-  SANE_FIX (0.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 24, 48,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_PLUSTEK_3600,
-  DAC_PLUSTEK_3600,
-  GPO_PLUSTEK_3600,
-  MOTOR_PLUSTEK_3600,
-  GENESYS_FLAG_UNTESTED                /* not fully working yet */
-	  | GENESYS_FLAG_CUSTOM_GAMMA
-	  | GENESYS_FLAG_SKIP_WARMUP
-	  | GENESYS_FLAG_DARK_CALIBRATION
-	  | GENESYS_FLAG_OFFSET_CALIBRATION
-            | GENESYS_FLAG_LAZY_INIT,/*
-      | GENESYS_FLAG_NO_CALIBRATION,*/
-  GENESYS_HAS_NO_BUTTONS,
-  7,
-  0,        // shading_ta_lines
-  200
-};
-    s_usb_devices->emplace_back(0x07b3, 0x0900, plustek_3600_model);
-
-
-    Genesys_Model hpn6310_model = {
-  "hewlett-packard-scanjet-N6310",        /* Name */
-  "Hewlett Packard",                        /* Device vendor string */
-  "ScanJet N6310",                        /* Device model name */
-  MODEL_HP_SCANJET_N6310,
-  GENESYS_GL847,
-  NULL,
-
-  { 2400, 1200, 600, 400, 300, 200, 150, 100, 75},
-  { 2400, 1200, 600, 400, 300, 200, 150, 100, 75},
-
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (6),                 /* Start of scan area in mm  (x) */
-  SANE_FIX (2),                 /* Start of scan area in mm (y) */
-  SANE_FIX (216),                /* Size of scan area in mm (x) 5148 pixels at 600 dpi*/
-  SANE_FIX (511),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (3.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (100.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 0, 0,                                /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_HP_N6310,
-  DAC_CANONLIDE200,     /*Not defined yet for N6310 */
-  GPO_HP_N6310,
-  MOTOR_CANONLIDE200,   /*Not defined yet for N6310 */
-  GENESYS_FLAG_UNTESTED                /* not fully working yet */
-  | GENESYS_FLAG_LAZY_INIT
-    | GENESYS_FLAG_14BIT_GAMMA
-    | GENESYS_FLAG_DARK_CALIBRATION
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_SKIP_WARMUP
-   | GENESYS_FLAG_NO_CALIBRATION,
-
-  GENESYS_HAS_NO_BUTTONS,
-  100,
-  0,        // shading_ta_lines
-  100
-};
-    s_usb_devices->emplace_back(0x03f0, 0x4705, hpn6310_model);
-
-
-    Genesys_Model plustek_3800_model = {
-  "plustek-opticbook-3800",        /* Name */
-  "PLUSTEK",                        /* Device vendor string */
-  "OpticBook 3800",                /* Device model name */
-  MODEL_PLUSTEK_OPTICBOOK_3800,
-  GENESYS_GL845,
-  NULL,
-
-  {1200, 600, 300, 150, 100, 75},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (7.2),                /* Start of scan area in mm  (x) */
-  SANE_FIX (14.7),                /* Start of scan area in mm (y) */
-  SANE_FIX (217.7),                /* Size of scan area in mm (x) */
-  SANE_FIX (300.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (9.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 24, 48,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_PLUSTEK3800,
-  DAC_PLUSTEK3800,
-  GPO_PLUSTEK3800,
-  MOTOR_PLUSTEK3800,
-  GENESYS_FLAG_LAZY_INIT |
-  GENESYS_FLAG_SKIP_WARMUP |
-  GENESYS_FLAG_OFFSET_CALIBRATION |
-  GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_NO_BUTTONS,        /* TODO there are 4 buttons to support */
-  100,
-  0,        // shading_ta_lines
-  100
-};
-    s_usb_devices->emplace_back(0x07b3, 0x1300, plustek_3800_model);
-
-
-    Genesys_Model canon_formula101_model = {
-  "canon-image-formula-101",                /* Name */
-  "Canon",                        /* Device vendor string */
-  "Image Formula 101",                        /* Device model name */
-  MODEL_CANON_IMAGE_FORMULA_101,
-  GENESYS_GL846,
-  NULL,
-
-  {1200, 600, 300, 150, 100, 75},        /* possible x-resolutions */
-  {1200, 600, 300, 150, 100, 75},        /* possible y-resolutions */
-  {16, 8},                        /* possible depths in gray mode */
-  {16, 8},                        /* possible depths in color mode */
-
-  SANE_FIX (7.2),                /* Start of scan area in mm  (x) */
-  SANE_FIX (14.7),                /* Start of scan area in mm (y) */
-  SANE_FIX (217.7),                /* Size of scan area in mm (x) */
-  SANE_FIX (300.0),                /* Size of scan area in mm (y) */
-
-  SANE_FIX (9.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
-
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (0.0),                /* Size of scan area in TA mode in mm (y) */
-
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (0.0),                /* Start of white strip in TA mode in mm (y) */
-
-  SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
-				   sensing document in mm */
-  SANE_FIX (0.0),                /* Amount of feeding needed to eject document
-				   after finishing scanning in mm */
-
-  0, 24, 48,                        /* RGB CCD Line-distance correction in pixel */
-
-  COLOR_ORDER_RGB,                /* Order of the CCD/CIS colors */
-
-  SANE_FALSE,                        /* Is this a CIS scanner? */
-  SANE_FALSE,                        /* Is this a sheetfed scanner? */
-  CCD_IMG101,
-  DAC_IMG101,
-  GPO_IMG101,
-  MOTOR_IMG101,
-  GENESYS_FLAG_LAZY_INIT |
-  GENESYS_FLAG_SKIP_WARMUP |
-  GENESYS_FLAG_OFFSET_CALIBRATION |
-  GENESYS_FLAG_CUSTOM_GAMMA,
-  GENESYS_HAS_NO_BUTTONS ,
-  100,
-  0,        // shading_ta_lines
-  100
-};
-    s_usb_devices->emplace_back(0x1083, 0x162e, canon_formula101_model);
-}
+    s_usb_devices->emplace_back(0x04f9, 0x2038, model);
+
+    model = Genesys_Model();
+    model.name = "syscan-docketport-467";
+    model.vendor = "Syscan";
+    model.model = "DocketPORT 467";
+    model.model_id = MODEL_SYSCAN_DOCKETPORT_467;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, 300, 150, 75 };
+    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.0);
+    model.y_offset = SANE_FIX(0.0);
+    model.x_size = SANE_FIX(220.0);
+    model.y_size = SANE_FIX(511);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(16.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_TRUE;
+    model.ccd_type = CCD_DSMOBILE600;
+    model.dac_type = DAC_WOLFSON_DSM600;
+    model.gpo_type = GPO_DP665;
+    model.motor_type = MOTOR_DSMOBILE_600;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_DARK_CALIBRATION;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x1dcc, 0x4812, model);
+
+    model = Genesys_Model();
+    model.name = "syscan-docketport-685";
+    model.vendor = "Syscan/Ambir";
+    model.model = "DocketPORT 685";
+    model.model_id = MODEL_SYSCAN_DOCKETPORT_685;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, 300, 150, 75 };
+    model.ydpi_values = { 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.0);
+    model.y_offset = SANE_FIX(1.0);
+    model.x_size = SANE_FIX(212.0);
+    model.y_size = SANE_FIX(500);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(26.5);
+    // this is larger than needed -- accounts for second sensor head, which is a calibration item
+    model.eject_feed = SANE_FIX(0.0);
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_TRUE;
+    model.ccd_type = CCD_DP685;
+    model.dac_type = DAC_WOLFSON_DSM600;
+    model.gpo_type = GPO_DP685;
+    model.motor_type = MOTOR_XP300;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_DARK_CALIBRATION;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+
+    s_usb_devices->emplace_back(0x0a82, 0x480c, model);
+
+
+    model = Genesys_Model();
+    model.name = "syscan-docketport-485";
+    model.vendor = "Syscan/Ambir";
+    model.model = "DocketPORT 485";
+    model.model_id = MODEL_SYSCAN_DOCKETPORT_485;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, 300, 150, 75 };
+    model.ydpi_values = { 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.0);
+    model.y_offset = SANE_FIX(1.0);
+    model.x_size = SANE_FIX(435.0);
+    model.y_size = SANE_FIX(511);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(26.5);
+    // this is larger than needed -- accounts for second sensor head, which is a calibration item
+    model.eject_feed = SANE_FIX(0.0);
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_TRUE;
+    model.ccd_type = CCD_XP300;
+    model.dac_type = DAC_WOLFSON_XP300;
+    model.gpo_type = GPO_XP300;
+    model.motor_type = MOTOR_XP300;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_DARK_CALIBRATION;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x0a82, 0x4800, model);
+
+
+    model = Genesys_Model();
+    model.name = "dct-docketport-487";
+    model.vendor = "DCT";
+    model.model = "DocketPORT 487";
+    model.model_id = MODEL_DCT_DOCKETPORT_487;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, 300, 150, 75 };
+    model.ydpi_values = { 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.0);
+    model.y_offset = SANE_FIX(1.0);
+    model.x_size = SANE_FIX(435.0);
+    model.y_size = SANE_FIX(511);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(26.5);
+    // this is larger than needed -- accounts for second sensor head, which is a calibration item
+    model.eject_feed = SANE_FIX(0.0);
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_TRUE;
+    model.ccd_type = CCD_XP300;
+    model.dac_type = DAC_WOLFSON_XP300;
+    model.gpo_type = GPO_XP300;
+    model.motor_type = MOTOR_XP300;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_UNTESTED;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x1dcc, 0x4810, model);
+
+
+    model = Genesys_Model();
+    model.name = "visioneer-7100-model";
+    model.vendor = "Visioneer";
+    model.model = "OneTouch 7100";
+    model.model_id = MODEL_VISIONEER_7100;
+    model.asic_type = GENESYS_GL646;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
+    model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(4.00);
+    model.y_offset = SANE_FIX(0.80);
+    model.x_size = SANE_FIX(215.9);
+    model.y_size = SANE_FIX(296.4);
+
+    model.y_offset_calib = SANE_FIX(0.00);
+    model.x_offset_mark = SANE_FIX(0.00);
+
+    model.x_offset_ta = SANE_FIX(0.00);
+    model.y_offset_ta = SANE_FIX(0.00);
+    model.x_size_ta = SANE_FIX(0.00);
+    model.y_size_ta = SANE_FIX(0.00);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.00);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 48;
+    model.ld_shift_g = 24;
+    model.ld_shift_b = 0;
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_5345;
+    model.dac_type = DAC_WOLFSON_5345;
+    model.gpo_type = GPO_5345;
+    model.motor_type = MOTOR_5345;
+    model.flags = GENESYS_FLAG_14BIT_GAMMA |
+                  GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SEARCH_START |
+                  GENESYS_FLAG_STAGGERED_LINE |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_COPY_SW |
+                    GENESYS_HAS_EMAIL_SW |
+                    GENESYS_HAS_POWER_SW |
+                    GENESYS_HAS_OCR_SW |
+                    GENESYS_HAS_SCAN_SW;
+    model.shading_lines = 40;
+    model.shading_ta_lines = 0;
+    model.search_lines = 200;
+
+    s_usb_devices->emplace_back(0x04a7, 0x0229, model);
+
+
+    model = Genesys_Model();
+    model.name = "xerox-2400-model";
+    model.vendor = "Xerox";
+    model.model = "OneTouch 2400";
+    model.model_id = MODEL_XEROX_2400;
+    model.asic_type = GENESYS_GL646;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
+    model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(4.00);
+    model.y_offset = SANE_FIX(0.80);
+    model.x_size = SANE_FIX(215.9);
+    model.y_size = SANE_FIX(296.4);
+
+    model.y_offset_calib = SANE_FIX(0.00);
+    model.x_offset_mark = SANE_FIX(0.00);
+
+    model.x_offset_ta = SANE_FIX(0.00);
+    model.y_offset_ta = SANE_FIX(0.00);
+    model.x_size_ta = SANE_FIX(0.00);
+    model.y_size_ta = SANE_FIX(0.00);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.00);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 48;
+    model.ld_shift_g = 24;
+    model.ld_shift_b = 0;
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_5345;
+    model.dac_type = DAC_WOLFSON_5345;
+    model.gpo_type = GPO_5345;
+    model.motor_type = MOTOR_5345;
+    model.flags = GENESYS_FLAG_14BIT_GAMMA |
+                  GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SEARCH_START |
+                  GENESYS_FLAG_STAGGERED_LINE |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_COPY_SW |
+                    GENESYS_HAS_EMAIL_SW |
+                    GENESYS_HAS_POWER_SW |
+                    GENESYS_HAS_OCR_SW |
+                    GENESYS_HAS_SCAN_SW;
+    model.shading_lines = 40;
+    model.shading_ta_lines = 0;
+    model.search_lines = 200;
+
+    s_usb_devices->emplace_back(0x0461, 0x038b, model);
+
+
+    model = Genesys_Model();
+    model.name = "xerox-travelscanner";
+    model.vendor = "Xerox";
+    model.model = "Travelscanner 100";
+    model.model_id = MODEL_XEROX_TRAVELSCANNER_100;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 600, 300, 150, 75 };
+    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(4.0);
+    model.y_offset = SANE_FIX(0.0);
+    model.x_size = SANE_FIX(220.0);
+    model.y_size = SANE_FIX(511);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(16.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_TRUE;
+    model.is_sheetfed = SANE_TRUE;
+    model.ccd_type = CCD_ROADWARRIOR;
+    model.dac_type = DAC_WOLFSON_XP300;
+    model.gpo_type = GPO_DP665;
+    model.motor_type = MOTOR_ROADWARRIOR;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_DARK_CALIBRATION;
+    model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a7, 0x04ac, model);
+
+
+    model = Genesys_Model();
+    model.name = "plustek-opticbook-3600";
+    model.vendor = "PLUSTEK";
+    model.model = "OpticBook 3600";
+    model.model_id = MODEL_PLUSTEK_OPTICPRO_3600;
+    model.asic_type = GENESYS_GL841;
+    model.cmd_set = NULL;
+    model.xdpi_values = { /*1200,*/ 600, 400, 300, 200, 150, 100, 75 };
+    model.ydpi_values = { /*2400,*/ 1200, 600, 400, 300, 200, 150, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(0.42);
+    model.y_offset = SANE_FIX(6.75);
+    model.x_size = SANE_FIX(216.0);
+    model.y_size = SANE_FIX(297.0);
+
+    model.y_offset_calib = SANE_FIX(0.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(0.0);
+    model.y_size_ta = SANE_FIX(0.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 24;
+    model.ld_shift_b = 48;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_PLUSTEK_3600;
+    model.dac_type = DAC_PLUSTEK_3600;
+    model.gpo_type = GPO_PLUSTEK_3600;
+    model.motor_type = MOTOR_PLUSTEK_3600;
+    model.flags = GENESYS_FLAG_UNTESTED |                // not fully working yet
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_LAZY_INIT;
+    model.buttons = GENESYS_HAS_NO_BUTTONS;
+    model.shading_lines = 7;
+    model.shading_ta_lines = 0;
+    model.search_lines = 200;
+
+    s_usb_devices->emplace_back(0x07b3, 0x0900, model);
+
+
+    model = Genesys_Model();
+    model.name = "hewlett-packard-scanjet-N6310";
+    model.vendor = "Hewlett Packard";
+    model.model = "ScanJet N6310";
+    model.model_id = MODEL_HP_SCANJET_N6310;
+    model.asic_type = GENESYS_GL847;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75 };
+    model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75 };
+
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(6);
+    model.y_offset = SANE_FIX(2);
+    model.x_size = SANE_FIX(216);
+    model.y_size = SANE_FIX(511);
+
+    model.y_offset_calib = SANE_FIX(3.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(100.0);
+    model.y_size_ta = SANE_FIX(100.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0);
+
+    model.post_scan = SANE_FIX(0);
+    model.eject_feed = SANE_FIX(0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_HP_N6310;
+    model.dac_type = DAC_CANONLIDE200;        // Not defined yet for N6310
+    model.gpo_type = GPO_HP_N6310;
+    model.motor_type = MOTOR_CANONLIDE200,    // Not defined yet for N6310
+    model.flags = GENESYS_FLAG_UNTESTED |
+                  GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_14BIT_GAMMA |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_NO_CALIBRATION;
+
+    model.buttons = GENESYS_HAS_NO_BUTTONS;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 100;
+
+    s_usb_devices->emplace_back(0x03f0, 0x4705, model);
+
+
+    model = Genesys_Model();
+    model.name = "plustek-opticbook-3800";
+    model.vendor = "PLUSTEK";
+    model.model = "OpticBook 3800";
+    model.model_id = MODEL_PLUSTEK_OPTICBOOK_3800;
+    model.asic_type = GENESYS_GL845;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 1200, 600, 300, 150, 100, 75 };
+    model.ydpi_values = { 1200, 600, 300, 150, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(7.2);
+    model.y_offset = SANE_FIX(14.7);
+    model.x_size = SANE_FIX(217.7);
+    model.y_size = SANE_FIX(300.0);
+
+    model.y_offset_calib = SANE_FIX(9.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(0.0);
+    model.y_size_ta = SANE_FIX(0.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 24;
+    model.ld_shift_b = 48;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_PLUSTEK3800;
+    model.dac_type = DAC_PLUSTEK3800;
+    model.gpo_type = GPO_PLUSTEK3800;
+    model.motor_type = MOTOR_PLUSTEK3800;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_NO_BUTTONS;  // TODO there are 4 buttons to support
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 100;
+
+    s_usb_devices->emplace_back(0x07b3, 0x1300, model);
+
+
+    model = Genesys_Model();
+    model.name = "canon-image-formula-101";
+    model.vendor = "Canon";
+    model.model = "Image Formula 101";
+    model.model_id = MODEL_CANON_IMAGE_FORMULA_101;
+    model.asic_type = GENESYS_GL846;
+    model.cmd_set = NULL;
+
+    model.xdpi_values = { 1200, 600, 300, 150, 100, 75 };
+    model.ydpi_values = { 1200, 600, 300, 150, 100, 75 };
+    model.bpp_gray_values = { 16, 8 };
+    model.bpp_color_values = { 16, 8 };
+
+    model.x_offset = SANE_FIX(7.2);
+    model.y_offset = SANE_FIX(14.7);
+    model.x_size = SANE_FIX(217.7);
+    model.y_size = SANE_FIX(300.0);
+
+    model.y_offset_calib = SANE_FIX(9.0);
+    model.x_offset_mark = SANE_FIX(0.0);
+
+    model.x_offset_ta = SANE_FIX(0.0);
+    model.y_offset_ta = SANE_FIX(0.0);
+    model.x_size_ta = SANE_FIX(0.0);
+    model.y_size_ta = SANE_FIX(0.0);
+
+    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
+    model.y_offset_calib_ta = SANE_FIX(0.0);
+
+    model.post_scan = SANE_FIX(0.0);
+    model.eject_feed = SANE_FIX(0.0);
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 24;
+    model.ld_shift_b = 48;
+
+    model.line_mode_color_order = COLOR_ORDER_RGB;
+
+    model.is_cis = SANE_FALSE;
+    model.is_sheetfed = SANE_FALSE;
+    model.ccd_type = CCD_IMG101;
+    model.dac_type = DAC_IMG101;
+    model.gpo_type = GPO_IMG101;
+    model.motor_type = MOTOR_IMG101;
+    model.flags = GENESYS_FLAG_LAZY_INIT |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_NO_BUTTONS ;
+    model.shading_lines = 100;
+    model.shading_ta_lines = 0;
+    model.search_lines = 100;
+
+    s_usb_devices->emplace_back(0x1083, 0x162e, model);
+ }

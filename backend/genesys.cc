@@ -3471,64 +3471,6 @@ static void genesys_start_scan(Genesys_Device* dev, SANE_Bool lamp_off)
     }
 }
 
-/* this is _not_ a ringbuffer.
-   if we need a block which does not fit at the end of our available data,
-   we move the available data to the beginning.
- */
-
-void Genesys_Buffer::alloc(size_t size)
-{
-    buffer_.resize(size);
-    avail_ = 0;
-    pos_ = 0;
-}
-
-void Genesys_Buffer::clear()
-{
-    buffer_.clear();
-    avail_ = 0;
-    pos_ = 0;
-}
-
-void Genesys_Buffer::reset()
-{
-    avail_ = 0;
-    pos_ = 0;
-}
-
-uint8_t* Genesys_Buffer::get_write_pos(size_t size)
-{
-    if (avail_ + size > buffer_.size())
-        return nullptr;
-    if (pos_ + avail_ + size > buffer_.size())
-    {
-        std::memmove(buffer_.data(), buffer_.data() + pos_, avail_);
-        pos_ = 0;
-    }
-    return buffer_.data() + pos_ + avail_;
-}
-
-uint8_t* Genesys_Buffer::get_read_pos()
-{
-    return buffer_.data() + pos_;
-}
-
-void Genesys_Buffer::produce(size_t size)
-{
-    if (size > buffer_.size() - avail_)
-        throw std::runtime_error("buffer size exceeded");
-    avail_ += size;
-}
-
-void Genesys_Buffer::consume(size_t size)
-{
-  if (size > avail_)
-      throw std::runtime_error("no more data in buffer");
-    avail_ -= size;
-    pos_ += size;
-}
-
-
 #include "genesys_conv.cc"
 
 static void accurate_line_read(Genesys_Device* dev, Genesys_Buffer& buffer)

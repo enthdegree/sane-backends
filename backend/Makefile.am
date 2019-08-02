@@ -480,11 +480,21 @@ libsane_fujitsu_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_fujitsu_la_LIBADD = $(COMMON_LIBS) libfujitsu.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_magic.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += fujitsu.conf.in
 
-libgenesys_la_SOURCES = genesys.cc genesys.h genesys_sanei.h genesys_sanei.cc genesys_error.h genesys_error.cc \
-    genesys_serialize.h \
+libgenesys_la_SOURCES = genesys.cc genesys.h \
+    genesys_buffer.h genesys_buffer.cc \
+    genesys_calibration.h \
+    genesys_device.h genesys_device.cc \
+    genesys_enums.h \
+    genesys_error.h genesys_error.cc \
     genesys_gl646.cc genesys_gl646.h genesys_gl841.cc genesys_gl841.h \
     genesys_gl843.cc genesys_gl843.h genesys_gl846.cc genesys_gl846.h \
     genesys_gl847.cc genesys_gl847.h genesys_gl124.cc genesys_gl124.h \
+    genesys_motor.h \
+    genesys_register.h \
+    genesys_sanei.h genesys_sanei.cc \
+    genesys_sensor.h \
+    genesys_settings.h \
+    genesys_serialize.h \
     genesys_low.cc genesys_low.h
 
 libgenesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys $(XML_CFLAGS)

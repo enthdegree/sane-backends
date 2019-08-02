@@ -49,42 +49,6 @@
 
 #include <vector>
 
-
-Genesys_Device::~Genesys_Device()
-{
-    clear();
-
-    if (file_name != nullptr)
-        free(file_name);
-}
-
-void Genesys_Device::clear()
-{
-    read_buffer.clear();
-    lines_buffer.clear();
-    shrink_buffer.clear();
-    out_buffer.clear();
-    binarize_buffer.clear();
-    local_buffer.clear();
-
-    calib_file.clear();
-
-    calibration_cache.clear();
-
-    white_average_data.clear();
-    dark_average_data.clear();
-}
-
-void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs)
-{
-    for (const auto& reg : regs) {
-        uint8_t val;
-        sanei_genesys_read_register(&dev, reg.address, &val);
-        val = (val & ~reg.mask) | (reg.value & reg.mask);
-        sanei_genesys_write_register(&dev, reg.address, val);
-    }
-}
-
 /* ------------------------------------------------------------------------ */
 /*                  functions calling ASIC specific functions               */
 /* ------------------------------------------------------------------------ */

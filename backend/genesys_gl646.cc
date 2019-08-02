@@ -288,7 +288,7 @@ get_closest_resolution(int sensor_id, int required, unsigned channels)
  * @param color true is color mode
  * @return SANE_TRUE if half ccd is used
  */
-static SANE_Bool is_half_ccd(int sensor_id, int required, unsigned channels)
+static unsigned get_ccd_size_divisor(int sensor_id, int required, unsigned channels)
 {
   int i, nb;
 
@@ -301,14 +301,14 @@ static SANE_Bool is_half_ccd(int sensor_id, int required, unsigned channels)
 	  && sensor_master[i].dpi == required
           && sensor_master[i].channels == channels)
 	{
-	  DBG(DBG_io, "%s: match found for %d (half_ccd=%d)\n", __func__, required,
-	      sensor_master[i].half_ccd);
-	  return sensor_master[i].half_ccd;
+        DBG(DBG_io, "%s: match found for %d (ccd_size_divisor=%d)\n", __func__, required,
+            sensor_master[i].ccd_size_divisor);
+        return sensor_master[i].ccd_size_divisor;
 	}
       i++;
     }
   DBG(DBG_info, "%s: failed to find match for %d dpi\n", __func__, required);
-  return SANE_FALSE;
+    return 1;
 }
 
 /**
@@ -410,7 +410,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
   int stagger, words_per_line, max_shift;
   size_t requested_buffer_size;
   size_t read_buffer_size;
-  SANE_Bool half_ccd = SANE_FALSE;
   SANE_Int xresolution;
   int feedl;
 
@@ -484,8 +483,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
                             sensor_mst->sensor, sensor_mst->cksel);
     }
 
-  /* half_ccd if manual clock programming or dpi is half dpiset */
-  half_ccd = sensor_mst->half_ccd;
+    unsigned ccd_size_divisor = sensor_mst->ccd_size_divisor;
 
   /* now apply values from settings to registers */
   if (sensor_mst->regs_0x10_0x15 != NULL)
@@ -508,10 +506,11 @@ static void gl646_setup_registers(Genesys_Device* dev,
   for (i = 0; i < 4; i++)
     {
       r = sanei_genesys_get_address (regs, 0x08 + i);
-      if (half_ccd == SANE_TRUE)
-	r->value = settings->manual_0x08_0x0b[i];
-      else
-	r->value = settings->regs_0x08_0x0b[i];
+        if (ccd_size_divisor > 1) {
+            r->value = settings->manual_0x08_0x0b[i];
+        } else {
+            r->value = settings->regs_0x08_0x0b[i];
+        }
     }
 
   for (i = 0; i < 8; i++)
@@ -525,8 +524,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
       r = sanei_genesys_get_address (regs, 0x52 + i);
       r->value = settings->regs_0x52_0x5e[i];
     }
-  if (half_ccd == SANE_TRUE)
-    {
+    if (ccd_size_divisor > 1) {
       for (i = 0; i < 7; i++)
 	{
 	  r = sanei_genesys_get_address (regs, 0x52 + i);
@@ -672,10 +670,10 @@ static void gl646_setup_registers(Genesys_Device* dev,
       regs->find_reg(0x05).value &= ~REG05_LEDADD;
     }
 
-  /* cktoggle, ckdelay and cksel at once, cktdelay=2 => half_ccd for md5345 */
+  /* cktoggle, ckdelay and cksel at once, cktdelay=2 => ccd_size_divisor == 2 for md5345 */
   regs->find_reg(0x18).value = sensor_mst->r18;
 
-  /* manual CCD/2 clock programming => half_ccd for hp2300 */
+  /* manual CCD/2 clock programming on ccd_size_divisor == 2 for hp2300 */
   regs->find_reg(0x1d).value = sensor_mst->r1d;
 
   /* HP2400 1200dpi mode tuning */
@@ -713,8 +711,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   /* at QUATER_STEP lines are 'staggered' and need correction */
   stagger = 0;
-  if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-    {
+    if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
       /* for HP3670, stagger happens only at >=1200 dpi */
       if ((dev->model->motor_type != MOTOR_HP3670 && dev->model->motor_type != MOTOR_HP2400)
           || params.yres >= (unsigned) sensor.optical_res)
@@ -740,16 +737,11 @@ static void gl646_setup_registers(Genesys_Device* dev,
     }
 
   /* scanner's x coordinates are expressed in physical DPI but they must be divided by cksel */
-  sx = startx / sensor_mst->cksel;
-  ex = endx / sensor_mst->cksel;
-  if (half_ccd == SANE_TRUE)
-    {
-      sx /= 2;
-      ex /= 2;
-    }
+    sx = startx / sensor_mst->cksel / ccd_size_divisor;
+    ex = endx / sensor_mst->cksel / ccd_size_divisor;
   sanei_genesys_set_double(regs, REG_STRPIXEL, sx);
   sanei_genesys_set_double(regs, REG_ENDPIXEL, ex);
-  DBG(DBG_info, "%s: startx=%d, endx=%d, half_ccd=%d\n", __func__, sx, ex, half_ccd);
+    DBG(DBG_info, "%s: startx=%d, endx=%d, ccd_size_divisor=%d\n", __func__, sx, ex, ccd_size_divisor);
 
   /* words_per_line must be computed according to the scan's resolution */
   /* in fact, words_per_line _gives_ the actual scan resolution */
@@ -960,7 +952,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   dev->current_setup.exposure_time = sensor_mst->exposure;
   dev->current_setup.xres = sensor_mst->xdpi;
   dev->current_setup.yres = motor->ydpi;
-  dev->current_setup.ccd_size_divisor = half_ccd ? 2 : 1;
+  dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 
@@ -1000,7 +992,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 /* *dev  : device infos
    *regs : regiters to be set
    extended : do extended set up
-   half_ccd: set up for half ccd resolution
+   ccd_size_divisor: set up for half ccd resolution
    all registers 08-0B, 10-1D, 52-5E are set up. They shouldn't
    appear anywhere else but in register init
 */
@@ -2211,7 +2203,7 @@ static void gl646_init_regs_for_coarse_calibration(Genesys_Device* dev,
  * init registers for shading calibration
  * we assume that scanner's head is on an area suiting shading calibration.
  * We scan a full scan width area by the shading line number for the device
- * at either at full sensor's resolution or half depending upon half_ccd
+ * at either at full sensor's resolution or half depending upon ccd_size_divisor
  * @param dev scanner's device
  */
 static void gl646_init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -2220,20 +2212,15 @@ static void gl646_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
     DBG_HELPER(dbg);
     (void) regs;
   Genesys_Settings settings;
-  /* 1: no half_ccd, 2: use half number of pixels */
-  int half_ccd = 1;
   int cksel = 1;
 
   /* fill settings for scan : always a color scan */
   int channels = 3;
 
-  if (sensor.ccd_size_divisor > 1)
-    {
-      // when shading all (full width) line, we must adapt to half_ccd case
-      if (is_half_ccd(dev->model->ccd_type, dev->settings.xres, channels) == SANE_TRUE)
-	{
-	  half_ccd = 2;
-	}
+    unsigned ccd_size_divisor = 1;
+    if (sensor.ccd_size_divisor > 1) {
+        // when shading all (full width) line, we must adapt to ccd_size_divisor != 1 case
+        ccd_size_divisor = get_ccd_size_divisor(dev->model->ccd_type, dev->settings.xres, channels);
     }
 
   settings.scan_method = dev->settings.scan_method;
@@ -2243,7 +2230,7 @@ static void gl646_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
       // FIXME: always a color scan, but why don't we set scan_mode to COLOR_SINGLE_PASS always?
       settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     }
-  settings.xres = sensor.optical_res / half_ccd;
+  settings.xres = sensor.optical_res / ccd_size_divisor;
   cksel = get_cksel(dev->model->ccd_type, dev->settings.xres, channels);
   settings.xres = settings.xres / cksel;
   settings.yres = settings.xres;
@@ -2252,7 +2239,7 @@ static void gl646_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
   settings.pixels =
     (sensor.sensor_pixels * settings.xres) / sensor.optical_res;
   dev->calib_lines = dev->model->shading_lines;
-  settings.lines = dev->calib_lines * (3 - half_ccd);
+  settings.lines = dev->calib_lines * (3 - ccd_size_divisor);
   settings.depth = 16;
   settings.color_filter = dev->settings.color_filter;
 
@@ -3946,21 +3933,15 @@ static void gl646_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
                                SANE_Bool black)
 {
     DBG_HELPER(dbg);
-  SANE_Bool half_ccd = SANE_FALSE;
   Genesys_Settings settings;
   int res = get_closest_resolution(dev->model->ccd_type, 75, 1);
   unsigned int pass, count, found, x, y;
   char title[80];
 
-  /* adapt to half_ccd case */
-  if (sensor.ccd_size_divisor > 1)
-    {
-      /* walk the master mode list to find if half_ccd */
-      // FIXME: possibly wrong channel count for is_half_ccd
-      if (is_half_ccd (dev->model->ccd_type, res, 3) == SANE_TRUE)
-	{
-	  half_ccd = SANE_TRUE;
-	}
+    unsigned ccd_size_divisor = 1;
+    if (sensor.ccd_size_divisor > 1) {
+        // FIXME: possibly wrong channel count for ccd_size_divisor
+        ccd_size_divisor = get_ccd_size_divisor(dev->model->ccd_type, res, 3);
     }
 
   /* we set up for a lowest available resolution color grey scan, full width */
@@ -3971,10 +3952,7 @@ static void gl646_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
   settings.tl_x = 0;
   settings.tl_y = 0;
   settings.pixels = (SANE_UNFIX (dev->model->x_size) * res) / MM_PER_INCH;
-  if (half_ccd == SANE_TRUE)
-    {
-      settings.pixels /= 2;
-    }
+    settings.pixels /= ccd_size_divisor;
 
   /* 15 mm at at time */
   settings.lines = (15 * settings.yres) / MM_PER_INCH;	/* may become a parameter from genesys_devices.c */

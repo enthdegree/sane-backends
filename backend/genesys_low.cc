@@ -1479,7 +1479,7 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
   DBG (DBG_io, "%s: after resolution check current compatible=%d\n", __func__, compatible);
   if (dev->current_setup.ccd_size_divisor != cache->used_setup.ccd_size_divisor)
     {
-      DBG (DBG_io, "%s: half_ccd=%d, used=%d\n", __func__,
+      DBG (DBG_io, "%s: ccd_size_divisor=%d, used=%d\n", __func__,
            dev->current_setup.ccd_size_divisor, cache->used_setup.ccd_size_divisor);
       compatible = 0;
     }

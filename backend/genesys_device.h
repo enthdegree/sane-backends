@@ -214,7 +214,7 @@ struct Genesys_Device
     // 2: USB 2.0
     SANE_Int usb_mode = 0;
 
-    SANE_String file_name = nullptr;
+    std::string file_name;
     std::string calib_file;
 
     // if enabled, no calibration data will be loaded or saved to files

@@ -50,9 +50,6 @@
 Genesys_Device::~Genesys_Device()
 {
     clear();
-
-    if (file_name != nullptr)
-        free(file_name);
 }
 
 void Genesys_Device::clear()

@@ -66,14 +66,22 @@
 #include "../include/sane/sanei_magic.h"
 #include "genesys_devices.cc"
 
+#include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <list>
 #include <exception>
 #include <vector>
 
+// Data that we allocate to back SANE_Device objects in s_sane_devices
+struct SANE_Device_Data
+{
+    std::string name;
+};
+
 StaticInit<std::list<Genesys_Scanner>> s_scanners;
 StaticInit<std::vector<SANE_Device>> s_sane_devices;
+StaticInit<std::vector<SANE_Device_Data>> s_sane_devices_data;
 StaticInit<std::vector<SANE_Device*>> s_sane_devices_ptrs;
 StaticInit<std::list<Genesys_Device>> s_devices;
 
@@ -4402,7 +4410,7 @@ static char *calibration_filename(Genesys_Device *currdev)
     }
   if(count>1)
     {
-      snprintf(filename,sizeof(filename),"%s.cal",currdev->file_name);
+        std::snprintf(filename, sizeof(filename), "%s.cal", currdev->file_name.c_str());
       for(i=0;i<strlen(filename);i++)
         {
           if(filename[i]==':'||filename[i]==PATH_SEP)
@@ -5068,12 +5076,12 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
     }
 
     for (auto& dev : *s_devices) {
-        if (strcmp(dev.file_name, devname) == 0) {
-	  if (devp)
+        if (dev.file_name == devname) {
+            if (devp)
                 *devp = &dev;
-	  DBG(DBG_info, "%s: device `%s' was already in device list\n", __func__, devname);
-	  return SANE_STATUS_GOOD;
-	}
+            DBG(DBG_info, "%s: device `%s' was already in device list\n", __func__, devname);
+            return SANE_STATUS_GOOD;
+        }
     }
 
   DBG(DBG_info, "%s: trying to open device `%s'\n", __func__, devname);
@@ -5114,14 +5122,9 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
       return SANE_STATUS_INVAL;
     }
 
-    char* new_devname = strdup (devname);
-    if (!new_devname) {
-        return SANE_STATUS_NO_MEM;
-    }
-
     s_devices->emplace_back();
     dev = &s_devices->back();
-    dev->file_name = new_devname;
+    dev->file_name = devname;
 
     dev->model = &found_usb_dev->model;
     dev->vendorId = found_usb_dev->vendor;
@@ -5129,8 +5132,8 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
   dev->usb_mode = 0;            /* i.e. unset */
   dev->already_initialized = SANE_FALSE;
 
-  DBG(DBG_info, "%s: found %s flatbed scanner %s at %s\n", __func__, dev->model->vendor,
-      dev->model->model, dev->file_name);
+    DBG(DBG_info, "%s: found %s flatbed scanner %s at %s\n", __func__, dev->model->vendor,
+        dev->model->model, dev->file_name.c_str());
 
     if (devp) {
         *devp = dev;
@@ -5412,6 +5415,7 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   s_scanners.init();
   s_devices.init();
   s_sane_devices.init();
+    s_sane_devices_data.init();
   s_sane_devices_ptrs.init();
   genesys_init_sensor_tables();
   genesys_init_frontend_tables();
@@ -5464,8 +5468,10 @@ sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
   probe_genesys_devices ();
 
     s_sane_devices->clear();
+    s_sane_devices_data->clear();
     s_sane_devices_ptrs->clear();
     s_sane_devices->reserve(s_devices->size());
+    s_sane_devices_data->reserve(s_devices->size());
     s_sane_devices_ptrs->reserve(s_devices->size() + 1);
 
     for (auto dev_it = s_devices->begin(); dev_it != s_devices->end();) {
@@ -5473,8 +5479,11 @@ sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
         sanei_usb_find_devices(dev_it->vendorId, dev_it->productId, check_present);
         if (present) {
             s_sane_devices->emplace_back();
+            s_sane_devices_data->emplace_back();
             auto& sane_device = s_sane_devices->back();
-            sane_device.name = dev_it->file_name;
+            auto& sane_device_data = s_sane_devices_data->back();
+            sane_device_data.name = dev_it->file_name;
+            sane_device.name = sane_device_data.name.c_str();
             sane_device.vendor = dev_it->model->vendor;
             sane_device.model = dev_it->model->model;
             sane_device.type = "flatbed scanner";
@@ -5513,7 +5522,7 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     {
       /* search for the given devicename in the device list */
         for (auto& d : *s_devices) {
-            if (strcmp(d.file_name, devicename) == 0) {
+            if (d.file_name == devicename) {
                 dev = &d;
                 break;
             }
@@ -5536,9 +5545,8 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
         // empty devicename or "genesys" -> use first device
         if (!s_devices->empty()) {
             dev = &s_devices->front();
-            devicename = dev->file_name;
-            DBG(DBG_info, "%s: empty devicename, trying `%s'\n", __func__, devicename);
-	}
+            DBG(DBG_info, "%s: empty devicename, trying `%s'\n", __func__, dev->file_name.c_str());
+        }
     }
 
   if (!dev)
@@ -5554,8 +5562,8 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
       DBG(DBG_error0, "         scanner and what does (not) work.\n");
     }
 
-    dbg.vstatus("open device '%s'", dev->file_name);
-    dev->usb_dev.open(dev->file_name);
+    dbg.vstatus("open device '%s'", dev->file_name.c_str());
+    dev->usb_dev.open(dev->file_name.c_str());
     dbg.clear();
 
 

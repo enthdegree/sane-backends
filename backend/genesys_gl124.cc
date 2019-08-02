@@ -1787,9 +1787,7 @@ static void gl124_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
     try {
         gl124_start_action(dev);
     } catch (...) {
-        try {
-            gl124_stop_action (dev);
-        } catch (...) {}
+        catch_all_exceptions(__func__, [&]() { gl124_stop_action(dev); });
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {

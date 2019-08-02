@@ -1594,9 +1594,7 @@ static void gl847_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
     try {
         gl847_start_action(dev);
     } catch (...) {
-        try {
-            gl847_stop_action(dev);
-        } catch (...) {}
+        catch_all_exceptions(__func__, [&]() { gl847_stop_action(dev); });
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {
@@ -1802,13 +1800,12 @@ static void gl847_feed(Genesys_Device* dev, unsigned int steps)
     try {
         gl847_start_action(dev);
     } catch (...) {
-        try {
-            gl847_stop_action(dev);
-        } catch (...) {}
-        try {
-            // restore original registers
+        catch_all_exceptions(__func__, [&]() { gl847_stop_action(dev); });
+        // restore original registers
+        catch_all_exceptions(__func__, [&]()
+        {
             dev->model->cmd_set->bulk_write_register(dev, dev->reg);
-        } catch (...) {}
+        });
         throw;
     }
 

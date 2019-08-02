@@ -2212,9 +2212,7 @@ static void gl843_park_xpa_lamp(Genesys_Device* dev)
     try {
         gl843_start_action(dev);
     } catch (...) {
-        try {
-            gl843_stop_action(dev);
-        } catch (...) {}
+        catch_all_exceptions(__func__, [&]() { gl843_stop_action(dev); });
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {
@@ -2324,9 +2322,7 @@ static void gl843_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
     try {
         gl843_start_action(dev);
     } catch (...) {
-        try {
-            gl843_stop_action(dev);
-        } catch (...) {}
+        catch_all_exceptions(__func__, [&]() { gl843_stop_action(dev); });
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {
@@ -2543,9 +2539,7 @@ static void gl843_feed(Genesys_Device* dev, unsigned int steps)
     try {
         gl843_start_action(dev);
     } catch (...) {
-        try {
-            gl843_stop_action(dev);
-        } catch (...) {}
+        catch_all_exceptions(__func__, [&]() { gl843_stop_action(dev); });
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {

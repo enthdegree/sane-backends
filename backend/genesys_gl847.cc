@@ -3015,5 +3015,5 @@ static Genesys_Command_Set gl847_cmd_set = {
 
 void sanei_gl847_init_cmd_set(Genesys_Device* dev)
 {
-  dev->model->cmd_set = &gl847_cmd_set;
+    dev->cmd_set = &gl847_cmd_set;
 }

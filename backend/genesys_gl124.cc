@@ -3121,5 +3121,5 @@ static Genesys_Command_Set gl124_cmd_set = {
 
 void sanei_gl124_init_cmd_set(Genesys_Device* dev)
 {
-  dev->model->cmd_set = &gl124_cmd_set;
+    dev->cmd_set = &gl124_cmd_set;
 }

@@ -3912,7 +3912,7 @@ static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
     // send data
     sanei_genesys_set_buffer_address(dev, 0);
 
-    dev->model->cmd_set->bulk_write_data (dev, 0x3c, final_data.data(), count);
+    dev->cmd_set->bulk_write_data (dev, 0x3c, final_data.data(), count);
 }
 
 
@@ -3974,5 +3974,5 @@ static Genesys_Command_Set gl843_cmd_set = {
 
 void sanei_gl843_init_cmd_set(Genesys_Device* dev)
 {
-  dev->model->cmd_set = &gl843_cmd_set;
+    dev->cmd_set = &gl843_cmd_set;
 }

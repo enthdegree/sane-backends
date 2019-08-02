@@ -4151,5 +4151,5 @@ static Genesys_Command_Set gl646_cmd_set = {
 
 void sanei_gl646_init_cmd_set(Genesys_Device* dev)
 {
-  dev->model->cmd_set = &gl646_cmd_set;
+    dev->cmd_set = &gl646_cmd_set;
 }

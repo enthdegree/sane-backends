@@ -4357,20 +4357,15 @@ SANE_Range *range=NULL;
  * @param currdev current scanner device
  * @return an allocated string containing a file name
  */
-static char *calibration_filename(Genesys_Device *currdev)
+static std::string calibration_filename(Genesys_Device *currdev)
 {
-  char *tmpstr;
+    std::string ret;
+    ret.resize(PATH_MAX);
+
   char *ptr;
   char filename[80];
   unsigned int count;
   unsigned int i;
-
-  /* allocate space for result */
-  tmpstr = (char*) malloc(PATH_MAX);
-  if(tmpstr==NULL)
-    {
-      return NULL;
-    }
 
   /* first compute the DIR where we can store cache:
    * 1 - home dir
@@ -4425,23 +4420,29 @@ static char *calibration_filename(Genesys_Device *currdev)
     }
 
   /* build final final name : store dir + filename */
-  if (NULL == ptr)
-    {
-      snprintf (tmpstr, PATH_MAX, "%s", filename);
+    if (ptr == nullptr) {
+        int size = std::snprintf(&ret.front(), ret.size(), "%s", filename);
+        ret.resize(size);
     }
   else
     {
+        int size = 0;
 #ifdef HAVE_MKDIR
-      /* make sure .sane directory exists in existing store dir */
-      snprintf (tmpstr, PATH_MAX, "%s%c.sane", ptr, PATH_SEP);
-      mkdir(tmpstr,0700);
+        /* make sure .sane directory exists in existing store dir */
+        size = std::snprintf(&ret.front(), ret.size(), "%s%c.sane", ptr, PATH_SEP);
+        ret.resize(size);
+        mkdir(ret.c_str(), 0700);
+
+        ret.resize(PATH_MAX);
 #endif
-      snprintf (tmpstr, PATH_MAX, "%s%c.sane%c%s", ptr, PATH_SEP, PATH_SEP, filename);
+        size = std::snprintf(&ret.front(), ret.size(), "%s%c.sane%c%s",
+                             ptr, PATH_SEP, PATH_SEP, filename);
+        ret.resize(size);
     }
 
-  DBG(DBG_info, "%s: calibration filename >%s<\n", __func__, tmpstr);
+    DBG(DBG_info, "%s: calibration filename >%s<\n", __func__, ret.c_str());
 
-  return tmpstr;
+    return ret;
 }
 
 
@@ -5513,7 +5514,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 {
     DBG_HELPER_ARGS(dbg, "devicename = %s", devicename);
   Genesys_Device *dev = nullptr;
-  char *tmpstr;
 
   /* devicename="" or devicename="genesys" are default values that use
    * first available device
@@ -5600,12 +5600,11 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   /* here is the place to fetch a stored calibration cache */
   if (s->dev->force_calibration == 0)
     {
-      tmpstr=calibration_filename(s->dev);
-      s->calibration_file = tmpstr;
-      s->dev->calib_file = tmpstr;
+        auto path = calibration_filename(s->dev);
+        s->calibration_file = path;
+        s->dev->calib_file = path;
       DBG(DBG_info, "%s: Calibration filename set to:\n", __func__);
       DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file.c_str());
-      free(tmpstr);
 
         catch_all_exceptions(__func__, [&]()
         {

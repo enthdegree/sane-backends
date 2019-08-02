@@ -56,18 +56,25 @@
 /**
  * setup the hardware dependent functions
  */
+extern Genesys_Command_Set gl124_cmd_set;
+extern Genesys_Command_Set gl646_cmd_set;
+extern Genesys_Command_Set gl841_cmd_set;
+extern Genesys_Command_Set gl843_cmd_set;
+extern Genesys_Command_Set gl846_cmd_set;
+extern Genesys_Command_Set gl847_cmd_set;
+
 void sanei_genesys_init_cmd_set(Genesys_Device* dev)
 {
   DBG_INIT ();
     DBG_HELPER(dbg);
     switch (dev->model->asic_type) {
-        case GENESYS_GL646: sanei_gl646_init_cmd_set(dev); break;
-        case GENESYS_GL841: sanei_gl841_init_cmd_set(dev); break;
-        case GENESYS_GL843: sanei_gl843_init_cmd_set(dev); break;
+        case GENESYS_GL646: dev->cmd_set = &gl646_cmd_set; break;
+        case GENESYS_GL841: dev->cmd_set = &gl841_cmd_set; break;
+        case GENESYS_GL843: dev->cmd_set = &gl843_cmd_set; break;
         case GENESYS_GL845: // since only a few reg bits differs we handle both together
-        case GENESYS_GL846: sanei_gl846_init_cmd_set(dev); break;
-        case GENESYS_GL847: sanei_gl847_init_cmd_set(dev); break;
-        case GENESYS_GL124: sanei_gl124_init_cmd_set(dev); break;
+        case GENESYS_GL846: dev->cmd_set = &gl846_cmd_set; break;
+        case GENESYS_GL847: dev->cmd_set = &gl847_cmd_set; break;
+        case GENESYS_GL124: dev->cmd_set = &gl124_cmd_set; break;
         default: throw SaneException(SANE_STATUS_INVAL, "unknown ASIC type");
     }
 }

@@ -542,7 +542,7 @@ void sanei_genesys_fe_read_data (Genesys_Device* dev, uint8_t addr, uint16_t* da
   reg.init_reg(0x50, addr);
 
     // set up read address
-    dev->model->cmd_set->bulk_write_register(dev, reg);
+    sanei_genesys_bulk_write_register(dev, reg);
 
     // read data
     uint8_t value = dev->read_register(0x46);
@@ -574,7 +574,7 @@ void sanei_genesys_fe_write_data(Genesys_Device* dev, uint8_t addr, uint16_t dat
         reg.init_reg(0x3b, data & 0xff);
     }
 
-    dev->model->cmd_set->bulk_write_register(dev, reg);
+    sanei_genesys_bulk_write_register(dev, reg);
 }
 
 /* ------------------------------------------------------------------------ */

@@ -284,8 +284,6 @@ struct Genesys_Command_Set
     void (*slow_back_home) (Genesys_Device* dev, SANE_Bool wait_until_home);
     void (*rewind) (Genesys_Device* dev);
 
-    void (*bulk_write_register) (Genesys_Device* dev, Genesys_Register_Set& regs);
-
     void (*bulk_write_data) (Genesys_Device* dev, uint8_t addr, uint8_t* data, size_t len);
     void (*bulk_read_data) (Genesys_Device * dev, uint8_t addr, uint8_t * data, size_t len);
 

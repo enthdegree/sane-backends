@@ -4696,7 +4696,6 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_slow_back_home,
   NULL,
 
-  sanei_genesys_bulk_write_register,
   sanei_genesys_bulk_write_data,
   sanei_genesys_bulk_read_data,
 

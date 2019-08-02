@@ -4131,7 +4131,6 @@ static Genesys_Command_Set gl646_cmd_set = {
   gl646_slow_back_home,
   NULL,
 
-  sanei_genesys_bulk_write_register,
   sanei_genesys_bulk_write_data,
   gl646_bulk_read_data,
 

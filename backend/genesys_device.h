@@ -331,6 +331,14 @@ struct Genesys_Device
 
     // binary logger file
     FILE *binary = nullptr;
+
+    // A snapshot of the last known physical state of the device registers. This variable is updated
+    // whenever a register is written or read to the scanner.
+    Genesys_Register_Set physical_regs;
+
+    uint8_t read_register(uint16_t address);
+private:
+    void update_register_state(uint16_t address, uint8_t value);
 };
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs);

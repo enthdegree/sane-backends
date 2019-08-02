@@ -1024,7 +1024,6 @@ gl646_setup_sensor (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_
 static void gl646_asic_test(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  uint8_t val;
   size_t size, verify_size;
   unsigned int i;
 
@@ -1033,14 +1032,14 @@ static void gl646_asic_test(Genesys_Device* dev)
 
     sanei_genesys_write_register(dev, 0x39, 0xad);
 
-  sanei_genesys_read_register(dev, 0x4e, &val);
+    uint8_t val = dev->read_register(0x4e);
 
   if (val != 0xde)		/* value of register 0x38 */
     {
       throw SaneException("register contains invalid value");
     }
 
-    sanei_genesys_read_register(dev, 0x4f, &val);
+    val = dev->read_register(0x4f);
 
   if (val != 0xad)		/* value of register 0x39 */
     {

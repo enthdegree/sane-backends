@@ -495,10 +495,9 @@ static void gl846_set_adi_fe(Genesys_Device* dev, uint8_t set)
 static void gl846_homsnr_gpio(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-uint8_t val;
 
-    sanei_genesys_read_register(dev, REG6C, &val);
-  val |= 0x41;
+    uint8_t val = dev->read_register(REG6C);
+    val |= 0x41;
     sanei_genesys_write_register(dev, REG6C, val);
 }
 
@@ -664,7 +663,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
 
   /* hi res motor speed GPIO */
   /*
-  sanei_genesys_read_register(dev, REG6C, &effective);
+    uint8_t effective = dev->read_register(REG6C);
   */
 
   /* if quarter step, bipolar Vref2 */
@@ -689,7 +688,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
 
   /* effective scan */
   /*
-  sanei_genesys_read_register(dev, REG6C, &effective);
+    effective = dev->read_register(REG6C);
   val = effective | REG6C_GPIO10;
     sanei_genesys_write_register(dev, REG6C, val);
   */
@@ -1360,7 +1359,7 @@ static void gl846_start_action(Genesys_Device* dev)
 static void gl846_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  uint8_t val40, val;
+    uint8_t val;
   unsigned int loop;
 
     // post scan gpio : without that HOMSNR is unreliable
@@ -1371,7 +1370,7 @@ static void gl846_stop_action(Genesys_Device* dev)
       sanei_genesys_print_status (val);
     }
 
-    sanei_genesys_read_register(dev, REG40, &val40);
+    uint8_t val40 = dev->read_register(REG40);
 
   /* only stop action if needed */
   if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG))
@@ -1395,7 +1394,7 @@ static void gl846_stop_action(Genesys_Device* dev)
         {
           sanei_genesys_print_status (val);
         }
-        sanei_genesys_read_register(dev, REG40, &val40);
+        val40 = dev->read_register(REG40);
 
       /* if scanner is in command mode, we are done */
       if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG)
@@ -1422,7 +1421,7 @@ static void gl846_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
   /* XXX STEF XXX SCAN GPIO */
   /*
-  sanei_genesys_read_register(dev, REG6C, &val);
+    val = dev->read_register(REG6C);
     sanei_genesys_write_register(dev, REG6C, val);
   */
 
@@ -1431,8 +1430,8 @@ static void gl846_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
   val = REG0D_CLRMCNT;
     sanei_genesys_write_register(dev, REG0D, val);
 
-    sanei_genesys_read_register(dev, REG01, &val);
-  val |= REG01_SCAN;
+    val = dev->read_register(REG01);
+    val |= REG01_SCAN;
     sanei_genesys_write_register(dev, REG01, val);
   r = sanei_genesys_get_address (reg, REG01);
   r->value = val;
@@ -2008,8 +2007,8 @@ static void gl846_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
           ptr+=4;
         }
 
-        sanei_genesys_read_register(dev, 0xd0+i, &val);
-      addr = val * 8192 + 0x10000000;
+        val = dev->read_register(0xd0+i);
+        addr = val * 8192 + 0x10000000;
         sanei_genesys_write_ahb(dev, addr, pixels, buffer.data());
     }
 }
@@ -2269,9 +2268,9 @@ static void gl846_boot(Genesys_Device* dev, SANE_Bool cold)
     sanei_genesys_write_0x8c(dev, 0x0f, val);
 
     // test CHKVER
-    sanei_genesys_read_register(dev, REG40, &val);
+    val = dev->read_register(REG40);
     if (val & REG40_CHKVER) {
-        sanei_genesys_read_register(dev, 0x00, &val);
+        val = dev->read_register(0x00);
         DBG(DBG_info, "%s: reported version for genesys chip is 0x%02x\n", __func__, val);
     }
 
@@ -2336,7 +2335,7 @@ static void gl846_update_hardware_sensors(Genesys_Scanner* s)
         email=0x04;
         copy=0x08;
     }
-    sanei_genesys_read_register(s->dev, REG6D, &val);
+    val = s->dev->read_register(REG6D);
 
     s->buttons[BUTTON_SCAN_SW].write((val & scan) == 0);
     s->buttons[BUTTON_FILE_SW].write((val & file) == 0);
@@ -2586,14 +2585,13 @@ static void gl846_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
                                      Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
-  uint8_t reg04;
   unsigned int channels, bpp;
   int pass = 0, avg, total_size;
   int topavg, bottomavg, resolution, lines;
   int top, bottom, black_pixels, pixels;
 
     // no gain nor offset for AKM AFE
-    sanei_genesys_read_register(dev, REG04, &reg04);
+    uint8_t reg04 = dev->read_register(REG04);
   if ((reg04 & REG04_FESET) == 0x02)
     {
       return;
@@ -2727,7 +2725,6 @@ static void gl846_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
     DBG_HELPER(dbg);
   int pixels;
   int total_size;
-  uint8_t reg04;
   int i, j, channels;
   int max[3];
   float gain[3],coeff;
@@ -2738,7 +2735,7 @@ static void gl846_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   DBG(DBG_proc, "%s: dpi = %d\n", __func__, dpi);
 
     // no gain nor offset for AKM AFE
-    sanei_genesys_read_register(dev, REG04, &reg04);
+    uint8_t reg04 = dev->read_register(REG04);
   if ((reg04 & REG04_FESET) == 0x02)
     {
       return;

@@ -995,7 +995,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
   if (!(dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE))
     {
       r->value = 0x50;
-        coeff=sensor.optical_res / sensor.get_register_hwdpi(scan_yres);
+        coeff = sensor.get_hwdpi_divisor_for_dpi(scan_yres);
       if (dev->model->motor_type == MOTOR_KVSS080)
         {
           if(coeff>=1)
@@ -1060,7 +1060,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // to manage high resolution device while keeping good low resolution scanning speed, we make
     // hardware dpi vary
     dpihw = sensor.get_register_hwdpi(session.output_resolution);
-  factor=sensor.optical_res/dpihw;
+    factor = sensor.get_hwdpi_divisor_for_dpi(session.output_resolution);
   DBG(DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
   /* sensor parameters */

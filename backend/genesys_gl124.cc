@@ -920,7 +920,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // to manage high resolution device while keeping good low resolution scanning speed, we
     // make hardware dpi vary
     dpihw = sensor.get_register_hwdpi(used_res * ccd_pixels_per_system_pixel);
-  factor=sensor.optical_res/dpihw;
+    factor = sensor.get_hwdpi_divisor_for_dpi(used_res * ccd_pixels_per_system_pixel);
   DBG (DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
     // sensor parameters

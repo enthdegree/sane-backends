@@ -338,13 +338,6 @@
 #define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
 
 
-/** set up registers for an actual scan
- *
- * this function sets up the scanner to scan in normal or single line mode
- */
-static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                 Genesys_Register_Set* reg, SetupParams& params);
-
 // Send the low-level scan command
 static void gl846_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                              Genesys_Register_Set* reg, SANE_Bool start_motor);

@@ -2888,13 +2888,6 @@ static void gl646_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 	}
     }
 
-    // in case of debug do a final scan to get result
-    if (DBG_LEVEL >= DBG_data) {
-        simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, second_line);
-        sanei_genesys_write_pnm_file("gl646_offset-final.pnm", second_line.data(), 8, channels,
-                                     settings.pixels, settings.lines);
-    }
-
   DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__,
       dev->frontend.get_offset(0),
       dev->frontend.get_offset(1),

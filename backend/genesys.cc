@@ -230,6 +230,28 @@ Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi
 }
 
 
+std::vector<std::reference_wrapper<const Genesys_Sensor>>
+    sanei_genesys_find_sensors_all(Genesys_Device* dev, ScanMethod scan_method)
+{
+    std::vector<std::reference_wrapper<const Genesys_Sensor>> ret;
+    for (const Genesys_Sensor& sensor : sanei_genesys_find_sensors_all_for_write(dev, scan_method)) {
+        ret.push_back(sensor);
+    }
+    return ret;
+}
+
+std::vector<std::reference_wrapper<Genesys_Sensor>>
+    sanei_genesys_find_sensors_all_for_write(Genesys_Device* dev, ScanMethod scan_method)
+{
+    std::vector<std::reference_wrapper<Genesys_Sensor>> ret;
+    for (auto& sensor : *s_sensors) {
+        if (dev->model->ccd_type == sensor.sensor_id && sensor.method == scan_method) {
+            ret.push_back(sensor);
+        }
+    }
+    return ret;
+}
+
 void
 sanei_genesys_init_structs (Genesys_Device * dev)
 {

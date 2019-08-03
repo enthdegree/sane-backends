@@ -2183,8 +2183,10 @@ static void gl646_search_start_position(Genesys_Device* dev)
       }
 
     // now search reference points on the data
-    sanei_genesys_search_reference_point(dev, sensor, data.data(), sensor.CCD_start_xoffset,
-                                         resolution, settings.pixels, settings.lines);
+    for (auto& sensor_update : sanei_genesys_find_sensors_all_for_write(dev, ScanMethod::FLATBED)) {
+        sanei_genesys_search_reference_point(dev, sensor_update, data.data(), 0,
+                                             resolution, settings.pixels, settings.lines);
+    }
 }
 
 /**

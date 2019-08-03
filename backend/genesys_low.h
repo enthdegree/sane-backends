@@ -439,6 +439,11 @@ const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
 Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,
                                                     ScanMethod scan_method);
 
+std::vector<std::reference_wrapper<const Genesys_Sensor>>
+    sanei_genesys_find_sensors_all(Genesys_Device* dev, ScanMethod scan_method);
+std::vector<std::reference_wrapper<Genesys_Sensor>>
+    sanei_genesys_find_sensors_all_for_write(Genesys_Device* dev, ScanMethod scan_method);
+
 extern void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                             int pixels_per_line);
 

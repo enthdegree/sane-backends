@@ -375,6 +375,9 @@ static void gl646_setup_registers(Genesys_Device* dev,
     DBG_HELPER(dbg);
     session.assert_computed();
 
+    debug_dump(DBG_info, sensor);
+    debug_dump(DBG_info, session);
+
     int resolution = session.params.xres;
     uint32_t move = session.params.starty;
     uint32_t linecnt = session.params.lines;

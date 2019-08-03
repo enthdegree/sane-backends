@@ -1705,13 +1705,30 @@ void debug_dump(unsigned level, const SetupParams& params)
         params.flags);
 }
 
+void debug_dump(unsigned level, const ScanSession& session)
+{
+    DBG(level, "session:\n");
+    DBG(level, "    computed : %d\n", session.computed);
+    DBG(level, "    ccd_size_divisor : %d\n", session.ccd_size_divisor);
+    DBG(level, "    optical_resolution : %d\n", session.optical_resolution);
+    DBG(level, "    optical_pixels : %d\n", session.optical_pixels);
+    DBG(level, "    optical_line_bytes : %d\n", session.optical_line_bytes);
+    DBG(level, "    output_resolution : %d\n", session.output_resolution);
+    DBG(level, "    output_pixels : %d\n", session.output_pixels);
+    DBG(level, "    output_line_bytes : %d\n", session.output_line_bytes);
+    DBG(level, "    output_line_count : %d\n", session.output_line_count);
+    DBG(level, "    num_staggered_lines : %d\n", session.num_staggered_lines);
+    DBG(level, "    max_color_shift_lines : %d\n", session.max_color_shift_lines);
+    debug_dump(level, session.params);
+}
+
 void debug_dump(unsigned level, const Genesys_Current_Setup& setup)
 {
     DBG(level, "current_setup:\n"
         "Pixels: %d\n"
         "Lines: %d\n"
         "exposure_time: %d\n"
-        "Resolution X/Y: %g\n"
+        "Resolution X: %g\n"
         "ccd_size_divisor: %d\n"
         "stagger: %d\n"
         "max_shift: %d\n",
@@ -1730,4 +1747,40 @@ void debug_dump(unsigned level, const Genesys_Register_Set& regs)
     for (const auto& reg : regs) {
         DBG(level, "    %04x=%02x\n", reg.address, reg.value);
     }
+}
+
+void debug_dump(unsigned level, const GenesysRegisterSettingSet& regs)
+{
+    DBG(level, "register_setting_set:\n");
+    for (const auto& reg : regs) {
+        DBG(level, "    %04x=%02x & %02x\n", reg.address, reg.value, reg.mask);
+    }
+}
+
+void debug_dump(unsigned level, const Genesys_Sensor& sensor)
+{
+    DBG(level, "sensor:\n");
+    DBG(level, "    sensor_id : %d\n", sensor.sensor_id);
+    DBG(level, "    optical_res : %d\n", sensor.optical_res);
+    DBG(level, "    min_resolution : %d\n", sensor.min_resolution);
+    DBG(level, "    max_resolution : %d\n", sensor.max_resolution);
+    DBG(level, "    method : %d\n", static_cast<unsigned>(sensor.method));
+    DBG(level, "    ccd_size_divisor : %d\n", sensor.ccd_size_divisor);
+    DBG(level, "    black_pixels : %d\n", sensor.black_pixels);
+    DBG(level, "    dummy_pixel : %d\n", sensor.dummy_pixel);
+    DBG(level, "    CCD_start_xoffset : %d\n", sensor.CCD_start_xoffset);
+    DBG(level, "    sensor_pixels : %d\n", sensor.sensor_pixels);
+    DBG(level, "    fau_gain_white_ref : %d\n", sensor.fau_gain_white_ref);
+    DBG(level, "    gain_white_ref : %d\n", sensor.gain_white_ref);
+    DBG(level, "    exposure.red : %d\n", sensor.exposure.red);
+    DBG(level, "    exposure.green : %d\n", sensor.exposure.green);
+    DBG(level, "    exposure.blue : %d\n", sensor.exposure.blue);
+    DBG(level, "    exposure_lperiod : %d\n", sensor.exposure_lperiod);
+    DBG(level, "    custom_regs\n");
+    debug_dump(level, sensor.custom_regs);
+    DBG(level, "    custom_fe_regs\n");
+    debug_dump(level, sensor.custom_fe_regs);
+    DBG(level, "    gamma.red : %f\n", sensor.gamma[0]);
+    DBG(level, "    gamma.green : %f\n", sensor.gamma[1]);
+    DBG(level, "    gamma.blue : %f\n", sensor.gamma[2]);
 }

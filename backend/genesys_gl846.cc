@@ -854,7 +854,8 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   r = sanei_genesys_get_address (reg, REG03);
   r->value &= ~REG03_AVEENB;
 
-    sanei_genesys_set_lamp_power(dev, sensor, *reg, !(flags & OPTICAL_FLAG_DISABLE_LAMP));
+    sanei_genesys_set_lamp_power(dev, sensor, *reg,
+                                 !(session.params.flags & SCAN_FLAG_DISABLE_LAMP));
 
   /* BW threshold */
   r = sanei_genesys_get_address (reg, 0x2e);
@@ -1116,9 +1117,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
     if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA) {
         oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
-    }
-    if (session.params.flags & SCAN_FLAG_DISABLE_LAMP) {
-        oflags |= OPTICAL_FLAG_DISABLE_LAMP;
     }
     gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
                                  used_pixels, session.params.channels, session.params.depth,

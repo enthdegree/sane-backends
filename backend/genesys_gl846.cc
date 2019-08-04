@@ -776,12 +776,10 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
                                          const ScanSession& session, int used_res,
                                          unsigned int start, unsigned int pixels,
-                                         int channels, int depth,
-                                         ColorFilter color_filter, int flags)
+                                         int channels, int depth, ColorFilter color_filter)
 {
-    DBG_HELPER_ARGS(dbg, "exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
-                         "flags=%x",
-                    exposure_time, used_res, start, pixels, channels, depth, flags);
+    DBG_HELPER_ARGS(dbg, "exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d",
+                    exposure_time, used_res, start, pixels, channels, depth);
   unsigned int words_per_line;
     unsigned int dpiset, dpihw, segnb, factor;
   unsigned int bytes;
@@ -1026,7 +1024,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int bytes_per_line;
   int move;
   unsigned int lincnt;
-  unsigned int oflags; /**> optical flags */
   unsigned int mflags; /**> motor flags */
   int exposure_time;
   int stagger;
@@ -1112,10 +1109,9 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
    */
-    oflags = 0;
     gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
                                  used_pixels, session.params.channels, session.params.depth,
-                                 session.params.color_filter, oflags);
+                                 session.params.color_filter);
 
 /*** motor parameters ***/
 

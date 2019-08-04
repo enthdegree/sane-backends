@@ -901,12 +901,11 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          const ScanSession& session, int used_res,
                                          unsigned int start, unsigned int pixels,
                                          int channels, int depth, unsigned ccd_size_divisor,
-                                         ColorFilter color_filter, int flags)
+                                         ColorFilter color_filter)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
-                         "ccd_size_divisor=%d, flags=%x\n",
-                    exposure_time, used_res, start, pixels, channels, depth, ccd_size_divisor,
-                    flags);
+                         "ccd_size_divisor=%d\n",
+                    exposure_time, used_res, start, pixels, channels, depth, ccd_size_divisor);
   unsigned int words_per_line, segcnt;
     unsigned int startx, endx, segnb;
   unsigned int dpiset, dpihw, factor;
@@ -1156,7 +1155,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int bytes_per_line;
   int move;
   unsigned int lincnt;
-  unsigned int oflags, mflags; /**> optical and motor flags */
+    unsigned int mflags;
   int exposure_time;
   int stagger;
 
@@ -1248,12 +1247,11 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
    */
-    oflags = 0;
 
     // now _LOGICAL_ optical values used are known, setup registers
     gl124_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
                                  used_pixels, session.params.channels, session.params.depth,
-                                 ccd_size_divisor, session.params.color_filter, oflags);
+                                 ccd_size_divisor, session.params.color_filter);
 
   /*** motor parameters ***/
 

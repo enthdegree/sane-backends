@@ -190,13 +190,11 @@ gl843_test_motor_flag_bit (SANE_Byte val)
 }
 
 /** copy sensor specific settings */
-static void
-gl843_setup_sensor (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                    Genesys_Register_Set * regs, int dpi,int flags)
+static void gl843_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                               Genesys_Register_Set* regs, int dpi)
 {
     DBG_HELPER(dbg);
     (void) dpi;
-    (void) flags;
 
     for (const auto& custom_reg : sensor.custom_regs) {
         regs->set8(custom_reg.address, custom_reg.value);
@@ -1039,13 +1037,13 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
  */
 static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure,
-                                         const ScanSession& session, int flags)
+                                         const ScanSession& session)
 {
     DBG_HELPER_ARGS(dbg, "exposure=%d, used_res=%d, start=%f, pixels=%d, channels=%d, depth=%d, "
-                         "ccd_size_divisor=%d, flags=%x",
+                         "ccd_size_divisor=%d",
                     exposure, session.output_resolution, session.params.startx,
                     session.optical_pixels, session.params.channels, session.params.depth,
-                    session.ccd_size_divisor, flags);
+                    session.ccd_size_divisor);
   unsigned int words_per_line;
   unsigned int startx, endx;
   unsigned int dpiset, dpihw, factor;
@@ -1064,7 +1062,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG(DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
   /* sensor parameters */
-  gl843_setup_sensor (dev, sensor, reg, dpihw, flags);
+    gl843_setup_sensor(dev, sensor, reg, dpihw);
 
     // resolution is divided according to CKSEL
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
@@ -1306,7 +1304,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG_HELPER(dbg);
     session.assert_computed();
 
-  unsigned int oflags, mflags;  /**> optical and motor flags */
+  unsigned int mflags;
   int exposure;
 
   int slope_dpi = 0;
@@ -1322,7 +1320,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
    */
-  oflags = 0;
 
   dummy = 0;
   /* dummy = 1;  XXX STEF XXX */
@@ -1358,7 +1355,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
 
     // now _LOGICAL_ optical values used are known, setup registers
-    gl843_init_optical_regs_scan(dev, sensor, reg, exposure, session, oflags);
+    gl843_init_optical_regs_scan(dev, sensor, reg, exposure, session);
 
   /*** motor parameters ***/
 

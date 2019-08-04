@@ -1469,12 +1469,11 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          unsigned int start,
                                          unsigned int pixels, int channels,
                                          int depth, unsigned ccd_size_divisor,
-                                         ColorFilter color_filter, int flags)
+                                         ColorFilter color_filter)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, "
-                         "depth=%d, ccd_size_divisor=%d, flags=%x",
-                    exposure_time, used_res, start, pixels, channels, depth, ccd_size_divisor,
-                    flags);
+                         "depth=%d, ccd_size_divisor=%d",
+                    exposure_time, used_res, start, pixels, channels, depth, ccd_size_divisor);
     unsigned int words_per_line;
     unsigned int end;
     unsigned int dpiset;
@@ -1799,7 +1798,6 @@ static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   size_t requested_buffer_size, read_buffer_size;
 
   int optical_res;
-  unsigned int oflags;          /**> optical flags */
 
     debug_dump(DBG_info, session.params);
 
@@ -1959,8 +1957,6 @@ dummy \ scanned lines
         session.params.depth = 8;
     }
 
-  oflags=0;
-
     // no 16 bit gamma for this ASIC
     if (session.params.depth == 16) {
         session.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
@@ -1968,7 +1964,7 @@ dummy \ scanned lines
 
     gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
                                  used_pixels, session.params.channels, session.params.depth,
-                                 ccd_size_divisor, session.params.color_filter, oflags);
+                                 ccd_size_divisor, session.params.color_filter);
 
 /*** motor parameters ***/
 

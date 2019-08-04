@@ -1042,9 +1042,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                     exposure, session.output_resolution, session.params.startx,
                     session.optical_pixels, session.params.channels, session.params.depth,
                     session.ccd_size_divisor);
-  unsigned int words_per_line;
-    unsigned int dpiset, dpihw;
-  unsigned int bytes;
+    unsigned int dpihw;
   unsigned int tgtime;          /**> exposure time multiplier */
   GenesysRegister *r;
 
@@ -1063,7 +1061,6 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // resolution is divided according to CKSEL
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
     DBG(DBG_io2, "%s: ccd_pixels_per_system_pixel=%d\n", __func__, ccd_pixels_per_system_pixel);
-    dpiset = session.output_resolution * ccd_pixels_per_system_pixel;
 
     gl843_set_fe(dev, sensor, AFE_SET);
 
@@ -1179,26 +1176,20 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         r->value |= REG05_GMMENB;
     }
 
-    reg->set16(REG_DPISET, dpiset * session.ccd_size_divisor);
-    DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset * session.ccd_size_divisor);
+    unsigned dpiset = session.output_resolution * session.ccd_size_divisor *
+            ccd_pixels_per_system_pixel;
+    reg->set16(REG_DPISET, dpiset);
+    DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);
 
     reg->set16(REG_STRPIXEL, session.pixel_startx);
     reg->set16(REG_ENDPIXEL, session.pixel_endx);
 
-  /* words(16bit) before gamma, conversion to 8 bit or lineart */
-  words_per_line = ((session.pixel_endx - session.pixel_startx) * dpiset) / dpihw;
-  bytes = session.params.depth / 8;
-  if (session.params.depth == 1)
-    {
-      words_per_line = (words_per_line >> 3) + ((words_per_line & 7) ? 1 : 0);
-    }
-  else
-    {
-      words_per_line *= bytes;
-    }
+    // words(16bit) before gamma, conversion to 8 bit or lineart */
+    // FIXME: this computation differs from session.output_line_bytes
+    unsigned words_per_line = (session.output_pixels / session.ccd_size_divisor) * (session.params.depth / 8);
 
-  dev->wpl = words_per_line;
-  dev->bpl = words_per_line;
+    dev->wpl = words_per_line; // FIXME: this is not currently used
+    dev->bpl = words_per_line; // FIXME: this is not currently used
 
   DBG(DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
   DBG(DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);

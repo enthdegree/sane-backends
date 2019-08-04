@@ -1975,11 +1975,7 @@ static void gl843_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                              Genesys_Register_Set* reg, SANE_Bool start_motor)
 {
     DBG_HELPER(dbg);
-  uint16_t dpiset, dpihw;
-
-    // get back the target dpihw
-    dpiset = reg->get16(REG_DPISET);
-    dpihw = sensor.get_register_hwdpi(dpiset);
+    (void) sensor;
 
   /* set up GPIO for scan */
   switch(dev->model->gpo_type)
@@ -1995,18 +1991,13 @@ static void gl843_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
             dev->write_register(REGA7, 0xfe);
             dev->write_register(REGA8, 0x3e);
             dev->write_register(REGA9, 0x06);
-            switch (dpihw)
-	  {
-	   case 1200:
-	   case 2400:
-	   case 4800:
-                    dev->write_register(REG6C, 0x60);
-                    dev->write_register(REGA6, 0x46);
-                    break;
-	   default:		/* 600 dpi  case */
-                    dev->write_register(REG6C, 0x20);
-                    dev->write_register(REGA6, 0x44);
-	  }
+            if ((reg->get8(0x05) & REG05_DPIHW) == REG05_DPIHW_600) {
+                dev->write_register(REG6C, 0x20);
+                dev->write_register(REGA6, 0x44);
+            } else {
+                dev->write_register(REG6C, 0x60);
+                dev->write_register(REGA6, 0x46);
+            }
 
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
                 gl843_set_xpa_lamp_power(dev, true);

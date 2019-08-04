@@ -3740,7 +3740,7 @@ static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
   uint8_t *buffer;
   int count,offset;
   GenesysRegister *r;
-  uint16_t dpiset, strpixel, endpixel, startx, factor;
+    uint16_t strpixel, endpixel, startx;
 
   offset=0;
   length=size;
@@ -3749,22 +3749,19 @@ static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
     {
       /* recompute STRPIXEL used shading calibration so we can
        * compute offset within data for SHDAREA case */
-      r = sanei_genesys_get_address(&dev->reg, REG18);
-        dpiset = dev->reg.get16(REG_DPISET);
-        factor = sensor.optical_res / sensor.get_register_hwdpi(dpiset);
 
-      /* start coordinate in optical dpi coordinates */
-      startx = (sensor.dummy_pixel / sensor.ccd_pixels_per_system_pixel()) / factor;
+        // FIXME: the following is likely incorrect
+        // start coordinate in optical dpi coordinates
+        startx = (sensor.dummy_pixel / sensor.ccd_pixels_per_system_pixel()) / dev->session.hwdpi_divisor;
 
       /* current scan coordinates */
-        strpixel = dev->reg.get16(REG_STRPIXEL);
-        endpixel = dev->reg.get16(REG_ENDPIXEL);
+        strpixel = dev->session.pixel_startx;
+        endpixel = dev->session.pixel_endx;
 
       if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
         {
-          int optical_res = sensor.optical_res / dev->current_setup.ccd_size_divisor;
-          int dpiset_real = dpiset / dev->current_setup.ccd_size_divisor;
-          int half_ccd_factor = optical_res / sensor.get_logical_hwdpi(dpiset_real);
+            int dpiset_real = dev->session.output_resolution * sensor.ccd_pixels_per_system_pixel();
+            int half_ccd_factor = dev->session.optical_resolution / sensor.get_logical_hwdpi(dpiset_real);
           strpixel /= half_ccd_factor;
           endpixel /= half_ccd_factor;
         }

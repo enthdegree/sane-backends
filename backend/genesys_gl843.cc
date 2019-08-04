@@ -1081,9 +1081,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     unsigned used_pixels = endx - startx;
 
   /* in case of stagger we have to start at an odd coordinate */
-  if ((flags & OPTICAL_FLAG_STAGGER)
-      &&((startx & 1)==0))
-    {
+    if (session.num_staggered_lines > 0 && (startx & 1) == 0) {
       startx++;
       endx++;
     }
@@ -1330,8 +1328,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
   if (session.params.flags & SCAN_FLAG_DISABLE_LAMP)
     oflags |= OPTICAL_FLAG_DISABLE_LAMP;
-  if (session.num_staggered_lines)
-    oflags |= OPTICAL_FLAG_STAGGER;
   if (session.params.flags & SCAN_FLAG_USE_XPA)
     oflags |= OPTICAL_FLAG_USE_XPA;
 

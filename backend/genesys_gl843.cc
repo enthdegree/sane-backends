@@ -1256,18 +1256,17 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
     s.ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(s.params.xres);
 
     s.optical_resolution = sensor.optical_res / s.ccd_size_divisor;
+    s.output_resolution = s.params.xres;
 
-    // resolution is choosen from a fixed list and can be used directly
-    // unless we have ydpi higher than sensor's maximum one
-    if (s.params.xres > s.optical_resolution)
-        s.output_resolution = s.optical_resolution;
-    else
-        s.output_resolution = s.params.xres;
+    if (s.output_resolution > s.optical_resolution) {
+        throw std::runtime_error("output resolution higher than optical resolution");
+    }
 
-    // compute rounded up number of optical pixels
-    s.optical_pixels = (s.params.pixels * s.optical_resolution) / s.params.xres;
-    if (s.optical_pixels * s.params.xres < s.params.pixels * s.optical_resolution)
+    // compute the number of optical pixels that will be acquired by the chip
+    s.optical_pixels = (s.params.pixels * s.optical_resolution) / s.output_resolution;
+    if (s.optical_pixels * s.output_resolution < s.params.pixels * s.optical_resolution) {
         s.optical_pixels++;
+    }
 
     // ensure the number of optical pixels is divisible by 2.
     // In quarter-CCD mode optical_pixels is 4x larger than the actual physical number

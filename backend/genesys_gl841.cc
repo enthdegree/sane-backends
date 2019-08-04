@@ -449,10 +449,10 @@ gl841_init_lide80 (Genesys_Device * dev)
   INITREG (0x68, 0x40);
   INITREG (0x69, 0x20);
   INITREG (0x6a, 0x20);
-  INITREG (0x6c, dev->gpo.value[0]);
-  INITREG (0x6d, dev->gpo.value[1]);
-  INITREG (0x6e, dev->gpo.enable[0]);
-  INITREG (0x6f, dev->gpo.enable[1]);
+    INITREG(0x6c, 0x00);
+    INITREG(0x6d, 0x00);
+    INITREG(0x6e, 0x00);
+    INITREG(0x6f, 0x00);
   INITREG (0x70, 0x00);
   INITREG (0x71, 0x05);
   INITREG (0x72, 0x07);
@@ -480,6 +480,10 @@ gl841_init_lide80 (Genesys_Device * dev)
   INITREG (0x88, 0x00);
   INITREG (0x89, 0x00);
 
+    for (const auto& reg : dev->gpo.regs) {
+        dev->reg.set8(reg.address, reg.value);
+    }
+
     // specific scanner settings, clock and gpio first
     val = dev->read_register(REG6B);
     dev->write_register(REG6B, 0x0c);
@@ -506,13 +510,6 @@ gl841_init_lide80 (Genesys_Device * dev)
 
     sanei_genesys_write_0x8c(dev, 0x10, 0x94);
     dev->write_register(0x09, 0x10);
-
-  /* set up GPIO : no address, so no bulk write, doesn't written directly either ? */
-  /*
-  dev->reg.find_reg(0x6c).value = dev->gpo.value[0];
-  dev->reg.find_reg(0x6d).value = dev->gpo.value[1];
-  dev->reg.find_reg(0x6e).value = dev->gpo.enable[0];
-  dev->reg.find_reg(0x6f).value = dev->gpo.enable[1]; */
 
   // FIXME: the following code originally changed 0x6b, but due to bug the 0x6c register was
   // effectively changed. The current behavior matches the old code, but should probably be fixed.
@@ -657,11 +654,10 @@ gl841_init_registers (Genesys_Device * dev)
 
     sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 0, 1);
 
-  /* set up GPIO */
-  dev->reg.find_reg(0x6c).value = dev->gpo.value[0];
-  dev->reg.find_reg(0x6d).value = dev->gpo.value[1];
-  dev->reg.find_reg(0x6e).value = dev->gpo.enable[0];
-  dev->reg.find_reg(0x6f).value = dev->gpo.enable[1];
+    // set up GPIO
+    for (const auto& reg : dev->gpo.regs) {
+        dev->reg.set8(reg.address, reg.value);
+    }
 
   /* TODO there is a switch calling to be written here */
   if (dev->model->gpo_type == GPO_CANONLIDE35)
@@ -2787,7 +2783,7 @@ static void gl841_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
     uint8_t val;
     if (dev->model->gpo_type == GPO_CANONLIDE35) {
         val = dev->read_register(REG6C);
-        val = dev->gpo.value[0];
+        val = dev->gpo.regs.get_value(0x6c);
         dev->write_register(REG6C, val);
     }
     if (dev->model->gpo_type == GPO_CANONLIDE80) {

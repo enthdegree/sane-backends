@@ -3372,10 +3372,10 @@ static void gl843_init_gpio(Genesys_Device* dev)
     DBG_HELPER(dbg);
   int idx;
 
-    dev->write_register(REG6E, dev->gpo.enable[0]);
-    dev->write_register(REG6F, dev->gpo.enable[1]);
-    dev->write_register(REG6C, dev->gpo.value[0]);
-    dev->write_register(REG6D, dev->gpo.value[1]);
+    dev->write_register(REG6E, dev->gpo.regs.get_value(0x6e));
+    dev->write_register(REG6F, dev->gpo.regs.get_value(0x6f));
+    dev->write_register(REG6C, dev->gpo.regs.get_value(0x6c));
+    dev->write_register(REG6D, dev->gpo.regs.get_value(0x6d));
 
   idx=0;
   while(dev->model->gpo_type != gpios[idx].gpo_type && gpios[idx].gpo_type!=0)

@@ -58,23 +58,18 @@ struct Genesys_Gpo
 {
     Genesys_Gpo() = default;
 
-    Genesys_Gpo(uint8_t id, const std::array<uint8_t, 2>& v, const std::array<uint8_t, 2>& e)
-    {
-        gpo_id = id;
-        value[0] = v[0];
-        value[1] = v[1];
-        enable[0] = e[0];
-        enable[1] = e[1];
-    }
-
     // Genesys_Gpo
     uint8_t gpo_id = 0;
 
-    // registers 0x6c and 0x6d on GL841, GL842, GL843, GL846, GL848 and possibly others
-    uint8_t value[2] = { 0, 0 };
+    /*  GL646 and possibly others:
+        - have the value registers at 0x66 and 0x67
+        - have the enable registers at 0x68 and 0x69
 
-    // registers 0x6e and 0x6f on GL841, GL842, GL843, GL846, GL848 and possibly others
-    uint8_t enable[2] = { 0, 0 };
+        GL841, GL842, GL843, GL846, GL848 and possibly others:
+        - have the value registers at 0x6c and 0x6d.
+        - have the enable registers at 0x6e and 0x6f.
+    */
+    GenesysRegisterSettingSet regs;
 };
 
 struct Genesys_Command_Set;

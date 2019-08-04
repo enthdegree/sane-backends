@@ -1230,12 +1230,14 @@ gl646_init_regs (Genesys_Device * dev)
   dev->reg.find_reg(0x63).value = 0x00;	/* (3Dh+3Eh+3Fh)/LPeriod for one-table mode,(21h+1Fh)/LPeriod */
   dev->reg.find_reg(0x64).value = 0x00;	/* motor PWM frequency */
   dev->reg.find_reg(0x65).value = 0x00;	/* PWM duty cycle for table one motor phase (63 = max) */
-  if (dev->model->motor_type == MOTOR_5345)
-    dev->reg.find_reg(0x65).value = 0x02;	/* PWM duty cycle for table one motor phase (63 = max) */
-  dev->reg.find_reg(0x66).value = dev->gpo.value[0];
-  dev->reg.find_reg(0x67).value = dev->gpo.value[1];
-  dev->reg.find_reg(0x68).value = dev->gpo.enable[0];
-  dev->reg.find_reg(0x69).value = dev->gpo.enable[1];
+    if (dev->model->motor_type == MOTOR_5345) {
+        // PWM duty cycle for table one motor phase (63 = max)
+        dev->reg.find_reg(0x65).value = 0x02;
+    }
+
+    for (const auto& reg : dev->gpo.regs) {
+        dev->reg.set8(reg.address, reg.value);
+    }
 
   switch (dev->model->motor_type)
     {
@@ -3344,8 +3346,8 @@ static void gl646_init(Genesys_Device* dev)
   /* GPO enabling for XP200 */
   if (dev->model->ccd_type == CIS_XP200)
     {
-        dev->write_register(0x68, dev->gpo.enable[0]);
-        dev->write_register(0x69, dev->gpo.enable[1]);
+        dev->write_register(0x68, dev->gpo.regs.get_value(0x68));
+        dev->write_register(0x69, dev->gpo.regs.get_value(0x69));
 
         // enable GPIO
         gl646_gpio_output_enable(dev->usb_dev, 6);

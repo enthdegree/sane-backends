@@ -2522,182 +2522,309 @@ void genesys_init_sensor_tables()
  * GPO enable mask (registers 0x68-0x69/0x6e-0x6f)
  * The first register is for GPIO9-GPIO16, the second for GPIO1-GPIO8
  */
-static Genesys_Gpo Gpo[] = {
-  /* UMAX */
-  {GPO_UMAX,
-   {0x11, 0x00}
-   ,
-   {0x51, 0x20}
-   ,
-   }
-  ,
-  /* Plustek OpticPro S12/ST12 */
-  {GPO_ST12,
-   {0x11, 0x00}
-   ,
-   {0x51, 0x20}
-   ,
-   }
-  ,
-  /* Plustek OpticPro S24/ST24 */
-  {GPO_ST24,
-   {0x00, 0x00}
-   ,
-   {0x51, 0x20}
-   ,
-   }
-  ,
-  /* MD5345/MD6471 */
-  {GPO_5345,
-   {0x30, 0x18}
-   ,                                /* bits 11-12 are for bipolar V-ref input voltage */
-   {0xa0, 0x18}
-   ,
-   }
-  ,
-  /* HP2400C */
-  {GPO_HP2400,
-   {0x30, 0x00}
-   ,
-   {0x31, 0x00}
-   ,
-   }
-  ,
-  /* HP2300C */
-  {GPO_HP2300,
-   {0x00, 0x00}
-   ,
-   {0x00, 0x00}
-   ,
-   }
-  ,
-  /* CANONLIDE35 */
-  {GPO_CANONLIDE35,
-   {0x02, 0x80}
-   ,
-   {0xef, 0x80}
-   ,
-   }
-  ,
-  /* 7: XP200 */
-  {GPO_XP200,
-   {0x30, 0x00}
-   ,
-   {0xb0, 0x00}
-   ,
-   },
-  /* HP3670 */
-  {GPO_HP3670,
-   {0x00, 0x00}
-   ,
-   {0x00, 0x00}
-  }
-  ,
-  /* 8: XP300 */
-  {GPO_XP300,
-   {0x09, 0xc6},
-   {0xbb, 0x00},
-  }
-  ,
-  /* Syscan DP 665 */
-  {
-    GPO_DP665,
-   {0x18, 0x00},/*0x19,0x00*/
-   {0xbb, 0x00},
-  }
-  ,
-  /* Syscan DP 685 */
-  {
-    GPO_DP685,
-   {0x3f, 0x46}, /* 6c, 6d */
-   {0xfb, 0x00}, /* 6e, 6f */
-  },
-  /* CANONLIDE200 */
-  {GPO_CANONLIDE200,
-   {0xfb, 0x20},        /* 0xfb when idle , 0xf9/0xe9 (1200) when scanning */
-   {0xff, 0x00},
-  },
-  /* CANONLIDE700 */
-  {GPO_CANONLIDE700,
-   {0xdb, 0xff},
-   {0xff, 0x80},
-  },
-  {GPO_KVSS080,
-   {0xf5, 0x20},
-   {0x7e, 0xa1},
-  }
-  ,
-  {GPO_G4050,
-   {0x20, 0x00},
-   {0xfc, 0x00},
-  }
-  ,
-  /* HP N6310 */
-  {GPO_HP_N6310,
-   {0xa3, 0x00},
-   {0x7f, 0x00},
-  }
-  ,
-  /* CANONLIDE110 */
-  {GPO_CANONLIDE110,
-   {0xfb, 0x20},
-   {0xff, 0x00},
-  }
-  ,
-  /* CANONLIDE120 */
-  {GPO_CANONLIDE120,
-   {0xfb, 0x20},
-   {0xff, 0x00},
-  }
-  ,
-  /* CANONLIDE210 */
-  {GPO_CANONLIDE210,
-   {0xfb, 0x20},
-   {0xff, 0x00},
-  }
-  ,
-  /* Plustek 3600 */
-  {GPO_PLUSTEK_3600,
-   {0x02, 0x00},
-   {0x1e, 0x80},
-  }
-  /* CanoScan 4400f */
-  ,
-  {GPO_CS4400F,
-   {0x01, 0x7f},
-   {0xff, 0x00},
-  }
-  /* CanoScan 8400f */
-  ,
-  {GPO_CS8400F,
-   {0x9a, 0xdf},
-   {0xfe, 0x60},
-  }
-  /* CanoScan 8600F */
-  ,
-  { GPO_CS8600F,
-    { 0x20, 0x7c },
-    { 0xff, 0x00 },
-  }
-  /* Canon Image formula 101 */
-  ,
-  {GPO_IMG101,
-   {0x41, 0xa4},
-   {0x13, 0xa7}
-  }
-  /* Plustek OpticBook 3800 */
-  ,
-  {GPO_PLUSTEK3800,
-   {0x41, 0xa4},
-   {0x13, 0xa7}
-  },
-  /* Canon LiDE 80 */
-  {
-    GPO_CANONLIDE80,
-   {0x28, 0x90},
-   {0x75, 0x80},
-  }
-};
+
+StaticInit<std::vector<Genesys_Gpo>> s_gpo;
+
+void genesys_init_gpo_tables()
+{
+    s_gpo.init();
+
+    Genesys_Gpo gpo;
+    gpo.gpo_id = GPO_UMAX;
+    gpo.regs = {
+        { 0x66, 0x11 },
+        { 0x67, 0x00 },
+        { 0x68, 0x51 },
+        { 0x69, 0x20 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_ST12;
+    gpo.regs = {
+        { 0x66, 0x11 },
+        { 0x67, 0x00 },
+        { 0x68, 0x51 },
+        { 0x69, 0x20 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_ST24;
+    gpo.regs = {
+        { 0x66, 0x00 },
+        { 0x67, 0x00 },
+        { 0x68, 0x51 },
+        { 0x69, 0x20 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_5345; // bits 11-12 are for bipolar V-ref input voltage
+    gpo.regs = {
+        { 0x66, 0x30 },
+        { 0x67, 0x18 },
+        { 0x68, 0xa0 },
+        { 0x69, 0x18 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_HP2400;
+    gpo.regs = {
+        { 0x66, 0x30 },
+        { 0x67, 0x00 },
+        { 0x68, 0x31 },
+        { 0x69, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_HP2300;
+    gpo.regs = {
+        { 0x66, 0x00 },
+        { 0x67, 0x00 },
+        { 0x68, 0x00 },
+        { 0x69, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_CANONLIDE35;
+    gpo.regs = {
+        { 0x6c, 0x02 },
+        { 0x6d, 0x80 },
+        { 0x6e, 0xef },
+        { 0x6f, 0x80 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_XP200;
+    gpo.regs = {
+        { 0x66, 0x30 },
+        { 0x67, 0x00 },
+        { 0x68, 0xb0 },
+        { 0x69, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_HP3670;
+    gpo.regs = {
+        { 0x66, 0x00 },
+        { 0x67, 0x00 },
+        { 0x68, 0x00 },
+        { 0x69, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_XP300;
+    gpo.regs = {
+        { 0x6c, 0x09 },
+        { 0x6d, 0xc6 },
+        { 0x6e, 0xbb },
+        { 0x6f, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_DP665;
+    gpo.regs = {
+        { 0x6c, 0x18 },
+        { 0x6d, 0x00 },
+        { 0x6e, 0xbb },
+        { 0x6f, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_DP685;
+    gpo.regs = {
+        { 0x6c, 0x3f },
+        { 0x6d, 0x46 },
+        { 0x6e, 0xfb },
+        { 0x6f, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_CANONLIDE200;
+    gpo.regs = {
+        { 0x6c, 0xfb }, // 0xfb when idle , 0xf9/0xe9 (1200) when scanning
+        { 0x6d, 0x20 },
+        { 0x6e, 0xff },
+        { 0x6f, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_CANONLIDE700;
+    gpo.regs = {
+        { 0x6c, 0xdb },
+        { 0x6d, 0xff },
+        { 0x6e, 0xff },
+        { 0x6f, 0x80 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_KVSS080;
+    gpo.regs = {
+        { 0x6c, 0xf5 },
+        { 0x6d, 0x20 },
+        { 0x6e, 0x7e },
+        { 0x6f, 0xa1 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_G4050;
+    gpo.regs = {
+        { 0x6c, 0x20 },
+        { 0x6d, 0x00 },
+        { 0x6e, 0xfc },
+        { 0x6f, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_HP_N6310;
+    gpo.regs = {
+        { 0x6c, 0xa3 },
+        { 0x6d, 0x00 },
+        { 0x6e, 0x7f },
+        { 0x6f, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_CANONLIDE110;
+    gpo.regs = {
+        { 0x6c, 0xfb },
+        { 0x6d, 0x20 },
+        { 0x6e, 0xff },
+        { 0x6f, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_CANONLIDE120;
+    gpo.regs = {
+        { 0x6c, 0xfb },
+        { 0x6d, 0x20 },
+        { 0x6e, 0xff },
+        { 0x6f, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_CANONLIDE210;
+    gpo.regs = {
+        { 0x6c, 0xfb },
+        { 0x6d, 0x20 },
+        { 0x6e, 0xff },
+        { 0x6f, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_PLUSTEK_3600;
+    gpo.regs = {
+        { 0x6c, 0x02 },
+        { 0x6d, 0x00 },
+        { 0x6e, 0x1e },
+        { 0x6f, 0x80 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_CS4400F;
+    gpo.regs = {
+        { 0x6c, 0x01 },
+        { 0x6d, 0x7f },
+        { 0x6e, 0xff },
+        { 0x6f, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_CS8400F;
+    gpo.regs = {
+        { 0x6c, 0x9a },
+        { 0x6d, 0xdf },
+        { 0x6e, 0xfe },
+        { 0x6f, 0x60 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_CS8600F;
+    gpo.regs = {
+        { 0x6c, 0x20 },
+        { 0x6d, 0x7c },
+        { 0x6e, 0xff },
+        { 0x6f, 0x00 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_IMG101;
+    gpo.regs = {
+        { 0x6c, 0x41 },
+        { 0x6d, 0xa4 },
+        { 0x6e, 0x13 },
+        { 0x6f, 0xa7 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_PLUSTEK3800;
+    gpo.regs = {
+        { 0x6c, 0x41 },
+        { 0x6d, 0xa4 },
+        { 0x6e, 0x13 },
+        { 0x6f, 0xa7 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_CANONLIDE80;
+    gpo.regs = {
+        { 0x6c, 0x28 },
+        { 0x6d, 0x90 },
+        { 0x6e, 0x75 },
+        { 0x6f, 0x80 },
+    };
+    s_gpo->push_back(gpo);
+}
 
 StaticInit<std::vector<Genesys_Motor>> s_motors;
 

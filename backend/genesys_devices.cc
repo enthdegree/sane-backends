@@ -55,6 +55,8 @@
 /*                     Some setup DAC and CCD tables                        */
 /* ------------------------------------------------------------------------ */
 
+#define DEBUG_DECLARE_ONLY
+
 #include "genesys_low.h"
 
 StaticInit<std::vector<Genesys_Frontend>> s_frontends;

@@ -669,6 +669,11 @@ private:
 };
 
 extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
+extern StaticInit<std::vector<Genesys_Frontend>> s_frontends;
+extern StaticInit<std::vector<Genesys_Gpo>> s_gpo;
+extern StaticInit<std::vector<Genesys_Motor>> s_motors;
+extern StaticInit<std::vector<Genesys_USB_Device_Entry>> s_usb_devices;
+
 void genesys_init_sensor_tables();
 void genesys_init_frontend_tables();
 void genesys_init_gpo_tables();

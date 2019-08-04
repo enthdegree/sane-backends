@@ -685,7 +685,8 @@ gl841_init_registers (Genesys_Device * dev)
 }
 
 // Send slope table for motor movement slope_table in machine byte order
-static void gl841_send_slope_table(Genesys_Device* dev, int table_nr, uint16_t* slope_table,
+static void gl841_send_slope_table(Genesys_Device* dev, int table_nr,
+                                   const std::vector<uint16_t>& slope_table,
                                    int steps)
 {
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
@@ -985,13 +986,13 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
     DBG_HELPER_ARGS(dbg, "feed_steps=%d, action=%d, flags=%x", feed_steps, action, flags);
     unsigned int fast_exposure;
     int use_fast_fed = 0;
-    uint16_t fast_slope_table[256];
+    std::vector<uint16_t> fast_slope_table;
     unsigned int fast_slope_steps = 0;
     unsigned int feedl;
     GenesysRegister* r;
 /*number of scan lines to add in a scan_lines line*/
 
-    memset(fast_slope_table,0xff,512);
+    fast_slope_table.resize(256, 0xffff);
 
     gl841_send_slope_table(dev, 0, fast_slope_table, 256);
     gl841_send_slope_table(dev, 1, fast_slope_table, 256);
@@ -1145,9 +1146,9 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     int use_fast_fed = 0;
     unsigned int fast_time;
     unsigned int slow_time;
-    uint16_t slow_slope_table[256];
-    uint16_t fast_slope_table[256];
-    uint16_t back_slope_table[256];
+    std::vector<uint16_t> slow_slope_table;
+    std::vector<uint16_t> fast_slope_table;
+    std::vector<uint16_t> back_slope_table;
     unsigned int slow_slope_time;
     unsigned int fast_slope_time;
     unsigned int slow_slope_steps = 0;
@@ -1166,7 +1167,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
 
     DBG(DBG_info, "%s : fast_exposure=%d pixels\n", __func__, fast_exposure);
 
-    memset(slow_slope_table,0xff,512);
+    slow_slope_table.resize(256, 0xffff);
 
     gl841_send_slope_table(dev, 0, slow_slope_table, 256);
     gl841_send_slope_table(dev, 1, slow_slope_table, 256);

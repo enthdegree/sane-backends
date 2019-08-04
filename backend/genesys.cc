@@ -320,8 +320,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
  * @note  All times in pixel time. Correction for other motor timings is not
  *        done.
  */
-SANE_Int
-sanei_genesys_generate_slope_table (uint16_t * slope_table,
+SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table,
 				    unsigned int max_steps,
 				    unsigned int use_steps,
                                     uint16_t stop_at,
@@ -355,6 +354,9 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
   c = 0;
   *used_steps = 0;
 
+    slope_table.clear();
+    slope_table.reserve(max_steps);
+
   if (use_steps < 1)
     use_steps = 1;
 
@@ -365,9 +367,10 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
 	{
 	  t = pow (((double) i) / ((double) (steps - 1)), g);
 	  t2 = vstart * (1 - t) + t * vend;
-	  if (t2 < stop_at)
-	    break;
-	  *slope_table++ = t2;
+            if (t2 < stop_at) {
+                break;
+            }
+            slope_table.push_back(t2);
 	  /* DBG (DBG_io, "slope_table[%3d] = %5d\n", c, t2); */
 	  sum += t2;
 	}
@@ -385,7 +388,7 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
 
   for (i = 0; i < max_steps; i++, c++)
     {
-      *slope_table++ = *vfinal;
+        slope_table.push_back(*vfinal);
       /* DBG (DBG_io, "slope_table[%3d] = %5d\n", c, *vfinal); */
     }
 
@@ -419,7 +422,7 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
  * @note  all times in pixel time
  */
 SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
-				   uint16_t * slope_table,
+                                           std::vector<uint16_t>& slope_table,
                                    int max_step,
 				   unsigned int use_steps,
 				   int step_type,
@@ -477,9 +480,8 @@ SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
 
 /* alternate slope table creation function        */
 /* the hardcoded values (g and vstart) will go in a motor struct */
-static SANE_Int
-genesys_create_slope_table2 (Genesys_Device * dev,
-			     uint16_t * slope_table, int steps,
+SANE_Int genesys_create_slope_table2(Genesys_Device* dev, std::vector<uint16_t>& slope_table,
+                                     int steps,
 			     int step_type, int exposure_time,
                              SANE_Bool same_speed, double yres)
 {
@@ -596,10 +598,8 @@ genesys_create_slope_table2 (Genesys_Device * dev,
 
 /* Generate slope table for motor movement */
 /* todo: check details */
-SANE_Int
-sanei_genesys_create_slope_table (Genesys_Device * dev,
-				  uint16_t * slope_table, int steps,
-				  int step_type, int exposure_time,
+SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint16_t>& slope_table,
+                                          int steps, int step_type, int exposure_time,
                                   SANE_Bool same_speed, double yres)
 {
   double t;
@@ -1239,13 +1239,11 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
 }
 
 
-void
-sanei_genesys_calculate_zmode2 (SANE_Bool two_table,
-				uint32_t exposure_time,
-				uint16_t * slope_table,
-				int reg21,
-				int move, int reg22, uint32_t * z1,
-				uint32_t * z2)
+void sanei_genesys_calculate_zmode2(SANE_Bool two_table,
+                                    uint32_t exposure_time,
+                                    const std::vector<uint16_t>& slope_table,
+                                    int reg21, int move, int reg22, uint32_t * z1,
+                                    uint32_t * z2)
 {
   int i;
   int sum;

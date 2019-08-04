@@ -420,7 +420,8 @@ gl846_init_registers (Genesys_Device * dev)
  * @param slope_table pointer to 16 bit values array of the slope table
  * @param steps number of elements in the slope table
  */
-static void gl846_send_slope_table(Genesys_Device* dev, int table_nr, uint16_t* slope_table,
+static void gl846_send_slope_table(Genesys_Device* dev, int table_nr,
+                                   const std::vector<uint16_t>& slope_table,
                                    int steps)
 {
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
@@ -537,8 +538,8 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
                     feed_steps, flags);
   int use_fast_fed;
   unsigned int fast_dpi;
-  uint16_t scan_table[SLOPE_TABLE_SIZE];
-  uint16_t fast_table[SLOPE_TABLE_SIZE];
+    std::vector<uint16_t> scan_table;
+    std::vector<uint16_t> fast_table;
   int scan_steps, fast_steps, factor;
   unsigned int feedl, dist;
   GenesysRegister *r;

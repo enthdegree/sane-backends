@@ -720,7 +720,8 @@ gl843_init_registers (Genesys_Device * dev)
 }
 
 // Send slope table for motor movement slope_table in machine byte order
-static void gl843_send_slope_table(Genesys_Device* dev, int table_nr, uint16_t* slope_table,
+static void gl843_send_slope_table(Genesys_Device* dev, int table_nr,
+                                   const std::vector<uint16_t>& slope_table,
                                    int steps)
 {
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
@@ -844,8 +845,8 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
   int use_fast_fed, coeff;
   unsigned int lincnt;
-  uint16_t scan_table[1024];
-  uint16_t fast_table[1024];
+    std::vector<uint16_t> scan_table;
+    std::vector<uint16_t> fast_table;
   int scan_steps,fast_steps, fast_step_type;
   unsigned int feedl,factor,dist;
   GenesysRegister *r;

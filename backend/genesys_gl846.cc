@@ -841,8 +841,8 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   r = sanei_genesys_get_address (reg, REG01);
   r->value &= ~REG01_SCAN;
   r->value |= REG01_SHDAREA;
-  if ((flags & OPTICAL_FLAG_DISABLE_SHADING) ||
-      (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
+    if ((session.params.flags & SCAN_FLAG_DISABLE_SHADING) ||
+        (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
     {
       r->value &= ~REG01_DVDSET;
     }
@@ -1113,9 +1113,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
    * scan since color calibration is OK for this mode
    */
     oflags = 0;
-    if (session.params.flags & SCAN_FLAG_DISABLE_SHADING) {
-        oflags |= OPTICAL_FLAG_DISABLE_SHADING;
-    }
     gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
                                  used_pixels, session.params.channels, session.params.depth,
                                  session.params.color_filter, oflags);

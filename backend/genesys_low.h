@@ -378,13 +378,6 @@ typedef struct {
 #define MOTOR_FLAG_FEED                     0x04
 #define MOTOR_FLAG_USE_XPA                  0x08
 
-/** @name "Optical flags" */
-/*@{ optical flags available when setting up sensor for scan */
-
-#define OPTICAL_FLAG_DISABLE_SHADING        0x02 /**< disable shading correction */
-
-/*@} */
-
 /*--------------------------------------------------------------------------*/
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/

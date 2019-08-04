@@ -1522,11 +1522,13 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     /* enable shading */
     r = sanei_genesys_get_address (reg, 0x01);
     r->value |= REG01_SCAN;
-    if ((flags & OPTICAL_FLAG_DISABLE_SHADING) ||
-	(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
-	r->value &= ~REG01_DVDSET;
-    else
-	r->value |= REG01_DVDSET;
+    if ((session.params.flags & SCAN_FLAG_DISABLE_SHADING) ||
+        (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
+    {
+        r->value &= ~REG01_DVDSET;
+    } else {
+        r->value |= REG01_DVDSET;
+    }
 
     /* average looks better than deletion, and we are already set up to
        use  one of the average enabled resolutions
@@ -1958,9 +1960,6 @@ dummy \ scanned lines
     }
 
   oflags=0;
-    if (session.params.flags & SCAN_FLAG_DISABLE_SHADING) {
-        oflags |= OPTICAL_FLAG_DISABLE_SHADING;
-    }
 
     // no 16 bit gamma for this ASIC
     if (session.params.depth == 16) {

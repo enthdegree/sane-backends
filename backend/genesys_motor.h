@@ -85,16 +85,6 @@ struct Genesys_Motor_Slope
 struct Genesys_Motor
 {
     Genesys_Motor() = default;
-    Genesys_Motor(uint8_t p_motor_id, int p_base_ydpi, int p_optical_ydpi, int p_max_step_type,
-                  int p_power_mode_count,
-                  const std::vector<std::vector<Genesys_Motor_Slope>>& p_slopes) :
-        motor_id(p_motor_id),
-        base_ydpi(p_base_ydpi),
-        optical_ydpi(p_optical_ydpi),
-        max_step_type(p_max_step_type),
-        power_mode_count(p_power_mode_count),
-        slopes(p_slopes)
-    {}
 
     // id of the motor description
     uint8_t motor_id = 0;
@@ -104,10 +94,8 @@ struct Genesys_Motor
     int optical_ydpi = 0;
     // maximum step type. 0-2
     int max_step_type = 0;
-    // number of power modes
-    int power_mode_count = 0;
     // slopes to derive individual slopes from
-    std::vector<std::vector<Genesys_Motor_Slope>> slopes;
+    std::vector<Genesys_Motor_Slope> slopes;
 };                                                 
 
 #endif // BACKEND_GENESYS_MOTOR_H

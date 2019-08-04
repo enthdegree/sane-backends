@@ -836,13 +836,11 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
-                                       int scan_power_mode,
                                        unsigned int flags)
 {
     DBG_HELPER_ARGS(dbg, "exposure=%d, scan_yres=%g, scan_step_type=%d, scan_lines=%d, scan_dummy=%d, "
-                         "feed_steps=%d, scan_power_mode=%d, flags=%x",
-                    exposure, scan_yres, scan_step_type, scan_lines, scan_dummy, feed_steps,
-                    scan_power_mode, flags);
+                         "feed_steps=%d, flags=%x",
+                    exposure, scan_yres, scan_step_type, scan_lines, scan_dummy, feed_steps, flags);
 
   int use_fast_fed, coeff;
   unsigned int lincnt;
@@ -1313,7 +1311,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int slope_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
-  int scan_power_mode = 0;
   size_t requested_buffer_size, read_buffer_size;
 
     debug_dump(DBG_info, session.params);
@@ -1405,7 +1402,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
                                              : session.output_line_count;
 
     gl843_init_motor_regs_scan(dev, sensor, reg, exposure, slope_dpi, scan_step_type,
-                               scan_lines, dummy, session.params.starty, scan_power_mode, mflags);
+                               scan_lines, dummy, session.params.starty, mflags);
 
   /* since we don't have sheetfed scanners to handle,
    * use huge read buffer */

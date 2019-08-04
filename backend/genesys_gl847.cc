@@ -564,13 +564,12 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
-                                       int scan_power_mode,
                                        unsigned int flags)
 {
     DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, can_yres=%g, scan_step_type=%d, scan_lines=%d, "
-                         "scan_dummy=%d, feed_steps=%d, scan_power_mode=%d, flags=%x",
+                         "scan_dummy=%d, feed_steps=%d, flags=%x",
                     scan_exposure_time, scan_yres, scan_step_type, scan_lines, scan_dummy,
-                    feed_steps, scan_power_mode, flags);
+                    feed_steps, flags);
   int use_fast_fed;
   unsigned int fast_dpi;
   uint16_t scan_table[SLOPE_TABLE_SIZE];
@@ -1048,7 +1047,6 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int slope_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
-  int scan_power_mode = 0;
   int max_shift;
   size_t requested_buffer_size, read_buffer_size;
 
@@ -1166,7 +1164,7 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
     gl847_init_motor_regs_scan(dev, sensor, reg, exposure_time, slope_dpi, scan_step_type,
                                dev->model->is_cis ? lincnt * session.params.channels : lincnt,
-                               dummy, move, scan_power_mode, mflags);
+                               dummy, move, mflags);
 
   /*** prepares data reordering ***/
 

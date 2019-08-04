@@ -261,5 +261,4 @@ int gl841_exposure_time(Genesys_Device *dev, const Genesys_Sensor& sensor,
                     float slope_dpi,
                     int scan_step_type,
                     int start,
-                    int used_pixels,
-                    int *scan_power_mode);
+                    int used_pixels);

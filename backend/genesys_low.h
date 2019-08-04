@@ -487,10 +487,8 @@ extern void sanei_genesys_fe_read_data(Genesys_Device* dev, uint8_t addr, uint16
  */
 extern void sanei_genesys_fe_write_data(Genesys_Device* dev, uint8_t addr, uint16_t data);
 
-extern SANE_Int
-sanei_genesys_exposure_time2 (Genesys_Device * dev,
-			      float ydpi, int step_type, int endpixel,
-			      int led_exposure, int power_mode);
+SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi, int step_type,
+                                      int endpixel, int led_exposure);
 
 extern SANE_Int
 sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
@@ -506,8 +504,7 @@ extern SANE_Int
 sanei_genesys_create_slope_table (Genesys_Device * dev,
 				  uint16_t * slope_table, int steps,
 				  int step_type, int exposure_time,
-				  SANE_Bool same_speed, double yres,
-				  int power_mode);
+                                  SANE_Bool same_speed, double yres);
 
 SANE_Int
 sanei_genesys_create_slope_table3 (Genesys_Device * dev,
@@ -516,8 +513,7 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
 				   int step_type, int exposure_time,
 				   double yres,
 				   unsigned int *used_steps,
-				   unsigned int *final_exposure,
-				   int power_mode);
+                                   unsigned int *final_exposure);
 
 void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
                                               std::vector<uint16_t>& gamma_table, float gamma);

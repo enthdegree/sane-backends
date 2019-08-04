@@ -484,7 +484,6 @@ libgenesys_la_SOURCES = genesys.cc genesys.h \
     genesys_buffer.h genesys_buffer.cc \
     genesys_calibration.h \
     genesys_device.h genesys_device.cc \
-    genesys_devices.cc \
     genesys_enums.h \
     genesys_error.h genesys_error.cc \
     genesys_gl646.cc genesys_gl646.h genesys_gl841.cc genesys_gl841.h \
@@ -496,6 +495,11 @@ libgenesys_la_SOURCES = genesys.cc genesys.h \
     genesys_sensor.h \
     genesys_settings.h \
     genesys_serialize.h \
+    genesys_tables_frontend.cc \
+    genesys_tables_gpo.cc \
+    genesys_tables_model.cc \
+    genesys_tables_motor.cc \
+    genesys_tables_sensor.cc \
     genesys_low.cc genesys_low.h
 
 libgenesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys

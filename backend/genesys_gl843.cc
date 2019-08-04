@@ -1192,8 +1192,8 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         break;
     }
 
-  /* enable gamma tables */
-    if (flags & OPTICAL_FLAG_DISABLE_GAMMA) {
+    // enable gamma tables
+    if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA) {
         r->value &= ~REG05_GMMENB;
     } else {
         r->value |= REG05_GMMENB;
@@ -1324,8 +1324,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   oflags = 0;
   if (session.params.flags & SCAN_FLAG_DISABLE_SHADING)
     oflags |= OPTICAL_FLAG_DISABLE_SHADING;
-  if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA)
-    oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
 
   dummy = 0;
   /* dummy = 1;  XXX STEF XXX */
@@ -1356,10 +1354,8 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
 
   /* no 16 bit gamma for this ASIC */
-  if (session.params.depth == 16)
-    {
-      session.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
-      oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
+    if (session.params.depth == 16) {
+        session.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
     }
 
     // now _LOGICAL_ optical values used are known, setup registers

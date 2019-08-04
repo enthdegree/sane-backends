@@ -381,7 +381,6 @@ typedef struct {
 /** @name "Optical flags" */
 /*@{ optical flags available when setting up sensor for scan */
 
-#define OPTICAL_FLAG_DISABLE_GAMMA          0x01 /**< disable gamma correction */
 #define OPTICAL_FLAG_DISABLE_SHADING        0x02 /**< disable shading correction */
 
 /*@} */

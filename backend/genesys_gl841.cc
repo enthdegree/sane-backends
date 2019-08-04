@@ -1616,12 +1616,13 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         dev->reg.set16(REG_EXPB, expavg);
       }
 
-    /* enable gamma tables */
+    // enable gamma tables
     r = sanei_genesys_get_address (reg, 0x05);
-    if (flags & OPTICAL_FLAG_DISABLE_GAMMA)
-	r->value &= ~REG05_GMMENB;
-    else
-	r->value |= REG05_GMMENB;
+    if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA) {
+        r->value &= ~REG05_GMMENB;
+    } else {
+        r->value |= REG05_GMMENB;
+    }
 
     /* sensor parameters */
     sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 1, ccd_size_divisor);
@@ -1960,8 +1961,10 @@ dummy \ scanned lines
     if (session.params.flags & SCAN_FLAG_DISABLE_SHADING) {
         oflags |= OPTICAL_FLAG_DISABLE_SHADING;
     }
-    if ((session.params.flags & SCAN_FLAG_DISABLE_GAMMA) || (session.params.depth == 16)) {
-        oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
+
+    // no 16 bit gamma for this ASIC
+    if (session.params.depth == 16) {
+        session.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
     }
 
     gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,

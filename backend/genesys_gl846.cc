@@ -923,10 +923,11 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
   /* enable gamma tables */
-  if (flags & OPTICAL_FLAG_DISABLE_GAMMA)
-    r->value &= ~REG05_GMMENB;
-  else
-    r->value |= REG05_GMMENB;
+    if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA) {
+        r->value &= ~REG05_GMMENB;
+    } else {
+        r->value |= REG05_GMMENB;
+    }
 
   /* CIS scanners can do true gray by setting LEDADD */
   /* we set up LEDADD only when asked */
@@ -1114,9 +1115,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     oflags = 0;
     if (session.params.flags & SCAN_FLAG_DISABLE_SHADING) {
         oflags |= OPTICAL_FLAG_DISABLE_SHADING;
-    }
-    if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA) {
-        oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
     }
     gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
                                  used_pixels, session.params.channels, session.params.depth,

@@ -341,12 +341,18 @@ struct Genesys_USB_Device_Entry {
 /**
  * structure for motor database
  */
-typedef struct {
+struct Motor_Profile
+{
 	int motor_type;	 /**< motor id */
 	int exposure;    /**< exposure for the slope table */
         int step_type;   /**< default step type for given exposure */
         uint32_t *table;  // 0-terminated slope table at full step (i.e. step_type == 0)
-} Motor_Profile;
+};
+
+extern Motor_Profile gl843_motor_profiles[];
+extern Motor_Profile gl846_motor_profiles[];
+extern Motor_Profile gl847_motor_profiles[];
+extern Motor_Profile gl124_motor_profiles[];
 
 #define FULL_STEP       0
 #define HALF_STEP       1

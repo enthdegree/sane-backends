@@ -889,7 +889,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                             scan_step_type,
                             factor,
                             dev->model->motor_type,
-                            gl843_motors);
+                            gl843_motor_profiles);
     gl843_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps * factor);
     gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps * factor);
 
@@ -915,7 +915,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                             fast_step_type,
                             factor,
                             dev->model->motor_type,
-                            gl843_motors);
+                            gl843_motor_profiles);
     gl843_send_slope_table(dev, STOP_TABLE, fast_table, fast_steps * factor);
     gl843_send_slope_table(dev, FAST_TABLE, fast_table, fast_steps * factor);
     gl843_send_slope_table(dev, HOME_TABLE, fast_table, fast_steps * factor);
@@ -1323,7 +1323,8 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   if (exposure < 0) {
       throw std::runtime_error("Exposure not defined in sensor definition");
   }
-  scan_step_type = sanei_genesys_compute_step_type(gl843_motors, dev->model->motor_type, exposure);
+    scan_step_type = sanei_genesys_compute_step_type(gl843_motor_profiles, dev->model->motor_type,
+                                                     exposure);
 
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
   DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, scan_step_type);

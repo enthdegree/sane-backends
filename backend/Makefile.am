@@ -499,6 +499,7 @@ libgenesys_la_SOURCES = genesys.cc genesys.h \
     genesys_tables_gpo.cc \
     genesys_tables_model.cc \
     genesys_tables_motor.cc \
+    genesys_tables_motor_profile.cc \
     genesys_tables_sensor.cc \
     genesys_low.cc genesys_low.h
 

@@ -722,7 +722,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                             scan_step_type,
                             factor,
                             dev->model->motor_type,
-                            motors);
+                            gl124_motor_profiles);
     gl124_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps);
     gl124_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps);
 
@@ -745,7 +745,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                             scan_step_type,
                             factor,
                             dev->model->motor_type,
-                            motors);
+                            gl124_motor_profiles);
     gl124_send_slope_table(dev, STOP_TABLE, fast_table, fast_steps);
     gl124_send_slope_table(dev, FAST_TABLE, fast_table, fast_steps);
 
@@ -1232,7 +1232,8 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   else
     {
         exposure_time = gl124_compute_exposure(dev, used_res, ccd_size_divisor);
-      scan_step_type = sanei_genesys_compute_step_type(motors, dev->model->motor_type, exposure_time);
+        scan_step_type = sanei_genesys_compute_step_type(gl124_motor_profiles,
+                                                         dev->model->motor_type, exposure_time);
     }
 
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);

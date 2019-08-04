@@ -255,7 +255,8 @@ std::vector<std::reference_wrapper<Genesys_Sensor>>
 void
 sanei_genesys_init_structs (Genesys_Device * dev)
 {
-  unsigned int i, gpo_ok = 0, motor_ok = 0;
+    unsigned int i, gpo_ok = 0;
+    bool motor_ok = false;
     bool fe_ok = false;
 
   /* initialize the GPO data stuff */
@@ -268,14 +269,13 @@ sanei_genesys_init_structs (Genesys_Device * dev)
 	}
     }
 
-  /* initialize the motor data stuff */
-  for (i = 0; i < sizeof (Motor) / sizeof (Genesys_Motor); i++)
-    {
-      if (dev->model->motor_type == Motor[i].motor_id)
-	{
-          dev->motor = Motor[i];
-	  motor_ok = 1;
-	}
+    // initialize the motor data stuff
+    for (const auto& motor : *s_motors) {
+        if (dev->model->motor_type == motor.motor_id) {
+            dev->motor = motor;
+            motor_ok = true;
+            break;
+        }
     }
 
     for (const auto& frontend : *s_frontends) {
@@ -286,8 +286,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
         }
     }
 
-  /* sanity check */
-  if (motor_ok == 0 || gpo_ok == 0 || !fe_ok)
+    if (!motor_ok || gpo_ok == 0 || !fe_ok)
     {
       DBG(DBG_error0, "%s: bad description(s) for fe/gpo/motor=%d/%d/%d\n", __func__,
           dev->model->ccd_type, dev->model->gpo_type, dev->model->motor_type);
@@ -5426,6 +5425,7 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   s_sane_devices_ptrs.init();
   genesys_init_sensor_tables();
   genesys_init_frontend_tables();
+    genesys_init_motor_tables();
     genesys_init_usb_device_tables();
 
 

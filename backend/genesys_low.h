@@ -684,6 +684,7 @@ private:
 extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 void genesys_init_sensor_tables();
 void genesys_init_frontend_tables();
+void genesys_init_motor_tables();
 void genesys_init_usb_device_tables();
 
 void debug_dump(unsigned level, const Genesys_Settings& settings);

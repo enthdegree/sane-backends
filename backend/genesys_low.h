@@ -383,7 +383,6 @@ typedef struct {
 
 #define OPTICAL_FLAG_DISABLE_GAMMA          0x01 /**< disable gamma correction */
 #define OPTICAL_FLAG_DISABLE_SHADING        0x02 /**< disable shading correction */
-#define OPTICAL_FLAG_USE_XPA                0x40 /**< use XPA lamp rather than regular one */
 
 /*@} */
 

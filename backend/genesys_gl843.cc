@@ -1122,11 +1122,10 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* select XPA */
   r->value &= ~REG03_XPASEL;
-  if (flags & OPTICAL_FLAG_USE_XPA)
-    {
-      r->value |= REG03_XPASEL;
+    if (session.params.flags & SCAN_FLAG_USE_XPA) {
+        r->value |= REG03_XPASEL;
     }
-    reg->state.is_xpa_on = flags & OPTICAL_FLAG_USE_XPA;
+    reg->state.is_xpa_on = session.params.flags & SCAN_FLAG_USE_XPA;
 
   /* BW threshold */
   r = sanei_genesys_get_address (reg, REG2E);
@@ -1327,9 +1326,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     oflags |= OPTICAL_FLAG_DISABLE_SHADING;
   if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA)
     oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
-  if (session.params.flags & SCAN_FLAG_USE_XPA)
-    oflags |= OPTICAL_FLAG_USE_XPA;
-
 
   dummy = 0;
   /* dummy = 1;  XXX STEF XXX */

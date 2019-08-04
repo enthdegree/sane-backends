@@ -898,7 +898,8 @@ static void gl124_setup_sensor(Genesys_Device * dev,
  */
 static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
-                                         int used_res, unsigned int start, unsigned int pixels,
+                                         const ScanSession& session, int used_res,
+                                         unsigned int start, unsigned int pixels,
                                          int channels, int depth, unsigned ccd_size_divisor,
                                          ColorFilter color_filter, int flags)
 {
@@ -1047,9 +1048,8 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     {
       r = sanei_genesys_get_address (reg, REG60);
       r->value &= ~REG60_LEDADD;
-      if (channels == 1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
-	{
-	  r->value |= REG60_LEDADD;
+        if (session.enable_ledadd) {
+            r->value |= REG60_LEDADD;
             expmax = reg->get24(REG_EXPR);
             expmax = std::max(expmax, reg->get24(REG_EXPG));
             expmax = std::max(expmax, reg->get24(REG_EXPB));
@@ -1057,17 +1057,16 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
             dev->reg.set24(REG_EXPR, expmax);
             dev->reg.set24(REG_EXPG, expmax);
             dev->reg.set24(REG_EXPB, expmax);
-	}
+        }
       /* RGB weighting, REG_TRUER,G and B are to be set  */
       r = sanei_genesys_get_address (reg, 0x01);
       r->value &= ~REG01_TRUEGRAY;
-      if (channels == 1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
-	{
-	  r->value |= REG01_TRUEGRAY;
+        if (session.enable_ledadd) {
+            r->value |= REG01_TRUEGRAY;
             dev->write_register(REG_TRUER, 0x80);
             dev->write_register(REG_TRUEG, 0x80);
             dev->write_register(REG_TRUEB, 0x80);
-	}
+        }
     }
 
   /* segment number */
@@ -1135,8 +1134,9 @@ static void gl124_compute_session(Genesys_Device* dev, ScanSession& s,
 {
     DBG_HELPER(dbg);
     (void) sensor;
-    (void) dev;
     s.params.assert_valid();
+
+    s.enable_ledadd = (s.params.channels == 1 && dev->model->is_cis && dev->settings.true_gray);
     s.computed = true;
 }
 
@@ -1258,15 +1258,10 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
         oflags |= OPTICAL_FLAG_DISABLE_LAMP;
     }
 
-  if (dev->model->is_cis && dev->settings.true_gray)
-    {
-      oflags |= OPTICAL_FLAG_ENABLE_LEDADD;
-    }
-
     // now _LOGICAL_ optical values used are known, setup registers
-    gl124_init_optical_regs_scan(dev, sensor, reg, exposure_time, used_res, start, used_pixels,
-                                 session.params.channels, session.params.depth, ccd_size_divisor,
-                                 session.params.color_filter, oflags);
+    gl124_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
+                                 used_pixels, session.params.channels, session.params.depth,
+                                 ccd_size_divisor, session.params.color_filter, oflags);
 
   /*** motor parameters ***/
 

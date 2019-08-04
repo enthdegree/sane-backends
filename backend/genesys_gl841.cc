@@ -1465,7 +1465,8 @@ static void gl841_init_optical_regs_off(Genesys_Register_Set* reg)
 
 static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
-                                         unsigned int used_res, unsigned int start,
+                                         const ScanSession& session, unsigned int used_res,
+                                         unsigned int start,
                                          unsigned int pixels, int channels,
                                          int depth, unsigned ccd_size_divisor,
                                          ColorFilter color_filter, int flags)
@@ -1560,10 +1561,9 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     /* AFEMOD should depend on FESET, and we should set these
      * bits separately */
     r->value &= ~(REG04_FILTER | REG04_AFEMOD);
-    if (flags & OPTICAL_FLAG_ENABLE_LEDADD)
-      {
-	r->value |= 0x10;	/* no filter */
-      }
+    if (session.params.flags & SCAN_FLAG_ENABLE_LEDADD) {
+        r->value |= 0x10;	/* no filter */
+    }
     else if (channels == 1)
       {
 	switch (color_filter)
@@ -1597,8 +1597,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     /* CIS scanners can do true gray by setting LEDADD */
     r = sanei_genesys_get_address (reg, 0x87);
     r->value &= ~REG87_LEDADD;
-    if (flags & OPTICAL_FLAG_ENABLE_LEDADD)
-      {
+    if (session.params.flags & SCAN_FLAG_ENABLE_LEDADD) {
         r->value |= REG87_LEDADD;
         expr = reg->get16(REG_EXPR);
         expg = reg->get16(REG_EXPG);
@@ -1966,13 +1965,10 @@ dummy \ scanned lines
     if (session.params.flags & SCAN_FLAG_DISABLE_LAMP) {
         oflags |= OPTICAL_FLAG_DISABLE_LAMP;
     }
-    if (session.params.flags & SCAN_FLAG_ENABLE_LEDADD) {
-        oflags |= OPTICAL_FLAG_ENABLE_LEDADD;
-    }
 
-    gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, used_res, start, used_pixels,
-                                 session.params.channels, session.params.depth, ccd_size_divisor,
-                                 session.params.color_filter, oflags);
+    gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
+                                 used_pixels, session.params.channels, session.params.depth,
+                                 ccd_size_divisor, session.params.color_filter, oflags);
 
 /*** motor parameters ***/
 

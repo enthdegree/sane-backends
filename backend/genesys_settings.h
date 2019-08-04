@@ -224,6 +224,9 @@ struct ScanSession {
     // different color channels
     unsigned max_color_shift_lines = 0;
 
+    // whether to enable ledadd functionality
+    bool enable_ledadd = false;
+
     void assert_computed() const
     {
         if (!computed) {

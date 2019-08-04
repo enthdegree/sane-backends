@@ -791,7 +791,8 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
  */
 static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
-                                         int used_res, unsigned int start, unsigned int pixels,
+                                         const ScanSession& session, int used_res,
+                                         unsigned int start, unsigned int pixels,
                                          int channels, int depth,
                                          ColorFilter color_filter, int flags)
 {
@@ -950,16 +951,14 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     {
       r = sanei_genesys_get_address (reg, 0x87);
       r->value &= ~REG87_LEDADD;
-      if (channels == 1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
-	{
-	  r->value |= REG87_LEDADD;
-	}
+        if (session.enable_ledadd) {
+            r->value |= REG87_LEDADD;
+        }
       /* RGB weighting
       r = sanei_genesys_get_address (reg, 0x01);
       r->value &= ~REG01_TRUEGRAY;
-      if (channels == 1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
-	{
-	  r->value |= REG01_TRUEGRAY;
+        if (session.enable_ledadd) {
+            r->value |= REG01_TRUEGRAY;
 	}*/
     }
 
@@ -1137,13 +1136,8 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
         oflags |= OPTICAL_FLAG_DISABLE_LAMP;
     }
 
-  if (dev->model->is_cis && dev->settings.true_gray)
-    {
-      oflags |= OPTICAL_FLAG_ENABLE_LEDADD;
-    }
-
-    gl847_init_optical_regs_scan(dev, sensor, reg, exposure_time, used_res, start, used_pixels,
-                                 session.params.channels, session.params.depth,
+    gl847_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
+                                 used_pixels, session.params.channels, session.params.depth,
                                  session.params.color_filter, oflags);
 
 /*** motor parameters ***/

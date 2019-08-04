@@ -729,7 +729,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
   r = sanei_genesys_get_address (reg, REG_BWDSTEP);
   r->value = min_restep;
 
-  sanei_genesys_calculate_zmode2(use_fast_fed,
+  sanei_genesys_calculate_zmod(use_fast_fed,
 			         scan_exposure_time*ccdlmt*tgtime,
 				 scan_table,
 				 scan_steps*factor,

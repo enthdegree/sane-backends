@@ -903,7 +903,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   regs->find_reg(0x65).value = motor->mtrpwm;
 
-  sanei_genesys_calculate_zmode2 (regs->find_reg(0x02).value & REG02_FASTFED,
+  sanei_genesys_calculate_zmod (regs->find_reg(0x02).value & REG02_FASTFED,
                                   sensor_mst->exposure,
 				  slope_table1,
 				  motor->steps1,

@@ -955,7 +955,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
   DBG(DBG_io, "%s: feedl=%d\n", __func__, feedl);
 
   /* doesn't seem to matter that much */
-  sanei_genesys_calculate_zmode2 (use_fast_fed,
+  sanei_genesys_calculate_zmod (use_fast_fed,
 				  exposure,
 				  scan_table,
 				  scan_steps,

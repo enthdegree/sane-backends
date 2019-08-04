@@ -70,6 +70,7 @@
 #include <cstring>
 #include <fstream>
 #include <list>
+#include <numeric>
 #include <exception>
 #include <vector>
 
@@ -1238,79 +1239,39 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
       sensor.CCD_start_xoffset, left, top);
 }
 
-
-void sanei_genesys_calculate_zmode2(SANE_Bool two_table,
-                                    uint32_t exposure_time,
-                                    const std::vector<uint16_t>& slope_table,
-                                    int reg21, int move, int reg22, uint32_t * z1,
-                                    uint32_t * z2)
+void sanei_genesys_calculate_zmod(SANE_Bool two_table,
+                                  uint32_t exposure_time,
+                                  const std::vector<uint16_t>& slope_table,
+                                  unsigned acceleration_steps,
+                                  unsigned move_steps,
+                                  unsigned buffer_acceleration_steps,
+                                  uint32_t* out_z1, uint32_t* out_z2)
 {
-  int i;
-  int sum;
-  DBG(DBG_info, "%s: two_table=%d\n", __func__, two_table);
+    DBG(DBG_info, "%s: two_table=%d\n", __func__, two_table);
 
-  /* acceleration total time */
-  sum = 0;
-  for (i = 0; i < reg21; i++)
-    sum += slope_table[i];
+    // acceleration total time
+    unsigned sum = std::accumulate(slope_table.begin(), slope_table.begin() + acceleration_steps,
+                                   0, std::plus<>());
 
-  /* compute Z1MOD */
-  /* c=sum(slope_table;reg21)
-     d=reg22*cruising speed
-     Z1MOD=(c+d) % exposure_time */
-  *z1 = (sum + reg22 * slope_table[reg21 - 1]) % exposure_time;
+    /* Z1MOD:
+        c = sum(slope_table; reg_stepno)
+        d = reg_fwdstep * <cruising speed>
+        Z1MOD = (c+d) % exposure_time
+    */
+    *out_z1 = (sum + buffer_acceleration_steps * slope_table[acceleration_steps - 1]) % exposure_time;
 
-  /* compute Z2MOD */
-  /* a=sum(slope_table;reg21), b=move or 1 if 2 tables */
-  /* Z2MOD=(a+b) % exposure_time */
-  if (!two_table)
-    sum = sum + (move * slope_table[reg21 - 1]);
-  else
-    sum = sum + slope_table[reg21 - 1];
-  *z2 = sum % exposure_time;
-}
-
-
-/* huh? */
-/* todo: double check */
-/* Z1 and Z2 seem to be a time to synchronize with clock or a phase correction */
-/* steps_sum	is the result of create_slope_table 	*/
-/* last_speed	is the last entry of the slope_table 	*/
-/* feedl	is registers 3d,3e,3f 			 */
-/* fastfed	is register 02 bit 3		 	*/
-/* scanfed	is register 1f 				*/
-/* fwdstep	is register 22 				*/
-/* tgtime	is register 6c bit 6+7 >> 6 		*/
-
-void
-sanei_genesys_calculate_zmode (uint32_t exposure_time,
-			       uint32_t steps_sum, uint16_t last_speed,
-			       uint32_t feedl, uint8_t fastfed,
-			       uint8_t scanfed, uint8_t fwdstep,
-			       uint8_t tgtime, uint32_t * z1, uint32_t * z2)
-{
-  uint8_t exposure_factor;
-
-  exposure_factor = pow (2, tgtime);	/* todo: originally, this is always 2^0 ! */
-
-  /* Z1 is for buffer-full backward forward moving */
-  *z1 =
-    exposure_factor * ((steps_sum + fwdstep * last_speed) % exposure_time);
-
-  /* Z2 is for acceleration before scan */
-  if (fastfed)			/* two curve mode */
-    {
-      *z2 =
-	exposure_factor * ((steps_sum + scanfed * last_speed) %
-			   exposure_time);
+    /* Z2MOD:
+        a = sum(slope_table; reg_stepno)
+        b = move_steps or 1 if 2 tables
+        Z1MOD = (a+b) % exposure_time
+    */
+    if (!two_table) {
+        sum = sum + (move_steps * slope_table[acceleration_steps - 1]);
+    } else {
+        sum = sum + slope_table[acceleration_steps - 1];
     }
-  else				/* one curve mode */
-    {
-      *z2 =
-	exposure_factor * ((steps_sum + feedl * last_speed) % exposure_time);
-    }
+    *out_z2 = sum % exposure_time;
 }
-
 
 static uint8_t genesys_adjust_gain(double* applied_multi, double multi, uint8_t gain)
 {

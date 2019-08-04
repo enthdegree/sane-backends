@@ -458,19 +458,26 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
 
 void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set);
 
-void sanei_genesys_calculate_zmode2(SANE_Bool two_table,
-                                    uint32_t exposure_time,
-                                    const std::vector<uint16_t>& slope_table,
-                                    int reg21, int move, int reg22, uint32_t* z1,
-                                    uint32_t* z2);
+/** Calculates the values of the Z{1,2}MOD registers. They are a phase correction to synchronize
+    with the line clock during acceleration and deceleration.
 
-extern void
-sanei_genesys_calculate_zmode (uint32_t exposure_time,
-			       uint32_t steps_sum,
-			       uint16_t last_speed, uint32_t feedl,
-			       uint8_t fastfed, uint8_t scanfed,
-			       uint8_t fwdstep, uint8_t tgtime,
-			       uint32_t * z1, uint32_t * z2);
+    two_table is true if moving is done by two tables, false otherwise.
+
+    acceleration_steps is the number of steps for acceleration, i.e. the number written to
+    REG_STEPNO.
+
+    move_steps number of steps to move, i.e. the number written to REG_FEEDL.
+
+    buffer_acceleration_steps, the number of steps for acceleration when buffer condition is met,
+    i.e. the number written to REG_FWDSTEP.
+*/
+void sanei_genesys_calculate_zmod(SANE_Bool two_table,
+                                  uint32_t exposure_time,
+                                  const std::vector<uint16_t>& slope_table,
+                                  unsigned acceleration_steps,
+                                  unsigned move_steps,
+                                  unsigned buffer_acceleration_steps,
+                                  uint32_t* out_z1, uint32_t* out_z2);
 
 extern void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr);
 

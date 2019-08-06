@@ -4377,7 +4377,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if(option==OPT_TOP){
     opt->name = "top-edge";
     opt->title = SANE_I18N ("Top edge");
-    opt->desc = SANE_I18N ("Paper is pulled partly into adf");
+    opt->desc = SANE_I18N ("Paper is pulled partly into ADF");
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
@@ -6935,7 +6935,7 @@ sane_start (SANE_Handle handle)
       else{
         ret = scanner_control(s, SC_function_adf);
         if (ret != SANE_STATUS_GOOD) {
-          DBG (5, "sane_start: ERROR: cannot control adf, ignoring\n");
+          DBG (5, "sane_start: ERROR: cannot control ADF, ignoring\n");
         }
       }
 

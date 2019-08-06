@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2019-07-23 12:14+0000\n"
-"PO-Revision-Date: 2019-07-26 09:45-0700\n"
+"PO-Revision-Date: 2019-08-05 18:15-0700\n"
 "Last-Translator: Ralph Little <littlesincanada@yahoo.co.uk>\n"
 "Language-Team: British English <kde-i18n-doc@kde.org>\n"
 "Language: en_GB\n"
@@ -345,7 +345,6 @@ msgstr "Analogue gamma blue"
 msgid "Bind analog gamma"
 msgstr "Bind analogue gamma"
 
-# Warm->Warm up?
 #: include/sane/saneopts.h:216
 #, no-c-format
 msgid "Warmup lamp"
@@ -989,7 +988,6 @@ msgstr ""
 msgid "Only perform shading-correction"
 msgstr "Only perform shading-correction"
 
-# "build" should really be "built" in original text
 #: backend/artec_eplus48u.c:2956
 #, no-c-format
 msgid ""
@@ -1021,7 +1019,6 @@ msgstr "Selects the number of the frame to scan"
 msgid "Duplex scan"
 msgstr "Duplex scan"
 
-# Original should be "Duplex scan provides..."
 #: backend/avision.h:783
 #, no-c-format
 msgid ""
@@ -1237,7 +1234,7 @@ msgstr "invalid bit IDENTIFY message"
 #: backend/canon.c:460
 #, no-c-format
 msgid "option not connect"
-msgstr "option not connect"
+msgstr "option not correct"
 
 #: backend/canon.c:474
 #, no-c-format
@@ -2862,7 +2859,6 @@ msgstr ""
 msgid "Top edge"
 msgstr "Top edge"
 
-# Shouldn't we standardise on ADF? i.e. not adf
 #: backend/fujitsu.c:4380
 #, no-c-format
 msgid "Paper is pulled partly into adf"
@@ -3149,11 +3145,10 @@ msgstr "Power button"
 msgid "Extra button"
 msgstr "Extra button"
 
-# Need->Needs?
 #: backend/genesys.cc:5724 backend/gt68xx.c:755
 #, no-c-format
 msgid "Need calibration"
-msgstr "Need calibration"
+msgstr "Needs calibration"
 
 #: backend/genesys.cc:5725 backend/gt68xx.c:756
 #, no-c-format
@@ -3328,13 +3323,11 @@ msgstr "Slide"
 msgid "Scanner model"
 msgstr "Scanner model"
 
-# US spelling of behaviour is incorrect
 #: backend/hp3900_sane.c:1408
 #, no-c-format
 msgid "Allows one to test device behaviour with other supported models"
 msgstr "Allows one to test device behaviour with other supported models"
 
-# US spelling of colour is incorrect
 #: backend/hp3900_sane.c:1422
 #, no-c-format
 msgid "Image colours will be inverted"
@@ -3858,7 +3851,6 @@ msgstr ""
 msgid "Color Matrix"
 msgstr "Colour Matrix"
 
-# Requires apostrophe
 #: backend/hp-option.h:121
 #, no-c-format
 msgid "Set the scanners color matrix."
@@ -4205,7 +4197,6 @@ msgstr "high"
 msgid "crt"
 msgstr "crt"
 
-# Linear?
 #: backend/kvs1025_opt.c:229
 #, no-c-format
 msgid "linier"
@@ -4411,8 +4402,8 @@ msgid ""
 "Length Control Mode is a mode that the scanner reads up to the shorter "
 "length of actual paper or logical document length."
 msgstr ""
-"Length Control Mode is a mode that the scanner reads up to the shorter "
-"length of actual paper or logical document length."
+"Length Control Mode causes the scanner to read the shorter of either the "
+"length of the actual paper or logical document length."
 
 #: backend/kvs20xx_opt.c:424 backend/kvs20xx_opt.c:425
 #: backend/kvs40xx_opt.c:668 backend/kvs40xx_opt.c:669
@@ -4441,13 +4432,11 @@ msgstr "Double letter 11x17 in"
 msgid "B4"
 msgstr "B4"
 
-# sensivity->sensitivity
 #: backend/kvs40xx_opt.c:231
 #, no-c-format
 msgid "High sensivity"
 msgstr "High sensitivity"
 
-# sensivity->sensitivity
 #: backend/kvs40xx_opt.c:232
 #, no-c-format
 msgid "Low sensivity"
@@ -4533,7 +4522,6 @@ msgstr "Inverse image in B/W mode"
 msgid "JPEG compression"
 msgstr "JPEG compression"
 
-# yours->your
 #: backend/kvs40xx_opt.c:718
 #, no-c-format
 msgid "JPEG compression (yours application must be able to uncompress)"
@@ -4569,13 +4557,11 @@ msgstr "Set chroma of blue"
 msgid "Skew adjustment"
 msgstr "Skew adjustment"
 
-# Grammar?
 #: backend/kvs40xx_opt.c:808
 #, no-c-format
 msgid "Stop scanner when a paper have been skewed"
 msgstr "Stop scanner if a sheet is skewed"
 
-# stop->stopped
 #: backend/kvs40xx_opt.c:809
 #, no-c-format
 msgid "Scanner will be stop  when a paper have been skewed"
@@ -4586,13 +4572,11 @@ msgstr "Scanner will be stopped if sheet is skewed"
 msgid "Crop actual image area"
 msgstr "Crop actual image area"
 
-# detect->detects; crop->crops
 #: backend/kvs40xx_opt.c:817
 #, no-c-format
 msgid "Scanner automatically detect image area and crop it"
 msgstr "Scanner automatically detects image area and crops it"
 
-# Grammar?
 #: backend/kvs40xx_opt.c:827
 #, no-c-format
 msgid "It is right and left reversing"
@@ -5341,7 +5325,6 @@ msgstr "Target operation type"
 msgid "ADF Waiting Time"
 msgstr "ADF Waiting Time"
 
-# Grammar could be improved.
 #: backend/pixma_sane_options.c:349
 #, no-c-format
 msgid ""
@@ -5869,13 +5852,11 @@ msgstr "Focus-point"
 msgid "Focus point"
 msgstr "Focus point"
 
-# Original should specify "color" not colour.
 #: backend/snapscan-options.c:930
 #, no-c-format
 msgid "Colour lines per read"
 msgstr "Colour lines per read"
 
-# Original should specify gray
 #: backend/snapscan-options.c:942
 #, no-c-format
 msgid "Greyscale lines per read"

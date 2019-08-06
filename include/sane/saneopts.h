@@ -243,7 +243,7 @@
 /* Descriptive/help strings for above options: */
 #define SANE_DESC_NUM_OPTIONS \
 SANE_I18N("Read-only option that specifies how many options a specific " \
-"devices supports.")
+"device supports.")
 
 #define SANE_DESC_STANDARD    SANE_I18N("Source, mode and resolution options")
 #define SANE_DESC_GEOMETRY    SANE_I18N("Scan area and media size options")
@@ -412,7 +412,7 @@ SANE_I18N("Analog gamma-correction for blue")
 #define SANE_DESC_ANALOG_GAMMA_BIND \
 SANE_I18N("In RGB-mode use same values for each color")
 #define SANE_DESC_WARMUP \
-SANE_I18N("Warmup lamp before scanning")
+SANE_I18N("Warm up lamp before scanning")
 #define SANE_DESC_CAL_EXPOS_TIME \
 SANE_I18N("Define exposure-time for calibration")
 #define SANE_DESC_CAL_EXPOS_TIME_R \

@@ -346,7 +346,7 @@ int build_option_descriptors(struct pixma_sane_t *ss)
   sod = &opt->sod;
   sod->type = SANE_TYPE_INT;
   sod->title = SANE_I18N("ADF Waiting Time");
-  sod->desc = SANE_I18N("When set, the scanner searches the waiting time in seconds for a new document inserted into the automatic document feeder.");
+  sod->desc = SANE_I18N("When set, the scanner waits upto the specified time in seconds for a new document inserted into the automatic document feeder.");
   sod->name = "adf-wait";
   sod->unit = SANE_UNIT_NONE;
   sod->size = 1 * sizeof(SANE_Word);

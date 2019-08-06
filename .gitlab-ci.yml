@@ -98,7 +98,7 @@ make-distcheck:
   image: $REGISTRY_HUB:debian-stretch-full
   stage: snapshot
   dependencies:
-  - compile:debian-9-full
+  - debian-9-full
   script:
   - tar xzf sane-backends-*.tar.gz --strip-components=1
   - rm sane-backends-*.tar.gz

@@ -279,6 +279,16 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG (0x01, 0x00);
   SETREG (0x02, 0x78);
   SETREG (0x03, 0x1f);
+    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
+        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
+        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    {
+        SETREG(0x03, 0x1d);
+    }
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+        SETREG(0x03, 0x1c);
+    }
+
   SETREG (0x04, 0x10);
 
   // fine tune upon device description
@@ -309,17 +319,48 @@ gl843_init_registers (Genesys_Device * dev)
 
   // TODO: on 8600F the windows driver turns off GAIN4 which is recommended
   SETREG (0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
+    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
+        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
+        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    {
+        SETREG(0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
+    }
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
+        SETREG(0x06, 0xf0); /* SCANMOD=111, PWRBIT and no GAIN4 */
+    }
+
   SETREG (0x08, 0x00);
   SETREG (0x09, 0x00);
   SETREG (0x0a, 0x00);
+    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
+        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
+        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    {
+        SETREG(0x0a, 0x18);
+    }
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+        SETREG(0x0a, 0x10);
+    }
 
   // This register controls clock and RAM settings and is further modified in
   // gl843_boot
   SETREG (0x0b, 0x6a);
 
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
+        SETREG(0x0b, 0x69); // 16M only
+    }
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+        SETREG(0x0b, 0x89);
+    }
+    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
+        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
+        dev->model->model_id == MODEL_HP_SCANJET_4850C)
     {
-      SETREG(0x0b, 0x89);
+        SETREG(0x0b, 0x69);
+    }
+
+    if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F) {
+        SETREG (0x0c, 0x00);
     }
 
   // EXPR[0:15], EXPG[0:15], EXPB[0:15]: Exposure time settings.
@@ -329,12 +370,22 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG(0x13, 0x00); // SENSOR_DEF
   SETREG(0x14, 0x00); // SENSOR_DEF
   SETREG(0x15, 0x00); // SENSOR_DEF
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
     {
-      dev->reg.set16(REG_EXPR, 0x9c40);
-      dev->reg.set16(REG_EXPG, 0x9c40);
-      dev->reg.set16(REG_EXPB, 0x9c40);
+        dev->reg.set16(REG_EXPR, 0x9c40);
+        dev->reg.set16(REG_EXPG, 0x9c40);
+        dev->reg.set16(REG_EXPB, 0x9c40);
     }
+    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
+        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
+        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    {
+        dev->reg.set16(REG_EXPR, 0x2c09);
+        dev->reg.set16(REG_EXPG, 0x22b8);
+        dev->reg.set16(REG_EXPB, 0x10f0);
+    }
+
   // CCD signal settings.
   SETREG(0x16, 0x33); // SENSOR_DEF
   SETREG(0x17, 0x1c); // SENSOR_DEF
@@ -349,10 +400,14 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG(0x1c, 0x20); // SENSOR_DEF
   SETREG(0x1d, 0x04); // SENSOR_DEF
 
-  SETREG (0x1e, 0x10);
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    SETREG(0x1e, 0x10);
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
     {
-      SETREG(0x1e, 0x20);
+        SETREG(0x1e, 0x20);
+    }
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+        SETREG(0x1e, 0xa0);
     }
 
   SETREG (0x1f, 0x01);
@@ -363,16 +418,18 @@ gl843_init_registers (Genesys_Device * dev)
 
   SETREG (0x20, 0x10);
   SETREG (0x21, 0x04);
-  SETREG (0x22, 0x01);
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    {
-      SETREG(0x22, 0xc8);
-    }
 
-  SETREG (0x23, 0x01);
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    SETREG(0x22, 0x01);
+    SETREG(0x23, 0x01);
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
     {
-      SETREG(0x23, 0xc8);
+        SETREG(0x22, 0xc8);
+        SETREG(0x23, 0xc8);
+    }
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+        SETREG(0x22, 0x50);
+        SETREG(0x23, 0x50);
     }
 
   SETREG (0x24, 0x04);
@@ -438,20 +495,27 @@ gl843_init_registers (Genesys_Device * dev)
   // 0x5b-0x5c: GMMADDR[0:15] address for gamma or motor tables download
   // SENSOR_DEF
 
-  // DECSEL[0:2]: The number of deceleratino steps after touching home sensor
-  // STOPTIM[0:4]: The stop duration between change of directions in
-  // backtracking
-  SETREG (0x5e, 0x23);
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    {
-      SETREG(0x5e, 0x1f);
+    // DECSEL[0:2]: The number of deceleratino steps after touching home sensor
+    // STOPTIM[0:4]: The stop duration between change of directions in
+    // backtracking
+    SETREG(0x5e, 0x23);
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
+        SETREG(0x5e, 0x3f);
+    }
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+        SETREG(0x5e, 0x85);
+    }
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+        SETREG(0x5e, 0x1f);
     }
 
-  // FMOVDEC: The number of deceleration steps in table 5 for auto-go-home
-  SETREG (0x5f, 0x01);
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    {
-      SETREG(0x5f, 0xf0);
+    //FMOVDEC: The number of deceleration steps in table 5 for auto-go-home
+    SETREG(0x5f, 0x01);
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
+        SETREG(0x5f, 0xf0);
+    }
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+        SETREG(0x5f, 0xf0);
     }
 
   // Z1MOD[0:20]
@@ -489,31 +553,61 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG(0x69, 64);
     }
 
-  // GPIO-related register bits
-  SETREG (0x6b, 0x30);
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    // GPIO-related register bits
+    SETREG(0x6b, 0x30);
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
     {
-      SETREG(0x6b, 0x72);
+        SETREG(0x6b, 0x72);
+    }
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+        SETREG(0x6b, 0xb1);
+    }
+    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
+        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
+        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    {
+        SETREG(0x6b, 0xf4);
     }
 
   // 0x6c, 0x6d, 0x6e, 0x6f are set according to gpio tables. See
   // gl843_init_gpio.
 
-  // RSH[0:4]: The position of rising edge of CCD RS signal in cycles
-  // RSL[0:4]: The position of falling edge of CCD RS signal in cycles
-  // CPH[0:4]: The position of rising edge of CCD CP signal in cycles.
-  // CPL[0:4]: The position of falling edge of CCD CP signal in cycles
-  SETREG(0x70, 0x01); // SENSOR_DEF
-  SETREG(0x71, 0x03); // SENSOR_DEF
-  SETREG (0x72, 0x04);
-  SETREG (0x73, 0x05);
+    // RSH[0:4]: The position of rising edge of CCD RS signal in cycles
+    // RSL[0:4]: The position of falling edge of CCD RS signal in cycles
+    // CPH[0:4]: The position of rising edge of CCD CP signal in cycles.
+    // CPL[0:4]: The position of falling edge of CCD CP signal in cycles
+    SETREG(0x70, 0x01); // SENSOR_DEF
+    SETREG(0x71, 0x03); // SENSOR_DEF
+    SETREG(0x72, 0x04);
+    SETREG(0x73, 0x05);
 
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
+        SETREG(0x70, 0x01);
+        SETREG(0x71, 0x03);
+        SETREG(0x72, 0x01);
+        SETREG(0x73, 0x03);
+    }
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+        SETREG(0x70, 0x01);
+        SETREG(0x71, 0x03);
+        SETREG(0x72, 0x03);
+        SETREG(0x73, 0x04);
+    }
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+        SETREG(0x70, 0x00);
+        SETREG(0x71, 0x02);
+        SETREG(0x72, 0x02);
+        SETREG(0x73, 0x04);
+    }
+    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
+        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
+        dev->model->model_id == MODEL_HP_SCANJET_4850C)
     {
-      SETREG(0x70, 0x00);
-      SETREG(0x71, 0x02);
-      SETREG(0x72, 0x02);
-      SETREG(0x73, 0x04);
+        SETREG(0x70, 0x00);
+        SETREG(0x71, 0x02);
+        SETREG(0x72, 0x00);
+        SETREG(0x73, 0x00);
     }
 
   // CK1MAP[0:17], CK3MAP[0:17], CK4MAP[0:17]: CCD clock bit mapping setting.
@@ -527,8 +621,11 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG(0x7b, 0x00); // SENSOR_DEF
   SETREG(0x7c, 0x55); // SENSOR_DEF
 
-  // various AFE settings
-  SETREG(0x7d, 0x00);
+    // various AFE settings
+    SETREG(0x7d, 0x00);
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+        SETREG(0x7d, 0x20);
+    }
 
   // GPOLED[x]: LED vs GPIO settings
   SETREG(0x7e, 0x00);
@@ -537,9 +634,21 @@ gl843_init_registers (Genesys_Device * dev)
   // LEDCNT[0:1]: Controls led blinking and its period
   SETREG (0x7f, 0x00);
 
-  // VRHOME, VRMOVE, VRBACK, VRSCAN: Vref settings of the motor driver IC for
-  // moving in various situations.
-  SETREG (0x80, 0x00);
+    // VRHOME, VRMOVE, VRBACK, VRSCAN: Vref settings of the motor driver IC for
+    // moving in various situations.
+    SETREG(0x80, 0x00);
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
+        SETREG(0x80, 0x0c);
+    }
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+        SETREG(0x80, 0x28);
+    }
+    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
+        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
+        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    {
+        SETREG(0x80, 0x50);
+    }
 
   if (dev->model->model_id != MODEL_CANON_CANOSCAN_4400F)
     {
@@ -554,16 +663,17 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG (0x86, 0x00);
     }
 
-  SETREG (0x87, 0x00);
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    SETREG(0x87, 0x00);
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
     {
-      SETREG(0x87, 0x02);
+        SETREG(0x87, 0x02);
     }
 
-  // MTRPLS[0:7]: The width of the ADF motor trigger signal pulse.
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    {
-      SETREG(0x94, 0xff);
+    // MTRPLS[0:7]: The width of the ADF motor trigger signal pulse.
+    if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F) {
+        SETREG(0x94, 0xff);
     }
 
   // 0x95-0x97: SCANLEN[0:19]: Controls when paper jam bit is set in sheetfed
@@ -579,128 +689,76 @@ gl843_init_registers (Genesys_Device * dev)
       SETREG(0x9a, 0x00);
       SETREG(0x9b, 0x00);
     }
-
-  // RMADLY[0:1], MOTLAG, CMODE, STEPTIM, MULDMYLN, IFRS
-  SETREG(0x9d, 0x04);
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
+        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
+        dev->model->model_id == MODEL_HP_SCANJET_4850C)
     {
-      SETREG(0x9d, 0x08); // additionally sets the multiplier for slope tables
+        // TODO: move to set for scan
+        SETREG(0x98, 0x03);
+        SETREG(0x99, 0x30);
+        SETREG(0x9a, 0x01);
+        SETREG(0x9b, 0x80);
+    }
+
+    // RMADLY[0:1], MOTLAG, CMODE, STEPTIM, MULDMYLN, IFRS
+    SETREG(0x9d, 0x04);
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F ||
+        dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
+        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
+        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    {
+        SETREG(0x9d, 0x08); // sets the multiplier for slope tables
     }
 
 
   // SEL3INV, TGSTIME[0:2], TGWTIME[0:2]
-  SETREG (0x9e, 0x00); // SENSOR_DEF
-
-  // RFHSET[0:4]: Refresh time of SDRAM in units of 2us
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+  if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F)
     {
-      SETREG(0xa2, 0x1f);
+      SETREG(0x9e, 0x00); // SENSOR_DEF
     }
 
-  // 0xa6-0xa9: controls gpio, see gl843_gpio_init
-
-  // GPOM9, MULSTOP[0-2], NODECEL, TB3TB1, TB5TB2, FIX16CLK.
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    // RFHSET[0:4]: Refresh time of SDRAM in units of 2us
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
     {
-      SETREG(0xab, 0x00);
+        SETREG(0xa2, 0x1f);
+    }
+
+    // 0xa6-0xa9: controls gpio, see gl843_gpio_init
+
+    // not documented
+    if (dev->model->model_id != MODEL_CANON_CANOSCAN_4400F
+     && dev->model->model_id != MODEL_CANON_CANOSCAN_8400F)
+    {
+        SETREG(0xaa, 0x00);
+    }
+
+    // GPOM9, MULSTOP[0-2], NODECEL, TB3TB1, TB5TB2, FIX16CLK.
+    if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F) {
+        SETREG(0xab, 0x50);
+    }
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
+        SETREG(0xab, 0x00);
+    }
+    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
+        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
+        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    {
+        // BUG: this should apply to MODEL_CANON_CANOSCAN_8600F too, but due to previous bug
+        // the 8400F case overwrote it
+        SETREG(0xab, 0x40);
     }
 
   // VRHOME[3:2], VRMOVE[3:2], VRBACK[3:2]: Vref setting of the motor driver IC
   // for various situations.
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F ||
+        dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
+        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
+        dev->model->model_id == MODEL_HP_SCANJET_4850C)
     {
-      SETREG(0xac, 0x00);
-    }
-
-  if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F)
-    {
-      SETREG (0x0c, 0x00);
-      SETREG (0x94, 0xff);
-      SETREG (0xab, 0x50);
-    }
-
-  if (dev->model->model_id != MODEL_CANON_CANOSCAN_4400F
-   && dev->model->model_id != MODEL_CANON_CANOSCAN_8400F)
-    {
-      SETREG (0xaa, 0x00);
-    }
-
-  /* G4050 values */
-  if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-      dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
-      dev->model->model_id == MODEL_HP_SCANJET_4850C)
-    {
-      SETREG (0x03, 0x1d);
-      SETREG (0x06, 0xd0); /* SCANMOD=110, PWRBIT and no GAIN4 */
-      SETREG (0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
-      SETREG (0x0a, 0x18);
-      SETREG (0x0b, 0x69);
-
-      /* CIS exposure is used for XPA lamp movement */
-      SETREG (0x10, 0x2c);
-      SETREG (0x11, 0x09);
-      SETREG (0x12, 0x22);
-      SETREG (0x13, 0xb8);
-      SETREG (0x14, 0x10);
-      SETREG (0x15, 0xf0);
-
-      SETREG (0x6b, 0xf4);
-
-      SETREG (0x70, 0x00);
-      SETREG (0x71, 0x02);
-      SETREG (0x72, 0x00);
-      SETREG (0x73, 0x00);
-
-      SETREG (0x80, 0x50);
-      SETREG (0x9d, 0x08);
-      SETREG (0xab, 0x40);
-
-      /* XXX STEF XXX TODO move to set for scan */
-      SETREG (0x98, 0x03);
-      SETREG (0x99, 0x30);
-      SETREG (0x9a, 0x01);
-      SETREG (0x9b, 0x80);
-      SETREG (0xac, 0x00);
-    }
-
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F)
-    {
-      SETREG (0x06, 0xf0); /* SCANMOD=111, PWRBIT and no GAIN4 */
-      SETREG (0x0b, 0x69); /* 16M only */
-      SETREG (0x1e, 0x20);
-      SETREG (0x22, 0xc8);
-      SETREG (0x23, 0xc8);
-      SETREG (0x5e, 0x3f);
-      SETREG (0x5f, 0xf0);
-      SETREG (0x6b, 0x72);
-      SETREG (0x72, 0x01);
-      SETREG (0x73, 0x03);
-      SETREG (0x80, 0x0c);
-      SETREG (0x87, 0x02);      /* MCLOCK -> CK4MAP */
-      SETREG (0x9d, 0x08);      /* STEPTIM=2        */
-      SETREG (0xa2, 0x1f);
-      SETREG (0xab, 0x00);
-      sanei_genesys_set_double(&dev->reg,REG_EXPR,0x9c40);
-      sanei_genesys_set_double(&dev->reg,REG_EXPG,0x9c40);
-      sanei_genesys_set_double(&dev->reg,REG_EXPB,0x9c40);
-    }
-
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F)
-    {
-      SETREG (0x03, 0x1c);
-      SETREG (0x06, 0xd0); /* SCANMOD=110, PWRBIT and no GAIN4 */
-      SETREG (0x0a, 0x10);
-      SETREG (0x22, 0x50);
-      SETREG (0x23, 0x50);
-      SETREG (0x5e, 0x85);
-      SETREG (0x6b, 0xb1);
-      SETREG (0x1e, 0xa0);
-      SETREG (0x72, 0x03);
-      SETREG (0x73, 0x04);
-      SETREG (0x7d, 0x20);
-      SETREG (0x80, 0x28);
-      SETREG (0x87, 0x02);      /* MCLOCK -> CK4MAP */
-      SETREG (0x9d, 0x08);      /* STEPTIM=2        */
+        SETREG(0xac, 0x00);
     }
 
   dev->calib_reg = dev->reg;
@@ -1093,11 +1151,10 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
                               int flags)
 {
   unsigned int words_per_line;
-  unsigned int startx, endx, used_pixels;
+  unsigned int startx, endx;
   unsigned int dpiset, dpihw, factor;
   unsigned int bytes;
   unsigned int tgtime;          /**> exposure time multiplier */
-  unsigned int cksel;           /**> clock per system pixel time in capturing image */
   GenesysRegister *r;
   SANE_Status status = SANE_STATUS_GOOD;
 
@@ -1118,22 +1175,19 @@ gl843_init_optical_regs_scan (Genesys_Device * dev,
   /* sensor parameters */
   gl843_setup_sensor (dev, sensor, reg, dpihw, flags);
 
-  /* resolution is divided according to CKSEL which is known once sensor is set up */
-  r = sanei_genesys_get_address (reg, REG18);
-  cksel= (r->value & REG18_CKSEL)+1;
-  DBG(DBG_io2, "%s: cksel=%d\n", __func__, cksel);
-  dpiset = used_res * cksel;
+    // resolution is divided according to CKSEL
+    unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
+    DBG(DBG_io2, "%s: ccd_pixels_per_system_pixel=%d\n", __func__, ccd_pixels_per_system_pixel );
+    dpiset = used_res * ccd_pixels_per_system_pixel ;
 
-  /* start and end coordinate in optical dpi coordinates */
-  startx = (start + sensor.dummy_pixel)/cksel;
+    // start and end coordinate in optical dpi coordinates
+    startx = (start + sensor.dummy_pixel) / ccd_pixels_per_system_pixel ;
+    endx = startx + pixels / ccd_pixels_per_system_pixel;
 
-  used_pixels=pixels/cksel;
-  endx = startx + used_pixels;
-
-  /* pixel coordinate factor correction when used dpihw is not maximal one */
-  startx/=factor;
-  endx/=factor;
-  used_pixels=endx-startx;
+    // pixel coordinate factor correction when used dpihw is not maximal one
+    startx /= factor;
+    endx /= factor;
+    unsigned used_pixels = endx - startx;
 
   /* in case of stagger we have to start at an odd coordinate */
   if ((flags & OPTICAL_FLAG_STAGGER)
@@ -2654,10 +2708,8 @@ gl843_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
 {
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t channels;
-  uint8_t cksel;
 
   DBGSTART;
-  cksel = (regs.find_reg(0x18).value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
 
   /* set line size */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
@@ -2679,7 +2731,7 @@ gl843_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
     session.params.yres = dev->settings.yres;
     session.params.startx = 0;
     session.params.starty = 0;
-    session.params.pixels = sensor.optical_res / cksel; // XXX STEF XXX dpi instead of pixels!
+    session.params.pixels = sensor.optical_res / sensor.ccd_pixels_per_system_pixel();
     session.params.lines = 20;
     session.params.depth = 16;
     session.params.channels = channels;
@@ -2699,7 +2751,7 @@ gl843_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
   sanei_genesys_set_motor_power(regs, false);
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
-      sensor.optical_res / cksel, dev->settings.xres);
+      sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
 
   status = dev->model->cmd_set->bulk_write_register(dev, regs);
   if (status != SANE_STATUS_GOOD)
@@ -4268,7 +4320,6 @@ gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
   uint32_t final_size, length, i;
   uint8_t *buffer;
   int count,offset;
-  unsigned int cksel;
   GenesysRegister *r;
   uint16_t dpiset, strpixel, endpixel, startx, factor;
 
@@ -4282,13 +4333,11 @@ gl843_send_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
       /* recompute STRPIXEL used shading calibration so we can
        * compute offset within data for SHDAREA case */
       r = sanei_genesys_get_address(&dev->reg, REG18);
-      cksel= (r->value & REG18_CKSEL)+1;
-      sanei_genesys_get_double(&dev->reg,REG_DPISET,&strpixel);
       sanei_genesys_get_double(&dev->reg,REG_DPISET,&dpiset);
       factor=sensor.optical_res/sanei_genesys_compute_dpihw(dev, sensor, dpiset);
 
       /* start coordinate in optical dpi coordinates */
-      startx = (sensor.dummy_pixel / cksel) / factor;
+      startx = (sensor.dummy_pixel / sensor.ccd_pixels_per_system_pixel()) / factor;
 
       /* current scan coordinates */
       sanei_genesys_get_double(&dev->reg,REG_STRPIXEL,&strpixel);

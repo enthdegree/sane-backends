@@ -3654,11 +3654,8 @@ gl841_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
 {
   SANE_Status status = SANE_STATUS_GOOD;
   uint8_t channels;
-  uint8_t cksel;
 
   DBGSTART;
-
-  cksel = (regs.find_reg(0x18).value & REG18_CKSEL) + 1;	/* clock speed = 1..4 clocks */
 
   /* set line size */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
@@ -3672,7 +3669,7 @@ gl841_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
     params.yres = dev->settings.yres;
     params.startx = 0;
     params.starty = 0;
-    params.pixels = sensor.optical_res / cksel; /* XXX STEF XXX !!! */
+    params.pixels = sensor.optical_res / sensor.ccd_pixels_per_system_pixel();
     params.lines = 20;
     params.depth = 16;
     params.channels = channels;
@@ -3693,7 +3690,7 @@ gl841_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
     }
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
-      sensor.optical_res / cksel, dev->settings.xres);
+      sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
 
   status = sanei_genesys_bulk_write_register(dev, regs);
   if (status != SANE_STATUS_GOOD)

@@ -430,6 +430,24 @@ AS_IF([test xyes = "x$with_usb" && test xyes != "x$have_usb"],
   ])
 AM_CONDITIONAL([have_usblib], [test x != "x$USB_LIBS"])
 
+dnl ******************************************************************
+dnl Check for USB record/replay support
+dnl ******************************************************************
+AC_ARG_WITH(usb_record_replay,
+            AS_HELP_STRING([--with-usb-record-replay],
+                           [enable USB record and replay to XML files @<:@default=yes@:>@]))
+
+if test "x$with_usb_record_replay" != "xno"; then
+  PKG_CHECK_MODULES([XML], [libxml-2.0], have_libxml=yes, have_libxml=no)
+  if test "x$have_libxml" = xyes; then
+    AC_DEFINE(WITH_USB_RECORD_REPLAY, 1, [define if USB record replay is enabled])
+  else
+    if test "x$with_usb_record_replay" = xyes; then
+      AC_MSG_ERROR([USB record and replay support was requested but libxml-2.0 was not found])
+    fi
+  fi
+fi
+
 dnl ************
 dnl SCSI Support
 dnl ************

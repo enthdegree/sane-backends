@@ -180,6 +180,50 @@ struct sanei_usb_dev_descriptor
 	SANE_Byte    max_packet_size;
 };
 
+/** Initialize sanei_usb for replay testing.
+
+    Initializes sanei_usb for testing by mocking whole USB stack. This function
+    must be called before sanei_usb_init().
+
+    The sanei_usb subsystem also implements a "development mode". It modifies
+    the XML data file with the actual commands of the test run and attemps to
+    proceed testing until a mismatching input command is found for which
+    input data is required.
+
+    A <known_commands_end/> node in the data XML file will cause sanei_usb not
+    to continue to the subsequent command in the XML file and instead it will
+    prepend all output commands before that node before an output command is
+    encountered.
+
+    @param path Path to the XML data file.
+    @param development_mode Enables development mode.
+ */
+extern SANE_Status sanei_usb_testing_enable_replay(SANE_String_Const path,
+                                                   int development_mode);
+
+/** Initialize sanei_usb for recording.
+ *
+ * Initializes sanei_usb for recording communication with the scanner. This
+ * function must be called before sanei_usb_init().
+ *
+ * @param path Path to the XML data file.
+ * @param be_name The name of the backend to enable recording for.
+ */
+extern SANE_Status sanei_usb_testing_enable_record(SANE_String_Const path,
+                                                   SANE_String_Const be_name);
+
+/** Returns backend name for testing.
+ *
+ * Returns backend name for the file registered in sanei_usb_testing_enable.
+ * The caller is responsible for freeing it.
+ */
+extern SANE_String sanei_usb_testing_get_backend();
+
+/** Returns SANE_TRUE if replay testing mode is enabled, i.e. whether we are working with fake
+ * scan data.
+ */
+extern SANE_Bool sanei_usb_is_replay_mode_enabled();
+
 /** Initialize sanei_usb.
  *
  * Call this before any other sanei_usb function.

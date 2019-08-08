@@ -139,6 +139,8 @@ posix_dlsym (void *handle, const char *func)
 #define DLL_CONFIG_FILE "dll.conf"
 #define DLL_ALIASES_FILE "dll.aliases"
 
+#include "../include/sane/sanei_usb.h"
+
 enum SANE_Ops
 {
   OP_INIT = 0,
@@ -1177,18 +1179,73 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
     }
 
   dev_name = strchr (full_name, ':');
+
+  int is_fakeusb = 0, is_fakeusbdev = 0, is_fakeusbout = 0;
+
   if (dev_name)
     {
-      be_name = strndup(full_name, dev_name - full_name);
-      ++dev_name;		/* skip colon */
+      is_fakeusb = strncmp(full_name, "fakeusb", dev_name - full_name) == 0 &&
+          dev_name - full_name == 7;
+      is_fakeusbdev = strncmp(full_name, "fakeusbdev", dev_name - full_name) == 0 &&
+          dev_name - full_name == 10;
+      is_fakeusbout = strncmp(full_name, "fakeusbout", dev_name - full_name) == 0 &&
+          dev_name - full_name == 10;
+    }
+
+  if (is_fakeusb || is_fakeusbdev)
+    {
+      ++dev_name; // skip colon
+      status = sanei_usb_testing_enable_replay(dev_name, is_fakeusbdev);
+      if (status != SANE_STATUS_GOOD)
+        return status;
+
+      be_name = sanei_usb_testing_get_backend();
+      if (be_name == NULL)
+        {
+          DBG (0, "%s: unknown backend for testing\n", __func__);
+          return SANE_STATUS_ACCESS_DENIED;
+        }
     }
   else
     {
-      /* if no colon interpret full_name as the backend name; an empty
-         backend device name will cause us to open the first device of
-         that backend.  */
-      be_name = strdup(full_name);
-      dev_name = "";
+      char* fakeusbout_path = NULL;
+      if (is_fakeusbout)
+      {
+        ++dev_name; // skip colon
+
+        const char* path_end = strchr(dev_name, ':');
+        if (path_end == NULL)
+          {
+            DBG (0, "%s: the device name does not contain path\n", __func__);
+            return SANE_STATUS_INVAL;
+          }
+        fakeusbout_path = strndup(dev_name, path_end - dev_name);
+
+        full_name = path_end + 1; // skip colon
+        dev_name = strchr(full_name, ':');
+      }
+
+      if (dev_name)
+        {
+          be_name = strndup(full_name, dev_name - full_name);
+          ++dev_name;		/* skip colon */
+        }
+      else
+        {
+          /* if no colon interpret full_name as the backend name; an empty
+             backend device name will cause us to open the first device of
+             that backend.  */
+          be_name = strdup(full_name);
+          dev_name = "";
+        }
+
+      if (is_fakeusbout)
+        {
+          status = sanei_usb_testing_enable_record(fakeusbout_path, be_name);
+          free(fakeusbout_path);
+          if (status != SANE_STATUS_GOOD)
+            return status;
+        }
     }
 
   if (!be_name)

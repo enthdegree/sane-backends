@@ -7786,7 +7786,7 @@ Scan_Read_BufferA (struct st_device *dev, SANE_Int buffer_size, SANE_Int arg2,
 		      opStatus = Reading_Wait (dev, rd->Channels_per_dot,
 					       rd->Channel_size,
 					       iAmount,
-					       &rd->Bytes_Available, 10, sc);
+					       &rd->Bytes_Available, 60, sc);
 
 		      /* If something fails, perhaps we can read some bytes... */
 		      if (opStatus != OK)

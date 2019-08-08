@@ -224,6 +224,13 @@ extern SANE_String sanei_usb_testing_get_backend();
  */
 extern SANE_Bool sanei_usb_is_replay_mode_enabled();
 
+/** Records a debug message in the captured USB data if testing mode is enabled. If testing mode
+ * is not enabled, this function does nothing.
+ *
+ * @param msg Message to record
+ */
+extern void sanei_usb_testing_record_message(SANE_String_Const message);
+
 /** Initialize sanei_usb.
  *
  * Call this before any other sanei_usb function.

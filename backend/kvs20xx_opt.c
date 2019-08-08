@@ -230,7 +230,7 @@ kvs20xx_init_options (struct scanner *s)
   o->title = SANE_I18N ("Length control mode");
   o->desc =
     SANE_I18N
-    ("Length Control Mode is a mode that the scanner reads up to the shorter length of actual"
+    ("Length Control Mode causes the scanner to read the shorter of either the length of the actual"
      " paper or logical document length.");
   o->type = SANE_TYPE_BOOL;
   o->unit = SANE_UNIT_NONE;

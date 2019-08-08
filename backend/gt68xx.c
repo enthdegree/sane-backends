@@ -752,7 +752,7 @@ init_options (GT68xx_Scanner * s)
 
   /* calibration needed */
   s->opt[OPT_NEED_CALIBRATION_SW].name = "need-calibration";
-  s->opt[OPT_NEED_CALIBRATION_SW].title = SANE_I18N ("Need calibration");
+  s->opt[OPT_NEED_CALIBRATION_SW].title = SANE_I18N ("Needs calibration");
   s->opt[OPT_NEED_CALIBRATION_SW].desc = SANE_I18N ("The scanner needs calibration for the current settings");
   s->opt[OPT_NEED_CALIBRATION_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_NEED_CALIBRATION_SW].unit = SANE_UNIT_NONE;

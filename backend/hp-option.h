@@ -118,7 +118,7 @@
 # define SANE_NAME_MATRIX_TYPE "matrix-type"
 # define SANE_TITLE_MATRIX_TYPE SANE_I18N("Color Matrix")
 /* FIXME: better description */
-# define SANE_DESC_MATRIX_TYPE SANE_I18N("Set the scanners color matrix.")
+# define SANE_DESC_MATRIX_TYPE SANE_I18N("Set the scanner's color matrix.")
 #endif
 
 #ifndef SANE_NAME_MATRIX_RGB

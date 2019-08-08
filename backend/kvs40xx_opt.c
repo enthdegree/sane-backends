@@ -228,8 +228,8 @@ static SANE_String_Const lamp_list[] = {
 };
 static SANE_String_Const dfeed_sence_list[] = {
   SANE_I18N ("Normal"),
-  SANE_I18N ("High sensivity"),
-  SANE_I18N ("Low sensivity"),
+  SANE_I18N ("High sensitivity"),
+  SANE_I18N ("Low sensitivity"),
   NULL
 };
 
@@ -393,8 +393,8 @@ kvs40xx_init_options (struct scanner *s)
   o->title = SANE_I18N ("Length control mode");
   o->desc =
     SANE_I18N
-    ("Length Control Mode is a mode that the scanner reads up to the shorter length of actual"
-     " paper or logical document length.");
+    ("Length Control Mode causes the scanner to read the shorter of either the length of the actual"
+     " paper or logical document length");
   o->type = SANE_TYPE_BOOL;
   o->unit = SANE_UNIT_NONE;
   s->val[LENGTHCTL].w = SANE_FALSE;
@@ -715,7 +715,7 @@ kvs40xx_init_options (struct scanner *s)
   o->title = SANE_I18N ("JPEG compression");
   o->desc =
     SANE_I18N
-    ("JPEG compression (yours application must be able to uncompress)");
+    ("JPEG compression (your application must be able to uncompress)");
   o->type = SANE_TYPE_BOOL;
   o->unit = SANE_UNIT_NONE;
 
@@ -805,8 +805,8 @@ kvs40xx_init_options (struct scanner *s)
 
   o = &s->opt[STOP_SKEW];
   o->name = "stop-skew";
-  o->title = SANE_I18N ("Stop scanner when a paper have been skewed");
-  o->desc = SANE_I18N ("Scanner will be stop  when a paper have been skewed");
+  o->title = SANE_I18N ("Stop scanner if a sheet is skewed");
+  o->desc = SANE_I18N ("Scanner will stop if a sheet is skewed");
   o->type = SANE_TYPE_BOOL;
   o->unit = SANE_UNIT_NONE;
   s->val[STOP_SKEW].w = SANE_FALSE;
@@ -814,7 +814,7 @@ kvs40xx_init_options (struct scanner *s)
   o = &s->opt[CROP];
   o->name = "crop";
   o->title = SANE_I18N ("Crop actual image area");
-  o->desc = SANE_I18N ("Scanner automatically detect image area and crop it");
+  o->desc = SANE_I18N ("Scanner will automatically detect image area and crop to it");
   o->type = SANE_TYPE_BOOL;
   o->unit = SANE_UNIT_NONE;
   s->val[CROP].w = SANE_FALSE;
@@ -824,7 +824,7 @@ kvs40xx_init_options (struct scanner *s)
   o = &s->opt[MIRROR];
   o->name = "mirror";
   o->title = SANE_I18N ("Mirror image");
-  o->desc = SANE_I18N ("It is right and left reversing");
+  o->desc = SANE_I18N ("Left/right mirror image");
   o->type = SANE_TYPE_BOOL;
   o->unit = SANE_UNIT_NONE;
   s->val[MIRROR].w = SANE_FALSE;

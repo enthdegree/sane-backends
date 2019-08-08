@@ -2956,7 +2956,7 @@ init_options (Artec48U_Scanner * s)
     SANE_I18N ("If enabled, only the shading correction is "
 	       "performed during calibration. The default values "
 	       "for gain, offset and exposure time, "
-	       "either build-in or from the configuration file, "
+	       "either built-in or from the configuration file, "
 	       "are used.");
   s->opt[OPT_CALIBRATE_SHADING].type = SANE_TYPE_BOOL;
   s->opt[OPT_CALIBRATE_SHADING].unit = SANE_UNIT_NONE;

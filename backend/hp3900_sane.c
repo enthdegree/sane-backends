@@ -1405,7 +1405,7 @@ options_init (TScanner * scanner)
 	      pDesc->title = SANE_I18N ("Scanner model");
 	      pDesc->desc =
 		SANE_I18N
-		("Allows one to test device behaviour with other supported models");
+		("Allows one to test device behavior with other supported models");
 	      pDesc->type = SANE_TYPE_STRING;
 	      pDesc->size = max_string_size (scanner->list_models);
 	      pDesc->constraint_type = SANE_CONSTRAINT_STRING_LIST;
@@ -1419,7 +1419,7 @@ options_init (TScanner * scanner)
 	    case opt_negative:
 	      pDesc->name = "opt_negative";
 	      pDesc->title = SANE_I18N ("Negative");
-	      pDesc->desc = SANE_I18N ("Image colours will be inverted");
+	      pDesc->desc = SANE_I18N ("Image colors will be inverted");
 	      pDesc->type = SANE_TYPE_BOOL;
 	      pDesc->unit = SANE_UNIT_NONE;
 	      pDesc->size = sizeof (SANE_Word);

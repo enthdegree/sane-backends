@@ -226,7 +226,7 @@ static const int go_image_emphasis_val[] = {
 static SANE_String_Const go_gamma_list[] = {
   SANE_I18N ("normal"),
   SANE_I18N ("crt"),
-  SANE_I18N ("linier"),
+  SANE_I18N ("linear"),
   NULL
 };
 static const int go_gamma_val[] = {

@@ -780,7 +780,7 @@ typedef struct acceleration_info
 
 #define SANE_NAME_DUPLEX "duplex"
 #define SANE_TITLE_DUPLEX SANE_I18N("Duplex scan")
-#define SANE_DESC_DUPLEX SANE_I18N("Duplex scan provide a scan of the front and back side of the document")
+#define SANE_DESC_DUPLEX SANE_I18N("Duplex scan provides a scan of the front and back side of the document")
 
 #ifdef AVISION_ENHANCED_SANE
 #warning "Compiled Avision backend will violate the SANE standard"

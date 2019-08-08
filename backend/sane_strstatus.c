@@ -62,7 +62,7 @@ sane_strstatus (SANE_Status status)
       return SANE_I18N("Operation not supported");
 
     case SANE_STATUS_CANCELLED:
-      return SANE_I18N("Operation was cancelled");
+      return SANE_I18N("Operation was canceled");
 
     case SANE_STATUS_DEVICE_BUSY:
       return SANE_I18N("Device busy");

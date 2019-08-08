@@ -927,7 +927,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_ADVANCED_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
     po[OPT_RGB_LPR].name = "rgb-lpr";
-    po[OPT_RGB_LPR].title = SANE_I18N("Colour lines per read");
+    po[OPT_RGB_LPR].title = SANE_I18N("Color lines per read");
     po[OPT_RGB_LPR].desc = lpr_desc;
     po[OPT_RGB_LPR].type = SANE_TYPE_INT;
     po[OPT_RGB_LPR].unit = SANE_UNIT_NONE;
@@ -939,7 +939,7 @@ static void init_options (SnapScan_Scanner * ps)
     ps->rgb_lpr = def_rgb_lpr;
 
     po[OPT_GS_LPR].name = "gs-lpr";
-    po[OPT_GS_LPR].title = SANE_I18N("Greyscale lines per read");
+    po[OPT_GS_LPR].title = SANE_I18N("Grayscale lines per read");
     po[OPT_GS_LPR].desc = lpr_desc;
     po[OPT_GS_LPR].type = SANE_TYPE_INT;
     po[OPT_GS_LPR].unit = SANE_UNIT_NONE;

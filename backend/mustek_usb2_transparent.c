@@ -1382,7 +1382,7 @@ Transparent_LineCalibration16Bits (unsigned short wTAShadingMinus)
 
   memset (lpBuf, 0, 50);
   stream = fopen ("/root/darkshading(Tra).pnm", "wb+\n");
-  sprintf (lpBuf, "P6\n%d %d\n65535\n", wCalWidth * wCalHeight);
+  sprintf (lpBuf, "P6\n%d %d\n65535\n", wCalWidth, wCalHeight);
   fwrite (lpBuf, sizeof (SANE_Byte), strlen (lpBuf), stream);
   fwrite (lpDarkData, sizeof (SANE_Byte), wCalWidth * wCalHeight * 3 * 2, stream);
   fclose (stream);

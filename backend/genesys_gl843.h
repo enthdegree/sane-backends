@@ -466,7 +466,7 @@ static Motor_Profile gl843_motors[]={
 	{MOTOR_G4050,    42752, 2, g4050_max},
 	{MOTOR_G4050,    56064, 1, g4050_high},
         /* CS8400F */
-	{MOTOR_CS8400F,   7200, 0, cs8400f_fast},
+        {MOTOR_CS8400F,   50000, 2, cs8400f_fast},
   { MOTOR_CS8600F, 0x59d8, 2, motor_speeds_cs8600f }, // FIXME: if the exposure is lower then we'll select another motor
   { 0, 0, 0, NULL },
 };

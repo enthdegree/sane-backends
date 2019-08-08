@@ -1565,45 +1565,184 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_CS8400F;
     sensor.optical_res = 4800;
+    sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 50*8;
     // 31 at 600 dpi, 58 at 1200 dpi
     sensor.dummy_pixel = 20;
     sensor.CCD_start_xoffset = 152;
     // 5360 max at 600 dpi
-    sensor.sensor_pixels = 5360*8;
+    sensor.sensor_pixels = 13600*4;
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
-    sensor.exposure_lperiod = 7200;
-    sensor.custom_regs = {
-        { 0x74, 0x00 }, { 0x75, 0x0e }, { 0x76, 0x3f },
-        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
-        { 0x7a, 0x01 }, { 0x7b, 0xb6 }, { 0x7c, 0xdb },
-        { 0x0c, 0x00 },
-        { 0x70, 0x01 },
-        { 0x71, 0x02 },
-        { 0x9e, 0x00 },
-        { 0xaa, 0x00 },
-        { 0x16, 0x33 },
-        { 0x17, 0x0c },
-        { 0x18, 0x13 },
-        { 0x19, 0x2a },
-        { 0x1a, 0x30 },
-        { 0x1b, 0x00 },
-        { 0x1c, 0x00 },
-        { 0x1d, 0x84 },
-        { 0x52, 0x0d },
-        { 0x53, 0x10 },
-        { 0x54, 0x01 },
-        { 0x55, 0x04 },
-        { 0x56, 0x07 },
-        { 0x57, 0x0a },
-        { 0x58, 0x6b },
-        { 0x59, 0x00 },
-        { 0x5a, 0x40 },
-    };
+    sensor.custom_regs = {};
     sensor.gamma = {1.0, 1.0, 1.0};
-    s_sensors->push_back(sensor);
+    {
+        struct CustomSensorSettings {
+            int min_resolution;
+            int max_resolution;
+            int exposure_lperiod;
+            ScanMethod method;
+            GenesysRegisterSettingSet extra_custom_regs;
+            GenesysRegisterSettingSet custom_fe_regs;
+        };
+
+        CustomSensorSettings custom_settings[] = {
+            { -1, 600, 7200, ScanMethod::FLATBED, {
+                    { 0x74, 0x00 }, { 0x75, 0x0e }, { 0x76, 0x3f },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x01 }, { 0x7b, 0xb6 }, { 0x7c, 0xdb },
+                    { 0x70, 0x01 },
+                    { 0x71, 0x02 },
+                    { 0x72, 0x03 },
+                    { 0x73, 0x04 },
+                    { 0x16, 0x33 },
+                    { 0x17, 0x0c },
+                    { 0x18, 0x13 },
+                    { 0x19, 0x2a },
+                    { 0x1a, 0x30 },
+                    { 0x1b, 0x00 },
+                    { 0x1c, 0x00 },
+                    { 0x1d, 0x84 },
+                    { 0x52, 0x0d },
+                    { 0x53, 0x10 },
+                    { 0x54, 0x01 },
+                    { 0x55, 0x04 },
+                    { 0x56, 0x07 },
+                    { 0x57, 0x0a },
+                    { 0x58, 0x6b },
+                    { 0x59, 0x00 },
+                    { 0x5a, 0x40 },
+                    { 0x1e, 0xa0 },
+                    { 0x80, 0x20 },
+                }, {}
+            },
+            { 1200, 1200, 14400, ScanMethod::FLATBED, {
+                    { 0x74, 0x00 }, { 0x75, 0x01 }, { 0x76, 0xff },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x02 }, { 0x7b, 0x49 }, { 0x7c, 0x24 },
+                    { 0x70, 0x01 },
+                    { 0x71, 0x02 },
+                    { 0x72, 0x02 },
+                    { 0x73, 0x03 },
+                    { 0x16, 0x33 },
+                    { 0x17, 0x0c },
+                    { 0x18, 0x11 },
+                    { 0x19, 0x2a },
+                    { 0x1a, 0x30 },
+                    { 0x1b, 0x00 },
+                    { 0x1c, 0x00 },
+                    { 0x1d, 0x84 },
+                    { 0x52, 0x0b },
+                    { 0x53, 0x0e },
+                    { 0x54, 0x11 },
+                    { 0x55, 0x02 },
+                    { 0x56, 0x05 },
+                    { 0x57, 0x08 },
+                    { 0x58, 0x63 },
+                    { 0x59, 0x00 },
+                    { 0x5a, 0x40 },
+                    { 0x1e, 0xa1 },
+                    { 0x80, 0x28 },
+                }, {
+                    { 0x03, 0x1f },
+                }
+            },
+            { -1, 600, 14400, ScanMethod::TRANSPARENCY, {
+                    { 0x16, 0x33 },
+                    { 0x17, 0x0c },
+                    { 0x18, 0x13 },
+                    { 0x19, 0x2a },
+                    { 0x1a, 0x30 },
+                    { 0x1b, 0x00 },
+                    { 0x1c, 0x00 },
+                    { 0x1d, 0x84 },
+                    { 0x1e, 0xa0 },
+                    { 0x52, 0x0d },
+                    { 0x53, 0x10 },
+                    { 0x54, 0x01 },
+                    { 0x55, 0x04 },
+                    { 0x56, 0x07 },
+                    { 0x57, 0x0a },
+                    { 0x58, 0x6b },
+                    { 0x59, 0x00 },
+                    { 0x5a, 0x40 },
+                    { 0x74, 0x00 }, { 0x75, 0x0e }, { 0x76, 0x3f },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x01 }, { 0x7b, 0xb6 }, { 0x7c, 0xdb },
+                    { 0x70, 0x01 }, { 0x71, 0x02 }, { 0x72, 0x03 }, { 0x73, 0x04 },
+                    { 0x80, 0x20 },
+                }, {}
+            },
+            { 1200, 1200, 28800, ScanMethod::TRANSPARENCY, {
+                    { 0x16, 0x33 },
+                    { 0x17, 0x0c },
+                    { 0x18, 0x11 },
+                    { 0x19, 0x2a },
+                    { 0x1a, 0x30 },
+                    { 0x1b, 0x00 },
+                    { 0x1c, 0x00 },
+                    { 0x1d, 0x84 },
+                    { 0x1e, 0xa0 },
+                    { 0x52, 0x0b },
+                    { 0x53, 0x0e },
+                    { 0x54, 0x11 },
+                    { 0x55, 0x02 },
+                    { 0x56, 0x05 },
+                    { 0x57, 0x08 },
+                    { 0x58, 0x63 },
+                    { 0x59, 0x00 },
+                    { 0x5a, 0x40 },
+                    { 0x70, 0x00 }, { 0x71, 0x01 }, { 0x72, 0x02 }, { 0x73, 0x03 },
+                    { 0x74, 0x00 }, { 0x75, 0x01 }, { 0x76, 0xff },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x02 }, { 0x7b, 0x49 }, { 0x7c, 0x24 },
+                    { 0x80, 0x29 },
+                }, {
+                    { 0x03, 0x1f },
+                },
+            },
+            { 2400, 2400, 28800, ScanMethod::TRANSPARENCY, {
+                    { 0x16, 0x33 },
+                    { 0x17, 0x0c },
+                    { 0x18, 0x10 },
+                    { 0x19, 0x2a },
+                    { 0x1a, 0x30 },
+                    { 0x1b, 0x00 },
+                    { 0x1c, 0x20 },
+                    { 0x1d, 0x84 },
+                    { 0x1e, 0xa0 },
+                    { 0x52, 0x02 },
+                    { 0x53, 0x05 },
+                    { 0x54, 0x08 },
+                    { 0x55, 0x0b },
+                    { 0x56, 0x0e },
+                    { 0x57, 0x11 },
+                    { 0x58, 0x1b },
+                    { 0x59, 0x00 },
+                    { 0x5a, 0x40 },
+                    { 0x70, 0x09 }, { 0x71, 0x0a }, { 0x72, 0x0b }, { 0x73, 0x0c },
+                    { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x00 },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x02 }, { 0x7b, 0x49 }, { 0x7c, 0x24 },
+                    { 0x80, 0x2b },
+                }, {
+                    { 0x03, 0x1f },
+                },
+            },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings)
+        {
+            sensor.min_resolution = setting.min_resolution;
+            sensor.max_resolution = setting.max_resolution;
+            sensor.exposure_lperiod = setting.exposure_lperiod;
+            sensor.method = setting.method;
+            sensor.custom_regs = setting.extra_custom_regs;
+            sensor.custom_fe_regs = setting.custom_fe_regs;
+            s_sensors->push_back(sensor);
+        }
+    }
 
 
     sensor = Genesys_Sensor();
@@ -2638,7 +2777,7 @@ static Genesys_Motor Motor[] = {
    },
   },
   {MOTOR_CS8400F,
-   2400,
+   1200,
    9600,
    2,
    1,
@@ -3162,21 +3301,21 @@ static Genesys_Model canon_8400f_model = {
   {16, 8, 0},                        /* possible depths in gray mode */
   {16, 8, 0},                        /* possible depths in color mode */
 
-  SANE_FIX (4.0),                /* Start of scan area in mm  (x) */
-  SANE_FIX (13.00),                /* Start of scan area in mm (y) */
-  SANE_FIX (217.9),                /* Size of scan area in mm (x) 5148 pixels at 600 dpi*/
-  SANE_FIX (315.0),                /* Size of scan area in mm (y) */
+  SANE_FIX(3.5),                // x_offset
+  SANE_FIX(17.00),              // y_offset
+  SANE_FIX(219.9),              // x_size
+  SANE_FIX(315.0),              // y_size
 
-  SANE_FIX (3.0),                /* Start of white strip in mm (y) */
-  SANE_FIX (0.0),                /* Start of black mark in mm (x) */
+  SANE_FIX(0.0),                // y_offset_calib
+  SANE_FIX(10.0),               // x_offset_mark
 
-  SANE_FIX (8.0),                /* Start of scan area in TA mode in mm (x) */
-  SANE_FIX (13.00),                /* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (217.9),                /* Size of scan area in TA mode in mm (x) */
-  SANE_FIX (250.0),                /* Size of scan area in TA mode in mm (y) */
+  SANE_FIX(100.0),              // x_offset_ta
+  SANE_FIX(50.00),              // y_offset_ta
+  SANE_FIX(100.0),               // x_size_ta
+  SANE_FIX(230.0),              // y_size_ta
 
-  SANE_FIX(0.0),                // y_offset_sensor_to_ta
-  SANE_FIX (40.0),                /* Start of white strip in TA mode in mm (y) */
+  SANE_FIX(22.0),               // y_offset_sensor_to_ta
+  SANE_FIX(25.0),               // y_offset_calib_ta
 
   SANE_FIX (0.0),                /* Size of scan area after paper sensor stops
 				   sensing document in mm */
@@ -3195,17 +3334,18 @@ static Genesys_Model canon_8400f_model = {
   DAC_CS8400F,
   GPO_CS8400F,
   MOTOR_CS8400F,
-  GENESYS_FLAG_NO_CALIBRATION |
+  GENESYS_FLAG_HAS_UTA |
   GENESYS_FLAG_LAZY_INIT |
   GENESYS_FLAG_OFFSET_CALIBRATION |
   GENESYS_FLAG_STAGGERED_LINE |
   GENESYS_FLAG_SKIP_WARMUP |
   GENESYS_FLAG_DARK_CALIBRATION |
   GENESYS_FLAG_FULL_HWDPI_MODE |
-  GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_FLAG_CUSTOM_GAMMA |
+  GENESYS_FLAG_SHADING_REPARK,
   GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW,
   100,
-  0,        // shading_ta_lines
+  50,                           // shading_ta_lines
   100
 };
 

@@ -3156,16 +3156,19 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   uint32_t pixels_per_line;
-  int yres;
 
   DBG(DBG_info, "%s\n", __func__);
 
-  yres = sensor.optical_res;
-  if (dev->settings.yres <= sensor.optical_res / 2)
-    yres /= 2;
+    unsigned coarse_res = sensor.optical_res;
+    if (dev->settings.yres <= sensor.optical_res / 2) {
+        coarse_res /= 2;
+    }
 
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    yres = 1200;
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
+        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    {
+        coarse_res = 1200;
+    }
 
   /* do offset calibration if needed */
   if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
@@ -3180,7 +3183,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 
       /* since all the registers are set up correctly, just use them */
       sanei_usb_testing_record_message("coarse_gain_calibration");
-      status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, yres);
+      status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
       if (status != SANE_STATUS_GOOD)
 	{
           DBG(DBG_error, "%s: coarse gain calibration: %s\n", __func__, sane_strstatus(status));
@@ -3237,7 +3240,7 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 	  /* since all the registers are set up correctly, just use them */
 
           sanei_usb_testing_record_message("coarse_gain_calibration");
-          status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, yres);
+          status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
 	  if (status != SANE_STATUS_GOOD)
 	    {
               DBG(DBG_error, "%s: coarse gain calibration: %s\n", __func__, sane_strstatus(status));

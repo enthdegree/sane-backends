@@ -94,6 +94,4 @@ private:
     int device_num_ = 0;
 };
 
-void sanei_usb_testing_record_message(SANE_String_Const message);
-
 #endif // BACKEND_GENESYS_SANEI_H

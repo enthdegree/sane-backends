@@ -2481,7 +2481,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   settings.threshold = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
-  const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres);
+  const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, ScanMethod::FLATBED);
 
   status = setup_for_scan(dev, sensor, &dev->reg, settings, SANE_TRUE, SANE_TRUE, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
@@ -2586,7 +2586,7 @@ gl646_search_start_position (Genesys_Device * dev)
 
   // FIXME: the current approach of doing search only for one resolution does not work on scanners
   // whith employ different sensors with potentially different settings.
-  auto& sensor = sanei_genesys_find_sensor_for_write(dev, resolution);
+  auto& sensor = sanei_genesys_find_sensor_for_write(dev, resolution, ScanMethod::FLATBED);
 
   /* fill settings for a gray level scan */
   settings.scan_method = ScanMethod::FLATBED;
@@ -3860,7 +3860,7 @@ gl646_repark_head (Genesys_Device * dev)
   settings.threshold = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
-  const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres);
+  const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, ScanMethod::FLATBED);
 
   status = setup_for_scan(dev, sensor, &dev->reg, settings, SANE_FALSE, SANE_FALSE, SANE_FALSE);
   if (status != SANE_STATUS_GOOD)
@@ -4119,7 +4119,7 @@ gl646_move_to_ta (Genesys_Device * dev)
   SANE_Status status = SANE_STATUS_GOOD;
 
   DBGSTART;
-  if (simple_move (dev, SANE_UNFIX (dev->model->y_offset_calib_ta)) !=
+  if (simple_move(dev, SANE_UNFIX(dev->model->y_offset_sensor_to_ta)) !=
       SANE_STATUS_GOOD)
     {
       DBG(DBG_error, "%s: failed to move to calibration area\n", __func__);
@@ -4367,7 +4367,7 @@ simple_move (Genesys_Device * dev, SANE_Int distance)
 
   int resolution = get_lowest_resolution(dev->model->ccd_type, 3);
 
-  const auto& sensor = sanei_genesys_find_sensor(dev, resolution);
+  const auto& sensor = sanei_genesys_find_sensor(dev, resolution, ScanMethod::FLATBED);
 
   /* TODO give a no AGOHOME flag */
   settings.scan_method = ScanMethod::TRANSPARENCY;

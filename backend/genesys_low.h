@@ -1168,6 +1168,7 @@ typedef struct Genesys_Model
   SANE_Int bpp_gray_values[MAX_DPI];	/* possible depths in gray mode */
   SANE_Int bpp_color_values[MAX_DPI];	/* possible depths in color mode */
 
+    // All offsets below are with respect to the sensor home position
   SANE_Fixed x_offset;		/* Start of scan area in mm */
   SANE_Fixed y_offset;		/* Start of scan area in mm (Amount of
 				   feeding needed to get to the medium) */
@@ -1181,6 +1182,9 @@ typedef struct Genesys_Model
   SANE_Fixed y_offset_ta;	/* Start of scan area in TA mode in mm */
   SANE_Fixed x_size_ta;		/* Size of scan area in TA mode in mm */
   SANE_Fixed y_size_ta;		/* Size of scan area in TA mode in mm */
+
+  // The position of the sensor when it's aligned with the lamp for transparency scanning
+  SANE_Fixed y_offset_sensor_to_ta;
 
   SANE_Fixed y_offset_calib_ta;	/* Start of white strip in TA mode in mm */
 
@@ -1509,6 +1513,10 @@ struct Genesys_Device
 
     // if enabled, no calibration data will be loaded or saved to files
     SANE_Int force_calibration = 0;
+    // if enabled, will ignore the scan offsets and start scanning at true origin. This allows
+    // acquiring the positions of the black and white strips and the actual scan area
+    bool ignore_offsets = false;
+
     Genesys_Model *model = nullptr;
 
     Genesys_Register_Set reg;
@@ -1747,9 +1755,9 @@ extern void sanei_genesys_init_structs (Genesys_Device * dev);
 const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev);
 Genesys_Sensor& sanei_genesys_find_sensor_any_for_write(Genesys_Device* dev);
 const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
-                                                ScanMethod scan_method = ScanMethod::FLATBED);
+                                                ScanMethod scan_method);
 Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,
-                                                    ScanMethod scan_method = ScanMethod::FLATBED);
+                                                    ScanMethod scan_method);
 
 extern SANE_Status
 sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,

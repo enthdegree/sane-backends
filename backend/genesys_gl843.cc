@@ -579,8 +579,8 @@ gl843_init_registers (Genesys_Device * dev)
     // CPL[0:4]: The position of falling edge of CCD CP signal in cycles
     SETREG(0x70, 0x01); // SENSOR_DEF
     SETREG(0x71, 0x03); // SENSOR_DEF
-    SETREG(0x72, 0x04);
-    SETREG(0x73, 0x05);
+    SETREG(0x72, 0x04); // SENSOR_DEF
+    SETREG(0x73, 0x05); // SENSOR_DEF
 
     if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
         SETREG(0x70, 0x01);
@@ -1697,14 +1697,17 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   /* depth */
   depth = dev->settings.depth;
-  if (dev->settings.scan_mode == ScanColorMode::LINEART)
-    depth = 1;
+    if (dev->settings.scan_mode == ScanColorMode::LINEART) {
+        depth = 1;
+    }
 
-  /* start */
-  if(dev->settings.scan_method==ScanMethod::TRANSPARENCY)
-      start = SANE_UNFIX (dev->model->x_offset_ta);
-  else
-      start = SANE_UNFIX (dev->model->x_offset);
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        start = SANE_UNFIX(dev->model->x_offset_ta);
+    } else {
+        start = SANE_UNFIX(dev->model->x_offset);
+    }
 
   start /= ccd_size_divisor;
 
@@ -2121,6 +2124,7 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
 
             RIE(sanei_genesys_read_register(dev, REGA6, &val));
             val |= REGA6_GPIO17;
+            val &= ~REGA6_GPIO23;
             RIE(sanei_genesys_write_register(dev, REGA6,val));
         } else {
             RIE(sanei_genesys_read_register(dev, REG6C, &val));
@@ -2130,6 +2134,7 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
 
             RIE(sanei_genesys_read_register(dev, REGA6, &val));
             val &= ~REGA6_GPIO17;
+            val &= ~REGA6_GPIO23;
             RIE(sanei_genesys_write_register(dev, REGA6,val));
         }
         DBGCOMPLETED;
@@ -2201,7 +2206,9 @@ static SANE_Status gl843_set_xpa_lamp_power(Genesys_Device *dev, bool set)
         val &= ~(REGA6_GPIO24 | REGA6_GPIO23);
 
         // set XPA lamp power
-        val |= REGA6_GPIO22 | REGA6_GPIO21 | REGA6_GPIO19;
+        if (dev->settings.scan_method != ScanMethod::TRANSPARENCY_INFRARED) {
+            val |= REGA6_GPIO22 | REGA6_GPIO21 | REGA6_GPIO19;
+        }
 
         RIE(sanei_genesys_write_register(dev, REGA6, val));
 
@@ -2220,6 +2227,20 @@ static SANE_Status gl843_set_xpa_lamp_power(Genesys_Device *dev, bool set)
         val &= ~(REGA6_GPIO22 | REGA6_GPIO21);
 
         RIE(sanei_genesys_write_register(dev, REGA6, val));
+    }
+
+    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F &&
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        if (set) {
+            RIE(sanei_genesys_read_register(dev, REG6C, &val));
+            val |= REG6C_GPIO16;
+            RIE(sanei_genesys_write_register(dev, REG6C, val));
+        } else {
+            RIE(sanei_genesys_read_register(dev, REG6C, &val));
+            val &= ~REG6C_GPIO16;
+            RIE(sanei_genesys_write_register(dev, REG6C, val));
+        }
     }
 
     DBGCOMPLETED;
@@ -2281,6 +2302,9 @@ gl843_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
         RIE (sanei_genesys_write_register (dev, REG7E, 0x01));
         break;
       case GPO_CS8600F:
+            if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
+                RIE(gl843_set_xpa_lamp_power(dev, true));
+            }
             if (reg->state.is_xpa_on) {
                 dev->needs_home_ta = SANE_TRUE;
                 RIE(gl843_set_xpa_motor_power(dev, true));
@@ -2490,7 +2514,7 @@ gl843_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   local_reg = dev->reg;
   resolution=sanei_genesys_get_lowest_ydpi(dev);
 
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution);
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, ScanMethod::FLATBED);
 
     ScanSession session;
     session.params.xres = resolution;
@@ -2612,7 +2636,7 @@ gl843_search_start_position (Genesys_Device * dev)
 
     // FIXME: the current approach of doing search only for one resolution does not work on scanners
     // whith employ different sensors with potentially different settings.
-    auto& sensor = sanei_genesys_find_sensor_for_write(dev, dpi);
+    auto& sensor = sanei_genesys_find_sensor_for_write(dev, dpi, ScanMethod::FLATBED);
 
     ScanSession session;
     session.params.xres = dpi;
@@ -2722,7 +2746,8 @@ gl843_init_regs_for_coarse_calibration(Genesys_Device * dev, const Genesys_Senso
               SCAN_FLAG_SINGLE_LINE |
               SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) {
         flags |= SCAN_FLAG_USE_XPA;
     }
 
@@ -2784,7 +2809,7 @@ gl843_feed (Genesys_Device * dev, unsigned int steps)
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
 
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution);
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, ScanMethod::FLATBED);
 
     ScanSession session;
     session.params.xres = resolution;
@@ -2879,10 +2904,15 @@ gl843_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
   regs = dev->reg;
 
   dev->calib_channels = 3;
-  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
-    dev->calib_lines = dev->model->shading_ta_lines;
-  else
-    dev->calib_lines = dev->model->shading_lines;
+
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        dev->calib_lines = dev->model->shading_ta_lines;
+    } else {
+        dev->calib_lines = dev->model->shading_lines;
+    }
+
   dpihw = sanei_genesys_compute_dpihw_calibration(dev, sensor, dev->settings.xres);
   factor=sensor.optical_res/dpihw;
   resolution=dpihw;
@@ -2890,7 +2920,8 @@ gl843_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
   const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution,
                                                        dev->settings.scan_method);
 
-    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY &&
+    if ((dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) &&
         dev->model->model_id == MODEL_CANON_CANOSCAN_8600F &&
         dev->settings.xres == 4800)
     {
@@ -2898,7 +2929,7 @@ gl843_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
         offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         offset = (offset * calib_sensor.optical_res) / MM_PER_INCH;
 
-        unsigned size = SANE_UNFIX(dev->model->x_size_ta);
+        float size = SANE_UNFIX(dev->model->x_size_ta);
         size /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         size = (size * calib_sensor.optical_res) / MM_PER_INCH;
 
@@ -2918,11 +2949,13 @@ gl843_init_regs_for_shading(Genesys_Device * dev, const Genesys_Sensor& sensor,
               SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
               SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
-  {
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
         // note: move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
-    move = 0; // already at dev->model->y_offset_calib_ta implicitly
+        move = SANE_UNFIX(dev->model->y_offset_calib_ta) -
+               SANE_UNFIX(dev->model->y_offset_sensor_to_ta);
     flags |= SCAN_FLAG_USE_XPA;
   }
   else
@@ -3004,25 +3037,39 @@ gl843_init_regs_for_scan (Genesys_Device * dev, const Genesys_Sensor& sensor)
   move_dpi = dev->motor.base_ydpi;
 
   flags = 0;
-  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
-  {
+
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
         // note: move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
-    move = SANE_UNFIX(dev->model->y_offset_ta) - SANE_UNFIX(dev->model->y_offset_calib_ta);
-    flags |= SCAN_FLAG_USE_XPA;
-  }
-  else
-    move = SANE_UNFIX(dev->model->y_offset);
+        if (dev->ignore_offsets) {
+            move = 0;
+        } else {
+            move = SANE_UNFIX(dev->model->y_offset_ta) -
+                   SANE_UNFIX(dev->model->y_offset_sensor_to_ta);
+        }
+        flags |= SCAN_FLAG_USE_XPA;
+    } else {
+        if (dev->ignore_offsets) {
+            move = 0;
+        } else {
+            move = SANE_UNFIX(dev->model->y_offset);
+        }
+    }
 
   move += dev->settings.tl_y;
   move = (move * move_dpi) / MM_PER_INCH;
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* start */
-  if(dev->settings.scan_method==ScanMethod::TRANSPARENCY)
-      start = SANE_UNFIX (dev->model->x_offset_ta);
-  else
-      start = SANE_UNFIX (dev->model->x_offset);
+    if (dev->settings.scan_method==ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        start = SANE_UNFIX(dev->model->x_offset_ta);
+    } else {
+        start = SANE_UNFIX(dev->model->x_offset);
+    }
 
   start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
   start += dev->settings.tl_x;
@@ -3364,7 +3411,8 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
   int start_pixel = 0;
   black_pixels = calib_sensor.black_pixels / factor;
 
-    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY &&
+    if ((dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) &&
         dev->model->model_id == MODEL_CANON_CANOSCAN_8600F &&
         dev->settings.xres == 4800)
     {
@@ -3382,10 +3430,11 @@ gl843_offset_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
               SCAN_FLAG_SINGLE_LINE |
               SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
-  {
-    flags |= SCAN_FLAG_USE_XPA;
-  }
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        flags |= SCAN_FLAG_USE_XPA;
+    }
 
     ScanSession session;
     session.params.xres = resolution;
@@ -3612,10 +3661,11 @@ gl843_coarse_gain_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor
               SCAN_FLAG_SINGLE_LINE |
               SCAN_FLAG_IGNORE_LINE_DISTANCE;
 
-  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY)
-  {
-    flags |= SCAN_FLAG_USE_XPA;
-  }
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        flags |= SCAN_FLAG_USE_XPA;
+    }
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution,
                                                          dev->settings.scan_method);
@@ -4036,7 +4086,7 @@ gl843_move_to_ta (Genesys_Device * dev)
   DBGSTART;
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
-  feed = 16*(SANE_UNFIX (dev->model->y_offset_calib_ta) * resolution) / MM_PER_INCH;
+  feed = 16*(SANE_UNFIX (dev->model->y_offset_sensor_to_ta) * resolution) / MM_PER_INCH;
   status = gl843_feed (dev, feed);
   if (status != SANE_STATUS_GOOD)
     {

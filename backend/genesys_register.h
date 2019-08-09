@@ -111,6 +111,11 @@ public:
             std::sort(registers_.begin(), registers_.end());
     }
 
+    bool has_reg(uint16_t address) const
+    {
+        return find_reg_index(address) >= 0;
+    }
+
     void remove_reg(uint16_t address)
     {
         int i = find_reg_index(address);

@@ -69,12 +69,42 @@ void Genesys_Device::clear()
     dark_average_data.clear();
 }
 
+uint8_t Genesys_Device::read_register(uint16_t address)
+{
+    uint8_t value;
+    sanei_genesys_read_register(this, address, &value);
+    update_register_state(address, value);
+    return value;
+}
+
+void Genesys_Device::write_register(uint16_t address, uint8_t value)
+{
+    sanei_genesys_write_register(this, address, value);
+    update_register_state(address, value);
+}
+
+void Genesys_Device::write_registers(Genesys_Register_Set& regs)
+{
+    sanei_genesys_bulk_write_register(this, regs);
+    for (const auto& reg : regs) {
+        update_register_state(reg.address, reg.value);
+    }
+}
+
+void Genesys_Device::update_register_state(uint16_t address, uint8_t value)
+{
+    if (physical_regs.has_reg(address)) {
+        physical_regs.set8(address, value);
+    } else {
+        physical_regs.init_reg(address, value);
+    }
+}
+
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs)
 {
     for (const auto& reg : regs) {
-        uint8_t val;
-        sanei_genesys_read_register(&dev, reg.address, &val);
+        uint8_t val = dev.read_register(reg.address);
         val = (val & ~reg.mask) | (reg.value & reg.mask);
-        sanei_genesys_write_register(&dev, reg.address, val);
+        dev.write_register(reg.address, val);
     }
 }

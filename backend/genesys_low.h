@@ -282,8 +282,6 @@ struct Genesys_Command_Set
     void (*slow_back_home) (Genesys_Device* dev, SANE_Bool wait_until_home);
     void (*rewind) (Genesys_Device* dev);
 
-    void (*bulk_write_register) (Genesys_Device* dev, Genesys_Register_Set& regs);
-
     void (*bulk_write_data) (Genesys_Device* dev, uint8_t addr, uint8_t* data, size_t len);
     void (*bulk_read_data) (Genesys_Device * dev, uint8_t addr, uint8_t * data, size_t len);
 
@@ -438,7 +436,8 @@ extern void sanei_genesys_read_hregister(Genesys_Device* dev, uint16_t reg, uint
 
 extern void sanei_genesys_write_hregister(Genesys_Device* dev, uint16_t reg, uint8_t val);
 
-extern void sanei_genesys_bulk_write_register(Genesys_Device* dev, Genesys_Register_Set& regs);
+extern void sanei_genesys_bulk_write_register(Genesys_Device* dev,
+                                              const Genesys_Register_Set& regs);
 
 extern void sanei_genesys_write_0x8c(Genesys_Device* dev, uint8_t index, uint8_t val);
 

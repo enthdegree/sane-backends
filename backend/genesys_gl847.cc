@@ -1478,7 +1478,6 @@ static void gl847_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_
 /** rewind scan
  * Move back by the same amount of distance than previous scan.
  * @param dev device to rewind
- * @returns SANE_STATUS_GOOD on success
  */
 #if 0                           /* disabled to fix #7 */
 static void gl847_rewind(Genesys_Device* dev)
@@ -1514,7 +1513,7 @@ static void gl847_rewind(Genesys_Device* dev)
  * @param dev device to park
  * @param wait_until_home true to make the function waiting for head
  * to be home before returning, if fals returne immediately
- * @returns SANE_STATUS_GOO on success */
+*/
 static void gl847_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
@@ -2270,11 +2269,9 @@ static void gl847_init_gpio(Genesys_Device* dev)
 /**
  * set memory layout by filling values in dedicated registers
  */
-static SANE_Status
-gl847_init_memory_layout (Genesys_Device * dev)
+static void gl847_init_memory_layout(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int idx = 0;
   uint8_t val;
 
@@ -2350,8 +2347,6 @@ gl847_init_memory_layout (Genesys_Device * dev)
   sanei_genesys_write_register (dev, 0xf5, layouts[idx].re5);
   sanei_genesys_write_register (dev, 0xf6, layouts[idx].re6);
   sanei_genesys_write_register (dev, 0xf7, layouts[idx].re7);
-
-  return status;
 }
 
 /* *
@@ -2454,7 +2449,6 @@ static void gl847_update_hardware_sensors(Genesys_Scanner* s)
  * @param dev scanner device
  * @param forward SANE_TRUE if searching forward, SANE_FALSE if searching backward
  * @param black SANE_TRUE if searching for a black strip, SANE_FALSE for a white strip
- * @return SANE_STATUS_GOOD if a matching strip is found, SANE_STATUS_UNSUPPORTED if not
  */
 static void gl847_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, SANE_Bool forward,
                                SANE_Bool black)

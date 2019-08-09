@@ -64,9 +64,8 @@
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
 
-/* Set address for writing data */
-static SANE_Status
-gl841_set_buffer_address_gamma (Genesys_Device * dev, uint32_t addr)
+// Set address for writing data
+static void gl841_set_buffer_address_gamma(Genesys_Device* dev, uint32_t addr)
 {
     DBG_HELPER_ARGS(dbg, "setting address to 0x%05x", addr & 0xfffffff0);
 
@@ -76,8 +75,6 @@ gl841_set_buffer_address_gamma (Genesys_Device * dev, uint32_t addr)
 
   addr = addr >> 8;
     sanei_genesys_write_register(dev, 0x5b, (addr & 0xff));
-
-  return SANE_STATUS_GOOD;
 }
 
 /****************************************************************************
@@ -940,9 +937,8 @@ static void gl841_init_motor_regs_off(Genesys_Register_Set* reg, unsigned int sc
  * Write motor frequency data table.
  * @param dev device to set up motor
  * @param ydpi motor target resolution
- * @return SANE_STATUS_GOOD on success
  */
-static SANE_Status gl841_write_freq(Genesys_Device *dev, unsigned int ydpi)
+static void gl841_write_freq(Genesys_Device* dev, unsigned int ydpi)
 {
     DBG_HELPER(dbg);
 /**< fast table */
@@ -979,18 +975,13 @@ uint8_t *table;
         sanei_genesys_write_register(dev, 0x5b, 0x00);
         sanei_genesys_write_register(dev, 0x5c, 0x00);
     }
-  return SANE_STATUS_GOOD;
 }
 
 
-static SANE_Status
-gl841_init_motor_regs(Genesys_Device * dev,
-                      const Genesys_Sensor& sensor,
-		      Genesys_Register_Set * reg,
-		      unsigned int feed_steps,/*1/base_ydpi*/
-/*maybe float for half/quarter step resolution?*/
-		      unsigned int action,
-		      unsigned int flags)
+static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                  Genesys_Register_Set* reg, unsigned int feed_steps,/*1/base_ydpi*/
+                                  /*maybe float for half/quarter step resolution?*/
+                                  unsigned int action, unsigned int flags)
 {
     DBG_HELPER_ARGS(dbg, "feed_steps=%d, action=%d, flags=%x", feed_steps, action, flags);
     unsigned int fast_exposure;
@@ -1135,8 +1126,6 @@ HOME_FREE: 3
 
     r = sanei_genesys_get_address(reg, 0x5f);
     r->value = (fast_slope_steps >> 1) + (fast_slope_steps & 1);
-
-    return SANE_STATUS_GOOD;
 }
 
 static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -1466,16 +1455,13 @@ gl841_get_dpihw(Genesys_Device * dev)
   return 0;
 }
 
-static SANE_Status
-gl841_init_optical_regs_off(Genesys_Register_Set * reg)
+static void gl841_init_optical_regs_off(Genesys_Register_Set* reg)
 {
     DBG_HELPER(dbg);
     GenesysRegister* r;
 
     r = sanei_genesys_get_address(reg, 0x01);
     r->value &= ~REG01_SCAN;
-
-    return SANE_STATUS_GOOD;
 }
 
 static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -4370,7 +4356,6 @@ static void gl841_update_hardware_sensors(Genesys_Scanner* s)
  * @param dev scanner device
  * @param forward SANE_TRUE if searching forward, SANE_FALSE if searching backward
  * @param black SANE_TRUE if searching for a black strip, SANE_FALSE for a white strip
- * @return SANE_STATUS_GOOD if a matching strip is found, SANE_STATUS_UNSUPPORTED if not
  */
 static void gl841_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, SANE_Bool forward,
                                SANE_Bool black)

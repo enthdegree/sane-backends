@@ -214,8 +214,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
  * @param dev device of the scanner
  * @param distance distance to move in MM
  */
-static SANE_Status
-simple_move (Genesys_Device * dev, SANE_Int distance);
+static void simple_move(Genesys_Device* dev, SANE_Int distance);
 
 /**
  * Does a simple scan of the area given by the settings. Scanned data

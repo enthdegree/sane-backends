@@ -1657,7 +1657,6 @@ genesys_average_data (uint8_t * average_data,
  * scans a white area with motor and lamp off to get the per CCD pixel offset
  * that will be used to compute shading coefficient
  * @param dev scanner's device
- * @return SANE_STATUS_GOOD if OK, else an error
  */
 static void genesys_dark_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
@@ -2931,7 +2930,6 @@ static void genesys_save_calibration(Genesys_Device* dev, const Genesys_Sensor& 
  * - gain calibration
  * - shading calibration
  * @param dev device to calibrate
- * @return SANE_STATUS_GOOD if everything when all right, else the error code.
  */
 static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {
@@ -3064,7 +3062,6 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
  * During calibration a predefined calibration sheet with specific black and white
  * areas is used.
  * @param dev device to calibrate
- * @return SANE_STATUS_GOOD if everything when all right, else the error code.
  */
 static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {
@@ -3211,38 +3208,6 @@ static void genesys_scanner_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     }
     genesys_sheetfed_calibration(dev, sensor);
 }
-
-/* unused function kept in case it may be usefull in the futur */
-#if 0
-static SANE_Status
-genesys_wait_not_moving (Genesys_Device * dev, int mseconds)
-{
-    DBG_HELPER(dbg);
-  uint8_t value;
-  SANE_Status status = SANE_STATUS_GOOD;
-
-  DBG(DBG_proc, "%s: waiting %d mseconds for motor to stop\n", __func__, mseconds);
-  while (mseconds > 0)
-    {
-        sanei_genesys_get_status(dev, &value);
-
-      if (dev->model->cmd_set->test_motor_flag_bit (value))
-	{
-          sanei_genesys_sleep_ms(100);
-	  mseconds -= 100;
-	  DBG(DBG_io, "%s: motor is moving, %d mseconds to go\n", __func__, mseconds);
-	}
-      else
-	{
-	  DBG(DBG_info, "%s: motor is not moving, exiting\n", __func__);
-	  return SANE_STATUS_GOOD;
-	}
-
-    }
-  DBG(DBG_error, "%s: motor is still moving, timeout exceeded\n", __func__);
-  return SANE_STATUS_DEVICE_BUSY;
-}
-#endif
 
 
 /* ------------------------------------------------------------------------ */
@@ -3624,8 +3589,8 @@ static void accurate_line_read(Genesys_Device* dev, Genesys_Buffer& buffer)
  * must be read and bytes interleaved to get usable by the other stages
  * of the backend
  */
-static SANE_Status
-genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, size_t size)
+static void genesys_fill_line_interp_buffer(Genesys_Device* dev, uint8_t* work_buffer_dst,
+                                            size_t size)
 {
     DBG_HELPER(dbg);
   size_t count;
@@ -3665,8 +3630,6 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
             accurate_line_read(dev, dev->oe_buffer);
 	    }
 	}
-
-    return SANE_STATUS_GOOD;
 }
 
 /** @brief fill buffer for segmented sensors
@@ -3675,8 +3638,8 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
  * back to back and must be interleaved to get usable by the other stages
  * of the backend
  */
-static SANE_Status
-genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, size_t size)
+static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buffer_dst,
+                                          size_t size)
 {
     DBG_HELPER(dbg);
   size_t count;
@@ -3753,20 +3716,16 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
             accurate_line_read(dev, dev->oe_buffer);
 	    }
 	}
-
-    return SANE_STATUS_GOOD;
 }
 
 /**
  *
  */
-static SANE_Status
-genesys_fill_read_buffer (Genesys_Device * dev)
+static void genesys_fill_read_buffer(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   size_t size;
   size_t space;
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t *work_buffer_dst;
 
   /* for sheetfed scanner, we must check is document is shorter than
@@ -3798,7 +3757,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 
   /* early out if our remaining buffer capacity is too low */
   if (size == 0)
-    return SANE_STATUS_GOOD;
+    return;
 
   DBG(DBG_io, "%s: reading %lu bytes\n", __func__, (u_long) size);
 
@@ -3817,25 +3776,13 @@ genesys_fill_read_buffer (Genesys_Device * dev)
    */
   if (dev->line_interp>0)
     {
-      /* line interpolation */
-      status = genesys_fill_line_interp_buffer (dev, work_buffer_dst, size);
-      if (status != SANE_STATUS_GOOD)
-      {
-          DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__, (u_long) size,
-              sane_strstatus(status));
-          return SANE_STATUS_IO_ERROR;
-      }
+        // line interpolation
+        genesys_fill_line_interp_buffer(dev, work_buffer_dst, size);
     }
   else if (dev->segnb>1)
     {
-      /* multi-segment sensors processing */
-      status = genesys_fill_segmented_buffer (dev, work_buffer_dst, size);
-      if (status != SANE_STATUS_GOOD)
-      {
-          DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__, (u_long) size,
-              sane_strstatus(status));
-          return SANE_STATUS_IO_ERROR;
-      }
+        // multi-segment sensors processing
+        genesys_fill_segmented_buffer(dev, work_buffer_dst, size);
     }
   else /* regular case with no extra copy */
     {
@@ -3848,20 +3795,16 @@ genesys_fill_read_buffer (Genesys_Device * dev)
   dev->read_bytes_left -= size;
 
   dev->read_buffer.produce(size);
-
-  return SANE_STATUS_GOOD;
 }
 
 /* this function does the effective data read in a manner that suits
    the scanner. It does data reordering and resizing if need.
    It also manages EOF and I/O errors, and line distance correction.
-   */
-static SANE_Status
-genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
-			   size_t * len)
+    Returns true on success, false on end-of-file.
+*/
+static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destination, size_t* len)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   size_t bytes, extra;
   unsigned int channels, depth, src_pixels;
   unsigned int ccd_shift[12], shift_count;
@@ -3878,9 +3821,8 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
 
   if (dev->read_active != SANE_TRUE)
     {
-      DBG(DBG_error, "%s: read not active!\n", __func__);
       *len = 0;
-      return SANE_STATUS_INVAL;
+        throw SaneException("read is not active");
     }
 
     debug_dump(DBG_info, dev->current_setup);
@@ -3923,9 +3865,6 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
   /* is there data left to scan */
   if (dev->total_bytes_read >= dev->total_bytes_to_read)
     {
-      DBG(DBG_proc, "%s: nothing more to scan: EOF\n", __func__);
-      *len = 0;
-
       /* issue park command immediatly in case scanner can handle it
        * so we save time */
       if (dev->model->is_sheetfed == SANE_FALSE
@@ -3935,7 +3874,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
             dev->model->cmd_set->slow_back_home(dev, SANE_FALSE);
           dev->parking = SANE_TRUE;
         }
-      return SANE_STATUS_EOF;
+        throw SaneException(SANE_STATUS_EOF, "nothing more to scan: EOF");
     }
 
   DBG(DBG_info, "%s: %lu lines left by output\n", __func__,
@@ -3998,25 +3937,16 @@ Problems with the first approach:
   total_bytes_to_read and total_bytes_read help in that case.
  */
 
-  status = genesys_fill_read_buffer (dev);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: genesys_fill_read_buffer failed\n", __func__);
-      return status;
-    }
+    genesys_fill_read_buffer(dev);
 
   src_buffer = &(dev->read_buffer);
 
 /* maybe reorder components/bytes */
   if (needs_reorder)
     {
-/*not implemented for depth == 1.*/
-      if (depth == 1)
-	{
-	  DBG(DBG_error, "Can't reorder single bit data\n");
-	  return SANE_STATUS_INVAL;
-	}
+        if (depth == 1) {
+            throw SaneException("Can't reorder single bit data\n");
+        }
 
       dst_buffer = &(dev->lines_buffer);
 
@@ -4055,53 +3985,35 @@ Problems with the first approach:
 		{
 		case 1:	/* RGB, chunky, 16 bit */
 #ifdef WORDS_BIGENDIAN
-		  status =
-		    genesys_reorder_components_endian_16 (work_buffer_src,
-							  work_buffer_dst,
-							  dst_lines,
-							  src_pixels, 3);
+            genesys_reorder_components_endian_16(work_buffer_src, work_buffer_dst, dst_lines,
+                                                 src_pixels, 3);
 		  break;
 #endif /*WORDS_BIGENDIAN */
 		case 0:	/* RGB, chunky, 8 bit */
-		  status = SANE_STATUS_GOOD;
 		  break;
 		case 2:	/* RGB, cis, 8 bit */
-		  status =
-		    genesys_reorder_components_cis_8 (work_buffer_src,
-						      work_buffer_dst,
-						      dst_lines, src_pixels);
+                genesys_reorder_components_cis_8(work_buffer_src, work_buffer_dst, dst_lines,
+                                                 src_pixels);
 		  break;
 		case 3:	/* RGB, cis, 16 bit */
-		  status =
-		    genesys_reorder_components_cis_16 (work_buffer_src,
-						       work_buffer_dst,
-						       dst_lines, src_pixels);
+                genesys_reorder_components_cis_16(work_buffer_src, work_buffer_dst, dst_lines,
+                                                  src_pixels);
 		  break;
 		case 4:	/* BGR, chunky, 8 bit */
-		  status =
-		    genesys_reorder_components_bgr_8 (work_buffer_src,
-						      work_buffer_dst,
-						      dst_lines, src_pixels);
+                genesys_reorder_components_bgr_8(work_buffer_src, work_buffer_dst, dst_lines,
+                                                 src_pixels);
 		  break;
 		case 5:	/* BGR, chunky, 16 bit */
-		  status =
-		    genesys_reorder_components_bgr_16 (work_buffer_src,
-						       work_buffer_dst,
-						       dst_lines, src_pixels);
+                genesys_reorder_components_bgr_16(work_buffer_src, work_buffer_dst, dst_lines,
+                                                  src_pixels);
 		  break;
 		case 6:	/* BGR, cis, 8 bit */
-		  status =
-		    genesys_reorder_components_cis_bgr_8 (work_buffer_src,
-							  work_buffer_dst,
-							  dst_lines,
-							  src_pixels);
+                genesys_reorder_components_cis_bgr_8(work_buffer_src, work_buffer_dst, dst_lines,
+                                                     src_pixels);
 		  break;
 		case 7:	/* BGR, cis, 16 bit */
-		  status =
-		    genesys_reorder_components_cis_bgr_16 (work_buffer_src,
-							   work_buffer_dst,
-							   dst_lines,
-							   src_pixels);
+                genesys_reorder_components_cis_bgr_16(work_buffer_src, work_buffer_dst, dst_lines,
+                                                      src_pixels);
 		  break;
 		}
 	    }
@@ -4110,26 +4022,10 @@ Problems with the first approach:
 #ifdef WORDS_BIGENDIAN
 	      if (depth == 16)
 		{
-		  status =
-		    genesys_reorder_components_endian_16 (work_buffer_src,
-							  work_buffer_dst,
-							  dst_lines,
-							  src_pixels, 1);
+            genesys_reorder_components_endian_16(work_buffer_src, work_buffer_dst, dst_lines,
+                                                 src_pixels, 1);
 		}
-	      else
-		{
-		  status = SANE_STATUS_GOOD;
-		}
-#else /*!WORDS_BIGENDIAN */
-	      status = SANE_STATUS_GOOD;
 #endif /*WORDS_BIGENDIAN */
-	    }
-
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to convert byte ordering(%s)\n", __func__,
-		  sane_strstatus(status));
-	      return SANE_STATUS_IO_ERROR;
 	    }
 
             dst_buffer->produce(bytes);
@@ -4141,12 +4037,10 @@ Problems with the first approach:
 /* maybe reverse effects of ccd layout */
   if (needs_ccd)
     {
-/*should not happen with depth == 1.*/
-      if (depth == 1)
-	{
-	  DBG(DBG_error, "Can't reverse ccd for single bit data\n");
-	  return SANE_STATUS_INVAL;
-	}
+        // should not happen with depth == 1.
+        if (depth == 1) {
+            throw SaneException("Can't reverse ccd single bit data\n");
+        }
 
       dst_buffer = &(dev->shrink_buffer);
 
@@ -4177,24 +4071,13 @@ Problems with the first approach:
       if (dst_lines != 0)
 	{
 
-	  if (depth == 8)
-	    status = genesys_reverse_ccd_8 (work_buffer_src, work_buffer_dst,
-					    dst_lines,
-					    src_pixels * channels,
-					    ccd_shift, shift_count);
-	  else
-	    status = genesys_reverse_ccd_16 (work_buffer_src, work_buffer_dst,
-					     dst_lines,
-					     src_pixels * channels,
-					     ccd_shift, shift_count);
-
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to reverse ccd effects(%s)\n", __func__,
-		  sane_strstatus(status));
-	      return SANE_STATUS_IO_ERROR;
-	    }
-
+            if (depth == 8) {
+                genesys_reverse_ccd_8(work_buffer_src, work_buffer_dst, dst_lines,
+                                      src_pixels * channels, ccd_shift, shift_count);
+            } else {
+                genesys_reverse_ccd_16(work_buffer_src, work_buffer_dst, dst_lines,
+                                       src_pixels * channels, ccd_shift, shift_count);
+            }
             dst_buffer->produce(bytes);
             src_buffer->consume(bytes);
 	}
@@ -4229,30 +4112,14 @@ Problems with the first approach:
       if (dst_lines != 0)
 	{
 	  if (depth == 1)
-	    status = genesys_shrink_lines_1 (work_buffer_src,
-					     work_buffer_dst,
-					     dst_lines,
-					     src_pixels,
-					     dev->settings.pixels,
-                                             channels);
+            genesys_shrink_lines_1(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
+                                   dev->settings.pixels, channels);
 	  else if (depth == 8)
-	    status = genesys_shrink_lines_8 (work_buffer_src,
-					     work_buffer_dst,
-					     dst_lines,
-					     src_pixels,
-					     dev->settings.pixels, channels);
+            genesys_shrink_lines_8(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
+                                   dev->settings.pixels, channels);
 	  else
-	    status = genesys_shrink_lines_16 (work_buffer_src,
-					      work_buffer_dst,
-					      dst_lines,
-					      src_pixels,
-					      dev->settings.pixels, channels);
-
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to shrink lines(%s)\n", __func__, sane_strstatus(status));
-	      return SANE_STATUS_IO_ERROR;
-	    }
+            genesys_shrink_lines_16(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
+                                    dev->settings.pixels, channels);
 
           /* we just consumed this many bytes*/
 	  bytes = (dst_lines * src_pixels * channels * depth) / 8;
@@ -4273,12 +4140,7 @@ Problems with the first approach:
 
   if (needs_reverse)
     {
-      status = genesys_reverse_bits (work_buffer_src, destination, bytes);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to reverse bits(%s)\n", __func__, sane_strstatus(status));
-	  return SANE_STATUS_IO_ERROR;
-	}
+        genesys_reverse_bits(work_buffer_src, destination, bytes);
       *len = bytes;
     }
   else
@@ -4308,7 +4170,6 @@ Problems with the first approach:
     }
 
   DBG(DBG_proc, "%s: completed, %lu bytes read\n", __func__, (u_long) bytes);
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -4332,11 +4193,9 @@ max_string_size (const SANE_String_Const strings[])
   return max_size;
 }
 
-static SANE_Status
-calc_parameters (Genesys_Scanner * s)
+static void calc_parameters(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   double tl_x = 0, tl_y = 0, br_x = 0, br_y = 0;
 
     tl_x = SANE_UNFIX(s->pos_top_left_x);
@@ -4514,8 +4373,6 @@ calc_parameters (Genesys_Scanner * s)
 
   /* cache expiration time */
    s->dev->settings.expiration_time = s->expiration_time;
-
-  return status;
 }
 
 
@@ -4679,12 +4536,10 @@ static char *calibration_filename(Genesys_Device *currdev)
 }
 
 
-static SANE_Status
-init_options (Genesys_Scanner * s)
+static void init_options(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
   SANE_Int option;
-  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word *dpi_list;
   Genesys_Model *model = s->dev->model;
   SANE_Range *x_range, *y_range;
@@ -4770,7 +4625,7 @@ init_options (Genesys_Scanner * s)
 
     dpi_list = (SANE_Word*) malloc((model->xdpi_values.size() + 1) * sizeof(SANE_Word));
     if (!dpi_list) {
-        return SANE_STATUS_NO_MEM;
+        throw SaneException(SANE_STATUS_NO_MEM);
     }
     dpi_list[0] = model->xdpi_values.size();
     std::copy(model->xdpi_values.begin(), model->xdpi_values.end(), dpi_list + 1);
@@ -4795,13 +4650,13 @@ init_options (Genesys_Scanner * s)
   x_range=create_range(model->x_size);
   if(x_range==NULL)
     {
-      return SANE_STATUS_NO_MEM;
+        throw SaneException(SANE_STATUS_NO_MEM);
     }
 
   y_range=create_range(model->y_size);
   if(y_range==NULL)
     {
-      return SANE_STATUS_NO_MEM;
+        throw SaneException(SANE_STATUS_NO_MEM);
     }
 
   /* top-left x */
@@ -5281,9 +5136,7 @@ init_options (Genesys_Scanner * s)
     s->opt[OPT_IGNORE_OFFSETS].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT |
                                      SANE_CAP_ADVANCED;
 
-  RIE (calc_parameters (s));
-
-  return SANE_STATUS_GOOD;
+    calc_parameters(s);
 }
 
 static SANE_Bool present;
@@ -5390,11 +5243,12 @@ static SANE_Status
 attach_one_device_impl(SANE_String_Const devname)
 {
   Genesys_Device *dev;
-  SANE_Status status = SANE_STATUS_GOOD;
-
-  RIE (attach (devname, &dev, SANE_FALSE));
-
-  return SANE_STATUS_GOOD;
+    SANE_Status status = attach(devname, &dev, SANE_FALSE);
+    if (status != SANE_STATUS_GOOD) {
+        DBG(DBG_info, "%s: failed to attach: %s\n", __func__, sane_strstatus(status));
+        return status;
+    }
+    return status;
 }
 
 static SANE_Status attach_one_device(SANE_String_Const devname)
@@ -5520,11 +5374,9 @@ static void write_calibration(Genesys_Device::Calibration& calibration, const st
  * In order to allow digital processing, we must be able to put all the
  * scanned picture in a buffer.
  */
-static SANE_Status
-genesys_buffer_image(Genesys_Scanner *s)
+static void genesys_buffer_image(Genesys_Scanner *s)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   size_t maximum;     /**> maximum bytes size of the scan */
   size_t len;	      /**> length of scanned data read */
   size_t total;	      /**> total of butes read */
@@ -5563,29 +5415,31 @@ genesys_buffer_image(Genesys_Scanner *s)
   dev->img_buffer.resize(size);
 
   /* loop reading data until we reach maximum or EOF */
-  total = 0;
-  while (total < maximum && status != SANE_STATUS_EOF)
-    {
+    total = 0;
+    while (total < maximum) {
       len = size - maximum;
       if (len > read_size)
 	{
 	  len = read_size;
 	}
 
-      status = genesys_read_ordered_data(dev, dev->img_buffer.data() + total, &len);
-      if (status != SANE_STATUS_EOF && status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: %s buffering failed\n", __func__, sane_strstatus(status));
-          return status;
-	}
+        try {
+            genesys_read_ordered_data(dev, dev->img_buffer.data() + total, &len);
+        } catch (const SaneException& e) {
+            if (e.status() == SANE_STATUS_EOF) {
+                // ideally we shouldn't end up here, but because computations are duplicated and
+                // slightly different everywhere in the genesys backend, we have no other choice
+                break;
+            }
+            throw;
+        }
       total += len;
 
-      /* do we need to enlarge read buffer ? */
-      if (total + read_size > size && status != SANE_STATUS_EOF)
-	{
-	  size += read_size;
-          dev->img_buffer.resize(size);
-	}
+        // do we need to enlarge read buffer ?
+        if (total + read_size > size) {
+            size += read_size;
+            dev->img_buffer.resize(size);
+        }
     }
 
   /* since digital processing is going to take place,
@@ -5627,8 +5481,6 @@ genesys_buffer_image(Genesys_Scanner *s)
                                    s->params.format==SANE_FRAME_RGB ? 3 : 1,
                                    s->params.pixels_per_line, s->params.lines);
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 /* -------------------------- SANE API functions ------------------------- */
@@ -5636,8 +5488,6 @@ genesys_buffer_image(Genesys_Scanner *s)
 SANE_Status
 sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-  SANE_Status status = SANE_STATUS_GOOD;
-
   DBG_INIT ();
     DBG_HELPER_ARGS(dbg, "authorize %s null", authorize ? "!=" : "==");
   DBG(DBG_init, "SANE Genesys backend version %d.%d from %s\n",
@@ -5675,10 +5525,8 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
 #endif
     );
 
-  /* cold-plug case :detection of allready connected scanners */
-  status = probe_genesys_devices ();
-
-  return status;
+    // cold-plug case :detection of allready connected scanners
+    return probe_genesys_devices ();
 }
 
 
@@ -5755,7 +5603,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 {
     DBG_HELPER_ARGS(dbg, "devicename = %s", devicename);
   Genesys_Device *dev = nullptr;
-  SANE_Status status = SANE_STATUS_GOOD;
   char *tmpstr;
 
   /* devicename="" or devicename="genesys" are default values that use
@@ -5774,7 +5621,11 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
       if (!dev)
 	{
 	  DBG(DBG_info, "%s: couldn't find `%s' in devlist, trying attach\n", __func__, devicename);
-	  RIE (attach (devicename, &dev, SANE_TRUE));
+            SANE_Status status = attach(devicename, &dev, SANE_TRUE);
+            if (status != SANE_STATUS_GOOD) {
+                DBG(DBG_info, "%s: failed to attach: %s\n", __func__, sane_strstatus(status));
+                return status;
+            }
 	}
       else
         DBG(DBG_info, "%s: found `%s' in devlist\n", __func__, dev->model->name);
@@ -5822,10 +5673,11 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 
   *handle = s;
 
-  if (!dev->already_initialized)
-    sanei_genesys_init_structs (dev);
+    if (!dev->already_initialized) {
+        sanei_genesys_init_structs (dev);
+    }
 
-  RIE (init_options (s));
+    init_options(s);
 
     sanei_genesys_init_cmd_set(s->dev);
 
@@ -6194,92 +6046,92 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     {
     case OPT_TL_X:
         s->pos_top_left_x = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_TL_Y:
         s->pos_top_left_y = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_BR_X:
         s->pos_bottom_right_x = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_BR_Y:
         s->pos_bottom_right_y = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_RESOLUTION:
         s->resolution = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_THRESHOLD:
         s->threshold = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_THRESHOLD_CURVE:
         s->threshold_curve = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_DISABLE_DYNAMIC_LINEART:
         s->disable_dynamic_lineart = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_SWCROP:
         s->swcrop = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_SWDESKEW:
         s->swdeskew = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_DESPECK:
         s->despeck = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_SWDEROTATE:
         s->swderotate = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_SWSKIP:
         s->swskip = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_DISABLE_INTERPOLATION:
         s->disable_interpolation = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_LAMP_OFF:
         s->lamp_off = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_PREVIEW:
         s->preview = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_BRIGHTNESS:
         s->brightness = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_CONTRAST:
         s->contrast = *reinterpret_cast<SANE_Word*>(val);
-        RIE (calc_parameters(s));
+        calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
     case OPT_SWDESPECK:
@@ -6289,7 +6141,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         } else {
             DISABLE(OPT_DESPECK);
         }
-      RIE (calc_parameters (s));
+        calc_parameters(s);
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
     /* software enhancement functions only apply to 8 or 1 bits data */
@@ -6317,7 +6169,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
           ENABLE(OPT_CONTRAST);
           ENABLE(OPT_BRIGHTNESS);
         }
-      RIE (calc_parameters (s));
+        calc_parameters(s);
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
     case OPT_SOURCE:
@@ -6393,7 +6245,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
 	  else
 	    ENABLE (OPT_BIT_DEPTH);
 	}
-      RIE (calc_parameters (s));
+        calc_parameters(s);
 
       /* if custom gamma, toggle gamma table options according to the mode */
       if (s->custom_gamma)
@@ -6418,7 +6270,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       break;
     case OPT_COLOR_FILTER:
       s->color_filter = reinterpret_cast<const char*>(val);
-      RIE (calc_parameters (s));
+        calc_parameters(s);
       break;
     case OPT_CALIBRATION_FILE:
             if (s->dev->force_calibration == 0) {
@@ -6645,12 +6497,11 @@ SANE_Status sane_get_parameters_impl(SANE_Handle handle, SANE_Parameters* params
 {
     DBG_HELPER(dbg);
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
-  SANE_Status status = SANE_STATUS_GOOD;
 
   /* don't recompute parameters once data reading is active, ie during scan */
   if(s->dev->read_active == SANE_FALSE)
     {
-      RIE (calc_parameters (s));
+        calc_parameters(s);
     }
   if (params)
     {
@@ -6700,7 +6551,7 @@ SANE_Status sane_start_impl(SANE_Handle handle)
   /* First make sure we have a current parameter set.  Some of the
      parameters will be overwritten below, but that's OK.  */
 
-  RIE (calc_parameters (s));
+    calc_parameters(s);
     genesys_start_scan(s->dev, s->lamp_off);
 
   s->scanning = SANE_TRUE;
@@ -6720,7 +6571,7 @@ SANE_Status sane_start_impl(SANE_Handle handle)
    * at the end */
   if (s->dev->buffer_image)
     {
-      RIE(genesys_buffer_image(s));
+        genesys_buffer_image(s);
 
       /* check if we need to skip this page, sheetfed scanners
        * can go to next doc while flatbed ones can't */
@@ -6742,19 +6593,19 @@ SANE_Status sane_start_impl(SANE_Handle handle)
         if (s->swdeskew) {
           const auto& sensor = sanei_genesys_find_sensor(s->dev, s->dev->settings.xres,
                                                          s->dev->settings.scan_method);
-          RIE(genesys_deskew(s, sensor));
+            catch_all_exceptions(__func__, [&](){ genesys_deskew(s, sensor); });
         }
 
         if (s->swdespeck) {
-            RIE(genesys_despeck(s));
+            catch_all_exceptions(__func__, [&](){ genesys_despeck(s); });
         }
 
         if(s->swcrop) {
-            RIE(genesys_crop(s));
+            catch_all_exceptions(__func__, [&](){ genesys_crop(s); });
         }
 
         if(s->swderotate) {
-            RIE(genesys_derotate(s));
+            catch_all_exceptions(__func__, [&](){ genesys_derotate(s); });
         }
     }
 
@@ -6775,7 +6626,6 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
     DBG_HELPER(dbg);
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
   Genesys_Device *dev;
-  SANE_Status status=SANE_STATUS_GOOD;
   size_t local_len;
 
   if (!s)
@@ -6848,23 +6698,17 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
               /* store gray data */
               local_len=dev->local_buffer.size();
               dev->local_buffer.reset();
-              status = genesys_read_ordered_data (dev, dev->local_buffer.get_write_pos(local_len),
-                                                  &local_len);
+                genesys_read_ordered_data(dev, dev->local_buffer.get_write_pos(local_len),
+                                          &local_len);
               dev->local_buffer.produce(local_len);
 
-              /* binarize data is read successful */
-              if(status==SANE_STATUS_GOOD)
-                {
-                    dev->binarize_buffer.reset();
-                  genesys_gray_lineart (dev,
-                                        dev->local_buffer.get_read_pos(),
-                                        dev->binarize_buffer.get_write_pos(local_len / 8),
-                                        dev->settings.pixels,
-                                        local_len/dev->settings.pixels,
-                                        dev->settings.threshold);
-                    dev->binarize_buffer.produce(local_len / 8);
-                }
-
+                dev->binarize_buffer.reset();
+                genesys_gray_lineart(dev, dev->local_buffer.get_read_pos(),
+                                     dev->binarize_buffer.get_write_pos(local_len / 8),
+                                     dev->settings.pixels,
+                                     local_len/dev->settings.pixels,
+                                     dev->settings.threshold);
+                dev->binarize_buffer.produce(local_len / 8);
             }
 
           /* return data from lineart buffer if any, up to the available amount */
@@ -6881,8 +6725,8 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
         }
       else
         {
-          /* most usual case, direct read of data from scanner */
-          status = genesys_read_ordered_data (dev, buf, &local_len);
+            // most usual case, direct read of data from scanner */
+            genesys_read_ordered_data(dev, buf, &local_len);
         }
     }
   else /* read data from buffer */
@@ -6901,7 +6745,7 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
       fprintf (stderr, "[genesys] sane_read: returning incorrect length!!\n");
     }
   DBG(DBG_proc, "%s: %d bytes returned\n", __func__, *len);
-  return status;
+    return SANE_STATUS_GOOD;
 }
 
 SANE_Status sane_read(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)

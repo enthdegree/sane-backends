@@ -101,8 +101,6 @@
 #include <string>
 #include <vector>
 
-#define FREE_IFNOT_NULL(x)		if(x!=NULL) { free(x); x=NULL;}
-
 #define GENESYS_RED   0
 #define GENESYS_GREEN 1
 #define GENESYS_BLUE  2

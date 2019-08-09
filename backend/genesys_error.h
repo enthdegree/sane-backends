@@ -89,18 +89,6 @@ private:
     SANE_Status status_;
 };
 
-/**
- * call a function and return on error
- */
-#define RIE(function)                                   \
-  do { status = function;                               \
-    if (status != SANE_STATUS_GOOD) \
-      { \
-        DBG(DBG_error, "%s: %s\n", __func__, sane_strstatus (status)); \
-        return status; \
-      }	\
-  } while (SANE_FALSE)
-
 // call a function and throw an exception on error
 #define TIE(function)                                                                              \
     do {                                                                                           \

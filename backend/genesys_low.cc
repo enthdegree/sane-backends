@@ -49,42 +49,6 @@
 
 #include <vector>
 
-
-Genesys_Device::~Genesys_Device()
-{
-    clear();
-
-    if (file_name != nullptr)
-        free(file_name);
-}
-
-void Genesys_Device::clear()
-{
-    read_buffer.clear();
-    lines_buffer.clear();
-    shrink_buffer.clear();
-    out_buffer.clear();
-    binarize_buffer.clear();
-    local_buffer.clear();
-
-    calib_file.clear();
-
-    calibration_cache.clear();
-
-    white_average_data.clear();
-    dark_average_data.clear();
-}
-
-void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs)
-{
-    for (const auto& reg : regs) {
-        uint8_t val;
-        sanei_genesys_read_register(&dev, reg.address, &val);
-        val = (val & ~reg.mask) | (reg.value & reg.mask);
-        sanei_genesys_write_register(&dev, reg.address, val);
-    }
-}
-
 /* ------------------------------------------------------------------------ */
 /*                  functions calling ASIC specific functions               */
 /* ------------------------------------------------------------------------ */
@@ -92,18 +56,25 @@ void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSett
 /**
  * setup the hardware dependent functions
  */
+extern Genesys_Command_Set gl124_cmd_set;
+extern Genesys_Command_Set gl646_cmd_set;
+extern Genesys_Command_Set gl841_cmd_set;
+extern Genesys_Command_Set gl843_cmd_set;
+extern Genesys_Command_Set gl846_cmd_set;
+extern Genesys_Command_Set gl847_cmd_set;
+
 void sanei_genesys_init_cmd_set(Genesys_Device* dev)
 {
   DBG_INIT ();
     DBG_HELPER(dbg);
     switch (dev->model->asic_type) {
-        case GENESYS_GL646: sanei_gl646_init_cmd_set(dev); break;
-        case GENESYS_GL841: sanei_gl841_init_cmd_set(dev); break;
-        case GENESYS_GL843: sanei_gl843_init_cmd_set(dev); break;
+        case GENESYS_GL646: dev->cmd_set = &gl646_cmd_set; break;
+        case GENESYS_GL841: dev->cmd_set = &gl841_cmd_set; break;
+        case GENESYS_GL843: dev->cmd_set = &gl843_cmd_set; break;
         case GENESYS_GL845: // since only a few reg bits differs we handle both together
-        case GENESYS_GL846: sanei_gl846_init_cmd_set(dev); break;
-        case GENESYS_GL847: sanei_gl847_init_cmd_set(dev); break;
-        case GENESYS_GL124: sanei_gl124_init_cmd_set(dev); break;
+        case GENESYS_GL846: dev->cmd_set = &gl846_cmd_set; break;
+        case GENESYS_GL847: dev->cmd_set = &gl847_cmd_set; break;
+        case GENESYS_GL124: dev->cmd_set = &gl124_cmd_set; break;
         default: throw SaneException(SANE_STATUS_INVAL, "unknown ASIC type");
     }
 }
@@ -371,7 +342,7 @@ void sanei_genesys_bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* d
  * @param reg LSB of register address
  * @param val value to write
  */
-void sanei_genesys_write_hregister(Genesys_Device* dev, uint16_t reg, uint8_t val)
+static void sanei_genesys_write_hregister(Genesys_Device* dev, uint16_t reg, uint8_t val)
 {
     DBG_HELPER(dbg);
 
@@ -394,7 +365,7 @@ void sanei_genesys_write_hregister(Genesys_Device* dev, uint16_t reg, uint8_t va
  * @param reg LSB of register address
  * @param val value to write
  */
-void sanei_genesys_read_hregister(Genesys_Device* dev, uint16_t reg, uint8_t* val)
+static void sanei_genesys_read_hregister(Genesys_Device* dev, uint16_t reg, uint8_t* val)
 {
     DBG_HELPER(dbg);
 
@@ -559,33 +530,31 @@ void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 
   addr = addr >> 4;
 
-    sanei_genesys_write_register(dev, 0x2b, (addr & 0xff));
+    dev->write_register(0x2b, (addr & 0xff));
 
   addr = addr >> 8;
-    sanei_genesys_write_register(dev, 0x2a, (addr & 0xff));
+    dev->write_register(0x2a, (addr & 0xff));
 }
 
 /**@brief read data from analog frontend (AFE)
  * @param dev device owning the AFE
  * @param addr register address to read
  * @param data placeholder for the result
- * @return SANE_STATUS_GOOD is OK, else the error code
  */
 void sanei_genesys_fe_read_data (Genesys_Device* dev, uint8_t addr, uint16_t* data)
 {
     DBG_HELPER(dbg);
-  uint8_t value;
   Genesys_Register_Set reg;
 
   reg.init_reg(0x50, addr);
 
     // set up read address
-    dev->model->cmd_set->bulk_write_register(dev, reg);
+    dev->write_registers(reg);
 
     // read data
-    sanei_genesys_read_register(dev, 0x46, &value);
+    uint8_t value = dev->read_register(0x46);
     *data = 256 * value;
-    sanei_genesys_read_register(dev, 0x47, &value);
+    value = dev->read_register(0x47);
     *data += value;
 
   DBG(DBG_io, "%s (0x%02x, 0x%04x)\n", __func__, addr, *data);
@@ -612,7 +581,7 @@ void sanei_genesys_fe_write_data(Genesys_Device* dev, uint8_t addr, uint16_t dat
         reg.init_reg(0x3b, data & 0xff);
     }
 
-    dev->model->cmd_set->bulk_write_register(dev, reg);
+    dev->write_registers(reg);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -628,7 +597,7 @@ void sanei_genesys_get_status(Genesys_Device* dev, uint8_t* status)
         sanei_genesys_read_hregister(dev, 0x101, status);
         return;
     }
-    sanei_genesys_read_register(dev, 0x41, status);
+    *status = dev->read_register(0x41);
 }
 
 /**
@@ -657,17 +626,12 @@ void sanei_genesys_print_status (uint8_t val)
 static int
 genesys_pixels_per_line (Genesys_Register_Set * reg)
 {
-  int pixels_per_line;
+    int pixels_per_line;
 
-  pixels_per_line =
-    sanei_genesys_read_reg_from_set (reg,
-				     0x32) * 256 +
-    sanei_genesys_read_reg_from_set (reg, 0x33);
-  pixels_per_line -=
-    (sanei_genesys_read_reg_from_set (reg, 0x30) * 256 +
-     sanei_genesys_read_reg_from_set (reg, 0x31));
+    pixels_per_line = reg->get8(0x32) * 256 + reg->get8(0x33);
+    pixels_per_line -= (reg->get8(0x30) * 256 + reg->get8(0x31));
 
-  return pixels_per_line;
+    return pixels_per_line;
 }
 
 /* returns dpiset from register set */
@@ -675,14 +639,7 @@ genesys_pixels_per_line (Genesys_Register_Set * reg)
 static int
 genesys_dpiset (Genesys_Register_Set * reg)
 {
-  int dpiset;
-
-  dpiset =
-    sanei_genesys_read_reg_from_set (reg,
-				     0x2c) * 256 +
-    sanei_genesys_read_reg_from_set (reg, 0x2d);
-
-  return dpiset;
+    return reg->get8(0x2c) * 256 + reg->get8(0x2d);
 }
 #endif
 
@@ -693,54 +650,39 @@ genesys_dpiset (Genesys_Register_Set * reg)
 void sanei_genesys_read_valid_words(Genesys_Device* dev, unsigned int* words)
 {
     DBG_HELPER(dbg);
-  uint8_t value;
 
   switch (dev->model->asic_type)
     {
     case GENESYS_GL124:
-            sanei_genesys_read_hregister(dev, 0x102, &value);
-            *words = (value & 0x03);
-            sanei_genesys_read_hregister(dev, 0x103, &value);
-            *words = *words * 256 + value;
-            sanei_genesys_read_hregister(dev, 0x104, &value);
-            *words = *words * 256 + value;
-            sanei_genesys_read_hregister(dev, 0x105, &value);
-            *words = *words * 256 + value;
+            *words = dev->read_register(0x102) & 0x03;
+            *words = *words * 256 + dev->read_register(0x103);
+            *words = *words * 256 + dev->read_register(0x104);
+            *words = *words * 256 + dev->read_register(0x105);
             break;
 
     case GENESYS_GL845:
     case GENESYS_GL846:
-        sanei_genesys_read_register(dev, 0x42, &value);
-        *words = value & 0x02;
-        sanei_genesys_read_register(dev, 0x43, &value);
-        *words = *words * 256 + value;
-        sanei_genesys_read_register(dev, 0x44, &value);
-        *words = *words * 256 + value;
-        sanei_genesys_read_register(dev, 0x45, &value);
-        *words = *words * 256 + value;
-        break;
+            *words = dev->read_register(0x42) & 0x02;
+            *words = *words * 256 + dev->read_register(0x43);
+            *words = *words * 256 + dev->read_register(0x44);
+            *words = *words * 256 + dev->read_register(0x45);
+            break;
 
     case GENESYS_GL847:
-        sanei_genesys_read_register(dev, 0x42, &value);
-        *words = value & 0x03;
-        sanei_genesys_read_register(dev, 0x43, &value);
-        *words = *words * 256 + value;
-        sanei_genesys_read_register(dev, 0x44, &value);
-        *words = *words * 256 + value;
-        sanei_genesys_read_register(dev, 0x45, &value);
-        *words = *words * 256 + value;
-        break;
+            *words = dev->read_register(0x42) & 0x03;
+            *words = *words * 256 + dev->read_register(0x43);
+            *words = *words * 256 + dev->read_register(0x44);
+            *words = *words * 256 + dev->read_register(0x45);
+            break;
 
     default:
-        sanei_genesys_read_register(dev, 0x44, &value);
-        *words = value;
-        sanei_genesys_read_register(dev, 0x43, &value);
-        *words += value * 256;
-        sanei_genesys_read_register(dev, 0x42, &value);
-      if (dev->model->asic_type == GENESYS_GL646)
-	*words += ((value & 0x03) * 256 * 256);
-      else
-	*words += ((value & 0x0f) * 256 * 256);
+            *words = dev->read_register(0x44);
+            *words += dev->read_register(0x43) * 256;
+            if (dev->model->asic_type == GENESYS_GL646) {
+                *words += ((dev->read_register(0x42) & 0x03) * 256 * 256);
+            } else {
+                *words += ((dev->read_register(0x42) & 0x0f) * 256 * 256);
+            }
     }
 
   DBG(DBG_proc, "%s: %d words\n", __func__, *words);
@@ -752,28 +694,22 @@ void sanei_genesys_read_valid_words(Genesys_Device* dev, unsigned int* words)
 void sanei_genesys_read_scancnt(Genesys_Device* dev, unsigned int* words)
 {
     DBG_HELPER(dbg);
-  uint8_t value;
 
   if (dev->model->asic_type == GENESYS_GL124)
     {
-        sanei_genesys_read_hregister(dev, 0x10b, &value);
-        *words = (value & 0x0f) << 16;
-        sanei_genesys_read_hregister(dev, 0x10c, &value);
-        *words += (value << 8);
-        sanei_genesys_read_hregister(dev, 0x10d, &value);
-        *words += value;
+        *words = (dev->read_register(0x10b) & 0x0f) << 16;
+        *words += (dev->read_register(0x10c) << 8);
+        *words += dev->read_register(0x10d);
     }
   else
     {
-            sanei_genesys_read_register(dev, 0x4d, &value);
-            *words = value;
-            sanei_genesys_read_register(dev, 0x4c, &value);
-            *words += value * 256;
-            sanei_genesys_read_register(dev, 0x4b, &value);
-      if (dev->model->asic_type == GENESYS_GL646)
-        *words += ((value & 0x03) * 256 * 256);
-      else
-        *words += ((value & 0x0f) * 256 * 256);
+        *words = dev->read_register(0x4d);
+        *words += dev->read_register(0x4c) * 256;
+        if (dev->model->asic_type == GENESYS_GL646) {
+            *words += ((dev->read_register(0x4b) & 0x03) * 256 * 256);
+        } else {
+            *words += ((dev->read_register(0x4b) & 0x0f) * 256 * 256);
+        }
     }
 
   DBG(DBG_proc, "%s: %d lines\n", __func__, *words);
@@ -792,8 +728,7 @@ void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empty)
   sanei_genesys_sleep_ms(1);
     sanei_genesys_get_status(dev, &val);
 
-  if (dev->model->cmd_set->test_buffer_empty_bit (val))
-    {
+    if (dev->cmd_set->test_buffer_empty_bit(val)) {
       /* fix timing issue on USB3 (or just may be too fast) hardware
        * spotted by John S. Weber <jweber53@gmail.com>
        */
@@ -835,35 +770,29 @@ void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, si
         throw SaneException(SANE_STATUS_IO_ERROR, "timeout, buffer does not get filled");
     }
 
-    dev->model->cmd_set->bulk_read_data(dev, 0x45, data, size);
+    dev->cmd_set->bulk_read_data(dev, 0x45, data, size);
 }
 void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps)
 {
     DBG_HELPER(dbg);
-  uint8_t value;
 
   if (dev->model->asic_type == GENESYS_GL124)
     {
-        sanei_genesys_read_hregister(dev, 0x108, &value);
-        *steps = (value & 0x1f) << 16;
-        sanei_genesys_read_hregister(dev, 0x109, &value);
-        *steps += (value << 8);
-        sanei_genesys_read_hregister(dev, 0x10a, &value);
-        *steps += value;
+        *steps = (dev->read_register(0x108) & 0x1f) << 16;
+        *steps += (dev->read_register(0x109) << 8);
+        *steps += dev->read_register(0x10a);
     }
   else
     {
-        sanei_genesys_read_register(dev, 0x4a, &value);
-        *steps = value;
-        sanei_genesys_read_register(dev, 0x49, &value);
-        *steps += value * 256;
-        sanei_genesys_read_register(dev, 0x48, &value);
-      if (dev->model->asic_type == GENESYS_GL646)
-        *steps += ((value & 0x03) * 256 * 256);
-      else if (dev->model->asic_type == GENESYS_GL841)
-        *steps += ((value & 0x0f) * 256 * 256);
-      else
-        *steps += ((value & 0x1f) * 256 * 256);
+        *steps = dev->read_register(0x4a);
+        *steps += dev->read_register(0x49) * 256;
+        if (dev->model->asic_type == GENESYS_GL646) {
+            *steps += ((dev->read_register(0x48) & 0x03) * 256 * 256);
+        } else if (dev->model->asic_type == GENESYS_GL841) {
+            *steps += ((dev->read_register(0x48) & 0x0f) * 256 * 256);
+        } else {
+            *steps += ((dev->read_register(0x48) & 0x1f) * 256 * 256);
+        }
     }
 
   DBG(DBG_proc, "%s: %d steps\n", __func__, *steps);
@@ -934,7 +863,7 @@ void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set)
  * @param reg pointer to an array of registers
  * @param elems size of the array
  */
-void sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Register_Set& reg)
+void sanei_genesys_bulk_write_register(Genesys_Device* dev, const Genesys_Register_Set& reg)
 {
     DBG_HELPER(dbg);
 
@@ -984,7 +913,7 @@ void sanei_genesys_bulk_write_register(Genesys_Device * dev, Genesys_Register_Se
         }
     } else {
         for (const auto& r : reg) {
-            sanei_genesys_write_register(dev, r.address, r.value);
+            dev->write_register(r.address, r.value);
         }
     }
 
@@ -1074,7 +1003,6 @@ std::vector<uint16_t> get_gamma_table(Genesys_Device* dev, const Genesys_Sensor&
  * @param max value for gamma
  * @param size of the gamma table
  * @param gamma allocated gamma buffer to fill
- * @returns SANE_STATUS_GOOD or SANE_STATUS_NO_MEM
  */
 void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
                                                 const Genesys_Sensor& sensor,
@@ -1147,7 +1075,6 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
     DBG_HELPER(dbg);
   int size;
   int i;
-  uint8_t val;
 
   size = 256 + 1;
 
@@ -1159,14 +1086,14 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
     // loop sending gamma tables NOTE: 0x01000000 not 0x10000000
     for (i = 0; i < 3; i++) {
         // clear corresponding GMM_N bit
-        sanei_genesys_read_register(dev, 0xbd, &val);
-      val &= ~(0x01 << i);
-        sanei_genesys_write_register(dev, 0xbd, val);
+        uint8_t val = dev->read_register(0xbd);
+        val &= ~(0x01 << i);
+        dev->write_register(0xbd, val);
 
         // clear corresponding GMM_F bit
-        sanei_genesys_read_register(dev, 0xbe, &val);
+        val = dev->read_register(0xbe);
       val &= ~(0x01 << i);
-        sanei_genesys_write_register(dev, 0xbe, val);
+        dev->write_register(0xbe, val);
 
       // FIXME: currently the last word of each gamma table is not initialied, so to work around
       // unstable data, just set it to 0 which is the most likely value of uninitialized memory
@@ -1175,8 +1102,8 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
       gamma[size * 2 * i + size * 2 - 1] = 0;
 
       /* set GMM_Z */
-        sanei_genesys_write_register(dev, 0xc5+2*i, gamma[size*2*i+1]);
-        sanei_genesys_write_register(dev, 0xc6+2*i, gamma[size*2*i]);
+        dev->write_register(0xc5+2*i, gamma[size*2*i+1]);
+        dev->write_register(0xc6+2*i, gamma[size*2*i]);
 
         sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2,
                                 gamma.data() + i * size * 2+2);
@@ -1191,7 +1118,6 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
  *
  * @param dev device to initialize
  * @param max_regs umber of maximum used registers
- * @return SANE_STATUS_GOOD in case of success
  */
 void sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
 {
@@ -1214,14 +1140,11 @@ void sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
       dev->usb_mode = 2;
     }
 
-  /* check if the device has already been initialized and powered up
-   * we read register 6 and check PWRBIT, if reset scanner has been
-   * freshly powered up. This bit will be set to later so that following
-   * reads can detect power down/up cycle*/
-    sanei_genesys_read_register(dev, 0x06, &val);
-  /* test for POWER bit */
-  if (val & 0x10)
-    {
+    /*  Check if the device has already been initialized and powered up. We read register 0x06 and
+        check PWRBIT, if reset scanner has been freshly powered up. This bit will be set to later
+        so that following reads can detect power down/up cycle
+    */
+    if (dev->read_register(0x06) & 0x10) {
       cold = SANE_FALSE;
     }
   DBG (DBG_info, "%s: device is %s\n", __func__, cold ? "cold" : "warm");
@@ -1235,7 +1158,7 @@ void sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
     }
 
     // set up hardware and registers
-    dev->model->cmd_set->asic_boot(dev, cold);
+    dev->cmd_set->asic_boot(dev, cold);
 
   /* now hardware part is OK, set up device struct */
   dev->white_average_data.clear();
@@ -1249,16 +1172,16 @@ void sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
     // Set analog frontend
-    dev->model->cmd_set->set_fe(dev, sensor, AFE_INIT);
+    dev->cmd_set->set_fe(dev, sensor, AFE_INIT);
 
   dev->already_initialized = SANE_TRUE;
 
     // Move to home if needed
-    dev->model->cmd_set->slow_back_home(dev, SANE_TRUE);
+    dev->cmd_set->slow_back_home(dev, SANE_TRUE);
   dev->scanhead_position_in_steps = 0;
 
     // Set powersaving (default = 15 minutes)
-    dev->model->cmd_set->set_powersaving(dev, 15);
+    dev->cmd_set->set_powersaving(dev, 15);
 }
 
 /**
@@ -1307,62 +1230,6 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
         DBG (DBG_error, "%s: failed to reach park position in %dseconds\n", __func__, max/10);
         throw SaneException(SANE_STATUS_IO_ERROR, "failed to reach park position");
     }
-}
-
-/**@brief compute hardware sensor dpi to use
- * compute the sensor hardware dpi based on target resolution.
- * A lower dpihw enable faster scans.
- * @param dev device used for the scan
- * @param xres x resolution of the scan
- * @return the hardware dpi to use
- */
-int sanei_genesys_compute_dpihw(Genesys_Device *dev, const Genesys_Sensor& sensor, int xres)
-{
-  /* some scanners use always hardware dpi for sensor */
-  if (dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE)
-    {
-      return sensor.optical_res;
-    }
-
-  /* can't be below 600 dpi */
-  if (xres <= 600)
-    {
-      return 600;
-    }
-  if (xres <= sensor.optical_res / 4)
-    {
-      return sensor.optical_res / 4;
-    }
-  if (xres <= sensor.optical_res / 2)
-    {
-      return sensor.optical_res / 2;
-    }
-  return sensor.optical_res;
-}
-
-// sanei_genesys_compute_dpihw returns the dpihw that is written to register.
-// However the number of pixels depends on half_ccd mode
-int sanei_genesys_compute_dpihw_calibration(Genesys_Device *dev, const Genesys_Sensor& sensor,
-                                            int xres)
-{
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    {
-      // real resolution is half of the "official" resolution - half_ccd mode
-      int hwres = sensor.optical_res / sensor.get_ccd_size_divisor_for_dpi(xres);
-
-      if (xres <= hwres / 4)
-        {
-          return hwres / 4;
-        }
-      if (xres <= hwres / 2)
-        {
-          return hwres / 2;
-        }
-      return hwres;
-    }
-
-  return sanei_genesys_compute_dpihw(dev, sensor, xres);
 }
 
 /** @brief motor profile
@@ -1577,13 +1444,12 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
 #endif
   int compatible = 1, resolution;
 
-  if(dev->model->cmd_set->calculate_current_setup==NULL)
-    {
+    if(dev->cmd_set->calculate_current_setup == nullptr) {
       DBG (DBG_proc, "%s: no calculate_setup, non compatible cache\n", __func__);
       return false;
     }
 
-    dev->model->cmd_set->calculate_current_setup(dev, sensor);
+    dev->cmd_set->calculate_current_setup(dev, sensor);
 
   DBG (DBG_proc, "%s: checking\n", __func__);
 
@@ -1600,13 +1466,13 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
     }
   else
     {
-      resolution=sanei_genesys_compute_dpihw(dev, sensor, dev->settings.xres);
-      compatible = (resolution == ((int) sanei_genesys_compute_dpihw(dev, sensor,cache->used_setup.xres)));
+        compatible = (sensor.get_register_hwdpi(dev->settings.xres) ==
+                      sensor.get_register_hwdpi(cache->used_setup.xres));
     }
   DBG (DBG_io, "%s: after resolution check current compatible=%d\n", __func__, compatible);
   if (dev->current_setup.ccd_size_divisor != cache->used_setup.ccd_size_divisor)
     {
-      DBG (DBG_io, "%s: half_ccd=%d, used=%d\n", __func__,
+      DBG (DBG_io, "%s: ccd_size_divisor=%d, used=%d\n", __func__,
            dev->current_setup.ccd_size_divisor, cache->used_setup.ccd_size_divisor);
       compatible = 0;
     }

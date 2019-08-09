@@ -45,12 +45,8 @@
  * Conversion filters for genesys backend
  */
 
-static SANE_Status
-FUNC_NAME(genesys_reorder_components_cis) (
-    uint8_t *src_data,
-    uint8_t *dst_data,
-    unsigned int lines,
-    unsigned int pixels)
+static void FUNC_NAME(genesys_reorder_components_cis) (uint8_t* src_data, uint8_t* dst_data,
+                                                       unsigned int lines, unsigned int pixels)
 {
     DBG_HELPER(dbg);
     unsigned int x, y;
@@ -95,15 +91,10 @@ FUNC_NAME(genesys_reorder_components_cis) (
 	src[1] += rest;
 	src[2] += rest;
     }
-    return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-FUNC_NAME(genesys_reorder_components_cis_bgr) (
-    uint8_t *src_data,
-    uint8_t *dst_data,
-    unsigned int lines,
-    unsigned int pixels)
+static void FUNC_NAME(genesys_reorder_components_cis_bgr) (uint8_t* src_data, uint8_t* dst_data,
+                                                           unsigned int lines, unsigned int pixels)
 {
     DBG_HELPER(dbg);
     unsigned int x, y;
@@ -147,15 +138,10 @@ FUNC_NAME(genesys_reorder_components_cis_bgr) (
 	src[1] += rest;
 	src[2] += rest;
     }
-    return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-FUNC_NAME(genesys_reorder_components_bgr) (
-    uint8_t *src_data,
-    uint8_t *dst_data,
-    unsigned int lines,
-    unsigned int pixels)
+static void FUNC_NAME(genesys_reorder_components_bgr) (uint8_t* src_data, uint8_t* dst_data,
+                                                       unsigned int lines, unsigned int pixels)
 {
     DBG_HELPER(dbg);
     unsigned int c;
@@ -189,17 +175,12 @@ FUNC_NAME(genesys_reorder_components_bgr) (
 #endif
 
     }
-    return SANE_STATUS_GOOD;
 }
 
 #if defined(DOUBLE_BYTE) && defined(WORDS_BIGENDIAN)
-static SANE_Status
-FUNC_NAME(genesys_reorder_components_endian) (
-    uint8_t *src_data,
-    uint8_t *dst_data,
-    unsigned int lines,
-    unsigned int pixels,
-    unsigned int channels)
+static void FUNC_NAME(genesys_reorder_components_endian) (uint8_t* src_data, uint8_t* dst_data,
+                                                          unsigned int lines, unsigned int pixels,
+                                                          unsigned int channels)
 {
     DBG_HELPER(dbg);
     unsigned int c;
@@ -211,19 +192,13 @@ FUNC_NAME(genesys_reorder_components_endian) (
 	*dst++ = src[0];
 	src += 2;
     }
-return SANE_STATUS_GOOD;
 }
 #endif /*defined(DOUBLE_BYTE) && defined(WORDS_BIGENDIAN)*/
 
 
-static SANE_Status
-FUNC_NAME(genesys_reverse_ccd) (
-    uint8_t *src_data,
-    uint8_t *dst_data,
-    unsigned int lines,
-    unsigned int components_per_line,
-    unsigned int *ccd_shift,
-    unsigned int component_count)
+static void FUNC_NAME(genesys_reverse_ccd) (uint8_t* src_data, uint8_t* dst_data,
+                                            unsigned int lines, unsigned int components_per_line,
+                                            unsigned int *ccd_shift, unsigned int component_count)
 {
     DBG_HELPER(dbg);
     unsigned int x, y, c;
@@ -283,17 +258,12 @@ FUNC_NAME(genesys_reverse_ccd) (
 	    }
 	}
     }
-    return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-FUNC_NAME(genesys_shrink_lines) (
-    uint8_t *src_data,
-    uint8_t *dst_data,
-    unsigned int lines,
-    unsigned int src_pixels,
-    unsigned int dst_pixels,
-    unsigned int channels)
+static void FUNC_NAME(genesys_shrink_lines) (uint8_t* src_data, uint8_t* dst_data,
+                                             unsigned int lines,
+                                             unsigned int src_pixels, unsigned int dst_pixels,
+                                             unsigned int channels)
 {
     DBG_HELPER(dbg);
     unsigned int dst_x, src_x, y, c, cnt;
@@ -347,5 +317,4 @@ FUNC_NAME(genesys_shrink_lines) (
 	    }
 	}
     }
-    return SANE_STATUS_GOOD;
 }

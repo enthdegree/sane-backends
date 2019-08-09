@@ -218,7 +218,7 @@ static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
   int dpihw;
   uint16_t exp;
 
-  dpihw=sanei_genesys_compute_dpihw(dev, sensor, dpi);
+    dpihw = sensor.get_register_hwdpi(dpi);
 
     for (uint16_t addr = 0x16; addr < 0x1e; addr++) {
         regs->set8(addr, sensor.custom_regs.get_value(addr));
@@ -228,11 +228,11 @@ static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
         regs->set8(addr, sensor.custom_regs.get_value(addr));
     }
 
-  /* set EXPDUMMY and CKxMAP */
-  dpihw=sanei_genesys_compute_dpihw(dev, sensor, dpi);
+    // set EXPDUMMY and CKxMAP
+    dpihw = sensor.get_register_hwdpi(dpi);
   Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw);
 
-  sanei_genesys_set_reg_from_set(regs,REG_EXPDMY,(uint8_t)((sensor_profile->expdummy) & 0xff));
+    regs->set8(REG_EXPDMY, (uint8_t)((sensor_profile->expdummy) & 0xff));
 
   /* if no calibration has been done, set default values for exposures */
   exp = sensor.exposure.red;
@@ -240,25 +240,25 @@ static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
     {
       exp=sensor_profile->expr;
     }
-  sanei_genesys_set_double(regs,REG_EXPR,exp);
+    regs->set16(REG_EXPR, exp);
 
   exp = sensor.exposure.green;
   if(exp==0)
     {
       exp=sensor_profile->expg;
     }
-  sanei_genesys_set_double(regs,REG_EXPG,exp);
+    regs->set16(REG_EXPG, exp);
 
   exp = sensor.exposure.blue;
   if(exp==0)
     {
       exp=sensor_profile->expb;
     }
-  sanei_genesys_set_double(regs,REG_EXPB,exp);
+    regs->set16(REG_EXPB, exp);
 
-  sanei_genesys_set_triple(regs,REG_CK1MAP,sensor_profile->ck1map);
-  sanei_genesys_set_triple(regs,REG_CK3MAP,sensor_profile->ck3map);
-  sanei_genesys_set_triple(regs,REG_CK4MAP,sensor_profile->ck4map);
+    regs->set24(REG_CK1MAP, sensor_profile->ck1map);
+    regs->set24(REG_CK3MAP, sensor_profile->ck3map);
+    regs->set24(REG_CK4MAP, sensor_profile->ck4map);
 
   /* order of the sub-segments */
   dev->order=sensor_profile->order;
@@ -495,11 +495,10 @@ static void gl846_set_adi_fe(Genesys_Device* dev, uint8_t set)
 static void gl846_homsnr_gpio(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-uint8_t val;
 
-    sanei_genesys_read_register(dev, REG6C, &val);
-  val |= 0x41;
-    sanei_genesys_write_register(dev, REG6C, val);
+    uint8_t val = dev->read_register(REG6C);
+    val |= 0x41;
+    dev->write_register(REG6C, val);
 }
 
 // Set values of analog frontend
@@ -564,7 +563,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     }
   DBG (DBG_io, "%s: use_fast_fed=%d\n", __func__, use_fast_fed);
 
-  sanei_genesys_set_triple(reg, REG_LINCNT, scan_lines);
+    reg->set24(REG_LINCNT, scan_lines);
   DBG (DBG_io, "%s: lincnt=%d\n", __func__, scan_lines);
 
   /* compute register 02 value */
@@ -648,12 +647,13 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
   DBG (DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
 
   /* check for overflow */
-  if(dist<feedl)
-    feedl -= dist;
-  else
-    feedl = 0;
+    if (dist < feedl) {
+        feedl -= dist;
+    } else {
+        feedl = 0;
+    }
 
-  sanei_genesys_set_triple(reg,REG_FEEDL,feedl);
+    reg->set24(REG_FEEDL, feedl);
   DBG (DBG_io ,"%s: feedl=%d\n",__func__,feedl);
 
   r = sanei_genesys_get_address (reg, REG0C);
@@ -664,7 +664,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
 
   /* hi res motor speed GPIO */
   /*
-  sanei_genesys_read_register(dev, REG6C, &effective);
+    uint8_t effective = dev->read_register(REG6C);
   */
 
   /* if quarter step, bipolar Vref2 */
@@ -684,27 +684,26 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     {
       val = effective;
     }
-    sanei_genesys_write_register(dev, REG6C, val);
+    dev->write_register(REG6C, val);
     */
 
   /* effective scan */
   /*
-  sanei_genesys_read_register(dev, REG6C, &effective);
+    effective = dev->read_register(REG6C);
   val = effective | REG6C_GPIO10;
-    sanei_genesys_write_register(dev, REG6C, val);
+    dev->write_register(REG6C, val);
   */
 
   if(dev->model->gpo_type==GPO_IMG101)
     {
-      if(scan_yres==sanei_genesys_compute_dpihw(dev, sensor,scan_yres))
-        {
+        if (scan_yres == sensor.get_register_hwdpi(scan_yres)) {
           val=1;
         }
       else
         {
           val=0;
         }
-        sanei_genesys_write_register(dev, REG7E, val);
+        dev->write_register(REG7E, val);
     }
 
   min_restep=scan_steps/2-1;
@@ -725,10 +724,10 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
                                  &z2);
 
   DBG(DBG_info, "%s: z1 = %d\n", __func__, z1);
-  sanei_genesys_set_triple(reg, REG60, z1 | (scan_step_type << (16+REG60S_STEPSEL)));
+    reg->set24(REG60, z1 | (scan_step_type << (16 + REG60S_STEPSEL)));
 
   DBG(DBG_info, "%s: z2 = %d\n", __func__, z2);
-  sanei_genesys_set_triple(reg, REG63, z2 | (scan_step_type << (16+REG63S_FSTPSEL)));
+    reg->set24(REG63, z2 | (scan_step_type << (16 + REG63S_FSTPSEL)));
 
   r = sanei_genesys_get_address (reg, 0x1e);
   r->value &= 0xf0;		/* 0 dummy lines */
@@ -778,12 +777,12 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
 static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
                                          int used_res, unsigned int start, unsigned int pixels,
-                                         int channels, int depth, SANE_Bool half_ccd,
+                                         int channels, int depth,
                                          ColorFilter color_filter, int flags)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
-                         "half_ccd=%d, flags=%x",
-                    exposure_time, used_res, start, pixels, channels, depth, half_ccd, flags);
+                         "flags=%x",
+                    exposure_time, used_res, start, pixels, channels, depth, flags);
   unsigned int words_per_line;
     unsigned int dpiset, dpihw, segnb, factor;
   unsigned int bytes;
@@ -795,7 +794,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     // to manage high resolution device while keeping good low resolution scanning speed,
     // we make hardware dpi vary
-    dpihw = sanei_genesys_compute_dpihw(dev, sensor, used_res * ccd_pixels_per_system_pixel);
+    dpihw = sensor.get_register_hwdpi(used_res * ccd_pixels_per_system_pixel);
     factor = sensor.optical_res/dpihw;
     DBG(DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
@@ -969,11 +968,11 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   dev->segnb=segnb;
   dev->line_interp = 0;
 
-  sanei_genesys_set_double(reg,REG_DPISET,dpiset);
-  DBG (DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);
+    reg->set16(REG_DPISET,dpiset);
+    DBG (DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);
 
-  sanei_genesys_set_double(reg,REG_STRPIXEL,startx);
-  sanei_genesys_set_double(reg,REG_ENDPIXEL,endx);
+    reg->set16(REG_STRPIXEL,startx);
+    reg->set16(REG_ENDPIXEL,endx);
   DBG (DBG_io2, "%s: startx=%d\n", __func__, startx);
   DBG (DBG_io2, "%s: endx  =%d\n", __func__, endx);
 
@@ -992,10 +991,10 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dev->oe_buffer.alloc(dev->wpl);
 
   /* MAXWD is expressed in 4 words unit */
-  sanei_genesys_set_triple(reg, REG_MAXWD, (words_per_line >> 2));
+  reg->set24(REG_MAXWD, (words_per_line >> 2));
   DBG (DBG_io2, "%s: words_per_line used=%d\n", __func__, words_per_line);
 
-  sanei_genesys_set_double(reg, REG_LPERIOD, exposure_time);
+    reg->set16(REG_LPERIOD, exposure_time);
   DBG (DBG_io2, "%s: exposure_time used=%d\n", __func__, exposure_time);
 
   r = sanei_genesys_get_address (reg, 0x34);
@@ -1027,31 +1026,21 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int max_shift;
   size_t requested_buffer_size, read_buffer_size;
 
-  SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
 
     debug_dump(DBG_info, params);
 
-  /* we may have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (sensor.get_ccd_size_divisor_for_dpi(params.xres) > 1)
-    {
-      half_ccd = SANE_TRUE;
-    }
-  else
-    {
-      half_ccd = SANE_FALSE;
-    }
+    // we may have 2 domains for ccd: xres below or above half ccd max dpi
+    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(params.xres);
 
-  /* optical_res */
-  optical_res = sensor.optical_res;
-  if (half_ccd)
-    optical_res /= 2;
+    optical_res = sensor.optical_res / ccd_size_divisor;
 
   /* stagger */
-  if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-    stagger = (4 * params.yres) / dev->motor.base_ydpi;
-  else
-    stagger = 0;
+    if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
+        stagger = (4 * params.yres) / dev->motor.base_ydpi;
+    } else {
+        stagger = 0;
+    }
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
 
   /* used_res */
@@ -1125,7 +1114,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
 
     gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, used_res, start, used_pixels,
-                                 params.channels, params.depth, half_ccd, params.color_filter,
+                                 params.channels, params.depth, params.color_filter,
                                  oflags);
 
 /*** motor parameters ***/
@@ -1189,7 +1178,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
   dev->current_setup.yres = params.yres;
-  dev->current_setup.ccd_size_divisor = half_ccd ? 2 : 1;
+  dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 
@@ -1239,7 +1228,6 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   int dummy = 0;
   int max_shift;
 
-  SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
 
     DBG(DBG_info, "%s ", __func__);
@@ -1279,13 +1267,8 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, params);
 
-/* half_ccd */
-  /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-    if (sensor.get_ccd_size_divisor_for_dpi(params.xres) > 1) {
-        half_ccd = SANE_TRUE;
-    } else {
-        half_ccd = SANE_FALSE;
-    }
+    // we have 2 domains for ccd: xres below or above half ccd max dpi
+    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(params.xres);
 
   /* optical_res */
   optical_res = sensor.optical_res;
@@ -1334,7 +1317,7 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
   dev->current_setup.yres = params.yres;
-  dev->current_setup.ccd_size_divisor = half_ccd ? 2 : 1;
+    dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 }
@@ -1355,13 +1338,13 @@ static void gl846_set_powersaving(Genesys_Device* dev, int delay /* in minutes *
 static void gl846_start_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-    sanei_genesys_write_register(dev, 0x0f, 0x01);
+    dev->write_register(0x0f, 0x01);
 }
 
 static void gl846_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  uint8_t val40, val;
+    uint8_t val;
   unsigned int loop;
 
     // post scan gpio : without that HOMSNR is unreliable
@@ -1372,7 +1355,7 @@ static void gl846_stop_action(Genesys_Device* dev)
       sanei_genesys_print_status (val);
     }
 
-    sanei_genesys_read_register(dev, REG40, &val40);
+    uint8_t val40 = dev->read_register(REG40);
 
   /* only stop action if needed */
   if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG))
@@ -1385,7 +1368,7 @@ static void gl846_stop_action(Genesys_Device* dev)
   val = dev->reg.get8(REG01);
   val &= ~REG01_SCAN;
   dev->reg.set8(REG01, val);
-    sanei_genesys_write_register(dev, REG01, val);
+    dev->write_register(REG01, val);
   sanei_genesys_sleep_ms(100);
 
   loop = 10;
@@ -1396,7 +1379,7 @@ static void gl846_stop_action(Genesys_Device* dev)
         {
           sanei_genesys_print_status (val);
         }
-        sanei_genesys_read_register(dev, REG40, &val40);
+        val40 = dev->read_register(REG40);
 
       /* if scanner is in command mode, we are done */
       if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG)
@@ -1423,25 +1406,25 @@ static void gl846_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
   /* XXX STEF XXX SCAN GPIO */
   /*
-  sanei_genesys_read_register(dev, REG6C, &val);
-    sanei_genesys_write_register(dev, REG6C, val);
+    val = dev->read_register(REG6C);
+    dev->write_register(REG6C, val);
   */
 
   val = REG0D_CLRLNCNT;
-    sanei_genesys_write_register(dev, REG0D, val);
+    dev->write_register(REG0D, val);
   val = REG0D_CLRMCNT;
-    sanei_genesys_write_register(dev, REG0D, val);
+    dev->write_register(REG0D, val);
 
-    sanei_genesys_read_register(dev, REG01, &val);
-  val |= REG01_SCAN;
-    sanei_genesys_write_register(dev, REG01, val);
+    val = dev->read_register(REG01);
+    val |= REG01_SCAN;
+    dev->write_register(REG01, val);
   r = sanei_genesys_get_address (reg, REG01);
   r->value = val;
 
     if (start_motor) {
-        sanei_genesys_write_register(dev, REG0F, 1);
+        dev->write_register(REG0F, 1);
     } else {
-        sanei_genesys_write_register(dev, REG0F, 0);
+        dev->write_register(REG0F, 0);
     }
 }
 
@@ -1527,13 +1510,13 @@ static void gl846_slow_back_home(Genesys_Device* dev,  SANE_Bool wait_until_home
   dev->settings.scan_mode=scan_mode;
 
     // clear scan and feed count
-    sanei_genesys_write_register(dev, REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT);
+    dev->write_register(REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT);
 
   /* set up for reverse */
   r = sanei_genesys_get_address(&local_reg, REG02);
   r->value |= REG02_MTRREV;
 
-    dev->model->cmd_set->bulk_write_register(dev, local_reg);
+    dev->write_registers(local_reg);
 
     try {
         gl846_start_action(dev);
@@ -1544,7 +1527,7 @@ static void gl846_slow_back_home(Genesys_Device* dev,  SANE_Bool wait_until_home
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {
-            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
+            dev->write_registers(dev->reg);
         });
         throw;
     }
@@ -1618,7 +1601,7 @@ static void gl846_search_start_position(Genesys_Device* dev)
     gl846_init_scan_regs(dev, sensor, &local_reg, params);
 
     // send to scanner
-    dev->model->cmd_set->bulk_write_register(dev, local_reg);
+    dev->write_registers(local_reg);
 
   size = pixels * dev->model->search_lines;
 
@@ -1688,7 +1671,7 @@ static void gl846_init_regs_for_coarse_calibration(Genesys_Device* dev,
     DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
         sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
 
-    dev->model->cmd_set->bulk_write_register(dev, regs);
+    dev->write_registers(regs);
 }
 
 /** @brief moves the slider to steps at motor base dpi
@@ -1728,21 +1711,20 @@ static void gl846_feed(Genesys_Device* dev, unsigned int steps)
 
     gl846_init_scan_regs(dev, sensor, &local_reg, params);
 
-  /* set exposure to zero */
-  sanei_genesys_set_triple(&local_reg,REG_EXPR,0);
-  sanei_genesys_set_triple(&local_reg,REG_EXPG,0);
-  sanei_genesys_set_triple(&local_reg,REG_EXPB,0);
+    local_reg.set24(REG_EXPR, 0);
+    local_reg.set24(REG_EXPG, 0);
+    local_reg.set24(REG_EXPB, 0);
 
     // clear scan and feed count
-    sanei_genesys_write_register(dev, REG0D, REG0D_CLRLNCNT);
-    sanei_genesys_write_register(dev, REG0D, REG0D_CLRMCNT);
+    dev->write_register(REG0D, REG0D_CLRLNCNT);
+    dev->write_register(REG0D, REG0D_CLRMCNT);
 
   /* set up for no scan */
   r = sanei_genesys_get_address(&local_reg, REG01);
   r->value &= ~REG01_SCAN;
 
     // send registers
-    dev->model->cmd_set->bulk_write_register(dev, local_reg);
+    dev->write_registers(local_reg);
 
     try {
         gl846_start_action(dev);
@@ -1753,7 +1735,7 @@ static void gl846_feed(Genesys_Device* dev, unsigned int steps)
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {
-            dev->model->cmd_set->bulk_write_register(dev, dev->reg);
+            dev->write_registers(dev->reg);
         });
         throw;
     }
@@ -1780,7 +1762,7 @@ static void gl846_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
   /* initial calibration reg values */
   regs = dev->reg;
 
-  dev->calib_resolution = sanei_genesys_compute_dpihw(dev, sensor, dev->settings.xres);
+    dev->calib_resolution = sensor.get_register_hwdpi(dev->settings.xres);
   dev->calib_total_bytes_to_read = 0;
   dev->calib_lines = dev->model->shading_lines;
   if(dev->calib_resolution==4800)
@@ -1816,7 +1798,7 @@ static void gl846_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
 
     gl846_init_scan_regs(dev, sensor, &regs, params);
 
-    dev->model->cmd_set->bulk_write_register(dev, regs);
+    dev->write_registers(regs);
 
   /* we use GENESYS_FLAG_SHADING_REPARK */
   dev->scanhead_position_in_steps = 0;
@@ -1934,7 +1916,6 @@ static void gl846_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
   uint32_t addr, length, i, x, factor, pixels;
   uint32_t dpiset, dpihw, strpixel, endpixel;
-  uint16_t tempo;
   uint32_t lines, channels;
   uint8_t val,*ptr,*src;
 
@@ -1945,24 +1926,21 @@ static void gl846_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
      write(0x10068000,0x00000dd8)
    */
   length = (uint32_t) (size / 3);
-  sanei_genesys_get_double(&dev->reg,REG_STRPIXEL,&tempo);
-  strpixel=tempo;
-  sanei_genesys_get_double(&dev->reg,REG_ENDPIXEL,&tempo);
-  endpixel=tempo;
+    strpixel = dev->reg.get16(REG_STRPIXEL);
+    endpixel = dev->reg.get16(REG_ENDPIXEL);
 
   /* compute deletion factor */
-  sanei_genesys_get_double(&dev->reg,REG_DPISET,&tempo);
-  dpiset=tempo;
+    dpiset = dev->reg.get16(REG_DPISET);
   DBG(DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d, DPISET=%d\n", __func__, strpixel, endpixel,
       endpixel-strpixel, dpiset);
-  dpihw=sanei_genesys_compute_dpihw(dev, sensor, dpiset);
+    dpihw = sensor.get_register_hwdpi(dpiset);
   factor=dpihw/dpiset;
   DBG(DBG_io2, "%s: factor=%d\n", __func__, factor);
 
   if(DBG_LEVEL>=DBG_data)
     {
       dev->binary=fopen("binary.pnm","wb");
-      sanei_genesys_get_triple(&dev->reg, REG_LINCNT, &lines);
+        lines = dev->reg.get24(REG_LINCNT);
       channels=dev->current_setup.channels;
       if(dev->binary!=NULL)
         {
@@ -2009,8 +1987,8 @@ static void gl846_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
           ptr+=4;
         }
 
-        sanei_genesys_read_register(dev, 0xd0+i, &val);
-      addr = val * 8192 + 0x10000000;
+        val = dev->read_register(0xd0+i);
+        addr = val * 8192 + 0x10000000;
         sanei_genesys_write_ahb(dev, addr, pixels, buffer.data());
     }
 }
@@ -2047,7 +2025,7 @@ static void gl846_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
   /* offset calibration is always done in color mode */
   channels = 3;
   depth=16;
-  used_res=sanei_genesys_compute_dpihw(dev, sensor, dev->settings.xres);
+    used_res = sensor.get_register_hwdpi(dev->settings.xres);
   Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, used_res);
   num_pixels = (sensor.sensor_pixels*used_res)/sensor.optical_res;
 
@@ -2095,13 +2073,13 @@ static void gl846_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
   sanei_genesys_set_motor_power(regs, false);
   do
     {
-      /* set up exposure */
-      sanei_genesys_set_double(&regs,REG_EXPR,exp[0]);
-      sanei_genesys_set_double(&regs,REG_EXPG,exp[1]);
-      sanei_genesys_set_double(&regs,REG_EXPB,exp[2]);
+        // set up exposure
+        regs.set16(REG_EXPR, exp[0]);
+        regs.set16(REG_EXPG, exp[1]);
+        regs.set16(REG_EXPB, exp[2]);
 
         // write registers and scan data
-        dev->model->cmd_set->bulk_write_register(dev, regs);
+        dev->write_registers(regs);
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
         gl846_begin_scan(dev, sensor, &regs, SANE_TRUE);
@@ -2161,10 +2139,10 @@ static void gl846_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
 
   DBG(DBG_info, "%s: acceptable exposure: %d,%d,%d\n", __func__, exp[0], exp[1], exp[2]);
 
-  /* set these values as final ones for scan */
-  sanei_genesys_set_double(&dev->reg,REG_EXPR,exp[0]);
-  sanei_genesys_set_double(&dev->reg,REG_EXPG,exp[1]);
-  sanei_genesys_set_double(&dev->reg,REG_EXPB,exp[2]);
+    // set these values as final ones for scan
+    dev->reg.set16(REG_EXPR, exp[0]);
+    dev->reg.set16(REG_EXPG, exp[1]);
+    dev->reg.set16(REG_EXPB, exp[2]);
 
   /* store in this struct since it is the one used by cache calibration */
   sensor.exposure.red = exp[0];
@@ -2196,17 +2174,17 @@ static void gl846_init_gpio(Genesys_Device* dev)
         throw SaneException("failed to find GPIO profile for sensor_id=%d", dev->model->ccd_type);
     }
 
-    sanei_genesys_write_register(dev, REGA7, gpios[idx].ra7);
-    sanei_genesys_write_register(dev, REGA6, gpios[idx].ra6);
+    dev->write_register(REGA7, gpios[idx].ra7);
+    dev->write_register(REGA6, gpios[idx].ra6);
 
-    sanei_genesys_write_register(dev, REG6B, gpios[idx].r6b);
-    sanei_genesys_write_register(dev, REG6C, gpios[idx].r6c);
-    sanei_genesys_write_register(dev, REG6D, gpios[idx].r6d);
-    sanei_genesys_write_register(dev, REG6E, gpios[idx].r6e);
-    sanei_genesys_write_register(dev, REG6F, gpios[idx].r6f);
+    dev->write_register(REG6B, gpios[idx].r6b);
+    dev->write_register(REG6C, gpios[idx].r6c);
+    dev->write_register(REG6D, gpios[idx].r6d);
+    dev->write_register(REG6E, gpios[idx].r6e);
+    dev->write_register(REG6F, gpios[idx].r6f);
 
-    sanei_genesys_write_register(dev, REGA8, gpios[idx].ra8);
-    sanei_genesys_write_register(dev, REGA9, gpios[idx].ra9);
+    dev->write_register(REGA8, gpios[idx].ra8);
+    dev->write_register(REGA9, gpios[idx].ra9);
 }
 
 /**
@@ -2232,7 +2210,7 @@ static void gl846_init_memory_layout(Genesys_Device* dev)
 
   /* CLKSET and DRAMSEL */
   val = layouts[idx].dramsel;
-    sanei_genesys_write_register(dev, REG0B, val);
+    dev->write_register(REG0B, val);
   dev->reg.find_reg(0x0b).value = val;
 
   /* prevent further writings by bulk write register */
@@ -2241,7 +2219,7 @@ static void gl846_init_memory_layout(Genesys_Device* dev)
   /* setup base address for shading and scanned data. */
   for(i=0;i<10;i++)
     {
-      sanei_genesys_write_register(dev, 0xe0+i, layouts[idx].rx[i]);
+      dev->write_register(0xe0+i, layouts[idx].rx[i]);
     }
 }
 
@@ -2255,8 +2233,8 @@ static void gl846_boot(Genesys_Device* dev, SANE_Bool cold)
 
     // reset ASIC if cold boot
     if (cold) {
-        sanei_genesys_write_register(dev, 0x0e, 0x01);
-        sanei_genesys_write_register(dev, 0x0e, 0x00);
+        dev->write_register(0x0e, 0x01);
+        dev->write_register(0x0e, 0x00);
     }
 
   if(dev->usb_mode == 1)
@@ -2270,9 +2248,9 @@ static void gl846_boot(Genesys_Device* dev, SANE_Bool cold)
     sanei_genesys_write_0x8c(dev, 0x0f, val);
 
     // test CHKVER
-    sanei_genesys_read_register(dev, REG40, &val);
+    val = dev->read_register(REG40);
     if (val & REG40_CHKVER) {
-        sanei_genesys_read_register(dev, 0x00, &val);
+        val = dev->read_register(0x00);
         DBG(DBG_info, "%s: reported version for genesys chip is 0x%02x\n", __func__, val);
     }
 
@@ -2280,19 +2258,19 @@ static void gl846_boot(Genesys_Device* dev, SANE_Bool cold)
   gl846_init_registers (dev);
 
     // Write initial registers
-    dev->model->cmd_set->bulk_write_register(dev, dev->reg);
+    dev->write_registers(dev->reg);
 
   /* Enable DRAM by setting a rising edge on bit 3 of reg 0x0b */
   val = dev->reg.find_reg(0x0b).value & REG0B_DRAMSEL;
   val = (val | REG0B_ENBDRAM);
-    sanei_genesys_write_register(dev, REG0B, val);
+    dev->write_register(REG0B, val);
   dev->reg.find_reg(0x0b).value = val;
 
   /* CIS_LINE */
   if (dev->model->is_cis)
     {
       SETREG (0x08, REG08_CIS_LINE);
-        sanei_genesys_write_register(dev, 0x08, dev->reg.find_reg(0x08).value);
+        dev->write_register(0x08, dev->reg.find_reg(0x08).value);
     }
 
     // set up clocks
@@ -2306,7 +2284,7 @@ static void gl846_boot(Genesys_Device* dev, SANE_Bool cold)
     gl846_init_memory_layout(dev);
 
   SETREG (0xf8, 0x05);
-    sanei_genesys_write_register(dev, 0xf8, dev->reg.find_reg(0xf8).value);
+    dev->write_register(0xf8, dev->reg.find_reg(0xf8).value);
 }
 
 /**
@@ -2337,7 +2315,7 @@ static void gl846_update_hardware_sensors(Genesys_Scanner* s)
         email=0x04;
         copy=0x08;
     }
-    sanei_genesys_read_register(s->dev, REG6D, &val);
+    val = s->dev->read_register(REG6D);
 
     s->buttons[BUTTON_SCAN_SW].write((val & scan) == 0);
     s->buttons[BUTTON_FILE_SW].write((val & file) == 0);
@@ -2352,7 +2330,6 @@ static void gl846_update_hardware_sensors(Genesys_Scanner* s)
  * @param dev scanner device
  * @param forward SANE_TRUE if searching forward, SANE_FALSE if searching backward
  * @param black SANE_TRUE if searching for a black strip, SANE_FALSE for a white strip
- * @return SANE_STATUS_GOOD if a matching strip is found, SANE_STATUS_UNSUPPORTED if not
  */
 static void gl846_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, SANE_Bool forward,
                                SANE_Bool black)
@@ -2411,7 +2388,7 @@ static void gl846_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
         r->value |= REG02_MTRREV;
     }
 
-    dev->model->cmd_set->bulk_write_register(dev, local_reg);
+    dev->write_registers(local_reg);
 
     gl846_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
@@ -2437,7 +2414,7 @@ static void gl846_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
   found = 0;
   while (pass < 20 && !found)
     {
-        dev->model->cmd_set->bulk_write_register(dev, local_reg);
+        dev->write_registers(local_reg);
 
         // now start scan
         gl846_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
@@ -2588,14 +2565,13 @@ static void gl846_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
                                      Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
-  uint8_t reg04;
   unsigned int channels, bpp;
   int pass = 0, avg, total_size;
   int topavg, bottomavg, resolution, lines;
   int top, bottom, black_pixels, pixels;
 
     // no gain nor offset for AKM AFE
-    sanei_genesys_read_register(dev, REG04, &reg04);
+    uint8_t reg04 = dev->read_register(REG04);
   if ((reg04 & REG04_FESET) == 0x02)
     {
       return;
@@ -2650,7 +2626,7 @@ static void gl846_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   dev->frontend.set_offset(2, bottom);
 
     gl846_set_fe(dev, sensor, AFE_SET);
-    dev->model->cmd_set->bulk_write_register(dev, regs);
+    dev->write_registers(regs);
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
     gl846_begin_scan(dev, sensor, &regs, SANE_TRUE);
     sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
@@ -2670,7 +2646,7 @@ static void gl846_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   dev->frontend.set_offset(1, top);
   dev->frontend.set_offset(2, top);
     gl846_set_fe(dev, sensor, AFE_SET);
-    dev->model->cmd_set->bulk_write_register(dev, regs);
+    dev->write_registers(regs);
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
     gl846_begin_scan(dev, sensor, &regs, SANE_TRUE);
     sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
@@ -2690,7 +2666,7 @@ static void gl846_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
         // scan with no move
         gl846_set_fe(dev, sensor, AFE_SET);
-        dev->model->cmd_set->bulk_write_register(dev, regs);
+        dev->write_registers(regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         gl846_begin_scan(dev, sensor, &regs, SANE_TRUE);
         sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
@@ -2729,7 +2705,6 @@ static void gl846_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
     DBG_HELPER(dbg);
   int pixels;
   int total_size;
-  uint8_t reg04;
   int i, j, channels;
   int max[3];
   float gain[3],coeff;
@@ -2740,7 +2715,7 @@ static void gl846_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   DBG(DBG_proc, "%s: dpi = %d\n", __func__, dpi);
 
     // no gain nor offset for AKM AFE
-    sanei_genesys_read_register(dev, REG04, &reg04);
+    uint8_t reg04 = dev->read_register(REG04);
   if ((reg04 & REG04_FESET) == 0x02)
     {
       return;
@@ -2791,7 +2766,7 @@ static void gl846_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
     sanei_genesys_set_motor_power(regs, false);
 
-    dev->model->cmd_set->bulk_write_register(dev, regs);
+    dev->write_registers(regs);
 
   total_size = pixels * channels * (16/bpp) * lines;
 
@@ -2853,7 +2828,7 @@ static void gl846_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
 
 /** the gl846 command set */
-static Genesys_Command_Set gl846_cmd_set = {
+Genesys_Command_Set gl846_cmd_set = {
   "gl846-generic",		/* the name of this set */
 
   nullptr,
@@ -2891,7 +2866,6 @@ static Genesys_Command_Set gl846_cmd_set = {
   gl846_slow_back_home,
   NULL,
 
-  sanei_genesys_bulk_write_register,
   NULL,
   sanei_genesys_bulk_read_data,
 
@@ -2908,8 +2882,3 @@ static Genesys_Command_Set gl846_cmd_set = {
   gl846_calculate_current_setup,
   gl846_boot
 };
-
-void sanei_gl846_init_cmd_set(Genesys_Device* dev)
-{
-  dev->model->cmd_set = &gl846_cmd_set;
-}

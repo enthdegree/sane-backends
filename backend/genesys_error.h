@@ -49,6 +49,7 @@
 #include "../include/sane/sanei_backend.h"
 
 #include <stdexcept>
+#include <cstdarg>
 #include <cstring>
 #include <string>
 
@@ -64,40 +65,25 @@
 
 class SaneException : std::exception {
 public:
-    SaneException(SANE_Status status) : status_(status)
-    {
-        set_msg(nullptr);
-    }
+    SaneException(SANE_Status status);
+    SaneException(SANE_Status status, const char* format, ...)
+    #ifdef __GNUC__
+        __attribute__((format(printf, 3, 4)))
+    #endif
+    ;
 
-    SaneException(SANE_Status status, const char* msg) : status_(status)
-    {
-        set_msg(msg);
-    }
+    SaneException(const char* format, ...)
+    #ifdef __GNUC__
+        __attribute__((format(printf, 2, 3)))
+    #endif
+    ;
 
-    SaneException(const char* msg) : SaneException(SANE_STATUS_INVAL, msg) {}
-
-    SANE_Status status() const { return status_; }
-    virtual const char* what() const noexcept override { return msg_.c_str(); }
+    SANE_Status status() const;
+    const char* what() const noexcept override;
 
 private:
 
-    void set_msg(const char* msg)
-    {
-        const char* status_msg = sane_strstatus(status_);
-        std::size_t status_msg_len = std::strlen(status_msg);
-
-        if (msg) {
-            std::size_t msg_len = std::strlen(msg);
-            msg_.reserve(msg_len + status_msg_len + 3);
-            msg_ = msg;
-            msg_ += " : ";
-            msg_ += status_msg;
-            return;
-        }
-
-        msg_.reserve(status_msg_len);
-        msg_ = status_msg;
-    }
+    void set_msg(const char* format, std::va_list vlist);
 
     std::string msg_;
     SANE_Status status_;
@@ -123,9 +109,6 @@ private:
             throw SaneException(tmp_status);                                                       \
         }                                                                                          \
     } while (false)
-
-#define DBGSTART DBG (DBG_proc, "%s start\n", __func__);
-#define DBGCOMPLETED DBG (DBG_proc, "%s completed\n", __func__);
 
 class DebugMessageHelper {
 public:

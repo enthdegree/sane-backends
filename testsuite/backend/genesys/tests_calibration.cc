@@ -20,14 +20,14 @@
    MA 02111-1307, USA.
 */
 
+#define DEBUG_DECLARE_ONLY
+
 #include "tests.h"
 #include "minigtest.h"
 
 #include "../../../backend/genesys_low.h"
 
 #include <sstream>
-
-#define DEBUG_DECLARE_ONLY
 
 Genesys_Calibration_Cache create_fake_calibration_entry()
 {

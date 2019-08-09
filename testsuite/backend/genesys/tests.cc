@@ -20,6 +20,8 @@
    MA 02111-1307, USA.
 */
 
+#define DEBUG_DECLARE_ONLY
+
 #include "tests.h"
 #include "minigtest.h"
 

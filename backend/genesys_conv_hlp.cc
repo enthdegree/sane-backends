@@ -52,6 +52,7 @@ FUNC_NAME(genesys_reorder_components_cis) (
     unsigned int lines,
     unsigned int pixels)
 {
+    DBG_HELPER(dbg);
     unsigned int x, y;
     uint8_t *src[3];
     uint8_t *dst = dst_data;
@@ -104,6 +105,7 @@ FUNC_NAME(genesys_reorder_components_cis_bgr) (
     unsigned int lines,
     unsigned int pixels)
 {
+    DBG_HELPER(dbg);
     unsigned int x, y;
     uint8_t *src[3];
     uint8_t *dst = dst_data;
@@ -155,6 +157,7 @@ FUNC_NAME(genesys_reorder_components_bgr) (
     unsigned int lines,
     unsigned int pixels)
 {
+    DBG_HELPER(dbg);
     unsigned int c;
     uint8_t *src = src_data;
     uint8_t *dst = dst_data;
@@ -198,6 +201,7 @@ FUNC_NAME(genesys_reorder_components_endian) (
     unsigned int pixels,
     unsigned int channels)
 {
+    DBG_HELPER(dbg);
     unsigned int c;
     uint8_t *src = src_data;
     uint8_t *dst = dst_data;
@@ -221,6 +225,7 @@ FUNC_NAME(genesys_reverse_ccd) (
     unsigned int *ccd_shift,
     unsigned int component_count)
 {
+    DBG_HELPER(dbg);
     unsigned int x, y, c;
     COMPONENT_TYPE *src = (COMPONENT_TYPE *)src_data;
     COMPONENT_TYPE *dst = (COMPONENT_TYPE *)dst_data;
@@ -290,6 +295,7 @@ FUNC_NAME(genesys_shrink_lines) (
     unsigned int dst_pixels,
     unsigned int channels)
 {
+    DBG_HELPER(dbg);
     unsigned int dst_x, src_x, y, c, cnt;
     unsigned int avg[3];
     unsigned int count;

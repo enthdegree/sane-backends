@@ -6,10 +6,12 @@
 
 TEST_LDADD = \
   ../../../sanei/libsanei.la \
+  ../../../sanei/sanei_usb.lo \
+  ../../../sanei/sanei_magic.lo \
   ../../../lib/liblib.la \
   ../../../backend/libgenesys.la \
   ../../../backend/sane_strstatus.lo \
-  $(MATH_LIB) $(USB_LIBS) $(PTHREAD_LIBS)
+  $(MATH_LIB) $(USB_LIBS) $(XML_LIBS) $(PTHREAD_LIBS)
 
 check_PROGRAMS = genesys_tests
 TESTS = $(check_PROGRAMS)

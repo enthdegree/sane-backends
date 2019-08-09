@@ -1026,7 +1026,7 @@ typedef struct Genesys_Calibration_Cache  Genesys_Calibration_Cache;
  * same command set, but may have different optical resolution and other
  * parameters.
  */
-typedef struct Genesys_Command_Set
+struct Genesys_Command_Set
 {
   /** @name Identification */
   /*@{ */
@@ -1061,7 +1061,7 @@ typedef struct Genesys_Command_Set
     SANE_Bool (*test_buffer_empty_bit) (SANE_Byte val);
     SANE_Bool (*test_motor_flag_bit) (SANE_Byte val);
 
-    SANE_Status (*set_fe) (Genesys_Device * dev, const Genesys_Sensor& sensor, uint8_t set);
+    void (*set_fe) (Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set);
     SANE_Status (*set_powersaving) (Genesys_Device * dev, int delay);
     SANE_Status (*save_power) (Genesys_Device * dev, SANE_Bool enable);
 
@@ -1091,14 +1091,10 @@ typedef struct Genesys_Command_Set
     SANE_Status (*slow_back_home) (Genesys_Device * dev, SANE_Bool wait_until_home);
     SANE_Status (*rewind) (Genesys_Device * dev);
 
-    SANE_Status (*bulk_write_register) (Genesys_Device * dev,
-                                        Genesys_Register_Set& regs);
+    void (*bulk_write_register) (Genesys_Device* dev, Genesys_Register_Set& regs);
 
-    SANE_Status (*bulk_write_data) (Genesys_Device * dev, uint8_t addr,
-				    uint8_t * data, size_t len);
-
-    SANE_Status (*bulk_read_data) (Genesys_Device * dev, uint8_t addr,
-				   uint8_t * data, size_t len);
+    void (*bulk_write_data) (Genesys_Device* dev, uint8_t addr, uint8_t* data, size_t len);
+    void (*bulk_read_data) (Genesys_Device * dev, uint8_t addr, uint8_t * data, size_t len);
 
   // Updates hardware sensor information in Genesys_Scanner.val[].
   SANE_Status (*update_hardware_sensors) (struct Genesys_Scanner * s);
@@ -1136,8 +1132,8 @@ typedef struct Genesys_Command_Set
     /**
      * write shading data calibration to ASIC
      */
-    SANE_Status (*send_shading_data) (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                      uint8_t * data, int size);
+    void (*send_shading_data) (Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t* data,
+                               int size);
 
     // calculate current scan setup
     void (*calculate_current_setup) (Genesys_Device * dev, const Genesys_Sensor& sensor);
@@ -1147,7 +1143,7 @@ typedef struct Genesys_Command_Set
      */
     SANE_Status (*asic_boot) (Genesys_Device * dev, SANE_Bool cold);
 
-} Genesys_Command_Set;
+};
 
 /** @brief structure to describe a scanner model
  * This structure describes a model. It is composed of information on the
@@ -1715,40 +1711,34 @@ inline void sanei_genesys_set_reg_from_set(Genesys_Register_Set* regs, uint16_t 
     regs->set8(address, value);
 }
 
-extern SANE_Status sanei_genesys_init_cmd_set (Genesys_Device * dev);
+extern void sanei_genesys_init_cmd_set(Genesys_Device* dev);
 
-extern SANE_Status
-sanei_genesys_read_register (Genesys_Device * dev, uint16_t reg, uint8_t * val);
+extern void sanei_genesys_read_register(Genesys_Device* dev, uint16_t reg, uint8_t* val);
 
-extern SANE_Status
-sanei_genesys_write_register (Genesys_Device * dev, uint16_t reg, uint8_t val);
+extern void sanei_genesys_write_register(Genesys_Device* dev, uint16_t reg, uint8_t val);
 
-extern SANE_Status
-sanei_genesys_read_hregister (Genesys_Device * dev, uint16_t reg, uint8_t * val);
+extern void sanei_genesys_read_hregister(Genesys_Device* dev, uint16_t reg, uint8_t* val);
 
-extern SANE_Status
-sanei_genesys_write_hregister (Genesys_Device * dev, uint16_t reg, uint8_t val);
+extern void sanei_genesys_write_hregister(Genesys_Device* dev, uint16_t reg, uint8_t val);
 
-extern SANE_Status
-sanei_genesys_bulk_write_register(Genesys_Device * dev,
-                                   Genesys_Register_Set& regs);
+extern void sanei_genesys_bulk_write_register(Genesys_Device* dev, Genesys_Register_Set& regs);
 
-extern SANE_Status sanei_genesys_write_0x8c (Genesys_Device * dev, uint8_t index, uint8_t val);
+extern void sanei_genesys_write_0x8c(Genesys_Device* dev, uint8_t index, uint8_t val);
 
 extern unsigned sanei_genesys_get_bulk_max_size(Genesys_Device * dev);
 
-extern SANE_Status sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
-                                                size_t len);
+extern void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
+                                         size_t len);
 
-extern SANE_Status sanei_genesys_bulk_write_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
+extern void sanei_genesys_bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
                                                  size_t len);
 
-extern SANE_Status sanei_genesys_get_status (Genesys_Device * dev, uint8_t * status);
+extern void sanei_genesys_get_status(Genesys_Device* dev, uint8_t* status);
 
 extern void sanei_genesys_print_status (uint8_t val);
 
-extern SANE_Status
-sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_t * data);
+extern void sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size,
+                                    uint8_t* data);
 
 extern void sanei_genesys_init_structs (Genesys_Device * dev);
 
@@ -1763,14 +1753,11 @@ extern SANE_Status
 sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
                                  int pixels_per_line);
 
-extern SANE_Status sanei_genesys_read_valid_words (Genesys_Device * dev,
-						  unsigned int *steps);
+extern void sanei_genesys_read_valid_words(Genesys_Device* dev, unsigned int* steps);
 
-extern SANE_Status sanei_genesys_read_scancnt (Genesys_Device * dev,
-						  unsigned int *steps);
+extern void sanei_genesys_read_scancnt(Genesys_Device* dev, unsigned int* steps);
 
-extern SANE_Status sanei_genesys_read_feed_steps (Genesys_Device * dev,
-						  unsigned int *steps);
+extern void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps);
 
 void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                   Genesys_Register_Set& regs, bool set);
@@ -1793,23 +1780,18 @@ sanei_genesys_calculate_zmode (uint32_t exposure_time,
 			       uint8_t fwdstep, uint8_t tgtime,
 			       uint32_t * z1, uint32_t * z2);
 
-extern SANE_Status
-sanei_genesys_set_buffer_address (Genesys_Device * dev, uint32_t addr);
+extern void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr);
 
 /** @brief Reads data from frontend register.
  * Reads data from the given frontend register. May be used to query
  * analog frontend status by reading the right register.
  */
-extern SANE_Status
-sanei_genesys_fe_read_data (Genesys_Device * dev, uint8_t addr,
-			    uint16_t *data);
+extern void sanei_genesys_fe_read_data(Genesys_Device* dev, uint8_t addr, uint16_t* data);
 /** @brief Write data to frontend register.
  * Writes data to analog frontend register at the given address.
  * The use and address of registers change from model to model.
  */
-extern SANE_Status
-sanei_genesys_fe_write_data (Genesys_Device * dev, uint8_t addr,
-			     uint16_t data);
+extern void sanei_genesys_fe_write_data(Genesys_Device* dev, uint8_t addr, uint16_t data);
 
 extern SANE_Int
 sanei_genesys_exposure_time2 (Genesys_Device * dev,
@@ -1867,8 +1849,7 @@ extern SANE_Status
 sanei_genesys_write_pnm_file (const char *filename, uint8_t * data, int depth,
 			      int channels, int pixels_per_line, int lines);
 
-extern SANE_Status
-sanei_genesys_test_buffer_empty (Genesys_Device * dev, SANE_Bool * empty);
+extern void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empty);
 
 extern SANE_Status
 sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
@@ -1923,8 +1904,7 @@ inline SensorExposure sanei_genesys_fixup_exposure(SensorExposure exposure)
     return exposure;
 }
 
-extern SANE_Status
-sanei_genesys_wait_for_home(Genesys_Device *dev);
+extern void sanei_genesys_wait_for_home(Genesys_Device* dev);
 
 extern SANE_Status
 sanei_genesys_asic_init(Genesys_Device *dev, SANE_Bool cold);
@@ -1993,23 +1973,22 @@ sanei_genesys_load_lut (unsigned char * lut,
                         int slope,
                         int offset);
 
-extern SANE_Status
-sanei_genesys_generate_gamma_buffer(Genesys_Device * dev,
+extern void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
                                     const Genesys_Sensor& sensor,
                                     int bits,
                                     int max,
                                     int size,
-                                    uint8_t *gamma);
+                                    uint8_t* gamma);
 
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */
 /*---------------------------------------------------------------------------*/
-extern SANE_Status sanei_gl646_init_cmd_set (Genesys_Device * dev);
-extern SANE_Status sanei_gl841_init_cmd_set (Genesys_Device * dev);
-extern SANE_Status sanei_gl843_init_cmd_set (Genesys_Device * dev);
-extern SANE_Status sanei_gl846_init_cmd_set (Genesys_Device * dev);
-extern SANE_Status sanei_gl847_init_cmd_set (Genesys_Device * dev);
-extern SANE_Status sanei_gl124_init_cmd_set (Genesys_Device * dev);
+extern void sanei_gl646_init_cmd_set(Genesys_Device* dev);
+extern void sanei_gl841_init_cmd_set(Genesys_Device* dev);
+extern void sanei_gl843_init_cmd_set(Genesys_Device* dev);
+extern void sanei_gl846_init_cmd_set(Genesys_Device* dev);
+extern void sanei_gl847_init_cmd_set(Genesys_Device* dev);
+extern void sanei_gl124_init_cmd_set(Genesys_Device* dev);
 
 // same as usleep, except that it does nothing if testing mode is enabled
 extern void sanei_genesys_usleep(unsigned int useconds);

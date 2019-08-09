@@ -165,11 +165,9 @@
 
 #include "genesys.h"
 
-static SANE_Status gl646_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                uint8_t set, int dpi);
+static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set, int dpi);
 
-static SANE_Status gl646_public_set_fe(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                       uint8_t set);
+static void gl646_public_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set);
 
 static
 SANE_Status

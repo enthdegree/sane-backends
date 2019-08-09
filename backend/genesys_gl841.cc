@@ -1600,9 +1600,9 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     if (flags & OPTICAL_FLAG_ENABLE_LEDADD)
       {
         r->value |= REG87_LEDADD;
-	sanei_genesys_get_double (reg, REG_EXPR, &expr);
-	sanei_genesys_get_double (reg, REG_EXPG, &expg);
-	sanei_genesys_get_double (reg, REG_EXPB, &expb);
+        expr = reg->get16(REG_EXPR);
+        expg = reg->get16(REG_EXPG);
+        expb = reg->get16(REG_EXPB);
 
 	/* use minimal exposure for best image quality */
 	expavg = expg;
@@ -1611,9 +1611,9 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 	if (expb < expavg)
 	  expavg = expb;
 
-        sanei_genesys_set_double(&dev->reg, REG_EXPR, expavg);
-        sanei_genesys_set_double(&dev->reg, REG_EXPG, expavg);
-        sanei_genesys_set_double(&dev->reg, REG_EXPB, expavg);
+        dev->reg.set16(REG_EXPR, expavg);
+        dev->reg.set16(REG_EXPG, expavg);
+        dev->reg.set16(REG_EXPB, expavg);
       }
 
     /* enable gamma tables */
@@ -1629,9 +1629,9 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     r = sanei_genesys_get_address (reg, 0x29);
     r->value = 255; /*<<<"magic" number, only suitable for cis*/
 
-    sanei_genesys_set_double(reg, REG_DPISET, dpiset);
-    sanei_genesys_set_double(reg, REG_STRPIXEL, start);
-    sanei_genesys_set_double(reg, REG_ENDPIXEL, end);
+    reg->set16(REG_DPISET, dpiset);
+    reg->set16(REG_STRPIXEL, start);
+    reg->set16(REG_ENDPIXEL, end);
     DBG(DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d\n", __func__, start, end);
 
     /* words(16bit) before gamma, conversion to 8 bit or lineart*/
@@ -1654,7 +1654,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     r = sanei_genesys_get_address (reg, 0x37);
     r->value = LOBYTE (LOWORD (words_per_line));
 
-    sanei_genesys_set_double(reg, REG_LPERIOD, exposure_time);
+    reg->set16(REG_LPERIOD, exposure_time);
 
     r = sanei_genesys_get_address (reg, 0x34);
     r->value = sensor.dummy_pixel;
@@ -2724,13 +2724,13 @@ static void gl841_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     }
 
     if (dev->model->ccd_type != CCD_PLUSTEK_3600) {
-        local_reg.init_reg(0x03, sanei_genesys_read_reg_from_set(reg, 0x03) | REG03_LAMPPWR);
+        local_reg.init_reg(0x03, reg->get8(0x03) | REG03_LAMPPWR);
     } else {
         // TODO PLUSTEK_3600: why ??
-        local_reg.init_reg(0x03, sanei_genesys_read_reg_from_set(reg, 0x03));
+        local_reg.init_reg(0x03, reg->get8(0x03));
     }
 
-    local_reg.init_reg(0x01, sanei_genesys_read_reg_from_set(reg, 0x01) | REG01_SCAN);	/* set scan bit */
+    local_reg.init_reg(0x01, reg->get8(0x01) | REG01_SCAN);
     local_reg.init_reg(0x0d, 0x01);
 
     if (start_motor) {
@@ -4562,13 +4562,13 @@ static void gl841_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
 
   /* data is whole line, we extract only the part for the scanned area */
   length = (uint32_t) (size / 3);
-  sanei_genesys_get_double(&dev->reg,REG_STRPIXEL,&strpixel);
-  sanei_genesys_get_double(&dev->reg,REG_ENDPIXEL,&endpixel);
+    strpixel = dev->reg.get16(REG_STRPIXEL);
+    endpixel = dev->reg.get16(REG_ENDPIXEL);
   DBG(DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d\n", __func__, strpixel, endpixel,
       endpixel-strpixel);
 
   /* compute deletion/average factor */
-  sanei_genesys_get_double(&dev->reg,REG_DPISET,&dpiset);
+    dpiset = dev->reg.get16(REG_DPISET);
   dpihw = gl841_get_dpihw(dev);
   unsigned ccd_size_divisor = dev->current_setup.ccd_size_divisor;
   factor=dpihw/dpiset;
@@ -4579,7 +4579,7 @@ static void gl841_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
   if(DBG_LEVEL>=DBG_data)
     {
       dev->binary=fopen("binary.pnm","wb");
-      sanei_genesys_get_triple(&dev->reg, REG_LINCNT, &lines);
+        lines = dev->reg.get24(REG_LINCNT);
       channels=dev->current_setup.channels;
       if(dev->binary!=NULL)
         {

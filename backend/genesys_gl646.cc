@@ -728,19 +728,19 @@ static void gl646_setup_registers(Genesys_Device* dev,
    * color mode */
   if (dev->model->is_cis == SANE_TRUE)
     {
-      sanei_genesys_set_triple(regs, REG_LINCNT, linecnt * 3);
+      regs->set24(REG_LINCNT, linecnt * 3);
       linecnt *= params.channels;
     }
   else
     {
-      sanei_genesys_set_triple(regs, REG_LINCNT, linecnt);
+      regs->set24(REG_LINCNT, linecnt);
     }
 
   /* scanner's x coordinates are expressed in physical DPI but they must be divided by cksel */
     sx = startx / sensor_mst->cksel / ccd_size_divisor;
     ex = endx / sensor_mst->cksel / ccd_size_divisor;
-  sanei_genesys_set_double(regs, REG_STRPIXEL, sx);
-  sanei_genesys_set_double(regs, REG_ENDPIXEL, ex);
+    regs->set16(REG_STRPIXEL, sx);
+    regs->set16(REG_ENDPIXEL, ex);
     DBG(DBG_info, "%s: startx=%d, endx=%d, ccd_size_divisor=%d\n", __func__, sx, ex, ccd_size_divisor);
 
   /* words_per_line must be computed according to the scan's resolution */
@@ -761,10 +761,10 @@ static void gl646_setup_registers(Genesys_Device* dev,
   dev->wpl = words_per_line;
 
   DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
-  sanei_genesys_set_triple(regs, REG_MAXWD, words_per_line);
+    regs->set24(REG_MAXWD, words_per_line);
 
-  sanei_genesys_set_double(regs, REG_DPISET, sensor_mst->dpiset);
-  sanei_genesys_set_double(regs, REG_LPERIOD, sensor_mst->exposure);
+    regs->set16(REG_DPISET, sensor_mst->dpiset);
+    regs->set16(REG_LPERIOD, sensor_mst->exposure);
 
   /* move distance must be adjusted to take into account the extra lines
    * read to reorder data */
@@ -888,7 +888,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
     }
 
   DBG(DBG_info, "%s: final move=%d\n", __func__, feedl);
-  sanei_genesys_set_triple(regs, REG_FEEDL, feedl);
+    regs->set24(REG_FEEDL, feedl);
 
   regs->find_reg(0x65).value = motor->mtrpwm;
 
@@ -904,8 +904,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
       z1 = 0;
       z2 = 0;
     }
-  sanei_genesys_set_double(regs, REG_Z1MOD, z1);
-  sanei_genesys_set_double(regs, REG_Z2MOD, z2);
+    regs->set16(REG_Z1MOD, z1);
+    regs->set16(REG_Z2MOD, z2);
   regs->find_reg(0x6b).value = motor->steps2;
   regs->find_reg(0x6c).value =
     (regs->find_reg(0x6c).value & REG6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16)
@@ -1878,8 +1878,8 @@ static void gl646_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
   // FIXME: SEQUENTIAL not really needed in this case
   Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
 
-    local_reg.init_reg(0x03, sanei_genesys_read_reg_from_set(reg, 0x03));
-    local_reg.init_reg(0x01, sanei_genesys_read_reg_from_set(reg, 0x01) | REG01_SCAN);	/* set scan bit */
+    local_reg.init_reg(0x03, reg->get8(0x03));
+    local_reg.init_reg(0x01, reg->get8(0x01) | REG01_SCAN);
 
     if (start_motor) {
         local_reg.init_reg(0x0f, 0x01);
@@ -1913,9 +1913,9 @@ static void end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool c
     }
 
   /* ends scan */
-  val = sanei_genesys_read_reg_from_set (reg, 0x01);
-  val &= ~REG01_SCAN;
-  sanei_genesys_set_reg_from_set (reg, 0x01, val);
+    val = reg->get8(0x01);
+    val &= ~REG01_SCAN;
+    reg->set8(0x01, val);
     dev->write_register(0x01, val);
 
   /* for sheetfed scanners, we may have to eject document */
@@ -2065,9 +2065,9 @@ static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
     setup_for_scan(dev, sensor, &dev->reg, settings, SANE_TRUE, SANE_TRUE, SANE_TRUE);
 
   /* backward , no actual data scanned TODO more setup flags to avoid this register manipulations ? */
-  dev->reg.find_reg(0x02).value |= REG02_MTRREV;
-  dev->reg.find_reg(0x01).value &= ~REG01_SCAN;
-  sanei_genesys_set_triple(&dev->reg, REG_FEEDL, 65535);
+    dev->reg.find_reg(0x02).value |= REG02_MTRREV;
+    dev->reg.find_reg(0x01).value &= ~REG01_SCAN;
+    dev->reg.set24(REG_FEEDL, 65535);
 
     // sets frontend
     gl646_set_fe(dev, sensor, AFE_SET, settings.xres);
@@ -2273,11 +2273,11 @@ static void gl646_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
   /* enforce needed LINCNT, getting rid of extra lines for color reordering */
   if (dev->model->is_cis == SANE_FALSE)
     {
-      sanei_genesys_set_triple(&dev->reg, REG_LINCNT, dev->calib_lines);
+        dev->reg.set24(REG_LINCNT, dev->calib_lines);
     }
   else
     {
-      sanei_genesys_set_triple(&dev->reg, REG_LINCNT, dev->calib_lines * 3);
+        dev->reg.set24(REG_LINCNT, dev->calib_lines * 3);
     }
 
   /* copy reg to calib_reg */
@@ -2415,9 +2415,8 @@ static void setup_for_scan(Genesys_Device* dev,
     gl646_setup_registers(dev, sensor, regs, params, slope_table0, slope_table1, xcorrection);
 
     // send computed slope tables
-    gl646_send_slope_table(dev, 0, slope_table0, sanei_genesys_read_reg_from_set (regs, 0x21));
-
-    gl646_send_slope_table(dev, 1, slope_table1, sanei_genesys_read_reg_from_set (regs, 0x6b));
+    gl646_send_slope_table(dev, 0, slope_table0, regs->get8(0x21));
+    gl646_send_slope_table(dev, 1, slope_table1, regs->get8(0x6b));
 }
 
 /**
@@ -3204,9 +3203,7 @@ static void gl646_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor
 
   /* returned value to higher level warmup function */
   *channels = 1;
-  uint32_t value = 0;
-  sanei_genesys_get_triple(local_reg, REG_LINCNT, &value);
-  lines = value + 1;
+    lines = local_reg->get24(REG_LINCNT) + 1;
   *total_size = lines * settings.pixels;
 
     // now registers are ok, write them to scanner
@@ -3253,9 +3250,7 @@ static void gl646_repark_head(Genesys_Device* dev)
     // start scan
     gl646_begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
 
-  uint32_t value32 = 0;
-  sanei_genesys_get_triple(&dev->reg, REG_FEEDL, &value32);
-  expected = value32;
+    expected = dev->reg.get24(REG_FEEDL);
   do
     {
       sanei_genesys_sleep_ms(100);
@@ -3478,15 +3473,11 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
   /* allocate memory fo scan : LINCNT may have been adjusted for CCD reordering */
   if (dev->model->is_cis == SANE_TRUE)
     {
-      uint32_t value = 0;
-      sanei_genesys_get_triple(&dev->reg, REG_LINCNT, &value);
-      lines = value / 3;
+        lines = dev->reg.get24(REG_LINCNT) / 3;
     }
   else
     {
-      uint32_t value = 0;
-      sanei_genesys_get_triple(&dev->reg, REG_LINCNT, &value);
-      lines = value + 1;
+        lines = dev->reg.get24(REG_LINCNT) + 1;
     }
   size = lines * settings.pixels;
   if (settings.depth == 16)

@@ -415,26 +415,11 @@ inline GenesysRegister* sanei_genesys_get_address(Genesys_Register_Set* regs, ui
     return ret;
 }
 
-inline uint8_t sanei_genesys_read_reg_from_set(Genesys_Register_Set* regs, uint16_t address)
-{
-    return regs->get8(address);
-}
-
-inline void sanei_genesys_set_reg_from_set(Genesys_Register_Set* regs, uint16_t address,
-                                           uint8_t value)
-{
-    regs->set8(address, value);
-}
-
 extern void sanei_genesys_init_cmd_set(Genesys_Device* dev);
 
 extern void sanei_genesys_read_register(Genesys_Device* dev, uint16_t reg, uint8_t* val);
 
 extern void sanei_genesys_write_register(Genesys_Device* dev, uint16_t reg, uint8_t val);
-
-extern void sanei_genesys_read_hregister(Genesys_Device* dev, uint16_t reg, uint8_t* val);
-
-extern void sanei_genesys_write_hregister(Genesys_Device* dev, uint16_t reg, uint8_t val);
 
 extern void sanei_genesys_bulk_write_register(Genesys_Device* dev,
                                               const Genesys_Register_Set& regs);
@@ -562,26 +547,6 @@ extern void sanei_genesys_write_pnm_file(const char* filename, uint8_t* data, in
 extern void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empty);
 
 extern void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, size_t size);
-
-inline void sanei_genesys_set_double(Genesys_Register_Set* regs, uint16_t addr, uint16_t value)
-{
-    regs->set16(addr, value);
-}
-
-inline void sanei_genesys_set_triple(Genesys_Register_Set* regs, uint16_t addr, uint32_t value)
-{
-    regs->set24(addr, value);
-}
-
-inline void sanei_genesys_get_double(Genesys_Register_Set* regs, uint16_t addr, uint16_t* value)
-{
-    *value = regs->get16(addr);
-}
-
-inline void sanei_genesys_get_triple(Genesys_Register_Set* regs, uint16_t addr, uint32_t* value)
-{
-    *value = regs->get24(addr);
-}
 
 inline void sanei_genesys_set_exposure(Genesys_Register_Set& regs, const SensorExposure& exposure)
 {

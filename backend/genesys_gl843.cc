@@ -862,7 +862,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     use_fast_fed=1;
 
   lincnt=scan_lines;
-  sanei_genesys_set_triple(reg,REG_LINCNT,lincnt);
+    reg->set24(REG_LINCNT, lincnt);
   DBG(DBG_io, "%s: lincnt=%d\n", __func__, lincnt);
 
   /* compute register 02 value */
@@ -946,12 +946,13 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
   /* get sure when don't insane value : XXX STEF XXX in this case we should
    * fall back to single table move */
-  if(dist<feedl)
-    feedl -= dist;
-  else
-    feedl = 1;
+    if (dist < feedl) {
+        feedl -= dist;
+    } else {
+        feedl = 1;
+    }
 
-  sanei_genesys_set_triple(reg,REG_FEEDL,feedl);
+    reg->set24(REG_FEEDL, feedl);
   DBG(DBG_io, "%s: feedl=%d\n", __func__, feedl);
 
   /* doesn't seem to matter that much */
@@ -969,10 +970,10 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
       z2=0;
     }
 
-  sanei_genesys_set_triple(reg,REG_Z1MOD,z1);
+    reg->set24(REG_Z1MOD, z1);
   DBG(DBG_info, "%s: z1 = %d\n", __func__, z1);
 
-  sanei_genesys_set_triple(reg,REG_Z2MOD,z2);
+    reg->set24(REG_Z2MOD, z2);
   DBG(DBG_info, "%s: z2 = %d\n", __func__, z2);
 
   r = sanei_genesys_get_address (reg, REG1E);
@@ -1194,16 +1195,17 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
   /* enable gamma tables */
-  if (flags & OPTICAL_FLAG_DISABLE_GAMMA)
-    r->value &= ~REG05_GMMENB;
-  else
-    r->value |= REG05_GMMENB;
+    if (flags & OPTICAL_FLAG_DISABLE_GAMMA) {
+        r->value &= ~REG05_GMMENB;
+    } else {
+        r->value |= REG05_GMMENB;
+    }
 
-  sanei_genesys_set_double(reg, REG_DPISET, dpiset * ccd_size_divisor);
-  DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset * ccd_size_divisor);
+    reg->set16(REG_DPISET, dpiset * ccd_size_divisor);
+    DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset * ccd_size_divisor);
 
-  sanei_genesys_set_double(reg, REG_STRPIXEL, startx);
-  sanei_genesys_set_double(reg, REG_ENDPIXEL, endx);
+    reg->set16(REG_STRPIXEL, startx);
+    reg->set16(REG_ENDPIXEL, endx);
 
   /* words(16bit) before gamma, conversion to 8 bit or lineart */
   words_per_line = (used_pixels * dpiset) / dpihw;
@@ -1231,10 +1233,10 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* MAXWD is expressed in 2 words unit */
   /* nousedspace = (mem_bank_range * 1024 / 256 -1 ) * 4; */
-  sanei_genesys_set_triple(reg,REG_MAXWD,(words_per_line)>>1);
+    reg->set24(REG_MAXWD, (words_per_line) >> 1);
   DBG(DBG_io2, "%s: words_per_line used=%d\n", __func__, words_per_line);
 
-  sanei_genesys_set_double(reg,REG_LPERIOD,exposure/tgtime);
+    reg->set16(REG_LPERIOD, exposure / tgtime);
   DBG(DBG_io2, "%s: exposure used=%d\n", __func__, exposure/tgtime);
 
   r = sanei_genesys_get_address (reg, REG_DUMMY);
@@ -1699,9 +1701,9 @@ static void gl843_start_action(Genesys_Device* dev)
 static void gl843_stop_action_no_move(Genesys_Device* dev, Genesys_Register_Set* reg)
 {
     DBG_HELPER(dbg);
-    uint8_t val = sanei_genesys_read_reg_from_set(reg, REG01);
+    uint8_t val = reg->get8(REG01);
     val &= ~REG01_SCAN;
-    sanei_genesys_set_reg_from_set(reg, REG01, val);
+    reg->set8(REG01, val);
     dev->write_register(REG01, val);
     sanei_genesys_sleep_ms(100);
 }
@@ -2080,8 +2082,8 @@ static void gl843_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     DBG_HELPER(dbg);
   uint16_t dpiset, dpihw;
 
-  /* get back the target dpihw */
-  sanei_genesys_get_double (reg, REG_DPISET, &dpiset);
+    // get back the target dpihw
+    dpiset = reg->get16(REG_DPISET);
     dpihw = sensor.get_register_hwdpi(dpiset);
 
   /* set up GPIO for scan */
@@ -2188,7 +2190,7 @@ static void gl843_park_xpa_lamp(Genesys_Device* dev)
   local_reg = dev->reg;
 
   /* set a huge feedl and reverse direction */
-  sanei_genesys_set_triple(&local_reg,REG_FEEDL,0xbdcd);
+    local_reg.set24(REG_FEEDL, 0xbdcd);
 
     // clear scan and feed count
     dev->write_register(REG0D, REG0D_CLRLNCNT | REG0D_CLRMCNT);
@@ -2558,7 +2560,6 @@ static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
 {
     DBG_HELPER(dbg);
   int move, resolution, dpihw, factor;
-  uint16_t strpixel;
 
   /* initial calibration reg values */
   regs = dev->reg;
@@ -2646,8 +2647,6 @@ static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
   dev->calib_total_bytes_to_read = dev->read_bytes_left;
 
   dev->scanhead_position_in_steps += dev->calib_lines + move;
-  sanei_genesys_get_double(&regs,REG_STRPIXEL,&strpixel);
-  DBG(DBG_info, "%s: STRPIXEL=%d\n", __func__, strpixel);
 
     dev->write_registers(regs);
 }
@@ -3863,15 +3862,15 @@ static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
       /* recompute STRPIXEL used shading calibration so we can
        * compute offset within data for SHDAREA case */
       r = sanei_genesys_get_address(&dev->reg, REG18);
-      sanei_genesys_get_double(&dev->reg,REG_DPISET,&dpiset);
+        dpiset = dev->reg.get16(REG_DPISET);
         factor = sensor.optical_res / sensor.get_register_hwdpi(dpiset);
 
       /* start coordinate in optical dpi coordinates */
       startx = (sensor.dummy_pixel / sensor.ccd_pixels_per_system_pixel()) / factor;
 
       /* current scan coordinates */
-      sanei_genesys_get_double(&dev->reg,REG_STRPIXEL,&strpixel);
-      sanei_genesys_get_double(&dev->reg,REG_ENDPIXEL,&endpixel);
+        strpixel = dev->reg.get16(REG_STRPIXEL);
+        endpixel = dev->reg.get16(REG_ENDPIXEL);
 
       if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
         {

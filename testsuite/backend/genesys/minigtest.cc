@@ -22,6 +22,8 @@
 
 #include "minigtest.h"
 
+#define DEBUG_DECLARE_ONLY
+
 size_t s_num_successes = 0;
 size_t s_num_failures = 0;
 

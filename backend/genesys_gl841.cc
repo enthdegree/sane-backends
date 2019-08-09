@@ -156,7 +156,7 @@ gl841_test_motor_flag_bit (SANE_Byte val)
 /* *dev  : device infos
    *regs : registers to be set
    extended : do extended set up
-   half_ccd: set up for half ccd resolution
+   ccd_size_divisor: set up for half ccd resolution
    all registers 08-0B, 10-1D, 52-59 are set up. They shouldn't
    appear anywhere else but in register_ini
 
@@ -187,7 +187,7 @@ other register settings depending on this:
 */
 static void sanei_gl841_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& sensor,
                                      Genesys_Register_Set * regs,
-                                     SANE_Bool extended, SANE_Bool half_ccd)
+                                     SANE_Bool extended, unsigned ccd_size_divisor)
 {
     DBG(DBG_proc, "%s\n", __func__);
 
@@ -215,8 +215,7 @@ static void sanei_gl841_setup_sensor(Genesys_Device * dev, const Genesys_Sensor&
      2 kind of settings */
   if (dev->model->ccd_type == CCD_5345)
     {
-      if (half_ccd)
-	{
+        if (ccd_size_divisor > 1) {
           GenesysRegister* r;
 	  /* settings for CCD used at half is max resolution */
 	  r = sanei_genesys_get_address (regs, 0x70);
@@ -254,8 +253,7 @@ static void sanei_gl841_setup_sensor(Genesys_Device * dev, const Genesys_Sensor&
     {
       /* settings for CCD used at half is max resolution */
       GenesysRegister* r;
-      if (half_ccd)
-	{
+        if (ccd_size_divisor > 1) {
 	  r = sanei_genesys_get_address (regs, 0x70);
 	  r->value = 0x16;
 	  r = sanei_genesys_get_address (regs, 0x71);
@@ -521,7 +519,7 @@ gl841_init_lide80 (Genesys_Device * dev)
   dev->reg.find_reg(0x6c).value |= REG6B_GPO18;
   dev->reg.find_reg(0x6c).value &= ~REG6B_GPO17;
 
-  sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 0, 0);
+    sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 0, 1);
 }
 
 /*
@@ -657,7 +655,7 @@ gl841_init_registers (Genesys_Device * dev)
 /*STOPTIM*/
   dev->reg.find_reg(0x5e).value |= 0x2 << REG5ES_STOPTIM;
 
-  sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 0, 0);
+    sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 0, 1);
 
   /* set up GPIO */
   dev->reg.find_reg(0x6c).value = dev->gpo.value[0];
@@ -1469,12 +1467,13 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
                                          unsigned int used_res, unsigned int start,
                                          unsigned int pixels, int channels,
-                                         int depth, SANE_Bool half_ccd, ColorFilter color_filter,
-                                         int flags)
+                                         int depth, unsigned ccd_size_divisor,
+                                         ColorFilter color_filter, int flags)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, "
-                         "depth=%d, half_ccd=%d, flags=%x",
-                    exposure_time, used_res, start, pixels, channels, depth, half_ccd, flags);
+                         "depth=%d, ccd_size_divisor=%d, flags=%x",
+                    exposure_time, used_res, start, pixels, channels, depth, ccd_size_divisor,
+                    flags);
     unsigned int words_per_line;
     unsigned int end;
     unsigned int dpiset;
@@ -1489,39 +1488,34 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     used_res = used_res * gl841_get_dpihw(dev) / sensor.optical_res;
 
 /*
-  with half_ccd the optical resolution of the ccd is halved. We don't apply this
+  with ccd_size_divisor==2 the optical resolution of the ccd is halved. We don't apply this
   to dpihw, so we need to double dpiset.
 
   For the scanner only the ratio of dpiset and dpihw is of relevance to scale
   down properly.
 */
-    if (half_ccd)
-	dpiset = used_res * 2;
-    else
-	dpiset = used_res;
+    dpiset = used_res * ccd_size_divisor;
 
     /* gpio part.*/
     if (dev->model->gpo_type == GPO_CANONLIDE35)
       {
 	r = sanei_genesys_get_address (reg, REG6C);
-	if (half_ccd)
-	  r->value &= ~0x80;
-	else
-	  r->value |= 0x80;
+        if (ccd_size_divisor > 1) {
+            r->value &= ~0x80;
+        } else {
+            r->value |= 0x80;
+        }
       }
     if (dev->model->gpo_type == GPO_CANONLIDE80)
       {
 	r = sanei_genesys_get_address (reg, REG6C);
-	if (half_ccd)
-          {
+        if (ccd_size_divisor > 1) {
 	    r->value &= ~0x40;
 	    r->value |= 0x20;
-          }
-	else
-          {
+        } else {
 	    r->value &= ~0x20;
 	    r->value |= 0x40;
-          }
+        }
       }
 
     /* enable shading */
@@ -1630,7 +1624,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 	r->value |= REG05_GMMENB;
 
     /* sensor parameters */
-    sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 1, half_ccd);
+    sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 1, ccd_size_divisor);
 
     r = sanei_genesys_get_address (reg, 0x29);
     r->value = 255; /*<<<"magic" number, only suitable for cis*/
@@ -1791,7 +1785,6 @@ static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int max_shift;
   size_t requested_buffer_size, read_buffer_size;
 
-  SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
   unsigned int oflags;          /**> optical flags */
 
@@ -1801,7 +1794,6 @@ static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 results:
 
 for scanner:
-half_ccd
 start
 end
 dpiset
@@ -1826,26 +1818,20 @@ independent of our calculated values:
   dev->bytes_to_read
  */
 
-/* half_ccd */
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (sensor.get_ccd_size_divisor_for_dpi(params.xres) > 1) {
-      half_ccd = SANE_TRUE;
-  } else {
-      half_ccd = SANE_FALSE;
-  }
+    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(params.xres);
 
 /* optical_res */
 
-  optical_res = sensor.optical_res;
-  if (half_ccd)
-      optical_res /= 2;
+    optical_res = sensor.optical_res / ccd_size_divisor;
 
 /* stagger */
 
-  if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-    stagger = (4 * params.yres) / dev->motor.base_ydpi;
-  else
-    stagger = 0;
+    if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
+        stagger = (4 * params.yres) / dev->motor.base_ydpi;
+    } else {
+        stagger = 0;
+    }
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
 
 /* used_res */
@@ -1980,8 +1966,8 @@ dummy \ scanned lines
     }
 
     gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, used_res, start, used_pixels,
-                                 params.channels, params.depth, half_ccd, params.color_filter,
-                                 oflags);
+                                 params.channels, params.depth, ccd_size_divisor,
+                                 params.color_filter, oflags);
 
 /*** motor parameters ***/
 
@@ -2060,7 +2046,7 @@ dummy \ scanned lines
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
   dev->current_setup.yres = params.yres;
-  dev->current_setup.ccd_size_divisor = half_ccd ? 2 : 1;
+    dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 
@@ -2112,7 +2098,6 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
   int scan_step_type = 1;
   int max_shift;
 
-  SANE_Bool half_ccd;		/* false: full CCD res is used, true, half max CCD res is used */
   int optical_res;
 
     DBG(DBG_info, "%s ", __func__);
@@ -2153,26 +2138,20 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, params);
 
-/* half_ccd */
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  if (sensor.get_ccd_size_divisor_for_dpi(params.xres) > 1) {
-      half_ccd = SANE_TRUE;
-  } else {
-      half_ccd = SANE_FALSE;
-  }
+    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(params.xres);
 
 /* optical_res */
 
-  optical_res = sensor.optical_res;
-  if (half_ccd)
-      optical_res /= 2;
+    optical_res = sensor.optical_res / ccd_size_divisor;
 
 /* stagger */
 
-  if ((!half_ccd) && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-    stagger = (4 * params.yres) / dev->motor.base_ydpi;
-  else
-    stagger = 0;
+    if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
+        stagger = (4 * params.yres) / dev->motor.base_ydpi;
+    } else {
+        stagger = 0;
+    }
   DBG(DBG_info, "%s: stagger=%d lines\n", __func__, stagger);
 
 /* used_res */
@@ -2280,7 +2259,7 @@ dummy \ scanned lines
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
   dev->current_setup.yres = params.yres;
-  dev->current_setup.ccd_size_divisor = half_ccd ? 2 : 1;
+    dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 }

@@ -4093,7 +4093,7 @@ static void gl646_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 }
 
 /** the gl646 command set */
-static Genesys_Command_Set gl646_cmd_set = {
+Genesys_Command_Set gl646_cmd_set = {
   "gl646-generic",		/* the name of this set */
 
   gl646_needs_home_before_init_regs_for_scan,
@@ -4148,8 +4148,3 @@ static Genesys_Command_Set gl646_cmd_set = {
   NULL,
   NULL
 };
-
-void sanei_gl646_init_cmd_set(Genesys_Device* dev)
-{
-  dev->model->cmd_set = &gl646_cmd_set;
-}

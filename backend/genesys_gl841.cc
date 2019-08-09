@@ -4577,7 +4577,7 @@ static void gl841_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
         sanei_genesys_set_buffer_address(dev, 0x0000);
 
         // shading data whole line
-        dev->model->cmd_set->bulk_write_data(dev, 0x3c, data, size);
+        dev->cmd_set->bulk_write_data(dev, 0x3c, data, size);
         return;
     }
 
@@ -4652,13 +4652,13 @@ static void gl841_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
 
         // 0x5400 alignment for LIDE80 internal memory
         sanei_genesys_set_buffer_address(dev, 0x5400*i);
-        dev->model->cmd_set->bulk_write_data(dev, 0x3c, buffer.data(), pixels);
+        dev->cmd_set->bulk_write_data(dev, 0x3c, buffer.data(), pixels);
     }
 }
 
 
 /** the gl841 command set */
-static Genesys_Command_Set gl841_cmd_set = {
+Genesys_Command_Set gl841_cmd_set = {
   "gl841-generic",		/* the name of this set */
 
   [](Genesys_Device* dev) -> bool { (void) dev; return true; },
@@ -4712,8 +4712,3 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_calculate_current_setup,
   NULL
 };
-
-void sanei_gl841_init_cmd_set(Genesys_Device* dev)
-{
-  dev->model->cmd_set = &gl841_cmd_set;
-}

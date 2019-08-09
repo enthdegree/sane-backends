@@ -56,18 +56,25 @@
 /**
  * setup the hardware dependent functions
  */
+extern Genesys_Command_Set gl124_cmd_set;
+extern Genesys_Command_Set gl646_cmd_set;
+extern Genesys_Command_Set gl841_cmd_set;
+extern Genesys_Command_Set gl843_cmd_set;
+extern Genesys_Command_Set gl846_cmd_set;
+extern Genesys_Command_Set gl847_cmd_set;
+
 void sanei_genesys_init_cmd_set(Genesys_Device* dev)
 {
   DBG_INIT ();
     DBG_HELPER(dbg);
     switch (dev->model->asic_type) {
-        case GENESYS_GL646: sanei_gl646_init_cmd_set(dev); break;
-        case GENESYS_GL841: sanei_gl841_init_cmd_set(dev); break;
-        case GENESYS_GL843: sanei_gl843_init_cmd_set(dev); break;
+        case GENESYS_GL646: dev->cmd_set = &gl646_cmd_set; break;
+        case GENESYS_GL841: dev->cmd_set = &gl841_cmd_set; break;
+        case GENESYS_GL843: dev->cmd_set = &gl843_cmd_set; break;
         case GENESYS_GL845: // since only a few reg bits differs we handle both together
-        case GENESYS_GL846: sanei_gl846_init_cmd_set(dev); break;
-        case GENESYS_GL847: sanei_gl847_init_cmd_set(dev); break;
-        case GENESYS_GL124: sanei_gl124_init_cmd_set(dev); break;
+        case GENESYS_GL846: dev->cmd_set = &gl846_cmd_set; break;
+        case GENESYS_GL847: dev->cmd_set = &gl847_cmd_set; break;
+        case GENESYS_GL124: dev->cmd_set = &gl124_cmd_set; break;
         default: throw SaneException(SANE_STATUS_INVAL, "unknown ASIC type");
     }
 }
@@ -733,8 +740,7 @@ void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empty)
   sanei_genesys_sleep_ms(1);
     sanei_genesys_get_status(dev, &val);
 
-  if (dev->model->cmd_set->test_buffer_empty_bit (val))
-    {
+    if (dev->cmd_set->test_buffer_empty_bit(val)) {
       /* fix timing issue on USB3 (or just may be too fast) hardware
        * spotted by John S. Weber <jweber53@gmail.com>
        */
@@ -776,7 +782,7 @@ void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, si
         throw SaneException(SANE_STATUS_IO_ERROR, "timeout, buffer does not get filled");
     }
 
-    dev->model->cmd_set->bulk_read_data(dev, 0x45, data, size);
+    dev->cmd_set->bulk_read_data(dev, 0x45, data, size);
 }
 void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps)
 {
@@ -1164,7 +1170,7 @@ void sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
     }
 
     // set up hardware and registers
-    dev->model->cmd_set->asic_boot(dev, cold);
+    dev->cmd_set->asic_boot(dev, cold);
 
   /* now hardware part is OK, set up device struct */
   dev->white_average_data.clear();
@@ -1178,16 +1184,16 @@ void sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
     // Set analog frontend
-    dev->model->cmd_set->set_fe(dev, sensor, AFE_INIT);
+    dev->cmd_set->set_fe(dev, sensor, AFE_INIT);
 
   dev->already_initialized = SANE_TRUE;
 
     // Move to home if needed
-    dev->model->cmd_set->slow_back_home(dev, SANE_TRUE);
+    dev->cmd_set->slow_back_home(dev, SANE_TRUE);
   dev->scanhead_position_in_steps = 0;
 
     // Set powersaving (default = 15 minutes)
-    dev->model->cmd_set->set_powersaving(dev, 15);
+    dev->cmd_set->set_powersaving(dev, 15);
 }
 
 /**
@@ -1450,13 +1456,12 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
 #endif
   int compatible = 1, resolution;
 
-  if(dev->model->cmd_set->calculate_current_setup==NULL)
-    {
+    if(dev->cmd_set->calculate_current_setup == nullptr) {
       DBG (DBG_proc, "%s: no calculate_setup, non compatible cache\n", __func__);
       return false;
     }
 
-    dev->model->cmd_set->calculate_current_setup(dev, sensor);
+    dev->cmd_set->calculate_current_setup(dev, sensor);
 
   DBG (DBG_proc, "%s: checking\n", __func__);
 

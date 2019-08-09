@@ -95,9 +95,6 @@ struct Genesys_Model
     // ASIC type gl646 or gl841
     unsigned asic_type = 0;
 
-    // pointers to low level functions
-    Genesys_Command_Set* cmd_set = nullptr;
-
     // possible x resolutions
     std::vector<unsigned> xdpi_values;
     // possible y resolutions
@@ -224,6 +221,9 @@ struct Genesys_Device
     bool ignore_offsets = false;
 
     Genesys_Model *model = nullptr;
+
+    // pointers to low level functions
+    Genesys_Command_Set* cmd_set = nullptr;
 
     Genesys_Register_Set reg;
     Genesys_Register_Set calib_reg;

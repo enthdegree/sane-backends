@@ -2051,7 +2051,7 @@ static void gl843_set_xpa_lamp_power(Genesys_Device *dev, bool set)
     DBG_HELPER(dbg);
 
     struct LampSettings {
-        int model_id;
+        unsigned model_id;
         ScanMethod scan_method;
         GenesysRegisterSettingSet regs_on;
         GenesysRegisterSettingSet regs_off;

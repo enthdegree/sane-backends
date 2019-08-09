@@ -4914,19 +4914,10 @@ calc_parameters (Genesys_Scanner * s)
 }
 
 
-static SANE_Status
-create_bpp_list (Genesys_Scanner * s, SANE_Int * bpp)
+static void create_bpp_list (Genesys_Scanner * s, const std::vector<unsigned>& bpp)
 {
-  int count;
-
-  for (count = 0; bpp[count] != 0; count++)
-    ;
-  s->bpp_list[0] = count;
-  for (count = 0; bpp[count] != 0; count++)
-    {
-      s->bpp_list[s->bpp_list[0] - count] = bpp[count];
-    }
-  return SANE_STATUS_GOOD;
+    s->bpp_list[0] = bpp.size();
+    std::reverse_copy(bpp.begin(), bpp.end(), s->bpp_list + 1);
 }
 
 /** @brief this function initialize a gamma vector based on the ASIC:
@@ -5087,7 +5078,7 @@ static SANE_Status
 init_options (Genesys_Scanner * s)
 {
     DBG_HELPER(dbg);
-  SANE_Int option, count, min_dpi;
+  SANE_Int option;
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word *dpi_list;
   Genesys_Model *model = s->dev->model;
@@ -5170,20 +5161,15 @@ init_options (Genesys_Scanner * s)
     DISABLE (OPT_BIT_DEPTH);
 
   /* resolution */
-  min_dpi=200000;
-  for (count = 0; model->xdpi_values[count] != 0; count++)
-    {
-      if(model->xdpi_values[count]<min_dpi)
-        {
-          min_dpi=model->xdpi_values[count];
-        }
+    unsigned min_dpi = *std::min_element(model->xdpi_values.begin(), model->xdpi_values.end());
+
+    dpi_list = (SANE_Word*) malloc((model->xdpi_values.size() + 1) * sizeof(SANE_Word));
+    if (!dpi_list) {
+        return SANE_STATUS_NO_MEM;
     }
-  dpi_list = (SANE_Word*) malloc((count + 1) * sizeof(SANE_Word));
-  if (!dpi_list)
-    return SANE_STATUS_NO_MEM;
-  dpi_list[0] = count;
-  for (count = 0; model->xdpi_values[count] != 0; count++)
-    dpi_list[count + 1] = model->xdpi_values[count];
+    dpi_list[0] = model->xdpi_values.size();
+    std::copy(model->xdpi_values.begin(), model->xdpi_values.end(), dpi_list + 1);
+
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
@@ -5712,7 +5698,6 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
     DBG_HELPER_ARGS(dbg, "devp %s NULL, may_wait = %d", devp ? "!=" : "==", may_wait);
 
   Genesys_Device *dev = 0;
-  unsigned int i;
 
   if (devp)
     *devp = 0;
@@ -5754,18 +5739,17 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
         }
     }
 
-  bool found_dev = false;
-  for (i = 0; i < MAX_SCANNERS && genesys_usb_device_list[i].model != 0; i++)
-    {
-      if (vendor == genesys_usb_device_list[i].vendor &&
-	  product == genesys_usb_device_list[i].product)
-	{
-            found_dev = true;
+    Genesys_USB_Device_Entry* found_usb_dev = nullptr;
+    for (auto& usb_dev : *s_usb_devices) {
+        if (usb_dev.vendor == static_cast<unsigned>(vendor) &&
+            usb_dev.product == static_cast<unsigned>(product))
+        {
+            found_usb_dev = &usb_dev;
             break;
-	}
+        }
     }
 
-    if (!found_dev) {
+    if (found_usb_dev == nullptr) {
       DBG(DBG_error, "%s: vendor 0x%xd product 0x%xd is not supported by this backend\n", __func__,
 	   vendor, product);
       return SANE_STATUS_INVAL;
@@ -5780,9 +5764,9 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
     dev = &s_devices->back();
     dev->file_name = new_devname;
 
-  dev->model = genesys_usb_device_list[i].model;
-  dev->vendorId = genesys_usb_device_list[i].vendor;
-  dev->productId = genesys_usb_device_list[i].product;
+    dev->model = &found_usb_dev->model;
+    dev->vendorId = found_usb_dev->vendor;
+    dev->productId = found_usb_dev->product;
   dev->usb_mode = 0;            /* i.e. unset */
   dev->already_initialized = SANE_FALSE;
 
@@ -6075,6 +6059,8 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   s_sane_devices_ptrs.init();
   genesys_init_sensor_tables();
   genesys_init_frontend_tables();
+    genesys_init_usb_device_tables();
+
 
   DBG(DBG_info, "%s: %s endian machine\n", __func__,
 #ifdef WORDS_BIGENDIAN

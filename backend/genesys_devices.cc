@@ -1730,6 +1730,34 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 },
             },
+            { 1200, 1200, 28800, ScanMethod::TRANSPARENCY_INFRARED, {
+                    { 0x16, 0x33 },
+                    { 0x17, 0x0c },
+                    { 0x18, 0x11 },
+                    { 0x19, 0x2a },
+                    { 0x1a, 0x30 },
+                    { 0x1b, 0x00 },
+                    { 0x1c, 0x00 },
+                    { 0x1d, 0x84 },
+                    { 0x1e, 0xa0 },
+                    { 0x52, 0x0b },
+                    { 0x53, 0x0e },
+                    { 0x54, 0x11 },
+                    { 0x55, 0x02 },
+                    { 0x56, 0x05 },
+                    { 0x57, 0x08 },
+                    { 0x58, 0x63 },
+                    { 0x59, 0x00 },
+                    { 0x5a, 0x40 },
+                    { 0x70, 0x00 }, { 0x71, 0x01 }, { 0x72, 0x02 }, { 0x73, 0x03 },
+                    { 0x74, 0x00 }, { 0x75, 0x01 }, { 0x76, 0xff },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x02 }, { 0x7b, 0x49 }, { 0x7c, 0x24 },
+                    { 0x80, 0x21 },
+                }, {
+                    { 0x03, 0x1f },
+                },
+            },
         };
 
         for (const CustomSensorSettings& setting : custom_settings)
@@ -3335,6 +3363,7 @@ static Genesys_Model canon_8400f_model = {
   GPO_CS8400F,
   MOTOR_CS8400F,
   GENESYS_FLAG_HAS_UTA |
+    GENESYS_FLAG_HAS_UTA_INFRARED |
   GENESYS_FLAG_LAZY_INIT |
   GENESYS_FLAG_OFFSET_CALIBRATION |
   GENESYS_FLAG_STAGGERED_LINE |

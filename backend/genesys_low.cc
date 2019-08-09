@@ -75,6 +75,16 @@ void Genesys_Device::clear()
     dark_average_data.clear();
 }
 
+void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs)
+{
+    for (const auto& reg : regs) {
+        uint8_t val;
+        sanei_genesys_read_register(&dev, reg.address, &val);
+        val = (val & ~reg.mask) | (reg.value & reg.mask);
+        sanei_genesys_write_register(&dev, reg.address, val);
+    }
+}
+
 /* ------------------------------------------------------------------------ */
 /*                  functions calling ASIC specific functions               */
 /* ------------------------------------------------------------------------ */
@@ -890,7 +900,8 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
             sanei_genesys_set_exposure(regs, sensor.exposure);
 
             // we don't actually turn on lamp on infrared scan
-            if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F &&
+            if ((dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
+                 dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) &&
                 dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
             {
                 regs.find_reg(0x03).value &= ~REG03_LAMPPWR;

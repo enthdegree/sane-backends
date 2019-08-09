@@ -1955,6 +1955,9 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
         if (set) {
             sanei_genesys_read_register(dev, 0x6c, &val);
             val &= ~(REG6C_GPIO16 | REG6C_GPIO13);
+            if (dev->current_setup.xres >= 2400) {
+                val &= ~REG6C_GPIO10;
+            }
             sanei_genesys_write_register(dev, 0x6c, val);
 
             sanei_genesys_read_register(dev, 0xa9, &val);
@@ -2043,57 +2046,75 @@ static SANE_Status gl843_set_xpa_motor_power(Genesys_Device *dev, bool set)
  * XPA light
  * @param dev device to set up
  */
-static SANE_Status gl843_set_xpa_lamp_power(Genesys_Device *dev, bool set)
+static void gl843_set_xpa_lamp_power(Genesys_Device *dev, bool set)
 {
     DBG_HELPER(dbg);
-    SANE_Status status = SANE_STATUS_GOOD;
-    uint8_t val = 0;
 
+    struct LampSettings {
+        int model_id;
+        ScanMethod scan_method;
+        GenesysRegisterSettingSet regs_on;
+        GenesysRegisterSettingSet regs_off;
+    };
+
+    // FIXME: BUG: we're not clearing the registers to the previous state when returning back when
+    // turning off the lamp
+    LampSettings settings[] = {
+        {   MODEL_CANON_CANOSCAN_8400F, ScanMethod::TRANSPARENCY, {
+                { 0xa6, 0x34, 0xf4 },
+                { 0xa7, 0xe0, 0xe0 }, // BUG: should be 0x03
+            }, {
+                { 0xa6, 0x40, 0x70 },
+            }
+        },
+        {   MODEL_CANON_CANOSCAN_8400F, ScanMethod::TRANSPARENCY_INFRARED, {
+                { 0x6c, 0x40, 0x40 },
+                { 0xa6, 0x01, 0xff },
+                { 0xa7, 0x03, 0x07 },
+            }, {
+                { 0x6c, 0x00, 0x40 },
+                { 0xa6, 0x00, 0xff },
+                { 0xa7, 0x07, 0x07 },
+            }
+        },
+        {   MODEL_CANON_CANOSCAN_8600F, ScanMethod::TRANSPARENCY, {
+                { 0xa6, 0x34, 0xf4 },
+                { 0xa7, 0xe0, 0xe0 },
+            }, {
+                { 0xa6, 0x40, 0x70 },
+            }
+        },
+        {   MODEL_CANON_CANOSCAN_8600F, ScanMethod::TRANSPARENCY_INFRARED, {
+                { 0xa6, 0x00, 0xc0 },
+                { 0xa7, 0xe0, 0xe0 },
+                { 0x6c, 0x80, 0x80 },
+            }, {
+                { 0xa6, 0x00, 0xc0 },
+                { 0x6c, 0x00, 0x80 },
+            }
+        },
+    };
+
+    for (const auto& setting : settings) {
+        if (setting.model_id == dev->model->model_id &&
+            setting.scan_method == dev->settings.scan_method)
+        {
+            apply_reg_settings_to_device(*dev, set ? setting.regs_on : setting.regs_off);
+            return;
+        }
+    }
+
+    // BUG: we're currently calling the function in shut down path of regular lamp
     if (set) {
-        sanei_genesys_read_register(dev, REGA6, &val);
-
-        // cut regular lamp power
-        val &= ~(REGA6_GPIO24 | REGA6_GPIO23);
-
-        // set XPA lamp power
-        if (dev->settings.scan_method != ScanMethod::TRANSPARENCY_INFRARED) {
-            val |= REGA6_GPIO22 | REGA6_GPIO21 | REGA6_GPIO19;
-        }
-
-        sanei_genesys_write_register(dev, REGA6, val);
-
-        sanei_genesys_read_register(dev, REGA7, &val);
-        val|=REGA7_GPOE24; /* lamp 1 off GPOE 24 */
-        val|=REGA7_GPOE23; /* lamp 2 off GPOE 23 */
-        val|=REGA7_GPOE22; /* full XPA lamp power */
-        sanei_genesys_write_register(dev, REGA7, val);
-    } else {
-        sanei_genesys_read_register(dev, REGA6, &val);
-
-        // switch on regular lamp
-        val |= REGA6_GPIO23;
-
-        // no XPA lamp power (2 bits for level: __11 ____)
-        val &= ~(REGA6_GPIO22 | REGA6_GPIO21);
-
-        sanei_genesys_write_register(dev, REGA6, val);
+        throw SaneException("Unexpected code path entered");
     }
 
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F &&
-        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
-    {
-        if (set) {
-            sanei_genesys_read_register(dev, REG6C, &val);
-            val |= REG6C_GPIO16;
-            sanei_genesys_write_register(dev, REG6C, val);
-        } else {
-            sanei_genesys_read_register(dev, REG6C, &val);
-            val &= ~REG6C_GPIO16;
-            sanei_genesys_write_register(dev, REG6C, val);
-        }
-    }
-
-    return status;
+    GenesysRegisterSettingSet regs = {
+        { 0xa6, 0x40, 0x70 },
+    };
+    apply_reg_settings_to_device(*dev, regs);
+    // TODO: throw exception when we're only calling this function in error return path
+    // throw SaneException("Could not find XPA lamp settings");
 }
 
 /* Send the low-level scan command */
@@ -2138,7 +2159,7 @@ gl843_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
 	  }
 
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
-                RIE(gl843_set_xpa_lamp_power(dev, true));
+                gl843_set_xpa_lamp_power(dev, true);
             }
 
             if (reg->state.is_xpa_on) {
@@ -2152,7 +2173,7 @@ gl843_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Re
       case GPO_CS8400F:
       case GPO_CS8600F:
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
-                RIE(gl843_set_xpa_lamp_power(dev, true));
+                gl843_set_xpa_lamp_power(dev, true);
             }
             if (reg->state.is_xpa_on) {
                 dev->needs_home_ta = SANE_TRUE;

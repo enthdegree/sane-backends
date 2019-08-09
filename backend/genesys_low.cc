@@ -112,28 +112,23 @@ void sanei_genesys_init_cmd_set(Genesys_Device* dev)
 /*                  General IO and debugging functions                      */
 /* ------------------------------------------------------------------------ */
 
-SANE_Status sanei_genesys_write_file(const char *filename, uint8_t * data, size_t length)
+void sanei_genesys_write_file(const char* filename, uint8_t* data, size_t length)
 {
     DBG_HELPER(dbg);
     FILE *out;
 
     out = fopen (filename, "w");
     if (!out) {
-        DBG(DBG_error, "%s: could nor open %s for writing: %s\n", __func__, filename,
-            strerror(errno));
-        return SANE_STATUS_INVAL;
+        throw SaneException("could not open %s for writing: %s", filename, strerror(errno));
     }
     fwrite(data, 1, length, out);
     fclose(out);
-
-    return SANE_STATUS_GOOD;
 }
 
-/* Write data to a pnm file (e.g. calibration). For debugging only */
-/* data is RGB or grey, with little endian byte order */
-SANE_Status
-sanei_genesys_write_pnm_file (const char *filename, uint8_t * data, int depth,
-			      int channels, int pixels_per_line, int lines)
+// Write data to a pnm file (e.g. calibration). For debugging only
+// data is RGB or grey, with little endian byte order
+void sanei_genesys_write_pnm_file(const char* filename, uint8_t* data, int depth, int channels,
+                                  int pixels_per_line, int lines)
 {
     DBG_HELPER_ARGS(dbg, "depth=%d, channels=%d, ppl=%d, lines=%d", depth, channels,
                     pixels_per_line, lines);
@@ -143,9 +138,7 @@ sanei_genesys_write_pnm_file (const char *filename, uint8_t * data, int depth,
   out = fopen (filename, "w");
   if (!out)
     {
-      DBG(DBG_error, "%s: could nor open %s for writing: %s\n", __func__, filename,
-          strerror(errno));
-      return SANE_STATUS_INVAL;
+        throw SaneException("could not open %s for writing: %s\n", filename, strerror(errno));
     }
   if(depth==1)
     {
@@ -192,8 +185,6 @@ sanei_genesys_write_pnm_file (const char *filename, uint8_t * data, int depth,
 	}
     }
   fclose (out);
-
-  return SANE_STATUS_GOOD;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -818,10 +809,8 @@ void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empty)
 }
 
 
-/* Read data (e.g scanned image) from scan buffer */
-SANE_Status
-sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
-				      size_t size)
+// Read data (e.g scanned image) from scan buffer
+void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, size_t size)
 {
     DBG_HELPER_ARGS(dbg, "size = %lu bytes", (u_long) size);
   int time_count = 0;
@@ -843,13 +832,10 @@ sanei_genesys_read_data_from_scanner (Genesys_Device * dev, uint8_t * data,
 
   if (words == 0)		/* timeout, buffer does not get filled */
     {
-      DBG(DBG_error, "%s: timeout, buffer does not get filled\n", __func__);
-      return SANE_STATUS_IO_ERROR;
+        throw SaneException(SANE_STATUS_IO_ERROR, "timeout, buffer does not get filled");
     }
 
     dev->model->cmd_set->bulk_read_data(dev, 0x45, data, size);
-
-  return SANE_STATUS_GOOD;
 }
 void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps)
 {
@@ -1156,14 +1142,12 @@ void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
  * fontend. Used by gl846+ ASICs
  * @param dev device to write to
  */
-SANE_Status
-sanei_genesys_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& sensor)
+void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   int size;
   int i;
   uint8_t val;
-  SANE_Status status = SANE_STATUS_GOOD;
 
   size = 256 + 1;
 
@@ -1197,8 +1181,6 @@ sanei_genesys_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& senso
         sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2,
                                 gamma.data() + i * size * 2+2);
     }
-
-  return status;
 }
 
 /** @brief initialize device
@@ -1211,12 +1193,10 @@ sanei_genesys_send_gamma_table(Genesys_Device * dev, const Genesys_Sensor& senso
  * @param max_regs umber of maximum used registers
  * @return SANE_STATUS_GOOD in case of success
  */
-SANE_Status
-sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
+void sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
 {
     DBG_HELPER(dbg);
 
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t val;
   SANE_Bool cold = SANE_TRUE;
 
@@ -1251,11 +1231,11 @@ sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
   if (dev->already_initialized && !cold)
     {
       DBG (DBG_info, "%s: already initialized, nothing to do\n", __func__);
-      return SANE_STATUS_GOOD;
+        return;
     }
 
-  /* set up hardware and registers */
-  RIE (dev->model->cmd_set->asic_boot (dev, cold));
+    // set up hardware and registers
+    dev->model->cmd_set->asic_boot(dev, cold);
 
   /* now hardware part is OK, set up device struct */
   dev->white_average_data.clear();
@@ -1273,14 +1253,12 @@ sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
 
   dev->already_initialized = SANE_TRUE;
 
-  /* Move to home if needed */
-  RIE (dev->model->cmd_set->slow_back_home (dev, SANE_TRUE));
+    // Move to home if needed
+    dev->model->cmd_set->slow_back_home(dev, SANE_TRUE);
   dev->scanhead_position_in_steps = 0;
 
-  /* Set powersaving (default = 15 minutes) */
-  RIE (dev->model->cmd_set->set_powersaving (dev, 15));
-
-    return status;
+    // Set powersaving (default = 15 minutes)
+    dev->model->cmd_set->set_powersaving(dev, 15);
 }
 
 /**
@@ -1737,17 +1715,12 @@ int sanei_genesys_compute_max_shift(Genesys_Device *dev,
   * @param slope slope of the generated data
   * @param offset offset of the generated data
   */
-SANE_Status
-sanei_genesys_load_lut (unsigned char * lut,
-                        int in_bits,
-                        int out_bits,
-                        int out_min,
-                        int out_max,
-                        int slope,
-                        int offset)
+void sanei_genesys_load_lut(unsigned char* lut,
+                            int in_bits, int out_bits,
+                            int out_min, int out_max,
+                            int slope, int offset)
 {
     DBG_HELPER(dbg);
-  SANE_Status ret = SANE_STATUS_GOOD;
   int i, j;
   double shift, rise;
   int max_in_val = (1 << in_bits) - 1;
@@ -1798,8 +1771,6 @@ sanei_genesys_load_lut (unsigned char * lut,
 	  lut_p16++;
 	}
     }
-
-  return ret;
 }
 
 void sanei_genesys_usleep(unsigned int useconds)

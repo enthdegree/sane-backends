@@ -326,24 +326,23 @@
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-static SANE_Status gl847_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                        Genesys_Register_Set * reg, SetupParams& params);
+static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                 Genesys_Register_Set* reg, SetupParams& params);
 
-/* Send the low-level scan command */
-static SANE_Status gl847_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                     Genesys_Register_Set * reg, SANE_Bool start_motor);
+// Send the low-level scan command
+static void gl847_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                             Genesys_Register_Set* reg, SANE_Bool start_motor);
 
-/* Send the stop scan command */
-static SANE_Status gl847_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool check_stop);
+// Send the stop scan command
+static void gl847_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop);
 
-static SANE_Status gl847_init (Genesys_Device * dev);
+static void gl847_init(Genesys_Device* dev);
 
 /** @brief moves the slider to steps at motor base dpi
  * @param dev device to work on
  * @param steps number of steps to move
  * */
-static SANE_Status
-gl847_feed (Genesys_Device * dev, unsigned int steps);
+static void gl847_feed(Genesys_Device* dev, unsigned int steps);
 
 typedef struct
 {

@@ -1000,13 +1000,11 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
     dev->model->cmd_set->bulk_write_data(dev, 0x3c, data, size);
 }
 
-/* ? */
-SANE_Status
-sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                 int pixels_per_line)
+// ?
+void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                     int pixels_per_line)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   int channels;
   int i;
 
@@ -1017,7 +1015,7 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sen
    || dev->model->ccd_type==CCD_CS4400F
    || dev->model->ccd_type==CCD_CS8400F
    || dev->model->cmd_set->send_shading_data!=NULL)
-    return SANE_STATUS_GOOD;
+        return;
 
   DBG(DBG_proc, "%s (pixels_per_line = %d)\n", __func__, pixels_per_line);
 
@@ -1045,19 +1043,14 @@ sanei_genesys_init_shading_data (Genesys_Device * dev, const Genesys_Sensor& sen
 
     genesys_send_offset_and_shading(dev, sensor, shading_data.data(),
                                     pixels_per_line * 4 * channels);
-
-  return status;
 }
 
 
-/* Find the position of the reference point:
-   takes gray level 8 bits data and find
-   first CCD usable pixel and top of scanning area */
-SANE_Status
-sanei_genesys_search_reference_point (Genesys_Device * dev, Genesys_Sensor& sensor,
-                                      uint8_t * data,
-				      int start_pixel, int dpi, int width,
-				      int height)
+// Find the position of the reference point: takes gray level 8 bits data and find
+// first CCD usable pixel and top of scanning area
+void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& sensor,
+                                          uint8_t* data, int start_pixel, int dpi, int width,
+                                          int height)
 {
     DBG_HELPER(dbg);
   int x, y;
@@ -1065,9 +1058,10 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, Genesys_Sensor& sens
   int size, count;
   int level = 80;		/* edge threshold level */
 
-  /*sanity check */
-  if ((width < 3) || (height < 3))
-    return SANE_STATUS_INVAL;
+    // sanity check
+    if ((width < 3) || (height < 3)) {
+        throw SaneException("invalid width or height");
+    }
 
   /* transformed image data */
   size = width * height;
@@ -1224,8 +1218,6 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, Genesys_Sensor& sens
 
   DBG(DBG_proc, "%s: CCD_start_xoffset = %d, left = %d, top = %d\n", __func__,
       sensor.CCD_start_xoffset, left, top);
-
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -1331,10 +1323,9 @@ static uint8_t genesys_adjust_gain(double* applied_multi, double multi, uint8_t 
 }
 
 
-/* todo: is return status necessary (unchecked?) */
-static SANE_Status
-genesys_average_white (Genesys_Device * dev, Genesys_Sensor& sensor, int channels, int channel,
-		       uint8_t * data, int size, int *max_average)
+// todo: is return status necessary (unchecked?)
+static void genesys_average_white(Genesys_Device* dev, Genesys_Sensor& sensor, int channels,
+                                  int channel, uint8_t* data, int size, int *max_average)
 {
 
     DBG_HELPER_ARGS(dbg, "channels=%d, channel=%d, size=%d", channels, channel, size);
@@ -1380,9 +1371,7 @@ genesys_average_white (Genesys_Device * dev, Genesys_Sensor& sensor, int channel
       gain_white_ref);
 
   if (*max_average >= gain_white_ref)
-    return SANE_STATUS_INVAL;
-
-  return SANE_STATUS_GOOD;
+        throw SaneException(SANE_STATUS_INVAL);
 }
 
 /* todo: understand, values are too high */
@@ -1422,16 +1411,15 @@ genesys_average_black (Genesys_Device * dev, int channel,
 }
 
 
-/* todo: check; it works but the lines 1, 2, and 3 are too dark even with the
-   same offset and gain settings? */
-static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
+// todo: check; it works but the lines 1, 2, and 3 are too dark even with the
+// same offset and gain settings?
+static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {
     DBG_HELPER_ARGS(dbg, "scan_mode = %d", static_cast<unsigned>(dev->settings.scan_mode));
   int size;
   int black_pixels;
   int white_average;
   int channels;
-  SANE_Status status = SANE_STATUS_GOOD;
   uint8_t offset[4] = { 0xa0, 0x00, 0xa0, 0x40 };	/* first value isn't used */
   uint16_t white[12], dark[12];
   int i, j;
@@ -1546,21 +1534,10 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
           dev->frontend.get_offset(1),
           dev->frontend.get_offset(2));
 
-      status =
-        dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: Failed to begin scan: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
 
-      status =
-    sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: Failed to read data: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+      dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
+
+      sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
 
       std::memcpy(all_data.data() + i * size, calibration_data.data(), size);
       if (i == 3)		/* last line */
@@ -1570,27 +1547,16 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 
 	  for (count = 0; count < (unsigned int) (size * 4 / 2); count++)
 	    all_data_8[count] = all_data[count * 2 + 1];
-	  status =
-            sanei_genesys_write_pnm_file("gl_coarse.pnm", all_data_8.data(), 8, channels, size / 6, 4);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-              DBG(DBG_error, "%s: failed: %s\n", __func__, sane_strstatus(status));
-	      return status;
-	    }
+        sanei_genesys_write_pnm_file("gl_coarse.pnm", all_data_8.data(), 8, channels, size / 6, 4);
 	}
 
-      status = dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: Failed to end scan: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
+
       if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
 	{
 	  for (j = 0; j < 3; j++)
 	    {
-          genesys_average_white (dev, sensor, 3, j, calibration_data.data(), size,
-				     &white_average);
+            genesys_average_white(dev, sensor, 3, j, calibration_data.data(), size, &white_average);
 	      white[i * 3 + j] = white_average;
 	      dark[i * 3 + j] =
         genesys_average_black (dev, j, calibration_data.data(),
@@ -1601,8 +1567,7 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
 	}
       else			/* one color-component modes */
 	{
-      genesys_average_white (dev, sensor, 1, 0, calibration_data.data(), size,
-				 &white_average);
+        genesys_average_white(dev, sensor, 1, 0, calibration_data.data(), size, &white_average);
 	  white[i * 3 + 0] = white[i * 3 + 1] = white[i * 3 + 2] =
 	    white_average;
 	  dark[i * 3 + 0] = dark[i * 3 + 1] = dark[i * 3 + 2] =
@@ -1658,8 +1623,6 @@ static SANE_Status genesys_coarse_calibration(Genesys_Device * dev, Genesys_Sens
       dev->frontend.get_offset(0),
       dev->frontend.get_offset(1),
       dev->frontend.get_offset(2));
-
-  return status;
 }
 
 /* Averages image data.
@@ -1696,11 +1659,9 @@ genesys_average_data (uint8_t * average_data,
  * @param dev scanner's device
  * @return SANE_STATUS_GOOD if OK, else an error
  */
-static SANE_Status
-genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void genesys_dark_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   size_t size;
   uint32_t pixels_per_line;
   uint8_t channels;
@@ -1718,7 +1679,7 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
 
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) {
         // FIXME: dark shading currently not supported on infrared transparency scans
-        return SANE_STATUS_GOOD;
+        return;
     }
 
     // FIXME: the current calculation is likely incorrect on non-GENESYS_GL843 implementations,
@@ -1757,26 +1718,11 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
   // wait some time to let lamp to get dark
   sanei_genesys_sleep_ms(200);
 
-  status = dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: Failed to begin scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
 
-  status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
 
-  status = dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
 
   std::fill(dev->dark_average_data.begin(),
             dev->dark_average_data.begin() + dev->calib_pixels_offset * channels * 2,
@@ -1793,8 +1739,6 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
       sanei_genesys_write_pnm_file("gl_black_average.pnm", dev->dark_average_data.data(), 16,
                                    channels, out_pixels_per_line, 1);
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 /*
@@ -1804,8 +1748,7 @@ genesys_dark_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sen
  * can be computed from previous calibration data (when doing offset
  * calibration ?)
  */
-static SANE_Status
-genesys_dummy_dark_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   uint32_t pixels_per_line;
@@ -1885,8 +1828,6 @@ genesys_dummy_dark_shading (Genesys_Device * dev, const Genesys_Sensor& sensor)
 	  dev->dark_average_data[channels * 2 * x + 5] = dummy3 >> 8;
 	}
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -1896,9 +1837,9 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
         // rewind keeps registers and slopes table intact from previous scan but is not
         // available on all supported chipsets (or may cause scan artifacts, see #7)
         if (dev->model->cmd_set->rewind) {
-            TIE(dev->model->cmd_set->rewind(dev));
+            dev->model->cmd_set->rewind(dev);
         } else {
-            TIE(dev->model->cmd_set->slow_back_home(dev, SANE_TRUE));
+            dev->model->cmd_set->slow_back_home(dev, SANE_TRUE);
         }
 
         if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
@@ -1909,11 +1850,9 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
     }
 }
 
-static SANE_Status
-genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void genesys_white_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER_ARGS(dbg, "lines = %d", (unsigned int)dev->calib_lines);
-  SANE_Status status = SANE_STATUS_GOOD;
   size_t size;
   uint32_t pixels_per_line;
   uint8_t channels;
@@ -1951,29 +1890,15 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
 
     dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
 
-  if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)
-    sanei_genesys_sleep_ms(500); // make sure lamp is bright again
-
-  status = dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: Failed to begin scan: %s\n", __func__, sane_strstatus(status));
-      return status;
+    if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION) {
+        sanei_genesys_sleep_ms(500); // make sure lamp is bright again
     }
 
-  status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_TRUE);
 
-  status = dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
+
+    dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
 
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file("gl_white_shading.pnm", calibration_data.data(), 16,
@@ -1994,31 +1919,21 @@ genesys_white_shading_calibration (Genesys_Device * dev, const Genesys_Sensor& s
   /* in case we haven't done dark calibration, build dummy data from white_average */
   if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION))
     {
-      status = genesys_dummy_dark_shading(dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to do dummy dark shading calibration: %s\n", __func__,
-              sane_strstatus(status));
-	  return status;
-	}
+        genesys_dummy_dark_shading(dev, sensor);
     }
 
   if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK)
     {
-	  status = dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
+        dev->model->cmd_set->slow_back_home(dev, SANE_TRUE);
     }
-
-  return status;
 }
 
-/* This calibration uses a scan over the calibration target, comprising a
- * black and a white strip. (So the motor must be on.)
- */
-static SANE_Status
-genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor)
+// This calibration uses a scan over the calibration target, comprising a black and a white strip.
+// (So the motor must be on.)
+static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
+                                                   const Genesys_Sensor& sensor)
 {
     DBG_HELPER_ARGS(dbg, "lines = %d", (unsigned int)dev->calib_lines);
-  SANE_Status status = SANE_STATUS_GOOD;
   size_t size;
   uint32_t pixels_per_line;
   uint8_t *average_white, *average_dark;
@@ -2061,27 +1976,11 @@ genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Senso
 
     dev->model->cmd_set->bulk_write_register(dev, dev->calib_reg);
 
-  status = dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
+    dev->model->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
 
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
 
-  status = sanei_genesys_read_data_from_scanner (dev, calibration_data.data(), size);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to read data: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
-
-  status = dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: Failed to end scan: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
 
   if (DBG_LEVEL >= DBG_data)
     {
@@ -2178,8 +2077,6 @@ genesys_dark_white_shading_calibration(Genesys_Device * dev, const Genesys_Senso
                                    dev->dark_average_data.data(), 16, channels,
                                    out_pixels_per_line, 1);
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 /* computes one coefficient given bright-dark value
@@ -2653,8 +2550,7 @@ compute_shifted_coefficients (Genesys_Device * dev,
   }
 }
 
-static SANE_Status
-genesys_send_shading_coefficient(Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   uint32_t pixels_per_line;
@@ -2924,15 +2820,13 @@ genesys_send_shading_coefficient(Genesys_Device * dev, const Genesys_Sensor& sen
 			            256);        /* patch_size: contigous extent */
       break;
     default:
-      DBG (DBG_error, "%s: sensor %d not supported\n", __func__, dev->model->ccd_type);
-      return SANE_STATUS_UNSUPPORTED;
+        throw SaneException(SANE_STATUS_UNSUPPORTED, "sensor %d not supported",
+                            dev->model->ccd_type);
       break;
     }
 
     // do the actual write of shading calibration data to the scanner
     genesys_send_offset_and_shading(dev, sensor, shading_data.data(), length);
-
-  return SANE_STATUS_GOOD;
 }
 
 
@@ -2972,7 +2866,7 @@ genesys_restore_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 
         if(dev->model->cmd_set->send_shading_data==NULL)
           {
-            TIE(genesys_send_shading_coefficient(dev, sensor));
+            genesys_send_shading_coefficient(dev, sensor);
           }
 
           DBG(DBG_proc, "%s: restored\n", __func__);
@@ -2984,16 +2878,15 @@ genesys_restore_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 }
 
 
-static SANE_Status
-genesys_save_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
+static void genesys_save_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
 #endif
 
-  if (!dev->model->cmd_set->is_compatible_calibration)
-    return SANE_STATUS_UNSUPPORTED;
+    if (dev->model->cmd_set->is_compatible_calibration == nullptr)
+        return;
 
   auto found_cache_it = dev->calibration_cache.end();
   for (auto cache_it = dev->calibration_cache.begin(); cache_it != dev->calibration_cache.end();
@@ -3030,8 +2923,6 @@ genesys_save_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
   gettimeofday(&time,NULL);
   found_cache_it->last_calibration = time.tv_sec;
 #endif
-
-  return SANE_STATUS_GOOD;
 }
 
 /**
@@ -3042,11 +2933,9 @@ genesys_save_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor)
  * @param dev device to calibrate
  * @return SANE_STATUS_GOOD if everything when all right, else the error code.
  */
-static SANE_Status
-genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
+static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   uint32_t pixels_per_line;
 
     unsigned coarse_res = sensor.optical_res;
@@ -3064,101 +2953,49 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
   if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
     {
       sanei_usb_testing_record_message("offset_calibration");
-      status = dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: offset calibration failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 
       /* since all the registers are set up correctly, just use them */
       sanei_usb_testing_record_message("coarse_gain_calibration");
-      status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: coarse gain calibration: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
-
+        dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
     }
   else
     /* since we have 2 gain calibration proc, skip second if first one was
        used. */
     {
       sanei_usb_testing_record_message("init_regs_for_coarse_calibration");
-      status = dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to send calibration registers: %s\n", __func__,
-              sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
       sanei_usb_testing_record_message("genesys_coarse_calibration");
-      status = genesys_coarse_calibration(dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to do coarse gain calibration: %s\n", __func__,
-              sane_strstatus(status));
-	  return status;
-	}
-
+        genesys_coarse_calibration(dev, sensor);
     }
 
   if (dev->model->is_cis)
     {
       /* the afe now sends valid data for doing led calibration */
       sanei_usb_testing_record_message("led_calibration");
-      status = dev->model->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: led calibration failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
 
       /* calibrate afe again to match new exposure */
       if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
 	{
           sanei_usb_testing_record_message("offset_calibration");
-          status = dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-              DBG(DBG_error, "%s: offset calibration failed: %s\n", __func__, sane_strstatus(status));
-	      return status;
-	    }
+            dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 
 	  /* since all the registers are set up correctly, just use them */
 
           sanei_usb_testing_record_message("coarse_gain_calibration");
-          status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-              DBG(DBG_error, "%s: coarse gain calibration: %s\n", __func__, sane_strstatus(status));
-	      return status;
-	    }
+        dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
 	}
       else
 	/* since we have 2 gain calibration proc, skip second if first one was
 	   used. */
 	{
           sanei_usb_testing_record_message("init_regs_for_coarse_calibration");
-          status = dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor,
-                                                                         dev->calib_reg);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to send calibration registers: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
+            dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
           sanei_usb_testing_record_message("genesys_coarse_calibration");
-          status = genesys_coarse_calibration(dev, sensor);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-              DBG(DBG_error, "%s: failed to do static calibration: %s\n", __func__,
-                  sane_strstatus(status));
-	      return status;
-	    }
+        genesys_coarse_calibration(dev, sensor);
 	}
     }
 
@@ -3174,39 +3011,23 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 
   /* send default shading data */
   sanei_usb_testing_record_message("sanei_genesys_init_shading_data");
-  status = sanei_genesys_init_shading_data(dev, sensor, pixels_per_line);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to init shading process: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    sanei_genesys_init_shading_data(dev, sensor, pixels_per_line);
 
   if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
       dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
   {
-      RIE(dev->model->cmd_set->move_to_ta(dev));
+      dev->model->cmd_set->
+              move_to_ta(dev);
   }
 
   /* shading calibration */
   sanei_usb_testing_record_message("init_regs_for_shading");
-  status = dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to send shading registers: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
   if (dev->model->flags & GENESYS_FLAG_DARK_WHITE_CALIBRATION)
     {
       sanei_usb_testing_record_message("genesys_dark_white_shading_calibration");
-      status = genesys_dark_white_shading_calibration (dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to do dark+white shading calibration: %s\n", __func__,
-              sane_strstatus(status));
-	  return status;
-	}
+        genesys_dark_white_shading_calibration(dev, sensor);
     }
   else
     {
@@ -3216,43 +3037,23 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
       if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)
 	{
           sanei_usb_testing_record_message("genesys_dark_shading_calibration");
-          status = genesys_dark_shading_calibration(dev, sensor);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-              DBG(DBG_error, "%s: failed to do dark shading calibration: %s\n", __func__,
-                  sane_strstatus(status));
-              return status;
-	    }
+            genesys_dark_shading_calibration(dev, sensor);
 	}
 
       genesys_repark_sensor_before_shading(dev);
 
       sanei_usb_testing_record_message("init_regs_for_shading2");
-      RIE(dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg));
+        dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
       sanei_usb_testing_record_message("genesys_white_shading_calibration");
-      status = genesys_white_shading_calibration (dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to do white shading calibration: %s\n", __func__,
-              sane_strstatus(status));
-	  return status;
-	}
+        genesys_white_shading_calibration(dev, sensor);
     }
 
   if(dev->model->cmd_set->send_shading_data==NULL)
     {
       sanei_usb_testing_record_message("genesys_send_shading_coefficient");
-      status = genesys_send_shading_coefficient(dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to send shading calibration coefficients: %s\n", __func__,
-              sane_strstatus(status));
-          return status;
-        }
+        genesys_send_shading_coefficient(dev, sensor);
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 /**
@@ -3265,26 +3066,19 @@ genesys_flatbed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
  * @param dev device to calibrate
  * @return SANE_STATUS_GOOD if everything when all right, else the error code.
  */
-static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
+static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool forward = SANE_TRUE;
   int xres;
 
   if (dev->model->cmd_set->search_strip == NULL)
     {
-      DBG(DBG_error, "%s: no strip searching function available\n", __func__);
-      return SANE_STATUS_UNSUPPORTED;
+        throw SaneException(SANE_STATUS_UNSUPPORTED, "no strip searching function available");
     }
 
-  /* first step, load document */
-  status = dev->model->cmd_set->load_document (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to load document: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // first step, load document
+    dev->model->cmd_set->load_document(dev);
 
   /* led, offset and gain calibration are influenced by scan
    * settings. So we set it to sensor resolution */
@@ -3299,65 +3093,33 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
 
   /* go to a white area */
     try {
-        status = dev->model->cmd_set->search_strip(dev, sensor, forward, SANE_FALSE);
-        if (status != SANE_STATUS_GOOD) {
-            DBG(DBG_error, "%s: failed to find white strip: %s\n", __func__,
-                sane_strstatus(status));
-            dev->model->cmd_set->eject_document (dev);
-            return status;
-        }
+        dev->model->cmd_set->search_strip(dev, sensor, forward, SANE_FALSE);
     } catch (...) {
-        dev->model->cmd_set->eject_document(dev);
+        catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
         throw;
     }
 
   if (dev->model->is_cis)
     {
-      status = dev->model->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: led calibration failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
     }
 
   /* calibrate afe */
   if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
     {
-      status = dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: offset calibration failed: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 
       /* since all the registers are set up correctly, just use them */
 
-      status = dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, xres);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: coarse gain calibration: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, xres);
     }
   else
     /* since we have 2 gain calibration proc, skip second if first one was
        used. */
     {
-      status = dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to send calibration registers: %s\n", __func__,
-              sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
-      status = genesys_coarse_calibration(dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-	{
-          DBG(DBG_error, "%s: failed to do static calibration: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        genesys_coarse_calibration(dev, sensor);
     }
 
   /* search for a full width black strip and then do a 16 bit scan to
@@ -3366,35 +3128,18 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
     {
       /* seek black/white reverse/forward */
         try {
-            status = dev->model->cmd_set->search_strip(dev, sensor, forward, SANE_TRUE);
-            if (status != SANE_STATUS_GOOD) {
-                DBG(DBG_error, "%s: failed to find black strip: %s\n", __func__,
-                    sane_strstatus(status));
-                dev->model->cmd_set->eject_document(dev);
-                return status;
-            }
+            dev->model->cmd_set->search_strip(dev, sensor, forward, SANE_TRUE);
         } catch (...) {
-            dev->model->cmd_set->eject_document(dev);
+            catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
             throw;
         }
 
-      status = dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to do set up registers for shading calibration: %s\n",
-	      __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
+
         try {
-            status = genesys_dark_shading_calibration(dev, sensor);
-            if (status != SANE_STATUS_GOOD) {
-                dev->model->cmd_set->eject_document(dev);
-                DBG(DBG_error, "%s: failed to do dark shading calibration: %s\n", __func__,
-                    sane_strstatus(status));
-                return status;
-            }
+            genesys_dark_shading_calibration(dev, sensor);
         } catch (...) {
-            dev->model->cmd_set->eject_document(dev);
+            catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
             throw;
         }
       forward = SANE_FALSE;
@@ -3403,37 +3148,20 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
 
   /* go to a white area */
     try {
-        status = dev->model->cmd_set->search_strip(dev, sensor, forward, SANE_FALSE);
-        if (status != SANE_STATUS_GOOD) {
-            DBG(DBG_error, "%s: failed to find white strip: %s\n", __func__,
-                sane_strstatus(status));
-            dev->model->cmd_set->eject_document (dev);
-            return status;
-        }
+        dev->model->cmd_set->search_strip(dev, sensor, forward, SANE_FALSE);
     } catch (...) {
-        dev->model->cmd_set->eject_document (dev);
+        catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
         throw;
     }
 
   genesys_repark_sensor_before_shading(dev);
 
-  status = dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to do set up registers for shading calibration: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
     try {
-        status = genesys_white_shading_calibration(dev, sensor);
-        if (status != SANE_STATUS_GOOD) {
-            dev->model->cmd_set->eject_document(dev);
-            DBG(DBG_error, "%s: failed eject target: %s\n", __func__, sane_strstatus(status));
-            return status;
-        }
+        genesys_white_shading_calibration(dev, sensor);
     } catch (...) {
-        dev->model->cmd_set->eject_document (dev);
+        catch_all_exceptions(__func__, [&](){ dev->model->cmd_set->eject_document(dev); });
         throw;
     }
 
@@ -3456,43 +3184,32 @@ static SANE_Status genesys_sheetfed_calibration(Genesys_Device * dev, Genesys_Se
    * but not when using SHDAREA like GL124 */
   if(dev->model->cmd_set->send_shading_data==NULL)
     {
-      status = genesys_send_shading_coefficient(dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to send shading calibration coefficients: %s\n", __func__,
-              sane_strstatus(status));
-          return status;
-        }
+        genesys_send_shading_coefficient(dev, sensor);
     }
 
-  /* save the calibration data */
-  genesys_save_calibration (dev, sensor);
+    // save the calibration data
+    genesys_save_calibration(dev, sensor);
 
-  /* and finally eject calibration sheet */
-  status = dev->model->cmd_set->eject_document (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to eject document: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // and finally eject calibration sheet
+    dev->model->cmd_set->eject_document(dev);
 
   /* resotre settings */
   dev->settings.xres = xres;
-  return SANE_STATUS_GOOD;
 }
 
 /**
  * does the calibration process for a device
  * @param dev device to calibrate
  */
-static SANE_Status
-genesys_scanner_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
+static void genesys_scanner_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {
+    DBG_HELPER(dbg);
   if (dev->model->is_sheetfed == SANE_FALSE)
     {
-      return genesys_flatbed_calibration (dev, sensor);
+        genesys_flatbed_calibration(dev, sensor);
+        return;
     }
-  return genesys_sheetfed_calibration(dev, sensor);
+    genesys_sheetfed_calibration(dev, sensor);
 }
 
 /* unused function kept in case it may be usefull in the futur */
@@ -3536,8 +3253,7 @@ genesys_wait_not_moving (Genesys_Device * dev, int mseconds)
  * wait lamp to be warm enough by scanning the same line until
  * differences between two scans are below a threshold
  */
-static SANE_Status
-genesys_warmup_lamp (Genesys_Device * dev)
+static void genesys_warmup_lamp(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   int seconds = 0;
@@ -3547,13 +3263,10 @@ genesys_warmup_lamp (Genesys_Device * dev)
   double second_average = 0;
   int difference = 255;
   int empty, lines = 3;
-  SANE_Status status = SANE_STATUS_IO_ERROR;
 
   /* check if the current chipset implements warmup */
-  if(dev->model->cmd_set->init_regs_for_warmup==NULL)
-    {
-      DBG(DBG_error,"%s: init_regs_for_warmup not implemented\n", __func__);
-      return status;
+    if (dev->model->cmd_set->init_regs_for_warmup == NULL) {
+        throw SaneException("init_regs_for_warmup not implemented");
     }
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
@@ -3565,7 +3278,7 @@ genesys_warmup_lamp (Genesys_Device * dev)
   do
     {
       DBG(DBG_info, "%s: one more loop\n", __func__);
-      RIE(dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_FALSE));
+        dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_FALSE);
       do
 	{
         sanei_genesys_test_buffer_empty(dev, &empty);
@@ -3573,28 +3286,26 @@ genesys_warmup_lamp (Genesys_Device * dev)
       while (empty);
 
         try {
-            status = sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
-            if (status != SANE_STATUS_GOOD) {
-                RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
-            }
+            sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
         } catch (...) {
-            RIE(sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size));
+            // FIXME: document why this retry is here
+            sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
         }
 
-      RIE(dev->model->cmd_set->end_scan(dev, &dev->reg, SANE_TRUE));
+            dev->model->cmd_set->end_scan(dev, &dev->reg, SANE_TRUE);
 
       sanei_genesys_sleep_ms(1000);
       seconds++;
 
-      RIE(dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_FALSE));
+        dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_FALSE);
       do
 	{
         sanei_genesys_test_buffer_empty(dev, &empty);
           sanei_genesys_sleep_ms(100);
 	}
       while (empty);
-      RIE(sanei_genesys_read_data_from_scanner (dev, second_line.data(), total_size));
-      RIE(dev->model->cmd_set->end_scan(dev, &dev->reg, SANE_TRUE));
+        sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
+        dev->model->cmd_set->end_scan(dev, &dev->reg, SANE_TRUE);
 
       /* compute difference between the two scans */
       for (pixel = 0; pixel < total_size; pixel++)
@@ -3652,24 +3363,20 @@ genesys_warmup_lamp (Genesys_Device * dev)
 
   if (seconds >= WARMUP_TIME)
     {
-      DBG(DBG_error, "%s: warmup timed out after %d seconds. Lamp defective?\n", __func__, seconds);
-      status = SANE_STATUS_IO_ERROR;
+        throw SaneException(SANE_STATUS_IO_ERROR,
+                            "warmup timed out after %d seconds. Lamp defective?", seconds);
     }
   else
     {
       DBG(DBG_info, "%s: warmup succeeded after %d seconds\n", __func__, seconds);
     }
-
-  return status;
 }
 
 
-/* High-level start of scanning */
-static SANE_Status
-genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
+// High-level start of scanning
+static void genesys_start_scan(Genesys_Device* dev, SANE_Bool lamp_off)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   unsigned int steps, expected;
   SANE_Bool empty;
 
@@ -3680,21 +3387,15 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
         sanei_genesys_wait_for_home(dev);
     }
 
-  /* disable power saving*/
-  status = dev->model->cmd_set->save_power (dev, SANE_FALSE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to disable power saving mode: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    // disable power saving
+    dev->model->cmd_set->save_power(dev, SANE_FALSE);
 
   /* wait for lamp warmup : until a warmup for TRANSPARENCY is designed, skip
    * it when scanning from XPA. */
   if (!(dev->model->flags & GENESYS_FLAG_SKIP_WARMUP)
     && (dev->settings.scan_method == ScanMethod::FLATBED))
     {
-      RIE (genesys_warmup_lamp (dev));
+        genesys_warmup_lamp(dev);
     }
 
   /* set top left x and y values by scanning the internals if flatbed scanners */
@@ -3704,22 +3405,10 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
       if ((dev->model->flags & GENESYS_FLAG_SEARCH_START)
 	  && (dev->model->y_offset_calib == 0))
 	{
-	  status = dev->model->cmd_set->search_start_position (dev);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to search start position: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
+        dev->model->cmd_set->search_start_position (dev);
 
           dev->parking = SANE_FALSE;
-	  status = dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to move scanhead to home position: %s\n", __func__,
-                  sane_strstatus(status));
-	      return status;
-	    }
+        dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
 	  dev->scanhead_position_in_steps = 0;
 	}
       else
@@ -3728,13 +3417,8 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 	  /* TODO: check we can drop this since we cannot have the
 	     scanner's head wandering here */
           dev->parking = SANE_FALSE;
-	  status = dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to move scanhead to home position: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
+            dev->model->cmd_set->slow_back_home (dev, SANE_TRUE);
+
 	  dev->scanhead_position_in_steps = 0;
 	}
     }
@@ -3744,38 +3428,22 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
          dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) &&
         dev->model->cmd_set->move_to_ta != NULL)
     {
-      status=dev->model->cmd_set->move_to_ta(dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to move to start of transparency adapter: %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->move_to_ta(dev);
     }
 
   /* load document if needed (for sheetfed scanner for instance) */
   if (dev->model->is_sheetfed == SANE_TRUE
       && dev->model->cmd_set->load_document != NULL)
     {
-      status = dev->model->cmd_set->load_document (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to load document: %s\n", __func__, sane_strstatus(status));
-	  return status;
-	}
+        dev->model->cmd_set->load_document(dev);
     }
 
     auto& sensor = sanei_genesys_find_sensor_for_write(dev, dev->settings.xres,
                                                        dev->settings.scan_method);
 
-  /* send gamma tables. They have been set to device or user value
-   * when setting option value */
-  status = dev->model->cmd_set->send_gamma_table(dev, sensor);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to init gamma table: %s\n", __func__, sane_strstatus(status));
-      return status;
-    }
+    // send gamma tables. They have been set to device or user value
+    // when setting option value */
+    dev->model->cmd_set->send_gamma_table(dev, sensor);
 
   /* try to use cached calibration first */
   if (!genesys_restore_calibration (dev, sensor))
@@ -3785,14 +3453,7 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
        if (!(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
            &&dev->model->is_sheetfed == SANE_FALSE)
 	{
-          status = genesys_scanner_calibration(dev, sensor);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to do scanner calibration: %s\n", __func__,
-		  sane_strstatus(status));
-	      return status;
-	    }
-
+        genesys_scanner_calibration(dev, sensor);
           genesys_save_calibration (dev, sensor);
 	}
       else
@@ -3804,14 +3465,8 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
   /* build look up table for dynamic lineart */
   if(dev->settings.dynamic_lineart==SANE_TRUE)
     {
-      status = sanei_genesys_load_lut(dev->lineart_lut, 8, 8, 50, 205,
-                        dev->settings.threshold_curve,
-                        dev->settings.threshold-127);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to build lut\n", __func__);
-          return status;
-        }
+        sanei_genesys_load_lut(dev->lineart_lut, 8, 8, 50, 205, dev->settings.threshold_curve,
+                               dev->settings.threshold-127);
     }
 
     if (dev->model->cmd_set->wait_for_motor_stop) {
@@ -3822,22 +3477,16 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
         dev->model->cmd_set->needs_home_before_init_regs_for_scan(dev) &&
         dev->model->cmd_set->slow_back_home)
     {
-        RIE(dev->model->cmd_set->slow_back_home(dev, SANE_TRUE));
+        dev->model->cmd_set->slow_back_home(dev, SANE_TRUE);
     }
 
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        RIE(dev->model->cmd_set->move_to_ta(dev));
+        dev->model->cmd_set->move_to_ta(dev);
     }
 
-  status = dev->model->cmd_set->init_regs_for_scan(dev, sensor);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to do init registers for scan: %s\n", __func__,
-          sane_strstatus(status));
-      return status;
-    }
+    dev->model->cmd_set->init_regs_for_scan(dev, sensor);
 
   /* no lamp during scan */
   if(lamp_off == SANE_TRUE)
@@ -3850,25 +3499,14 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
   if(  (dev->model->cmd_set->send_shading_data!=NULL)
    && !(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
     {
-      status = genesys_send_shading_coefficient(dev, sensor);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to send shading calibration coefficients: %s\n", __func__,
-              sane_strstatus(status));
-          return status;
-        }
+        genesys_send_shading_coefficient(dev, sensor);
     }
 
     // now send registers for scan
     dev->model->cmd_set->bulk_write_register(dev, dev->reg);
 
-  /* start effective scan */
-  status = dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to begin scan: %s\n", __func__, sane_strstatus(status));
-      return SANE_STATUS_IO_ERROR;
-    }
+    // start effective scan
+    dev->model->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
 
   /*do we really need this? the valid data check should be sufficent -- pierre*/
   /* waits for head to reach scanning position */
@@ -3907,8 +3545,6 @@ genesys_start_scan (Genesys_Device * dev, SANE_Bool lamp_off)
 	}
       while (steps < 1);
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 /* this is _not_ a ringbuffer.
@@ -3971,8 +3607,7 @@ void Genesys_Buffer::consume(size_t size)
 
 #include "genesys_conv.cc"
 
-static SANE_Status accurate_line_read(Genesys_Device * dev,
-                                      Genesys_Buffer& buffer)
+static void accurate_line_read(Genesys_Device* dev, Genesys_Buffer& buffer)
 {
     DBG_HELPER(dbg);
     buffer.reset();
@@ -3981,7 +3616,6 @@ static SANE_Status accurate_line_read(Genesys_Device * dev,
                                         buffer.size());
 
     buffer.produce(buffer.size());
-    return SANE_STATUS_GOOD;
 }
 
 /** @brief fill buffer while reducing vertical resolution
@@ -3995,18 +3629,10 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
 {
     DBG_HELPER(dbg);
   size_t count;
-  SANE_Status status = SANE_STATUS_GOOD;
-
       /* fill buffer if needed */
       if (dev->oe_buffer.avail() == 0)
 	{
-          status = accurate_line_read(dev, dev->oe_buffer);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-                  (u_long) dev->oe_buffer.size(), sane_strstatus(status));
-	      return SANE_STATUS_IO_ERROR;
-	    }
+        accurate_line_read(dev, dev->oe_buffer);
 	}
 
       /* copy size bytes of data, copying from a line when line count matches */
@@ -4036,13 +3662,7 @@ genesys_fill_line_interp_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst,
 	  /* read a new buffer if needed */
           if (dev->oe_buffer.pos() >= dev->oe_buffer.avail())
 	    {
-              status = accurate_line_read(dev, dev->oe_buffer);
-              if (status != SANE_STATUS_GOOD)
-                {
-                  DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-                      (u_long) dev->oe_buffer.size(), sane_strstatus(status));
-                  return SANE_STATUS_IO_ERROR;
-                }
+            accurate_line_read(dev, dev->oe_buffer);
 	    }
 	}
 
@@ -4060,7 +3680,6 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
 {
     DBG_HELPER(dbg);
   size_t count;
-  SANE_Status status = SANE_STATUS_GOOD;
   int depth,i,n,k;
 
   depth = dev->settings.depth;
@@ -4070,13 +3689,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
       /* fill buffer if needed */
       if (dev->oe_buffer.avail() == 0)
 	{
-          status = accurate_line_read(dev, dev->oe_buffer);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-                  (u_long) dev->oe_buffer.size(), sane_strstatus(status));
-	      return SANE_STATUS_IO_ERROR;
-	    }
+        accurate_line_read(dev, dev->oe_buffer);
 	}
 
       /* copy size bytes of data, copying from a subwindow of each line
@@ -4137,13 +3750,7 @@ genesys_fill_segmented_buffer (Genesys_Device * dev, uint8_t *work_buffer_dst, s
 	  /* read a new buffer if needed */
           if (dev->oe_buffer.pos() >= dev->oe_buffer.avail())
 	    {
-              status = accurate_line_read(dev, dev->oe_buffer);
-              if (status != SANE_STATUS_GOOD)
-                {
-                  DBG(DBG_error, "%s: failed to read %lu bytes (%s)\n", __func__,
-                      (u_long) dev->oe_buffer.size(), sane_strstatus(status));
-                  return SANE_STATUS_IO_ERROR;
-                }
+            accurate_line_read(dev, dev->oe_buffer);
 	    }
 	}
 
@@ -4166,9 +3773,7 @@ genesys_fill_read_buffer (Genesys_Device * dev)
    * the requested scan */
   if (dev->model->is_sheetfed == SANE_TRUE)
     {
-      status = dev->model->cmd_set->detect_document_end (dev);
-      if (status != SANE_STATUS_GOOD)
-	return status;
+        dev->model->cmd_set->detect_document_end(dev);
     }
 
   space = dev->read_buffer.size() - dev->read_buffer.avail();
@@ -4327,7 +3932,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
        && !(dev->model->flags & GENESYS_FLAG_MUST_WAIT)
        && dev->parking == SANE_FALSE)
         {
-          dev->model->cmd_set->slow_back_home (dev, SANE_FALSE);
+            dev->model->cmd_set->slow_back_home(dev, SANE_FALSE);
           dev->parking = SANE_TRUE;
         }
       return SANE_STATUS_EOF;
@@ -5990,7 +5595,7 @@ genesys_buffer_image(Genesys_Scanner *s)
   if (dev->model->is_sheetfed == SANE_FALSE &&
       dev->parking == SANE_FALSE)
     {
-      dev->model->cmd_set->slow_back_home (dev, dev->model->flags & GENESYS_FLAG_MUST_WAIT);
+        dev->model->cmd_set->slow_back_home(dev, dev->model->flags & GENESYS_FLAG_MUST_WAIT);
       dev->parking = !(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
     }
 
@@ -6224,12 +5829,12 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 
     sanei_genesys_init_cmd_set(s->dev);
 
-  // FIXME: we create sensor tables for the sensor, this should happen when we know which sensor
-  // we will select
-  RIE (dev->model->cmd_set->init(dev));
+    // FIXME: we create sensor tables for the sensor, this should happen when we know which sensor
+    // we will select
+    dev->model->cmd_set->init(dev);
 
-  /* some hardware capabilities are detected through sensors */
-  RIE (s->dev->model->cmd_set->update_hardware_sensors (s));
+    // some hardware capabilities are detected through sensors
+    s->dev->model->cmd_set->update_hardware_sensors (s);
 
   /* here is the place to fetch a stored calibration cache */
   if (s->dev->force_calibration == 0)
@@ -6262,7 +5867,6 @@ void
 sane_close_impl(SANE_Handle handle)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
 
   /* remove handle from list of open handles: */
   auto it = s_scanners->end();
@@ -6284,7 +5888,7 @@ sane_close_impl(SANE_Handle handle)
   /* eject document for sheetfed scanners */
   if (s->dev->model->is_sheetfed == SANE_TRUE)
     {
-      s->dev->model->cmd_set->eject_document (s->dev);
+        catch_all_exceptions(__func__, [&](){ s->dev->model->cmd_set->eject_document(s->dev); });
     }
   else
     {
@@ -6296,13 +5900,8 @@ sane_close_impl(SANE_Handle handle)
         }
     }
 
-  /* enable power saving before leaving */
-  status = s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG(DBG_error, "%s: failed to enable power saving mode: %s\n", __func__,
-          sane_strstatus(status));
-    }
+    // enable power saving before leaving
+    s->dev->model->cmd_set->save_power(s->dev, SANE_TRUE);
 
     // here is the place to store calibration cache
     if (s->dev->force_calibration == 0) {
@@ -6529,7 +6128,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_OCR_SW:
     case OPT_POWER_SW:
     case OPT_EXTRA_SW:
-      RIE (s->dev->model->cmd_set->update_hardware_sensors (s));
+        s->dev->model->cmd_set->update_hardware_sensors(s);
       *(SANE_Bool *) val = s->buttons[genesys_option_to_button(option)].read();
       break;
     case OPT_NEED_CALIBRATION_SW:
@@ -6829,14 +6428,14 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     case OPT_LAMP_OFF_TIME:
         if (*reinterpret_cast<SANE_Word*>(val) != s->lamp_off_time) {
             s->lamp_off_time = *reinterpret_cast<SANE_Word*>(val);
-            RIE(s->dev->model->cmd_set->set_powersaving(s->dev, s->lamp_off_time));
+                s->dev->model->cmd_set->set_powersaving(s->dev, s->lamp_off_time);
         }
         break;
     case OPT_EXPIRATION_TIME:
         if (*reinterpret_cast<SANE_Word*>(val) != s->expiration_time) {
             s->expiration_time = *reinterpret_cast<SANE_Word*>(val);
             // BUG: this is most likely not intended behavior, found out during refactor
-            RIE(s->dev->model->cmd_set->set_powersaving(s->dev, s->expiration_time));
+                s->dev->model->cmd_set->set_powersaving(s->dev, s->expiration_time);
 	}
         break;
 
@@ -6909,20 +6508,19 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
             s->dev->gamma_override_tables[GENESYS_BLUE][i] = table[i];
         }
       break;
-    case OPT_CALIBRATE:
-      status = s->dev->model->cmd_set->save_power (s->dev, SANE_FALSE);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to disable power saving mode: %s\n", __func__,
-	      sane_strstatus(status));
-	}
-      else
-        status = genesys_scanner_calibration(s->dev, sensor);
-      /* not critical if this fails*/
-      s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
-      /* signals that sensors will have to be read again */
-      *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-      break;
+        case OPT_CALIBRATE: {
+            catch_all_exceptions(__func__, [&]()
+            {
+                s->dev->model->cmd_set->save_power(s->dev, SANE_FALSE);
+                genesys_scanner_calibration(s->dev, sensor);
+            });
+            catch_all_exceptions(__func__, [&]()
+            {
+                s->dev->model->cmd_set->save_power(s->dev, SANE_TRUE);
+            });
+            *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+            break;
+        }
     case OPT_CLEAR_CALIBRATION:
       s->dev->calibration_cache.clear();
 
@@ -7103,7 +6701,7 @@ SANE_Status sane_start_impl(SANE_Handle handle)
      parameters will be overwritten below, but that's OK.  */
 
   RIE (calc_parameters (s));
-  RIE(genesys_start_scan(s->dev, s->lamp_off));
+    genesys_start_scan(s->dev, s->lamp_off);
 
   s->scanning = SANE_TRUE;
 
@@ -7228,7 +6826,7 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
        && !(dev->model->flags & GENESYS_FLAG_MUST_WAIT)
        && dev->parking == SANE_FALSE)
         {
-          dev->model->cmd_set->slow_back_home (dev, SANE_FALSE);
+            dev->model->cmd_set->slow_back_home(dev, SANE_FALSE);
           dev->parking = SANE_TRUE;
         }
       return SANE_STATUS_EOF;
@@ -7318,7 +6916,6 @@ void sane_cancel_impl(SANE_Handle handle)
 {
     DBG_HELPER(dbg);
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
-  SANE_Status status = SANE_STATUS_GOOD;
 
   /* end binary logging if needed */
   if (s->dev->binary!=NULL)
@@ -7334,12 +6931,7 @@ void sane_cancel_impl(SANE_Handle handle)
   /* no need to end scan if we are parking the head */
   if(s->dev->parking==SANE_FALSE)
     {
-      status = s->dev->model->cmd_set->end_scan(s->dev, &s->dev->reg, SANE_TRUE);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to end scan: %s\n", __func__, sane_strstatus(status));
-          return;
-        }
+        s->dev->model->cmd_set->end_scan(s->dev, &s->dev->reg, SANE_TRUE);
     }
 
   /* park head if flatbed scanner */
@@ -7347,36 +6939,21 @@ void sane_cancel_impl(SANE_Handle handle)
     {
       if(s->dev->parking==SANE_FALSE)
         {
-          status = s->dev->model->cmd_set->slow_back_home (s->dev, s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
-          if (status != SANE_STATUS_GOOD)
-            {
-              DBG(DBG_error, "%s: failed to move scanhead to home position: %s\n", __func__,
-                  sane_strstatus(status));
-              return;
-            }
+            s->dev->model->cmd_set->slow_back_home (s->dev, s->dev->model->flags &
+                                                    GENESYS_FLAG_MUST_WAIT);
+
           s->dev->parking = !(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
         }
     }
   else
     {				/* in case of sheetfed scanners, we have to eject the document if still present */
-      status = s->dev->model->cmd_set->eject_document (s->dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_error, "%s: failed to eject document: %s\n", __func__, sane_strstatus(status));
-	  return;
-	}
+        s->dev->model->cmd_set->eject_document(s->dev);
     }
 
   /* enable power saving mode unless we are parking .... */
   if(s->dev->parking==SANE_FALSE)
     {
-      status = s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG(DBG_error, "%s: failed to enable power saving mode: %s\n", __func__,
-              sane_strstatus(status));
-          return;
-        }
+        s->dev->model->cmd_set->save_power(s->dev, SANE_TRUE);
     }
 
   return;

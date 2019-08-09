@@ -169,17 +169,11 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
 
 static void gl646_public_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set);
 
-static
-SANE_Status
-gl646_save_power (Genesys_Device * dev, SANE_Bool enable);
+static void gl646_save_power(Genesys_Device* dev, SANE_Bool enable);
 
-static
-SANE_Status
-gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home);
+static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home);
 
-static
-SANE_Status
-gl646_move_to_ta (Genesys_Device * dev);
+static void gl646_move_to_ta(Genesys_Device* dev);
 
 /**
  * sets up the scanner for a scan, registers, gamma tables, shading tables
@@ -193,27 +187,25 @@ gl646_move_to_ta (Genesys_Device * dev);
  * @param ycorrection true if scanner's Y geometry must be taken into account to
  * 		     compute Y, ie add top margins
  */
-static SANE_Status
-setup_for_scan (Genesys_Device *device,
-                const Genesys_Sensor& sensor,
-		Genesys_Register_Set *regs,
-		Genesys_Settings settings,
-		SANE_Bool split,
-		SANE_Bool xcorrection,
-		SANE_Bool ycorrection);
+static void setup_for_scan(Genesys_Device* device,
+                           const Genesys_Sensor& sensor,
+                           Genesys_Register_Set*regs,
+                           Genesys_Settings settings,
+                           SANE_Bool split,
+                           SANE_Bool xcorrection,
+                           SANE_Bool ycorrection);
 
 /**
  * sets up the registers for a scan corresponding to the settings.
  * Builds motor slope tables. Computes buffer sizes and data amount to
  * transfer. It also sets up analog frontend.
  * */
-static SANE_Status
-gl646_setup_registers (Genesys_Device * dev,
-                       const Genesys_Sensor& sensor,
-                       Genesys_Register_Set * regs, SetupParams& params,
-                       uint16_t * slope_table1,
-                       uint16_t * slope_table2,
-                       bool xcorrection);
+static void gl646_setup_registers(Genesys_Device* dev,
+                                  const Genesys_Sensor& sensor,
+                                  Genesys_Register_Set* regs, SetupParams& params,
+                                  uint16_t* slope_table1,
+                                  uint16_t* slope_table2,
+                                  bool xcorrection);
 
 /**
  * Does a simple move of the given distance by doing a scan at lowest resolution
@@ -237,22 +229,19 @@ simple_move (Genesys_Device * dev, SANE_Int distance);
  * @param shading  flag to tell if shading correction should be done
  * @param data     pointer that will point to the scanned data
  */
-static SANE_Status
-simple_scan(Genesys_Device * dev, const Genesys_Sensor& sensor,
-            Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
-            SANE_Bool shading, std::vector<uint8_t>& data);
+static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                        Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
+                        SANE_Bool shading, std::vector<uint8_t>& data);
 
 /**
  * Send the stop scan command
  * */
-static SANE_Status
-end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
-	  SANE_Bool check_stop, SANE_Bool eject);
+static void end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop,
+                     SANE_Bool eject);
 /**
  * writes control data to an area behind the last motor table.
  */
-static SANE_Status write_control (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                  int resolution);
+static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int resolution);
 
 
 /**
@@ -260,10 +249,9 @@ static SANE_Status write_control (Genesys_Device * dev, const Genesys_Sensor& se
  */
 static void gl646_init_regs (Genesys_Device * dev);
 
-static SANE_Status gl646_load_document (Genesys_Device * dev);
+static void gl646_load_document(Genesys_Device* dev);
 
-static SANE_Status
-gl646_detect_document_end (Genesys_Device * dev);
+static void gl646_detect_document_end(Genesys_Device* dev);
 
 #define FULL_STEP   0
 #define HALF_STEP   1

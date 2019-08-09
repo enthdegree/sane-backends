@@ -342,33 +342,29 @@
  *
  * this function sets up the scanner to scan in normal or single line mode
  */
-static SANE_Status gl846_init_scan_regs(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                        Genesys_Register_Set * reg, SetupParams& params);
+static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                 Genesys_Register_Set* reg, SetupParams& params);
 
-/* Send the low-level scan command */
-static SANE_Status gl846_begin_scan (Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                     Genesys_Register_Set * reg, SANE_Bool start_motor);
+// Send the low-level scan command
+static void gl846_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                             Genesys_Register_Set* reg, SANE_Bool start_motor);
 
-/* Send the stop scan command */
-static SANE_Status gl846_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg, SANE_Bool check_stop);
+// Send the stop scan command
+static void gl846_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop);
 
-static SANE_Status gl846_init (Genesys_Device * dev);
+static void gl846_init(Genesys_Device* dev);
 
 /** @brief moves the slider to steps at motor base dpi
  * @param dev device to work on
  * @param steps number of steps to move
  * */
-static SANE_Status
-gl846_feed (Genesys_Device * dev, unsigned int steps);
+static void gl846_feed(Genesys_Device* dev, unsigned int steps);
 
-static SANE_Status
-gl846_stop_action (Genesys_Device * dev);
+static void gl846_stop_action(Genesys_Device* dev);
 
-static SANE_Status
-gl846_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home);
+static void gl846_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home);
 
-static SANE_Status
-gl846_boot (Genesys_Device * dev, SANE_Bool cold);
+static void gl846_boot(Genesys_Device* dev, SANE_Bool cold);
 
 
 

@@ -2554,9 +2554,7 @@ static void gl841_eject_document(Genesys_Device* dev)
     try {
         gl841_start_action(dev);
     } catch (...) {
-        try {
-            gl841_stop_action(dev);
-        } catch (...) {}
+        catch_all_exceptions(__func__, [&]() { gl841_stop_action(dev); });
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {
@@ -2803,9 +2801,7 @@ static void gl841_feed(Genesys_Device* dev, int steps)
     try {
         gl841_start_action(dev);
     } catch (...) {
-        try {
-            gl841_stop_action (dev);
-        } catch (...) {}
+        catch_all_exceptions(__func__, [&]() { gl841_stop_action (dev); });
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {
@@ -2918,9 +2914,7 @@ static void gl841_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
     try {
         gl841_start_action(dev);
     } catch (...) {
-        try {
-            gl841_stop_action(dev);
-        } catch (...) {}
+        catch_all_exceptions(__func__, [&]() { gl841_stop_action(dev); });
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {

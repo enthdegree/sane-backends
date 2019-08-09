@@ -3291,7 +3291,6 @@ static void gl646_init(Genesys_Device* dev)
     DBG_INIT();
     DBG_HELPER(dbg);
 
-  struct timeval tv;
   uint8_t cold = 0, val = 0;
   uint32_t addr = 0xdead;
   size_t len;
@@ -3319,8 +3318,6 @@ static void gl646_init(Genesys_Device* dev)
       dev->white_average_data.clear();
 
       dev->settings.color_filter = ColorFilter::GREEN;
-      gettimeofday (&tv, NULL);
-      dev->init_date = tv.tv_sec;
 
       /* Set default values for registers */
       gl646_init_regs (dev);

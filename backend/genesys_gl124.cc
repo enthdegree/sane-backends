@@ -842,8 +842,8 @@ static void gl124_setup_sensor(Genesys_Device * dev,
         regs->set8(addr, sensor.custom_regs.get_value(addr));
     }
 
-  /* set EXPDUMMY and CKxMAP */
-    dpihw = sanei_genesys_compute_dpihw(dev, sensor, dpi);
+    // set EXPDUMMY and CKxMAP
+    dpihw = sensor.get_register_hwdpi(dpi);
     Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw, half_ccd);
 
     regs->set8(0x18, sensor_profile->reg18);
@@ -929,9 +929,9 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
     DBG(DBG_io2, "%s: ccd_pixels_per_system_pixel=%d\n", __func__, ccd_pixels_per_system_pixel);
 
-  /* to manage high resolution device while keeping good
-   * low resolution scanning speed, we make hardware dpi vary */
-    dpihw = sanei_genesys_compute_dpihw(dev, sensor, used_res * ccd_pixels_per_system_pixel);
+    // to manage high resolution device while keeping good low resolution scanning speed, we
+    // make hardware dpi vary
+    dpihw = sensor.get_register_hwdpi(used_res * ccd_pixels_per_system_pixel);
   factor=sensor.optical_res/dpihw;
   DBG (DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
@@ -1451,8 +1451,8 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
   /* max_shift */
   max_shift=sanei_genesys_compute_max_shift(dev, params.channels, params.yres, 0);
 
-  /* compute hw dpi for sensor */
-  dpihw=sanei_genesys_compute_dpihw(dev, sensor,used_res);
+    // compute hw dpi for sensor
+    dpihw = sensor.get_register_hwdpi(used_res);
 
   Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw, half_ccd);
   dev->segnb=sensor_profile->reg98 & 0x0f;
@@ -1787,9 +1787,7 @@ static void gl124_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
     try {
         gl124_start_action(dev);
     } catch (...) {
-        try {
-            gl124_stop_action (dev);
-        } catch (...) {}
+        catch_all_exceptions(__func__, [&]() { gl124_stop_action(dev); });
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {
@@ -2037,7 +2035,7 @@ static void gl124_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
 
   dev->calib_channels = 3;
   dev->calib_lines = dev->model->shading_lines;
-  dpihw=sanei_genesys_compute_dpihw(dev, sensor, dev->settings.xres);
+    dpihw = sensor.get_register_hwdpi(dev->settings.xres);
   if(dpihw>=2400)
     {
       dev->calib_lines *= 2;
@@ -2213,7 +2211,7 @@ static void gl124_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
 
   /* compute deletion factor */
   sanei_genesys_get_double(&dev->reg,REG_DPISET,&dpiset);
-  dpihw=sanei_genesys_compute_dpihw(dev, sensor, dpiset);
+    dpihw = sensor.get_register_hwdpi(dpiset);
   factor=dpihw/dpiset;
   DBG( DBG_io2, "%s: factor=%d\n",__func__,factor);
 
@@ -2383,7 +2381,7 @@ static void gl124_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
   /* offset calibration is always done in 16 bit depth color mode */
   channels = 3;
   depth=16;
-  dpihw=sanei_genesys_compute_dpihw(dev, sensor, dev->settings.xres);
+    dpihw = sensor.get_register_hwdpi(dev->settings.xres);
   half_ccd=compute_half_ccd(sensor, dev->settings.xres);
   if(half_ccd==SANE_TRUE)
     {

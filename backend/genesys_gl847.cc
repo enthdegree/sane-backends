@@ -627,7 +627,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
                             scan_step_type,
                             factor,
                             dev->model->motor_type,
-                            gl847_motors);
+                            gl847_motor_profiles);
     gl847_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps * factor);
     gl847_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps * factor);
 
@@ -647,7 +647,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
                             fast_step_type,
                             factor,
                             dev->model->motor_type,
-                            gl847_motors);
+                            gl847_motor_profiles);
 
   /* manual override of high start value */
   fast_table[0]=fast_table[1];
@@ -1110,7 +1110,8 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   slope_dpi = slope_dpi * (1 + dummy);
 
   exposure_time = gl847_compute_exposure (dev, used_res);
-  scan_step_type = sanei_genesys_compute_step_type(gl847_motors, dev->model->motor_type, exposure_time);
+  scan_step_type = sanei_genesys_compute_step_type(gl847_motor_profiles, dev->model->motor_type,
+                                                   exposure_time);
 
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
   DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, scan_step_type);

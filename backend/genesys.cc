@@ -64,7 +64,6 @@
 #include "genesys_sanei.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_magic.h"
-#include "genesys_devices.cc"
 
 #include <cstdio>
 #include <cstring>

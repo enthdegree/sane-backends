@@ -495,6 +495,12 @@ libgenesys_la_SOURCES = genesys.cc genesys.h \
     genesys_sensor.h \
     genesys_settings.h \
     genesys_serialize.h \
+    genesys_tables_frontend.cc \
+    genesys_tables_gpo.cc \
+    genesys_tables_model.cc \
+    genesys_tables_motor.cc \
+    genesys_tables_motor_profile.cc \
+    genesys_tables_sensor.cc \
     genesys_low.cc genesys_low.h
 
 libgenesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
@@ -505,7 +511,7 @@ libsane_genesys_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_genesys_la_LIBADD = $(COMMON_LIBS) libgenesys.la  ../sanei/sanei_magic.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += genesys.conf.in
 # TODO: Why are this distributed but not compiled?
-EXTRA_DIST += genesys_conv.cc genesys_conv_hlp.cc genesys_devices.cc
+EXTRA_DIST += genesys_conv.cc genesys_conv_hlp.cc
 
 libgphoto2_i_la_SOURCES = gphoto2.c gphoto2.h
 libgphoto2_i_la_CPPFLAGS = $(AM_CPPFLAGS) $(GPHOTO2_CPPFLAGS) -DBACKEND_NAME=gphoto2

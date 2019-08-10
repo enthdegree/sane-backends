@@ -446,21 +446,26 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
 
 void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set);
 
-extern void
-sanei_genesys_calculate_zmode2 (SANE_Bool two_table,
-				uint32_t exposure_time,
-				uint16_t * slope_table,
-				int reg21,
-				int move, int reg22, uint32_t * z1,
-				uint32_t * z2);
+/** Calculates the values of the Z{1,2}MOD registers. They are a phase correction to synchronize
+    with the line clock during acceleration and deceleration.
 
-extern void
-sanei_genesys_calculate_zmode (uint32_t exposure_time,
-			       uint32_t steps_sum,
-			       uint16_t last_speed, uint32_t feedl,
-			       uint8_t fastfed, uint8_t scanfed,
-			       uint8_t fwdstep, uint8_t tgtime,
-			       uint32_t * z1, uint32_t * z2);
+    two_table is true if moving is done by two tables, false otherwise.
+
+    acceleration_steps is the number of steps for acceleration, i.e. the number written to
+    REG_STEPNO.
+
+    move_steps number of steps to move, i.e. the number written to REG_FEEDL.
+
+    buffer_acceleration_steps, the number of steps for acceleration when buffer condition is met,
+    i.e. the number written to REG_FWDSTEP.
+*/
+void sanei_genesys_calculate_zmod(SANE_Bool two_table,
+                                  uint32_t exposure_time,
+                                  const std::vector<uint16_t>& slope_table,
+                                  unsigned acceleration_steps,
+                                  unsigned move_steps,
+                                  unsigned buffer_acceleration_steps,
+                                  uint32_t* out_z1, uint32_t* out_z2);
 
 extern void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr);
 
@@ -475,37 +480,30 @@ extern void sanei_genesys_fe_read_data(Genesys_Device* dev, uint8_t addr, uint16
  */
 extern void sanei_genesys_fe_write_data(Genesys_Device* dev, uint8_t addr, uint16_t data);
 
-extern SANE_Int
-sanei_genesys_exposure_time2 (Genesys_Device * dev,
-			      float ydpi, int step_type, int endpixel,
-			      int led_exposure, int power_mode);
+SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi, int step_type,
+                                      int endpixel, int led_exposure);
 
 extern SANE_Int
 sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 			     int xdpi);
-extern SANE_Int
-sanei_genesys_generate_slope_table (uint16_t * slope_table, unsigned int max_steps,
+
+SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table, unsigned int max_steps,
 			      unsigned int use_steps, uint16_t stop_at,
 			      uint16_t vstart, uint16_t vend,
 			      unsigned int steps, double g,
 			      unsigned int *used_steps, unsigned int *vfinal);
 
-extern SANE_Int
-sanei_genesys_create_slope_table (Genesys_Device * dev,
-				  uint16_t * slope_table, int steps,
-				  int step_type, int exposure_time,
-				  SANE_Bool same_speed, double yres,
-				  int power_mode);
+SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint16_t>& slope_table,
+                                          int steps, int step_type, int exposure_time,
+                                          SANE_Bool same_speed, double yres);
 
-SANE_Int
-sanei_genesys_create_slope_table3 (Genesys_Device * dev,
-				   uint16_t * slope_table, int max_step,
+SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
+                                           std::vector<uint16_t>& slope_table, int max_step,
 				   unsigned int use_steps,
 				   int step_type, int exposure_time,
 				   double yres,
 				   unsigned int *used_steps,
-				   unsigned int *final_exposure,
-				   int power_mode);
+                                   unsigned int *final_exposure);
 
 void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
                                               std::vector<uint16_t>& gamma_table, float gamma);
@@ -569,8 +567,9 @@ Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_
 extern
 int sanei_genesys_compute_step_type(Motor_Profile *motors, int motor_type, int exposure);
 
-extern
-int sanei_genesys_slope_table(uint16_t *slope, int *steps, int dpi, int exposure, int base_dpi, int step_type, int factor, int motor_type, Motor_Profile *motors);
+int sanei_genesys_slope_table(std::vector<uint16_t>& slope, int *steps, int dpi, int exposure,
+                              int base_dpi, int step_type, int factor, int motor_type,
+                              Motor_Profile *motors);
 
 /** @brief find lowest motor resolution for the device.
  * Parses the resolution list for motor and
@@ -672,6 +671,7 @@ private:
 extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 void genesys_init_sensor_tables();
 void genesys_init_frontend_tables();
+void genesys_init_motor_tables();
 void genesys_init_usb_device_tables();
 
 void debug_dump(unsigned level, const Genesys_Settings& settings);

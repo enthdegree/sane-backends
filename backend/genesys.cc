@@ -70,6 +70,7 @@
 #include <cstring>
 #include <fstream>
 #include <list>
+#include <numeric>
 #include <exception>
 #include <vector>
 
@@ -255,7 +256,8 @@ std::vector<std::reference_wrapper<Genesys_Sensor>>
 void
 sanei_genesys_init_structs (Genesys_Device * dev)
 {
-  unsigned int i, gpo_ok = 0, motor_ok = 0;
+    unsigned int i, gpo_ok = 0;
+    bool motor_ok = false;
     bool fe_ok = false;
 
   /* initialize the GPO data stuff */
@@ -268,14 +270,13 @@ sanei_genesys_init_structs (Genesys_Device * dev)
 	}
     }
 
-  /* initialize the motor data stuff */
-  for (i = 0; i < sizeof (Motor) / sizeof (Genesys_Motor); i++)
-    {
-      if (dev->model->motor_type == Motor[i].motor_id)
-	{
-          dev->motor = Motor[i];
-	  motor_ok = 1;
-	}
+    // initialize the motor data stuff
+    for (const auto& motor : *s_motors) {
+        if (dev->model->motor_type == motor.motor_id) {
+            dev->motor = motor;
+            motor_ok = true;
+            break;
+        }
     }
 
     for (const auto& frontend : *s_frontends) {
@@ -286,8 +287,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
         }
     }
 
-  /* sanity check */
-  if (motor_ok == 0 || gpo_ok == 0 || !fe_ok)
+    if (!motor_ok || gpo_ok == 0 || !fe_ok)
     {
       DBG(DBG_error0, "%s: bad description(s) for fe/gpo/motor=%d/%d/%d\n", __func__,
           dev->model->ccd_type, dev->model->gpo_type, dev->model->motor_type);
@@ -321,8 +321,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
  * @note  All times in pixel time. Correction for other motor timings is not
  *        done.
  */
-SANE_Int
-sanei_genesys_generate_slope_table (uint16_t * slope_table,
+SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table,
 				    unsigned int max_steps,
 				    unsigned int use_steps,
                                     uint16_t stop_at,
@@ -356,6 +355,9 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
   c = 0;
   *used_steps = 0;
 
+    slope_table.clear();
+    slope_table.reserve(max_steps);
+
   if (use_steps < 1)
     use_steps = 1;
 
@@ -366,9 +368,10 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
 	{
 	  t = pow (((double) i) / ((double) (steps - 1)), g);
 	  t2 = vstart * (1 - t) + t * vend;
-	  if (t2 < stop_at)
-	    break;
-	  *slope_table++ = t2;
+            if (t2 < stop_at) {
+                break;
+            }
+            slope_table.push_back(t2);
 	  /* DBG (DBG_io, "slope_table[%3d] = %5d\n", c, t2); */
 	  sum += t2;
 	}
@@ -386,7 +389,7 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
 
   for (i = 0; i < max_steps; i++, c++)
     {
-      *slope_table++ = *vfinal;
+        slope_table.push_back(*vfinal);
       /* DBG (DBG_io, "slope_table[%3d] = %5d\n", c, *vfinal); */
     }
 
@@ -416,21 +419,18 @@ sanei_genesys_generate_slope_table (uint16_t * slope_table,
  * @param yres           Resolution of a scan line
  * @param used_steps     Final number of steps is stored here
  * @param final_exposure Final step time is stored here
- * @param power_mode     Power mode (related to the Vref used) of the motor
  * @return               Time for acceleration
  * @note  all times in pixel time
  */
-SANE_Int
-sanei_genesys_create_slope_table3 (Genesys_Device * dev,
-				   uint16_t * slope_table,
+SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
+                                           std::vector<uint16_t>& slope_table,
                                    int max_step,
 				   unsigned int use_steps,
 				   int step_type,
                                    int exposure_time,
 				   double yres,
 				   unsigned int *used_steps,
-				   unsigned int *final_exposure,
-				   int power_mode)
+                                           unsigned int *final_exposure)
 {
   unsigned int sum_time = 0;
   unsigned int vtarget;
@@ -438,14 +438,14 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
   unsigned int vstart;
   unsigned int vfinal;
 
-  DBG(DBG_proc, "%s: step_type = %d, exposure_time = %d, yres = %g, power_mode = %d\n", __func__,
-      step_type, exposure_time, yres, power_mode);
+    DBG(DBG_proc, "%s: step_type = %d, exposure_time = %d, yres = %g\n", __func__,
+        step_type, exposure_time, yres);
 
   /* final speed */
   vtarget = (exposure_time * yres) / dev->motor.base_ydpi;
 
-  vstart = dev->motor.slopes[power_mode][step_type].maximum_start_speed;
-  vend = dev->motor.slopes[power_mode][step_type].maximum_speed;
+    vstart = dev->motor.slopes[step_type].maximum_start_speed;
+    vend = dev->motor.slopes[step_type].maximum_speed;
 
   vtarget >>= step_type;
   if (vtarget > 65535)
@@ -465,8 +465,8 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
 						 vtarget,
 						 vstart,
 						 vend,
-						 dev->motor.slopes[power_mode][step_type].minimum_steps << step_type,
-						 dev->motor.slopes[power_mode][step_type].g,
+                                                 dev->motor.slopes[step_type].minimum_steps << step_type,
+                                                 dev->motor.slopes[step_type].g,
                                                  used_steps,
 						 &vfinal);
 
@@ -481,12 +481,10 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
 
 /* alternate slope table creation function        */
 /* the hardcoded values (g and vstart) will go in a motor struct */
-static SANE_Int
-genesys_create_slope_table2 (Genesys_Device * dev,
-			     uint16_t * slope_table, int steps,
+SANE_Int genesys_create_slope_table2(Genesys_Device* dev, std::vector<uint16_t>& slope_table,
+                                     int steps,
 			     int step_type, int exposure_time,
-			     SANE_Bool same_speed, double yres,
-			     int power_mode)
+                             SANE_Bool same_speed, double yres)
 {
   double t, g;
   SANE_Int sum = 0;
@@ -494,8 +492,8 @@ genesys_create_slope_table2 (Genesys_Device * dev,
   int i;
 
   DBG(DBG_proc, "%s: %d steps, step_type = %d, "
-      "exposure_time = %d, same_speed = %d, yres = %.2f, power_mode = %d\n", __func__, steps,
-      step_type, exposure_time, same_speed, yres, power_mode);
+      "exposure_time = %d, same_speed = %d, yres = %.2f\n", __func__, steps,
+      step_type, exposure_time, same_speed, yres);
 
   /* start speed */
   if (dev->model->motor_type == MOTOR_5345)
@@ -601,12 +599,9 @@ genesys_create_slope_table2 (Genesys_Device * dev,
 
 /* Generate slope table for motor movement */
 /* todo: check details */
-SANE_Int
-sanei_genesys_create_slope_table (Genesys_Device * dev,
-				  uint16_t * slope_table, int steps,
-				  int step_type, int exposure_time,
-				  SANE_Bool same_speed, double yres,
-				  int power_mode)
+SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint16_t>& slope_table,
+                                          int steps, int step_type, int exposure_time,
+                                  SANE_Bool same_speed, double yres)
 {
   double t;
   double start_speed;
@@ -621,7 +616,7 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
       || dev->model->motor_type == MOTOR_HP2400)
     return genesys_create_slope_table2 (dev, slope_table, steps,
 					step_type, exposure_time,
-					same_speed, yres, power_mode);
+                    same_speed, yres);
 
   DBG(DBG_proc, "%s: %d steps, step_type = %d, exposure_time = %d, same_speed =%d\n", __func__,
       steps, step_type, exposure_time, same_speed);
@@ -828,13 +823,10 @@ void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
  */
 SANE_Int
 sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
-			      int step_type, int endpixel,
-			      int exposure_by_led, int power_mode)
+                              int step_type, int endpixel, int exposure_by_led)
 {
   int exposure_by_ccd = endpixel + 32;
-  int exposure_by_motor =
-    (dev->motor.slopes[power_mode][step_type].maximum_speed
-     * dev->motor.base_ydpi) / ydpi;
+    int exposure_by_motor = (dev->motor.slopes[step_type].maximum_speed * dev->motor.base_ydpi) / ydpi;
 
   int exposure = exposure_by_ccd;
 
@@ -844,8 +836,8 @@ sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
   if (exposure < exposure_by_led && dev->model->is_cis)
     exposure = exposure_by_led;
 
-  DBG(DBG_info, "%s: ydpi=%d, step=%d, endpixel=%d led=%d, power=%d => exposure=%d\n", __func__,
-      (int)ydpi, step_type, endpixel, exposure_by_led, power_mode, exposure);
+    DBG(DBG_info, "%s: ydpi=%d, step=%d, endpixel=%d led=%d => exposure=%d\n", __func__,
+        (int)ydpi, step_type, endpixel, exposure_by_led, exposure);
   return exposure;
 }
 
@@ -1247,81 +1239,39 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
       sensor.CCD_start_xoffset, left, top);
 }
 
-
-void
-sanei_genesys_calculate_zmode2 (SANE_Bool two_table,
-				uint32_t exposure_time,
-				uint16_t * slope_table,
-				int reg21,
-				int move, int reg22, uint32_t * z1,
-				uint32_t * z2)
+void sanei_genesys_calculate_zmod(SANE_Bool two_table,
+                                  uint32_t exposure_time,
+                                  const std::vector<uint16_t>& slope_table,
+                                  unsigned acceleration_steps,
+                                  unsigned move_steps,
+                                  unsigned buffer_acceleration_steps,
+                                  uint32_t* out_z1, uint32_t* out_z2)
 {
-  int i;
-  int sum;
-  DBG(DBG_info, "%s: two_table=%d\n", __func__, two_table);
+    DBG(DBG_info, "%s: two_table=%d\n", __func__, two_table);
 
-  /* acceleration total time */
-  sum = 0;
-  for (i = 0; i < reg21; i++)
-    sum += slope_table[i];
+    // acceleration total time
+    unsigned sum = std::accumulate(slope_table.begin(), slope_table.begin() + acceleration_steps,
+                                   0, std::plus<>());
 
-  /* compute Z1MOD */
-  /* c=sum(slope_table;reg21)
-     d=reg22*cruising speed
-     Z1MOD=(c+d) % exposure_time */
-  *z1 = (sum + reg22 * slope_table[reg21 - 1]) % exposure_time;
+    /* Z1MOD:
+        c = sum(slope_table; reg_stepno)
+        d = reg_fwdstep * <cruising speed>
+        Z1MOD = (c+d) % exposure_time
+    */
+    *out_z1 = (sum + buffer_acceleration_steps * slope_table[acceleration_steps - 1]) % exposure_time;
 
-  /* compute Z2MOD */
-  /* a=sum(slope_table;reg21), b=move or 1 if 2 tables */
-  /* Z2MOD=(a+b) % exposure_time */
-  if (!two_table)
-    sum = sum + (move * slope_table[reg21 - 1]);
-  else
-    sum = sum + slope_table[reg21 - 1];
-  *z2 = sum % exposure_time;
-}
-
-
-/* huh? */
-/* todo: double check */
-/* Z1 and Z2 seem to be a time to synchronize with clock or a phase correction */
-/* steps_sum	is the result of create_slope_table 	*/
-/* last_speed	is the last entry of the slope_table 	*/
-/* feedl	is registers 3d,3e,3f 			 */
-/* fastfed	is register 02 bit 3		 	*/
-/* scanfed	is register 1f 				*/
-/* fwdstep	is register 22 				*/
-/* tgtime	is register 6c bit 6+7 >> 6 		*/
-
-void
-sanei_genesys_calculate_zmode (uint32_t exposure_time,
-			       uint32_t steps_sum, uint16_t last_speed,
-			       uint32_t feedl, uint8_t fastfed,
-			       uint8_t scanfed, uint8_t fwdstep,
-			       uint8_t tgtime, uint32_t * z1, uint32_t * z2)
-{
-  uint8_t exposure_factor;
-
-  exposure_factor = pow (2, tgtime);	/* todo: originally, this is always 2^0 ! */
-
-  /* Z1 is for buffer-full backward forward moving */
-  *z1 =
-    exposure_factor * ((steps_sum + fwdstep * last_speed) % exposure_time);
-
-  /* Z2 is for acceleration before scan */
-  if (fastfed)			/* two curve mode */
-    {
-      *z2 =
-	exposure_factor * ((steps_sum + scanfed * last_speed) %
-			   exposure_time);
+    /* Z2MOD:
+        a = sum(slope_table; reg_stepno)
+        b = move_steps or 1 if 2 tables
+        Z1MOD = (a+b) % exposure_time
+    */
+    if (!two_table) {
+        sum = sum + (move_steps * slope_table[acceleration_steps - 1]);
+    } else {
+        sum = sum + slope_table[acceleration_steps - 1];
     }
-  else				/* one curve mode */
-    {
-      *z2 =
-	exposure_factor * ((steps_sum + feedl * last_speed) % exposure_time);
-    }
+    *out_z2 = sum % exposure_time;
 }
-
 
 static uint8_t genesys_adjust_gain(double* applied_multi, double multi, uint8_t gain)
 {
@@ -5426,6 +5376,7 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   s_sane_devices_ptrs.init();
   genesys_init_sensor_tables();
   genesys_init_frontend_tables();
+    genesys_init_motor_tables();
     genesys_init_usb_device_tables();
 
 

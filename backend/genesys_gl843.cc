@@ -718,7 +718,8 @@ gl843_init_registers (Genesys_Device * dev)
 }
 
 // Send slope table for motor movement slope_table in machine byte order
-static void gl843_send_slope_table(Genesys_Device* dev, int table_nr, uint16_t* slope_table,
+static void gl843_send_slope_table(Genesys_Device* dev, int table_nr,
+                                   const std::vector<uint16_t>& slope_table,
                                    int steps)
 {
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
@@ -834,18 +835,16 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
-                                       int scan_power_mode,
                                        unsigned int flags)
 {
     DBG_HELPER_ARGS(dbg, "exposure=%d, scan_yres=%g, scan_step_type=%d, scan_lines=%d, scan_dummy=%d, "
-                         "feed_steps=%d, scan_power_mode=%d, flags=%x",
-                    exposure, scan_yres, scan_step_type, scan_lines, scan_dummy, feed_steps,
-                    scan_power_mode, flags);
+                         "feed_steps=%d, flags=%x",
+                    exposure, scan_yres, scan_step_type, scan_lines, scan_dummy, feed_steps, flags);
 
   int use_fast_fed, coeff;
   unsigned int lincnt;
-  uint16_t scan_table[1024];
-  uint16_t fast_table[1024];
+    std::vector<uint16_t> scan_table;
+    std::vector<uint16_t> fast_table;
   int scan_steps,fast_steps, fast_step_type;
   unsigned int feedl,factor,dist;
   GenesysRegister *r;
@@ -954,7 +953,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
   DBG(DBG_io, "%s: feedl=%d\n", __func__, feedl);
 
   /* doesn't seem to matter that much */
-  sanei_genesys_calculate_zmode2 (use_fast_fed,
+  sanei_genesys_calculate_zmod (use_fast_fed,
 				  exposure,
 				  scan_table,
 				  scan_steps,
@@ -1310,7 +1309,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int slope_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
-  int scan_power_mode = 0;
   size_t requested_buffer_size, read_buffer_size;
 
     debug_dump(DBG_info, session.params);
@@ -1388,7 +1386,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
                                              : session.output_line_count;
 
     gl843_init_motor_regs_scan(dev, sensor, reg, exposure, slope_dpi, scan_step_type,
-                               scan_lines, dummy, session.params.starty, scan_power_mode, mflags);
+                               scan_lines, dummy, session.params.starty, mflags);
 
   /* since we don't have sheetfed scanners to handle,
    * use huge read buffer */

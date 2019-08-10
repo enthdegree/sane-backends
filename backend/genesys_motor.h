@@ -71,22 +71,20 @@ struct Genesys_Motor_Slope
         i = 0.0 for first entry and i = 1.0 for last entry in default table
     */
     float g = 0;
+
+    /* start speed, max end speed, step number */
+    /* maximum speed (second field) is used to compute exposure as seen by motor */
+    /* exposure=max speed/ slope dpi * base dpi */
+    /* 5144 = max pixels at 600 dpi */
+    /* 1288=(5144+8)*ydpi(=300)/base_dpi(=1200) , where 5152 is exposure */
+    /* 6440=9660/(1932/1288) */
+    // {  9560,  1912, 31, 0.8 },
 };
 
 
 struct Genesys_Motor
 {
     Genesys_Motor() = default;
-    Genesys_Motor(uint8_t p_motor_id, int p_base_ydpi, int p_optical_ydpi, int p_max_step_type,
-                  int p_power_mode_count,
-                  const std::vector<std::vector<Genesys_Motor_Slope>>& p_slopes) :
-        motor_id(p_motor_id),
-        base_ydpi(p_base_ydpi),
-        optical_ydpi(p_optical_ydpi),
-        max_step_type(p_max_step_type),
-        power_mode_count(p_power_mode_count),
-        slopes(p_slopes)
-    {}
 
     // id of the motor description
     uint8_t motor_id = 0;
@@ -96,11 +94,8 @@ struct Genesys_Motor
     int optical_ydpi = 0;
     // maximum step type. 0-2
     int max_step_type = 0;
-    // number of power modes
-    int power_mode_count = 0;
     // slopes to derive individual slopes from
-    std::vector<std::vector<Genesys_Motor_Slope>> slopes;
+    std::vector<Genesys_Motor_Slope> slopes;
 };
-
 
 #endif // BACKEND_GENESYS_MOTOR_H

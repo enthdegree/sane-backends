@@ -2699,388 +2699,633 @@ static Genesys_Gpo Gpo[] = {
   }
 };
 
-static Genesys_Motor Motor[] = {
-  /* UMAX */
-  {MOTOR_UMAX,
-   1200,                        /* motor base steps */
-   2400,                        /* maximum motor resolution */
-   1,                                /* maximum step mode */
-   1,                           /* number of power modes*/
-   {{{
-     11000,                        /* maximum start speed */
-     3000,                        /* maximum end speed */
-     128,                        /* step count */
-     1.0,                        /* nonlinearity */
-     },
-    {
-     11000,
-     3000,
-     128,
-     1.0,
-   },},},
-  },
-  {MOTOR_5345,                                /* MD5345/6228/6471 */
-   1200,
-   2400,
-   1,
-   1,
-   {{{
-     2000,
-     1375,
-     128,
-     0.5,
-     },
-    {
-     2000,
-     1375,
-     128,
-     0.5,
-    },},},
-  },
-  {MOTOR_ST24,                        /* ST24 */
-   2400,
-   2400,
-   1,
-   1,
-   {{{
-     2289,
-     2100,
-     128,
-     0.3,
-     },
-    {
-     2289,
-     2100,
-     128,
-     0.3,
-    },},},
-  },
-  {MOTOR_HP3670,        /* HP 3670 */
-   1200,
-   2400,
-   1,
-   1,
-   {{{
-     11000,        /* start speed */
-     3000,        /* max speed */
-     128,        /* min steps */
-     0.25,
-     },
-    {
-     11000,
-     3000,
-     128,
-     0.5,
-    },},},
-  },
-  {MOTOR_HP2400,                /* HP 2400c */
-   1200,
-   1200,
-   1,
-   1,
-   {{{
-     11000,        /* start speed */
-     3000,        /* max speed */
-     128,        /* min steps */
-     0.25,
-     },
-    {
-     11000,
-     3000,
-     128,
-     0.5,
-    },},},
-  },
-  {MOTOR_HP2300,                /* HP 2300c */
-   600, /* 600/1200 */
-   1200,
-   1,
-   1,
-   {{{
-     3200,
-     1200,
-     128,
-     0.5,
-     },
-    {
-     3200,
-     1200,
-     128,
-     0.5,
-   },},},
-  },
-  {MOTOR_CANONLIDE35,                /* Canon LiDE 35 */
-   1200,
-   2400,
-   1,
-   1,
-   {{{ 3500, 1300, 60, 0.8, },
-    { 3500, 1400, 60, 0.8, },},},
-  },
-  {MOTOR_XP200,                        /* Strobe XP200 */
-   600,
-   600,
-   1,
-   1,
-   {{{
-     3500,
-     1300,
-     60,
-     0.25,
-     },
-    {
-     3500,
-     1400,
-     60,
-     0.5,
-    },},},
-  },
-  {MOTOR_XP300,                                /* 7: Visioneer Strobe XP300 */
-   300,
-   600,
-   1,
-   1,
-   {{{ /* works best with GPIO10, GPIO14 off */
-     3700,
-     3700,
-     2,
-     0.8,
-     },
-    {
-     11000,
-     11000,
-     2,
-     0.8,
-     },},},
-  },
-  {MOTOR_DP665,                                /* Syscan DP 665 */
-   750,
-   1500,
-   1,
-   1,
-   {{{
-     3000,
-     2500,
-     10,
-     0.8,
-     },
-    {
-     11000,
-     11000,
-     2,
-     0.8,
-     },},},
-  },
-  {MOTOR_ROADWARRIOR,                        /* Visioneer Roadwarrior */
-   750,
-   1500,
-   1,
-   1,
-   {{{
-     3000,
-     2600,
-     10,
-     0.8,
-     },
-    {
-     11000,
-     11000,
-     2,
-     0.8,
-     },},},
-  },
-  {MOTOR_DSMOBILE_600,                        /* Pentax DSmobile 600 */
-   750,
-   1500,
-   2,
-   1,
-   {{{
-     6666,
-     3700,
-     8,
-     0.8,
-     },
-    {
-     6666,
-     3700,
-     8,
-     0.8,
-     },},},
-  },
-  {MOTOR_CANONLIDE100,                /* Canon LiDE 100 */
-   1200,
-   6400,
-   2,   /* maximum step type count */
-   1,   /* maximum power modes count */
-   { /* motor slopes */
-	   { /* power mode 0 */
-		   {   3000,   1000, 127, 0.50}, /* full step */
-		       {   3000,   1500, 127, 0.50}, /* half step */
-		       { 3*2712, 3*2712, 16, 0.80}, /* quarter step 0.75*2712 */
-	   },
-    },
-  },
-  {MOTOR_CANONLIDE200,                /* Canon LiDE 200 */
-   1200,
-   6400,
-   2,
-   1,
-   { /* motor slopes */
-	   { /* power mode 0 */
-		   {   3000,   1000, 127, 0.50}, /* full step */
-		       {   3000,   1500, 127, 0.50}, /* half step */
-		       { 3*2712, 3*2712, 16, 0.80}, /* quarter step 0.75*2712 */
-	   },
-    },
-  },
-  {MOTOR_CANONLIDE700,                /* Canon LiDE 700 */
-   1200,
-   6400,
-   2,
-   1,
-   { /* motor slopes */
-	   { /* power mode 0 */
-		   {   3000,   1000, 127, 0.50}, /* full step */
-		       {   3000,   1500, 127, 0.50}, /* half step */
-		       { 3*2712, 3*2712, 16, 0.80}, /* quarter step 0.75*2712 */
-	   },
-    },
-  },
-  {MOTOR_KVSS080,
-   1200,
-   1200,
-   2,
-   1,
-   { /* motor slopes */
-	   { /* power mode 0 */
-		     { 22222, 500, 246, 0.5 }, /* max speed / dpi * base dpi => exposure */
-		     { 22222, 500, 246, 0.5 },
-		     { 22222, 500, 246, 0.5 },
-	       },
-   },
-  },
-  {MOTOR_G4050,
-   2400,
-   9600,
-   2,
-   1,
-   { /* motor slopes */
-	   { /* power mode 0 */
-		     { 3961, 240, 246, 0.8 }, /* full step   */
-		     { 3961, 240, 246, 0.8 }, /* half step   */
-		     { 3961, 240, 246, 0.8 }, /* quarter step */
-	       },
-   },
-  },
-  {MOTOR_CS8400F,
-   1200,
-   9600,
-   2,
-   1,
-   { /* motor slopes */
-	   { /* power mode 0 */
-		     { 3961, 240, 246, 0.8 }, /* full step   */
-		     { 3961, 240, 246, 0.8 }, /* half step   */
-		     { 3961, 240, 246, 0.8 }, /* quarter step */
-	       },
-   },
-  },
-  {
-    MOTOR_CS8600F,
-    2400,
-    9600,
-    2,
-    1,
-    { /* motor slopes */
-      { /* power mode 0 */
-        { 3961, 240, 246, 0.8 }, /* full step   */
-        { 3961, 240, 246, 0.8 }, /* half step   */
-        { 3961, 240, 246, 0.8 }, /* quarter step */
-      },
-    },
-  },
-  {MOTOR_CANONLIDE110,                /* Canon LiDE 110 */
-   4800,
-   9600,
-   1,   /* maximum step type count */
-   1,   /* maximum power modes count */
-   { /* motor slopes */
-	   { /* power mode 0 */
-		   {   3000,   1000, 256, 0.50}, /* full step */
-	   },
-    },
-  },
-  {MOTOR_CANONLIDE120,                /* Canon LiDE 120 */
-   4800,
-   9600,
-   1,   /* maximum step type count */
-   1,   /* maximum power modes count */
-   { /* motor slopes */
-	   { /* power mode 0 */
-		   {   3000,   1000, 256, 0.50}, /* full step */
-	   },
-    },
-  },
-  {MOTOR_CANONLIDE210,                /* Canon LiDE 210 */
-   4800,
-   9600,
-   1,   /* maximum step type count */
-   1,   /* maximum power modes count */
-   { /* motor slopes */
-	   { /* power mode 0 */
-		   {   3000,   1000, 256, 0.50}, /* full step */
-	   },
-    },
-  },
-  {MOTOR_PLUSTEK_3600,                /* PLUSTEK 3600 */
-   1200,
-   2400,
-   1,
-   1,
-   {
-     {
-       { 3500, 1300, 60, 0.8 },
-       { 3500, 3250, 60, 0.8 },
-     },
-   },},
-  {MOTOR_IMG101,                /* Canon Image Formula 101 */
-   600,
-   1200,
-   1,
-   1,
-   {
-     {
-       { 3500, 1300, 60, 0.8 },
-       { 3500, 3250, 60, 0.8 },
-     },
-   },},
-  {MOTOR_PLUSTEK3800,                /* Plustek OpticBook 3800 */
-   600,
-   1200,
-   1,
-   1,
-   {
-     {
-       { 3500, 1300, 60, 0.8 },
-       { 3500, 3250, 60, 0.8 },
-     },
-   },},
-  {MOTOR_CANONLIDE80,
-   2400, /* 2400 ???? */
-   4800, /* 9600 ???? */
-   1,        /* max step type */
-   1,        /* power mode count */
-   {
-     { /* start speed, max end speed, step number */
-       /* maximum speed (second field) is used to compute exposure as seen by motor */
-       /* exposure=max speed/ slope dpi * base dpi */
-       /* 5144 = max pixels at 600 dpi */
-       /* 1288=(5144+8)*ydpi(=300)/base_dpi(=1200) , where 5152 is exposure */
-       /* 6440=9660/(1932/1288) */
-       {  9560,  1912, 31, 0.8 },
-     },
-   },},
-};
+StaticInit<std::vector<Genesys_Motor>> s_motors;
+
+void genesys_init_motor_tables()
+{
+    s_motors.init();
+
+    Genesys_Motor_Slope slope;
+
+    Genesys_Motor motor;
+    motor.motor_id = MOTOR_UMAX;
+    motor.base_ydpi = 1200;
+    motor.optical_ydpi = 2400;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 11000;
+    slope.maximum_speed = 3000;
+    slope.minimum_steps = 128;
+    slope.g = 1.0;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 11000;
+    slope.maximum_speed = 3000;
+    slope.minimum_steps = 128;
+    slope.g = 1.0;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_5345; // MD5345/6228/6471
+    motor.base_ydpi = 1200;
+    motor.optical_ydpi = 2400;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 2000;
+    slope.maximum_speed = 1375;
+    slope.minimum_steps = 128;
+    slope.g = 0.5;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 2000;
+    slope.maximum_speed = 1375;
+    slope.minimum_steps = 128;
+    slope.g = 0.5;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_ST24;
+    motor.base_ydpi = 2400;
+    motor.optical_ydpi = 2400;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 2289;
+    slope.maximum_speed = 2100;
+    slope.minimum_steps = 128;
+    slope.g = 0.3;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 2289;
+    slope.maximum_speed = 2100;
+    slope.minimum_steps = 128;
+    slope.g = 0.3;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_HP3670;
+    motor.base_ydpi = 1200;
+    motor.optical_ydpi = 2400;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 11000;
+    slope.maximum_speed = 3000;
+    slope.minimum_steps = 128;
+    slope.g = 0.25;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 11000;
+    slope.maximum_speed = 3000;
+    slope.minimum_steps = 128;
+    slope.g = 0.5;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_HP2400;
+    motor.base_ydpi = 1200;
+    motor.optical_ydpi = 1200;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+
+    slope.maximum_start_speed = 11000;
+    slope.maximum_speed = 3000;
+    slope.minimum_steps = 128;
+    slope.g = 0.25;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 11000;
+    slope.maximum_speed = 3000;
+    slope.minimum_steps = 128;
+    slope.g = 0.5;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_HP2300;
+    motor.base_ydpi = 600;
+    motor.optical_ydpi = 1200;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3200;
+    slope.maximum_speed = 1200;
+    slope.minimum_steps = 128;
+    slope.g = 0.5;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3200;
+    slope.maximum_speed = 1200;
+    slope.minimum_steps = 128;
+    slope.g = 0.5;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_CANONLIDE35;
+    motor.base_ydpi = 1200;
+    motor.optical_ydpi = 2400;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3500;
+    slope.maximum_speed = 1300;
+    slope.minimum_steps = 60;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3500;
+    slope.maximum_speed = 1400;
+    slope.minimum_steps = 60;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_XP200;
+    motor.base_ydpi = 600;
+    motor.optical_ydpi = 600;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3500;
+    slope.maximum_speed = 1300;
+    slope.minimum_steps = 60;
+    slope.g = 0.25;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3500;
+    slope.maximum_speed = 1400;
+    slope.minimum_steps = 60;
+    slope.g = 0.5;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_XP300;
+    motor.base_ydpi = 300;
+    motor.optical_ydpi = 600;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    // works best with GPIO10, GPIO14 off
+    slope.maximum_start_speed = 3700;
+    slope.maximum_speed = 3700;
+    slope.minimum_steps = 2;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 11000;
+    slope.maximum_speed = 11000;
+    slope.minimum_steps = 2;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_DP665;
+    motor.base_ydpi = 750;
+    motor.optical_ydpi = 1500;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3000;
+    slope.maximum_speed = 2500;
+    slope.minimum_steps = 10;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 11000;
+    slope.maximum_speed = 11000;
+    slope.minimum_steps = 2;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_ROADWARRIOR;
+    motor.base_ydpi = 750;
+    motor.optical_ydpi = 1500;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3000;
+    slope.maximum_speed = 2600;
+    slope.minimum_steps = 10;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 11000;
+    slope.maximum_speed = 11000;
+    slope.minimum_steps = 2;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_DSMOBILE_600;
+    motor.base_ydpi = 750;
+    motor.optical_ydpi = 1500;
+    motor.max_step_type = 2;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 6666;
+    slope.maximum_speed = 3700;
+    slope.minimum_steps = 8;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 6666;
+    slope.maximum_speed = 3700;
+    slope.minimum_steps = 8;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_CANONLIDE100;
+    motor.base_ydpi = 1200;
+    motor.optical_ydpi = 6400;
+    motor.max_step_type = 2;
+
+    slope = Genesys_Motor_Slope(); // full step
+    slope.maximum_start_speed = 3000;
+    slope.maximum_speed = 1000;
+    slope.minimum_steps = 127;
+    slope.g = 0.50;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope(); // half step
+    slope.maximum_start_speed = 3000;
+    slope.maximum_speed = 1500;
+    slope.minimum_steps = 127;
+    slope.g = 0.50;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope(); // quarter step 0.75*2712
+    slope.maximum_start_speed = 3*2712;
+    slope.maximum_speed = 3*2712;
+    slope.minimum_steps = 16;
+    slope.g = 0.80;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_CANONLIDE200;
+    motor.base_ydpi = 1200;
+    motor.optical_ydpi = 6400;
+    motor.max_step_type = 2;
+
+    slope = Genesys_Motor_Slope(); // full step
+    slope.maximum_start_speed = 3000;
+    slope.maximum_speed = 1000;
+    slope.minimum_steps = 127;
+    slope.g = 0.50;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope(); // half step
+    slope.maximum_start_speed = 3000;
+    slope.maximum_speed = 1500;
+    slope.minimum_steps = 127;
+    slope.g = 0.50;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope(); // quarter step 0.75*2712
+    slope.maximum_start_speed = 3*2712;
+    slope.maximum_speed = 3*2712;
+    slope.minimum_steps = 16;
+    slope.g = 0.80;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_CANONLIDE700;
+    motor.base_ydpi = 1200;
+    motor.optical_ydpi = 6400;
+    motor.max_step_type = 2;
+
+    slope = Genesys_Motor_Slope(); // full step
+    slope.maximum_start_speed = 3000;
+    slope.maximum_speed = 1000;
+    slope.minimum_steps = 127;
+    slope.g = 0.50;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope(); // half step
+    slope.maximum_start_speed = 3000;
+    slope.maximum_speed = 1500;
+    slope.minimum_steps = 127;
+    slope.g = 0.50;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope(); // quarter step 0.75*2712
+    slope.maximum_start_speed = 3*2712;
+    slope.maximum_speed = 3*2712;
+    slope.minimum_steps = 16;
+    slope.g = 0.80;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_KVSS080;
+    motor.base_ydpi = 1200;
+    motor.optical_ydpi = 1200;
+    motor.max_step_type = 2;
+
+    slope = Genesys_Motor_Slope(); // max speed / dpi * base dpi => exposure
+    slope.maximum_start_speed = 22222;
+    slope.maximum_speed = 500;
+    slope.minimum_steps = 246;
+    slope.g = 0.5;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 22222;
+    slope.maximum_speed = 500;
+    slope.minimum_steps = 246;
+    slope.g = 0.5;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 22222;
+    slope.maximum_speed = 500;
+    slope.minimum_steps = 246;
+    slope.g = 0.5;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_G4050;
+    motor.base_ydpi = 2400;
+    motor.optical_ydpi = 9600;
+    motor.max_step_type = 2;
+
+    slope = Genesys_Motor_Slope(); // full step
+    slope.maximum_start_speed = 3961;
+    slope.maximum_speed = 240;
+    slope.minimum_steps = 246;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope(); // half step
+    slope.maximum_start_speed = 3961;
+    slope.maximum_speed = 240;
+    slope.minimum_steps = 246;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope(); // quarter step
+    slope.maximum_start_speed = 3961;
+    slope.maximum_speed = 240;
+    slope.minimum_steps = 246;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_CS8400F;
+    motor.base_ydpi = 1200;
+    motor.optical_ydpi = 9600;
+    motor.max_step_type = 2;
+
+    slope = Genesys_Motor_Slope(); // full step
+    slope.maximum_start_speed = 3961;
+    slope.maximum_speed = 240;
+    slope.minimum_steps = 246;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope(); // half step
+    slope.maximum_start_speed = 3961;
+    slope.maximum_speed = 240;
+    slope.minimum_steps = 246;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope(); // quarter step
+    slope.maximum_start_speed = 3961;
+    slope.maximum_speed = 240;
+    slope.minimum_steps = 246;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_CS8600F;
+    motor.base_ydpi = 2400;
+    motor.optical_ydpi = 9600;
+    motor.max_step_type = 2;
+
+    slope = Genesys_Motor_Slope(); // full step
+    slope.maximum_start_speed = 3961;
+    slope.maximum_speed = 240;
+    slope.minimum_steps = 246;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope(); // half step
+    slope.maximum_start_speed = 3961;
+    slope.maximum_speed = 240;
+    slope.minimum_steps = 246;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope(); // quarter step
+    slope.maximum_start_speed = 3961;
+    slope.maximum_speed = 240;
+    slope.minimum_steps = 246;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_CANONLIDE110;
+    motor.base_ydpi = 4800;
+    motor.optical_ydpi = 9600;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope(); // full step
+    slope.maximum_start_speed = 3000;
+    slope.maximum_speed = 1000;
+    slope.minimum_steps = 256;
+    slope.g = 0.50;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_CANONLIDE120;
+    motor.base_ydpi = 4800;
+    motor.optical_ydpi = 9600;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3000;
+    slope.maximum_speed = 1000;
+    slope.minimum_steps = 256;
+    slope.g = 0.50;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_CANONLIDE210;
+    motor.base_ydpi = 4800;
+    motor.optical_ydpi = 9600;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3000;
+    slope.maximum_speed = 1000;
+    slope.minimum_steps = 256;
+    slope.g = 0.50;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_PLUSTEK_3600;
+    motor.base_ydpi = 1200;
+    motor.optical_ydpi = 2400;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3500;
+    slope.maximum_speed = 1300;
+    slope.minimum_steps = 60;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3500;
+    slope.maximum_speed = 3250;
+    slope.minimum_steps = 60;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_IMG101;
+    motor.base_ydpi = 600;
+    motor.optical_ydpi = 1200;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3500;
+    slope.maximum_speed = 1300;
+    slope.minimum_steps = 60;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3500;
+    slope.maximum_speed = 3250;
+    slope.minimum_steps = 60;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_PLUSTEK3800;
+    motor.base_ydpi = 600;
+    motor.optical_ydpi = 1200;
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3500;
+    slope.maximum_speed = 1300;
+    slope.minimum_steps = 60;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 3500;
+    slope.maximum_speed = 3250;
+    slope.minimum_steps = 60;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.motor_id = MOTOR_CANONLIDE80;
+    motor.base_ydpi = 2400;
+    motor.optical_ydpi = 4800, // 9600
+    motor.max_step_type = 1;
+
+    slope = Genesys_Motor_Slope();
+    slope.maximum_start_speed = 9560;
+    slope.maximum_speed = 1912;
+    slope.minimum_steps = 31;
+    slope.g = 0.8;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+}
 
 StaticInit<std::vector<Genesys_USB_Device_Entry>> s_usb_devices;
 

@@ -1324,27 +1324,22 @@ Motor_Profile *profile;
  * @param motor_type motor id
  * @param motors motor profile database
  */
-int sanei_genesys_slope_table(uint16_t *slope,
-		             int       *steps,
-			     int       dpi,
-			     int       exposure,
-			     int       base_dpi,
-			     int       step_type,
-			     int       factor,
-                             int       motor_type,
-                             Motor_Profile *motors)
+int sanei_genesys_slope_table(std::vector<uint16_t>& slope,
+                              int* steps, int dpi, int exposure, int base_dpi, int step_type,
+                              int factor, int motor_type, Motor_Profile* motors)
 {
 int sum, i;
 uint16_t target,current;
 Motor_Profile *profile;
+
+    slope.clear();
 
 	/* required speed */
 	target=((exposure * dpi) / base_dpi)>>step_type;
         DBG (DBG_io2, "%s: exposure=%d, dpi=%d, target=%d\n", __func__, exposure, dpi, target);
 
 	/* fill result with target speed */
-        for(i=0;i<SLOPE_TABLE_SIZE;i++)
-          slope[i]=target;
+    slope.resize(SLOPE_TABLE_SIZE, target);
 
         profile=sanei_genesys_get_motor_profile(motors, motor_type, exposure);
 

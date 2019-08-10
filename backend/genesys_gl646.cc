@@ -368,8 +368,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
                                   const Genesys_Sensor& sensor,
                                   Genesys_Register_Set* regs,
                                   ScanSession& session,
-                                  uint16_t* slope_table1,
-                                  uint16_t* slope_table2,
+                                  std::vector<uint16_t>& slope_table1,
+                                  std::vector<uint16_t>& slope_table2,
                                   bool xcorrection)
 {
     DBG_HELPER(dbg);
@@ -903,7 +903,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   regs->find_reg(0x65).value = motor->mtrpwm;
 
-  sanei_genesys_calculate_zmode2 (regs->find_reg(0x02).value & REG02_FASTFED,
+  sanei_genesys_calculate_zmod (regs->find_reg(0x02).value & REG02_FASTFED,
                                   sensor_mst->exposure,
 				  slope_table1,
 				  motor->steps1,
@@ -1271,7 +1271,8 @@ gl646_init_regs (Genesys_Device * dev)
 
 
 // Send slope table for motor movement slope_table in machine byte order
-static void gl646_send_slope_table(Genesys_Device* dev, int table_nr, uint16_t* slope_table,
+static void gl646_send_slope_table(Genesys_Device* dev, int table_nr,
+                                   const std::vector<uint16_t>& slope_table,
                                    int steps)
 {
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d)=%d .. %d", table_nr, steps, slope_table[0],
@@ -1599,7 +1600,7 @@ static void gl646_load_document(Genesys_Device* dev)
   // FIXME: sequential not really needed in this case
   Genesys_Register_Set regs(Genesys_Register_Set::SEQUENTIAL);
   unsigned int used, vfinal, count;
-  uint16_t slope_table[255];
+    std::vector<uint16_t> slope_table;
   uint8_t val;
 
   /* no need to load document is flatbed scanner */
@@ -1774,7 +1775,7 @@ static void gl646_eject_document(Genesys_Device* dev)
   // FIXME: SEQUENTIAL not really needed in this case
   Genesys_Register_Set regs((Genesys_Register_Set::SEQUENTIAL));
   unsigned int used, vfinal, count;
-  uint16_t slope_table[255];
+    std::vector<uint16_t> slope_table;
   uint8_t gpio, state;
 
   /* at the end there will be noe more document */
@@ -2414,8 +2415,8 @@ static void setup_for_scan(Genesys_Device* dev,
     }
     gl646_compute_session(dev, session, sensor);
 
-    uint16_t slope_table0[256] = {};
-    uint16_t slope_table1[256] = {};
+    std::vector<uint16_t> slope_table0;
+    std::vector<uint16_t> slope_table1;
 
     // set up correct values for scan (gamma and shading enabled)
     gl646_setup_registers(dev, sensor, regs, session, slope_table0, slope_table1, xcorrection);

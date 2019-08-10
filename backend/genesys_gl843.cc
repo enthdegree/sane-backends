@@ -995,7 +995,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
   if (!(dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE))
     {
       r->value = 0x50;
-        coeff=sensor.optical_res / sensor.get_register_hwdpi(scan_yres);
+        coeff = sensor.get_hwdpi_divisor_for_dpi(scan_yres);
       if (dev->model->motor_type == MOTOR_KVSS080)
         {
           if(coeff>=1)
@@ -1039,13 +1039,13 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
  */
 static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure,
-                                         int used_res, unsigned int start, unsigned int pixels,
-                                         int channels, int depth, unsigned ccd_size_divisor,
-                                         ColorFilter color_filter, int flags)
+                                         const ScanSession& session, int flags)
 {
-    DBG_HELPER_ARGS(dbg, "exposure=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
+    DBG_HELPER_ARGS(dbg, "exposure=%d, used_res=%d, start=%f, pixels=%d, channels=%d, depth=%d, "
                          "ccd_size_divisor=%d, flags=%x",
-                    exposure, used_res, start, pixels, channels, depth, ccd_size_divisor, flags);
+                    exposure, session.output_resolution, session.params.startx,
+                    session.optical_pixels, session.params.channels, session.params.depth,
+                    session.ccd_size_divisor, flags);
   unsigned int words_per_line;
   unsigned int startx, endx;
   unsigned int dpiset, dpihw, factor;
@@ -1059,8 +1059,8 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     // to manage high resolution device while keeping good low resolution scanning speed, we make
     // hardware dpi vary
-    dpihw = sensor.get_register_hwdpi(used_res);
-  factor=sensor.optical_res/dpihw;
+    dpihw = sensor.get_register_hwdpi(session.output_resolution);
+    factor = sensor.get_hwdpi_divisor_for_dpi(session.output_resolution);
   DBG(DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
   /* sensor parameters */
@@ -1068,12 +1068,12 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     // resolution is divided according to CKSEL
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
-    DBG(DBG_io2, "%s: ccd_pixels_per_system_pixel=%d\n", __func__, ccd_pixels_per_system_pixel );
-    dpiset = used_res * ccd_pixels_per_system_pixel ;
+    DBG(DBG_io2, "%s: ccd_pixels_per_system_pixel=%d\n", __func__, ccd_pixels_per_system_pixel);
+    dpiset = session.output_resolution * ccd_pixels_per_system_pixel;
 
     // start and end coordinate in optical dpi coordinates
-    startx = (start + sensor.dummy_pixel) / ccd_pixels_per_system_pixel ;
-    endx = startx + pixels / ccd_pixels_per_system_pixel;
+    startx = (session.params.startx + sensor.dummy_pixel) / ccd_pixels_per_system_pixel;
+    endx = startx + session.optical_pixels / ccd_pixels_per_system_pixel;
 
     // pixel coordinate factor correction when used dpihw is not maximal one
     startx /= factor;
@@ -1137,7 +1137,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* monochrome / color scan */
   r = sanei_genesys_get_address (reg, REG04);
-  switch (depth)
+  switch (session.params.depth)
     {
     case 1:
       r->value &= ~REG04_BITSET;
@@ -1153,9 +1153,9 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
   r->value &= ~(REG04_FILTER | REG04_AFEMOD);
-  if (channels == 1)
+  if (session.params.channels == 1)
     {
-      switch (color_filter)
+      switch (session.params.color_filter)
 	{
             case ColorFilter::RED:
                 r->value |= 0x14;
@@ -1201,16 +1201,16 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         r->value |= REG05_GMMENB;
     }
 
-    reg->set16(REG_DPISET, dpiset * ccd_size_divisor);
-    DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset * ccd_size_divisor);
+    reg->set16(REG_DPISET, dpiset * session.ccd_size_divisor);
+    DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset * session.ccd_size_divisor);
 
     reg->set16(REG_STRPIXEL, startx);
     reg->set16(REG_ENDPIXEL, endx);
 
   /* words(16bit) before gamma, conversion to 8 bit or lineart */
   words_per_line = (used_pixels * dpiset) / dpihw;
-  bytes = depth / 8;
-  if (depth == 1)
+  bytes = session.params.depth / 8;
+  if (session.params.depth == 1)
     {
       words_per_line = (words_per_line >> 3) + ((words_per_line & 7) ? 1 : 0);
     }
@@ -1223,13 +1223,13 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   dev->bpl = words_per_line;
 
   DBG(DBG_io2, "%s: used_pixels=%d\n", __func__, used_pixels);
-  DBG(DBG_io2, "%s: pixels     =%d\n", __func__, pixels);
-  DBG(DBG_io2, "%s: depth      =%d\n", __func__, depth);
+  DBG(DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
+  DBG(DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
   DBG(DBG_io2, "%s: dev->bpl   =%lu\n", __func__, (unsigned long) dev->bpl);
   DBG(DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long)dev->len);
   DBG(DBG_io2, "%s: dev->dist  =%lu\n", __func__, (unsigned long)dev->dist);
 
-  words_per_line *= channels;
+  words_per_line *= session.params.channels;
 
   /* MAXWD is expressed in 2 words unit */
   /* nousedspace = (mem_bank_range * 1024 / 256 -1 ) * 4; */
@@ -1295,6 +1295,7 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
 
     s.optical_line_bytes = (s.optical_pixels * s.params.channels * s.params.depth) / 8;
     s.output_line_bytes = (s.output_pixels * s.params.channels * s.params.depth) / 8;
+
     s.computed = true;
 }
 
@@ -1306,8 +1307,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG_HELPER(dbg);
     session.assert_computed();
 
-  int start;
-  int move;
   unsigned int oflags, mflags;  /**> optical and motor flags */
   int exposure;
 
@@ -1336,12 +1335,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   if (session.params.flags & SCAN_FLAG_USE_XPA)
     oflags |= OPTICAL_FLAG_USE_XPA;
 
-
-  /* compute scan parameters values */
-  /* pixels are allways given at full optical resolution */
-  /* use detected left margin and fixed value */
-  /* start */
-  start = session.params.startx;
 
   dummy = 0;
   /* dummy = 1;  XXX STEF XXX */
@@ -1379,10 +1372,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
 
     // now _LOGICAL_ optical values used are known, setup registers
-    gl843_init_optical_regs_scan(dev, sensor, reg, exposure, session.output_resolution, start,
-                                 session.optical_pixels, session.params.channels,
-                                 session.params.depth,  session.ccd_size_divisor,
-                                 session.params.color_filter, oflags);
+    gl843_init_optical_regs_scan(dev, sensor, reg, exposure, session, oflags);
 
   /*** motor parameters ***/
 
@@ -1400,11 +1390,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
       dev->ld_shift_b = dev->model->ld_shift_b;
     }
 
-  /* add tl_y to base movement */
-  move = session.params.starty;
-  DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
-
-
     mflags = 0;
     if (session.params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE) {
         mflags |= MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
@@ -1420,7 +1405,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
                                              : session.output_line_count;
 
     gl843_init_motor_regs_scan(dev, sensor, reg, exposure, slope_dpi, scan_step_type,
-                               scan_lines, dummy, move, scan_power_mode,  mflags);
+                               scan_lines, dummy, session.params.starty, scan_power_mode, mflags);
 
   /* since we don't have sheetfed scanners to handle,
    * use huge read buffer */

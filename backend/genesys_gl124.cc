@@ -813,10 +813,10 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
  * */
 static void gl124_setup_sensor(Genesys_Device * dev,
                                const Genesys_Sensor& sensor,
-                               Genesys_Register_Set * regs, int dpi, unsigned ccd_size_divisor)
+                               Genesys_Register_Set * regs, unsigned dpihw,
+                               unsigned ccd_size_divisor)
 {
     DBG_HELPER(dbg);
-  int dpihw;
   uint32_t exp;
 
     // we start at 6, 0-5 is a 16 bits cache for exposure
@@ -831,7 +831,6 @@ static void gl124_setup_sensor(Genesys_Device * dev,
     }
 
     // set EXPDUMMY and CKxMAP
-    dpihw = sensor.get_register_hwdpi(dpi);
     Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw,
                                                         ccd_size_divisor);
 
@@ -921,7 +920,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // to manage high resolution device while keeping good low resolution scanning speed, we
     // make hardware dpi vary
     dpihw = sensor.get_register_hwdpi(used_res * ccd_pixels_per_system_pixel);
-  factor=sensor.optical_res/dpihw;
+    factor = sensor.get_hwdpi_divisor_for_dpi(used_res * ccd_pixels_per_system_pixel);
   DBG (DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
     // sensor parameters

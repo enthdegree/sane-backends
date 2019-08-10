@@ -497,12 +497,12 @@ libgenesys_la_SOURCES = genesys.cc genesys.h \
     genesys_serialize.h \
     genesys_low.cc genesys_low.h
 
-libgenesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys $(XML_CFLAGS)
+libgenesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
 
 nodist_libsane_genesys_la_SOURCES = genesys-s.cc
 libsane_genesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
 libsane_genesys_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_genesys_la_LIBADD = $(COMMON_LIBS) libgenesys.la  ../sanei/sanei_magic.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS) $(XML_LIBS) $(RESMGR_LIBS)
+libsane_genesys_la_LIBADD = $(COMMON_LIBS) libgenesys.la  ../sanei/sanei_magic.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += genesys.conf.in
 # TODO: Why are this distributed but not compiled?
 EXTRA_DIST += genesys_conv.cc genesys_conv_hlp.cc genesys_devices.cc

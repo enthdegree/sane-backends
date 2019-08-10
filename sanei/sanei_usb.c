@@ -191,10 +191,10 @@ typedef enum
 sanei_usb_testing_mode;
 
 // Whether testing mode has been enabled
-sanei_usb_testing_mode testing_mode = sanei_usb_testing_mode_disabled;
+static sanei_usb_testing_mode testing_mode = sanei_usb_testing_mode_disabled;
 
 #if WITH_USB_RECORD_REPLAY
-int testing_development_mode = 0;
+static int testing_development_mode = 0;
 int testing_known_commands_input_failed = 0;
 unsigned testing_last_known_seq = 0;
 SANE_String testing_record_backend = NULL;
@@ -577,7 +577,7 @@ static int sanei_xml_get_prop_uint(xmlNode* node, const char* name)
   return attr_uint;
 }
 
-void sanei_xml_print_seq_if_any(xmlNode* node, const char* parent_fun)
+static void sanei_xml_print_seq_if_any(xmlNode* node, const char* parent_fun)
 {
   char* attr = sanei_xml_get_prop(node, "seq");
   if (attr == NULL)
@@ -653,7 +653,7 @@ static xmlNode* sanei_xml_skip_non_tx_nodes(xmlNode* node)
   return node;
 }
 
-int sanei_xml_is_known_commands_end(xmlNode* node)
+static int sanei_xml_is_known_commands_end(xmlNode* node)
 {
   if (!testing_development_mode || node == NULL)
     return 0;
@@ -667,7 +667,7 @@ static xmlNode* sanei_xml_peek_next_tx_node()
 }
 
 // returns next transaction node that is not get_descriptor
-xmlNode* sanei_xml_get_next_tx_node()
+static xmlNode* sanei_xml_get_next_tx_node()
 {
   xmlNode* next = testing_xml_next_tx_node;
 
@@ -802,8 +802,8 @@ static void sanei_xml_set_hex_attr(xmlNode* node, const char* attr_name,
   xmlNewProp(node, (const xmlChar*)attr_name, (const xmlChar*)buf);
 }
 
-void sanei_xml_set_uint_attr(xmlNode* node, const char* attr_name,
-                             unsigned attr_value)
+static void sanei_xml_set_uint_attr(xmlNode* node, const char* attr_name,
+                                    unsigned attr_value)
 {
   const int buf_size = 128;
   char buf[buf_size];
@@ -811,8 +811,8 @@ void sanei_xml_set_uint_attr(xmlNode* node, const char* attr_name,
   xmlNewProp(node, (const xmlChar*)attr_name, (const xmlChar*)buf);
 }
 
-xmlNode* sanei_xml_append_command(xmlNode* sibling,
-                                  int indent, xmlNode* e_command)
+static xmlNode* sanei_xml_append_command(xmlNode* sibling,
+                                         int indent, xmlNode* e_command)
 {
   if (indent)
     {
@@ -831,7 +831,7 @@ static void sanei_xml_command_common_props(xmlNode* node, int endpoint_number,
   xmlNewProp(node, (const xmlChar*)"direction", (const xmlChar*)direction);
 }
 
-void sanei_xml_record_seq(xmlNode* node)
+static void sanei_xml_record_seq(xmlNode* node)
 {
   int seq = sanei_xml_get_prop_uint(node, "seq");
   if (seq > 0)
@@ -842,7 +842,7 @@ static void sanei_xml_break()
 {
 }
 
-void sanei_xml_break_if_needed(xmlNode* node)
+static void sanei_xml_break_if_needed(xmlNode* node)
 {
   char* attr = sanei_xml_get_prop(node, "debug_break");
   if (attr != NULL)
@@ -853,8 +853,8 @@ void sanei_xml_break_if_needed(xmlNode* node)
 }
 
 // returns 1 on success
-int sanei_usb_check_attr(xmlNode* node, const char* attr_name,
-                         const char* expected, const char* parent_fun)
+static int sanei_usb_check_attr(xmlNode* node, const char* attr_name,
+                                const char* expected, const char* parent_fun)
 {
   char* attr = sanei_xml_get_prop(node, attr_name);
   if (attr == NULL)
@@ -992,6 +992,79 @@ SANE_Bool sanei_usb_is_replay_mode_enabled()
     return SANE_TRUE;
 
   return SANE_FALSE;
+}
+
+static void sanei_usb_record_debug_msg(xmlNode* node, SANE_String_Const message)
+{
+  int node_was_null = node == NULL;
+  if (node_was_null)
+    node = testing_append_commands_node;
+
+  xmlNode* e_tx = xmlNewNode(NULL, (const xmlChar*)"debug");
+  sanei_xml_set_uint_attr(e_tx, "seq", ++testing_last_known_seq);
+  xmlNewProp(e_tx, (const xmlChar*)"message", (const xmlChar*)message);
+
+  node = sanei_xml_append_command(node, node_was_null, e_tx);
+
+  if (node_was_null)
+    testing_append_commands_node = node;
+}
+
+static void sanei_usb_record_replace_debug_msg(xmlNode* node, SANE_String_Const message)
+{
+  if (!testing_development_mode)
+    return;
+
+  testing_last_known_seq--;
+  sanei_usb_record_debug_msg(node, message);
+  xmlUnlinkNode(node);
+  xmlFreeNode(node);
+}
+
+static void sanei_usb_replay_debug_msg(SANE_String_Const message)
+{
+  if (testing_known_commands_input_failed)
+    return;
+
+  xmlNode* node = sanei_xml_get_next_tx_node();
+  if (node == NULL)
+    {
+      FAIL_TEST(__func__, "no more transactions\n");
+      return;
+    }
+
+  if (sanei_xml_is_known_commands_end(node))
+    {
+      sanei_usb_record_debug_msg(NULL, message);
+      return;
+    }
+
+  sanei_xml_record_seq(node);
+  sanei_xml_break_if_needed(node);
+
+  if (xmlStrcmp(node->name, (const xmlChar*)"debug") != 0)
+    {
+      FAIL_TEST_TX(__func__, node, "unexpected transaction type %s\n",
+                   (const char*) node->name);
+      sanei_usb_record_replace_debug_msg(node, message);
+    }
+
+  if (!sanei_usb_check_attr(node, "message", message, __func__))
+    {
+      sanei_usb_record_replace_debug_msg(node, message);
+    }
+}
+
+extern void sanei_usb_testing_record_message(SANE_String_Const message)
+{
+  if (testing_mode == sanei_usb_testing_mode_record)
+    {
+      sanei_usb_record_debug_msg(NULL, message);
+    }
+  if (testing_mode == sanei_usb_testing_mode_replay)
+    {
+      sanei_usb_replay_debug_msg(message);
+    }
 }
 
 static void sanei_usb_add_endpoint(device_list_type* device,
@@ -1199,6 +1272,11 @@ SANE_String sanei_usb_testing_get_backend()
 SANE_Bool sanei_usb_is_replay_mode_enabled()
 {
   return SANE_FALSE;
+}
+
+void sanei_usb_testing_record_message(SANE_String_Const message)
+{
+  (void) message;
 }
 #endif // WITH_USB_RECORD_REPLAY
 

@@ -1525,35 +1525,36 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   start += dev->settings.tl_x;
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
-    SetupParams params;
-    params.xres = dev->settings.xres;
-    params.yres = dev->settings.yres;
-    params.startx = start; // not used
-    params.starty = 0; // not used
-    params.pixels = dev->settings.pixels;
-    params.lines = dev->settings.lines;
-    params.depth = depth;
-    params.channels = channels;
-    params.scan_method = dev->settings.scan_method;
-    params.scan_mode = dev->settings.scan_mode;
-    params.color_filter = dev->settings.color_filter;
-    params.flags = 0;
+    ScanSession session;
+    session.params.xres = dev->settings.xres;
+    session.params.yres = dev->settings.yres;
+    session.params.startx = start; // not used
+    session.params.starty = 0; // not used
+    session.params.pixels = dev->settings.pixels;
+    session.params.lines = dev->settings.lines;
+    session.params.depth = depth;
+    session.params.channels = channels;
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = dev->settings.scan_mode;
+    session.params.color_filter = dev->settings.color_filter;
+    session.params.flags = 0;
 
     DBG(DBG_info, "%s ", __func__);
-    debug_dump(DBG_info, params);
+    debug_dump(DBG_info, session.params);
 
   /* optical_res */
   optical_res = sensor.optical_res / ccd_size_divisor;
 
   /* stagger */
-  if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-    stagger = (4 * params.yres) / dev->motor.base_ydpi;
-  else
-    stagger = 0;
+    if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
+        stagger = (4 * session.params.yres) / dev->motor.base_ydpi;
+    } else {
+        stagger = 0;
+    }
   DBG(DBG_info, "%s: stagger=%d lines\n", __func__, stagger);
 
-    if (params.xres <= (unsigned) optical_res) {
-        used_res = params.xres;
+    if (session.params.xres <= (unsigned) optical_res) {
+        used_res = session.params.xres;
     } else {
         used_res = optical_res;
     }
@@ -1563,7 +1564,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   /* use detected left margin  and fixed value */
 
   /* compute correct pixels number */
-  used_pixels = (params.pixels * optical_res) / params.xres;
+    used_pixels = (session.params.pixels * optical_res) / session.params.xres;
   DBG(DBG_info, "%s: used_pixels=%d\n", __func__, used_pixels);
 
   /* exposure */
@@ -1574,26 +1575,24 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
 
   /* it seems base_dpi of the G4050 motor is changed above 600 dpi*/
-  if (dev->model->motor_type == MOTOR_G4050 && params.yres>600)
-    {
+    if (dev->model->motor_type == MOTOR_G4050 && session.params.yres>600) {
       dev->ld_shift_r = (dev->model->ld_shift_r*3800)/dev->motor.base_ydpi;
       dev->ld_shift_g = (dev->model->ld_shift_g*3800)/dev->motor.base_ydpi;
       dev->ld_shift_b = (dev->model->ld_shift_b*3800)/dev->motor.base_ydpi;
-    }
-  else
-    {
+    } else {
       dev->ld_shift_r = dev->model->ld_shift_r;
       dev->ld_shift_g = dev->model->ld_shift_g;
       dev->ld_shift_b = dev->model->ld_shift_b;
     }
 
   /* scanned area must be enlarged by max color shift needed */
-    max_shift = sanei_genesys_compute_max_shift(dev, params.channels, params.yres, 0);
+    max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels,
+                                                session.params.yres, 0);
 
   /* lincnt */
-  lincnt = params.lines + max_shift + stagger;
+    lincnt = session.params.lines + max_shift + stagger;
 
-    dev->session.params = params;
+    dev->session = session;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;

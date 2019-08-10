@@ -196,18 +196,6 @@ static void setup_for_scan(Genesys_Device* device,
                            SANE_Bool ycorrection);
 
 /**
- * sets up the registers for a scan corresponding to the settings.
- * Builds motor slope tables. Computes buffer sizes and data amount to
- * transfer. It also sets up analog frontend.
- * */
-static void gl646_setup_registers(Genesys_Device* dev,
-                                  const Genesys_Sensor& sensor,
-                                  Genesys_Register_Set* regs, SetupParams& params,
-                                  uint16_t* slope_table1,
-                                  uint16_t* slope_table2,
-                                  bool xcorrection);
-
-/**
  * Does a simple move of the given distance by doing a scan at lowest resolution
  * shading correction. Memory for data is allocated in this function
  * and must be freed by caller.

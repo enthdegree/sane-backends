@@ -177,7 +177,7 @@ void serialize(Stream& str, SetupParams& x)
 struct ScanSession {
     SetupParams params;
 
-    // whether the session setup has been computed via gl843_compute_session()
+    // whether the session setup has been computed via gl*_compute_session()
     // gl843-only
     bool computed = false;
 

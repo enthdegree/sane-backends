@@ -610,14 +610,13 @@ sane_control_option (SANE_Handle handle, SANE_Int iOpt,
 	case optResolution:
 	case optTLX: case optTLY: case optBRX: case optBRY:
           if (pnInfo) (*pnInfo) |= SANE_INFO_RELOAD_PARAMS;
-
+          // fall through
+	case optPreview:
+	case optGrayPreview:
 #ifdef SM3600_SUPPORT_EXPOSURE
-        // fall through
 	case optBrightness:
 	case optContrast:
 #endif
-	case optPreview:
-	case optGrayPreview:
 	  this->aoptVal[iOpt].w = *(SANE_Word*)pVal;
 	  break;
 	case optMode:

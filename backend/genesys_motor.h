@@ -96,6 +96,6 @@ struct Genesys_Motor
     int max_step_type = 0;
     // slopes to derive individual slopes from
     std::vector<Genesys_Motor_Slope> slopes;
-};                                                 
+};
 
 #endif // BACKEND_GENESYS_MOTOR_H

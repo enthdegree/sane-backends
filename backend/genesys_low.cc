@@ -1704,6 +1704,7 @@ void debug_dump(unsigned level, const ScanSession& session)
 {
     DBG(level, "session:\n");
     DBG(level, "    computed : %d\n", session.computed);
+    DBG(level, "    hwdpi_divisor : %d\n", session.hwdpi_divisor);
     DBG(level, "    ccd_size_divisor : %d\n", session.ccd_size_divisor);
     DBG(level, "    optical_resolution : %d\n", session.optical_resolution);
     DBG(level, "    optical_pixels : %d\n", session.optical_pixels);
@@ -1714,6 +1715,9 @@ void debug_dump(unsigned level, const ScanSession& session)
     DBG(level, "    output_line_count : %d\n", session.output_line_count);
     DBG(level, "    num_staggered_lines : %d\n", session.num_staggered_lines);
     DBG(level, "    max_color_shift_lines : %d\n", session.max_color_shift_lines);
+    DBG(level, "    enable_ledadd : %d\n", session.enable_ledadd);
+    DBG(level, "    pixel_startx : %d\n", session.pixel_startx);
+    DBG(level, "    pixel_endx : %d\n", session.pixel_endx);
     debug_dump(level, session.params);
 }
 

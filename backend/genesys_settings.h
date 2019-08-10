@@ -181,7 +181,12 @@ struct ScanSession {
     // gl843-only
     bool computed = false;
 
-    // whether CCD operates as half-resolution or full resolution at a specific resolution
+    // specifies the reduction (if any) of hardware dpi on the Genesys chip side.
+    // gl843-only
+    unsigned hwdpi_divisor = 1;
+
+    // specifies the reduction (if any) of CCD effective dpi which is performed by latching the
+    // data coming from CCD in such a way that 1/2 or 3/4 of pixel data is ignored.
     // gl843-only
     unsigned ccd_size_divisor = 1;
 
@@ -223,6 +228,11 @@ struct ScanSession {
     // gl843-only
     // different color channels
     unsigned max_color_shift_lines = 0;
+
+    // the physical pixel positions that are sent to the registers
+    // gl843-only
+    unsigned pixel_startx = 0;
+    unsigned pixel_endx = 0;
 
     // whether to enable ledadd functionality
     bool enable_ledadd = false;

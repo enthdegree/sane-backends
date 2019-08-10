@@ -191,11 +191,9 @@ gl843_test_motor_flag_bit (SANE_Byte val)
 
 /** copy sensor specific settings */
 static void gl843_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                               Genesys_Register_Set* regs, int dpi)
+                               Genesys_Register_Set* regs)
 {
     DBG_HELPER(dbg);
-    (void) dpi;
-
     for (const auto& custom_reg : sensor.custom_regs) {
         regs->set8(custom_reg.address, custom_reg.value);
     }
@@ -1043,10 +1041,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                     exposure, session.output_resolution, session.params.startx,
                     session.optical_pixels, session.params.channels, session.params.depth,
                     session.ccd_size_divisor);
-  unsigned int words_per_line;
-  unsigned int startx, endx;
-  unsigned int dpiset, dpihw, factor;
-  unsigned int bytes;
+    unsigned int dpihw;
   unsigned int tgtime;          /**> exposure time multiplier */
   GenesysRegister *r;
 
@@ -1057,31 +1052,14 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // to manage high resolution device while keeping good low resolution scanning speed, we make
     // hardware dpi vary
     dpihw = sensor.get_register_hwdpi(session.output_resolution);
-    factor = sensor.get_hwdpi_divisor_for_dpi(session.output_resolution);
-  DBG(DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
+    DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
   /* sensor parameters */
-    gl843_setup_sensor(dev, sensor, reg, dpihw);
+    gl843_setup_sensor(dev, sensor, reg);
 
     // resolution is divided according to CKSEL
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
     DBG(DBG_io2, "%s: ccd_pixels_per_system_pixel=%d\n", __func__, ccd_pixels_per_system_pixel);
-    dpiset = session.output_resolution * ccd_pixels_per_system_pixel;
-
-    // start and end coordinate in optical dpi coordinates
-    startx = (session.params.startx + sensor.dummy_pixel) / ccd_pixels_per_system_pixel;
-    endx = startx + session.optical_pixels / ccd_pixels_per_system_pixel;
-
-    // pixel coordinate factor correction when used dpihw is not maximal one
-    startx /= factor;
-    endx /= factor;
-    unsigned used_pixels = endx - startx;
-
-  /* in case of stagger we have to start at an odd coordinate */
-    if (session.num_staggered_lines > 0 && (startx & 1) == 0) {
-      startx++;
-      endx++;
-    }
 
     gl843_set_fe(dev, sensor, AFE_SET);
 
@@ -1197,28 +1175,21 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         r->value |= REG05_GMMENB;
     }
 
-    reg->set16(REG_DPISET, dpiset * session.ccd_size_divisor);
-    DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset * session.ccd_size_divisor);
+    unsigned dpiset = session.output_resolution * session.ccd_size_divisor *
+            ccd_pixels_per_system_pixel;
+    reg->set16(REG_DPISET, dpiset);
+    DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);
 
-    reg->set16(REG_STRPIXEL, startx);
-    reg->set16(REG_ENDPIXEL, endx);
+    reg->set16(REG_STRPIXEL, session.pixel_startx);
+    reg->set16(REG_ENDPIXEL, session.pixel_endx);
 
-  /* words(16bit) before gamma, conversion to 8 bit or lineart */
-  words_per_line = (used_pixels * dpiset) / dpihw;
-  bytes = session.params.depth / 8;
-  if (session.params.depth == 1)
-    {
-      words_per_line = (words_per_line >> 3) + ((words_per_line & 7) ? 1 : 0);
-    }
-  else
-    {
-      words_per_line *= bytes;
-    }
+    // words(16bit) before gamma, conversion to 8 bit or lineart */
+    // FIXME: this computation differs from session.output_line_bytes
+    unsigned words_per_line = (session.output_pixels / session.ccd_size_divisor) * (session.params.depth / 8);
 
-  dev->wpl = words_per_line;
-  dev->bpl = words_per_line;
+    dev->wpl = words_per_line; // FIXME: this is not currently used
+    dev->bpl = words_per_line; // FIXME: this is not currently used
 
-  DBG(DBG_io2, "%s: used_pixels=%d\n", __func__, used_pixels);
   DBG(DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
   DBG(DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
   DBG(DBG_io2, "%s: dev->bpl   =%lu\n", __func__, (unsigned long) dev->bpl);
@@ -1252,28 +1223,31 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
                                   const Genesys_Sensor& sensor)
 {
     s.params.assert_valid();
+
+    // compute optical and output resolutions
     s.ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(s.params.xres);
+    s.hwdpi_divisor = sensor.get_hwdpi_divisor_for_dpi(s.params.xres);
 
     s.optical_resolution = sensor.optical_res / s.ccd_size_divisor;
+    s.output_resolution = s.params.xres;
 
-    // resolution is choosen from a fixed list and can be used directly
-    // unless we have ydpi higher than sensor's maximum one
-    if (s.params.xres > s.optical_resolution)
-        s.output_resolution = s.optical_resolution;
-    else
-        s.output_resolution = s.params.xres;
+    if (s.output_resolution > s.optical_resolution) {
+        throw std::runtime_error("output resolution higher than optical resolution");
+    }
 
-    // compute rounded up number of optical pixels
-    s.optical_pixels = (s.params.pixels * s.optical_resolution) / s.params.xres;
-    if (s.optical_pixels * s.params.xres < s.params.pixels * s.optical_resolution)
+    // compute the number of optical pixels that will be acquired by the chip
+    s.optical_pixels = (s.params.pixels * s.optical_resolution) / s.output_resolution;
+    if (s.optical_pixels * s.output_resolution < s.params.pixels * s.optical_resolution) {
         s.optical_pixels++;
+    }
 
     // ensure the number of optical pixels is divisible by 2.
     // In quarter-CCD mode optical_pixels is 4x larger than the actual physical number
     s.optical_pixels = align_int_up(s.optical_pixels, 2 * s.ccd_size_divisor);
 
-    s.output_pixels =
-        (s.optical_pixels * s.output_resolution) / s.optical_resolution;
+    // after all adjustments on the optical pixels have been made, compute the number of pixels
+    // to retrieve from the chip
+    s.output_pixels = (s.optical_pixels * s.output_resolution) / s.optical_resolution;
 
     // Note: staggering is not applied for calibration. Staggering starts at 2400 dpi
     s.num_staggered_lines = 0;
@@ -1291,6 +1265,20 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
 
     s.optical_line_bytes = (s.optical_pixels * s.params.channels * s.params.depth) / 8;
     s.output_line_bytes = (s.output_pixels * s.params.channels * s.params.depth) / 8;
+
+    // compute physical pixel positions
+    unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
+    s.pixel_startx = (s.params.startx + sensor.dummy_pixel) / ccd_pixels_per_system_pixel;
+    s.pixel_endx = s.pixel_startx + s.optical_pixels / ccd_pixels_per_system_pixel;
+
+    s.pixel_startx /= s.hwdpi_divisor;
+    s.pixel_endx /= s.hwdpi_divisor;
+
+    // in case of stagger we have to start at an odd coordinate
+    if (s.num_staggered_lines > 0 && (s.pixel_startx & 1) == 0) {
+        s.pixel_startx++;
+        s.pixel_endx++;
+    }
 
     s.computed = true;
 }
@@ -1985,11 +1973,7 @@ static void gl843_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                              Genesys_Register_Set* reg, SANE_Bool start_motor)
 {
     DBG_HELPER(dbg);
-  uint16_t dpiset, dpihw;
-
-    // get back the target dpihw
-    dpiset = reg->get16(REG_DPISET);
-    dpihw = sensor.get_register_hwdpi(dpiset);
+    (void) sensor;
 
   /* set up GPIO for scan */
   switch(dev->model->gpo_type)
@@ -2005,18 +1989,13 @@ static void gl843_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
             dev->write_register(REGA7, 0xfe);
             dev->write_register(REGA8, 0x3e);
             dev->write_register(REGA9, 0x06);
-            switch (dpihw)
-	  {
-	   case 1200:
-	   case 2400:
-	   case 4800:
-                    dev->write_register(REG6C, 0x60);
-                    dev->write_register(REGA6, 0x46);
-                    break;
-	   default:		/* 600 dpi  case */
-                    dev->write_register(REG6C, 0x20);
-                    dev->write_register(REGA6, 0x44);
-	  }
+            if ((reg->get8(0x05) & REG05_DPIHW) == REG05_DPIHW_600) {
+                dev->write_register(REG6C, 0x20);
+                dev->write_register(REGA6, 0x44);
+            } else {
+                dev->write_register(REG6C, 0x60);
+                dev->write_register(REGA6, 0x46);
+            }
 
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
                 gl843_set_xpa_lamp_power(dev, true);
@@ -3759,7 +3738,7 @@ static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
   uint8_t *buffer;
   int count,offset;
   GenesysRegister *r;
-  uint16_t dpiset, strpixel, endpixel, startx, factor;
+    uint16_t strpixel, endpixel, startx;
 
   offset=0;
   length=size;
@@ -3768,22 +3747,19 @@ static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
     {
       /* recompute STRPIXEL used shading calibration so we can
        * compute offset within data for SHDAREA case */
-      r = sanei_genesys_get_address(&dev->reg, REG18);
-        dpiset = dev->reg.get16(REG_DPISET);
-        factor = sensor.optical_res / sensor.get_register_hwdpi(dpiset);
 
-      /* start coordinate in optical dpi coordinates */
-      startx = (sensor.dummy_pixel / sensor.ccd_pixels_per_system_pixel()) / factor;
+        // FIXME: the following is likely incorrect
+        // start coordinate in optical dpi coordinates
+        startx = (sensor.dummy_pixel / sensor.ccd_pixels_per_system_pixel()) / dev->session.hwdpi_divisor;
 
       /* current scan coordinates */
-        strpixel = dev->reg.get16(REG_STRPIXEL);
-        endpixel = dev->reg.get16(REG_ENDPIXEL);
+        strpixel = dev->session.pixel_startx;
+        endpixel = dev->session.pixel_endx;
 
       if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
         {
-          int optical_res = sensor.optical_res / dev->current_setup.ccd_size_divisor;
-          int dpiset_real = dpiset / dev->current_setup.ccd_size_divisor;
-          int half_ccd_factor = optical_res / sensor.get_logical_hwdpi(dpiset_real);
+            int dpiset_real = dev->session.output_resolution * sensor.ccd_pixels_per_system_pixel();
+            int half_ccd_factor = dev->session.optical_resolution / sensor.get_logical_hwdpi(dpiset_real);
           strpixel /= half_ccd_factor;
           endpixel /= half_ccd_factor;
         }

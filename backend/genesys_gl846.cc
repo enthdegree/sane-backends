@@ -218,8 +218,6 @@ static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
   int dpihw;
   uint16_t exp;
 
-    dpihw = sensor.get_register_hwdpi(dpi);
-
     for (uint16_t addr = 0x16; addr < 0x1e; addr++) {
         regs->set8(addr, sensor.custom_regs.get_value(addr));
     }
@@ -1170,14 +1168,11 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
-  dev->current_setup.params = params;
+    dev->session.params = params;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   dev->current_setup.lines = lincnt;
-  dev->current_setup.depth = params.depth;
-  dev->current_setup.channels = params.channels;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
-  dev->current_setup.yres = params.yres;
   dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
@@ -1309,14 +1304,11 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   /* lincnt */
   lincnt = params.lines + max_shift + stagger;
 
-  dev->current_setup.params = params;
+    dev->session.params = params;
   dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
   dev->current_setup.lines = lincnt;
-  dev->current_setup.depth = params.depth;
-  dev->current_setup.channels = params.channels;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
-  dev->current_setup.yres = params.yres;
     dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
@@ -1916,7 +1908,7 @@ static void gl846_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
   uint32_t addr, length, i, x, factor, pixels;
   uint32_t dpiset, dpihw, strpixel, endpixel;
-  uint32_t lines, channels;
+  uint32_t lines;
   uint8_t val,*ptr,*src;
 
   /* shading data is plit in 3 (up to 5 with IR) areas
@@ -1941,7 +1933,7 @@ static void gl846_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
     {
       dev->binary=fopen("binary.pnm","wb");
         lines = dev->reg.get24(REG_LINCNT);
-      channels=dev->current_setup.channels;
+        unsigned channels = dev->session.params.channels;
       if(dev->binary!=NULL)
         {
           fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels,lines/channels,255);

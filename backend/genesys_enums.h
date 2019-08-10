@@ -286,4 +286,18 @@ enum Genesys_Motor_Type
     MOTOR_CANONLIDE120
 };
 
+enum class AsicType : unsigned
+{
+    UNKNOWN = 0,
+    GL646,
+    GL841,
+    GL843,
+    GL845,
+    GL846,
+    GL847,
+    GL848,
+    GL123,
+    GL124,
+};
+
 #endif // BACKEND_GENESYS_ENUMS_H

@@ -36,6 +36,11 @@ Genesys_Calibration_Cache create_fake_calibration_entry()
     calib.used_setup.lines = 150;
     calib.used_setup.xres = 100.5;
 
+    calib.params.channels = 3;
+    calib.params.depth = 8;
+    calib.params.lines = 100;
+    calib.params.pixels = 200;
+
     GenesysFrontendLayout wolfson_layout;
     wolfson_layout.offset_addr = { 0x20, 0x21, 0x22 };
     wolfson_layout.gain_addr = { 0x28, 0x29, 0x2a };

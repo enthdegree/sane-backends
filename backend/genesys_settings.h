@@ -174,26 +174,75 @@ void serialize(Stream& str, SetupParams& x)
     serialize(str, x.flags);
 }
 
-struct Genesys_Current_Setup
-{
-    // params used for this setup
+struct ScanSession {
     SetupParams params;
 
+    // whether the session setup has been computed via gl843_compute_session()
+    // gl843-only
+    bool computed = false;
+
+    // whether CCD operates as half-resolution or full resolution at a specific resolution
+    // gl843-only
+    unsigned ccd_size_divisor = 1;
+
+    // the optical resolution of the scanner.
+    // gl843-only
+    unsigned optical_resolution = 0;
+
+    // the number of pixels at the optical resolution.
+    // gl843-only
+    unsigned optical_pixels = 0;
+
+    // the number of bytes in the output of a single line directly from scanner
+    // gl843-only
+    unsigned optical_line_bytes = 0;
+
+    // the resolution of the output data.
+    // gl843-only
+    unsigned output_resolution = 0;
+
+    // the number of pixels in output data
+    // gl843-only
+    unsigned output_pixels = 0;
+
+    // the number of bytes in the output of a single line
+    // gl843-only
+    unsigned output_line_bytes = 0;
+
+    // the number of lines in the output of the scanner. This must be larger than the user
+    // gl843-only
+    // requested number due to line staggering and color channel shifting.
+    unsigned output_line_count = 0;
+
+    // the number of staggered lines (i.e. lines that overlap during scanning due to line being
+    // gl843-only
+    // thinner than the CCD element)
+    unsigned num_staggered_lines = 0;
+
+    // the number of lines that color channels shift due to different physical positions of
+    // gl843-only
+    // different color channels
+    unsigned max_color_shift_lines = 0;
+
+    void assert_computed() const
+    {
+        if (!computed) {
+            throw std::runtime_error("ScanSession is not computed");
+        }
+    }
+};
+
+struct Genesys_Current_Setup
+{
     // pixel count expected from scanner
     int pixels = 0;
     // line count expected from scanner
     int lines = 0;
-    // depth expected from scanner
-    int depth = 0;
-    // channel count expected from scanner
-    int channels = 0;
 
     // used exposure time
     int exposure_time = 0;
     // used xres
     float xres = 0;
-    // used yres
-    float yres = 0;
     // half ccd mode
     unsigned ccd_size_divisor = 1;
     SANE_Int stagger = 0;
@@ -202,14 +251,10 @@ struct Genesys_Current_Setup
 
     bool operator==(const Genesys_Current_Setup& other) const
     {
-        return params == other.params &&
-            pixels == other.pixels &&
+        return pixels == other.pixels &&
             lines == other.lines &&
-            depth == other.depth &&
-            channels == other.channels &&
             exposure_time == other.exposure_time &&
             xres == other.xres &&
-            yres == other.yres &&
             ccd_size_divisor == other.ccd_size_divisor &&
             stagger == other.stagger &&
             max_shift == other.max_shift;
@@ -219,15 +264,10 @@ struct Genesys_Current_Setup
 template<class Stream>
 void serialize(Stream& str, Genesys_Current_Setup& x)
 {
-    serialize(str, x.params);
-    serialize_newline(str);
     serialize(str, x.pixels);
     serialize(str, x.lines);
-    serialize(str, x.depth);
-    serialize(str, x.channels);
     serialize(str, x.exposure_time);
     serialize(str, x.xres);
-    serialize(str, x.yres);
     serialize(str, x.ccd_size_divisor);
     serialize(str, x.stagger);
     serialize(str, x.max_shift);

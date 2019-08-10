@@ -68,13 +68,13 @@ void sanei_genesys_init_cmd_set(Genesys_Device* dev)
   DBG_INIT ();
     DBG_HELPER(dbg);
     switch (dev->model->asic_type) {
-        case GENESYS_GL646: dev->cmd_set = &gl646_cmd_set; break;
-        case GENESYS_GL841: dev->cmd_set = &gl841_cmd_set; break;
-        case GENESYS_GL843: dev->cmd_set = &gl843_cmd_set; break;
-        case GENESYS_GL845: // since only a few reg bits differs we handle both together
-        case GENESYS_GL846: dev->cmd_set = &gl846_cmd_set; break;
-        case GENESYS_GL847: dev->cmd_set = &gl847_cmd_set; break;
-        case GENESYS_GL124: dev->cmd_set = &gl124_cmd_set; break;
+        case AsicType::GL646: dev->cmd_set = &gl646_cmd_set; break;
+        case AsicType::GL841: dev->cmd_set = &gl841_cmd_set; break;
+        case AsicType::GL843: dev->cmd_set = &gl843_cmd_set; break;
+        case AsicType::GL845: // since only a few reg bits differs we handle both together
+        case AsicType::GL846: dev->cmd_set = &gl846_cmd_set; break;
+        case AsicType::GL847: dev->cmd_set = &gl847_cmd_set; break;
+        case AsicType::GL124: dev->cmd_set = &gl124_cmd_set; break;
         default: throw SaneException(SANE_STATUS_INVAL, "unknown ASIC type");
     }
 }
@@ -170,9 +170,10 @@ extern unsigned sanei_genesys_get_bulk_max_size(Genesys_Device * dev)
         b_size is the size of the ring buffer. By default it's 300*1024, so the
         packet is limited 61440 without any visibility to acquiring software.
     */
-    if (dev->model->asic_type == GENESYS_GL124 ||
-        dev->model->asic_type == GENESYS_GL846 ||
-        dev->model->asic_type == GENESYS_GL847) {
+    if (dev->model->asic_type == AsicType::GL124 ||
+        dev->model->asic_type == AsicType::GL846 ||
+        dev->model->asic_type == AsicType::GL847)
+    {
         return 0xeff0;
     }
     return 0xf000;
@@ -183,17 +184,17 @@ void sanei_genesys_bulk_read_data_send_header(Genesys_Device* dev, size_t len)
     DBG_HELPER(dbg);
 
     uint8_t outdata[8];
-    if (dev->model->asic_type == GENESYS_GL124 ||
-        dev->model->asic_type == GENESYS_GL846 ||
-        dev->model->asic_type == GENESYS_GL847)
+    if (dev->model->asic_type == AsicType::GL124 ||
+        dev->model->asic_type == AsicType::GL846 ||
+        dev->model->asic_type == AsicType::GL847)
     {
         // hard coded 0x10000000 address
         outdata[0] = 0;
         outdata[1] = 0;
         outdata[2] = 0;
         outdata[3] = 0x10;
-    } else if (dev->model->asic_type == GENESYS_GL841 ||
-               dev->model->asic_type == GENESYS_GL843) {
+    } else if (dev->model->asic_type == AsicType::GL841 ||
+               dev->model->asic_type == AsicType::GL843) {
         outdata[0] = BULK_IN;
         outdata[1] = BULK_RAM;
         outdata[2] = 0x82; //
@@ -226,9 +227,9 @@ void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* d
 
     unsigned is_addr_used = 1;
     unsigned has_header_before_each_chunk = 0;
-    if (dev->model->asic_type == GENESYS_GL124 ||
-        dev->model->asic_type == GENESYS_GL846 ||
-        dev->model->asic_type == GENESYS_GL847)
+    if (dev->model->asic_type == AsicType::GL124 ||
+        dev->model->asic_type == AsicType::GL846 ||
+        dev->model->asic_type == AsicType::GL847)
     {
         is_addr_used = 0;
         has_header_before_each_chunk = 1;
@@ -304,7 +305,7 @@ void sanei_genesys_bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* d
         else
             size = len;
 
-        if (dev->model->asic_type == GENESYS_GL841) {
+        if (dev->model->asic_type == AsicType::GL841) {
             outdata[0] = BULK_OUT;
             outdata[1] = BULK_RAM;
             // both 0x82 and 0x00 works on GL841.
@@ -417,11 +418,11 @@ void sanei_genesys_write_register(Genesys_Device* dev, uint16_t reg, uint8_t val
         return;
     }
 
-  /* route to gl847 function if needed */
-  if(dev->model->asic_type==GENESYS_GL847
-  || dev->model->asic_type==GENESYS_GL845
-  || dev->model->asic_type==GENESYS_GL846
-  || dev->model->asic_type==GENESYS_GL124)
+    // route to gl847 function if needed
+    if (dev->model->asic_type == AsicType::GL847 ||
+        dev->model->asic_type == AsicType::GL845 ||
+        dev->model->asic_type == AsicType::GL846 ||
+        dev->model->asic_type == AsicType::GL124)
     {
         sanei_genesys_write_gl847_register(dev, reg, val);
         return;
@@ -489,10 +490,10 @@ void sanei_genesys_read_register(Genesys_Device* dev, uint16_t reg, uint8_t* val
     }
 
     // route to gl847 function if needed
-    if (dev->model->asic_type==GENESYS_GL847
-        || dev->model->asic_type==GENESYS_GL845
-        || dev->model->asic_type==GENESYS_GL846
-        || dev->model->asic_type==GENESYS_GL124)
+    if (dev->model->asic_type == AsicType::GL847 ||
+        dev->model->asic_type == AsicType::GL845 ||
+        dev->model->asic_type == AsicType::GL846 ||
+        dev->model->asic_type == AsicType::GL124)
     {
         sanei_genesys_read_gl847_register(dev, reg, val);
         return;
@@ -517,10 +518,10 @@ void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 {
     DBG_HELPER(dbg);
 
-  if(dev->model->asic_type==GENESYS_GL847
-  || dev->model->asic_type==GENESYS_GL845
-  || dev->model->asic_type==GENESYS_GL846
-  || dev->model->asic_type==GENESYS_GL124)
+    if (dev->model->asic_type==AsicType::GL847 ||
+        dev->model->asic_type==AsicType::GL845 ||
+        dev->model->asic_type==AsicType::GL846 ||
+        dev->model->asic_type==AsicType::GL124)
     {
       DBG(DBG_warn, "%s: shouldn't be used for GL846+ ASICs\n", __func__);
       return;
@@ -573,7 +574,7 @@ void sanei_genesys_fe_write_data(Genesys_Device* dev, uint8_t addr, uint16_t dat
   Genesys_Register_Set reg(Genesys_Register_Set::SEQUENTIAL);
 
     reg.init_reg(0x51, addr);
-    if (dev->model->asic_type == GENESYS_GL124) {
+    if (dev->model->asic_type == AsicType::GL124) {
         reg.init_reg(0x5d, (data / 256) & 0xff);
         reg.init_reg(0x5e, data & 0xff);
     } else {
@@ -593,7 +594,7 @@ void sanei_genesys_fe_write_data(Genesys_Device* dev, uint8_t addr, uint16_t dat
 void sanei_genesys_get_status(Genesys_Device* dev, uint8_t* status)
 {
     DBG_HELPER(dbg);
-    if (dev->model->asic_type == GENESYS_GL124) {
+    if (dev->model->asic_type == AsicType::GL124) {
         sanei_genesys_read_hregister(dev, 0x101, status);
         return;
     }
@@ -653,22 +654,22 @@ void sanei_genesys_read_valid_words(Genesys_Device* dev, unsigned int* words)
 
   switch (dev->model->asic_type)
     {
-    case GENESYS_GL124:
+    case AsicType::GL124:
             *words = dev->read_register(0x102) & 0x03;
             *words = *words * 256 + dev->read_register(0x103);
             *words = *words * 256 + dev->read_register(0x104);
             *words = *words * 256 + dev->read_register(0x105);
             break;
 
-    case GENESYS_GL845:
-    case GENESYS_GL846:
+    case AsicType::GL845:
+    case AsicType::GL846:
             *words = dev->read_register(0x42) & 0x02;
             *words = *words * 256 + dev->read_register(0x43);
             *words = *words * 256 + dev->read_register(0x44);
             *words = *words * 256 + dev->read_register(0x45);
             break;
 
-    case GENESYS_GL847:
+    case AsicType::GL847:
             *words = dev->read_register(0x42) & 0x03;
             *words = *words * 256 + dev->read_register(0x43);
             *words = *words * 256 + dev->read_register(0x44);
@@ -678,7 +679,7 @@ void sanei_genesys_read_valid_words(Genesys_Device* dev, unsigned int* words)
     default:
             *words = dev->read_register(0x44);
             *words += dev->read_register(0x43) * 256;
-            if (dev->model->asic_type == GENESYS_GL646) {
+            if (dev->model->asic_type == AsicType::GL646) {
                 *words += ((dev->read_register(0x42) & 0x03) * 256 * 256);
             } else {
                 *words += ((dev->read_register(0x42) & 0x0f) * 256 * 256);
@@ -695,8 +696,7 @@ void sanei_genesys_read_scancnt(Genesys_Device* dev, unsigned int* words)
 {
     DBG_HELPER(dbg);
 
-  if (dev->model->asic_type == GENESYS_GL124)
-    {
+    if (dev->model->asic_type == AsicType::GL124) {
         *words = (dev->read_register(0x10b) & 0x0f) << 16;
         *words += (dev->read_register(0x10c) << 8);
         *words += dev->read_register(0x10d);
@@ -705,7 +705,7 @@ void sanei_genesys_read_scancnt(Genesys_Device* dev, unsigned int* words)
     {
         *words = dev->read_register(0x4d);
         *words += dev->read_register(0x4c) * 256;
-        if (dev->model->asic_type == GENESYS_GL646) {
+        if (dev->model->asic_type == AsicType::GL646) {
             *words += ((dev->read_register(0x4b) & 0x03) * 256 * 256);
         } else {
             *words += ((dev->read_register(0x4b) & 0x0f) * 256 * 256);
@@ -776,8 +776,7 @@ void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps)
 {
     DBG_HELPER(dbg);
 
-  if (dev->model->asic_type == GENESYS_GL124)
-    {
+    if (dev->model->asic_type == AsicType::GL124) {
         *steps = (dev->read_register(0x108) & 0x1f) << 16;
         *steps += (dev->read_register(0x109) << 8);
         *steps += dev->read_register(0x10a);
@@ -786,9 +785,9 @@ void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps)
     {
         *steps = dev->read_register(0x4a);
         *steps += dev->read_register(0x49) * 256;
-        if (dev->model->asic_type == GENESYS_GL646) {
+        if (dev->model->asic_type == AsicType::GL646) {
             *steps += ((dev->read_register(0x48) & 0x03) * 256 * 256);
-        } else if (dev->model->asic_type == GENESYS_GL841) {
+        } else if (dev->model->asic_type == AsicType::GL841) {
             *steps += ((dev->read_register(0x48) & 0x0f) * 256 * 256);
         } else {
             *steps += ((dev->read_register(0x48) & 0x1f) * 256 * 256);
@@ -806,12 +805,12 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
     if (set) {
         regs.find_reg(0x03).value |= REG03_LAMPPWR;
 
-        if (dev->model->asic_type == GENESYS_GL841) {
+        if (dev->model->asic_type == AsicType::GL841) {
             sanei_genesys_set_exposure(regs, sanei_genesys_fixup_exposure(sensor.exposure));
             regs.set8(0x19, 0x50);
         }
 
-        if (dev->model->asic_type == GENESYS_GL843) {
+        if (dev->model->asic_type == AsicType::GL843) {
             sanei_genesys_set_exposure(regs, sensor.exposure);
 
             // we don't actually turn on lamp on infrared scan
@@ -825,12 +824,12 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
     } else {
         regs.find_reg(0x03).value &= ~REG03_LAMPPWR;
 
-        if (dev->model->asic_type == GENESYS_GL841) {
+        if (dev->model->asic_type == AsicType::GL841) {
             sanei_genesys_set_exposure(regs, {0x0101, 0x0101, 0x0101});
             regs.set8(0x19, 0xff);
         }
 
-        if (dev->model->asic_type == GENESYS_GL843) {
+        if (dev->model->asic_type == AsicType::GL843) {
             if (dev->model->model_id == MODEL_PANASONIC_KV_SS080 ||
                 dev->model->model_id == MODEL_HP_SCANJET_4850C ||
                 dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
@@ -867,8 +866,8 @@ void sanei_genesys_bulk_write_register(Genesys_Device* dev, const Genesys_Regist
 {
     DBG_HELPER(dbg);
 
-    if (dev->model->asic_type == GENESYS_GL646 ||
-        dev->model->asic_type == GENESYS_GL841)
+    if (dev->model->asic_type == AsicType::GL646 ||
+        dev->model->asic_type == AsicType::GL841)
     {
         uint8_t outdata[8];
         std::vector<uint8_t> buffer;
@@ -883,7 +882,7 @@ void sanei_genesys_bulk_write_register(Genesys_Device* dev, const Genesys_Regist
         DBG(DBG_io, "%s (elems= %lu, size = %lu)\n", __func__, (u_long) reg.size(),
             (u_long) buffer.size());
 
-        if (dev->model->asic_type == GENESYS_GL646) {
+        if (dev->model->asic_type == AsicType::GL646) {
             outdata[0] = BULK_OUT;
             outdata[1] = BULK_REGISTER;
             outdata[2] = 0x00;
@@ -1476,11 +1475,11 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
            dev->current_setup.ccd_size_divisor, cache->used_setup.ccd_size_divisor);
       compatible = 0;
     }
-  if (dev->current_setup.params.scan_method != cache->used_setup.params.scan_method)
+  if (dev->session.params.scan_method != cache->params.scan_method)
     {
       DBG (DBG_io, "%s: current method=%d, used=%d\n", __func__,
-           static_cast<unsigned>(dev->current_setup.params.scan_method),
-           static_cast<unsigned>(cache->used_setup.params.scan_method));
+           static_cast<unsigned>(dev->session.params.scan_method),
+           static_cast<unsigned>(cache->params.scan_method));
       compatible = 0;
     }
   if (!compatible)
@@ -1711,19 +1710,15 @@ void debug_dump(unsigned level, const Genesys_Current_Setup& setup)
     DBG(level, "current_setup:\n"
         "Pixels: %d\n"
         "Lines: %d\n"
-        "Depth: %d\n"
-        "Channels: %d\n"
         "exposure_time: %d\n"
-        "Resolution X/Y: %g %g\n"
+        "Resolution X/Y: %g\n"
         "ccd_size_divisor: %d\n"
         "stagger: %d\n"
         "max_shift: %d\n",
         setup.pixels,
         setup.lines,
-        setup.depth,
-        setup.channels,
         setup.exposure_time,
-        setup.xres, setup.yres,
+        setup.xres,
         setup.ccd_size_divisor,
         setup.stagger,
         setup.max_shift);

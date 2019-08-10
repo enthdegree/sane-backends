@@ -204,16 +204,6 @@
 #define MAX_RESOLUTIONS 13
 #define MAX_DPI 4
 
-#define GENESYS_GL646	 646
-#define GENESYS_GL841	 841
-#define GENESYS_GL843	 843
-#define GENESYS_GL845	 845
-#define GENESYS_GL846	 846
-#define GENESYS_GL847	 847
-#define GENESYS_GL848	 848
-#define GENESYS_GL123	 123
-#define GENESYS_GL124	 124
-
 /* Forward typedefs */
 struct Genesys_Scanner;
 typedef struct Genesys_Calibration_Cache  Genesys_Calibration_Cache;
@@ -395,7 +385,6 @@ typedef struct {
 #define OPTICAL_FLAG_DISABLE_SHADING        0x02 /**< disable shading correction */
 #define OPTICAL_FLAG_DISABLE_LAMP           0x04 /**< turn off lamp */
 #define OPTICAL_FLAG_ENABLE_LEDADD          0x08 /**< enable true CIS gray by enabling LED addition */
-#define OPTICAL_FLAG_DISABLE_DOUBLE         0x10 /**< disable automatic x-direction double data expansion */
 #define OPTICAL_FLAG_STAGGER                0x20 /**< disable stagger correction */
 #define OPTICAL_FLAG_USE_XPA                0x40 /**< use XPA lamp rather than regular one */
 

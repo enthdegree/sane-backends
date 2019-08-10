@@ -3015,7 +3015,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "UMAX";
     model.model = "Astra 4500";
     model.model_id = MODEL_UMAX_ASTRA_4500;
-    model.asic_type = GENESYS_GL646;
+    model.asic_type = AsicType::GL646;
 
     model.xdpi_values = { 1200, 600, 300, 150, 75 };
     model.ydpi_values = { 2400, 1200, 600, 300, 150, 75 };
@@ -3067,7 +3067,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "LiDE 35/40/50";
     model.model_id = MODEL_CANON_LIDE_50;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
 
     model.xdpi_values = { 1200, 600, 400, 300, 240, 200, 150, 75 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 240, 200, 150, 75 };
@@ -3126,7 +3126,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Panasonic";
     model.model = "KV-SS080";
     model.model_id = MODEL_PANASONIC_KV_SS080;
-    model.asic_type = GENESYS_GL843;
+    model.asic_type = AsicType::GL843;
 
     model.xdpi_values = { 600, /* 500, 400,*/ 300, 200, 150, 100, 75 };
     model.ydpi_values = { 1200, 600, /* 500, 400, */ 300, 200, 150, 100, 75 };
@@ -3181,7 +3181,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Hewlett Packard";
     model.model = "ScanJet 4850C";
     model.model_id = MODEL_HP_SCANJET_4850C;
-    model.asic_type = GENESYS_GL843;
+    model.asic_type = AsicType::GL843;
 
     model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
@@ -3237,7 +3237,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Hewlett Packard";
     model.model = "ScanJet G4010";
     model.model_id = MODEL_HP_SCANJET_G4010;
-    model.asic_type = GENESYS_GL843;
+    model.asic_type = AsicType::GL843;
 
     model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
@@ -3293,7 +3293,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Hewlett Packard";
     model.model = "ScanJet G4050";
     model.model_id = MODEL_HP_SCANJET_G4050;
-    model.asic_type = GENESYS_GL843;
+    model.asic_type = AsicType::GL843;
 
     model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
@@ -3350,7 +3350,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "Canoscan 4400f";
     model.model_id = MODEL_CANON_CANOSCAN_4400F;
-    model.asic_type = GENESYS_GL843;
+    model.asic_type = AsicType::GL843;
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
     model.ydpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
@@ -3409,7 +3409,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "Canoscan 8400f";
     model.model_id = MODEL_CANON_CANOSCAN_8400F;
-    model.asic_type = GENESYS_GL843;
+    model.asic_type = AsicType::GL843;
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
     model.ydpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
@@ -3470,7 +3470,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "Canoscan 8600f";
     model.model_id = MODEL_CANON_CANOSCAN_8600F;
-    model.asic_type = GENESYS_GL843;
+    model.asic_type = AsicType::GL843;
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300 }; // TODO: resolutions for non-XPA mode
     model.ydpi_values = { 4800, 2400, 1200, 600, 400, 300 }; // TODO: resolutions for non-XPA mode
@@ -3531,7 +3531,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "LiDE 100";
     model.model_id = MODEL_CANON_LIDE_100;
-    model.asic_type = GENESYS_GL847;
+    model.asic_type = AsicType::GL847;
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
@@ -3591,7 +3591,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "LiDE 110";
     model.model_id = MODEL_CANON_LIDE_110;
-    model.asic_type = GENESYS_GL124;
+    model.asic_type = AsicType::GL124;
 
     model.xdpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
@@ -3649,7 +3649,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "LiDE 120";
     model.model_id = MODEL_CANON_LIDE_120;
-    model.asic_type = GENESYS_GL124;
+    model.asic_type = AsicType::GL124;
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
@@ -3706,7 +3706,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "LiDE 210";
     model.model_id = MODEL_CANON_LIDE_210;
-    model.asic_type = GENESYS_GL124;
+    model.asic_type = AsicType::GL124;
 
     model.xdpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
@@ -3766,7 +3766,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "LiDE 220";
     model.model_id = MODEL_CANON_LIDE_220;
-    model.asic_type = GENESYS_GL124; // or a compatible one
+    model.asic_type = AsicType::GL124; // or a compatible one
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
@@ -3825,7 +3825,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "5600F";
     model.model_id = MODEL_CANON_CANOSCAN_5600F;
-    model.asic_type = GENESYS_GL847;
+    model.asic_type = AsicType::GL847;
 
     model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75 };
     model.ydpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75 };
@@ -3885,7 +3885,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "LiDE 700F";
     model.model_id = MODEL_CANON_LIDE_700F;
-    model.asic_type = GENESYS_GL847;
+    model.asic_type = AsicType::GL847;
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
@@ -3944,7 +3944,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "LiDE 200";
     model.model_id = MODEL_CANON_LIDE_200;
-    model.asic_type = GENESYS_GL847;
+    model.asic_type = AsicType::GL847;
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
@@ -4003,7 +4003,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "LiDE 60";
     model.model_id = MODEL_CANON_LIDE_60;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
 
     model.xdpi_values = { 1200, 600, 300, 150, 75 };
     model.ydpi_values = { 2400, 1200, 600, 300, 150, 75 };
@@ -4062,7 +4062,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "LiDE 80";
     model.model_id = MODEL_CANON_LIDE_80;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
 
     model.xdpi_values = {      1200, 600, 400, 300, 240, 150, 100, 75 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 240, 150, 100, 75 };
@@ -4120,7 +4120,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Hewlett Packard";
     model.model = "ScanJet 2300c";
     model.model_id = MODEL_HP_SCANJET_2300C;
-    model.asic_type = GENESYS_GL646;
+    model.asic_type = AsicType::GL646;
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
@@ -4177,7 +4177,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Hewlett Packard";
     model.model = "ScanJet 2400c";
     model.model_id = MODEL_HP_SCANJET_2400C;
-    model.asic_type = GENESYS_GL646;
+    model.asic_type = AsicType::GL646;
 
     model.xdpi_values = { 1200, 600, 300, 150, 100, 50 };
     model.ydpi_values = { 1200, 600, 300, 150, 100, 50 };
@@ -4235,7 +4235,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Visioneer";
     model.model = "Strobe XP200";
     model.model_id = MODEL_VISIONEER_STROBE_XP200;
-    model.asic_type = GENESYS_GL646;
+    model.asic_type = AsicType::GL646;
 
     model.xdpi_values = { 600, 300, 200, 100, 75 };
     model.ydpi_values = { 600, 300, 200, 100, 75 };
@@ -4292,7 +4292,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Hewlett Packard";
     model.model = "ScanJet 3670c";
     model.model_id = MODEL_HP_SCANJET_3670C;
-    model.asic_type = GENESYS_GL646;
+    model.asic_type = AsicType::GL646;
 
     model.xdpi_values = { 1200, 600, 300, 150, 100, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 100, 75 };
@@ -4350,7 +4350,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Plustek";
     model.model = "OpticPro ST12";
     model.model_id = MODEL_PLUSTEK_OPTICPRO_ST12;
-    model.asic_type = GENESYS_GL646;
+    model.asic_type = AsicType::GL646;
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
@@ -4401,7 +4401,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Plustek";
     model.model = "OpticPro ST24";
     model.model_id = MODEL_PLUSTEK_OPTICPRO_ST24;
-    model.asic_type = GENESYS_GL646;
+    model.asic_type = AsicType::GL646;
 
     model.xdpi_values = { 1200, 600, 300, 150, 75 };
     model.ydpi_values = { 2400, 1200, 600, 300, 150, 75 };
@@ -4457,7 +4457,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Medion";
     model.model = "MD5345/MD6228/MD6471";
     model.model_id = MODEL_MEDION_MD5345;
-    model.asic_type = GENESYS_GL646;
+    model.asic_type = AsicType::GL646;
 
     model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
@@ -4518,7 +4518,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Visioneer";
     model.model = "Strobe XP300";
     model.model_id = MODEL_VISIONEER_STROBE_XP300;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 600, 300, 150, 75 };
@@ -4573,7 +4573,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Syscan/Ambir";
     model.model = "DocketPORT 665";
     model.model_id = MODEL_SYSCAN_DOCKETPORT_665;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
@@ -4628,7 +4628,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Visioneer";
     model.model = "Readwarrior";
     model.model_id = MODEL_VISIONEER_ROADWARRIOR;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
@@ -4683,7 +4683,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Syscan";
     model.model = "DocketPORT 465";
     model.model_id = MODEL_SYSCAN_DOCKETPORT_465;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
@@ -4739,7 +4739,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Visioneer";
     model.model = "XP100 Revision 3";
     model.model_id = MODEL_VISIONEER_STROBE_XP100_REVISION3;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
@@ -4794,7 +4794,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Pentax";
     model.model = "DSmobile 600";
     model.model_id = MODEL_PENTAX_DSMOBILE_600;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
@@ -4851,7 +4851,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Syscan";
     model.model = "DocketPORT 467";
     model.model_id = MODEL_SYSCAN_DOCKETPORT_467;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
@@ -4905,7 +4905,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Syscan/Ambir";
     model.model = "DocketPORT 685";
     model.model_id = MODEL_SYSCAN_DOCKETPORT_685;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 600, 300, 150, 75 };
@@ -4962,7 +4962,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Syscan/Ambir";
     model.model = "DocketPORT 485";
     model.model_id = MODEL_SYSCAN_DOCKETPORT_485;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 600, 300, 150, 75 };
@@ -5018,7 +5018,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "DCT";
     model.model = "DocketPORT 487";
     model.model_id = MODEL_DCT_DOCKETPORT_487;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 600, 300, 150, 75 };
@@ -5075,7 +5075,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Visioneer";
     model.model = "OneTouch 7100";
     model.model_id = MODEL_VISIONEER_7100;
-    model.asic_type = GENESYS_GL646;
+    model.asic_type = AsicType::GL646;
 
     model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
@@ -5136,7 +5136,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Xerox";
     model.model = "OneTouch 2400";
     model.model_id = MODEL_XEROX_2400;
-    model.asic_type = GENESYS_GL646;
+    model.asic_type = AsicType::GL646;
 
     model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
@@ -5197,7 +5197,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Xerox";
     model.model = "Travelscanner 100";
     model.model_id = MODEL_XEROX_TRAVELSCANNER_100;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
@@ -5253,7 +5253,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "PLUSTEK";
     model.model = "OpticBook 3600";
     model.model_id = MODEL_PLUSTEK_OPTICPRO_3600;
-    model.asic_type = GENESYS_GL841;
+    model.asic_type = AsicType::GL841;
     model.xdpi_values = { /*1200,*/ 600, 400, 300, 200, 150, 100, 75 };
     model.ydpi_values = { /*2400,*/ 1200, 600, 400, 300, 200, 150, 100, 75 };
     model.bpp_gray_values = { 16, 8 };
@@ -5309,7 +5309,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Hewlett Packard";
     model.model = "ScanJet N6310";
     model.model_id = MODEL_HP_SCANJET_N6310;
-    model.asic_type = GENESYS_GL847;
+    model.asic_type = AsicType::GL847;
 
     model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75 };
@@ -5370,7 +5370,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "PLUSTEK";
     model.model = "OpticBook 3800";
     model.model_id = MODEL_PLUSTEK_OPTICBOOK_3800;
-    model.asic_type = GENESYS_GL845;
+    model.asic_type = AsicType::GL845;
 
     model.xdpi_values = { 1200, 600, 300, 150, 100, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 100, 75 };
@@ -5425,7 +5425,7 @@ void genesys_init_usb_device_tables()
     model.vendor = "Canon";
     model.model = "Image Formula 101";
     model.model_id = MODEL_CANON_IMAGE_FORMULA_101;
-    model.asic_type = GENESYS_GL846;
+    model.asic_type = AsicType::GL846;
 
     model.xdpi_values = { 1200, 600, 300, 150, 100, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 100, 75 };

@@ -439,6 +439,11 @@ const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
 Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,
                                                     ScanMethod scan_method);
 
+std::vector<std::reference_wrapper<const Genesys_Sensor>>
+    sanei_genesys_find_sensors_all(Genesys_Device* dev, ScanMethod scan_method);
+std::vector<std::reference_wrapper<Genesys_Sensor>>
+    sanei_genesys_find_sensors_all_for_write(Genesys_Device* dev, ScanMethod scan_method);
+
 extern void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                             int pixels_per_line);
 
@@ -525,8 +530,8 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
 extern void sanei_genesys_stop_motor(Genesys_Device* dev);
 
 extern void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& sensor,
-                                                 uint8_t* data, int start_pixel, int dpi, int width,
-                                                 int height);
+                                                 const uint8_t* src_data, int start_pixel, int dpi,
+                                                 int width, int height);
 
 extern void sanei_genesys_write_file(const char* filename, uint8_t* data, size_t length);
 
@@ -683,7 +688,10 @@ void genesys_init_usb_device_tables();
 
 void debug_dump(unsigned level, const Genesys_Settings& settings);
 void debug_dump(unsigned level, const SetupParams& params);
+void debug_dump(unsigned level, const ScanSession& session);
 void debug_dump(unsigned level, const Genesys_Current_Setup& setup);
 void debug_dump(unsigned level, const Genesys_Register_Set& regs);
+void debug_dump(unsigned level, const GenesysRegisterSettingSet& regs);
+void debug_dump(unsigned level, const Genesys_Sensor& sensor);
 
 #endif /* not GENESYS_LOW_H */

@@ -375,6 +375,9 @@ static void gl646_setup_registers(Genesys_Device* dev,
     DBG_HELPER(dbg);
     session.assert_computed();
 
+    debug_dump(DBG_info, sensor);
+    debug_dump(DBG_info, session);
+
     int resolution = session.params.xres;
     uint32_t move = session.params.starty;
     uint32_t linecnt = session.params.lines;
@@ -2180,8 +2183,10 @@ static void gl646_search_start_position(Genesys_Device* dev)
       }
 
     // now search reference points on the data
-    sanei_genesys_search_reference_point(dev, sensor, data.data(), sensor.CCD_start_xoffset,
-                                         resolution, settings.pixels, settings.lines);
+    for (auto& sensor_update : sanei_genesys_find_sensors_all_for_write(dev, ScanMethod::FLATBED)) {
+        sanei_genesys_search_reference_point(dev, sensor_update, data.data(), 0,
+                                             resolution, settings.pixels, settings.lines);
+    }
 }
 
 /**
@@ -2886,13 +2891,6 @@ static void gl646_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 	  bottomavg = avg;
           bottom = dev->frontend.get_offset(1);
 	}
-    }
-
-    // in case of debug do a final scan to get result
-    if (DBG_LEVEL >= DBG_data) {
-        simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, second_line);
-        sanei_genesys_write_pnm_file("gl646_offset-final.pnm", second_line.data(), 8, channels,
-                                     settings.pixels, settings.lines);
     }
 
   DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__,

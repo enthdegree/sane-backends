@@ -2991,10 +2991,10 @@ static void gl841_search_start_position(Genesys_Device* dev)
   /* update regs to copy ASIC internal state */
   dev->reg = local_reg;
 
-    // TODO: find out where sanei_genesys_search_reference_point stores information,
-    // and use that correctly
-    sanei_genesys_search_reference_point(dev, sensor, data.data(), 0, dpi, pixels,
-                                         dev->model->search_lines);
+    for (auto& sensor_update : sanei_genesys_find_sensors_all_for_write(dev, ScanMethod::FLATBED)) {
+        sanei_genesys_search_reference_point(dev, sensor_update, data.data(), 0, dpi, pixels,
+                                             dev->model->search_lines);
+    }
 }
 
 // sets up register for coarse gain calibration

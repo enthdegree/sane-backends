@@ -230,6 +230,28 @@ Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi
 }
 
 
+std::vector<std::reference_wrapper<const Genesys_Sensor>>
+    sanei_genesys_find_sensors_all(Genesys_Device* dev, ScanMethod scan_method)
+{
+    std::vector<std::reference_wrapper<const Genesys_Sensor>> ret;
+    for (const Genesys_Sensor& sensor : sanei_genesys_find_sensors_all_for_write(dev, scan_method)) {
+        ret.push_back(sensor);
+    }
+    return ret;
+}
+
+std::vector<std::reference_wrapper<Genesys_Sensor>>
+    sanei_genesys_find_sensors_all_for_write(Genesys_Device* dev, ScanMethod scan_method)
+{
+    std::vector<std::reference_wrapper<Genesys_Sensor>> ret;
+    for (auto& sensor : *s_sensors) {
+        if (dev->model->ccd_type == sensor.sensor_id && sensor.method == scan_method) {
+            ret.push_back(sensor);
+        }
+    }
+    return ret;
+}
+
 void
 sanei_genesys_init_structs (Genesys_Device * dev)
 {
@@ -1053,8 +1075,8 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
 // Find the position of the reference point: takes gray level 8 bits data and find
 // first CCD usable pixel and top of scanning area
 void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& sensor,
-                                          uint8_t* data, int start_pixel, int dpi, int width,
-                                          int height)
+                                          const uint8_t* src_data, int start_pixel, int dpi,
+                                          int width, int height)
 {
     DBG_HELPER(dbg);
   int x, y;
@@ -1069,22 +1091,25 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
 
   /* transformed image data */
   size = width * height;
+  std::vector<uint8_t> image2(size, 0);
   std::vector<uint8_t> image(size, 0);
 
   /* laplace filter to denoise picture */
-  memcpy(image.data(), data, size);	// to initialize unprocessed part of the image buffer
-  for (y = 1; y < height - 1; y++)
-    for (x = 1; x < width - 1; x++)
-      {
-	image[y * width + x] =
-	  (data[(y - 1) * width + x + 1] + 2 * data[(y - 1) * width + x] +
-	   data[(y - 1) * width + x - 1] + 2 * data[y * width + x + 1] +
-	   4 * data[y * width + x] + 2 * data[y * width + x - 1] +
-	   data[(y + 1) * width + x + 1] + 2 * data[(y + 1) * width + x] +
-	   data[(y + 1) * width + x - 1]) / 16;
-      }
+    std::memcpy(image2.data(), src_data, size);
+    std::memcpy(image.data(), src_data, size);	// to initialize unprocessed part of the image buffer
 
-  memcpy (data, image.data(), size);
+    for (y = 1; y < height - 1; y++) {
+        for (x = 1; x < width - 1; x++) {
+            image[y * width + x] =
+                (image2[(y - 1) * width + x + 1] + 2 * image2[(y - 1) * width + x] +
+                image2[(y - 1) * width + x - 1] + 2 * image2[y * width + x + 1] +
+                4 * image2[y * width + x] + 2 * image2[y * width + x - 1] +
+                image2[(y + 1) * width + x + 1] + 2 * image2[(y + 1) * width + x] +
+                image2[(y + 1) * width + x - 1]) / 16;
+        }
+    }
+
+    image2 = image;
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file("gl_laplace.pnm", image.data(), 8, 1, width, height);
 
@@ -1095,13 +1120,11 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
      and finds threshold level
    */
   level = 0;
-  for (y = 2; y < height - 2; y++)
-    for (x = 2; x < width - 2; x++)
-      {
-	current =
-	  data[(y - 1) * width + x + 1] - data[(y - 1) * width + x - 1] +
-	  2 * data[y * width + x + 1] - 2 * data[y * width + x - 1] +
-	  data[(y + 1) * width + x + 1] - data[(y + 1) * width + x - 1];
+    for (y = 2; y < height - 2; y++) {
+        for (x = 2; x < width - 2; x++) {
+            current = image2[(y - 1) * width + x + 1] - image2[(y - 1) * width + x - 1] +
+                      2 * image2[y * width + x + 1] - 2 * image2[y * width + x - 1] +
+                      image2[(y + 1) * width + x + 1] - image2[(y + 1) * width + x - 1];
 	if (current < 0)
 	  current = -current;
 	if (current > 255)
@@ -1109,7 +1132,8 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
 	image[y * width + x] = current;
 	if (current > level)
 	  level = current;
-      }
+        }
+    }
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file("gl_xsobel.pnm", image.data(), 8, 1, width, height);
 
@@ -1146,13 +1170,11 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
      1  2  1
    */
   level = 0;
-  for (y = 2; y < height - 2; y++)
-    for (x = 2; x < width - 2; x++)
-      {
-	current =
-	  -data[(y - 1) * width + x + 1] - 2 * data[(y - 1) * width + x] -
-	  data[(y - 1) * width + x - 1] + data[(y + 1) * width + x + 1] +
-	  2 * data[(y + 1) * width + x] + data[(y + 1) * width + x - 1];
+    for (y = 2; y < height - 2; y++) {
+        for (x = 2; x < width - 2; x++) {
+            current = -image2[(y - 1) * width + x + 1] - 2 * image2[(y - 1) * width + x] -
+                      image2[(y - 1) * width + x - 1] + image2[(y + 1) * width + x + 1] +
+                      2 * image2[(y + 1) * width + x] + image2[(y + 1) * width + x - 1];
 	if (current < 0)
 	  current = -current;
 	if (current > 255)
@@ -1161,6 +1183,7 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
 	if (current > level)
 	  level = current;
       }
+    }
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file("gl_ysobel.pnm", image.data(), 8, 1, width, height);
 

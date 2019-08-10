@@ -774,13 +774,12 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
  */
 static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
-                                         int used_res, unsigned int start, unsigned int pixels,
-                                         int channels, int depth,
-                                         ColorFilter color_filter, int flags)
+                                         const ScanSession& session, int used_res,
+                                         unsigned int start, unsigned int pixels,
+                                         int channels, int depth, ColorFilter color_filter)
 {
-    DBG_HELPER_ARGS(dbg, "exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
-                         "flags=%x",
-                    exposure_time, used_res, start, pixels, channels, depth, flags);
+    DBG_HELPER_ARGS(dbg, "exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d",
+                    exposure_time, used_res, start, pixels, channels, depth);
   unsigned int words_per_line;
     unsigned int dpiset, dpihw, segnb, factor;
   unsigned int bytes;
@@ -840,8 +839,8 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   r = sanei_genesys_get_address (reg, REG01);
   r->value &= ~REG01_SCAN;
   r->value |= REG01_SHDAREA;
-  if ((flags & OPTICAL_FLAG_DISABLE_SHADING) ||
-      (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
+    if ((session.params.flags & SCAN_FLAG_DISABLE_SHADING) ||
+        (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
     {
       r->value &= ~REG01_DVDSET;
     }
@@ -853,7 +852,8 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   r = sanei_genesys_get_address (reg, REG03);
   r->value &= ~REG03_AVEENB;
 
-    sanei_genesys_set_lamp_power(dev, sensor, *reg, !(flags & OPTICAL_FLAG_DISABLE_LAMP));
+    sanei_genesys_set_lamp_power(dev, sensor, *reg,
+                                 !(session.params.flags & SCAN_FLAG_DISABLE_LAMP));
 
   /* BW threshold */
   r = sanei_genesys_get_address (reg, 0x2e);
@@ -921,10 +921,11 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
   /* enable gamma tables */
-  if (flags & OPTICAL_FLAG_DISABLE_GAMMA)
-    r->value &= ~REG05_GMMENB;
-  else
-    r->value |= REG05_GMMENB;
+    if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA) {
+        r->value &= ~REG05_GMMENB;
+    } else {
+        r->value |= REG05_GMMENB;
+    }
 
   /* CIS scanners can do true gray by setting LEDADD */
   /* we set up LEDADD only when asked */
@@ -932,14 +933,13 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     {
       r = sanei_genesys_get_address (reg, 0x87);
       r->value &= ~REG87_LEDADD;
-      if (channels == 1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
-        {
-          r->value |= REG87_LEDADD;
+        if (session.enable_ledadd) {
+            r->value |= REG87_LEDADD;
         }
       /* RGB weighting
       r = sanei_genesys_get_address (reg, 0x01);
       r->value &= ~REG01_TRUEGRAY;
-      if (channels == 1 && (flags & OPTICAL_FLAG_ENABLE_LEDADD))
+      if (session.enable_ledadd))
         {
           r->value |= REG01_TRUEGRAY;
         }*/
@@ -1004,8 +1004,10 @@ static void gl846_compute_session(Genesys_Device* dev, ScanSession& s,
 {
     DBG_HELPER(dbg);
     (void) sensor;
-    (void) dev;
     s.params.assert_valid();
+
+    s.enable_ledadd = (s.params.channels == 1 && dev->model->is_cis && dev->settings.true_gray);
+
     s.computed = true;
 }
 
@@ -1022,7 +1024,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int bytes_per_line;
   int move;
   unsigned int lincnt;
-  unsigned int oflags; /**> optical flags */
   unsigned int mflags; /**> motor flags */
   int exposure_time;
   int stagger;
@@ -1108,25 +1109,9 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
    */
-    oflags = 0;
-    if (session.params.flags & SCAN_FLAG_DISABLE_SHADING) {
-        oflags |= OPTICAL_FLAG_DISABLE_SHADING;
-    }
-    if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA) {
-        oflags |= OPTICAL_FLAG_DISABLE_GAMMA;
-    }
-    if (session.params.flags & SCAN_FLAG_DISABLE_LAMP) {
-        oflags |= OPTICAL_FLAG_DISABLE_LAMP;
-    }
-  if (dev->model->is_cis && dev->settings.true_gray)
-    {
-      oflags |= OPTICAL_FLAG_ENABLE_LEDADD;
-    }
-
-    gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, used_res, start, used_pixels,
-                                 session.params.channels, session.params.depth,
-                                 session.params.color_filter,
-                                 oflags);
+    gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
+                                 used_pixels, session.params.channels, session.params.depth,
+                                 session.params.color_filter);
 
 /*** motor parameters ***/
 

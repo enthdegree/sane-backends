@@ -378,18 +378,6 @@ typedef struct {
 #define MOTOR_FLAG_FEED                     0x04
 #define MOTOR_FLAG_USE_XPA                  0x08
 
-/** @name "Optical flags" */
-/*@{ optical flags available when setting up sensor for scan */
-
-#define OPTICAL_FLAG_DISABLE_GAMMA          0x01 /**< disable gamma correction */
-#define OPTICAL_FLAG_DISABLE_SHADING        0x02 /**< disable shading correction */
-#define OPTICAL_FLAG_DISABLE_LAMP           0x04 /**< turn off lamp */
-#define OPTICAL_FLAG_ENABLE_LEDADD          0x08 /**< enable true CIS gray by enabling LED addition */
-#define OPTICAL_FLAG_STAGGER                0x20 /**< disable stagger correction */
-#define OPTICAL_FLAG_USE_XPA                0x40 /**< use XPA lamp rather than regular one */
-
-/*@} */
-
 /*--------------------------------------------------------------------------*/
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/

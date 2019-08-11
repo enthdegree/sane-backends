@@ -119,6 +119,7 @@ make-distcheck:
     - sane-backends-*.tar.gz
     - lists
     - doc/sanei-html
+    expire_in: 90 days
 
 upload:
   image: alpine

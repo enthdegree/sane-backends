@@ -2518,8 +2518,7 @@ sanei_bjnp_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
         }
       device[dn].polling_status = BJNP_POLL_STARTED;
 
-      /* fall through to BJNP_POLL_STARTED */
-
+      // fall through
     case BJNP_POLL_STARTED:
       /* we use only seonds accuracy between poll attempts */
       timeout = device[dn].bjnp_timeout /1000;

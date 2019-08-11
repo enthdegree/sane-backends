@@ -1462,6 +1462,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           if (info)
             *info |= SANE_INFO_RELOAD_PARAMS;
 
+          // fall through
         case OPT_GRAY_GAIN:
         case OPT_GREEN_GAIN:
         case OPT_RED_GAIN:

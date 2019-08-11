@@ -2674,6 +2674,9 @@ saned_avahi_callback (AvahiClient *c, AvahiClientState state, void *userdata)
 
       case AVAHI_CLIENT_S_COLLISION:
 	DBG (DBG_INFO, "saned_avahi_callback: AVAHI_CLIENT_S_COLLISION\n");
+	if (avahi_group)
+	  avahi_entry_group_reset (avahi_group);
+	break;
 
       case AVAHI_CLIENT_S_REGISTERING:
 	DBG (DBG_INFO, "saned_avahi_callback: AVAHI_CLIENT_S_REGISTERING\n");

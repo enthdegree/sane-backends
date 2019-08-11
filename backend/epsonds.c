@@ -1050,12 +1050,11 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 
 	case OPT_BR_X:
 	case OPT_BR_Y:
-		sval->w = *((SANE_Word *) value);
-		if (SANE_UNFIX(sval->w) == 0) {
+		if (SANE_UNFIX(*((SANE_Word *) value)) == 0) {
 			DBG(17, " invalid br-x or br-y\n");
 			return SANE_STATUS_INVAL;
 		}
-		/* passthru */
+		// fall through
 	case OPT_TL_X:
 	case OPT_TL_Y:
 		sval->w = *((SANE_Word *) value);

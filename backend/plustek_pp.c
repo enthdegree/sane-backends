@@ -1625,7 +1625,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
     					*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
                 }
 
-           		/* fall through to OPT_HALFTONE */
+                        // fall through
 	    		case OPT_HALFTONE:
 			    	s->val[option].w = optval - s->opt[option].constraint.string_list;
 				    break;

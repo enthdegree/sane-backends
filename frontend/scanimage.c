@@ -2260,15 +2260,15 @@ main (int argc, char **argv)
 	    if (defdevname)
 	      printf ("default device is `%s'\n", defdevname);
 	    scanimage_exit (0);
+	    break;
 	  }
-
 	case 'V':
 	  printf ("scanimage (%s) %s; backend version %d.%d.%d\n", PACKAGE,
 		  VERSION, SANE_VERSION_MAJOR (version_code),
 		  SANE_VERSION_MINOR (version_code),
 		  SANE_VERSION_BUILD (version_code));
 	  scanimage_exit (0);
-
+	  break;
 	default:
 	  break;		/* ignore device specific options for now */
 	}

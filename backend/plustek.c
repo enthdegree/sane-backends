@@ -1916,6 +1916,7 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 			case OPT_BUTTON_0:
 				if(!s->calibrating)
 					usb_UpdateButtonStatus(s);
+                                // fall through
 			case OPT_BUTTON_1:
 			case OPT_BUTTON_2:
 			case OPT_BUTTON_3:

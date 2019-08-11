@@ -1485,6 +1485,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_Y:
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_PARAMS;
+          // fall through
 	case OPT_SHARPEN:
 	case OPT_EXPOSURE:
 	case OPT_ATTENUATION_RED:

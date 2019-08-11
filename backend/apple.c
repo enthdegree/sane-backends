@@ -2064,7 +2064,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	v2 = SANE_UNFIX (f);
 	DBG (FLOW_CONTROL, "Value %g (Fixed)\n",
 	     (action == SANE_ACTION_GET_VALUE) ? v1 : v2);
-        }
+	break;
+	}
       default:
 	DBG (FLOW_CONTROL, "Value %u (Int).\n",
 		(action == SANE_ACTION_GET_VALUE)

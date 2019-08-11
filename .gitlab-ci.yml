@@ -14,8 +14,12 @@ stages:
   - snapshot
   - release
 
+# This job creates the source tarball that is the *sole* input to our
+# compile stage.  The job is meant to be run on the stable release of
+# Debian GNU/Linux.
+
 make-dist:
-  image: $REGISTRY_HUB:debian-stretch-mini
+  image: $REGISTRY_HUB:debian-buster-mini
   stage: tarball
   script:
   - git ls-files | xargs ./tools/style-check.sh

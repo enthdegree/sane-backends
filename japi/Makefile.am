@@ -31,12 +31,12 @@ EXTRA_DIST = README.JAVA
 
 lib_LTLIBRARIES = libsanej.la
 
-BUILT_SOURCES = Sane.h
-CLEANFILES = Sane.h
-nodist_libsanej_la_SOURCES = Sane.h
 libsanej_la_SOURCES = Sane.c
 libsanej_la_LIBADD = $(LIBSANE)
 
-# Make sure that java classes get created before create Sane.h
-Sane.h: classdist_noinst.stamp
+# Explicit dependencies
+nodist_libsanej_la_SOURCES: Sane.h
+Sane.h: classnoinst.stamp
 	$(JAVAH) Sane
+
+CLEANFILES = Sane.h

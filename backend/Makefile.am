@@ -17,7 +17,12 @@ DIST_LIBS_LDFLAGS = $(AM_LDFLAGS) -rpath '$(libdir)' -version-number $(V_MAJOR):
 LIBTOOL += --silent
 FIRMWARE_DIRS = artec_eplus48u gt68xx snapscan epjitsu
 
+# Needed by most backends as they add sane_strstatus.lo to their list
+# of libraries to link with via libsane_${BACKEND}_la_LIBADD.  Due to
+# the implicit dependency, automake does not notice the need to clean
+# up the dependency tracking file.
 EXTRA_DIST = sane_strstatus.c
+CLEANFILES = $(DEPDIR)/sane_strstatus.Plo
 
 all: becfg
 
@@ -133,7 +138,7 @@ uninstall-hook:
 	  rmdir $(DESTDIR)$(datadir)/sane/$${dir} ; \
 	done
 
-CLEANFILES = $(BACKEND_CONFS) $(be_convenience_libs)
+CLEANFILES += $(BACKEND_CONFS) $(be_convenience_libs)
 clean-local:
 	find . -type l -name \*-s.c | xargs rm -f
 

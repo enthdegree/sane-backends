@@ -62,11 +62,15 @@ debian-10-mini:
     #MAKE_FLAGS: "CFLAGS=-Werror"
   <<: *compile_definition
 
+# In addition to the regular compile check, the full Debian stable
+# environment is used to keep some of the HTML documentation that's
+# available from our website up-to-date.
+
 debian-10-full:
   image: $REGISTRY_HUB:debian-buster-full
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
-    #MAKE_FLAGS: "CFLAGS=-Werror"
+    #MAKE_FLAGS: "CFLAGS=-Werror CXXFLAGS=-Werror"
   <<: *compile_definition
   after_script:
   - make -C build/doc html-pages
@@ -91,6 +95,17 @@ alpine-3.10-musl:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition
 
+# This snapshot stage job makes sure that the source tarball has all
+# it needs to rebuild itself, install everything built and cleans up
+# without leaving any droppings behind when uninstalling.  The build
+# result will be available as a snapshot for a limited time period.
+# People that prefer a source tarball to work with should use this
+# snapshot.
+# Some HTML documentation derived from this project's source is also
+# uploaded for use by our website so it uses the latest information.
+# It gets these artifacts from the full compile job on Debian stable,
+# hence the dependency.
+
 make-distcheck:
   image: $REGISTRY_HUB:debian-buster-full
   stage: snapshot
@@ -107,6 +122,10 @@ make-distcheck:
     - lists
     - doc/sanei-html
     expire_in: 90 days
+
+# For release tags only, this manual job handles putting all of the
+# releasables on the Project Releases page.  See the script for more
+# details.
 
 upload:
   image: alpine

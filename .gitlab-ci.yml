@@ -48,13 +48,6 @@ make-dist:
   - ./configure $CONFIGURE_OPTS
   - make -j2 -k $MAKE_FLAGS
 
-debian-9-mini:
-  image: $REGISTRY_HUB:debian-stretch-mini
-  variables:
-    CONFIGURE_OPTS: "$CONFIGURE_MINI"
-    MAKE_FLAGS: "CFLAGS=-Werror"
-  <<: *compile_definition
-
 debian-9-full:
   image: $REGISTRY_HUB:debian-stretch-full
   variables:

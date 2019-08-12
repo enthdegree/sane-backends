@@ -86,12 +86,6 @@ debian-10-full:
     - doc/sanei-html
     expire_in: 1 day
 
-fedora-29-clang:
-  image: $REGISTRY_HUB:fedora-29-clang
-  variables:
-    CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
-  <<: *compile_definition
-
 fedora-30-clang:
   image: $REGISTRY_HUB:fedora-30-clang
   variables:

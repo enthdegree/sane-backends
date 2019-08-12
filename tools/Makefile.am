@@ -48,9 +48,9 @@ sane_find_scanner_LDADD = ../sanei/libsanei.la ../lib/liblib.la \
 gamma4scanimage_SOURCES = gamma4scanimage.c
 gamma4scanimage_LDADD = $(MATH_LIB)
 
-umax_pp_SOURCES = umax_pp.c
-umax_pp_LDADD = ../sanei/libsanei.la ../lib/liblib.la $(MATH_LIB) \
-	        ../backend/umax_pp_low.lo
+umax_pp_SOURCES  = umax_pp.c
+umax_pp_SOURCES += ../backend/umax_pp_low.c
+umax_pp_LDADD = ../sanei/libsanei.la ../lib/liblib.la $(MATH_LIB)
 
 sane_desc_SOURCES = sane-desc.c
 sane_desc_LDADD = ../sanei/libsanei.la ../lib/liblib.la

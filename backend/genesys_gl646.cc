@@ -3804,8 +3804,7 @@ static void gl646_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 
     unsigned ccd_size_divisor = 1;
     if (sensor.ccd_size_divisor > 1) {
-        // FIXME: possibly wrong channel count for ccd_size_divisor
-        ccd_size_divisor = get_ccd_size_divisor(dev->model->ccd_type, res, 3);
+        ccd_size_divisor = get_ccd_size_divisor(dev->model->ccd_type, res, 1);
     }
 
   /* we set up for a lowest available resolution color grey scan, full width */

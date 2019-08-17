@@ -158,6 +158,27 @@ void sanei_genesys_write_pnm_file(const char* filename, uint8_t* data, int depth
   fclose (out);
 }
 
+void sanei_genesys_write_pnm_file16(const char* filename, uint16_t* data, unsigned channels,
+                                    unsigned pixels_per_line, unsigned lines)
+{
+    DBG_HELPER_ARGS(dbg, "channels=%d, ppl=%d, lines=%d", channels,
+                    pixels_per_line, lines);
+
+    FILE* out = std::fopen(filename, "w");
+    if (!out) {
+        throw SaneException("could not open %s for writing: %s\n", filename, strerror(errno));
+    }
+    std::fprintf(out, "P%c\n%d\n%d\n%d\n", channels == 1 ? '5' : '6',
+                 pixels_per_line, lines, (int) pow (2, 16) - 1);
+
+    for (unsigned count = 0; count < (pixels_per_line * lines * channels); count++) {
+        fputc(*data >> 8, out);
+        fputc(*data & 0xff, out);
+        data++;
+    }
+    std::fclose(out);
+}
+
 /* ------------------------------------------------------------------------ */
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */

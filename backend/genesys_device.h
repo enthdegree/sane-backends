@@ -245,8 +245,8 @@ struct Genesys_Device
     // color is overridden.
     std::vector<uint16_t> gamma_override_tables[3];
 
-    std::vector<uint8_t> white_average_data;
-    std::vector<uint8_t> dark_average_data;
+    std::vector<uint16_t> white_average_data;
+    std::vector<uint16_t> dark_average_data;
 
     SANE_Bool already_initialized = 0;
     SANE_Int scanhead_position_in_steps = 0;

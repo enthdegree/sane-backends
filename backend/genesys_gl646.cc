@@ -204,7 +204,6 @@ static void gl646_stop_motor(Genesys_Device* dev)
     dev->write_register(0x0f, 0x00);
 }
 
-
 /**
  * find the lowest resolution for the sensor in the given mode.
  * @param sensor id of the sensor
@@ -217,7 +216,7 @@ get_lowest_resolution(int sensor_id, unsigned channels)
     int dpi = 9600;
     for (const auto& sensor : sensor_master) {
         // computes distance and keep mode if it is closer than previous
-        if (sensor_id == sensor.sensor && sensor.channels == channels) {
+        if (sensor_id == sensor.sensor && sensor.matches_channels(channels)) {
             if (sensor.dpi < dpi) {
                 dpi = sensor.dpi;
             }
@@ -246,13 +245,13 @@ get_closest_resolution(int sensor_id, int required, unsigned channels)
             continue;
 
         // exit on perfect match
-        if (sensor.dpi == required && sensor.channels == channels) {
+        if (sensor.dpi == required && sensor.matches_channels(channels)) {
             DBG(DBG_info, "%s: match found for %d\n", __func__, required);
             return required;
         }
 
         // computes distance and keep mode if it is closer than previous
-        if (sensor.channels == channels) {
+        if (sensor.matches_channels(channels)) {
             if (std::abs(sensor.dpi - required) < dist) {
                 dpi = sensor.dpi;
                 dist = std::abs(sensor.dpi - required);
@@ -276,7 +275,9 @@ static unsigned get_ccd_size_divisor(int sensor_id, int required, unsigned chann
 {
     for (const auto& sensor : sensor_master) {
         // exit on perfect match
-        if (sensor_id == sensor.sensor && sensor.dpi == required && sensor.channels == channels) {
+        if (sensor_id == sensor.sensor && sensor.dpi == required &&
+            sensor.matches_channels(channels))
+        {
             DBG(DBG_io, "%s: match found for %d (ccd_size_divisor=%d)\n", __func__, required,
                 sensor.ccd_size_divisor);
             return sensor.ccd_size_divisor;
@@ -297,7 +298,9 @@ static int get_cksel(int sensor_id, int required, unsigned channels)
 {
     for (const auto& sensor : sensor_master) {
         // exit on perfect match
-        if (sensor_id == sensor.sensor && sensor.dpi == required && sensor.channels == channels) {
+        if (sensor_id == sensor.sensor && sensor.dpi == required &&
+            sensor.matches_channels(channels))
+        {
             DBG(DBG_io, "%s: match found for %d (cksel=%d)\n", __func__, required,
                 sensor.cksel);
             return sensor.cksel;
@@ -406,7 +409,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
     const Sensor_Master* sensor_mst = nullptr;
     for (const auto& sensor : sensor_master) {
         if (dev->model->ccd_type == sensor.sensor && sensor.dpi == xresolution &&
-                sensor.channels == session.params.channels)
+                sensor.matches_channels(session.params.channels))
         {
             sensor_mst = &sensor;
             break;

@@ -962,9 +962,8 @@ static void gl847_compute_session(Genesys_Device* dev, ScanSession& s,
                                   const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-    (void) sensor;
-    (void) dev;
-    s.params.assert_valid();
+    compute_session(dev, s, sensor);
+
     s.computed = true;
 }
 

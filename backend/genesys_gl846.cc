@@ -941,8 +941,7 @@ static void gl846_compute_session(Genesys_Device* dev, ScanSession& s,
                                   const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-    (void) sensor;
-    s.params.assert_valid();
+    compute_session(dev, s, sensor);
 
     s.enable_ledadd = (s.params.channels == 1 && dev->model->is_cis && dev->settings.true_gray);
 

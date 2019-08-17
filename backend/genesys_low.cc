@@ -1130,6 +1130,15 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
     }
 }
 
+void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor)
+{
+    DBG_HELPER(dbg);
+
+    (void) dev;
+    (void) sensor;
+    s.params.assert_valid();
+}
+
 /** @brief initialize device
  * Initialize backend and ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home. Designed for gl846+ ASICs.

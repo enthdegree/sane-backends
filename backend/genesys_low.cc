@@ -1194,7 +1194,10 @@ void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& s
     const uint8_t REG05_DPIHW_2400 = 0x80;
     const uint8_t REG05_DPIHW_4800 = 0xc0;
 
-    (void) sensor;
+    if (sensor.dpihw_override != 0) {
+        dpihw = sensor.dpihw_override;
+    }
+
     uint8_t dpihw_setting;
     switch (dpihw) {
         case 600:

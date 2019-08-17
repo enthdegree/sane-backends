@@ -427,7 +427,6 @@ extern void sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t
 extern void sanei_genesys_init_structs (Genesys_Device * dev);
 
 const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev);
-Genesys_Sensor& sanei_genesys_find_sensor_any_for_write(Genesys_Device* dev);
 const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
                                                 ScanMethod scan_method);
 Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,

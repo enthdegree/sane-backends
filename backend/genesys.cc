@@ -182,16 +182,6 @@ static const SANE_Range expiration_range = {
   1		/* quantization */
 };
 
-Genesys_Sensor& sanei_genesys_find_sensor_any_for_write(Genesys_Device* dev)
-{
-    for (auto& sensor : *s_sensors) {
-        if (dev->model->ccd_type == sensor.sensor_id) {
-            return sensor;
-        }
-    }
-    throw std::runtime_error("Given device does not have sensor defined");
-}
-
 const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev)
 {
     for (const auto& sensor : *s_sensors) {

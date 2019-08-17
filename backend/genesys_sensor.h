@@ -165,6 +165,7 @@ struct SensorProfile
     unsigned ccd_size_divisor = 1;
     unsigned exposure_lperiod = 0;
     SensorExposure exposure;
+    unsigned segment_count = 0; // only on GL847
     std::vector<unsigned> segment_order;
     GenesysRegisterSettingSet custom_regs;
 

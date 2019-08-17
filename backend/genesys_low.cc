@@ -1135,7 +1135,10 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     DBG_HELPER(dbg);
 
     (void) dev;
-    (void) sensor;
+
+    // compute optical and output resolutions
+    s.ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(s.params.xres);
+
     s.params.assert_valid();
 }
 

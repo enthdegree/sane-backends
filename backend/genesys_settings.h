@@ -187,7 +187,7 @@ struct ScanSession {
 
     // specifies the reduction (if any) of CCD effective dpi which is performed by latching the
     // data coming from CCD in such a way that 1/2 or 3/4 of pixel data is ignored.
-    // gl843-only
+    // except gl646
     unsigned ccd_size_divisor = 1;
 
     // the optical resolution of the scanner.

@@ -5652,8 +5652,8 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
   unsigned option_size = 0;
   SANE_Status status = SANE_STATUS_GOOD;
 
-  // FIXME: we should pick correct sensor here
-  const Genesys_Sensor& sensor = sanei_genesys_find_sensor_any(s->dev);
+  const Genesys_Sensor& sensor = sanei_genesys_find_sensor(s->dev, s->resolution,
+                                                           s->dev->settings.scan_method);
 
   switch (option)
     {
@@ -5863,9 +5863,6 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
   unsigned int i;
   SANE_Range *x_range, *y_range;
   unsigned option_size = 0;
-
-    // FIXME: we should modify device-specific sensor
-    auto& sensor = sanei_genesys_find_sensor_any_for_write(s->dev);
 
   switch (option)
     {
@@ -6184,6 +6181,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         }
       break;
         case OPT_CALIBRATE: {
+            auto& sensor = sanei_genesys_find_sensor_for_write(s->dev, s->resolution,
+                                                               s->dev->settings.scan_method);
             catch_all_exceptions(__func__, [&]()
             {
                 s->dev->cmd_set->save_power(s->dev, SANE_FALSE);

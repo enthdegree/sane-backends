@@ -116,6 +116,12 @@ enum Genesys_Color_Order
     COLOR_ORDER_BGR
 };
 
+enum class ColorOrder
+{
+    RGB,
+    GBR,
+};
+
 enum Genesys_Model_Type
 {
     MODEL_UMAX_ASTRA_4500 = 0,

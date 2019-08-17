@@ -65,6 +65,7 @@
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_magic.h"
 
+#include <array>
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -2199,6 +2200,16 @@ compute_averaged_planar (Genesys_Device * dev, const Genesys_Sensor& sensor,
     }
 }
 
+static std::array<unsigned, 3> color_order_to_cmat(ColorOrder color_order)
+{
+    switch (color_order) {
+        case ColorOrder::RGB: return {0, 1, 2};
+        case ColorOrder::GBR: return {2, 0, 1};
+        default:
+            throw std::logic_error("Unknown color order");
+    }
+}
+
 /**
  * Computes shading coefficient using formula in data sheet. 16bit data values
  * manipulated here are little endian. For now we assume deletion scanning type
@@ -2212,12 +2223,11 @@ compute_averaged_planar (Genesys_Device * dev, const Genesys_Sensor& sensor,
  * @param coeff 4000h or 2000h depending on fast scan mode or not
  * @param target value of the target code
  */
-static void
-compute_coefficients (Genesys_Device * dev,
+static void compute_coefficients(Genesys_Device * dev,
 		      uint8_t * shading_data,
 		      unsigned int pixels_per_line,
 		      unsigned int channels,
-		      unsigned int cmat[3],
+                                 ColorOrder color_order,
 		      int offset,
 		      unsigned int coeff,
 		      unsigned int target)
@@ -2228,6 +2238,8 @@ compute_coefficients (Genesys_Device * dev,
   unsigned int start, end;
 
   DBG(DBG_io, "%s: pixels_per_line=%d,  coeff=0x%04x\n", __func__, pixels_per_line, coeff);
+
+    auto cmat = color_order_to_cmat(color_order);
 
   /* compute start & end values depending of the offset */
   if (offset < 0)
@@ -2283,14 +2295,13 @@ compute_coefficients (Genesys_Device * dev,
  * @param coeff 4000h or 2000h depending on fast scan mode or not
  * @param target white target value
  */
-static void
-compute_planar_coefficients (Genesys_Device * dev,
+static void compute_planar_coefficients(Genesys_Device * dev,
 			     uint8_t * shading_data,
 			     unsigned int factor,
 			     unsigned int pixels_per_line,
 			     unsigned int words_per_color,
 			     unsigned int channels,
-			     unsigned int cmat[3],
+                                        ColorOrder color_order,
 			     unsigned int offset,
 			     unsigned int coeff,
 			     unsigned int target)
@@ -2298,6 +2309,8 @@ compute_planar_coefficients (Genesys_Device * dev,
   uint8_t *ptr;			/* contains 16bit words in little endian */
   uint32_t x, c, i;
   uint32_t val, dk, br;
+
+    auto cmat = color_order_to_cmat(color_order);
 
   DBG(DBG_io, "%s: factor=%d, pixels_per_line=%d, words=0x%X, coeff=0x%04x\n", __func__, factor,
       pixels_per_line, words_per_color, coeff);
@@ -2353,7 +2366,7 @@ compute_shifted_coefficients (Genesys_Device * dev,
 			      uint8_t * shading_data,
 			      unsigned int pixels_per_line,
 			      unsigned int channels,
-			      unsigned int cmat[3],
+                              ColorOrder color_order,
 			      int offset,
 			      unsigned int coeff,
 			      unsigned int target_dark,
@@ -2364,6 +2377,8 @@ compute_shifted_coefficients (Genesys_Device * dev,
   unsigned int br_tmp [3], dk_tmp [3];
   uint8_t *ptr = shading_data + offset * 3 * 4;                 /* contain 16bit words in little endian */
   unsigned int patch_cnt = offset * 3;                          /* at start, offset of first patch */
+
+    auto cmat = color_order_to_cmat(color_order);
 
   x = dev->settings.xres;
   if (sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres) > 1)
@@ -2445,7 +2460,6 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
   int o;
   unsigned int length;		/**> number of shading calibration data words */
   unsigned int factor;
-  unsigned int cmat[3];		/**> matrix of color channels */
   unsigned int coeff, target_code, words_per_color = 0;
 
   pixels_per_line = dev->calib_pixels + dev->calib_pixels_offset;
@@ -2519,9 +2533,6 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
 
   /* TODO setup a struct in genesys_devices that
    * will handle these settings instead of having this switch growing up */
-  cmat[0] = 0;
-  cmat[1] = 1;
-  cmat[2] = 2;
   switch (dev->model->ccd_type)
     {
     case CCD_XP300:
@@ -2537,7 +2548,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
 				   pixels_per_line,
 				   words_per_color,
 				   channels,
-				   cmat,
+                   ColorOrder::RGB,
 				   o,
 				   coeff,
 				   target_code);
@@ -2545,16 +2556,13 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
     case CIS_XP200:
       target_code = 0xdc00;
       o = 2;
-      cmat[0] = 2;		/* red is last    */
-      cmat[1] = 0;		/* green is first */
-      cmat[2] = 1;		/* blue is second */
       compute_planar_coefficients (dev,
                    shading_data.data(),
 				   1,
 				   pixels_per_line,
 				   words_per_color,
 				   channels,
-				   cmat,
+                   ColorOrder::GBR,
 				   o,
 				   coeff,
 				   target_code);
@@ -2570,7 +2578,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                 shading_data.data(),
 			    pixels_per_line,
 			    3,
-                            cmat,
+                            ColorOrder::RGB,
                             o,
                             coeff,
                             target_code);
@@ -2586,7 +2594,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                 shading_data.data(),
 			    pixels_per_line,
 			    3,
-                            cmat,
+                            ColorOrder::RGB,
                             o,
                             coeff,
                             target_code);
@@ -2613,7 +2621,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                 shading_data.data(),
 			    pixels_per_line,
 			    3,
-                            cmat,
+                            ColorOrder::RGB,
                             o,
                             coeff,
                             target_code);
@@ -2630,7 +2638,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                 shading_data.data(),
 			    pixels_per_line,
 			    3,
-                            cmat,
+                            ColorOrder::RGB,
                             o,
                             coeff,
                             target_code);
@@ -2668,7 +2676,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                                      pixels_per_line,
                                      words_per_color,
                                      channels,
-                                     cmat,
+                                     ColorOrder::RGB,
                                      0,
                                      coeff,
                                      target_code);
@@ -2700,7 +2708,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                         shading_data.data(),
 			            pixels_per_line,
 			            channels,
-			            cmat,
+                        ColorOrder::RGB,
 			            12,         /* offset */
 			            coeff,
  			            0x0001,      /* target_dark */

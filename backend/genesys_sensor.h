@@ -65,14 +65,24 @@ struct AssignableArray : public std::array<T, Size> {
     }
 };
 
+enum class FrontendType : unsigned
+{
+    UNKNOWN,
+    WOLFSON,
+    ANALOG_DEVICES
+};
+
 struct GenesysFrontendLayout
 {
+    FrontendType type = FrontendType::UNKNOWN;
     std::array<uint16_t, 3> offset_addr = {};
     std::array<uint16_t, 3> gain_addr = {};
 
     bool operator==(const GenesysFrontendLayout& other) const
     {
-        return offset_addr == other.offset_addr && gain_addr == other.gain_addr;
+        return type == other.type &&
+                offset_addr == other.offset_addr &&
+                gain_addr == other.gain_addr;
     }
 };
 

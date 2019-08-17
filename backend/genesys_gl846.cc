@@ -154,57 +154,41 @@ gl846_get_step_multiplier (Genesys_Register_Set * regs)
  * @param dpi hardware dpi for the scan
  * @return a pointer to a Sensor_Profile struct
  */
-static SensorProfileGl846 *get_sensor_profile(int sensor_type, int dpi)
+static const SensorProfile& get_sensor_profile(const Genesys_Sensor& sensor, unsigned dpi)
 {
-  unsigned int i;
-  int idx;
-
-  i=0;
-  idx=-1;
-  while(i<sizeof(sensors)/sizeof(SensorProfileGl846))
-    {
-      /* exact match */
-      if(sensors[i].sensor_type==sensor_type && sensors[i].dpi==dpi)
-        {
-          return &(sensors[i]);
+    int best_i = -1;
+    for (unsigned i = 0; i < sensor.sensor_profiles.size(); ++i) {
+        // exact match
+        if (sensor.sensor_profiles[i].dpi == dpi) {
+            return sensor.sensor_profiles[i];
         }
-
-      /* closest match */
-      if(sensors[i].sensor_type==sensor_type)
-        {
-          if(idx<0)
+        // closest match
+        if (best_i < 0) {
+            best_i = i;
+        } else {
+            if (sensor.sensor_profiles[i].dpi >= dpi &&
+                sensor.sensor_profiles[i].dpi < sensor.sensor_profiles[best_i].dpi)
             {
-              idx=i;
-            }
-          else
-            {
-              if(sensors[i].dpi>=dpi
-              && sensors[i].dpi<sensors[idx].dpi)
-                {
-                  idx=i;
-                }
+                best_i = i;
             }
         }
-      i++;
     }
 
-  /* default fallback */
-  if(idx<0)
-    {
-      DBG (DBG_warn,"%s: using default sensor profile\n",__func__);
-      idx=0;
+    // default fallback
+    if (best_i < 0) {
+        DBG(DBG_warn,"%s: using default sensor profile\n",__func__);
+        return *s_fallback_sensor_profile_gl846;
     }
 
-  return &(sensors[idx]);
+    return sensor.sensor_profiles[best_i];
 }
 
 /**@brief compute exposure to use
  * compute the sensor exposure based on target resolution
  */
-static int gl846_compute_exposure(Genesys_Device *dev, int xres)
+static unsigned gl846_compute_exposure(const Genesys_Sensor& sensor, unsigned xres)
 {
-    SensorProfileGl846* sensor_profile=get_sensor_profile(dev->model->ccd_type, xres);
-    return sensor_profile->exposure;
+    return get_sensor_profile(sensor, xres).exposure_lperiod;
 }
 
 
@@ -214,7 +198,6 @@ static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
                                Genesys_Register_Set * regs, int dpi)
 {
     DBG_HELPER(dbg);
-  GenesysRegister *r;
   int dpihw;
   uint16_t exp;
 
@@ -228,40 +211,32 @@ static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
 
     // set EXPDUMMY and CKxMAP
     dpihw = sensor.get_register_hwdpi(dpi);
-    SensorProfileGl846* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw);
+    const auto& sensor_profile = get_sensor_profile(sensor, dpihw);
 
-    regs->set8(REG_EXPDMY, (uint8_t)((sensor_profile->expdummy) & 0xff));
+    for (const auto& reg : sensor_profile.custom_regs) {
+        regs->set8(reg.address, reg.value);
+    }
 
   /* if no calibration has been done, set default values for exposures */
   exp = sensor.exposure.red;
-  if(exp==0)
-    {
-      exp=sensor_profile->expr;
+    if (exp == 0) {
+        exp = sensor_profile.exposure.red;
     }
     regs->set16(REG_EXPR, exp);
 
   exp = sensor.exposure.green;
-  if(exp==0)
-    {
-      exp=sensor_profile->expg;
+    if (exp == 0) {
+        exp = sensor_profile.exposure.green;
     }
     regs->set16(REG_EXPG, exp);
 
   exp = sensor.exposure.blue;
-  if(exp==0)
-    {
-      exp=sensor_profile->expb;
+    if (exp == 0) {
+        exp = sensor_profile.exposure.blue;
     }
     regs->set16(REG_EXPB, exp);
 
-    regs->set24(REG_CK1MAP, sensor_profile->ck1map);
-    regs->set24(REG_CK3MAP, sensor_profile->ck3map);
-    regs->set24(REG_CK4MAP, sensor_profile->ck4map);
-
-    dev->segment_order = sensor_profile->order;
-
-  r = sanei_genesys_get_address (regs, 0x17);
-  r->value = sensor_profile->r17;
+    dev->segment_order = sensor_profile.segment_order;
 }
 
 
@@ -777,8 +752,8 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     factor = sensor.optical_res/dpihw;
     DBG(DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
-  /* sensor parameters */
-    SensorProfileGl846* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw);
+    // sensor parameters
+    const auto& sensor_profile = get_sensor_profile(sensor, dpihw);
   gl846_setup_sensor(dev, sensor, reg, dpihw);
     dpiset = used_res * ccd_pixels_per_system_pixel ;
 
@@ -806,9 +781,8 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* in cas of multi-segments sensor, we have to add the witdh
    * of the sensor crossed by the scan area */
-  if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR && segnb>1)
-    {
-      dev->dist = sensor_profile->segcnt;
+    if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR && segnb > 1) {
+        dev->dist = sensor_profile.segment_count;
     }
 
   /* use a segcnt rounded to next even number */
@@ -1056,7 +1030,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-  exposure_time = gl846_compute_exposure (dev, used_res);
+    exposure_time = gl846_compute_exposure(sensor, used_res);
   scan_step_type = sanei_genesys_compute_step_type(gl846_motor_profiles, dev->model->motor_type,
                                                    exposure_time);
 
@@ -1255,7 +1229,7 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-  exposure_time = gl846_compute_exposure (dev, used_res);
+    exposure_time = gl846_compute_exposure(sensor, used_res);
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
     max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels, session.params.yres, 0);
@@ -1984,7 +1958,7 @@ static void gl846_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
   channels = 3;
   depth=16;
     used_res = sensor.get_register_hwdpi(dev->settings.xres);
-    SensorProfileGl846* sensor_profile = get_sensor_profile(dev->model->ccd_type, used_res);
+    const auto& sensor_profile = get_sensor_profile(sensor, used_res);
   num_pixels = (sensor.sensor_pixels*used_res)/sensor.optical_res;
 
   /* initial calibration reg values */
@@ -2014,9 +1988,9 @@ static void gl846_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
   std::vector<uint8_t> line(total_size);
 
   /* initial loop values and boundaries */
-  exp[0]=sensor_profile->expr;
-  exp[1]=sensor_profile->expg;
-  exp[2]=sensor_profile->expb;
+    exp[0] = sensor_profile.exposure.red;
+    exp[1] = sensor_profile.exposure.green;
+    exp[2] = sensor_profile.exposure.blue;
 
   bottom[0]=29000;
   bottom[1]=29000;

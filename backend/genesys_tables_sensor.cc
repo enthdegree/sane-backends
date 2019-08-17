@@ -96,6 +96,7 @@ inline unsigned default_get_hwdpi_divisor_for_dpi(const Genesys_Sensor& sensor, 
  */
 StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 StaticInit<SensorProfile> s_fallback_sensor_profile_gl124;
+StaticInit<SensorProfile> s_fallback_sensor_profile_gl846;
 StaticInit<SensorProfile> s_fallback_sensor_profile_gl847;
 
 
@@ -103,6 +104,7 @@ void genesys_init_sensor_tables()
 {
     s_sensors.init();
     s_fallback_sensor_profile_gl124.init();
+    s_fallback_sensor_profile_gl846.init();
     s_fallback_sensor_profile_gl847.init();
 
     Genesys_Sensor sensor;
@@ -2505,7 +2507,24 @@ void genesys_init_sensor_tables()
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+
+    profile = SensorProfile();
+    profile.dpi = 1200;
+    profile.exposure_lperiod = 11000;
+    profile.exposure = { 0, 0, 0 };
+    profile.segment_count = 5136;
+    profile.segment_order = {0, 1};
+    profile.custom_regs = {
+        { 0x17, 0x13 },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
     s_sensors->push_back(sensor);
+    *s_fallback_sensor_profile_gl846 = profile;
 
 
     sensor = Genesys_Sensor();
@@ -2550,6 +2569,22 @@ void genesys_init_sensor_tables()
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+
+    profile = SensorProfile();
+    profile.dpi = 1200;
+    profile.exposure_lperiod = 11000;
+    profile.exposure = { 0, 0, 0 };
+    profile.segment_count = 5136;
+    profile.segment_order = {0, 1};
+    profile.custom_regs = {
+        { 0x17, 0x13 },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
     s_sensors->push_back(sensor);
 
 

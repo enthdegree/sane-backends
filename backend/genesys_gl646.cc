@@ -214,25 +214,16 @@ static void gl646_stop_motor(Genesys_Device* dev)
 static int
 get_lowest_resolution(int sensor_id, unsigned channels)
 {
-  int i, nb;
-  int dpi;
-
-  i = 0;
-  dpi = 9600;
-  nb = sizeof (sensor_master) / sizeof (Sensor_Master);
-  while (i < nb)
-    {
-      /* computes distance and keep mode if it is closer than previous */
-      if (sensor_id == sensor_master[i].sensor
-          && sensor_master[i].channels == channels)
-	{
-	  if (sensor_master[i].dpi < dpi)
-	    {
-	      dpi = sensor_master[i].dpi;
-	    }
-	}
-      i++;
+    int dpi = 9600;
+    for (const auto& sensor : sensor_master) {
+        // computes distance and keep mode if it is closer than previous
+        if (sensor_id == sensor.sensor && sensor.channels == channels) {
+            if (sensor.dpi < dpi) {
+                dpi = sensor.dpi;
+            }
+        }
     }
+
   DBG(DBG_info, "%s: %d\n", __func__, dpi);
   return dpi;
 }
@@ -247,35 +238,28 @@ get_lowest_resolution(int sensor_id, unsigned channels)
 static int
 get_closest_resolution(int sensor_id, int required, unsigned channels)
 {
-  int i, nb;
-  int dist, dpi;
+    int dpi = 0;
+    int dist = 9600;
 
-  i = 0;
-  dpi = 0;
-  dist = 9600;
-  nb = sizeof (sensor_master) / sizeof (Sensor_Master);
-  while (i < nb)
-    {
-      /* exit on perfect match */
-      if (sensor_id == sensor_master[i].sensor
-	  && sensor_master[i].dpi == required
-          && sensor_master[i].channels == channels)
-	{
-	  DBG(DBG_info, "%s: match found for %d\n", __func__, required);
-	  return required;
-	}
-      /* computes distance and keep mode if it is closer than previous */
-      if (sensor_id == sensor_master[i].sensor
-          && sensor_master[i].channels == channels)
-	{
-	  if (abs (sensor_master[i].dpi - required) < dist)
-	    {
-	      dpi = sensor_master[i].dpi;
-	      dist = abs (sensor_master[i].dpi - required);
-	    }
-	}
-      i++;
+    for (const auto& sensor : sensor_master) {
+        if (sensor_id != sensor.sensor)
+            continue;
+
+        // exit on perfect match
+        if (sensor.dpi == required && sensor.channels == channels) {
+            DBG(DBG_info, "%s: match found for %d\n", __func__, required);
+            return required;
+        }
+
+        // computes distance and keep mode if it is closer than previous
+        if (sensor.channels == channels) {
+            if (std::abs(sensor.dpi - required) < dist) {
+                dpi = sensor.dpi;
+                dist = std::abs(sensor.dpi - required);
+            }
+        }
     }
+
   DBG(DBG_info, "%s: closest match for %d is %d\n", __func__, required, dpi);
   return dpi;
 }
@@ -290,22 +274,13 @@ get_closest_resolution(int sensor_id, int required, unsigned channels)
  */
 static unsigned get_ccd_size_divisor(int sensor_id, int required, unsigned channels)
 {
-  int i, nb;
-
-  i = 0;
-  nb = sizeof (sensor_master) / sizeof (Sensor_Master);
-  while (i < nb)
-    {
-      /* exit on perfect match */
-      if (sensor_id == sensor_master[i].sensor
-	  && sensor_master[i].dpi == required
-          && sensor_master[i].channels == channels)
-	{
-        DBG(DBG_io, "%s: match found for %d (ccd_size_divisor=%d)\n", __func__, required,
-            sensor_master[i].ccd_size_divisor);
-        return sensor_master[i].ccd_size_divisor;
-	}
-      i++;
+    for (const auto& sensor : sensor_master) {
+        // exit on perfect match
+        if (sensor_id == sensor.sensor && sensor.dpi == required && sensor.channels == channels) {
+            DBG(DBG_io, "%s: match found for %d (ccd_size_divisor=%d)\n", __func__, required,
+                sensor.ccd_size_divisor);
+            return sensor.ccd_size_divisor;
+        }
     }
   DBG(DBG_info, "%s: failed to find match for %d dpi\n", __func__, required);
     return 1;
@@ -320,22 +295,13 @@ static unsigned get_ccd_size_divisor(int sensor_id, int required, unsigned chann
  */
 static int get_cksel(int sensor_id, int required, unsigned channels)
 {
-  int i, nb;
-
-  i = 0;
-  nb = sizeof (sensor_master) / sizeof (Sensor_Master);
-  while (i < nb)
-    {
-      /* exit on perfect match */
-      if (sensor_id == sensor_master[i].sensor
-	  && sensor_master[i].dpi == required
-          && sensor_master[i].channels == channels)
-	{
-	  DBG(DBG_io, "%s: match found for %d (cksel=%d)\n", __func__, required,
-	      sensor_master[i].cksel);
-	  return sensor_master[i].cksel;
-	}
-      i++;
+    for (const auto& sensor : sensor_master) {
+        // exit on perfect match
+        if (sensor_id == sensor.sensor && sensor.dpi == required && sensor.channels == channels) {
+            DBG(DBG_io, "%s: match found for %d (cksel=%d)\n", __func__, required,
+                sensor.cksel);
+            return sensor.cksel;
+        }
     }
   DBG(DBG_error, "%s: failed to find match for %d dpi\n", __func__, required);
   /* fail safe fallback */
@@ -413,7 +379,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
     uint32_t endx = startx + pixels;
 
   int i, nb;
-  Sensor_Master *sensor_mst = NULL;
   Motor_Master *motor = NULL;
   unsigned int used1, used2, vfinal;
   unsigned int bpp;   /**> bytes per pixel */
@@ -437,20 +402,17 @@ static void gl646_setup_registers(Genesys_Device* dev,
       xresolution = resolution;
     }
 
-  /* for the given resolution, search for master
-   * sensor mode setting */
-  i = 0;
-  nb = sizeof (sensor_master) / sizeof (Sensor_Master);
-  while (i < nb)
-    {
-      if (dev->model->ccd_type == sensor_master[i].sensor
-	  && sensor_master[i].dpi == xresolution
-          && sensor_master[i].channels == session.params.channels)
-	{
-          sensor_mst = &sensor_master[i];
-	}
-      i++;
+    // for the given resolution, search for master sensor mode setting
+    const Sensor_Master* sensor_mst = nullptr;
+    for (const auto& sensor : sensor_master) {
+        if (dev->model->ccd_type == sensor.sensor && sensor.dpi == xresolution &&
+                sensor.channels == session.params.channels)
+        {
+            sensor_mst = &sensor;
+            break;
+        }
     }
+
     if (sensor_mst == NULL) {
         throw SaneException("unable to find settings for sensor %d at %d dpi channels=%d",
                             dev->model->ccd_type, xresolution, session.params.channels);

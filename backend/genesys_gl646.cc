@@ -757,7 +757,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
     regs->set24(REG_MAXWD, words_per_line);
 
-    regs->set16(REG_DPISET, sensor_mst->dpiset);
+    regs->set16(REG_DPISET, sensor_mst->xdpi * sensor_mst->ccd_size_divisor * sensor_mst->cksel);
     regs->set16(REG_LPERIOD, sensor_mst->exposure);
 
   /* move distance must be adjusted to take into account the extra lines

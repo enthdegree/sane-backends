@@ -268,21 +268,23 @@ public:
     using const_iterator = typename container::const_iterator;
 
     GenesysRegisterSettingSet() = default;
-    GenesysRegisterSettingSet(std::initializer_list<GenesysRegisterSetting> ilist) : regs_(ilist) {}
+    GenesysRegisterSettingSet(std::initializer_list<GenesysRegisterSetting> ilist) :
+        registers_(ilist)
+    {}
 
-    iterator begin() { return regs_.begin(); }
-    const_iterator begin() const { return regs_.begin(); }
-    iterator end() { return regs_.end(); }
-    const_iterator end() const { return regs_.end(); }
+    iterator begin() { return registers_.begin(); }
+    const_iterator begin() const { return registers_.begin(); }
+    iterator end() { return registers_.end(); }
+    const_iterator end() const { return registers_.end(); }
 
-    GenesysRegisterSetting& operator[](size_t i) { return regs_[i]; }
-    const GenesysRegisterSetting& operator[](size_t i) const { return regs_[i]; }
+    GenesysRegisterSetting& operator[](size_t i) { return registers_[i]; }
+    const GenesysRegisterSetting& operator[](size_t i) const { return registers_[i]; }
 
-    size_t size() const { return regs_.size(); }
-    bool empty() const { return regs_.empty(); }
-    void clear() { regs_.clear(); }
+    size_t size() const { return registers_.size(); }
+    bool empty() const { return registers_.empty(); }
+    void clear() { registers_.clear(); }
 
-    void push_back(GenesysRegisterSetting reg) { regs_.push_back(reg); }
+    void push_back(GenesysRegisterSetting reg) { registers_.push_back(reg); }
 
     void merge(const GenesysRegisterSettingSet& other)
     {
@@ -293,7 +295,7 @@ public:
 
     uint8_t get_value(uint16_t address) const
     {
-        for (const auto& reg : regs_) {
+        for (const auto& reg : registers_) {
             if (reg.address == address)
                 return reg.value;
         }
@@ -302,7 +304,7 @@ public:
 
     void set_value(uint16_t address, uint8_t value)
     {
-        for (auto& reg : regs_) {
+        for (auto& reg : registers_) {
             if (reg.address == address) {
                 reg.value = value;
                 return;
@@ -316,11 +318,11 @@ public:
 
     bool operator==(const GenesysRegisterSettingSet& other) const
     {
-        return regs_ == other.regs_;
+        return registers_ == other.registers_;
     }
 
 private:
-    std::vector<GenesysRegisterSetting> regs_;
+    std::vector<GenesysRegisterSetting> registers_;
 };
 
 inline void serialize(std::istream& str, GenesysRegisterSettingSet& reg)
@@ -328,12 +330,12 @@ inline void serialize(std::istream& str, GenesysRegisterSettingSet& reg)
     reg.clear();
     const size_t max_register_address =
             1 << (sizeof(GenesysRegisterSetting::address) * CHAR_BIT);
-    serialize(str, reg.regs_, max_register_address);
+    serialize(str, reg.registers_, max_register_address);
 }
 
 inline void serialize(std::ostream& str, GenesysRegisterSettingSet& reg)
 {
-    serialize(str, reg.regs_);
+    serialize(str, reg.registers_);
 }
 
 #endif // BACKEND_GENESYS_REGISTER_H

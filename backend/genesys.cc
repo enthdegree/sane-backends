@@ -2866,8 +2866,8 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
   if (dev->model->is_cis)
     {
       /* the afe now sends valid data for doing led calibration */
-      sanei_usb_testing_record_message("led_calibration");
-        dev->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
+        sanei_usb_testing_record_message("led_calibration");
+        sensor.exposure = dev->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
 
       /* calibrate afe again to match new exposure */
       if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)

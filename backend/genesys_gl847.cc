@@ -1981,8 +1981,8 @@ static void gl847_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
  * data white enough.
  * @param dev device to calibrate
  */
-static void gl847_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
-                                  Genesys_Register_Set& regs)
+static SensorExposure gl847_led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                            Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   int num_pixels;
@@ -2128,15 +2128,12 @@ static void gl847_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
     dev->reg.set16(REG_EXPG, exp[1]);
     dev->reg.set16(REG_EXPB, exp[2]);
 
-  /* store in this struct since it is the one used by cache calibration */
-  sensor.exposure.red = exp[0];
-  sensor.exposure.green = exp[1];
-  sensor.exposure.blue = exp[2];
-
     // go back home
     if (move>20) {
         gl847_slow_back_home(dev, SANE_TRUE);
     }
+
+    return { exp[0], exp[1], exp[2] };
 }
 
 /**

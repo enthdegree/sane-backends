@@ -2648,8 +2648,8 @@ static void gl843_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& se
 
 -needs working coarse/gain
 */
-static void gl843_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
-                                  Genesys_Register_Set& regs)
+static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                            Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   int num_pixels;
@@ -2669,8 +2669,9 @@ static void gl843_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
   depth = 16;
   used_res = sensor.optical_res;
 
-  auto& calib_sensor = sanei_genesys_find_sensor_for_write(dev, used_res,
-                                                           dev->settings.scan_method);
+    // take a copy, as we're going to modify exposure
+    auto calib_sensor = sanei_genesys_find_sensor(dev, used_res, dev->settings.scan_method);
+
   num_pixels =
     (calib_sensor.sensor_pixels * used_res) / calib_sensor.optical_res;
 
@@ -2810,9 +2811,9 @@ static void gl843_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
 
   DBG(DBG_info, "%s: acceptable exposure: %d,%d,%d\n", __func__, expr, expg, expb);
 
-  sensor.exposure = calib_sensor.exposure;
-
   gl843_slow_back_home (dev, SANE_TRUE);
+
+    return calib_sensor.exposure;
 }
 
 

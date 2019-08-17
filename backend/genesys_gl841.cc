@@ -3195,8 +3195,8 @@ static void gl841_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& se
 
 -needs working coarse/gain
 */
-static void gl841_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
-                                  Genesys_Register_Set& regs)
+static SensorExposure gl841_led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                            Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   int num_pixels;
@@ -3274,23 +3274,25 @@ static void gl841_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
   max_exposure=((exp[0]+exp[1]+exp[2])/3)*2;
   target=sensor.gain_white_ref*256;
 
-  do {
-        sensor.exposure.red = exp[0];
-        sensor.exposure.green = exp[1];
-        sensor.exposure.blue = exp[2];
+    auto calib_sensor = sensor;
 
-        sanei_genesys_set_exposure(regs, sensor.exposure);
-        dev->write_register(0x10, (sensor.exposure.red >> 8) & 0xff);
-        dev->write_register(0x11, sensor.exposure.red & 0xff);
-        dev->write_register(0x12, (sensor.exposure.green >> 8) & 0xff);
-        dev->write_register(0x13, sensor.exposure.green & 0xff);
-        dev->write_register(0x14, (sensor.exposure.blue >> 8) & 0xff);
-        dev->write_register(0x15, sensor.exposure.blue & 0xff);
+    do {
+        calib_sensor.exposure.red = exp[0];
+        calib_sensor.exposure.green = exp[1];
+        calib_sensor.exposure.blue = exp[2];
+
+        sanei_genesys_set_exposure(regs, calib_sensor.exposure);
+        dev->write_register(0x10, (calib_sensor.exposure.red >> 8) & 0xff);
+        dev->write_register(0x11, calib_sensor.exposure.red & 0xff);
+        dev->write_register(0x12, (calib_sensor.exposure.green >> 8) & 0xff);
+        dev->write_register(0x13, calib_sensor.exposure.green & 0xff);
+        dev->write_register(0x14, (calib_sensor.exposure.blue >> 8) & 0xff);
+        dev->write_register(0x15, calib_sensor.exposure.blue & 0xff);
 
         dev->write_registers(regs);
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
-        gl841_begin_scan(dev, sensor, &regs, SANE_TRUE);
+        gl841_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
         sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
       if (DBG_LEVEL >= DBG_data) {
@@ -3393,6 +3395,8 @@ static void gl841_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
   DBG(DBG_info,"%s: acceptable exposure: %d,%d,%d\n", __func__, exp[0], exp[1], exp[2]);
 
   gl841_slow_back_home(dev, SANE_TRUE);
+
+    return calib_sensor.exposure;
 }
 
 /** @brief calibration for AD frontend devices

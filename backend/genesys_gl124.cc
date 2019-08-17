@@ -2250,8 +2250,8 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
 
 -needs working coarse/gain
 */
-static void gl124_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
-                                  Genesys_Register_Set& regs)
+static SensorExposure gl124_led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                            Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   int num_pixels;
@@ -2385,10 +2385,7 @@ static void gl124_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
     dev->reg.set24(REG_EXPG, exp[1]);
     dev->reg.set24(REG_EXPB, exp[2]);
 
-  /* store in this struct since it is the one used by cache calibration */
-  sensor.exposure.red = exp[0];
-  sensor.exposure.green = exp[1];
-  sensor.exposure.blue = exp[2];
+    return { exp[0], exp[1], exp[2] };
 }
 
 /**

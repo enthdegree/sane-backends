@@ -265,8 +265,8 @@ struct Genesys_Command_Set
                                 Genesys_Register_Set& regs);
     void (*coarse_gain_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
                                      Genesys_Register_Set& regs, int dpi);
-    void (*led_calibration) (Genesys_Device* dev, Genesys_Sensor& sensor,
-                             Genesys_Register_Set& regs);
+    SensorExposure (*led_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set& regs);
 
     void (*wait_for_motor_stop) (Genesys_Device* dev);
     void (*slow_back_home) (Genesys_Device* dev, SANE_Bool wait_until_home);

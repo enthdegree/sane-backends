@@ -314,7 +314,7 @@ struct Genesys_Device
     size_t skip = 0;
 
     // array describing the order of the sub-segments of the sensor
-    size_t* order = nullptr;
+    std::vector<unsigned> segment_order;
 
     // buffer to handle even/odd data
     Genesys_Buffer oe_buffer = {};

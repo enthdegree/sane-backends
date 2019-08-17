@@ -101,14 +101,14 @@ gl124_test_motor_flag_bit (SANE_Byte val)
  * @param ccd_size_divisor flag to signal half ccd mode
  * @return a pointer to a Sensor_Profile struct
  */
-static Sensor_Profile* get_sensor_profile(int sensor_type, int dpi, unsigned ccd_size_divisor)
+static SensorProfileGl124* get_sensor_profile(int sensor_type, int dpi, unsigned ccd_size_divisor)
 {
   unsigned int i;
   int idx;
 
   i=0;
   idx=-1;
-  while(i<sizeof(sensors)/sizeof(Sensor_Profile))
+  while(i<sizeof(sensors)/sizeof(SensorProfileGl124))
     {
       /* exact match */
         if (sensors[i].sensor_type == sensor_type && sensors[i].dpi == dpi &&
@@ -818,8 +818,8 @@ static void gl124_setup_sensor(Genesys_Device * dev,
     }
 
     // set EXPDUMMY and CKxMAP
-    Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw,
-                                                        ccd_size_divisor);
+    SensorProfileGl124* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw,
+                                                            ccd_size_divisor);
 
     regs->set8(0x18, sensor_profile->reg18);
     regs->set8(0x20, sensor_profile->reg20);
@@ -863,8 +863,7 @@ static void gl124_setup_sensor(Genesys_Device * dev,
     regs->set24(REG_CK3MAP, sensor_profile->ck3map);
     regs->set24(REG_CK4MAP, sensor_profile->ck4map);
 
-  /* order of the sub-segments */
-  dev->order=sensor_profile->order;
+    dev->segment_order = sensor_profile->order;
 }
 
 /** @brief setup optical related registers
@@ -1383,8 +1382,8 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
     // compute hw dpi for sensor
     dpihw = sensor.get_register_hwdpi(used_res);
 
-    Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw,
-                                                        ccd_size_divisor);
+    SensorProfileGl124* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw,
+                                                            ccd_size_divisor);
   dev->segnb=sensor_profile->reg98 & 0x0f;
 
   /* stagger */
@@ -2312,8 +2311,8 @@ static void gl124_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
     unsigned ccd_size_divisor = compute_ccd_size_divisor(sensor, dev->settings.xres);
     resolution /= ccd_size_divisor;
 
-    Sensor_Profile* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw,
-                                                        ccd_size_divisor);
+    SensorProfileGl124* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw,
+                                                            ccd_size_divisor);
   num_pixels = (sensor.sensor_pixels*resolution)/sensor.optical_res;
 
   /* initial calibration reg values */

@@ -440,7 +440,7 @@ static Memory_layout layouts[]={
  * this structure describes the sensor settings to use for a given
  * exposure.
  */
-typedef struct {
+struct SensorProfileGl846 {
   int sensor_type;      /**> sensor id */
   int dpi;              /**> maximum dpi for which data are valid */
   int exposure;         /**> exposure */
@@ -452,19 +452,14 @@ typedef struct {
   int expr;             /**> initial red exposure */
   int expg;             /**> initial green exposure */
   int expb;             /**> initial blue exposure */
-  size_t *order;        /**> order of sub-segments */
+    std::vector<unsigned> order; // order of sub-segments
   uint8_t r17;		/**> TG width */
-} Sensor_Profile;
-
-/**
- * order of the scanned pixel
- */
-static size_t order_01[]={0,1};
+};
 
 /**
  * database of sensor profiles
  */
-static Sensor_Profile sensors[]={
-	{CCD_IMG101, 1200, 11000,  60, 159, 85, 5136, 255,  0,  0,  0, order_01  , 0x13},
-	{CCD_PLUSTEK3800, 1200, 11000,  60, 159, 85, 5136, 255,  0,  0,  0, order_01  , 0x13},
+static SensorProfileGl846 sensors[]={
+    {CCD_IMG101,      1200, 11000,  60, 159, 85, 5136, 255,  0,  0,  0, {0, 1}, 0x13},
+    {CCD_PLUSTEK3800, 1200, 11000,  60, 159, 85, 5136, 255,  0,  0,  0, {0, 1}, 0x13},
 };

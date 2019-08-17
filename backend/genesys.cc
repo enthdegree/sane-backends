@@ -3501,7 +3501,7 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
                         k=count+(i*dev->segnb)/8;
                         for (n=0;n<dev->segnb;n++) {
                             work_buffer_dst[k] = work_buffer_dst[k] << 1;
-                            if ((dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]])&(128>>i)) {
+                            if ((dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->segment_order[n]])&(128>>i)) {
                                 work_buffer_dst[k] |= 1;
                             }
                         }
@@ -3515,7 +3515,7 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
             if (depth==8) {
                  while (dev->cur < dev->len && count < size) {
                     for (n=0;n<dev->segnb;n++) {
-                        work_buffer_dst[count+n] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]];
+                        work_buffer_dst[count+n] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->segment_order[n]];
                     }
                     /* update counter and pointer */
                     count += dev->segnb;
@@ -3525,8 +3525,8 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
             if (depth==16) {
                 while (dev->cur < dev->len && count < size) {
                     for (n=0;n<dev->segnb;n++) {
-                        work_buffer_dst[count+n*2] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n]];
-                        work_buffer_dst[count+n*2+1] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->order[n] + 1];
+                        work_buffer_dst[count+n*2] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->segment_order[n]];
+                        work_buffer_dst[count+n*2+1] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->segment_order[n] + 1];
                     }
                     /* update counter and pointer */
                     count += dev->segnb*2;

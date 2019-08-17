@@ -149,15 +149,14 @@ gl847_get_step_multiplier (Genesys_Register_Set * regs)
  * @param dpi hardware dpi for the scan
  * @return a pointer to a Sensor_Profile struct
  */
-static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi)
+static SensorProfileGl847 *get_sensor_profile(int sensor_type, int dpi)
 {
   unsigned int i;
   int idx;
 
   i=0;
   idx=-1;
-  while(i<sizeof(sensors)/sizeof(Sensor_Profile))
-    {
+    while (i < sizeof(sensors)/sizeof(SensorProfileGl847)) {
       /* exact match */
       if(sensors[i].sensor_type==sensor_type && sensors[i].dpi==dpi)
         {
@@ -198,7 +197,7 @@ static Sensor_Profile *get_sensor_profile(int sensor_type, int dpi)
  */
 static int gl847_compute_exposure(Genesys_Device *dev, int xres)
 {
-    Sensor_Profile* sensor_profile=get_sensor_profile(dev->model->ccd_type, xres);
+    SensorProfileGl847* sensor_profile=get_sensor_profile(dev->model->ccd_type, xres);
     return sensor_profile->exposure;
 }
 
@@ -225,7 +224,7 @@ static void gl847_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
 
     // set EXPDUMMY and CKxMAP
     dpihw = sensor.get_register_hwdpi(dpi);
-  Sensor_Profile* sensor_profile=get_sensor_profile(dev->model->ccd_type, dpihw);
+    SensorProfileGl847* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw);
 
     regs->set8(REG_EXPDMY, (uint8_t)((sensor_profile->expdummy) & 0xff));
 
@@ -255,8 +254,7 @@ static void gl847_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
     regs->set24(REG_CK3MAP,sensor_profile->ck3map);
     regs->set24(REG_CK4MAP,sensor_profile->ck4map);
 
-  /* order of the sub-segments */
-  dev->order=sensor_profile->order;
+    dev->segment_order = sensor_profile->order;
 
   r = sanei_genesys_get_address (regs, 0x17);
   r->value = sensor_profile->r17;
@@ -800,7 +798,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG(DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
   /* sensor parameters */
-  Sensor_Profile* sensor_profile=get_sensor_profile(dev->model->ccd_type, dpihw);
+    SensorProfileGl847* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw);
   gl847_setup_sensor(dev, sensor, reg, dpihw);
     dpiset = used_res * ccd_pixels_per_system_pixel;
 
@@ -2041,7 +2039,7 @@ static void gl847_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
   channels = 3;
   depth=16;
     used_res = sensor.get_register_hwdpi(dev->settings.xres);
-  Sensor_Profile* sensor_profile=get_sensor_profile(dev->model->ccd_type, used_res);
+    SensorProfileGl847* sensor_profile=get_sensor_profile(dev->model->ccd_type, used_res);
   num_pixels = (sensor.sensor_pixels*used_res)/sensor.optical_res;
 
   /* initial calibration reg values */

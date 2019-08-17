@@ -281,26 +281,23 @@ typedef struct
  */
 struct Sensor_Master
 {
-  /* key */
-  SANE_Int sensor;	/**< sensor identifier */
-  SANE_Int dpi;		/**< required dpi */
-  unsigned channels;     // 3 channels if color scan, 1 channel for gray scan
+    int sensor = 0;         // sensor identifier */
+    int dpi = 0;            // required dpi */
+    unsigned channels = 0;  // 3 channels if color scan, 1 channel for gray scan
 
-  /* settings */
-  SANE_Int xdpi;		/**< real sensor dpi, may be different from the required resolution */
-  SANE_Int exposure;		/**< exposure time */
-  SANE_Int dpiset;		/**< set sensor dpi */
-  SANE_Int cksel;		/**< dpiset 'divisor', part of reg 18h */
-  SANE_Int dummy;		/**< dummy exposure time */
-  /* uint8_t regs_0x10_0x15[6];*/
-  uint8_t *regs_0x10_0x15; 	/**< per color exposure time for CIS scanners */
+    int xdpi = 0;           // real sensor dpi, may be different from the required resolution */
+    int exposure = 0;       // exposure time */
+    int dpiset = 0;         // set sensor dpi */
+    int cksel = 0;          // dpiset 'divisor', part of reg 18h
+    int dummy = 0;          // dummy exposure time
+    uint8_t *regs_0x10_0x15 = nullptr; 	// per color exposure time for CIS scanners
 
     // selects manual CCD/2 clock programming. I.e. we're scanning at high DPI, but clock is setup
     // such that we acquire only every 2nd pixel data
-    unsigned ccd_size_divisor;
+    unsigned ccd_size_divisor = 0;
 
-  uint8_t r18;			/**> content of register 18h */
-  uint8_t r1d;			/**> content of register 1dh */
+    uint8_t r18 = 0;		// content of register 18h */
+    uint8_t r1d = 0;		// content of register 1dh */
 };
 
 /**

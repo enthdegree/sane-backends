@@ -362,67 +362,6 @@ static Memory_layout layouts[]={
 	}
 };
 
-/** @brief structure for sensor settings
- * this structure describes the sensor settings to use for a given
- * exposure. Data settings are identified by
- * - sensor id
- * - sensor hardware dpi
- * - half ccd mode
- */
-struct SensorProfileGl124
-{
-  int sensor_type;      /**> sensor id */
-  int dpi;              /**> maximum dpi for which data are valid */
-    unsigned ccd_size_divisor; // how many CCD pixels are processed per output pixel
-  int exposure;         /**> exposure */
-  int ck1map;           /**> CK1MAP */
-  int ck3map;           /**> CK3MAP */
-  int ck4map;           /**> CK4MAP */
-  int segcnt;           /**> SEGCNT */
-  int tg0cnt;           /**> TG0CNT */
-  int expdummy;         /**> exposure dummy */
-  int expr;             /**> initial red exposure */
-  int expg;             /**> initial green exposure */
-  int expb;             /**> initial blue exposure */
-    std::vector<unsigned> order; // order of sub-segments
-  uint8_t reg18;        /**> register 0x18 value */
-  uint8_t reg20;        /**> register 0x20 value */
-  uint8_t reg61;        /**> register 0x61 value */
-  uint8_t reg98;        /**> register 0x98 value */
-  uint8_t reg16;        /**> register 0x16 value */
-  uint8_t reg70;        /**> register 0x70 value */
-};
-
-/** @brief database of sensor profiles
- * database of sensor profiles giving for each sensor and a given resolution, the period, and timings
- * to setup the sensor for the scan.
- */
-static SensorProfileGl124 sensors[]={
-        /* LiDE 110 */
-    {CIS_CANONLIDE110,  600, 2,  2768, 0x1e, 0x9f, 0x55, 2584, 154,  101,  388,  574,  393, {}          , 0x00, 0x0c, 0x20, 0x21, 0x00, 0x00},
-    {CIS_CANONLIDE110,  600, 1,  5360, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, {}          , 0x00, 0x0a, 0x20, 0x21, 0x00, 0x00},
-    {CIS_CANONLIDE110, 1200, 1, 10528, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, {0, 1}      , 0x00, 0x08, 0x20, 0x22, 0x00, 0x00},
-    {CIS_CANONLIDE110, 2400, 1, 20864, 0x1e, 0x9f, 0x55, 5168, 163, 4679, 6839, 8401, 6859, {0, 2, 1, 3}, 0x00, 0x06, 0x20, 0x24, 0x00, 0x00},
-
-	/* LiDE 120 */
-    {CIS_CANONLIDE120,  600, 2,  4608, 0x0f, 0x00, 0x55, 2552, 112,   94,  894, 1044,  994, {}          , 0x00, 0x02, 0x20, 0x21, 0x15, 0x00},
-    {CIS_CANONLIDE120,  600, 1,  5360, 0x0f, 0x00, 0x55, 5104, 139,   94, 1644, 1994, 1844, {}          , 0x00, 0x02, 0x20, 0x21, 0x11, 0x1f},
-    {CIS_CANONLIDE120, 1200, 1, 10528, 0x0f, 0x00, 0x55,10208, 192,   94, 3194, 3794, 3594, {}          , 0x00, 0x02, 0x20, 0x21, 0x15, 0x1f},
-    {CIS_CANONLIDE120, 2400, 1, 20864, 0x0f, 0x00, 0x55,20416, 298,   94, 6244, 7544, 7094, {}          , 0x00, 0x02, 0x20, 0x21, 0x11, 0x00},
-
-        /* LiDE 210 */
-    {CIS_CANONLIDE210,  600, 2,  2768, 0x1e, 0x9f, 0x55, 2584, 154,  101,  388,  574,  393, {}          , 0x00, 0x0c, 0x20, 0x21, 0x00, 0x00},
-    {CIS_CANONLIDE210,  600, 1,  5360, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, {}          , 0x00, 0x0a, 0x20, 0x21, 0x00, 0x00},
-    {CIS_CANONLIDE210, 1200, 1, 10528, 0x1e, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, {0, 1}      , 0x00, 0x08, 0x20, 0x22, 0x00, 0x00},
-    {CIS_CANONLIDE210, 2400, 1, 20864, 0x1e, 0x9f, 0x55, 5168, 163, 4679, 6839, 8401, 6859, {0, 2, 1, 3}, 0x00, 0x06, 0x20, 0x24, 0x00, 0x00},
-
-        /* LiDE 220 */
-    {CIS_CANONLIDE220,  600, 2,  2768, 0x0f, 0x9f, 0x55, 2584, 154,  101,  388,  574,  393, {}          , 0x00, 0x0c, 0x20, 0x21, 0x00, 0x00},
-    {CIS_CANONLIDE220,  600, 1,  5360, 0x0f, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, {}          , 0x00, 0x0a, 0x20, 0x21, 0x00, 0x00},
-    {CIS_CANONLIDE220, 1200, 1, 10528, 0x0f, 0x9f, 0x55, 5168, 163,  101,  388,  574,  393, {0, 1}      , 0x00, 0x08, 0x20, 0x22, 0x00, 0x00},
-    {CIS_CANONLIDE220, 2400, 1, 20864, 0x0f, 0x9f, 0x55, 5168, 163, 4679, 6839, 8401, 6859, {0, 2, 1, 3}, 0x00, 0x06, 0x20, 0x24, 0x00, 0x00},
-};
-
 
 #define MOVE_DPI 200
 #define MOVE_EXPOSURE 2304

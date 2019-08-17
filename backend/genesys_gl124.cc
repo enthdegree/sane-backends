@@ -101,50 +101,38 @@ gl124_test_motor_flag_bit (SANE_Byte val)
  * @param ccd_size_divisor flag to signal half ccd mode
  * @return a pointer to a Sensor_Profile struct
  */
-static SensorProfileGl124* get_sensor_profile(int sensor_type, int dpi, unsigned ccd_size_divisor)
+static const SensorProfile& get_sensor_profile(const Genesys_Sensor& sensor, unsigned dpi,
+                                               unsigned ccd_size_divisor)
 {
-  unsigned int i;
-  int idx;
-
-  i=0;
-  idx=-1;
-  while(i<sizeof(sensors)/sizeof(SensorProfileGl124))
-    {
-      /* exact match */
-        if (sensors[i].sensor_type == sensor_type && sensors[i].dpi == dpi &&
-            sensors[i].ccd_size_divisor == ccd_size_divisor)
+    int best_i = -1;
+    for (unsigned i = 0; i < sensor.sensor_profiles.size(); ++i) {
+        // exact match
+        if (sensor.sensor_profiles[i].dpi == dpi &&
+            sensor.sensor_profiles[i].ccd_size_divisor == ccd_size_divisor)
         {
-          return &(sensors[i]);
+            return sensor.sensor_profiles[i];
         }
-
-      /* closest match */
-        if (sensors[i].sensor_type == sensor_type &&
-            sensors[i].ccd_size_divisor == ccd_size_divisor)
-        {
-          if(idx<0)
-            {
-              idx=i;
-            }
-          else
-            {
-              if(sensors[i].dpi>=dpi
-              && sensors[i].dpi<sensors[idx].dpi)
+        // closest match
+        if (sensor.sensor_profiles[i].ccd_size_divisor == ccd_size_divisor) {
+            if (best_i < 0) {
+                best_i = i;
+            } else {
+                if (sensor.sensor_profiles[i].dpi >= dpi &&
+                    sensor.sensor_profiles[i].dpi < sensor.sensor_profiles[best_i].dpi)
                 {
-                  idx=i;
+                    best_i = i;
                 }
             }
         }
-      i++;
     }
 
-  /* default fallback */
-  if(idx<0)
-    {
-      DBG (DBG_warn,"%s: using default sensor profile\n",__func__);
-      idx=0;
+    // default fallback
+    if (best_i < 0) {
+        DBG(DBG_warn,"%s: using default sensor profile\n",__func__);
+        return *s_fallback_sensor_profile_gl124;
     }
 
-  return &(sensors[idx]);
+    return sensor.sensor_profiles[best_i];
 }
 
 
@@ -591,9 +579,9 @@ static void gl124_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
  * @param xres sensor's required resolution
  * @param ccd_size_divisor how many CCD pixels are processed for output pixel
  */
-static int gl124_compute_exposure(Genesys_Device* dev, int xres, unsigned ccd_size_divisor)
+static int gl124_compute_exposure(const Genesys_Sensor& sensor, int xres, unsigned ccd_size_divisor)
 {
-    return get_sensor_profile(dev->model->ccd_type, xres, ccd_size_divisor)->exposure;
+    return get_sensor_profile(sensor, xres, ccd_size_divisor).exposure_lperiod;
 }
 
 
@@ -818,52 +806,32 @@ static void gl124_setup_sensor(Genesys_Device * dev,
     }
 
     // set EXPDUMMY and CKxMAP
-    SensorProfileGl124* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw,
-                                                            ccd_size_divisor);
+    const auto& sensor_profile = get_sensor_profile(sensor, dpihw, ccd_size_divisor);
 
-    regs->set8(0x18, sensor_profile->reg18);
-    regs->set8(0x20, sensor_profile->reg20);
-    regs->set8(0x61, sensor_profile->reg61);
-    regs->set8(0x98, sensor_profile->reg98);
-    if (sensor_profile->reg16 != 0) {
-        regs->set8(0x16, sensor_profile->reg16);
+    for (auto reg : sensor_profile.custom_regs) {
+        regs->set8(reg.address, reg.value);
     }
-    if (sensor_profile->reg70 != 0) {
-        regs->set8(0x70, sensor_profile->reg70);
-    }
-
-
-    regs->set24(REG_SEGCNT, sensor_profile->segcnt);
-    regs->set16(REG_TG0CNT, sensor_profile->tg0cnt);
-    regs->set16(REG_EXPDMY, sensor_profile->expdummy);
 
   /* if no calibration has been done, set default values for exposures */
   exp = sensor.exposure.red;
-  if(exp==0)
-    {
-      exp=sensor_profile->expr;
+    if (exp == 0) {
+        exp = sensor_profile.exposure.red;
     }
     regs->set24(REG_EXPR, exp);
 
   exp =sensor.exposure.green;
-  if(exp==0)
-    {
-      exp=sensor_profile->expg;
+    if(exp == 0) {
+        exp = sensor_profile.exposure.green;
     }
     regs->set24(REG_EXPG, exp);
 
   exp = sensor.exposure.blue;
-  if(exp==0)
-    {
-      exp=sensor_profile->expb;
+    if (exp == 0) {
+        exp = sensor_profile.exposure.blue;
     }
     regs->set24(REG_EXPB, exp);
 
-    regs->set24(REG_CK1MAP, sensor_profile->ck1map);
-    regs->set24(REG_CK3MAP, sensor_profile->ck3map);
-    regs->set24(REG_CK4MAP, sensor_profile->ck4map);
-
-    dev->segment_order = sensor_profile->order;
+    dev->segment_order = sensor_profile.segment_order;
 }
 
 /** @brief setup optical related registers
@@ -1203,7 +1171,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
   else
     {
-        exposure_time = gl124_compute_exposure(dev, used_res, ccd_size_divisor);
+        exposure_time = gl124_compute_exposure(sensor, used_res, ccd_size_divisor);
         scan_step_type = sanei_genesys_compute_step_type(gl124_motor_profiles,
                                                          dev->model->motor_type, exposure_time);
     }
@@ -1373,7 +1341,7 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
     used_pixels = (session.params.pixels * optical_res) / session.params.xres;
   DBG (DBG_info, "%s: used_pixels=%d\n", __func__, used_pixels);
 
-    exposure_time = gl124_compute_exposure(dev, session.params.xres, ccd_size_divisor);
+    exposure_time = gl124_compute_exposure(sensor, session.params.xres, ccd_size_divisor);
   DBG (DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
     max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels,
@@ -1382,9 +1350,8 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
     // compute hw dpi for sensor
     dpihw = sensor.get_register_hwdpi(used_res);
 
-    SensorProfileGl124* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw,
-                                                            ccd_size_divisor);
-  dev->segnb=sensor_profile->reg98 & 0x0f;
+    const SensorProfile& sensor_profile = get_sensor_profile(sensor, dpihw, ccd_size_divisor);
+    dev->segnb = sensor_profile.custom_regs.get_value(0x98) & 0x0f;
 
   /* stagger */
     if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
@@ -2311,8 +2278,7 @@ static void gl124_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
     unsigned ccd_size_divisor = compute_ccd_size_divisor(sensor, dev->settings.xres);
     resolution /= ccd_size_divisor;
 
-    SensorProfileGl124* sensor_profile = get_sensor_profile(dev->model->ccd_type, dpihw,
-                                                            ccd_size_divisor);
+    const auto& sensor_profile = get_sensor_profile(sensor, dpihw, ccd_size_divisor);
   num_pixels = (sensor.sensor_pixels*resolution)/sensor.optical_res;
 
   /* initial calibration reg values */
@@ -2341,10 +2307,10 @@ static void gl124_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
   total_size = num_pixels * channels * (depth/8) * 1;        /* colors * bytes_per_color * scan lines */
   std::vector<uint8_t> line(total_size);
 
-  /* initial loop values and boundaries */
-  exp[0]=sensor_profile->expr;
-  exp[1]=sensor_profile->expg;
-  exp[2]=sensor_profile->expb;
+    // initial loop values and boundaries
+    exp[0] = sensor_profile.exposure.red;
+    exp[1] = sensor_profile.exposure.green;
+    exp[2] = sensor_profile.exposure.blue;
   target=sensor.gain_white_ref*256;
 
   turn = 0;

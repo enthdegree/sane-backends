@@ -2125,7 +2125,7 @@ static void gl843_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
   local_reg = dev->reg;
   resolution=sanei_genesys_get_lowest_ydpi(dev);
 
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, ScanMethod::FLATBED);
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 1, ScanMethod::FLATBED);
 
     ScanSession session;
     session.params.xres = resolution;
@@ -2220,7 +2220,7 @@ static void gl843_search_start_position(Genesys_Device* dev)
 
     // FIXME: the current approach of doing search only for one resolution does not work on scanners
     // whith employ different sensors with potentially different settings.
-    const auto& sensor = sanei_genesys_find_sensor(dev, dpi, ScanMethod::FLATBED);
+    const auto& sensor = sanei_genesys_find_sensor(dev, dpi, 1, ScanMethod::FLATBED);
 
     ScanSession session;
     session.params.xres = dpi;
@@ -2337,7 +2337,7 @@ static void gl843_feed(Genesys_Device* dev, unsigned int steps)
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
 
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, ScanMethod::FLATBED);
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, ScanMethod::FLATBED);
 
     ScanSession session;
     session.params.xres = resolution;
@@ -2417,7 +2417,7 @@ static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
   factor=sensor.optical_res/dpihw;
   resolution=dpihw;
 
-  const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution,
+  const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, dev->calib_channels,
                                                        dev->settings.scan_method);
 
     if ((dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
@@ -2636,7 +2636,8 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
   used_res = sensor.optical_res;
 
     // take a copy, as we're going to modify exposure
-    auto calib_sensor = sanei_genesys_find_sensor(dev, used_res, dev->settings.scan_method);
+    auto calib_sensor = sanei_genesys_find_sensor(dev, used_res, channels,
+                                                  dev->settings.scan_method);
 
   num_pixels =
     (calib_sensor.sensor_pixels * used_res) / calib_sensor.optical_res;
@@ -2847,7 +2848,7 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   factor = sensor.optical_res / dpihw;
   resolution = dpihw;
 
-  const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution,
+  const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                        dev->settings.scan_method);
 
   int target_pixels = calib_sensor.sensor_pixels / factor;
@@ -3104,7 +3105,7 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
         flags |= SCAN_FLAG_USE_XPA;
     }
 
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution,
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
 
     ScanSession session;
@@ -3255,7 +3256,7 @@ static void gl843_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor
     dpihw = sensor.get_logical_hwdpi(resolution);
   resolution=dpihw;
 
-  const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution,
+  const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, *channels,
                                                        dev->settings.scan_method);
   factor = calib_sensor.optical_res/dpihw;
   num_pixels = calib_sensor.sensor_pixels/(factor*2);
@@ -3478,7 +3479,8 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
   dpi = sanei_genesys_get_lowest_dpi(dev);
   channels = 1;
 
-  const auto& calib_sensor = sanei_genesys_find_sensor(dev, dpi, dev->settings.scan_method);
+  const auto& calib_sensor = sanei_genesys_find_sensor(dev, dpi, channels,
+                                                       dev->settings.scan_method);
 
   /* 10 MM */
   /* lines = (10 * dpi) / MM_PER_INCH; */

@@ -192,12 +192,12 @@ const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev)
     throw std::runtime_error("Given device does not have sensor defined");
 }
 
-const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
+const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi, unsigned channels,
                                                 ScanMethod scan_method)
 {
     for (const auto& sensor : *s_sensors) {
         if (dev->model->ccd_type == sensor.sensor_id && sensor.resolutions.matches(dpi) &&
-                sensor.method == scan_method)
+            sensor.matches_channel_count(channels) && sensor.method == scan_method)
         {
             return sensor;
         }
@@ -206,11 +206,12 @@ const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
 }
 
 Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,
+                                                    unsigned channels,
                                                     ScanMethod scan_method)
 {
     for (auto& sensor : *s_sensors) {
         if (dev->model->ccd_type == sensor.sensor_id && sensor.resolutions.matches(dpi) &&
-                sensor.method == scan_method)
+            sensor.matches_channel_count(channels) && sensor.method == scan_method)
         {
             return sensor;
         }
@@ -3277,6 +3278,7 @@ static void genesys_start_scan(Genesys_Device* dev, SANE_Bool lamp_off)
     }
 
     auto& sensor = sanei_genesys_find_sensor_for_write(dev, dev->settings.xres,
+                                                       dev->settings.get_channels(),
                                                        dev->settings.scan_method);
 
     // send gamma tables. They have been set to device or user value
@@ -5637,6 +5639,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
   SANE_Status status = SANE_STATUS_GOOD;
 
   const Genesys_Sensor& sensor = sanei_genesys_find_sensor(s->dev, s->resolution,
+                                                           s->dev->settings.get_channels(),
                                                            s->dev->settings.scan_method);
 
   switch (option)
@@ -6166,6 +6169,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       break;
         case OPT_CALIBRATE: {
             auto& sensor = sanei_genesys_find_sensor_for_write(s->dev, s->resolution,
+                                                               s->dev->settings.get_channels(),
                                                                s->dev->settings.scan_method);
             catch_all_exceptions(__func__, [&]()
             {
@@ -6397,8 +6401,9 @@ SANE_Status sane_start_impl(SANE_Handle handle)
         }
 
         if (s->swdeskew) {
-          const auto& sensor = sanei_genesys_find_sensor(s->dev, s->dev->settings.xres,
-                                                         s->dev->settings.scan_method);
+            const auto& sensor = sanei_genesys_find_sensor(s->dev, s->dev->settings.xres,
+                                                           s->dev->settings.get_channels(),
+                                                           s->dev->settings.scan_method);
             catch_all_exceptions(__func__, [&](){ genesys_deskew(s, sensor); });
         }
 

@@ -301,9 +301,9 @@ static int get_cksel(int sensor_id, int required, unsigned channels)
         if (sensor_id == sensor.sensor && sensor.dpi == required &&
             sensor.matches_channels(channels))
         {
-            DBG(DBG_io, "%s: match found for %d (cksel=%d)\n", __func__, required,
-                sensor.cksel);
-            return sensor.cksel;
+            unsigned cksel = sensor.ccd_pixels_per_system_pixel();
+            DBG(DBG_io, "%s: match found for %d (cksel=%d)\n", __func__, required, cksel);
+            return cksel;
         }
     }
   DBG(DBG_error, "%s: failed to find match for %d dpi\n", __func__, required);
@@ -638,8 +638,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
     }
 
   /* scanner's x coordinates are expressed in physical DPI but they must be divided by cksel */
-    sx = startx / sensor_mst->cksel / ccd_size_divisor;
-    ex = endx / sensor_mst->cksel / ccd_size_divisor;
+    sx = startx / sensor_mst->ccd_pixels_per_system_pixel() / ccd_size_divisor;
+    ex = endx / sensor_mst->ccd_pixels_per_system_pixel() / ccd_size_divisor;
     regs->set16(REG_STRPIXEL, sx);
     regs->set16(REG_ENDPIXEL, ex);
     DBG(DBG_info, "%s: startx=%d, endx=%d, ccd_size_divisor=%d\n", __func__, sx, ex, ccd_size_divisor);
@@ -663,7 +663,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
   DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
     regs->set24(REG_MAXWD, words_per_line);
 
-    regs->set16(REG_DPISET, sensor_mst->xdpi * sensor_mst->ccd_size_divisor * sensor_mst->cksel);
+    regs->set16(REG_DPISET, sensor_mst->xdpi * sensor_mst->ccd_size_divisor *
+                            sensor_mst->ccd_pixels_per_system_pixel());
     regs->set16(REG_LPERIOD, sensor_mst->exposure_lperiod);
 
   /* move distance must be adjusted to take into account the extra lines

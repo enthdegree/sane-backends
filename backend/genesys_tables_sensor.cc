@@ -1205,15 +1205,14 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            int min_resolution;
-            int max_resolution;
+            ResolutionFilter resolutions;
             int exposure_lperiod;
             ScanMethod method;
             GenesysRegisterSettingSet extra_custom_regs;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { -1, 600, 8016, ScanMethod::FLATBED, {
+            { { 100, 150, 200, 300, 400, 600 }, 8016, ScanMethod::FLATBED, {
                     { 0x74, 0x00 }, { 0x75, 0x01 }, { 0x76, 0xff },
                     { 0x77, 0x03 }, { 0x78, 0xff }, { 0x79, 0xff },
                     { 0x7a, 0x03 }, { 0x7b, 0xff }, { 0x7c, 0xff },
@@ -1241,7 +1240,7 @@ void genesys_init_sensor_tables()
                     { 0x5a, 0x40 },
                 }
             },
-            { 1200, 1200, 56064, ScanMethod::FLATBED, {
+            { { 1200 }, 56064, ScanMethod::FLATBED, {
                     { 0x74, 0x0f }, { 0x75, 0xff }, { 0x76, 0xff },
                     { 0x77, 0x00 }, { 0x78, 0x01 }, { 0x79, 0xff },
                     { 0x7a, 0x00 }, { 0x7b, 0x01 }, { 0x7c, 0xff },
@@ -1269,7 +1268,7 @@ void genesys_init_sensor_tables()
                     { 0x5a, 0x40 },
                 }
             },
-            { 2400, 2400, 56064, ScanMethod::FLATBED, {
+            { { 2400 }, 56064, ScanMethod::FLATBED, {
                     { 0x74, 0x0f }, { 0x75, 0xff }, { 0x76, 0xff },
                     { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
@@ -1297,7 +1296,7 @@ void genesys_init_sensor_tables()
                     { 0x5a, 0x40 },
                 }
             },
-            { 4800, 4800, 42752, ScanMethod::FLATBED, {
+            { { 4800 }, 42752, ScanMethod::FLATBED, {
                     { 0x74, 0x0f }, { 0x75, 0xff }, { 0x76, 0xff },
                     { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
@@ -1325,7 +1324,7 @@ void genesys_init_sensor_tables()
                     { 0x5a, 0x40 },
                 }
             },
-            { -1, -1, 15624, ScanMethod::TRANSPARENCY, {
+            { ResolutionFilter::ANY, 15624, ScanMethod::TRANSPARENCY, {
                     { 0x74, 0x00 }, { 0x75, 0x1c }, { 0x76, 0x7f },
                     { 0x77, 0x03 }, { 0x78, 0xff }, { 0x79, 0xff },
                     { 0x7a, 0x03 }, { 0x7b, 0xff }, { 0x7c, 0xff },
@@ -1358,8 +1357,7 @@ void genesys_init_sensor_tables()
         auto base_custom_regs = sensor.custom_regs;
         for (const CustomSensorSettings& setting : custom_settings)
         {
-            sensor.min_resolution = setting.min_resolution;
-            sensor.max_resolution = setting.max_resolution;
+            sensor.resolutions = setting.resolutions;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.method = setting.method;
             sensor.custom_regs = base_custom_regs;
@@ -1439,8 +1437,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            int min_resolution;
-            int max_resolution;
+            ResolutionFilter resolutions;
             int exposure_lperiod;
             ScanMethod method;
             GenesysRegisterSettingSet extra_custom_regs;
@@ -1448,7 +1445,7 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            { -1, 600, 7200, ScanMethod::FLATBED, {
+            { { 100, 300, 600 }, 7200, ScanMethod::FLATBED, {
                     { 0x74, 0x00 }, { 0x75, 0x0e }, { 0x76, 0x3f },
                     { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
                     { 0x7a, 0x01 }, { 0x7b, 0xb6 }, { 0x7c, 0xdb },
@@ -1477,7 +1474,7 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x20 },
                 }, {}
             },
-            { 1200, 1200, 14400, ScanMethod::FLATBED, {
+            { { 1200 }, 14400, ScanMethod::FLATBED, {
                     { 0x74, 0x00 }, { 0x75, 0x01 }, { 0x76, 0xff },
                     { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
                     { 0x7a, 0x02 }, { 0x7b, 0x49 }, { 0x7c, 0x24 },
@@ -1508,7 +1505,7 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 }
             },
-            { -1, 600, 14400, ScanMethod::TRANSPARENCY, {
+            { { 100, 300, 600 }, 14400, ScanMethod::TRANSPARENCY, {
                     { 0x16, 0x33 },
                     { 0x17, 0x0c },
                     { 0x18, 0x13 },
@@ -1534,7 +1531,7 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x20 },
                 }, {}
             },
-            { 1200, 1200, 28800, ScanMethod::TRANSPARENCY, {
+            { { 1200 }, 28800, ScanMethod::TRANSPARENCY, {
                     { 0x16, 0x33 },
                     { 0x17, 0x0c },
                     { 0x18, 0x11 },
@@ -1562,7 +1559,7 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 },
             },
-            { 2400, 2400, 28800, ScanMethod::TRANSPARENCY, {
+            { { 2400 }, 28800, ScanMethod::TRANSPARENCY, {
                     { 0x16, 0x33 },
                     { 0x17, 0x0c },
                     { 0x18, 0x10 },
@@ -1590,7 +1587,7 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 },
             },
-            { 1200, 1200, 28800, ScanMethod::TRANSPARENCY_INFRARED, {
+            { { 1200 }, 28800, ScanMethod::TRANSPARENCY_INFRARED, {
                     { 0x16, 0x33 },
                     { 0x17, 0x0c },
                     { 0x18, 0x11 },
@@ -1622,8 +1619,7 @@ void genesys_init_sensor_tables()
 
         for (const CustomSensorSettings& setting : custom_settings)
         {
-            sensor.min_resolution = setting.min_resolution;
-            sensor.max_resolution = setting.max_resolution;
+            sensor.resolutions = setting.resolutions;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.method = setting.method;
             sensor.custom_regs = setting.extra_custom_regs;
@@ -1654,8 +1650,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            int min_resolution;
-            int max_resolution;
+            ResolutionFilter resolutions;
             int exposure_lperiod;
             ScanMethod method;
             GenesysRegisterSettingSet extra_custom_regs;
@@ -1663,7 +1658,7 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            { -1, 1200, 24000, ScanMethod::FLATBED, {
+            { { 300, 600, 1200 }, 24000, ScanMethod::FLATBED, {
                     { 0x74, 0x03 }, { 0x75, 0xf0 }, { 0x76, 0xf0 },
                     { 0x77, 0x03 }, { 0x78, 0xfe }, { 0x79, 0x00 },
                     { 0x7a, 0x00 }, { 0x7b, 0x92 }, { 0x7c, 0x49 },
@@ -1694,7 +1689,7 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            { -1, 1200, 45000, ScanMethod::TRANSPARENCY, {
+            { { 300, 600, 1200 }, 45000, ScanMethod::TRANSPARENCY, {
                     { 0x74, 0x03 }, { 0x75, 0xf0 }, { 0x76, 0xf0 },
                     { 0x77, 0x03 }, { 0x78, 0xfe }, { 0x79, 0x00 },
                     { 0x7a, 0x00 }, { 0x7b, 0x92 }, { 0x7c, 0x49 },
@@ -1725,7 +1720,7 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            { 2400, 2400, 45000, ScanMethod::TRANSPARENCY, {
+            { { 2400 }, 45000, ScanMethod::TRANSPARENCY, {
                     { 0x74, 0x03 }, { 0x75, 0xfe }, { 0x76, 0x00 },
                     { 0x77, 0x03 }, { 0x78, 0xfe }, { 0x79, 0x00 },
                     { 0x7a, 0x00 }, { 0x7b, 0x92 }, { 0x7c, 0x49 },
@@ -1756,7 +1751,7 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            { 4800, 4800, 45000, ScanMethod::TRANSPARENCY, {
+            { { 4800 }, 45000, ScanMethod::TRANSPARENCY, {
                     { 0x74, 0x03 }, { 0x75, 0xff }, { 0x76, 0xff },
                     { 0x77, 0x03 }, { 0x78, 0xff }, { 0x79, 0xff },
                     { 0x7a, 0x00 }, { 0x7b, 0x92 }, { 0x7c, 0x49 },
@@ -1788,7 +1783,7 @@ void genesys_init_sensor_tables()
                 {   { 0x03, 0x1f },
                 },
             },
-            { -1, 1200, 45000, ScanMethod::TRANSPARENCY_INFRARED, {
+            { { 1200 }, 45000, ScanMethod::TRANSPARENCY_INFRARED, {
                     { 0x74, 0x03 }, { 0x75, 0xf0 }, { 0x76, 0xf0 },
                     { 0x77, 0x03 }, { 0x78, 0xfe }, { 0x79, 0x00 },
                     { 0x7a, 0x00 }, { 0x7b, 0x92 }, { 0x7c, 0x49 },
@@ -1821,8 +1816,7 @@ void genesys_init_sensor_tables()
 
         for (const CustomSensorSettings& setting : custom_settings)
         {
-            sensor.min_resolution = setting.min_resolution;
-            sensor.max_resolution = setting.max_resolution;
+            sensor.resolutions = setting.resolutions;
             sensor.method = setting.method;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.custom_regs = setting.extra_custom_regs;

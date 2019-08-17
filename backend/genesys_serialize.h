@@ -56,6 +56,8 @@
 inline void serialize_newline(std::ostream& str) { str << '\n'; }
 inline void serialize_newline(std::istream& str) { (void) str; }
 
+inline void serialize(std::ostream& str, bool x) { str << static_cast<unsigned>(x) << " "; }
+inline void serialize(std::istream& str, bool& x) { unsigned v; str >> v; x = v; }
 inline void serialize(std::ostream& str, char x) { str << static_cast<int>(x) << " "; }
 inline void serialize(std::istream& str, char& x) { int v; str >> v; x = v; }
 inline void serialize(std::ostream& str, unsigned char x) { str << static_cast<unsigned>(x) << " "; }

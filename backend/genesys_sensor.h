@@ -193,6 +193,51 @@ void serialize(Stream& str, SensorProfile& x)
     serialize(str, x.custom_regs);
 }
 
+class ResolutionFilter
+{
+public:
+    struct Any {};
+    static constexpr Any ANY{};
+
+    ResolutionFilter() : matches_any_{false} {}
+    ResolutionFilter(Any) : matches_any_{true} {}
+    ResolutionFilter(std::initializer_list<unsigned> resolutions) :
+        matches_any_{false},
+        resolutions_{resolutions}
+    {}
+
+    bool matches(unsigned resolution) const
+    {
+        if (matches_any_)
+            return true;
+        auto it = std::find(resolutions_.begin(), resolutions_.end(), resolution);
+        return it != resolutions_.end();
+    }
+
+    bool operator==(const ResolutionFilter& other) const
+    {
+        return  matches_any_ == other.matches_any_ && resolutions_ == other.resolutions_;
+    }
+
+    bool matches_any() const { return matches_any_; }
+    const std::vector<unsigned>& resolutions() const { return resolutions_; }
+
+private:
+    bool matches_any_ = false;
+    std::vector<unsigned> resolutions_;
+
+    template<class Stream>
+    friend void serialize(Stream& str, ResolutionFilter& x);
+};
+
+template<class Stream>
+void serialize(Stream& str, ResolutionFilter& x)
+{
+    serialize(str, x.matches_any_);
+    serialize_newline(str);
+    serialize(str, x.resolutions_);
+}
+
 struct Genesys_Sensor {
 
     Genesys_Sensor() = default;
@@ -205,10 +250,8 @@ struct Genesys_Sensor {
     // pixel, see ccd_pixels_per_system_pixel()
     int optical_res = 0;
 
-    // the minimum and maximum resolution this sensor is usable at. -1 means that the resolution
-    // can be any.
-    int min_resolution = -1;
-    int max_resolution = -1;
+    // the resolution list that the sensor is usable at.
+    ResolutionFilter resolutions = ResolutionFilter::ANY;
 
     // the scan method used with the sensor
     ScanMethod method = ScanMethod::FLATBED;
@@ -277,8 +320,7 @@ struct Genesys_Sensor {
     {
         return sensor_id == other.sensor_id &&
             optical_res == other.optical_res &&
-            min_resolution == other.min_resolution &&
-            max_resolution == other.max_resolution &&
+            resolutions == other.resolutions &&
             method == other.method &&
             ccd_size_divisor == other.ccd_size_divisor &&
             black_pixels == other.black_pixels &&
@@ -301,8 +343,7 @@ void serialize(Stream& str, Genesys_Sensor& x)
 {
     serialize(str, x.sensor_id);
     serialize(str, x.optical_res);
-    serialize(str, x.min_resolution);
-    serialize(str, x.max_resolution);
+    serialize(str, x.resolutions);
     serialize(str, x.method);
     serialize(str, x.ccd_size_divisor);
     serialize(str, x.black_pixels);

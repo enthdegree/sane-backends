@@ -206,10 +206,9 @@ const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi,
                                                 ScanMethod scan_method)
 {
     for (const auto& sensor : *s_sensors) {
-        if (dev->model->ccd_type == sensor.sensor_id &&
-                (sensor.min_resolution == -1 || dpi >= sensor.min_resolution) &&
-                (sensor.max_resolution == -1 || dpi <= sensor.max_resolution) &&
-                sensor.method == scan_method) {
+        if (dev->model->ccd_type == sensor.sensor_id && sensor.resolutions.matches(dpi) &&
+                sensor.method == scan_method)
+        {
             return sensor;
         }
     }
@@ -220,10 +219,9 @@ Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi
                                                     ScanMethod scan_method)
 {
     for (auto& sensor : *s_sensors) {
-        if (dev->model->ccd_type == sensor.sensor_id &&
-                (sensor.min_resolution == -1 || dpi >= sensor.min_resolution) &&
-                (sensor.max_resolution == -1 || dpi <= sensor.max_resolution) &&
-                sensor.method == scan_method) {
+        if (dev->model->ccd_type == sensor.sensor_id && sensor.resolutions.matches(dpi) &&
+                sensor.method == scan_method)
+        {
             return sensor;
         }
     }
@@ -5122,7 +5120,7 @@ probe_genesys_devices (void)
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 4;
+static const int CALIBRATION_VERSION = 5;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

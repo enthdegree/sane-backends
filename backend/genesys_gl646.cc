@@ -498,23 +498,10 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
     unsigned ccd_size_divisor = sensor_mst->ccd_size_divisor;
 
-  /* now apply values from settings to registers */
-  if (sensor_mst->regs_0x10_0x15 != NULL)
-    {
-      for (i = 0; i < 6; i++)
-	{
-	  r = sanei_genesys_get_address (regs, 0x10 + i);
-          r->value = sensor_mst->regs_0x10_0x15[i];
-	}
-    }
-  else
-    {
-      for (i = 0; i < 6; i++)
-	{
-	  r = sanei_genesys_get_address (regs, 0x10 + i);
-	  r->value = 0;
-	}
-    }
+    // now apply values from settings to registers
+    regs->set16(REG_EXPR, sensor_mst->exposure.red);
+    regs->set16(REG_EXPG, sensor_mst->exposure.green);
+    regs->set16(REG_EXPB, sensor_mst->exposure.blue);
 
   for (i = 0; i < 4; i++)
     {

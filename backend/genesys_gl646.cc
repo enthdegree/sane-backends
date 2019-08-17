@@ -415,8 +415,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
   int i, nb;
   Sensor_Master *sensor_mst = NULL;
   Motor_Master *motor = NULL;
-  Sensor_Settings *settings = NULL;
-  GenesysRegister *r;
   unsigned int used1, used2, vfinal;
   unsigned int bpp;   /**> bytes per pixel */
   uint32_t z1, z2;
@@ -480,22 +478,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   /* now we can search for the specific sensor settings */
   i = 0;
-  nb = sizeof (sensor_settings) / sizeof (Sensor_Settings);
-  while (i < nb)
-    {
-        if (sensor_mst->sensor == sensor_settings[i].sensor &&
-            sensor_mst->cksel == sensor_settings[i].cksel &&
-            sensor_mst->ccd_size_divisor == sensor_settings[i].ccd_size_divisor)
-	{
-	  settings = &sensor_settings[i];
-	}
-      i++;
-    }
-  if (settings == NULL)
-    {
-        throw SaneException("unable to find settings for sensor %d with '%d' ccd timing",
-                            sensor_mst->sensor, sensor_mst->cksel);
-    }
 
     unsigned ccd_size_divisor = sensor_mst->ccd_size_divisor;
 
@@ -504,22 +486,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
     regs->set16(REG_EXPG, sensor_mst->exposure.green);
     regs->set16(REG_EXPB, sensor_mst->exposure.blue);
 
-  for (i = 0; i < 4; i++)
-    {
-      r = sanei_genesys_get_address (regs, 0x08 + i);
-            r->value = settings->regs_0x08_0x0b[i];
-    }
-
-  for (i = 0; i < 8; i++)
-    {
-      r = sanei_genesys_get_address (regs, 0x16 + i);
-      r->value = settings->regs_0x16_0x1d[i];
-    }
-
-  for (i = 0; i < 13; i++)
-    {
-      r = sanei_genesys_get_address (regs, 0x52 + i);
-      r->value = settings->regs_0x52_0x5e[i];
+    for (const auto& reg : sensor_mst->custom_regs) {
+        regs->set8(reg.address, reg.value);
     }
 
   /* now generate slope tables : we are not using generate_slope_table3 yet */
@@ -642,10 +610,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
   else
     {
       regs->find_reg(0x05).value &= ~REG05_LEDADD;
-    }
-
-    for (const auto& reg : sensor_mst->custom_regs) {
-        regs->set8(reg.address, reg.value);
     }
 
   /* HP2400 1200dpi mode tuning */

@@ -1139,8 +1139,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 static void
 gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
-  int channels;
-  int depth;
   int start;
 
   int used_res;
@@ -1158,17 +1156,6 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
 
-  /* channels */
-  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
-    channels = 3;
-  else
-    channels = 1;
-
-  /* depth */
-  depth = dev->settings.depth;
-  if (dev->settings.scan_mode == ScanColorMode::LINEART)
-    depth = 1;
-
   /* start */
   start = SANE_UNFIX (dev->model->x_offset);
   start += dev->settings.tl_x;
@@ -1181,8 +1168,8 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     session.params.starty = 0; // not used
     session.params.pixels = dev->settings.pixels;
     session.params.lines = dev->settings.lines;
-    session.params.depth = depth;
-    session.params.channels = channels;
+    session.params.depth = dev->settings.get_depth();
+    session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
@@ -1563,14 +1550,6 @@ static void gl846_init_regs_for_coarse_calibration(Genesys_Device* dev,
                                                    Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
-  uint8_t channels;
-
-  /* set line size */
-  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
-    channels = 3;
-  else {
-    channels = 1;
-  }
 
     ScanSession session;
     session.params.xres = dev->settings.xres;
@@ -1580,7 +1559,7 @@ static void gl846_init_regs_for_coarse_calibration(Genesys_Device* dev,
     session.params.pixels = sensor.optical_res / sensor.ccd_pixels_per_system_pixel();
     session.params.lines = 20;
     session.params.depth = 16;
-    session.params.channels = channels;
+    session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
@@ -1735,26 +1714,12 @@ static void gl846_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
 static void gl846_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-  int channels;
   int flags;
-  int depth;
   float move;
   int move_dpi;
   float start;
 
     debug_dump(DBG_info, dev->settings);
-
- /* channels */
-  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
-    channels = 3;
-  else
-    channels = 1;
-
-  /* depth */
-  depth = dev->settings.depth;
-  if (dev->settings.scan_mode == ScanColorMode::LINEART)
-    depth = 1;
-
 
   /* steps to move to reach scanning area:
      - first we move to physical start of scanning
@@ -1788,7 +1753,7 @@ static void gl846_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& 
    * computing acceleration/deceleration distance for scan
    * resolution. So leave a remainder for it so scan makes the final
    * move tuning */
-  if(channels*dev->settings.yres>=600 && move>700)
+    if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700)
     {
         gl846_feed(dev, move-500);
       move=500;
@@ -1821,8 +1786,8 @@ static void gl846_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& 
     session.params.starty = move;
     session.params.pixels = dev->settings.pixels;
     session.params.lines = dev->settings.lines;
-    session.params.depth = depth;
-    session.params.channels = channels;
+    session.params.depth = dev->settings.get_depth();
+    session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;

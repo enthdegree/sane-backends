@@ -1382,7 +1382,6 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
   int size;
   int black_pixels;
   int white_average;
-  int channels;
   uint8_t offset[4] = { 0xa0, 0x00, 0xa0, 0x40 };	/* first value isn't used */
   uint16_t white[12], dark[12];
   int i, j;
@@ -1390,10 +1389,7 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
   black_pixels = sensor.black_pixels
     * dev->settings.xres / sensor.optical_res;
 
-  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
-    channels = 3;
-  else
-    channels = 1;
+    unsigned channels = dev->settings.get_channels();
 
   DBG(DBG_info, "channels %d y_size %d xres %d\n", channels, dev->model->y_size,
       dev->settings.xres);

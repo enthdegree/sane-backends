@@ -2217,18 +2217,8 @@ static void setup_for_scan(Genesys_Device* dev,
 {
     DBG_HELPER(dbg);
   SANE_Int depth;
-  int channels;
 
     debug_dump(DBG_info, dev->settings);
-
-  if (settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
-    {
-      channels = 3;
-    }
-  else
-    {
-      channels = 1;
-    }
 
   depth=settings.depth;
   if (settings.scan_mode == ScanColorMode::LINEART)
@@ -2283,7 +2273,7 @@ static void setup_for_scan(Genesys_Device* dev,
     session.params.pixels = settings.pixels;
     session.params.lines = settings.lines;
     session.params.depth = depth;
-    session.params.channels = channels;
+    session.params.channels = settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = settings.scan_mode;
     session.params.color_filter = settings.color_filter;
@@ -2367,7 +2357,6 @@ static SensorExposure gl646_led_calibration(Genesys_Device* dev, const Genesys_S
   int total_size;
   unsigned int i, j;
   int val;
-  unsigned int channels;
   int avg[3], avga, avge;
   int turn;
   uint16_t expr, expg, expb;
@@ -2376,15 +2365,15 @@ static SensorExposure gl646_led_calibration(Genesys_Device* dev, const Genesys_S
 
   SANE_Bool acceptable = SANE_FALSE;
 
+    unsigned channels = dev->settings.get_channels();
+
   /* get led calibration resolution */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
     {
-      channels = 3;
       settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     }
   else
     {
-      channels = 1;
       settings.scan_mode = ScanColorMode::GRAY;
     }
   resolution = get_closest_resolution(dev->model->ccd_type, sensor.optical_res, channels);
@@ -3357,13 +3346,12 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
         lines = dev->reg.get24(REG_LINCNT) + 1;
     }
   size = lines * settings.pixels;
-  if (settings.depth == 16)
-    bpp = 2;
-  else
-    bpp = 1;
-  size *= bpp;
-  if (settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
-    size *= 3;
+    if (settings.depth == 16) {
+        bpp = 2;
+    } else {
+        bpp = 1;
+    }
+    size *= bpp * settings.get_channels();
   data.clear();
   data.resize(size);
 
@@ -3732,12 +3720,7 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
   /* build minimal current_setup for calibration cache use only, it will be better
    * computed when during setup for scan
    */
-  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
-    {
-        dev->session.params.channels = 3;
-    } else {
-        dev->session.params.channels = 1;
-    }
+    dev->session.params.channels = dev->settings.get_channels();
   dev->current_setup.xres = dev->settings.xres;
 
     DBG(DBG_io, "%s: requested=(%d,%f), tested=(%d,%f)\n", __func__,

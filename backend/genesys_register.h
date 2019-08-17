@@ -295,20 +295,19 @@ public:
 
     uint8_t get_value(uint16_t address) const
     {
-        for (const auto& reg : registers_) {
-            if (reg.address == address)
-                return reg.value;
+        int index = find_reg_index(address);
+        if (index >= 0) {
+            return registers_[index].value;
         }
-        throw std::runtime_error("Unknown register");
+        throw std::out_of_range("Unknown register");
     }
 
     void set_value(uint16_t address, uint8_t value)
     {
-        for (auto& reg : registers_) {
-            if (reg.address == address) {
-                reg.value = value;
-                return;
-            }
+        int index = find_reg_index(address);
+        if (index >= 0) {
+            registers_[index].value = value;
+            return;
         }
         push_back(GenesysRegisterSetting(address, value));
     }
@@ -322,6 +321,17 @@ public:
     }
 
 private:
+
+    int find_reg_index(uint16_t address) const
+    {
+        for (size_t i = 0; i < registers_.size(); i++) {
+            if (registers_[i].address == address) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     std::vector<GenesysRegisterSetting> registers_;
 };
 

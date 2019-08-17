@@ -581,19 +581,18 @@ gl841_init_registers (Genesys_Device * dev)
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
   dev->reg.find_reg(0x05).value = 0x00;	/* disable gamma, 24 clocks/pixel */
-  if (sensor.sensor_pixels < 0x1500)
-    dev->reg.find_reg(0x05).value |= REG05_DPIHW_600;
-  else if (sensor.sensor_pixels < 0x2a80)
-    dev->reg.find_reg(0x05).value |= REG05_DPIHW_1200;
-  else if (sensor.sensor_pixels < 0x5400)
-    dev->reg.find_reg(0x05).value |= REG05_DPIHW_2400;
-  else
-    {
-      dev->reg.find_reg(0x05).value |= REG05_DPIHW_2400;
-      DBG(DBG_warn, "%s: Cannot handle sensor pixel count %d\n", __func__,
-          sensor.sensor_pixels);
-    }
 
+    unsigned dpihw = 0;
+    if (sensor.sensor_pixels < 0x1500) {
+        dpihw = 600;
+    } else if (sensor.sensor_pixels < 0x2a80) {
+        dpihw = 1200;
+    } else if (sensor.sensor_pixels < 0x5400) {
+        dpihw = 2400;
+    } else {
+        throw SaneException("Cannot handle sensor pixel count %d", sensor.sensor_pixels);
+    }
+    sanei_genesys_set_dpihw(dev->reg, sensor, dpihw);
 
   dev->reg.find_reg(0x06).value |= REG06_PWRBIT;
   dev->reg.find_reg(0x06).value |= REG06_GAIN4;

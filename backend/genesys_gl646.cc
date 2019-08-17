@@ -648,22 +648,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
       break;
     }
 
-  /* R05 */
-  regs->find_reg(0x05).value &= ~REG05_DPIHW;
-  switch (sensor.optical_res)
-    {
-    case 600:
-      regs->find_reg(0x05).value |= REG05_DPIHW_600;
-      break;
-    case 1200:
-      regs->find_reg(0x05).value |= REG05_DPIHW_1200;
-      break;
-    case 2400:
-      regs->find_reg(0x05).value |= REG05_DPIHW_2400;
-      break;
-    default:
-      regs->find_reg(0x05).value |= REG05_DPIHW;
-    }
+    sanei_genesys_set_dpihw(*regs, sensor, sensor.optical_res);
 
   /* gamma enable for scans */
   if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA)
@@ -1136,21 +1121,8 @@ gl646_init_regs (Genesys_Device * dev)
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
   dev->reg.find_reg(0x05).value = 0x00;	/* 12 bits gamma, disable gamma, 24 clocks/pixel */
-  switch (sensor.optical_res)
-    {
-    case 600:
-      dev->reg.find_reg(0x05).value |= REG05_DPIHW_600;
-      break;
-    case 1200:
-      dev->reg.find_reg(0x05).value |= REG05_DPIHW_1200;
-      break;
-    case 2400:
-      dev->reg.find_reg(0x05).value |= REG05_DPIHW_2400;
-      break;
-    default:
-      dev->reg.find_reg(0x05).value |= REG05_DPIHW;
-      break;
-    }
+    sanei_genesys_set_dpihw(dev->reg, sensor, sensor.optical_res);
+
   if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA)
     dev->reg.find_reg(0x05).value |= REG05_GMM14BIT;
   if (dev->model->dac_type == DAC_AD_XP200)

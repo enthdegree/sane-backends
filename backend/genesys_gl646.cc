@@ -207,24 +207,24 @@ static void gl646_stop_motor(Genesys_Device* dev)
 /**
  * find the lowest resolution for the sensor in the given mode.
  * @param sensor id of the sensor
- * @param color true is color mode
- * @return the closest resolution for the sensor and mode
+ * @param channels the channel count
+ * @return the minimum resolution for the sensor and mode
  */
-static int
-get_lowest_resolution(int sensor_id, unsigned channels)
+static unsigned get_lowest_resolution(int sensor_id, unsigned channels)
 {
-    int dpi = 9600;
-    for (const auto& sensor : sensor_master) {
+    unsigned min_res = 9600;
+    for (const auto& sensor : *s_sensors) {
         // computes distance and keep mode if it is closer than previous
-        if (sensor_id == sensor.sensor && sensor.matches_channels(channels)) {
-            if (sensor.dpi < dpi) {
-                dpi = sensor.dpi;
+        if (sensor_id == sensor.sensor_id && sensor.matches_channel_count(channels)) {
+            for (auto res : sensor.resolutions.resolutions()) {
+                if (res < min_res)
+                    min_res = res;
             }
         }
     }
 
-  DBG(DBG_info, "%s: %d\n", __func__, dpi);
-  return dpi;
+    DBG(DBG_info, "%s: %d\n", __func__, min_res);
+    return min_res;
 }
 
 /**
@@ -234,33 +234,35 @@ get_lowest_resolution(int sensor_id, unsigned channels)
  * @param color true is color mode
  * @return the closest resolution for the sensor and mode
  */
-static int
-get_closest_resolution(int sensor_id, int required, unsigned channels)
+static unsigned get_closest_resolution(int sensor_id, int required, unsigned channels)
 {
-    int dpi = 0;
-    int dist = 9600;
+    unsigned best_res = 0;
+    unsigned best_diff = 9600;
 
-    for (const auto& sensor : sensor_master) {
-        if (sensor_id != sensor.sensor)
+    for (const auto& sensor : *s_sensors) {
+        if (sensor_id != sensor.sensor_id)
             continue;
 
         // exit on perfect match
-        if (sensor.dpi == required && sensor.matches_channels(channels)) {
+        if (sensor.resolutions.matches(required) && sensor.matches_channel_count(channels)) {
             DBG(DBG_info, "%s: match found for %d\n", __func__, required);
             return required;
         }
 
         // computes distance and keep mode if it is closer than previous
-        if (sensor.matches_channels(channels)) {
-            if (std::abs(sensor.dpi - required) < dist) {
-                dpi = sensor.dpi;
-                dist = std::abs(sensor.dpi - required);
+        if (sensor.matches_channel_count(channels)) {
+            for (auto res : sensor.resolutions.resolutions()) {
+                unsigned curr_diff = std::abs(static_cast<int>(res) - static_cast<int>(required));
+                if (curr_diff < best_diff) {
+                    best_res = res;
+                    best_diff = curr_diff;
+                }
             }
         }
     }
 
-  DBG(DBG_info, "%s: closest match for %d is %d\n", __func__, required, dpi);
-  return dpi;
+    DBG(DBG_info, "%s: closest match for %d is %d\n", __func__, required, best_res);
+    return best_res;
 }
 
 /**
@@ -273,10 +275,10 @@ get_closest_resolution(int sensor_id, int required, unsigned channels)
  */
 static unsigned get_ccd_size_divisor(int sensor_id, int required, unsigned channels)
 {
-    for (const auto& sensor : sensor_master) {
+    for (const auto& sensor : *s_sensors) {
         // exit on perfect match
-        if (sensor_id == sensor.sensor && sensor.dpi == required &&
-            sensor.matches_channels(channels))
+        if (sensor.sensor_id == sensor_id && sensor.resolutions.matches(required) &&
+            sensor.matches_channel_count(channels))
         {
             DBG(DBG_io, "%s: match found for %d (ccd_size_divisor=%d)\n", __func__, required,
                 sensor.ccd_size_divisor);
@@ -296,10 +298,10 @@ static unsigned get_ccd_size_divisor(int sensor_id, int required, unsigned chann
  */
 static int get_cksel(int sensor_id, int required, unsigned channels)
 {
-    for (const auto& sensor : sensor_master) {
+    for (const auto& sensor : *s_sensors) {
         // exit on perfect match
-        if (sensor_id == sensor.sensor && sensor.dpi == required &&
-            sensor.matches_channels(channels))
+        if (sensor.sensor_id == sensor_id && sensor.resolutions.matches(required) &&
+            sensor.matches_channel_count(channels))
         {
             unsigned cksel = sensor.ccd_pixels_per_system_pixel();
             DBG(DBG_io, "%s: match found for %d (cksel=%d)\n", __func__, required, cksel);
@@ -406,10 +408,10 @@ static void gl646_setup_registers(Genesys_Device* dev,
     }
 
     // for the given resolution, search for master sensor mode setting
-    const Sensor_Master* sensor_mst = nullptr;
-    for (const auto& sensor : sensor_master) {
-        if (dev->model->ccd_type == sensor.sensor && sensor.dpi == xresolution &&
-                sensor.matches_channels(session.params.channels))
+    const Genesys_Sensor* sensor_mst = nullptr;
+    for (const auto& sensor : *s_sensors) {
+        if (sensor.sensor_id == dev->model->ccd_type && sensor.resolutions.matches(xresolution) &&
+            sensor.matches_channel_count(session.params.channels))
         {
             sensor_mst = &sensor;
             break;
@@ -646,7 +648,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   /* words_per_line must be computed according to the scan's resolution */
   /* in fact, words_per_line _gives_ the actual scan resolution */
-  words_per_line = (((endx - startx) * sensor_mst->xdpi) / sensor.optical_res);
+    words_per_line = (((endx - startx) * sensor_mst->real_resolution) / sensor.optical_res);
     bpp = session.params.depth/8;
     if (session.params.depth == 1) {
       words_per_line = (words_per_line+7)/8 ;
@@ -663,7 +665,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
     regs->set24(REG_MAXWD, words_per_line);
 
-    regs->set16(REG_DPISET, sensor_mst->xdpi * sensor_mst->ccd_size_divisor *
+    regs->set16(REG_DPISET, sensor_mst->real_resolution * sensor_mst->ccd_size_divisor *
                             sensor_mst->ccd_pixels_per_system_pixel());
     regs->set16(REG_LPERIOD, sensor_mst->exposure_lperiod);
 
@@ -844,11 +846,10 @@ static void gl646_setup_registers(Genesys_Device* dev,
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
-  dev->current_setup.pixels =
-    ((endx - startx) * sensor_mst->xdpi) / sensor.optical_res;
+    dev->current_setup.pixels = ((endx - startx) * sensor_mst->real_resolution) / sensor.optical_res;
   dev->current_setup.lines = linecnt;
   dev->current_setup.exposure_time = sensor_mst->exposure_lperiod;
-  dev->current_setup.xres = sensor_mst->xdpi;
+    dev->current_setup.xres = sensor_mst->real_resolution;
   dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
@@ -899,7 +900,7 @@ gl646_setup_sensor (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_
     (void) dev;
     DBG(DBG_proc, "%s: start\n", __func__);
 
-    for (const auto& reg_setting : sensor.custom_regs) {
+    for (const auto& reg_setting : sensor.custom_base_regs) {
         regs->set8(reg_setting.address, reg_setting.value);
     }
     // FIXME: all other drivers don't set exposure here
@@ -2408,8 +2409,6 @@ static SensorExposure gl646_led_calibration(Genesys_Device* dev, const Genesys_S
    loop:
      average per color
      adjust exposure times
-
-  Sensor_Master uint8_t regs_0x10_0x15[6];
  */
   expr = sensor.exposure.red;
   expg = sensor.exposure.green;

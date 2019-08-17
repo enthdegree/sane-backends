@@ -253,6 +253,10 @@ struct Genesys_Sensor {
     // the resolution list that the sensor is usable at.
     ResolutionFilter resolutions = ResolutionFilter::ANY;
 
+    // the actual resolution of the sensor. If 0, then it's equivalent to the requested resolution.
+    // gl646-only.
+    unsigned real_resolution = 0;
+
     // the channel list that the sensor is usable at
     std::vector<unsigned> channels = { 1, 3 };
 
@@ -287,6 +291,7 @@ struct Genesys_Sensor {
 
     int exposure_lperiod = -1;
 
+    GenesysRegisterSettingSet custom_base_regs; // gl646-specific
     GenesysRegisterSettingSet custom_regs;
     GenesysRegisterSettingSet custom_fe_regs;
 
@@ -329,6 +334,7 @@ struct Genesys_Sensor {
         return sensor_id == other.sensor_id &&
             optical_res == other.optical_res &&
             resolutions == other.resolutions &&
+            real_resolution == other.real_resolution &&
             method == other.method &&
             ccd_size_divisor == other.ccd_size_divisor &&
             black_pixels == other.black_pixels &&
@@ -339,6 +345,7 @@ struct Genesys_Sensor {
             gain_white_ref == other.gain_white_ref &&
             exposure == other.exposure &&
             exposure_lperiod == other.exposure_lperiod &&
+            custom_base_regs == other.custom_base_regs &&
             custom_regs == other.custom_regs &&
             custom_fe_regs == other.custom_fe_regs &&
             gamma == other.gamma &&
@@ -352,6 +359,7 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.sensor_id);
     serialize(str, x.optical_res);
     serialize(str, x.resolutions);
+    serialize(str, x.real_resolution);
     serialize(str, x.method);
     serialize(str, x.ccd_size_divisor);
     serialize(str, x.black_pixels);
@@ -365,6 +373,8 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.exposure.green);
     serialize(str, x.exposure.red);
     serialize(str, x.exposure_lperiod);
+    serialize_newline(str);
+    serialize(str, x.custom_base_regs);
     serialize_newline(str);
     serialize(str, x.custom_regs);
     serialize_newline(str);

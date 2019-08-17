@@ -1005,8 +1005,13 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         r->value |= REG05_GMMENB;
     }
 
-    reg->set16(REG_DPISET, dpiset * ccd_size_divisor);
-    DBG (DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset * ccd_size_divisor);
+    unsigned dpiset_reg = dpiset * ccd_size_divisor;
+    if (sensor.dpiset_override != 0) {
+        dpiset_reg = sensor.dpiset_override;
+    }
+
+    reg->set16(REG_DPISET, dpiset_reg);
+    DBG (DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset_reg);
 
   r = sanei_genesys_get_address (reg, REG06);
   r->value |= REG06_GAIN4;

@@ -1145,6 +1145,10 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     unsigned dpiset = session.output_resolution * session.ccd_size_divisor *
             ccd_pixels_per_system_pixel;
+
+    if (sensor.dpiset_override != 0) {
+        dpiset = sensor.dpiset_override;
+    }
     reg->set16(REG_DPISET, dpiset);
     DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);
 

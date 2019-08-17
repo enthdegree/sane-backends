@@ -667,11 +667,9 @@ static void gl646_setup_registers(Genesys_Device* dev,
       regs->find_reg(0x05).value &= ~REG05_LEDADD;
     }
 
-  /* cktoggle, ckdelay and cksel at once, cktdelay=2 => ccd_size_divisor == 2 for md5345 */
-  regs->find_reg(0x18).value = sensor_mst->r18;
-
-  /* manual CCD/2 clock programming on ccd_size_divisor == 2 for hp2300 */
-  regs->find_reg(0x1d).value = sensor_mst->r1d;
+    for (const auto& reg : sensor_mst->custom_regs) {
+        regs->set8(reg.address, reg.value);
+    }
 
   /* HP2400 1200dpi mode tuning */
 

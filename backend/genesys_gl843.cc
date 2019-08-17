@@ -217,6 +217,8 @@ gl843_init_registers (Genesys_Device * dev)
   // of the sensors definition and the actual value is set in
   // gl843_setup_sensor().
 
+    // 0x6c, 0x6d, 0x6e, 0x6f, 0xa6, 0xa7, 0xa8, 0xa9 are defined in the Gpo sensor struct
+
     DBG_HELPER(dbg);
 
   dev->reg.clear();
@@ -3329,28 +3331,10 @@ GPIO(0xa8)=0x3e
 static void gl843_init_gpio(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  int idx;
-
-    dev->write_register(REG6E, dev->gpo.regs.get_value(0x6e));
-    dev->write_register(REG6F, dev->gpo.regs.get_value(0x6f));
-    dev->write_register(REG6C, dev->gpo.regs.get_value(0x6c));
-    dev->write_register(REG6D, dev->gpo.regs.get_value(0x6d));
-
-  idx=0;
-  while(dev->model->gpo_type != gpios[idx].gpo_type && gpios[idx].gpo_type!=0)
+    apply_registers_ordered(dev->gpo.regs, { 0x6e, 0x6f }, [&](const GenesysRegisterSetting& reg)
     {
-      idx++;
-    }
-    if (gpios[idx].gpo_type != 0) {
-        dev->write_register(REGA6, gpios[idx].ra6);
-        dev->write_register(REGA7, gpios[idx].ra7);
-        dev->write_register(REGA8, gpios[idx].ra8);
-        dev->write_register(REGA9, gpios[idx].ra9);
-    }
-  else
-    {
-        throw SaneException("Unknown gpo type %d", dev->model->gpo_type);
-    }
+        dev->write_register(reg.address, reg.value);
+    });
 }
 
 

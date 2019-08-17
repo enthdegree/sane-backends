@@ -293,6 +293,24 @@ public:
         }
     }
 
+    GenesysRegisterSetting& find_reg(uint16_t address)
+    {
+        int i = find_reg_index(address);
+        if (i < 0) {
+            throw std::runtime_error("the register does not exist");
+        }
+        return registers_[i];
+    }
+
+    const GenesysRegisterSetting& find_reg(uint16_t address) const
+    {
+        int i = find_reg_index(address);
+        if (i < 0) {
+            throw std::runtime_error("the register does not exist");
+        }
+        return registers_[i];
+    }
+
     uint8_t get_value(uint16_t address) const
     {
         int index = find_reg_index(address);
@@ -346,6 +364,21 @@ inline void serialize(std::istream& str, GenesysRegisterSettingSet& reg)
 inline void serialize(std::ostream& str, GenesysRegisterSettingSet& reg)
 {
     serialize(str, reg.registers_);
+}
+
+template<class F>
+void apply_registers_ordered(const GenesysRegisterSettingSet& set,
+                             std::initializer_list<uint16_t> order, F f)
+{
+    for (uint16_t addr : order) {
+        f(set.find_reg(addr));
+    }
+    for (const auto& reg : set) {
+        if (std::find(order.begin(), order.end(), reg.address) != order.end()) {
+            continue;
+        }
+        f(reg);
+    }
 }
 
 #endif // BACKEND_GENESYS_REGISTER_H

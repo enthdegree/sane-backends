@@ -2110,9 +2110,9 @@ static void gl646_search_start_position(Genesys_Device* dev)
   /* we scan at 300 dpi */
   resolution = get_closest_resolution(dev->model->ccd_type, 300, 1);
 
-  // FIXME: the current approach of doing search only for one resolution does not work on scanners
-  // whith employ different sensors with potentially different settings.
-  auto& sensor = sanei_genesys_find_sensor_for_write(dev, resolution, ScanMethod::FLATBED);
+    // FIXME: the current approach of doing search only for one resolution does not work on scanners
+    // whith employ different sensors with potentially different settings.
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, ScanMethod::FLATBED);
 
   /* fill settings for a gray level scan */
   settings.scan_method = ScanMethod::FLATBED;

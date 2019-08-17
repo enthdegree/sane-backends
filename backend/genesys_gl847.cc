@@ -1555,9 +1555,9 @@ static void gl847_search_start_position(Genesys_Device* dev)
   /* sets for a 200 lines * 600 pixels */
   /* normal scan with no shading */
 
-  // FIXME: the current approach of doing search only for one resolution does not work on scanners
-  // whith employ different sensors with potentially different settings.
-    auto& sensor = sanei_genesys_find_sensor_for_write(dev, dpi, ScanMethod::FLATBED);
+    // FIXME: the current approach of doing search only for one resolution does not work on scanners
+    // whith employ different sensors with potentially different settings.
+    const auto& sensor = sanei_genesys_find_sensor(dev, dpi, ScanMethod::FLATBED);
 
     ScanSession session;
     session.params.xres = dpi;

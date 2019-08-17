@@ -483,8 +483,9 @@ static void gl646_setup_registers(Genesys_Device* dev,
   nb = sizeof (sensor_settings) / sizeof (Sensor_Settings);
   while (i < nb)
     {
-      if (sensor_mst->sensor == sensor_settings[i].sensor
-          && sensor_mst->cksel == sensor_settings[i].cksel)
+        if (sensor_mst->sensor == sensor_settings[i].sensor &&
+            sensor_mst->cksel == sensor_settings[i].cksel &&
+            sensor_mst->ccd_size_divisor == sensor_settings[i].ccd_size_divisor)
 	{
 	  settings = &sensor_settings[i];
 	}
@@ -506,11 +507,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   for (i = 0; i < 4; i++)
     {
       r = sanei_genesys_get_address (regs, 0x08 + i);
-        if (ccd_size_divisor > 1) {
-            r->value = settings->manual_0x08_0x0b[i];
-        } else {
             r->value = settings->regs_0x08_0x0b[i];
-        }
     }
 
   for (i = 0; i < 8; i++)
@@ -523,13 +520,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
     {
       r = sanei_genesys_get_address (regs, 0x52 + i);
       r->value = settings->regs_0x52_0x5e[i];
-    }
-    if (ccd_size_divisor > 1) {
-      for (i = 0; i < 7; i++)
-	{
-	  r = sanei_genesys_get_address (regs, 0x52 + i);
-	  r->value = settings->manual_0x52_0x58[i];
-	}
     }
 
   /* now generate slope tables : we are not using generate_slope_table3 yet */

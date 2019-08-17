@@ -758,7 +758,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
     regs->set24(REG_MAXWD, words_per_line);
 
     regs->set16(REG_DPISET, sensor_mst->xdpi * sensor_mst->ccd_size_divisor * sensor_mst->cksel);
-    regs->set16(REG_LPERIOD, sensor_mst->exposure);
+    regs->set16(REG_LPERIOD, sensor_mst->exposure_lperiod);
 
   /* move distance must be adjusted to take into account the extra lines
    * read to reorder data */
@@ -887,7 +887,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   regs->find_reg(0x65).value = motor->mtrpwm;
 
   sanei_genesys_calculate_zmod (regs->find_reg(0x02).value & REG02_FASTFED,
-                                  sensor_mst->exposure,
+                                  sensor_mst->exposure_lperiod,
 				  slope_table1,
 				  motor->steps1,
                                   move, motor->fwdbwd, &z1, &z2);
@@ -940,7 +940,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   dev->current_setup.pixels =
     ((endx - startx) * sensor_mst->xdpi) / sensor.optical_res;
   dev->current_setup.lines = linecnt;
-  dev->current_setup.exposure_time = sensor_mst->exposure;
+  dev->current_setup.exposure_time = sensor_mst->exposure_lperiod;
   dev->current_setup.xres = sensor_mst->xdpi;
   dev->current_setup.ccd_size_divisor = ccd_size_divisor;
   dev->current_setup.stagger = stagger;

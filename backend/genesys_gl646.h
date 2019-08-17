@@ -286,7 +286,7 @@ struct Sensor_Master
     unsigned channels = 0;  // 3 channels if color scan, 1 channel for gray scan
 
     int xdpi = 0;           // real sensor dpi, may be different from the required resolution */
-    int exposure = 0;       // exposure time */
+    int exposure_lperiod = 0;       // exposure time */
     int cksel = 0;          // dpiset 'divisor', part of reg 18h
     int dummy = 0;          // dummy exposure time
     uint8_t *regs_0x10_0x15 = nullptr; 	// per color exposure time for CIS scanners

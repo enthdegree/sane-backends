@@ -5638,7 +5638,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
   unsigned option_size = 0;
   SANE_Status status = SANE_STATUS_GOOD;
 
-  const Genesys_Sensor& sensor = sanei_genesys_find_sensor(s->dev, s->resolution,
+  const Genesys_Sensor& sensor = sanei_genesys_find_sensor(s->dev, s->dev->settings.xres,
                                                            s->dev->settings.get_channels(),
                                                            s->dev->settings.scan_method);
 
@@ -6168,7 +6168,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         }
       break;
         case OPT_CALIBRATE: {
-            auto& sensor = sanei_genesys_find_sensor_for_write(s->dev, s->resolution,
+            auto& sensor = sanei_genesys_find_sensor_for_write(s->dev, s->dev->settings.xres,
                                                                s->dev->settings.get_channels(),
                                                                s->dev->settings.scan_method);
             catch_all_exceptions(__func__, [&]()

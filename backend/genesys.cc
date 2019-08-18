@@ -4050,7 +4050,7 @@ static void calc_parameters(Genesys_Scanner* s)
     s->dev->settings.yres = s->resolution;
 
     s->params.lines = ((br_y - tl_y) * s->dev->settings.yres) / MM_PER_INCH;
-    s->params.pixels_per_line = ((br_x - tl_x) * s->resolution) / MM_PER_INCH;
+    unsigned pixels_per_line = ((br_x - tl_x) * s->resolution) / MM_PER_INCH;
 
   /* we need an even pixels number
    * TODO invert test logic or generalize behaviour across all ASICs */
@@ -4061,10 +4061,11 @@ static void calc_parameters(Genesys_Scanner* s)
         s->dev->model->asic_type == AsicType::GL846 ||
         s->dev->model->asic_type == AsicType::GL843)
     {
-      if (s->dev->settings.xres <= 1200)
-        s->params.pixels_per_line = (s->params.pixels_per_line/4)*4;
-      else
-        s->params.pixels_per_line = (s->params.pixels_per_line/16)*16;
+        if (s->dev->settings.xres <= 1200) {
+            pixels_per_line = (pixels_per_line / 4) * 4;
+        } else {
+            pixels_per_line = (pixels_per_line / 16) * 16;
+        }
     }
 
   /* corner case for true lineart for sensor with several segments
@@ -4074,25 +4075,27 @@ static void calc_parameters(Genesys_Scanner* s)
                 s->dev->model->asic_type == AsicType::GL847 ||
                 s->dev->current_setup.xres < s->dev->session.params.yres))
     {
-      s->params.pixels_per_line = (s->params.pixels_per_line/16)*16;
+        pixels_per_line = (pixels_per_line / 16) * 16;
     }
 
-  s->params.bytes_per_line = s->params.pixels_per_line;
+    unsigned bytes_per_line = 0;
+
   if (s->params.depth > 8)
     {
       s->params.depth = 16;
-      s->params.bytes_per_line *= 2;
+        bytes_per_line = 2 * pixels_per_line;
     }
   else if (s->params.depth == 1)
     {
-      s->params.bytes_per_line /= 8;
-      /* round down pixel number
-         really? rounding down means loss of at most 7 pixels! -- pierre */
-      s->params.pixels_per_line = 8 * s->params.bytes_per_line;
+        // round down pixel number. This will is lossy operation, at most 7 pixels will be lost
+        pixels_per_line = (pixels_per_line / 8) * 8;
+        bytes_per_line = pixels_per_line / 8;
+    } else {
+        bytes_per_line = pixels_per_line;
     }
 
     if (s->params.format == SANE_FRAME_RGB) {
-        s->params.bytes_per_line *= 3;
+        bytes_per_line *= 3;
     }
 
     if (s->mode == SANE_VALUE_SCAN_MODE_COLOR) {
@@ -4114,7 +4117,9 @@ static void calc_parameters(Genesys_Scanner* s)
     }
 
   s->dev->settings.lines = s->params.lines;
-  s->dev->settings.pixels = s->params.pixels_per_line;
+    s->dev->settings.pixels = pixels_per_line;
+    s->params.pixels_per_line = pixels_per_line;
+    s->params.bytes_per_line = bytes_per_line;
   s->dev->settings.tl_x = tl_x;
   s->dev->settings.tl_y = tl_y;
 

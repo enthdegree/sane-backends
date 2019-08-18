@@ -66,6 +66,8 @@ struct Genesys_Settings
     unsigned int lines = 0;
     // number of pixels at scan resolution
     unsigned int pixels = 0;
+    // number of pixels expected by the frontend
+    unsigned requested_pixels = 0;
 
     // bit depth of the scan
     unsigned int depth = 0;
@@ -127,6 +129,10 @@ struct SetupParams {
     // the number of pixels in X direction. Note that each logical pixel may correspond to more
     // than one CCD pixel, see CKSEL and GenesysSensor::ccd_pixels_per_system_pixel()
     unsigned pixels = NOT_SET;
+
+    // the number of pixels in the X direction as requested by the frontend.
+    unsigned requested_pixels = 0;
+
     // the number of pixels in Y direction
     unsigned lines = NOT_SET;
     // the depth of the scan in bits. Allowed are 1, 8, 16
@@ -141,6 +147,14 @@ struct SetupParams {
     ColorFilter color_filter = static_cast<ColorFilter>(NOT_SET);
 
     unsigned flags = NOT_SET;
+
+    unsigned get_requested_pixels() const
+    {
+        if (requested_pixels != 0) {
+            return requested_pixels;
+        }
+        return pixels;
+    }
 
     void assert_valid() const
     {
@@ -162,6 +176,7 @@ struct SetupParams {
             startx == other.startx &&
             starty == other.starty &&
             pixels == other.pixels &&
+            requested_pixels == other.requested_pixels &&
             lines == other.lines &&
             depth == other.depth &&
             channels == other.channels &&
@@ -180,6 +195,7 @@ void serialize(Stream& str, SetupParams& x)
     serialize(str, x.startx);
     serialize(str, x.starty);
     serialize(str, x.pixels);
+    serialize(str, x.requested_pixels);
     serialize(str, x.lines);
     serialize(str, x.depth);
     serialize(str, x.channels);

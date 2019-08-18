@@ -3666,7 +3666,7 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
     needs_reorder = 0;
 
   needs_ccd = dev->current_setup.max_shift > 0;
-  needs_shrink = dev->settings.pixels != src_pixels;
+  needs_shrink = dev->settings.requested_pixels != src_pixels;
   needs_reverse = depth == 1;
 
   DBG(DBG_info, "%s: using filters:%s%s%s%s\n", __func__,
@@ -3696,7 +3696,7 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
 
   DBG(DBG_info, "%s: %lu lines left by output\n", __func__,
        ((dev->total_bytes_to_read - dev->total_bytes_read) * 8UL) /
-       (dev->settings.pixels * channels * depth));
+        (dev->settings.requested_pixels * channels * depth));
   DBG(DBG_info, "%s: %lu lines left by input\n", __func__,
        ((dev->read_bytes_left + dev->read_buffer.avail()) * 8UL) /
        (src_pixels * channels * depth));
@@ -3917,10 +3917,11 @@ Problems with the first approach:
       /* we are greedy. we work as much as possible */
       bytes = dst_buffer->size() - dst_buffer->avail();
 
-      if (dst_lines > (bytes * 8) / (dev->settings.pixels * channels * depth))
-	dst_lines = (bytes * 8) / (dev->settings.pixels * channels * depth);
+        if (dst_lines > (bytes * 8) / (dev->settings.requested_pixels * channels * depth)) {
+            dst_lines = (bytes * 8) / (dev->settings.requested_pixels * channels * depth);
+        }
 
-      bytes = (dst_lines * dev->settings.pixels * channels * depth) / 8;
+        bytes = (dst_lines * dev->settings.requested_pixels * channels * depth) / 8;
 
       work_buffer_dst = dst_buffer->get_write_pos(bytes);
 
@@ -3930,21 +3931,21 @@ Problems with the first approach:
 	{
 	  if (depth == 1)
             genesys_shrink_lines_1(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
-                                   dev->settings.pixels, channels);
+                                   dev->settings.requested_pixels, channels);
 	  else if (depth == 8)
             genesys_shrink_lines_8(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
-                                   dev->settings.pixels, channels);
+                                   dev->settings.requested_pixels, channels);
 	  else
             genesys_shrink_lines_16(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
-                                    dev->settings.pixels, channels);
+                                    dev->settings.requested_pixels, channels);
 
           /* we just consumed this many bytes*/
 	  bytes = (dst_lines * src_pixels * channels * depth) / 8;
             src_buffer->consume(bytes);
 
           /* we just created this many bytes*/
-	  bytes = (dst_lines * dev->settings.pixels * channels * depth) / 8;
-            dst_buffer->produce(bytes);
+        bytes = (dst_lines * dev->settings.requested_pixels * channels * depth) / 8;
+        dst_buffer->produce(bytes);
 	}
       src_buffer = dst_buffer;
     }
@@ -4118,6 +4119,7 @@ static void calc_parameters(Genesys_Scanner* s)
 
   s->dev->settings.lines = s->params.lines;
     s->dev->settings.pixels = pixels_per_line;
+    s->dev->settings.requested_pixels = pixels_per_line;
     s->params.pixels_per_line = pixels_per_line;
     s->params.bytes_per_line = bytes_per_line;
   s->dev->settings.tl_x = tl_x;
@@ -5113,7 +5115,7 @@ probe_genesys_devices (void)
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 6;
+static const int CALIBRATION_VERSION = 7;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

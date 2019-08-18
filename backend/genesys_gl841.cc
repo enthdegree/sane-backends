@@ -1764,8 +1764,6 @@ static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int max_shift;
   size_t requested_buffer_size, read_buffer_size;
 
-  int optical_res;
-
     debug_dump(DBG_info, session.params);
 
 /*
@@ -1796,10 +1794,6 @@ independent of our calculated values:
   dev->bytes_to_read
  */
 
-/* optical_res */
-
-    optical_res = sensor.optical_res / session.ccd_size_divisor;
-
 /* stagger */
 
     if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
@@ -1810,39 +1804,39 @@ independent of our calculated values:
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
 
 /* used_res */
-    i = optical_res / session.params.xres;
+    i = session.optical_resolution / session.params.xres;
 
 /* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
 
     if (i < 2 || (session.params.flags & SCAN_FLAG_USE_OPTICAL_RES)) {
         // optical_res >= xres > optical_res/2
-        used_res = optical_res;
+        used_res = session.optical_resolution;
     } else if (i < 3)  /* optical_res/2 >= xres > optical_res/3 */
-      used_res = optical_res/2;
+        used_res = session.optical_resolution/2;
   else if (i < 4)  /* optical_res/3 >= xres > optical_res/4 */
-      used_res = optical_res/3;
+        used_res = session.optical_resolution/3;
   else if (i < 5)  /* optical_res/4 >= xres > optical_res/5 */
-      used_res = optical_res/4;
+        used_res = session.optical_resolution/4;
   else if (i < 6)  /* optical_res/5 >= xres > optical_res/6 */
-      used_res = optical_res/5;
+        used_res = session.optical_resolution/5;
   else if (i < 8)  /* optical_res/6 >= xres > optical_res/8 */
-      used_res = optical_res/6;
+        used_res = session.optical_resolution/6;
   else if (i < 10)  /* optical_res/8 >= xres > optical_res/10 */
-      used_res = optical_res/8;
+        used_res = session.optical_resolution/8;
   else if (i < 12)  /* optical_res/10 >= xres > optical_res/12 */
-      used_res = optical_res/10;
+        used_res = session.optical_resolution/10;
   else if (i < 15)  /* optical_res/12 >= xres > optical_res/15 */
-      used_res = optical_res/12;
+        used_res = session.optical_resolution/12;
   else
-      used_res = optical_res/15;
+        used_res = session.optical_resolution/15;
 
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
     start = ((sensor.CCD_start_xoffset + session.params.startx) * used_res) / sensor.optical_res;
 
-  /* needs to be aligned for used_res */
-  start = (start * optical_res) / used_res;
+    // needs to be aligned for used_res
+    start = (start * session.optical_resolution) / used_res;
 
   start += sensor.dummy_pixel + 1;
 
@@ -1855,15 +1849,15 @@ independent of our calculated values:
    * scan, where shading data needs to be align */
   if((dev->reg.find_reg(0x01).value & REG01_SHDAREA) != 0)
     {
-      avg=optical_res/used_res;
+        avg = session.optical_resolution / used_res;
       start=(start/avg)*avg;
     }
 
   /* compute correct pixels number */
-    used_pixels = (session.params.pixels * optical_res) / session.params.xres;
+    used_pixels = (session.params.pixels * session.optical_resolution) / session.params.xres;
 
   /* round up pixels number if needed */
-    if (used_pixels * session.params.xres < session.params.pixels * optical_res) {
+    if (used_pixels * session.params.xres < session.params.pixels * session.optical_resolution) {
         used_pixels++;
     }
 
@@ -1967,7 +1961,7 @@ dummy \ scanned lines
   /*** prepares data reordering ***/
 
 /* words_per_line */
-  bytes_per_line = (used_pixels * used_res) / optical_res;
+    bytes_per_line = (used_pixels * used_res) / session.optical_resolution;
     bytes_per_line = (bytes_per_line *  session.params.channels * session.params.depth) / 8;
 
   requested_buffer_size = 8 * bytes_per_line;
@@ -1997,7 +1991,7 @@ dummy \ scanned lines
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
-  dev->current_setup.pixels = (used_pixels * used_res)/optical_res;
+    dev->current_setup.pixels = (used_pixels * used_res) / session.optical_resolution;
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
@@ -2049,8 +2043,6 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
   int scan_step_type = 1;
   int max_shift;
 
-  int optical_res;
-
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
 
@@ -2080,10 +2072,6 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, session.params);
 
-/* optical_res */
-
-    optical_res = sensor.optical_res / session.ccd_size_divisor;
-
 /* stagger */
 
     if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
@@ -2094,38 +2082,38 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
   DBG(DBG_info, "%s: stagger=%d lines\n", __func__, stagger);
 
 /* used_res */
-  i = optical_res / session.params.xres;
+  i = session.optical_resolution / session.params.xres;
 
 /* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
 
   if (i < 2) /* optical_res >= xres > optical_res/2 */
-      used_res = optical_res;
+        used_res = session.optical_resolution;
   else if (i < 3)  /* optical_res/2 >= xres > optical_res/3 */
-      used_res = optical_res/2;
+        used_res = session.optical_resolution / 2;
   else if (i < 4)  /* optical_res/3 >= xres > optical_res/4 */
-      used_res = optical_res/3;
+        used_res = session.optical_resolution / 3;
   else if (i < 5)  /* optical_res/4 >= xres > optical_res/5 */
-      used_res = optical_res/4;
+        used_res = session.optical_resolution / 4;
   else if (i < 6)  /* optical_res/5 >= xres > optical_res/6 */
-      used_res = optical_res/5;
+        used_res = session.optical_resolution / 5;
   else if (i < 8)  /* optical_res/6 >= xres > optical_res/8 */
-      used_res = optical_res/6;
+        used_res = session.optical_resolution / 6;
   else if (i < 10)  /* optical_res/8 >= xres > optical_res/10 */
-      used_res = optical_res/8;
+        used_res = session.optical_resolution / 8;
   else if (i < 12)  /* optical_res/10 >= xres > optical_res/12 */
-      used_res = optical_res/10;
+        used_res = session.optical_resolution / 10;
   else if (i < 15)  /* optical_res/12 >= xres > optical_res/15 */
-      used_res = optical_res/12;
+        used_res = session.optical_resolution / 12;
   else
-      used_res = optical_res/15;
+        used_res = session.optical_resolution / 15;
 
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
     start = ((sensor.CCD_start_xoffset + session.params.startx) * used_res) / sensor.optical_res;
 
-/* needs to be aligned for used_res */
-  start = (start * optical_res) / used_res;
+    // needs to be aligned for used_res
+    start = (start * session.optical_resolution) / used_res;
 
   start += sensor.dummy_pixel + 1;
 
@@ -2133,10 +2121,10 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
     start |= 1;
   }
 
-    used_pixels = (session.params.pixels * optical_res) / session.params.xres;
+    used_pixels = (session.params.pixels * session.optical_resolution) / session.params.xres;
 
     // round up pixels number if needed
-    if (used_pixels * session.params.xres < session.params.pixels * optical_res) {
+    if (used_pixels * session.params.xres < session.params.pixels * session.optical_resolution) {
         used_pixels++;
     }
 
@@ -2191,7 +2179,7 @@ dummy \ scanned lines
     lincnt = session.params.lines + max_shift + stagger;
 
     dev->session = session;
-  dev->current_setup.pixels = (used_pixels * used_res)/optical_res;
+    dev->current_setup.pixels = (used_pixels * used_res) / session.optical_resolution;
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;

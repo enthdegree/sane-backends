@@ -1139,6 +1139,13 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
 
     // compute optical and output resolutions
     s.ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(s.params.xres);
+
+    if (dev->model->asic_type == AsicType::GL646) {
+        s.optical_resolution = sensor.optical_res;
+    } else {
+        s.optical_resolution = sensor.optical_res / s.ccd_size_divisor;
+    }
+    s.output_resolution = s.params.xres;
 }
 
 /** @brief initialize device

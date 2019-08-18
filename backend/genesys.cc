@@ -4010,6 +4010,32 @@ max_string_size (const SANE_String_Const strings[])
   return max_size;
 }
 
+static unsigned pick_resolution(const std::vector<unsigned>& resolutions, unsigned resolution,
+                                const char* direction)
+{
+    DBG_HELPER(dbg);
+
+    if (resolutions.empty())
+        throw SaneException("Empty resolution list");
+
+    unsigned best_res = resolutions.front();
+    unsigned min_diff = abs_diff(best_res, resolution);
+
+    for (auto it = std::next(resolutions.begin()); it != resolutions.end(); ++it) {
+        unsigned curr_diff = abs_diff(*it, resolution);
+        if (curr_diff < min_diff) {
+            min_diff = curr_diff;
+            best_res = *it;
+        }
+    }
+
+    if (best_res != resolution) {
+        DBG(DBG_warn, "%s: using resolution %d that is nearest to %d for direction %s\n",
+            __func__, best_res, resolution, direction);
+    }
+    return best_res;
+}
+
 static void calc_parameters(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
@@ -4050,8 +4076,11 @@ static void calc_parameters(Genesys_Scanner* s)
     }
     s->dev->settings.yres = s->resolution;
 
+    s->dev->settings.xres = pick_resolution(s->dev->model->xdpi_values, s->dev->settings.xres, "X");
+    s->dev->settings.yres = pick_resolution(s->dev->model->ydpi_values, s->dev->settings.yres, "Y");
+
     s->params.lines = ((br_y - tl_y) * s->dev->settings.yres) / MM_PER_INCH;
-    unsigned pixels_per_line = ((br_x - tl_x) * s->resolution) / MM_PER_INCH;
+    unsigned pixels_per_line = ((br_x - tl_x) * s->dev->settings.xres) / MM_PER_INCH;
 
   /* we need an even pixels number
    * TODO invert test logic or generalize behaviour across all ASICs */
@@ -4064,6 +4093,10 @@ static void calc_parameters(Genesys_Scanner* s)
     {
         if (s->dev->settings.xres <= 1200) {
             pixels_per_line = (pixels_per_line / 4) * 4;
+        } else if (s->dev->settings.xres < s->dev->settings.yres) {
+            // BUG: this is an artifact of the fact that the resolution was twice as large than
+            // the actual resolution when scanning above the supported scanner X resolution
+            pixels_per_line = (pixels_per_line / 8) * 8;
         } else {
             pixels_per_line = (pixels_per_line / 16) * 16;
         }
@@ -4076,8 +4109,16 @@ static void calc_parameters(Genesys_Scanner* s)
                 s->dev->model->asic_type == AsicType::GL847 ||
                 s->dev->current_setup.xres < s->dev->session.params.yres))
     {
-        pixels_per_line = (pixels_per_line / 16) * 16;
+        if (s->dev->settings.xres < s->dev->settings.yres) {
+            // FIXME: this is an artifact of the fact that the resolution was twice as large than
+            // the actual resolution when scanning above the supported scanner X resolution
+            pixels_per_line = (pixels_per_line / 8) * 8;
+        } else {
+            pixels_per_line = (pixels_per_line / 16) * 16;
+        }
     }
+
+    unsigned xres_factor = s->resolution / s->dev->settings.xres;
 
     unsigned bytes_per_line = 0;
 
@@ -4119,9 +4160,9 @@ static void calc_parameters(Genesys_Scanner* s)
 
   s->dev->settings.lines = s->params.lines;
     s->dev->settings.pixels = pixels_per_line;
-    s->dev->settings.requested_pixels = pixels_per_line;
-    s->params.pixels_per_line = pixels_per_line;
-    s->params.bytes_per_line = bytes_per_line;
+    s->dev->settings.requested_pixels = pixels_per_line * xres_factor;
+    s->params.pixels_per_line = pixels_per_line * xres_factor;
+    s->params.bytes_per_line = bytes_per_line * xres_factor;
   s->dev->settings.tl_x = tl_x;
   s->dev->settings.tl_y = tl_y;
 
@@ -4438,18 +4479,21 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_BIT_DEPTH].constraint.word_list = s->bpp_list;
   create_bpp_list (s, model->bpp_gray_values);
   s->bit_depth = 8;
-  if (s->opt[OPT_BIT_DEPTH].constraint.word_list[0] < 2)
-    DISABLE (OPT_BIT_DEPTH);
+    if (s->opt[OPT_BIT_DEPTH].constraint.word_list[0] < 2) {
+        DISABLE (OPT_BIT_DEPTH);
+    }
 
-  /* resolution */
-    unsigned min_dpi = *std::min_element(model->xdpi_values.begin(), model->xdpi_values.end());
+    // resolution
+    auto resolutions = model->get_resolutions();
 
-    dpi_list = (SANE_Word*) malloc((model->xdpi_values.size() + 1) * sizeof(SANE_Word));
+    unsigned min_dpi = *std::min_element(resolutions.begin(), resolutions.end());
+
+    dpi_list = (SANE_Word*) malloc((resolutions.size() + 1) * sizeof(SANE_Word));
     if (!dpi_list) {
         throw SaneException(SANE_STATUS_NO_MEM);
     }
-    dpi_list[0] = model->xdpi_values.size();
-    std::copy(model->xdpi_values.begin(), model->xdpi_values.end(), dpi_list + 1);
+    dpi_list[0] = resolutions.size();
+    std::copy(resolutions.begin(), resolutions.end(), dpi_list + 1);
 
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;

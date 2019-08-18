@@ -64,7 +64,7 @@ struct Genesys_Settings
 
     // number of lines at scan resolution
     unsigned int lines = 0;
-    // number of pixels at scan resolution
+    // number of pixels expected from the scanner
     unsigned int pixels = 0;
     // number of pixels expected by the frontend
     unsigned requested_pixels = 0;
@@ -130,7 +130,11 @@ struct SetupParams {
     // than one CCD pixel, see CKSEL and GenesysSensor::ccd_pixels_per_system_pixel()
     unsigned pixels = NOT_SET;
 
-    // the number of pixels in the X direction as requested by the frontend.
+    // the number of pixels in the X direction as requested by the frontend. This will be different
+    // from `pixels` if the X resolution requested by the frontend is different than the actual
+    // resolution. This is only needed to compute dev->total_bytes_to_read. If 0, then the value
+    // is the same as pixels.
+    // TODO: move the computation of total_bytes_to_read to a higher layer.
     unsigned requested_pixels = 0;
 
     // the number of pixels in Y direction

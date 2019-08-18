@@ -645,7 +645,7 @@ void genesys_init_usb_device_tables()
     model.model_id = MODEL_CANON_LIDE_110;
     model.asic_type = AsicType::GL124;
 
-    model.xdpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
+    model.xdpi_values = { 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
     model.bpp_gray_values = { 16, 8 };
     model.bpp_color_values = { 16, 8 };
@@ -1174,8 +1174,11 @@ void genesys_init_usb_device_tables()
     model.model_id = MODEL_HP_SCANJET_2300C;
     model.asic_type = AsicType::GL646;
 
+    // FIXME: the scanner supports 1200 ydpi, but we never scanned at this resolution so for now
+    // it's not supported
     model.xdpi_values = { 600, 300, 150, 75 };
-    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.ydpi_values = { /* 1200, */600, 300, 150, 75 };
+
     model.bpp_gray_values = { 16, 8 };
     model.bpp_color_values = { 16, 8 };
 

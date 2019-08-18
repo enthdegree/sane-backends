@@ -1092,13 +1092,11 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
     debug_dump(DBG_info, session.params);
 
-    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(session.params.xres);
-
-    unsigned optical_res = sensor.optical_res / ccd_size_divisor;
+    unsigned optical_res = sensor.optical_res / session.ccd_size_divisor;
   DBG (DBG_info, "%s: optical_res=%d\n", __func__, optical_res);
 
   /* stagger */
-    if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
+    if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
         stagger = (4 * session.params.yres) / dev->motor.base_ydpi;
     } else {
         stagger = 0;
@@ -1155,7 +1153,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
   else
     {
-        exposure_time = gl124_compute_exposure(sensor, used_res, ccd_size_divisor);
+        exposure_time = gl124_compute_exposure(sensor, used_res, session.ccd_size_divisor);
         scan_step_type = sanei_genesys_compute_step_type(gl124_motor_profiles,
                                                          dev->model->motor_type, exposure_time);
     }
@@ -1177,7 +1175,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     // now _LOGICAL_ optical values used are known, setup registers
     gl124_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
                                  used_pixels, session.params.channels, session.params.depth,
-                                 ccd_size_divisor, session.params.color_filter);
+                                 session.ccd_size_divisor, session.params.color_filter);
 
   /*** motor parameters ***/
 
@@ -1238,7 +1236,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
-  dev->current_setup.ccd_size_divisor = ccd_size_divisor;
+  dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 
@@ -1291,7 +1289,7 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = 0;
 
-    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(session.params.xres);
+    gl124_compute_session(dev, session, sensor);
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, session.params);
@@ -1312,7 +1310,7 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
     used_pixels = (session.params.pixels * optical_res) / session.params.xres;
   DBG (DBG_info, "%s: used_pixels=%d\n", __func__, used_pixels);
 
-    exposure_time = gl124_compute_exposure(sensor, session.params.xres, ccd_size_divisor);
+    exposure_time = gl124_compute_exposure(sensor, session.params.xres, session.ccd_size_divisor);
   DBG (DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
     max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels,
@@ -1321,11 +1319,12 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
     // compute hw dpi for sensor
     dpihw = sensor.get_register_hwdpi(used_res);
 
-    const SensorProfile& sensor_profile = get_sensor_profile(sensor, dpihw, ccd_size_divisor);
+    const SensorProfile& sensor_profile = get_sensor_profile(sensor, dpihw,
+                                                             session.ccd_size_divisor);
     dev->segnb = sensor_profile.custom_regs.get_value(0x98) & 0x0f;
 
   /* stagger */
-    if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
+    if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
         stagger = (4 * session.params.yres) / dev->motor.base_ydpi;
     } else {
         stagger = 0;
@@ -1340,7 +1339,7 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
-  dev->current_setup.ccd_size_divisor = ccd_size_divisor;
+  dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 }

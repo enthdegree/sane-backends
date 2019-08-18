@@ -1453,14 +1453,16 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = 0;
 
+    gl843_compute_session(dev, session, sensor);
+
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, session.params);
 
-  /* optical_res */
-  optical_res = sensor.optical_res / ccd_size_divisor;
+    // optical_res
+    optical_res = sensor.optical_res / session.ccd_size_divisor;
 
   /* stagger */
-    if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
+    if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
         stagger = (4 * session.params.yres) / dev->motor.base_ydpi;
     } else {
         stagger = 0;
@@ -1512,7 +1514,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure;
   dev->current_setup.xres = used_res;
-  dev->current_setup.ccd_size_divisor = ccd_size_divisor;
+  dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 

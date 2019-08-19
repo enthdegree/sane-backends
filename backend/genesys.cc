@@ -1248,7 +1248,7 @@ void sanei_genesys_calculate_zmod(SANE_Bool two_table,
 
     // acceleration total time
     unsigned sum = std::accumulate(slope_table.begin(), slope_table.begin() + acceleration_steps,
-                                   0, std::plus<>());
+                                   0, std::plus<uint16_t>());
 
     /* Z1MOD:
         c = sum(slope_table; reg_stepno)

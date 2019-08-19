@@ -1133,7 +1133,19 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "i-SENSYS MF633C/MF635C"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27e1"
+:status :untested
+:comment "Testers needed!"
+
 :model "i-SENSYS MF640 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27fe"
+:status :untested
+:comment "Testers needed!"
+
+:model "i-SENSYS MF645C"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x27fe"
 :status :untested

@@ -1462,8 +1462,8 @@
 :model "MAXIFY MB5000 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1776"
-:status :good
-:comment "Flatbed works, All resolutions supported (up to 1200DPI), ADF does not work"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "MAXIFY MB5100 Series"
 :interface "USB Ethernet WiFi"

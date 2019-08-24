@@ -1062,7 +1062,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG_HELPER(dbg);
     session.assert_computed();
 
-  int used_res;
   int start, used_pixels;
   int bytes_per_line;
   int move;
@@ -1089,20 +1088,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
   DBG (DBG_info, "gl124_init_scan_regs : stagger=%d lines\n", stagger);
 
-  /** @brief compute used resolution */
-    if (session.params.flags & SCAN_FLAG_USE_OPTICAL_RES) {
-        used_res = session.optical_resolution;
-    }
-  else
-    {
-        // resolution is choosen from a fixed list and can be used directly, unless we have ydpi
-        // higher than sensor's maximum one */
-        if (session.params.xres > session.optical_resolution) {
-            used_res = session.optical_resolution;
-        } else {
-            used_res = session.params.xres;
-        }
-    }
+    unsigned used_res = session.params.xres;
 
   /* compute scan parameters values */
   /* pixels are allways given at full optical resolution */

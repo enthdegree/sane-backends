@@ -947,7 +947,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG_HELPER(dbg);
     session.assert_computed();
 
-  int used_res;
   int start, used_pixels;
   int bytes_per_line;
   int move;
@@ -972,14 +971,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
 
-    if (session.params.flags & SCAN_FLAG_USE_OPTICAL_RES) {
-        used_res = session.optical_resolution;
-    }
-  else
-    {
-      /* resolution is choosen from a list */
-        used_res = session.params.xres;
-    }
+    unsigned used_res = session.params.xres;
 
   /* compute scan parameters values */
   /* pixels are allways given at full optical resolution */

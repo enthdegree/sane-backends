@@ -1814,11 +1814,8 @@ independent of our calculated values:
     }
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
 
-    if (session.params.flags & SCAN_FLAG_USE_OPTICAL_RES) {
-        used_res = session.optical_resolution;
-    } else {
-        used_res = session.params.xres;
-    }
+    used_res = session.params.xres;
+
     gl841_assert_supported_resolution(session);
 
   /* compute scan parameters values */
@@ -2943,12 +2940,20 @@ static void gl841_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
   dev->calib_channels = 3;
   dev->calib_lines = dev->model->shading_lines;
 
+    unsigned resolution = sensor.get_logical_hwdpi(dev->settings.xres);
+    unsigned factor = sensor.optical_res / resolution;
+
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, dev->calib_channels,
+                                                         dev->settings.scan_method);
+
+    dev->calib_pixels = calib_sensor.sensor_pixels / factor;
+
     ScanSession session;
-    session.params.xres = dev->settings.xres;
+    session.params.xres = resolution;
     session.params.yres = ydpi;
     session.params.startx = 0;
     session.params.starty = starty;
-    session.params.pixels = (sensor.sensor_pixels * dev->settings.xres) / sensor.optical_res;
+    session.params.pixels = dev->calib_pixels;
     session.params.lines = dev->calib_lines;
     session.params.depth = 16;
     session.params.channels = dev->calib_channels;
@@ -2957,14 +2962,12 @@ static void gl841_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = SCAN_FLAG_DISABLE_SHADING |
                            SCAN_FLAG_DISABLE_GAMMA |
-                           SCAN_FLAG_USE_OPTICAL_RES |
                            /*SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |*/
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl841_compute_session(dev, session, sensor);
+    gl841_compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, sensor, &regs, session);
+    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
 
-  dev->calib_pixels = dev->current_setup.pixels;
   dev->scanhead_position_in_steps += dev->calib_lines + starty;
 
     dev->write_registers(regs);
@@ -3127,12 +3130,20 @@ static SensorExposure gl841_led_calibration(Genesys_Device* dev, const Genesys_S
   /* offset calibration is always done in color mode */
   channels = 3;
 
+    unsigned resolution = sensor.get_logical_hwdpi(dev->settings.xres);
+    unsigned factor = sensor.optical_res / resolution;
+
+    const auto& calib_sensor_base = sanei_genesys_find_sensor(dev, resolution, channels,
+                                                              dev->settings.scan_method);
+
+    num_pixels = calib_sensor_base.sensor_pixels / factor;
+
     ScanSession session;
-    session.params.xres = dev->settings.xres;
+    session.params.xres = resolution;
     session.params.yres = dev->settings.yres;
     session.params.startx = 0;
     session.params.starty = 0;
-    session.params.pixels = (sensor.sensor_pixels*dev->settings.xres) / sensor.optical_res;
+    session.params.pixels = num_pixels;
     session.params.lines = 1;
     session.params.depth = 16;
     session.params.channels = channels;
@@ -3142,15 +3153,13 @@ static SensorExposure gl841_led_calibration(Genesys_Device* dev, const Genesys_S
     session.params.flags = SCAN_FLAG_DISABLE_SHADING |
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE |
-                           SCAN_FLAG_USE_OPTICAL_RES;
-    gl841_compute_session(dev, session, sensor);
+                           SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    gl841_compute_session(dev, session, calib_sensor_base);
 
-    gl841_init_scan_regs(dev, sensor, &regs, session);
+    gl841_init_scan_regs(dev, calib_sensor_base, &regs, session);
 
     dev->write_registers(regs);
 
-  num_pixels = dev->current_setup.pixels;
 
   total_size = num_pixels * channels * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
@@ -3174,7 +3183,7 @@ static SensorExposure gl841_led_calibration(Genesys_Device* dev, const Genesys_S
   max_exposure=((exp[0]+exp[1]+exp[2])/3)*2;
   target=sensor.gain_white_ref*256;
 
-    auto calib_sensor = sensor;
+    auto calib_sensor = calib_sensor_base;
 
     do {
         calib_sensor.exposure.red = exp[0];
@@ -3325,12 +3334,20 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       return;
     }
 
+    unsigned resolution = sensor.get_logical_hwdpi(dev->settings.xres);
+    unsigned factor = sensor.optical_res / resolution;
+
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, 3,
+                                                              dev->settings.scan_method);
+
+    num_pixels = calib_sensor.sensor_pixels / factor;
+
     ScanSession session;
-    session.params.xres = dev->settings.xres;
+    session.params.xres = resolution;
     session.params.yres = dev->settings.yres;
     session.params.startx = 0;
     session.params.starty = 0;
-    session.params.pixels = (sensor.sensor_pixels*dev->settings.xres) / sensor.optical_res;
+    session.params.pixels = num_pixels;
     session.params.lines = 1;
     session.params.depth = 8;
     session.params.channels = 3;
@@ -3340,13 +3357,11 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
     session.params.flags = SCAN_FLAG_DISABLE_SHADING |
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE |
-                           SCAN_FLAG_USE_OPTICAL_RES;
-    gl841_compute_session(dev, session, sensor);
+                           SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    gl841_compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, sensor, &regs, session);
+    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
 
-  num_pixels = dev->current_setup.pixels;
   total_size = num_pixels * 3 * 2 * 1;
 
   std::vector<uint8_t> line(total_size);
@@ -3369,8 +3384,8 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       /* scan line */
       DBG(DBG_info, "%s: starting line reading\n", __func__);
         dev->write_registers(regs);
-      gl841_set_fe(dev, sensor, AFE_SET);
-      gl841_begin_scan(dev, sensor, &regs, SANE_TRUE);
+      gl841_set_fe(dev, calib_sensor, AFE_SET);
+      gl841_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
       sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
       gl841_stop_action (dev);
       if (DBG_LEVEL >= DBG_data) {
@@ -3443,12 +3458,20 @@ static void gl841_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   /* offset calibration is always done in color mode */
   channels = 3;
 
+    unsigned resolution = sensor.get_logical_hwdpi(dev->settings.xres);
+    unsigned factor = sensor.optical_res / resolution;
+
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
+                                                         dev->settings.scan_method);
+
+    num_pixels = calib_sensor.sensor_pixels / factor;
+
     ScanSession session;
-    session.params.xres = dev->settings.xres;
+    session.params.xres = resolution;
     session.params.yres = dev->settings.yres;
     session.params.startx = 0;
     session.params.starty = 0;
-    session.params.pixels = (sensor.sensor_pixels*dev->settings.xres) / sensor.optical_res;
+    session.params.pixels = num_pixels;
     session.params.lines = 1;
     session.params.depth = 16;
     session.params.channels = channels;
@@ -3459,13 +3482,10 @@ static void gl841_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE |
-                           SCAN_FLAG_USE_OPTICAL_RES |
                            SCAN_FLAG_DISABLE_LAMP;
-    gl841_compute_session(dev, session, sensor);
+    gl841_compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, sensor, &regs, session);
-
-  num_pixels = dev->current_setup.pixels;
+    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
 
   total_size = num_pixels * channels * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
@@ -3511,10 +3531,10 @@ static void gl841_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
           dev->frontend.set_offset(j, off[j]);
       }
 
-        gl841_set_fe(dev, sensor, AFE_SET);
+        gl841_set_fe(dev, calib_sensor, AFE_SET);
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
-        gl841_begin_scan(dev, sensor, &regs, SANE_TRUE);
+        gl841_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
 
         sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
 
@@ -3618,11 +3638,11 @@ static void gl841_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
           dev->frontend.set_offset(j, off[j]);
       }
 
-        gl841_set_fe(dev, sensor, AFE_SET);
+        gl841_set_fe(dev, calib_sensor, AFE_SET);
 
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         dev->write_registers(regs);
-        gl841_begin_scan(dev, sensor, &regs, SANE_TRUE);
+        gl841_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
         sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
 
       if (DBG_LEVEL >= DBG_data) {
@@ -3804,12 +3824,20 @@ static void gl841_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   /* coarse gain calibration is allways done in color mode */
   channels = 3;
 
+    unsigned resolution = sensor.get_logical_hwdpi(dev->settings.xres);
+    unsigned factor = sensor.optical_res / resolution;
+
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
+                                                         dev->settings.scan_method);
+
+    num_pixels = calib_sensor.sensor_pixels / factor;
+
     ScanSession session;
-    session.params.xres = dev->settings.xres;
+    session.params.xres = resolution;
     session.params.yres = dev->settings.yres;
     session.params.startx = 0;
     session.params.starty = 0;
-    session.params.pixels = (sensor.sensor_pixels*dev->settings.xres) / sensor.optical_res;
+    session.params.pixels = num_pixels;
     session.params.lines = lines;
     session.params.depth = 16;
     session.params.channels = channels;
@@ -3819,21 +3847,18 @@ static void gl841_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
     session.params.flags = SCAN_FLAG_DISABLE_SHADING |
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE |
-                           SCAN_FLAG_USE_OPTICAL_RES;
-    gl841_compute_session(dev, session, sensor);
+                           SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    gl841_compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, sensor, &regs, session);
+    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
 
     dev->write_registers(regs);
-
-  num_pixels = dev->current_setup.pixels;
 
   total_size = num_pixels * channels * 2 * lines;	/* colors * bytes_per_color * scan lines */
 
   std::vector<uint8_t> line(total_size);
 
-    gl841_begin_scan(dev, sensor, &regs, SANE_TRUE);
+    gl841_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
     sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
   if (DBG_LEVEL >= DBG_data)
@@ -3969,8 +3994,7 @@ static void gl841_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor
     session.params.flags = SCAN_FLAG_DISABLE_SHADING |
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE |
-                           SCAN_FLAG_USE_OPTICAL_RES;
+                           SCAN_FLAG_IGNORE_LINE_DISTANCE;
     gl841_compute_session(dev, session, sensor);
 
     gl841_init_scan_regs(dev, sensor, local_reg, session);
@@ -4109,12 +4133,20 @@ static void gl841_init(Genesys_Device* dev)
   Genesys_Register_Set& regs = dev->calib_reg;
   regs = dev->reg;
 
+    unsigned resolution = sensor.get_logical_hwdpi(300);
+    unsigned factor = sensor.optical_res / resolution;
+
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, 3,
+                                                         dev->settings.scan_method);
+
+    unsigned num_pixels = 16 / factor;
+
     ScanSession session;
-    session.params.xres = 300;
+    session.params.xres = resolution;
     session.params.yres = 300;
     session.params.startx = 0;
     session.params.starty = 0;
-    session.params.pixels = (16 * 300) / sensor.optical_res;
+    session.params.pixels = num_pixels;
     session.params.lines = 1;
     session.params.depth = 16;
     session.params.channels = 3;
@@ -4124,20 +4156,19 @@ static void gl841_init(Genesys_Device* dev)
     session.params.flags = SCAN_FLAG_DISABLE_SHADING |
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE |
-                           SCAN_FLAG_USE_OPTICAL_RES;
-    gl841_compute_session(dev, session, sensor);
+                           SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    gl841_compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, sensor, &regs, session);
+    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
 
     dev->write_registers(regs);
 
-  size = dev->current_setup.pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
+    size = num_pixels * 3 * 2 * 1; // colors * bytes_per_color * scan lines
 
   std::vector<uint8_t> line(size);
 
   DBG(DBG_info, "%s: starting dummy data reading\n", __func__);
-    gl841_begin_scan(dev, sensor, &regs, SANE_TRUE);
+    gl841_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
 
   sanei_usb_set_timeout(1000);/* 1 second*/
 

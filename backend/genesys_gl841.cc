@@ -1824,10 +1824,9 @@ independent of our calculated values:
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
-    start = ((sensor.CCD_start_xoffset + session.params.startx) * used_res) / sensor.optical_res;
+    start = ((sensor.CCD_start_xoffset + session.params.startx) * session.optical_resolution)
+            / sensor.optical_res;
 
-    // needs to be aligned for used_res
-    start = (start * session.optical_resolution) / used_res;
 
   start += sensor.dummy_pixel + 1;
 
@@ -2067,10 +2066,7 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
-    start = ((sensor.CCD_start_xoffset + session.params.startx) * used_res) / sensor.optical_res;
-
-    // needs to be aligned for used_res
-    start = (start * session.optical_resolution) / used_res;
+    start = ((sensor.CCD_start_xoffset + session.params.startx) * session.optical_resolution) / sensor.optical_res;
 
   start += sensor.dummy_pixel + 1;
 

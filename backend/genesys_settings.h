@@ -228,7 +228,6 @@ struct ScanSession {
     unsigned optical_resolution = 0;
 
     // the number of pixels at the optical resolution.
-    // gl843-only
     unsigned optical_pixels = 0;
 
     // the number of bytes in the output of a single line directly from scanner

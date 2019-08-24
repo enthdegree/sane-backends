@@ -351,13 +351,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
         startx |= 1;
     }
 
-    uint32_t pixels = (session.params.pixels * session.optical_resolution) / session.params.xres;
-    // special requirement for 400 dpi on 1200 dpi sensors
-    if (session.params.xres == 400) {
-        pixels = (pixels / 6) * 6;
-    }
     /* TODO check for pixel width overflow */
-    uint32_t endx = startx + pixels;
+    uint32_t endx = startx + session.optical_pixels;
 
   int i, nb;
   Motor_Master *motor = NULL;

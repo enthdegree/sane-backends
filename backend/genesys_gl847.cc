@@ -178,15 +178,6 @@ static const SensorProfile& get_sensor_profile(const Genesys_Sensor& sensor, uns
     return sensor.sensor_profiles[best_i];
 }
 
-/**@brief compute exposure to use
- * compute the sensor exposure based on target resolution
- */
-static int gl847_compute_exposure(const Genesys_Sensor& sensor, unsigned xres)
-{
-    return get_sensor_profile(sensor, xres).exposure_lperiod;
-}
-
-
 /** @brief sensor specific settings
 */
 static void gl847_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& sensor,
@@ -1039,7 +1030,7 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-    exposure_time = gl847_compute_exposure(sensor, used_res);
+    exposure_time = get_sensor_profile(sensor, used_res).exposure_lperiod;
   scan_step_type = sanei_genesys_compute_step_type(gl847_motor_profiles, dev->model->motor_type,
                                                    exposure_time);
 
@@ -1225,7 +1216,7 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-    exposure_time = gl847_compute_exposure(sensor, used_res);
+    exposure_time = get_sensor_profile(sensor, used_res).exposure_lperiod;
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
     max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels, session.params.yres, 0);

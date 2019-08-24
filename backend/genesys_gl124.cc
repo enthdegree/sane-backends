@@ -557,19 +557,6 @@ static void gl124_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
     }
 }
 
-
-/**@brief compute exposure to use
- * compute the sensor exposure based on target resolution
- * @param dev pointer to  device description
- * @param xres sensor's required resolution
- * @param ccd_size_divisor how many CCD pixels are processed for output pixel
- */
-static int gl124_compute_exposure(const Genesys_Sensor& sensor, int xres, unsigned ccd_size_divisor)
-{
-    return get_sensor_profile(sensor, xres, ccd_size_divisor).exposure_lperiod;
-}
-
-
 static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                                        const Genesys_Sensor& sensor,
                                        Genesys_Register_Set* reg,
@@ -1152,7 +1139,8 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
   else
     {
-        exposure_time = gl124_compute_exposure(sensor, used_res, session.ccd_size_divisor);
+        exposure_time = get_sensor_profile(sensor, used_res,
+                                           session.ccd_size_divisor).exposure_lperiod;
         scan_step_type = sanei_genesys_compute_step_type(gl124_motor_profiles,
                                                          dev->model->motor_type, exposure_time);
     }
@@ -1311,7 +1299,9 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
     used_pixels = (session.params.pixels * optical_res) / session.params.xres;
   DBG (DBG_info, "%s: used_pixels=%d\n", __func__, used_pixels);
 
-    exposure_time = gl124_compute_exposure(sensor, session.params.xres, session.ccd_size_divisor);
+    exposure_time = get_sensor_profile(sensor, session.params.xres,
+                                       session.ccd_size_divisor).exposure_lperiod;
+
   DBG (DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
     max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels,

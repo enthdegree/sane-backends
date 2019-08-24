@@ -1272,11 +1272,7 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
   /* optical_res */
   optical_res = sensor.optical_res;
 
-    if (session.params.xres <= (unsigned) optical_res) {
-        used_res = session.params.xres;
-    } else {
-        used_res = optical_res;
-    }
+    used_res = session.params.xres;
 
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */

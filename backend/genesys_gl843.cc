@@ -1402,7 +1402,6 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 {
   int start;
 
-  int used_res;
   int used_pixels;
   unsigned int lincnt;
   int exposure;
@@ -1462,11 +1461,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     }
   DBG(DBG_info, "%s: stagger=%d lines\n", __func__, stagger);
 
-    if (session.params.xres <= (unsigned) session.optical_resolution) {
-        used_res = session.params.xres;
-    } else {
-        used_res = session.optical_resolution;
-    }
+    int used_res = session.params.xres;
 
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */

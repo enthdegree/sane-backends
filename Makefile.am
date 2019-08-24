@@ -31,7 +31,7 @@ dist_doc_DATA += ChangeLogs/ChangeLog-1.0.15
 dist_doc_DATA += ChangeLogs/ChangeLog-1.0.14
 dist_doc_DATA += ChangeLogs/ChangeLog-1.0.13
 dist_doc_DATA += ChangeLogs/ChangeLog-1.0.12
-##  ChangeLogs/ChangeLog-1.0.11 is missing
+dist_doc_DATA += ChangeLogs/ChangeLog-1.0.11
 dist_doc_DATA += ChangeLogs/ChangeLog-1.0.10
 dist_doc_DATA += ChangeLogs/ChangeLog-1.0.9
 dist_doc_DATA += ChangeLogs/ChangeLog-1.0.8

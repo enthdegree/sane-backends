@@ -1089,8 +1089,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
   DBG (DBG_info, "gl124_init_scan_regs : stagger=%d lines\n", stagger);
 
-    unsigned used_res = session.params.xres;
-
   /* compute scan parameters values */
   /* pixels are allways given at full optical resolution */
   /* use detected left margin and fixed value */
@@ -1113,7 +1111,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
   else
     {
-        exposure_time = get_sensor_profile(sensor, used_res,
+        exposure_time = get_sensor_profile(sensor, session.params.xres,
                                            session.ccd_size_divisor).exposure_lperiod;
         scan_step_type = sanei_genesys_compute_step_type(gl124_motor_profiles,
                                                          dev->model->motor_type, exposure_time);
@@ -1134,7 +1132,8 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
    */
 
     // now _LOGICAL_ optical values used are known, setup registers
-    gl124_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
+    gl124_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, session.params.xres,
+                                 start,
                                  session.optical_pixels, session.params.channels,
                                  session.params.depth, session.ccd_size_divisor,
                                  session.params.color_filter);
@@ -1164,7 +1163,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /*** prepares data reordering ***/
 
   /* words_per_line */
-    bytes_per_line = (session.optical_pixels * used_res) / session.optical_resolution;
+    bytes_per_line = (session.optical_pixels * session.params.xres) / session.optical_resolution;
   bytes_per_line = (bytes_per_line * session.params.channels * session.params.depth) / 8;
 
   /* since we don't have sheetfed scanners to handle,
@@ -1194,11 +1193,11 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
-    dev->current_setup.pixels = (session.optical_pixels * used_res) / session.optical_resolution;
+    dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / session.optical_resolution;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
-  dev->current_setup.xres = used_res;
+    dev->current_setup.xres = session.params.xres;
   dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
@@ -1221,7 +1220,6 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
 {
   int start;
 
-  int used_res;
   unsigned int lincnt;
   int exposure_time;
   int stagger;
@@ -1253,8 +1251,6 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
 
     gl124_compute_session(dev, session, sensor);
 
-    used_res = session.params.xres;
-
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
@@ -1270,7 +1266,7 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
                                                 session.params.yres, 0);
 
     // compute hw dpi for sensor
-    dpihw = sensor.get_register_hwdpi(used_res);
+    dpihw = sensor.get_register_hwdpi(session.params.xres);
 
     const SensorProfile& sensor_profile = get_sensor_profile(sensor, dpihw,
                                                              session.ccd_size_divisor);
@@ -1287,11 +1283,11 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
     lincnt = session.params.lines + max_shift + stagger;
 
     dev->session = session;
-  dev->current_setup.pixels = (session.optical_pixels * used_res) / sensor.optical_res;
+    dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / sensor.optical_res;
   DBG (DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
-  dev->current_setup.xres = used_res;
+    dev->current_setup.xres = session.params.xres;
   dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;

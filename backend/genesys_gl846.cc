@@ -972,8 +972,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
 
-    unsigned used_res = session.params.xres;
-
   /* compute scan parameters values */
   /* pixels are allways given at full optical resolution */
   /* use detected left margin and fixed value */
@@ -998,7 +996,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-    exposure_time = get_sensor_profile(sensor, used_res).exposure_lperiod;
+    exposure_time = get_sensor_profile(sensor, session.params.xres).exposure_lperiod;
   scan_step_type = sanei_genesys_compute_step_type(gl846_motor_profiles, dev->model->motor_type,
                                                    exposure_time);
 
@@ -1015,7 +1013,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
    */
-    gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
+    gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, session.params.xres, start,
                                  session.optical_pixels, session.params.channels, session.params.depth,
                                  session.params.color_filter);
 
@@ -1046,7 +1044,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /*** prepares data reordering ***/
 
 /* words_per_line */
-    bytes_per_line = (session.optical_pixels * used_res) / session.optical_resolution;
+    bytes_per_line = (session.optical_pixels * session.params.xres) / session.optical_resolution;
     bytes_per_line = (bytes_per_line * session.params.channels * session.params.depth) / 8;
 
   requested_buffer_size = 8 * bytes_per_line;
@@ -1073,10 +1071,10 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
-    dev->current_setup.pixels = (session.optical_pixels * used_res) / session.optical_resolution;
+    dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / session.optical_resolution;
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
-  dev->current_setup.xres = used_res;
+    dev->current_setup.xres = session.params.xres;
     dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;

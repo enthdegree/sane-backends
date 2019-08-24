@@ -1762,7 +1762,6 @@ static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG_HELPER(dbg);
     session.assert_computed();
 
-  int used_res;
     int start;
   int bytes_per_line;
   int move;
@@ -1814,8 +1813,6 @@ independent of our calculated values:
     }
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
 
-    used_res = session.params.xres;
-
     gl841_assert_supported_resolution(session);
 
   /* compute scan parameters values */
@@ -1836,7 +1833,7 @@ independent of our calculated values:
    * scan, where shading data needs to be align */
   if((dev->reg.find_reg(0x01).value & REG01_SHDAREA) != 0)
     {
-        avg = session.optical_resolution / used_res;
+        avg = session.optical_resolution / session.params.xres;
       start=(start/avg)*avg;
     }
 
@@ -1898,7 +1895,7 @@ dummy \ scanned lines
         session.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
     }
 
-    gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
+    gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, session.params.xres, start,
                                  session.optical_pixels, session.params.channels,
                                  session.params.depth, session.ccd_size_divisor,
                                  session.params.color_filter);
@@ -1941,7 +1938,7 @@ dummy \ scanned lines
   /*** prepares data reordering ***/
 
 /* words_per_line */
-    bytes_per_line = (session.optical_pixels * used_res) / session.optical_resolution;
+    bytes_per_line = (session.optical_pixels * session.params.xres) / session.optical_resolution;
     bytes_per_line = (bytes_per_line *  session.params.channels * session.params.depth) / 8;
 
   requested_buffer_size = 8 * bytes_per_line;
@@ -1971,10 +1968,10 @@ dummy \ scanned lines
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
-    dev->current_setup.pixels = (session.optical_pixels * used_res) / session.optical_resolution;
+    dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / session.optical_resolution;
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
-  dev->current_setup.xres = used_res;
+    dev->current_setup.xres = session.params.xres;
     dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
@@ -2011,7 +2008,6 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
 {
   int start;
 
-  int used_res;
   unsigned int lincnt;
   int exposure_time;
   int stagger;
@@ -2057,7 +2053,6 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
     }
   DBG(DBG_info, "%s: stagger=%d lines\n", __func__, stagger);
 
-    used_res = session.params.xres;
     gl841_assert_supported_resolution(session);
 
   /* compute scan parameters values */
@@ -2122,10 +2117,10 @@ dummy \ scanned lines
     lincnt = session.params.lines + max_shift + stagger;
 
     dev->session = session;
-    dev->current_setup.pixels = (session.optical_pixels * used_res) / session.optical_resolution;
+    dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / session.optical_resolution;
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
-  dev->current_setup.xres = used_res;
+    dev->current_setup.xres = session.params.xres;
     dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;

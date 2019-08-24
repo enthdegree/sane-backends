@@ -937,6 +937,9 @@ static void gl846_compute_session(Genesys_Device* dev, ScanSession& s,
     s.enable_ledadd = (s.params.channels == 1 && dev->model->is_cis && dev->settings.true_gray);
 
     s.computed = true;
+
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, s);
 }
 
 // set up registers for an actual scan this function sets up the scanner to scan in normal or single
@@ -960,8 +963,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int scan_step_type = 1;
   int max_shift;
   size_t requested_buffer_size, read_buffer_size;
-
-    debug_dump(DBG_info, session.params);
 
   /* stagger */
     if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
@@ -1145,9 +1146,6 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     session.params.flags = 0;
 
     gl846_compute_session(dev, session, sensor);
-
-    DBG(DBG_info, "%s ", __func__);
-    debug_dump(DBG_info, session.params);
 
     if (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE) {
         stagger = (4 * session.params.yres) / dev->motor.base_ydpi;

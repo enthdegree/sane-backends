@@ -1050,6 +1050,9 @@ static void gl124_compute_session(Genesys_Device* dev, ScanSession& s,
 
     s.enable_ledadd = (s.params.channels == 1 && dev->model->is_cis && dev->settings.true_gray);
     s.computed = true;
+
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, s);
 }
 
 /** set up registers for an actual scan
@@ -1075,8 +1078,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int scan_step_type = 1;
   int max_shift;
   size_t requested_buffer_size, read_buffer_size;
-
-    debug_dump(DBG_info, session.params);
 
     DBG (DBG_info, "%s: optical_res=%d\n", __func__, session.optical_resolution);
 
@@ -1251,9 +1252,6 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
     session.params.flags = 0;
 
     gl124_compute_session(dev, session, sensor);
-
-    DBG(DBG_info, "%s ", __func__);
-    debug_dump(DBG_info, session.params);
 
     used_res = session.params.xres;
 

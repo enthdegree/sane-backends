@@ -1229,6 +1229,9 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
     }
 
     s.computed = true;
+
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, s);
 }
 
 // set up registers for an actual scan this function sets up the scanner to scan in normal or single
@@ -1246,8 +1249,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int dummy = 0;
   int scan_step_type = 1;
   size_t requested_buffer_size, read_buffer_size;
-
-    debug_dump(DBG_info, session.params);
 
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, session.num_staggered_lines);
 
@@ -1426,9 +1427,6 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     session.params.flags = 0;
 
     gl843_compute_session(dev, session, sensor);
-
-    DBG(DBG_info, "%s ", __func__);
-    debug_dump(DBG_info, session.params);
 
   /* stagger */
     if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {

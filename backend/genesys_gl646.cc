@@ -317,9 +317,9 @@ static void gl646_compute_session(Genesys_Device* dev, ScanSession& s,
                                   const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-    (void) sensor;
     (void) dev;
-    s.params.assert_valid();
+
+    compute_session(dev, s, sensor);
     s.computed = true;
 }
 
@@ -429,8 +429,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   /* now we can search for the specific sensor settings */
   i = 0;
-
-    unsigned ccd_size_divisor = sensor.ccd_size_divisor;
 
     // now apply values from settings to registers
     regs->set16(REG_EXPR, sensor.exposure.red);
@@ -598,8 +596,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   /* at QUATER_STEP lines are 'staggered' and need correction */
   stagger = 0;
-    if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
-      /* for HP3670, stagger happens only at >=1200 dpi */
+    if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
+        // for HP3670, stagger happens only at >=1200 dpi
         if ((dev->model->motor_type != MOTOR_HP3670 && dev->model->motor_type != MOTOR_HP2400)
           || session.params.yres >= (unsigned) sensor.optical_res)
 	{
@@ -624,11 +622,12 @@ static void gl646_setup_registers(Genesys_Device* dev,
     }
 
   /* scanner's x coordinates are expressed in physical DPI but they must be divided by cksel */
-    sx = startx / sensor.ccd_pixels_per_system_pixel() / ccd_size_divisor;
-    ex = endx / sensor.ccd_pixels_per_system_pixel() / ccd_size_divisor;
+    sx = startx / sensor.ccd_pixels_per_system_pixel() / session.ccd_size_divisor;
+    ex = endx / sensor.ccd_pixels_per_system_pixel() / session.ccd_size_divisor;
     regs->set16(REG_STRPIXEL, sx);
     regs->set16(REG_ENDPIXEL, ex);
-    DBG(DBG_info, "%s: startx=%d, endx=%d, ccd_size_divisor=%d\n", __func__, sx, ex, ccd_size_divisor);
+    DBG(DBG_info, "%s: startx=%d, endx=%d, ccd_size_divisor=%d\n", __func__, sx, ex,
+        session.ccd_size_divisor);
 
   /* words_per_line must be computed according to the scan's resolution */
   /* in fact, words_per_line _gives_ the actual scan resolution */
@@ -649,7 +648,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
     regs->set24(REG_MAXWD, words_per_line);
 
-    regs->set16(REG_DPISET, sensor.real_resolution * sensor.ccd_size_divisor *
+    regs->set16(REG_DPISET, sensor.real_resolution * session.ccd_size_divisor *
                             sensor.ccd_pixels_per_system_pixel());
     regs->set16(REG_LPERIOD, sensor.exposure_lperiod);
 
@@ -834,7 +833,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   dev->current_setup.lines = linecnt;
     dev->current_setup.exposure_time = sensor.exposure_lperiod;
     dev->current_setup.xres = sensor.real_resolution;
-  dev->current_setup.ccd_size_divisor = ccd_size_divisor;
+  dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 

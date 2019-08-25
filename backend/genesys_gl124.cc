@@ -145,21 +145,6 @@ static void gl124_homsnr_gpio(Genesys_Device* dev)
     dev->write_register(REG32, val);
 }
 
-/**@brief compute half ccd mode
- * Compute half CCD mode flag. Half CCD is on when dpiset it twice
- * the actual scanning resolution. Used for fast scans.
- * @param model pointer to device model
- * @param xres required horizontal resolution
- */
-static unsigned compute_ccd_size_divisor(const Genesys_Sensor& sensor, int xres)
-{
-    // we have 2 domains for ccd: xres below or above half ccd max dpi
-    if (xres <= 300 && sensor.ccd_size_divisor > 1) {
-        return 2;
-    }
-    return 1;
-}
-
 /** @brief set all registers to default values .
  * This function is called only once at the beginning and
  * fills register startup values for registers reused across scans.
@@ -1107,7 +1092,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
     debug_dump(DBG_info, session.params);
 
-    unsigned ccd_size_divisor = compute_ccd_size_divisor(sensor, session.params.xres);
+    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(session.params.xres);
 
     unsigned optical_res = sensor.optical_res / ccd_size_divisor;
   DBG (DBG_info, "%s: optical_res=%d\n", __func__, optical_res);
@@ -1306,7 +1291,7 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = 0;
 
-    unsigned ccd_size_divisor = compute_ccd_size_divisor(sensor, session.params.xres);
+    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(session.params.xres);
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, session.params);
@@ -1914,7 +1899,7 @@ static void gl124_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
     }
   resolution=dpihw;
 
-    unsigned ccd_size_divisor = compute_ccd_size_divisor(sensor, dev->settings.xres);
+    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
 
     resolution /= ccd_size_divisor;
     dev->calib_lines /= ccd_size_divisor; // reducing just because we reduced the resolution
@@ -2011,7 +1996,7 @@ static void gl124_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& 
   /* start */
   start = SANE_UNFIX (dev->model->x_offset);
   start += dev->settings.tl_x;
-    start /= compute_ccd_size_divisor(sensor, dev->settings.xres);
+    start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
   flags = 0;
@@ -2239,7 +2224,7 @@ static SensorExposure gl124_led_calibration(Genesys_Device* dev, const Genesys_S
   depth=16;
     dpihw = sensor.get_register_hwdpi(dev->settings.xres);
     resolution = dpihw;
-    unsigned ccd_size_divisor = compute_ccd_size_divisor(sensor, dev->settings.xres);
+    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
     resolution /= ccd_size_divisor;
 
     const auto& sensor_profile = get_sensor_profile(sensor, dpihw, ccd_size_divisor);

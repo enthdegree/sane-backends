@@ -266,30 +266,6 @@ static unsigned get_closest_resolution(int sensor_id, int required, unsigned cha
 }
 
 /**
- * Computes if sensor will be set up for half ccd pixels for the given
- * scan mode.
- * @param sensor id of the sensor
- * @param required required resolution
- * @param color true is color mode
- * @return SANE_TRUE if half ccd is used
- */
-static unsigned get_ccd_size_divisor(int sensor_id, int required, unsigned channels)
-{
-    for (const auto& sensor : *s_sensors) {
-        // exit on perfect match
-        if (sensor.sensor_id == sensor_id && sensor.resolutions.matches(required) &&
-            sensor.matches_channel_count(channels))
-        {
-            DBG(DBG_io, "%s: match found for %d (ccd_size_divisor=%d)\n", __func__, required,
-                sensor.ccd_size_divisor);
-            return sensor.ccd_size_divisor;
-        }
-    }
-  DBG(DBG_info, "%s: failed to find match for %d dpi\n", __func__, required);
-    return 1;
-}
-
-/**
  * Returns the cksel values used by the required scan mode.
  * @param sensor id of the sensor
  * @param required required resolution
@@ -2089,11 +2065,7 @@ static void gl646_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, dev->settings.xres, channels,
                                                          dev->settings.scan_method);
 
-    unsigned ccd_size_divisor = 1;
-    if (sensor.ccd_size_divisor > 1) {
-        // when shading all (full width) line, we must adapt to ccd_size_divisor != 1 case
-        ccd_size_divisor = get_ccd_size_divisor(dev->model->ccd_type, dev->settings.xres, channels);
-    }
+    unsigned ccd_size_divisor = calib_sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
 
   settings.scan_method = dev->settings.scan_method;
   settings.scan_mode = dev->settings.scan_mode;
@@ -3786,11 +3758,6 @@ static void gl646_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, res, 1, ScanMethod::FLATBED);
 
-    unsigned ccd_size_divisor = 1;
-    if (calib_sensor.ccd_size_divisor > 1) {
-        ccd_size_divisor = get_ccd_size_divisor(dev->model->ccd_type, res, 1);
-    }
-
   /* we set up for a lowest available resolution color grey scan, full width */
   settings.scan_method = ScanMethod::FLATBED;
   settings.scan_mode = ScanColorMode::GRAY;
@@ -3799,7 +3766,7 @@ static void gl646_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
   settings.tl_x = 0;
   settings.tl_y = 0;
   settings.pixels = (SANE_UNFIX (dev->model->x_size) * res) / MM_PER_INCH;
-    settings.pixels /= ccd_size_divisor;
+    settings.pixels /= calib_sensor.get_ccd_size_divisor_for_dpi(res);
 
   /* 15 mm at at time */
   settings.lines = (15 * settings.yres) / MM_PER_INCH;	/* may become a parameter from genesys_devices.c */

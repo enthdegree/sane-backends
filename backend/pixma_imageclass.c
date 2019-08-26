@@ -111,7 +111,7 @@
 #define MF240_PID  0x27d2
 #define MF630_PID  0x27e1
 #define MF634_PID  0x27e2
-#define MF635_PID  0x27e3
+#define MF635_PID  0x27e1
 #define MF730_PID  0x27e4
 #define MF731_PID  0x27e5
 #define D570_PID   0x27e8
@@ -121,7 +121,7 @@
 #define MF260_PID  0x27f4
 #define MF740_PID  0x27fb
 #define MF640_PID  0x27fe
-#define MF645_PID  0x27ff
+#define MF645_PID  0x27fd
 
 
 enum iclass_state_t

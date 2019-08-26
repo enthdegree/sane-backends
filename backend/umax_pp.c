@@ -103,10 +103,6 @@
  *              129     if you want to know which parameters are unused
  */
 
-/* history:
- *  see Changelog
- */
-
 #define UMAX_PP_BUILD   2301
 #define UMAX_PP_STATE   "release"
 

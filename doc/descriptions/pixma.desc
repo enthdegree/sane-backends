@@ -1147,7 +1147,7 @@
 
 :model "i-SENSYS MF645C"
 :interface "USB Ethernet WiFi"
-:usbid "0x04a9" "0x27fe"
+:usbid "0x04a9" "0x27fd"
 :status :untested
 :comment "Testers needed!"
 

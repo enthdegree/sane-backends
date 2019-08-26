@@ -1,4 +1,4 @@
-2019-07-30
+2019-08-24
 
 This text summarizes some points to pay attention to when a new release
 of sane-backends is planned.
@@ -57,10 +57,6 @@ Updating the website and announcing the release:
 
 After the release:
 
-* extract source tarball's ChangeLog to ChangeLogs/ChangeLog-$version
-  (and strip the file's trailer pointing to ChangeLogs/)
-* start a new ChangeLog via git checkout ChangeLog
-* bump version number in tools/create-changelog.sh
 * remove the ':new' tag from all doc/descriptions*/*.desc files
 * git add new and changed files and commit
 * git push

@@ -12,5 +12,5 @@ cat << EOF >> ChangeLog
 
 ----------------------------------------------------------------------
 Older ChangeLog entries can be found in the ChangeLogs/ directory on a
-file per release basis.  Please note that 1.0.26 was never released.
+file per release basis.  Please note that version 1.0.26 was skipped.
 EOF

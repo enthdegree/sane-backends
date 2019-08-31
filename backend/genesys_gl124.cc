@@ -1272,8 +1272,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 static void
 gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& sensor)
 {
-  int channels;
-  int depth;
   int start;
 
   int used_res;
@@ -1289,17 +1287,6 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
 
-  /* channels */
-  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
-    channels = 3;
-  else
-    channels = 1;
-
-  /* depth */
-  depth = dev->settings.depth;
-  if (dev->settings.scan_mode == ScanColorMode::LINEART)
-    depth = 1;
-
   /* start */
   start = SANE_UNFIX (dev->model->x_offset);
   start += dev->settings.tl_x;
@@ -1312,8 +1299,8 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
     session.params.starty = 0; // not used
     session.params.pixels = dev->settings.pixels;
     session.params.lines = dev->settings.lines;
-    session.params.depth = depth;
-    session.params.channels = channels;
+    session.params.depth = dev->settings.get_depth();
+    session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
@@ -1730,7 +1717,7 @@ static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
   local_reg = dev->reg;
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, ScanMethod::FLATBED);
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, ScanMethod::FLATBED);
 
     ScanSession session;
     session.params.xres = resolution;
@@ -1815,7 +1802,7 @@ static void gl124_search_start_position(Genesys_Device* dev)
 
     // FIXME: the current approach of doing search only for one resolution does not work on scanners
     // whith employ different sensors with potentially different settings.
-    const auto& sensor = sanei_genesys_find_sensor(dev, dpi, ScanMethod::FLATBED);
+    const auto& sensor = sanei_genesys_find_sensor(dev, dpi, 1, ScanMethod::FLATBED);
 
     ScanSession session;
     session.params.xres = dpi;
@@ -1877,14 +1864,6 @@ static void gl124_init_regs_for_coarse_calibration(Genesys_Device* dev,
                                                    Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
-  uint8_t channels;
-
-  /* set line size */
-    if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS) {
-        channels = 3;
-    } else {
-        channels = 1;
-    }
 
     ScanSession session;
     session.params.xres = dev->settings.xres;
@@ -1894,7 +1873,7 @@ static void gl124_init_regs_for_coarse_calibration(Genesys_Device* dev,
     session.params.pixels = sensor.optical_res / sensor.ccd_pixels_per_system_pixel();
     session.params.lines = 20;
     session.params.depth = 16;
-    session.params.channels = channels;
+    session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
@@ -2009,25 +1988,12 @@ static void gl124_wait_for_motor_stop(Genesys_Device* dev)
 static void gl124_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-  int channels;
   int flags;
-  int depth;
   float move;
   int move_dpi;
   float start;
 
     debug_dump(DBG_info, dev->settings);
-
-  /* channels */
-  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
-    channels = 3;
-  else
-    channels = 1;
-
-  /* depth */
-  depth = dev->settings.depth;
-  if (dev->settings.scan_mode == ScanColorMode::LINEART)
-    depth = 1;
 
   /* y (motor) distance to move to reach scanned area */
   move_dpi = dev->motor.base_ydpi/4;
@@ -2036,8 +2002,7 @@ static void gl124_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& 
   move = (move * move_dpi) / MM_PER_INCH;
   DBG (DBG_info, "%s: move=%f steps\n", __func__, move);
 
-  if(channels*dev->settings.yres>=600 && move>700)
-    {
+    if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700) {
         gl124_feed(dev, move-500, SANE_FALSE);
       move=500;
     }
@@ -2065,8 +2030,8 @@ static void gl124_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& 
     session.params.starty = move;
     session.params.pixels = dev->settings.pixels;
     session.params.lines = dev->settings.lines;
-    session.params.depth = depth;
-    session.params.channels = channels;
+    session.params.depth = dev->settings.get_depth();
+    session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;

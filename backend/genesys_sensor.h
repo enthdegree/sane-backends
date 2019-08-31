@@ -253,6 +253,9 @@ struct Genesys_Sensor {
     // the resolution list that the sensor is usable at.
     ResolutionFilter resolutions = ResolutionFilter::ANY;
 
+    // the channel list that the sensor is usable at
+    std::vector<unsigned> channels = { 1, 3 };
+
     // the scan method used with the sensor
     ScanMethod method = ScanMethod::FLATBED;
 
@@ -314,6 +317,11 @@ struct Genesys_Sensor {
         // same on GL646, GL841, GL843, GL846, GL847, GL124
         constexpr unsigned REG_0x18_CKSEL = 0x03;
         return (custom_regs.get_value(0x18) & REG_0x18_CKSEL) + 1;
+    }
+
+    bool matches_channel_count(unsigned count) const
+    {
+        return std::find(channels.begin(), channels.end(), count) != channels.end();
     }
 
     bool operator==(const Genesys_Sensor& other) const

@@ -95,6 +95,21 @@ struct Genesys_Settings
 
     // cache entries expiration time
     int expiration_time = 0;
+
+    unsigned get_channels() const
+    {
+        if (scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
+            return 3;
+        return 1;
+    }
+
+    unsigned get_depth() const
+    {
+        if (scan_mode == ScanColorMode::LINEART)
+            return 1;
+        return depth;
+    }
+
 };
 
 struct SetupParams {

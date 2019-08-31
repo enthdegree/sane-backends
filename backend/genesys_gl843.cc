@@ -1184,14 +1184,6 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   r->value = sensor.dummy_pixel;
 }
 
-static unsigned align_int_up(unsigned num, unsigned alignment)
-{
-    unsigned mask = alignment - 1;
-    if (num & mask)
-        num = (num & ~mask) + alignment;
-    return num;
-}
-
 // computes physical parameters for specific scan setup
 static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
                                   const Genesys_Sensor& sensor)
@@ -1200,20 +1192,6 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
 
     // compute optical and output resolutions
     s.hwdpi_divisor = sensor.get_hwdpi_divisor_for_dpi(s.params.xres);
-
-    if (s.output_resolution > s.optical_resolution) {
-        throw std::runtime_error("output resolution higher than optical resolution");
-    }
-
-    // compute the number of optical pixels that will be acquired by the chip
-    s.optical_pixels = (s.params.pixels * s.optical_resolution) / s.output_resolution;
-    if (s.optical_pixels * s.output_resolution < s.params.pixels * s.optical_resolution) {
-        s.optical_pixels++;
-    }
-
-    // ensure the number of optical pixels is divisible by 2.
-    // In quarter-CCD mode optical_pixels is 4x larger than the actual physical number
-    s.optical_pixels = align_int_up(s.optical_pixels, 2 * s.ccd_size_divisor);
 
     // after all adjustments on the optical pixels have been made, compute the number of pixels
     // to retrieve from the chip
@@ -1402,7 +1380,6 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 {
   int start;
 
-  int used_pixels;
   unsigned int lincnt;
   int exposure;
   int stagger;
@@ -1467,10 +1444,6 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
 
-  /* compute correct pixels number */
-    used_pixels = (session.params.pixels * session.optical_resolution) / session.params.xres;
-  DBG(DBG_info, "%s: used_pixels=%d\n", __func__, used_pixels);
-
   /* exposure */
   exposure = sensor.exposure_lperiod;
   if (exposure < 0) {
@@ -1497,7 +1470,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     lincnt = session.params.lines + max_shift + stagger;
 
     dev->session = session;
-    dev->current_setup.pixels = (used_pixels * used_res) / session.optical_resolution;
+    dev->current_setup.pixels = (session.optical_pixels * used_res) / session.optical_resolution;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure;

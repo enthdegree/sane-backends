@@ -1760,7 +1760,7 @@ static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     session.assert_computed();
 
   int used_res;
-  int start, used_pixels;
+    int start;
   int bytes_per_line;
   int move;
   unsigned int lincnt;
@@ -1843,14 +1843,6 @@ independent of our calculated values:
       start=(start/avg)*avg;
     }
 
-  /* compute correct pixels number */
-    used_pixels = (session.params.pixels * session.optical_resolution) / session.params.xres;
-
-  /* round up pixels number if needed */
-    if (used_pixels * session.params.xres < session.params.pixels * session.optical_resolution) {
-        used_pixels++;
-    }
-
 /* dummy */
   /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1
      dummy line. Maybe the dummy line adds correctness since the motor runs
@@ -1890,11 +1882,11 @@ dummy \ scanned lines
   slope_dpi = slope_dpi * (1 + dummy);
 
     scan_step_type = gl841_scan_step_type(dev, session.params.yres);
-  exposure_time = gl841_exposure_time(dev, sensor,
+    exposure_time = gl841_exposure_time(dev, sensor,
                     slope_dpi,
                     scan_step_type,
                     start,
-                    used_pixels);
+                                        session.optical_pixels);
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
   /*** optical parameters ***/
@@ -1910,8 +1902,9 @@ dummy \ scanned lines
     }
 
     gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, used_res, start,
-                                 used_pixels, session.params.channels, session.params.depth,
-                                 session.ccd_size_divisor, session.params.color_filter);
+                                 session.optical_pixels, session.params.channels,
+                                 session.params.depth, session.ccd_size_divisor,
+                                 session.params.color_filter);
 
 /*** motor parameters ***/
 
@@ -1951,7 +1944,7 @@ dummy \ scanned lines
   /*** prepares data reordering ***/
 
 /* words_per_line */
-    bytes_per_line = (used_pixels * used_res) / session.optical_resolution;
+    bytes_per_line = (session.optical_pixels * used_res) / session.optical_resolution;
     bytes_per_line = (bytes_per_line *  session.params.channels * session.params.depth) / 8;
 
   requested_buffer_size = 8 * bytes_per_line;
@@ -1961,7 +1954,7 @@ dummy \ scanned lines
     }
 
     read_buffer_size = 2 * requested_buffer_size +
-        ((max_shift + stagger) * used_pixels *  session.params.channels * session.params.depth) / 8;
+        ((max_shift + stagger) * session.optical_pixels *  session.params.channels * session.params.depth) / 8;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -1981,7 +1974,7 @@ dummy \ scanned lines
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
-    dev->current_setup.pixels = (used_pixels * used_res) / session.optical_resolution;
+    dev->current_setup.pixels = (session.optical_pixels * used_res) / session.optical_resolution;
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
@@ -2022,7 +2015,6 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
   int start;
 
   int used_res;
-  int used_pixels;
   unsigned int lincnt;
   int exposure_time;
   int stagger;
@@ -2088,13 +2080,6 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
     start |= 1;
   }
 
-    used_pixels = (session.params.pixels * session.optical_resolution) / session.params.xres;
-
-    // round up pixels number if needed
-    if (used_pixels * session.params.xres < session.params.pixels * session.optical_resolution) {
-        used_pixels++;
-    }
-
   /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1
      dummy line. Maybe the dummy line adds correctness since the motor runs
      slower (higher dpi)
@@ -2136,7 +2121,7 @@ dummy \ scanned lines
                     slope_dpi,
                     scan_step_type,
                     start,
-                    used_pixels);
+                                        session.optical_pixels);
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
   /* scanned area must be enlarged by max color shift needed */
@@ -2146,7 +2131,7 @@ dummy \ scanned lines
     lincnt = session.params.lines + max_shift + stagger;
 
     dev->session = session;
-    dev->current_setup.pixels = (used_pixels * used_res) / session.optical_resolution;
+    dev->current_setup.pixels = (session.optical_pixels * used_res) / session.optical_resolution;
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;

@@ -2654,6 +2654,7 @@ static void gl646_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   if (dev->model->dac_type == DAC_AD_XP200)
     {
         ad_fe_offset_calibration(dev, sensor);
+        return;
     }
 
   DBG(DBG_proc, "%s: start\n", __func__); // TODO

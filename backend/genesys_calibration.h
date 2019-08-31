@@ -63,8 +63,8 @@ struct Genesys_Calibration_Cache
     size_t calib_pixels = 0;
     size_t calib_channels = 0;
     size_t average_size = 0;
-    std::vector<uint8_t> white_average_data;
-    std::vector<uint8_t> dark_average_data;
+    std::vector<uint16_t> white_average_data;
+    std::vector<uint16_t> dark_average_data;
 
     bool operator==(const Genesys_Calibration_Cache& other) const
     {

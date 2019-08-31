@@ -382,38 +382,3 @@
 #define SCAN_FLAG_DYNAMIC_LINEART          0x080
 
 #define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
-
-typedef struct
-{
-  SANE_Int gpo_type;
-  uint8_t  ra6;
-  uint8_t  ra7;
-  uint8_t  ra8;
-  uint8_t  ra9;
-} Gpio_layout;
-
-static Gpio_layout gpios[]={
-	/* G4050 */
-	{
-		GPO_G4050, 0x08, 0x1e, 0x3e, 0x06
-	},
-	/* KV-SS080 */
-	{
-		GPO_KVSS080, 0x06, 0x0f, 0x00, 0x08
-	},
-        /* 4400F */
-	{
-		GPO_CS4400F, 0x00, 0xff, 0x07, 0x00
-	},
-        /* 8400F */
-	{
-		GPO_CS8400F, 0x00, 0x03, 0x00, 0x02
-	},
-        {
-          GPO_CS8600F, 0x00, 0xff, 0x00, 0x00,
-        },
-        /* end marker */
-	{
-		0, 0, 0, 0, 0
-	},
-};

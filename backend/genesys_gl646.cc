@@ -816,6 +816,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
    */
     dev->total_bytes_read = 0;
     if (session.params.depth == 1) {
+        // BUG: should use settings.requested_pixels
         dev->total_bytes_to_read = ((session.params.pixels * session.params.lines) / 8 +
             (((session.params.pixels * session.params.lines) % 8) ? 1 : 0)) * session.params.channels;
     } else {

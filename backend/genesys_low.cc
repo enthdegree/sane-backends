@@ -1744,11 +1744,12 @@ void debug_dump(unsigned level, const Genesys_Settings& settings)
         "Resolution X/Y : %u / %u dpi\n"
         "Lines : %u\n"
         "Pixels per line : %u\n"
+        "Pixels per line (requested) : %u\n"
         "Depth : %u\n"
         "Start position X/Y : %.3f/%.3f\n"
         "Scan mode : %d\n\n",
         settings.xres, settings.yres,
-        settings.lines, settings.pixels, settings.depth,
+        settings.lines, settings.pixels, settings.requested_pixels, settings.depth,
         settings.tl_x, settings.tl_y,
         static_cast<unsigned>(settings.scan_mode));
 }
@@ -1759,6 +1760,7 @@ void debug_dump(unsigned level, const SetupParams& params)
         "Resolution X/Y : %u / %u dpi\n"
         "Lines : %u\n"
         "Pixels per line : %u\n"
+        "Pixels per line (requested) : %u\n"
         "Depth : %u\n"
         "Channels : %u\n"
         "Start position X/Y : %g / %g\n"
@@ -1766,7 +1768,7 @@ void debug_dump(unsigned level, const SetupParams& params)
         "Color filter : %d\n"
         "Flags : %x\n",
         params.xres, params.yres,
-        params.lines, params.pixels,
+        params.lines, params.pixels, params.requested_pixels,
         params.depth, params.channels,
         params.startx, params.starty,
         static_cast<unsigned>(params.scan_mode),

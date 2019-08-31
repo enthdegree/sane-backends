@@ -3666,7 +3666,7 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
     needs_reorder = 0;
 
   needs_ccd = dev->current_setup.max_shift > 0;
-  needs_shrink = dev->settings.pixels != src_pixels;
+  needs_shrink = dev->settings.requested_pixels != src_pixels;
   needs_reverse = depth == 1;
 
   DBG(DBG_info, "%s: using filters:%s%s%s%s\n", __func__,
@@ -3696,7 +3696,7 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
 
   DBG(DBG_info, "%s: %lu lines left by output\n", __func__,
        ((dev->total_bytes_to_read - dev->total_bytes_read) * 8UL) /
-       (dev->settings.pixels * channels * depth));
+        (dev->settings.requested_pixels * channels * depth));
   DBG(DBG_info, "%s: %lu lines left by input\n", __func__,
        ((dev->read_bytes_left + dev->read_buffer.avail()) * 8UL) /
        (src_pixels * channels * depth));
@@ -3917,10 +3917,11 @@ Problems with the first approach:
       /* we are greedy. we work as much as possible */
       bytes = dst_buffer->size() - dst_buffer->avail();
 
-      if (dst_lines > (bytes * 8) / (dev->settings.pixels * channels * depth))
-	dst_lines = (bytes * 8) / (dev->settings.pixels * channels * depth);
+        if (dst_lines > (bytes * 8) / (dev->settings.requested_pixels * channels * depth)) {
+            dst_lines = (bytes * 8) / (dev->settings.requested_pixels * channels * depth);
+        }
 
-      bytes = (dst_lines * dev->settings.pixels * channels * depth) / 8;
+        bytes = (dst_lines * dev->settings.requested_pixels * channels * depth) / 8;
 
       work_buffer_dst = dst_buffer->get_write_pos(bytes);
 
@@ -3930,21 +3931,21 @@ Problems with the first approach:
 	{
 	  if (depth == 1)
             genesys_shrink_lines_1(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
-                                   dev->settings.pixels, channels);
+                                   dev->settings.requested_pixels, channels);
 	  else if (depth == 8)
             genesys_shrink_lines_8(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
-                                   dev->settings.pixels, channels);
+                                   dev->settings.requested_pixels, channels);
 	  else
             genesys_shrink_lines_16(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
-                                    dev->settings.pixels, channels);
+                                    dev->settings.requested_pixels, channels);
 
           /* we just consumed this many bytes*/
 	  bytes = (dst_lines * src_pixels * channels * depth) / 8;
             src_buffer->consume(bytes);
 
           /* we just created this many bytes*/
-	  bytes = (dst_lines * dev->settings.pixels * channels * depth) / 8;
-            dst_buffer->produce(bytes);
+        bytes = (dst_lines * dev->settings.requested_pixels * channels * depth) / 8;
+        dst_buffer->produce(bytes);
 	}
       src_buffer = dst_buffer;
     }
@@ -4009,6 +4010,32 @@ max_string_size (const SANE_String_Const strings[])
   return max_size;
 }
 
+static unsigned pick_resolution(const std::vector<unsigned>& resolutions, unsigned resolution,
+                                const char* direction)
+{
+    DBG_HELPER(dbg);
+
+    if (resolutions.empty())
+        throw SaneException("Empty resolution list");
+
+    unsigned best_res = resolutions.front();
+    unsigned min_diff = abs_diff(best_res, resolution);
+
+    for (auto it = std::next(resolutions.begin()); it != resolutions.end(); ++it) {
+        unsigned curr_diff = abs_diff(*it, resolution);
+        if (curr_diff < min_diff) {
+            min_diff = curr_diff;
+            best_res = *it;
+        }
+    }
+
+    if (best_res != resolution) {
+        DBG(DBG_warn, "%s: using resolution %d that is nearest to %d for direction %s\n",
+            __func__, best_res, resolution, direction);
+    }
+    return best_res;
+}
+
 static void calc_parameters(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
@@ -4049,8 +4076,11 @@ static void calc_parameters(Genesys_Scanner* s)
     }
     s->dev->settings.yres = s->resolution;
 
+    s->dev->settings.xres = pick_resolution(s->dev->model->xdpi_values, s->dev->settings.xres, "X");
+    s->dev->settings.yres = pick_resolution(s->dev->model->ydpi_values, s->dev->settings.yres, "Y");
+
     s->params.lines = ((br_y - tl_y) * s->dev->settings.yres) / MM_PER_INCH;
-    s->params.pixels_per_line = ((br_x - tl_x) * s->resolution) / MM_PER_INCH;
+    unsigned pixels_per_line = ((br_x - tl_x) * s->dev->settings.xres) / MM_PER_INCH;
 
   /* we need an even pixels number
    * TODO invert test logic or generalize behaviour across all ASICs */
@@ -4061,10 +4091,15 @@ static void calc_parameters(Genesys_Scanner* s)
         s->dev->model->asic_type == AsicType::GL846 ||
         s->dev->model->asic_type == AsicType::GL843)
     {
-      if (s->dev->settings.xres <= 1200)
-        s->params.pixels_per_line = (s->params.pixels_per_line/4)*4;
-      else
-        s->params.pixels_per_line = (s->params.pixels_per_line/16)*16;
+        if (s->dev->settings.xres <= 1200) {
+            pixels_per_line = (pixels_per_line / 4) * 4;
+        } else if (s->dev->settings.xres < s->dev->settings.yres) {
+            // BUG: this is an artifact of the fact that the resolution was twice as large than
+            // the actual resolution when scanning above the supported scanner X resolution
+            pixels_per_line = (pixels_per_line / 8) * 8;
+        } else {
+            pixels_per_line = (pixels_per_line / 16) * 16;
+        }
     }
 
   /* corner case for true lineart for sensor with several segments
@@ -4074,25 +4109,35 @@ static void calc_parameters(Genesys_Scanner* s)
                 s->dev->model->asic_type == AsicType::GL847 ||
                 s->dev->current_setup.xres < s->dev->session.params.yres))
     {
-      s->params.pixels_per_line = (s->params.pixels_per_line/16)*16;
+        if (s->dev->settings.xres < s->dev->settings.yres) {
+            // FIXME: this is an artifact of the fact that the resolution was twice as large than
+            // the actual resolution when scanning above the supported scanner X resolution
+            pixels_per_line = (pixels_per_line / 8) * 8;
+        } else {
+            pixels_per_line = (pixels_per_line / 16) * 16;
+        }
     }
 
-  s->params.bytes_per_line = s->params.pixels_per_line;
+    unsigned xres_factor = s->resolution / s->dev->settings.xres;
+
+    unsigned bytes_per_line = 0;
+
   if (s->params.depth > 8)
     {
       s->params.depth = 16;
-      s->params.bytes_per_line *= 2;
+        bytes_per_line = 2 * pixels_per_line;
     }
   else if (s->params.depth == 1)
     {
-      s->params.bytes_per_line /= 8;
-      /* round down pixel number
-         really? rounding down means loss of at most 7 pixels! -- pierre */
-      s->params.pixels_per_line = 8 * s->params.bytes_per_line;
+        // round down pixel number. This will is lossy operation, at most 7 pixels will be lost
+        pixels_per_line = (pixels_per_line / 8) * 8;
+        bytes_per_line = pixels_per_line / 8;
+    } else {
+        bytes_per_line = pixels_per_line;
     }
 
     if (s->params.format == SANE_FRAME_RGB) {
-        s->params.bytes_per_line *= 3;
+        bytes_per_line *= 3;
     }
 
     if (s->mode == SANE_VALUE_SCAN_MODE_COLOR) {
@@ -4114,7 +4159,10 @@ static void calc_parameters(Genesys_Scanner* s)
     }
 
   s->dev->settings.lines = s->params.lines;
-  s->dev->settings.pixels = s->params.pixels_per_line;
+    s->dev->settings.pixels = pixels_per_line;
+    s->dev->settings.requested_pixels = pixels_per_line * xres_factor;
+    s->params.pixels_per_line = pixels_per_line * xres_factor;
+    s->params.bytes_per_line = bytes_per_line * xres_factor;
   s->dev->settings.tl_x = tl_x;
   s->dev->settings.tl_y = tl_y;
 
@@ -4431,18 +4479,21 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_BIT_DEPTH].constraint.word_list = s->bpp_list;
   create_bpp_list (s, model->bpp_gray_values);
   s->bit_depth = 8;
-  if (s->opt[OPT_BIT_DEPTH].constraint.word_list[0] < 2)
-    DISABLE (OPT_BIT_DEPTH);
+    if (s->opt[OPT_BIT_DEPTH].constraint.word_list[0] < 2) {
+        DISABLE (OPT_BIT_DEPTH);
+    }
 
-  /* resolution */
-    unsigned min_dpi = *std::min_element(model->xdpi_values.begin(), model->xdpi_values.end());
+    // resolution
+    auto resolutions = model->get_resolutions();
 
-    dpi_list = (SANE_Word*) malloc((model->xdpi_values.size() + 1) * sizeof(SANE_Word));
+    unsigned min_dpi = *std::min_element(resolutions.begin(), resolutions.end());
+
+    dpi_list = (SANE_Word*) malloc((resolutions.size() + 1) * sizeof(SANE_Word));
     if (!dpi_list) {
         throw SaneException(SANE_STATUS_NO_MEM);
     }
-    dpi_list[0] = model->xdpi_values.size();
-    std::copy(model->xdpi_values.begin(), model->xdpi_values.end(), dpi_list + 1);
+    dpi_list[0] = resolutions.size();
+    std::copy(resolutions.begin(), resolutions.end(), dpi_list + 1);
 
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
@@ -5108,7 +5159,7 @@ probe_genesys_devices (void)
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 6;
+static const int CALIBRATION_VERSION = 7;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)
@@ -5638,7 +5689,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
   unsigned option_size = 0;
   SANE_Status status = SANE_STATUS_GOOD;
 
-  const Genesys_Sensor& sensor = sanei_genesys_find_sensor(s->dev, s->resolution,
+  const Genesys_Sensor& sensor = sanei_genesys_find_sensor(s->dev, s->dev->settings.xres,
                                                            s->dev->settings.get_channels(),
                                                            s->dev->settings.scan_method);
 
@@ -6168,7 +6219,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         }
       break;
         case OPT_CALIBRATE: {
-            auto& sensor = sanei_genesys_find_sensor_for_write(s->dev, s->resolution,
+            auto& sensor = sanei_genesys_find_sensor_for_write(s->dev, s->dev->settings.xres,
                                                                s->dev->settings.get_channels(),
                                                                s->dev->settings.scan_method);
             catch_all_exceptions(__func__, [&]()

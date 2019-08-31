@@ -1136,10 +1136,10 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
     dev->total_bytes_read = 0;
     if (session.params.depth == 1) {
-        dev->total_bytes_to_read = ((session.params.pixels * session.params.lines) / 8 +
-                                    (((session.params.pixels * session.params.lines) % 8) ? 1 : 0)) * session.params.channels;
+        dev->total_bytes_to_read = ((session.params.get_requested_pixels() * session.params.lines) / 8 +
+                                    (((session.params.get_requested_pixels() * session.params.lines) % 8) ? 1 : 0)) * session.params.channels;
     } else {
-        dev->total_bytes_to_read = session.params.pixels * session.params.lines * session.params.channels * (session.params.depth / 8);
+        dev->total_bytes_to_read = session.params.get_requested_pixels() * session.params.lines * session.params.channels * (session.params.depth / 8);
     }
 
   DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
@@ -1177,6 +1177,7 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     session.params.startx = start; // not used
     session.params.starty = 0; // not used
     session.params.pixels = dev->settings.pixels;
+    session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
     session.params.depth = dev->settings.get_depth();
     session.params.channels = dev->settings.get_channels();
@@ -1834,6 +1835,7 @@ static void gl847_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& 
     session.params.startx = start;
     session.params.starty = move;
     session.params.pixels = dev->settings.pixels;
+    session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
     session.params.depth = dev->settings.get_depth();
     session.params.channels = dev->settings.get_channels();

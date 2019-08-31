@@ -178,6 +178,18 @@ struct Genesys_Model
     SANE_Int shading_ta_lines = 0;
     // how many lines are used to search start position
     SANE_Int search_lines = 0;
+
+    std::vector<unsigned> get_resolutions() const
+    {
+        std::vector<unsigned> ret;
+        std::copy(xdpi_values.begin(), xdpi_values.end(), std::back_inserter(ret));
+        std::copy(ydpi_values.begin(), ydpi_values.end(), std::back_inserter(ret));
+        // sort in decreasing order
+
+        std::sort(ret.begin(), ret.end(), std::greater<unsigned>());
+        ret.erase(std::unique(ret.begin(), ret.end()), ret.end());
+        return ret;
+    }
 };
 
 /**

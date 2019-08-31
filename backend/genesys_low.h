@@ -637,6 +637,16 @@ extern void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
 
 void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor);
 
+template<class T>
+inline T abs_diff(T a, T b)
+{
+    if (a < b) {
+        return b - a;
+    } else {
+        return a - b;
+    }
+}
+
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */
 /*---------------------------------------------------------------------------*/

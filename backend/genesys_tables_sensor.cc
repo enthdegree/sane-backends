@@ -84,6 +84,21 @@ inline unsigned default_get_ccd_size_divisor_for_dpi(const Genesys_Sensor& senso
     return 1;
 }
 
+inline unsigned get_ccd_size_divisor_exact(const Genesys_Sensor& sensor, unsigned xres)
+{
+    (void) xres;
+    return sensor.ccd_size_divisor;
+}
+
+inline unsigned get_ccd_size_divisor_gl124(const Genesys_Sensor& sensor, unsigned xres)
+{
+    // we have 2 domains for ccd: xres below or above half ccd max dpi
+    if (xres <= 300 && sensor.ccd_size_divisor > 1) {
+        return 2;
+    }
+    return 1;
+}
+
 inline unsigned default_get_hwdpi_divisor_for_dpi(const Genesys_Sensor& sensor, unsigned xres)
 {
     return sensor.optical_res / default_get_logical_hwdpi(sensor, xres);
@@ -287,7 +302,7 @@ void genesys_init_sensor_tables()
     sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
     {
         struct CustomSensorSettings {
@@ -634,7 +649,7 @@ void genesys_init_sensor_tables()
     sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
     {
         struct CustomSensorSettings {
@@ -868,7 +883,7 @@ void genesys_init_sensor_tables()
     sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
     {
         struct CustomSensorSettings {
@@ -1148,7 +1163,7 @@ void genesys_init_sensor_tables()
     sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
     {
         struct CustomSensorSettings {
@@ -1223,7 +1238,7 @@ void genesys_init_sensor_tables()
     sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
     {
         struct CustomSensorSettings {
@@ -2839,7 +2854,7 @@ void genesys_init_sensor_tables()
     sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
     profile = SensorProfile();
     profile.dpi = 600;
@@ -2975,7 +2990,7 @@ void genesys_init_sensor_tables()
     sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
     profile = SensorProfile();
     profile.dpi = 600;
@@ -3110,7 +3125,7 @@ void genesys_init_sensor_tables()
     sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
     profile = SensorProfile();
     profile.dpi = 600;
@@ -3245,7 +3260,7 @@ void genesys_init_sensor_tables()
     sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
     profile = SensorProfile();
     profile.dpi = 600;

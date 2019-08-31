@@ -266,30 +266,6 @@ static unsigned get_closest_resolution(int sensor_id, int required, unsigned cha
 }
 
 /**
- * Computes if sensor will be set up for half ccd pixels for the given
- * scan mode.
- * @param sensor id of the sensor
- * @param required required resolution
- * @param color true is color mode
- * @return SANE_TRUE if half ccd is used
- */
-static unsigned get_ccd_size_divisor(int sensor_id, int required, unsigned channels)
-{
-    for (const auto& sensor : *s_sensors) {
-        // exit on perfect match
-        if (sensor.sensor_id == sensor_id && sensor.resolutions.matches(required) &&
-            sensor.matches_channel_count(channels))
-        {
-            DBG(DBG_io, "%s: match found for %d (ccd_size_divisor=%d)\n", __func__, required,
-                sensor.ccd_size_divisor);
-            return sensor.ccd_size_divisor;
-        }
-    }
-  DBG(DBG_info, "%s: failed to find match for %d dpi\n", __func__, required);
-    return 1;
-}
-
-/**
  * Returns the cksel values used by the required scan mode.
  * @param sensor id of the sensor
  * @param required required resolution
@@ -317,9 +293,9 @@ static void gl646_compute_session(Genesys_Device* dev, ScanSession& s,
                                   const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-    (void) sensor;
     (void) dev;
-    s.params.assert_valid();
+
+    compute_session(dev, s, sensor);
     s.computed = true;
 }
 
@@ -407,22 +383,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
       xresolution = resolution;
     }
 
-    // for the given resolution, search for master sensor mode setting
-    const Genesys_Sensor* sensor_mst = nullptr;
-    for (const auto& sensor : *s_sensors) {
-        if (sensor.sensor_id == dev->model->ccd_type && sensor.resolutions.matches(xresolution) &&
-            sensor.matches_channel_count(session.params.channels))
-        {
-            sensor_mst = &sensor;
-            break;
-        }
-    }
-
-    if (sensor_mst == NULL) {
-        throw SaneException("unable to find settings for sensor %d at %d dpi channels=%d",
-                            dev->model->ccd_type, xresolution, session.params.channels);
-    }
-
   /* for the given resolution, search for master
    * motor mode setting */
   i = 0;
@@ -446,14 +406,12 @@ static void gl646_setup_registers(Genesys_Device* dev,
   /* now we can search for the specific sensor settings */
   i = 0;
 
-    unsigned ccd_size_divisor = sensor_mst->ccd_size_divisor;
-
     // now apply values from settings to registers
-    regs->set16(REG_EXPR, sensor_mst->exposure.red);
-    regs->set16(REG_EXPG, sensor_mst->exposure.green);
-    regs->set16(REG_EXPB, sensor_mst->exposure.blue);
+    regs->set16(REG_EXPR, sensor.exposure.red);
+    regs->set16(REG_EXPG, sensor.exposure.green);
+    regs->set16(REG_EXPB, sensor.exposure.blue);
 
-    for (const auto& reg : sensor_mst->custom_regs) {
+    for (const auto& reg : sensor.custom_regs) {
         regs->set8(reg.address, reg.value);
     }
 
@@ -614,8 +572,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   /* at QUATER_STEP lines are 'staggered' and need correction */
   stagger = 0;
-    if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
-      /* for HP3670, stagger happens only at >=1200 dpi */
+    if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
+        // for HP3670, stagger happens only at >=1200 dpi
         if ((dev->model->motor_type != MOTOR_HP3670 && dev->model->motor_type != MOTOR_HP2400)
           || session.params.yres >= (unsigned) sensor.optical_res)
 	{
@@ -640,15 +598,16 @@ static void gl646_setup_registers(Genesys_Device* dev,
     }
 
   /* scanner's x coordinates are expressed in physical DPI but they must be divided by cksel */
-    sx = startx / sensor_mst->ccd_pixels_per_system_pixel() / ccd_size_divisor;
-    ex = endx / sensor_mst->ccd_pixels_per_system_pixel() / ccd_size_divisor;
+    sx = startx / sensor.ccd_pixels_per_system_pixel() / session.ccd_size_divisor;
+    ex = endx / sensor.ccd_pixels_per_system_pixel() / session.ccd_size_divisor;
     regs->set16(REG_STRPIXEL, sx);
     regs->set16(REG_ENDPIXEL, ex);
-    DBG(DBG_info, "%s: startx=%d, endx=%d, ccd_size_divisor=%d\n", __func__, sx, ex, ccd_size_divisor);
+    DBG(DBG_info, "%s: startx=%d, endx=%d, ccd_size_divisor=%d\n", __func__, sx, ex,
+        session.ccd_size_divisor);
 
   /* words_per_line must be computed according to the scan's resolution */
   /* in fact, words_per_line _gives_ the actual scan resolution */
-    words_per_line = (((endx - startx) * sensor_mst->real_resolution) / sensor.optical_res);
+    words_per_line = (((endx - startx) * sensor.real_resolution) / sensor.optical_res);
     bpp = session.params.depth/8;
     if (session.params.depth == 1) {
       words_per_line = (words_per_line+7)/8 ;
@@ -665,9 +624,9 @@ static void gl646_setup_registers(Genesys_Device* dev,
   DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
     regs->set24(REG_MAXWD, words_per_line);
 
-    regs->set16(REG_DPISET, sensor_mst->real_resolution * sensor_mst->ccd_size_divisor *
-                            sensor_mst->ccd_pixels_per_system_pixel());
-    regs->set16(REG_LPERIOD, sensor_mst->exposure_lperiod);
+    regs->set16(REG_DPISET, sensor.real_resolution * session.ccd_size_divisor *
+                            sensor.ccd_pixels_per_system_pixel());
+    regs->set16(REG_LPERIOD, sensor.exposure_lperiod);
 
   /* move distance must be adjusted to take into account the extra lines
    * read to reorder data */
@@ -795,8 +754,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   regs->find_reg(0x65).value = motor->mtrpwm;
 
-  sanei_genesys_calculate_zmod (regs->find_reg(0x02).value & REG02_FASTFED,
-                                  sensor_mst->exposure_lperiod,
+    sanei_genesys_calculate_zmod(regs->find_reg(0x02).value & REG02_FASTFED,
+                                 sensor.exposure_lperiod,
 				  slope_table1,
 				  motor->steps1,
                                   move, motor->fwdbwd, &z1, &z2);
@@ -846,11 +805,11 @@ static void gl646_setup_registers(Genesys_Device* dev,
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
-    dev->current_setup.pixels = ((endx - startx) * sensor_mst->real_resolution) / sensor.optical_res;
+    dev->current_setup.pixels = ((endx - startx) * sensor.real_resolution) / sensor.optical_res;
   dev->current_setup.lines = linecnt;
-  dev->current_setup.exposure_time = sensor_mst->exposure_lperiod;
-    dev->current_setup.xres = sensor_mst->real_resolution;
-  dev->current_setup.ccd_size_divisor = ccd_size_divisor;
+    dev->current_setup.exposure_time = sensor.exposure_lperiod;
+    dev->current_setup.xres = sensor.real_resolution;
+  dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 
@@ -2106,11 +2065,7 @@ static void gl646_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, dev->settings.xres, channels,
                                                          dev->settings.scan_method);
 
-    unsigned ccd_size_divisor = 1;
-    if (sensor.ccd_size_divisor > 1) {
-        // when shading all (full width) line, we must adapt to ccd_size_divisor != 1 case
-        ccd_size_divisor = get_ccd_size_divisor(dev->model->ccd_type, dev->settings.xres, channels);
-    }
+    unsigned ccd_size_divisor = calib_sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
 
   settings.scan_method = dev->settings.scan_method;
   settings.scan_mode = dev->settings.scan_mode;
@@ -3803,11 +3758,6 @@ static void gl646_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, res, 1, ScanMethod::FLATBED);
 
-    unsigned ccd_size_divisor = 1;
-    if (calib_sensor.ccd_size_divisor > 1) {
-        ccd_size_divisor = get_ccd_size_divisor(dev->model->ccd_type, res, 1);
-    }
-
   /* we set up for a lowest available resolution color grey scan, full width */
   settings.scan_method = ScanMethod::FLATBED;
   settings.scan_mode = ScanColorMode::GRAY;
@@ -3816,7 +3766,7 @@ static void gl646_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
   settings.tl_x = 0;
   settings.tl_y = 0;
   settings.pixels = (SANE_UNFIX (dev->model->x_size) * res) / MM_PER_INCH;
-    settings.pixels /= ccd_size_divisor;
+    settings.pixels /= calib_sensor.get_ccd_size_divisor_for_dpi(res);
 
   /* 15 mm at at time */
   settings.lines = (15 * settings.yres) / MM_PER_INCH;	/* may become a parameter from genesys_devices.c */

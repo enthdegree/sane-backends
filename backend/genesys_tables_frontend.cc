@@ -52,6 +52,7 @@ void genesys_init_frontend_tables()
     s_frontends.init();
 
     GenesysFrontendLayout wolfson_layout;
+    wolfson_layout.type = FrontendType::WOLFSON;
     wolfson_layout.offset_addr = { 0x20, 0x21, 0x22 };
     wolfson_layout.gain_addr = { 0x28, 0x29, 0x2a };
 

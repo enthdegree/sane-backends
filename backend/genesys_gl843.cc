@@ -2860,6 +2860,10 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
                                      Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
+
+    if (dev->frontend.layout.type == FrontendType::UNKNOWN)
+        return;
+
   unsigned int channels, bpp;
   int pass, total_size, i, resolution, lines;
   int topavg[3], bottomavg[3], avg[3];
@@ -3090,6 +3094,9 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   int val, lines;
   int resolution;
   int bpp;
+
+    if (dev->frontend.layout.type == FrontendType::UNKNOWN)
+        return;
 
     dpihw = sensor.get_logical_hwdpi(dpi);
   factor=sensor.optical_res/dpihw;

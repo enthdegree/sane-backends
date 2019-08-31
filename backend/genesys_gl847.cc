@@ -1191,10 +1191,10 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = 0;
 
+    gl847_compute_session(dev, session, sensor);
+
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, session.params);
-
-    gl847_compute_session(dev, session, sensor);
 
   /* optical_res */
   optical_res = sensor.optical_res;

@@ -435,36 +435,3 @@ static Memory_layout layouts[]={
         /* list terminating entry */
         { NULL, 0, 0, 0, 0, {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} }
 };
-
-/** @brief structure for sensor settings
- * this structure describes the sensor settings to use for a given
- * exposure.
- */
-typedef struct {
-  int sensor_type;      /**> sensor id */
-  int dpi;              /**> maximum dpi for which data are valid */
-  int exposure;         /**> exposure */
-  int ck1map;           /**> CK1MAP */
-  int ck3map;           /**> CK3MAP */
-  int ck4map;           /**> CK4MAP */
-  int segcnt;           /**> SEGCNT */
-  int expdummy;         /**> exposure dummy */
-  int expr;             /**> initial red exposure */
-  int expg;             /**> initial green exposure */
-  int expb;             /**> initial blue exposure */
-  size_t *order;        /**> order of sub-segments */
-  uint8_t r17;		/**> TG width */
-} Sensor_Profile;
-
-/**
- * order of the scanned pixel
- */
-static size_t order_01[]={0,1};
-
-/**
- * database of sensor profiles
- */
-static Sensor_Profile sensors[]={
-	{CCD_IMG101, 1200, 11000,  60, 159, 85, 5136, 255,  0,  0,  0, order_01  , 0x13},
-	{CCD_PLUSTEK3800, 1200, 11000,  60, 159, 85, 5136, 255,  0,  0,  0, order_01  , 0x13},
-};

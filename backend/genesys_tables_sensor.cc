@@ -95,12 +95,22 @@ inline unsigned default_get_hwdpi_divisor_for_dpi(const Genesys_Sensor& sensor, 
  * registers 0x08-0x0b, 0x10-0x1d and 0x52-0x5e
  */
 StaticInit<std::vector<Genesys_Sensor>> s_sensors;
+StaticInit<SensorProfile> s_fallback_sensor_profile_gl124;
+StaticInit<SensorProfile> s_fallback_sensor_profile_gl846;
+StaticInit<SensorProfile> s_fallback_sensor_profile_gl847;
+
 
 void genesys_init_sensor_tables()
 {
     s_sensors.init();
+    s_fallback_sensor_profile_gl124.init();
+    s_fallback_sensor_profile_gl846.init();
+    s_fallback_sensor_profile_gl847.init();
 
     Genesys_Sensor sensor;
+    SensorProfile profile;
+
+    sensor = Genesys_Sensor();
     sensor.sensor_id = CCD_UMAX;
     sensor.optical_res = 1200;
     sensor.black_pixels = 48;
@@ -775,6 +785,97 @@ void genesys_init_sensor_tables()
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+
+    profile = SensorProfile();
+    profile.dpi = 200;
+    profile.exposure_lperiod = 2848;
+    profile.exposure = { 410, 275, 203 };
+    profile.segment_count = 5136;
+    profile.segment_order = {};
+    profile.custom_regs = {
+        { 0x17, 0x0a },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 300;
+    profile.exposure_lperiod = 1424;
+    profile.exposure = { 410, 275, 203 };
+    profile.segment_count = 5136;
+    profile.segment_order = {};
+    profile.custom_regs = {
+        { 0x17, 0x0a },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 600;
+    profile.exposure_lperiod = 1432;
+    profile.exposure = { 410, 275, 203 };
+    profile.segment_count = 5136;
+    profile.segment_order = {};
+    profile.custom_regs = {
+        { 0x17, 0x0a },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 1200;
+    profile.exposure_lperiod = 2712;
+    profile.exposure = { 746, 478, 353 };
+    profile.segment_count = 5136;
+    profile.segment_order = {0, 1};
+    profile.custom_regs = {
+        { 0x17, 0x08 },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 2400;
+    profile.exposure_lperiod = 5280;
+    profile.exposure = { 1417, 909, 643 };
+    profile.segment_count = 5136;
+    profile.segment_order = {0, 2, 1, 3};
+    profile.custom_regs = {
+        { 0x17, 0x06 },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 4800;
+    profile.exposure_lperiod = 10416;
+    profile.exposure = { 2692, 1728, 1221 };
+    profile.segment_count = 5136;
+    profile.segment_order = {0, 2, 4, 6, 1, 3, 5, 7};
+    profile.custom_regs = {
+        { 0x17, 0x04 },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
     s_sensors->push_back(sensor);
 
 
@@ -822,6 +923,97 @@ void genesys_init_sensor_tables()
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+
+    profile = SensorProfile();
+    profile.dpi = 150;
+    profile.exposure_lperiod = 2848;
+    profile.exposure = { 465, 310, 239 };
+    profile.segment_count = 5187;
+    profile.segment_order = {};
+    profile.custom_regs = {
+        { 0x17, 0x0c },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x87 },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0xf9 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 300;
+    profile.exposure_lperiod = 1424;
+    profile.exposure = { 465, 310, 239 };
+    profile.segment_count = 5187;
+    profile.segment_order = {};
+    profile.custom_regs = {
+        { 0x17, 0x0c },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x87 },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0xf9 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 600;
+    profile.exposure_lperiod = 1504;
+    profile.exposure = { 465, 310, 239 };
+    profile.segment_count = 5187;
+    profile.segment_order = {};
+    profile.custom_regs = {
+        { 0x17, 0x0c },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x87 },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0xf9 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 1200;
+    profile.exposure_lperiod = 2696;
+    profile.exposure = { 1464, 844, 555 };
+    profile.segment_count = 5187;
+    profile.segment_order = {0, 1};
+    profile.custom_regs = {
+        { 0x17, 0x0a },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x87 },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0xf9 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 2400;
+    profile.exposure_lperiod = 10576;
+    profile.exposure = { 2798, 1558, 972 };
+    profile.segment_count = 5187;
+    profile.segment_order = {0, 1, 2, 3};
+    profile.custom_regs = {
+        { 0x17, 0x08 },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x87 },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0xf9 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 4800;
+    profile.exposure_lperiod = 10576;
+    profile.exposure = { 2798, 1558, 972 };
+    profile.segment_count = 5187;
+    profile.segment_order = {0, 1, 4, 5, 2, 3, 6, 7};
+    profile.custom_regs = {
+        { 0x17, 0x06 },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x87 },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0xf9 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
     s_sensors->push_back(sensor);
 
 
@@ -867,6 +1059,83 @@ void genesys_init_sensor_tables()
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+
+    profile = SensorProfile();
+    profile.dpi = 200;
+    profile.exposure_lperiod = 2848;
+    profile.exposure = { 410, 275, 203 };
+    profile.segment_count = 5136;
+    profile.segment_order = {};
+    profile.custom_regs = {
+        { 0x17, 0x0a },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+    *s_fallback_sensor_profile_gl847 = profile;
+
+    profile = SensorProfile();
+    profile.dpi = 300;
+    profile.exposure_lperiod = 1424;
+    profile.exposure = { 410, 275, 203 };
+    profile.segment_count = 5136;
+    profile.segment_order = {};
+    profile.custom_regs = {
+        { 0x17, 0x0a },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 600;
+    profile.exposure_lperiod = 1432;
+    profile.exposure = { 410, 275, 203 };
+    profile.segment_count = 5136;
+    profile.segment_order = {};
+    profile.custom_regs = {
+        { 0x17, 0x0a },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 1200;
+    profile.exposure_lperiod = 2712;
+    profile.exposure = { 746, 478, 353 };
+    profile.segment_count = 5136;
+    profile.segment_order = {0, 1};
+    profile.custom_regs = {
+        { 0x17, 0x08 },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 2400;
+    profile.exposure_lperiod = 5280;
+    profile.exposure = { 1417, 909, 643 };
+    profile.segment_count = 5136;
+    profile.segment_order = {0, 2, 1, 3};
+    profile.custom_regs = {
+        { 0x17, 0x06 },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
     s_sensors->push_back(sensor);
 
 
@@ -1652,6 +1921,95 @@ void genesys_init_sensor_tables()
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+
+    profile = SensorProfile();
+    profile.dpi = 600;
+    profile.ccd_size_divisor = 2;
+    profile.exposure_lperiod = 2768;
+    profile.exposure = { 388, 574, 393 };
+    profile.segment_order = {};
+    profile.custom_regs = {
+        // { 0x16, 0x00 }, // FIXME: check if default value is different
+        { 0x18, 0x00 },
+        { 0x20, 0x0c },
+        { 0x61, 0x20 },
+        // { 0x70, 0x00 }, // FIXME: check if default value is different
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x1e },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x00 }, { 0x89, 0x65 },
+        { 0x93, 0x00 }, { 0x94, 0x0a }, { 0x95, 0x18 },
+        { 0x96, 0x00 }, { 0x97, 0x9a },
+        { 0x98, 0x21 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 600;
+    profile.ccd_size_divisor = 1;
+    profile.exposure_lperiod = 5360;
+    profile.exposure = { 388, 574, 393 };
+    profile.segment_order = {};
+    profile.custom_regs = {
+        // { 0x16, 0x00 }, // FIXME: check if default value is different
+        { 0x18, 0x00 },
+        { 0x20, 0x0a },
+        { 0x61, 0x20 },
+        // { 0x70, 0x00 }, // FIXME: check if default value is different
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x1e },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x00 }, { 0x89, 0x65 },
+        { 0x93, 0x00 }, { 0x94, 0x14 }, { 0x95, 0x30 },
+        { 0x96, 0x00 }, { 0x97, 0xa3 },
+        { 0x98, 0x21 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 1200;
+    profile.ccd_size_divisor = 1;
+    profile.exposure_lperiod = 10528;
+    profile.exposure = { 388, 574, 393 };
+    profile.segment_order = {0, 1};
+    profile.custom_regs = {
+        // { 0x16, 0x00 }, // FIXME: check if default value is different
+        { 0x18, 0x00 },
+        { 0x20, 0x08 },
+        { 0x61, 0x20 },
+        // { 0x70, 0x00 }, // FIXME: check if default value is different
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x1e },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x00 }, { 0x89, 0x65 },
+        { 0x93, 0x00 }, { 0x94, 0x14 }, { 0x95, 0x30 },
+        { 0x96, 0x00 }, { 0x97, 0xa3 },
+        { 0x98, 0x22 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 2400;
+    profile.ccd_size_divisor = 1;
+    profile.exposure_lperiod = 20864;
+    profile.exposure = { 6839, 8401, 6859 };
+    profile.segment_order = {0, 2, 1, 3};
+    profile.custom_regs = {
+        // { 0x16, 0x00 }, // FIXME: check if default value is different
+        { 0x18, 0x00 },
+        { 0x20, 0x06 },
+        { 0x61, 0x20 },
+        // { 0x70, 0x00 }, // FIXME: check if default value is different
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x1e },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x12 }, { 0x89, 0x47 },
+        { 0x93, 0x00 }, { 0x94, 0x14 }, { 0x95, 0x30 },
+        { 0x96, 0x00 }, { 0x97, 0xa3 },
+        { 0x98, 0x24 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
     s_sensors->push_back(sensor);
 
 
@@ -1699,6 +2057,95 @@ void genesys_init_sensor_tables()
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+
+    profile = SensorProfile();
+    profile.dpi = 600;
+    profile.ccd_size_divisor = 2;
+    profile.exposure_lperiod = 4608;
+    profile.exposure = { 894, 1044, 994 };
+    profile.segment_order = {};
+    profile.custom_regs = {
+        { 0x16, 0x15 },
+        { 0x18, 0x00 },
+        { 0x20, 0x02 },
+        { 0x61, 0x20 },
+        // { 0x70, 0x00 }, // FIXME: check if default value is different
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x0f },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x00 }, { 0x89, 0x5e },
+        { 0x93, 0x00 }, { 0x94, 0x09 }, { 0x95, 0xf8 },
+        { 0x96, 0x00 }, { 0x97, 0x70 },
+        { 0x98, 0x21 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 600;
+    profile.ccd_size_divisor = 1;
+    profile.exposure_lperiod = 5360;
+    profile.exposure = { 1644, 1994, 1844 };
+    profile.segment_order = {};
+    profile.custom_regs = {
+        { 0x16, 0x11 },
+        { 0x18, 0x00 },
+        { 0x20, 0x02 },
+        { 0x61, 0x20 },
+        { 0x70, 0x1f },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x0f },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x00 }, { 0x89, 0x5e },
+        { 0x93, 0x00 }, { 0x94, 0x13 }, { 0x95, 0xf0 },
+        { 0x96, 0x00 }, { 0x97, 0x8b },
+        { 0x98, 0x21 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 1200;
+    profile.ccd_size_divisor = 1;
+    profile.exposure_lperiod = 10528;
+    profile.exposure = { 3194, 3794, 3594 };
+    profile.segment_order = {};
+    profile.custom_regs = {
+        { 0x16, 0x15 },
+        { 0x18, 0x00 },
+        { 0x20, 0x02 },
+        { 0x61, 0x20 },
+        { 0x70, 0x1f },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x0f },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x00 }, { 0x89, 0x5e },
+        { 0x93, 0x00 }, { 0x94, 0x27 }, { 0x95, 0xe0 },
+        { 0x96, 0x00 }, { 0x97, 0xc0 },
+        { 0x98, 0x21 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 2400;
+    profile.ccd_size_divisor = 1;
+    profile.exposure_lperiod = 20864;
+    profile.exposure = { 6244, 7544, 7094 };
+    profile.segment_order = {};
+    profile.custom_regs = {
+        { 0x16, 0x11 },
+        { 0x18, 0x00 },
+        { 0x20, 0x02 },
+        { 0x61, 0x20 },
+        // { 0x70, 0x00 }, // FIXME: check if default value is different
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x0f },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x00 }, { 0x89, 0x5e },
+        { 0x93, 0x00 }, { 0x94, 0x4f }, { 0x95, 0xc0 },
+        { 0x96, 0x01 }, { 0x97, 0x2a },
+        { 0x98, 0x21 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
     s_sensors->push_back(sensor);
 
 
@@ -1745,6 +2192,95 @@ void genesys_init_sensor_tables()
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+
+    profile = SensorProfile();
+    profile.dpi = 600;
+    profile.ccd_size_divisor = 2;
+    profile.exposure_lperiod = 2768;
+    profile.exposure = { 388, 574, 393 };
+    profile.segment_order = {};
+    profile.custom_regs = {
+        // { 0x16, 0x00 }, // FIXME: check if default value is different
+        { 0x18, 0x00 },
+        { 0x20, 0x0c },
+        { 0x61, 0x20 },
+        // { 0x70, 0x00 }, // FIXME: check if default value is different
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x1e },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x00 }, { 0x89, 0x65 },
+        { 0x93, 0x00 }, { 0x94, 0x0a }, { 0x95, 0x18 },
+        { 0x96, 0x00 }, { 0x97, 0x9a },
+        { 0x98, 0x21 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 600;
+    profile.ccd_size_divisor = 1;
+    profile.exposure_lperiod = 5360;
+    profile.exposure = { 388, 574, 393 };
+    profile.segment_order = {};
+    profile.custom_regs = {
+        // { 0x16, 0x00 }, // FIXME: check if default value is different
+        { 0x18, 0x00 },
+        { 0x20, 0x0a },
+        { 0x61, 0x20 },
+        // { 0x70, 0x00 }, // FIXME: check if default value is different
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x1e },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x00 }, { 0x89, 0x65 },
+        { 0x93, 0x00 }, { 0x94, 0x14 }, { 0x95, 0x30 },
+        { 0x96, 0x00 }, { 0x97, 0xa3 },
+        { 0x98, 0x21 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 1200;
+    profile.ccd_size_divisor = 1;
+    profile.exposure_lperiod = 10528;
+    profile.exposure = { 388, 574, 393 };
+    profile.segment_order = {0, 1};
+    profile.custom_regs = {
+        // { 0x16, 0x00 }, // FIXME: check if default value is different
+        { 0x18, 0x00 },
+        { 0x20, 0x08 },
+        { 0x61, 0x20 },
+        // { 0x70, 0x00 }, // FIXME: check if default value is different
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x1e },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x00 }, { 0x89, 0x65 },
+        { 0x93, 0x00 }, { 0x94, 0x14 }, { 0x95, 0x30 },
+        { 0x96, 0x00 }, { 0x97, 0xa3 },
+        { 0x98, 0x22 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 2400;
+    profile.ccd_size_divisor = 1;
+    profile.exposure_lperiod = 20864;
+    profile.exposure = { 6839, 8401, 6859 };
+    profile.segment_order = {0, 2, 1, 3};
+    profile.custom_regs = {
+        // { 0x16, 0x00 }, // FIXME: check if default value is different
+        { 0x18, 0x00 },
+        { 0x20, 0x06 },
+        { 0x61, 0x20 },
+        // { 0x70, 0x00 }, // FIXME: check if default value is different
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x1e },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x12 }, { 0x89, 0x47 },
+        { 0x93, 0x00 }, { 0x94, 0x14 }, { 0x95, 0x30 },
+        { 0x96, 0x00 }, { 0x97, 0xa3 },
+        { 0x98, 0x24 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
     s_sensors->push_back(sensor);
 
 
@@ -1791,6 +2327,95 @@ void genesys_init_sensor_tables()
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+
+    profile = SensorProfile();
+    profile.dpi = 600;
+    profile.ccd_size_divisor = 2;
+    profile.exposure_lperiod = 2768;
+    profile.exposure = { 388, 574, 393 };
+    profile.segment_order = {};
+    profile.custom_regs = {
+        // { 0x16, 0x00 }, // FIXME: check if default value is different
+        { 0x18, 0x00 },
+        { 0x20, 0x0c },
+        { 0x61, 0x20 },
+        // { 0x70, 0x00 }, // FIXME: check if default value is different
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x0f },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x00 }, { 0x89, 0x65 },
+        { 0x93, 0x00 }, { 0x94, 0x0a }, { 0x95, 0x18 },
+        { 0x96, 0x00 }, { 0x97, 0x9a },
+        { 0x98, 0x21 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 600;
+    profile.ccd_size_divisor = 1;
+    profile.exposure_lperiod = 5360;
+    profile.exposure = { 388, 574, 393 };
+    profile.segment_order = {};
+    profile.custom_regs = {
+        // { 0x16, 0x00 }, // FIXME: check if default value is different
+        { 0x18, 0x00 },
+        { 0x20, 0x0a },
+        { 0x61, 0x20 },
+        // { 0x70, 0x00 }, // FIXME: check if default value is different
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x0f },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x00 }, { 0x89, 0x65 },
+        { 0x93, 0x00 }, { 0x94, 0x14 }, { 0x95, 0x30 },
+        { 0x96, 0x00 }, { 0x97, 0xa3 },
+        { 0x98, 0x21 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 1200;
+    profile.ccd_size_divisor = 1;
+    profile.exposure_lperiod = 10528;
+    profile.exposure = { 388, 574, 393 };
+    profile.segment_order = {0, 1};
+    profile.custom_regs = {
+        // { 0x16, 0x00 }, // FIXME: check if default value is different
+        { 0x18, 0x00 },
+        { 0x20, 0x08 },
+        { 0x61, 0x20 },
+        // { 0x70, 0x00 }, // FIXME: check if default value is different
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x0f },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x00 }, { 0x89, 0x65 },
+        { 0x93, 0x00 }, { 0x94, 0x14 }, { 0x95, 0x30 },
+        { 0x96, 0x00 }, { 0x97, 0xa3 },
+        { 0x98, 0x22 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
+    profile = SensorProfile();
+    profile.dpi = 2400;
+    profile.ccd_size_divisor = 1;
+    profile.exposure_lperiod = 20864;
+    profile.exposure = { 6839, 8401, 6859 };
+    profile.segment_order = {0, 2, 1, 3};
+    profile.custom_regs = {
+        // { 0x16, 0x00 }, // FIXME: check if default value is different
+        { 0x18, 0x00 },
+        { 0x20, 0x06 },
+        { 0x61, 0x20 },
+        // { 0x70, 0x00 }, // FIXME: check if default value is different
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x0f },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x88, 0x12 }, { 0x89, 0x47 },
+        { 0x93, 0x00 }, { 0x94, 0x14 }, { 0x95, 0x30 },
+        { 0x96, 0x00 }, { 0x97, 0xa3 },
+        { 0x98, 0x24 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
     s_sensors->push_back(sensor);
 
 
@@ -1882,7 +2507,24 @@ void genesys_init_sensor_tables()
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+
+    profile = SensorProfile();
+    profile.dpi = 1200;
+    profile.exposure_lperiod = 11000;
+    profile.exposure = { 0, 0, 0 };
+    profile.segment_count = 5136;
+    profile.segment_order = {0, 1};
+    profile.custom_regs = {
+        { 0x17, 0x13 },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
     s_sensors->push_back(sensor);
+    *s_fallback_sensor_profile_gl846 = profile;
 
 
     sensor = Genesys_Sensor();
@@ -1927,6 +2569,22 @@ void genesys_init_sensor_tables()
     sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+
+    profile = SensorProfile();
+    profile.dpi = 1200;
+    profile.exposure_lperiod = 11000;
+    profile.exposure = { 0, 0, 0 };
+    profile.segment_count = 5136;
+    profile.segment_order = {0, 1};
+    profile.custom_regs = {
+        { 0x17, 0x13 },
+        { 0x19, 0xff },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+    };
+    sensor.sensor_profiles.push_back(profile);
+
     s_sensors->push_back(sensor);
 
 

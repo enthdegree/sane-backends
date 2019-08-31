@@ -636,6 +636,8 @@ extern void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
                                     int size,
                                     uint8_t* gamma);
 
+void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor);
+
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */
 /*---------------------------------------------------------------------------*/

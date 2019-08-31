@@ -941,8 +941,7 @@ static void gl846_compute_session(Genesys_Device* dev, ScanSession& s,
                                   const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-    (void) sensor;
-    s.params.assert_valid();
+    compute_session(dev, s, sensor);
 
     s.enable_ledadd = (s.params.channels == 1 && dev->model->is_cis && dev->settings.true_gray);
 
@@ -976,13 +975,10 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
     debug_dump(DBG_info, session.params);
 
-    // we may have 2 domains for ccd: xres below or above half ccd max dpi
-    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(session.params.xres);
-
-    optical_res = sensor.optical_res / ccd_size_divisor;
+    optical_res = sensor.optical_res / session.ccd_size_divisor;
 
   /* stagger */
-    if (ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
+    if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
         stagger = (4 * session.params.yres) / dev->motor.base_ydpi;
     } else {
         stagger = 0;
@@ -1108,7 +1104,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
-  dev->current_setup.ccd_size_divisor = ccd_size_divisor;
+    dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 
@@ -1192,11 +1188,10 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = 0;
 
+    gl846_compute_session(dev, session, sensor);
+
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, session.params);
-
-    // we have 2 domains for ccd: xres below or above half ccd max dpi
-    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(session.params.xres);
 
   /* optical_res */
   optical_res = sensor.optical_res;
@@ -1241,7 +1236,7 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;
-    dev->current_setup.ccd_size_divisor = ccd_size_divisor;
+    dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
   dev->current_setup.stagger = stagger;
   dev->current_setup.max_shift = max_shift + stagger;
 }

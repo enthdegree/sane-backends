@@ -1196,10 +1196,9 @@ static unsigned align_int_up(unsigned num, unsigned alignment)
 static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
                                   const Genesys_Sensor& sensor)
 {
-    s.params.assert_valid();
+    compute_session(dev, s, sensor);
 
     // compute optical and output resolutions
-    s.ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(s.params.xres);
     s.hwdpi_divisor = sensor.get_hwdpi_divisor_for_dpi(s.params.xres);
 
     s.optical_resolution = sensor.optical_res / s.ccd_size_divisor;

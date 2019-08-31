@@ -1829,8 +1829,17 @@ void debug_dump(unsigned level, const Genesys_Sensor& sensor)
     DBG(level, "sensor:\n");
     DBG(level, "    sensor_id : %d\n", sensor.sensor_id);
     DBG(level, "    optical_res : %d\n", sensor.optical_res);
-    DBG(level, "    min_resolution : %d\n", sensor.min_resolution);
-    DBG(level, "    max_resolution : %d\n", sensor.max_resolution);
+
+    DBG(level, "    resolutions :");
+    if (sensor.resolutions.matches_any()) {
+        DBG(level, " ANY\n");
+    } else {
+        for (unsigned resolution : sensor.resolutions.resolutions()) {
+            DBG(level, " %d", resolution);
+        }
+        DBG(level, "\n");
+    }
+
     DBG(level, "    method : %d\n", static_cast<unsigned>(sensor.method));
     DBG(level, "    ccd_size_divisor : %d\n", sensor.ccd_size_divisor);
     DBG(level, "    black_pixels : %d\n", sensor.black_pixels);

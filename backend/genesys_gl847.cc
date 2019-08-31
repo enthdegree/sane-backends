@@ -412,23 +412,8 @@ gl847_init_registers (Genesys_Device * dev)
       dev->write_register(REGAB, val);
     }
 
-  /* fine tune upon device description */
-  dev->reg.find_reg(0x05).value &= ~REG05_DPIHW;
-  switch (sanei_genesys_find_sensor_any(dev).optical_res)
-    {
-    case 600:
-      dev->reg.find_reg(0x05).value |= REG05_DPIHW_600;
-      break;
-    case 1200:
-      dev->reg.find_reg(0x05).value |= REG05_DPIHW_1200;
-      break;
-    case 2400:
-      dev->reg.find_reg(0x05).value |= REG05_DPIHW_2400;
-      break;
-    case 4800:
-      dev->reg.find_reg(0x05).value |= REG05_DPIHW_4800;
-      break;
-    }
+    const auto& sensor = sanei_genesys_find_sensor_any(dev);
+    sanei_genesys_set_dpihw(dev->reg, sensor, sensor.optical_res);
 
   /* initalize calibration reg */
   dev->calib_reg = dev->reg;
@@ -915,32 +900,14 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
            default:
                break; // should not happen
 	}
+    } else {
+        r->value |= 0x10; // mono
     }
-  else
-    r->value |= 0x10;		/* mono */
 
-  /* register 05 */
-  r = sanei_genesys_get_address (reg, REG05);
-
-  /* set up dpihw */
-  r->value &= ~REG05_DPIHW;
-  switch(dpihw)
-    {
-      case 600:
-        r->value |= REG05_DPIHW_600;
-        break;
-      case 1200:
-        r->value |= REG05_DPIHW_1200;
-        break;
-      case 2400:
-        r->value |= REG05_DPIHW_2400;
-        break;
-      case 4800:
-        r->value |= REG05_DPIHW_4800;
-        break;
-    }
+    sanei_genesys_set_dpihw(*reg, sensor, dpihw);
 
     // enable gamma tables
+    r = sanei_genesys_get_address (reg, REG05);
     if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA) {
         r->value &= ~REG05_GMMENB;
     } else {

@@ -1204,6 +1204,41 @@ void sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
     dev->cmd_set->set_powersaving(dev, 15);
 }
 
+
+void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& sensor,
+                             unsigned dpihw)
+{
+    // same across GL646, GL841, GL843, GL846, GL847, GL124
+    const uint8_t REG05_DPIHW_MASK = 0xc0;
+    const uint8_t REG05_DPIHW_600 = 0x00;
+    const uint8_t REG05_DPIHW_1200 = 0x40;
+    const uint8_t REG05_DPIHW_2400 = 0x80;
+    const uint8_t REG05_DPIHW_4800 = 0xc0;
+
+    if (sensor.dpihw_override != 0) {
+        dpihw = sensor.dpihw_override;
+    }
+
+    uint8_t dpihw_setting;
+    switch (dpihw) {
+        case 600:
+            dpihw_setting = REG05_DPIHW_600;
+            break;
+        case 1200:
+            dpihw_setting = REG05_DPIHW_1200;
+            break;
+        case 2400:
+            dpihw_setting = REG05_DPIHW_2400;
+            break;
+        case 4800:
+            dpihw_setting = REG05_DPIHW_4800;
+            break;
+        default:
+            throw SaneException("Unknown dpihw value: %d", dpihw);
+    }
+    regs.set8_mask(0x05, dpihw_setting, REG05_DPIHW_MASK);
+}
+
 /**
  * Wait for the scanning head to park
  */

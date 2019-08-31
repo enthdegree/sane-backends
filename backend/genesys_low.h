@@ -547,6 +547,9 @@ inline void sanei_genesys_set_exposure(Genesys_Register_Set& regs, const SensorE
     regs.set8(0x15, exposure.blue & 0xff);
 }
 
+void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& sensor,
+                             unsigned dpihw);
+
 inline uint16_t sanei_genesys_fixup_exposure_value(uint16_t value)
 {
     if ((value & 0xff00) == 0) {

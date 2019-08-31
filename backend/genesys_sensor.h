@@ -162,6 +162,14 @@ struct Genesys_Sensor {
     // the scan method used with the sensor
     ScanMethod method = ScanMethod::FLATBED;
 
+    // The scanner may be setup to use a custom dpihw that does not correspond to any actual
+    // resolution. The value zero does not set the override.
+    unsigned dpihw_override = 0;
+
+    // The scanner may be setup to use a custom dpiset value that does not correspond to any actual
+    // resolution. The value zero does not set the override.
+    unsigned dpiset_override = 0;
+
     // CCD may present itself as half or quarter-size CCD on certain resolutions
     int ccd_size_divisor = 1;
 

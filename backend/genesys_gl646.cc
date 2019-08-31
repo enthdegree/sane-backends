@@ -2830,6 +2830,8 @@ static void gl646_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
                                           Genesys_Register_Set& regs, int dpi)
 {
     DBG_HELPER(dbg);
+    (void) dpi;
+
   unsigned int i, j, k, channels, val, maximum, idx;
   unsigned int count, resolution, pass;
   float average[3];
@@ -2846,11 +2848,7 @@ static void gl646_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   channels = 3;
 
   /* we are searching a sensor resolution */
-    if (dpi > sensor.optical_res) {
-        resolution = sensor.optical_res;
-    } else {
-        resolution = get_closest_resolution(dev->model->ccd_type, dev->settings.xres, channels);
-    }
+    resolution = get_closest_resolution(dev->model->ccd_type, dev->settings.xres, channels);
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          ScanMethod::FLATBED);

@@ -183,15 +183,6 @@ static const SensorProfile& get_sensor_profile(const Genesys_Sensor& sensor, uns
     return sensor.sensor_profiles[best_i];
 }
 
-/**@brief compute exposure to use
- * compute the sensor exposure based on target resolution
- */
-static unsigned gl846_compute_exposure(const Genesys_Sensor& sensor, unsigned xres)
-{
-    return get_sensor_profile(sensor, xres).exposure_lperiod;
-}
-
-
 /** @brief sensor specific settings
 */
 static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& sensor,
@@ -956,7 +947,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG_HELPER(dbg);
     session.assert_computed();
 
-  int used_res;
   int start, used_pixels;
   int bytes_per_line;
   int move;
@@ -981,14 +971,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
 
-    if (session.params.flags & SCAN_FLAG_USE_OPTICAL_RES) {
-        used_res = session.optical_resolution;
-    }
-  else
-    {
-      /* resolution is choosen from a list */
-        used_res = session.params.xres;
-    }
+    unsigned used_res = session.params.xres;
 
   /* compute scan parameters values */
   /* pixels are allways given at full optical resolution */
@@ -1022,7 +1005,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-    exposure_time = gl846_compute_exposure(sensor, used_res);
+    exposure_time = get_sensor_profile(sensor, used_res).exposure_lperiod;
   scan_step_type = sanei_genesys_compute_step_type(gl846_motor_profiles, dev->model->motor_type,
                                                    exposure_time);
 
@@ -1208,7 +1191,7 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-    exposure_time = gl846_compute_exposure(sensor, used_res);
+    exposure_time = get_sensor_profile(sensor, used_res).exposure_lperiod;
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
     max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels, session.params.yres, 0);

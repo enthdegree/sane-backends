@@ -1510,7 +1510,7 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
 #endif
-  int compatible = 1, resolution;
+    int compatible = 1;
 
     if(dev->cmd_set->calculate_current_setup == nullptr) {
       DBG (DBG_proc, "%s: no calculate_setup, non compatible cache\n", __func__);
@@ -1525,12 +1525,7 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
   if (dev->model->is_cis == SANE_FALSE)
     {
-      resolution = dev->settings.xres;
-      if(resolution>sensor.optical_res)
-        {
-          resolution=sensor.optical_res;
-        }
-      compatible = (resolution == ((int) cache->used_setup.xres));
+        compatible = (dev->settings.xres == ((int) cache->used_setup.xres));
     }
   else
     {

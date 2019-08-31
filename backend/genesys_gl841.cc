@@ -1740,6 +1740,17 @@ static void gl841_compute_session(Genesys_Device* dev, ScanSession& s,
     s.computed = true;
 }
 
+static void gl841_assert_supported_resolution(const ScanSession& session)
+{
+    for (unsigned factor : {1, 2, 3, 4, 5, 6, 8, 10, 12, 15}) {
+        if (session.output_resolution == session.optical_resolution / factor) {
+            return;
+        }
+    }
+    throw SaneException("Unsupported resolution %d for optical resolution %d",
+                        session.output_resolution, session.optical_resolution);
+}
+
 // set up registers for an actual scan this function sets up the scanner to scan in normal or single
 // line mode
 static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -1754,7 +1765,6 @@ static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int move;
   unsigned int lincnt;
   int exposure_time;
-  int i;
   int stagger;
   int avg;
 
@@ -1803,32 +1813,12 @@ independent of our calculated values:
     }
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
 
-/* used_res */
-    i = session.optical_resolution / session.params.xres;
-
-/* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
-
-    if (i < 2 || (session.params.flags & SCAN_FLAG_USE_OPTICAL_RES)) {
-        // optical_res >= xres > optical_res/2
+    if (session.params.flags & SCAN_FLAG_USE_OPTICAL_RES) {
         used_res = session.optical_resolution;
-    } else if (i < 3)  /* optical_res/2 >= xres > optical_res/3 */
-        used_res = session.optical_resolution/2;
-  else if (i < 4)  /* optical_res/3 >= xres > optical_res/4 */
-        used_res = session.optical_resolution/3;
-  else if (i < 5)  /* optical_res/4 >= xres > optical_res/5 */
-        used_res = session.optical_resolution/4;
-  else if (i < 6)  /* optical_res/5 >= xres > optical_res/6 */
-        used_res = session.optical_resolution/5;
-  else if (i < 8)  /* optical_res/6 >= xres > optical_res/8 */
-        used_res = session.optical_resolution/6;
-  else if (i < 10)  /* optical_res/8 >= xres > optical_res/10 */
-        used_res = session.optical_resolution/8;
-  else if (i < 12)  /* optical_res/10 >= xres > optical_res/12 */
-        used_res = session.optical_resolution/10;
-  else if (i < 15)  /* optical_res/12 >= xres > optical_res/15 */
-        used_res = session.optical_resolution/12;
-  else
-        used_res = session.optical_resolution/15;
+    } else {
+        used_res = session.params.xres;
+    }
+    gl841_assert_supported_resolution(session);
 
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
@@ -2035,7 +2025,6 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
   int used_pixels;
   unsigned int lincnt;
   int exposure_time;
-  int i;
   int stagger;
 
   int slope_dpi = 0;
@@ -2082,31 +2071,8 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
     }
   DBG(DBG_info, "%s: stagger=%d lines\n", __func__, stagger);
 
-/* used_res */
-  i = session.optical_resolution / session.params.xres;
-
-/* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
-
-  if (i < 2) /* optical_res >= xres > optical_res/2 */
-        used_res = session.optical_resolution;
-  else if (i < 3)  /* optical_res/2 >= xres > optical_res/3 */
-        used_res = session.optical_resolution / 2;
-  else if (i < 4)  /* optical_res/3 >= xres > optical_res/4 */
-        used_res = session.optical_resolution / 3;
-  else if (i < 5)  /* optical_res/4 >= xres > optical_res/5 */
-        used_res = session.optical_resolution / 4;
-  else if (i < 6)  /* optical_res/5 >= xres > optical_res/6 */
-        used_res = session.optical_resolution / 5;
-  else if (i < 8)  /* optical_res/6 >= xres > optical_res/8 */
-        used_res = session.optical_resolution / 6;
-  else if (i < 10)  /* optical_res/8 >= xres > optical_res/10 */
-        used_res = session.optical_resolution / 8;
-  else if (i < 12)  /* optical_res/10 >= xres > optical_res/12 */
-        used_res = session.optical_resolution / 10;
-  else if (i < 15)  /* optical_res/12 >= xres > optical_res/15 */
-        used_res = session.optical_resolution / 12;
-  else
-        used_res = session.optical_resolution / 15;
+    used_res = session.params.xres;
+    gl841_assert_supported_resolution(session);
 
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */

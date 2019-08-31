@@ -182,16 +182,6 @@ static const SANE_Range expiration_range = {
   1		/* quantization */
 };
 
-Genesys_Sensor& sanei_genesys_find_sensor_any_for_write(Genesys_Device* dev)
-{
-    for (auto& sensor : *s_sensors) {
-        if (dev->model->ccd_type == sensor.sensor_id) {
-            return sensor;
-        }
-    }
-    throw std::runtime_error("Given device does not have sensor defined");
-}
-
 const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev)
 {
     for (const auto& sensor : *s_sensors) {
@@ -2864,8 +2854,8 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
   if (dev->model->is_cis)
     {
       /* the afe now sends valid data for doing led calibration */
-      sanei_usb_testing_record_message("led_calibration");
-        dev->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
+        sanei_usb_testing_record_message("led_calibration");
+        sensor.exposure = dev->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
 
       /* calibrate afe again to match new exposure */
       if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
@@ -5650,8 +5640,8 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
   unsigned option_size = 0;
   SANE_Status status = SANE_STATUS_GOOD;
 
-  // FIXME: we should pick correct sensor here
-  const Genesys_Sensor& sensor = sanei_genesys_find_sensor_any(s->dev);
+  const Genesys_Sensor& sensor = sanei_genesys_find_sensor(s->dev, s->resolution,
+                                                           s->dev->settings.scan_method);
 
   switch (option)
     {
@@ -5861,9 +5851,6 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
   unsigned int i;
   SANE_Range *x_range, *y_range;
   unsigned option_size = 0;
-
-    // FIXME: we should modify device-specific sensor
-    auto& sensor = sanei_genesys_find_sensor_any_for_write(s->dev);
 
   switch (option)
     {
@@ -6182,6 +6169,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         }
       break;
         case OPT_CALIBRATE: {
+            auto& sensor = sanei_genesys_find_sensor_for_write(s->dev, s->resolution,
+                                                               s->dev->settings.scan_method);
             catch_all_exceptions(__func__, [&]()
             {
                 s->dev->cmd_set->save_power(s->dev, SANE_FALSE);

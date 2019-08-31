@@ -2110,9 +2110,9 @@ static void gl646_search_start_position(Genesys_Device* dev)
   /* we scan at 300 dpi */
   resolution = get_closest_resolution(dev->model->ccd_type, 300, 1);
 
-  // FIXME: the current approach of doing search only for one resolution does not work on scanners
-  // whith employ different sensors with potentially different settings.
-  auto& sensor = sanei_genesys_find_sensor_for_write(dev, resolution, ScanMethod::FLATBED);
+    // FIXME: the current approach of doing search only for one resolution does not work on scanners
+    // whith employ different sensors with potentially different settings.
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, ScanMethod::FLATBED);
 
   /* fill settings for a gray level scan */
   settings.scan_method = ScanMethod::FLATBED;
@@ -2455,7 +2455,8 @@ static void gl646_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& se
  * area below scanner's top on white strip. The scope of this function is
  * currently limited to the XP200
  */
-static void gl646_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor, Genesys_Register_Set& regs)
+static SensorExposure gl646_led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                            Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
     (void) regs;
@@ -2470,12 +2471,6 @@ static void gl646_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor, G
   SANE_Int resolution;
 
   SANE_Bool acceptable = SANE_FALSE;
-
-  if (!dev->model->is_cis)
-    {
-      DBG(DBG_proc, "%s: not a cis scanner, nothing to do...\n", __func__);
-      return;
-    }
 
   /* get led calibration resolution */
   if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
@@ -2526,15 +2521,16 @@ static void gl646_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor, G
 
   turn = 0;
 
-  do
-    {
-      sensor.exposure.red = expr;
-      sensor.exposure.green = expg;
-      sensor.exposure.blue = expb;
+    auto calib_sensor = sensor;
+
+    do {
+        calib_sensor.exposure.red = expr;
+        calib_sensor.exposure.green = expg;
+        calib_sensor.exposure.blue = expb;
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
 
-        simple_scan(dev, sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, line);
+        simple_scan(dev, calib_sensor, settings, SANE_FALSE, SANE_TRUE, SANE_FALSE, line);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -2597,6 +2593,8 @@ static void gl646_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor, G
   while (!acceptable && turn < 100);
 
   DBG(DBG_info,"%s: acceptable exposure: 0x%04x,0x%04x,0x%04x\n", __func__, expr, expg, expb);
+    // BUG: we don't store the result of the last iteration to the sensor
+    return calib_sensor.exposure;
 }
 
 /**

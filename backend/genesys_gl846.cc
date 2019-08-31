@@ -1498,9 +1498,9 @@ static void gl846_search_start_position(Genesys_Device* dev)
   /* sets for a 200 lines * 600 pixels */
   /* normal scan with no shading */
 
-  // FIXME: the current approach of doing search only for one resolution does not work on scanners
-  // whith employ different sensors with potentially different settings.
-    auto& sensor = sanei_genesys_find_sensor_for_write(dev, dpi, ScanMethod::FLATBED);
+    // FIXME: the current approach of doing search only for one resolution does not work on scanners
+    // whith employ different sensors with potentially different settings.
+    const auto& sensor = sanei_genesys_find_sensor(dev, dpi, ScanMethod::FLATBED);
 
     ScanSession session;
     session.params.xres = dpi;
@@ -1925,8 +1925,8 @@ static void gl846_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
  * data white enough.
  * @param dev device to calibrate
  */
-static void gl846_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
-                                  Genesys_Register_Set& regs)
+static SensorExposure gl846_led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                            Genesys_Register_Set& regs)
 {
     DBG_HELPER(dbg);
   int num_pixels;
@@ -2072,16 +2072,13 @@ static void gl846_led_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
     dev->reg.set16(REG_EXPG, exp[1]);
     dev->reg.set16(REG_EXPB, exp[2]);
 
-  /* store in this struct since it is the one used by cache calibration */
-  sensor.exposure.red = exp[0];
-  sensor.exposure.green = exp[1];
-  sensor.exposure.blue = exp[2];
-
   /* go back home */
   if(move>20)
     {
         gl846_slow_back_home(dev, SANE_TRUE);
     }
+
+    return { exp[0], exp[1], exp[2] };
 }
 
 /**

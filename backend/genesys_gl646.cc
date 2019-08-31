@@ -297,6 +297,9 @@ static void gl646_compute_session(Genesys_Device* dev, ScanSession& s,
 
     compute_session(dev, s, sensor);
     s.computed = true;
+
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, s);
 }
 
 /**
@@ -323,7 +326,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
     session.assert_computed();
 
     debug_dump(DBG_info, sensor);
-    debug_dump(DBG_info, session);
 
     int resolution = session.params.xres;
     uint32_t move = session.params.starty;

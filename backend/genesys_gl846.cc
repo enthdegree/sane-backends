@@ -971,11 +971,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int max_shift;
   size_t requested_buffer_size, read_buffer_size;
 
-  int optical_res;
-
     debug_dump(DBG_info, session.params);
-
-    optical_res = sensor.optical_res / session.ccd_size_divisor;
 
   /* stagger */
     if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
@@ -986,7 +982,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
 
     if (session.params.flags & SCAN_FLAG_USE_OPTICAL_RES) {
-      used_res = optical_res;
+        used_res = session.optical_resolution;
     }
   else
     {
@@ -1006,10 +1002,10 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
 
   /* compute correct pixels number */
-    used_pixels = (session.params.pixels * optical_res) / session.params.xres;
+    used_pixels = (session.params.pixels * session.optical_resolution) / session.params.xres;
 
   /* round up pixels number if needed */
-    if (used_pixels * session.params.xres < session.params.pixels * optical_res) {
+    if (used_pixels * session.params.xres < session.params.pixels * session.optical_resolution) {
         used_pixels++;
     }
 
@@ -1074,7 +1070,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /*** prepares data reordering ***/
 
 /* words_per_line */
-  bytes_per_line = (used_pixels * used_res) / optical_res;
+    bytes_per_line = (used_pixels * used_res) / session.optical_resolution;
     bytes_per_line = (bytes_per_line * session.params.channels * session.params.depth) / 8;
 
   requested_buffer_size = 8 * bytes_per_line;
@@ -1100,7 +1096,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
-  dev->current_setup.pixels = (used_pixels * used_res) / optical_res;
+    dev->current_setup.pixels = (used_pixels * used_res) / session.optical_resolution;
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
   dev->current_setup.xres = used_res;

@@ -351,7 +351,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
         startx |= 1;
     }
 
-    uint32_t pixels = (session.params.pixels * sensor.optical_res) / session.params.xres;
+    uint32_t pixels = (session.params.pixels * session.optical_resolution) / session.params.xres;
     // special requirement for 400 dpi on 1200 dpi sensors
     if (session.params.xres == 400) {
         pixels = (pixels / 6) * 6;
@@ -374,12 +374,9 @@ static void gl646_setup_registers(Genesys_Device* dev,
   DBG(DBG_info, "%s: startx=%d, endx=%d, linecnt=%d\n", __func__, startx, endx, linecnt);
 
   /* x resolution is capped by sensor's capability */
-  if (resolution > sensor.optical_res)
-    {
-      xresolution = sensor.optical_res;
-    }
-  else
-    {
+     if (static_cast<unsigned>(resolution) > session.optical_resolution) {
+        xresolution = session.optical_resolution;
+    } else {
       xresolution = resolution;
     }
 

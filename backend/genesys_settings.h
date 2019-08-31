@@ -205,7 +205,6 @@ struct ScanSession {
     unsigned ccd_size_divisor = 1;
 
     // the optical resolution of the scanner.
-    // gl843-only
     unsigned optical_resolution = 0;
 
     // the number of pixels at the optical resolution.

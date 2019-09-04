@@ -1,4 +1,4 @@
-.TH sane\-ricoh2 5 "28 Sep 2018" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-ricoh2 5 "04 Sep 2019" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-ricoh2
 .SH NAME
 sane\-ricoh2 \- SANE backend for Ricoh flatbed scanners
@@ -9,6 +9,8 @@ library implements a SANE (Scanner Access Now Easy) backend that
 provides access to the following Ricoh flatbed scanners:
 .PP
 .RS
+SG-3110SFNw
+.br
 SG-3100SNw
 .br
 SP-100SU

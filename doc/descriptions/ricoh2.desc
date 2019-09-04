@@ -22,6 +22,11 @@
 :mfg "Ricoh"                      ; name a manufacturer
 :url "http://www.ricoh.com/"      ; manufacturer's URL
 
+:model "SG-3100SFNw"
+:status :basic
+:interface "USB"
+:usbid "0x05ca" "0x0439"
+
 :model "SG-3100SNw"
 :status :basic
 :interface "USB"

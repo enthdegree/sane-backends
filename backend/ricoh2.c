@@ -115,6 +115,7 @@ Ricoh2_device_info;
 static Ricoh2_device_info supported_devices[] = {
   { 0x042c, "Aficio SP100SU"   },
   { 0x0438, "Aficio SG3100SNw" },
+  { 0x0439, "Aficio SG3110SFNw" },
   { 0x0448, "Aficio SP111SU"   }
 };
 

@@ -2122,7 +2122,7 @@ sanei_usb_set_endpoint (SANE_Int dn, SANE_Int ep_type, SANE_Int ep)
     }
 }
 
-#if HAVE_LIBUSB_LEGACY || HAVE_LIBUSB || HAVE_USBCALLS
+#if HAVE_LIBUSB_LEGACY || HAVE_LIBUSB || HAVE_USBCALLS || WITH_USB_RECORD_REPLAY
 static const char* sanei_usb_transfer_type_desc(SANE_Int transfer_type)
 {
   switch (transfer_type)

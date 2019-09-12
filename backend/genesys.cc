@@ -3432,8 +3432,7 @@ static void genesys_fill_line_interp_buffer(Genesys_Device* dev, uint8_t* work_b
           dev->cur++;
 
 	  /* go to next line if needed */
-	  if (dev->cur == dev->len)
-	    {
+        if (dev->cur == dev->deseg.pixel_groups) {
               dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->deseg.raw_channel_bytes);
 	      dev->cur = 0;
               dev->line_count++;
@@ -3476,7 +3475,7 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
       while (count < size)
 	{
             if (depth==1) {
-                while (dev->cur < dev->len && count < size) {
+                while (dev->cur < dev->deseg.pixel_groups && count < size) {
                     for (n=0; n<dev->segnb; n++) {
                         work_buffer_dst[count+n] = 0;
                     }
@@ -3497,7 +3496,7 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
                 }
             }
             if (depth==8) {
-                 while (dev->cur < dev->len && count < size) {
+                 while (dev->cur < dev->deseg.pixel_groups && count < size) {
                     for (n=0;n<dev->segnb;n++) {
                         work_buffer_dst[count+n] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->deseg.conseq_pixel_dist_bytes *dev->segment_order[n]];
                     }
@@ -3507,7 +3506,7 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
                 }
             }
             if (depth==16) {
-                while (dev->cur < dev->len && count < size) {
+                while (dev->cur < dev->deseg.pixel_groups && count < size) {
                     for (n=0;n<dev->segnb;n++) {
                         work_buffer_dst[count+n*2] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->deseg.conseq_pixel_dist_bytes * dev->segment_order[n]];
                         work_buffer_dst[count+n*2+1] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->deseg.conseq_pixel_dist_bytes * dev->segment_order[n] + 1];
@@ -3519,8 +3518,7 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
             }
 
 	  /* go to next line if needed */
-	  if (dev->cur == dev->len)
-	    {
+        if (dev->cur == dev->deseg.pixel_groups) {
               dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->deseg.raw_channel_bytes);
 	      dev->cur = 0;
 	    }

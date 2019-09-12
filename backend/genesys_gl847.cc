@@ -780,7 +780,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // compute pixel coordinate in the given dpihw space, taking segments into account
     startx /= factor*segnb;
     endx /= factor*segnb;
-  dev->len=endx-startx;
+    dev->deseg.pixel_groups = endx-startx;
     dev->deseg.conseq_pixel_dist_bytes = 0;
   dev->skip=0;
 
@@ -891,7 +891,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   /* words(16bit) before gamma, conversion to 8 bit or lineart*/
     dev->deseg.raw_channel_bytes = multiply_by_depth_ceil((used_pixels * dpiset) / dpihw,
                                                           session.params.depth);
-    dev->len = multiply_by_depth_ceil(dev->len, session.params.depth);
+    dev->deseg.pixel_groups = multiply_by_depth_ceil(dev->deseg.pixel_groups, session.params.depth);
     dev->deseg.conseq_pixel_dist_bytes = multiply_by_depth_ceil(dev->deseg.conseq_pixel_dist_bytes, session.params.depth);
 
   dev->cur=0;
@@ -910,7 +910,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG (DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
   DBG (DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
   DBG (DBG_io2, "%s: dev->bpl   =%lu\n", __func__, (unsigned long) dev->deseg.raw_channel_bytes);
-  DBG (DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long)dev->len);
+  DBG (DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long) dev->deseg.pixel_groups);
   DBG (DBG_io2, "%s: dev->dist  =%lu\n", __func__, (unsigned long) dev->deseg.conseq_pixel_dist_bytes);
   DBG (DBG_io2, "%s: dev->segnb =%lu\n", __func__, (unsigned long)dev->segnb);
 

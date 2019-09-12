@@ -997,7 +997,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   dev->cur = 0;
   dev->skip = 0;
-    dev->len = dev->deseg.raw_channel_bytes / segnb;
+    dev->deseg.pixel_groups = dev->deseg.raw_channel_bytes / segnb;
     dev->deseg.conseq_pixel_dist_bytes = dev->deseg.raw_channel_bytes / segnb;
   dev->segnb = segnb;
   dev->line_count = 0;
@@ -1006,7 +1006,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG (DBG_io2, "%s: pixels          =%d\n", __func__, session.optical_pixels);
   DBG (DBG_io2, "%s: depth           =%d\n", __func__, session.params.depth);
   DBG (DBG_io2, "%s: dev->bpl        =%lu\n", __func__, (unsigned long) dev->deseg.raw_channel_bytes);
-  DBG (DBG_io2, "%s: dev->len        =%lu\n", __func__, (unsigned long)dev->len);
+  DBG (DBG_io2, "%s: dev->len        =%lu\n", __func__, (unsigned long) dev->deseg.pixel_groups);
   DBG (DBG_io2, "%s: dev->dist       =%lu\n", __func__, (unsigned long) dev->deseg.conseq_pixel_dist_bytes);
   DBG (DBG_io2, "%s: dev->line_interp=%lu\n", __func__, (unsigned long)dev->line_interp);
 

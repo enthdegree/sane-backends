@@ -192,13 +192,6 @@ struct Genesys_Model
     }
 };
 
-// Describes the geometry of the raw data coming out of the scanner for desegmentation.
-struct DesegmentationState
-{
-    // The current byte during desegmentation process
-    unsigned curr_byte = 0;
-};
-
 /**
  * Describes the current device status for the backend
  * session. This should be more accurately called
@@ -299,7 +292,8 @@ struct Genesys_Device
     // total bytes read to be sent to frontend
     size_t total_bytes_to_read = 0;
 
-    DesegmentationState deseg;
+    // The current byte during desegmentation process
+    size_t deseg_curr_byte = 0;
 
     // contains the real used values
     Genesys_Current_Setup current_setup;

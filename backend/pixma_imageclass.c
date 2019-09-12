@@ -120,6 +120,7 @@
 #define MF260_PID  0x27f4
 #define MF740_PID  0x27fb
 #define MF640_PID  0x27fe
+#define MF645_PID  0x27fd
 
 
 enum iclass_state_t
@@ -966,6 +967,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF630 Series", "MF630", MF630_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF730 Series", "MF730", MF730_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF731C", "MF731", MF731_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),
+  DEV ("Canon i-SENSYS MF633C/MF635C", "MF633C/635C", MF630_PID, 600, 0, 637, 877, PIXMA_CAP_ADFDUP),              /* max. w = 216mm */
   DEV ("Canon imageCLASS MF634C", "MF632C/634C", MF634_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon imageCLASS MF733C", "MF731C/733C", MF731_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),            /* however, we need this for ethernet/wifi */
   DEV ("Canon imageCLASS D570", "D570", D570_PID, 600, 0, 640, 877, 0),
@@ -975,5 +977,6 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF260 Series", "MF260", MF260_PID, 600, 0, 640, 1050, 0),
   DEV ("Canon i-SENSYS MF740 Series", "MF740", MF740_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF640 Series", "MF640", MF640_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
+  DEV ("Canon i-SENSYS MF645C", "MF645C", MF645_PID, 600, 0, 637, 877, PIXMA_CAP_ADFDUP),                    /* max. w = 216mm */
   DEV (NULL, NULL, 0, 0, 0, 0, 0, 0)
 };

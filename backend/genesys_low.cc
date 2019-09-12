@@ -1325,7 +1325,13 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     }
 
     s.optical_pixels_raw = s.optical_pixels;
+    s.output_line_bytes_raw = s.output_line_bytes;
     s.conseq_pixel_dist_bytes = 0;
+
+    if (dev->model->asic_type == AsicType::GL646) {
+        // BUG: most likely segmented sensors were never used, so incorrect value was supplied
+        s.output_line_bytes_raw = s.output_channel_bytes;
+    }
 
     if (dev->model->asic_type == AsicType::GL845 ||
         dev->model->asic_type == AsicType::GL846 ||
@@ -1345,6 +1351,15 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
             s.conseq_pixel_dist_bytes = multiply_by_depth_ceil(s.conseq_pixel_dist_bytes,
                                                                s.params.depth);
         }
+
+        s.output_line_bytes_raw = multiply_by_depth_ceil(
+                    (s.optical_pixels_raw * s.output_resolution) / sensor.optical_res / s.segment_count,
+                    s.params.depth);
+    }
+
+    if (dev->model->asic_type == AsicType::GL124) {
+        s.output_line_bytes_raw = multiply_by_depth_ceil(s.output_pixels / s.ccd_size_divisor,
+                                                         s.params.depth);
     }
 
     // TODO: gl124 conseq_pixel_dist_bytes
@@ -2029,6 +2044,7 @@ void debug_dump(unsigned level, const ScanSession& session)
     DBG(level, "    output_resolution : %d\n", session.output_resolution);
     DBG(level, "    output_pixels : %d\n", session.output_pixels);
     DBG(level, "    output_line_bytes : %d\n", session.output_line_bytes);
+    DBG(level, "    output_line_bytes_raw : %d\n", session.output_line_bytes_raw);
     DBG(level, "    output_line_count : %d\n", session.output_line_count);
     DBG(level, "    num_staggered_lines : %d\n", session.num_staggered_lines);
     DBG(level, "    max_color_shift_lines : %d\n", session.max_color_shift_lines);

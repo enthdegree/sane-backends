@@ -827,10 +827,6 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 	}*/
     }
 
-  /* words(16bit) before gamma, conversion to 8 bit or lineart*/
-    dev->deseg.raw_line_bytes = multiply_by_depth_ceil(
-        (session.optical_pixels_raw * session.params.xres) / sensor.optical_res / session.segment_count,
-        session.params.depth);
     dev->deseg.pixel_groups = multiply_by_depth_ceil(dev->deseg.pixel_groups, session.params.depth);
 
     dev->deseg.curr_byte = 0;
@@ -847,16 +843,16 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   DBG (DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
   DBG (DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
-  DBG (DBG_io2, "%s: dev->bpl   =%lu\n", __func__, (unsigned long) dev->deseg.raw_line_bytes);
   DBG (DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long) dev->deseg.pixel_groups);
   DBG (DBG_io2, "%s: dev->segnb =%lu\n", __func__, (unsigned long) dev->session.segment_count);
 
     // BUG: we shouldn't multiply by channels here
     dev->oe_buffer.clear();
-    dev->oe_buffer.alloc(dev->deseg.raw_line_bytes * session.params.channels);
+    dev->oe_buffer.alloc(session.output_line_bytes_raw * session.params.channels);
 
   /* MAXWD is expressed in 4 words unit */
-    reg->set24(REG_MAXWD, (dev->deseg.raw_line_bytes * session.params.channels >> 2));
+    // BUG: we shouldn't multiply by channels here
+    reg->set24(REG_MAXWD, (session.output_line_bytes_raw * session.params.channels >> 2));
 
     reg->set16(REG_LPERIOD, exposure_time);
   DBG(DBG_io2, "%s: exposure_time used=%d\n", __func__, exposure_time);

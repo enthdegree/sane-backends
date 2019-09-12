@@ -202,9 +202,6 @@ struct DesegmentationState
     // scanned from a single segment
     unsigned pixel_groups = 0;
 
-    // Total bytes in a line received from a scanner
-    unsigned raw_line_bytes = 0;
-
     // The current byte during desegmentation process
     unsigned curr_byte = 0;
 };
@@ -300,7 +297,7 @@ struct Genesys_Device
     Genesys_Buffer local_buffer;
 
     // bytes to read from desegmentation step. This is not the same as physical bytes read from
-    // scanners, see `deseg.raw_line_bytes` which corresponds to this information on certain
+    // scanners, see `session.output_line_bytes_raw` which corresponds to this information on certain
     // scanners.
     size_t read_bytes_left_after_deseg = 0;
 

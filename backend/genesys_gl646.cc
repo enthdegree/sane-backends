@@ -592,7 +592,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   /* words_per_line must be computed according to the scan's resolution */
   /* in fact, words_per_line _gives_ the actual scan resolution */
-    words_per_line = (((endx - startx) * sensor.real_resolution) / sensor.optical_res);
+    words_per_line = (((endx - startx) * session.output_resolution) / sensor.optical_res);
     bpp = session.params.depth/8;
     if (session.params.depth == 1) {
       words_per_line = (words_per_line+7)/8 ;
@@ -609,7 +609,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
     regs->set24(REG_MAXWD, words_per_line);
 
-    regs->set16(REG_DPISET, sensor.real_resolution * session.ccd_size_divisor *
+    regs->set16(REG_DPISET, session.output_resolution * session.ccd_size_divisor *
                             sensor.ccd_pixels_per_system_pixel());
     regs->set16(REG_LPERIOD, sensor.exposure_lperiod);
 
@@ -790,10 +790,10 @@ static void gl646_setup_registers(Genesys_Device* dev,
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
-    dev->current_setup.pixels = ((endx - startx) * sensor.real_resolution) / sensor.optical_res;
+    dev->current_setup.pixels = ((endx - startx) * session.output_resolution) / sensor.optical_res;
   dev->current_setup.lines = linecnt;
     dev->current_setup.exposure_time = sensor.exposure_lperiod;
-    dev->current_setup.xres = sensor.real_resolution;
+    dev->current_setup.xres = session.output_resolution;
   dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
     dev->current_setup.stagger = session.num_staggered_lines;
     dev->current_setup.max_shift = max_shift + session.num_staggered_lines;

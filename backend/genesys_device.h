@@ -292,7 +292,7 @@ struct Genesys_Device
     // total bytes read to be sent to frontend
     size_t total_bytes_to_read = 0;
 
-    // The current byte during desegmentation process
+    // The current byte in line during desegmentation process
     size_t deseg_curr_byte = 0;
 
     // contains the real used values

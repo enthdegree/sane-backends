@@ -3452,8 +3452,7 @@ static void genesys_fill_line_interp_buffer(Genesys_Device* dev, uint8_t* work_b
  * back to back and must be interleaved to get usable by the other stages
  * of the backend
  */
-static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buffer_dst,
-                                          size_t size)
+void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buffer_dst, size_t size)
 {
     DBG_HELPER(dbg);
 

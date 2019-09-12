@@ -2945,7 +2945,6 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
 {
     DBG_HELPER(dbg);
   SANE_Bool forward = SANE_TRUE;
-  int xres;
 
     if (dev->cmd_set->search_strip == nullptr) {
         throw SaneException(SANE_STATUS_UNSUPPORTED, "no strip searching function available");
@@ -2956,7 +2955,6 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
 
   /* led, offset and gain calibration are influenced by scan
    * settings. So we set it to sensor resolution */
-  xres = sensor.optical_res;
   dev->settings.xres = sensor.optical_res;
   /* XP200 needs to calibrate a full and half sensor's resolution */
   if (dev->model->ccd_type == CIS_XP200
@@ -2985,7 +2983,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
 
       /* since all the registers are set up correctly, just use them */
 
-        dev->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, xres);
+        dev->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, sensor.optical_res);
     }
   else
     /* since we have 2 gain calibration proc, skip second if first one was
@@ -3066,8 +3064,8 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
     // and finally eject calibration sheet
     dev->cmd_set->eject_document(dev);
 
-  /* resotre settings */
-  dev->settings.xres = xres;
+    // restore settings
+    dev->settings.xres = sensor.optical_res;
 }
 
 /**

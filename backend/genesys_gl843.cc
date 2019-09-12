@@ -1193,8 +1193,6 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
     // compute optical and output resolutions
     s.hwdpi_divisor = sensor.get_hwdpi_divisor_for_dpi(s.params.xres);
 
-    s.output_line_count = s.params.lines + s.max_color_shift_lines + s.num_staggered_lines;
-
     s.optical_line_bytes = (s.optical_pixels * s.params.channels * s.params.depth) / 8;
     s.output_line_bytes = (s.output_pixels * s.params.channels * s.params.depth) / 8;
 
@@ -1365,7 +1363,6 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 {
   int start;
 
-  unsigned int lincnt;
   int exposure;
 
     DBG(DBG_info, "%s ", __func__);
@@ -1431,12 +1428,10 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
       dev->ld_shift_b = dev->model->ld_shift_b;
     }
 
-    lincnt = session.params.lines + session.max_color_shift_lines + session.num_staggered_lines;
-
     dev->session = session;
     dev->current_setup.pixels = session.output_pixels;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
-  dev->current_setup.lines = lincnt;
+    dev->current_setup.lines = session.output_line_count;
   dev->current_setup.exposure_time = exposure;
     dev->current_setup.xres = session.params.xres;
   dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;

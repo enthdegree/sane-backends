@@ -1765,7 +1765,6 @@ static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     int start;
   int bytes_per_line;
   int move;
-  unsigned int lincnt;
   int exposure_time;
   int avg;
 
@@ -1890,10 +1889,6 @@ dummy \ scanned lines
                                  session.params.depth, session.ccd_size_divisor,
                                  session.params.color_filter);
 
-/*** motor parameters ***/
-
-    lincnt = session.params.lines + session.max_color_shift_lines + session.num_staggered_lines;
-
     move = session.params.starty;
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
@@ -1910,10 +1905,12 @@ dummy \ scanned lines
     DBG(DBG_info, "%s: move=%d steps\n", __func__, move);*/
 
     if (session.params.flags & SCAN_FLAG_SINGLE_LINE) {
-        gl841_init_motor_regs_off(reg, dev->model->is_cis?lincnt* session.params.channels:lincnt);
+        gl841_init_motor_regs_off(reg, dev->model->is_cis ? session.output_line_count * session.params.channels
+                                                          : session.output_line_count);
     } else {
         gl841_init_motor_regs_scan(dev, sensor, reg, exposure_time, slope_dpi, scan_step_type,
-                                   dev->model->is_cis ? lincnt * session.params.channels : lincnt,
+                                   dev->model->is_cis ? session.output_line_count * session.params.channels
+                                                      : session.output_line_count,
                                    dummy, move,
                                    (session.params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE) ?
                                    MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE : 0);
@@ -1949,14 +1946,14 @@ dummy \ scanned lines
     dev->out_buffer.clear();
     dev->out_buffer.alloc((8 * dev->settings.pixels *  session.params.channels * session.params.depth) / 8);
 
-  dev->read_bytes_left = bytes_per_line * lincnt;
+    dev->read_bytes_left = bytes_per_line * session.output_line_count;
 
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
     dev->current_setup.pixels = session.output_pixels;
-  dev->current_setup.lines = lincnt;
+    dev->current_setup.lines = session.output_line_count;
   dev->current_setup.exposure_time = exposure_time;
     dev->current_setup.xres = session.params.xres;
     dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
@@ -1995,7 +1992,6 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
 {
   int start;
 
-  unsigned int lincnt;
   int exposure_time;
 
   int slope_dpi = 0;
@@ -2086,11 +2082,9 @@ dummy \ scanned lines
                                         session.optical_pixels);
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
-    lincnt = session.params.lines + session.max_color_shift_lines + session.num_staggered_lines;
-
     dev->session = session;
     dev->current_setup.pixels = session.output_pixels;
-  dev->current_setup.lines = lincnt;
+    dev->current_setup.lines = session.output_line_count;
   dev->current_setup.exposure_time = exposure_time;
     dev->current_setup.xres = session.params.xres;
     dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;

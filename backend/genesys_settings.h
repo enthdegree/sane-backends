@@ -246,7 +246,6 @@ struct ScanSession {
     unsigned output_line_bytes = 0;
 
     // the number of lines in the output of the scanner. This must be larger than the user
-    // gl843-only
     // requested number due to line staggering and color channel shifting.
     unsigned output_line_count = 0;
 

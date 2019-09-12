@@ -972,7 +972,6 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     int start;
   int bytes_per_line;
   int move;
-  unsigned int lincnt;
   unsigned int mflags; /**> motor flags */
   int exposure_time;
 
@@ -1026,8 +1025,6 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
                                  session.optical_pixels, session.params.channels,
                                  session.params.depth, session.params.color_filter);
 
-    lincnt = session.params.lines + session.max_color_shift_lines + session.num_staggered_lines;
-
     move = session.params.starty;
     DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
@@ -1040,7 +1037,8 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   }
 
     gl847_init_motor_regs_scan(dev, sensor, reg, exposure_time, slope_dpi, scan_step_type,
-                               dev->model->is_cis ? lincnt * session.params.channels : lincnt,
+                               dev->model->is_cis ? session.output_line_count * session.params.channels
+                                                  : session.output_line_count,
                                dummy, move, mflags);
 
   /*** prepares data reordering ***/
@@ -1067,14 +1065,14 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->out_buffer.clear();
     dev->out_buffer.alloc((8 * session.params.pixels * session.params.channels * session.params.depth) / 8);
 
-  dev->read_bytes_left = bytes_per_line * lincnt;
+    dev->read_bytes_left = bytes_per_line * session.output_line_count;
 
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
     dev->current_setup.pixels = session.output_pixels;
-  dev->current_setup.lines = lincnt;
+    dev->current_setup.lines = session.output_line_count;
   dev->current_setup.exposure_time = exposure_time;
     dev->current_setup.xres = session.params.xres;
   dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
@@ -1113,7 +1111,6 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 {
   int start;
 
-  unsigned int lincnt;
   int exposure_time;
 
   int slope_dpi = 0;
@@ -1165,11 +1162,9 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     exposure_time = get_sensor_profile(sensor, session.params.xres).exposure_lperiod;
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
-    lincnt = session.params.lines + session.max_color_shift_lines + session.num_staggered_lines;
-
     dev->session = session;
     dev->current_setup.pixels = session.output_pixels;
-  dev->current_setup.lines = lincnt;
+    dev->current_setup.lines = session.output_line_count;
   dev->current_setup.exposure_time = exposure_time;
     dev->current_setup.xres = session.params.xres;
     dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;

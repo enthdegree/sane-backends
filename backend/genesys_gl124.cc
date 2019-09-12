@@ -1068,7 +1068,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     int start;
   int bytes_per_line;
   int move;
-  unsigned int lincnt;
     unsigned int mflags;
   int exposure_time;
 
@@ -1128,10 +1127,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
                                  session.params.depth, session.ccd_size_divisor,
                                  session.params.color_filter);
 
-  /*** motor parameters ***/
-
-    lincnt = session.params.lines + session.max_color_shift_lines + session.num_staggered_lines;
-
   /* add tl_y to base movement */
     move = session.params.starty;
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
@@ -1144,7 +1139,8 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
         mflags |= MOTOR_FLAG_FEED;
     }
     gl124_init_motor_regs_scan(dev, sensor, reg, exposure_time, slope_dpi, scan_step_type,
-                               dev->model->is_cis ? lincnt * session.params.channels : lincnt,
+                               dev->model->is_cis ? session.output_line_count * session.params.channels :
+                                                    session.output_line_count,
                                dummy, move, session.params.scan_mode, mflags);
 
   /*** prepares data reordering ***/
@@ -1174,7 +1170,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->out_buffer.clear();
     dev->out_buffer.alloc((8 * dev->settings.pixels * session.params.channels * session.params.depth) / 8);
 
-  dev->read_bytes_left = bytes_per_line * lincnt;
+    dev->read_bytes_left = bytes_per_line * session.output_line_count;
 
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
@@ -1182,7 +1178,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->session = session;
     dev->current_setup.pixels = session.output_pixels;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
-  dev->current_setup.lines = lincnt;
+    dev->current_setup.lines = session.output_line_count;
   dev->current_setup.exposure_time = exposure_time;
     dev->current_setup.xres = session.params.xres;
   dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
@@ -1207,7 +1203,6 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
 {
   int start;
 
-  unsigned int lincnt;
   int exposure_time;
 
     int dpihw;
@@ -1255,12 +1250,10 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
                                                              session.ccd_size_divisor);
     dev->segnb = sensor_profile.custom_regs.get_value(0x98) & 0x0f;
 
-    lincnt = session.params.lines + session.max_color_shift_lines + session.num_staggered_lines;
-
     dev->session = session;
     dev->current_setup.pixels = session.output_pixels;
   DBG (DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
-  dev->current_setup.lines = lincnt;
+    dev->current_setup.lines = session.output_line_count;
   dev->current_setup.exposure_time = exposure_time;
     dev->current_setup.xres = session.params.xres;
   dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;

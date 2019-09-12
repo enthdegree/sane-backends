@@ -827,7 +827,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                     exposure_time, start);
     unsigned int segcnt;
     unsigned int startx, endx;
-  unsigned int dpihw, factor;
+    unsigned int dpihw;
   GenesysRegister *r;
   uint32_t expmax;
 
@@ -838,8 +838,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // to manage high resolution device while keeping good low resolution scanning speed, we
     // make hardware dpi vary
     dpihw = sensor.get_register_hwdpi(session.output_resolution * ccd_pixels_per_system_pixel);
-    factor = sensor.get_hwdpi_divisor_for_dpi(session.output_resolution * ccd_pixels_per_system_pixel);
-  DBG (DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
+    DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
     // sensor parameters
     const auto& sensor_profile = get_sensor_profile(sensor, dpihw, session.ccd_size_divisor);
@@ -851,8 +850,8 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     endx = startx + session.optical_pixels / ccd_pixels_per_system_pixel;
 
   /* pixel coordinate factor correction when used dpihw is not maximal one */
-  startx/=factor;
-  endx/=factor;
+    startx /= session.hwdpi_divisor;
+    endx /= session.hwdpi_divisor;
 
     gl124_set_fe(dev, sensor, AFE_SET);
 

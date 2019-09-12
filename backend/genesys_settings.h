@@ -217,7 +217,7 @@ struct ScanSession {
     bool computed = false;
 
     // specifies the reduction (if any) of hardware dpi on the Genesys chip side.
-    // gl843-only
+    // except gl646
     unsigned hwdpi_divisor = 1;
 
     // specifies the reduction (if any) of CCD effective dpi which is performed by latching the

@@ -721,7 +721,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d, start=%d", exposure_time, start);
   unsigned int words_per_line;
-    unsigned int dpihw, factor;
+    unsigned int dpihw;
   GenesysRegister *r;
 
     // resolution is divided according to ccd_pixels_per_system_pixel()
@@ -731,8 +731,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // to manage high resolution device while keeping good low resolution scanning speed,
     // we make hardware dpi vary
     dpihw = sensor.get_register_hwdpi(session.params.xres * ccd_pixels_per_system_pixel);
-    factor = sensor.optical_res/dpihw;
-    DBG(DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
+    DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
     // sensor parameters
     const auto& sensor_profile = get_sensor_profile(sensor, dpihw);
@@ -750,8 +749,8 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
     // compute pixel coordinate in the given dpihw space, taking segments into account
-    startx /= factor * segment_count;
-    endx /= factor * segment_count;
+    startx /= session.hwdpi_divisor * segment_count;
+    endx /= session.hwdpi_divisor * segment_count;
     dev->deseg.pixel_groups = endx - startx;
     dev->deseg.conseq_pixel_dist_bytes = 0;
     dev->deseg.skip_bytes = 0;

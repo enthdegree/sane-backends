@@ -3434,7 +3434,7 @@ static void genesys_fill_line_interp_buffer(Genesys_Device* dev, uint8_t* work_b
 	  /* go to next line if needed */
 	  if (dev->cur == dev->len)
 	    {
-              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->bpl);
+              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->deseg.raw_channel_bytes);
 	      dev->cur = 0;
               dev->line_count++;
 	    }
@@ -3521,7 +3521,7 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
 	  /* go to next line if needed */
 	  if (dev->cur == dev->len)
 	    {
-              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->bpl);
+              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->deseg.raw_channel_bytes);
 	      dev->cur = 0;
 	    }
 

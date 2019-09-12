@@ -828,7 +828,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d, start=%d\n",
                     exposure_time, start);
-  unsigned int words_per_line, segcnt;
+    unsigned int segcnt;
     unsigned int startx, endx, segnb;
   unsigned int dpihw, factor;
   GenesysRegister *r;
@@ -991,35 +991,34 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG (DBG_io2, "%s: endpixel used=%d\n", __func__, endx/segnb);
 
     // words(16bit) before gamma, conversion to 8 bit or lineart
-    words_per_line = multiply_by_depth_ceil(session.output_pixels / session.ccd_size_divisor,
-                                            session.params.depth);
+    dev->deseg.raw_channel_bytes =
+            multiply_by_depth_ceil(session.output_pixels / session.ccd_size_divisor,
+                                   session.params.depth);
 
-  dev->bpl = words_per_line;
   dev->cur = 0;
   dev->skip = 0;
-  dev->len = dev->bpl/segnb;
-  dev->dist = dev->bpl/segnb;
+    dev->len = dev->deseg.raw_channel_bytes / segnb;
+    dev->dist = dev->deseg.raw_channel_bytes / segnb;
   dev->segnb = segnb;
   dev->line_count = 0;
   dev->line_interp = 0;
 
   DBG (DBG_io2, "%s: pixels          =%d\n", __func__, session.optical_pixels);
   DBG (DBG_io2, "%s: depth           =%d\n", __func__, session.params.depth);
-  DBG (DBG_io2, "%s: dev->bpl        =%lu\n", __func__, (unsigned long)dev->bpl);
+  DBG (DBG_io2, "%s: dev->bpl        =%lu\n", __func__, (unsigned long) dev->deseg.raw_channel_bytes);
   DBG (DBG_io2, "%s: dev->len        =%lu\n", __func__, (unsigned long)dev->len);
   DBG (DBG_io2, "%s: dev->dist       =%lu\n", __func__, (unsigned long)dev->dist);
   DBG (DBG_io2, "%s: dev->line_interp=%lu\n", __func__, (unsigned long)dev->line_interp);
 
-  words_per_line *= session.params.channels;
-  dev->wpl = words_per_line;
+    dev->deseg.raw_line_bytes = dev->deseg.raw_channel_bytes * session.params.channels;
 
   /* allocate buffer for odd/even pixels handling */
     dev->oe_buffer.clear();
-    dev->oe_buffer.alloc(dev->wpl);
+    dev->oe_buffer.alloc(dev->deseg.raw_line_bytes);
 
-  /* MAXWD is expressed in 2 words unit */
-    reg->set24(REG_MAXWD, words_per_line);
-  DBG (DBG_io2, "%s: words_per_line used=%d\n", __func__, words_per_line);
+    // MAXWD is expressed in 2 words unit
+    reg->set24(REG_MAXWD, dev->deseg.raw_line_bytes);
+  DBG (DBG_io2, "%s: words_per_line used=%d\n", __func__, dev->deseg.raw_line_bytes);
 
     reg->set24(REG_LPERIOD, exposure_time);
   DBG (DBG_io2, "%s: exposure_time used=%d\n", __func__, exposure_time);

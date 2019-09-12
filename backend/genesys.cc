@@ -276,8 +276,8 @@ sanei_genesys_init_structs (Genesys_Device * dev)
     }
 
     if (!motor_ok || !gpo_ok || !fe_ok) {
-      DBG(DBG_error0, "%s: bad description(s) for fe/gpo/motor=%d/%d/%d\n", __func__,
-          dev->model->ccd_type, dev->model->gpo_type, dev->model->motor_type);
+        throw SaneException("bad description(s) for fe/gpo/motor=%d/%d/%d\n",
+                            dev->model->ccd_type, dev->model->gpo_type, dev->model->motor_type);
     }
 
   /* set up initial line distance shift */

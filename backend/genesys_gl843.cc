@@ -1222,7 +1222,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int slope_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
-  size_t requested_buffer_size, read_buffer_size;
 
   DBG(DBG_info, "%s : stagger=%d lines\n", __func__, session.num_staggered_lines);
 
@@ -1300,27 +1299,17 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     gl843_init_motor_regs_scan(dev, sensor, reg, exposure, slope_dpi, scan_step_type,
                                scan_lines, dummy, session.params.starty, mflags);
 
-  /* since we don't have sheetfed scanners to handle,
-   * use huge read buffer */
-  /* TODO find the best size according to settings */
-  requested_buffer_size = 16 * session.output_line_bytes;
-
-  read_buffer_size =
-    2 * requested_buffer_size +
-    (session.max_color_shift_lines + session.num_staggered_lines) * session.optical_line_bytes;
-
     dev->read_buffer.clear();
-    dev->read_buffer.alloc(read_buffer_size);
+    dev->read_buffer.alloc(session.buffer_size_read);
 
     dev->lines_buffer.clear();
-    dev->lines_buffer.alloc(read_buffer_size);
+    dev->lines_buffer.alloc(session.buffer_size_lines);
 
     dev->shrink_buffer.clear();
-    dev->shrink_buffer.alloc(requested_buffer_size);
+    dev->shrink_buffer.alloc(session.buffer_size_shrink);
 
     dev->out_buffer.clear();
-    dev->out_buffer.alloc((8 * session.params.pixels * session.params.channels *
-                           session.params.depth) / 8);
+    dev->out_buffer.alloc(session.buffer_size_out);
 
   dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
 

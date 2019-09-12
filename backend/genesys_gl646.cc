@@ -359,7 +359,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
   unsigned int used1, used2, vfinal;
   uint32_t z1, z2;
   uint16_t ex, sx;
-  size_t read_buffer_size;
   int feedl;
 
   DBG(DBG_info, "%s: startx=%d, endx=%d\n", __func__, startx, endx);
@@ -719,25 +718,17 @@ static void gl646_setup_registers(Genesys_Device* dev,
     // setup analog frontend
     gl646_set_fe(dev, sensor, AFE_SET, session.output_resolution);
 
-  /* now we're done with registers setup values used by data transfer */
-  /* we setup values needed for the data transfer */
-
-    // we must use a round number of words_per_line
-    read_buffer_size = 16 * session.output_line_bytes +
-        ((session.max_color_shift_lines + session.num_staggered_lines) * session.params.pixels *
-         session.params.channels * session.params.depth) / 8;
-
     dev->read_buffer.clear();
-    dev->read_buffer.alloc(read_buffer_size);
+    dev->read_buffer.alloc(session.buffer_size_read);
 
     dev->lines_buffer.clear();
-    dev->lines_buffer.alloc(read_buffer_size);
+    dev->lines_buffer.alloc(session.buffer_size_lines);
 
     dev->shrink_buffer.clear();
-    dev->shrink_buffer.alloc(8 * session.output_line_bytes);
+    dev->shrink_buffer.alloc(session.buffer_size_shrink);
 
     dev->out_buffer.clear();
-    dev->out_buffer.alloc(8 * session.output_line_bytes);
+    dev->out_buffer.alloc(session.buffer_size_out);
 
   /* scan bytes to read */
     unsigned cis_channel_multiplier = dev->model->is_cis ? session.params.channels : 1;

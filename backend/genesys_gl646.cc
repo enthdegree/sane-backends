@@ -3390,7 +3390,7 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance)
   const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, ScanMethod::FLATBED);
 
   /* TODO give a no AGOHOME flag */
-  settings.scan_method = ScanMethod::TRANSPARENCY;
+  settings.scan_method = ScanMethod::FLATBED;
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = resolution;
   settings.yres = resolution;

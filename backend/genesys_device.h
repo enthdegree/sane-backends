@@ -214,6 +214,9 @@ struct DesegmentationState
 
     // Total bytes in a line received from a scanner
     unsigned raw_line_bytes = 0;
+
+    // The current byte during desegmentation process
+    unsigned curr_byte = 0;
 };
 
 /**
@@ -338,8 +341,6 @@ struct Genesys_Device
     int line_interp = 0;
     // number of scan lines used during scan
     int line_count = 0;
-    // current pixel position within sub window
-    size_t cur = 0;
 
     // array describing the order of the sub-segments of the sensor
     std::vector<unsigned> segment_order;

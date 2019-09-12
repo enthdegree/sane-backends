@@ -890,7 +890,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dev->deseg.pixel_groups = multiply_by_depth_ceil(dev->deseg.pixel_groups, session.params.depth);
     dev->deseg.conseq_pixel_dist_bytes = multiply_by_depth_ceil(dev->deseg.conseq_pixel_dist_bytes, session.params.depth);
 
-  dev->cur=0;
+    dev->deseg.curr_byte = 0;
     dev->deseg.segment_count = segment_count;
   dev->line_interp = 0;
 

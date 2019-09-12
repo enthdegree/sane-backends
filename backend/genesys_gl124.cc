@@ -994,7 +994,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
             multiply_by_depth_ceil(session.output_pixels / session.ccd_size_divisor,
                                    session.params.depth);
 
-  dev->cur = 0;
+    dev->deseg.curr_byte = 0;
     dev->deseg.skip_bytes = 0;
     dev->deseg.pixel_groups = dev->deseg.raw_channel_bytes / segment_count;
     dev->deseg.conseq_pixel_dist_bytes = dev->deseg.raw_channel_bytes / segment_count;

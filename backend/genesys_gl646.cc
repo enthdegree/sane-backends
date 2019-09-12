@@ -384,7 +384,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   while (i < nb)
     {
       if (dev->model->motor_type == motor_master[i].motor
-          && motor_master[i].dpi == resolution
+          && motor_master[i].dpi == session.params.yres
           && motor_master[i].channels == session.params.channels)
 	{
 	  motor = &motor_master[i];
@@ -394,7 +394,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   if (motor == NULL)
     {
         throw SaneException("unable to find settings for motor %d at %d dpi, color=%d",
-                            dev->model->motor_type, resolution, session.params.channels);
+                            dev->model->motor_type, session.params.yres, session.params.channels);
     }
 
   /* now we can search for the specific sensor settings */
@@ -557,8 +557,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   regs->find_reg(0x23).value = motor->fwdbwd;
   regs->find_reg(0x24).value = motor->steps1;
 
-  /* we adjust linecnt according to real motor dpi */
-  linecnt = (linecnt * motor->ydpi) / session.params.yres + session.max_color_shift_lines;
+    linecnt = linecnt + session.max_color_shift_lines;
 
   /* at QUATER_STEP lines are 'staggered' and need correction */
     linecnt += session.num_staggered_lines;
@@ -612,7 +611,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   feedl = move;
     if (session.num_staggered_lines + session.max_color_shift_lines > 0 && feedl != 0) {
         int feed_offset = ((session.max_color_shift_lines + session.num_staggered_lines) * dev->motor.optical_ydpi) /
-                motor->ydpi;
+                motor->dpi;
         if (feedl > feed_offset) {
             feedl = feedl - feed_offset;
         }
@@ -636,8 +635,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
       switch (dev->model->motor_type)
 	{
 	case MOTOR_5345:
-	  switch (motor->ydpi)
-	    {
+                    switch (motor->dpi) {
 	    case 200:
 	      feedl -= 70;
 	      break;
@@ -661,8 +659,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 	    }
 	  break;
 	case MOTOR_HP2300:
-	  switch (motor->ydpi)
-	    {
+                    switch (motor->dpi) {
 	    case 75:
 	      feedl -= 180;
 	      break;
@@ -683,8 +680,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 	    }
 	  break;
 	case MOTOR_HP2400:
-	  switch (motor->ydpi)
-	    {
+                    switch (motor->dpi) {
 	    case 150:
 	      feedl += 150;
 	      break;

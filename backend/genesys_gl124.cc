@@ -778,10 +778,9 @@ static void gl124_setup_sensor(Genesys_Device * dev,
  */
 static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
-                                         const ScanSession& session, unsigned int start)
+                                         const ScanSession& session)
 {
-    DBG_HELPER_ARGS(dbg, "exposure_time=%d, start=%d\n",
-                    exposure_time, start);
+    DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
     unsigned int segcnt;
     unsigned int startx, endx;
     unsigned int dpihw;
@@ -804,6 +803,12 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* start and end coordinate in optical dpi coordinates */
   /* startx = start / ccd_pixels_per_system_pixel + sensor.dummy_pixel; XXX STEF XXX */
+    unsigned start = session.params.startx;
+
+    if (session.num_staggered_lines > 0) {
+        start |= 1;
+    }
+
     startx = start / ccd_pixels_per_system_pixel;
     endx = startx + session.optical_pixels / ccd_pixels_per_system_pixel;
 
@@ -1003,7 +1008,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG_HELPER(dbg);
     session.assert_computed();
 
-    int start;
   int move;
     unsigned int mflags;
   int exposure_time;
@@ -1013,15 +1017,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int scan_step_type = 1;
 
     DBG (DBG_info, "%s: optical_res=%d\n", __func__, session.optical_resolution);
-
-  /* compute scan parameters values */
-  /* pixels are allways given at full optical resolution */
-  /* use detected left margin and fixed value */
-    start = session.params.startx;
-
-    if (session.num_staggered_lines > 0) {
-        start |= 1;
-    }
 
     /* cis color scan is effectively a gray scan with 3 gray lines per color line and a FILTER of 0 */
     if (dev->model->is_cis) {
@@ -1057,7 +1052,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
    */
 
     // now _LOGICAL_ optical values used are known, setup registers
-    gl124_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, start);
+    gl124_init_optical_regs_scan(dev, sensor, reg, exposure_time, session);
 
   /* add tl_y to base movement */
     move = session.params.starty;

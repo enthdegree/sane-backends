@@ -681,9 +681,9 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
  */
 static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
-                                         const ScanSession& session, unsigned int start)
+                                         const ScanSession& session)
 {
-    DBG_HELPER_ARGS(dbg, "exposure_time=%d, start=%d", exposure_time, start);
+    DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
   unsigned int words_per_line;
     unsigned int dpihw;
   GenesysRegister *r;
@@ -702,6 +702,11 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     gl846_setup_sensor(dev, sensor, sensor_profile, reg);
 
     // start and end coordinate in optical dpi coordinates
+    unsigned start = session.params.startx;
+
+    if (session.num_staggered_lines > 0) {
+        start |= 1;
+    }
     unsigned startx = start / ccd_pixels_per_system_pixel + sensor.CCD_start_xoffset;
     unsigned endx = startx + session.optical_pixels / ccd_pixels_per_system_pixel;
 
@@ -888,7 +893,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG_HELPER(dbg);
     session.assert_computed();
 
-    int start;
   int move;
   unsigned int mflags; /**> motor flags */
   int exposure_time;
@@ -896,17 +900,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int slope_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
-
-  /* compute scan parameters values */
-  /* pixels are allways given at full optical resolution */
-  /* use detected left margin and fixed value */
-  /* start */
-  /* add x coordinates */
-    start = session.params.startx;
-
-    if (session.num_staggered_lines > 0) {
-        start |= 1;
-    }
 
   dummy = 3-session.params.channels;
 
@@ -939,7 +932,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
    */
-    gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, start);
+    gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, session);
 
 /*** motor parameters ***/
 

@@ -698,9 +698,9 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
  */
 static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
-                                         const ScanSession& session, unsigned int start)
+                                         const ScanSession& session)
 {
-    DBG_HELPER_ARGS(dbg, "exposure_time=%d, start=%d", exposure_time, start);
+    DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
     unsigned dpiset, dpihw;
   GenesysRegister *r;
 
@@ -717,6 +717,11 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw, 1);
     gl847_setup_sensor(dev, sensor, sensor_profile, reg);
     dpiset = session.params.xres * ccd_pixels_per_system_pixel;
+
+    unsigned start = session.params.startx;
+    if (session.num_staggered_lines > 0) {
+        start |= 1;
+    }
 
     // start and end coordinate in optical dpi coordinates
     unsigned startx = start / ccd_pixels_per_system_pixel + sensor.CCD_start_xoffset;
@@ -902,7 +907,6 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG_HELPER(dbg);
     session.assert_computed();
 
-    int start;
   int move;
   unsigned int mflags; /**> motor flags */
   int exposure_time;
@@ -910,17 +914,6 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int slope_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
-
-  /* compute scan parameters values */
-  /* pixels are allways given at full optical resolution */
-  /* use detected left margin and fixed value */
-  /* start */
-  /* add x coordinates */
-    start = session.params.startx;
-
-    if (session.num_staggered_lines > 0) {
-        start |= 1;
-    }
 
     dummy = 3 - session.params.channels;
 
@@ -953,7 +946,7 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
    */
-    gl847_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, start);
+    gl847_init_optical_regs_scan(dev, sensor, reg, exposure_time, session);
 
     move = session.params.starty;
     DBG(DBG_info, "%s: move=%d steps\n", __func__, move);

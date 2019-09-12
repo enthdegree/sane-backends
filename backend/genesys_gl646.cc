@@ -774,17 +774,10 @@ static void gl646_setup_registers(Genesys_Device* dev,
     dev->current_setup.stagger = session.num_staggered_lines;
     dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
-  /* total_bytes_to_read is the number of byte to send to frontend
-   * total_bytes_read is the number of bytes sent to frontend
-   * read_bytes_left is the number of bytes to read from the scanner
-   */
     dev->total_bytes_read = 0;
-    if (session.params.depth == 1) {
-        dev->total_bytes_to_read = ((session.params.requested_pixels * session.params.lines) / 8 +
-            (((session.params.requested_pixels * session.params.lines) % 8) ? 1 : 0)) * session.params.channels;
-    } else {
-        dev->total_bytes_to_read = session.params.requested_pixels * session.params.lines * session.params.channels * bpp;
-    }
+    dev->total_bytes_to_read =
+            multiply_by_depth_ceil(session.params.get_requested_pixels() * session.params.lines,
+                                   session.params.depth) * session.params.channels;
 
     /* select color filter based on settings */
     regs->find_reg(0x04).value &= ~REG04_FILTER;

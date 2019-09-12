@@ -1960,32 +1960,12 @@ dummy \ scanned lines
     dev->current_setup.stagger = session.num_staggered_lines;
     dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
-/* TODO: should this be done elsewhere? */
-  /* scan bytes to send to the frontend */
-  /* theory :
-     target_size =
-     (dev->settings.pixels * dev->settings.lines * channels * depth) / 8;
-     but it suffers from integer overflow so we do the following:
-
-     1 bit color images store color data byte-wise, eg byte 0 contains
-     8 bits of red data, byte 1 contains 8 bits of green, byte 2 contains
-     8 bits of blue.
-     This does not fix the overflow, though.
-     644mp*16 = 10gp, leading to an overflow
-   -- pierre
-   */
-
-  dev->total_bytes_read = 0;
-    if (session.params.depth == 1) {
-        dev->total_bytes_to_read = ((session.params.get_requested_pixels() * session.params.lines) / 8 +
-            (((session.params.get_requested_pixels() * session.params.lines)%8)?1:0)) *  session.params.channels;
-    } else {
-        dev->total_bytes_to_read =
-            session.params.get_requested_pixels() * session.params.lines * session.params.channels * (session.params.depth / 8);
-    }
+    dev->total_bytes_read = 0;
+    dev->total_bytes_to_read =
+            multiply_by_depth_ceil(session.params.get_requested_pixels() * session.params.lines,
+                                   session.params.depth) * session.params.channels;
 
   DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
-/* END TODO */
 }
 
 static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor)

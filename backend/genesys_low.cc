@@ -1280,8 +1280,8 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
 
     s.output_line_count = s.params.lines + s.max_color_shift_lines + s.num_staggered_lines;
 
-    s.output_line_channel_bytes = multiply_by_depth_ceil(s.output_pixels, s.params.depth);
-    s.output_line_bytes = s.output_line_channel_bytes * s.params.channels;
+    s.output_channel_bytes = multiply_by_depth_ceil(s.output_pixels, s.params.depth);
+    s.output_line_bytes = s.output_channel_bytes * s.params.channels;
 
     compute_session_buffer_sizes(dev->model->asic_type, s);
 }

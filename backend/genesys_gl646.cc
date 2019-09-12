@@ -563,7 +563,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
     DBG(DBG_info, "%s: startx=%d, endx=%d, ccd_size_divisor=%d\n", __func__, sx, ex,
         session.ccd_size_divisor);
 
-    dev->bpl = session.output_line_channel_bytes;
+    dev->bpl = session.output_channel_bytes;
     dev->wpl = session.output_line_bytes;
 
     regs->set24(REG_MAXWD, session.output_line_bytes);

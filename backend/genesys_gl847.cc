@@ -701,7 +701,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          const ScanSession& session)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
-    unsigned dpiset, dpihw;
+    unsigned dpihw;
   GenesysRegister *r;
 
     // resolution is divided according to ccd_pixels_per_system_pixel()
@@ -716,7 +716,6 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // sensor parameters
     const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw, 1);
     gl847_setup_sensor(dev, sensor, sensor_profile, reg);
-    dpiset = session.params.xres * ccd_pixels_per_system_pixel;
 
     unsigned start = session.params.startx;
     if (session.num_staggered_lines > 0) {
@@ -724,8 +723,8 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
     // start and end coordinate in optical dpi coordinates
-    unsigned startx = start / ccd_pixels_per_system_pixel + sensor.CCD_start_xoffset;
-    unsigned endx = startx + session.optical_pixels / ccd_pixels_per_system_pixel;
+    unsigned startx = start + sensor.CCD_start_xoffset * ccd_pixels_per_system_pixel;
+    unsigned endx = startx + session.optical_pixels;
 
   /* sensors are built from 600 dpi segments for LiDE 100/200
    * and 1200 dpi for the 700F */
@@ -733,7 +732,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // compute pixel coordinate in the given dpihw space, taking segments into account
     startx /= session.hwdpi_divisor * session.segment_count;
     endx /= session.hwdpi_divisor * session.segment_count;
-    dev->deseg.pixel_groups = endx-startx;
+    dev->deseg.pixel_groups = (endx - startx) / ccd_pixels_per_system_pixel;
     dev->deseg.conseq_pixel_dist_bytes = 0;
     dev->deseg.skip_bytes = 0;
 
@@ -744,8 +743,8 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
   /* use a segcnt rounded to next even number */
-    endx += ((dev->deseg.conseq_pixel_dist_bytes + 1) & 0xfffe) * (session.segment_count - 1);
-    unsigned used_pixels = endx - startx;
+    endx += ((dev->deseg.conseq_pixel_dist_bytes + 1) & 0xfffe) * (session.segment_count - 1) * ccd_pixels_per_system_pixel;
+    unsigned used_pixels = (endx - startx) / ccd_pixels_per_system_pixel;
 
     gl847_set_fe(dev, sensor, AFE_SET);
 
@@ -842,7 +841,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
   /* words(16bit) before gamma, conversion to 8 bit or lineart*/
-    dev->deseg.raw_channel_bytes = multiply_by_depth_ceil((used_pixels * dpiset) / dpihw,
+    dev->deseg.raw_channel_bytes = multiply_by_depth_ceil((used_pixels * session.params.xres * ccd_pixels_per_system_pixel) / dpihw,
                                                           session.params.depth);
     dev->deseg.pixel_groups = multiply_by_depth_ceil(dev->deseg.pixel_groups, session.params.depth);
     dev->deseg.conseq_pixel_dist_bytes = multiply_by_depth_ceil(dev->deseg.conseq_pixel_dist_bytes, session.params.depth);
@@ -850,13 +849,14 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dev->deseg.curr_byte = 0;
   dev->line_interp = 0;
 
-    reg->set16(REG_DPISET,dpiset);
+    unsigned dpiset = session.params.xres * ccd_pixels_per_system_pixel;
+    reg->set16(REG_DPISET, dpiset);
     DBG (DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);
 
-    reg->set16(REG_STRPIXEL,startx);
-    reg->set16(REG_ENDPIXEL,endx);
-  DBG (DBG_io2, "%s: startx=%d\n", __func__, startx);
-  DBG (DBG_io2, "%s: endx  =%d\n", __func__, endx);
+    reg->set16(REG_STRPIXEL, startx / ccd_pixels_per_system_pixel);
+    reg->set16(REG_ENDPIXEL, endx / ccd_pixels_per_system_pixel);
+    DBG(DBG_io2, "%s: startx=%d\n", __func__, startx / ccd_pixels_per_system_pixel);
+    DBG(DBG_io2, "%s: endx  =%d\n", __func__, endx / ccd_pixels_per_system_pixel);
 
   DBG (DBG_io2, "%s: used_pixels=%d\n", __func__, used_pixels);
   DBG (DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);

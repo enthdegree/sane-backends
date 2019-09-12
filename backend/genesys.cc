@@ -3456,15 +3456,16 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
                                           size_t size)
 {
     DBG_HELPER(dbg);
-  size_t count;
-    int depth, k;
 
-  depth = dev->settings.depth;
-  if (dev->settings.scan_mode == ScanColorMode::LINEART && dev->settings.dynamic_lineart==SANE_FALSE)
-    depth = 1;
+    unsigned depth = dev->settings.depth;
+    if (dev->settings.scan_mode == ScanColorMode::LINEART &&
+        dev->settings.dynamic_lineart == false)
+    {
+        depth = 1;
+    }
 
-      /* fill buffer if needed */
-      if (dev->oe_buffer.avail() == 0)
+    // fill buffer if needed
+    if (dev->oe_buffer.avail() == 0)
 	{
         accurate_line_read(dev, dev->oe_buffer);
 	}
@@ -3476,62 +3477,68 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
         return dev->oe_buffer.get_read_pos()[curr_byte];
     };
 
-      /* copy size bytes of data, copying from a subwindow of each line
-       * when last line of buffer is exhausted, read another one */
-      count = 0;
-      while (count < size)
-	{
-            if (depth==1) {
-                while (dev->deseg_curr_byte < dev->session.output_segment_pixel_group_count && count < size) {
+    // copy size bytes of data, copying from a subwindow of each line
+    // when last line of buffer is exhausted, read another one
+    size_t count = 0;
+    while (count < size) {
+        if (depth == 1) {
+            while (dev->deseg_curr_byte < dev->session.output_segment_pixel_group_count &&
+                   count < size)
+            {
+                for (unsigned n = 0; n < dev->session.segment_count; n++) {
+                    work_buffer_dst[count + n] = 0;
+                }
+                /* interleaving is at bit level */
+                for (unsigned i = 0; i < 8; i++) {
+                    unsigned k = count + (i * dev->session.segment_count) / 8;
                     for (unsigned n = 0; n < dev->session.segment_count; n++) {
-                        work_buffer_dst[count+n] = 0;
-                    }
-                    /* interleaving is at bit level */
-                    for (unsigned i = 0; i < 8; i++) {
-                        k = count + (i * dev->session.segment_count) / 8;
-                        for (unsigned n = 0; n < dev->session.segment_count; n++) {
-                            work_buffer_dst[k] = work_buffer_dst[k] << 1;
-                            if (read_desegmented(dev->deseg_curr_byte, n) & (0x80 >> i)) {
-                                work_buffer_dst[k] |= 1;
-                            }
+                        work_buffer_dst[k] = work_buffer_dst[k] << 1;
+                        if (read_desegmented(dev->deseg_curr_byte, n) & (0x80 >> i)) {
+                            work_buffer_dst[k] |= 1;
                         }
                     }
+                }
 
-                    /* update counter and pointer */
-                    count += dev->session.segment_count;
-                    dev->deseg_curr_byte++;
-                }
+                /* update counter and pointer */
+                count += dev->session.segment_count;
+                dev->deseg_curr_byte++;
             }
-            if (depth==8) {
-                 while (dev->deseg_curr_byte < dev->session.output_segment_pixel_group_count && count < size) {
-                    for (unsigned n = 0; n < dev->session.segment_count; n++) {
-                        work_buffer_dst[count + n] = read_desegmented(dev->deseg_curr_byte, n);
-                    }
-                    /* update counter and pointer */
-                    count += dev->session.segment_count;
-                    dev->deseg_curr_byte++;
-                }
-            }
-            if (depth==16) {
-                while (dev->deseg_curr_byte < dev->session.output_segment_pixel_group_count && count < size) {
-                    for (unsigned n = 0; n < dev->session.segment_count; n++) {
-                        work_buffer_dst[count + n * 2] =     read_desegmented(dev->deseg_curr_byte, n);
-                        work_buffer_dst[count + n * 2 + 1] = read_desegmented(dev->deseg_curr_byte + 1, n);
-                    }
-                    /* update counter and pointer */
-                    count += dev->session.segment_count * 2;
-                    dev->deseg_curr_byte += 2;
-                }
-            }
+        }
 
-	  /* go to next line if needed */
+        if (depth == 8) {
+            while (dev->deseg_curr_byte < dev->session.output_segment_pixel_group_count &&
+                   count < size)
+            {
+                for (unsigned n = 0; n < dev->session.segment_count; n++) {
+                    work_buffer_dst[count + n] = read_desegmented(dev->deseg_curr_byte, n);
+                }
+                /* update counter and pointer */
+                count += dev->session.segment_count;
+                dev->deseg_curr_byte++;
+            }
+        }
+
+        if (depth == 16) {
+            while (dev->deseg_curr_byte < dev->session.output_segment_pixel_group_count &&
+                   count < size) {
+                for (unsigned n = 0; n < dev->session.segment_count; n++) {
+                    work_buffer_dst[count + n * 2] =     read_desegmented(dev->deseg_curr_byte, n);
+                    work_buffer_dst[count + n * 2 + 1] = read_desegmented(dev->deseg_curr_byte + 1, n);
+                }
+                /* update counter and pointer */
+                count += dev->session.segment_count * 2;
+                dev->deseg_curr_byte += 2;
+            }
+        }
+
+        // go to next line if needed
         if (dev->deseg_curr_byte == dev->session.output_segment_pixel_group_count) {
-              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->session.output_line_bytes_raw);
+            dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->session.output_line_bytes_raw);
             dev->deseg_curr_byte = 0;
 	    }
 
-	  /* read a new buffer if needed */
-          if (dev->oe_buffer.pos() >= dev->oe_buffer.avail())
+        // read a new buffer if needed
+        if (dev->oe_buffer.pos() >= dev->oe_buffer.avail())
 	    {
             accurate_line_read(dev, dev->oe_buffer);
 	    }

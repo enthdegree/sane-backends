@@ -186,10 +186,9 @@ static const SensorProfile& get_sensor_profile(const Genesys_Sensor& sensor, uns
 /** @brief sensor specific settings
 */
 static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                               Genesys_Register_Set * regs, int dpi)
+                               const SensorProfile& sensor_profile, Genesys_Register_Set* regs)
 {
     DBG_HELPER(dbg);
-  int dpihw;
   uint16_t exp;
 
     for (uint16_t addr = 0x16; addr < 0x1e; addr++) {
@@ -199,10 +198,6 @@ static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
     for (uint16_t addr = 0x52; addr < 0x52 + 9; addr++) {
         regs->set8(addr, sensor.custom_regs.get_value(addr));
     }
-
-    // set EXPDUMMY and CKxMAP
-    dpihw = sensor.get_register_hwdpi(dpi);
-    const auto& sensor_profile = get_sensor_profile(sensor, dpihw);
 
     for (const auto& reg : sensor_profile.custom_regs) {
         regs->set8(reg.address, reg.value);
@@ -741,7 +736,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     // sensor parameters
     const auto& sensor_profile = get_sensor_profile(sensor, dpihw);
-  gl846_setup_sensor(dev, sensor, reg, dpihw);
+    gl846_setup_sensor(dev, sensor, sensor_profile, reg);
 
     // start and end coordinate in optical dpi coordinates
     unsigned startx = start / ccd_pixels_per_system_pixel + sensor.CCD_start_xoffset;

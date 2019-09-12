@@ -760,8 +760,8 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
  * */
 static void gl124_setup_sensor(Genesys_Device * dev,
                                const Genesys_Sensor& sensor,
-                               Genesys_Register_Set * regs, unsigned dpihw,
-                               unsigned ccd_size_divisor)
+                               const SensorProfile& sensor_profile,
+                               Genesys_Register_Set * regs)
 {
     DBG_HELPER(dbg);
   uint32_t exp;
@@ -776,9 +776,6 @@ static void gl124_setup_sensor(Genesys_Device * dev,
     for (uint16_t addr = 0x52; addr < 0x52 + 11; addr++) {
         regs->set8(addr, sensor.custom_regs.get_value(addr));
     }
-
-    // set EXPDUMMY and CKxMAP
-    const auto& sensor_profile = get_sensor_profile(sensor, dpihw, ccd_size_divisor);
 
     for (auto reg : sensor_profile.custom_regs) {
         regs->set8(reg.address, reg.value);
@@ -845,7 +842,8 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG (DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
     // sensor parameters
-    gl124_setup_sensor(dev, sensor, reg, dpihw, session.ccd_size_divisor);
+    const auto& sensor_profile = get_sensor_profile(sensor, dpihw, session.ccd_size_divisor);
+    gl124_setup_sensor(dev, sensor, sensor_profile, reg);
 
   /* start and end coordinate in optical dpi coordinates */
   /* startx = start / ccd_pixels_per_system_pixel + sensor.dummy_pixel; XXX STEF XXX */

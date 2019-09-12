@@ -1324,17 +1324,24 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
         s.segment_count = sensor_profile->get_segment_count();
     }
 
+    s.optical_pixels_raw = s.optical_pixels;
     s.conseq_pixel_dist_bytes = 0;
 
     if (dev->model->asic_type == AsicType::GL845 ||
         dev->model->asic_type == AsicType::GL846 ||
         dev->model->asic_type == AsicType::GL847)
     {
-        // in case of multi-segments sensor, we have to add the witdh of the sensor crossed by the
-        // scan area
         if (s.segment_count > 1) {
             s.conseq_pixel_dist_bytes = sensor_profile->segment_size;
-            // TODO: apply to optical_pixels_raw before the multiply below
+
+            // in case of multi-segments sensor, we have to add the width of the sensor crossed by
+            // the scan area
+            unsigned extra_segment_scan_area = align_multiple_ceil(s.conseq_pixel_dist_bytes, 2);
+            extra_segment_scan_area *= s.segment_count - 1;
+            extra_segment_scan_area *= s.hwdpi_divisor * s.segment_count;
+            extra_segment_scan_area *= ccd_pixels_per_system_pixel;
+
+            s.optical_pixels_raw += extra_segment_scan_area;
             s.conseq_pixel_dist_bytes = multiply_by_depth_ceil(s.conseq_pixel_dist_bytes,
                                                                s.params.depth);
         }
@@ -2018,6 +2025,7 @@ void debug_dump(unsigned level, const ScanSession& session)
     DBG(level, "    ccd_size_divisor : %d\n", session.ccd_size_divisor);
     DBG(level, "    optical_resolution : %d\n", session.optical_resolution);
     DBG(level, "    optical_pixels : %d\n", session.optical_pixels);
+    DBG(level, "    optical_pixels_raw : %d\n", session.optical_pixels_raw);
     DBG(level, "    output_resolution : %d\n", session.output_resolution);
     DBG(level, "    output_pixels : %d\n", session.output_pixels);
     DBG(level, "    output_line_bytes : %d\n", session.output_line_bytes);

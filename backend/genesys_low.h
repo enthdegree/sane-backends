@@ -649,6 +649,16 @@ inline T abs_diff(T a, T b)
     }
 }
 
+inline uint64_t align_multiple_floor(uint64_t x, uint64_t multiple)
+{
+    return (x / multiple) * multiple;
+}
+
+inline uint64_t align_multiple_ceil(uint64_t x, uint64_t multiple)
+{
+    return ((x + multiple - 1) / multiple) * multiple;
+}
+
 inline unsigned multiply_by_depth_ceil(unsigned pixels, unsigned depth)
 {
     if (depth == 1) {

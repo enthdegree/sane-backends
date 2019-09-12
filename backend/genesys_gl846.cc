@@ -708,17 +708,14 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         start |= 1;
     }
     unsigned startx = start + sensor.CCD_start_xoffset * ccd_pixels_per_system_pixel;
-    unsigned endx = startx + session.optical_pixels;
+    unsigned endx = startx + session.optical_pixels_raw;
 
     // compute pixel coordinate in the given dpihw space, taking segments into account
     startx /= session.hwdpi_divisor * session.segment_count;
     endx /= session.hwdpi_divisor * session.segment_count;
-    dev->deseg.pixel_groups = (endx - startx) / ccd_pixels_per_system_pixel;
-    dev->deseg.conseq_pixel_dist_bytes = 0;
+    dev->deseg.pixel_groups = session.optical_pixels /
+            (session.hwdpi_divisor * session.segment_count * ccd_pixels_per_system_pixel);
     dev->deseg.skip_bytes = 0;
-
-  /* use a segcnt rounded to next even number */
-     endx += ((session.conseq_pixel_dist_bytes + 1) & 0xfffe) * (session.segment_count - 1) * ccd_pixels_per_system_pixel;
 
     gl846_set_fe(dev, sensor, AFE_SET);
 

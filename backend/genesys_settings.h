@@ -227,8 +227,12 @@ struct ScanSession {
     // the optical resolution of the scanner.
     unsigned optical_resolution = 0;
 
-    // the number of pixels at the optical resolution.
+    // the number of pixels at the optical resolution, not including segmentation overhead.
     unsigned optical_pixels = 0;
+
+    // the number of pixels at the optical resolution, including segmentation overhead.
+    // only on gl846, g847
+    unsigned optical_pixels_raw = 0;
 
     // the resolution of the output data.
     // gl843-only

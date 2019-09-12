@@ -768,7 +768,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   /* in cas of multi-segments sensor, we have to add the witdh
    * of the sensor crossed by the scan area */
     if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR && segnb > 1) {
-        dev->deseg.conseq_pixel_dist_bytes = sensor_profile.segment_count;
+        dev->deseg.conseq_pixel_dist_bytes = sensor_profile.segment_size;
     }
 
   /* use a segcnt rounded to next even number */

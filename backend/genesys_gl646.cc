@@ -327,7 +327,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
     debug_dump(DBG_info, sensor);
 
-    int resolution = session.params.xres;
     uint32_t move = session.params.starty;
     uint32_t linecnt = session.params.lines;
 
@@ -365,17 +364,9 @@ static void gl646_setup_registers(Genesys_Device* dev,
     int words_per_line;
   size_t requested_buffer_size;
   size_t read_buffer_size;
-  SANE_Int xresolution;
   int feedl;
 
   DBG(DBG_info, "%s: startx=%d, endx=%d, linecnt=%d\n", __func__, startx, endx, linecnt);
-
-  /* x resolution is capped by sensor's capability */
-     if (static_cast<unsigned>(resolution) > session.optical_resolution) {
-        xresolution = session.optical_resolution;
-    } else {
-      xresolution = resolution;
-    }
 
   /* for the given resolution, search for master
    * motor mode setting */
@@ -747,10 +738,10 @@ static void gl646_setup_registers(Genesys_Device* dev,
     (regs->find_reg(0x6c).value & REG6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16)
 								   & 0x07);
 
-    write_control(dev, sensor, xresolution);
+    write_control(dev, sensor, session.output_resolution);
 
     // setup analog frontend
-    gl646_set_fe(dev, sensor, AFE_SET, xresolution);
+    gl646_set_fe(dev, sensor, AFE_SET, session.output_resolution);
 
   /* now we're done with registers setup values used by data transfer */
   /* we setup values needed for the data transfer */

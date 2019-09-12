@@ -804,11 +804,10 @@ static void gl646_setup_registers(Genesys_Device* dev,
    */
     dev->total_bytes_read = 0;
     if (session.params.depth == 1) {
-        // BUG: should use settings.requested_pixels
-        dev->total_bytes_to_read = ((session.params.pixels * session.params.lines) / 8 +
-            (((session.params.pixels * session.params.lines) % 8) ? 1 : 0)) * session.params.channels;
+        dev->total_bytes_to_read = ((session.params.requested_pixels * session.params.lines) / 8 +
+            (((session.params.requested_pixels * session.params.lines) % 8) ? 1 : 0)) * session.params.channels;
     } else {
-        dev->total_bytes_to_read = session.params.pixels * session.params.lines * session.params.channels * bpp;
+        dev->total_bytes_to_read = session.params.requested_pixels * session.params.lines * session.params.channels * bpp;
     }
 
     /* select color filter based on settings */
@@ -1881,6 +1880,7 @@ static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
   settings.tl_x = 0;
   settings.tl_y = 0;
   settings.pixels = 600;
+    settings.requested_pixels = settings.pixels;
   settings.lines = 1;
   settings.depth = 8;
   settings.color_filter = ColorFilter::RED;
@@ -1973,6 +1973,7 @@ static void gl646_search_start_position(Genesys_Device* dev)
   settings.tl_x = 0;
   settings.tl_y = 0;
   settings.pixels = 600;
+    settings.requested_pixels = settings.pixels;
   settings.lines = dev->model->search_lines;
   settings.depth = 8;
   settings.color_filter = ColorFilter::RED;
@@ -2067,6 +2068,7 @@ static void gl646_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
   settings.tl_x = 0;
   settings.tl_y = 0;
     settings.pixels = (calib_sensor.sensor_pixels * settings.xres) / calib_sensor.optical_res;
+    settings.requested_pixels = settings.pixels;
   dev->calib_lines = dev->model->shading_lines;
   settings.lines = dev->calib_lines * (3 - ccd_size_divisor);
   settings.depth = 16;
@@ -2216,6 +2218,7 @@ static void setup_for_scan(Genesys_Device* dev,
     session.params.startx = start;
     session.params.starty = move;
     session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
     session.params.lines = settings.lines;
     session.params.depth = depth;
     session.params.channels = settings.get_channels();
@@ -2329,8 +2332,8 @@ static SensorExposure gl646_led_calibration(Genesys_Device* dev, const Genesys_S
   settings.yres = resolution;
   settings.tl_x = 0;
   settings.tl_y = 0;
-  settings.pixels =
-    (sensor.sensor_pixels * resolution) / sensor.optical_res;
+    settings.pixels = (sensor.sensor_pixels * resolution) / sensor.optical_res;
+    settings.requested_pixels = settings.pixels;
   settings.lines = 1;
   settings.depth = 16;
   settings.color_filter = ColorFilter::RED;
@@ -2500,6 +2503,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   settings.tl_x = 0;
   settings.tl_y = 0;
     settings.pixels = (calib_sensor.sensor_pixels * resolution) / calib_sensor.optical_res;
+    settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
   settings.color_filter = ColorFilter::RED;
@@ -2579,7 +2583,6 @@ static void gl646_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
   unsigned int channels;
   int pass = 0, avg;
-  SANE_Int resolution;
   Genesys_Settings settings;
   int topavg, bottomavg;
   int top, bottom, black_pixels;
@@ -2596,11 +2599,7 @@ static void gl646_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
     channels = 3;
-    if (dev->settings.xres > sensor.optical_res) {
-        resolution = get_closest_resolution(dev->model->ccd_type, sensor.optical_res, channels);
-    } else {
-        resolution = get_closest_resolution(dev->model->ccd_type, dev->settings.xres, channels);
-    }
+    int resolution = get_closest_resolution(dev->model->ccd_type, dev->settings.xres, channels);
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, 3, ScanMethod::FLATBED);
     black_pixels = (calib_sensor.black_pixels * resolution) / calib_sensor.optical_res;
@@ -2614,6 +2613,7 @@ static void gl646_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   settings.tl_x = 0;
   settings.tl_y = 0;
     settings.pixels = (calib_sensor.sensor_pixels * resolution) / calib_sensor.optical_res;
+    settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
   settings.color_filter = ColorFilter::RED;
@@ -2743,6 +2743,7 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   settings.tl_x = 0;
   settings.tl_y = 0;
     settings.pixels = (calib_sensor.sensor_pixels * resolution) / calib_sensor.optical_res;
+    settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
   settings.color_filter = ColorFilter::RED;
@@ -2856,6 +2857,7 @@ static void gl646_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
       settings.tl_x = SANE_UNFIX (dev->model->x_offset_ta);
       settings.pixels = (SANE_UNFIX (dev->model->x_size_ta) * resolution) / MM_PER_INCH;
     }
+    settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
   settings.color_filter = ColorFilter::RED;
@@ -2998,6 +3000,7 @@ static void gl646_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor
   settings.tl_x = 0;
   settings.tl_y = 0;
     settings.pixels = (local_sensor.sensor_pixels * resolution) / local_sensor.optical_res;
+    settings.requested_pixels = settings.pixels;
   settings.lines = 2;
   settings.depth = 8;
   settings.color_filter = ColorFilter::RED;
@@ -3050,6 +3053,7 @@ static void gl646_repark_head(Genesys_Device* dev)
   settings.tl_x = 0;
   settings.tl_y = 5;
   settings.pixels = 600;
+    settings.requested_pixels = settings.pixels;
   settings.lines = 4;
   settings.depth = 8;
   settings.color_filter = ColorFilter::RED;
@@ -3452,8 +3456,8 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance)
   settings.yres = resolution;
   settings.tl_y = 0;
   settings.tl_x = 0;
-  settings.pixels =
-    (sensor.sensor_pixels * settings.xres) / sensor.optical_res;
+  settings.pixels = (sensor.sensor_pixels * settings.xres) / sensor.optical_res;
+    settings.requested_pixels = settings.pixels;
   settings.lines = (distance * settings.xres) / MM_PER_INCH;
   settings.depth = 8;
   settings.color_filter = ColorFilter::RED;
@@ -3751,6 +3755,7 @@ static void gl646_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
   settings.tl_y = 0;
   settings.pixels = (SANE_UNFIX (dev->model->x_size) * res) / MM_PER_INCH;
     settings.pixels /= calib_sensor.get_ccd_size_divisor_for_dpi(res);
+    settings.requested_pixels = settings.pixels;
 
   /* 15 mm at at time */
   settings.lines = (15 * settings.yres) / MM_PER_INCH;	/* may become a parameter from genesys_devices.c */

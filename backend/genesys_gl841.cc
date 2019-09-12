@@ -1883,8 +1883,8 @@ dummy \ scanned lines
 
     requested_buffer_size = 8 * session.output_line_bytes;
     // we must use a multiple of session.output_line_bytes
-    if (requested_buffer_size > sanei_genesys_get_bulk_max_size(dev)) {
-        requested_buffer_size = (sanei_genesys_get_bulk_max_size(dev) / session.output_line_bytes) * session.output_line_bytes;
+    if (requested_buffer_size > sanei_genesys_get_bulk_max_size(dev->model->asic_type)) {
+        requested_buffer_size = (sanei_genesys_get_bulk_max_size(dev->model->asic_type) / session.output_line_bytes) * session.output_line_bytes;
     }
 
     read_buffer_size = 2 * requested_buffer_size +

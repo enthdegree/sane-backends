@@ -183,7 +183,7 @@ void sanei_genesys_write_pnm_file16(const char* filename, uint16_t* data, unsign
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
 
-extern unsigned sanei_genesys_get_bulk_max_size(Genesys_Device * dev)
+unsigned sanei_genesys_get_bulk_max_size(AsicType asic_type)
 {
     /*  Genesys supports 0xFE00 maximum size in general, wheraus GL646 supports
         0xFFC0. We use 0xF000 because that's the packet limit in the Linux usbmon
@@ -191,9 +191,9 @@ extern unsigned sanei_genesys_get_bulk_max_size(Genesys_Device * dev)
         b_size is the size of the ring buffer. By default it's 300*1024, so the
         packet is limited 61440 without any visibility to acquiring software.
     */
-    if (dev->model->asic_type == AsicType::GL124 ||
-        dev->model->asic_type == AsicType::GL846 ||
-        dev->model->asic_type == AsicType::GL847)
+    if (asic_type == AsicType::GL124 ||
+        asic_type == AsicType::GL846 ||
+        asic_type == AsicType::GL847)
     {
         return 0xeff0;
     }
@@ -273,7 +273,7 @@ void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* d
     target = len;
     buffer = data;
 
-    size_t max_in_size = sanei_genesys_get_bulk_max_size(dev);
+    size_t max_in_size = sanei_genesys_get_bulk_max_size(dev->model->asic_type);
 
     if (!has_header_before_each_chunk) {
         sanei_genesys_bulk_read_data_send_header(dev, len);
@@ -318,7 +318,7 @@ void sanei_genesys_bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* d
     dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
                              1, &addr);
 
-    size_t max_out_size = sanei_genesys_get_bulk_max_size(dev);
+    size_t max_out_size = sanei_genesys_get_bulk_max_size(dev->model->asic_type);
 
     while (len) {
         if (len > max_out_size)
@@ -981,7 +981,7 @@ void sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, 
     // write addr and size for AHB
     dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x01, 8, outdata);
 
-  size_t max_out_size = sanei_genesys_get_bulk_max_size(dev);
+  size_t max_out_size = sanei_genesys_get_bulk_max_size(dev->model->asic_type);
 
   /* write actual data */
   written = 0;

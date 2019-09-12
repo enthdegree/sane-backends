@@ -195,9 +195,6 @@ struct Genesys_Model
 // Describes the geometry of the raw data coming out of the scanner for desegmentation.
 struct DesegmentationState
 {
-    // The number of bytes to skip at start of line. Currently it's always zero.
-    unsigned skip_bytes = 0;
-
     // The current byte during desegmentation process
     unsigned curr_byte = 0;
 };

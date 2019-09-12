@@ -281,6 +281,10 @@ struct ScanSession {
     // only on gl124, gl846, gl847
     unsigned output_segment_pixel_group_count = 0;
 
+    // The number of bytes to skip at start of line during desegmentation.
+    // Currently it's always zero.
+    unsigned output_segment_start_offset = 0;
+
     // the sizes of the corresponding buffers
     size_t buffer_size_read = 0;
     size_t buffer_size_lines = 0;

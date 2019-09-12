@@ -3484,7 +3484,7 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
                         k = count + (i * dev->session.segment_count) / 8;
                         for (unsigned n = 0; n < dev->session.segment_count; n++) {
                             work_buffer_dst[k] = work_buffer_dst[k] << 1;
-                            if ((dev->oe_buffer.get_read_pos()[dev->deseg.curr_byte + dev->deseg.skip_bytes + dev->session.conseq_pixel_dist_bytes * dev->segment_order[n]])&(128>>i)) {
+                            if ((dev->oe_buffer.get_read_pos()[dev->deseg.curr_byte + dev->session.output_segment_start_offset + dev->session.conseq_pixel_dist_bytes * dev->segment_order[n]])&(128>>i)) {
                                 work_buffer_dst[k] |= 1;
                             }
                         }
@@ -3498,7 +3498,7 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
             if (depth==8) {
                  while (dev->deseg.curr_byte < dev->session.output_segment_pixel_group_count && count < size) {
                     for (unsigned n = 0; n < dev->session.segment_count; n++) {
-                        work_buffer_dst[count+n] = dev->oe_buffer.get_read_pos()[dev->deseg.curr_byte + dev->deseg.skip_bytes + dev->session.conseq_pixel_dist_bytes *dev->segment_order[n]];
+                        work_buffer_dst[count+n] = dev->oe_buffer.get_read_pos()[dev->deseg.curr_byte + dev->session.output_segment_start_offset + dev->session.conseq_pixel_dist_bytes *dev->segment_order[n]];
                     }
                     /* update counter and pointer */
                     count += dev->session.segment_count;
@@ -3508,8 +3508,8 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
             if (depth==16) {
                 while (dev->deseg.curr_byte < dev->session.output_segment_pixel_group_count && count < size) {
                     for (unsigned n = 0; n < dev->session.segment_count; n++) {
-                        work_buffer_dst[count+n*2] = dev->oe_buffer.get_read_pos()[dev->deseg.curr_byte + dev->deseg.skip_bytes + dev->session.conseq_pixel_dist_bytes * dev->segment_order[n]];
-                        work_buffer_dst[count+n*2+1] = dev->oe_buffer.get_read_pos()[dev->deseg.curr_byte + dev->deseg.skip_bytes + dev->session.conseq_pixel_dist_bytes * dev->segment_order[n] + 1];
+                        work_buffer_dst[count+n*2] = dev->oe_buffer.get_read_pos()[dev->deseg.curr_byte + dev->session.output_segment_start_offset + dev->session.conseq_pixel_dist_bytes * dev->segment_order[n]];
+                        work_buffer_dst[count+n*2+1] = dev->oe_buffer.get_read_pos()[dev->deseg.curr_byte + dev->session.output_segment_start_offset + dev->session.conseq_pixel_dist_bytes * dev->segment_order[n] + 1];
                     }
                     /* update counter and pointer */
                     count += dev->session.segment_count * 2;

@@ -946,7 +946,6 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     DBG(DBG_io2, "%s: endpixel used=%d\n", __func__, endx / session.segment_count);
 
     dev->deseg.curr_byte = 0;
-    dev->deseg.skip_bytes = 0;
   dev->line_count = 0;
   dev->line_interp = 0;
 

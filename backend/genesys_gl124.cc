@@ -946,33 +946,33 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     DBG(DBG_io2, "%s: endpixel used=%d\n", __func__, endx / session.segment_count);
 
     // words(16bit) before gamma, conversion to 8 bit or lineart
-    dev->deseg.raw_channel_bytes =
+    dev->deseg.raw_line_bytes =
             multiply_by_depth_ceil(session.output_pixels / session.ccd_size_divisor,
                                    session.params.depth);
 
     dev->deseg.curr_byte = 0;
     dev->deseg.skip_bytes = 0;
-    dev->deseg.pixel_groups = dev->deseg.raw_channel_bytes / session.segment_count;
-    const_cast<ScanSession&>(session).conseq_pixel_dist_bytes = dev->deseg.raw_channel_bytes / session.segment_count;
+    dev->deseg.pixel_groups = dev->deseg.raw_line_bytes / session.segment_count;
+    const_cast<ScanSession&>(session).conseq_pixel_dist_bytes = dev->deseg.raw_line_bytes / session.segment_count;
   dev->line_count = 0;
   dev->line_interp = 0;
 
   DBG (DBG_io2, "%s: pixels          =%d\n", __func__, session.optical_pixels);
   DBG (DBG_io2, "%s: depth           =%d\n", __func__, session.params.depth);
-  DBG (DBG_io2, "%s: dev->bpl        =%lu\n", __func__, (unsigned long) dev->deseg.raw_channel_bytes);
+  DBG (DBG_io2, "%s: dev->bpl        =%lu\n", __func__, (unsigned long) dev->deseg.raw_line_bytes);
   DBG (DBG_io2, "%s: dev->len        =%lu\n", __func__, (unsigned long) dev->deseg.pixel_groups);
   DBG (DBG_io2, "%s: dev->line_interp=%lu\n", __func__, (unsigned long)dev->line_interp);
 
     // BUG: we shouldn't multiply by channels here
     dev->oe_buffer.clear();
-    dev->oe_buffer.alloc(dev->deseg.raw_channel_bytes * session.params.channels);
+    dev->oe_buffer.alloc(dev->deseg.raw_line_bytes * session.params.channels);
 
     // MAXWD is expressed in 2 words unit
 
     // BUG: we shouldn't multiply by channels here
-    reg->set24(REG_MAXWD, dev->deseg.raw_channel_bytes * session.params.channels);
+    reg->set24(REG_MAXWD, dev->deseg.raw_line_bytes * session.params.channels);
     DBG(DBG_io2, "%s: words_per_line used=%d\n", __func__,
-        dev->deseg.raw_channel_bytes * session.params.channels);
+        dev->deseg.raw_line_bytes * session.params.channels);
 
     reg->set24(REG_LPERIOD, exposure_time);
   DBG (DBG_io2, "%s: exposure_time used=%d\n", __func__, exposure_time);

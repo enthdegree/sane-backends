@@ -1929,7 +1929,7 @@ dummy \ scanned lines
   /*** prepares data reordering ***/
 
 /* words_per_line */
-    bytes_per_line = (session.optical_pixels * session.params.xres) / session.optical_resolution;
+    bytes_per_line = session.output_pixels;
     bytes_per_line = (bytes_per_line *  session.params.channels * session.params.depth) / 8;
 
   requested_buffer_size = 8 * bytes_per_line;
@@ -1960,7 +1960,7 @@ dummy \ scanned lines
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
-    dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / session.optical_resolution;
+    dev->current_setup.pixels = session.output_pixels;
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
     dev->current_setup.xres = session.params.xres;
@@ -2099,7 +2099,7 @@ dummy \ scanned lines
     lincnt = session.params.lines + max_shift + session.num_staggered_lines;
 
     dev->session = session;
-    dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / session.optical_resolution;
+    dev->current_setup.pixels = session.output_pixels;
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
     dev->current_setup.xres = session.params.xres;

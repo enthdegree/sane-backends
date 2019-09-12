@@ -1154,7 +1154,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /*** prepares data reordering ***/
 
   /* words_per_line */
-    bytes_per_line = (session.optical_pixels * session.params.xres) / session.optical_resolution;
+    bytes_per_line = session.output_pixels;
   bytes_per_line = (bytes_per_line * session.params.channels * session.params.depth) / 8;
 
   /* since we don't have sheetfed scanners to handle,
@@ -1184,7 +1184,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
-    dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / session.optical_resolution;
+    dev->current_setup.pixels = session.output_pixels;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
@@ -1265,7 +1265,7 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
     lincnt = session.params.lines + max_shift + session.num_staggered_lines;
 
     dev->session = session;
-    dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / sensor.optical_res;
+    dev->current_setup.pixels = session.output_pixels;
   DBG (DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;

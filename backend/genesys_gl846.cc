@@ -722,12 +722,9 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
  */
 static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
-                                         const ScanSession& session, int used_res,
-                                         unsigned int start, unsigned int pixels,
-                                         int channels, int depth, ColorFilter color_filter)
+                                         const ScanSession& session, unsigned int start)
 {
-    DBG_HELPER_ARGS(dbg, "exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d",
-                    exposure_time, used_res, start, pixels, channels, depth);
+    DBG_HELPER_ARGS(dbg, "exposure_time=%d, start=%d", exposure_time, start);
   unsigned int words_per_line;
     unsigned int dpiset, dpihw, segnb, factor;
   unsigned int bytes;
@@ -739,18 +736,18 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     // to manage high resolution device while keeping good low resolution scanning speed,
     // we make hardware dpi vary
-    dpihw = sensor.get_register_hwdpi(used_res * ccd_pixels_per_system_pixel);
+    dpihw = sensor.get_register_hwdpi(session.params.xres * ccd_pixels_per_system_pixel);
     factor = sensor.optical_res/dpihw;
     DBG(DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
     // sensor parameters
     const auto& sensor_profile = get_sensor_profile(sensor, dpihw);
   gl846_setup_sensor(dev, sensor, reg, dpihw);
-    dpiset = used_res * ccd_pixels_per_system_pixel ;
+    dpiset = session.params.xres * ccd_pixels_per_system_pixel ;
 
     // start and end coordinate in optical dpi coordinates
     unsigned startx = start / ccd_pixels_per_system_pixel + sensor.CCD_start_xoffset;
-    unsigned endx = startx + pixels / ccd_pixels_per_system_pixel;
+    unsigned endx = startx + session.optical_pixels / ccd_pixels_per_system_pixel;
 
   /* sensors are built from 600 dpi segments for LiDE 100/200
    * and 1200 dpi for the 700F */
@@ -810,7 +807,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* monochrome / color scan */
   r = sanei_genesys_get_address (reg, REG04);
-  switch (depth)
+  switch (session.params.depth)
     {
     case 1:
       r->value &= ~REG04_BITSET;
@@ -826,9 +823,9 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
   r->value &= ~(REG04_FILTER | REG04_AFEMOD);
-  if (channels == 1)
+  if (session.params.channels == 1)
     {
-      switch (color_filter)
+      switch (session.params.color_filter)
         {
             case ColorFilter::RED:
                 r->value |= 0x24;
@@ -876,8 +873,8 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* words(16bit) before gamma, conversion to 8 bit or lineart*/
   words_per_line = (used_pixels * dpiset) / dpihw;
-  bytes=depth/8;
-  if (depth == 1)
+  bytes=session.params.depth/8;
+  if (session.params.depth == 1)
     {
       words_per_line = (words_per_line+7)/8 ;
       dev->len = (dev->len >> 3) + ((dev->len & 7) ? 1 : 0);
@@ -904,14 +901,14 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG (DBG_io2, "%s: endx  =%d\n", __func__, endx);
 
   DBG (DBG_io2, "%s: used_pixels=%d\n", __func__, used_pixels);
-  DBG (DBG_io2, "%s: pixels     =%d\n", __func__, pixels);
-  DBG (DBG_io2, "%s: depth      =%d\n", __func__, depth);
+  DBG (DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
+  DBG (DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
   DBG (DBG_io2, "%s: dev->bpl   =%lu\n", __func__, (unsigned long)dev->bpl);
   DBG (DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long)dev->len);
   DBG (DBG_io2, "%s: dev->dist  =%lu\n", __func__, (unsigned long)dev->dist);
   DBG (DBG_io2, "%s: dev->segnb =%lu\n", __func__, (unsigned long)dev->segnb);
 
-  words_per_line *= channels;
+  words_per_line *= session.params.channels;
   dev->wpl = words_per_line;
 
     dev->oe_buffer.clear();
@@ -1001,9 +998,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
    */
-    gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, session.params.xres, start,
-                                 session.optical_pixels, session.params.channels, session.params.depth,
-                                 session.params.color_filter);
+    gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, start);
 
 /*** motor parameters ***/
 

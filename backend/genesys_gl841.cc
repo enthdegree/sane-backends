@@ -1453,27 +1453,21 @@ static void gl841_init_optical_regs_off(Genesys_Register_Set* reg)
 
 static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
-                                         const ScanSession& session, unsigned int used_res,
-                                         unsigned int start,
-                                         unsigned int pixels, int channels,
-                                         int depth, unsigned ccd_size_divisor,
-                                         ColorFilter color_filter)
+                                         const ScanSession& session, unsigned int start)
 {
-    DBG_HELPER_ARGS(dbg, "exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, "
-                         "depth=%d, ccd_size_divisor=%d",
-                    exposure_time, used_res, start, pixels, channels, depth, ccd_size_divisor);
+    DBG_HELPER_ARGS(dbg, "exposure_time=%d, start=%d", exposure_time, start);
     unsigned int words_per_line;
     unsigned int end;
     unsigned int dpiset;
     GenesysRegister* r;
     uint16_t expavg, expr, expb, expg;
 
-    end = start + pixels;
+    end = start + session.optical_pixels;
 
     gl841_set_fe(dev, sensor, AFE_SET);
 
     /* adjust used_res for chosen dpihw */
-    used_res = used_res * gl841_get_dpihw(dev) / sensor.optical_res;
+    unsigned used_res = session.params.xres * gl841_get_dpihw(dev) / sensor.optical_res;
 
 /*
   with ccd_size_divisor==2 the optical resolution of the ccd is halved. We don't apply this
@@ -1482,13 +1476,13 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   For the scanner only the ratio of dpiset and dpihw is of relevance to scale
   down properly.
 */
-    dpiset = used_res * ccd_size_divisor;
+    dpiset = used_res * session.ccd_size_divisor;
 
     /* gpio part.*/
     if (dev->model->gpo_type == GPO_CANONLIDE35)
       {
 	r = sanei_genesys_get_address (reg, REG6C);
-        if (ccd_size_divisor > 1) {
+        if (session.ccd_size_divisor > 1) {
             r->value &= ~0x80;
         } else {
             r->value |= 0x80;
@@ -1497,7 +1491,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     if (dev->model->gpo_type == GPO_CANONLIDE80)
       {
 	r = sanei_genesys_get_address (reg, REG6C);
-        if (ccd_size_divisor > 1) {
+        if (session.ccd_size_divisor > 1) {
 	    r->value &= ~0x40;
 	    r->value |= 0x20;
         } else {
@@ -1534,7 +1528,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     /* monochrome / color scan */
     r = sanei_genesys_get_address (reg, 0x04);
-    switch (depth) {
+    switch (session.params.depth) {
 	case 1:
 	    r->value &= ~REG04_BITSET;
 	    r->value |= REG04_LINEART;
@@ -1554,9 +1548,9 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     if (session.params.flags & SCAN_FLAG_ENABLE_LEDADD) {
         r->value |= 0x10;	/* no filter */
     }
-    else if (channels == 1)
+    else if (session.params.channels == 1)
       {
-	switch (color_filter)
+    switch (session.params.color_filter)
 	  {
             case ColorFilter::RED:
                 r->value |= 0x14;
@@ -1614,7 +1608,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
     /* sensor parameters */
-    sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 1, ccd_size_divisor);
+    sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 1, session.ccd_size_divisor);
 
     r = sanei_genesys_get_address (reg, 0x29);
     r->value = 255; /*<<<"magic" number, only suitable for cis*/
@@ -1625,14 +1619,14 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     DBG(DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d\n", __func__, start, end);
 
     /* words(16bit) before gamma, conversion to 8 bit or lineart*/
-    words_per_line = (pixels * dpiset) / gl841_get_dpihw(dev);
+    words_per_line = (session.optical_pixels * dpiset) / gl841_get_dpihw(dev);
 
-    words_per_line *= channels;
+    words_per_line *= session.params.channels;
 
-    if (depth == 1)
+    if (session.params.depth == 1)
 	words_per_line = (words_per_line >> 3) + ((words_per_line & 7)?1:0);
     else
-	words_per_line *= depth / 8;
+    words_per_line *= session.params.depth / 8;
 
     dev->wpl = words_per_line;
     dev->bpl = words_per_line;
@@ -1883,10 +1877,7 @@ dummy \ scanned lines
         session.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
     }
 
-    gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, session.params.xres, start,
-                                 session.optical_pixels, session.params.channels,
-                                 session.params.depth, session.ccd_size_divisor,
-                                 session.params.color_filter);
+    gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, start);
 
     move = session.params.starty;
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);

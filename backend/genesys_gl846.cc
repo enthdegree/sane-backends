@@ -951,7 +951,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     session.assert_computed();
 
     int start;
-  int bytes_per_line;
   int move;
   unsigned int mflags; /**> motor flags */
   int exposure_time;
@@ -1027,15 +1026,10 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   /*** prepares data reordering ***/
 
-/* words_per_line */
-    bytes_per_line = session.output_pixels;
-    bytes_per_line = (bytes_per_line * session.params.channels * session.params.depth) / 8;
-
-  requested_buffer_size = 8 * bytes_per_line;
+    requested_buffer_size = 8 * session.output_line_bytes;
 
     read_buffer_size = 2 * requested_buffer_size +
-            ((session.max_color_shift_lines + session.num_staggered_lines) * session.optical_pixels * session.params.channels *
-             session.params.depth) / 8;
+            (session.max_color_shift_lines + session.num_staggered_lines) * session.optical_line_bytes;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -1049,7 +1043,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->out_buffer.clear();
     dev->out_buffer.alloc((8 * session.params.pixels * session.params.channels * session.params.depth) / 8);
 
-    dev->read_bytes_left = bytes_per_line * session.output_line_count;
+    dev->read_bytes_left = session.output_line_bytes * session.output_line_count;
 
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;

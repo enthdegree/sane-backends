@@ -1763,7 +1763,6 @@ static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     session.assert_computed();
 
     int start;
-  int bytes_per_line;
   int move;
   int exposure_time;
   int avg;
@@ -1920,19 +1919,14 @@ dummy \ scanned lines
 
   /*** prepares data reordering ***/
 
-/* words_per_line */
-    bytes_per_line = session.output_pixels;
-    bytes_per_line = (bytes_per_line *  session.params.channels * session.params.depth) / 8;
-
-  requested_buffer_size = 8 * bytes_per_line;
-  /* we must use a round number of bytes_per_line */
+    requested_buffer_size = 8 * session.output_line_bytes;
+    // we must use a multiple of session.output_line_bytes
     if (requested_buffer_size > sanei_genesys_get_bulk_max_size(dev)) {
-        requested_buffer_size = (sanei_genesys_get_bulk_max_size(dev) / bytes_per_line) * bytes_per_line;
+        requested_buffer_size = (sanei_genesys_get_bulk_max_size(dev) / session.output_line_bytes) * session.output_line_bytes;
     }
 
     read_buffer_size = 2 * requested_buffer_size +
-        ((session.max_color_shift_lines + session.num_staggered_lines) * session.optical_pixels *
-         session.params.channels * session.params.depth) / 8;
+        (session.max_color_shift_lines + session.num_staggered_lines) * session.optical_line_bytes;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -1946,7 +1940,7 @@ dummy \ scanned lines
     dev->out_buffer.clear();
     dev->out_buffer.alloc((8 * dev->settings.pixels *  session.params.channels * session.params.depth) / 8);
 
-    dev->read_bytes_left = bytes_per_line * session.output_line_count;
+    dev->read_bytes_left = session.output_line_bytes * session.output_line_count;
 
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;

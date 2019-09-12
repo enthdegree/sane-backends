@@ -1157,12 +1157,8 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->set16(REG_STRPIXEL, session.pixel_startx);
     reg->set16(REG_ENDPIXEL, session.pixel_endx);
 
-    // words(16bit) before gamma, conversion to 8 bit or lineart */
-    // FIXME: this computation differs from session.output_line_bytes
-    unsigned words_per_line = (session.output_pixels / session.ccd_size_divisor) * (session.params.depth / 8);
-
-    dev->wpl = words_per_line; // FIXME: this is not currently used
-    dev->bpl = words_per_line; // FIXME: this is not currently used
+    dev->wpl = session.output_line_channel_bytes; // FIXME: this is not currently used
+    dev->bpl = session.output_line_channel_bytes; // FIXME: this is not currently used
 
   DBG(DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
   DBG(DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
@@ -1170,12 +1166,10 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG(DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long)dev->len);
   DBG(DBG_io2, "%s: dev->dist  =%lu\n", __func__, (unsigned long)dev->dist);
 
-  words_per_line *= session.params.channels;
-
   /* MAXWD is expressed in 2 words unit */
   /* nousedspace = (mem_bank_range * 1024 / 256 -1 ) * 4; */
-    reg->set24(REG_MAXWD, (words_per_line) >> 1);
-  DBG(DBG_io2, "%s: words_per_line used=%d\n", __func__, words_per_line);
+    // BUG: the division by ccd_size_divisor likely does not make sense
+    reg->set24(REG_MAXWD, (session.output_line_bytes / session.ccd_size_divisor) >> 1);
 
     reg->set16(REG_LPERIOD, exposure / tgtime);
   DBG(DBG_io2, "%s: exposure used=%d\n", __func__, exposure/tgtime);
@@ -1193,8 +1187,6 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
     // compute optical and output resolutions
     s.hwdpi_divisor = sensor.get_hwdpi_divisor_for_dpi(s.params.xres);
 
-    s.optical_line_bytes = (s.optical_pixels * s.params.channels * s.params.depth) / 8;
-    s.output_line_bytes = (s.output_pixels * s.params.channels * s.params.depth) / 8;
 
     // compute physical pixel positions
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();

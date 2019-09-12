@@ -1157,7 +1157,6 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->set16(REG_STRPIXEL, session.pixel_startx);
     reg->set16(REG_ENDPIXEL, session.pixel_endx);
 
-    dev->deseg.raw_line_bytes = session.output_channel_bytes; // FIXME: this is not currently used
     dev->deseg.raw_channel_bytes = session.output_channel_bytes; // FIXME: this is not currently used
 
   DBG(DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
@@ -1583,7 +1582,7 @@ static void gl843_detect_document_end(Genesys_Device* dev)
 
         // number of bytes to read from scanner to get document out of it after
         // end of document dectected by hardware sensor */
-        bytes_to_flush = lines * dev->deseg.raw_line_bytes;
+        bytes_to_flush = lines * dev->deseg.raw_channel_bytes;
 
       /* if we are already close to end of scan, flushing isn't needed */
       if (bytes_to_flush < read_bytes_left)

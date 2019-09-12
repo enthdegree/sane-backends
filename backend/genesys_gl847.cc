@@ -851,14 +851,12 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG (DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long) dev->deseg.pixel_groups);
   DBG (DBG_io2, "%s: dev->segnb =%lu\n", __func__, (unsigned long) dev->session.segment_count);
 
-    dev->deseg.raw_line_bytes = dev->deseg.raw_channel_bytes * session.params.channels;
-
+    // BUG: we shouldn't multiply by channels here
     dev->oe_buffer.clear();
-    dev->oe_buffer.alloc(dev->deseg.raw_line_bytes);
+    dev->oe_buffer.alloc(dev->deseg.raw_channel_bytes * session.params.channels);
 
   /* MAXWD is expressed in 4 words unit */
-    reg->set24(REG_MAXWD, (dev->deseg.raw_line_bytes >> 2));
-    DBG(DBG_io2, "%s: words_per_line used=%d\n", __func__, dev->deseg.raw_line_bytes);
+    reg->set24(REG_MAXWD, (dev->deseg.raw_channel_bytes * session.params.channels >> 2));
 
     reg->set16(REG_LPERIOD, exposure_time);
   DBG(DBG_io2, "%s: exposure_time used=%d\n", __func__, exposure_time);

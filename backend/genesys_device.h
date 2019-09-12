@@ -202,11 +202,8 @@ struct DesegmentationState
     // scanned from a single segment
     unsigned pixel_groups = 0;
 
-    // Total bytes in a channel received from a scanner
-    unsigned raw_channel_bytes = 0;
-
     // Total bytes in a line received from a scanner
-    unsigned raw_line_bytes = 0;
+    unsigned raw_channel_bytes = 0;
 
     // The current byte during desegmentation process
     unsigned curr_byte = 0;

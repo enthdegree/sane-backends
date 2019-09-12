@@ -564,7 +564,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
         session.ccd_size_divisor);
 
     dev->deseg.raw_channel_bytes = session.output_channel_bytes;
-    dev->deseg.raw_line_bytes = session.output_line_bytes;
 
     regs->set24(REG_MAXWD, session.output_line_bytes);
 
@@ -1511,7 +1510,7 @@ static void gl646_detect_document_end(Genesys_Device* dev)
       /* we add the number of lines needed to read the last part of the document in */
         lines = (SANE_UNFIX(dev->model->y_offset) * dev->session.params.yres) / MM_PER_INCH;
       DBG(DBG_io, "%s: adding %d line to flush\n", __func__, lines);
-        bytes_left += lines * dev->deseg.raw_line_bytes;
+        bytes_left += lines * dev->deseg.raw_channel_bytes;
 
         if (dev->session.params.depth > 8) {
 	  bytes_left = 2 * bytes_left;

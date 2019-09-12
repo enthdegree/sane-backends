@@ -1322,9 +1322,10 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->out_buffer.alloc((8 * session.params.pixels * session.params.channels *
                            session.params.depth) / 8);
 
-  dev->read_bytes_left = session.output_line_bytes * session.output_line_count;
+  dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
 
-  DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
+    DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__,
+        (u_long) dev->read_bytes_left_after_deseg);
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
@@ -1569,7 +1570,7 @@ static void gl843_detect_document_end(Genesys_Device* dev)
 
         unsigned channels = dev->session.params.channels;
         unsigned depth = dev->session.params.depth;
-      read_bytes_left = (int) dev->read_bytes_left;
+      read_bytes_left = (int) dev->read_bytes_left_after_deseg;
       DBG(DBG_io, "%s: read_bytes_left=%d\n", __func__, read_bytes_left);
 
         // get lines read
@@ -1641,16 +1642,13 @@ static void gl843_detect_document_end(Genesys_Device* dev)
 
 	      dev->total_bytes_to_read -= sub_bytes;
 
-	      /* then adjust the physical bytes to read */
-	      if (read_bytes_left > sub_bytes)
-		{
-		  dev->read_bytes_left -= sub_bytes;
-		}
-	      else
-		{
-		  dev->total_bytes_to_read = dev->total_bytes_read;
-		  dev->read_bytes_left = 0;
-		}
+          /* then adjust the desegmented bytes to read */
+            if (read_bytes_left > sub_bytes) {
+                dev->read_bytes_left_after_deseg -= sub_bytes;
+            } else {
+                dev->total_bytes_to_read = dev->total_bytes_read;
+                dev->read_bytes_left_after_deseg = 0;
+            }
 
 	      DBG(DBG_io, "%s: sublines=%d\n", __func__, sublines);
 	      DBG(DBG_io, "%s: subbytes=%d\n", __func__, sub_bytes);
@@ -2154,7 +2152,7 @@ static void gl843_search_start_position(Genesys_Device* dev)
     // send to scanner
     dev->write_registers(local_reg);
 
-  size = dev->read_bytes_left;
+    size = dev->read_bytes_left_after_deseg;
 
   std::vector<uint8_t> data(size);
 
@@ -2392,7 +2390,7 @@ static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
   // the pixel number may be updated to conform to scanner constraints
   dev->calib_pixels = dev->current_setup.pixels;
 
-  dev->calib_total_bytes_to_read = dev->read_bytes_left;
+    dev->calib_total_bytes_to_read = dev->read_bytes_left_after_deseg;
 
   dev->scanhead_position_in_steps += dev->calib_lines + move;
 
@@ -2574,7 +2572,7 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
 
     dev->write_registers(regs);
 
-  total_size = dev->read_bytes_left;
+    total_size = dev->read_bytes_left_after_deseg;
 
   std::vector<uint8_t> line(total_size);
 
@@ -2812,8 +2810,8 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
   sanei_genesys_set_motor_power(regs, false);
 
-  /* allocate memory for scans */
-  total_size = dev->read_bytes_left;
+    // allocate memory for scans
+    total_size = dev->read_bytes_left_after_deseg;
 
   std::vector<uint8_t> first_line(total_size);
   std::vector<uint8_t> second_line(total_size);
@@ -3042,7 +3040,7 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
     dev->write_registers(regs);
 
-  total_size = dev->read_bytes_left;
+    total_size = dev->read_bytes_left_after_deseg;
 
   std::vector<uint8_t> line(total_size);
 
@@ -3417,7 +3415,7 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 
     gl843_init_scan_regs(dev, calib_sensor, &local_reg, session);
 
-  size = dev->read_bytes_left;
+    size = dev->read_bytes_left_after_deseg;
   std::vector<uint8_t> data(size);
 
   /* set up for reverse or forward */

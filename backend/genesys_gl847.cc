@@ -1041,9 +1041,11 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->out_buffer.clear();
     dev->out_buffer.alloc((8 * session.params.pixels * session.params.channels * session.params.depth) / 8);
 
-    dev->read_bytes_left = session.output_line_bytes * session.output_line_count;
+    dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
 
-  DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
+    DBG(DBG_info, "%s: desegment bytes to read = %lu\n", __func__,
+        (u_long) dev->read_bytes_left_after_deseg);
+
   dev->read_active = SANE_TRUE;
 
     dev->session = session;

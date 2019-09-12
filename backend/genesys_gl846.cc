@@ -726,7 +726,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d, start=%d", exposure_time, start);
   unsigned int words_per_line;
-    unsigned int dpiset, dpihw, segnb, factor;
+    unsigned int dpihw, segnb, factor;
   GenesysRegister *r;
 
     // resolution is divided according to ccd_pixels_per_system_pixel()
@@ -742,7 +742,6 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // sensor parameters
     const auto& sensor_profile = get_sensor_profile(sensor, dpihw);
   gl846_setup_sensor(dev, sensor, reg, dpihw);
-    dpiset = session.params.xres * ccd_pixels_per_system_pixel ;
 
     // start and end coordinate in optical dpi coordinates
     unsigned startx = start / ccd_pixels_per_system_pixel + sensor.CCD_start_xoffset;
@@ -871,7 +870,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
   /* words(16bit) before gamma, conversion to 8 bit or lineart*/
-  words_per_line = (used_pixels * dpiset) / dpihw;
+  words_per_line = (used_pixels * session.params.xres * ccd_pixels_per_system_pixel) / sensor.get_register_hwdpi(session.params.xres * ccd_pixels_per_system_pixel);
     words_per_line = multiply_by_depth_ceil(words_per_line, session.params.depth);
     dev->len = multiply_by_depth_ceil(dev->len, session.params.depth);
     dev->dist = multiply_by_depth_ceil(dev->dist, session.params.depth);
@@ -881,8 +880,9 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   dev->segnb=segnb;
   dev->line_interp = 0;
 
-    reg->set16(REG_DPISET,dpiset);
-    DBG (DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);
+    unsigned dpiset = session.params.xres * ccd_pixels_per_system_pixel;
+    reg->set16(REG_DPISET, dpiset);
+    DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);
 
     reg->set16(REG_STRPIXEL,startx);
     reg->set16(REG_ENDPIXEL,endx);
@@ -1027,9 +1027,10 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->out_buffer.clear();
     dev->out_buffer.alloc((8 * session.params.pixels * session.params.channels * session.params.depth) / 8);
 
-    dev->read_bytes_left = session.output_line_bytes * session.output_line_count;
+    dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
 
-  DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
+    DBG(DBG_info, "%s: desegmented bytes to read = %lu\n", __func__,
+        (u_long) dev->read_bytes_left_after_deseg);
   dev->read_active = SANE_TRUE;
 
     dev->session = session;

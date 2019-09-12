@@ -1324,7 +1324,7 @@ const SensorProfile& get_sensor_profile(AsicType asic_type, const Genesys_Sensor
     // default fallback
     if (best_i < 0) {
         DBG(DBG_warn, "%s: using default sensor profile\n", __func__);
-        if (asic_type == AsicType::GL123 || asic_type == AsicType::GL124)
+        if (asic_type == AsicType::GL124)
             return *s_fallback_sensor_profile_gl124;
         if (asic_type == AsicType::GL845 || asic_type == AsicType::GL846)
             return *s_fallback_sensor_profile_gl846;

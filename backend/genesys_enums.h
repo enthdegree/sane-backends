@@ -301,7 +301,6 @@ enum class AsicType : unsigned
     GL845,
     GL846,
     GL847,
-    GL123,
     GL124,
 };
 

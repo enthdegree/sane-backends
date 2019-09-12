@@ -1293,6 +1293,19 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     s.output_channel_bytes = multiply_by_depth_ceil(s.output_pixels, s.params.depth);
     s.output_line_bytes = s.output_channel_bytes * s.params.channels;
 
+    s.segment_count = 1;
+    if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR || dev->model->asic_type == AsicType::GL124) {
+        unsigned ccd_size_divisor_for_profile = 1;
+        if (dev->model->asic_type == AsicType::GL124) {
+            ccd_size_divisor_for_profile = s.ccd_size_divisor;
+        }
+        unsigned dpihw = sensor.get_register_hwdpi(s.output_resolution * ccd_pixels_per_system_pixel);
+
+        const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw,
+                                                        ccd_size_divisor_for_profile);
+        s.segment_count = sensor_profile.get_segment_count();
+    }
+
     compute_session_buffer_sizes(dev->model->asic_type, s);
 }
 
@@ -1976,6 +1989,7 @@ void debug_dump(unsigned level, const ScanSession& session)
     DBG(level, "    num_staggered_lines : %d\n", session.num_staggered_lines);
     DBG(level, "    max_color_shift_lines : %d\n", session.max_color_shift_lines);
     DBG(level, "    enable_ledadd : %d\n", session.enable_ledadd);
+    DBG(level, "    segment_count : %d\n", session.segment_count);
     DBG(level, "    pixel_startx : %d\n", session.pixel_startx);
     DBG(level, "    pixel_endx : %d\n", session.pixel_endx);
     DBG(level, "    buffer_size_read : %zu\n", session.buffer_size_read);

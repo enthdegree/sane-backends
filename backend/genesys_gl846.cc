@@ -710,23 +710,21 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     unsigned startx = start / ccd_pixels_per_system_pixel + sensor.CCD_start_xoffset;
     unsigned endx = startx + session.optical_pixels / ccd_pixels_per_system_pixel;
 
-    unsigned segment_count = sensor_profile.get_segment_count();
-
     // compute pixel coordinate in the given dpihw space, taking segments into account
-    startx /= session.hwdpi_divisor * segment_count;
-    endx /= session.hwdpi_divisor * segment_count;
+    startx /= session.hwdpi_divisor * session.segment_count;
+    endx /= session.hwdpi_divisor * session.segment_count;
     dev->deseg.pixel_groups = endx - startx;
     dev->deseg.conseq_pixel_dist_bytes = 0;
     dev->deseg.skip_bytes = 0;
 
   /* in cas of multi-segments sensor, we have to add the witdh
    * of the sensor crossed by the scan area */
-    if (segment_count > 1) {
+    if (session.segment_count > 1) {
         dev->deseg.conseq_pixel_dist_bytes = sensor_profile.segment_size;
     }
 
   /* use a segcnt rounded to next even number */
-     endx += ((dev->deseg.conseq_pixel_dist_bytes + 1) & 0xfffe) * (segment_count - 1);
+     endx += ((dev->deseg.conseq_pixel_dist_bytes + 1) & 0xfffe) * (session.segment_count - 1);
     unsigned used_pixels = endx - startx;
 
     gl846_set_fe(dev, sensor, AFE_SET);
@@ -830,7 +828,6 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dev->deseg.conseq_pixel_dist_bytes = multiply_by_depth_ceil(dev->deseg.conseq_pixel_dist_bytes, session.params.depth);
 
     dev->deseg.curr_byte = 0;
-    dev->deseg.segment_count = segment_count;
   dev->line_interp = 0;
 
     unsigned dpiset = session.params.xres * ccd_pixels_per_system_pixel;
@@ -848,7 +845,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG (DBG_io2, "%s: dev->bpl   =%lu\n", __func__, (unsigned long) dev->deseg.raw_channel_bytes);
   DBG (DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long) dev->deseg.pixel_groups);
   DBG (DBG_io2, "%s: dev->dist  =%lu\n", __func__, (unsigned long) dev->deseg.conseq_pixel_dist_bytes);
-  DBG (DBG_io2, "%s: dev->segnb =%lu\n", __func__, (unsigned long) dev->deseg.segment_count);
+  DBG (DBG_io2, "%s: dev->segnb =%lu\n", __func__, (unsigned long) dev->session.segment_count);
 
     dev->deseg.raw_line_bytes = dev->deseg.raw_channel_bytes * session.params.channels;
 

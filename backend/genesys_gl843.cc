@@ -1182,6 +1182,16 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
                                   const Genesys_Sensor& sensor)
 {
+    // in case of dynamic lineart, we use an internal 8 bit gray scan to generate 1 lineart data
+    if (s.params.flags & SCAN_FLAG_DYNAMIC_LINEART) {
+        s.params.depth = 8;
+    }
+
+    // no 16 bit gamma for this ASIC
+    if (s.params.depth == 16) {
+        s.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
+    }
+
     compute_session(dev, s, sensor);
 
     // compute physical pixel positions
@@ -1207,7 +1217,7 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
 // set up registers for an actual scan this function sets up the scanner to scan in normal or single
 // line mode
 static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                 Genesys_Register_Set* reg, ScanSession& session)
+                                 Genesys_Register_Set* reg, const ScanSession& session)
 {
     DBG_HELPER(dbg);
     session.assert_computed();
@@ -1246,18 +1256,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
   DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, scan_step_type);
-
-  /*** optical parameters ***/
-  /* in case of dynamic lineart, we use an internal 8 bit gray scan
-   * to generate 1 lineart data */
-    if (session.params.flags & SCAN_FLAG_DYNAMIC_LINEART) {
-        session.params.depth = 8;
-    }
-
-  /* no 16 bit gamma for this ASIC */
-    if (session.params.depth == 16) {
-        session.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
-    }
 
     // now _LOGICAL_ optical values used are known, setup registers
     gl843_init_optical_regs_scan(dev, sensor, reg, exposure, session);

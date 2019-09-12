@@ -317,7 +317,7 @@ static void gl646_compute_session(Genesys_Device* dev, ScanSession& s,
 static void gl646_setup_registers(Genesys_Device* dev,
                                   const Genesys_Sensor& sensor,
                                   Genesys_Register_Set* regs,
-                                  ScanSession& session,
+                                  const ScanSession& session,
                                   std::vector<uint16_t>& slope_table1,
                                   std::vector<uint16_t>& slope_table2,
                                   bool xcorrection)

@@ -829,8 +829,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* words(16bit) before gamma, conversion to 8 bit or lineart*/
     dev->deseg.raw_channel_bytes = multiply_by_depth_ceil(
-        (session.optical_pixels_raw * session.params.xres) / session.hwdpi_divisor /
-        session.segment_count / sensor.get_register_hwdpi(session.params.xres * ccd_pixels_per_system_pixel),
+        (session.optical_pixels_raw * session.params.xres) / sensor.optical_res / session.segment_count,
         session.params.depth);
     dev->deseg.pixel_groups = multiply_by_depth_ceil(dev->deseg.pixel_groups, session.params.depth);
 

@@ -195,9 +195,12 @@ struct Genesys_Model
 // Describes the geometry of the raw data coming out of the scanner for desegmentation.
 struct DesegmentationState
 {
-    // total bytes in a channel received from a scanner
+    // Distance in bytes between consecutive pixels, e.g. between odd and even pixels. Note that
+    // the number of segments can be large.
+    unsigned conseq_pixel_dist_bytes = 0;
+    // Total bytes in a channel received from a scanner
     unsigned raw_channel_bytes = 0;
-    // total bytes in a line received from a scanner
+    // Total bytes in a line received from a scanner
     unsigned raw_line_bytes = 0;
 };
 
@@ -325,8 +328,6 @@ struct Genesys_Device
     int line_interp = 0;
     // number of scan lines used during scan
     int line_count = 0;
-    // bytes distance between an odd and an even pixel
-    size_t dist = 0;
     // number of even pixels
     size_t len = 0;
     // current pixel position within sub window

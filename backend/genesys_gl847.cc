@@ -781,17 +781,17 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     startx /= factor*segnb;
     endx /= factor*segnb;
   dev->len=endx-startx;
-  dev->dist=0;
+    dev->deseg.conseq_pixel_dist_bytes = 0;
   dev->skip=0;
 
   /* in cas of multi-segments sensor, we have to add the witdh
    * of the sensor crossed by the scan area */
     if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR && segnb > 1) {
-        dev->dist = sensor_profile.segment_count;
+        dev->deseg.conseq_pixel_dist_bytes = sensor_profile.segment_count;
     }
 
   /* use a segcnt rounded to next even number */
-  endx += ((dev->dist+1)&0xfffe)*(segnb-1);
+    endx += ((dev->deseg.conseq_pixel_dist_bytes + 1) & 0xfffe) * (segnb - 1);
     unsigned used_pixels = endx - startx;
 
     gl847_set_fe(dev, sensor, AFE_SET);
@@ -892,7 +892,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dev->deseg.raw_channel_bytes = multiply_by_depth_ceil((used_pixels * dpiset) / dpihw,
                                                           session.params.depth);
     dev->len = multiply_by_depth_ceil(dev->len, session.params.depth);
-    dev->dist = multiply_by_depth_ceil(dev->dist, session.params.depth);
+    dev->deseg.conseq_pixel_dist_bytes = multiply_by_depth_ceil(dev->deseg.conseq_pixel_dist_bytes, session.params.depth);
 
   dev->cur=0;
   dev->segnb=segnb;
@@ -911,7 +911,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG (DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
   DBG (DBG_io2, "%s: dev->bpl   =%lu\n", __func__, (unsigned long) dev->deseg.raw_channel_bytes);
   DBG (DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long)dev->len);
-  DBG (DBG_io2, "%s: dev->dist  =%lu\n", __func__, (unsigned long)dev->dist);
+  DBG (DBG_io2, "%s: dev->dist  =%lu\n", __func__, (unsigned long) dev->deseg.conseq_pixel_dist_bytes);
   DBG (DBG_io2, "%s: dev->segnb =%lu\n", __func__, (unsigned long)dev->segnb);
 
     dev->deseg.raw_line_bytes = dev->deseg.raw_channel_bytes * session.params.channels;

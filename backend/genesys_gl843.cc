@@ -1164,7 +1164,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG(DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
   DBG(DBG_io2, "%s: dev->bpl   =%lu\n", __func__, (unsigned long) dev->deseg.raw_channel_bytes);
   DBG(DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long)dev->len);
-  DBG(DBG_io2, "%s: dev->dist  =%lu\n", __func__, (unsigned long)dev->dist);
+  DBG(DBG_io2, "%s: dev->dist  =%lu\n", __func__, (unsigned long) dev->deseg.conseq_pixel_dist_bytes);
 
   /* MAXWD is expressed in 2 words unit */
   /* nousedspace = (mem_bank_range * 1024 / 256 -1 ) * 4; */

@@ -198,10 +198,6 @@ struct DesegmentationState
     // The number of bytes to skip at start of line. Currently it's always zero.
     unsigned skip_bytes = 0;
 
-    // The number of "even" pixels to scan. This corresponds to the number of pixels that will be
-    // scanned from a single segment
-    unsigned pixel_groups = 0;
-
     // The current byte during desegmentation process
     unsigned curr_byte = 0;
 };

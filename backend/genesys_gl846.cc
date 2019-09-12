@@ -684,7 +684,6 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          const ScanSession& session)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
-  unsigned int words_per_line;
     unsigned int dpihw;
   GenesysRegister *r;
 
@@ -713,8 +712,6 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // compute pixel coordinate in the given dpihw space, taking segments into account
     startx /= session.hwdpi_divisor * session.segment_count;
     endx /= session.hwdpi_divisor * session.segment_count;
-    dev->deseg.pixel_groups = session.optical_pixels /
-            (session.hwdpi_divisor * session.segment_count * ccd_pixels_per_system_pixel);
     dev->deseg.skip_bytes = 0;
 
     gl846_set_fe(dev, sensor, AFE_SET);
@@ -811,9 +808,6 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         }*/
     }
 
-  /* words(16bit) before gamma, conversion to 8 bit or lineart*/
-    dev->deseg.pixel_groups = multiply_by_depth_ceil(dev->deseg.pixel_groups, session.params.depth);
-
     dev->deseg.curr_byte = 0;
   dev->line_interp = 0;
 
@@ -828,8 +822,6 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   DBG (DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
   DBG (DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
-  DBG (DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long) dev->deseg.pixel_groups);
-  DBG (DBG_io2, "%s: dev->segnb =%lu\n", __func__, (unsigned long) dev->session.segment_count);
 
     // BUG: we shouldn't multiply by channels here
     dev->oe_buffer.clear();

@@ -1363,6 +1363,19 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
         s.conseq_pixel_dist_bytes = s.output_line_bytes_raw / s.segment_count;
     }
 
+    s.output_segment_pixel_group_count = 0;
+    if (dev->model->asic_type == AsicType::GL124) {
+        s.output_segment_pixel_group_count = s.output_line_bytes_raw / s.segment_count;
+    }
+    if (dev->model->asic_type == AsicType::GL845 ||
+        dev->model->asic_type == AsicType::GL846 ||
+        dev->model->asic_type == AsicType::GL847)
+    {
+        s.output_segment_pixel_group_count = multiply_by_depth_ceil(
+            s.optical_pixels / (s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel),
+            s.params.depth);
+    }
+
     compute_session_buffer_sizes(dev->model->asic_type, s);
 }
 
@@ -2052,6 +2065,8 @@ void debug_dump(unsigned level, const ScanSession& session)
     DBG(level, "    pixel_startx : %d\n", session.pixel_startx);
     DBG(level, "    pixel_endx : %d\n", session.pixel_endx);
     DBG(level, "    conseq_pixel_dist_bytes : %d\n", session.conseq_pixel_dist_bytes);
+    DBG(level, "    output_segment_pixel_group_count : %d\n",
+        session.output_segment_pixel_group_count);
     DBG(level, "    buffer_size_read : %zu\n", session.buffer_size_read);
     DBG(level, "    buffer_size_read : %zu\n", session.buffer_size_lines);
     DBG(level, "    buffer_size_shrink : %zu\n", session.buffer_size_shrink);

@@ -947,13 +947,11 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     dev->deseg.curr_byte = 0;
     dev->deseg.skip_bytes = 0;
-    dev->deseg.pixel_groups = session.output_line_bytes_raw / session.segment_count;
   dev->line_count = 0;
   dev->line_interp = 0;
 
   DBG (DBG_io2, "%s: pixels          =%d\n", __func__, session.optical_pixels);
   DBG (DBG_io2, "%s: depth           =%d\n", __func__, session.params.depth);
-  DBG (DBG_io2, "%s: dev->len        =%lu\n", __func__, (unsigned long) dev->deseg.pixel_groups);
   DBG (DBG_io2, "%s: dev->line_interp=%lu\n", __func__, (unsigned long)dev->line_interp);
 
     // BUG: we shouldn't multiply by channels here

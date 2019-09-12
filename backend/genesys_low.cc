@@ -1303,18 +1303,44 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     s.output_channel_bytes = multiply_by_depth_ceil(s.output_pixels, s.params.depth);
     s.output_line_bytes = s.output_channel_bytes * s.params.channels;
 
-    s.segment_count = 1;
-    if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR || dev->model->asic_type == AsicType::GL124) {
+    const SensorProfile* sensor_profile = nullptr;
+    if (dev->model->asic_type == AsicType::GL124 ||
+        dev->model->asic_type == AsicType::GL845 ||
+        dev->model->asic_type == AsicType::GL846 ||
+        dev->model->asic_type == AsicType::GL847)
+    {
         unsigned ccd_size_divisor_for_profile = 1;
         if (dev->model->asic_type == AsicType::GL124) {
             ccd_size_divisor_for_profile = s.ccd_size_divisor;
         }
         unsigned dpihw = sensor.get_register_hwdpi(s.output_resolution * ccd_pixels_per_system_pixel);
 
-        const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw,
-                                                        ccd_size_divisor_for_profile);
-        s.segment_count = sensor_profile.get_segment_count();
+        sensor_profile = &get_sensor_profile(dev->model->asic_type, sensor, dpihw,
+                                             ccd_size_divisor_for_profile);
     }
+
+    s.segment_count = 1;
+    if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR || dev->model->asic_type == AsicType::GL124) {
+        s.segment_count = sensor_profile->get_segment_count();
+    }
+
+    s.conseq_pixel_dist_bytes = 0;
+
+    if (dev->model->asic_type == AsicType::GL845 ||
+        dev->model->asic_type == AsicType::GL846 ||
+        dev->model->asic_type == AsicType::GL847)
+    {
+        // in case of multi-segments sensor, we have to add the witdh of the sensor crossed by the
+        // scan area
+        if (s.segment_count > 1) {
+            s.conseq_pixel_dist_bytes = sensor_profile->segment_size;
+            // TODO: apply to optical_pixels_raw before the multiply below
+            s.conseq_pixel_dist_bytes = multiply_by_depth_ceil(s.conseq_pixel_dist_bytes,
+                                                               s.params.depth);
+        }
+    }
+
+    // TODO: gl124 conseq_pixel_dist_bytes
 
     compute_session_buffer_sizes(dev->model->asic_type, s);
 }

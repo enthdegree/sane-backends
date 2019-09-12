@@ -202,10 +202,6 @@ struct DesegmentationState
     // scanned from a single segment
     unsigned pixel_groups = 0;
 
-    // Distance in bytes between consecutive pixels, e.g. between odd and even pixels. Note that
-    // the number of segments can be large.
-    unsigned conseq_pixel_dist_bytes = 0;
-
     // Total bytes in a channel received from a scanner
     unsigned raw_channel_bytes = 0;
 

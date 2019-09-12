@@ -782,7 +782,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     endx /= factor*segnb;
     dev->deseg.pixel_groups = endx-startx;
     dev->deseg.conseq_pixel_dist_bytes = 0;
-  dev->skip=0;
+    dev->deseg.skip_bytes = 0;
 
   /* in cas of multi-segments sensor, we have to add the witdh
    * of the sensor crossed by the scan area */

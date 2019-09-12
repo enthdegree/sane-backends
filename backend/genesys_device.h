@@ -195,6 +195,9 @@ struct Genesys_Model
 // Describes the geometry of the raw data coming out of the scanner for desegmentation.
 struct DesegmentationState
 {
+    // The number of bytes to skip at start of line. Currently it's always zero.
+    unsigned skip_bytes = 0;
+
     // The number of "even" pixels to scan. This corresponds to the number of pixels that will be
     // scanned from a single segment
     unsigned pixel_groups = 0;
@@ -336,8 +339,6 @@ struct Genesys_Device
     int line_count = 0;
     // current pixel position within sub window
     size_t cur = 0;
-    // number of bytes to skip at start of line
-    size_t skip = 0;
 
     // array describing the order of the sub-segments of the sensor
     std::vector<unsigned> segment_order;

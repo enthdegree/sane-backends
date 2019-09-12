@@ -255,7 +255,6 @@ struct ScanSession {
     unsigned num_staggered_lines = 0;
 
     // the number of lines that color channels shift due to different physical positions of
-    // gl843-only
     // different color channels
     unsigned max_color_shift_lines = 0;
 

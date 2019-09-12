@@ -710,12 +710,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     unsigned startx = start / ccd_pixels_per_system_pixel + sensor.CCD_start_xoffset;
     unsigned endx = startx + session.optical_pixels / ccd_pixels_per_system_pixel;
 
-  /* sensors are built from 600 dpi segments for LiDE 100/200
-   * and 1200 dpi for the 700F */
-    unsigned segment_count = 1;
-    if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR) {
-        segment_count = dpihw / 600;
-    }
+    unsigned segment_count = sensor_profile.get_segment_count();
 
     // compute pixel coordinate in the given dpihw space, taking segments into account
     startx /= session.hwdpi_divisor * segment_count;
@@ -726,7 +721,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* in cas of multi-segments sensor, we have to add the witdh
    * of the sensor crossed by the scan area */
-    if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR && segment_count > 1) {
+    if (segment_count > 1) {
         dev->deseg.conseq_pixel_dist_bytes = sensor_profile.segment_size;
     }
 

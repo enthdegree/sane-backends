@@ -166,8 +166,19 @@ struct SensorProfile
     unsigned exposure_lperiod = 0;
     SensorExposure exposure;
     unsigned segment_size = 0; // only on GL846, GL847
+
+    // the order of the segments, if any, for the profile. If the sensor is not segmented or uses
+    // only single segment, this array can be empty
     std::vector<unsigned> segment_order;
+
     GenesysRegisterSettingSet custom_regs;
+
+    unsigned get_segment_count() const
+    {
+        if (segment_order.size() < 2)
+            return 1;
+        return segment_order.size();
+    }
 
     bool operator==(const SensorProfile& other) const
     {

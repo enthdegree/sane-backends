@@ -147,42 +147,6 @@ gl846_get_step_multiplier (Genesys_Register_Set * regs)
   return value;
 }
 
-/** @brief sensor profile
- * search for the database of motor profiles and get the best one. Each
- * profile is at a specific dpihw. Use LiDE 110 table by default.
- * @param sensor_type sensor id
- * @param dpi hardware dpi for the scan
- * @return a pointer to a Sensor_Profile struct
- */
-static const SensorProfile& get_sensor_profile(const Genesys_Sensor& sensor, unsigned dpi)
-{
-    int best_i = -1;
-    for (unsigned i = 0; i < sensor.sensor_profiles.size(); ++i) {
-        // exact match
-        if (sensor.sensor_profiles[i].dpi == dpi) {
-            return sensor.sensor_profiles[i];
-        }
-        // closest match
-        if (best_i < 0) {
-            best_i = i;
-        } else {
-            if (sensor.sensor_profiles[i].dpi >= dpi &&
-                sensor.sensor_profiles[i].dpi < sensor.sensor_profiles[best_i].dpi)
-            {
-                best_i = i;
-            }
-        }
-    }
-
-    // default fallback
-    if (best_i < 0) {
-        DBG(DBG_warn,"%s: using default sensor profile\n",__func__);
-        return *s_fallback_sensor_profile_gl846;
-    }
-
-    return sensor.sensor_profiles[best_i];
-}
-
 /** @brief sensor specific settings
 */
 static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& sensor,
@@ -734,7 +698,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
     // sensor parameters
-    const auto& sensor_profile = get_sensor_profile(sensor, dpihw);
+    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw, 1);
     gl846_setup_sensor(dev, sensor, sensor_profile, reg);
 
     // start and end coordinate in optical dpi coordinates
@@ -957,7 +921,8 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-    exposure_time = get_sensor_profile(sensor, session.params.xres).exposure_lperiod;
+    exposure_time = get_sensor_profile(dev->model->asic_type, sensor,
+                                       session.params.xres, 1).exposure_lperiod;
   scan_step_type = sanei_genesys_compute_step_type(gl846_motor_profiles, dev->model->motor_type,
                                                    exposure_time);
 
@@ -1084,7 +1049,8 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-    exposure_time = get_sensor_profile(sensor, session.params.xres).exposure_lperiod;
+    exposure_time = get_sensor_profile(dev->model->asic_type, sensor,
+                                       session.params.xres, 1).exposure_lperiod;
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
     dev->session = session;
@@ -1788,7 +1754,7 @@ static SensorExposure gl846_led_calibration(Genesys_Device* dev, const Genesys_S
   channels = 3;
   depth=16;
     used_res = sensor.get_register_hwdpi(dev->settings.xres);
-    const auto& sensor_profile = get_sensor_profile(sensor, used_res);
+    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, used_res, 1);
   num_pixels = (sensor.sensor_pixels*used_res)/sensor.optical_res;
 
   /* initial calibration reg values */

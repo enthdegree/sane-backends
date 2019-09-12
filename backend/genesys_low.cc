@@ -1296,6 +1296,48 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     compute_session_buffer_sizes(dev->model->asic_type, s);
 }
 
+const SensorProfile& get_sensor_profile(AsicType asic_type, const Genesys_Sensor& sensor,
+                                        unsigned dpi, unsigned ccd_size_divisor)
+{
+    int best_i = -1;
+    for (unsigned i = 0; i < sensor.sensor_profiles.size(); ++i) {
+        // exact match
+        if (sensor.sensor_profiles[i].dpi == dpi &&
+            sensor.sensor_profiles[i].ccd_size_divisor == ccd_size_divisor)
+        {
+            return sensor.sensor_profiles[i];
+        }
+        // closest match
+        if (sensor.sensor_profiles[i].ccd_size_divisor == ccd_size_divisor) {
+            if (best_i < 0) {
+                best_i = i;
+            } else {
+                if (sensor.sensor_profiles[i].dpi >= dpi &&
+                    sensor.sensor_profiles[i].dpi < sensor.sensor_profiles[best_i].dpi)
+                {
+                    best_i = i;
+                }
+            }
+        }
+    }
+
+    // default fallback
+    if (best_i < 0) {
+        DBG(DBG_warn, "%s: using default sensor profile\n", __func__);
+        if (asic_type == AsicType::GL123 || asic_type == AsicType::GL124)
+            return *s_fallback_sensor_profile_gl124;
+        if (asic_type == AsicType::GL845 || asic_type == AsicType::GL846)
+            return *s_fallback_sensor_profile_gl846;
+        if (asic_type == AsicType::GL847)
+            return *s_fallback_sensor_profile_gl847;
+        throw SaneException("Unknown asic type for default profile %d",
+                            static_cast<unsigned>(asic_type));
+    }
+
+    return sensor.sensor_profiles[best_i];
+}
+
+
 /** @brief initialize device
  * Initialize backend and ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home. Designed for gl846+ ASICs.

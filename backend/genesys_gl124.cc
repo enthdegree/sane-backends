@@ -93,49 +93,6 @@ gl124_test_motor_flag_bit (SANE_Byte val)
   return SANE_FALSE;
 }
 
-/** @brief sensor profile
- * search for the database of motor profiles and get the best one. Each
- * profile is at a specific dpihw. Use LiDE 110 table by default.
- * @param sensor_type sensor id
- * @param dpi hardware dpi for the scan
- * @param ccd_size_divisor flag to signal half ccd mode
- * @return a pointer to a Sensor_Profile struct
- */
-static const SensorProfile& get_sensor_profile(const Genesys_Sensor& sensor, unsigned dpi,
-                                               unsigned ccd_size_divisor)
-{
-    int best_i = -1;
-    for (unsigned i = 0; i < sensor.sensor_profiles.size(); ++i) {
-        // exact match
-        if (sensor.sensor_profiles[i].dpi == dpi &&
-            sensor.sensor_profiles[i].ccd_size_divisor == ccd_size_divisor)
-        {
-            return sensor.sensor_profiles[i];
-        }
-        // closest match
-        if (sensor.sensor_profiles[i].ccd_size_divisor == ccd_size_divisor) {
-            if (best_i < 0) {
-                best_i = i;
-            } else {
-                if (sensor.sensor_profiles[i].dpi >= dpi &&
-                    sensor.sensor_profiles[i].dpi < sensor.sensor_profiles[best_i].dpi)
-                {
-                    best_i = i;
-                }
-            }
-        }
-    }
-
-    // default fallback
-    if (best_i < 0) {
-        DBG(DBG_warn,"%s: using default sensor profile\n",__func__);
-        return *s_fallback_sensor_profile_gl124;
-    }
-
-    return sensor.sensor_profiles[best_i];
-}
-
-
 static void gl124_homsnr_gpio(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
@@ -841,7 +798,8 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
     // sensor parameters
-    const auto& sensor_profile = get_sensor_profile(sensor, dpihw, session.ccd_size_divisor);
+    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw,
+                                                    session.ccd_size_divisor);
     gl124_setup_sensor(dev, sensor, sensor_profile, reg);
 
   /* start and end coordinate in optical dpi coordinates */
@@ -1078,7 +1036,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
   else
     {
-        exposure_time = get_sensor_profile(sensor, session.params.xres,
+        exposure_time = get_sensor_profile(dev->model->asic_type, sensor, session.params.xres,
                                            session.ccd_size_divisor).exposure_lperiod;
         scan_step_type = sanei_genesys_compute_step_type(gl124_motor_profiles,
                                                          dev->model->motor_type, exposure_time);
@@ -1196,7 +1154,7 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
 
     DBG(DBG_info, "%s: used_pixels=%d\n", __func__, session.optical_pixels);
 
-    exposure_time = get_sensor_profile(sensor, session.params.xres,
+    exposure_time = get_sensor_profile(dev->model->asic_type, sensor, session.params.xres,
                                        session.ccd_size_divisor).exposure_lperiod;
 
   DBG (DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
@@ -1204,7 +1162,7 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
     // compute hw dpi for sensor
     dpihw = sensor.get_register_hwdpi(session.params.xres);
 
-    const SensorProfile& sensor_profile = get_sensor_profile(sensor, dpihw,
+    const SensorProfile& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw,
                                                              session.ccd_size_divisor);
     dev->deseg.segment_count = sensor_profile.custom_regs.get_value(0x98) & 0x0f;
 
@@ -2103,7 +2061,8 @@ static SensorExposure gl124_led_calibration(Genesys_Device* dev, const Genesys_S
     unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
     resolution /= ccd_size_divisor;
 
-    const auto& sensor_profile = get_sensor_profile(sensor, dpihw, ccd_size_divisor);
+    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw,
+                                                    ccd_size_divisor);
   num_pixels = (sensor.sensor_pixels*resolution)/sensor.optical_res;
 
   /* initial calibration reg values */

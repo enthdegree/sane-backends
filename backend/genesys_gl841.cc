@@ -1456,27 +1456,13 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          const ScanSession& session, unsigned int start)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d, start=%d", exposure_time, start);
-    unsigned int words_per_line;
     unsigned int end;
-    unsigned int dpiset;
     GenesysRegister* r;
     uint16_t expavg, expr, expb, expg;
 
     end = start + session.optical_pixels;
 
     gl841_set_fe(dev, sensor, AFE_SET);
-
-    /* adjust used_res for chosen dpihw */
-    unsigned used_res = session.params.xres * gl841_get_dpihw(dev) / sensor.optical_res;
-
-/*
-  with ccd_size_divisor==2 the optical resolution of the ccd is halved. We don't apply this
-  to dpihw, so we need to double dpiset.
-
-  For the scanner only the ratio of dpiset and dpihw is of relevance to scale
-  down properly.
-*/
-    dpiset = used_res * session.ccd_size_divisor;
 
     /* gpio part.*/
     if (dev->model->gpo_type == GPO_CANONLIDE35)
@@ -1613,30 +1599,15 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     r = sanei_genesys_get_address (reg, 0x29);
     r->value = 255; /*<<<"magic" number, only suitable for cis*/
 
-    reg->set16(REG_DPISET, dpiset);
+    reg->set16(REG_DPISET, gl841_get_dpihw(dev) * session.output_resolution / session.optical_resolution);
     reg->set16(REG_STRPIXEL, start);
     reg->set16(REG_ENDPIXEL, end);
     DBG(DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d\n", __func__, start, end);
 
-    /* words(16bit) before gamma, conversion to 8 bit or lineart*/
-    words_per_line = (session.optical_pixels * dpiset) / gl841_get_dpihw(dev);
+    dev->wpl = session.output_line_bytes;
+    dev->bpl = session.output_line_bytes;
 
-    words_per_line *= session.params.channels;
-
-    if (session.params.depth == 1)
-	words_per_line = (words_per_line >> 3) + ((words_per_line & 7)?1:0);
-    else
-    words_per_line *= session.params.depth / 8;
-
-    dev->wpl = words_per_line;
-    dev->bpl = words_per_line;
-
-    r = sanei_genesys_get_address (reg, 0x35);
-    r->value = LOBYTE (HIWORD (words_per_line));
-    r = sanei_genesys_get_address (reg, 0x36);
-    r->value = HIBYTE (LOWORD (words_per_line));
-    r = sanei_genesys_get_address (reg, 0x37);
-    r->value = LOBYTE (LOWORD (words_per_line));
+    reg->set24(REG_MAXWD, session.output_line_bytes);
 
     reg->set16(REG_LPERIOD, exposure_time);
 

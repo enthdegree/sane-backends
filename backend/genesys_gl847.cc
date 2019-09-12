@@ -746,7 +746,6 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     DBG_HELPER_ARGS(dbg, "exposure_time=%d, start=%d", exposure_time, start);
   unsigned int words_per_line;
     unsigned dpiset, dpihw, segnb, factor;
-  unsigned int bytes;
   GenesysRegister *r;
 
     // resolution is divided according to ccd_pixels_per_system_pixel()
@@ -892,19 +891,9 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* words(16bit) before gamma, conversion to 8 bit or lineart*/
   words_per_line = (used_pixels * dpiset) / dpihw;
-  bytes=session.params.depth/8;
-  if (session.params.depth == 1)
-    {
-      words_per_line = (words_per_line+7)/8 ;
-      dev->len = (dev->len >> 3) + ((dev->len & 7) ? 1 : 0);
-      dev->dist = (dev->dist >> 3) + ((dev->dist & 7) ? 1 : 0);
-    }
-  else
-    {
-      words_per_line *= bytes;
-      dev->dist *= bytes;
-      dev->len *= bytes;
-    }
+    words_per_line = multiply_by_depth_ceil(words_per_line, session.params.depth);
+    dev->len = multiply_by_depth_ceil(dev->len, session.params.depth);
+    dev->dist = multiply_by_depth_ceil(dev->dist, session.params.depth);
 
   dev->bpl = words_per_line;
   dev->cur=0;

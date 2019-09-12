@@ -659,7 +659,7 @@ inline uint64_t align_multiple_ceil(uint64_t x, uint64_t multiple)
     return ((x + multiple - 1) / multiple) * multiple;
 }
 
-inline unsigned multiply_by_depth_ceil(unsigned pixels, unsigned depth)
+inline uint64_t multiply_by_depth_ceil(uint64_t pixels, uint64_t depth)
 {
     if (depth == 1) {
         return (pixels / 8) + ((pixels % 8) ? 1 : 0);

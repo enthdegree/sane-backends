@@ -3457,7 +3457,7 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
 {
     DBG_HELPER(dbg);
   size_t count;
-  int depth,i,n,k;
+    int depth, i, k;
 
   depth = dev->settings.depth;
   if (dev->settings.scan_mode == ScanColorMode::LINEART && dev->settings.dynamic_lineart==SANE_FALSE)
@@ -3476,13 +3476,13 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
 	{
             if (depth==1) {
                 while (dev->cur < dev->deseg.pixel_groups && count < size) {
-                    for (n=0; n<dev->segnb; n++) {
+                    for (unsigned n = 0; n < dev->deseg.segment_count; n++) {
                         work_buffer_dst[count+n] = 0;
                     }
                     /* interleaving is at bit level */
                     for (i=0;i<8;i++) {
-                        k=count+(i*dev->segnb)/8;
-                        for (n=0;n<dev->segnb;n++) {
+                        k = count + (i * dev->deseg.segment_count) / 8;
+                        for (unsigned n = 0; n < dev->deseg.segment_count; n++) {
                             work_buffer_dst[k] = work_buffer_dst[k] << 1;
                             if ((dev->oe_buffer.get_read_pos()[dev->cur + dev->deseg.skip_bytes + dev->deseg.conseq_pixel_dist_bytes * dev->segment_order[n]])&(128>>i)) {
                                 work_buffer_dst[k] |= 1;
@@ -3491,28 +3491,28 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
                     }
 
                     /* update counter and pointer */
-                    count += dev->segnb;
+                    count += dev->deseg.segment_count;
                     dev->cur++;
                 }
             }
             if (depth==8) {
                  while (dev->cur < dev->deseg.pixel_groups && count < size) {
-                    for (n=0;n<dev->segnb;n++) {
+                    for (unsigned n = 0; n < dev->deseg.segment_count; n++) {
                         work_buffer_dst[count+n] = dev->oe_buffer.get_read_pos()[dev->cur + dev->deseg.skip_bytes + dev->deseg.conseq_pixel_dist_bytes *dev->segment_order[n]];
                     }
                     /* update counter and pointer */
-                    count += dev->segnb;
+                    count += dev->deseg.segment_count;
                     dev->cur++;
                 }
             }
             if (depth==16) {
                 while (dev->cur < dev->deseg.pixel_groups && count < size) {
-                    for (n=0;n<dev->segnb;n++) {
+                    for (unsigned n = 0; n < dev->deseg.segment_count; n++) {
                         work_buffer_dst[count+n*2] = dev->oe_buffer.get_read_pos()[dev->cur + dev->deseg.skip_bytes + dev->deseg.conseq_pixel_dist_bytes * dev->segment_order[n]];
                         work_buffer_dst[count+n*2+1] = dev->oe_buffer.get_read_pos()[dev->cur + dev->deseg.skip_bytes + dev->deseg.conseq_pixel_dist_bytes * dev->segment_order[n] + 1];
                     }
                     /* update counter and pointer */
-                    count += dev->segnb*2;
+                    count += dev->deseg.segment_count * 2;
                     dev->cur+=2;
                 }
             }
@@ -3591,8 +3591,7 @@ static void genesys_fill_read_buffer(Genesys_Device* dev)
         // line interpolation
         genesys_fill_line_interp_buffer(dev, work_buffer_dst, size);
     }
-  else if (dev->segnb>1)
-    {
+    else if (dev->deseg.segment_count > 1) {
         // multi-segment sensors processing
         genesys_fill_segmented_buffer(dev, work_buffer_dst, size);
     }
@@ -5528,7 +5527,7 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->force_calibration = 0;
   s->dev->line_interp = 0;
   s->dev->line_count = 0;
-  s->dev->segnb = 0;
+    s->dev->deseg.segment_count = 0;
   s->dev->binary=NULL;
 
   *handle = s;

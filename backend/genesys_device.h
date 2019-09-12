@@ -195,6 +195,9 @@ struct Genesys_Model
 // Describes the geometry of the raw data coming out of the scanner for desegmentation.
 struct DesegmentationState
 {
+    // The number of segments in the sensor
+    unsigned segment_count = 0;
+
     // The number of bytes to skip at start of line. Currently it's always zero.
     unsigned skip_bytes = 0;
 
@@ -331,8 +334,6 @@ struct Genesys_Device
     SANE_Int ld_shift_g = 0;
     // used blue line-distance shift
     SANE_Int ld_shift_b = 0;
-    // number of segments composing the sensor
-    int segnb = 0;
     // number of lines used in line interpolation
     int line_interp = 0;
     // number of scan lines used during scan

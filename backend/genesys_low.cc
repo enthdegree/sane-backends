@@ -1179,6 +1179,45 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
         // In quarter-CCD mode optical_pixels is 4x larger than the actual physical number
         s.optical_pixels = align_int_up(s.optical_pixels, 2 * s.ccd_size_divisor);
     }
+
+    // TODO output_pixels
+
+    // Note: staggering is not applied for calibration. Staggering starts at 2400 dpi
+    s.num_staggered_lines = 0;
+
+    if (dev->model->asic_type == AsicType::GL124 ||
+        dev->model->asic_type == AsicType::GL841 ||
+        dev->model->asic_type == AsicType::GL845 ||
+        dev->model->asic_type == AsicType::GL846 ||
+        dev->model->asic_type == AsicType::GL847)
+    {
+        if (s.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
+            s.num_staggered_lines = (4 * s.params.yres) / dev->motor.base_ydpi;
+        }
+    }
+
+    if (dev->model->asic_type == AsicType::GL646) {
+        if (s.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
+            // for HP3670, stagger happens only at >=1200 dpi
+            if ((dev->model->motor_type != MOTOR_HP3670 &&
+                 dev->model->motor_type != MOTOR_HP2400) ||
+                s.params.yres >= (unsigned) sensor.optical_res)
+            {
+                s.num_staggered_lines = (4 * s.params.yres) / dev->motor.base_ydpi;
+            }
+        }
+    }
+
+
+    if (dev->model->asic_type == AsicType::GL843) {
+        if ((s.params.yres > 1200) && // FIXME: maybe ccd_size_divisor is the one that controls this?
+            ((s.params.flags & SCAN_FLAG_IGNORE_LINE_DISTANCE) == 0) &&
+            (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
+        {
+            s.num_staggered_lines = (4 * s.params.yres) / dev->motor.base_ydpi;
+        }
+    }
+
 }
 
 /** @brief initialize device

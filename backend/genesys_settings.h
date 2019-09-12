@@ -252,7 +252,6 @@ struct ScanSession {
     unsigned output_line_count = 0;
 
     // the number of staggered lines (i.e. lines that overlap during scanning due to line being
-    // gl843-only
     // thinner than the CCD element)
     unsigned num_staggered_lines = 0;
 

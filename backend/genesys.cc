@@ -3597,10 +3597,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
   uint8_t *work_buffer_dst;
   unsigned int dst_lines;
   unsigned int step_1_mode;
-  unsigned int needs_reorder;
-  unsigned int needs_ccd;
-  unsigned int needs_shrink;
-  unsigned int needs_reverse;
   Genesys_Buffer *src_buffer;
   Genesys_Buffer *dst_buffer;
 
@@ -3618,36 +3614,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
     depth = dev->session.params.depth;
 
   src_pixels = dev->current_setup.pixels;
-
-  needs_reorder = 1;
-    if (channels != 3 && depth != 16) {
-        needs_reorder = 0;
-    }
-#ifndef WORDS_BIGENDIAN
-    if (channels != 3 && depth == 16) {
-        needs_reorder = 0;
-    }
-    if (channels == 3 && depth == 16 && !dev->model->is_cis &&
-        dev->model->line_mode_color_order == ColorOrder::RGB)
-    {
-        needs_reorder = 0;
-    }
-#endif
-    if (channels == 3 && depth == 8 && !dev->model->is_cis &&
-        dev->model->line_mode_color_order == ColorOrder::RGB)
-    {
-        needs_reorder = 0;
-    }
-
-  needs_ccd = dev->current_setup.max_shift > 0;
-  needs_shrink = dev->settings.requested_pixels != src_pixels;
-  needs_reverse = depth == 1;
-
-  DBG(DBG_info, "%s: using filters:%s%s%s%s\n", __func__,
-      needs_reorder ? " reorder" : "",
-      needs_ccd ? " ccd" : "",
-      needs_shrink ? " shrink" : "",
-      needs_reverse ? " reverse" : "");
 
   DBG(DBG_info, "%s: frontend requested %lu bytes\n", __func__, (u_long) * len);
 
@@ -3733,8 +3699,7 @@ Problems with the first approach:
   src_buffer = &(dev->read_buffer);
 
 /* maybe reorder components/bytes */
-  if (needs_reorder)
-    {
+    if (dev->session.pipeline_needs_reorder) {
         if (depth == 1) {
             throw SaneException("Can't reorder single bit data\n");
         }
@@ -3828,8 +3793,8 @@ Problems with the first approach:
       src_buffer = dst_buffer;
     }
 
-/* maybe reverse effects of ccd layout */
-  if (needs_ccd)
+    // maybe reverse effects of ccd layout
+    if (dev->session.pipeline_needs_ccd)
     {
         // should not happen with depth == 1.
         if (depth == 1) {
@@ -3878,9 +3843,8 @@ Problems with the first approach:
       src_buffer = dst_buffer;
     }
 
-/* maybe shrink(or enlarge) lines */
-  if (needs_shrink)
-    {
+    // maybe shrink(or enlarge) lines
+    if (dev->session.pipeline_needs_shrink) {
 
       dst_buffer = &(dev->out_buffer);
 
@@ -3933,8 +3897,7 @@ Problems with the first approach:
     bytes = *len;
   work_buffer_src = src_buffer->get_read_pos();
 
-  if (needs_reverse)
-    {
+    if (dev->session.pipeline_needs_reverse) {
         genesys_reverse_bits(work_buffer_src, destination, bytes);
       *len = bytes;
     }

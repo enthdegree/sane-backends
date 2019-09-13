@@ -1357,7 +1357,7 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
 
     s.optical_pixels_raw = s.optical_pixels;
     s.output_line_bytes_raw = s.output_line_bytes;
-    s.conseq_pixel_dist_bytes = 0;
+    s.conseq_pixel_dist = 0;
 
     if (dev->model->asic_type == AsicType::GL646) {
         // BUG: most likely segmented sensors were never used, so incorrect value was supplied
@@ -1369,18 +1369,16 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
         dev->model->asic_type == AsicType::GL847)
     {
         if (s.segment_count > 1) {
-            s.conseq_pixel_dist_bytes = sensor_profile->segment_size;
+            s.conseq_pixel_dist = sensor_profile->segment_size;
 
             // in case of multi-segments sensor, we have to add the width of the sensor crossed by
             // the scan area
-            unsigned extra_segment_scan_area = align_multiple_ceil(s.conseq_pixel_dist_bytes, 2);
+            unsigned extra_segment_scan_area = align_multiple_ceil(s.conseq_pixel_dist, 2);
             extra_segment_scan_area *= s.segment_count - 1;
             extra_segment_scan_area *= s.hwdpi_divisor * s.segment_count;
             extra_segment_scan_area *= ccd_pixels_per_system_pixel;
 
             s.optical_pixels_raw += extra_segment_scan_area;
-            s.conseq_pixel_dist_bytes = multiply_by_depth_ceil(s.conseq_pixel_dist_bytes,
-                                                               s.params.depth);
         }
 
         s.output_line_bytes_raw = multiply_by_depth_ceil(
@@ -1391,11 +1389,11 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     if (dev->model->asic_type == AsicType::GL124) {
         s.output_line_bytes_raw = multiply_by_depth_ceil(s.output_pixels / s.ccd_size_divisor,
                                                          s.params.depth);
-        s.conseq_pixel_dist_bytes = s.output_line_bytes_raw / s.segment_count;
+        s.conseq_pixel_dist = s.output_pixels / s.ccd_size_divisor / s.segment_count;
     }
 
     if (dev->model->asic_type == AsicType::GL843) {
-        s.conseq_pixel_dist_bytes = s.output_line_bytes_raw / s.segment_count;
+        s.conseq_pixel_dist = s.output_pixels / s.segment_count;
     }
 
     s.output_segment_pixel_group_count = 0;
@@ -1484,7 +1482,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
 
         auto output_width = session.output_segment_pixel_group_count * session.segment_count;
         dev->pipeline.push_node<ImagePipelineNodeDesegment>(output_width, dev->segment_order,
-                                                            session.conseq_pixel_dist_bytes,
+                                                            session.conseq_pixel_dist,
                                                             1, 1);
     } else {
         auto read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
@@ -2250,7 +2248,7 @@ void debug_dump(unsigned level, const ScanSession& session)
     DBG(level, "    segment_count : %d\n", session.segment_count);
     DBG(level, "    pixel_startx : %d\n", session.pixel_startx);
     DBG(level, "    pixel_endx : %d\n", session.pixel_endx);
-    DBG(level, "    conseq_pixel_dist_bytes : %d\n", session.conseq_pixel_dist_bytes);
+    DBG(level, "    conseq_pixel_dist : %d\n", session.conseq_pixel_dist);
     DBG(level, "    output_segment_pixel_group_count : %d\n",
         session.output_segment_pixel_group_count);
     DBG(level, "    buffer_size_read : %zu\n", session.buffer_size_read);

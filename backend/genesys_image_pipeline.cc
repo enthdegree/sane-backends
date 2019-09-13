@@ -129,17 +129,21 @@ void ImagePipelineNodeFormatConvert::get_next_row_data(std::uint8_t* out_data)
 ImagePipelineNodeDesegment::ImagePipelineNodeDesegment(ImagePipelineNode& source,
                                                        std::size_t output_width,
                                                        const std::vector<unsigned>& segment_order,
-                                                       std::size_t segment_size,
+                                                       std::size_t segment_pixels,
                                                        std::size_t interleaved_lines,
                                                        std::size_t pixels_per_chunk) :
     source_(source),
     output_width_{output_width},
     segment_order_{segment_order},
-    segment_size_{segment_size},
+    segment_pixels_{segment_pixels},
     interleaved_lines_{interleaved_lines},
     pixels_per_chunk_{pixels_per_chunk},
     buffer_{get_row_bytes()}
 {
+    DBG_HELPER_ARGS(dbg, "segment_count=%zu, segment_size=%zu, interleaved_lines=%zu, "
+                         "pixels_per_shunk=%zu", segment_order.size(), segment_pixels,
+                    interleaved_lines, pixels_per_chunk);
+
     if (source_.get_height() % interleaved_lines_ > 0) {
         throw SaneException("Height is not a multiple of the number of lines to interelave %zu/%zu",
                             source_.get_height(), interleaved_lines_);
@@ -149,18 +153,18 @@ ImagePipelineNodeDesegment::ImagePipelineNodeDesegment(ImagePipelineNode& source
 ImagePipelineNodeDesegment::ImagePipelineNodeDesegment(ImagePipelineNode& source,
                                                        std::size_t output_width,
                                                        std::size_t segment_count,
-                                                       std::size_t segment_size,
+                                                       std::size_t segment_pixels,
                                                        std::size_t interleaved_lines,
                                                        std::size_t pixels_per_chunk) :
     source_(source),
     output_width_{output_width},
-    segment_size_{segment_size},
+    segment_pixels_{segment_pixels},
     interleaved_lines_{interleaved_lines},
     pixels_per_chunk_{pixels_per_chunk},
     buffer_{source_.get_row_bytes()}
 {
     DBG_HELPER_ARGS(dbg, "segment_count=%zu, segment_size=%zu, interleaved_lines=%zu, "
-                    "pixels_per_shunk=%zu", segment_count, segment_size, interleaved_lines,
+                    "pixels_per_shunk=%zu", segment_count, segment_pixels, interleaved_lines,
                     pixels_per_chunk);
 
     segment_order_.resize(segment_count);
@@ -183,16 +187,12 @@ void ImagePipelineNodeDesegment::get_next_row_data(uint8_t* out_data)
 
     const std::uint8_t* in_data = buffer_.get_row_ptr(0);
 
-    // verify that dev->session.output_segment_pixel_group_count == groups_count
-    // output_width = session.output_segment_pixel_group_count * session.segment_count
-    // segment_size_ = dev->session.conseq_pixel_dist_bytes
     std::size_t groups_count = output_width_ / (segment_order_.size() * pixels_per_chunk_);
 
     for (std::size_t igroup = 0; igroup < groups_count; ++igroup) {
         for (std::size_t isegment = 0; isegment < segment_count; ++isegment) {
             auto input_offset = igroup * pixels_per_chunk_;
-            // BUG: segment_size_ is specified in bytes, but here we're expected it in pixels
-            input_offset += segment_size_ * segment_order_[isegment];
+            input_offset += segment_pixels_ * segment_order_[isegment];
             auto output_offset = (igroup * segment_count + isegment) * pixels_per_chunk_;
 
             for (std::size_t ipixel = 0; ipixel < pixels_per_chunk_; ++ipixel) {
@@ -206,7 +206,7 @@ void ImagePipelineNodeDesegment::get_next_row_data(uint8_t* out_data)
 ImagePipelineNodeDeinterleaveLines::ImagePipelineNodeDeinterleaveLines(
         ImagePipelineNode& source, std::size_t interleaved_lines, std::size_t pixels_per_chunk) :
     ImagePipelineNodeDesegment(source, source.get_width() * interleaved_lines,
-                               interleaved_lines, source.get_row_bytes(),
+                               interleaved_lines, source.get_width(),
                                interleaved_lines, pixels_per_chunk)
 {}
 

@@ -271,10 +271,10 @@ struct ScanSession {
     unsigned pixel_startx = 0;
     unsigned pixel_endx = 0;
 
-    // Distance in bytes between consecutive pixels, e.g. between odd and even pixels. Note that
+    // Distance in pixels between consecutive pixels, e.g. between odd and even pixels. Note that
     // the number of segments can be large.
     // only on gl124, gl846, gl847
-    unsigned conseq_pixel_dist_bytes = 0;
+    unsigned conseq_pixel_dist = 0;
 
     // The number of "even" pixels to scan. This corresponds to the number of pixels that will be
     // scanned from a single segment

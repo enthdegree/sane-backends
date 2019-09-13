@@ -319,8 +319,7 @@ struct Genesys_Device
     SANE_Int ld_shift_g = 0;
     // used blue line-distance shift
     SANE_Int ld_shift_b = 0;
-    // number of lines used in line interpolation
-    int line_interp = 0;
+
     // number of scan lines used during scan
     int line_count = 0;
 

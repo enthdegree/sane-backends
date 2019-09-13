@@ -3411,53 +3411,6 @@ static void accurate_line_read(Genesys_Device* dev, Genesys_Buffer& buffer)
     buffer.produce(buffer.size());
 }
 
-/** @brief fill buffer while reducing vertical resolution
- * This function fills a read buffer with scanned data from a sensor
- * which puts odd and even pixels in 2 different data segment. So a complete
- * must be read and bytes interleaved to get usable by the other stages
- * of the backend
- */
-static void genesys_fill_line_interp_buffer(Genesys_Device* dev, uint8_t* work_buffer_dst,
-                                            size_t size)
-{
-    DBG_HELPER(dbg);
-  size_t count;
-      /* fill buffer if needed */
-      if (dev->oe_buffer.avail() == 0)
-	{
-        accurate_line_read(dev, dev->oe_buffer);
-	}
-
-      /* copy size bytes of data, copying from a line when line count matches */
-      count = 0;
-      while (count < size)
-	{
-          /* line counter */
-        // dev->line_interp holds the number of lines scanned for one line of data sent
-        if (((dev->line_count / dev->session.params.channels) % dev->line_interp) == 0) {
-	      /* copy pixel when line matches */
-              work_buffer_dst[count] = dev->oe_buffer.get_read_pos()[dev->deseg_curr_byte];
-              count++;
-            }
-
-        // always update pointer so we skip uncopied data
-        dev->deseg_curr_byte++;
-
-	  /* go to next line if needed */
-        if (dev->deseg_curr_byte == dev->session.output_segment_pixel_group_count) {
-              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->session.output_line_bytes_raw);
-            dev->deseg_curr_byte = 0;
-              dev->line_count++;
-	    }
-
-	  /* read a new buffer if needed */
-          if (dev->oe_buffer.pos() >= dev->oe_buffer.avail())
-	    {
-            accurate_line_read(dev, dev->oe_buffer);
-	    }
-	}
-}
-
 /** @brief fill buffer for segmented sensors
  * This function fills a read buffer with scanned data from a sensor segmented
  * in several parts (multi-lines sensors). Data of the same valid area is read
@@ -3611,12 +3564,7 @@ static void genesys_fill_read_buffer(Genesys_Device* dev)
    *
    * This is also the place where full duplex data will be handled.
    */
-  if (dev->line_interp>0)
-    {
-        // line interpolation
-        genesys_fill_line_interp_buffer(dev, work_buffer_dst, size);
-    }
-    else if (dev->session.segment_count > 1) {
+    if (dev->session.segment_count > 1) {
         // multi-segment sensors processing
         genesys_fill_segmented_buffer(dev, work_buffer_dst, size);
     }
@@ -5550,7 +5498,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->parking = SANE_FALSE;
   s->dev->read_active = SANE_FALSE;
   s->dev->force_calibration = 0;
-  s->dev->line_interp = 0;
   s->dev->line_count = 0;
   s->dev->binary=NULL;
 

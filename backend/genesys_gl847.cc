@@ -825,7 +825,6 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
     dev->deseg_curr_byte = 0;
-  dev->line_interp = 0;
 
     unsigned dpiset = session.params.xres * ccd_pixels_per_system_pixel;
     reg->set16(REG_DPISET, dpiset);

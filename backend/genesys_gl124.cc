@@ -955,7 +955,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // MAXWD is expressed in 2 words unit
 
     // BUG: we shouldn't multiply by channels here
-    reg->set24(REG_MAXWD, session.output_line_bytes_raw * session.params.channels);
+    reg->set24(REG_MAXWD, session.output_line_bytes_raw / session.ccd_size_divisor * session.params.channels);
 
     reg->set24(REG_LPERIOD, exposure_time);
   DBG (DBG_io2, "%s: exposure_time used=%d\n", __func__, exposure_time);

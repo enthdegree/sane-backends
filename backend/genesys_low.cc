@@ -1379,6 +1379,41 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     compute_session_buffer_sizes(dev->model->asic_type, s);
 }
 
+std::uint8_t compute_frontend_gain_wolfson(float value, float target_value)
+{
+    /*  the flow of data through the frontend ADC is as follows (see e.g. WM8192 datasheet)
+        input
+        -> apply offset (o = i + 260mV * (DAC[7:0]-127.5)/127.5) ->
+        -> apply gain (o = i * 208/(283-PGA[7:0])
+        -> ADC
+
+        Here we have some input data that was acquired with zero gain (PGA==0).
+        We want to compute gain such that the output would approach full ADC range (controlled by
+        target_value).
+
+        We want to solve the following for {PGA}:
+
+        {value}         = {input} * 208 / (283 - 0)
+        {target_value}  = {input} * 208 / (283 - {PGA})
+
+        The solution is the following equation:
+
+        {PGA} = 283 * (1 - {value} / {target_value})
+    */
+    float gain = value / target_value;
+    int code = 283 * (1 - gain);
+    return clamp(code, 0, 255);
+}
+
+std::uint8_t compute_frontend_gain(float value, float target_value,
+                                   FrontendType frontend_type)
+{
+    if (frontend_type == FrontendType::WOLFSON) {
+        return compute_frontend_gain_wolfson(value, target_value);
+    }
+    throw SaneException("Unknown frontend to compute gain for");
+}
+
 const SensorProfile& get_sensor_profile(AsicType asic_type, const Genesys_Sensor& sensor,
                                         unsigned dpi, unsigned ccd_size_divisor)
 {

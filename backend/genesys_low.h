@@ -640,6 +640,9 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
 
 void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buffer_dst, size_t size);
 
+std::uint8_t compute_frontend_gain(float value, float target_value,
+                                   FrontendType frontend_type);
+
 const SensorProfile& get_sensor_profile(AsicType asic_type, const Genesys_Sensor& sensor,
                                         unsigned dpi, unsigned ccd_size_divisor);
 

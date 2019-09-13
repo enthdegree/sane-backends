@@ -1387,6 +1387,33 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     compute_session_buffer_sizes(dev->model->asic_type, s);
 }
 
+static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& session)
+{
+    switch (asic) {
+        case AsicType::GL646:
+            // buffer not used on this chip set
+            return 1;
+
+        case AsicType::GL124:
+        case AsicType::GL846:
+        case AsicType::GL847:
+            // BUG: we shouldn't multiply by channels here
+            return session.output_line_bytes_raw * session.params.channels;
+
+        case AsicType::GL843:
+            return session.output_line_bytes_raw * 2;
+
+        default:
+            throw SaneException("Unknown asic type");
+    }
+}
+
+void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
+{
+    dev->oe_buffer.clear();
+    dev->oe_buffer.alloc(get_usb_buffer_read_size(dev->model->asic_type, session));
+}
+
 const SensorProfile& get_sensor_profile(AsicType asic_type, const Genesys_Sensor& sensor,
                                         unsigned dpi, unsigned ccd_size_divisor)
 {

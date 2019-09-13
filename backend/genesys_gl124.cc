@@ -951,9 +951,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG (DBG_io2, "%s: pixels          =%d\n", __func__, session.optical_pixels);
   DBG (DBG_io2, "%s: depth           =%d\n", __func__, session.params.depth);
 
-    // BUG: we shouldn't multiply by channels here
-    dev->oe_buffer.clear();
-    dev->oe_buffer.alloc(session.output_line_bytes_raw * session.params.channels);
+    build_image_pipeline(dev, session);
 
     // MAXWD is expressed in 2 words unit
 

@@ -127,6 +127,33 @@ private:
     ImageBuffer buffer_;
 };
 
+class ImagePipelineNodeBufferedGenesysUsb : public ImagePipelineNode
+{
+public:
+    using ProducerCallback = std::function<void(std::size_t size, std::uint8_t* out_data)>;
+
+    ImagePipelineNodeBufferedGenesysUsb(std::size_t width, std::size_t height,
+                                        PixelFormat format, std::size_t total_size,
+                                        const FakeBufferModel& buffer_model,
+                                        ProducerCallback producer);
+
+    std::size_t get_width() const override { return width_; }
+    std::size_t get_height() const override { return height_; }
+    PixelFormat get_format() const override { return format_; }
+
+    void get_next_row_data(std::uint8_t* out_data) override;
+
+    std::size_t buffer_available() const { return buffer_.available(); }
+
+private:
+    ProducerCallback producer_;
+    std::size_t width_ = 0;
+    std::size_t height_ = 0;
+    PixelFormat format_ = PixelFormat::UNKNOWN;
+
+    ImageBufferGenesysUsb buffer_;
+};
+
 // A pipeline node that produces data from the given array.
 class ImagePipelineNodeArraySource : public ImagePipelineNode
 {

@@ -69,6 +69,21 @@ void ImagePipelineNodeBufferedCallableSource::get_next_row_data(std::uint8_t* ou
     curr_row_++;
 }
 
+
+ImagePipelineNodeBufferedGenesysUsb::ImagePipelineNodeBufferedGenesysUsb(
+        std::size_t width, std::size_t height, PixelFormat format, std::size_t total_size,
+        const FakeBufferModel& buffer_model, ProducerCallback producer) :
+    width_{width},
+    height_{height},
+    format_{format},
+    buffer_{total_size, buffer_model, producer}
+{}
+
+void ImagePipelineNodeBufferedGenesysUsb::get_next_row_data(std::uint8_t* out_data)
+{
+    buffer_.get_data(get_row_bytes(), out_data);
+}
+
 ImagePipelineNodeArraySource::ImagePipelineNodeArraySource(std::size_t width, std::size_t height,
                                                            PixelFormat format,
                                                            std::vector<std::uint8_t> data) :

@@ -30,6 +30,43 @@
 
 #include <numeric>
 
+void test_image_buffer_genesys_usb()
+{
+    std::vector<std::size_t> requests;
+
+    auto on_read_usb = [&](std::size_t x, std::uint8_t* data)
+    {
+        (void) data;
+        requests.push_back(x);
+    };
+
+    FakeBufferModel model;
+    model.push_step(453120, 1);
+    model.push_step(56640, 3540);
+    ImageBufferGenesysUsb buffer{1086780, model, on_read_usb};
+
+    std::vector<std::uint8_t> dummy;
+    dummy.resize(1086780);
+
+    buffer.get_data(453120, dummy.data());
+    buffer.get_data(56640, dummy.data());
+    buffer.get_data(56640, dummy.data());
+    buffer.get_data(56640, dummy.data());
+    buffer.get_data(56640, dummy.data());
+    buffer.get_data(56640, dummy.data());
+    buffer.get_data(56640, dummy.data());
+    buffer.get_data(56640, dummy.data());
+    buffer.get_data(56640, dummy.data());
+    buffer.get_data(56640, dummy.data());
+    buffer.get_data(56640, dummy.data());
+    buffer.get_data(56640, dummy.data());
+
+    std::vector<std::size_t> expected = {
+        453120, 56576, 56576, 56576, 56832, 56576, 56576, 56576, 56832, 56576, 56576, 56576, 11008
+    };
+    ASSERT_EQ(requests, expected);
+}
+
 void test_node_buffered_callable_source()
 {
     using Data = std::vector<std::uint8_t>;
@@ -294,6 +331,7 @@ void test_node_pixel_shift_lines()
 
 void test_image_pipeline()
 {
+    test_image_buffer_genesys_usb();
     test_node_buffered_callable_source();
     test_node_format_convert();
     test_node_desegment_1_line();

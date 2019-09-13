@@ -2232,7 +2232,7 @@ void run_functions_at_backend_exit()
 
 void debug_dump(unsigned level, const Genesys_Settings& settings)
 {
-    DBG(level, "settings:\n"
+    DBG(level, "Genesys_Settings:\n"
         "Resolution X/Y : %u / %u dpi\n"
         "Lines : %u\n"
         "Pixels per line : %u\n"
@@ -2248,7 +2248,7 @@ void debug_dump(unsigned level, const Genesys_Settings& settings)
 
 void debug_dump(unsigned level, const SetupParams& params)
 {
-    DBG(level, "settings:\n"
+    DBG(level, "SetupParams:\n"
         "Resolution X/Y : %u / %u dpi\n"
         "Lines : %u\n"
         "Pixels per line : %u\n"

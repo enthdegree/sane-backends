@@ -1462,6 +1462,10 @@ static FakeBufferModel get_fake_usb_buffer_model(const ScanSession& session)
 
 void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
 {
+    static unsigned s_pipeline_index = 0;
+
+    s_pipeline_index++;
+
     auto format = create_pixel_format(session.params.depth,
                                       dev->model->is_cis ? 1 : session.params.channels,
                                       dev->model->line_mode_color_order);
@@ -1507,6 +1511,12 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     }
 #endif
 
+    if (DBG_LEVEL >= DBG_io2) {
+        dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
+                                                        std::to_string(s_pipeline_index) +
+                                                        "_0_after_swap.pnm");
+    }
+
     if (dev->model->is_cis && session.params.channels == 3) {
         dev->pipeline.push_node<ImagePipelineNodeMergeMonoLines>(dev->model->line_mode_color_order);
     }
@@ -1526,9 +1536,21 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         dev->pipeline.push_node<ImagePipelineNodeComponentShiftLines>(shift_r, shift_g, shift_b);
     }
 
+    if (DBG_LEVEL >= DBG_io2) {
+        dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
+                                                        std::to_string(s_pipeline_index) +
+                                                        "_1_after_shift.pnm");
+    }
+
     if (session.num_staggered_lines > 0) {
         std::vector<std::size_t> shifts{0, session.num_staggered_lines};
         dev->pipeline.push_node<ImagePipelineNodePixelShiftLines>(shifts);
+    }
+
+    if (DBG_LEVEL >= DBG_io2) {
+        dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
+                                                        std::to_string(s_pipeline_index) +
+                                                        "_2_after_stagger.pnm");
     }
 
     if (session.output_pixels != session.params.get_requested_pixels()) {

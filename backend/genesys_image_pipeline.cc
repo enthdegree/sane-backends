@@ -44,6 +44,7 @@
 #define DEBUG_DECLARE_ONLY
 
 #include "genesys_image_pipeline.h"
+#include "genesys_low.h"
 #include <numeric>
 
 ImagePipelineNode::~ImagePipelineNode() {}
@@ -560,6 +561,36 @@ void ImagePipelineNodeExtract::get_next_row_data(std::uint8_t* out_data)
     current_line_++;
 }
 
+ImagePipelineNodeDebug::ImagePipelineNodeDebug(ImagePipelineNode& source,
+                                               const std::string& path) :
+    source_(source),
+    path_{path},
+    buffer_{source_.get_row_bytes()}
+{}
+
+ImagePipelineNodeDebug::~ImagePipelineNodeDebug()
+{
+    catch_all_exceptions(__func__, [&]()
+    {
+        if (buffer_.empty())
+            return;
+
+        auto format = get_format();
+        buffer_.linearize();
+        sanei_genesys_write_pnm_file(path_.c_str(), buffer_.get_front_row_ptr(),
+                                     get_pixel_format_depth(format),
+                                     get_pixel_channels(format),
+                                     get_width(), buffer_.height());
+    });
+}
+
+void ImagePipelineNodeDebug::get_next_row_data(std::uint8_t* out_data)
+{
+    buffer_.push_back();
+    source_.get_next_row_data(out_data);
+    std::memcpy(buffer_.get_back_row_ptr(), out_data, get_row_bytes());
+}
+
 std::size_t ImagePipelineStack::get_input_width() const
 {
     ensure_node_exists();
@@ -613,6 +644,16 @@ void ImagePipelineStack::ensure_node_exists() const
     if (nodes_.empty()) {
         throw SaneException("The pipeline does not contain any nodes");
     }
+}
+
+void ImagePipelineStack::clear()
+{
+    // we need to destroy the nodes back to front, so that the destructors still have valid
+    // references to sources
+    for (auto it = nodes_.rbegin(); it != nodes_.rend(); ++it) {
+        it->reset();
+    }
+    nodes_.clear();
 }
 
 std::vector<std::uint8_t> ImagePipelineStack::get_all_data()

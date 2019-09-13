@@ -402,6 +402,24 @@ private:
     std::vector<uint8_t> cached_line_;
 };
 
+class ImagePipelineNodeDebug : public ImagePipelineNode
+{
+public:
+    ImagePipelineNodeDebug(ImagePipelineNode& source, const std::string& path);
+    ~ImagePipelineNodeDebug() override;
+
+    std::size_t get_width() const override { return source_.get_width(); }
+    std::size_t get_height() const override { return source_.get_height(); }
+    PixelFormat get_format() const override { return source_.get_format(); }
+
+    void get_next_row_data(std::uint8_t* out_data) override;
+
+private:
+    ImagePipelineNode& source_;
+    std::string path_;
+    RowBuffer buffer_;
+};
+
 class ImagePipelineStack
 {
 public:
@@ -417,10 +435,7 @@ public:
     PixelFormat get_output_format() const;
     std::size_t get_output_row_bytes() const;
 
-    void clear()
-    {
-        nodes_.clear();
-    }
+    void clear();
 
     template<class Node, class... Args>
     void push_first_node(Args&&... args)

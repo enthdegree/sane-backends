@@ -3421,12 +3421,7 @@ void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buffer_dst
 {
     DBG_HELPER(dbg);
 
-    unsigned depth = dev->settings.depth;
-    if (dev->settings.scan_mode == ScanColorMode::LINEART &&
-        dev->settings.dynamic_lineart == false)
-    {
-        depth = 1;
-    }
+    unsigned depth = dev->session.params.depth;
 
     // fill buffer if needed
     if (dev->oe_buffer.avail() == 0)

@@ -3439,9 +3439,8 @@ static void genesys_fill_read_buffer(Genesys_Device* dev)
 static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destination, size_t* len)
 {
     DBG_HELPER(dbg);
-  size_t bytes, extra;
+  size_t bytes;
   unsigned int channels, depth, src_pixels;
-  unsigned int ccd_shift[12], shift_count;
   uint8_t *work_buffer_src;
   uint8_t *work_buffer_dst;
   unsigned int dst_lines;
@@ -3489,31 +3488,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
         ((dev->read_bytes_left_after_deseg + dev->read_buffer.avail()) * 8UL) /
         (src_pixels * channels * depth));
 
-  if (channels == 1)
-    {
-      ccd_shift[0] = 0;
-      ccd_shift[1] = dev->current_setup.stagger;
-      shift_count = 2;
-    }
-  else
-    {
-      ccd_shift[0] =
-	((dev->ld_shift_r * dev->settings.yres) /
-	 dev->motor.base_ydpi);
-      ccd_shift[1] =
-	((dev->ld_shift_g * dev->settings.yres) /
-	 dev->motor.base_ydpi);
-      ccd_shift[2] =
-	((dev->ld_shift_b * dev->settings.yres) /
-	 dev->motor.base_ydpi);
-
-      ccd_shift[3] = ccd_shift[0] + dev->current_setup.stagger;
-      ccd_shift[4] = ccd_shift[1] + dev->current_setup.stagger;
-      ccd_shift[5] = ccd_shift[2] + dev->current_setup.stagger;
-
-      shift_count = 6;
-    }
-
 
 /* convert data */
 /*
@@ -3545,56 +3519,6 @@ Problems with the first approach:
     genesys_fill_read_buffer(dev);
 
   src_buffer = &(dev->read_buffer);
-
-    // maybe reverse effects of ccd layout
-    if (dev->session.pipeline_needs_ccd)
-    {
-        // should not happen with depth == 1.
-        if (depth == 1) {
-            throw SaneException("Can't reverse ccd single bit data\n");
-        }
-
-      dst_buffer = &(dev->shrink_buffer);
-
-      work_buffer_src = src_buffer->get_read_pos();
-      bytes = src_buffer->avail();
-
-      extra =
-	(dev->current_setup.max_shift * src_pixels * channels * depth) / 8;
-
-/*extra bytes are reserved, and should not be consumed*/
-      if (bytes < extra)
-	bytes = 0;
-      else
-	bytes -= extra;
-
-/*how many bytes can be processed here?*/
-/*we are greedy. we work as much as possible*/
-      if (bytes > dst_buffer->size() - dst_buffer->avail())
-        bytes = dst_buffer->size() - dst_buffer->avail();
-
-      dst_lines = (bytes * 8) / (src_pixels * channels * depth);
-      bytes = (dst_lines * src_pixels * channels * depth) / 8;
-
-      work_buffer_dst = dst_buffer->get_write_pos(bytes);
-
-      DBG(DBG_info, "%s: un-ccd-ing %d lines\n", __func__, dst_lines);
-
-      if (dst_lines != 0)
-	{
-
-            if (depth == 8) {
-                genesys_reverse_ccd_8(work_buffer_src, work_buffer_dst, dst_lines,
-                                      src_pixels * channels, ccd_shift, shift_count);
-            } else {
-                genesys_reverse_ccd_16(work_buffer_src, work_buffer_dst, dst_lines,
-                                       src_pixels * channels, ccd_shift, shift_count);
-            }
-            dst_buffer->produce(bytes);
-            src_buffer->consume(bytes);
-	}
-      src_buffer = dst_buffer;
-    }
 
     // maybe shrink(or enlarge) lines
     if (dev->session.pipeline_needs_shrink) {

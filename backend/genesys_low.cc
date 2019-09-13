@@ -1519,6 +1519,17 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB161616);
     }
 
+    if (session.max_color_shift_lines > 0 && session.params.channels == 3) {
+        std::size_t shift_r = (dev->ld_shift_r * session.params.yres) / dev->motor.base_ydpi;
+        std::size_t shift_g = (dev->ld_shift_g * session.params.yres) / dev->motor.base_ydpi;
+        std::size_t shift_b = (dev->ld_shift_b * session.params.yres) / dev->motor.base_ydpi;
+        dev->pipeline.push_node<ImagePipelineNodeComponentShiftLines>(shift_r, shift_g, shift_b);
+    }
+
+    if (session.num_staggered_lines > 0) {
+        std::vector<std::size_t> shifts{0, session.num_staggered_lines};
+        dev->pipeline.push_node<ImagePipelineNodePixelShiftLines>(shifts);
+    }
 
     auto read_from_pipeline = [dev](std::size_t size, std::uint8_t* out_data)
     {

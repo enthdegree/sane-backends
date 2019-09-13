@@ -282,7 +282,6 @@ struct Genesys_Device
     SANE_Bool needs_home_ta = 0;
 
     Genesys_Buffer read_buffer;
-    Genesys_Buffer shrink_buffer;
     Genesys_Buffer out_buffer;
 
     // buffer for digital lineart from gray data

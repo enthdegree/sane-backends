@@ -1053,9 +1053,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);
 
-    dev->shrink_buffer.clear();
-    dev->shrink_buffer.alloc(session.buffer_size_shrink);
-
     dev->out_buffer.clear();
     dev->out_buffer.alloc(session.buffer_size_out);
 

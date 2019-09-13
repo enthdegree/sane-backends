@@ -1386,6 +1386,12 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
                     s.params.depth);
     }
 
+    if (dev->model->asic_type == AsicType::GL841) {
+        if (dev->model->is_cis) {
+            s.output_line_bytes_raw = s.output_channel_bytes;
+        }
+    }
+
     if (dev->model->asic_type == AsicType::GL124) {
         if (dev->model->is_cis) {
             s.output_line_bytes_raw = s.output_channel_bytes;

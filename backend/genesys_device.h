@@ -47,6 +47,7 @@
 #include "genesys_calibration.h"
 #include "genesys_buffer.h"
 #include "genesys_enums.h"
+#include "genesys_image_pipeline.h"
 #include "genesys_motor.h"
 #include "genesys_settings.h"
 #include "genesys_sensor.h"
@@ -300,9 +301,6 @@ struct Genesys_Device
     // total bytes read to be sent to frontend
     size_t total_bytes_to_read = 0;
 
-    // The current byte in line during desegmentation process
-    size_t deseg_curr_byte = 0;
-
     // contains the real used values
     Genesys_Current_Setup current_setup;
     // contains computed data for the current setup
@@ -328,6 +326,12 @@ struct Genesys_Device
 
     // buffer to handle even/odd data
     Genesys_Buffer oe_buffer = {};
+
+    // stores information about how the input image should be processed
+    ImagePipelineStack pipeline;
+
+    // an buffer that allows reading from `pipeline` in chunks of any size
+    ImageBuffer pipeline_buffer;
 
     // when true the scanned picture is first buffered to allow software image enhancements
     SANE_Bool buffer_image = 0;

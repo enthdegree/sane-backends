@@ -1438,10 +1438,72 @@ static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& se
     }
 }
 
+static FakeBufferModel get_fake_usb_buffer_model(const ScanSession& session)
+{
+    FakeBufferModel model;
+    model.push_step(session.buffer_size_read, 1);
+
+    if (session.pipeline_needs_reorder) {
+        model.push_step(session.buffer_size_lines, session.output_line_bytes);
+    }
+    if (session.pipeline_needs_ccd) {
+        model.push_step(session.buffer_size_shrink, session.output_line_bytes);
+    }
+    if (session.pipeline_needs_shrink) {
+        model.push_step(session.buffer_size_out, session.output_line_bytes);
+    }
+
+    return model;
+}
+
 void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
 {
-    dev->oe_buffer.clear();
-    dev->oe_buffer.alloc(get_usb_buffer_read_size(dev->model->asic_type, session));
+    auto format = create_pixel_format(session.params.depth,
+                                      dev->model->is_cis ? 1 : session.params.channels,
+                                      dev->model->line_mode_color_order);
+    auto width = get_pixels_from_row_bytes(format, session.output_line_bytes_raw);
+
+    auto read_data_from_usb = [dev](std::size_t size, std::uint8_t* data)
+    {
+        dev->cmd_set->bulk_read_data(dev, 0x45, data, size);
+    };
+
+    auto lines = session.output_line_count * (dev->model->is_cis ? session.params.channels : 1);
+
+    dev->pipeline.clear();
+
+    // FIXME: here we are complicating things for the time being to preserve the existing behaviour
+    // This allows to be sure that the changes to the image pipeline have not introduced
+    // regressions.
+
+    if (session.segment_count > 1) {
+        // BUG: we're reading one line too much
+        dev->pipeline.push_first_node<ImagePipelineNodeBufferedCallableSource>(
+                width, lines + 1, format,
+                get_usb_buffer_read_size(dev->model->asic_type, session), read_data_from_usb);
+
+        auto output_width = session.output_segment_pixel_group_count * session.segment_count;
+        dev->pipeline.push_node<ImagePipelineNodeDesegment>(output_width, dev->segment_order,
+                                                            session.conseq_pixel_dist_bytes,
+                                                            1, 1);
+    } else {
+        auto read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
+        if (dev->model->asic_type == AsicType::GL646) {
+            read_bytes_left_after_deseg *= dev->model->is_cis ? session.params.channels : 1;
+        }
+
+        dev->pipeline.push_first_node<ImagePipelineNodeBufferedGenesysUsb>(
+                width, lines, format, read_bytes_left_after_deseg,
+                get_fake_usb_buffer_model(session), read_data_from_usb);
+    }
+
+    auto read_from_pipeline = [dev](std::size_t size, std::uint8_t* out_data)
+    {
+        (void) size; // will be always equal to dev->pipeline.get_output_row_bytes()
+        dev->pipeline.get_next_row_data(out_data);
+    };
+    dev->pipeline_buffer = ImageBuffer{dev->pipeline.get_output_row_bytes(),
+                                       read_from_pipeline};
 }
 
 std::uint8_t compute_frontend_gain_wolfson(float value, float target_value)

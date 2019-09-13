@@ -807,8 +807,6 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         }*/
     }
 
-    dev->deseg_curr_byte = 0;
-
     unsigned dpiset = session.params.xres * ccd_pixels_per_system_pixel;
     reg->set16(REG_DPISET, dpiset);
     DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);

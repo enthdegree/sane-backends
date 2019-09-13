@@ -230,45 +230,57 @@ private:
     std::vector<GenesysRegister> registers_;
 };
 
-struct GenesysRegisterSetting
+template<class Value>
+struct RegisterSetting
 {
-    GenesysRegisterSetting() = default;
+    using ValueType = Value;
+    using AddressType = std::uint16_t;
 
-    GenesysRegisterSetting(uint16_t p_address, uint8_t p_value) :
+    RegisterSetting() = default;
+
+    RegisterSetting(AddressType p_address, ValueType p_value) :
         address(p_address), value(p_value)
     {}
 
-    GenesysRegisterSetting(uint16_t p_address, uint8_t p_value, uint8_t p_mask) :
+    RegisterSetting(AddressType p_address, ValueType p_value, ValueType p_mask) :
         address(p_address), value(p_value), mask(p_mask)
     {}
 
-    uint16_t address = 0;
-    uint8_t value = 0;
-    uint8_t mask = 0xff;
+    AddressType address = 0;
+    ValueType value = 0;
+    ValueType mask = 0xff;
 
-    bool operator==(const GenesysRegisterSetting& other) const
+    bool operator==(const RegisterSetting& other) const
     {
         return address == other.address && value == other.value && mask == other.mask;
     }
 };
 
-template<class Stream>
-void serialize(Stream& str, GenesysRegisterSetting& reg)
+using GenesysRegisterSetting = RegisterSetting<std::uint8_t>;
+using GenesysRegisterSetting16 = RegisterSetting<std::uint16_t>;
+
+template<class Stream, class Value>
+void serialize(Stream& str, RegisterSetting<Value>& reg)
 {
     serialize(str, reg.address);
     serialize(str, reg.value);
     serialize(str, reg.mask);
 }
 
-class GenesysRegisterSettingSet
+template<class Value>
+class RegisterSettingSet
 {
 public:
-    using container = std::vector<GenesysRegisterSetting>;
+    using ValueType = Value;
+    using SettingType = RegisterSetting<ValueType>;
+    using AddressType = typename SettingType::AddressType;
+
+    using container = std::vector<SettingType>;
     using iterator = typename container::iterator;
     using const_iterator = typename container::const_iterator;
 
-    GenesysRegisterSettingSet() = default;
-    GenesysRegisterSettingSet(std::initializer_list<GenesysRegisterSetting> ilist) :
+    RegisterSettingSet() = default;
+    RegisterSettingSet(std::initializer_list<SettingType> ilist) :
         registers_(ilist)
     {}
 
@@ -277,23 +289,23 @@ public:
     iterator end() { return registers_.end(); }
     const_iterator end() const { return registers_.end(); }
 
-    GenesysRegisterSetting& operator[](size_t i) { return registers_[i]; }
-    const GenesysRegisterSetting& operator[](size_t i) const { return registers_[i]; }
+    SettingType& operator[](size_t i) { return registers_[i]; }
+    const SettingType& operator[](size_t i) const { return registers_[i]; }
 
     size_t size() const { return registers_.size(); }
     bool empty() const { return registers_.empty(); }
     void clear() { registers_.clear(); }
 
-    void push_back(GenesysRegisterSetting reg) { registers_.push_back(reg); }
+    void push_back(SettingType reg) { registers_.push_back(reg); }
 
-    void merge(const GenesysRegisterSettingSet& other)
+    void merge(const RegisterSettingSet& other)
     {
         for (const auto& reg : other) {
             set_value(reg.address, reg.value);
         }
     }
 
-    GenesysRegisterSetting& find_reg(uint16_t address)
+    SettingType& find_reg(AddressType address)
     {
         int i = find_reg_index(address);
         if (i < 0) {
@@ -302,7 +314,7 @@ public:
         return registers_[i];
     }
 
-    const GenesysRegisterSetting& find_reg(uint16_t address) const
+    const SettingType& find_reg(AddressType address) const
     {
         int i = find_reg_index(address);
         if (i < 0) {
@@ -311,7 +323,7 @@ public:
         return registers_[i];
     }
 
-    uint8_t get_value(uint16_t address) const
+    ValueType get_value(AddressType address) const
     {
         int index = find_reg_index(address);
         if (index >= 0) {
@@ -320,27 +332,29 @@ public:
         throw std::out_of_range("Unknown register");
     }
 
-    void set_value(uint16_t address, uint8_t value)
+    void set_value(AddressType address, ValueType value)
     {
         int index = find_reg_index(address);
         if (index >= 0) {
             registers_[index].value = value;
             return;
         }
-        push_back(GenesysRegisterSetting(address, value));
+        push_back(SettingType(address, value));
     }
 
-    friend void serialize(std::istream& str, GenesysRegisterSettingSet& reg);
-    friend void serialize(std::ostream& str, GenesysRegisterSettingSet& reg);
+    template<class V>
+    friend void serialize(std::istream& str, RegisterSettingSet<V>& reg);
+    template<class V>
+    friend void serialize(std::ostream& str, RegisterSettingSet<V>& reg);
 
-    bool operator==(const GenesysRegisterSettingSet& other) const
+    bool operator==(const RegisterSettingSet& other) const
     {
         return registers_ == other.registers_;
     }
 
 private:
 
-    int find_reg_index(uint16_t address) const
+    int find_reg_index(AddressType address) const
     {
         for (size_t i = 0; i < registers_.size(); i++) {
             if (registers_[i].address == address) {
@@ -350,24 +364,30 @@ private:
         return -1;
     }
 
-    std::vector<GenesysRegisterSetting> registers_;
+    std::vector<SettingType> registers_;
 };
 
-inline void serialize(std::istream& str, GenesysRegisterSettingSet& reg)
+using GenesysRegisterSettingSet = RegisterSettingSet<std::uint8_t>;
+using GenesysRegisterSettingSet16 = RegisterSettingSet<std::uint16_t>;
+
+template<class Value>
+inline void serialize(std::istream& str, RegisterSettingSet<Value>& reg)
 {
+    using AddressType = typename RegisterSetting<Value>::AddressType;
+
     reg.clear();
-    const size_t max_register_address =
-            1 << (sizeof(GenesysRegisterSetting::address) * CHAR_BIT);
+    const size_t max_register_address = 1 << (sizeof(AddressType) * CHAR_BIT);
     serialize(str, reg.registers_, max_register_address);
 }
 
-inline void serialize(std::ostream& str, GenesysRegisterSettingSet& reg)
+template<class Value>
+inline void serialize(std::ostream& str, RegisterSettingSet<Value>& reg)
 {
     serialize(str, reg.registers_);
 }
 
-template<class F>
-void apply_registers_ordered(const GenesysRegisterSettingSet& set,
+template<class F, class Value>
+void apply_registers_ordered(const RegisterSettingSet<Value>& set,
                              std::initializer_list<uint16_t> order, F f)
 {
     for (uint16_t addr : order) {

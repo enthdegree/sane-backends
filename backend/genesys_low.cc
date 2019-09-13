@@ -1359,11 +1359,6 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     s.output_line_bytes_raw = s.output_line_bytes;
     s.conseq_pixel_dist = 0;
 
-    if (dev->model->asic_type == AsicType::GL646) {
-        // BUG: most likely segmented sensors were never used, so incorrect value was supplied
-        s.output_line_bytes_raw = s.output_channel_bytes;
-    }
-
     if (dev->model->asic_type == AsicType::GL845 ||
         dev->model->asic_type == AsicType::GL846 ||
         dev->model->asic_type == AsicType::GL847)

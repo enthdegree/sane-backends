@@ -1405,11 +1405,35 @@ std::uint8_t compute_frontend_gain_wolfson(float value, float target_value)
     return clamp(code, 0, 255);
 }
 
+std::uint8_t compute_frontend_gain_analog_devices(float value, float target_value)
+{
+    /*  The flow of data through the frontend ADC is as follows (see e.g. AD9826 datasheet)
+        input
+        -> apply offset (o = i + 300mV * (OFFSET[8] ? 1 : -1) * (OFFSET[7:0] / 127)
+        -> apply gain (o = i * 6 / (1 + 5 * ( 63 - PGA[5:0] ) / 63 ) )
+        -> ADC
+
+        We want to solve the following for {PGA}:
+
+        {value}         = {input} * 6 / (1 + 5 * ( 63 - 0) / 63 ) )
+        {target_value}  = {input} * 6 / (1 + 5 * ( 63 - {PGA}) / 63 ) )
+
+        The solution is the following equation:
+
+        {PGA} = (378 / 5) * ({target_value} - {value} / {target_value})
+    */
+    int code = static_cast<int>((378.0f / 5.0f) * ((target_value - value) / target_value));
+    return clamp(code, 0, 63);
+}
+
 std::uint8_t compute_frontend_gain(float value, float target_value,
                                    FrontendType frontend_type)
 {
     if (frontend_type == FrontendType::WOLFSON) {
         return compute_frontend_gain_wolfson(value, target_value);
+    }
+    if (frontend_type == FrontendType::ANALOG_DEVICES) {
+        return compute_frontend_gain_analog_devices(value, target_value);
     }
     throw SaneException("Unknown frontend to compute gain for");
 }

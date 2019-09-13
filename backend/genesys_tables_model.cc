@@ -97,7 +97,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 8;
     model.ld_shift_b = 16;
 
-    model.line_mode_color_order = COLOR_ORDER_BGR;
+    model.line_mode_color_order = ColorOrder::BGR;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -149,7 +149,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
@@ -208,7 +208,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 8;
     model.ld_shift_b = 16;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -263,7 +263,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 24;
     model.ld_shift_b = 48;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -318,7 +318,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_r = 0;
     model.ld_shift_g = 24;
     model.ld_shift_b = 48;
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -375,7 +375,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 24;
     model.ld_shift_b = 48;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -432,7 +432,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 24;
     model.ld_shift_b = 48;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -491,7 +491,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 24;
     model.ld_shift_b = 48;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -552,7 +552,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 48;
     model.ld_shift_b = 96;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -613,7 +613,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
@@ -672,7 +672,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
@@ -730,7 +730,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
     model.ccd_type = CIS_CANONLIDE120;
@@ -788,7 +788,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
@@ -848,7 +848,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
     model.ccd_type = CIS_CANONLIDE220;
@@ -907,7 +907,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
@@ -966,7 +966,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
@@ -1026,7 +1026,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
     model.ccd_type = CIS_CANONLIDE200;
@@ -1084,7 +1084,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
@@ -1143,7 +1143,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
@@ -1205,7 +1205,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 8;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.ccd_type = CCD_HP2300;
@@ -1262,7 +1262,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 24;
     model.ld_shift_b = 48;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -1320,7 +1320,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
@@ -1377,7 +1377,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 24;
     model.ld_shift_b = 48;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -1435,7 +1435,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 8;
     model.ld_shift_b = 16;
 
-    model.line_mode_color_order = COLOR_ORDER_BGR;
+    model.line_mode_color_order = ColorOrder::BGR;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -1486,7 +1486,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 8;
     model.ld_shift_b = 16;
 
-    model.line_mode_color_order = COLOR_ORDER_BGR;
+    model.line_mode_color_order = ColorOrder::BGR;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -1541,7 +1541,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_r = 48;
     model.ld_shift_g = 24;
     model.ld_shift_b = 0;
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -1603,7 +1603,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
@@ -1658,7 +1658,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
@@ -1713,7 +1713,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
@@ -1768,7 +1768,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
@@ -1824,7 +1824,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
@@ -1879,7 +1879,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
@@ -1935,7 +1935,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
@@ -1990,7 +1990,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
@@ -2047,7 +2047,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
@@ -2103,7 +2103,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
@@ -2159,7 +2159,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_r = 48;
     model.ld_shift_g = 24;
     model.ld_shift_b = 0;
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -2220,7 +2220,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_r = 48;
     model.ld_shift_g = 24;
     model.ld_shift_b = 0;
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -2282,7 +2282,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
@@ -2337,7 +2337,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 24;
     model.ld_shift_b = 48;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -2395,7 +2395,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -2455,7 +2455,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 24;
     model.ld_shift_b = 48;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
@@ -2510,7 +2510,7 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 24;
     model.ld_shift_b = 48;
 
-    model.line_mode_color_order = COLOR_ORDER_RGB;
+    model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;

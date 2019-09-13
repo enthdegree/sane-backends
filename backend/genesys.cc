@@ -3620,18 +3620,24 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
   src_pixels = dev->current_setup.pixels;
 
   needs_reorder = 1;
-  if (channels != 3 && depth != 16)
-    needs_reorder = 0;
+    if (channels != 3 && depth != 16) {
+        needs_reorder = 0;
+    }
 #ifndef WORDS_BIGENDIAN
-  if (channels != 3 && depth == 16)
-    needs_reorder = 0;
-  if (channels == 3 && depth == 16 && !dev->model->is_cis &&
-      dev->model->line_mode_color_order == COLOR_ORDER_RGB)
-    needs_reorder = 0;
+    if (channels != 3 && depth == 16) {
+        needs_reorder = 0;
+    }
+    if (channels == 3 && depth == 16 && !dev->model->is_cis &&
+        dev->model->line_mode_color_order == ColorOrder::RGB)
+    {
+        needs_reorder = 0;
+    }
 #endif
-  if (channels == 3 && depth == 8 && !dev->model->is_cis &&
-      dev->model->line_mode_color_order == COLOR_ORDER_RGB)
-    needs_reorder = 0;
+    if (channels == 3 && depth == 8 && !dev->model->is_cis &&
+        dev->model->line_mode_color_order == ColorOrder::RGB)
+    {
+        needs_reorder = 0;
+    }
 
   needs_ccd = dev->current_setup.max_shift > 0;
   needs_shrink = dev->settings.requested_pixels != src_pixels;
@@ -3757,14 +3763,17 @@ Problems with the first approach:
 	    {
 	      step_1_mode = 0;
 
-	      if (depth == 16)
-		step_1_mode |= 1;
+                if (depth == 16) {
+                    step_1_mode |= 1;
+                }
 
-	      if (dev->model->is_cis)
-		step_1_mode |= 2;
+                if (dev->model->is_cis) {
+                    step_1_mode |= 2;
+                }
 
-	      if (dev->model->line_mode_color_order == COLOR_ORDER_BGR)
-		step_1_mode |= 4;
+                if (dev->model->line_mode_color_order == ColorOrder::BGR) {
+                    step_1_mode |= 4;
+                }
 
 	      switch (step_1_mode)
 		{

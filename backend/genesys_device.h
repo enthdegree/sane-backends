@@ -152,7 +152,7 @@ struct Genesys_Model
     SANE_Int ld_shift_b = 0;
 
     // Order of the CCD/CIS colors
-    Genesys_Color_Order line_mode_color_order = COLOR_ORDER_RGB;
+    ColorOrder line_mode_color_order = ColorOrder::RGB;
 
     // Is this a CIS or CCD scanner?
     SANE_Bool is_cis = false;

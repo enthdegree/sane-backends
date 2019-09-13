@@ -451,6 +451,71 @@ ImagePipelineNodeExtract::ImagePipelineNodeExtract(ImagePipelineNode& source,
 
 ImagePipelineNodeExtract::~ImagePipelineNodeExtract() {}
 
+ImagePipelineNodeScaleRows::ImagePipelineNodeScaleRows(ImagePipelineNode& source,
+                                                       std::size_t width) :
+    source_(source),
+    width_{width}
+{
+    cached_line_.resize(source_.get_row_bytes());
+}
+
+void ImagePipelineNodeScaleRows::get_next_row_data(std::uint8_t* out_data)
+{
+    auto src_width = source_.get_width();
+    auto dst_width = width_;
+
+    source_.get_next_row_data(cached_line_.data());
+
+    const auto* src_data = cached_line_.data();
+    auto format = get_format();
+    auto channels = get_pixel_channels(format);
+
+    if (src_width > dst_width) {
+        // average
+        std::uint32_t counter = src_width / 2;
+        unsigned src_x = 0;
+        for (unsigned dst_x = 0; dst_x < dst_width; dst_x++) {
+            unsigned avg[3] = {0, 0, 0};
+            unsigned count = 0;
+            while (counter < src_width && src_x < src_width) {
+                counter += dst_width;
+
+                for (unsigned c = 0; c < channels; c++) {
+                    avg[c] += get_raw_channel_from_row(src_data, src_x, c, format);
+                }
+
+                src_x++;
+                count++;
+            }
+            counter -= src_width;
+
+            for (unsigned c = 0; c < channels; c++) {
+                set_raw_channel_to_row(out_data, dst_x, c, avg[c] / count, format);
+            }
+        }
+    } else {
+        // interpolate and copy pixels
+        std::uint32_t counter = dst_width / 2;
+        unsigned dst_x = 0;
+
+        for (unsigned src_x = 0; src_x < src_width; src_x++) {
+            unsigned avg[3] = {0, 0, 0};
+            for (unsigned c = 0; c < channels; c++) {
+                avg[c] += get_raw_channel_from_row(src_data, src_x, c, format);
+            }
+            while ((counter < dst_width || src_x + 1 == src_width) && dst_x < dst_width) {
+                counter += src_width;
+
+                for (unsigned c = 0; c < channels; c++) {
+                    set_raw_channel_to_row(out_data, dst_x, c, avg[c], format);
+                }
+                dst_x++;
+            }
+            counter -= dst_width;
+        }
+    }
+}
+
 void ImagePipelineNodeExtract::get_next_row_data(std::uint8_t* out_data)
 {
     while (current_line_ < offset_y_) {

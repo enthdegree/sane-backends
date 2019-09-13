@@ -3442,10 +3442,7 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
   size_t bytes;
   unsigned int channels, depth, src_pixels;
   uint8_t *work_buffer_src;
-  uint8_t *work_buffer_dst;
-  unsigned int dst_lines;
   Genesys_Buffer *src_buffer;
-  Genesys_Buffer *dst_buffer;
 
   if (dev->read_active != SANE_TRUE)
     {
@@ -3519,54 +3516,6 @@ Problems with the first approach:
     genesys_fill_read_buffer(dev);
 
   src_buffer = &(dev->read_buffer);
-
-    // maybe shrink(or enlarge) lines
-    if (dev->session.pipeline_needs_shrink) {
-
-      dst_buffer = &(dev->out_buffer);
-
-      work_buffer_src = src_buffer->get_read_pos();
-      bytes = src_buffer->avail();
-
-/*lines in input*/
-      dst_lines = (bytes * 8) / (src_pixels * channels * depth);
-
-      /* how many lines can be processed here?      */
-      /* we are greedy. we work as much as possible */
-      bytes = dst_buffer->size() - dst_buffer->avail();
-
-        if (dst_lines > (bytes * 8) / (dev->settings.requested_pixels * channels * depth)) {
-            dst_lines = (bytes * 8) / (dev->settings.requested_pixels * channels * depth);
-        }
-
-        bytes = (dst_lines * dev->settings.requested_pixels * channels * depth) / 8;
-
-      work_buffer_dst = dst_buffer->get_write_pos(bytes);
-
-      DBG(DBG_info, "%s: shrinking %d lines\n", __func__, dst_lines);
-
-      if (dst_lines != 0)
-	{
-	  if (depth == 1)
-            genesys_shrink_lines_1(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
-                                   dev->settings.requested_pixels, channels);
-	  else if (depth == 8)
-            genesys_shrink_lines_8(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
-                                   dev->settings.requested_pixels, channels);
-	  else
-            genesys_shrink_lines_16(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
-                                    dev->settings.requested_pixels, channels);
-
-          /* we just consumed this many bytes*/
-	  bytes = (dst_lines * src_pixels * channels * depth) / 8;
-            src_buffer->consume(bytes);
-
-          /* we just created this many bytes*/
-        bytes = (dst_lines * dev->settings.requested_pixels * channels * depth) / 8;
-        dst_buffer->produce(bytes);
-	}
-      src_buffer = dst_buffer;
-    }
 
   /* move data to destination */
   bytes = src_buffer->avail();

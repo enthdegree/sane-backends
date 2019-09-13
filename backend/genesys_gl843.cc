@@ -1292,9 +1292,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);
 
-    dev->out_buffer.clear();
-    dev->out_buffer.alloc(session.buffer_size_out);
-
     build_image_pipeline(dev, session);
 
   dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;

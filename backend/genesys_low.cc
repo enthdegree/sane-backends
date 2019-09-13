@@ -1531,6 +1531,10 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         dev->pipeline.push_node<ImagePipelineNodePixelShiftLines>(shifts);
     }
 
+    if (session.output_pixels != session.params.get_requested_pixels()) {
+        dev->pipeline.push_node<ImagePipelineNodeScaleRows>(session.params.get_requested_pixels());
+    }
+
     auto read_from_pipeline = [dev](std::size_t size, std::uint8_t* out_data)
     {
         (void) size; // will be always equal to dev->pipeline.get_output_row_bytes()

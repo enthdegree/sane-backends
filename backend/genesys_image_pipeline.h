@@ -383,6 +383,25 @@ private:
     std::vector<uint8_t> cached_line_;
 };
 
+// A pipeline node that scales rows to the specified width by using a point filter
+class ImagePipelineNodeScaleRows : public ImagePipelineNode
+{
+public:
+    ImagePipelineNodeScaleRows(ImagePipelineNode& source, std::size_t width);
+
+    std::size_t get_width() const override { return width_; }
+    std::size_t get_height() const override { return source_.get_height(); }
+    PixelFormat get_format() const override { return source_.get_format(); }
+
+    void get_next_row_data(std::uint8_t* out_data) override;
+
+private:
+    ImagePipelineNode& source_;
+    std::size_t width_ = 0;
+
+    std::vector<uint8_t> cached_line_;
+};
+
 class ImagePipelineStack
 {
 public:

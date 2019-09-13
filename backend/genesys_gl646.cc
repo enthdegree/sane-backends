@@ -718,9 +718,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);
 
-    dev->out_buffer.clear();
-    dev->out_buffer.alloc(session.buffer_size_out);
-
     build_image_pipeline(dev, session);
 
   /* scan bytes to read */

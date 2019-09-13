@@ -1501,6 +1501,19 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                 get_fake_usb_buffer_model(session), read_data_from_usb);
     }
 
+    if (dev->model->is_cis && session.params.channels == 3) {
+        dev->pipeline.push_node<ImagePipelineNodeMergeMonoLines>(dev->model->line_mode_color_order);
+    }
+
+    if (dev->pipeline.get_output_format() == PixelFormat::BGR888) {
+        dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB888);
+    }
+
+    if (dev->pipeline.get_output_format() == PixelFormat::BGR161616) {
+        dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB161616);
+    }
+
+
     auto read_from_pipeline = [dev](std::size_t size, std::uint8_t* out_data)
     {
         (void) size; // will be always equal to dev->pipeline.get_output_row_bytes()

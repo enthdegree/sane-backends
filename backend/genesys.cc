@@ -3445,7 +3445,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
   uint8_t *work_buffer_src;
   uint8_t *work_buffer_dst;
   unsigned int dst_lines;
-  unsigned int step_1_mode;
   Genesys_Buffer *src_buffer;
   Genesys_Buffer *dst_buffer;
 
@@ -3546,101 +3545,6 @@ Problems with the first approach:
     genesys_fill_read_buffer(dev);
 
   src_buffer = &(dev->read_buffer);
-
-/* maybe reorder components/bytes */
-    if (dev->session.pipeline_needs_reorder) {
-        if (depth == 1) {
-            throw SaneException("Can't reorder single bit data\n");
-        }
-
-      dst_buffer = &(dev->lines_buffer);
-
-      work_buffer_src = src_buffer->get_read_pos();
-      bytes = src_buffer->avail();
-
-/*how many bytes can be processed here?*/
-/*we are greedy. we work as much as possible*/
-      if (bytes > dst_buffer->size() - dst_buffer->avail())
-        bytes = dst_buffer->size() - dst_buffer->avail();
-
-      dst_lines = (bytes * 8) / (src_pixels * channels * depth);
-      bytes = (dst_lines * src_pixels * channels * depth) / 8;
-
-      work_buffer_dst = dst_buffer->get_write_pos(bytes);
-
-      DBG(DBG_info, "%s: reordering %d lines\n", __func__, dst_lines);
-
-      if (dst_lines != 0)
-	{
-
-	  if (channels == 3)
-	    {
-	      step_1_mode = 0;
-
-                if (depth == 16) {
-                    step_1_mode |= 1;
-                }
-
-                if (dev->model->is_cis) {
-                    step_1_mode |= 2;
-                }
-
-                if (dev->model->line_mode_color_order == ColorOrder::BGR) {
-                    step_1_mode |= 4;
-                }
-
-	      switch (step_1_mode)
-		{
-		case 1:	/* RGB, chunky, 16 bit */
-#ifdef WORDS_BIGENDIAN
-            genesys_reorder_components_endian_16(work_buffer_src, work_buffer_dst, dst_lines,
-                                                 src_pixels, 3);
-		  break;
-#endif /*WORDS_BIGENDIAN */
-		case 0:	/* RGB, chunky, 8 bit */
-		  break;
-		case 2:	/* RGB, cis, 8 bit */
-                genesys_reorder_components_cis_8(work_buffer_src, work_buffer_dst, dst_lines,
-                                                 src_pixels);
-		  break;
-		case 3:	/* RGB, cis, 16 bit */
-                genesys_reorder_components_cis_16(work_buffer_src, work_buffer_dst, dst_lines,
-                                                  src_pixels);
-		  break;
-		case 4:	/* BGR, chunky, 8 bit */
-                genesys_reorder_components_bgr_8(work_buffer_src, work_buffer_dst, dst_lines,
-                                                 src_pixels);
-		  break;
-		case 5:	/* BGR, chunky, 16 bit */
-                genesys_reorder_components_bgr_16(work_buffer_src, work_buffer_dst, dst_lines,
-                                                  src_pixels);
-		  break;
-		case 6:	/* BGR, cis, 8 bit */
-                genesys_reorder_components_cis_bgr_8(work_buffer_src, work_buffer_dst, dst_lines,
-                                                     src_pixels);
-		  break;
-		case 7:	/* BGR, cis, 16 bit */
-                genesys_reorder_components_cis_bgr_16(work_buffer_src, work_buffer_dst, dst_lines,
-                                                      src_pixels);
-		  break;
-		}
-	    }
-	  else
-	    {
-#ifdef WORDS_BIGENDIAN
-	      if (depth == 16)
-		{
-            genesys_reorder_components_endian_16(work_buffer_src, work_buffer_dst, dst_lines,
-                                                 src_pixels, 1);
-		}
-#endif /*WORDS_BIGENDIAN */
-	    }
-
-            dst_buffer->produce(bytes);
-            src_buffer->consume(bytes);
-	}
-      src_buffer = dst_buffer;
-    }
 
     // maybe reverse effects of ccd layout
     if (dev->session.pipeline_needs_ccd)

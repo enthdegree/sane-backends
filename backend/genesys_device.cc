@@ -55,7 +55,6 @@ Genesys_Device::~Genesys_Device()
 void Genesys_Device::clear()
 {
     read_buffer.clear();
-    lines_buffer.clear();
     shrink_buffer.clear();
     out_buffer.clear();
     binarize_buffer.clear();

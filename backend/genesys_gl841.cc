@@ -1875,9 +1875,6 @@ dummy \ scanned lines
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);
 
-    dev->lines_buffer.clear();
-    dev->lines_buffer.alloc(session.buffer_size_lines);
-
     dev->shrink_buffer.clear();
     dev->shrink_buffer.alloc(session.buffer_size_shrink);
 

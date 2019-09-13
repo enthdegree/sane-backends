@@ -672,6 +672,16 @@ inline uint64_t multiply_by_depth_ceil(uint64_t pixels, uint64_t depth)
     }
 }
 
+template<class T>
+inline T clamp(const T& value, const T& lo, const T& hi)
+{
+    if (value < lo)
+        return lo;
+    if (value > hi)
+        return hi;
+    return value;
+}
+
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */
 /*---------------------------------------------------------------------------*/

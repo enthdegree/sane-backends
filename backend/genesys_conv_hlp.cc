@@ -45,25 +45,6 @@
  * Conversion filters for genesys backend
  */
 
-#if defined(DOUBLE_BYTE) && defined(WORDS_BIGENDIAN)
-static void FUNC_NAME(genesys_reorder_components_endian) (uint8_t* src_data, uint8_t* dst_data,
-                                                          unsigned int lines, unsigned int pixels,
-                                                          unsigned int channels)
-{
-    DBG_HELPER(dbg);
-    unsigned int c;
-    uint8_t *src = src_data;
-    uint8_t *dst = dst_data;
-
-    for(c = 0; c < lines * pixels * channels; c++) {
-	*dst++ = src[1];
-	*dst++ = src[0];
-	src += 2;
-    }
-}
-#endif /*defined(DOUBLE_BYTE) && defined(WORDS_BIGENDIAN)*/
-
-
 static void FUNC_NAME(genesys_reverse_ccd) (uint8_t* src_data, uint8_t* dst_data,
                                             unsigned int lines, unsigned int components_per_line,
                                             unsigned int *ccd_shift, unsigned int component_count)

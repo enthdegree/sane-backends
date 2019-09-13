@@ -210,6 +210,29 @@ ImagePipelineNodeDeinterleaveLines::ImagePipelineNodeDeinterleaveLines(
                                interleaved_lines, pixels_per_chunk)
 {}
 
+ImagePipelineNodeSwap16BitEndian::ImagePipelineNodeSwap16BitEndian(ImagePipelineNode& source) :
+    source_(source),
+    needs_swapping_{false}
+{
+    if (get_pixel_format_depth(source_.get_format()) == 16) {
+        needs_swapping_ = true;
+    } else {
+        DBG(DBG_info, "%s: this pipeline node does nothing for non 16-bit formats", __func__);
+    }
+}
+
+void ImagePipelineNodeSwap16BitEndian::get_next_row_data(std::uint8_t* out_data)
+{
+    source_.get_next_row_data(out_data);
+    if (needs_swapping_) {
+        std::size_t pixels = get_row_bytes() / 2;
+        for (std::size_t i = 0; i < pixels; ++i) {
+            std::swap(*out_data, *(out_data + 1));
+            out_data += 2;
+        }
+    }
+}
+
 ImagePipelineNodeMergeMonoLines::ImagePipelineNodeMergeMonoLines(ImagePipelineNode& source,
                                                                  ColorOrder color_order) :
     source_(source),

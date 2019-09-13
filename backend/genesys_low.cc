@@ -1501,6 +1501,12 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                 get_fake_usb_buffer_model(session), read_data_from_usb);
     }
 
+#ifdef WORDS_BIGENDIAN
+    if (get_pixel_format_depth(format) == 16) {
+        dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+    }
+#endif
+
     if (dev->model->is_cis && session.params.channels == 3) {
         dev->pipeline.push_node<ImagePipelineNodeMergeMonoLines>(dev->model->line_mode_color_order);
     }

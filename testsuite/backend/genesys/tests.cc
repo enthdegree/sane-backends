@@ -28,6 +28,9 @@
 int main()
 {
     test_calibration_parsing();
+    test_image();
+    test_image_pipeline();
+    test_row_buffer();
     test_sensor();
     return finish_tests();
 }

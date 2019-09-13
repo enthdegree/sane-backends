@@ -24,21 +24,11 @@
 
 #include "tests.h"
 #include "minigtest.h"
+#include "tests_printers.h"
 
 #include "../../../backend/genesys_low.h"
 
 #include <numeric>
-
-template<class T>
-std::ostream& operator<<(std::ostream& str, const std::vector<T>& arg)
-{
-    str << "{ ";
-    for (const auto& el : arg) {
-        str << (unsigned) el << ", ";
-    }
-    str << "}\n";
-    return str;
-}
 
 void test_fill_segmented_buffer_depth8()
 {

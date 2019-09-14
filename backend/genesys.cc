@@ -1835,12 +1835,6 @@ static void genesys_white_shading_calibration(Genesys_Device* dev, const Genesys
         sanei_genesys_write_pnm_file16("gl_white_average.pnm", dev->white_average_data.data(),
                                        channels, out_pixels_per_line, 1);
     }
-
-  /* in case we haven't done dark calibration, build dummy data from white_average */
-  if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION))
-    {
-        genesys_dummy_dark_shading(dev, sensor);
-    }
 }
 
 // This calibration uses a scan over the calibration target, comprising a black and a white strip.
@@ -2939,6 +2933,9 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
       sanei_usb_testing_record_message("genesys_white_shading_calibration");
         genesys_white_shading_calibration(dev, sensor);
         genesys_repark_sensor_after_white_shading(dev);
+        if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)) {
+            genesys_dummy_dark_shading(dev, sensor);
+        }
     }
 
     if (dev->cmd_set->send_shading_data == nullptr) {
@@ -3051,6 +3048,10 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ dev->cmd_set->eject_document(dev); });
         throw;
+    }
+
+    if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)) {
+        genesys_dummy_dark_shading(dev, sensor);
     }
 
   /* in case we haven't black shading data, build it from black pixels

@@ -2905,34 +2905,33 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         dev->cmd_set->move_to_ta(dev);
   }
 
-  /* shading calibration */
-  sanei_usb_testing_record_message("init_regs_for_shading");
-    dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
-
-  if (dev->model->flags & GENESYS_FLAG_DARK_WHITE_CALIBRATION)
-    {
-      sanei_usb_testing_record_message("genesys_dark_white_shading_calibration");
-        genesys_dark_white_shading_calibration(dev, sensor);
-    }
-  else
-    {
-      DBG(DBG_proc, "%s : genesys_dark_shading_calibration dev->calib_reg ", __func__);
-      debug_dump(DBG_proc, dev->calib_reg);
-
-      if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)
-	{
-          sanei_usb_testing_record_message("genesys_dark_shading_calibration");
-            genesys_dark_shading_calibration(dev, sensor);
-	}
-
-      genesys_repark_sensor_before_shading(dev);
-
-      sanei_usb_testing_record_message("init_regs_for_shading2");
+    // shading calibration
+    if (dev->model->flags & GENESYS_FLAG_DARK_WHITE_CALIBRATION) {
+        sanei_usb_testing_record_message("init_regs_for_shading");
         dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
-      sanei_usb_testing_record_message("genesys_white_shading_calibration");
+        sanei_usb_testing_record_message("genesys_dark_white_shading_calibration");
+        genesys_dark_white_shading_calibration(dev, sensor);
+    } else {
+        DBG(DBG_proc, "%s : genesys_dark_shading_calibration dev->calib_reg ", __func__);
+        debug_dump(DBG_proc, dev->calib_reg);
+
+        if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION) {
+            sanei_usb_testing_record_message("init_regs_for_shading");
+            dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
+
+            sanei_usb_testing_record_message("genesys_dark_shading_calibration");
+            genesys_dark_shading_calibration(dev, sensor);
+            genesys_repark_sensor_before_shading(dev);
+        }
+
+        sanei_usb_testing_record_message("init_regs_for_shading2");
+        dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
+
+        sanei_usb_testing_record_message("genesys_white_shading_calibration");
         genesys_white_shading_calibration(dev, sensor);
         genesys_repark_sensor_after_white_shading(dev);
+
         if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)) {
             genesys_dummy_dark_shading(dev, sensor);
         }

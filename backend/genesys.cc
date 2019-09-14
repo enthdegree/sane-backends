@@ -1763,6 +1763,13 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
     }
 }
 
+static void genesys_repark_sensor_after_white_shading(Genesys_Device* dev)
+{
+    if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK) {
+        dev->cmd_set->slow_back_home(dev, SANE_TRUE);
+    }
+}
+
 static void genesys_white_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER_ARGS(dbg, "lines = %d", (unsigned int)dev->calib_lines);
@@ -1833,11 +1840,6 @@ static void genesys_white_shading_calibration(Genesys_Device* dev, const Genesys
   if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION))
     {
         genesys_dummy_dark_shading(dev, sensor);
-    }
-
-  if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK)
-    {
-        dev->cmd_set->slow_back_home(dev, SANE_TRUE);
     }
 }
 
@@ -2936,6 +2938,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
 
       sanei_usb_testing_record_message("genesys_white_shading_calibration");
         genesys_white_shading_calibration(dev, sensor);
+        genesys_repark_sensor_after_white_shading(dev);
     }
 
     if (dev->cmd_set->send_shading_data == nullptr) {
@@ -3044,6 +3047,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
 
     try {
         genesys_white_shading_calibration(dev, sensor);
+        genesys_repark_sensor_after_white_shading(dev);
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ dev->cmd_set->eject_document(dev); });
         throw;

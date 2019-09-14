@@ -3050,14 +3050,9 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
         throw;
     }
 
+    // in case we haven't black shading data, build it from black pixels of white calibration
+    // FIXME: shouldn't we use genesys_dummy_dark_shading() ?
     if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)) {
-        genesys_dummy_dark_shading(dev, sensor);
-    }
-
-  /* in case we haven't black shading data, build it from black pixels
-   * of white calibration */
-  if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION))
-    {
       dev->dark_average_data.clear();
         dev->dark_average_data.resize(dev->average_size, 0x0f0f);
       /* XXX STEF XXX

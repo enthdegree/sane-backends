@@ -1587,7 +1587,9 @@ static void genesys_average_data(uint16_t* average_data,
  * that will be used to compute shading coefficient
  * @param dev scanner's device
  */
-static void genesys_dark_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor)
+static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                             std::vector<std::uint16_t>& out_average_data,
+                                             bool is_dark, const std::string& log_filename_prefix)
 {
     DBG_HELPER(dbg);
   size_t size;
@@ -1600,12 +1602,15 @@ static void genesys_dark_shading_calibration(Genesys_Device* dev, const Genesys_
   channels = dev->calib_channels;
 
   uint32_t out_pixels_per_line = pixels_per_line + dev->calib_pixels_offset;
+
+    // FIXME: we set this during both dark and white calibration. A cleaner approach should
+    // probably be used
     dev->average_size = channels * out_pixels_per_line;
 
-  dev->dark_average_data.clear();
-  dev->dark_average_data.resize(dev->average_size);
+    out_average_data.clear();
+    out_average_data.resize(dev->average_size);
 
-    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) {
+    if (is_dark && dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) {
         // FIXME: dark shading currently not supported on infrared transparency scans
         return;
     }
@@ -1628,45 +1633,55 @@ static void genesys_dark_shading_calibration(Genesys_Device* dev, const Genesys_
       motor=SANE_FALSE;
     }
 
-  /* turn off motor and lamp power for flatbed scanners, but not for sheetfed scanners
-   * because they have a calibration sheet with a sufficient black strip                */
-  if (dev->model->is_sheetfed == SANE_FALSE)
-    {
+    // turn off motor and lamp power for flatbed scanners, but not for sheetfed scanners
+    // because they have a calibration sheet with a sufficient black strip
+    if (is_dark && dev->model->is_sheetfed == SANE_FALSE) {
         sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, false);
         sanei_genesys_set_motor_power(dev->calib_reg, motor);
-    }
-  else
-    {
+    } else {
         sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
         sanei_genesys_set_motor_power(dev->calib_reg, motor);
     }
 
     dev->write_registers(dev->calib_reg);
 
-  // wait some time to let lamp to get dark
-  sanei_genesys_sleep_ms(200);
+    if (is_dark) {
+        // wait some time to let lamp to get dark
+        sanei_genesys_sleep_ms(200);
+    } else if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION) {
+        // make sure lamp is bright again
+        // FIXME: what about scanners that take a long time to warm the lamp?
+        sanei_genesys_sleep_ms(500);
+    }
 
-    dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_FALSE);
+    dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, is_dark ? SANE_FALSE : SANE_TRUE);
 
     sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
 
     dev->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
 
-    std::fill(dev->dark_average_data.begin(),
-              dev->dark_average_data.begin() + dev->calib_pixels_offset * channels, 0);
+    std::fill(out_average_data.begin(),
+              out_average_data.begin() + dev->calib_pixels_offset * channels, 0);
 
-    genesys_average_data(dev->dark_average_data.data() + dev->calib_pixels_offset * channels,
+    genesys_average_data(out_average_data.data() + dev->calib_pixels_offset * channels,
                          calibration_data.data(), dev->calib_lines, pixels_per_line * channels);
 
-  if (DBG_LEVEL >= DBG_data)
-    {
-      sanei_genesys_write_pnm_file("gl_black_shading.pnm", calibration_data.data(), 16,
-                                   channels, pixels_per_line, dev->calib_lines);
-        sanei_genesys_write_pnm_file16("gl_black_average.pnm", dev->dark_average_data.data(),
+    if (DBG_LEVEL >= DBG_data) {
+        sanei_genesys_write_pnm_file((log_filename_prefix + "_shading.pnm").c_str(),
+                                     calibration_data.data(), 16,
+                                     channels, pixels_per_line, dev->calib_lines);
+        sanei_genesys_write_pnm_file16((log_filename_prefix + "_average.pnm").c_str(),
+                                       out_average_data.data(),
                                        channels, out_pixels_per_line, 1);
     }
 }
 
+
+static void genesys_dark_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor)
+{
+    DBG_HELPER(dbg);
+    genesys_shading_calibration_impl(dev, sensor, dev->dark_average_data, true, "gl_black_");
+}
 /*
  * this function builds dummy dark calibration data so that we can
  * compute shading coefficient in a clean way
@@ -1772,69 +1787,8 @@ static void genesys_repark_sensor_after_white_shading(Genesys_Device* dev)
 
 static void genesys_white_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
-    DBG_HELPER_ARGS(dbg, "lines = %d", (unsigned int)dev->calib_lines);
-  size_t size;
-  uint32_t pixels_per_line;
-  uint8_t channels;
-  SANE_Bool motor;
-
-  pixels_per_line = dev->calib_pixels;
-  channels = dev->calib_channels;
-
-  uint32_t out_pixels_per_line = pixels_per_line + dev->calib_pixels_offset;
-
-  dev->white_average_data.clear();
-    dev->white_average_data.resize(channels * out_pixels_per_line);
-
-    // FIXME: the current calculation is likely incorrect on non-GL843 implementations,
-    // but this needs checking
-    if (dev->calib_total_bytes_to_read > 0) {
-        size = dev->calib_total_bytes_to_read;
-    } else if (dev->model->asic_type == AsicType::GL843) {
-        size = channels * 2 * pixels_per_line * dev->calib_lines;
-    } else {
-        size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
-    }
-
-  std::vector<uint8_t> calibration_data(size);
-
-  motor=SANE_TRUE;
-  if (dev->model->flags & GENESYS_FLAG_SHADING_NO_MOVE)
-    {
-      motor=SANE_FALSE;
-    }
-
-    // turn on motor and lamp power
-    sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
-    sanei_genesys_set_motor_power(dev->calib_reg, motor);
-
-    dev->write_registers(dev->calib_reg);
-
-    if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION) {
-        sanei_genesys_sleep_ms(500); // make sure lamp is bright again
-    }
-
-    dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, SANE_TRUE);
-
-    sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
-
-    dev->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
-
-    if (DBG_LEVEL >= DBG_data) {
-        sanei_genesys_write_pnm_file("gl_white_shading.pnm", calibration_data.data(), 16,
-                                     channels, pixels_per_line, dev->calib_lines);
-    }
-
-    std::fill(dev->dark_average_data.begin(),
-              dev->dark_average_data.begin() + dev->calib_pixels_offset * channels, 0);
-
-    genesys_average_data(dev->white_average_data.data() + dev->calib_pixels_offset * channels,
-                         calibration_data.data(), dev->calib_lines, pixels_per_line * channels);
-
-    if (DBG_LEVEL >= DBG_data) {
-        sanei_genesys_write_pnm_file16("gl_white_average.pnm", dev->white_average_data.data(),
-                                       channels, out_pixels_per_line, 1);
-    }
+    DBG_HELPER(dbg);
+    genesys_shading_calibration_impl(dev, sensor, dev->white_average_data, false, "gl_white_");
 }
 
 // This calibration uses a scan over the calibration target, comprising a black and a white strip.

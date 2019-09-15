@@ -157,8 +157,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_CANONLIDE35;
     model.gpo_type = GPO_CANONLIDE35;
     model.motor_type = MOTOR_CANONLIDE35;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_DARK_WHITE_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;
@@ -216,8 +215,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_KVSS080;
     model.gpo_type = GPO_KVSS080;
     model.motor_type = MOTOR_KVSS080;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW;
@@ -271,8 +269,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_G4050;
     model.gpo_type = GPO_G4050;
     model.motor_type = MOTOR_G4050;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
+    model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
@@ -326,8 +323,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_G4050;
     model.gpo_type = GPO_G4050;
     model.motor_type = MOTOR_G4050;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
+    model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
@@ -383,8 +379,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_G4050;
     model.gpo_type = GPO_G4050;
     model.motor_type = MOTOR_G4050;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
+    model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
@@ -441,7 +436,6 @@ void genesys_init_usb_device_tables()
     model.gpo_type = GPO_CS4400F;
     model.motor_type = MOTOR_G4050;
     model.flags = GENESYS_FLAG_NO_CALIBRATION |
-                  GENESYS_FLAG_LAZY_INIT |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_SKIP_WARMUP |
@@ -501,7 +495,6 @@ void genesys_init_usb_device_tables()
     model.motor_type = MOTOR_CS8400F;
     model.flags = GENESYS_FLAG_HAS_UTA |
                   GENESYS_FLAG_HAS_UTA_INFRARED |
-                  GENESYS_FLAG_LAZY_INIT |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_SKIP_WARMUP |
@@ -562,7 +555,6 @@ void genesys_init_usb_device_tables()
     model.motor_type = MOTOR_CS8600F;
     model.flags = GENESYS_FLAG_HAS_UTA |
                   GENESYS_FLAG_HAS_UTA_INFRARED |
-                  GENESYS_FLAG_LAZY_INIT |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_SKIP_WARMUP |
@@ -1092,8 +1084,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_CANONLIDE35;
     model.gpo_type = GPO_CANONLIDE35;
     model.motor_type = MOTOR_CANONLIDE35;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_DARK_WHITE_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;
@@ -1151,8 +1142,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_CANONLIDE80;
     model.gpo_type = GPO_CANONLIDE80;
     model.motor_type = MOTOR_CANONLIDE80;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_DARK_WHITE_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;
@@ -1214,7 +1204,6 @@ void genesys_init_usb_device_tables()
     model.motor_type = MOTOR_HP2300;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
                   GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_LAZY_INIT |
                   GENESYS_FLAG_SEARCH_START |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
@@ -1270,8 +1259,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_WOLFSON_HP2400;
     model.gpo_type = GPO_HP2400;
     model.motor_type = MOTOR_HP2400;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_14BIT_GAMMA |
+    model.flags = GENESYS_FLAG_14BIT_GAMMA |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_SKIP_WARMUP |
@@ -1329,7 +1317,6 @@ void genesys_init_usb_device_tables()
     model.gpo_type = GPO_XP200;
     model.motor_type = MOTOR_XP200;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
-                  GENESYS_FLAG_LAZY_INIT |
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
@@ -1385,8 +1372,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_WOLFSON_HP3670;
     model.gpo_type = GPO_HP3670;
     model.motor_type = MOTOR_HP3670;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_14BIT_GAMMA |
+    model.flags = GENESYS_FLAG_14BIT_GAMMA |
                   GENESYS_FLAG_XPA |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
@@ -1496,7 +1482,6 @@ void genesys_init_usb_device_tables()
     model.motor_type = MOTOR_ST24;
     model.flags = GENESYS_FLAG_UNTESTED |
                   GENESYS_FLAG_14BIT_GAMMA |
-                  GENESYS_FLAG_LAZY_INIT |
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_SEARCH_START |
                   GENESYS_FLAG_OFFSET_CALIBRATION;
@@ -1550,7 +1535,6 @@ void genesys_init_usb_device_tables()
     model.gpo_type = GPO_5345;
     model.motor_type = MOTOR_5345;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
-                  GENESYS_FLAG_LAZY_INIT |
                   GENESYS_FLAG_SEARCH_START |
                   GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_DARK_CALIBRATION |
@@ -1611,8 +1595,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_WOLFSON_XP300;
     model.gpo_type = GPO_XP300;
     model.motor_type = MOTOR_XP300;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;
@@ -1666,8 +1649,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_WOLFSON_XP300;
     model.gpo_type = GPO_DP665;
     model.motor_type = MOTOR_DP665;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;
@@ -1721,8 +1703,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_WOLFSON_XP300;
     model.gpo_type = GPO_DP665;
     model.motor_type = MOTOR_ROADWARRIOR;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_DARK_CALIBRATION;
@@ -1776,8 +1757,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_WOLFSON_XP300;
     model.gpo_type = GPO_DP665;
     model.motor_type = MOTOR_ROADWARRIOR;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_NO_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_UNTESTED;
@@ -1832,8 +1812,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_WOLFSON_XP300;
     model.gpo_type = GPO_DP665;
     model.motor_type = MOTOR_ROADWARRIOR;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_DARK_CALIBRATION;
@@ -1887,8 +1866,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_WOLFSON_DSM600;
     model.gpo_type = GPO_DP665;
     model.motor_type = MOTOR_DSMOBILE_600;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_DARK_CALIBRATION;
@@ -1943,8 +1921,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_WOLFSON_DSM600;
     model.gpo_type = GPO_DP665;
     model.motor_type = MOTOR_DSMOBILE_600;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_DARK_CALIBRATION;
@@ -1998,8 +1975,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_WOLFSON_DSM600;
     model.gpo_type = GPO_DP685;
     model.motor_type = MOTOR_XP300;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_DARK_CALIBRATION;
@@ -2055,8 +2031,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_WOLFSON_XP300;
     model.gpo_type = GPO_XP300;
     model.motor_type = MOTOR_XP300;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_DARK_CALIBRATION;
@@ -2111,8 +2086,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_WOLFSON_XP300;
     model.gpo_type = GPO_XP300;
     model.motor_type = MOTOR_XP300;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA |
@@ -2168,7 +2142,6 @@ void genesys_init_usb_device_tables()
     model.gpo_type = GPO_5345;
     model.motor_type = MOTOR_5345;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
-                  GENESYS_FLAG_LAZY_INIT |
                   GENESYS_FLAG_SEARCH_START |
                   GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_DARK_CALIBRATION |
@@ -2229,7 +2202,6 @@ void genesys_init_usb_device_tables()
     model.gpo_type = GPO_5345;
     model.motor_type = MOTOR_5345;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
-                  GENESYS_FLAG_LAZY_INIT |
                   GENESYS_FLAG_SEARCH_START |
                   GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_DARK_CALIBRATION |
@@ -2290,8 +2262,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_WOLFSON_XP300;
     model.gpo_type = GPO_DP665;
     model.motor_type = MOTOR_ROADWARRIOR;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_DARK_CALIBRATION;
@@ -2349,8 +2320,7 @@ void genesys_init_usb_device_tables()
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_LAZY_INIT;
+                  GENESYS_FLAG_OFFSET_CALIBRATION;
     model.buttons = GENESYS_HAS_NO_BUTTONS;
     model.shading_lines = 7;
     model.shading_ta_lines = 0;
@@ -2404,7 +2374,6 @@ void genesys_init_usb_device_tables()
     model.gpo_type = GPO_HP_N6310;
     model.motor_type = MOTOR_CANONLIDE200,    // Not defined yet for N6310
     model.flags = GENESYS_FLAG_UNTESTED |
-                  GENESYS_FLAG_LAZY_INIT |
                   GENESYS_FLAG_14BIT_GAMMA |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
@@ -2463,8 +2432,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_PLUSTEK3800;
     model.gpo_type = GPO_PLUSTEK3800;
     model.motor_type = MOTOR_PLUSTEK3800;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_NO_BUTTONS;  // TODO there are 4 buttons to support
@@ -2518,8 +2486,7 @@ void genesys_init_usb_device_tables()
     model.dac_type = DAC_IMG101;
     model.gpo_type = GPO_IMG101;
     model.motor_type = MOTOR_IMG101;
-    model.flags = GENESYS_FLAG_LAZY_INIT |
-                  GENESYS_FLAG_SKIP_WARMUP |
+    model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_NO_BUTTONS ;

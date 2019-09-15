@@ -3541,10 +3541,10 @@ static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
 
       if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
         {
-            int dpiset_real = dev->session.output_resolution * sensor.ccd_pixels_per_system_pixel();
-            int half_ccd_factor = dev->session.optical_resolution / sensor.get_logical_hwdpi(dpiset_real);
-          strpixel /= half_ccd_factor;
-          endpixel /= half_ccd_factor;
+            int half_ccd_factor = dev->session.optical_resolution /
+                                  sensor.get_logical_hwdpi(dev->session.output_resolution);
+            strpixel /= half_ccd_factor * sensor.ccd_pixels_per_system_pixel();
+            endpixel /= half_ccd_factor * sensor.ccd_pixels_per_system_pixel();
         }
 
       /* 16 bit words, 2 words per color, 3 color channels */

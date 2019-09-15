@@ -816,9 +816,6 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     DBG(DBG_io2, "%s: startx=%d\n", __func__, startx / ccd_pixels_per_system_pixel);
     DBG(DBG_io2, "%s: endx  =%d\n", __func__, endx / ccd_pixels_per_system_pixel);
 
-  DBG (DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
-  DBG (DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
-
     build_image_pipeline(dev, session);
 
   /* MAXWD is expressed in 4 words unit */

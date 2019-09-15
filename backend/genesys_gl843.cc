@@ -1159,9 +1159,6 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->set16(REG_STRPIXEL, session.pixel_startx);
     reg->set16(REG_ENDPIXEL, session.pixel_endx);
 
-  DBG(DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
-  DBG(DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
-
   /* MAXWD is expressed in 2 words unit */
   /* nousedspace = (mem_bank_range * 1024 / 256 -1 ) * 4; */
     // BUG: the division by ccd_size_divisor likely does not make sense
@@ -1224,8 +1221,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int slope_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
-
-  DBG(DBG_info, "%s : stagger=%d lines\n", __func__, session.num_staggered_lines);
 
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode

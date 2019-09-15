@@ -4271,7 +4271,7 @@ static void gl841_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
   uint32_t length, x, factor, pixels, i;
   uint32_t lines, channels;
-  uint16_t dpiset, dpihw, strpixel ,endpixel, beginpixel;
+    uint16_t dpiset, dpihw, beginpixel;
   uint8_t *ptr,*src;
 
   /* old method if no SHDAREA */
@@ -4287,10 +4287,8 @@ static void gl841_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
 
   /* data is whole line, we extract only the part for the scanned area */
   length = (uint32_t) (size / 3);
-    strpixel = dev->reg.get16(REG_STRPIXEL);
-    endpixel = dev->reg.get16(REG_ENDPIXEL);
-  DBG(DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d\n", __func__, strpixel, endpixel,
-      endpixel-strpixel);
+    unsigned strpixel = dev->session.pixel_startx;
+    unsigned endpixel = dev->session.pixel_endx;
 
   /* compute deletion/average factor */
     dpiset = dev->reg.get16(REG_DPISET);

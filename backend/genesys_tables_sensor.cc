@@ -47,6 +47,9 @@
 
 inline unsigned default_get_logical_hwdpi(const Genesys_Sensor& sensor, unsigned xres)
 {
+    if (sensor.logical_dpihw_override)
+        return sensor.logical_dpihw_override;
+
     // can't be below 600 dpi
     if (xres <= 600) {
         return 600;

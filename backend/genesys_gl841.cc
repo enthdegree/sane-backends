@@ -1453,14 +1453,11 @@ static void gl841_init_optical_regs_off(Genesys_Register_Set* reg)
 
 static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
-                                         const ScanSession& session, unsigned int start)
+                                         const ScanSession& session)
 {
-    DBG_HELPER_ARGS(dbg, "exposure_time=%d, start=%d", exposure_time, start);
-    unsigned int end;
+    DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
     GenesysRegister* r;
     uint16_t expavg, expr, expb, expg;
-
-    end = start + session.optical_pixels;
 
     gl841_set_fe(dev, sensor, AFE_SET);
 
@@ -1600,9 +1597,8 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     r->value = 255; /*<<<"magic" number, only suitable for cis*/
 
     reg->set16(REG_DPISET, gl841_get_dpihw(dev) * session.output_resolution / session.optical_resolution);
-    reg->set16(REG_STRPIXEL, start);
-    reg->set16(REG_ENDPIXEL, end);
-    DBG(DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d\n", __func__, start, end);
+    reg->set16(REG_STRPIXEL, session.pixel_startx);
+    reg->set16(REG_ENDPIXEL, session.pixel_endx);
 
     reg->set24(REG_MAXWD, session.output_line_bytes);
 
@@ -1735,10 +1731,8 @@ static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG_HELPER(dbg);
     session.assert_computed();
 
-    int start;
   int move;
   int exposure_time;
-  int avg;
 
   int slope_dpi = 0;
   int dummy = 0;
@@ -1773,29 +1767,6 @@ independent of our calculated values:
  */
 
     gl841_assert_supported_resolution(session);
-
-  /* compute scan parameters values */
-  /* pixels are allways given at half or full CCD optical resolution */
-  /* use detected left margin  and fixed value */
-    start = ((sensor.CCD_start_xoffset + session.params.startx) * session.optical_resolution)
-            / sensor.optical_res;
-
-
-  start += sensor.dummy_pixel + 1;
-
-    if (session.num_staggered_lines > 0) {
-        start |= 1;
-    }
-
-  /* in case of SHDAREA, we need to align start
-   * on pixel average factor, startx is different of
-   * 0 only when calling for function to setup for
-   * scan, where shading data needs to be align */
-  if((dev->reg.find_reg(0x01).value & REG01_SHDAREA) != 0)
-    {
-        avg = session.optical_resolution / session.params.xres;
-      start=(start/avg)*avg;
-    }
 
 /* dummy */
   /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1
@@ -1839,11 +1810,11 @@ dummy \ scanned lines
     exposure_time = gl841_exposure_time(dev, sensor,
                     slope_dpi,
                     scan_step_type,
-                    start,
+                                        session.pixel_startx,
                                         session.optical_pixels);
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
-    gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, start);
+    gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, session);
 
     move = session.params.starty;
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
@@ -1939,17 +1910,6 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
 
     gl841_assert_supported_resolution(session);
 
-  /* compute scan parameters values */
-  /* pixels are allways given at half or full CCD optical resolution */
-  /* use detected left margin  and fixed value */
-    start = ((sensor.CCD_start_xoffset + session.params.startx) * session.optical_resolution) / sensor.optical_res;
-
-  start += sensor.dummy_pixel + 1;
-
-    if (session.num_staggered_lines > 0) {
-        start |= 1;
-    }
-
   /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1
      dummy line. Maybe the dummy line adds correctness since the motor runs
      slower (higher dpi)
@@ -1990,7 +1950,7 @@ dummy \ scanned lines
   exposure_time = gl841_exposure_time(dev, sensor,
                     slope_dpi,
                     scan_step_type,
-                    start,
+                                        session.pixel_startx,
                                         session.optical_pixels);
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 

@@ -1190,20 +1190,6 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
 
     compute_session(dev, s, sensor);
 
-    // compute physical pixel positions
-    unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
-    s.pixel_startx = (s.params.startx + sensor.dummy_pixel) / ccd_pixels_per_system_pixel;
-    s.pixel_endx = s.pixel_startx + s.optical_pixels / ccd_pixels_per_system_pixel;
-
-    s.pixel_startx /= s.hwdpi_divisor;
-    s.pixel_endx /= s.hwdpi_divisor;
-
-    // in case of stagger we have to start at an odd coordinate
-    if (s.num_staggered_lines > 0 && (s.pixel_startx & 1) == 0) {
-        s.pixel_startx++;
-        s.pixel_endx++;
-    }
-
     s.computed = true;
 
     DBG(DBG_info, "%s ", __func__);

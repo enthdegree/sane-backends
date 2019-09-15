@@ -378,6 +378,7 @@ extern Motor_Profile gl124_motor_profiles[];
 #define SCAN_FLAG_FEEDING                   0x200
 #define SCAN_FLAG_USE_XPA                   0x400
 #define SCAN_FLAG_ENABLE_LEDADD             0x800
+#define SCAN_FLAG_USE_XCORRECTION          0x1000
 #define MOTOR_FLAG_AUTO_GO_HOME             0x01
 #define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 0x02
 #define MOTOR_FLAG_FEED                     0x04

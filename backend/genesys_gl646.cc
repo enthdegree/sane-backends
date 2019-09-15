@@ -319,8 +319,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
                                   Genesys_Register_Set* regs,
                                   const ScanSession& session,
                                   std::vector<uint16_t>& slope_table1,
-                                  std::vector<uint16_t>& slope_table2,
-                                  bool xcorrection)
+                                  std::vector<uint16_t>& slope_table2)
 {
     DBG_HELPER(dbg);
     session.assert_computed();
@@ -329,39 +328,12 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
     uint32_t move = session.params.starty;
 
-    uint32_t startx = 0;
-    /* pixels are allways given at full CCD optical resolution */
-    /* use detected left margin and fixed value */
-    if (xcorrection == SANE_TRUE) {
-        if (sensor.CCD_start_xoffset > 0) {
-            startx = sensor.CCD_start_xoffset;
-        } else {
-            startx = sensor.dummy_pixel;
-        }
-    } else {
-        // startx cannot be below dummy pixel value
-        startx = sensor.dummy_pixel;
-    }
-
-    /* add x coordinates : expressed in sensor max dpi */
-    startx += session.params.startx;
-
-    /* stagger works with odd start cordinates */
-    if (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE) {
-        startx |= 1;
-    }
-
-    /* TODO check for pixel width overflow */
-    uint32_t endx = startx + session.optical_pixels;
-
   int i, nb;
   Motor_Master *motor = NULL;
   unsigned int used1, used2, vfinal;
   uint32_t z1, z2;
-  uint16_t ex, sx;
   int feedl;
 
-  DBG(DBG_info, "%s: startx=%d, endx=%d\n", __func__, startx, endx);
 
   /* for the given resolution, search for master
    * motor mode setting */
@@ -555,13 +527,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
         regs->set24(REG_LINCNT, session.output_line_count);
     }
 
-  /* scanner's x coordinates are expressed in physical DPI but they must be divided by cksel */
-    sx = startx / sensor.ccd_pixels_per_system_pixel() / session.ccd_size_divisor;
-    ex = endx / sensor.ccd_pixels_per_system_pixel() / session.ccd_size_divisor;
-    regs->set16(REG_STRPIXEL, sx);
-    regs->set16(REG_ENDPIXEL, ex);
-    DBG(DBG_info, "%s: startx=%d, endx=%d, ccd_size_divisor=%d\n", __func__, sx, ex,
-        session.ccd_size_divisor);
+    regs->set16(REG_STRPIXEL, session.pixel_startx);
+    regs->set16(REG_ENDPIXEL, session.pixel_endx);
 
     regs->set24(REG_MAXWD, session.output_line_bytes);
 
@@ -2166,13 +2133,16 @@ static void setup_for_scan(Genesys_Device* dev,
     if (settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= SCAN_FLAG_USE_XPA;
     }
+    if (xcorrection) {
+        session.params.flags |= SCAN_FLAG_USE_XCORRECTION;
+    }
     gl646_compute_session(dev, session, sensor);
 
     std::vector<uint16_t> slope_table0;
     std::vector<uint16_t> slope_table1;
 
     // set up correct values for scan (gamma and shading enabled)
-    gl646_setup_registers(dev, sensor, regs, session, slope_table0, slope_table1, xcorrection);
+    gl646_setup_registers(dev, sensor, regs, session, slope_table0, slope_table1);
 
     // send computed slope tables
     gl646_send_slope_table(dev, 0, slope_table0, regs->get8(0x21));

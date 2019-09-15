@@ -1234,6 +1234,110 @@ void compute_session_pipeline(const Genesys_Device* dev, ScanSession& s)
     s.pipeline_needs_reverse = depth == 1;
 }
 
+void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
+                                   const Genesys_Sensor& sensor,
+                                   const SensorProfile* sensor_profile)
+{
+    unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
+
+    if (dev->model->asic_type == AsicType::GL646) {
+
+        // startx cannot be below dummy pixel value
+        s.pixel_startx = sensor.dummy_pixel;
+        if ((s.params.flags & SCAN_FLAG_USE_XCORRECTION) && sensor.CCD_start_xoffset > 0) {
+            s.pixel_startx = sensor.CCD_start_xoffset;
+        }
+        s.pixel_startx += s.params.startx;
+
+        if (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE) {
+            s.pixel_startx |= 1;
+        }
+
+        s.pixel_endx = s.pixel_startx + s.optical_pixels;
+
+        s.pixel_startx /= sensor.ccd_pixels_per_system_pixel() * s.ccd_size_divisor;
+        s.pixel_endx /= sensor.ccd_pixels_per_system_pixel() * s.ccd_size_divisor;
+
+    } else if (dev->model->asic_type == AsicType::GL841) {
+        s.pixel_startx = ((sensor.CCD_start_xoffset + s.params.startx) * s.optical_resolution)
+                                / sensor.optical_res;
+
+        s.pixel_startx += sensor.dummy_pixel + 1;
+
+        if (s.num_staggered_lines > 0 && (s.pixel_startx & 1) == 0) {
+            s.pixel_startx++;
+        }
+
+        /*  In case of SHDAREA, we need to align start on pixel average factor, startx is
+            different than 0 only when calling for function to setup for scan, where shading data
+            needs to be align.
+
+            NOTE: we can check the value of the register here, because we don't set this bit
+            anywhere except in initialization.
+        */
+        const uint8_t REG01_SHDAREA = 0x02;
+        if ((dev->reg.find_reg(0x01).value & REG01_SHDAREA) != 0) {
+            unsigned average_factor = s.optical_resolution / s.params.xres;
+            s.pixel_startx = align_multiple_floor(s.pixel_startx, average_factor);
+        }
+
+        s.pixel_endx = s.pixel_startx + s.optical_pixels;
+
+    } else if (dev->model->asic_type == AsicType::GL843) {
+
+        s.pixel_startx = (s.params.startx + sensor.dummy_pixel) / ccd_pixels_per_system_pixel;
+        s.pixel_endx = s.pixel_startx + s.optical_pixels / ccd_pixels_per_system_pixel;
+
+        s.pixel_startx /= s.hwdpi_divisor;
+        s.pixel_endx /= s.hwdpi_divisor;
+
+        // in case of stagger we have to start at an odd coordinate
+        if (s.num_staggered_lines > 0 && (s.pixel_startx & 1) == 0) {
+            s.pixel_startx++;
+            s.pixel_endx++;
+        }
+
+    } else if (dev->model->asic_type == AsicType::GL845 ||
+               dev->model->asic_type == AsicType::GL846 ||
+               dev->model->asic_type == AsicType::GL847)
+    {
+        s.pixel_startx = s.params.startx;
+
+        if (s.num_staggered_lines > 0) {
+            s.pixel_startx |= 1;
+        }
+
+        s.pixel_startx += sensor.CCD_start_xoffset * ccd_pixels_per_system_pixel;
+        s.pixel_endx = s.pixel_startx + s.optical_pixels_raw;
+
+        s.pixel_startx /= s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel;
+        s.pixel_endx /= s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel;
+
+    } else if (dev->model->asic_type == AsicType::GL124) {
+        s.pixel_startx = s.params.startx;
+
+        if (s.num_staggered_lines > 0) {
+            s.pixel_startx |= 1;
+        }
+
+        s.pixel_startx /= ccd_pixels_per_system_pixel;
+        // FIXME: should we add sensor.dummy_pxel to pixel_startx at this point?
+        s.pixel_endx = s.pixel_startx + s.optical_pixels / ccd_pixels_per_system_pixel;
+
+        s.pixel_startx /= s.hwdpi_divisor * s.segment_count;
+        s.pixel_endx /= s.hwdpi_divisor * s.segment_count;
+
+        const uint16_t REG_SEGCNT = 0x93;
+
+        std::uint32_t segcnt = (sensor_profile->custom_regs.get_value(REG_SEGCNT) << 16) +
+                               (sensor_profile->custom_regs.get_value(REG_SEGCNT + 1) << 8) +
+                               sensor_profile->custom_regs.get_value(REG_SEGCNT + 2);
+        if (s.pixel_endx == segcnt) {
+            s.pixel_endx = 0;
+        }
+    }
+}
+
 void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
@@ -1417,6 +1521,7 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
 
     compute_session_buffer_sizes(dev->model->asic_type, s);
     compute_session_pipeline(dev, s);
+    compute_session_pixel_offsets(dev, s, sensor, sensor_profile);
 }
 
 static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& session)

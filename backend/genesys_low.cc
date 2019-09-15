@@ -1336,6 +1336,9 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
             s.pixel_endx = 0;
         }
     }
+
+    s.pixel_startx *= sensor.pixel_count_multiplier;
+    s.pixel_endx *= sensor.pixel_count_multiplier;
 }
 
 void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor)

@@ -45,6 +45,35 @@
 #define BACKEND_GENESYS_IMAGE_H
 
 #include "genesys_image_pixel.h"
+#include <vector>
+
+class Image
+{
+public:
+    Image();
+    Image(std::size_t width, std::size_t height, PixelFormat format);
+
+    std::size_t get_width() const { return width_; }
+    std::size_t get_height() const { return height_; }
+    PixelFormat get_format() const { return format_; }
+    std::size_t get_row_bytes() const { return row_bytes_; }
+
+    std::uint8_t* get_row_ptr(std::size_t y);
+    const std::uint8_t* get_row_ptr(std::size_t y) const;
+
+    Pixel get_pixel(std::size_t x, std::size_t y) const;
+    void set_pixel(std::size_t x, std::size_t y, const Pixel& pixel);
+
+    RawPixel get_raw_pixel(std::size_t x, std::size_t y) const;
+    void set_raw_pixel(std::size_t x, std::size_t y, const RawPixel& pixel);
+
+private:
+    std::size_t width_ = 0;
+    std::size_t height_ = 0;
+    PixelFormat format_ = PixelFormat::UNKNOWN;
+    std::size_t row_bytes_ = 0;
+    std::vector<std::uint8_t> data_;
+};
 
 void convert_pixel_row_format(const std::uint8_t* in_data, PixelFormat in_format,
                               std::uint8_t* out_data, PixelFormat out_format, std::size_t count);

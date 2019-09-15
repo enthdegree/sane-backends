@@ -26,6 +26,7 @@
 #include "minigtest.h"
 #include "tests_printers.h"
 
+#include "../../../backend/genesys_image.h"
 #include "../../../backend/genesys_image_pipeline.h"
 #include <vector>
 

@@ -497,6 +497,7 @@ libgenesys_la_SOURCES = genesys.cc genesys.h \
     genesys_row_buffer.h \
     genesys_image_buffer.h genesys_image_buffer.cc \
     genesys_image_pipeline.h genesys_image_pipeline.cc \
+    genesys_image_pixel.h genesys_image_pixel.cc \
     genesys_image.h genesys_image.cc \
     genesys_motor.h \
     genesys_register.h \

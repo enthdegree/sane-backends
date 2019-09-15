@@ -49,39 +49,6 @@
 #include <algorithm>
 #include <functional>
 
-struct Pixel
-{
-    Pixel() = default;
-    Pixel(std::uint16_t red, std::uint16_t green, std::uint16_t blue) :
-        r{red}, g{green}, b{blue} {}
-
-    std::uint16_t r = 0;
-    std::uint16_t g = 0;
-    std::uint16_t b = 0;
-
-    bool operator==(const Pixel& other) const
-    {
-        return r == other.r && g == other.g && b == other.b;
-    }
-};
-
-struct RawPixel
-{
-    RawPixel() = default;
-    RawPixel(std::uint8_t d0) : data{d0, 0, 0, 0, 0, 0} {}
-    RawPixel(std::uint8_t d0, std::uint8_t d1) : data{d0, d1, 0, 0, 0, 0} {}
-    RawPixel(std::uint8_t d0, std::uint8_t d1, std::uint8_t d2) : data{d0, d1, d2, 0, 0, 0} {}
-    RawPixel(std::uint8_t d0, std::uint8_t d1, std::uint8_t d2,
-             std::uint8_t d3, std::uint8_t d4, std::uint8_t d5) : data{d0, d1, d2, d3, d4, d5} {}
-    std::uint8_t data[6] = {};
-
-    bool operator==(const RawPixel& other) const
-    {
-        return std::equal(std::begin(data), std::end(data),
-                          std::begin(other.data));
-    }
-};
-
 // This class allows reading from row-based source in smaller or larger chunks of data
 class ImageBuffer
 {

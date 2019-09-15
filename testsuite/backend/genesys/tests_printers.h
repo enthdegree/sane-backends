@@ -23,7 +23,7 @@
 #ifndef SANE_TESTSUITE_BACKEND_GENESYS_TESTS_PRINTERS_H
 #define SANE_TESTSUITE_BACKEND_GENESYS_TESTS_PRINTERS_H
 
-#include "../../../backend/genesys_image_buffer.h"
+#include "../../../backend/genesys_image_pixel.h"
 #include <iostream>
 #include <iomanip>
 #include <vector>

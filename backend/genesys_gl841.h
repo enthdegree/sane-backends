@@ -43,6 +43,9 @@
 
 #include "genesys.h"
 
+#ifndef BACKEND_GENESYS_GL841_H
+#define BACKEND_GENESYS_GL841_H
+
 #define INITREG(adr,val) {dev->reg.init_reg(adr, val); }
 
 /**
@@ -55,3 +58,5 @@ int gl841_exposure_time(Genesys_Device *dev, const Genesys_Sensor& sensor,
                     int scan_step_type,
                     int start,
                     int used_pixels);
+
+#endif // BACKEND_GENESYS_GL841_H

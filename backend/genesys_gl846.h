@@ -43,6 +43,9 @@
 
 #include "genesys.h"
 
+#ifndef BACKEND_GENESYS_GL846_H
+#define BACKEND_GENESYS_GL846_H
+
 // Send the low-level scan command
 static void gl846_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                              Genesys_Register_Set* reg, SANE_Bool start_motor);
@@ -140,3 +143,6 @@ static Memory_layout layouts[]={
         /* list terminating entry */
         { NULL, 0, 0, 0, 0, {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} }
 };
+
+
+#endif // BACKEND_GENESYS_GL846_H

@@ -44,6 +44,9 @@
    If you do not wish that, delete this exception notice.
 */
 
+#ifndef BACKEND_GENESYS_GL646_H
+#define BACKEND_GENESYS_GL646_H
+
 #include "genesys.h"
 
 static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set, int dpi);
@@ -242,3 +245,5 @@ static Motor_Master motor_master[] = {
   {MOTOR_5345,  1200, 1, QUATER_STEP, SANE_FALSE, SANE_TRUE , 0,  16,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 146},
   {MOTOR_5345,  2400, 1, QUATER_STEP, SANE_FALSE, SANE_TRUE , 0,  16,  5500,  5500, 255, 2000,  300, 0.3, 0.4, 146}, /* 5500 guessed */
 };
+
+#endif // BACKEND_GENESYS_GL646_H

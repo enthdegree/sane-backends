@@ -41,6 +41,9 @@
    If you do not wish that, delete this exception notice.
 */
 
+#ifndef BACKEND_GENESYS_GL124_H
+#define BACKEND_GENESYS_GL124_H
+
 #include "genesys.h"
 
 #define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
@@ -123,3 +126,5 @@ static void gl124_stop_action(Genesys_Device* dev);
 
 static void gl124_send_slope_table(Genesys_Device* dev, int table_nr,
                                    const std::vector<uint16_t>& slope_table, int steps);
+
+#endif // BACKEND_GENESYS_GL124_H

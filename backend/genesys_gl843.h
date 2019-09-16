@@ -43,6 +43,9 @@
 
 #include "genesys.h"
 
+#ifndef BACKEND_GENESYS_GL843_H
+#define BACKEND_GENESYS_GL843_H
+
 #define SCAN_TABLE 	0 	/* table 1 at 0x4000 */
 #define BACKTRACK_TABLE 1 	/* table 2 at 0x4800 */
 #define STOP_TABLE 	2 	/* table 3 at 0x5000 */
@@ -58,3 +61,5 @@
 #define SCAN_FLAG_DYNAMIC_LINEART          0x080
 
 #define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
+
+#endif // BACKEND_GENESYS_GL843_H

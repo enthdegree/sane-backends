@@ -41,6 +41,9 @@
    If you do not wish that, delete this exception notice.
 */
 
+#ifndef BACKEND_GENESYS_GL847_H
+#define BACKEND_GENESYS_GL847_H
+
 #include "genesys.h"
 
 /** set up registers for an actual scan
@@ -124,3 +127,6 @@ static Memory_layout layouts[]={
 		0x02, 0x14, 0x09, 0x09, 0x09, 0x0a, 0x0f, 0xff
 	}
 };
+
+
+#endif // BACKEND_GENESYS_GL847_H

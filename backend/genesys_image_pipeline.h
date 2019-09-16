@@ -66,14 +66,16 @@ public:
         return get_pixel_row_bytes(get_format(), get_width());
     }
 
-    virtual void get_next_row_data(std::uint8_t* out_data) = 0;
+    // returns true if the row was filled successfully, false otherwise (e.g. if not enough data
+    // was available.
+    virtual bool get_next_row_data(std::uint8_t* out_data) = 0;
 };
 
 // A pipeline node that produces data from a callable
 class ImagePipelineNodeCallableSource : public ImagePipelineNode
 {
 public:
-    using ProducerCallback = std::function<void(std::size_t size, std::uint8_t* out_data)>;
+    using ProducerCallback = std::function<bool(std::size_t size, std::uint8_t* out_data)>;
 
     ImagePipelineNodeCallableSource(std::size_t width, std::size_t height, PixelFormat format,
                             ProducerCallback producer) :
@@ -87,9 +89,9 @@ public:
     std::size_t get_height() const override { return height_; }
     PixelFormat get_format() const override { return format_; }
 
-    void get_next_row_data(std::uint8_t* out_data) override
+    bool get_next_row_data(std::uint8_t* out_data) override
     {
-        producer_(get_row_bytes(), out_data);
+        return producer_(get_row_bytes(), out_data);
     }
 
 private:
@@ -103,7 +105,7 @@ private:
 class ImagePipelineNodeBufferedCallableSource : public ImagePipelineNode
 {
 public:
-    using ProducerCallback = std::function<void(std::size_t size, std::uint8_t* out_data)>;
+    using ProducerCallback = std::function<bool(std::size_t size, std::uint8_t* out_data)>;
 
     ImagePipelineNodeBufferedCallableSource(std::size_t width, std::size_t height,
                                             PixelFormat format, std::size_t input_batch_size,
@@ -113,7 +115,7 @@ public:
     std::size_t get_height() const override { return height_; }
     PixelFormat get_format() const override { return format_; }
 
-    void get_next_row_data(std::uint8_t* out_data) override;
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
     std::size_t buffer_size() const { return buffer_.size(); }
     std::size_t buffer_available() const { return buffer_.available(); }
@@ -143,7 +145,7 @@ public:
     std::size_t get_height() const override { return height_; }
     PixelFormat get_format() const override { return format_; }
 
-    void get_next_row_data(std::uint8_t* out_data) override;
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
     std::size_t buffer_available() const { return buffer_.available(); }
 
@@ -167,7 +169,7 @@ public:
     std::size_t get_height() const override { return height_; }
     PixelFormat get_format() const override { return format_; }
 
-    void get_next_row_data(std::uint8_t* out_data) override;
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
     std::size_t width_ = 0;
@@ -189,7 +191,7 @@ public:
     std::size_t get_height() const override { return source_.get_height(); }
     PixelFormat get_format() const override { return source_.get_format(); }
 
-    void get_next_row_data(std::uint8_t* out_data) override;
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
     const Image& source_;
@@ -211,7 +213,7 @@ public:
     std::size_t get_height() const override { return source_.get_height(); }
     PixelFormat get_format() const override { return dst_format_; }
 
-    void get_next_row_data(std::uint8_t* out_data) override;
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
     ImagePipelineNode& source_;
@@ -245,7 +247,7 @@ public:
     std::size_t get_height() const override { return source_.get_height() / interleaved_lines_; }
     PixelFormat get_format() const override { return source_.get_format(); }
 
-    void get_next_row_data(std::uint8_t* out_data) override;
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
     ImagePipelineNode& source_;
@@ -277,7 +279,7 @@ public:
     std::size_t get_height() const override { return source_.get_height(); }
     PixelFormat get_format() const override { return source_.get_format(); }
 
-    void get_next_row_data(std::uint8_t* out_data) override;
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
     ImagePipelineNode& source_;
@@ -295,7 +297,7 @@ public:
     std::size_t get_height() const override { return source_.get_height() / 3; }
     PixelFormat get_format() const override { return output_format_; }
 
-    void get_next_row_data(std::uint8_t* out_data) override;
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
     static PixelFormat get_output_format(PixelFormat input_format, ColorOrder order);
@@ -316,7 +318,7 @@ public:
     std::size_t get_height() const override { return source_.get_height() * 3; }
     PixelFormat get_format() const override { return output_format_; }
 
-    void get_next_row_data(std::uint8_t* out_data) override;
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
     static PixelFormat get_output_format(PixelFormat input_format);
@@ -339,7 +341,7 @@ public:
     std::size_t get_height() const override { return source_.get_height() - extra_height_; }
     PixelFormat get_format() const override { return source_.get_format(); }
 
-    void get_next_row_data(std::uint8_t* out_data) override;
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
     ImagePipelineNode& source_;
@@ -363,7 +365,7 @@ public:
     std::size_t get_height() const override { return source_.get_height() - extra_height_; }
     PixelFormat get_format() const override { return source_.get_format(); }
 
-    void get_next_row_data(std::uint8_t* out_data) override;
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
     ImagePipelineNode& source_;
@@ -389,7 +391,7 @@ public:
     std::size_t get_height() const override { return height_; }
     PixelFormat get_format() const override { return source_.get_format(); }
 
-    void get_next_row_data(std::uint8_t* out_data) override;
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
     ImagePipelineNode& source_;
@@ -412,7 +414,7 @@ public:
     std::size_t get_height() const override { return source_.get_height(); }
     PixelFormat get_format() const override { return source_.get_format(); }
 
-    void get_next_row_data(std::uint8_t* out_data) override;
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
     ImagePipelineNode& source_;
@@ -431,7 +433,7 @@ public:
     std::size_t get_height() const override { return source_.get_height(); }
     PixelFormat get_format() const override { return source_.get_format(); }
 
-    void get_next_row_data(std::uint8_t* out_data) override;
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
     ImagePipelineNode& source_;
@@ -473,9 +475,9 @@ public:
                                                            std::forward<Args>(args)...)));
     }
 
-    void get_next_row_data(std::uint8_t* out_data)
+    bool get_next_row_data(std::uint8_t* out_data)
     {
-        nodes_.back()->get_next_row_data(out_data);
+        return nodes_.back()->get_next_row_data(out_data);
     }
 
     std::vector<std::uint8_t> get_all_data();

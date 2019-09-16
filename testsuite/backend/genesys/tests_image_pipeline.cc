@@ -48,18 +48,18 @@ void test_image_buffer_genesys_usb()
     std::vector<std::uint8_t> dummy;
     dummy.resize(1086780);
 
-    buffer.get_data(453120, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
+    ASSERT_TRUE(buffer.get_data(453120, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
 
     std::vector<std::size_t> expected = {
         453120, 56576, 56576, 56576, 56832, 56576, 56576, 56576, 56832, 56576, 56576, 56576, 11008
@@ -86,6 +86,7 @@ void test_node_buffered_callable_source()
         std::copy(in_data.begin() + curr_index,
                   in_data.begin() + curr_index + chunk_size, out_data);
         curr_index += chunk_size;
+        return true;
     };
 
     ImagePipelineStack stack;
@@ -97,15 +98,15 @@ void test_node_buffered_callable_source()
 
     ASSERT_EQ(curr_index, 0u);
 
-    stack.get_next_row_data(out_data.data());
+    ASSERT_TRUE(stack.get_next_row_data(out_data.data()));
     ASSERT_EQ(out_data, Data({0, 1, 2, 3}));
     ASSERT_EQ(curr_index, 6u);
 
-    stack.get_next_row_data(out_data.data());
+    ASSERT_TRUE(stack.get_next_row_data(out_data.data()));
     ASSERT_EQ(out_data, Data({4, 5, 6, 7}));
     ASSERT_EQ(curr_index, 9u);
 
-    stack.get_next_row_data(out_data.data());
+    ASSERT_TRUE(stack.get_next_row_data(out_data.data()));
     ASSERT_EQ(out_data, Data({8, 9, 10, 11}));
     ASSERT_EQ(curr_index, 12u);
 }

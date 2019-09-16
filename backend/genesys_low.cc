@@ -1583,6 +1583,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     auto read_data_from_usb = [dev](std::size_t size, std::uint8_t* data)
     {
         dev->cmd_set->bulk_read_data(dev, 0x45, data, size);
+        return true;
     };
 
     auto lines = session.output_line_count * (dev->model->is_cis ? session.params.channels : 1);
@@ -1669,7 +1670,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     auto read_from_pipeline = [dev](std::size_t size, std::uint8_t* out_data)
     {
         (void) size; // will be always equal to dev->pipeline.get_output_row_bytes()
-        dev->pipeline.get_next_row_data(out_data);
+        return dev->pipeline.get_next_row_data(out_data);
     };
     dev->pipeline_buffer = ImageBuffer{dev->pipeline.get_output_row_bytes(),
                                        read_from_pipeline};

@@ -44,6 +44,7 @@
 #ifndef BACKEND_GENESYS_IMAGE_PIPELINE_H
 #define BACKEND_GENESYS_IMAGE_PIPELINE_H
 
+#include "genesys_image.h"
 #include "genesys_image_pixel.h"
 #include "genesys_image_buffer.h"
 
@@ -177,6 +178,23 @@ private:
     std::size_t next_row_ = 0;
 };
 
+
+/// A pipeline node that produces data from the given image
+class ImagePipelineNodeImageSource : public ImagePipelineNode
+{
+public:
+    ImagePipelineNodeImageSource(const Image& source);
+
+    std::size_t get_width() const override { return source_.get_width(); }
+    std::size_t get_height() const override { return source_.get_height(); }
+    PixelFormat get_format() const override { return source_.get_format(); }
+
+    void get_next_row_data(std::uint8_t* out_data) override;
+
+private:
+    const Image& source_;
+    std::size_t next_row_ = 0;
+};
 
 // A pipeline node that converts between pixel formats
 class ImagePipelineNodeFormatConvert : public ImagePipelineNode

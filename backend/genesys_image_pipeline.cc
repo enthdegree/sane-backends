@@ -113,6 +113,19 @@ void ImagePipelineNodeArraySource::get_next_row_data(std::uint8_t* out_data)
 }
 
 
+ImagePipelineNodeImageSource::ImagePipelineNodeImageSource(const Image& source) :
+    source_{source}
+{}
+
+void ImagePipelineNodeImageSource::get_next_row_data(std::uint8_t* out_data)
+{
+    if (next_row_ >= get_height()) {
+        throw SaneException("Trying to access line that is out of bounds");
+    }
+    std::memcpy(out_data, source_.get_row_ptr(next_row_), get_row_bytes());
+    next_row_++;
+}
+
 void ImagePipelineNodeFormatConvert::get_next_row_data(std::uint8_t* out_data)
 {
     auto src_format = source_.get_format();

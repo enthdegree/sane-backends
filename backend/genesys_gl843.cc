@@ -44,6 +44,7 @@
 
 #define DEBUG_DECLARE_ONLY
 
+#include "genesys_gl843_registers.h"
 #include "genesys_gl843.h"
 
 #include <string>

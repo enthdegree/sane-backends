@@ -45,6 +45,7 @@
 #define DEBUG_DECLARE_ONLY
 
 #include "genesys_gl124.h"
+#include "genesys_gl124_registers.h"
 
 #include <vector>
 

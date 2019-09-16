@@ -53,6 +53,7 @@
 #define DEBUG_DECLARE_ONLY
 
 #include "genesys_gl841.h"
+#include "genesys_gl841_registers.h"
 
 #include <vector>
 

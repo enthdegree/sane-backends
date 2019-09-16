@@ -3393,7 +3393,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
 {
     DBG_HELPER(dbg);
   size_t bytes;
-  unsigned int channels, depth, src_pixels;
   uint8_t *work_buffer_src;
   Genesys_Buffer *src_buffer;
 
@@ -3405,12 +3404,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
 
     debug_dump(DBG_info, dev->current_setup);
     debug_dump(DBG_info, dev->session.params);
-
-  /* prepare conversion */
-    channels = dev->session.params.channels;
-    depth = dev->session.params.depth;
-
-  src_pixels = dev->current_setup.pixels;
 
   DBG(DBG_info, "%s: frontend requested %lu bytes\n", __func__, (u_long) * len);
 
@@ -3430,14 +3423,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
         }
         throw SaneException(SANE_STATUS_EOF, "nothing more to scan: EOF");
     }
-
-  DBG(DBG_info, "%s: %lu lines left by output\n", __func__,
-       ((dev->total_bytes_to_read - dev->total_bytes_read) * 8UL) /
-        (dev->settings.requested_pixels * channels * depth));
-    DBG(DBG_info, "%s: %lu lines left by input\n", __func__,
-        ((dev->read_bytes_left_after_deseg + dev->read_buffer.avail()) * 8UL) /
-        (src_pixels * channels * depth));
-
 
 /* convert data */
 /*
@@ -6063,8 +6048,6 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
   DBG(DBG_proc, "%s: start, %d maximum bytes required\n", __func__, max_len);
   DBG(DBG_io2, "%s: bytes_to_read=%lu, total_bytes_read=%lu\n", __func__,
       (u_long) dev->total_bytes_to_read, (u_long) dev->total_bytes_read);
-    DBG(DBG_io2, "%s: desegmented bytes to read = %lu\n", __func__,
-        (u_long) dev->read_bytes_left_after_deseg);
 
   if(dev->total_bytes_read>=dev->total_bytes_to_read)
     {

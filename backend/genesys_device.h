@@ -288,11 +288,6 @@ struct Genesys_Device
     // local buffer for gray data during dynamix lineart
     Genesys_Buffer local_buffer;
 
-    // bytes to read from desegmentation step. This is not the same as physical bytes read from
-    // scanners, see `session.output_line_bytes_raw` which corresponds to this information on certain
-    // scanners.
-    size_t read_bytes_left_after_deseg = 0;
-
     // total bytes read sent to frontend
     size_t total_bytes_read = 0;
     // total bytes read to be sent to frontend

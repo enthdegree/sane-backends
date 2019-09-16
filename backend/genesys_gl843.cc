@@ -1275,10 +1275,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
     build_image_pipeline(dev, session);
 
-  dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
-
-    DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__,
-        (u_long) dev->read_bytes_left_after_deseg);
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
@@ -2037,7 +2033,7 @@ static void gl843_search_start_position(Genesys_Device* dev)
     // send to scanner
     dev->write_registers(local_reg);
 
-    size = dev->read_bytes_left_after_deseg;
+    size = session.output_total_bytes_raw;
 
   std::vector<uint8_t> data(size);
 
@@ -2277,7 +2273,7 @@ static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
   // the pixel number may be updated to conform to scanner constraints
   dev->calib_pixels = dev->current_setup.pixels;
 
-    dev->calib_total_bytes_to_read = dev->read_bytes_left_after_deseg;
+    dev->calib_total_bytes_to_read = session.output_total_bytes_raw;
 
   dev->scanhead_position_in_steps += dev->calib_lines + move;
 
@@ -2459,7 +2455,7 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
 
     dev->write_registers(regs);
 
-    total_size = dev->read_bytes_left_after_deseg;
+    total_size = session.output_total_bytes_raw;
 
   std::vector<uint8_t> line(total_size);
 
@@ -2698,7 +2694,7 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   sanei_genesys_set_motor_power(regs, false);
 
     // allocate memory for scans
-    total_size = dev->read_bytes_left_after_deseg;
+    total_size = session.output_total_bytes_raw;
 
   std::vector<uint8_t> first_line(total_size);
   std::vector<uint8_t> second_line(total_size);
@@ -2927,7 +2923,7 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
     dev->write_registers(regs);
 
-    total_size = dev->read_bytes_left_after_deseg;
+    total_size = session.output_total_bytes_raw;
 
   std::vector<uint8_t> line(total_size);
 
@@ -3279,7 +3275,7 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 
     gl843_init_scan_regs(dev, calib_sensor, &local_reg, session);
 
-    size = dev->read_bytes_left_after_deseg;
+    size = session.output_total_bytes_raw;
   std::vector<uint8_t> data(size);
 
   /* set up for reverse or forward */

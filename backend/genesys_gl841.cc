@@ -1848,10 +1848,6 @@ dummy \ scanned lines
 
     build_image_pipeline(dev, session);
 
-    dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
-
-    DBG(DBG_info, "%s: desegmented bytes to read = %lu\n", __func__,
-        (u_long) dev->read_bytes_left_after_deseg);
   dev->read_active = SANE_TRUE;
 
     dev->session = session;

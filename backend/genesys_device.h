@@ -343,6 +343,8 @@ struct Genesys_Device
     // whenever a register is written or read to the scanner.
     Genesys_Register_Set physical_regs;
 
+    ImagePipelineNodeBytesSource& get_pipeline_source();
+
     uint8_t read_register(uint16_t address);
     void write_register(uint16_t address, uint8_t value);
     void write_registers(Genesys_Register_Set& regs);

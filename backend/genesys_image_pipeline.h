@@ -73,6 +73,18 @@ public:
     virtual bool get_next_row_data(std::uint8_t* out_data) = 0;
 };
 
+class ImagePipelineNodeBytesSource : public ImagePipelineNode
+{
+public:
+    std::size_t remaining_bytes() const { return remaining_bytes_; }
+    void set_remaining_bytes(std::size_t bytes) { remaining_bytes_ = bytes; }
+
+    std::size_t consume_remaining_bytes(std::size_t bytes);
+
+private:
+    std::size_t remaining_bytes_ = 0;
+};
+
 // A pipeline node that produces data from a callable
 class ImagePipelineNodeCallableSource : public ImagePipelineNode
 {
@@ -80,7 +92,7 @@ public:
     using ProducerCallback = std::function<bool(std::size_t size, std::uint8_t* out_data)>;
 
     ImagePipelineNodeCallableSource(std::size_t width, std::size_t height, PixelFormat format,
-                            ProducerCallback producer) :
+                                    ProducerCallback producer) :
         producer_{producer},
         width_{width},
         height_{height},
@@ -110,7 +122,7 @@ private:
 };
 
 // A pipeline node that produces data from a callable requesting fixed-size chunks.
-class ImagePipelineNodeBufferedCallableSource : public ImagePipelineNode
+class ImagePipelineNodeBufferedCallableSource : public ImagePipelineNodeBytesSource
 {
 public:
     using ProducerCallback = std::function<bool(std::size_t size, std::uint8_t* out_data)>;
@@ -142,7 +154,7 @@ private:
     ImageBuffer buffer_;
 };
 
-class ImagePipelineNodeBufferedGenesysUsb : public ImagePipelineNode
+class ImagePipelineNodeBufferedGenesysUsb : public ImagePipelineNodeBytesSource
 {
 public:
     using ProducerCallback = std::function<void(std::size_t size, std::uint8_t* out_data)>;
@@ -174,7 +186,7 @@ private:
 };
 
 // A pipeline node that produces data from the given array.
-class ImagePipelineNodeArraySource : public ImagePipelineNode
+class ImagePipelineNodeArraySource : public ImagePipelineNodeBytesSource
 {
 public:
     ImagePipelineNodeArraySource(std::size_t width, std::size_t height, PixelFormat format,
@@ -184,7 +196,7 @@ public:
     std::size_t get_height() const override { return height_; }
     PixelFormat get_format() const override { return format_; }
 
-    bool eof() const override { return next_row_ >= height_; }
+    bool eof() const override { return eof_; }
 
     bool get_next_row_data(std::uint8_t* out_data) override;
 
@@ -192,6 +204,8 @@ private:
     std::size_t width_ = 0;
     std::size_t height_ = 0;
     PixelFormat format_ = PixelFormat::UNKNOWN;
+
+    bool eof_ = false;
 
     std::vector<std::uint8_t> data_;
     std::size_t next_row_ = 0;
@@ -494,6 +508,8 @@ public:
     std::size_t get_output_height() const;
     PixelFormat get_output_format() const;
     std::size_t get_output_row_bytes() const;
+
+    ImagePipelineNode& front() { return *(nodes_.front().get()); }
 
     bool eof() const { return nodes_.back()->eof(); }
 

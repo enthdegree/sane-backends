@@ -66,6 +66,11 @@ void Genesys_Device::clear()
     dark_average_data.clear();
 }
 
+ImagePipelineNodeBytesSource& Genesys_Device::get_pipeline_source()
+{
+    return static_cast<ImagePipelineNodeBytesSource&>(pipeline.front());
+}
+
 uint8_t Genesys_Device::read_register(uint16_t address)
 {
     uint8_t value;

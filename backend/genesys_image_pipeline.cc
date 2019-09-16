@@ -50,6 +50,15 @@
 
 ImagePipelineNode::~ImagePipelineNode() {}
 
+std::size_t ImagePipelineNodeBytesSource::consume_remaining_bytes(std::size_t bytes)
+{
+    if (bytes > remaining_bytes_) {
+        bytes = remaining_bytes_;
+    }
+    remaining_bytes_ -= bytes;
+    return bytes;
+}
+
 ImagePipelineNodeBufferedCallableSource::ImagePipelineNodeBufferedCallableSource(
         std::size_t width, std::size_t height, PixelFormat format, std::size_t input_batch_size,
         ProducerCallback producer) :
@@ -58,6 +67,7 @@ ImagePipelineNodeBufferedCallableSource::ImagePipelineNodeBufferedCallableSource
     format_{format},
     buffer_{input_batch_size, producer}
 {
+    set_remaining_bytes(height_ * get_row_bytes());
 }
 
 bool ImagePipelineNodeBufferedCallableSource::get_next_row_data(std::uint8_t* out_data)
@@ -68,7 +78,16 @@ bool ImagePipelineNodeBufferedCallableSource::get_next_row_data(std::uint8_t* ou
         eof_ = true;
         return false;
     }
-    bool got_data = buffer_.get_data(get_row_bytes(), out_data);
+
+    bool got_data = true;
+
+    auto row_bytes = get_row_bytes();
+    auto bytes_to_ask = consume_remaining_bytes(row_bytes);
+    if (bytes_to_ask < row_bytes) {
+        got_data = false;
+    }
+
+    got_data &= buffer_.get_data(bytes_to_ask, out_data);
     curr_row_++;
     if (!got_data) {
         eof_ = true;
@@ -84,11 +103,23 @@ ImagePipelineNodeBufferedGenesysUsb::ImagePipelineNodeBufferedGenesysUsb(
     height_{height},
     format_{format},
     buffer_{total_size, buffer_model, producer}
-{}
+{
+    set_remaining_bytes(total_size);
+}
 
 bool ImagePipelineNodeBufferedGenesysUsb::get_next_row_data(std::uint8_t* out_data)
 {
-    bool got_data = buffer_.get_data(get_row_bytes(), out_data);
+    if (remaining_bytes() != buffer_.remaining_size() + buffer_.available()) {
+        buffer_.set_remaining_size(remaining_bytes() - buffer_.available());
+    }
+    bool got_data = true;
+
+    std::size_t row_bytes = get_row_bytes();
+    std::size_t ask_bytes = consume_remaining_bytes(row_bytes);
+    if (ask_bytes < row_bytes) {
+        got_data = false;
+    }
+    got_data &= buffer_.get_data(ask_bytes, out_data);
     if (!got_data) {
         eof_ = true;
     }
@@ -104,22 +135,36 @@ ImagePipelineNodeArraySource::ImagePipelineNodeArraySource(std::size_t width, st
     data_{std::move(data)},
     next_row_{0}
 {
-    auto min_size = get_row_bytes() * height_;
-    if (data_.size() < min_size) {
+    auto size = get_row_bytes() * height_;
+    if (data_.size() < size) {
         throw SaneException("The given array is too small (%zu bytes). Need at least %zu",
-                            data_.size(), min_size);
+                            data_.size(), size);
     }
+    set_remaining_bytes(size);
 }
 
 bool ImagePipelineNodeArraySource::get_next_row_data(std::uint8_t* out_data)
 {
     if (next_row_ >= height_) {
+        eof_ = true;
         return false;
     }
 
-    std::memcpy(out_data, data_.data() + get_row_bytes() * next_row_, get_row_bytes());
+    bool got_data = true;
+
+    auto row_bytes = get_row_bytes();
+    auto bytes_to_ask = consume_remaining_bytes(row_bytes);
+    if (bytes_to_ask < row_bytes) {
+        got_data = false;
+    }
+
+    std::memcpy(out_data, data_.data() + get_row_bytes() * next_row_, bytes_to_ask);
     next_row_++;
-    return true;
+
+    if (!got_data) {
+        eof_ = true;
+    }
+    return got_data;
 }
 
 

@@ -251,6 +251,9 @@ struct ScanSession {
     // Equal to output_line_bytes if sensor does not have segments
     unsigned output_line_bytes_raw = 0;
 
+    // the number of bytes per line as requested by the frontend
+    unsigned output_line_bytes_requested = 0;
+
     // the number of lines in the output of the scanner. This must be larger than the user
     // requested number due to line staggering and color channel shifting.
     unsigned output_line_count = 0;

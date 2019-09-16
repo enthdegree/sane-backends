@@ -1522,6 +1522,9 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
             s.params.depth);
     }
 
+    s.output_line_bytes_requested = multiply_by_depth_ceil(
+            s.params.get_requested_pixels() * s.params.channels, s.params.depth);
+
     s.output_total_bytes_raw = s.output_line_bytes_raw * s.output_line_count;
     s.output_total_bytes = s.output_line_bytes * s.output_line_count;
 

@@ -706,9 +706,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
     dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
     dev->total_bytes_read = 0;
-    dev->total_bytes_to_read =
-            multiply_by_depth_ceil(session.params.get_requested_pixels() * session.params.lines,
-                                   session.params.depth) * session.params.channels;
+    dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
 
     /* select color filter based on settings */
     regs->find_reg(0x04).value &= ~REG04_FILTER;

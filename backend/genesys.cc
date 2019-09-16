@@ -1560,7 +1560,7 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
    average_data and calibration_data are little endian 16 bit words.
  */
 static void genesys_average_data(uint16_t* average_data,
-		      uint8_t * calibration_data,
+                                 const std::uint16_t* calibration_data,
                       uint32_t lines,
 		      uint32_t pixel_components_per_line)
 {
@@ -1571,11 +1571,8 @@ static void genesys_average_data(uint16_t* average_data,
     {
       sum = 0;
       for (y = 0; y < lines; y++)
-	{
-	  sum += calibration_data[(x + y * pixel_components_per_line) * 2];
-	  sum +=
-	    calibration_data[(x + y * pixel_components_per_line) * 2 +
-			     1] * 256;
+    {
+            sum += calibration_data[(x + y * pixel_components_per_line)];
 	}
       sum /= lines;
         *average_data++ = sum;
@@ -1625,7 +1622,7 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
         size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
     }
 
-  std::vector<uint8_t> calibration_data(size);
+  std::vector<uint16_t> calibration_data(size / 2);
 
   motor=SANE_TRUE;
   if (dev->model->flags & GENESYS_FLAG_SHADING_NO_MOVE)
@@ -1656,7 +1653,8 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
     dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, is_dark ? SANE_FALSE : SANE_TRUE);
 
-    sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
+    sanei_genesys_read_data_from_scanner(dev, reinterpret_cast<std::uint8_t*>(calibration_data.data()),
+                                         size);
 
     dev->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
 
@@ -1667,9 +1665,9 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
                          calibration_data.data(), dev->calib_lines, pixels_per_line * channels);
 
     if (DBG_LEVEL >= DBG_data) {
-        sanei_genesys_write_pnm_file((log_filename_prefix + "_shading.pnm").c_str(),
-                                     calibration_data.data(), 16,
-                                     channels, pixels_per_line, dev->calib_lines);
+        sanei_genesys_write_pnm_file16((log_filename_prefix + "_shading.pnm").c_str(),
+                                       calibration_data.data(),
+                                       channels, pixels_per_line, dev->calib_lines);
         sanei_genesys_write_pnm_file16((log_filename_prefix + "_average.pnm").c_str(),
                                        out_average_data.data(),
                                        channels, out_pixels_per_line, 1);

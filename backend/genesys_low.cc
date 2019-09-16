@@ -159,7 +159,7 @@ void sanei_genesys_write_pnm_file(const char* filename, uint8_t* data, int depth
   fclose (out);
 }
 
-void sanei_genesys_write_pnm_file16(const char* filename, uint16_t* data, unsigned channels,
+void sanei_genesys_write_pnm_file16(const char* filename, const uint16_t* data, unsigned channels,
                                     unsigned pixels_per_line, unsigned lines)
 {
     DBG_HELPER_ARGS(dbg, "channels=%d, ppl=%d, lines=%d", channels,

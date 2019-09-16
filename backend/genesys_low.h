@@ -531,7 +531,7 @@ extern void sanei_genesys_write_file(const char* filename, uint8_t* data, size_t
 extern void sanei_genesys_write_pnm_file(const char* filename, uint8_t* data, int depth,
                                          int channels, int pixels_per_line, int lines);
 
-extern void sanei_genesys_write_pnm_file16(const char* filename, uint16_t* data, unsigned channels,
+extern void sanei_genesys_write_pnm_file16(const char* filename, const uint16_t *data, unsigned channels,
                                            unsigned pixels_per_line, unsigned lines);
 
 extern void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empty);

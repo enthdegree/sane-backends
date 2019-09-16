@@ -2347,9 +2347,6 @@ static void gl841_detect_document_end(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   SANE_Bool paper_loaded;
-  unsigned int scancnt = 0, lincnt, postcnt;
-  uint8_t val;
-  size_t total_bytes_to_read;
 
     gl841_get_paper_sensor(dev, &paper_loaded);
 
@@ -2363,43 +2360,44 @@ static void gl841_detect_document_end(Genesys_Device* dev)
        * might have been slow to read data, so we re-evaluate the
        * amount of data to scan form the hardware settings
        */
+        unsigned scanned_lines = 0;
         try {
-            sanei_genesys_read_scancnt(dev, &scancnt);
+            sanei_genesys_read_scancnt(dev, &scanned_lines);
         } catch (...) {
             dev->total_bytes_to_read = dev->total_bytes_read;
-            dev->read_bytes_left_after_deseg = 0;
             throw;
         }
 
-      if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS && dev->model->is_cis)
-        {
-          scancnt/=3;
+        if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS && dev->model->is_cis) {
+            scanned_lines /= 3;
         }
-      DBG(DBG_io, "%s: scancnt=%u lines\n", __func__, scancnt);
 
-        val = dev->read_register(0x25);
-        lincnt = 65536 * val;
-        val = dev->read_register(0x26);
-        lincnt += 256 * val;
-        val = dev->read_register(0x27);
-        lincnt += val;
-        DBG(DBG_io, "%s: lincnt=%u lines\n", __func__, lincnt);
-        postcnt = (SANE_UNFIX(dev->model->post_scan)/MM_PER_INCH) * dev->settings.yres;
-        DBG(DBG_io, "%s: postcnt=%u lines\n", __func__, postcnt);
+        std::size_t output_lines = dev->session.output_line_count;
 
-      /* the current scancnt is also the final one, so we use it to
-       * compute total bytes to read. We also add the line count to eject document */
-      total_bytes_to_read=(scancnt+postcnt) * dev->session.output_line_bytes_raw;
+        std::size_t offset_lines = (SANE_UNFIX(dev->model->post_scan) / MM_PER_INCH) *
+                dev->settings.yres;
 
-      DBG(DBG_io, "%s: old total_bytes_to_read=%u\n", __func__,
-          (unsigned int)dev->total_bytes_to_read);
-      DBG(DBG_io, "%s: new total_bytes_to_read=%u\n", __func__, (unsigned int)total_bytes_to_read);
+        std::size_t scan_end_lines = scanned_lines + offset_lines;
 
-      /* assign new end value */
-      if(dev->total_bytes_to_read>total_bytes_to_read)
-        {
-          DBG(DBG_io, "%s: scan shorten\n", __func__);
-          dev->total_bytes_to_read=total_bytes_to_read;
+        std::size_t remaining_lines = dev->get_pipeline_source().remaining_bytes() /
+                dev->session.output_line_bytes_raw;
+
+        DBG(DBG_io, "%s: scanned_lines=%u\n", __func__, scanned_lines);
+        DBG(DBG_io, "%s: scan_end_lines=%zu\n", __func__, scan_end_lines);
+        DBG(DBG_io, "%s: output_lines=%zu\n", __func__, output_lines);
+        DBG(DBG_io, "%s: remaining_lines=%zu\n", __func__, remaining_lines);
+
+        if (scan_end_lines > output_lines) {
+            auto skip_lines = scan_end_lines - output_lines;
+
+            if (remaining_lines > skip_lines) {
+                DBG(DBG_io, "%s: skip_lines=%zu\n", __func__, skip_lines);
+
+                remaining_lines -= skip_lines;
+                dev->get_pipeline_source().set_remaining_bytes(remaining_lines *
+                                                               dev->session.output_line_bytes_raw);
+                dev->total_bytes_to_read -= skip_lines * dev->session.output_line_bytes_requested;
+            }
         }
     }
 }

@@ -66,6 +66,8 @@ public:
         return get_pixel_row_bytes(get_format(), get_width());
     }
 
+    virtual bool eof() const = 0;
+
     // returns true if the row was filled successfully, false otherwise (e.g. if not enough data
     // was available.
     virtual bool get_next_row_data(std::uint8_t* out_data) = 0;
@@ -89,9 +91,14 @@ public:
     std::size_t get_height() const override { return height_; }
     PixelFormat get_format() const override { return format_; }
 
+    bool eof() const override { return eof_; }
+
     bool get_next_row_data(std::uint8_t* out_data) override
     {
-        return producer_(get_row_bytes(), out_data);
+        bool got_data = producer_(get_row_bytes(), out_data);
+        if (!got_data)
+            eof_ = true;
+        return got_data;
     }
 
 private:
@@ -99,6 +106,7 @@ private:
     std::size_t width_ = 0;
     std::size_t height_ = 0;
     PixelFormat format_ = PixelFormat::UNKNOWN;
+    bool eof_ = false;
 };
 
 // A pipeline node that produces data from a callable requesting fixed-size chunks.
@@ -115,6 +123,8 @@ public:
     std::size_t get_height() const override { return height_; }
     PixelFormat get_format() const override { return format_; }
 
+    bool eof() const override { return eof_; }
+
     bool get_next_row_data(std::uint8_t* out_data) override;
 
     std::size_t buffer_size() const { return buffer_.size(); }
@@ -126,6 +136,7 @@ private:
     std::size_t height_ = 0;
     PixelFormat format_ = PixelFormat::UNKNOWN;
 
+    bool eof_ = false;
     std::size_t curr_row_ = 0;
 
     ImageBuffer buffer_;
@@ -145,6 +156,8 @@ public:
     std::size_t get_height() const override { return height_; }
     PixelFormat get_format() const override { return format_; }
 
+    bool eof() const override { return eof_; }
+
     bool get_next_row_data(std::uint8_t* out_data) override;
 
     std::size_t buffer_available() const { return buffer_.available(); }
@@ -154,6 +167,8 @@ private:
     std::size_t width_ = 0;
     std::size_t height_ = 0;
     PixelFormat format_ = PixelFormat::UNKNOWN;
+
+    bool eof_ = false;
 
     ImageBufferGenesysUsb buffer_;
 };
@@ -168,6 +183,8 @@ public:
     std::size_t get_width() const override { return width_; }
     std::size_t get_height() const override { return height_; }
     PixelFormat get_format() const override { return format_; }
+
+    bool eof() const override { return next_row_ >= height_; }
 
     bool get_next_row_data(std::uint8_t* out_data) override;
 
@@ -191,6 +208,8 @@ public:
     std::size_t get_height() const override { return source_.get_height(); }
     PixelFormat get_format() const override { return source_.get_format(); }
 
+    bool eof() const override { return next_row_ >= get_height(); }
+
     bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
@@ -212,6 +231,8 @@ public:
     std::size_t get_width() const override { return source_.get_width(); }
     std::size_t get_height() const override { return source_.get_height(); }
     PixelFormat get_format() const override { return dst_format_; }
+
+    bool eof() const override { return source_.eof(); }
 
     bool get_next_row_data(std::uint8_t* out_data) override;
 
@@ -247,6 +268,8 @@ public:
     std::size_t get_height() const override { return source_.get_height() / interleaved_lines_; }
     PixelFormat get_format() const override { return source_.get_format(); }
 
+    bool eof() const override { return source_.eof(); }
+
     bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
@@ -279,6 +302,8 @@ public:
     std::size_t get_height() const override { return source_.get_height(); }
     PixelFormat get_format() const override { return source_.get_format(); }
 
+    bool eof() const override { return source_.eof(); }
+
     bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
@@ -296,6 +321,8 @@ public:
     std::size_t get_width() const override { return source_.get_width(); }
     std::size_t get_height() const override { return source_.get_height() / 3; }
     PixelFormat get_format() const override { return output_format_; }
+
+    bool eof() const override { return source_.eof(); }
 
     bool get_next_row_data(std::uint8_t* out_data) override;
 
@@ -317,6 +344,8 @@ public:
     std::size_t get_width() const override { return source_.get_width(); }
     std::size_t get_height() const override { return source_.get_height() * 3; }
     PixelFormat get_format() const override { return output_format_; }
+
+    bool eof() const override { return source_.eof(); }
 
     bool get_next_row_data(std::uint8_t* out_data) override;
 
@@ -341,6 +370,8 @@ public:
     std::size_t get_height() const override { return source_.get_height() - extra_height_; }
     PixelFormat get_format() const override { return source_.get_format(); }
 
+    bool eof() const override { return source_.eof(); }
+
     bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
@@ -364,6 +395,8 @@ public:
     std::size_t get_width() const override { return source_.get_width(); }
     std::size_t get_height() const override { return source_.get_height() - extra_height_; }
     PixelFormat get_format() const override { return source_.get_format(); }
+
+    bool eof() const override { return source_.eof(); }
 
     bool get_next_row_data(std::uint8_t* out_data) override;
 
@@ -391,6 +424,8 @@ public:
     std::size_t get_height() const override { return height_; }
     PixelFormat get_format() const override { return source_.get_format(); }
 
+    bool eof() const override { return source_.eof(); }
+
     bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
@@ -414,6 +449,8 @@ public:
     std::size_t get_height() const override { return source_.get_height(); }
     PixelFormat get_format() const override { return source_.get_format(); }
 
+    bool eof() const override { return source_.eof(); }
+
     bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
@@ -432,6 +469,8 @@ public:
     std::size_t get_width() const override { return source_.get_width(); }
     std::size_t get_height() const override { return source_.get_height(); }
     PixelFormat get_format() const override { return source_.get_format(); }
+
+    bool eof() const override { return source_.eof(); }
 
     bool get_next_row_data(std::uint8_t* out_data) override;
 
@@ -455,6 +494,8 @@ public:
     std::size_t get_output_height() const;
     PixelFormat get_output_format() const;
     std::size_t get_output_row_bytes() const;
+
+    bool eof() const { return nodes_.back()->eof(); }
 
     void clear();
 

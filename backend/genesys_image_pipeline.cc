@@ -65,11 +65,14 @@ bool ImagePipelineNodeBufferedCallableSource::get_next_row_data(std::uint8_t* ou
     if (curr_row_ >= get_height()) {
         DBG(DBG_warn, "%s: reading out of bounds. Row %zu, height: %zu\n", __func__,
             curr_row_, get_height());
+        eof_ = true;
         return false;
     }
     bool got_data = buffer_.get_data(get_row_bytes(), out_data);
     curr_row_++;
-    return true;
+    if (!got_data) {
+        eof_ = true;
+    }
     return got_data;
 }
 
@@ -85,7 +88,11 @@ ImagePipelineNodeBufferedGenesysUsb::ImagePipelineNodeBufferedGenesysUsb(
 
 bool ImagePipelineNodeBufferedGenesysUsb::get_next_row_data(std::uint8_t* out_data)
 {
-    return buffer_.get_data(get_row_bytes(), out_data);
+    bool got_data = buffer_.get_data(get_row_bytes(), out_data);
+    if (!got_data) {
+        eof_ = true;
+    }
+    return got_data;
 }
 
 ImagePipelineNodeArraySource::ImagePipelineNodeArraySource(std::size_t width, std::size_t height,

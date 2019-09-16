@@ -71,8 +71,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 1200, 600, 300, 150, 75 };
     model.ydpi_values = { 2400, 1200, 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(3.5);
     model.y_offset = SANE_FIX(7.5);
@@ -123,8 +123,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 1200, 600, 400, 300, 240, 200, 150, 75 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 240, 200, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.42);
     model.y_offset = SANE_FIX(7.9);
@@ -181,8 +181,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 600, /* 500, 400,*/ 300, 200, 150, 100, 75 };
     model.ydpi_values = { 1200, 600, /* 500, 400, */ 300, 200, 150, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(7.2);
     model.y_offset = SANE_FIX(14.7);
@@ -235,8 +235,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(7.9);
     model.y_offset = SANE_FIX(5.9);
@@ -290,8 +290,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(8.0);
     model.y_offset = SANE_FIX(13.00);
@@ -345,8 +345,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(8.0);
     model.y_offset = SANE_FIX(13.00);
@@ -401,8 +401,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
     model.ydpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(6.0);
     model.y_offset = SANE_FIX(13.00);
@@ -459,8 +459,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
     model.ydpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(3.5);
     model.y_offset = SANE_FIX(17.00);
@@ -519,8 +519,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300 }; // TODO: resolutions for non-XPA mode
     model.ydpi_values = { 4800, 2400, 1200, 600, 400, 300 }; // TODO: resolutions for non-XPA mode
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(24.0);
     model.y_offset = SANE_FIX(10.0);
@@ -579,8 +579,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(1.1);
     model.y_offset = SANE_FIX(8.3);
@@ -639,8 +639,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(2.2);
     model.y_offset = SANE_FIX(9.0);
@@ -697,8 +697,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.0);
     model.y_offset = SANE_FIX(8.0);
@@ -754,8 +754,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(2.2);
     model.y_offset = SANE_FIX(8.7);
@@ -814,8 +814,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(2.2);
     model.y_offset = SANE_FIX(8.7);
@@ -873,8 +873,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75 };
     model.ydpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(1.1);
     model.y_offset = SANE_FIX(8.3);
@@ -933,8 +933,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(3.1);
     model.y_offset = SANE_FIX(8.1);
@@ -992,8 +992,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
     model.ydpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(1.1);
     model.y_offset = SANE_FIX(8.3);
@@ -1051,8 +1051,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 1200, 600, 300, 150, 75 };
     model.ydpi_values = { 2400, 1200, 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.42);
     model.y_offset = SANE_FIX(7.9);
@@ -1109,8 +1109,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = {      1200, 600, 400, 300, 240, 150, 100, 75 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 240, 150, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
     model.x_offset = SANE_FIX(0.42);
     model.y_offset = SANE_FIX(7.90);
     model.x_size = SANE_FIX(216.07);
@@ -1169,8 +1169,8 @@ void genesys_init_usb_device_tables()
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { /* 1200, */600, 300, 150, 75 };
 
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(2.0);
     model.y_offset = SANE_FIX(7.5);
@@ -1225,8 +1225,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 1200, 600, 300, 150, 100, 50 };
     model.ydpi_values = { 1200, 600, 300, 150, 100, 50 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(6.5);
     model.y_offset = SANE_FIX(2.5);
@@ -1282,8 +1282,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 600, 300, 200, 100, 75 };
     model.ydpi_values = { 600, 300, 200, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.5);
     model.y_offset = SANE_FIX(16.0);
@@ -1338,8 +1338,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 1200, 600, 300, 150, 100, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(8.5);
     model.y_offset = SANE_FIX(11.0);
@@ -1395,8 +1395,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(3.5);
     model.y_offset = SANE_FIX(7.5);
@@ -1446,8 +1446,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 1200, 600, 300, 150, 75 };
     model.ydpi_values = { 2400, 1200, 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(3.5);
     model.y_offset = SANE_FIX(7.5);
@@ -1501,8 +1501,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.30);
     model.y_offset = SANE_FIX(0.80);
@@ -1561,8 +1561,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.0);
     model.y_offset = SANE_FIX(1.0);
@@ -1615,8 +1615,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.0);
     model.y_offset = SANE_FIX(0.0);
@@ -1669,8 +1669,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.0);
     model.y_offset = SANE_FIX(0.0);
@@ -1723,8 +1723,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.0);
     model.y_offset = SANE_FIX(0.0);
@@ -1778,8 +1778,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.0);
     model.y_offset = SANE_FIX(0.0);
@@ -1832,8 +1832,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.0);
     model.y_offset = SANE_FIX(0.0);
@@ -1888,8 +1888,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.0);
     model.y_offset = SANE_FIX(0.0);
@@ -1941,8 +1941,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.0);
     model.y_offset = SANE_FIX(1.0);
@@ -1997,8 +1997,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.0);
     model.y_offset = SANE_FIX(1.0);
@@ -2052,8 +2052,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.0);
     model.y_offset = SANE_FIX(1.0);
@@ -2108,8 +2108,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(4.00);
     model.y_offset = SANE_FIX(0.80);
@@ -2168,8 +2168,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(4.00);
     model.y_offset = SANE_FIX(0.80);
@@ -2228,8 +2228,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 600, 300, 150, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(4.0);
     model.y_offset = SANE_FIX(0.0);
@@ -2282,8 +2282,8 @@ void genesys_init_usb_device_tables()
     model.asic_type = AsicType::GL841;
     model.xdpi_values = { /*1200,*/ 600, 400, 300, 200, 150, 100, 75 };
     model.ydpi_values = { /*2400,*/ 1200, 600, 400, 300, 200, 150, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(0.42);
     model.y_offset = SANE_FIX(6.75);
@@ -2339,8 +2339,8 @@ void genesys_init_usb_device_tables()
     model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75 };
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75 };
 
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(6);
     model.y_offset = SANE_FIX(2);
@@ -2398,8 +2398,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 1200, 600, 300, 150, 100, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(7.2);
     model.y_offset = SANE_FIX(14.7);
@@ -2452,8 +2452,8 @@ void genesys_init_usb_device_tables()
 
     model.xdpi_values = { 1200, 600, 300, 150, 100, 75 };
     model.ydpi_values = { 1200, 600, 300, 150, 100, 75 };
-    model.bpp_gray_values = { 16, 8 };
-    model.bpp_color_values = { 16, 8 };
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
 
     model.x_offset = SANE_FIX(7.2);
     model.y_offset = SANE_FIX(14.7);

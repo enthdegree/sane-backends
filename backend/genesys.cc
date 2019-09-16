@@ -3982,7 +3982,7 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_BIT_DEPTH].constraint.word_list = 0;
   s->opt[OPT_BIT_DEPTH].constraint.word_list = s->bpp_list;
   create_bpp_list (s, model->bpp_gray_values);
-  s->bit_depth = 8;
+    s->bit_depth = model->bpp_gray_values[0];
 
     // resolution
     auto resolutions = model->get_resolutions();
@@ -5611,11 +5611,13 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
                         ENABLE(OPT_COLOR_FILTER);
                     }
 	      create_bpp_list (s, s->dev->model->bpp_gray_values);
+                    s->bit_depth = s->dev->model->bpp_gray_values[0];
 	    }
 	  else
 	    {
 	      DISABLE (OPT_COLOR_FILTER);
 	      create_bpp_list (s, s->dev->model->bpp_color_values);
+                    s->bit_depth = s->dev->model->bpp_color_values[0];
 	    }
 	}
         calc_parameters(s);

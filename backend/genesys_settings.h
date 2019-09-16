@@ -255,6 +255,12 @@ struct ScanSession {
     // requested number due to line staggering and color channel shifting.
     unsigned output_line_count = 0;
 
+    // the total number of bytes to read from the scanner (before desegmentation)
+    unsigned output_total_bytes_raw = 0;
+
+    // the total number of bytes to read from the scanner (after desegmentation)
+    unsigned output_total_bytes = 0;
+
     // the number of staggered lines (i.e. lines that overlap during scanning due to line being
     // thinner than the CCD element)
     unsigned num_staggered_lines = 0;

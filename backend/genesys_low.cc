@@ -1522,6 +1522,9 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
             s.params.depth);
     }
 
+    s.output_total_bytes_raw = s.output_line_bytes_raw * s.output_line_count;
+    s.output_total_bytes = s.output_line_bytes * s.output_line_count;
+
     compute_session_buffer_sizes(dev->model->asic_type, s);
     compute_session_pipeline(dev, s);
     compute_session_pixel_offsets(dev, s, sensor, sensor_profile);

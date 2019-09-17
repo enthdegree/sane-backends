@@ -98,8 +98,8 @@ void sanei_genesys_write_file(const char* filename, uint8_t* data, size_t length
 
 // Write data to a pnm file (e.g. calibration). For debugging only
 // data is RGB or grey, with little endian byte order
-void sanei_genesys_write_pnm_file(const char* filename, uint8_t* data, int depth, int channels,
-                                  int pixels_per_line, int lines)
+void sanei_genesys_write_pnm_file(const char* filename, const std::uint8_t* data, int depth,
+                                  int channels, int pixels_per_line, int lines)
 {
     DBG_HELPER_ARGS(dbg, "depth=%d, channels=%d, ppl=%d, lines=%d", depth, channels,
                     pixels_per_line, lines);
@@ -178,6 +178,33 @@ void sanei_genesys_write_pnm_file16(const char* filename, const uint16_t* data, 
         data++;
     }
     std::fclose(out);
+}
+
+bool is_supported_write_pnm_file_image_format(PixelFormat format)
+{
+    switch (format) {
+        case PixelFormat::I1:
+        case PixelFormat::RGB111:
+        case PixelFormat::I8:
+        case PixelFormat::RGB888:
+        case PixelFormat::I16:
+        case PixelFormat::RGB161616:
+            return true;
+        default:
+            return false;
+    }
+}
+
+void sanei_genesys_write_pnm_file(const char* filename, const Image& image)
+{
+    if (!is_supported_write_pnm_file_image_format(image.get_format())) {
+        throw SaneException("Unsupported format %d", static_cast<unsigned>(image.get_format()));
+    }
+
+    sanei_genesys_write_pnm_file(filename, image.get_row_ptr(0),
+                                 get_pixel_format_depth(image.get_format()),
+                                 get_pixel_channels(image.get_format()),
+                                 image.get_width(), image.get_height());
 }
 
 /* ------------------------------------------------------------------------ */

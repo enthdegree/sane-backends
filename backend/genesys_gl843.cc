@@ -3170,7 +3170,6 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
     DBG_HELPER_ARGS(dbg, "%s %s",  black ? "black" : "white", forward ? "forward" : "reverse");
   unsigned int pixels, lines, channels;
   Genesys_Register_Set local_reg;
-  size_t size;
   int steps, depth, dpi;
   unsigned int pass, count, found, x, y;
   GenesysRegister *r;
@@ -3213,9 +3212,6 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 
     gl843_init_scan_regs(dev, calib_sensor, &local_reg, session);
 
-    size = session.output_total_bytes_raw;
-  std::vector<uint8_t> data(size);
-
   /* set up for reverse or forward */
   r = sanei_genesys_get_address(&local_reg, REG02);
     if (forward) {
@@ -3234,7 +3230,8 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
         } while (steps);
 
     // now we're on target, we can read data
-    sanei_genesys_read_data_from_scanner(dev, data.data(), size);
+    auto data = read_unshuffled_image_from_scanner(dev, session,
+                                                   session.output_total_bytes_raw);
 
     gl843_stop_action(dev);
 
@@ -3244,7 +3241,7 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
       char fn[40];
       snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
                black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
-      sanei_genesys_write_pnm_file(fn, data.data(), depth, channels, pixels, lines);
+        sanei_genesys_write_pnm_file(fn, data);
     }
 
   /* loop until strip is found or maximum pass number done */
@@ -3262,7 +3259,7 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
         } while (steps);
 
         // now we're on target, we can read data
-        sanei_genesys_read_data_from_scanner(dev, data.data(), size);
+        data = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes_raw);
 
         gl843_stop_action(dev);
 
@@ -3271,7 +3268,7 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
           char fn[40];
           snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
                    black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
-          sanei_genesys_write_pnm_file(fn, data.data(), depth, channels, pixels, lines);
+            sanei_genesys_write_pnm_file(fn, data);
 	}
 
       /* search data to find black strip */
@@ -3287,13 +3284,11 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 	      for (x = 0; x < pixels; x++)
 		{
 		  /* when searching for black, detect white pixels */
-		  if (black && data[y * pixels + x] > 90)
-		    {
+                    if (black && data.get_raw_channel(x, y, 0) > 90) {
 		      count++;
 		    }
 		  /* when searching for white, detect black pixels */
-		  if (!black && data[y * pixels + x] < 60)
-		    {
+                    if (!black && data.get_raw_channel(x, y, 0) < 60) {
 		      count++;
 		    }
 		}
@@ -3323,14 +3318,12 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 	      /* count of white/black pixels depending on the color searched */
 	      for (x = 0; x < pixels; x++)
 		{
-		  /* when searching for black, detect white pixels */
-		  if (black && data[y * pixels + x] > 90)
-		    {
+                    // when searching for black, detect white pixels
+                    if (black && data.get_raw_channel(x, y, 0) > 90) {
 		      count++;
 		    }
-		  /* when searching for white, detect black pixels */
-		  if (!black && data[y * pixels + x] < 60)
-		    {
+                    // when searching for white, detect black pixels
+                    if (!black && data.get_raw_channel(x, y, 0) < 60) {
 		      count++;
 		    }
 		}

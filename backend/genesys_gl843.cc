@@ -2404,18 +2404,15 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
 {
     DBG_HELPER(dbg);
   int num_pixels;
-  int total_size;
-  int i, j;
-  int val;
-  int channels, depth;
+    int depth;
   int avg[3], avga, avge;
   int turn;
   uint16_t expr, expg, expb;
 
   SANE_Bool acceptable = SANE_FALSE;
 
-  /* offset calibration is always done in color mode */
-  channels = 3;
+    // offset calibration is always done in color mode
+    unsigned channels = 3;
   depth = 16;
 
     // take a copy, as we're going to modify exposure
@@ -2449,10 +2446,6 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
 
     dev->write_registers(regs);
 
-    total_size = session.output_total_bytes_raw;
-
-  std::vector<uint8_t> line(total_size);
-
 /*
    we try to get equal bright leds here:
 
@@ -2480,36 +2473,26 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
         gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-        sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
+        auto image = read_unshuffled_image_from_scanner(dev, session,
+                                                        session.output_total_bytes_raw);
         gl843_stop_action_no_move(dev, &regs);
 
       if (DBG_LEVEL >= DBG_data)
 	{
           char fn[30];
           snprintf(fn, 30, "gl843_led_%02d.pnm", turn);
-          sanei_genesys_write_pnm_file(fn, line.data(), depth, channels, num_pixels, 1);
+            sanei_genesys_write_pnm_file(fn, image);
 	}
 
       acceptable = SANE_TRUE;
 
-      for (j = 0; j < channels; j++)
-	{
-	  avg[j] = 0;
-	  for (i = 0; i < num_pixels; i++)
-	    {
-	      if (dev->model->is_cis)
-		val =
-		  line[i * 2 + j * 2 * num_pixels + 1] * 256 +
-		  line[i * 2 + j * 2 * num_pixels];
-	      else
-		val =
-		  line[i * 2 * channels + 2 * j + 1] * 256 +
-		  line[i * 2 * channels + 2 * j];
-	      avg[j] += val;
-	    }
-
-	  avg[j] /= num_pixels;
-	}
+        for (unsigned ch = 0; ch < channels; ch++) {
+            avg[ch] = 0;
+            for (std::size_t x = 0; x < image.get_width(); x++) {
+                avg[ch] += image.get_raw_channel(x, 0, ch);
+            }
+            avg[ch] /= image.get_width();
+        }
 
       DBG(DBG_info, "%s: average: %d,%d,%d\n", __func__, avg[0], avg[1], avg[2]);
 

@@ -65,6 +65,7 @@ public:
     void set_pixel(std::size_t x, std::size_t y, const Pixel& pixel);
 
     RawPixel get_raw_pixel(std::size_t x, std::size_t y) const;
+    std::uint16_t get_raw_channel(std::size_t x, std::size_t y, unsigned channel) const;
     void set_raw_pixel(std::size_t x, std::size_t y, const RawPixel& pixel);
 
     void resize(std::size_t width, std::size_t height, PixelFormat format);

@@ -2807,11 +2807,9 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
                                           Genesys_Register_Set& regs, int dpi)
 {
     DBG_HELPER_ARGS(dbg, "dpi = %d", dpi);
-  int pixels, factor, dpihw;
-  int total_size;
-  int i, j, channels;
+    int factor, dpihw;
   float coeff;
-  int val, lines;
+    int lines;
   int resolution;
   int bpp;
 
@@ -2821,8 +2819,8 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
     dpihw = sensor.get_logical_hwdpi(dpi);
   factor=sensor.optical_res/dpihw;
 
-  /* coarse gain calibration is always done in color mode */
-  channels = 3;
+    // coarse gain calibration is always done in color mode
+    unsigned channels = 3;
 
   /* follow CKSEL */
   if (dev->model->ccd_type == CCD_KVSS080)
@@ -2873,7 +2871,7 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = flags;
     gl843_compute_session(dev, session, calib_sensor);
-    pixels = session.output_pixels;
+    std::size_t pixels = session.output_pixels;
 
     try {
         gl843_init_scan_regs(dev, calib_sensor, &regs, session);
@@ -2886,47 +2884,24 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
     dev->write_registers(regs);
 
-    total_size = session.output_total_bytes_raw;
-
-  std::vector<uint8_t> line(total_size);
-
     gl843_set_fe(dev, calib_sensor, AFE_SET);
     gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-    sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
+    auto line = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes_raw);
     gl843_stop_action_no_move(dev, &regs);
 
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl843_gain.pnm", line.data(), bpp, channels, pixels, lines);
+    if (DBG_LEVEL >= DBG_data) {
+        sanei_genesys_write_pnm_file("gl843_gain.pnm", line);
+    }
 
-  /* average value on each channel */
-  for (j = 0; j < channels; j++)
-    {
-      std::vector<uint16_t> values;
-      // FIXME: start from the second line because the first line often has artifacts. Probably
-      // caused by unclean cleanup of previous scans
-      for (i = pixels/4 + pixels; i < (pixels*3/4) + pixels; i++)
-	{
-          if(bpp==16)
-            {
-	  if (dev->model->is_cis)
-	    val =
-	      line[i * 2 + j * 2 * pixels + 1] * 256 +
-	      line[i * 2 + j * 2 * pixels];
-	  else
-	    val =
-	      line[i * 2 * channels + 2 * j + 1] * 256 +
-	      line[i * 2 * channels + 2 * j];
-            }
-          else
-            {
-	  if (dev->model->is_cis)
-	    val = line[i + j * pixels];
-	  else
-	    val = line[i * channels + j];
-            }
+    // average value on each channel
+    for (unsigned ch = 0; ch < channels; ch++) {
 
-            values.push_back(val);
-	}
+        std::vector<uint16_t> values;
+        // FIXME: start from the second line because the first line often has artifacts. Probably
+        // caused by unclean cleanup of previous scan
+        for (std::size_t x = pixels / 4; x < (pixels * 3 / 4); x++) {
+            values.push_back(line.get_raw_channel(x, 1, ch));
+        }
 
         // pick target value at 95th percentile of all values. There may be a lot of black values
         // in transparency scans for example
@@ -2938,9 +2913,9 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
         float target_value = calib_sensor.gain_white_ref * coeff;
 
         int code = compute_frontend_gain(curr_output, target_value, dev->frontend.layout.type);
-      dev->frontend.set_gain(j, code);
+      dev->frontend.set_gain(ch, code);
 
-        DBG(DBG_proc, "%s: channel %d, max=%d, target=%d, setting:%d\n", __func__, j, curr_output,
+        DBG(DBG_proc, "%s: channel %d, max=%d, target=%d, setting:%d\n", __func__, ch, curr_output,
             (int) target_value, code);
     }
 

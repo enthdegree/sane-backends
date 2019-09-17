@@ -2553,36 +2553,31 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
 /**
  * average dark pixels of a 8 bits scan of a given channel
  */
-static int
-dark_average_channel (uint8_t * data, unsigned int pixels, unsigned int lines,
-	      unsigned int channels, unsigned int black, int channel)
+static int dark_average_channel(const Image& image, unsigned black, unsigned channel)
 {
-  unsigned int i, j, k, count;
-  unsigned int avg[3];
-  uint8_t val;
+    auto channels = get_pixel_channels(image.get_format());
 
-  /* computes average values on black margin */
-  for (k = 0; k < channels; k++)
-    {
-      avg[k] = 0;
-      count = 0;
-      // FIXME: start with the second line because the black pixels often have noise on the first
-      // line; the cause is probably incorrectly cleaned up previous scan
-      for (i = 1; i < lines; i++)
-	{
-	  for (j = 0; j < black; j++)
-	    {
-	      val = data[i * channels * pixels + j*channels + k];
-	      avg[k] += val;
-	      count++;
-	    }
-	}
-      if (count)
-	avg[k] /= count;
-      DBG(DBG_info, "%s: avg[%d] = %d\n", __func__, k, avg[k]);
+    unsigned avg[3];
+
+    // computes average values on black margin
+    for (unsigned ch = 0; ch < channels; ch++) {
+        avg[ch] = 0;
+        unsigned count = 0;
+        // FIXME: start with the second line because the black pixels often have noise on the first
+        // line; the cause is probably incorrectly cleaned up previous scan
+        for (std::size_t y = 1; y < image.get_height(); y++) {
+            for (unsigned j = 0; j < black; j++) {
+                avg[ch] += image.get_raw_channel(j, y, ch);
+                count++;
+            }
+        }
+        if (count > 0) {
+            avg[ch] /= count;
+        }
+        DBG(DBG_info, "%s: avg[%d] = %d\n", __func__, ch, avg[ch]);
     }
-  DBG(DBG_info, "%s: average = %d\n", __func__, avg[channel]);
-  return avg[channel];
+    DBG(DBG_info, "%s: average = %d\n", __func__, avg[channel]);
+    return avg[channel];
 }
 
 /** @brief calibrate AFE offset
@@ -2599,7 +2594,7 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
         return;
 
   unsigned int channels, bpp;
-  int pass, total_size, i, resolution, lines;
+    int pass, resolution, lines;
   int topavg[3], bottomavg[3], avg[3];
   int top[3], bottom[3], black_pixels, pixels, factor, dpihw;
 
@@ -2670,26 +2665,22 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
   sanei_genesys_set_motor_power(regs, false);
 
-    // allocate memory for scans
-    total_size = session.output_total_bytes_raw;
-
-  std::vector<uint8_t> first_line(total_size);
-  std::vector<uint8_t> second_line(total_size);
-
-  /* init gain and offset */
-  for (i = 0; i < 3; i++)
+    // init gain and offset
+    for (unsigned ch = 0; ch < 3; ch++)
     {
-      bottom[i] = 10;
-      dev->frontend.set_offset(i, bottom[i]);
-      dev->frontend.set_gain(i, 0);
+        bottom[ch] = 10;
+        dev->frontend.set_offset(ch, bottom[ch]);
+        dev->frontend.set_gain(ch, 0);
     }
     gl843_set_fe(dev, calib_sensor, AFE_SET);
 
-    // scan with obttom AFE settings
+    // scan with bottom AFE settings
     dev->write_registers(regs);
-  DBG(DBG_info, "%s: starting first line reading\n", __func__);
+    DBG(DBG_info, "%s: starting first line reading\n", __func__);
+
     gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-    sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
+    auto first_line = read_unshuffled_image_from_scanner(dev, session,
+                                                         session.output_total_bytes_raw);
     gl843_stop_action_no_move(dev, &regs);
 
   if (DBG_LEVEL >= DBG_data)
@@ -2697,34 +2688,33 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       char fn[40];
       snprintf(fn, 40, "gl843_bottom_offset_%03d_%03d_%03d.pnm",
                bottom[0], bottom[1], bottom[2]);
-      sanei_genesys_write_pnm_file(fn, first_line.data(), bpp, channels, pixels, lines);
+        sanei_genesys_write_pnm_file(fn, first_line);
     }
 
-  for (i = 0; i < 3; i++)
-    {
-      bottomavg[i] = dark_average_channel(first_line.data(), pixels, lines, channels, black_pixels, i);
-      DBG(DBG_io2, "%s: bottom avg %d=%d\n", __func__, i, bottomavg[i]);
+    for (unsigned ch = 0; ch < 3; ch++) {
+        bottomavg[ch] = dark_average_channel(first_line, black_pixels, ch);
+        DBG(DBG_io2, "%s: bottom avg %d=%d\n", __func__, ch, bottomavg[ch]);
     }
 
-  /* now top value */
-  for (i = 0; i < 3; i++)
-    {
-      top[i] = 255;
-      dev->frontend.set_offset(i, top[i]);
+    // now top value
+    for (unsigned ch = 0; ch < 3; ch++) {
+        top[ch] = 255;
+        dev->frontend.set_offset(ch, top[ch]);
     }
     gl843_set_fe(dev, calib_sensor, AFE_SET);
 
     // scan with top AFE values
     dev->write_registers(regs);
-  DBG(DBG_info, "%s: starting second line reading\n", __func__);
+    DBG(DBG_info, "%s: starting second line reading\n", __func__);
+
     gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-    sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
+    auto second_line = read_unshuffled_image_from_scanner(dev, session,
+                                                          session.output_total_bytes_raw);
     gl843_stop_action_no_move(dev, &regs);
 
-  for (i = 0; i < 3; i++)
-    {
-      topavg[i] = dark_average_channel(second_line.data(), pixels, lines, channels, black_pixels, i);
-      DBG(DBG_io2, "%s: top avg %d=%d\n", __func__, i, topavg[i]);
+    for (unsigned ch = 0; ch < 3; ch++){
+        topavg[ch] = dark_average_channel(second_line, black_pixels, ch);
+        DBG(DBG_io2, "%s: top avg %d=%d\n", __func__, ch, topavg[ch]);
     }
 
   pass = 0;
@@ -2740,21 +2730,20 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
     {
       pass++;
 
-      /* settings for new scan */
-      for (i = 0; i < 3; i++)
-	{
-	  if (top[i] - bottom[i] > 1)
-	    {
-              dev->frontend.set_offset(i, (top[i] + bottom[i]) / 2);
-	    }
-	}
+        // settings for new scan
+        for (unsigned ch = 0; ch < 3; ch++) {
+            if (top[ch] - bottom[ch] > 1) {
+                dev->frontend.set_offset(ch, (top[ch] + bottom[ch]) / 2);
+            }
+        }
         gl843_set_fe(dev, calib_sensor, AFE_SET);
 
         // scan with no move
         dev->write_registers(regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-        sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
+        second_line = read_unshuffled_image_from_scanner(dev, session,
+                                                         session.output_total_bytes_raw);
         gl843_stop_action_no_move(dev, &regs);
 
       if (DBG_LEVEL >= DBG_data)
@@ -2766,31 +2755,28 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
                    dev->frontend.get_offset(1),
                    dev->frontend.get_offset(2));
           debug_image_info += title;
-          std::copy(second_line.begin(), second_line.end(), std::back_inserter(debug_image));
+          std::copy(second_line.get_row_ptr(0),
+                    second_line.get_row_ptr(0) + second_line.get_row_bytes() * second_line.get_height(),
+                    std::back_inserter(debug_image));
           debug_image_lines += lines;
 	}
 
-      for (i = 0; i < 3; i++)
-	{
-          avg[i] = dark_average_channel(second_line.data(), pixels, lines, channels, black_pixels, i);
-          DBG(DBG_info, "%s: avg[%d]=%d offset=%d\n", __func__, i, avg[i],
-              dev->frontend.get_offset(i));
-	}
+        for (unsigned ch = 0; ch < 3; ch++) {
+            avg[ch] = dark_average_channel(second_line, black_pixels, ch);
+            DBG(DBG_info, "%s: avg[%d]=%d offset=%d\n", __func__, ch, avg[ch],
+                dev->frontend.get_offset(ch));
+        }
 
-      /* compute new boundaries */
-      for (i = 0; i < 3; i++)
-	{
-	  if (topavg[i] >= avg[i])
-	    {
-	      topavg[i] = avg[i];
-              top[i] = dev->frontend.get_offset(i);
-	    }
-	  else
-	    {
-	      bottomavg[i] = avg[i];
-              bottom[i] = dev->frontend.get_offset(i);
-	    }
-	}
+        // compute new boundaries
+        for (unsigned ch = 0; ch < 3; ch++) {
+            if (topavg[ch] >= avg[ch]) {
+                topavg[ch] = avg[ch];
+                top[ch] = dev->frontend.get_offset(ch);
+            } else {
+                bottomavg[ch] = avg[ch];
+                bottom[ch] = dev->frontend.get_offset(ch);
+            }
+        }
     }
 
   if (DBG_LEVEL >= DBG_data)

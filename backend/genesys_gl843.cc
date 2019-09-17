@@ -1994,7 +1994,6 @@ static void gl843_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
 static void gl843_search_start_position(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  int size;
   Genesys_Register_Set local_reg;
   int steps;
 
@@ -2033,10 +2032,6 @@ static void gl843_search_start_position(Genesys_Device* dev)
     // send to scanner
     dev->write_registers(local_reg);
 
-    size = session.output_total_bytes_raw;
-
-  std::vector<uint8_t> data(size);
-
     gl843_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
@@ -2045,13 +2040,12 @@ static void gl843_search_start_position(Genesys_Device* dev)
         } while (steps);
 
     // now we're on target, we can read data
-    sanei_genesys_read_data_from_scanner(dev, data.data(), size);
+    Image image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes_raw);
 
     gl843_stop_action_no_move(dev, &local_reg);
 
     if (DBG_LEVEL >= DBG_data) {
-        sanei_genesys_write_pnm_file("gl843_search_position.pnm", data.data(), 8, 1, pixels,
-                                     dev->model->search_lines);
+        sanei_genesys_write_pnm_file("gl843_search_position.pnm", image);
     }
 
     gl843_end_scan(dev, &local_reg, SANE_TRUE);
@@ -2062,8 +2056,8 @@ static void gl843_search_start_position(Genesys_Device* dev)
     for (auto& sensor_update :
             sanei_genesys_find_sensors_all_for_write(dev, dev->model->default_method))
     {
-        sanei_genesys_search_reference_point(dev, sensor_update, data.data(), 0, dpi, pixels,
-                                             dev->model->search_lines);
+        sanei_genesys_search_reference_point(dev, sensor_update, image.get_row_ptr(0), 0, dpi,
+                                             pixels, dev->model->search_lines);
     }
 }
 

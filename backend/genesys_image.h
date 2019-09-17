@@ -67,6 +67,7 @@ public:
     RawPixel get_raw_pixel(std::size_t x, std::size_t y) const;
     void set_raw_pixel(std::size_t x, std::size_t y, const RawPixel& pixel);
 
+    void resize(std::size_t width, std::size_t height, PixelFormat format);
 private:
     std::size_t width_ = 0;
     std::size_t height_ = 0;

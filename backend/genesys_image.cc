@@ -88,6 +88,14 @@ void Image::set_raw_pixel(std::size_t x, std::size_t y, const RawPixel& pixel)
     set_raw_pixel_to_row(get_row_ptr(y), x, pixel, format_);
 }
 
+void Image::resize(std::size_t width, std::size_t height, PixelFormat format)
+{
+    width_ = width;
+    height_ = height;
+    format_ = format;
+    data_.resize(get_row_bytes() * height);
+}
+
 template<PixelFormat SrcFormat, PixelFormat DstFormat>
 void convert_pixel_row_impl2(const std::uint8_t* in_data, std::uint8_t* out_data,
                              std::size_t count)

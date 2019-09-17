@@ -762,3 +762,16 @@ std::vector<std::uint8_t> ImagePipelineStack::get_all_data()
     }
     return ret;
 }
+
+Image ImagePipelineStack::get_image()
+{
+    auto height = get_output_height();
+
+    Image ret;
+    ret.resize(get_output_width(), height, get_output_format());
+
+    for (std::size_t i = 0; i < height; ++i) {
+        get_next_row_data(ret.get_row_ptr(i));
+    }
+    return ret;
+}

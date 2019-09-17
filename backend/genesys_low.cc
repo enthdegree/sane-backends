@@ -822,6 +822,55 @@ void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, si
     dev->cmd_set->bulk_read_data(dev, 0x45, data, size);
 }
 
+Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession& session,
+                                         std::size_t total_bytes)
+{
+    DBG_HELPER(dbg);
+
+    auto format = create_pixel_format(session.params.depth,
+                                      dev->model->is_cis ? 1 : session.params.channels,
+                                      dev->model->line_mode_color_order);
+
+    auto width = get_pixels_from_row_bytes(format, session.output_line_bytes_raw);
+    auto height = session.output_line_count * (dev->model->is_cis ? session.params.channels : 1);
+
+    Image image(width, height, format);
+
+    auto max_bytes = image.get_row_bytes() * height;
+    if (total_bytes > max_bytes) {
+        throw SaneException("Trying to read too much data %zu (max %zu)", total_bytes, max_bytes);
+    }
+    if (total_bytes != max_bytes) {
+        DBG(DBG_info, "WARNING %s: trying to read not enough data (%zu, full fill %zu\n", __func__,
+            total_bytes, max_bytes);
+    }
+
+    sanei_genesys_read_data_from_scanner(dev, image.get_row_ptr(0), total_bytes);
+
+    ImagePipelineStack pipeline;
+    pipeline.push_first_node<ImagePipelineNodeImageSource>(image);
+
+#ifdef WORDS_BIGENDIAN
+    if (depth == 16) {
+        dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+    }
+#endif
+
+    if (dev->model->is_cis && session.params.channels == 3) {
+        dev->pipeline.push_node<ImagePipelineNodeMergeMonoLines>(dev->model->line_mode_color_order);
+    }
+
+    if (dev->pipeline.get_output_format() == PixelFormat::BGR888) {
+        dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB888);
+    }
+
+    if (dev->pipeline.get_output_format() == PixelFormat::BGR161616) {
+        dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB161616);
+    }
+
+    return pipeline.get_image();
+}
+
 void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps)
 {
     DBG_HELPER(dbg);

@@ -540,6 +540,9 @@ extern void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empt
 
 extern void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, size_t size);
 
+Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession& session,
+                                         std::size_t total_bytes);
+
 inline void sanei_genesys_set_exposure(Genesys_Register_Set& regs, const SensorExposure& exposure)
 {
     regs.set8(0x10, (exposure.red >> 8) & 0xff);

@@ -257,6 +257,10 @@ struct Genesys_Device
     size_t calib_resolution = 0;
      // bytes to read from USB when calibrating. If 0, this is not set
     size_t calib_total_bytes_to_read = 0;
+
+    // the session that was configured for calibration
+    ScanSession calib_session;
+
     // certain scanners support much higher resolution when scanning transparency, but we can't
     // read whole width of the scanner as a single line at that resolution. Thus for stuff like
     // calibration we want to read only the possible calibration area.

@@ -141,6 +141,9 @@ struct Genesys_Model
     // Start of white strip in transparency mode in mm
     SANE_Fixed y_offset_calib_white_ta = 0;
 
+    // Start of black strip in transparency mode in mm
+    SANE_Fixed y_offset_calib_black_ta = 0;
+
     // Size of scan area after paper sensor stop sensing document in mm
     SANE_Fixed post_scan = 0;
 

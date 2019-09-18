@@ -67,6 +67,15 @@ static void gl843_set_buffer_address(Genesys_Device* dev, uint32_t addr)
     dev->write_register(0x5c, (addr & 0xff));
 }
 
+static void gl843_set_ram_address(Genesys_Device* dev, uint32_t addr)
+{
+    DBG_HELPER_ARGS(dbg, "setting address to 0x%05x", addr & 0x1fffff);
+
+    dev->write_register(0x29, ((addr >> 16) & 0x1f));
+    dev->write_register(0x2a, ((addr >> 8) & 0xff));
+    dev->write_register(0x2b, (addr & 0xff));
+}
+
 /**
  * writes a block of data to RAM
  * @param dev USB device
@@ -198,7 +207,9 @@ static void gl843_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor
     for (const auto& custom_reg : sensor.custom_regs) {
         regs->set8(custom_reg.address, custom_reg.value);
     }
-    if (!(dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE)) {
+    if (!(dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE) &&
+        dev->model->model_id != MODEL_PLUSTEK_OPTICFILM_7200I)
+    {
         regs->set8(0x7d, 0x90);
     }
 
@@ -246,6 +257,9 @@ gl843_init_registers (Genesys_Device * dev)
     }
 
     SETREG(0x04, 0x10);
+    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+        SETREG(0x04, 0x22);
+    }
 
   // fine tune upon device description
   SETREG (0x05, 0x80);
@@ -266,6 +280,9 @@ gl843_init_registers (Genesys_Device * dev)
         dev->model->model_id == MODEL_HP_SCANJET_4850C)
     {
         SETREG(0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
+    }
+    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+        SETREG(0x06, 0xd0);
     }
     if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
         SETREG(0x06, 0xf0); /* SCANMOD=111, PWRBIT and no GAIN4 */
@@ -294,6 +311,9 @@ gl843_init_registers (Genesys_Device * dev)
     if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
         SETREG(0x0b, 0x89);
     }
+    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+        SETREG(0x0b, 0x2a);
+    }
     if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
         dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
         dev->model->model_id == MODEL_HP_SCANJET_4850C)
@@ -301,7 +321,9 @@ gl843_init_registers (Genesys_Device * dev)
         SETREG(0x0b, 0x69);
     }
 
-    if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F) {
+    if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F &&
+        dev->model->model_id != MODEL_PLUSTEK_OPTICFILM_7200I)
+    {
         SETREG (0x0c, 0x00);
     }
 
@@ -511,6 +533,9 @@ gl843_init_registers (Genesys_Device * dev)
     {
         SETREG(0x6b, 0xf4);
     }
+    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+        SETREG(0x6b, 0x31);
+    }
 
   // 0x6c, 0x6d, 0x6e, 0x6f are set according to gpio tables. See
   // gl843_init_gpio.
@@ -614,7 +639,9 @@ gl843_init_registers (Genesys_Device * dev)
     }
 
     // MTRPLS[0:7]: The width of the ADF motor trigger signal pulse.
-    if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F) {
+    if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F &&
+        dev->model->model_id != MODEL_PLUSTEK_OPTICFILM_7200I)
+    {
         SETREG(0x94, 0xff);
     }
 
@@ -647,6 +674,7 @@ gl843_init_registers (Genesys_Device * dev)
     if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
         dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
         dev->model->model_id == MODEL_CANON_CANOSCAN_8600F ||
+        dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I ||
         dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
         dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
         dev->model->model_id == MODEL_HP_SCANJET_4850C)
@@ -656,7 +684,8 @@ gl843_init_registers (Genesys_Device * dev)
 
 
   // SEL3INV, TGSTIME[0:2], TGWTIME[0:2]
-  if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F)
+  if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F &&
+      dev->model->model_id != MODEL_PLUSTEK_OPTICFILM_7200I)
     {
       SETREG(0x9e, 0x00); // SENSOR_DEF
     }
@@ -671,14 +700,16 @@ gl843_init_registers (Genesys_Device * dev)
     // 0xa6-0xa9: controls gpio, see gl843_gpio_init
 
     // not documented
-    if (dev->model->model_id != MODEL_CANON_CANOSCAN_4400F
-     && dev->model->model_id != MODEL_CANON_CANOSCAN_8400F)
+    if (dev->model->model_id != MODEL_CANON_CANOSCAN_4400F &&
+        dev->model->model_id != MODEL_CANON_CANOSCAN_8400F &&
+        dev->model->model_id != MODEL_PLUSTEK_OPTICFILM_7200I)
     {
         SETREG(0xaa, 0x00);
     }
 
-    // GPOM9, MULSTOP[0-2], NODECEL, TB3TB1, TB5TB2, FIX16CLK.
-    if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F) {
+    // GPOM9, MULSTOP[0-2], NODECEL, TB3TB1, TB5TB2, FIX16CLK. Not documented
+    if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F &&
+        dev->model->model_id != MODEL_PLUSTEK_OPTICFILM_7200I) {
         SETREG(0xab, 0x50);
     }
     if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
@@ -704,6 +735,19 @@ gl843_init_registers (Genesys_Device * dev)
     }
 
   dev->calib_reg = dev->reg;
+
+    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+        gl843_set_ram_address(dev, 0x03ff00);
+
+        uint8_t data[32] = {
+            0x8c, 0x8f, 0xc9, 0x00, 0x01, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x6a, 0x73, 0x63, 0x68, 0x69, 0x65, 0x6e, 0x00,
+        };
+
+        sanei_genesys_bulk_write_data(dev, 0x3c, data, 32);
+    }
 }
 
 // Send slope table for motor movement slope_table in machine byte order
@@ -738,6 +782,12 @@ static void gl843_send_slope_table(Genesys_Device* dev, int table_nr,
     write_data(dev, 0x4000 + 0x800 * table_nr, steps * 2, table.data());
 }
 
+static void gl843_set_ad_fe(Genesys_Device* dev)
+{
+    for (const auto& reg : dev->frontend.regs) {
+        sanei_genesys_fe_write_data(dev, reg.address, reg.value);
+    }
+}
 
 // Set values of analog frontend
 static void gl843_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set)
@@ -757,12 +807,13 @@ static void gl843_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
 
     // check analog frontend type
     // FIXME: looks like we write to that register with initial data
-    uint8_t val = dev->read_register(REG04);
-  if ((val & REG04_FESET) != 0x00)
-    {
-        // for now there is no support for AD fe
-        throw SaneException(SANE_STATUS_UNSUPPORTED, "unsupported frontend type %d",
-                            val & REG04_FESET);
+    uint8_t fe_type = dev->read_register(REG04) & REG04_FESET;
+    if (fe_type == 2) {
+        gl843_set_ad_fe(dev);
+        return;
+    }
+    if (fe_type != 0) {
+        throw SaneException(SANE_STATUS_UNSUPPORTED, "unsupported frontend type %d", fe_type);
     }
 
   DBG(DBG_proc, "%s(): frontend reset complete\n", __func__);
@@ -1136,7 +1187,17 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                 break; // should not happen
 	}
     } else {
-        r->value |= 0x10;		/* mono */
+        switch (dev->frontend.layout.type) {
+            case FrontendType::WOLFSON:
+                r->value |= 0x10; // pixel by pixel
+                break;
+            case FrontendType::ANALOG_DEVICES:
+                r->value |= 0x20; // slow color pixel by pixel
+                break;
+            default:
+                throw SaneException("Invalid frontend type %d",
+                                    static_cast<unsigned>(dev->frontend.layout.type));
+        }
     }
 
     sanei_genesys_set_dpihw(*reg, sensor, dpihw);
@@ -2593,7 +2654,7 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 {
     DBG_HELPER(dbg);
 
-    if (dev->frontend.layout.type == FrontendType::UNKNOWN)
+    if (dev->frontend.layout.type != FrontendType::WOLFSON)
         return;
 
   unsigned int channels, bpp;
@@ -2816,7 +2877,7 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   int resolution;
   int bpp;
 
-    if (dev->frontend.layout.type == FrontendType::UNKNOWN)
+    if (dev->frontend.layout.type != FrontendType::WOLFSON)
         return;
 
     dpihw = sensor.get_logical_hwdpi(dpi);
@@ -3072,9 +3133,15 @@ static void gl843_boot(Genesys_Device* dev, SANE_Bool cold)
     }
 
   /* CLKSET */
-  int clock_freq = REG0B_48MHZ;
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    clock_freq = REG0B_60MHZ;
+    int clock_freq = REG0B_48MHZ;
+    switch (dev->model->model_id) {
+        case MODEL_CANON_CANOSCAN_8600F:
+            clock_freq = REG0B_60MHZ;
+            break;
+        case MODEL_PLUSTEK_OPTICFILM_7200I:
+            clock_freq = REG0B_30MHZ;
+            break;
+    }
 
   val = (dev->reg.find_reg(0x0b).value & ~REG0B_CLKSET) | clock_freq;
 

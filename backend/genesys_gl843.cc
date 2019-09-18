@@ -3431,8 +3431,6 @@ static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
 
 /** the gl843 command set */
 Genesys_Command_Set gl843_cmd_set = {
-  "gl843-generic",		/* the name of this set */
-
   [](Genesys_Device* dev) -> bool { (void) dev; return true; },
 
   gl843_init,

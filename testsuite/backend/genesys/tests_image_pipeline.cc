@@ -424,6 +424,78 @@ void test_node_pixel_shift_lines()
     ASSERT_EQ(out_data, expected_data);
 }
 
+void test_node_calibrate_8bit()
+{
+    using Data = std::vector<std::uint8_t>;
+
+    Data in_data = {
+        0x20, 0x38, 0x38
+    };
+
+    std::vector<std::uint16_t> bottom = {
+        0x1000, 0x2000, 0x3000
+    };
+
+    std::vector<std::uint16_t> top = {
+        0x3000, 0x4000, 0x5000
+    };
+
+    ImagePipelineStack stack;
+    stack.push_first_node<ImagePipelineNodeArraySource>(1, 1, PixelFormat::RGB888,
+                                                        std::move(in_data));
+    stack.push_node<ImagePipelineNodeCalibrate>(bottom, top);
+
+    ASSERT_EQ(stack.get_output_width(), 1u);
+    ASSERT_EQ(stack.get_output_height(), 1u);
+    ASSERT_EQ(stack.get_output_row_bytes(), 3u);
+    ASSERT_EQ(stack.get_output_format(), PixelFormat::RGB888);
+
+    auto out_data = stack.get_all_data();
+
+    Data expected_data = {
+        // note that we don't handle rounding properly in the implementation
+        0x80, 0xc1, 0x41
+    };
+
+    ASSERT_EQ(out_data, expected_data);
+}
+
+void test_node_calibrate_16bit()
+{
+    using Data = std::vector<std::uint8_t>;
+
+    Data in_data = {
+        0x00, 0x20, 0x00, 0x38, 0x00, 0x38
+    };
+
+    std::vector<std::uint16_t> bottom = {
+        0x1000, 0x2000, 0x3000
+    };
+
+    std::vector<std::uint16_t> top = {
+        0x3000, 0x4000, 0x5000
+    };
+
+    ImagePipelineStack stack;
+    stack.push_first_node<ImagePipelineNodeArraySource>(1, 1, PixelFormat::RGB161616,
+                                                        std::move(in_data));
+    stack.push_node<ImagePipelineNodeCalibrate>(bottom, top);
+
+    ASSERT_EQ(stack.get_output_width(), 1u);
+    ASSERT_EQ(stack.get_output_height(), 1u);
+    ASSERT_EQ(stack.get_output_row_bytes(), 6u);
+    ASSERT_EQ(stack.get_output_format(), PixelFormat::RGB161616);
+
+    auto out_data = stack.get_all_data();
+
+    Data expected_data = {
+        // note that we don't handle rounding properly in the implementation
+        0x00, 0x80, 0xff, 0xbf, 0x00, 0x40
+    };
+
+    ASSERT_EQ(out_data, expected_data);
+}
+
 void test_image_pipeline()
 {
     test_image_buffer_genesys_usb();
@@ -438,4 +510,6 @@ void test_image_pipeline()
     test_node_split_mono_lines();
     test_node_component_shift_lines();
     test_node_pixel_shift_lines();
+    test_node_calibrate_8bit();
+    test_node_calibrate_16bit();
 }

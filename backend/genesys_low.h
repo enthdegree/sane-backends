@@ -136,6 +136,8 @@
 #define GENESYS_FLAG_FULL_HWDPI_MODE  (1 << 19)       /**< scanner always use maximum hw dpi to setup the sensor */
 // scanner has infrared transparency scanning capability
 #define GENESYS_FLAG_HAS_UTA_INFRARED (1 << 20)
+// scanner calibration is handled on the host side
+#define GENESYS_FLAG_CALIBRATION_HOST_SIDE (1 << 21)
 
 #define GENESYS_HAS_NO_BUTTONS       0              /**< scanner has no supported button */
 #define GENESYS_HAS_SCAN_SW          (1 << 0)       /**< scanner has SCAN button */

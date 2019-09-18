@@ -1058,7 +1058,8 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   r = sanei_genesys_get_address (reg, REG01);
   r->value &= ~REG01_SCAN;
     if ((session.params.flags & SCAN_FLAG_DISABLE_SHADING) ||
-        (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
+        (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION ||
+        (dev->model->flags & GENESYS_FLAG_CALIBRATION_HOST_SIDE)))
     {
       r->value &= ~REG01_DVDSET;
     }

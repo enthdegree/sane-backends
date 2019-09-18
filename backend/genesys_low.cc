@@ -1698,6 +1698,12 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                 get_fake_usb_buffer_model(session), read_data_from_usb);
     }
 
+    if (DBG_LEVEL >= DBG_io2) {
+        dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
+                                                        std::to_string(s_pipeline_index) +
+                                                        "_0_before_swap.pnm");
+    }
+
 #ifdef WORDS_BIGENDIAN
     if (get_pixel_format_depth(format) == 16) {
         dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
@@ -1707,7 +1713,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     if (DBG_LEVEL >= DBG_io2) {
         dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                         std::to_string(s_pipeline_index) +
-                                                        "_0_after_swap.pnm");
+                                                        "_1_after_swap.pnm");
     }
 
     if (dev->model->is_cis && session.params.channels == 3) {
@@ -1732,7 +1738,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     if (DBG_LEVEL >= DBG_io2) {
         dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                         std::to_string(s_pipeline_index) +
-                                                        "_1_after_shift.pnm");
+                                                        "_2_after_shift.pnm");
     }
 
     if (session.num_staggered_lines > 0) {
@@ -1743,7 +1749,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     if (DBG_LEVEL >= DBG_io2) {
         dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                         std::to_string(s_pipeline_index) +
-                                                        "_2_after_stagger.pnm");
+                                                        "_3_after_stagger.pnm");
     }
 
     if ((dev->model->flags & GENESYS_FLAG_CALIBRATION_HOST_SIDE) &&
@@ -1755,7 +1761,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         if (DBG_LEVEL >= DBG_io2) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                             std::to_string(s_pipeline_index) +
-                                                            "_3_after_calibrate.pnm");
+                                                            "_4_after_calibrate.pnm");
         }
     }
 

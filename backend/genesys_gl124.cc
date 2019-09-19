@@ -2313,7 +2313,7 @@ static void gl124_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
     DBG_HELPER(dbg);
   unsigned int channels, bpp;
   int pass = 0, avg, total_size;
-  int topavg, bottomavg, resolution, lines;
+    int topavg, bottomavg, lines;
   int top, bottom, black_pixels, pixels;
 
     // no gain nor offset for TI AFE
@@ -2325,17 +2325,16 @@ static void gl124_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
   /* offset calibration is always done in color mode */
   channels = 3;
-  resolution=sensor.optical_res;
   dev->calib_pixels = sensor.sensor_pixels;
   lines=1;
   bpp=8;
-  pixels= (sensor.sensor_pixels*resolution) / sensor.optical_res;
-  black_pixels = (sensor.black_pixels * resolution) / sensor.optical_res;
+    pixels = (sensor.sensor_pixels * sensor.optical_res) / sensor.optical_res;
+    black_pixels = (sensor.black_pixels * sensor.optical_res) / sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
     ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = resolution;
+    session.params.xres = sensor.optical_res;
+    session.params.yres = sensor.optical_res;
     session.params.startx = 0;
     session.params.starty = 0;
     session.params.pixels = pixels;
@@ -2466,7 +2465,6 @@ static void gl124_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   int max[3];
   float gain[3],coeff;
   int val, code, lines;
-  int resolution;
   int bpp;
 
     // no gain nor offset for TI AFE
@@ -2482,21 +2480,16 @@ static void gl124_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   if(dev->settings.xres<sensor.optical_res)
     {
       coeff=0.9;
-      /*resolution=sensor.optical_res/2;*/
-      resolution=sensor.optical_res;
-    }
-  else
-    {
-      resolution=sensor.optical_res;
+    } else {
       coeff=1.0;
     }
   lines=10;
   bpp=8;
-  pixels = (sensor.sensor_pixels * resolution) / sensor.optical_res;
+     pixels = (sensor.sensor_pixels * sensor.optical_res) / sensor.optical_res;
 
     ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = resolution;
+    session.params.xres = sensor.optical_res;
+    session.params.yres = sensor.optical_res;
     session.params.startx = 0;
     session.params.starty = 0;
     session.params.pixels = pixels;

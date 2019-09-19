@@ -253,10 +253,6 @@ struct Genesys_Sensor {
     // the resolution list that the sensor is usable at.
     ResolutionFilter resolutions = ResolutionFilter::ANY;
 
-    // the actual resolution of the sensor. If 0, then it's equivalent to the requested resolution.
-    // gl646-only.
-    unsigned real_resolution = 0;
-
     // the channel list that the sensor is usable at
     std::vector<unsigned> channels = { 1, 3 };
 
@@ -334,7 +330,6 @@ struct Genesys_Sensor {
         return sensor_id == other.sensor_id &&
             optical_res == other.optical_res &&
             resolutions == other.resolutions &&
-            real_resolution == other.real_resolution &&
             method == other.method &&
             ccd_size_divisor == other.ccd_size_divisor &&
             black_pixels == other.black_pixels &&
@@ -359,7 +354,6 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.sensor_id);
     serialize(str, x.optical_res);
     serialize(str, x.resolutions);
-    serialize(str, x.real_resolution);
     serialize(str, x.method);
     serialize(str, x.ccd_size_divisor);
     serialize(str, x.black_pixels);

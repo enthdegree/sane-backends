@@ -2564,7 +2564,6 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
     DBG_HELPER(dbg);
   int num_pixels;
   int total_size;
-  int used_res;
   int i, j;
   int val;
   int channels, depth;
@@ -2577,20 +2576,18 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
   /* offset calibration is always done in color mode */
   channels = 3;
   depth = 16;
-  used_res = sensor.optical_res;
 
     // take a copy, as we're going to modify exposure
-    auto calib_sensor = sanei_genesys_find_sensor(dev, used_res, channels,
+    auto calib_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res, channels,
                                                   dev->settings.scan_method);
 
-  num_pixels =
-    (calib_sensor.sensor_pixels * used_res) / calib_sensor.optical_res;
+    num_pixels = (calib_sensor.sensor_pixels * calib_sensor.optical_res) / calib_sensor.optical_res;
 
   /* initial calibration reg values */
   regs = dev->reg;
 
     ScanSession session;
-    session.params.xres = used_res;
+    session.params.xres = calib_sensor.sensor_pixels;
     session.params.yres = dev->motor.base_ydpi;
     session.params.startx = 0;
     session.params.starty = 0;

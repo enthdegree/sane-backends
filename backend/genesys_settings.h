@@ -239,7 +239,6 @@ struct ScanSession {
     unsigned output_resolution = 0;
 
     // the number of pixels in output data
-    // gl843-only
     unsigned output_pixels = 0;
 
     // the number of bytes in the output of a single line

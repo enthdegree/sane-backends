@@ -1180,7 +1180,9 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
         s.optical_pixels = align_int_up(s.optical_pixels, 2 * s.ccd_size_divisor);
     }
 
-    // TODO output_pixels
+    // after all adjustments on the optical pixels have been made, compute the number of pixels
+    // to retrieve from the chip
+    s.output_pixels = (s.optical_pixels * s.output_resolution) / s.optical_resolution;
 
     // Note: staggering is not applied for calibration. Staggering starts at 2400 dpi
     s.num_staggered_lines = 0;

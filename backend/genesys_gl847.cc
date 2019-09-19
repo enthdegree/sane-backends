@@ -1052,7 +1052,7 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /*** prepares data reordering ***/
 
 /* words_per_line */
-    bytes_per_line = (session.optical_pixels * session.params.xres) / session.optical_resolution;
+    bytes_per_line = session.output_pixels;
     bytes_per_line = (bytes_per_line * session.params.channels * session.params.depth) / 8;
 
   requested_buffer_size = 8 * bytes_per_line;
@@ -1079,7 +1079,7 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
-    dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / session.optical_resolution;
+    dev->current_setup.pixels = session.output_pixels;
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
     dev->current_setup.xres = session.params.xres;
@@ -1177,7 +1177,7 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     lincnt = session.params.lines + max_shift + session.num_staggered_lines;
 
     dev->session = session;
-    dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / sensor.optical_res;
+    dev->current_setup.pixels = session.output_pixels;
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure_time;
     dev->current_setup.xres = session.params.xres;

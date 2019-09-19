@@ -1193,12 +1193,6 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
     // compute optical and output resolutions
     s.hwdpi_divisor = sensor.get_hwdpi_divisor_for_dpi(s.params.xres);
 
-    // after all adjustments on the optical pixels have been made, compute the number of pixels
-    // to retrieve from the chip
-    s.output_pixels = (s.optical_pixels * s.output_resolution) / s.optical_resolution;
-
-
-
     s.max_color_shift_lines = sanei_genesys_compute_max_shift(dev, s.params.channels,
                                                               s.params.yres, s.params.flags);
 
@@ -1450,7 +1444,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     lincnt = session.params.lines + max_shift + session.num_staggered_lines;
 
     dev->session = session;
-    dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / session.optical_resolution;
+    dev->current_setup.pixels = session.output_pixels;
   DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
   dev->current_setup.lines = lincnt;
   dev->current_setup.exposure_time = exposure;

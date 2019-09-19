@@ -592,7 +592,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   /* words_per_line must be computed according to the scan's resolution */
   /* in fact, words_per_line _gives_ the actual scan resolution */
-    words_per_line = (((endx - startx) * session.output_resolution) / sensor.optical_res);
+    words_per_line = session.output_pixels;
     bpp = session.params.depth/8;
     if (session.params.depth == 1) {
       words_per_line = (words_per_line+7)/8 ;
@@ -790,7 +790,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
-    dev->current_setup.pixels = ((endx - startx) * session.output_resolution) / sensor.optical_res;
+    dev->current_setup.pixels = session.output_pixels;
   dev->current_setup.lines = linecnt;
     dev->current_setup.exposure_time = sensor.exposure_lperiod;
     dev->current_setup.xres = session.output_resolution;

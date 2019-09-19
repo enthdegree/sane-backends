@@ -956,21 +956,12 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   unsigned int lincnt;
   unsigned int mflags; /**> motor flags */
   int exposure_time;
-  int stagger;
 
   int slope_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
   int max_shift;
   size_t requested_buffer_size, read_buffer_size;
-
-  /* stagger */
-    if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
-        stagger = (4 * session.params.yres) / dev->motor.base_ydpi;
-    } else {
-        stagger = 0;
-    }
-  DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
 
   /* compute scan parameters values */
   /* pixels are allways given at full optical resolution */
@@ -979,7 +970,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /* add x coordinates */
     start = session.params.startx;
 
-    if (stagger > 0) {
+    if (session.num_staggered_lines > 0) {
         start |= 1;
     }
 
@@ -1022,8 +1013,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels, session.params.yres,
                                               session.params.flags);
 
-  /* lincnt */
-  lincnt = session.params.lines + max_shift + stagger;
+    lincnt = session.params.lines + max_shift + session.num_staggered_lines;
 
   /* add tl_y to base movement */
   move = session.params.starty;
@@ -1050,7 +1040,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   requested_buffer_size = 8 * bytes_per_line;
 
     read_buffer_size = 2 * requested_buffer_size +
-            ((max_shift + stagger) * session.optical_pixels * session.params.channels *
+            ((max_shift + session.num_staggered_lines) * session.optical_pixels * session.params.channels *
              session.params.depth) / 8;
 
     dev->read_buffer.clear();
@@ -1076,8 +1066,8 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   dev->current_setup.exposure_time = exposure_time;
     dev->current_setup.xres = session.params.xres;
     dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-  dev->current_setup.stagger = stagger;
-  dev->current_setup.max_shift = max_shift + stagger;
+    dev->current_setup.stagger = session.num_staggered_lines;
+    dev->current_setup.max_shift = max_shift + session.num_staggered_lines;
 
 /* TODO: should this be done elsewhere? */
   /* scan bytes to send to the frontend */
@@ -1114,7 +1104,6 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   unsigned int lincnt;
   int exposure_time;
-  int stagger;
 
   int slope_dpi;
   int dummy = 0;
@@ -1145,13 +1134,6 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
     gl846_compute_session(dev, session, sensor);
 
-    if (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE) {
-        stagger = (4 * session.params.yres) / dev->motor.base_ydpi;
-    } else {
-        stagger = 0;
-    }
-  DBG(DBG_info, "%s: stagger=%d lines\n", __func__, stagger);
-
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
@@ -1174,7 +1156,7 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
     max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels, session.params.yres, 0);
 
-    lincnt = session.params.lines + max_shift + stagger;
+    lincnt = session.params.lines + max_shift + session.num_staggered_lines;
 
     dev->session = session;
     dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / sensor.optical_res;
@@ -1182,8 +1164,8 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   dev->current_setup.exposure_time = exposure_time;
     dev->current_setup.xres = session.params.xres;
     dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-  dev->current_setup.stagger = stagger;
-  dev->current_setup.max_shift = max_shift + stagger;
+    dev->current_setup.stagger = session.num_staggered_lines;
+    dev->current_setup.max_shift = max_shift + session.num_staggered_lines;
 }
 
 // for fast power saving methods only, like disabling certain amplifiers

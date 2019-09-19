@@ -1197,14 +1197,7 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
     // to retrieve from the chip
     s.output_pixels = (s.optical_pixels * s.output_resolution) / s.optical_resolution;
 
-    // Note: staggering is not applied for calibration. Staggering starts at 2400 dpi
-    s.num_staggered_lines = 0;
-    if ((s.params.yres > 1200) &&
-        ((s.params.flags & SCAN_FLAG_IGNORE_LINE_DISTANCE) == 0) &&
-        (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-    {
-        s.num_staggered_lines = (4 * s.params.yres) / dev->motor.base_ydpi;
-    }
+
 
     s.max_color_shift_lines = sanei_genesys_compute_max_shift(dev, s.params.channels,
                                                               s.params.yres, s.params.flags);
@@ -1383,7 +1376,6 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   unsigned int lincnt;
   int exposure;
-  int stagger;
 
   int max_shift;
 
@@ -1428,14 +1420,6 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
     gl843_compute_session(dev, session, sensor);
 
-  /* stagger */
-    if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
-        stagger = (4 * session.params.yres) / dev->motor.base_ydpi;
-    } else {
-        stagger = 0;
-    }
-  DBG(DBG_info, "%s: stagger=%d lines\n", __func__, stagger);
-
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
@@ -1463,7 +1447,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
                                                 session.params.yres, 0);
 
   /* lincnt */
-    lincnt = session.params.lines + max_shift + stagger;
+    lincnt = session.params.lines + max_shift + session.num_staggered_lines;
 
     dev->session = session;
     dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / session.optical_resolution;
@@ -1472,8 +1456,8 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   dev->current_setup.exposure_time = exposure;
     dev->current_setup.xres = session.params.xres;
   dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-  dev->current_setup.stagger = stagger;
-  dev->current_setup.max_shift = max_shift + stagger;
+    dev->current_setup.stagger = session.num_staggered_lines;
+    dev->current_setup.max_shift = max_shift + session.num_staggered_lines;
 
   DBG(DBG_proc, "%s: completed\n", __func__);
 }

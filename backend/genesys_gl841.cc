@@ -1767,7 +1767,6 @@ static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int move;
   unsigned int lincnt;
   int exposure_time;
-  int stagger;
   int avg;
 
   int slope_dpi = 0;
@@ -1804,15 +1803,6 @@ independent of our calculated values:
   dev->bytes_to_read
  */
 
-/* stagger */
-
-    if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
-        stagger = (4 * session.params.yres) / dev->motor.base_ydpi;
-    } else {
-        stagger = 0;
-    }
-  DBG(DBG_info, "%s : stagger=%d lines\n", __func__, stagger);
-
     gl841_assert_supported_resolution(session);
 
   /* compute scan parameters values */
@@ -1824,8 +1814,9 @@ independent of our calculated values:
 
   start += sensor.dummy_pixel + 1;
 
-  if (stagger > 0)
-    start |= 1;
+    if (session.num_staggered_lines > 0) {
+        start |= 1;
+    }
 
   /* in case of SHDAREA, we need to align start
    * on pixel average factor, startx is different of
@@ -1906,7 +1897,7 @@ dummy \ scanned lines
     max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels,
                                                 session.params.yres, session.params.flags);
 
-    lincnt = session.params.lines + max_shift + stagger;
+    lincnt = session.params.lines + max_shift + session.num_staggered_lines;
 
     move = session.params.starty;
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
@@ -1948,7 +1939,8 @@ dummy \ scanned lines
     }
 
     read_buffer_size = 2 * requested_buffer_size +
-        ((max_shift + stagger) * session.optical_pixels *  session.params.channels * session.params.depth) / 8;
+        ((max_shift + session.num_staggered_lines) * session.optical_pixels *
+         session.params.channels * session.params.depth) / 8;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -1973,8 +1965,8 @@ dummy \ scanned lines
   dev->current_setup.exposure_time = exposure_time;
     dev->current_setup.xres = session.params.xres;
     dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-  dev->current_setup.stagger = stagger;
-  dev->current_setup.max_shift = max_shift + stagger;
+    dev->current_setup.stagger = session.num_staggered_lines;
+    dev->current_setup.max_shift = max_shift + session.num_staggered_lines;
 
 /* TODO: should this be done elsewhere? */
   /* scan bytes to send to the frontend */
@@ -2010,7 +2002,6 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
 
   unsigned int lincnt;
   int exposure_time;
-  int stagger;
 
   int slope_dpi = 0;
   int dummy = 0;
@@ -2044,15 +2035,6 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
 
     gl841_compute_session(dev, session, sensor);
 
-/* stagger */
-
-    if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
-        stagger = (4 * session.params.yres) / dev->motor.base_ydpi;
-    } else {
-        stagger = 0;
-    }
-  DBG(DBG_info, "%s: stagger=%d lines\n", __func__, stagger);
-
     gl841_assert_supported_resolution(session);
 
   /* compute scan parameters values */
@@ -2062,9 +2044,9 @@ static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Se
 
   start += sensor.dummy_pixel + 1;
 
-  if (stagger > 0) {
-    start |= 1;
-  }
+    if (session.num_staggered_lines > 0) {
+        start |= 1;
+    }
 
   /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1
      dummy line. Maybe the dummy line adds correctness since the motor runs
@@ -2114,7 +2096,7 @@ dummy \ scanned lines
     max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels,
                                                 session.params.yres, 0);
 
-    lincnt = session.params.lines + max_shift + stagger;
+    lincnt = session.params.lines + max_shift + session.num_staggered_lines;
 
     dev->session = session;
     dev->current_setup.pixels = (session.optical_pixels * session.params.xres) / session.optical_resolution;
@@ -2122,8 +2104,8 @@ dummy \ scanned lines
   dev->current_setup.exposure_time = exposure_time;
     dev->current_setup.xres = session.params.xres;
     dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-  dev->current_setup.stagger = stagger;
-  dev->current_setup.max_shift = max_shift + stagger;
+    dev->current_setup.stagger = session.num_staggered_lines;
+    dev->current_setup.max_shift = max_shift + session.num_staggered_lines;
 }
 
 // for fast power saving methods only, like disabling certain amplifiers

@@ -362,7 +362,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   unsigned int bpp;   /**> bytes per pixel */
   uint32_t z1, z2;
   uint16_t ex, sx;
-  int stagger, words_per_line, max_shift;
+    int words_per_line, max_shift;
   size_t requested_buffer_size;
   size_t read_buffer_size;
   SANE_Int xresolution;
@@ -565,18 +565,9 @@ static void gl646_setup_registers(Genesys_Device* dev,
   linecnt = (linecnt * motor->ydpi) / session.params.yres + max_shift;
 
   /* at QUATER_STEP lines are 'staggered' and need correction */
-  stagger = 0;
-    if (session.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
-        // for HP3670, stagger happens only at >=1200 dpi
-        if ((dev->model->motor_type != MOTOR_HP3670 && dev->model->motor_type != MOTOR_HP2400)
-          || session.params.yres >= (unsigned) sensor.optical_res)
-	{
-            stagger = (4 * session.params.yres) / dev->motor.base_ydpi;
-	}
-    }
-  linecnt += stagger;
+    linecnt += session.num_staggered_lines;
 
-  DBG(DBG_info, "%s :  max_shift=%d, stagger=%d lines\n", __func__, max_shift, stagger);
+  DBG(DBG_info, "%s :  max_shift=%d lines\n", __func__, max_shift);
 
   /* CIS scanners read one line per color channel
    * since gray mode use 'add' we also read 3 channels even not in
@@ -625,13 +616,12 @@ static void gl646_setup_registers(Genesys_Device* dev,
   /* move distance must be adjusted to take into account the extra lines
    * read to reorder data */
   feedl = move;
-  if (stagger + max_shift > 0 && feedl != 0)
-    {
-      if (feedl >
-	  ((max_shift + stagger) * dev->motor.optical_ydpi) / motor->ydpi)
-	feedl =
-	  feedl -
-	  ((max_shift + stagger) * dev->motor.optical_ydpi) / motor->ydpi;
+    if (session.num_staggered_lines + max_shift > 0 && feedl != 0) {
+        int feed_offset = ((max_shift + session.num_staggered_lines) * dev->motor.optical_ydpi) /
+                motor->ydpi;
+        if (feedl > feed_offset) {
+            feedl = feedl - feed_offset;
+        }
     }
 
   /* we assume all scans are done with 2 tables */
@@ -778,7 +768,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
   /* we must use a round number of words_per_line */
   requested_buffer_size = 8 * words_per_line;
     read_buffer_size = 2 * requested_buffer_size +
-        ((max_shift + stagger) * session.params.pixels * session.params.channels * session.params.depth) / 8;
+        ((max_shift + session.num_staggered_lines) * session.params.pixels *
+         session.params.channels * session.params.depth) / 8;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -804,8 +795,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
     dev->current_setup.exposure_time = sensor.exposure_lperiod;
     dev->current_setup.xres = sensor.real_resolution;
   dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-  dev->current_setup.stagger = stagger;
-  dev->current_setup.max_shift = max_shift + stagger;
+    dev->current_setup.stagger = session.num_staggered_lines;
+    dev->current_setup.max_shift = max_shift + session.num_staggered_lines;
 
   /* total_bytes_to_read is the number of byte to send to frontend
    * total_bytes_read is the number of bytes sent to frontend

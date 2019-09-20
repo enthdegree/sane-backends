@@ -1985,11 +1985,11 @@ dummy \ scanned lines
 
   dev->total_bytes_read = 0;
     if (session.params.depth == 1) {
-        dev->total_bytes_to_read = ((session.params.get_requested_pixels() * dev->settings.lines) / 8 +
-            (((session.params.get_requested_pixels() * dev->settings.lines)%8)?1:0)) *  session.params.channels;
+        dev->total_bytes_to_read = ((session.params.get_requested_pixels() * session.params.lines) / 8 +
+            (((session.params.get_requested_pixels() * session.params.lines)%8)?1:0)) *  session.params.channels;
     } else {
         dev->total_bytes_to_read =
-            session.params.get_requested_pixels() * dev->settings.lines * session.params.channels * (session.params.depth / 8);
+            session.params.get_requested_pixels() * session.params.lines * session.params.channels * (session.params.depth / 8);
     }
 
   DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);

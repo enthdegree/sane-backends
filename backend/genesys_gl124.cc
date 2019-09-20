@@ -1195,10 +1195,10 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   dev->total_bytes_read = 0;
     if (session.params.depth == 1) {
-        dev->total_bytes_to_read = ((session.params.get_requested_pixels() * dev->settings.lines) / 8 +
-            (((session.params.get_requested_pixels() * dev->settings.lines) % 8) ? 1 : 0)) * session.params.channels;
+        dev->total_bytes_to_read = ((session.params.get_requested_pixels() * session.params.lines) / 8 +
+            (((session.params.get_requested_pixels() * session.params.lines) % 8) ? 1 : 0)) * session.params.channels;
     } else {
-        dev->total_bytes_to_read = session.params.get_requested_pixels() * dev->settings.lines *
+        dev->total_bytes_to_read = session.params.get_requested_pixels() * session.params.lines *
             session.params.channels * (session.params.depth / 8);
     }
 

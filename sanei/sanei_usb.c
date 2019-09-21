@@ -1138,6 +1138,7 @@ static SANE_Status sanei_usb_testing_init()
       while (el_interface != NULL)
         {
           device_list_type device;
+          memset(&device, 0, sizeof(device));
           device.devname = strdup(testing_xml_path);
 
           // other code shouldn't depend on methon because testing_mode is

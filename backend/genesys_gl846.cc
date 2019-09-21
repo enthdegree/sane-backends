@@ -960,7 +960,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int slope_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
-  int max_shift;
   size_t requested_buffer_size, read_buffer_size;
 
   /* compute scan parameters values */
@@ -1010,10 +1009,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
 /*** motor parameters ***/
 
-  max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels, session.params.yres,
-                                              session.params.flags);
-
-    lincnt = session.params.lines + max_shift + session.num_staggered_lines;
+    lincnt = session.params.lines + session.max_color_shift_lines + session.num_staggered_lines;
 
   /* add tl_y to base movement */
   move = session.params.starty;
@@ -1040,7 +1036,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   requested_buffer_size = 8 * bytes_per_line;
 
     read_buffer_size = 2 * requested_buffer_size +
-            ((max_shift + session.num_staggered_lines) * session.optical_pixels * session.params.channels *
+            ((session.max_color_shift_lines + session.num_staggered_lines) * session.optical_pixels * session.params.channels *
              session.params.depth) / 8;
 
     dev->read_buffer.clear();
@@ -1067,7 +1063,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->current_setup.xres = session.params.xres;
     dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
     dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = max_shift + session.num_staggered_lines;
+    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
 /* TODO: should this be done elsewhere? */
   /* scan bytes to send to the frontend */
@@ -1107,7 +1103,6 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   int slope_dpi;
   int dummy = 0;
-  int max_shift;
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
@@ -1154,9 +1149,7 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     exposure_time = get_sensor_profile(sensor, session.params.xres).exposure_lperiod;
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
-    max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels, session.params.yres, 0);
-
-    lincnt = session.params.lines + max_shift + session.num_staggered_lines;
+    lincnt = session.params.lines + session.max_color_shift_lines + session.num_staggered_lines;
 
     dev->session = session;
     dev->current_setup.pixels = session.output_pixels;
@@ -1165,7 +1158,7 @@ gl846_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     dev->current_setup.xres = session.params.xres;
     dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
     dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = max_shift + session.num_staggered_lines;
+    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 }
 
 // for fast power saving methods only, like disabling certain amplifiers

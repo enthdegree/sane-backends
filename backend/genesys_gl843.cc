@@ -1193,9 +1193,6 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
     // compute optical and output resolutions
     s.hwdpi_divisor = sensor.get_hwdpi_divisor_for_dpi(s.params.xres);
 
-    s.max_color_shift_lines = sanei_genesys_compute_max_shift(dev, s.params.channels,
-                                                              s.params.yres, s.params.flags);
-
     s.output_line_count = s.params.lines + s.max_color_shift_lines + s.num_staggered_lines;
 
     s.optical_line_bytes = (s.optical_pixels * s.params.channels * s.params.depth) / 8;
@@ -1371,8 +1368,6 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   unsigned int lincnt;
   int exposure;
 
-  int max_shift;
-
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
 
@@ -1436,12 +1431,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
       dev->ld_shift_b = dev->model->ld_shift_b;
     }
 
-  /* scanned area must be enlarged by max color shift needed */
-    max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels,
-                                                session.params.yres, 0);
-
-  /* lincnt */
-    lincnt = session.params.lines + max_shift + session.num_staggered_lines;
+    lincnt = session.params.lines + session.max_color_shift_lines + session.num_staggered_lines;
 
     dev->session = session;
     dev->current_setup.pixels = session.output_pixels;
@@ -1451,7 +1441,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
     dev->current_setup.xres = session.params.xres;
   dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
     dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = max_shift + session.num_staggered_lines;
+    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
   DBG(DBG_proc, "%s: completed\n", __func__);
 }

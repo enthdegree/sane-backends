@@ -1210,7 +1210,6 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
         }
     }
 
-
     if (dev->model->asic_type == AsicType::GL843) {
         if ((s.params.yres > 1200) && // FIXME: maybe ccd_size_divisor is the one that controls this?
             ((s.params.flags & SCAN_FLAG_IGNORE_LINE_DISTANCE) == 0) &&
@@ -1220,6 +1219,8 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
         }
     }
 
+    s.max_color_shift_lines = sanei_genesys_compute_max_shift(dev, s.params.channels,
+                                                              s.params.yres, s.params.flags);
 }
 
 /** @brief initialize device

@@ -362,7 +362,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   unsigned int bpp;   /**> bytes per pixel */
   uint32_t z1, z2;
   uint16_t ex, sx;
-    int words_per_line, max_shift;
+    int words_per_line;
   size_t requested_buffer_size;
   size_t read_buffer_size;
   SANE_Int xresolution;
@@ -557,17 +557,11 @@ static void gl646_setup_registers(Genesys_Device* dev,
   regs->find_reg(0x23).value = motor->fwdbwd;
   regs->find_reg(0x24).value = motor->steps1;
 
-  /* scanned area height must be enlarged by max color shift needed */
-  max_shift = sanei_genesys_compute_max_shift(dev, session.params.channels,
-                                              session.params.yres, 0);
-
   /* we adjust linecnt according to real motor dpi */
-  linecnt = (linecnt * motor->ydpi) / session.params.yres + max_shift;
+  linecnt = (linecnt * motor->ydpi) / session.params.yres + session.max_color_shift_lines;
 
   /* at QUATER_STEP lines are 'staggered' and need correction */
     linecnt += session.num_staggered_lines;
-
-  DBG(DBG_info, "%s :  max_shift=%d lines\n", __func__, max_shift);
 
   /* CIS scanners read one line per color channel
    * since gray mode use 'add' we also read 3 channels even not in
@@ -616,8 +610,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
   /* move distance must be adjusted to take into account the extra lines
    * read to reorder data */
   feedl = move;
-    if (session.num_staggered_lines + max_shift > 0 && feedl != 0) {
-        int feed_offset = ((max_shift + session.num_staggered_lines) * dev->motor.optical_ydpi) /
+    if (session.num_staggered_lines + session.max_color_shift_lines > 0 && feedl != 0) {
+        int feed_offset = ((session.max_color_shift_lines + session.num_staggered_lines) * dev->motor.optical_ydpi) /
                 motor->ydpi;
         if (feedl > feed_offset) {
             feedl = feedl - feed_offset;
@@ -768,7 +762,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   /* we must use a round number of words_per_line */
   requested_buffer_size = 8 * words_per_line;
     read_buffer_size = 2 * requested_buffer_size +
-        ((max_shift + session.num_staggered_lines) * session.params.pixels *
+        ((session.max_color_shift_lines + session.num_staggered_lines) * session.params.pixels *
          session.params.channels * session.params.depth) / 8;
 
     dev->read_buffer.clear();
@@ -796,7 +790,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
     dev->current_setup.xres = session.output_resolution;
   dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
     dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = max_shift + session.num_staggered_lines;
+    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
   /* total_bytes_to_read is the number of byte to send to frontend
    * total_bytes_read is the number of bytes sent to frontend

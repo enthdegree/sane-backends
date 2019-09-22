@@ -183,7 +183,7 @@ void sanei_genesys_write_pnm_file16(const char* filename, uint16_t* data, unsign
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
 
-extern unsigned sanei_genesys_get_bulk_max_size(Genesys_Device * dev)
+unsigned sanei_genesys_get_bulk_max_size(AsicType asic_type)
 {
     /*  Genesys supports 0xFE00 maximum size in general, wheraus GL646 supports
         0xFFC0. We use 0xF000 because that's the packet limit in the Linux usbmon
@@ -191,9 +191,9 @@ extern unsigned sanei_genesys_get_bulk_max_size(Genesys_Device * dev)
         b_size is the size of the ring buffer. By default it's 300*1024, so the
         packet is limited 61440 without any visibility to acquiring software.
     */
-    if (dev->model->asic_type == AsicType::GL124 ||
-        dev->model->asic_type == AsicType::GL846 ||
-        dev->model->asic_type == AsicType::GL847)
+    if (asic_type == AsicType::GL124 ||
+        asic_type == AsicType::GL846 ||
+        asic_type == AsicType::GL847)
     {
         return 0xeff0;
     }
@@ -273,7 +273,7 @@ void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* d
     target = len;
     buffer = data;
 
-    size_t max_in_size = sanei_genesys_get_bulk_max_size(dev);
+    size_t max_in_size = sanei_genesys_get_bulk_max_size(dev->model->asic_type);
 
     if (!has_header_before_each_chunk) {
         sanei_genesys_bulk_read_data_send_header(dev, len);
@@ -318,7 +318,7 @@ void sanei_genesys_bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* d
     dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
                              1, &addr);
 
-    size_t max_out_size = sanei_genesys_get_bulk_max_size(dev);
+    size_t max_out_size = sanei_genesys_get_bulk_max_size(dev->model->asic_type);
 
     while (len) {
         if (len > max_out_size)
@@ -981,7 +981,7 @@ void sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, 
     // write addr and size for AHB
     dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x01, 8, outdata);
 
-  size_t max_out_size = sanei_genesys_get_bulk_max_size(dev);
+  size_t max_out_size = sanei_genesys_get_bulk_max_size(dev->model->asic_type);
 
   /* write actual data */
   written = 0;
@@ -1138,6 +1138,62 @@ static unsigned align_int_up(unsigned num, unsigned alignment)
     return num;
 }
 
+void compute_session_buffer_sizes(AsicType asic, ScanSession& s)
+{
+    size_t line_bytes = s.output_line_bytes;
+    size_t line_bytes_stagger = s.output_line_bytes;
+
+    if (asic != AsicType::GL646) {
+        // BUG: this is historical artifact and should be removed. Note that buffer sizes affect
+        // how often we request the scanner for data and thus change the USB traffic.
+        line_bytes_stagger =
+                multiply_by_depth_ceil(s.optical_pixels, s.params.depth) * s.params.channels;
+    }
+
+    struct BufferConfig {
+        size_t* result_size = nullptr;
+        size_t lines = 0;
+        size_t lines_mult = 0;
+        size_t max_size = 0; // does not apply if 0
+        size_t stagger_lines = 0;
+    };
+
+    std::array<BufferConfig, 4> configs;
+    if (asic == AsicType::GL124 || asic == AsicType::GL843) {
+        configs = { {
+            { &s.buffer_size_read, 32, 1, 0, s.max_color_shift_lines + s.num_staggered_lines },
+            { &s.buffer_size_lines, 32, 1, 0, s.max_color_shift_lines + s.num_staggered_lines },
+            { &s.buffer_size_shrink, 16, 1, 0, 0 },
+            { &s.buffer_size_out, 8, 1, 0, 0 },
+        } };
+    } else if (asic == AsicType::GL841) {
+        size_t max_buf = sanei_genesys_get_bulk_max_size(asic);
+        configs = { {
+            { &s.buffer_size_read, 8, 2, max_buf, s.max_color_shift_lines + s.num_staggered_lines },
+            { &s.buffer_size_lines, 8, 2, max_buf, s.max_color_shift_lines + s.num_staggered_lines },
+            { &s.buffer_size_shrink, 8, 1, max_buf, 0 },
+            { &s.buffer_size_out, 8, 1, 0, 0 },
+        } };
+    } else {
+        configs = { {
+            { &s.buffer_size_read, 16, 1, 0, s.max_color_shift_lines + s.num_staggered_lines },
+            { &s.buffer_size_lines, 16, 1, 0, s.max_color_shift_lines + s.num_staggered_lines },
+            { &s.buffer_size_shrink, 8, 1, 0, 0 },
+            { &s.buffer_size_out, 8, 1, 0, 0 },
+        } };
+    }
+
+    for (BufferConfig& config : configs) {
+        size_t buf_size = line_bytes * config.lines;
+        if (config.max_size > 0 && buf_size > config.max_size) {
+            buf_size = (config.max_size / line_bytes) * line_bytes;
+        }
+        buf_size *= config.lines_mult;
+        buf_size += line_bytes_stagger * config.stagger_lines;
+        *config.result_size = buf_size;
+    }
+}
+
 void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
@@ -1224,9 +1280,10 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
 
     s.output_line_count = s.params.lines + s.max_color_shift_lines + s.num_staggered_lines;
 
-    s.optical_line_bytes = multiply_by_depth_ceil(s.optical_pixels, s.params.depth) * s.params.channels;
     s.output_line_channel_bytes = multiply_by_depth_ceil(s.output_pixels, s.params.depth);
     s.output_line_bytes = s.output_line_channel_bytes * s.params.channels;
+
+    compute_session_buffer_sizes(dev->model->asic_type, s);
 }
 
 /** @brief initialize device
@@ -1860,7 +1917,6 @@ void debug_dump(unsigned level, const ScanSession& session)
     DBG(level, "    ccd_size_divisor : %d\n", session.ccd_size_divisor);
     DBG(level, "    optical_resolution : %d\n", session.optical_resolution);
     DBG(level, "    optical_pixels : %d\n", session.optical_pixels);
-    DBG(level, "    optical_line_bytes : %d\n", session.optical_line_bytes);
     DBG(level, "    output_resolution : %d\n", session.output_resolution);
     DBG(level, "    output_pixels : %d\n", session.output_pixels);
     DBG(level, "    output_line_bytes : %d\n", session.output_line_bytes);
@@ -1870,6 +1926,10 @@ void debug_dump(unsigned level, const ScanSession& session)
     DBG(level, "    enable_ledadd : %d\n", session.enable_ledadd);
     DBG(level, "    pixel_startx : %d\n", session.pixel_startx);
     DBG(level, "    pixel_endx : %d\n", session.pixel_endx);
+    DBG(level, "    buffer_size_read : %zu\n", session.buffer_size_read);
+    DBG(level, "    buffer_size_read : %zu\n", session.buffer_size_lines);
+    DBG(level, "    buffer_size_shrink : %zu\n", session.buffer_size_shrink);
+    DBG(level, "    buffer_size_out : %zu\n", session.buffer_size_out);
     debug_dump(level, session.params);
 }
 

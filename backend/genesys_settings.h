@@ -230,9 +230,6 @@ struct ScanSession {
     // the number of pixels at the optical resolution.
     unsigned optical_pixels = 0;
 
-    // the number of bytes in the output of a single line directly from scanner
-    unsigned optical_line_bytes = 0;
-
     // the resolution of the output data.
     // gl843-only
     unsigned output_resolution = 0;
@@ -262,6 +259,12 @@ struct ScanSession {
     // gl843-only
     unsigned pixel_startx = 0;
     unsigned pixel_endx = 0;
+
+    // the sizes of the corresponding buffers
+    size_t buffer_size_read = 0;
+    size_t buffer_size_lines = 0;
+    size_t buffer_size_shrink = 0;
+    size_t buffer_size_out = 0;
 
     // whether to enable ledadd functionality
     bool enable_ledadd = false;

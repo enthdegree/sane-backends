@@ -1058,7 +1058,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int dummy = 0;
   int slope_dpi = 0;
   int scan_step_type = 1;
-  size_t requested_buffer_size, read_buffer_size;
 
     DBG (DBG_info, "%s: optical_res=%d\n", __func__, session.optical_resolution);
 
@@ -1125,25 +1124,17 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   /*** prepares data reordering ***/
 
-  /* since we don't have sheetfed scanners to handle,
-   * use huge read buffer */
-  /* TODO find the best size according to settings */
-    requested_buffer_size = 16 * session.output_line_bytes;
-
-    read_buffer_size = 2 * requested_buffer_size +
-            (session.max_color_shift_lines + session.num_staggered_lines) * session.optical_line_bytes;
-
     dev->read_buffer.clear();
-    dev->read_buffer.alloc(read_buffer_size);
+    dev->read_buffer.alloc(session.buffer_size_read);
 
     dev->lines_buffer.clear();
-    dev->lines_buffer.alloc(read_buffer_size);
+    dev->lines_buffer.alloc(session.buffer_size_lines);
 
     dev->shrink_buffer.clear();
-    dev->shrink_buffer.alloc(requested_buffer_size);
+    dev->shrink_buffer.alloc(session.buffer_size_shrink);
 
     dev->out_buffer.clear();
-    dev->out_buffer.alloc((8 * dev->settings.pixels * session.params.channels * session.params.depth) / 8);
+    dev->out_buffer.alloc(session.buffer_size_out);
 
     dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
 

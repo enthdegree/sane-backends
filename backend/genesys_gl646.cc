@@ -328,7 +328,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
     debug_dump(DBG_info, sensor);
 
     uint32_t move = session.params.starty;
-    uint32_t linecnt = session.params.lines;
 
     uint32_t startx = 0;
     /* pixels are allways given at full CCD optical resolution */
@@ -366,7 +365,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   size_t read_buffer_size;
   int feedl;
 
-  DBG(DBG_info, "%s: startx=%d, endx=%d, linecnt=%d\n", __func__, startx, endx, linecnt);
+  DBG(DBG_info, "%s: startx=%d, endx=%d\n", __func__, startx, endx);
 
   /* for the given resolution, search for master
    * motor mode setting */
@@ -548,22 +547,16 @@ static void gl646_setup_registers(Genesys_Device* dev,
   regs->find_reg(0x23).value = motor->fwdbwd;
   regs->find_reg(0x24).value = motor->steps1;
 
-    linecnt = linecnt + session.max_color_shift_lines;
-
-  /* at QUATER_STEP lines are 'staggered' and need correction */
-    linecnt += session.num_staggered_lines;
-
   /* CIS scanners read one line per color channel
    * since gray mode use 'add' we also read 3 channels even not in
    * color mode */
   if (dev->model->is_cis == SANE_TRUE)
     {
-      regs->set24(REG_LINCNT, linecnt * 3);
-        linecnt *= session.params.channels;
+        regs->set24(REG_LINCNT, session.output_line_count * 3);
     }
   else
     {
-      regs->set24(REG_LINCNT, linecnt);
+        regs->set24(REG_LINCNT, session.output_line_count);
     }
 
   /* scanner's x coordinates are expressed in physical DPI but they must be divided by cksel */
@@ -765,14 +758,16 @@ static void gl646_setup_registers(Genesys_Device* dev,
     dev->out_buffer.alloc(8 * session.params.pixels * session.params.channels * bpp);
 
   /* scan bytes to read */
-  dev->read_bytes_left = words_per_line * linecnt;
+    unsigned cis_channel_multiplier = dev->model->is_cis ? session.params.channels : 1;
+
+    dev->read_bytes_left = words_per_line * session.output_line_count * cis_channel_multiplier;
 
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
     dev->current_setup.pixels = session.output_pixels;
-  dev->current_setup.lines = linecnt;
+    dev->current_setup.lines = session.output_line_count * cis_channel_multiplier;
     dev->current_setup.exposure_time = sensor.exposure_lperiod;
     dev->current_setup.xres = session.output_resolution;
   dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;

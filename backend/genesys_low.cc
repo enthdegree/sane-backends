@@ -1221,6 +1221,8 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
 
     s.max_color_shift_lines = sanei_genesys_compute_max_shift(dev, s.params.channels,
                                                               s.params.yres, s.params.flags);
+
+    s.output_line_count = s.params.lines + s.max_color_shift_lines + s.num_staggered_lines;
 }
 
 /** @brief initialize device

@@ -357,11 +357,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
   int i, nb;
   Motor_Master *motor = NULL;
   unsigned int used1, used2, vfinal;
-  unsigned int bpp;   /**> bytes per pixel */
   uint32_t z1, z2;
   uint16_t ex, sx;
-    int words_per_line;
-  size_t requested_buffer_size;
   size_t read_buffer_size;
   int feedl;
 
@@ -567,24 +564,10 @@ static void gl646_setup_registers(Genesys_Device* dev,
     DBG(DBG_info, "%s: startx=%d, endx=%d, ccd_size_divisor=%d\n", __func__, sx, ex,
         session.ccd_size_divisor);
 
-  /* words_per_line must be computed according to the scan's resolution */
-  /* in fact, words_per_line _gives_ the actual scan resolution */
-    words_per_line = session.output_pixels;
-    bpp = session.params.depth/8;
-    if (session.params.depth == 1) {
-      words_per_line = (words_per_line+7)/8 ;
-      bpp=1;
-    }
-  else
-    {
-      words_per_line *= bpp;
-    }
-  dev->bpl = words_per_line;
-    words_per_line *= session.params.channels;
-  dev->wpl = words_per_line;
+    dev->bpl = session.output_line_channel_bytes;
+    dev->wpl = session.output_line_bytes;
 
-  DBG(DBG_info, "%s: wpl=%d\n", __func__, words_per_line);
-    regs->set24(REG_MAXWD, words_per_line);
+    regs->set24(REG_MAXWD, session.output_line_bytes);
 
     regs->set16(REG_DPISET, session.output_resolution * session.ccd_size_divisor *
                             sensor.ccd_pixels_per_system_pixel());
@@ -739,9 +722,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
   /* now we're done with registers setup values used by data transfer */
   /* we setup values needed for the data transfer */
 
-  /* we must use a round number of words_per_line */
-  requested_buffer_size = 8 * words_per_line;
-    read_buffer_size = 2 * requested_buffer_size +
+    // we must use a round number of words_per_line
+    read_buffer_size = 16 * session.output_line_bytes +
         ((session.max_color_shift_lines + session.num_staggered_lines) * session.params.pixels *
          session.params.channels * session.params.depth) / 8;
 
@@ -752,15 +734,15 @@ static void gl646_setup_registers(Genesys_Device* dev,
     dev->lines_buffer.alloc(read_buffer_size);
 
     dev->shrink_buffer.clear();
-    dev->shrink_buffer.alloc(requested_buffer_size);
+    dev->shrink_buffer.alloc(8 * session.output_line_bytes);
 
     dev->out_buffer.clear();
-    dev->out_buffer.alloc(8 * session.params.pixels * session.params.channels * bpp);
+    dev->out_buffer.alloc(8 * session.output_line_bytes);
 
   /* scan bytes to read */
     unsigned cis_channel_multiplier = dev->model->is_cis ? session.params.channels : 1;
 
-    dev->read_bytes_left = words_per_line * session.output_line_count * cis_channel_multiplier;
+    dev->read_bytes_left = session.output_line_bytes * session.output_line_count * cis_channel_multiplier;
 
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
@@ -774,17 +756,10 @@ static void gl646_setup_registers(Genesys_Device* dev,
     dev->current_setup.stagger = session.num_staggered_lines;
     dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
-  /* total_bytes_to_read is the number of byte to send to frontend
-   * total_bytes_read is the number of bytes sent to frontend
-   * read_bytes_left is the number of bytes to read from the scanner
-   */
     dev->total_bytes_read = 0;
-    if (session.params.depth == 1) {
-        dev->total_bytes_to_read = ((session.params.requested_pixels * session.params.lines) / 8 +
-            (((session.params.requested_pixels * session.params.lines) % 8) ? 1 : 0)) * session.params.channels;
-    } else {
-        dev->total_bytes_to_read = session.params.requested_pixels * session.params.lines * session.params.channels * bpp;
-    }
+    dev->total_bytes_to_read =
+            multiply_by_depth_ceil(session.params.get_requested_pixels() * session.params.lines,
+                                   session.params.depth) * session.params.channels;
 
     /* select color filter based on settings */
     regs->find_reg(0x04).value &= ~REG04_FILTER;

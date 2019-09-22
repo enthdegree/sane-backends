@@ -646,6 +646,15 @@ inline T abs_diff(T a, T b)
     }
 }
 
+inline unsigned multiply_by_depth_ceil(unsigned pixels, unsigned depth)
+{
+    if (depth == 1) {
+        return (pixels / 8) + ((pixels % 8) ? 1 : 0);
+    } else {
+        return pixels * (depth / 8);
+    }
+}
+
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */
 /*---------------------------------------------------------------------------*/

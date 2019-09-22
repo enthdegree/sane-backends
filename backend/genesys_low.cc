@@ -1223,6 +1223,10 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
                                                               s.params.yres, s.params.flags);
 
     s.output_line_count = s.params.lines + s.max_color_shift_lines + s.num_staggered_lines;
+
+    s.optical_line_bytes = multiply_by_depth_ceil(s.optical_pixels, s.params.depth) * s.params.channels;
+    s.output_line_channel_bytes = multiply_by_depth_ceil(s.output_pixels, s.params.depth);
+    s.output_line_bytes = s.output_line_channel_bytes * s.params.channels;
 }
 
 /** @brief initialize device

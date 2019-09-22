@@ -231,7 +231,6 @@ struct ScanSession {
     unsigned optical_pixels = 0;
 
     // the number of bytes in the output of a single line directly from scanner
-    // gl843-only
     unsigned optical_line_bytes = 0;
 
     // the resolution of the output data.
@@ -241,8 +240,10 @@ struct ScanSession {
     // the number of pixels in output data
     unsigned output_pixels = 0;
 
+    // the number of bytes in the output of a channel of a single line
+    unsigned output_line_channel_bytes;
+
     // the number of bytes in the output of a single line
-    // gl843-only
     unsigned output_line_bytes = 0;
 
     // the number of lines in the output of the scanner. This must be larger than the user

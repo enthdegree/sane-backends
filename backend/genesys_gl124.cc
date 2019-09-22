@@ -1066,7 +1066,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     session.assert_computed();
 
     int start;
-  int bytes_per_line;
   int move;
     unsigned int mflags;
   int exposure_time;
@@ -1145,18 +1144,13 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   /*** prepares data reordering ***/
 
-  /* words_per_line */
-    bytes_per_line = session.output_pixels;
-  bytes_per_line = (bytes_per_line * session.params.channels * session.params.depth) / 8;
-
   /* since we don't have sheetfed scanners to handle,
    * use huge read buffer */
   /* TODO find the best size according to settings */
-  requested_buffer_size = 16 * bytes_per_line;
+    requested_buffer_size = 16 * session.output_line_bytes;
 
     read_buffer_size = 2 * requested_buffer_size +
-            ((session.max_color_shift_lines + session.num_staggered_lines) * session.optical_pixels *
-             session.params.channels * session.params.depth) / 8;
+            (session.max_color_shift_lines + session.num_staggered_lines) * session.optical_line_bytes;
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(read_buffer_size);
@@ -1170,7 +1164,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->out_buffer.clear();
     dev->out_buffer.alloc((8 * dev->settings.pixels * session.params.channels * session.params.depth) / 8);
 
-    dev->read_bytes_left = bytes_per_line * session.output_line_count;
+    dev->read_bytes_left = session.output_line_bytes * session.output_line_count;
 
   DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
@@ -1185,14 +1179,10 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->current_setup.stagger = session.num_staggered_lines;
     dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
-  dev->total_bytes_read = 0;
-    if (session.params.depth == 1) {
-        dev->total_bytes_to_read = ((session.params.get_requested_pixels() * session.params.lines) / 8 +
-            (((session.params.get_requested_pixels() * session.params.lines) % 8) ? 1 : 0)) * session.params.channels;
-    } else {
-        dev->total_bytes_to_read = session.params.get_requested_pixels() * session.params.lines *
-            session.params.channels * (session.params.depth / 8);
-    }
+    dev->total_bytes_read = 0;
+    dev->total_bytes_to_read =
+            multiply_by_depth_ceil(session.params.get_requested_pixels() * session.params.lines,
+                                   session.params.depth) * session.params.channels;
 
     DBG(DBG_info, "%s: total bytes to send to frontend = %lu\n", __func__,
         (u_long) dev->total_bytes_to_read);

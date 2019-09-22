@@ -327,7 +327,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
     debug_dump(DBG_info, sensor);
 
-    int resolution = session.params.xres;
     uint32_t move = session.params.starty;
     uint32_t linecnt = session.params.lines;
 
@@ -365,17 +364,9 @@ static void gl646_setup_registers(Genesys_Device* dev,
     int words_per_line;
   size_t requested_buffer_size;
   size_t read_buffer_size;
-  SANE_Int xresolution;
   int feedl;
 
   DBG(DBG_info, "%s: startx=%d, endx=%d, linecnt=%d\n", __func__, startx, endx, linecnt);
-
-  /* x resolution is capped by sensor's capability */
-     if (static_cast<unsigned>(resolution) > session.optical_resolution) {
-        xresolution = session.optical_resolution;
-    } else {
-      xresolution = resolution;
-    }
 
   /* for the given resolution, search for master
    * motor mode setting */
@@ -384,7 +375,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   while (i < nb)
     {
       if (dev->model->motor_type == motor_master[i].motor
-          && motor_master[i].dpi == resolution
+          && motor_master[i].dpi == session.params.yres
           && motor_master[i].channels == session.params.channels)
 	{
 	  motor = &motor_master[i];
@@ -394,7 +385,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   if (motor == NULL)
     {
         throw SaneException("unable to find settings for motor %d at %d dpi, color=%d",
-                            dev->model->motor_type, resolution, session.params.channels);
+                            dev->model->motor_type, session.params.yres, session.params.channels);
     }
 
   /* now we can search for the specific sensor settings */
@@ -557,8 +548,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   regs->find_reg(0x23).value = motor->fwdbwd;
   regs->find_reg(0x24).value = motor->steps1;
 
-  /* we adjust linecnt according to real motor dpi */
-  linecnt = (linecnt * motor->ydpi) / session.params.yres + session.max_color_shift_lines;
+    linecnt = linecnt + session.max_color_shift_lines;
 
   /* at QUATER_STEP lines are 'staggered' and need correction */
     linecnt += session.num_staggered_lines;
@@ -612,7 +602,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   feedl = move;
     if (session.num_staggered_lines + session.max_color_shift_lines > 0 && feedl != 0) {
         int feed_offset = ((session.max_color_shift_lines + session.num_staggered_lines) * dev->motor.optical_ydpi) /
-                motor->ydpi;
+                motor->dpi;
         if (feedl > feed_offset) {
             feedl = feedl - feed_offset;
         }
@@ -636,8 +626,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
       switch (dev->model->motor_type)
 	{
 	case MOTOR_5345:
-	  switch (motor->ydpi)
-	    {
+                    switch (motor->dpi) {
 	    case 200:
 	      feedl -= 70;
 	      break;
@@ -661,8 +650,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 	    }
 	  break;
 	case MOTOR_HP2300:
-	  switch (motor->ydpi)
-	    {
+                    switch (motor->dpi) {
 	    case 75:
 	      feedl -= 180;
 	      break;
@@ -683,8 +671,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 	    }
 	  break;
 	case MOTOR_HP2400:
-	  switch (motor->ydpi)
-	    {
+                    switch (motor->dpi) {
 	    case 150:
 	      feedl += 150;
 	      break;
@@ -751,10 +738,10 @@ static void gl646_setup_registers(Genesys_Device* dev,
     (regs->find_reg(0x6c).value & REG6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16)
 								   & 0x07);
 
-    write_control(dev, sensor, xresolution);
+    write_control(dev, sensor, session.output_resolution);
 
     // setup analog frontend
-    gl646_set_fe(dev, sensor, AFE_SET, xresolution);
+    gl646_set_fe(dev, sensor, AFE_SET, session.output_resolution);
 
   /* now we're done with registers setup values used by data transfer */
   /* we setup values needed for the data transfer */

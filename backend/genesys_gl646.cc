@@ -742,9 +742,10 @@ static void gl646_setup_registers(Genesys_Device* dev,
   /* scan bytes to read */
     unsigned cis_channel_multiplier = dev->model->is_cis ? session.params.channels : 1;
 
-    dev->read_bytes_left = session.output_line_bytes * session.output_line_count * cis_channel_multiplier;
+    dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count * cis_channel_multiplier;
 
-  DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
+    DBG(DBG_info, "%s: desegmented bytes to read = %lu\n", __func__,
+        (u_long) dev->read_bytes_left_after_deseg);
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
@@ -1511,7 +1512,7 @@ static void gl646_detect_document_end(Genesys_Device* dev)
        */
       DBG(DBG_io, "%s: total_bytes_to_read=%lu\n", __func__, (u_long) dev->total_bytes_to_read);
       DBG(DBG_io, "%s: total_bytes_read   =%lu\n", __func__, (u_long) dev->total_bytes_read);
-      DBG(DBG_io, "%s: read_bytes_left    =%lu\n", __func__, (u_long) dev->read_bytes_left);
+        DBG(DBG_io, "%s: read_bytes_left_after_deseg    =%lu\n", __func__, (u_long) dev->read_bytes_left_after_deseg);
 
         // amount of data available from scanner is what to scan
         sanei_genesys_read_valid_words(dev, &bytes_left);
@@ -1526,14 +1527,13 @@ static void gl646_detect_document_end(Genesys_Device* dev)
         if (dev->session.params.channels > 1) {
 	  bytes_left = 3 * bytes_left;
 	}
-      if (bytes_left < dev->read_bytes_left)
-	{
-	  dev->total_bytes_to_read = dev->total_bytes_read + bytes_left;
-	  dev->read_bytes_left = bytes_left;
-	}
+        if (bytes_left < dev->read_bytes_left_after_deseg) {
+            dev->total_bytes_to_read = dev->total_bytes_read + bytes_left;
+            dev->read_bytes_left_after_deseg = bytes_left;
+        }
       DBG(DBG_io, "%s: total_bytes_to_read=%lu\n", __func__, (u_long) dev->total_bytes_to_read);
       DBG(DBG_io, "%s: total_bytes_read   =%lu\n", __func__, (u_long) dev->total_bytes_read);
-      DBG(DBG_io, "%s: read_bytes_left    =%lu\n", __func__, (u_long) dev->read_bytes_left);
+      DBG(DBG_io, "%s: read_bytes_left    =%lu\n", __func__, (u_long) dev->read_bytes_left_after_deseg);
     }
 }
 

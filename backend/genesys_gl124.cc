@@ -824,18 +824,13 @@ static void gl124_setup_sensor(Genesys_Device * dev,
  */
 static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
-                                         const ScanSession& session, int used_res,
-                                         unsigned int start, unsigned int pixels,
-                                         int channels, int depth, unsigned ccd_size_divisor,
-                                         ColorFilter color_filter)
+                                         const ScanSession& session, unsigned int start)
 {
-    DBG_HELPER_ARGS(dbg, "exposure_time=%d, used_res=%d, start=%d, pixels=%d, channels=%d, depth=%d, "
-                         "ccd_size_divisor=%d\n",
-                    exposure_time, used_res, start, pixels, channels, depth, ccd_size_divisor);
+    DBG_HELPER_ARGS(dbg, "exposure_time=%d, start=%d\n",
+                    exposure_time, start);
   unsigned int words_per_line, segcnt;
     unsigned int startx, endx, segnb;
-  unsigned int dpiset, dpihw, factor;
-  unsigned int bytes;
+  unsigned int dpihw, factor;
   GenesysRegister *r;
   uint32_t expmax;
 
@@ -845,23 +840,21 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     // to manage high resolution device while keeping good low resolution scanning speed, we
     // make hardware dpi vary
-    dpihw = sensor.get_register_hwdpi(used_res * ccd_pixels_per_system_pixel);
-    factor = sensor.get_hwdpi_divisor_for_dpi(used_res * ccd_pixels_per_system_pixel);
+    dpihw = sensor.get_register_hwdpi(session.output_resolution * ccd_pixels_per_system_pixel);
+    factor = sensor.get_hwdpi_divisor_for_dpi(session.output_resolution * ccd_pixels_per_system_pixel);
   DBG (DBG_io2, "%s: dpihw=%d (factor=%d)\n", __func__, dpihw, factor);
 
     // sensor parameters
-    gl124_setup_sensor(dev, sensor, reg, dpihw, ccd_size_divisor);
-    dpiset = used_res * ccd_pixels_per_system_pixel;
+    gl124_setup_sensor(dev, sensor, reg, dpihw, session.ccd_size_divisor);
 
   /* start and end coordinate in optical dpi coordinates */
   /* startx = start / ccd_pixels_per_system_pixel + sensor.dummy_pixel; XXX STEF XXX */
     startx = start / ccd_pixels_per_system_pixel;
-    endx = startx + pixels / ccd_pixels_per_system_pixel;
+    endx = startx + session.optical_pixels / ccd_pixels_per_system_pixel;
 
   /* pixel coordinate factor correction when used dpihw is not maximal one */
   startx/=factor;
   endx/=factor;
-    unsigned used_pixels = endx - startx;
 
     gl124_set_fe(dev, sensor, AFE_SET);
 
@@ -880,7 +873,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   r->value &= ~REG01_SCAN;
 
   r = sanei_genesys_get_address (reg, REG03);
-  if((dev->model->ccd_type!=CIS_CANONLIDE120)&&(used_res>=600))
+  if((dev->model->ccd_type!=CIS_CANONLIDE120)&&(session.params.xres>=600))
     {
       r->value &= ~REG03_AVEENB;
       DBG (DBG_io, "%s: disabling AVEENB\n", __func__);
@@ -900,7 +893,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* monochrome / color scan */
   r = sanei_genesys_get_address (reg, REG04);
-  switch (depth)
+  switch (session.params.depth)
     {
     case 1:
       r->value &= ~REG04_BITSET;
@@ -916,9 +909,9 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
   r->value &= ~REG04_FILTER;
-  if (channels == 1)
+  if (session.params.channels == 1)
     {
-      switch (color_filter)
+      switch (session.params.color_filter)
 	{
             case ColorFilter::RED:
                 r->value |= 0x10;
@@ -944,7 +937,8 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         r->value |= REG05_GMMENB;
     }
 
-    unsigned dpiset_reg = dpiset * ccd_size_divisor;
+    unsigned dpiset_reg = session.output_resolution * ccd_pixels_per_system_pixel *
+            session.ccd_size_divisor;
     if (sensor.dpiset_override != 0) {
         dpiset_reg = sensor.dpiset_override;
     }
@@ -996,17 +990,9 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->set24(REG_ENDPIXEL, endx / segnb);
   DBG (DBG_io2, "%s: endpixel used=%d\n", __func__, endx/segnb);
 
-  /* words(16bit) before gamma, conversion to 8 bit or lineart */
-  words_per_line = (used_pixels * dpiset) / dpihw;
-  bytes = depth / 8;
-  if (depth == 1)
-    {
-      words_per_line = (words_per_line >> 3) + ((words_per_line & 7) ? 1 : 0);
-    }
-  else
-    {
-      words_per_line *= bytes;
-    }
+    // words(16bit) before gamma, conversion to 8 bit or lineart
+    words_per_line = multiply_by_depth_ceil(session.output_pixels / session.ccd_size_divisor,
+                                            session.params.depth);
 
   dev->bpl = words_per_line;
   dev->cur = 0;
@@ -1017,15 +1003,14 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   dev->line_count = 0;
   dev->line_interp = 0;
 
-  DBG (DBG_io2, "%s: used_pixels     =%d\n", __func__, used_pixels);
-  DBG (DBG_io2, "%s: pixels          =%d\n", __func__, pixels);
-  DBG (DBG_io2, "%s: depth           =%d\n", __func__, depth);
+  DBG (DBG_io2, "%s: pixels          =%d\n", __func__, session.optical_pixels);
+  DBG (DBG_io2, "%s: depth           =%d\n", __func__, session.params.depth);
   DBG (DBG_io2, "%s: dev->bpl        =%lu\n", __func__, (unsigned long)dev->bpl);
   DBG (DBG_io2, "%s: dev->len        =%lu\n", __func__, (unsigned long)dev->len);
   DBG (DBG_io2, "%s: dev->dist       =%lu\n", __func__, (unsigned long)dev->dist);
   DBG (DBG_io2, "%s: dev->line_interp=%lu\n", __func__, (unsigned long)dev->line_interp);
 
-  words_per_line *= channels;
+  words_per_line *= session.params.channels;
   dev->wpl = words_per_line;
 
   /* allocate buffer for odd/even pixels handling */
@@ -1120,11 +1105,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
    */
 
     // now _LOGICAL_ optical values used are known, setup registers
-    gl124_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, session.params.xres,
-                                 start,
-                                 session.optical_pixels, session.params.channels,
-                                 session.params.depth, session.ccd_size_divisor,
-                                 session.params.color_filter);
+    gl124_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, start);
 
   /* add tl_y to base movement */
     move = session.params.starty;
@@ -1164,9 +1145,10 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->out_buffer.clear();
     dev->out_buffer.alloc((8 * dev->settings.pixels * session.params.channels * session.params.depth) / 8);
 
-    dev->read_bytes_left = session.output_line_bytes * session.output_line_count;
+    dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
 
-  DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
+    DBG(DBG_info, "%s: desegmented bytes to read = %lu\n", __func__,
+        (u_long) dev->read_bytes_left_after_deseg);
   dev->read_active = SANE_TRUE;
 
     dev->session = session;

@@ -3562,9 +3562,8 @@ static void genesys_fill_read_buffer(Genesys_Device* dev)
   /* Some setups need the reads to be multiples of 256 bytes */
   size &= ~0xff;
 
-  if (dev->read_bytes_left < size)
-    {
-      size = dev->read_bytes_left;
+    if (dev->read_bytes_left_after_deseg < size) {
+        size = dev->read_bytes_left_after_deseg;
       /*round up to a multiple of 256 bytes */
       size += (size & 0xff) ? 0x100 : 0x00;
       size &= ~0xff;
@@ -3604,10 +3603,11 @@ static void genesys_fill_read_buffer(Genesys_Device* dev)
         dev->cmd_set->bulk_read_data(dev, 0x45, work_buffer_dst, size);
     }
 
-  if (size > dev->read_bytes_left)
-    size = dev->read_bytes_left;
+    if (size > dev->read_bytes_left_after_deseg) {
+        size = dev->read_bytes_left_after_deseg;
+    }
 
-  dev->read_bytes_left -= size;
+    dev->read_bytes_left_after_deseg -= size;
 
   dev->read_buffer.produce(size);
 }
@@ -3695,9 +3695,9 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
   DBG(DBG_info, "%s: %lu lines left by output\n", __func__,
        ((dev->total_bytes_to_read - dev->total_bytes_read) * 8UL) /
         (dev->settings.requested_pixels * channels * depth));
-  DBG(DBG_info, "%s: %lu lines left by input\n", __func__,
-       ((dev->read_bytes_left + dev->read_buffer.avail()) * 8UL) /
-       (src_pixels * channels * depth));
+    DBG(DBG_info, "%s: %lu lines left by input\n", __func__,
+        ((dev->read_bytes_left_after_deseg + dev->read_buffer.avail()) * 8UL) /
+        (src_pixels * channels * depth));
 
   if (channels == 1)
     {
@@ -6524,7 +6524,8 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
   DBG(DBG_proc, "%s: start, %d maximum bytes required\n", __func__, max_len);
   DBG(DBG_io2, "%s: bytes_to_read=%lu, total_bytes_read=%lu\n", __func__,
       (u_long) dev->total_bytes_to_read, (u_long) dev->total_bytes_read);
-  DBG(DBG_io2, "%s: physical bytes to read = %lu\n", __func__, (u_long) dev->read_bytes_left);
+    DBG(DBG_io2, "%s: desegmented bytes to read = %lu\n", __func__,
+        (u_long) dev->read_bytes_left_after_deseg);
 
   if(dev->total_bytes_read>=dev->total_bytes_to_read)
     {

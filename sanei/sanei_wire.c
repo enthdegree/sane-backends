@@ -150,7 +150,7 @@ sanei_w_space (Wire * w, size_t howmuch)
 }
 
 void
-sanei_w_void (Wire * w)
+sanei_w_void (Wire * w, void __sane_unused__ * v)
 {
   DBG (3, "sanei_w_void: wire %d (void debug output)\n", w->io.fd);
 }

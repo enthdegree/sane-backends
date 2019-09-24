@@ -1201,7 +1201,17 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     (void) dev;
     s.params.assert_valid();
 
+    unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
+
     // compute optical and output resolutions
+
+    if (dev->model->asic_type == AsicType::GL843) {
+        // FIXME: this may be incorrect, but need more scanners to test
+        s.hwdpi_divisor = sensor.get_hwdpi_divisor_for_dpi(s.params.xres);
+    } else {
+        s.hwdpi_divisor = sensor.get_hwdpi_divisor_for_dpi(s.params.xres * ccd_pixels_per_system_pixel);
+    }
+
     s.ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(s.params.xres);
 
     if (dev->model->asic_type == AsicType::GL646) {

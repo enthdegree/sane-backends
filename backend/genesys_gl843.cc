@@ -1184,10 +1184,6 @@ static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
 {
     compute_session(dev, s, sensor);
 
-    // compute optical and output resolutions
-    s.hwdpi_divisor = sensor.get_hwdpi_divisor_for_dpi(s.params.xres);
-
-
     // compute physical pixel positions
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
     s.pixel_startx = (s.params.startx + sensor.dummy_pixel) / ccd_pixels_per_system_pixel;

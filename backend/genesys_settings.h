@@ -238,7 +238,7 @@ struct ScanSession {
     unsigned output_pixels = 0;
 
     // the number of bytes in the output of a channel of a single line
-    unsigned output_line_channel_bytes;
+    unsigned output_channel_bytes = 0;
 
     // the number of bytes in the output of a single line
     unsigned output_line_bytes = 0;

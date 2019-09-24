@@ -1157,14 +1157,14 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->set16(REG_STRPIXEL, session.pixel_startx);
     reg->set16(REG_ENDPIXEL, session.pixel_endx);
 
-    dev->wpl = session.output_line_channel_bytes; // FIXME: this is not currently used
-    dev->bpl = session.output_line_channel_bytes; // FIXME: this is not currently used
+    dev->deseg.raw_line_bytes = session.output_channel_bytes; // FIXME: this is not currently used
+    dev->deseg.raw_channel_bytes = session.output_channel_bytes; // FIXME: this is not currently used
 
   DBG(DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
   DBG(DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
-  DBG(DBG_io2, "%s: dev->bpl   =%lu\n", __func__, (unsigned long) dev->bpl);
-  DBG(DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long)dev->len);
-  DBG(DBG_io2, "%s: dev->dist  =%lu\n", __func__, (unsigned long)dev->dist);
+  DBG(DBG_io2, "%s: dev->bpl   =%lu\n", __func__, (unsigned long) dev->deseg.raw_channel_bytes);
+  DBG(DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long) dev->deseg.pixel_groups);
+  DBG(DBG_io2, "%s: dev->dist  =%lu\n", __func__, (unsigned long) dev->deseg.conseq_pixel_dist_bytes);
 
   /* MAXWD is expressed in 2 words unit */
   /* nousedspace = (mem_bank_range * 1024 / 256 -1 ) * 4; */
@@ -1588,9 +1588,9 @@ static void gl843_detect_document_end(Genesys_Device* dev)
 
       DBG(DBG_io, "%s: adding %d line to flush\n", __func__, lines);
 
-      /* number of bytes to read from scanner to get document out of it after
-       * end of document dectected by hardware sensor */
-      bytes_to_flush = lines * dev->wpl;
+        // number of bytes to read from scanner to get document out of it after
+        // end of document dectected by hardware sensor */
+        bytes_to_flush = lines * dev->deseg.raw_line_bytes;
 
       /* if we are already close to end of scan, flushing isn't needed */
       if (bytes_to_flush < read_bytes_left)

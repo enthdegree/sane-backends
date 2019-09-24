@@ -3424,18 +3424,17 @@ static void genesys_fill_line_interp_buffer(Genesys_Device* dev, uint8_t* work_b
         // dev->line_interp holds the number of lines scanned for one line of data sent
         if (((dev->line_count / dev->session.params.channels) % dev->line_interp) == 0) {
 	      /* copy pixel when line matches */
-              work_buffer_dst[count] = dev->oe_buffer.get_read_pos()[dev->cur];
+              work_buffer_dst[count] = dev->oe_buffer.get_read_pos()[dev->deseg.curr_byte];
               count++;
             }
 
-          /* always update pointer so we skip uncopied data */
-          dev->cur++;
+        // always update pointer so we skip uncopied data
+        dev->deseg.curr_byte++;
 
 	  /* go to next line if needed */
-	  if (dev->cur == dev->len)
-	    {
-              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->bpl);
-	      dev->cur = 0;
+        if (dev->deseg.curr_byte == dev->deseg.pixel_groups) {
+              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->deseg.raw_channel_bytes);
+            dev->deseg.curr_byte = 0;
               dev->line_count++;
 	    }
 
@@ -3458,7 +3457,7 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
 {
     DBG_HELPER(dbg);
   size_t count;
-  int depth,i,n,k;
+    int depth, i, k;
 
   depth = dev->settings.depth;
   if (dev->settings.scan_mode == ScanColorMode::LINEART && dev->settings.dynamic_lineart==SANE_FALSE)
@@ -3476,53 +3475,52 @@ static void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buf
       while (count < size)
 	{
             if (depth==1) {
-                while (dev->cur < dev->len && count < size) {
-                    for (n=0; n<dev->segnb; n++) {
+                while (dev->deseg.curr_byte < dev->deseg.pixel_groups && count < size) {
+                    for (unsigned n = 0; n < dev->deseg.segment_count; n++) {
                         work_buffer_dst[count+n] = 0;
                     }
                     /* interleaving is at bit level */
                     for (i=0;i<8;i++) {
-                        k=count+(i*dev->segnb)/8;
-                        for (n=0;n<dev->segnb;n++) {
+                        k = count + (i * dev->deseg.segment_count) / 8;
+                        for (unsigned n = 0; n < dev->deseg.segment_count; n++) {
                             work_buffer_dst[k] = work_buffer_dst[k] << 1;
-                            if ((dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->segment_order[n]])&(128>>i)) {
+                            if ((dev->oe_buffer.get_read_pos()[dev->deseg.curr_byte + dev->deseg.skip_bytes + dev->deseg.conseq_pixel_dist_bytes * dev->segment_order[n]])&(128>>i)) {
                                 work_buffer_dst[k] |= 1;
                             }
                         }
                     }
 
                     /* update counter and pointer */
-                    count += dev->segnb;
-                    dev->cur++;
+                    count += dev->deseg.segment_count;
+                    dev->deseg.curr_byte++;
                 }
             }
             if (depth==8) {
-                 while (dev->cur < dev->len && count < size) {
-                    for (n=0;n<dev->segnb;n++) {
-                        work_buffer_dst[count+n] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->segment_order[n]];
+                 while (dev->deseg.curr_byte < dev->deseg.pixel_groups && count < size) {
+                    for (unsigned n = 0; n < dev->deseg.segment_count; n++) {
+                        work_buffer_dst[count+n] = dev->oe_buffer.get_read_pos()[dev->deseg.curr_byte + dev->deseg.skip_bytes + dev->deseg.conseq_pixel_dist_bytes *dev->segment_order[n]];
                     }
                     /* update counter and pointer */
-                    count += dev->segnb;
-                    dev->cur++;
+                    count += dev->deseg.segment_count;
+                    dev->deseg.curr_byte++;
                 }
             }
             if (depth==16) {
-                while (dev->cur < dev->len && count < size) {
-                    for (n=0;n<dev->segnb;n++) {
-                        work_buffer_dst[count+n*2] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->segment_order[n]];
-                        work_buffer_dst[count+n*2+1] = dev->oe_buffer.get_read_pos()[dev->cur + dev->skip + dev->dist*dev->segment_order[n] + 1];
+                while (dev->deseg.curr_byte < dev->deseg.pixel_groups && count < size) {
+                    for (unsigned n = 0; n < dev->deseg.segment_count; n++) {
+                        work_buffer_dst[count+n*2] = dev->oe_buffer.get_read_pos()[dev->deseg.curr_byte + dev->deseg.skip_bytes + dev->deseg.conseq_pixel_dist_bytes * dev->segment_order[n]];
+                        work_buffer_dst[count+n*2+1] = dev->oe_buffer.get_read_pos()[dev->deseg.curr_byte + dev->deseg.skip_bytes + dev->deseg.conseq_pixel_dist_bytes * dev->segment_order[n] + 1];
                     }
                     /* update counter and pointer */
-                    count += dev->segnb*2;
-                    dev->cur+=2;
+                    count += dev->deseg.segment_count * 2;
+                    dev->deseg.curr_byte += 2;
                 }
             }
 
 	  /* go to next line if needed */
-	  if (dev->cur == dev->len)
-	    {
-              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->bpl);
-	      dev->cur = 0;
+        if (dev->deseg.curr_byte == dev->deseg.pixel_groups) {
+              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->deseg.raw_channel_bytes);
+            dev->deseg.curr_byte = 0;
 	    }
 
 	  /* read a new buffer if needed */
@@ -3593,8 +3591,7 @@ static void genesys_fill_read_buffer(Genesys_Device* dev)
         // line interpolation
         genesys_fill_line_interp_buffer(dev, work_buffer_dst, size);
     }
-  else if (dev->segnb>1)
-    {
+    else if (dev->deseg.segment_count > 1) {
         // multi-segment sensors processing
         genesys_fill_segmented_buffer(dev, work_buffer_dst, size);
     }
@@ -5530,7 +5527,7 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->force_calibration = 0;
   s->dev->line_interp = 0;
   s->dev->line_count = 0;
-  s->dev->segnb = 0;
+    s->dev->deseg.segment_count = 0;
   s->dev->binary=NULL;
 
   *handle = s;

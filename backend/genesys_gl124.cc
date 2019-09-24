@@ -828,8 +828,8 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d, start=%d\n",
                     exposure_time, start);
-  unsigned int words_per_line, segcnt;
-    unsigned int startx, endx, segnb;
+    unsigned int segcnt;
+    unsigned int startx, endx;
   unsigned int dpihw, factor;
   GenesysRegister *r;
   uint32_t expmax;
@@ -978,48 +978,46 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* segment number */
   r = sanei_genesys_get_address (reg, 0x98);
-  segnb = r->value & 0x0f;
+    unsigned segment_count = r->value & 0x0f;
 
-    reg->set24(REG_STRPIXEL, startx / segnb);
-  DBG (DBG_io2, "%s: strpixel used=%d\n", __func__, startx/segnb);
+    reg->set24(REG_STRPIXEL, startx / segment_count);
+  DBG (DBG_io2, "%s: strpixel used=%d\n", __func__, startx / segment_count);
     segcnt = reg->get24(REG_SEGCNT);
-  if(endx/segnb==segcnt)
-    {
+    if(endx / segment_count == segcnt) {
       endx=0;
     }
-    reg->set24(REG_ENDPIXEL, endx / segnb);
-  DBG (DBG_io2, "%s: endpixel used=%d\n", __func__, endx/segnb);
+    reg->set24(REG_ENDPIXEL, endx / segment_count);
+  DBG (DBG_io2, "%s: endpixel used=%d\n", __func__, endx / segment_count);
 
     // words(16bit) before gamma, conversion to 8 bit or lineart
-    words_per_line = multiply_by_depth_ceil(session.output_pixels / session.ccd_size_divisor,
-                                            session.params.depth);
+    dev->deseg.raw_channel_bytes =
+            multiply_by_depth_ceil(session.output_pixels / session.ccd_size_divisor,
+                                   session.params.depth);
 
-  dev->bpl = words_per_line;
-  dev->cur = 0;
-  dev->skip = 0;
-  dev->len = dev->bpl/segnb;
-  dev->dist = dev->bpl/segnb;
-  dev->segnb = segnb;
+    dev->deseg.curr_byte = 0;
+    dev->deseg.skip_bytes = 0;
+    dev->deseg.pixel_groups = dev->deseg.raw_channel_bytes / segment_count;
+    dev->deseg.conseq_pixel_dist_bytes = dev->deseg.raw_channel_bytes / segment_count;
+    dev->deseg.segment_count = segment_count;
   dev->line_count = 0;
   dev->line_interp = 0;
 
   DBG (DBG_io2, "%s: pixels          =%d\n", __func__, session.optical_pixels);
   DBG (DBG_io2, "%s: depth           =%d\n", __func__, session.params.depth);
-  DBG (DBG_io2, "%s: dev->bpl        =%lu\n", __func__, (unsigned long)dev->bpl);
-  DBG (DBG_io2, "%s: dev->len        =%lu\n", __func__, (unsigned long)dev->len);
-  DBG (DBG_io2, "%s: dev->dist       =%lu\n", __func__, (unsigned long)dev->dist);
+  DBG (DBG_io2, "%s: dev->bpl        =%lu\n", __func__, (unsigned long) dev->deseg.raw_channel_bytes);
+  DBG (DBG_io2, "%s: dev->len        =%lu\n", __func__, (unsigned long) dev->deseg.pixel_groups);
+  DBG (DBG_io2, "%s: dev->dist       =%lu\n", __func__, (unsigned long) dev->deseg.conseq_pixel_dist_bytes);
   DBG (DBG_io2, "%s: dev->line_interp=%lu\n", __func__, (unsigned long)dev->line_interp);
 
-  words_per_line *= session.params.channels;
-  dev->wpl = words_per_line;
+    dev->deseg.raw_line_bytes = dev->deseg.raw_channel_bytes * session.params.channels;
 
   /* allocate buffer for odd/even pixels handling */
     dev->oe_buffer.clear();
-    dev->oe_buffer.alloc(dev->wpl);
+    dev->oe_buffer.alloc(dev->deseg.raw_line_bytes);
 
-  /* MAXWD is expressed in 2 words unit */
-    reg->set24(REG_MAXWD, words_per_line);
-  DBG (DBG_io2, "%s: words_per_line used=%d\n", __func__, words_per_line);
+    // MAXWD is expressed in 2 words unit
+    reg->set24(REG_MAXWD, dev->deseg.raw_line_bytes);
+  DBG (DBG_io2, "%s: words_per_line used=%d\n", __func__, dev->deseg.raw_line_bytes);
 
     reg->set24(REG_LPERIOD, exposure_time);
   DBG (DBG_io2, "%s: exposure_time used=%d\n", __func__, exposure_time);
@@ -1211,7 +1209,7 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
 
     const SensorProfile& sensor_profile = get_sensor_profile(sensor, dpihw,
                                                              session.ccd_size_divisor);
-    dev->segnb = sensor_profile.custom_regs.get_value(0x98) & 0x0f;
+    dev->deseg.segment_count = sensor_profile.custom_regs.get_value(0x98) & 0x0f;
 
     dev->session = session;
     dev->current_setup.pixels = session.output_pixels;
@@ -1944,7 +1942,9 @@ static void gl124_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
         channels = dev->session.params.channels;
       if(dev->binary!=NULL)
         {
-          fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels*dev->segnb,lines/channels,255);
+            std::fprintf(dev->binary,"P5\n%d %d\n%d\n",
+                         (endpixel - strpixel) / factor * channels * dev->deseg.segment_count,
+                         lines / channels, 255);
         }
     }
 
@@ -1955,7 +1955,7 @@ static void gl124_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
   pixels=endpixel-strpixel;
 
   DBG( DBG_io2, "%s: using chunks of %d bytes (%d shading data pixels)\n",__func__,length, length/4);
-  std::vector<uint8_t> buffer(pixels * dev->segnb, 0);
+  std::vector<uint8_t> buffer(pixels * dev->deseg.segment_count, 0);
 
   /* write actual red data */
   for(i=0;i<3;i++)
@@ -1971,8 +1971,7 @@ static void gl124_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
           src=data+x+strpixel+i*length;
 
           /* iterate over all the segments */
-          switch(dev->segnb)
-            {
+            switch (dev->deseg.segment_count) {
             case 1:
               ptr[0+pixels*0]=src[0+segcnt*0];
               ptr[1+pixels*0]=src[1+segcnt*0];
@@ -2014,7 +2013,7 @@ static void gl124_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
         }
         uint8_t val = dev->read_register(0xd0+i);
       addr = val * 8192 + 0x10000000;
-        sanei_genesys_write_ahb(dev, addr, pixels*dev->segnb, buffer.data());
+        sanei_genesys_write_ahb(dev, addr, pixels * dev->deseg.segment_count, buffer.data());
     }
 }
 

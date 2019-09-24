@@ -1638,7 +1638,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 200;
     profile.exposure_lperiod = 2848;
     profile.exposure = { 410, 275, 203 };
-    profile.segment_count = 5136;
+    profile.segment_size = 5136;
     profile.segment_order = {};
     profile.custom_regs = {
         { 0x17, 0x0a },
@@ -1653,7 +1653,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 300;
     profile.exposure_lperiod = 1424;
     profile.exposure = { 410, 275, 203 };
-    profile.segment_count = 5136;
+    profile.segment_size = 5136;
     profile.segment_order = {};
     profile.custom_regs = {
         { 0x17, 0x0a },
@@ -1668,7 +1668,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 600;
     profile.exposure_lperiod = 1432;
     profile.exposure = { 410, 275, 203 };
-    profile.segment_count = 5136;
+    profile.segment_size = 5136;
     profile.segment_order = {};
     profile.custom_regs = {
         { 0x17, 0x0a },
@@ -1683,7 +1683,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 1200;
     profile.exposure_lperiod = 2712;
     profile.exposure = { 746, 478, 353 };
-    profile.segment_count = 5136;
+    profile.segment_size = 5136;
     profile.segment_order = {0, 1};
     profile.custom_regs = {
         { 0x17, 0x08 },
@@ -1698,7 +1698,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 2400;
     profile.exposure_lperiod = 5280;
     profile.exposure = { 1417, 909, 643 };
-    profile.segment_count = 5136;
+    profile.segment_size = 5136;
     profile.segment_order = {0, 2, 1, 3};
     profile.custom_regs = {
         { 0x17, 0x06 },
@@ -1713,7 +1713,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 4800;
     profile.exposure_lperiod = 10416;
     profile.exposure = { 2692, 1728, 1221 };
-    profile.segment_count = 5136;
+    profile.segment_size = 5136;
     profile.segment_order = {0, 2, 4, 6, 1, 3, 5, 7};
     profile.custom_regs = {
         { 0x17, 0x04 },
@@ -1776,7 +1776,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 150;
     profile.exposure_lperiod = 2848;
     profile.exposure = { 465, 310, 239 };
-    profile.segment_count = 5187;
+    profile.segment_size = 5187;
     profile.segment_order = {};
     profile.custom_regs = {
         { 0x17, 0x0c },
@@ -1791,7 +1791,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 300;
     profile.exposure_lperiod = 1424;
     profile.exposure = { 465, 310, 239 };
-    profile.segment_count = 5187;
+    profile.segment_size = 5187;
     profile.segment_order = {};
     profile.custom_regs = {
         { 0x17, 0x0c },
@@ -1806,7 +1806,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 600;
     profile.exposure_lperiod = 1504;
     profile.exposure = { 465, 310, 239 };
-    profile.segment_count = 5187;
+    profile.segment_size = 5187;
     profile.segment_order = {};
     profile.custom_regs = {
         { 0x17, 0x0c },
@@ -1821,7 +1821,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 1200;
     profile.exposure_lperiod = 2696;
     profile.exposure = { 1464, 844, 555 };
-    profile.segment_count = 5187;
+    profile.segment_size = 5187;
     profile.segment_order = {0, 1};
     profile.custom_regs = {
         { 0x17, 0x0a },
@@ -1836,7 +1836,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 2400;
     profile.exposure_lperiod = 10576;
     profile.exposure = { 2798, 1558, 972 };
-    profile.segment_count = 5187;
+    profile.segment_size = 5187;
     profile.segment_order = {0, 1, 2, 3};
     profile.custom_regs = {
         { 0x17, 0x08 },
@@ -1851,7 +1851,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 4800;
     profile.exposure_lperiod = 10576;
     profile.exposure = { 2798, 1558, 972 };
-    profile.segment_count = 5187;
+    profile.segment_size = 5187;
     profile.segment_order = {0, 1, 4, 5, 2, 3, 6, 7};
     profile.custom_regs = {
         { 0x17, 0x06 },
@@ -1912,7 +1912,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 200;
     profile.exposure_lperiod = 2848;
     profile.exposure = { 410, 275, 203 };
-    profile.segment_count = 5136;
+    profile.segment_size = 5136;
     profile.segment_order = {};
     profile.custom_regs = {
         { 0x17, 0x0a },
@@ -1928,7 +1928,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 300;
     profile.exposure_lperiod = 1424;
     profile.exposure = { 410, 275, 203 };
-    profile.segment_count = 5136;
+    profile.segment_size = 5136;
     profile.segment_order = {};
     profile.custom_regs = {
         { 0x17, 0x0a },
@@ -1943,7 +1943,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 600;
     profile.exposure_lperiod = 1432;
     profile.exposure = { 410, 275, 203 };
-    profile.segment_count = 5136;
+    profile.segment_size = 5136;
     profile.segment_order = {};
     profile.custom_regs = {
         { 0x17, 0x0a },
@@ -1958,7 +1958,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 1200;
     profile.exposure_lperiod = 2712;
     profile.exposure = { 746, 478, 353 };
-    profile.segment_count = 5136;
+    profile.segment_size = 5136;
     profile.segment_order = {0, 1};
     profile.custom_regs = {
         { 0x17, 0x08 },
@@ -1973,7 +1973,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 2400;
     profile.exposure_lperiod = 5280;
     profile.exposure = { 1417, 909, 643 };
-    profile.segment_count = 5136;
+    profile.segment_size = 5136;
     profile.segment_order = {0, 2, 1, 3};
     profile.custom_regs = {
         { 0x17, 0x06 },
@@ -3354,7 +3354,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 1200;
     profile.exposure_lperiod = 11000;
     profile.exposure = { 0, 0, 0 };
-    profile.segment_count = 5136;
+    profile.segment_size = 5136;
     profile.segment_order = {0, 1};
     profile.custom_regs = {
         { 0x17, 0x13 },
@@ -3416,7 +3416,7 @@ void genesys_init_sensor_tables()
     profile.dpi = 1200;
     profile.exposure_lperiod = 11000;
     profile.exposure = { 0, 0, 0 };
-    profile.segment_count = 5136;
+    profile.segment_size = 5136;
     profile.segment_order = {0, 1};
     profile.custom_regs = {
         { 0x17, 0x13 },

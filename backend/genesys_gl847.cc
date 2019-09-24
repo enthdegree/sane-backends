@@ -142,42 +142,6 @@ gl847_get_step_multiplier (Genesys_Register_Set * regs)
   return value;
 }
 
-/** @brief sensor profile
- * search for the database of motor profiles and get the best one. Each
- * profile is at a specific dpihw. Use LiDE 110 table by default.
- * @param sensor_type sensor id
- * @param dpi hardware dpi for the scan
- * @return a pointer to a Sensor_Profile struct
- */
-static const SensorProfile& get_sensor_profile(const Genesys_Sensor& sensor, unsigned dpi)
-{
-    int best_i = -1;
-    for (unsigned i = 0; i < sensor.sensor_profiles.size(); ++i) {
-        // exact match
-        if (sensor.sensor_profiles[i].dpi == dpi) {
-            return sensor.sensor_profiles[i];
-        }
-        // closest match
-        if (best_i < 0) {
-            best_i = i;
-        } else {
-            if (sensor.sensor_profiles[i].dpi >= dpi &&
-                sensor.sensor_profiles[i].dpi < sensor.sensor_profiles[best_i].dpi)
-            {
-                best_i = i;
-            }
-        }
-    }
-
-    // default fallback
-    if (best_i < 0) {
-        DBG(DBG_warn,"%s: using default sensor profile\n",__func__);
-        return *s_fallback_sensor_profile_gl847;
-    }
-
-    return sensor.sensor_profiles[best_i];
-}
-
 /** @brief sensor specific settings
 */
 static void gl847_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& sensor,
@@ -734,9 +698,9 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
  */
 static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
-                                         const ScanSession& session, unsigned int start)
+                                         const ScanSession& session)
 {
-    DBG_HELPER_ARGS(dbg, "exposure_time=%d, start=%d", exposure_time, start);
+    DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
     unsigned dpiset, dpihw;
   GenesysRegister *r;
 
@@ -750,9 +714,14 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
     // sensor parameters
-    const auto& sensor_profile = get_sensor_profile(sensor, dpihw);
+    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw, 1);
     gl847_setup_sensor(dev, sensor, sensor_profile, reg);
     dpiset = session.params.xres * ccd_pixels_per_system_pixel;
+
+    unsigned start = session.params.startx;
+    if (session.num_staggered_lines > 0) {
+        start |= 1;
+    }
 
     // start and end coordinate in optical dpi coordinates
     unsigned startx = start / ccd_pixels_per_system_pixel + sensor.CCD_start_xoffset;
@@ -922,6 +891,12 @@ static void gl847_compute_session(Genesys_Device* dev, ScanSession& s,
                                   const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
+
+    // in case of dynamic lineart, we use an internal 8 bit gray scan to generate 1 lineart data
+    if (s.params.flags & SCAN_FLAG_DYNAMIC_LINEART) {
+        s.params.depth = 8;
+    }
+
     compute_session(dev, s, sensor);
 
     s.computed = true;
@@ -933,12 +908,11 @@ static void gl847_compute_session(Genesys_Device* dev, ScanSession& s,
 // set up registers for an actual scan this function sets up the scanner to scan in normal or single
 // line mode
 static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                 Genesys_Register_Set* reg, ScanSession& session)
+                                 Genesys_Register_Set* reg, const ScanSession& session)
 {
     DBG_HELPER(dbg);
     session.assert_computed();
 
-    int start;
   int move;
   unsigned int mflags; /**> motor flags */
   int exposure_time;
@@ -946,17 +920,6 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int slope_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
-
-  /* compute scan parameters values */
-  /* pixels are allways given at full optical resolution */
-  /* use detected left margin and fixed value */
-  /* start */
-  /* add x coordinates */
-    start = session.params.startx;
-
-    if (session.num_staggered_lines > 0) {
-        start |= 1;
-    }
 
     dummy = 3 - session.params.channels;
 
@@ -971,24 +934,18 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-    exposure_time = get_sensor_profile(sensor, session.params.xres).exposure_lperiod;
+    exposure_time = get_sensor_profile(dev->model->asic_type, sensor,
+                                       session.params.xres, 1).exposure_lperiod;
   scan_step_type = sanei_genesys_compute_step_type(gl847_motor_profiles, dev->model->motor_type,
                                                    exposure_time);
 
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
   DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, scan_step_type);
 
-/*** optical parameters ***/
-  /* in case of dynamic lineart, we use an internal 8 bit gray scan
-   * to generate 1 lineart data */
-    if (session.params.flags & SCAN_FLAG_DYNAMIC_LINEART) {
-        session.params.depth = 8;
-    }
-
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
    */
-    gl847_init_optical_regs_scan(dev, sensor, reg, exposure_time, session, start);
+    gl847_init_optical_regs_scan(dev, sensor, reg, exposure_time, session);
 
     move = session.params.starty;
     DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
@@ -1096,7 +1053,8 @@ gl847_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-    exposure_time = get_sensor_profile(sensor, session.params.xres).exposure_lperiod;
+    exposure_time = get_sensor_profile(dev->model->asic_type, sensor,
+                                       session.params.xres, 1).exposure_lperiod;
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
     dev->session = session;
@@ -1836,7 +1794,7 @@ static SensorExposure gl847_led_calibration(Genesys_Device* dev, const Genesys_S
   channels = 3;
   depth=16;
     used_res = sensor.get_register_hwdpi(dev->settings.xres);
-    const auto& sensor_profile = get_sensor_profile(sensor, used_res);
+    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, used_res, 1);
   num_pixels = (sensor.sensor_pixels*used_res)/sensor.optical_res;
 
   /* initial calibration reg values */

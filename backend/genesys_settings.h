@@ -255,6 +255,9 @@ struct ScanSession {
     // different color channels
     unsigned max_color_shift_lines = 0;
 
+    // the number of scanner segments used in the current scan
+    unsigned segment_count = 1;
+
     // the physical pixel positions that are sent to the registers
     // gl843-only
     unsigned pixel_startx = 0;

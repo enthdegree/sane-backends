@@ -1204,6 +1204,35 @@ void compute_session_buffer_sizes(AsicType asic, ScanSession& s)
     }
 }
 
+void compute_session_pipeline(const Genesys_Device* dev, ScanSession& s)
+{
+    auto channels = s.params.channels;
+    auto depth = s.params.depth;
+
+    s.pipeline_needs_reorder = true;
+    if (channels != 3 && depth != 16) {
+        s.pipeline_needs_reorder = false;
+    }
+#ifndef WORDS_BIGENDIAN
+    if (channels != 3 && depth == 16) {
+        s.pipeline_needs_reorder = false;
+    }
+    if (channels == 3 && depth == 16 && !dev->model->is_cis &&
+        dev->model->line_mode_color_order == ColorOrder::RGB)
+    {
+        s.pipeline_needs_reorder = false;
+    }
+#endif
+    if (channels == 3 && depth == 8 && !dev->model->is_cis &&
+        dev->model->line_mode_color_order == ColorOrder::RGB)
+    {
+        s.pipeline_needs_reorder = false;
+    }
+    s.pipeline_needs_ccd = s.max_color_shift_lines + s.num_staggered_lines > 0;
+    s.pipeline_needs_shrink = dev->settings.requested_pixels != s.output_pixels;
+    s.pipeline_needs_reverse = depth == 1;
+}
+
 void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
@@ -1385,6 +1414,34 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     }
 
     compute_session_buffer_sizes(dev->model->asic_type, s);
+    compute_session_pipeline(dev, s);
+}
+
+static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& session)
+{
+    switch (asic) {
+        case AsicType::GL646:
+            // buffer not used on this chip set
+            return 1;
+
+        case AsicType::GL124:
+        case AsicType::GL846:
+        case AsicType::GL847:
+            // BUG: we shouldn't multiply by channels here
+            return session.output_line_bytes_raw * session.params.channels;
+
+        case AsicType::GL843:
+            return session.output_line_bytes_raw * 2;
+
+        default:
+            throw SaneException("Unknown asic type");
+    }
+}
+
+void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
+{
+    dev->oe_buffer.clear();
+    dev->oe_buffer.alloc(get_usb_buffer_read_size(dev->model->asic_type, session));
 }
 
 std::uint8_t compute_frontend_gain_wolfson(float value, float target_value)
@@ -2138,6 +2195,11 @@ void debug_dump(unsigned level, const ScanSession& session)
     DBG(level, "    buffer_size_read : %zu\n", session.buffer_size_lines);
     DBG(level, "    buffer_size_shrink : %zu\n", session.buffer_size_shrink);
     DBG(level, "    buffer_size_out : %zu\n", session.buffer_size_out);
+    DBG(level, "    filters:%s%s%s%s\n",
+        session.pipeline_needs_reorder ? " reorder" : "",
+        session.pipeline_needs_ccd ? " ccd" : "",
+        session.pipeline_needs_shrink ? " shrink" : "",
+        session.pipeline_needs_reverse ? " reverse" : "");
     debug_dump(level, session.params);
 }
 

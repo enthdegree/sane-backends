@@ -638,6 +638,8 @@ extern void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
 
 void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor);
 
+void build_image_pipeline(Genesys_Device* dev, const ScanSession& session);
+
 void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buffer_dst, size_t size);
 
 std::uint8_t compute_frontend_gain(float value, float target_value,

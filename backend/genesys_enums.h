@@ -110,12 +110,6 @@ inline void serialize(std::ostream& str, ColorFilter& x)
     serialize(str, value);
 }
 
-enum Genesys_Color_Order
-{
-    COLOR_ORDER_RGB,
-    COLOR_ORDER_BGR
-};
-
 enum class ColorOrder
 {
     RGB,

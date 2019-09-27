@@ -751,6 +751,7 @@ static void gl843_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
     {
       DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
       dev->frontend = dev->frontend_initial;
+        dev->frontend_is_init = true;
     }
 
     // check analog frontend type
@@ -767,9 +768,8 @@ static void gl843_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
 
   for (i = 1; i <= 3; i++)
     {
-        // FIXME: BUG: we should initialize dev->frontend before first use. Right now it's
-        // initialized during genesys_coarse_calibration()
-        if (dev->frontend.regs.empty()) {
+        // FIXME: the check below is just historical artifact, we can remove it when convenient
+        if (!dev->frontend_is_init) {
             sanei_genesys_fe_write_data(dev, i, 0x00);
         } else {
             sanei_genesys_fe_write_data(dev, i, dev->frontend.regs.get_value(0x00 + i));
@@ -781,8 +781,8 @@ static void gl843_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
 
   for (i = 0; i < 3; i++)
     {
-        // FIXME: BUG: see above
-        if (dev->frontend.regs.empty()) {
+         // FIXME: the check below is just historical artifact, we can remove it when convenient
+        if (!dev->frontend_is_init) {
             sanei_genesys_fe_write_data(dev, 0x20 + i, 0x00);
         } else {
             sanei_genesys_fe_write_data(dev, 0x20 + i, dev->frontend.get_offset(i));
@@ -793,8 +793,8 @@ static void gl843_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
     {
       for (i = 0; i < 3; i++)
 	{
-            // FIXME: BUG: see above
-            if (dev->frontend.regs.empty()) {
+            // FIXME: the check below is just historical artifact, we can remove it when convenient
+            if (!dev->frontend_is_init) {
                 sanei_genesys_fe_write_data(dev, 0x24 + i, 0x00);
             } else {
                 sanei_genesys_fe_write_data(dev, 0x24 + i, dev->frontend.regs.get_value(0x24 + i));
@@ -804,8 +804,8 @@ static void gl843_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
 
   for (i = 0; i < 3; i++)
     {
-        // FIXME: BUG: see above
-        if (dev->frontend.regs.empty()) {
+        // FIXME: the check below is just historical artifact, we can remove it when convenient
+        if (!dev->frontend_is_init) {
             sanei_genesys_fe_write_data(dev, 0x28 + i, 0x00);
         } else {
             sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
@@ -1301,8 +1301,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->out_buffer.clear();
     dev->out_buffer.alloc(session.buffer_size_out);
 
-    dev->oe_buffer.clear();
-    dev->oe_buffer.alloc(session.output_line_bytes_raw * 2);
+    build_image_pipeline(dev, session);
 
   dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
 

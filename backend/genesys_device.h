@@ -152,7 +152,7 @@ struct Genesys_Model
     SANE_Int ld_shift_b = 0;
 
     // Order of the CCD/CIS colors
-    Genesys_Color_Order line_mode_color_order = COLOR_ORDER_RGB;
+    ColorOrder line_mode_color_order = ColorOrder::RGB;
 
     // Is this a CIS or CCD scanner?
     SANE_Bool is_cis = false;
@@ -238,6 +238,11 @@ struct Genesys_Device
     Genesys_Register_Set calib_reg;
     Genesys_Settings settings;
     Genesys_Frontend frontend, frontend_initial;
+
+    // whether the frontend is initialized. This is currently used just to preserve historical
+    // behavior
+    bool frontend_is_init = false;
+
     Genesys_Gpo gpo;
     Genesys_Motor motor;
     uint8_t  control[6] = {};
@@ -314,8 +319,7 @@ struct Genesys_Device
     SANE_Int ld_shift_g = 0;
     // used blue line-distance shift
     SANE_Int ld_shift_b = 0;
-    // number of lines used in line interpolation
-    int line_interp = 0;
+
     // number of scan lines used during scan
     int line_count = 0;
 

@@ -281,6 +281,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
     for (const auto& frontend : *s_frontends) {
         if (dev->model->dac_type == frontend.fe_id) {
             dev->frontend_initial = frontend;
+            dev->frontend = frontend;
             fe_ok = true;
             break;
         }
@@ -3410,53 +3411,6 @@ static void accurate_line_read(Genesys_Device* dev, Genesys_Buffer& buffer)
     buffer.produce(buffer.size());
 }
 
-/** @brief fill buffer while reducing vertical resolution
- * This function fills a read buffer with scanned data from a sensor
- * which puts odd and even pixels in 2 different data segment. So a complete
- * must be read and bytes interleaved to get usable by the other stages
- * of the backend
- */
-static void genesys_fill_line_interp_buffer(Genesys_Device* dev, uint8_t* work_buffer_dst,
-                                            size_t size)
-{
-    DBG_HELPER(dbg);
-  size_t count;
-      /* fill buffer if needed */
-      if (dev->oe_buffer.avail() == 0)
-	{
-        accurate_line_read(dev, dev->oe_buffer);
-	}
-
-      /* copy size bytes of data, copying from a line when line count matches */
-      count = 0;
-      while (count < size)
-	{
-          /* line counter */
-        // dev->line_interp holds the number of lines scanned for one line of data sent
-        if (((dev->line_count / dev->session.params.channels) % dev->line_interp) == 0) {
-	      /* copy pixel when line matches */
-              work_buffer_dst[count] = dev->oe_buffer.get_read_pos()[dev->deseg_curr_byte];
-              count++;
-            }
-
-        // always update pointer so we skip uncopied data
-        dev->deseg_curr_byte++;
-
-	  /* go to next line if needed */
-        if (dev->deseg_curr_byte == dev->session.output_segment_pixel_group_count) {
-              dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->session.output_line_bytes_raw);
-            dev->deseg_curr_byte = 0;
-              dev->line_count++;
-	    }
-
-	  /* read a new buffer if needed */
-          if (dev->oe_buffer.pos() >= dev->oe_buffer.avail())
-	    {
-            accurate_line_read(dev, dev->oe_buffer);
-	    }
-	}
-}
-
 /** @brief fill buffer for segmented sensors
  * This function fills a read buffer with scanned data from a sensor segmented
  * in several parts (multi-lines sensors). Data of the same valid area is read
@@ -3610,12 +3564,7 @@ static void genesys_fill_read_buffer(Genesys_Device* dev)
    *
    * This is also the place where full duplex data will be handled.
    */
-  if (dev->line_interp>0)
-    {
-        // line interpolation
-        genesys_fill_line_interp_buffer(dev, work_buffer_dst, size);
-    }
-    else if (dev->session.segment_count > 1) {
+    if (dev->session.segment_count > 1) {
         // multi-segment sensors processing
         genesys_fill_segmented_buffer(dev, work_buffer_dst, size);
     }
@@ -3648,10 +3597,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
   uint8_t *work_buffer_dst;
   unsigned int dst_lines;
   unsigned int step_1_mode;
-  unsigned int needs_reorder;
-  unsigned int needs_ccd;
-  unsigned int needs_shrink;
-  unsigned int needs_reverse;
   Genesys_Buffer *src_buffer;
   Genesys_Buffer *dst_buffer;
 
@@ -3669,30 +3614,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
     depth = dev->session.params.depth;
 
   src_pixels = dev->current_setup.pixels;
-
-  needs_reorder = 1;
-  if (channels != 3 && depth != 16)
-    needs_reorder = 0;
-#ifndef WORDS_BIGENDIAN
-  if (channels != 3 && depth == 16)
-    needs_reorder = 0;
-  if (channels == 3 && depth == 16 && !dev->model->is_cis &&
-      dev->model->line_mode_color_order == COLOR_ORDER_RGB)
-    needs_reorder = 0;
-#endif
-  if (channels == 3 && depth == 8 && !dev->model->is_cis &&
-      dev->model->line_mode_color_order == COLOR_ORDER_RGB)
-    needs_reorder = 0;
-
-  needs_ccd = dev->current_setup.max_shift > 0;
-  needs_shrink = dev->settings.requested_pixels != src_pixels;
-  needs_reverse = depth == 1;
-
-  DBG(DBG_info, "%s: using filters:%s%s%s%s\n", __func__,
-      needs_reorder ? " reorder" : "",
-      needs_ccd ? " ccd" : "",
-      needs_shrink ? " shrink" : "",
-      needs_reverse ? " reverse" : "");
 
   DBG(DBG_info, "%s: frontend requested %lu bytes\n", __func__, (u_long) * len);
 
@@ -3778,8 +3699,7 @@ Problems with the first approach:
   src_buffer = &(dev->read_buffer);
 
 /* maybe reorder components/bytes */
-  if (needs_reorder)
-    {
+    if (dev->session.pipeline_needs_reorder) {
         if (depth == 1) {
             throw SaneException("Can't reorder single bit data\n");
         }
@@ -3808,14 +3728,17 @@ Problems with the first approach:
 	    {
 	      step_1_mode = 0;
 
-	      if (depth == 16)
-		step_1_mode |= 1;
+                if (depth == 16) {
+                    step_1_mode |= 1;
+                }
 
-	      if (dev->model->is_cis)
-		step_1_mode |= 2;
+                if (dev->model->is_cis) {
+                    step_1_mode |= 2;
+                }
 
-	      if (dev->model->line_mode_color_order == COLOR_ORDER_BGR)
-		step_1_mode |= 4;
+                if (dev->model->line_mode_color_order == ColorOrder::BGR) {
+                    step_1_mode |= 4;
+                }
 
 	      switch (step_1_mode)
 		{
@@ -3870,8 +3793,8 @@ Problems with the first approach:
       src_buffer = dst_buffer;
     }
 
-/* maybe reverse effects of ccd layout */
-  if (needs_ccd)
+    // maybe reverse effects of ccd layout
+    if (dev->session.pipeline_needs_ccd)
     {
         // should not happen with depth == 1.
         if (depth == 1) {
@@ -3920,9 +3843,8 @@ Problems with the first approach:
       src_buffer = dst_buffer;
     }
 
-/* maybe shrink(or enlarge) lines */
-  if (needs_shrink)
-    {
+    // maybe shrink(or enlarge) lines
+    if (dev->session.pipeline_needs_shrink) {
 
       dst_buffer = &(dev->out_buffer);
 
@@ -3975,8 +3897,7 @@ Problems with the first approach:
     bytes = *len;
   work_buffer_src = src_buffer->get_read_pos();
 
-  if (needs_reverse)
-    {
+    if (dev->session.pipeline_needs_reverse) {
         genesys_reverse_bits(work_buffer_src, destination, bytes);
       *len = bytes;
     }
@@ -5549,7 +5470,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->parking = SANE_FALSE;
   s->dev->read_active = SANE_FALSE;
   s->dev->force_calibration = 0;
-  s->dev->line_interp = 0;
   s->dev->line_count = 0;
   s->dev->binary=NULL;
 

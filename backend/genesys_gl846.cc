@@ -808,7 +808,6 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
     dev->deseg_curr_byte = 0;
-  dev->line_interp = 0;
 
     unsigned dpiset = session.params.xres * ccd_pixels_per_system_pixel;
     reg->set16(REG_DPISET, dpiset);
@@ -822,9 +821,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG (DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
   DBG (DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
 
-    // BUG: we shouldn't multiply by channels here
-    dev->oe_buffer.clear();
-    dev->oe_buffer.alloc(session.output_line_bytes_raw * session.params.channels);
+    build_image_pipeline(dev, session);
 
   /* MAXWD is expressed in 4 words unit */
     // BUG: we shouldn't multiply by channels here

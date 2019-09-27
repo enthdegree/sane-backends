@@ -238,14 +238,18 @@ struct ScanSession {
     // gl843-only
     unsigned output_resolution = 0;
 
-    // the number of pixels in output data
+    // the number of pixels in output data (after desegmentation)
     unsigned output_pixels = 0;
 
-    // the number of bytes in the output of a channel of a single line
+    // the number of bytes in the output of a channel of a single line (after desegmentation)
     unsigned output_channel_bytes = 0;
 
-    // the number of bytes in the output of a single line
+    // the number of bytes in the output of a single line (after desegmentation)
     unsigned output_line_bytes = 0;
+
+    // the number of bytes per line in the output data from the scanner (before desegmentation)
+    // Equal to output_line_bytes if sensor does not have segments
+    unsigned output_line_bytes_raw = 0;
 
     // the number of lines in the output of the scanner. This must be larger than the user
     // requested number due to line staggering and color channel shifting.
@@ -271,6 +275,15 @@ struct ScanSession {
     // the number of segments can be large.
     // only on gl124, gl846, gl847
     unsigned conseq_pixel_dist_bytes = 0;
+
+    // The number of "even" pixels to scan. This corresponds to the number of pixels that will be
+    // scanned from a single segment
+    // only on gl124, gl846, gl847
+    unsigned output_segment_pixel_group_count = 0;
+
+    // The number of bytes to skip at start of line during desegmentation.
+    // Currently it's always zero.
+    unsigned output_segment_start_offset = 0;
 
     // the sizes of the corresponding buffers
     size_t buffer_size_read = 0;

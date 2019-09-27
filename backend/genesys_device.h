@@ -192,26 +192,6 @@ struct Genesys_Model
     }
 };
 
-// Describes the geometry of the raw data coming out of the scanner for desegmentation.
-struct DesegmentationState
-{
-    // The number of bytes to skip at start of line. Currently it's always zero.
-    unsigned skip_bytes = 0;
-
-    // The number of "even" pixels to scan. This corresponds to the number of pixels that will be
-    // scanned from a single segment
-    unsigned pixel_groups = 0;
-
-    // Total bytes in a channel received from a scanner
-    unsigned raw_channel_bytes = 0;
-
-    // Total bytes in a line received from a scanner
-    unsigned raw_line_bytes = 0;
-
-    // The current byte during desegmentation process
-    unsigned curr_byte = 0;
-};
-
 /**
  * Describes the current device status for the backend
  * session. This should be more accurately called
@@ -303,7 +283,7 @@ struct Genesys_Device
     Genesys_Buffer local_buffer;
 
     // bytes to read from desegmentation step. This is not the same as physical bytes read from
-    // scanners, see `deseg.raw_line_bytes` which corresponds to this information on certain
+    // scanners, see `session.output_line_bytes_raw` which corresponds to this information on certain
     // scanners.
     size_t read_bytes_left_after_deseg = 0;
 
@@ -312,7 +292,8 @@ struct Genesys_Device
     // total bytes read to be sent to frontend
     size_t total_bytes_to_read = 0;
 
-    DesegmentationState deseg;
+    // The current byte during desegmentation process
+    size_t deseg_curr_byte = 0;
 
     // contains the real used values
     Genesys_Current_Setup current_setup;

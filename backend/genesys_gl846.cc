@@ -684,7 +684,6 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          const ScanSession& session)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
-  unsigned int words_per_line;
     unsigned int dpihw;
   GenesysRegister *r;
 
@@ -713,9 +712,6 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // compute pixel coordinate in the given dpihw space, taking segments into account
     startx /= session.hwdpi_divisor * session.segment_count;
     endx /= session.hwdpi_divisor * session.segment_count;
-    dev->deseg.pixel_groups = session.optical_pixels /
-            (session.hwdpi_divisor * session.segment_count * ccd_pixels_per_system_pixel);
-    dev->deseg.skip_bytes = 0;
 
     gl846_set_fe(dev, sensor, AFE_SET);
 
@@ -811,12 +807,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         }*/
     }
 
-  /* words(16bit) before gamma, conversion to 8 bit or lineart*/
-  words_per_line = ((endx - startx) * session.params.xres) / sensor.get_register_hwdpi(session.params.xres * ccd_pixels_per_system_pixel);
-    dev->deseg.raw_channel_bytes = multiply_by_depth_ceil(words_per_line, session.params.depth);
-    dev->deseg.pixel_groups = multiply_by_depth_ceil(dev->deseg.pixel_groups, session.params.depth);
-
-    dev->deseg.curr_byte = 0;
+    dev->deseg_curr_byte = 0;
   dev->line_interp = 0;
 
     unsigned dpiset = session.params.xres * ccd_pixels_per_system_pixel;
@@ -830,18 +821,14 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   DBG (DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
   DBG (DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
-  DBG (DBG_io2, "%s: dev->bpl   =%lu\n", __func__, (unsigned long) dev->deseg.raw_channel_bytes);
-  DBG (DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long) dev->deseg.pixel_groups);
-  DBG (DBG_io2, "%s: dev->segnb =%lu\n", __func__, (unsigned long) dev->session.segment_count);
 
-    dev->deseg.raw_line_bytes = dev->deseg.raw_channel_bytes * session.params.channels;
-
+    // BUG: we shouldn't multiply by channels here
     dev->oe_buffer.clear();
-    dev->oe_buffer.alloc(dev->deseg.raw_line_bytes);
+    dev->oe_buffer.alloc(session.output_line_bytes_raw * session.params.channels);
 
   /* MAXWD is expressed in 4 words unit */
-    reg->set24(REG_MAXWD, (dev->deseg.raw_line_bytes >> 2));
-    DBG(DBG_io2, "%s: words_per_line used=%d\n", __func__, dev->deseg.raw_line_bytes);
+    // BUG: we shouldn't multiply by channels here
+    reg->set24(REG_MAXWD, (session.output_line_bytes_raw * session.params.channels >> 2));
 
     reg->set16(REG_LPERIOD, exposure_time);
   DBG (DBG_io2, "%s: exposure_time used=%d\n", __func__, exposure_time);

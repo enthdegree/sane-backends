@@ -1604,9 +1604,6 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->set16(REG_ENDPIXEL, end);
     DBG(DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d\n", __func__, start, end);
 
-    dev->deseg.raw_line_bytes = session.output_line_bytes;
-    dev->deseg.raw_channel_bytes = session.output_line_bytes;
-
     reg->set24(REG_MAXWD, session.output_line_bytes);
 
     reg->set16(REG_LPERIOD, exposure_time);
@@ -2441,7 +2438,7 @@ static void gl841_detect_document_end(Genesys_Device* dev)
 
       /* the current scancnt is also the final one, so we use it to
        * compute total bytes to read. We also add the line count to eject document */
-      total_bytes_to_read=(scancnt+postcnt) * dev->deseg.raw_line_bytes;
+      total_bytes_to_read=(scancnt+postcnt) * dev->session.output_line_bytes_raw;
 
       DBG(DBG_io, "%s: old total_bytes_to_read=%u\n", __func__,
           (unsigned int)dev->total_bytes_to_read);

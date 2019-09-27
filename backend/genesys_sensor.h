@@ -153,6 +153,11 @@ struct SensorExposure {
     uint16_t green = 0;
     uint16_t blue = 0;
 
+    SensorExposure() = default;
+    SensorExposure(std::uint16_t r, std::uint16_t g, std::uint16_t b) :
+        red{r}, green{g}, blue{b}
+    {}
+
     bool operator==(const SensorExposure& other) const
     {
         return red == other.red && green == other.green && blue == other.blue;

@@ -1156,6 +1156,16 @@ void compute_session_buffer_sizes(AsicType asic, ScanSession& s)
         size_t lines_mult = 0;
         size_t max_size = 0; // does not apply if 0
         size_t stagger_lines = 0;
+
+        BufferConfig() = default;
+        BufferConfig(std::size_t* rs, std::size_t l, std::size_t lm, std::size_t ms,
+                     std::size_t sl) :
+            result_size{rs},
+            lines{l},
+            lines_mult{lm},
+            max_size{ms},
+            stagger_lines{sl}
+        {}
     };
 
     std::array<BufferConfig, 4> configs;

@@ -1322,6 +1322,8 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     s.segment_count = 1;
     if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR || dev->model->asic_type == AsicType::GL124) {
         s.segment_count = sensor_profile->get_segment_count();
+    } else {
+        s.segment_count = sensor.get_segment_count();
     }
 
     s.optical_pixels_raw = s.optical_pixels;
@@ -1363,8 +1365,14 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
         s.conseq_pixel_dist_bytes = s.output_line_bytes_raw / s.segment_count;
     }
 
+    if (dev->model->asic_type == AsicType::GL843) {
+        s.conseq_pixel_dist_bytes = s.output_line_bytes_raw / s.segment_count;
+    }
+
     s.output_segment_pixel_group_count = 0;
-    if (dev->model->asic_type == AsicType::GL124) {
+    if (dev->model->asic_type == AsicType::GL124 ||
+        dev->model->asic_type == AsicType::GL843)
+    {
         s.output_segment_pixel_group_count = s.output_line_bytes_raw / s.segment_count;
     }
     if (dev->model->asic_type == AsicType::GL845 ||

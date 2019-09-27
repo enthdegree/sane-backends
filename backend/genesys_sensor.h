@@ -303,6 +303,15 @@ struct Genesys_Sensor {
 
     int exposure_lperiod = -1;
 
+    // the number of pixels in a single segment.
+    // only on gl843
+    unsigned segment_size = 0;
+
+    // the order of the segments, if any, for the sensor. If the sensor is not segmented or uses
+    // only single segment, this array can be empty
+    // only on gl843
+    std::vector<unsigned> segment_order;
+
     GenesysRegisterSettingSet custom_base_regs; // gl646-specific
     GenesysRegisterSettingSet custom_regs;
     GenesysRegisterSettingSet custom_fe_regs;
@@ -341,6 +350,13 @@ struct Genesys_Sensor {
         return std::find(channels.begin(), channels.end(), count) != channels.end();
     }
 
+    unsigned get_segment_count() const
+    {
+        if (segment_order.size() < 2)
+            return 1;
+        return segment_order.size();
+    }
+
     bool operator==(const Genesys_Sensor& other) const
     {
         return sensor_id == other.sensor_id &&
@@ -356,6 +372,8 @@ struct Genesys_Sensor {
             gain_white_ref == other.gain_white_ref &&
             exposure == other.exposure &&
             exposure_lperiod == other.exposure_lperiod &&
+            segment_size == other.segment_size &&
+            segment_order == other.segment_order &&
             custom_base_regs == other.custom_base_regs &&
             custom_regs == other.custom_regs &&
             custom_fe_regs == other.custom_fe_regs &&
@@ -383,6 +401,10 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.exposure.green);
     serialize(str, x.exposure.red);
     serialize(str, x.exposure_lperiod);
+    serialize_newline(str);
+    serialize(str, x.segment_size);
+    serialize_newline(str);
+    serialize(str, x.segment_order);
     serialize_newline(str);
     serialize(str, x.custom_base_regs);
     serialize_newline(str);

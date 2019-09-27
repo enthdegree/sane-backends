@@ -200,6 +200,8 @@ static void gl843_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor
     if (!(dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE)) {
         regs->set8(0x7d, 0x90);
     }
+
+    dev->segment_order = sensor.segment_order;
 }
 
 
@@ -1298,6 +1300,9 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
     dev->out_buffer.clear();
     dev->out_buffer.alloc(session.buffer_size_out);
+
+    dev->oe_buffer.clear();
+    dev->oe_buffer.alloc(session.output_line_bytes_raw * 2);
 
   dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
 

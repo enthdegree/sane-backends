@@ -206,19 +206,17 @@ private:
 class ImagePipelineNodeDesegment : public ImagePipelineNode
 {
 public:
-    // segment size is specified in bytes. TODO: switch to pixels
     ImagePipelineNodeDesegment(ImagePipelineNode& source,
                                std::size_t output_width,
                                const std::vector<unsigned>& segment_order,
-                               std::size_t segment_size,
+                               std::size_t segment_pixels,
                                std::size_t interleaved_lines,
                                std::size_t pixels_per_chunk);
 
-    // segment size is specified in bytes. TODO: switch to pixels
     ImagePipelineNodeDesegment(ImagePipelineNode& source,
                                std::size_t output_width,
                                std::size_t segment_count,
-                               std::size_t segment_size,
+                               std::size_t segment_pixels,
                                std::size_t interleaved_lines,
                                std::size_t pixels_per_chunk);
 
@@ -234,7 +232,7 @@ private:
     ImagePipelineNode& source_;
     std::size_t output_width_;
     std::vector<unsigned> segment_order_;
-    std::size_t segment_size_ = 0;
+    std::size_t segment_pixels_ = 0;
     std::size_t interleaved_lines_ = 0;
     std::size_t pixels_per_chunk_ = 0;
 

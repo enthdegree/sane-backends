@@ -78,7 +78,7 @@ struct RawPixel
     bool operator==(const RawPixel& other) const
     {
         return std::equal(std::begin(data), std::end(data),
-                          std::begin(other.data), std::end(other.data));
+                          std::begin(other.data));
     }
 };
 

@@ -31,6 +31,5 @@ int main()
     test_image();
     test_image_pipeline();
     test_row_buffer();
-    test_sensor();
     return finish_tests();
 }

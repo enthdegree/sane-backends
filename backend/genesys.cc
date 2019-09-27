@@ -3400,124 +3400,12 @@ static void genesys_start_scan(Genesys_Device* dev, SANE_Bool lamp_off)
 
 #include "genesys_conv.cc"
 
-static void accurate_line_read(Genesys_Device* dev, Genesys_Buffer& buffer)
-{
-    DBG_HELPER(dbg);
-    buffer.reset();
-
-    dev->cmd_set->bulk_read_data(dev, 0x45, buffer.get_write_pos(buffer.size()),
-                                        buffer.size());
-
-    buffer.produce(buffer.size());
-}
-
-/** @brief fill buffer for segmented sensors
- * This function fills a read buffer with scanned data from a sensor segmented
- * in several parts (multi-lines sensors). Data of the same valid area is read
- * back to back and must be interleaved to get usable by the other stages
- * of the backend
- */
-void genesys_fill_segmented_buffer(Genesys_Device* dev, uint8_t* work_buffer_dst, size_t size)
-{
-    DBG_HELPER(dbg);
-
-    unsigned depth = dev->settings.depth;
-    if (dev->settings.scan_mode == ScanColorMode::LINEART &&
-        dev->settings.dynamic_lineart == false)
-    {
-        depth = 1;
-    }
-
-    // fill buffer if needed
-    if (dev->oe_buffer.avail() == 0)
-	{
-        accurate_line_read(dev, dev->oe_buffer);
-	}
-
-    auto read_desegmented = [&](size_t curr_byte, size_t curr_segment) -> uint8_t
-    {
-        curr_byte += dev->session.output_segment_start_offset;
-        curr_byte += dev->session.conseq_pixel_dist_bytes * dev->segment_order[curr_segment];
-        return dev->oe_buffer.get_read_pos()[curr_byte];
-    };
-
-    // copy size bytes of data, copying from a subwindow of each line
-    // when last line of buffer is exhausted, read another one
-    size_t count = 0;
-    while (count < size) {
-        if (depth == 1) {
-            while (dev->deseg_curr_byte < dev->session.output_segment_pixel_group_count &&
-                   count < size)
-            {
-                for (unsigned n = 0; n < dev->session.segment_count; n++) {
-                    work_buffer_dst[count + n] = 0;
-                }
-                /* interleaving is at bit level */
-                for (unsigned i = 0; i < 8; i++) {
-                    unsigned k = count + (i * dev->session.segment_count) / 8;
-                    for (unsigned n = 0; n < dev->session.segment_count; n++) {
-                        work_buffer_dst[k] = work_buffer_dst[k] << 1;
-                        if (read_desegmented(dev->deseg_curr_byte, n) & (0x80 >> i)) {
-                            work_buffer_dst[k] |= 1;
-                        }
-                    }
-                }
-
-                /* update counter and pointer */
-                count += dev->session.segment_count;
-                dev->deseg_curr_byte++;
-            }
-        }
-
-        if (depth == 8) {
-            while (dev->deseg_curr_byte < dev->session.output_segment_pixel_group_count &&
-                   count < size)
-            {
-                for (unsigned n = 0; n < dev->session.segment_count; n++) {
-                    work_buffer_dst[count + n] = read_desegmented(dev->deseg_curr_byte, n);
-                }
-                /* update counter and pointer */
-                count += dev->session.segment_count;
-                dev->deseg_curr_byte++;
-            }
-        }
-
-        if (depth == 16) {
-            while (dev->deseg_curr_byte < dev->session.output_segment_pixel_group_count &&
-                   count < size) {
-                for (unsigned n = 0; n < dev->session.segment_count; n++) {
-                    work_buffer_dst[count + n * 2] =     read_desegmented(dev->deseg_curr_byte, n);
-                    work_buffer_dst[count + n * 2 + 1] = read_desegmented(dev->deseg_curr_byte + 1, n);
-                }
-                /* update counter and pointer */
-                count += dev->session.segment_count * 2;
-                dev->deseg_curr_byte += 2;
-            }
-        }
-
-        // go to next line if needed
-        if (dev->deseg_curr_byte == dev->session.output_segment_pixel_group_count) {
-            dev->oe_buffer.set_pos(dev->oe_buffer.pos() + dev->session.output_line_bytes_raw);
-            dev->deseg_curr_byte = 0;
-	    }
-
-        // read a new buffer if needed
-        if (dev->oe_buffer.pos() >= dev->oe_buffer.avail())
-	    {
-            accurate_line_read(dev, dev->oe_buffer);
-	    }
-	}
-}
-
 /**
  *
  */
 static void genesys_fill_read_buffer(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  size_t size;
-  size_t space;
-  uint8_t *work_buffer_dst;
 
   /* for sheetfed scanner, we must check is document is shorter than
    * the requested scan */
@@ -3526,33 +3414,7 @@ static void genesys_fill_read_buffer(Genesys_Device* dev)
         dev->cmd_set->detect_document_end(dev);
     }
 
-  space = dev->read_buffer.size() - dev->read_buffer.avail();
-
-  work_buffer_dst = dev->read_buffer.get_write_pos(space);
-
-  size = space;
-
-  /* never read an odd number. exception: last read
-     the chip internal counter does not count half words. */
-  size &= ~1;
-  /* Some setups need the reads to be multiples of 256 bytes */
-  size &= ~0xff;
-
-    if (dev->read_bytes_left_after_deseg < size) {
-        size = dev->read_bytes_left_after_deseg;
-      /*round up to a multiple of 256 bytes */
-      size += (size & 0xff) ? 0x100 : 0x00;
-      size &= ~0xff;
-    }
-
-  /* early out if our remaining buffer capacity is too low */
-  if (size == 0)
-    return;
-
-  DBG(DBG_io, "%s: reading %lu bytes\n", __func__, (u_long) size);
-
-  /* size is already maxed to our needs. for most models bulk_read_data
-     will read as much data as requested. */
+    std::size_t size = dev->read_buffer.size() - dev->read_buffer.avail();
 
   /* due to sensors and motors, not all data can be directly used. It
    * may have to be read from another intermediate buffer and then processed.
@@ -3564,22 +3426,9 @@ static void genesys_fill_read_buffer(Genesys_Device* dev)
    *
    * This is also the place where full duplex data will be handled.
    */
-    if (dev->session.segment_count > 1) {
-        // multi-segment sensors processing
-        genesys_fill_segmented_buffer(dev, work_buffer_dst, size);
-    }
-  else /* regular case with no extra copy */
-    {
-        dev->cmd_set->bulk_read_data(dev, 0x45, work_buffer_dst, size);
-    }
+    dev->pipeline_buffer.get_data(size, dev->read_buffer.get_write_pos(size));
 
-    if (size > dev->read_bytes_left_after_deseg) {
-        size = dev->read_bytes_left_after_deseg;
-    }
-
-    dev->read_bytes_left_after_deseg -= size;
-
-  dev->read_buffer.produce(size);
+    dev->read_buffer.produce(size);
 }
 
 /* this function does the effective data read in a manner that suits

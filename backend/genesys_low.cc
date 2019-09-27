@@ -1357,7 +1357,7 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
 
     s.optical_pixels_raw = s.optical_pixels;
     s.output_line_bytes_raw = s.output_line_bytes;
-    s.conseq_pixel_dist_bytes = 0;
+    s.conseq_pixel_dist = 0;
 
     if (dev->model->asic_type == AsicType::GL646) {
         // BUG: most likely segmented sensors were never used, so incorrect value was supplied
@@ -1369,18 +1369,16 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
         dev->model->asic_type == AsicType::GL847)
     {
         if (s.segment_count > 1) {
-            s.conseq_pixel_dist_bytes = sensor_profile->segment_size;
+            s.conseq_pixel_dist = sensor_profile->segment_size;
 
             // in case of multi-segments sensor, we have to add the width of the sensor crossed by
             // the scan area
-            unsigned extra_segment_scan_area = align_multiple_ceil(s.conseq_pixel_dist_bytes, 2);
+            unsigned extra_segment_scan_area = align_multiple_ceil(s.conseq_pixel_dist, 2);
             extra_segment_scan_area *= s.segment_count - 1;
             extra_segment_scan_area *= s.hwdpi_divisor * s.segment_count;
             extra_segment_scan_area *= ccd_pixels_per_system_pixel;
 
             s.optical_pixels_raw += extra_segment_scan_area;
-            s.conseq_pixel_dist_bytes = multiply_by_depth_ceil(s.conseq_pixel_dist_bytes,
-                                                               s.params.depth);
         }
 
         s.output_line_bytes_raw = multiply_by_depth_ceil(
@@ -1391,11 +1389,11 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     if (dev->model->asic_type == AsicType::GL124) {
         s.output_line_bytes_raw = multiply_by_depth_ceil(s.output_pixels / s.ccd_size_divisor,
                                                          s.params.depth);
-        s.conseq_pixel_dist_bytes = s.output_line_bytes_raw / s.segment_count;
+        s.conseq_pixel_dist = s.output_pixels / s.ccd_size_divisor / s.segment_count;
     }
 
     if (dev->model->asic_type == AsicType::GL843) {
-        s.conseq_pixel_dist_bytes = s.output_line_bytes_raw / s.segment_count;
+        s.conseq_pixel_dist = s.output_pixels / s.segment_count;
     }
 
     s.output_segment_pixel_group_count = 0;
@@ -1438,10 +1436,72 @@ static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& se
     }
 }
 
+static FakeBufferModel get_fake_usb_buffer_model(const ScanSession& session)
+{
+    FakeBufferModel model;
+    model.push_step(session.buffer_size_read, 1);
+
+    if (session.pipeline_needs_reorder) {
+        model.push_step(session.buffer_size_lines, session.output_line_bytes);
+    }
+    if (session.pipeline_needs_ccd) {
+        model.push_step(session.buffer_size_shrink, session.output_line_bytes);
+    }
+    if (session.pipeline_needs_shrink) {
+        model.push_step(session.buffer_size_out, session.output_line_bytes);
+    }
+
+    return model;
+}
+
 void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
 {
-    dev->oe_buffer.clear();
-    dev->oe_buffer.alloc(get_usb_buffer_read_size(dev->model->asic_type, session));
+    auto format = create_pixel_format(session.params.depth,
+                                      dev->model->is_cis ? 1 : session.params.channels,
+                                      dev->model->line_mode_color_order);
+    auto width = get_pixels_from_row_bytes(format, session.output_line_bytes_raw);
+
+    auto read_data_from_usb = [dev](std::size_t size, std::uint8_t* data)
+    {
+        dev->cmd_set->bulk_read_data(dev, 0x45, data, size);
+    };
+
+    auto lines = session.output_line_count * (dev->model->is_cis ? session.params.channels : 1);
+
+    dev->pipeline.clear();
+
+    // FIXME: here we are complicating things for the time being to preserve the existing behaviour
+    // This allows to be sure that the changes to the image pipeline have not introduced
+    // regressions.
+
+    if (session.segment_count > 1) {
+        // BUG: we're reading one line too much
+        dev->pipeline.push_first_node<ImagePipelineNodeBufferedCallableSource>(
+                width, lines + 1, format,
+                get_usb_buffer_read_size(dev->model->asic_type, session), read_data_from_usb);
+
+        auto output_width = session.output_segment_pixel_group_count * session.segment_count;
+        dev->pipeline.push_node<ImagePipelineNodeDesegment>(output_width, dev->segment_order,
+                                                            session.conseq_pixel_dist,
+                                                            1, 1);
+    } else {
+        auto read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
+        if (dev->model->asic_type == AsicType::GL646) {
+            read_bytes_left_after_deseg *= dev->model->is_cis ? session.params.channels : 1;
+        }
+
+        dev->pipeline.push_first_node<ImagePipelineNodeBufferedGenesysUsb>(
+                width, lines, format, read_bytes_left_after_deseg,
+                get_fake_usb_buffer_model(session), read_data_from_usb);
+    }
+
+    auto read_from_pipeline = [dev](std::size_t size, std::uint8_t* out_data)
+    {
+        (void) size; // will be always equal to dev->pipeline.get_output_row_bytes()
+        dev->pipeline.get_next_row_data(out_data);
+    };
+    dev->pipeline_buffer = ImageBuffer{dev->pipeline.get_output_row_bytes(),
+                                       read_from_pipeline};
 }
 
 std::uint8_t compute_frontend_gain_wolfson(float value, float target_value)
@@ -2188,7 +2248,7 @@ void debug_dump(unsigned level, const ScanSession& session)
     DBG(level, "    segment_count : %d\n", session.segment_count);
     DBG(level, "    pixel_startx : %d\n", session.pixel_startx);
     DBG(level, "    pixel_endx : %d\n", session.pixel_endx);
-    DBG(level, "    conseq_pixel_dist_bytes : %d\n", session.conseq_pixel_dist_bytes);
+    DBG(level, "    conseq_pixel_dist : %d\n", session.conseq_pixel_dist);
     DBG(level, "    output_segment_pixel_group_count : %d\n",
         session.output_segment_pixel_group_count);
     DBG(level, "    buffer_size_read : %zu\n", session.buffer_size_read);

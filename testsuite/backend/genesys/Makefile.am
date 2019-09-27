@@ -23,7 +23,6 @@ genesys_tests_SOURCES = tests.cc tests.h minigtest.cc minigtest.h tests_printers
     tests_calibration.cc \
     tests_image.cc \
     tests_image_pipeline.cc \
-    tests_row_buffer.cc \
-    tests_sensor.cc
+    tests_row_buffer.cc
 
 genesys_tests_LDADD = $(TEST_LDADD)

@@ -38,7 +38,7 @@ inline void print_location(std::ostream& out, const char* function, const char* 
 template<class T, class U>
 void check_equal(const T& t, const U& u, const char* function, const char* path, unsigned line)
 {
-    if (t != u) {
+    if (!(t == u)) {
         s_num_failures++;
         std::cerr << "FAILURE at ";
         print_location(std::cerr, function, path, line);
@@ -69,7 +69,7 @@ inline void check_true(bool x, const char* function, const char* path, unsigned 
                          while (false)
 #define ASSERT_TRUE(x)  do { check_true(bool(x), __func__, __FILE__, __LINE__); } \
                         while (false)
-#define ASSERT_FALSE(x)  do { !check_true(bool(x), __func__, __FILE__, __LINE__); } \
+#define ASSERT_FALSE(x)  do { check_true(!bool(x), __func__, __FILE__, __LINE__); } \
                          while (false)
 
 int finish_tests();

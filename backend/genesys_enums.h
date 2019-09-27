@@ -120,6 +120,20 @@ enum class ColorOrder
 {
     RGB,
     GBR,
+    BGR,
+};
+
+enum class PixelFormat
+{
+    UNKNOWN,
+    I1,
+    RGB111,
+    I8,
+    RGB888,
+    BGR888,
+    I16,
+    RGB161616,
+    BGR161616,
 };
 
 enum Genesys_Model_Type

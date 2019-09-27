@@ -686,26 +686,38 @@ static xmlNode* sanei_xml_get_next_tx_node()
   return next;
 }
 
+#define CHAR_TYPE_INVALID -1
+#define CHAR_TYPE_SPACE -2
 
-// Parses hex data in XML text node in the format of '00 11 ab 3f', etc. to
-// binary string. The size is returned as *size. The caller is responsible for
-// freeing the returned value
-static char* sanei_xml_get_hex_data(xmlNode* node, size_t* size)
+static int8_t sanei_xml_char_types[256] =
 {
-  xmlChar* content = xmlNodeGetContent(node);
+  /* 0x00-0x0f */ -1, -1, -1, -1, -1, -1, -1, -1, -1, -2, -2, -2, -2, -2, -1, -1,
+  /* 0x10-0x1f */ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  /* 0x20-0x2f */ -2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  /* 0x30-0x3f */  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, -1, -1, -1, -1, -1, -1,
+  /* 0x40-0x4f */ -1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  /* 0x50-0x5f */ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  /* 0x60-0x6f */ -1, 10, 11, 12, 13, 14, 15, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  /* 0x70-0x7f */ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  /* 0x80-0x8f */ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  /* 0x90-0x9f */ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  /* 0xa0-0xaf */ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  /* 0xb0-0xbf */ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  /* 0xc0-0xcf */ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  /* 0xd0-0xdf */ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  /* 0xe0-0xef */ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  /* 0xf0-0xff */ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+};
 
-  // let's overallocate to simplify the implementation. We expect the string
-  // to be deallocated soon anyway
-  char* ret_data = malloc(strlen((const char*)content) / 2 + 2);
-
+static char* sanei_xml_get_hex_data_slow_path(xmlNode* node, xmlChar* content, xmlChar* cur_content,
+                                              char* ret_data, char* cur_ret_data, size_t* size)
+{
   int num_nibbles = 0;
   unsigned cur_nibble = 0;
-  size_t cur_size = 0;
 
-  xmlChar* cur_content = content;
   while (*cur_content != 0)
     {
-      while (isspace(*cur_content))
+      while (sanei_xml_char_types[(uint8_t)*cur_content] == CHAR_TYPE_SPACE)
         cur_content++;
 
       if (*cur_content == 0)
@@ -713,15 +725,9 @@ static char* sanei_xml_get_hex_data(xmlNode* node, size_t* size)
 
       // don't use stroul because it will parse in big-endian and data is in
       // little endian
-      xmlChar c = *cur_content;
-      unsigned ci = 0;
-      if (c >= '0' && c <= '9')
-        ci = c - '0';
-      else if (c >= 'a' && c <= 'f')
-        ci = c - 'a' + 10;
-      else if (c >= 'A' && c <= 'F')
-        ci = c - 'A' + 10;
-      else
+      uint8_t c = *cur_content;
+      int8_t ci = sanei_xml_char_types[c];
+      if (ci == CHAR_TYPE_INVALID)
         {
           FAIL_TEST_TX(__func__, node, "unexpected character %c\n", c);
           cur_content++;
@@ -733,13 +739,66 @@ static char* sanei_xml_get_hex_data(xmlNode* node, size_t* size)
 
       if (num_nibbles == 2)
         {
-          ret_data[cur_size++] = cur_nibble;
+          *cur_ret_data++ = cur_nibble;
           cur_nibble = 0;
           num_nibbles = 0;
         }
       cur_content++;
     }
-  *size = cur_size;
+  *size = cur_ret_data - ret_data;
+  xmlFree(content);
+  return ret_data;
+}
+
+// Parses hex data in XML text node in the format of '00 11 ab 3f', etc. to
+// binary string. The size is returned as *size. The caller is responsible for
+// freeing the returned value
+static char* sanei_xml_get_hex_data(xmlNode* node, size_t* size)
+{
+  xmlChar* content = xmlNodeGetContent(node);
+
+  // let's overallocate to simplify the implementation. We expect the string
+  // to be deallocated soon anyway
+  char* ret_data = malloc(strlen((const char*)content) / 2 + 2);
+  char* cur_ret_data = ret_data;
+
+  xmlChar* cur_content = content;
+
+  // the text to binary conversion takes most of the time spent in tests, so we
+  // take extra care to optimize it. We split the implementation into fast and
+  // slow path. The fast path utilizes the knowledge that there will be no spaces
+  // within bytes. When this assumption does not hold, we switch to the slow path.
+  while (*cur_content != 0)
+    {
+      // most of the time there will be 1 or 2 spaces between bytes. Give the CPU
+      // chance to predict this by partially unrolling the while loop.
+      if (sanei_xml_char_types[(uint8_t)*cur_content] == CHAR_TYPE_SPACE)
+        {
+          cur_content++;
+          if (sanei_xml_char_types[(uint8_t)*cur_content] == CHAR_TYPE_SPACE)
+            {
+              cur_content++;
+              while (sanei_xml_char_types[(uint8_t)*cur_content] == CHAR_TYPE_SPACE)
+                cur_content++;
+            }
+        }
+
+      if (*cur_content == 0)
+        break;
+
+      // don't use stroul because it will parse in big-endian and data is in
+      // little endian
+      int8_t ci1 = sanei_xml_char_types[(uint8_t)*cur_content];
+      int8_t ci2 = sanei_xml_char_types[(uint8_t)*(cur_content + 1)];
+
+      if (ci1 < 0 || ci2 < 0)
+        return sanei_xml_get_hex_data_slow_path(node, content, cur_content, ret_data, cur_ret_data,
+                                                size);
+
+      *cur_ret_data++ = ci1 << 4 | ci2;
+      cur_content += 2;
+    }
+  *size = cur_ret_data - ret_data;
   xmlFree(content);
   return ret_data;
 }

@@ -724,26 +724,14 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     // start and end coordinate in optical dpi coordinates
     unsigned startx = start + sensor.CCD_start_xoffset * ccd_pixels_per_system_pixel;
-    unsigned endx = startx + session.optical_pixels;
-
-  /* sensors are built from 600 dpi segments for LiDE 100/200
-   * and 1200 dpi for the 700F */
+    unsigned endx = startx + session.optical_pixels_raw;
 
     // compute pixel coordinate in the given dpihw space, taking segments into account
     startx /= session.hwdpi_divisor * session.segment_count;
     endx /= session.hwdpi_divisor * session.segment_count;
-    dev->deseg.pixel_groups = (endx - startx) / ccd_pixels_per_system_pixel;
-    dev->deseg.conseq_pixel_dist_bytes = 0;
+    dev->deseg.pixel_groups = session.optical_pixels /
+            (session.hwdpi_divisor * session.segment_count * ccd_pixels_per_system_pixel);
     dev->deseg.skip_bytes = 0;
-
-  /* in cas of multi-segments sensor, we have to add the witdh
-   * of the sensor crossed by the scan area */
-    if (session.segment_count > 1) {
-        dev->deseg.conseq_pixel_dist_bytes = sensor_profile.segment_size;
-    }
-
-  /* use a segcnt rounded to next even number */
-    endx += ((dev->deseg.conseq_pixel_dist_bytes + 1) & 0xfffe) * (session.segment_count - 1) * ccd_pixels_per_system_pixel;
 
     gl847_set_fe(dev, sensor, AFE_SET);
 
@@ -843,7 +831,6 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dev->deseg.raw_channel_bytes = multiply_by_depth_ceil(((endx - startx) * session.params.xres) / dpihw,
                                                           session.params.depth);
     dev->deseg.pixel_groups = multiply_by_depth_ceil(dev->deseg.pixel_groups, session.params.depth);
-    dev->deseg.conseq_pixel_dist_bytes = multiply_by_depth_ceil(dev->deseg.conseq_pixel_dist_bytes, session.params.depth);
 
     dev->deseg.curr_byte = 0;
   dev->line_interp = 0;
@@ -861,7 +848,6 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   DBG (DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);
   DBG (DBG_io2, "%s: dev->bpl   =%lu\n", __func__, (unsigned long) dev->deseg.raw_channel_bytes);
   DBG (DBG_io2, "%s: dev->len   =%lu\n", __func__, (unsigned long) dev->deseg.pixel_groups);
-  DBG (DBG_io2, "%s: dev->dist  =%lu\n", __func__, (unsigned long) dev->deseg.conseq_pixel_dist_bytes);
   DBG (DBG_io2, "%s: dev->segnb =%lu\n", __func__, (unsigned long) dev->session.segment_count);
 
     dev->deseg.raw_line_bytes = dev->deseg.raw_channel_bytes * session.params.channels;

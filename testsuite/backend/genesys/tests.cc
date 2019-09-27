@@ -28,5 +28,6 @@
 int main()
 {
     test_calibration_parsing();
+    test_sensor();
     return finish_tests();
 }

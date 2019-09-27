@@ -2890,9 +2890,8 @@ static void gl841_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& 
   move_dpi = dev->motor.base_ydpi;
 
   move = 0;
-  if (dev->model->flags & GENESYS_FLAG_SEARCH_START)
-    {
-      move += SANE_UNFIX (dev->model->y_offset_calib);
+    if (dev->model->flags & GENESYS_FLAG_SEARCH_START) {
+        move += SANE_UNFIX(dev->model->y_offset_calib_white);
     }
 
   DBG(DBG_info, "%s move=%f steps\n", __func__, move);
@@ -3003,9 +3002,8 @@ static SensorExposure gl841_led_calibration(Genesys_Device* dev, const Genesys_S
   uint16_t max_exposure;
 
   /* feed to white strip if needed */
-  if (dev->model->y_offset_calib>0)
-    {
-      move = SANE_UNFIX (dev->model->y_offset_calib);
+    if (dev->model->y_offset_calib_white > 0) {
+        move = SANE_UNFIX(dev->model->y_offset_calib_white);
       move = (move * (dev->motor.base_ydpi)) / MM_PER_INCH;
       DBG(DBG_io, "%s: move=%d lines\n", __func__, move);
         gl841_feed(dev, move);
@@ -3696,10 +3694,9 @@ static void gl841_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   int lines=1;
   int move;
 
-  /* feed to white strip if needed */
-  if (dev->model->y_offset_calib>0)
-    {
-      move = SANE_UNFIX (dev->model->y_offset_calib);
+    // feed to white strip if needed
+    if (dev->model->y_offset_calib_white > 0) {
+        move = SANE_UNFIX(dev->model->y_offset_calib_white);
       move = (move * (dev->motor.base_ydpi)) / MM_PER_INCH;
       DBG(DBG_io, "%s: move=%d lines\n", __func__, move);
         gl841_feed(dev, move);

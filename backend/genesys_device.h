@@ -118,28 +118,28 @@ struct Genesys_Model
     SANE_Fixed y_size = 0;
 
     // Start of white strip in mm
-    SANE_Fixed y_offset_calib = 0;
+    SANE_Fixed y_offset_calib_white = 0;
 
     // Start of black mark in mm
-    SANE_Fixed x_offset_mark = 0;
+    SANE_Fixed x_offset_calib_black = 0;
 
-    // Start of scan area in TA mode in mm
+    // Start of scan area in transparency mode in mm
     SANE_Fixed x_offset_ta = 0;
 
-    // Start of scan area in TA mode in mm
+    // Start of scan area in transparency mode in mm
     SANE_Fixed y_offset_ta = 0;
 
-    // Size of scan area in TA mode in mm
+    // Size of scan area in transparency mode in mm
     SANE_Fixed x_size_ta = 0;
 
-    // Size of scan area in TA mode in mm
+    // Size of scan area in transparency mode in mm
     SANE_Fixed y_size_ta = 0;
 
     // The position of the sensor when it's aligned with the lamp for transparency scanning
     SANE_Fixed y_offset_sensor_to_ta = 0;
 
-    // Start of white strip in TA mode in mm
-    SANE_Fixed y_offset_calib_ta = 0;
+    // Start of white strip in transparency mode in mm
+    SANE_Fixed y_offset_calib_white_ta = 0;
 
     // Size of scan area after paper sensor stop sensing document in mm
     SANE_Fixed post_scan = 0;

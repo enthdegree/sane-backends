@@ -1709,9 +1709,8 @@ static void gl124_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
 
   /* distance to move to reach white target at high resolution */
   move=0;
-  if(dev->settings.yres>=1200)
-    {
-      move = SANE_UNFIX (dev->model->y_offset_calib);
+    if (dev->settings.yres >= 1200) {
+        move = SANE_UNFIX(dev->model->y_offset_calib_white);
       move = (move * (dev->motor.base_ydpi/4)) / MM_PER_INCH;
     }
   DBG (DBG_io, "%s: move=%d steps\n", __func__, move);

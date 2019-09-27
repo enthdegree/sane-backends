@@ -2344,12 +2344,12 @@ static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
     {
         // note: move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
-        move = SANE_UNFIX(dev->model->y_offset_calib_ta) -
+        move = SANE_UNFIX(dev->model->y_offset_calib_white_ta) -
                SANE_UNFIX(dev->model->y_offset_sensor_to_ta);
     flags |= SCAN_FLAG_USE_XPA;
   }
   else
-    move = SANE_UNFIX(dev->model->y_offset_calib);
+    move = SANE_UNFIX(dev->model->y_offset_calib_white);
 
   move = (move * resolution) / MM_PER_INCH;
 

@@ -1205,9 +1205,9 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
       /* bottom of black stripe is of fixed witdh, this hardcoded value
        * will be moved into device struct if more such values are needed */
       top += 10;
-      dev->model->y_offset_calib = SANE_FIX ((top * MM_PER_INCH) / dpi);
-      DBG(DBG_info, "%s: black stripe y_offset = %f mm \n", __func__,
-          SANE_UNFIX (dev->model->y_offset_calib));
+        dev->model->y_offset_calib_white = SANE_FIX((top * MM_PER_INCH) / dpi);
+        DBG(DBG_info, "%s: black stripe y_offset = %f mm \n", __func__,
+            SANE_UNFIX(dev->model->y_offset_calib_white));
     }
 
   /* find white corner in dark area : TODO yet another flag */
@@ -1229,9 +1229,9 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
 	  count++;
 	}
       top = top / count;
-      dev->model->y_offset_calib = SANE_FIX ((top * MM_PER_INCH) / dpi);
-      DBG(DBG_info, "%s: white corner y_offset = %f mm\n", __func__,
-          SANE_UNFIX (dev->model->y_offset_calib));
+        dev->model->y_offset_calib_white = SANE_FIX((top * MM_PER_INCH) / dpi);
+        DBG(DBG_info, "%s: white corner y_offset = %f mm\n", __func__,
+            SANE_UNFIX(dev->model->y_offset_calib_white));
     }
 
   DBG(DBG_proc, "%s: CCD_start_xoffset = %d, left = %d, top = %d\n", __func__,
@@ -3252,7 +3252,7 @@ static void genesys_start_scan(Genesys_Device* dev, SANE_Bool lamp_off)
     {
       /* do the geometry detection only once */
       if ((dev->model->flags & GENESYS_FLAG_SEARCH_START)
-	  && (dev->model->y_offset_calib == 0))
+      && (dev->model->y_offset_calib_white == 0))
 	{
         dev->cmd_set->search_start_position (dev);
 

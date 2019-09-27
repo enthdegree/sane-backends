@@ -1697,7 +1697,7 @@ static SensorExposure gl846_led_calibration(Genesys_Device* dev, const Genesys_S
   float move;
   SANE_Bool acceptable;
 
-  move = SANE_UNFIX (dev->model->y_offset_calib);
+    move = SANE_UNFIX(dev->model->y_offset_calib_white);
   move = (move * (dev->motor.base_ydpi/4)) / MM_PER_INCH;
   if(move>20)
     {

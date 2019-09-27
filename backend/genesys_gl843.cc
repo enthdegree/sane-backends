@@ -3069,40 +3069,17 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
         // pick target value at 95th percentile of all values. There may be a lot of black values
         // in transparency scans for example
         std::sort(values.begin(), values.end());
-        uint16_t target_value = values[unsigned((values.size() - 1) * 0.95)];
+        uint16_t curr_output = values[unsigned((values.size() - 1) * 0.95)];
         if (bpp == 16) {
-            target_value /= 256;
+            curr_output /= 256;
         }
+        float target_value = calib_sensor.gain_white_ref * coeff;
 
-      /*  the flow of data through the frontend ADC is as follows (see e.g. VM8192 datasheet)
-          input
-          -> apply offset (o = i + 260mV * (DAC[7:0]-127.5)/127.5) ->
-          -> apply gain (o = i * 208/(283-PGA[7:0])
-          -> ADC
-
-          Here we have some input data that was acquired with zero gain (PGA==0).
-          We want to compute gain such that the output would approach full ADC range (controlled by
-          gain_white_ref).
-
-          We want to solve the following for {PGA}:
-
-          {input} * 208 / (283 - 0) = {output}
-          {input} * 208 / (283 - {PGA}) = {target output}
-
-          The solution is the following equation:
-
-          {PGA} = 283 * (1 - {output} / {target output})
-      */
-      float gain = ((float) target_value / (calib_sensor.gain_white_ref*coeff));
-      int code = 283 * (1 - gain);
-      if (code > 255)
-	code = 255;
-      else if (code < 0)
-	code = 0;
+        int code = compute_frontend_gain(curr_output, target_value, dev->frontend.layout.type);
       dev->frontend.set_gain(j, code);
 
-      DBG(DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__, j, target_value,
-          gain, code);
+        DBG(DBG_proc, "%s: channel %d, max=%d, target=%d, setting:%d\n", __func__, j, curr_output,
+            (int) target_value, code);
     }
 
     if (dev->model->is_cis) {

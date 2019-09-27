@@ -1812,8 +1812,8 @@ static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
         throw SaneException(SANE_STATUS_DEVICE_BUSY, "motor is still on: device busy");
     }
 
-  /* setup for a backward scan of 65535 steps, with no actual data reading */
-  settings.scan_method = ScanMethod::FLATBED;
+    // setup for a backward scan of 65535 steps, with no actual data reading
+    settings.scan_method = dev->model->default_method;
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = get_lowest_resolution(dev->model->ccd_type, 1);
   settings.yres = settings.xres;
@@ -1829,7 +1829,8 @@ static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
   settings.threshold = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
-    const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, 3, ScanMethod::FLATBED);
+    const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, 3,
+                                                   dev->model->default_method);
 
     setup_for_scan(dev, sensor, &dev->reg, settings, SANE_TRUE, SANE_TRUE, SANE_TRUE);
 
@@ -1903,10 +1904,11 @@ static void gl646_search_start_position(Genesys_Device* dev)
 
     // FIXME: the current approach of doing search only for one resolution does not work on scanners
     // whith employ different sensors with potentially different settings.
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 1, ScanMethod::FLATBED);
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 1,
+                                                   dev->model->default_method);
 
   /* fill settings for a gray level scan */
-  settings.scan_method = ScanMethod::FLATBED;
+  settings.scan_method = dev->model->default_method;
   settings.scan_mode = ScanColorMode::GRAY;
   settings.xres = resolution;
   settings.yres = resolution;
@@ -1950,7 +1952,9 @@ static void gl646_search_start_position(Genesys_Device* dev)
       }
 
     // now search reference points on the data
-    for (auto& sensor_update : sanei_genesys_find_sensors_all_for_write(dev, ScanMethod::FLATBED)) {
+    for (auto& sensor_update :
+            sanei_genesys_find_sensors_all_for_write(dev, dev->model->default_method))
+    {
         sanei_genesys_search_reference_point(dev, sensor_update, data.data(), 0,
                                              resolution, settings.pixels, settings.lines);
     }
@@ -2267,7 +2271,7 @@ static SensorExposure gl646_led_calibration(Genesys_Device* dev, const Genesys_S
   resolution = get_closest_resolution(dev->model->ccd_type, sensor.optical_res, channels);
 
   /* offset calibration is always done in color mode */
-  settings.scan_method = ScanMethod::FLATBED;
+    settings.scan_method = dev->model->default_method;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -2436,7 +2440,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
     black_pixels = (calib_sensor.black_pixels * resolution) / calib_sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
-  settings.scan_method = ScanMethod::FLATBED;
+    settings.scan_method = dev->model->default_method;
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = resolution;
   settings.yres = resolution;
@@ -2546,7 +2550,7 @@ static void gl646_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
-  settings.scan_method = ScanMethod::FLATBED;
+    settings.scan_method = dev->model->default_method;
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = resolution;
   settings.yres = resolution;
@@ -2677,7 +2681,7 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
 
-  settings.scan_method = ScanMethod::FLATBED;
+    settings.scan_method = dev->model->default_method;
   settings.xres = resolution;
   settings.yres = resolution;
   settings.tl_x = 0;
@@ -2933,7 +2937,7 @@ static void gl646_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor
                                                          dev->settings.scan_method);
 
   /* set up for a half width 2 lines gray scan without moving */
-  settings.scan_method = ScanMethod::FLATBED;
+    settings.scan_method = dev->model->default_method;
   settings.scan_mode = ScanColorMode::GRAY;
   settings.xres = resolution;
   settings.yres = resolution;
@@ -2986,7 +2990,7 @@ static void gl646_repark_head(Genesys_Device* dev)
   Genesys_Settings settings;
   unsigned int expected, steps;
 
-  settings.scan_method = ScanMethod::FLATBED;
+    settings.scan_method = dev->model->default_method;
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = get_closest_resolution(dev->model->ccd_type, 75, 1);
   settings.yres = settings.xres;
@@ -3002,7 +3006,8 @@ static void gl646_repark_head(Genesys_Device* dev)
   settings.threshold = 0;
   settings.dynamic_lineart = SANE_FALSE;
 
-    const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, 3, ScanMethod::FLATBED);
+    const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, 3,
+                                                   dev->model->default_method);
 
     setup_for_scan(dev, sensor, &dev->reg, settings, SANE_FALSE, SANE_FALSE, SANE_FALSE);
 
@@ -3387,10 +3392,10 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance)
 
   int resolution = get_lowest_resolution(dev->model->ccd_type, 3);
 
-  const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, ScanMethod::FLATBED);
+  const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, dev->model->default_method);
 
   /* TODO give a no AGOHOME flag */
-  settings.scan_method = ScanMethod::TRANSPARENCY;
+    settings.scan_method = dev->model->default_method;
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
   settings.xres = resolution;
   settings.yres = resolution;
@@ -3687,7 +3692,7 @@ static void gl646_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, res, 1, ScanMethod::FLATBED);
 
   /* we set up for a lowest available resolution color grey scan, full width */
-  settings.scan_method = ScanMethod::FLATBED;
+    settings.scan_method = dev->model->default_method;
   settings.scan_mode = ScanColorMode::GRAY;
   settings.xres = res;
   settings.yres = res;

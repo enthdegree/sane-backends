@@ -428,6 +428,8 @@ extern void sanei_genesys_init_structs (Genesys_Device * dev);
 const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev);
 const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi, unsigned channels,
                                                 ScanMethod scan_method);
+bool sanei_genesys_has_sensor(Genesys_Device* dev, unsigned dpi, unsigned channels,
+                              ScanMethod scan_method);
 Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi, unsigned channels,
                                                     ScanMethod scan_method);
 

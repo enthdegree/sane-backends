@@ -99,6 +99,9 @@ struct Genesys_Model
     // possible depths in color mode
     std::vector<unsigned> bpp_color_values;
 
+    // the default scanning method. This is used when moving the head for example
+    ScanMethod default_method = ScanMethod::FLATBED;
+
     // All offsets below are with respect to the sensor home position
 
     // Start of scan area in mm

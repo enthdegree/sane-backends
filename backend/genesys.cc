@@ -192,16 +192,31 @@ const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev)
     throw std::runtime_error("Given device does not have sensor defined");
 }
 
-const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi, unsigned channels,
-                                                ScanMethod scan_method)
+Genesys_Sensor* find_sensor_impl(Genesys_Device* dev, unsigned dpi, unsigned channels,
+                                 ScanMethod scan_method)
 {
-    for (const auto& sensor : *s_sensors) {
+    for (auto& sensor : *s_sensors) {
         if (dev->model->ccd_type == sensor.sensor_id && sensor.resolutions.matches(dpi) &&
             sensor.matches_channel_count(channels) && sensor.method == scan_method)
         {
-            return sensor;
+            return &sensor;
         }
     }
+    return nullptr;
+}
+
+bool sanei_genesys_has_sensor(Genesys_Device* dev, unsigned dpi, unsigned channels,
+                              ScanMethod scan_method)
+{
+    return find_sensor_impl(dev, dpi, channels, scan_method) != nullptr;
+}
+
+const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi, unsigned channels,
+                                                ScanMethod scan_method)
+{
+    const auto* sensor = find_sensor_impl(dev, dpi, channels, scan_method);
+    if (sensor)
+        return *sensor;
     throw std::runtime_error("Given device does not have sensor defined");
 }
 
@@ -209,13 +224,9 @@ Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi
                                                     unsigned channels,
                                                     ScanMethod scan_method)
 {
-    for (auto& sensor : *s_sensors) {
-        if (dev->model->ccd_type == sensor.sensor_id && sensor.resolutions.matches(dpi) &&
-            sensor.matches_channel_count(channels) && sensor.method == scan_method)
-        {
-            return sensor;
-        }
-    }
+    auto* sensor = find_sensor_impl(dev, dpi, channels, scan_method);
+    if (sensor)
+        return *sensor;
     throw std::runtime_error("Given device does not have sensor defined");
 }
 
@@ -276,8 +287,8 @@ sanei_genesys_init_structs (Genesys_Device * dev)
     }
 
     if (!motor_ok || !gpo_ok || !fe_ok) {
-      DBG(DBG_error0, "%s: bad description(s) for fe/gpo/motor=%d/%d/%d\n", __func__,
-          dev->model->ccd_type, dev->model->gpo_type, dev->model->motor_type);
+        throw SaneException("bad description(s) for fe/gpo/motor=%d/%d/%d\n",
+                            dev->model->ccd_type, dev->model->gpo_type, dev->model->motor_type);
     }
 
   /* set up initial line distance shift */
@@ -5696,9 +5707,14 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
   unsigned option_size = 0;
   SANE_Status status = SANE_STATUS_GOOD;
 
-  const Genesys_Sensor& sensor = sanei_genesys_find_sensor(s->dev, s->dev->settings.xres,
-                                                           s->dev->settings.get_channels(),
-                                                           s->dev->settings.scan_method);
+    const Genesys_Sensor* sensor = nullptr;
+    if (sanei_genesys_has_sensor(s->dev, s->dev->settings.xres, s->dev->settings.get_channels(),
+                                 s->dev->settings.scan_method))
+    {
+        sensor = &sanei_genesys_find_sensor(s->dev, s->dev->settings.xres,
+                                            s->dev->settings.get_channels(),
+                                            s->dev->settings.scan_method);
+    }
 
   switch (option)
     {
@@ -5793,13 +5809,16 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
 
       /* word array options */
     case OPT_GAMMA_VECTOR:
+        if (!sensor)
+            throw SaneException("Unsupported scanner mode selected");
+
       table = (SANE_Word *) val;
         if (s->color_filter == "Red") {
-            gamma_table = get_gamma_table(s->dev, sensor, GENESYS_RED);
+            gamma_table = get_gamma_table(s->dev, *sensor, GENESYS_RED);
         } else if (s->color_filter == "Blue") {
-            gamma_table = get_gamma_table(s->dev, sensor, GENESYS_BLUE);
+            gamma_table = get_gamma_table(s->dev, *sensor, GENESYS_BLUE);
         } else {
-            gamma_table = get_gamma_table(s->dev, sensor, GENESYS_GREEN);
+            gamma_table = get_gamma_table(s->dev, *sensor, GENESYS_GREEN);
         }
         option_size = s->opt[option].size / sizeof (SANE_Word);
         if (gamma_table.size() != option_size) {
@@ -5810,8 +5829,11 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
         }
         break;
     case OPT_GAMMA_VECTOR_R:
+        if (!sensor)
+            throw SaneException("Unsupported scanner mode selected");
+
       table = (SANE_Word *) val;
-        gamma_table = get_gamma_table(s->dev, sensor, GENESYS_RED);
+        gamma_table = get_gamma_table(s->dev, *sensor, GENESYS_RED);
         option_size = s->opt[option].size / sizeof (SANE_Word);
         if (gamma_table.size() != option_size) {
             throw std::runtime_error("The size of the gamma tables does not match");
@@ -5821,8 +5843,11 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
 	}
       break;
     case OPT_GAMMA_VECTOR_G:
+        if (!sensor)
+            throw SaneException("Unsupported scanner mode selected");
+
       table = (SANE_Word *) val;
-        gamma_table = get_gamma_table(s->dev, sensor, GENESYS_GREEN);
+        gamma_table = get_gamma_table(s->dev, *sensor, GENESYS_GREEN);
         option_size = s->opt[option].size / sizeof (SANE_Word);
         if (gamma_table.size() != option_size) {
             throw std::runtime_error("The size of the gamma tables does not match");
@@ -5832,8 +5857,11 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
         }
       break;
     case OPT_GAMMA_VECTOR_B:
+        if (!sensor)
+            throw SaneException("Unsupported scanner mode selected");
+
       table = (SANE_Word *) val;
-        gamma_table = get_gamma_table(s->dev, sensor, GENESYS_BLUE);
+        gamma_table = get_gamma_table(s->dev, *sensor, GENESYS_BLUE);
         option_size = s->opt[option].size / sizeof (SANE_Word);
         if (gamma_table.size() != option_size) {
             throw std::runtime_error("The size of the gamma tables does not match");
@@ -5855,12 +5883,15 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
       *(SANE_Bool *) val = s->buttons[genesys_option_to_button(option)].read();
       break;
     case OPT_NEED_CALIBRATION_SW:
+        if (!sensor)
+            throw SaneException("Unsupported scanner mode selected");
+
       /* scanner needs calibration for current mode unless a matching
        * calibration cache is found */
       *(SANE_Bool *) val = SANE_TRUE;
       for (auto& cache : s->dev->calibration_cache)
 	{
-        if (s->dev->cmd_set->is_compatible_calibration(s->dev, sensor, &cache, SANE_FALSE)) {
+        if (s->dev->cmd_set->is_compatible_calibration(s->dev, *sensor, &cache, SANE_FALSE)) {
 	      *(SANE_Bool *) val = SANE_FALSE;
 	    }
 	}

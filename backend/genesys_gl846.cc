@@ -1280,7 +1280,7 @@ static void gl846_search_start_position(Genesys_Device* dev)
 
     // FIXME: the current approach of doing search only for one resolution does not work on scanners
     // whith employ different sensors with potentially different settings.
-    const auto& sensor = sanei_genesys_find_sensor(dev, dpi, 1, ScanMethod::FLATBED);
+    const auto& sensor = sanei_genesys_find_sensor(dev, dpi, 1, dev->model->default_method);
 
     ScanSession session;
     session.params.xres = dpi;
@@ -1330,7 +1330,9 @@ static void gl846_search_start_position(Genesys_Device* dev)
 
     // TODO: find out where sanei_genesys_search_reference_point stores information,
     // and use that correctly
-    for (auto& sensor_update : sanei_genesys_find_sensors_all_for_write(dev, ScanMethod::FLATBED)) {
+    for (auto& sensor_update :
+            sanei_genesys_find_sensors_all_for_write(dev, dev->model->default_method))
+    {
         sanei_genesys_search_reference_point(dev, sensor_update, data.data(), 0, dpi, pixels,
                                              dev->model->search_lines);
     }
@@ -1386,7 +1388,7 @@ static void gl846_feed(Genesys_Device* dev, unsigned int steps)
   local_reg = dev->reg;
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, ScanMethod::FLATBED);
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, dev->model->default_method);
 
     ScanSession session;
     session.params.xres = resolution;

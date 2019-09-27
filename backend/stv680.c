@@ -1189,8 +1189,8 @@ stv680_fill_image (Stv680_Vidcam * dev)
 }
 
 #define MSG_MAXLEN   45
-#define CHAR_HEIGHT  11
-#define CHAR_WIDTH   6
+#define TEXT_CHAR_HEIGHT  11
+#define TEXT_CHAR_WIDTH   6
 #define CHAR_START   4
 
 static SANE_Status
@@ -1216,14 +1216,14 @@ stv680_add_text (SANE_Byte * image, int width, int height, char *txt)
 
   len = strftime (line, MSG_MAXLEN, fmttxt, tm);
 
-  for (y = 0; y < CHAR_HEIGHT; y++)
+  for (y = 0; y < TEXT_CHAR_HEIGHT; y++)
     {
-      ptr = image + 3 * width * (height - CHAR_HEIGHT - 2 + y) + 12;
+      ptr = image + 3 * width * (height - TEXT_CHAR_HEIGHT - 2 + y) + 12;
 
       for (x = 0; x < len; x++)
 	{
-	  f = fontdata[line[x] * CHAR_HEIGHT + y];
-	  for (i = CHAR_WIDTH - 1; i >= 0; i--)
+      f = fontdata[line[x] * TEXT_CHAR_HEIGHT + y];
+      for (i = TEXT_CHAR_WIDTH - 1; i >= 0; i--)
 	    {
 	      if (f & (CHAR_START << i))
 		{

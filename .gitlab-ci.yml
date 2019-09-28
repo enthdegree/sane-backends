@@ -33,13 +33,7 @@ make-dist:
     - sane-backends-*.tar.gz
     expire_in: 1 day
 
-# This template is used for all jobs in the compile stage.  As the
-# template solely relies on the source tarball there is no need to
-# checkout the git repository.
-
 .compile_template: &compile_definition
-  variables:
-    GIT_DEPTH: "0"
   stage: compile
   script:
   - mkdir build

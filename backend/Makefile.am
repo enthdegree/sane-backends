@@ -520,7 +520,7 @@ libsane_genesys_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_genesys_la_LIBADD = $(COMMON_LIBS) libgenesys.la  ../sanei/sanei_magic.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += genesys.conf.in
 # TODO: Why are this distributed but not compiled?
-EXTRA_DIST += genesys_conv.cc genesys_conv_hlp.cc
+EXTRA_DIST += genesys_conv.cc
 
 libgphoto2_i_la_SOURCES = gphoto2.c gphoto2.h
 libgphoto2_i_la_CPPFLAGS = $(AM_CPPFLAGS) $(GPHOTO2_CPPFLAGS) -DBACKEND_NAME=gphoto2

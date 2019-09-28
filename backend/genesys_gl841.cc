@@ -1875,15 +1875,6 @@ dummy \ scanned lines
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);
 
-    dev->lines_buffer.clear();
-    dev->lines_buffer.alloc(session.buffer_size_lines);
-
-    dev->shrink_buffer.clear();
-    dev->shrink_buffer.alloc(session.buffer_size_shrink);
-
-    dev->out_buffer.clear();
-    dev->out_buffer.alloc(session.buffer_size_out);
-
     build_image_pipeline(dev, session);
 
     dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;

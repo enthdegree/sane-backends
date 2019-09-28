@@ -3439,15 +3439,10 @@ static void genesys_fill_read_buffer(Genesys_Device* dev)
 static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destination, size_t* len)
 {
     DBG_HELPER(dbg);
-  size_t bytes, extra;
+  size_t bytes;
   unsigned int channels, depth, src_pixels;
-  unsigned int ccd_shift[12], shift_count;
   uint8_t *work_buffer_src;
-  uint8_t *work_buffer_dst;
-  unsigned int dst_lines;
-  unsigned int step_1_mode;
   Genesys_Buffer *src_buffer;
-  Genesys_Buffer *dst_buffer;
 
   if (dev->read_active != SANE_TRUE)
     {
@@ -3490,31 +3485,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
         ((dev->read_bytes_left_after_deseg + dev->read_buffer.avail()) * 8UL) /
         (src_pixels * channels * depth));
 
-  if (channels == 1)
-    {
-      ccd_shift[0] = 0;
-      ccd_shift[1] = dev->current_setup.stagger;
-      shift_count = 2;
-    }
-  else
-    {
-      ccd_shift[0] =
-	((dev->ld_shift_r * dev->settings.yres) /
-	 dev->motor.base_ydpi);
-      ccd_shift[1] =
-	((dev->ld_shift_g * dev->settings.yres) /
-	 dev->motor.base_ydpi);
-      ccd_shift[2] =
-	((dev->ld_shift_b * dev->settings.yres) /
-	 dev->motor.base_ydpi);
-
-      ccd_shift[3] = ccd_shift[0] + dev->current_setup.stagger;
-      ccd_shift[4] = ccd_shift[1] + dev->current_setup.stagger;
-      ccd_shift[5] = ccd_shift[2] + dev->current_setup.stagger;
-
-      shift_count = 6;
-    }
-
 
 /* convert data */
 /*
@@ -3546,199 +3516,6 @@ Problems with the first approach:
     genesys_fill_read_buffer(dev);
 
   src_buffer = &(dev->read_buffer);
-
-/* maybe reorder components/bytes */
-    if (dev->session.pipeline_needs_reorder) {
-        if (depth == 1) {
-            throw SaneException("Can't reorder single bit data\n");
-        }
-
-      dst_buffer = &(dev->lines_buffer);
-
-      work_buffer_src = src_buffer->get_read_pos();
-      bytes = src_buffer->avail();
-
-/*how many bytes can be processed here?*/
-/*we are greedy. we work as much as possible*/
-      if (bytes > dst_buffer->size() - dst_buffer->avail())
-        bytes = dst_buffer->size() - dst_buffer->avail();
-
-      dst_lines = (bytes * 8) / (src_pixels * channels * depth);
-      bytes = (dst_lines * src_pixels * channels * depth) / 8;
-
-      work_buffer_dst = dst_buffer->get_write_pos(bytes);
-
-      DBG(DBG_info, "%s: reordering %d lines\n", __func__, dst_lines);
-
-      if (dst_lines != 0)
-	{
-
-	  if (channels == 3)
-	    {
-	      step_1_mode = 0;
-
-                if (depth == 16) {
-                    step_1_mode |= 1;
-                }
-
-                if (dev->model->is_cis) {
-                    step_1_mode |= 2;
-                }
-
-                if (dev->model->line_mode_color_order == ColorOrder::BGR) {
-                    step_1_mode |= 4;
-                }
-
-	      switch (step_1_mode)
-		{
-		case 1:	/* RGB, chunky, 16 bit */
-#ifdef WORDS_BIGENDIAN
-            genesys_reorder_components_endian_16(work_buffer_src, work_buffer_dst, dst_lines,
-                                                 src_pixels, 3);
-		  break;
-#endif /*WORDS_BIGENDIAN */
-		case 0:	/* RGB, chunky, 8 bit */
-		  break;
-		case 2:	/* RGB, cis, 8 bit */
-                genesys_reorder_components_cis_8(work_buffer_src, work_buffer_dst, dst_lines,
-                                                 src_pixels);
-		  break;
-		case 3:	/* RGB, cis, 16 bit */
-                genesys_reorder_components_cis_16(work_buffer_src, work_buffer_dst, dst_lines,
-                                                  src_pixels);
-		  break;
-		case 4:	/* BGR, chunky, 8 bit */
-                genesys_reorder_components_bgr_8(work_buffer_src, work_buffer_dst, dst_lines,
-                                                 src_pixels);
-		  break;
-		case 5:	/* BGR, chunky, 16 bit */
-                genesys_reorder_components_bgr_16(work_buffer_src, work_buffer_dst, dst_lines,
-                                                  src_pixels);
-		  break;
-		case 6:	/* BGR, cis, 8 bit */
-                genesys_reorder_components_cis_bgr_8(work_buffer_src, work_buffer_dst, dst_lines,
-                                                     src_pixels);
-		  break;
-		case 7:	/* BGR, cis, 16 bit */
-                genesys_reorder_components_cis_bgr_16(work_buffer_src, work_buffer_dst, dst_lines,
-                                                      src_pixels);
-		  break;
-		}
-	    }
-	  else
-	    {
-#ifdef WORDS_BIGENDIAN
-	      if (depth == 16)
-		{
-            genesys_reorder_components_endian_16(work_buffer_src, work_buffer_dst, dst_lines,
-                                                 src_pixels, 1);
-		}
-#endif /*WORDS_BIGENDIAN */
-	    }
-
-            dst_buffer->produce(bytes);
-            src_buffer->consume(bytes);
-	}
-      src_buffer = dst_buffer;
-    }
-
-    // maybe reverse effects of ccd layout
-    if (dev->session.pipeline_needs_ccd)
-    {
-        // should not happen with depth == 1.
-        if (depth == 1) {
-            throw SaneException("Can't reverse ccd single bit data\n");
-        }
-
-      dst_buffer = &(dev->shrink_buffer);
-
-      work_buffer_src = src_buffer->get_read_pos();
-      bytes = src_buffer->avail();
-
-      extra =
-	(dev->current_setup.max_shift * src_pixels * channels * depth) / 8;
-
-/*extra bytes are reserved, and should not be consumed*/
-      if (bytes < extra)
-	bytes = 0;
-      else
-	bytes -= extra;
-
-/*how many bytes can be processed here?*/
-/*we are greedy. we work as much as possible*/
-      if (bytes > dst_buffer->size() - dst_buffer->avail())
-        bytes = dst_buffer->size() - dst_buffer->avail();
-
-      dst_lines = (bytes * 8) / (src_pixels * channels * depth);
-      bytes = (dst_lines * src_pixels * channels * depth) / 8;
-
-      work_buffer_dst = dst_buffer->get_write_pos(bytes);
-
-      DBG(DBG_info, "%s: un-ccd-ing %d lines\n", __func__, dst_lines);
-
-      if (dst_lines != 0)
-	{
-
-            if (depth == 8) {
-                genesys_reverse_ccd_8(work_buffer_src, work_buffer_dst, dst_lines,
-                                      src_pixels * channels, ccd_shift, shift_count);
-            } else {
-                genesys_reverse_ccd_16(work_buffer_src, work_buffer_dst, dst_lines,
-                                       src_pixels * channels, ccd_shift, shift_count);
-            }
-            dst_buffer->produce(bytes);
-            src_buffer->consume(bytes);
-	}
-      src_buffer = dst_buffer;
-    }
-
-    // maybe shrink(or enlarge) lines
-    if (dev->session.pipeline_needs_shrink) {
-
-      dst_buffer = &(dev->out_buffer);
-
-      work_buffer_src = src_buffer->get_read_pos();
-      bytes = src_buffer->avail();
-
-/*lines in input*/
-      dst_lines = (bytes * 8) / (src_pixels * channels * depth);
-
-      /* how many lines can be processed here?      */
-      /* we are greedy. we work as much as possible */
-      bytes = dst_buffer->size() - dst_buffer->avail();
-
-        if (dst_lines > (bytes * 8) / (dev->settings.requested_pixels * channels * depth)) {
-            dst_lines = (bytes * 8) / (dev->settings.requested_pixels * channels * depth);
-        }
-
-        bytes = (dst_lines * dev->settings.requested_pixels * channels * depth) / 8;
-
-      work_buffer_dst = dst_buffer->get_write_pos(bytes);
-
-      DBG(DBG_info, "%s: shrinking %d lines\n", __func__, dst_lines);
-
-      if (dst_lines != 0)
-	{
-	  if (depth == 1)
-            genesys_shrink_lines_1(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
-                                   dev->settings.requested_pixels, channels);
-	  else if (depth == 8)
-            genesys_shrink_lines_8(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
-                                   dev->settings.requested_pixels, channels);
-	  else
-            genesys_shrink_lines_16(work_buffer_src, work_buffer_dst, dst_lines, src_pixels,
-                                    dev->settings.requested_pixels, channels);
-
-          /* we just consumed this many bytes*/
-	  bytes = (dst_lines * src_pixels * channels * depth) / 8;
-            src_buffer->consume(bytes);
-
-          /* we just created this many bytes*/
-        bytes = (dst_lines * dev->settings.requested_pixels * channels * depth) / 8;
-        dst_buffer->produce(bytes);
-	}
-      src_buffer = dst_buffer;
-    }
 
   /* move data to destination */
   bytes = src_buffer->avail();

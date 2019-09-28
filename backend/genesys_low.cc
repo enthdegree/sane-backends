@@ -1463,6 +1463,10 @@ static FakeBufferModel get_fake_usb_buffer_model(const ScanSession& session)
 
 void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
 {
+    static unsigned s_pipeline_index = 0;
+
+    s_pipeline_index++;
+
     auto format = create_pixel_format(session.params.depth,
                                       dev->model->is_cis ? 1 : session.params.channels,
                                       dev->model->line_mode_color_order);
@@ -1500,6 +1504,58 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         dev->pipeline.push_first_node<ImagePipelineNodeBufferedGenesysUsb>(
                 width, lines, format, read_bytes_left_after_deseg,
                 get_fake_usb_buffer_model(session), read_data_from_usb);
+    }
+
+#ifdef WORDS_BIGENDIAN
+    if (get_pixel_format_depth(format) == 16) {
+        dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+    }
+#endif
+
+    if (DBG_LEVEL >= DBG_io2) {
+        dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
+                                                        std::to_string(s_pipeline_index) +
+                                                        "_0_after_swap.pnm");
+    }
+
+    if (dev->model->is_cis && session.params.channels == 3) {
+        dev->pipeline.push_node<ImagePipelineNodeMergeMonoLines>(dev->model->line_mode_color_order);
+    }
+
+    if (dev->pipeline.get_output_format() == PixelFormat::BGR888) {
+        dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB888);
+    }
+
+    if (dev->pipeline.get_output_format() == PixelFormat::BGR161616) {
+        dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB161616);
+    }
+
+    if (session.max_color_shift_lines > 0 && session.params.channels == 3) {
+        std::size_t shift_r = (dev->ld_shift_r * session.params.yres) / dev->motor.base_ydpi;
+        std::size_t shift_g = (dev->ld_shift_g * session.params.yres) / dev->motor.base_ydpi;
+        std::size_t shift_b = (dev->ld_shift_b * session.params.yres) / dev->motor.base_ydpi;
+        dev->pipeline.push_node<ImagePipelineNodeComponentShiftLines>(shift_r, shift_g, shift_b);
+    }
+
+    if (DBG_LEVEL >= DBG_io2) {
+        dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
+                                                        std::to_string(s_pipeline_index) +
+                                                        "_1_after_shift.pnm");
+    }
+
+    if (session.num_staggered_lines > 0) {
+        std::vector<std::size_t> shifts{0, session.num_staggered_lines};
+        dev->pipeline.push_node<ImagePipelineNodePixelShiftLines>(shifts);
+    }
+
+    if (DBG_LEVEL >= DBG_io2) {
+        dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
+                                                        std::to_string(s_pipeline_index) +
+                                                        "_2_after_stagger.pnm");
+    }
+
+    if (session.output_pixels != session.params.get_requested_pixels()) {
+        dev->pipeline.push_node<ImagePipelineNodeScaleRows>(session.params.get_requested_pixels());
     }
 
     auto read_from_pipeline = [dev](std::size_t size, std::uint8_t* out_data)
@@ -2199,7 +2255,7 @@ void run_functions_at_backend_exit()
 
 void debug_dump(unsigned level, const Genesys_Settings& settings)
 {
-    DBG(level, "settings:\n"
+    DBG(level, "Genesys_Settings:\n"
         "Resolution X/Y : %u / %u dpi\n"
         "Lines : %u\n"
         "Pixels per line : %u\n"
@@ -2215,7 +2271,7 @@ void debug_dump(unsigned level, const Genesys_Settings& settings)
 
 void debug_dump(unsigned level, const SetupParams& params)
 {
-    DBG(level, "settings:\n"
+    DBG(level, "SetupParams:\n"
         "Resolution X/Y : %u / %u dpi\n"
         "Lines : %u\n"
         "Pixels per line : %u\n"

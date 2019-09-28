@@ -44,6 +44,7 @@
 #define DEBUG_DECLARE_ONLY
 
 #include "genesys_image_pipeline.h"
+#include "genesys_low.h"
 #include <numeric>
 
 ImagePipelineNode::~ImagePipelineNode() {}
@@ -209,6 +210,29 @@ ImagePipelineNodeDeinterleaveLines::ImagePipelineNodeDeinterleaveLines(
                                interleaved_lines, source.get_width(),
                                interleaved_lines, pixels_per_chunk)
 {}
+
+ImagePipelineNodeSwap16BitEndian::ImagePipelineNodeSwap16BitEndian(ImagePipelineNode& source) :
+    source_(source),
+    needs_swapping_{false}
+{
+    if (get_pixel_format_depth(source_.get_format()) == 16) {
+        needs_swapping_ = true;
+    } else {
+        DBG(DBG_info, "%s: this pipeline node does nothing for non 16-bit formats", __func__);
+    }
+}
+
+void ImagePipelineNodeSwap16BitEndian::get_next_row_data(std::uint8_t* out_data)
+{
+    source_.get_next_row_data(out_data);
+    if (needs_swapping_) {
+        std::size_t pixels = get_row_bytes() / 2;
+        for (std::size_t i = 0; i < pixels; ++i) {
+            std::swap(*out_data, *(out_data + 1));
+            out_data += 2;
+        }
+    }
+}
 
 ImagePipelineNodeMergeMonoLines::ImagePipelineNodeMergeMonoLines(ImagePipelineNode& source,
                                                                  ColorOrder color_order) :
@@ -428,6 +452,71 @@ ImagePipelineNodeExtract::ImagePipelineNodeExtract(ImagePipelineNode& source,
 
 ImagePipelineNodeExtract::~ImagePipelineNodeExtract() {}
 
+ImagePipelineNodeScaleRows::ImagePipelineNodeScaleRows(ImagePipelineNode& source,
+                                                       std::size_t width) :
+    source_(source),
+    width_{width}
+{
+    cached_line_.resize(source_.get_row_bytes());
+}
+
+void ImagePipelineNodeScaleRows::get_next_row_data(std::uint8_t* out_data)
+{
+    auto src_width = source_.get_width();
+    auto dst_width = width_;
+
+    source_.get_next_row_data(cached_line_.data());
+
+    const auto* src_data = cached_line_.data();
+    auto format = get_format();
+    auto channels = get_pixel_channels(format);
+
+    if (src_width > dst_width) {
+        // average
+        std::uint32_t counter = src_width / 2;
+        unsigned src_x = 0;
+        for (unsigned dst_x = 0; dst_x < dst_width; dst_x++) {
+            unsigned avg[3] = {0, 0, 0};
+            unsigned count = 0;
+            while (counter < src_width && src_x < src_width) {
+                counter += dst_width;
+
+                for (unsigned c = 0; c < channels; c++) {
+                    avg[c] += get_raw_channel_from_row(src_data, src_x, c, format);
+                }
+
+                src_x++;
+                count++;
+            }
+            counter -= src_width;
+
+            for (unsigned c = 0; c < channels; c++) {
+                set_raw_channel_to_row(out_data, dst_x, c, avg[c] / count, format);
+            }
+        }
+    } else {
+        // interpolate and copy pixels
+        std::uint32_t counter = dst_width / 2;
+        unsigned dst_x = 0;
+
+        for (unsigned src_x = 0; src_x < src_width; src_x++) {
+            unsigned avg[3] = {0, 0, 0};
+            for (unsigned c = 0; c < channels; c++) {
+                avg[c] += get_raw_channel_from_row(src_data, src_x, c, format);
+            }
+            while ((counter < dst_width || src_x + 1 == src_width) && dst_x < dst_width) {
+                counter += src_width;
+
+                for (unsigned c = 0; c < channels; c++) {
+                    set_raw_channel_to_row(out_data, dst_x, c, avg[c], format);
+                }
+                dst_x++;
+            }
+            counter -= dst_width;
+        }
+    }
+}
+
 void ImagePipelineNodeExtract::get_next_row_data(std::uint8_t* out_data)
 {
     while (current_line_ < offset_y_) {
@@ -470,6 +559,36 @@ void ImagePipelineNodeExtract::get_next_row_data(std::uint8_t* out_data)
     }
 
     current_line_++;
+}
+
+ImagePipelineNodeDebug::ImagePipelineNodeDebug(ImagePipelineNode& source,
+                                               const std::string& path) :
+    source_(source),
+    path_{path},
+    buffer_{source_.get_row_bytes()}
+{}
+
+ImagePipelineNodeDebug::~ImagePipelineNodeDebug()
+{
+    catch_all_exceptions(__func__, [&]()
+    {
+        if (buffer_.empty())
+            return;
+
+        auto format = get_format();
+        buffer_.linearize();
+        sanei_genesys_write_pnm_file(path_.c_str(), buffer_.get_front_row_ptr(),
+                                     get_pixel_format_depth(format),
+                                     get_pixel_channels(format),
+                                     get_width(), buffer_.height());
+    });
+}
+
+void ImagePipelineNodeDebug::get_next_row_data(std::uint8_t* out_data)
+{
+    buffer_.push_back();
+    source_.get_next_row_data(out_data);
+    std::memcpy(buffer_.get_back_row_ptr(), out_data, get_row_bytes());
 }
 
 std::size_t ImagePipelineStack::get_input_width() const
@@ -525,6 +644,16 @@ void ImagePipelineStack::ensure_node_exists() const
     if (nodes_.empty()) {
         throw SaneException("The pipeline does not contain any nodes");
     }
+}
+
+void ImagePipelineStack::clear()
+{
+    // we need to destroy the nodes back to front, so that the destructors still have valid
+    // references to sources
+    for (auto it = nodes_.rbegin(); it != nodes_.rend(); ++it) {
+        it->reset();
+    }
+    nodes_.clear();
 }
 
 std::vector<std::uint8_t> ImagePipelineStack::get_all_data()

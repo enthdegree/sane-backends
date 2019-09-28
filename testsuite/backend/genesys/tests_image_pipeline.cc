@@ -175,7 +175,7 @@ void test_node_desegment_1_line()
     ASSERT_EQ(out_data, expected_data);
 }
 
-void test_node_deinterleave_lines()
+void test_node_deinterleave_lines_i8()
 {
     using Data = std::vector<std::uint8_t>;
 
@@ -199,6 +199,67 @@ void test_node_deinterleave_lines()
     Data expected_data;
     expected_data.resize(20, 0);
     std::iota(expected_data.begin(), expected_data.end(), 1); // will fill with 1, 2, 3, ..., 20
+
+    ASSERT_EQ(out_data, expected_data);
+}
+
+void test_node_deinterleave_lines_rgb888()
+{
+    using Data = std::vector<std::uint8_t>;
+
+    Data in_data = {
+        1, 2, 3,  7,  8,  9, 13, 14, 15, 19, 20, 21,
+        4, 5, 6, 10, 11, 12, 16, 17, 18, 22, 23, 24,
+    };
+
+    ImagePipelineStack stack;
+    stack.push_first_node<ImagePipelineNodeArraySource>(4, 2, PixelFormat::RGB888,
+                                                        std::move(in_data));
+    stack.push_node<ImagePipelineNodeDeinterleaveLines>(2, 1);
+
+    ASSERT_EQ(stack.get_output_width(), 8u);
+    ASSERT_EQ(stack.get_output_height(), 1u);
+    ASSERT_EQ(stack.get_output_row_bytes(), 24u);
+    ASSERT_EQ(stack.get_output_format(), PixelFormat::RGB888);
+
+    auto out_data = stack.get_all_data();
+
+    Data expected_data;
+    expected_data.resize(24, 0);
+    std::iota(expected_data.begin(), expected_data.end(), 1); // will fill with 1, 2, 3, ..., 20
+
+    ASSERT_EQ(out_data, expected_data);
+}
+
+void test_node_swap_16bit_endian()
+{
+    using Data = std::vector<std::uint8_t>;
+
+    Data in_data = {
+        0x10, 0x20, 0x30, 0x11, 0x21, 0x31,
+        0x12, 0x22, 0x32, 0x13, 0x23, 0x33,
+        0x14, 0x24, 0x34, 0x15, 0x25, 0x35,
+        0x16, 0x26, 0x36, 0x17, 0x27, 0x37,
+    };
+
+    ImagePipelineStack stack;
+    stack.push_first_node<ImagePipelineNodeArraySource>(4, 1, PixelFormat::RGB161616,
+                                                        std::move(in_data));
+    stack.push_node<ImagePipelineNodeSwap16BitEndian>();
+
+    ASSERT_EQ(stack.get_output_width(), 4u);
+    ASSERT_EQ(stack.get_output_height(), 1u);
+    ASSERT_EQ(stack.get_output_row_bytes(), 24u);
+    ASSERT_EQ(stack.get_output_format(), PixelFormat::RGB161616);
+
+    auto out_data = stack.get_all_data();
+
+    Data expected_data = {
+        0x20, 0x10, 0x11, 0x30, 0x31, 0x21,
+        0x22, 0x12, 0x13, 0x32, 0x33, 0x23,
+        0x24, 0x14, 0x15, 0x34, 0x35, 0x25,
+        0x26, 0x16, 0x17, 0x36, 0x37, 0x27,
+    };
 
     ASSERT_EQ(out_data, expected_data);
 }
@@ -335,7 +396,9 @@ void test_image_pipeline()
     test_node_buffered_callable_source();
     test_node_format_convert();
     test_node_desegment_1_line();
-    test_node_deinterleave_lines();
+    test_node_deinterleave_lines_i8();
+    test_node_deinterleave_lines_rgb888();
+    test_node_swap_16bit_endian();
     test_node_merge_mono_lines();
     test_node_split_mono_lines();
     test_node_component_shift_lines();

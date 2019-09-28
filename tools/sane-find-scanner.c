@@ -2009,7 +2009,12 @@ main (int argc, char **argv)
 	  }
 
 	if (verbose > 3)
+#if LIBUSB_API_VERSION >= 0x01000106
+          libusb_set_option (sfs_usb_ctx, LIBUSB_OPTION_LOG_LEVEL,
+                             LIBUSB_LOG_LEVEL_INFO);
+#else
 	  libusb_set_debug (sfs_usb_ctx, 3);
+#endif
 
 	devcnt = libusb_get_device_list (sfs_usb_ctx, &devlist);
 	if (devcnt < 0)

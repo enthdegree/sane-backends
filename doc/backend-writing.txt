@@ -1,4 +1,4 @@
-2006-01-01
+2019-08-26
 
 Here are a few rules and tips that should help writing a
 SANE-conforming backend and including it into the SANE package:
@@ -79,16 +79,10 @@ sane-backends/
     configure.ac depcomp install-sh ltmain.sh Makefile.am Makefile.in missing
     mkinstalldirs: Part of the build system as explained above.
   * ChangeLog:
-    The ChangeLog contains all the changes made since the last stable release.
-    If anything is changed in git, write a decent commit message documenting
-    your work.  This commit message will be included as is in the ChangeLog
-    file for the next stable release.  Users of development code should refer
-    to the `git log` output or the on-line log.
-    For more details on the format, see the SANE git page on the website.
-  * ChangeLog-1.0.0, ChangeLog-1.0.1 (...):
-    These files contain the ChangeLogs of older releases. Once a new release has
-    been made, the current ChangeLog renamed to ChangeLog-1.something.something
-    and a new empty ChangeLog is created.
+    The ChangeLog contains all the changes made since sane-backends-1.0.28
+    or a stub explaining how to create an up-to-date list of changes.
+    ChangeLogs for all releases up to and including 1.0.28 can be found in
+    the ChangeLogs/ directory.  Please note that we skipped 1.0.26.
   * AUTHORS COPYING INSTALL LICENSE:
     General documentation + license.
   * NEWS:

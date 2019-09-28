@@ -7,11 +7,43 @@
 SUBDIRS = include lib sanei backend frontend tools doc po testsuite
 DIST_SUBDIRS = include lib sanei backend frontend tools doc po japi testsuite
 
-dist_doc_DATA = AUTHORS ChangeLog COPYING LICENSE NEWS PROBLEMS PROJECTS \
+dist_doc_DATA = AUTHORS COPYING LICENSE NEWS PROBLEMS PROJECTS \
  README README.aix README.beos README.darwin README.djpeg README.freebsd \
  README.hp-ux README.linux README.netbsd README.openbsd README.os2 \
  README.solaris README.unixware2 README.unixware7 README.windows \
  README.zeta
+
+dist_doc_DATA += ChangeLog
+changelogsdir  = $(docdir)/ChangeLogs
+dist_changelogs_DATA  = ChangeLogs/ChangeLog-1.0.28
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.27
+##  sane-backends-1.0.26 was skipped
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.25
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.24
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.23
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.22
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.21
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.20
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.19
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.18
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.17
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.16
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.15
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.14
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.13
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.12
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.11
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.10
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.9
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.8
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.7
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.6
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.5
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.4
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.3
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.2
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.1
+dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.0
 
 EXTRA_DIST  = .editorconfig
 EXTRA_DIST += po/README

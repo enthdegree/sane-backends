@@ -1359,11 +1359,6 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     s.output_line_bytes_raw = s.output_line_bytes;
     s.conseq_pixel_dist = 0;
 
-    if (dev->model->asic_type == AsicType::GL646) {
-        // BUG: most likely segmented sensors were never used, so incorrect value was supplied
-        s.output_line_bytes_raw = s.output_channel_bytes;
-    }
-
     if (dev->model->asic_type == AsicType::GL845 ||
         dev->model->asic_type == AsicType::GL846 ||
         dev->model->asic_type == AsicType::GL847)
@@ -1386,9 +1381,16 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
                     s.params.depth);
     }
 
+    if (dev->model->asic_type == AsicType::GL841) {
+        if (dev->model->is_cis) {
+            s.output_line_bytes_raw = s.output_channel_bytes;
+        }
+    }
+
     if (dev->model->asic_type == AsicType::GL124) {
-        s.output_line_bytes_raw = multiply_by_depth_ceil(s.output_pixels / s.ccd_size_divisor,
-                                                         s.params.depth);
+        if (dev->model->is_cis) {
+            s.output_line_bytes_raw = s.output_channel_bytes;
+        }
         s.conseq_pixel_dist = s.output_pixels / s.ccd_size_divisor / s.segment_count;
     }
 
@@ -1400,7 +1402,8 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     if (dev->model->asic_type == AsicType::GL124 ||
         dev->model->asic_type == AsicType::GL843)
     {
-        s.output_segment_pixel_group_count = s.output_line_bytes_raw / s.segment_count;
+        s.output_segment_pixel_group_count = multiply_by_depth_ceil(
+            s.output_pixels / s.ccd_size_divisor / s.segment_count, s.params.depth);
     }
     if (dev->model->asic_type == AsicType::GL845 ||
         dev->model->asic_type == AsicType::GL846 ||
@@ -1423,6 +1426,9 @@ static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& se
             return 1;
 
         case AsicType::GL124:
+            // BUG: we shouldn't multiply by channels here nor divide by ccd_size_divisor
+            return session.output_line_bytes_raw / session.ccd_size_divisor * session.params.channels;
+
         case AsicType::GL846:
         case AsicType::GL847:
             // BUG: we shouldn't multiply by channels here

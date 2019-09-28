@@ -782,7 +782,7 @@ sanei_genesys_create_gamma_table (std::vector<uint16_t>& gamma_table, int size,
       maximum, gamma_max, gamma);
   for (i = 0; i < size; i++)
     {
-      value = gamma_max * pow ((float) i / size, 1.0 / gamma);
+        value = gamma_max * std::pow(static_cast<double>(i) / size, 1.0 / gamma);
       if (value > maximum)
 	value = maximum;
       gamma_table[i] = value;

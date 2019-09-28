@@ -781,8 +781,6 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          const ScanSession& session)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
-    unsigned int segcnt;
-    unsigned int startx, endx;
     unsigned int dpihw;
   GenesysRegister *r;
   uint32_t expmax;
@@ -800,21 +798,6 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw,
                                                     session.ccd_size_divisor);
     gl124_setup_sensor(dev, sensor, sensor_profile, reg);
-
-  /* start and end coordinate in optical dpi coordinates */
-  /* startx = start / ccd_pixels_per_system_pixel + sensor.dummy_pixel; XXX STEF XXX */
-    unsigned start = session.params.startx;
-
-    if (session.num_staggered_lines > 0) {
-        start |= 1;
-    }
-
-    startx = start / ccd_pixels_per_system_pixel;
-    endx = startx + session.optical_pixels / ccd_pixels_per_system_pixel;
-
-  /* pixel coordinate factor correction when used dpihw is not maximal one */
-    startx /= session.hwdpi_divisor;
-    endx /= session.hwdpi_divisor;
 
     gl124_set_fe(dev, sensor, AFE_SET);
 
@@ -936,14 +919,8 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         }
     }
 
-    reg->set24(REG_STRPIXEL, startx / session.segment_count);
-    DBG(DBG_io2, "%s: strpixel used=%d\n", __func__, startx / session.segment_count);
-    segcnt = reg->get24(REG_SEGCNT);
-    if (endx / session.segment_count == segcnt) {
-      endx=0;
-    }
-    reg->set24(REG_ENDPIXEL, endx / session.segment_count);
-    DBG(DBG_io2, "%s: endpixel used=%d\n", __func__, endx / session.segment_count);
+    reg->set24(REG_STRPIXEL, session.pixel_startx);
+    reg->set24(REG_ENDPIXEL, session.pixel_endx);
 
   dev->line_count = 0;
 

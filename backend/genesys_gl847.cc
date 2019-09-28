@@ -717,19 +717,6 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw, 1);
     gl847_setup_sensor(dev, sensor, sensor_profile, reg);
 
-    unsigned start = session.params.startx;
-    if (session.num_staggered_lines > 0) {
-        start |= 1;
-    }
-
-    // start and end coordinate in optical dpi coordinates
-    unsigned startx = start + sensor.CCD_start_xoffset * ccd_pixels_per_system_pixel;
-    unsigned endx = startx + session.optical_pixels_raw;
-
-    // compute pixel coordinate in the given dpihw space, taking segments into account
-    startx /= session.hwdpi_divisor * session.segment_count;
-    endx /= session.hwdpi_divisor * session.segment_count;
-
     gl847_set_fe(dev, sensor, AFE_SET);
 
   /* enable shading */
@@ -828,10 +815,8 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->set16(REG_DPISET, dpiset);
     DBG (DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);
 
-    reg->set16(REG_STRPIXEL, startx / ccd_pixels_per_system_pixel);
-    reg->set16(REG_ENDPIXEL, endx / ccd_pixels_per_system_pixel);
-    DBG(DBG_io2, "%s: startx=%d\n", __func__, startx / ccd_pixels_per_system_pixel);
-    DBG(DBG_io2, "%s: endx  =%d\n", __func__, endx / ccd_pixels_per_system_pixel);
+    reg->set16(REG_STRPIXEL, session.pixel_startx);
+    reg->set16(REG_ENDPIXEL, session.pixel_endx);
 
   DBG (DBG_io2, "%s: pixels     =%d\n", __func__, session.optical_pixels);
   DBG (DBG_io2, "%s: depth      =%d\n", __func__, session.params.depth);

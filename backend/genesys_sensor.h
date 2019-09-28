@@ -277,7 +277,11 @@ struct Genesys_Sensor {
 
     // The scanner may be setup to use a custom dpihw that does not correspond to any actual
     // resolution. The value zero does not set the override.
-    unsigned dpihw_override = 0;
+    unsigned register_dpihw_override = 0;
+
+    // The scanner may be setup to use a custom logical dpihw that does not correspond to any actual
+    // resolution. The value zero does not set the override.
+    unsigned logical_dpihw_override = 0;
 
     // The scanner may be setup to use a custom dpiset value that does not correspond to any actual
     // resolution. The value zero does not set the override.
@@ -285,6 +289,9 @@ struct Genesys_Sensor {
 
     // CCD may present itself as half or quarter-size CCD on certain resolutions
     int ccd_size_divisor = 1;
+
+    // Some scanners need an additional multiplier over the scan coordinates
+    int pixel_count_multiplier = 1;
 
     int black_pixels = 0;
     // value of the dummy register

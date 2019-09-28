@@ -349,6 +349,9 @@ sense_handler(int fd, u_char *sense_buffer, void *ss)
                             DBG(5, "Scanner not ready: undocumented reason\n");
                             return SANE_STATUS_IO_ERROR;
                         }
+                    default:
+                      DBG(5, "Scanner not ready: unknown sense code\n");
+                      return SANE_STATUS_IO_ERROR;
                   }
               case 0x03: /* medium error */
 		DBG(5, "medium error: undocumented reason\n");

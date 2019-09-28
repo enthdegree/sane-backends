@@ -924,9 +924,6 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   dev->line_count = 0;
 
-  DBG (DBG_io2, "%s: pixels          =%d\n", __func__, session.optical_pixels);
-  DBG (DBG_io2, "%s: depth           =%d\n", __func__, session.params.depth);
-
     build_image_pipeline(dev, session);
 
     // MAXWD is expressed in 2 words unit
@@ -977,8 +974,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   int dummy = 0;
   int slope_dpi = 0;
   int scan_step_type = 1;
-
-    DBG (DBG_info, "%s: optical_res=%d\n", __func__, session.optical_resolution);
 
     /* cis color scan is effectively a gray scan with 3 gray lines per color line and a FILTER of 0 */
     if (dev->model->is_cis) {
@@ -1090,8 +1085,6 @@ gl124_calculate_current_setup (Genesys_Device * dev, const Genesys_Sensor& senso
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
   /* use detected left margin  and fixed value */
-
-    DBG(DBG_info, "%s: used_pixels=%d\n", __func__, session.optical_pixels);
 
     exposure_time = get_sensor_profile(dev->model->asic_type, sensor, session.params.xres,
                                        session.ccd_size_divisor).exposure_lperiod;

@@ -98,30 +98,30 @@ struct Genesys_Frontend
     // id of the frontend description
     uint8_t fe_id = 0;
 
-    // all registers of the frontend
-    GenesysRegisterSettingSet regs;
+    // all registers of the frontend. Note that the registers can hold 9-bit values
+    RegisterSettingSet<std::uint16_t> regs;
 
     // extra control registers
-    std::array<uint8_t, 3> reg2 = {};
+    std::array<std::uint16_t, 3> reg2 = {};
 
     GenesysFrontendLayout layout;
 
-    void set_offset(unsigned which, uint8_t value)
+    void set_offset(unsigned which, std::uint16_t value)
     {
         regs.set_value(layout.offset_addr[which], value);
     }
 
-    void set_gain(unsigned which, uint8_t value)
+    void set_gain(unsigned which, std::uint16_t value)
     {
         regs.set_value(layout.gain_addr[which], value);
     }
 
-    uint8_t get_offset(unsigned which) const
+    std::uint16_t get_offset(unsigned which) const
     {
         return regs.get_value(layout.offset_addr[which]);
     }
 
-    uint8_t get_gain(unsigned which) const
+    std::uint16_t get_gain(unsigned which) const
     {
         return regs.get_value(layout.gain_addr[which]);
     }

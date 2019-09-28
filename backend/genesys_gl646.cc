@@ -3057,11 +3057,9 @@ static void gl646_init(Genesys_Device* dev)
         // Write initial registers
         dev->write_registers(dev->reg);
 
-      /* Test ASIC and RAM */
-      if (!(dev->model->flags & GENESYS_FLAG_LAZY_INIT))
-	{
-        gl646_asic_test(dev);
-	}
+        if (dev->model->flags & GENESYS_FLAG_TEST_ON_INIT) {
+            gl646_asic_test(dev);
+        }
 
         // send gamma tables if needed
         gl646_send_gamma_table(dev, sensor);

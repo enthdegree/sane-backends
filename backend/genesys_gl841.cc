@@ -3933,9 +3933,7 @@ static void gl841_init(Genesys_Device* dev)
     // Write initial registers
     dev->write_registers(dev->reg);
 
-  /* Test ASIC and RAM */
-  if (!(dev->model->flags & GENESYS_FLAG_LAZY_INIT))
-    {
+    if (dev->model->flags & GENESYS_FLAG_TEST_ON_INIT) {
         sanei_gl841_asic_test(dev);
     }
 

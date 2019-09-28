@@ -4678,7 +4678,7 @@ probe_genesys_devices (void)
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 9;
+static const int CALIBRATION_VERSION = 10;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

@@ -117,8 +117,9 @@ void sanei_genesys_write_pnm_file(const char* filename, uint8_t* data, int depth
     }
   else
     {
-      fprintf (out, "P%c\n%d\n%d\n%d\n", channels == 1 ? '5' : '6',
-	   pixels_per_line, lines, (int) pow (2, depth) - 1);
+        std::fprintf(out, "P%c\n%d\n%d\n%d\n", channels == 1 ? '5' : '6', pixels_per_line, lines,
+                     static_cast<int>(std::pow(static_cast<double>(2),
+                                               static_cast<double>(depth - 1))));
     }
   if (channels == 3)
     {
@@ -169,7 +170,7 @@ void sanei_genesys_write_pnm_file16(const char* filename, uint16_t* data, unsign
         throw SaneException("could not open %s for writing: %s\n", filename, strerror(errno));
     }
     std::fprintf(out, "P%c\n%d\n%d\n%d\n", channels == 1 ? '5' : '6',
-                 pixels_per_line, lines, (int) pow (2, 16) - 1);
+                 pixels_per_line, lines, 256 * 256 - 1);
 
     for (unsigned count = 0; count < (pixels_per_line * lines * channels); count++) {
         fputc(*data >> 8, out);

@@ -48,21 +48,54 @@ void test_image_buffer_genesys_usb()
     std::vector<std::uint8_t> dummy;
     dummy.resize(1086780);
 
-    buffer.get_data(453120, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
-    buffer.get_data(56640, dummy.data());
+    ASSERT_TRUE(buffer.get_data(453120, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
 
     std::vector<std::size_t> expected = {
         453120, 56576, 56576, 56576, 56832, 56576, 56576, 56576, 56832, 56576, 56576, 56576, 11008
+    };
+    ASSERT_EQ(requests, expected);
+}
+
+void test_image_buffer_genesys_usb_capped_remaining_bytes()
+{
+    std::vector<std::size_t> requests;
+
+    auto on_read_usb = [&](std::size_t x, std::uint8_t* data)
+    {
+        (void) data;
+        requests.push_back(x);
+    };
+
+    FakeBufferModel model;
+    model.push_step(453120, 1);
+    model.push_step(56640, 3540);
+    ImageBufferGenesysUsb buffer{1086780, model, on_read_usb};
+
+    std::vector<std::uint8_t> dummy;
+    dummy.resize(1086780);
+
+    ASSERT_TRUE(buffer.get_data(453120, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    buffer.set_remaining_size(10000);
+    ASSERT_FALSE(buffer.get_data(56640, dummy.data()));
+
+    std::vector<std::size_t> expected = {
+        // note that the sizes are rounded-up to 256 bytes
+        453120, 56576, 56576, 56576, 56832, 10240
     };
     ASSERT_EQ(requests, expected);
 }
@@ -86,6 +119,7 @@ void test_node_buffered_callable_source()
         std::copy(in_data.begin() + curr_index,
                   in_data.begin() + curr_index + chunk_size, out_data);
         curr_index += chunk_size;
+        return true;
     };
 
     ImagePipelineStack stack;
@@ -97,15 +131,15 @@ void test_node_buffered_callable_source()
 
     ASSERT_EQ(curr_index, 0u);
 
-    stack.get_next_row_data(out_data.data());
+    ASSERT_TRUE(stack.get_next_row_data(out_data.data()));
     ASSERT_EQ(out_data, Data({0, 1, 2, 3}));
     ASSERT_EQ(curr_index, 6u);
 
-    stack.get_next_row_data(out_data.data());
+    ASSERT_TRUE(stack.get_next_row_data(out_data.data()));
     ASSERT_EQ(out_data, Data({4, 5, 6, 7}));
     ASSERT_EQ(curr_index, 9u);
 
-    stack.get_next_row_data(out_data.data());
+    ASSERT_TRUE(stack.get_next_row_data(out_data.data()));
     ASSERT_EQ(out_data, Data({8, 9, 10, 11}));
     ASSERT_EQ(curr_index, 12u);
 }
@@ -393,6 +427,7 @@ void test_node_pixel_shift_lines()
 void test_image_pipeline()
 {
     test_image_buffer_genesys_usb();
+    test_image_buffer_genesys_usb_capped_remaining_bytes();
     test_node_buffered_callable_source();
     test_node_format_convert();
     test_node_desegment_1_line();

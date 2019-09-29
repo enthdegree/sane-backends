@@ -54,7 +54,7 @@ ImageBuffer::ImageBuffer(std::size_t size, ProducerCallback producer) :
     buffer_.resize(size_);
 }
 
-void ImageBuffer::get_data(std::size_t size, std::uint8_t* out_data)
+bool ImageBuffer::get_data(std::size_t size, std::uint8_t* out_data)
 {
     const std::uint8_t* out_data_end = out_data + size;
 
@@ -72,16 +72,19 @@ void ImageBuffer::get_data(std::size_t size, std::uint8_t* out_data)
     }
 
     if (out_data == out_data_end) {
-        return;
+        return true;
     }
 
     // now the buffer is empty and there's more data to be read
+    bool got_data = true;
     do {
         buffer_offset_ = 0;
-        producer_(size_, buffer_.data());
+        got_data &= producer_(size_, buffer_.data());
 
         copy_buffer();
-    } while(out_data < out_data_end);
+    } while(out_data < out_data_end && got_data);
+
+    return got_data;
 }
 
 void FakeBufferModel::push_step(std::size_t buffer_size, std::size_t row_bytes)
@@ -128,7 +131,7 @@ ImageBufferGenesysUsb::ImageBufferGenesysUsb(std::size_t total_size,
     producer_{producer}
 {}
 
-void ImageBufferGenesysUsb::get_data(std::size_t size, std::uint8_t* out_data)
+bool ImageBufferGenesysUsb::get_data(std::size_t size, std::uint8_t* out_data)
 {
     const std::uint8_t* out_data_end = out_data + size;
 
@@ -146,13 +149,13 @@ void ImageBufferGenesysUsb::get_data(std::size_t size, std::uint8_t* out_data)
     }
 
     if (out_data == out_data_end) {
-        return;
+        return true;
     }
 
     // now the buffer is empty and there's more data to be read
     do {
         if (remaining_size_ == 0)
-            return; // BUG: the caller should correctly handle the read amount
+            return false;
 
         auto bytes_to_read = get_read_size();
         buffer_offset_ = 0;
@@ -169,6 +172,7 @@ void ImageBufferGenesysUsb::get_data(std::size_t size, std::uint8_t* out_data)
 
         copy_buffer();
     } while(out_data < out_data_end);
+    return true;
 }
 
 std::size_t ImageBufferGenesysUsb::get_read_size()

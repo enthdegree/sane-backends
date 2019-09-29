@@ -1025,10 +1025,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);
 
-    dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
-
-    DBG(DBG_info, "%s: desegmented bytes to read = %lu\n", __func__,
-        (u_long) dev->read_bytes_left_after_deseg);
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
@@ -1042,9 +1038,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
     dev->total_bytes_read = 0;
-    dev->total_bytes_to_read =
-            multiply_by_depth_ceil(session.params.get_requested_pixels() * session.params.lines,
-                                   session.params.depth) * session.params.channels;
+    dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
 
     DBG(DBG_info, "%s: total bytes to send to frontend = %lu\n", __func__,
         (u_long) dev->total_bytes_to_read);

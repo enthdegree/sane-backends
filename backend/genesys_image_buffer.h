@@ -53,7 +53,7 @@
 class ImageBuffer
 {
 public:
-    using ProducerCallback = std::function<void(std::size_t size, std::uint8_t* out_data)>;
+    using ProducerCallback = std::function<bool(std::size_t size, std::uint8_t* out_data)>;
 
     ImageBuffer() {}
     ImageBuffer(std::size_t size, ProducerCallback producer);
@@ -61,7 +61,7 @@ public:
     std::size_t size() const { return size_; }
     std::size_t available() const { return size_ - buffer_offset_; }
 
-    void get_data(std::size_t size, std::uint8_t* out_data);
+    bool get_data(std::size_t size, std::uint8_t* out_data);
 
 private:
     ProducerCallback producer_;
@@ -101,9 +101,11 @@ public:
 
     std::size_t remaining_size() const { return remaining_size_; }
 
+    void set_remaining_size(std::size_t bytes) { remaining_size_ = bytes; }
+
     std::size_t available() const { return buffer_end_ - buffer_offset_; }
 
-    void get_data(std::size_t size, std::uint8_t* out_data);
+    bool get_data(std::size_t size, std::uint8_t* out_data);
 
 private:
 

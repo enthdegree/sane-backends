@@ -1522,6 +1522,12 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
             s.params.depth);
     }
 
+    s.output_line_bytes_requested = multiply_by_depth_ceil(
+            s.params.get_requested_pixels() * s.params.channels, s.params.depth);
+
+    s.output_total_bytes_raw = s.output_line_bytes_raw * s.output_line_count;
+    s.output_total_bytes = s.output_line_bytes * s.output_line_count;
+
     compute_session_buffer_sizes(dev->model->asic_type, s);
     compute_session_pipeline(dev, s);
     compute_session_pixel_offsets(dev, s, sensor, sensor_profile);
@@ -1583,6 +1589,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     auto read_data_from_usb = [dev](std::size_t size, std::uint8_t* data)
     {
         dev->cmd_set->bulk_read_data(dev, 0x45, data, size);
+        return true;
     };
 
     auto lines = session.output_line_count * (dev->model->is_cis ? session.params.channels : 1);
@@ -1669,7 +1676,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     auto read_from_pipeline = [dev](std::size_t size, std::uint8_t* out_data)
     {
         (void) size; // will be always equal to dev->pipeline.get_output_row_bytes()
-        dev->pipeline.get_next_row_data(out_data);
+        return dev->pipeline.get_next_row_data(out_data);
     };
     dev->pipeline_buffer = ImageBuffer{dev->pipeline.get_output_row_bytes(),
                                        read_from_pipeline};

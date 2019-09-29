@@ -690,10 +690,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
   /* scan bytes to read */
     unsigned cis_channel_multiplier = dev->model->is_cis ? session.params.channels : 1;
 
-    dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count * cis_channel_multiplier;
-
-    DBG(DBG_info, "%s: desegmented bytes to read = %lu\n", __func__,
-        (u_long) dev->read_bytes_left_after_deseg);
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
@@ -706,9 +702,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
     dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
     dev->total_bytes_read = 0;
-    dev->total_bytes_to_read =
-            multiply_by_depth_ceil(session.params.get_requested_pixels() * session.params.lines,
-                                   session.params.depth) * session.params.channels;
+    dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
 
     /* select color filter based on settings */
     regs->find_reg(0x04).value &= ~REG04_FILTER;
@@ -1434,7 +1428,7 @@ static void gl646_detect_document_end(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   uint8_t val, gpio;
-  unsigned int bytes_left, lines;
+    unsigned int bytes_left;
 
     // test for document presence
     sanei_genesys_get_status(dev, &val);
@@ -1460,29 +1454,26 @@ static void gl646_detect_document_end(Genesys_Device* dev)
        */
       DBG(DBG_io, "%s: total_bytes_to_read=%lu\n", __func__, (u_long) dev->total_bytes_to_read);
       DBG(DBG_io, "%s: total_bytes_read   =%lu\n", __func__, (u_long) dev->total_bytes_read);
-        DBG(DBG_io, "%s: read_bytes_left_after_deseg    =%lu\n", __func__, (u_long) dev->read_bytes_left_after_deseg);
 
         // amount of data available from scanner is what to scan
         sanei_genesys_read_valid_words(dev, &bytes_left);
 
-      /* we add the number of lines needed to read the last part of the document in */
-        lines = (SANE_UNFIX(dev->model->y_offset) * dev->session.params.yres) / MM_PER_INCH;
-      DBG(DBG_io, "%s: adding %d line to flush\n", __func__, lines);
-        bytes_left += lines * dev->session.output_line_bytes_raw;
+        unsigned lines_in_buffer = bytes_left / dev->session.output_line_bytes_raw;
 
-        if (dev->session.params.depth > 8) {
-	  bytes_left = 2 * bytes_left;
-	}
-        if (dev->session.params.channels > 1) {
-	  bytes_left = 3 * bytes_left;
-	}
-        if (bytes_left < dev->read_bytes_left_after_deseg) {
+        // we add the number of lines needed to read the last part of the document in
+        unsigned lines_offset = (SANE_UNFIX(dev->model->y_offset) * dev->session.params.yres) /
+                MM_PER_INCH;
+
+        unsigned remaining_lines = lines_in_buffer + lines_offset;
+
+        bytes_left = remaining_lines * dev->session.output_line_bytes_raw;
+
+        if (bytes_left < dev->get_pipeline_source().remaining_bytes()) {
+            dev->get_pipeline_source().set_remaining_bytes(bytes_left);
             dev->total_bytes_to_read = dev->total_bytes_read + bytes_left;
-            dev->read_bytes_left_after_deseg = bytes_left;
         }
       DBG(DBG_io, "%s: total_bytes_to_read=%lu\n", __func__, (u_long) dev->total_bytes_to_read);
       DBG(DBG_io, "%s: total_bytes_read   =%lu\n", __func__, (u_long) dev->total_bytes_read);
-      DBG(DBG_io, "%s: read_bytes_left    =%lu\n", __func__, (u_long) dev->read_bytes_left_after_deseg);
     }
 }
 

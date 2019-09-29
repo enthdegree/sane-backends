@@ -1275,10 +1275,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
     build_image_pipeline(dev, session);
 
-  dev->read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
-
-    DBG(DBG_info, "%s: physical bytes to read = %lu\n", __func__,
-        (u_long) dev->read_bytes_left_after_deseg);
   dev->read_active = SANE_TRUE;
 
     dev->session = session;
@@ -1292,9 +1288,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
   dev->total_bytes_read = 0;
-    dev->total_bytes_to_read =
-            multiply_by_depth_ceil(session.params.get_requested_pixels() * session.params.lines,
-                                   session.params.depth) * session.params.channels;
+    dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
 
   DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
 }
@@ -1509,9 +1503,6 @@ static void gl843_detect_document_end(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   SANE_Bool paper_loaded;
-  unsigned int scancnt = 0;
-  int flines, bytes_remain, sublines,
-    bytes_to_flush, lines, sub_bytes, tmp, read_bytes_left;
 
     gl843_get_paper_sensor(dev, &paper_loaded);
 
@@ -1521,99 +1512,36 @@ static void gl843_detect_document_end(Genesys_Device* dev)
       DBG(DBG_info, "%s: no more document\n", __func__);
       dev->document = SANE_FALSE;
 
-        unsigned channels = dev->session.params.channels;
-        unsigned depth = dev->session.params.depth;
-      read_bytes_left = (int) dev->read_bytes_left_after_deseg;
-      DBG(DBG_io, "%s: read_bytes_left=%d\n", __func__, read_bytes_left);
+        unsigned scanned_lines = 0;
+        catch_all_exceptions(__func__, [&](){ sanei_genesys_read_scancnt(dev, &scanned_lines); });
 
-        // get lines read
-        try {
-            sanei_genesys_read_scancnt(dev, &scancnt);
-        } catch (...) {
-            flines = 0;
-        }
+        std::size_t output_lines = dev->session.output_line_count;
 
-	  /* compute number of line read */
-	  tmp = (int) dev->total_bytes_read;
-          if (depth == 1 || dev->settings.scan_mode == ScanColorMode::LINEART)
-	    flines = tmp * 8 / dev->settings.pixels / channels;
-	  else
-	    flines = tmp / (depth / 8) / dev->settings.pixels / channels;
+        std::size_t offset_lines = (SANE_UNFIX(dev->model->post_scan) * dev->session.params.yres) /
+                MM_PER_INCH;
 
-	  /* number of scanned lines, but no read yet */
-	  flines = scancnt - flines;
+        std::size_t scan_end_lines = scanned_lines + offset_lines;
 
-	  DBG(DBG_io, "%s: %d scanned but not read lines\n", __func__, flines);
+        std::size_t remaining_lines = dev->get_pipeline_source().remaining_bytes() /
+                dev->session.output_line_bytes_raw;
 
-        // Adjust number of bytes to read. We need to read the final bytes which are word per
-        // line times number of last lines to have doc leaving feeder
-        lines = (SANE_UNFIX(dev->model->post_scan) * dev->session.params.yres) / MM_PER_INCH +
-            flines;
+        DBG(DBG_io, "%s: scanned_lines=%u\n", __func__, scanned_lines);
+        DBG(DBG_io, "%s: scan_end_lines=%zu\n", __func__, scan_end_lines);
+        DBG(DBG_io, "%s: output_lines=%zu\n", __func__, output_lines);
+        DBG(DBG_io, "%s: remaining_lines=%zu\n", __func__, remaining_lines);
 
-      DBG(DBG_io, "%s: adding %d line to flush\n", __func__, lines);
+        if (scan_end_lines > output_lines) {
+            auto skip_lines = scan_end_lines - output_lines;
 
-        // number of bytes to read from scanner to get document out of it after
-        // end of document dectected by hardware sensor */
-        bytes_to_flush = lines * dev->session.output_line_bytes_raw;
+            if (remaining_lines > skip_lines) {
+                DBG(DBG_io, "%s: skip_lines=%zu\n", __func__, skip_lines);
 
-      /* if we are already close to end of scan, flushing isn't needed */
-      if (bytes_to_flush < read_bytes_left)
-	{
-	  /* we take all these step to work around an overflow on some plateforms */
-	  tmp = (int) dev->total_bytes_read;
-	  DBG (DBG_io, "%s: tmp=%d\n", __func__, tmp);
-	  bytes_remain = (int) dev->total_bytes_to_read;
-	  DBG(DBG_io, "%s: bytes_remain=%d\n", __func__, bytes_remain);
-	  bytes_remain = bytes_remain - tmp;
-	  DBG(DBG_io, "%s: bytes_remain=%d\n", __func__, bytes_remain);
-
-	  /* remaining lines to read by frontend for the current scan */
-          if (depth == 1 || dev->settings.scan_mode == ScanColorMode::LINEART)
-	    {
-	      flines = bytes_remain * 8 / dev->settings.pixels / channels;
-	    }
-	  else
-	    flines = bytes_remain / (depth / 8)
-	      / dev->settings.pixels / channels;
-	  DBG(DBG_io, "%s: flines=%d\n", __func__, flines);
-
-	  if (flines > lines)
-	    {
-	      /* change the value controlling communication with the frontend :
-	       * total bytes to read is current value plus the number of remaining lines
-	       * multiplied by bytes per line */
-	      sublines = flines - lines;
-
-              if (depth == 1 || dev->settings.scan_mode == ScanColorMode::LINEART)
-		sub_bytes =
-		  ((dev->settings.pixels * sublines) / 8 +
-		   (((dev->settings.pixels * sublines) % 8) ? 1 : 0)) *
-		  channels;
-	      else
-		sub_bytes =
-		  dev->settings.pixels * sublines * channels * (depth / 8);
-
-	      dev->total_bytes_to_read -= sub_bytes;
-
-          /* then adjust the desegmented bytes to read */
-            if (read_bytes_left > sub_bytes) {
-                dev->read_bytes_left_after_deseg -= sub_bytes;
-            } else {
-                dev->total_bytes_to_read = dev->total_bytes_read;
-                dev->read_bytes_left_after_deseg = 0;
+                remaining_lines -= skip_lines;
+                dev->get_pipeline_source().set_remaining_bytes(remaining_lines *
+                                                               dev->session.output_line_bytes_raw);
+                dev->total_bytes_to_read -= skip_lines * dev->session.output_line_bytes_requested;
             }
-
-	      DBG(DBG_io, "%s: sublines=%d\n", __func__, sublines);
-	      DBG(DBG_io, "%s: subbytes=%d\n", __func__, sub_bytes);
-	      DBG(DBG_io, "%s: total_bytes_to_read=%lu\n", __func__,
-		  (unsigned long) dev->total_bytes_to_read);
-	      DBG(DBG_io, "%s: read_bytes_left=%d\n", __func__, read_bytes_left);
-	    }
-	}
-      else
-	{
-	  DBG(DBG_io, "%s: no flushing needed\n", __func__);
-	}
+        }
     }
 }
 
@@ -2105,7 +2033,7 @@ static void gl843_search_start_position(Genesys_Device* dev)
     // send to scanner
     dev->write_registers(local_reg);
 
-    size = dev->read_bytes_left_after_deseg;
+    size = session.output_total_bytes_raw;
 
   std::vector<uint8_t> data(size);
 
@@ -2345,7 +2273,7 @@ static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
   // the pixel number may be updated to conform to scanner constraints
   dev->calib_pixels = dev->current_setup.pixels;
 
-    dev->calib_total_bytes_to_read = dev->read_bytes_left_after_deseg;
+    dev->calib_total_bytes_to_read = session.output_total_bytes_raw;
 
   dev->scanhead_position_in_steps += dev->calib_lines + move;
 
@@ -2527,7 +2455,7 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
 
     dev->write_registers(regs);
 
-    total_size = dev->read_bytes_left_after_deseg;
+    total_size = session.output_total_bytes_raw;
 
   std::vector<uint8_t> line(total_size);
 
@@ -2766,7 +2694,7 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   sanei_genesys_set_motor_power(regs, false);
 
     // allocate memory for scans
-    total_size = dev->read_bytes_left_after_deseg;
+    total_size = session.output_total_bytes_raw;
 
   std::vector<uint8_t> first_line(total_size);
   std::vector<uint8_t> second_line(total_size);
@@ -2995,7 +2923,7 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
     dev->write_registers(regs);
 
-    total_size = dev->read_bytes_left_after_deseg;
+    total_size = session.output_total_bytes_raw;
 
   std::vector<uint8_t> line(total_size);
 
@@ -3347,7 +3275,7 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 
     gl843_init_scan_regs(dev, calib_sensor, &local_reg, session);
 
-    size = dev->read_bytes_left_after_deseg;
+    size = session.output_total_bytes_raw;
   std::vector<uint8_t> data(size);
 
   /* set up for reverse or forward */

@@ -1793,21 +1793,20 @@ static void gl124_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
                                     uint8_t* data, int size)
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
-  uint32_t addr, length, strpixel ,endpixel, x, factor, segcnt, pixels, i;
+    uint32_t addr, length, x, factor, segcnt, pixels, i;
   uint32_t lines, channels;
   uint16_t dpiset,dpihw;
     uint8_t *ptr, *src;
 
   /* logical size of a color as seen by generic code of the frontend */
   length = (uint32_t) (size / 3);
-    strpixel = dev->reg.get24(REG_STRPIXEL);
-    endpixel = dev->reg.get24(REG_ENDPIXEL);
+    std::uint32_t strpixel = dev->session.pixel_startx;
+    std::uint32_t endpixel = dev->session.pixel_endx;
     segcnt = dev->reg.get24(REG_SEGCNT);
   if(endpixel==0)
     {
       endpixel=segcnt;
     }
-  DBG( DBG_io2, "%s: STRPIXEL=%d, ENDPIXEL=%d, PIXELS=%d, SEGCNT=%d\n",__func__,strpixel,endpixel,endpixel-strpixel,segcnt);
 
   /* compute deletion factor */
     dpiset = dev->reg.get16(REG_DPISET);

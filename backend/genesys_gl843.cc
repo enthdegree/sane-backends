@@ -2269,6 +2269,7 @@ static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
   // the pixel number may be updated to conform to scanner constraints
   dev->calib_pixels = dev->current_setup.pixels;
 
+    dev->calib_session = session;
     dev->calib_total_bytes_to_read = session.output_total_bytes_raw;
 
   dev->scanhead_position_in_steps += dev->calib_lines + move;
@@ -3430,8 +3431,6 @@ static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
 
 /** the gl843 command set */
 Genesys_Command_Set gl843_cmd_set = {
-  "gl843-generic",		/* the name of this set */
-
   [](Genesys_Device* dev) -> bool { (void) dev; return true; },
 
   gl843_init,

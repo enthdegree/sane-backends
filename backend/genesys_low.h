@@ -219,14 +219,6 @@ typedef struct Genesys_Calibration_Cache  Genesys_Calibration_Cache;
  */
 struct Genesys_Command_Set
 {
-  /** @name Identification */
-  /*@{ */
-
-  /** Name of this command set */
-  SANE_String_Const name;
-
-  /*@} */
-
     bool (*needs_home_before_init_regs_for_scan) (Genesys_Device* dev);
 
   /** For ASIC initialization */

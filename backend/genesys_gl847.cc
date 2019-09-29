@@ -2579,8 +2579,6 @@ static void gl847_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
 /** the gl847 command set */
 Genesys_Command_Set gl847_cmd_set = {
-  "gl847-generic",		/* the name of this set */
-
   nullptr,
 
   gl847_init,

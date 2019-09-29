@@ -1594,6 +1594,9 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
                                              bool is_dark, const std::string& log_filename_prefix)
 {
     DBG_HELPER(dbg);
+
+    debug_dump(DBG_info, dev->calib_session);
+
   size_t size;
   uint32_t pixels_per_line;
   uint8_t channels;

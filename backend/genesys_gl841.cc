@@ -4354,8 +4354,6 @@ static void gl841_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
 
 /** the gl841 command set */
 Genesys_Command_Set gl841_cmd_set = {
-  "gl841-generic",		/* the name of this set */
-
   [](Genesys_Device* dev) -> bool { (void) dev; return true; },
 
   gl841_init,

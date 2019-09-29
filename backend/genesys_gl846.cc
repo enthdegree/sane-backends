@@ -2474,8 +2474,6 @@ static void gl846_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
 /** the gl846 command set */
 Genesys_Command_Set gl846_cmd_set = {
-  "gl846-generic",		/* the name of this set */
-
   nullptr,
 
   gl846_init,

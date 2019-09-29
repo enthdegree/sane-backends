@@ -2654,8 +2654,6 @@ static void gl124_update_hardware_sensors(Genesys_Scanner* s)
 
 /** the gl124 command set */
 Genesys_Command_Set gl124_cmd_set = {
-  "gl124-generic",                /* the name of this set */
-
   [](Genesys_Device* dev) -> bool { (void) dev; return true; },
 
   gl124_init,

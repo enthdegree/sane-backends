@@ -653,6 +653,55 @@ bool ImagePipelineNodeExtract::get_next_row_data(std::uint8_t* out_data)
     return got_data;
 }
 
+ImagePipelineNodeCalibrate::ImagePipelineNodeCalibrate(ImagePipelineNode& source,
+                                                       const std::vector<std::uint16_t>& bottom,
+                                                       const std::vector<std::uint16_t>& top) :
+    source_{source}
+{
+    auto size = std::min(bottom.size(), top.size());
+    offset_.reserve(size);
+    multiplier_.reserve(size);
+
+    for (std::size_t i = 0; i < size; ++i) {
+        offset_.push_back(bottom[i] / 65535.0f);
+        multiplier_.push_back(65535.0f / (top[i] - bottom[i]));
+    }
+}
+
+bool ImagePipelineNodeCalibrate::get_next_row_data(std::uint8_t* out_data)
+{
+    bool ret = source_.get_next_row_data(out_data);
+
+    auto format = get_format();
+    auto depth = get_pixel_format_depth(format);
+    std::size_t max_value = 1;
+    switch (depth) {
+        case 8: max_value = 255; break;
+        case 16: max_value = 65535; break;
+        default:
+            throw SaneException("Unsupported depth for calibration %d", depth);
+    }
+    unsigned channels = get_pixel_channels(format);
+
+    std::size_t max_calib_i = offset_.size();
+    std::size_t curr_calib_i = 0;
+
+    for (std::size_t x = 0, width = get_width(); x < width && curr_calib_i < max_calib_i; ++x) {
+        for (unsigned ch = 0; ch < channels && curr_calib_i < max_calib_i; ++ch) {
+            std::int32_t value = get_raw_channel_from_row(out_data, x, ch, format);
+
+            float value_f = static_cast<float>(value) / max_value;
+            value_f = (value_f - offset_[curr_calib_i]) * multiplier_[curr_calib_i];
+            value_f = std::round(value_f * max_value);
+            value = clamp<std::int32_t>(static_cast<std::int32_t>(value_f), 0, max_value);
+            set_raw_channel_to_row(out_data, x, ch, value, format);
+
+            curr_calib_i++;
+        }
+    }
+    return ret;
+}
+
 ImagePipelineNodeDebug::ImagePipelineNodeDebug(ImagePipelineNode& source,
                                                const std::string& path) :
     source_(source),

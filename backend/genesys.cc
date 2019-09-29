@@ -1022,6 +1022,11 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
                                      int pixels_per_line)
 {
     DBG_HELPER(dbg);
+
+    if (dev->model->flags & GENESYS_FLAG_CALIBRATION_HOST_SIDE) {
+        return;
+    }
+
   int channels;
   int i;
 
@@ -2400,6 +2405,11 @@ compute_shifted_coefficients (Genesys_Device * dev,
 static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
+
+    if (dev->model->flags & GENESYS_FLAG_CALIBRATION_HOST_SIDE) {
+        return;
+    }
+
   uint32_t pixels_per_line;
   uint8_t channels;
   int o;

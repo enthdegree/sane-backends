@@ -1746,6 +1746,19 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                                                         "_2_after_stagger.pnm");
     }
 
+    if ((dev->model->flags & GENESYS_FLAG_CALIBRATION_HOST_SIDE) &&
+        !(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
+    {
+        dev->pipeline.push_node<ImagePipelineNodeCalibrate>(dev->dark_average_data,
+                                                            dev->white_average_data);
+
+        if (DBG_LEVEL >= DBG_io2) {
+            dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
+                                                            std::to_string(s_pipeline_index) +
+                                                            "_3_after_calibrate.pnm");
+        }
+    }
+
     if (session.output_pixels != session.params.get_requested_pixels()) {
         dev->pipeline.push_node<ImagePipelineNodeScaleRows>(session.params.get_requested_pixels());
     }

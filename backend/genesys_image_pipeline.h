@@ -474,6 +474,29 @@ private:
     std::vector<uint8_t> cached_line_;
 };
 
+// A pipeline node that mimics the calibration behavior on Genesys chips
+class ImagePipelineNodeCalibrate : public ImagePipelineNode
+{
+public:
+
+    ImagePipelineNodeCalibrate(ImagePipelineNode& source, const std::vector<std::uint16_t>& bottom,
+                               const std::vector<std::uint16_t>& top);
+
+    std::size_t get_width() const override { return source_.get_width(); }
+    std::size_t get_height() const override { return source_.get_height(); }
+    PixelFormat get_format() const override { return source_.get_format(); }
+
+    bool eof() const override { return source_.eof(); }
+
+    bool get_next_row_data(std::uint8_t* out_data) override;
+
+private:
+    ImagePipelineNode& source_;
+
+    std::vector<float> offset_;
+    std::vector<float> multiplier_;
+};
+
 class ImagePipelineNodeDebug : public ImagePipelineNode
 {
 public:

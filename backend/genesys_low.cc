@@ -98,8 +98,8 @@ void sanei_genesys_write_file(const char* filename, uint8_t* data, size_t length
 
 // Write data to a pnm file (e.g. calibration). For debugging only
 // data is RGB or grey, with little endian byte order
-void sanei_genesys_write_pnm_file(const char* filename, uint8_t* data, int depth, int channels,
-                                  int pixels_per_line, int lines)
+void sanei_genesys_write_pnm_file(const char* filename, const std::uint8_t* data, int depth,
+                                  int channels, int pixels_per_line, int lines)
 {
     DBG_HELPER_ARGS(dbg, "depth=%d, channels=%d, ppl=%d, lines=%d", depth, channels,
                     pixels_per_line, lines);
@@ -178,6 +178,33 @@ void sanei_genesys_write_pnm_file16(const char* filename, const uint16_t* data, 
         data++;
     }
     std::fclose(out);
+}
+
+bool is_supported_write_pnm_file_image_format(PixelFormat format)
+{
+    switch (format) {
+        case PixelFormat::I1:
+        case PixelFormat::RGB111:
+        case PixelFormat::I8:
+        case PixelFormat::RGB888:
+        case PixelFormat::I16:
+        case PixelFormat::RGB161616:
+            return true;
+        default:
+            return false;
+    }
+}
+
+void sanei_genesys_write_pnm_file(const char* filename, const Image& image)
+{
+    if (!is_supported_write_pnm_file_image_format(image.get_format())) {
+        throw SaneException("Unsupported format %d", static_cast<unsigned>(image.get_format()));
+    }
+
+    sanei_genesys_write_pnm_file(filename, image.get_row_ptr(0),
+                                 get_pixel_format_depth(image.get_format()),
+                                 get_pixel_channels(image.get_format()),
+                                 image.get_width(), image.get_height());
 }
 
 /* ------------------------------------------------------------------------ */
@@ -793,6 +820,55 @@ void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, si
     wait_until_has_valid_words(dev);
 
     dev->cmd_set->bulk_read_data(dev, 0x45, data, size);
+}
+
+Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession& session,
+                                         std::size_t total_bytes)
+{
+    DBG_HELPER(dbg);
+
+    auto format = create_pixel_format(session.params.depth,
+                                      dev->model->is_cis ? 1 : session.params.channels,
+                                      dev->model->line_mode_color_order);
+
+    auto width = get_pixels_from_row_bytes(format, session.output_line_bytes_raw);
+    auto height = session.output_line_count * (dev->model->is_cis ? session.params.channels : 1);
+
+    Image image(width, height, format);
+
+    auto max_bytes = image.get_row_bytes() * height;
+    if (total_bytes > max_bytes) {
+        throw SaneException("Trying to read too much data %zu (max %zu)", total_bytes, max_bytes);
+    }
+    if (total_bytes != max_bytes) {
+        DBG(DBG_info, "WARNING %s: trying to read not enough data (%zu, full fill %zu\n", __func__,
+            total_bytes, max_bytes);
+    }
+
+    sanei_genesys_read_data_from_scanner(dev, image.get_row_ptr(0), total_bytes);
+
+    ImagePipelineStack pipeline;
+    pipeline.push_first_node<ImagePipelineNodeImageSource>(image);
+
+#ifdef WORDS_BIGENDIAN
+    if (depth == 16) {
+        dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+    }
+#endif
+
+    if (dev->model->is_cis && session.params.channels == 3) {
+        dev->pipeline.push_node<ImagePipelineNodeMergeMonoLines>(dev->model->line_mode_color_order);
+    }
+
+    if (dev->pipeline.get_output_format() == PixelFormat::BGR888) {
+        dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB888);
+    }
+
+    if (dev->pipeline.get_output_format() == PixelFormat::BGR161616) {
+        dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB161616);
+    }
+
+    return pipeline.get_image();
 }
 
 void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps)

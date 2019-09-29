@@ -1995,7 +1995,6 @@ static void gl843_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
 static void gl843_search_start_position(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  int size;
   Genesys_Register_Set local_reg;
   int steps;
 
@@ -2034,10 +2033,6 @@ static void gl843_search_start_position(Genesys_Device* dev)
     // send to scanner
     dev->write_registers(local_reg);
 
-    size = session.output_total_bytes_raw;
-
-  std::vector<uint8_t> data(size);
-
     gl843_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
@@ -2046,13 +2041,12 @@ static void gl843_search_start_position(Genesys_Device* dev)
         } while (steps);
 
     // now we're on target, we can read data
-    sanei_genesys_read_data_from_scanner(dev, data.data(), size);
+    Image image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes_raw);
 
     gl843_stop_action_no_move(dev, &local_reg);
 
     if (DBG_LEVEL >= DBG_data) {
-        sanei_genesys_write_pnm_file("gl843_search_position.pnm", data.data(), 8, 1, pixels,
-                                     dev->model->search_lines);
+        sanei_genesys_write_pnm_file("gl843_search_position.pnm", image);
     }
 
     gl843_end_scan(dev, &local_reg, SANE_TRUE);
@@ -2063,8 +2057,8 @@ static void gl843_search_start_position(Genesys_Device* dev)
     for (auto& sensor_update :
             sanei_genesys_find_sensors_all_for_write(dev, dev->model->default_method))
     {
-        sanei_genesys_search_reference_point(dev, sensor_update, data.data(), 0, dpi, pixels,
-                                             dev->model->search_lines);
+        sanei_genesys_search_reference_point(dev, sensor_update, image.get_row_ptr(0), 0, dpi,
+                                             pixels, dev->model->search_lines);
     }
 }
 
@@ -2411,18 +2405,15 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
 {
     DBG_HELPER(dbg);
   int num_pixels;
-  int total_size;
-  int i, j;
-  int val;
-  int channels, depth;
+    int depth;
   int avg[3], avga, avge;
   int turn;
   uint16_t expr, expg, expb;
 
   SANE_Bool acceptable = SANE_FALSE;
 
-  /* offset calibration is always done in color mode */
-  channels = 3;
+    // offset calibration is always done in color mode
+    unsigned channels = 3;
   depth = 16;
 
     // take a copy, as we're going to modify exposure
@@ -2456,10 +2447,6 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
 
     dev->write_registers(regs);
 
-    total_size = session.output_total_bytes_raw;
-
-  std::vector<uint8_t> line(total_size);
-
 /*
    we try to get equal bright leds here:
 
@@ -2487,36 +2474,26 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
         gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-        sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
+        auto image = read_unshuffled_image_from_scanner(dev, session,
+                                                        session.output_total_bytes_raw);
         gl843_stop_action_no_move(dev, &regs);
 
       if (DBG_LEVEL >= DBG_data)
 	{
           char fn[30];
           snprintf(fn, 30, "gl843_led_%02d.pnm", turn);
-          sanei_genesys_write_pnm_file(fn, line.data(), depth, channels, num_pixels, 1);
+            sanei_genesys_write_pnm_file(fn, image);
 	}
 
       acceptable = SANE_TRUE;
 
-      for (j = 0; j < channels; j++)
-	{
-	  avg[j] = 0;
-	  for (i = 0; i < num_pixels; i++)
-	    {
-	      if (dev->model->is_cis)
-		val =
-		  line[i * 2 + j * 2 * num_pixels + 1] * 256 +
-		  line[i * 2 + j * 2 * num_pixels];
-	      else
-		val =
-		  line[i * 2 * channels + 2 * j + 1] * 256 +
-		  line[i * 2 * channels + 2 * j];
-	      avg[j] += val;
-	    }
-
-	  avg[j] /= num_pixels;
-	}
+        for (unsigned ch = 0; ch < channels; ch++) {
+            avg[ch] = 0;
+            for (std::size_t x = 0; x < image.get_width(); x++) {
+                avg[ch] += image.get_raw_channel(x, 0, ch);
+            }
+            avg[ch] /= image.get_width();
+        }
 
       DBG(DBG_info, "%s: average: %d,%d,%d\n", __func__, avg[0], avg[1], avg[2]);
 
@@ -2577,36 +2554,31 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
 /**
  * average dark pixels of a 8 bits scan of a given channel
  */
-static int
-dark_average_channel (uint8_t * data, unsigned int pixels, unsigned int lines,
-	      unsigned int channels, unsigned int black, int channel)
+static int dark_average_channel(const Image& image, unsigned black, unsigned channel)
 {
-  unsigned int i, j, k, count;
-  unsigned int avg[3];
-  uint8_t val;
+    auto channels = get_pixel_channels(image.get_format());
 
-  /* computes average values on black margin */
-  for (k = 0; k < channels; k++)
-    {
-      avg[k] = 0;
-      count = 0;
-      // FIXME: start with the second line because the black pixels often have noise on the first
-      // line; the cause is probably incorrectly cleaned up previous scan
-      for (i = 1; i < lines; i++)
-	{
-	  for (j = 0; j < black; j++)
-	    {
-	      val = data[i * channels * pixels + j*channels + k];
-	      avg[k] += val;
-	      count++;
-	    }
-	}
-      if (count)
-	avg[k] /= count;
-      DBG(DBG_info, "%s: avg[%d] = %d\n", __func__, k, avg[k]);
+    unsigned avg[3];
+
+    // computes average values on black margin
+    for (unsigned ch = 0; ch < channels; ch++) {
+        avg[ch] = 0;
+        unsigned count = 0;
+        // FIXME: start with the second line because the black pixels often have noise on the first
+        // line; the cause is probably incorrectly cleaned up previous scan
+        for (std::size_t y = 1; y < image.get_height(); y++) {
+            for (unsigned j = 0; j < black; j++) {
+                avg[ch] += image.get_raw_channel(j, y, ch);
+                count++;
+            }
+        }
+        if (count > 0) {
+            avg[ch] /= count;
+        }
+        DBG(DBG_info, "%s: avg[%d] = %d\n", __func__, ch, avg[ch]);
     }
-  DBG(DBG_info, "%s: average = %d\n", __func__, avg[channel]);
-  return avg[channel];
+    DBG(DBG_info, "%s: average = %d\n", __func__, avg[channel]);
+    return avg[channel];
 }
 
 /** @brief calibrate AFE offset
@@ -2623,7 +2595,7 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
         return;
 
   unsigned int channels, bpp;
-  int pass, total_size, i, resolution, lines;
+    int pass, resolution, lines;
   int topavg[3], bottomavg[3], avg[3];
   int top[3], bottom[3], black_pixels, pixels, factor, dpihw;
 
@@ -2694,26 +2666,22 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
   sanei_genesys_set_motor_power(regs, false);
 
-    // allocate memory for scans
-    total_size = session.output_total_bytes_raw;
-
-  std::vector<uint8_t> first_line(total_size);
-  std::vector<uint8_t> second_line(total_size);
-
-  /* init gain and offset */
-  for (i = 0; i < 3; i++)
+    // init gain and offset
+    for (unsigned ch = 0; ch < 3; ch++)
     {
-      bottom[i] = 10;
-      dev->frontend.set_offset(i, bottom[i]);
-      dev->frontend.set_gain(i, 0);
+        bottom[ch] = 10;
+        dev->frontend.set_offset(ch, bottom[ch]);
+        dev->frontend.set_gain(ch, 0);
     }
     gl843_set_fe(dev, calib_sensor, AFE_SET);
 
-    // scan with obttom AFE settings
+    // scan with bottom AFE settings
     dev->write_registers(regs);
-  DBG(DBG_info, "%s: starting first line reading\n", __func__);
+    DBG(DBG_info, "%s: starting first line reading\n", __func__);
+
     gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-    sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
+    auto first_line = read_unshuffled_image_from_scanner(dev, session,
+                                                         session.output_total_bytes_raw);
     gl843_stop_action_no_move(dev, &regs);
 
   if (DBG_LEVEL >= DBG_data)
@@ -2721,34 +2689,33 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       char fn[40];
       snprintf(fn, 40, "gl843_bottom_offset_%03d_%03d_%03d.pnm",
                bottom[0], bottom[1], bottom[2]);
-      sanei_genesys_write_pnm_file(fn, first_line.data(), bpp, channels, pixels, lines);
+        sanei_genesys_write_pnm_file(fn, first_line);
     }
 
-  for (i = 0; i < 3; i++)
-    {
-      bottomavg[i] = dark_average_channel(first_line.data(), pixels, lines, channels, black_pixels, i);
-      DBG(DBG_io2, "%s: bottom avg %d=%d\n", __func__, i, bottomavg[i]);
+    for (unsigned ch = 0; ch < 3; ch++) {
+        bottomavg[ch] = dark_average_channel(first_line, black_pixels, ch);
+        DBG(DBG_io2, "%s: bottom avg %d=%d\n", __func__, ch, bottomavg[ch]);
     }
 
-  /* now top value */
-  for (i = 0; i < 3; i++)
-    {
-      top[i] = 255;
-      dev->frontend.set_offset(i, top[i]);
+    // now top value
+    for (unsigned ch = 0; ch < 3; ch++) {
+        top[ch] = 255;
+        dev->frontend.set_offset(ch, top[ch]);
     }
     gl843_set_fe(dev, calib_sensor, AFE_SET);
 
     // scan with top AFE values
     dev->write_registers(regs);
-  DBG(DBG_info, "%s: starting second line reading\n", __func__);
+    DBG(DBG_info, "%s: starting second line reading\n", __func__);
+
     gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-    sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
+    auto second_line = read_unshuffled_image_from_scanner(dev, session,
+                                                          session.output_total_bytes_raw);
     gl843_stop_action_no_move(dev, &regs);
 
-  for (i = 0; i < 3; i++)
-    {
-      topavg[i] = dark_average_channel(second_line.data(), pixels, lines, channels, black_pixels, i);
-      DBG(DBG_io2, "%s: top avg %d=%d\n", __func__, i, topavg[i]);
+    for (unsigned ch = 0; ch < 3; ch++){
+        topavg[ch] = dark_average_channel(second_line, black_pixels, ch);
+        DBG(DBG_io2, "%s: top avg %d=%d\n", __func__, ch, topavg[ch]);
     }
 
   pass = 0;
@@ -2764,21 +2731,20 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
     {
       pass++;
 
-      /* settings for new scan */
-      for (i = 0; i < 3; i++)
-	{
-	  if (top[i] - bottom[i] > 1)
-	    {
-              dev->frontend.set_offset(i, (top[i] + bottom[i]) / 2);
-	    }
-	}
+        // settings for new scan
+        for (unsigned ch = 0; ch < 3; ch++) {
+            if (top[ch] - bottom[ch] > 1) {
+                dev->frontend.set_offset(ch, (top[ch] + bottom[ch]) / 2);
+            }
+        }
         gl843_set_fe(dev, calib_sensor, AFE_SET);
 
         // scan with no move
         dev->write_registers(regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-        sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
+        second_line = read_unshuffled_image_from_scanner(dev, session,
+                                                         session.output_total_bytes_raw);
         gl843_stop_action_no_move(dev, &regs);
 
       if (DBG_LEVEL >= DBG_data)
@@ -2790,31 +2756,28 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
                    dev->frontend.get_offset(1),
                    dev->frontend.get_offset(2));
           debug_image_info += title;
-          std::copy(second_line.begin(), second_line.end(), std::back_inserter(debug_image));
+          std::copy(second_line.get_row_ptr(0),
+                    second_line.get_row_ptr(0) + second_line.get_row_bytes() * second_line.get_height(),
+                    std::back_inserter(debug_image));
           debug_image_lines += lines;
 	}
 
-      for (i = 0; i < 3; i++)
-	{
-          avg[i] = dark_average_channel(second_line.data(), pixels, lines, channels, black_pixels, i);
-          DBG(DBG_info, "%s: avg[%d]=%d offset=%d\n", __func__, i, avg[i],
-              dev->frontend.get_offset(i));
-	}
+        for (unsigned ch = 0; ch < 3; ch++) {
+            avg[ch] = dark_average_channel(second_line, black_pixels, ch);
+            DBG(DBG_info, "%s: avg[%d]=%d offset=%d\n", __func__, ch, avg[ch],
+                dev->frontend.get_offset(ch));
+        }
 
-      /* compute new boundaries */
-      for (i = 0; i < 3; i++)
-	{
-	  if (topavg[i] >= avg[i])
-	    {
-	      topavg[i] = avg[i];
-              top[i] = dev->frontend.get_offset(i);
-	    }
-	  else
-	    {
-	      bottomavg[i] = avg[i];
-              bottom[i] = dev->frontend.get_offset(i);
-	    }
-	}
+        // compute new boundaries
+        for (unsigned ch = 0; ch < 3; ch++) {
+            if (topavg[ch] >= avg[ch]) {
+                topavg[ch] = avg[ch];
+                top[ch] = dev->frontend.get_offset(ch);
+            } else {
+                bottomavg[ch] = avg[ch];
+                bottom[ch] = dev->frontend.get_offset(ch);
+            }
+        }
     }
 
   if (DBG_LEVEL >= DBG_data)
@@ -2845,11 +2808,9 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
                                           Genesys_Register_Set& regs, int dpi)
 {
     DBG_HELPER_ARGS(dbg, "dpi = %d", dpi);
-  int pixels, factor, dpihw;
-  int total_size;
-  int i, j, channels;
+    int factor, dpihw;
   float coeff;
-  int val, lines;
+    int lines;
   int resolution;
   int bpp;
 
@@ -2859,8 +2820,8 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
     dpihw = sensor.get_logical_hwdpi(dpi);
   factor=sensor.optical_res/dpihw;
 
-  /* coarse gain calibration is always done in color mode */
-  channels = 3;
+    // coarse gain calibration is always done in color mode
+    unsigned channels = 3;
 
   /* follow CKSEL */
   if (dev->model->ccd_type == CCD_KVSS080)
@@ -2911,7 +2872,7 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = flags;
     gl843_compute_session(dev, session, calib_sensor);
-    pixels = session.output_pixels;
+    std::size_t pixels = session.output_pixels;
 
     try {
         gl843_init_scan_regs(dev, calib_sensor, &regs, session);
@@ -2924,47 +2885,24 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
     dev->write_registers(regs);
 
-    total_size = session.output_total_bytes_raw;
-
-  std::vector<uint8_t> line(total_size);
-
     gl843_set_fe(dev, calib_sensor, AFE_SET);
     gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
-    sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
+    auto line = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes_raw);
     gl843_stop_action_no_move(dev, &regs);
 
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl843_gain.pnm", line.data(), bpp, channels, pixels, lines);
+    if (DBG_LEVEL >= DBG_data) {
+        sanei_genesys_write_pnm_file("gl843_gain.pnm", line);
+    }
 
-  /* average value on each channel */
-  for (j = 0; j < channels; j++)
-    {
-      std::vector<uint16_t> values;
-      // FIXME: start from the second line because the first line often has artifacts. Probably
-      // caused by unclean cleanup of previous scans
-      for (i = pixels/4 + pixels; i < (pixels*3/4) + pixels; i++)
-	{
-          if(bpp==16)
-            {
-	  if (dev->model->is_cis)
-	    val =
-	      line[i * 2 + j * 2 * pixels + 1] * 256 +
-	      line[i * 2 + j * 2 * pixels];
-	  else
-	    val =
-	      line[i * 2 * channels + 2 * j + 1] * 256 +
-	      line[i * 2 * channels + 2 * j];
-            }
-          else
-            {
-	  if (dev->model->is_cis)
-	    val = line[i + j * pixels];
-	  else
-	    val = line[i * channels + j];
-            }
+    // average value on each channel
+    for (unsigned ch = 0; ch < channels; ch++) {
 
-            values.push_back(val);
-	}
+        std::vector<uint16_t> values;
+        // FIXME: start from the second line because the first line often has artifacts. Probably
+        // caused by unclean cleanup of previous scan
+        for (std::size_t x = pixels / 4; x < (pixels * 3 / 4); x++) {
+            values.push_back(line.get_raw_channel(x, 1, ch));
+        }
 
         // pick target value at 95th percentile of all values. There may be a lot of black values
         // in transparency scans for example
@@ -2976,9 +2914,9 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
         float target_value = calib_sensor.gain_white_ref * coeff;
 
         int code = compute_frontend_gain(curr_output, target_value, dev->frontend.layout.type);
-      dev->frontend.set_gain(j, code);
+      dev->frontend.set_gain(ch, code);
 
-        DBG(DBG_proc, "%s: channel %d, max=%d, target=%d, setting:%d\n", __func__, j, curr_output,
+        DBG(DBG_proc, "%s: channel %d, max=%d, target=%d, setting:%d\n", __func__, ch, curr_output,
             (int) target_value, code);
     }
 
@@ -3233,7 +3171,6 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
     DBG_HELPER_ARGS(dbg, "%s %s",  black ? "black" : "white", forward ? "forward" : "reverse");
   unsigned int pixels, lines, channels;
   Genesys_Register_Set local_reg;
-  size_t size;
   int steps, depth, dpi;
   unsigned int pass, count, found, x, y;
   GenesysRegister *r;
@@ -3276,9 +3213,6 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 
     gl843_init_scan_regs(dev, calib_sensor, &local_reg, session);
 
-    size = session.output_total_bytes_raw;
-  std::vector<uint8_t> data(size);
-
   /* set up for reverse or forward */
   r = sanei_genesys_get_address(&local_reg, REG02);
     if (forward) {
@@ -3297,7 +3231,8 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
         } while (steps);
 
     // now we're on target, we can read data
-    sanei_genesys_read_data_from_scanner(dev, data.data(), size);
+    auto data = read_unshuffled_image_from_scanner(dev, session,
+                                                   session.output_total_bytes_raw);
 
     gl843_stop_action(dev);
 
@@ -3307,7 +3242,7 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
       char fn[40];
       snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
                black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
-      sanei_genesys_write_pnm_file(fn, data.data(), depth, channels, pixels, lines);
+        sanei_genesys_write_pnm_file(fn, data);
     }
 
   /* loop until strip is found or maximum pass number done */
@@ -3325,7 +3260,7 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
         } while (steps);
 
         // now we're on target, we can read data
-        sanei_genesys_read_data_from_scanner(dev, data.data(), size);
+        data = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes_raw);
 
         gl843_stop_action(dev);
 
@@ -3334,7 +3269,7 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
           char fn[40];
           snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
                    black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
-          sanei_genesys_write_pnm_file(fn, data.data(), depth, channels, pixels, lines);
+            sanei_genesys_write_pnm_file(fn, data);
 	}
 
       /* search data to find black strip */
@@ -3350,13 +3285,11 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 	      for (x = 0; x < pixels; x++)
 		{
 		  /* when searching for black, detect white pixels */
-		  if (black && data[y * pixels + x] > 90)
-		    {
+                    if (black && data.get_raw_channel(x, y, 0) > 90) {
 		      count++;
 		    }
 		  /* when searching for white, detect black pixels */
-		  if (!black && data[y * pixels + x] < 60)
-		    {
+                    if (!black && data.get_raw_channel(x, y, 0) < 60) {
 		      count++;
 		    }
 		}
@@ -3386,14 +3319,12 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 	      /* count of white/black pixels depending on the color searched */
 	      for (x = 0; x < pixels; x++)
 		{
-		  /* when searching for black, detect white pixels */
-		  if (black && data[y * pixels + x] > 90)
-		    {
+                    // when searching for black, detect white pixels
+                    if (black && data.get_raw_channel(x, y, 0) > 90) {
 		      count++;
 		    }
-		  /* when searching for white, detect black pixels */
-		  if (!black && data[y * pixels + x] < 60)
-		    {
+                    // when searching for white, detect black pixels
+                    if (!black && data.get_raw_channel(x, y, 0) < 60) {
 		      count++;
 		    }
 		}

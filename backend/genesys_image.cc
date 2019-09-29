@@ -83,9 +83,23 @@ RawPixel Image::get_raw_pixel(std::size_t x, std::size_t y) const
     return get_raw_pixel_from_row(get_row_ptr(y), x, format_);
 }
 
+std::uint16_t Image::get_raw_channel(std::size_t x, std::size_t y, unsigned channel) const
+{
+    return get_raw_channel_from_row(get_row_ptr(y), x, channel, format_);
+}
+
 void Image::set_raw_pixel(std::size_t x, std::size_t y, const RawPixel& pixel)
 {
     set_raw_pixel_to_row(get_row_ptr(y), x, pixel, format_);
+}
+
+void Image::resize(std::size_t width, std::size_t height, PixelFormat format)
+{
+    width_ = width;
+    height_ = height;
+    format_ = format;
+    row_bytes_ = get_pixel_row_bytes(format_, width_);
+    data_.resize(get_row_bytes() * height);
 }
 
 template<PixelFormat SrcFormat, PixelFormat DstFormat>

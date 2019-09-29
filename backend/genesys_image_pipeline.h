@@ -539,6 +539,8 @@ public:
 
     std::vector<std::uint8_t> get_all_data();
 
+    Image get_image();
+
 private:
     void ensure_node_exists() const;
 

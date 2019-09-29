@@ -740,6 +740,13 @@ static uint32_t motor_speeds_cs8600f[] = {
     1540, 1536, 1528, 1524, 1520, 1516, 1512, 1508, 1500, 0
 };
 
+static uint32_t motor_speeds_plustek_7200i_1[] = {
+    11000, 11000, 0
+};
+static uint32_t motor_speeds_plustek_7200i_2[] = {
+    15880, 15880, 0
+};
+
 Motor_Profile gl843_motor_profiles[] = {
     { MOTOR_KVSS080, 8000, 1, kvss080 },
     { MOTOR_G4050, 8016, 1, g4050_fast },
@@ -749,6 +756,8 @@ Motor_Profile gl843_motor_profiles[] = {
     { MOTOR_G4050, 56064, 1, g4050_high },
     { MOTOR_CS8400F, 50000, 2, cs8400f_fast },
     { MOTOR_CS8600F, 0x59d8, 2, motor_speeds_cs8600f }, // FIXME: if the exposure is lower then we'll select another motor
+    { MOTOR_PLUSTEK_7200I, 0x19c8, 1, motor_speeds_plustek_7200i_1},
+    { MOTOR_PLUSTEK_7200I, 0x2538, 1, motor_speeds_plustek_7200i_2},
     { 0, 0, 0, NULL },
 };
 

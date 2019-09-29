@@ -291,6 +291,21 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
+    gpo.gpo_id = GPO_PLUSTEK_7200I;
+    gpo.regs = {
+        { 0x6c, 0x4c },
+        { 0x6d, 0x80 },
+        { 0x6e, 0x4c },
+        { 0x6f, 0x80 },
+        { 0xa6, 0x00 },
+        { 0xa7, 0x07 },
+        { 0xa8, 0x20 },
+        { 0xa9, 0x01 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
     gpo.gpo_id = GPO_CS4400F;
     gpo.regs = {
         { 0x6c, 0x01 },

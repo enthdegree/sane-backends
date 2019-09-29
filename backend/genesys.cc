@@ -1666,6 +1666,14 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
     dev->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
 
+    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+        for (std::size_t i = 0; i < size / 2; ++i) {
+            auto value = calibration_data[i];
+            value = ((value >> 8) & 0xff) | ((value << 8) & 0xff00);
+            calibration_data[i] = value;
+        }
+    }
+
     std::fill(out_average_data.begin(),
               out_average_data.begin() + dev->calib_pixels_offset * channels, 0);
 
@@ -2590,6 +2598,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
     case CCD_CS4400F:
     case CCD_CS8400F:
     case CCD_CS8600F:
+    case CCD_PLUSTEK_7200I:
       target_code = 0xe000;
       o = 0;
       compute_coefficients (dev,

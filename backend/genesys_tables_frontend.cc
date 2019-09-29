@@ -56,6 +56,10 @@ void genesys_init_frontend_tables()
     wolfson_layout.offset_addr = { 0x20, 0x21, 0x22 };
     wolfson_layout.gain_addr = { 0x28, 0x29, 0x2a };
 
+    GenesysFrontendLayout analog_devices;
+    analog_devices.type = FrontendType::ANALOG_DEVICES;
+
+
     Genesys_Frontend fe;
     fe.fe_id = DAC_WOLFSON_UMAX;
     fe.layout = wolfson_layout;
@@ -452,6 +456,23 @@ void genesys_init_frontend_tables()
         { 0x28, 0x3f },
         { 0x29, 0x3d },
         { 0x2a, 0x3d },
+    };
+    fe.reg2 = {0x00, 0x00, 0x00};
+    s_frontends->push_back(fe);
+
+
+    fe = Genesys_Frontend();
+    fe.fe_id = DAC_PLUSTEK_7200I;
+    fe.layout = analog_devices;
+    fe.regs = {
+        { 0x00, 0xf8 },
+        { 0x01, 0x80 },
+        { 0x02, 0x0a },
+        { 0x03, 0x06 },
+        { 0x04, 0x0f },
+        { 0x05, 0x56 },
+        { 0x06, 0x64 },
+        { 0x07, 0x56 },
     };
     fe.reg2 = {0x00, 0x00, 0x00};
     s_frontends->push_back(fe);

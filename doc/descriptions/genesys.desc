@@ -17,6 +17,11 @@
 :status :basic
 :comment "Has a Primax USB ID"
 
+:model "OpticFilm 7200i"
+:interface "USB"
+:usbid "0x07b3" "0x0c04"
+:status :basic
+
 ; -----------------------------------------------------------------------------
 
 :mfg "Medion/Lifetec/Tevion/Cytron"

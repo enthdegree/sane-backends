@@ -850,6 +850,10 @@ Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession&
     ImagePipelineStack pipeline;
     pipeline.push_first_node<ImagePipelineNodeImageSource>(image);
 
+    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I && session.params.depth == 16) {
+        dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+    }
+
 #ifdef WORDS_BIGENDIAN
     if (depth == 16) {
         dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
@@ -1468,6 +1472,10 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
         // ensure the number of optical pixels is divisible by 2.
         // In quarter-CCD mode optical_pixels is 4x larger than the actual physical number
         s.optical_pixels = align_int_up(s.optical_pixels, 2 * s.ccd_size_divisor);
+
+        if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+            s.optical_pixels = align_int_up(s.optical_pixels, 16);
+        }
     }
 
     // after all adjustments on the optical pixels have been made, compute the number of pixels
@@ -1661,6 +1669,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     auto format = create_pixel_format(session.params.depth,
                                       dev->model->is_cis ? 1 : session.params.channels,
                                       dev->model->line_mode_color_order);
+    auto depth = get_pixel_format_depth(format);
     auto width = get_pixels_from_row_bytes(format, session.output_line_bytes_raw);
 
     auto read_data_from_usb = [dev](std::size_t size, std::uint8_t* data)
@@ -1704,8 +1713,12 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                                                         "_0_before_swap.pnm");
     }
 
+    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I && depth == 16) {
+        dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+    }
+
 #ifdef WORDS_BIGENDIAN
-    if (get_pixel_format_depth(format) == 16) {
+    if (depth == 16) {
         dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
     }
 #endif

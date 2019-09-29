@@ -44,7 +44,8 @@
 #ifndef BACKEND_GENESYS_IMAGE_PIPELINE_H
 #define BACKEND_GENESYS_IMAGE_PIPELINE_H
 
-#include "genesys_image.h"
+#include "genesys_image_pixel.h"
+#include "genesys_image_buffer.h"
 
 #include <algorithm>
 #include <functional>

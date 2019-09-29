@@ -44,6 +44,7 @@
 #define DEBUG_DECLARE_ONLY
 
 #include "genesys_image_pipeline.h"
+#include "genesys_image.h"
 #include "genesys_low.h"
 #include <numeric>
 

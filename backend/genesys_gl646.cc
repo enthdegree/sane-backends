@@ -51,6 +51,7 @@
 #define DEBUG_DECLARE_ONLY
 
 #include "genesys_gl646.h"
+#include "genesys_gl646_registers.h"
 
 #include <vector>
 

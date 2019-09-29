@@ -50,6 +50,7 @@
 #define DEBUG_DECLARE_ONLY
 
 #include "genesys_gl846.h"
+#include "genesys_gl846_registers.h"
 
 #include <vector>
 

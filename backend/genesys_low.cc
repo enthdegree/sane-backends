@@ -159,7 +159,7 @@ void sanei_genesys_write_pnm_file(const char* filename, uint8_t* data, int depth
   fclose (out);
 }
 
-void sanei_genesys_write_pnm_file16(const char* filename, uint16_t* data, unsigned channels,
+void sanei_genesys_write_pnm_file16(const char* filename, const uint16_t* data, unsigned channels,
                                     unsigned pixels_per_line, unsigned lines)
 {
     DBG_HELPER_ARGS(dbg, "channels=%d, ppl=%d, lines=%d", channels,
@@ -765,35 +765,36 @@ void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empty)
   DBG(DBG_io, "%s: buffer is filled\n", __func__);
 }
 
+void wait_until_has_valid_words(Genesys_Device* dev)
+{
+    unsigned words = 0;
+    unsigned sleep_time_ms = 10;
+
+    for (unsigned wait_ms = 0; wait_ms < 50000; wait_ms += sleep_time_ms) {
+        sanei_genesys_read_valid_words(dev, &words);
+        if (words != 0)
+            break;
+        sanei_genesys_sleep_ms(sleep_time_ms);
+    }
+
+    if (words == 0) {
+        throw SaneException(SANE_STATUS_IO_ERROR, "timeout, buffer does not get filled");
+    }
+}
 
 // Read data (e.g scanned image) from scan buffer
 void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, size_t size)
 {
     DBG_HELPER_ARGS(dbg, "size = %lu bytes", (u_long) size);
-  int time_count = 0;
-  unsigned int words = 0;
 
   if (size & 1)
     DBG(DBG_info, "WARNING %s: odd number of bytes\n", __func__);
 
-    // wait until buffer not empty for up to 5 seconds
-    do {
-        sanei_genesys_read_valid_words (dev, &words);
-      if (words == 0)
-	{
-          sanei_genesys_sleep_ms(10);
-	  time_count++;
-	}
-    }
-  while ((time_count < 2500*2) && (words == 0));
-
-  if (words == 0)		/* timeout, buffer does not get filled */
-    {
-        throw SaneException(SANE_STATUS_IO_ERROR, "timeout, buffer does not get filled");
-    }
+    wait_until_has_valid_words(dev);
 
     dev->cmd_set->bulk_read_data(dev, 0x45, data, size);
 }
+
 void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps)
 {
     DBG_HELPER(dbg);

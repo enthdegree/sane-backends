@@ -336,7 +336,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   nb = sizeof (motor_master) / sizeof (Motor_Master);
   while (i < nb)
     {
-      if (dev->model->motor_type == motor_master[i].motor
+      if (dev->model->motor_id == motor_master[i].motor_id
           && motor_master[i].dpi == session.params.yres
           && motor_master[i].channels == session.params.channels)
 	{
@@ -347,7 +347,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
   if (motor == NULL)
     {
         throw SaneException("unable to find settings for motor %d at %d dpi, color=%d",
-                            dev->model->motor_type, session.params.yres, session.params.channels);
+                            static_cast<unsigned>(dev->model->motor_id),
+                            session.params.yres, session.params.channels);
     }
 
   /* now we can search for the specific sensor settings */
@@ -556,9 +557,8 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
       /* TODO clean up this when I'll fully understand.
        * for now, special casing each motor */
-      switch (dev->model->motor_type)
-	{
-	case MOTOR_5345:
+        switch (dev->model->motor_id) {
+            case MotorId::MD_5345:
                     switch (motor->dpi) {
 	    case 200:
 	      feedl -= 70;
@@ -582,7 +582,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 	      break;
 	    }
 	  break;
-	case MOTOR_HP2300:
+            case MotorId::HP2300:
                     switch (motor->dpi) {
 	    case 75:
 	      feedl -= 180;
@@ -603,7 +603,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 	      break;
 	    }
 	  break;
-	case MOTOR_HP2400:
+            case MotorId::HP2400:
                     switch (motor->dpi) {
 	    case 150:
 	      feedl += 150;
@@ -829,18 +829,18 @@ gl646_init_regs (Genesys_Device * dev)
 
   dev->reg.find_reg(0x01).value = 0x20 /*0x22 */ ;	/* enable shading, CCD, color, 1M */
   dev->reg.find_reg(0x02).value = 0x30 /*0x38 */ ;	/* auto home, one-table-move, full step */
-  if (dev->model->motor_type == MOTOR_5345)
-    dev->reg.find_reg(0x02).value |= 0x01;	/* half-step */
-  switch (dev->model->motor_type)
-    {
-    case MOTOR_5345:
+    if (dev->model->motor_id == MotorId::MD_5345) {
+        dev->reg.find_reg(0x02).value |= 0x01; // half-step
+    }
+    switch (dev->model->motor_id) {
+        case MotorId::MD_5345:
       dev->reg.find_reg(0x02).value |= 0x01;	/* half-step */
       break;
-    case MOTOR_XP200:
+        case MotorId::XP200:
       /* for this sheetfed scanner, no AGOHOME, nor backtracking */
       dev->reg.find_reg(0x02).value = 0x50;
       break;
-    default:
+        default:
       break;
     }
   dev->reg.find_reg(0x03).value = 0x1f /*0x17 */ ;	/* lamp on */
@@ -943,7 +943,7 @@ gl646_init_regs (Genesys_Device * dev)
   dev->reg.find_reg(0x63).value = 0x00;	/* (3Dh+3Eh+3Fh)/LPeriod for one-table mode,(21h+1Fh)/LPeriod */
   dev->reg.find_reg(0x64).value = 0x00;	/* motor PWM frequency */
   dev->reg.find_reg(0x65).value = 0x00;	/* PWM duty cycle for table one motor phase (63 = max) */
-    if (dev->model->motor_type == MOTOR_5345) {
+    if (dev->model->motor_id == MotorId::MD_5345) {
         // PWM duty cycle for table one motor phase (63 = max)
         dev->reg.find_reg(0x65).value = 0x02;
     }
@@ -952,30 +952,29 @@ gl646_init_regs (Genesys_Device * dev)
         dev->reg.set8(reg.address, reg.value);
     }
 
-  switch (dev->model->motor_type)
-    {
-    case MOTOR_HP2300:
-    case MOTOR_HP2400:
+    switch (dev->model->motor_id) {
+        case MotorId::HP2300:
+        case MotorId::HP2400:
       dev->reg.find_reg(0x6a).value = 0x7f;	/* table two steps number for acc/dec */
       dev->reg.find_reg(0x6b).value = 0x78;	/* table two steps number for acc/dec */
       dev->reg.find_reg(0x6d).value = 0x7f;
       break;
-    case MOTOR_5345:
+        case MotorId::MD_5345:
       dev->reg.find_reg(0x6a).value = 0x42;	/* table two fast moving step type, PWM duty for table two */
       dev->reg.find_reg(0x6b).value = 0xff;	/* table two steps number for acc/dec */
       dev->reg.find_reg(0x6d).value = 0x41;	/* select deceleration steps whenever go home (0), accel/decel stop time (31 * LPeriod) */
       break;
-    case MOTOR_XP200:
+        case MotorId::XP200:
       dev->reg.find_reg(0x6a).value = 0x7f;	/* table two fast moving step type, PWM duty for table two */
       dev->reg.find_reg(0x6b).value = 0x08;	/* table two steps number for acc/dec */
       dev->reg.find_reg(0x6d).value = 0x01;	/* select deceleration steps whenever go home (0), accel/decel stop time (31 * LPeriod) */
       break;
-    case MOTOR_HP3670:
+        case MotorId::HP3670:
       dev->reg.find_reg(0x6a).value = 0x41;	/* table two steps number for acc/dec */
       dev->reg.find_reg(0x6b).value = 0xc8;	/* table two steps number for acc/dec */
       dev->reg.find_reg(0x6d).value = 0x7f;
       break;
-    default:
+        default:
       dev->reg.find_reg(0x6a).value = 0x40;	/* table two fast moving step type, PWM duty for table two */
       dev->reg.find_reg(0x6b).value = 0xff;	/* table two steps number for acc/dec */
       dev->reg.find_reg(0x6d).value = 0x01;	/* select deceleration steps whenever go home (0), accel/decel stop time (31 * LPeriod) */
@@ -3496,8 +3495,9 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
   uint32_t addr = 0xdead;
 
   /* 2300 does not write to 'control' */
-  if (dev->model->motor_type == MOTOR_HP2300)
-    return;
+    if (dev->model->motor_id == MotorId::HP2300) {
+        return;
+    }
 
   /* MD6471/G2410/HP2300 and XP200 read/write data from an undocumented memory area which
    * is after the second slope table */
@@ -3517,19 +3517,19 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
     }
 
   /* XP200 sets dpi, what other scanner put is unknown yet */
-  switch (dev->model->motor_type)
+  switch (dev->model->motor_id)
     {
-    case MOTOR_XP200:
+        case MotorId::XP200:
       /* we put scan's dpi, not motor one */
       control[0] = LOBYTE (resolution);
       control[1] = HIBYTE (resolution);
       control[2] = dev->control[4];
       control[3] = dev->control[5];
       break;
-    case MOTOR_HP3670:
-    case MOTOR_HP2400:
-    case MOTOR_5345:
-    default:
+        case MotorId::HP3670:
+        case MotorId::HP2400:
+        case MotorId::MD_5345:
+        default:
       control[0] = dev->control[2];
       control[1] = dev->control[3];
       control[2] = dev->control[4];

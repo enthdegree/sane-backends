@@ -1501,8 +1501,8 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     if (dev->model->asic_type == AsicType::GL646) {
         if (s.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
             // for HP3670, stagger happens only at >=1200 dpi
-            if ((dev->model->motor_type != MOTOR_HP3670 &&
-                 dev->model->motor_type != MOTOR_HP2400) ||
+            if ((dev->model->motor_id != MotorId::HP3670 &&
+                 dev->model->motor_id != MotorId::HP2400) ||
                 s.params.yres >= (unsigned) sensor.optical_res)
             {
                 s.num_staggered_lines = (4 * s.params.yres) / dev->motor.base_ydpi;
@@ -2060,7 +2060,8 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
  * @param exposure exposure time
  * @return a pointer to a Motor_Profile struct
  */
-Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_type, int exposure)
+Motor_Profile* sanei_genesys_get_motor_profile(Motor_Profile *motors, MotorId motor_id,
+                                               int exposure)
 {
   unsigned int i;
   int idx;
@@ -2069,15 +2070,13 @@ Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_
   idx=-1;
   while(motors[i].exposure!=0)
     {
-      /* exact match */
-      if(motors[i].motor_type==motor_type && motors[i].exposure==exposure)
-        {
+        // exact match
+        if (motors[i].motor_id == motor_id && motors[i].exposure==exposure) {
           return &(motors[i]);
         }
 
-      /* closest match */
-      if(motors[i].motor_type==motor_type)
-        {
+        // closest match
+        if (motors[i].motor_id == motor_id) {
           /* if profile exposure is higher than the required one,
            * the entry is a candidate for the closest match */
           if(motors[i].exposure>=exposure)
@@ -2113,21 +2112,17 @@ Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_
 /**@brief compute motor step type to use
  * compute the step type (full, half, quarter, ...) to use based
  * on target resolution
- * @param motors motor profile database
- * @param motor_type motor id
- * @param exposure sensor exposure
  * @return 0 for full step
  *         1 for half step
  *         2 for quarter step
  *         3 for eighth step
  */
-int sanei_genesys_compute_step_type(Motor_Profile *motors,
-                                    int motor_type,
+int sanei_genesys_compute_step_type(Motor_Profile* motors, MotorId motor_id,
                                     int exposure)
 {
 Motor_Profile *profile;
 
-    profile=sanei_genesys_get_motor_profile(motors, motor_type, exposure);
+    profile = sanei_genesys_get_motor_profile(motors, motor_id, exposure);
     return profile->step_type;
 }
 
@@ -2146,7 +2141,7 @@ Motor_Profile *profile;
  */
 int sanei_genesys_slope_table(std::vector<uint16_t>& slope,
                               int* steps, int dpi, int exposure, int base_dpi, int step_type,
-                              int factor, int motor_type, Motor_Profile* motors)
+                              int factor, MotorId motor_id, Motor_Profile* motors)
 {
 int sum, i;
 uint16_t target,current;
@@ -2161,7 +2156,7 @@ Motor_Profile *profile;
 	/* fill result with target speed */
     slope.resize(SLOPE_TABLE_SIZE, target);
 
-        profile=sanei_genesys_get_motor_profile(motors, motor_type, exposure);
+        profile=sanei_genesys_get_motor_profile(motors, motor_id, exposure);
 
 	/* use profile to build table */
         i=0;

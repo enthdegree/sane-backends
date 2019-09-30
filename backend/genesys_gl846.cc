@@ -493,7 +493,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
                             dev->motor.base_ydpi,
                             scan_step_type,
                             factor,
-                            dev->model->motor_type,
+                            dev->model->motor_id,
                             gl846_motor_profiles);
     gl846_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps * factor);
     gl846_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps * factor);
@@ -513,7 +513,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
                             dev->motor.base_ydpi,
                             fast_step_type,
                             factor,
-                            dev->model->motor_type,
+                            dev->model->motor_id,
                             gl846_motor_profiles);
 
   /* manual override of high start value */
@@ -859,7 +859,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
     exposure_time = get_sensor_profile(dev->model->asic_type, sensor,
                                        session.params.xres, 1).exposure_lperiod;
-  scan_step_type = sanei_genesys_compute_step_type(gl846_motor_profiles, dev->model->motor_type,
+  scan_step_type = sanei_genesys_compute_step_type(gl846_motor_profiles, dev->model->motor_id,
                                                    exposure_time);
 
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);

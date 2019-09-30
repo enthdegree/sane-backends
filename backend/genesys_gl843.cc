@@ -917,7 +917,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                             dev->motor.base_ydpi,
                             scan_step_type,
                             factor,
-                            dev->model->motor_type,
+                            dev->model->motor_id,
                             gl843_motor_profiles);
     gl843_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps * factor);
     gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps * factor);
@@ -943,7 +943,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                             dev->motor.base_ydpi,
                             fast_step_type,
                             factor,
-                            dev->model->motor_type,
+                            dev->model->motor_id,
                             gl843_motor_profiles);
     gl843_send_slope_table(dev, STOP_TABLE, fast_table, fast_steps * factor);
     gl843_send_slope_table(dev, FAST_TABLE, fast_table, fast_steps * factor);
@@ -1020,8 +1020,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     {
       r->value = 0x50;
         coeff = sensor.get_hwdpi_divisor_for_dpi(scan_yres);
-      if (dev->model->motor_type == MOTOR_KVSS080)
-        {
+        if (dev->model->motor_id == MotorId::KVSS080) {
           if(coeff>=1)
             {
               r->value |= 0x05;
@@ -1278,7 +1277,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   if (exposure < 0) {
       throw std::runtime_error("Exposure not defined in sensor definition");
   }
-    scan_step_type = sanei_genesys_compute_step_type(gl843_motor_profiles, dev->model->motor_type,
+    scan_step_type = sanei_genesys_compute_step_type(gl843_motor_profiles, dev->model->motor_id,
                                                      exposure);
 
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
@@ -1290,8 +1289,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /*** motor parameters ***/
 
   /* it seems base_dpi of the G4050 motor is changed above 600 dpi*/
-  if (dev->model->motor_type == MOTOR_G4050 && session.params.yres>600)
-    {
+    if (dev->model->motor_id == MotorId::G4050 && session.params.yres>600) {
       dev->ld_shift_r = (dev->model->ld_shift_r*3800)/dev->motor.base_ydpi;
       dev->ld_shift_g = (dev->model->ld_shift_g*3800)/dev->motor.base_ydpi;
       dev->ld_shift_b = (dev->model->ld_shift_b*3800)/dev->motor.base_ydpi;
@@ -1403,7 +1401,7 @@ void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
 
   /* it seems base_dpi of the G4050 motor is changed above 600 dpi*/
-    if (dev->model->motor_type == MOTOR_G4050 && session.params.yres>600) {
+    if (dev->model->motor_id == MotorId::G4050 && session.params.yres>600) {
       dev->ld_shift_r = (dev->model->ld_shift_r*3800)/dev->motor.base_ydpi;
       dev->ld_shift_g = (dev->model->ld_shift_g*3800)/dev->motor.base_ydpi;
       dev->ld_shift_b = (dev->model->ld_shift_b*3800)/dev->motor.base_ydpi;

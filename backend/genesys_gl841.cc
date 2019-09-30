@@ -934,7 +934,7 @@ uint8_t t150[]     = {0x0c,0x33,0xcf,0x33,0xcf,0x33,0xcf,0x33,0xcf,0x33,0xcf,0x3
 
 uint8_t *table;
 
-  if(dev->model->motor_type == MOTOR_CANONLIDE80)
+  if(dev->model->motor_id == MotorId::CANONLIDE80)
     {
       switch(ydpi)
         {
@@ -1669,7 +1669,7 @@ int scan_step_type=0;
     }
 
   /* this motor behaves differently */
-  if (dev->model->motor_type==MOTOR_CANONLIDE80)
+  if (dev->model->motor_id==MotorId::CANONLIDE80)
     {
       /* driven by 'frequency' tables ? */
       scan_step_type = 0;
@@ -2734,11 +2734,11 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   regs = dev->reg;
 
   ydpi = dev->motor.base_ydpi;
-  if (dev->model->motor_type == MOTOR_PLUSTEK_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
+  if (dev->model->motor_id == MotorId::PLUSTEK_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
     {
       ydpi = 600;
     }
-  if (dev->model->motor_type == MOTOR_CANONLIDE80)
+  if (dev->model->motor_id == MotorId::CANONLIDE80)
     {
       ydpi = gl841_get_dpihw(dev);
       /* get over extra dark area for this model.

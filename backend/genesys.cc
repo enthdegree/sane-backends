@@ -271,7 +271,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
 
     // initialize the motor data stuff
     for (const auto& motor : *s_motors) {
-        if (dev->model->motor_type == motor.motor_id) {
+        if (dev->model->motor_id == motor.id) {
             dev->motor = motor;
             motor_ok = true;
             break;
@@ -291,7 +291,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
         throw SaneException("bad description(s) for fe/gpo/motor=%d/%d/%d\n",
                             static_cast<unsigned>(dev->model->sensor_id),
                             static_cast<unsigned>(dev->model->gpio_id),
-                            dev->model->motor_type);
+                            static_cast<unsigned>(dev->model->motor_id));
     }
 
   /* set up initial line distance shift */
@@ -497,8 +497,7 @@ SANE_Int genesys_create_slope_table2(Genesys_Device* dev, std::vector<uint16_t>&
       step_type, exposure_time, same_speed, yres);
 
   /* start speed */
-  if (dev->model->motor_type == MOTOR_5345)
-    {
+    if (dev->model->motor_id == MotorId::MD_5345) {
       if (yres < dev->motor.base_ydpi / 6)
 	vstart = 2500;
       else
@@ -612,12 +611,13 @@ SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint
   int i, divider;
   int same_step;
 
-  if (dev->model->motor_type == MOTOR_5345
-      || dev->model->motor_type == MOTOR_HP2300
-      || dev->model->motor_type == MOTOR_HP2400)
-    return genesys_create_slope_table2 (dev, slope_table, steps,
-					step_type, exposure_time,
-                    same_speed, yres);
+    if (dev->model->motor_id == MotorId::MD_5345 ||
+        dev->model->motor_id == MotorId::HP2300 ||
+        dev->model->motor_id == MotorId::HP2400)
+    {
+        return genesys_create_slope_table2(dev, slope_table, steps, step_type, exposure_time,
+                                           same_speed, yres);
+    }
 
   DBG(DBG_proc, "%s: %d steps, step_type = %d, exposure_time = %d, same_speed =%d\n", __func__,
       steps, step_type, exposure_time, same_speed);
@@ -673,8 +673,7 @@ SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint
       same_step = 3;
     }
 
-  if (dev->model->motor_type == MOTOR_ST24)
-    {
+    if (dev->model->motor_id == MotorId::ST24) {
       steps = 255;
       switch ((int) yres)
 	{
@@ -848,8 +847,7 @@ SANE_Int
 sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 			     int xdpi)
 {
-  if (dev->model->motor_type == MOTOR_5345)
-    {
+    if (dev->model->motor_id == MotorId::MD_5345) {
         if (dev->cmd_set->get_filter_bit(reg)) {
 	  /* monochrome */
 	  switch (xdpi)
@@ -886,9 +884,7 @@ sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 	      return 11000;
 	    }
 	}
-    }
-  else if (dev->model->motor_type == MOTOR_HP2400)
-    {
+    } else if (dev->model->motor_id == MotorId::HP2400) {
         if (dev->cmd_set->get_filter_bit(reg)) {
 	  /* monochrome */
 	  switch (xdpi)
@@ -910,9 +906,7 @@ sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 	      return 11111;
 	    }
 	}
-    }
-  else if (dev->model->motor_type == MOTOR_HP2300)
-    {
+    } else if (dev->model->motor_id == MotorId::HP2300) {
         if (dev->cmd_set->get_filter_bit(reg)) {
 	  /* monochrome */
 	  switch (xdpi)
@@ -1192,7 +1186,7 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
 
   /* search top of horizontal black stripe : TODO yet another flag */
     if (dev->model->sensor_id == SensorId::CCD_5345
-        && dev->model->motor_type == MOTOR_5345)
+        && dev->model->motor_id == MotorId::MD_5345)
     {
       top = 0;
       count = 0;
@@ -1220,9 +1214,9 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
     }
 
   /* find white corner in dark area : TODO yet another flag */
-    if ((dev->model->sensor_id == SensorId::CCD_HP2300 && dev->model->motor_type == MOTOR_HP2300) ||
-        (dev->model->sensor_id == SensorId::CCD_HP2400 && dev->model->motor_type == MOTOR_HP2400) ||
-        (dev->model->sensor_id == SensorId::CCD_HP3670 && dev->model->motor_type == MOTOR_HP3670))
+    if ((dev->model->sensor_id == SensorId::CCD_HP2300 && dev->model->motor_id == MotorId::HP2300) ||
+        (dev->model->sensor_id == SensorId::CCD_HP2400 && dev->model->motor_id == MotorId::HP2400) ||
+        (dev->model->sensor_id == SensorId::CCD_HP3670 && dev->model->motor_id == MotorId::HP3670))
     {
       top = 0;
       count = 0;
@@ -4243,7 +4237,7 @@ static void init_options(Genesys_Scanner* s)
 
   /* fastmod is required for hw lineart to work */
     if ((s->dev->model->asic_type == AsicType::GL646) &&
-        (s->dev->model->motor_type != MOTOR_XP200))
+        (s->dev->model->motor_id != MotorId::XP200))
     {
       s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap = SANE_CAP_INACTIVE;
     }

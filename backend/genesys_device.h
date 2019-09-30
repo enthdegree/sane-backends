@@ -170,7 +170,7 @@ struct Genesys_Model
     // General purpose output type
     GpioId gpio_id = GpioId::UNKNOWN;
     // stepper motor type
-    SANE_Int motor_type = 0;
+    MotorId motor_id = MotorId::UNKNOWN;
 
     // Which hacks are needed for this scanner?
     SANE_Word flags = 0;

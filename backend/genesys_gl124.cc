@@ -549,12 +549,12 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     }
   else
     {
-      switch(dev->model->motor_type)
+      switch(dev->model->motor_id)
         {
-          case MOTOR_CANONLIDE110:
+          case MotorId::CANONLIDE110:
 	    min_speed = 600;
             break;
-          case MOTOR_CANONLIDE120:
+          case MotorId::CANONLIDE120:
             min_speed = 900;
             break;
           default:
@@ -618,7 +618,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                             dev->motor.base_ydpi,
                             scan_step_type,
                             factor,
-                            dev->model->motor_type,
+                            dev->model->motor_id,
                             gl124_motor_profiles);
     gl124_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps);
     gl124_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps);
@@ -641,7 +641,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                             dev->motor.base_ydpi,
                             scan_step_type,
                             factor,
-                            dev->model->motor_type,
+                            dev->model->motor_id,
                             gl124_motor_profiles);
     gl124_send_slope_table(dev, STOP_TABLE, fast_table, fast_steps);
     gl124_send_slope_table(dev, FAST_TABLE, fast_table, fast_steps);
@@ -984,7 +984,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
         exposure_time = get_sensor_profile(dev->model->asic_type, sensor, session.params.xres,
                                            session.ccd_size_divisor).exposure_lperiod;
         scan_step_type = sanei_genesys_compute_step_type(gl124_motor_profiles,
-                                                         dev->model->motor_type, exposure_time);
+                                                         dev->model->motor_id, exposure_time);
     }
 
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);

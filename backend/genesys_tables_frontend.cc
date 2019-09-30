@@ -61,7 +61,7 @@ void genesys_init_frontend_tables()
 
 
     Genesys_Frontend fe;
-    fe.fe_id = DAC_WOLFSON_UMAX;
+    fe.id = AdcId::WOLFSON_UMAX;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -83,7 +83,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_WOLFSON_ST12;
+    fe.id = AdcId::WOLFSON_ST12;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -105,7 +105,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_WOLFSON_ST24;
+    fe.id = AdcId::WOLFSON_ST24;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -127,7 +127,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_WOLFSON_5345;
+    fe.id = AdcId::WOLFSON_5345;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -150,7 +150,7 @@ void genesys_init_frontend_tables()
 
     // reg3=0x02 for 50-600 dpi, 0x32 (0x12 also works well) at 1200
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_WOLFSON_HP2400;
+    fe.id = AdcId::WOLFSON_HP2400;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -172,7 +172,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_WOLFSON_HP2300;
+    fe.id = AdcId::WOLFSON_HP2300;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -194,7 +194,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_CANONLIDE35;
+    fe.id = AdcId::CANONLIDE35;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -216,7 +216,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_AD_XP200;
+    fe.id = AdcId::AD_XP200;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x58 },
@@ -238,7 +238,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_WOLFSON_XP300;
+    fe.id = AdcId::WOLFSON_XP300;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -260,7 +260,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_WOLFSON_HP3670;
+    fe.id = AdcId::WOLFSON_HP3670;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -282,7 +282,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_WOLFSON_DSM600;
+    fe.id = AdcId::WOLFSON_DSM600;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -304,7 +304,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_CANONLIDE200;
+    fe.id = AdcId::CANONLIDE200;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x9d },
@@ -326,7 +326,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_CANONLIDE700;
+    fe.id = AdcId::CANONLIDE700;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x9d },
@@ -348,7 +348,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_KVSS080;
+    fe.id = AdcId::KVSS080;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -370,7 +370,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_G4050;
+    fe.id = AdcId::G4050;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -392,7 +392,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_CANONLIDE110;
+    fe.id = AdcId::CANONLIDE110;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x80 },
@@ -418,7 +418,7 @@ void genesys_init_frontend_tables()
     * (from Texas Instrument or alike ?)
     */
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_CANONLIDE120;
+    fe.id = AdcId::CANONLIDE120;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x80 },
@@ -440,7 +440,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_PLUSTEK_3600;
+    fe.id = AdcId::PLUSTEK_3600;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x70 },
@@ -462,7 +462,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_PLUSTEK_7200I;
+    fe.id = AdcId::PLUSTEK_7200I;
     fe.layout = analog_devices;
     fe.regs = {
         { 0x00, 0xf8 },
@@ -479,7 +479,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_CS8400F;
+    fe.id = AdcId::CS8400F;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -501,7 +501,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_CS8600F;
+    fe.id = AdcId::CS8600F;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -523,7 +523,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_IMG101;
+    fe.id = AdcId::IMG101;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x78 },
@@ -545,7 +545,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_PLUSTEK3800;
+    fe.id = AdcId::PLUSTEK3800;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x78 },
@@ -571,7 +571,7 @@ void genesys_init_frontend_tables()
     * reg6: gain
     * reg0 , reg3, reg6 */
     fe = Genesys_Frontend();
-    fe.fe_id = DAC_CANONLIDE80;
+    fe.id = AdcId::CANONLIDE80;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x70 },

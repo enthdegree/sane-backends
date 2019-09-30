@@ -96,7 +96,7 @@ struct Genesys_Frontend
     Genesys_Frontend() = default;
 
     // id of the frontend description
-    uint8_t fe_id = 0;
+    AdcId id = AdcId::UNKNOWN;
 
     // all registers of the frontend. Note that the registers can hold 9-bit values
     RegisterSettingSet<std::uint16_t> regs;
@@ -128,7 +128,7 @@ struct Genesys_Frontend
 
     bool operator==(const Genesys_Frontend& other) const
     {
-        return fe_id == other.fe_id &&
+        return id == other.id &&
             regs == other.regs &&
             reg2 == other.reg2 &&
             layout == other.layout;
@@ -138,7 +138,7 @@ struct Genesys_Frontend
 template<class Stream>
 void serialize(Stream& str, Genesys_Frontend& x)
 {
-    serialize(str, x.fe_id);
+    serialize(str, x.id);
     serialize_newline(str);
     serialize(str, x.regs);
     serialize_newline(str);

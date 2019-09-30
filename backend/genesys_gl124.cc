@@ -443,7 +443,8 @@ static void gl124_set_ti_fe(Genesys_Device* dev, uint8_t set)
 
   if (set == AFE_INIT)
     {
-      DBG (DBG_proc, "%s: setting DAC %u\n", __func__, dev->model->dac_type);
+        DBG(DBG_proc, "%s: setting DAC %u\n", __func__,
+            static_cast<unsigned>(dev->model->adc_id));
 
       dev->frontend = dev->frontend_initial;
     }
@@ -465,9 +466,7 @@ static void gl124_set_ti_fe(Genesys_Device* dev, uint8_t set)
         sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.regs.get_value(0x24 + i));
     }
 
-  /* close writing to DAC */
-  if(dev->model->dac_type == DAC_CANONLIDE120)
-    {
+    if (dev->model->adc_id == AdcId::CANONLIDE120) {
         sanei_genesys_fe_write_data(dev, 0x00, 0x01);
     }
   else
@@ -488,7 +487,8 @@ void CommandSetGl124::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 
   if (set == AFE_INIT)
     {
-      DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
+        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
+            static_cast<unsigned>(dev->model->adc_id));
       dev->frontend = dev->frontend_initial;
     }
 

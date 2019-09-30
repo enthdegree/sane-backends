@@ -279,7 +279,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
     }
 
     for (const auto& frontend : *s_frontends) {
-        if (dev->model->dac_type == frontend.fe_id) {
+        if (dev->model->adc_id == frontend.id) {
             dev->frontend_initial = frontend;
             dev->frontend = frontend;
             fe_ok = true;

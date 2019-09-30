@@ -723,7 +723,8 @@ static void gl841_set_lide80_fe(Genesys_Device* dev, uint8_t set)
 
   if (set == AFE_INIT)
     {
-      DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
+        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
+            static_cast<unsigned>(dev->model->adc_id));
 
       dev->frontend = dev->frontend_initial;
 
@@ -747,16 +748,15 @@ static void gl841_set_ad_fe(Genesys_Device* dev, uint8_t set)
     DBG_HELPER(dbg);
   int i;
 
-  /* special case for LiDE 80 analog frontend */
-  if(dev->model->dac_type==DAC_CANONLIDE80)
-    {
+    if (dev->model->adc_id==AdcId::CANONLIDE80) {
         gl841_set_lide80_fe(dev, set);
         return;
     }
 
   if (set == AFE_INIT)
     {
-      DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
+        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
+            static_cast<unsigned>(dev->model->adc_id));
 
       dev->frontend = dev->frontend_initial;
 
@@ -819,7 +819,8 @@ void CommandSetGl841::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 
   if (set == AFE_INIT)
     {
-      DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
+        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
+            static_cast<unsigned>(dev->model->adc_id));
       dev->frontend = dev->frontend_initial;
 
         // reset only done on init
@@ -3704,9 +3705,9 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
       uint8_t out_gain = 0;
 
-      if (dev->model->dac_type == DAC_CANONLIDE35 ||
-	  dev->model->dac_type == DAC_WOLFSON_XP300 ||
-	  dev->model->dac_type == DAC_WOLFSON_DSM600)
+        if (dev->model->adc_id == AdcId::CANONLIDE35 ||
+            dev->model->adc_id == AdcId::WOLFSON_XP300 ||
+            dev->model->adc_id == AdcId::WOLFSON_DSM600)
         {
 	  gain[j] *= 0.69;/*seems we don't get the real maximum. empirically derived*/
 	  if (283 - 208/gain[j] > 255)
@@ -3715,9 +3716,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
               out_gain = 0;
 	  else
               out_gain = 283 - 208/gain[j];
-        }
-      else if (dev->model->dac_type == DAC_CANONLIDE80)
-        {
+        } else if (dev->model->adc_id == AdcId::CANONLIDE80) {
               out_gain = gain[j]*12;
         }
       dev->frontend.set_gain(j, out_gain);

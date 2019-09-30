@@ -217,33 +217,47 @@ inline void serialize(std::ostream& str, SensorId& x)
 }
 
 
-enum Genesys_Dac_Type
+enum class AdcId : unsigned
 {
-    DAC_WOLFSON_UMAX = 0,
-    DAC_WOLFSON_ST12,
-    DAC_WOLFSON_ST24,
-    DAC_WOLFSON_5345,
-    DAC_WOLFSON_HP2400,
-    DAC_WOLFSON_HP2300,
-    DAC_CANONLIDE35,
-    DAC_AD_XP200,
-    DAC_WOLFSON_XP300,
-    DAC_WOLFSON_HP3670,
-    DAC_WOLFSON_DSM600,
-    DAC_CANONLIDE200,
-    DAC_KVSS080,
-    DAC_G4050,
-    DAC_CANONLIDE110,
-    DAC_PLUSTEK_3600,
-    DAC_PLUSTEK_7200I,
-    DAC_CANONLIDE700,
-    DAC_CS8400F,
-    DAC_CS8600F,
-    DAC_IMG101,
-    DAC_PLUSTEK3800,
-    DAC_CANONLIDE80,
-    DAC_CANONLIDE120
+    UNKNOWN = 0,
+    AD_XP200,
+    CANONLIDE110,
+    CANONLIDE120,
+    CANONLIDE200,
+    CANONLIDE35,
+    CANONLIDE700,
+    CANONLIDE80,
+    CS8400F,
+    CS8600F,
+    G4050,
+    IMG101,
+    KVSS080,
+    PLUSTEK3800,
+    PLUSTEK_3600,
+    PLUSTEK_7200I,
+    WOLFSON_5345,
+    WOLFSON_DSM600,
+    WOLFSON_HP2300,
+    WOLFSON_HP2400,
+    WOLFSON_HP3670,
+    WOLFSON_ST12,
+    WOLFSON_ST24,
+    WOLFSON_UMAX,
+    WOLFSON_XP300,
 };
+
+inline void serialize(std::istream& str, AdcId& x)
+{
+    unsigned value;
+    serialize(str, value);
+    x = static_cast<AdcId>(value);
+}
+
+inline void serialize(std::ostream& str, AdcId& x)
+{
+    unsigned value = static_cast<unsigned>(x);
+    serialize(str, value);
+}
 
 enum Genesys_Gpo_Type
 {

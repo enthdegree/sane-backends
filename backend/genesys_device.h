@@ -165,8 +165,8 @@ struct Genesys_Model
 
     // sensor type
     SensorId sensor_id = SensorId::UNKNOWN;
-    // Digital-Analog converter type (TODO: rename to ADC)
-    SANE_Int dac_type = 0;
+    // Analog-Digital converter type
+    AdcId adc_id = AdcId::UNKNOWN;
     // General purpose output type
     SANE_Int gpo_type = 0;
     // stepper motor type

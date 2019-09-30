@@ -845,9 +845,9 @@ gl646_init_regs (Genesys_Device * dev)
     }
   dev->reg.find_reg(0x03).value = 0x1f /*0x17 */ ;	/* lamp on */
   dev->reg.find_reg(0x04).value = 0x13 /*0x03 */ ;	/* 8 bits data, 16 bits A/D, color, Wolfson fe *//* todo: according to spec, 0x0 is reserved? */
-  switch (dev->model->dac_type)
+  switch (dev->model->adc_id)
     {
-    case DAC_AD_XP200:
+    case AdcId::AD_XP200:
       dev->reg.find_reg(0x04).value = 0x12;
       break;
     default:
@@ -864,7 +864,7 @@ gl646_init_regs (Genesys_Device * dev)
     if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA) {
         dev->reg.find_reg(0x05).value |= REG05_GMM14BIT;
     }
-    if (dev->model->dac_type == DAC_AD_XP200) {
+    if (dev->model->adc_id == AdcId::AD_XP200) {
         dev->reg.find_reg(0x05).value |= 0x01;	/* 12 clocks/pixel */
     }
 
@@ -1027,7 +1027,8 @@ static void gl646_set_ad_fe(Genesys_Device* dev, uint8_t set)
 
   if (set == AFE_INIT)
     {
-      DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
+        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
+            static_cast<unsigned>(dev->model->adc_id));
 
       dev->frontend = dev->frontend_initial;
 
@@ -1085,8 +1086,8 @@ static void gl646_wm_hp3670(Genesys_Device* dev, const Genesys_Sensor& sensor, u
       i = dev->frontend.regs.get_value(0x03);
       if (dpi > sensor.optical_res / 2)
 	{
-	  /* fe_reg_0x03 must be 0x12 for 1200 dpi in DAC_WOLFSON_HP3670.
-	   * DAC_WOLFSON_HP2400 in 1200 dpi mode works well with
+      /* fe_reg_0x03 must be 0x12 for 1200 dpi in WOLFSON_HP3670.
+       * WOLFSON_HP2400 in 1200 dpi mode works well with
 	   * fe_reg_0x03 set to 0x32 or 0x12 but not to 0x02 */
 	  i = 0x12;
 	}
@@ -1132,10 +1133,10 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
     }
 
   /* per frontend function to keep code clean */
-  switch (dev->model->dac_type)
+  switch (dev->model->adc_id)
     {
-    case DAC_WOLFSON_HP3670:
-    case DAC_WOLFSON_HP2400:
+    case AdcId::WOLFSON_HP3670:
+    case AdcId::WOLFSON_HP2400:
             gl646_wm_hp3670(dev, sensor, set, dpi);
             return;
     default:
@@ -1146,7 +1147,8 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
   /* initialize analog frontend */
   if (set == AFE_INIT)
     {
-      DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
+        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
+            static_cast<unsigned>(dev->model->adc_id));
       dev->frontend = dev->frontend_initial;
 
         // reset only done on init
@@ -2483,9 +2485,7 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   int topavg, bottomavg;
   int top, bottom, black_pixels;
 
-  /* Analog Device fronted have a different calibration */
-  if (dev->model->dac_type == DAC_AD_XP200)
-    {
+    if (dev->model->adc_id == AdcId::AD_XP200) {
         ad_fe_offset_calibration(dev, sensor);
         return;
     }

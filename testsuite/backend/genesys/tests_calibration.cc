@@ -46,7 +46,7 @@ Genesys_Calibration_Cache create_fake_calibration_entry()
     wolfson_layout.gain_addr = { 0x28, 0x29, 0x2a };
 
     Genesys_Frontend fe;
-    fe.fe_id = DAC_WOLFSON_UMAX;
+    fe.id = AdcId::WOLFSON_UMAX;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },

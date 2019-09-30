@@ -102,7 +102,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_UMAX;
-    model.dac_type = DAC_WOLFSON_UMAX;
+    model.adc_id = AdcId::WOLFSON_UMAX;
     model.gpo_type = GPO_UMAX;
     model.motor_type = MOTOR_UMAX;
     model.flags = GENESYS_FLAG_UNTESTED;
@@ -154,7 +154,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_CANONLIDE35;
-    model.dac_type = DAC_CANONLIDE35;
+    model.adc_id = AdcId::CANONLIDE35;
     model.gpo_type = GPO_CANONLIDE35;
     model.motor_type = MOTOR_CANONLIDE35;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -212,7 +212,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_KVSS080;
-    model.dac_type = DAC_KVSS080;
+    model.adc_id = AdcId::KVSS080;
     model.gpo_type = GPO_KVSS080;
     model.motor_type = MOTOR_KVSS080;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -266,7 +266,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_G4050;
-    model.dac_type = DAC_G4050;
+    model.adc_id = AdcId::G4050;
     model.gpo_type = GPO_G4050;
     model.motor_type = MOTOR_G4050;
     model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
@@ -320,7 +320,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_G4050;
-    model.dac_type = DAC_G4050;
+    model.adc_id = AdcId::G4050;
     model.gpo_type = GPO_G4050;
     model.motor_type = MOTOR_G4050;
     model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
@@ -376,7 +376,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_G4050;
-    model.dac_type = DAC_G4050;
+    model.adc_id = AdcId::G4050;
     model.gpo_type = GPO_G4050;
     model.motor_type = MOTOR_G4050;
     model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
@@ -432,7 +432,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_CS4400F;
-    model.dac_type = DAC_G4050;
+    model.adc_id = AdcId::G4050;
     model.gpo_type = GPO_CS4400F;
     model.motor_type = MOTOR_G4050;
     model.flags = GENESYS_FLAG_NO_CALIBRATION |
@@ -490,7 +490,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_CS8400F;
-    model.dac_type = DAC_CS8400F;
+    model.adc_id = AdcId::CS8400F;
     model.gpo_type = GPO_CS8400F;
     model.motor_type = MOTOR_CS8400F;
     model.flags = GENESYS_FLAG_HAS_UTA |
@@ -550,7 +550,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_CS8600F;
-    model.dac_type = DAC_CS8600F;
+    model.adc_id = AdcId::CS8600F;
     model.gpo_type = GPO_CS8600F;
     model.motor_type = MOTOR_CS8600F;
     model.flags = GENESYS_FLAG_HAS_UTA |
@@ -610,7 +610,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CIS_CANONLIDE100;
-    model.dac_type = DAC_CANONLIDE200;
+    model.adc_id = AdcId::CANONLIDE200;
     model.gpo_type = GPO_CANONLIDE200;
     model.motor_type = MOTOR_CANONLIDE100;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -669,7 +669,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CIS_CANONLIDE110;
-    model.dac_type = DAC_CANONLIDE110;
+    model.adc_id = AdcId::CANONLIDE110;
     model.gpo_type = GPO_CANONLIDE110;
     model.motor_type = MOTOR_CANONLIDE110;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -726,7 +726,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CIS_CANONLIDE120;
-    model.dac_type = DAC_CANONLIDE120;
+    model.adc_id = AdcId::CANONLIDE120;
     model.gpo_type = GPO_CANONLIDE120;
     model.motor_type = MOTOR_CANONLIDE120;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -785,7 +785,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CIS_CANONLIDE210;
-    model.dac_type = DAC_CANONLIDE110;
+    model.adc_id = AdcId::CANONLIDE110;
     model.gpo_type = GPO_CANONLIDE210;
     model.motor_type = MOTOR_CANONLIDE210;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -844,7 +844,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CIS_CANONLIDE220;
-    model.dac_type = DAC_CANONLIDE110;
+    model.adc_id = AdcId::CANONLIDE110;
     model.gpo_type = GPO_CANONLIDE210;
     model.motor_type = MOTOR_CANONLIDE210;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -904,7 +904,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CIS_CANONLIDE200;
-    model.dac_type = DAC_CANONLIDE200;
+    model.adc_id = AdcId::CANONLIDE200;
     model.gpo_type = GPO_CANONLIDE200;
     model.motor_type = MOTOR_CANONLIDE200;
     model.flags = GENESYS_FLAG_UNTESTED |
@@ -963,7 +963,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CIS_CANONLIDE700;
-    model.dac_type = DAC_CANONLIDE700;
+    model.adc_id = AdcId::CANONLIDE700;
     model.gpo_type = GPO_CANONLIDE700;
     model.motor_type = MOTOR_CANONLIDE700;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -1022,7 +1022,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CIS_CANONLIDE200;
-    model.dac_type = DAC_CANONLIDE200;
+    model.adc_id = AdcId::CANONLIDE200;
     model.gpo_type = GPO_CANONLIDE200;
     model.motor_type = MOTOR_CANONLIDE200;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -1081,7 +1081,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_CANONLIDE35;
-    model.dac_type = DAC_CANONLIDE35;
+    model.adc_id = AdcId::CANONLIDE35;
     model.gpo_type = GPO_CANONLIDE35;
     model.motor_type = MOTOR_CANONLIDE35;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -1139,7 +1139,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CIS_CANONLIDE80;
-    model.dac_type = DAC_CANONLIDE80;
+    model.adc_id = AdcId::CANONLIDE80;
     model.gpo_type = GPO_CANONLIDE80;
     model.motor_type = MOTOR_CANONLIDE80;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -1199,7 +1199,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_HP2300;
-    model.dac_type = DAC_WOLFSON_HP2300;
+    model.adc_id = AdcId::WOLFSON_HP2300;
     model.gpo_type = GPO_HP2300;
     model.motor_type = MOTOR_HP2300;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
@@ -1256,7 +1256,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_HP2400;
-    model.dac_type = DAC_WOLFSON_HP2400;
+    model.adc_id = AdcId::WOLFSON_HP2400;
     model.gpo_type = GPO_HP2400;
     model.motor_type = MOTOR_HP2400;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
@@ -1313,7 +1313,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
     model.sensor_id = SensorId::CIS_XP200;
-    model.dac_type = DAC_AD_XP200;
+    model.adc_id = AdcId::AD_XP200;
     model.gpo_type = GPO_XP200;
     model.motor_type = MOTOR_XP200;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
@@ -1369,7 +1369,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_HP3670;
-    model.dac_type = DAC_WOLFSON_HP3670;
+    model.adc_id = AdcId::WOLFSON_HP3670;
     model.gpo_type = GPO_HP3670;
     model.motor_type = MOTOR_HP3670;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
@@ -1426,7 +1426,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_ST12;
-    model.dac_type = DAC_WOLFSON_ST12;
+    model.adc_id = AdcId::WOLFSON_ST12;
     model.gpo_type = GPO_ST12;
     model.motor_type = MOTOR_UMAX;
     model.flags = GENESYS_FLAG_UNTESTED | GENESYS_FLAG_14BIT_GAMMA;
@@ -1477,7 +1477,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_ST24;
-    model.dac_type = DAC_WOLFSON_ST24;
+    model.adc_id = AdcId::WOLFSON_ST24;
     model.gpo_type = GPO_ST24;
     model.motor_type = MOTOR_ST24;
     model.flags = GENESYS_FLAG_UNTESTED |
@@ -1531,7 +1531,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_5345;
-    model.dac_type = DAC_WOLFSON_5345;
+    model.adc_id = AdcId::WOLFSON_5345;
     model.gpo_type = GPO_5345;
     model.motor_type = MOTOR_5345;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
@@ -1592,7 +1592,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
     model.sensor_id = SensorId::CCD_XP300;
-    model.dac_type = DAC_WOLFSON_XP300;
+    model.adc_id = AdcId::WOLFSON_XP300;
     model.gpo_type = GPO_XP300;
     model.motor_type = MOTOR_XP300;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -1646,7 +1646,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
     model.sensor_id = SensorId::CCD_DP665;
-    model.dac_type = DAC_WOLFSON_XP300;
+    model.adc_id = AdcId::WOLFSON_XP300;
     model.gpo_type = GPO_DP665;
     model.motor_type = MOTOR_DP665;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -1700,7 +1700,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
     model.sensor_id = SensorId::CCD_ROADWARRIOR;
-    model.dac_type = DAC_WOLFSON_XP300;
+    model.adc_id = AdcId::WOLFSON_XP300;
     model.gpo_type = GPO_DP665;
     model.motor_type = MOTOR_ROADWARRIOR;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -1754,7 +1754,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
     model.sensor_id = SensorId::CCD_ROADWARRIOR;
-    model.dac_type = DAC_WOLFSON_XP300;
+    model.adc_id = AdcId::WOLFSON_XP300;
     model.gpo_type = GPO_DP665;
     model.motor_type = MOTOR_ROADWARRIOR;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -1809,7 +1809,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
     model.sensor_id = SensorId::CCD_ROADWARRIOR;
-    model.dac_type = DAC_WOLFSON_XP300;
+    model.adc_id = AdcId::WOLFSON_XP300;
     model.gpo_type = GPO_DP665;
     model.motor_type = MOTOR_ROADWARRIOR;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -1863,7 +1863,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
     model.sensor_id = SensorId::CCD_DSMOBILE600;
-    model.dac_type = DAC_WOLFSON_DSM600;
+    model.adc_id = AdcId::WOLFSON_DSM600;
     model.gpo_type = GPO_DP665;
     model.motor_type = MOTOR_DSMOBILE_600;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -1918,7 +1918,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
     model.sensor_id = SensorId::CCD_DSMOBILE600;
-    model.dac_type = DAC_WOLFSON_DSM600;
+    model.adc_id = AdcId::WOLFSON_DSM600;
     model.gpo_type = GPO_DP665;
     model.motor_type = MOTOR_DSMOBILE_600;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -1972,7 +1972,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
     model.sensor_id = SensorId::CCD_DP685;
-    model.dac_type = DAC_WOLFSON_DSM600;
+    model.adc_id = AdcId::WOLFSON_DSM600;
     model.gpo_type = GPO_DP685;
     model.motor_type = MOTOR_XP300;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -2028,7 +2028,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
     model.sensor_id = SensorId::CCD_XP300;
-    model.dac_type = DAC_WOLFSON_XP300;
+    model.adc_id = AdcId::WOLFSON_XP300;
     model.gpo_type = GPO_XP300;
     model.motor_type = MOTOR_XP300;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -2083,7 +2083,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
     model.sensor_id = SensorId::CCD_XP300;
-    model.dac_type = DAC_WOLFSON_XP300;
+    model.adc_id = AdcId::WOLFSON_XP300;
     model.gpo_type = GPO_XP300;
     model.motor_type = MOTOR_XP300;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -2138,7 +2138,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_5345;
-    model.dac_type = DAC_WOLFSON_5345;
+    model.adc_id = AdcId::WOLFSON_5345;
     model.gpo_type = GPO_5345;
     model.motor_type = MOTOR_5345;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
@@ -2198,7 +2198,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_5345;
-    model.dac_type = DAC_WOLFSON_5345;
+    model.adc_id = AdcId::WOLFSON_5345;
     model.gpo_type = GPO_5345;
     model.motor_type = MOTOR_5345;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
@@ -2259,7 +2259,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_TRUE;
     model.sensor_id = SensorId::CCD_ROADWARRIOR;
-    model.dac_type = DAC_WOLFSON_XP300;
+    model.adc_id = AdcId::WOLFSON_XP300;
     model.gpo_type = GPO_DP665;
     model.motor_type = MOTOR_ROADWARRIOR;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -2313,7 +2313,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_PLUSTEK_3600;
-    model.dac_type = DAC_PLUSTEK_3600;
+    model.adc_id = AdcId::PLUSTEK_3600;
     model.gpo_type = GPO_PLUSTEK_3600;
     model.motor_type = MOTOR_PLUSTEK_3600;
     model.flags = GENESYS_FLAG_UNTESTED |                // not fully working yet
@@ -2368,7 +2368,7 @@ void genesys_init_usb_device_tables()
     model.is_sheetfed = false;
 
     model.sensor_id = SensorId::CCD_PLUSTEK_7200I;
-    model.dac_type = DAC_PLUSTEK_7200I;
+    model.adc_id = AdcId::PLUSTEK_7200I;
     model.gpo_type = GPO_PLUSTEK_7200I;
     model.motor_type = MOTOR_PLUSTEK_7200I;
 
@@ -2430,7 +2430,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_HP_N6310;
-    model.dac_type = DAC_CANONLIDE200;        // Not defined yet for N6310
+    model.adc_id = AdcId::CANONLIDE200;        // Not defined yet for N6310
     model.gpo_type = GPO_HP_N6310;
     model.motor_type = MOTOR_CANONLIDE200,    // Not defined yet for N6310
     model.flags = GENESYS_FLAG_UNTESTED |
@@ -2489,7 +2489,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_PLUSTEK3800;
-    model.dac_type = DAC_PLUSTEK3800;
+    model.adc_id = AdcId::PLUSTEK3800;
     model.gpo_type = GPO_PLUSTEK3800;
     model.motor_type = MOTOR_PLUSTEK3800;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
@@ -2543,7 +2543,7 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_IMG101;
-    model.dac_type = DAC_IMG101;
+    model.adc_id = AdcId::IMG101;
     model.gpo_type = GPO_IMG101;
     model.motor_type = MOTOR_IMG101;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |

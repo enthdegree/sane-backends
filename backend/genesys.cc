@@ -1158,8 +1158,8 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
     sanei_genesys_write_pnm_file("gl_detected-xsobel.pnm", image.data(), 8, 1, width, height);
   left = left / count;
 
-  /* turn it in CCD pixel at full sensor optical resolution */
-  sensor.CCD_start_xoffset = start_pixel + (left * sensor.optical_res) / dpi;
+    // turn it in CCD pixel at full sensor optical resolution
+    sensor.ccd_start_xoffset = start_pixel + (left * sensor.optical_res) / dpi;
 
   /* find top edge by detecting black strip */
   /* apply Y direction sobel filter
@@ -1242,7 +1242,7 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
     }
 
   DBG(DBG_proc, "%s: CCD_start_xoffset = %d, left = %d, top = %d\n", __func__,
-      sensor.CCD_start_xoffset, left, top);
+    sensor.ccd_start_xoffset, left, top);
 }
 
 void sanei_genesys_calculate_zmod(SANE_Bool two_table,

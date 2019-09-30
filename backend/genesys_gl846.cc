@@ -1594,7 +1594,7 @@ void CommandSetGl846::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   pixels=endpixel-strpixel;
 
   /* since we're using SHDAREA, substract startx coordinate from shading */
-  strpixel-=((sensor.CCD_start_xoffset*600)/sensor.optical_res);
+    strpixel -= (sensor.ccd_start_xoffset * 600) / sensor.optical_res;
 
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2;

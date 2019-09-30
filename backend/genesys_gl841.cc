@@ -4303,7 +4303,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   /* shading pixel begin is start pixel minus start pixel during shading
    * calibration. Currently only cases handled are full and half ccd resolution.
    */
-  beginpixel = sensor.CCD_start_xoffset / ccd_size_divisor;
+    beginpixel = sensor.ccd_start_xoffset / ccd_size_divisor;
   beginpixel += sensor.dummy_pixel + 1;
   DBG(DBG_io2, "%s: ORIGIN PIXEL=%d\n", __func__, beginpixel);
   beginpixel = (strpixel-beginpixel*2*2)/factor;

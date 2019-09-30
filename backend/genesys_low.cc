@@ -1327,8 +1327,8 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
 
         // startx cannot be below dummy pixel value
         s.pixel_startx = sensor.dummy_pixel;
-        if ((s.params.flags & SCAN_FLAG_USE_XCORRECTION) && sensor.CCD_start_xoffset > 0) {
-            s.pixel_startx = sensor.CCD_start_xoffset;
+        if ((s.params.flags & SCAN_FLAG_USE_XCORRECTION) && sensor.ccd_start_xoffset > 0) {
+            s.pixel_startx = sensor.ccd_start_xoffset;
         }
         s.pixel_startx += s.params.startx;
 
@@ -1342,7 +1342,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_endx /= sensor.ccd_pixels_per_system_pixel() * s.ccd_size_divisor;
 
     } else if (dev->model->asic_type == AsicType::GL841) {
-        s.pixel_startx = ((sensor.CCD_start_xoffset + s.params.startx) * s.optical_resolution)
+        s.pixel_startx = ((sensor.ccd_start_xoffset + s.params.startx) * s.optical_resolution)
                                 / sensor.optical_res;
 
         s.pixel_startx += sensor.dummy_pixel + 1;
@@ -1390,7 +1390,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
             s.pixel_startx |= 1;
         }
 
-        s.pixel_startx += sensor.CCD_start_xoffset * ccd_pixels_per_system_pixel;
+        s.pixel_startx += sensor.ccd_start_xoffset * ccd_pixels_per_system_pixel;
         s.pixel_endx = s.pixel_startx + s.optical_pixels_raw;
 
         s.pixel_startx /= s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel;
@@ -2607,7 +2607,7 @@ void debug_dump(unsigned level, const Genesys_Sensor& sensor)
     DBG(level, "    ccd_size_divisor : %d\n", sensor.ccd_size_divisor);
     DBG(level, "    black_pixels : %d\n", sensor.black_pixels);
     DBG(level, "    dummy_pixel : %d\n", sensor.dummy_pixel);
-    DBG(level, "    CCD_start_xoffset : %d\n", sensor.CCD_start_xoffset);
+    DBG(level, "    ccd_start_xoffset : %d\n", sensor.ccd_start_xoffset);
     DBG(level, "    sensor_pixels : %d\n", sensor.sensor_pixels);
     DBG(level, "    fau_gain_white_ref : %d\n", sensor.fau_gain_white_ref);
     DBG(level, "    gain_white_ref : %d\n", sensor.gain_white_ref);

@@ -124,7 +124,7 @@ void genesys_init_sensor_tables()
     SensorProfile profile;
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_UMAX;
+    sensor.sensor_id = SensorId::CCD_UMAX;
     sensor.optical_res = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 64;
@@ -169,7 +169,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_ST12;
+    sensor.sensor_id = SensorId::CCD_ST12;
     sensor.optical_res = 600;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 85;
@@ -214,7 +214,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_ST24;
+    sensor.sensor_id = SensorId::CCD_ST24;
     sensor.optical_res = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 64;
@@ -259,7 +259,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_5345;
+    sensor.sensor_id = SensorId::CCD_5345;
     sensor.optical_res = 1200;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 48;
@@ -577,7 +577,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_HP2400;
+    sensor.sensor_id = SensorId::CCD_HP2400;
     sensor.optical_res = 1200,
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 15;
@@ -808,7 +808,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_HP2300;
+    sensor.sensor_id = SensorId::CCD_HP2300;
     sensor.optical_res = 600;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 48;
@@ -986,7 +986,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_CANONLIDE35;
+    sensor.sensor_id = SensorId::CCD_CANONLIDE35;
     sensor.optical_res = 1200;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
@@ -1032,7 +1032,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CIS_XP200;
+    sensor.sensor_id = SensorId::CIS_XP200;
     sensor.optical_res = 600;
     sensor.black_pixels = 5;
     sensor.dummy_pixel = 38;
@@ -1134,7 +1134,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_HP3670;
+    sensor.sensor_id = SensorId::CCD_HP3670;
     sensor.optical_res = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 16;
@@ -1365,7 +1365,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_DP665;
+    sensor.sensor_id = SensorId::CCD_DP665;
     sensor.optical_res = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
@@ -1410,7 +1410,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_ROADWARRIOR;
+    sensor.sensor_id = SensorId::CCD_ROADWARRIOR;
     sensor.optical_res = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
@@ -1455,7 +1455,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_DSMOBILE600;
+    sensor.sensor_id = SensorId::CCD_DSMOBILE600;
     sensor.optical_res = 600;
     sensor.black_pixels = 28;
     sensor.dummy_pixel = 28;
@@ -1500,7 +1500,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_XP300;
+    sensor.sensor_id = SensorId::CCD_XP300;
     sensor.optical_res = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
@@ -1545,7 +1545,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_DP685;
+    sensor.sensor_id = SensorId::CCD_DP685;
     sensor.optical_res = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
@@ -1590,7 +1590,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CIS_CANONLIDE200;
+    sensor.sensor_id = SensorId::CIS_CANONLIDE200;
     sensor.optical_res = 4800;
     sensor.black_pixels = 87*4;
     sensor.dummy_pixel = 16*4;
@@ -1726,7 +1726,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CIS_CANONLIDE700;
+    sensor.sensor_id = SensorId::CIS_CANONLIDE700;
     sensor.optical_res = 4800;
     sensor.black_pixels = 73*8; // black pixels 73 at 600 dpi
     sensor.dummy_pixel = 16*8;
@@ -1864,7 +1864,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CIS_CANONLIDE100;
+    sensor.sensor_id = SensorId::CIS_CANONLIDE100;
     sensor.optical_res = 2400;
     sensor.black_pixels = 87*4,        /* black pixels */
     sensor.dummy_pixel = 16*4;
@@ -1986,7 +1986,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_KVSS080;
+    sensor.sensor_id = SensorId::CCD_KVSS080;
     sensor.optical_res = 600;
     sensor.black_pixels = 38;
     sensor.dummy_pixel = 38;
@@ -2032,7 +2032,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_G4050;
+    sensor.sensor_id = SensorId::CCD_G4050;
     sensor.optical_res = 4800;
     sensor.black_pixels = 50*8;
     // 31 at 600 dpi dummy_pixels 58 at 1200
@@ -2213,7 +2213,7 @@ void genesys_init_sensor_tables()
     }
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_CS4400F;
+    sensor.sensor_id = SensorId::CCD_CS4400F;
     sensor.optical_res = 4800;
     sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 50*8;
@@ -2262,7 +2262,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_CS8400F;
+    sensor.sensor_id = SensorId::CCD_CS8400F;
     sensor.optical_res = 4800;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 50*8;
@@ -2476,7 +2476,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_CS8600F;
+    sensor.sensor_id = SensorId::CCD_CS8600F;
     sensor.optical_res = 4800;
     sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 31;
@@ -2673,7 +2673,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_HP_N6310;
+    sensor.sensor_id = SensorId::CCD_HP_N6310;
     sensor.optical_res = 2400;
     // sensor.ccd_size_divisor = 2; Possibly half CCD, needs checking
     sensor.black_pixels = 96;
@@ -2719,7 +2719,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CIS_CANONLIDE110;
+    sensor.sensor_id = SensorId::CIS_CANONLIDE110;
     sensor.optical_res = 2400;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
@@ -2854,7 +2854,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CIS_CANONLIDE120;
+    sensor.sensor_id = SensorId::CIS_CANONLIDE120;
     sensor.optical_res = 2400;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
@@ -2990,7 +2990,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CIS_CANONLIDE210;
+    sensor.sensor_id = SensorId::CIS_CANONLIDE210;
     sensor.optical_res = 2400;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
@@ -3125,7 +3125,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CIS_CANONLIDE220;
+    sensor.sensor_id = SensorId::CIS_CANONLIDE220;
     sensor.optical_res = 2400;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
@@ -3260,7 +3260,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_PLUSTEK_3600;
+    sensor.sensor_id = SensorId::CCD_PLUSTEK_3600;
     sensor.optical_res = 1200;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
@@ -3306,7 +3306,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_PLUSTEK_7200I;
+    sensor.sensor_id = SensorId::CCD_PLUSTEK_7200I;
     sensor.optical_res = 7200;
     sensor.register_dpihw_override = 1200;
     sensor.black_pixels = 88; // TODO
@@ -3394,7 +3394,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_IMG101;
+    sensor.sensor_id = SensorId::CCD_IMG101;
     sensor.optical_res = 1200;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 31;
@@ -3456,7 +3456,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CCD_PLUSTEK3800;
+    sensor.sensor_id = SensorId::CCD_PLUSTEK3800;
     sensor.optical_res = 1200;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 31;
@@ -3517,7 +3517,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = CIS_CANONLIDE80,
+    sensor.sensor_id = SensorId::CIS_CANONLIDE80,
     sensor.optical_res = 1200; // real hardware limit is 2400
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 20;

@@ -207,8 +207,7 @@ static void sanei_gl841_setup_sensor(Genesys_Device * dev, const Genesys_Sensor&
   /* todo : add more CCD types if needed */
   /* we might want to expand the Sensor struct to have these
      2 kind of settings */
-  if (dev->model->ccd_type == CCD_5345)
-    {
+    if (dev->model->sensor_id == SensorId::CCD_5345) {
         if (ccd_size_divisor > 1) {
           GenesysRegister* r;
 	  /* settings for CCD used at half is max resolution */
@@ -243,8 +242,7 @@ static void sanei_gl841_setup_sensor(Genesys_Device * dev, const Genesys_Sensor&
       return;
     }
 
-  if (dev->model->ccd_type == CCD_HP2300)
-    {
+    if (dev->model->sensor_id == SensorId::CCD_HP2300) {
       /* settings for CCD used at half is max resolution */
       GenesysRegister* r;
         if (ccd_size_divisor > 1) {
@@ -562,8 +560,8 @@ gl841_init_registers (Genesys_Device * dev)
     dev->reg.find_reg(0x03).value = 0x1f /*0x17 */ ;	/* lamp on */
     dev->reg.find_reg(0x03).value |= REG03_AVEENB;
 
-  if (dev->model->ccd_type == CCD_PLUSTEK_3600)  /* AD front end */
-    {
+    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_3600) {
+        // AD front end
       dev->reg.find_reg(0x04).value  = (2 << REG04S_AFEMOD) | 0x02;
     }
   else /* Wolfson front end */
@@ -591,8 +589,9 @@ gl841_init_registers (Genesys_Device * dev)
   dev->reg.find_reg(0x06).value |= REG06_GAIN4;
 
   /* XP300 CCD needs different clock and clock/pixels values */
-  if (dev->model->ccd_type != CCD_XP300 && dev->model->ccd_type != CCD_DP685
-                                        && dev->model->ccd_type != CCD_PLUSTEK_3600)
+    if (dev->model->sensor_id != SensorId::CCD_XP300 &&
+        dev->model->sensor_id != SensorId::CCD_DP685 &&
+        dev->model->sensor_id != SensorId::CCD_PLUSTEK_3600)
     {
       dev->reg.find_reg(0x06).value |= 0 << REG06S_SCANMOD;
       dev->reg.find_reg(0x09).value |= 1 << REG09S_CLKSET;
@@ -836,7 +835,7 @@ void CommandSetGl841::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
     }
 
   /* todo :  base this test on cfg reg3 or a CCD family flag to be created */
-  /*if (dev->model->ccd_type!=CCD_HP2300 && dev->model->ccd_type!=CCD_HP2400) */
+  /*if (dev->model->ccd_type!=SensorId::CCD_HP2300 && dev->model->ccd_type!=SensorId::CCD_HP2400) */
   {
     sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
     sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.regs.get_value(0x02));
@@ -1544,8 +1543,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
       }
     else
       {
-        if (dev->model->ccd_type == CCD_PLUSTEK_3600)
-          {
+        if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_3600) {
             r->value |= 0x22;	/* slow color pixel by pixel */
           }
 	else
@@ -2409,7 +2407,7 @@ void CommandSetGl841::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
         dev->write_register(REG6B, val);
     }
 
-    if (dev->model->ccd_type != CCD_PLUSTEK_3600) {
+    if (dev->model->sensor_id != SensorId::CCD_PLUSTEK_3600) {
         local_reg.init_reg(0x03, reg->get8(0x03) | REG03_LAMPPWR);
     } else {
         // TODO PLUSTEK_3600: why ??
@@ -2858,7 +2856,7 @@ void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   /* true gray (led add for cis scanners) */
   if(dev->model->is_cis && dev->settings.true_gray
     && dev->settings.scan_mode != ScanColorMode::COLOR_SINGLE_PASS
-    && dev->model->ccd_type != CIS_CANONLIDE80)
+    && dev->model->sensor_id != SensorId::CIS_CANONLIDE80)
     {
       // on Lide 80 the LEDADD bit results in only red LED array being lit
       DBG(DBG_io, "%s: activating LEDADD\n", __func__);
@@ -3148,8 +3146,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   int target;
 
   /* don't impact 3600 behavior since we can't test it */
-  if (dev->model->ccd_type == CCD_PLUSTEK_3600)
-    {
+    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_3600) {
       return;
     }
 
@@ -3388,7 +3385,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
           /* TODO the DP685 has a black strip in the middle of the sensor
            * should be handled in a more elegant way , could be a bug */
-          if (dev->model->ccd_type == CCD_DP685)
+          if (dev->model->sensor_id == SensorId::CCD_DP685)
               cmin[j] -= 20;
 
 	  if (cmin[j] > num_pixels/100) {
@@ -3850,8 +3847,7 @@ bool CommandSetGl841::is_compatible_calibration(Genesys_Device* dev, const Genes
 
     DBG_HELPER(dbg);
   /* calibration cache not working yet for this model */
-  if (dev->model->ccd_type == CCD_PLUSTEK_3600)
-    {
+    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_3600) {
       return false;
     }
 

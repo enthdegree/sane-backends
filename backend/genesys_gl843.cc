@@ -828,8 +828,7 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
         }
     }
 
-  if (dev->model->ccd_type == CCD_KVSS080)
-    {
+    if (dev->model->sensor_id == SensorId::CCD_KVSS080) {
       for (i = 0; i < 3; i++)
 	{
             // FIXME: the check below is just historical artifact, we can remove it when convenient
@@ -2890,8 +2889,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     unsigned channels = 3;
 
   /* follow CKSEL */
-  if (dev->model->ccd_type == CCD_KVSS080)
-    {
+    if (dev->model->sensor_id == SensorId::CCD_KVSS080) {
       if(dev->settings.xres<sensor.optical_res)
         {
           coeff=0.9;

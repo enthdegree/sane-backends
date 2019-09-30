@@ -67,7 +67,7 @@ Genesys_Calibration_Cache create_fake_calibration_entry()
     calib.frontend = fe;
 
     Genesys_Sensor sensor;
-    sensor.sensor_id = CCD_UMAX;
+    sensor.sensor_id = SensorId::CCD_UMAX;
     sensor.optical_res = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 64;

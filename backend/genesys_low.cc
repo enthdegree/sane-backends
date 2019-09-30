@@ -2590,7 +2590,7 @@ void debug_dump(unsigned level, const GenesysRegisterSettingSet& regs)
 void debug_dump(unsigned level, const Genesys_Sensor& sensor)
 {
     DBG(level, "sensor:\n");
-    DBG(level, "    sensor_id : %d\n", sensor.sensor_id);
+    DBG(level, "    sensor_id : %d\n", static_cast<unsigned>(sensor.sensor_id));
     DBG(level, "    optical_res : %d\n", sensor.optical_res);
 
     DBG(level, "    resolutions :");

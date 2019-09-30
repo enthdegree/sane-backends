@@ -164,7 +164,7 @@ struct Genesys_Model
     SANE_Bool is_sheetfed = false;
 
     // sensor type
-    SANE_Int ccd_type = 0;
+    SensorId sensor_id = SensorId::UNKNOWN;
     // Digital-Analog converter type (TODO: rename to ADC)
     SANE_Int dac_type = 0;
     // General purpose output type

@@ -121,8 +121,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x03,0x50);
   SETREG (0x04,0x03);
   SETREG (0x05,0x00);
-  if(dev->model->ccd_type==CIS_CANONLIDE120)
-    {
+    if(dev->model->sensor_id == SensorId::CIS_CANONLIDE120) {
       SETREG (0x06,0x50);
       SETREG (0x07,0x00);
     }
@@ -152,8 +151,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x1f,0x00);
   SETREG (0x20,0x15);
   SETREG (0x21,0x00);
-  if(dev->model->ccd_type!=CIS_CANONLIDE120)
-    {
+    if(dev->model->sensor_id != SensorId::CIS_CANONLIDE120) {
       SETREG (0x22,0x02);
     }
   else
@@ -214,8 +212,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x6c,0x00);
   SETREG (0x6e,0x00);
   SETREG (0x6f,0x00);
-  if(dev->model->ccd_type!=CIS_CANONLIDE120)
-    {
+    if (dev->model->sensor_id != SensorId::CIS_CANONLIDE120) {
       SETREG (0x6d,0xd0);
       SETREG (0x71,0x08);
     }
@@ -242,8 +239,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x7d,0x00);
   SETREG (0x7e,0x08);
   SETREG (0x7f,0x58);
-  if(dev->model->ccd_type!=CIS_CANONLIDE120)
-    {
+    if (dev->model->sensor_id != SensorId::CIS_CANONLIDE120) {
       SETREG (0x80,0x00);
       SETREG (0x81,0x14);
     }
@@ -330,8 +326,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0xcd,0x00);
   SETREG (0xce,0x00);
   */
-  if(dev->model->ccd_type==CIS_CANONLIDE120)
-    {
+    if (dev->model->sensor_id == SensorId::CIS_CANONLIDE120) {
       SETREG (0xc5,0x20);
       SETREG (0xc6,0xeb);
       SETREG (0xc7,0x20);
@@ -815,8 +810,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   r->value &= ~REG01_SCAN;
 
   r = sanei_genesys_get_address (reg, REG03);
-  if((dev->model->ccd_type!=CIS_CANONLIDE120)&&(session.params.xres>=600))
-    {
+    if ((dev->model->sensor_id != SensorId::CIS_CANONLIDE120) && (session.params.xres>=600)) {
       r->value &= ~REG03_AVEENB;
       DBG (DBG_io, "%s: disabling AVEENB\n", __func__);
     }

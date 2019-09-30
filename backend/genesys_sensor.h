@@ -260,7 +260,7 @@ struct Genesys_Sensor {
     ~Genesys_Sensor() = default;
 
     // id of the sensor description
-    uint8_t sensor_id = 0;
+    SensorId sensor_id = SensorId::UNKNOWN;
 
     // sensor resolution in CCD pixels. Note that we may read more than one CCD pixel per logical
     // pixel, see ccd_pixels_per_system_pixel()

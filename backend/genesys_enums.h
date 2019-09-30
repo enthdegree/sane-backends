@@ -166,41 +166,56 @@ enum class ModelId : unsigned
     XEROX_TRAVELSCANNER_100,
 };
 
-enum Genesys_Sensor_Type
+enum class SensorId : unsigned
 {
-    CCD_UMAX = 0,
-    CCD_ST12,         // SONY ILX548: 5340 Pixel  ???
-    CCD_ST24,         // SONY ILX569: 10680 Pixel ???
+    UNKNOWN = 0,
     CCD_5345,
-    CCD_HP2400,
-    CCD_HP2300,
     CCD_CANONLIDE35,
-    CIS_XP200,        // CIS sensor for Strobe XP200,
-    CCD_HP3670,
-    CCD_DP665,
-    CCD_ROADWARRIOR,
-    CCD_DSMOBILE600,
-    CCD_XP300,
-    CCD_DP685,
-    CIS_CANONLIDE200,
-    CIS_CANONLIDE100,
-    CCD_KVSS080,
-    CCD_G4050,
-    CIS_CANONLIDE110,
-    CCD_PLUSTEK_3600,
-    CCD_PLUSTEK_7200I,
-    CCD_HP_N6310,
-    CIS_CANONLIDE700,
     CCD_CS4400F,
     CCD_CS8400F,
     CCD_CS8600F,
+    CCD_DP665,
+    CCD_DP685,
+    CCD_DSMOBILE600,
+    CCD_G4050,
+    CCD_HP2300,
+    CCD_HP2400,
+    CCD_HP3670,
+    CCD_HP_N6310,
     CCD_IMG101,
+    CCD_KVSS080,
     CCD_PLUSTEK3800,
-    CIS_CANONLIDE210,
-    CIS_CANONLIDE80,
-    CIS_CANONLIDE220,
+    CCD_PLUSTEK_3600,
+    CCD_PLUSTEK_7200I,
+    CCD_ROADWARRIOR,
+    CCD_ST12,         // SONY ILX548: 5340 Pixel  ???
+    CCD_ST24,         // SONY ILX569: 10680 Pixel ???
+    CCD_UMAX,
+    CCD_XP300,
+    CIS_CANONLIDE100,
+    CIS_CANONLIDE110,
     CIS_CANONLIDE120,
+    CIS_CANONLIDE200,
+    CIS_CANONLIDE210,
+    CIS_CANONLIDE220,
+    CIS_CANONLIDE700,
+    CIS_CANONLIDE80,
+    CIS_XP200,
 };
+
+inline void serialize(std::istream& str, SensorId& x)
+{
+    unsigned value;
+    serialize(str, value);
+    x = static_cast<SensorId>(value);
+}
+
+inline void serialize(std::ostream& str, SensorId& x)
+{
+    unsigned value = static_cast<unsigned>(x);
+    serialize(str, value);
+}
+
 
 enum Genesys_Dac_Type
 {

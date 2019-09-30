@@ -1812,7 +1812,8 @@ static void gl846_init_gpio(Genesys_Device* dev)
     }
   if(gpios[idx].sensor_id==0)
     {
-        throw SaneException("failed to find GPIO profile for sensor_id=%d", dev->model->ccd_type);
+        throw SaneException("failed to find GPIO profile for sensor_id=%d",
+                            static_cast<unsigned>(dev->model->sensor_id));
     }
 
     dev->write_register(REGA7, gpios[idx].ra7);

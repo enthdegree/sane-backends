@@ -107,11 +107,6 @@ inline unsigned default_get_hwdpi_divisor_for_dpi(const Genesys_Sensor& sensor, 
     return sensor.optical_res / default_get_logical_hwdpi(sensor, xres);
 }
 
-/** for setting up the sensor-specific settings:
- * Optical Resolution, number of black pixels, number of dummy pixels,
- * CCD_start_xoffset, and overall number of sensor pixels
- * registers 0x08-0x0b, 0x10-0x1d and 0x52-0x5e
- */
 StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 StaticInit<SensorProfile> s_fallback_sensor_profile_gl124;
 StaticInit<SensorProfile> s_fallback_sensor_profile_gl846;

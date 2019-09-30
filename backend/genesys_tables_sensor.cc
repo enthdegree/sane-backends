@@ -3260,7 +3260,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = SensorId::CCD_PLUSTEK_3600;
+    sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICPRO_3600;
     sensor.optical_res = 1200;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
@@ -3306,7 +3306,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = SensorId::CCD_PLUSTEK_7200I;
+    sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7200I;
     sensor.optical_res = 7200;
     sensor.register_dpihw_override = 1200;
     sensor.black_pixels = 88; // TODO
@@ -3456,7 +3456,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = SensorId::CCD_PLUSTEK3800;
+    sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICBOOK_3800;
     sensor.optical_res = 1200;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 31;

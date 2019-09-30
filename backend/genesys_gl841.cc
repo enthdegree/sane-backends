@@ -560,7 +560,7 @@ gl841_init_registers (Genesys_Device * dev)
     dev->reg.find_reg(0x03).value = 0x1f /*0x17 */ ;	/* lamp on */
     dev->reg.find_reg(0x03).value |= REG03_AVEENB;
 
-    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_3600) {
+    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_OPTICPRO_3600) {
         // AD front end
       dev->reg.find_reg(0x04).value  = (2 << REG04S_AFEMOD) | 0x02;
     }
@@ -591,7 +591,7 @@ gl841_init_registers (Genesys_Device * dev)
   /* XP300 CCD needs different clock and clock/pixels values */
     if (dev->model->sensor_id != SensorId::CCD_XP300 &&
         dev->model->sensor_id != SensorId::CCD_DP685 &&
-        dev->model->sensor_id != SensorId::CCD_PLUSTEK_3600)
+        dev->model->sensor_id != SensorId::CCD_PLUSTEK_OPTICPRO_3600)
     {
       dev->reg.find_reg(0x06).value |= 0 << REG06S_SCANMOD;
       dev->reg.find_reg(0x09).value |= 1 << REG09S_CLKSET;
@@ -1541,7 +1541,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
       }
     else
       {
-        if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_3600) {
+        if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_OPTICPRO_3600) {
             r->value |= 0x22;	/* slow color pixel by pixel */
           }
 	else
@@ -2405,7 +2405,7 @@ void CommandSetGl841::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
         dev->write_register(REG6B, val);
     }
 
-    if (dev->model->sensor_id != SensorId::CCD_PLUSTEK_3600) {
+    if (dev->model->sensor_id != SensorId::CCD_PLUSTEK_OPTICPRO_3600) {
         local_reg.init_reg(0x03, reg->get8(0x03) | REG03_LAMPPWR);
     } else {
         // TODO PLUSTEK_3600: why ??
@@ -2734,7 +2734,7 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   regs = dev->reg;
 
   ydpi = dev->motor.base_ydpi;
-  if (dev->model->motor_id == MotorId::PLUSTEK_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
+  if (dev->model->motor_id == MotorId::PLUSTEK_OPTICPRO_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
     {
       ydpi = 600;
     }
@@ -3144,7 +3144,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   int target;
 
   /* don't impact 3600 behavior since we can't test it */
-    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_3600) {
+    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_OPTICPRO_3600) {
       return;
     }
 
@@ -3843,7 +3843,7 @@ bool CommandSetGl841::is_compatible_calibration(Genesys_Device* dev, const Genes
 
     DBG_HELPER(dbg);
   /* calibration cache not working yet for this model */
-    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_3600) {
+    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_OPTICPRO_3600) {
       return false;
     }
 

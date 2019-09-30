@@ -977,7 +977,7 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
   /* many scanners send coefficient for lineart/gray like in color mode */
   if ((dev->settings.scan_mode == ScanColorMode::LINEART ||
        dev->settings.scan_mode == ScanColorMode::HALFTONE)
-        && dev->model->sensor_id != SensorId::CCD_PLUSTEK3800
+        && dev->model->sensor_id != SensorId::CCD_PLUSTEK_OPTICBOOK_3800
         && dev->model->sensor_id != SensorId::CCD_KVSS080
         && dev->model->sensor_id != SensorId::CCD_G4050
         && dev->model->sensor_id != SensorId::CCD_CS4400F
@@ -2587,12 +2587,12 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                             target_code);
       break;
     case SensorId::CCD_KVSS080:
-    case SensorId::CCD_PLUSTEK3800:
+    case SensorId::CCD_PLUSTEK_OPTICBOOK_3800:
     case SensorId::CCD_G4050:
     case SensorId::CCD_CS4400F:
     case SensorId::CCD_CS8400F:
     case SensorId::CCD_CS8600F:
-    case SensorId::CCD_PLUSTEK_7200I:
+    case SensorId::CCD_PLUSTEK_OPTICFILM_7200I:
       target_code = 0xe000;
       o = 0;
       compute_coefficients (dev,
@@ -2664,7 +2664,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
 			       0xe000,
                                0x0800);
       break;
-    case SensorId::CCD_PLUSTEK_3600:
+    case SensorId::CCD_PLUSTEK_OPTICPRO_3600:
       compute_shifted_coefficients (dev, sensor,
                         shading_data.data(),
 			            pixels_per_line,
@@ -4662,7 +4662,7 @@ probe_genesys_devices (void)
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 12;
+static const int CALIBRATION_VERSION = 13;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

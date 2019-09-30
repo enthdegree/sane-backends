@@ -756,8 +756,8 @@ Motor_Profile gl843_motor_profiles[] = {
     { MotorId::G4050, 56064, StepType::HALF, g4050_high },
     { MotorId::CS8400F, 50000, StepType::QUARTER, cs8400f_fast },
     { MotorId::CS8600F, 0x59d8, StepType::QUARTER, motor_speeds_cs8600f }, // FIXME: if the exposure is lower then we'll select another motor
-    { MotorId::PLUSTEK_7200I, 0x19c8, StepType::HALF, motor_speeds_plustek_7200i_1},
-    { MotorId::PLUSTEK_7200I, 0x2538, StepType::HALF, motor_speeds_plustek_7200i_2},
+    { MotorId::PLUSTEK_OPTICFILM_7200I, 0x19c8, StepType::HALF, motor_speeds_plustek_7200i_1},
+    { MotorId::PLUSTEK_OPTICFILM_7200I, 0x2538, StepType::HALF, motor_speeds_plustek_7200i_2},
     { MotorId::UNKNOWN, 0, StepType::FULL, NULL },
 };
 
@@ -875,7 +875,7 @@ static uint32_t img101_high[] = {
 
 Motor_Profile gl846_motor_profiles[] = {
     { MotorId::IMG101, 11000, StepType::HALF, img101_high},
-    { MotorId::PLUSTEK3800, 11000, StepType::HALF, img101_high},
+    { MotorId::PLUSTEK_OPTICBOOK_3800, 11000, StepType::HALF, img101_high},
     { MotorId::UNKNOWN, 0, StepType::FULL, NULL},
 };
 

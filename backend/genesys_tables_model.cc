@@ -2312,10 +2312,10 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CCD_PLUSTEK_3600;
-    model.adc_id = AdcId::PLUSTEK_3600;
-    model.gpio_id = GpioId::PLUSTEK_3600;
-    model.motor_id = MotorId::PLUSTEK_3600;
+    model.sensor_id = SensorId::CCD_PLUSTEK_OPTICPRO_3600;
+    model.adc_id = AdcId::PLUSTEK_OPTICPRO_3600;
+    model.gpio_id = GpioId::PLUSTEK_OPTICPRO_3600;
+    model.motor_id = MotorId::PLUSTEK_OPTICPRO_3600;
     model.flags = GENESYS_FLAG_UNTESTED |                // not fully working yet
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_SKIP_WARMUP |
@@ -2367,10 +2367,10 @@ void genesys_init_usb_device_tables()
     model.is_cis = false;
     model.is_sheetfed = false;
 
-    model.sensor_id = SensorId::CCD_PLUSTEK_7200I;
-    model.adc_id = AdcId::PLUSTEK_7200I;
-    model.gpio_id = GpioId::PLUSTEK_7200I;
-    model.motor_id = MotorId::PLUSTEK_7200I;
+    model.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7200I;
+    model.adc_id = AdcId::PLUSTEK_OPTICFILM_7200I;
+    model.gpio_id = GpioId::PLUSTEK_OPTICFILM_7200I;
+    model.motor_id = MotorId::PLUSTEK_OPTICFILM_7200I;
 
     model.flags = GENESYS_FLAG_HAS_UTA |
                   GENESYS_FLAG_HAS_UTA_INFRARED |
@@ -2488,10 +2488,10 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CCD_PLUSTEK3800;
-    model.adc_id = AdcId::PLUSTEK3800;
-    model.gpio_id = GpioId::PLUSTEK3800;
-    model.motor_id = MotorId::PLUSTEK3800;
+    model.sensor_id = SensorId::CCD_PLUSTEK_OPTICBOOK_3800;
+    model.adc_id = AdcId::PLUSTEK_OPTICBOOK_3800;
+    model.gpio_id = GpioId::PLUSTEK_OPTICBOOK_3800;
+    model.motor_id = MotorId::PLUSTEK_OPTICBOOK_3800;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;

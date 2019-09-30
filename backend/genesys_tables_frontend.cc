@@ -440,7 +440,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.id = AdcId::PLUSTEK_3600;
+    fe.id = AdcId::PLUSTEK_OPTICPRO_3600;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x70 },
@@ -462,7 +462,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.id = AdcId::PLUSTEK_7200I;
+    fe.id = AdcId::PLUSTEK_OPTICFILM_7200I;
     fe.layout = analog_devices;
     fe.regs = {
         { 0x00, 0xf8 },
@@ -545,7 +545,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.id = AdcId::PLUSTEK3800;
+    fe.id = AdcId::PLUSTEK_OPTICBOOK_3800;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x78 },

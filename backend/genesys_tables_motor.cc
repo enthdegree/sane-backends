@@ -589,7 +589,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::PLUSTEK_3600;
+    motor.id = MotorId::PLUSTEK_OPTICPRO_3600;
     motor.base_ydpi = 1200;
     motor.optical_ydpi = 2400;
     motor.max_step_type = 1;
@@ -612,7 +612,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::PLUSTEK_7200I;
+    motor.id = MotorId::PLUSTEK_OPTICFILM_7200I;
     motor.base_ydpi = 3600;
     motor.optical_ydpi = 3600;
     motor.max_step_type = 0; // only used on GL841
@@ -643,7 +643,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::PLUSTEK3800;
+    motor.id = MotorId::PLUSTEK_OPTICBOOK_3800;
     motor.base_ydpi = 600;
     motor.optical_ydpi = 1200;
     motor.max_step_type = 1;

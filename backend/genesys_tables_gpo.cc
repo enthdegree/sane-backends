@@ -280,7 +280,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.id = GpioId::PLUSTEK_3600;
+    gpo.id = GpioId::PLUSTEK_OPTICPRO_3600;
     gpo.regs = {
         { 0x6c, 0x02 },
         { 0x6d, 0x00 },
@@ -291,7 +291,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.id = GpioId::PLUSTEK_7200I;
+    gpo.id = GpioId::PLUSTEK_OPTICFILM_7200I;
     gpo.regs = {
         { 0x6c, 0x4c },
         { 0x6d, 0x80 },
@@ -362,7 +362,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.id = GpioId::PLUSTEK3800;
+    gpo.id = GpioId::PLUSTEK_OPTICBOOK_3800;
     gpo.regs = {
         { 0x6c, 0x41 },
         { 0x6d, 0xa4 },

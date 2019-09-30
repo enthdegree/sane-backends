@@ -1827,7 +1827,7 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
                 gl843_set_xpa_motor_power(dev, true);
             }
             break;
-        case GpioId::PLUSTEK_7200I: {
+        case GpioId::PLUSTEK_OPTICFILM_7200I: {
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
                 gl843_set_xpa_lamp_power(dev, true);
             }

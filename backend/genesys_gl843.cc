@@ -858,21 +858,22 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                                        Genesys_Register_Set* reg,
                                        unsigned int exposure,
                                        float scan_yres,
-                                       int scan_step_type,
+                                       StepType step_type,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
                                        unsigned int flags)
 {
-    DBG_HELPER_ARGS(dbg, "exposure=%d, scan_yres=%g, scan_step_type=%d, scan_lines=%d, scan_dummy=%d, "
+    DBG_HELPER_ARGS(dbg, "exposure=%d, scan_yres=%g, step_type=%d, scan_lines=%d, scan_dummy=%d, "
                          "feed_steps=%d, flags=%x",
-                    exposure, scan_yres, scan_step_type, scan_lines, scan_dummy, feed_steps, flags);
+                    exposure, scan_yres, static_cast<unsigned>(step_type), scan_lines, scan_dummy,
+                    feed_steps, flags);
 
   int use_fast_fed, coeff;
   unsigned int lincnt;
     std::vector<uint16_t> scan_table;
     std::vector<uint16_t> fast_table;
-  int scan_steps,fast_steps, fast_step_type;
+  int scan_steps,fast_steps;
   unsigned int feedl,factor,dist;
   GenesysRegister *r;
   uint32_t z1, z2;
@@ -915,7 +916,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                             scan_yres,
                             exposure,
                             dev->motor.base_ydpi,
-                            scan_step_type,
+                            step_type,
                             factor,
                             dev->model->motor_id,
                             gl843_motor_profiles);
@@ -931,11 +932,11 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
   r->value = scan_steps;
 
   /* fast table */
-  fast_step_type=0;
-  if(scan_step_type<=fast_step_type)
-    {
-      fast_step_type=scan_step_type;
+    StepType fast_step_type = StepType::FULL;
+    if (static_cast<unsigned>(step_type) <= static_cast<unsigned>(fast_step_type)) {
+        fast_step_type = step_type;
     }
+
   sanei_genesys_slope_table(fast_table,
                             &fast_steps,
                             sanei_genesys_get_lowest_ydpi(dev),
@@ -959,7 +960,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
   /* substract acceleration distance from feedl */
   feedl=feed_steps;
-  feedl<<=scan_step_type;
+    feedl <<= static_cast<unsigned>(step_type);
 
   dist = scan_steps;
   if (use_fast_fed)
@@ -1005,10 +1006,11 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
   r->value |= scan_dummy;	/* dummy lines */
 
   r = sanei_genesys_get_address (reg, REG67);
-  r->value = 0x3f | (scan_step_type << REG67S_STEPSEL);
+    r->value = 0x3f | (static_cast<unsigned>(step_type) << REG67S_STEPSEL);
 
+    // BUG: here we are writing non-fast step type to fast step type register
   r = sanei_genesys_get_address (reg, REG68);
-  r->value = 0x3f | (scan_step_type << REG68S_FSTPSEL);
+    r->value = 0x3f | (static_cast<unsigned>(step_type) << REG68S_FSTPSEL);
 
   /* steps for STOP table */
   r = sanei_genesys_get_address (reg, REG_FMOVDEC);
@@ -1255,7 +1257,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   int slope_dpi = 0;
   int dummy = 0;
-  int scan_step_type = 1;
 
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
@@ -1277,11 +1278,12 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   if (exposure < 0) {
       throw std::runtime_error("Exposure not defined in sensor definition");
   }
-    scan_step_type = sanei_genesys_compute_step_type(gl843_motor_profiles, dev->model->motor_id,
-                                                     exposure);
+    StepType scan_step_type = sanei_genesys_compute_step_type(gl843_motor_profiles,
+                                                              dev->model->motor_id,
+                                                              exposure);
 
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
-  DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, scan_step_type);
+    DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, static_cast<unsigned>(scan_step_type));
 
     // now _LOGICAL_ optical values used are known, setup registers
     gl843_init_optical_regs_scan(dev, sensor, reg, exposure, session);

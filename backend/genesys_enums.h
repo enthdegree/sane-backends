@@ -324,6 +324,14 @@ enum class MotorId : unsigned
     XP300,
 };
 
+enum class StepType : unsigned
+{
+    FULL = 0,
+    HALF = 1,
+    QUARTER = 2,
+    EIGHTH = 3,
+};
+
 enum class AsicType : unsigned
 {
     UNKNOWN = 0,

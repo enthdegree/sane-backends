@@ -232,7 +232,7 @@ struct Motor_Profile
 {
     MotorId motor_id;
 	int exposure;    /**< exposure for the slope table */
-        int step_type;   /**< default step type for given exposure */
+    StepType step_type;   // default step type for given exposure
         uint32_t *table;  // 0-terminated slope table at full step (i.e. step_type == 0)
 };
 
@@ -240,11 +240,6 @@ extern Motor_Profile gl843_motor_profiles[];
 extern Motor_Profile gl846_motor_profiles[];
 extern Motor_Profile gl847_motor_profiles[];
 extern Motor_Profile gl124_motor_profiles[];
-
-#define FULL_STEP       0
-#define HALF_STEP       1
-#define QUARTER_STEP    2
-#define EIGHTH_STEP     3
 
 #define SLOPE_TABLE_SIZE 1024
 
@@ -469,10 +464,10 @@ extern void sanei_genesys_asic_init(Genesys_Device* dev, SANE_Bool cold);
 Motor_Profile* sanei_genesys_get_motor_profile(Motor_Profile *motors, MotorId motor_id,
                                                int exposure);
 
-int sanei_genesys_compute_step_type(Motor_Profile* motors, MotorId motor_id, int exposure);
+StepType sanei_genesys_compute_step_type(Motor_Profile* motors, MotorId motor_id, int exposure);
 
 int sanei_genesys_slope_table(std::vector<uint16_t>& slope, int *steps, int dpi, int exposure,
-                              int base_dpi, int step_type, int factor, MotorId motor_id,
+                              int base_dpi, StepType step_type, int factor, MotorId motor_id,
                               Motor_Profile *motors);
 
 /** @brief find lowest motor resolution for the device.

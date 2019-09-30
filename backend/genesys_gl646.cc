@@ -415,12 +415,12 @@ static void gl646_setup_registers(Genesys_Device* dev,
   regs->find_reg(0x02).value &= ~REG02_STEPSEL;
   switch (motor->steptype)
     {
-    case FULL_STEP:
+    case StepType::FULL:
       break;
-    case HALF_STEP:
+    case StepType::HALF:
       regs->find_reg(0x02).value |= 1;
       break;
-    case QUATER_STEP:
+    case StepType::QUARTER:
       regs->find_reg(0x02).value |= 2;
       break;
     default:
@@ -629,18 +629,19 @@ static void gl646_setup_registers(Genesys_Device* dev,
 	  break;
 
 	  /* theorical value */
-	default:
+        default: {
+            unsigned step_shift = static_cast<unsigned>(motor->steptype);
+
 	  if (motor->fastfed)
-	    {
-	      feedl =
-		feedl - 2 * motor->steps2 -
-		(motor->steps1 >> motor->steptype);
+        {
+                feedl = feedl - 2 * motor->steps2 - (motor->steps1 >> step_shift);
 	    }
 	  else
 	    {
-	      feedl = feedl - (motor->steps1 >> motor->steptype);
+                feedl = feedl - (motor->steps1 >> step_shift);
 	    }
 	  break;
+        }
 	}
       /* security */
       if (feedl < 0)

@@ -2117,8 +2117,7 @@ Motor_Profile* sanei_genesys_get_motor_profile(Motor_Profile *motors, MotorId mo
  *         2 for quarter step
  *         3 for eighth step
  */
-int sanei_genesys_compute_step_type(Motor_Profile* motors, MotorId motor_id,
-                                    int exposure)
+StepType sanei_genesys_compute_step_type(Motor_Profile* motors, MotorId motor_id, int exposure)
 {
 Motor_Profile *profile;
 
@@ -2140,17 +2139,18 @@ Motor_Profile *profile;
  * @param motors motor profile database
  */
 int sanei_genesys_slope_table(std::vector<uint16_t>& slope,
-                              int* steps, int dpi, int exposure, int base_dpi, int step_type,
+                              int* steps, int dpi, int exposure, int base_dpi, StepType step_type,
                               int factor, MotorId motor_id, Motor_Profile* motors)
 {
 int sum, i;
 uint16_t target,current;
 Motor_Profile *profile;
 
+    unsigned step_shift = static_cast<unsigned>(step_type);
     slope.clear();
 
 	/* required speed */
-	target=((exposure * dpi) / base_dpi)>>step_type;
+    target = ((exposure * dpi) / base_dpi) >> step_shift;
         DBG (DBG_io2, "%s: exposure=%d, dpi=%d, target=%d\n", __func__, exposure, dpi, target);
 
 	/* fill result with target speed */
@@ -2171,7 +2171,7 @@ Motor_Profile *profile;
             slope[i]=current;
             sum+=slope[i];
             i++;
-            current=profile->table[i]>>step_type;
+        current = profile->table[i] >> step_shift;
           }
 
         /* ensure last step is required speed in case profile doesn't contain it */

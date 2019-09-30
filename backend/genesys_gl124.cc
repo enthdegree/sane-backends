@@ -513,7 +513,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                                        Genesys_Register_Set* reg,
                                        unsigned int scan_exposure_time,
                                        float scan_yres,
-                                       int scan_step_type,
+                                       StepType step_type,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
@@ -532,9 +532,9 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
   int min_speed;
   unsigned int linesel;
 
-  DBG(DBG_info, "%s : scan_exposure_time=%d, scan_yres=%g, scan_step_type=%d, scan_lines=%d, "
+    DBG(DBG_info, "%s : scan_exposure_time=%d, scan_yres=%g, step_type=%d, scan_lines=%d, "
       "scan_dummy=%d, feed_steps=%d, scan_mode=%d, flags=%x\n", __func__, scan_exposure_time,
-      scan_yres, scan_step_type, scan_lines, scan_dummy, feed_steps,
+        scan_yres, static_cast<unsigned>(step_type), scan_lines, scan_dummy, feed_steps,
       static_cast<unsigned>(scan_mode), flags);
 
   /* we never use fast fed since we do manual feed for the scans */
@@ -616,7 +616,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                             yres,
                             scan_exposure_time,
                             dev->motor.base_ydpi,
-                            scan_step_type,
+                            step_type,
                             factor,
                             dev->model->motor_id,
                             gl124_motor_profiles);
@@ -639,7 +639,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                             fast_dpi,
                             scan_exposure_time,
                             dev->motor.base_ydpi,
-                            scan_step_type,
+                            step_type,
                             factor,
                             dev->model->motor_id,
                             gl124_motor_profiles);
@@ -652,7 +652,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
 
   /* substract acceleration distance from feedl */
   feedl=feed_steps;
-  feedl<<=scan_step_type;
+    feedl <<= static_cast<unsigned>(step_type);
 
   dist = scan_steps;
   if (flags & MOTOR_FLAG_FEED)
@@ -691,7 +691,8 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
 
   /* LINESEL */
   reg->set8_mask(REG1D, linesel, REG1D_LINESEL);
-  reg->set8(REGA0, (scan_step_type << REGA0S_STEPSEL) | (scan_step_type << REGA0S_FSTPSEL));
+    reg->set8(REGA0, (static_cast<unsigned>(step_type) << REGA0S_STEPSEL) |
+                     (static_cast<unsigned>(step_type) << REGA0S_FSTPSEL));
 
     reg->set16(REG_FMOVDEC, fast_steps);
 }
@@ -966,7 +967,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   int dummy = 0;
   int slope_dpi = 0;
-  int scan_step_type = 1;
+    StepType scan_step_type = StepType::HALF;
 
     /* cis color scan is effectively a gray scan with 3 gray lines per color line and a FILTER of 0 */
     if (dev->model->is_cis) {
@@ -976,7 +977,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
 
     if(session.params.flags & SCAN_FLAG_FEEDING) {
-      scan_step_type=0;
+        scan_step_type = StepType::FULL;
       exposure_time=MOVE_EXPOSURE;
     }
   else
@@ -988,7 +989,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
 
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
-  DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, scan_step_type);
+  DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, static_cast<unsigned>(scan_step_type));
 
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode

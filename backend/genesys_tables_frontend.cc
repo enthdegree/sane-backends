@@ -194,7 +194,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.id = AdcId::CANONLIDE35;
+    fe.id = AdcId::CANON_LIDE_35;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -304,7 +304,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.id = AdcId::CANONLIDE200;
+    fe.id = AdcId::CANON_LIDE_200;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x9d },
@@ -326,7 +326,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.id = AdcId::CANONLIDE700;
+    fe.id = AdcId::CANON_LIDE_700F;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x9d },
@@ -392,7 +392,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.id = AdcId::CANONLIDE110;
+    fe.id = AdcId::CANON_LIDE_110;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x80 },
@@ -418,7 +418,7 @@ void genesys_init_frontend_tables()
     * (from Texas Instrument or alike ?)
     */
     fe = Genesys_Frontend();
-    fe.id = AdcId::CANONLIDE120;
+    fe.id = AdcId::CANON_LIDE_120;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x80 },
@@ -479,7 +479,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.id = AdcId::CS8400F;
+    fe.id = AdcId::CANON_8400F;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -501,7 +501,7 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
-    fe.id = AdcId::CS8600F;
+    fe.id = AdcId::CANON_8600F;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -571,7 +571,7 @@ void genesys_init_frontend_tables()
     * reg6: gain
     * reg0 , reg3, reg6 */
     fe = Genesys_Frontend();
-    fe.id = AdcId::CANONLIDE80;
+    fe.id = AdcId::CANON_LIDE_80;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x70 },

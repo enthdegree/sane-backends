@@ -3080,8 +3080,8 @@ void CommandSetGl646::init(Genesys_Device* dev) const
 
   /* MD6471/G2410 and XP200 read/write data from an undocumented memory area which
    * is after the second slope table */
-  if (dev->model->gpo_type != GPO_HP3670
-      && dev->model->gpo_type != GPO_HP2400)
+    if (dev->model->gpio_id != GpioId::HP3670 &&
+        dev->model->gpio_id != GpioId::HP2400)
     {
       switch (sensor.optical_res)
 	{
@@ -3379,73 +3379,73 @@ void CommandSetGl646::update_hardware_sensors(Genesys_Scanner* session) const
 
     // scan button
     if (dev->model->buttons & GENESYS_HAS_SCAN_SW) {
-        switch (dev->model->gpo_type) {
-	case GPO_XP200:
+        switch (dev->model->gpio_id) {
+        case GpioId::XP200:
             session->buttons[BUTTON_SCAN_SW].write((value & 0x02) != 0);
             break;
-	case GPO_5345:
+        case GpioId::MD_5345:
             session->buttons[BUTTON_SCAN_SW].write(value == 0x16);
             break;
-	case GPO_HP2300:
+        case GpioId::HP2300:
             session->buttons[BUTTON_SCAN_SW].write(value == 0x6c);
             break;
-	case GPO_HP3670:
-	case GPO_HP2400:
+        case GpioId::HP3670:
+        case GpioId::HP2400:
             session->buttons[BUTTON_SCAN_SW].write((value & 0x20) == 0);
             break;
-	default:
+        default:
                 throw SaneException(SANE_STATUS_UNSUPPORTED, "unknown gpo type");
 	}
     }
 
     // email button
     if (dev->model->buttons & GENESYS_HAS_EMAIL_SW) {
-        switch (dev->model->gpo_type) {
-	case GPO_5345:
+        switch (dev->model->gpio_id) {
+        case GpioId::MD_5345:
             session->buttons[BUTTON_EMAIL_SW].write(value == 0x12);
             break;
-	case GPO_HP3670:
-	case GPO_HP2400:
+        case GpioId::HP3670:
+        case GpioId::HP2400:
             session->buttons[BUTTON_EMAIL_SW].write((value & 0x08) == 0);
             break;
-	default:
+        default:
                 throw SaneException(SANE_STATUS_UNSUPPORTED, "unknown gpo type");
     }
     }
 
     // copy button
     if (dev->model->buttons & GENESYS_HAS_COPY_SW) {
-        switch (dev->model->gpo_type) {
-	case GPO_5345:
+        switch (dev->model->gpio_id) {
+        case GpioId::MD_5345:
             session->buttons[BUTTON_COPY_SW].write(value == 0x11);
             break;
-	case GPO_HP2300:
+        case GpioId::HP2300:
             session->buttons[BUTTON_COPY_SW].write(value == 0x5c);
             break;
-	case GPO_HP3670:
-	case GPO_HP2400:
+        case GpioId::HP3670:
+        case GpioId::HP2400:
             session->buttons[BUTTON_COPY_SW].write((value & 0x10) == 0);
             break;
-	default:
+        default:
                 throw SaneException(SANE_STATUS_UNSUPPORTED, "unknown gpo type");
     }
     }
 
     // power button
     if (dev->model->buttons & GENESYS_HAS_POWER_SW) {
-        switch (dev->model->gpo_type) {
-	case GPO_5345:
+        switch (dev->model->gpio_id) {
+        case GpioId::MD_5345:
             session->buttons[BUTTON_POWER_SW].write(value == 0x14);
             break;
-    default:
+        default:
                 throw SaneException(SANE_STATUS_UNSUPPORTED, "unknown gpo type");
     }
     }
 
     // ocr button
     if (dev->model->buttons & GENESYS_HAS_OCR_SW) {
-        switch (dev->model->gpo_type) {
-	case GPO_5345:
+        switch (dev->model->gpio_id) {
+    case GpioId::MD_5345:
             session->buttons[BUTTON_OCR_SW].write(value == 0x13);
             break;
 	default:
@@ -3455,11 +3455,11 @@ void CommandSetGl646::update_hardware_sensors(Genesys_Scanner* session) const
 
     // document detection
     if (dev->model->buttons & GENESYS_HAS_PAGE_LOADED_SW) {
-        switch (dev->model->gpo_type) {
-	case GPO_XP200:
+        switch (dev->model->gpio_id) {
+        case GpioId::XP200:
             session->buttons[BUTTON_PAGE_LOADED_SW].write((value & 0x04) != 0);
             break;
-    default:
+        default:
                 throw SaneException(SANE_STATUS_UNSUPPORTED, "unknown gpo type");
     }
     }
@@ -3467,10 +3467,9 @@ void CommandSetGl646::update_hardware_sensors(Genesys_Scanner* session) const
   /* XPA detection */
   if (dev->model->flags & GENESYS_FLAG_XPA)
     {
-      switch (dev->model->gpo_type)
-	{
-	case GPO_HP3670:
-	case GPO_HP2400:
+        switch (dev->model->gpio_id) {
+            case GpioId::HP3670:
+            case GpioId::HP2400:
 	  /* test if XPA is plugged-in */
 	  if ((value & 0x40) == 0)
 	    {
@@ -3482,8 +3481,8 @@ void CommandSetGl646::update_hardware_sensors(Genesys_Scanner* session) const
 	      DBG(DBG_io, "%s: disabling XPA\n", __func__);
 	      session->opt[OPT_SOURCE].cap |= SANE_CAP_INACTIVE;
 	    }
-	  break;
-	default:
+      break;
+            default:
                 throw SaneException(SANE_STATUS_UNSUPPORTED, "unknown gpo type");
     }
     }

@@ -423,7 +423,7 @@ static void gl847_homsnr_gpio(Genesys_Device* dev)
     DBG_HELPER(dbg);
     uint8_t val;
 
-    if (dev->model->gpo_type == GPO_CANONLIDE700) {
+    if (dev->model->gpio_id == GpioId::CANONLIDE700) {
         val = dev->read_register(REG6C);
         val &= ~REG6C_GPIO10;
         dev->write_register(REG6C, val);
@@ -1073,7 +1073,7 @@ void CommandSetGl847::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
   GenesysRegister *r;
 
     // clear GPIO 10
-    if (dev->model->gpo_type != GPO_CANONLIDE700) {
+    if (dev->model->gpio_id != GpioId::CANONLIDE700) {
         val = dev->read_register(REG6C);
         val &= ~REG6C_GPIO10;
         dev->write_register(REG6C, val);
@@ -1853,12 +1853,10 @@ static void gl847_init_gpio(Genesys_Device* dev)
   int idx=0;
 
   /* search GPIO profile */
-  while(gpios[idx].sensor_id!=0 && dev->model->gpo_type!=gpios[idx].sensor_id)
-    {
+    while(gpios[idx].gpio_id != GpioId::UNKNOWN && dev->model->gpio_id != gpios[idx].gpio_id) {
       idx++;
     }
-  if(gpios[idx].sensor_id==0)
-    {
+    if (gpios[idx].gpio_id == GpioId::UNKNOWN) {
         throw SaneException("failed to find GPIO profile for sensor_id=%d",
                             static_cast<unsigned>(dev->model->sensor_id));
     }
@@ -2028,15 +2026,14 @@ void CommandSetGl847::update_hardware_sensors(Genesys_Scanner* s) const
    */
   uint8_t val;
   uint8_t scan, file, email, copy;
-  switch(s->dev->model->gpo_type)
-    {
-      case GPO_CANONLIDE700:
+    switch(s->dev->model->gpio_id) {
+    case GpioId::CANONLIDE700:
         scan=0x04;
         file=0x02;
         email=0x01;
         copy=0x08;
         break;
-      default:
+    default:
         scan=0x01;
         file=0x02;
         email=0x04;

@@ -1193,8 +1193,7 @@ static void gl124_setup_scan_gpio(Genesys_Device* dev, int resolution)
     uint8_t val = dev->read_register(REG32);
 
   /* LiDE 110, 210 and 220 cases */
-  if(dev->model->gpo_type != GPO_CANONLIDE120)
-    {
+    if(dev->model->gpio_id != GpioId::CANONLIDE120) {
       if(resolution>=dev->motor.base_ydpi/2)
 	{
 	  val &= 0xf7;
@@ -2624,8 +2623,8 @@ void CommandSetGl124::update_hardware_sensors(Genesys_Scanner* s) const
    * add another per scanner button profile struct to avoid growing
    * hard-coded button mapping here.
    */
-  if((s->dev->model->gpo_type == GPO_CANONLIDE110)
-    ||(s->dev->model->gpo_type == GPO_CANONLIDE120))
+    if ((s->dev->model->gpio_id == GpioId::CANONLIDE110) ||
+        (s->dev->model->gpio_id == GpioId::CANONLIDE120))
     {
         s->buttons[BUTTON_SCAN_SW].write((val & 0x01) == 0);
         s->buttons[BUTTON_FILE_SW].write((val & 0x08) == 0);

@@ -1436,7 +1436,7 @@ void CommandSetGl843::save_power(Genesys_Device* dev, bool enable) const
     DBG_HELPER_ARGS(dbg, "enable = %d", enable);
 
     // switch KV-SS080 lamp off
-    if (dev->model->gpo_type == GPO_KVSS080) {
+    if (dev->model->gpio_id == GpioId::KVSS080) {
         uint8_t val = dev->read_register(REG6C);
         if (enable) {
             val &= 0xef;
@@ -1785,16 +1785,15 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
     (void) sensor;
 
   /* set up GPIO for scan */
-  switch(dev->model->gpo_type)
-    {
+    switch(dev->model->gpio_id) {
       /* KV case */
-      case GPO_KVSS080:
+        case GpioId::KVSS080:
             dev->write_register(REGA9, 0x00);
             dev->write_register(REGA6, 0xf6);
             // blinking led
             dev->write_register(0x7e, 0x04);
             break;
-      case GPO_G4050:
+        case GpioId::G4050:
             dev->write_register(REGA7, 0xfe);
             dev->write_register(REGA8, 0x3e);
             dev->write_register(REGA9, 0x06);
@@ -1817,9 +1816,9 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
 
             // blinking led
             dev->write_register(REG7E, 0x01);
-        break;
-      case GPO_CS8400F:
-      case GPO_CS8600F:
+            break;
+        case GpioId::CS8400F:
+        case GpioId::CS8600F:
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
                 gl843_set_xpa_lamp_power(dev, true);
             }
@@ -1827,16 +1826,16 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
                 dev->needs_home_ta = SANE_TRUE;
                 gl843_set_xpa_motor_power(dev, true);
             }
-        break;
-        case GPO_PLUSTEK_7200I: {
+            break;
+        case GpioId::PLUSTEK_7200I: {
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
                 gl843_set_xpa_lamp_power(dev, true);
             }
             break;
         }
-      case GPO_CS4400F:
-      default:
-        break;
+        case GpioId::CS4400F:
+        default:
+            break;
     }
 
     // clear scan and feed count
@@ -3196,19 +3195,19 @@ void CommandSetGl843::update_hardware_sensors(Genesys_Scanner* s) const
 
     uint8_t val = s->dev->read_register(REG6D);
 
-  switch (s->dev->model->gpo_type)
+  switch (s->dev->model->gpio_id)
     {
-        case GPO_KVSS080:
+        case GpioId::KVSS080:
             s->buttons[BUTTON_SCAN_SW].write((val & 0x04) == 0);
             break;
-        case GPO_G4050:
+        case GpioId::G4050:
             s->buttons[BUTTON_SCAN_SW].write((val & 0x01) == 0);
             s->buttons[BUTTON_FILE_SW].write((val & 0x02) == 0);
             s->buttons[BUTTON_EMAIL_SW].write((val & 0x04) == 0);
             s->buttons[BUTTON_COPY_SW].write((val & 0x08) == 0);
             break;
-        case GPO_CS4400F:
-        case GPO_CS8400F:
+        case GpioId::CS4400F:
+        case GpioId::CS8400F:
         default:
             break;
     }

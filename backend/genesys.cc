@@ -262,7 +262,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
 
   /* initialize the GPO data stuff */
     for (const auto& gpo : *s_gpo) {
-        if (dev->model->gpo_type == gpo.gpo_id) {
+        if (dev->model->gpio_id == gpo.id) {
             dev->gpo = gpo;
             gpo_ok = true;
             break;
@@ -290,7 +290,8 @@ sanei_genesys_init_structs (Genesys_Device * dev)
     if (!motor_ok || !gpo_ok || !fe_ok) {
         throw SaneException("bad description(s) for fe/gpo/motor=%d/%d/%d\n",
                             static_cast<unsigned>(dev->model->sensor_id),
-                            dev->model->gpo_type, dev->model->motor_type);
+                            static_cast<unsigned>(dev->model->gpio_id),
+                            dev->model->motor_type);
     }
 
   /* set up initial line distance shift */

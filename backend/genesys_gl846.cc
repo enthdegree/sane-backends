@@ -594,8 +594,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     dev->write_register(REG6C, val);
   */
 
-  if(dev->model->gpo_type==GPO_IMG101)
-    {
+    if(dev->model->gpio_id == GpioId::IMG101) {
         if (scan_yres == sensor.get_register_hwdpi(scan_yres)) {
           val=1;
         }
@@ -1807,11 +1806,10 @@ static void gl846_init_gpio(Genesys_Device* dev)
   int idx=0;
 
   /* search GPIO profile */
-  while(gpios[idx].sensor_id!=0 && dev->model->gpo_type!=gpios[idx].sensor_id)
-    {
+    while (gpios[idx].gpio_id != GpioId::UNKNOWN && dev->model->gpio_id != gpios[idx].gpio_id) {
       idx++;
     }
-  if(gpios[idx].sensor_id==0)
+    if (gpios[idx].gpio_id == GpioId::UNKNOWN)
     {
         throw SaneException("failed to find GPIO profile for sensor_id=%d",
                             static_cast<unsigned>(dev->model->sensor_id));
@@ -1950,7 +1948,7 @@ void CommandSetGl846::update_hardware_sensors(Genesys_Scanner* s) const
    */
   uint8_t val;
   uint8_t scan, file, email, copy;
-  switch(s->dev->model->gpo_type)
+  switch(s->dev->model->gpio_id)
     {
       default:
         scan=0x01;

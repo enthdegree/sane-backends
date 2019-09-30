@@ -651,19 +651,16 @@ gl841_init_registers (Genesys_Device * dev)
     }
 
   /* TODO there is a switch calling to be written here */
-  if (dev->model->gpo_type == GPO_CANONLIDE35)
-    {
+    if (dev->model->gpio_id == GpioId::CANONLIDE35) {
       dev->reg.find_reg(0x6b).value |= REG6B_GPO18;
       dev->reg.find_reg(0x6b).value &= ~REG6B_GPO17;
     }
 
-  if (dev->model->gpo_type == GPO_XP300)
-    {
+    if (dev->model->gpio_id == GpioId::XP300) {
       dev->reg.find_reg(0x6b).value |= REG6B_GPO17;
     }
 
-  if (dev->model->gpo_type == GPO_DP685)
-    {
+    if (dev->model->gpio_id == GpioId::DP685) {
       /* REG6B_GPO18 lights on green led */
       dev->reg.find_reg(0x6b).value |= REG6B_GPO17|REG6B_GPO18;
     }
@@ -1218,8 +1215,8 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     &fast_exposure);
 
     /* fast fed special cases handling */
-    if (dev->model->gpo_type == GPO_XP300
-     || dev->model->gpo_type == GPO_DP685)
+    if (dev->model->gpio_id == GpioId::XP300
+     || dev->model->gpio_id == GpioId::DP685)
       {
 	/* quirk: looks like at least this scanner is unable to use
 	   2-feed mode */
@@ -1455,7 +1452,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 
     /* gpio part.*/
-    if (dev->model->gpo_type == GPO_CANONLIDE35)
+    if (dev->model->gpio_id == GpioId::CANONLIDE35)
       {
 	r = sanei_genesys_get_address (reg, REG6C);
         if (session.ccd_size_divisor > 1) {
@@ -1464,7 +1461,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
             r->value |= 0x80;
         }
       }
-    if (dev->model->gpo_type == GPO_CANONLIDE80)
+    if (dev->model->gpio_id == GpioId::CANONLIDE80)
       {
 	r = sanei_genesys_get_address (reg, REG6C);
         if (session.ccd_size_divisor > 1) {
@@ -1960,7 +1957,7 @@ void CommandSetGl841::save_power(Genesys_Device* dev, bool enable) const
 
     if (enable)
     {
-	if (dev->model->gpo_type == GPO_CANONLIDE35)
+    if (dev->model->gpio_id == GpioId::CANONLIDE35)
 	{
 /* expect GPIO17 to be enabled, and GPIO9 to be disabled,
    while GPIO8 is disabled*/
@@ -1990,7 +1987,7 @@ void CommandSetGl841::save_power(Genesys_Device* dev, bool enable) const
         dev->write_register(REG6D, val & ~0x80);
 
 	}
-	if (dev->model->gpo_type == GPO_DP685)
+    if (dev->model->gpio_id == GpioId::DP685)
 	  {
         uint8_t val = dev->read_register(REG6B);
         dev->write_register(REG6B, val & ~REG6B_GPO17);
@@ -2003,7 +2000,7 @@ void CommandSetGl841::save_power(Genesys_Device* dev, bool enable) const
     }
     else
     {
-	if (dev->model->gpo_type == GPO_CANONLIDE35)
+    if (dev->model->gpio_id == GpioId::CANONLIDE35)
 	{
 /* expect GPIO17 to be enabled, and GPIO9 to be disabled,
    while GPIO8 is disabled*/
@@ -2036,8 +2033,8 @@ void CommandSetGl841::save_power(Genesys_Device* dev, bool enable) const
             dev->calib_reg.find_reg(0x6b).value |= REG6B_GPO18;
 
 	}
-	if (dev->model->gpo_type == GPO_DP665
-            || dev->model->gpo_type == GPO_DP685)
+    if (dev->model->gpio_id == GpioId::DP665
+            || dev->model->gpio_id == GpioId::DP685)
 	  {
         uint8_t val = dev->read_register(REG6B);
         dev->write_register(REG6B, val | REG6B_GPO17);
@@ -2402,7 +2399,7 @@ void CommandSetGl841::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
   Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
   uint8_t val;
 
-    if (dev->model->gpo_type == GPO_CANONLIDE80) {
+    if (dev->model->gpio_id == GpioId::CANONLIDE80) {
         val = dev->read_register(REG6B);
         val = REG6B_GPO18;
         dev->write_register(REG6B, val);
@@ -2511,12 +2508,12 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 
     // reset gpio pin
     uint8_t val;
-    if (dev->model->gpo_type == GPO_CANONLIDE35) {
+    if (dev->model->gpio_id == GpioId::CANONLIDE35) {
         val = dev->read_register(REG6C);
         val = dev->gpo.regs.get_value(0x6c);
         dev->write_register(REG6C, val);
     }
-    if (dev->model->gpo_type == GPO_CANONLIDE80) {
+    if (dev->model->gpio_id == GpioId::CANONLIDE80) {
         val = dev->read_register(REG6B);
         val = REG6B_GPO18 | REG6B_GPO17;
         dev->write_register(REG6B, val);
@@ -4004,8 +4001,8 @@ void CommandSetGl841::update_hardware_sensors(Genesys_Scanner* s) const
    */
   uint8_t val;
 
-    if (s->dev->model->gpo_type == GPO_CANONLIDE35
-        || s->dev->model->gpo_type == GPO_CANONLIDE80)
+    if (s->dev->model->gpio_id == GpioId::CANONLIDE35
+        || s->dev->model->gpio_id == GpioId::CANONLIDE80)
     {
         val = s->dev->read_register(REG6D);
         s->buttons[BUTTON_SCAN_SW].write((val & 0x01) == 0);
@@ -4014,9 +4011,9 @@ void CommandSetGl841::update_hardware_sensors(Genesys_Scanner* s) const
         s->buttons[BUTTON_COPY_SW].write((val & 0x08) == 0);
     }
 
-    if (s->dev->model->gpo_type == GPO_XP300 ||
-        s->dev->model->gpo_type == GPO_DP665 ||
-        s->dev->model->gpo_type == GPO_DP685)
+    if (s->dev->model->gpio_id == GpioId::XP300 ||
+        s->dev->model->gpio_id == GpioId::DP665 ||
+        s->dev->model->gpio_id == GpioId::DP685)
     {
         val = s->dev->read_register(REG6D);
 

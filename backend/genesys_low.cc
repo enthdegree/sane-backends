@@ -918,9 +918,9 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
             sanei_genesys_set_exposure(regs, sensor.exposure);
 
             // we don't actually turn on lamp on infrared scan
-            if ((dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
-                 dev->model->model_id == MODEL_CANON_CANOSCAN_8600F ||
-                 dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) &&
+            if ((dev->model->model_id == ModelId::CANON_CANOSCAN_8400F ||
+                 dev->model->model_id == ModelId::CANON_CANOSCAN_8600F ||
+                 dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) &&
                 dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
             {
                 regs.find_reg(0x03).value &= ~REG03_LAMPPWR;
@@ -935,10 +935,10 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
         }
 
         if (dev->model->asic_type == AsicType::GL843) {
-            if (dev->model->model_id == MODEL_PANASONIC_KV_SS080 ||
-                dev->model->model_id == MODEL_HP_SCANJET_4850C ||
-                dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-                dev->model->model_id == MODEL_HP_SCANJET_G4050)
+            if (dev->model->model_id == ModelId::PANASONIC_KV_SS080 ||
+                dev->model->model_id == ModelId::HP_SCANJET_4850C ||
+                dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+                dev->model->model_id == ModelId::HP_SCANJET_G4050)
             {
                 // BUG: datasheet says we shouldn't set exposure to zero
                 sanei_genesys_set_exposure(regs, {0, 0, 0});
@@ -1475,7 +1475,7 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
         // In quarter-CCD mode optical_pixels is 4x larger than the actual physical number
         s.optical_pixels = align_int_up(s.optical_pixels, 2 * s.ccd_size_divisor);
 
-        if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+        if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) {
             s.optical_pixels = align_int_up(s.optical_pixels, 16);
         }
     }

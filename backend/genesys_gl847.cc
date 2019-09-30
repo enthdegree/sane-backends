@@ -194,8 +194,7 @@ gl847_init_registers (Genesys_Device * dev)
   uint8_t val;
 
   /* 700F class needs some different initial settings */
-  if (dev->model->model_id == MODEL_CANON_LIDE_700F)
-    {
+    if (dev->model->model_id == ModelId::CANON_LIDE_700F) {
        lide700 = 1;
     }
 
@@ -1889,20 +1888,16 @@ static void gl847_init_memory_layout(Genesys_Device* dev)
 
   /* point to per model memory layout */
   idx = 0;
-  if (dev->model->model_id == MODEL_CANON_LIDE_100)
-    {
+    if (dev->model->model_id == ModelId::CANON_LIDE_100) {
       idx = 0;
     }
-  if (dev->model->model_id == MODEL_CANON_LIDE_200)
-    {
+    if (dev->model->model_id == ModelId::CANON_LIDE_200) {
       idx = 1;
     }
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_5600F)
-    {
+    if (dev->model->model_id == ModelId::CANON_CANOSCAN_5600F) {
       idx = 2;
     }
-  if (dev->model->model_id == MODEL_CANON_LIDE_700F)
-    {
+    if (dev->model->model_id == ModelId::CANON_LIDE_700F) {
       idx = 3;
     }
 

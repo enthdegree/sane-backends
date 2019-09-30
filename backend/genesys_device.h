@@ -85,7 +85,7 @@ struct Genesys_Model
     const char* name = nullptr;
     const char* vendor = nullptr;
     const char* model = nullptr;
-    unsigned model_id = 0;
+    ModelId model_id = ModelId::UNKNOWN;
 
     AsicType asic_type = AsicType::UNKNOWN;
 

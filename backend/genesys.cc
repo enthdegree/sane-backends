@@ -2802,8 +2802,8 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         coarse_res /= 2;
     }
 
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == ModelId::CANON_CANOSCAN_8400F ||
+        dev->model->model_id == ModelId::CANON_CANOSCAN_8600F)
     {
         coarse_res = 1200;
     }
@@ -4668,7 +4668,7 @@ probe_genesys_devices (void)
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 10;
+static const int CALIBRATION_VERSION = 11;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

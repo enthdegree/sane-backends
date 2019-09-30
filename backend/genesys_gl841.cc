@@ -525,8 +525,7 @@ gl841_init_registers (Genesys_Device * dev)
   DBG(DBG_proc, "%s\n", __func__);
 
   dev->reg.clear();
-  if (dev->model->model_id == MODEL_CANON_LIDE_80)
-    {
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
       gl841_init_lide80(dev);
       return ;
     }

@@ -1355,9 +1355,8 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
         return;
     }
 
-  /* feed a little first */
-  if (dev->model->model_id == MODEL_CANON_LIDE_210)
-    {
+    // feed a little first
+    if (dev->model->model_id == ModelId::CANON_LIDE_210) {
         gl124_feed(dev, 20, SANE_TRUE);
     }
 
@@ -2467,12 +2466,9 @@ static void gl124_init_gpio(Genesys_Device* dev)
   int idx;
 
   /* per model GPIO layout */
-  if (dev->model->model_id == MODEL_CANON_LIDE_110)
-    {
+    if (dev->model->model_id == ModelId::CANON_LIDE_110) {
       idx = 0;
-    }
-  else if (dev->model->model_id == MODEL_CANON_LIDE_120)
-    {
+    } else if (dev->model->model_id == ModelId::CANON_LIDE_120) {
       idx = 2;
     }
   else
@@ -2498,7 +2494,8 @@ static void gl124_init_memory_layout(Genesys_Device* dev)
   int idx = 0;
 
   /* point to per model memory layout */
-  if (dev->model->model_id == MODEL_CANON_LIDE_110 ||dev->model->model_id == MODEL_CANON_LIDE_120)
+    if (dev->model->model_id == ModelId::CANON_LIDE_110 ||
+        dev->model->model_id == ModelId::CANON_LIDE_120)
     {
       idx = 0;
     }

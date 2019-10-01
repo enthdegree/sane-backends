@@ -3675,7 +3675,6 @@ static std::string calibration_filename(Genesys_Device *currdev)
     std::string ret;
     ret.resize(PATH_MAX);
 
-  char *ptr;
   char filename[80];
   unsigned int count;
   unsigned int i;
@@ -3688,15 +3687,15 @@ static std::string calibration_filename(Genesys_Device *currdev)
    * 5 - temp dir
    * 6 - then resort to current dir
    */
-  ptr = getenv ("HOME");
+    char* ptr = std::getenv("HOME");
     if (ptr == nullptr) {
-      ptr = getenv ("USERPROFILE");
+        ptr = std::getenv("USERPROFILE");
     }
     if (ptr == nullptr) {
-      ptr = getenv ("TMPDIR");
+        ptr = std::getenv("TMPDIR");
     }
     if (ptr == nullptr) {
-      ptr = getenv ("TMP");
+        ptr = std::getenv("TMP");
     }
 
   /* now choose filename:
@@ -4978,9 +4977,9 @@ sane_close_impl(SANE_Handle handle)
     s->dev->already_initialized = false;
 
    /* for an handful of bytes .. */
-  free ((void *)(size_t)s->opt[OPT_RESOLUTION].constraint.word_list);
-  free ((void *)(size_t)s->opt[OPT_TL_X].constraint.range);
-  free ((void *)(size_t)s->opt[OPT_TL_Y].constraint.range);
+    std::free((void *)(size_t)s->opt[OPT_RESOLUTION].constraint.word_list);
+    std::free((void *)(size_t)s->opt[OPT_TL_X].constraint.range);
+    std::free((void *)(size_t)s->opt[OPT_TL_Y].constraint.range);
 
   s->dev->clear();
 

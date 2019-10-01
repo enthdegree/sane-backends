@@ -26,7 +26,7 @@
 #include "minigtest.h"
 #include "tests_printers.h"
 
-#include "../../../backend/genesys_image_pipeline.h"
+#include "../../../backend/genesys/image_pipeline.h"
 
 #include <numeric>
 

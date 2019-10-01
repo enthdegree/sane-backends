@@ -26,7 +26,7 @@
 #include "minigtest.h"
 #include "tests_printers.h"
 
-#include "../../../backend/genesys_low.h"
+#include "../../../backend/genesys/low.h"
 
 #include <numeric>
 

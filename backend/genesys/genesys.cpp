@@ -61,6 +61,7 @@
 #define DEBUG_NOT_STATIC
 
 #include "genesys.h"
+#include "conv.h"
 #include "sanei.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_magic.h"
@@ -3327,11 +3328,6 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     }
 }
 
-#include "conv.cpp"
-
-/**
- *
- */
 static void genesys_fill_read_buffer(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);

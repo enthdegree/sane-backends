@@ -26,8 +26,8 @@
 #include "minigtest.h"
 #include "tests_printers.h"
 
-#include "../../../backend/genesys_image.h"
-#include "../../../backend/genesys_image_pipeline.h"
+#include "../../../backend/genesys/image.h"
+#include "../../../backend/genesys/image_pipeline.h"
 #include <vector>
 
 void test_get_pixel_from_row()

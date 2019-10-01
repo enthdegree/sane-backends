@@ -25,7 +25,7 @@
 #include "tests.h"
 #include "minigtest.h"
 
-#include "../../../backend/genesys_low.h"
+#include "../../../backend/genesys/low.h"
 
 #include <sstream>
 

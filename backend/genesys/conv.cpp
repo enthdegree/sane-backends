@@ -42,11 +42,12 @@
    If you do not wish that, delete this exception notice.
 */
 
-/*
- * Conversion filters for genesys backend
- */
+#define DEBUG_DECLARE_ONLY
 
-static void genesys_reverse_bits(uint8_t* src_data, uint8_t* dst_data, size_t bytes)
+#include "conv.h"
+#include "sane/sanei_magic.h"
+
+void genesys_reverse_bits(uint8_t* src_data, uint8_t* dst_data, size_t bytes)
 {
     DBG_HELPER(dbg);
     size_t i;
@@ -63,7 +64,7 @@ static void genesys_reverse_bits(uint8_t* src_data, uint8_t* dst_data, size_t by
  * @param dst pointer where to store result
  * @param width width of the processed line
  * */
-static void binarize_line(Genesys_Device* dev, uint8_t* src, uint8_t* dst, int width)
+void binarize_line(Genesys_Device* dev, std::uint8_t* src, std::uint8_t* dst, int width)
 {
     DBG_HELPER(dbg);
   int j, windowX, sum = 0;
@@ -72,7 +73,7 @@ static void binarize_line(Genesys_Device* dev, uint8_t* src, uint8_t* dst, int w
   unsigned char mask;
 
   int x;
-  uint8_t min, max;
+    std::uint8_t min, max;
 
   /* normalize line */
   min = 255;
@@ -146,15 +147,14 @@ static void binarize_line(Genesys_Device* dev, uint8_t* src, uint8_t* dst, int w
  * software lineart using data from a 8 bit gray scan. We assume true gray
  * or monochrome scan as input.
  */
-static void genesys_gray_lineart(Genesys_Device* dev,
-                                 uint8_t* src_data, uint8_t* dst_data,
-                                 size_t pixels, size_t lines, uint8_t threshold)
+void genesys_gray_lineart(Genesys_Device* dev,
+                          std::uint8_t* src_data, std::uint8_t* dst_data,
+                          std::size_t pixels, std::size_t lines, std::uint8_t threshold)
 {
     DBG_HELPER(dbg);
-  size_t y;
+    std::size_t y;
 
-  DBG(DBG_io2, "%s: converting %lu lines of %lu pixels\n", __func__, (unsigned long)lines,
-      (unsigned long)pixels);
+    DBG(DBG_io2, "%s: converting %zu lines of %zu pixels\n", __func__, lines, pixels);
   DBG(DBG_io2, "%s: threshold=%d\n", __func__, threshold);
 
   for (y = 0; y < lines; y++)
@@ -166,7 +166,7 @@ static void genesys_gray_lineart(Genesys_Device* dev,
 
 /** Look in image for likely left/right/bottom paper edges, then crop image.
  */
-static void genesys_crop(Genesys_Scanner* s)
+void genesys_crop(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
   Genesys_Device *dev = s->dev;
@@ -193,7 +193,7 @@ static void genesys_crop(Genesys_Scanner* s)
 /** Look in image for likely upper and left paper edges, then rotate
  * image so that upper left corner of paper is upper left of image.
  */
-static void genesys_deskew(Genesys_Scanner *s, const Genesys_Sensor& sensor)
+void genesys_deskew(Genesys_Scanner *s, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   Genesys_Device *dev = s->dev;
@@ -219,7 +219,7 @@ static void genesys_deskew(Genesys_Scanner *s, const Genesys_Sensor& sensor)
 
 /** remove lone dots
  */
-static void genesys_despeck(Genesys_Scanner* s)
+void genesys_despeck(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
     TIE(sanei_magic_despeck(&s->params, s->dev->img_buffer.data(), s->despeck));
@@ -227,7 +227,7 @@ static void genesys_despeck(Genesys_Scanner* s)
 
 /** Look if image needs rotation and apply it
  * */
-static void genesys_derotate (Genesys_Scanner * s)
+void genesys_derotate(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
   int angle = 0;

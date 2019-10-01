@@ -1628,7 +1628,7 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
   int used_res;
   int i, j;
   int val;
-  int channels, depth;
+    int channels;
   int avg[3], top[3], bottom[3];
   int turn;
   uint16_t exp[3];
@@ -1644,7 +1644,6 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
 
   /* offset calibration is always done in color mode */
   channels = 3;
-  depth=16;
     used_res = sensor.get_register_hwdpi(dev->settings.xres);
     const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, used_res, 1);
   num_pixels = (sensor.sensor_pixels*used_res)/sensor.optical_res;
@@ -1659,7 +1658,7 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
     session.params.starty = 0;
     session.params.pixels = num_pixels;
     session.params.lines = 1;
-    session.params.depth = depth;
+    session.params.depth = 16;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
@@ -1672,7 +1671,7 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
 
     gl847_init_scan_regs(dev, sensor, &regs, session);
 
-  total_size = num_pixels * channels * (depth/8) * 1;	/* colors * bytes_per_color * scan lines */
+    total_size = num_pixels * channels * (session.params.depth/8) * 1;
   std::vector<uint8_t> line(total_size);
 
     // initial loop values and boundaries
@@ -1714,7 +1713,8 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
 	{
           char fn[30];
           snprintf(fn, 30, "gl847_led_%02d.pnm", turn);
-          sanei_genesys_write_pnm_file(fn, line.data(), depth, channels, num_pixels, 1);
+            sanei_genesys_write_pnm_file(fn, line.data(), session.params.depth,
+                                         channels, num_pixels, 1);
 	}
 
       /* compute average */
@@ -1992,7 +1992,6 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   unsigned int pixels, lines, channels;
   Genesys_Register_Set local_reg;
   size_t size;
-    int depth;
   unsigned int pass, count, found, x, y;
   char title[80];
   GenesysRegister *r;
@@ -2008,10 +2007,7 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   /* lines = (10 * dpi) / MM_PER_INCH; */
   /* shading calibation is done with dev->motor.base_ydpi */
   lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi;
-  depth = 8;
   pixels = (sensor.sensor_pixels * dpi) / sensor.optical_res;
-  size = pixels * channels * lines * (depth / 8);
-  std::vector<uint8_t> data(size);
   dev->scanhead_position_in_steps = 0;
 
   local_reg = dev->reg;
@@ -2023,7 +2019,7 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     session.params.starty = 0;
     session.params.pixels = pixels;
     session.params.lines = lines;
-    session.params.depth = depth;
+    session.params.depth = 8;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::GRAY;
@@ -2031,6 +2027,9 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     session.params.flags = SCAN_FLAG_DISABLE_SHADING |
                            SCAN_FLAG_DISABLE_GAMMA;
     gl847_compute_session(dev, session, sensor);
+
+    size = pixels * channels * lines * (session.params.depth / 8);
+    std::vector<uint8_t> data(size);
 
     gl847_init_scan_regs(dev, sensor, &local_reg, session);
 
@@ -2058,7 +2057,8 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     {
         std::sprintf(title, "gl847_search_strip_%s_%s%02d.pnm",
                      black ? "black" : "white", forward ? "fwd" : "bwd", pass);
-      sanei_genesys_write_pnm_file(title, data.data(), depth, channels, pixels, lines);
+        sanei_genesys_write_pnm_file(title, data.data(), session.params.depth,
+                                     channels, pixels, lines);
     }
 
   /* loop until strip is found or maximum pass number done */
@@ -2081,7 +2081,8 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
 	{
           sprintf(title, "gl847_search_strip_%s_%s%02d.pnm",
                   black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
-          sanei_genesys_write_pnm_file(title, data.data(), depth, channels, pixels, lines);
+            sanei_genesys_write_pnm_file(title, data.data(), session.params.depth,
+                                         channels, pixels, lines);
 	}
 
       /* search data to find black strip */
@@ -2213,7 +2214,7 @@ void CommandSetGl847::offset_calibration(Genesys_Device* dev, const Genesys_Sens
                                          Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  unsigned int channels, bpp;
+    unsigned channels;
   int pass = 0, avg, total_size;
     int topavg, bottomavg, lines;
   int top, bottom, black_pixels, pixels;
@@ -2229,7 +2230,6 @@ void CommandSetGl847::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   channels = 3;
   dev->calib_pixels = sensor.sensor_pixels;
   lines=1;
-  bpp=8;
     pixels= (sensor.sensor_pixels * sensor.optical_res) / sensor.optical_res;
     black_pixels = (sensor.black_pixels * sensor.optical_res) / sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
@@ -2241,7 +2241,7 @@ void CommandSetGl847::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     session.params.starty = 0;
     session.params.pixels = pixels;
     session.params.lines = lines;
-    session.params.depth = bpp;
+    session.params.depth = 8;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
@@ -2257,7 +2257,7 @@ void CommandSetGl847::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   sanei_genesys_set_motor_power(regs, false);
 
   /* allocate memory for scans */
-  total_size = pixels * channels * lines * (bpp/8);	/* colors * bytes_per_color * scan lines */
+  total_size = pixels * channels * lines * (session.params.depth / 8);	/* colors * bytes_per_color * scan lines */
 
   std::vector<uint8_t> first_line(total_size);
   std::vector<uint8_t> second_line(total_size);
@@ -2282,7 +2282,8 @@ void CommandSetGl847::offset_calibration(Genesys_Device* dev, const Genesys_Sens
    {
       char fn[30];
       snprintf(fn, 30, "gl847_offset%03d.pnm", bottom);
-      sanei_genesys_write_pnm_file(fn, first_line.data(), bpp, channels, pixels, lines);
+        sanei_genesys_write_pnm_file(fn, first_line.data(), session.params.depth,
+                                     channels, pixels, lines);
    }
 
   bottomavg = dark_average (first_line.data(), pixels, lines, channels, black_pixels);
@@ -2323,7 +2324,8 @@ void CommandSetGl847::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 	{
           char fn[30];
           snprintf(fn, 30, "gl847_offset%03d.pnm", dev->frontend.get_offset(1));
-          sanei_genesys_write_pnm_file(fn, second_line.data(), bpp, channels, pixels, lines);
+          sanei_genesys_write_pnm_file(fn, second_line.data(), session.params.depth,
+                                       channels, pixels, lines);
 	}
 
       avg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
@@ -2357,7 +2359,6 @@ void CommandSetGl847::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   int max[3];
   float gain[3],coeff;
   int val, code, lines;
-  int bpp;
 
     // no gain nor offset for AKM AFE
     uint8_t reg04 = dev->read_register(REG04);
@@ -2379,7 +2380,6 @@ void CommandSetGl847::coarse_gain_calibration(Genesys_Device* dev, const Genesys
       coeff=1.0;
     }
   lines=10;
-  bpp=8;
     pixels = (sensor.sensor_pixels * sensor.optical_res) / sensor.optical_res;
 
     ScanSession session;
@@ -2389,7 +2389,7 @@ void CommandSetGl847::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     session.params.starty = 0;
     session.params.pixels = pixels;
     session.params.lines = lines;
-    session.params.depth = bpp;
+    session.params.depth = 8;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
@@ -2411,7 +2411,7 @@ void CommandSetGl847::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     dev->write_registers(regs);
 
-  total_size = pixels * channels * (16/bpp) * lines;
+    total_size = pixels * channels * (16 / session.params.depth) * lines;
 
   std::vector<uint8_t> line(total_size);
 
@@ -2419,8 +2419,10 @@ void CommandSetGl847::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     begin_scan(dev, sensor, &regs, true);
     sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl847_gain.pnm", line.data(), bpp, channels, pixels, lines);
+    if (DBG_LEVEL >= DBG_data) {
+        sanei_genesys_write_pnm_file("gl847_gain.pnm", line.data(), session.params.depth,
+                                     channels, pixels, lines);
+    }
 
   /* average value on each channel */
   for (j = 0; j < channels; j++)
@@ -2428,23 +2430,10 @@ void CommandSetGl847::coarse_gain_calibration(Genesys_Device* dev, const Genesys
       max[j] = 0;
       for (i = pixels/4; i < (pixels*3/4); i++)
 	{
-          if(bpp==16)
-            {
-	  if (dev->model->is_cis)
-	    val =
-	      line[i * 2 + j * 2 * pixels + 1] * 256 +
-	      line[i * 2 + j * 2 * pixels];
-	  else
-	    val =
-	      line[i * 2 * channels + 2 * j + 1] * 256 +
-	      line[i * 2 * channels + 2 * j];
-            }
-          else
-            {
-	  if (dev->model->is_cis)
-	    val = line[i + j * pixels];
-	  else
-	    val = line[i * channels + j];
+            if (dev->model->is_cis) {
+                val = line[i + j * pixels];
+            } else {
+                val = line[i * channels + j];
             }
 
 	    max[j] += val;

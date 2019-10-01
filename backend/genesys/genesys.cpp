@@ -3154,7 +3154,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     }
 
   /* build look up table for dynamic lineart */
-    if (dev->settings.dynamic_lineart) {
+    if (dev->settings.scan_mode == ScanColorMode::LINEART) {
         sanei_genesys_load_lut(dev->lineart_lut, 8, 8, 50, 205, dev->settings.threshold_curve,
                                dev->settings.threshold-127);
     }
@@ -3549,13 +3549,6 @@ static void calc_parameters(Genesys_Scanner* s)
         s->dev->settings.true_gray = 1;
     } else {
         s->dev->settings.true_gray = 0;
-    }
-
-  /* dynamic lineart */
-    s->dev->settings.dynamic_lineart = false;
-  s->dev->settings.threshold_curve=0;
-    if (s->dev->settings.scan_mode == ScanColorMode::LINEART) {
-        s->dev->settings.dynamic_lineart = true;
     }
 
     // threshold curve for dynamic rasterization
@@ -4589,7 +4582,7 @@ static void genesys_buffer_image(Genesys_Scanner *s)
 
   /* maximum bytes to read */
   maximum = s->params.bytes_per_line * lines;
-    if (s->dev->settings.dynamic_lineart) {
+    if (s->dev->settings.scan_mode == ScanColorMode::LINEART) {
       maximum *= 8;
     }
 
@@ -4641,7 +4634,7 @@ static void genesys_buffer_image(Genesys_Scanner *s)
 
   /* in case of dynamic lineart, we have buffered gray data which
    * must be converted to lineart first */
-    if (s->dev->settings.dynamic_lineart) {
+    if (s->dev->settings.scan_mode == ScanColorMode::LINEART) {
       total/=8;
       std::vector<uint8_t> lineart(total);
 
@@ -5748,7 +5741,7 @@ SANE_Status sane_start_impl(SANE_Handle handle)
     s->scanning = true;
 
   /* allocate intermediate buffer when doing dynamic lineart */
-    if (s->dev->settings.dynamic_lineart) {
+    if (s->dev->settings.scan_mode == ScanColorMode::LINEART) {
         s->dev->binarize_buffer.clear();
         s->dev->binarize_buffer.alloc(s->dev->settings.pixels);
         s->dev->local_buffer.clear();
@@ -5878,7 +5871,7 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
     {
       /* dynamic lineart is another kind of digital processing that needs
        * another layer of buffering on top of genesys_read_ordered_data */
-        if (dev->settings.dynamic_lineart) {
+        if (dev->settings.scan_mode == ScanColorMode::LINEART) {
           /* if buffer is empty, fill it with genesys_read_ordered_data */
           if(dev->binarize_buffer.avail() == 0)
             {

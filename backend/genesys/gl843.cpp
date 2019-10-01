@@ -2382,10 +2382,8 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
   /* enable emulated lineart from gray data */
-  if(dev->settings.scan_mode == ScanColorMode::LINEART
-     && dev->settings.dynamic_lineart)
-    {
-      flags |= SCAN_FLAG_DYNAMIC_LINEART;
+    if (dev->settings.scan_mode == ScanColorMode::LINEART) {
+        flags |= SCAN_FLAG_DYNAMIC_LINEART;
     }
 
     ScanSession session;

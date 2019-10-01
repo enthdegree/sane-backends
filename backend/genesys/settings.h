@@ -86,9 +86,6 @@ struct Genesys_Settings
     // Disable interpolation for xres<yres
     int disable_interpolation = 0;
 
-    // true is lineart is generated from gray data by the dynamic rasterization algoright
-    int dynamic_lineart = 0;
-
     // value for contrast enhancement in the [-100..100] range
     int contrast = 0;
 

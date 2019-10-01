@@ -1716,7 +1716,6 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-    settings.dynamic_lineart = false;
 
     const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, 3,
                                                    dev->model->default_method);
@@ -1810,7 +1809,6 @@ void CommandSetGl646::search_start_position(Genesys_Device* dev) const
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-    settings.dynamic_lineart = false;
 
     // scan the desired area
     std::vector<uint8_t> data;
@@ -1907,7 +1905,6 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
   settings.disable_interpolation = dev->settings.disable_interpolation;
   settings.threshold = dev->settings.threshold;
-    settings.dynamic_lineart = false;
 
   /* keep account of the movement for final scan move */
   dev->scanhead_position_in_steps += settings.lines;
@@ -1992,22 +1989,8 @@ static void setup_for_scan(Genesys_Device* dev,
                            bool ycorrection)
 {
     DBG_HELPER(dbg);
-  SANE_Int depth;
 
     debug_dump(DBG_info, dev->settings);
-
-  depth=settings.depth;
-  if (settings.scan_mode == ScanColorMode::LINEART)
-    {
-        if (settings.dynamic_lineart) {
-          depth = 8;
-        }
-      else
-        {
-          /* XXX STEF XXX : why does the common layer never send depth=1 ? */
-          depth = 1;
-        }
-    }
 
     // compute distance to move
     float move = 0;
@@ -2048,7 +2031,7 @@ static void setup_for_scan(Genesys_Device* dev,
     session.params.pixels = settings.pixels;
     session.params.requested_pixels = settings.requested_pixels;
     session.params.lines = settings.lines;
-    session.params.depth = depth;
+    session.params.depth = settings.depth;
     session.params.channels = settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = settings.scan_mode;
@@ -2169,7 +2152,6 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-    settings.dynamic_lineart = false;
 
   /* colors * bytes_per_color * scan lines */
   total_size = settings.pixels * channels * 2 * 1;
@@ -2340,7 +2322,6 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-    settings.dynamic_lineart = false;
 
   /* scan first line of data with no gain */
   dev->frontend.set_gain(0, 0);
@@ -2448,7 +2429,6 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-    settings.dynamic_lineart = false;
 
   /* scan first line of data with no gain, but with offset from
    * last calibration */
@@ -2578,7 +2558,6 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-    settings.dynamic_lineart = false;
 
   size = channels * settings.pixels * settings.lines;
 
@@ -2691,7 +2670,6 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-    settings.dynamic_lineart = false;
 
   /* start gain value */
   dev->frontend.set_gain(0, 1);
@@ -2834,7 +2812,6 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-    settings.dynamic_lineart = false;
 
     // setup for scan
     setup_for_scan(dev, local_sensor, &dev->reg, settings, true, false, false);
@@ -2887,7 +2864,6 @@ static void gl646_repark_head(Genesys_Device* dev)
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-    settings.dynamic_lineart = false;
 
     const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, 3,
                                                    dev->model->default_method);
@@ -3255,7 +3231,6 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance)
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-    settings.dynamic_lineart = false;
 
   std::vector<uint8_t> data;
     simple_scan(dev, sensor, settings, true, true, false, data);
@@ -3551,7 +3526,6 @@ void CommandSetGl646::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
 
   settings.disable_interpolation = 0;
   settings.threshold = 0;
-    settings.dynamic_lineart = false;
 
   /* signals if a strip of the given color has been found */
   found = 0;

@@ -1714,9 +1714,7 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   flags = 0;
 
   /* enable emulated lineart from gray data */
-  if(dev->settings.scan_mode == ScanColorMode::LINEART
-     && dev->settings.dynamic_lineart)
-    {
+    if (dev->settings.scan_mode == ScanColorMode::LINEART) {
       flags |= SCAN_FLAG_DYNAMIC_LINEART;
     }
 

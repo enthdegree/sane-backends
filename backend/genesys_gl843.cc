@@ -2071,11 +2071,7 @@ void CommandSetGl843::search_start_position(Genesys_Device* dev) const
 
     dev->cmd_set->begin_scan(dev, sensor, &local_reg, true);
 
-    // waits for valid data
-    bool empty = false;
-    do {
-        sanei_genesys_test_buffer_empty(dev, &empty);
-    } while (empty);
+    wait_until_buffer_non_empty(dev);
 
     // now we're on target, we can read data
     Image image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes_raw);
@@ -3267,11 +3263,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
 
     dev->cmd_set->begin_scan(dev, calib_sensor, &local_reg, true);
 
-    // waits for valid data
-    bool empty = false;
-    do {
-        sanei_genesys_test_buffer_empty(dev, &empty);
-    } while (empty);
+    wait_until_buffer_non_empty(dev);
 
     // now we're on target, we can read data
     auto data = read_unshuffled_image_from_scanner(dev, session,
@@ -3297,11 +3289,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
         // now start scan
         dev->cmd_set->begin_scan(dev, calib_sensor, &local_reg, true);
 
-        // waits for valid data
-        bool empty = false;
-        do {
-            sanei_genesys_test_buffer_empty(dev, &empty);
-        } while (empty);
+        wait_until_buffer_non_empty(dev);
 
         // now we're on target, we can read data
         data = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes_raw);

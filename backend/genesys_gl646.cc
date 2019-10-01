@@ -3121,9 +3121,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 {
     DBG_HELPER_ARGS(dbg, "move=%d, forward=%d, shading=%d", move, forward, shading);
   unsigned int size, lines, x, y, bpp;
-    bool empty, split;
-  int count;
-  uint8_t val;
+    bool split;
 
   /* round up to multiple of 3 in case of CIS scanner */
     if (dev->model->is_cis) {
@@ -3198,24 +3196,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     // starts scan
     dev->cmd_set->begin_scan(dev, sensor, &dev->reg, move);
 
-  /* wait for buffers to be filled */
-  count = 0;
-  do
-    {
-      sanei_genesys_sleep_ms(10);
-        sanei_genesys_get_status(dev, &val);
-      if (DBG_LEVEL > DBG_info)
-	{
-	  print_status (val);
-	}
-        sanei_genesys_test_buffer_empty(dev, &empty);
-      count++;
-    }
-  while (empty && count < 1000);
-
-    if (count == 1000) {
-        throw SaneException(SANE_STATUS_IO_ERROR, "failed to read data");
-    }
+    wait_until_buffer_non_empty(dev, true);
 
     // now we're on target, we can read data
     sanei_genesys_read_data_from_scanner(dev, data.data(), size);

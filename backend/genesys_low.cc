@@ -770,7 +770,7 @@ void sanei_genesys_read_scancnt(Genesys_Device* dev, unsigned int* words)
  * @param *empty return value
  * @return empty will be set to true if there is no scanned data.
  **/
-void sanei_genesys_test_buffer_empty(Genesys_Device* dev, bool* empty)
+bool sanei_genesys_is_buffer_empty(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   uint8_t val = 0;
@@ -784,13 +784,32 @@ void sanei_genesys_test_buffer_empty(Genesys_Device* dev, bool* empty)
        */
       sanei_genesys_sleep_ms(1);
       DBG(DBG_io2, "%s: buffer is empty\n", __func__);
-        *empty = true;
-      return;
+        return true;
     }
 
-    *empty = false;
 
   DBG(DBG_io, "%s: buffer is filled\n", __func__);
+    return false;
+}
+
+void wait_until_buffer_non_empty(Genesys_Device* dev, bool check_status_twice)
+{
+    // FIXME: reduce MAX_RETRIES once tests are updated
+    const unsigned MAX_RETRIES = 100000;
+    for (unsigned i = 0; i < MAX_RETRIES; ++i) {
+
+        if (check_status_twice) {
+            // FIXME: this only to preserve previous behavior, can be removed
+            std::uint8_t val = 0;
+            sanei_genesys_get_status(dev, &val);
+        }
+
+        bool empty = sanei_genesys_is_buffer_empty(dev);
+        sanei_genesys_sleep_ms(10);
+        if (!empty)
+            return;
+    }
+    throw SaneException(SANE_STATUS_IO_ERROR, "failed to read data");
 }
 
 void wait_until_has_valid_words(Genesys_Device* dev)

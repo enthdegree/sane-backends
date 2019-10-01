@@ -1280,11 +1280,7 @@ void CommandSetGl847::search_start_position(Genesys_Device* dev) const
 
     begin_scan(dev, sensor, &local_reg, true);
 
-        // waits for valid data
-    bool empty = false;
-    do {
-        sanei_genesys_test_buffer_empty(dev, &empty);
-    } while (empty);
+    wait_until_buffer_non_empty(dev);
 
     // now we're on target, we can read data
     sanei_genesys_read_data_from_scanner(dev, data.data(), size);
@@ -2079,11 +2075,7 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
 
     begin_scan(dev, sensor, &local_reg, true);
 
-    // waits for valid data
-    bool empty = false;
-    do {
-        sanei_genesys_test_buffer_empty(dev, &empty);
-    } while (empty);
+    wait_until_buffer_non_empty(dev);
 
     // now we're on target, we can read data
     sanei_genesys_read_data_from_scanner(dev, data.data(), size);
@@ -2107,11 +2099,7 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
         // now start scan
         begin_scan(dev, sensor, &local_reg, true);
 
-        // waits for valid data
-        bool empty = false;
-        do {
-            sanei_genesys_test_buffer_empty(dev, &empty);
-        } while (empty);
+        wait_until_buffer_non_empty(dev);
 
         // now we're on target, we can read data
         sanei_genesys_read_data_from_scanner(dev, data.data(), size);

@@ -3073,7 +3073,7 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
   double first_average = 0;
   double second_average = 0;
   int difference = 255;
-  int empty, lines = 3;
+    int lines = 3;
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
@@ -3085,12 +3085,8 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
     {
       DBG(DBG_info, "%s: one more loop\n", __func__);
         dev->cmd_set->begin_scan(dev, sensor, &dev->reg, false);
-        bool empty = false;
-      do
-	{
-        sanei_genesys_test_buffer_empty(dev, &empty);
-	}
-      while (empty);
+
+        wait_until_buffer_non_empty(dev);
 
         try {
             sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
@@ -3105,12 +3101,9 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
       seconds++;
 
         dev->cmd_set->begin_scan(dev, sensor, &dev->reg, false);
-      do
-	{
-        sanei_genesys_test_buffer_empty(dev, &empty);
-          sanei_genesys_sleep_ms(100);
-	}
-      while (empty);
+
+        wait_until_buffer_non_empty(dev);
+
         sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
         dev->cmd_set->end_scan(dev, &dev->reg, true);
 
@@ -3311,11 +3304,8 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
         sanei_genesys_read_feed_steps (dev, &steps);
     }
   while (steps < expected);
-        // wait for buffers to be filled
-        bool empty = false;
-        do {
-            sanei_genesys_test_buffer_empty(dev, &empty);
-        } while (empty);
+
+    wait_until_buffer_non_empty(dev);
 
   /* when doing one or two-table movement, let the motor settle to scanning speed */
   /* and scanning start before reading data                                        */

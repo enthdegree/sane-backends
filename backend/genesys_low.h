@@ -418,7 +418,7 @@ void sanei_genesys_write_pnm_file(const char* filename, const Image& image);
 extern void sanei_genesys_write_pnm_file16(const char* filename, const uint16_t *data, unsigned channels,
                                            unsigned pixels_per_line, unsigned lines);
 
-void sanei_genesys_test_buffer_empty(Genesys_Device* dev, bool* empty);
+void wait_until_buffer_non_empty(Genesys_Device* dev, bool check_status_twice = false);
 
 extern void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, size_t size);
 

@@ -47,6 +47,7 @@
 #include "low.h"
 #include "assert.h"
 
+#include <cstdio>
 #include <vector>
 
 /* ------------------------------------------------------------------------ */

@@ -46,6 +46,7 @@
 
 #include "sensor.h"
 #include "settings.h"
+#include <ctime>
 
 struct Genesys_Calibration_Cache
 {

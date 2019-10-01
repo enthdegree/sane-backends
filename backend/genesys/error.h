@@ -52,6 +52,7 @@
 #include <cstdarg>
 #include <cstring>
 #include <string>
+#include <new>
 
 #define DBG_error0      0	/* errors/warnings printed even with devuglevel 0 */
 #define DBG_error       1	/* fatal errors */

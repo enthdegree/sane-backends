@@ -70,6 +70,7 @@
 #include <cstdio>
 #include <cstring>
 #include <fstream>
+#include <iterator>
 #include <list>
 #include <numeric>
 #include <exception>

@@ -45,6 +45,7 @@
 #define BACKEND_GENESYS_REGISTER_H
 
 #include <algorithm>
+#include <climits>
 #include <cstdint>
 #include <iostream>
 #include <stdexcept>

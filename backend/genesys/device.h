@@ -54,6 +54,7 @@
 #include "sensor.h"
 #include "register.h"
 #include "sanei.h"
+#include <cstdio>
 #include <vector>
 
 struct Genesys_Gpo

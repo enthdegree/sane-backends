@@ -1549,7 +1549,7 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
      write(0x1003e000,0x00000dd8)
      write(0x10068000,0x00000dd8)
    */
-  length = (uint32_t) (size / 3);
+    length = static_cast<std::uint32_t>(size / 3);
     std::uint32_t strpixel = dev->session.pixel_startx;
     std::uint32_t endpixel = dev->session.pixel_endx;
 

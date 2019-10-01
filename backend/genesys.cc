@@ -630,8 +630,8 @@ SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint
   same_step = 4;
   divider = 1 << step_type;
 
-  time_period =
-    (uint32_t) (yres * exposure_time / dev->motor.base_ydpi /*MOTOR_GEAR */ );
+    time_period = static_cast<std::uint32_t>(yres * exposure_time /
+                                             dev->motor.base_ydpi /*MOTOR_GEAR */ );
   if ((time_period < 2000) && (same_speed))
     same_speed = false;
 
@@ -712,9 +712,8 @@ SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint
 
   if (steps <= same_step)
     {
-      time_period =
-	(uint32_t) (yres * exposure_time /
-		    dev->motor.base_ydpi /*MOTOR_GEAR */ );
+        time_period = static_cast<std::uint32_t>(yres * exposure_time /
+                                                 dev->motor.base_ydpi /*MOTOR_GEAR */ );
       time_period = time_period / divider;
 
       if (time_period > 65535)
@@ -736,15 +735,16 @@ SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint
     {
         double j = static_cast<double>(i) - same_step + 1;	/* start from 1/16 speed */
 
-      if (j <= 0)
-	t = 0;
-      else
-	t = pow (j / (steps - same_step), g);
+        if (j <= 0) {
+            t = 0;
+        } else {
+            t = std::pow(j / (steps - same_step), g);
+        }
 
-      time_period =		/* time required for full steps */
-	(uint32_t) (yres * exposure_time /
-		    dev->motor.base_ydpi /*MOTOR_GEAR */  *
-		    (start_speed + (1 - start_speed) * t));
+        // time required for full steps
+        time_period = static_cast<std::uint32_t>(yres * exposure_time /
+                                                 dev->motor.base_ydpi /*MOTOR_GEAR */  *
+                                                 (start_speed + (1 - start_speed) * t));
 
       time_period = time_period / divider;
         if (time_period > 65535) {
@@ -4509,7 +4509,7 @@ probe_genesys_devices (void)
   status = sanei_configure_attach (GENESYS_CONFIG_FILE, &config,
 				   config_attach_genesys);
 
-  DBG(DBG_info, "%s: %d devices currently attached\n", __func__, (int) s_devices->size());
+    DBG(DBG_info, "%s: %zu devices currently attached\n", __func__, s_devices->size());
   return status;
 }
 
@@ -4979,9 +4979,9 @@ sane_close_impl(SANE_Handle handle)
     s->dev->already_initialized = false;
 
    /* for an handful of bytes .. */
-    std::free((void *)(size_t)s->opt[OPT_RESOLUTION].constraint.word_list);
-    std::free((void *)(size_t)s->opt[OPT_TL_X].constraint.range);
-    std::free((void *)(size_t)s->opt[OPT_TL_Y].constraint.range);
+    std::free(reinterpret_cast<void*>(const_cast<SANE_Word*>(s->opt[OPT_RESOLUTION].constraint.word_list)));
+    std::free(reinterpret_cast<void*>(const_cast<SANE_Range*>(s->opt[OPT_TL_X].constraint.range)));
+    std::free(reinterpret_cast<void*>(const_cast<SANE_Range*>(s->opt[OPT_TL_Y].constraint.range)));
 
   s->dev->clear();
 
@@ -5148,7 +5148,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
         if (!sensor)
             throw SaneException("Unsupported scanner mode selected");
 
-      table = (SANE_Word *) val;
+        table = reinterpret_cast<SANE_Word*>(val);
         if (s->color_filter == "Red") {
             gamma_table = get_gamma_table(s->dev, *sensor, GENESYS_RED);
         } else if (s->color_filter == "Blue") {
@@ -5168,7 +5168,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
         if (!sensor)
             throw SaneException("Unsupported scanner mode selected");
 
-      table = (SANE_Word *) val;
+        table = reinterpret_cast<SANE_Word*>(val);
         gamma_table = get_gamma_table(s->dev, *sensor, GENESYS_RED);
         option_size = s->opt[option].size / sizeof (SANE_Word);
         if (gamma_table.size() != option_size) {
@@ -5182,7 +5182,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
         if (!sensor)
             throw SaneException("Unsupported scanner mode selected");
 
-      table = (SANE_Word *) val;
+        table = reinterpret_cast<SANE_Word*>(val);
         gamma_table = get_gamma_table(s->dev, *sensor, GENESYS_GREEN);
         option_size = s->opt[option].size / sizeof (SANE_Word);
         if (gamma_table.size() != option_size) {
@@ -5196,7 +5196,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
         if (!sensor)
             throw SaneException("Unsupported scanner mode selected");
 
-      table = (SANE_Word *) val;
+        table = reinterpret_cast<SANE_Word*>(val);
         gamma_table = get_gamma_table(s->dev, *sensor, GENESYS_BLUE);
         option_size = s->opt[option].size / sizeof (SANE_Word);
         if (gamma_table.size() != option_size) {
@@ -5216,7 +5216,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_POWER_SW:
     case OPT_EXTRA_SW:
         s->dev->cmd_set->update_hardware_sensors(s);
-      *(SANE_Bool *) val = s->buttons[genesys_option_to_button(option)].read();
+        *reinterpret_cast<SANE_Bool*>(val) = s->buttons[genesys_option_to_button(option)].read();
       break;
     case OPT_NEED_CALIBRATION_SW:
         if (!sensor)
@@ -5224,11 +5224,11 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
 
       /* scanner needs calibration for current mode unless a matching
        * calibration cache is found */
-      *(SANE_Bool *) val = SANE_TRUE;
+        *reinterpret_cast<SANE_Bool*>(val) = SANE_TRUE;
       for (auto& cache : s->dev->calibration_cache)
 	{
         if (s->dev->cmd_set->is_compatible_calibration(s->dev, *sensor, &cache, false)) {
-	      *(SANE_Bool *) val = SANE_FALSE;
+                *reinterpret_cast<SANE_Bool*>(val) = SANE_FALSE;
 	    }
 	}
       break;

@@ -3240,7 +3240,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     {
       char fn[40];
       snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
-               black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
+               black ? "black" : "white", forward ? "fwd" : "bwd", pass);
         sanei_genesys_write_pnm_file(fn, data);
     }
 

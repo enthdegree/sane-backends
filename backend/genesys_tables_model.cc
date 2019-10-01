@@ -1430,7 +1430,7 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::ST12;
     model.motor_id = MotorId::UMAX;
     model.flags = GENESYS_FLAG_UNTESTED | GENESYS_FLAG_14BIT_GAMMA;
-    model.buttons = GENESYS_HAS_NO_BUTTONS,
+    model.buttons = GENESYS_HAS_NO_BUTTONS;
     model.shading_lines = 20;
     model.shading_ta_lines = 0;
     model.search_lines = 200;
@@ -2432,7 +2432,7 @@ void genesys_init_usb_device_tables()
     model.sensor_id = SensorId::CCD_HP_N6310;
     model.adc_id = AdcId::CANON_LIDE_200;        // Not defined yet for N6310
     model.gpio_id = GpioId::HP_N6310;
-    model.motor_id = MotorId::CANON_LIDE_200,    // Not defined yet for N6310
+    model.motor_id = MotorId::CANON_LIDE_200;    // Not defined yet for N6310
     model.flags = GENESYS_FLAG_UNTESTED |
                   GENESYS_FLAG_14BIT_GAMMA |
                   GENESYS_FLAG_DARK_CALIBRATION |

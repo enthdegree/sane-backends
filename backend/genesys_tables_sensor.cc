@@ -578,7 +578,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_HP2400;
-    sensor.optical_res = 1200,
+    sensor.optical_res = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 15;
     sensor.ccd_start_xoffset = 0;
@@ -1866,7 +1866,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_100;
     sensor.optical_res = 2400;
-    sensor.black_pixels = 87*4,        /* black pixels */
+    sensor.black_pixels = 87*4;
     sensor.dummy_pixel = 16*4;
     sensor.ccd_start_xoffset = 320*4;
     sensor.sensor_pixels = 5136*4;
@@ -3517,7 +3517,7 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
-    sensor.sensor_id = SensorId::CIS_CANON_LIDE_80,
+    sensor.sensor_id = SensorId::CIS_CANON_LIDE_80;
     sensor.optical_res = 1200; // real hardware limit is 2400
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 20;

@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "12 Sep 2019" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "01 Oct 2019" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
@@ -128,15 +128,16 @@ i-SENSYS MF740, MF5880dn, MF5900, MF6680dn, MF8500C
 MAXIFY MB5100, MB5300, MB5400
 .RE
 .PP
-\#The following models may use partly the same Pixma protocol as other devices
-\#listed above, but may still need some work. They are declared in the backend
-\#as experimental. Snoop logs are required to further investigate, please contact
-\#the sane\-devel mailing list.
-\#.PP
-\#.RS
-\#PIXMA MP---
-\#.RE
-\#.PP
+The following models may use partly the same Pixma protocol as other devices
+listed above, but may still need some work. They are declared in the backend
+as experimental and need the environment variable PIXMA_EXPERIMENT=1 to get
+recognized and activated. Snoop logs are required to further investigate,
+please contact the sane\-devel mailing list.
+.PP
+.RS
+\-\- none \-\-
+.RE
+.PP
 The backend supports:
 .PP
 .RS

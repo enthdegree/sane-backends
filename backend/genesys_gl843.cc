@@ -1449,7 +1449,7 @@ static void gl843_stop_action(Genesys_Device* dev)
   uint8_t val;
   unsigned int loop;
 
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
   if (DBG_LEVEL >= DBG_io)
     {
       sanei_genesys_print_status (val);
@@ -1475,7 +1475,7 @@ static void gl843_stop_action(Genesys_Device* dev)
   loop = 10;
   while (loop > 0)
     {
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
       if (DBG_LEVEL >= DBG_io)
 	{
 	  sanei_genesys_print_status (val);
@@ -1888,7 +1888,7 @@ static void gl843_park_xpa_lamp(Genesys_Device* dev)
 
       while (loop < 600)	/* do not wait longer then 60 seconds */
 	{
-            sanei_genesys_get_status(dev, &val);
+            val = sanei_genesys_get_status(dev);
 
           if (DBG_LEVEL >= DBG_io2)
             {
@@ -1932,12 +1932,12 @@ void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   dev->scanhead_position_in_steps = 0;
 
     // first read gives HOME_SENSOR true
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
 
   sanei_genesys_sleep_ms(100);
 
     // second is reliable
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
 
   if (DBG_LEVEL >= DBG_io)
     {
@@ -2001,7 +2001,7 @@ void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 
       while (loop < 300)	/* do not wait longer then 30 seconds */
 	{
-            sanei_genesys_get_status(dev, &val);
+            val = sanei_genesys_get_status(dev);
 
           if (DBG_LEVEL >= DBG_io2)
             {
@@ -2202,7 +2202,7 @@ static void gl843_feed(Genesys_Device* dev, unsigned int steps)
 
     // wait until feed count reaches the required value, but do not exceed 30s
     do {
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
     } while (!(val & FEEDFSH));
 
   // looks like the scanner locks up if we scan immediately after feeding

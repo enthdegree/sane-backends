@@ -641,14 +641,14 @@ void sanei_genesys_fe_write_data(Genesys_Device* dev, uint8_t addr, uint16_t dat
 
 /** read the status register
  */
-void sanei_genesys_get_status(Genesys_Device* dev, uint8_t* status)
+std::uint8_t sanei_genesys_get_status(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
+    std::uint16_t address = 0x41;
     if (dev->model->asic_type == AsicType::GL124) {
-        sanei_genesys_read_hregister(dev, 0x101, status);
-        return;
+        address = 0x101;
     }
-    *status = dev->read_register(0x41);
+    return dev->read_register(address);
 }
 
 /**
@@ -776,7 +776,7 @@ bool sanei_genesys_is_buffer_empty(Genesys_Device* dev)
   uint8_t val = 0;
 
   sanei_genesys_sleep_ms(1);
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
 
     if (dev->cmd_set->test_buffer_empty_bit(val)) {
       /* fix timing issue on USB3 (or just may be too fast) hardware
@@ -800,8 +800,7 @@ void wait_until_buffer_non_empty(Genesys_Device* dev, bool check_status_twice)
 
         if (check_status_twice) {
             // FIXME: this only to preserve previous behavior, can be removed
-            std::uint8_t val = 0;
-            sanei_genesys_get_status(dev, &val);
+            sanei_genesys_get_status(dev);
         }
 
         bool empty = sanei_genesys_is_buffer_empty(dev);
@@ -2037,9 +2036,9 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
 
     // read initial status, if head isn't at home and motor is on we are parking, so we wait.
     // gl847/gl124 need 2 reads for reliable results
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
   sanei_genesys_sleep_ms(10);
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
 
   /* if at home, return */
   if(val & HOMESNR)
@@ -2054,7 +2053,7 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
   do
     {
       sanei_genesys_sleep_ms(100);
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
 
           if (DBG_LEVEL >= DBG_io2)
             {

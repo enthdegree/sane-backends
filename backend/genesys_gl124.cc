@@ -1128,7 +1128,7 @@ static void gl124_stop_action(Genesys_Device* dev)
     // post scan gpio : without that HOMSNR is unreliable
     gl124_homsnr_gpio(dev);
 
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
   if (DBG_LEVEL >= DBG_io)
     {
       sanei_genesys_print_status (val);
@@ -1154,7 +1154,7 @@ static void gl124_stop_action(Genesys_Device* dev)
   loop = 10;
   while (loop > 0)
     {
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
       if (DBG_LEVEL >= DBG_io)
 	{
 	  sanei_genesys_print_status (val);
@@ -1320,7 +1320,7 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     gl124_homsnr_gpio(dev);
 
     // first read gives HOME_SENSOR true
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
 
   if (DBG_LEVEL >= DBG_io)
     {
@@ -1329,7 +1329,7 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   sanei_genesys_sleep_ms(100);
 
     // second is reliable
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
 
   if (DBG_LEVEL >= DBG_io)
     {
@@ -1404,7 +1404,7 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 
       while (loop < 300)        /* do not wait longer then 30 seconds */
 	{
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
 
 	  if (val & HOMESNR)        /* home sensor */
 	    {
@@ -1501,7 +1501,7 @@ static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
 
     // wait until feed count reaches the required value, but do not exceed 30s
     do {
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
     } while (!(val & FEEDFSH));
 
     // then stop scanning
@@ -1690,7 +1690,7 @@ void CommandSetGl124::wait_for_motor_stop(Genesys_Device* dev) const
     DBG_HELPER(dbg);
     uint8_t val;
 
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
     uint8_t val40 = dev->read_register(REG100);
 
     if ((val & MOTORENB) == 0 && (val40 & REG100_MOTMFLG) == 0)
@@ -1698,7 +1698,7 @@ void CommandSetGl124::wait_for_motor_stop(Genesys_Device* dev) const
 
     do {
         sanei_genesys_sleep_ms(10);
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
         val40 = dev->read_register(REG100);
     } while ((val & MOTORENB) ||(val40 & REG100_MOTMFLG));
     sanei_genesys_sleep_ms(50);

@@ -358,14 +358,13 @@ static void gl847_set_ad_fe(Genesys_Device* dev, uint8_t set)
 {
     DBG_HELPER(dbg);
   int i;
-  uint8_t val8;
 
     // wait for FE to be ready
-    sanei_genesys_get_status(dev, &val8);
+    std::uint8_t val8 = sanei_genesys_get_status(dev);
   while (val8 & REG41_FEBUSY)
     {
       sanei_genesys_sleep_ms(10);
-        sanei_genesys_get_status(dev, &val8);
+        val8 = sanei_genesys_get_status(dev);
     };
 
   if (set == AFE_INIT)
@@ -980,7 +979,7 @@ static void gl847_stop_action(Genesys_Device* dev)
 
     // post scan gpio : without that HOMSNR is unreliable
     gl847_homsnr_gpio(dev);
-  sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
   if (DBG_LEVEL >= DBG_io)
     {
       sanei_genesys_print_status (val);
@@ -1006,7 +1005,7 @@ static void gl847_stop_action(Genesys_Device* dev)
   loop = 10;
   while (loop > 0)
     {
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
       if (DBG_LEVEL >= DBG_io)
 	{
 	  sanei_genesys_print_status (val);
@@ -1127,7 +1126,7 @@ void CommandSetGl847::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     gl847_homsnr_gpio(dev);
 
     // first read gives HOME_SENSOR true
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
 
   if (DBG_LEVEL >= DBG_io)
     {
@@ -1136,7 +1135,7 @@ void CommandSetGl847::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   sanei_genesys_sleep_ms(100);
 
     // second is reliable
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
 
   if (DBG_LEVEL >= DBG_io)
     {
@@ -1210,7 +1209,7 @@ void CommandSetGl847::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     {
       while (loop < 300)	/* do not wait longer then 30 seconds */
 	{
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
 
 	  if (val & HOMESNR)	/* home sensor */
 	    {
@@ -1406,7 +1405,7 @@ static void gl847_feed(Genesys_Device* dev, unsigned int steps)
 
     // wait until feed count reaches the required value, but do not exceed 30s
     do {
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
     }
   while (!(val & FEEDFSH));
 

@@ -2097,7 +2097,7 @@ static void gl841_stop_action(Genesys_Device* dev)
     uint8_t val;
   unsigned int loop;
 
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
   if (DBG_LEVEL >= DBG_io)
     {
       sanei_genesys_print_status (val);
@@ -2156,7 +2156,6 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
-  uint8_t val;
   unsigned int init_steps;
   float feed_mm;
   int loop;
@@ -2169,9 +2168,8 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 
 
   local_reg.clear();
-  val = 0;
 
-    sanei_genesys_get_status(dev, &val);
+    sanei_genesys_get_status(dev);
 
     gl841_stop_action(dev);
 
@@ -2432,7 +2430,7 @@ static void gl841_feed(Genesys_Device* dev, int steps)
   loop = 0;
   while (loop < 300)		/* do not wait longer then 30 seconds */
   {
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
 
       if (!(val & REG41_MOTORENB))	/* motor enabled */
       {
@@ -2479,7 +2477,7 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     dev->cmd_set->save_power(dev, false);
 
     // first read gives HOME_SENSOR true
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
 
   if (DBG_LEVEL >= DBG_io)
     {
@@ -2488,7 +2486,7 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   sanei_genesys_sleep_ms(100);
 
     // second is reliable
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
 
   if (DBG_LEVEL >= DBG_io)
     {
@@ -2545,7 +2543,7 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     {
       while (loop < 300)		/* do not wait longer then 30 seconds */
 	{
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
 
 	  if (val & REG41_HOMESNR)	/* home sensor */
 	    {
@@ -3837,7 +3835,7 @@ void CommandSetGl841::init(Genesys_Device* dev) const
   /* Check if the device has already been initialized and powered up */
   if (dev->already_initialized)
     {
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
       if (val & REG41_PWRBIT)
 	{
 	  DBG(DBG_info, "%s: already initialized\n", __func__);

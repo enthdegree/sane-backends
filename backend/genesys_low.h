@@ -299,7 +299,7 @@ extern void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uin
 extern void sanei_genesys_bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
                                                  size_t len);
 
-extern void sanei_genesys_get_status(Genesys_Device* dev, uint8_t* status);
+std::uint8_t sanei_genesys_get_status(Genesys_Device* dev);
 
 extern void sanei_genesys_print_status (uint8_t val);
 

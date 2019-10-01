@@ -1294,7 +1294,7 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
       return;
     }
 
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
 
   /* HOMSNR is set if a document is inserted */
   if ((val & REG41_HOMESNR))
@@ -1364,7 +1364,7 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
   count = 0;
   do
     {
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
       sanei_genesys_sleep_ms(200);
       count++;
     }
@@ -1396,7 +1396,7 @@ void CommandSetGl646::detect_document_end(Genesys_Device* dev) const
     unsigned int bytes_left;
 
     // test for document presence
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
   if (DBG_LEVEL > DBG_info)
     {
       print_status (val);
@@ -1465,7 +1465,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
 
     // test status : paper event + HOMESNR -> no more doc ?
-    sanei_genesys_get_status(dev, &state);
+    state = sanei_genesys_get_status(dev);
 
   DBG(DBG_info, "%s: state=0x%02x\n", __func__, state);
   if (DBG_LEVEL > DBG_info)
@@ -1489,7 +1489,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
   do
     {
       sanei_genesys_sleep_ms(200);
-        sanei_genesys_get_status(dev, &state);
+        state = sanei_genesys_get_status(dev);
     }
   while (state & REG41_MOTMFLG);
 
@@ -1537,7 +1537,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
   count = 0;
   do
     {
-        sanei_genesys_get_status(dev, &state);
+        state = sanei_genesys_get_status(dev);
 
       print_status (state);
       sanei_genesys_sleep_ms(200);
@@ -1583,7 +1583,7 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
 
   /* we need to compute scanfsh before cancelling scan */
     if (dev->model->is_sheetfed) {
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
 
       if (val & REG41_SCANFSH)
 	scanfsh = 1;
@@ -1609,7 +1609,7 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
 	{
 	  for (i = 0; i < 30; i++)	/* do not wait longer than wait 3 seconds */
 	    {
-            sanei_genesys_get_status(dev, &val);
+            val = sanei_genesys_get_status(dev);
 
 	      if (val & REG41_SCANFSH)
 		scanfsh = 1;
@@ -1634,7 +1634,7 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
 	{
 	  for (i = 0; i < 300; i++)	/* do not wait longer than wait 30 seconds */
 	    {
-            sanei_genesys_get_status(dev, &val);
+            val = sanei_genesys_get_status(dev);
 
 	      if (val & REG41_SCANFSH)
 		scanfsh = 1;
@@ -1683,7 +1683,7 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   int i;
   int loop = 0;
 
-    sanei_genesys_get_status(dev, &val);
+    val = sanei_genesys_get_status(dev);
 
   if (DBG_LEVEL > DBG_io)
     {
@@ -1710,7 +1710,7 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   val = REG41_MOTMFLG;
   for (i = 400; i > 0 && (val & REG41_MOTMFLG); i--)	/* do not wait longer than 40 seconds, count down to get i = 0 when busy */
     {
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
 
       if (((val & (REG41_MOTMFLG | REG41_HOMESNR)) == REG41_HOMESNR))	/* at home and motor is off */
 	{
@@ -1776,7 +1776,7 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     {
       while (loop < 300)		/* do not wait longer then 30 seconds */
 	{
-        sanei_genesys_get_status(dev, &val);
+        val = sanei_genesys_get_status(dev);
 
 	  if (val & 0x08)	/* home sensor */
 	    {
@@ -2948,13 +2948,13 @@ void CommandSetGl646::init(Genesys_Device* dev) const
     DBG_INIT();
     DBG_HELPER(dbg);
 
-  uint8_t cold = 0, val = 0;
+    uint8_t val = 0;
   uint32_t addr = 0xdead;
   size_t len;
 
     // to detect real power up condition, we write to REG41 with pwrbit set, then read it back. When
     // scanner is cold (just replugged) PWRBIT will be set in the returned value
-    sanei_genesys_get_status(dev, &cold);
+    std::uint8_t cold = sanei_genesys_get_status(dev);
   DBG(DBG_info, "%s: status=0x%02x\n", __func__, cold);
   cold = !(cold & REG41_PWRBIT);
   if (cold)

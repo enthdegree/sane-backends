@@ -79,7 +79,7 @@ public:
 
     virtual bool test_buffer_empty_bit(std::uint8_t val) const = 0;
 
-    virtual void set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set) const = 0;
+    virtual void set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, std::uint8_t set) const = 0;
     virtual void set_powersaving(Genesys_Device* dev, int delay) const = 0;
     virtual void save_power(Genesys_Device* dev, bool enable) const = 0;
 
@@ -107,9 +107,9 @@ public:
 
     virtual bool has_rewind() const { return true; }
 
-    virtual void bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
+    virtual void bulk_write_data(Genesys_Device* dev, std::uint8_t addr, std::uint8_t* data,
                                  size_t len) const = 0;
-    virtual void bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
+    virtual void bulk_read_data(Genesys_Device * dev, std::uint8_t addr, std::uint8_t* data,
                                 size_t len) const = 0;
 
     // Updates hardware sensor information in Genesys_Scanner.val[].
@@ -142,7 +142,7 @@ public:
 
     /// write shading data calibration to ASIC
     virtual void send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                   uint8_t* data, int size) const = 0;
+                                   std::uint8_t* data, int size) const = 0;
 
     virtual bool has_send_shading_data() const
     {

@@ -59,7 +59,6 @@
 #define SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE 0x008
 #define SCAN_FLAG_IGNORE_LINE_DISTANCE     0x010
 #define SCAN_FLAG_DISABLE_LAMP             0x040
-#define SCAN_FLAG_DYNAMIC_LINEART          0x080
 
 #define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
 

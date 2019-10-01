@@ -1622,11 +1622,6 @@ static void gl841_compute_session(Genesys_Device* dev, ScanSession& s,
 {
     DBG_HELPER(dbg);
 
-    //in case of dynamic lineart, we use an internal 8 bit gray scan to generate 1 lineart data
-    if (s.params.flags & SCAN_FLAG_DYNAMIC_LINEART) {
-        s.params.depth = 8;
-    }
-
     // no 16 bit gamma for this ASIC
     if (s.params.depth == 16) {
         s.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
@@ -1822,7 +1817,7 @@ void CommandSetGl841::calculate_current_setup(Genesys_Device * dev,
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.get_depth();
+    session.params.depth = dev->settings.depth;
     session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
@@ -2759,8 +2754,6 @@ void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
-  flags=0;
-
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
    */
@@ -2776,11 +2769,6 @@ void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
       flags |= SCAN_FLAG_ENABLE_LEDADD;
     }
 
-  /* enable emulated lineart from gray data */
-    if (dev->settings.scan_mode == ScanColorMode::LINEART) {
-        flags |= SCAN_FLAG_DYNAMIC_LINEART;
-    }
-
     ScanSession session;
     session.params.xres = dev->settings.xres;
     session.params.yres = dev->settings.yres;
@@ -2789,7 +2777,7 @@ void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.get_depth();
+    session.params.depth = dev->settings.depth;
     session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;

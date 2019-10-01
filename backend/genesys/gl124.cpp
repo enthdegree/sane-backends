@@ -907,12 +907,6 @@ static void gl124_compute_session(Genesys_Device* dev, ScanSession& s,
 {
     DBG_HELPER(dbg);
 
-    /* in case of dynamic lineart, we use an internal 8 bit gray scan
-     * to generate 1 lineart data */
-    if (s.params.flags & SCAN_FLAG_DYNAMIC_LINEART) {
-        s.params.depth = 8;
-    }
-
     compute_session(dev, s, sensor);
 
     s.enable_ledadd = (s.params.channels == 1 && dev->model->is_cis && dev->settings.true_gray);
@@ -1032,7 +1026,7 @@ void CommandSetGl124::calculate_current_setup(Genesys_Device * dev,
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.get_depth();
+    session.params.depth = dev->settings.depth;
     session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
@@ -1685,7 +1679,6 @@ void CommandSetGl124::wait_for_motor_stop(Genesys_Device* dev) const
 void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const
 {
     DBG_HELPER(dbg);
-  int flags;
   float move;
   int move_dpi;
   float start;
@@ -1711,13 +1704,6 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
-  flags = 0;
-
-  /* enable emulated lineart from gray data */
-    if (dev->settings.scan_mode == ScanColorMode::LINEART) {
-      flags |= SCAN_FLAG_DYNAMIC_LINEART;
-    }
-
     ScanSession session;
     session.params.xres = dev->settings.xres;
     session.params.yres = dev->settings.yres;
@@ -1726,12 +1712,12 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.get_depth();
+    session.params.depth = dev->settings.depth;
     session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = flags;
+    session.params.flags = 0;
     gl124_compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &dev->reg, session);

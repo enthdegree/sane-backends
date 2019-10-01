@@ -766,11 +766,6 @@ static void gl847_compute_session(Genesys_Device* dev, ScanSession& s,
 {
     DBG_HELPER(dbg);
 
-    // in case of dynamic lineart, we use an internal 8 bit gray scan to generate 1 lineart data
-    if (s.params.flags & SCAN_FLAG_DYNAMIC_LINEART) {
-        s.params.depth = 8;
-    }
-
     compute_session(dev, s, sensor);
 
     s.computed = true;
@@ -883,7 +878,7 @@ void CommandSetGl847::calculate_current_setup(Genesys_Device * dev,
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.get_depth();
+    session.params.depth = dev->settings.depth;
     session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
@@ -1446,7 +1441,6 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const
 {
     DBG_HELPER(dbg);
-  int flags;
   float move;
   int move_dpi;
   float start;
@@ -1498,16 +1492,6 @@ void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   start += dev->settings.tl_x;
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
-  flags = 0;
-
-  /* emulated lineart from gray data is required for now */
-    if (dev->settings.scan_mode == ScanColorMode::LINEART) {
-        flags |= SCAN_FLAG_DYNAMIC_LINEART;
-    }
-
-  /* backtracking isn't handled well, so don't enable it */
-  flags |= SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
-
     ScanSession session;
     session.params.xres = dev->settings.xres;
     session.params.yres = dev->settings.yres;
@@ -1516,12 +1500,13 @@ void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.get_depth();
+    session.params.depth = dev->settings.depth;
     session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = flags;
+    // backtracking isn't handled well, so don't enable it
+    session.params.flags = SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
     gl847_compute_session(dev, session, sensor);
 
     gl847_init_scan_regs(dev, sensor, &dev->reg, session);

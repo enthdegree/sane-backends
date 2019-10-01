@@ -101,14 +101,6 @@ struct Genesys_Settings
             return 3;
         return 1;
     }
-
-    unsigned get_depth() const
-    {
-        if (scan_mode == ScanColorMode::LINEART)
-            return 1;
-        return depth;
-    }
-
 };
 
 struct SetupParams {

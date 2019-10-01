@@ -105,13 +105,7 @@ public:
 
     bool eof() const override { return eof_; }
 
-    bool get_next_row_data(std::uint8_t* out_data) override
-    {
-        bool got_data = producer_(get_row_bytes(), out_data);
-        if (!got_data)
-            eof_ = true;
-        return got_data;
-    }
+    bool get_next_row_data(std::uint8_t* out_data) override;
 
 private:
     ProducerCallback producer_;

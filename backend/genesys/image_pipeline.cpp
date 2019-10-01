@@ -59,6 +59,14 @@ std::size_t ImagePipelineNodeBytesSource::consume_remaining_bytes(std::size_t by
     return bytes;
 }
 
+bool ImagePipelineNodeCallableSource::get_next_row_data(std::uint8_t* out_data)
+{
+    bool got_data = producer_(get_row_bytes(), out_data);
+    if (!got_data)
+        eof_ = true;
+    return got_data;
+}
+
 ImagePipelineNodeBufferedCallableSource::ImagePipelineNodeBufferedCallableSource(
         std::size_t width, std::size_t height, PixelFormat format, std::size_t input_batch_size,
         ProducerCallback producer) :

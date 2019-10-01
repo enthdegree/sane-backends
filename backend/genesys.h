@@ -203,7 +203,7 @@ struct Genesys_Scanner
 
     // SANE data
     // We are currently scanning
-    SANE_Bool scanning;
+    bool scanning;
     // Option descriptors
     SANE_Option_Descriptor opt[NUM_OPTIONS];
 

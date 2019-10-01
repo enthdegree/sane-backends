@@ -768,9 +768,9 @@ void sanei_genesys_read_scancnt(Genesys_Device* dev, unsigned int* words)
 /** @brief Check if the scanner's internal data buffer is empty
  * @param *dev device to test for data
  * @param *empty return value
- * @return empty will be set to SANE_TRUE if there is no scanned data.
+ * @return empty will be set to true if there is no scanned data.
  **/
-void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empty)
+void sanei_genesys_test_buffer_empty(Genesys_Device* dev, bool* empty)
 {
     DBG_HELPER(dbg);
   uint8_t val = 0;
@@ -784,11 +784,11 @@ void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empty)
        */
       sanei_genesys_sleep_ms(1);
       DBG(DBG_io2, "%s: buffer is empty\n", __func__);
-      *empty = SANE_TRUE;
+        *empty = true;
       return;
     }
 
-  *empty = SANE_FALSE;
+    *empty = false;
 
   DBG(DBG_io, "%s: buffer is filled\n", __func__);
 }
@@ -1903,12 +1903,12 @@ const SensorProfile& get_sensor_profile(AsicType asic_type, const Genesys_Sensor
  * @param dev device to initialize
  * @param max_regs umber of maximum used registers
  */
-void sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
+void sanei_genesys_asic_init(Genesys_Device* dev, bool /*max_regs*/)
 {
     DBG_HELPER(dbg);
 
   uint8_t val;
-  SANE_Bool cold = SANE_TRUE;
+    bool cold = true;
 
     // URB    16  control  0xc0 0x0c 0x8e 0x0b len     1 read  0x00 */
     dev->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_GET_REGISTER, 0x00, 1, &val);
@@ -1929,7 +1929,7 @@ void sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
         so that following reads can detect power down/up cycle
     */
     if (dev->read_register(0x06) & 0x10) {
-      cold = SANE_FALSE;
+        cold = false;
     }
   DBG (DBG_info, "%s: device is %s\n", __func__, cold ? "cold" : "warm");
 
@@ -1958,10 +1958,10 @@ void sanei_genesys_asic_init(Genesys_Device* dev, int /*max_regs*/)
     // Set analog frontend
     dev->cmd_set->set_fe(dev, sensor, AFE_INIT);
 
-  dev->already_initialized = SANE_TRUE;
+    dev->already_initialized = true;
 
     // Move to home if needed
-    dev->cmd_set->slow_back_home(dev, SANE_TRUE);
+    dev->cmd_set->slow_back_home(dev, true);
   dev->scanhead_position_in_steps = 0;
 
     // Set powersaving (default = 15 minutes)
@@ -2014,7 +2014,7 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
   int max=300;
 
   /* clear the parking status whatever the outcome of the function */
-  dev->parking=SANE_FALSE;
+    dev->parking = false;
 
     // read initial status, if head isn't at home and motor is on we are parking, so we wait.
     // gl847/gl124 need 2 reads for reliable results
@@ -2238,7 +2238,7 @@ int sanei_genesys_get_lowest_dpi(Genesys_Device *dev)
 
 /** @brief check is a cache entry may be used
  * Compares current settings with the cache entry and return
- * SANE_TRUE if they are compatible.
+ * true if they are compatible.
  * A calibration cache is compatible if color mode and x dpi match the user
  * requested scan. In the case of CIS scanners, dpi isn't a criteria.
  * flatbed cache entries are considred too old and then expires if they
@@ -2264,8 +2264,7 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
 
   /* a calibration cache is compatible if color mode and x dpi match the user
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
-  if (dev->model->is_cis == SANE_FALSE)
-    {
+    if (!dev->model->is_cis) {
         compatible = (dev->settings.xres == ((int) cache->used_setup.xres));
     }
   else
@@ -2296,11 +2295,11 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
   /* a cache entry expires after afetr expiration time for non sheetfed scanners */
   /* this is not taken into account when overwriting cache entries    */
 #ifdef HAVE_SYS_TIME_H
-  if(for_overwrite == SANE_FALSE && dev->settings.expiration_time >=0)
+    if (!for_overwrite && dev->settings.expiration_time >=0)
     {
         gettimeofday(&time, nullptr);
       if ((time.tv_sec - cache->last_calibration > dev->settings.expiration_time*60)
-          && (dev->model->is_sheetfed == SANE_FALSE)
+          && !dev->model->is_sheetfed
           && (dev->settings.scan_method == ScanMethod::FLATBED))
         {
           DBG (DBG_proc, "%s: expired entry, non compatible cache\n", __func__);
@@ -2445,8 +2444,9 @@ void sanei_genesys_load_lut(unsigned char* lut,
 
 void sanei_genesys_usleep(unsigned int useconds)
 {
-  if (sanei_usb_is_replay_mode_enabled() == SANE_TRUE)
-    return;
+    if (sanei_usb_is_replay_mode_enabled()) {
+        return;
+    }
   usleep(useconds);
 }
 

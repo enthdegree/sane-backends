@@ -56,55 +56,41 @@
 bool CommandSetGl847::get_fast_feed_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, REG02);
-  if (r && (r->value & REG02_FASTFED))
-    return SANE_TRUE;
-  return SANE_FALSE;
+    return (r && (r->value & REG02_FASTFED));
 }
 
 bool CommandSetGl847::get_filter_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
-  if (r && (r->value & REG04_FILTER))
-    return SANE_TRUE;
-  return SANE_FALSE;
+    return (r && (r->value & REG04_FILTER));
 }
 
 bool CommandSetGl847::get_lineart_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
-  if (r && (r->value & REG04_LINEART))
-    return SANE_TRUE;
-  return SANE_FALSE;
+    return (r && (r->value & REG04_LINEART));
 }
 
 bool CommandSetGl847::get_bitset_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
-  if (r && (r->value & REG04_BITSET))
-    return SANE_TRUE;
-  return SANE_FALSE;
+    return (r && (r->value & REG04_BITSET));
 }
 
 bool CommandSetGl847::get_gain4_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);
-  if (r && (r->value & REG06_GAIN4))
-    return SANE_TRUE;
-  return SANE_FALSE;
+  return (r && (r->value & REG06_GAIN4));
 }
 
 bool CommandSetGl847::test_buffer_empty_bit(SANE_Byte val) const
 {
-  if (val & REG41_BUFEMPTY)
-    return SANE_TRUE;
-  return SANE_FALSE;
+    return (val & REG41_BUFEMPTY);
 }
 
 bool CommandSetGl847::test_motor_flag_bit(SANE_Byte val) const
 {
-  if (val & REG41_MOTORENB)
-    return SANE_TRUE;
-  return SANE_FALSE;
+    return (val & REG41_MOTORENB);
 }
 
 /**
@@ -769,8 +755,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* CIS scanners can do true gray by setting LEDADD */
   /* we set up LEDADD only when asked */
-  if (dev->model->is_cis == SANE_TRUE)
-    {
+    if (dev->model->is_cis) {
       r = sanei_genesys_get_address (reg, 0x87);
       r->value &= ~REG87_LEDADD;
         if (session.enable_ledadd) {
@@ -883,7 +868,7 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);
 
-  dev->read_active = SANE_TRUE;
+    dev->read_active = true;
 
     dev->session = session;
     dev->current_setup.pixels = session.output_pixels;
@@ -1084,7 +1069,7 @@ void CommandSetGl847::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
     (void) reg;
     DBG_HELPER_ARGS(dbg, "check_stop = %d", check_stop);
 
-    if (dev->model->is_sheetfed != SANE_TRUE) {
+    if (!dev->model->is_sheetfed) {
         gl847_stop_action(dev);
     }
 }
@@ -1106,14 +1091,14 @@ static void gl847_rewind(Genesys_Device* dev)
     dev->write_register(0x02, byte);
 
     // and start scan, then wait completion
-    gl847_begin_scan(dev, dev->reg, SANE_TRUE);
+    gl847_begin_scan(dev, dev->reg, true);
   do
     {
       sanei_genesys_sleep_ms(100);
         byte = dev->read_register(REG40);
     }
   while(byte & REG40_MOTMFLG);
-    gl847_end_scan(dev, dev->reg, SANE_TRUE);
+    gl847_end_scan(dev, dev->reg, true);
 
     // restore direction
     byte = dev->read_register(0x02);
@@ -1254,7 +1239,6 @@ void CommandSetGl847::search_start_position(Genesys_Device* dev) const
     DBG_HELPER(dbg);
   int size;
   Genesys_Register_Set local_reg;
-  int steps;
 
   int pixels = 600;
   int dpi = 300;
@@ -1294,12 +1278,13 @@ void CommandSetGl847::search_start_position(Genesys_Device* dev) const
 
   std::vector<uint8_t> data(size);
 
-    begin_scan(dev, sensor, &local_reg, SANE_TRUE);
+    begin_scan(dev, sensor, &local_reg, true);
 
         // waits for valid data
-        do {
-            sanei_genesys_test_buffer_empty(dev, &steps);
-        } while (steps);
+    bool empty = false;
+    do {
+        sanei_genesys_test_buffer_empty(dev, &empty);
+    } while (empty);
 
     // now we're on target, we can read data
     sanei_genesys_read_data_from_scanner(dev, data.data(), size);
@@ -1309,7 +1294,7 @@ void CommandSetGl847::search_start_position(Genesys_Device* dev) const
                                      dev->model->search_lines);
     }
 
-    end_scan(dev, &local_reg, SANE_TRUE);
+    end_scan(dev, &local_reg, true);
 
   /* update regs to copy ASIC internal state */
   dev->reg = local_reg;
@@ -1681,7 +1666,6 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
   int turn;
   uint16_t exp[3];
   float move;
-  SANE_Bool acceptable;
 
     move = SANE_UNFIX(dev->model->y_offset_calib_white);
   move = (move * (dev->motor.base_ydpi/4)) / MM_PER_INCH;
@@ -1740,6 +1724,7 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
   turn = 0;
 
   /* no move during led calibration */
+    bool acceptable = false;
   sanei_genesys_set_motor_power(regs, false);
   do
     {
@@ -1752,7 +1737,7 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
         dev->write_registers(regs);
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
-        begin_scan(dev, sensor, &regs, SANE_TRUE);
+        begin_scan(dev, sensor, &regs, true);
         sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
         // stop scanning
@@ -1788,18 +1773,18 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
       DBG(DBG_info, "%s: average: %d,%d,%d\n", __func__, avg[0], avg[1], avg[2]);
 
       /* check if exposure gives average within the boundaries */
-      acceptable = SANE_TRUE;
+        acceptable = true;
       for(i=0;i<3;i++)
         {
           if(avg[i]<bottom[i])
             {
               exp[i]=(exp[i]*bottom[i])/avg[i];
-              acceptable = SANE_FALSE;
+                acceptable = false;
             }
           if(avg[i]>top[i])
             {
               exp[i]=(exp[i]*top[i])/avg[i];
-              acceptable = SANE_FALSE;
+                acceptable = false;
             }
         }
 
@@ -1816,7 +1801,7 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
 
     // go back home
     if (move>20) {
-        slow_back_home(dev, SANE_TRUE);
+        slow_back_home(dev, true);
     }
 
     return { exp[0], exp[1], exp[2] };
@@ -2030,8 +2015,8 @@ void CommandSetGl847::update_hardware_sensors(Genesys_Scanner* s) const
  * When searching backward, the searched area must completely be of the desired
  * color since this area will be used for calibration which scans forward.
  * @param dev scanner device
- * @param forward SANE_TRUE if searching forward, SANE_FALSE if searching backward
- * @param black SANE_TRUE if searching for a black strip, SANE_FALSE for a white strip
+ * @param forward true if searching forward, false if searching backward
+ * @param black true if searching for a black strip, false for a white strip
  */
 void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, bool forward,
                                    bool black) const
@@ -2040,7 +2025,7 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   unsigned int pixels, lines, channels;
   Genesys_Register_Set local_reg;
   size_t size;
-  int steps, depth;
+    int depth;
   unsigned int pass, count, found, x, y;
   char title[80];
   GenesysRegister *r;
@@ -2092,12 +2077,13 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
 
     dev->write_registers(local_reg);
 
-    begin_scan(dev, sensor, &local_reg, SANE_TRUE);
+    begin_scan(dev, sensor, &local_reg, true);
 
-        // waits for valid data
-        do {
-            sanei_genesys_test_buffer_empty(dev, &steps);
-        } while (steps);
+    // waits for valid data
+    bool empty = false;
+    do {
+        sanei_genesys_test_buffer_empty(dev, &empty);
+    } while (empty);
 
     // now we're on target, we can read data
     sanei_genesys_read_data_from_scanner(dev, data.data(), size);
@@ -2119,12 +2105,13 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
         dev->write_registers(local_reg);
 
         // now start scan
-        begin_scan(dev, sensor, &local_reg, SANE_TRUE);
+        begin_scan(dev, sensor, &local_reg, true);
 
         // waits for valid data
+        bool empty = false;
         do {
-            sanei_genesys_test_buffer_empty(dev, &steps);
-        } while (steps);
+            sanei_genesys_test_buffer_empty(dev, &empty);
+        } while (empty);
 
         // now we're on target, we can read data
         sanei_genesys_read_data_from_scanner(dev, data.data(), size);
@@ -2330,7 +2317,7 @@ void CommandSetGl847::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     set_fe(dev, sensor, AFE_SET);
     dev->write_registers(regs);
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
-    begin_scan(dev, sensor, &regs, SANE_TRUE);
+    begin_scan(dev, sensor, &regs, true);
     sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
   if (DBG_LEVEL >= DBG_data)
    {
@@ -2350,7 +2337,7 @@ void CommandSetGl847::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     set_fe(dev, sensor, AFE_SET);
     dev->write_registers(regs);
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
-    begin_scan(dev, sensor, &regs, SANE_TRUE);
+    begin_scan(dev, sensor, &regs, true);
     sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
 
   topavg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
@@ -2370,7 +2357,7 @@ void CommandSetGl847::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         set_fe(dev, sensor, AFE_SET);
         dev->write_registers(regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
-        begin_scan(dev, sensor, &regs, SANE_TRUE);
+        begin_scan(dev, sensor, &regs, true);
         sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
 
       if (DBG_LEVEL >= DBG_data)
@@ -2470,7 +2457,7 @@ void CommandSetGl847::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   std::vector<uint8_t> line(total_size);
 
     set_fe(dev, sensor, AFE_SET);
-    begin_scan(dev, sensor, &regs, SANE_TRUE);
+    begin_scan(dev, sensor, &regs, true);
     sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
   if (DBG_LEVEL >= DBG_data)
@@ -2539,7 +2526,7 @@ void CommandSetGl847::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     gl847_stop_action(dev);
 
-    slow_back_home(dev, SANE_TRUE);
+    slow_back_home(dev, true);
 }
 
 bool CommandSetGl847::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const

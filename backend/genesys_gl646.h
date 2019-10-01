@@ -68,9 +68,9 @@ static void setup_for_scan(Genesys_Device* device,
                            const Genesys_Sensor& sensor,
                            Genesys_Register_Set*regs,
                            Genesys_Settings settings,
-                           SANE_Bool split,
-                           SANE_Bool xcorrection,
-                           SANE_Bool ycorrection);
+                           bool split,
+                           bool xcorrection,
+                           bool ycorrection);
 
 /**
  * Does a simple move of the given distance by doing a scan at lowest resolution
@@ -94,14 +94,14 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance);
  * @param data     pointer that will point to the scanned data
  */
 static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                        Genesys_Settings settings, SANE_Bool move, SANE_Bool forward,
-                        SANE_Bool shading, std::vector<uint8_t>& data);
+                        Genesys_Settings settings, bool move, bool forward,
+                        bool shading, std::vector<uint8_t>& data);
 
 /**
  * Send the stop scan command
  * */
-static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop,
-                          SANE_Bool eject);
+static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool check_stop,
+                          bool eject);
 /**
  * writes control data to an area behind the last motor table.
  */
@@ -127,8 +127,8 @@ typedef struct
 
   /* settings */
     StepType steptype;
-  SANE_Bool fastmod;		/* fast scanning 0/1 */
-  SANE_Bool fastfed;		/* fast fed slope tables */
+    bool fastmod; // fast scanning
+    bool fastfed; // fast fed slope tables
   SANE_Int mtrpwm;
   SANE_Int steps1;		/* table 1 informations */
   SANE_Int vstart1;
@@ -147,88 +147,88 @@ typedef struct
  */
 static Motor_Master motor_master[] = {
     /* HP3670 motor settings */
-    {MotorId::HP3670,  75, 3, StepType::FULL, SANE_FALSE, SANE_TRUE , 1, 200,  3429,  305, 192, 3399, 337, 0.3, 0.4, 192},
-    {MotorId::HP3670, 100, 3, StepType::HALF, SANE_FALSE, SANE_TRUE , 1, 143,  2905,  187, 192, 3399, 337, 0.3, 0.4, 192},
-    {MotorId::HP3670, 150, 3, StepType::HALF, SANE_FALSE, SANE_TRUE , 1,  73,  3429,  305, 192, 3399, 337, 0.3, 0.4, 192},
-    {MotorId::HP3670, 300, 3, StepType::HALF, SANE_FALSE, SANE_TRUE , 1,  11,  1055,  563, 192, 3399, 337, 0.3, 0.4, 192},
-    {MotorId::HP3670, 600, 3, StepType::FULL, SANE_FALSE, SANE_TRUE , 0,   3, 10687, 5126, 192, 3399, 337, 0.3, 0.4, 192},
-    {MotorId::HP3670,1200, 3, StepType::HALF, SANE_FALSE, SANE_TRUE , 0,   3, 15937, 6375, 192, 3399, 337, 0.3, 0.4, 192},
-    {MotorId::HP3670,2400, 3, StepType::HALF, SANE_FALSE, SANE_TRUE , 0,   3, 15937, 12750, 192, 3399, 337, 0.3, 0.4, 192},
-    {MotorId::HP3670,  75, 1, StepType::FULL, SANE_FALSE, SANE_TRUE , 1, 200,  3429,  305, 192, 3399, 337, 0.3, 0.4, 192},
-    {MotorId::HP3670, 100, 1, StepType::HALF, SANE_FALSE, SANE_TRUE , 1, 143,  2905,  187, 192, 3399, 337, 0.3, 0.4, 192},
-    {MotorId::HP3670, 150, 1, StepType::HALF, SANE_FALSE, SANE_TRUE , 1,  73,  3429,  305, 192, 3399, 337, 0.3, 0.4, 192},
-    {MotorId::HP3670, 300, 1, StepType::HALF, SANE_FALSE, SANE_TRUE , 1,  11,  1055,  563, 192, 3399, 337, 0.3, 0.4, 192},
-    {MotorId::HP3670, 600, 1, StepType::FULL, SANE_FALSE, SANE_TRUE , 0,   3, 10687, 5126, 192, 3399, 337, 0.3, 0.4, 192},
-    {MotorId::HP3670,1200, 1, StepType::HALF, SANE_FALSE, SANE_TRUE , 0,   3, 15937, 6375, 192, 3399, 337, 0.3, 0.4, 192},
-    {MotorId::HP3670,2400, 3, StepType::HALF, SANE_FALSE, SANE_TRUE , 0,   3, 15937, 12750, 192, 3399, 337, 0.3, 0.4, 192},
+    {MotorId::HP3670,  75, 3, StepType::FULL, false, true , 1, 200,  3429,  305, 192, 3399, 337, 0.3, 0.4, 192},
+    {MotorId::HP3670, 100, 3, StepType::HALF, false, true , 1, 143,  2905,  187, 192, 3399, 337, 0.3, 0.4, 192},
+    {MotorId::HP3670, 150, 3, StepType::HALF, false, true , 1,  73,  3429,  305, 192, 3399, 337, 0.3, 0.4, 192},
+    {MotorId::HP3670, 300, 3, StepType::HALF, false, true , 1,  11,  1055,  563, 192, 3399, 337, 0.3, 0.4, 192},
+    {MotorId::HP3670, 600, 3, StepType::FULL, false, true , 0,   3, 10687, 5126, 192, 3399, 337, 0.3, 0.4, 192},
+    {MotorId::HP3670,1200, 3, StepType::HALF, false, true , 0,   3, 15937, 6375, 192, 3399, 337, 0.3, 0.4, 192},
+    {MotorId::HP3670,2400, 3, StepType::HALF, false, true , 0,   3, 15937, 12750, 192, 3399, 337, 0.3, 0.4, 192},
+    {MotorId::HP3670,  75, 1, StepType::FULL, false, true , 1, 200,  3429,  305, 192, 3399, 337, 0.3, 0.4, 192},
+    {MotorId::HP3670, 100, 1, StepType::HALF, false, true , 1, 143,  2905,  187, 192, 3399, 337, 0.3, 0.4, 192},
+    {MotorId::HP3670, 150, 1, StepType::HALF, false, true , 1,  73,  3429,  305, 192, 3399, 337, 0.3, 0.4, 192},
+    {MotorId::HP3670, 300, 1, StepType::HALF, false, true , 1,  11,  1055,  563, 192, 3399, 337, 0.3, 0.4, 192},
+    {MotorId::HP3670, 600, 1, StepType::FULL, false, true , 0,   3, 10687, 5126, 192, 3399, 337, 0.3, 0.4, 192},
+    {MotorId::HP3670,1200, 1, StepType::HALF, false, true , 0,   3, 15937, 6375, 192, 3399, 337, 0.3, 0.4, 192},
+    {MotorId::HP3670,2400, 3, StepType::HALF, false, true , 0,   3, 15937, 12750, 192, 3399, 337, 0.3, 0.4, 192},
 
     /* HP2400/G2410 motor settings base motor dpi = 600 */
-    {MotorId::HP2400,  50, 3, StepType::FULL, SANE_FALSE, SANE_TRUE , 63, 120, 8736,   601, 192, 4905,  337, 0.30, 0.4, 192},
-    {MotorId::HP2400, 100, 3, StepType::HALF, SANE_FALSE, SANE_TRUE,  63, 120, 8736,   601, 192, 4905,  337, 0.30, 0.4, 192},
-    {MotorId::HP2400, 150, 3, StepType::HALF, SANE_FALSE, SANE_TRUE , 63, 67, 15902,   902, 192, 4905,  337, 0.30, 0.4, 192},
-    {MotorId::HP2400, 300, 3, StepType::HALF, SANE_FALSE, SANE_TRUE , 63, 32, 16703,  2188, 192, 4905,  337, 0.30, 0.4, 192},
-    {MotorId::HP2400, 600, 3, StepType::FULL, SANE_FALSE, SANE_TRUE , 63,  3, 18761, 18761, 192, 4905,  627, 0.30, 0.4, 192},
-    {MotorId::HP2400,1200, 3, StepType::HALF, SANE_FALSE, SANE_TRUE , 63,  3, 43501, 43501, 192, 4905,  627, 0.30, 0.4, 192},
-    {MotorId::HP2400,  50, 1, StepType::FULL, SANE_FALSE, SANE_TRUE , 63, 120, 8736,   601, 192, 4905,  337, 0.30, 0.4, 192},
-    {MotorId::HP2400, 100, 1, StepType::HALF, SANE_FALSE, SANE_TRUE,  63, 120, 8736,   601, 192, 4905,  337, 0.30, 0.4, 192},
-    {MotorId::HP2400, 150, 1, StepType::HALF, SANE_FALSE, SANE_TRUE , 63, 67, 15902,   902, 192, 4905,  337, 0.30, 0.4, 192},
-    {MotorId::HP2400, 300, 1, StepType::HALF, SANE_FALSE, SANE_TRUE , 63, 32, 16703,  2188, 192, 4905,  337, 0.30, 0.4, 192},
-    {MotorId::HP2400, 600, 1, StepType::FULL, SANE_FALSE, SANE_TRUE , 63,  3, 18761, 18761, 192, 4905,  337, 0.30, 0.4, 192},
-    {MotorId::HP2400,1200, 1, StepType::HALF, SANE_FALSE, SANE_TRUE , 63,  3, 43501, 43501, 192, 4905,  337, 0.30, 0.4, 192},
+    {MotorId::HP2400,  50, 3, StepType::FULL, false, true , 63, 120, 8736,   601, 192, 4905,  337, 0.30, 0.4, 192},
+    {MotorId::HP2400, 100, 3, StepType::HALF, false, true,  63, 120, 8736,   601, 192, 4905,  337, 0.30, 0.4, 192},
+    {MotorId::HP2400, 150, 3, StepType::HALF, false, true , 63, 67, 15902,   902, 192, 4905,  337, 0.30, 0.4, 192},
+    {MotorId::HP2400, 300, 3, StepType::HALF, false, true , 63, 32, 16703,  2188, 192, 4905,  337, 0.30, 0.4, 192},
+    {MotorId::HP2400, 600, 3, StepType::FULL, false, true , 63,  3, 18761, 18761, 192, 4905,  627, 0.30, 0.4, 192},
+    {MotorId::HP2400,1200, 3, StepType::HALF, false, true , 63,  3, 43501, 43501, 192, 4905,  627, 0.30, 0.4, 192},
+    {MotorId::HP2400,  50, 1, StepType::FULL, false, true , 63, 120, 8736,   601, 192, 4905,  337, 0.30, 0.4, 192},
+    {MotorId::HP2400, 100, 1, StepType::HALF, false, true,  63, 120, 8736,   601, 192, 4905,  337, 0.30, 0.4, 192},
+    {MotorId::HP2400, 150, 1, StepType::HALF, false, true , 63, 67, 15902,   902, 192, 4905,  337, 0.30, 0.4, 192},
+    {MotorId::HP2400, 300, 1, StepType::HALF, false, true , 63, 32, 16703,  2188, 192, 4905,  337, 0.30, 0.4, 192},
+    {MotorId::HP2400, 600, 1, StepType::FULL, false, true , 63,  3, 18761, 18761, 192, 4905,  337, 0.30, 0.4, 192},
+    {MotorId::HP2400,1200, 1, StepType::HALF, false, true , 63,  3, 43501, 43501, 192, 4905,  337, 0.30, 0.4, 192},
 
     /* XP 200 motor settings */
-    {MotorId::XP200,  75, 3, StepType::HALF, SANE_TRUE , SANE_FALSE, 0, 4,  6000,  2136, 8, 12000, 1200, 0.3, 0.5, 1},
-    {MotorId::XP200, 100, 3, StepType::HALF, SANE_TRUE , SANE_FALSE, 0, 4,  6000,  2850, 8, 12000, 1200, 0.3, 0.5, 1},
-    {MotorId::XP200, 200, 3, StepType::HALF, SANE_TRUE , SANE_FALSE, 0, 4,  6999,  5700, 8, 12000, 1200, 0.3, 0.5, 1},
-    {MotorId::XP200, 250, 3, StepType::HALF, SANE_TRUE , SANE_FALSE, 0, 4,  6999,  6999, 8, 12000, 1200, 0.3, 0.5, 1},
-    {MotorId::XP200, 300, 3, StepType::HALF, SANE_TRUE , SANE_FALSE, 0, 4, 13500, 13500, 8, 12000, 1200, 0.3, 0.5, 1},
-    {MotorId::XP200, 600, 3, StepType::HALF, SANE_TRUE ,  SANE_TRUE, 0, 4, 31998, 31998, 2, 12000, 1200, 0.3, 0.5, 1},
-    {MotorId::XP200,  75, 1, StepType::HALF, SANE_TRUE , SANE_FALSE, 0, 4,  6000,  2000, 8, 12000, 1200, 0.3, 0.5, 1},
-    {MotorId::XP200, 100, 1, StepType::HALF, SANE_TRUE , SANE_FALSE, 0, 4,  6000,  1300, 8, 12000, 1200, 0.3, 0.5, 1},
-    {MotorId::XP200, 200, 1, StepType::HALF, SANE_TRUE ,  SANE_TRUE, 0, 4,  6000,  3666, 8, 12000, 1200, 0.3, 0.5, 1},
-    {MotorId::XP200, 300, 1, StepType::HALF, SANE_TRUE , SANE_FALSE, 0, 4,  6500,  6500, 8, 12000, 1200, 0.3, 0.5, 1},
-    {MotorId::XP200, 600, 1, StepType::HALF, SANE_TRUE ,  SANE_TRUE, 0, 4, 24000, 24000, 2, 12000, 1200, 0.3, 0.5, 1},
+    {MotorId::XP200,  75, 3, StepType::HALF, true , false, 0, 4,  6000,  2136, 8, 12000, 1200, 0.3, 0.5, 1},
+    {MotorId::XP200, 100, 3, StepType::HALF, true , false, 0, 4,  6000,  2850, 8, 12000, 1200, 0.3, 0.5, 1},
+    {MotorId::XP200, 200, 3, StepType::HALF, true , false, 0, 4,  6999,  5700, 8, 12000, 1200, 0.3, 0.5, 1},
+    {MotorId::XP200, 250, 3, StepType::HALF, true , false, 0, 4,  6999,  6999, 8, 12000, 1200, 0.3, 0.5, 1},
+    {MotorId::XP200, 300, 3, StepType::HALF, true , false, 0, 4, 13500, 13500, 8, 12000, 1200, 0.3, 0.5, 1},
+    {MotorId::XP200, 600, 3, StepType::HALF, true ,  true, 0, 4, 31998, 31998, 2, 12000, 1200, 0.3, 0.5, 1},
+    {MotorId::XP200,  75, 1, StepType::HALF, true , false, 0, 4,  6000,  2000, 8, 12000, 1200, 0.3, 0.5, 1},
+    {MotorId::XP200, 100, 1, StepType::HALF, true , false, 0, 4,  6000,  1300, 8, 12000, 1200, 0.3, 0.5, 1},
+    {MotorId::XP200, 200, 1, StepType::HALF, true ,  true, 0, 4,  6000,  3666, 8, 12000, 1200, 0.3, 0.5, 1},
+    {MotorId::XP200, 300, 1, StepType::HALF, true , false, 0, 4,  6500,  6500, 8, 12000, 1200, 0.3, 0.5, 1},
+    {MotorId::XP200, 600, 1, StepType::HALF, true ,  true, 0, 4, 24000, 24000, 2, 12000, 1200, 0.3, 0.5, 1},
 
     /* HP scanjet 2300c */
-    {MotorId::HP2300,  75, 3, StepType::FULL, SANE_FALSE, SANE_TRUE , 63, 120,  8139,   560, 120, 4905,  337, 0.3, 0.4, 16},
-    {MotorId::HP2300, 150, 3, StepType::HALF, SANE_FALSE, SANE_TRUE , 63,  67,  7903,   543, 120, 4905,  337, 0.3, 0.4, 16},
-    {MotorId::HP2300, 300, 3, StepType::HALF, SANE_FALSE, SANE_TRUE , 63,   3,  2175,  1087, 120, 4905,  337, 0.3, 0.4, 16},
-    {MotorId::HP2300, 600, 3, StepType::HALF, SANE_FALSE, SANE_TRUE , 63,   3,  8700,  4350, 120, 4905,  337, 0.3, 0.4, 16},
-    {MotorId::HP2300,1200, 3, StepType::HALF, SANE_FALSE, SANE_TRUE , 63,   3, 17400,  8700, 120, 4905,  337, 0.3, 0.4, 16},
-    {MotorId::HP2300,  75, 1, StepType::FULL, SANE_FALSE, SANE_TRUE , 63, 120,  8139,   560, 120, 4905,  337, 0.3, 0.4, 16},
-    {MotorId::HP2300, 150, 1, StepType::HALF, SANE_FALSE, SANE_TRUE , 63,  67,  7903,   543, 120, 4905,  337, 0.3, 0.4, 16},
-    {MotorId::HP2300, 300, 1, StepType::HALF, SANE_FALSE, SANE_TRUE , 63,   3,  2175,  1087, 120, 4905,  337, 0.3, 0.4, 16},
-    {MotorId::HP2300, 600, 1, StepType::HALF, SANE_FALSE, SANE_TRUE , 63,   3,  8700,  4350, 120, 4905,  337, 0.3, 0.4, 16},
-    {MotorId::HP2300,1200, 1, StepType::HALF, SANE_FALSE, SANE_TRUE , 63,   3, 17400,  8700, 120, 4905,  337, 0.3, 0.4, 16},
+    {MotorId::HP2300,  75, 3, StepType::FULL, false, true , 63, 120,  8139,   560, 120, 4905,  337, 0.3, 0.4, 16},
+    {MotorId::HP2300, 150, 3, StepType::HALF, false, true , 63,  67,  7903,   543, 120, 4905,  337, 0.3, 0.4, 16},
+    {MotorId::HP2300, 300, 3, StepType::HALF, false, true , 63,   3,  2175,  1087, 120, 4905,  337, 0.3, 0.4, 16},
+    {MotorId::HP2300, 600, 3, StepType::HALF, false, true , 63,   3,  8700,  4350, 120, 4905,  337, 0.3, 0.4, 16},
+    {MotorId::HP2300,1200, 3, StepType::HALF, false, true , 63,   3, 17400,  8700, 120, 4905,  337, 0.3, 0.4, 16},
+    {MotorId::HP2300,  75, 1, StepType::FULL, false, true , 63, 120,  8139,   560, 120, 4905,  337, 0.3, 0.4, 16},
+    {MotorId::HP2300, 150, 1, StepType::HALF, false, true , 63,  67,  7903,   543, 120, 4905,  337, 0.3, 0.4, 16},
+    {MotorId::HP2300, 300, 1, StepType::HALF, false, true , 63,   3,  2175,  1087, 120, 4905,  337, 0.3, 0.4, 16},
+    {MotorId::HP2300, 600, 1, StepType::HALF, false, true , 63,   3,  8700,  4350, 120, 4905,  337, 0.3, 0.4, 16},
+    {MotorId::HP2300,1200, 1, StepType::HALF, false, true , 63,   3, 17400,  8700, 120, 4905,  337, 0.3, 0.4, 16},
     /* non half ccd settings for 300 dpi
-    {MotorId::HP2300, 300, 3, StepType::HALF, SANE_FALSE, SANE_TRUE , 63,  44,  5386,  2175, 120, 4905,  337, 0.3, 0.4, 16},
-    {MotorId::HP2300, 300, 1, StepType::HALF, SANE_FALSE, SANE_TRUE , 63,  44,  5386,  2175, 120, 4905,  337, 0.3, 0.4, 16},
+    {MotorId::HP2300, 300, 3, StepType::HALF, false, true , 63,  44,  5386,  2175, 120, 4905,  337, 0.3, 0.4, 16},
+    {MotorId::HP2300, 300, 1, StepType::HALF, false, true , 63,  44,  5386,  2175, 120, 4905,  337, 0.3, 0.4, 16},
     */
 
     /* MD5345/6471 motor settings */
     /* vfinal=(exposure/(1200/dpi))/step_type */
-    {MotorId::MD_5345,    50, 3, StepType::HALF  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   250, 255, 2000,  300, 0.3, 0.4, 64},
-    {MotorId::MD_5345,    75, 3, StepType::HALF  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   343, 255, 2000,  300, 0.3, 0.4, 64},
-    {MotorId::MD_5345,   100, 3, StepType::HALF  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   458, 255, 2000,  300, 0.3, 0.4, 64},
-    {MotorId::MD_5345,   150, 3, StepType::HALF  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   687, 255, 2000,  300, 0.3, 0.4, 64},
-    {MotorId::MD_5345,   200, 3, StepType::HALF  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   916, 255, 2000,  300, 0.3, 0.4, 64},
-    {MotorId::MD_5345,   300, 3, StepType::HALF  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,  1375, 255, 2000,  300, 0.3, 0.4, 64},
-    {MotorId::MD_5345,   400, 3, StepType::HALF  , SANE_FALSE, SANE_TRUE , 0,  32,  2000,  1833, 255, 2000,  300, 0.3, 0.4, 32},
-    {MotorId::MD_5345,   500, 3, StepType::HALF  , SANE_FALSE, SANE_TRUE , 0,  32,  2291,  2291, 255, 2000,  300, 0.3, 0.4, 32},
-    {MotorId::MD_5345,   600, 3, StepType::HALF  , SANE_FALSE, SANE_TRUE , 0,  32,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 32},
-    {MotorId::MD_5345,  1200, 3, StepType::QUARTER, SANE_FALSE, SANE_TRUE , 0,  16,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 146},
-    {MotorId::MD_5345,  2400, 3, StepType::QUARTER, SANE_FALSE, SANE_TRUE , 0,  16,  5500,  5500, 255, 2000,  300, 0.3, 0.4, 146},
-    {MotorId::MD_5345,    50, 1, StepType::HALF  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   250, 255, 2000,  300, 0.3, 0.4, 64},
-    {MotorId::MD_5345,    75, 1, StepType::HALF  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   343, 255, 2000,  300, 0.3, 0.4, 64},
-    {MotorId::MD_5345,   100, 1, StepType::HALF  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   458, 255, 2000,  300, 0.3, 0.4, 64},
-    {MotorId::MD_5345,   150, 1, StepType::HALF  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   687, 255, 2000,  300, 0.3, 0.4, 64},
-    {MotorId::MD_5345,   200, 1, StepType::HALF  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,   916, 255, 2000,  300, 0.3, 0.4, 64},
-    {MotorId::MD_5345,   300, 1, StepType::HALF  , SANE_FALSE, SANE_TRUE , 2, 255,  2500,  1375, 255, 2000,  300, 0.3, 0.4, 64},
-    {MotorId::MD_5345,   400, 1, StepType::HALF  , SANE_FALSE, SANE_TRUE , 0,  32,  2000,  1833, 255, 2000,  300, 0.3, 0.4, 32},
-    {MotorId::MD_5345,   500, 1, StepType::HALF  , SANE_FALSE, SANE_TRUE , 0,  32,  2291,  2291, 255, 2000,  300, 0.3, 0.4, 32},
-    {MotorId::MD_5345,   600, 1, StepType::HALF  , SANE_FALSE, SANE_TRUE , 0,  32,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 32},
-    {MotorId::MD_5345,  1200, 1, StepType::QUARTER, SANE_FALSE, SANE_TRUE , 0,  16,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 146},
-    {MotorId::MD_5345,  2400, 1, StepType::QUARTER, SANE_FALSE, SANE_TRUE , 0,  16,  5500,  5500, 255, 2000,  300, 0.3, 0.4, 146}, /* 5500 guessed */
+    {MotorId::MD_5345,    50, 3, StepType::HALF  , false, true , 2, 255,  2500,   250, 255, 2000,  300, 0.3, 0.4, 64},
+    {MotorId::MD_5345,    75, 3, StepType::HALF  , false, true , 2, 255,  2500,   343, 255, 2000,  300, 0.3, 0.4, 64},
+    {MotorId::MD_5345,   100, 3, StepType::HALF  , false, true , 2, 255,  2500,   458, 255, 2000,  300, 0.3, 0.4, 64},
+    {MotorId::MD_5345,   150, 3, StepType::HALF  , false, true , 2, 255,  2500,   687, 255, 2000,  300, 0.3, 0.4, 64},
+    {MotorId::MD_5345,   200, 3, StepType::HALF  , false, true , 2, 255,  2500,   916, 255, 2000,  300, 0.3, 0.4, 64},
+    {MotorId::MD_5345,   300, 3, StepType::HALF  , false, true , 2, 255,  2500,  1375, 255, 2000,  300, 0.3, 0.4, 64},
+    {MotorId::MD_5345,   400, 3, StepType::HALF  , false, true , 0,  32,  2000,  1833, 255, 2000,  300, 0.3, 0.4, 32},
+    {MotorId::MD_5345,   500, 3, StepType::HALF  , false, true , 0,  32,  2291,  2291, 255, 2000,  300, 0.3, 0.4, 32},
+    {MotorId::MD_5345,   600, 3, StepType::HALF  , false, true , 0,  32,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 32},
+    {MotorId::MD_5345,  1200, 3, StepType::QUARTER, false, true , 0,  16,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 146},
+    {MotorId::MD_5345,  2400, 3, StepType::QUARTER, false, true , 0,  16,  5500,  5500, 255, 2000,  300, 0.3, 0.4, 146},
+    {MotorId::MD_5345,    50, 1, StepType::HALF  , false, true , 2, 255,  2500,   250, 255, 2000,  300, 0.3, 0.4, 64},
+    {MotorId::MD_5345,    75, 1, StepType::HALF  , false, true , 2, 255,  2500,   343, 255, 2000,  300, 0.3, 0.4, 64},
+    {MotorId::MD_5345,   100, 1, StepType::HALF  , false, true , 2, 255,  2500,   458, 255, 2000,  300, 0.3, 0.4, 64},
+    {MotorId::MD_5345,   150, 1, StepType::HALF  , false, true , 2, 255,  2500,   687, 255, 2000,  300, 0.3, 0.4, 64},
+    {MotorId::MD_5345,   200, 1, StepType::HALF  , false, true , 2, 255,  2500,   916, 255, 2000,  300, 0.3, 0.4, 64},
+    {MotorId::MD_5345,   300, 1, StepType::HALF  , false, true , 2, 255,  2500,  1375, 255, 2000,  300, 0.3, 0.4, 64},
+    {MotorId::MD_5345,   400, 1, StepType::HALF  , false, true , 0,  32,  2000,  1833, 255, 2000,  300, 0.3, 0.4, 32},
+    {MotorId::MD_5345,   500, 1, StepType::HALF  , false, true , 0,  32,  2291,  2291, 255, 2000,  300, 0.3, 0.4, 32},
+    {MotorId::MD_5345,   600, 1, StepType::HALF  , false, true , 0,  32,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 32},
+    {MotorId::MD_5345,  1200, 1, StepType::QUARTER, false, true , 0,  16,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 146},
+    {MotorId::MD_5345,  2400, 1, StepType::QUARTER, false, true , 0,  16,  5500,  5500, 255, 2000,  300, 0.3, 0.4, 146}, /* 5500 guessed */
 };
 
 class CommandSetGl646 : public CommandSet

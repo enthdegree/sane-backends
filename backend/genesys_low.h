@@ -348,7 +348,7 @@ void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set);
     buffer_acceleration_steps, the number of steps for acceleration when buffer condition is met,
     i.e. the number written to REG_FWDSTEP.
 */
-void sanei_genesys_calculate_zmod(SANE_Bool two_table,
+void sanei_genesys_calculate_zmod(bool two_table,
                                   uint32_t exposure_time,
                                   const std::vector<uint16_t>& slope_table,
                                   unsigned acceleration_steps,
@@ -384,7 +384,7 @@ SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table, 
 
 SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint16_t>& slope_table,
                                           int steps, int step_type, int exposure_time,
-                                          SANE_Bool same_speed, double yres);
+                                          bool same_speed, double yres);
 
 SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
                                            std::vector<uint16_t>& slope_table, int max_step,
@@ -418,7 +418,7 @@ void sanei_genesys_write_pnm_file(const char* filename, const Image& image);
 extern void sanei_genesys_write_pnm_file16(const char* filename, const uint16_t *data, unsigned channels,
                                            unsigned pixels_per_line, unsigned lines);
 
-extern void sanei_genesys_test_buffer_empty(Genesys_Device* dev, SANE_Bool* empty);
+void sanei_genesys_test_buffer_empty(Genesys_Device* dev, bool* empty);
 
 extern void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, size_t size);
 
@@ -459,7 +459,7 @@ inline SensorExposure sanei_genesys_fixup_exposure(SensorExposure exposure)
 
 extern void sanei_genesys_wait_for_home(Genesys_Device* dev);
 
-extern void sanei_genesys_asic_init(Genesys_Device* dev, SANE_Bool cold);
+extern void sanei_genesys_asic_init(Genesys_Device* dev, bool cold);
 
 Motor_Profile* sanei_genesys_get_motor_profile(Motor_Profile *motors, MotorId motor_id,
                                                int exposure);

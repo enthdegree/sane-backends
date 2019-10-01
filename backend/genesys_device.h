@@ -158,10 +158,10 @@ struct Genesys_Model
     ColorOrder line_mode_color_order = ColorOrder::RGB;
 
     // Is this a CIS or CCD scanner?
-    SANE_Bool is_cis = false;
+    bool is_cis = false;
 
     // Is this sheetfed scanner?
-    SANE_Bool is_sheetfed = false;
+    bool is_sheetfed = false;
 
     // sensor type
     SensorId sensor_id = SensorId::UNKNOWN;
@@ -275,17 +275,17 @@ struct Genesys_Device
     std::vector<uint16_t> white_average_data;
     std::vector<uint16_t> dark_average_data;
 
-    SANE_Bool already_initialized = 0;
+    bool already_initialized = false;
     SANE_Int scanhead_position_in_steps = 0;
 
-    SANE_Bool read_active = 0;
+    bool read_active = false;
     // signal wether the park command has been issued
-    SANE_Bool parking = 0;
+    bool parking = false;
 
     // for sheetfed scanner's, is TRUE when there is a document in the scanner
-    SANE_Bool document = 0;
+    bool document = false;
 
-    SANE_Bool needs_home_ta = 0;
+    bool needs_home_ta = false;
 
     Genesys_Buffer read_buffer;
 
@@ -332,7 +332,7 @@ struct Genesys_Device
     ImageBuffer pipeline_buffer;
 
     // when true the scanned picture is first buffered to allow software image enhancements
-    SANE_Bool buffer_image = 0;
+    bool buffer_image = false;
 
     // image buffer where the scanned picture is stored
     std::vector<uint8_t> img_buffer;

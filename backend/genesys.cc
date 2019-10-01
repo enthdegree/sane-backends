@@ -367,7 +367,7 @@ SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table,
       t2 = vstart;
       for (i = 0; i < steps && i < use_steps - 1 && i < max_steps; i++, c++)
 	{
-	  t = pow (((double) i) / ((double) (steps - 1)), g);
+        t = std::pow(static_cast<double>(i) / static_cast<double>(steps - 1), g);
 	  t2 = vstart * (1 - t) + t * vend;
             if (t2 < stop_at) {
                 break;
@@ -579,7 +579,7 @@ SANE_Int genesys_create_slope_table2(Genesys_Device* dev, std::vector<uint16_t>&
     {
       for (i = 0; i < steps; i++)
 	{
-	  t = pow (((double) i) / ((double) (steps - 1)), g);
+            t = std::pow(static_cast<double>(i) / static_cast<double>(steps - 1), g);
 	  slope_table[i] = vstart * (1 - t) + t * vend;
 	  DBG (DBG_io, "slope_table[%3d] = %5d\n", i, slope_table[i]);
 	  sum += slope_table[i];
@@ -639,7 +639,7 @@ SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint
     {
       for (i = 0; i < steps; i++)
 	{
-	  slope_table[i] = (uint16_t) time_period;
+            slope_table[i] = static_cast<std::uint16_t>(time_period);
 	  sum_time += time_period;
 
 	  DBG (DBG_io, "slope_table[%d] = %d\n", i, time_period);
@@ -675,7 +675,7 @@ SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint
 
     if (dev->model->motor_id == MotorId::ST24) {
       steps = 255;
-      switch ((int) yres)
+        switch (static_cast<int>(yres))
 	{
 	case 2400:
 	  g = 0.1672;
@@ -720,7 +720,7 @@ SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint
 
       for (i = 0; i < same_step; i++)
 	{
-	  slope_table[i] = (uint16_t) time_period;
+        slope_table[i] = static_cast<std::uint16_t>(time_period);
 	  sum_time += time_period;
 
 	  DBG (DBG_io, "slope_table[%d] = %d\n", i, time_period);
@@ -732,7 +732,7 @@ SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint
 
   for (i = 0; i < steps; i++)
     {
-      double j = ((double) i) - same_step + 1;	/* start from 1/16 speed */
+        double j = static_cast<double>(i) - same_step + 1;	/* start from 1/16 speed */
 
       if (j <= 0)
 	t = 0;
@@ -745,10 +745,11 @@ SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint
 		    (start_speed + (1 - start_speed) * t));
 
       time_period = time_period / divider;
-      if (time_period > 65535)
-	time_period = 65535;
+        if (time_period > 65535) {
+            time_period = 65535;
+        }
 
-      slope_table[i] = (uint16_t) time_period;
+        slope_table[i] = static_cast<std::uint16_t>(time_period);
       sum_time += time_period;
 
       DBG (DBG_io, "slope_table[%d] = %d\n", i, slope_table[i]);
@@ -837,7 +838,7 @@ sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
     exposure = exposure_by_led;
 
     DBG(DBG_info, "%s: ydpi=%d, step=%d, endpixel=%d led=%d => exposure=%d\n", __func__,
-        (int)ydpi, step_type, endpixel, exposure_by_led, exposure);
+        static_cast<int>(ydpi), step_type, endpixel, exposure_by_led, exposure);
   return exposure;
 }
 
@@ -1284,7 +1285,7 @@ static uint8_t genesys_adjust_gain(double* applied_multi, double multi, uint8_t 
 
   voltage *= multi;
 
-  new_gain = (uint8_t) ((voltage - 0.5) * 4);
+    new_gain = static_cast<std::uint8_t>((voltage - 0.5) * 4);
   if (new_gain > 0x0e)
     new_gain = 0x0e;
 
@@ -1383,7 +1384,7 @@ genesys_average_black (Genesys_Device * dev, int channel,
 
   DBG(DBG_proc, "%s = %d\n", __func__, sum / pixels);
 
-  return (int) (sum / pixels);
+    return sum / pixels;
 }
 
 
@@ -1475,8 +1476,7 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
 	  for (j = 0; j < 3; j++)
 	    {
 
-	      x =
-		(double) (dark[(i - 2) * 3 + j] -
+                x = static_cast<double>(dark[(i - 2) * 3 + j] -
 			  dark[(i - 1) * 3 + j]) * 254 / (offset[i - 1] / 2 -
 							  offset[i - 2] / 2);
 	      y = x - x * (offset[i - 1] / 2) / 254 - dark[(i - 1) * 3 + j];
@@ -1515,8 +1515,9 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
           std::vector<uint8_t> all_data_8(size * 4 / 2);
 	  unsigned int count;
 
-	  for (count = 0; count < (unsigned int) (size * 4 / 2); count++)
-	    all_data_8[count] = all_data[count * 2 + 1];
+        for (count = 0; count < static_cast<unsigned>(size * 4 / 2); count++) {
+            all_data_8[count] = all_data[count * 2 + 1];
+        }
         sanei_genesys_write_pnm_file("gl_coarse.pnm", all_data_8.data(), 8, channels, size / 6, 4);
 	}
 
@@ -1803,12 +1804,11 @@ static void genesys_white_shading_calibration(Genesys_Device* dev, const Genesys
 static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
                                                    const Genesys_Sensor& sensor)
 {
-    DBG_HELPER_ARGS(dbg, "lines = %d", (unsigned int)dev->calib_lines);
+    DBG_HELPER_ARGS(dbg, "lines = %zu", dev->calib_lines);
   size_t size;
   uint32_t pixels_per_line;
   uint8_t channels;
   unsigned int x;
-  int y;
   uint32_t dark, white, dark_sum, white_sum, dark_count, white_count, col,
     dif;
 
@@ -1880,7 +1880,7 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
       dark = 0xffff;
       white = 0;
 
-      for (y = 0; y < (int)dev->calib_lines; y++)
+            for (std::size_t y = 0; y < dev->calib_lines; y++)
 	{
 	  col = calibration_data[(x + y * pixels_per_line * channels) * 2];
 	  col |=
@@ -1904,7 +1904,7 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
       white_count = 0;
       white_sum = 0;
 
-      for (y = 0; y < (int)dev->calib_lines; y++)
+            for (std::size_t y = 0; y < dev->calib_lines; y++)
 	{
 	  col = calibration_data[(x + y * pixels_per_line * channels) * 2];
 	  col |=
@@ -3379,10 +3379,10 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
     debug_dump(DBG_info, dev->current_setup);
     debug_dump(DBG_info, dev->session.params);
 
-  DBG(DBG_info, "%s: frontend requested %lu bytes\n", __func__, (u_long) * len);
+    DBG(DBG_info, "%s: frontend requested %zu bytes\n", __func__, *len);
+    DBG(DBG_info, "%s: bytes_to_read=%zu, total_bytes_read=%zu\n", __func__,
+        dev->total_bytes_to_read, dev->total_bytes_read);
 
-  DBG(DBG_info, "%s: bytes_to_read=%lu, total_bytes_read=%lu\n", __func__,
-      (u_long) dev->total_bytes_to_read, (u_long) dev->total_bytes_read);
   /* is there data left to scan */
   if (dev->total_bytes_read >= dev->total_bytes_to_read)
     {
@@ -3463,7 +3463,7 @@ Problems with the first approach:
         }
     }
 
-  DBG(DBG_proc, "%s: completed, %lu bytes read\n", __func__, (u_long) bytes);
+    DBG(DBG_proc, "%s: completed, %zu bytes read\n", __func__, bytes);
 }
 
 
@@ -3957,7 +3957,7 @@ static void init_options(Genesys_Scanner* s)
 
     unsigned min_dpi = *std::min_element(resolutions.begin(), resolutions.end());
 
-    dpi_list = (SANE_Word*) malloc((resolutions.size() + 1) * sizeof(SANE_Word));
+    dpi_list = reinterpret_cast<SANE_Word*>(std::malloc((resolutions.size() + 1) * sizeof(SANE_Word)));
     if (!dpi_list) {
         throw SaneException(SANE_STATUS_NO_MEM);
     }
@@ -4919,7 +4919,7 @@ sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
     }
     s_sane_devices_ptrs->push_back(nullptr);
 
-    *((SANE_Device ***)device_list) = s_sane_devices_ptrs->data();
+    *const_cast<SANE_Device***>(device_list) = s_sane_devices_ptrs->data();
 
   return SANE_STATUS_GOOD;
 }
@@ -5122,10 +5122,12 @@ void sane_close(SANE_Handle handle)
 const SANE_Option_Descriptor *
 sane_get_option_descriptor_impl(SANE_Handle handle, SANE_Int option)
 {
-  Genesys_Scanner *s = (Genesys_Scanner*) handle;
+    Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
 
-  if ((unsigned) option >= NUM_OPTIONS)
-    return 0;
+    if (static_cast<unsigned>(option) >= NUM_OPTIONS) {
+        return nullptr;
+    }
+
   DBG(DBG_io2, "%s: option = %s (%d)\n", __func__, s->opt[option].name, option);
   return s->opt + option;
 }
@@ -5536,8 +5538,8 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
             }
 
           /* assign new values */
-          free((void *)(size_t)s->opt[OPT_TL_X].constraint.range);
-          free((void *)(size_t)s->opt[OPT_TL_Y].constraint.range);
+          std::free(reinterpret_cast<void*>(const_cast<SANE_Range*>(s->opt[OPT_TL_X].constraint.range)));
+          std::free(reinterpret_cast<void*>(const_cast<SANE_Range*>(s->opt[OPT_TL_Y].constraint.range)));
           s->opt[OPT_TL_X].constraint.range = x_range;
           s->pos_top_left_x = 0;
           s->opt[OPT_TL_Y].constraint.range = y_range;
@@ -5663,7 +5665,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
       break;
 
     case OPT_GAMMA_VECTOR:
-      table = (SANE_Word *) val;
+        table = reinterpret_cast<SANE_Word*>(val);
         option_size = s->opt[option].size / sizeof (SANE_Word);
 
         s->dev->gamma_override_tables[GENESYS_RED].resize(option_size);
@@ -5676,7 +5678,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         }
       break;
     case OPT_GAMMA_VECTOR_R:
-      table = (SANE_Word *) val;
+        table = reinterpret_cast<SANE_Word*>(val);
         option_size = s->opt[option].size / sizeof (SANE_Word);
         s->dev->gamma_override_tables[GENESYS_RED].resize(option_size);
         for (i = 0; i < option_size; i++) {
@@ -5684,7 +5686,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         }
       break;
     case OPT_GAMMA_VECTOR_G:
-      table = (SANE_Word *) val;
+        table = reinterpret_cast<SANE_Word*>(val);
         option_size = s->opt[option].size / sizeof (SANE_Word);
         s->dev->gamma_override_tables[GENESYS_GREEN].resize(option_size);
         for (i = 0; i < option_size; i++) {
@@ -5692,7 +5694,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         }
       break;
     case OPT_GAMMA_VECTOR_B:
-      table = (SANE_Word *) val;
+        table = reinterpret_cast<SANE_Word*>(val);
         option_size = s->opt[option].size / sizeof (SANE_Word);
         s->dev->gamma_override_tables[GENESYS_BLUE].resize(option_size);
         for (i = 0; i < option_size; i++) {
@@ -5748,7 +5750,7 @@ SANE_Status
 sane_control_option_impl(SANE_Handle handle, SANE_Int option,
                          SANE_Action action, void *val, SANE_Int * info)
 {
-    Genesys_Scanner *s = (Genesys_Scanner*) handle;
+    Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
     auto action_str = (action == SANE_ACTION_GET_VALUE) ? "get" :
                       (action == SANE_ACTION_SET_VALUE) ? "set" :
                       (action == SANE_ACTION_SET_AUTO) ? "set_auto" : "unknown";
@@ -5838,7 +5840,7 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option,
 SANE_Status sane_get_parameters_impl(SANE_Handle handle, SANE_Parameters* params)
 {
     DBG_HELPER(dbg);
-  Genesys_Scanner *s = (Genesys_Scanner*) handle;
+    Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
 
   /* don't recompute parameters once data reading is active, ie during scan */
     if (!s->dev->read_active) {
@@ -5874,7 +5876,7 @@ SANE_Status sane_get_parameters(SANE_Handle handle, SANE_Parameters* params)
 SANE_Status sane_start_impl(SANE_Handle handle)
 {
     DBG_HELPER(dbg);
-  Genesys_Scanner *s = (Genesys_Scanner*) handle;
+    Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
   SANE_Status status=SANE_STATUS_GOOD;
 
   if (s->pos_top_left_x >= s->pos_bottom_right_x)
@@ -5963,7 +5965,7 @@ SANE_Status
 sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
 {
     DBG_HELPER(dbg);
-  Genesys_Scanner *s = (Genesys_Scanner*) handle;
+    Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
   Genesys_Device *dev;
   size_t local_len;
 
@@ -6001,8 +6003,8 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
     }
 
   DBG(DBG_proc, "%s: start, %d maximum bytes required\n", __func__, max_len);
-  DBG(DBG_io2, "%s: bytes_to_read=%lu, total_bytes_read=%lu\n", __func__,
-      (u_long) dev->total_bytes_to_read, (u_long) dev->total_bytes_read);
+    DBG(DBG_io2, "%s: bytes_to_read=%zu, total_bytes_read=%zu\n", __func__,
+        dev->total_bytes_to_read, dev->total_bytes_read);
 
   if(dev->total_bytes_read>=dev->total_bytes_to_read)
     {
@@ -6049,7 +6051,7 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
 
           /* return data from lineart buffer if any, up to the available amount */
           local_len = max_len;
-          if((size_t)max_len>dev->binarize_buffer.avail())
+          if (static_cast<std::size_t>(max_len) > dev->binarize_buffer.avail())
             {
               local_len=dev->binarize_buffer.avail();
             }
@@ -6076,8 +6078,7 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
     }
 
   *len = local_len;
-  if(local_len>(size_t)max_len)
-    {
+    if (local_len > static_cast<std::size_t>(max_len)) {
       fprintf (stderr, "[genesys] sane_read: returning incorrect length!!\n");
     }
   DBG(DBG_proc, "%s: %d bytes returned\n", __func__, *len);
@@ -6095,7 +6096,7 @@ SANE_Status sane_read(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SAN
 void sane_cancel_impl(SANE_Handle handle)
 {
     DBG_HELPER(dbg);
-  Genesys_Scanner *s = (Genesys_Scanner*) handle;
+    Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
 
     // end binary logging if needed
     if (s->dev->binary != nullptr) {
@@ -6144,7 +6145,7 @@ sane_set_io_mode_impl(SANE_Handle handle, SANE_Bool non_blocking)
 {
     DBG_HELPER_ARGS(dbg, "handle = %p, non_blocking = %s", handle,
                     non_blocking == SANE_TRUE ? "true" : "false");
-  Genesys_Scanner *s = (Genesys_Scanner*) handle;
+    Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
 
   if (!s->scanning)
     {
@@ -6168,7 +6169,7 @@ sane_set_io_mode(SANE_Handle handle, SANE_Bool non_blocking)
 SANE_Status
 sane_get_select_fd_impl(SANE_Handle handle, SANE_Int * fd)
 {
-    DBG_HELPER_ARGS(dbg, "handle = %p, fd = %p", handle, (void *) fd);
+    DBG_HELPER_ARGS(dbg, "handle = %p, fd = %p", handle, reinterpret_cast<void*>(fd));
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
 
   if (!s->scanning)

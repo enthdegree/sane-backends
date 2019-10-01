@@ -55,27 +55,27 @@
 
 bool CommandSetGl124::get_fast_feed_bit(Genesys_Register_Set* regs) const
 {
-    return (bool)(regs->get8(REG02) & REG02_FASTFED);
+    return static_cast<bool>(regs->get8(REG02) & REG02_FASTFED);
 }
 
 bool CommandSetGl124::get_filter_bit(Genesys_Register_Set* regs) const
 {
-    return (bool)(regs->get8(REG04) & REG04_FILTER);
+    return static_cast<bool>(regs->get8(REG04) & REG04_FILTER);
 }
 
 bool CommandSetGl124::get_lineart_bit(Genesys_Register_Set* regs) const
 {
-    return (bool)(regs->get8(REG04) & REG04_LINEART);
+    return static_cast<bool>(regs->get8(REG04) & REG04_LINEART);
 }
 
 bool CommandSetGl124::get_bitset_bit(Genesys_Register_Set* regs) const
 {
-    return (bool)(regs->get8(REG04) & REG04_BITSET);
+    return static_cast<bool>(regs->get8(REG04) & REG04_BITSET);
 }
 
 bool CommandSetGl124::get_gain4_bit(Genesys_Register_Set* regs) const
 {
-    return (bool)(regs->get8(REG06) & REG06_GAIN4);
+    return static_cast<bool>(regs->get8(REG06) & REG06_GAIN4);
 }
 
 bool CommandSetGl124::test_buffer_empty_bit(SANE_Byte val) const
@@ -1029,8 +1029,8 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->total_bytes_read = 0;
     dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
 
-    DBG(DBG_info, "%s: total bytes to send to frontend = %lu\n", __func__,
-        (u_long) dev->total_bytes_to_read);
+    DBG(DBG_info, "%s: total bytes to send to frontend = %zu\n", __func__,
+        dev->total_bytes_to_read);
 }
 
 void CommandSetGl124::calculate_current_setup(Genesys_Device * dev,
@@ -1777,7 +1777,7 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     uint8_t *ptr, *src;
 
   /* logical size of a color as seen by generic code of the frontend */
-  length = (uint32_t) (size / 3);
+    length = size / 3;
     std::uint32_t strpixel = dev->session.pixel_startx;
     std::uint32_t endpixel = dev->session.pixel_endx;
     segcnt = dev->reg.get24(REG_SEGCNT);
@@ -2362,7 +2362,7 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 	}
       max[j] = max[j] / (pixels/2);
 
-      gain[j] = ((float) sensor.gain_white_ref*coeff) / max[j];
+      gain[j] = (static_cast<float>(sensor.gain_white_ref) * coeff) / max[j];
 
       /* turn logical gain value into gain code, checking for overflow */
       code = 283 - 208 / gain[j];

@@ -1314,7 +1314,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   dev->total_bytes_read = 0;
     dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
 
-  DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
+    DBG(DBG_info, "%s: total bytes to send = %zu\n", __func__, dev->total_bytes_to_read);
 }
 
 void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
@@ -2812,7 +2812,8 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   if (DBG_LEVEL >= DBG_data)
     {
       sanei_genesys_write_file("gl843_offset_all_desc.txt",
-                               (uint8_t*) debug_image_info.data(), debug_image_info.size());
+                               reinterpret_cast<const std::uint8_t*>(debug_image_info.data()),
+                               debug_image_info.size());
       sanei_genesys_write_pnm_file("gl843_offset_all.pnm",
                                    debug_image.data(), bpp, channels, pixels, debug_image_lines);
     }
@@ -2945,7 +2946,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
       dev->frontend.set_gain(ch, code);
 
         DBG(DBG_proc, "%s: channel %d, max=%d, target=%d, setting:%d\n", __func__, ch, curr_output,
-            (int) target_value, code);
+            static_cast<int>(target_value), code);
     }
 
     if (dev->model->is_cis) {
@@ -3297,8 +3298,8 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
       if (DBG_LEVEL >= DBG_data)
 	{
           char fn[40];
-          snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
-                   black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
+            std::snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
+                          black ? "black" : "white", forward ? "fwd" : "bwd", pass);
             sanei_genesys_write_pnm_file(fn, data);
 	}
 

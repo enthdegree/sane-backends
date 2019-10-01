@@ -1825,7 +1825,7 @@ dummy \ scanned lines
     dev->total_bytes_read = 0;
     dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
 
-  DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
+    DBG(DBG_info, "%s: total bytes to send = %zu\n", __func__, dev->total_bytes_to_read);
 }
 
 void CommandSetGl841::calculate_current_setup(Genesys_Device * dev,
@@ -2045,8 +2045,7 @@ void CommandSetGl841::set_powersaving(Genesys_Device* dev, int delay /* in minut
     }
 
   time = delay * 1000 * 60;	/* -> msec */
-  exposure_time =
-    (uint32_t) (time * 32000.0 /
+  exposure_time = static_cast<std::uint32_t>(time * 32000.0 /
                  (24.0 * 64.0 * (local_reg.find_reg(0x03).value & REG03_LAMPTIM) *
 		  1024.0) + 0.5);
   /* 32000 = system clock, 24 = clocks per pixel */
@@ -2678,7 +2677,7 @@ void CommandSetGl841::init_regs_for_coarse_calibration(Genesys_Device* dev,
 void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                             Genesys_Register_Set& regs) const
 {
-    DBG_HELPER_ARGS(dbg, "lines = %d", (int)(dev->calib_lines));
+    DBG_HELPER_ARGS(dbg, "lines = %zu", dev->calib_lines);
   SANE_Int ydpi;
   float starty=0;
 
@@ -3725,7 +3724,7 @@ void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
                                            int* total_size) const
 {
     DBG_HELPER(dbg);
-  int num_pixels = (int) (4 * 300);
+    int num_pixels = 4 * 300;
   *local_reg = dev->reg;
 
 /* okay.. these should be defaults stored somewhere */
@@ -4210,7 +4209,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     }
 
   /* data is whole line, we extract only the part for the scanned area */
-  length = (uint32_t) (size / 3);
+    length = static_cast<std::uint32_t>(size / 3);
     unsigned strpixel = dev->session.pixel_startx;
     unsigned endpixel = dev->session.pixel_endx;
 
@@ -4225,7 +4224,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   /* binary data logging */
   if(DBG_LEVEL>=DBG_data)
     {
-      dev->binary=fopen("binary.pnm","wb");
+        dev->binary = std::fopen("binary.pnm","wb");
         lines = dev->reg.get24(REG_LINCNT);
         channels = dev->session.params.channels;
         if (dev->binary != nullptr) {

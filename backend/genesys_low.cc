@@ -84,7 +84,7 @@ void sanei_genesys_init_cmd_set(Genesys_Device* dev)
 /*                  General IO and debugging functions                      */
 /* ------------------------------------------------------------------------ */
 
-void sanei_genesys_write_file(const char* filename, uint8_t* data, size_t length)
+void sanei_genesys_write_file(const char* filename, const std::uint8_t* data, size_t length)
 {
     DBG_HELPER(dbg);
     FILE *out;
@@ -286,9 +286,9 @@ void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* d
     }
 
     if (is_addr_used) {
-        DBG(DBG_io, "%s: requesting %lu bytes from 0x%02x addr\n", __func__, (u_long) len, addr);
+        DBG(DBG_io, "%s: requesting %zu bytes from 0x%02x addr\n", __func__, len, addr);
     } else {
-        DBG(DBG_io, "%s: requesting %lu bytes\n", __func__, (u_long) len);
+        DBG(DBG_io, "%s: requesting %zu bytes\n", __func__, len);
     }
 
     if (len == 0)
@@ -320,12 +320,11 @@ void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* d
             sanei_genesys_bulk_read_data_send_header(dev, size);
         }
 
-        DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) size);
+        DBG(DBG_io2, "%s: trying to read %zu bytes of data\n", __func__, size);
 
         dev->usb_dev.bulk_read(data, &size);
 
-        DBG(DBG_io2, "%s: read %lu bytes, %lu remaining\n", __func__,
-            (u_long) size, (u_long) (target - size));
+        DBG(DBG_io2, "%s: read %zu bytes, %zu remaining\n", __func__, size, target - size);
 
         target -= size;
         data += size;

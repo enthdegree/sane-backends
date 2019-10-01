@@ -408,7 +408,7 @@ extern void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Se
                                                  const uint8_t* src_data, int start_pixel, int dpi,
                                                  int width, int height);
 
-extern void sanei_genesys_write_file(const char* filename, uint8_t* data, size_t length);
+extern void sanei_genesys_write_file(const char* filename, const std::uint8_t* data, size_t length);
 
 extern void sanei_genesys_write_pnm_file(const char* filename, const std::uint8_t* data, int depth,
                                          int channels, int pixels_per_line, int lines);

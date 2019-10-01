@@ -84,9 +84,7 @@ static void gl841_set_buffer_address_gamma(Genesys_Device* dev, uint32_t addr)
 
 bool CommandSetGl841::get_fast_feed_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, 0x02);
+    GenesysRegister *r = sanei_genesys_get_address(regs, 0x02);
   if (r && (r->value & REG02_FASTFED))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -94,9 +92,7 @@ bool CommandSetGl841::get_fast_feed_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl841::get_filter_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, 0x04);
+    GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
   if (r && (r->value & REG04_FILTER))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -104,9 +100,7 @@ bool CommandSetGl841::get_filter_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl841::get_lineart_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, 0x04);
+    GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
   if (r && (r->value & REG04_LINEART))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -114,9 +108,7 @@ bool CommandSetGl841::get_lineart_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl841::get_bitset_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, 0x04);
+    GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
   if (r && (r->value & REG04_BITSET))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -124,9 +116,7 @@ bool CommandSetGl841::get_bitset_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl841::get_gain4_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, 0x06);
+    GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);
   if (r && (r->value & REG06_GAIN4))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -1175,7 +1165,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
 	scan_exposure_time,
 	scan_yres,
 	&slow_slope_steps,
-    NULL);
+    nullptr);
 
      sanei_genesys_create_slope_table3 (
 	dev,
@@ -1185,7 +1175,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
 	0,
 	scan_yres,
 	&back_slope_steps,
-    NULL);
+    nullptr);
 
     if (feed_steps < (slow_slope_steps >> scan_step_type)) {
 	/*TODO: what should we do here?? go back to exposure calculation?*/
@@ -3854,7 +3844,7 @@ bool CommandSetGl841::is_compatible_calibration(Genesys_Device* dev, const Genes
 #ifdef HAVE_SYS_TIME_H
   if(for_overwrite == SANE_FALSE)
     {
-      gettimeofday (&time, NULL);
+      gettimeofday (&time, nullptr);
       if ((time.tv_sec - cache->last_calibration > 30 * 60)
           && (dev->model->is_sheetfed == SANE_FALSE))
         {
@@ -4281,8 +4271,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
       dev->binary=fopen("binary.pnm","wb");
         lines = dev->reg.get24(REG_LINCNT);
         channels = dev->session.params.channels;
-      if(dev->binary!=NULL)
-        {
+        if (dev->binary != nullptr) {
           fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels,lines/channels,255);
         }
     }

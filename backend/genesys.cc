@@ -91,14 +91,14 @@ static SANE_String_Const mode_list[] = {
   SANE_VALUE_SCAN_MODE_GRAY,
   /* SANE_TITLE_HALFTONE,  currently unused */
   SANE_VALUE_SCAN_MODE_LINEART,
-  0
+    nullptr
 };
 
 static SANE_String_Const color_filter_list[] = {
   SANE_I18N ("Red"),
   SANE_I18N ("Green"),
   SANE_I18N ("Blue"),
-  0
+    nullptr
 };
 
 static SANE_String_Const cis_color_filter_list[] = {
@@ -106,20 +106,20 @@ static SANE_String_Const cis_color_filter_list[] = {
   SANE_I18N ("Green"),
   SANE_I18N ("Blue"),
   SANE_I18N ("None"),
-  0
+    nullptr
 };
 
 static SANE_String_Const source_list[] = {
   SANE_I18N (STR_FLATBED),
   SANE_I18N (STR_TRANSPARENCY_ADAPTER),
-  0
+    nullptr
 };
 
 static const char* source_list_infrared[] = {
     SANE_I18N(STR_FLATBED),
     SANE_I18N(STR_TRANSPARENCY_ADAPTER),
     SANE_I18N(STR_TRANSPARENCY_ADAPTER_INFRARED),
-    0
+    nullptr
 };
 
 static SANE_Range swdespeck_range = {
@@ -2772,7 +2772,7 @@ static void genesys_save_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   found_cache_it->calib_channels = dev->calib_channels;
 
 #ifdef HAVE_SYS_TIME_H
-  gettimeofday(&time,NULL);
+    gettimeofday(&time, nullptr);
   found_cache_it->last_calibration = time.tv_sec;
 #endif
 }
@@ -3783,15 +3783,12 @@ init_gamma_vector_option (Genesys_Scanner * scanner, int option)
 /**
  * allocate a geometry range
  * @param size maximum size of the range
- * @return a pointer to a valid range or NULL
+ * @return a pointer to a valid range or nullptr
  */
 static SANE_Range *create_range(SANE_Fixed size)
 {
-SANE_Range *range=NULL;
-
-  range=(SANE_Range *)malloc(sizeof(SANE_Range));
-  if(range!=NULL)
-    {
+    SANE_Range* range = reinterpret_cast<SANE_Range*>(std::malloc(sizeof(SANE_Range)));
+    if (range != nullptr) {
       range->min = SANE_FIX (0.0);
       range->max = size;
       range->quant = SANE_FIX (0.0);
@@ -3828,16 +3825,13 @@ static std::string calibration_filename(Genesys_Device *currdev)
    * 6 - then resort to current dir
    */
   ptr = getenv ("HOME");
-  if(ptr==NULL)
-    {
+    if (ptr == nullptr) {
       ptr = getenv ("USERPROFILE");
     }
-  if(ptr==NULL)
-    {
+    if (ptr == nullptr) {
       ptr = getenv ("TMPDIR");
     }
-  if(ptr==NULL)
-    {
+    if (ptr == nullptr) {
       ptr = getenv ("TMP");
     }
 
@@ -4012,14 +4006,12 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   x_range=create_range(model->x_size);
-  if(x_range==NULL)
-    {
+    if (x_range == nullptr) {
         throw SaneException(SANE_STATUS_NO_MEM);
     }
 
   y_range=create_range(model->y_size);
-  if(y_range==NULL)
-    {
+    if (y_range == nullptr) {
         throw SaneException(SANE_STATUS_NO_MEM);
     }
 
@@ -4519,16 +4511,17 @@ check_present (SANE_String_Const devname) noexcept
 static SANE_Status
 attach (SANE_String_Const devname, Genesys_Device ** devp, SANE_Bool may_wait)
 {
-    DBG_HELPER_ARGS(dbg, "devp %s NULL, may_wait = %d", devp ? "!=" : "==", may_wait);
+    DBG_HELPER_ARGS(dbg, "devp %s nullptr, may_wait = %d", devp ? "!=" : "==", may_wait);
 
-  Genesys_Device *dev = 0;
+    Genesys_Device *dev = nullptr;
 
-  if (devp)
-    *devp = 0;
+    if (devp) {
+        *devp = nullptr;
+    }
 
   if (!devname)
     {
-      DBG(DBG_error, "%s: devname == NULL\n", __func__);
+        DBG(DBG_error, "%s: devname == nullptr\n", __func__);
       return SANE_STATUS_INVAL;
     }
 
@@ -4642,9 +4635,9 @@ probe_genesys_devices (void)
   SANEI_Config config;
   SANE_Status status = SANE_STATUS_GOOD;
 
-  /* set configuration options structure : no option for this backend */
-  config.descriptors = NULL;
-  config.values = NULL;
+    // set configuration options structure : no option for this backend
+    config.descriptors = nullptr;
+    config.values = nullptr;
   config.count = 0;
 
   /* generic configure and attach function */
@@ -4971,7 +4964,7 @@ SANE_Status
 sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 {
     DBG_HELPER_ARGS(dbg, "devicename = %s", devicename);
-  Genesys_Device *dev = nullptr;
+    Genesys_Device* dev = nullptr;
 
   /* devicename="" or devicename="genesys" are default values that use
    * first available device
@@ -5034,7 +5027,7 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   s->dev->read_active = SANE_FALSE;
   s->dev->force_calibration = 0;
   s->dev->line_count = 0;
-  s->dev->binary=NULL;
+    s->dev->binary = nullptr;
 
   *handle = s;
 
@@ -5171,7 +5164,7 @@ sane_get_option_descriptor_impl(SANE_Handle handle, SANE_Int option)
 const SANE_Option_Descriptor *
 sane_get_option_descriptor(SANE_Handle handle, SANE_Int option)
 {
-    const SANE_Option_Descriptor* ret = NULL;
+    const SANE_Option_Descriptor* ret = nullptr;
     catch_all_exceptions(__func__, [&]()
     {
         ret = sane_get_option_descriptor_impl(handle, option);
@@ -5185,7 +5178,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
 {
     DBG_HELPER(dbg);
   unsigned int i;
-  SANE_Word* table = nullptr;
+    SANE_Word* table = nullptr;
   std::vector<uint16_t> gamma_table;
   unsigned option_size = 0;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -5568,8 +5561,7 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
               x_range=create_range(s->dev->model->x_size_ta);
               y_range=create_range(s->dev->model->y_size_ta);
             }
-          if(x_range==NULL || y_range==NULL)
-            {
+        if (x_range == nullptr || y_range == nullptr) {
               return SANE_STATUS_NO_MEM;
             }
 
@@ -6141,11 +6133,10 @@ void sane_cancel_impl(SANE_Handle handle)
     DBG_HELPER(dbg);
   Genesys_Scanner *s = (Genesys_Scanner*) handle;
 
-  /* end binary logging if needed */
-  if (s->dev->binary!=NULL)
-    {
+    // end binary logging if needed
+    if (s->dev->binary != nullptr) {
       fclose(s->dev->binary);
-      s->dev->binary=NULL;
+        s->dev->binary = nullptr;
     }
 
   s->scanning = SANE_FALSE;

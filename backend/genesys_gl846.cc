@@ -60,9 +60,7 @@
 
 bool CommandSetGl846::get_fast_feed_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, REG02);
+    GenesysRegister *r = sanei_genesys_get_address(regs, REG02);
   if (r && (r->value & REG02_FASTFED))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -70,9 +68,7 @@ bool CommandSetGl846::get_fast_feed_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl846::get_filter_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, REG04);
+    GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
   if (r && (r->value & REG04_FILTER))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -80,9 +76,7 @@ bool CommandSetGl846::get_filter_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl846::get_lineart_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, REG04);
+    GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
   if (r && (r->value & REG04_LINEART))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -90,9 +84,7 @@ bool CommandSetGl846::get_lineart_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl846::get_bitset_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, REG04);
+    GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
   if (r && (r->value & REG04_BITSET))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -100,9 +92,7 @@ bool CommandSetGl846::get_bitset_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl846::get_gain4_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, 0x06);
+    GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);
   if (r && (r->value & REG06_GAIN4))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -128,12 +118,9 @@ bool CommandSetGl846::test_motor_flag_bit(SANE_Byte val) const
 static int
 gl846_get_step_multiplier (Genesys_Register_Set * regs)
 {
-  GenesysRegister *r = NULL;
-  int value = 1;
-
-  r = sanei_genesys_get_address (regs, 0x9d);
-  if (r != NULL)
-    {
+    GenesysRegister *r = sanei_genesys_get_address(regs, 0x9d);
+    int value = 1;
+    if (r != nullptr) {
       value = (r->value & 0x0f)>>1;
       value = 1 << value;
     }
@@ -1585,8 +1572,7 @@ void CommandSetGl846::send_shading_data(Genesys_Device* dev, const Genesys_Senso
       dev->binary=fopen("binary.pnm","wb");
         lines = dev->reg.get24(REG_LINCNT);
         unsigned channels = dev->session.params.channels;
-      if(dev->binary!=NULL)
-        {
+        if (dev->binary != nullptr) {
           fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels,lines/channels,255);
         }
     }
@@ -1839,13 +1825,11 @@ static void gl846_init_memory_layout(Genesys_Device* dev)
 
   /* point to per model memory layout */
   idx = 0;
-  while(layouts[idx].model!=NULL && strcmp(dev->model->name,layouts[idx].model)!=0)
-    {
+    while (layouts[idx].model != nullptr && strcmp(dev->model->name,layouts[idx].model)!=0) {
       if(strcmp(dev->model->name,layouts[idx].model)!=0)
         idx++;
     }
-  if(layouts[idx].model==NULL)
-    {
+    if (layouts[idx].model == nullptr) {
         throw SaneException("failed to find memory layout for model %s", dev->model->name);
     }
 

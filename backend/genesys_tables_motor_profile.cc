@@ -758,7 +758,7 @@ Motor_Profile gl843_motor_profiles[] = {
     { MotorId::CANON_8600F, 0x59d8, StepType::QUARTER, motor_speeds_cs8600f }, // FIXME: if the exposure is lower then we'll select another motor
     { MotorId::PLUSTEK_OPTICFILM_7200I, 0x19c8, StepType::HALF, motor_speeds_plustek_7200i_1},
     { MotorId::PLUSTEK_OPTICFILM_7200I, 0x2538, StepType::HALF, motor_speeds_plustek_7200i_2},
-    { MotorId::UNKNOWN, 0, StepType::FULL, NULL },
+    { MotorId::UNKNOWN, 0, StepType::FULL, nullptr },
 };
 
 /* base motor slopes in full step unit */
@@ -876,7 +876,7 @@ static uint32_t img101_high[] = {
 Motor_Profile gl846_motor_profiles[] = {
     { MotorId::IMG101, 11000, StepType::HALF, img101_high},
     { MotorId::PLUSTEK_OPTICBOOK_3800, 11000, StepType::HALF, img101_high},
-    { MotorId::UNKNOWN, 0, StepType::FULL, NULL},
+    { MotorId::UNKNOWN, 0, StepType::FULL, nullptr },
 };
 
 /* base motor sopes in full step unit */
@@ -1046,7 +1046,7 @@ Motor_Profile gl847_motor_profiles[] = {
     { MotorId::CANON_LIDE_700,  2696, StepType::HALF  , lide700_medium }, /* 2696 , 2838 */
     { MotorId::CANON_LIDE_700, 10576, StepType::EIGHTH, lide700_high },
 
-    { MotorId::UNKNOWN, 0, StepType::FULL, NULL},
+    { MotorId::UNKNOWN, 0, StepType::FULL, nullptr },
 };
 
 static uint32_t lide210_fast[] = {
@@ -1178,5 +1178,5 @@ Motor_Profile gl124_motor_profiles[] = {
     { MotorId::CANON_LIDE_210, 10528, StepType::HALF, lide110_slow },
     { MotorId::CANON_LIDE_210, 20864, StepType::QUARTER, lide210_max },
 
-    { MotorId::UNKNOWN, 0, StepType::FULL, NULL},
+    { MotorId::UNKNOWN, 0, StepType::FULL, nullptr },
 };

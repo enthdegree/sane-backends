@@ -95,9 +95,7 @@ void CommandSetGl646::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t*
 
 bool CommandSetGl646::get_fast_feed_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, 0x02);
+    GenesysRegister *r = sanei_genesys_get_address(regs, 0x02);
   if (r && (r->value & REG02_FASTFED))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -105,9 +103,7 @@ bool CommandSetGl646::get_fast_feed_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl646::get_filter_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, 0x04);
+    GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
   if (r && (r->value & REG04_FILTER))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -115,9 +111,7 @@ bool CommandSetGl646::get_filter_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl646::get_lineart_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, 0x04);
+    GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
   if (r && (r->value & REG04_LINEART))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -125,9 +119,7 @@ bool CommandSetGl646::get_lineart_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl646::get_bitset_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, 0x04);
+    GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
   if (r && (r->value & REG04_BITSET))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -135,9 +127,7 @@ bool CommandSetGl646::get_bitset_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl646::get_gain4_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, 0x06);
+    GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);
   if (r && (r->value & REG06_GAIN4))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -324,7 +314,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
     uint32_t move = session.params.starty;
 
   int i, nb;
-  Motor_Master *motor = NULL;
+  Motor_Master *motor = nullptr;
   unsigned int used1, used2, vfinal;
   uint32_t z1, z2;
   int feedl;
@@ -344,7 +334,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 	}
       i++;
     }
-  if (motor == NULL)
+  if (motor == nullptr)
     {
         throw SaneException("unable to find settings for motor %d at %d dpi, color=%d",
                             static_cast<unsigned>(dev->model->motor_id),
@@ -3564,7 +3554,7 @@ bool CommandSetGl646::is_compatible_calibration(Genesys_Device* dev, const Genes
 
   DBG(DBG_proc, "%s: start (for_overwrite=%d)\n", __func__, for_overwrite);
 
-  if (cache == NULL)
+  if (cache == nullptr)
     return false;
 
   /* build minimal current_setup for calibration cache use only, it will be better
@@ -3605,7 +3595,7 @@ bool CommandSetGl646::is_compatible_calibration(Genesys_Device* dev, const Genes
 #ifdef HAVE_SYS_TIME_H
   if(for_overwrite == SANE_FALSE)
     {
-      gettimeofday (&time, NULL);
+      gettimeofday (&time, nullptr);
       if ((time.tv_sec - cache->last_calibration > 30 * 60)
           && (dev->model->is_sheetfed == SANE_FALSE))
         {

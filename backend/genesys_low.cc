@@ -331,7 +331,7 @@ void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* d
         data += size;
     }
 
-    if (DBG_LEVEL >= DBG_data && dev->binary!=NULL) {
+    if (DBG_LEVEL >= DBG_data && dev->binary != nullptr) {
         fwrite(buffer, len, 1, dev->binary);
     }
 }
@@ -2298,7 +2298,7 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
 #ifdef HAVE_SYS_TIME_H
   if(for_overwrite == SANE_FALSE && dev->settings.expiration_time >=0)
     {
-      gettimeofday (&time, NULL);
+        gettimeofday(&time, nullptr);
       if ((time.tv_sec - cache->last_calibration > dev->settings.expiration_time*60)
           && (dev->model->is_sheetfed == SANE_FALSE)
           && (dev->settings.scan_method == ScanMethod::FLATBED))

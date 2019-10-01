@@ -102,9 +102,7 @@ static void write_data(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_
 
 bool CommandSetGl843::get_fast_feed_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, REG02);
+    GenesysRegister *r = sanei_genesys_get_address (regs, REG02);
   if (r && (r->value & REG02_FASTFED))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -112,9 +110,7 @@ bool CommandSetGl843::get_fast_feed_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl843::get_filter_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, REG04);
+    GenesysRegister *r = sanei_genesys_get_address (regs, REG04);
   if (r && (r->value & REG04_FILTER))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -122,9 +118,7 @@ bool CommandSetGl843::get_filter_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl843::get_lineart_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, REG04);
+    GenesysRegister *r = sanei_genesys_get_address (regs, REG04);
   if (r && (r->value & REG04_LINEART))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -132,9 +126,7 @@ bool CommandSetGl843::get_lineart_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl843::get_bitset_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, REG04);
+    GenesysRegister *r = sanei_genesys_get_address (regs, REG04);
   if (r && (r->value & REG04_BITSET))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -142,9 +134,7 @@ bool CommandSetGl843::get_bitset_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl843::get_gain4_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, REG06);
+    GenesysRegister *r = sanei_genesys_get_address (regs, REG06);
   if (r && (r->value & REG06_GAIN4))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -156,11 +146,9 @@ bool CommandSetGl843::get_gain4_bit(Genesys_Register_Set* regs) const
 static int
 gl843_get_step_multiplier (Genesys_Register_Set * regs)
 {
-  GenesysRegister *r = NULL;
-  int value = 1;
-
-  r = sanei_genesys_get_address (regs, REG9D);
-  if (r != NULL)
+  GenesysRegister *r = sanei_genesys_get_address (regs, REG9D);
+    int value = 1;
+  if (r != nullptr)
     {
       switch (r->value & 0x0c)
 	{

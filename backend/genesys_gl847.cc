@@ -55,9 +55,7 @@
 
 bool CommandSetGl847::get_fast_feed_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, REG02);
+    GenesysRegister *r = sanei_genesys_get_address(regs, REG02);
   if (r && (r->value & REG02_FASTFED))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -65,9 +63,7 @@ bool CommandSetGl847::get_fast_feed_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl847::get_filter_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, REG04);
+    GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
   if (r && (r->value & REG04_FILTER))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -75,9 +71,7 @@ bool CommandSetGl847::get_filter_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl847::get_lineart_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, REG04);
+    GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
   if (r && (r->value & REG04_LINEART))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -85,9 +79,7 @@ bool CommandSetGl847::get_lineart_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl847::get_bitset_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, REG04);
+    GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
   if (r && (r->value & REG04_BITSET))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -95,9 +87,7 @@ bool CommandSetGl847::get_bitset_bit(Genesys_Register_Set* regs) const
 
 bool CommandSetGl847::get_gain4_bit(Genesys_Register_Set* regs) const
 {
-  GenesysRegister *r = NULL;
-
-  r = sanei_genesys_get_address (regs, 0x06);
+    GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);
   if (r && (r->value & REG06_GAIN4))
     return SANE_TRUE;
   return SANE_FALSE;
@@ -123,11 +113,9 @@ bool CommandSetGl847::test_motor_flag_bit(SANE_Byte val) const
 static int
 gl847_get_step_multiplier (Genesys_Register_Set * regs)
 {
-  GenesysRegister *r = NULL;
-  int value = 1;
-
-  r = sanei_genesys_get_address (regs, 0x9d);
-  if (r != NULL)
+    GenesysRegister *r = sanei_genesys_get_address(regs, 0x9d);
+    int value = 1;
+    if (r != nullptr)
     {
       value = (r->value & 0x0f)>>1;
       value = 1 << value;
@@ -1624,8 +1612,7 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
       dev->binary=fopen("binary.pnm","wb");
         lines = dev->reg.get24(REG_LINCNT);
         unsigned channels = dev->session.params.channels;
-      if(dev->binary!=NULL)
-        {
+        if (dev->binary != nullptr) {
           fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels,lines/channels,255);
         }
     }

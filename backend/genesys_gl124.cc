@@ -1807,8 +1807,7 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
       dev->binary=fopen("binary.pnm","wb");
         lines = dev->reg.get24(REG_LINCNT);
         channels = dev->session.params.channels;
-      if(dev->binary!=NULL)
-        {
+        if (dev->binary != nullptr) {
             std::fprintf(dev->binary,"P5\n%d %d\n%d\n",
                          (endpixel - strpixel) / factor * channels * dev->session.segment_count,
                          lines / channels, 255);

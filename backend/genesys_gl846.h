@@ -129,7 +129,7 @@ static Memory_layout layouts[]={
           }
 	},
         /* list terminating entry */
-        { NULL, 0, 0, 0, 0, {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} }
+        { nullptr, 0, 0, 0, 0, {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} }
 };
 
 class CommandSetGl846 : public CommandSet

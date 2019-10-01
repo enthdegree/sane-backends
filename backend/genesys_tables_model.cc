@@ -74,24 +74,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(3.5);
-    model.y_offset = SANE_FIX(7.5);
-    model.x_size = SANE_FIX(218.0);
-    model.y_size = SANE_FIX(299.0);
+    model.x_offset = 3.5;
+    model.y_offset = 7.5;
+    model.x_size = 218.0;
+    model.y_size = 299.0;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(1.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 1.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 8;
@@ -126,24 +126,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.42);
-    model.y_offset = SANE_FIX(7.9);
-    model.x_size = SANE_FIX(218.0);
-    model.y_size = SANE_FIX(299.0);
+    model.x_offset = 0.42;
+    model.y_offset = 7.9;
+    model.x_size = 218.0;
+    model.y_size = 299.0;
 
-    model.y_offset_calib_white = SANE_FIX(6.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 6.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -184,24 +184,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(7.2);
-    model.y_offset = SANE_FIX(14.7);
-    model.x_size = SANE_FIX(217.7);
-    model.y_size = SANE_FIX(300.0);
+    model.x_offset = 7.2;
+    model.y_offset = 14.7;
+    model.x_size = 217.7;
+    model.y_size = 300.0;
 
-    model.y_offset_calib_white = SANE_FIX(9.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 9.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(0.0);
-    model.y_size_ta = SANE_FIX(0.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 0.0;
+    model.y_size_ta = 0.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 8;
@@ -238,24 +238,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(7.9);
-    model.y_offset = SANE_FIX(5.9);
-    model.x_size = SANE_FIX(219.6);
-    model.y_size = SANE_FIX(314.5);
+    model.x_offset = 7.9;
+    model.y_offset = 5.9;
+    model.x_size = 219.6;
+    model.y_size = 314.5;
 
-    model.y_offset_calib_white = SANE_FIX(3.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 3.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 24;
@@ -293,24 +293,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(8.0);
-    model.y_offset = SANE_FIX(13.00);
-    model.x_size = SANE_FIX(217.9);
-    model.y_size = SANE_FIX(315.0);
+    model.x_offset = 8.0;
+    model.y_offset = 13.00;
+    model.x_size = 217.9;
+    model.y_size = 315.0;
 
-    model.y_offset_calib_white = SANE_FIX(3.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 3.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 24;
@@ -348,24 +348,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(8.0);
-    model.y_offset = SANE_FIX(13.00);
-    model.x_size = SANE_FIX(217.9);
-    model.y_size = SANE_FIX(315.0);
+    model.x_offset = 8.0;
+    model.y_offset = 13.00;
+    model.x_size = 217.9;
+    model.y_size = 315.0;
 
-    model.y_offset_calib_white = SANE_FIX(3.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 3.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(8.0);
-    model.y_offset_ta = SANE_FIX(13.00);
-    model.x_size_ta = SANE_FIX(217.9);
-    model.y_size_ta = SANE_FIX(250.0);
+    model.x_offset_ta = 8.0;
+    model.y_offset_ta = 13.00;
+    model.x_size_ta = 217.9;
+    model.y_size_ta = 250.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(40.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 40.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 24;
@@ -404,24 +404,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(6.0);
-    model.y_offset = SANE_FIX(13.00);
-    model.x_size = SANE_FIX(217.9);
-    model.y_size = SANE_FIX(315.0);
+    model.x_offset = 6.0;
+    model.y_offset = 13.00;
+    model.x_size = 217.9;
+    model.y_size = 315.0;
 
-    model.y_offset_calib_white = SANE_FIX(3.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 3.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(8.0);
-    model.y_offset_ta = SANE_FIX(13.00);
-    model.x_size_ta = SANE_FIX(217.9);
-    model.y_size_ta = SANE_FIX(250.0);
+    model.x_offset_ta = 8.0;
+    model.y_offset_ta = 13.00;
+    model.x_size_ta = 217.9;
+    model.y_size_ta = 250.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(40.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 40.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 24;
@@ -462,24 +462,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(3.5);
-    model.y_offset = SANE_FIX(17.00);
-    model.x_size = SANE_FIX(219.9);
-    model.y_size = SANE_FIX(315.0);
+    model.x_offset = 3.5;
+    model.y_offset = 17.00;
+    model.x_size = 219.9;
+    model.y_size = 315.0;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(10.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 10.0;
 
-    model.x_offset_ta = SANE_FIX(100.0);
-    model.y_offset_ta = SANE_FIX(50.00);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(230.0);
+    model.x_offset_ta = 100.0;
+    model.y_offset_ta = 50.00;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 230.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(22.0);
-    model.y_offset_calib_white_ta = SANE_FIX(25.0);
+    model.y_offset_sensor_to_ta = 22.0;
+    model.y_offset_calib_white_ta = 25.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 24;
@@ -522,24 +522,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(24.0);
-    model.y_offset = SANE_FIX(10.0);
-    model.x_size = SANE_FIX(216.0);
-    model.y_size = SANE_FIX(297.0);
+    model.x_offset = 24.0;
+    model.y_offset = 10.0;
+    model.x_size = 216.0;
+    model.y_size = 297.0;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(8.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 8.0;
 
-    model.x_offset_ta = SANE_FIX(85.0);
-    model.y_offset_ta = SANE_FIX(26.0);
-    model.x_size_ta = SANE_FIX(70.0);
-    model.y_size_ta = SANE_FIX(230.0);
+    model.x_offset_ta = 85.0;
+    model.y_offset_ta = 26.0;
+    model.x_size_ta = 70.0;
+    model.y_size_ta = 230.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(11.5);
-    model.y_offset_calib_white_ta = SANE_FIX(14.0);
+    model.y_offset_sensor_to_ta = 11.5;
+    model.y_offset_calib_white_ta = 14.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 48;
@@ -582,24 +582,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(1.1);
-    model.y_offset = SANE_FIX(8.3);
-    model.x_size = SANE_FIX(216.07);
-    model.y_size = SANE_FIX(299.0);
+    model.x_offset = 1.1;
+    model.y_offset = 8.3;
+    model.x_size = 216.07;
+    model.y_size = 299.0;
 
-    model.y_offset_calib_white = SANE_FIX(1.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 1.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -642,24 +642,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(2.2);
-    model.y_offset = SANE_FIX(9.0);
-    model.x_size = SANE_FIX(216.70);
-    model.y_size = SANE_FIX(300.0);
+    model.x_offset = 2.2;
+    model.y_offset = 9.0;
+    model.x_size = 216.70;
+    model.y_size = 300.0;
 
-    model.y_offset_calib_white = SANE_FIX(1.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 1.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -700,24 +700,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.0);
-    model.y_offset = SANE_FIX(8.0);
-    model.x_size = SANE_FIX(216.0);
-    model.y_size = SANE_FIX(300.0);
+    model.x_offset = 0.0;
+    model.y_offset = 8.0;
+    model.x_size = 216.0;
+    model.y_size = 300.0;
 
-    model.y_offset_calib_white = SANE_FIX(1.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 1.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -757,24 +757,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(2.2);
-    model.y_offset = SANE_FIX(8.7);
-    model.x_size = SANE_FIX(216.70);
-    model.y_size = SANE_FIX(297.5);
+    model.x_offset = 2.2;
+    model.y_offset = 8.7;
+    model.x_size = 216.70;
+    model.y_size = 297.5;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -817,24 +817,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(2.2);
-    model.y_offset = SANE_FIX(8.7);
-    model.x_size = SANE_FIX(216.70);
-    model.y_size = SANE_FIX(297.5);
+    model.x_offset = 2.2;
+    model.y_offset = 8.7;
+    model.x_size = 216.70;
+    model.y_size = 297.5;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -876,24 +876,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(1.1);
-    model.y_offset = SANE_FIX(8.3);
-    model.x_size = SANE_FIX(216.07);
-    model.y_size = SANE_FIX(299.0);
+    model.x_offset = 1.1;
+    model.y_offset = 8.3;
+    model.x_size = 216.07;
+    model.y_size = 299.0;
 
-    model.y_offset_calib_white = SANE_FIX(3.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 3.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -936,23 +936,23 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(3.1);
-    model.y_offset = SANE_FIX(8.1);
-    model.x_size = SANE_FIX(216.07);
-    model.y_size = SANE_FIX(297.0);
+    model.x_offset = 3.1;
+    model.y_offset = 8.1;
+    model.x_size = 216.07;
+    model.y_size = 297.0;
 
-    model.y_offset_calib_white = SANE_FIX(1.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 1.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -995,24 +995,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(1.1);
-    model.y_offset = SANE_FIX(8.3);
-    model.x_size = SANE_FIX(216.07);
-    model.y_size = SANE_FIX(299.0);
+    model.x_offset = 1.1;
+    model.y_offset = 8.3;
+    model.x_size = 216.07;
+    model.y_size = 299.0;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -1054,24 +1054,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.42);
-    model.y_offset = SANE_FIX(7.9);
-    model.x_size = SANE_FIX(218.0);
-    model.y_size = SANE_FIX(299.0);
+    model.x_offset = 0.42;
+    model.y_offset = 7.9;
+    model.x_size = 218.0;
+    model.y_size = 299.0;
 
-    model.y_offset_calib_white = SANE_FIX(6.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 6.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -1111,24 +1111,24 @@ void genesys_init_usb_device_tables()
     model.ydpi_values = { 2400, 1200, 600, 400, 300, 240, 150, 100, 75 };
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
-    model.x_offset = SANE_FIX(0.42);
-    model.y_offset = SANE_FIX(7.90);
-    model.x_size = SANE_FIX(216.07);
-    model.y_size = SANE_FIX(299.0);
+    model.x_offset = 0.42;
+    model.y_offset = 7.90;
+    model.x_size = 216.07;
+    model.y_size = 299.0;
 
-    model.y_offset_calib_white = SANE_FIX(4.5);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 4.5;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -1172,24 +1172,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(2.0);
-    model.y_offset = SANE_FIX(7.5);
-    model.x_size = SANE_FIX(215.9);
-    model.y_size = SANE_FIX(295.0);
+    model.x_offset = 2.0;
+    model.y_offset = 7.5;
+    model.x_size = 215.9;
+    model.y_size = 295.0;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(1.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 1.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 16;
     model.ld_shift_g = 8;
@@ -1228,24 +1228,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(6.5);
-    model.y_offset = SANE_FIX(2.5);
-    model.x_size = SANE_FIX(220.0);
-    model.y_size = SANE_FIX(297.2);
+    model.x_offset = 6.5;
+    model.y_offset = 2.5;
+    model.x_size = 220.0;
+    model.y_size = 297.2;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(1.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 1.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 24;
@@ -1285,24 +1285,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.5);
-    model.y_offset = SANE_FIX(16.0);
-    model.x_size = SANE_FIX(215.9);
-    model.y_size = SANE_FIX(297.2);
+    model.x_offset = 0.5;
+    model.y_offset = 16.0;
+    model.x_size = 215.9;
+    model.y_size = 297.2;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -1341,24 +1341,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(8.5);
-    model.y_offset = SANE_FIX(11.0);
-    model.x_size = SANE_FIX(215.9);
-    model.y_size = SANE_FIX(300.0);
+    model.x_offset = 8.5;
+    model.y_offset = 11.0;
+    model.x_size = 215.9;
+    model.y_size = 300.0;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(1.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 1.0;
 
-    model.x_offset_ta = SANE_FIX(104.0);
-    model.y_offset_ta = SANE_FIX(55.6);
-    model.x_size_ta = SANE_FIX(25.6);
-    model.y_size_ta = SANE_FIX(78.0);
+    model.x_offset_ta = 104.0;
+    model.y_offset_ta = 55.6;
+    model.x_size_ta = 25.6;
+    model.y_size_ta = 78.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(76.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 76.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 24;
@@ -1398,24 +1398,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(3.5);
-    model.y_offset = SANE_FIX(7.5);
-    model.x_size = SANE_FIX(218.0);
-    model.y_size = SANE_FIX(299.0);
+    model.x_offset = 3.5;
+    model.y_offset = 7.5;
+    model.x_size = 218.0;
+    model.y_size = 299.0;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(1.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 1.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 8;
@@ -1449,24 +1449,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(3.5);
-    model.y_offset = SANE_FIX(7.5);
-    model.x_size = SANE_FIX(218.0);
-    model.y_size = SANE_FIX(299.0);
+    model.x_offset = 3.5;
+    model.y_offset = 7.5;
+    model.x_size = 218.0;
+    model.y_size = 299.0;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(1.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 1.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 8;
@@ -1504,24 +1504,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.30);
-    model.y_offset = SANE_FIX(0.80);
-    model.x_size = SANE_FIX(220.0);
-    model.y_size = SANE_FIX(296.4);
+    model.x_offset = 0.30;
+    model.y_offset = 0.80;
+    model.x_size = 220.0;
+    model.y_size = 296.4;
 
-    model.y_offset_calib_white = SANE_FIX(0.00);
-    model.x_offset_calib_black = SANE_FIX(0.00);
+    model.y_offset_calib_white = 0.00;
+    model.x_offset_calib_black = 0.00;
 
-    model.x_offset_ta = SANE_FIX(0.00);
-    model.y_offset_ta = SANE_FIX(0.00);
-    model.x_size_ta = SANE_FIX(0.00);
-    model.y_size_ta = SANE_FIX(0.00);
+    model.x_offset_ta = 0.00;
+    model.y_offset_ta = 0.00;
+    model.x_size_ta = 0.00;
+    model.y_size_ta = 0.00;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.00);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.00;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 48;
     model.ld_shift_g = 24;
@@ -1564,25 +1564,25 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.0);
-    model.y_offset = SANE_FIX(1.0);
-    model.x_size = SANE_FIX(435.0);
-    model.y_size = SANE_FIX(511);
+    model.x_offset = 0.0;
+    model.y_offset = 1.0;
+    model.x_size = 435.0;
+    model.y_size = 511;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(26.5);
+    model.post_scan = 26.5;
     // this is larger than needed -- accounts for second sensor head, which is a calibration item
-    model.eject_feed = SANE_FIX(0.0);
+    model.eject_feed = 0.0;
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
@@ -1618,24 +1618,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.0);
-    model.y_offset = SANE_FIX(0.0);
-    model.x_size = SANE_FIX(108.0);
-    model.y_size = SANE_FIX(511);
+    model.x_offset = 0.0;
+    model.y_offset = 0.0;
+    model.x_size = 108.0;
+    model.y_size = 511;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(17.5);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 17.5;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -1672,24 +1672,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.0);
-    model.y_offset = SANE_FIX(0.0);
-    model.x_size = SANE_FIX(220.0);
-    model.y_size = SANE_FIX(511);
+    model.x_offset = 0.0;
+    model.y_offset = 0.0;
+    model.x_size = 220.0;
+    model.y_size = 511;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(16.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 16.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -1726,24 +1726,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.0);
-    model.y_offset = SANE_FIX(0.0);
-    model.x_size = SANE_FIX(220.0);
-    model.y_size = SANE_FIX(511);
+    model.x_offset = 0.0;
+    model.y_offset = 0.0;
+    model.x_size = 220.0;
+    model.y_size = 511;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(16.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 16.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -1781,24 +1781,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.0);
-    model.y_offset = SANE_FIX(0.0);
-    model.x_size = SANE_FIX(220.0);
-    model.y_size = SANE_FIX(511);
+    model.x_offset = 0.0;
+    model.y_offset = 0.0;
+    model.x_size = 220.0;
+    model.y_size = 511;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(16.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 16.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -1835,24 +1835,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.0);
-    model.y_offset = SANE_FIX(0.0);
-    model.x_size = SANE_FIX(220.0);
-    model.y_size = SANE_FIX(511);
+    model.x_offset = 0.0;
+    model.y_offset = 0.0;
+    model.x_size = 220.0;
+    model.y_size = 511;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(16.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 16.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -1891,24 +1891,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.0);
-    model.y_offset = SANE_FIX(0.0);
-    model.x_size = SANE_FIX(220.0);
-    model.y_size = SANE_FIX(511);
+    model.x_offset = 0.0;
+    model.y_offset = 0.0;
+    model.x_size = 220.0;
+    model.y_size = 511;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(16.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 16.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -1944,25 +1944,25 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.0);
-    model.y_offset = SANE_FIX(1.0);
-    model.x_size = SANE_FIX(212.0);
-    model.y_size = SANE_FIX(500);
+    model.x_offset = 0.0;
+    model.y_offset = 1.0;
+    model.x_size = 212.0;
+    model.y_size = 500;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(26.5);
+    model.post_scan = 26.5;
     // this is larger than needed -- accounts for second sensor head, which is a calibration item
-    model.eject_feed = SANE_FIX(0.0);
+    model.eject_feed = 0.0;
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
@@ -2000,25 +2000,25 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.0);
-    model.y_offset = SANE_FIX(1.0);
-    model.x_size = SANE_FIX(435.0);
-    model.y_size = SANE_FIX(511);
+    model.x_offset = 0.0;
+    model.y_offset = 1.0;
+    model.x_size = 435.0;
+    model.y_size = 511;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(26.5);
+    model.post_scan = 26.5;
     // this is larger than needed -- accounts for second sensor head, which is a calibration item
-    model.eject_feed = SANE_FIX(0.0);
+    model.eject_feed = 0.0;
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
@@ -2055,25 +2055,25 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.0);
-    model.y_offset = SANE_FIX(1.0);
-    model.x_size = SANE_FIX(435.0);
-    model.y_size = SANE_FIX(511);
+    model.x_offset = 0.0;
+    model.y_offset = 1.0;
+    model.x_size = 435.0;
+    model.y_size = 511;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(26.5);
+    model.post_scan = 26.5;
     // this is larger than needed -- accounts for second sensor head, which is a calibration item
-    model.eject_feed = SANE_FIX(0.0);
+    model.eject_feed = 0.0;
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
@@ -2111,24 +2111,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(4.00);
-    model.y_offset = SANE_FIX(0.80);
-    model.x_size = SANE_FIX(215.9);
-    model.y_size = SANE_FIX(296.4);
+    model.x_offset = 4.00;
+    model.y_offset = 0.80;
+    model.x_size = 215.9;
+    model.y_size = 296.4;
 
-    model.y_offset_calib_white = SANE_FIX(0.00);
-    model.x_offset_calib_black = SANE_FIX(0.00);
+    model.y_offset_calib_white = 0.00;
+    model.x_offset_calib_black = 0.00;
 
-    model.x_offset_ta = SANE_FIX(0.00);
-    model.y_offset_ta = SANE_FIX(0.00);
-    model.x_size_ta = SANE_FIX(0.00);
-    model.y_size_ta = SANE_FIX(0.00);
+    model.x_offset_ta = 0.00;
+    model.y_offset_ta = 0.00;
+    model.x_size_ta = 0.00;
+    model.y_size_ta = 0.00;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.00);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.00;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 48;
     model.ld_shift_g = 24;
@@ -2171,24 +2171,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(4.00);
-    model.y_offset = SANE_FIX(0.80);
-    model.x_size = SANE_FIX(215.9);
-    model.y_size = SANE_FIX(296.4);
+    model.x_offset = 4.00;
+    model.y_offset = 0.80;
+    model.x_size = 215.9;
+    model.y_size = 296.4;
 
-    model.y_offset_calib_white = SANE_FIX(0.00);
-    model.x_offset_calib_black = SANE_FIX(0.00);
+    model.y_offset_calib_white = 0.00;
+    model.x_offset_calib_black = 0.00;
 
-    model.x_offset_ta = SANE_FIX(0.00);
-    model.y_offset_ta = SANE_FIX(0.00);
-    model.x_size_ta = SANE_FIX(0.00);
-    model.y_size_ta = SANE_FIX(0.00);
+    model.x_offset_ta = 0.00;
+    model.y_offset_ta = 0.00;
+    model.x_size_ta = 0.00;
+    model.y_size_ta = 0.00;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.00);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.00;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 48;
     model.ld_shift_g = 24;
@@ -2231,24 +2231,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(4.0);
-    model.y_offset = SANE_FIX(0.0);
-    model.x_size = SANE_FIX(220.0);
-    model.y_size = SANE_FIX(511);
+    model.x_offset = 4.0;
+    model.y_offset = 0.0;
+    model.x_size = 220.0;
+    model.y_size = 511;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(16.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 16.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -2285,24 +2285,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(0.42);
-    model.y_offset = SANE_FIX(6.75);
-    model.x_size = SANE_FIX(216.0);
-    model.y_size = SANE_FIX(297.0);
+    model.x_offset = 0.42;
+    model.y_offset = 6.75;
+    model.x_size = 216.0;
+    model.y_size = 297.0;
 
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(0.0);
-    model.y_size_ta = SANE_FIX(0.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 0.0;
+    model.y_size_ta = 0.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 24;
@@ -2341,22 +2341,22 @@ void genesys_init_usb_device_tables()
     model.bpp_color_values = { 16 };
     model.default_method = ScanMethod::TRANSPARENCY;
 
-    model.x_offset = SANE_FIX(0.0);
-    model.y_offset = SANE_FIX(0.0);
-    model.x_size = SANE_FIX(36.0);
-    model.y_size = SANE_FIX(44.0);
-    model.y_offset_calib_white = SANE_FIX(0.0);
-    model.x_offset_calib_black = SANE_FIX(6.5);
+    model.x_offset = 0.0;
+    model.y_offset = 0.0;
+    model.x_size = 36.0;
+    model.y_size = 44.0;
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 6.5;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(29.0);
-    model.x_size_ta = SANE_FIX(36.0);
-    model.y_size_ta = SANE_FIX(24.0);
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_black_ta = SANE_FIX(6.5);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 29.0;
+    model.x_size_ta = 36.0;
+    model.y_size_ta = 24.0;
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_black_ta = 6.5;
+    model.y_offset_calib_white_ta = 0.0;
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 12;
@@ -2402,24 +2402,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(6);
-    model.y_offset = SANE_FIX(2);
-    model.x_size = SANE_FIX(216);
-    model.y_size = SANE_FIX(511);
+    model.x_offset = 6;
+    model.y_offset = 2;
+    model.x_size = 216;
+    model.y_size = 511;
 
-    model.y_offset_calib_white = SANE_FIX(3.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 3.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(100.0);
-    model.y_size_ta = SANE_FIX(100.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 100.0;
+    model.y_size_ta = 100.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0;
 
-    model.post_scan = SANE_FIX(0);
-    model.eject_feed = SANE_FIX(0);
+    model.post_scan = 0;
+    model.eject_feed = 0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
@@ -2461,24 +2461,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(7.2);
-    model.y_offset = SANE_FIX(14.7);
-    model.x_size = SANE_FIX(217.7);
-    model.y_size = SANE_FIX(300.0);
+    model.x_offset = 7.2;
+    model.y_offset = 14.7;
+    model.x_size = 217.7;
+    model.y_size = 300.0;
 
-    model.y_offset_calib_white = SANE_FIX(9.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 9.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(0.0);
-    model.y_size_ta = SANE_FIX(0.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 0.0;
+    model.y_size_ta = 0.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 24;
@@ -2515,24 +2515,24 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = SANE_FIX(7.2);
-    model.y_offset = SANE_FIX(14.7);
-    model.x_size = SANE_FIX(217.7);
-    model.y_size = SANE_FIX(300.0);
+    model.x_offset = 7.2;
+    model.y_offset = 14.7;
+    model.x_size = 217.7;
+    model.y_size = 300.0;
 
-    model.y_offset_calib_white = SANE_FIX(9.0);
-    model.x_offset_calib_black = SANE_FIX(0.0);
+    model.y_offset_calib_white = 9.0;
+    model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = SANE_FIX(0.0);
-    model.y_offset_ta = SANE_FIX(0.0);
-    model.x_size_ta = SANE_FIX(0.0);
-    model.y_size_ta = SANE_FIX(0.0);
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 0.0;
+    model.x_size_ta = 0.0;
+    model.y_size_ta = 0.0;
 
-    model.y_offset_sensor_to_ta = SANE_FIX(0.0);
-    model.y_offset_calib_white_ta = SANE_FIX(0.0);
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_white_ta = 0.0;
 
-    model.post_scan = SANE_FIX(0.0);
-    model.eject_feed = SANE_FIX(0.0);
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
     model.ld_shift_g = 24;

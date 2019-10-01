@@ -74,6 +74,24 @@ struct Genesys_Gpo
     GenesysRegisterSettingSet regs;
 };
 
+/// Stores a SANE_Fixed value which is automatically converted from and to floating-point values
+class FixedFloat
+{
+public:
+    FixedFloat() = default;
+    FixedFloat(const FixedFloat&) = default;
+    FixedFloat(double number) : value_{SANE_FIX(number)} {}
+    FixedFloat& operator=(const FixedFloat&) = default;
+    FixedFloat& operator=(double number) { value_ = SANE_FIX(number); return *this; }
+
+    operator double() const { return value(); }
+
+    double value() const { return SANE_UNFIX(value_); }
+
+private:
+    SANE_Fixed value_ = 0;
+};
+
 /** @brief structure to describe a scanner model
  * This structure describes a model. It is composed of information on the
  * sensor, the motor, scanner geometry and flags to drive operation.
@@ -105,49 +123,49 @@ struct Genesys_Model
     // All offsets below are with respect to the sensor home position
 
     // Start of scan area in mm
-    SANE_Fixed x_offset = 0;
+    FixedFloat x_offset = 0;
 
     // Start of scan area in mm (Amount of feeding needed to get to the medium)
-    SANE_Fixed y_offset = 0;
+    FixedFloat y_offset = 0;
 
     // Size of scan area in mm
-    SANE_Fixed x_size = 0;
+    FixedFloat x_size = 0;
 
     // Size of scan area in mm
-    SANE_Fixed y_size = 0;
+    FixedFloat y_size = 0;
 
     // Start of white strip in mm
-    SANE_Fixed y_offset_calib_white = 0;
+    FixedFloat y_offset_calib_white = 0;
 
     // Start of black mark in mm
-    SANE_Fixed x_offset_calib_black = 0;
+    FixedFloat x_offset_calib_black = 0;
 
     // Start of scan area in transparency mode in mm
-    SANE_Fixed x_offset_ta = 0;
+    FixedFloat x_offset_ta = 0;
 
     // Start of scan area in transparency mode in mm
-    SANE_Fixed y_offset_ta = 0;
+    FixedFloat y_offset_ta = 0;
 
     // Size of scan area in transparency mode in mm
-    SANE_Fixed x_size_ta = 0;
+    FixedFloat x_size_ta = 0;
 
     // Size of scan area in transparency mode in mm
-    SANE_Fixed y_size_ta = 0;
+    FixedFloat y_size_ta = 0;
 
     // The position of the sensor when it's aligned with the lamp for transparency scanning
-    SANE_Fixed y_offset_sensor_to_ta = 0;
+    FixedFloat y_offset_sensor_to_ta = 0;
 
     // Start of white strip in transparency mode in mm
-    SANE_Fixed y_offset_calib_white_ta = 0;
+    FixedFloat y_offset_calib_white_ta = 0;
 
     // Start of black strip in transparency mode in mm
-    SANE_Fixed y_offset_calib_black_ta = 0;
+    FixedFloat y_offset_calib_black_ta = 0;
 
     // Size of scan area after paper sensor stop sensing document in mm
-    SANE_Fixed post_scan = 0;
+    FixedFloat post_scan = 0;
 
     // Amount of feeding needed to eject document after finishing scanning in mm
-    SANE_Fixed eject_feed = 0;
+    FixedFloat eject_feed = 0;
 
     // Line-distance correction (in pixel at optical_ydpi) for CCD scanners
     SANE_Int ld_shift_r = 0;

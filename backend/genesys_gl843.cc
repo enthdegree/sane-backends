@@ -1333,9 +1333,9 @@ void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        start = SANE_UNFIX(dev->model->x_offset_ta);
+        start = dev->model->x_offset_ta;
     } else {
-        start = SANE_UNFIX(dev->model->x_offset);
+        start = dev->model->x_offset;
     }
 
     if (dev->model->model_id == ModelId::CANON_8400F ||
@@ -1538,7 +1538,7 @@ void CommandSetGl843::detect_document_end(Genesys_Device* dev) const
 
         std::size_t output_lines = dev->session.output_line_count;
 
-        std::size_t offset_lines = (SANE_UNFIX(dev->model->post_scan) * dev->session.params.yres) /
+        std::size_t offset_lines = (dev->model->post_scan * dev->session.params.yres) /
                 MM_PER_INCH;
 
         std::size_t scan_end_lines = scanned_lines + offset_lines;
@@ -2241,11 +2241,11 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         dev->model->model_id == ModelId::CANON_8600F &&
         dev->settings.xres == 4800)
     {
-        float offset = SANE_UNFIX(dev->model->x_offset_ta);
+        float offset = dev->model->x_offset_ta;
         offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         offset = (offset * calib_sensor.optical_res) / MM_PER_INCH;
 
-        float size = SANE_UNFIX(dev->model->x_size_ta);
+        float size = dev->model->x_size_ta;
         size /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         size = (size * calib_sensor.optical_res) / MM_PER_INCH;
 
@@ -2270,12 +2270,11 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     {
         // note: move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
-        move = SANE_UNFIX(dev->model->y_offset_calib_white_ta) -
-               SANE_UNFIX(dev->model->y_offset_sensor_to_ta);
+        move = dev->model->y_offset_calib_white_ta - dev->model->y_offset_sensor_to_ta;
     flags |= SCAN_FLAG_USE_XPA;
-  }
-  else
-    move = SANE_UNFIX(dev->model->y_offset_calib_white);
+    } else {
+        move = dev->model->y_offset_calib_white;
+    }
 
   move = (move * resolution) / MM_PER_INCH;
 
@@ -2331,15 +2330,14 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
         if (dev->ignore_offsets) {
             move = 0;
         } else {
-            move = SANE_UNFIX(dev->model->y_offset_ta) -
-                   SANE_UNFIX(dev->model->y_offset_sensor_to_ta);
+            move = dev->model->y_offset_ta - dev->model->y_offset_sensor_to_ta;
         }
         flags |= SCAN_FLAG_USE_XPA;
     } else {
         if (dev->ignore_offsets) {
             move = 0;
         } else {
-            move = SANE_UNFIX(dev->model->y_offset);
+            move = dev->model->y_offset;
         }
     }
 
@@ -2351,9 +2349,9 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     if (dev->settings.scan_method==ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        start = SANE_UNFIX(dev->model->x_offset_ta);
+        start = dev->model->x_offset_ta;
     } else {
-        start = SANE_UNFIX(dev->model->x_offset);
+        start = dev->model->x_offset;
     }
 
     if (dev->model->model_id == ModelId::CANON_8400F ||
@@ -2652,11 +2650,11 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         dev->model->model_id == ModelId::CANON_8600F &&
         dev->settings.xres == 4800)
     {
-        start_pixel = SANE_UNFIX(dev->model->x_offset_ta);
+        start_pixel = dev->model->x_offset_ta;
         start_pixel /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         start_pixel = (start_pixel * calib_sensor.optical_res) / MM_PER_INCH;
 
-        target_pixels = SANE_UNFIX(dev->model->x_size_ta);
+        target_pixels = dev->model->x_size_ta;
         target_pixels /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         target_pixels = (target_pixels * calib_sensor.optical_res) / MM_PER_INCH;
     }
@@ -3190,7 +3188,7 @@ void CommandSetGl843::move_to_ta(Genesys_Device* dev) const
   unsigned int feed;
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
-  feed = 16*(SANE_UNFIX (dev->model->y_offset_sensor_to_ta) * resolution) / MM_PER_INCH;
+    feed = 16 * (dev->model->y_offset_sensor_to_ta * resolution) / MM_PER_INCH;
     gl843_feed(dev, feed);
 }
 

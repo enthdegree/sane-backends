@@ -4704,8 +4704,7 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   DBG_INIT ();
     DBG_HELPER_ARGS(dbg, "authorize %s null", authorize ? "!=" : "==");
-  DBG(DBG_init, "SANE Genesys backend version %d.%d from %s\n",
-      SANE_CURRENT_MAJOR, V_MINOR, PACKAGE_STRING);
+    DBG(DBG_init, "SANE Genesys backend from %s\n", PACKAGE_STRING);
 #ifdef HAVE_LIBUSB
   DBG(DBG_init, "SANE Genesys backend built with libusb-1.0\n");
 #endif
@@ -4713,8 +4712,9 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG(DBG_init, "SANE Genesys backend built with libusb\n");
 #endif
 
-  if (version_code)
-    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, 0);
+    if (version_code) {
+        *version_code = SANE_VERSION_CODE(SANE_CURRENT_MAJOR, SANE_CURRENT_MINOR, 0);
+    }
 
   /* init usb use */
   sanei_usb_init ();

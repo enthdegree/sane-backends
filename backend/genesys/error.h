@@ -138,6 +138,7 @@ SANE_Status wrap_exceptions_to_status_code(const char* func, F&& function)
     } catch (const SaneException& exc) {
         return exc.status();
     } catch (const std::bad_alloc& exc) {
+        (void) exc;
         return SANE_STATUS_NO_MEM;
     } catch (const std::exception& exc) {
         DBG(DBG_error, "%s: got uncaught exception: %s\n", func, exc.what());

@@ -1442,10 +1442,6 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     /* monochrome / color scan */
     r = sanei_genesys_get_address (reg, 0x04);
     switch (session.params.depth) {
-	case 1:
-	    r->value &= ~REG04_BITSET;
-	    r->value |= REG04_LINEART;
-	    break;
 	case 8:
 	    r->value &= ~(REG04_LINEART | REG04_BITSET);
 	    break;

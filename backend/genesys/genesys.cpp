@@ -3321,15 +3321,8 @@ Problems with the first approach:
     bytes = *len;
   work_buffer_src = src_buffer->get_read_pos();
 
-    if (dev->session.pipeline_needs_reverse) {
-        genesys_reverse_bits(work_buffer_src, destination, bytes);
-      *len = bytes;
-    }
-  else
-    {
-      memcpy (destination, work_buffer_src, bytes);
-      *len = bytes;
-    }
+    std::memcpy(destination, work_buffer_src, bytes);
+    *len = bytes;
 
   /* avoid signaling some extra data because we have treated a full block
    * on the last block */

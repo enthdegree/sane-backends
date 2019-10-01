@@ -296,7 +296,6 @@ struct ScanSession {
     bool pipeline_needs_reorder = false;
     bool pipeline_needs_ccd = false;
     bool pipeline_needs_shrink = false;
-    bool pipeline_needs_reverse = false;
 
     void assert_computed() const
     {

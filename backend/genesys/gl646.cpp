@@ -404,10 +404,6 @@ static void gl646_setup_registers(Genesys_Device* dev,
   /* R04 */
   /* monochrome / color scan */
     switch (session.params.depth) {
-    case 1:
-      regs->find_reg(0x04).value &= ~REG04_BITSET;
-      regs->find_reg(0x04).value |= REG04_LINEART;
-      break;
     case 8:
       regs->find_reg(0x04).value &= ~(REG04_LINEART | REG04_BITSET);
       break;

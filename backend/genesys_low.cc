@@ -2028,8 +2028,6 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   uint8_t val;
-  int loop;
-  int max=300;
 
   /* clear the parking status whatever the outcome of the function */
     dev->parking = false;
@@ -2048,23 +2046,25 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
         return;
     }
 
-  /* loop for 30 s max, polling home sensor */
-  loop = 0;
+    unsigned timeout_ms = 30000;
+    unsigned elapsed_ms = 0;
   do
     {
       sanei_genesys_sleep_ms(100);
+        elapsed_ms += 100;
+
         val = sanei_genesys_get_status(dev);
 
           if (DBG_LEVEL >= DBG_io2)
             {
               sanei_genesys_print_status (val);
             }
-      ++loop;
-    } while (loop < max && !(val & HOMESNR));
+    } while (elapsed_ms < timeout_ms && !(val & HOMESNR));
 
   /* if after the timeout, head is still not parked, error out */
-    if (loop >= max && !(val & HOMESNR)) {
-        DBG (DBG_error, "%s: failed to reach park position in %dseconds\n", __func__, max/10);
+    if (elapsed_ms >= timeout_ms && !(val & HOMESNR)) {
+        DBG (DBG_error, "%s: failed to reach park position in %dseconds\n", __func__,
+             timeout_ms / 1000);
         throw SaneException(SANE_STATUS_IO_ERROR, "failed to reach park position");
     }
 }

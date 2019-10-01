@@ -3554,19 +3554,9 @@ static void calc_parameters(Genesys_Scanner* s)
   /* dynamic lineart */
     s->dev->settings.dynamic_lineart = false;
   s->dev->settings.threshold_curve=0;
-    if (!s->disable_dynamic_lineart && s->dev->settings.scan_mode == ScanColorMode::LINEART) {
+    if (s->dev->settings.scan_mode == ScanColorMode::LINEART) {
         s->dev->settings.dynamic_lineart = true;
     }
-
-  /* hardware lineart works only when we don't have interleave data
-   * for GL847 scanners, ie up to 600 DPI, then we have to rely on
-   * dynamic_lineart */
-    if (s->dev->settings.xres > 600 &&
-        s->dev->model->asic_type==AsicType::GL847 &&
-        s->dev->settings.scan_mode == ScanColorMode::LINEART)
-   {
-        s->dev->settings.dynamic_lineart = true;
-   }
 
     // threshold curve for dynamic rasterization
     s->dev->settings.threshold_curve = s->threshold_curve;
@@ -4079,23 +4069,6 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_THRESHOLD_CURVE].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_THRESHOLD_CURVE].constraint.range = &threshold_curve_range;
   s->threshold_curve = 50;
-
-  /* dynamic linart */
-  s->opt[OPT_DISABLE_DYNAMIC_LINEART].name = "disable-dynamic-lineart";
-  s->opt[OPT_DISABLE_DYNAMIC_LINEART].title = SANE_I18N ("Disable dynamic lineart");
-  s->opt[OPT_DISABLE_DYNAMIC_LINEART].desc =
-    SANE_I18N ("Disable use of a software adaptive algorithm to generate lineart relying instead on hardware lineart.");
-  s->opt[OPT_DISABLE_DYNAMIC_LINEART].type = SANE_TYPE_BOOL;
-  s->opt[OPT_DISABLE_DYNAMIC_LINEART].unit = SANE_UNIT_NONE;
-  s->opt[OPT_DISABLE_DYNAMIC_LINEART].constraint_type = SANE_CONSTRAINT_NONE;
-  s->disable_dynamic_lineart = false;
-
-  /* fastmod is required for hw lineart to work */
-    if ((s->dev->model->asic_type == AsicType::GL646) &&
-        (s->dev->model->motor_id != MotorId::XP200))
-    {
-      s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap = SANE_CAP_INACTIVE;
-    }
 
   /* disable_interpolation */
   s->opt[OPT_DISABLE_INTERPOLATION].name = "disable-interpolation";
@@ -5084,9 +5057,6 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_THRESHOLD_CURVE:
         *reinterpret_cast<SANE_Word*>(val) = s->threshold_curve;
         break;
-    case OPT_DISABLE_DYNAMIC_LINEART:
-        *reinterpret_cast<SANE_Word*>(val) = s->disable_dynamic_lineart;
-        break;
     case OPT_DISABLE_INTERPOLATION:
         *reinterpret_cast<SANE_Word*>(val) = s->disable_interpolation;
         break;
@@ -5311,11 +5281,6 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
-    case OPT_DISABLE_DYNAMIC_LINEART:
-        s->disable_dynamic_lineart = *reinterpret_cast<SANE_Word*>(val);
-        calc_parameters(s);
-        *myinfo |= SANE_INFO_RELOAD_PARAMS;
-        break;
     case OPT_SWCROP:
         s->swcrop = *reinterpret_cast<SANE_Word*>(val);
         calc_parameters(s);
@@ -5450,13 +5415,11 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
                 if (s->dev->model->asic_type != AsicType::GL646 || !s->dev->model->is_cis) {
                     ENABLE(OPT_COLOR_FILTER);
                 }
-	  ENABLE (OPT_DISABLE_DYNAMIC_LINEART);
 	}
       else
 	{
 	  DISABLE (OPT_THRESHOLD);
 	  DISABLE (OPT_THRESHOLD_CURVE);
-	  DISABLE (OPT_DISABLE_DYNAMIC_LINEART);
           if (s->mode == SANE_VALUE_SCAN_MODE_GRAY)
 	    {
                     if (s->dev->model->asic_type != AsicType::GL646 || !s->dev->model->is_cis) {

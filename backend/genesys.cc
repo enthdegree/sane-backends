@@ -80,11 +80,13 @@ struct SANE_Device_Data
     std::string name;
 };
 
-StaticInit<std::list<Genesys_Scanner>> s_scanners;
-StaticInit<std::vector<SANE_Device>> s_sane_devices;
-StaticInit<std::vector<SANE_Device_Data>> s_sane_devices_data;
-StaticInit<std::vector<SANE_Device*>> s_sane_devices_ptrs;
-StaticInit<std::list<Genesys_Device>> s_devices;
+namespace {
+    StaticInit<std::list<Genesys_Scanner>> s_scanners;
+    StaticInit<std::vector<SANE_Device>> s_sane_devices;
+    StaticInit<std::vector<SANE_Device_Data>> s_sane_devices_data;
+    StaticInit<std::vector<SANE_Device*>> s_sane_devices_ptrs;
+    StaticInit<std::list<Genesys_Device>> s_devices;
+} // namespace
 
 static SANE_String_Const mode_list[] = {
   SANE_VALUE_SCAN_MODE_COLOR,

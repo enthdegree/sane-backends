@@ -234,7 +234,7 @@ static Motor_Master motor_master[] = {
 class CommandSetGl646 : public CommandSet
 {
 public:
-    ~CommandSetGl646() = default;
+    ~CommandSetGl646() override = default;
 
     bool needs_home_before_init_regs_for_scan(Genesys_Device* dev) const override;
 

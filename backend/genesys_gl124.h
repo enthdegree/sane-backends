@@ -124,7 +124,7 @@ static void gl124_send_slope_table(Genesys_Device* dev, int table_nr,
 class CommandSetGl124 : public CommandSet
 {
 public:
-    ~CommandSetGl124() = default;
+    ~CommandSetGl124() override = default;
 
     bool needs_home_before_init_regs_for_scan(Genesys_Device* dev) const override;
 

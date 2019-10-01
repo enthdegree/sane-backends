@@ -119,7 +119,7 @@ static Memory_layout layouts[]={
 class CommandSetGl847 : public CommandSet
 {
 public:
-    ~CommandSetGl847() = default;
+    ~CommandSetGl847() override = default;
 
     bool needs_home_before_init_regs_for_scan(Genesys_Device* dev) const override;
 

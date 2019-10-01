@@ -63,7 +63,7 @@ int gl841_exposure_time(Genesys_Device *dev, const Genesys_Sensor& sensor,
 class CommandSetGl841 : public CommandSet
 {
 public:
-    ~CommandSetGl841() = default;
+    ~CommandSetGl841() override = default;
 
     bool needs_home_before_init_regs_for_scan(Genesys_Device* dev) const override;
 

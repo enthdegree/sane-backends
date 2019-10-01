@@ -66,7 +66,7 @@
 class CommandSetGl843 : public CommandSet
 {
 public:
-    ~CommandSetGl843() = default;
+    ~CommandSetGl843() override = default;
 
     bool needs_home_before_init_regs_for_scan(Genesys_Device* dev) const override;
 

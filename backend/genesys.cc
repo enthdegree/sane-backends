@@ -842,109 +842,6 @@ sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
   return exposure;
 }
 
-/* computes the exposure_time on the basis of the given horizontal dpi */
-/* we will clean/simplify it by using constants from a future motor struct */
-SANE_Int
-sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
-			     int xdpi)
-{
-    if (dev->model->motor_id == MotorId::MD_5345) {
-        if (dev->cmd_set->get_filter_bit(reg)) {
-	  /* monochrome */
-	  switch (xdpi)
-	    {
-	    case 600:
-	      return 8500;
-	    case 500:
-	    case 400:
-	    case 300:
-	    case 250:
-	    case 200:
-	    case 150:
-	      return 5500;
-	    case 100:
-	      return 6500;
-	    case 50:
-	      return 12000;
-	    default:
-	      return 11000;
-	    }
-	}
-      else
-	{
-	  /* color scan */
-	  switch (xdpi)
-	    {
-	    case 300:
-	    case 250:
-	    case 200:
-	      return 5500;
-	    case 50:
-	      return 12000;
-	    default:
-	      return 11000;
-	    }
-	}
-    } else if (dev->model->motor_id == MotorId::HP2400) {
-        if (dev->cmd_set->get_filter_bit(reg)) {
-	  /* monochrome */
-	  switch (xdpi)
-	    {
-	    case 200:
-	      return 7210;
-	    default:
-	      return 11111;
-	    }
-	}
-      else
-	{
-	  /* color scan */
-	  switch (xdpi)
-	    {
-	    case 600:
-	      return 8751;	/*11902; 19200 */
-	    default:
-	      return 11111;
-	    }
-	}
-    } else if (dev->model->motor_id == MotorId::HP2300) {
-        if (dev->cmd_set->get_filter_bit(reg)) {
-	  /* monochrome */
-	  switch (xdpi)
-	    {
-	    case 600:
-	      return 8699;	/* 3200; */
-	    case 300:
-	      return 3200;	/*10000;, 3200 -> too dark */
-	    case 150:
-	      return 4480;	/* 3200 ???, warmup needs 4480 */
-	    case 75:
-	      return 5500;
-	    default:
-	      return 11111;
-	    }
-	}
-      else
-	{
-	  /* color scan */
-	  switch (xdpi)
-	    {
-	    case 600:
-	      return 8699;
-	    case 300:
-	      return 4349;
-	    case 150:
-	    case 75:
-	      return 4480;
-	    default:
-	      return 11111;
-	    }
-	}
-    }
-  return 11000;
-}
-
-
 
 /* Sends a block of shading information to the scanner.
    The data is placed at address 0x0000 for color mode, gray mode and
@@ -3305,18 +3202,8 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
 
     wait_until_buffer_non_empty(dev);
 
-  /* when doing one or two-table movement, let the motor settle to scanning speed */
-  /* and scanning start before reading data                                        */
-/* the valid data check already waits until the scanner delivers data. this here leads to unnecessary buffer full conditions in the scanner.
-    if (dev->cmd_set->get_fast_feed_bit (dev->reg)) {
-        sanei_genesys_sleep_ms(1000);
-    } else {
-        sanei_genesys_sleep_ms(500);
-    }
-*/
-  /* then we wait for at least one word of valid scan data
-
-     this is also done in sanei_genesys_read_data_from_scanner -- pierre */
+    // we wait for at least one word of valid scan data
+    // this is also done in sanei_genesys_read_data_from_scanner -- pierre
     if (!dev->model->is_sheetfed) {
       do
 	{

@@ -57,14 +57,6 @@
 
 #include <vector>
 
-/****************************************************************************
- Low level function
- ****************************************************************************/
-
-/* ------------------------------------------------------------------------ */
-/*                  Read and write RAM, registers and AFE                   */
-/* ------------------------------------------------------------------------ */
-
 // Set address for writing data
 static void gl841_set_buffer_address_gamma(Genesys_Device* dev, uint32_t addr)
 {
@@ -76,28 +68,6 @@ static void gl841_set_buffer_address_gamma(Genesys_Device* dev, uint32_t addr)
 
   addr = addr >> 8;
     dev->write_register(0x5b, (addr & 0xff));
-}
-
-/****************************************************************************
- Mid level functions
- ****************************************************************************/
-
-bool CommandSetGl841::get_fast_feed_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x02);
-    return (r && (r->value & REG02_FASTFED));
-}
-
-bool CommandSetGl841::get_filter_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
-    return (r && (r->value & REG04_FILTER));
-}
-
-bool CommandSetGl841::get_lineart_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
-    return (r && (r->value & REG04_LINEART));
 }
 
 bool CommandSetGl841::get_bitset_bit(Genesys_Register_Set* regs) const
@@ -115,11 +85,6 @@ bool CommandSetGl841::get_gain4_bit(Genesys_Register_Set* regs) const
 bool CommandSetGl841::test_buffer_empty_bit(SANE_Byte val) const
 {
     return (val & REG41_BUFEMPTY);
-}
-
-bool CommandSetGl841::test_motor_flag_bit(SANE_Byte val) const
-{
-    return (val & REG41_MOTORENB);
 }
 
 /** copy sensor specific settings */

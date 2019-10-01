@@ -74,14 +74,10 @@ public:
                                        Genesys_Register_Set& regs) const = 0;
     virtual void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const = 0;
 
-    virtual bool get_filter_bit(Genesys_Register_Set * reg) const = 0;
-    virtual bool get_lineart_bit(Genesys_Register_Set * reg) const = 0;
     virtual bool get_bitset_bit(Genesys_Register_Set * reg) const = 0;
     virtual bool get_gain4_bit(Genesys_Register_Set * reg) const = 0;
-    virtual bool get_fast_feed_bit(Genesys_Register_Set * reg) const = 0;
 
     virtual bool test_buffer_empty_bit(std::uint8_t val) const = 0;
-    virtual bool test_motor_flag_bit(std::uint8_t val) const = 0;
 
     virtual void set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set) const = 0;
     virtual void set_powersaving(Genesys_Device* dev, int delay) const = 0;

@@ -372,10 +372,6 @@ extern void sanei_genesys_fe_write_data(Genesys_Device* dev, uint8_t addr, uint1
 SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi, int step_type,
                                       int endpixel, int led_exposure);
 
-extern SANE_Int
-sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
-			     int xdpi);
-
 SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table, unsigned int max_steps,
 			      unsigned int use_steps, uint16_t stop_at,
 			      uint16_t vstart, uint16_t vend,

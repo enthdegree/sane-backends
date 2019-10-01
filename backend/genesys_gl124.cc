@@ -49,25 +49,6 @@
 
 #include <vector>
 
-/****************************************************************************
- Mid level functions
- ****************************************************************************/
-
-bool CommandSetGl124::get_fast_feed_bit(Genesys_Register_Set* regs) const
-{
-    return static_cast<bool>(regs->get8(REG02) & REG02_FASTFED);
-}
-
-bool CommandSetGl124::get_filter_bit(Genesys_Register_Set* regs) const
-{
-    return static_cast<bool>(regs->get8(REG04) & REG04_FILTER);
-}
-
-bool CommandSetGl124::get_lineart_bit(Genesys_Register_Set* regs) const
-{
-    return static_cast<bool>(regs->get8(REG04) & REG04_LINEART);
-}
-
 bool CommandSetGl124::get_bitset_bit(Genesys_Register_Set* regs) const
 {
     return static_cast<bool>(regs->get8(REG04) & REG04_BITSET);
@@ -81,11 +62,6 @@ bool CommandSetGl124::get_gain4_bit(Genesys_Register_Set* regs) const
 bool CommandSetGl124::test_buffer_empty_bit(SANE_Byte val) const
 {
     return (val & BUFEMPTY);
-}
-
-bool CommandSetGl124::test_motor_flag_bit(SANE_Byte val) const
-{
-    return (val & MOTORENB);
 }
 
 static void gl124_homsnr_gpio(Genesys_Device* dev)

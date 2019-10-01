@@ -49,28 +49,6 @@
 
 #include <vector>
 
-/****************************************************************************
- Mid level functions
- ****************************************************************************/
-
-bool CommandSetGl847::get_fast_feed_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, REG02);
-    return (r && (r->value & REG02_FASTFED));
-}
-
-bool CommandSetGl847::get_filter_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
-    return (r && (r->value & REG04_FILTER));
-}
-
-bool CommandSetGl847::get_lineart_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
-    return (r && (r->value & REG04_LINEART));
-}
-
 bool CommandSetGl847::get_bitset_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
@@ -86,11 +64,6 @@ bool CommandSetGl847::get_gain4_bit(Genesys_Register_Set* regs) const
 bool CommandSetGl847::test_buffer_empty_bit(SANE_Byte val) const
 {
     return (val & REG41_BUFEMPTY);
-}
-
-bool CommandSetGl847::test_motor_flag_bit(SANE_Byte val) const
-{
-    return (val & REG41_MOTORENB);
 }
 
 /**

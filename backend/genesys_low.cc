@@ -2046,7 +2046,7 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
         return;
     }
 
-    unsigned timeout_ms = 30000;
+    unsigned timeout_ms = 200000;
     unsigned elapsed_ms = 0;
   do
     {

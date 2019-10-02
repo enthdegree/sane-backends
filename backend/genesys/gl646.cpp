@@ -93,12 +93,6 @@ void CommandSetGl646::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t*
     }
 }
 
-bool CommandSetGl646::get_bitset_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
-    return (r && (r->value & REG04_BITSET));
-}
-
 bool CommandSetGl646::get_gain4_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);

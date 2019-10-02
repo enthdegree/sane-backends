@@ -70,12 +70,6 @@ static void gl841_set_buffer_address_gamma(Genesys_Device* dev, uint32_t addr)
     dev->write_register(0x5b, (addr & 0xff));
 }
 
-bool CommandSetGl841::get_bitset_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
-    return (r && (r->value & REG04_BITSET));
-}
-
 bool CommandSetGl841::get_gain4_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);

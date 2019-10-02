@@ -88,12 +88,6 @@ static void write_data(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_
     gl843_set_buffer_address(dev, 0);
 }
 
-bool CommandSetGl843::get_bitset_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address (regs, REG04);
-    return (r && (r->value & REG04_BITSET));
-}
-
 bool CommandSetGl843::get_gain4_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address (regs, REG06);

@@ -49,11 +49,6 @@
 
 #include <vector>
 
-bool CommandSetGl124::get_bitset_bit(Genesys_Register_Set* regs) const
-{
-    return static_cast<bool>(regs->get8(REG04) & REG04_BITSET);
-}
-
 bool CommandSetGl124::get_gain4_bit(Genesys_Register_Set* regs) const
 {
     return static_cast<bool>(regs->get8(REG06) & REG06_GAIN4);

@@ -74,7 +74,6 @@ public:
                                        Genesys_Register_Set& regs) const = 0;
     virtual void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const = 0;
 
-    virtual bool get_bitset_bit(Genesys_Register_Set * reg) const = 0;
     virtual bool get_gain4_bit(Genesys_Register_Set * reg) const = 0;
 
     virtual bool test_buffer_empty_bit(std::uint8_t val) const = 0;

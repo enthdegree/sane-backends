@@ -3011,7 +3011,7 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
       for (pixel = 0; pixel < total_size; pixel++)
 	{
             // 16 bit data
-            if (dev->cmd_set->get_bitset_bit(&dev->reg)) {
+            if (dev->session.params.depth == 16) {
 	      first_average += (first_line[pixel] + first_line[pixel + 1] * 256);
 	      second_average += (second_line[pixel] + second_line[pixel + 1] * 256);
 	      pixel++;
@@ -3022,7 +3022,7 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
 	      second_average += second_line[pixel];
 	    }
 	}
-        if (dev->cmd_set->get_bitset_bit(&dev->reg)) {
+        if (dev->session.params.depth == 16) {
 	  first_average /= pixel;
 	  second_average /= pixel;
 	  difference = fabs (first_average - second_average);

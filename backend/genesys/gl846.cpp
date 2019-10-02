@@ -54,12 +54,6 @@
 
 #include <vector>
 
-bool CommandSetGl846::get_bitset_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
-    return (r && (r->value & REG04_BITSET));
-}
-
 bool CommandSetGl846::get_gain4_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);

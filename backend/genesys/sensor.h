@@ -350,8 +350,8 @@ struct Genesys_Sensor {
     unsigned ccd_pixels_per_system_pixel() const
     {
         // same on GL646, GL841, GL843, GL846, GL847, GL124
-        constexpr unsigned REG_0x18_CKSEL = 0x03;
-        return (custom_regs.get_value(0x18) & REG_0x18_CKSEL) + 1;
+        constexpr unsigned REG_CKSEL = 0x03;
+        return (custom_regs.get_value(0x18) & REG_CKSEL) + 1;
     }
 
     bool matches_channel_count(unsigned count) const

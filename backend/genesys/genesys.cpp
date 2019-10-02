@@ -2388,10 +2388,10 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
       factor=sensor.optical_res/dev->settings.xres;
     }
 
-  /* for GL646, shading data is planar if REG01_FASTMOD is set and
+  /* for GL646, shading data is planar if REG_0x01_FASTMOD is set and
    * chunky if not. For now we rely on the fact that we know that
    * each sensor is used only in one mode. Currently only the CIS_XP200
-   * sets REG01_FASTMOD.
+   * sets REG_0x01_FASTMOD.
    */
 
   /* TODO setup a struct in genesys_devices that

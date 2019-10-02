@@ -47,6 +47,8 @@
 #include "conv.h"
 #include "sane/sanei_magic.h"
 
+namespace genesys {
+
 /**
  * uses the threshold/threshold_curve to control software binarization
  * This code was taken from the epjistsu backend by m. allan noah
@@ -232,3 +234,5 @@ void genesys_derotate(Genesys_Scanner* s)
     // update counters to new image size
     s->dev->total_bytes_to_read = s->params.bytes_per_line * s->params.lines;
 }
+
+} // namespace genesys

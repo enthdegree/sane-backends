@@ -29,6 +29,8 @@
 
 #include <sstream>
 
+namespace genesys {
+
 Genesys_Calibration_Cache create_fake_calibration_entry()
 {
     Genesys_Calibration_Cache calib;
@@ -133,3 +135,5 @@ void test_calibration_parsing()
 {
     test_calibration_roundtrip();
 }
+
+} // namespace genesys

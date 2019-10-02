@@ -49,6 +49,7 @@
 #include <cstdint>
 #include <cstddef>
 
+namespace genesys {
 
 enum class PixelFormat
 {
@@ -137,5 +138,7 @@ std::uint16_t get_raw_channel_from_row(const std::uint8_t* data, std::size_t x, 
 template<PixelFormat Format>
 void set_raw_channel_to_row(std::uint8_t* data, std::size_t x, unsigned channel,
                             std::uint16_t pixel);
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_IMAGE_PIXEL_H

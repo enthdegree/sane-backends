@@ -45,6 +45,8 @@
 #include <cstring>
 #include <stdexcept>
 
+namespace genesys {
+
 void Genesys_Buffer::alloc(std::size_t size)
 {
     buffer_.resize(size);
@@ -96,3 +98,5 @@ void Genesys_Buffer::consume(std::size_t size)
     avail_ -= size;
     pos_ += size;
 }
+
+} // namespace genesys

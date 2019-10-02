@@ -49,6 +49,8 @@
 
 #define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
 
+namespace genesys {
+
 typedef struct
 {
   uint8_t r31;
@@ -200,5 +202,7 @@ public:
     void calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor) const override;
     void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_GL124_H

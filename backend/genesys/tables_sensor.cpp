@@ -45,6 +45,8 @@
 
 #include "low.h"
 
+namespace genesys {
+
 inline unsigned default_get_logical_hwdpi(const Genesys_Sensor& sensor, unsigned xres)
 {
     if (sensor.logical_dpihw_override)
@@ -3721,3 +3723,5 @@ void genesys_init_sensor_tables()
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
 }
+
+} // namespace genesys

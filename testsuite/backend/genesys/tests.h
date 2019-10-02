@@ -23,9 +23,13 @@
 #ifndef SANE_TESTSUITE_BACKEND_GENESYS_GENESYS_UNIT_TEST_H
 #define SANE_TESTSUITE_BACKEND_GENESYS_GENESYS_UNIT_TEST_H
 
+namespace genesys {
+
 void test_calibration_parsing();
 void test_image();
 void test_image_pipeline();
 void test_row_buffer();
+
+} // namespace genesys
 
 #endif

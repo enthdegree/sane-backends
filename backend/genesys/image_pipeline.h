@@ -52,6 +52,8 @@
 #include <functional>
 #include <memory>
 
+namespace genesys {
+
 class ImagePipelineNode
 {
 public:
@@ -565,5 +567,6 @@ private:
     std::vector<std::unique_ptr<ImagePipelineNode>> nodes_;
 };
 
+} // namespace genesys
 
 #endif // ifndef BACKEND_GENESYS_IMAGE_PIPELINE_H

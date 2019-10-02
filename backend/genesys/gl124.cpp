@@ -49,6 +49,8 @@
 
 #include <vector>
 
+namespace genesys {
+
 bool CommandSetGl124::get_gain4_bit(Genesys_Register_Set* regs) const
 {
     return static_cast<bool>(regs->get8(REG06) & REG06_GAIN4);
@@ -2624,3 +2626,5 @@ std::unique_ptr<CommandSet> create_gl124_cmd_set()
 {
     return std::unique_ptr<CommandSet>(new CommandSetGl124{});
 }
+
+} // namespace genesys

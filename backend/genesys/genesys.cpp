@@ -75,6 +75,8 @@
 #include <exception>
 #include <vector>
 
+namespace genesys {
+
 // Data that we allocate to back SANE_Device objects in s_sane_devices
 struct SANE_Device_Data
 {
@@ -4721,7 +4723,7 @@ sane_exit_impl(void)
   run_functions_at_backend_exit();
 }
 
-void sane_exit()
+extern "C" void sane_exit()
 {
     catch_all_exceptions(__func__, [](){ sane_exit_impl(); });
 }
@@ -4768,7 +4770,7 @@ sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status sane_get_devices(const SANE_Device *** device_list, SANE_Bool local_only)
+extern "C" SANE_Status sane_get_devices(const SANE_Device *** device_list, SANE_Bool local_only)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -4879,7 +4881,7 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     return SANE_STATUS_GOOD;
 }
 
-SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle* handle)
+extern "C" SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle* handle)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -4954,7 +4956,7 @@ sane_close_impl(SANE_Handle handle)
   s_scanners->erase(it);
 }
 
-void sane_close(SANE_Handle handle)
+extern "C" void sane_close(SANE_Handle handle)
 {
     catch_all_exceptions(__func__, [=]()
     {
@@ -4976,7 +4978,7 @@ sane_get_option_descriptor_impl(SANE_Handle handle, SANE_Int option)
 }
 
 
-const SANE_Option_Descriptor *
+extern "C" const SANE_Option_Descriptor*
 sane_get_option_descriptor(SANE_Handle handle, SANE_Int option)
 {
     const SANE_Option_Descriptor* ret = nullptr;
@@ -5661,8 +5663,8 @@ sane_control_option_impl(SANE_Handle handle, SANE_Int option,
   return status;
 }
 
-SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option,
-                                SANE_Action action, void *val, SANE_Int * info)
+extern "C" SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option,
+                                           SANE_Action action, void *val, SANE_Int * info)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -5698,7 +5700,7 @@ SANE_Status sane_get_parameters_impl(SANE_Handle handle, SANE_Parameters* params
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status sane_get_parameters(SANE_Handle handle, SANE_Parameters* params)
+extern "C" SANE_Status sane_get_parameters(SANE_Handle handle, SANE_Parameters* params)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -5786,7 +5788,7 @@ SANE_Status sane_start_impl(SANE_Handle handle)
   return status;
 }
 
-SANE_Status sane_start(SANE_Handle handle)
+extern "C" SANE_Status sane_start(SANE_Handle handle)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -5918,7 +5920,7 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
     return SANE_STATUS_GOOD;
 }
 
-SANE_Status sane_read(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
+extern "C" SANE_Status sane_read(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -5962,7 +5964,7 @@ void sane_cancel_impl(SANE_Handle handle)
   return;
 }
 
-void sane_cancel(SANE_Handle handle)
+extern "C" void sane_cancel(SANE_Handle handle)
 {
     catch_all_exceptions(__func__, [=]() { sane_cancel_impl(handle); });
 }
@@ -5984,8 +5986,7 @@ sane_set_io_mode_impl(SANE_Handle handle, SANE_Bool non_blocking)
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status
-sane_set_io_mode(SANE_Handle handle, SANE_Bool non_blocking)
+extern "C" SANE_Status sane_set_io_mode(SANE_Handle handle, SANE_Bool non_blocking)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -6007,8 +6008,7 @@ sane_get_select_fd_impl(SANE_Handle handle, SANE_Int * fd)
   return SANE_STATUS_UNSUPPORTED;
 }
 
-SANE_Status
-sane_get_select_fd(SANE_Handle handle, SANE_Int * fd)
+extern "C" SANE_Status sane_get_select_fd(SANE_Handle handle, SANE_Int* fd)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -6030,3 +6030,5 @@ GenesysButtonName genesys_option_to_button(int option)
     default: throw std::runtime_error("Unknown option to convert to button index");
     }
 }
+
+} // namespace genesys

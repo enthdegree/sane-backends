@@ -207,6 +207,8 @@
 #define MAX_RESOLUTIONS 13
 #define MAX_DPI 4
 
+namespace genesys {
+
 /* Forward typedefs */
 struct Genesys_Scanner;
 typedef struct Genesys_Calibration_Cache  Genesys_Calibration_Cache;
@@ -634,5 +636,7 @@ void debug_dump(unsigned level, const Genesys_Current_Setup& setup);
 void debug_dump(unsigned level, const Genesys_Register_Set& regs);
 void debug_dump(unsigned level, const GenesysRegisterSettingSet& regs);
 void debug_dump(unsigned level, const Genesys_Sensor& sensor);
+
+} // namespace genesys
 
 #endif /* not GENESYS_LOW_H */

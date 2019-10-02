@@ -48,6 +48,8 @@
 #include "settings.h"
 #include <ctime>
 
+namespace genesys {
+
 struct Genesys_Calibration_Cache
 {
     Genesys_Calibration_Cache() = default;
@@ -103,5 +105,7 @@ void serialize(Stream& str, Genesys_Calibration_Cache& x)
     serialize_newline(str);
     serialize(str, x.dark_average_data);
 }
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_CALIBRATION_H

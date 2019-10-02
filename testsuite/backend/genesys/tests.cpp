@@ -27,9 +27,9 @@
 
 int main()
 {
-    test_calibration_parsing();
-    test_image();
-    test_image_pipeline();
-    test_row_buffer();
+    genesys::test_calibration_parsing();
+    genesys::test_image();
+    genesys::test_image_pipeline();
+    genesys::test_row_buffer();
     return finish_tests();
 }

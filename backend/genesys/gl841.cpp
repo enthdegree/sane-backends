@@ -57,6 +57,8 @@
 
 #include <vector>
 
+namespace genesys {
+
 // Set address for writing data
 static void gl841_set_buffer_address_gamma(Genesys_Device* dev, uint32_t addr)
 {
@@ -4256,3 +4258,5 @@ std::unique_ptr<CommandSet> create_gl841_cmd_set()
 {
     return std::unique_ptr<CommandSet>(new CommandSetGl841{});
 }
+
+} // namespace genesys

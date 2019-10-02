@@ -48,6 +48,8 @@
 #include "sensor.h"
 #include "genesys.h"
 
+namespace genesys {
+
 void binarize_line(Genesys_Device* dev, std::uint8_t* src, std::uint8_t* dst, int width);
 
 void genesys_gray_lineart(Genesys_Device* dev,
@@ -61,5 +63,7 @@ void genesys_deskew(Genesys_Scanner *s, const Genesys_Sensor& sensor);
 void genesys_despeck(Genesys_Scanner* s);
 
 void genesys_derotate(Genesys_Scanner* s);
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_CONV_H

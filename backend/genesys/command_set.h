@@ -47,6 +47,8 @@
 #include "device.h"
 #include <cstdint>
 
+namespace genesys {
+
 class Genesys_Device;
 
 /** Scanner command set description.
@@ -161,5 +163,6 @@ public:
     virtual void asic_boot(Genesys_Device* dev, bool cold) const = 0;
 };
 
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_COMMAND_SET_H

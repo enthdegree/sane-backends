@@ -56,6 +56,8 @@
 #include "sanei.h"
 #include <vector>
 
+namespace genesys {
+
 struct Genesys_Gpo
 {
     Genesys_Gpo() = default;
@@ -370,5 +372,7 @@ private:
 };
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs);
+
+} // namespace genesys
 
 #endif

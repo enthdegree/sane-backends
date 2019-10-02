@@ -47,6 +47,8 @@
 
 #include <array>
 
+namespace genesys {
+
 Image::Image() = default;
 
 Image::Image(std::size_t width, std::size_t height, PixelFormat format) :
@@ -198,3 +200,5 @@ void convert_pixel_row_format(const std::uint8_t* in_data, PixelFormat in_format
             throw SaneException("Unknown pixel format %d", static_cast<unsigned>(in_format));
     }
 }
+
+} // namespace genesys

@@ -45,6 +45,8 @@
 
 #include "low.h"
 
+namespace genesys {
+
 StaticInit<std::vector<Genesys_Frontend>> s_frontends;
 
 void genesys_init_frontend_tables()
@@ -625,3 +627,5 @@ void genesys_init_frontend_tables()
     fe.reg2 = {0x00, 0x00, 0x00};
     s_frontends->push_back(fe);
 }
+
+} // namespace genesys

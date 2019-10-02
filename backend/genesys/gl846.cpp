@@ -54,6 +54,8 @@
 
 #include <vector>
 
+namespace genesys {
+
 bool CommandSetGl846::get_gain4_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);
@@ -2439,3 +2441,5 @@ std::unique_ptr<CommandSet> create_gl846_cmd_set()
 {
     return std::unique_ptr<CommandSet>(new CommandSetGl846{});
 }
+
+} // namespace genesys

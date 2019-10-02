@@ -45,6 +45,8 @@
 
 #include "sanei.h"
 
+namespace genesys {
+
 UsbDevice::~UsbDevice()
 {
     if (is_open()) {
@@ -139,3 +141,5 @@ void UsbDevice::set_not_open()
     is_open_ = false;
     name_ = "";
 }
+
+} // namespace genesys

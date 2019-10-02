@@ -50,6 +50,8 @@
 #include <string>
 #include <vector>
 
+namespace genesys {
+
 // Set address for writing data
 static void gl843_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 {
@@ -3490,3 +3492,5 @@ std::unique_ptr<CommandSet> create_gl843_cmd_set()
 {
     return std::unique_ptr<CommandSet>(new CommandSetGl843{});
 }
+
+} // namespace genesys

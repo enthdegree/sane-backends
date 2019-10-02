@@ -47,6 +47,8 @@
 #include "enums.h"
 #include "serialize.h"
 
+namespace genesys {
+
 struct Genesys_Settings
 {
     ScanMethod scan_method = ScanMethod::FLATBED;
@@ -345,5 +347,7 @@ void serialize(Stream& str, Genesys_Current_Setup& x)
     serialize(str, x.stagger);
     serialize(str, x.max_shift);
 }
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_SETTINGS_H

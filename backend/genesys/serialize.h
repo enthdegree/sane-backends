@@ -51,6 +51,8 @@
 #include <string>
 #include <vector>
 
+namespace genesys {
+
 // it would be best to use something like boost.serialization
 
 inline void serialize_newline(std::ostream& str) { str << '\n'; }
@@ -142,5 +144,7 @@ void serialize(std::istream& str, std::array<T, Size>& x)
         serialize(str, item);
     }
 }
+
+} // namespace genesys
 
 #endif

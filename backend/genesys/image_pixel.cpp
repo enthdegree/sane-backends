@@ -47,6 +47,8 @@
 
 #include <array>
 
+namespace genesys {
+
 struct PixelFormatDesc
 {
     PixelFormat format;
@@ -503,3 +505,5 @@ template void set_raw_channel_to_row<PixelFormat::RGB161616>(
         std::uint8_t* data, std::size_t x, unsigned channel, std::uint16_t pixel);
 template void set_raw_channel_to_row<PixelFormat::BGR161616>(
         std::uint8_t* data, std::size_t x, unsigned channel, std::uint16_t pixel);
+
+} // namespace genesys

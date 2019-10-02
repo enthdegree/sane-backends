@@ -54,6 +54,8 @@
 /*                  functions calling ASIC specific functions               */
 /* ------------------------------------------------------------------------ */
 
+namespace genesys {
+
 /**
  * setup the hardware dependent functions
  */
@@ -2633,3 +2635,5 @@ void debug_dump(unsigned level, const Genesys_Sensor& sensor)
     DBG(level, "    gamma.green : %f\n", sensor.gamma[1]);
     DBG(level, "    gamma.blue : %f\n", sensor.gamma[2]);
 }
+
+} // namespace genesys

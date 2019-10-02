@@ -47,6 +47,8 @@
 #ifndef BACKEND_GENESYS_GL846_H
 #define BACKEND_GENESYS_GL846_H
 
+namespace genesys {
+
 /** @brief moves the slider to steps at motor base dpi
  * @param dev device to work on
  * @param steps number of steps to move
@@ -213,5 +215,7 @@ public:
     void calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor) const override;
     void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_GL846_H

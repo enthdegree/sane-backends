@@ -1727,7 +1727,6 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
     uint32_t addr, length, x, factor, segcnt, pixels, i;
-  uint32_t lines, channels;
   uint16_t dpiset,dpihw;
     uint8_t *ptr, *src;
 
@@ -1746,19 +1745,6 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     dpihw = sensor.get_register_hwdpi(dpiset);
   factor=dpihw/dpiset;
   DBG( DBG_io2, "%s: factor=%d\n",__func__,factor);
-
-  /* binary data logging */
-  if(DBG_LEVEL>=DBG_data)
-    {
-        dev->binary = std::fopen("binary.pnm","wb");
-        lines = dev->reg.get24(REG_LINCNT);
-        channels = dev->session.params.channels;
-        if (dev->binary != nullptr) {
-            std::fprintf(dev->binary,"P5\n%d %d\n%d\n",
-                         (endpixel - strpixel) / factor * channels * dev->session.segment_count,
-                         lines / channels, 255);
-        }
-    }
 
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2; /* 2 words of 2 bytes */

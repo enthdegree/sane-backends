@@ -67,7 +67,6 @@
 #include "../include/sane/sanei_magic.h"
 
 #include <array>
-#include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iterator>
@@ -4844,7 +4843,6 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     s->dev->read_active = false;
   s->dev->force_calibration = 0;
   s->dev->line_count = 0;
-    s->dev->binary = nullptr;
 
   *handle = s;
 
@@ -5932,12 +5930,6 @@ void sane_cancel_impl(SANE_Handle handle)
 {
     DBG_HELPER(dbg);
     Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
-
-    // end binary logging if needed
-    if (s->dev->binary != nullptr) {
-      fclose(s->dev->binary);
-        s->dev->binary = nullptr;
-    }
 
     s->scanning = false;
     s->dev->read_active = false;

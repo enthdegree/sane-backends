@@ -45,7 +45,6 @@
 
 #include "error.h"
 #include <cstdarg>
-#include <cstdio>
 
 extern "C" void sanei_debug_msg(int level, int max_level, const char *be, const char *fmt,
                                 std::va_list ap);

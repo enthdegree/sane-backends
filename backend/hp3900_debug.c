@@ -761,7 +761,7 @@ dbg_buffer (SANE_Int level, char *title, SANE_Byte * buffer, SANE_Int size,
 			    snprintf (sline, 80, " BF: ");
 			  else
 			    snprintf (sline, 80, "               ");
-			  bzero (&text, sizeof (text));
+			  memset (&text, 0, sizeof (text));
 			}
 		      data = _B0 (buffer[cont]);
 		      text[col] = (data > 31) ? data : '·';
@@ -776,7 +776,7 @@ dbg_buffer (SANE_Int level, char *title, SANE_Byte * buffer, SANE_Int size,
 				    start + offset - 8);
 			  sline = strcat (sline, sdata);
 			  DBG (level, "%s", sline);
-			  bzero (sline, 81);
+			  memset (sline, 0, 81);
 			}
 		    }
 		  if (col > 0)
@@ -791,7 +791,7 @@ dbg_buffer (SANE_Int level, char *title, SANE_Byte * buffer, SANE_Int size,
 				start + offset - 8);
 		      sline = strcat (sline, sdata);
 		      DBG (level, "%s", sline);
-		      bzero (sline, 81);
+		      memset (sline, 0, 81);
 		    }
 		  free (sdata);
 		}

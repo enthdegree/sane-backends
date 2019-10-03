@@ -459,7 +459,7 @@ show_buffer (SANE_Int level, SANE_Byte * buffer, SANE_Int size)
 	      sdata = (char *) malloc (256);
 	      if (sdata != NULL)
 		{
-		  bzero (sline, 256);
+		  memset (sline, 0, 256);
 		  for (cont = 0; cont < size; cont++)
 		    {
 		      if (col == 0)
@@ -480,7 +480,7 @@ show_buffer (SANE_Int level, SANE_Byte * buffer, SANE_Int size)
 			  snprintf (sdata, 255, " : %i\n", offset - 8);
 			  sline = strcat (sline, sdata);
 			  DBG (level, "%s", sline);
-			  bzero (sline, 256);
+			  memset (sline, 0, 256);
 			}
 		    }
 		  if (col > 0)
@@ -494,7 +494,7 @@ show_buffer (SANE_Int level, SANE_Byte * buffer, SANE_Int size)
 		      snprintf (sdata, 255, " : %i\n", offset - 8);
 		      sline = strcat (sline, sdata);
 		      DBG (level, "%s", sline);
-		      bzero (sline, 256);
+		      memset (sline, 0, 256);
 		    }
 		  free (sdata);
 		}

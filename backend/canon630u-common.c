@@ -939,7 +939,7 @@ plugin_cal (CANON_Handle * s)
     {
       DBG (1, "No temp filename!\n");
       s->fname = strdup ("/tmp/cal.XXXXXX");
-      mktemp (s->fname);
+      mkstemp (s->fname);
     }
   s->width = 2551;
   s->height = 75;
@@ -1583,7 +1583,7 @@ CANON_start_scan (CANON_Handle * scanner)
 
   /* choose a temp file name for scan data */
   scanner->fname = strdup ("/tmp/scan.XXXXXX");
-  if (!mktemp (scanner->fname))
+  if (!mkstemp (scanner->fname))
     return SANE_STATUS_IO_ERROR;
 
   /* calibrate if needed */

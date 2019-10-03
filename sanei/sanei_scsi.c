@@ -615,7 +615,7 @@ open_aspi (void)
   DBG (1, "OS/2: unique id is    '%s'\n", PSRBlock->u.inq.unique_id);
 
   strcpy (tmpAspi, "asXXXXXX");
-  mktemp (tmpAspi);
+  mkstemp (tmpAspi);
   DBG (2, "open_aspi: open temporary file '%s'\n", tmpAspi);
   tmp = fopen (tmpAspi, "w");
   if (!tmp)

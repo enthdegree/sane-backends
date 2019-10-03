@@ -2030,7 +2030,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   if (tmpname == NULL)
     {
       tmpname = tmpnamebuf;
-      if (mktemp (tmpname) == NULL)
+      if (!mkstemp (tmpname))
 	{
 	  DBG (1, "Unable to make temp file %s\n", tmpname);
 	  return SANE_STATUS_INVAL;

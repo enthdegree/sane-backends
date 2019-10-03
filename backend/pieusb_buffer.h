@@ -48,6 +48,10 @@
 #include "pieusb.h"
 #include "../include/sane/sanei_ir.h"
 
+#ifndef L_tmpnam
+#define L_tmpnam 20
+#endif
+
 struct Pieusb_Read_Buffer
 {
     SANE_Uint* data; /* image data - always store as 16 bit values; mmap'ed */

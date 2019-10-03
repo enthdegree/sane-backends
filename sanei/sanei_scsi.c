@@ -3272,7 +3272,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
     /* Build the CCB */
     bzero (&(&ccb->ccb_h)[1], sizeof (struct ccb_scsiio));
-    bcopy (cmd, &ccb->csio.cdb_io.cdb_bytes, cmd_size);
+    memcpy (&ccb->csio.cdb_io.cdb_bytes, cmd, cmd_size);
 
     /*
      * Set the data direction flags.

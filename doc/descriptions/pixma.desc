@@ -163,8 +163,8 @@
 :model "PIXMA MG3000 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x180b"
-:status :untested
-:comment "Testers needed!"
+:status :good
+:comment "All resolutions supported (up to 600DPI). WiFi not working."
 
 :model "PIXMA MG3100 Series"
 :interface "USB WiFi"

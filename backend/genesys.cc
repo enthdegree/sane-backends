@@ -3944,6 +3944,7 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
 
   /* "Mode" group: */
+  s->opt[OPT_MODE_GROUP].name = "scanmode-group";
   s->opt[OPT_MODE_GROUP].title = SANE_I18N ("Scan Mode");
   s->opt[OPT_MODE_GROUP].desc = "";
   s->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
@@ -4026,6 +4027,7 @@ static void init_options(Genesys_Scanner* s)
   s->resolution = min_dpi;
 
   /* "Geometry" group: */
+  s->opt[OPT_GEOMETRY_GROUP].name = SANE_NAME_GEOMETRY;
   s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N ("Geometry");
   s->opt[OPT_GEOMETRY_GROUP].desc = "";
   s->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
@@ -4086,6 +4088,7 @@ static void init_options(Genesys_Scanner* s)
   s->pos_bottom_right_y = y_range->max;
 
   /* "Enhancement" group: */
+  s->opt[OPT_ENHANCEMENT_GROUP].name = SANE_NAME_ENHANCEMENT;
   s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
   s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
   s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
@@ -4218,6 +4221,7 @@ static void init_options(Genesys_Scanner* s)
   s->contrast = 0;  // disable by default
 
   /* "Extras" group: */
+  s->opt[OPT_EXTRAS_GROUP].title = "extras-group";
   s->opt[OPT_EXTRAS_GROUP].title = SANE_I18N ("Extras");
   s->opt[OPT_EXTRAS_GROUP].desc = "";
   s->opt[OPT_EXTRAS_GROUP].type = SANE_TYPE_GROUP;
@@ -4353,6 +4357,7 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_LAMP_OFF].constraint_type = SANE_CONSTRAINT_NONE;
   s->lamp_off = false;
 
+  s->opt[OPT_SENSOR_GROUP].name = SANE_NAME_SENSORS;
   s->opt[OPT_SENSOR_GROUP].title = SANE_TITLE_SENSORS;
   s->opt[OPT_SENSOR_GROUP].desc = SANE_DESC_SENSORS;
   s->opt[OPT_SENSOR_GROUP].type = SANE_TYPE_GROUP;
@@ -4465,6 +4470,7 @@ static void init_options(Genesys_Scanner* s)
     s->opt[OPT_NEED_CALIBRATION_SW].cap = SANE_CAP_INACTIVE;
 
   /* button group */
+  s->opt[OPT_BUTTON_GROUP].name = "buttons";
   s->opt[OPT_BUTTON_GROUP].title = SANE_I18N ("Buttons");
   s->opt[OPT_BUTTON_GROUP].desc = "";
   s->opt[OPT_BUTTON_GROUP].type = SANE_TYPE_GROUP;

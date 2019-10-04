@@ -1142,8 +1142,8 @@
 :model "i-SENSYS MF640 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x27fe"
-:status :untested
-:comment "Testers needed!"
+:status :good
+:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI). Ethernet and WiFi not tested yet"
 
 :model "i-SENSYS MF645C"
 :interface "USB Ethernet WiFi"

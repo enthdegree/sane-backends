@@ -1755,6 +1755,17 @@ static void gl843_set_xpa_lamp_power(Genesys_Device* dev, bool set)
                 { 0x6c, 0x00, 0x80 },
             }
         },
+        {   MODEL_PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY, {
+            }, {
+                { 0xa6, 0x40, 0x70 }, // BUG: remove this cleanup write, it was enabled by accident
+            }
+        },
+        {   MODEL_PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY_INFRARED, {
+                { 0xa8, 0x07, 0x07 },
+            }, {
+                { 0xa8, 0x00, 0x07 },
+            }
+        },
     };
 
     for (const auto& setting : settings) {
@@ -1830,6 +1841,12 @@ static void gl843_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                 gl843_set_xpa_motor_power(dev, true);
             }
         break;
+        case GPO_PLUSTEK_7200I: {
+            if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
+                gl843_set_xpa_lamp_power(dev, true);
+            }
+            break;
+        }
       case GPO_CS4400F:
       default:
         break;

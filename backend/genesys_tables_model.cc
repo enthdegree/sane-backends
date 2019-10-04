@@ -2373,6 +2373,7 @@ void genesys_init_usb_device_tables()
     model.motor_type = MOTOR_PLUSTEK_7200I;
 
     model.flags = GENESYS_FLAG_HAS_UTA |
+                  GENESYS_FLAG_HAS_UTA_INFRARED |
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |

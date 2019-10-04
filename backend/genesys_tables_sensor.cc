@@ -3378,6 +3378,10 @@ void genesys_init_sensor_tables()
                     { 0x04, 0x20 },
                 }
             },
+            { { 900 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 900, 8, 0x1f54, 150, {} },
+            { { 1800 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 1800, 4, 0x1f54, 300, {} },
+            { { 3600 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 3600, 2, 0x1f54, 600, {} },
+            { { 7200 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 7200, 1, 0x1f54, 1200, {} },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {

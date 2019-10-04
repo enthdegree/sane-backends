@@ -918,7 +918,8 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
 
             // we don't actually turn on lamp on infrared scan
             if ((dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
-                 dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) &&
+                 dev->model->model_id == MODEL_CANON_CANOSCAN_8600F ||
+                 dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) &&
                 dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
             {
                 regs.find_reg(0x03).value &= ~REG03_LAMPPWR;

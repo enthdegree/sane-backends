@@ -976,7 +976,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF420 Series", "MF420", MF420_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF260 Series", "MF260", MF260_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF740 Series", "MF740", MF740_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
-  DEV ("Canon i-SENSYS MF640 Series", "MF640", MF640_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
+  DEV ("Canon i-SENSYS MF640 Series", "MF642C/643C/644C", MF640_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF645C", "MF645C", MF645_PID, 600, 0, 637, 877, PIXMA_CAP_ADFDUP),                    /* max. w = 216mm */
   DEV (NULL, NULL, 0, 0, 0, 0, 0, 0)
 };

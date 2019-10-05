@@ -48,16 +48,9 @@
 #define BACKEND_GENESYS_GL646_H
 
 #include "genesys.h"
+#include "genesys_command_set.h"
 
 static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set, int dpi);
-
-static void gl646_public_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set);
-
-static void gl646_save_power(Genesys_Device* dev, SANE_Bool enable);
-
-static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home);
-
-static void gl646_move_to_ta(Genesys_Device* dev);
 
 /**
  * sets up the scanner for a scan, registers, gamma tables, shading tables
@@ -107,8 +100,8 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 /**
  * Send the stop scan command
  * */
-static void end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop,
-                     SANE_Bool eject);
+static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop,
+                          SANE_Bool eject);
 /**
  * writes control data to an area behind the last motor table.
  */
@@ -119,10 +112,6 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
  * initialize scanner's registers at SANE init time
  */
 static void gl646_init_regs (Genesys_Device * dev);
-
-static void gl646_load_document(Genesys_Device* dev);
-
-static void gl646_detect_document_end(Genesys_Device* dev);
 
 #define FULL_STEP   0
 #define HALF_STEP   1
@@ -244,6 +233,98 @@ static Motor_Master motor_master[] = {
   {MOTOR_5345,   600, 1, HALF_STEP  , SANE_FALSE, SANE_TRUE , 0,  32,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 32},
   {MOTOR_5345,  1200, 1, QUATER_STEP, SANE_FALSE, SANE_TRUE , 0,  16,  2750,  2750, 255, 2000,  300, 0.3, 0.4, 146},
   {MOTOR_5345,  2400, 1, QUATER_STEP, SANE_FALSE, SANE_TRUE , 0,  16,  5500,  5500, 255, 2000,  300, 0.3, 0.4, 146}, /* 5500 guessed */
+};
+
+class CommandSetGl646 : public CommandSet
+{
+public:
+    ~CommandSetGl646() = default;
+
+    bool needs_home_before_init_regs_for_scan(Genesys_Device* dev) const override;
+
+    void init(Genesys_Device* dev) const override;
+
+    void init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                              Genesys_Register_Set* regs, int* channels,
+                              int* total_size) const override;
+
+    void init_regs_for_coarse_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                          Genesys_Register_Set& regs) const override;
+
+    void init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                               Genesys_Register_Set& regs) const override;
+
+    void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
+
+    bool get_filter_bit(Genesys_Register_Set * reg) const override;
+    bool get_lineart_bit(Genesys_Register_Set * reg) const override;
+    bool get_bitset_bit(Genesys_Register_Set * reg) const override;
+    bool get_gain4_bit(Genesys_Register_Set * reg) const override;
+    bool get_fast_feed_bit(Genesys_Register_Set * reg) const override;
+
+    bool test_buffer_empty_bit(std::uint8_t val) const override;
+    bool test_motor_flag_bit(std::uint8_t val) const override;
+
+    void set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set) const override;
+    void set_powersaving(Genesys_Device* dev, int delay) const override;
+    void save_power(Genesys_Device* dev, bool enable) const override;
+
+    void begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                    Genesys_Register_Set* regs, bool start_motor) const override;
+
+    void end_scan(Genesys_Device* dev, Genesys_Register_Set* regs, bool check_stop) const override;
+
+    void send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
+
+    void search_start_position(Genesys_Device* dev) const override;
+
+    void offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                            Genesys_Register_Set& regs) const override;
+
+    void coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                 Genesys_Register_Set& regs, int dpi) const override;
+
+    SensorExposure led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                   Genesys_Register_Set& regs) const override;
+
+    void wait_for_motor_stop(Genesys_Device* dev) const override;
+    void slow_back_home(Genesys_Device* dev, bool wait_until_home) const override;
+    void rewind(Genesys_Device* dev) const override;
+
+    bool has_rewind() const override { return false; }
+
+    void bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
+                         size_t len) const override;
+    void bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t * data,
+                        size_t len) const override;
+
+    void update_hardware_sensors(struct Genesys_Scanner* s) const override;
+
+    void load_document(Genesys_Device* dev) const override;
+
+    void detect_document_end(Genesys_Device* dev) const override;
+
+    void eject_document(Genesys_Device* dev) const override;
+
+    void search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                      bool forward, bool black) const override;
+
+    bool is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                   Genesys_Calibration_Cache* cache,
+                                   bool for_overwrite) const override;
+
+    void move_to_ta(Genesys_Device* dev) const override;
+
+    void send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t* data,
+                           int size) const override;
+
+    bool has_send_shading_data() const override
+    {
+        return false;
+    }
+
+    void calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor) const override;
+    void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
 
 #endif // BACKEND_GENESYS_GL646_H

@@ -45,6 +45,7 @@
 #define BACKEND_GENESYS_DEVICE_H
 
 #include "genesys_calibration.h"
+#include "genesys_command_set.h"
 #include "genesys_buffer.h"
 #include "genesys_enums.h"
 #include "genesys_image_pipeline.h"
@@ -72,8 +73,6 @@ struct Genesys_Gpo
     */
     GenesysRegisterSettingSet regs;
 };
-
-struct Genesys_Command_Set;
 
 /** @brief structure to describe a scanner model
  * This structure describes a model. It is composed of information on the
@@ -236,7 +235,7 @@ struct Genesys_Device
     Genesys_Model *model = nullptr;
 
     // pointers to low level functions
-    Genesys_Command_Set* cmd_set = nullptr;
+    std::unique_ptr<CommandSet> cmd_set;
 
     Genesys_Register_Set reg;
     Genesys_Register_Set calib_reg;

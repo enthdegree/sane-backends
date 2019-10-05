@@ -82,8 +82,7 @@ static void gl841_set_buffer_address_gamma(Genesys_Device* dev, uint32_t addr)
  Mid level functions
  ****************************************************************************/
 
-static SANE_Bool
-gl841_get_fast_feed_bit (Genesys_Register_Set * regs)
+bool CommandSetGl841::get_fast_feed_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -93,8 +92,7 @@ gl841_get_fast_feed_bit (Genesys_Register_Set * regs)
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl841_get_filter_bit (Genesys_Register_Set * regs)
+bool CommandSetGl841::get_filter_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -104,8 +102,7 @@ gl841_get_filter_bit (Genesys_Register_Set * regs)
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl841_get_lineart_bit (Genesys_Register_Set * regs)
+bool CommandSetGl841::get_lineart_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -115,8 +112,7 @@ gl841_get_lineart_bit (Genesys_Register_Set * regs)
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl841_get_bitset_bit (Genesys_Register_Set * regs)
+bool CommandSetGl841::get_bitset_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -126,8 +122,7 @@ gl841_get_bitset_bit (Genesys_Register_Set * regs)
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl841_get_gain4_bit (Genesys_Register_Set * regs)
+bool CommandSetGl841::get_gain4_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -137,16 +132,14 @@ gl841_get_gain4_bit (Genesys_Register_Set * regs)
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl841_test_buffer_empty_bit (SANE_Byte val)
+bool CommandSetGl841::test_buffer_empty_bit(SANE_Byte val) const
 {
   if (val & REG41_BUFEMPTY)
     return SANE_TRUE;
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl841_test_motor_flag_bit (SANE_Byte val)
+bool CommandSetGl841::test_motor_flag_bit(SANE_Byte val) const
 {
   if (val & REG41_MOTORENB)
     return SANE_TRUE;
@@ -806,7 +799,7 @@ static void gl841_set_ad_fe(Genesys_Device* dev, uint8_t set)
 }
 
 // Set values of analog frontend
-static void gl841_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set)
+void CommandSetGl841::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set) const
 {
     DBG_HELPER_ARGS(dbg, "%s", set == AFE_INIT ? "init" :
                                set == AFE_SET ? "set" :
@@ -1460,7 +1453,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     GenesysRegister* r;
     uint16_t expavg, expr, expb, expg;
 
-    gl841_set_fe(dev, sensor, AFE_SET);
+    dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 
     /* gpio part.*/
     if (dev->model->gpo_type == GPO_CANONLIDE35)
@@ -1866,7 +1859,8 @@ dummy \ scanned lines
   DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
 }
 
-static void gl841_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor)
+void CommandSetGl841::calculate_current_setup(Genesys_Device * dev,
+                                              const Genesys_Sensor& sensor) const
 {
   int start;
 
@@ -1960,7 +1954,7 @@ dummy \ scanned lines
 }
 
 // for fast power saving methods only, like disabling certain amplifiers
-static void gl841_save_power(Genesys_Device* dev, SANE_Bool enable)
+void CommandSetGl841::save_power(Genesys_Device* dev, bool enable) const
 {
     DBG_HELPER_ARGS(dbg, "enable = %d", enable);
 
@@ -2006,7 +2000,7 @@ static void gl841_save_power(Genesys_Device* dev, SANE_Bool enable)
             dev->calib_reg.find_reg(0x6b).value &= ~REG6B_GPO17;
 	  }
 
-        gl841_set_fe(dev, sensor, AFE_POWER_SAVE);
+        set_fe(dev, sensor, AFE_POWER_SAVE);
 
     }
     else
@@ -2056,7 +2050,7 @@ static void gl841_save_power(Genesys_Device* dev, SANE_Bool enable)
     }
 }
 
-static void gl841_set_powersaving(Genesys_Device* dev, int delay /* in minutes */)
+void CommandSetGl841::set_powersaving(Genesys_Device* dev, int delay /* in minutes */) const
 {
     DBG_HELPER_ARGS(dbg, "delay = %d", delay);
   // FIXME: SEQUENTIAL not really needed in this case
@@ -2189,7 +2183,7 @@ static void gl841_get_paper_sensor(Genesys_Device* dev, SANE_Bool * paper_loaded
     *paper_loaded = (val & 0x1) == 0;
 }
 
-static void gl841_eject_document(Genesys_Device* dev)
+void CommandSetGl841::eject_document(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
@@ -2303,7 +2297,7 @@ static void gl841_eject_document(Genesys_Device* dev)
 }
 
 
-static void gl841_load_document(Genesys_Device* dev)
+void CommandSetGl841::load_document(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
   SANE_Bool paper_loaded;
@@ -2340,7 +2334,7 @@ static void gl841_load_document(Genesys_Device* dev)
  * to take it into account
  * used by sheetfed scanners
  */
-static void gl841_detect_document_end(Genesys_Device* dev)
+void CommandSetGl841::detect_document_end(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
   SANE_Bool paper_loaded;
@@ -2401,8 +2395,8 @@ static void gl841_detect_document_end(Genesys_Device* dev)
 
 // Send the low-level scan command
 // todo : is this that useful ?
-static void gl841_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                             Genesys_Register_Set* reg, SANE_Bool start_motor)
+void CommandSetGl841::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                 Genesys_Register_Set* reg, bool start_motor) const
 {
     DBG_HELPER(dbg);
     (void) sensor;
@@ -2438,8 +2432,8 @@ static void gl841_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
 
 // Send the stop scan command
-static void gl841_end_scan(Genesys_Device* dev, Genesys_Register_Set __sane_unused__* reg,
-                           SANE_Bool check_stop)
+void CommandSetGl841::end_scan(Genesys_Device* dev, Genesys_Register_Set __sane_unused__* reg,
+                               bool check_stop) const
 {
     DBG_HELPER_ARGS(dbg, "check_stop = %d", check_stop);
 
@@ -2503,7 +2497,7 @@ static void gl841_feed(Genesys_Device* dev, int steps)
 }
 
 // Moves the slider to the home (top) position slowly
-static void gl841_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
+void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
@@ -2529,7 +2523,7 @@ static void gl841_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
         val = REG6B_GPO18 | REG6B_GPO17;
         dev->write_register(REG6B, val);
     }
-  gl841_save_power(dev, SANE_FALSE);
+    dev->cmd_set->save_power(dev, SANE_FALSE);
 
     // first read gives HOME_SENSOR true
     sanei_genesys_get_status(dev, &val);
@@ -2621,7 +2615,7 @@ static void gl841_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
 
 // Automatically set top-left edge of the scan area by scanning a 200x200 pixels area at 600 dpi
 // from very top of scanner
-static void gl841_search_start_position(Genesys_Device* dev)
+void CommandSetGl841::search_start_position(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
   int size;
@@ -2667,7 +2661,7 @@ static void gl841_search_start_position(Genesys_Device* dev)
 
   std::vector<uint8_t> data(size);
 
-    gl841_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
+    dev->cmd_set->begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {
@@ -2682,7 +2676,7 @@ static void gl841_search_start_position(Genesys_Device* dev)
                                      dev->model->search_lines);
     }
 
-    gl841_end_scan(dev, &local_reg, SANE_TRUE);
+    dev->cmd_set->end_scan(dev, &local_reg, SANE_TRUE);
 
   /* update regs to copy ASIC internal state */
   dev->reg = local_reg;
@@ -2697,9 +2691,9 @@ static void gl841_search_start_position(Genesys_Device* dev)
 
 // sets up register for coarse gain calibration
 // todo: check it for scanners using it
-static void gl841_init_regs_for_coarse_calibration(Genesys_Device* dev,
-                                                   const Genesys_Sensor& sensor,
-                                                   Genesys_Register_Set& regs)
+void CommandSetGl841::init_regs_for_coarse_calibration(Genesys_Device* dev,
+                                                       const Genesys_Sensor& sensor,
+                                                       Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
 
@@ -2734,8 +2728,8 @@ static void gl841_init_regs_for_coarse_calibration(Genesys_Device* dev,
 
 
 // init registers for shading calibration
-static void gl841_init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                        Genesys_Register_Set& regs)
+void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                            Genesys_Register_Set& regs) const
 {
     DBG_HELPER_ARGS(dbg, "lines = %d", (int)(dev->calib_lines));
   SANE_Int ydpi;
@@ -2802,7 +2796,7 @@ static void gl841_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
 }
 
 // set up registers for the actual scan
-static void gl841_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor)
+void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const
 {
     DBG_HELPER(dbg);
   int flags;
@@ -2900,7 +2894,7 @@ static void gl841_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& 
 
 
 // this function sends generic gamma table (ie linear ones) or the Sensor specific one if provided
-static void gl841_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor)
+void CommandSetGl841::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const
 {
     DBG_HELPER(dbg);
   int size;
@@ -2925,8 +2919,8 @@ static void gl841_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& se
 
 -needs working coarse/gain
 */
-static SensorExposure gl841_led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                            Genesys_Register_Set& regs)
+SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                                Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
   int num_pixels;
@@ -3027,7 +3021,7 @@ static SensorExposure gl841_led_calibration(Genesys_Device* dev, const Genesys_S
         dev->write_registers(regs);
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
-        gl841_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
+        dev->cmd_set->begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
         sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
       if (DBG_LEVEL >= DBG_data) {
@@ -3129,7 +3123,7 @@ static SensorExposure gl841_led_calibration(Genesys_Device* dev, const Genesys_S
 
   DBG(DBG_info,"%s: acceptable exposure: %d,%d,%d\n", __func__, exp[0], exp[1], exp[2]);
 
-  gl841_slow_back_home(dev, SANE_TRUE);
+    dev->cmd_set->slow_back_home(dev, SANE_TRUE);
 
     return calib_sensor.exposure;
 }
@@ -3210,8 +3204,8 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       /* scan line */
       DBG(DBG_info, "%s: starting line reading\n", __func__);
         dev->write_registers(regs);
-      gl841_set_fe(dev, calib_sensor, AFE_SET);
-      gl841_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
+      dev->cmd_set->set_fe(dev, calib_sensor, AFE_SET);
+      dev->cmd_set->begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
       sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
       gl841_stop_action (dev);
       if (DBG_LEVEL >= DBG_data) {
@@ -3259,8 +3253,8 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
 this function expects the slider to be where?
 */
-static void gl841_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                     Genesys_Register_Set& regs)
+void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                         Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
   int num_pixels;
@@ -3357,10 +3351,10 @@ static void gl841_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
           dev->frontend.set_offset(j, off[j]);
       }
 
-        gl841_set_fe(dev, calib_sensor, AFE_SET);
+        dev->cmd_set->set_fe(dev, calib_sensor, AFE_SET);
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
-        gl841_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
+        dev->cmd_set->begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
 
         sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
 
@@ -3464,11 +3458,11 @@ static void gl841_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
           dev->frontend.set_offset(j, off[j]);
       }
 
-        gl841_set_fe(dev, calib_sensor, AFE_SET);
+        dev->cmd_set->set_fe(dev, calib_sensor, AFE_SET);
 
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         dev->write_registers(regs);
-        gl841_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
+        dev->cmd_set->begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
         sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
 
       if (DBG_LEVEL >= DBG_data) {
@@ -3625,8 +3619,8 @@ static void gl841_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   a reasonable shape. the fine calibration of the upper and lower bounds will
   be done with shading.
  */
-static void gl841_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                          Genesys_Register_Set& regs, int dpi)
+void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                              Genesys_Register_Set& regs, int dpi) const
 {
     DBG_HELPER_ARGS(dbg, "dpi=%d", dpi);
   int num_pixels;
@@ -3683,7 +3677,7 @@ static void gl841_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
   std::vector<uint8_t> line(total_size);
 
-    gl841_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
+    dev->cmd_set->begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
     sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
   if (DBG_LEVEL >= DBG_data)
@@ -3779,14 +3773,14 @@ static void gl841_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
     gl841_stop_action(dev);
 
-  gl841_slow_back_home(dev, SANE_TRUE);
+    dev->cmd_set->slow_back_home(dev, SANE_TRUE);
 }
 
 // wait for lamp warmup by scanning the same line until difference
 // between 2 scans is below a threshold
-static void gl841_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                       Genesys_Register_Set* local_reg, int* channels,
-                                       int* total_size)
+void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                           Genesys_Register_Set* local_reg, int* channels,
+                                           int* total_size) const
 {
     DBG_HELPER(dbg);
   int num_pixels = (int) (4 * 300);
@@ -3844,13 +3838,12 @@ static void sanei_gl841_repark_head(Genesys_Device* dev)
     gl841_feed(dev,232);
 
     // toggle motor flag, put an huge step number and redo move backward
-    gl841_slow_back_home(dev, SANE_TRUE);
+    dev->cmd_set->slow_back_home(dev, SANE_TRUE);
 }
 
-static bool
-gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
-				 Genesys_Calibration_Cache *cache,
-				 int for_overwrite)
+bool CommandSetGl841::is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                                Genesys_Calibration_Cache* cache,
+                                                bool for_overwrite) const
 {
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
@@ -3863,7 +3856,7 @@ gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
       return false;
     }
 
-    gl841_calculate_current_setup (dev, sensor);
+    calculate_current_setup(dev, sensor);
 
   if (dev->current_setup.ccd_size_divisor != cache->used_setup.ccd_size_divisor)
     return false;
@@ -3890,7 +3883,7 @@ gl841_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
  * initialize ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
  */
-static void gl841_init(Genesys_Device* dev)
+void CommandSetGl841::init(Genesys_Device* dev) const
 {
   uint8_t val;
   size_t size;
@@ -3933,10 +3926,10 @@ static void gl841_init(Genesys_Device* dev)
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
     // Set analog frontend
-    gl841_set_fe(dev, sensor, AFE_INIT);
+    dev->cmd_set->set_fe(dev, sensor, AFE_INIT);
 
     // Move home
-    gl841_slow_back_home(dev, SANE_TRUE);
+    dev->cmd_set->slow_back_home(dev, SANE_TRUE);
 
     // Init shading data
     sanei_genesys_init_shading_data(dev, sensor, sensor.sensor_pixels);
@@ -3950,7 +3943,7 @@ static void gl841_init(Genesys_Device* dev)
     }
 
     // send gamma tables
-    gl841_send_gamma_table(dev, sensor);
+    dev->cmd_set->send_gamma_table(dev, sensor);
 
   /* initial calibration reg values */
   Genesys_Register_Set& regs = dev->calib_reg;
@@ -3991,7 +3984,7 @@ static void gl841_init(Genesys_Device* dev)
   std::vector<uint8_t> line(size);
 
   DBG(DBG_info, "%s: starting dummy data reading\n", __func__);
-    gl841_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
+    dev->cmd_set->begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
 
   sanei_usb_set_timeout(1000);/* 1 second*/
 
@@ -4000,16 +3993,16 @@ static void gl841_init(Genesys_Device* dev)
 
   sanei_usb_set_timeout(30 * 1000);/* 30 seconds*/
 
-    gl841_end_scan(dev, &regs, SANE_TRUE);
+    end_scan(dev, &regs, SANE_TRUE);
 
   regs = dev->reg;
 
     // Set powersaving(default = 15 minutes)
-    gl841_set_powersaving(dev, 15);
+    set_powersaving(dev, 15);
   dev->already_initialized = SANE_TRUE;
 }
 
-static void gl841_update_hardware_sensors(Genesys_Scanner* s)
+void CommandSetGl841::update_hardware_sensors(Genesys_Scanner* s) const
 {
     DBG_HELPER(dbg);
   /* do what is needed to get a new set of events, but try to not lose
@@ -4046,8 +4039,8 @@ static void gl841_update_hardware_sensors(Genesys_Scanner* s)
  * @param forward SANE_TRUE if searching forward, SANE_FALSE if searching backward
  * @param black SANE_TRUE if searching for a black strip, SANE_FALSE for a white strip
  */
-static void gl841_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, SANE_Bool forward,
-                               SANE_Bool black)
+void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, bool forward,
+                                   bool black) const
 {
     DBG_HELPER_ARGS(dbg, "%s %s", black ? "black" : "white", forward ? "forward" : "reverse");
   unsigned int pixels, lines, channels;
@@ -4069,7 +4062,7 @@ static void gl841_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
       dev->frontend.set_gain(2, 0xff);
     }
 
-  gl841_set_fe(dev, sensor, AFE_SET);
+    dev->cmd_set->set_fe(dev, sensor, AFE_SET);
     gl841_stop_action(dev);
 
     // set up for a gray scan at lowest dpi
@@ -4120,7 +4113,7 @@ static void gl841_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 
     dev->write_registers(local_reg);
 
-    gl841_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
+    dev->cmd_set->begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {
@@ -4147,7 +4140,7 @@ static void gl841_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
         dev->write_registers(local_reg);
 
         //now start scan
-        gl841_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
+        dev->cmd_set->begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {
@@ -4258,8 +4251,8 @@ static void gl841_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
  * Send shading calibration data. The buffer is considered to always hold values
  * for all the channels.
  */
-static void gl841_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                    uint8_t* data, int size)
+void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                        uint8_t* data, int size) const
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
   uint32_t length, x, factor, pixels, i;
@@ -4351,57 +4344,49 @@ static void gl841_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
     }
 }
 
+bool CommandSetGl841::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const
+{
+    (void) dev;
+    return true;
+}
 
-/** the gl841 command set */
-Genesys_Command_Set gl841_cmd_set = {
-  [](Genesys_Device* dev) -> bool { (void) dev; return true; },
+void CommandSetGl841::wait_for_motor_stop(Genesys_Device* dev) const
+{
+    (void) dev;
+}
 
-  gl841_init,
-  gl841_init_regs_for_warmup,
-  gl841_init_regs_for_coarse_calibration,
-  gl841_init_regs_for_shading,
-  gl841_init_regs_for_scan,
+void CommandSetGl841::rewind(Genesys_Device* dev) const
+{
+    (void) dev;
+    throw SaneException("not implemented");
+}
 
-  gl841_get_filter_bit,
-  gl841_get_lineart_bit,
-  gl841_get_bitset_bit,
-  gl841_get_gain4_bit,
-  gl841_get_fast_feed_bit,
-  gl841_test_buffer_empty_bit,
-  gl841_test_motor_flag_bit,
+void CommandSetGl841::bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
+                                      size_t len) const
+{
+    sanei_genesys_bulk_write_data(dev, addr, data, len);
+}
 
-  gl841_set_fe,
-  gl841_set_powersaving,
-  gl841_save_power,
+void CommandSetGl841::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
+                                     size_t len) const
+{
+    sanei_genesys_bulk_read_data(dev, addr, data, len);
+}
 
-  gl841_begin_scan,
-  gl841_end_scan,
+void CommandSetGl841::move_to_ta(Genesys_Device* dev) const
+{
+    (void) dev;
+    throw SaneException("not implemented");
+}
 
-  gl841_send_gamma_table,
+void CommandSetGl841::asic_boot(Genesys_Device *dev, bool cold) const
+{
+    (void) dev;
+    (void) cold;
+    throw SaneException("not implemented");
+}
 
-  gl841_search_start_position,
-
-  gl841_offset_calibration,
-  gl841_coarse_gain_calibration,
-  gl841_led_calibration,
-
-  NULL,
-  gl841_slow_back_home,
-  NULL,
-
-  sanei_genesys_bulk_write_data,
-  sanei_genesys_bulk_read_data,
-
-  gl841_update_hardware_sensors,
-
-  gl841_load_document,
-  gl841_detect_document_end,
-  gl841_eject_document,
-  gl841_search_strip,
-
-  gl841_is_compatible_calibration,
-  NULL,
-  gl841_send_shading_data,
-  gl841_calculate_current_setup,
-  NULL
-};
+std::unique_ptr<CommandSet> create_gl841_cmd_set()
+{
+    return std::unique_ptr<CommandSet>(new CommandSetGl841{});
+}

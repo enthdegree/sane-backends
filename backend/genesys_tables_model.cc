@@ -2380,7 +2380,8 @@ void genesys_init_usb_device_tables()
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_HAS_NO_BUTTONS |
                   GENESYS_FLAG_SHADING_REPARK |
-                  GENESYS_FLAG_CALIBRATION_HOST_SIDE;
+                  GENESYS_FLAG_CALIBRATION_HOST_SIDE |
+                  GENESYS_FLAG_16BIT_DATA_INVERTED;
 
     model.shading_lines = 7;
     model.shading_ta_lines = 50;

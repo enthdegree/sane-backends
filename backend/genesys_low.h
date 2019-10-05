@@ -138,6 +138,7 @@
 #define GENESYS_FLAG_HAS_UTA_INFRARED (1 << 20)
 // scanner calibration is handled on the host side
 #define GENESYS_FLAG_CALIBRATION_HOST_SIDE (1 << 21)
+#define GENESYS_FLAG_16BIT_DATA_INVERTED (1 << 22)
 
 #define GENESYS_HAS_NO_BUTTONS       0              /**< scanner has no supported button */
 #define GENESYS_HAS_SCAN_SW          (1 << 0)       /**< scanner has SCAN button */
@@ -210,114 +211,6 @@
 struct Genesys_Scanner;
 typedef struct Genesys_Calibration_Cache  Genesys_Calibration_Cache;
 
-/**
- * Scanner command set description.
- *
- * This description contains parts which are common to all scanners with the
- * same command set, but may have different optical resolution and other
- * parameters.
- */
-struct Genesys_Command_Set
-{
-    bool (*needs_home_before_init_regs_for_scan) (Genesys_Device* dev);
-
-  /** For ASIC initialization */
-    void (*init) (Genesys_Device* dev);
-
-    void (*init_regs_for_warmup) (Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                  Genesys_Register_Set* regs, int*channels, int* total_size);
-    void (*init_regs_for_coarse_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                              Genesys_Register_Set& regs);
-    void (*init_regs_for_shading) (Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                   Genesys_Register_Set& regs);
-    void (*init_regs_for_scan) (Genesys_Device* dev, const Genesys_Sensor& sensor);
-
-    SANE_Bool (*get_filter_bit) (Genesys_Register_Set * reg);
-    SANE_Bool (*get_lineart_bit) (Genesys_Register_Set * reg);
-    SANE_Bool (*get_bitset_bit) (Genesys_Register_Set * reg);
-    SANE_Bool (*get_gain4_bit) (Genesys_Register_Set * reg);
-    SANE_Bool (*get_fast_feed_bit) (Genesys_Register_Set * reg);
-
-    SANE_Bool (*test_buffer_empty_bit) (SANE_Byte val);
-    SANE_Bool (*test_motor_flag_bit) (SANE_Byte val);
-
-    void (*set_fe) (Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set);
-    void (*set_powersaving) (Genesys_Device* dev, int delay);
-    void (*save_power) (Genesys_Device* dev, SANE_Bool enable);
-
-    void (*begin_scan) (Genesys_Device* dev, const Genesys_Sensor& sensor,
-                        Genesys_Register_Set* regs, SANE_Bool start_motor);
-    void (*end_scan) (Genesys_Device* dev, Genesys_Register_Set* regs, SANE_Bool check_stop);
-
-    /**
-     * Send gamma tables to ASIC
-     */
-    void (*send_gamma_table) (Genesys_Device* dev, const Genesys_Sensor& sensor);
-
-    void (*search_start_position) (Genesys_Device* dev);
-    void (*offset_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                Genesys_Register_Set& regs);
-    void (*coarse_gain_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                     Genesys_Register_Set& regs, int dpi);
-    SensorExposure (*led_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                       Genesys_Register_Set& regs);
-
-    void (*wait_for_motor_stop) (Genesys_Device* dev);
-    void (*slow_back_home) (Genesys_Device* dev, SANE_Bool wait_until_home);
-    void (*rewind) (Genesys_Device* dev);
-
-    void (*bulk_write_data) (Genesys_Device* dev, uint8_t addr, uint8_t* data, size_t len);
-    void (*bulk_read_data) (Genesys_Device * dev, uint8_t addr, uint8_t * data, size_t len);
-
-  // Updates hardware sensor information in Genesys_Scanner.val[].
-  void (*update_hardware_sensors) (struct Genesys_Scanner* s);
-
-    /* functions for sheetfed scanners */
-    /**
-     * load document into scanner
-     */
-    void (*load_document) (Genesys_Device* dev);
-    /**
-     * detects is the scanned document has left scanner. In this
-     * case it updates the amount of data to read and set up
-     * flags in the dev struct
-     */
-    void (*detect_document_end) (Genesys_Device* dev);
-    /**
-     * eject document from scanner
-     */
-    void (*eject_document) (Genesys_Device* dev);
-    /**
-     * search for an black or white area in forward or reverse
-     * direction */
-    void (*search_strip) (Genesys_Device* dev, const Genesys_Sensor& sensor, SANE_Bool forward,
-                          SANE_Bool black);
-
-    bool (*is_compatible_calibration) (Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                       Genesys_Calibration_Cache* cache, SANE_Bool for_overwrite);
-
-    /* functions for transparency adapter */
-    /**
-     * move scanning head to transparency adapter
-     */
-    void (*move_to_ta) (Genesys_Device* dev);
-
-    /**
-     * write shading data calibration to ASIC
-     */
-    void (*send_shading_data) (Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t* data,
-                               int size);
-
-    // calculate current scan setup
-    void (*calculate_current_setup) (Genesys_Device * dev, const Genesys_Sensor& sensor);
-
-    /**
-     * cold boot init function
-     */
-    void (*asic_boot) (Genesys_Device* dev, SANE_Bool cold);
-
-};
-
 struct Genesys_USB_Device_Entry {
 
     Genesys_USB_Device_Entry(unsigned v, unsigned p, const Genesys_Model& m) :
@@ -337,9 +230,9 @@ struct Genesys_USB_Device_Entry {
  */
 struct Motor_Profile
 {
-	int motor_type;	 /**< motor id */
+    MotorId motor_id;
 	int exposure;    /**< exposure for the slope table */
-        int step_type;   /**< default step type for given exposure */
+    StepType step_type;   // default step type for given exposure
         uint32_t *table;  // 0-terminated slope table at full step (i.e. step_type == 0)
 };
 
@@ -347,11 +240,6 @@ extern Motor_Profile gl843_motor_profiles[];
 extern Motor_Profile gl846_motor_profiles[];
 extern Motor_Profile gl847_motor_profiles[];
 extern Motor_Profile gl124_motor_profiles[];
-
-#define FULL_STEP       0
-#define HALF_STEP       1
-#define QUARTER_STEP    2
-#define EIGHTH_STEP     3
 
 #define SLOPE_TABLE_SIZE 1024
 
@@ -573,14 +461,13 @@ extern void sanei_genesys_wait_for_home(Genesys_Device* dev);
 
 extern void sanei_genesys_asic_init(Genesys_Device* dev, SANE_Bool cold);
 
-extern
-Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_type, int exposure);
+Motor_Profile* sanei_genesys_get_motor_profile(Motor_Profile *motors, MotorId motor_id,
+                                               int exposure);
 
-extern
-int sanei_genesys_compute_step_type(Motor_Profile *motors, int motor_type, int exposure);
+StepType sanei_genesys_compute_step_type(Motor_Profile* motors, MotorId motor_id, int exposure);
 
 int sanei_genesys_slope_table(std::vector<uint16_t>& slope, int *steps, int dpi, int exposure,
-                              int base_dpi, int step_type, int factor, int motor_type,
+                              int base_dpi, StepType step_type, int factor, MotorId motor_id,
                               Motor_Profile *motors);
 
 /** @brief find lowest motor resolution for the device.
@@ -717,7 +604,7 @@ public:
 
     void deinit()
     {
-        ptr_.release();
+        ptr_.reset();
     }
 
     const T* operator->() const { return ptr_.get(); }

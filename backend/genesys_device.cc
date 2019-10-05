@@ -44,8 +44,8 @@
 #define DEBUG_DECLARE_ONLY
 
 #include "genesys_device.h"
+#include "genesys_command_set.h"
 #include "genesys_low.h"
-
 
 Genesys_Device::~Genesys_Device()
 {

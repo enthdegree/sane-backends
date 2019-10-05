@@ -42,18 +42,10 @@
 */
 
 #include "genesys.h"
+#include "genesys_command_set.h"
 
 #ifndef BACKEND_GENESYS_GL846_H
 #define BACKEND_GENESYS_GL846_H
-
-// Send the low-level scan command
-static void gl846_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                             Genesys_Register_Set* reg, SANE_Bool start_motor);
-
-// Send the stop scan command
-static void gl846_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop);
-
-static void gl846_init(Genesys_Device* dev);
 
 /** @brief moves the slider to steps at motor base dpi
  * @param dev device to work on
@@ -63,15 +55,11 @@ static void gl846_feed(Genesys_Device* dev, unsigned int steps);
 
 static void gl846_stop_action(Genesys_Device* dev);
 
-static void gl846_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home);
-
-static void gl846_boot(Genesys_Device* dev, SANE_Bool cold);
-
 
 
 typedef struct
 {
-  uint8_t sensor_id;
+    GpioId gpio_id;
   uint8_t r6b;
   uint8_t r6c;
   uint8_t r6d;
@@ -84,9 +72,9 @@ typedef struct
 } Gpio_Profile;
 
 static Gpio_Profile gpios[]={
-    { GPO_IMG101, 0x72, 0x1f, 0xa4, 0x13, 0xa7, 0x11, 0xff, 0x19, 0x05},
-    { GPO_PLUSTEK3800, 0x30, 0x01, 0x80, 0x2d, 0x80, 0x0c, 0x8f, 0x08, 0x04},
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    { GpioId::IMG101, 0x72, 0x1f, 0xa4, 0x13, 0xa7, 0x11, 0xff, 0x19, 0x05},
+    { GpioId::PLUSTEK_OPTICBOOK_3800, 0x30, 0x01, 0x80, 0x2d, 0x80, 0x0c, 0x8f, 0x08, 0x04},
+    { GpioId::UNKNOWN, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 };
 
 typedef struct
@@ -144,5 +132,91 @@ static Memory_layout layouts[]={
         { NULL, 0, 0, 0, 0, {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} }
 };
 
+class CommandSetGl846 : public CommandSet
+{
+public:
+    ~CommandSetGl846() = default;
+
+    bool needs_home_before_init_regs_for_scan(Genesys_Device* dev) const override;
+
+    void init(Genesys_Device* dev) const override;
+
+    void init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                              Genesys_Register_Set* regs, int* channels,
+                              int* total_size) const override;
+
+    void init_regs_for_coarse_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                          Genesys_Register_Set& regs) const override;
+
+    void init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                               Genesys_Register_Set& regs) const override;
+
+    void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
+
+    bool get_filter_bit(Genesys_Register_Set * reg) const override;
+    bool get_lineart_bit(Genesys_Register_Set * reg) const override;
+    bool get_bitset_bit(Genesys_Register_Set * reg) const override;
+    bool get_gain4_bit(Genesys_Register_Set * reg) const override;
+    bool get_fast_feed_bit(Genesys_Register_Set * reg) const override;
+
+    bool test_buffer_empty_bit(std::uint8_t val) const override;
+    bool test_motor_flag_bit(std::uint8_t val) const override;
+
+    void set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set) const override;
+    void set_powersaving(Genesys_Device* dev, int delay) const override;
+    void save_power(Genesys_Device* dev, bool enable) const override;
+
+    void begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                    Genesys_Register_Set* regs, bool start_motor) const override;
+
+    void end_scan(Genesys_Device* dev, Genesys_Register_Set* regs, bool check_stop) const override;
+
+    void send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
+
+    void search_start_position(Genesys_Device* dev) const override;
+
+    void offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                            Genesys_Register_Set& regs) const override;
+
+    void coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                 Genesys_Register_Set& regs, int dpi) const override;
+
+    SensorExposure led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                   Genesys_Register_Set& regs) const override;
+
+    void wait_for_motor_stop(Genesys_Device* dev) const override;
+    void slow_back_home(Genesys_Device* dev, bool wait_until_home) const override;
+    void rewind(Genesys_Device* dev) const override;
+
+    bool has_rewind() const override { return false; }
+
+    void bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
+                         size_t len) const override;
+    void bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t * data,
+                        size_t len) const override;
+
+    void update_hardware_sensors(struct Genesys_Scanner* s) const override;
+
+    void load_document(Genesys_Device* dev) const override;
+
+    void detect_document_end(Genesys_Device* dev) const override;
+
+    void eject_document(Genesys_Device* dev) const override;
+
+    void search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                      bool forward, bool black) const override;
+
+    bool is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                   Genesys_Calibration_Cache* cache,
+                                   bool for_overwrite) const override;
+
+    void move_to_ta(Genesys_Device* dev) const override;
+
+    void send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t* data,
+                           int size) const override;
+
+    void calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor) const override;
+    void asic_boot(Genesys_Device* dev, bool cold) const override;
+};
 
 #endif // BACKEND_GENESYS_GL846_H

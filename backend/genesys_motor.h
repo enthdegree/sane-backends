@@ -46,6 +46,7 @@
 
 #include <cstdint>
 #include <vector>
+#include "genesys_enums.h"
 
 struct Genesys_Motor_Slope
 {
@@ -87,7 +88,7 @@ struct Genesys_Motor
     Genesys_Motor() = default;
 
     // id of the motor description
-    uint8_t motor_id = 0;
+    MotorId id = MotorId::UNKNOWN;
     // motor base steps. Unit: 1/inch
     int base_ydpi = 0;
     // maximum resolution in y-direction. Unit: 1/inch

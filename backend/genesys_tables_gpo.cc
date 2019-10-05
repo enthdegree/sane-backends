@@ -52,7 +52,7 @@ void genesys_init_gpo_tables()
     s_gpo.init();
 
     Genesys_Gpo gpo;
-    gpo.gpo_id = GPO_UMAX;
+    gpo.id = GpioId::UMAX;
     gpo.regs = {
         { 0x66, 0x11 },
         { 0x67, 0x00 },
@@ -63,7 +63,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_ST12;
+    gpo.id = GpioId::ST12;
     gpo.regs = {
         { 0x66, 0x11 },
         { 0x67, 0x00 },
@@ -74,7 +74,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_ST24;
+    gpo.id = GpioId::ST24;
     gpo.regs = {
         { 0x66, 0x00 },
         { 0x67, 0x00 },
@@ -85,7 +85,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_5345; // bits 11-12 are for bipolar V-ref input voltage
+    gpo.id = GpioId::MD_5345; // bits 11-12 are for bipolar V-ref input voltage
     gpo.regs = {
         { 0x66, 0x30 },
         { 0x67, 0x18 },
@@ -96,7 +96,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_HP2400;
+    gpo.id = GpioId::HP2400;
     gpo.regs = {
         { 0x66, 0x30 },
         { 0x67, 0x00 },
@@ -107,7 +107,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_HP2300;
+    gpo.id = GpioId::HP2300;
     gpo.regs = {
         { 0x66, 0x00 },
         { 0x67, 0x00 },
@@ -118,7 +118,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_CANONLIDE35;
+    gpo.id = GpioId::CANON_LIDE_35;
     gpo.regs = {
         { 0x6c, 0x02 },
         { 0x6d, 0x80 },
@@ -129,7 +129,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_XP200;
+    gpo.id = GpioId::XP200;
     gpo.regs = {
         { 0x66, 0x30 },
         { 0x67, 0x00 },
@@ -140,7 +140,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_HP3670;
+    gpo.id = GpioId::HP3670;
     gpo.regs = {
         { 0x66, 0x00 },
         { 0x67, 0x00 },
@@ -151,7 +151,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_XP300;
+    gpo.id = GpioId::XP300;
     gpo.regs = {
         { 0x6c, 0x09 },
         { 0x6d, 0xc6 },
@@ -162,7 +162,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_DP665;
+    gpo.id = GpioId::DP665;
     gpo.regs = {
         { 0x6c, 0x18 },
         { 0x6d, 0x00 },
@@ -173,7 +173,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_DP685;
+    gpo.id = GpioId::DP685;
     gpo.regs = {
         { 0x6c, 0x3f },
         { 0x6d, 0x46 },
@@ -184,7 +184,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_CANONLIDE200;
+    gpo.id = GpioId::CANON_LIDE_200;
     gpo.regs = {
         { 0x6c, 0xfb }, // 0xfb when idle , 0xf9/0xe9 (1200) when scanning
         { 0x6d, 0x20 },
@@ -195,7 +195,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_CANONLIDE700;
+    gpo.id = GpioId::CANON_LIDE_700F;
     gpo.regs = {
         { 0x6c, 0xdb },
         { 0x6d, 0xff },
@@ -206,7 +206,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_KVSS080;
+    gpo.id = GpioId::KVSS080;
     gpo.regs = {
         { 0x6c, 0xf5 },
         { 0x6d, 0x20 },
@@ -221,7 +221,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_G4050;
+    gpo.id = GpioId::G4050;
     gpo.regs = {
         { 0x6c, 0x20 },
         { 0x6d, 0x00 },
@@ -236,7 +236,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_HP_N6310;
+    gpo.id = GpioId::HP_N6310;
     gpo.regs = {
         { 0x6c, 0xa3 },
         { 0x6d, 0x00 },
@@ -247,7 +247,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_CANONLIDE110;
+    gpo.id = GpioId::CANON_LIDE_110;
     gpo.regs = {
         { 0x6c, 0xfb },
         { 0x6d, 0x20 },
@@ -258,7 +258,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_CANONLIDE120;
+    gpo.id = GpioId::CANON_LIDE_120;
     gpo.regs = {
         { 0x6c, 0xfb },
         { 0x6d, 0x20 },
@@ -269,7 +269,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_CANONLIDE210;
+    gpo.id = GpioId::CANON_LIDE_210;
     gpo.regs = {
         { 0x6c, 0xfb },
         { 0x6d, 0x20 },
@@ -280,7 +280,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_PLUSTEK_3600;
+    gpo.id = GpioId::PLUSTEK_OPTICPRO_3600;
     gpo.regs = {
         { 0x6c, 0x02 },
         { 0x6d, 0x00 },
@@ -291,7 +291,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_PLUSTEK_7200I;
+    gpo.id = GpioId::PLUSTEK_OPTICFILM_7200I;
     gpo.regs = {
         { 0x6c, 0x4c },
         { 0x6d, 0x80 },
@@ -306,7 +306,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_CS4400F;
+    gpo.id = GpioId::CANON_4400F;
     gpo.regs = {
         { 0x6c, 0x01 },
         { 0x6d, 0x7f },
@@ -321,7 +321,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_CS8400F;
+    gpo.id = GpioId::CANON_8400F;
     gpo.regs = {
         { 0x6c, 0x9a },
         { 0x6d, 0xdf },
@@ -336,7 +336,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_CS8600F;
+    gpo.id = GpioId::CANON_8600F;
     gpo.regs = {
         { 0x6c, 0x20 },
         { 0x6d, 0x7c },
@@ -351,7 +351,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_IMG101;
+    gpo.id = GpioId::IMG101;
     gpo.regs = {
         { 0x6c, 0x41 },
         { 0x6d, 0xa4 },
@@ -362,7 +362,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_PLUSTEK3800;
+    gpo.id = GpioId::PLUSTEK_OPTICBOOK_3800;
     gpo.regs = {
         { 0x6c, 0x41 },
         { 0x6d, 0xa4 },
@@ -373,7 +373,7 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
-    gpo.gpo_id = GPO_CANONLIDE80;
+    gpo.id = GpioId::CANON_LIDE_80;
     gpo.regs = {
         { 0x6c, 0x28 },
         { 0x6d, 0x90 },

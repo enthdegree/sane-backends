@@ -100,8 +100,7 @@ static void write_data(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_
  Mid level functions
  ****************************************************************************/
 
-static SANE_Bool
-gl843_get_fast_feed_bit (Genesys_Register_Set * regs)
+bool CommandSetGl843::get_fast_feed_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -111,8 +110,7 @@ gl843_get_fast_feed_bit (Genesys_Register_Set * regs)
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl843_get_filter_bit (Genesys_Register_Set * regs)
+bool CommandSetGl843::get_filter_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -122,8 +120,7 @@ gl843_get_filter_bit (Genesys_Register_Set * regs)
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl843_get_lineart_bit (Genesys_Register_Set * regs)
+bool CommandSetGl843::get_lineart_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -133,8 +130,7 @@ gl843_get_lineart_bit (Genesys_Register_Set * regs)
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl843_get_bitset_bit (Genesys_Register_Set * regs)
+bool CommandSetGl843::get_bitset_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -144,8 +140,7 @@ gl843_get_bitset_bit (Genesys_Register_Set * regs)
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl843_get_gain4_bit (Genesys_Register_Set * regs)
+bool CommandSetGl843::get_gain4_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -183,16 +178,14 @@ gl843_get_step_multiplier (Genesys_Register_Set * regs)
   return value;
 }
 
-static SANE_Bool
-gl843_test_buffer_empty_bit (SANE_Byte val)
+bool CommandSetGl843::test_buffer_empty_bit(SANE_Byte val) const
 {
   if (val & REG41_BUFEMPTY)
     return SANE_TRUE;
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl843_test_motor_flag_bit (SANE_Byte val)
+bool CommandSetGl843::test_motor_flag_bit(SANE_Byte val) const
 {
   if (val & REG41_MOTORENB)
     return SANE_TRUE;
@@ -208,7 +201,7 @@ static void gl843_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor
         regs->set8(custom_reg.address, custom_reg.value);
     }
     if (!(dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE) &&
-        dev->model->model_id != MODEL_PLUSTEK_OPTICFILM_7200I)
+        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I)
     {
         regs->set8(0x7d, 0x90);
     }
@@ -239,33 +232,32 @@ gl843_init_registers (Genesys_Device * dev)
 
   /* default to KV-SS080 */
   SETREG (0xa2, 0x0f);
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    {
+    if (dev->model->model_id == ModelId::CANON_8600F) {
       SETREG(0xa2, 0x1f);
     }
   SETREG (0x01, 0x00);
   SETREG (0x02, 0x78);
   SETREG (0x03, 0x1f);
-    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
-        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
         SETREG(0x03, 0x1d);
     }
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+    if (dev->model->model_id == ModelId::CANON_8400F) {
         SETREG(0x03, 0x1c);
     }
 
     SETREG(0x04, 0x10);
-    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) {
         SETREG(0x04, 0x22);
     }
 
   // fine tune upon device description
   SETREG (0x05, 0x80);
-  if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-      dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
-      dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
       SETREG (0x05, 0x08);
     }
@@ -275,29 +267,29 @@ gl843_init_registers (Genesys_Device * dev)
 
   // TODO: on 8600F the windows driver turns off GAIN4 which is recommended
   SETREG (0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
-    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
-        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
         SETREG(0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
     }
-    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) {
         SETREG(0x06, 0xd0);
     }
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
+    if (dev->model->model_id == ModelId::CANON_4400F) {
         SETREG(0x06, 0xf0); /* SCANMOD=111, PWRBIT and no GAIN4 */
     }
 
   SETREG (0x08, 0x00);
   SETREG (0x09, 0x00);
   SETREG (0x0a, 0x00);
-    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
-        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
         SETREG(0x0a, 0x18);
     }
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+    if (dev->model->model_id == ModelId::CANON_8400F) {
         SETREG(0x0a, 0x10);
     }
 
@@ -305,24 +297,24 @@ gl843_init_registers (Genesys_Device * dev)
   // gl843_boot
   SETREG (0x0b, 0x6a);
 
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
+    if (dev->model->model_id == ModelId::CANON_4400F) {
         SETREG(0x0b, 0x69); // 16M only
     }
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+    if (dev->model->model_id == ModelId::CANON_8600F) {
         SETREG(0x0b, 0x89);
     }
-    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) {
         SETREG(0x0b, 0x2a);
     }
-    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
-        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
         SETREG(0x0b, 0x69);
     }
 
-    if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F &&
-        dev->model->model_id != MODEL_PLUSTEK_OPTICFILM_7200I)
+    if (dev->model->model_id != ModelId::CANON_8400F &&
+        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I)
     {
         SETREG (0x0c, 0x00);
     }
@@ -334,16 +326,16 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG(0x13, 0x00); // SENSOR_DEF
   SETREG(0x14, 0x00); // SENSOR_DEF
   SETREG(0x15, 0x00); // SENSOR_DEF
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == ModelId::CANON_4400F ||
+        dev->model->model_id == ModelId::CANON_8600F)
     {
         dev->reg.set16(REG_EXPR, 0x9c40);
         dev->reg.set16(REG_EXPG, 0x9c40);
         dev->reg.set16(REG_EXPB, 0x9c40);
     }
-    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
-        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
         dev->reg.set16(REG_EXPR, 0x2c09);
         dev->reg.set16(REG_EXPG, 0x22b8);
@@ -365,18 +357,17 @@ gl843_init_registers (Genesys_Device * dev)
   SETREG(0x1d, 0x04); // SENSOR_DEF
 
     SETREG(0x1e, 0x10);
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == ModelId::CANON_4400F ||
+        dev->model->model_id == ModelId::CANON_8600F)
     {
         SETREG(0x1e, 0x20);
     }
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+    if (dev->model->model_id == ModelId::CANON_8400F) {
         SETREG(0x1e, 0xa0);
     }
 
   SETREG (0x1f, 0x01);
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    {
+    if (dev->model->model_id == ModelId::CANON_8600F) {
       SETREG(0x1f, 0xff);
     }
 
@@ -385,13 +376,13 @@ gl843_init_registers (Genesys_Device * dev)
 
     SETREG(0x22, 0x01);
     SETREG(0x23, 0x01);
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == ModelId::CANON_4400F ||
+        dev->model->model_id == ModelId::CANON_8600F)
     {
         SETREG(0x22, 0xc8);
         SETREG(0x23, 0xc8);
     }
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+    if (dev->model->model_id == ModelId::CANON_8400F) {
         SETREG(0x22, 0x50);
         SETREG(0x23, 0x50);
     }
@@ -413,7 +404,7 @@ gl843_init_registers (Genesys_Device * dev)
 
   // DUMMY: CCD dummy and optically black pixel count
   SETREG (0x34, 0x24);
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == ModelId::CANON_8600F)
     {
       SETREG(0x34, 0x14);
     }
@@ -463,22 +454,22 @@ gl843_init_registers (Genesys_Device * dev)
     // STOPTIM[0:4]: The stop duration between change of directions in
     // backtracking
     SETREG(0x5e, 0x23);
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
+    if (dev->model->model_id == ModelId::CANON_4400F) {
         SETREG(0x5e, 0x3f);
     }
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+    if (dev->model->model_id == ModelId::CANON_8400F) {
         SETREG(0x5e, 0x85);
     }
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+    if (dev->model->model_id == ModelId::CANON_8600F) {
         SETREG(0x5e, 0x1f);
     }
 
     //FMOVDEC: The number of deceleration steps in table 5 for auto-go-home
     SETREG(0x5f, 0x01);
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
+    if (dev->model->model_id == ModelId::CANON_4400F) {
         SETREG(0x5f, 0xf0);
     }
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+    if (dev->model->model_id == ModelId::CANON_8600F) {
         SETREG(0x5f, 0xf0);
     }
 
@@ -504,36 +495,34 @@ gl843_init_registers (Genesys_Device * dev)
   // FSHDEC[0:7]: The number of deceleration steps after scanning is finished
   // (table 3)
   SETREG (0x69, 0x01);
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    {
+    if (dev->model->model_id == ModelId::CANON_8600F) {
       SETREG(0x69, 64);
     }
 
   // FMOVNO[0:7] The number of acceleration or deceleration steps for fast
   // moving (table 4)
   SETREG (0x6a, 0x04);
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    {
+    if (dev->model->model_id == ModelId::CANON_8600F) {
       SETREG(0x69, 64);
     }
 
     // GPIO-related register bits
     SETREG(0x6b, 0x30);
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == ModelId::CANON_4400F ||
+        dev->model->model_id == ModelId::CANON_8600F)
     {
         SETREG(0x6b, 0x72);
     }
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+    if (dev->model->model_id == ModelId::CANON_8400F) {
         SETREG(0x6b, 0xb1);
     }
-    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
-        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
         SETREG(0x6b, 0xf4);
     }
-    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) {
         SETREG(0x6b, 0x31);
     }
 
@@ -549,27 +538,27 @@ gl843_init_registers (Genesys_Device * dev)
     SETREG(0x72, 0x04); // SENSOR_DEF
     SETREG(0x73, 0x05); // SENSOR_DEF
 
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
+    if (dev->model->model_id == ModelId::CANON_4400F) {
         SETREG(0x70, 0x01);
         SETREG(0x71, 0x03);
         SETREG(0x72, 0x01);
         SETREG(0x73, 0x03);
     }
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+    if (dev->model->model_id == ModelId::CANON_8400F) {
         SETREG(0x70, 0x01);
         SETREG(0x71, 0x03);
         SETREG(0x72, 0x03);
         SETREG(0x73, 0x04);
     }
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+    if (dev->model->model_id == ModelId::CANON_8600F) {
         SETREG(0x70, 0x00);
         SETREG(0x71, 0x02);
         SETREG(0x72, 0x02);
         SETREG(0x73, 0x04);
     }
-    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
-        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
         SETREG(0x70, 0x00);
         SETREG(0x71, 0x02);
@@ -590,7 +579,7 @@ gl843_init_registers (Genesys_Device * dev)
 
     // various AFE settings
     SETREG(0x7d, 0x00);
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+    if (dev->model->model_id == ModelId::CANON_8400F) {
         SETREG(0x7d, 0x20);
     }
 
@@ -604,21 +593,20 @@ gl843_init_registers (Genesys_Device * dev)
     // VRHOME, VRMOVE, VRBACK, VRSCAN: Vref settings of the motor driver IC for
     // moving in various situations.
     SETREG(0x80, 0x00);
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
+    if (dev->model->model_id == ModelId::CANON_4400F) {
         SETREG(0x80, 0x0c);
     }
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+    if (dev->model->model_id == ModelId::CANON_8400F) {
         SETREG(0x80, 0x28);
     }
-    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
-        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
         SETREG(0x80, 0x50);
     }
 
-  if (dev->model->model_id != MODEL_CANON_CANOSCAN_4400F)
-    {
+    if (dev->model->model_id != ModelId::CANON_4400F) {
       // NOTE: Historical code. None of the following 6 registers are
       // documented in the datasheet. Their default value is 0, so probably it's
       // not a bad idea to leave this here.
@@ -631,16 +619,16 @@ gl843_init_registers (Genesys_Device * dev)
     }
 
     SETREG(0x87, 0x00);
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == ModelId::CANON_4400F ||
+        dev->model->model_id == ModelId::CANON_8400F ||
+        dev->model->model_id == ModelId::CANON_8600F)
     {
         SETREG(0x87, 0x02);
     }
 
     // MTRPLS[0:7]: The width of the ADF motor trigger signal pulse.
-    if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F &&
-        dev->model->model_id != MODEL_PLUSTEK_OPTICFILM_7200I)
+    if (dev->model->model_id != ModelId::CANON_8400F &&
+        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I)
     {
         SETREG(0x94, 0xff);
     }
@@ -651,16 +639,15 @@ gl843_init_registers (Genesys_Device * dev)
   // ONDUR[0:15]: The duration of PWM ON phase for LAMP control
   // OFFDUR[0:15]: The duration of PWM OFF phase for LAMP control
   // both of the above are in system clocks
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    {
+    if (dev->model->model_id == ModelId::CANON_8600F) {
       SETREG(0x98, 0x00);
       SETREG(0x99, 0x00);
       SETREG(0x9a, 0x00);
       SETREG(0x9b, 0x00);
     }
-    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
-        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
         // TODO: move to set for scan
         SETREG(0x98, 0x03);
@@ -671,28 +658,28 @@ gl843_init_registers (Genesys_Device * dev)
 
     // RMADLY[0:1], MOTLAG, CMODE, STEPTIM, MULDMYLN, IFRS
     SETREG(0x9d, 0x04);
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F ||
-        dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I ||
-        dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
-        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    if (dev->model->model_id == ModelId::CANON_4400F ||
+        dev->model->model_id == ModelId::CANON_8400F ||
+        dev->model->model_id == ModelId::CANON_8600F ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
         SETREG(0x9d, 0x08); // sets the multiplier for slope tables
     }
 
 
   // SEL3INV, TGSTIME[0:2], TGWTIME[0:2]
-  if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F &&
-      dev->model->model_id != MODEL_PLUSTEK_OPTICFILM_7200I)
+    if (dev->model->model_id != ModelId::CANON_8400F &&
+        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I)
     {
       SETREG(0x9e, 0x00); // SENSOR_DEF
     }
 
     // RFHSET[0:4]: Refresh time of SDRAM in units of 2us
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == ModelId::CANON_4400F ||
+        dev->model->model_id == ModelId::CANON_8600F)
     {
         SETREG(0xa2, 0x1f);
     }
@@ -700,43 +687,43 @@ gl843_init_registers (Genesys_Device * dev)
     // 0xa6-0xa9: controls gpio, see gl843_gpio_init
 
     // not documented
-    if (dev->model->model_id != MODEL_CANON_CANOSCAN_4400F &&
-        dev->model->model_id != MODEL_CANON_CANOSCAN_8400F &&
-        dev->model->model_id != MODEL_PLUSTEK_OPTICFILM_7200I)
+    if (dev->model->model_id != ModelId::CANON_4400F &&
+        dev->model->model_id != ModelId::CANON_8400F &&
+        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I)
     {
         SETREG(0xaa, 0x00);
     }
 
     // GPOM9, MULSTOP[0-2], NODECEL, TB3TB1, TB5TB2, FIX16CLK. Not documented
-    if (dev->model->model_id != MODEL_CANON_CANOSCAN_8400F &&
-        dev->model->model_id != MODEL_PLUSTEK_OPTICFILM_7200I) {
+    if (dev->model->model_id != ModelId::CANON_8400F &&
+        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I) {
         SETREG(0xab, 0x50);
     }
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_4400F) {
+    if (dev->model->model_id == ModelId::CANON_4400F) {
         SETREG(0xab, 0x00);
     }
-    if (dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
-        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
-        // BUG: this should apply to MODEL_CANON_CANOSCAN_8600F too, but due to previous bug
+        // BUG: this should apply to ModelId::CANON_CANOSCAN_8600F too, but due to previous bug
         // the 8400F case overwrote it
         SETREG(0xab, 0x40);
     }
 
   // VRHOME[3:2], VRMOVE[3:2], VRBACK[3:2]: Vref setting of the motor driver IC
   // for various situations.
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F ||
-        dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-        dev->model->model_id == MODEL_HP_SCANJET_G4050 ||
-        dev->model->model_id == MODEL_HP_SCANJET_4850C)
+    if (dev->model->model_id == ModelId::CANON_8600F ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
         SETREG(0xac, 0x00);
     }
 
   dev->calib_reg = dev->reg;
 
-    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) {
         gl843_set_ram_address(dev, 0x03ff00);
 
         uint8_t data[32] = {
@@ -790,7 +777,7 @@ static void gl843_set_ad_fe(Genesys_Device* dev)
 }
 
 // Set values of analog frontend
-static void gl843_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set)
+void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set) const
 {
     DBG_HELPER_ARGS(dbg, "%s", set == AFE_INIT ? "init" :
                                set == AFE_SET ? "set" :
@@ -800,7 +787,8 @@ static void gl843_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
 
   if (set == AFE_INIT)
     {
-      DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
+        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
+            static_cast<unsigned>(dev->model->adc_id));
       dev->frontend = dev->frontend_initial;
         dev->frontend_is_init = true;
     }
@@ -841,8 +829,7 @@ static void gl843_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
         }
     }
 
-  if (dev->model->ccd_type == CCD_KVSS080)
-    {
+    if (dev->model->sensor_id == SensorId::CCD_KVSS080) {
       for (i = 0; i < 3; i++)
 	{
             // FIXME: the check below is just historical artifact, we can remove it when convenient
@@ -871,21 +858,22 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                                        Genesys_Register_Set* reg,
                                        unsigned int exposure,
                                        float scan_yres,
-                                       int scan_step_type,
+                                       StepType step_type,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
                                        unsigned int flags)
 {
-    DBG_HELPER_ARGS(dbg, "exposure=%d, scan_yres=%g, scan_step_type=%d, scan_lines=%d, scan_dummy=%d, "
+    DBG_HELPER_ARGS(dbg, "exposure=%d, scan_yres=%g, step_type=%d, scan_lines=%d, scan_dummy=%d, "
                          "feed_steps=%d, flags=%x",
-                    exposure, scan_yres, scan_step_type, scan_lines, scan_dummy, feed_steps, flags);
+                    exposure, scan_yres, static_cast<unsigned>(step_type), scan_lines, scan_dummy,
+                    feed_steps, flags);
 
   int use_fast_fed, coeff;
   unsigned int lincnt;
     std::vector<uint16_t> scan_table;
     std::vector<uint16_t> fast_table;
-  int scan_steps,fast_steps, fast_step_type;
+  int scan_steps,fast_steps;
   unsigned int feedl,factor,dist;
   GenesysRegister *r;
   uint32_t z1, z2;
@@ -928,9 +916,9 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                             scan_yres,
                             exposure,
                             dev->motor.base_ydpi,
-                            scan_step_type,
+                            step_type,
                             factor,
-                            dev->model->motor_type,
+                            dev->model->motor_id,
                             gl843_motor_profiles);
     gl843_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps * factor);
     gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps * factor);
@@ -944,11 +932,11 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
   r->value = scan_steps;
 
   /* fast table */
-  fast_step_type=0;
-  if(scan_step_type<=fast_step_type)
-    {
-      fast_step_type=scan_step_type;
+    StepType fast_step_type = StepType::FULL;
+    if (static_cast<unsigned>(step_type) <= static_cast<unsigned>(fast_step_type)) {
+        fast_step_type = step_type;
     }
+
   sanei_genesys_slope_table(fast_table,
                             &fast_steps,
                             sanei_genesys_get_lowest_ydpi(dev),
@@ -956,7 +944,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                             dev->motor.base_ydpi,
                             fast_step_type,
                             factor,
-                            dev->model->motor_type,
+                            dev->model->motor_id,
                             gl843_motor_profiles);
     gl843_send_slope_table(dev, STOP_TABLE, fast_table, fast_steps * factor);
     gl843_send_slope_table(dev, FAST_TABLE, fast_table, fast_steps * factor);
@@ -972,7 +960,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
   /* substract acceleration distance from feedl */
   feedl=feed_steps;
-  feedl<<=scan_step_type;
+    feedl <<= static_cast<unsigned>(step_type);
 
   dist = scan_steps;
   if (use_fast_fed)
@@ -1018,10 +1006,11 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
   r->value |= scan_dummy;	/* dummy lines */
 
   r = sanei_genesys_get_address (reg, REG67);
-  r->value = 0x3f | (scan_step_type << REG67S_STEPSEL);
+    r->value = 0x3f | (static_cast<unsigned>(step_type) << REG67S_STEPSEL);
 
+    // BUG: here we are writing non-fast step type to fast step type register
   r = sanei_genesys_get_address (reg, REG68);
-  r->value = 0x3f | (scan_step_type << REG68S_FSTPSEL);
+    r->value = 0x3f | (static_cast<unsigned>(step_type) << REG68S_FSTPSEL);
 
   /* steps for STOP table */
   r = sanei_genesys_get_address (reg, REG_FMOVDEC);
@@ -1033,8 +1022,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     {
       r->value = 0x50;
         coeff = sensor.get_hwdpi_divisor_for_dpi(scan_yres);
-      if (dev->model->motor_type == MOTOR_KVSS080)
-        {
+        if (dev->model->motor_id == MotorId::KVSS080) {
           if(coeff>=1)
             {
               r->value |= 0x05;
@@ -1103,7 +1091,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
     DBG(DBG_io2, "%s: ccd_pixels_per_system_pixel=%d\n", __func__, ccd_pixels_per_system_pixel);
 
-    gl843_set_fe(dev, sensor, AFE_SET);
+    dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 
   /* enable shading */
   r = sanei_genesys_get_address (reg, REG01);
@@ -1128,9 +1116,9 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
   r = sanei_genesys_get_address (reg, REG03);
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-    r->value |= REG03_AVEENB;
-  else {
+    if (dev->model->model_id == ModelId::CANON_8600F) {
+        r->value |= REG03_AVEENB;
+    } else {
     r->value &= ~REG03_AVEENB;
   }
 
@@ -1269,7 +1257,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   int slope_dpi = 0;
   int dummy = 0;
-  int scan_step_type = 1;
 
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
@@ -1291,11 +1278,12 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   if (exposure < 0) {
       throw std::runtime_error("Exposure not defined in sensor definition");
   }
-    scan_step_type = sanei_genesys_compute_step_type(gl843_motor_profiles, dev->model->motor_type,
-                                                     exposure);
+    StepType scan_step_type = sanei_genesys_compute_step_type(gl843_motor_profiles,
+                                                              dev->model->motor_id,
+                                                              exposure);
 
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
-  DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, scan_step_type);
+    DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, static_cast<unsigned>(scan_step_type));
 
     // now _LOGICAL_ optical values used are known, setup registers
     gl843_init_optical_regs_scan(dev, sensor, reg, exposure, session);
@@ -1303,8 +1291,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   /*** motor parameters ***/
 
   /* it seems base_dpi of the G4050 motor is changed above 600 dpi*/
-  if (dev->model->motor_type == MOTOR_G4050 && session.params.yres>600)
-    {
+    if (dev->model->motor_id == MotorId::G4050 && session.params.yres>600) {
       dev->ld_shift_r = (dev->model->ld_shift_r*3800)/dev->motor.base_ydpi;
       dev->ld_shift_g = (dev->model->ld_shift_g*3800)/dev->motor.base_ydpi;
       dev->ld_shift_b = (dev->model->ld_shift_b*3800)/dev->motor.base_ydpi;
@@ -1356,8 +1343,8 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
 }
 
-static void
-gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor)
+void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
+                                              const Genesys_Sensor& sensor) const
 {
   int start;
 
@@ -1377,8 +1364,8 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
         start = SANE_UNFIX(dev->model->x_offset);
     }
 
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == ModelId::CANON_8400F ||
+        dev->model->model_id == ModelId::CANON_8600F)
     {
         // FIXME: this is probably just an artifact of a bug elsewhere
         start /= ccd_size_divisor;
@@ -1416,7 +1403,7 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
 
   /* it seems base_dpi of the G4050 motor is changed above 600 dpi*/
-    if (dev->model->motor_type == MOTOR_G4050 && session.params.yres>600) {
+    if (dev->model->motor_id == MotorId::G4050 && session.params.yres>600) {
       dev->ld_shift_r = (dev->model->ld_shift_r*3800)/dev->motor.base_ydpi;
       dev->ld_shift_g = (dev->model->ld_shift_g*3800)/dev->motor.base_ydpi;
       dev->ld_shift_b = (dev->model->ld_shift_b*3800)/dev->motor.base_ydpi;
@@ -1444,12 +1431,12 @@ gl843_calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor
  * @param dev device to use
  * @param enable true to set inot powersaving
  * */
-static void gl843_save_power(Genesys_Device* dev, SANE_Bool enable)
+void CommandSetGl843::save_power(Genesys_Device* dev, bool enable) const
 {
     DBG_HELPER_ARGS(dbg, "enable = %d", enable);
 
     // switch KV-SS080 lamp off
-    if (dev->model->gpo_type == GPO_KVSS080) {
+    if (dev->model->gpio_id == GpioId::KVSS080) {
         uint8_t val = dev->read_register(REG6C);
         if (enable) {
             val &= 0xef;
@@ -1460,7 +1447,7 @@ static void gl843_save_power(Genesys_Device* dev, SANE_Bool enable)
     }
 }
 
-static void gl843_set_powersaving(Genesys_Device* dev, int delay /* in minutes */)
+void CommandSetGl843::set_powersaving(Genesys_Device* dev, int delay /* in minutes */) const
 {
     (void) dev;
     DBG_HELPER_ARGS(dbg, "delay = %d", delay);
@@ -1544,14 +1531,14 @@ static void gl843_get_paper_sensor(Genesys_Device* dev, SANE_Bool * paper_loaded
     *paper_loaded = (val & 0x1) == 0;
 }
 
-static void gl843_eject_document(Genesys_Device* dev)
+void CommandSetGl843::eject_document(Genesys_Device* dev) const
 {
     (void) dev;
     DBG_HELPER(dbg);
 }
 
 
-static void gl843_load_document(Genesys_Device* dev)
+void CommandSetGl843::load_document(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
     (void) dev;
@@ -1562,7 +1549,7 @@ static void gl843_load_document(Genesys_Device* dev)
  * to take it into account
  * used by sheetfed scanners
  */
-static void gl843_detect_document_end(Genesys_Device* dev)
+void CommandSetGl843::detect_document_end(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
   SANE_Bool paper_loaded;
@@ -1614,7 +1601,7 @@ static void gl843_set_xpa_motor_power(Genesys_Device* dev, bool set)
     DBG_HELPER(dbg);
     uint8_t val;
 
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+    if (dev->model->model_id == ModelId::CANON_8400F) {
 
         if (set) {
             val = dev->read_register(0x6c);
@@ -1638,7 +1625,7 @@ static void gl843_set_xpa_motor_power(Genesys_Device* dev, bool set)
             val |= REGA9_GPO29;
             dev->write_register(0xa9, val);
         }
-    } else if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+    } else if (dev->model->model_id == ModelId::CANON_8600F) {
         if (set) {
             val = dev->read_register(REG6C);
             val &= ~REG6C_GPIO14;
@@ -1662,7 +1649,7 @@ static void gl843_set_xpa_motor_power(Genesys_Device* dev, bool set)
             val &= ~REGA6_GPIO23;
             dev->write_register(REGA6, val);
         }
-    } else if (dev->model->model_id == MODEL_HP_SCANJET_G4050) {
+    } else if (dev->model->model_id == ModelId::HP_SCANJET_G4050) {
         if (set) {
             // set MULTFILM et GPOADF
             val = dev->read_register(REG6B);
@@ -1713,7 +1700,7 @@ static void gl843_set_xpa_lamp_power(Genesys_Device* dev, bool set)
     DBG_HELPER(dbg);
 
     struct LampSettings {
-        unsigned model_id;
+        ModelId model_id;
         ScanMethod scan_method;
         GenesysRegisterSettingSet regs_on;
         GenesysRegisterSettingSet regs_off;
@@ -1722,14 +1709,14 @@ static void gl843_set_xpa_lamp_power(Genesys_Device* dev, bool set)
     // FIXME: BUG: we're not clearing the registers to the previous state when returning back when
     // turning off the lamp
     LampSettings settings[] = {
-        {   MODEL_CANON_CANOSCAN_8400F, ScanMethod::TRANSPARENCY, {
+        {   ModelId::CANON_8400F, ScanMethod::TRANSPARENCY, {
                 { 0xa6, 0x34, 0xf4 },
                 { 0xa7, 0xe0, 0xe0 }, // BUG: should be 0x03
             }, {
                 { 0xa6, 0x40, 0x70 },
             }
         },
-        {   MODEL_CANON_CANOSCAN_8400F, ScanMethod::TRANSPARENCY_INFRARED, {
+        {   ModelId::CANON_8400F, ScanMethod::TRANSPARENCY_INFRARED, {
                 { 0x6c, 0x40, 0x40 },
                 { 0xa6, 0x01, 0xff },
                 { 0xa7, 0x03, 0x07 },
@@ -1739,14 +1726,14 @@ static void gl843_set_xpa_lamp_power(Genesys_Device* dev, bool set)
                 { 0xa7, 0x07, 0x07 },
             }
         },
-        {   MODEL_CANON_CANOSCAN_8600F, ScanMethod::TRANSPARENCY, {
+        {   ModelId::CANON_8600F, ScanMethod::TRANSPARENCY, {
                 { 0xa6, 0x34, 0xf4 },
                 { 0xa7, 0xe0, 0xe0 },
             }, {
                 { 0xa6, 0x40, 0x70 },
             }
         },
-        {   MODEL_CANON_CANOSCAN_8600F, ScanMethod::TRANSPARENCY_INFRARED, {
+        {   ModelId::CANON_8600F, ScanMethod::TRANSPARENCY_INFRARED, {
                 { 0xa6, 0x00, 0xc0 },
                 { 0xa7, 0xe0, 0xe0 },
                 { 0x6c, 0x80, 0x80 },
@@ -1755,12 +1742,12 @@ static void gl843_set_xpa_lamp_power(Genesys_Device* dev, bool set)
                 { 0x6c, 0x00, 0x80 },
             }
         },
-        {   MODEL_PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY, {
+        {   ModelId::PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY, {
             }, {
                 { 0xa6, 0x40, 0x70 }, // BUG: remove this cleanup write, it was enabled by accident
             }
         },
-        {   MODEL_PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY_INFRARED, {
+        {   ModelId::PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY_INFRARED, {
                 { 0xa8, 0x07, 0x07 },
             }, {
                 { 0xa8, 0x00, 0x07 },
@@ -1791,23 +1778,22 @@ static void gl843_set_xpa_lamp_power(Genesys_Device* dev, bool set)
 }
 
 // Send the low-level scan command
-static void gl843_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                             Genesys_Register_Set* reg, SANE_Bool start_motor)
+void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                 Genesys_Register_Set* reg, bool start_motor) const
 {
     DBG_HELPER(dbg);
     (void) sensor;
 
   /* set up GPIO for scan */
-  switch(dev->model->gpo_type)
-    {
+    switch(dev->model->gpio_id) {
       /* KV case */
-      case GPO_KVSS080:
+        case GpioId::KVSS080:
             dev->write_register(REGA9, 0x00);
             dev->write_register(REGA6, 0xf6);
             // blinking led
             dev->write_register(0x7e, 0x04);
             break;
-      case GPO_G4050:
+        case GpioId::G4050:
             dev->write_register(REGA7, 0xfe);
             dev->write_register(REGA8, 0x3e);
             dev->write_register(REGA9, 0x06);
@@ -1830,9 +1816,9 @@ static void gl843_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
             // blinking led
             dev->write_register(REG7E, 0x01);
-        break;
-      case GPO_CS8400F:
-      case GPO_CS8600F:
+            break;
+        case GpioId::CANON_8400F:
+        case GpioId::CANON_8600F:
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
                 gl843_set_xpa_lamp_power(dev, true);
             }
@@ -1840,16 +1826,16 @@ static void gl843_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                 dev->needs_home_ta = SANE_TRUE;
                 gl843_set_xpa_motor_power(dev, true);
             }
-        break;
-        case GPO_PLUSTEK_7200I: {
+            break;
+        case GpioId::PLUSTEK_OPTICFILM_7200I: {
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
                 gl843_set_xpa_lamp_power(dev, true);
             }
             break;
         }
-      case GPO_CS4400F:
-      default:
-        break;
+        case GpioId::CANON_4400F:
+        default:
+            break;
     }
 
     // clear scan and feed count
@@ -1869,7 +1855,8 @@ static void gl843_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
 
 // Send the stop scan command
-static void gl843_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop)
+void CommandSetGl843::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
+                               bool check_stop) const
 {
     DBG_HELPER_ARGS(dbg, "check_stop = %d", check_stop);
 
@@ -1957,7 +1944,7 @@ static void gl843_park_xpa_lamp(Genesys_Device* dev)
 
 /** @brief Moves the slider to the home (top) position slowly
  * */
-static void gl843_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
+void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
@@ -2071,7 +2058,7 @@ static void gl843_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
 
 // Automatically set top-left edge of the scan area by scanning a 200x200 pixels area at 600 dpi
 // from very top of scanner
-static void gl843_search_start_position(Genesys_Device* dev)
+void CommandSetGl843::search_start_position(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
@@ -2112,7 +2099,7 @@ static void gl843_search_start_position(Genesys_Device* dev)
     // send to scanner
     dev->write_registers(local_reg);
 
-    gl843_begin_scan(dev, sensor, &local_reg, SANE_TRUE);
+    dev->cmd_set->begin_scan(dev, sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {
@@ -2128,7 +2115,7 @@ static void gl843_search_start_position(Genesys_Device* dev)
         sanei_genesys_write_pnm_file("gl843_search_position.pnm", image);
     }
 
-    gl843_end_scan(dev, &local_reg, SANE_TRUE);
+    dev->cmd_set->end_scan(dev, &local_reg, SANE_TRUE);
 
   /* update regs to copy ASIC internal state */
   dev->reg = local_reg;
@@ -2143,9 +2130,9 @@ static void gl843_search_start_position(Genesys_Device* dev)
 
 // sets up register for coarse gain calibration
 // todo: check it for scanners using it
-static void gl843_init_regs_for_coarse_calibration(Genesys_Device* dev,
-                                                   const Genesys_Sensor& sensor,
-                                                   Genesys_Register_Set& regs)
+void CommandSetGl843::init_regs_for_coarse_calibration(Genesys_Device* dev,
+                                                       const Genesys_Sensor& sensor,
+                                                       Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
 
@@ -2255,11 +2242,9 @@ static void gl843_feed(Genesys_Device* dev, unsigned int steps)
   sanei_genesys_sleep_ms(100);
 }
 
-static void gl843_move_to_ta(Genesys_Device* dev);
-
 // init registers for shading calibration shading calibration is done at dpihw
-static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                        Genesys_Register_Set& regs)
+void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                            Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
   int move, resolution, dpihw, factor;
@@ -2286,7 +2271,7 @@ static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
 
     if ((dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
          dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) &&
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F &&
+        dev->model->model_id == ModelId::CANON_8600F &&
         dev->settings.xres == 4800)
     {
         float offset = SANE_UNFIX(dev->model->x_offset_ta);
@@ -2357,7 +2342,7 @@ static void gl843_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
 
 /** @brief set up registers for the actual scan
  */
-static void gl843_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor)
+void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const
 {
     DBG_HELPER(dbg);
   int flags;
@@ -2404,8 +2389,8 @@ static void gl843_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& 
         start = SANE_UNFIX(dev->model->x_offset);
     }
 
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == ModelId::CANON_8400F ||
+        dev->model->model_id == ModelId::CANON_8600F)
     {
         // FIXME: this is probably just an artifact of a bug elsewhere
         start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
@@ -2443,7 +2428,7 @@ static void gl843_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& 
 /**
  * This function sends gamma tables to ASIC
  */
-static void gl843_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor)
+void CommandSetGl843::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const
 {
     DBG_HELPER(dbg);
   int size;
@@ -2480,8 +2465,8 @@ static void gl843_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& se
 
 -needs working coarse/gain
 */
-static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                            Genesys_Register_Set& regs)
+SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                                Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
   int num_pixels;
@@ -2553,7 +2538,7 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
         dev->write_registers(regs);
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
-        gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
+        dev->cmd_set->begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
         auto image = read_unshuffled_image_from_scanner(dev, session,
                                                         session.output_total_bytes_raw);
         gl843_stop_action_no_move(dev, &regs);
@@ -2624,7 +2609,7 @@ static SensorExposure gl843_led_calibration(Genesys_Device* dev, const Genesys_S
 
   DBG(DBG_info, "%s: acceptable exposure: %d,%d,%d\n", __func__, expr, expg, expb);
 
-  gl843_slow_back_home (dev, SANE_TRUE);
+    slow_back_home(dev, SANE_TRUE);
 
     return calib_sensor.exposure;
 }
@@ -2666,8 +2651,8 @@ static int dark_average_channel(const Image& image, unsigned black, unsigned cha
  * color line is scanned at a time. Scanning head doesn't move.
  * @param dev device to calibrate
  */
-static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                     Genesys_Register_Set& regs)
+void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                         Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
 
@@ -2698,7 +2683,7 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
     if ((dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
          dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) &&
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F &&
+        dev->model->model_id == ModelId::CANON_8600F &&
         dev->settings.xres == 4800)
     {
         start_pixel = SANE_UNFIX(dev->model->x_offset_ta);
@@ -2753,13 +2738,13 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
         dev->frontend.set_offset(ch, bottom[ch]);
         dev->frontend.set_gain(ch, 0);
     }
-    gl843_set_fe(dev, calib_sensor, AFE_SET);
+    dev->cmd_set->set_fe(dev, calib_sensor, AFE_SET);
 
     // scan with bottom AFE settings
     dev->write_registers(regs);
     DBG(DBG_info, "%s: starting first line reading\n", __func__);
 
-    gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
+    dev->cmd_set->begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
     auto first_line = read_unshuffled_image_from_scanner(dev, session,
                                                          session.output_total_bytes_raw);
     gl843_stop_action_no_move(dev, &regs);
@@ -2782,13 +2767,13 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
         top[ch] = 255;
         dev->frontend.set_offset(ch, top[ch]);
     }
-    gl843_set_fe(dev, calib_sensor, AFE_SET);
+    dev->cmd_set->set_fe(dev, calib_sensor, AFE_SET);
 
     // scan with top AFE values
     dev->write_registers(regs);
     DBG(DBG_info, "%s: starting second line reading\n", __func__);
 
-    gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
+    dev->cmd_set->begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
     auto second_line = read_unshuffled_image_from_scanner(dev, session,
                                                           session.output_total_bytes_raw);
     gl843_stop_action_no_move(dev, &regs);
@@ -2817,12 +2802,12 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
                 dev->frontend.set_offset(ch, (top[ch] + bottom[ch]) / 2);
             }
         }
-        gl843_set_fe(dev, calib_sensor, AFE_SET);
+        dev->cmd_set->set_fe(dev, calib_sensor, AFE_SET);
 
         // scan with no move
         dev->write_registers(regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
-        gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
+        dev->cmd_set->begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
         second_line = read_unshuffled_image_from_scanner(dev, session,
                                                          session.output_total_bytes_raw);
         gl843_stop_action_no_move(dev, &regs);
@@ -2884,8 +2869,8 @@ static void gl843_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   a reasonable shape. the fine calibration of the upper and lower bounds will
   be done with shading.
  */
-static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                          Genesys_Register_Set& regs, int dpi)
+void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                              Genesys_Register_Set& regs, int dpi) const
 {
     DBG_HELPER_ARGS(dbg, "dpi = %d", dpi);
     int factor, dpihw;
@@ -2904,8 +2889,7 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
     unsigned channels = 3;
 
   /* follow CKSEL */
-  if (dev->model->ccd_type == CCD_KVSS080)
-    {
+    if (dev->model->sensor_id == SensorId::CCD_KVSS080) {
       if(dev->settings.xres<sensor.optical_res)
         {
           coeff=0.9;
@@ -2965,8 +2949,8 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
     dev->write_registers(regs);
 
-    gl843_set_fe(dev, calib_sensor, AFE_SET);
-    gl843_begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
+    dev->cmd_set->set_fe(dev, calib_sensor, AFE_SET);
+    dev->cmd_set->begin_scan(dev, calib_sensor, &regs, SANE_TRUE);
     auto line = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes_raw);
     gl843_stop_action_no_move(dev, &regs);
 
@@ -3020,13 +3004,14 @@ static void gl843_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
     gl843_stop_action(dev);
 
-    gl843_slow_back_home(dev, SANE_TRUE);
+    slow_back_home(dev, SANE_TRUE);
 }
 
 // wait for lamp warmup by scanning the same line until difference
 // between 2 scans is below a threshold
-static void gl843_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                       Genesys_Register_Set* reg, int* channels, int* total_size)
+void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                           Genesys_Register_Set* reg, int* channels,
+                                           int* total_size) const
 {
     DBG_HELPER(dbg);
   int num_pixels;
@@ -3092,7 +3077,7 @@ static void gl843_init_gpio(Genesys_Device* dev)
 /* *
  * initialize ASIC from power on condition
  */
-static void gl843_boot(Genesys_Device* dev, SANE_Bool cold)
+void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
 {
     DBG_HELPER(dbg);
   uint8_t val;
@@ -3122,7 +3107,7 @@ static void gl843_boot(Genesys_Device* dev, SANE_Bool cold)
   /* Set default values for registers */
   gl843_init_registers (dev);
 
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+    if (dev->model->model_id == ModelId::CANON_8600F) {
         // turns on vref control for maximum current of the motor driver
         dev->write_register(REG6B, 0x72);
     } else {
@@ -3138,12 +3123,12 @@ static void gl843_boot(Genesys_Device* dev, SANE_Bool cold)
     dev->write_register(REG0B, val);
   dev->reg.find_reg(0x0b).value = val;
 
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F) {
+    if (dev->model->model_id == ModelId::CANON_8400F) {
         sanei_genesys_write_0x8c(dev, 0x1e, 0x01);
         sanei_genesys_write_0x8c(dev, 0x10, 0xb4);
         sanei_genesys_write_0x8c(dev, 0x0f, 0x02);
     }
-    else if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F) {
+    else if (dev->model->model_id == ModelId::CANON_8600F) {
         sanei_genesys_write_0x8c(dev, 0x10, 0xc8);
     } else {
         sanei_genesys_write_0x8c(dev, 0x10, 0xb4);
@@ -3152,11 +3137,13 @@ static void gl843_boot(Genesys_Device* dev, SANE_Bool cold)
   /* CLKSET */
     int clock_freq = REG0B_48MHZ;
     switch (dev->model->model_id) {
-        case MODEL_CANON_CANOSCAN_8600F:
+        case ModelId::CANON_8600F:
             clock_freq = REG0B_60MHZ;
             break;
-        case MODEL_PLUSTEK_OPTICFILM_7200I:
+        case ModelId::PLUSTEK_OPTICFILM_7200I:
             clock_freq = REG0B_30MHZ;
+            break;
+        default:
             break;
     }
 
@@ -3168,8 +3155,7 @@ static void gl843_boot(Genesys_Device* dev, SANE_Bool cold)
   /* prevent further writings by bulk write register */
   dev->reg.remove_reg(0x0b);
 
-  if (dev->model->model_id != MODEL_CANON_CANOSCAN_8600F)
-    {
+    if (dev->model->model_id != ModelId::CANON_8600F) {
       // set up end access
       // FIXME: this is overwritten in gl843_init_gpio
         dev->write_register(REGA7, 0x04);
@@ -3192,7 +3178,7 @@ static void gl843_boot(Genesys_Device* dev, SANE_Bool cold)
  * initialize backend and ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
  */
-static void gl843_init(Genesys_Device* dev)
+void CommandSetGl843::init(Genesys_Device* dev) const
 {
   DBG_INIT ();
     DBG_HELPER(dbg);
@@ -3200,7 +3186,7 @@ static void gl843_init(Genesys_Device* dev)
     sanei_genesys_asic_init(dev, 0);
 }
 
-static void gl843_update_hardware_sensors(Genesys_Scanner* s)
+void CommandSetGl843::update_hardware_sensors(Genesys_Scanner* s) const
 {
     DBG_HELPER(dbg);
   /* do what is needed to get a new set of events, but try to not lose
@@ -3209,19 +3195,19 @@ static void gl843_update_hardware_sensors(Genesys_Scanner* s)
 
     uint8_t val = s->dev->read_register(REG6D);
 
-  switch (s->dev->model->gpo_type)
+  switch (s->dev->model->gpio_id)
     {
-        case GPO_KVSS080:
+        case GpioId::KVSS080:
             s->buttons[BUTTON_SCAN_SW].write((val & 0x04) == 0);
             break;
-        case GPO_G4050:
+        case GpioId::G4050:
             s->buttons[BUTTON_SCAN_SW].write((val & 0x01) == 0);
             s->buttons[BUTTON_FILE_SW].write((val & 0x02) == 0);
             s->buttons[BUTTON_EMAIL_SW].write((val & 0x04) == 0);
             s->buttons[BUTTON_COPY_SW].write((val & 0x08) == 0);
             break;
-        case GPO_CS4400F:
-        case GPO_CS8400F:
+        case GpioId::CANON_4400F:
+        case GpioId::CANON_8400F:
         default:
             break;
     }
@@ -3231,7 +3217,7 @@ static void gl843_update_hardware_sensors(Genesys_Scanner* s)
  * Move sensor to the calibration of the transparency adapator (XPA).
  * @param dev device to use
  */
-static void gl843_move_to_ta(Genesys_Device* dev)
+void CommandSetGl843::move_to_ta(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
   float resolution;
@@ -3251,8 +3237,8 @@ static void gl843_move_to_ta(Genesys_Device* dev)
  * @param forward SANE_TRUE if searching forward, SANE_FALSE if searching backward
  * @param black SANE_TRUE if searching for a black strip, SANE_FALSE for a white strip
  */
-static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, SANE_Bool forward,
-                               SANE_Bool black)
+void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                   bool forward, bool black) const
 {
     DBG_HELPER_ARGS(dbg, "%s %s",  black ? "black" : "white", forward ? "forward" : "reverse");
   unsigned int pixels, lines, channels;
@@ -3261,7 +3247,7 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
   unsigned int pass, count, found, x, y;
   GenesysRegister *r;
 
-  gl843_set_fe(dev, sensor, AFE_SET);
+    dev->cmd_set->set_fe(dev, sensor, AFE_SET);
     gl843_stop_action(dev);
 
   /* set up for a gray scan at lowest dpi */
@@ -3309,7 +3295,7 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
 
     dev->write_registers(local_reg);
 
-    gl843_begin_scan(dev, calib_sensor, &local_reg, SANE_TRUE);
+    dev->cmd_set->begin_scan(dev, calib_sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {
@@ -3338,7 +3324,7 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
         dev->write_registers(local_reg);
 
         // now start scan
-        gl843_begin_scan(dev, calib_sensor, &local_reg, SANE_TRUE);
+        dev->cmd_set->begin_scan(dev, calib_sensor, &local_reg, SANE_TRUE);
 
         // waits for valid data
         do {
@@ -3445,8 +3431,8 @@ static void gl843_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
  * Send shading calibration data. The buffer is considered to always hold values
  * for all the channels.
  */
-static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                    uint8_t* data, int size)
+void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                        uint8_t* data, int size) const
 {
     DBG_HELPER(dbg);
   uint32_t final_size, length, i;
@@ -3471,8 +3457,7 @@ static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
         strpixel = dev->session.pixel_startx;
         endpixel = dev->session.pixel_endx;
 
-      if (dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
-        {
+        if (dev->model->model_id == ModelId::CANON_8600F) {
             int half_ccd_factor = dev->session.optical_resolution /
                                   sensor.get_logical_hwdpi(dev->session.output_resolution);
             strpixel /= half_ccd_factor * sensor.ccd_pixels_per_system_pixel();
@@ -3512,57 +3497,43 @@ static void gl843_send_shading_data(Genesys_Device* dev, const Genesys_Sensor& s
     dev->cmd_set->bulk_write_data (dev, 0x3c, final_data.data(), count);
 }
 
+bool CommandSetGl843::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const
+{
+    (void) dev;
+    return true;
+}
 
-/** the gl843 command set */
-Genesys_Command_Set gl843_cmd_set = {
-  [](Genesys_Device* dev) -> bool { (void) dev; return true; },
+void CommandSetGl843::wait_for_motor_stop(Genesys_Device* dev) const
+{
+    (void) dev;
+}
 
-  gl843_init,
-  gl843_init_regs_for_warmup,
-  gl843_init_regs_for_coarse_calibration,
-  gl843_init_regs_for_shading,
-  gl843_init_regs_for_scan,
+void CommandSetGl843::rewind(Genesys_Device* dev) const
+{
+    (void) dev;
+    throw SaneException("not implemented");
+}
 
-  gl843_get_filter_bit,
-  gl843_get_lineart_bit,
-  gl843_get_bitset_bit,
-  gl843_get_gain4_bit,
-  gl843_get_fast_feed_bit,
-  gl843_test_buffer_empty_bit,
-  gl843_test_motor_flag_bit,
+void CommandSetGl843::bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
+                                      size_t len) const
+{
+    sanei_genesys_bulk_write_data(dev, addr, data, len);
+}
 
-  gl843_set_fe,
-  gl843_set_powersaving,
-  gl843_save_power,
+void CommandSetGl843::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
+                                     size_t len) const
+{
+    sanei_genesys_bulk_read_data(dev, addr, data, len);
+}
 
-  gl843_begin_scan,
-  gl843_end_scan,
+bool CommandSetGl843::is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                                Genesys_Calibration_Cache* cache,
+                                                bool for_overwrite) const
+{
+    return sanei_genesys_is_compatible_calibration(dev, sensor, cache, for_overwrite);
+}
 
-  gl843_send_gamma_table,
-
-  gl843_search_start_position,
-
-  gl843_offset_calibration,
-  gl843_coarse_gain_calibration,
-  gl843_led_calibration,
-
-  NULL,
-  gl843_slow_back_home,
-  NULL,
-
-  sanei_genesys_bulk_write_data,
-  sanei_genesys_bulk_read_data,
-
-  gl843_update_hardware_sensors,
-
-  gl843_load_document,
-  gl843_detect_document_end,
-  gl843_eject_document,
-  gl843_search_strip,
-
-  sanei_genesys_is_compatible_calibration,
-  gl843_move_to_ta,
-  gl843_send_shading_data,
-  gl843_calculate_current_setup,
-  gl843_boot
-};
+std::unique_ptr<CommandSet> create_gl843_cmd_set()
+{
+    return std::unique_ptr<CommandSet>(new CommandSetGl843{});
+}

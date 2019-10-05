@@ -488,6 +488,7 @@ EXTRA_DIST += fujitsu.conf.in
 libgenesys_la_SOURCES = genesys.cc genesys.h \
     genesys_buffer.h genesys_buffer.cc \
     genesys_calibration.h \
+    genesys_command_set.h \
     genesys_device.h genesys_device.cc \
     genesys_enums.h \
     genesys_error.h genesys_error.cc \

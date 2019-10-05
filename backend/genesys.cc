@@ -185,7 +185,7 @@ static const SANE_Range expiration_range = {
 const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev)
 {
     for (const auto& sensor : *s_sensors) {
-        if (dev->model->ccd_type == sensor.sensor_id) {
+        if (dev->model->sensor_id == sensor.sensor_id) {
             return sensor;
         }
     }
@@ -196,7 +196,7 @@ Genesys_Sensor* find_sensor_impl(Genesys_Device* dev, unsigned dpi, unsigned cha
                                  ScanMethod scan_method)
 {
     for (auto& sensor : *s_sensors) {
-        if (dev->model->ccd_type == sensor.sensor_id && sensor.resolutions.matches(dpi) &&
+        if (dev->model->sensor_id == sensor.sensor_id && sensor.resolutions.matches(dpi) &&
             sensor.matches_channel_count(channels) && sensor.method == scan_method)
         {
             return &sensor;
@@ -246,7 +246,7 @@ std::vector<std::reference_wrapper<Genesys_Sensor>>
 {
     std::vector<std::reference_wrapper<Genesys_Sensor>> ret;
     for (auto& sensor : *s_sensors) {
-        if (dev->model->ccd_type == sensor.sensor_id && sensor.method == scan_method) {
+        if (dev->model->sensor_id == sensor.sensor_id && sensor.method == scan_method) {
             ret.push_back(sensor);
         }
     }
@@ -262,7 +262,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
 
   /* initialize the GPO data stuff */
     for (const auto& gpo : *s_gpo) {
-        if (dev->model->gpo_type == gpo.gpo_id) {
+        if (dev->model->gpio_id == gpo.id) {
             dev->gpo = gpo;
             gpo_ok = true;
             break;
@@ -271,7 +271,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
 
     // initialize the motor data stuff
     for (const auto& motor : *s_motors) {
-        if (dev->model->motor_type == motor.motor_id) {
+        if (dev->model->motor_id == motor.id) {
             dev->motor = motor;
             motor_ok = true;
             break;
@@ -279,7 +279,7 @@ sanei_genesys_init_structs (Genesys_Device * dev)
     }
 
     for (const auto& frontend : *s_frontends) {
-        if (dev->model->dac_type == frontend.fe_id) {
+        if (dev->model->adc_id == frontend.id) {
             dev->frontend_initial = frontend;
             dev->frontend = frontend;
             fe_ok = true;
@@ -289,7 +289,9 @@ sanei_genesys_init_structs (Genesys_Device * dev)
 
     if (!motor_ok || !gpo_ok || !fe_ok) {
         throw SaneException("bad description(s) for fe/gpo/motor=%d/%d/%d\n",
-                            dev->model->ccd_type, dev->model->gpo_type, dev->model->motor_type);
+                            static_cast<unsigned>(dev->model->sensor_id),
+                            static_cast<unsigned>(dev->model->gpio_id),
+                            static_cast<unsigned>(dev->model->motor_id));
     }
 
   /* set up initial line distance shift */
@@ -495,8 +497,7 @@ SANE_Int genesys_create_slope_table2(Genesys_Device* dev, std::vector<uint16_t>&
       step_type, exposure_time, same_speed, yres);
 
   /* start speed */
-  if (dev->model->motor_type == MOTOR_5345)
-    {
+    if (dev->model->motor_id == MotorId::MD_5345) {
       if (yres < dev->motor.base_ydpi / 6)
 	vstart = 2500;
       else
@@ -610,12 +611,13 @@ SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint
   int i, divider;
   int same_step;
 
-  if (dev->model->motor_type == MOTOR_5345
-      || dev->model->motor_type == MOTOR_HP2300
-      || dev->model->motor_type == MOTOR_HP2400)
-    return genesys_create_slope_table2 (dev, slope_table, steps,
-					step_type, exposure_time,
-                    same_speed, yres);
+    if (dev->model->motor_id == MotorId::MD_5345 ||
+        dev->model->motor_id == MotorId::HP2300 ||
+        dev->model->motor_id == MotorId::HP2400)
+    {
+        return genesys_create_slope_table2(dev, slope_table, steps, step_type, exposure_time,
+                                           same_speed, yres);
+    }
 
   DBG(DBG_proc, "%s: %d steps, step_type = %d, exposure_time = %d, same_speed =%d\n", __func__,
       steps, step_type, exposure_time, same_speed);
@@ -671,8 +673,7 @@ SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint
       same_step = 3;
     }
 
-  if (dev->model->motor_type == MOTOR_ST24)
-    {
+    if (dev->model->motor_id == MotorId::ST24) {
       steps = 255;
       switch ((int) yres)
 	{
@@ -846,8 +847,7 @@ SANE_Int
 sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 			     int xdpi)
 {
-  if (dev->model->motor_type == MOTOR_5345)
-    {
+    if (dev->model->motor_id == MotorId::MD_5345) {
         if (dev->cmd_set->get_filter_bit(reg)) {
 	  /* monochrome */
 	  switch (xdpi)
@@ -884,9 +884,7 @@ sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 	      return 11000;
 	    }
 	}
-    }
-  else if (dev->model->motor_type == MOTOR_HP2400)
-    {
+    } else if (dev->model->motor_id == MotorId::HP2400) {
         if (dev->cmd_set->get_filter_bit(reg)) {
 	  /* monochrome */
 	  switch (xdpi)
@@ -908,9 +906,7 @@ sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 	      return 11111;
 	    }
 	}
-    }
-  else if (dev->model->motor_type == MOTOR_HP2300)
-    {
+    } else if (dev->model->motor_id == MotorId::HP2300) {
         if (dev->cmd_set->get_filter_bit(reg)) {
 	  /* monochrome */
 	  switch (xdpi)
@@ -981,22 +977,22 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
   /* many scanners send coefficient for lineart/gray like in color mode */
   if ((dev->settings.scan_mode == ScanColorMode::LINEART ||
        dev->settings.scan_mode == ScanColorMode::HALFTONE)
-      && dev->model->ccd_type != CCD_PLUSTEK3800
-      && dev->model->ccd_type != CCD_KVSS080
-      && dev->model->ccd_type != CCD_G4050
-      && dev->model->ccd_type != CCD_CS4400F
-      && dev->model->ccd_type != CCD_CS8400F
-      && dev->model->ccd_type != CCD_CS8600F
-      && dev->model->ccd_type != CCD_DSMOBILE600
-      && dev->model->ccd_type != CCD_XP300
-      && dev->model->ccd_type != CCD_DP665
-      && dev->model->ccd_type != CCD_DP685
-      && dev->model->ccd_type != CIS_CANONLIDE80
-      && dev->model->ccd_type != CCD_ROADWARRIOR
-      && dev->model->ccd_type != CCD_HP2300
-      && dev->model->ccd_type != CCD_HP2400
-      && dev->model->ccd_type != CCD_HP3670
-      && dev->model->ccd_type != CCD_5345)	/* lineart, halftone */
+        && dev->model->sensor_id != SensorId::CCD_PLUSTEK3800
+        && dev->model->sensor_id != SensorId::CCD_KVSS080
+        && dev->model->sensor_id != SensorId::CCD_G4050
+        && dev->model->sensor_id != SensorId::CCD_CS4400F
+        && dev->model->sensor_id != SensorId::CCD_CS8400F
+        && dev->model->sensor_id != SensorId::CCD_CS8600F
+        && dev->model->sensor_id != SensorId::CCD_DSMOBILE600
+        && dev->model->sensor_id != SensorId::CCD_XP300
+        && dev->model->sensor_id != SensorId::CCD_DP665
+        && dev->model->sensor_id != SensorId::CCD_DP685
+        && dev->model->sensor_id != SensorId::CIS_CANONLIDE80
+        && dev->model->sensor_id != SensorId::CCD_ROADWARRIOR
+        && dev->model->sensor_id != SensorId::CCD_HP2300
+        && dev->model->sensor_id != SensorId::CCD_HP2400
+        && dev->model->sensor_id != SensorId::CCD_HP3670
+        && dev->model->sensor_id != SensorId::CCD_5345)	/* lineart, halftone */
     {
         if (dpihw == 0) {		/* 600 dpi */
             start_address = 0x02a00;
@@ -1032,11 +1028,11 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
 
   /* these models don't need to init shading data due to the use of specific send shading data
      function */
-  if (dev->model->ccd_type==CCD_KVSS080
-   || dev->model->ccd_type==CCD_G4050
-   || dev->model->ccd_type==CCD_CS4400F
-   || dev->model->ccd_type==CCD_CS8400F
-   || dev->cmd_set->has_send_shading_data())
+    if (dev->model->sensor_id==SensorId::CCD_KVSS080 ||
+        dev->model->sensor_id==SensorId::CCD_G4050 ||
+        dev->model->sensor_id==SensorId::CCD_CS4400F ||
+        dev->model->sensor_id==SensorId::CCD_CS8400F ||
+        dev->cmd_set->has_send_shading_data())
     {
         return;
     }
@@ -1158,8 +1154,8 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
     sanei_genesys_write_pnm_file("gl_detected-xsobel.pnm", image.data(), 8, 1, width, height);
   left = left / count;
 
-  /* turn it in CCD pixel at full sensor optical resolution */
-  sensor.CCD_start_xoffset = start_pixel + (left * sensor.optical_res) / dpi;
+    // turn it in CCD pixel at full sensor optical resolution
+    sensor.ccd_start_xoffset = start_pixel + (left * sensor.optical_res) / dpi;
 
   /* find top edge by detecting black strip */
   /* apply Y direction sobel filter
@@ -1189,8 +1185,8 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
   level = level / 3;
 
   /* search top of horizontal black stripe : TODO yet another flag */
-  if (dev->model->ccd_type == CCD_5345
-      && dev->model->motor_type == MOTOR_5345)
+    if (dev->model->sensor_id == SensorId::CCD_5345
+        && dev->model->motor_id == MotorId::MD_5345)
     {
       top = 0;
       count = 0;
@@ -1218,12 +1214,9 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
     }
 
   /* find white corner in dark area : TODO yet another flag */
-  if ((dev->model->ccd_type == CCD_HP2300
-       && dev->model->motor_type == MOTOR_HP2300)
-      || (dev->model->ccd_type == CCD_HP2400
-	  && dev->model->motor_type == MOTOR_HP2400)
-      || (dev->model->ccd_type == CCD_HP3670
-	  && dev->model->motor_type == MOTOR_HP3670))
+    if ((dev->model->sensor_id == SensorId::CCD_HP2300 && dev->model->motor_id == MotorId::HP2300) ||
+        (dev->model->sensor_id == SensorId::CCD_HP2400 && dev->model->motor_id == MotorId::HP2400) ||
+        (dev->model->sensor_id == SensorId::CCD_HP3670 && dev->model->motor_id == MotorId::HP3670))
     {
       top = 0;
       count = 0;
@@ -1241,8 +1234,8 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
             SANE_UNFIX(dev->model->y_offset_calib_white));
     }
 
-  DBG(DBG_proc, "%s: CCD_start_xoffset = %d, left = %d, top = %d\n", __func__,
-      sensor.CCD_start_xoffset, left, top);
+    DBG(DBG_proc, "%s: ccd_start_xoffset = %d, left = %d, top = %d\n", __func__,
+        sensor.ccd_start_xoffset, left, top);
 }
 
 void sanei_genesys_calculate_zmod(SANE_Bool two_table,
@@ -1734,10 +1727,10 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
       skip = 4;
       xend = 68;
     }
-  if (dev->model->ccd_type==CCD_G4050
-   || dev->model->ccd_type==CCD_CS4400F
-   || dev->model->ccd_type==CCD_CS8400F
-   || dev->model->ccd_type==CCD_KVSS080)
+    if (dev->model->sensor_id==SensorId::CCD_G4050
+     || dev->model->sensor_id==SensorId::CCD_CS4400F
+     || dev->model->sensor_id==SensorId::CCD_CS8400F
+     || dev->model->sensor_id==SensorId::CCD_KVSS080)
     {
       skip = 2;
       xend = sensor.black_pixels;
@@ -2077,8 +2070,7 @@ compute_averaged_planar (Genesys_Device * dev, const Genesys_Sensor& sensor,
     avgpixels = 15;
 
   /* LiDE80 packs shading data */
-  if(dev->model->ccd_type != CIS_CANONLIDE80)
-    {
+    if (dev->model->sensor_id != SensorId::CIS_CANONLIDE80) {
       factor=1;
       fill=avgpixels;
     }
@@ -2461,7 +2453,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
   /* special case, memory is aligned on 0x5400, this has yet to be explained */
   /* could be 0xa800 because sensor is truly 2400 dpi, then halved because
    * we only set 1200 dpi */
-  if(dev->model->ccd_type==CIS_CANONLIDE80)
+  if(dev->model->sensor_id==SensorId::CIS_CANONLIDE80)
     {
       words_per_color = 0x5400;
     }
@@ -2501,13 +2493,13 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
 
   /* TODO setup a struct in genesys_devices that
    * will handle these settings instead of having this switch growing up */
-  switch (dev->model->ccd_type)
+  switch (dev->model->sensor_id)
     {
-    case CCD_XP300:
-    case CCD_ROADWARRIOR:
-    case CCD_DP665:
-    case CCD_DP685:
-    case CCD_DSMOBILE600:
+    case SensorId::CCD_XP300:
+    case SensorId::CCD_ROADWARRIOR:
+    case SensorId::CCD_DP665:
+    case SensorId::CCD_DP685:
+    case SensorId::CCD_DSMOBILE600:
       target_code = 0xdc00;
       o = 4;
       compute_planar_coefficients (dev,
@@ -2521,7 +2513,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
 				   coeff,
 				   target_code);
       break;
-    case CIS_XP200:
+    case SensorId::CIS_XP200:
       target_code = 0xdc00;
       o = 2;
       compute_planar_coefficients (dev,
@@ -2535,7 +2527,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
 				   coeff,
 				   target_code);
       break;
-    case CCD_HP2300:
+    case SensorId::CCD_HP2300:
       target_code = 0xdc00;
       o = 2;
       if(dev->settings.xres<=sensor.optical_res/2)
@@ -2551,7 +2543,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                             coeff,
                             target_code);
       break;
-    case CCD_5345:
+    case SensorId::CCD_5345:
       target_code = 0xe000;
       o = 4;
       if(dev->settings.xres<=sensor.optical_res/2)
@@ -2567,8 +2559,8 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                             coeff,
                             target_code);
       break;
-    case CCD_HP3670:
-    case CCD_HP2400:
+    case SensorId::CCD_HP3670:
+    case SensorId::CCD_HP2400:
       target_code = 0xe000;
             // offset is dependent on ccd_pixels_per_system_pixel(), but we couldn't use this in
             // common code previously.
@@ -2594,13 +2586,13 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                             coeff,
                             target_code);
       break;
-    case CCD_KVSS080:
-    case CCD_PLUSTEK3800:
-    case CCD_G4050:
-    case CCD_CS4400F:
-    case CCD_CS8400F:
-    case CCD_CS8600F:
-    case CCD_PLUSTEK_7200I:
+    case SensorId::CCD_KVSS080:
+    case SensorId::CCD_PLUSTEK3800:
+    case SensorId::CCD_G4050:
+    case SensorId::CCD_CS4400F:
+    case SensorId::CCD_CS8400F:
+    case SensorId::CCD_CS8600F:
+    case SensorId::CCD_PLUSTEK_7200I:
       target_code = 0xe000;
       o = 0;
       compute_coefficients (dev,
@@ -2612,24 +2604,24 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                             coeff,
                             target_code);
       break;
-    case CIS_CANONLIDE700:
-    case CIS_CANONLIDE100:
-    case CIS_CANONLIDE200:
-    case CIS_CANONLIDE110:
-    case CIS_CANONLIDE120:
-    case CIS_CANONLIDE210:
-    case CIS_CANONLIDE220:
+    case SensorId::CIS_CANONLIDE700:
+    case SensorId::CIS_CANONLIDE100:
+    case SensorId::CIS_CANONLIDE200:
+    case SensorId::CIS_CANONLIDE110:
+    case SensorId::CIS_CANONLIDE120:
+    case SensorId::CIS_CANONLIDE210:
+    case SensorId::CIS_CANONLIDE220:
         /* TODO store this in a data struct so we avoid
          * growing this switch */
-        switch(dev->model->ccd_type)
+        switch(dev->model->sensor_id)
           {
-          case CIS_CANONLIDE110:
-          case CIS_CANONLIDE120:
-          case CIS_CANONLIDE210:
-          case CIS_CANONLIDE220:
+          case SensorId::CIS_CANONLIDE110:
+          case SensorId::CIS_CANONLIDE120:
+          case SensorId::CIS_CANONLIDE210:
+          case SensorId::CIS_CANONLIDE220:
             target_code = 0xf000;
             break;
-          case CIS_CANONLIDE700:
+          case SensorId::CIS_CANONLIDE700:
             target_code = 0xc000; /* from experimentation */
             break;
           default:
@@ -2650,7 +2642,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                                      coeff,
                                      target_code);
       break;
-    case CCD_CANONLIDE35:
+    case SensorId::CCD_CANONLIDE35:
       compute_averaged_planar (dev, sensor,
                                shading_data.data(),
                                pixels_per_line,
@@ -2661,7 +2653,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                                0xe000,
                                0x0a00);
       break;
-    case CIS_CANONLIDE80:
+    case SensorId::CIS_CANONLIDE80:
       compute_averaged_planar (dev, sensor,
                                shading_data.data(),
                                pixels_per_line,
@@ -2672,7 +2664,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
 			       0xe000,
                                0x0800);
       break;
-    case CCD_PLUSTEK_3600:
+    case SensorId::CCD_PLUSTEK_3600:
       compute_shifted_coefficients (dev, sensor,
                         shading_data.data(),
 			            pixels_per_line,
@@ -2686,7 +2678,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
       break;
     default:
         throw SaneException(SANE_STATUS_UNSUPPORTED, "sensor %d not supported",
-                            dev->model->ccd_type);
+                            static_cast<unsigned>(dev->model->sensor_id));
       break;
     }
 
@@ -2802,8 +2794,8 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         coarse_res /= 2;
     }
 
-    if (dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
-        dev->model->model_id == MODEL_CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == ModelId::CANON_CANOSCAN_8400F ||
+        dev->model->model_id == ModelId::CANON_CANOSCAN_8600F)
     {
         coarse_res = 1200;
     }
@@ -2937,9 +2929,11 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
    * settings. So we set it to sensor resolution */
   dev->settings.xres = sensor.optical_res;
   /* XP200 needs to calibrate a full and half sensor's resolution */
-  if (dev->model->ccd_type == CIS_XP200
-   && dev->settings.xres <= sensor.optical_res / 2)
-    dev->settings.xres /= 2;
+    if (dev->model->sensor_id == SensorId::CIS_XP200 &&
+        dev->settings.xres <= sensor.optical_res / 2)
+    {
+        dev->settings.xres /= 2;
+    }
 
   /* the afe needs to sends valid data even before calibration */
 
@@ -4243,7 +4237,7 @@ static void init_options(Genesys_Scanner* s)
 
   /* fastmod is required for hw lineart to work */
     if ((s->dev->model->asic_type == AsicType::GL646) &&
-        (s->dev->model->motor_type != MOTOR_XP200))
+        (s->dev->model->motor_id != MotorId::XP200))
     {
       s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap = SANE_CAP_INACTIVE;
     }
@@ -4668,7 +4662,7 @@ probe_genesys_devices (void)
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 10;
+static const int CALIBRATION_VERSION = 12;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

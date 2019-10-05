@@ -96,7 +96,7 @@ struct Genesys_Frontend
     Genesys_Frontend() = default;
 
     // id of the frontend description
-    uint8_t fe_id = 0;
+    AdcId id = AdcId::UNKNOWN;
 
     // all registers of the frontend. Note that the registers can hold 9-bit values
     RegisterSettingSet<std::uint16_t> regs;
@@ -128,7 +128,7 @@ struct Genesys_Frontend
 
     bool operator==(const Genesys_Frontend& other) const
     {
-        return fe_id == other.fe_id &&
+        return id == other.id &&
             regs == other.regs &&
             reg2 == other.reg2 &&
             layout == other.layout;
@@ -138,7 +138,7 @@ struct Genesys_Frontend
 template<class Stream>
 void serialize(Stream& str, Genesys_Frontend& x)
 {
-    serialize(str, x.fe_id);
+    serialize(str, x.id);
     serialize_newline(str);
     serialize(str, x.regs);
     serialize_newline(str);
@@ -260,7 +260,7 @@ struct Genesys_Sensor {
     ~Genesys_Sensor() = default;
 
     // id of the sensor description
-    uint8_t sensor_id = 0;
+    SensorId sensor_id = SensorId::UNKNOWN;
 
     // sensor resolution in CCD pixels. Note that we may read more than one CCD pixel per logical
     // pixel, see ccd_pixels_per_system_pixel()
@@ -297,7 +297,7 @@ struct Genesys_Sensor {
     // value of the dummy register
     int dummy_pixel = 0;
     // last pixel of CCD margin at optical resolution
-    int CCD_start_xoffset = 0;
+    int ccd_start_xoffset = 0;
     // total pixels used by the sensor
     int sensor_pixels = 0;
     // TA CCD target code (reference gain)
@@ -373,7 +373,7 @@ struct Genesys_Sensor {
             ccd_size_divisor == other.ccd_size_divisor &&
             black_pixels == other.black_pixels &&
             dummy_pixel == other.dummy_pixel &&
-            CCD_start_xoffset == other.CCD_start_xoffset &&
+            ccd_start_xoffset == other.ccd_start_xoffset &&
             sensor_pixels == other.sensor_pixels &&
             fau_gain_white_ref == other.fau_gain_white_ref &&
             gain_white_ref == other.gain_white_ref &&
@@ -399,7 +399,7 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.ccd_size_divisor);
     serialize(str, x.black_pixels);
     serialize(str, x.dummy_pixel);
-    serialize(str, x.CCD_start_xoffset);
+    serialize(str, x.ccd_start_xoffset);
     serialize(str, x.sensor_pixels);
     serialize(str, x.fau_gain_white_ref);
     serialize(str, x.gain_white_ref);

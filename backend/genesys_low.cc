@@ -918,9 +918,9 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
             sanei_genesys_set_exposure(regs, sensor.exposure);
 
             // we don't actually turn on lamp on infrared scan
-            if ((dev->model->model_id == MODEL_CANON_CANOSCAN_8400F ||
-                 dev->model->model_id == MODEL_CANON_CANOSCAN_8600F ||
-                 dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) &&
+            if ((dev->model->model_id == ModelId::CANON_CANOSCAN_8400F ||
+                 dev->model->model_id == ModelId::CANON_CANOSCAN_8600F ||
+                 dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) &&
                 dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
             {
                 regs.find_reg(0x03).value &= ~REG03_LAMPPWR;
@@ -935,10 +935,10 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
         }
 
         if (dev->model->asic_type == AsicType::GL843) {
-            if (dev->model->model_id == MODEL_PANASONIC_KV_SS080 ||
-                dev->model->model_id == MODEL_HP_SCANJET_4850C ||
-                dev->model->model_id == MODEL_HP_SCANJET_G4010 ||
-                dev->model->model_id == MODEL_HP_SCANJET_G4050)
+            if (dev->model->model_id == ModelId::PANASONIC_KV_SS080 ||
+                dev->model->model_id == ModelId::HP_SCANJET_4850C ||
+                dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+                dev->model->model_id == ModelId::HP_SCANJET_G4050)
             {
                 // BUG: datasheet says we shouldn't set exposure to zero
                 sanei_genesys_set_exposure(regs, {0, 0, 0});
@@ -1327,8 +1327,8 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
 
         // startx cannot be below dummy pixel value
         s.pixel_startx = sensor.dummy_pixel;
-        if ((s.params.flags & SCAN_FLAG_USE_XCORRECTION) && sensor.CCD_start_xoffset > 0) {
-            s.pixel_startx = sensor.CCD_start_xoffset;
+        if ((s.params.flags & SCAN_FLAG_USE_XCORRECTION) && sensor.ccd_start_xoffset > 0) {
+            s.pixel_startx = sensor.ccd_start_xoffset;
         }
         s.pixel_startx += s.params.startx;
 
@@ -1342,7 +1342,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_endx /= sensor.ccd_pixels_per_system_pixel() * s.ccd_size_divisor;
 
     } else if (dev->model->asic_type == AsicType::GL841) {
-        s.pixel_startx = ((sensor.CCD_start_xoffset + s.params.startx) * s.optical_resolution)
+        s.pixel_startx = ((sensor.ccd_start_xoffset + s.params.startx) * s.optical_resolution)
                                 / sensor.optical_res;
 
         s.pixel_startx += sensor.dummy_pixel + 1;
@@ -1390,7 +1390,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
             s.pixel_startx |= 1;
         }
 
-        s.pixel_startx += sensor.CCD_start_xoffset * ccd_pixels_per_system_pixel;
+        s.pixel_startx += sensor.ccd_start_xoffset * ccd_pixels_per_system_pixel;
         s.pixel_endx = s.pixel_startx + s.optical_pixels_raw;
 
         s.pixel_startx /= s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel;
@@ -1475,7 +1475,7 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
         // In quarter-CCD mode optical_pixels is 4x larger than the actual physical number
         s.optical_pixels = align_int_up(s.optical_pixels, 2 * s.ccd_size_divisor);
 
-        if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+        if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) {
             s.optical_pixels = align_int_up(s.optical_pixels, 16);
         }
     }
@@ -1501,8 +1501,8 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     if (dev->model->asic_type == AsicType::GL646) {
         if (s.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
             // for HP3670, stagger happens only at >=1200 dpi
-            if ((dev->model->motor_type != MOTOR_HP3670 &&
-                 dev->model->motor_type != MOTOR_HP2400) ||
+            if ((dev->model->motor_id != MotorId::HP3670 &&
+                 dev->model->motor_id != MotorId::HP2400) ||
                 s.params.yres >= (unsigned) sensor.optical_res)
             {
                 s.num_staggered_lines = (4 * s.params.yres) / dev->motor.base_ydpi;
@@ -2060,7 +2060,8 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
  * @param exposure exposure time
  * @return a pointer to a Motor_Profile struct
  */
-Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_type, int exposure)
+Motor_Profile* sanei_genesys_get_motor_profile(Motor_Profile *motors, MotorId motor_id,
+                                               int exposure)
 {
   unsigned int i;
   int idx;
@@ -2069,15 +2070,13 @@ Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_
   idx=-1;
   while(motors[i].exposure!=0)
     {
-      /* exact match */
-      if(motors[i].motor_type==motor_type && motors[i].exposure==exposure)
-        {
+        // exact match
+        if (motors[i].motor_id == motor_id && motors[i].exposure==exposure) {
           return &(motors[i]);
         }
 
-      /* closest match */
-      if(motors[i].motor_type==motor_type)
-        {
+        // closest match
+        if (motors[i].motor_id == motor_id) {
           /* if profile exposure is higher than the required one,
            * the entry is a candidate for the closest match */
           if(motors[i].exposure>=exposure)
@@ -2113,21 +2112,16 @@ Motor_Profile *sanei_genesys_get_motor_profile(Motor_Profile *motors, int motor_
 /**@brief compute motor step type to use
  * compute the step type (full, half, quarter, ...) to use based
  * on target resolution
- * @param motors motor profile database
- * @param motor_type motor id
- * @param exposure sensor exposure
  * @return 0 for full step
  *         1 for half step
  *         2 for quarter step
  *         3 for eighth step
  */
-int sanei_genesys_compute_step_type(Motor_Profile *motors,
-                                    int motor_type,
-                                    int exposure)
+StepType sanei_genesys_compute_step_type(Motor_Profile* motors, MotorId motor_id, int exposure)
 {
 Motor_Profile *profile;
 
-    profile=sanei_genesys_get_motor_profile(motors, motor_type, exposure);
+    profile = sanei_genesys_get_motor_profile(motors, motor_id, exposure);
     return profile->step_type;
 }
 
@@ -2145,23 +2139,24 @@ Motor_Profile *profile;
  * @param motors motor profile database
  */
 int sanei_genesys_slope_table(std::vector<uint16_t>& slope,
-                              int* steps, int dpi, int exposure, int base_dpi, int step_type,
-                              int factor, int motor_type, Motor_Profile* motors)
+                              int* steps, int dpi, int exposure, int base_dpi, StepType step_type,
+                              int factor, MotorId motor_id, Motor_Profile* motors)
 {
 int sum, i;
 uint16_t target,current;
 Motor_Profile *profile;
 
+    unsigned step_shift = static_cast<unsigned>(step_type);
     slope.clear();
 
 	/* required speed */
-	target=((exposure * dpi) / base_dpi)>>step_type;
+    target = ((exposure * dpi) / base_dpi) >> step_shift;
         DBG (DBG_io2, "%s: exposure=%d, dpi=%d, target=%d\n", __func__, exposure, dpi, target);
 
 	/* fill result with target speed */
     slope.resize(SLOPE_TABLE_SIZE, target);
 
-        profile=sanei_genesys_get_motor_profile(motors, motor_type, exposure);
+        profile=sanei_genesys_get_motor_profile(motors, motor_id, exposure);
 
 	/* use profile to build table */
         i=0;
@@ -2176,7 +2171,7 @@ Motor_Profile *profile;
             slope[i]=current;
             sum+=slope[i];
             i++;
-            current=profile->table[i]>>step_type;
+        current = profile->table[i] >> step_shift;
           }
 
         /* ensure last step is required speed in case profile doesn't contain it */
@@ -2590,7 +2585,7 @@ void debug_dump(unsigned level, const GenesysRegisterSettingSet& regs)
 void debug_dump(unsigned level, const Genesys_Sensor& sensor)
 {
     DBG(level, "sensor:\n");
-    DBG(level, "    sensor_id : %d\n", sensor.sensor_id);
+    DBG(level, "    sensor_id : %d\n", static_cast<unsigned>(sensor.sensor_id));
     DBG(level, "    optical_res : %d\n", sensor.optical_res);
 
     DBG(level, "    resolutions :");
@@ -2607,7 +2602,7 @@ void debug_dump(unsigned level, const Genesys_Sensor& sensor)
     DBG(level, "    ccd_size_divisor : %d\n", sensor.ccd_size_divisor);
     DBG(level, "    black_pixels : %d\n", sensor.black_pixels);
     DBG(level, "    dummy_pixel : %d\n", sensor.dummy_pixel);
-    DBG(level, "    CCD_start_xoffset : %d\n", sensor.CCD_start_xoffset);
+    DBG(level, "    ccd_start_xoffset : %d\n", sensor.ccd_start_xoffset);
     DBG(level, "    sensor_pixels : %d\n", sensor.sensor_pixels);
     DBG(level, "    fau_gain_white_ref : %d\n", sensor.fau_gain_white_ref);
     DBG(level, "    gain_white_ref : %d\n", sensor.gain_white_ref);

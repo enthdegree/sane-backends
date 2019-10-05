@@ -46,7 +46,7 @@ Genesys_Calibration_Cache create_fake_calibration_entry()
     wolfson_layout.gain_addr = { 0x28, 0x29, 0x2a };
 
     Genesys_Frontend fe;
-    fe.fe_id = DAC_WOLFSON_UMAX;
+    fe.id = AdcId::WOLFSON_UMAX;
     fe.layout = wolfson_layout;
     fe.regs = {
         { 0x00, 0x00 },
@@ -67,11 +67,11 @@ Genesys_Calibration_Cache create_fake_calibration_entry()
     calib.frontend = fe;
 
     Genesys_Sensor sensor;
-    sensor.sensor_id = CCD_UMAX;
+    sensor.sensor_id = SensorId::CCD_UMAX;
     sensor.optical_res = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 64;
-    sensor.CCD_start_xoffset = 0;
+    sensor.ccd_start_xoffset = 0;
     sensor.sensor_pixels = 10800;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;

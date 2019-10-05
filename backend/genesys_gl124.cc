@@ -121,8 +121,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x03,0x50);
   SETREG (0x04,0x03);
   SETREG (0x05,0x00);
-  if(dev->model->ccd_type==CIS_CANONLIDE120)
-    {
+    if(dev->model->sensor_id == SensorId::CIS_CANONLIDE120) {
       SETREG (0x06,0x50);
       SETREG (0x07,0x00);
     }
@@ -152,8 +151,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x1f,0x00);
   SETREG (0x20,0x15);
   SETREG (0x21,0x00);
-  if(dev->model->ccd_type!=CIS_CANONLIDE120)
-    {
+    if(dev->model->sensor_id != SensorId::CIS_CANONLIDE120) {
       SETREG (0x22,0x02);
     }
   else
@@ -214,8 +212,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x6c,0x00);
   SETREG (0x6e,0x00);
   SETREG (0x6f,0x00);
-  if(dev->model->ccd_type!=CIS_CANONLIDE120)
-    {
+    if (dev->model->sensor_id != SensorId::CIS_CANONLIDE120) {
       SETREG (0x6d,0xd0);
       SETREG (0x71,0x08);
     }
@@ -242,8 +239,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x7d,0x00);
   SETREG (0x7e,0x08);
   SETREG (0x7f,0x58);
-  if(dev->model->ccd_type!=CIS_CANONLIDE120)
-    {
+    if (dev->model->sensor_id != SensorId::CIS_CANONLIDE120) {
       SETREG (0x80,0x00);
       SETREG (0x81,0x14);
     }
@@ -330,8 +326,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0xcd,0x00);
   SETREG (0xce,0x00);
   */
-  if(dev->model->ccd_type==CIS_CANONLIDE120)
-    {
+    if (dev->model->sensor_id == SensorId::CIS_CANONLIDE120) {
       SETREG (0xc5,0x20);
       SETREG (0xc6,0xeb);
       SETREG (0xc7,0x20);
@@ -448,7 +443,8 @@ static void gl124_set_ti_fe(Genesys_Device* dev, uint8_t set)
 
   if (set == AFE_INIT)
     {
-      DBG (DBG_proc, "%s: setting DAC %u\n", __func__, dev->model->dac_type);
+        DBG(DBG_proc, "%s: setting DAC %u\n", __func__,
+            static_cast<unsigned>(dev->model->adc_id));
 
       dev->frontend = dev->frontend_initial;
     }
@@ -470,9 +466,7 @@ static void gl124_set_ti_fe(Genesys_Device* dev, uint8_t set)
         sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.regs.get_value(0x24 + i));
     }
 
-  /* close writing to DAC */
-  if(dev->model->dac_type == DAC_CANONLIDE120)
-    {
+    if (dev->model->adc_id == AdcId::CANONLIDE120) {
         sanei_genesys_fe_write_data(dev, 0x00, 0x01);
     }
   else
@@ -493,7 +487,8 @@ void CommandSetGl124::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 
   if (set == AFE_INIT)
     {
-      DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
+        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
+            static_cast<unsigned>(dev->model->adc_id));
       dev->frontend = dev->frontend_initial;
     }
 
@@ -518,7 +513,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                                        Genesys_Register_Set* reg,
                                        unsigned int scan_exposure_time,
                                        float scan_yres,
-                                       int scan_step_type,
+                                       StepType step_type,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
@@ -537,9 +532,9 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
   int min_speed;
   unsigned int linesel;
 
-  DBG(DBG_info, "%s : scan_exposure_time=%d, scan_yres=%g, scan_step_type=%d, scan_lines=%d, "
+    DBG(DBG_info, "%s : scan_exposure_time=%d, scan_yres=%g, step_type=%d, scan_lines=%d, "
       "scan_dummy=%d, feed_steps=%d, scan_mode=%d, flags=%x\n", __func__, scan_exposure_time,
-      scan_yres, scan_step_type, scan_lines, scan_dummy, feed_steps,
+        scan_yres, static_cast<unsigned>(step_type), scan_lines, scan_dummy, feed_steps,
       static_cast<unsigned>(scan_mode), flags);
 
   /* we never use fast fed since we do manual feed for the scans */
@@ -554,12 +549,12 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     }
   else
     {
-      switch(dev->model->motor_type)
+      switch(dev->model->motor_id)
         {
-          case MOTOR_CANONLIDE110:
+          case MotorId::CANONLIDE110:
 	    min_speed = 600;
             break;
-          case MOTOR_CANONLIDE120:
+          case MotorId::CANONLIDE120:
             min_speed = 900;
             break;
           default:
@@ -621,9 +616,9 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                             yres,
                             scan_exposure_time,
                             dev->motor.base_ydpi,
-                            scan_step_type,
+                            step_type,
                             factor,
-                            dev->model->motor_type,
+                            dev->model->motor_id,
                             gl124_motor_profiles);
     gl124_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps);
     gl124_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps);
@@ -644,9 +639,9 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                             fast_dpi,
                             scan_exposure_time,
                             dev->motor.base_ydpi,
-                            scan_step_type,
+                            step_type,
                             factor,
-                            dev->model->motor_type,
+                            dev->model->motor_id,
                             gl124_motor_profiles);
     gl124_send_slope_table(dev, STOP_TABLE, fast_table, fast_steps);
     gl124_send_slope_table(dev, FAST_TABLE, fast_table, fast_steps);
@@ -657,7 +652,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
 
   /* substract acceleration distance from feedl */
   feedl=feed_steps;
-  feedl<<=scan_step_type;
+    feedl <<= static_cast<unsigned>(step_type);
 
   dist = scan_steps;
   if (flags & MOTOR_FLAG_FEED)
@@ -696,7 +691,8 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
 
   /* LINESEL */
   reg->set8_mask(REG1D, linesel, REG1D_LINESEL);
-  reg->set8(REGA0, (scan_step_type << REGA0S_STEPSEL) | (scan_step_type << REGA0S_FSTPSEL));
+    reg->set8(REGA0, (static_cast<unsigned>(step_type) << REGA0S_STEPSEL) |
+                     (static_cast<unsigned>(step_type) << REGA0S_FSTPSEL));
 
     reg->set16(REG_FMOVDEC, fast_steps);
 }
@@ -815,8 +811,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   r->value &= ~REG01_SCAN;
 
   r = sanei_genesys_get_address (reg, REG03);
-  if((dev->model->ccd_type!=CIS_CANONLIDE120)&&(session.params.xres>=600))
-    {
+    if ((dev->model->sensor_id != SensorId::CIS_CANONLIDE120) && (session.params.xres>=600)) {
       r->value &= ~REG03_AVEENB;
       DBG (DBG_io, "%s: disabling AVEENB\n", __func__);
     }
@@ -972,7 +967,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   int dummy = 0;
   int slope_dpi = 0;
-  int scan_step_type = 1;
+    StepType scan_step_type = StepType::HALF;
 
     /* cis color scan is effectively a gray scan with 3 gray lines per color line and a FILTER of 0 */
     if (dev->model->is_cis) {
@@ -982,7 +977,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
 
     if(session.params.flags & SCAN_FLAG_FEEDING) {
-      scan_step_type=0;
+        scan_step_type = StepType::FULL;
       exposure_time=MOVE_EXPOSURE;
     }
   else
@@ -990,11 +985,11 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
         exposure_time = get_sensor_profile(dev->model->asic_type, sensor, session.params.xres,
                                            session.ccd_size_divisor).exposure_lperiod;
         scan_step_type = sanei_genesys_compute_step_type(gl124_motor_profiles,
-                                                         dev->model->motor_type, exposure_time);
+                                                         dev->model->motor_id, exposure_time);
     }
 
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
-  DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, scan_step_type);
+  DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, static_cast<unsigned>(scan_step_type));
 
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
@@ -1199,8 +1194,7 @@ static void gl124_setup_scan_gpio(Genesys_Device* dev, int resolution)
     uint8_t val = dev->read_register(REG32);
 
   /* LiDE 110, 210 and 220 cases */
-  if(dev->model->gpo_type != GPO_CANONLIDE120)
-    {
+    if(dev->model->gpio_id != GpioId::CANONLIDE120) {
       if(resolution>=dev->motor.base_ydpi/2)
 	{
 	  val &= 0xf7;
@@ -1355,9 +1349,8 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
         return;
     }
 
-  /* feed a little first */
-  if (dev->model->model_id == MODEL_CANON_LIDE_210)
-    {
+    // feed a little first
+    if (dev->model->model_id == ModelId::CANON_LIDE_210) {
         gl124_feed(dev, 20, SANE_TRUE);
     }
 
@@ -2467,12 +2460,9 @@ static void gl124_init_gpio(Genesys_Device* dev)
   int idx;
 
   /* per model GPIO layout */
-  if (dev->model->model_id == MODEL_CANON_LIDE_110)
-    {
+    if (dev->model->model_id == ModelId::CANON_LIDE_110) {
       idx = 0;
-    }
-  else if (dev->model->model_id == MODEL_CANON_LIDE_120)
-    {
+    } else if (dev->model->model_id == ModelId::CANON_LIDE_120) {
       idx = 2;
     }
   else
@@ -2498,7 +2488,8 @@ static void gl124_init_memory_layout(Genesys_Device* dev)
   int idx = 0;
 
   /* point to per model memory layout */
-  if (dev->model->model_id == MODEL_CANON_LIDE_110 ||dev->model->model_id == MODEL_CANON_LIDE_120)
+    if (dev->model->model_id == ModelId::CANON_LIDE_110 ||
+        dev->model->model_id == ModelId::CANON_LIDE_120)
     {
       idx = 0;
     }
@@ -2633,8 +2624,8 @@ void CommandSetGl124::update_hardware_sensors(Genesys_Scanner* s) const
    * add another per scanner button profile struct to avoid growing
    * hard-coded button mapping here.
    */
-  if((s->dev->model->gpo_type == GPO_CANONLIDE110)
-    ||(s->dev->model->gpo_type == GPO_CANONLIDE120))
+    if ((s->dev->model->gpio_id == GpioId::CANONLIDE110) ||
+        (s->dev->model->gpio_id == GpioId::CANONLIDE120))
     {
         s->buttons[BUTTON_SCAN_SW].write((val & 0x01) == 0);
         s->buttons[BUTTON_FILE_SW].write((val & 0x08) == 0);

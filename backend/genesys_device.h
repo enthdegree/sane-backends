@@ -61,7 +61,7 @@ struct Genesys_Gpo
     Genesys_Gpo() = default;
 
     // Genesys_Gpo
-    uint8_t gpo_id = 0;
+    GpioId id = GpioId::UNKNOWN;
 
     /*  GL646 and possibly others:
         - have the value registers at 0x66 and 0x67
@@ -85,7 +85,7 @@ struct Genesys_Model
     const char* name = nullptr;
     const char* vendor = nullptr;
     const char* model = nullptr;
-    unsigned model_id = 0;
+    ModelId model_id = ModelId::UNKNOWN;
 
     AsicType asic_type = AsicType::UNKNOWN;
 
@@ -164,13 +164,13 @@ struct Genesys_Model
     SANE_Bool is_sheetfed = false;
 
     // sensor type
-    SANE_Int ccd_type = 0;
-    // Digital-Analog converter type (TODO: rename to ADC)
-    SANE_Int dac_type = 0;
+    SensorId sensor_id = SensorId::UNKNOWN;
+    // Analog-Digital converter type
+    AdcId adc_id = AdcId::UNKNOWN;
     // General purpose output type
-    SANE_Int gpo_type = 0;
+    GpioId gpio_id = GpioId::UNKNOWN;
     // stepper motor type
-    SANE_Int motor_type = 0;
+    MotorId motor_id = MotorId::UNKNOWN;
 
     // Which hacks are needed for this scanner?
     SANE_Word flags = 0;

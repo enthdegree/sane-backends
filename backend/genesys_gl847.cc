@@ -194,8 +194,7 @@ gl847_init_registers (Genesys_Device * dev)
   uint8_t val;
 
   /* 700F class needs some different initial settings */
-  if (dev->model->model_id == MODEL_CANON_LIDE_700F)
-    {
+    if (dev->model->model_id == ModelId::CANON_LIDE_700F) {
        lide700 = 1;
     }
 
@@ -397,7 +396,8 @@ static void gl847_set_ad_fe(Genesys_Device* dev, uint8_t set)
 
   if (set == AFE_INIT)
     {
-      DBG(DBG_proc, "%s(): setting DAC %u\n", __func__, dev->model->dac_type);
+        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
+            static_cast<unsigned>(dev->model->adc_id));
 
       dev->frontend = dev->frontend_initial;
     }
@@ -423,7 +423,7 @@ static void gl847_homsnr_gpio(Genesys_Device* dev)
     DBG_HELPER(dbg);
     uint8_t val;
 
-    if (dev->model->gpo_type == GPO_CANONLIDE700) {
+    if (dev->model->gpio_id == GpioId::CANONLIDE700) {
         val = dev->read_register(REG6C);
         val &= ~REG6C_GPIO10;
         dev->write_register(REG6C, val);
@@ -462,16 +462,16 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
                                        Genesys_Register_Set* reg,
                                        unsigned int scan_exposure_time,
                                        float scan_yres,
-                                       int scan_step_type,
+                                       StepType step_type,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
                                        unsigned int flags)
 {
-    DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, can_yres=%g, scan_step_type=%d, scan_lines=%d, "
+    DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, can_yres=%g, step_type=%d, scan_lines=%d, "
                          "scan_dummy=%d, feed_steps=%d, flags=%x",
-                    scan_exposure_time, scan_yres, scan_step_type, scan_lines, scan_dummy,
-                    feed_steps, flags);
+                    scan_exposure_time, scan_yres, static_cast<unsigned>(step_type), scan_lines,
+                    scan_dummy, feed_steps, flags);
   int use_fast_fed;
   unsigned int fast_dpi;
     std::vector<uint16_t> scan_table;
@@ -482,7 +482,6 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
   uint32_t z1, z2;
   unsigned int min_restep = 0x20;
     uint8_t val;
-  int fast_step_type;
   unsigned int ccdlmt,tgtime;
 
   /* get step multiplier */
@@ -525,19 +524,18 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
                             scan_yres,
                             scan_exposure_time,
                             dev->motor.base_ydpi,
-                            scan_step_type,
+                            step_type,
                             factor,
-                            dev->model->motor_type,
+                            dev->model->motor_id,
                             gl847_motor_profiles);
     gl847_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps * factor);
     gl847_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps * factor);
 
   /* fast table */
   fast_dpi=sanei_genesys_get_lowest_ydpi(dev);
-  fast_step_type=scan_step_type;
-  if(scan_step_type>=2)
-    {
-      fast_step_type=2;
+    StepType fast_step_type = step_type;
+    if (static_cast<unsigned>(step_type) >= static_cast<unsigned>(StepType::QUARTER)) {
+        fast_step_type = StepType::QUARTER;
     }
 
   sanei_genesys_slope_table(fast_table,
@@ -547,7 +545,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
                             dev->motor.base_ydpi,
                             fast_step_type,
                             factor,
-                            dev->model->motor_type,
+                            dev->model->motor_id,
                             gl847_motor_profiles);
 
   /* manual override of high start value */
@@ -561,7 +559,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
   feedl=feed_steps;
   if (use_fast_fed)
     {
-        feedl<<=fast_step_type;
+        feedl <<= static_cast<unsigned>(fast_step_type);
         dist=(scan_steps+2*fast_steps)*factor;
         /* TODO read and decode REGAB */
         r = sanei_genesys_get_address (reg, 0x5e);
@@ -572,7 +570,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     }
   else
     {
-      feedl<<=scan_step_type;
+        feedl <<= static_cast<unsigned>(step_type);
       dist=scan_steps*factor;
       if (flags & MOTOR_FLAG_FEED)
         dist *=2;
@@ -599,21 +597,14 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     // hi res motor speed GPIO
     uint8_t effective = dev->read_register(REG6C);
 
-  /* if quarter step, bipolar Vref2 */
-  if (scan_step_type > 1)
-    {
-      if (scan_step_type < 3)
-        {
-          val = effective & ~REG6C_GPIO13;
-        }
-      else
-        {
-          val = effective | REG6C_GPIO13;
-        }
-    }
-  else
-    {
-      val = effective;
+    // if quarter step, bipolar Vref2
+
+    if (step_type == StepType::QUARTER) {
+        val = effective & ~REG6C_GPIO13;
+    } else if (static_cast<unsigned>(step_type) > static_cast<unsigned>(StepType::QUARTER)) {
+        val = effective | REG6C_GPIO13;
+    } else {
+        val = effective;
     }
     dev->write_register(REG6C, val);
 
@@ -640,10 +631,10 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
                                  &z2);
 
   DBG(DBG_info, "%s: z1 = %d\n", __func__, z1);
-    reg->set24(REG60, z1 | (scan_step_type << (16+REG60S_STEPSEL)));
+    reg->set24(REG60, z1 | (static_cast<unsigned>(step_type) << (16+REG60S_STEPSEL)));
 
   DBG(DBG_info, "%s: z2 = %d\n", __func__, z2);
-    reg->set24(REG63, z2 | (scan_step_type << (16+REG63S_FSTPSEL)));
+    reg->set24(REG63, z2 | (static_cast<unsigned>(step_type) << (16+REG63S_FSTPSEL)));
 
   r = sanei_genesys_get_address (reg, 0x1e);
   r->value &= 0xf0;		/* 0 dummy lines */
@@ -857,7 +848,6 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
   int slope_dpi = 0;
   int dummy = 0;
-  int scan_step_type = 1;
 
     dummy = 3 - session.params.channels;
 
@@ -874,11 +864,12 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
     exposure_time = get_sensor_profile(dev->model->asic_type, sensor,
                                        session.params.xres, 1).exposure_lperiod;
-  scan_step_type = sanei_genesys_compute_step_type(gl847_motor_profiles, dev->model->motor_type,
-                                                   exposure_time);
+    StepType scan_step_type = sanei_genesys_compute_step_type(gl847_motor_profiles,
+                                                              dev->model->motor_id,
+                                                              exposure_time);
 
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
-  DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, scan_step_type);
+    DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, static_cast<unsigned>(scan_step_type));
 
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
@@ -1073,7 +1064,7 @@ void CommandSetGl847::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
   GenesysRegister *r;
 
     // clear GPIO 10
-    if (dev->model->gpo_type != GPO_CANONLIDE700) {
+    if (dev->model->gpio_id != GpioId::CANONLIDE700) {
         val = dev->read_register(REG6C);
         val &= ~REG6C_GPIO10;
         dev->write_register(REG6C, val);
@@ -1642,7 +1633,7 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   pixels=endpixel-strpixel;
 
   /* since we're using SHDAREA, substract startx coordinate from shading */
-  strpixel-=((sensor.CCD_start_xoffset*600)/sensor.optical_res);
+    strpixel -= (sensor.ccd_start_xoffset * 600) / sensor.optical_res;
 
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2;
@@ -1853,13 +1844,12 @@ static void gl847_init_gpio(Genesys_Device* dev)
   int idx=0;
 
   /* search GPIO profile */
-  while(gpios[idx].sensor_id!=0 && dev->model->gpo_type!=gpios[idx].sensor_id)
-    {
+    while(gpios[idx].gpio_id != GpioId::UNKNOWN && dev->model->gpio_id != gpios[idx].gpio_id) {
       idx++;
     }
-  if(gpios[idx].sensor_id==0)
-    {
-        throw SaneException("failed to find GPIO profile for sensor_id=%d", dev->model->ccd_type);
+    if (gpios[idx].gpio_id == GpioId::UNKNOWN) {
+        throw SaneException("failed to find GPIO profile for sensor_id=%d",
+                            static_cast<unsigned>(dev->model->sensor_id));
     }
 
     dev->write_register(REGA7, gpios[idx].ra7);
@@ -1889,20 +1879,16 @@ static void gl847_init_memory_layout(Genesys_Device* dev)
 
   /* point to per model memory layout */
   idx = 0;
-  if (dev->model->model_id == MODEL_CANON_LIDE_100)
-    {
+    if (dev->model->model_id == ModelId::CANON_LIDE_100) {
       idx = 0;
     }
-  if (dev->model->model_id == MODEL_CANON_LIDE_200)
-    {
+    if (dev->model->model_id == ModelId::CANON_LIDE_200) {
       idx = 1;
     }
-  if (dev->model->model_id == MODEL_CANON_CANOSCAN_5600F)
-    {
+    if (dev->model->model_id == ModelId::CANON_CANOSCAN_5600F) {
       idx = 2;
     }
-  if (dev->model->model_id == MODEL_CANON_LIDE_700F)
-    {
+    if (dev->model->model_id == ModelId::CANON_LIDE_700F) {
       idx = 3;
     }
 
@@ -2031,15 +2017,14 @@ void CommandSetGl847::update_hardware_sensors(Genesys_Scanner* s) const
    */
   uint8_t val;
   uint8_t scan, file, email, copy;
-  switch(s->dev->model->gpo_type)
-    {
-      case GPO_CANONLIDE700:
+    switch(s->dev->model->gpio_id) {
+    case GpioId::CANONLIDE700:
         scan=0x04;
         file=0x02;
         email=0x01;
         copy=0x08;
         break;
-      default:
+    default:
         scan=0x01;
         file=0x02;
         email=0x04;

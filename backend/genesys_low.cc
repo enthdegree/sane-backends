@@ -56,25 +56,26 @@
 /**
  * setup the hardware dependent functions
  */
-extern Genesys_Command_Set gl124_cmd_set;
-extern Genesys_Command_Set gl646_cmd_set;
-extern Genesys_Command_Set gl841_cmd_set;
-extern Genesys_Command_Set gl843_cmd_set;
-extern Genesys_Command_Set gl846_cmd_set;
-extern Genesys_Command_Set gl847_cmd_set;
+
+std::unique_ptr<CommandSet> create_gl124_cmd_set();
+std::unique_ptr<CommandSet> create_gl646_cmd_set();
+std::unique_ptr<CommandSet> create_gl841_cmd_set();
+std::unique_ptr<CommandSet> create_gl843_cmd_set();
+std::unique_ptr<CommandSet> create_gl846_cmd_set();
+std::unique_ptr<CommandSet> create_gl847_cmd_set();
 
 void sanei_genesys_init_cmd_set(Genesys_Device* dev)
 {
   DBG_INIT ();
     DBG_HELPER(dbg);
     switch (dev->model->asic_type) {
-        case AsicType::GL646: dev->cmd_set = &gl646_cmd_set; break;
-        case AsicType::GL841: dev->cmd_set = &gl841_cmd_set; break;
-        case AsicType::GL843: dev->cmd_set = &gl843_cmd_set; break;
+        case AsicType::GL646: dev->cmd_set = create_gl646_cmd_set(); break;
+        case AsicType::GL841: dev->cmd_set = create_gl841_cmd_set(); break;
+        case AsicType::GL843: dev->cmd_set = create_gl843_cmd_set(); break;
         case AsicType::GL845: // since only a few reg bits differs we handle both together
-        case AsicType::GL846: dev->cmd_set = &gl846_cmd_set; break;
-        case AsicType::GL847: dev->cmd_set = &gl847_cmd_set; break;
-        case AsicType::GL124: dev->cmd_set = &gl124_cmd_set; break;
+        case AsicType::GL846: dev->cmd_set = create_gl846_cmd_set(); break;
+        case AsicType::GL847: dev->cmd_set = create_gl847_cmd_set(); break;
+        case AsicType::GL124: dev->cmd_set = create_gl124_cmd_set(); break;
         default: throw SaneException(SANE_STATUS_INVAL, "unknown ASIC type");
     }
 }
@@ -2257,7 +2258,7 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
 #endif
     int compatible = 1;
 
-    if(dev->cmd_set->calculate_current_setup == nullptr) {
+    if (dev->cmd_set->has_calculate_current_setup()) {
       DBG (DBG_proc, "%s: no calculate_setup, non compatible cache\n", __func__);
       return false;
     }

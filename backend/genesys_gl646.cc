@@ -83,17 +83,17 @@ static void gl646_gpio_output_enable(UsbDevice& usb_dev, uint8_t value)
 }
 
 /* Read bulk data (e.g. scanned data) */
-static void gl646_bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t* data, size_t len)
+void CommandSetGl646::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
+                                     size_t len) const
 {
     DBG_HELPER(dbg);
     sanei_genesys_bulk_read_data(dev, addr, data, len);
     if (dev->model->is_sheetfed == SANE_TRUE) {
-        gl646_detect_document_end (dev);
+        detect_document_end(dev);
     }
 }
 
-static SANE_Bool
-gl646_get_fast_feed_bit (Genesys_Register_Set * regs)
+bool CommandSetGl646::get_fast_feed_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -103,8 +103,7 @@ gl646_get_fast_feed_bit (Genesys_Register_Set * regs)
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl646_get_filter_bit (Genesys_Register_Set * regs)
+bool CommandSetGl646::get_filter_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -114,8 +113,7 @@ gl646_get_filter_bit (Genesys_Register_Set * regs)
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl646_get_lineart_bit (Genesys_Register_Set * regs)
+bool CommandSetGl646::get_lineart_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -125,8 +123,7 @@ gl646_get_lineart_bit (Genesys_Register_Set * regs)
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl646_get_bitset_bit (Genesys_Register_Set * regs)
+bool CommandSetGl646::get_bitset_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -136,8 +133,7 @@ gl646_get_bitset_bit (Genesys_Register_Set * regs)
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl646_get_gain4_bit (Genesys_Register_Set * regs)
+bool CommandSetGl646::get_gain4_bit(Genesys_Register_Set* regs) const
 {
   GenesysRegister *r = NULL;
 
@@ -147,16 +143,14 @@ gl646_get_gain4_bit (Genesys_Register_Set * regs)
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl646_test_buffer_empty_bit (SANE_Byte val)
+bool CommandSetGl646::test_buffer_empty_bit(SANE_Byte val) const
 {
   if (val & REG41_BUFEMPTY)
     return SANE_TRUE;
   return SANE_FALSE;
 }
 
-static SANE_Bool
-gl646_test_motor_flag_bit (SANE_Byte val)
+bool CommandSetGl646::test_motor_flag_bit(SANE_Byte val) const
 {
   if (val & REG41_MOTMFLG)
     return SANE_TRUE;
@@ -795,7 +789,7 @@ static void gl646_asic_test(Genesys_Device* dev)
     sanei_genesys_bulk_write_data(dev, 0x3c, data.data(), size);
     sanei_genesys_set_buffer_address(dev, 0x0000);
 
-    gl646_bulk_read_data(dev, 0x45, verify_data.data(), verify_size);
+    dev->cmd_set->bulk_read_data(dev, 0x45, verify_data.data(), verify_size);
 
   /* i + 2 is needed as the changed address goes into effect only after one
      data word is sent. */
@@ -1214,7 +1208,7 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
  * @param dev device to set
  * @param set action to execute
  */
-static void gl646_public_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set)
+void CommandSetGl646::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set) const
 {
     gl646_set_fe(dev, sensor, set, dev->settings.yres);
 }
@@ -1225,7 +1219,7 @@ static void gl646_public_set_fe(Genesys_Device* dev, const Genesys_Sensor& senso
  * @param dev scanner's device
  * @param enable SANE_TRUE to enable power saving, SANE_FALSE to leave it
  */
-static void gl646_save_power(Genesys_Device* dev, SANE_Bool enable)
+void CommandSetGl646::save_power(Genesys_Device* dev, bool enable) const
 {
     DBG_HELPER_ARGS(dbg, "enable = %d", enable);
 
@@ -1241,7 +1235,7 @@ static void gl646_save_power(Genesys_Device* dev, SANE_Bool enable)
     }
 }
 
-static void gl646_set_powersaving(Genesys_Device* dev, int delay /* in minutes */)
+void CommandSetGl646::set_powersaving(Genesys_Device* dev, int delay /* in minutes */) const
 {
     DBG_HELPER_ARGS(dbg, "delay = %d", delay);
   Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
@@ -1312,7 +1306,7 @@ static void gl646_set_powersaving(Genesys_Device* dev, int delay /* in minutes *
  * HOMESNR becomes 1 ->document left sensor
  * paper event -> document is out
  */
-static void gl646_load_document(Genesys_Device* dev)
+void CommandSetGl646::load_document(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
 
@@ -1425,7 +1419,7 @@ static void gl646_load_document(Genesys_Device* dev)
  * to take it into account
  * used by sheetfed scanners
  */
-static void gl646_detect_document_end(Genesys_Device* dev)
+void CommandSetGl646::detect_document_end(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
   uint8_t val, gpio;
@@ -1484,7 +1478,7 @@ static void gl646_detect_document_end(Genesys_Device* dev)
  * TODO we currently rely on AGOHOME not being set for sheetfed scanners,
  * maybe check this flag in eject to let the document being eject automaticaly
  */
-static void gl646_eject_document(Genesys_Device* dev)
+void CommandSetGl646::eject_document(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
 
@@ -1590,8 +1584,8 @@ static void gl646_eject_document(Genesys_Device* dev)
 }
 
 // Send the low-level scan command
-static void gl646_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                             Genesys_Register_Set* reg, SANE_Bool start_motor)
+void CommandSetGl646::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                 Genesys_Register_Set* reg, bool start_motor) const
 {
     DBG_HELPER(dbg);
     (void) sensor;
@@ -1612,8 +1606,8 @@ static void gl646_begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
 
 // Send the stop scan command
-static void end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop,
-                     SANE_Bool eject)
+static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop,
+                          SANE_Bool eject)
 {
     DBG_HELPER_ARGS(dbg, "check_stop = %d, eject = %d", check_stop, eject);
   int i = 0;
@@ -1643,7 +1637,7 @@ static void end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool c
     {
       if (eject == SANE_TRUE && dev->document == SANE_TRUE)
 	{
-            gl646_eject_document(dev);
+            dev->cmd_set->eject_document(dev);
 	}
       if (check_stop)
 	{
@@ -1704,9 +1698,10 @@ static void end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool c
 }
 
 // Send the stop scan command
-static void gl646_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_Bool check_stop)
+void CommandSetGl646::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
+                               bool check_stop) const
 {
-  return end_scan (dev, reg, check_stop, SANE_FALSE);
+    end_scan_impl(dev, reg, check_stop, SANE_FALSE);
 }
 
 /**
@@ -1714,7 +1709,7 @@ static void gl646_end_scan(Genesys_Device* dev, Genesys_Register_Set* reg, SANE_
  * @param dev scanner's device
  * @param wait_until_home true if the function waits until head parked
  */
-static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
+void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d\n", wait_until_home);
   Genesys_Settings settings;
@@ -1809,7 +1804,7 @@ static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
     }
 
     // starts scan
-    gl646_begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
+    dev->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
 
   /* loop until head parked */
   if (wait_until_home)
@@ -1832,7 +1827,8 @@ static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
         // when we come here then the scanner needed too much time for this, so we better
         // stop the motor
         catch_all_exceptions(__func__, [&](){ gl646_stop_motor (dev); });
-        catch_all_exceptions(__func__, [&](){ end_scan(dev, &dev->reg, SANE_TRUE, SANE_FALSE); });
+        catch_all_exceptions(__func__, [&](){ end_scan_impl(dev, &dev->reg, SANE_TRUE,
+                                                            SANE_FALSE); });
         throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
 
@@ -1845,7 +1841,7 @@ static void gl646_slow_back_home(Genesys_Device* dev, SANE_Bool wait_until_home)
  * area at 300 dpi from very top of scanner
  * @param dev  device stucture describing the scanner
  */
-static void gl646_search_start_position(Genesys_Device* dev)
+void CommandSetGl646::search_start_position(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
   Genesys_Settings settings;
@@ -1916,9 +1912,9 @@ static void gl646_search_start_position(Genesys_Device* dev)
  * internally overriden during effective calibration
  * sets up register for coarse gain calibration
  */
-static void gl646_init_regs_for_coarse_calibration(Genesys_Device* dev,
-                                                   const Genesys_Sensor& sensor,
-                                                   Genesys_Register_Set& regs)
+void CommandSetGl646::init_regs_for_coarse_calibration(Genesys_Device* dev,
+                                                       const Genesys_Sensor& sensor,
+                                                       Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
     (void) dev;
@@ -1934,8 +1930,8 @@ static void gl646_init_regs_for_coarse_calibration(Genesys_Device* dev,
  * at either at full sensor's resolution or half depending upon ccd_size_divisor
  * @param dev scanner's device
  */
-static void gl646_init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                        Genesys_Register_Set& regs)
+void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                            Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
     (void) regs;
@@ -2018,7 +2014,7 @@ static void gl646_init_regs_for_shading(Genesys_Device* dev, const Genesys_Senso
       dev->settings.xres, dev->settings.yres);
 }
 
-static bool gl646_needs_home_before_init_regs_for_scan(Genesys_Device* dev)
+bool CommandSetGl646::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const
 {
     return (dev->scanhead_position_in_steps > 0 &&
             dev->settings.scan_method == ScanMethod::FLATBED);
@@ -2028,7 +2024,7 @@ static bool gl646_needs_home_before_init_regs_for_scan(Genesys_Device* dev)
  * set up registers for the actual scan. The scan's parameters are given
  * through the device settings. It allocates the scan buffers.
  */
-static void gl646_init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor)
+void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const
 {
     DBG_HELPER(dbg);
 
@@ -2144,7 +2140,7 @@ static void setup_for_scan(Genesys_Device* dev,
 /**
  * this function send gamma table to ASIC
  */
-static void gl646_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor)
+void CommandSetGl646::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const
 {
     DBG_HELPER(dbg);
   int size;
@@ -2196,8 +2192,8 @@ static void gl646_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& se
  * area below scanner's top on white strip. The scope of this function is
  * currently limited to the XP200
  */
-static SensorExposure gl646_led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                            Genesys_Register_Set& regs)
+SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                                Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
     (void) regs;
@@ -2474,8 +2470,8 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
  * are already known.
  * @param dev scanner's device
 */
-static void gl646_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                     Genesys_Register_Set& regs)
+void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                         Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
     (void) regs;
@@ -2714,8 +2710,8 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
  * @param dev device for scan
  * @param dpi resolutnio to calibrate at
  */
-static void gl646_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                          Genesys_Register_Set& regs, int dpi)
+void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                              Genesys_Register_Set& regs, int dpi) const
 {
     DBG_HELPER(dbg);
     (void) dpi;
@@ -2874,9 +2870,9 @@ static void gl646_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
  * sets up the scanner's register for warming up. We scan 2 lines without moving.
  *
  */
-static void gl646_init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                       Genesys_Register_Set* local_reg, int* channels,
-                                       int* total_size)
+void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                           Genesys_Register_Set* local_reg, int* channels,
+                                           int* total_size) const
 {
     DBG_HELPER(dbg);
     (void) sensor;
@@ -2972,7 +2968,7 @@ static void gl646_repark_head(Genesys_Device* dev)
     dev->write_registers(dev->reg);
 
     // start scan
-    gl646_begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
+    dev->cmd_set->begin_scan(dev, sensor, &dev->reg, SANE_TRUE);
 
     expected = dev->reg.get24(REG_FEEDL);
   do
@@ -2983,7 +2979,7 @@ static void gl646_repark_head(Genesys_Device* dev)
   while (steps < expected);
 
     // toggle motor flag, put an huge step number and redo move backward
-    gl646_slow_back_home(dev, 1);
+    dev->cmd_set->slow_back_home(dev, 1);
 }
 
 /* *
@@ -2991,7 +2987,7 @@ static void gl646_repark_head(Genesys_Device* dev)
  * then ensure scanner's head is at home
  * @param dev device description of the scanner to initailize
  */
-static void gl646_init(Genesys_Device* dev)
+void CommandSetGl646::init(Genesys_Device* dev) const
 {
     DBG_INIT();
     DBG_HELPER(dbg);
@@ -3054,10 +3050,10 @@ static void gl646_init(Genesys_Device* dev)
         }
 
         // send gamma tables if needed
-        gl646_send_gamma_table(dev, sensor);
+        dev->cmd_set->send_gamma_table(dev, sensor);
 
         // Set powersaving(default = 15 minutes)
-        gl646_set_powersaving(dev, 15);
+        dev->cmd_set->set_powersaving(dev, 15);
     }				/* end if cold */
 
     // Set analog frontend
@@ -3107,9 +3103,9 @@ static void gl646_init(Genesys_Device* dev)
         // for some reason, read fails here for MD6471, HP2300 and XP200 one time out of
         // 2 scanimage launches
         try {
-            gl646_bulk_read_data(dev, 0x45, dev->control, len);
+            bulk_read_data(dev, 0x45, dev->control, len);
         } catch (...) {
-            gl646_bulk_read_data(dev, 0x45, dev->control, len);
+            bulk_read_data(dev, 0x45, dev->control, len);
         }
         DBG(DBG_info, "%s: control read=0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n", __func__,
             dev->control[0], dev->control[1], dev->control[2], dev->control[3], dev->control[4],
@@ -3137,8 +3133,8 @@ static void gl646_init(Genesys_Device* dev)
             gl646_repark_head(dev);
 	}
       else
-	{
-        gl646_slow_back_home(dev, SANE_TRUE);
+    {
+            slow_back_home(dev, SANE_TRUE);
 	}
     }
 
@@ -3146,7 +3142,7 @@ static void gl646_init(Genesys_Device* dev)
   dev->already_initialized = SANE_TRUE;
 }
 
-static void gl646_move_to_ta(Genesys_Device* dev)
+void CommandSetGl646::move_to_ta(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
 
@@ -3258,7 +3254,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     dev->write_registers(dev->reg);
 
     // starts scan
-    gl646_begin_scan(dev, sensor, &dev->reg, move);
+    dev->cmd_set->begin_scan(dev, sensor, &dev->reg, move);
 
   /* wait for buffers to be filled */
   count = 0;
@@ -3328,7 +3324,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     }
 
     // end scan , waiting the motor to stop if needed (if moving), but without ejecting doc
-    end_scan(dev, &dev->reg, SANE_TRUE, SANE_FALSE);
+    end_scan_impl(dev, &dev->reg, SANE_TRUE, SANE_FALSE);
 }
 
 /**
@@ -3372,7 +3368,7 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance)
  * update the status of the required sensor in the scanner session
  * the button fileds are used to make events 'sticky'
  */
-static void gl646_update_hardware_sensors(Genesys_Scanner* session)
+void CommandSetGl646::update_hardware_sensors(Genesys_Scanner* session) const
 {
     DBG_HELPER(dbg);
   Genesys_Device *dev = session->dev;
@@ -3557,10 +3553,9 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
  * @param cache cache entry to test
  * @param for_overwrite reserved for future use ...
  */
-static bool
-gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
-				 Genesys_Calibration_Cache * cache,
-				 int for_overwrite)
+bool CommandSetGl646::is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                                Genesys_Calibration_Cache* cache,
+                                                bool for_overwrite) const
 {
     (void) sensor;
 #ifdef HAVE_SYS_TIME_H
@@ -3631,8 +3626,8 @@ gl646_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sen
  * @param forward SANE_TRUE if searching forward, SANE_FALSE if searching backward
  * @param black SANE_TRUE if searching for a black strip, SANE_FALSE for a white strip
  */
-static void gl646_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, SANE_Bool forward,
-                               SANE_Bool black)
+void CommandSetGl646::search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, bool forward,
+                                   bool black) const
 {
     DBG_HELPER(dbg);
     (void) sensor;
@@ -3771,57 +3766,49 @@ static void gl646_search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor
     }
 }
 
-/** the gl646 command set */
-Genesys_Command_Set gl646_cmd_set = {
-  gl646_needs_home_before_init_regs_for_scan,
+void CommandSetGl646::wait_for_motor_stop(Genesys_Device* dev) const
+{
+    (void) dev;
+}
 
-  gl646_init,
-  gl646_init_regs_for_warmup,
-  gl646_init_regs_for_coarse_calibration,
-  gl646_init_regs_for_shading,
-  gl646_init_regs_for_scan,
+void CommandSetGl646::rewind(Genesys_Device* dev) const
+{
+    (void) dev;
+    throw SaneException("not implemented");
+}
 
-  gl646_get_filter_bit,
-  gl646_get_lineart_bit,
-  gl646_get_bitset_bit,
-  gl646_get_gain4_bit,
-  gl646_get_fast_feed_bit,
-  gl646_test_buffer_empty_bit,
-  gl646_test_motor_flag_bit,
+void CommandSetGl646::bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
+                                      size_t len) const
+{
+    sanei_genesys_bulk_write_data(dev, addr, data, len);
+}
 
-  gl646_public_set_fe,
-  gl646_set_powersaving,
-  gl646_save_power,
+void CommandSetGl646::send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                        std::uint8_t* data, int size) const
+{
+    (void) dev;
+    (void) sensor;
+    (void) data;
+    (void) size;
+    throw SaneException("not implemented");
+}
 
-  gl646_begin_scan,
-  gl646_end_scan,
+void CommandSetGl646::calculate_current_setup(Genesys_Device* dev,
+                                              const Genesys_Sensor& sensor) const
+{
+    (void) dev;
+    (void) sensor;
+    throw SaneException("not implemented");
+}
 
-  gl646_send_gamma_table,
+void CommandSetGl646::asic_boot(Genesys_Device *dev, bool cold) const
+{
+    (void) dev;
+    (void) cold;
+    throw SaneException("not implemented");
+}
 
-  gl646_search_start_position,
-
-  gl646_offset_calibration,
-  gl646_coarse_gain_calibration,
-  gl646_led_calibration,
-
-  NULL,
-  gl646_slow_back_home,
-  NULL,
-
-  sanei_genesys_bulk_write_data,
-  gl646_bulk_read_data,
-
-  gl646_update_hardware_sensors,
-
-  /* sheetfed related functions */
-  gl646_load_document,
-  gl646_detect_document_end,
-  gl646_eject_document,
-  gl646_search_strip,
-
-  gl646_is_compatible_calibration,
-  gl646_move_to_ta,
-  NULL,
-  NULL,
-  NULL
-};
+std::unique_ptr<CommandSet> create_gl646_cmd_set()
+{
+    return std::unique_ptr<CommandSet>(new CommandSetGl646{});
+}

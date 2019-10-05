@@ -968,7 +968,7 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
   /* ASIC higher than gl843 doesn't have register 2A/2B, so we route to
    * a per ASIC shading data loading function if available.
    * It is also used for scanners using SHDAREA */
-    if (dev->cmd_set->send_shading_data != nullptr) {
+    if (dev->cmd_set->has_send_shading_data()) {
         dev->cmd_set->send_shading_data(dev, sensor, data, size);
         return;
     }
@@ -1036,8 +1036,10 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
    || dev->model->ccd_type==CCD_G4050
    || dev->model->ccd_type==CCD_CS4400F
    || dev->model->ccd_type==CCD_CS8400F
-   || dev->cmd_set->send_shading_data != NULL)
+   || dev->cmd_set->has_send_shading_data())
+    {
         return;
+    }
 
   DBG(DBG_proc, "%s (pixels_per_line = %d)\n", __func__, pixels_per_line);
 
@@ -1778,7 +1780,7 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
     if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK) {
         // rewind keeps registers and slopes table intact from previous scan but is not
         // available on all supported chipsets (or may cause scan artifacts, see #7)
-        if (dev->cmd_set->rewind) {
+        if (dev->cmd_set->has_rewind()) {
             dev->cmd_set->rewind(dev);
         } else {
             dev->cmd_set->slow_back_home(dev, SANE_TRUE);
@@ -2706,7 +2708,7 @@ genesys_restore_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
     DBG_HELPER(dbg);
 
     // if no cache or no function to evaluate cache entry ther can be no match/
-    if (dev->cmd_set->is_compatible_calibration == nullptr || dev->calibration_cache.empty()) {
+    if (dev->calibration_cache.empty()) {
         return false;
     }
 
@@ -2726,7 +2728,7 @@ genesys_restore_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
           dev->dark_average_data = cache.dark_average_data;
           dev->white_average_data = cache.white_average_data;
 
-            if(dev->cmd_set->send_shading_data == nullptr) {
+            if (!dev->cmd_set->has_send_shading_data()) {
             genesys_send_shading_coefficient(dev, sensor);
           }
 
@@ -2745,9 +2747,6 @@ static void genesys_save_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
 #endif
-
-    if (dev->cmd_set->is_compatible_calibration == nullptr)
-        return;
 
   auto found_cache_it = dev->calibration_cache.end();
   for (auto cache_it = dev->calibration_cache.begin(); cache_it != dev->calibration_cache.end();
@@ -2911,7 +2910,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         }
     }
 
-    if (dev->cmd_set->send_shading_data == nullptr) {
+    if (!dev->cmd_set->has_send_shading_data()) {
       sanei_usb_testing_record_message("genesys_send_shading_coefficient");
         genesys_send_shading_coefficient(dev, sensor);
     }
@@ -2930,10 +2929,6 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
 {
     DBG_HELPER(dbg);
   SANE_Bool forward = SANE_TRUE;
-
-    if (dev->cmd_set->search_strip == nullptr) {
-        throw SaneException(SANE_STATUS_UNSUPPORTED, "no strip searching function available");
-    }
 
     // first step, load document
     dev->cmd_set->load_document(dev);
@@ -3039,7 +3034,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
 
   /* send the shading coefficient when doing whole line shading
    * but not when using SHDAREA like GL124 */
-    if (dev->cmd_set->send_shading_data == nullptr) {
+    if (!dev->cmd_set->has_send_shading_data()) {
         genesys_send_shading_coefficient(dev, sensor);
     }
 
@@ -3087,11 +3082,6 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
   double second_average = 0;
   int difference = 255;
   int empty, lines = 3;
-
-  /* check if the current chipset implements warmup */
-    if (dev->cmd_set->init_regs_for_warmup == NULL) {
-        throw SaneException("init_regs_for_warmup not implemented");
-    }
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
@@ -3246,17 +3236,14 @@ static void genesys_start_scan(Genesys_Device* dev, SANE_Bool lamp_off)
     }
 
   /* move to calibration area for transparency adapter */
-    if ((dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
-         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) &&
-        dev->cmd_set->move_to_ta != nullptr)
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
         dev->cmd_set->move_to_ta(dev);
     }
 
   /* load document if needed (for sheetfed scanner for instance) */
-  if (dev->model->is_sheetfed == SANE_TRUE
-      && dev->cmd_set->load_document != nullptr)
-    {
+    if (dev->model->is_sheetfed) {
         dev->cmd_set->load_document(dev);
     }
 
@@ -3292,14 +3279,9 @@ static void genesys_start_scan(Genesys_Device* dev, SANE_Bool lamp_off)
                                dev->settings.threshold-127);
     }
 
-    if (dev->cmd_set->wait_for_motor_stop) {
-        dev->cmd_set->wait_for_motor_stop(dev);
-    }
+    dev->cmd_set->wait_for_motor_stop(dev);
 
-    if (dev->cmd_set->needs_home_before_init_regs_for_scan &&
-        dev->cmd_set->needs_home_before_init_regs_for_scan(dev) &&
-        dev->cmd_set->slow_back_home)
-    {
+    if (dev->cmd_set->needs_home_before_init_regs_for_scan(dev)) {
         dev->cmd_set->slow_back_home(dev, SANE_TRUE);
     }
 
@@ -3319,7 +3301,7 @@ static void genesys_start_scan(Genesys_Device* dev, SANE_Bool lamp_off)
 
   /* GL124 is using SHDAREA, so we have to wait for scan to be set up before
    * sending shading data */
-    if (dev->cmd_set->send_shading_data != nullptr &&
+    if (dev->cmd_set->has_send_shading_data() &&
         !(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
     {
         genesys_send_shading_coefficient(dev, sensor);

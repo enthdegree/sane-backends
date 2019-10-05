@@ -1447,9 +1447,6 @@ int i;
       if (testing_mode != sanei_usb_testing_mode_disabled)
         {
           sanei_usb_testing_exit();
-
-          if (testing_mode == sanei_usb_testing_mode_replay)
-            return;
         }
 #endif // WITH_USB_RECORD_REPLAY
 

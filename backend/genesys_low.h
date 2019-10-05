@@ -717,7 +717,7 @@ public:
 
     void deinit()
     {
-        ptr_.release();
+        ptr_.reset();
     }
 
     const T* operator->() const { return ptr_.get(); }

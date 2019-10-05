@@ -2475,7 +2475,7 @@ void run_functions_at_backend_exit()
     {
         (*it)();
     }
-    s_functions_run_at_backend_exit.release();
+    s_functions_run_at_backend_exit.reset();
 }
 
 void debug_dump(unsigned level, const Genesys_Settings& settings)

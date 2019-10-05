@@ -423,7 +423,7 @@ static void gl847_homsnr_gpio(Genesys_Device* dev)
     DBG_HELPER(dbg);
     uint8_t val;
 
-    if (dev->model->gpio_id == GpioId::CANONLIDE700) {
+    if (dev->model->gpio_id == GpioId::CANON_LIDE_700F) {
         val = dev->read_register(REG6C);
         val &= ~REG6C_GPIO10;
         dev->write_register(REG6C, val);
@@ -1064,7 +1064,7 @@ void CommandSetGl847::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
   GenesysRegister *r;
 
     // clear GPIO 10
-    if (dev->model->gpio_id != GpioId::CANONLIDE700) {
+    if (dev->model->gpio_id != GpioId::CANON_LIDE_700F) {
         val = dev->read_register(REG6C);
         val &= ~REG6C_GPIO10;
         dev->write_register(REG6C, val);
@@ -1885,7 +1885,7 @@ static void gl847_init_memory_layout(Genesys_Device* dev)
     if (dev->model->model_id == ModelId::CANON_LIDE_200) {
       idx = 1;
     }
-    if (dev->model->model_id == ModelId::CANON_CANOSCAN_5600F) {
+    if (dev->model->model_id == ModelId::CANON_5600F) {
       idx = 2;
     }
     if (dev->model->model_id == ModelId::CANON_LIDE_700F) {
@@ -2018,7 +2018,7 @@ void CommandSetGl847::update_hardware_sensors(Genesys_Scanner* s) const
   uint8_t val;
   uint8_t scan, file, email, copy;
     switch(s->dev->model->gpio_id) {
-    case GpioId::CANONLIDE700:
+    case GpioId::CANON_LIDE_700F:
         scan=0x04;
         file=0x02;
         email=0x01;

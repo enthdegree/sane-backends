@@ -560,7 +560,7 @@ gl841_init_registers (Genesys_Device * dev)
     dev->reg.find_reg(0x03).value = 0x1f /*0x17 */ ;	/* lamp on */
     dev->reg.find_reg(0x03).value |= REG03_AVEENB;
 
-    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_3600) {
+    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_OPTICPRO_3600) {
         // AD front end
       dev->reg.find_reg(0x04).value  = (2 << REG04S_AFEMOD) | 0x02;
     }
@@ -591,7 +591,7 @@ gl841_init_registers (Genesys_Device * dev)
   /* XP300 CCD needs different clock and clock/pixels values */
     if (dev->model->sensor_id != SensorId::CCD_XP300 &&
         dev->model->sensor_id != SensorId::CCD_DP685 &&
-        dev->model->sensor_id != SensorId::CCD_PLUSTEK_3600)
+        dev->model->sensor_id != SensorId::CCD_PLUSTEK_OPTICPRO_3600)
     {
       dev->reg.find_reg(0x06).value |= 0 << REG06S_SCANMOD;
       dev->reg.find_reg(0x09).value |= 1 << REG09S_CLKSET;
@@ -651,7 +651,7 @@ gl841_init_registers (Genesys_Device * dev)
     }
 
   /* TODO there is a switch calling to be written here */
-    if (dev->model->gpio_id == GpioId::CANONLIDE35) {
+    if (dev->model->gpio_id == GpioId::CANON_LIDE_35) {
       dev->reg.find_reg(0x6b).value |= REG6B_GPO18;
       dev->reg.find_reg(0x6b).value &= ~REG6B_GPO17;
     }
@@ -745,7 +745,7 @@ static void gl841_set_ad_fe(Genesys_Device* dev, uint8_t set)
     DBG_HELPER(dbg);
   int i;
 
-    if (dev->model->adc_id==AdcId::CANONLIDE80) {
+    if (dev->model->adc_id==AdcId::CANON_LIDE_80) {
         gl841_set_lide80_fe(dev, set);
         return;
     }
@@ -934,8 +934,7 @@ uint8_t t150[]     = {0x0c,0x33,0xcf,0x33,0xcf,0x33,0xcf,0x33,0xcf,0x33,0xcf,0x3
 
 uint8_t *table;
 
-  if(dev->model->motor_id == MotorId::CANONLIDE80)
-    {
+    if(dev->model->motor_id == MotorId::CANON_LIDE_80) {
       switch(ydpi)
         {
           case 3600:
@@ -1452,7 +1451,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 
     /* gpio part.*/
-    if (dev->model->gpio_id == GpioId::CANONLIDE35)
+    if (dev->model->gpio_id == GpioId::CANON_LIDE_35)
       {
 	r = sanei_genesys_get_address (reg, REG6C);
         if (session.ccd_size_divisor > 1) {
@@ -1461,7 +1460,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
             r->value |= 0x80;
         }
       }
-    if (dev->model->gpio_id == GpioId::CANONLIDE80)
+    if (dev->model->gpio_id == GpioId::CANON_LIDE_80)
       {
 	r = sanei_genesys_get_address (reg, REG6C);
         if (session.ccd_size_divisor > 1) {
@@ -1541,7 +1540,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
       }
     else
       {
-        if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_3600) {
+        if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_OPTICPRO_3600) {
             r->value |= 0x22;	/* slow color pixel by pixel */
           }
 	else
@@ -1669,8 +1668,7 @@ int scan_step_type=0;
     }
 
   /* this motor behaves differently */
-  if (dev->model->motor_id==MotorId::CANONLIDE80)
-    {
+    if (dev->model->motor_id==MotorId::CANON_LIDE_80) {
       /* driven by 'frequency' tables ? */
       scan_step_type = 0;
     }
@@ -1957,7 +1955,7 @@ void CommandSetGl841::save_power(Genesys_Device* dev, bool enable) const
 
     if (enable)
     {
-    if (dev->model->gpio_id == GpioId::CANONLIDE35)
+    if (dev->model->gpio_id == GpioId::CANON_LIDE_35)
 	{
 /* expect GPIO17 to be enabled, and GPIO9 to be disabled,
    while GPIO8 is disabled*/
@@ -2000,7 +1998,7 @@ void CommandSetGl841::save_power(Genesys_Device* dev, bool enable) const
     }
     else
     {
-    if (dev->model->gpio_id == GpioId::CANONLIDE35)
+    if (dev->model->gpio_id == GpioId::CANON_LIDE_35)
 	{
 /* expect GPIO17 to be enabled, and GPIO9 to be disabled,
    while GPIO8 is disabled*/
@@ -2399,13 +2397,13 @@ void CommandSetGl841::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
   Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
   uint8_t val;
 
-    if (dev->model->gpio_id == GpioId::CANONLIDE80) {
+    if (dev->model->gpio_id == GpioId::CANON_LIDE_80) {
         val = dev->read_register(REG6B);
         val = REG6B_GPO18;
         dev->write_register(REG6B, val);
     }
 
-    if (dev->model->sensor_id != SensorId::CCD_PLUSTEK_3600) {
+    if (dev->model->sensor_id != SensorId::CCD_PLUSTEK_OPTICPRO_3600) {
         local_reg.init_reg(0x03, reg->get8(0x03) | REG03_LAMPPWR);
     } else {
         // TODO PLUSTEK_3600: why ??
@@ -2508,12 +2506,12 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 
     // reset gpio pin
     uint8_t val;
-    if (dev->model->gpio_id == GpioId::CANONLIDE35) {
+    if (dev->model->gpio_id == GpioId::CANON_LIDE_35) {
         val = dev->read_register(REG6C);
         val = dev->gpo.regs.get_value(0x6c);
         dev->write_register(REG6C, val);
     }
-    if (dev->model->gpio_id == GpioId::CANONLIDE80) {
+    if (dev->model->gpio_id == GpioId::CANON_LIDE_80) {
         val = dev->read_register(REG6B);
         val = REG6B_GPO18 | REG6B_GPO17;
         dev->write_register(REG6B, val);
@@ -2734,12 +2732,11 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   regs = dev->reg;
 
   ydpi = dev->motor.base_ydpi;
-  if (dev->model->motor_id == MotorId::PLUSTEK_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
+  if (dev->model->motor_id == MotorId::PLUSTEK_OPTICPRO_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
     {
       ydpi = 600;
     }
-  if (dev->model->motor_id == MotorId::CANONLIDE80)
-    {
+    if (dev->model->motor_id == MotorId::CANON_LIDE_80) {
       ydpi = gl841_get_dpihw(dev);
       /* get over extra dark area for this model.
 	 It looks like different devices have dark areas of different width
@@ -2854,7 +2851,7 @@ void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   /* true gray (led add for cis scanners) */
   if(dev->model->is_cis && dev->settings.true_gray
     && dev->settings.scan_mode != ScanColorMode::COLOR_SINGLE_PASS
-    && dev->model->sensor_id != SensorId::CIS_CANONLIDE80)
+    && dev->model->sensor_id != SensorId::CIS_CANON_LIDE_80)
     {
       // on Lide 80 the LEDADD bit results in only red LED array being lit
       DBG(DBG_io, "%s: activating LEDADD\n", __func__);
@@ -3144,7 +3141,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   int target;
 
   /* don't impact 3600 behavior since we can't test it */
-    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_3600) {
+    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_OPTICPRO_3600) {
       return;
     }
 
@@ -3702,7 +3699,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
       uint8_t out_gain = 0;
 
-        if (dev->model->adc_id == AdcId::CANONLIDE35 ||
+        if (dev->model->adc_id == AdcId::CANON_LIDE_35 ||
             dev->model->adc_id == AdcId::WOLFSON_XP300 ||
             dev->model->adc_id == AdcId::WOLFSON_DSM600)
         {
@@ -3713,7 +3710,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
               out_gain = 0;
 	  else
               out_gain = 283 - 208/gain[j];
-        } else if (dev->model->adc_id == AdcId::CANONLIDE80) {
+        } else if (dev->model->adc_id == AdcId::CANON_LIDE_80) {
               out_gain = gain[j]*12;
         }
       dev->frontend.set_gain(j, out_gain);
@@ -3843,7 +3840,7 @@ bool CommandSetGl841::is_compatible_calibration(Genesys_Device* dev, const Genes
 
     DBG_HELPER(dbg);
   /* calibration cache not working yet for this model */
-    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_3600) {
+    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_OPTICPRO_3600) {
       return false;
     }
 
@@ -4001,8 +3998,8 @@ void CommandSetGl841::update_hardware_sensors(Genesys_Scanner* s) const
    */
   uint8_t val;
 
-    if (s->dev->model->gpio_id == GpioId::CANONLIDE35
-        || s->dev->model->gpio_id == GpioId::CANONLIDE80)
+    if (s->dev->model->gpio_id == GpioId::CANON_LIDE_35
+        || s->dev->model->gpio_id == GpioId::CANON_LIDE_80)
     {
         val = s->dev->read_register(REG6D);
         s->buttons[BUTTON_SCAN_SW].write((val & 0x01) == 0);

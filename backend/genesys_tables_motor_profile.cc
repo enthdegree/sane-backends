@@ -754,10 +754,10 @@ Motor_Profile gl843_motor_profiles[] = {
     { MotorId::G4050, 15624, StepType::HALF, g4050_xpa },
     { MotorId::G4050, 42752, StepType::QUARTER, g4050_max },
     { MotorId::G4050, 56064, StepType::HALF, g4050_high },
-    { MotorId::CS8400F, 50000, StepType::QUARTER, cs8400f_fast },
-    { MotorId::CS8600F, 0x59d8, StepType::QUARTER, motor_speeds_cs8600f }, // FIXME: if the exposure is lower then we'll select another motor
-    { MotorId::PLUSTEK_7200I, 0x19c8, StepType::HALF, motor_speeds_plustek_7200i_1},
-    { MotorId::PLUSTEK_7200I, 0x2538, StepType::HALF, motor_speeds_plustek_7200i_2},
+    { MotorId::CANON_8400F, 50000, StepType::QUARTER, cs8400f_fast },
+    { MotorId::CANON_8600F, 0x59d8, StepType::QUARTER, motor_speeds_cs8600f }, // FIXME: if the exposure is lower then we'll select another motor
+    { MotorId::PLUSTEK_OPTICFILM_7200I, 0x19c8, StepType::HALF, motor_speeds_plustek_7200i_1},
+    { MotorId::PLUSTEK_OPTICFILM_7200I, 0x2538, StepType::HALF, motor_speeds_plustek_7200i_2},
     { MotorId::UNKNOWN, 0, StepType::FULL, NULL },
 };
 
@@ -875,7 +875,7 @@ static uint32_t img101_high[] = {
 
 Motor_Profile gl846_motor_profiles[] = {
     { MotorId::IMG101, 11000, StepType::HALF, img101_high},
-    { MotorId::PLUSTEK3800, 11000, StepType::HALF, img101_high},
+    { MotorId::PLUSTEK_OPTICBOOK_3800, 11000, StepType::HALF, img101_high},
     { MotorId::UNKNOWN, 0, StepType::FULL, NULL},
 };
 
@@ -1027,24 +1027,24 @@ static uint32_t lide200_max[] = { 124992, 124992, 124992, 124992, 124992, 124992
  */
 
 Motor_Profile gl847_motor_profiles[] = {
-    { MotorId::CANONLIDE100, 2848, StepType::HALF   , lide200_base },
-    { MotorId::CANONLIDE100, 1424, StepType::HALF   , lide200_base },
-    { MotorId::CANONLIDE100, 1432, StepType::HALF   , lide200_base },
-    { MotorId::CANONLIDE100, 2712, StepType::QUARTER, lide200_medium },
-    { MotorId::CANONLIDE100, 5280, StepType::EIGHTH , lide200_high },
+    { MotorId::CANON_LIDE_100, 2848, StepType::HALF   , lide200_base },
+    { MotorId::CANON_LIDE_100, 1424, StepType::HALF   , lide200_base },
+    { MotorId::CANON_LIDE_100, 1432, StepType::HALF   , lide200_base },
+    { MotorId::CANON_LIDE_100, 2712, StepType::QUARTER, lide200_medium },
+    { MotorId::CANON_LIDE_100, 5280, StepType::EIGHTH , lide200_high },
 
-    { MotorId::CANONLIDE200,  2848, StepType::HALF   , lide200_base },
-    { MotorId::CANONLIDE200,  1424, StepType::HALF   , lide200_base },
-    { MotorId::CANONLIDE200,  1432, StepType::HALF   , lide200_base },
-    { MotorId::CANONLIDE200,  2712, StepType::QUARTER, lide200_medium },
-    { MotorId::CANONLIDE200,  5280, StepType::EIGHTH , lide200_high },
-    { MotorId::CANONLIDE200, 10416, StepType::EIGHTH , lide200_high },
+    { MotorId::CANON_LIDE_200,  2848, StepType::HALF   , lide200_base },
+    { MotorId::CANON_LIDE_200,  1424, StepType::HALF   , lide200_base },
+    { MotorId::CANON_LIDE_200,  1432, StepType::HALF   , lide200_base },
+    { MotorId::CANON_LIDE_200,  2712, StepType::QUARTER, lide200_medium },
+    { MotorId::CANON_LIDE_200,  5280, StepType::EIGHTH , lide200_high },
+    { MotorId::CANON_LIDE_200, 10416, StepType::EIGHTH , lide200_high },
 
-    { MotorId::CANONLIDE700,  2848, StepType::HALF  , lide200_base },
-    { MotorId::CANONLIDE700,  1424, StepType::HALF  , lide200_base },
-    { MotorId::CANONLIDE700,  1504, StepType::HALF  , lide200_base },
-    { MotorId::CANONLIDE700,  2696, StepType::HALF  , lide700_medium }, /* 2696 , 2838 */
-    { MotorId::CANONLIDE700, 10576, StepType::EIGHTH, lide700_high },
+    { MotorId::CANON_LIDE_700,  2848, StepType::HALF  , lide200_base },
+    { MotorId::CANON_LIDE_700,  1424, StepType::HALF  , lide200_base },
+    { MotorId::CANON_LIDE_700,  1504, StepType::HALF  , lide200_base },
+    { MotorId::CANON_LIDE_700,  2696, StepType::HALF  , lide700_medium }, /* 2696 , 2838 */
+    { MotorId::CANON_LIDE_700, 10576, StepType::EIGHTH, lide700_high },
 
     { MotorId::UNKNOWN, 0, StepType::FULL, NULL},
 };
@@ -1163,20 +1163,20 @@ static uint32_t lide210_max[] = { 62496, 31296, 20864, 10432, 0 };
 
 // NEXT LPERIOD=PREVIOUS*2-192
 Motor_Profile gl124_motor_profiles[] = {
-    { MotorId::CANONLIDE110,  2768, StepType::FULL, lide210_fast },
-    { MotorId::CANONLIDE110,  5360, StepType::HALF, lide110_ok },
-    { MotorId::CANONLIDE110, 10528, StepType::HALF, lide110_slow },
-    { MotorId::CANONLIDE110, 20864, StepType::QUARTER, lide110_max },
+    { MotorId::CANON_LIDE_110,  2768, StepType::FULL, lide210_fast },
+    { MotorId::CANON_LIDE_110,  5360, StepType::HALF, lide110_ok },
+    { MotorId::CANON_LIDE_110, 10528, StepType::HALF, lide110_slow },
+    { MotorId::CANON_LIDE_110, 20864, StepType::QUARTER, lide110_max },
 
-    { MotorId::CANONLIDE120,  4608, StepType::FULL, lide120_fast },
-    { MotorId::CANONLIDE120,  5360, StepType::HALF, lide120_ok },
-    { MotorId::CANONLIDE120, 10528, StepType::QUARTER, lide120_slow },
-    { MotorId::CANONLIDE120, 20864, StepType::QUARTER, lide120_max },
+    { MotorId::CANON_LIDE_120,  4608, StepType::FULL, lide120_fast },
+    { MotorId::CANON_LIDE_120,  5360, StepType::HALF, lide120_ok },
+    { MotorId::CANON_LIDE_120, 10528, StepType::QUARTER, lide120_slow },
+    { MotorId::CANON_LIDE_120, 20864, StepType::QUARTER, lide120_max },
 
-    { MotorId::CANONLIDE210,  2768, StepType::FULL, lide210_fast },
-    { MotorId::CANONLIDE210,  5360, StepType::HALF, lide110_ok },
-    { MotorId::CANONLIDE210, 10528, StepType::HALF, lide110_slow },
-    { MotorId::CANONLIDE210, 20864, StepType::QUARTER, lide210_max },
+    { MotorId::CANON_LIDE_210,  2768, StepType::FULL, lide210_fast },
+    { MotorId::CANON_LIDE_210,  5360, StepType::HALF, lide110_ok },
+    { MotorId::CANON_LIDE_210, 10528, StepType::HALF, lide110_slow },
+    { MotorId::CANON_LIDE_210, 20864, StepType::QUARTER, lide210_max },
 
     { MotorId::UNKNOWN, 0, StepType::FULL, NULL},
 };

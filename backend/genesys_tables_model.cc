@@ -153,10 +153,10 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CCD_CANONLIDE35;
-    model.adc_id = AdcId::CANONLIDE35;
-    model.gpio_id = GpioId::CANONLIDE35;
-    model.motor_id = MotorId::CANONLIDE35;
+    model.sensor_id = SensorId::CIS_CANON_LIDE_35;
+    model.adc_id = AdcId::CANON_LIDE_35;
+    model.gpio_id = GpioId::CANON_LIDE_35;
+    model.motor_id = MotorId::CANON_LIDE_35;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_DARK_WHITE_CALIBRATION |
@@ -396,7 +396,7 @@ void genesys_init_usb_device_tables()
     model.name = "canon-canoscan-4400f";
     model.vendor = "Canon";
     model.model = "Canoscan 4400f";
-    model.model_id = ModelId::CANON_CANOSCAN_4400F;
+    model.model_id = ModelId::CANON_4400F;
     model.asic_type = AsicType::GL843;
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
@@ -431,9 +431,9 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CCD_CS4400F;
+    model.sensor_id = SensorId::CCD_CANON_4400F;
     model.adc_id = AdcId::G4050;
-    model.gpio_id = GpioId::CS4400F;
+    model.gpio_id = GpioId::CANON_4400F;
     model.motor_id = MotorId::G4050;
     model.flags = GENESYS_FLAG_NO_CALIBRATION |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
@@ -454,7 +454,7 @@ void genesys_init_usb_device_tables()
     model.name = "canon-canoscan-8400f";
     model.vendor = "Canon";
     model.model = "Canoscan 8400f";
-    model.model_id = ModelId::CANON_CANOSCAN_8400F;
+    model.model_id = ModelId::CANON_8400F;
     model.asic_type = AsicType::GL843;
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
@@ -489,10 +489,10 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CCD_CS8400F;
-    model.adc_id = AdcId::CS8400F;
-    model.gpio_id = GpioId::CS8400F;
-    model.motor_id = MotorId::CS8400F;
+    model.sensor_id = SensorId::CCD_CANON_8400F;
+    model.adc_id = AdcId::CANON_8400F;
+    model.gpio_id = GpioId::CANON_8400F;
+    model.motor_id = MotorId::CANON_8400F;
     model.flags = GENESYS_FLAG_HAS_UTA |
                   GENESYS_FLAG_HAS_UTA_INFRARED |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
@@ -514,7 +514,7 @@ void genesys_init_usb_device_tables()
     model.name = "canon-canoscan-8600f";
     model.vendor = "Canon";
     model.model = "Canoscan 8600f";
-    model.model_id = ModelId::CANON_CANOSCAN_8600F;
+    model.model_id = ModelId::CANON_8600F;
     model.asic_type = AsicType::GL843;
 
     model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300 }; // TODO: resolutions for non-XPA mode
@@ -549,10 +549,10 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CCD_CS8600F;
-    model.adc_id = AdcId::CS8600F;
-    model.gpio_id = GpioId::CS8600F;
-    model.motor_id = MotorId::CS8600F;
+    model.sensor_id = SensorId::CCD_CANON_8600F;
+    model.adc_id = AdcId::CANON_8600F;
+    model.gpio_id = GpioId::CANON_8600F;
+    model.motor_id = MotorId::CANON_8600F;
     model.flags = GENESYS_FLAG_HAS_UTA |
                   GENESYS_FLAG_HAS_UTA_INFRARED |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
@@ -609,10 +609,10 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CIS_CANONLIDE100;
-    model.adc_id = AdcId::CANONLIDE200;
-    model.gpio_id = GpioId::CANONLIDE200;
-    model.motor_id = MotorId::CANONLIDE100;
+    model.sensor_id = SensorId::CIS_CANON_LIDE_100;
+    model.adc_id = AdcId::CANON_LIDE_200;
+    model.gpio_id = GpioId::CANON_LIDE_200;
+    model.motor_id = MotorId::CANON_LIDE_100;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_SIS_SENSOR |
                   GENESYS_FLAG_DARK_CALIBRATION |
@@ -668,10 +668,10 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CIS_CANONLIDE110;
-    model.adc_id = AdcId::CANONLIDE110;
-    model.gpio_id = GpioId::CANONLIDE110;
-    model.motor_id = MotorId::CANONLIDE110;
+    model.sensor_id = SensorId::CIS_CANON_LIDE_110;
+    model.adc_id = AdcId::CANON_LIDE_110;
+    model.gpio_id = GpioId::CANON_LIDE_110;
+    model.motor_id = MotorId::CANON_LIDE_110;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_DARK_CALIBRATION |
@@ -725,10 +725,10 @@ void genesys_init_usb_device_tables()
     model.line_mode_color_order = ColorOrder::RGB;
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CIS_CANONLIDE120;
-    model.adc_id = AdcId::CANONLIDE120;
-    model.gpio_id = GpioId::CANONLIDE120;
-    model.motor_id = MotorId::CANONLIDE120;
+    model.sensor_id = SensorId::CIS_CANON_LIDE_120;
+    model.adc_id = AdcId::CANON_LIDE_120;
+    model.gpio_id = GpioId::CANON_LIDE_120;
+    model.motor_id = MotorId::CANON_LIDE_120;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_DARK_CALIBRATION |
@@ -784,10 +784,10 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CIS_CANONLIDE210;
-    model.adc_id = AdcId::CANONLIDE110;
-    model.gpio_id = GpioId::CANONLIDE210;
-    model.motor_id = MotorId::CANONLIDE210;
+    model.sensor_id = SensorId::CIS_CANON_LIDE_210;
+    model.adc_id = AdcId::CANON_LIDE_110;
+    model.gpio_id = GpioId::CANON_LIDE_210;
+    model.motor_id = MotorId::CANON_LIDE_210;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_DARK_CALIBRATION |
@@ -843,10 +843,10 @@ void genesys_init_usb_device_tables()
     model.line_mode_color_order = ColorOrder::RGB;
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CIS_CANONLIDE220;
-    model.adc_id = AdcId::CANONLIDE110;
-    model.gpio_id = GpioId::CANONLIDE210;
-    model.motor_id = MotorId::CANONLIDE210;
+    model.sensor_id = SensorId::CIS_CANON_LIDE_220;
+    model.adc_id = AdcId::CANON_LIDE_110;
+    model.gpio_id = GpioId::CANON_LIDE_210;
+    model.motor_id = MotorId::CANON_LIDE_210;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_DARK_CALIBRATION |
@@ -868,7 +868,7 @@ void genesys_init_usb_device_tables()
     model.name = "canon-5600f";
     model.vendor = "Canon";
     model.model = "5600F";
-    model.model_id = ModelId::CANON_CANOSCAN_5600F;
+    model.model_id = ModelId::CANON_5600F;
     model.asic_type = AsicType::GL847;
 
     model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75 };
@@ -903,10 +903,10 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CIS_CANONLIDE200;
-    model.adc_id = AdcId::CANONLIDE200;
-    model.gpio_id = GpioId::CANONLIDE200;
-    model.motor_id = MotorId::CANONLIDE200;
+    model.sensor_id = SensorId::CIS_CANON_LIDE_200;
+    model.adc_id = AdcId::CANON_LIDE_200;
+    model.gpio_id = GpioId::CANON_LIDE_200;
+    model.motor_id = MotorId::CANON_LIDE_200;
     model.flags = GENESYS_FLAG_UNTESTED |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_SIS_SENSOR |
@@ -962,10 +962,10 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CIS_CANONLIDE700;
-    model.adc_id = AdcId::CANONLIDE700;
-    model.gpio_id = GpioId::CANONLIDE700;
-    model.motor_id = MotorId::CANONLIDE700;
+    model.sensor_id = SensorId::CIS_CANON_LIDE_700F;
+    model.adc_id = AdcId::CANON_LIDE_700F;
+    model.gpio_id = GpioId::CANON_LIDE_700F;
+    model.motor_id = MotorId::CANON_LIDE_700;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_SIS_SENSOR |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
@@ -1021,10 +1021,10 @@ void genesys_init_usb_device_tables()
     model.line_mode_color_order = ColorOrder::RGB;
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CIS_CANONLIDE200;
-    model.adc_id = AdcId::CANONLIDE200;
-    model.gpio_id = GpioId::CANONLIDE200;
-    model.motor_id = MotorId::CANONLIDE200;
+    model.sensor_id = SensorId::CIS_CANON_LIDE_200;
+    model.adc_id = AdcId::CANON_LIDE_200;
+    model.gpio_id = GpioId::CANON_LIDE_200;
+    model.motor_id = MotorId::CANON_LIDE_200;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_SIS_SENSOR |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
@@ -1080,10 +1080,10 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CCD_CANONLIDE35;
-    model.adc_id = AdcId::CANONLIDE35;
-    model.gpio_id = GpioId::CANONLIDE35;
-    model.motor_id = MotorId::CANONLIDE35;
+    model.sensor_id = SensorId::CIS_CANON_LIDE_35;
+    model.adc_id = AdcId::CANON_LIDE_35;
+    model.gpio_id = GpioId::CANON_LIDE_35;
+    model.motor_id = MotorId::CANON_LIDE_35;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_DARK_WHITE_CALIBRATION |
@@ -1138,10 +1138,10 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_TRUE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CIS_CANONLIDE80;
-    model.adc_id = AdcId::CANONLIDE80;
-    model.gpio_id = GpioId::CANONLIDE80;
-    model.motor_id = MotorId::CANONLIDE80;
+    model.sensor_id = SensorId::CIS_CANON_LIDE_80;
+    model.adc_id = AdcId::CANON_LIDE_80;
+    model.gpio_id = GpioId::CANON_LIDE_80;
+    model.motor_id = MotorId::CANON_LIDE_80;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_DARK_WHITE_CALIBRATION |
@@ -2312,10 +2312,10 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CCD_PLUSTEK_3600;
-    model.adc_id = AdcId::PLUSTEK_3600;
-    model.gpio_id = GpioId::PLUSTEK_3600;
-    model.motor_id = MotorId::PLUSTEK_3600;
+    model.sensor_id = SensorId::CCD_PLUSTEK_OPTICPRO_3600;
+    model.adc_id = AdcId::PLUSTEK_OPTICPRO_3600;
+    model.gpio_id = GpioId::PLUSTEK_OPTICPRO_3600;
+    model.motor_id = MotorId::PLUSTEK_OPTICPRO_3600;
     model.flags = GENESYS_FLAG_UNTESTED |                // not fully working yet
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_SKIP_WARMUP |
@@ -2367,10 +2367,10 @@ void genesys_init_usb_device_tables()
     model.is_cis = false;
     model.is_sheetfed = false;
 
-    model.sensor_id = SensorId::CCD_PLUSTEK_7200I;
-    model.adc_id = AdcId::PLUSTEK_7200I;
-    model.gpio_id = GpioId::PLUSTEK_7200I;
-    model.motor_id = MotorId::PLUSTEK_7200I;
+    model.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7200I;
+    model.adc_id = AdcId::PLUSTEK_OPTICFILM_7200I;
+    model.gpio_id = GpioId::PLUSTEK_OPTICFILM_7200I;
+    model.motor_id = MotorId::PLUSTEK_OPTICFILM_7200I;
 
     model.flags = GENESYS_FLAG_HAS_UTA |
                   GENESYS_FLAG_HAS_UTA_INFRARED |
@@ -2430,9 +2430,9 @@ void genesys_init_usb_device_tables()
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
     model.sensor_id = SensorId::CCD_HP_N6310;
-    model.adc_id = AdcId::CANONLIDE200;        // Not defined yet for N6310
+    model.adc_id = AdcId::CANON_LIDE_200;        // Not defined yet for N6310
     model.gpio_id = GpioId::HP_N6310;
-    model.motor_id = MotorId::CANONLIDE200,    // Not defined yet for N6310
+    model.motor_id = MotorId::CANON_LIDE_200,    // Not defined yet for N6310
     model.flags = GENESYS_FLAG_UNTESTED |
                   GENESYS_FLAG_14BIT_GAMMA |
                   GENESYS_FLAG_DARK_CALIBRATION |
@@ -2488,10 +2488,10 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = SANE_FALSE;
     model.is_sheetfed = SANE_FALSE;
-    model.sensor_id = SensorId::CCD_PLUSTEK3800;
-    model.adc_id = AdcId::PLUSTEK3800;
-    model.gpio_id = GpioId::PLUSTEK3800;
-    model.motor_id = MotorId::PLUSTEK3800;
+    model.sensor_id = SensorId::CCD_PLUSTEK_OPTICBOOK_3800;
+    model.adc_id = AdcId::PLUSTEK_OPTICBOOK_3800;
+    model.gpio_id = GpioId::PLUSTEK_OPTICBOOK_3800;
+    model.motor_id = MotorId::PLUSTEK_OPTICBOOK_3800;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;

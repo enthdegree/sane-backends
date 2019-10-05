@@ -977,17 +977,17 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
   /* many scanners send coefficient for lineart/gray like in color mode */
   if ((dev->settings.scan_mode == ScanColorMode::LINEART ||
        dev->settings.scan_mode == ScanColorMode::HALFTONE)
-        && dev->model->sensor_id != SensorId::CCD_PLUSTEK3800
+        && dev->model->sensor_id != SensorId::CCD_PLUSTEK_OPTICBOOK_3800
         && dev->model->sensor_id != SensorId::CCD_KVSS080
         && dev->model->sensor_id != SensorId::CCD_G4050
-        && dev->model->sensor_id != SensorId::CCD_CS4400F
-        && dev->model->sensor_id != SensorId::CCD_CS8400F
-        && dev->model->sensor_id != SensorId::CCD_CS8600F
+        && dev->model->sensor_id != SensorId::CCD_CANON_4400F
+        && dev->model->sensor_id != SensorId::CCD_CANON_8400F
+        && dev->model->sensor_id != SensorId::CCD_CANON_8600F
         && dev->model->sensor_id != SensorId::CCD_DSMOBILE600
         && dev->model->sensor_id != SensorId::CCD_XP300
         && dev->model->sensor_id != SensorId::CCD_DP665
         && dev->model->sensor_id != SensorId::CCD_DP685
-        && dev->model->sensor_id != SensorId::CIS_CANONLIDE80
+        && dev->model->sensor_id != SensorId::CIS_CANON_LIDE_80
         && dev->model->sensor_id != SensorId::CCD_ROADWARRIOR
         && dev->model->sensor_id != SensorId::CCD_HP2300
         && dev->model->sensor_id != SensorId::CCD_HP2400
@@ -1030,8 +1030,8 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
      function */
     if (dev->model->sensor_id==SensorId::CCD_KVSS080 ||
         dev->model->sensor_id==SensorId::CCD_G4050 ||
-        dev->model->sensor_id==SensorId::CCD_CS4400F ||
-        dev->model->sensor_id==SensorId::CCD_CS8400F ||
+        dev->model->sensor_id==SensorId::CCD_CANON_4400F ||
+        dev->model->sensor_id==SensorId::CCD_CANON_8400F ||
         dev->cmd_set->has_send_shading_data())
     {
         return;
@@ -1728,8 +1728,8 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
       xend = 68;
     }
     if (dev->model->sensor_id==SensorId::CCD_G4050
-     || dev->model->sensor_id==SensorId::CCD_CS4400F
-     || dev->model->sensor_id==SensorId::CCD_CS8400F
+     || dev->model->sensor_id==SensorId::CCD_CANON_4400F
+     || dev->model->sensor_id==SensorId::CCD_CANON_8400F
      || dev->model->sensor_id==SensorId::CCD_KVSS080)
     {
       skip = 2;
@@ -2070,7 +2070,7 @@ compute_averaged_planar (Genesys_Device * dev, const Genesys_Sensor& sensor,
     avgpixels = 15;
 
   /* LiDE80 packs shading data */
-    if (dev->model->sensor_id != SensorId::CIS_CANONLIDE80) {
+    if (dev->model->sensor_id != SensorId::CIS_CANON_LIDE_80) {
       factor=1;
       fill=avgpixels;
     }
@@ -2453,7 +2453,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
   /* special case, memory is aligned on 0x5400, this has yet to be explained */
   /* could be 0xa800 because sensor is truly 2400 dpi, then halved because
    * we only set 1200 dpi */
-  if(dev->model->sensor_id==SensorId::CIS_CANONLIDE80)
+  if(dev->model->sensor_id==SensorId::CIS_CANON_LIDE_80)
     {
       words_per_color = 0x5400;
     }
@@ -2587,12 +2587,12 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                             target_code);
       break;
     case SensorId::CCD_KVSS080:
-    case SensorId::CCD_PLUSTEK3800:
+    case SensorId::CCD_PLUSTEK_OPTICBOOK_3800:
     case SensorId::CCD_G4050:
-    case SensorId::CCD_CS4400F:
-    case SensorId::CCD_CS8400F:
-    case SensorId::CCD_CS8600F:
-    case SensorId::CCD_PLUSTEK_7200I:
+    case SensorId::CCD_CANON_4400F:
+    case SensorId::CCD_CANON_8400F:
+    case SensorId::CCD_CANON_8600F:
+    case SensorId::CCD_PLUSTEK_OPTICFILM_7200I:
       target_code = 0xe000;
       o = 0;
       compute_coefficients (dev,
@@ -2604,24 +2604,24 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                             coeff,
                             target_code);
       break;
-    case SensorId::CIS_CANONLIDE700:
-    case SensorId::CIS_CANONLIDE100:
-    case SensorId::CIS_CANONLIDE200:
-    case SensorId::CIS_CANONLIDE110:
-    case SensorId::CIS_CANONLIDE120:
-    case SensorId::CIS_CANONLIDE210:
-    case SensorId::CIS_CANONLIDE220:
+    case SensorId::CIS_CANON_LIDE_700F:
+    case SensorId::CIS_CANON_LIDE_100:
+    case SensorId::CIS_CANON_LIDE_200:
+    case SensorId::CIS_CANON_LIDE_110:
+    case SensorId::CIS_CANON_LIDE_120:
+    case SensorId::CIS_CANON_LIDE_210:
+    case SensorId::CIS_CANON_LIDE_220:
         /* TODO store this in a data struct so we avoid
          * growing this switch */
         switch(dev->model->sensor_id)
           {
-          case SensorId::CIS_CANONLIDE110:
-          case SensorId::CIS_CANONLIDE120:
-          case SensorId::CIS_CANONLIDE210:
-          case SensorId::CIS_CANONLIDE220:
+          case SensorId::CIS_CANON_LIDE_110:
+          case SensorId::CIS_CANON_LIDE_120:
+          case SensorId::CIS_CANON_LIDE_210:
+          case SensorId::CIS_CANON_LIDE_220:
             target_code = 0xf000;
             break;
-          case SensorId::CIS_CANONLIDE700:
+          case SensorId::CIS_CANON_LIDE_700F:
             target_code = 0xc000; /* from experimentation */
             break;
           default:
@@ -2642,7 +2642,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                                      coeff,
                                      target_code);
       break;
-    case SensorId::CCD_CANONLIDE35:
+    case SensorId::CIS_CANON_LIDE_35:
       compute_averaged_planar (dev, sensor,
                                shading_data.data(),
                                pixels_per_line,
@@ -2653,7 +2653,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                                0xe000,
                                0x0a00);
       break;
-    case SensorId::CIS_CANONLIDE80:
+    case SensorId::CIS_CANON_LIDE_80:
       compute_averaged_planar (dev, sensor,
                                shading_data.data(),
                                pixels_per_line,
@@ -2664,7 +2664,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
 			       0xe000,
                                0x0800);
       break;
-    case SensorId::CCD_PLUSTEK_3600:
+    case SensorId::CCD_PLUSTEK_OPTICPRO_3600:
       compute_shifted_coefficients (dev, sensor,
                         shading_data.data(),
 			            pixels_per_line,
@@ -2794,8 +2794,8 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         coarse_res /= 2;
     }
 
-    if (dev->model->model_id == ModelId::CANON_CANOSCAN_8400F ||
-        dev->model->model_id == ModelId::CANON_CANOSCAN_8600F)
+    if (dev->model->model_id == ModelId::CANON_8400F ||
+        dev->model->model_id == ModelId::CANON_8600F)
     {
         coarse_res = 1200;
     }
@@ -4662,7 +4662,7 @@ probe_genesys_devices (void)
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 12;
+static const int CALIBRATION_VERSION = 14;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

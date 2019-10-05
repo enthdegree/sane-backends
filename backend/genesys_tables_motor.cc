@@ -193,7 +193,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::CANONLIDE35;
+    motor.id = MotorId::CANON_LIDE_35;
     motor.base_ydpi = 1200;
     motor.optical_ydpi = 2400;
     motor.max_step_type = 1;
@@ -331,7 +331,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::CANONLIDE100;
+    motor.id = MotorId::CANON_LIDE_100;
     motor.base_ydpi = 1200;
     motor.optical_ydpi = 6400;
     motor.max_step_type = 2;
@@ -361,7 +361,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::CANONLIDE200;
+    motor.id = MotorId::CANON_LIDE_200;
     motor.base_ydpi = 1200;
     motor.optical_ydpi = 6400;
     motor.max_step_type = 2;
@@ -391,7 +391,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::CANONLIDE700;
+    motor.id = MotorId::CANON_LIDE_700;
     motor.base_ydpi = 1200;
     motor.optical_ydpi = 6400;
     motor.max_step_type = 2;
@@ -481,7 +481,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::CS8400F;
+    motor.id = MotorId::CANON_8400F;
     motor.base_ydpi = 1200;
     motor.optical_ydpi = 9600;
     motor.max_step_type = 2;
@@ -511,7 +511,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::CS8600F;
+    motor.id = MotorId::CANON_8600F;
     motor.base_ydpi = 2400;
     motor.optical_ydpi = 9600;
     motor.max_step_type = 2;
@@ -541,7 +541,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::CANONLIDE110;
+    motor.id = MotorId::CANON_LIDE_110;
     motor.base_ydpi = 4800;
     motor.optical_ydpi = 9600;
     motor.max_step_type = 1;
@@ -557,7 +557,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::CANONLIDE120;
+    motor.id = MotorId::CANON_LIDE_120;
     motor.base_ydpi = 4800;
     motor.optical_ydpi = 9600;
     motor.max_step_type = 1;
@@ -573,7 +573,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::CANONLIDE210;
+    motor.id = MotorId::CANON_LIDE_210;
     motor.base_ydpi = 4800;
     motor.optical_ydpi = 9600;
     motor.max_step_type = 1;
@@ -589,7 +589,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::PLUSTEK_3600;
+    motor.id = MotorId::PLUSTEK_OPTICPRO_3600;
     motor.base_ydpi = 1200;
     motor.optical_ydpi = 2400;
     motor.max_step_type = 1;
@@ -612,7 +612,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::PLUSTEK_7200I;
+    motor.id = MotorId::PLUSTEK_OPTICFILM_7200I;
     motor.base_ydpi = 3600;
     motor.optical_ydpi = 3600;
     motor.max_step_type = 0; // only used on GL841
@@ -643,7 +643,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::PLUSTEK3800;
+    motor.id = MotorId::PLUSTEK_OPTICBOOK_3800;
     motor.base_ydpi = 600;
     motor.optical_ydpi = 1200;
     motor.max_step_type = 1;
@@ -666,7 +666,7 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
-    motor.id = MotorId::CANONLIDE80;
+    motor.id = MotorId::CANON_LIDE_80;
     motor.base_ydpi = 2400;
     motor.optical_ydpi = 4800, // 9600
     motor.max_step_type = 1;

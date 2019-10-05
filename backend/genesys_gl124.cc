@@ -121,7 +121,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x03,0x50);
   SETREG (0x04,0x03);
   SETREG (0x05,0x00);
-    if(dev->model->sensor_id == SensorId::CIS_CANONLIDE120) {
+    if(dev->model->sensor_id == SensorId::CIS_CANON_LIDE_120) {
       SETREG (0x06,0x50);
       SETREG (0x07,0x00);
     }
@@ -151,7 +151,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x1f,0x00);
   SETREG (0x20,0x15);
   SETREG (0x21,0x00);
-    if(dev->model->sensor_id != SensorId::CIS_CANONLIDE120) {
+    if(dev->model->sensor_id != SensorId::CIS_CANON_LIDE_120) {
       SETREG (0x22,0x02);
     }
   else
@@ -212,7 +212,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x6c,0x00);
   SETREG (0x6e,0x00);
   SETREG (0x6f,0x00);
-    if (dev->model->sensor_id != SensorId::CIS_CANONLIDE120) {
+    if (dev->model->sensor_id != SensorId::CIS_CANON_LIDE_120) {
       SETREG (0x6d,0xd0);
       SETREG (0x71,0x08);
     }
@@ -239,7 +239,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0x7d,0x00);
   SETREG (0x7e,0x08);
   SETREG (0x7f,0x58);
-    if (dev->model->sensor_id != SensorId::CIS_CANONLIDE120) {
+    if (dev->model->sensor_id != SensorId::CIS_CANON_LIDE_120) {
       SETREG (0x80,0x00);
       SETREG (0x81,0x14);
     }
@@ -326,7 +326,7 @@ gl124_init_registers (Genesys_Device * dev)
   SETREG (0xcd,0x00);
   SETREG (0xce,0x00);
   */
-    if (dev->model->sensor_id == SensorId::CIS_CANONLIDE120) {
+    if (dev->model->sensor_id == SensorId::CIS_CANON_LIDE_120) {
       SETREG (0xc5,0x20);
       SETREG (0xc6,0xeb);
       SETREG (0xc7,0x20);
@@ -466,7 +466,7 @@ static void gl124_set_ti_fe(Genesys_Device* dev, uint8_t set)
         sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.regs.get_value(0x24 + i));
     }
 
-    if (dev->model->adc_id == AdcId::CANONLIDE120) {
+    if (dev->model->adc_id == AdcId::CANON_LIDE_120) {
         sanei_genesys_fe_write_data(dev, 0x00, 0x01);
     }
   else
@@ -551,10 +551,10 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     {
       switch(dev->model->motor_id)
         {
-          case MotorId::CANONLIDE110:
+          case MotorId::CANON_LIDE_110:
 	    min_speed = 600;
             break;
-          case MotorId::CANONLIDE120:
+          case MotorId::CANON_LIDE_120:
             min_speed = 900;
             break;
           default:
@@ -811,7 +811,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   r->value &= ~REG01_SCAN;
 
   r = sanei_genesys_get_address (reg, REG03);
-    if ((dev->model->sensor_id != SensorId::CIS_CANONLIDE120) && (session.params.xres>=600)) {
+    if ((dev->model->sensor_id != SensorId::CIS_CANON_LIDE_120) && (session.params.xres>=600)) {
       r->value &= ~REG03_AVEENB;
       DBG (DBG_io, "%s: disabling AVEENB\n", __func__);
     }
@@ -1194,7 +1194,7 @@ static void gl124_setup_scan_gpio(Genesys_Device* dev, int resolution)
     uint8_t val = dev->read_register(REG32);
 
   /* LiDE 110, 210 and 220 cases */
-    if(dev->model->gpio_id != GpioId::CANONLIDE120) {
+    if(dev->model->gpio_id != GpioId::CANON_LIDE_120) {
       if(resolution>=dev->motor.base_ydpi/2)
 	{
 	  val &= 0xf7;
@@ -2624,8 +2624,8 @@ void CommandSetGl124::update_hardware_sensors(Genesys_Scanner* s) const
    * add another per scanner button profile struct to avoid growing
    * hard-coded button mapping here.
    */
-    if ((s->dev->model->gpio_id == GpioId::CANONLIDE110) ||
-        (s->dev->model->gpio_id == GpioId::CANONLIDE120))
+    if ((s->dev->model->gpio_id == GpioId::CANON_LIDE_110) ||
+        (s->dev->model->gpio_id == GpioId::CANON_LIDE_120))
     {
         s->buttons[BUTTON_SCAN_SW].write((val & 0x01) == 0);
         s->buttons[BUTTON_FILE_SW].write((val & 0x08) == 0);

@@ -851,7 +851,7 @@ Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession&
     ImagePipelineStack pipeline;
     pipeline.push_first_node<ImagePipelineNodeImageSource>(image);
 
-    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I && session.params.depth == 16) {
+    if ((dev->model->flags & GENESYS_FLAG_16BIT_DATA_INVERTED) && session.params.depth == 16) {
         dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
     }
 
@@ -1715,7 +1715,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                                                         "_0_before_swap.pnm");
     }
 
-    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I && depth == 16) {
+    if ((dev->model->flags & GENESYS_FLAG_16BIT_DATA_INVERTED) && depth == 16) {
         dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
     }
 

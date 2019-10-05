@@ -1668,7 +1668,7 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
     dev->cmd_set->end_scan(dev, &dev->calib_reg, SANE_TRUE);
 
-    if (dev->model->model_id == MODEL_PLUSTEK_OPTICFILM_7200I) {
+    if (dev->model->flags & GENESYS_FLAG_16BIT_DATA_INVERTED) {
         for (std::size_t i = 0; i < size / 2; ++i) {
             auto value = calibration_data[i];
             value = ((value >> 8) & 0xff) | ((value << 8) & 0xff00);

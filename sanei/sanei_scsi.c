@@ -615,7 +615,7 @@ open_aspi (void)
   DBG (1, "OS/2: unique id is    '%s'\n", PSRBlock->u.inq.unique_id);
 
   strcpy (tmpAspi, "asXXXXXX");
-  mktemp (tmpAspi);
+  mkstemp (tmpAspi);
   DBG (2, "open_aspi: open temporary file '%s'\n", tmpAspi);
   tmp = fopen (tmpAspi, "w");
   if (!tmp)
@@ -3271,8 +3271,8 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     ccb = cam_getccb (dev);
 
     /* Build the CCB */
-    bzero (&(&ccb->ccb_h)[1], sizeof (struct ccb_scsiio));
-    bcopy (cmd, &ccb->csio.cdb_io.cdb_bytes, cmd_size);
+    memset (&(&ccb->ccb_h)[1], 0, sizeof (struct ccb_scsiio));
+    memcpy (&ccb->csio.cdb_io.cdb_bytes, cmd, cmd_size);
 
     /*
      * Set the data direction flags.
@@ -3368,7 +3368,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     int retval = 0;
 
     /* build ccb for device match */
-    bzero (&cdm, sizeof (cdm));
+    memset (&cdm, 0, sizeof (cdm));
     cdm.ccb_h.func_code = XPT_DEV_MATCH;
 
     /* result buffer */
@@ -3454,7 +3454,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
       }
 
     /* build ccb for device match */
-    bzero (&cdm, sizeof (cdm));
+    memset (&cdm, 0, sizeof (cdm));
     cdm.ccb_h.func_code = XPT_DEV_MATCH;
 
     /* result buffer */
@@ -4449,7 +4449,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	memcpy (databuf, (u_char *) src, src_size);
       }
 
-    bzero (sensebuf, 128);
+    memset (sensebuf, 0, 128);
 
     /*
      * Do SCSI request...
@@ -5358,7 +5358,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     memcpy (&cdb.cdb, cmd, cmd_size);
     if (dst && dst_size)
       {
-	bzero (dst, *dst_size);
+	memset (dst, 0, *dst_size);
 	range.address = (IOVirtualAddress) dst;
 	range.length = *dst_size;
 	transferCount = *dst_size;
@@ -5699,7 +5699,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	DBG (6, "isRead dst_size:%ld\n", *dst_size);
 
 	/* Zero the buffer. */
-	bzero (dst, *dst_size);
+	memset (dst, 0, *dst_size);
 
 	/* Configure the virtual range for the buffer. */
 	range.address = (long) dst;
@@ -5722,8 +5722,8 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
 
     /* zero the senseData and CDB */
-    bzero (&senseData, sizeof (senseData));
-    bzero (cdb, sizeof (cdb));
+    memset (&senseData, 0, sizeof (senseData));
+    memset (cdb, 0, sizeof (cdb));
 
     /* copy the command data */
     memcpy (cdb, cmd, cmd_size);

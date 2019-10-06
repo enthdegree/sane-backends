@@ -1049,7 +1049,7 @@ static SANE_Byte *cfg_motor_resource_get(SANE_Byte *size)
 
 	if (rst != NULL)
 	{
-		bzero(rst, sizeof(SANE_Byte) * 32);
+		memset(rst, 0, sizeof(SANE_Byte) * 32);
 
 		switch(RTS_Debug->dev_model)
 		{

@@ -7921,7 +7921,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
        However, I was told Cygwin (et al.) takes care of it. */
     strncpy(s->duplex_rear_fname, "/tmp/avision-rear-XXXXXX", PATH_MAX);
 
-    if (! mktemp(s->duplex_rear_fname) ) {
+    if (! mkstemp(s->duplex_rear_fname) ) {
       DBG (1, "sane_open: failed to generate temporary fname for duplex scans\n");
       return SANE_STATUS_NO_MEM;
     }

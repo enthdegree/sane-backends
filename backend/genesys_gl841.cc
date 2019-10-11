@@ -3916,6 +3916,9 @@ void CommandSetGl841::init(Genesys_Device* dev) const
     // Set analog frontend
     dev->cmd_set->set_fe(dev, sensor, AFE_INIT);
 
+    // FIXME: slow_back_home modifies dev->calib_reg and requires it to be filled
+    dev->calib_reg = dev->reg;
+
     // Move home
     dev->cmd_set->slow_back_home(dev, SANE_TRUE);
 

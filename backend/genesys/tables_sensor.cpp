@@ -3394,6 +3394,162 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
+    sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7300;
+    sensor.optical_res = 7200;
+    sensor.method = ScanMethod::TRANSPARENCY;
+    sensor.register_dpihw_override = 1200;
+    sensor.black_pixels = 88; // TODO
+    sensor.dummy_pixel = 20;
+    sensor.ccd_start_xoffset = 0;
+    sensor.sensor_pixels = 10200; // TODO
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 230;
+    sensor.exposure = { 0x0000, 0x0000, 0x0000 };
+    sensor.exposure_lperiod = 0x2f44;
+    sensor.custom_regs = {
+        { 0x08, 0x00 },
+        { 0x09, 0x00 },
+        { 0x0a, 0x00 },
+        { 0x16, 0x27 },
+        { 0x17, 0x0c },
+        { 0x18, 0x10 },
+        { 0x19, 0x2a },
+        { 0x1a, 0x00 },
+        { 0x1b, 0x00 },
+        { 0x1c, 0x20 },
+        { 0x1d, 0x84 },
+        { 0x52, 0x0a },
+        { 0x53, 0x0d },
+        { 0x54, 0x0f },
+        { 0x55, 0x01 },
+        { 0x56, 0x04 },
+        { 0x57, 0x07 },
+        { 0x58, 0x31 },
+        { 0x59, 0x79 },
+        { 0x5a, 0xc0 },
+        { 0x70, 0x0c },
+        { 0x71, 0x0d },
+        { 0x72, 0x0e },
+        { 0x73, 0x0f },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x00 },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
+    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
+    {
+        struct CustomSensorSettings
+        {
+            ResolutionFilter resolutions;
+            unsigned ccd_size_divisor;
+            unsigned logical_dpihw_override;
+            unsigned pixel_count_multiplier;
+            unsigned dpiset_override;
+        };
+
+        CustomSensorSettings custom_settings[] = {
+            { { 900 }, 1, 900, 8, 150 },
+            { { 1800 }, 1, 1800, 4, 300 },
+            { { 3600 }, 1, 3600, 2, 600 },
+            { { 7200 }, 1, 7200, 1, 1200 },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.ccd_size_divisor = setting.ccd_size_divisor;
+            sensor.logical_dpihw_override = setting.logical_dpihw_override;
+            sensor.pixel_count_multiplier = setting.pixel_count_multiplier;
+            sensor.dpiset_override = setting.dpiset_override;
+            s_sensors->push_back(sensor);
+        }
+    }
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7500I;
+    sensor.optical_res = 7200;
+    sensor.register_dpihw_override = 1200;
+    sensor.black_pixels = 88; // TODO
+    sensor.dummy_pixel = 20;
+    sensor.ccd_start_xoffset = 0;
+    sensor.sensor_pixels = 10200; // TODO
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 230;
+    sensor.exposure = { 0x0000, 0x0000, 0x0000 };
+    sensor.custom_regs = {
+        { 0x08, 0x00 },
+        { 0x09, 0x00 },
+        { 0x0a, 0x00 },
+        { 0x16, 0x27 },
+        { 0x17, 0x0c },
+        { 0x18, 0x10 },
+        { 0x19, 0x2a },
+        { 0x1a, 0x00 },
+        { 0x1b, 0x00 },
+        { 0x1c, 0x20 },
+        { 0x1d, 0x84 },
+        { 0x52, 0x0a },
+        { 0x53, 0x0d },
+        { 0x54, 0x0f },
+        { 0x55, 0x01 },
+        { 0x56, 0x04 },
+        { 0x57, 0x07 },
+        { 0x58, 0x31 },
+        { 0x59, 0x79 },
+        { 0x5a, 0xc0 },
+        { 0x70, 0x0c },
+        { 0x71, 0x0d },
+        { 0x72, 0x0e },
+        { 0x73, 0x0f },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x00 },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
+    };
+    sensor.gamma = {1.0, 1.0, 1.0};
+    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
+    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
+    {
+        struct CustomSensorSettings
+        {
+            ResolutionFilter resolutions;
+            ScanMethod method;
+            unsigned ccd_size_divisor;
+            unsigned logical_dpihw_override;
+            unsigned pixel_count_multiplier;
+            unsigned exposure_lperiod;
+            unsigned dpiset_override;
+        };
+
+        CustomSensorSettings custom_settings[] = {
+            { { 900 }, ScanMethod::TRANSPARENCY, 1, 900, 8, 0x2f44, 150 },
+            { { 1800 }, ScanMethod::TRANSPARENCY, 1, 1800, 4, 0x2f44, 300 },
+            { { 3600 }, ScanMethod::TRANSPARENCY, 1, 3600, 2, 0x2f44, 600 },
+            { { 7200 }, ScanMethod::TRANSPARENCY, 1, 7200, 1, 0x2f44, 1200 },
+            { { 900 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 900, 8, 0x2af8, 150 },
+            { { 1800 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 1800, 4, 0x2af8, 300 },
+            { { 3600 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 3600, 2, 0x2af8, 600 },
+            { { 7200 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 7200, 1, 0x2af8, 1200 },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.method = setting.method;
+            sensor.ccd_size_divisor = setting.ccd_size_divisor;
+            sensor.logical_dpihw_override = setting.logical_dpihw_override;
+            sensor.pixel_count_multiplier = setting.pixel_count_multiplier;
+            sensor.exposure_lperiod = setting.exposure_lperiod;
+            sensor.dpiset_override = setting.dpiset_override;
+            s_sensors->push_back(sensor);
+        }
+    }
+
+
+    sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_IMG101;
     sensor.optical_res = 1200;
     sensor.black_pixels = 31;

@@ -450,7 +450,7 @@ private:
     std::size_t height_ = 0;
 
     std::size_t current_line_ = 0;
-    std::vector<uint8_t> cached_line_;
+    std::vector<std::uint8_t> cached_line_;
 };
 
 // A pipeline node that scales rows to the specified width by using a point filter
@@ -471,7 +471,7 @@ private:
     ImagePipelineNode& source_;
     std::size_t width_ = 0;
 
-    std::vector<uint8_t> cached_line_;
+    std::vector<std::uint8_t> cached_line_;
 };
 
 // A pipeline node that mimics the calibration behavior on Genesys chips

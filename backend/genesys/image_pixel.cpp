@@ -205,7 +205,7 @@ void set_pixel_to_row(std::uint8_t* data, std::size_t x, Pixel pixel, PixelForma
             float val = (pixel.r >> 8) * 0.3f;
             val += (pixel.g >> 8) * 0.59;
             val += (pixel.b >> 8) * 0.11;
-            data[x] = static_cast<uint16_t>(val);
+            data[x] = static_cast<std::uint16_t>(val);
             return;
         }
         case PixelFormat::I16: {

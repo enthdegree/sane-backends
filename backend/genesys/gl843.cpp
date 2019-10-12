@@ -50,14 +50,6 @@
 #include <string>
 #include <vector>
 
-/****************************************************************************
- Low level function
- ****************************************************************************/
-
-/* ------------------------------------------------------------------------ */
-/*                  Read and write RAM, registers and AFE                   */
-/* ------------------------------------------------------------------------ */
-
 // Set address for writing data
 static void gl843_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 {
@@ -94,28 +86,6 @@ static void write_data(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_
 
     // set back address to 0
     gl843_set_buffer_address(dev, 0);
-}
-
-/****************************************************************************
- Mid level functions
- ****************************************************************************/
-
-bool CommandSetGl843::get_fast_feed_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address (regs, REG02);
-    return (r && (r->value & REG02_FASTFED));
-}
-
-bool CommandSetGl843::get_filter_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address (regs, REG04);
-    return (r && (r->value & REG04_FILTER));
-}
-
-bool CommandSetGl843::get_lineart_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address (regs, REG04);
-    return (r && (r->value & REG04_LINEART));
 }
 
 bool CommandSetGl843::get_bitset_bit(Genesys_Register_Set* regs) const
@@ -159,11 +129,6 @@ gl843_get_step_multiplier (Genesys_Register_Set * regs)
 bool CommandSetGl843::test_buffer_empty_bit(SANE_Byte val) const
 {
     return (val & REG41_BUFEMPTY);
-}
-
-bool CommandSetGl843::test_motor_flag_bit(SANE_Byte val) const
-{
-    return (val & REG41_MOTORENB);
 }
 
 /** copy sensor specific settings */
@@ -1356,7 +1321,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   dev->total_bytes_read = 0;
     dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
 
-  DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
+    DBG(DBG_info, "%s: total bytes to send = %zu\n", __func__, dev->total_bytes_to_read);
 }
 
 void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
@@ -2864,7 +2829,8 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   if (DBG_LEVEL >= DBG_data)
     {
       sanei_genesys_write_file("gl843_offset_all_desc.txt",
-                               (uint8_t*) debug_image_info.data(), debug_image_info.size());
+                               reinterpret_cast<const std::uint8_t*>(debug_image_info.data()),
+                               debug_image_info.size());
       sanei_genesys_write_pnm_file("gl843_offset_all.pnm",
                                    debug_image.data(), bpp, channels, pixels, debug_image_lines);
     }
@@ -2997,7 +2963,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
       dev->frontend.set_gain(ch, code);
 
         DBG(DBG_proc, "%s: channel %d, max=%d, target=%d, setting:%d\n", __func__, ch, curr_output,
-            (int) target_value, code);
+            static_cast<int>(target_value), code);
     }
 
     if (dev->model->is_cis) {
@@ -3334,7 +3300,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     {
       char fn[40];
       snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
-               black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
+               black ? "black" : "white", forward ? "fwd" : "bwd", pass);
         sanei_genesys_write_pnm_file(fn, data);
     }
 
@@ -3357,8 +3323,8 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
       if (DBG_LEVEL >= DBG_data)
 	{
           char fn[40];
-          snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
-                   black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
+            std::snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
+                          black ? "black" : "white", forward ? "fwd" : "bwd", pass);
             sanei_genesys_write_pnm_file(fn, data);
 	}
 

@@ -84,7 +84,7 @@ void sanei_genesys_init_cmd_set(Genesys_Device* dev)
 /*                  General IO and debugging functions                      */
 /* ------------------------------------------------------------------------ */
 
-void sanei_genesys_write_file(const char* filename, uint8_t* data, size_t length)
+void sanei_genesys_write_file(const char* filename, const std::uint8_t* data, size_t length)
 {
     DBG_HELPER(dbg);
     FILE *out;
@@ -286,9 +286,9 @@ void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* d
     }
 
     if (is_addr_used) {
-        DBG(DBG_io, "%s: requesting %lu bytes from 0x%02x addr\n", __func__, (u_long) len, addr);
+        DBG(DBG_io, "%s: requesting %zu bytes from 0x%02x addr\n", __func__, len, addr);
     } else {
-        DBG(DBG_io, "%s: requesting %lu bytes\n", __func__, (u_long) len);
+        DBG(DBG_io, "%s: requesting %zu bytes\n", __func__, len);
     }
 
     if (len == 0)
@@ -320,12 +320,11 @@ void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* d
             sanei_genesys_bulk_read_data_send_header(dev, size);
         }
 
-        DBG(DBG_io2, "%s: trying to read %lu bytes of data\n", __func__, (u_long) size);
+        DBG(DBG_io2, "%s: trying to read %zu bytes of data\n", __func__, size);
 
         dev->usb_dev.bulk_read(data, &size);
 
-        DBG(DBG_io2, "%s: read %lu bytes, %lu remaining\n", __func__,
-            (u_long) size, (u_long) (target - size));
+        DBG(DBG_io2, "%s: read %zu bytes, %zu remaining\n", __func__, size, target - size);
 
         target -= size;
         data += size;
@@ -338,7 +337,7 @@ void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* d
 
 void sanei_genesys_bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data, size_t len)
 {
-    DBG_HELPER_ARGS(dbg, "writing %lu bytes", (u_long) len);
+    DBG_HELPER_ARGS(dbg, "writing %zu bytes", len);
 
     // supported: GL646, GL841, GL843
     size_t size;
@@ -379,8 +378,7 @@ void sanei_genesys_bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* d
 
         dev->usb_dev.bulk_write(data, &size);
 
-        DBG(DBG_io2, "%s: wrote %lu bytes, %lu remaining\n", __func__, (u_long) size,
-            (u_long) (len - size));
+        DBG(DBG_io2, "%s: wrote %zu bytes, %zu remaining\n", __func__, size, len - size);
 
         len -= size;
         data += size;
@@ -550,7 +548,7 @@ void sanei_genesys_read_register(Genesys_Device* dev, uint16_t reg, uint8_t* val
     }
 
   /* 8 bit register address space */
-    reg8=(SANE_Byte)(reg& 0Xff);
+    reg8 = reg & 0Xff;
 
     dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
                              1, &reg8);
@@ -831,7 +829,7 @@ void wait_until_has_valid_words(Genesys_Device* dev)
 // Read data (e.g scanned image) from scan buffer
 void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, size_t size)
 {
-    DBG_HELPER_ARGS(dbg, "size = %lu bytes", (u_long) size);
+    DBG_HELPER_ARGS(dbg, "size = %zu bytes", size);
 
   if (size & 1)
     DBG(DBG_info, "WARNING %s: odd number of bytes\n", __func__);
@@ -1003,8 +1001,7 @@ void sanei_genesys_bulk_write_register(Genesys_Device* dev, const Genesys_Regist
             buffer.push_back(r.value);
         }
 
-        DBG(DBG_io, "%s (elems= %lu, size = %lu)\n", __func__, (u_long) reg.size(),
-            (u_long) buffer.size());
+        DBG(DBG_io, "%s (elems= %zu, size = %zu)\n", __func__, reg.size(), buffer.size());
 
         if (dev->model->asic_type == AsicType::GL646) {
             outdata[0] = BULK_OUT;
@@ -1040,7 +1037,7 @@ void sanei_genesys_bulk_write_register(Genesys_Device* dev, const Genesys_Regist
         }
     }
 
-    DBG (DBG_io, "%s: wrote %lu registers\n", __func__, (u_long) reg.size());
+    DBG (DBG_io, "%s: wrote %zu registers\n", __func__, reg.size());
 }
 
 
@@ -1142,7 +1139,7 @@ void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
   if(dev->settings.contrast!=0 || dev->settings.brightness!=0)
     {
       std::vector<uint16_t> lut(65536);
-      sanei_genesys_load_lut((unsigned char *)lut.data(),
+      sanei_genesys_load_lut(reinterpret_cast<unsigned char *>(lut.data()),
                              bits,
                              bits,
                              0,
@@ -1525,7 +1522,7 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
             // for HP3670, stagger happens only at >=1200 dpi
             if ((dev->model->motor_id != MotorId::HP3670 &&
                  dev->model->motor_id != MotorId::HP2400) ||
-                s.params.yres >= (unsigned) sensor.optical_res)
+                s.params.yres >= static_cast<unsigned>(sensor.optical_res))
             {
                 s.num_staggered_lines = (4 * s.params.yres) / dev->motor.base_ydpi;
             }
@@ -2287,7 +2284,7 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
   /* a calibration cache is compatible if color mode and x dpi match the user
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
     if (!dev->model->is_cis) {
-        compatible = (dev->settings.xres == ((int) cache->used_setup.xres));
+        compatible = (dev->settings.xres == static_cast<int>(cache->used_setup.xres));
     }
   else
     {
@@ -2417,7 +2414,7 @@ void sanei_genesys_load_lut(unsigned char* lut,
   int max_in_val = (1 << in_bits) - 1;
   int max_out_val = (1 << out_bits) - 1;
   uint8_t *lut_p8 = lut;
-  uint16_t *lut_p16 = (uint16_t *) lut;
+    uint16_t* lut_p16 = reinterpret_cast<std::uint16_t*>(lut);
 
   /* slope is converted to rise per unit run:
    * first [-127,127] to [-.999,.999]
@@ -2425,16 +2422,16 @@ void sanei_genesys_load_lut(unsigned char* lut,
    * then take the tangent (T.O.A)
    * then multiply by the normal linear slope
    * because the table may not be square, i.e. 1024x256*/
-  rise = tan ((double) slope / 128 * M_PI_4 + M_PI_4) * max_out_val / max_in_val;
+    rise = std::tan(static_cast<double>(slope) / 128 * M_PI_4 + M_PI_4) * max_out_val / max_in_val;
 
   /* line must stay vertically centered, so figure
    * out vertical offset at central input value */
-  shift = (double) max_out_val / 2 - (rise * max_in_val / 2);
+    shift = static_cast<double>(max_out_val) / 2 - (rise * max_in_val / 2);
 
   /* convert the user offset setting to scale of output
    * first [-127,127] to [-1,1]
    * then to [-max_out_val/2,max_out_val/2]*/
-  shift += (double) offset / 127 * max_out_val / 2;
+    shift += static_cast<double>(offset) / 127 * max_out_val / 2;
 
   for (i = 0; i <= max_in_val; i++)
     {

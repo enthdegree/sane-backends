@@ -93,24 +93,6 @@ void CommandSetGl646::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t*
     }
 }
 
-bool CommandSetGl646::get_fast_feed_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x02);
-    return (r && (r->value & REG02_FASTFED));
-}
-
-bool CommandSetGl646::get_filter_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
-    return (r && (r->value & REG04_FILTER));
-}
-
-bool CommandSetGl646::get_lineart_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
-    return (r && (r->value & REG04_LINEART));
-}
-
 bool CommandSetGl646::get_bitset_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
@@ -126,11 +108,6 @@ bool CommandSetGl646::get_gain4_bit(Genesys_Register_Set* regs) const
 bool CommandSetGl646::test_buffer_empty_bit(SANE_Byte val) const
 {
     return (val & REG41_BUFEMPTY);
-}
-
-bool CommandSetGl646::test_motor_flag_bit(SANE_Byte val) const
-{
-    return (val & REG41_MOTMFLG);
 }
 
 /**
@@ -1227,10 +1204,9 @@ void CommandSetGl646::set_powersaving(Genesys_Device* dev, int delay /* in minut
     local_reg.find_reg(0x03).value = (local_reg.get8(0x03) & 0xf0) | 0x0f;	/* enable lampdog and set lamptime = 7 */
 
   time = delay * 1000 * 60;	/* -> msec */
-  exposure_time =
-    (uint32_t) (time * 32000.0 /
+    exposure_time = static_cast<std::uint32_t>((time * 32000.0 /
                 (24.0 * 64.0 * (local_reg.get8(0x03) & REG03_LAMPTIM) *
-		 1024.0) + 0.5);
+         1024.0) + 0.5));
   /* 32000 = system clock, 24 = clocks per pixel */
   rate = (exposure_time + 65536) / 65536;
   if (rate > 4)
@@ -1415,8 +1391,8 @@ void CommandSetGl646::detect_document_end(Genesys_Device* dev) const
        * total_bytes_read is the number of bytes sent to frontend
        * read_bytes_left is the number of bytes to read from the scanner
        */
-      DBG(DBG_io, "%s: total_bytes_to_read=%lu\n", __func__, (u_long) dev->total_bytes_to_read);
-      DBG(DBG_io, "%s: total_bytes_read   =%lu\n", __func__, (u_long) dev->total_bytes_read);
+      DBG(DBG_io, "%s: total_bytes_to_read=%zu\n", __func__, dev->total_bytes_to_read);
+      DBG(DBG_io, "%s: total_bytes_read   =%zu\n", __func__, dev->total_bytes_read);
 
         // amount of data available from scanner is what to scan
         sanei_genesys_read_valid_words(dev, &bytes_left);
@@ -1435,8 +1411,8 @@ void CommandSetGl646::detect_document_end(Genesys_Device* dev) const
             dev->get_pipeline_source().set_remaining_bytes(bytes_left);
             dev->total_bytes_to_read = dev->total_bytes_read + bytes_left;
         }
-      DBG(DBG_io, "%s: total_bytes_to_read=%lu\n", __func__, (u_long) dev->total_bytes_to_read);
-      DBG(DBG_io, "%s: total_bytes_read   =%lu\n", __func__, (u_long) dev->total_bytes_read);
+      DBG(DBG_io, "%s: total_bytes_to_read=%zu\n", __func__, dev->total_bytes_to_read);
+      DBG(DBG_io, "%s: total_bytes_read   =%zu\n", __func__, dev->total_bytes_read);
     }
 }
 
@@ -2386,7 +2362,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       if (DBG_LEVEL >= DBG_data)
 	{
           char title[30];
-          snprintf(title, 30, "gl646_offset%03d.pnm", (int)bottom);
+          std::snprintf(title, 30, "gl646_offset%03d.pnm", static_cast<int>(bottom));
           sanei_genesys_write_pnm_file (title, line.data(), 8, channels,
 					settings.pixels, settings.lines);
 	}
@@ -2624,7 +2600,7 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
 	{
-          sprintf (title, "gl646_alternative_gain%02d.pnm", (int)pass);
+          sprintf (title, "gl646_alternative_gain%02d.pnm", pass);
           sanei_genesys_write_pnm_file(title, line.data(), 8, channels, settings.pixels,
                                        settings.lines);
 	}
@@ -2757,7 +2733,7 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
 	{
-          sprintf (title, "gl646_gain%02d.pnm", (int)pass);
+          std::sprintf(title, "gl646_gain%02d.pnm", pass);
           sanei_genesys_write_pnm_file(title, line.data(), 8, channels, settings.pixels,
                                        settings.lines);
 	}
@@ -3444,8 +3420,8 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
     {
         case MotorId::XP200:
       /* we put scan's dpi, not motor one */
-      control[0] = LOBYTE (resolution);
-      control[1] = HIBYTE (resolution);
+            control[0] = resolution & 0xff;
+            control[1] = (resolution >> 8) & 0xff;
       control[2] = dev->control[4];
       control[3] = dev->control[5];
       break;
@@ -3503,7 +3479,8 @@ bool CommandSetGl646::is_compatible_calibration(Genesys_Device* dev, const Genes
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
     if (!dev->model->is_cis) {
         compatible = (dev->session.params.channels == cache->params.channels) &&
-                      (((int) dev->current_setup.xres) == ((int) cache->used_setup.xres));
+                     (static_cast<int>(dev->current_setup.xres) ==
+                          static_cast<int>(cache->used_setup.xres));
     } else {
         compatible = dev->session.params.channels == cache->params.channels;
     }
@@ -3592,8 +3569,7 @@ void CommandSetGl646::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
 
       if (DBG_LEVEL >= DBG_data)
 	{
-          sprintf (title, "gl646_search_strip_%s%02d.pnm", forward ? "fwd" : "bwd",
-		   (int)pass);
+            std::sprintf(title, "gl646_search_strip_%s%02d.pnm", forward ? "fwd" : "bwd", pass);
           sanei_genesys_write_pnm_file (title, data.data(), settings.depth, 1,
 					settings.pixels, settings.lines);
 	}

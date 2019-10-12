@@ -49,28 +49,6 @@
 
 #include <vector>
 
-/****************************************************************************
- Mid level functions
- ****************************************************************************/
-
-bool CommandSetGl847::get_fast_feed_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, REG02);
-    return (r && (r->value & REG02_FASTFED));
-}
-
-bool CommandSetGl847::get_filter_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
-    return (r && (r->value & REG04_FILTER));
-}
-
-bool CommandSetGl847::get_lineart_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
-    return (r && (r->value & REG04_LINEART));
-}
-
 bool CommandSetGl847::get_bitset_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, REG04);
@@ -86,11 +64,6 @@ bool CommandSetGl847::get_gain4_bit(Genesys_Register_Set* regs) const
 bool CommandSetGl847::test_buffer_empty_bit(SANE_Byte val) const
 {
     return (val & REG41_BUFEMPTY);
-}
-
-bool CommandSetGl847::test_motor_flag_bit(SANE_Byte val) const
-{
-    return (val & REG41_MOTORENB);
 }
 
 /**
@@ -881,8 +854,7 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->total_bytes_read = 0;
     dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
 
-  DBG(DBG_info, "%s: total bytes to send = %lu\n", __func__, (u_long) dev->total_bytes_to_read);
-/* END TODO */
+    DBG(DBG_info, "%s: total bytes to send = %zu\n", __func__, dev->total_bytes_to_read);
 }
 
 void CommandSetGl847::calculate_current_setup(Genesys_Device * dev,
@@ -1432,8 +1404,8 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   if(dev->calib_resolution==4800)
     dev->calib_lines *= 2;
   dev->calib_pixels = (sensor.sensor_pixels*dev->calib_resolution)/sensor.optical_res;
-  DBG(DBG_io, "%s: calib_lines  = %d\n", __func__, (int)dev->calib_lines);
-  DBG(DBG_io, "%s: calib_pixels = %d\n", __func__, (int)dev->calib_pixels);
+    DBG(DBG_io, "%s: calib_lines  = %zu\n", __func__, dev->calib_lines);
+    DBG(DBG_io, "%s: calib_pixels = %zu\n", __func__, dev->calib_pixels);
 
   /* this is aworkaround insufficent distance for slope
    * motor acceleration TODO special motor slope for shading  */
@@ -1577,7 +1549,7 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
      write(0x1003e000,0x00000dd8)
      write(0x10068000,0x00000dd8)
    */
-  length = (uint32_t) (size / 3);
+    length = static_cast<std::uint32_t>(size / 3);
     std::uint32_t strpixel = dev->session.pixel_startx;
     std::uint32_t endpixel = dev->session.pixel_endx;
 
@@ -1589,7 +1561,7 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 
   if(DBG_LEVEL>=DBG_data)
     {
-      dev->binary=fopen("binary.pnm","wb");
+        dev->binary = std::fopen("binary.pnm", "wb");
         lines = dev->reg.get24(REG_LINCNT);
         unsigned channels = dev->session.params.channels;
         if (dev->binary != nullptr) {
@@ -2084,8 +2056,8 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   pass = 0;
   if (DBG_LEVEL >= DBG_data)
     {
-      sprintf(title, "gl847_search_strip_%s_%s%02d.pnm",
-              black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
+        std::sprintf(title, "gl847_search_strip_%s_%s%02d.pnm",
+                     black ? "black" : "white", forward ? "fwd" : "bwd", pass);
       sanei_genesys_write_pnm_file(title, data.data(), depth, channels, pixels, lines);
     }
 
@@ -2479,7 +2451,7 @@ void CommandSetGl847::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 	}
       max[j] = max[j] / (pixels/2);
 
-      gain[j] = ((float) sensor.gain_white_ref*coeff) / max[j];
+      gain[j] = (static_cast<float>(sensor.gain_white_ref) * coeff) / max[j];
 
       /* turn logical gain value into gain code, checking for overflow */
       code = 283 - 208 / gain[j];

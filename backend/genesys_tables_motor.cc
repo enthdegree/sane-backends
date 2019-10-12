@@ -668,7 +668,7 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::CANON_LIDE_80;
     motor.base_ydpi = 2400;
-    motor.optical_ydpi = 4800, // 9600
+    motor.optical_ydpi = 4800; // 9600
     motor.max_step_type = 1;
 
     slope = Genesys_Motor_Slope();

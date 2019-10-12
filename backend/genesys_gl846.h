@@ -129,13 +129,13 @@ static Memory_layout layouts[]={
           }
 	},
         /* list terminating entry */
-        { NULL, 0, 0, 0, 0, {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} }
+        { nullptr, 0, 0, 0, 0, {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} }
 };
 
 class CommandSetGl846 : public CommandSet
 {
 public:
-    ~CommandSetGl846() = default;
+    ~CommandSetGl846() override = default;
 
     bool needs_home_before_init_regs_for_scan(Genesys_Device* dev) const override;
 

@@ -99,8 +99,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::BGR;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_UMAX;
     model.adc_id = AdcId::WOLFSON_UMAX;
     model.gpio_id = GpioId::UMAX;
@@ -151,8 +151,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = true;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CIS_CANON_LIDE_35;
     model.adc_id = AdcId::CANON_LIDE_35;
     model.gpio_id = GpioId::CANON_LIDE_35;
@@ -209,8 +209,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_KVSS080;
     model.adc_id = AdcId::KVSS080;
     model.gpio_id = GpioId::KVSS080;
@@ -263,8 +263,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_G4050;
     model.adc_id = AdcId::G4050;
     model.gpio_id = GpioId::G4050;
@@ -317,8 +317,8 @@ void genesys_init_usb_device_tables()
     model.ld_shift_b = 48;
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_G4050;
     model.adc_id = AdcId::G4050;
     model.gpio_id = GpioId::G4050;
@@ -373,8 +373,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_G4050;
     model.adc_id = AdcId::G4050;
     model.gpio_id = GpioId::G4050;
@@ -429,8 +429,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_CANON_4400F;
     model.adc_id = AdcId::G4050;
     model.gpio_id = GpioId::CANON_4400F;
@@ -487,8 +487,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_CANON_8400F;
     model.adc_id = AdcId::CANON_8400F;
     model.gpio_id = GpioId::CANON_8400F;
@@ -547,8 +547,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_CANON_8600F;
     model.adc_id = AdcId::CANON_8600F;
     model.gpio_id = GpioId::CANON_8600F;
@@ -607,8 +607,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = true;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CIS_CANON_LIDE_100;
     model.adc_id = AdcId::CANON_LIDE_200;
     model.gpio_id = GpioId::CANON_LIDE_200;
@@ -666,8 +666,8 @@ void genesys_init_usb_device_tables()
     model.ld_shift_b = 0;
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = true;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CIS_CANON_LIDE_110;
     model.adc_id = AdcId::CANON_LIDE_110;
     model.gpio_id = GpioId::CANON_LIDE_110;
@@ -723,8 +723,8 @@ void genesys_init_usb_device_tables()
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
     model.line_mode_color_order = ColorOrder::RGB;
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = true;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CIS_CANON_LIDE_120;
     model.adc_id = AdcId::CANON_LIDE_120;
     model.gpio_id = GpioId::CANON_LIDE_120;
@@ -782,8 +782,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = true;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CIS_CANON_LIDE_210;
     model.adc_id = AdcId::CANON_LIDE_110;
     model.gpio_id = GpioId::CANON_LIDE_210;
@@ -841,8 +841,8 @@ void genesys_init_usb_device_tables()
     model.ld_shift_b = 0;
 
     model.line_mode_color_order = ColorOrder::RGB;
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = true;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CIS_CANON_LIDE_220;
     model.adc_id = AdcId::CANON_LIDE_110;
     model.gpio_id = GpioId::CANON_LIDE_210;
@@ -901,8 +901,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = true;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CIS_CANON_LIDE_200;
     model.adc_id = AdcId::CANON_LIDE_200;
     model.gpio_id = GpioId::CANON_LIDE_200;
@@ -960,8 +960,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = true;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CIS_CANON_LIDE_700F;
     model.adc_id = AdcId::CANON_LIDE_700F;
     model.gpio_id = GpioId::CANON_LIDE_700F;
@@ -1019,8 +1019,8 @@ void genesys_init_usb_device_tables()
     model.ld_shift_b = 0;
 
     model.line_mode_color_order = ColorOrder::RGB;
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = true;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CIS_CANON_LIDE_200;
     model.adc_id = AdcId::CANON_LIDE_200;
     model.gpio_id = GpioId::CANON_LIDE_200;
@@ -1078,8 +1078,8 @@ void genesys_init_usb_device_tables()
     model.ld_shift_b = 0;
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = true;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CIS_CANON_LIDE_35;
     model.adc_id = AdcId::CANON_LIDE_35;
     model.gpio_id = GpioId::CANON_LIDE_35;
@@ -1136,8 +1136,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = true;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CIS_CANON_LIDE_80;
     model.adc_id = AdcId::CANON_LIDE_80;
     model.gpio_id = GpioId::CANON_LIDE_80;
@@ -1196,8 +1196,8 @@ void genesys_init_usb_device_tables()
     model.ld_shift_b = 0;
 
     model.line_mode_color_order = ColorOrder::RGB;
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_HP2300;
     model.adc_id = AdcId::WOLFSON_HP2300;
     model.gpio_id = GpioId::HP2300;
@@ -1253,8 +1253,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_HP2400;
     model.adc_id = AdcId::WOLFSON_HP2400;
     model.gpio_id = GpioId::HP2400;
@@ -1310,8 +1310,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_TRUE;
+    model.is_cis = true;
+    model.is_sheetfed = true;
     model.sensor_id = SensorId::CIS_XP200;
     model.adc_id = AdcId::AD_XP200;
     model.gpio_id = GpioId::XP200;
@@ -1366,8 +1366,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_HP3670;
     model.adc_id = AdcId::WOLFSON_HP3670;
     model.gpio_id = GpioId::HP3670;
@@ -1423,14 +1423,14 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::BGR;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_ST12;
     model.adc_id = AdcId::WOLFSON_ST12;
     model.gpio_id = GpioId::ST12;
     model.motor_id = MotorId::UMAX;
     model.flags = GENESYS_FLAG_UNTESTED | GENESYS_FLAG_14BIT_GAMMA;
-    model.buttons = GENESYS_HAS_NO_BUTTONS,
+    model.buttons = GENESYS_HAS_NO_BUTTONS;
     model.shading_lines = 20;
     model.shading_ta_lines = 0;
     model.search_lines = 200;
@@ -1474,8 +1474,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::BGR;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_ST24;
     model.adc_id = AdcId::WOLFSON_ST24;
     model.gpio_id = GpioId::ST24;
@@ -1485,7 +1485,7 @@ void genesys_init_usb_device_tables()
                   GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_SEARCH_START |
                   GENESYS_FLAG_OFFSET_CALIBRATION;
-    model.buttons = GENESYS_HAS_NO_BUTTONS,
+    model.buttons = GENESYS_HAS_NO_BUTTONS;
     model.shading_lines = 20;
     model.shading_ta_lines = 0;
     model.search_lines = 200;
@@ -1528,8 +1528,8 @@ void genesys_init_usb_device_tables()
     model.ld_shift_b = 0;
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_5345;
     model.adc_id = AdcId::WOLFSON_5345;
     model.gpio_id = GpioId::MD_5345;
@@ -1589,8 +1589,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_TRUE;
+    model.is_cis = true;
+    model.is_sheetfed = true;
     model.sensor_id = SensorId::CCD_XP300;
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::XP300;
@@ -1643,8 +1643,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_TRUE;
+    model.is_cis = true;
+    model.is_sheetfed = true;
     model.sensor_id = SensorId::CCD_DP665;
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::DP665;
@@ -1697,8 +1697,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_TRUE;
+    model.is_cis = true;
+    model.is_sheetfed = true;
     model.sensor_id = SensorId::CCD_ROADWARRIOR;
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::DP665;
@@ -1751,8 +1751,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_TRUE;
+    model.is_cis = true;
+    model.is_sheetfed = true;
     model.sensor_id = SensorId::CCD_ROADWARRIOR;
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::DP665;
@@ -1806,8 +1806,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_TRUE;
+    model.is_cis = true;
+    model.is_sheetfed = true;
     model.sensor_id = SensorId::CCD_ROADWARRIOR;
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::DP665;
@@ -1860,8 +1860,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_TRUE;
+    model.is_cis = true;
+    model.is_sheetfed = true;
     model.sensor_id = SensorId::CCD_DSMOBILE600;
     model.adc_id = AdcId::WOLFSON_DSM600;
     model.gpio_id = GpioId::DP665;
@@ -1915,8 +1915,8 @@ void genesys_init_usb_device_tables()
     model.ld_shift_b = 0;
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_TRUE;
+    model.is_cis = true;
+    model.is_sheetfed = true;
     model.sensor_id = SensorId::CCD_DSMOBILE600;
     model.adc_id = AdcId::WOLFSON_DSM600;
     model.gpio_id = GpioId::DP665;
@@ -1969,8 +1969,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_TRUE;
+    model.is_cis = true;
+    model.is_sheetfed = true;
     model.sensor_id = SensorId::CCD_DP685;
     model.adc_id = AdcId::WOLFSON_DSM600;
     model.gpio_id = GpioId::DP685;
@@ -2025,8 +2025,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_TRUE;
+    model.is_cis = true;
+    model.is_sheetfed = true;
     model.sensor_id = SensorId::CCD_XP300;
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::XP300;
@@ -2080,8 +2080,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_TRUE;
+    model.is_cis = true;
+    model.is_sheetfed = true;
     model.sensor_id = SensorId::CCD_XP300;
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::XP300;
@@ -2135,8 +2135,8 @@ void genesys_init_usb_device_tables()
     model.ld_shift_b = 0;
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_5345;
     model.adc_id = AdcId::WOLFSON_5345;
     model.gpio_id = GpioId::MD_5345;
@@ -2195,8 +2195,8 @@ void genesys_init_usb_device_tables()
     model.ld_shift_b = 0;
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_5345;
     model.adc_id = AdcId::WOLFSON_5345;
     model.gpio_id = GpioId::MD_5345;
@@ -2256,8 +2256,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_TRUE;
-    model.is_sheetfed = SANE_TRUE;
+    model.is_cis = true;
+    model.is_sheetfed = true;
     model.sensor_id = SensorId::CCD_ROADWARRIOR;
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::DP665;
@@ -2310,8 +2310,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_PLUSTEK_OPTICPRO_3600;
     model.adc_id = AdcId::PLUSTEK_OPTICPRO_3600;
     model.gpio_id = GpioId::PLUSTEK_OPTICPRO_3600;
@@ -2427,12 +2427,12 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_HP_N6310;
     model.adc_id = AdcId::CANON_LIDE_200;        // Not defined yet for N6310
     model.gpio_id = GpioId::HP_N6310;
-    model.motor_id = MotorId::CANON_LIDE_200,    // Not defined yet for N6310
+    model.motor_id = MotorId::CANON_LIDE_200;    // Not defined yet for N6310
     model.flags = GENESYS_FLAG_UNTESTED |
                   GENESYS_FLAG_14BIT_GAMMA |
                   GENESYS_FLAG_DARK_CALIBRATION |
@@ -2486,8 +2486,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_PLUSTEK_OPTICBOOK_3800;
     model.adc_id = AdcId::PLUSTEK_OPTICBOOK_3800;
     model.gpio_id = GpioId::PLUSTEK_OPTICBOOK_3800;
@@ -2540,8 +2540,8 @@ void genesys_init_usb_device_tables()
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = SANE_FALSE;
-    model.is_sheetfed = SANE_FALSE;
+    model.is_cis = false;
+    model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_IMG101;
     model.adc_id = AdcId::IMG101;
     model.gpio_id = GpioId::IMG101;

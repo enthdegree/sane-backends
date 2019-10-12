@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.27git\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
-"POT-Creation-Date: 2019-07-23 12:14+0000\n"
+"POT-Creation-Date: 2019-10-12 17:41+0300\n"
 "PO-Revision-Date: 2018-09-16 22:30+0300\n"
 "Last-Translator: Elishai Shkury <e1907@mm.st>\n"
 "Language-Team: Hebrew\n"
@@ -28,31 +28,31 @@ msgid "Standard"
 msgstr "סטנדרט"
 
 #: include/sane/saneopts.h:157 backend/artec_eplus48u.c:2884
-#: backend/epson.c:3298 backend/epson2.c:1290 backend/genesys.cc:5294
-#: backend/gt68xx.c:696 backend/hp3500.c:1019 backend/hp-option.c:3300
-#: backend/kvs1025_opt.c:639 backend/kvs20xx_opt.c:285
-#: backend/kvs40xx_opt.c:506 backend/leo.c:823 backend/lexmark.c:199
-#: backend/ma1509.c:551 backend/matsushita.c:1135 backend/microtek2.h:599
-#: backend/mustek.c:4373 backend/mustek_usb.c:301 backend/mustek_usb2.c:465
-#: backend/pixma_sane_options.c:160 backend/plustek.c:808
-#: backend/plustek_pp.c:747 backend/sceptre.c:702
+#: backend/epson.c:3298 backend/epson2.c:1290
+#: backend/genesys/genesys.cpp:3976 backend/gt68xx.c:696
+#: backend/hp3500.c:1019 backend/hp-option.c:3300 backend/kvs1025_opt.c:639
+#: backend/kvs20xx_opt.c:285 backend/kvs40xx_opt.c:506 backend/leo.c:823
+#: backend/lexmark.c:199 backend/ma1509.c:551 backend/matsushita.c:1135
+#: backend/microtek2.h:599 backend/mustek.c:4373 backend/mustek_usb.c:301
+#: backend/mustek_usb2.c:465 backend/pixma_sane_options.c:160
+#: backend/plustek.c:808 backend/plustek_pp.c:747 backend/sceptre.c:702
 #: backend/snapscan-options.c:550 backend/teco1.c:1095 backend/teco2.c:1910
 #: backend/teco3.c:920 backend/test.c:647 backend/u12.c:546
-#: backend/umax.c:5176 backend/umax_pp.c:580
+#: backend/umax.c:5176 backend/umax_pp.c:576
 #, no-c-format
 msgid "Geometry"
 msgstr "גיאומטריה"
 
 #: include/sane/saneopts.h:158 backend/artec_eplus48u.c:2805
-#: backend/canon.c:1493 backend/genesys.cc:5354 backend/gt68xx.c:665
-#: backend/hp-option.c:2956 backend/kvs1025_opt.c:703 backend/leo.c:871
-#: backend/ma1509.c:599 backend/matsushita.c:1189 backend/microtek2.h:600
-#: backend/mustek.c:4421 backend/mustek_usb.c:349 backend/mustek_usb2.c:431
-#: backend/niash.c:754 backend/plustek.c:854 backend/plustek_pp.c:793
-#: backend/sceptre.c:750 backend/snapscan-options.c:617
-#: backend/stv680.c:1067 backend/teco1.c:1143 backend/teco2.c:1958
-#: backend/teco3.c:968 backend/u12.c:592 backend/umax.c:5226
-#: backend/umax_pp.c:629
+#: backend/canon.c:1493 backend/genesys/genesys.cpp:4035
+#: backend/gt68xx.c:665 backend/hp-option.c:2956 backend/kvs1025_opt.c:703
+#: backend/leo.c:871 backend/ma1509.c:599 backend/matsushita.c:1189
+#: backend/microtek2.h:600 backend/mustek.c:4421 backend/mustek_usb.c:349
+#: backend/mustek_usb2.c:431 backend/niash.c:754 backend/plustek.c:854
+#: backend/plustek_pp.c:793 backend/sceptre.c:750
+#: backend/snapscan-options.c:617 backend/stv680.c:1067
+#: backend/teco1.c:1143 backend/teco2.c:1958 backend/teco3.c:968
+#: backend/u12.c:592 backend/umax.c:5226 backend/umax_pp.c:625
 #, no-c-format
 msgid "Enhancement"
 msgstr "הגדלה"
@@ -416,9 +416,9 @@ msgid "Lamp off at exit"
 msgstr "מנורה כבויה ביציאה"
 
 #: include/sane/saneopts.h:245
-#, no-c-format
+#, fuzzy, no-c-format
 msgid ""
-"Read-only option that specifies how many options a specific devices "
+"Read-only option that specifies how many options a specific device "
 "supports."
 msgstr "אפשרות קריאה-בלבד המפרטת כמה אפשרויות נתמכות בהתקן מסוים."
 
@@ -737,8 +737,8 @@ msgid "Analog gamma-correction for blue"
 msgstr "תיקון גמה אנלוגית עבור כחול"
 
 #: include/sane/saneopts.h:415
-#, no-c-format
-msgid "Warmup lamp before scanning"
+#, fuzzy, no-c-format
+msgid "Warm up lamp before scanning"
 msgstr "חמם מנורה לפני סריקה"
 
 #: include/sane/saneopts.h:417
@@ -887,8 +887,8 @@ msgid "Operation not supported"
 msgstr "הפעלה לא נתמכת"
 
 #: backend/sane_strstatus.c:65
-#, no-c-format
-msgid "Operation was cancelled"
+#, fuzzy, no-c-format
+msgid "Operation was canceled"
 msgstr "הפעלה בוטלה"
 
 #: backend/sane_strstatus.c:68
@@ -981,10 +981,10 @@ msgid "Only perform shading-correction"
 msgstr "בצע רק תיקון הצללה"
 
 #: backend/artec_eplus48u.c:2956
-#, no-c-format
+#, fuzzy, no-c-format
 msgid ""
 "If enabled, only the shading correction is performed during calibration. "
-"The default values for gain, offset and exposure time, either build-in "
+"The default values for gain, offset and exposure time, either built-in "
 "or from the configuration file, are used."
 msgstr ""
 "אם מופעלת, רק תיקון הצללה מבוצע במהלך כיול. ערכי ברירת מחדל עבור הגבר, "
@@ -1011,9 +1011,9 @@ msgid "Duplex scan"
 msgstr "סריקה דו צדדית"
 
 #: backend/avision.h:783
-#, no-c-format
+#, fuzzy, no-c-format
 msgid ""
-"Duplex scan provide a scan of the front and back side of the document"
+"Duplex scan provides a scan of the front and back side of the document"
 msgstr "סריקה דו צדדית מאפשרת סריקה של העמוד הקדמי והאחורי של המסמך"
 
 #: backend/canon630u.c:159
@@ -1221,8 +1221,8 @@ msgid "invalid bit IDENTIFY message"
 msgstr "הודעת זיהוי ביט לא חוקי"
 
 #: backend/canon.c:460
-#, no-c-format
-msgid "option not connect"
+#, fuzzy, no-c-format
+msgid "option not correct"
 msgstr "אפשרות לא מחובר"
 
 #: backend/canon.c:474
@@ -1555,22 +1555,25 @@ msgid "Card Duplex"
 msgstr "דו צדדי לוח"
 
 #: backend/canon_dr.c:424 backend/epson.c:599 backend/epson.c:3096
-#: backend/epson2.c:201 backend/fujitsu.c:695 backend/genesys.cc:89
-#: backend/genesys.cc:96 backend/gt68xx_low.h:136 backend/hp-option.c:3096
+#: backend/epson2.c:201 backend/fujitsu.c:695
+#: backend/genesys/genesys.cpp:99 backend/genesys/genesys.cpp:106
+#: backend/gt68xx_low.h:136 backend/hp-option.c:3096
 #, no-c-format
 msgid "Red"
 msgstr "אדום"
 
 #: backend/canon_dr.c:425 backend/epson.c:600 backend/epson.c:3092
-#: backend/epson2.c:202 backend/fujitsu.c:696 backend/genesys.cc:90
-#: backend/genesys.cc:97 backend/gt68xx_low.h:137 backend/hp-option.c:3097
+#: backend/epson2.c:202 backend/fujitsu.c:696
+#: backend/genesys/genesys.cpp:100 backend/genesys/genesys.cpp:107
+#: backend/gt68xx_low.h:137 backend/hp-option.c:3097
 #, no-c-format
 msgid "Green"
 msgstr "ירוק"
 
 #: backend/canon_dr.c:426 backend/epson.c:601 backend/epson.c:3100
-#: backend/epson2.c:203 backend/fujitsu.c:697 backend/genesys.cc:91
-#: backend/genesys.cc:98 backend/gt68xx_low.h:138 backend/hp-option.c:3098
+#: backend/epson2.c:203 backend/fujitsu.c:697
+#: backend/genesys/genesys.cpp:101 backend/genesys/genesys.cpp:108
+#: backend/gt68xx_low.h:138 backend/hp-option.c:3098
 #, no-c-format
 msgid "Blue"
 msgstr "כחול"
@@ -1593,8 +1596,9 @@ msgstr "שפר כחול"
 #: backend/canon_dr.c:431 backend/epson.c:556 backend/epson.c:564
 #: backend/epson.c:576 backend/epson.c:598 backend/epson2.c:165
 #: backend/epson2.c:173 backend/epson2.c:185 backend/epson2.c:200
-#: backend/epson2.c:214 backend/fujitsu.c:701 backend/genesys.cc:99
-#: backend/leo.c:109 backend/matsushita.c:138 backend/matsushita.c:159
+#: backend/epson2.c:214 backend/fujitsu.c:701
+#: backend/genesys/genesys.cpp:109 backend/leo.c:109
+#: backend/matsushita.c:138 backend/matsushita.c:159
 #: backend/matsushita.c:191 backend/matsushita.c:213
 #: backend/snapscan-options.c:91
 #, no-c-format
@@ -1606,8 +1610,8 @@ msgstr "אף אחד"
 msgid "JPEG"
 msgstr "JPEG"
 
-#: backend/canon_dr.c:2477 backend/fujitsu.c:4113 backend/genesys.cc:5445
-#: backend/kvs1025_opt.c:910
+#: backend/canon_dr.c:2477 backend/fujitsu.c:4113
+#: backend/genesys/genesys.cpp:4126 backend/kvs1025_opt.c:910
 #, no-c-format
 msgid "Software blank skip percentage"
 msgstr "אחוז דילוג מקום ריק של תוכנה"
@@ -1812,8 +1816,9 @@ msgstr "A4"
 msgid "Max"
 msgstr "מירבי"
 
-#: backend/epson.c:2813 backend/epson2.c:976 backend/genesys.cc:5207
-#: backend/gt68xx.c:451 backend/hp-option.c:2917 backend/kvs1025_opt.c:521
+#: backend/epson.c:2813 backend/epson2.c:976
+#: backend/genesys/genesys.cpp:3893 backend/gt68xx.c:451
+#: backend/hp-option.c:2917 backend/kvs1025_opt.c:521
 #: backend/kvs20xx_opt.c:171 backend/kvs40xx_opt.c:320 backend/ma1509.c:501
 #: backend/matsushita.c:1084 backend/microtek2.h:598 backend/mustek.c:4215
 #: backend/mustek_usb.c:256 backend/mustek_usb2.c:344 backend/niash.c:734
@@ -2322,7 +2327,7 @@ msgstr "עקום גמה"
 msgid "Gamma curve, from light to dark, but upper two may not work"
 msgstr "עקום גמה, מבהיר לכהה, אך יתכן ושניים עליונים לא יעבדו"
 
-#: backend/fujitsu.c:3393 backend/genesys.cc:5505
+#: backend/fujitsu.c:3393 backend/genesys/genesys.cpp:4187
 #: backend/pixma_sane_options.c:335
 #, no-c-format
 msgid "Threshold curve"
@@ -2629,7 +2634,7 @@ msgstr "אופסט דו צדדי"
 msgid "Adjust front/back offset"
 msgstr "כוון אופסט חזיתי/אחורי"
 
-#: backend/fujitsu.c:3995 backend/plustek.c:1025 backend/umax_pp.c:804
+#: backend/fujitsu.c:3995 backend/plustek.c:1025 backend/umax_pp.c:800
 #, no-c-format
 msgid "Green offset"
 msgstr "אופסט ירוק"
@@ -2639,7 +2644,7 @@ msgstr "אופסט ירוק"
 msgid "Adjust green/red offset"
 msgstr "כוון אופסט ירוק/אדום"
 
-#: backend/fujitsu.c:4013 backend/plustek.c:1041 backend/umax_pp.c:816
+#: backend/fujitsu.c:4013 backend/plustek.c:1041 backend/umax_pp.c:812
 #, no-c-format
 msgid "Blue offset"
 msgstr "אופסט כחול"
@@ -2711,7 +2716,7 @@ msgstr "קוטר פגמים של תוכנה"
 msgid "Maximum diameter of lone dots to remove from scan."
 msgstr "קוטר מירבי של נקודות בודדות להסרה מהסריקה."
 
-#: backend/fujitsu.c:4100 backend/genesys.cc:5436
+#: backend/fujitsu.c:4100 backend/genesys/genesys.cpp:4117
 #, no-c-format
 msgid "Software crop"
 msgstr "קיצוץ של תוכנה"
@@ -2841,8 +2846,8 @@ msgid "Top edge"
 msgstr "קצה עליון"
 
 #: backend/fujitsu.c:4380
-#, no-c-format
-msgid "Paper is pulled partly into adf"
+#, fuzzy, no-c-format
+msgid "Paper is pulled partly into ADF"
 msgstr "נייר משוך בחלקו לתוך מזין מסמכים אוטומטי"
 
 #: backend/fujitsu.c:4391
@@ -2990,42 +2995,42 @@ msgstr "לוח צפיפות"
 msgid "Duplex switch"
 msgstr "החלפה דו צדדית"
 
-#: backend/genesys.cc:5437
+#: backend/genesys/genesys.cpp:4118
 #, no-c-format
 msgid "Request backend to remove border from pages digitally"
 msgstr "בקש מה-backend להסיר גבול מהעמודים באופן דיגיטלי"
 
-#: backend/genesys.cc:5446 backend/kvs1025_opt.c:912
+#: backend/genesys/genesys.cpp:4127 backend/kvs1025_opt.c:912
 #, no-c-format
 msgid "Request driver to discard pages with low numbers of dark pixels"
 msgstr "בקש מהדרייבר לזנוח עמודים עם מספר נמוך של פיקסלים כהים"
 
-#: backend/genesys.cc:5456 backend/kvs1025_opt.c:892
+#: backend/genesys/genesys.cpp:4137 backend/kvs1025_opt.c:892
 #, no-c-format
 msgid "Software derotate"
 msgstr "סיבוב תוכנה"
 
-#: backend/genesys.cc:5457 backend/kvs1025_opt.c:894
+#: backend/genesys/genesys.cpp:4138 backend/kvs1025_opt.c:894
 #, no-c-format
 msgid "Request driver to detect and correct 90 degree image rotation"
 msgstr "בקש מהדרייבר לגלות ולתקן סיבוב תמונה של 90 מעלות"
 
-#: backend/genesys.cc:5486 backend/pixma_sane_options.c:314
+#: backend/genesys/genesys.cpp:4168 backend/pixma_sane_options.c:314
 #, no-c-format
 msgid "Extras"
 msgstr "תוספות"
 
-#: backend/genesys.cc:5506 backend/pixma_sane_options.c:336
+#: backend/genesys/genesys.cpp:4188 backend/pixma_sane_options.c:336
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
 msgstr "עקום סף דינמי, מבהיר לכהה, בדרך כלל 50-65"
 
-#: backend/genesys.cc:5515
+#: backend/genesys/genesys.cpp:4197
 #, no-c-format
 msgid "Disable dynamic lineart"
 msgstr "כבה סגנון קווי דינמי"
 
-#: backend/genesys.cc:5517
+#: backend/genesys/genesys.cpp:4199
 #, no-c-format
 msgid ""
 "Disable use of a software adaptive algorithm to generate lineart relying "
@@ -3034,12 +3039,12 @@ msgstr ""
 "כבה שימוש של אלגוריתם מסתגל תוכנתי ליצור סגנון קווי ובמקום זאת הסתמך על "
 "סגנון קווי חומרתי."
 
-#: backend/genesys.cc:5533
+#: backend/genesys/genesys.cpp:4215
 #, no-c-format
 msgid "Disable interpolation"
 msgstr "כבה אינטרפולציה"
 
-#: backend/genesys.cc:5536
+#: backend/genesys/genesys.cpp:4218
 #, no-c-format
 msgid ""
 "When using high resolutions where the horizontal resolution is smaller "
@@ -3048,32 +3053,32 @@ msgstr ""
 "כאשר רזולוציות גבוהות בשימוש היכן שהרזולוציה האופקית קטנה מהרזולוציה "
 "האנכית זה מכבה אינטרפולציה אופקית."
 
-#: backend/genesys.cc:5545
+#: backend/genesys/genesys.cpp:4227
 #, no-c-format
 msgid "Color filter"
 msgstr "מסנן צבע"
 
-#: backend/genesys.cc:5548
+#: backend/genesys/genesys.cpp:4230
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr "כאשר משתמשים באפור או בסגנון קווי אפשרות זו בוחרת את הצבע בשימוש."
 
-#: backend/genesys.cc:5574
+#: backend/genesys/genesys.cpp:4254
 #, no-c-format
 msgid "Calibration file"
 msgstr "קובץ כיול"
 
-#: backend/genesys.cc:5575
+#: backend/genesys/genesys.cpp:4255
 #, no-c-format
 msgid "Specify the calibration file to use"
 msgstr "פרט את קובץ הכיול לשימוש"
 
-#: backend/genesys.cc:5592
+#: backend/genesys/genesys.cpp:4272
 #, no-c-format
 msgid "Calibration cache expiration time"
 msgstr "זמן תפוגה מטמון כיול"
 
-#: backend/genesys.cc:5593
+#: backend/genesys/genesys.cpp:4273
 #, no-c-format
 msgid ""
 "Time (in minutes) before a cached calibration expires. A value of 0 "
@@ -3082,12 +3087,12 @@ msgstr ""
 "זמן (בדקות) לפני שכיול מוטמן פג. ערך של 0 אומר שמטמון אינו בשימוש. ערך "
 "שלילי אומר שמטמון לעולם לא פג."
 
-#: backend/genesys.cc:5603
+#: backend/genesys/genesys.cpp:4283
 #, no-c-format
 msgid "Lamp off time"
 msgstr "זמן כיבוי מנורה"
 
-#: backend/genesys.cc:5606
+#: backend/genesys/genesys.cpp:4286
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value "
@@ -3095,81 +3100,95 @@ msgid ""
 msgstr ""
 "המנורה תיכבה לאחר הזמן הנתון (בדקות). ערך של  0 אומר, שהמנורה לא תיכבה."
 
-#: backend/genesys.cc:5616
+#: backend/genesys/genesys.cpp:4296
 #, no-c-format
 msgid "Lamp off during scan"
 msgstr "מנורה כבויה במהלך סריקה"
 
-#: backend/genesys.cc:5617
+#: backend/genesys/genesys.cpp:4297
 #, no-c-format
 msgid "The lamp will be turned off during scan. "
 msgstr "המנורה תיכבה במהלך סריקה. "
 
-#: backend/genesys.cc:5643 backend/genesys.cc:5644
+#: backend/genesys/genesys.cpp:4324 backend/genesys/genesys.cpp:4325
 #, no-c-format
 msgid "File button"
 msgstr "כפתור קובץ"
 
-#: backend/genesys.cc:5688 backend/genesys.cc:5689
+#: backend/genesys/genesys.cpp:4369 backend/genesys/genesys.cpp:4370
 #, no-c-format
 msgid "OCR button"
 msgstr "כפתור OCR"
 
-#: backend/genesys.cc:5700 backend/genesys.cc:5701
+#: backend/genesys/genesys.cpp:4381 backend/genesys/genesys.cpp:4382
 #, no-c-format
 msgid "Power button"
 msgstr "כפתור הדלקה"
 
-#: backend/genesys.cc:5712 backend/genesys.cc:5713
+#: backend/genesys/genesys.cpp:4393 backend/genesys/genesys.cpp:4394
 #, no-c-format
 msgid "Extra button"
 msgstr "כפתור אקסטרה"
 
-#: backend/genesys.cc:5724 backend/gt68xx.c:755
-#, no-c-format
-msgid "Need calibration"
+#: backend/genesys/genesys.cpp:4405 backend/gt68xx.c:755
+#, fuzzy, no-c-format
+msgid "Needs calibration"
 msgstr "דרוש כיול"
 
-#: backend/genesys.cc:5725 backend/gt68xx.c:756
+#: backend/genesys/genesys.cpp:4406 backend/gt68xx.c:756
 #, no-c-format
 msgid "The scanner needs calibration for the current settings"
 msgstr "הסורק דורש כיול עבור ההגדרות הנוכחיות"
 
-#: backend/genesys.cc:5735 backend/gt68xx.c:780 backend/gt68xx.c:781
-#: backend/pixma_sane_options.c:226 backend/plustek.c:1080
+#: backend/genesys/genesys.cpp:4417 backend/gt68xx.c:780
+#: backend/gt68xx.c:781 backend/pixma_sane_options.c:226
+#: backend/plustek.c:1080
 #, no-c-format
 msgid "Buttons"
 msgstr "כפתורים"
 
-#: backend/genesys.cc:5744 backend/gt68xx.c:787 backend/hp5400_sane.c:392
-#: backend/hp-option.h:97 backend/niash.c:726 backend/plustek.c:941
+#: backend/genesys/genesys.cpp:4426 backend/gt68xx.c:787
+#: backend/hp5400_sane.c:392 backend/hp-option.h:97 backend/niash.c:726
+#: backend/plustek.c:941
 #, no-c-format
 msgid "Calibrate"
 msgstr "כייל"
 
-#: backend/genesys.cc:5746 backend/gt68xx.c:789
+#: backend/genesys/genesys.cpp:4428 backend/gt68xx.c:789
 #, no-c-format
 msgid "Start calibration using special sheet"
 msgstr "התחל כיול בעזרת דף מיוחד"
 
-#: backend/genesys.cc:5758 backend/gt68xx.c:802
+#: backend/genesys/genesys.cpp:4440 backend/gt68xx.c:802
 #, no-c-format
 msgid "Clear calibration"
 msgstr "נקה כיול"
 
-#: backend/genesys.cc:5759 backend/gt68xx.c:803
+#: backend/genesys/genesys.cpp:4441 backend/gt68xx.c:803
 #, no-c-format
 msgid "Clear calibration cache"
 msgstr "נקה מטמון כיול"
 
-#: backend/genesys.cc:5769
+#: backend/genesys/genesys.cpp:4451
 #, fuzzy, no-c-format
 msgid "Force calibration"
 msgstr "כיול גס"
 
-#: backend/genesys.cc:5770
+#: backend/genesys/genesys.cpp:4452
 #, no-c-format
 msgid "Force calibration ignoring all and any calibration caches"
+msgstr ""
+
+#: backend/genesys/genesys.cpp:4462
+#, fuzzy, no-c-format
+msgid "Ignore internal offsets"
+msgstr "אופסט ירוק"
+
+#: backend/genesys/genesys.cpp:4464
+#, no-c-format
+msgid ""
+"Acquires the image including the internal calibration areas of the "
+"scanner"
 msgstr ""
 
 #: backend/gt68xx.c:149 backend/ma1509.c:108 backend/mustek.c:164
@@ -3302,13 +3321,13 @@ msgid "Scanner model"
 msgstr "דגם סורק"
 
 #: backend/hp3900_sane.c:1408
-#, no-c-format
-msgid "Allows one to test device behaviour with other supported models"
+#, fuzzy, no-c-format
+msgid "Allows one to test device behavior with other supported models"
 msgstr "מאפשר לבדוק התנהגות ההתקן עם דגמים נתמכים אחרים"
 
 #: backend/hp3900_sane.c:1422
-#, no-c-format
-msgid "Image colours will be inverted"
+#, fuzzy, no-c-format
+msgid "Image colors will be inverted"
 msgstr "הצבעים של התמונה יתהפכו"
 
 #: backend/hp3900_sane.c:1436
@@ -3825,8 +3844,8 @@ msgid "Color Matrix"
 msgstr "מטריצת צבע"
 
 #: backend/hp-option.h:121
-#, no-c-format
-msgid "Set the scanners color matrix."
+#, fuzzy, no-c-format
+msgid "Set the scanner's color matrix."
 msgstr "קבע את מטריצת הצבע של הסורק."
 
 #: backend/hp-option.h:127
@@ -4170,9 +4189,9 @@ msgid "crt"
 msgstr "crt"
 
 #: backend/kvs1025_opt.c:229
-#, no-c-format
-msgid "linier"
-msgstr "linier"
+#, fuzzy, no-c-format
+msgid "linear"
+msgstr "סגנון קווי"
 
 #: backend/kvs1025_opt.c:241 backend/kvs20xx_opt.c:138
 #: backend/kvs40xx_opt.c:224
@@ -4367,11 +4386,11 @@ msgstr "קיצוץ אוטומטי תוכנה"
 msgid "Request driver to remove border from pages digitally"
 msgstr "בקש מהדרייבר להסיר גבול מהעמודים באופן דיגיטלי"
 
-#: backend/kvs20xx_opt.c:233 backend/kvs40xx_opt.c:396
-#, no-c-format
+#: backend/kvs20xx_opt.c:233
+#, fuzzy, no-c-format
 msgid ""
-"Length Control Mode is a mode that the scanner reads up to the shorter "
-"length of actual paper or logical document length."
+"Length Control Mode causes the scanner to read the shorter of either the "
+"length of the actual paper or logical document length."
 msgstr ""
 "מצב בקרת אורך הוא מצב בו הסורק קורא עד לאורך הקצר יותר של הנייר בפועל או "
 "אורך המסמך הלוגי."
@@ -4404,13 +4423,13 @@ msgid "B4"
 msgstr "B4"
 
 #: backend/kvs40xx_opt.c:231
-#, no-c-format
-msgid "High sensivity"
+#, fuzzy, no-c-format
+msgid "High sensitivity"
 msgstr "רגישות גבוהה"
 
 #: backend/kvs40xx_opt.c:232
-#, no-c-format
-msgid "Low sensivity"
+#, fuzzy, no-c-format
+msgid "Low sensitivity"
 msgstr "רגישות נמוכה"
 
 #: backend/kvs40xx_opt.c:243
@@ -4432,6 +4451,15 @@ msgstr "מצב רגיל"
 #, no-c-format
 msgid "Enhanced mode"
 msgstr "מצב מועשר"
+
+#: backend/kvs40xx_opt.c:396
+#, fuzzy, no-c-format
+msgid ""
+"Length Control Mode causes the scanner to read the shorter of either the "
+"length of the actual paper or logical document length"
+msgstr ""
+"מצב בקרת אורך הוא מצב בו הסורק קורא עד לאורך הקצר יותר של הנייר בפועל או "
+"אורך המסמך הלוגי."
 
 #: backend/kvs40xx_opt.c:405
 #, no-c-format
@@ -4493,8 +4521,8 @@ msgid "JPEG compression"
 msgstr "דחיסת JPEG"
 
 #: backend/kvs40xx_opt.c:718
-#, no-c-format
-msgid "JPEG compression (yours application must be able to uncompress)"
+#, fuzzy, no-c-format
+msgid "JPEG compression (your application must be able to uncompress)"
 msgstr "דחיסת JPEG (היישום שלך צריך לדעת לחלץ)"
 
 #: backend/kvs40xx_opt.c:737 backend/kvs40xx_opt.c:738
@@ -4528,13 +4556,13 @@ msgid "Skew adjustment"
 msgstr "כיוון הטיה"
 
 #: backend/kvs40xx_opt.c:808
-#, no-c-format
-msgid "Stop scanner when a paper have been skewed"
+#, fuzzy, no-c-format
+msgid "Stop scanner if a sheet is skewed"
 msgstr "עצור סורק כאשר נייר עבר הטיה"
 
 #: backend/kvs40xx_opt.c:809
-#, no-c-format
-msgid "Scanner will be stop  when a paper have been skewed"
+#, fuzzy, no-c-format
+msgid "Scanner will stop if a sheet is skewed"
 msgstr "סורק יעצור כאשר נייר עבר הטיה"
 
 #: backend/kvs40xx_opt.c:816
@@ -4543,14 +4571,14 @@ msgid "Crop actual image area"
 msgstr "קצץ את שטח התמונה בפועל"
 
 #: backend/kvs40xx_opt.c:817
-#, no-c-format
-msgid "Scanner automatically detect image area and crop it"
+#, fuzzy, no-c-format
+msgid "Scanner will automatically detect image area and crop to it"
 msgstr "סורק מגלה שטח תמונה אוטומטית וקוצץ אותו"
 
 #: backend/kvs40xx_opt.c:827
-#, no-c-format
-msgid "It is right and left reversing"
-msgstr "זה היפוך ימין ושמאל"
+#, fuzzy, no-c-format
+msgid "Left/right mirror image"
+msgstr "בצע תמונת ראי"
 
 #: backend/kvs40xx_opt.c:834 backend/kvs40xx_opt.c:835
 #, no-c-format
@@ -4587,52 +4615,52 @@ msgstr "8x8 Bayer"
 msgid "8x8 Vertical Line"
 msgstr "קו אנכי 8x8"
 
-#: backend/lexmark.c:273 backend/umax_pp.c:715
+#: backend/lexmark.c:273 backend/umax_pp.c:711
 #, no-c-format
 msgid "Gain"
 msgstr "הגבר"
 
-#: backend/lexmark.c:274 backend/umax_pp.c:716
+#: backend/lexmark.c:274 backend/umax_pp.c:712
 #, no-c-format
 msgid "Color channels gain settings"
 msgstr "הגדרות הגבר ערוצי צבע"
 
-#: backend/lexmark.c:283 backend/umax_pp.c:723
+#: backend/lexmark.c:283 backend/umax_pp.c:719
 #, no-c-format
 msgid "Gray gain"
 msgstr "הגבר אפור"
 
-#: backend/lexmark.c:284 backend/umax_pp.c:724
+#: backend/lexmark.c:284 backend/umax_pp.c:720
 #, no-c-format
 msgid "Sets gray channel gain"
 msgstr "קובע את הגבר ערוץ אפור"
 
-#: backend/lexmark.c:297 backend/plustek.c:1001 backend/umax_pp.c:735
+#: backend/lexmark.c:297 backend/plustek.c:1001 backend/umax_pp.c:731
 #, no-c-format
 msgid "Red gain"
 msgstr "הגבר אדום"
 
-#: backend/lexmark.c:298 backend/umax_pp.c:736
+#: backend/lexmark.c:298 backend/umax_pp.c:732
 #, no-c-format
 msgid "Sets red channel gain"
 msgstr "קובע את הגבר ערוץ אדום"
 
-#: backend/lexmark.c:311 backend/plustek.c:1017 backend/umax_pp.c:747
+#: backend/lexmark.c:311 backend/plustek.c:1017 backend/umax_pp.c:743
 #, no-c-format
 msgid "Green gain"
 msgstr "הגבר ירוק"
 
-#: backend/lexmark.c:312 backend/umax_pp.c:748
+#: backend/lexmark.c:312 backend/umax_pp.c:744
 #, no-c-format
 msgid "Sets green channel gain"
 msgstr "קובע את הגבר ערוץ ירוק"
 
-#: backend/lexmark.c:325 backend/plustek.c:1033 backend/umax_pp.c:759
+#: backend/lexmark.c:325 backend/plustek.c:1033 backend/umax_pp.c:755
 #, no-c-format
 msgid "Blue gain"
 msgstr "הגבר כחול"
 
-#: backend/lexmark.c:326 backend/umax_pp.c:760
+#: backend/lexmark.c:326 backend/umax_pp.c:756
 #, no-c-format
 msgid "Sets blue channel gain"
 msgstr "קובע את הגבר ערוץ כחול"
@@ -5290,9 +5318,9 @@ msgid "ADF Waiting Time"
 msgstr "זמן המתנה מזין מסמכים אוטומטי"
 
 #: backend/pixma_sane_options.c:349
-#, no-c-format
+#, fuzzy, no-c-format
 msgid ""
-"When set, the scanner searches the waiting time in seconds for a new "
+"When set, the scanner waits upto the specified time in seconds for a new "
 "document inserted into the automatic document feeder."
 msgstr ""
 "כאשר נקבע, הסורק מחפש את זמן ההמתנה בשניות למסמך חדש המוכנס למזין "
@@ -5383,7 +5411,7 @@ msgstr "ממשק אנלוגי"
 msgid "Red gain value of the AFE"
 msgstr "ערך הגבר אדום של ה-AFE"
 
-#: backend/plustek.c:1009 backend/umax_pp.c:792
+#: backend/plustek.c:1009 backend/umax_pp.c:788
 #, no-c-format
 msgid "Red offset"
 msgstr "אופסט אדום"
@@ -5657,7 +5685,7 @@ msgstr ""
 msgid "This option reflects the status of a scanner button."
 msgstr "אפשרות זו משקפת את הסטטוס של כפתור בסורק."
 
-#: backend/rts8891.c:2840 backend/umax.c:5795 backend/umax_pp.c:639
+#: backend/rts8891.c:2840 backend/umax.c:5795 backend/umax_pp.c:635
 #, no-c-format
 msgid "Lamp on"
 msgstr "מנורה דולקת"
@@ -5813,13 +5841,13 @@ msgid "Focus point"
 msgstr "נקודת פוקוס"
 
 #: backend/snapscan-options.c:930
-#, no-c-format
-msgid "Colour lines per read"
+#, fuzzy, no-c-format
+msgid "Color lines per read"
 msgstr "קווי צבע פר קריאה"
 
 #: backend/snapscan-options.c:942
-#, no-c-format
-msgid "Greyscale lines per read"
+#, fuzzy, no-c-format
+msgid "Grayscale lines per read"
 msgstr "קווים בגווני אפור פר קריאה"
 
 #: backend/stv680.c:974
@@ -6444,52 +6472,58 @@ msgstr "מצב כיול"
 msgid "Define calibration mode"
 msgstr "הגדר מצב כיול"
 
-#: backend/umax_pp.c:640
+#: backend/umax_pp.c:636
 #, no-c-format
 msgid "Sets lamp on/off"
 msgstr "מדליק/מכבה מנורה"
 
-#: backend/umax_pp.c:649
+#: backend/umax_pp.c:645
 #, no-c-format
 msgid "UTA on"
 msgstr "הדלקת UTA"
 
-#: backend/umax_pp.c:650
+#: backend/umax_pp.c:646
 #, no-c-format
 msgid "Sets UTA on/off"
 msgstr "קובע UTA דולק/מכובה"
 
-#: backend/umax_pp.c:771
+#: backend/umax_pp.c:767
 #, no-c-format
 msgid "Offset"
 msgstr "אופסט"
 
-#: backend/umax_pp.c:773
+#: backend/umax_pp.c:769
 #, no-c-format
 msgid "Color channels offset settings"
 msgstr "הגדרות אופסט ערוצי צבעים"
 
-#: backend/umax_pp.c:780
+#: backend/umax_pp.c:776
 #, no-c-format
 msgid "Gray offset"
 msgstr "אופסט אפור"
 
-#: backend/umax_pp.c:781
+#: backend/umax_pp.c:777
 #, no-c-format
 msgid "Sets gray channel offset"
 msgstr "קובע אופסט ערוץ אפור"
 
-#: backend/umax_pp.c:793
+#: backend/umax_pp.c:789
 #, no-c-format
 msgid "Sets red channel offset"
 msgstr "קובע אופסט ערוץ אדום"
 
-#: backend/umax_pp.c:805
+#: backend/umax_pp.c:801
 #, no-c-format
 msgid "Sets green channel offset"
 msgstr "קובע אופסט ערוץ ירוק"
 
-#: backend/umax_pp.c:817
+#: backend/umax_pp.c:813
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "קובע אופסט ערוץ כחול"
+
+#~ msgid "linier"
+#~ msgstr "linier"
+
+#~ msgid "It is right and left reversing"
+#~ msgstr "זה היפוך ימין ושמאל"

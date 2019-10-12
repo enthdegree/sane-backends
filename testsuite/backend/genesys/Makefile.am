@@ -19,10 +19,11 @@ TESTS = $(check_PROGRAMS)
 AM_CPPFLAGS += -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include $(USB_CFLAGS) \
     -DBACKEND_NAME=genesys
 
-genesys_tests_SOURCES = tests.cc tests.h minigtest.cc minigtest.h tests_printers.h \
-    tests_calibration.cc \
-    tests_image.cc \
-    tests_image_pipeline.cc \
-    tests_row_buffer.cc
+genesys_tests_SOURCES = tests.cpp tests.h \
+    minigtest.cpp minigtest.h tests_printers.h \
+    tests_calibration.cpp \
+    tests_image.cpp \
+    tests_image_pipeline.cpp \
+    tests_row_buffer.cpp
 
 genesys_tests_LDADD = $(TEST_LDADD)

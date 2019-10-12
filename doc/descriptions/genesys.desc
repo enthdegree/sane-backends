@@ -22,6 +22,11 @@
 :usbid "0x07b3" "0x0c04"
 :status :basic
 
+:model "OpticFilm 7300"
+:interface "USB"
+:usbid "0x07b3" "0x0c12"
+:status :basic
+
 ; -----------------------------------------------------------------------------
 
 :mfg "Medion/Lifetec/Tevion/Cytron"

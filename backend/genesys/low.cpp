@@ -47,6 +47,7 @@
 #include "low.h"
 #include "assert.h"
 
+#include <cstdio>
 #include <vector>
 
 /* ------------------------------------------------------------------------ */
@@ -84,7 +85,7 @@ void sanei_genesys_init_cmd_set(Genesys_Device* dev)
 /*                  General IO and debugging functions                      */
 /* ------------------------------------------------------------------------ */
 
-void sanei_genesys_write_file(const char* filename, const std::uint8_t* data, size_t length)
+void sanei_genesys_write_file(const char* filename, const std::uint8_t* data, std::size_t length)
 {
     DBG_HELPER(dbg);
     FILE *out;
@@ -104,10 +105,9 @@ void sanei_genesys_write_pnm_file(const char* filename, const std::uint8_t* data
 {
     DBG_HELPER_ARGS(dbg, "depth=%d, channels=%d, ppl=%d, lines=%d", depth, channels,
                     pixels_per_line, lines);
-  FILE *out;
   int count;
 
-  out = fopen (filename, "w");
+    std::FILE* out = std::fopen(filename, "w");
   if (!out)
     {
         throw SaneException("could not open %s for writing: %s\n", filename, strerror(errno));
@@ -157,7 +157,7 @@ void sanei_genesys_write_pnm_file(const char* filename, const std::uint8_t* data
             }
 	}
     }
-  fclose (out);
+    std::fclose(out);
 }
 
 void sanei_genesys_write_pnm_file16(const char* filename, const uint16_t* data, unsigned channels,
@@ -166,7 +166,7 @@ void sanei_genesys_write_pnm_file16(const char* filename, const uint16_t* data, 
     DBG_HELPER_ARGS(dbg, "channels=%d, ppl=%d, lines=%d", channels,
                     pixels_per_line, lines);
 
-    FILE* out = std::fopen(filename, "w");
+    std::FILE* out = std::fopen(filename, "w");
     if (!out) {
         throw SaneException("could not open %s for writing: %s\n", filename, strerror(errno));
     }

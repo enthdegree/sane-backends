@@ -45,7 +45,7 @@
 #include <cstring>
 #include <stdexcept>
 
-void Genesys_Buffer::alloc(size_t size)
+void Genesys_Buffer::alloc(std::size_t size)
 {
     buffer_.resize(size);
     avail_ = 0;
@@ -65,7 +65,7 @@ void Genesys_Buffer::reset()
     pos_ = 0;
 }
 
-uint8_t* Genesys_Buffer::get_write_pos(size_t size)
+std::uint8_t* Genesys_Buffer::get_write_pos(std::size_t size)
 {
     if (avail_ + size > buffer_.size())
         return nullptr;
@@ -77,19 +77,19 @@ uint8_t* Genesys_Buffer::get_write_pos(size_t size)
     return buffer_.data() + pos_ + avail_;
 }
 
-uint8_t* Genesys_Buffer::get_read_pos()
+std::uint8_t* Genesys_Buffer::get_read_pos()
 {
     return buffer_.data() + pos_;
 }
 
-void Genesys_Buffer::produce(size_t size)
+void Genesys_Buffer::produce(std::size_t size)
 {
     if (size > buffer_.size() - avail_)
         throw std::runtime_error("buffer size exceeded");
     avail_ += size;
 }
 
-void Genesys_Buffer::consume(size_t size)
+void Genesys_Buffer::consume(std::size_t size)
 {
     if (size > avail_)
         throw std::runtime_error("no more data in buffer");

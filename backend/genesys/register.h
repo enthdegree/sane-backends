@@ -45,6 +45,7 @@
 #define BACKEND_GENESYS_REGISTER_H
 
 #include <algorithm>
+#include <climits>
 #include <cstdint>
 #include <iostream>
 #include <stdexcept>
@@ -52,8 +53,8 @@
 
 struct GenesysRegister
 {
-    uint16_t address = 0;
-    uint8_t value = 0;
+    std::uint16_t address = 0;
+    std::uint8_t value = 0;
 };
 
 inline bool operator<(const GenesysRegister& lhs, const GenesysRegister& rhs)
@@ -97,7 +98,7 @@ public:
         }
     }
 
-    void init_reg(uint16_t address, uint8_t default_value)
+    void init_reg(std::uint16_t address, std::uint8_t default_value)
     {
         if (find_reg_index(address) >= 0) {
             set8(address, default_value);
@@ -111,12 +112,12 @@ public:
             std::sort(registers_.begin(), registers_.end());
     }
 
-    bool has_reg(uint16_t address) const
+    bool has_reg(std::uint16_t address) const
     {
         return find_reg_index(address) >= 0;
     }
 
-    void remove_reg(uint16_t address)
+    void remove_reg(std::uint16_t address)
     {
         int i = find_reg_index(address);
         if (i < 0) {
@@ -125,7 +126,7 @@ public:
         registers_.erase(registers_.begin() + i);
     }
 
-    GenesysRegister& find_reg(uint16_t address)
+    GenesysRegister& find_reg(std::uint16_t address)
     {
         int i = find_reg_index(address);
         if (i < 0) {
@@ -134,7 +135,7 @@ public:
         return registers_[i];
     }
 
-    const GenesysRegister& find_reg(uint16_t address) const
+    const GenesysRegister& find_reg(std::uint16_t address) const
     {
         int i = find_reg_index(address);
         if (i < 0) {
@@ -143,51 +144,51 @@ public:
         return registers_[i];
     }
 
-    GenesysRegister* find_reg_address(uint16_t address)
+    GenesysRegister* find_reg_address(std::uint16_t address)
     {
         return &find_reg(address);
     }
 
-    const GenesysRegister* find_reg_address(uint16_t address) const
+    const GenesysRegister* find_reg_address(std::uint16_t address) const
     {
         return &find_reg(address);
     }
 
-    void set8(uint16_t address, uint8_t value)
+    void set8(std::uint16_t address, std::uint8_t value)
     {
         find_reg(address).value = value;
     }
 
-    void set8_mask(uint16_t address, uint8_t value, uint8_t mask)
+    void set8_mask(std::uint16_t address, std::uint8_t value, std::uint8_t mask)
     {
         auto& reg = find_reg(address);
         reg.value = (reg.value & ~mask) | value;
     }
 
-    void set16(uint16_t address, uint16_t value)
+    void set16(std::uint16_t address, std::uint16_t value)
     {
         find_reg(address).value = (value >> 8) & 0xff;
         find_reg(address + 1).value = value & 0xff;
     }
 
-    void set24(uint16_t address, uint32_t value)
+    void set24(std::uint16_t address, std::uint32_t value)
     {
         find_reg(address).value = (value >> 16) & 0xff;
         find_reg(address + 1).value = (value >> 8) & 0xff;
         find_reg(address + 2).value = value & 0xff;
     }
 
-    uint8_t get8(uint16_t address) const
+    std::uint8_t get8(std::uint16_t address) const
     {
         return find_reg(address).value;
     }
 
-    uint16_t get16(uint16_t address) const
+    std::uint16_t get16(std::uint16_t address) const
     {
         return (find_reg(address).value << 8) | find_reg(address + 1).value;
     }
 
-    uint32_t get24(uint16_t address) const
+    std::uint32_t get24(std::uint16_t address) const
     {
         return (find_reg(address).value << 16) |
                (find_reg(address + 1).value << 8) |
@@ -195,7 +196,7 @@ public:
     }
 
     void clear() { registers_.clear(); }
-    size_t size() const { return registers_.size(); }
+    std::size_t size() const { return registers_.size(); }
 
     iterator begin() { return registers_.begin(); }
     const_iterator begin() const { return registers_.begin(); }
@@ -204,10 +205,10 @@ public:
     const_iterator end() const { return registers_.end(); }
 
 private:
-    int find_reg_index(uint16_t address) const
+    int find_reg_index(std::uint16_t address) const
     {
         if (!sorted_) {
-            for (size_t i = 0; i < registers_.size(); i++) {
+            for (std::size_t i = 0; i < registers_.size(); i++) {
                 if (registers_[i].address == address) {
                     return i;
                 }
@@ -289,10 +290,10 @@ public:
     iterator end() { return registers_.end(); }
     const_iterator end() const { return registers_.end(); }
 
-    SettingType& operator[](size_t i) { return registers_[i]; }
-    const SettingType& operator[](size_t i) const { return registers_[i]; }
+    SettingType& operator[](std::size_t i) { return registers_[i]; }
+    const SettingType& operator[](std::size_t i) const { return registers_[i]; }
 
-    size_t size() const { return registers_.size(); }
+    std::size_t size() const { return registers_.size(); }
     bool empty() const { return registers_.empty(); }
     void clear() { registers_.clear(); }
 
@@ -356,7 +357,7 @@ private:
 
     int find_reg_index(AddressType address) const
     {
-        for (size_t i = 0; i < registers_.size(); i++) {
+        for (std::size_t i = 0; i < registers_.size(); i++) {
             if (registers_[i].address == address) {
                 return i;
             }
@@ -376,7 +377,7 @@ inline void serialize(std::istream& str, RegisterSettingSet<Value>& reg)
     using AddressType = typename RegisterSetting<Value>::AddressType;
 
     reg.clear();
-    const size_t max_register_address = 1 << (sizeof(AddressType) * CHAR_BIT);
+    const std::size_t max_register_address = 1 << (sizeof(AddressType) * CHAR_BIT);
     serialize(str, reg.registers_, max_register_address);
 }
 
@@ -388,9 +389,9 @@ inline void serialize(std::ostream& str, RegisterSettingSet<Value>& reg)
 
 template<class F, class Value>
 void apply_registers_ordered(const RegisterSettingSet<Value>& set,
-                             std::initializer_list<uint16_t> order, F f)
+                             std::initializer_list<std::uint16_t> order, F f)
 {
-    for (uint16_t addr : order) {
+    for (std::uint16_t addr : order) {
         f(set.find_reg(addr));
     }
     for (const auto& reg : set) {

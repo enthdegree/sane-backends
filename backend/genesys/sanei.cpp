@@ -104,21 +104,22 @@ void UsbDevice::get_vendor_product(int& vendor, int& product)
     TIE(sanei_usb_get_vendor_product(device_num_, &vendor, &product));
 }
 
-void UsbDevice::control_msg(int rtype, int reg, int value, int index, int length, uint8_t* data)
+void UsbDevice::control_msg(int rtype, int reg, int value, int index, int length,
+                            std::uint8_t* data)
 {
     DBG_HELPER(dbg);
     assert_is_open();
     TIE(sanei_usb_control_msg(device_num_, rtype, reg, value, index, length, data));
 }
 
-void UsbDevice::bulk_read(uint8_t* buffer, size_t* size)
+void UsbDevice::bulk_read(std::uint8_t* buffer, std::size_t* size)
 {
     DBG_HELPER(dbg);
     assert_is_open();
     TIE(sanei_usb_read_bulk(device_num_, buffer, size));
 }
 
-void UsbDevice::bulk_write(const uint8_t* buffer, size_t* size)
+void UsbDevice::bulk_write(const std::uint8_t* buffer, std::size_t* size)
 {
     DBG_HELPER(dbg);
     assert_is_open();

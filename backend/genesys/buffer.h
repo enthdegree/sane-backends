@@ -56,30 +56,30 @@ struct Genesys_Buffer
 {
     Genesys_Buffer() = default;
 
-    size_t size() const { return buffer_.size(); }
-    size_t avail() const { return avail_; }
-    size_t pos() const { return pos_; }
+    std::size_t size() const { return buffer_.size(); }
+    std::size_t avail() const { return avail_; }
+    std::size_t pos() const { return pos_; }
 
     // TODO: refactor code that uses this function to no longer use it
-    void set_pos(size_t pos) { pos_ = pos; }
+    void set_pos(std::size_t pos) { pos_ = pos; }
 
-    void alloc(size_t size);
+    void alloc(std::size_t size);
     void clear();
 
     void reset();
 
-    uint8_t* get_write_pos(size_t size);
-    uint8_t* get_read_pos(); // TODO: mark as const
+    std::uint8_t* get_write_pos(std::size_t size);
+    std::uint8_t* get_read_pos(); // TODO: mark as const
 
-    void produce(size_t size);
-    void consume(size_t size);
+    void produce(std::size_t size);
+    void consume(std::size_t size);
 
 private:
-    std::vector<uint8_t> buffer_;
+    std::vector<std::uint8_t> buffer_;
     // current position in read buffer
-    size_t pos_ = 0;
+    std::size_t pos_ = 0;
     // data bytes currently in buffer
-    size_t avail_ = 0;
+    std::size_t avail_ = 0;
 };
 
 #endif // BACKEND_GENESYS_BUFFER_H

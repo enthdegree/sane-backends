@@ -70,6 +70,7 @@
 #include <cstdio>
 #include <cstring>
 #include <fstream>
+#include <iterator>
 #include <list>
 #include <numeric>
 #include <exception>
@@ -3833,7 +3834,6 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_BIT_DEPTH].type = SANE_TYPE_INT;
   s->opt[OPT_BIT_DEPTH].constraint_type = SANE_CONSTRAINT_WORD_LIST;
   s->opt[OPT_BIT_DEPTH].size = sizeof (SANE_Word);
-  s->opt[OPT_BIT_DEPTH].constraint.word_list = 0;
   s->opt[OPT_BIT_DEPTH].constraint.word_list = s->bpp_list;
   create_bpp_list (s, model->bpp_gray_values);
     s->bit_depth = model->bpp_gray_values[0];

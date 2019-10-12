@@ -53,6 +53,7 @@
 #include "gl646.h"
 #include "gl646_registers.h"
 
+#include <cstdio>
 #include <vector>
 
 /**

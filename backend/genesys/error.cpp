@@ -48,7 +48,7 @@
 #include <cstdio>
 
 extern "C" void sanei_debug_msg(int level, int max_level, const char *be, const char *fmt,
-                                va_list ap);
+                                std::va_list ap);
 
 #if (defined(__GNUC__) || defined(__CLANG__)) && (defined(__linux__) || defined(__APPLE__))
 extern "C" char* __cxa_get_globals();

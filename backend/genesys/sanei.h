@@ -80,9 +80,9 @@ public:
 
     void get_vendor_product(int& vendor, int& product);
 
-    void control_msg(int rtype, int reg, int value, int index, int length, uint8_t* data);
-    void bulk_read(uint8_t* buffer, size_t* size);
-    void bulk_write(const uint8_t* buffer, size_t* size);
+    void control_msg(int rtype, int reg, int value, int index, int length, std::uint8_t* data);
+    void bulk_read(std::uint8_t* buffer, std::size_t* size);
+    void bulk_write(const std::uint8_t* buffer, std::size_t* size);
 
 private:
 

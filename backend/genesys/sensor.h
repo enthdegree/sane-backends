@@ -75,8 +75,8 @@ enum class FrontendType : unsigned
 struct GenesysFrontendLayout
 {
     FrontendType type = FrontendType::UNKNOWN;
-    std::array<uint16_t, 3> offset_addr = {};
-    std::array<uint16_t, 3> gain_addr = {};
+    std::array<std::uint16_t, 3> offset_addr = {};
+    std::array<std::uint16_t, 3> gain_addr = {};
 
     bool operator==(const GenesysFrontendLayout& other) const
     {
@@ -149,9 +149,9 @@ void serialize(Stream& str, Genesys_Frontend& x)
 }
 
 struct SensorExposure {
-    uint16_t red = 0;
-    uint16_t green = 0;
-    uint16_t blue = 0;
+    std::uint16_t red = 0;
+    std::uint16_t green = 0;
+    std::uint16_t blue = 0;
 
     SensorExposure() = default;
     SensorExposure(std::uint16_t r, std::uint16_t g, std::uint16_t b) :

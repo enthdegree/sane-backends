@@ -46,6 +46,7 @@
 
 #include "sensor.h"
 #include "settings.h"
+#include <ctime>
 
 struct Genesys_Calibration_Cache
 {
@@ -55,7 +56,7 @@ struct Genesys_Calibration_Cache
     // used to check if entry is compatible
     Genesys_Current_Setup used_setup;
     SetupParams params;
-    time_t last_calibration = 0;
+    std::time_t last_calibration = 0;
 
     Genesys_Frontend frontend;
     Genesys_Sensor sensor;
@@ -63,8 +64,8 @@ struct Genesys_Calibration_Cache
     size_t calib_pixels = 0;
     size_t calib_channels = 0;
     size_t average_size = 0;
-    std::vector<uint16_t> white_average_data;
-    std::vector<uint16_t> dark_average_data;
+    std::vector<std::uint16_t> white_average_data;
+    std::vector<std::uint16_t> dark_average_data;
 
     bool operator==(const Genesys_Calibration_Cache& other) const
     {

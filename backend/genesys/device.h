@@ -54,6 +54,7 @@
 #include "sensor.h"
 #include "register.h"
 #include "sanei.h"
+#include <cstdio>
 #include <vector>
 
 struct Genesys_Gpo
@@ -266,7 +267,7 @@ struct Genesys_Device
 
     Genesys_Gpo gpo;
     Genesys_Motor motor;
-    uint8_t  control[6] = {};
+    std::uint8_t control[6] = {};
 
     size_t average_size = 0;
     // number of pixels used during shading calibration
@@ -288,10 +289,10 @@ struct Genesys_Device
 
     // gamma overrides. If a respective array is not empty then it means that the gamma for that
     // color is overridden.
-    std::vector<uint16_t> gamma_override_tables[3];
+    std::vector<std::uint16_t> gamma_override_tables[3];
 
-    std::vector<uint16_t> white_average_data;
-    std::vector<uint16_t> dark_average_data;
+    std::vector<std::uint16_t> white_average_data;
+    std::vector<std::uint16_t> dark_average_data;
 
     bool already_initialized = false;
     SANE_Int scanhead_position_in_steps = 0;
@@ -353,10 +354,10 @@ struct Genesys_Device
     bool buffer_image = false;
 
     // image buffer where the scanned picture is stored
-    std::vector<uint8_t> img_buffer;
+    std::vector<std::uint8_t> img_buffer;
 
     // binary logger file
-    FILE *binary = nullptr;
+    std::FILE *binary = nullptr;
 
     // A snapshot of the last known physical state of the device registers. This variable is updated
     // whenever a register is written or read to the scanner.
@@ -364,12 +365,12 @@ struct Genesys_Device
 
     ImagePipelineNodeBytesSource& get_pipeline_source();
 
-    uint8_t read_register(uint16_t address);
-    void write_register(uint16_t address, uint8_t value);
+    std::uint8_t read_register(std::uint16_t address);
+    void write_register(std::uint16_t address, std::uint8_t value);
     void write_registers(Genesys_Register_Set& regs);
 
 private:
-    void update_register_state(uint16_t address, uint8_t value);
+    void update_register_state(std::uint16_t address, std::uint8_t value);
 };
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs);

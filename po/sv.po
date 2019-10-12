@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.18\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
-"POT-Creation-Date: 2019-07-23 12:14+0000\n"
+"POT-Creation-Date: 2019-10-12 17:41+0300\n"
 "PO-Revision-Date: 2012-10-22 11:17+0200\n"
 "Last-Translator: Mattias Ellert <mattias.ellert@fysast.uu.se>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -31,31 +31,31 @@ msgid "Standard"
 msgstr "Standard"
 
 #: include/sane/saneopts.h:157 backend/artec_eplus48u.c:2884
-#: backend/epson.c:3298 backend/epson2.c:1290 backend/genesys.cc:5294
-#: backend/gt68xx.c:696 backend/hp3500.c:1019 backend/hp-option.c:3300
-#: backend/kvs1025_opt.c:639 backend/kvs20xx_opt.c:285
-#: backend/kvs40xx_opt.c:506 backend/leo.c:823 backend/lexmark.c:199
-#: backend/ma1509.c:551 backend/matsushita.c:1135 backend/microtek2.h:599
-#: backend/mustek.c:4373 backend/mustek_usb.c:301 backend/mustek_usb2.c:465
-#: backend/pixma_sane_options.c:160 backend/plustek.c:808
-#: backend/plustek_pp.c:747 backend/sceptre.c:702
+#: backend/epson.c:3298 backend/epson2.c:1290
+#: backend/genesys/genesys.cpp:3976 backend/gt68xx.c:696
+#: backend/hp3500.c:1019 backend/hp-option.c:3300 backend/kvs1025_opt.c:639
+#: backend/kvs20xx_opt.c:285 backend/kvs40xx_opt.c:506 backend/leo.c:823
+#: backend/lexmark.c:199 backend/ma1509.c:551 backend/matsushita.c:1135
+#: backend/microtek2.h:599 backend/mustek.c:4373 backend/mustek_usb.c:301
+#: backend/mustek_usb2.c:465 backend/pixma_sane_options.c:160
+#: backend/plustek.c:808 backend/plustek_pp.c:747 backend/sceptre.c:702
 #: backend/snapscan-options.c:550 backend/teco1.c:1095 backend/teco2.c:1910
 #: backend/teco3.c:920 backend/test.c:647 backend/u12.c:546
-#: backend/umax.c:5176 backend/umax_pp.c:580
+#: backend/umax.c:5176 backend/umax_pp.c:576
 #, no-c-format
 msgid "Geometry"
 msgstr "Geometri"
 
 #: include/sane/saneopts.h:158 backend/artec_eplus48u.c:2805
-#: backend/canon.c:1493 backend/genesys.cc:5354 backend/gt68xx.c:665
-#: backend/hp-option.c:2956 backend/kvs1025_opt.c:703 backend/leo.c:871
-#: backend/ma1509.c:599 backend/matsushita.c:1189 backend/microtek2.h:600
-#: backend/mustek.c:4421 backend/mustek_usb.c:349 backend/mustek_usb2.c:431
-#: backend/niash.c:754 backend/plustek.c:854 backend/plustek_pp.c:793
-#: backend/sceptre.c:750 backend/snapscan-options.c:617
-#: backend/stv680.c:1067 backend/teco1.c:1143 backend/teco2.c:1958
-#: backend/teco3.c:968 backend/u12.c:592 backend/umax.c:5226
-#: backend/umax_pp.c:629
+#: backend/canon.c:1493 backend/genesys/genesys.cpp:4035
+#: backend/gt68xx.c:665 backend/hp-option.c:2956 backend/kvs1025_opt.c:703
+#: backend/leo.c:871 backend/ma1509.c:599 backend/matsushita.c:1189
+#: backend/microtek2.h:600 backend/mustek.c:4421 backend/mustek_usb.c:349
+#: backend/mustek_usb2.c:431 backend/niash.c:754 backend/plustek.c:854
+#: backend/plustek_pp.c:793 backend/sceptre.c:750
+#: backend/snapscan-options.c:617 backend/stv680.c:1067
+#: backend/teco1.c:1143 backend/teco2.c:1958 backend/teco3.c:968
+#: backend/u12.c:592 backend/umax.c:5226 backend/umax_pp.c:625
 #, no-c-format
 msgid "Enhancement"
 msgstr "Förbättring"
@@ -419,9 +419,9 @@ msgid "Lamp off at exit"
 msgstr "Lampa av vid avslut"
 
 #: include/sane/saneopts.h:245
-#, no-c-format
+#, fuzzy, no-c-format
 msgid ""
-"Read-only option that specifies how many options a specific devices "
+"Read-only option that specifies how many options a specific device "
 "supports."
 msgstr ""
 "Skrivskyddat värde som anger hur många parametrar en specifik enhet "
@@ -749,8 +749,8 @@ msgid "Analog gamma-correction for blue"
 msgstr "Analog gammakorrigering för blått"
 
 #: include/sane/saneopts.h:415
-#, no-c-format
-msgid "Warmup lamp before scanning"
+#, fuzzy, no-c-format
+msgid "Warm up lamp before scanning"
 msgstr "Värm upp lampan innan inläsning"
 
 #: include/sane/saneopts.h:417
@@ -899,8 +899,8 @@ msgid "Operation not supported"
 msgstr "Kommandot ej understött"
 
 #: backend/sane_strstatus.c:65
-#, no-c-format
-msgid "Operation was cancelled"
+#, fuzzy, no-c-format
+msgid "Operation was canceled"
 msgstr "Kommandot avbröts"
 
 #: backend/sane_strstatus.c:68
@@ -993,10 +993,10 @@ msgid "Only perform shading-correction"
 msgstr "Utför endast skuggkorrigering"
 
 #: backend/artec_eplus48u.c:2956
-#, no-c-format
+#, fuzzy, no-c-format
 msgid ""
 "If enabled, only the shading correction is performed during calibration. "
-"The default values for gain, offset and exposure time, either build-in "
+"The default values for gain, offset and exposure time, either built-in "
 "or from the configuration file, are used."
 msgstr ""
 "Om denna inställning är vald utförs endast skuggkorrigering vid "
@@ -1024,9 +1024,9 @@ msgid "Duplex scan"
 msgstr "Dubbelsidig inläsning"
 
 #: backend/avision.h:783
-#, no-c-format
+#, fuzzy, no-c-format
 msgid ""
-"Duplex scan provide a scan of the front and back side of the document"
+"Duplex scan provides a scan of the front and back side of the document"
 msgstr "Dubbelsidig inläsning läser in dokumentets framsida och baksida"
 
 #: backend/canon630u.c:159
@@ -1234,8 +1234,8 @@ msgid "invalid bit IDENTIFY message"
 msgstr "ogiltigt bit-IDENTIFY-meddelande"
 
 #: backend/canon.c:460
-#, no-c-format
-msgid "option not connect"
+#, fuzzy, no-c-format
+msgid "option not correct"
 msgstr "inställning inte anslut"
 
 #: backend/canon.c:474
@@ -1570,22 +1570,25 @@ msgid "Card Duplex"
 msgstr "Dubbelsidigt"
 
 #: backend/canon_dr.c:424 backend/epson.c:599 backend/epson.c:3096
-#: backend/epson2.c:201 backend/fujitsu.c:695 backend/genesys.cc:89
-#: backend/genesys.cc:96 backend/gt68xx_low.h:136 backend/hp-option.c:3096
+#: backend/epson2.c:201 backend/fujitsu.c:695
+#: backend/genesys/genesys.cpp:99 backend/genesys/genesys.cpp:106
+#: backend/gt68xx_low.h:136 backend/hp-option.c:3096
 #, no-c-format
 msgid "Red"
 msgstr "Röd"
 
 #: backend/canon_dr.c:425 backend/epson.c:600 backend/epson.c:3092
-#: backend/epson2.c:202 backend/fujitsu.c:696 backend/genesys.cc:90
-#: backend/genesys.cc:97 backend/gt68xx_low.h:137 backend/hp-option.c:3097
+#: backend/epson2.c:202 backend/fujitsu.c:696
+#: backend/genesys/genesys.cpp:100 backend/genesys/genesys.cpp:107
+#: backend/gt68xx_low.h:137 backend/hp-option.c:3097
 #, no-c-format
 msgid "Green"
 msgstr "Grön"
 
 #: backend/canon_dr.c:426 backend/epson.c:601 backend/epson.c:3100
-#: backend/epson2.c:203 backend/fujitsu.c:697 backend/genesys.cc:91
-#: backend/genesys.cc:98 backend/gt68xx_low.h:138 backend/hp-option.c:3098
+#: backend/epson2.c:203 backend/fujitsu.c:697
+#: backend/genesys/genesys.cpp:101 backend/genesys/genesys.cpp:108
+#: backend/gt68xx_low.h:138 backend/hp-option.c:3098
 #, no-c-format
 msgid "Blue"
 msgstr "Blå"
@@ -1608,8 +1611,9 @@ msgstr "Framhäv blått"
 #: backend/canon_dr.c:431 backend/epson.c:556 backend/epson.c:564
 #: backend/epson.c:576 backend/epson.c:598 backend/epson2.c:165
 #: backend/epson2.c:173 backend/epson2.c:185 backend/epson2.c:200
-#: backend/epson2.c:214 backend/fujitsu.c:701 backend/genesys.cc:99
-#: backend/leo.c:109 backend/matsushita.c:138 backend/matsushita.c:159
+#: backend/epson2.c:214 backend/fujitsu.c:701
+#: backend/genesys/genesys.cpp:109 backend/leo.c:109
+#: backend/matsushita.c:138 backend/matsushita.c:159
 #: backend/matsushita.c:191 backend/matsushita.c:213
 #: backend/snapscan-options.c:91
 #, no-c-format
@@ -1621,8 +1625,8 @@ msgstr "Inget"
 msgid "JPEG"
 msgstr "JPEG"
 
-#: backend/canon_dr.c:2477 backend/fujitsu.c:4113 backend/genesys.cc:5445
-#: backend/kvs1025_opt.c:910
+#: backend/canon_dr.c:2477 backend/fujitsu.c:4113
+#: backend/genesys/genesys.cpp:4126 backend/kvs1025_opt.c:910
 #, no-c-format
 msgid "Software blank skip percentage"
 msgstr "Procentsats för hoppa över blanka sidor"
@@ -1827,8 +1831,9 @@ msgstr "A4"
 msgid "Max"
 msgstr "Max"
 
-#: backend/epson.c:2813 backend/epson2.c:976 backend/genesys.cc:5207
-#: backend/gt68xx.c:451 backend/hp-option.c:2917 backend/kvs1025_opt.c:521
+#: backend/epson.c:2813 backend/epson2.c:976
+#: backend/genesys/genesys.cpp:3893 backend/gt68xx.c:451
+#: backend/hp-option.c:2917 backend/kvs1025_opt.c:521
 #: backend/kvs20xx_opt.c:171 backend/kvs40xx_opt.c:320 backend/ma1509.c:501
 #: backend/matsushita.c:1084 backend/microtek2.h:598 backend/mustek.c:4215
 #: backend/mustek_usb.c:256 backend/mustek_usb2.c:344 backend/niash.c:734
@@ -2343,7 +2348,7 @@ msgstr "Gammavärde"
 msgid "Gamma curve, from light to dark, but upper two may not work"
 msgstr ""
 
-#: backend/fujitsu.c:3393 backend/genesys.cc:5505
+#: backend/fujitsu.c:3393 backend/genesys/genesys.cpp:4187
 #: backend/pixma_sane_options.c:335
 #, no-c-format
 msgid "Threshold curve"
@@ -2641,7 +2646,7 @@ msgstr "Blå offset"
 msgid "Adjust front/back offset"
 msgstr ""
 
-#: backend/fujitsu.c:3995 backend/plustek.c:1025 backend/umax_pp.c:804
+#: backend/fujitsu.c:3995 backend/plustek.c:1025 backend/umax_pp.c:800
 #, no-c-format
 msgid "Green offset"
 msgstr "Grön offset"
@@ -2651,7 +2656,7 @@ msgstr "Grön offset"
 msgid "Adjust green/red offset"
 msgstr "Grön offset"
 
-#: backend/fujitsu.c:4013 backend/plustek.c:1041 backend/umax_pp.c:816
+#: backend/fujitsu.c:4013 backend/plustek.c:1041 backend/umax_pp.c:812
 #, no-c-format
 msgid "Blue offset"
 msgstr "Blå offset"
@@ -2718,7 +2723,7 @@ msgid "Maximum diameter of lone dots to remove from scan."
 msgstr ""
 "Maximal diameter för ensamma prickar som tas bort från den inlästa bilden"
 
-#: backend/fujitsu.c:4100 backend/genesys.cc:5436
+#: backend/fujitsu.c:4100 backend/genesys/genesys.cpp:4117
 #, no-c-format
 msgid "Software crop"
 msgstr "Mjukvarubeskärning"
@@ -2848,7 +2853,7 @@ msgstr ""
 
 #: backend/fujitsu.c:4380
 #, no-c-format
-msgid "Paper is pulled partly into adf"
+msgid "Paper is pulled partly into ADF"
 msgstr ""
 
 #: backend/fujitsu.c:4391
@@ -2996,43 +3001,43 @@ msgstr "Densitetsinställning"
 msgid "Duplex switch"
 msgstr "Dubbelsidig inläsning"
 
-#: backend/genesys.cc:5437
+#: backend/genesys/genesys.cpp:4118
 #, no-c-format
 msgid "Request backend to remove border from pages digitally"
 msgstr "Begär att drivrutinen tar bort ram från sidor automatiskt"
 
-#: backend/genesys.cc:5446 backend/kvs1025_opt.c:912
+#: backend/genesys/genesys.cpp:4127 backend/kvs1025_opt.c:912
 #, no-c-format
 msgid "Request driver to discard pages with low numbers of dark pixels"
 msgstr "Begär att drivrutinen hoppar över sidor med få mörka pixlar"
 
-#: backend/genesys.cc:5456 backend/kvs1025_opt.c:892
+#: backend/genesys/genesys.cpp:4137 backend/kvs1025_opt.c:892
 #, no-c-format
 msgid "Software derotate"
 msgstr "Mjukvaruavrotera"
 
-#: backend/genesys.cc:5457 backend/kvs1025_opt.c:894
+#: backend/genesys/genesys.cpp:4138 backend/kvs1025_opt.c:894
 #, no-c-format
 msgid "Request driver to detect and correct 90 degree image rotation"
 msgstr ""
 "Begär att drivrutinen detekterar och korrigerar 90 graders bildrotation"
 
-#: backend/genesys.cc:5486 backend/pixma_sane_options.c:314
+#: backend/genesys/genesys.cpp:4168 backend/pixma_sane_options.c:314
 #, no-c-format
 msgid "Extras"
 msgstr "Övrigt"
 
-#: backend/genesys.cc:5506 backend/pixma_sane_options.c:336
+#: backend/genesys/genesys.cpp:4188 backend/pixma_sane_options.c:336
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
 msgstr "Dynamisk tröskelkurva, från ljust till mörkt, vanligen 50-65"
 
-#: backend/genesys.cc:5515
+#: backend/genesys/genesys.cpp:4197
 #, no-c-format
 msgid "Disable dynamic lineart"
 msgstr "Avaktivera dynamisk streckteckning"
 
-#: backend/genesys.cc:5517
+#: backend/genesys/genesys.cpp:4199
 #, no-c-format
 msgid ""
 "Disable use of a software adaptive algorithm to generate lineart relying "
@@ -3042,12 +3047,12 @@ msgstr ""
 "streckteckningsinläsningar för att i stället använda hårdvarans "
 "streckteckningsinläsningsläge."
 
-#: backend/genesys.cc:5533
+#: backend/genesys/genesys.cpp:4215
 #, no-c-format
 msgid "Disable interpolation"
 msgstr "Stäng av interpolering"
 
-#: backend/genesys.cc:5536
+#: backend/genesys/genesys.cpp:4218
 #, no-c-format
 msgid ""
 "When using high resolutions where the horizontal resolution is smaller "
@@ -3057,46 +3062,46 @@ msgstr ""
 "mindre än den vertikala upplösningen stänger detta av den horisontella "
 "interpoleringen."
 
-#: backend/genesys.cc:5545
+#: backend/genesys/genesys.cpp:4227
 #, fuzzy, no-c-format
 msgid "Color filter"
 msgstr "Färgfilter"
 
-#: backend/genesys.cc:5548
+#: backend/genesys/genesys.cpp:4230
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
 "När gråskala eller streckteckning används väljer denna inställning den "
 "använda färgen."
 
-#: backend/genesys.cc:5574
+#: backend/genesys/genesys.cpp:4254
 #, fuzzy, no-c-format
 msgid "Calibration file"
 msgstr "Kalibrering"
 
-#: backend/genesys.cc:5575
+#: backend/genesys/genesys.cpp:4255
 #, fuzzy, no-c-format
 msgid "Specify the calibration file to use"
 msgstr "Definiera kalibreringsläge"
 
-#: backend/genesys.cc:5592
+#: backend/genesys/genesys.cpp:4272
 #, fuzzy, no-c-format
 msgid "Calibration cache expiration time"
 msgstr "Kalibreringsdatacache"
 
-#: backend/genesys.cc:5593
+#: backend/genesys/genesys.cpp:4273
 #, no-c-format
 msgid ""
 "Time (in minutes) before a cached calibration expires. A value of 0 "
 "means cache is not used. A negative value means cache never expires."
 msgstr ""
 
-#: backend/genesys.cc:5603
+#: backend/genesys/genesys.cpp:4283
 #, no-c-format
 msgid "Lamp off time"
 msgstr "Lampavstängningstid"
 
-#: backend/genesys.cc:5606
+#: backend/genesys/genesys.cpp:4286
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value "
@@ -3105,81 +3110,95 @@ msgstr ""
 "Lampan kommer att stängas av efter den angivna tiden (i minuter). Värdet "
 "0 betyder att lampan inte kommer att stängas av."
 
-#: backend/genesys.cc:5616
+#: backend/genesys/genesys.cpp:4296
 #, no-c-format
 msgid "Lamp off during scan"
 msgstr "Stäng av lampan under inläsning"
 
-#: backend/genesys.cc:5617
+#: backend/genesys/genesys.cpp:4297
 #, no-c-format
 msgid "The lamp will be turned off during scan. "
 msgstr "Lampan kommer att stängas av under inläsningen."
 
-#: backend/genesys.cc:5643 backend/genesys.cc:5644
+#: backend/genesys/genesys.cpp:4324 backend/genesys/genesys.cpp:4325
 #, no-c-format
 msgid "File button"
 msgstr "Filknapp"
 
-#: backend/genesys.cc:5688 backend/genesys.cc:5689
+#: backend/genesys/genesys.cpp:4369 backend/genesys/genesys.cpp:4370
 #, no-c-format
 msgid "OCR button"
 msgstr "Optisk teckenigenkännings-knapp"
 
-#: backend/genesys.cc:5700 backend/genesys.cc:5701
+#: backend/genesys/genesys.cpp:4381 backend/genesys/genesys.cpp:4382
 #, no-c-format
 msgid "Power button"
 msgstr "Påslagningsknapp"
 
-#: backend/genesys.cc:5712 backend/genesys.cc:5713
+#: backend/genesys/genesys.cpp:4393 backend/genesys/genesys.cpp:4394
 #, fuzzy, no-c-format
 msgid "Extra button"
 msgstr "E-postknapp"
 
-#: backend/genesys.cc:5724 backend/gt68xx.c:755
-#, no-c-format
-msgid "Need calibration"
+#: backend/genesys/genesys.cpp:4405 backend/gt68xx.c:755
+#, fuzzy, no-c-format
+msgid "Needs calibration"
 msgstr "Behöver kalibrering"
 
-#: backend/genesys.cc:5725 backend/gt68xx.c:756
+#: backend/genesys/genesys.cpp:4406 backend/gt68xx.c:756
 #, no-c-format
 msgid "The scanner needs calibration for the current settings"
 msgstr "Bildläsaren behöver kalibrering för nuvarande inställningar"
 
-#: backend/genesys.cc:5735 backend/gt68xx.c:780 backend/gt68xx.c:781
-#: backend/pixma_sane_options.c:226 backend/plustek.c:1080
+#: backend/genesys/genesys.cpp:4417 backend/gt68xx.c:780
+#: backend/gt68xx.c:781 backend/pixma_sane_options.c:226
+#: backend/plustek.c:1080
 #, no-c-format
 msgid "Buttons"
 msgstr "Knappar"
 
-#: backend/genesys.cc:5744 backend/gt68xx.c:787 backend/hp5400_sane.c:392
-#: backend/hp-option.h:97 backend/niash.c:726 backend/plustek.c:941
+#: backend/genesys/genesys.cpp:4426 backend/gt68xx.c:787
+#: backend/hp5400_sane.c:392 backend/hp-option.h:97 backend/niash.c:726
+#: backend/plustek.c:941
 #, no-c-format
 msgid "Calibrate"
 msgstr "Kalibrera"
 
-#: backend/genesys.cc:5746 backend/gt68xx.c:789
+#: backend/genesys/genesys.cpp:4428 backend/gt68xx.c:789
 #, no-c-format
 msgid "Start calibration using special sheet"
 msgstr "Påbörja kalibrering med specialark"
 
-#: backend/genesys.cc:5758 backend/gt68xx.c:802
+#: backend/genesys/genesys.cpp:4440 backend/gt68xx.c:802
 #, no-c-format
 msgid "Clear calibration"
 msgstr "Rensa kalibrering"
 
-#: backend/genesys.cc:5759 backend/gt68xx.c:803
+#: backend/genesys/genesys.cpp:4441 backend/gt68xx.c:803
 #, no-c-format
 msgid "Clear calibration cache"
 msgstr "Rensa kalibreringsdatacache"
 
-#: backend/genesys.cc:5769
+#: backend/genesys/genesys.cpp:4451
 #, fuzzy, no-c-format
 msgid "Force calibration"
 msgstr "Grovkalibrering"
 
-#: backend/genesys.cc:5770
+#: backend/genesys/genesys.cpp:4452
 #, no-c-format
 msgid "Force calibration ignoring all and any calibration caches"
+msgstr ""
+
+#: backend/genesys/genesys.cpp:4462
+#, fuzzy, no-c-format
+msgid "Ignore internal offsets"
+msgstr "Grön offset"
+
+#: backend/genesys/genesys.cpp:4464
+#, no-c-format
+msgid ""
+"Acquires the image including the internal calibration areas of the "
+"scanner"
 msgstr ""
 
 #: backend/gt68xx.c:149 backend/ma1509.c:108 backend/mustek.c:164
@@ -3316,12 +3335,12 @@ msgstr "Bildläsarmodel"
 
 #: backend/hp3900_sane.c:1408
 #, fuzzy, no-c-format
-msgid "Allows one to test device behaviour with other supported models"
+msgid "Allows one to test device behavior with other supported models"
 msgstr "Tillåter att testa enhetsbeteende med andra understötta modeller"
 
 #: backend/hp3900_sane.c:1422
-#, no-c-format
-msgid "Image colours will be inverted"
+#, fuzzy, no-c-format
+msgid "Image colors will be inverted"
 msgstr "Bildens färger kommer att inverteras"
 
 #: backend/hp3900_sane.c:1436
@@ -3839,8 +3858,8 @@ msgid "Color Matrix"
 msgstr "Färgmatris"
 
 #: backend/hp-option.h:121
-#, no-c-format
-msgid "Set the scanners color matrix."
+#, fuzzy, no-c-format
+msgid "Set the scanner's color matrix."
 msgstr "Ställer in bildläsarens färgmatris."
 
 #: backend/hp-option.h:127
@@ -4186,9 +4205,9 @@ msgid "crt"
 msgstr "bildskärm"
 
 #: backend/kvs1025_opt.c:229
-#, no-c-format
-msgid "linier"
-msgstr "linjär"
+#, fuzzy, no-c-format
+msgid "linear"
+msgstr "Streckteckning"
 
 #: backend/kvs1025_opt.c:241 backend/kvs20xx_opt.c:138
 #: backend/kvs40xx_opt.c:224
@@ -4385,11 +4404,11 @@ msgstr "Automatisk beskärning i mjukvara"
 msgid "Request driver to remove border from pages digitally"
 msgstr "Begär att drivrutinen tar bort ramar från sidor auomatiskt"
 
-#: backend/kvs20xx_opt.c:233 backend/kvs40xx_opt.c:396
-#, no-c-format
+#: backend/kvs20xx_opt.c:233
+#, fuzzy, no-c-format
 msgid ""
-"Length Control Mode is a mode that the scanner reads up to the shorter "
-"length of actual paper or logical document length."
+"Length Control Mode causes the scanner to read the shorter of either the "
+"length of the actual paper or logical document length."
 msgstr ""
 "I längdkontrolläge läser bildläsaren upp till den kortare av verklig "
 "papperslängd och logisk dokumentlängd."
@@ -4422,13 +4441,13 @@ msgid "B4"
 msgstr "B4"
 
 #: backend/kvs40xx_opt.c:231
-#, no-c-format
-msgid "High sensivity"
+#, fuzzy, no-c-format
+msgid "High sensitivity"
 msgstr "Hög känsighet"
 
 #: backend/kvs40xx_opt.c:232
-#, no-c-format
-msgid "Low sensivity"
+#, fuzzy, no-c-format
+msgid "Low sensitivity"
 msgstr "Låg känsighet"
 
 #: backend/kvs40xx_opt.c:243
@@ -4450,6 +4469,15 @@ msgstr "Normalläge"
 #, no-c-format
 msgid "Enhanced mode"
 msgstr "Förbättringsläge"
+
+#: backend/kvs40xx_opt.c:396
+#, fuzzy, no-c-format
+msgid ""
+"Length Control Mode causes the scanner to read the shorter of either the "
+"length of the actual paper or logical document length"
+msgstr ""
+"I längdkontrolläge läser bildläsaren upp till den kortare av verklig "
+"papperslängd och logisk dokumentlängd."
 
 #: backend/kvs40xx_opt.c:405
 #, no-c-format
@@ -4512,8 +4540,8 @@ msgid "JPEG compression"
 msgstr "JPEG-komprimmering"
 
 #: backend/kvs40xx_opt.c:718
-#, no-c-format
-msgid "JPEG compression (yours application must be able to uncompress)"
+#, fuzzy, no-c-format
+msgid "JPEG compression (your application must be able to uncompress)"
 msgstr "JPEG-komprimmering (din applikation måste kunna dekomprimmera)"
 
 #: backend/kvs40xx_opt.c:737 backend/kvs40xx_opt.c:738
@@ -4547,13 +4575,13 @@ msgid "Skew adjustment"
 msgstr "Justering för sned inmatning"
 
 #: backend/kvs40xx_opt.c:808
-#, no-c-format
-msgid "Stop scanner when a paper have been skewed"
+#, fuzzy, no-c-format
+msgid "Stop scanner if a sheet is skewed"
 msgstr "Stoppa bildläsaren när ett papper har inmatats snett"
 
 #: backend/kvs40xx_opt.c:809
-#, no-c-format
-msgid "Scanner will be stop  when a paper have been skewed"
+#, fuzzy, no-c-format
+msgid "Scanner will stop if a sheet is skewed"
 msgstr "Stoppa bildläsaren när ett papper har inmatats snett"
 
 #: backend/kvs40xx_opt.c:816
@@ -4562,14 +4590,14 @@ msgid "Crop actual image area"
 msgstr "Beskär verklig bildarea"
 
 #: backend/kvs40xx_opt.c:817
-#, no-c-format
-msgid "Scanner automatically detect image area and crop it"
+#, fuzzy, no-c-format
+msgid "Scanner will automatically detect image area and crop to it"
 msgstr "Bildläsaren detecterar automatiskt verklig bildarea och beskär den"
 
 #: backend/kvs40xx_opt.c:827
-#, no-c-format
-msgid "It is right and left reversing"
-msgstr "Den kastar om höger och vänster"
+#, fuzzy, no-c-format
+msgid "Left/right mirror image"
+msgstr "Spegla bild"
 
 #: backend/kvs40xx_opt.c:834 backend/kvs40xx_opt.c:835
 #, no-c-format
@@ -4606,52 +4634,52 @@ msgstr "8x8 Bayer"
 msgid "8x8 Vertical Line"
 msgstr "8x8 lodrät linje"
 
-#: backend/lexmark.c:273 backend/umax_pp.c:715
+#: backend/lexmark.c:273 backend/umax_pp.c:711
 #, no-c-format
 msgid "Gain"
 msgstr "Förstärking"
 
-#: backend/lexmark.c:274 backend/umax_pp.c:716
+#: backend/lexmark.c:274 backend/umax_pp.c:712
 #, no-c-format
 msgid "Color channels gain settings"
 msgstr "Inställningar för färgkanalernas förstärkning"
 
-#: backend/lexmark.c:283 backend/umax_pp.c:723
+#: backend/lexmark.c:283 backend/umax_pp.c:719
 #, no-c-format
 msgid "Gray gain"
 msgstr "Grå förstärkning"
 
-#: backend/lexmark.c:284 backend/umax_pp.c:724
+#: backend/lexmark.c:284 backend/umax_pp.c:720
 #, no-c-format
 msgid "Sets gray channel gain"
 msgstr "Ställer in den grå kanalens förstärkning"
 
-#: backend/lexmark.c:297 backend/plustek.c:1001 backend/umax_pp.c:735
+#: backend/lexmark.c:297 backend/plustek.c:1001 backend/umax_pp.c:731
 #, no-c-format
 msgid "Red gain"
 msgstr "Röd förstärkning"
 
-#: backend/lexmark.c:298 backend/umax_pp.c:736
+#: backend/lexmark.c:298 backend/umax_pp.c:732
 #, no-c-format
 msgid "Sets red channel gain"
 msgstr "Ställer in den röda kanalens förstärkning"
 
-#: backend/lexmark.c:311 backend/plustek.c:1017 backend/umax_pp.c:747
+#: backend/lexmark.c:311 backend/plustek.c:1017 backend/umax_pp.c:743
 #, no-c-format
 msgid "Green gain"
 msgstr "Grön förstärkning"
 
-#: backend/lexmark.c:312 backend/umax_pp.c:748
+#: backend/lexmark.c:312 backend/umax_pp.c:744
 #, no-c-format
 msgid "Sets green channel gain"
 msgstr "Ställer in den gröna kanalens förstärkning"
 
-#: backend/lexmark.c:325 backend/plustek.c:1033 backend/umax_pp.c:759
+#: backend/lexmark.c:325 backend/plustek.c:1033 backend/umax_pp.c:755
 #, no-c-format
 msgid "Blue gain"
 msgstr "Blå förstärkning"
 
-#: backend/lexmark.c:326 backend/umax_pp.c:760
+#: backend/lexmark.c:326 backend/umax_pp.c:756
 #, no-c-format
 msgid "Sets blue channel gain"
 msgstr "Ställer in den blå kanalens förstärkning"
@@ -5322,7 +5350,7 @@ msgstr ""
 #: backend/pixma_sane_options.c:349
 #, no-c-format
 msgid ""
-"When set, the scanner searches the waiting time in seconds for a new "
+"When set, the scanner waits upto the specified time in seconds for a new "
 "document inserted into the automatic document feeder."
 msgstr ""
 
@@ -5411,7 +5439,7 @@ msgstr "Analogt framplan"
 msgid "Red gain value of the AFE"
 msgstr "Det analoga framplanets rödförstärkningsvärde"
 
-#: backend/plustek.c:1009 backend/umax_pp.c:792
+#: backend/plustek.c:1009 backend/umax_pp.c:788
 #, no-c-format
 msgid "Red offset"
 msgstr "Röd offset"
@@ -5687,7 +5715,7 @@ msgstr ""
 msgid "This option reflects the status of a scanner button."
 msgstr "Denna inställing avspeglar status på en av bildläsarens knappar."
 
-#: backend/rts8891.c:2840 backend/umax.c:5795 backend/umax_pp.c:639
+#: backend/rts8891.c:2840 backend/umax.c:5795 backend/umax_pp.c:635
 #, no-c-format
 msgid "Lamp on"
 msgstr "Lampa på"
@@ -5846,13 +5874,13 @@ msgid "Focus point"
 msgstr "Fokuseringspunkt"
 
 #: backend/snapscan-options.c:930
-#, no-c-format
-msgid "Colour lines per read"
+#, fuzzy, no-c-format
+msgid "Color lines per read"
 msgstr "Färglinjer per inläsning"
 
 #: backend/snapscan-options.c:942
-#, no-c-format
-msgid "Greyscale lines per read"
+#, fuzzy, no-c-format
+msgid "Grayscale lines per read"
 msgstr "Gråskalelinjer per inläsning"
 
 #: backend/stv680.c:974
@@ -6494,55 +6522,61 @@ msgstr "Kalibreringsläge"
 msgid "Define calibration mode"
 msgstr "Definiera kalibreringsläge"
 
-#: backend/umax_pp.c:640
+#: backend/umax_pp.c:636
 #, no-c-format
 msgid "Sets lamp on/off"
 msgstr "Sätt på/av lampan"
 
-#: backend/umax_pp.c:649
+#: backend/umax_pp.c:645
 #, no-c-format
 msgid "UTA on"
 msgstr "UTA på"
 
-#: backend/umax_pp.c:650
+#: backend/umax_pp.c:646
 #, no-c-format
 msgid "Sets UTA on/off"
 msgstr "Sätter på/av UTA"
 
-#: backend/umax_pp.c:771
+#: backend/umax_pp.c:767
 #, no-c-format
 msgid "Offset"
 msgstr "Offset"
 
-#: backend/umax_pp.c:773
+#: backend/umax_pp.c:769
 #, no-c-format
 msgid "Color channels offset settings"
 msgstr "Inställningar för färgkanalernas offset"
 
-#: backend/umax_pp.c:780
+#: backend/umax_pp.c:776
 #, no-c-format
 msgid "Gray offset"
 msgstr "Grå offset"
 
-#: backend/umax_pp.c:781
+#: backend/umax_pp.c:777
 #, no-c-format
 msgid "Sets gray channel offset"
 msgstr "Ställer in den grå kanalens offset"
 
-#: backend/umax_pp.c:793
+#: backend/umax_pp.c:789
 #, no-c-format
 msgid "Sets red channel offset"
 msgstr "Ställer in den röda kanalens offset"
 
-#: backend/umax_pp.c:805
+#: backend/umax_pp.c:801
 #, no-c-format
 msgid "Sets green channel offset"
 msgstr "Ställer in den gröna kanalens offset"
 
-#: backend/umax_pp.c:817
+#: backend/umax_pp.c:813
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Ställer in den blå kanalens offset"
+
+#~ msgid "linier"
+#~ msgstr "linjär"
+
+#~ msgid "It is right and left reversing"
+#~ msgstr "Den kastar om höger och vänster"
 
 #, fuzzy
 #~ msgid "IPC mode"

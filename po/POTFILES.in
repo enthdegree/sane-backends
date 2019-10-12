@@ -28,7 +28,7 @@ backend/epson2.h
 backend/fujitsu.c
 backend/fujitsu.h
 
-backend/genesys.cc
+backend/genesys/genesys.cpp
 
 backend/gt68xx.c
 backend/gt68xx_low.h

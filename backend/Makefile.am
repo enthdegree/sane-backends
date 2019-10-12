@@ -34,7 +34,7 @@ EXTRA_DIST += stubs.c
 	$(AM_V_at)rm -f $@
 	$(AM_V_at)$(LN_S) $(srcdir)/stubs.c $@
 
-%-s.cc: $(srcdir)/stubs.c
+%-s.cpp: $(srcdir)/stubs.c
 	$(AM_V_at)rm -f $@
 	$(AM_V_at)$(LN_S) $(srcdir)/stubs.c $@
 
@@ -68,7 +68,7 @@ BACKEND_CONFS= abaton.conf agfafocus.conf apple.conf artec.conf \
 	       canon_pp.conf cardscan.conf coolscan2.conf coolscan3.conf \
 	       coolscan.conf dc210.conf dc240.conf dc25.conf \
 	       dell1600n_net.conf dmc.conf epjitsu.conf epson2.conf \
-	       epson.conf epsonds.conf fujitsu.conf genesys.conf gphoto2.conf \
+           epson.conf epsonds.conf fujitsu.conf genesys.conf gphoto2.conf \
 	       gt68xx.conf hp3900.conf hp4200.conf hp5400.conf \
 	       hp.conf hpsj5s.conf hs2p.conf ibm.conf kodak.conf kodakaio.conf\
 	       kvs1025.conf \
@@ -485,47 +485,46 @@ libsane_fujitsu_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_fujitsu_la_LIBADD = $(COMMON_LIBS) libfujitsu.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_magic.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += fujitsu.conf.in
 
-libgenesys_la_SOURCES = genesys.cc genesys.h \
-    genesys_buffer.h genesys_buffer.cc \
-    genesys_calibration.h \
-    genesys_command_set.h \
-    genesys_device.h genesys_device.cc \
-    genesys_enums.h \
-    genesys_error.h genesys_error.cc \
-    genesys_gl646.cc genesys_gl646.h genesys_gl646_registers.h \
-    genesys_gl124.cc genesys_gl124.h genesys_gl124_registers.h \
-    genesys_gl841.cc genesys_gl841.h genesys_gl841_registers.h \
-    genesys_gl843.cc genesys_gl843.h genesys_gl843_registers.h \
-    genesys_gl846.cc genesys_gl846.h genesys_gl846_registers.h \
-    genesys_gl847.cc genesys_gl847.h genesys_gl847_registers.h \
-    genesys_row_buffer.h \
-    genesys_image_buffer.h genesys_image_buffer.cc \
-    genesys_image_pipeline.h genesys_image_pipeline.cc \
-    genesys_image_pixel.h genesys_image_pixel.cc \
-    genesys_image.h genesys_image.cc \
-    genesys_motor.h \
-    genesys_register.h \
-    genesys_sanei.h genesys_sanei.cc \
-    genesys_sensor.h \
-    genesys_settings.h \
-    genesys_serialize.h \
-    genesys_tables_frontend.cc \
-    genesys_tables_gpo.cc \
-    genesys_tables_model.cc \
-    genesys_tables_motor.cc \
-    genesys_tables_motor_profile.cc \
-    genesys_tables_sensor.cc \
-    genesys_low.cc genesys_low.h
+libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
+    genesys/buffer.h genesys/buffer.cpp \
+    genesys/calibration.h \
+    genesys/command_set.h \
+    genesys/conv.h genesys/conv.cpp \
+    genesys/device.h genesys/device.cpp \
+    genesys/enums.h \
+    genesys/error.h genesys/error.cpp \
+    genesys/gl646.cpp genesys/gl646.h genesys/gl646_registers.h \
+    genesys/gl124.cpp genesys/gl124.h genesys/gl124_registers.h \
+    genesys/gl841.cpp genesys/gl841.h genesys/gl841_registers.h \
+    genesys/gl843.cpp genesys/gl843.h genesys/gl843_registers.h \
+    genesys/gl846.cpp genesys/gl846.h genesys/gl846_registers.h \
+    genesys/gl847.cpp genesys/gl847.h genesys/gl847_registers.h \
+    genesys/row_buffer.h \
+    genesys/image_buffer.h genesys/image_buffer.cpp \
+    genesys/image_pipeline.h genesys/image_pipeline.cpp \
+    genesys/image_pixel.h genesys/image_pixel.cpp \
+    genesys/image.h genesys/image.cpp \
+    genesys/motor.h \
+    genesys/register.h \
+    genesys/sanei.h genesys/sanei.cpp \
+    genesys/sensor.h \
+    genesys/settings.h \
+    genesys/serialize.h \
+    genesys/tables_frontend.cpp \
+    genesys/tables_gpo.cpp \
+    genesys/tables_model.cpp \
+    genesys/tables_motor.cpp \
+    genesys/tables_motor_profile.cpp \
+    genesys/tables_sensor.cpp \
+    genesys/low.cpp genesys/low.h
 
 libgenesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
 
-nodist_libsane_genesys_la_SOURCES = genesys-s.cc
+nodist_libsane_genesys_la_SOURCES = genesys-s.cpp
 libsane_genesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
 libsane_genesys_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_genesys_la_LIBADD = $(COMMON_LIBS) libgenesys.la  ../sanei/sanei_magic.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += genesys.conf.in
-# TODO: Why are this distributed but not compiled?
-EXTRA_DIST += genesys_conv.cc
 
 libgphoto2_i_la_SOURCES = gphoto2.c gphoto2.h
 libgphoto2_i_la_CPPFLAGS = $(AM_CPPFLAGS) $(GPHOTO2_CPPFLAGS) -DBACKEND_NAME=gphoto2

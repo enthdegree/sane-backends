@@ -48,8 +48,6 @@
 #include "sensor.h"
 #include "genesys.h"
 
-void genesys_reverse_bits(uint8_t* src_data, uint8_t* dst_data, size_t bytes);
-
 void binarize_line(Genesys_Device* dev, std::uint8_t* src, std::uint8_t* dst, int width);
 
 void genesys_gray_lineart(Genesys_Device* dev,

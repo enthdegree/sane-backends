@@ -122,7 +122,6 @@ enum Genesys_Option
   OPT_LAMP_OFF,
   OPT_THRESHOLD,
   OPT_THRESHOLD_CURVE,
-  OPT_DISABLE_DYNAMIC_LINEART,
   OPT_DISABLE_INTERPOLATION,
   OPT_COLOR_FILTER,
   OPT_CALIBRATION_FILE,
@@ -213,7 +212,6 @@ struct Genesys_Scanner
     bool preview = false;
     SANE_Word threshold = 0;
     SANE_Word threshold_curve = 0;
-    bool disable_dynamic_lineart = false;
     bool disable_interpolation = false;
     bool lamp_off = false;
     SANE_Word lamp_off_time = 0;

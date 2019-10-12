@@ -47,15 +47,6 @@
 #include "conv.h"
 #include "sane/sanei_magic.h"
 
-void genesys_reverse_bits(uint8_t* src_data, uint8_t* dst_data, size_t bytes)
-{
-    DBG_HELPER(dbg);
-    size_t i;
-    for(i = 0; i < bytes; i++) {
-	*dst_data++ = ~ *src_data++;
-    }
-}
-
 /**
  * uses the threshold/threshold_curve to control software binarization
  * This code was taken from the epjistsu backend by m. allan noah

@@ -3155,7 +3155,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     }
 
   /* build look up table for dynamic lineart */
-    if (dev->settings.dynamic_lineart) {
+    if (dev->settings.scan_mode == ScanColorMode::LINEART) {
         sanei_genesys_load_lut(dev->lineart_lut, 8, 8, 50, 205, dev->settings.threshold_curve,
                                dev->settings.threshold-127);
     }
@@ -3322,15 +3322,8 @@ Problems with the first approach:
     bytes = *len;
   work_buffer_src = src_buffer->get_read_pos();
 
-    if (dev->session.pipeline_needs_reverse) {
-        genesys_reverse_bits(work_buffer_src, destination, bytes);
-      *len = bytes;
-    }
-  else
-    {
-      memcpy (destination, work_buffer_src, bytes);
-      *len = bytes;
-    }
+    std::memcpy(destination, work_buffer_src, bytes);
+    *len = bytes;
 
   /* avoid signaling some extra data because we have treated a full block
    * on the last block */
@@ -3551,23 +3544,6 @@ static void calc_parameters(Genesys_Scanner* s)
     } else {
         s->dev->settings.true_gray = 0;
     }
-
-  /* dynamic lineart */
-    s->dev->settings.dynamic_lineart = false;
-  s->dev->settings.threshold_curve=0;
-    if (!s->disable_dynamic_lineart && s->dev->settings.scan_mode == ScanColorMode::LINEART) {
-        s->dev->settings.dynamic_lineart = true;
-    }
-
-  /* hardware lineart works only when we don't have interleave data
-   * for GL847 scanners, ie up to 600 DPI, then we have to rely on
-   * dynamic_lineart */
-    if (s->dev->settings.xres > 600 &&
-        s->dev->model->asic_type==AsicType::GL847 &&
-        s->dev->settings.scan_mode == ScanColorMode::LINEART)
-   {
-        s->dev->settings.dynamic_lineart = true;
-   }
 
     // threshold curve for dynamic rasterization
     s->dev->settings.threshold_curve = s->threshold_curve;
@@ -4079,23 +4055,6 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_THRESHOLD_CURVE].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_THRESHOLD_CURVE].constraint.range = &threshold_curve_range;
   s->threshold_curve = 50;
-
-  /* dynamic linart */
-  s->opt[OPT_DISABLE_DYNAMIC_LINEART].name = "disable-dynamic-lineart";
-  s->opt[OPT_DISABLE_DYNAMIC_LINEART].title = SANE_I18N ("Disable dynamic lineart");
-  s->opt[OPT_DISABLE_DYNAMIC_LINEART].desc =
-    SANE_I18N ("Disable use of a software adaptive algorithm to generate lineart relying instead on hardware lineart.");
-  s->opt[OPT_DISABLE_DYNAMIC_LINEART].type = SANE_TYPE_BOOL;
-  s->opt[OPT_DISABLE_DYNAMIC_LINEART].unit = SANE_UNIT_NONE;
-  s->opt[OPT_DISABLE_DYNAMIC_LINEART].constraint_type = SANE_CONSTRAINT_NONE;
-  s->disable_dynamic_lineart = false;
-
-  /* fastmod is required for hw lineart to work */
-    if ((s->dev->model->asic_type == AsicType::GL646) &&
-        (s->dev->model->motor_id != MotorId::XP200))
-    {
-      s->opt[OPT_DISABLE_DYNAMIC_LINEART].cap = SANE_CAP_INACTIVE;
-    }
 
   /* disable_interpolation */
   s->opt[OPT_DISABLE_INTERPOLATION].name = "disable-interpolation";
@@ -4616,7 +4575,7 @@ static void genesys_buffer_image(Genesys_Scanner *s)
 
   /* maximum bytes to read */
   maximum = s->params.bytes_per_line * lines;
-    if (s->dev->settings.dynamic_lineart) {
+    if (s->dev->settings.scan_mode == ScanColorMode::LINEART) {
       maximum *= 8;
     }
 
@@ -4668,7 +4627,7 @@ static void genesys_buffer_image(Genesys_Scanner *s)
 
   /* in case of dynamic lineart, we have buffered gray data which
    * must be converted to lineart first */
-    if (s->dev->settings.dynamic_lineart) {
+    if (s->dev->settings.scan_mode == ScanColorMode::LINEART) {
       total/=8;
       std::vector<uint8_t> lineart(total);
 
@@ -5084,9 +5043,6 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_THRESHOLD_CURVE:
         *reinterpret_cast<SANE_Word*>(val) = s->threshold_curve;
         break;
-    case OPT_DISABLE_DYNAMIC_LINEART:
-        *reinterpret_cast<SANE_Word*>(val) = s->disable_dynamic_lineart;
-        break;
     case OPT_DISABLE_INTERPOLATION:
         *reinterpret_cast<SANE_Word*>(val) = s->disable_interpolation;
         break;
@@ -5311,11 +5267,6 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
-    case OPT_DISABLE_DYNAMIC_LINEART:
-        s->disable_dynamic_lineart = *reinterpret_cast<SANE_Word*>(val);
-        calc_parameters(s);
-        *myinfo |= SANE_INFO_RELOAD_PARAMS;
-        break;
     case OPT_SWCROP:
         s->swcrop = *reinterpret_cast<SANE_Word*>(val);
         calc_parameters(s);
@@ -5450,13 +5401,11 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
                 if (s->dev->model->asic_type != AsicType::GL646 || !s->dev->model->is_cis) {
                     ENABLE(OPT_COLOR_FILTER);
                 }
-	  ENABLE (OPT_DISABLE_DYNAMIC_LINEART);
 	}
       else
 	{
 	  DISABLE (OPT_THRESHOLD);
 	  DISABLE (OPT_THRESHOLD_CURVE);
-	  DISABLE (OPT_DISABLE_DYNAMIC_LINEART);
           if (s->mode == SANE_VALUE_SCAN_MODE_GRAY)
 	    {
                     if (s->dev->model->asic_type != AsicType::GL646 || !s->dev->model->is_cis) {
@@ -5785,7 +5734,7 @@ SANE_Status sane_start_impl(SANE_Handle handle)
     s->scanning = true;
 
   /* allocate intermediate buffer when doing dynamic lineart */
-    if (s->dev->settings.dynamic_lineart) {
+    if (s->dev->settings.scan_mode == ScanColorMode::LINEART) {
         s->dev->binarize_buffer.clear();
         s->dev->binarize_buffer.alloc(s->dev->settings.pixels);
         s->dev->local_buffer.clear();
@@ -5915,7 +5864,7 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
     {
       /* dynamic lineart is another kind of digital processing that needs
        * another layer of buffering on top of genesys_read_ordered_data */
-        if (dev->settings.dynamic_lineart) {
+        if (dev->settings.scan_mode == ScanColorMode::LINEART) {
           /* if buffer is empty, fill it with genesys_read_ordered_data */
           if(dev->binarize_buffer.avail() == 0)
             {

@@ -1330,7 +1330,6 @@ void compute_session_pipeline(const Genesys_Device* dev, ScanSession& s)
     }
     s.pipeline_needs_ccd = s.max_color_shift_lines + s.num_staggered_lines > 0;
     s.pipeline_needs_shrink = dev->settings.requested_pixels != s.output_pixels;
-    s.pipeline_needs_reverse = depth == 1;
 }
 
 void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
@@ -1446,6 +1445,10 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
 
     (void) dev;
     s.params.assert_valid();
+
+    if (s.params.depth != 8 && s.params.depth != 16) {
+        throw SaneException("Unsupported depth setting %d", s.params.depth);
+    }
 
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
 
@@ -2558,11 +2561,10 @@ void debug_dump(unsigned level, const ScanSession& session)
     DBG(level, "    buffer_size_read : %zu\n", session.buffer_size_lines);
     DBG(level, "    buffer_size_shrink : %zu\n", session.buffer_size_shrink);
     DBG(level, "    buffer_size_out : %zu\n", session.buffer_size_out);
-    DBG(level, "    filters:%s%s%s%s\n",
+    DBG(level, "    filters:%s%s%s\n",
         session.pipeline_needs_reorder ? " reorder" : "",
         session.pipeline_needs_ccd ? " ccd" : "",
-        session.pipeline_needs_shrink ? " shrink" : "",
-        session.pipeline_needs_reverse ? " reverse" : "");
+        session.pipeline_needs_shrink ? " shrink" : "");
     debug_dump(level, session.params);
 }
 

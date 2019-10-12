@@ -515,6 +515,7 @@ class ImagePipelineStack
 {
 public:
     ImagePipelineStack() {}
+    ~ImagePipelineStack() { clear(); }
 
     std::size_t get_input_width() const;
     std::size_t get_input_height() const;

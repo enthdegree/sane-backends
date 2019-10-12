@@ -86,9 +86,6 @@ struct Genesys_Settings
     // Disable interpolation for xres<yres
     int disable_interpolation = 0;
 
-    // true is lineart is generated from gray data by the dynamic rasterization algoright
-    int dynamic_lineart = 0;
-
     // value for contrast enhancement in the [-100..100] range
     int contrast = 0;
 
@@ -104,14 +101,6 @@ struct Genesys_Settings
             return 3;
         return 1;
     }
-
-    unsigned get_depth() const
-    {
-        if (scan_mode == ScanColorMode::LINEART)
-            return 1;
-        return depth;
-    }
-
 };
 
 struct SetupParams {
@@ -307,7 +296,6 @@ struct ScanSession {
     bool pipeline_needs_reorder = false;
     bool pipeline_needs_ccd = false;
     bool pipeline_needs_shrink = false;
-    bool pipeline_needs_reverse = false;
 
     void assert_computed() const
     {

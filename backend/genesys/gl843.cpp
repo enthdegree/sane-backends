@@ -1123,12 +1123,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* monochrome / color scan */
   r = sanei_genesys_get_address (reg, REG04);
-  switch (session.params.depth)
-    {
-    case 1:
-      r->value &= ~REG04_BITSET;
-      r->value |= REG04_LINEART;
-      break;
+    switch (session.params.depth) {
     case 8:
       r->value &= ~(REG04_LINEART | REG04_BITSET);
       break;
@@ -1207,11 +1202,6 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
                                   const Genesys_Sensor& sensor)
 {
-    // in case of dynamic lineart, we use an internal 8 bit gray scan to generate 1 lineart data
-    if (s.params.flags & SCAN_FLAG_DYNAMIC_LINEART) {
-        s.params.depth = 8;
-    }
-
     // no 16 bit gamma for this ASIC
     if (s.params.depth == 16) {
         s.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
@@ -1363,7 +1353,7 @@ void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.get_depth();
+    session.params.depth = dev->settings.depth;
     session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
@@ -2381,13 +2371,6 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   start += dev->settings.tl_x;
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
-  /* enable emulated lineart from gray data */
-  if(dev->settings.scan_mode == ScanColorMode::LINEART
-     && dev->settings.dynamic_lineart)
-    {
-      flags |= SCAN_FLAG_DYNAMIC_LINEART;
-    }
-
     ScanSession session;
     session.params.xres = dev->settings.xres;
     session.params.yres = dev->settings.yres;
@@ -2396,7 +2379,7 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.get_depth();
+    session.params.depth = dev->settings.depth;
     session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
@@ -2452,14 +2435,12 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
 {
     DBG_HELPER(dbg);
   int num_pixels;
-    int depth;
   int avg[3], avga, avge;
   int turn;
   uint16_t expr, expg, expb;
 
     // offset calibration is always done in color mode
     unsigned channels = 3;
-  depth = 16;
 
     // take a copy, as we're going to modify exposure
     auto calib_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res, channels,
@@ -2477,7 +2458,7 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
     session.params.starty = 0;
     session.params.pixels = num_pixels;
     session.params.lines = 1;
-    session.params.depth = depth;
+    session.params.depth = 16;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
@@ -2640,7 +2621,7 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     if (dev->frontend.layout.type != FrontendType::WOLFSON)
         return;
 
-  unsigned int channels, bpp;
+    unsigned channels;
     int pass, resolution, lines;
   int topavg[3], bottomavg[3], avg[3];
   int top[3], bottom[3], black_pixels, pixels, factor, dpihw;
@@ -2648,7 +2629,6 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   /* offset calibration is always done in color mode */
   channels = 3;
   lines = 8;
-  bpp = 8;
 
     // compute divider factor to compute final pixels number
     dpihw = sensor.get_logical_hwdpi(dev->settings.xres);
@@ -2694,7 +2674,7 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     session.params.starty = 0;
     session.params.pixels = target_pixels;
     session.params.lines = lines;
-    session.params.depth = bpp;
+    session.params.depth = 8;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
@@ -2832,7 +2812,8 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
                                reinterpret_cast<const std::uint8_t*>(debug_image_info.data()),
                                debug_image_info.size());
       sanei_genesys_write_pnm_file("gl843_offset_all.pnm",
-                                   debug_image.data(), bpp, channels, pixels, debug_image_lines);
+                                   debug_image.data(), session.params.depth, channels, pixels,
+                                   debug_image_lines);
     }
 
   DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__,
@@ -2859,7 +2840,6 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   float coeff;
     int lines;
   int resolution;
-  int bpp;
 
     if (dev->frontend.layout.type != FrontendType::WOLFSON)
         return;
@@ -2887,7 +2867,6 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     }
   resolution=dpihw;
   lines=10;
-  bpp=8;
   int target_pixels = sensor.sensor_pixels / factor;
 
   int flags = SCAN_FLAG_DISABLE_SHADING |
@@ -2911,7 +2890,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     session.params.starty = 0;
     session.params.pixels = target_pixels;
     session.params.lines = lines;
-    session.params.depth = bpp;
+    session.params.depth = 8;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
@@ -2954,9 +2933,6 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
         // in transparency scans for example
         std::sort(values.begin(), values.end());
         uint16_t curr_output = values[unsigned((values.size() - 1) * 0.95)];
-        if (bpp == 16) {
-            curr_output /= 256;
-        }
         float target_value = calib_sensor.gain_white_ref * coeff;
 
         int code = compute_frontend_gain(curr_output, target_value, dev->frontend.layout.type);
@@ -3233,7 +3209,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     DBG_HELPER_ARGS(dbg, "%s %s",  black ? "black" : "white", forward ? "forward" : "reverse");
   unsigned int pixels, lines, channels;
   Genesys_Register_Set local_reg;
-    int depth, dpi;
+    int dpi;
   unsigned int pass, count, found, x, y;
   GenesysRegister *r;
 
@@ -3251,7 +3227,6 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   /* lines = (10 * dpi) / MM_PER_INCH; */
   /* shading calibation is done with dev->motor.base_ydpi */
   lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi;
-  depth = 8;
   pixels = (calib_sensor.sensor_pixels * dpi) / calib_sensor.optical_res;
 
   dev->scanhead_position_in_steps = 0;
@@ -3265,7 +3240,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     session.params.starty = 0;
     session.params.pixels = pixels;
     session.params.lines = lines;
-    session.params.depth = depth;
+    session.params.depth = 8;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::GRAY;

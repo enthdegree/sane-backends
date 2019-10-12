@@ -802,12 +802,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* monochrome / color scan */
   r = sanei_genesys_get_address (reg, REG04);
-  switch (session.params.depth)
-    {
-    case 1:
-      r->value &= ~REG04_BITSET;
-      r->value |= REG04_LINEART;
-      break;
+    switch (session.params.depth) {
     case 8:
       r->value &= ~(REG04_LINEART | REG04_BITSET);
       break;
@@ -906,12 +901,6 @@ static void gl124_compute_session(Genesys_Device* dev, ScanSession& s,
                                   const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-
-    /* in case of dynamic lineart, we use an internal 8 bit gray scan
-     * to generate 1 lineart data */
-    if (s.params.flags & SCAN_FLAG_DYNAMIC_LINEART) {
-        s.params.depth = 8;
-    }
 
     compute_session(dev, s, sensor);
 
@@ -1032,7 +1021,7 @@ void CommandSetGl124::calculate_current_setup(Genesys_Device * dev,
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.get_depth();
+    session.params.depth = dev->settings.depth;
     session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
@@ -1685,7 +1674,6 @@ void CommandSetGl124::wait_for_motor_stop(Genesys_Device* dev) const
 void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const
 {
     DBG_HELPER(dbg);
-  int flags;
   float move;
   int move_dpi;
   float start;
@@ -1711,15 +1699,6 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
-  flags = 0;
-
-  /* enable emulated lineart from gray data */
-  if(dev->settings.scan_mode == ScanColorMode::LINEART
-     && dev->settings.dynamic_lineart)
-    {
-      flags |= SCAN_FLAG_DYNAMIC_LINEART;
-    }
-
     ScanSession session;
     session.params.xres = dev->settings.xres;
     session.params.yres = dev->settings.yres;
@@ -1728,12 +1707,12 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.get_depth();
+    session.params.depth = dev->settings.depth;
     session.params.channels = dev->settings.get_channels();
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = flags;
+    session.params.flags = 0;
     gl124_compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &dev->reg, session);
@@ -1922,7 +1901,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
   int dpihw;
   int i, j;
   int val;
-  int channels, depth;
+  int channels;
   int avg[3];
   int turn;
   uint16_t exp[3],target;
@@ -1932,7 +1911,6 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
 
   /* offset calibration is always done in 16 bit depth color mode */
   channels = 3;
-  depth=16;
     dpihw = sensor.get_register_hwdpi(dev->settings.xres);
     resolution = dpihw;
     unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
@@ -1952,7 +1930,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
     session.params.starty = 0;
     session.params.pixels = num_pixels;
     session.params.lines = 1;
-    session.params.depth = depth;
+    session.params.depth = 16;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
@@ -1965,7 +1943,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
 
     gl124_init_scan_regs(dev, sensor, &regs, session);
 
-  total_size = num_pixels * channels * (depth/8) * 1;        /* colors * bytes_per_color * scan lines */
+    total_size = num_pixels * channels * (session.params.depth / 8) * 1;
   std::vector<uint8_t> line(total_size);
 
     // initial loop values and boundaries
@@ -2000,7 +1978,8 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
 	{
           char fn[30];
           snprintf(fn, 30, "gl124_led_%02d.pnm", turn);
-          sanei_genesys_write_pnm_file(fn, line.data(), depth, channels, num_pixels, 1);
+          sanei_genesys_write_pnm_file(fn, line.data(), session.params.depth, channels, num_pixels,
+                                       1);
 	}
 
       /* compute average */
@@ -2093,7 +2072,7 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
                                          Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  unsigned int channels, bpp;
+    unsigned channels;
   int pass = 0, avg, total_size;
     int topavg, bottomavg, lines;
   int top, bottom, black_pixels, pixels;
@@ -2109,7 +2088,6 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   channels = 3;
   dev->calib_pixels = sensor.sensor_pixels;
   lines=1;
-  bpp=8;
     pixels = (sensor.sensor_pixels * sensor.optical_res) / sensor.optical_res;
     black_pixels = (sensor.black_pixels * sensor.optical_res) / sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
@@ -2121,7 +2099,7 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     session.params.starty = 0;
     session.params.pixels = pixels;
     session.params.lines = lines;
-    session.params.depth = bpp;
+    session.params.depth = 8;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
@@ -2137,7 +2115,7 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   sanei_genesys_set_motor_power(regs, false);
 
   /* allocate memory for scans */
-  total_size = pixels * channels * lines * (bpp/8);        /* colors * bytes_per_color * scan lines */
+    total_size = pixels * channels * lines * (session.params.depth / 8);
 
   std::vector<uint8_t> first_line(total_size);
   std::vector<uint8_t> second_line(total_size);
@@ -2162,7 +2140,8 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
    {
       char title[30];
       snprintf(title, 30, "gl124_offset%03d.pnm", bottom);
-      sanei_genesys_write_pnm_file(title, first_line.data(), bpp, channels, pixels, lines);
+        sanei_genesys_write_pnm_file(title, first_line.data(), session.params.depth,
+                                     channels, pixels, lines);
    }
 
   bottomavg = dark_average(first_line.data(), pixels, lines, channels, black_pixels);
@@ -2203,7 +2182,8 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 	{
           char title[30];
           snprintf(title, 30, "gl124_offset%03d.pnm", dev->frontend.get_offset(1));
-          sanei_genesys_write_pnm_file(title, second_line.data(), bpp, channels, pixels, lines);
+          sanei_genesys_write_pnm_file(title, second_line.data(), session.params.depth,
+                                       channels, pixels, lines);
 	}
 
       avg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
@@ -2247,7 +2227,6 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   int max[3];
   float gain[3],coeff;
   int val, code, lines;
-  int bpp;
 
     // no gain nor offset for TI AFE
     uint8_t reg0a = dev->read_register(REG0A);
@@ -2266,7 +2245,6 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
       coeff=1.0;
     }
   lines=10;
-  bpp=8;
      pixels = (sensor.sensor_pixels * sensor.optical_res) / sensor.optical_res;
 
     ScanSession session;
@@ -2276,7 +2254,7 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     session.params.starty = 0;
     session.params.pixels = pixels;
     session.params.lines = lines;
-    session.params.depth = bpp;
+    session.params.depth = 8;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
@@ -2298,7 +2276,7 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     dev->write_registers(regs);
 
-  total_size = pixels * channels * (16/bpp) * lines;
+    total_size = pixels * channels * (16 / session.params.depth) * lines;
 
   std::vector<uint8_t> line(total_size);
 
@@ -2306,8 +2284,10 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     begin_scan(dev, sensor, &regs, true);
     sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl124_gain.pnm", line.data(), bpp, channels, pixels, lines);
+    if (DBG_LEVEL >= DBG_data) {
+        sanei_genesys_write_pnm_file("gl124_gain.pnm", line.data(), session.params.depth,
+                                     channels, pixels, lines);
+    }
 
   /* average value on each channel */
   for (j = 0; j < channels; j++)
@@ -2315,23 +2295,10 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
       max[j] = 0;
       for (i = pixels/4; i < (pixels*3/4); i++)
 	{
-          if(bpp==16)
-            {
-	  if (dev->model->is_cis)
-	    val =
-	      line[i * 2 + j * 2 * pixels + 1] * 256 +
-	      line[i * 2 + j * 2 * pixels];
-	  else
-	    val =
-	      line[i * 2 * channels + 2 * j + 1] * 256 +
-	      line[i * 2 * channels + 2 * j];
-            }
-          else
-            {
-	  if (dev->model->is_cis)
-	    val = line[i + j * pixels];
-	  else
-	    val = line[i * channels + j];
+            if (dev->model->is_cis) {
+                val = line[i + j * pixels];
+            } else {
+                val = line[i * channels + j];
             }
 
 	    max[j] += val;

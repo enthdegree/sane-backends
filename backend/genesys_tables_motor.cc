@@ -628,6 +628,14 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
+    motor.id = MotorId::PLUSTEK_OPTICFILM_7500I;
+    motor.base_ydpi = 3600;
+    motor.optical_ydpi = 3600;
+    motor.max_step_type = 0;
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
     motor.id = MotorId::IMG101;
     motor.base_ydpi = 600;
     motor.optical_ydpi = 1200;

@@ -176,7 +176,8 @@ static void gl843_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor
     }
     if (!(dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE) &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I &&
-        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7300)
+        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7300 &&
+        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7500I)
     {
         regs->set8(0x7d, 0x90);
     }
@@ -220,7 +221,8 @@ gl843_init_registers (Genesys_Device * dev)
 
     SETREG(0x04, 0x10);
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
-        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300)
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
     {
         SETREG(0x04, 0x22);
     }
@@ -249,7 +251,8 @@ gl843_init_registers (Genesys_Device * dev)
         SETREG(0x06, 0xd0);
     }
     if (dev->model->model_id == ModelId::CANON_4400F ||
-        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300)
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
     {
         SETREG(0x06, 0xf0); /* SCANMOD=111, PWRBIT and no GAIN4 */
     }
@@ -280,7 +283,8 @@ gl843_init_registers (Genesys_Device * dev)
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) {
         SETREG(0x0b, 0x2a);
     }
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I) {
         SETREG(0x0b, 0x4a);
     }
     if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
@@ -386,7 +390,9 @@ gl843_init_registers (Genesys_Device * dev)
     {
       SETREG(0x34, 0x14);
     }
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
+    {
         SETREG(0x34, 0x3c);
     }
 
@@ -444,7 +450,9 @@ gl843_init_registers (Genesys_Device * dev)
     if (dev->model->model_id == ModelId::CANON_8600F) {
         SETREG(0x5e, 0x1f);
     }
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
+    {
         SETREG(0x5e, 0x01);
     }
 
@@ -456,7 +464,9 @@ gl843_init_registers (Genesys_Device * dev)
     if (dev->model->model_id == ModelId::CANON_8600F) {
         SETREG(0x5f, 0xf0);
     }
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
+    {
         SETREG(0x5f, 0x01);
     }
 
@@ -515,7 +525,8 @@ gl843_init_registers (Genesys_Device * dev)
         SETREG(0x6b, 0xf4);
     }
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
-        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300)
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
     {
         SETREG(0x6b, 0x31);
     }
@@ -599,7 +610,9 @@ gl843_init_registers (Genesys_Device * dev)
     {
         SETREG(0x80, 0x50);
     }
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
+    {
         SETREG(0x80, 0x0f);
     }
 
@@ -653,7 +666,9 @@ gl843_init_registers (Genesys_Device * dev)
 
     // RMADLY[0:1], MOTLAG, CMODE, STEPTIM, MULDMYLN, IFRS
     SETREG(0x9d, 0x04);
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
+    {
         SETREG(0x9d, 0x00);
     }
     if (dev->model->model_id == ModelId::CANON_4400F ||
@@ -1751,7 +1766,14 @@ static void gl843_set_xpa_lamp_power(Genesys_Device* dev, bool set)
                 { 0xa8, 0x00, 0x07 },
             }
         },
-        {   ModelId::PLUSTEK_OPTICFILM_7300, ScanMethod::TRANSPARENCY, {}, {}},
+        {   ModelId::PLUSTEK_OPTICFILM_7300, ScanMethod::TRANSPARENCY, {}, {} },
+        {   ModelId::PLUSTEK_OPTICFILM_7500I, ScanMethod::TRANSPARENCY, {}, {} },
+        {   ModelId::PLUSTEK_OPTICFILM_7500I, ScanMethod::TRANSPARENCY_INFRARED, {
+                { 0xa8, 0x07, 0x07 },
+            }, {
+                { 0xa8, 0x00, 0x07 },
+            }
+        },
     };
 
     for (const auto& setting : settings) {
@@ -1827,7 +1849,8 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
             }
             break;
         case GpioId::PLUSTEK_OPTICFILM_7200I:
-        case GpioId::PLUSTEK_OPTICFILM_7300: {
+        case GpioId::PLUSTEK_OPTICFILM_7300:
+        case GpioId::PLUSTEK_OPTICFILM_7500I: {
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
                 gl843_set_xpa_lamp_power(dev, true);
             }
@@ -3123,7 +3146,9 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
     }
     else if (dev->model->model_id == ModelId::CANON_8600F) {
         sanei_genesys_write_0x8c(dev, 0x10, 0xc8);
-    } else if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300) {
+    } else if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+               dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
+    {
         sanei_genesys_write_0x8c(dev, 0x10, 0xd4);
     } else {
         sanei_genesys_write_0x8c(dev, 0x10, 0xb4);
@@ -3139,6 +3164,7 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
             clock_freq = REG0B_30MHZ;
             break;
         case ModelId::PLUSTEK_OPTICFILM_7300:
+        case ModelId::PLUSTEK_OPTICFILM_7500I:
             clock_freq = REG0B_40MHZ;
             break;
         default:

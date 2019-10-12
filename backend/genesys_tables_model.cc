@@ -2448,6 +2448,65 @@ void genesys_init_usb_device_tables()
 
 
     model = Genesys_Model();
+    model.name = "plustek-opticfilm-7500i";
+    model.vendor = "PLUSTEK";
+    model.model = "OpticFilm 7500i";
+    model.model_id = ModelId::PLUSTEK_OPTICFILM_7500I;
+    model.asic_type = AsicType::GL843;
+    model.xdpi_values = { 7200, 3600, 1800, 900 };
+    model.ydpi_values = { 7200, 3600, 1800, 900 };
+    model.bpp_gray_values = { 16 };
+    model.bpp_color_values = { 16 };
+    model.default_method = ScanMethod::TRANSPARENCY;
+
+    model.x_offset = 0.0;
+    model.y_offset = 0.0;
+    model.x_size = 36.0;
+    model.y_size = 44.0;
+    model.y_offset_calib_white = 0.0;
+    model.x_offset_calib_black = 6.5;
+
+    model.x_offset_ta = 0.0;
+    model.y_offset_ta = 29.0;
+    model.x_size_ta = 36.0;
+    model.y_size_ta = 24.0;
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_black_ta = 6.5;
+    model.y_offset_calib_white_ta = 0.0;
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 12;
+    model.ld_shift_b = 24;
+
+    model.line_mode_color_order = ColorOrder::RGB;
+
+    model.is_cis = false;
+    model.is_sheetfed = false;
+
+    model.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7500I;
+    model.adc_id = AdcId::PLUSTEK_OPTICFILM_7500I;
+    model.gpio_id = GpioId::PLUSTEK_OPTICFILM_7500I;
+    model.motor_id = MotorId::PLUSTEK_OPTICFILM_7500I;
+
+    model.flags = GENESYS_FLAG_HAS_UTA |
+                  GENESYS_FLAG_HAS_UTA_INFRARED |
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_SKIP_WARMUP |
+                  GENESYS_FLAG_DARK_CALIBRATION |
+                  GENESYS_FLAG_OFFSET_CALIBRATION |
+                  GENESYS_HAS_NO_BUTTONS |
+                  GENESYS_FLAG_SHADING_REPARK |
+                  GENESYS_FLAG_CALIBRATION_HOST_SIDE;
+
+    model.shading_lines = 7;
+    model.shading_ta_lines = 50;
+    model.search_lines = 200;
+    s_usb_devices->emplace_back(0x07b3, 0x0c13, model);
+
+
+    model = Genesys_Model();
     model.name = "hewlett-packard-scanjet-N6310";
     model.vendor = "Hewlett Packard";
     model.model = "ScanJet N6310";

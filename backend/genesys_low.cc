@@ -939,7 +939,7 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
             if ((dev->model->model_id == ModelId::CANON_8400F ||
                  dev->model->model_id == ModelId::CANON_8600F ||
                  dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
-                 dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300) &&
+                 dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I) &&
                 dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
             {
                 regs.find_reg(0x03).value &= ~REG03_LAMPPWR;
@@ -1495,7 +1495,8 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
         s.optical_pixels = align_int_up(s.optical_pixels, 2 * s.ccd_size_divisor);
 
         if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
-            dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300)
+            dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+            dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
         {
             s.optical_pixels = align_int_up(s.optical_pixels, 16);
         }

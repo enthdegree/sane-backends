@@ -896,7 +896,7 @@ void CommandSetGl846::calculate_current_setup(Genesys_Device* dev,
     debug_dump(DBG_info, dev->settings);
 
   /* start */
-  start = SANE_UNFIX (dev->model->x_offset);
+    start = dev->model->x_offset;
   start += dev->settings.tl_x;
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
@@ -1451,9 +1451,9 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
      assumption: steps are expressed at maximum motor resolution
 
      we need:
-     SANE_Fixed y_offset;
-     SANE_Fixed y_size;
-     SANE_Fixed y_offset_calib;
+     float y_offset;
+     float y_size;
+     float y_offset_calib;
      mm_to_steps()=motor dpi / 2.54 / 10=motor dpi / MM_PER_INCH */
 
   /* if scanner uses GENESYS_FLAG_SEARCH_START y_offset is
@@ -1461,7 +1461,7 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
   move_dpi = dev->motor.base_ydpi;
 
-  move = SANE_UNFIX (dev->model->y_offset);
+  move = dev->model->y_offset;
   move += dev->settings.tl_y;
   move = (move * move_dpi) / MM_PER_INCH;
   move -= dev->scanhead_position_in_steps;
@@ -1482,7 +1482,7 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* start */
-  start = SANE_UNFIX (dev->model->x_offset);
+    start = dev->model->x_offset;
   start += dev->settings.tl_x;
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
@@ -1622,7 +1622,7 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
   uint16_t exp[3];
   float move;
 
-    move = SANE_UNFIX(dev->model->y_offset_calib_white);
+    move = dev->model->y_offset_calib_white;
   move = (move * (dev->motor.base_ydpi/4)) / MM_PER_INCH;
   if(move>20)
     {

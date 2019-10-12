@@ -1208,9 +1208,9 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
       /* bottom of black stripe is of fixed witdh, this hardcoded value
        * will be moved into device struct if more such values are needed */
       top += 10;
-        dev->model->y_offset_calib_white = SANE_FIX((top * MM_PER_INCH) / dpi);
+        dev->model->y_offset_calib_white = (top * MM_PER_INCH) / dpi;
         DBG(DBG_info, "%s: black stripe y_offset = %f mm \n", __func__,
-            SANE_UNFIX(dev->model->y_offset_calib_white));
+            dev->model->y_offset_calib_white.value());
     }
 
   /* find white corner in dark area : TODO yet another flag */
@@ -1229,9 +1229,9 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
 	  count++;
 	}
       top = top / count;
-        dev->model->y_offset_calib_white = SANE_FIX((top * MM_PER_INCH) / dpi);
+        dev->model->y_offset_calib_white = (top * MM_PER_INCH) / dpi;
         DBG(DBG_info, "%s: white corner y_offset = %f mm\n", __func__,
-            SANE_UNFIX(dev->model->y_offset_calib_white));
+            dev->model->y_offset_calib_white.value());
     }
 
     DBG(DBG_proc, "%s: ccd_start_xoffset = %d, left = %d, top = %d\n", __func__,
@@ -1404,11 +1404,9 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
 
     unsigned channels = dev->settings.get_channels();
 
-  DBG(DBG_info, "channels %d y_size %d xres %d\n", channels, dev->model->y_size,
+  DBG(DBG_info, "channels %d y_size %f xres %d\n", channels, dev->model->y_size.value(),
       dev->settings.xres);
-  size =
-    channels * 2 * SANE_UNFIX (dev->model->y_size) * dev->settings.xres /
-    25.4;
+    size = channels * 2 * dev->model->y_size * dev->settings.xres / 25.4;
   /*       1        1               mm                      1/inch        inch/mm */
 
   std::vector<uint8_t> calibration_data(size);
@@ -2852,7 +2850,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
   /* we always use sensor pixel number when the ASIC can't handle multi-segments sensor */
   if (!(dev->model->flags & GENESYS_FLAG_SIS_SENSOR))
     {
-      pixels_per_line = (SANE_UNFIX (dev->model->x_size) * dev->settings.xres) / MM_PER_INCH;
+      pixels_per_line = (dev->model->x_size * dev->settings.xres) / MM_PER_INCH;
     }
   else
     {
@@ -3764,12 +3762,12 @@ init_gamma_vector_option (Genesys_Scanner * scanner, int option)
  * @param size maximum size of the range
  * @return a pointer to a valid range or nullptr
  */
-static SANE_Range *create_range(SANE_Fixed size)
+static SANE_Range* create_range(float size)
 {
     SANE_Range* range = reinterpret_cast<SANE_Range*>(std::malloc(sizeof(SANE_Range)));
     if (range != nullptr) {
       range->min = SANE_FIX (0.0);
-      range->max = size;
+        range->max = SANE_FIX(size);
       range->quant = SANE_FIX (0.0);
     }
   return range;
@@ -3984,12 +3982,12 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_GEOMETRY_GROUP].size = 0;
   s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
-  x_range=create_range(model->x_size);
+    x_range = create_range(model->x_size);
     if (x_range == nullptr) {
         throw SaneException(SANE_STATUS_NO_MEM);
     }
 
-  y_range=create_range(model->y_size);
+    y_range = create_range(model->y_size);
     if (y_range == nullptr) {
         throw SaneException(SANE_STATUS_NO_MEM);
     }
@@ -4725,8 +4723,7 @@ static void genesys_buffer_image(Genesys_Scanner *s)
     }
   else
     {
-      lines =
-	(SANE_UNFIX (dev->model->y_size) * dev->settings.yres) / MM_PER_INCH;
+        lines = (dev->model->y_size * dev->settings.yres) / MM_PER_INCH;
     }
   DBG(DBG_info, "%s: buffering %d lines of %d bytes\n", __func__, lines,
       s->params.bytes_per_line);

@@ -1843,7 +1843,7 @@ void CommandSetGl841::calculate_current_setup(Genesys_Device * dev,
     debug_dump(DBG_info, dev->settings);
 
 /* start */
-  start = SANE_UNFIX (dev->model->x_offset);
+    start = dev->model->x_offset;
 
   start += dev->settings.tl_x;
 
@@ -2224,10 +2224,10 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 	}
     }
 
-  feed_mm = SANE_UNFIX(dev->model->eject_feed);
+    feed_mm = dev->model->eject_feed;
   if (dev->document)
     {
-      feed_mm += SANE_UNFIX(dev->model->post_scan);
+        feed_mm += dev->model->post_scan;
     }
 
         sanei_genesys_read_feed_steps(dev, &init_steps);
@@ -2317,7 +2317,7 @@ void CommandSetGl841::detect_document_end(Genesys_Device* dev) const
 
         std::size_t output_lines = dev->session.output_line_count;
 
-        std::size_t offset_lines = (SANE_UNFIX(dev->model->post_scan) / MM_PER_INCH) *
+        std::size_t offset_lines = (dev->model->post_scan / MM_PER_INCH) *
                 dev->settings.yres;
 
         std::size_t scan_end_lines = scanned_lines + offset_lines;
@@ -2763,9 +2763,9 @@ void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
      assumption: steps are expressed at maximum motor resolution
 
      we need:
-     SANE_Fixed y_offset;
-     SANE_Fixed y_size;
-     SANE_Fixed y_offset_calib;
+     float y_offset;
+     float y_size;
+     float y_offset_calib;
      mm_to_steps()=motor dpi / 2.54 / 10=motor dpi / MM_PER_INCH */
 
   /* if scanner uses GENESYS_FLAG_SEARCH_START y_offset is
@@ -2775,12 +2775,12 @@ void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
   move = 0;
     if (dev->model->flags & GENESYS_FLAG_SEARCH_START) {
-        move += SANE_UNFIX(dev->model->y_offset_calib_white);
+        move += dev->model->y_offset_calib_white;
     }
 
   DBG(DBG_info, "%s move=%f steps\n", __func__, move);
 
-  move += SANE_UNFIX (dev->model->y_offset);
+  move += dev->model->y_offset;
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   move += dev->settings.tl_y;
@@ -2789,7 +2789,7 @@ void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   move = (move * move_dpi) / MM_PER_INCH;
 
 /* start */
-  start = SANE_UNFIX (dev->model->x_offset);
+    start = dev->model->x_offset;
 
   start += dev->settings.tl_x;
 
@@ -2885,7 +2885,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
 
   /* feed to white strip if needed */
     if (dev->model->y_offset_calib_white > 0) {
-        move = SANE_UNFIX(dev->model->y_offset_calib_white);
+        move = dev->model->y_offset_calib_white;
       move = (move * (dev->motor.base_ydpi)) / MM_PER_INCH;
       DBG(DBG_io, "%s: move=%d lines\n", __func__, move);
         gl841_feed(dev, move);
@@ -3578,7 +3578,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     // feed to white strip if needed
     if (dev->model->y_offset_calib_white > 0) {
-        move = SANE_UNFIX(dev->model->y_offset_calib_white);
+        move = dev->model->y_offset_calib_white;
       move = (move * (dev->motor.base_ydpi)) / MM_PER_INCH;
       DBG(DBG_io, "%s: move=%d lines\n", __func__, move);
         gl841_feed(dev, move);

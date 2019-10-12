@@ -1044,7 +1044,7 @@ void CommandSetGl124::calculate_current_setup(Genesys_Device * dev,
     debug_dump(DBG_info, dev->settings);
 
   /* start */
-  start = SANE_UNFIX (dev->model->x_offset);
+    start = dev->model->x_offset;
   start += dev->settings.tl_x;
   start = (start * sensor.optical_res) / MM_PER_INCH;
 
@@ -1649,7 +1649,7 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   /* distance to move to reach white target at high resolution */
   move=0;
     if (dev->settings.yres >= 1200) {
-        move = SANE_UNFIX(dev->model->y_offset_calib_white);
+        move = dev->model->y_offset_calib_white;
       move = (move * (dev->motor.base_ydpi/4)) / MM_PER_INCH;
     }
   DBG (DBG_io, "%s: move=%d steps\n", __func__, move);
@@ -1718,7 +1718,7 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* y (motor) distance to move to reach scanned area */
   move_dpi = dev->motor.base_ydpi/4;
-  move = SANE_UNFIX (dev->model->y_offset);
+  move = dev->model->y_offset;
   move += dev->settings.tl_y;
   move = (move * move_dpi) / MM_PER_INCH;
   DBG (DBG_info, "%s: move=%f steps\n", __func__, move);
@@ -1730,7 +1730,7 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* start */
-  start = SANE_UNFIX (dev->model->x_offset);
+    start = dev->model->x_offset;
   start += dev->settings.tl_x;
     start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
   start = (start * sensor.optical_res) / MM_PER_INCH;

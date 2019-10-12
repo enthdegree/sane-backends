@@ -1424,7 +1424,7 @@ void CommandSetGl646::detect_document_end(Genesys_Device* dev) const
         unsigned lines_in_buffer = bytes_left / dev->session.output_line_bytes_raw;
 
         // we add the number of lines needed to read the last part of the document in
-        unsigned lines_offset = (SANE_UNFIX(dev->model->y_offset) * dev->session.params.yres) /
+        unsigned lines_offset = (dev->model->y_offset * dev->session.params.yres) /
                 MM_PER_INCH;
 
         unsigned remaining_lines = lines_in_buffer + lines_offset;
@@ -2039,7 +2039,7 @@ static void setup_for_scan(Genesys_Device* dev,
     if (!split) {
         if (!dev->model->is_sheetfed) {
             if (ycorrection) {
-                move = SANE_UNFIX(dev->model->y_offset);
+                move = dev->model->y_offset;
             }
 
             // add tl_y to base movement
@@ -2057,9 +2057,9 @@ static void setup_for_scan(Genesys_Device* dev,
     float start = settings.tl_x;
     if (xcorrection) {
         if (settings.scan_method == ScanMethod::FLATBED) {
-            start += SANE_UNFIX(dev->model->x_offset);
+            start += dev->model->x_offset;
         } else {
-            start += SANE_UNFIX(dev->model->x_offset_ta);
+            start += dev->model->x_offset_ta;
         }
     }
     start = (start * sensor.optical_res) / MM_PER_INCH;
@@ -2705,8 +2705,8 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     }
   else
     {
-      settings.tl_x = SANE_UNFIX (dev->model->x_offset_ta);
-      settings.pixels = (SANE_UNFIX (dev->model->x_size_ta) * resolution) / MM_PER_INCH;
+        settings.tl_x = dev->model->x_offset_ta;
+        settings.pixels = (dev->model->x_size_ta * resolution) / MM_PER_INCH;
     }
     settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
@@ -3100,7 +3100,7 @@ void CommandSetGl646::move_to_ta(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
 
-    simple_move(dev, SANE_UNFIX(dev->model->y_offset_sensor_to_ta));
+    simple_move(dev, dev->model->y_offset_sensor_to_ta);
 }
 
 
@@ -3563,7 +3563,7 @@ void CommandSetGl646::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   settings.yres = res;
   settings.tl_x = 0;
   settings.tl_y = 0;
-  settings.pixels = (SANE_UNFIX (dev->model->x_size) * res) / MM_PER_INCH;
+    settings.pixels = (dev->model->x_size * res) / MM_PER_INCH;
     settings.pixels /= calib_sensor.get_ccd_size_divisor_for_dpi(res);
     settings.requested_pixels = settings.pixels;
 

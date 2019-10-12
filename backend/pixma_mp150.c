@@ -917,10 +917,7 @@ send_time (pixma_t * s)
   data = pixma_newcmd (&mp->cb, cmd_time, 20, 0);
   pixma_get_time (&now, NULL);
   t = localtime (&now);
-  snprintf ((char *) data, 16,
-	    "%02d/%02d/%02d %02d:%02d",
-	    t->tm_year % 100, t->tm_mon + 1, t->tm_mday,
-	    t->tm_hour, t->tm_min);
+  strftime ((char *) data, 16, "%y/%m/%d %H:%M", t);
   PDBG (pixma_dbg (3, "Sending time: '%s'\n", (char *) data));
   return pixma_exec (s, &mp->cb);
 }

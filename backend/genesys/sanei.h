@@ -50,6 +50,8 @@
 #include <cstdint>
 #include <string>
 
+namespace genesys {
+
 class UsbDevice {
 public:
     UsbDevice() = default;
@@ -93,5 +95,7 @@ private:
     bool is_open_ = false;
     int device_num_ = 0;
 };
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_SANEI_H

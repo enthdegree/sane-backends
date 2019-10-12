@@ -51,6 +51,8 @@
 #include <stdexcept>
 #include <vector>
 
+namespace genesys {
+
 struct GenesysRegister
 {
     std::uint16_t address = 0;
@@ -401,5 +403,7 @@ void apply_registers_ordered(const RegisterSettingSet<Value>& set,
         f(reg);
     }
 }
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_REGISTER_H

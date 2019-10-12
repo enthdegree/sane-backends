@@ -82,6 +82,8 @@
 #define SANE_I18N(text) text
 #endif
 
+namespace genesys {
+
 /** List of SANE options
  */
 enum Genesys_Option
@@ -245,5 +247,7 @@ struct Genesys_Scanner
 void write_calibration(std::ostream& str, Genesys_Device::Calibration& cache);
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& cache,
                       const std::string& path);
+
+} // namespace genesys
 
 #endif /* not GENESYS_H */

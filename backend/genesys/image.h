@@ -47,6 +47,8 @@
 #include "image_pixel.h"
 #include <vector>
 
+namespace genesys {
+
 class Image
 {
 public:
@@ -79,5 +81,7 @@ private:
 
 void convert_pixel_row_format(const std::uint8_t* in_data, PixelFormat in_format,
                               std::uint8_t* out_data, PixelFormat out_format, std::size_t count);
+
+} // namespace genesys
 
 #endif // ifndef BACKEND_GENESYS_IMAGE_H

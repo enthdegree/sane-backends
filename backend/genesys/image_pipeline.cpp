@@ -48,6 +48,8 @@
 #include "low.h"
 #include <numeric>
 
+namespace genesys {
+
 ImagePipelineNode::~ImagePipelineNode() {}
 
 std::size_t ImagePipelineNodeBytesSource::consume_remaining_bytes(std::size_t bytes)
@@ -832,3 +834,5 @@ Image ImagePipelineStack::get_image()
     }
     return ret;
 }
+
+} // namespace genesys

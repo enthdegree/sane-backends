@@ -46,6 +46,8 @@
 #include "image_buffer.h"
 #include "image.h"
 
+namespace genesys {
+
 ImageBuffer::ImageBuffer(std::size_t size, ProducerCallback producer) :
     producer_{producer},
     size_{size},
@@ -197,3 +199,5 @@ std::size_t ImageBufferGenesysUsb::get_read_size()
 
     return size;
 }
+
+} // namespace genesys

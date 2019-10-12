@@ -54,6 +54,8 @@
 /*                  functions calling ASIC specific functions               */
 /* ------------------------------------------------------------------------ */
 
+namespace genesys {
+
 /**
  * setup the hardware dependent functions
  */
@@ -273,7 +275,6 @@ void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* d
 
     // currently supported: GL646, GL841, GL843, GL846, GL847, GL124
     size_t size, target;
-    uint8_t *buffer;
 
     unsigned is_addr_used = 1;
     unsigned has_header_before_each_chunk = 0;
@@ -300,7 +301,6 @@ void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* d
     }
 
     target = len;
-    buffer = data;
 
     size_t max_in_size = sanei_genesys_get_bulk_max_size(dev->model->asic_type);
 
@@ -328,10 +328,6 @@ void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* d
 
         target -= size;
         data += size;
-    }
-
-    if (DBG_LEVEL >= DBG_data && dev->binary != nullptr) {
-        fwrite(buffer, len, 1, dev->binary);
     }
 }
 
@@ -2639,3 +2635,5 @@ void debug_dump(unsigned level, const Genesys_Sensor& sensor)
     DBG(level, "    gamma.green : %f\n", sensor.gamma[1]);
     DBG(level, "    gamma.blue : %f\n", sensor.gamma[2]);
 }
+
+} // namespace genesys

@@ -30,6 +30,8 @@
 #include "../../../backend/genesys/image_pipeline.h"
 #include <vector>
 
+namespace genesys {
+
 void test_get_pixel_from_row()
 {
     std::vector<std::uint8_t> data = {
@@ -570,3 +572,5 @@ void test_image()
     test_set_raw_channel_to_row();
     test_convert_pixel_row_format();
 }
+
+} // namespace genesys

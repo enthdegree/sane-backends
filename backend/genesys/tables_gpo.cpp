@@ -45,6 +45,8 @@
 
 #include "low.h"
 
+namespace genesys {
+
 StaticInit<std::vector<Genesys_Gpo>> s_gpo;
 
 void genesys_init_gpo_tables()
@@ -409,3 +411,5 @@ void genesys_init_gpo_tables()
     };
     s_gpo->push_back(gpo);
 }
+
+} // namespace genesys

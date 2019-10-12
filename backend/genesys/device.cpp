@@ -47,6 +47,8 @@
 #include "command_set.h"
 #include "low.h"
 
+namespace genesys {
+
 Genesys_Device::~Genesys_Device()
 {
     clear();
@@ -110,3 +112,5 @@ void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSett
         dev.write_register(reg.address, val);
     }
 }
+
+} // namespace genesys

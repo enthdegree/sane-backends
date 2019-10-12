@@ -53,8 +53,9 @@
 #include "gl646.h"
 #include "gl646_registers.h"
 
-#include <cstdio>
 #include <vector>
+
+namespace genesys {
 
 /**
  * reads value from gpio endpoint
@@ -92,12 +93,6 @@ void CommandSetGl646::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t*
     if (dev->model->is_sheetfed) {
         detect_document_end(dev);
     }
-}
-
-bool CommandSetGl646::get_bitset_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
-    return (r && (r->value & REG04_BITSET));
 }
 
 bool CommandSetGl646::get_gain4_bit(Genesys_Register_Set* regs) const
@@ -3676,3 +3671,5 @@ std::unique_ptr<CommandSet> create_gl646_cmd_set()
 {
     return std::unique_ptr<CommandSet>(new CommandSetGl646{});
 }
+
+} // namespace genesys

@@ -51,6 +51,8 @@
 #include <cstddef>
 #include <vector>
 
+namespace genesys {
+
 class RowBuffer
 {
 public:
@@ -206,5 +208,7 @@ private:
     bool is_linear_ = true;
     std::vector<std::uint8_t> data_;
 };
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_LINE_BUFFER_H

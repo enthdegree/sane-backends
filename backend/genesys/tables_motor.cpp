@@ -45,6 +45,8 @@
 
 #include "low.h"
 
+namespace genesys {
+
 StaticInit<std::vector<Genesys_Motor>> s_motors;
 
 void genesys_init_motor_tables()
@@ -696,3 +698,5 @@ void genesys_init_motor_tables()
 
     s_motors->push_back(std::move(motor));
 }
+
+} // namespace genesys

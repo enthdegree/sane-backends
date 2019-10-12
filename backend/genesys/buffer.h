@@ -48,6 +48,8 @@
 #include <cstddef>
 #include <cstdint>
 
+namespace genesys {
+
 /*  A FIFO buffer. Note, that this is _not_ a ringbuffer.
     if we need a block which does not fit at the end of our available data,
     we move the available data to the beginning.
@@ -81,5 +83,7 @@ private:
     // data bytes currently in buffer
     std::size_t avail_ = 0;
 };
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_BUFFER_H

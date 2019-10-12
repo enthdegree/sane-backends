@@ -49,6 +49,8 @@
 #include <algorithm>
 #include <functional>
 
+namespace genesys {
+
 // This class allows reading from row-based source in smaller or larger chunks of data
 class ImageBuffer
 {
@@ -121,5 +123,7 @@ private:
 
     ProducerCallback producer_;
 };
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_IMAGE_BUFFER_H

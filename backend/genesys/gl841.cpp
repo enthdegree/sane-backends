@@ -57,6 +57,8 @@
 
 #include <vector>
 
+namespace genesys {
+
 // Set address for writing data
 static void gl841_set_buffer_address_gamma(Genesys_Device* dev, uint32_t addr)
 {
@@ -68,12 +70,6 @@ static void gl841_set_buffer_address_gamma(Genesys_Device* dev, uint32_t addr)
 
   addr = addr >> 8;
     dev->write_register(0x5b, (addr & 0xff));
-}
-
-bool CommandSetGl841::get_bitset_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x04);
-    return (r && (r->value & REG04_BITSET));
 }
 
 bool CommandSetGl841::get_gain4_bit(Genesys_Register_Set* regs) const
@@ -4141,7 +4137,6 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
   uint32_t length, x, factor, pixels, i;
-  uint32_t lines, channels;
     uint16_t dpiset, dpihw, beginpixel;
   uint8_t *ptr,*src;
 
@@ -4168,17 +4163,6 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   factor=dpihw/dpiset;
   DBG(DBG_io2, "%s: dpihw=%d, dpiset=%d, ccd_size_divisor=%d, factor=%d\n", __func__, dpihw, dpiset,
       ccd_size_divisor, factor);
-
-  /* binary data logging */
-  if(DBG_LEVEL>=DBG_data)
-    {
-        dev->binary = std::fopen("binary.pnm","wb");
-        lines = dev->reg.get24(REG_LINCNT);
-        channels = dev->session.params.channels;
-        if (dev->binary != nullptr) {
-          fprintf(dev->binary,"P5\n%d %d\n%d\n",(endpixel-strpixel)/factor*channels,lines/channels,255);
-        }
-    }
 
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2; /* 2 words of 2 bytes */
@@ -4274,3 +4258,5 @@ std::unique_ptr<CommandSet> create_gl841_cmd_set()
 {
     return std::unique_ptr<CommandSet>(new CommandSetGl841{});
 }
+
+} // namespace genesys

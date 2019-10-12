@@ -30,6 +30,8 @@
 
 #include <numeric>
 
+namespace genesys {
+
 void test_row_buffer_push_pop_forward(unsigned size)
 {
     RowBuffer buf{1};
@@ -85,3 +87,5 @@ void test_row_buffer()
         test_row_buffer_push_pop_backward(size);
     }
 }
+
+} // namespace genesys

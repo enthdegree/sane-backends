@@ -54,8 +54,9 @@
 #include "sensor.h"
 #include "register.h"
 #include "sanei.h"
-#include <cstdio>
 #include <vector>
+
+namespace genesys {
 
 struct Genesys_Gpo
 {
@@ -356,9 +357,6 @@ struct Genesys_Device
     // image buffer where the scanned picture is stored
     std::vector<std::uint8_t> img_buffer;
 
-    // binary logger file
-    std::FILE *binary = nullptr;
-
     // A snapshot of the last known physical state of the device registers. This variable is updated
     // whenever a register is written or read to the scanner.
     Genesys_Register_Set physical_regs;
@@ -374,5 +372,7 @@ private:
 };
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs);
+
+} // namespace genesys
 
 #endif

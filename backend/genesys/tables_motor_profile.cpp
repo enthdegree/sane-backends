@@ -45,6 +45,8 @@
 
 #include "low.h"
 
+namespace genesys {
+
 // This file contains reference motor slope tables.
 // The tables are directly extracted from USB logs, with a termination value of 0
 
@@ -1211,3 +1213,5 @@ Motor_Profile gl124_motor_profiles[] = {
 
     { MotorId::UNKNOWN, 0, StepType::FULL, nullptr },
 };
+
+} // namespace genesys

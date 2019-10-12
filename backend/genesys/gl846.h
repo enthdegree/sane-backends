@@ -47,6 +47,8 @@
 #ifndef BACKEND_GENESYS_GL846_H
 #define BACKEND_GENESYS_GL846_H
 
+namespace genesys {
+
 /** @brief moves the slider to steps at motor base dpi
  * @param dev device to work on
  * @param steps number of steps to move
@@ -153,7 +155,6 @@ public:
 
     void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
 
-    bool get_bitset_bit(Genesys_Register_Set * reg) const override;
     bool get_gain4_bit(Genesys_Register_Set * reg) const override;
 
     bool test_buffer_empty_bit(std::uint8_t val) const override;
@@ -214,5 +215,7 @@ public:
     void calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor) const override;
     void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_GL846_H

@@ -64,6 +64,8 @@
 #define DBG_io2         7	/* io functions that are called very often */
 #define DBG_data        8	/* log image data */
 
+namespace genesys {
+
 class SaneException : std::exception {
 public:
     SaneException(SANE_Status status);
@@ -171,5 +173,7 @@ inline void wrap_status_code_to_exception(SANE_Status status)
         return;
     throw SaneException(status);
 }
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_ERROR_H

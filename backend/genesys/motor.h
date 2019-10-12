@@ -48,6 +48,8 @@
 #include <vector>
 #include "enums.h"
 
+namespace genesys {
+
 struct Genesys_Motor_Slope
 {
     Genesys_Motor_Slope() = default;
@@ -98,5 +100,7 @@ struct Genesys_Motor
     // slopes to derive individual slopes from
     std::vector<Genesys_Motor_Slope> slopes;
 };
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_MOTOR_H

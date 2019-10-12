@@ -39,19 +39,19 @@ std::ostream& operator<<(std::ostream& str, const std::vector<T>& arg)
     return str;
 }
 
-inline std::ostream& operator<<(std::ostream& str, const PixelFormat& arg)
+inline std::ostream& operator<<(std::ostream& str, const genesys::PixelFormat& arg)
 {
     str << static_cast<unsigned>(arg);
     return str;
 }
 
-inline std::ostream& operator<<(std::ostream& str, const Pixel& arg)
+inline std::ostream& operator<<(std::ostream& str, const genesys::Pixel& arg)
 {
     str << "{ " << arg.r << ", " << arg.g << ", " << arg.b << " }";
     return str;
 }
 
-inline std::ostream& operator<<(std::ostream& str, const RawPixel& arg)
+inline std::ostream& operator<<(std::ostream& str, const genesys::RawPixel& arg)
 {
     auto flags = str.flags();
     str << std::hex;

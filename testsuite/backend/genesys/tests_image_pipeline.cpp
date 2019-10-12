@@ -30,6 +30,8 @@
 
 #include <numeric>
 
+namespace genesys {
+
 void test_image_buffer_genesys_usb()
 {
     std::vector<std::size_t> requests;
@@ -513,3 +515,5 @@ void test_image_pipeline()
     test_node_calibrate_8bit();
     test_node_calibrate_16bit();
 }
+
+} // namespace genesys

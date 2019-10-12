@@ -50,6 +50,8 @@
 #include <array>
 #include <functional>
 
+namespace genesys {
+
 template<class T, size_t Size>
 struct AssignableArray : public std::array<T, Size> {
     AssignableArray() = default;
@@ -423,5 +425,7 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize_newline(str);
     serialize(str, x.sensor_profiles);
 }
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_SENSOR_H

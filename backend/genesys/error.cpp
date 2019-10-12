@@ -45,7 +45,8 @@
 
 #include "error.h"
 #include <cstdarg>
-#include <cstdio>
+
+namespace genesys {
 
 extern "C" void sanei_debug_msg(int level, int max_level, const char *be, const char *fmt,
                                 std::va_list ap);
@@ -175,3 +176,5 @@ void DebugMessageHelper::vstatus(const char* format, ...)
     std::vsnprintf(msg_, MAX_BUF_SIZE, format, args);
     va_end(args);
 }
+
+} // namespace genesys

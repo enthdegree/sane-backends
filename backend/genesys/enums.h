@@ -47,6 +47,8 @@
 #include <iostream>
 #include "serialize.h"
 
+namespace genesys {
+
 enum class ScanMethod : unsigned {
     // normal scan method
     FLATBED = 0,
@@ -358,5 +360,7 @@ enum class AsicType : unsigned
     GL847,
     GL124,
 };
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_ENUMS_H

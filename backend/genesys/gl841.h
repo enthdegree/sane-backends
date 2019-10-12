@@ -49,6 +49,8 @@
 
 #define INITREG(adr,val) {dev->reg.init_reg(adr, val); }
 
+namespace genesys {
+
 /**
  * prototypes declaration in case of unit testing
  */
@@ -81,7 +83,6 @@ public:
 
     void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
 
-    bool get_bitset_bit(Genesys_Register_Set* reg) const override;
     bool get_gain4_bit(Genesys_Register_Set* reg) const override;
 
     bool test_buffer_empty_bit(std::uint8_t val) const override;
@@ -142,5 +143,7 @@ public:
     void calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor) const override;
     void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
+
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_GL841_H

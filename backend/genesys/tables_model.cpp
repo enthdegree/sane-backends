@@ -56,6 +56,8 @@
 
 #include "low.h"
 
+namespace genesys {
+
 StaticInit<std::vector<Genesys_USB_Device_Entry>> s_usb_devices;
 
 void genesys_init_usb_device_tables()
@@ -2673,3 +2675,5 @@ void genesys_init_usb_device_tables()
 
     s_usb_devices->emplace_back(0x1083, 0x162e, model);
  }
+
+} // namespace genesys

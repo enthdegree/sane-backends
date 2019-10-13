@@ -1043,11 +1043,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          Genesys_Register_Set* reg, unsigned int exposure,
                                          const ScanSession& session)
 {
-    DBG_HELPER_ARGS(dbg, "exposure=%d, used_res=%d, start=%f, pixels=%d, channels=%d, depth=%d, "
-                         "ccd_size_divisor=%d",
-                    exposure, session.output_resolution, session.params.startx,
-                    session.optical_pixels, session.params.channels, session.params.depth,
-                    session.ccd_size_divisor);
+    DBG_HELPER_ARGS(dbg, "exposure=%d", exposure);
     unsigned int dpihw;
   unsigned int tgtime;          /**> exposure time multiplier */
   GenesysRegister *r;
@@ -2370,8 +2366,8 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     ScanSession session;
     session.params.xres = dev->settings.xres;
     session.params.yres = dev->settings.yres;
-    session.params.startx = start;
-    session.params.starty = move;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;

@@ -114,9 +114,9 @@ struct SetupParams {
     // resolution in y direction
     unsigned yres = NOT_SET;
     // start pixel in X direction, from dummy_pixel + 1
-    float startx = -1;
+    unsigned startx = NOT_SET;
     // start pixel in Y direction, counted according to base_ydpi
-    float starty = -1;
+    unsigned starty = NOT_SET;
     // the number of pixels in X direction. Note that each logical pixel may correspond to more
     // than one CCD pixel, see CKSEL and GenesysSensor::ccd_pixels_per_system_pixel()
     unsigned pixels = NOT_SET;
@@ -153,7 +153,7 @@ struct SetupParams {
 
     void assert_valid() const
     {
-        if (xres == NOT_SET || yres == NOT_SET || startx < 0 || starty < 0 ||
+        if (xres == NOT_SET || yres == NOT_SET || startx == NOT_SET || starty == NOT_SET ||
             pixels == NOT_SET || lines == NOT_SET ||depth == NOT_SET || channels == NOT_SET ||
             scan_method == static_cast<ScanMethod>(NOT_SET) ||
             scan_mode == static_cast<ScanColorMode>(NOT_SET) ||

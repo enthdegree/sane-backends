@@ -53,13 +53,6 @@
 #define FAST_TABLE 	3 	/* table 4 at 0x5800 */
 #define HOME_TABLE 	4 	/* table 5 at 0x6000 */
 
-#define SCAN_FLAG_SINGLE_LINE              0x001
-#define SCAN_FLAG_DISABLE_SHADING          0x002
-#define SCAN_FLAG_DISABLE_GAMMA            0x004
-#define SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE 0x008
-#define SCAN_FLAG_IGNORE_LINE_DISTANCE     0x010
-#define SCAN_FLAG_DISABLE_LAMP             0x040
-
 #define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
 
 namespace genesys {

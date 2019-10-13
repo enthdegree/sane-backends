@@ -94,6 +94,23 @@ private:
     SANE_Fixed value_ = 0;
 };
 
+struct MethodResolutions
+{
+    std::vector<ScanMethod> methods;
+    std::vector<unsigned> resolutions_x;
+    std::vector<unsigned> resolutions_y;
+
+    unsigned get_min_resolution_x() const
+    {
+        return *std::min_element(resolutions_x.begin(), resolutions_x.end());
+    }
+
+    unsigned get_min_resolution_y() const
+    {
+        return *std::min_element(resolutions_y.begin(), resolutions_y.end());
+    }
+};
+
 /** @brief structure to describe a scanner model
  * This structure describes a model. It is composed of information on the
  * sensor, the motor, scanner geometry and flags to drive operation.
@@ -109,10 +126,8 @@ struct Genesys_Model
 
     AsicType asic_type = AsicType::UNKNOWN;
 
-    // possible x resolutions
-    std::vector<unsigned> xdpi_values;
-    // possible y resolutions
-    std::vector<unsigned> ydpi_values;
+    // possible x and y resolutions for each method supported by the scanner
+    std::vector<MethodResolutions> resolutions;
 
     // possible depths in gray mode
     std::vector<unsigned> bpp_gray_values;
@@ -205,17 +220,9 @@ struct Genesys_Model
     // how many lines are used to search start position
     SANE_Int search_lines = 0;
 
-    std::vector<unsigned> get_resolutions() const
-    {
-        std::vector<unsigned> ret;
-        std::copy(xdpi_values.begin(), xdpi_values.end(), std::back_inserter(ret));
-        std::copy(ydpi_values.begin(), ydpi_values.end(), std::back_inserter(ret));
-        // sort in decreasing order
+    const MethodResolutions& get_resolution_settings(ScanMethod method) const;
 
-        std::sort(ret.begin(), ret.end(), std::greater<unsigned>());
-        ret.erase(std::unique(ret.begin(), ret.end()), ret.end());
-        return ret;
-    }
+    std::vector<unsigned> get_resolutions(ScanMethod method) const;
 };
 
 /**

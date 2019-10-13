@@ -49,6 +49,33 @@
 
 namespace genesys {
 
+const MethodResolutions& Genesys_Model::get_resolution_settings(ScanMethod method) const
+{
+    for (const auto& res_for_method : resolutions) {
+        for (auto res_method : res_for_method.methods) {
+            if (res_method == method) {
+                return res_for_method;
+            }
+        }
+    }
+    throw SaneException("Could not find resolution settings for method %d",
+                        static_cast<unsigned>(method));
+}
+
+std::vector<unsigned> Genesys_Model::get_resolutions(ScanMethod method) const
+{
+    auto settings = get_resolution_settings(method);
+
+    std::vector<unsigned> ret;
+    std::copy(settings.resolutions_x.begin(), settings.resolutions_x.end(), std::back_inserter(ret));
+    std::copy(settings.resolutions_y.begin(), settings.resolutions_y.end(), std::back_inserter(ret));
+    // sort in decreasing order
+
+    std::sort(ret.begin(), ret.end(), std::greater<unsigned>());
+    ret.erase(std::unique(ret.begin(), ret.end()), ret.end());
+    return ret;
+}
+
 Genesys_Device::~Genesys_Device()
 {
     clear();

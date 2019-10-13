@@ -71,8 +71,13 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::UMAX_ASTRA_4500;
     model.asic_type = AsicType::GL646;
 
-    model.xdpi_values = { 1200, 600, 300, 150, 75 };
-    model.ydpi_values = { 2400, 1200, 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 1200, 600, 300, 150, 75 },
+            { 2400, 1200, 600, 300, 150, 75 }
+        }
+    };
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -123,8 +128,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_LIDE_50;
     model.asic_type = AsicType::GL841;
 
-    model.xdpi_values = { 1200, 600, 400, 300, 240, 200, 150, 75 };
-    model.ydpi_values = { 2400, 1200, 600, 400, 300, 240, 200, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 1200, 600, 400, 300, 240, 200, 150, 75 },
+            { 2400, 1200, 600, 400, 300, 240, 200, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -181,8 +192,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::PANASONIC_KV_SS080;
     model.asic_type = AsicType::GL843;
 
-    model.xdpi_values = { 600, /* 500, 400,*/ 300, 200, 150, 100, 75 };
-    model.ydpi_values = { 1200, 600, /* 500, 400, */ 300, 200, 150, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 600, /* 500, 400,*/ 300, 200, 150, 100, 75 },
+            { 1200, 600, /* 500, 400, */ 300, 200, 150, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -235,8 +252,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::HP_SCANJET_4850C;
     model.asic_type = AsicType::GL843;
 
-    model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
-    model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 2400, 1200, 600, 400, 300, 200, 150, 100 },
+            { 2400, 1200, 600, 400, 300, 200, 150, 100 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -290,8 +313,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::HP_SCANJET_G4010;
     model.asic_type = AsicType::GL843;
 
-    model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
-    model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 2400, 1200, 600, 400, 300, 200, 150, 100 },
+            { 2400, 1200, 600, 400, 300, 200, 150, 100 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -345,8 +374,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::HP_SCANJET_G4050;
     model.asic_type = AsicType::GL843;
 
-    model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
-    model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 2400, 1200, 600, 400, 300, 200, 150, 100 },
+            { 2400, 1200, 600, 400, 300, 200, 150, 100 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -401,8 +436,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_4400F;
     model.asic_type = AsicType::GL843;
 
-    model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
-    model.ydpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
+            { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -459,8 +500,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_8400F;
     model.asic_type = AsicType::GL843;
 
-    model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
-    model.ydpi_values = { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED, ScanMethod::TRANSPARENCY, ScanMethod::TRANSPARENCY_INFRARED },
+            { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
+            { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -519,8 +566,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_8600F;
     model.asic_type = AsicType::GL843;
 
-    model.xdpi_values = { 4800, 2400, 1200, 600, 400, 300 }; // TODO: resolutions for non-XPA mode
-    model.ydpi_values = { 4800, 2400, 1200, 600, 400, 300 }; // TODO: resolutions for non-XPA mode
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED, ScanMethod::TRANSPARENCY, ScanMethod::TRANSPARENCY_INFRARED },
+            { 4800, 2400, 1200, 600, 400, 300 }, // TODO: resolutions for non-XPA mode
+            { 4800, 2400, 1200, 600, 400, 300 }, // TODO: resolutions for non-XPA mode
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -579,8 +632,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_LIDE_100;
     model.asic_type = AsicType::GL847;
 
-    model.xdpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
-    model.ydpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -639,8 +698,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_LIDE_110;
     model.asic_type = AsicType::GL124;
 
-    model.xdpi_values = { 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
-    model.ydpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -697,8 +762,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_LIDE_120;
     model.asic_type = AsicType::GL124;
 
-    model.xdpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
-    model.ydpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 4800, 2400, 1200, 600, 300, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, 300, 150, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -754,8 +825,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_LIDE_210;
     model.asic_type = AsicType::GL124;
 
-    model.xdpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
-    model.ydpi_values = { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -814,8 +891,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_LIDE_220;
     model.asic_type = AsicType::GL124; // or a compatible one
 
-    model.xdpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
-    model.ydpi_values = { 4800, 2400, 1200, 600, 300, 150, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 4800, 2400, 1200, 600, 300, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, 300, 150, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -873,8 +956,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_5600F;
     model.asic_type = AsicType::GL847;
 
-    model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75 };
-    model.ydpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 1200, 600, 400, 300, 200, 150, 100, 75 },
+            { 1200, 600, 400, 300, 200, 150, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -933,8 +1022,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_LIDE_700F;
     model.asic_type = AsicType::GL847;
 
-    model.xdpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
-    model.ydpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -992,8 +1087,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_LIDE_200;
     model.asic_type = AsicType::GL847;
 
-    model.xdpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
-    model.ydpi_values = { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1051,8 +1152,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_LIDE_60;
     model.asic_type = AsicType::GL841;
 
-    model.xdpi_values = { 1200, 600, 300, 150, 75 };
-    model.ydpi_values = { 2400, 1200, 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 1200, 600, 300, 150, 75 },
+            { 2400, 1200, 600, 300, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1109,8 +1216,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_LIDE_80;
     model.asic_type = AsicType::GL841;
 
-    model.xdpi_values = {      1200, 600, 400, 300, 240, 150, 100, 75 };
-    model.ydpi_values = { 2400, 1200, 600, 400, 300, 240, 150, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            {      1200, 600, 400, 300, 240, 150, 100, 75 },
+            { 2400, 1200, 600, 400, 300, 240, 150, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
     model.x_offset = 0.42;
@@ -1166,10 +1279,15 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::HP_SCANJET_2300C;
     model.asic_type = AsicType::GL646;
 
-    // FIXME: the scanner supports 1200 ydpi, but we never scanned at this resolution so for now
-    // it's not supported
-    model.xdpi_values = { 600, 300, 150, 75 };
-    model.ydpi_values = { /* 1200, */600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            // FIXME: the scanner supports 1200 ydpi, but we never scanned at this resolution so for now
+            // it's not supported
+            { 600, 300, 150, 75 },
+            { /* 1200, */600, 300, 150, 75 },
+        }
+    };
 
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
@@ -1225,8 +1343,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::HP_SCANJET_2400C;
     model.asic_type = AsicType::GL646;
 
-    model.xdpi_values = { 1200, 600, 300, 150, 100, 50 };
-    model.ydpi_values = { 1200, 600, 300, 150, 100, 50 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 1200, 600, 300, 150, 100, 50 },
+            { 1200, 600, 300, 150, 100, 50 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1282,8 +1406,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::VISIONEER_STROBE_XP200;
     model.asic_type = AsicType::GL646;
 
-    model.xdpi_values = { 600, 300, 200, 100, 75 };
-    model.ydpi_values = { 600, 300, 200, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 600, 300, 200, 100, 75 },
+            { 600, 300, 200, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1338,8 +1468,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::HP_SCANJET_3670C;
     model.asic_type = AsicType::GL646;
 
-    model.xdpi_values = { 1200, 600, 300, 150, 100, 75 };
-    model.ydpi_values = { 1200, 600, 300, 150, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 1200, 600, 300, 150, 100, 75 },
+            { 1200, 600, 300, 150, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1395,8 +1531,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::PLUSTEK_OPTICPRO_ST12;
     model.asic_type = AsicType::GL646;
 
-    model.xdpi_values = { 600, 300, 150, 75 };
-    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 600, 300, 150, 75 },
+            { 1200, 600, 300, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1446,8 +1588,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::PLUSTEK_OPTICPRO_ST24;
     model.asic_type = AsicType::GL646;
 
-    model.xdpi_values = { 1200, 600, 300, 150, 75 };
-    model.ydpi_values = { 2400, 1200, 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 1200, 600, 300, 150, 75 },
+            { 2400, 1200, 600, 300, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1501,8 +1649,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::MEDION_MD5345;
     model.asic_type = AsicType::GL646;
 
-    model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
-    model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 1200, 600, 400, 300, 200, 150, 100, 75, 50 },
+            { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1561,8 +1715,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::VISIONEER_STROBE_XP300;
     model.asic_type = AsicType::GL841;
 
-    model.xdpi_values = { 600, 300, 150, 75 };
-    model.ydpi_values = { 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 600, 300, 150, 75 },
+            { 600, 300, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1615,8 +1775,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::SYSCAN_DOCKETPORT_665;
     model.asic_type = AsicType::GL841;
 
-    model.xdpi_values = { 600, 300, 150, 75 };
-    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 600, 300, 150, 75 },
+            { 1200, 600, 300, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1669,8 +1835,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::VISIONEER_ROADWARRIOR;
     model.asic_type = AsicType::GL841;
 
-    model.xdpi_values = { 600, 300, 150, 75 };
-    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 600, 300, 150, 75 },
+            { 1200, 600, 300, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1723,8 +1895,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::SYSCAN_DOCKETPORT_465;
     model.asic_type = AsicType::GL841;
 
-    model.xdpi_values = { 600, 300, 150, 75 };
-    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 600, 300, 150, 75 },
+            { 1200, 600, 300, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1778,8 +1956,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::VISIONEER_STROBE_XP100_REVISION3;
     model.asic_type = AsicType::GL841;
 
-    model.xdpi_values = { 600, 300, 150, 75 };
-    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 600, 300, 150, 75 },
+            { 1200, 600, 300, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1832,8 +2016,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::PENTAX_DSMOBILE_600;
     model.asic_type = AsicType::GL841;
 
-    model.xdpi_values = { 600, 300, 150, 75 };
-    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 600, 300, 150, 75 },
+            { 1200, 600, 300, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1888,8 +2078,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::SYSCAN_DOCKETPORT_467;
     model.asic_type = AsicType::GL841;
 
-    model.xdpi_values = { 600, 300, 150, 75 };
-    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 600, 300, 150, 75 },
+            { 1200, 600, 300, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1941,8 +2137,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::SYSCAN_DOCKETPORT_685;
     model.asic_type = AsicType::GL841;
 
-    model.xdpi_values = { 600, 300, 150, 75 };
-    model.ydpi_values = { 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 600, 300, 150, 75 },
+            { 600, 300, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -1997,8 +2199,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::SYSCAN_DOCKETPORT_485;
     model.asic_type = AsicType::GL841;
 
-    model.xdpi_values = { 600, 300, 150, 75 };
-    model.ydpi_values = { 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 600, 300, 150, 75 },
+            { 600, 300, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -2052,8 +2260,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::DCT_DOCKETPORT_487;
     model.asic_type = AsicType::GL841;
 
-    model.xdpi_values = { 600, 300, 150, 75 };
-    model.ydpi_values = { 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 600, 300, 150, 75 },
+            { 600, 300, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -2108,8 +2322,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::VISIONEER_7100;
     model.asic_type = AsicType::GL646;
 
-    model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
-    model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 1200, 600, 400, 300, 200, 150, 100, 75, 50 },
+            { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -2168,8 +2388,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::XEROX_2400;
     model.asic_type = AsicType::GL646;
 
-    model.xdpi_values = { 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
-    model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 1200, 600, 400, 300, 200, 150, 100, 75, 50 },
+            { 2400, 1200, 600, 400, 300, 200, 150, 100, 75, 50 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -2228,8 +2454,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::XEROX_TRAVELSCANNER_100;
     model.asic_type = AsicType::GL841;
 
-    model.xdpi_values = { 600, 300, 150, 75 };
-    model.ydpi_values = { 1200, 600, 300, 150, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 600, 300, 150, 75 },
+            { 1200, 600, 300, 150, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -2282,8 +2514,15 @@ void genesys_init_usb_device_tables()
     model.model = "OpticBook 3600";
     model.model_id = ModelId::PLUSTEK_OPTICPRO_3600;
     model.asic_type = AsicType::GL841;
-    model.xdpi_values = { /*1200,*/ 600, 400, 300, 200, 150, 100, 75 };
-    model.ydpi_values = { /*2400,*/ 1200, 600, 400, 300, 200, 150, 100, 75 };
+
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { /*1200,*/ 600, 400, 300, 200, 150, 100, 75 },
+            { /*2400,*/ 1200, 600, 400, 300, 200, 150, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -2337,8 +2576,15 @@ void genesys_init_usb_device_tables()
     model.model = "OpticFilm 7200i";
     model.model_id = ModelId::PLUSTEK_OPTICFILM_7200I;
     model.asic_type = AsicType::GL843;
-    model.xdpi_values = { 7200, 3600, 1800, 900 };
-    model.ydpi_values = { 7200, 3600, 1800, 900 };
+
+    model.resolutions = {
+        {
+            { ScanMethod::TRANSPARENCY, ScanMethod::TRANSPARENCY_INFRARED },
+            { 7200, 3600, 1800, 900 },
+            { 7200, 3600, 1800, 900 },
+        }
+    };
+
     model.bpp_gray_values = { 16 };
     model.bpp_color_values = { 16 };
     model.default_method = ScanMethod::TRANSPARENCY;
@@ -2397,8 +2643,15 @@ void genesys_init_usb_device_tables()
     model.model = "OpticFilm 7300";
     model.model_id = ModelId::PLUSTEK_OPTICFILM_7300;
     model.asic_type = AsicType::GL843;
-    model.xdpi_values = { 7200, 3600, 1800, 900 };
-    model.ydpi_values = { 7200, 3600, 1800, 900 };
+
+    model.resolutions = {
+        {
+            { ScanMethod::TRANSPARENCY },
+            { 7200, 3600, 1800, 900 },
+            { 7200, 3600, 1800, 900 },
+        }
+    };
+
     model.bpp_gray_values = { 16 };
     model.bpp_color_values = { 16 };
     model.default_method = ScanMethod::TRANSPARENCY;
@@ -2455,8 +2708,15 @@ void genesys_init_usb_device_tables()
     model.model = "OpticFilm 7500i";
     model.model_id = ModelId::PLUSTEK_OPTICFILM_7500I;
     model.asic_type = AsicType::GL843;
-    model.xdpi_values = { 7200, 3600, 1800, 900 };
-    model.ydpi_values = { 7200, 3600, 1800, 900 };
+
+    model.resolutions = {
+        {
+            { ScanMethod::TRANSPARENCY, ScanMethod::TRANSPARENCY_INFRARED },
+            { 7200, 3600, 1800, 900 },
+            { 7200, 3600, 1800, 900 },
+        }
+    };
+
     model.bpp_gray_values = { 16 };
     model.bpp_color_values = { 16 };
     model.default_method = ScanMethod::TRANSPARENCY;
@@ -2515,8 +2775,13 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::HP_SCANJET_N6310;
     model.asic_type = AsicType::GL847;
 
-    model.xdpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75 };
-    model.ydpi_values = { 2400, 1200, 600, 400, 300, 200, 150, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 2400, 1200, 600, 400, 300, 200, 150, 100, 75 },
+            { 2400, 1200, 600, 400, 300, 200, 150, 100, 75 },
+        }
+    };
 
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
@@ -2575,8 +2840,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::PLUSTEK_OPTICBOOK_3800;
     model.asic_type = AsicType::GL845;
 
-    model.xdpi_values = { 1200, 600, 300, 150, 100, 75 };
-    model.ydpi_values = { 1200, 600, 300, 150, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 1200, 600, 300, 150, 100, 75 },
+            { 1200, 600, 300, 150, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
@@ -2629,8 +2900,14 @@ void genesys_init_usb_device_tables()
     model.model_id = ModelId::CANON_IMAGE_FORMULA_101;
     model.asic_type = AsicType::GL846;
 
-    model.xdpi_values = { 1200, 600, 300, 150, 100, 75 };
-    model.ydpi_values = { 1200, 600, 300, 150, 100, 75 };
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 1200, 600, 300, 150, 100, 75 },
+            { 1200, 600, 300, 150, 100, 75 },
+        }
+    };
+
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 

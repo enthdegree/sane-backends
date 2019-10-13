@@ -74,10 +74,6 @@
 /* Maximum time for lamp warm-up */
 #define WARMUP_TIME 65
 
-#define STR_FLATBED "Flatbed"
-#define STR_TRANSPARENCY_ADAPTER "Transparency Adapter"
-#define STR_TRANSPARENCY_ADAPTER_INFRARED "Transparency Adapter Infrared"
-
 #ifndef SANE_I18N
 #define SANE_I18N(text) text
 #endif
@@ -211,6 +207,7 @@ struct Genesys_Scanner
     std::vector<SANE_Word> opt_resolution_values;
     SANE_Range opt_x_range = {};
     SANE_Range opt_y_range = {};
+    std::vector<const char*> opt_source_values;
 
     // Option values
     SANE_Word bit_depth = 0;
@@ -237,7 +234,10 @@ struct Genesys_Scanner
     SANE_Word pos_bottom_right_y = 0;
     SANE_Word pos_bottom_right_x = 0;
 
-    std::string mode, source, color_filter;
+    std::string mode, color_filter;
+
+    // the value of the source option
+    ScanMethod scan_method = ScanMethod::FLATBED;
 
     std::string calibration_file;
     // Button states

@@ -1962,8 +1962,8 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     gl847_stop_action(dev);
 
     // set up for a gray scan at lowest dpi
-    unsigned dpi = *std::min_element(dev->model->xdpi_values.begin(),
-                                     dev->model->xdpi_values.end());
+    const auto& resolution_settings = dev->model->get_resolution_settings(dev->settings.scan_method);
+    unsigned dpi = resolution_settings.get_min_resolution_x();
   channels = 1;
   /* 10 MM */
   /* lines = (10 * dpi) / MM_PER_INCH; */

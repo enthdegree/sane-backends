@@ -403,14 +403,14 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
                                        const Genesys_Sensor& sensor,
                                        Genesys_Register_Set* reg,
                                        unsigned int scan_exposure_time,
-                                       float scan_yres,
+                                       unsigned scan_yres,
                                        StepType step_type,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
                                        unsigned int flags)
 {
-    DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, can_yres=%g, step_type=%d, scan_lines=%d, "
+    DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, can_yres=%d, step_type=%d, scan_lines=%d, "
                          "scan_dummy=%d, feed_steps=%d, flags=%x",
                     scan_exposure_time, scan_yres, static_cast<unsigned>(step_type), scan_lines,
                     scan_dummy, feed_steps, flags);
@@ -857,9 +857,9 @@ void CommandSetGl847::calculate_current_setup(Genesys_Device * dev,
     debug_dump(DBG_info, dev->settings);
 
   /* start */
-    start = dev->model->x_offset;
-  start += dev->settings.tl_x;
-  start = (start * sensor.optical_res) / MM_PER_INCH;
+    start = static_cast<int>(dev->model->x_offset);
+    start = static_cast<int>(start + dev->settings.tl_x);
+    start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = dev->settings.xres;
@@ -1075,7 +1075,6 @@ void CommandSetGl847::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
   GenesysRegister *r;
-  float resolution;
   uint8_t val;
   int loop = 0;
   ScanColorMode scan_mode;
@@ -1110,7 +1109,7 @@ void CommandSetGl847::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 
   local_reg = dev->reg;
 
-  resolution=sanei_genesys_get_lowest_ydpi(dev);
+    unsigned resolution = sanei_genesys_get_lowest_ydpi(dev);
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
@@ -1305,12 +1304,11 @@ static void gl847_feed(Genesys_Device* dev, unsigned int steps)
     DBG_HELPER_ARGS(dbg, "steps=%d", steps);
   Genesys_Register_Set local_reg;
   GenesysRegister *r;
-  float resolution;
   uint8_t val;
 
   local_reg = dev->reg;
 
-  resolution=sanei_genesys_get_lowest_ydpi(dev);
+    unsigned resolution = sanei_genesys_get_lowest_ydpi(dev);
     const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, dev->model->default_method);
 
     ScanSession session;
@@ -1405,7 +1403,7 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.xres = dev->calib_resolution;
     session.params.yres = dev->calib_resolution;
     session.params.startx = 0;
-    session.params.starty = move;
+    session.params.starty = static_cast<unsigned>(move);
     session.params.pixels = dev->calib_pixels;
     session.params.lines = dev->calib_lines;
     session.params.depth = 16;
@@ -1459,9 +1457,9 @@ void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
   move_dpi = dev->motor.base_ydpi;
 
-  move = dev->model->y_offset;
-  move += dev->settings.tl_y;
-  move = (move * move_dpi) / MM_PER_INCH;
+    move = static_cast<float>(dev->model->y_offset);
+    move = static_cast<float>(move + dev->settings.tl_y);
+    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
   move -= dev->scanhead_position_in_steps;
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
@@ -1471,7 +1469,7 @@ void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
    * resolution. So leave a remainder for it so scan makes the final
    * move tuning */
     if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700) {
-        gl847_feed(dev, move-500);
+        gl847_feed(dev, static_cast<unsigned>(move - 500));
       move=500;
     }
 
@@ -1479,15 +1477,15 @@ void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* start */
-    start = dev->model->x_offset;
-  start += dev->settings.tl_x;
-  start = (start * sensor.optical_res) / MM_PER_INCH;
+    start = static_cast<float>(dev->model->x_offset);
+    start = static_cast<float>(start + dev->settings.tl_x);
+    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = dev->settings.xres;
     session.params.yres = dev->settings.yres;
-    session.params.startx = start;
-    session.params.starty = move;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
@@ -1597,11 +1595,11 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
   uint16_t exp[3];
   float move;
 
-    move = dev->model->y_offset_calib_white;
-  move = (move * (dev->motor.base_ydpi/4)) / MM_PER_INCH;
+    move = static_cast<float>(dev->model->y_offset_calib_white);
+    move = static_cast<float>((move * (dev->motor.base_ydpi / 4)) / MM_PER_INCH);
   if(move>20)
     {
-        gl847_feed(dev, move);
+        gl847_feed(dev, static_cast<unsigned>(move));
     }
   DBG(DBG_io, "%s: move=%f steps\n", __func__, move);
 
@@ -2042,8 +2040,9 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
 
       if (DBG_LEVEL >= DBG_data)
 	{
-          sprintf(title, "gl847_search_strip_%s_%s%02d.pnm",
-                  black ? "black" : "white", forward ? "fwd" : "bwd", (int)pass);
+            std::sprintf(title, "gl847_search_strip_%s_%s%02d.pnm",
+                         black ? "black" : "white",
+                         forward ? "fwd" : "bwd", static_cast<int>(pass));
             sanei_genesys_write_pnm_file(title, data.data(), session.params.depth,
                                          channels, pixels, lines);
 	}
@@ -2336,7 +2335,7 @@ void CommandSetGl847::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   /* follow CKSEL */
   if(dev->settings.xres<sensor.optical_res)
     {
-      coeff=0.9;
+        coeff = 0.9f;
     }
   else
     {
@@ -2406,7 +2405,7 @@ void CommandSetGl847::coarse_gain_calibration(Genesys_Device* dev, const Genesys
       gain[j] = (static_cast<float>(sensor.gain_white_ref) * coeff) / max[j];
 
       /* turn logical gain value into gain code, checking for overflow */
-      code = 283 - 208 / gain[j];
+        code = static_cast<int>(283 - 208 / gain[j]);
       if (code > 255)
 	code = 255;
       else if (code < 0)

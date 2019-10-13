@@ -1833,7 +1833,7 @@ std::uint8_t compute_frontend_gain_wolfson(float value, float target_value)
         {PGA} = 283 * (1 - {value} / {target_value})
     */
     float gain = value / target_value;
-    int code = 283 * (1 - gain);
+    int code = static_cast<int>(283 * (1 - gain));
     return clamp(code, 0, 255);
 }
 
@@ -2283,7 +2283,7 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
   /* a calibration cache is compatible if color mode and x dpi match the user
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
     if (!dev->model->is_cis) {
-        compatible = (dev->settings.xres == static_cast<int>(cache->used_setup.xres));
+        compatible = (dev->settings.xres == cache->used_setup.xres);
     }
   else
     {
@@ -2421,7 +2421,8 @@ void sanei_genesys_load_lut(unsigned char* lut,
    * then take the tangent (T.O.A)
    * then multiply by the normal linear slope
    * because the table may not be square, i.e. 1024x256*/
-    rise = std::tan(static_cast<double>(slope) / 128 * M_PI_4 + M_PI_4) * max_out_val / max_in_val;
+    auto pi_4 = M_PI / 4.0;
+    rise = std::tan(static_cast<double>(slope) / 128 * pi_4 + pi_4) * max_out_val / max_in_val;
 
   /* line must stay vertically centered, so figure
    * out vertical offset at central input value */
@@ -2434,7 +2435,7 @@ void sanei_genesys_load_lut(unsigned char* lut,
 
   for (i = 0; i <= max_in_val; i++)
     {
-      j = rise * i + shift;
+        j = static_cast<int>(rise * i + shift);
 
       /* cap data to required range */
       if (j < out_min)
@@ -2517,7 +2518,7 @@ void debug_dump(unsigned level, const SetupParams& params)
         "Pixels per line (requested) : %u\n"
         "Depth : %u\n"
         "Channels : %u\n"
-        "Start position X/Y : %g / %g\n"
+        "Start position X/Y : %u / %u\n"
         "Scan mode : %d\n"
         "Color filter : %d\n"
         "Flags : %x\n",
@@ -2570,7 +2571,7 @@ void debug_dump(unsigned level, const Genesys_Current_Setup& setup)
         "Pixels: %d\n"
         "Lines: %d\n"
         "exposure_time: %d\n"
-        "Resolution X: %g\n"
+        "Resolution X: %d\n"
         "ccd_size_divisor: %d\n"
         "stagger: %d\n"
         "max_shift: %d\n",

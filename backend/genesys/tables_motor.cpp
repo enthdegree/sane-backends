@@ -111,14 +111,14 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 2289;
     slope.maximum_speed = 2100;
     slope.minimum_steps = 128;
-    slope.g = 0.3;
+    slope.g = 0.3f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope();
     slope.maximum_start_speed = 2289;
     slope.maximum_speed = 2100;
     slope.minimum_steps = 128;
-    slope.g = 0.3;
+    slope.g = 0.3f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));
@@ -204,14 +204,14 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 3500;
     slope.maximum_speed = 1300;
     slope.minimum_steps = 60;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope();
     slope.maximum_start_speed = 3500;
     slope.maximum_speed = 1400;
     slope.minimum_steps = 60;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));
@@ -251,14 +251,14 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 3700;
     slope.maximum_speed = 3700;
     slope.minimum_steps = 2;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope();
     slope.maximum_start_speed = 11000;
     slope.maximum_speed = 11000;
     slope.minimum_steps = 2;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));
@@ -274,14 +274,14 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 3000;
     slope.maximum_speed = 2500;
     slope.minimum_steps = 10;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope();
     slope.maximum_start_speed = 11000;
     slope.maximum_speed = 11000;
     slope.minimum_steps = 2;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));
@@ -297,14 +297,14 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 3000;
     slope.maximum_speed = 2600;
     slope.minimum_steps = 10;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope();
     slope.maximum_start_speed = 11000;
     slope.maximum_speed = 11000;
     slope.minimum_steps = 2;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
     s_motors->push_back(std::move(motor));
 
@@ -319,14 +319,14 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 6666;
     slope.maximum_speed = 3700;
     slope.minimum_steps = 8;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope();
     slope.maximum_start_speed = 6666;
     slope.maximum_speed = 3700;
     slope.minimum_steps = 8;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));
@@ -356,7 +356,7 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 3*2712;
     slope.maximum_speed = 3*2712;
     slope.minimum_steps = 16;
-    slope.g = 0.80;
+    slope.g = 0.80f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));
@@ -386,7 +386,7 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 3*2712;
     slope.maximum_speed = 3*2712;
     slope.minimum_steps = 16;
-    slope.g = 0.80;
+    slope.g = 0.80f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));
@@ -402,21 +402,21 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 3000;
     slope.maximum_speed = 1000;
     slope.minimum_steps = 127;
-    slope.g = 0.50;
+    slope.g = 0.50f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope(); // half step
     slope.maximum_start_speed = 3000;
     slope.maximum_speed = 1500;
     slope.minimum_steps = 127;
-    slope.g = 0.50;
+    slope.g = 0.50f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope(); // quarter step 0.75*2712
     slope.maximum_start_speed = 3*2712;
     slope.maximum_speed = 3*2712;
     slope.minimum_steps = 16;
-    slope.g = 0.80;
+    slope.g = 0.80f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));
@@ -462,21 +462,21 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 3961;
     slope.maximum_speed = 240;
     slope.minimum_steps = 246;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope(); // half step
     slope.maximum_start_speed = 3961;
     slope.maximum_speed = 240;
     slope.minimum_steps = 246;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope(); // quarter step
     slope.maximum_start_speed = 3961;
     slope.maximum_speed = 240;
     slope.minimum_steps = 246;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));
@@ -492,21 +492,21 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 3961;
     slope.maximum_speed = 240;
     slope.minimum_steps = 246;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope(); // half step
     slope.maximum_start_speed = 3961;
     slope.maximum_speed = 240;
     slope.minimum_steps = 246;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope(); // quarter step
     slope.maximum_start_speed = 3961;
     slope.maximum_speed = 240;
     slope.minimum_steps = 246;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));
@@ -522,21 +522,21 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 3961;
     slope.maximum_speed = 240;
     slope.minimum_steps = 246;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope(); // half step
     slope.maximum_start_speed = 3961;
     slope.maximum_speed = 240;
     slope.minimum_steps = 246;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope(); // quarter step
     slope.maximum_start_speed = 3961;
     slope.maximum_speed = 240;
     slope.minimum_steps = 246;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));
@@ -600,14 +600,14 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 3500;
     slope.maximum_speed = 1300;
     slope.minimum_steps = 60;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope();
     slope.maximum_start_speed = 3500;
     slope.maximum_speed = 3250;
     slope.minimum_steps = 60;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));
@@ -647,14 +647,14 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 3500;
     slope.maximum_speed = 1300;
     slope.minimum_steps = 60;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope();
     slope.maximum_start_speed = 3500;
     slope.maximum_speed = 3250;
     slope.minimum_steps = 60;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));
@@ -670,14 +670,14 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 3500;
     slope.maximum_speed = 1300;
     slope.minimum_steps = 60;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     slope = Genesys_Motor_Slope();
     slope.maximum_start_speed = 3500;
     slope.maximum_speed = 3250;
     slope.minimum_steps = 60;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));
@@ -693,7 +693,7 @@ void genesys_init_motor_tables()
     slope.maximum_start_speed = 9560;
     slope.maximum_speed = 1912;
     slope.minimum_steps = 31;
-    slope.g = 0.8;
+    slope.g = 0.8f;
     motor.slopes.push_back(slope);
 
     s_motors->push_back(std::move(motor));

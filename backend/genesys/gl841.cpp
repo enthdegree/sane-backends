@@ -1050,7 +1050,7 @@ HOME_FREE: 3
 static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                        Genesys_Register_Set* reg,
                                        unsigned int scan_exposure_time,/*pixel*/
-                                       float scan_yres,/*dpi, motor resolution*/
+                                       unsigned scan_yres, // dpi, motor resolution
                                        int scan_step_type,/*0: full, 1: half, 2: quarter*/
                                        unsigned int scan_lines,/*lines, scan resolution*/
                                        unsigned int scan_dummy,
@@ -1059,7 +1059,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
                                        // maybe float for half/quarter step resolution?
                                        unsigned int flags)
 {
-    DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, scan_yres=%g, scan_step_type=%d, scan_lines=%d,"
+    DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, scan_yres=%d, scan_step_type=%d, scan_lines=%d,"
                          " scan_dummy=%d, feed_steps=%d, flags=%x",
                     scan_exposure_time, scan_yres, scan_step_type, scan_lines, scan_dummy,
                     feed_steps, flags);
@@ -1795,11 +1795,10 @@ void CommandSetGl841::calculate_current_setup(Genesys_Device * dev,
     debug_dump(DBG_info, dev->settings);
 
 /* start */
-    start = dev->model->x_offset;
+    start = static_cast<int>(dev->model->x_offset);
+    start += static_cast<int>(dev->settings.tl_x);
 
-  start += dev->settings.tl_x;
-
-  start = (start * sensor.optical_res) / MM_PER_INCH;
+    start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = dev->settings.xres;
@@ -2175,10 +2174,10 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 	}
     }
 
-    feed_mm = dev->model->eject_feed;
+    feed_mm = static_cast<float>(dev->model->eject_feed);
   if (dev->document)
     {
-        feed_mm += dev->model->post_scan;
+        feed_mm += static_cast<float>(dev->model->post_scan);
     }
 
         sanei_genesys_read_feed_steps(dev, &init_steps);
@@ -2268,8 +2267,8 @@ void CommandSetGl841::detect_document_end(Genesys_Device* dev) const
 
         std::size_t output_lines = dev->session.output_line_count;
 
-        std::size_t offset_lines = (dev->model->post_scan / MM_PER_INCH) *
-                dev->settings.yres;
+        std::size_t offset_lines = static_cast<std::size_t>(
+                (dev->model->post_scan / MM_PER_INCH) * dev->settings.yres);
 
         std::size_t scan_end_lines = scanned_lines + offset_lines;
 
@@ -2631,7 +2630,7 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 {
     DBG_HELPER_ARGS(dbg, "lines = %zu", dev->calib_lines);
   SANE_Int ydpi;
-  float starty=0;
+    unsigned starty = 0;
 
   /* initial calibration reg values */
   regs = dev->reg;
@@ -2726,25 +2725,25 @@ void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
   move = 0;
     if (dev->model->flags & GENESYS_FLAG_SEARCH_START) {
-        move += dev->model->y_offset_calib_white;
+        move += static_cast<float>(dev->model->y_offset_calib_white);
     }
 
   DBG(DBG_info, "%s move=%f steps\n", __func__, move);
 
-  move += dev->model->y_offset;
+    move += static_cast<float>(dev->model->y_offset);
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
-  move += dev->settings.tl_y;
+    move += static_cast<float>(dev->settings.tl_y);
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
-  move = (move * move_dpi) / MM_PER_INCH;
+    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
 
 /* start */
-    start = dev->model->x_offset;
+    start = static_cast<float>(dev->model->x_offset);
 
-  start += dev->settings.tl_x;
+    start += static_cast<float>(dev->settings.tl_x);
 
-  start = (start * sensor.optical_res) / MM_PER_INCH;
+    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
@@ -2764,8 +2763,8 @@ void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     ScanSession session;
     session.params.xres = dev->settings.xres;
     session.params.yres = dev->settings.yres;
-    session.params.startx = start;
-    session.params.starty = move;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
@@ -2827,8 +2826,8 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
 
   /* feed to white strip if needed */
     if (dev->model->y_offset_calib_white > 0) {
-        move = dev->model->y_offset_calib_white;
-      move = (move * (dev->motor.base_ydpi)) / MM_PER_INCH;
+        move = static_cast<int>(dev->model->y_offset_calib_white);
+        move = static_cast<int>((move * (dev->motor.base_ydpi)) / MM_PER_INCH);
       DBG(DBG_io, "%s: move=%d lines\n", __func__, move);
         gl841_feed(dev, move);
     }
@@ -3520,8 +3519,8 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     // feed to white strip if needed
     if (dev->model->y_offset_calib_white > 0) {
-        move = dev->model->y_offset_calib_white;
-      move = (move * (dev->motor.base_ydpi)) / MM_PER_INCH;
+        move = static_cast<int>(dev->model->y_offset_calib_white);
+        move = static_cast<int>((move * (dev->motor.base_ydpi)) / MM_PER_INCH);
       DBG(DBG_io, "%s: move=%d lines\n", __func__, move);
         gl841_feed(dev, move);
     }
@@ -3590,7 +3589,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 	    max[j] = val;
 	}
 
-      gain[j] = 65535.0/max[j];
+        gain[j] = 65535.0f / max[j];
 
       uint8_t out_gain = 0;
 
@@ -3598,15 +3597,15 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
             dev->model->adc_id == AdcId::WOLFSON_XP300 ||
             dev->model->adc_id == AdcId::WOLFSON_DSM600)
         {
-	  gain[j] *= 0.69;/*seems we don't get the real maximum. empirically derived*/
+        gain[j] *= 0.69f; // seems we don't get the real maximum. empirically derived
 	  if (283 - 208/gain[j] > 255)
               out_gain = 255;
 	  else if (283 - 208/gain[j] < 0)
               out_gain = 0;
 	  else
-              out_gain = 283 - 208/gain[j];
+              out_gain = static_cast<std::uint8_t>(283 - 208 / gain[j]);
         } else if (dev->model->adc_id == AdcId::CANON_LIDE_80) {
-              out_gain = gain[j]*12;
+              out_gain = static_cast<std::uint8_t>(gain[j] * 12);
         }
       dev->frontend.set_gain(j, out_gain);
 
@@ -3955,12 +3954,12 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
 
   /* shading calibation is done with dev->motor.base_ydpi */
   /* lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi; */
-  lines = (10*dpi)/MM_PER_INCH;
+    lines = static_cast<unsigned>((10 * dpi) / MM_PER_INCH);
 
   pixels = (sensor.sensor_pixels * dpi) / sensor.optical_res;
 
   /* 20 cm max length for calibration sheet */
-  length = ((200 * dpi) / MM_PER_INCH)/lines;
+    length = static_cast<unsigned>(((200 * dpi) / MM_PER_INCH) / lines);
 
   dev->scanhead_position_in_steps = 0;
 

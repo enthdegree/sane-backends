@@ -502,9 +502,17 @@ void genesys_init_usb_device_tables()
 
     model.resolutions = {
         {
-            { ScanMethod::FLATBED, ScanMethod::TRANSPARENCY, ScanMethod::TRANSPARENCY_INFRARED },
+            { ScanMethod::FLATBED },
+            { 1200, 600, 400, 300, 200, 150, 100 },
+            { 1200, 600, 400, 300, 200, 150, 100 },
+        }, {
+            { ScanMethod::TRANSPARENCY },
             { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
             { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
+        }, {
+            { ScanMethod::TRANSPARENCY_INFRARED },
+            { 1200 },
+            { 1200 },
         }
     };
 
@@ -568,9 +576,17 @@ void genesys_init_usb_device_tables()
 
     model.resolutions = {
         {
-            { ScanMethod::FLATBED, ScanMethod::TRANSPARENCY, ScanMethod::TRANSPARENCY_INFRARED },
-            { 4800, 2400, 1200, 600, 400, 300 }, // TODO: resolutions for non-XPA mode
-            { 4800, 2400, 1200, 600, 400, 300 }, // TODO: resolutions for non-XPA mode
+            { ScanMethod::FLATBED },
+            { 1200, 600, 400, 300 },
+            { 1200, 600, 400, 300 },
+        }, {
+            { ScanMethod::TRANSPARENCY },
+            { 4800, 2400, 1200, 600, 400, 300 },
+            { 4800, 2400, 1200, 600, 400, 300 },
+        }, {
+            { ScanMethod::TRANSPARENCY_INFRARED },
+            { 1200 },
+            { 1200 },
         }
     };
 

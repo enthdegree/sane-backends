@@ -3636,15 +3636,13 @@ init_gamma_vector_option (Genesys_Scanner * scanner, int option)
  * @param size maximum size of the range
  * @return a pointer to a valid range or nullptr
  */
-static SANE_Range* create_range(float size)
+static SANE_Range create_range(float size)
 {
-    SANE_Range* range = reinterpret_cast<SANE_Range*>(std::malloc(sizeof(SANE_Range)));
-    if (range != nullptr) {
-      range->min = SANE_FIX (0.0);
-        range->max = SANE_FIX(size);
-      range->quant = SANE_FIX (0.0);
-    }
-  return range;
+    SANE_Range range;
+    range.min = SANE_FIX(0.0);
+    range.max = SANE_FIX(size);
+    range.quant = SANE_FIX(0.0);
+    return range;
 }
 
 /** @brief generate calibration cache file nam
@@ -3746,9 +3744,7 @@ static void init_options(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
   SANE_Int option;
-  SANE_Word *dpi_list;
   Genesys_Model *model = s->dev->model;
-  SANE_Range *x_range, *y_range;
 
   memset (s->opt, 0, sizeof (s->opt));
 
@@ -3829,12 +3825,9 @@ static void init_options(Genesys_Scanner* s)
 
     unsigned min_dpi = *std::min_element(resolutions.begin(), resolutions.end());
 
-    dpi_list = reinterpret_cast<SANE_Word*>(std::malloc((resolutions.size() + 1) * sizeof(SANE_Word)));
-    if (!dpi_list) {
-        throw SaneException(SANE_STATUS_NO_MEM);
-    }
-    dpi_list[0] = resolutions.size();
-    std::copy(resolutions.begin(), resolutions.end(), dpi_list + 1);
+    s->opt_resolution_values.resize(resolutions.size() + 1, 0);
+    s->opt_resolution_values[0] = resolutions.size();
+    std::copy(resolutions.begin(), resolutions.end(), s->opt_resolution_values.begin() + 1);
 
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
@@ -3842,7 +3835,7 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_RESOLUTION].type = SANE_TYPE_INT;
   s->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
   s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
-  s->opt[OPT_RESOLUTION].constraint.word_list = dpi_list;
+    s->opt[OPT_RESOLUTION].constraint.word_list = s->opt_resolution_values.data();
   s->resolution = min_dpi;
 
   /* "Geometry" group: */
@@ -3854,15 +3847,8 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_GEOMETRY_GROUP].size = 0;
   s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
-    x_range = create_range(static_cast<float>(model->x_size));
-    if (x_range == nullptr) {
-        throw SaneException(SANE_STATUS_NO_MEM);
-    }
-
-    y_range = create_range(static_cast<float>(model->y_size));
-    if (y_range == nullptr) {
-        throw SaneException(SANE_STATUS_NO_MEM);
-    }
+    s->opt_x_range = create_range(static_cast<float>(model->x_size));
+    s->opt_y_range = create_range(static_cast<float>(model->y_size));
 
   /* top-left x */
   s->opt[OPT_TL_X].name = SANE_NAME_SCAN_TL_X;
@@ -3871,7 +3857,7 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_TL_X].type = SANE_TYPE_FIXED;
   s->opt[OPT_TL_X].unit = SANE_UNIT_MM;
   s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_TL_X].constraint.range = x_range;
+    s->opt[OPT_TL_X].constraint.range = &s->opt_x_range;
   s->pos_top_left_x = 0;
 
   /* top-left y */
@@ -3881,7 +3867,7 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_TL_Y].type = SANE_TYPE_FIXED;
   s->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
   s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_TL_Y].constraint.range = y_range;
+    s->opt[OPT_TL_Y].constraint.range = &s->opt_y_range;
   s->pos_top_left_y = 0;
 
   /* bottom-right x */
@@ -3891,8 +3877,8 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_BR_X].type = SANE_TYPE_FIXED;
   s->opt[OPT_BR_X].unit = SANE_UNIT_MM;
   s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_BR_X].constraint.range = x_range;
-  s->pos_bottom_right_x = x_range->max;
+    s->opt[OPT_BR_X].constraint.range = &s->opt_x_range;
+    s->pos_bottom_right_x = s->opt_x_range.max;
 
   /* bottom-right y */
   s->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
@@ -3901,8 +3887,8 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_BR_Y].type = SANE_TYPE_FIXED;
   s->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
   s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_BR_Y].constraint.range = y_range;
-  s->pos_bottom_right_y = y_range->max;
+    s->opt[OPT_BR_Y].constraint.range = &s->opt_y_range;
+    s->pos_bottom_right_y = s->opt_y_range.max;
 
   /* "Enhancement" group: */
   s->opt[OPT_ENHANCEMENT_GROUP].name = SANE_NAME_ENHANCEMENT;
@@ -4944,11 +4930,6 @@ sane_close_impl(SANE_Handle handle)
 
     s->dev->already_initialized = false;
 
-   /* for an handful of bytes .. */
-    std::free(reinterpret_cast<void*>(const_cast<SANE_Word*>(s->opt[OPT_RESOLUTION].constraint.word_list)));
-    std::free(reinterpret_cast<void*>(const_cast<SANE_Range*>(s->opt[OPT_TL_X].constraint.range)));
-    std::free(reinterpret_cast<void*>(const_cast<SANE_Range*>(s->opt[OPT_TL_Y].constraint.range)));
-
   s->dev->clear();
 
     // LAMP OFF : same register across all the ASICs */
@@ -5236,7 +5217,6 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word *table;
   unsigned int i;
-  SANE_Range *x_range, *y_range;
   unsigned option_size = 0;
 
   switch (option)
@@ -5371,29 +5351,20 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
             // change geometry constraint to the new source value
             if (s->source == STR_FLATBED)
             {
-                x_range = create_range(static_cast<float>(s->dev->model->x_size));
-                y_range = create_range(static_cast<float>(s->dev->model->y_size));
+                s->opt_x_range = create_range(static_cast<float>(s->dev->model->x_size));
+                s->opt_y_range = create_range(static_cast<float>(s->dev->model->y_size));
             }
           else
             {
-                x_range = create_range(static_cast<float>(s->dev->model->x_size_ta));
-                y_range = create_range(static_cast<float>(s->dev->model->y_size_ta));
-            }
-        if (x_range == nullptr || y_range == nullptr) {
-              return SANE_STATUS_NO_MEM;
+                s->opt_x_range = create_range(static_cast<float>(s->dev->model->x_size_ta));
+                s->opt_y_range = create_range(static_cast<float>(s->dev->model->y_size_ta));
             }
 
-          /* assign new values */
-          std::free(reinterpret_cast<void*>(const_cast<SANE_Range*>(s->opt[OPT_TL_X].constraint.range)));
-          std::free(reinterpret_cast<void*>(const_cast<SANE_Range*>(s->opt[OPT_TL_Y].constraint.range)));
-          s->opt[OPT_TL_X].constraint.range = x_range;
-          s->pos_top_left_x = 0;
-          s->opt[OPT_TL_Y].constraint.range = y_range;
-          s->pos_top_left_y = 0;
-          s->opt[OPT_BR_X].constraint.range = x_range;
-          s->pos_bottom_right_x = x_range->max;
-          s->opt[OPT_BR_Y].constraint.range = y_range;
-          s->pos_bottom_right_y = y_range->max;
+            // s->opt[*].constraint.range already reference correct pointers to s->opt_{x,y}_range
+            s->pos_top_left_x = 0;
+            s->pos_top_left_y = 0;
+            s->pos_bottom_right_x = s->opt_x_range.max;
+            s->pos_bottom_right_y = s->opt_y_range.max;
 
           /* signals reload */
 	  *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;

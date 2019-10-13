@@ -208,6 +208,10 @@ struct Genesys_Scanner
     // Option descriptors
     SANE_Option_Descriptor opt[NUM_OPTIONS];
 
+    std::vector<SANE_Word> opt_resolution_values;
+    SANE_Range opt_x_range = {};
+    SANE_Range opt_y_range = {};
+
     // Option values
     SANE_Word bit_depth = 0;
     SANE_Word resolution = 0;

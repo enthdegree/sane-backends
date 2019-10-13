@@ -855,9 +855,9 @@ void CommandSetGl846::calculate_current_setup(Genesys_Device* dev,
     debug_dump(DBG_info, dev->settings);
 
   /* start */
-    start = dev->model->x_offset;
-  start += dev->settings.tl_x;
-  start = (start * sensor.optical_res) / MM_PER_INCH;
+    start = static_cast<int>(dev->model->x_offset);
+    start += static_cast<int>(dev->settings.tl_x);
+    start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = dev->settings.xres;
@@ -1363,7 +1363,7 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.xres = dev->calib_resolution;
     session.params.yres = dev->calib_resolution;
     session.params.startx = 0;
-    session.params.starty = move;
+    session.params.starty = static_cast<unsigned>(move);
     session.params.pixels = dev->calib_pixels;
     session.params.lines = dev->calib_lines;
     session.params.depth = 16;
@@ -1417,9 +1417,9 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
   move_dpi = dev->motor.base_ydpi;
 
-  move = dev->model->y_offset;
-  move += dev->settings.tl_y;
-  move = (move * move_dpi) / MM_PER_INCH;
+    move = static_cast<float>(dev->model->y_offset);
+    move = static_cast<float>(move + dev->settings.tl_y);
+    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
   move -= dev->scanhead_position_in_steps;
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
@@ -1430,7 +1430,7 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
    * move tuning */
     if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700)
     {
-        gl846_feed(dev, move-500);
+        gl846_feed(dev, static_cast<unsigned>(move - 500));
       move=500;
     }
 
@@ -1438,15 +1438,15 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* start */
-    start = dev->model->x_offset;
-  start += dev->settings.tl_x;
-  start = (start * sensor.optical_res) / MM_PER_INCH;
+    start = static_cast<float>(dev->model->x_offset);
+    start = static_cast<float>(start + dev->settings.tl_x);
+    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = dev->settings.xres;
     session.params.yres = dev->settings.yres;
-    session.params.startx = start;
-    session.params.starty = move;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
@@ -1554,13 +1554,12 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
   int avg[3], top[3], bottom[3];
   int turn;
   uint16_t exp[3];
-  float move;
 
-    move = dev->model->y_offset_calib_white;
-  move = (move * (dev->motor.base_ydpi/4)) / MM_PER_INCH;
+    float move = static_cast<float>(dev->model->y_offset_calib_white);
+     move = static_cast<float>((move * (dev->motor.base_ydpi / 4)) / MM_PER_INCH);
   if(move>20)
     {
-        gl846_feed(dev, move);
+        gl846_feed(dev, static_cast<unsigned>(move));
     }
   DBG(DBG_io, "%s: move=%f steps\n", __func__, move);
 
@@ -2260,7 +2259,7 @@ void CommandSetGl846::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   /* follow CKSEL */
   if(dev->settings.xres<sensor.optical_res)
     {
-      coeff=0.9;
+        coeff = 0.9f;
     }
   else
     {
@@ -2329,7 +2328,7 @@ void CommandSetGl846::coarse_gain_calibration(Genesys_Device* dev, const Genesys
         gain[j] = (static_cast<float>(sensor.gain_white_ref) * coeff) / max[j];
 
       /* turn logical gain value into gain code, checking for overflow */
-      code = 283 - 208 / gain[j];
+        code = static_cast<int>(283 - 208 / gain[j]);
       if (code > 255)
         code = 255;
       else if (code < 0)

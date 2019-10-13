@@ -1833,7 +1833,7 @@ std::uint8_t compute_frontend_gain_wolfson(float value, float target_value)
         {PGA} = 283 * (1 - {value} / {target_value})
     */
     float gain = value / target_value;
-    int code = 283 * (1 - gain);
+    int code = static_cast<int>(283 * (1 - gain));
     return clamp(code, 0, 255);
 }
 
@@ -2435,7 +2435,7 @@ void sanei_genesys_load_lut(unsigned char* lut,
 
   for (i = 0; i <= max_in_val; i++)
     {
-      j = rise * i + shift;
+        j = static_cast<int>(rise * i + shift);
 
       /* cap data to required range */
       if (j < out_min)

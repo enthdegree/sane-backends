@@ -1006,9 +1006,9 @@ void CommandSetGl124::calculate_current_setup(Genesys_Device * dev,
     debug_dump(DBG_info, dev->settings);
 
   /* start */
-    start = dev->model->x_offset;
-  start += dev->settings.tl_x;
-  start = (start * sensor.optical_res) / MM_PER_INCH;
+    start = static_cast<int>(dev->model->x_offset);
+    start += static_cast<int>(dev->settings.tl_x);
+    start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = dev->settings.xres;
@@ -1275,7 +1275,6 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   Genesys_Register_Set local_reg;
   GenesysRegister *r;
   uint8_t val;
-  float resolution;
   int loop = 0;
 
     // post scan gpio : without that HOMSNR is unreliable
@@ -1312,7 +1311,7 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     }
 
   local_reg = dev->reg;
-  resolution=sanei_genesys_get_lowest_dpi(dev);
+    unsigned resolution = sanei_genesys_get_lowest_dpi(dev);
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
@@ -1396,13 +1395,12 @@ static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
     DBG_HELPER_ARGS(dbg, "steps=%d", steps);
   Genesys_Register_Set local_reg;
   GenesysRegister *r;
-  float resolution;
   uint8_t val;
 
   /* prepare local registers */
   local_reg = dev->reg;
 
-  resolution=sanei_genesys_get_lowest_ydpi(dev);
+    unsigned resolution = sanei_genesys_get_lowest_ydpi(dev);
     const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, dev->model->default_method);
 
     ScanSession session;
@@ -1611,8 +1609,8 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   /* distance to move to reach white target at high resolution */
   move=0;
     if (dev->settings.yres >= 1200) {
-        move = dev->model->y_offset_calib_white;
-      move = (move * (dev->motor.base_ydpi/4)) / MM_PER_INCH;
+        move = static_cast<int>(dev->model->y_offset_calib_white);
+        move = static_cast<int>((move * (dev->motor.base_ydpi/4)) / MM_PER_INCH);
     }
   DBG (DBG_io, "%s: move=%d steps\n", __func__, move);
 
@@ -1679,28 +1677,28 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* y (motor) distance to move to reach scanned area */
   move_dpi = dev->motor.base_ydpi/4;
-  move = dev->model->y_offset;
-  move += dev->settings.tl_y;
-  move = (move * move_dpi) / MM_PER_INCH;
+    move = static_cast<float>(dev->model->y_offset);
+    move += static_cast<float>(dev->settings.tl_y);
+    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
   DBG (DBG_info, "%s: move=%f steps\n", __func__, move);
 
     if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700) {
-        gl124_feed(dev, move-500, false);
+        gl124_feed(dev, static_cast<unsigned>(move - 500), false);
       move=500;
     }
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* start */
-    start = dev->model->x_offset;
-  start += dev->settings.tl_x;
+    start = static_cast<float>(dev->model->x_offset);
+    start += static_cast<float>(dev->settings.tl_x);
     start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
-  start = (start * sensor.optical_res) / MM_PER_INCH;
+    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = dev->settings.xres;
     session.params.yres = dev->settings.yres;
-    session.params.startx = start;
-    session.params.starty = move;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
     session.params.pixels = dev->settings.pixels;
     session.params.requested_pixels = dev->settings.requested_pixels;
     session.params.lines = dev->settings.lines;
@@ -2223,9 +2221,9 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
   if(dev->settings.xres<sensor.optical_res)
     {
-      coeff=0.9;
+        coeff = 0.9f;
     } else {
-      coeff=1.0;
+        coeff = 1.0f;
     }
   lines=10;
      pixels = (sensor.sensor_pixels * sensor.optical_res) / sensor.optical_res;
@@ -2291,7 +2289,7 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
       gain[j] = (static_cast<float>(sensor.gain_white_ref) * coeff) / max[j];
 
       /* turn logical gain value into gain code, checking for overflow */
-      code = 283 - 208 / gain[j];
+        code = static_cast<int>(283 - 208 / gain[j]);
       if (code > 255)
 	code = 255;
       else if (code < 0)

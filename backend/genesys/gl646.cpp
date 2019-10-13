@@ -1393,8 +1393,8 @@ void CommandSetGl646::detect_document_end(Genesys_Device* dev) const
         unsigned lines_in_buffer = bytes_left / dev->session.output_line_bytes_raw;
 
         // we add the number of lines needed to read the last part of the document in
-        unsigned lines_offset = (dev->model->y_offset * dev->session.params.yres) /
-                MM_PER_INCH;
+        unsigned lines_offset = static_cast<unsigned>(
+                (dev->model->y_offset * dev->session.params.yres) / MM_PER_INCH);
 
         unsigned remaining_lines = lines_in_buffer + lines_offset;
 
@@ -1991,36 +1991,36 @@ static void setup_for_scan(Genesys_Device* dev,
     if (!split) {
         if (!dev->model->is_sheetfed) {
             if (ycorrection) {
-                move = dev->model->y_offset;
+                move = static_cast<float>(dev->model->y_offset);
             }
 
             // add tl_y to base movement
         }
-        move += settings.tl_y;
+        move += static_cast<float>(settings.tl_y);
 
         if (move < 0) {
             DBG(DBG_error, "%s: overriding negative move value %f\n", __func__, move);
             move = 0;
         }
     }
-    move = (move * dev->motor.optical_ydpi) / MM_PER_INCH;
+    move = static_cast<float>((move * dev->motor.optical_ydpi) / MM_PER_INCH);
     DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
-    float start = settings.tl_x;
+    float start = static_cast<float>(settings.tl_x);
     if (xcorrection) {
         if (settings.scan_method == ScanMethod::FLATBED) {
-            start += dev->model->x_offset;
+            start += static_cast<float>(dev->model->x_offset);
         } else {
-            start += dev->model->x_offset_ta;
+            start += static_cast<float>(dev->model->x_offset_ta);
         }
     }
-    start = (start * sensor.optical_res) / MM_PER_INCH;
+    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = settings.xres;
     session.params.yres = settings.yres;
-    session.params.startx = start;
-    session.params.starty = move;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
     session.params.pixels = settings.pixels;
     session.params.requested_pixels = settings.requested_pixels;
     session.params.lines = settings.lines;
@@ -2654,7 +2654,7 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   else
     {
         settings.tl_x = dev->model->x_offset_ta;
-        settings.pixels = (dev->model->x_size_ta * resolution) / MM_PER_INCH;
+        settings.pixels = static_cast<unsigned>((dev->model->x_size_ta * resolution) / MM_PER_INCH);
     }
     settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
@@ -2729,7 +2729,7 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 	    }
 
 	  /* threshold */
-	  maximum *= 0.9;
+            maximum = static_cast<int>(maximum * 0.9);
 
 	  /* computes white average */
 	  average[k] = 0;
@@ -3045,7 +3045,7 @@ void CommandSetGl646::move_to_ta(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
 
-    simple_move(dev, dev->model->y_offset_sensor_to_ta);
+    simple_move(dev, static_cast<int>(dev->model->y_offset_sensor_to_ta));
 }
 
 
@@ -3218,7 +3218,7 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance)
   settings.tl_x = 0;
   settings.pixels = (sensor.sensor_pixels * settings.xres) / sensor.optical_res;
     settings.requested_pixels = settings.pixels;
-  settings.lines = (distance * settings.xres) / MM_PER_INCH;
+    settings.lines = static_cast<unsigned>((distance * settings.xres) / MM_PER_INCH);
   settings.depth = 8;
   settings.color_filter = ColorFilter::RED;
 
@@ -3507,12 +3507,12 @@ void CommandSetGl646::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   settings.yres = res;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = (dev->model->x_size * res) / MM_PER_INCH;
+    settings.pixels = static_cast<unsigned>((dev->model->x_size * res) / MM_PER_INCH);
     settings.pixels /= calib_sensor.get_ccd_size_divisor_for_dpi(res);
     settings.requested_pixels = settings.pixels;
 
   /* 15 mm at at time */
-  settings.lines = (15 * settings.yres) / MM_PER_INCH;	/* may become a parameter from genesys_devices.c */
+    settings.lines = static_cast<unsigned>((15 * settings.yres) / MM_PER_INCH);
   settings.depth = 8;
   settings.color_filter = ColorFilter::RED;
 

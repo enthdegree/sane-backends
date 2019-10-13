@@ -1322,9 +1322,9 @@ void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        start = dev->model->x_offset_ta;
+        start = static_cast<int>(dev->model->x_offset_ta);
     } else {
-        start = dev->model->x_offset;
+        start = static_cast<int>(dev->model->x_offset);
     }
 
     if (dev->model->model_id == ModelId::CANON_8400F ||
@@ -1334,8 +1334,8 @@ void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
         start /= ccd_size_divisor;
     }
 
-  start += dev->settings.tl_x;
-  start = (start * sensor.optical_res) / MM_PER_INCH;
+    start += static_cast<int>(dev->settings.tl_x);
+    start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = dev->settings.xres;
@@ -1527,8 +1527,8 @@ void CommandSetGl843::detect_document_end(Genesys_Device* dev) const
 
         std::size_t output_lines = dev->session.output_line_count;
 
-        std::size_t offset_lines = (dev->model->post_scan * dev->session.params.yres) /
-                MM_PER_INCH;
+        std::size_t offset_lines = static_cast<std::size_t>(
+                (dev->model->post_scan * dev->session.params.yres) / MM_PER_INCH);
 
         std::size_t scan_end_lines = scanned_lines + offset_lines;
 
@@ -2238,16 +2238,16 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         dev->model->model_id == ModelId::CANON_8600F &&
         dev->settings.xres == 4800)
     {
-        float offset = dev->model->x_offset_ta;
+        float offset = static_cast<float>(dev->model->x_offset_ta);
         offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
-        offset = (offset * calib_sensor.optical_res) / MM_PER_INCH;
+        offset = static_cast<float>((offset * calib_sensor.optical_res) / MM_PER_INCH);
 
-        float size = dev->model->x_size_ta;
+        float size = static_cast<float>(dev->model->x_size_ta);
         size /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
-        size = (size * calib_sensor.optical_res) / MM_PER_INCH;
+        size = static_cast<float>((size * calib_sensor.optical_res) / MM_PER_INCH);
 
-        dev->calib_pixels_offset = offset;
-        dev->calib_pixels = size;
+        dev->calib_pixels_offset = static_cast<std::size_t>(offset);
+        dev->calib_pixels = static_cast<std::size_t>(size);
     }
     else
     {
@@ -2267,13 +2267,13 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     {
         // note: move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
-        move = dev->model->y_offset_calib_white_ta - dev->model->y_offset_sensor_to_ta;
+        move = static_cast<int>(dev->model->y_offset_calib_white_ta - dev->model->y_offset_sensor_to_ta);
     flags |= SCAN_FLAG_USE_XPA;
     } else {
-        move = dev->model->y_offset_calib_white;
+        move = static_cast<int>(dev->model->y_offset_calib_white);
     }
 
-  move = (move * resolution) / MM_PER_INCH;
+    move = static_cast<int>((move * resolution) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = resolution;
@@ -2327,28 +2327,28 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
         if (dev->ignore_offsets) {
             move = 0;
         } else {
-            move = dev->model->y_offset_ta - dev->model->y_offset_sensor_to_ta;
+            move = static_cast<float>(dev->model->y_offset_ta - dev->model->y_offset_sensor_to_ta);
         }
         flags |= SCAN_FLAG_USE_XPA;
     } else {
         if (dev->ignore_offsets) {
             move = 0;
         } else {
-            move = dev->model->y_offset;
+            move = static_cast<float>(dev->model->y_offset);
         }
     }
 
-  move += dev->settings.tl_y;
-  move = (move * move_dpi) / MM_PER_INCH;
+    move += static_cast<float>(dev->settings.tl_y);
+    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* start */
     if (dev->settings.scan_method==ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        start = dev->model->x_offset_ta;
+        start = static_cast<float>(dev->model->x_offset_ta);
     } else {
-        start = dev->model->x_offset;
+        start = static_cast<float>(dev->model->x_offset);
     }
 
     if (dev->model->model_id == ModelId::CANON_8400F ||
@@ -2358,8 +2358,8 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
         start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
     }
 
-  start += dev->settings.tl_x;
-  start = (start * sensor.optical_res) / MM_PER_INCH;
+    start = static_cast<float>(start + dev->settings.tl_x);
+    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = dev->settings.xres;
@@ -2637,13 +2637,13 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         dev->model->model_id == ModelId::CANON_8600F &&
         dev->settings.xres == 4800)
     {
-        start_pixel = dev->model->x_offset_ta;
+        start_pixel = static_cast<int>(dev->model->x_offset_ta);
         start_pixel /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
-        start_pixel = (start_pixel * calib_sensor.optical_res) / MM_PER_INCH;
+        start_pixel = static_cast<int>((start_pixel * calib_sensor.optical_res) / MM_PER_INCH);
 
-        target_pixels = dev->model->x_size_ta;
+        target_pixels = static_cast<int>(dev->model->x_size_ta);
         target_pixels /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
-        target_pixels = (target_pixels * calib_sensor.optical_res) / MM_PER_INCH;
+        target_pixels = static_cast<int>((target_pixels * calib_sensor.optical_res) / MM_PER_INCH);
     }
 
   int flags = SCAN_FLAG_DISABLE_SHADING |
@@ -2844,7 +2844,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     if (dev->model->sensor_id == SensorId::CCD_KVSS080) {
       if(dev->settings.xres<sensor.optical_res)
         {
-          coeff=0.9;
+            coeff = 0.9f;
         }
       else
         {
@@ -3177,10 +3177,10 @@ void CommandSetGl843::move_to_ta(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
   float resolution;
-  unsigned int feed;
 
   resolution=sanei_genesys_get_lowest_ydpi(dev);
-    feed = 16 * (dev->model->y_offset_sensor_to_ta * resolution) / MM_PER_INCH;
+    unsigned feed = static_cast<unsigned>(16 * (dev->model->y_offset_sensor_to_ta * resolution) /
+                                          MM_PER_INCH);
     gl843_feed(dev, feed);
 }
 

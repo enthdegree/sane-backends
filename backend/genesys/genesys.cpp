@@ -372,8 +372,8 @@ SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table,
       t2 = vstart;
       for (i = 0; i < steps && i < use_steps - 1 && i < max_steps; i++, c++)
 	{
-        t = std::pow(static_cast<double>(i) / static_cast<double>(steps - 1), g);
-	  t2 = vstart * (1 - t) + t * vend;
+            t = std::pow(static_cast<double>(i) / static_cast<double>(steps - 1), g);
+            t2 = static_cast<std::uint16_t>(vstart * (1 - t) + t * vend);
             if (t2 < stop_at) {
                 break;
             }
@@ -448,7 +448,7 @@ SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
         step_type, exposure_time, yres);
 
   /* final speed */
-  vtarget = (exposure_time * yres) / dev->motor.base_ydpi;
+    vtarget = static_cast<unsigned>((exposure_time * yres) / dev->motor.base_ydpi);
 
     vstart = dev->motor.slopes[step_type].maximum_start_speed;
     vend = dev->motor.slopes[step_type].maximum_speed;
@@ -476,8 +476,9 @@ SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
                                                  used_steps,
 						 &vfinal);
 
-  if (final_exposure)
-    *final_exposure = (vfinal * dev->motor.base_ydpi) / yres;
+    if (final_exposure) {
+        *final_exposure = static_cast<unsigned>((vfinal * dev->motor.base_ydpi) / yres);
+    }
 
   DBG(DBG_proc, "%s: returns sum_time=%d, completed\n", __func__, sum_time);
 
@@ -510,20 +511,21 @@ SANE_Int genesys_create_slope_table2(Genesys_Device* dev, std::vector<uint16_t>&
     }
   else
     {
-      if (steps == 2)
-	vstart = exposure_time;
-      else if (steps == 3)
-	vstart = 2 * exposure_time;
-      else if (steps == 4)
-	vstart = 1.5 * exposure_time;
-      else if (steps == 120)
-	vstart = 1.81674 * exposure_time;
-      else
-	vstart = exposure_time;
+        if (steps == 2) {
+            vstart = exposure_time;
+        } else if (steps == 3) {
+            vstart = 2 * exposure_time;
+        } else if (steps == 4) {
+            vstart = static_cast<int>(1.5 * exposure_time);
+        } else if (steps == 120) {
+            vstart = static_cast<int>(1.81674 * exposure_time);
+        } else {
+            vstart = exposure_time;
+        }
     }
 
   /* final speed */
-  vend = (exposure_time * yres) / (dev->motor.base_ydpi * (1 << step_type));
+    vend = static_cast<int>((exposure_time * yres) / (dev->motor.base_ydpi * (1 << step_type)));
 
   /*
      type=1 : full
@@ -585,7 +587,7 @@ SANE_Int genesys_create_slope_table2(Genesys_Device* dev, std::vector<uint16_t>&
       for (i = 0; i < steps; i++)
 	{
             t = std::pow(static_cast<double>(i) / static_cast<double>(steps - 1), g);
-	  slope_table[i] = vstart * (1 - t) + t * vend;
+            slope_table[i] = static_cast<std::uint16_t>(vstart * (1 - t) + t * vend);
 	  DBG (DBG_io, "slope_table[%3d] = %5d\n", i, slope_table[i]);
 	  sum += slope_table[i];
 	}
@@ -789,10 +791,11 @@ sanei_genesys_create_gamma_table (std::vector<uint16_t>& gamma_table, int size,
       maximum, gamma_max, gamma);
   for (i = 0; i < size; i++)
     {
-        value = gamma_max * std::pow(static_cast<double>(i) / size, 1.0 / gamma);
-      if (value > maximum)
-	value = maximum;
-      gamma_table[i] = value;
+        value = static_cast<float>(gamma_max * std::pow(static_cast<double>(i) / size, 1.0 / gamma));
+        if (value > maximum) {
+            value = maximum;
+        }
+        gamma_table[i] = static_cast<std::uint16_t>(value);
     }
   DBG(DBG_proc, "%s: completed\n", __func__);
 }
@@ -832,7 +835,8 @@ sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
                               int step_type, int endpixel, int exposure_by_led)
 {
   int exposure_by_ccd = endpixel + 32;
-    int exposure_by_motor = (dev->motor.slopes[step_type].maximum_speed * dev->motor.base_ydpi) / ydpi;
+    int exposure_by_motor = static_cast<int>((dev->motor.slopes[step_type].maximum_speed *
+                                              dev->motor.base_ydpi) / ydpi);
 
   int exposure = exposure_by_ccd;
 
@@ -1295,7 +1299,6 @@ genesys_average_black (Genesys_Device * dev, int channel,
 static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {
     DBG_HELPER_ARGS(dbg, "scan_mode = %d", static_cast<unsigned>(dev->settings.scan_mode));
-  int size;
   int black_pixels;
   int white_average;
   uint8_t offset[4] = { 0xa0, 0x00, 0xa0, 0x40 };	/* first value isn't used */
@@ -1309,7 +1312,8 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
 
   DBG(DBG_info, "channels %d y_size %f xres %d\n", channels, dev->model->y_size.value(),
       dev->settings.xres);
-    size = channels * 2 * dev->model->y_size * dev->settings.xres / 25.4;
+    unsigned size = static_cast<unsigned>(channels * 2 * dev->model->y_size * dev->settings.xres /
+                                          MM_PER_INCH);
   /*       1        1               mm                      1/inch        inch/mm */
 
   std::vector<uint8_t> calibration_data(size);
@@ -2754,7 +2758,8 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
   /* we always use sensor pixel number when the ASIC can't handle multi-segments sensor */
   if (!(dev->model->flags & GENESYS_FLAG_SIS_SENSOR))
     {
-      pixels_per_line = (dev->model->x_size * dev->settings.xres) / MM_PER_INCH;
+        pixels_per_line = static_cast<std::uint32_t>((dev->model->x_size * dev->settings.xres) /
+                                                     MM_PER_INCH);
     }
   else
     {
@@ -3027,7 +3032,7 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
         if (dev->session.params.depth == 16) {
 	  first_average /= pixel;
 	  second_average /= pixel;
-	  difference = fabs (first_average - second_average);
+            difference = static_cast<int>(std::fabs(first_average - second_average));
 	  DBG(DBG_info, "%s: average = %.2f, diff = %.3f\n", __func__,
 	      100 * ((second_average) / (256 * 256)),
 	      100 * (difference / second_average));
@@ -3428,7 +3433,9 @@ static void calc_parameters(Genesys_Scanner* s)
   const auto& sensor = sanei_genesys_find_sensor_any(s->dev);
 
     // hardware settings
-    if (s->resolution > sensor.optical_res && s->dev->settings.disable_interpolation) {
+    if (static_cast<unsigned>(s->resolution) > sensor.optical_res &&
+        s->dev->settings.disable_interpolation)
+    {
         s->dev->settings.xres = sensor.optical_res;
     } else {
         s->dev->settings.xres = s->resolution;
@@ -3438,8 +3445,10 @@ static void calc_parameters(Genesys_Scanner* s)
     s->dev->settings.xres = pick_resolution(s->dev->model->xdpi_values, s->dev->settings.xres, "X");
     s->dev->settings.yres = pick_resolution(s->dev->model->ydpi_values, s->dev->settings.yres, "Y");
 
-    s->params.lines = ((br_y - tl_y) * s->dev->settings.yres) / MM_PER_INCH;
-    unsigned pixels_per_line = ((br_x - tl_x) * s->dev->settings.xres) / MM_PER_INCH;
+    s->params.lines = static_cast<unsigned>(((br_y - tl_y) * s->dev->settings.yres) /
+                                            MM_PER_INCH);
+    unsigned pixels_per_line = static_cast<unsigned>(((br_x - tl_x) * s->dev->settings.xres) /
+                                                     MM_PER_INCH);
 
   /* we need an even pixels number
    * TODO invert test logic or generalize behaviour across all ASICs */
@@ -3526,7 +3535,7 @@ static void calc_parameters(Genesys_Scanner* s)
   s->dev->settings.tl_y = tl_y;
 
     // threshold setting
-    s->dev->settings.threshold = 2.55 * (SANE_UNFIX(s->threshold));
+    s->dev->settings.threshold = static_cast<int>(2.55 * (SANE_UNFIX(s->threshold)));
 
     // color filter
     if (s->color_filter == "Red") {
@@ -3845,12 +3854,12 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_GEOMETRY_GROUP].size = 0;
   s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
-    x_range = create_range(model->x_size);
+    x_range = create_range(static_cast<float>(model->x_size));
     if (x_range == nullptr) {
         throw SaneException(SANE_STATUS_NO_MEM);
     }
 
-    y_range = create_range(model->y_size);
+    y_range = create_range(static_cast<float>(model->y_size));
     if (y_range == nullptr) {
         throw SaneException(SANE_STATUS_NO_MEM);
     }
@@ -4569,7 +4578,7 @@ static void genesys_buffer_image(Genesys_Scanner *s)
     }
   else
     {
-        lines = (dev->model->y_size * dev->settings.yres) / MM_PER_INCH;
+        lines = static_cast<int>((dev->model->y_size * dev->settings.yres) / MM_PER_INCH);
     }
   DBG(DBG_info, "%s: buffering %d lines of %d bytes\n", __func__, lines,
       s->params.bytes_per_line);
@@ -5362,13 +5371,13 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
             // change geometry constraint to the new source value
             if (s->source == STR_FLATBED)
             {
-              x_range=create_range(s->dev->model->x_size);
-              y_range=create_range(s->dev->model->y_size);
+                x_range = create_range(static_cast<float>(s->dev->model->x_size));
+                y_range = create_range(static_cast<float>(s->dev->model->y_size));
             }
           else
             {
-              x_range=create_range(s->dev->model->x_size_ta);
-              y_range=create_range(s->dev->model->y_size_ta);
+                x_range = create_range(static_cast<float>(s->dev->model->x_size_ta));
+                y_range = create_range(static_cast<float>(s->dev->model->y_size_ta));
             }
         if (x_range == nullptr || y_range == nullptr) {
               return SANE_STATUS_NO_MEM;

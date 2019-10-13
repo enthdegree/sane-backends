@@ -203,7 +203,7 @@ void genesys_deskew(Genesys_Scanner *s, const Genesys_Sensor& sensor)
                              sensor.optical_res, sensor.optical_res,
                              &x, &y, &slope));
 
-  DBG(DBG_info, "%s: slope=%f => %f\n",__func__,slope, (slope/M_PI_2)*90);
+    DBG(DBG_info, "%s: slope=%f => %f\n", __func__, slope, slope * 180 / M_PI);
 
     // rotate image slope is in [-PI/2,PI/2]. Positive values rotate trigonometric direction wise
     TIE(sanei_magic_rotate(&s->params, dev->img_buffer.data(),

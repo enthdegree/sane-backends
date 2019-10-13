@@ -2421,7 +2421,8 @@ void sanei_genesys_load_lut(unsigned char* lut,
    * then take the tangent (T.O.A)
    * then multiply by the normal linear slope
    * because the table may not be square, i.e. 1024x256*/
-    rise = std::tan(static_cast<double>(slope) / 128 * M_PI_4 + M_PI_4) * max_out_val / max_in_val;
+    auto pi_4 = M_PI / 4.0;
+    rise = std::tan(static_cast<double>(slope) / 128 * pi_4 + pi_4) * max_out_val / max_in_val;
 
   /* line must stay vertically centered, so figure
    * out vertical offset at central input value */

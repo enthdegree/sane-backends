@@ -91,6 +91,10 @@ namespace {
     StaticInit<std::list<Genesys_Device>> s_devices;
 } // namespace
 
+#define STR_FLATBED SANE_I18N("Flatbed")
+#define STR_TRANSPARENCY_ADAPTER SANE_I18N("Transparency Adapter")
+#define STR_TRANSPARENCY_ADAPTER_INFRARED SANE_I18N("Transparency Adapter Infrared")
+
 static SANE_String_Const mode_list[] = {
   SANE_VALUE_SCAN_MODE_COLOR,
   SANE_VALUE_SCAN_MODE_GRAY,
@@ -111,19 +115,6 @@ static SANE_String_Const cis_color_filter_list[] = {
   SANE_I18N ("Green"),
   SANE_I18N ("Blue"),
   SANE_I18N ("None"),
-    nullptr
-};
-
-static SANE_String_Const source_list[] = {
-  SANE_I18N (STR_FLATBED),
-  SANE_I18N (STR_TRANSPARENCY_ADAPTER),
-    nullptr
-};
-
-static const char* source_list_infrared[] = {
-    SANE_I18N(STR_FLATBED),
-    SANE_I18N(STR_TRANSPARENCY_ADAPTER),
-    SANE_I18N(STR_TRANSPARENCY_ADAPTER_INFRARED),
     nullptr
 };
 
@@ -3374,6 +3365,18 @@ max_string_size (const SANE_String_Const strings[])
   return max_size;
 }
 
+static std::size_t max_string_size(const std::vector<const char*>& strings)
+{
+    std::size_t max_size = 0;
+    for (const auto& s : strings) {
+        if (!s) {
+            continue;
+        }
+        max_size = std::max(max_size, std::strlen(s));
+    }
+    return max_size;
+}
+
 static unsigned pick_resolution(const std::vector<unsigned>& resolutions, unsigned resolution,
                                 const char* direction)
 {
@@ -3400,6 +3403,28 @@ static unsigned pick_resolution(const std::vector<unsigned>& resolutions, unsign
     return best_res;
 }
 
+static const char* scan_method_to_option_string(ScanMethod method)
+{
+    switch (method) {
+        case ScanMethod::FLATBED: return STR_FLATBED;
+        case ScanMethod::TRANSPARENCY: return STR_TRANSPARENCY_ADAPTER;
+        case ScanMethod::TRANSPARENCY_INFRARED: return STR_TRANSPARENCY_ADAPTER_INFRARED;
+    }
+    throw SaneException("Unknown scan method %d", static_cast<unsigned>(method));
+}
+
+static ScanMethod option_string_to_scan_method(const std::string& str)
+{
+    if (str == STR_FLATBED) {
+        return ScanMethod::FLATBED;
+    } else if (str == STR_TRANSPARENCY_ADAPTER) {
+        return ScanMethod::TRANSPARENCY;
+    } else if (str == STR_TRANSPARENCY_ADAPTER_INFRARED) {
+        return ScanMethod::TRANSPARENCY_INFRARED;
+    }
+    throw SaneException("Unknown scan method option %s", str.c_str());
+}
+
 static void calc_parameters(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
@@ -3424,6 +3449,9 @@ static void calc_parameters(Genesys_Scanner* s)
         s->params.depth = s->bit_depth;
     }
 
+    s->dev->settings.scan_method = s->scan_method;
+    const auto& resolutions = s->dev->model->get_resolution_settings(s->dev->settings.scan_method);
+
     s->dev->settings.depth = s->bit_depth;
 
   /* interpolation */
@@ -3442,8 +3470,8 @@ static void calc_parameters(Genesys_Scanner* s)
     }
     s->dev->settings.yres = s->resolution;
 
-    s->dev->settings.xres = pick_resolution(s->dev->model->xdpi_values, s->dev->settings.xres, "X");
-    s->dev->settings.yres = pick_resolution(s->dev->model->ydpi_values, s->dev->settings.yres, "Y");
+    s->dev->settings.xres = pick_resolution(resolutions.resolutions_x, s->dev->settings.xres, "X");
+    s->dev->settings.yres = pick_resolution(resolutions.resolutions_y, s->dev->settings.yres, "Y");
 
     s->params.lines = static_cast<unsigned>(((br_y - tl_y) * s->dev->settings.yres) /
                                             MM_PER_INCH);
@@ -3516,14 +3544,6 @@ static void calc_parameters(Genesys_Scanner* s)
         s->dev->settings.scan_mode = ScanColorMode::HALFTONE;
     } else {				/* Lineart */
         s->dev->settings.scan_mode = ScanColorMode::LINEART;
-    }
-
-    if (s->source == STR_FLATBED) {
-        s->dev->settings.scan_method = ScanMethod::FLATBED;
-    } else if (s->source == STR_TRANSPARENCY_ADAPTER) {
-        s->dev->settings.scan_method = ScanMethod::TRANSPARENCY;
-    } else if (s->source == STR_TRANSPARENCY_ADAPTER_INFRARED) {
-        s->dev->settings.scan_method = ScanMethod::TRANSPARENCY_INFRARED;
     }
 
   s->dev->settings.lines = s->params.lines;
@@ -3636,15 +3656,13 @@ init_gamma_vector_option (Genesys_Scanner * scanner, int option)
  * @param size maximum size of the range
  * @return a pointer to a valid range or nullptr
  */
-static SANE_Range* create_range(float size)
+static SANE_Range create_range(float size)
 {
-    SANE_Range* range = reinterpret_cast<SANE_Range*>(std::malloc(sizeof(SANE_Range)));
-    if (range != nullptr) {
-      range->min = SANE_FIX (0.0);
-        range->max = SANE_FIX(size);
-      range->quant = SANE_FIX (0.0);
-    }
-  return range;
+    SANE_Range range;
+    range.min = SANE_FIX(0.0);
+    range.max = SANE_FIX(size);
+    range.quant = SANE_FIX(0.0);
+    return range;
 }
 
 /** @brief generate calibration cache file nam
@@ -3741,14 +3759,50 @@ static std::string calibration_filename(Genesys_Device *currdev)
     return ret;
 }
 
+static void set_resolution_option_values(Genesys_Scanner& s, bool reset_resolution_value)
+{
+    auto resolutions = s.dev->model->get_resolutions(s.scan_method);
+
+    s.opt_resolution_values.resize(resolutions.size() + 1, 0);
+    s.opt_resolution_values[0] = resolutions.size();
+    std::copy(resolutions.begin(), resolutions.end(), s.opt_resolution_values.begin() + 1);
+
+    s.opt[OPT_RESOLUTION].constraint.word_list = s.opt_resolution_values.data();
+
+    if (reset_resolution_value) {
+        s.resolution = *std::min_element(resolutions.begin(), resolutions.end());
+    }
+}
+
+static void set_xy_range_option_values(Genesys_Scanner& s)
+{
+    if (s.scan_method == ScanMethod::FLATBED)
+    {
+        s.opt_x_range = create_range(static_cast<float>(s.dev->model->x_size));
+        s.opt_y_range = create_range(static_cast<float>(s.dev->model->y_size));
+    }
+  else
+    {
+        s.opt_x_range = create_range(static_cast<float>(s.dev->model->x_size_ta));
+        s.opt_y_range = create_range(static_cast<float>(s.dev->model->y_size_ta));
+    }
+
+    s.opt[OPT_TL_X].constraint.range = &s.opt_x_range;
+    s.opt[OPT_TL_Y].constraint.range = &s.opt_y_range;
+    s.opt[OPT_BR_X].constraint.range = &s.opt_x_range;
+    s.opt[OPT_BR_Y].constraint.range = &s.opt_y_range;
+
+    s.pos_top_left_x = 0;
+    s.pos_top_left_y = 0;
+    s.pos_bottom_right_x = s.opt_x_range.max;
+    s.pos_bottom_right_y = s.opt_y_range.max;
+}
 
 static void init_options(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
   SANE_Int option;
-  SANE_Word *dpi_list;
   Genesys_Model *model = s->dev->model;
-  SANE_Range *x_range, *y_range;
 
   memset (s->opt, 0, sizeof (s->opt));
 
@@ -3783,26 +3837,25 @@ static void init_options(Genesys_Scanner* s)
   s->mode = SANE_VALUE_SCAN_MODE_GRAY;
 
   /* scan source */
+    s->opt_source_values.clear();
+    for (const auto& resolution_setting : model->resolutions) {
+        for (auto method : resolution_setting.methods) {
+            s->opt_source_values.push_back(scan_method_to_option_string(method));
+        }
+    }
+    s->opt_source_values.push_back(nullptr);
+
   s->opt[OPT_SOURCE].name = SANE_NAME_SCAN_SOURCE;
   s->opt[OPT_SOURCE].title = SANE_TITLE_SCAN_SOURCE;
   s->opt[OPT_SOURCE].desc = SANE_DESC_SCAN_SOURCE;
   s->opt[OPT_SOURCE].type = SANE_TYPE_STRING;
   s->opt[OPT_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-  s->opt[OPT_SOURCE].size = max_string_size (source_list);
-  s->opt[OPT_SOURCE].constraint.string_list = source_list;
-  s->source = STR_FLATBED;
-  if (model->flags & GENESYS_FLAG_HAS_UTA)
-    {
-        ENABLE (OPT_SOURCE);
-        if (model->flags & GENESYS_FLAG_HAS_UTA_INFRARED) {
-            s->opt[OPT_SOURCE].size = max_string_size(source_list_infrared);
-            s->opt[OPT_SOURCE].constraint.string_list = source_list_infrared;
-        }
+    s->opt[OPT_SOURCE].size = max_string_size(s->opt_source_values);
+    s->opt[OPT_SOURCE].constraint.string_list = s->opt_source_values.data();
+    if (s->opt_source_values.size() < 2) {
+        throw SaneException("No scan methods specified for scanner");
     }
-  else
-    {
-      DISABLE (OPT_SOURCE);
-    }
+    s->scan_method = model->default_method;
 
   /* preview */
   s->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
@@ -3825,25 +3878,13 @@ static void init_options(Genesys_Scanner* s)
     s->bit_depth = model->bpp_gray_values[0];
 
     // resolution
-    auto resolutions = model->get_resolutions();
-
-    unsigned min_dpi = *std::min_element(resolutions.begin(), resolutions.end());
-
-    dpi_list = reinterpret_cast<SANE_Word*>(std::malloc((resolutions.size() + 1) * sizeof(SANE_Word)));
-    if (!dpi_list) {
-        throw SaneException(SANE_STATUS_NO_MEM);
-    }
-    dpi_list[0] = resolutions.size();
-    std::copy(resolutions.begin(), resolutions.end(), dpi_list + 1);
-
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].type = SANE_TYPE_INT;
   s->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
   s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
-  s->opt[OPT_RESOLUTION].constraint.word_list = dpi_list;
-  s->resolution = min_dpi;
+    set_resolution_option_values(*s, true);
 
   /* "Geometry" group: */
   s->opt[OPT_GEOMETRY_GROUP].name = SANE_NAME_GEOMETRY;
@@ -3854,55 +3895,39 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_GEOMETRY_GROUP].size = 0;
   s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
-    x_range = create_range(static_cast<float>(model->x_size));
-    if (x_range == nullptr) {
-        throw SaneException(SANE_STATUS_NO_MEM);
-    }
+    s->opt_x_range = create_range(static_cast<float>(model->x_size));
+    s->opt_y_range = create_range(static_cast<float>(model->y_size));
 
-    y_range = create_range(static_cast<float>(model->y_size));
-    if (y_range == nullptr) {
-        throw SaneException(SANE_STATUS_NO_MEM);
-    }
-
-  /* top-left x */
+    // scan area
   s->opt[OPT_TL_X].name = SANE_NAME_SCAN_TL_X;
   s->opt[OPT_TL_X].title = SANE_TITLE_SCAN_TL_X;
   s->opt[OPT_TL_X].desc = SANE_DESC_SCAN_TL_X;
   s->opt[OPT_TL_X].type = SANE_TYPE_FIXED;
   s->opt[OPT_TL_X].unit = SANE_UNIT_MM;
   s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_TL_X].constraint.range = x_range;
-  s->pos_top_left_x = 0;
 
-  /* top-left y */
   s->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
   s->opt[OPT_TL_Y].title = SANE_TITLE_SCAN_TL_Y;
   s->opt[OPT_TL_Y].desc = SANE_DESC_SCAN_TL_Y;
   s->opt[OPT_TL_Y].type = SANE_TYPE_FIXED;
   s->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
   s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_TL_Y].constraint.range = y_range;
-  s->pos_top_left_y = 0;
 
-  /* bottom-right x */
   s->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
   s->opt[OPT_BR_X].title = SANE_TITLE_SCAN_BR_X;
   s->opt[OPT_BR_X].desc = SANE_DESC_SCAN_BR_X;
   s->opt[OPT_BR_X].type = SANE_TYPE_FIXED;
   s->opt[OPT_BR_X].unit = SANE_UNIT_MM;
   s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_BR_X].constraint.range = x_range;
-  s->pos_bottom_right_x = x_range->max;
 
-  /* bottom-right y */
   s->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
   s->opt[OPT_BR_Y].title = SANE_TITLE_SCAN_BR_Y;
   s->opt[OPT_BR_Y].desc = SANE_DESC_SCAN_BR_Y;
   s->opt[OPT_BR_Y].type = SANE_TYPE_FIXED;
   s->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
   s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_BR_Y].constraint.range = y_range;
-  s->pos_bottom_right_y = y_range->max;
+
+    set_xy_range_option_values(*s);
 
   /* "Enhancement" group: */
   s->opt[OPT_ENHANCEMENT_GROUP].name = SANE_NAME_ENHANCEMENT;
@@ -4944,11 +4969,6 @@ sane_close_impl(SANE_Handle handle)
 
     s->dev->already_initialized = false;
 
-   /* for an handful of bytes .. */
-    std::free(reinterpret_cast<void*>(const_cast<SANE_Word*>(s->opt[OPT_RESOLUTION].constraint.word_list)));
-    std::free(reinterpret_cast<void*>(const_cast<SANE_Range*>(s->opt[OPT_TL_X].constraint.range)));
-    std::free(reinterpret_cast<void*>(const_cast<SANE_Range*>(s->opt[OPT_TL_Y].constraint.range)));
-
   s->dev->clear();
 
     // LAMP OFF : same register across all the ASICs */
@@ -5103,7 +5123,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
         std::strcpy(reinterpret_cast<char*>(val), s->calibration_file.c_str());
         break;
     case OPT_SOURCE:
-        std::strcpy(reinterpret_cast<char*>(val), s->source.c_str());
+        std::strcpy(reinterpret_cast<char*>(val), scan_method_to_option_string(s->scan_method));
         break;
 
       /* word array options */
@@ -5236,7 +5256,6 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word *table;
   unsigned int i;
-  SANE_Range *x_range, *y_range;
   unsigned option_size = 0;
 
   switch (option)
@@ -5364,41 +5383,18 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
         calc_parameters(s);
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
-    case OPT_SOURCE:
-        if (s->source != reinterpret_cast<const char*>(val)) {
-            s->source = reinterpret_cast<const char*>(val);
+    case OPT_SOURCE: {
+        auto scan_method = option_string_to_scan_method(reinterpret_cast<const char*>(val));
+        if (s->scan_method != scan_method) {
+            s->scan_method = scan_method;
 
-            // change geometry constraint to the new source value
-            if (s->source == STR_FLATBED)
-            {
-                x_range = create_range(static_cast<float>(s->dev->model->x_size));
-                y_range = create_range(static_cast<float>(s->dev->model->y_size));
-            }
-          else
-            {
-                x_range = create_range(static_cast<float>(s->dev->model->x_size_ta));
-                y_range = create_range(static_cast<float>(s->dev->model->y_size_ta));
-            }
-        if (x_range == nullptr || y_range == nullptr) {
-              return SANE_STATUS_NO_MEM;
-            }
+            set_xy_range_option_values(*s);
+            set_resolution_option_values(*s, false);
 
-          /* assign new values */
-          std::free(reinterpret_cast<void*>(const_cast<SANE_Range*>(s->opt[OPT_TL_X].constraint.range)));
-          std::free(reinterpret_cast<void*>(const_cast<SANE_Range*>(s->opt[OPT_TL_Y].constraint.range)));
-          s->opt[OPT_TL_X].constraint.range = x_range;
-          s->pos_top_left_x = 0;
-          s->opt[OPT_TL_Y].constraint.range = y_range;
-          s->pos_top_left_y = 0;
-          s->opt[OPT_BR_X].constraint.range = x_range;
-          s->pos_bottom_right_x = x_range->max;
-          s->opt[OPT_BR_Y].constraint.range = y_range;
-          s->pos_bottom_right_y = y_range->max;
-
-          /* signals reload */
-	  *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-	}
-      break;
+            *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+        }
+        break;
+    }
     case OPT_MODE:
       s->mode = reinterpret_cast<const char*>(val);
 

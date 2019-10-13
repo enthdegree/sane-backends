@@ -2238,7 +2238,8 @@ Motor_Profile *profile;
  */
 int sanei_genesys_get_lowest_ydpi(Genesys_Device *dev)
 {
-    return *std::min_element(dev->model->ydpi_values.begin(), dev->model->ydpi_values.end());
+    const auto& resolution_settings = dev->model->get_resolution_settings(dev->settings.scan_method);
+    return resolution_settings.get_min_resolution_y();
 }
 
 /** @brief returns the lowest possible dpi for the device
@@ -2248,10 +2249,9 @@ int sanei_genesys_get_lowest_ydpi(Genesys_Device *dev)
  */
 int sanei_genesys_get_lowest_dpi(Genesys_Device *dev)
 {
-    return std::min(*std::min_element(dev->model->xdpi_values.begin(),
-                                      dev->model->xdpi_values.end()),
-                    *std::min_element(dev->model->ydpi_values.begin(),
-                                      dev->model->ydpi_values.end()));
+    const auto& resolution_settings = dev->model->get_resolution_settings(dev->settings.scan_method);
+    return std::min(resolution_settings.get_min_resolution_x(),
+                    resolution_settings.get_min_resolution_y());
 }
 
 /** @brief check is a cache entry may be used

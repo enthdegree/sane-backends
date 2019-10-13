@@ -3942,8 +3942,8 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     gl841_stop_action(dev);
 
     // set up for a gray scan at lowest dpi
-    unsigned dpi = *std::min_element(dev->model->xdpi_values.begin(),
-                                     dev->model->xdpi_values.end());
+    const auto& resolution_settings = dev->model->get_resolution_settings(dev->settings.scan_method);
+    unsigned dpi = resolution_settings.get_min_resolution_x();
   channels = 1;
 
   /* shading calibation is done with dev->motor.base_ydpi */

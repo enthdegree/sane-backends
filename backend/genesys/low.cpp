@@ -916,10 +916,10 @@ void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps)
 void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                   Genesys_Register_Set& regs, bool set)
 {
-    static const uint8_t REG03_LAMPPWR = 0x10;
+    static const uint8_t REG_0x03_LAMPPWR = 0x10;
 
     if (set) {
-        regs.find_reg(0x03).value |= REG03_LAMPPWR;
+        regs.find_reg(0x03).value |= REG_0x03_LAMPPWR;
 
         if (dev->model->asic_type == AsicType::GL841) {
             sanei_genesys_set_exposure(regs, sanei_genesys_fixup_exposure(sensor.exposure));
@@ -936,11 +936,11 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
                  dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I) &&
                 dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
             {
-                regs.find_reg(0x03).value &= ~REG03_LAMPPWR;
+                regs.find_reg(0x03).value &= ~REG_0x03_LAMPPWR;
             }
         }
     } else {
-        regs.find_reg(0x03).value &= ~REG03_LAMPPWR;
+        regs.find_reg(0x03).value &= ~REG_0x03_LAMPPWR;
 
         if (dev->model->asic_type == AsicType::GL841) {
             sanei_genesys_set_exposure(regs, {0x0101, 0x0101, 0x0101});
@@ -963,12 +963,12 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
 
 void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set)
 {
-    static const uint8_t REG02_MTRPWR = 0x10;
+    static const uint8_t REG_0x02_MTRPWR = 0x10;
 
     if (set) {
-        regs.find_reg(0x02).value |= REG02_MTRPWR;
+        regs.find_reg(0x02).value |= REG_0x02_MTRPWR;
     } else {
-        regs.find_reg(0x02).value &= ~REG02_MTRPWR;
+        regs.find_reg(0x02).value &= ~REG_0x02_MTRPWR;
     }
 }
 
@@ -1369,8 +1369,8 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
             NOTE: we can check the value of the register here, because we don't set this bit
             anywhere except in initialization.
         */
-        const uint8_t REG01_SHDAREA = 0x02;
-        if ((dev->reg.find_reg(0x01).value & REG01_SHDAREA) != 0) {
+        const uint8_t REG_0x01_SHDAREA = 0x02;
+        if ((dev->reg.find_reg(0x01).value & REG_0x01_SHDAREA) != 0) {
             unsigned average_factor = s.optical_resolution / s.params.xres;
             s.pixel_startx = align_multiple_floor(s.pixel_startx, average_factor);
         }
@@ -1991,11 +1991,11 @@ void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& s
                              unsigned dpihw)
 {
     // same across GL646, GL841, GL843, GL846, GL847, GL124
-    const uint8_t REG05_DPIHW_MASK = 0xc0;
-    const uint8_t REG05_DPIHW_600 = 0x00;
-    const uint8_t REG05_DPIHW_1200 = 0x40;
-    const uint8_t REG05_DPIHW_2400 = 0x80;
-    const uint8_t REG05_DPIHW_4800 = 0xc0;
+    const uint8_t REG_0x05_DPIHW_MASK = 0xc0;
+    const uint8_t REG_0x05_DPIHW_600 = 0x00;
+    const uint8_t REG_0x05_DPIHW_1200 = 0x40;
+    const uint8_t REG_0x05_DPIHW_2400 = 0x80;
+    const uint8_t REG_0x05_DPIHW_4800 = 0xc0;
 
     if (sensor.register_dpihw_override != 0) {
         dpihw = sensor.register_dpihw_override;
@@ -2004,21 +2004,21 @@ void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& s
     uint8_t dpihw_setting;
     switch (dpihw) {
         case 600:
-            dpihw_setting = REG05_DPIHW_600;
+            dpihw_setting = REG_0x05_DPIHW_600;
             break;
         case 1200:
-            dpihw_setting = REG05_DPIHW_1200;
+            dpihw_setting = REG_0x05_DPIHW_1200;
             break;
         case 2400:
-            dpihw_setting = REG05_DPIHW_2400;
+            dpihw_setting = REG_0x05_DPIHW_2400;
             break;
         case 4800:
-            dpihw_setting = REG05_DPIHW_4800;
+            dpihw_setting = REG_0x05_DPIHW_4800;
             break;
         default:
             throw SaneException("Unknown dpihw value: %d", dpihw);
     }
-    regs.set8_mask(0x05, dpihw_setting, REG05_DPIHW_MASK);
+    regs.set8_mask(0x05, dpihw_setting, REG_0x05_DPIHW_MASK);
 }
 
 /**

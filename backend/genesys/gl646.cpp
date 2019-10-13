@@ -98,12 +98,12 @@ void CommandSetGl646::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t*
 bool CommandSetGl646::get_gain4_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);
-    return (r && (r->value & REG06_GAIN4));
+    return (r && (r->value & REG_0x06_GAIN4));
 }
 
 bool CommandSetGl646::test_buffer_empty_bit(SANE_Byte val) const
 {
-    return (val & REG41_BUFEMPTY);
+    return (val & REG_0x41_BUFEMPTY);
 }
 
 /**
@@ -116,14 +116,14 @@ print_status (uint8_t val)
   char msg[80];
 
   sprintf (msg, "%s%s%s%s%s%s%s%s",
-	   val & REG41_PWRBIT ? "PWRBIT " : "",
-	   val & REG41_BUFEMPTY ? "BUFEMPTY " : "",
-	   val & REG41_FEEDFSH ? "FEEDFSH " : "",
-	   val & REG41_SCANFSH ? "SCANFSH " : "",
-	   val & REG41_HOMESNR ? "HOMESNR " : "",
-	   val & REG41_LAMPSTS ? "LAMPSTS " : "",
-	   val & REG41_FEBUSY ? "FEBUSY " : "",
-	   val & REG41_MOTMFLG ? "MOTMFLG" : "");
+       val & REG_0x41_PWRBIT ? "PWRBIT " : "",
+       val & REG_0x41_BUFEMPTY ? "BUFEMPTY " : "",
+       val & REG_0x41_FEEDFSH ? "FEEDFSH " : "",
+       val & REG_0x41_SCANFSH ? "SCANFSH " : "",
+       val & REG_0x41_HOMESNR ? "HOMESNR " : "",
+       val & REG_0x41_LAMPSTS ? "LAMPSTS " : "",
+       val & REG_0x41_FEBUSY ? "FEBUSY " : "",
+       val & REG_0x41_MOTMFLG ? "MOTMFLG" : "");
   DBG(DBG_info, "status=%s\n", msg);
 }
 
@@ -327,43 +327,45 @@ static void gl646_setup_registers(Genesys_Device* dev,
   /* R01 */
   /* now setup other registers for final scan (ie with shading enabled) */
   /* watch dog + shading + scan enable */
-  regs->find_reg(0x01).value |= REG01_DOGENB | REG01_DVDSET | REG01_SCAN;
+    regs->find_reg(0x01).value |= REG_0x01_DOGENB | REG_0x01_DVDSET | REG_0x01_SCAN;
     if (dev->model->is_cis) {
-        regs->find_reg(0x01).value |= REG01_CISSET;
+        regs->find_reg(0x01).value |= REG_0x01_CISSET;
     } else {
-        regs->find_reg(0x01).value &= ~REG01_CISSET;
+        regs->find_reg(0x01).value &= ~REG_0x01_CISSET;
     }
 
   /* if device has no calibration, don't enable shading correction */
   if (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
     {
-      regs->find_reg(0x01).value &= ~REG01_DVDSET;
+        regs->find_reg(0x01).value &= ~REG_0x01_DVDSET;
     }
 
-  regs->find_reg(0x01).value &= ~REG01_FASTMOD;
-  if (motor->fastmod)
-    regs->find_reg(0x01).value |= REG01_FASTMOD;
+    regs->find_reg(0x01).value &= ~REG_0x01_FASTMOD;
+    if (motor->fastmod) {
+        regs->find_reg(0x01).value |= REG_0x01_FASTMOD;
+    }
 
   /* R02 */
   /* allow moving when buffer full by default */
     if (!dev->model->is_sheetfed) {
-        dev->reg.find_reg(0x02).value &= ~REG02_ACDCDIS;
+        dev->reg.find_reg(0x02).value &= ~REG_0x02_ACDCDIS;
     } else {
-        dev->reg.find_reg(0x02).value |= REG02_ACDCDIS;
+        dev->reg.find_reg(0x02).value |= REG_0x02_ACDCDIS;
     }
 
   /* setup motor power and direction */
   sanei_genesys_set_motor_power(*regs, true);
-  regs->find_reg(0x02).value &= ~REG02_MTRREV;
+    regs->find_reg(0x02).value &= ~REG_0x02_MTRREV;
 
   /* fastfed enabled (2 motor slope tables) */
-  if (motor->fastfed)
-    regs->find_reg(0x02).value |= REG02_FASTFED;
-  else
-    regs->find_reg(0x02).value &= ~REG02_FASTFED;
+    if (motor->fastfed) {
+        regs->find_reg(0x02).value |= REG_0x02_FASTFED;
+    } else {
+        regs->find_reg(0x02).value &= ~REG_0x02_FASTFED;
+    }
 
   /* step type */
-  regs->find_reg(0x02).value &= ~REG02_STEPSEL;
+    regs->find_reg(0x02).value &= ~REG_0x02_STEPSEL;
   switch (motor->steptype)
     {
     case StepType::FULL:
@@ -380,20 +382,20 @@ static void gl646_setup_registers(Genesys_Device* dev,
     }
 
     if (dev->model->is_sheetfed) {
-        regs->find_reg(0x02).value &= ~REG02_AGOHOME;
+        regs->find_reg(0x02).value &= ~REG_0x02_AGOHOME;
     } else {
-        regs->find_reg(0x02).value |= REG02_AGOHOME;
+        regs->find_reg(0x02).value |= REG_0x02_AGOHOME;
     }
 
   /* R03 */
-  regs->find_reg(0x03).value &= ~REG03_AVEENB;
-  /* regs->find_reg(0x03).value |= REG03_AVEENB; */
-  regs->find_reg(0x03).value &= ~REG03_LAMPDOG;
+    regs->find_reg(0x03).value &= ~REG_0x03_AVEENB;
+    // regs->find_reg(0x03).value |= REG_0x03_AVEENB;
+    regs->find_reg(0x03).value &= ~REG_0x03_LAMPDOG;
 
   /* select XPA */
-  regs->find_reg(0x03).value &= ~REG03_XPASEL;
+    regs->find_reg(0x03).value &= ~REG_0x03_XPASEL;
     if (session.params.flags & SCAN_FLAG_USE_XPA) {
-      regs->find_reg(0x03).value |= REG03_XPASEL;
+        regs->find_reg(0x03).value |= REG_0x03_XPASEL;
     }
     regs->state.is_xpa_on = session.params.flags & SCAN_FLAG_USE_XPA;
 
@@ -401,39 +403,38 @@ static void gl646_setup_registers(Genesys_Device* dev,
   /* monochrome / color scan */
     switch (session.params.depth) {
     case 8:
-      regs->find_reg(0x04).value &= ~(REG04_LINEART | REG04_BITSET);
-      break;
+            regs->find_reg(0x04).value &= ~(REG_0x04_LINEART | REG_0x04_BITSET);
+            break;
     case 16:
-      regs->find_reg(0x04).value &= ~REG04_LINEART;
-      regs->find_reg(0x04).value |= REG04_BITSET;
-      break;
+            regs->find_reg(0x04).value &= ~REG_0x04_LINEART;
+            regs->find_reg(0x04).value |= REG_0x04_BITSET;
+            break;
     }
 
     sanei_genesys_set_dpihw(*regs, sensor, sensor.optical_res);
 
   /* gamma enable for scans */
-  if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA)
-    regs->find_reg(0x05).value |= REG05_GMM14BIT;
+    if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA) {
+        regs->find_reg(0x05).value |= REG_0x05_GMM14BIT;
+    }
 
-  regs->find_reg(0x05).value &= ~REG05_GMMENB;
+    regs->find_reg(0x05).value &= ~REG_0x05_GMMENB;
 
   /* true CIS gray if needed */
     if (dev->model->is_cis && session.params.channels == 1 && dev->settings.true_gray) {
-      regs->find_reg(0x05).value |= REG05_LEDADD;
-    }
-  else
-    {
-      regs->find_reg(0x05).value &= ~REG05_LEDADD;
+        regs->find_reg(0x05).value |= REG_0x05_LEDADD;
+    } else {
+        regs->find_reg(0x05).value &= ~REG_0x05_LEDADD;
     }
 
   /* HP2400 1200dpi mode tuning */
 
     if (dev->model->sensor_id == SensorId::CCD_HP2400) {
       /* reset count of dummy lines to zero */
-      regs->find_reg(0x1e).value &= ~REG1E_LINESEL;
+        regs->find_reg(0x1e).value &= ~REG_0x1E_LINESEL;
         if (session.params.xres >= 1200) {
           /* there must be one dummy line */
-          regs->find_reg(0x1e).value |= 1 & REG1E_LINESEL;
+            regs->find_reg(0x1e).value |= 1 & REG_0x1E_LINESEL;
 
           /* GPO12 need to be set to zero */
           regs->find_reg(0x66).value &= ~0x20;
@@ -591,7 +592,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   regs->find_reg(0x65).value = motor->mtrpwm;
 
-    sanei_genesys_calculate_zmod(regs->find_reg(0x02).value & REG02_FASTFED,
+    sanei_genesys_calculate_zmod(regs->find_reg(0x02).value & REG_0x02_FASTFED,
                                  sensor.exposure_lperiod,
 				  slope_table1,
 				  motor->steps1,
@@ -606,7 +607,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
     regs->set16(REG_Z2MOD, z2);
   regs->find_reg(0x6b).value = motor->steps2;
   regs->find_reg(0x6c).value =
-    (regs->find_reg(0x6c).value & REG6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16)
+    (regs->find_reg(0x6c).value & REG_0x6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16)
 								   & 0x07);
 
     write_control(dev, sensor, session.output_resolution);
@@ -637,7 +638,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
     dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
 
     /* select color filter based on settings */
-    regs->find_reg(0x04).value &= ~REG04_FILTER;
+    regs->find_reg(0x04).value &= ~REG_0x04_FILTER;
     if (session.params.channels == 1) {
         switch (session.params.color_filter) {
             case ColorFilter::RED:
@@ -800,7 +801,7 @@ gl646_init_regs (Genesys_Device * dev)
     sanei_genesys_set_dpihw(dev->reg, sensor, sensor.optical_res);
 
     if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA) {
-        dev->reg.find_reg(0x05).value |= REG05_GMM14BIT;
+        dev->reg.find_reg(0x05).value |= REG_0x05_GMM14BIT;
     }
     if (dev->model->adc_id == AdcId::AD_XP200) {
         dev->reg.find_reg(0x05).value |= 0x01;	/* 12 clocks/pixel */
@@ -1059,7 +1060,7 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
   uint8_t val;
 
   /* Analog Device type frontend */
-    uint8_t frontend_type = dev->reg.find_reg(0x04).value & REG04_FESET;
+    uint8_t frontend_type = dev->reg.find_reg(0x04).value & REG_0x04_FESET;
     if (frontend_type == 0x02) {
         gl646_set_ad_fe(dev, set);
         return;
@@ -1184,7 +1185,7 @@ void CommandSetGl646::set_powersaving(Genesys_Device* dev, int delay /* in minut
 
   local_reg.init_reg(0x01, dev->reg.get8(0x01));	// disable fastmode
   local_reg.init_reg(0x03, dev->reg.get8(0x03));        // Lamp power control
-  local_reg.init_reg(0x05, dev->reg.get8(0x05) & ~REG05_BASESEL);   // 24 clocks/pixel
+    local_reg.init_reg(0x05, dev->reg.get8(0x05) & ~REG_0x05_BASESEL);   // 24 clocks/pixel
   local_reg.init_reg(0x38, 0x00); // line period low
   local_reg.init_reg(0x39, 0x00); //line period high
   local_reg.init_reg(0x6c, 0x00); // period times for LPeriod, expR,expG,expB, Z1MODE, Z2MODE
@@ -1198,7 +1199,7 @@ void CommandSetGl646::set_powersaving(Genesys_Device* dev, int delay /* in minut
 
   time = delay * 1000 * 60;	/* -> msec */
     exposure_time = static_cast<std::uint32_t>((time * 32000.0 /
-                (24.0 * 64.0 * (local_reg.get8(0x03) & REG03_LAMPTIM) *
+                (24.0 * 64.0 * (local_reg.get8(0x03) & REG_0x03_LAMPTIM) *
          1024.0) + 0.5));
   /* 32000 = system clock, 24 = clocks per pixel */
   rate = (exposure_time + 65536) / 65536;
@@ -1266,8 +1267,7 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
     val = sanei_genesys_get_status(dev);
 
   /* HOMSNR is set if a document is inserted */
-  if ((val & REG41_HOMESNR))
-    {
+    if ((val & REG_0x41_HOMESNR)) {
       /* if no document, waits for a paper event to start loading */
       /* with a 60 seconde minutes timeout                        */
       count = 0;
@@ -1336,8 +1336,8 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
         val = sanei_genesys_get_status(dev);
       sanei_genesys_sleep_ms(200);
       count++;
-    }
-  while ((val & REG41_MOTMFLG) && (count < 300));
+    } while ((val & REG_0x41_MOTMFLG) && (count < 300));
+
   if (count == 300)
     {
       throw SaneException(SANE_STATUS_JAMMED, "can't load document");
@@ -1443,8 +1443,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
     }
 
   /* HOMSNR=0 if no document inserted */
-  if ((state & REG41_HOMESNR) != 0)
-    {
+    if ((state & REG_0x41_HOMESNR) != 0) {
         dev->document = false;
       DBG(DBG_info, "%s: no more document to eject\n", __func__);
       DBG(DBG_proc, "%s: end\n", __func__);
@@ -1460,7 +1459,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
       sanei_genesys_sleep_ms(200);
         state = sanei_genesys_get_status(dev);
     }
-  while (state & REG41_MOTMFLG);
+    while (state & REG_0x41_MOTMFLG);
 
   /* set up to fast move before scan then move until document is detected */
   regs.init_reg(0x01, 0xb0);
@@ -1511,8 +1510,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
       print_status (state);
       sanei_genesys_sleep_ms(200);
       count++;
-    }
-  while (((state & REG41_HOMESNR) == 0) && (count < 150));
+    } while (((state & REG_0x41_HOMESNR) == 0) && (count < 150));
 
     // read GPIO on exit
     gl646_gpio_read(dev->usb_dev, &gpio);
@@ -1530,7 +1528,7 @@ void CommandSetGl646::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
   Genesys_Register_Set local_reg(Genesys_Register_Set::SEQUENTIAL);
 
     local_reg.init_reg(0x03, reg->get8(0x03));
-    local_reg.init_reg(0x01, reg->get8(0x01) | REG01_SCAN);
+    local_reg.init_reg(0x01, reg->get8(0x01) | REG_0x01_SCAN);
 
     if (start_motor) {
         local_reg.init_reg(0x0f, 0x01);
@@ -1554,8 +1552,9 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
     if (dev->model->is_sheetfed) {
         val = sanei_genesys_get_status(dev);
 
-      if (val & REG41_SCANFSH)
-	scanfsh = 1;
+        if (val & REG_0x41_SCANFSH) {
+            scanfsh = 1;
+        }
       if (DBG_LEVEL > DBG_io2)
 	{
 	  print_status (val);
@@ -1564,7 +1563,7 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
 
   /* ends scan */
     val = reg->get8(0x01);
-    val &= ~REG01_SCAN;
+    val &= ~REG_0x01_SCAN;
     reg->set8(0x01, val);
     dev->write_register(0x01, val);
 
@@ -1580,15 +1579,16 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
 	    {
             val = sanei_genesys_get_status(dev);
 
-	      if (val & REG41_SCANFSH)
-		scanfsh = 1;
-	      if (DBG_LEVEL > DBG_io2)
+                if (val & REG_0x41_SCANFSH) {
+                scanfsh = 1;
+            }
+
+          if (DBG_LEVEL > DBG_io2)
 		{
 		  print_status (val);
 		}
 
-	      if (!(val & REG41_MOTMFLG) && (val & REG41_FEEDFSH) && scanfsh)
-		{
+                if (!(val & REG_0x41_MOTMFLG) && (val & REG_0x41_FEEDFSH) && scanfsh) {
 		  DBG(DBG_proc, "%s: scanfeed finished\n", __func__);
 		  break;	/* leave for loop */
 		}
@@ -1600,26 +1600,26 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
   else				/* flat bed scanners */
     {
       if (check_stop)
-	{
-	  for (i = 0; i < 300; i++)	/* do not wait longer than wait 30 seconds */
-	    {
+    {
+      for (i = 0; i < 300; i++)	/* do not wait longer than wait 30 seconds */
+        {
             val = sanei_genesys_get_status(dev);
 
-	      if (val & REG41_SCANFSH)
-		scanfsh = 1;
+                if (val & REG_0x41_SCANFSH) {
+                scanfsh = 1;
+            }
 	      if (DBG_LEVEL > DBG_io)
 		{
 		  print_status (val);
 		}
 
-	      if (!(val & REG41_MOTMFLG) && (val & REG41_FEEDFSH) && scanfsh)
+                if (!(val & REG_0x41_MOTMFLG) && (val & REG_0x41_FEEDFSH) && scanfsh)
 		{
 		  DBG(DBG_proc, "%s: scanfeed finished\n", __func__);
 		  break;	/* leave while loop */
 		}
 
-	      if ((!(val & REG41_MOTMFLG)) && (val & REG41_HOMESNR))
-		{
+                if ((!(val & REG_0x41_MOTMFLG)) && (val & REG_0x41_HOMESNR)) {
 		  DBG(DBG_proc, "%s: head at home\n", __func__);
 		  break;	/* leave while loop */
 		}
@@ -1661,31 +1661,30 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 
   dev->scanhead_position_in_steps = 0;
 
-  if (val & REG41_HOMESNR)	/* is sensor at home? */
-    {
+    if (val & REG_0x41_HOMESNR)	{
       DBG(DBG_info, "%s: end since already at home\n", __func__);
       return;
     }
 
   /* stop motor if needed */
-  if (val & REG41_MOTMFLG)
-    {
+    if (val & REG_0x41_MOTMFLG) {
         gl646_stop_motor(dev);
       sanei_genesys_sleep_ms(200);
     }
 
   /* when scanhead is moving then wait until scanhead stops or timeout */
   DBG(DBG_info, "%s: ensuring that motor is off\n", __func__);
-  val = REG41_MOTMFLG;
-  for (i = 400; i > 0 && (val & REG41_MOTMFLG); i--)	/* do not wait longer than 40 seconds, count down to get i = 0 when busy */
-    {
+    val = REG_0x41_MOTMFLG;
+    for (i = 400; i > 0 && (val & REG_0x41_MOTMFLG); i--) {
+        // do not wait longer than 40 seconds, count down to get i = 0 when busy
+
         val = sanei_genesys_get_status(dev);
 
-      if (((val & (REG41_MOTMFLG | REG41_HOMESNR)) == REG41_HOMESNR))	/* at home and motor is off */
-	{
-	  DBG(DBG_info, "%s: already at home and not moving\n", __func__);
-      return;
-	}
+        if (((val & (REG_0x41_MOTMFLG | REG_0x41_HOMESNR)) == REG_0x41_HOMESNR)) {
+            // at home and motor is off
+            DBG(DBG_info, "%s: already at home and not moving\n", __func__);
+            return;
+        }
       sanei_genesys_sleep_ms(100);
     }
 
@@ -1716,8 +1715,8 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     setup_for_scan(dev, sensor, &dev->reg, settings, true, true, true);
 
   /* backward , no actual data scanned TODO more setup flags to avoid this register manipulations ? */
-    dev->reg.find_reg(0x02).value |= REG02_MTRREV;
-    dev->reg.find_reg(0x01).value &= ~REG01_SCAN;
+    dev->reg.find_reg(0x02).value |= REG_0x02_MTRREV;
+    dev->reg.find_reg(0x01).value &= ~REG_0x01_SCAN;
     dev->reg.set24(REG_FEEDL, 65535);
 
     // sets frontend
@@ -1914,19 +1913,17 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     }
 
   /* no shading */
-  dev->reg.find_reg(0x01).value &= ~REG01_DVDSET;
-  dev->reg.find_reg(0x02).value |= REG02_ACDCDIS;	/* ease backtracking */
-  dev->reg.find_reg(0x02).value &= ~(REG02_FASTFED | REG02_AGOHOME);
-  dev->reg.find_reg(0x05).value &= ~REG05_GMMENB;
+    dev->reg.find_reg(0x01).value &= ~REG_0x01_DVDSET;
+    dev->reg.find_reg(0x02).value |= REG_0x02_ACDCDIS;	/* ease backtracking */
+    dev->reg.find_reg(0x02).value &= ~(REG_0x02_FASTFED | REG_0x02_AGOHOME);
+    dev->reg.find_reg(0x05).value &= ~REG_0x05_GMMENB;
   sanei_genesys_set_motor_power(dev->reg, false);
 
   /* TODO another flag to setup regs ? */
   /* enforce needed LINCNT, getting rid of extra lines for color reordering */
     if (!dev->model->is_cis) {
         dev->reg.set24(REG_LINCNT, dev->calib_lines);
-    }
-  else
-    {
+    } else {
         dev->reg.set24(REG_LINCNT, dev->calib_lines * 3);
     }
 
@@ -1958,8 +1955,9 @@ void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     setup_for_scan(dev, sensor, &dev->reg, dev->settings, false, true, true);
 
   /* gamma is only enabled at final scan time */
-  if (dev->settings.depth < 16)
-    dev->reg.find_reg(0x05).value |= REG05_GMMENB;
+    if (dev->settings.depth < 16) {
+        dev->reg.find_reg(0x05).value |= REG_0x05_GMMENB;
+    }
 }
 
 /**
@@ -2810,10 +2808,10 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     setup_for_scan(dev, local_sensor, &dev->reg, settings, true, false, false);
 
   /* we are not going to move, so clear these bits */
-  dev->reg.find_reg(0x02).value &= ~(REG02_FASTFED | REG02_AGOHOME);
+    dev->reg.find_reg(0x02).value &= ~(REG_0x02_FASTFED | REG_0x02_AGOHOME);
 
   /* don't enable any correction for this scan */
-  dev->reg.find_reg(0x01).value &= ~REG01_DVDSET;
+    dev->reg.find_reg(0x01).value &= ~REG_0x01_DVDSET;
 
   /* copy to local_reg */
   *local_reg = dev->reg;
@@ -2864,7 +2862,7 @@ static void gl646_repark_head(Genesys_Device* dev)
     setup_for_scan(dev, sensor, &dev->reg, settings, false, false, false);
 
   /* TODO seems wrong ... no effective scan */
-  dev->reg.find_reg(0x01).value &= ~REG01_SCAN;
+    dev->reg.find_reg(0x01).value &= ~REG_0x01_SCAN;
 
     dev->write_registers(dev->reg);
 
@@ -2897,11 +2895,11 @@ void CommandSetGl646::init(Genesys_Device* dev) const
   uint32_t addr = 0xdead;
   size_t len;
 
-    // to detect real power up condition, we write to REG41 with pwrbit set, then read it back. When
+    // to detect real power up condition, we write to REG_0x41 with pwrbit set, then read it back. When
     // scanner is cold (just replugged) PWRBIT will be set in the returned value
     std::uint8_t cold = sanei_genesys_get_status(dev);
   DBG(DBG_info, "%s: status=0x%02x\n", __func__, cold);
-  cold = !(cold & REG41_PWRBIT);
+    cold = !(cold & REG_0x41_PWRBIT);
   if (cold)
     {
       DBG(DBG_info, "%s: device is cold\n", __func__);
@@ -3080,9 +3078,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
   /* allocate memory fo scan : LINCNT may have been adjusted for CCD reordering */
     if (dev->model->is_cis) {
         lines = dev->reg.get24(REG_LINCNT) / 3;
-    }
-  else
-    {
+    } else {
         lines = dev->reg.get24(REG_LINCNT) + 1;
     }
   size = lines * settings.pixels;
@@ -3104,35 +3100,32 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     gl646_set_fe(dev, sensor, AFE_SET, settings.xres);
 
   /* no shading correction and not watch dog for simple scan */
-  dev->reg.find_reg(0x01).value &= ~(REG01_DVDSET | REG01_DOGENB);
+    dev->reg.find_reg(0x01).value &= ~(REG_0x01_DVDSET | REG_0x01_DOGENB);
     if (shading) {
-      dev->reg.find_reg(0x01).value |= REG01_DVDSET;
+      dev->reg.find_reg(0x01).value |= REG_0x01_DVDSET;
     }
 
   /* enable gamma table for the scan */
-  dev->reg.find_reg(0x05).value |= REG05_GMMENB;
+    dev->reg.find_reg(0x05).value |= REG_0x05_GMMENB;
 
   /* one table movement for simple scan */
-  dev->reg.find_reg(0x02).value &= ~REG02_FASTFED;
+    dev->reg.find_reg(0x02).value &= ~REG_0x02_FASTFED;
 
     if (!move) {
       sanei_genesys_set_motor_power(dev->reg, false);
 
       /* no automatic go home if no movement */
-      dev->reg.find_reg(0x02).value &= ~REG02_AGOHOME;
+        dev->reg.find_reg(0x02).value &= ~REG_0x02_AGOHOME;
     }
     if (!forward) {
-      dev->reg.find_reg(0x02).value |= REG02_MTRREV;
-    }
-  else
-    {
-      dev->reg.find_reg(0x02).value &= ~REG02_MTRREV;
+        dev->reg.find_reg(0x02).value |= REG_0x02_MTRREV;
+    } else {
+        dev->reg.find_reg(0x02).value &= ~REG_0x02_MTRREV;
     }
 
   /* no automatic go home when using XPA */
-  if (settings.scan_method == ScanMethod::TRANSPARENCY)
-    {
-      dev->reg.find_reg(0x02).value &= ~REG02_AGOHOME;
+  if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+        dev->reg.find_reg(0x02).value &= ~REG_0x02_AGOHOME;
     }
 
     // write scan registers

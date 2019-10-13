@@ -46,124 +46,124 @@
 
 
 /* Individual bits */
-#define REG01           0x01
-#define REG01_CISSET	0x80
-#define REG01_DOGENB	0x40
-#define REG01_DVDSET	0x20
-#define REG01_M16DRAM	0x08
-#define REG01_DRAMSEL	0x04
-#define REG01_SHDAREA	0x02
-#define REG01_SCAN	0x01
+#define REG_0x01           0x01
+#define REG_0x01_CISSET	0x80
+#define REG_0x01_DOGENB	0x40
+#define REG_0x01_DVDSET	0x20
+#define REG_0x01_M16DRAM	0x08
+#define REG_0x01_DRAMSEL	0x04
+#define REG_0x01_SHDAREA	0x02
+#define REG_0x01_SCAN	0x01
 
-#define REG02           0x02
-#define REG02_NOTHOME	0x80
-#define REG02_ACDCDIS	0x40
-#define REG02_AGOHOME	0x20
-#define REG02_MTRPWR	0x10
-#define REG02_FASTFED	0x08
-#define REG02_MTRREV	0x04
-#define REG02_HOMENEG	0x02
-#define REG02_LONGCURV	0x01
+#define REG_0x02           0x02
+#define REG_0x02_NOTHOME	0x80
+#define REG_0x02_ACDCDIS	0x40
+#define REG_0x02_AGOHOME	0x20
+#define REG_0x02_MTRPWR	0x10
+#define REG_0x02_FASTFED	0x08
+#define REG_0x02_MTRREV	0x04
+#define REG_0x02_HOMENEG	0x02
+#define REG_0x02_LONGCURV	0x01
 
-#define REG03_LAMPDOG	0x80
-#define REG03_AVEENB	0x40
-#define REG03_XPASEL	0x20
-#define REG03_LAMPPWR	0x10
-#define REG03_LAMPTIM	0x0f
+#define REG_0x03_LAMPDOG	0x80
+#define REG_0x03_AVEENB	0x40
+#define REG_0x03_XPASEL	0x20
+#define REG_0x03_LAMPPWR	0x10
+#define REG_0x03_LAMPTIM	0x0f
 
-#define REG04_LINEART	0x80
-#define REG04_BITSET	0x40
-#define REG04_AFEMOD	0x30
-#define REG04_FILTER	0x0c
-#define REG04_FESET	0x03
+#define REG_0x04_LINEART	0x80
+#define REG_0x04_BITSET	0x40
+#define REG_0x04_AFEMOD	0x30
+#define REG_0x04_FILTER	0x0c
+#define REG_0x04_FESET	0x03
 
-#define REG04S_AFEMOD   4
+#define REG_0x04S_AFEMOD   4
 
-#define REG05_DPIHW	0xc0
-#define REG05_DPIHW_600	0x00
-#define REG05_DPIHW_1200	0x40
-#define REG05_DPIHW_2400	0x80
-#define REG05_MTLLAMP	0x30
-#define REG05_GMMENB	0x08
-#define REG05_MTLBASE	0x03
+#define REG_0x05_DPIHW	0xc0
+#define REG_0x05_DPIHW_600	0x00
+#define REG_0x05_DPIHW_1200	0x40
+#define REG_0x05_DPIHW_2400	0x80
+#define REG_0x05_MTLLAMP	0x30
+#define REG_0x05_GMMENB	0x08
+#define REG_0x05_MTLBASE	0x03
 
-#define REG06_SCANMOD	0xe0
-#define REG06S_SCANMOD	5
-#define REG06_PWRBIT	0x10
-#define REG06_GAIN4	0x08
-#define REG06_OPTEST	0x07
+#define REG_0x06_SCANMOD	0xe0
+#define REG_0x06S_SCANMOD	5
+#define REG_0x06_PWRBIT	0x10
+#define REG_0x06_GAIN4	0x08
+#define REG_0x06_OPTEST	0x07
 
-#define	REG07_SRAMSEL	0x08
-#define REG07_FASTDMA	0x04
-#define REG07_DMASEL	0x02
-#define REG07_DMARDWR	0x01
+#define	REG_0x07_SRAMSEL	0x08
+#define REG_0x07_FASTDMA	0x04
+#define REG_0x07_DMASEL	0x02
+#define REG_0x07_DMARDWR	0x01
 
-#define REG08_DECFLAG 	0x40
-#define REG08_GMMFFR	0x20
-#define REG08_GMMFFG	0x10
-#define REG08_GMMFFB	0x08
-#define REG08_GMMZR	0x04
-#define REG08_GMMZG	0x02
-#define REG08_GMMZB	0x01
+#define REG_0x08_DECFLAG 	0x40
+#define REG_0x08_GMMFFR	0x20
+#define REG_0x08_GMMFFG	0x10
+#define REG_0x08_GMMFFB	0x08
+#define REG_0x08_GMMZR	0x04
+#define REG_0x08_GMMZG	0x02
+#define REG_0x08_GMMZB	0x01
 
-#define REG09_MCNTSET	0xc0
-#define REG09_CLKSET	0x30
-#define REG09_BACKSCAN	0x08
-#define REG09_ENHANCE	0x04
-#define REG09_SHORTTG	0x02
-#define REG09_NWAIT	0x01
+#define REG_0x09_MCNTSET	0xc0
+#define REG_0x09_CLKSET	0x30
+#define REG_0x09_BACKSCAN	0x08
+#define REG_0x09_ENHANCE	0x04
+#define REG_0x09_SHORTTG	0x02
+#define REG_0x09_NWAIT	0x01
 
-#define REG09S_MCNTSET  6
-#define REG09S_CLKSET   4
-
-
-#define REG0A_SRAMBUF	0x01
-
-#define REG0D         	0x0d
-#define REG0D_CLRLNCNT	0x01
-
-#define REG16_CTRLHI	0x80
-#define REG16_TOSHIBA	0x40
-#define REG16_TGINV	0x20
-#define REG16_CK1INV	0x10
-#define REG16_CK2INV	0x08
-#define REG16_CTRLINV	0x04
-#define REG16_CKDIS	0x02
-#define REG16_CTRLDIS	0x01
-
-#define REG17_TGMODE	0xc0
-#define REG17_TGMODE_NO_DUMMY	0x00
-#define REG17_TGMODE_REF	0x40
-#define REG17_TGMODE_XPA	0x80
-#define REG17_TGW	0x3f
-#define REG17S_TGW      0
-
-#define REG18_CNSET	0x80
-#define REG18_DCKSEL	0x60
-#define REG18_CKTOGGLE	0x10
-#define REG18_CKDELAY	0x0c
-#define REG18_CKSEL	0x03
-
-#define REG1A_MANUAL3	0x02
-#define REG1A_MANUAL1	0x01
-#define REG1A_CK4INV	0x08
-#define REG1A_CK3INV	0x04
-#define REG1A_LINECLP	0x02
-
-#define REG1C_TGTIME    0x07
-
-#define REG1D_CK4LOW	0x80
-#define REG1D_CK3LOW	0x40
-#define REG1D_CK1LOW	0x20
-#define REG1D_TGSHLD	0x1f
-#define REG1DS_TGSHLD   0
+#define REG_0x09S_MCNTSET  6
+#define REG_0x09S_CLKSET   4
 
 
-#define REG1E       	0x1e
-#define REG1E_WDTIME	0xf0
-#define REG1ES_WDTIME   4
-#define REG1E_LINESEL	0x0f
-#define REG1ES_LINESEL  0
+#define REG_0x0A_SRAMBUF	0x01
+
+#define REG_0x0D         	0x0d
+#define REG_0x0D_CLRLNCNT	0x01
+
+#define REG_0x16_CTRLHI	0x80
+#define REG_0x16_TOSHIBA	0x40
+#define REG_0x16_TGINV	0x20
+#define REG_0x16_CK1INV	0x10
+#define REG_0x16_CK2INV	0x08
+#define REG_0x16_CTRLINV	0x04
+#define REG_0x16_CKDIS	0x02
+#define REG_0x16_CTRLDIS	0x01
+
+#define REG_0x17_TGMODE	0xc0
+#define REG_0x17_TGMODE_NO_DUMMY	0x00
+#define REG_0x17_TGMODE_REF	0x40
+#define REG_0x17_TGMODE_XPA	0x80
+#define REG_0x17_TGW	0x3f
+#define REG_0x17S_TGW      0
+
+#define REG_0x18_CNSET	0x80
+#define REG_0x18_DCKSEL	0x60
+#define REG_0x18_CKTOGGLE	0x10
+#define REG_0x18_CKDELAY	0x0c
+#define REG_0x18_CKSEL	0x03
+
+#define REG_0x1A_MANUAL3	0x02
+#define REG_0x1A_MANUAL1	0x01
+#define REG_0x1A_CK4INV	0x08
+#define REG_0x1A_CK3INV	0x04
+#define REG_0x1A_LINECLP	0x02
+
+#define REG_0x1C_TGTIME    0x07
+
+#define REG_0x1D_CK4LOW	0x80
+#define REG_0x1D_CK3LOW	0x40
+#define REG_0x1D_CK1LOW	0x20
+#define REG_0x1D_TGSHLD	0x1f
+#define REG_0x1DS_TGSHLD   0
+
+
+#define REG_0x1E       	0x1e
+#define REG_0x1E_WDTIME	0xf0
+#define REG_0x1ES_WDTIME   4
+#define REG_0x1E_LINESEL	0x0f
+#define REG_0x1ES_LINESEL  0
 
 #define REG_EXPR        0x10
 #define REG_EXPG        0x12
@@ -179,78 +179,78 @@
 #define REG_MAXWD       0x35
 #define REG_LPERIOD     0x38
 
-#define REG40_HISPDFLG  0x04
-#define REG40_MOTMFLG   0x02
-#define REG40_DATAENB   0x01
+#define REG_0x40_HISPDFLG  0x04
+#define REG_0x40_MOTMFLG   0x02
+#define REG_0x40_DATAENB   0x01
 
-#define REG41_PWRBIT	0x80
-#define REG41_BUFEMPTY	0x40
-#define REG41_FEEDFSH	0x20
-#define REG41_SCANFSH	0x10
-#define REG41_HOMESNR	0x08
-#define REG41_LAMPSTS	0x04
-#define REG41_FEBUSY	0x02
-#define REG41_MOTORENB	0x01
+#define REG_0x41_PWRBIT	0x80
+#define REG_0x41_BUFEMPTY	0x40
+#define REG_0x41_FEEDFSH	0x20
+#define REG_0x41_SCANFSH	0x10
+#define REG_0x41_HOMESNR	0x08
+#define REG_0x41_LAMPSTS	0x04
+#define REG_0x41_FEBUSY	0x02
+#define REG_0x41_MOTORENB	0x01
 
-#define REG58_VSMP      0xf8
-#define REG58S_VSMP     3
-#define REG58_VSMPW     0x07
-#define REG58S_VSMPW    0
+#define REG_0x58_VSMP      0xf8
+#define REG_0x58S_VSMP     3
+#define REG_0x58_VSMPW     0x07
+#define REG_0x58S_VSMPW    0
 
-#define REG59_BSMP      0xf8
-#define REG59S_BSMP     3
-#define REG59_BSMPW     0x07
-#define REG59S_BSMPW    0
+#define REG_0x59_BSMP      0xf8
+#define REG_0x59S_BSMP     3
+#define REG_0x59_BSMPW     0x07
+#define REG_0x59S_BSMPW    0
 
-#define REG5A_ADCLKINV  0x80
-#define REG5A_RLCSEL    0x40
-#define REG5A_CDSREF    0x30
-#define REG5AS_CDSREF   4
-#define REG5A_RLC       0x0f
-#define REG5AS_RLC      0
+#define REG_0x5A_ADCLKINV  0x80
+#define REG_0x5A_RLCSEL    0x40
+#define REG_0x5A_CDSREF    0x30
+#define REG_0x5AS_CDSREF   4
+#define REG_0x5A_RLC       0x0f
+#define REG_0x5AS_RLC      0
 
-#define REG5E_DECSEL    0xe0
-#define REG5ES_DECSEL   5
-#define REG5E_STOPTIM   0x1f
-#define REG5ES_STOPTIM  0
+#define REG_0x5E_DECSEL    0xe0
+#define REG_0x5ES_DECSEL   5
+#define REG_0x5E_STOPTIM   0x1f
+#define REG_0x5ES_STOPTIM  0
 
-#define REG60_ZIMOD	0x1f
-#define REG61_Z1MOD	0xff
-#define REG62_Z1MOD	0xff
+#define REG_0x60_ZIMOD	0x1f
+#define REG_0x61_Z1MOD	0xff
+#define REG_0x62_Z1MOD	0xff
 
-#define REG63_Z2MOD	0x1f
-#define REG64_Z2MOD	0xff
-#define REG65_Z2MOD	0xff
+#define REG_0x63_Z2MOD	0x1f
+#define REG_0x64_Z2MOD	0xff
+#define REG_0x65_Z2MOD	0xff
 
-#define REG67_STEPSEL	0xc0
-#define REG67_FULLSTEP	0x00
-#define REG67_HALFSTEP	0x40
-#define REG67_QUATERSTEP	0x80
-#define REG67_MTRPWM	0x3f
+#define REG_0x67_STEPSEL	0xc0
+#define REG_0x67_FULLSTEP	0x00
+#define REG_0x67_HALFSTEP	0x40
+#define REG_0x67_QUATERSTEP	0x80
+#define REG_0x67_MTRPWM	0x3f
 
-#define REG68_FSTPSEL	0xc0
-#define REG68_FULLSTEP	0x00
-#define REG68_HALFSTEP	0x40
-#define REG68_QUATERSTEP	0x80
-#define REG68_FASTPWM	0x3f
+#define REG_0x68_FSTPSEL	0xc0
+#define REG_0x68_FULLSTEP	0x00
+#define REG_0x68_HALFSTEP	0x40
+#define REG_0x68_QUATERSTEP	0x80
+#define REG_0x68_FASTPWM	0x3f
 
-#define REG6B_MULTFILM	0x80
-#define REG6B_GPOM13	0x40
-#define REG6B_GPOM12	0x20
-#define REG6B_GPOM11	0x10
-#define REG6B_GPO18	0x02
-#define REG6B_GPO17	0x01
+#define REG_0x6B_MULTFILM	0x80
+#define REG_0x6B_GPOM13	0x40
+#define REG_0x6B_GPOM12	0x20
+#define REG_0x6B_GPOM11	0x10
+#define REG_0x6B_GPO18	0x02
+#define REG_0x6B_GPO17	0x01
 
-#define REG6B      	0x6b
+#define REG_0x6B      	0x6b
 
-#define REG6C      	0x6c
-#define REG6C_GPIOH	0xff
-#define REG6C_GPIOL	0xff
+#define REG_0x6C      	0x6c
+#define REG_0x6C_GPIOH	0xff
+#define REG_0x6C_GPIOL	0xff
 
-#define REG6D      	0x6d
-#define REG6E      	0x6e
-#define REG6F      	0x6f
+#define REG_0x6D      	0x6d
+#define REG_0x6E      	0x6e
+#define REG_0x6F      	0x6f
 
-#define REG87_LEDADD    0x04
+#define REG_0x87_LEDADD    0x04
 
 #endif // BACKEND_GENESYS_GL841_REGISTERS_H

@@ -403,14 +403,14 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
                                        const Genesys_Sensor& sensor,
                                        Genesys_Register_Set* reg,
                                        unsigned int scan_exposure_time,
-                                       float scan_yres,
+                                       unsigned scan_yres,
                                        StepType step_type,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
                                        unsigned int flags)
 {
-    DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, can_yres=%g, step_type=%d, scan_lines=%d, "
+    DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, can_yres=%d, step_type=%d, scan_lines=%d, "
                          "scan_dummy=%d, feed_steps=%d, flags=%x",
                     scan_exposure_time, scan_yres, static_cast<unsigned>(step_type), scan_lines,
                     scan_dummy, feed_steps, flags);
@@ -1075,7 +1075,6 @@ void CommandSetGl847::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
   GenesysRegister *r;
-  float resolution;
   uint8_t val;
   int loop = 0;
   ScanColorMode scan_mode;
@@ -1110,7 +1109,7 @@ void CommandSetGl847::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 
   local_reg = dev->reg;
 
-  resolution=sanei_genesys_get_lowest_ydpi(dev);
+    unsigned resolution = sanei_genesys_get_lowest_ydpi(dev);
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
@@ -1305,12 +1304,11 @@ static void gl847_feed(Genesys_Device* dev, unsigned int steps)
     DBG_HELPER_ARGS(dbg, "steps=%d", steps);
   Genesys_Register_Set local_reg;
   GenesysRegister *r;
-  float resolution;
   uint8_t val;
 
   local_reg = dev->reg;
 
-  resolution=sanei_genesys_get_lowest_ydpi(dev);
+    unsigned resolution = sanei_genesys_get_lowest_ydpi(dev);
     const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, dev->model->default_method);
 
     ScanSession session;

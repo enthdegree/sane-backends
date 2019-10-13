@@ -481,7 +481,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                                        const Genesys_Sensor& sensor,
                                        Genesys_Register_Set* reg,
                                        unsigned int scan_exposure_time,
-                                       float scan_yres,
+                                       unsigned scan_yres,
                                        StepType step_type,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
@@ -497,11 +497,11 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
   int scan_steps,fast_steps,factor;
   unsigned int feedl,dist;
   uint32_t z1, z2;
-  float yres;
-  int min_speed;
+    unsigned yres;
+    unsigned min_speed;
   unsigned int linesel;
 
-    DBG(DBG_info, "%s : scan_exposure_time=%d, scan_yres=%g, step_type=%d, scan_lines=%d, "
+    DBG(DBG_info, "%s : scan_exposure_time=%d, scan_yres=%d, step_type=%d, scan_lines=%d, "
       "scan_dummy=%d, feed_steps=%d, scan_mode=%d, flags=%x\n", __func__, scan_exposure_time,
         scan_yres, static_cast<unsigned>(step_type), scan_lines, scan_dummy, feed_steps,
       static_cast<unsigned>(scan_mode), flags);
@@ -536,7 +536,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
   if(scan_yres<min_speed)
     {
       yres=min_speed;
-      linesel=yres/scan_yres-1;
+        linesel = yres / scan_yres - 1;
       /* limit case, we need a linesel > 0 */
       if(linesel==0)
         {
@@ -550,7 +550,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
       linesel=0;
     }
 
-  DBG (DBG_io2, "%s: final yres=%f, linesel=%d\n", __func__, yres, linesel);
+    DBG(DBG_io2, "%s: final yres=%d, linesel=%d\n", __func__, yres, linesel);
 
   lincnt=scan_lines*(linesel+1);
     reg->set24(REG_LINCNT, lincnt);

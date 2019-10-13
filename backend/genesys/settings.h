@@ -55,9 +55,9 @@ struct Genesys_Settings
     ScanColorMode scan_mode = ScanColorMode::LINEART;
 
     // horizontal dpi
-    int xres = 0;
+    unsigned xres = 0;
     // vertical dpi
-    int yres = 0;
+    unsigned yres = 0;
 
     //x start on scan table in mm
     double tl_x = 0;
@@ -317,7 +317,7 @@ struct Genesys_Current_Setup
     // used exposure time
     int exposure_time = 0;
     // used xres
-    float xres = 0;
+    unsigned xres = 0;
     // half ccd mode
     unsigned ccd_size_divisor = 1;
     SANE_Int stagger = 0;

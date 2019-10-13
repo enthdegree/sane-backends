@@ -266,7 +266,7 @@ struct Genesys_Sensor {
 
     // sensor resolution in CCD pixels. Note that we may read more than one CCD pixel per logical
     // pixel, see ccd_pixels_per_system_pixel()
-    int optical_res = 0;
+    unsigned optical_res = 0;
 
     // the resolution list that the sensor is usable at.
     ResolutionFilter resolutions = ResolutionFilter::ANY;

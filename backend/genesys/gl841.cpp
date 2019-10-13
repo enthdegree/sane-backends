@@ -1050,7 +1050,7 @@ HOME_FREE: 3
 static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                        Genesys_Register_Set* reg,
                                        unsigned int scan_exposure_time,/*pixel*/
-                                       float scan_yres,/*dpi, motor resolution*/
+                                       unsigned scan_yres, // dpi, motor resolution
                                        int scan_step_type,/*0: full, 1: half, 2: quarter*/
                                        unsigned int scan_lines,/*lines, scan resolution*/
                                        unsigned int scan_dummy,
@@ -1059,7 +1059,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
                                        // maybe float for half/quarter step resolution?
                                        unsigned int flags)
 {
-    DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, scan_yres=%g, scan_step_type=%d, scan_lines=%d,"
+    DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, scan_yres=%d, scan_step_type=%d, scan_lines=%d,"
                          " scan_dummy=%d, feed_steps=%d, flags=%x",
                     scan_exposure_time, scan_yres, scan_step_type, scan_lines, scan_dummy,
                     feed_steps, flags);

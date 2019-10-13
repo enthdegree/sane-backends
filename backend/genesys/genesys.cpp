@@ -216,7 +216,7 @@ bool sanei_genesys_has_sensor(Genesys_Device* dev, unsigned dpi, unsigned channe
     return find_sensor_impl(dev, dpi, channels, scan_method) != nullptr;
 }
 
-const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi, unsigned channels,
+const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, unsigned dpi, unsigned channels,
                                                 ScanMethod scan_method)
 {
     const auto* sensor = find_sensor_impl(dev, dpi, channels, scan_method);
@@ -225,7 +225,7 @@ const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, int dpi, un
     throw std::runtime_error("Given device does not have sensor defined");
 }
 
-Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, int dpi,
+Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, unsigned dpi,
                                                     unsigned channels,
                                                     ScanMethod scan_method)
 {
@@ -4478,7 +4478,7 @@ probe_genesys_devices (void)
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 14;
+static const int CALIBRATION_VERSION = 15;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

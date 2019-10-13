@@ -36,7 +36,7 @@ Genesys_Calibration_Cache create_fake_calibration_entry()
     Genesys_Calibration_Cache calib;
     calib.used_setup.pixels = 10020;
     calib.used_setup.lines = 150;
-    calib.used_setup.xres = 100.5;
+    calib.used_setup.xres = 100;
 
     calib.params.channels = 3;
     calib.params.depth = 8;

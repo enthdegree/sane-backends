@@ -2283,7 +2283,7 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
   /* a calibration cache is compatible if color mode and x dpi match the user
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
     if (!dev->model->is_cis) {
-        compatible = (dev->settings.xres == static_cast<int>(cache->used_setup.xres));
+        compatible = (dev->settings.xres == cache->used_setup.xres);
     }
   else
     {
@@ -2571,7 +2571,7 @@ void debug_dump(unsigned level, const Genesys_Current_Setup& setup)
         "Pixels: %d\n"
         "Lines: %d\n"
         "exposure_time: %d\n"
-        "Resolution X: %g\n"
+        "Resolution X: %d\n"
         "ccd_size_divisor: %d\n"
         "stagger: %d\n"
         "max_shift: %d\n",

@@ -997,7 +997,8 @@ static void gl646_set_ad_fe(Genesys_Device* dev, uint8_t set)
  * @param set action from AFE_SET, AFE_INIT and AFE_POWERSAVE
  * @param dpi resolution of the scan since it affects settings
  */
-static void gl646_wm_hp3670(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set, int dpi)
+static void gl646_wm_hp3670(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set,
+                            unsigned dpi)
 {
     DBG_HELPER(dbg);
   int i;
@@ -3438,7 +3439,7 @@ bool CommandSetGl646::is_compatible_calibration(Genesys_Device* dev, const Genes
     dev->session.params.channels = dev->settings.get_channels();
   dev->current_setup.xres = dev->settings.xres;
 
-    DBG(DBG_io, "%s: requested=(%d,%f), tested=(%d,%f)\n", __func__,
+    DBG(DBG_io, "%s: requested=(%d, %d), tested=(%d, %d)\n", __func__,
         dev->session.params.channels, dev->current_setup.xres,
         cache->params.channels, cache->used_setup.xres);
 
@@ -3446,8 +3447,7 @@ bool CommandSetGl646::is_compatible_calibration(Genesys_Device* dev, const Genes
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
     if (!dev->model->is_cis) {
         compatible = (dev->session.params.channels == cache->params.channels) &&
-                     (static_cast<int>(dev->current_setup.xres) ==
-                          static_cast<int>(cache->used_setup.xres));
+                     (dev->current_setup.xres == cache->used_setup.xres);
     } else {
         compatible = dev->session.params.channels == cache->params.channels;
     }

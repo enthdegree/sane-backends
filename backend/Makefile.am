@@ -516,7 +516,8 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/tables_motor.cpp \
     genesys/tables_motor_profile.cpp \
     genesys/tables_sensor.cpp \
-    genesys/low.cpp genesys/low.h
+    genesys/low.cpp genesys/low.h \
+    genesys/utilities.h
 
 libgenesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
 

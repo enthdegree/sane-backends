@@ -63,6 +63,7 @@
 #include "genesys.h"
 #include "conv.h"
 #include "sanei.h"
+#include "utilities.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_magic.h"
 
@@ -1452,29 +1453,6 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
       dev->frontend.get_offset(2));
 }
 
-/* Averages image data.
-   average_data and calibration_data are little endian 16 bit words.
- */
-static void genesys_average_data(uint16_t* average_data,
-                                 const std::uint16_t* calibration_data,
-                      uint32_t lines,
-		      uint32_t pixel_components_per_line)
-{
-  uint32_t x, y;
-  uint32_t sum;
-
-  for (x = 0; x < pixel_components_per_line; x++)
-    {
-      sum = 0;
-      for (y = 0; y < lines; y++)
-    {
-            sum += calibration_data[(x + y * pixel_components_per_line)];
-	}
-      sum /= lines;
-        *average_data++ = sum;
-    }
-}
-
 /**
  * scans a white area with motor and lamp off to get the per CCD pixel offset
  * that will be used to compute shading coefficient
@@ -1568,8 +1546,10 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     std::fill(out_average_data.begin(),
               out_average_data.begin() + dev->calib_pixels_offset * channels, 0);
 
-    genesys_average_data(out_average_data.data() + dev->calib_pixels_offset * channels,
-                         calibration_data.data(), dev->calib_lines, pixels_per_line * channels);
+    compute_array_percentile_approx(out_average_data.data() + dev->calib_pixels_offset * channels,
+                                    calibration_data.data(),
+                                    dev->calib_lines, pixels_per_line * channels,
+                                    0.5f);
 
     if (DBG_LEVEL >= DBG_data) {
         sanei_genesys_write_pnm_file16((log_filename_prefix + "_shading.pnm").c_str(),

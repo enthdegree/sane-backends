@@ -64,6 +64,30 @@ inline void check_true(bool x, const char* function, const char* path, unsigned 
     std::cerr << "\n";
 }
 
+inline void check_raises_success(const char* function, const char* path, unsigned line)
+{
+    s_num_successes++;
+    std::cerr << "SUCCESS at ";
+    print_location(std::cerr, function, path, line);
+    std::cerr << "\n";
+}
+
+inline void check_raises_did_not_raise(const char* function, const char* path, unsigned line)
+{
+    s_num_failures++;
+    std::cerr << "FAILURE at ";
+    print_location(std::cerr, function, path, line);
+    std::cerr << " : did not raise exception\n";
+
+}
+
+inline void check_raises_raised_unexpected(const char* function, const char* path, unsigned line)
+{
+    s_num_failures++;
+    std::cerr << "FAILURE at ";
+    print_location(std::cerr, function, path, line);
+    std::cerr << " : unexpected exception raised\n";
+}
 
 #define ASSERT_EQ(x, y)  do { check_equal((x), (y), __func__, __FILE__, __LINE__); } \
                          while (false)
@@ -71,6 +95,16 @@ inline void check_true(bool x, const char* function, const char* path, unsigned 
                         while (false)
 #define ASSERT_FALSE(x)  do { check_true(!bool(x), __func__, __FILE__, __LINE__); } \
                          while (false)
+
+#define ASSERT_RAISES(x, e) \
+    do { try { \
+        x; \
+        check_raises_did_not_raise(__func__, __FILE__, __LINE__); \
+    } catch (e) { \
+        check_raises_success(__func__, __FILE__, __LINE__); \
+    } catch (...) { \
+        check_raises_raised_unexpected(__func__, __FILE__, __LINE__); \
+    } } while (false)
 
 int finish_tests();
 

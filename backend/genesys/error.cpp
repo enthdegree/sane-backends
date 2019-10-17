@@ -72,8 +72,7 @@ static unsigned num_uncaught_exceptions()
 
 SaneException::SaneException(SANE_Status status) : status_(status)
 {
-    std::va_list args;
-    set_msg(nullptr, args);
+    set_msg();
 }
 
 SaneException::SaneException(SANE_Status status, const char* format, ...) : status_(status)
@@ -102,16 +101,18 @@ const char* SaneException::what() const noexcept
     return msg_.c_str();
 }
 
+void SaneException::set_msg()
+{
+    const char* status_msg = sane_strstatus(status_);
+    std::size_t status_msg_len = std::strlen(status_msg);
+    msg_.reserve(status_msg_len);
+    msg_ = status_msg;
+}
+
 void SaneException::set_msg(const char* format, std::va_list vlist)
 {
     const char* status_msg = sane_strstatus(status_);
     std::size_t status_msg_len = std::strlen(status_msg);
-
-    if (format == nullptr) {
-        msg_.reserve(status_msg_len);
-        msg_ = status_msg;
-        return;
-    }
 
     int msg_len = std::vsnprintf(nullptr, 0, format, vlist);
     if (msg_len < 0) {

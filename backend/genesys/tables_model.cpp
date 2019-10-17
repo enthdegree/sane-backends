@@ -651,7 +651,7 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },
+            { 2400, 1200, 600, 300, 200, 150, 100, 75 },
             { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },
         }
     };
@@ -781,7 +781,7 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            { 4800, 2400, 1200, 600, 300, 150, 100, 75 },
+            { 2400, 1200, 600, 300, 150, 100, 75 },
             { 4800, 2400, 1200, 600, 300, 150, 100, 75 },
         }
     };

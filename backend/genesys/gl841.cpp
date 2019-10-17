@@ -1504,11 +1504,10 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
       }
 
     // enable gamma tables
-    r = sanei_genesys_get_address (reg, 0x05);
-    if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA) {
-        r->value &= ~REG_0x05_GMMENB;
+    if (should_enable_gamma(session, sensor)) {
+        reg->find_reg(REG_0x05).value |= REG_0x05_GMMENB;
     } else {
-        r->value |= REG_0x05_GMMENB;
+        reg->find_reg(REG_0x05).value &= ~REG_0x05_GMMENB;
     }
 
     /* sensor parameters */

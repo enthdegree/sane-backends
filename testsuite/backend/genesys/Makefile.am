@@ -24,6 +24,7 @@ genesys_tests_SOURCES = tests.cpp tests.h \
     tests_calibration.cpp \
     tests_image.cpp \
     tests_image_pipeline.cpp \
-    tests_row_buffer.cpp
+    tests_row_buffer.cpp \
+    tests_utilities.cpp
 
 genesys_tests_LDADD = $(TEST_LDADD)

@@ -46,6 +46,7 @@
 #include "image_pipeline.h"
 #include "image.h"
 #include "low.h"
+#include <cmath>
 #include <numeric>
 
 namespace genesys {

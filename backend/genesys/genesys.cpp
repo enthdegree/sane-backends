@@ -68,6 +68,7 @@
 #include "../include/sane/sanei_magic.h"
 
 #include <array>
+#include <cmath>
 #include <cstring>
 #include <fstream>
 #include <iterator>

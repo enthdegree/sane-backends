@@ -1374,7 +1374,6 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                                             Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  float move;
 
   dev->calib_channels = 3;
 
@@ -1390,19 +1389,11 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     DBG(DBG_io, "%s: calib_lines  = %zu\n", __func__, dev->calib_lines);
     DBG(DBG_io, "%s: calib_pixels = %zu\n", __func__, dev->calib_pixels);
 
-  /* this is aworkaround insufficent distance for slope
-   * motor acceleration TODO special motor slope for shading  */
-  move=1;
-  if(dev->calib_resolution<1200)
-    {
-      move=40;
-    }
-
     ScanSession session;
     session.params.xres = dev->calib_resolution;
-    session.params.yres = dev->calib_resolution;
+    session.params.yres = dev->motor.base_ydpi;
     session.params.startx = 0;
-    session.params.starty = static_cast<unsigned>(move);
+    session.params.starty = 20;
     session.params.pixels = dev->calib_pixels;
     session.params.lines = dev->calib_lines;
     session.params.depth = 16;

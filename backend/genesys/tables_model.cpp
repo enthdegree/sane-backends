@@ -730,7 +730,7 @@ void genesys_init_usb_device_tables()
     model.x_size = 216.70;
     model.y_size = 300.0;
 
-    model.y_offset_calib_white = 1.0;
+    model.y_offset_calib_white = 0.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -764,7 +764,7 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_FILE_SW;
-    model.shading_lines = 50;
+    model.shading_lines = 25;
     model.shading_ta_lines = 0;
     model.search_lines = 400;
 

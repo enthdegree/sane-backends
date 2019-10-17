@@ -1298,10 +1298,8 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            // FIXME: the scanner supports 1200 ydpi, but we never scanned at this resolution so for now
-            // it's not supported
             { 600, 300, 150, 75 },
-            { /* 1200, */600, 300, 150, 75 },
+            { 1200, 600, 300, 150, 75 },
         }
     };
 

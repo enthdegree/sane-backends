@@ -1639,13 +1639,13 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
     exp[1] = sensor_profile.exposure.green;
     exp[2] = sensor_profile.exposure.blue;
 
-  bottom[0]=29000;
-  bottom[1]=29000;
-  bottom[2]=29000;
+    bottom[0] = 28000;
+    bottom[1] = 28000;
+    bottom[2] = 28000;
 
-  top[0]=41000;
-  top[1]=51000;
-  top[2]=51000;
+    top[0] = 32000;
+    top[1] = 32000;
+    top[2] = 32000;
 
   turn = 0;
 
@@ -1703,14 +1703,9 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
         acceptable = true;
       for(i=0;i<3;i++)
         {
-          if(avg[i]<bottom[i])
-            {
-              exp[i]=(exp[i]*bottom[i])/avg[i];
-                acceptable = false;
-            }
-          if(avg[i]>top[i])
-            {
-              exp[i]=(exp[i]*top[i])/avg[i];
+            if (avg[i] < bottom[i] || avg[i] > top[i]) {
+                auto target = (bottom[i] + top[i]) / 2;
+                exp[i] = (exp[i] * target) / avg[i];
                 acceptable = false;
             }
         }

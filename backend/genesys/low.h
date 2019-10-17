@@ -336,6 +336,8 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
 
 void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set);
 
+bool should_enable_gamma(const ScanSession& session, const Genesys_Sensor& sensor);
+
 /** Calculates the values of the Z{1,2}MOD registers. They are a phase correction to synchronize
     with the line clock during acceleration and deceleration.
 

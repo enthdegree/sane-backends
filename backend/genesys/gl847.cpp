@@ -709,12 +709,10 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     sanei_genesys_set_dpihw(*reg, sensor, dpihw);
 
-    // enable gamma tables
-    r = sanei_genesys_get_address (reg, REG_0x05);
-    if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA) {
-        r->value &= ~REG_0x05_GMMENB;
+    if (should_enable_gamma(session, sensor)) {
+        reg->find_reg(REG_0x05).value |= REG_0x05_GMMENB;
     } else {
-        r->value |= REG_0x05_GMMENB;
+        reg->find_reg(REG_0x05).value &= ~REG_0x05_GMMENB;
     }
 
   /* CIS scanners can do true gray by setting LEDADD */
@@ -1376,7 +1374,6 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                                             Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  float move;
 
   dev->calib_channels = 3;
 
@@ -1392,19 +1389,11 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     DBG(DBG_io, "%s: calib_lines  = %zu\n", __func__, dev->calib_lines);
     DBG(DBG_io, "%s: calib_pixels = %zu\n", __func__, dev->calib_pixels);
 
-  /* this is aworkaround insufficent distance for slope
-   * motor acceleration TODO special motor slope for shading  */
-  move=1;
-  if(dev->calib_resolution<1200)
-    {
-      move=40;
-    }
-
     ScanSession session;
     session.params.xres = dev->calib_resolution;
-    session.params.yres = dev->calib_resolution;
+    session.params.yres = dev->motor.base_ydpi;
     session.params.startx = 0;
-    session.params.starty = static_cast<unsigned>(move);
+    session.params.starty = 20;
     session.params.pixels = dev->calib_pixels;
     session.params.lines = dev->calib_lines;
     session.params.depth = 16;
@@ -1641,13 +1630,13 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
     exp[1] = sensor_profile.exposure.green;
     exp[2] = sensor_profile.exposure.blue;
 
-  bottom[0]=29000;
-  bottom[1]=29000;
-  bottom[2]=29000;
+    bottom[0] = 28000;
+    bottom[1] = 28000;
+    bottom[2] = 28000;
 
-  top[0]=41000;
-  top[1]=51000;
-  top[2]=51000;
+    top[0] = 32000;
+    top[1] = 32000;
+    top[2] = 32000;
 
   turn = 0;
 
@@ -1705,14 +1694,9 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
         acceptable = true;
       for(i=0;i<3;i++)
         {
-          if(avg[i]<bottom[i])
-            {
-              exp[i]=(exp[i]*bottom[i])/avg[i];
-                acceptable = false;
-            }
-          if(avg[i]>top[i])
-            {
-              exp[i]=(exp[i]*top[i])/avg[i];
+            if (avg[i] < bottom[i] || avg[i] > top[i]) {
+                auto target = (bottom[i] + top[i]) / 2;
+                exp[i] = (exp[i] * target) / avg[i];
                 acceptable = false;
             }
         }

@@ -86,6 +86,7 @@ public:
 
 private:
 
+    void set_msg();
     void set_msg(const char* format, std::va_list vlist);
 
     std::string msg_;

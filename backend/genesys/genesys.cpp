@@ -68,6 +68,7 @@
 #include "../include/sane/sanei_magic.h"
 
 #include <array>
+#include <cmath>
 #include <cstring>
 #include <fstream>
 #include <iterator>
@@ -2495,10 +2496,8 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
           case SensorId::CIS_CANON_LIDE_120:
           case SensorId::CIS_CANON_LIDE_210:
           case SensorId::CIS_CANON_LIDE_220:
-            target_code = 0xf000;
-            break;
           case SensorId::CIS_CANON_LIDE_700F:
-            target_code = 0xc000; /* from experimentation */
+                target_code = 0xc000;
             break;
           default:
             target_code = 0xdc00;

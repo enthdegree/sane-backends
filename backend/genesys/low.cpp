@@ -48,6 +48,7 @@
 #include "assert.h"
 
 #include <cstdio>
+#include <cmath>
 #include <vector>
 
 /* ------------------------------------------------------------------------ */
@@ -970,6 +971,20 @@ void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set)
     } else {
         regs.find_reg(0x02).value &= ~REG_0x02_MTRPWR;
     }
+}
+
+bool should_enable_gamma(const ScanSession& session, const Genesys_Sensor& sensor)
+{
+    if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA) {
+        return false;
+    }
+    if (sensor.gamma[0] == 1.0f || sensor.gamma[1] == 1.0f || sensor.gamma[2] == 1.0f) {
+        return false;
+    }
+    if (session.params.depth == 16)
+        return false;
+
+    return true;
 }
 
 /**

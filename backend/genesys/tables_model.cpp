@@ -386,11 +386,11 @@ void genesys_init_usb_device_tables()
     model.bpp_color_values = { 8, 16 };
 
     model.x_offset = 8.0;
-    model.y_offset = 13.00;
+    model.y_offset = 10.00;
     model.x_size = 217.9;
     model.y_size = 315.0;
 
-    model.y_offset_calib_white = 3.0;
+    model.y_offset_calib_white = 0.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 8.0;
@@ -651,7 +651,7 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },
+            { 2400, 1200, 600, 300, 200, 150, 100, 75 },
             { 4800, 2400, 1200, 600, 300, 200, 150, 100, 75 },
         }
     };
@@ -730,7 +730,7 @@ void genesys_init_usb_device_tables()
     model.x_size = 216.70;
     model.y_size = 300.0;
 
-    model.y_offset_calib_white = 1.0;
+    model.y_offset_calib_white = 0.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -764,7 +764,7 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_FILE_SW;
-    model.shading_lines = 50;
+    model.shading_lines = 25;
     model.shading_ta_lines = 0;
     model.search_lines = 400;
 
@@ -781,7 +781,7 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            { 4800, 2400, 1200, 600, 300, 150, 100, 75 },
+            { 2400, 1200, 600, 300, 150, 100, 75 },
             { 4800, 2400, 1200, 600, 300, 150, 100, 75 },
         }
     };
@@ -975,8 +975,8 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            { 1200, 600, 400, 300, 200, 150, 100, 75 },
-            { 1200, 600, 400, 300, 200, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100, 75 },
         }
     };
 
@@ -1298,10 +1298,8 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            // FIXME: the scanner supports 1200 ydpi, but we never scanned at this resolution so for now
-            // it's not supported
             { 600, 300, 150, 75 },
-            { /* 1200, */600, 300, 150, 75 },
+            { 1200, 600, 300, 150, 75 },
         }
     };
 

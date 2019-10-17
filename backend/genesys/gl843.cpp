@@ -2148,7 +2148,8 @@ static void gl843_feed(Genesys_Device* dev, unsigned int steps)
   /* prepare local registers */
   local_reg = dev->reg;
 
-    unsigned resolution = sanei_genesys_get_lowest_ydpi(dev);
+    const auto& resolution_settings = dev->model->get_resolution_settings(dev->model->default_method);
+    unsigned resolution = resolution_settings.get_min_resolution_y();
 
     const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, dev->model->default_method);
 
@@ -3174,9 +3175,9 @@ void CommandSetGl843::update_hardware_sensors(Genesys_Scanner* s) const
 void CommandSetGl843::move_to_ta(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
-  float resolution;
 
-  resolution=sanei_genesys_get_lowest_ydpi(dev);
+    const auto& resolution_settings = dev->model->get_resolution_settings(dev->model->default_method);
+    float resolution = resolution_settings.get_min_resolution_y();
     unsigned feed = static_cast<unsigned>(16 * (dev->model->y_offset_sensor_to_ta * resolution) /
                                           MM_PER_INCH);
     gl843_feed(dev, feed);

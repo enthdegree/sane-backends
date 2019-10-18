@@ -68,6 +68,9 @@
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
 #endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 /*
  * networking stuff
@@ -301,7 +304,7 @@ parse_IEEE1284_to_model (char *scanner_id, char *model)
 
       if (strncmp (tok, "MDL:", 4) == 0)
 	{
-	  strncpy (model, tok + 4, BJNP_IEEE1284_MAX);
+	  memcpy (model, tok + 4, BJNP_IEEE1284_MAX);
 	  model[BJNP_IEEE1284_MAX -1] = '\0';
 	  return 1;
 	}
@@ -598,7 +601,7 @@ set_cmd_from_string (char* protocol_string, struct BJNP_command *cmd, char cmd_c
    * Returns: sequence number of command
    */
 
-  strncpy (cmd->BJNP_id, protocol_string, sizeof (cmd->BJNP_id));
+  memcpy (cmd->BJNP_id, protocol_string, sizeof (cmd->BJNP_id));
   cmd->dev_type = BJNP_CMD_SCAN;
   cmd->cmd_code = cmd_code;
   cmd->unknown1 = htons (0);
@@ -617,7 +620,7 @@ set_cmd_for_dev (int devno, struct BJNP_command *cmd, char cmd_code, int payload
    * Returns: sequence number of command
    */
 
-  strncpy (cmd->BJNP_id, device[devno].protocol_string, sizeof (cmd->BJNP_id));
+  memcpy(cmd->BJNP_id, device[devno].protocol_string, sizeof (cmd->BJNP_id));
   cmd->dev_type = BJNP_CMD_SCAN;
   cmd->cmd_code = cmd_code;
   cmd->unknown1 = htons (0);
@@ -1921,8 +1924,8 @@ sanei_bjnp_find_devices (const char **conf_devices,
   fd_set fdset;
   fd_set active_fdset;
   struct timeval timeout;
-  char scanner_host[256];
-  char uri[256];
+  char scanner_host[HOST_NAME_MAX];
+  char uri[HOST_NAME_MAX + 32];
   int dev_no;
   int port;
   int timeout_default = BJNP_TIMEOUT_DEFAULT;
@@ -1962,7 +1965,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
 	}
       PDBG (bjnp_dbg
 	    (LOG_DEBUG, "sanei_bjnp_find_devices: Adding scanner from pixma.conf: %s\n", conf_devices[i]));
-      strncpy(uri, conf_devices[i], sizeof(uri));
+      memcpy(uri, conf_devices[i], sizeof(uri));
       add_default_timeout(uri, timeout_default, sizeof(uri));
       add_scanner(&dev_no, uri, attach_bjnp, pixma_devices);
     }

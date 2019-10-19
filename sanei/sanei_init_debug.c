@@ -58,6 +58,8 @@
 #include <sys/socket.h>
 #endif
 #include <sys/stat.h>
+#include <time.h>
+#include <sys/time.h>
 
 #ifdef HAVE_OS2_H
 # define INCL_DOS
@@ -148,7 +150,13 @@ sanei_debug_msg
 	}
       else
 	{
-	  fprintf (stderr, "[%s] ", be);
+          struct timeval tv;
+          struct tm *t;
+
+          gettimeofday (&tv, NULL);
+          t = localtime (&tv.tv_sec);
+
+          fprintf (stderr, "[%02d:%02d:%02d] [%s] ", t->tm_hour, t->tm_min, t->tm_sec, be);
           vfprintf (stderr, fmt, ap);
 	}
 

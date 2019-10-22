@@ -346,9 +346,6 @@ typedef struct mp150_t
   uint8_t *linebuf;
   uint8_t *data_left_ofs;
   unsigned data_left_len;
-  int shift[3];
-  unsigned color_shift;
-  unsigned stripe_shift;
   uint8_t adf_state;            /* handle adf scanning */
 } mp150_t;
 
@@ -620,32 +617,13 @@ get_cis_line_size (pixma_t * s)
                        : s->param->line_size);
 }
 
-static unsigned
-calc_shifting (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-
-  /* If stripes shift needed (CCD devices), how many pixels shift */
-  mp->stripe_shift = 0;
-  /* If color plane shift (CCD devices), how many pixels shift */
-  mp->color_shift = mp->shift[0] = mp->shift[1] = mp->shift[2] = 0;
-
-  switch (s->cfg->pid)
-    {
-      default:     /* Default, and all CIS devices */
-        break;
-    }
-  return (2 * mp->color_shift + mp->stripe_shift);
-}
-
 static int
 send_scan_param (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
   uint8_t *data;
   unsigned raw_width = calc_raw_width (mp, s->param);
-  unsigned h = MIN (s->param->h + calc_shifting (s),
-                    s->cfg->height * s->param->ydpi / 75);
+  unsigned h = s->cfg->height * s->param->ydpi / 75;
 
   if (mp->generation <= 2)
     {
@@ -960,30 +938,6 @@ wait_until_ready (pixma_t * s)
   return 0;
 }
 
-static uint8_t *
-shift_colors (uint8_t * dptr, uint8_t * sptr,
-              unsigned w, unsigned dpi, unsigned pid, unsigned c,
-              int * colshft, unsigned strshft)
-{
-  unsigned i, sr, sg, sb, st;
-  UNUSED(dpi);
-  UNUSED(pid);
-  sr = colshft[0]; sg = colshft[1]; sb = colshft[2];
-  for (i = 0; i < w; i++)
-    {
-      /* stripes shift for MP800, MP800R at 2400 dpi */
-      st = (i % 2 == 0) ? strshft : 0;
-
-      *sptr++ = *(dptr++ + sr + st);
-      if (c == 6) *sptr++ = *(dptr++ + sr + st);
-      *sptr++ = *(dptr++ + sg + st);
-      if (c == 6) *sptr++ = *(dptr++ + sg + st);
-      *sptr++ = *(dptr++ + sb + st);
-      if (c == 6) *sptr++ = *(dptr++ + sb + st);
-    }
-  return dptr;
-}
-
 static void
 reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n,
                 unsigned m, unsigned w, unsigned line_size)
@@ -1035,22 +989,15 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   /*PDBG (pixma_dbg (4, "*post_process_image_data***** ----- Set n=%u, m=%u, line_size=%u ----- ***** \n", n, m, line_size));*/
 
   lines = (mp->data_left_ofs - mp->imgbuf) / line_size;
-  /*PDBG (pixma_dbg (4, "*post_process_image_data***** lines = %i > 2 * mp->color_shift + mp->stripe_shift = %i ***** \n",
-	           lines, 2 * mp->color_shift + mp->stripe_shift));*/
-  if (lines > 2 * mp->color_shift + mp->stripe_shift)
+  /*PDBG (pixma_dbg (4, "*post_process_image_data***** lines = %i ***** \n", lines));*/
+  if (lines > 0)
     {
       unsigned i;
 
-      lines -= 2 * mp->color_shift + mp->stripe_shift;
       for (i = 0; i < lines; i++, sptr += line_size)
         {
-          /* Color plane and stripes shift needed by e.g. CCD */
           /*PDBG (pixma_dbg (4, "*post_process_image_data***** Processing with c=%u, n=%u, m=%u, w=%i, line_size=%u ***** \n",
 	        c, n, m, s->param->wx, line_size));*/
-          if (s->cfg->pid != MG5300_PID && s->cfg->pid != MG6300_PID && c >= 3)
-            dptr = shift_colors (dptr, sptr,
-                                 s->param->wx, s->param->xdpi, s->cfg->pid, c,
-                                 mp->shift, mp->stripe_shift);
 
           /* special image format for *most* devices at high dpi.
            * MP220, MX360 and generation 5 scanners are exceptions */
@@ -1403,7 +1350,7 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       mp->last_block = 0;
 
       line_size = get_cis_line_size (s);
-      proc_buf_size = (2 * calc_shifting (s) + 2) * line_size;
+      proc_buf_size = 2 * line_size;
       mp->cb.buf = realloc (mp->cb.buf,
              CMDBUF_SIZE + IMAGE_BLOCK_SIZE + proc_buf_size);
       if (!mp->cb.buf)

@@ -101,9 +101,6 @@
 #define MP450_PID 0x170b
 #define MP500_PID 0x170c
 #define MP530_PID 0x1712
-#define MP800_PID 0x170d
-#define MP800R_PID 0x170e
-#define MP830_PID 0x1713
 
 /* Generation 2 */
 #define MP160_PID 0x1714
@@ -723,39 +720,6 @@ calc_shifting (pixma_t * s)
 
   switch (s->cfg->pid)
     {
-      case MP800_PID:
-      case MP800R_PID:
-      case MP830_PID:
-        if (s->param->xdpi == 2400)
-          {
-	    if (is_scanning_from_tpu(s))
-	      mp->stripe_shift = 6;
-	    else
-	      mp->stripe_shift = 3;
-          }
-        if (s->param->ydpi > 75)
-          {
-            mp->color_shift = s->param->ydpi / ((s->param->ydpi < 1200) ? 150 : 75);
-
-            if (is_scanning_from_tpu (s))
-              mp->color_shift = s->param->ydpi / 75;
-
-            /* If you're trying to decipher this color-shifting code,
-               the following line is where the magic is revealed. */
-            mp->shift[1] = mp->color_shift * get_cis_ccd_line_size (s);
-            if (is_scanning_from_adf (s))
-              {  /* ADF */
-                mp->shift[0] = 0;
-                mp->shift[2] = 2 * mp->shift[1];
-              }
-            else
-              {  /* Flatbed or TPU */
-                mp->shift[0] = 2 * mp->shift[1];
-                mp->shift[2] = 0;
-              }
-          }
-        break;
-
       default:     /* Default, and all CIS devices */
         break;
     }
@@ -1115,8 +1079,7 @@ wait_until_ready (pixma_t * s)
       if (mp->generation >= 3)
         RET_IF_ERR (query_status_3 (s));
       else if (s->cfg->pid == MP600_PID ||
-               s->cfg->pid == MP600R_PID ||
-               s->cfg->pid == MP800R_PID)
+               s->cfg->pid == MP600R_PID)
         RET_IF_ERR (query_status (s));
       if (--tmo == 0)
         {
@@ -1817,11 +1780,6 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MP450", "MP450", MP450_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP500", "MP500", MP500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP530", "MP530", MP530_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-
-  /* Generation 1: CCD */
-  DEVICE ("Canon PIXMA MP800", "MP800", MP800_PID, 2400, 150, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
-  DEVICE ("Canon PIXMA MP800R", "MP800R", MP800R_PID, 2400, 150, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
-  DEVICE ("Canon PIXMA MP830", "MP830", MP830_PID, 2400, 150, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_ADFDUP),
 
   /* Generation 2: CIS */
   DEVICE ("Canon PIXMA MP140", "MP140", MP140_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),

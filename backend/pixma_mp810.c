@@ -96,6 +96,11 @@
 
 #define CANON_VID 0x04a9
 
+/* Generation 1 */
+#define MP800_PID 0x170d
+#define MP800R_PID 0x170e
+#define MP830_PID 0x1713
+
 /* Generation 2 */
 #define MP810_PID 0x171a
 #define MP960_PID 0x171b
@@ -575,6 +580,39 @@ static unsigned calc_shifting (pixma_t * s)
 
   switch (s->cfg->pid)
   {
+    case MP800_PID:
+    case MP800R_PID:
+    case MP830_PID:
+      if (s->param->xdpi == 2400)
+        {
+          if (is_scanning_from_tpu(s))
+            mp->stripe_shift = 6;
+          else
+            mp->stripe_shift = 3;
+        }
+      if (s->param->ydpi > 75)
+        {
+          mp->color_shift = s->param->ydpi / ((s->param->ydpi < 1200) ? 150 : 75);
+
+          if (is_scanning_from_tpu (s))
+            mp->color_shift = s->param->ydpi / 75;
+
+          /* If you're trying to decipher this color-shifting code,
+             the following line is where the magic is revealed. */
+          mp->shift[1] = mp->color_shift * get_cis_ccd_line_size (s);
+          if (is_scanning_from_adf (s))
+            {  /* ADF */
+              mp->shift[0] = 0;
+              mp->shift[2] = 2 * mp->shift[1];
+            }
+          else
+            {  /* Flatbed or TPU */
+              mp->shift[0] = 2 * mp->shift[1];
+              mp->shift[2] = 0;
+            }
+        }
+      break;
+
     case MP970_PID: /* MP970 at 4800 dpi */
     case CS8800F_PID: /* CanoScan 8800F at 4800 dpi */
       if (s->param->xdpi == 4800)
@@ -1209,6 +1247,8 @@ static int wait_until_ready (pixma_t * s)
     WAIT_INTERRUPT(1000);
     if (mp->generation >= 3)
       RET_IF_ERR(query_status_3 (s));
+    else if (s->cfg->pid == MP800R_PID)
+      RET_IF_ERR (query_status (s));
     if (--tmo == 0)
     {
       PDBG(pixma_dbg (1, "WARNING: Timed out in wait_until_ready()\n"));
@@ -1782,7 +1822,7 @@ static int mp810_open (pixma_t * s)
   mp->imgbuf = buf + CMDBUF_SIZE;
 
   /* General rules for setting Pixma protocol generation # */
-  mp->generation = (s->cfg->pid >= MP810_PID) ? 2 : 1; /* no generation 1 devices anyway, but keep similar to pixma_mp150.c file */
+  mp->generation = (s->cfg->pid >= MP810_PID) ? 2 : 1;
 
   if (s->cfg->pid >= MP970_PID)
     mp->generation = 3;
@@ -2356,6 +2396,11 @@ static const pixma_scan_ops_t pixma_mp810_ops =
 
 const pixma_config_t pixma_mp810_devices[] =
 {
+  /* Generation 1: CCD */
+  DEVICE ("Canon PIXMA MP800", "MP800", MP800_PID, 2400, 150, 0, 0, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MP800R", "MP800R", MP800R_PID, 2400, 150, 0, 0, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MP830", "MP830", MP830_PID, 2400, 150, 0, 0, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_ADFDUP),
+
   /* Generation 2: CCD */
   DEVICE ("Canon PIXMA MP810", "MP810", MP810_PID, 4800, 300, 0, 0, 0, 638, 877, PIXMA_CAP_TPU),
   DEVICE ("Canon PIXMA MP960", "MP960", MP960_PID, 4800, 300, 0, 0, 0, 638, 877, PIXMA_CAP_TPU),

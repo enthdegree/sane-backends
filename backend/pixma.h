@@ -313,7 +313,7 @@ struct pixma_scan_param_t
 
   /** Flag indicating whether the offset correction for TPU scans
    *  was already performed (to avoid repeated corrections).
-   *  Currently only used in pixma_mp810.c sub-driver */
+   *  Currently only used in pixma_mp800.c sub-driver */
   unsigned tpu_offset_added;
 
   /* Flag indicating if data from scanner will be in JPEG format */

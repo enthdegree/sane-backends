@@ -81,7 +81,7 @@
 #define pixma_mp150_devices sanei_pixma_mp150_devices
 #define pixma_mp730_devices sanei_pixma_mp730_devices
 #define pixma_mp750_devices sanei_pixma_mp750_devices
-#define pixma_mp810_devices sanei_pixma_mp810_devices
+#define pixma_mp800_devices sanei_pixma_mp800_devices
 #define pixma_iclass_devices sanei_pixma_iclass_devices
 #define pixma_newcmd sanei_pixma_newcmd
 #define pixma_open sanei_pixma_open

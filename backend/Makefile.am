@@ -865,7 +865,7 @@ libsane_pint_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pint
 libsane_pint_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_pint_la_LIBADD = $(COMMON_LIBS) libpint.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo
 
-libpixma_la_SOURCES = pixma.c pixma.h pixma_io_sanei.c pixma_io.h pixma_common.c pixma_common.h pixma_mp150.c pixma_mp730.c pixma_mp750.c pixma_mp810.c pixma_imageclass.c pixma_bjnp.c pixma_bjnp.h pixma_bjnp_private.h pixma_rename.h
+libpixma_la_SOURCES = pixma.c pixma.h pixma_io_sanei.c pixma_io.h pixma_common.c pixma_common.h pixma_mp150.c pixma_mp730.c pixma_mp750.c pixma_mp800.c pixma_imageclass.c pixma_bjnp.c pixma_bjnp.h pixma_bjnp_private.h pixma_rename.h
 libpixma_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pixma
 
 nodist_libsane_pixma_la_SOURCES = pixma-s.c

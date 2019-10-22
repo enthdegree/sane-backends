@@ -69,14 +69,14 @@
 extern const pixma_config_t pixma_mp150_devices[];
 extern const pixma_config_t pixma_mp750_devices[];
 extern const pixma_config_t pixma_mp730_devices[];
-extern const pixma_config_t pixma_mp810_devices[];
+extern const pixma_config_t pixma_mp800_devices[];
 extern const pixma_config_t pixma_iclass_devices[];
 
 static const pixma_config_t *const pixma_devices[] = {
   pixma_mp150_devices,
   pixma_mp750_devices,
   pixma_mp730_devices,
-  pixma_mp810_devices,
+  pixma_mp800_devices,
   pixma_iclass_devices,
   NULL
 };

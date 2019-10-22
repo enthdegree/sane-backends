@@ -2363,7 +2363,7 @@ static int mp810_get_status (pixma_t * s, pixma_device_status_t * status)
   return 0;
 }
 
-static const pixma_scan_ops_t pixma_mp810_ops =
+static const pixma_scan_ops_t pixma_mp800_ops =
 {
   mp810_open,
   mp810_close,
@@ -2380,7 +2380,7 @@ static const pixma_scan_ops_t pixma_mp810_ops =
         model,             /* model */              \
         CANON_VID, pid,    /* vid pid */            \
         0,                 /* iface */              \
-        &pixma_mp810_ops,  /* ops */                \
+        &pixma_mp800_ops,  /* ops */                \
         dpi, 2*(dpi),      /* xdpi, ydpi */         \
         adftpu_min_dpi, adftpu_max_dpi,  /* adftpu_min_dpi, adftpu_max_dpi */ \
         tpuir_min_dpi, tpuir_max_dpi,    /* tpuir_min_dpi, tpuir_max_dpi */   \
@@ -2394,7 +2394,7 @@ static const pixma_scan_ops_t pixma_mp810_ops =
 
 #define END_OF_DEVICE_LIST DEVICE(NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-const pixma_config_t pixma_mp810_devices[] =
+const pixma_config_t pixma_mp800_devices[] =
 {
   /* Generation 1: CCD */
   DEVICE ("Canon PIXMA MP800", "MP800", MP800_PID, 2400, 150, 0, 0, 0, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),

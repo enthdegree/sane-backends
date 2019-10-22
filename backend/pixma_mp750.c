@@ -959,12 +959,13 @@ static const pixma_scan_ops_t pixma_mp750_ops = {
         0, 0,                  /* adftpu_min_dpi & adftpu_max_dpi not used in this subdriver */ \
         0, 0,                  /* tpuir_min_dpi & tpuir_max_dpi not used in this subdriver */   \
 	637, 877,              /* width, height */	\
-        PIXMA_CAP_GRAY|PIXMA_CAP_EVENTS|cap             \
+        PIXMA_CAP_CCD|         /* all scanners with CCD */ \
+        PIXMA_CAP_GRAY|PIXMA_CAP_EVENTS|cap \
 }
 
 const pixma_config_t pixma_mp750_devices[] = {
-  DEVICE ("Canon PIXMA MP750", "MP750", MP750_PID, 2400, PIXMA_CAP_CCD | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MP760/770", "MP760/770", MP760_PID, 2400, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
-  DEVICE ("Canon PIXMA MP780/790", "MP780/790", MP780_PID, 2400, PIXMA_CAP_CCD | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MP750", "MP750", MP750_PID, 2400, PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MP760/770", "MP760/770", MP760_PID, 2400, PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MP780/790", "MP780/790", MP780_PID, 2400, PIXMA_CAP_ADF),
   DEVICE (NULL, NULL, 0, 0, 0)
 };

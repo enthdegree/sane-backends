@@ -100,6 +100,12 @@
 :status :complete
 :comment "All resolutions supported (up to 600DPI)."
 
+:model "PIXMA G2010 Series"
+:interface "USB"
+:usbid "0x04a9" "0x183a"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA G2100"
 :interface "USB"
 :usbid "0x04a9" "0x1795"

@@ -49,10 +49,6 @@
    4. cancel using ctrl-c (must send abort command)
  */
 
-#define TPU_48             /* uncomment to activate TPU scan at 48 bits */
-/*#define DEBUG_TPU_48*/   /* uncomment to debug 48 bits TPU on a non TPU device */
-/*#define DEBUG_TPU_24*/   /* uncomment to debug 24 bits TPU on a non TPU device */
-
 #include "../include/sane/config.h"
 
 #include <stdio.h>
@@ -333,15 +329,9 @@ enum mp150_cmd_t
   cmd_read_image = 0xd420,
   cmd_error_info = 0xff20,
 
-  cmd_start_calibrate_ccd_3 = 0xd520,
-  cmd_end_calibrate_ccd_3 = 0xd720,
   cmd_scan_param_3 = 0xd820,
   cmd_scan_start_3 = 0xd920,
   cmd_status_3 = 0xda20,
-  cmd_get_tpu_info_3 = 0xf520,
-  cmd_set_tpu_info_3 = 0xea20,
-
-  cmd_e920 = 0xe920		/* seen in MP800 */
 };
 
 typedef struct mp150_t
@@ -352,15 +342,13 @@ typedef struct mp150_t
   uint8_t current_status[16];
   unsigned last_block;
   uint8_t generation;
-  /* for Generation 3 and CCD shift */
+  /* for Generation 3 shift */
   uint8_t *linebuf;
   uint8_t *data_left_ofs;
   unsigned data_left_len;
   int shift[3];
   unsigned color_shift;
   unsigned stripe_shift;
-  uint8_t tpu_datalen;
-  uint8_t tpu_data[0x40];
   uint8_t adf_state;            /* handle adf scanning */
 } mp150_t;
 
@@ -439,12 +427,6 @@ is_scanning_jpeg (pixma_t *s)
 }
 
 static int
-is_scanning_from_tpu (pixma_t * s)
-{
-  return (s->param->source == PIXMA_SOURCE_TPU);
-}
-
-static int
 send_xml_dialog (pixma_t * s, const char * xml_message)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
@@ -463,19 +445,13 @@ send_xml_dialog (pixma_t * s, const char * xml_message)
   return (strcasestr ((const char *) mp->cb.buf, XML_OK) != NULL);
 }
 
-static void
-new_cmd_tpu_msg (pixma_t *s, pixma_cmdbuf_t * cb, uint16_t cmd)
-{
-  pixma_newcmd (cb, cmd, 0, 0);
-  cb->buf[3] = (is_scanning_from_tpu (s)) ? 0x01 : 0x00;
-}
-
 static int
 start_session (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
 
-  new_cmd_tpu_msg (s, &mp->cb, cmd_start_session);
+  pixma_newcmd (&mp->cb, cmd_start_session, 0, 0);
+  mp->cb.buf[3] = 0x00;
   return pixma_exec (s, &mp->cb);
 }
 
@@ -484,17 +460,8 @@ start_scan_3 (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
 
-  new_cmd_tpu_msg (s, &mp->cb, cmd_scan_start_3);
-  return pixma_exec (s, &mp->cb);
-}
-
-static int
-send_cmd_start_calibrate_ccd_3 (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-
-  pixma_newcmd (&mp->cb, cmd_start_calibrate_ccd_3, 0, 0);
-  mp->cb.buf[3] = 0x01;
+  pixma_newcmd (&mp->cb, cmd_scan_start_3, 0, 0);
+  mp->cb.buf[3] = 0x00;
   return pixma_exec (s, &mp->cb);
 }
 
@@ -543,13 +510,6 @@ abort_session (pixma_t * s)
 }
 
 static int
-send_cmd_e920 (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  return pixma_exec_short_cmd (s, &mp->cb, cmd_e920);
-}
-
-static int
 select_source (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
@@ -576,37 +536,9 @@ select_source (pixma_t * s)
         data[6] = 3;
         break;
 
-      case PIXMA_SOURCE_TPU:
-        data[0] = 4;
-        data[1] = 2;
-        break;
+      default:
+        return PIXMA_EPROTO;
     }
-  return pixma_exec (s, &mp->cb);
-}
-
-static int
-send_get_tpu_info_3 (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  uint8_t *data;
-  int error;
-
-  data = pixma_newcmd (&mp->cb, cmd_get_tpu_info_3, 0, 0x34);
-  RET_IF_ERR (pixma_exec (s, &mp->cb));
-  memcpy (mp->tpu_data, data, 0x34);
-  return error;
-}
-
-static int
-send_set_tpu_info (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  uint8_t *data;
-
-  if (mp->tpu_datalen == 0)
-    return 0;
-  data = pixma_newcmd (&mp->cb, cmd_set_tpu_info_3, 0x34, 0);
-  memcpy (data, mp->tpu_data, 0x34);
   return pixma_exec (s, &mp->cb);
 }
 
@@ -681,31 +613,11 @@ calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
   return raw_width;
 }
 
-static int
-has_ccd_sensor (pixma_t * s)
-{
-  return ((s->cfg->cap & PIXMA_CAP_CCD) != 0);
-}
-
-static int
-is_ccd_grayscale (pixma_t * s)
-{
-  return (has_ccd_sensor (s) && (s->param->channels == 1) && !s->param->software_lineart);
-}
-
-static int
-is_ccd_lineart (pixma_t * s)
-{
-  return (has_ccd_sensor (s) && s->param->software_lineart);
-}
-
-/* CCD sensors don't have neither a Grayscale mode nor a Lineart mode,
- * but use color mode instead */
 static unsigned
-get_cis_ccd_line_size (pixma_t * s)
+get_cis_line_size (pixma_t * s)
 {
-  return ((s->param->wx ? s->param->line_size / s->param->w * s->param->wx
-                        : s->param->line_size) * ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : 1));
+  return (s->param->wx ? s->param->line_size / s->param->w * s->param->wx
+                       : s->param->line_size);
 }
 
 static unsigned
@@ -735,12 +647,6 @@ send_scan_param (pixma_t * s)
   unsigned h = MIN (s->param->h + calc_shifting (s),
                     s->cfg->height * s->param->ydpi / 75);
 
-  /* TPU scan does not support lineart */
-  if (is_scanning_from_tpu (s) && is_ccd_lineart (s))
-    {
-      return PIXMA_ENOTSUP;
-    }
-
   if (mp->generation <= 2)
     {
       /*PDBG (pixma_dbg (4, "*send_scan_param gen. 1-2 ***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  w=%i ***** \n",
@@ -754,10 +660,10 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (s->param->y, data + 0x0c);
       pixma_set_be32 (raw_width, data + 0x10);
       pixma_set_be32 (h, data + 0x14);
-      data[0x18] = ((s->param->channels != 1) || is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 0x08 : 0x04;
+      data[0x18] = (s->param->channels != 1) ? 0x08 : 0x04;
       data[0x19] = ((s->param->software_lineart) ? 8 : s->param->depth)
-                    * ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : s->param->channels);   /* bits per pixel */
-      data[0x1a] = (is_scanning_from_tpu (s) ? 1 : 0);
+                    * s->param->channels;   /* bits per pixel */
+      data[0x1a] = 0;
       data[0x20] = 0xff;
       data[0x23] = 0x81;
       data[0x26] = 0x02;
@@ -768,12 +674,6 @@ send_scan_param (pixma_t * s)
       data = pixma_newcmd (&mp->cb, cmd_scan_param_3, 0x38, 0);
       data[0x00] = (is_scanning_from_adf (s)) ? 0x02 : 0x01;
       data[0x01] = 0x01;
-      if (is_scanning_from_tpu (s))
-        {
-          data[0x00] = 0x04;
-          data[0x01] = 0x02;
-          data[0x1e] = 0x02;
-        }
       data[0x02] = 0x01;
       if (is_scanning_from_adfdup (s))
         {
@@ -796,15 +696,10 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (s->param->y, data + 0x10);
       pixma_set_be32 (raw_width, data + 0x14);
       pixma_set_be32 (h, data + 0x18);
-      data[0x1c] = ((s->param->channels != 1) || is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 0x08 : 0x04;
+      data[0x1c] = (s->param->channels != 1) ? 0x08 : 0x04;
 
-#ifdef DEBUG_TPU_48
-      data[0x1d] = 24;
-#else
-      data[0x1d] = (is_scanning_from_tpu (s)) ? 48
-                                              : (((s->param->software_lineart) ? 8 : s->param->depth)
-                                                 * ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : s->param->channels));   /* bits per pixel */
-#endif
+      data[0x1d] = ((s->param->software_lineart) ? 8 : s->param->depth)
+                    * s->param->channels;   /* bits per pixel */
 
       data[0x1f] = 0x01;        /* This one also seen at 0. Don't know yet what's used for */
       data[0x20] = 0xff;
@@ -1040,32 +935,6 @@ handle_interrupt (pixma_t * s, int timeout)
 }
 
 static int
-init_ccd_lamp_3 (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  uint8_t *data;
-  int error, status_len, tmo;
-
-  status_len = 8;
-  RET_IF_ERR (query_status (s));
-  RET_IF_ERR (query_status (s));
-  RET_IF_ERR (send_cmd_start_calibrate_ccd_3 (s));
-  RET_IF_ERR (query_status (s));
-  tmo = 20;  /* like Windows driver, CCD lamp adjustment */
-  while (--tmo >= 0)
-    {
-      data = pixma_newcmd (&mp->cb, cmd_end_calibrate_ccd_3, 0, status_len);
-      RET_IF_ERR (pixma_exec (s, &mp->cb));
-      memcpy (mp->current_status, data, status_len);
-      PDBG (pixma_dbg (3, "Lamp status: %u , timeout in: %u\n", data[0], tmo));
-      if (mp->current_status[0] == 3 || !is_scanning_from_tpu (s))
-        break;
-      WAIT_INTERRUPT (1000);
-    }
-  return error;
-}
-
-static int
 wait_until_ready (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
@@ -1128,32 +997,9 @@ reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n,
   memcpy (sptr, linebuf, line_size);
 }
 
-#ifndef TPU_48
-static unsigned
-pack_48_24_bpc (uint8_t * sptr, unsigned n)
-{
-  unsigned i;
-  uint8_t *cptr, lsb;
-  static uint8_t offset = 0;
-
-  cptr = sptr;
-  if (n % 2 != 0)
-    PDBG (pixma_dbg (3, "WARNING: misaligned image.\n"));
-  for (i = 0; i < n; i += 2)
-    {
-      /* offset = 1 + (offset % 3); */
-      lsb = *sptr++;
-      *cptr++ = ((*sptr++) << offset) | lsb >> (8 - offset);
-    }
-  return (n / 2);
-}
-#endif
-
-/* This function deals both with PIXMA CCD sensors producing shifted color
- * planes images, Grayscale CCD scan and Generation >= 3 high dpi images.
- * Each complete line in mp->imgbuf is processed for shifting CCD sensor
- * color planes, reordering pixels above 600 dpi for Generation >= 3, and
- * converting to Grayscale for CCD sensors. */
+/* This function deals with Generation >= 3 high dpi images.
+ * Each complete line in mp->imgbuf is processed for reordering pixels above
+ * 600 dpi for Generation >= 3. */
 static unsigned
 post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 {
@@ -1170,14 +1016,14 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
     }
 
 
-  c = ((is_ccd_grayscale (s) || is_ccd_lineart (s)) ? 3 : s->param->channels)
+  c = s->param->channels
       * ((s->param->software_lineart) ? 8 : s->param->depth) / 8;
   cw = c * s->param->w;
   cx = c * s->param->xs;
 
   if (mp->generation >= 3)
     n = s->param->xdpi / 600;
-  else    /* FIXME: maybe need different values for CIS and CCD sensors */
+  else
     n = s->param->xdpi / 2400;
 
   if (s->cfg->pid == MP600_PID || s->cfg->pid == MP600R_PID)
@@ -1185,7 +1031,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 
   m = (n > 0) ? s->param->wx / n : 1;
   sptr = dptr = gptr = cptr = mp->imgbuf;
-  line_size = get_cis_ccd_line_size (s);
+  line_size = get_cis_line_size (s);
   /*PDBG (pixma_dbg (4, "*post_process_image_data***** ----- Set n=%u, m=%u, line_size=%u ----- ***** \n", n, m, line_size));*/
 
   lines = (mp->data_left_ofs - mp->imgbuf) / line_size;
@@ -1232,9 +1078,6 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
           /* Color / Gray to Lineart convert */
           if (s->param->software_lineart)
               cptr = gptr = pixma_binarize_line (s->param, gptr, cptr, s->param->w, c);
-          /* Color to Grayscale convert for CCD sensor */
-          else if (is_ccd_grayscale (s))
-              cptr = gptr = pixma_rgb_to_gray (gptr, cptr, s->param->w, c);
           else
               cptr += cw;
         }
@@ -1290,9 +1133,6 @@ mp150_open (pixma_t * s)
 
   PDBG (pixma_dbg (3, "*mp150_open***** This is a generation %d scanner.  *****\n", mp->generation));
 
-  /* TPU info data setup */
-  mp->tpu_datalen = 0;
-
   /* adf scanning */
   mp->adf_state = state_idle;
 
@@ -1300,8 +1140,6 @@ mp150_open (pixma_t * s)
     {
       query_status (s);
       handle_interrupt (s, 200);
-      if (mp->generation == 3 && has_ccd_sensor (s))
-	send_cmd_start_calibrate_ccd_3 (s);
     }
   return 0;
 }
@@ -1330,12 +1168,6 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
     {
       sp->software_lineart = 0;
       sp->depth = 8;
-#ifdef TPU_48
-#ifndef DEBUG_TPU_48
-      if (sp->source == PIXMA_SOURCE_TPU)
-#endif
-          sp->depth = 16;   /* TPU in 16 bits mode */
-#endif
     }
   else
     {
@@ -1378,17 +1210,13 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   if ((s->cfg->cap & PIXMA_CAP_ADF) && sp->source == PIXMA_SOURCE_FLATBED)
     sp->h = MIN (sp->h, 877 * sp->xdpi / 75);
 
-  if (sp->source == PIXMA_SOURCE_TPU
-      || s->cfg->pid == LIDE300_PID
+  if (s->cfg->pid == LIDE300_PID
       || s->cfg->pid == LIDE400_PID)
     {
       uint8_t k;
 
   /* TPU mode: lowest res is 150 or 300 dpi */
-      if (mp->generation >= 3)
-        k = MAX (sp->xdpi, 300) / sp->xdpi;
-      else
-        k = MAX (sp->xdpi, 150) / sp->xdpi;
+      k = MAX (sp->xdpi, 300) / sp->xdpi;
       sp->x *= k;
       sp->xs *= k;
       sp->y *= k;
@@ -1494,33 +1322,6 @@ mp150_scan (pixma_t * s)
       }
     }
 
-  if (has_ccd_sensor (s) && (mp->generation <= 2))
-    {
-      error = send_cmd_e920 (s);
-      switch (error)
-        {
-          case PIXMA_ECANCELED:
-          case PIXMA_EBUSY:
-            PDBG (pixma_dbg (2, "cmd e920 or d520 returned %s\n",
-                             pixma_strerror (error)));
-            /* fall through */
-          case 0:
-            query_status (s);
-            break;
-          default:
-            PDBG (pixma_dbg (1, "WARNING:cmd e920 or d520 failed %s\n",
-                             pixma_strerror (error)));
-            return error;
-        }
-      tmo = 3;  /* like Windows driver, CCD calibration ? */
-      while (--tmo >= 0)
-        {
-          WAIT_INTERRUPT (1000);
-          PDBG (pixma_dbg (2, "CCD Calibration ends in %d sec.\n", tmo));
-        }
-      /* pixma_sleep(2000000); */
-    }
-
   tmo = 10;
   /* adf: first page or idle */
   if (mp->generation <= 2 || mp->adf_state == state_idle)
@@ -1553,17 +1354,13 @@ mp150_scan (pixma_t * s)
         mp->state = state_warmup;
       if ((error >= 0) && (mp->generation <= 2))
         error = select_source (s);
-      if ((error >= 0) && (mp->generation >= 3) && has_ccd_sensor (s))
-        error = init_ccd_lamp_3 (s);
-      if ((error >= 0) && !is_scanning_from_tpu (s) && !is_scanning_jpeg (s))
+      if ((error >= 0) && !is_scanning_jpeg (s))
         {
           int i;
 
           for (i = (mp->generation >= 3) ? 3 : 1 ; i > 0 && error >= 0; i--)
             error = send_gamma_table (s);
         }
-      else if (error >= 0)  /* in TPU mode, for gen 1, 2, and 3 */
-        error = send_set_tpu_info (s);
     }
   else   /* ADF pageid != 0 and gen3 or above */
   { /* next sheet from ADF */
@@ -1605,7 +1402,7 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       mp->state = state_scanning;
       mp->last_block = 0;
 
-      line_size = get_cis_ccd_line_size (s);
+      line_size = get_cis_line_size (s);
       proc_buf_size = (2 * calc_shifting (s) + 2) * line_size;
       mp->cb.buf = realloc (mp->cb.buf,
              CMDBUF_SIZE + IMAGE_BLOCK_SIZE + proc_buf_size);
@@ -1659,15 +1456,6 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
         {     /* no image data at this moment. */
           pixma_sleep (10000);
         }
-      /* For TPU at 48 bits/pixel to output at 24 bits/pixel */
-#ifndef DEBUG_TPU_48
-#ifndef TPU_48
-#ifndef DEBUG_TPU_24
-      if (is_scanning_from_tpu (s))
-#endif
-          bytes_received = pack_48_24_bpc (mp->imgbuf + mp->data_left_len, bytes_received);
-#endif
-#endif
       /* Post-process the image data */
       mp->data_left_ofs = mp->imgbuf + mp->data_left_len + bytes_received;
       mp->data_left_len = post_process_image_data (s, ib);
@@ -1692,9 +1480,6 @@ mp150_finish_scan (pixma_t * s)
     case state_scanning:
     case state_warmup:
     case state_finished:
-      /* Send the get TPU info message */
-      if (is_scanning_from_tpu (s) && mp->tpu_datalen == 0)
-        send_get_tpu_info_3 (s);
       /* FIXME: to process several pages ADF scan, must not send
        * abort_session and start_session between pages (last_block=0x28) */
       if (mp->generation <= 2 || !is_scanning_from_adf (s) || mp->last_block == 0x38)
@@ -1766,7 +1551,7 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
         0, 0,              /* tpuir_min_dpi & tpuir_max_dpi not used in this subdriver */  \
         w, h,              /* width, height */      \
         PIXMA_CAP_EASY_RGB|                         \
-        PIXMA_CAP_GRAY|    /* CIS with native grayscale and CCD with software grayscale */ \
+        PIXMA_CAP_GRAY|    /* CIS with native grayscale */ \
         PIXMA_CAP_LINEART| /* all scanners with software lineart */ \
         PIXMA_CAP_GAMMA_TABLE|PIXMA_CAP_EVENTS|cap  \
 }
@@ -1838,14 +1623,14 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MP250", "MP250", MP250_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP270", "MP270", MP270_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
-  /* Latest devices (2010) Generation 4 CIS/CCD */
+  /* Latest devices (2010) Generation 4 CIS */
   DEVICE ("Canon PIXMA MP280",  "MP280",  MP280_PID,  600, 0, 0, 638, 877, PIXMA_CAP_CIS), /* TODO: 1200dpi doesn't work yet */
   DEVICE ("Canon PIXMA MP495",  "MP495",  MP495_PID,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG5100", "MG5100", MG5100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG5200", "MG5200", MG5200_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG6100", "MG6100", MG6100_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
-  /* Latest devices (2011) Generation 5 CIS/CCD */
+  /* Latest devices (2011) Generation 5 CIS */
   DEVICE ("Canon PIXMA MG2100", "MG2100", MG2100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG3100", "MG3100", MG3100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG4100", "MG4100", MG4100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),

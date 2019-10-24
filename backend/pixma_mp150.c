@@ -623,7 +623,7 @@ send_scan_param (pixma_t * s)
   mp150_t *mp = (mp150_t *) s->subdriver;
   uint8_t *data;
   unsigned raw_width = calc_raw_width (mp, s->param);
-  unsigned h = s->cfg->height * s->param->ydpi / 75;
+  unsigned h = MIN (s->param->h, s->cfg->height * s->param->ydpi / 75);
 
   if (mp->generation <= 2)
     {

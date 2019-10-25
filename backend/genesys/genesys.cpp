@@ -805,6 +805,11 @@ void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
             size = 4096;
         }
         max = size - 1;
+    } else if (dev->model->asic_type == AsicType::GL124 ||
+               dev->model->asic_type == AsicType::GL846 ||
+               dev->model->asic_type == AsicType::GL847) {
+        size = 257;
+        max = 65535;
     } else {
         size = 256;
         max = 65535;

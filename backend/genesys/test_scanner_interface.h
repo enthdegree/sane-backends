@@ -76,6 +76,8 @@ public:
 
     IUsbDevice& get_usb_device() override;
 
+    void sleep_us(unsigned microseconds) override;
+
     void record_test_message(const char* msg) override;
 
     const std::string& last_test_message() const;

@@ -308,9 +308,8 @@ static void gl846_set_adi_fe(Genesys_Device* dev, uint8_t set)
 
     // wait for FE to be ready
     std::uint8_t val8 = sanei_genesys_get_status(dev);
-    while (val8 & REG_0x41_FEBUSY)
-    {
-      sanei_genesys_sleep_ms(10);
+    while (val8 & REG_0x41_FEBUSY) {
+        dev->interface->sleep_ms(10);
         val8 = sanei_genesys_get_status(dev);
     };
 
@@ -898,7 +897,7 @@ static void gl846_stop_action(Genesys_Device* dev)
     val &= ~REG_0x01_SCAN;
     dev->reg.set8(REG_0x01, val);
     dev->interface->write_register(REG_0x01, val);
-  sanei_genesys_sleep_ms(100);
+    dev->interface->sleep_ms(100);
 
   loop = 10;
   while (loop > 0)
@@ -917,7 +916,7 @@ static void gl846_stop_action(Genesys_Device* dev)
           return;
         }
 
-      sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
       loop--;
     }
 
@@ -990,7 +989,7 @@ void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     {
       sanei_genesys_print_status (val);
     }
-  sanei_genesys_sleep_ms(100);
+    dev->interface->sleep_ms(100);
 
     // second is reliable
     val = sanei_genesys_get_status(dev);
@@ -1078,7 +1077,7 @@ void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
               dev->scanhead_position_in_steps = 0;
               return;
             }
-          sanei_genesys_sleep_ms(100);
+            dev->interface->sleep_ms(100);
           ++loop;
         }
 

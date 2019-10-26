@@ -1062,7 +1062,7 @@ static void gl124_stop_action(Genesys_Device* dev)
     dev->reg.set8(REG_0x01, val);
     dev->interface->write_register(REG_0x01, val);
 
-  sanei_genesys_sleep_ms(100);
+    dev->interface->sleep_ms(100);
 
   loop = 10;
   while (loop > 0)
@@ -1079,7 +1079,7 @@ static void gl124_stop_action(Genesys_Device* dev)
       return;
 	}
 
-      sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
       loop--;
     }
 
@@ -1199,7 +1199,7 @@ void CommandSetGl124::rewind(Genesys_Device* dev) const
     begin_scan(dev, sensor, &dev->reg, true);
   do
     {
-        sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
         byte = dev->interface->read_register(REG_0x100);
     } while (byte & REG_0x100_MOTMFLG);
     end_scan(dev, &dev->reg, true);
@@ -1235,7 +1235,7 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     {
       sanei_genesys_print_status (val);
     }
-  sanei_genesys_sleep_ms(100);
+    dev->interface->sleep_ms(100);
 
     // second is reliable
     val = sanei_genesys_get_status(dev);
@@ -1321,7 +1321,7 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
               dev->scanhead_position_in_steps = 0;
             return;
 	    }
-          sanei_genesys_sleep_ms(100);
+            dev->interface->sleep_ms(100);
 	  ++loop;
 	}
 
@@ -1605,11 +1605,11 @@ void CommandSetGl124::wait_for_motor_stop(Genesys_Device* dev) const
         return;
 
     do {
-        sanei_genesys_sleep_ms(10);
+        dev->interface->sleep_ms(10);
         val = sanei_genesys_get_status(dev);
         val40 = dev->interface->read_register(REG_0x100);
     } while ((val & MOTORENB) ||(val40 & REG_0x100_MOTMFLG));
-    sanei_genesys_sleep_ms(50);
+    dev->interface->sleep_ms(50);
 }
 
 /** @brief set up registers for the actual scan

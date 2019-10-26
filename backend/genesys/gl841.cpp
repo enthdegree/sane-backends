@@ -1702,7 +1702,7 @@ void CommandSetGl841::save_power(Genesys_Device* dev, bool enable) const
             uint8_t val = dev->interface->read_register(REG_0x6D);
             dev->interface->write_register(REG_0x6D, val | 0x80);
 
-            sanei_genesys_sleep_ms(1);
+            dev->interface->sleep_ms(1);
 
 	    /*enable GPIO9*/
             val = dev->interface->read_register(REG_0x6C);
@@ -1716,7 +1716,7 @@ void CommandSetGl841::save_power(Genesys_Device* dev, bool enable) const
             val = dev->interface->read_register(REG_0x6B);
             dev->interface->write_register(REG_0x6B, val & ~REG_0x6B_GPO18);
 
-            sanei_genesys_sleep_ms(1);
+            dev->interface->sleep_ms(1);
 
             val = dev->interface->read_register(REG_0x6D);
             dev->interface->write_register(REG_0x6D, val & ~0x80);
@@ -1745,7 +1745,7 @@ void CommandSetGl841::save_power(Genesys_Device* dev, bool enable) const
             uint8_t val = dev->interface->read_register(REG_0x6D);
             dev->interface->write_register(REG_0x6D, val | 0x80);
 
-            sanei_genesys_sleep_ms(10);
+            dev->interface->sleep_ms(10);
 
 	    /*disable GPIO9*/
             val = dev->interface->read_register(REG_0x6C);
@@ -1894,8 +1894,8 @@ static void gl841_stop_action(Genesys_Device* dev)
       return;
 	}
 
-      sanei_genesys_sleep_ms(100);
-      loop--;
+        dev->interface->sleep_ms(100);
+        loop--;
     }
 
     throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
@@ -1968,7 +1968,7 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 	      DBG(DBG_proc, "%s: finished\n", __func__);
 	      break;
 	    }
-          sanei_genesys_sleep_ms(100);
+          dev->interface->sleep_ms(100);
 	  --loop;
 	}
 
@@ -2005,7 +2005,7 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 	  break;
 	}
 
-      sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
       ++loop;
     }
 
@@ -2028,10 +2028,10 @@ void CommandSetGl841::load_document(Genesys_Device* dev) const
         dev->document = true;
 
           // give user some time to place document correctly
-          sanei_genesys_sleep_ms(1000);
+          dev->interface->sleep_ms(1000);
 	  break;
 	}
-      sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
       --loop;
     }
 
@@ -2195,7 +2195,7 @@ static void gl841_feed(Genesys_Device* dev, int steps)
 	  dev->scanhead_position_in_steps += steps;
             return;
       }
-      sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
       ++loop;
   }
 
@@ -2240,7 +2240,7 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     {
       sanei_genesys_print_status (val);
     }
-  sanei_genesys_sleep_ms(100);
+    dev->interface->sleep_ms(100);
 
     // second is reliable
     val = sanei_genesys_get_status(dev);
@@ -2307,7 +2307,7 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 	      DBG(DBG_proc, "%s: finished\n", __func__);
           return;
 	    }
-          sanei_genesys_sleep_ms(100);
+            dev->interface->sleep_ms(100);
 	  ++loop;
 	}
 

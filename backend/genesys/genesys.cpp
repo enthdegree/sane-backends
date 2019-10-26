@@ -1532,11 +1532,11 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
     if (is_dark) {
         // wait some time to let lamp to get dark
-        sanei_genesys_sleep_ms(200);
+        dev->interface->sleep_ms(200);
     } else if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION) {
         // make sure lamp is bright again
         // FIXME: what about scanners that take a long time to warm the lamp?
-        sanei_genesys_sleep_ms(500);
+        dev->interface->sleep_ms(500);
     }
 
     bool start_motor = !is_dark;
@@ -2986,7 +2986,7 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
 
         dev->cmd_set->end_scan(dev, &dev->reg, true);
 
-      sanei_genesys_sleep_ms(1000);
+        dev->interface->sleep_ms(1000);
       seconds++;
 
         dev->cmd_set->begin_scan(dev, sensor, &dev->reg, false);
@@ -3043,10 +3043,9 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
 	}
 
       /* sleep another second before next loop */
-      sanei_genesys_sleep_ms(1000);
-      seconds++;
-    }
-  while (seconds < WARMUP_TIME);
+        dev->interface->sleep_ms(1000);
+        seconds++;
+    } while (seconds < WARMUP_TIME);
 
   if (seconds >= WARMUP_TIME)
     {
@@ -3188,8 +3187,8 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
            + dev->reg.get8(0x3f);
   do
     {
-      // wait some time between each test to avoid overloading USB and CPU
-      sanei_genesys_sleep_ms(100);
+        // wait some time between each test to avoid overloading USB and CPU
+        dev->interface->sleep_ms(100);
         sanei_genesys_read_feed_steps (dev, &steps);
     }
   while (steps < expected);
@@ -3199,11 +3198,10 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     // we wait for at least one word of valid scan data
     // this is also done in sanei_genesys_read_data_from_scanner -- pierre
     if (!dev->model->is_sheetfed) {
-      do
-	{
-          sanei_genesys_sleep_ms(100);
+        do {
+            dev->interface->sleep_ms(100);
             sanei_genesys_read_valid_words(dev, &steps);
-	}
+        }
       while (steps < 1);
     }
 }

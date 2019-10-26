@@ -45,6 +45,7 @@
 
 #include "scanner_interface_usb.h"
 #include "low.h"
+#include <thread>
 
 namespace genesys {
 
@@ -478,6 +479,14 @@ void ScannerInterfaceUsb::write_fe_register(std::uint8_t address, std::uint16_t 
 IUsbDevice& ScannerInterfaceUsb::get_usb_device()
 {
     return usb_dev_;
+}
+
+void ScannerInterfaceUsb::sleep_us(unsigned microseconds)
+{
+    if (sanei_usb_is_replay_mode_enabled()) {
+        return;
+    }
+    std::this_thread::sleep_for(std::chrono::microseconds{microseconds});
 }
 
 void ScannerInterfaceUsb::record_test_message(const char* msg)

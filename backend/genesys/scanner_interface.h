@@ -88,6 +88,14 @@ public:
 
     virtual IUsbDevice& get_usb_device() = 0;
 
+    // sleeps the specified number of microseconds. Will not sleep if testing mode is enabled.
+    virtual void sleep_us(unsigned microseconds) = 0;
+
+    void sleep_ms(unsigned milliseconds)
+    {
+        sleep_us(milliseconds * 1000);
+    }
+
     virtual void record_test_message(const char* msg) = 0;
 };
 

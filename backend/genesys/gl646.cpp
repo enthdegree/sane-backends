@@ -887,7 +887,7 @@ static void gl646_wm_hp3670(Genesys_Device* dev, const Genesys_Sensor& sensor, u
     {
     case AFE_INIT:
         dev->interface->write_fe_register(0x04, 0x80);
-      sanei_genesys_sleep_ms(200);
+        dev->interface->sleep_ms(200);
     dev->interface->write_register(0x50, 0x00);
       dev->frontend = dev->frontend_initial;
         dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
@@ -1156,9 +1156,9 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
 	    {
               DBG(DBG_warn, "%s: no paper detected\n", __func__);
 	    }
-          sanei_genesys_sleep_ms(200);
-	  count++;
-	}
+            dev->interface->sleep_ms(200);
+            count++;
+        }
       while (((val & 0x04) != 0x04) && (count < 300));	/* 1 min time out */
       if (count == 300)
 	{
@@ -1210,7 +1210,7 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
   do
     {
         val = sanei_genesys_get_status(dev);
-      sanei_genesys_sleep_ms(200);
+        dev->interface->sleep_ms(200);
       count++;
     } while ((val & REG_0x41_MOTMFLG) && (count < 300));
 
@@ -1332,7 +1332,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
   /* wait for motor to stop */
   do
     {
-      sanei_genesys_sleep_ms(200);
+        dev->interface->sleep_ms(200);
         state = sanei_genesys_get_status(dev);
     }
     while (state & REG_0x41_MOTMFLG);
@@ -1384,7 +1384,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
         state = sanei_genesys_get_status(dev);
 
       print_status (state);
-      sanei_genesys_sleep_ms(200);
+        dev->interface->sleep_ms(200);
       count++;
     } while (((state & REG_0x41_HOMESNR) == 0) && (count < 150));
 
@@ -1469,9 +1469,9 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
 		  break;	/* leave for loop */
 		}
 
-              sanei_genesys_sleep_ms(100);
-	    }
-	}
+                dev->interface->sleep_ms(100);
+            }
+        }
     }
   else				/* flat bed scanners */
     {
@@ -1500,9 +1500,9 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
 		  break;	/* leave while loop */
 		}
 
-              sanei_genesys_sleep_ms(100);
-	    }
-	}
+                dev->interface->sleep_ms(100);
+            }
+        }
     }
 
   DBG(DBG_proc, "%s: end (i=%u)\n", __func__, i);
@@ -1545,7 +1545,7 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   /* stop motor if needed */
     if (val & REG_0x41_MOTMFLG) {
         gl646_stop_motor(dev);
-      sanei_genesys_sleep_ms(200);
+        dev->interface->sleep_ms(200);
     }
 
   /* when scanhead is moving then wait until scanhead stops or timeout */
@@ -1561,7 +1561,7 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
             DBG(DBG_info, "%s: already at home and not moving\n", __func__);
             return;
         }
-      sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
     }
 
   if (!i)			/* the loop counted down to 0, scanner still is busy */
@@ -1625,12 +1625,12 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 	    {
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
 	      DBG(DBG_proc, "%s: end\n", __func__);
-              sanei_genesys_sleep_ms(500);
-            return;
-	    }
-          sanei_genesys_sleep_ms(100);
-          ++loop;
-	}
+                dev->interface->sleep_ms(500);
+                return;
+            }
+            dev->interface->sleep_ms(100);
+            ++loop;
+        }
 
         // when we come here then the scanner needed too much time for this, so we better
         // stop the motor
@@ -2750,7 +2750,7 @@ static void gl646_repark_head(Genesys_Device* dev)
     expected = dev->reg.get24(REG_FEEDL);
   do
     {
-      sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
         sanei_genesys_read_feed_steps (dev, &steps);
     }
   while (steps < expected);
@@ -2817,7 +2817,7 @@ void CommandSetGl646::init(Genesys_Device* dev) const
 
         // ASIC reset
         dev->interface->write_register(0x0e, 0x00);
-      sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
 
         // Write initial registers
         dev->interface->write_registers(dev->reg);

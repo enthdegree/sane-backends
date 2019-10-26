@@ -132,6 +132,11 @@ IUsbDevice& TestScannerInterface::get_usb_device()
     return usb_dev_;
 }
 
+void TestScannerInterface::sleep_us(unsigned microseconds)
+{
+    (void) microseconds;
+}
+
 void TestScannerInterface::record_test_message(const char* msg)
 {
     last_test_message_ = msg;

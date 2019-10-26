@@ -1331,7 +1331,7 @@ static void gl843_stop_action_no_move(Genesys_Device* dev, Genesys_Register_Set*
     val &= ~REG_0x01_SCAN;
     reg->set8(REG_0x01, val);
     dev->interface->write_register(REG_0x01, val);
-    sanei_genesys_sleep_ms(100);
+    dev->interface->sleep_ms(100);
 }
 
 static void gl843_stop_action(Genesys_Device* dev)
@@ -1361,7 +1361,7 @@ static void gl843_stop_action(Genesys_Device* dev)
     dev->reg.set8(REG_0x01, val);
     dev->interface->write_register(REG_0x01, val);
 
-  sanei_genesys_sleep_ms(100);
+    dev->interface->sleep_ms(100);
 
   loop = 10;
   while (loop > 0)
@@ -1380,7 +1380,7 @@ static void gl843_stop_action(Genesys_Device* dev)
       return;
 	}
 
-      sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
       loop--;
     }
 
@@ -1803,7 +1803,7 @@ static void gl843_park_xpa_lamp(Genesys_Device* dev)
 
             return;
 	    }
-          sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
 	  ++loop;
 	}
 
@@ -1831,7 +1831,7 @@ void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     // first read gives HOME_SENSOR true
     val = sanei_genesys_get_status(dev);
 
-  sanei_genesys_sleep_ms(100);
+    dev->interface->sleep_ms(100);
 
     // second is reliable
     val = sanei_genesys_get_status(dev);
@@ -1911,7 +1911,7 @@ void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 	      DBG(DBG_proc, "%s: finished\n", __func__);
           return;
 	    }
-          sanei_genesys_sleep_ms(100);
+            dev->interface->sleep_ms(100);
 	  ++loop;
 	}
 
@@ -2103,7 +2103,7 @@ static void gl843_feed(Genesys_Device* dev, unsigned int steps)
     } while (!(val & FEEDFSH));
 
   // looks like the scanner locks up if we scan immediately after feeding
-  sanei_genesys_sleep_ms(100);
+    dev->interface->sleep_ms(100);
 }
 
 // init registers for shading calibration shading calibration is done at dpihw
@@ -3024,7 +3024,7 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
     gl843_init_gpio(dev);
 
   gl843_feed (dev, 300);
-  sanei_genesys_sleep_ms(100);
+    dev->interface->sleep_ms(100);
 }
 
 /* *

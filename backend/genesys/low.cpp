@@ -394,14 +394,14 @@ bool sanei_genesys_is_buffer_empty(Genesys_Device* dev)
     DBG_HELPER(dbg);
   uint8_t val = 0;
 
-  sanei_genesys_sleep_ms(1);
+    dev->interface->sleep_ms(1);
     val = sanei_genesys_get_status(dev);
 
     if (dev->cmd_set->test_buffer_empty_bit(val)) {
       /* fix timing issue on USB3 (or just may be too fast) hardware
        * spotted by John S. Weber <jweber53@gmail.com>
        */
-      sanei_genesys_sleep_ms(1);
+        dev->interface->sleep_ms(1);
       DBG(DBG_io2, "%s: buffer is empty\n", __func__);
         return true;
     }
@@ -423,7 +423,7 @@ void wait_until_buffer_non_empty(Genesys_Device* dev, bool check_status_twice)
         }
 
         bool empty = sanei_genesys_is_buffer_empty(dev);
-        sanei_genesys_sleep_ms(10);
+        dev->interface->sleep_ms(10);
         if (!empty)
             return;
     }
@@ -439,7 +439,7 @@ void wait_until_has_valid_words(Genesys_Device* dev)
         sanei_genesys_read_valid_words(dev, &words);
         if (words != 0)
             break;
-        sanei_genesys_sleep_ms(sleep_time_ms);
+        dev->interface->sleep_ms(sleep_time_ms);
     }
 
     if (words == 0) {
@@ -1589,7 +1589,7 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
     // read initial status, if head isn't at home and motor is on we are parking, so we wait.
     // gl847/gl124 need 2 reads for reliable results
     val = sanei_genesys_get_status(dev);
-  sanei_genesys_sleep_ms(10);
+    dev->interface->sleep_ms(10);
     val = sanei_genesys_get_status(dev);
 
   /* if at home, return */
@@ -1604,7 +1604,7 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
     unsigned elapsed_ms = 0;
   do
     {
-      sanei_genesys_sleep_ms(100);
+      dev->interface->sleep_ms(100);
         elapsed_ms += 100;
 
         val = sanei_genesys_get_status(dev);
@@ -1993,19 +1993,6 @@ void sanei_genesys_load_lut(unsigned char* lut,
 	  lut_p16++;
 	}
     }
-}
-
-void sanei_genesys_usleep(unsigned int useconds)
-{
-    if (sanei_usb_is_replay_mode_enabled()) {
-        return;
-    }
-  usleep(useconds);
-}
-
-void sanei_genesys_sleep_ms(unsigned int milliseconds)
-{
-  sanei_genesys_usleep(milliseconds * 1000);
 }
 
 static std::unique_ptr<std::vector<std::function<void()>>> s_functions_run_at_backend_exit;

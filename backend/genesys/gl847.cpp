@@ -331,7 +331,7 @@ static void gl847_set_ad_fe(Genesys_Device* dev, uint8_t set)
     // wait for FE to be ready
     std::uint8_t val8 = sanei_genesys_get_status(dev);
     while (val8 & REG_0x41_FEBUSY) {
-      sanei_genesys_sleep_ms(10);
+        dev->interface->sleep_ms(10);
         val8 = sanei_genesys_get_status(dev);
     };
 
@@ -904,7 +904,7 @@ static void gl847_stop_action(Genesys_Device* dev)
     dev->reg.set8(REG_0x01, val);
     dev->interface->write_register(REG_0x01, val);
 
-  sanei_genesys_sleep_ms(100);
+    dev->interface->sleep_ms(100);
 
   loop = 10;
   while (loop > 0)
@@ -923,7 +923,7 @@ static void gl847_stop_action(Genesys_Device* dev)
       return;
 	}
 
-      sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
       loop--;
     }
 
@@ -997,7 +997,7 @@ static void gl847_rewind(Genesys_Device* dev)
     gl847_begin_scan(dev, dev->reg, true);
   do
     {
-      sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
         byte = dev->interface->read_register(REG_0x40);
     } while (byte & REG_0x40_MOTMFLG);
 
@@ -1035,7 +1035,7 @@ void CommandSetGl847::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     {
       sanei_genesys_print_status (val);
     }
-  sanei_genesys_sleep_ms(100);
+    dev->interface->sleep_ms(100);
 
     // second is reliable
     val = sanei_genesys_get_status(dev);
@@ -1121,7 +1121,7 @@ void CommandSetGl847::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
               dev->scanhead_position_in_steps = 0;
             return;
 	    }
-          sanei_genesys_sleep_ms(100);
+            dev->interface->sleep_ms(100);
 	  ++loop;
 	}
 

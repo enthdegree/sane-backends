@@ -528,12 +528,6 @@ inline T clamp(const T& value, const T& lo, const T& hi)
 /*                ASIC specific functions declarations                       */
 /*---------------------------------------------------------------------------*/
 
-// same as usleep, except that it does nothing if testing mode is enabled
-extern void sanei_genesys_usleep(unsigned int useconds);
-
-// same as sanei_genesys_usleep just that the duration is in milliseconds
-extern void sanei_genesys_sleep_ms(unsigned int milliseconds);
-
 void add_function_to_run_at_backend_exit(std::function<void()> function);
 
 // calls functions added via add_function_to_run_at_backend_exit() in reverse order of being

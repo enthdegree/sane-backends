@@ -76,9 +76,12 @@ public:
     std::uint16_t read_fe_register(std::uint8_t address) override;
     void write_fe_register(std::uint8_t address, std::uint16_t value) override;
 
+    IUsbDevice& get_usb_device() override;
+
+    void sleep_us(unsigned microseconds) override;
+
     void record_test_message(const char* msg) override;
 
-    virtual IUsbDevice& get_usb_device() override;
 private:
     Genesys_Device* dev_;
     UsbDevice usb_dev_;

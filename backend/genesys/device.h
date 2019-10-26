@@ -53,7 +53,7 @@
 #include "settings.h"
 #include "sensor.h"
 #include "register.h"
-#include "sanei.h"
+#include "usb_device.h"
 #include "scanner_interface.h"
 #include <vector>
 

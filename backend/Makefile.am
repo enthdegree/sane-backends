@@ -508,7 +508,6 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/motor.h \
     genesys/register.h \
     genesys/register_cache.h \
-    genesys/sanei.h genesys/sanei.cpp \
     genesys/scanner_interface.h genesys/scanner_interface.cpp \
     genesys/scanner_interface_usb.h genesys/scanner_interface_usb.cpp \
     genesys/sensor.h \
@@ -521,6 +520,8 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/tables_motor_profile.cpp \
     genesys/tables_sensor.cpp \
     genesys/test_scanner_interface.h genesys/test_scanner_interface.cpp \
+    genesys/test_usb_device.h genesys/test_usb_device.cpp \
+    genesys/usb_device.h genesys/usb_device.cpp \
     genesys/low.cpp genesys/low.h \
     genesys/utilities.h
 

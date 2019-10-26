@@ -62,7 +62,7 @@
 
 #include "genesys.h"
 #include "conv.h"
-#include "sanei.h"
+#include "usb_device.h"
 #include "utilities.h"
 #include "scanner_interface_usb.h"
 #include "../include/sane/sanei_config.h"

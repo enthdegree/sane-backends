@@ -85,7 +85,7 @@
 #include "enums.h"
 #include "error.h"
 #include "fwd.h"
-#include "sanei.h"
+#include "usb_device.h"
 #include "sensor.h"
 #include "serialize.h"
 #include "settings.h"

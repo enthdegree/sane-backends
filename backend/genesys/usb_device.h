@@ -41,8 +41,8 @@
    If you do not wish that, delete this exception notice.
 */
 
-#ifndef BACKEND_GENESYS_SANEI_H
-#define BACKEND_GENESYS_SANEI_H
+#ifndef BACKEND_GENESYS_USB_DEVICE_H
+#define BACKEND_GENESYS_USB_DEVICE_H
 
 #include "error.h"
 #include "../include/sane/sanei_usb.h"
@@ -52,39 +52,56 @@
 
 namespace genesys {
 
-class UsbDevice {
+class IUsbDevice {
+public:
+    IUsbDevice() = default;
+
+    IUsbDevice(const IUsbDevice& other) = delete;
+    IUsbDevice& operator=(const IUsbDevice&) = delete;
+
+    virtual ~IUsbDevice();
+
+    virtual bool is_open() const = 0;
+
+    virtual const std::string& name() const = 0;
+
+    virtual void open(const char* dev_name) = 0;
+
+    virtual void clear_halt() = 0;
+    virtual void reset() = 0;
+    virtual void close() = 0;
+
+    virtual void get_vendor_product(int& vendor, int& product) = 0;
+
+    virtual void control_msg(int rtype, int reg, int value, int index, int length,
+                             std::uint8_t* data) = 0;
+    virtual void bulk_read(std::uint8_t* buffer, std::size_t* size) = 0;
+    virtual void bulk_write(const std::uint8_t* buffer, std::size_t* size) = 0;
+
+};
+
+class UsbDevice : public IUsbDevice {
 public:
     UsbDevice() = default;
-    UsbDevice(const UsbDevice& other) = delete;
-    UsbDevice& operator=(const UsbDevice&) = delete;
 
-    UsbDevice(UsbDevice&& other) :
-        name_(other.name_),
-        is_open_(other.is_open_),
-        device_num_(other.device_num_)
-    {
-        other.set_not_open();
-    }
+    ~UsbDevice() override;
 
-    ~UsbDevice();
+    bool is_open() const override { return is_open_; }
 
-    bool is_open() const { return is_open_; }
+    const std::string& name() const override { return name_; }
 
-    int device_number() const { return device_num_; }
+    void open(const char* dev_name) override;
 
-    const std::string& name() const { return name_; }
+    void clear_halt() override;
+    void reset() override;
+    void close() override;
 
-    void open(const char* dev_name);
+    void get_vendor_product(int& vendor, int& product) override;
 
-    void clear_halt();
-    void reset();
-    void close();
-
-    void get_vendor_product(int& vendor, int& product);
-
-    void control_msg(int rtype, int reg, int value, int index, int length, std::uint8_t* data);
-    void bulk_read(std::uint8_t* buffer, std::size_t* size);
-    void bulk_write(const std::uint8_t* buffer, std::size_t* size);
+    void control_msg(int rtype, int reg, int value, int index, int length,
+                     std::uint8_t* data) override;
+    void bulk_read(std::uint8_t* buffer, std::size_t* size) override;
+    void bulk_write(const std::uint8_t* buffer, std::size_t* size) override;
 
 private:
 
@@ -98,4 +115,4 @@ private:
 
 } // namespace genesys
 
-#endif // BACKEND_GENESYS_SANEI_H
+#endif // BACKEND_GENESYS_USB_DEVICE_H

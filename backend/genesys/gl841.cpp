@@ -54,6 +54,7 @@
 
 #include "gl841.h"
 #include "gl841_registers.h"
+#include "test_settings.h"
 
 #include <vector>
 
@@ -207,8 +208,6 @@ static void sanei_gl841_setup_sensor(Genesys_Device * dev, const Genesys_Sensor&
 static void
 gl841_init_lide80 (Genesys_Device * dev)
 {
-  uint8_t val;
-
   INITREG (0x01, 0x82); /* 0x02 = SHDAREA  and no CISSET ! */
   INITREG (0x02, 0x10);
   INITREG (0x03, 0x50);
@@ -327,28 +326,43 @@ gl841_init_lide80 (Genesys_Device * dev)
     }
 
     // specific scanner settings, clock and gpio first
-    val = dev->interface->read_register(REG_0x6B);
+    // FIXME: remove the dummy reads as we don't use the values
+    if (!is_testing_mode()) {
+        dev->interface->read_register(REG_0x6B);
+    }
     dev->interface->write_register(REG_0x6B, 0x0c);
     dev->interface->write_register(0x06, 0x10);
     dev->interface->write_register(REG_0x6E, 0x6d);
     dev->interface->write_register(REG_0x6F, 0x80);
     dev->interface->write_register(REG_0x6B, 0x0e);
-    val = dev->interface->read_register(REG_0x6C);
+    if (!is_testing_mode()) {
+        dev->interface->read_register(REG_0x6C);
+    }
     dev->interface->write_register(REG_0x6C, 0x00);
-    val = dev->interface->read_register(REG_0x6D);
+    if (!is_testing_mode()) {
+        dev->interface->read_register(REG_0x6D);
+    }
     dev->interface->write_register(REG_0x6D, 0x8f);
-    val = dev->interface->read_register(REG_0x6B);
+    if (!is_testing_mode()) {
+        dev->interface->read_register(REG_0x6B);
+    }
     dev->interface->write_register(REG_0x6B, 0x0e);
-    val = dev->interface->read_register(REG_0x6B);
+    if (!is_testing_mode()) {
+        dev->interface->read_register(REG_0x6B);
+    }
     dev->interface->write_register(REG_0x6B, 0x0e);
-    val = dev->interface->read_register(REG_0x6B);
+    if (!is_testing_mode()) {
+        dev->interface->read_register(REG_0x6B);
+    }
     dev->interface->write_register(REG_0x6B, 0x0a);
-    val = dev->interface->read_register(REG_0x6B);
+    if (!is_testing_mode()) {
+        dev->interface->read_register(REG_0x6B);
+    }
     dev->interface->write_register(REG_0x6B, 0x02);
-    val = dev->interface->read_register(REG_0x6B);
+    if (!is_testing_mode()) {
+        dev->interface->read_register(REG_0x6B);
+    }
     dev->interface->write_register(REG_0x6B, 0x06);
-
-    (void) val; // FIXME: we don't use the information read from registers
 
     dev->interface->write_0x8c(0x10, 0x94);
     dev->interface->write_register(0x09, 0x10);
@@ -1878,6 +1892,10 @@ static void gl841_stop_action(Genesys_Device* dev)
     gl841_init_motor_regs_off(&local_reg,0);
     dev->interface->write_registers(local_reg);
 
+    if (is_testing_mode()) {
+        return;
+    }
+
   /* looks like writing the right registers to zero is enough to get the chip
      out of scan mode into command mode, actually triggering(writing to
      register 0x0f) seems to be unnecessary */
@@ -1951,6 +1969,12 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
             dev->interface->write_registers(dev->reg);
         });
         throw;
+    }
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("eject_document");
+        gl841_stop_action(dev);
+        return;
     }
 
     if (gl841_get_paper_sensor(dev)) {
@@ -2185,6 +2209,12 @@ static void gl841_feed(Genesys_Device* dev, int steps)
         throw;
     }
 
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("feed");
+        gl841_stop_action(dev);
+        return;
+    }
+
   loop = 0;
   while (loop < 300)		/* do not wait longer then 30 seconds */
   {
@@ -2295,6 +2325,11 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
         throw;
     }
 
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("slow_back_home");
+        return;
+    }
+
   if (wait_until_home)
     {
       while (loop < 300)		/* do not wait longer then 30 seconds */
@@ -2368,6 +2403,13 @@ void CommandSetGl841::search_start_position(Genesys_Device* dev) const
   std::vector<uint8_t> data(size);
 
     dev->cmd_set->begin_scan(dev, sensor, &local_reg, true);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("search_start_position");
+        dev->cmd_set->end_scan(dev, &local_reg, true);
+        dev->reg = local_reg;
+        return;
+    }
 
     wait_until_buffer_non_empty(dev);
 
@@ -2710,6 +2752,13 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
         dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
+
+        if (is_testing_mode()) {
+            dev->interface->test_checkpoint("led_calibration");
+            slow_back_home(dev, true);
+            return { 0, 0, 0 };
+        }
+
         sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
       if (DBG_LEVEL >= DBG_data) {
@@ -2893,6 +2942,13 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
         dev->interface->write_registers(regs);
       dev->cmd_set->set_fe(dev, calib_sensor, AFE_SET);
         dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
+
+        if (is_testing_mode()) {
+            dev->interface->test_checkpoint("ad_fe_offset_calibration");
+            gl841_stop_action(dev);
+            return;
+        }
+
       sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
       gl841_stop_action (dev);
       if (DBG_LEVEL >= DBG_data) {
@@ -3041,6 +3097,11 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
         dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
+
+        if (is_testing_mode()) {
+            dev->interface->test_checkpoint("offset_calibration");
+            return;
+        }
 
         sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
 
@@ -3364,6 +3425,14 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   std::vector<uint8_t> line(total_size);
 
     dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("coarse_gain_calibration");
+        gl841_stop_action(dev);
+        slow_back_home(dev, true);
+        return;
+    }
+
     sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
   if (DBG_LEVEL >= DBG_data)
@@ -3632,8 +3701,13 @@ void CommandSetGl841::init(Genesys_Device* dev) const
 
   sanei_usb_set_timeout(1000);/* 1 second*/
 
-    // ignore errors. next read will succeed
-    sanei_genesys_read_data_from_scanner(dev, line.data(), size);
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("init");
+    } else {
+        // ignore errors. next read will succeed
+        catch_all_exceptions(__func__,
+                             [&](){ sanei_genesys_read_data_from_scanner(dev, line.data(), size); });
+    }
 
   sanei_usb_set_timeout(30 * 1000);/* 30 seconds*/
 
@@ -3757,6 +3831,12 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     dev->interface->write_registers(local_reg);
 
     dev->cmd_set->begin_scan(dev, sensor, &local_reg, true);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("search_strip");
+        gl841_stop_action(dev);
+        return;
+    }
 
     // waits for valid data
     wait_until_buffer_non_empty(dev);

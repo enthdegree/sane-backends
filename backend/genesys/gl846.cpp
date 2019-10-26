@@ -51,6 +51,7 @@
 
 #include "gl846.h"
 #include "gl846_registers.h"
+#include "test_settings.h"
 
 #include <vector>
 
@@ -899,6 +900,10 @@ static void gl846_stop_action(Genesys_Device* dev)
     dev->interface->write_register(REG_0x01, val);
     dev->interface->sleep_ms(100);
 
+    if (is_testing_mode()) {
+        return;
+    }
+
   loop = 10;
   while (loop > 0)
     {
@@ -1064,6 +1069,11 @@ void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     // post scan gpio : without that HOMSNR is unreliable
     gl846_homsnr_gpio(dev);
 
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("slow_back_home");
+        return;
+    }
+
   if (wait_until_home)
     {
       while (loop < 300)	/* do not wait longer then 30 seconds */
@@ -1137,6 +1147,13 @@ void CommandSetGl846::search_start_position(Genesys_Device* dev) const
   std::vector<uint8_t> data(size);
 
     begin_scan(dev, sensor, &local_reg, true);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("search_start_position");
+        end_scan(dev, &local_reg, true);
+        dev->reg = local_reg;
+        return;
+    }
 
     wait_until_buffer_non_empty(dev);
 
@@ -1261,6 +1278,12 @@ static void gl846_feed(Genesys_Device* dev, unsigned int steps)
             dev->interface->write_registers(dev->reg);
         });
         throw;
+    }
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("feed");
+        gl846_stop_action(dev);
+        return;
     }
 
     // wait until feed count reaches the required value, but do not exceed 30s
@@ -1568,6 +1591,14 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
         begin_scan(dev, sensor, &regs, true);
+
+        if (is_testing_mode()) {
+            dev->interface->test_checkpoint("led_calibration");
+            gl846_stop_action(dev);
+            slow_back_home(dev, true);
+            return { 0, 0, 0 };
+        }
+
         sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
         // stop scanning
@@ -1873,6 +1904,12 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
 
     begin_scan(dev, sensor, &local_reg, true);
 
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("search_strip");
+        gl846_stop_action(dev);
+        return;
+    }
+
     wait_until_buffer_non_empty(dev);
 
     // now we're on target, we can read data
@@ -2103,6 +2140,12 @@ void CommandSetGl846::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     dev->interface->write_registers(regs);
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
     begin_scan(dev, sensor, &regs, true);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("offset_calibration");
+        return;
+    }
+
     sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
   if (DBG_LEVEL >= DBG_data)
    {
@@ -2244,6 +2287,14 @@ void CommandSetGl846::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     set_fe(dev, sensor, AFE_SET);
     begin_scan(dev, sensor, &regs, true);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("coarse_gain_calibration");
+        gl846_stop_action(dev);
+        slow_back_home(dev, true);
+        return;
+    }
+
     sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
     if (DBG_LEVEL >= DBG_data) {

@@ -46,6 +46,7 @@
 
 #include "low.h"
 #include "assert.h"
+#include "test_settings.h"
 
 #include <cstdio>
 #include <cmath>
@@ -1500,8 +1501,10 @@ void sanei_genesys_asic_init(Genesys_Device* dev, bool /*max_regs*/)
         check PWRBIT, if reset scanner has been freshly powered up. This bit will be set to later
         so that following reads can detect power down/up cycle
     */
-    if (dev->interface->read_register(0x06) & 0x10) {
-        cold = false;
+    if (!is_testing_mode()) {
+        if (dev->interface->read_register(0x06) & 0x10) {
+            cold = false;
+        }
     }
   DBG (DBG_info, "%s: device is %s\n", __func__, cold ? "cold" : "warm");
 
@@ -1585,6 +1588,10 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
 
   /* clear the parking status whatever the outcome of the function */
     dev->parking = false;
+
+    if (is_testing_mode()) {
+        return;
+    }
 
     // read initial status, if head isn't at home and motor is on we are parking, so we wait.
     // gl847/gl124 need 2 reads for reliable results

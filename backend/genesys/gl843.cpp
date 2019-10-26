@@ -46,6 +46,7 @@
 
 #include "gl843_registers.h"
 #include "gl843.h"
+#include "test_settings.h"
 
 #include <string>
 #include <vector>
@@ -1363,6 +1364,10 @@ static void gl843_stop_action(Genesys_Device* dev)
 
     dev->interface->sleep_ms(100);
 
+    if (is_testing_mode()) {
+        return;
+    }
+
   loop = 10;
   while (loop > 0)
     {
@@ -1893,6 +1898,11 @@ void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
         throw;
     }
 
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("slow_back_home");
+        return;
+    }
+
   if (wait_until_home)
     {
 
@@ -1967,6 +1977,13 @@ void CommandSetGl843::search_start_position(Genesys_Device* dev) const
     dev->interface->write_registers(local_reg);
 
     dev->cmd_set->begin_scan(dev, sensor, &local_reg, true);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("search_start_position");
+        end_scan(dev, &local_reg, true);
+        dev->reg = local_reg;
+        return;
+    }
 
     wait_until_buffer_non_empty(dev);
 
@@ -2095,6 +2112,12 @@ static void gl843_feed(Genesys_Device* dev, unsigned int steps)
             dev->interface->write_registers(dev->reg);
         });
         throw;
+    }
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("feed");
+        // FIXME: other chips call *_stop_action()
+        return;
     }
 
     // wait until feed count reaches the required value, but do not exceed 30s
@@ -2388,6 +2411,13 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
         dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
+
+        if (is_testing_mode()) {
+            dev->interface->test_checkpoint("led_calibration");
+            slow_back_home(dev, true);
+            return { 0, 0, 0 };
+        }
+
         auto image = read_unshuffled_image_from_scanner(dev, session,
                                                         session.output_total_bytes_raw);
         gl843_stop_action_no_move(dev, &regs);
@@ -2593,6 +2623,13 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     DBG(DBG_info, "%s: starting first line reading\n", __func__);
 
     dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("offset_calibration");
+        gl843_stop_action_no_move(dev, &regs);
+        return;
+    }
+
     auto first_line = read_unshuffled_image_from_scanner(dev, session,
                                                          session.output_total_bytes_raw);
     gl843_stop_action_no_move(dev, &regs);
@@ -2799,6 +2836,14 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     dev->cmd_set->set_fe(dev, calib_sensor, AFE_SET);
     dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("coarse_gain_calibration");
+        gl843_stop_action(dev);
+        slow_back_home(dev, true);
+        return;
+    }
+
     auto line = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes_raw);
     gl843_stop_action_no_move(dev, &regs);
 
@@ -3153,6 +3198,12 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     dev->interface->write_registers(local_reg);
 
     dev->cmd_set->begin_scan(dev, calib_sensor, &local_reg, true);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("search_strip");
+        gl843_stop_action(dev);
+        return;
+    }
 
     wait_until_buffer_non_empty(dev);
 

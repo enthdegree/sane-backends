@@ -1419,8 +1419,13 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
 
         dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, false);
 
-      sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
+        if (is_testing_mode()) {
+            dev->interface->test_checkpoint("coarse_calibration");
+            dev->cmd_set->end_scan(dev, &dev->calib_reg, true);
+            return;
+        }
 
+      sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
       std::memcpy(all_data.data() + i * size, calibration_data.data(), size);
       if (i == 3)		/* last line */
 	{
@@ -1543,6 +1548,14 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
     bool start_motor = !is_dark;
     dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, start_motor);
+
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint(is_dark ? "dark_shading_calibration"
+                                                : "white_shading_calibration");
+        dev->cmd_set->end_scan(dev, &dev->calib_reg, true);
+        return;
+    }
 
     sanei_genesys_read_data_from_scanner(dev, reinterpret_cast<std::uint8_t*>(calibration_data.data()),
                                          size);
@@ -1738,6 +1751,12 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
     dev->interface->write_registers(dev->calib_reg);
 
     dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, false);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("dark_white_shading_calibration");
+        dev->cmd_set->end_scan(dev, &dev->calib_reg, true);
+        return;
+    }
 
     sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
 
@@ -2977,6 +2996,12 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
       DBG(DBG_info, "%s: one more loop\n", __func__);
         dev->cmd_set->begin_scan(dev, sensor, &dev->reg, false);
 
+        if (is_testing_mode()) {
+            dev->interface->test_checkpoint("warmup_lamp");
+            dev->cmd_set->end_scan(dev, &dev->reg, true);
+            return;
+        }
+
         wait_until_buffer_non_empty(dev);
 
         try {
@@ -3182,6 +3207,11 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     // start effective scan
     dev->cmd_set->begin_scan(dev, sensor, &dev->reg, true);
 
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("start_scan");
+        return;
+    }
+
   /*do we really need this? the valid data check should be sufficent -- pierre*/
   /* waits for head to reach scanning position */
   expected = dev->reg.get8(0x3d) * 65536
@@ -3299,28 +3329,35 @@ Problems with the first approach:
   total_bytes_to_read and total_bytes_read help in that case.
  */
 
-    genesys_fill_read_buffer(dev);
+    if (is_testing_mode()) {
+        if (dev->total_bytes_read + *len > dev->total_bytes_to_read) {
+            *len = dev->total_bytes_to_read - dev->total_bytes_read;
+        }
+        dev->total_bytes_read += *len;
+    } else {
+        genesys_fill_read_buffer(dev);
 
-  src_buffer = &(dev->read_buffer);
+        src_buffer = &(dev->read_buffer);
 
-  /* move data to destination */
-  bytes = src_buffer->avail();
-  if (bytes > *len)
-    bytes = *len;
-  work_buffer_src = src_buffer->get_read_pos();
+        /* move data to destination */
+        bytes = std::min(src_buffer->avail(), *len);
 
-    std::memcpy(destination, work_buffer_src, bytes);
-    *len = bytes;
+        work_buffer_src = src_buffer->get_read_pos();
 
-  /* avoid signaling some extra data because we have treated a full block
-   * on the last block */
-  if (dev->total_bytes_read + *len > dev->total_bytes_to_read)
-    *len = dev->total_bytes_to_read - dev->total_bytes_read;
+        std::memcpy(destination, work_buffer_src, bytes);
+        *len = bytes;
 
-  /* count bytes sent to frontend */
-  dev->total_bytes_read += *len;
+        /* avoid signaling some extra data because we have treated a full block
+        * on the last block */
+        if (dev->total_bytes_read + *len > dev->total_bytes_to_read) {
+            *len = dev->total_bytes_to_read - dev->total_bytes_read;
+        }
 
-    src_buffer->consume(bytes);
+        /* count bytes sent to frontend */
+        dev->total_bytes_read += *len;
+
+        src_buffer->consume(bytes);
+    }
 
   /* end scan if all needed data have been read */
    if(dev->total_bytes_read >= dev->total_bytes_to_read)
@@ -5831,11 +5868,13 @@ void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_
               dev->local_buffer.produce(local_len);
 
                 dev->binarize_buffer.reset();
-                genesys_gray_lineart(dev, dev->local_buffer.get_read_pos(),
-                                     dev->binarize_buffer.get_write_pos(local_len / 8),
-                                     dev->settings.pixels,
-                                     local_len/dev->settings.pixels,
-                                     dev->settings.threshold);
+                if (!is_testing_mode()) {
+                    genesys_gray_lineart(dev, dev->local_buffer.get_read_pos(),
+                                         dev->binarize_buffer.get_write_pos(local_len / 8),
+                                         dev->settings.pixels,
+                                         local_len / dev->settings.pixels,
+                                         dev->settings.threshold);
+                }
                 dev->binarize_buffer.produce(local_len / 8);
             }
 

@@ -46,6 +46,7 @@
 
 #include "gl124.h"
 #include "gl124_registers.h"
+#include "test_settings.h"
 
 #include <vector>
 
@@ -1064,6 +1065,10 @@ static void gl124_stop_action(Genesys_Device* dev)
 
     dev->interface->sleep_ms(100);
 
+    if (is_testing_mode()) {
+        return;
+    }
+
   loop = 10;
   while (loop > 0)
     {
@@ -1308,6 +1313,11 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     // post scan gpio : without that HOMSNR is unreliable
     gl124_homsnr_gpio(dev);
 
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("slow_back_home");
+        return;
+    }
+
   if (wait_until_home)
     {
 
@@ -1407,6 +1417,13 @@ static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
         throw;
     }
 
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("feed");
+        gl124_stop_action(dev);
+        return;
+    }
+
     // wait until feed count reaches the required value, but do not exceed 30s
     do {
         val = sanei_genesys_get_status(dev);
@@ -1463,6 +1480,13 @@ void CommandSetGl124::search_start_position(Genesys_Device* dev) const
   std::vector<uint8_t> data(size);
 
     begin_scan(dev, sensor, &local_reg, true);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("search_start_position");
+        end_scan(dev, &local_reg, true);
+        dev->reg = local_reg;
+        return;
+    }
 
     wait_until_buffer_non_empty(dev);
 
@@ -1804,6 +1828,13 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
 
   DBG (DBG_info, "%s: starting line reading\n", __func__);
     dev->cmd_set->begin_scan(dev, sensor, &regs, true);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("move_to_calibration_area");
+        gl124_stop_action(dev);
+        return;
+    }
+
     sanei_genesys_read_data_from_scanner(dev, line.data(), size);
 
     // stop scanning
@@ -1898,6 +1929,13 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
         begin_scan(dev, sensor, &regs, true);
+
+        if (is_testing_mode()) {
+            dev->interface->test_checkpoint("led_calibration");
+            gl124_stop_action(dev);
+            return { 0, 0, 0 };
+        }
+
         sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
         // stop scanning
@@ -2063,6 +2101,12 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     dev->interface->write_registers(regs);
   DBG(DBG_info, "%s: starting first line reading\n", __func__);
     begin_scan(dev, sensor, &regs, true);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("offset_calibration");
+        return;
+    }
+
     sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
   if (DBG_LEVEL >= DBG_data)
    {
@@ -2209,6 +2253,14 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     set_fe(dev, sensor, AFE_SET);
     begin_scan(dev, sensor, &regs, true);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("coarse_gain_calibration");
+        gl124_stop_action(dev);
+        slow_back_home(dev, true);
+        return;
+    }
+
     sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
     if (DBG_LEVEL >= DBG_data) {

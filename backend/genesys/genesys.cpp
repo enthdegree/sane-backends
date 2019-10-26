@@ -4331,11 +4331,39 @@ check_present (SANE_String_Const devname) noexcept
   return SANE_STATUS_GOOD;
 }
 
+static Genesys_Device* attach_usb_device(const char* devname,
+                                         std::uint16_t vendor_id, std::uint16_t product_id)
+{
+    Genesys_USB_Device_Entry* found_usb_dev = nullptr;
+    for (auto& usb_dev : *s_usb_devices) {
+        if (usb_dev.vendor == vendor_id &&
+            usb_dev.product == product_id)
+        {
+            found_usb_dev = &usb_dev;
+            break;
+        }
+    }
+
+    if (found_usb_dev == nullptr) {
+        throw SaneException("vendor 0x%xd product 0x%xd is not supported by this backend",
+                            vendor_id, product_id);
+    }
+
+    s_devices->emplace_back();
+    Genesys_Device* dev = &s_devices->back();
+    dev->file_name = devname;
+
+    dev->model = &found_usb_dev->model;
+    dev->vendorId = found_usb_dev->vendor;
+    dev->productId = found_usb_dev->product;
+    dev->usb_mode = 0; // i.e. unset
+    dev->already_initialized = false;
+    return dev;
+}
+
 static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may_wait)
 {
     DBG_HELPER_ARGS(dbg, " devname: %s, may_wait = %d", devname, may_wait);
-
-    Genesys_Device *dev = nullptr;
 
     if (!devname) {
         throw SaneException("devname must not be nullptr");
@@ -4357,6 +4385,7 @@ static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may
 
     int vendor, product;
     usb_dev.get_vendor_product(vendor, product);
+    usb_dev.close();
 
   /* KV-SS080 is an auxiliary device which requires a master device to be here */
   if(vendor == 0x04da && product == 0x100f)
@@ -4370,35 +4399,11 @@ static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may
         }
     }
 
-    Genesys_USB_Device_Entry* found_usb_dev = nullptr;
-    for (auto& usb_dev : *s_usb_devices) {
-        if (usb_dev.vendor == static_cast<unsigned>(vendor) &&
-            usb_dev.product == static_cast<unsigned>(product))
-        {
-            found_usb_dev = &usb_dev;
-            break;
-        }
-    }
-
-    if (found_usb_dev == nullptr) {
-        throw SaneException("vendor 0x%xd product 0x%xd is not supported by this backend",
-                            vendor, product);
-    }
-
-    s_devices->emplace_back();
-    dev = &s_devices->back();
-    dev->file_name = devname;
-
-    dev->model = &found_usb_dev->model;
-    dev->vendorId = found_usb_dev->vendor;
-    dev->productId = found_usb_dev->product;
-  dev->usb_mode = 0;            /* i.e. unset */
-    dev->already_initialized = false;
+    Genesys_Device* dev = attach_usb_device(devname, vendor, product);
 
     DBG(DBG_info, "%s: found %s flatbed scanner %s at %s\n", __func__, dev->model->vendor,
         dev->model->model, dev->file_name.c_str());
 
-    usb_dev.close();
     return dev;
 }
 

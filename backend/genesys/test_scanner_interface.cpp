@@ -132,4 +132,14 @@ IUsbDevice& TestScannerInterface::get_usb_device()
     return usb_dev_;
 }
 
+void TestScannerInterface::record_test_message(const char* msg)
+{
+    last_test_message_ = msg;
+}
+
+const std::string& TestScannerInterface::last_test_message() const
+{
+    return last_test_message_;
+}
+
 } // namespace genesys

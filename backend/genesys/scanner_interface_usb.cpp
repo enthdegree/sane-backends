@@ -480,4 +480,9 @@ IUsbDevice& ScannerInterfaceUsb::get_usb_device()
     return usb_dev_;
 }
 
+void ScannerInterfaceUsb::record_test_message(const char* msg)
+{
+    sanei_usb_testing_record_message(msg);
+}
+
 } // namespace genesys

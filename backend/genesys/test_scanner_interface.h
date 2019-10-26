@@ -75,10 +75,16 @@ public:
     void write_fe_register(std::uint8_t address, std::uint16_t value) override;
 
     IUsbDevice& get_usb_device() override;
+
+    void record_test_message(const char* msg) override;
+
+    const std::string& last_test_message() const;
+
 private:
     RegisterCache<std::uint8_t> cached_regs_;
     RegisterCache<std::uint16_t> cached_fe_regs_;
     TestUsbDevice usb_dev_;
+    std::string last_test_message_;
 };
 
 } // namespace genesys

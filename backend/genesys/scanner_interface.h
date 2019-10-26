@@ -87,6 +87,8 @@ public:
     virtual void write_fe_register(std::uint8_t address, std::uint16_t value) = 0;
 
     virtual IUsbDevice& get_usb_device() = 0;
+
+    virtual void record_test_message(const char* msg) = 0;
 };
 
 } // namespace genesys

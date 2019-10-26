@@ -41,56 +41,66 @@
    If you do not wish that, delete this exception notice.
 */
 
-#ifndef BACKEND_GENESYS_SCANNER_INTERFACE_USB_H
-#define BACKEND_GENESYS_SCANNER_INTERFACE_USB_H
+#define DEBUG_DECLARE_ONLY
 
-#include "scanner_interface.h"
-#include "usb_device.h"
+#include "test_settings.h"
 
 namespace genesys {
 
-class ScannerInterfaceUsb : public ScannerInterface
+namespace {
+
+bool s_testing_mode = false;
+std::uint16_t s_vendor_id = 0;
+std::uint16_t s_product_id = 0;
+TestCheckpointCallback s_checkpoint_callback;
+
+} // namespace
+
+bool is_testing_mode()
 {
-public:
-    ScannerInterfaceUsb(Genesys_Device* dev);
+    return s_testing_mode;
+}
 
-    ~ScannerInterfaceUsb() override;
+void disable_testing_mode()
+{
+    s_testing_mode = false;
+    s_vendor_id = 0;
+    s_product_id = 0;
 
-    bool is_mock() const override;
+}
 
-    std::uint8_t read_register(std::uint16_t address) override;
-    void write_register(std::uint16_t address, std::uint8_t value) override;
-    void write_registers(const Genesys_Register_Set& regs) override;
+void enable_testing_mode(std::uint16_t vendor_id, std::uint16_t product_id,
+                         TestCheckpointCallback checkpoint_callback)
+{
+    s_testing_mode = true;
+    s_vendor_id = vendor_id;
+    s_product_id = product_id;
+    s_checkpoint_callback = checkpoint_callback;
+}
 
-    void write_0x8c(std::uint8_t index, std::uint8_t value) override;
-    void bulk_read_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) override;
-    void bulk_write_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) override;
+std::uint16_t get_testing_vendor_id()
+{
+    return s_vendor_id;
+}
 
-    void write_buffer(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
-                      std::size_t size, Flags flags) override;
-    void write_gamma(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
-                     std::size_t size, Flags flags) override;
+std::uint16_t get_testing_product_id()
+{
+    return s_product_id;
+}
 
-    void write_ahb(std::uint32_t addr, std::uint32_t size, std::uint8_t* data) override;
+std::string get_testing_device_name()
+{
+    std::string name;
+    unsigned max_size = 50;
+    name.resize(max_size);
+    name.resize(std::snprintf(&name.front(), max_size, "test device:0x%04x:0x%04x",
+                              s_vendor_id, s_product_id));
+    return name;
+}
 
-    std::uint16_t read_fe_register(std::uint8_t address) override;
-    void write_fe_register(std::uint8_t address, std::uint16_t value) override;
-
-    IUsbDevice& get_usb_device() override;
-
-    void sleep_us(unsigned microseconds) override;
-
-    void record_progress_message(const char* msg) override;
-
-    void record_key_value(const std::string& key, const std::string& value) override;
-
-    void test_checkpoint(const std::string& name) override;
-
-private:
-    Genesys_Device* dev_;
-    UsbDevice usb_dev_;
-};
+TestCheckpointCallback get_testing_checkpoint_callback()
+{
+    return s_checkpoint_callback;
+}
 
 } // namespace genesys
-
-#endif

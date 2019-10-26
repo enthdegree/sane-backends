@@ -100,6 +100,8 @@ public:
     virtual void record_progress_message(const char* msg) = 0;
 
     virtual void record_key_value(const std::string& key, const std::string& value) = 0;
+
+    virtual void test_checkpoint(const std::string& name) = 0;
 };
 
 } // namespace genesys

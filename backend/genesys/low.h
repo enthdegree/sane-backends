@@ -216,9 +216,9 @@ struct Genesys_USB_Device_Entry {
     {}
 
     // USB vendor identifier
-    unsigned vendor;
+    std::uint16_t vendor;
     // USB product identifier
-    unsigned product;
+    std::uint16_t product;
     // Scanner model information
     Genesys_Model model;
 };

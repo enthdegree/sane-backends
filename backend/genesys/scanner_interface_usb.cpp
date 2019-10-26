@@ -500,4 +500,9 @@ void ScannerInterfaceUsb::record_key_value(const std::string& key, const std::st
     (void) value;
 }
 
+void ScannerInterfaceUsb::test_checkpoint(const std::string& name)
+{
+    (void) name;
+}
+
 } // namespace genesys

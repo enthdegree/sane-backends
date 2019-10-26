@@ -65,6 +65,8 @@
 #include "usb_device.h"
 #include "utilities.h"
 #include "scanner_interface_usb.h"
+#include "test_scanner_interface.h"
+#include "test_settings.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_magic.h"
 
@@ -4424,9 +4426,15 @@ config_attach_genesys(SANEI_Config __sane_unused__ *config, const char *devname)
 }
 
 /* probes for scanner to attach to the backend */
-static void probe_genesys_devices (void)
+static void probe_genesys_devices()
 {
     DBG_HELPER(dbg);
+    if (is_testing_mode()) {
+        attach_usb_device(get_testing_device_name().c_str(),
+                          get_testing_vendor_id(), get_testing_product_id());
+        return;
+    }
+
   SANEI_Config config;
 
     // set configuration options structure : no option for this backend
@@ -4630,19 +4638,23 @@ void sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG_INIT ();
     DBG_HELPER_ARGS(dbg, "authorize %s null", authorize ? "!=" : "==");
     DBG(DBG_init, "SANE Genesys backend from %s\n", PACKAGE_STRING);
+
+    if (!is_testing_mode()) {
 #ifdef HAVE_LIBUSB
-  DBG(DBG_init, "SANE Genesys backend built with libusb-1.0\n");
+        DBG(DBG_init, "SANE Genesys backend built with libusb-1.0\n");
 #endif
 #ifdef HAVE_LIBUSB_LEGACY
-  DBG(DBG_init, "SANE Genesys backend built with libusb\n");
+        DBG(DBG_init, "SANE Genesys backend built with libusb\n");
 #endif
+    }
 
     if (version_code) {
         *version_code = SANE_VERSION_CODE(SANE_CURRENT_MAJOR, SANE_CURRENT_MINOR, 0);
     }
 
-  /* init usb use */
-  sanei_usb_init ();
+    if (!is_testing_mode()) {
+        sanei_usb_init();
+    }
 
   /* init sanei_magic */
   sanei_magic_init();
@@ -4686,7 +4698,9 @@ sane_exit_impl(void)
 {
     DBG_HELPER(dbg);
 
-  sanei_usb_exit();
+    if (!is_testing_mode()) {
+        sanei_usb_exit();
+    }
 
   run_functions_at_backend_exit();
 }
@@ -4701,9 +4715,11 @@ void sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_on
 {
     DBG_HELPER_ARGS(dbg, "local_only = %s", local_only ? "true" : "false");
 
-  /* hot-plug case : detection of newly connected scanners */
-  sanei_usb_scan_devices ();
-  probe_genesys_devices ();
+    if (!is_testing_mode()) {
+        // hot-plug case : detection of newly connected scanners */
+        sanei_usb_scan_devices();
+    }
+    probe_genesys_devices();
 
     s_sane_devices->clear();
     s_sane_devices_data->clear();
@@ -4713,8 +4729,14 @@ void sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_on
     s_sane_devices_ptrs->reserve(s_devices->size() + 1);
 
     for (auto dev_it = s_devices->begin(); dev_it != s_devices->end();) {
-        present = false;
-        sanei_usb_find_devices(dev_it->vendorId, dev_it->productId, check_present);
+
+        if (is_testing_mode()) {
+            present = true;
+        } else {
+            present = false;
+            sanei_usb_find_devices(dev_it->vendorId, dev_it->productId, check_present);
+        }
+
         if (present) {
             s_sane_devices->emplace_back();
             s_sane_devices_data->emplace_back();
@@ -4753,8 +4775,7 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   /* devicename="" or devicename="genesys" are default values that use
    * first available device
    */
-  if (devicename[0] && strcmp ("genesys", devicename) != 0)
-    {
+    if (devicename[0] && strcmp ("genesys", devicename) != 0) {
       /* search for the given devicename in the device list */
         for (auto& d : *s_devices) {
             if (d.file_name == devicename) {
@@ -4763,14 +4784,16 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
             }
         }
 
-        if (!dev) {
+        if (dev) {
+            DBG(DBG_info, "%s: found `%s' in devlist\n", __func__, dev->model->name);
+        } else if (is_testing_mode()) {
+            DBG(DBG_info, "%s: couldn't find `%s' in devlist, not attaching", __func__, devicename);
+        } else {
             DBG(DBG_info, "%s: couldn't find `%s' in devlist, trying attach\n", __func__,
                 devicename);
             dbg.status("attach_device_by_name");
             dev = attach_device_by_name(devicename, true);
             dbg.clear();
-        } else {
-            DBG(DBG_info, "%s: found `%s' in devlist\n", __func__, dev->model->name);
         }
     } else {
         // empty devicename or "genesys" -> use first device
@@ -4795,7 +4818,14 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     }
 
     dbg.vstatus("open device '%s'", dev->file_name.c_str());
-    dev->interface = std::unique_ptr<ScannerInterfaceUsb>{new ScannerInterfaceUsb{dev}};
+
+    if (is_testing_mode()) {
+        auto interface = std::unique_ptr<TestScannerInterface>{new TestScannerInterface{dev}};
+        interface->set_checkpoint_callback(get_testing_checkpoint_callback());
+        dev->interface = std::move(interface);
+    } else {
+        dev->interface = std::unique_ptr<ScannerInterfaceUsb>{new ScannerInterfaceUsb{dev}};
+    }
     dev->interface->get_usb_device().open(dev->file_name.c_str());
     dbg.clear();
 
@@ -4890,7 +4920,7 @@ sane_close_impl(SANE_Handle handle)
     s->dev->cmd_set->save_power(s->dev, true);
 
     // here is the place to store calibration cache
-    if (s->dev->force_calibration == 0) {
+    if (s->dev->force_calibration == 0 && !is_testing_mode()) {
         catch_all_exceptions(__func__, [&](){ write_calibration(s->dev->calibration_cache,
                                                                 s->dev->calib_file); });
     }

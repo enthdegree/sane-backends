@@ -47,6 +47,7 @@
 #include "scanner_interface.h"
 #include "register_cache.h"
 #include "test_usb_device.h"
+#include "test_settings.h"
 
 #include <map>
 
@@ -55,9 +56,14 @@ namespace genesys {
 class TestScannerInterface : public ScannerInterface
 {
 public:
+    TestScannerInterface(Genesys_Device* dev);
+
     ~TestScannerInterface() override;
 
     bool is_mock() const override;
+
+    const RegisterCache<std::uint8_t>& cached_regs() const { return cached_regs_; }
+    const RegisterCache<std::uint16_t>& cached_fe_regs() const { return cached_fe_regs_; }
 
     std::uint8_t read_register(std::uint16_t address) override;
     void write_register(std::uint16_t address, std::uint8_t value) override;
@@ -88,10 +94,18 @@ public:
 
     std::map<std::string, std::string>& recorded_key_values();
 
+    void test_checkpoint(const std::string& name) override;
+
+    void set_checkpoint_callback(TestCheckpointCallback callback);
+
 private:
+    Genesys_Device* dev_;
+
     RegisterCache<std::uint8_t> cached_regs_;
     RegisterCache<std::uint16_t> cached_fe_regs_;
     TestUsbDevice usb_dev_;
+
+    TestCheckpointCallback checkpoint_callback_;
     std::string last_progress_message_;
     std::map<std::string, std::string> key_values_;
 };

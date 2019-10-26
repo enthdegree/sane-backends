@@ -97,7 +97,6 @@ struct Genesys_Motor_Slope;
 
 // register.h
 class Genesys_Register_Set;
-struct GenesysRegister;
 struct GenesysRegisterSetState;
 
 // row_buffer.h

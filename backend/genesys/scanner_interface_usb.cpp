@@ -59,52 +59,361 @@ bool ScannerInterfaceUsb::is_mock() const
 
 std::uint8_t ScannerInterfaceUsb::read_register(std::uint16_t address)
 {
-    std::uint8_t value;
-    sanei_genesys_read_register(dev_, address, &value);
+    DBG_HELPER(dbg);
+
+    std::uint8_t value = 0;
+
+    if (dev_->model->asic_type == AsicType::GL847 ||
+        dev_->model->asic_type == AsicType::GL845 ||
+        dev_->model->asic_type == AsicType::GL846 ||
+        dev_->model->asic_type == AsicType::GL124)
+    {
+        std::uint8_t value2x8[2];
+        std::uint16_t address16 = 0x22 + (address << 8);
+
+        std::uint16_t usb_value = VALUE_GET_REGISTER;
+        if (address > 0xff) {
+            usb_value |= 0x100;
+        }
+
+        dev_->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_BUFFER, usb_value, address16,
+                                  2, value2x8);
+
+        // check usb link status
+        if (value2x8[1] != 0x55) {
+            throw SaneException(SANE_STATUS_IO_ERROR, "invalid read, scanner unplugged?");
+        }
+
+        DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, address, value2x8[0]);
+
+        value = value2x8[0];
+
+    } else {
+
+        if (address > 0xff) {
+            throw SaneException("Invalid register address 0x%04x", address);
+        }
+
+        std::uint8_t address8 = address & 0xff;
+
+        dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
+                                  1, &address8);
+        dev_->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_READ_REGISTER, INDEX,
+                                  1, &value);
+    }
+
+    DBG(DBG_proc, "%s (0x%02x, 0x%02x) completed\n", __func__, address, value);
     return value;
 }
 
 void ScannerInterfaceUsb::write_register(std::uint16_t address, std::uint8_t value)
 {
-    sanei_genesys_write_register(dev_, address, value);
+    DBG_HELPER_ARGS(dbg, "address: 0x%04x, value: 0x%02x", static_cast<unsigned>(address),
+                    static_cast<unsigned>(value));
+
+    if (dev_->model->asic_type == AsicType::GL847 ||
+        dev_->model->asic_type == AsicType::GL845 ||
+        dev_->model->asic_type == AsicType::GL846 ||
+        dev_->model->asic_type == AsicType::GL124)
+    {
+        std::uint8_t buffer[2];
+
+        buffer[0] = address & 0xff;
+        buffer[1] = value;
+
+        std::uint16_t usb_value = VALUE_SET_REGISTER;
+        if (address > 0xff) {
+            usb_value |= 0x100;
+        }
+
+        dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, usb_value, INDEX,
+                                  2, buffer);
+
+    } else {
+        if (address > 0xff) {
+            throw SaneException("Invalid register address 0x%04x", address);
+        }
+
+        std::uint8_t address8 = address & 0xff;
+
+        dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
+                                  1, &address8);
+
+        dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_WRITE_REGISTER, INDEX,
+                                  1, &value);
+
+    }
+    DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, address, value);
 }
 
 void ScannerInterfaceUsb::write_registers(const Genesys_Register_Set& regs)
 {
-    sanei_genesys_bulk_write_register(dev_, regs);
+    DBG_HELPER(dbg);
+    if (dev_->model->asic_type == AsicType::GL646 ||
+        dev_->model->asic_type == AsicType::GL841)
+    {
+        uint8_t outdata[8];
+        std::vector<uint8_t> buffer;
+        buffer.reserve(regs.size() * 2);
+
+        /* copy registers and values in data buffer */
+        for (const auto& r : regs) {
+            buffer.push_back(r.address);
+            buffer.push_back(r.value);
+        }
+
+        DBG(DBG_io, "%s (elems= %zu, size = %zu)\n", __func__, regs.size(), buffer.size());
+
+        if (dev_->model->asic_type == AsicType::GL646) {
+            outdata[0] = BULK_OUT;
+            outdata[1] = BULK_REGISTER;
+            outdata[2] = 0x00;
+            outdata[3] = 0x00;
+            outdata[4] = (buffer.size() & 0xff);
+            outdata[5] = ((buffer.size() >> 8) & 0xff);
+            outdata[6] = ((buffer.size() >> 16) & 0xff);
+            outdata[7] = ((buffer.size() >> 24) & 0xff);
+
+            dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, INDEX,
+                                      sizeof(outdata), outdata);
+
+            size_t write_size = buffer.size();
+
+            dev_->usb_dev.bulk_write(buffer.data(), &write_size);
+        } else {
+            for (std::size_t i = 0; i < regs.size();) {
+                std::size_t c = regs.size() - i;
+                if (c > 32)  /*32 is max on GL841. checked that.*/
+                    c = 32;
+
+                dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_SET_REGISTER,
+                                          INDEX, c * 2, buffer.data() + i * 2);
+
+                i += c;
+            }
+        }
+    } else {
+        for (const auto& r : regs) {
+            dev_->write_register(r.address, r.value);
+        }
+    }
+
+    DBG(DBG_io, "%s: wrote %zu registers\n", __func__, regs.size());
 }
 
 void ScannerInterfaceUsb::write_0x8c(std::uint8_t index, std::uint8_t value)
 {
-    sanei_genesys_write_0x8c(dev_, index, value);
+    DBG_HELPER_ARGS(dbg, "0x%02x,0x%02x", index, value);
+    dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_BUF_ENDACCESS, index, 1,
+                              &value);
+}
+
+static void bulk_read_data_send_header(UsbDevice& usb_dev, AsicType asic_type, size_t size)
+{
+    DBG_HELPER(dbg);
+
+    uint8_t outdata[8];
+    if (asic_type == AsicType::GL124 ||
+        asic_type == AsicType::GL846 ||
+        asic_type == AsicType::GL847)
+    {
+        // hard coded 0x10000000 address
+        outdata[0] = 0;
+        outdata[1] = 0;
+        outdata[2] = 0;
+        outdata[3] = 0x10;
+    } else if (asic_type == AsicType::GL841 ||
+               asic_type == AsicType::GL843) {
+        outdata[0] = BULK_IN;
+        outdata[1] = BULK_RAM;
+        outdata[2] = 0x82; //
+        outdata[3] = 0x00;
+    } else {
+        outdata[0] = BULK_IN;
+        outdata[1] = BULK_RAM;
+        outdata[2] = 0x00;
+        outdata[3] = 0x00;
+    }
+
+    /* data size to transfer */
+    outdata[4] = (size & 0xff);
+    outdata[5] = ((size >> 8) & 0xff);
+    outdata[6] = ((size >> 16) & 0xff);
+    outdata[7] = ((size >> 24) & 0xff);
+
+   usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x00,
+                       sizeof(outdata), outdata);
 }
 
 void ScannerInterfaceUsb::bulk_read_data(std::uint8_t addr, std::uint8_t* data, std::size_t size)
 {
-    sanei_genesys_bulk_read_data(dev_, addr, data, size);
+    // currently supported: GL646, GL841, GL843, GL846, GL847, GL124
+    DBG_HELPER(dbg);
+
+    unsigned is_addr_used = 1;
+    unsigned has_header_before_each_chunk = 0;
+    if (dev_->model->asic_type == AsicType::GL124 ||
+        dev_->model->asic_type == AsicType::GL846 ||
+        dev_->model->asic_type == AsicType::GL847)
+    {
+        is_addr_used = 0;
+        has_header_before_each_chunk = 1;
+    }
+
+    if (is_addr_used) {
+        DBG(DBG_io, "%s: requesting %zu bytes from 0x%02x addr\n", __func__, size, addr);
+    } else {
+        DBG(DBG_io, "%s: requesting %zu bytes\n", __func__, size);
+    }
+
+    if (size == 0)
+        return;
+
+    if (is_addr_used) {
+        dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, 0x00,
+                                 1, &addr);
+    }
+
+    std::size_t target_size = size;
+
+    std::size_t max_in_size = sanei_genesys_get_bulk_max_size(dev_->model->asic_type);
+
+    if (!has_header_before_each_chunk) {
+        bulk_read_data_send_header(dev_->usb_dev, dev_->model->asic_type, size);
+    }
+
+    // loop until computed data size is read
+    while (target_size > 0) {
+        std::size_t block_size = std::min(target_size, max_in_size);
+
+        if (has_header_before_each_chunk) {
+            bulk_read_data_send_header(dev_->usb_dev, dev_->model->asic_type, block_size);
+        }
+
+        DBG(DBG_io2, "%s: trying to read %zu bytes of data\n", __func__, block_size);
+
+        dev_->usb_dev.bulk_read(data, &block_size);
+
+        DBG(DBG_io2, "%s: read %zu bytes, %zu remaining\n", __func__, block_size, target_size - block_size);
+
+        target_size -= block_size;
+        data += block_size;
+    }
 }
 
-void ScannerInterfaceUsb::bulk_write_data(std::uint8_t addr, std::uint8_t* data, std::size_t size)
+void ScannerInterfaceUsb::bulk_write_data(std::uint8_t addr, std::uint8_t* data, std::size_t len)
 {
-    sanei_genesys_bulk_write_data(dev_, addr, data, size);
-}
+    DBG_HELPER_ARGS(dbg, "writing %zu bytes", len);
 
+    // supported: GL646, GL841, GL843
+    std::size_t size;
+    std::uint8_t outdata[8];
+
+    dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
+                             1, &addr);
+
+    std::size_t max_out_size = sanei_genesys_get_bulk_max_size(dev_->model->asic_type);
+
+    while (len) {
+        if (len > max_out_size)
+            size = max_out_size;
+        else
+            size = len;
+
+        if (dev_->model->asic_type == AsicType::GL841) {
+            outdata[0] = BULK_OUT;
+            outdata[1] = BULK_RAM;
+            // both 0x82 and 0x00 works on GL841.
+            outdata[2] = 0x82;
+            outdata[3] = 0x00;
+        } else {
+            outdata[0] = BULK_OUT;
+            outdata[1] = BULK_RAM;
+            // 8600F uses 0x82, but 0x00 works too. 8400F uses 0x02 for certain transactions.
+            outdata[2] = 0x00;
+            outdata[3] = 0x00;
+        }
+
+        outdata[4] = (size & 0xff);
+        outdata[5] = ((size >> 8) & 0xff);
+        outdata[6] = ((size >> 16) & 0xff);
+        outdata[7] = ((size >> 24) & 0xff);
+
+        dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x00,
+                                  sizeof(outdata), outdata);
+
+        dev_->usb_dev.bulk_write(data, &size);
+
+        DBG(DBG_io2, "%s: wrote %zu bytes, %zu remaining\n", __func__, size, len - size);
+
+        len -= size;
+        data += size;
+    }
+}
 
 void ScannerInterfaceUsb::write_ahb(std::uint32_t addr, std::uint32_t size, std::uint8_t* data)
 {
-    sanei_genesys_write_ahb(dev_, addr, size, data);
+    DBG_HELPER_ARGS(dbg, "size %d", static_cast<unsigned>(size));
+
+    std::uint8_t outdata[8];
+    outdata[0] = addr & 0xff;
+    outdata[1] = ((addr >> 8) & 0xff);
+    outdata[2] = ((addr >> 16) & 0xff);
+    outdata[3] = ((addr >> 24) & 0xff);
+    outdata[4] = (size & 0xff);
+    outdata[5] = ((size >> 8) & 0xff);
+    outdata[6] = ((size >> 16) & 0xff);
+    outdata[7] = ((size >> 24) & 0xff);
+
+    // write addr and size for AHB
+    dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x01, 8, outdata);
+
+    std::size_t max_out_size = sanei_genesys_get_bulk_max_size(dev_->model->asic_type);
+
+    // write actual data
+    std::size_t written = 0;
+    do {
+        std::size_t block_size = std::min(size - written, max_out_size);
+
+        dev_->usb_dev.bulk_write(data + written, &block_size);
+
+        written += block_size;
+    } while (written < size);
 }
 
 std::uint16_t ScannerInterfaceUsb::read_fe_register(std::uint8_t address)
 {
-    std::uint16_t value;
-    sanei_genesys_fe_read_data(dev_, address, &value);
+    DBG_HELPER(dbg);
+    Genesys_Register_Set reg;
+
+    reg.init_reg(0x50, address);
+
+    // set up read address
+    dev_->write_registers(reg);
+
+    // read data
+    std::uint16_t value = dev_->read_register(0x46) << 8;
+    value |= dev_->read_register(0x47);
+
+    DBG(DBG_io, "%s (0x%02x, 0x%04x)\n", __func__, address, value);
     return value;
 }
 
 void ScannerInterfaceUsb::write_fe_register(std::uint8_t address, std::uint16_t value)
 {
-    sanei_genesys_fe_write_data(dev_, address, value);
+    DBG_HELPER_ARGS(dbg, "0x%02x, 0x%04x", address, value);
+    Genesys_Register_Set reg(Genesys_Register_Set::SEQUENTIAL);
+
+    reg.init_reg(0x51, address);
+    if (dev_->model->asic_type == AsicType::GL124) {
+        reg.init_reg(0x5d, (value / 256) & 0xff);
+        reg.init_reg(0x5e, value & 0xff);
+    } else {
+        reg.init_reg(0x3a, (value / 256) & 0xff);
+        reg.init_reg(0x3b, value & 0xff);
+    }
+
+    dev_->write_registers(reg);
 }
 
 } // namespace genesys

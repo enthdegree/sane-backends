@@ -47,6 +47,7 @@
 #include "error.h"
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 namespace genesys {
@@ -117,6 +118,31 @@ private:
 };
 
 using StreamStateSaver = BasicStreamStateSaver<char, std::char_traits<char>>;
+
+template<class T>
+std::string format_indent_braced_list(unsigned indent, const T& x)
+{
+    std::string indent_str(indent, ' ');
+    std::ostringstream out;
+    out << x;
+    auto formatted_str = out.str();
+    if (formatted_str.empty()) {
+        return formatted_str;
+    }
+
+    std::string out_str;
+    for (std::size_t i = 0; i < formatted_str.size(); ++i) {
+        out_str += formatted_str[i];
+
+        if (formatted_str[i] == '\n' &&
+            i < formatted_str.size() - 1 &&
+            formatted_str[i + 1] != '\n')
+        {
+            out_str += indent_str;
+        }
+    }
+    return out_str;
+}
 
 } // namespace genesys
 

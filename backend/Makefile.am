@@ -510,8 +510,8 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/register_cache.h \
     genesys/scanner_interface.h genesys/scanner_interface.cpp \
     genesys/scanner_interface_usb.h genesys/scanner_interface_usb.cpp \
-    genesys/sensor.h \
-    genesys/settings.h \
+    genesys/sensor.h genesys/sensor.cpp \
+    genesys/settings.h genesys/settings.cpp \
     genesys/serialize.h \
     genesys/tables_frontend.cpp \
     genesys/tables_gpo.cpp \

@@ -105,6 +105,9 @@ struct Genesys_Settings
     }
 };
 
+std::ostream& operator<<(std::ostream& out, const Genesys_Settings& settings);
+
+
 struct SetupParams {
 
     static constexpr unsigned NOT_SET = std::numeric_limits<unsigned>::max();
@@ -181,6 +184,8 @@ struct SetupParams {
             flags == other.flags;
     }
 };
+
+std::ostream& operator<<(std::ostream& out, const SetupParams& params);
 
 template<class Stream>
 void serialize(Stream& str, SetupParams& x)
@@ -314,6 +319,10 @@ struct ScanSession {
         }
     }
 };
+
+std::ostream& operator<<(std::ostream& out, const ScanSession& session);
+
+std::ostream& operator<<(std::ostream& out, const SANE_Parameters& params);
 
 } // namespace genesys
 

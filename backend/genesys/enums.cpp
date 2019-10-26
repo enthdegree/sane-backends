@@ -95,4 +95,17 @@ ScanColorMode option_string_to_scan_color_mode(const std::string& str)
     throw SaneException("Unknown scan color mode %s", str.c_str());
 }
 
+
+std::ostream& operator<<(std::ostream& out, ColorFilter mode)
+{
+    switch (mode) {
+        case ColorFilter::RED: out << "RED"; break;
+        case ColorFilter::GREEN: out << "GREEN"; break;
+        case ColorFilter::BLUE: out << "BLUE"; break;
+        case ColorFilter::NONE: out << "NONE"; break;
+        default: out << static_cast<unsigned>(mode); break;
+    }
+    return out;
+}
+
 } // namespace genesys

@@ -450,6 +450,8 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.sensor_profiles);
 }
 
+std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor);
+
 } // namespace genesys
 
 #endif // BACKEND_GENESYS_SENSOR_H

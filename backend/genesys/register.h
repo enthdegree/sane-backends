@@ -44,10 +44,13 @@
 #ifndef BACKEND_GENESYS_REGISTER_H
 #define BACKEND_GENESYS_REGISTER_H
 
+#include "utilities.h"
+
 #include <algorithm>
 #include <climits>
 #include <cstdint>
 #include <iostream>
+#include <iomanip>
 #include <stdexcept>
 #include <vector>
 
@@ -190,6 +193,26 @@ private:
     std::vector<RegisterType> registers_;
 };
 
+template<class Value>
+std::ostream& operator<<(std::ostream& out, const RegisterContainer<Value>& container)
+{
+    StreamStateSaver state_saver{out};
+
+    out << "RegisterContainer{\n";
+    out << std::hex;
+    out.fill('0');
+
+    for (const auto& reg : container) {
+        unsigned address_width = sizeof(reg.address) * 2;
+        unsigned value_width = sizeof(reg.value) * 2;
+
+        out << "    0x" << std::setw(address_width) << static_cast<unsigned>(reg.address)
+            << " = 0x" << std::setw(value_width) << static_cast<unsigned>(reg.value) << '\n';
+    }
+    out << "}";
+    return out;
+}
+
 class Genesys_Register_Set
 {
 public:
@@ -216,6 +239,11 @@ public:
     Genesys_Register_Set(Options opts) : registers_{static_cast<ContainerType::Options>(opts)}
     {
         registers_.reserve(MAX_REGS);
+    }
+
+    const ContainerType& registers() const
+    {
+        return registers_;
     }
 
     void init_reg(std::uint16_t address, std::uint8_t default_value)
@@ -302,6 +330,12 @@ private:
     // registers are stored in a sorted vector
     ContainerType registers_;
 };
+
+inline std::ostream& operator<<(std::ostream& out, const Genesys_Register_Set& regs)
+{
+    out << regs.registers();
+    return out;
+}
 
 template<class Value>
 struct RegisterSetting
@@ -442,6 +476,28 @@ private:
 
 using GenesysRegisterSettingSet = RegisterSettingSet<std::uint8_t>;
 using GenesysRegisterSettingSet16 = RegisterSettingSet<std::uint16_t>;
+
+template<class Value>
+std::ostream& operator<<(std::ostream& out, const RegisterSettingSet<Value>& container)
+{
+    StreamStateSaver state_saver{out};
+
+    out << "RegisterSettingSet{\n";
+    out << std::hex;
+    out.fill('0');
+
+    for (const auto& reg : container) {
+        unsigned address_width = sizeof(reg.address) * 2;
+        unsigned value_width = sizeof(reg.value) * 2;
+        unsigned mask_width = sizeof(reg.mask) * 2;
+
+        out << "    0x" << std::setw(address_width) << static_cast<unsigned>(reg.address)
+            << " = 0x" << std::setw(value_width) << static_cast<unsigned>(reg.value)
+            << " & 0x" << std::setw(mask_width) << static_cast<unsigned>(reg.mask) << '\n';
+    }
+    out << "}";
+    return out;
+}
 
 template<class Value>
 inline void serialize(std::istream& str, RegisterSettingSet<Value>& reg)

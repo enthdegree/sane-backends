@@ -144,6 +144,37 @@ std::string format_indent_braced_list(unsigned indent, const T& x)
     return out_str;
 }
 
+template<class T>
+std::string format_vector_unsigned(unsigned indent, const std::vector<T>& arg)
+{
+    std::ostringstream out;
+    std::string indent_str(indent, ' ');
+
+    out << "std::vector<T>{ ";
+    for (const auto& el : arg) {
+        out << indent_str << static_cast<unsigned>(el) << "\n";
+    }
+    out << "}";
+    return out.str();
+}
+
+template<class T>
+std::string format_vector_indent_braced(unsigned indent, const char* type,
+                                        const std::vector<T>& arg)
+{
+    if (arg.empty()) {
+        return "{}";
+    }
+    std::string indent_str(indent, ' ');
+    std::stringstream out;
+    out << "std::vector<" << type << ">{\n";
+    for (const auto& item : arg) {
+        out << indent_str << format_indent_braced_list(indent, item) << '\n';
+    }
+    out << "}";
+    return out.str();
+}
+
 } // namespace genesys
 
 #endif // BACKEND_GENESYS_UTILITIES_H

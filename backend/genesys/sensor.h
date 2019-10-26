@@ -74,7 +74,6 @@ enum class FrontendType : unsigned
     ANALOG_DEVICES
 };
 
-
 inline void serialize(std::istream& str, FrontendType& x)
 {
     unsigned value;
@@ -87,6 +86,8 @@ inline void serialize(std::ostream& str, FrontendType& x)
     unsigned value = static_cast<unsigned>(x);
     serialize(str, value);
 }
+
+std::ostream& operator<<(std::ostream& out, const FrontendType& type);
 
 struct GenesysFrontendLayout
 {
@@ -112,6 +113,7 @@ void serialize(Stream& str, GenesysFrontendLayout& x)
     serialize(str, x.gain_addr);
 }
 
+std::ostream& operator<<(std::ostream& out, const GenesysFrontendLayout& layout);
 
 /** @brief Data structure to set up analog frontend.
     The analog frontend converts analog value from image sensor to digital value. It has its own
@@ -162,6 +164,8 @@ struct Genesys_Frontend
     }
 };
 
+std::ostream& operator<<(std::ostream& out, const Genesys_Frontend& frontend);
+
 template<class Stream>
 void serialize(Stream& str, Genesys_Frontend& x)
 {
@@ -189,6 +193,8 @@ struct SensorExposure {
         return red == other.red && green == other.green && blue == other.blue;
     }
 };
+
+std::ostream& operator<<(std::ostream& out, const SensorExposure& exposure);
 
 struct SensorProfile
 {
@@ -221,6 +227,8 @@ struct SensorProfile
                 custom_regs == other.custom_regs;
     }
 };
+
+std::ostream& operator<<(std::ostream& out, const SensorProfile& profile);
 
 template<class Stream>
 void serialize(Stream& str, SensorProfile& x)

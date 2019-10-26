@@ -49,6 +49,75 @@
 
 namespace genesys {
 
+std::ostream& operator<<(std::ostream& out, const FrontendType& type)
+{
+    switch (type) {
+        case FrontendType::UNKNOWN: out << "UNKNOWN"; break;
+        case FrontendType::WOLFSON: out << "WOLFSON"; break;
+        case FrontendType::ANALOG_DEVICES: out << "ANALOG_DEVICES"; break;
+        default: out << "(unknown value)";
+    }
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const GenesysFrontendLayout& layout)
+{
+    StreamStateSaver state_saver{out};
+
+    out << "GenesysFrontendLayout{\n"
+        << "    type: " << layout.type << '\n'
+        << std::hex
+        << "    offset_addr[0]: " << layout.offset_addr[0] << '\n'
+        << "    offset_addr[1]: " << layout.offset_addr[1] << '\n'
+        << "    offset_addr[2]: " << layout.offset_addr[2] << '\n'
+        << "    gain_addr[0]: " << layout.gain_addr[0] << '\n'
+        << "    gain_addr[1]: " << layout.gain_addr[1] << '\n'
+        << "    gain_addr[2]: " << layout.gain_addr[2] << '\n'
+        << '}';
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const Genesys_Frontend& frontend)
+{
+    StreamStateSaver state_saver{out};
+
+    out << "Genesys_Frontend{\n"
+        << "    id: " << static_cast<unsigned>(frontend.id) << '\n'
+        << "    regs: " << format_indent_braced_list(4, frontend.regs) << '\n'
+        << std::hex
+        << "    reg2[0]: " << frontend.reg2[0] << '\n'
+        << "    reg2[1]: " << frontend.reg2[1] << '\n'
+        << "    reg2[2]: " << frontend.reg2[2] << '\n'
+        << "    layout: " << format_indent_braced_list(4, frontend.layout) << '\n'
+        << '}';
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const SensorExposure& exposure)
+{
+    out << "SensorExposure{\n"
+        << "    red: " << exposure.red << '\n'
+        << "    green: " << exposure.green << '\n'
+        << "    blue: " << exposure.blue << '\n'
+        << '}';
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const SensorProfile& profile)
+{
+    out << "SensorProfile{\n"
+        << "    dpi: " << profile.dpi << '\n'
+        << "    ccd_size_divisor: " << profile.ccd_size_divisor << '\n'
+        << "    exposure_lperiod: " << profile.exposure_lperiod << '\n'
+        << "    exposure: " << format_indent_braced_list(4, profile.exposure) << '\n'
+        << "    segment_size: " << profile.segment_size << '\n'
+        << "    segment_order: "
+        << format_indent_braced_list(4, format_vector_unsigned(4, profile.segment_order)) << '\n'
+        << "    custom_regs: " << format_indent_braced_list(4, profile.custom_regs) << '\n'
+        << '}';
+    return out;
+}
+
 std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
 {
     out << "Genesys_Sensor{\n"
@@ -63,20 +132,30 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
         }
         out << "    }\n";
     }
-    out << "    method: " << sensor.method << '\n'
+    out << "    channels: " << format_vector_unsigned(4, sensor.channels) << '\n'
+        << "    method: " << sensor.method << '\n'
+        << "    register_dpihw_override: " << sensor.register_dpihw_override << '\n'
+        << "    logical_dpihw_override: " << sensor.logical_dpihw_override << '\n'
+        << "    dpiset_override: " << sensor.dpiset_override << '\n'
         << "    ccd_size_divisor: " << sensor.ccd_size_divisor << '\n'
+        << "    pixel_count_multiplier: " << sensor.pixel_count_multiplier << '\n'
         << "    black_pixels: " << sensor.black_pixels << '\n'
         << "    dummy_pixel: " << sensor.dummy_pixel << '\n'
         << "    ccd_start_xoffset: " << sensor.ccd_start_xoffset << '\n'
         << "    sensor_pixels: " << sensor.sensor_pixels << '\n'
         << "    fau_gain_white_ref: " << sensor.fau_gain_white_ref << '\n'
         << "    gain_white_ref: " << sensor.gain_white_ref << '\n'
-        << "    exposure.red: " << sensor.exposure.red << '\n'
-        << "    exposure.green: " << sensor.exposure.green << '\n'
-        << "    exposure.blue: " << sensor.exposure.blue << '\n'
+        << "    exposure: " << format_indent_braced_list(4, sensor.exposure) << '\n'
         << "    exposure_lperiod: " << sensor.exposure_lperiod << '\n'
+        << "    segment_size: " << sensor.segment_size << '\n'
+        << "    segment_order: "
+        << format_indent_braced_list(4, format_vector_unsigned(4, sensor.segment_order)) << '\n'
+        << "    custom_base_regs: " << format_indent_braced_list(4, sensor.custom_base_regs) << '\n'
         << "    custom_regs: " << format_indent_braced_list(4, sensor.custom_regs) << '\n'
         << "    custom_fe_regs: " << format_indent_braced_list(4, sensor.custom_fe_regs) << '\n'
+        << "    sensor.sensor_profiles: "
+        << format_indent_braced_list(4, format_vector_indent_braced(4, "SensorProfile",
+                                                                    sensor.sensor_profiles))
         << "    gamma.red: " << sensor.gamma[0] << '\n'
         << "    gamma.green: " << sensor.gamma[1] << '\n'
         << "    gamma.blue: " << sensor.gamma[2] << '\n'

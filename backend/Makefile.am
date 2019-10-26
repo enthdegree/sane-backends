@@ -505,7 +505,7 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/image_pipeline.h genesys/image_pipeline.cpp \
     genesys/image_pixel.h genesys/image_pixel.cpp \
     genesys/image.h genesys/image.cpp \
-    genesys/motor.h \
+    genesys/motor.h genesys/motor.cpp \
     genesys/register.h \
     genesys/register_cache.h \
     genesys/scanner_interface.h genesys/scanner_interface.cpp \

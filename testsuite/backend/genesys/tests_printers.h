@@ -24,6 +24,7 @@
 #define SANE_TESTSUITE_BACKEND_GENESYS_TESTS_PRINTERS_H
 
 #include "../../../backend/genesys/image_pixel.h"
+#include "../../../backend/genesys/utilities.h"
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -31,11 +32,7 @@
 template<class T>
 std::ostream& operator<<(std::ostream& str, const std::vector<T>& arg)
 {
-    str << "{ ";
-    for (const auto& el : arg) {
-        str << static_cast<unsigned>(el) << ", ";
-    }
-    str << "}\n";
+    str << genesys::format_vector_unsigned(4, arg) << '\n';
     return str;
 }
 

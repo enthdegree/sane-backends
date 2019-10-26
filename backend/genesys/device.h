@@ -361,10 +361,6 @@ struct Genesys_Device
 
     std::unique_ptr<ScannerInterface> interface;
 
-    std::uint8_t read_register(std::uint16_t address);
-    void write_register(std::uint16_t address, std::uint8_t value);
-    void write_registers(Genesys_Register_Set& regs);
-
     UsbDevice& get_usb_device();
 
     UsbDevice usb_dev;

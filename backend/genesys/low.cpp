@@ -248,10 +248,10 @@ void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 
   addr = addr >> 4;
 
-    dev->write_register(0x2b, (addr & 0xff));
+    dev->interface->write_register(0x2b, (addr & 0xff));
 
   addr = addr >> 8;
-    dev->write_register(0x2a, (addr & 0xff));
+    dev->interface->write_register(0x2a, (addr & 0xff));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -267,7 +267,7 @@ std::uint8_t sanei_genesys_get_status(Genesys_Device* dev)
     if (dev->model->asic_type == AsicType::GL124) {
         address = 0x101;
     }
-    return dev->read_register(address);
+    return dev->interface->read_register(address);
 }
 
 /**
@@ -324,34 +324,34 @@ void sanei_genesys_read_valid_words(Genesys_Device* dev, unsigned int* words)
   switch (dev->model->asic_type)
     {
     case AsicType::GL124:
-            *words = dev->read_register(0x102) & 0x03;
-            *words = *words * 256 + dev->read_register(0x103);
-            *words = *words * 256 + dev->read_register(0x104);
-            *words = *words * 256 + dev->read_register(0x105);
+            *words = dev->interface->read_register(0x102) & 0x03;
+            *words = *words * 256 + dev->interface->read_register(0x103);
+            *words = *words * 256 + dev->interface->read_register(0x104);
+            *words = *words * 256 + dev->interface->read_register(0x105);
             break;
 
     case AsicType::GL845:
     case AsicType::GL846:
-            *words = dev->read_register(0x42) & 0x02;
-            *words = *words * 256 + dev->read_register(0x43);
-            *words = *words * 256 + dev->read_register(0x44);
-            *words = *words * 256 + dev->read_register(0x45);
+            *words = dev->interface->read_register(0x42) & 0x02;
+            *words = *words * 256 + dev->interface->read_register(0x43);
+            *words = *words * 256 + dev->interface->read_register(0x44);
+            *words = *words * 256 + dev->interface->read_register(0x45);
             break;
 
     case AsicType::GL847:
-            *words = dev->read_register(0x42) & 0x03;
-            *words = *words * 256 + dev->read_register(0x43);
-            *words = *words * 256 + dev->read_register(0x44);
-            *words = *words * 256 + dev->read_register(0x45);
+            *words = dev->interface->read_register(0x42) & 0x03;
+            *words = *words * 256 + dev->interface->read_register(0x43);
+            *words = *words * 256 + dev->interface->read_register(0x44);
+            *words = *words * 256 + dev->interface->read_register(0x45);
             break;
 
     default:
-            *words = dev->read_register(0x44);
-            *words += dev->read_register(0x43) * 256;
+            *words = dev->interface->read_register(0x44);
+            *words += dev->interface->read_register(0x43) * 256;
             if (dev->model->asic_type == AsicType::GL646) {
-                *words += ((dev->read_register(0x42) & 0x03) * 256 * 256);
+                *words += ((dev->interface->read_register(0x42) & 0x03) * 256 * 256);
             } else {
-                *words += ((dev->read_register(0x42) & 0x0f) * 256 * 256);
+                *words += ((dev->interface->read_register(0x42) & 0x0f) * 256 * 256);
             }
     }
 
@@ -366,18 +366,18 @@ void sanei_genesys_read_scancnt(Genesys_Device* dev, unsigned int* words)
     DBG_HELPER(dbg);
 
     if (dev->model->asic_type == AsicType::GL124) {
-        *words = (dev->read_register(0x10b) & 0x0f) << 16;
-        *words += (dev->read_register(0x10c) << 8);
-        *words += dev->read_register(0x10d);
+        *words = (dev->interface->read_register(0x10b) & 0x0f) << 16;
+        *words += (dev->interface->read_register(0x10c) << 8);
+        *words += dev->interface->read_register(0x10d);
     }
   else
     {
-        *words = dev->read_register(0x4d);
-        *words += dev->read_register(0x4c) * 256;
+        *words = dev->interface->read_register(0x4d);
+        *words += dev->interface->read_register(0x4c) * 256;
         if (dev->model->asic_type == AsicType::GL646) {
-            *words += ((dev->read_register(0x4b) & 0x03) * 256 * 256);
+            *words += ((dev->interface->read_register(0x4b) & 0x03) * 256 * 256);
         } else {
-            *words += ((dev->read_register(0x4b) & 0x0f) * 256 * 256);
+            *words += ((dev->interface->read_register(0x4b) & 0x0f) * 256 * 256);
         }
     }
 
@@ -518,20 +518,20 @@ void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps)
     DBG_HELPER(dbg);
 
     if (dev->model->asic_type == AsicType::GL124) {
-        *steps = (dev->read_register(0x108) & 0x1f) << 16;
-        *steps += (dev->read_register(0x109) << 8);
-        *steps += dev->read_register(0x10a);
+        *steps = (dev->interface->read_register(0x108) & 0x1f) << 16;
+        *steps += (dev->interface->read_register(0x109) << 8);
+        *steps += dev->interface->read_register(0x10a);
     }
   else
     {
-        *steps = dev->read_register(0x4a);
-        *steps += dev->read_register(0x49) * 256;
+        *steps = dev->interface->read_register(0x4a);
+        *steps += dev->interface->read_register(0x49) * 256;
         if (dev->model->asic_type == AsicType::GL646) {
-            *steps += ((dev->read_register(0x48) & 0x03) * 256 * 256);
+            *steps += ((dev->interface->read_register(0x48) & 0x03) * 256 * 256);
         } else if (dev->model->asic_type == AsicType::GL841) {
-            *steps += ((dev->read_register(0x48) & 0x0f) * 256 * 256);
+            *steps += ((dev->interface->read_register(0x48) & 0x0f) * 256 * 256);
         } else {
-            *steps += ((dev->read_register(0x48) & 0x1f) * 256 * 256);
+            *steps += ((dev->interface->read_register(0x48) & 0x1f) * 256 * 256);
         }
     }
 
@@ -714,14 +714,14 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
     // loop sending gamma tables NOTE: 0x01000000 not 0x10000000
     for (i = 0; i < 3; i++) {
         // clear corresponding GMM_N bit
-        uint8_t val = dev->read_register(0xbd);
+        uint8_t val = dev->interface->read_register(0xbd);
         val &= ~(0x01 << i);
-        dev->write_register(0xbd, val);
+        dev->interface->write_register(0xbd, val);
 
         // clear corresponding GMM_F bit
-        val = dev->read_register(0xbe);
+        val = dev->interface->read_register(0xbe);
       val &= ~(0x01 << i);
-        dev->write_register(0xbe, val);
+        dev->interface->write_register(0xbe, val);
 
       // FIXME: currently the last word of each gamma table is not initialied, so to work around
       // unstable data, just set it to 0 which is the most likely value of uninitialized memory
@@ -730,8 +730,8 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
       gamma[size * 2 * i + size * 2 - 1] = 0;
 
       /* set GMM_Z */
-        dev->write_register(0xc5+2*i, gamma[size*2*i+1]);
-        dev->write_register(0xc6+2*i, gamma[size*2*i]);
+        dev->interface->write_register(0xc5+2*i, gamma[size*2*i+1]);
+        dev->interface->write_register(0xc6+2*i, gamma[size*2*i]);
 
         dev->interface->write_ahb(0x01000000 + 0x200 * i, (size-1) * 2,
                                   gamma.data() + i * size * 2+2);
@@ -1499,7 +1499,7 @@ void sanei_genesys_asic_init(Genesys_Device* dev, bool /*max_regs*/)
         check PWRBIT, if reset scanner has been freshly powered up. This bit will be set to later
         so that following reads can detect power down/up cycle
     */
-    if (dev->read_register(0x06) & 0x10) {
+    if (dev->interface->read_register(0x06) & 0x10) {
         cold = false;
     }
   DBG (DBG_info, "%s: device is %s\n", __func__, cold ? "cold" : "warm");

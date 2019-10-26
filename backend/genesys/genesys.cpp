@@ -1530,7 +1530,7 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
         sanei_genesys_set_motor_power(dev->calib_reg, motor);
     }
 
-    dev->write_registers(dev->calib_reg);
+    dev->interface->write_registers(dev->calib_reg);
 
     if (is_dark) {
         // wait some time to let lamp to get dark
@@ -1735,7 +1735,7 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
     sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
     sanei_genesys_set_motor_power(dev->calib_reg, motor);
 
-    dev->write_registers(dev->calib_reg);
+    dev->interface->write_registers(dev->calib_reg);
 
     dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, false);
 
@@ -3184,7 +3184,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     }
 
     // now send registers for scan
-    dev->write_registers(dev->reg);
+    dev->interface->write_registers(dev->reg);
 
     // start effective scan
     dev->cmd_set->begin_scan(dev, sensor, &dev->reg, true);
@@ -4906,7 +4906,7 @@ sane_close_impl(SANE_Handle handle)
   s->dev->clear();
 
     // LAMP OFF : same register across all the ASICs */
-    s->dev->write_register(0x03, 0x00);
+    s->dev->interface->write_register(0x03, 0x00);
 
     catch_all_exceptions(__func__, [&](){ s->dev->usb_dev.clear_halt(); });
 

@@ -57,17 +57,17 @@ static void gl843_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 {
     DBG_HELPER_ARGS(dbg, "setting address to 0x%05x", addr & 0xffff);
 
-    dev->write_register(0x5b, ((addr >> 8) & 0xff));
-    dev->write_register(0x5c, (addr & 0xff));
+    dev->interface->write_register(0x5b, ((addr >> 8) & 0xff));
+    dev->interface->write_register(0x5c, (addr & 0xff));
 }
 
 static void gl843_set_ram_address(Genesys_Device* dev, uint32_t addr)
 {
     DBG_HELPER_ARGS(dbg, "setting address to 0x%05x", addr & 0x1fffff);
 
-    dev->write_register(0x29, ((addr >> 16) & 0x1f));
-    dev->write_register(0x2a, ((addr >> 8) & 0xff));
-    dev->write_register(0x2b, (addr & 0xff));
+    dev->interface->write_register(0x29, ((addr >> 16) & 0x1f));
+    dev->interface->write_register(0x2a, ((addr >> 8) & 0xff));
+    dev->interface->write_register(0x2b, (addr & 0xff));
 }
 
 /**
@@ -775,7 +775,7 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 
     // check analog frontend type
     // FIXME: looks like we write to that register with initial data
-    uint8_t fe_type = dev->read_register(REG_0x04) & REG_0x04_FESET;
+    uint8_t fe_type = dev->interface->read_register(REG_0x04) & REG_0x04_FESET;
     if (fe_type == 2) {
         gl843_set_ad_fe(dev);
         return;
@@ -1328,13 +1328,13 @@ void CommandSetGl843::save_power(Genesys_Device* dev, bool enable) const
 
     // switch KV-SS080 lamp off
     if (dev->model->gpio_id == GpioId::KVSS080) {
-        uint8_t val = dev->read_register(REG_0x6C);
+        uint8_t val = dev->interface->read_register(REG_0x6C);
         if (enable) {
             val &= 0xef;
         } else {
             val |= 0x10;
         }
-        dev->write_register(REG_0x6C, val);
+        dev->interface->write_register(REG_0x6C, val);
     }
 }
 
@@ -1347,7 +1347,7 @@ void CommandSetGl843::set_powersaving(Genesys_Device* dev, int delay /* in minut
 static void gl843_start_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-    dev->write_register(0x0f, 0x01);
+    dev->interface->write_register(0x0f, 0x01);
 }
 
 static void gl843_stop_action_no_move(Genesys_Device* dev, Genesys_Register_Set* reg)
@@ -1356,7 +1356,7 @@ static void gl843_stop_action_no_move(Genesys_Device* dev, Genesys_Register_Set*
     uint8_t val = reg->get8(REG_0x01);
     val &= ~REG_0x01_SCAN;
     reg->set8(REG_0x01, val);
-    dev->write_register(REG_0x01, val);
+    dev->interface->write_register(REG_0x01, val);
     sanei_genesys_sleep_ms(100);
 }
 
@@ -1372,7 +1372,7 @@ static void gl843_stop_action(Genesys_Device* dev)
       sanei_genesys_print_status (val);
     }
 
-    uint8_t val40 = dev->read_register(REG_0x40);
+    uint8_t val40 = dev->interface->read_register(REG_0x40);
 
   /* only stop action if needed */
     if (!(val40 & REG_0x40_DATAENB) && !(val40 & REG_0x40_MOTMFLG))
@@ -1385,7 +1385,7 @@ static void gl843_stop_action(Genesys_Device* dev)
     val = dev->reg.get8(REG_0x01);
     val &= ~REG_0x01_SCAN;
     dev->reg.set8(REG_0x01, val);
-    dev->write_register(REG_0x01, val);
+    dev->interface->write_register(REG_0x01, val);
 
   sanei_genesys_sleep_ms(100);
 
@@ -1397,7 +1397,7 @@ static void gl843_stop_action(Genesys_Device* dev)
 	{
 	  sanei_genesys_print_status (val);
 	}
-        val40 = dev->read_register(0x40);
+        val40 = dev->interface->read_register(0x40);
 
       /* if scanner is in command mode, we are done */
         if (!(val40 & REG_0x40_DATAENB) && !(val40 & REG_0x40_MOTMFLG)
@@ -1417,7 +1417,7 @@ static bool gl843_get_paper_sensor(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
 
-    uint8_t val = dev->read_register(REG_0x6D);
+    uint8_t val = dev->interface->read_register(REG_0x6D);
 
     return (val & 0x1) == 0;
 }
@@ -1492,87 +1492,87 @@ static void gl843_set_xpa_motor_power(Genesys_Device* dev, bool set)
     if (dev->model->model_id == ModelId::CANON_8400F) {
 
         if (set) {
-            val = dev->read_register(0x6c);
+            val = dev->interface->read_register(0x6c);
             val &= ~(REG_0x6C_GPIO16 | REG_0x6C_GPIO13);
             if (dev->session.output_resolution >= 2400) {
                 val &= ~REG_0x6C_GPIO10;
             }
-            dev->write_register(0x6c, val);
+            dev->interface->write_register(0x6c, val);
 
-            val = dev->read_register(0xa9);
+            val = dev->interface->read_register(0xa9);
             val |= REG_0xA9_GPO30;
             val &= ~REG_0xA9_GPO29;
-            dev->write_register(0xa9, val);
+            dev->interface->write_register(0xa9, val);
         } else {
-            val = dev->read_register(0x6c);
+            val = dev->interface->read_register(0x6c);
             val |= REG_0x6C_GPIO16 | REG_0x6C_GPIO13;
-            dev->write_register(0x6c, val);
+            dev->interface->write_register(0x6c, val);
 
-            val = dev->read_register(0xa9);
+            val = dev->interface->read_register(0xa9);
             val &= ~REG_0xA9_GPO30;
             val |= REG_0xA9_GPO29;
-            dev->write_register(0xa9, val);
+            dev->interface->write_register(0xa9, val);
         }
     } else if (dev->model->model_id == ModelId::CANON_8600F) {
         if (set) {
-            val = dev->read_register(REG_0x6C);
+            val = dev->interface->read_register(REG_0x6C);
             val &= ~REG_0x6C_GPIO14;
             if (dev->session.output_resolution >= 2400) {
                 val |= REG_0x6C_GPIO10;
             }
-            dev->write_register(REG_0x6C, val);
+            dev->interface->write_register(REG_0x6C, val);
 
-            val = dev->read_register(REG_0xA6);
+            val = dev->interface->read_register(REG_0xA6);
             val |= REG_0xA6_GPIO17;
             val &= ~REG_0xA6_GPIO23;
-            dev->write_register(REG_0xA6, val);
+            dev->interface->write_register(REG_0xA6, val);
         } else {
-            val = dev->read_register(REG_0x6C);
+            val = dev->interface->read_register(REG_0x6C);
             val |= REG_0x6C_GPIO14;
             val &= ~REG_0x6C_GPIO10;
-            dev->write_register(REG_0x6C, val);
+            dev->interface->write_register(REG_0x6C, val);
 
-            val = dev->read_register(REG_0xA6);
+            val = dev->interface->read_register(REG_0xA6);
             val &= ~REG_0xA6_GPIO17;
             val &= ~REG_0xA6_GPIO23;
-            dev->write_register(REG_0xA6, val);
+            dev->interface->write_register(REG_0xA6, val);
         }
     } else if (dev->model->model_id == ModelId::HP_SCANJET_G4050) {
         if (set) {
             // set MULTFILM et GPOADF
-            val = dev->read_register(REG_0x6B);
+            val = dev->interface->read_register(REG_0x6B);
             val |=REG_0x6B_MULTFILM|REG_0x6B_GPOADF;
-            dev->write_register(REG_0x6B, val);
+            dev->interface->write_register(REG_0x6B, val);
 
-            val = dev->read_register(REG_0x6C);
+            val = dev->interface->read_register(REG_0x6C);
             val &= ~REG_0x6C_GPIO15;
-            dev->write_register(REG_0x6C, val);
+            dev->interface->write_register(REG_0x6C, val);
 
             /* Motor power ? No move at all without this one */
-            val = dev->read_register(REG_0xA6);
+            val = dev->interface->read_register(REG_0xA6);
             val |= REG_0xA6_GPIO20;
-            dev->write_register(REG_0xA6, val);
+            dev->interface->write_register(REG_0xA6, val);
 
-            val = dev->read_register(REG_0xA8);
+            val = dev->interface->read_register(REG_0xA8);
             val &= ~REG_0xA8_GPO27;
-            dev->write_register(REG_0xA8, val);
+            dev->interface->write_register(REG_0xA8, val);
 
-            val = dev->read_register(REG_0xA9);
+            val = dev->interface->read_register(REG_0xA9);
             val |= REG_0xA9_GPO32|REG_0xA9_GPO31;
-            dev->write_register(REG_0xA9, val);
+            dev->interface->write_register(REG_0xA9, val);
         } else {
             // unset GPOADF
-            val = dev->read_register(REG_0x6B);
+            val = dev->interface->read_register(REG_0x6B);
             val &= ~REG_0x6B_GPOADF;
-            dev->write_register(REG_0x6B, val);
+            dev->interface->write_register(REG_0x6B, val);
 
-            val = dev->read_register(REG_0xA8);
+            val = dev->interface->read_register(REG_0xA8);
             val |= REG_0xA8_GPO27;
-            dev->write_register(REG_0xA8, val);
+            dev->interface->write_register(REG_0xA8, val);
 
-            val = dev->read_register(REG_0xA9);
+            val = dev->interface->read_register(REG_0xA9);
             val &= ~REG_0xA9_GPO31;
-            dev->write_register(REG_0xA9, val);
+            dev->interface->write_register(REG_0xA9, val);
         }
     }
 }
@@ -1681,21 +1681,21 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
     switch(dev->model->gpio_id) {
       /* KV case */
         case GpioId::KVSS080:
-            dev->write_register(REG_0xA9, 0x00);
-            dev->write_register(REG_0xA6, 0xf6);
+            dev->interface->write_register(REG_0xA9, 0x00);
+            dev->interface->write_register(REG_0xA6, 0xf6);
             // blinking led
-            dev->write_register(0x7e, 0x04);
+            dev->interface->write_register(0x7e, 0x04);
             break;
         case GpioId::G4050:
-            dev->write_register(REG_0xA7, 0xfe);
-            dev->write_register(REG_0xA8, 0x3e);
-            dev->write_register(REG_0xA9, 0x06);
+            dev->interface->write_register(REG_0xA7, 0xfe);
+            dev->interface->write_register(REG_0xA8, 0x3e);
+            dev->interface->write_register(REG_0xA9, 0x06);
             if ((reg->get8(0x05) & REG_0x05_DPIHW) == REG_0x05_DPIHW_600) {
-                dev->write_register(REG_0x6C, 0x20);
-                dev->write_register(REG_0xA6, 0x44);
+                dev->interface->write_register(REG_0x6C, 0x20);
+                dev->interface->write_register(REG_0xA6, 0x44);
             } else {
-                dev->write_register(REG_0x6C, 0x60);
-                dev->write_register(REG_0xA6, 0x46);
+                dev->interface->write_register(REG_0x6C, 0x60);
+                dev->interface->write_register(REG_0xA6, 0x46);
             }
 
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
@@ -1708,7 +1708,7 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
             }
 
             // blinking led
-            dev->write_register(REG_0x7E, 0x01);
+            dev->interface->write_register(REG_0x7E, 0x01);
             break;
         case GpioId::CANON_8400F:
         case GpioId::CANON_8600F:
@@ -1734,17 +1734,17 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
     }
 
     // clear scan and feed count
-    dev->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);
+    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);
 
     // enable scan and motor
-    uint8_t val = dev->read_register(REG_0x01);
+    uint8_t val = dev->interface->read_register(REG_0x01);
     val |= REG_0x01_SCAN;
-    dev->write_register(REG_0x01, val);
+    dev->interface->write_register(REG_0x01, val);
 
     if (start_motor) {
-        dev->write_register(REG_0x0F, 1);
+        dev->interface->write_register(REG_0x0F, 1);
     } else {
-        dev->write_register(REG_0x0F, 0);
+        dev->interface->write_register(REG_0x0F, 0);
     }
 }
 
@@ -1756,7 +1756,7 @@ void CommandSetGl843::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
     DBG_HELPER_ARGS(dbg, "check_stop = %d", check_stop);
 
     // post scan gpio
-    dev->write_register(0x7e, 0x00);
+    dev->interface->write_register(0x7e, 0x00);
 
     // turn off XPA lamp if needed
     // BUG: the if condition below probably shouldn't be enabled when XPA is off
@@ -1787,7 +1787,7 @@ static void gl843_park_xpa_lamp(Genesys_Device* dev)
     local_reg.set24(REG_FEEDL, 0xbdcd);
 
     // clear scan and feed count
-    dev->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);
+    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);
 
   /* set up for reverse and no scan */
     r = sanei_genesys_get_address (&local_reg, REG_0x02);
@@ -1796,7 +1796,7 @@ static void gl843_park_xpa_lamp(Genesys_Device* dev)
     r->value &= ~REG_0x01_SCAN;
 
     // write to scanner and start action
-    dev->write_registers(local_reg);
+    dev->interface->write_registers(local_reg);
     gl843_set_xpa_motor_power(dev, true);
     try {
         gl843_start_action(dev);
@@ -1805,7 +1805,7 @@ static void gl843_park_xpa_lamp(Genesys_Device* dev)
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {
-            dev->write_registers(dev->reg);
+            dev->interface->write_registers(dev->reg);
         });
         throw;
     }
@@ -1897,7 +1897,7 @@ void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     gl843_init_scan_regs(dev, sensor, &local_reg, session);
 
     // clear scan and feed count
-    dev->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);
+    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);
 
   /* set up for reverse and no scan */
     r = sanei_genesys_get_address(&local_reg, REG_0x02);
@@ -1905,7 +1905,7 @@ void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     r = sanei_genesys_get_address(&local_reg, REG_0x01);
     r->value &= ~REG_0x01_SCAN;
 
-    dev->write_registers(local_reg);
+    dev->interface->write_registers(local_reg);
 
     try {
         gl843_start_action(dev);
@@ -1914,7 +1914,7 @@ void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {
-            dev->write_registers(dev->reg);
+            dev->interface->write_registers(dev->reg);
         });
         throw;
     }
@@ -1990,7 +1990,7 @@ void CommandSetGl843::search_start_position(Genesys_Device* dev) const
     gl843_init_scan_regs(dev, sensor, &local_reg, session);
 
     // send to scanner
-    dev->write_registers(local_reg);
+    dev->interface->write_registers(local_reg);
 
     dev->cmd_set->begin_scan(dev, sensor, &local_reg, true);
 
@@ -2058,7 +2058,7 @@ void CommandSetGl843::init_regs_for_coarse_calibration(Genesys_Device* dev,
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
       sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
 
-    dev->write_registers(regs);
+    dev->interface->write_registers(regs);
 }
 
 /** @brief moves the slider to steps at motor base dpi
@@ -2101,15 +2101,15 @@ static void gl843_feed(Genesys_Device* dev, unsigned int steps)
     gl843_init_scan_regs(dev, sensor, &local_reg, session);
 
     // clear scan and feed count
-    dev->write_register(REG_0x0D, REG_0x0D_CLRLNCNT);
-    dev->write_register(REG_0x0D, REG_0x0D_CLRMCNT);
+    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT);
+    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRMCNT);
 
   /* set up for no scan */
   r = sanei_genesys_get_address(&local_reg, REG_0x01);
     r->value &= ~REG_0x01_SCAN;
 
     // send registers
-    dev->write_registers(local_reg);
+    dev->interface->write_registers(local_reg);
 
     try {
         gl843_start_action(dev);
@@ -2118,7 +2118,7 @@ static void gl843_feed(Genesys_Device* dev, unsigned int steps)
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {
-            dev->write_registers(dev->reg);
+            dev->interface->write_registers(dev->reg);
         });
         throw;
     }
@@ -2226,7 +2226,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
   dev->scanhead_position_in_steps += dev->calib_lines + move;
 
-    dev->write_registers(regs);
+    dev->interface->write_registers(regs);
 }
 
 /** @brief set up registers for the actual scan
@@ -2387,7 +2387,7 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
 
     gl843_init_scan_regs(dev, calib_sensor, &regs, session);
 
-    dev->write_registers(regs);
+    dev->interface->write_registers(regs);
 
 /*
    we try to get equal bright leds here:
@@ -2413,7 +2413,7 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
 
       sanei_genesys_set_exposure(regs, calib_sensor.exposure);
 
-        dev->write_registers(regs);
+        dev->interface->write_registers(regs);
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
         dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
@@ -2618,7 +2618,7 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     dev->cmd_set->set_fe(dev, calib_sensor, AFE_SET);
 
     // scan with bottom AFE settings
-    dev->write_registers(regs);
+    dev->interface->write_registers(regs);
     DBG(DBG_info, "%s: starting first line reading\n", __func__);
 
     dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
@@ -2647,7 +2647,7 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     dev->cmd_set->set_fe(dev, calib_sensor, AFE_SET);
 
     // scan with top AFE values
-    dev->write_registers(regs);
+    dev->interface->write_registers(regs);
     DBG(DBG_info, "%s: starting second line reading\n", __func__);
 
     dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
@@ -2682,7 +2682,7 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         dev->cmd_set->set_fe(dev, calib_sensor, AFE_SET);
 
         // scan with no move
-        dev->write_registers(regs);
+        dev->interface->write_registers(regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
         second_line = read_unshuffled_image_from_scanner(dev, session,
@@ -2824,7 +2824,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     sanei_genesys_set_motor_power(regs, false);
 
-    dev->write_registers(regs);
+    dev->interface->write_registers(regs);
 
     dev->cmd_set->set_fe(dev, calib_sensor, AFE_SET);
     dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
@@ -2928,7 +2928,7 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     gl843_init_scan_regs(dev, calib_sensor, reg, session);
 
   sanei_genesys_set_motor_power(*reg, false);
-    dev->write_registers(*reg);
+    dev->interface->write_registers(*reg);
 }
 
 /**
@@ -2943,7 +2943,7 @@ static void gl843_init_gpio(Genesys_Device* dev)
     DBG_HELPER(dbg);
     apply_registers_ordered(dev->gpo.regs, { 0x6e, 0x6f }, [&](const GenesysRegisterSetting& reg)
     {
-        dev->write_register(reg.address, reg.value);
+        dev->interface->write_register(reg.address, reg.value);
     });
 }
 
@@ -2957,8 +2957,8 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
   uint8_t val;
 
     if (cold) {
-        dev->write_register(0x0e, 0x01);
-        dev->write_register(0x0e, 0x00);
+        dev->interface->write_register(0x0e, 0x01);
+        dev->interface->write_register(0x0e, 0x00);
     }
 
   if(dev->usb_mode == 1)
@@ -2972,9 +2972,9 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
     dev->interface->write_0x8c(0x0f, val);
 
     // test CHKVER
-    val = dev->read_register(REG_0x40);
+    val = dev->interface->read_register(REG_0x40);
     if (val & REG_0x40_CHKVER) {
-        val = dev->read_register(0x00);
+        val = dev->interface->read_register(0x00);
         DBG(DBG_info, "%s: reported version for genesys chip is 0x%02x\n", __func__, val);
     }
 
@@ -2983,18 +2983,18 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
 
     if (dev->model->model_id == ModelId::CANON_8600F) {
         // turns on vref control for maximum current of the motor driver
-        dev->write_register(REG_0x6B, 0x72);
+        dev->interface->write_register(REG_0x6B, 0x72);
     } else {
-        dev->write_register(REG_0x6B, 0x02);
+        dev->interface->write_register(REG_0x6B, 0x02);
     }
 
     // Write initial registers
-    dev->write_registers(dev->reg);
+    dev->interface->write_registers(dev->reg);
 
   // Enable DRAM by setting a rising edge on bit 3 of reg 0x0b
     val = dev->reg.find_reg(0x0b).value & REG_0x0B_DRAMSEL;
     val = (val | REG_0x0B_ENBDRAM);
-    dev->write_register(REG_0x0B, val);
+    dev->interface->write_register(REG_0x0B, val);
   dev->reg.find_reg(0x0b).value = val;
 
     if (dev->model->model_id == ModelId::CANON_8400F) {
@@ -3031,7 +3031,7 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
 
     val = (dev->reg.find_reg(0x0b).value & ~REG_0x0B_CLKSET) | clock_freq;
 
-    dev->write_register(REG_0x0B, val);
+    dev->interface->write_register(REG_0x0B, val);
   dev->reg.find_reg(0x0b).value = val;
 
   /* prevent further writings by bulk write register */
@@ -3040,14 +3040,14 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
     if (dev->model->model_id != ModelId::CANON_8600F) {
       // set up end access
       // FIXME: this is overwritten in gl843_init_gpio
-        dev->write_register(REG_0xA7, 0x04);
-        dev->write_register(REG_0xA9, 0x00);
+        dev->interface->write_register(REG_0xA7, 0x04);
+        dev->interface->write_register(REG_0xA9, 0x00);
     }
 
     // set RAM read address
-    dev->write_register(REG_0x29, 0x00);
-    dev->write_register(REG_0x2A, 0x00);
-    dev->write_register(REG_0x2B, 0x00);
+    dev->interface->write_register(REG_0x29, 0x00);
+    dev->interface->write_register(REG_0x2A, 0x00);
+    dev->interface->write_register(REG_0x2B, 0x00);
 
     // setup gpio
     gl843_init_gpio(dev);
@@ -3075,7 +3075,7 @@ void CommandSetGl843::update_hardware_sensors(Genesys_Scanner* s) const
      any of them.
    */
 
-    uint8_t val = s->dev->read_register(REG_0x6D);
+    uint8_t val = s->dev->interface->read_register(REG_0x6D);
 
   switch (s->dev->model->gpio_id)
     {
@@ -3179,7 +3179,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
         r->value |= REG_0x02_MTRREV;
     }
 
-    dev->write_registers(local_reg);
+    dev->interface->write_registers(local_reg);
 
     dev->cmd_set->begin_scan(dev, calib_sensor, &local_reg, true);
 
@@ -3204,7 +3204,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   found = 0;
   while (pass < 20 && !found)
     {
-        dev->write_registers(local_reg);
+        dev->interface->write_registers(local_reg);
 
         // now start scan
         dev->cmd_set->begin_scan(dev, calib_sensor, &local_reg, true);

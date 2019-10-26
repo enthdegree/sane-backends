@@ -194,7 +194,7 @@ void ScannerInterfaceUsb::write_registers(const Genesys_Register_Set& regs)
         }
     } else {
         for (const auto& r : regs) {
-            dev_->write_register(r.address, r.value);
+            write_register(r.address, r.value);
         }
     }
 
@@ -389,11 +389,11 @@ std::uint16_t ScannerInterfaceUsb::read_fe_register(std::uint8_t address)
     reg.init_reg(0x50, address);
 
     // set up read address
-    dev_->write_registers(reg);
+    write_registers(reg);
 
     // read data
-    std::uint16_t value = dev_->read_register(0x46) << 8;
-    value |= dev_->read_register(0x47);
+    std::uint16_t value = read_register(0x46) << 8;
+    value |= read_register(0x47);
 
     DBG(DBG_io, "%s (0x%02x, 0x%04x)\n", __func__, address, value);
     return value;
@@ -413,7 +413,7 @@ void ScannerInterfaceUsb::write_fe_register(std::uint8_t address, std::uint16_t 
         reg.init_reg(0x3b, value & 0xff);
     }
 
-    dev_->write_registers(reg);
+    write_registers(reg);
 }
 
 } // namespace genesys

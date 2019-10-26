@@ -60,7 +60,7 @@ namespace genesys {
 /**
  * reads value from gpio endpoint
  */
-static void gl646_gpio_read(UsbDevice& usb_dev, uint8_t* value)
+static void gl646_gpio_read(IUsbDevice& usb_dev, uint8_t* value)
 {
     DBG_HELPER(dbg);
     usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER, GPIO_READ, INDEX, 1, value);
@@ -69,7 +69,7 @@ static void gl646_gpio_read(UsbDevice& usb_dev, uint8_t* value)
 /**
  * writes the given value to gpio endpoint
  */
-static void gl646_gpio_write(UsbDevice& usb_dev, uint8_t value)
+static void gl646_gpio_write(IUsbDevice& usb_dev, uint8_t value)
 {
     DBG_HELPER_ARGS(dbg, "(0x%02x)", value);
     usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, GPIO_WRITE, INDEX, 1, &value);
@@ -78,7 +78,7 @@ static void gl646_gpio_write(UsbDevice& usb_dev, uint8_t value)
 /**
  * writes the given value to gpio output enable endpoint
  */
-static void gl646_gpio_output_enable(UsbDevice& usb_dev, uint8_t value)
+static void gl646_gpio_output_enable(IUsbDevice& usb_dev, uint8_t value)
 {
     DBG_HELPER_ARGS(dbg, "(0x%02x)", value);
     usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, GPIO_OUTPUT_ENABLE, INDEX, 1, &value);
@@ -892,7 +892,7 @@ static void gl646_wm_hp3670(Genesys_Device* dev, const Genesys_Sensor& sensor, u
       dev->frontend = dev->frontend_initial;
         dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
         dev->interface->write_fe_register(0x02, dev->frontend.regs.get_value(0x02));
-        gl646_gpio_output_enable(dev->usb_dev, 0x07);
+        gl646_gpio_output_enable(dev->interface->get_usb_device(), 0x07);
       break;
     case AFE_POWER_SAVE:
         dev->interface->write_fe_register(0x01, 0x06);
@@ -973,7 +973,7 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
       /* enable GPIO for some models */
         if (dev->model->sensor_id == SensorId::CCD_HP2300) {
 	  val = 0x07;
-            gl646_gpio_output_enable(dev->usb_dev, val);
+            gl646_gpio_output_enable(dev->interface->get_usb_device(), val);
 	}
         return;
     }
@@ -1149,7 +1149,7 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
       count = 0;
       do
 	{
-            gl646_gpio_read(dev->usb_dev, &val);
+            gl646_gpio_read(dev->interface->get_usb_device(), &val);
 
 	  DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, val);
 	  if ((val & 0x04) != 0x04)
@@ -1246,7 +1246,7 @@ void CommandSetGl646::detect_document_end(Genesys_Device* dev) const
     {
       print_status (val);
     }
-    gl646_gpio_read(dev->usb_dev, &gpio);
+    gl646_gpio_read(dev->interface->get_usb_device(), &gpio);
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
 
   /* detect document event. There one event when the document go in,
@@ -1305,7 +1305,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
     dev->document = false;
 
     // first check for document event
-    gl646_gpio_read(dev->usb_dev, &gpio);
+    gl646_gpio_read(dev->interface->get_usb_device(), &gpio);
 
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
 
@@ -1389,7 +1389,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
     } while (((state & REG_0x41_HOMESNR) == 0) && (count < 150));
 
     // read GPIO on exit
-    gl646_gpio_read(dev->usb_dev, &gpio);
+    gl646_gpio_read(dev->interface->get_usb_device(), &gpio);
 
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
 }
@@ -2813,7 +2813,7 @@ void CommandSetGl646::init(Genesys_Device* dev) const
       DBG(DBG_info, "%s: device is cold\n", __func__);
 
         val = 0x04;
-        dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_INIT, INDEX, 1, &val);
+        dev->interface->get_usb_device().control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_INIT, INDEX, 1, &val);
 
         // ASIC reset
         dev->interface->write_register(0x0e, 0x00);
@@ -2838,13 +2838,13 @@ void CommandSetGl646::init(Genesys_Device* dev) const
         dev->interface->write_register(0x69, dev->gpo.regs.get_value(0x69));
 
         // enable GPIO
-        gl646_gpio_output_enable(dev->usb_dev, 6);
+        gl646_gpio_output_enable(dev->interface->get_usb_device(), 6);
 
         // writes 0 to GPIO
-        gl646_gpio_write(dev->usb_dev, 0);
+        gl646_gpio_write(dev->interface->get_usb_device(), 0);
 
         // clear GPIO enable
-        gl646_gpio_output_enable(dev->usb_dev, 0);
+        gl646_gpio_output_enable(dev->interface->get_usb_device(), 0);
 
         dev->interface->write_register(0x66, 0x10);
         dev->interface->write_register(0x66, 0x00);
@@ -3107,7 +3107,7 @@ void CommandSetGl646::update_hardware_sensors(Genesys_Scanner* session) const
   uint8_t value;
 
     // do what is needed to get a new set of events, but try to not loose any of them.
-    gl646_gpio_read(dev->usb_dev, &value);
+    gl646_gpio_read(dev->interface->get_usb_device(), &value);
     DBG(DBG_io, "%s: GPIO=0x%02x\n", __func__, value);
 
     // scan button

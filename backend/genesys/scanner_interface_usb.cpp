@@ -76,8 +76,7 @@ std::uint8_t ScannerInterfaceUsb::read_register(std::uint16_t address)
             usb_value |= 0x100;
         }
 
-        dev_->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_BUFFER, usb_value, address16,
-                                  2, value2x8);
+        usb_dev_.control_msg(REQUEST_TYPE_IN, REQUEST_BUFFER, usb_value, address16, 2, value2x8);
 
         // check usb link status
         if (value2x8[1] != 0x55) {
@@ -96,10 +95,10 @@ std::uint8_t ScannerInterfaceUsb::read_register(std::uint16_t address)
 
         std::uint8_t address8 = address & 0xff;
 
-        dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
-                                  1, &address8);
-        dev_->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_READ_REGISTER, INDEX,
-                                  1, &value);
+        usb_dev_.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
+                             1, &address8);
+        usb_dev_.control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_READ_REGISTER, INDEX,
+                             1, &value);
     }
 
     DBG(DBG_proc, "%s (0x%02x, 0x%02x) completed\n", __func__, address, value);
@@ -126,7 +125,7 @@ void ScannerInterfaceUsb::write_register(std::uint16_t address, std::uint8_t val
             usb_value |= 0x100;
         }
 
-        dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, usb_value, INDEX,
+        usb_dev_.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, usb_value, INDEX,
                                   2, buffer);
 
     } else {
@@ -136,11 +135,11 @@ void ScannerInterfaceUsb::write_register(std::uint16_t address, std::uint8_t val
 
         std::uint8_t address8 = address & 0xff;
 
-        dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
-                                  1, &address8);
+        usb_dev_.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
+                             1, &address8);
 
-        dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_WRITE_REGISTER, INDEX,
-                                  1, &value);
+        usb_dev_.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_WRITE_REGISTER, INDEX,
+                             1, &value);
 
     }
     DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, address, value);
@@ -174,20 +173,20 @@ void ScannerInterfaceUsb::write_registers(const Genesys_Register_Set& regs)
             outdata[6] = ((buffer.size() >> 16) & 0xff);
             outdata[7] = ((buffer.size() >> 24) & 0xff);
 
-            dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, INDEX,
-                                      sizeof(outdata), outdata);
+            usb_dev_.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, INDEX,
+                                 sizeof(outdata), outdata);
 
             size_t write_size = buffer.size();
 
-            dev_->usb_dev.bulk_write(buffer.data(), &write_size);
+            usb_dev_.bulk_write(buffer.data(), &write_size);
         } else {
             for (std::size_t i = 0; i < regs.size();) {
                 std::size_t c = regs.size() - i;
                 if (c > 32)  /*32 is max on GL841. checked that.*/
                     c = 32;
 
-                dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_SET_REGISTER,
-                                          INDEX, c * 2, buffer.data() + i * 2);
+                usb_dev_.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_SET_REGISTER,
+                                     INDEX, c * 2, buffer.data() + i * 2);
 
                 i += c;
             }
@@ -204,8 +203,7 @@ void ScannerInterfaceUsb::write_registers(const Genesys_Register_Set& regs)
 void ScannerInterfaceUsb::write_0x8c(std::uint8_t index, std::uint8_t value)
 {
     DBG_HELPER_ARGS(dbg, "0x%02x,0x%02x", index, value);
-    dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_BUF_ENDACCESS, index, 1,
-                              &value);
+    usb_dev_.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_BUF_ENDACCESS, index, 1, &value);
 }
 
 static void bulk_read_data_send_header(UsbDevice& usb_dev, AsicType asic_type, size_t size)
@@ -270,8 +268,8 @@ void ScannerInterfaceUsb::bulk_read_data(std::uint8_t addr, std::uint8_t* data, 
         return;
 
     if (is_addr_used) {
-        dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, 0x00,
-                                 1, &addr);
+        usb_dev_.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, 0x00,
+                             1, &addr);
     }
 
     std::size_t target_size = size;
@@ -279,7 +277,7 @@ void ScannerInterfaceUsb::bulk_read_data(std::uint8_t addr, std::uint8_t* data, 
     std::size_t max_in_size = sanei_genesys_get_bulk_max_size(dev_->model->asic_type);
 
     if (!has_header_before_each_chunk) {
-        bulk_read_data_send_header(dev_->usb_dev, dev_->model->asic_type, size);
+        bulk_read_data_send_header(usb_dev_, dev_->model->asic_type, size);
     }
 
     // loop until computed data size is read
@@ -287,12 +285,12 @@ void ScannerInterfaceUsb::bulk_read_data(std::uint8_t addr, std::uint8_t* data, 
         std::size_t block_size = std::min(target_size, max_in_size);
 
         if (has_header_before_each_chunk) {
-            bulk_read_data_send_header(dev_->usb_dev, dev_->model->asic_type, block_size);
+            bulk_read_data_send_header(usb_dev_, dev_->model->asic_type, block_size);
         }
 
         DBG(DBG_io2, "%s: trying to read %zu bytes of data\n", __func__, block_size);
 
-        dev_->usb_dev.bulk_read(data, &block_size);
+        usb_dev_.bulk_read(data, &block_size);
 
         DBG(DBG_io2, "%s: read %zu bytes, %zu remaining\n", __func__, block_size, target_size - block_size);
 
@@ -309,7 +307,7 @@ void ScannerInterfaceUsb::bulk_write_data(std::uint8_t addr, std::uint8_t* data,
     std::size_t size;
     std::uint8_t outdata[8];
 
-    dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
+    usb_dev_.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
                              1, &addr);
 
     std::size_t max_out_size = sanei_genesys_get_bulk_max_size(dev_->model->asic_type);
@@ -339,10 +337,10 @@ void ScannerInterfaceUsb::bulk_write_data(std::uint8_t addr, std::uint8_t* data,
         outdata[6] = ((size >> 16) & 0xff);
         outdata[7] = ((size >> 24) & 0xff);
 
-        dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x00,
-                                  sizeof(outdata), outdata);
+        usb_dev_.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x00,
+                             sizeof(outdata), outdata);
 
-        dev_->usb_dev.bulk_write(data, &size);
+        usb_dev_.bulk_write(data, &size);
 
         DBG(DBG_io2, "%s: wrote %zu bytes, %zu remaining\n", __func__, size, len - size);
 
@@ -427,7 +425,7 @@ void ScannerInterfaceUsb::write_ahb(std::uint32_t addr, std::uint32_t size, std:
     outdata[7] = ((size >> 24) & 0xff);
 
     // write addr and size for AHB
-    dev_->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x01, 8, outdata);
+    usb_dev_.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x01, 8, outdata);
 
     std::size_t max_out_size = sanei_genesys_get_bulk_max_size(dev_->model->asic_type);
 
@@ -436,7 +434,7 @@ void ScannerInterfaceUsb::write_ahb(std::uint32_t addr, std::uint32_t size, std:
     do {
         std::size_t block_size = std::min(size - written, max_out_size);
 
-        dev_->usb_dev.bulk_write(data + written, &block_size);
+        usb_dev_.bulk_write(data + written, &block_size);
 
         written += block_size;
     } while (written < size);
@@ -475,6 +473,11 @@ void ScannerInterfaceUsb::write_fe_register(std::uint8_t address, std::uint16_t 
     }
 
     write_registers(reg);
+}
+
+IUsbDevice& ScannerInterfaceUsb::get_usb_device()
+{
+    return usb_dev_;
 }
 
 } // namespace genesys

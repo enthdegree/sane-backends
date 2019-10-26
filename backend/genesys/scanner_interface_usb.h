@@ -45,6 +45,7 @@
 #define BACKEND_GENESYS_SCANNER_INTERFACE_USB_H
 
 #include "scanner_interface.h"
+#include "usb_device.h"
 
 namespace genesys {
 
@@ -75,8 +76,10 @@ public:
     std::uint16_t read_fe_register(std::uint8_t address) override;
     void write_fe_register(std::uint8_t address, std::uint16_t value) override;
 
+    virtual IUsbDevice& get_usb_device() override;
 private:
     Genesys_Device* dev_;
+    UsbDevice usb_dev_;
 };
 
 } // namespace genesys

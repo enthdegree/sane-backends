@@ -46,6 +46,7 @@
 
 #include "scanner_interface.h"
 #include "register_cache.h"
+#include "test_usb_device.h"
 
 namespace genesys {
 
@@ -72,9 +73,12 @@ public:
 
     std::uint16_t read_fe_register(std::uint8_t address) override;
     void write_fe_register(std::uint8_t address, std::uint16_t value) override;
+
+    IUsbDevice& get_usb_device() override;
 private:
     RegisterCache<std::uint8_t> cached_regs_;
     RegisterCache<std::uint16_t> cached_fe_regs_;
+    TestUsbDevice usb_dev_;
 };
 
 } // namespace genesys

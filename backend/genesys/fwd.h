@@ -102,7 +102,8 @@ struct GenesysRegisterSetState;
 // row_buffer.h
 class RowBuffer;
 
-// sanei.h
+// usb_device.h
+class IUsbDevice;
 class UsbDevice;
 
 // scanner_interface.h
@@ -122,6 +123,9 @@ struct Genesys_Sensor;
 struct Genesys_Settings;
 struct SetupParams;
 struct ScanSession;
+
+// test_usb_device.h
+class TestUsbDevice;
 
 } // namespace genesys
 

@@ -4798,10 +4798,9 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     }
 
     dbg.vstatus("open device '%s'", dev->file_name.c_str());
-    dev->usb_dev.open(dev->file_name.c_str());
-    dbg.clear();
     dev->interface = std::unique_ptr<ScannerInterfaceUsb>{new ScannerInterfaceUsb{dev}};
-
+    dev->interface->get_usb_device().open(dev->file_name.c_str());
+    dbg.clear();
 
   s_scanners->push_back(Genesys_Scanner());
   auto* s = &s_scanners->back();
@@ -4906,13 +4905,13 @@ sane_close_impl(SANE_Handle handle)
     // LAMP OFF : same register across all the ASICs */
     s->dev->interface->write_register(0x03, 0x00);
 
-    catch_all_exceptions(__func__, [&](){ s->dev->usb_dev.clear_halt(); });
+    catch_all_exceptions(__func__, [&](){ s->dev->interface->get_usb_device().clear_halt(); });
 
     // we need this to avoid these ASIC getting stuck in bulk writes
-    catch_all_exceptions(__func__, [&](){ s->dev->usb_dev.reset(); });
+    catch_all_exceptions(__func__, [&](){ s->dev->interface->get_usb_device().reset(); });
 
     // not freeing s->dev because it's in the dev list
-    catch_all_exceptions(__func__, [&](){ s->dev->usb_dev.close(); });
+    catch_all_exceptions(__func__, [&](){ s->dev->interface->get_usb_device().close(); });
 
   s_scanners->erase(it);
 }

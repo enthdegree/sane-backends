@@ -361,11 +361,7 @@ struct Genesys_Device
 
     std::unique_ptr<ScannerInterface> interface;
 
-    UsbDevice& get_usb_device();
-
-    UsbDevice usb_dev;
 private:
-
     friend class ScannerInterfaceUsb;
 };
 

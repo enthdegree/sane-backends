@@ -127,4 +127,9 @@ void TestScannerInterface::write_fe_register(std::uint8_t address, std::uint16_t
     cached_fe_regs_.update(address, value);
 }
 
+IUsbDevice& TestScannerInterface::get_usb_device()
+{
+    return usb_dev_;
+}
+
 } // namespace genesys

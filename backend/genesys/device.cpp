@@ -103,13 +103,6 @@ ImagePipelineNodeBytesSource& Genesys_Device::get_pipeline_source()
     return static_cast<ImagePipelineNodeBytesSource&>(pipeline.front());
 }
 
-UsbDevice& Genesys_Device::get_usb_device()
-{
-    if (interface->is_mock())
-        throw SaneException("Can't get USB device of mock interface");
-    return usb_dev;
-}
-
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs)
 {
     for (const auto& reg : regs) {

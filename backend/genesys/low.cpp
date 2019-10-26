@@ -1482,7 +1482,8 @@ void sanei_genesys_asic_init(Genesys_Device* dev, bool /*max_regs*/)
     bool cold = true;
 
     // URB    16  control  0xc0 0x0c 0x8e 0x0b len     1 read  0x00 */
-    dev->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_GET_REGISTER, 0x00, 1, &val);
+    dev->interface->get_usb_device().control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER,
+                                                 VALUE_GET_REGISTER, 0x00, 1, &val);
 
   DBG (DBG_io2, "%s: value=0x%02x\n", __func__, val);
   DBG (DBG_info, "%s: device is %s\n", __func__, (val & 0x08) ? "USB 1.0" : "USB2.0");

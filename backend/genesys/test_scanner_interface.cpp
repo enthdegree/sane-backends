@@ -137,14 +137,14 @@ void TestScannerInterface::sleep_us(unsigned microseconds)
     (void) microseconds;
 }
 
-void TestScannerInterface::record_test_message(const char* msg)
+void TestScannerInterface::record_progress_message(const char* msg)
 {
-    last_test_message_ = msg;
+    last_progress_message_ = msg;
 }
 
-const std::string& TestScannerInterface::last_test_message() const
+const std::string& TestScannerInterface::last_progress_message() const
 {
-    return last_test_message_;
+    return last_progress_message_;
 }
 
 } // namespace genesys

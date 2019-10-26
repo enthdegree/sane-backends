@@ -2696,43 +2696,43 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
   /* do offset calibration if needed */
   if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
     {
-        dev->interface->record_test_message("offset_calibration");
+        dev->interface->record_progress_message("offset_calibration");
         dev->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 
       /* since all the registers are set up correctly, just use them */
-        dev->interface->record_test_message("coarse_gain_calibration");
+        dev->interface->record_progress_message("coarse_gain_calibration");
         dev->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
     } else {
     /* since we have 2 gain calibration proc, skip second if first one was
        used. */
-        dev->interface->record_test_message("init_regs_for_coarse_calibration");
+        dev->interface->record_progress_message("init_regs_for_coarse_calibration");
         dev->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
-        dev->interface->record_test_message("genesys_coarse_calibration");
+        dev->interface->record_progress_message("genesys_coarse_calibration");
         genesys_coarse_calibration(dev, sensor);
     }
 
   if (dev->model->is_cis)
     {
       /* the afe now sends valid data for doing led calibration */
-        dev->interface->record_test_message("led_calibration");
+        dev->interface->record_progress_message("led_calibration");
         sensor.exposure = dev->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
 
       /* calibrate afe again to match new exposure */
       if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION) {
-            dev->interface->record_test_message("offset_calibration");
+            dev->interface->record_progress_message("offset_calibration");
             dev->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 
             // since all the registers are set up correctly, just use them
 
-            dev->interface->record_test_message("coarse_gain_calibration");
+            dev->interface->record_progress_message("coarse_gain_calibration");
             dev->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
         } else {
             // since we have 2 gain calibration proc, skip second if first one was used
-            dev->interface->record_test_message("init_regs_for_coarse_calibration");
+            dev->interface->record_progress_message("init_regs_for_coarse_calibration");
             dev->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
-            dev->interface->record_test_message("genesys_coarse_calibration");
+            dev->interface->record_progress_message("genesys_coarse_calibration");
             genesys_coarse_calibration(dev, sensor);
         }
     }
@@ -2749,7 +2749,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     }
 
     // send default shading data
-    dev->interface->record_test_message("sanei_genesys_init_shading_data");
+    dev->interface->record_progress_message("sanei_genesys_init_shading_data");
     sanei_genesys_init_shading_data(dev, sensor, pixels_per_line);
 
   if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
@@ -2760,28 +2760,28 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
 
     // shading calibration
     if (dev->model->flags & GENESYS_FLAG_DARK_WHITE_CALIBRATION) {
-        dev->interface->record_test_message("init_regs_for_shading");
+        dev->interface->record_progress_message("init_regs_for_shading");
         dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
-        dev->interface->record_test_message("genesys_dark_white_shading_calibration");
+        dev->interface->record_progress_message("genesys_dark_white_shading_calibration");
         genesys_dark_white_shading_calibration(dev, sensor);
     } else {
         DBG(DBG_proc, "%s : genesys_dark_shading_calibration dev->calib_reg ", __func__);
         debug_dump(DBG_proc, dev->calib_reg);
 
         if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION) {
-            dev->interface->record_test_message("init_regs_for_shading");
+            dev->interface->record_progress_message("init_regs_for_shading");
             dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
-            dev->interface->record_test_message("genesys_dark_shading_calibration");
+            dev->interface->record_progress_message("genesys_dark_shading_calibration");
             genesys_dark_shading_calibration(dev, sensor);
             genesys_repark_sensor_before_shading(dev);
         }
 
-        dev->interface->record_test_message("init_regs_for_shading2");
+        dev->interface->record_progress_message("init_regs_for_shading2");
         dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
-        dev->interface->record_test_message("genesys_white_shading_calibration");
+        dev->interface->record_progress_message("genesys_white_shading_calibration");
         genesys_white_shading_calibration(dev, sensor);
         genesys_repark_sensor_after_white_shading(dev);
 
@@ -2791,7 +2791,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     }
 
     if (!dev->cmd_set->has_send_shading_data()) {
-        dev->interface->record_test_message("genesys_send_shading_coefficient");
+        dev->interface->record_progress_message("genesys_send_shading_coefficient");
         genesys_send_shading_coefficient(dev, sensor);
     }
 }

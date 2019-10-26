@@ -78,15 +78,15 @@ public:
 
     void sleep_us(unsigned microseconds) override;
 
-    void record_test_message(const char* msg) override;
+    void record_progress_message(const char* msg) override;
 
-    const std::string& last_test_message() const;
+    const std::string& last_progress_message() const;
 
 private:
     RegisterCache<std::uint8_t> cached_regs_;
     RegisterCache<std::uint16_t> cached_fe_regs_;
     TestUsbDevice usb_dev_;
-    std::string last_test_message_;
+    std::string last_progress_message_;
 };
 
 } // namespace genesys

@@ -489,7 +489,7 @@ void ScannerInterfaceUsb::sleep_us(unsigned microseconds)
     std::this_thread::sleep_for(std::chrono::microseconds{microseconds});
 }
 
-void ScannerInterfaceUsb::record_test_message(const char* msg)
+void ScannerInterfaceUsb::record_progress_message(const char* msg)
 {
     sanei_usb_testing_record_message(msg);
 }

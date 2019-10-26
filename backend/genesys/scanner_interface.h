@@ -96,7 +96,7 @@ public:
         sleep_us(milliseconds * 1000);
     }
 
-    virtual void record_test_message(const char* msg) = 0;
+    virtual void record_progress_message(const char* msg) = 0;
 };
 
 } // namespace genesys

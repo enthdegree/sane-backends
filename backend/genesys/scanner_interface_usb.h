@@ -80,7 +80,7 @@ public:
 
     void sleep_us(unsigned microseconds) override;
 
-    void record_test_message(const char* msg) override;
+    void record_progress_message(const char* msg) override;
 
 private:
     Genesys_Device* dev_;

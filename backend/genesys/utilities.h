@@ -46,6 +46,7 @@
 
 #include "error.h"
 #include <algorithm>
+#include <iostream>
 #include <vector>
 
 namespace genesys {
@@ -82,6 +83,40 @@ void compute_array_percentile_approx(T* result, const T* data,
         *result++ = *select_it;
     }
 }
+
+template<class Char, class Traits>
+class BasicStreamStateSaver
+{
+public:
+    explicit BasicStreamStateSaver(std::basic_ios<Char, Traits>& stream) :
+        stream_{stream}
+    {
+        flags_ = stream_.flags();
+        width_ = stream_.width();
+        precision_ = stream_.precision();
+        fill_ = stream_.fill();
+    }
+
+    ~BasicStreamStateSaver()
+    {
+        stream_.flags(flags_);
+        stream_.width(width_);
+        stream_.precision(precision_);
+        stream_.fill(fill_);
+    }
+
+    BasicStreamStateSaver(const BasicStreamStateSaver&) = delete;
+    BasicStreamStateSaver& operator=(const BasicStreamStateSaver&) = delete;
+
+private:
+    std::basic_ios<Char, Traits>& stream_;
+    std::ios_base::fmtflags flags_;
+    std::streamsize width_ = 0;
+    std::streamsize precision_ = 0;
+    Char fill_ = ' ';
+};
+
+using StreamStateSaver = BasicStreamStateSaver<char, std::char_traits<char>>;
 
 } // namespace genesys
 

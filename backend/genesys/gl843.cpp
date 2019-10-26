@@ -61,35 +61,6 @@ static void gl843_set_buffer_address(Genesys_Device* dev, uint32_t addr)
     dev->interface->write_register(0x5c, (addr & 0xff));
 }
 
-static void gl843_set_ram_address(Genesys_Device* dev, uint32_t addr)
-{
-    DBG_HELPER_ARGS(dbg, "setting address to 0x%05x", addr & 0x1fffff);
-
-    dev->interface->write_register(0x29, ((addr >> 16) & 0x1f));
-    dev->interface->write_register(0x2a, ((addr >> 8) & 0xff));
-    dev->interface->write_register(0x2b, (addr & 0xff));
-}
-
-/**
- * writes a block of data to RAM
- * @param dev USB device
- * @param addr RAM address to write to
- * @param size size of the chunk of data
- * @param data pointer to the data to write
- */
-static void write_data(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_t* data)
-{
-    DBG_HELPER(dbg);
-
-    gl843_set_buffer_address(dev, addr);
-
-    // write actual data
-    dev->interface->bulk_write_data(0x28, data, size);
-
-    // set back address to 0
-    gl843_set_buffer_address(dev, 0);
-}
-
 bool CommandSetGl843::get_gain4_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, REG_0x06);
@@ -705,8 +676,6 @@ gl843_init_registers (Genesys_Device * dev)
   dev->calib_reg = dev->reg;
 
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) {
-        gl843_set_ram_address(dev, 0x03ff00);
-
         uint8_t data[32] = {
             0x8c, 0x8f, 0xc9, 0x00, 0x01, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -714,7 +683,8 @@ gl843_init_registers (Genesys_Device * dev)
             0x6a, 0x73, 0x63, 0x68, 0x69, 0x65, 0x6e, 0x00,
         };
 
-        dev->interface->bulk_write_data(0x3c, data, 32);
+        dev->interface->write_buffer(0x3c, 0x3ff000, data, 32,
+                                     ScannerInterface::FLAG_SWAP_REGISTERS);
     }
 }
 
@@ -744,9 +714,13 @@ static void gl843_send_slope_table(Genesys_Device* dev, int table_nr,
       DBG(DBG_io, "%s: %s\n", __func__, msg);
     }
 
-    // slope table addresses are fixed : 0x4000,  0x4800,  0x5000,  0x5800,  0x6000
+    // slope table addresses are fixed : 0x40000,  0x48000,  0x50000,  0x58000,  0x60000
     // XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14);
-    write_data(dev, 0x4000 + 0x800 * table_nr, steps * 2, table.data());
+    dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(), steps * 2,
+                                ScannerInterface::FLAG_SWAP_REGISTERS);
+
+    // FIXME: remove this when updating tests
+    gl843_set_buffer_address(dev, 0);
 }
 
 static void gl843_set_ad_fe(Genesys_Device* dev)
@@ -2334,11 +2308,8 @@ void CommandSetGl843::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor
         gamma[i * 2 + size * 4 + 1] = (bgamma[i] >> 8) & 0xff;
     }
 
-    // send address
-    gl843_set_buffer_address(dev, 0x0000);
-
-    // send data
-    dev->interface->bulk_write_data(0x28, gamma.data(), size * 2 * 3);
+    dev->interface->write_gamma(0x28, 0x0000, gamma.data(), size * 2 * 3,
+                                ScannerInterface::FLAG_SWAP_REGISTERS);
 }
 
 /* this function does the led calibration by scanning one line of the calibration
@@ -3372,10 +3343,8 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 	}
     }
 
-    // send data
-    sanei_genesys_set_buffer_address(dev, 0);
-
-    dev->interface->bulk_write_data(0x3c, final_data.data(), count);
+    dev->interface->write_buffer(0x3c, 0, final_data.data(), count,
+                                 ScannerInterface::FLAG_SMALL_ADDRESS);
 }
 
 bool CommandSetGl843::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const

@@ -59,19 +59,6 @@
 
 namespace genesys {
 
-// Set address for writing data
-static void gl841_set_buffer_address_gamma(Genesys_Device* dev, uint32_t addr)
-{
-    DBG_HELPER_ARGS(dbg, "setting address to 0x%05x", addr & 0xfffffff0);
-
-  addr = addr >> 4;
-
-    dev->interface->write_register(0x5c, (addr & 0xff));
-
-  addr = addr >> 8;
-    dev->interface->write_register(0x5b, (addr & 0xff));
-}
-
 bool CommandSetGl841::get_gain4_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);
@@ -571,9 +558,7 @@ static void gl841_send_slope_table(Genesys_Device* dev, int table_nr,
       DBG(DBG_io, "%s: %s\n", __func__, msg);
     }
 
-    sanei_genesys_set_buffer_address(dev, start_address + table_nr * 0x200);
-
-    dev->interface->bulk_write_data(0x3c, table.data(), steps * 2);
+    dev->interface->write_buffer(0x3c, start_address + table_nr * 0x200, table.data(), steps * 2);
 }
 
 static void gl841_set_lide80_fe(Genesys_Device* dev, uint8_t set)
@@ -813,9 +798,8 @@ uint8_t *table;
             table=tdefault;
         }
         dev->interface->write_register(0x66, 0x00);
-        dev->interface->write_register(0x5b, 0x0c);
-        dev->interface->write_register(0x5c, 0x00);
-        dev->interface->bulk_write_data(0x28, table, 128);
+        dev->interface->write_gamma(0x28, 0xc000, table, 128,
+                                    ScannerInterface::FLAG_SWAP_REGISTERS);
         dev->interface->write_register(0x5b, 0x00);
         dev->interface->write_register(0x5c, 0x00);
     }
@@ -2615,11 +2599,7 @@ void CommandSetGl841::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor
 
     sanei_genesys_generate_gamma_buffer(dev, sensor, 16, 65535, size, gamma.data());
 
-    // send address
-    gl841_set_buffer_address_gamma (dev, 0x00000);
-
-    // send data
-    dev->interface->bulk_write_data(0x28, gamma.data(), size * 2 * 3);
+    dev->interface->write_gamma(0x28, 0x0000, gamma.data(), size * 2 * 3);
 }
 
 
@@ -3922,11 +3902,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 
   /* old method if no SHDAREA */
     if ((dev->reg.find_reg(0x01).value & REG_0x01_SHDAREA) == 0) {
-        // start address
-        sanei_genesys_set_buffer_address(dev, 0x0000);
-
-        // shading data whole line
-        dev->interface->bulk_write_data(0x3c, data, size);
+        dev->interface->write_buffer(0x3c, 0x0000, data, size);
         return;
     }
 
@@ -3986,8 +3962,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
         }
 
         // 0x5400 alignment for LIDE80 internal memory
-        sanei_genesys_set_buffer_address(dev, 0x5400*i);
-        dev->interface->bulk_write_data(0x3c, buffer.data(), pixels);
+        dev->interface->write_buffer(0x3c, 0x5400 * i, buffer.data(), pixels);
     }
 }
 

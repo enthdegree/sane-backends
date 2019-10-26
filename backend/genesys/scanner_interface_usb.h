@@ -64,6 +64,12 @@ public:
     void write_0x8c(std::uint8_t index, std::uint8_t value) override;
     void bulk_read_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) override;
     void bulk_write_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) override;
+
+    void write_buffer(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
+                      std::size_t size, Flags flags) override;
+    void write_gamma(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
+                     std::size_t size, Flags flags) override;
+
     void write_ahb(std::uint32_t addr, std::uint32_t size, std::uint8_t* data) override;
 
     std::uint16_t read_fe_register(std::uint8_t address) override;

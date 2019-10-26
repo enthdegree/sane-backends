@@ -90,6 +90,26 @@ void TestScannerInterface::bulk_write_data(std::uint8_t addr, std::uint8_t* data
     (void) size;
 }
 
+void TestScannerInterface::write_buffer(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
+                                        std::size_t size, Flags flags)
+{
+    (void) type;
+    (void) addr;
+    (void) data;
+    (void) size;
+    (void) flags;
+}
+
+void TestScannerInterface::write_gamma(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
+                                       std::size_t size, Flags flags)
+{
+    (void) type;
+    (void) addr;
+    (void) data;
+    (void) size;
+    (void) flags;
+}
+
 void TestScannerInterface::write_ahb(std::uint32_t addr, std::uint32_t size, std::uint8_t* data)
 {
     (void) addr;

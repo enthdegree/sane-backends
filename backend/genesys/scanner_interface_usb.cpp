@@ -351,10 +351,71 @@ void ScannerInterfaceUsb::bulk_write_data(std::uint8_t addr, std::uint8_t* data,
     }
 }
 
+void ScannerInterfaceUsb::write_buffer(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
+                                       std::size_t size, Flags flags)
+{
+    DBG_HELPER_ARGS(dbg, "type: 0x%02x, addr: 0x%08x, size: 0x%08zx", type, addr, size);
+    if (dev_->model->asic_type != AsicType::GL646 &&
+        dev_->model->asic_type != AsicType::GL841 &&
+        dev_->model->asic_type != AsicType::GL843)
+    {
+        throw SaneException("Unsupported transfer mode");
+    }
+
+    if (dev_->model->asic_type == AsicType::GL843) {
+        if (flags & FLAG_SWAP_REGISTERS) {
+            if (!(flags & FLAG_SMALL_ADDRESS)) {
+                write_register(0x29, ((addr >> 20) & 0xff));
+            }
+            write_register(0x2a, ((addr >> 12) & 0xff));
+            write_register(0x2b, ((addr >> 4) & 0xff));
+        } else {
+            write_register(0x2b, ((addr >> 4) & 0xff));
+            write_register(0x2a, ((addr >> 12) & 0xff));
+            if (!(flags & FLAG_SMALL_ADDRESS)) {
+                write_register(0x29, ((addr >> 20) & 0xff));
+            }
+        }
+    } else {
+        write_register(0x2b, ((addr >> 4) & 0xff));
+        write_register(0x2a, ((addr >> 12) & 0xff));
+    }
+    bulk_write_data(type, data, size);
+}
+
+void ScannerInterfaceUsb::write_gamma(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
+                                      std::size_t size, Flags flags)
+{
+    DBG_HELPER_ARGS(dbg, "type: 0x%02x, addr: 0x%08x, size: 0x%08zx", type, addr, size);
+    if (dev_->model->asic_type != AsicType::GL646 &&
+        dev_->model->asic_type != AsicType::GL841 &&
+        dev_->model->asic_type != AsicType::GL843)
+    {
+        throw SaneException("Unsupported transfer mode");
+    }
+
+    if (flags & FLAG_SWAP_REGISTERS) {
+        write_register(0x5b, ((addr >> 12) & 0xff));
+        write_register(0x5c, ((addr >> 4) & 0xff));
+    } else {
+        write_register(0x5c, ((addr >> 4) & 0xff));
+        write_register(0x5b, ((addr >> 12) & 0xff));
+    }
+    bulk_write_data(type, data, size);
+}
+
 void ScannerInterfaceUsb::write_ahb(std::uint32_t addr, std::uint32_t size, std::uint8_t* data)
 {
-    DBG_HELPER_ARGS(dbg, "size %d", static_cast<unsigned>(size));
+    DBG_HELPER_ARGS(dbg, "address: 0x%08x, size: %d", static_cast<unsigned>(addr),
+                    static_cast<unsigned>(size));
 
+    if (dev_->model->asic_type != AsicType::GL845 &&
+        dev_->model->asic_type != AsicType::GL846 &&
+        dev_->model->asic_type != AsicType::GL847 &&
+        dev_->model->asic_type != AsicType::GL124)
+    {
+        throw SaneException("Unsupported transfer type");
+    }
     std::uint8_t outdata[8];
     outdata[0] = addr & 0xff;
     outdata[1] = ((addr >> 8) & 0xff);

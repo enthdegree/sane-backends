@@ -835,9 +835,7 @@ static void gl646_send_slope_table(Genesys_Device* dev, int table_nr,
       table[i * 2 + 1] = slope_table[i] >> 8;
     }
 
-    sanei_genesys_set_buffer_address(dev, start_address + table_nr * 0x100);
-
-    dev->interface->bulk_write_data(0x3c, table.data(), steps * 2);
+    dev->interface->write_buffer(0x3c, start_address + table_nr * 0x100, table.data(), steps * 2);
 }
 
 // Set values of Analog Device type frontend
@@ -1974,11 +1972,7 @@ void CommandSetGl646::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor
             throw SaneException("invalid dpi");
     }
 
-    // send address
-    sanei_genesys_set_buffer_address(dev, address);
-
-    // send data
-    dev->interface->bulk_write_data(0x3c, gamma.data(), size * 2 * 3);
+    dev->interface->write_buffer(0x3c, address, gamma.data(), size * 2 * 3);
 }
 
 /** @brief this function does the led calibration.
@@ -3279,8 +3273,7 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
 
   DBG(DBG_info, "%s: control write=0x%02x 0x%02x 0x%02x 0x%02x\n", __func__, control[0], control[1],
       control[2], control[3]);
-    sanei_genesys_set_buffer_address(dev, addr);
-    dev->interface->bulk_write_data(0x3c, control, 4);
+    dev->interface->write_buffer(0x3c, addr, control, 4);
 }
 
 /**

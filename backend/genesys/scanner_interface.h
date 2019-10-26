@@ -54,6 +54,12 @@ namespace genesys {
 class ScannerInterface
 {
 public:
+    enum Flags {
+        FLAG_NONE = 0,
+        FLAG_SWAP_REGISTERS = 1 << 0,
+        FLAG_SMALL_ADDRESS = 1 << 1
+    };
+
     virtual ~ScannerInterface();
 
     virtual bool is_mock() const = 0;
@@ -65,6 +71,16 @@ public:
     virtual void write_0x8c(std::uint8_t index, std::uint8_t value) = 0;
     virtual void bulk_read_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) = 0;
     virtual void bulk_write_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) = 0;
+
+    // GL646, GL841, GL843 have different ways to write to RAM and to gamma tables
+    // FIXME: remove flags when updating tests
+    virtual void write_buffer(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
+                              std::size_t size, Flags flags = FLAG_NONE) = 0;
+
+    virtual void write_gamma(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
+                             std::size_t size, Flags flags = FLAG_NONE) = 0;
+
+    // GL845, GL846, GL847 and GL124 have a uniform way to write to RAM tables
     virtual void write_ahb(std::uint32_t addr, std::uint32_t size, std::uint8_t* data) = 0;
 
     virtual std::uint16_t read_fe_register(std::uint8_t address) = 0;

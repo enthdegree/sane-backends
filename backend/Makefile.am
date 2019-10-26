@@ -520,6 +520,7 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/tables_motor.cpp \
     genesys/tables_motor_profile.cpp \
     genesys/tables_sensor.cpp \
+    genesys/test_scanner_interface.h genesys/test_scanner_interface.cpp \
     genesys/low.cpp genesys/low.h \
     genesys/utilities.h
 

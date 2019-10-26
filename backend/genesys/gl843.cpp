@@ -3374,6 +3374,9 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
           startx);
     }
 
+    dev->interface->record_key_value("shading_offset", std::to_string(offset));
+    dev->interface->record_key_value("shading_length", std::to_string(length));
+
   /* compute and allocate size for final data */
   final_size = ((length+251) / 252) * 256;
   DBG(DBG_io, "%s: final shading size=%04x (length=%d)\n", __func__, final_size, length);

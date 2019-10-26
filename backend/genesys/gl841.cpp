@@ -4013,6 +4013,10 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   beginpixel = (strpixel-beginpixel*2*2)/factor;
   DBG(DBG_io2, "%s: BEGIN PIXEL=%d\n", __func__, beginpixel/4);
 
+    dev->interface->record_key_value("shading_offset", std::to_string(beginpixel));
+    dev->interface->record_key_value("shading_pixels", std::to_string(pixels));
+    dev->interface->record_key_value("shading_length", std::to_string(length));
+
   DBG(DBG_io2, "%s: using chunks of %d bytes (%d shading data pixels)\n", __func__, length,
       length/4);
   std::vector<uint8_t> buffer(pixels, 0);

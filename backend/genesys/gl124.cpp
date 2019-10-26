@@ -1719,6 +1719,14 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   segcnt*=2*2;
   pixels=endpixel-strpixel;
 
+    dev->interface->record_key_value("shading_start_pixel", std::to_string(strpixel));
+    dev->interface->record_key_value("shading_pixels", std::to_string(pixels));
+    dev->interface->record_key_value("shading_length", std::to_string(length));
+    dev->interface->record_key_value("shading_factor", std::to_string(factor));
+    dev->interface->record_key_value("shading_segcnt", std::to_string(segcnt));
+    dev->interface->record_key_value("shading_segment_count",
+                                     std::to_string(dev->session.segment_count));
+
   DBG( DBG_io2, "%s: using chunks of %d bytes (%d shading data pixels)\n",__func__,length, length/4);
     std::vector<uint8_t> buffer(pixels * dev->session.segment_count, 0);
 

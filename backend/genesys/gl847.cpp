@@ -1499,6 +1499,11 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   strpixel*=2*2;
   pixels*=2*2;
 
+    dev->interface->record_key_value("shading_offset", std::to_string(strpixel));
+    dev->interface->record_key_value("shading_pixels", std::to_string(pixels));
+    dev->interface->record_key_value("shading_length", std::to_string(length));
+    dev->interface->record_key_value("shading_factor", std::to_string(factor));
+
   std::vector<uint8_t> buffer(pixels, 0);
 
   DBG(DBG_io2, "%s: using chunks of %d (0x%04x) bytes\n", __func__, pixels, pixels);

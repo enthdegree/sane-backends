@@ -48,6 +48,8 @@
 #include "register_cache.h"
 #include "test_usb_device.h"
 
+#include <map>
+
 namespace genesys {
 
 class TestScannerInterface : public ScannerInterface
@@ -82,11 +84,16 @@ public:
 
     const std::string& last_progress_message() const;
 
+    void record_key_value(const std::string& key, const std::string& value) override;
+
+    std::map<std::string, std::string>& recorded_key_values();
+
 private:
     RegisterCache<std::uint8_t> cached_regs_;
     RegisterCache<std::uint16_t> cached_fe_regs_;
     TestUsbDevice usb_dev_;
     std::string last_progress_message_;
+    std::map<std::string, std::string> key_values_;
 };
 
 } // namespace genesys

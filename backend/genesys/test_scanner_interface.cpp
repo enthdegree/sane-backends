@@ -147,4 +147,14 @@ const std::string& TestScannerInterface::last_progress_message() const
     return last_progress_message_;
 }
 
+void TestScannerInterface::record_key_value(const std::string& key, const std::string& value)
+{
+    key_values_[key] = value;
+}
+
+std::map<std::string, std::string>& TestScannerInterface::recorded_key_values()
+{
+    return key_values_;
+}
+
 } // namespace genesys

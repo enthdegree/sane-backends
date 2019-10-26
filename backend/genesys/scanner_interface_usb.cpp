@@ -494,4 +494,10 @@ void ScannerInterfaceUsb::record_progress_message(const char* msg)
     sanei_usb_testing_record_message(msg);
 }
 
+void ScannerInterfaceUsb::record_key_value(const std::string& key, const std::string& value)
+{
+    (void) key;
+    (void) value;
+}
+
 } // namespace genesys

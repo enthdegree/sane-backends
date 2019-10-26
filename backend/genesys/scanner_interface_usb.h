@@ -82,6 +82,8 @@ public:
 
     void record_progress_message(const char* msg) override;
 
+    void record_key_value(const std::string& key, const std::string& value) override;
+
 private:
     Genesys_Device* dev_;
     UsbDevice usb_dev_;

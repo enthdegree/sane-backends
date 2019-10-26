@@ -3375,7 +3375,7 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     // send data
     sanei_genesys_set_buffer_address(dev, 0);
 
-    dev->cmd_set->bulk_write_data (dev, 0x3c, final_data.data(), count);
+    sanei_genesys_bulk_write_data(dev, 0x3c, final_data.data(), count);
 }
 
 bool CommandSetGl843::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const
@@ -3393,18 +3393,6 @@ void CommandSetGl843::rewind(Genesys_Device* dev) const
 {
     (void) dev;
     throw SaneException("not implemented");
-}
-
-void CommandSetGl843::bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
-                                      size_t len) const
-{
-    sanei_genesys_bulk_write_data(dev, addr, data, len);
-}
-
-void CommandSetGl843::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
-                                     size_t len) const
-{
-    sanei_genesys_bulk_read_data(dev, addr, data, len);
 }
 
 std::unique_ptr<CommandSet> create_gl843_cmd_set()

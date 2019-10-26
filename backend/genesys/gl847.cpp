@@ -2403,18 +2403,6 @@ void CommandSetGl847::rewind(Genesys_Device* dev) const
     throw SaneException("not implemented");
 }
 
-void CommandSetGl847::bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
-                                      size_t len) const
-{
-    sanei_genesys_bulk_write_data(dev, addr, data, len);
-}
-
-void CommandSetGl847::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
-                                     size_t len) const
-{
-    sanei_genesys_bulk_read_data(dev, addr, data, len);
-}
-
 void CommandSetGl847::load_document(Genesys_Device* dev) const
 {
     (void) dev;

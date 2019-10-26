@@ -84,14 +84,6 @@ static void gl646_gpio_output_enable(UsbDevice& usb_dev, uint8_t value)
     usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, GPIO_OUTPUT_ENABLE, INDEX, 1, &value);
 }
 
-/* Read bulk data (e.g. scanned data) */
-void CommandSetGl646::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
-                                     size_t len) const
-{
-    DBG_HELPER(dbg);
-    sanei_genesys_bulk_read_data(dev, addr, data, len);
-}
-
 bool CommandSetGl646::get_gain4_bit(Genesys_Register_Set* regs) const
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);
@@ -2894,9 +2886,9 @@ void CommandSetGl646::init(Genesys_Device* dev) const
         // for some reason, read fails here for MD6471, HP2300 and XP200 one time out of
         // 2 scanimage launches
         try {
-            bulk_read_data(dev, 0x45, dev->control, len);
+            sanei_genesys_bulk_read_data(dev, 0x45, dev->control, len);
         } catch (...) {
-            bulk_read_data(dev, 0x45, dev->control, len);
+            sanei_genesys_bulk_read_data(dev, 0x45, dev->control, len);
         }
         DBG(DBG_info, "%s: control read=0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n", __func__,
             dev->control[0], dev->control[1], dev->control[2], dev->control[3], dev->control[4],
@@ -3449,12 +3441,6 @@ void CommandSetGl646::rewind(Genesys_Device* dev) const
 {
     (void) dev;
     throw SaneException("not implemented");
-}
-
-void CommandSetGl646::bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
-                                      size_t len) const
-{
-    sanei_genesys_bulk_write_data(dev, addr, data, len);
 }
 
 void CommandSetGl646::send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,

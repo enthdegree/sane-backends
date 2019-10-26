@@ -115,11 +115,6 @@ public:
 
     bool has_rewind() const override { return false; }
 
-    void bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
-                         size_t len) const override;
-    void bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t * data,
-                        size_t len) const override;
-
     void update_hardware_sensors(struct Genesys_Scanner* s) const override;
 
     void load_document(Genesys_Device* dev) const override;

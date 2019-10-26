@@ -2513,18 +2513,6 @@ void CommandSetGl124::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor
     sanei_genesys_send_gamma_table(dev, sensor);
 }
 
-void CommandSetGl124::bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
-                                      size_t len) const
-{
-    sanei_genesys_bulk_write_data(dev, addr, data, len);
-}
-
-void CommandSetGl124::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
-                                     size_t len) const
-{
-    sanei_genesys_bulk_read_data(dev, addr, data, len);
-}
-
 void CommandSetGl124::load_document(Genesys_Device* dev) const
 {
     (void) dev;

@@ -3928,7 +3928,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
         sanei_genesys_set_buffer_address(dev, 0x0000);
 
         // shading data whole line
-        dev->cmd_set->bulk_write_data(dev, 0x3c, data, size);
+        sanei_genesys_bulk_write_data(dev, 0x3c, data, size);
         return;
     }
 
@@ -3989,7 +3989,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 
         // 0x5400 alignment for LIDE80 internal memory
         sanei_genesys_set_buffer_address(dev, 0x5400*i);
-        dev->cmd_set->bulk_write_data(dev, 0x3c, buffer.data(), pixels);
+        sanei_genesys_bulk_write_data(dev, 0x3c, buffer.data(), pixels);
     }
 }
 
@@ -4008,18 +4008,6 @@ void CommandSetGl841::rewind(Genesys_Device* dev) const
 {
     (void) dev;
     throw SaneException("not implemented");
-}
-
-void CommandSetGl841::bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
-                                      size_t len) const
-{
-    sanei_genesys_bulk_write_data(dev, addr, data, len);
-}
-
-void CommandSetGl841::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
-                                     size_t len) const
-{
-    sanei_genesys_bulk_read_data(dev, addr, data, len);
 }
 
 void CommandSetGl841::move_to_ta(Genesys_Device* dev) const

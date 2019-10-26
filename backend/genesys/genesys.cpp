@@ -922,7 +922,7 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
 
     sanei_genesys_set_buffer_address(dev, start_address);
 
-    dev->cmd_set->bulk_write_data(dev, 0x3c, data, size);
+    sanei_genesys_bulk_write_data(dev, 0x3c, data, size);
 }
 
 // ?

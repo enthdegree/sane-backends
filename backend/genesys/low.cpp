@@ -831,7 +831,7 @@ void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, si
 
     wait_until_has_valid_words(dev);
 
-    dev->cmd_set->bulk_read_data(dev, 0x45, data, size);
+    sanei_genesys_bulk_read_data(dev, 0x45, data, size);
 }
 
 Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession& session,
@@ -1748,7 +1748,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
 
     auto read_data_from_usb = [dev](std::size_t size, std::uint8_t* data)
     {
-        dev->cmd_set->bulk_read_data(dev, 0x45, data, size);
+        sanei_genesys_bulk_read_data(dev, 0x45, data, size);
         return true;
     };
 

@@ -84,7 +84,7 @@ static void write_data(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_
     gl843_set_buffer_address(dev, addr);
 
     // write actual data
-    sanei_genesys_bulk_write_data(dev, 0x28, data, size);
+    dev->interface->bulk_write_data(0x28, data, size);
 
     // set back address to 0
     gl843_set_buffer_address(dev, 0);
@@ -714,7 +714,7 @@ gl843_init_registers (Genesys_Device * dev)
             0x6a, 0x73, 0x63, 0x68, 0x69, 0x65, 0x6e, 0x00,
         };
 
-        sanei_genesys_bulk_write_data(dev, 0x3c, data, 32);
+        dev->interface->bulk_write_data(0x3c, data, 32);
     }
 }
 
@@ -752,7 +752,7 @@ static void gl843_send_slope_table(Genesys_Device* dev, int table_nr,
 static void gl843_set_ad_fe(Genesys_Device* dev)
 {
     for (const auto& reg : dev->frontend.regs) {
-        sanei_genesys_fe_write_data(dev, reg.address, reg.value);
+        dev->interface->write_fe_register(reg.address, reg.value);
     }
 }
 
@@ -790,22 +790,22 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
     {
         // FIXME: the check below is just historical artifact, we can remove it when convenient
         if (!dev->frontend_is_init) {
-            sanei_genesys_fe_write_data(dev, i, 0x00);
+            dev->interface->write_fe_register(i, 0x00);
         } else {
-            sanei_genesys_fe_write_data(dev, i, dev->frontend.regs.get_value(0x00 + i));
+            dev->interface->write_fe_register(i, dev->frontend.regs.get_value(0x00 + i));
         }
     }
     for (const auto& reg : sensor.custom_fe_regs) {
-        sanei_genesys_fe_write_data(dev, reg.address, reg.value);
+        dev->interface->write_fe_register(reg.address, reg.value);
     }
 
   for (i = 0; i < 3; i++)
     {
          // FIXME: the check below is just historical artifact, we can remove it when convenient
         if (!dev->frontend_is_init) {
-            sanei_genesys_fe_write_data(dev, 0x20 + i, 0x00);
+            dev->interface->write_fe_register(0x20 + i, 0x00);
         } else {
-            sanei_genesys_fe_write_data(dev, 0x20 + i, dev->frontend.get_offset(i));
+            dev->interface->write_fe_register(0x20 + i, dev->frontend.get_offset(i));
         }
     }
 
@@ -814,9 +814,9 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 	{
             // FIXME: the check below is just historical artifact, we can remove it when convenient
             if (!dev->frontend_is_init) {
-                sanei_genesys_fe_write_data(dev, 0x24 + i, 0x00);
+                dev->interface->write_fe_register(0x24 + i, 0x00);
             } else {
-                sanei_genesys_fe_write_data(dev, 0x24 + i, dev->frontend.regs.get_value(0x24 + i));
+                dev->interface->write_fe_register(0x24 + i, dev->frontend.regs.get_value(0x24 + i));
             }
 	}
     }
@@ -825,9 +825,9 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
     {
         // FIXME: the check below is just historical artifact, we can remove it when convenient
         if (!dev->frontend_is_init) {
-            sanei_genesys_fe_write_data(dev, 0x28 + i, 0x00);
+            dev->interface->write_fe_register(0x28 + i, 0x00);
         } else {
-            sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
+            dev->interface->write_fe_register(0x28 + i, dev->frontend.get_gain(i));
         }
     }
 }
@@ -2338,7 +2338,7 @@ void CommandSetGl843::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor
     gl843_set_buffer_address(dev, 0x0000);
 
     // send data
-    sanei_genesys_bulk_write_data(dev, 0x28, gamma.data(), size * 2 * 3);
+    dev->interface->bulk_write_data(0x28, gamma.data(), size * 2 * 3);
 }
 
 /* this function does the led calibration by scanning one line of the calibration
@@ -2969,7 +2969,7 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
     {
       val = 0x11;
     }
-    sanei_genesys_write_0x8c(dev, 0x0f, val);
+    dev->interface->write_0x8c(0x0f, val);
 
     // test CHKVER
     val = dev->read_register(REG_0x40);
@@ -2998,18 +2998,18 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
   dev->reg.find_reg(0x0b).value = val;
 
     if (dev->model->model_id == ModelId::CANON_8400F) {
-        sanei_genesys_write_0x8c(dev, 0x1e, 0x01);
-        sanei_genesys_write_0x8c(dev, 0x10, 0xb4);
-        sanei_genesys_write_0x8c(dev, 0x0f, 0x02);
+        dev->interface->write_0x8c(0x1e, 0x01);
+        dev->interface->write_0x8c(0x10, 0xb4);
+        dev->interface->write_0x8c(0x0f, 0x02);
     }
     else if (dev->model->model_id == ModelId::CANON_8600F) {
-        sanei_genesys_write_0x8c(dev, 0x10, 0xc8);
+        dev->interface->write_0x8c(0x10, 0xc8);
     } else if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
                dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
     {
-        sanei_genesys_write_0x8c(dev, 0x10, 0xd4);
+        dev->interface->write_0x8c(0x10, 0xd4);
     } else {
-        sanei_genesys_write_0x8c(dev, 0x10, 0xb4);
+        dev->interface->write_0x8c(0x10, 0xb4);
     }
 
   /* CLKSET */
@@ -3375,7 +3375,7 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     // send data
     sanei_genesys_set_buffer_address(dev, 0);
 
-    sanei_genesys_bulk_write_data(dev, 0x3c, final_data.data(), count);
+    dev->interface->bulk_write_data(0x3c, final_data.data(), count);
 }
 
 bool CommandSetGl843::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const

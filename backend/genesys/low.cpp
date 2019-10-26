@@ -831,7 +831,7 @@ void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, si
 
     wait_until_has_valid_words(dev);
 
-    sanei_genesys_bulk_read_data(dev, 0x45, data, size);
+    dev->interface->bulk_read_data(0x45, data, size);
 }
 
 Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession& session,
@@ -1234,8 +1234,8 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
         dev->write_register(0xc5+2*i, gamma[size*2*i+1]);
         dev->write_register(0xc6+2*i, gamma[size*2*i]);
 
-        sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2,
-                                gamma.data() + i * size * 2+2);
+        dev->interface->write_ahb(0x01000000 + 0x200 * i, (size-1) * 2,
+                                  gamma.data() + i * size * 2+2);
     }
 }
 
@@ -1748,7 +1748,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
 
     auto read_data_from_usb = [dev](std::size_t size, std::uint8_t* data)
     {
-        sanei_genesys_bulk_read_data(dev, 0x45, data, size);
+        dev->interface->bulk_read_data(0x45, data, size);
         return true;
     };
 

@@ -317,7 +317,7 @@ static void gl847_send_slope_table(Genesys_Device* dev, int table_nr,
     }
 
     // slope table addresses are fixed
-    sanei_genesys_write_ahb(dev, 0x10000000 + 0x4000 * table_nr, steps * 2, table.data());
+    dev->interface->write_ahb(0x10000000 + 0x4000 * table_nr, steps * 2, table.data());
 }
 
 /**
@@ -344,18 +344,18 @@ static void gl847_set_ad_fe(Genesys_Device* dev, uint8_t set)
     }
 
     // reset DAC
-    sanei_genesys_fe_write_data(dev, 0x00, 0x80);
+    dev->interface->write_fe_register(0x00, 0x80);
 
     // write them to analog frontend
-    sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
+    dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
 
-    sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
+    dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
 
     for (i = 0; i < 3; i++) {
-        sanei_genesys_fe_write_data(dev, 0x02 + i, dev->frontend.get_gain(i));
+        dev->interface->write_fe_register(0x02 + i, dev->frontend.get_gain(i));
     }
     for (i = 0; i < 3; i++) {
-        sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.get_offset(i));
+        dev->interface->write_fe_register(0x05 + i, dev->frontend.get_offset(i));
     }
 }
 
@@ -1508,7 +1508,7 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 
         val = dev->read_register(0xd0+i);
         addr = val * 8192 + 0x10000000;
-        sanei_genesys_write_ahb(dev, addr, pixels, buffer.data());
+        dev->interface->write_ahb(addr, pixels, buffer.data());
     }
 }
 
@@ -1816,8 +1816,8 @@ void CommandSetGl847::asic_boot(Genesys_Device* dev, bool cold) const
     dev->write_register(0x08, dev->reg.find_reg(0x08).value);
 
     // set up end access
-    sanei_genesys_write_0x8c(dev, 0x10, 0x0b);
-    sanei_genesys_write_0x8c(dev, 0x13, 0x0e);
+    dev->interface->write_0x8c(0x10, 0x0b);
+    dev->interface->write_0x8c(0x13, 0x0e);
 
     // setup gpio
     gl847_init_gpio(dev);

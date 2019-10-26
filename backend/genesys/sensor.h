@@ -116,7 +116,7 @@ void serialize(Stream& str, GenesysFrontendLayout& x)
 /** @brief Data structure to set up analog frontend.
     The analog frontend converts analog value from image sensor to digital value. It has its own
     control registers which are set up with this structure. The values are written using
-    sanei_genesys_fe_write_data.
+    fe_write_data.
  */
 struct Genesys_Frontend
 {

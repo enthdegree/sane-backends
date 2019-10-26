@@ -837,7 +837,7 @@ static void gl646_send_slope_table(Genesys_Device* dev, int table_nr,
 
     sanei_genesys_set_buffer_address(dev, start_address + table_nr * 0x100);
 
-    sanei_genesys_bulk_write_data(dev, 0x3c, table.data(), steps * 2);
+    dev->interface->bulk_write_data(0x3c, table.data(), steps * 2);
 }
 
 // Set values of Analog Device type frontend
@@ -854,24 +854,22 @@ static void gl646_set_ad_fe(Genesys_Device* dev, uint8_t set)
       dev->frontend = dev->frontend_initial;
 
         // write them to analog frontend
-        sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
-        sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
+        dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
+        dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
     }
   if (set == AFE_SET)
     {
-      for (i = 0; i < 3; i++)
-	{
-        sanei_genesys_fe_write_data(dev, 0x02 + i, dev->frontend.get_gain(i));
-	}
-      for (i = 0; i < 3; i++)
-	{
-        sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.get_offset(i));
-	}
+        for (i = 0; i < 3; i++) {
+            dev->interface->write_fe_register(0x02 + i, dev->frontend.get_gain(i));
+        }
+        for (i = 0; i < 3; i++) {
+            dev->interface->write_fe_register(0x05 + i, dev->frontend.get_offset(i));
+        }
     }
   /*
      if (set == AFE_POWER_SAVE)
      {
-        sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.reg[0] | 0x04);
+        dev->interface->write_fe_register(0x00, dev->frontend.reg[0] | 0x04);
      } */
 }
 
@@ -890,17 +888,17 @@ static void gl646_wm_hp3670(Genesys_Device* dev, const Genesys_Sensor& sensor, u
   switch (set)
     {
     case AFE_INIT:
-        sanei_genesys_fe_write_data (dev, 0x04, 0x80);
+        dev->interface->write_fe_register(0x04, 0x80);
       sanei_genesys_sleep_ms(200);
     dev->write_register(0x50, 0x00);
       dev->frontend = dev->frontend_initial;
-        sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
-        sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.regs.get_value(0x02));
+        dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
+        dev->interface->write_fe_register(0x02, dev->frontend.regs.get_value(0x02));
         gl646_gpio_output_enable(dev->usb_dev, 0x07);
       break;
     case AFE_POWER_SAVE:
-        sanei_genesys_fe_write_data(dev, 0x01, 0x06);
-        sanei_genesys_fe_write_data(dev, 0x06, 0x0f);
+        dev->interface->write_fe_register(0x01, 0x06);
+        dev->interface->write_fe_register(0x06, 0x0f);
             return;
       break;
     default:			/* AFE_SET */
@@ -913,18 +911,16 @@ static void gl646_wm_hp3670(Genesys_Device* dev, const Genesys_Sensor& sensor, u
 	   * fe_reg_0x03 set to 0x32 or 0x12 but not to 0x02 */
 	  i = 0x12;
 	}
-        sanei_genesys_fe_write_data(dev, 0x03, i);
+        dev->interface->write_fe_register(0x03, i);
       /* offset and sign (or msb/lsb ?) */
-      for (i = 0; i < 3; i++)
-	{
-        sanei_genesys_fe_write_data(dev, 0x20 + i, dev->frontend.get_offset(i));
-        sanei_genesys_fe_write_data(dev, 0x24 + i,
-                                    dev->frontend.regs.get_value(0x24 + i));	/* MSB/LSB ? */
-	}
+        for (i = 0; i < 3; i++) {
+            dev->interface->write_fe_register(0x20 + i, dev->frontend.get_offset(i));
+            dev->interface->write_fe_register(0x24 + i, dev->frontend.regs.get_value(0x24 + i));
+        }
 
         // gain
         for (i = 0; i < 3; i++) {
-            sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
+            dev->interface->write_fe_register(0x28 + i, dev->frontend.get_gain(i));
         }
     }
 }
@@ -974,7 +970,7 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
       dev->frontend = dev->frontend_initial;
 
         // reset only done on init
-        sanei_genesys_fe_write_data(dev, 0x04, 0x80);
+        dev->interface->write_fe_register(0x04, 0x80);
 
       /* enable GPIO for some models */
         if (dev->model->sensor_id == SensorId::CCD_HP2300) {
@@ -986,7 +982,7 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
 
     // set fontend to power saving mode
     if (set == AFE_POWER_SAVE) {
-        sanei_genesys_fe_write_data(dev, 0x01, 0x02);
+        dev->interface->write_fe_register(0x01, 0x02);
         return;
     }
 
@@ -996,35 +992,34 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
      && dev->model->ccd_type != SensorId::CCD_HP3670
      && dev->model->ccd_type != SensorId::CCD_HP2400) */
   {
-        sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
-        sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.regs.get_value(0x02));
+        dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
+        dev->interface->write_fe_register(0x02, dev->frontend.regs.get_value(0x02));
   }
 
     // start with reg3
-    sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x03));
+    dev->interface->write_fe_register(0x03, dev->frontend.regs.get_value(0x03));
 
   switch (dev->model->sensor_id)
     {
     default:
-      for (i = 0; i < 3; i++)
-	{
-        sanei_genesys_fe_write_data(dev, 0x24 + i, dev->frontend.regs.get_value(0x24 + i));
-        sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
-        sanei_genesys_fe_write_data(dev, 0x20 + i, dev->frontend.get_offset(i));
-	}
+            for (i = 0; i < 3; i++) {
+                dev->interface->write_fe_register(0x24 + i, dev->frontend.regs.get_value(0x24 + i));
+                dev->interface->write_fe_register(0x28 + i, dev->frontend.get_gain(i));
+                dev->interface->write_fe_register(0x20 + i, dev->frontend.get_offset(i));
+            }
       break;
       /* just can't have it to work ....
          case SensorId::CCD_HP2300:
          case SensorId::CCD_HP2400:
          case SensorId::CCD_HP3670:
 
-        sanei_genesys_fe_write_data(dev, 0x23, dev->frontend.get_offset(1));
-        sanei_genesys_fe_write_data(dev, 0x28, dev->frontend.get_gain(1));
+        dev->interface->write_fe_register(0x23, dev->frontend.get_offset(1));
+        dev->interface->write_fe_register(0x28, dev->frontend.get_gain(1));
          break; */
     }
 
     // end with reg1
-    sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
+    dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
 }
 
 /** Set values of analog frontend
@@ -1983,7 +1978,7 @@ void CommandSetGl646::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor
     sanei_genesys_set_buffer_address(dev, address);
 
     // send data
-    sanei_genesys_bulk_write_data(dev, 0x3c, gamma.data(), size * 2 * 3);
+    dev->interface->bulk_write_data(0x3c, gamma.data(), size * 2 * 3);
 }
 
 /** @brief this function does the led calibration.
@@ -2886,9 +2881,9 @@ void CommandSetGl646::init(Genesys_Device* dev) const
         // for some reason, read fails here for MD6471, HP2300 and XP200 one time out of
         // 2 scanimage launches
         try {
-            sanei_genesys_bulk_read_data(dev, 0x45, dev->control, len);
+            dev->interface->bulk_read_data(0x45, dev->control, len);
         } catch (...) {
-            sanei_genesys_bulk_read_data(dev, 0x45, dev->control, len);
+            dev->interface->bulk_read_data(0x45, dev->control, len);
         }
         DBG(DBG_info, "%s: control read=0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n", __func__,
             dev->control[0], dev->control[1], dev->control[2], dev->control[3], dev->control[4],
@@ -3285,7 +3280,7 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
   DBG(DBG_info, "%s: control write=0x%02x 0x%02x 0x%02x 0x%02x\n", __func__, control[0], control[1],
       control[2], control[3]);
     sanei_genesys_set_buffer_address(dev, addr);
-    sanei_genesys_bulk_write_data(dev, 0x3c, control, 4);
+    dev->interface->bulk_write_data(0x3c, control, 4);
 }
 
 /**

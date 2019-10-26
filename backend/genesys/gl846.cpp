@@ -295,7 +295,7 @@ static void gl846_send_slope_table(Genesys_Device* dev, int table_nr,
     }
 
     // slope table addresses are fixed
-    sanei_genesys_write_ahb(dev, 0x10000000 + 0x4000 * table_nr, steps * 2, table.data());
+    dev->interface->write_ahb(0x10000000 + 0x4000 * table_nr, steps * 2, table.data());
 }
 
 /**
@@ -322,15 +322,15 @@ static void gl846_set_adi_fe(Genesys_Device* dev, uint8_t set)
     }
 
     // write them to analog frontend
-    sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
+    dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
 
-    sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
+    dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
 
     for (i = 0; i < 3; i++) {
-        sanei_genesys_fe_write_data(dev, 0x02 + i, dev->frontend.get_gain(i));
+        dev->interface->write_fe_register(0x02 + i, dev->frontend.get_gain(i));
     }
     for (i = 0; i < 3; i++) {
-        sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.get_offset(i));
+        dev->interface->write_fe_register(0x05 + i, dev->frontend.get_offset(i));
     }
 }
 
@@ -1476,7 +1476,7 @@ void CommandSetGl846::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 
         val = dev->read_register(0xd0+i);
         addr = val * 8192 + 0x10000000;
-        sanei_genesys_write_ahb(dev, addr, pixels, buffer.data());
+        dev->interface->write_ahb(addr, pixels, buffer.data());
     }
 }
 
@@ -1727,7 +1727,7 @@ void CommandSetGl846::asic_boot(Genesys_Device* dev, bool cold) const
     {
       val = 0x11;
     }
-    sanei_genesys_write_0x8c(dev, 0x0f, val);
+    dev->interface->write_0x8c(0x0f, val);
 
     // test CHKVER
     val = dev->read_register(REG_0x40);
@@ -1756,8 +1756,8 @@ void CommandSetGl846::asic_boot(Genesys_Device* dev, bool cold) const
     }
 
     // set up clocks
-    sanei_genesys_write_0x8c(dev, 0x10, 0x0e);
-    sanei_genesys_write_0x8c(dev, 0x13, 0x0e);
+    dev->interface->write_0x8c(0x10, 0x0e);
+    dev->interface->write_0x8c(0x13, 0x0e);
 
     // setup gpio
     gl846_init_gpio(dev);

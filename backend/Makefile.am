@@ -507,7 +507,10 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/image.h genesys/image.cpp \
     genesys/motor.h \
     genesys/register.h \
+    genesys/register_cache.h \
     genesys/sanei.h genesys/sanei.cpp \
+    genesys/scanner_interface.h genesys/scanner_interface.cpp \
+    genesys/scanner_interface_usb.h genesys/scanner_interface_usb.cpp \
     genesys/sensor.h \
     genesys/settings.h \
     genesys/serialize.h \

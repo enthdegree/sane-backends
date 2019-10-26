@@ -64,6 +64,7 @@
 #include "conv.h"
 #include "sanei.h"
 #include "utilities.h"
+#include "scanner_interface_usb.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_magic.h"
 
@@ -922,7 +923,7 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
 
     sanei_genesys_set_buffer_address(dev, start_address);
 
-    sanei_genesys_bulk_write_data(dev, 0x3c, data, size);
+    dev->interface->bulk_write_data(0x3c, data, size);
 }
 
 // ?
@@ -1375,9 +1376,9 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
             dev->frontend.set_gain(1, 2);
             dev->frontend.set_gain(2, 2);
 
-        sanei_genesys_fe_write_data(dev, 0x28, dev->frontend.get_gain(0));
-        sanei_genesys_fe_write_data(dev, 0x29, dev->frontend.get_gain(1));
-        sanei_genesys_fe_write_data(dev, 0x2a, dev->frontend.get_gain(2));
+            dev->interface->write_fe_register(0x28, dev->frontend.get_gain(0));
+            dev->interface->write_fe_register(0x29, dev->frontend.get_gain(1));
+            dev->interface->write_fe_register(0x2a, dev->frontend.get_gain(2));
 	}
 
       if (i == 3)		/* last line */
@@ -1402,9 +1403,9 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
                 dev->frontend.set_offset(j, curr_offset);
 	    }
 	}
-        sanei_genesys_fe_write_data(dev, 0x20, dev->frontend.get_offset(0));
-        sanei_genesys_fe_write_data(dev, 0x21, dev->frontend.get_offset(1));
-        sanei_genesys_fe_write_data(dev, 0x22, dev->frontend.get_offset(2));
+        dev->interface->write_fe_register(0x20, dev->frontend.get_offset(0));
+        dev->interface->write_fe_register(0x21, dev->frontend.get_offset(1));
+        dev->interface->write_fe_register(0x22, dev->frontend.get_offset(2));
 
       DBG(DBG_info,
           "%s: doing scan: gain: %d/%d/%d, offset: %d/%d/%d\n", __func__,
@@ -4801,6 +4802,7 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     dbg.vstatus("open device '%s'", dev->file_name.c_str());
     dev->usb_dev.open(dev->file_name.c_str());
     dbg.clear();
+    dev->interface = std::unique_ptr<ScannerInterfaceUsb>{new ScannerInterfaceUsb{dev}};
 
 
   s_scanners->push_back(Genesys_Scanner());

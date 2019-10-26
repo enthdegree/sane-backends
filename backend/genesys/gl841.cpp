@@ -363,7 +363,7 @@ gl841_init_lide80 (Genesys_Device * dev)
 
     (void) val; // FIXME: we don't use the information read from registers
 
-    sanei_genesys_write_0x8c(dev, 0x10, 0x94);
+    dev->interface->write_0x8c(0x10, 0x94);
     dev->write_register(0x09, 0x10);
 
   // FIXME: the following code originally changed 0x6b, but due to bug the 0x6c register was
@@ -573,7 +573,7 @@ static void gl841_send_slope_table(Genesys_Device* dev, int table_nr,
 
     sanei_genesys_set_buffer_address(dev, start_address + table_nr * 0x200);
 
-    sanei_genesys_bulk_write_data(dev, 0x3c, table.data(), steps * 2);
+    dev->interface->bulk_write_data(0x3c, table.data(), steps * 2);
 }
 
 static void gl841_set_lide80_fe(Genesys_Device* dev, uint8_t set)
@@ -588,16 +588,16 @@ static void gl841_set_lide80_fe(Genesys_Device* dev, uint8_t set)
       dev->frontend = dev->frontend_initial;
 
         // write them to analog frontend
-        sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
-        sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x01));
-        sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.regs.get_value(0x02));
+        dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
+        dev->interface->write_fe_register(0x03, dev->frontend.regs.get_value(0x01));
+        dev->interface->write_fe_register(0x06, dev->frontend.regs.get_value(0x02));
     }
 
   if (set == AFE_SET)
     {
-        sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
-        sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.regs.get_value(0x20));
-        sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x28));
+        dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
+        dev->interface->write_fe_register(0x06, dev->frontend.regs.get_value(0x20));
+        dev->interface->write_fe_register(0x03, dev->frontend.regs.get_value(0x28));
     }
 }
 
@@ -620,38 +620,38 @@ static void gl841_set_ad_fe(Genesys_Device* dev, uint8_t set)
       dev->frontend = dev->frontend_initial;
 
         // write them to analog frontend
-        sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
+        dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
 
-        sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
+        dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
 
         for (i = 0; i < 6; i++) {
-            sanei_genesys_fe_write_data(dev, 0x02 + i, 0x00);
+            dev->interface->write_fe_register(0x02 + i, 0x00);
         }
     }
   if (set == AFE_SET)
     {
         // write them to analog frontend
-        sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
+        dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
 
-        sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
+        dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
 
         // Write fe 0x02 (red gain)
-        sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.get_gain(0));
+        dev->interface->write_fe_register(0x02, dev->frontend.get_gain(0));
 
         // Write fe 0x03 (green gain)
-        sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.get_gain(1));
+        dev->interface->write_fe_register(0x03, dev->frontend.get_gain(1));
 
         // Write fe 0x04 (blue gain)
-        sanei_genesys_fe_write_data(dev, 0x04, dev->frontend.get_gain(2));
+        dev->interface->write_fe_register(0x04, dev->frontend.get_gain(2));
 
         // Write fe 0x05 (red offset)
-        sanei_genesys_fe_write_data(dev, 0x05, dev->frontend.get_offset(0));
+        dev->interface->write_fe_register(0x05, dev->frontend.get_offset(0));
 
         // Write fe 0x06 (green offset)
-        sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.get_offset(1));
+        dev->interface->write_fe_register(0x06, dev->frontend.get_offset(1));
 
         // Write fe 0x07 (blue offset)
-        sanei_genesys_fe_write_data(dev, 0x07, dev->frontend.get_offset(2));
+        dev->interface->write_fe_register(0x07, dev->frontend.get_offset(2));
           }
 }
 
@@ -662,7 +662,6 @@ void CommandSetGl841::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
                                set == AFE_SET ? "set" :
                                set == AFE_POWER_SAVE ? "powersave" : "huh?");
     (void) sensor;
-  int i;
 
   /* Analog Device type frontend */
     uint8_t frontend_type = dev->reg.find_reg(0x04).value & REG_0x04_FESET;
@@ -683,36 +682,35 @@ void CommandSetGl841::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
       dev->frontend = dev->frontend_initial;
 
         // reset only done on init
-        sanei_genesys_fe_write_data (dev, 0x04, 0x80);
+        dev->interface->write_fe_register(0x04, 0x80);
       DBG(DBG_proc, "%s(): frontend reset complete\n", __func__);
     }
 
 
   if (set == AFE_POWER_SAVE)
     {
-        sanei_genesys_fe_write_data (dev, 0x01, 0x02);
+        dev->interface->write_fe_register(0x01, 0x02);
         return;
     }
 
   /* todo :  base this test on cfg reg3 or a CCD family flag to be created */
   /*if (dev->model->ccd_type!=SensorId::CCD_HP2300 && dev->model->ccd_type!=SensorId::CCD_HP2400) */
   {
-    sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
-    sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.regs.get_value(0x02));
+        dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
+        dev->interface->write_fe_register(0x02, dev->frontend.regs.get_value(0x02));
   }
 
-    sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
-    sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x03));
-    sanei_genesys_fe_write_data(dev, 0x06, dev->frontend.reg2[0]);
-    sanei_genesys_fe_write_data(dev, 0x08, dev->frontend.reg2[1]);
-    sanei_genesys_fe_write_data(dev, 0x09, dev->frontend.reg2[2]);
+    dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
+    dev->interface->write_fe_register(0x03, dev->frontend.regs.get_value(0x03));
+    dev->interface->write_fe_register(0x06, dev->frontend.reg2[0]);
+    dev->interface->write_fe_register(0x08, dev->frontend.reg2[1]);
+    dev->interface->write_fe_register(0x09, dev->frontend.reg2[2]);
 
-  for (i = 0; i < 3; i++)
-      {
-        sanei_genesys_fe_write_data(dev, 0x24 + i, dev->frontend.regs.get_value(0x24 + i));
-        sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
-        sanei_genesys_fe_write_data(dev, 0x20 + i, dev->frontend.get_offset(i));
-      }
+    for (unsigned i = 0; i < 3; i++) {
+        dev->interface->write_fe_register(0x24 + i, dev->frontend.regs.get_value(0x24 + i));
+        dev->interface->write_fe_register(0x28 + i, dev->frontend.get_gain(i));
+        dev->interface->write_fe_register(0x20 + i, dev->frontend.get_offset(i));
+    }
 }
 
 #define MOTOR_ACTION_FEED       1
@@ -817,7 +815,7 @@ uint8_t *table;
         dev->write_register(0x66, 0x00);
         dev->write_register(0x5b, 0x0c);
         dev->write_register(0x5c, 0x00);
-        sanei_genesys_bulk_write_data(dev, 0x28, table, 128);
+        dev->interface->bulk_write_data(0x28, table, 128);
         dev->write_register(0x5b, 0x00);
         dev->write_register(0x5c, 0x00);
     }
@@ -2621,7 +2619,7 @@ void CommandSetGl841::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor
     gl841_set_buffer_address_gamma (dev, 0x00000);
 
     // send data
-    sanei_genesys_bulk_write_data(dev, 0x28, gamma.data(), size * 2 * 3);
+    dev->interface->bulk_write_data(0x28, gamma.data(), size * 2 * 3);
 }
 
 
@@ -3928,7 +3926,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
         sanei_genesys_set_buffer_address(dev, 0x0000);
 
         // shading data whole line
-        sanei_genesys_bulk_write_data(dev, 0x3c, data, size);
+        dev->interface->bulk_write_data(0x3c, data, size);
         return;
     }
 
@@ -3989,7 +3987,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 
         // 0x5400 alignment for LIDE80 internal memory
         sanei_genesys_set_buffer_address(dev, 0x5400*i);
-        sanei_genesys_bulk_write_data(dev, 0x3c, buffer.data(), pixels);
+        dev->interface->bulk_write_data(0x3c, buffer.data(), pixels);
     }
 }
 

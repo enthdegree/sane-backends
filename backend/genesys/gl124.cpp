@@ -393,7 +393,7 @@ static void gl124_send_slope_table(Genesys_Device* dev, int table_nr,
     }
 
     // slope table addresses are fixed
-    sanei_genesys_write_ahb(dev, 0x10000000 + 0x4000 * table_nr, steps * 2, table.data());
+    dev->interface->write_ahb(0x10000000 + 0x4000 * table_nr, steps * 2, table.data());
 }
 
 /** @brief * Set register values of 'special' ti type frontend
@@ -416,28 +416,28 @@ static void gl124_set_ti_fe(Genesys_Device* dev, uint8_t set)
     }
 
     // start writing to DAC
-    sanei_genesys_fe_write_data(dev, 0x00, 0x80);
+    dev->interface->write_fe_register(0x00, 0x80);
 
   /* write values to analog frontend */
   for (uint16_t addr = 0x01; addr < 0x04; addr++)
     {
-        sanei_genesys_fe_write_data(dev, addr, dev->frontend.regs.get_value(addr));
+        dev->interface->write_fe_register(addr, dev->frontend.regs.get_value(addr));
     }
 
-        sanei_genesys_fe_write_data (dev, 0x04, 0x00);
+    dev->interface->write_fe_register(0x04, 0x00);
 
   /* these are not really sign for this AFE */
   for (i = 0; i < 3; i++)
     {
-        sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.regs.get_value(0x24 + i));
+        dev->interface->write_fe_register(0x05 + i, dev->frontend.regs.get_value(0x24 + i));
     }
 
     if (dev->model->adc_id == AdcId::CANON_LIDE_120) {
-        sanei_genesys_fe_write_data(dev, 0x00, 0x01);
+        dev->interface->write_fe_register(0x00, 0x01);
     }
   else
     {
-        sanei_genesys_fe_write_data(dev, 0x00, 0x11);
+        dev->interface->write_fe_register(0x00, 0x11);
     }
 }
 
@@ -1754,7 +1754,7 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
         }
         uint8_t val = dev->read_register(0xd0+i);
       addr = val * 8192 + 0x10000000;
-        sanei_genesys_write_ahb(dev, addr, pixels * dev->session.segment_count, buffer.data());
+        dev->interface->write_ahb(addr, pixels * dev->session.segment_count, buffer.data());
     }
 }
 
@@ -2457,8 +2457,8 @@ void CommandSetGl124::asic_boot(Genesys_Device* dev, bool cold) const
   dev->reg.remove_reg(0x0b);
 
     //set up end access
-    sanei_genesys_write_0x8c(dev, 0x10, 0x0b);
-    sanei_genesys_write_0x8c(dev, 0x13, 0x0e);
+    dev->interface->write_0x8c(0x10, 0x0b);
+    dev->interface->write_0x8c(0x13, 0x0e);
 
   /* CIS_LINE */
     SETREG(0x08, REG_0x08_CIS_LINE);

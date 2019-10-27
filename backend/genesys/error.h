@@ -98,7 +98,7 @@ private:
     do {                                                                                           \
         SANE_Status tmp_status = function;                                                         \
         if (tmp_status != SANE_STATUS_GOOD) {                                                      \
-            throw SaneException(tmp_status);                                                       \
+            throw ::genesys::SaneException(tmp_status);                                            \
         }                                                                                          \
     } while (false)
 

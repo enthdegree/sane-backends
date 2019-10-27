@@ -503,16 +503,16 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            { 1200, 600, 400, 300, 200, 150, 100 },
-            { 1200, 600, 400, 300, 200, 150, 100 },
+            { 1600, 800, 400 },
+            { 1600, 800, 400 },
         }, {
             { ScanMethod::TRANSPARENCY },
-            { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
-            { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
+            { 3200, 1600, 800, 400 },
+            { 3200, 1600, 800, 400 },
         }, {
             { ScanMethod::TRANSPARENCY_INFRARED },
-            { 1200 },
-            { 1200 },
+            { 1600 },
+            { 1600 },
         }
     };
 
@@ -522,14 +522,14 @@ void genesys_init_usb_device_tables()
     model.x_offset = 3.5;
     model.y_offset = 17.00;
     model.x_size = 219.9;
-    model.y_size = 315.0;
+    model.y_size = 300.0;
 
     model.y_offset_calib_white = 0.0;
     model.x_offset_calib_black = 10.0;
 
-    model.x_offset_ta = 100.0;
-    model.y_offset_ta = 50.00;
-    model.x_size_ta = 100.0;
+    model.x_offset_ta = 75.0;
+    model.y_offset_ta = 45.00;
+    model.x_size_ta = 75.0;
     model.y_size_ta = 230.0;
 
     model.y_offset_sensor_to_ta = 22.0;

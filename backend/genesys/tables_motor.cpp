@@ -484,8 +484,8 @@ void genesys_init_motor_tables()
 
     motor = Genesys_Motor();
     motor.id = MotorId::CANON_8400F;
-    motor.base_ydpi = 1200;
-    motor.optical_ydpi = 9600;
+    motor.base_ydpi = 1600;
+    motor.optical_ydpi = 6400;
     motor.max_step_type = 2;
 
     slope = Genesys_Motor_Slope(); // full step

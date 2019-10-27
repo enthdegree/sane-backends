@@ -1081,8 +1081,12 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     } else {
         r->value |= REG_0x01_DVDSET;
     }
-  if(dpihw>600)
-    {
+
+    bool use_shdarea = dpihw > 600;
+    if (dev->model->model_id == ModelId::CANON_8400F) {
+        use_shdarea = session.params.xres <= 400;
+    }
+    if (use_shdarea) {
         r->value |= REG_0x01_SHDAREA;
     } else {
         r->value &= ~REG_0x01_SHDAREA;
@@ -1325,8 +1329,7 @@ void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
         start = static_cast<int>(dev->model->x_offset);
     }
 
-    if (dev->model->model_id == ModelId::CANON_8400F ||
-        dev->model->model_id == ModelId::CANON_8600F)
+    if (dev->model->model_id == ModelId::CANON_8600F)
     {
         // FIXME: this is probably just an artifact of a bug elsewhere
         start /= ccd_size_divisor;
@@ -1669,7 +1672,6 @@ static void gl843_set_xpa_lamp_power(Genesys_Device* dev, bool set)
     LampSettings settings[] = {
         {   ModelId::CANON_8400F, ScanMethod::TRANSPARENCY, {
                 { 0xa6, 0x34, 0xf4 },
-                { 0xa7, 0xe0, 0xe0 }, // BUG: should be 0x03
             }, {
                 { 0xa6, 0x40, 0x70 },
             }
@@ -1677,11 +1679,9 @@ static void gl843_set_xpa_lamp_power(Genesys_Device* dev, bool set)
         {   ModelId::CANON_8400F, ScanMethod::TRANSPARENCY_INFRARED, {
                 { 0x6c, 0x40, 0x40 },
                 { 0xa6, 0x01, 0xff },
-                { 0xa7, 0x03, 0x07 },
             }, {
                 { 0x6c, 0x00, 0x40 },
                 { 0xa6, 0x00, 0xff },
-                { 0xa7, 0x07, 0x07 },
             }
         },
         {   ModelId::CANON_8600F, ScanMethod::TRANSPARENCY, {
@@ -3178,7 +3178,12 @@ void CommandSetGl843::move_to_ta(Genesys_Device* dev) const
 
     const auto& resolution_settings = dev->model->get_resolution_settings(dev->model->default_method);
     float resolution = resolution_settings.get_min_resolution_y();
-    unsigned feed = static_cast<unsigned>(16 * (dev->model->y_offset_sensor_to_ta * resolution) /
+
+    unsigned multiplier = 16;
+    if (dev->model->model_id == ModelId::CANON_8400F) {
+        multiplier = 4;
+    }
+    unsigned feed = static_cast<unsigned>(multiplier * (dev->model->y_offset_sensor_to_ta * resolution) /
                                           MM_PER_INCH);
     gl843_feed(dev, feed);
 }
@@ -3400,6 +3405,7 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
         // FIXME: the following is likely incorrect
         // start coordinate in optical dpi coordinates
         startx = (sensor.dummy_pixel / sensor.ccd_pixels_per_system_pixel()) / dev->session.hwdpi_divisor;
+        startx *= dev->session.pixel_count_multiplier;
 
       /* current scan coordinates */
         strpixel = dev->session.pixel_startx;

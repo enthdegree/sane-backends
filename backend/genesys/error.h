@@ -137,7 +137,8 @@ template<class F>
 SANE_Status wrap_exceptions_to_status_code(const char* func, F&& function)
 {
     try {
-        return function();
+        function();
+        return SANE_STATUS_GOOD;
     } catch (const SaneException& exc) {
         DBG(DBG_error, "%s: got error: %s\n", func, exc.what());
         return exc.status();

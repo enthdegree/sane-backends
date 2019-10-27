@@ -4351,29 +4351,20 @@ check_present (SANE_String_Const devname) noexcept
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Status
-attach (SANE_String_Const devname, Genesys_Device ** devp, bool may_wait)
+static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may_wait)
 {
-    DBG_HELPER_ARGS(dbg, "devp %s nullptr, may_wait = %d", devp ? "!=" : "==", may_wait);
+    DBG_HELPER_ARGS(dbg, " may_wait = %d", may_wait);
 
     Genesys_Device *dev = nullptr;
 
-    if (devp) {
-        *devp = nullptr;
-    }
-
-  if (!devname)
-    {
-        DBG(DBG_error, "%s: devname == nullptr\n", __func__);
-      return SANE_STATUS_INVAL;
+    if (!devname) {
+        throw SaneException("devname must not be nullptr");
     }
 
     for (auto& dev : *s_devices) {
         if (dev.file_name == devname) {
-            if (devp)
-                *devp = &dev;
             DBG(DBG_info, "%s: device `%s' was already in device list\n", __func__, devname);
-            return SANE_STATUS_GOOD;
+            return &dev;
         }
     }
 
@@ -4410,9 +4401,8 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, bool may_wait)
     }
 
     if (found_usb_dev == nullptr) {
-      DBG(DBG_error, "%s: vendor 0x%xd product 0x%xd is not supported by this backend\n", __func__,
-	   vendor, product);
-      return SANE_STATUS_INVAL;
+        throw SaneException("vendor 0x%xd product 0x%xd is not supported by this backend",
+                            vendor, product);
     }
 
     s_devices->emplace_back();
@@ -4428,31 +4418,16 @@ attach (SANE_String_Const devname, Genesys_Device ** devp, bool may_wait)
     DBG(DBG_info, "%s: found %s flatbed scanner %s at %s\n", __func__, dev->model->vendor,
         dev->model->model, dev->file_name.c_str());
 
-    if (devp) {
-        *devp = dev;
-    }
-
     usb_dev.close();
-    return SANE_STATUS_GOOD;
+    return dev;
 }
 
-static SANE_Status
-attach_one_device_impl(SANE_String_Const devname)
-{
-  Genesys_Device *dev;
-    SANE_Status status = attach(devname, &dev, false);
-    if (status != SANE_STATUS_GOOD) {
-        DBG(DBG_info, "%s: failed to attach: %s\n", __func__, sane_strstatus(status));
-        return status;
-    }
-    return status;
-}
-
-static SANE_Status attach_one_device(SANE_String_Const devname)
+// this function is passed to C API and must not throw
+static SANE_Status attach_one_device(SANE_String_Const devname) noexcept
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
-        return attach_one_device_impl(devname);
+        attach_device_by_name(devname, false);
     });
 }
 
@@ -4471,24 +4446,19 @@ config_attach_genesys(SANEI_Config __sane_unused__ *config, const char *devname)
 }
 
 /* probes for scanner to attach to the backend */
-static SANE_Status
-probe_genesys_devices (void)
+static void probe_genesys_devices (void)
 {
     DBG_HELPER(dbg);
   SANEI_Config config;
-  SANE_Status status = SANE_STATUS_GOOD;
 
     // set configuration options structure : no option for this backend
     config.descriptors = nullptr;
     config.values = nullptr;
   config.count = 0;
 
-  /* generic configure and attach function */
-  status = sanei_configure_attach (GENESYS_CONFIG_FILE, &config,
-				   config_attach_genesys);
+    TIE(sanei_configure_attach(GENESYS_CONFIG_FILE, &config, config_attach_genesys));
 
     DBG(DBG_info, "%s: %zu devices currently attached\n", __func__, s_devices->size());
-  return status;
 }
 
 /**
@@ -4677,8 +4647,7 @@ static void genesys_buffer_image(Genesys_Scanner *s)
 
 /* -------------------------- SANE API functions ------------------------- */
 
-SANE_Status
-sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
+void sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   DBG_INIT ();
     DBG_HELPER_ARGS(dbg, "authorize %s null", authorize ? "!=" : "==");
@@ -4721,7 +4690,7 @@ sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
     );
 
     // cold-plug case :detection of allready connected scanners
-    return probe_genesys_devices ();
+    probe_genesys_devices();
 }
 
 
@@ -4729,7 +4698,7 @@ extern "C" SANE_Status sane_init(SANE_Int * version_code, SANE_Auth_Callback aut
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
-        return sane_init_impl(version_code, authorize);
+        sane_init_impl(version_code, authorize);
     });
 }
 
@@ -4748,8 +4717,7 @@ extern "C" void sane_exit()
     catch_all_exceptions(__func__, [](){ sane_exit_impl(); });
 }
 
-SANE_Status
-sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
+void sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
 {
     DBG_HELPER_ARGS(dbg, "local_only = %s", local_only ? "true" : "false");
 
@@ -4786,20 +4754,17 @@ sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_only)
     s_sane_devices_ptrs->push_back(nullptr);
 
     *const_cast<SANE_Device***>(device_list) = s_sane_devices_ptrs->data();
-
-  return SANE_STATUS_GOOD;
 }
 
 extern "C" SANE_Status sane_get_devices(const SANE_Device *** device_list, SANE_Bool local_only)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
-        return sane_get_devices_impl(device_list, local_only);
+        sane_get_devices_impl(device_list, local_only);
     });
 }
 
-SANE_Status
-sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
+static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 {
     DBG_HELPER_ARGS(dbg, "devicename = %s", devicename);
     Genesys_Device* dev = nullptr;
@@ -4817,20 +4782,16 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
             }
         }
 
-      if (!dev)
-	{
-	  DBG(DBG_info, "%s: couldn't find `%s' in devlist, trying attach\n", __func__, devicename);
-            SANE_Status status = attach(devicename, &dev, true);
-            if (status != SANE_STATUS_GOOD) {
-                DBG(DBG_info, "%s: failed to attach: %s\n", __func__, sane_strstatus(status));
-                return status;
-            }
-	}
-      else
-        DBG(DBG_info, "%s: found `%s' in devlist\n", __func__, dev->model->name);
-    }
-  else
-    {
+        if (!dev) {
+            DBG(DBG_info, "%s: couldn't find `%s' in devlist, trying attach\n", __func__,
+                devicename);
+            dbg.status("attach_device_by_name");
+            dev = attach_device_by_name(devicename, true);
+            dbg.clear();
+        } else {
+            DBG(DBG_info, "%s: found `%s' in devlist\n", __func__, dev->model->name);
+        }
+    } else {
         // empty devicename or "genesys" -> use first device
         if (!s_devices->empty()) {
             dev = &s_devices->front();
@@ -4838,8 +4799,9 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
         }
     }
 
-  if (!dev)
-    return SANE_STATUS_INVAL;
+    if (!dev) {
+        throw SaneException("could not find the device to open: %s", devicename);
+    }
 
   if (dev->model->flags & GENESYS_FLAG_UNTESTED)
     {
@@ -4897,15 +4859,13 @@ sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
             sanei_genesys_read_calibration(s->dev->calibration_cache, s->dev->calib_file);
         });
     }
-
-    return SANE_STATUS_GOOD;
 }
 
 extern "C" SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle* handle)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
-        return sane_open_impl(devicename, handle);
+        sane_open_impl(devicename, handle);
     });
 }
 
@@ -5004,16 +4964,13 @@ sane_get_option_descriptor(SANE_Handle handle, SANE_Int option)
     return ret;
 }
 
-/* gets an option , called by sane_control_option */
-static SANE_Status
-get_option_value (Genesys_Scanner * s, int option, void *val)
+static void get_option_value(Genesys_Scanner* s, int option, void* val)
 {
     DBG_HELPER(dbg);
   unsigned int i;
     SANE_Word* table = nullptr;
   std::vector<uint16_t> gamma_table;
   unsigned option_size = 0;
-  SANE_Status status = SANE_STATUS_GOOD;
 
     const Genesys_Sensor* sensor = nullptr;
     if (sanei_genesys_has_sensor(s->dev, s->dev->settings.xres, s->dev->settings.get_channels(),
@@ -5204,7 +5161,6 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     default:
       DBG(DBG_warn, "%s: can't get unknown option %d\n", __func__, option);
     }
-  return status;
 }
 
 /** @brief set calibration file value
@@ -5234,12 +5190,9 @@ static void set_calibration_value(Genesys_Scanner* s, const char* val)
 }
 
 /* sets an option , called by sane_control_option */
-static SANE_Status
-set_option_value (Genesys_Scanner * s, int option, void *val,
-		  SANE_Int * myinfo)
+static void set_option_value(Genesys_Scanner* s, int option, void *val, SANE_Int* myinfo)
 {
     DBG_HELPER(dbg);
-  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word *table;
   unsigned int i;
   unsigned option_size = 0;
@@ -5567,14 +5520,12 @@ set_option_value (Genesys_Scanner * s, int option, void *val,
     default:
       DBG(DBG_warn, "%s: can't set unknown option %d\n", __func__, option);
     }
-  return status;
 }
 
 
 /* sets and gets scanner option values */
-SANE_Status
-sane_control_option_impl(SANE_Handle handle, SANE_Int option,
-                         SANE_Action action, void *val, SANE_Int * info)
+void sane_control_option_impl(SANE_Handle handle, SANE_Int option,
+                              SANE_Action action, void *val, SANE_Int * info)
 {
     Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
     auto action_str = (action == SANE_ACTION_GET_VALUE) ? "get" :
@@ -5583,75 +5534,52 @@ sane_control_option_impl(SANE_Handle handle, SANE_Int option,
     DBG_HELPER_ARGS(dbg, "action = %s, option = %s (%d)", action_str,
                     s->opt[option].name, option);
 
-  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word cap;
   SANE_Int myinfo = 0;
 
-  if (info)
-    *info = 0;
-
-  if (s->scanning)
-    {
-      DBG(DBG_warn, "%s: don't call this function while scanning (option = %s (%d))\n", __func__,
-          s->opt[option].name, option);
-
-      return SANE_STATUS_DEVICE_BUSY;
+    if (info) {
+        *info = 0;
     }
-  if (option >= NUM_OPTIONS || option < 0)
-    {
-      DBG(DBG_warn, "%s: option %d >= NUM_OPTIONS || option < 0\n", __func__, option);
-      return SANE_STATUS_INVAL;
+
+    if (s->scanning) {
+        throw SaneException(SANE_STATUS_DEVICE_BUSY,
+                            "don't call this function while scanning (option = %s (%d))",
+                            s->opt[option].name, option);
+    }
+    if (option >= NUM_OPTIONS || option < 0) {
+        throw SaneException("option %d >= NUM_OPTIONS || option < 0", option);
     }
 
   cap = s->opt[option].cap;
 
-  if (!SANE_OPTION_IS_ACTIVE (cap))
-    {
-      DBG(DBG_warn, "%s: option %d is inactive\n", __func__, option);
-      return SANE_STATUS_INVAL;
+    if (!SANE_OPTION_IS_ACTIVE (cap)) {
+        throw SaneException("option %d is inactive", option);
     }
 
-  switch (action)
-    {
-    case SANE_ACTION_GET_VALUE:
-      status = get_option_value (s, option, val);
-      break;
+    switch (action) {
+        case SANE_ACTION_GET_VALUE:
+            get_option_value(s, option, val);
+            break;
 
-    case SANE_ACTION_SET_VALUE:
-      if (!SANE_OPTION_IS_SETTABLE (cap))
-	{
-	  DBG(DBG_warn, "%s: option %d is not settable\n", __func__, option);
-	  return SANE_STATUS_INVAL;
-	}
+        case SANE_ACTION_SET_VALUE:
+            if (!SANE_OPTION_IS_SETTABLE (cap)) {
+                throw SaneException("option %d is not settable", option);
+            }
 
-      status = sanei_constrain_value (s->opt + option, val, &myinfo);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG(DBG_warn, "%s: sanei_constrain_value returned %s\n", __func__,
-	      sane_strstatus(status));
-	  return status;
-	}
+            TIE(sanei_constrain_value(s->opt + option, val, &myinfo));
 
-      status = set_option_value (s, option, val, &myinfo);
-      break;
+            set_option_value(s, option, val, &myinfo);
+            break;
 
-    case SANE_ACTION_SET_AUTO:
-      DBG(DBG_error,
-          "%s: SANE_ACTION_SET_AUTO unsupported since no option has SANE_CAP_AUTOMATIC\n",
-          __func__);
-      status = SANE_STATUS_INVAL;
-      break;
-
-    default:
-      DBG(DBG_warn, "%s: unknown action %d for option %d\n", __func__, action, option);
-      status = SANE_STATUS_INVAL;
-      break;
+        case SANE_ACTION_SET_AUTO:
+            throw SaneException("SANE_ACTION_SET_AUTO unsupported since no option "
+                                "has SANE_CAP_AUTOMATIC");
+        default:
+            throw SaneException("unknown action %d for option %d", action, option);
     }
 
   if (info)
     *info = myinfo;
-
-  return status;
 }
 
 extern "C" SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option,
@@ -5659,11 +5587,11 @@ extern "C" SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option,
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
-        return sane_control_option_impl(handle, option, action, val, info);
+        sane_control_option_impl(handle, option, action, val, info);
     });
 }
 
-SANE_Status sane_get_parameters_impl(SANE_Handle handle, SANE_Parameters* params)
+void sane_get_parameters_impl(SANE_Handle handle, SANE_Parameters* params)
 {
     DBG_HELPER(dbg);
     Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
@@ -5687,33 +5615,26 @@ SANE_Status sane_get_parameters_impl(SANE_Handle handle, SANE_Parameters* params
 	  params->lines = -1;
 	}
     }
-
-  return SANE_STATUS_GOOD;
 }
 
 extern "C" SANE_Status sane_get_parameters(SANE_Handle handle, SANE_Parameters* params)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
-        return sane_get_parameters_impl(handle, params);
+        sane_get_parameters_impl(handle, params);
     });
 }
 
-SANE_Status sane_start_impl(SANE_Handle handle)
+void sane_start_impl(SANE_Handle handle)
 {
     DBG_HELPER(dbg);
     Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
-  SANE_Status status=SANE_STATUS_GOOD;
 
-  if (s->pos_top_left_x >= s->pos_bottom_right_x)
-    {
-      DBG(DBG_error0, "%s: top left x >= bottom right x --- exiting\n", __func__);
-      return SANE_STATUS_INVAL;
+    if (s->pos_top_left_x >= s->pos_bottom_right_x) {
+        throw SaneException("top left x >= bottom right x");
     }
-  if (s->pos_top_left_y >= s->pos_bottom_right_y)
-    {
-      DBG(DBG_error0, "%s: top left y >= bottom right y --- exiting\n", __func__);
-      return SANE_STATUS_INVAL;
+    if (s->pos_top_left_y >= s->pos_bottom_right_y) {
+        throw SaneException("top left y >= bottom right y");
     }
 
   /* First make sure we have a current parameter set.  Some of the
@@ -5743,16 +5664,18 @@ SANE_Status sane_start_impl(SANE_Handle handle)
       /* check if we need to skip this page, sheetfed scanners
        * can go to next doc while flatbed ones can't */
         if (s->swskip > 0 && IS_ACTIVE(OPT_SWSKIP)) {
-          status = sanei_magic_isBlank(&s->params,
-                                       s->dev->img_buffer.data(),
-                                       SANE_UNFIX(s->swskip));
-          if(status == SANE_STATUS_NO_DOCS)
-            {
-                if (s->dev->model->is_sheetfed) {
-                  DBG(DBG_info, "%s: blank page, recurse\n", __func__);
-                  return sane_start(handle);
-                }
-              return status;
+            auto status = sanei_magic_isBlank(&s->params,
+                                              s->dev->img_buffer.data(),
+                                              SANE_UNFIX(s->swskip));
+
+            if (status == SANE_STATUS_NO_DOCS && s->dev->model->is_sheetfed) {
+                DBG(DBG_info, "%s: blank page, recurse\n", __func__);
+                sane_start(handle);
+                return;
+            }
+
+            if (status != SANE_STATUS_GOOD) {
+                throw SaneException(status);
             }
         }
 
@@ -5775,57 +5698,45 @@ SANE_Status sane_start_impl(SANE_Handle handle)
             catch_all_exceptions(__func__, [&](){ genesys_derotate(s); });
         }
     }
-
-  return status;
 }
 
 extern "C" SANE_Status sane_start(SANE_Handle handle)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
-        return sane_start_impl(handle);
+        sane_start_impl(handle);
     });
 }
 
-SANE_Status
-sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
+void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
 {
     DBG_HELPER(dbg);
     Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
   Genesys_Device *dev;
   size_t local_len;
 
-  if (!s)
-    {
-      DBG(DBG_error, "%s: handle is null!\n", __func__);
-      return SANE_STATUS_INVAL;
+    if (!s) {
+        throw SaneException("handle is nullptr");
     }
 
   dev=s->dev;
-  if (!dev)
-    {
-      DBG(DBG_error, "%s: dev is null!\n", __func__);
-      return SANE_STATUS_INVAL;
+    if (!dev) {
+        throw SaneException("dev is nullptr");
     }
 
-  if (!buf)
-    {
-      DBG(DBG_error, "%s: buf is null!\n", __func__);
-      return SANE_STATUS_INVAL;
+    if (!buf) {
+        throw SaneException("buf is nullptr");
     }
 
-  if (!len)
-    {
-      DBG(DBG_error, "%s: len is null!\n", __func__);
-      return SANE_STATUS_INVAL;
+    if (!len) {
+        throw SaneException("len is nullptr");
     }
 
   *len = 0;
 
-  if (!s->scanning)
-    {
-      DBG(DBG_warn, "%s: scan was cancelled, is over or has not been initiated yet\n", __func__);
-      return SANE_STATUS_CANCELLED;
+    if (!s->scanning) {
+        throw SaneException(SANE_STATUS_CANCELLED,
+                            "scan was cancelled, is over or has not been initiated yet");
     }
 
   DBG(DBG_proc, "%s: start, %d maximum bytes required\n", __func__, max_len);
@@ -5844,7 +5755,7 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
             dev->cmd_set->slow_back_home(dev, false);
             dev->parking = true;
         }
-      return SANE_STATUS_EOF;
+        throw SaneException(SANE_STATUS_EOF);
     }
 
   local_len = max_len;
@@ -5908,14 +5819,13 @@ sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* 
       fprintf (stderr, "[genesys] sane_read: returning incorrect length!!\n");
     }
   DBG(DBG_proc, "%s: %d bytes returned\n", __func__, *len);
-    return SANE_STATUS_GOOD;
 }
 
 extern "C" SANE_Status sane_read(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
-        return sane_read_impl(handle, buf, max_len, len);
+        sane_read_impl(handle, buf, max_len, len);
     });
 }
 
@@ -5960,50 +5870,44 @@ extern "C" void sane_cancel(SANE_Handle handle)
     catch_all_exceptions(__func__, [=]() { sane_cancel_impl(handle); });
 }
 
-SANE_Status
-sane_set_io_mode_impl(SANE_Handle handle, SANE_Bool non_blocking)
+void sane_set_io_mode_impl(SANE_Handle handle, SANE_Bool non_blocking)
 {
     DBG_HELPER_ARGS(dbg, "handle = %p, non_blocking = %s", handle,
                     non_blocking == SANE_TRUE ? "true" : "false");
     Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
 
-  if (!s->scanning)
-    {
-      DBG(DBG_error, "%s: not scanning\n", __func__);
-      return SANE_STATUS_INVAL;
+    if (!s->scanning) {
+        throw SaneException("not scanning");
     }
-  if (non_blocking)
-    return SANE_STATUS_UNSUPPORTED;
-  return SANE_STATUS_GOOD;
+    if (non_blocking) {
+        throw SaneException(SANE_STATUS_UNSUPPORTED);
+    }
 }
 
 extern "C" SANE_Status sane_set_io_mode(SANE_Handle handle, SANE_Bool non_blocking)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
-        return sane_set_io_mode_impl(handle, non_blocking);
+        sane_set_io_mode_impl(handle, non_blocking);
     });
 }
 
-SANE_Status
-sane_get_select_fd_impl(SANE_Handle handle, SANE_Int * fd)
+void sane_get_select_fd_impl(SANE_Handle handle, SANE_Int* fd)
 {
     DBG_HELPER_ARGS(dbg, "handle = %p, fd = %p", handle, reinterpret_cast<void*>(fd));
-  Genesys_Scanner *s = (Genesys_Scanner*) handle;
+    Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
 
-  if (!s->scanning)
-    {
-      DBG(DBG_error, "%s: not scanning\n", __func__);
-      return SANE_STATUS_INVAL;
+    if (!s->scanning) {
+        throw SaneException("not scanning");
     }
-  return SANE_STATUS_UNSUPPORTED;
+    throw SaneException(SANE_STATUS_UNSUPPORTED);
 }
 
 extern "C" SANE_Status sane_get_select_fd(SANE_Handle handle, SANE_Int* fd)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
-        return sane_get_select_fd_impl(handle, fd);
+        sane_get_select_fd_impl(handle, fd);
     });
 }
 

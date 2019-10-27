@@ -203,8 +203,7 @@ void serialize(Stream& str, SetupParams& x)
 struct ScanSession {
     SetupParams params;
 
-    // whether the session setup has been computed via gl*_compute_session()
-    // gl843-only
+    // whether the session setup has been computed via compute_session()
     bool computed = false;
 
     // specifies the reduction (if any) of hardware dpi on the Genesys chip side.

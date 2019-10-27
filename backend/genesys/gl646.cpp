@@ -207,19 +207,6 @@ static int get_cksel(SensorId sensor_id, int required, unsigned channels)
   return 1;
 }
 
-static void gl646_compute_session(Genesys_Device* dev, ScanSession& s,
-                                  const Genesys_Sensor& sensor)
-{
-    DBG_HELPER(dbg);
-    (void) dev;
-
-    compute_session(dev, s, sensor);
-    s.computed = true;
-
-    DBG(DBG_info, "%s ", __func__);
-    debug_dump(DBG_info, s);
-}
-
 /**
  * Setup register and motor tables for a scan at the
  * given resolution and color mode. TODO try to not use any filed from
@@ -2008,7 +1995,7 @@ static void setup_for_scan(Genesys_Device* dev,
     if (xcorrection) {
         session.params.flags |= SCAN_FLAG_USE_XCORRECTION;
     }
-    gl646_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     std::vector<uint16_t> slope_table0;
     std::vector<uint16_t> slope_table1;

@@ -887,20 +887,6 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->set16(REG_DUMMY, sensor.dummy_pixel);
 }
 
-static void gl124_compute_session(Genesys_Device* dev, ScanSession& s,
-                                  const Genesys_Sensor& sensor)
-{
-    DBG_HELPER(dbg);
-
-    compute_session(dev, s, sensor);
-
-    s.enable_ledadd = (s.params.channels == 1 && dev->model->is_cis && dev->settings.true_gray);
-    s.computed = true;
-
-    DBG(DBG_info, "%s ", __func__);
-    debug_dump(DBG_info, s);
-}
-
 /** set up registers for an actual scan
  *
  * this function sets up the scanner to scan in normal or single line mode
@@ -1018,7 +1004,7 @@ void CommandSetGl124::calculate_current_setup(Genesys_Device * dev,
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = 0;
 
-    gl124_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
@@ -1319,7 +1305,7 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     session.params.flags = SCAN_FLAG_DISABLE_SHADING |
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl124_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &local_reg, session);
 
@@ -1409,7 +1395,7 @@ static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
                            SCAN_FLAG_FEEDING |
                            SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl124_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &local_reg, session);
 
@@ -1492,7 +1478,7 @@ void CommandSetGl124::search_start_position(Genesys_Device* dev) const
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE |
                            SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
-    gl124_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &local_reg, session);
 
@@ -1553,7 +1539,7 @@ void CommandSetGl124::init_regs_for_coarse_calibration(Genesys_Device* dev,
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_FEEDING |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl124_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &regs, session);
 
@@ -1619,7 +1605,7 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl124_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     try {
         gl124_init_scan_regs(dev, sensor, &regs, session);
@@ -1697,7 +1683,7 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = 0;
-    gl124_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &dev->reg, session);
 }
@@ -1833,7 +1819,7 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl124_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &regs, session);
 
@@ -1909,7 +1895,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl124_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &regs, session);
 
@@ -2077,7 +2063,7 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl124_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &regs, session);
 
@@ -2231,7 +2217,7 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl124_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     try {
         gl124_init_scan_regs(dev, sensor, &regs, session);
@@ -2339,7 +2325,7 @@ void CommandSetGl124::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl124_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, reg, session);
 

@@ -1653,6 +1653,27 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
     compute_session_buffer_sizes(dev->model->asic_type, s);
     compute_session_pipeline(dev, s);
     compute_session_pixel_offsets(dev, s, sensor, sensor_profile);
+
+    if (dev->model->asic_type == AsicType::GL124 ||
+        dev->model->asic_type == AsicType::GL845 ||
+        dev->model->asic_type == AsicType::GL846)
+    {
+        s.enable_ledadd = (s.params.channels == 1 && dev->model->is_cis && dev->settings.true_gray);
+    }
+
+    if (dev->model->asic_type == AsicType::GL841 ||
+        dev->model->asic_type == AsicType::GL843)
+    {
+        // no 16 bit gamma for this ASIC
+        if (s.params.depth == 16) {
+            s.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
+        }
+    }
+
+    s.computed = true;
+
+    DBG(DBG_info, "%s ", __func__);
+    debug_dump(DBG_info, s);
 }
 
 static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& session)

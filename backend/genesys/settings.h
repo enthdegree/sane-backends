@@ -259,8 +259,15 @@ struct ScanSession {
     unsigned num_staggered_lines = 0;
 
     // the number of lines that color channels shift due to different physical positions of
-    // different color channels
+    // different color channels.
     unsigned max_color_shift_lines = 0;
+
+    // actual line shift of the red color
+    unsigned color_shift_lines_r = 0;
+    // actual line shift of the green color
+    unsigned color_shift_lines_g = 0;
+    // actual line shift of the blue color
+    unsigned color_shift_lines_b = 0;
 
     // the number of scanner segments used in the current scan
     unsigned segment_count = 1;

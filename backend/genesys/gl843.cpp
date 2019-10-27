@@ -1237,20 +1237,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     gl843_init_optical_regs_scan(dev, sensor, reg, exposure, session);
 
   /*** motor parameters ***/
-
-  /* it seems base_dpi of the G4050 motor is changed above 600 dpi*/
-    if (dev->model->motor_id == MotorId::G4050 && session.params.yres>600) {
-      dev->ld_shift_r = (dev->model->ld_shift_r*3800)/dev->motor.base_ydpi;
-      dev->ld_shift_g = (dev->model->ld_shift_g*3800)/dev->motor.base_ydpi;
-      dev->ld_shift_b = (dev->model->ld_shift_b*3800)/dev->motor.base_ydpi;
-    }
-  else
-    {
-      dev->ld_shift_r = dev->model->ld_shift_r;
-      dev->ld_shift_g = dev->model->ld_shift_g;
-      dev->ld_shift_b = dev->model->ld_shift_b;
-    }
-
     mflags = 0;
     if (session.params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE) {
         mflags |= MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
@@ -1348,17 +1334,6 @@ void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
       throw std::runtime_error("Exposure not defined in sensor definition");
   }
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
-
-  /* it seems base_dpi of the G4050 motor is changed above 600 dpi*/
-    if (dev->model->motor_id == MotorId::G4050 && session.params.yres>600) {
-      dev->ld_shift_r = (dev->model->ld_shift_r*3800)/dev->motor.base_ydpi;
-      dev->ld_shift_g = (dev->model->ld_shift_g*3800)/dev->motor.base_ydpi;
-      dev->ld_shift_b = (dev->model->ld_shift_b*3800)/dev->motor.base_ydpi;
-    } else {
-      dev->ld_shift_r = dev->model->ld_shift_r;
-      dev->ld_shift_g = dev->model->ld_shift_g;
-      dev->ld_shift_b = dev->model->ld_shift_b;
-    }
 
     dev->session = session;
     dev->current_setup.pixels = session.output_pixels;

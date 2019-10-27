@@ -1554,8 +1554,26 @@ void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& 
         }
     }
 
-    s.max_color_shift_lines = sanei_genesys_compute_max_shift(dev, s.params.channels,
-                                                              s.params.yres, s.params.flags);
+    s.color_shift_lines_r = dev->model->ld_shift_r;
+    s.color_shift_lines_g = dev->model->ld_shift_g;
+    s.color_shift_lines_b = dev->model->ld_shift_b;
+
+    if (dev->model->motor_id == MotorId::G4050 && s.params.yres > 600) {
+        // it seems base_dpi of the G4050 motor is changed above 600 dpi
+        s.color_shift_lines_r = (s.color_shift_lines_r * 3800) / dev->motor.base_ydpi;
+        s.color_shift_lines_g = (s.color_shift_lines_g * 3800) / dev->motor.base_ydpi;
+        s.color_shift_lines_b = (s.color_shift_lines_b * 3800) / dev->motor.base_ydpi;
+    }
+
+    s.color_shift_lines_r = (s.color_shift_lines_r * s.params.yres) / dev->motor.base_ydpi;
+    s.color_shift_lines_g = (s.color_shift_lines_g * s.params.yres) / dev->motor.base_ydpi;
+    s.color_shift_lines_b = (s.color_shift_lines_b * s.params.yres) / dev->motor.base_ydpi;
+
+    s.max_color_shift_lines = 0;
+    if (s.params.channels > 1 && !(s.params.flags & SCAN_FLAG_IGNORE_LINE_DISTANCE)) {
+        s.max_color_shift_lines = std::max(s.color_shift_lines_r, std::max(s.color_shift_lines_g,
+                                                                           s.color_shift_lines_b));
+    }
 
     s.output_line_count = s.params.lines + s.max_color_shift_lines + s.num_staggered_lines;
 
@@ -1800,10 +1818,10 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     }
 
     if (session.max_color_shift_lines > 0 && session.params.channels == 3) {
-        std::size_t shift_r = (dev->ld_shift_r * session.params.yres) / dev->motor.base_ydpi;
-        std::size_t shift_g = (dev->ld_shift_g * session.params.yres) / dev->motor.base_ydpi;
-        std::size_t shift_b = (dev->ld_shift_b * session.params.yres) / dev->motor.base_ydpi;
-        dev->pipeline.push_node<ImagePipelineNodeComponentShiftLines>(shift_r, shift_g, shift_b);
+        dev->pipeline.push_node<ImagePipelineNodeComponentShiftLines>(
+                    session.color_shift_lines_r,
+                    session.color_shift_lines_g,
+                    session.color_shift_lines_b);
     }
 
     if (DBG_LEVEL >= DBG_io2) {
@@ -2365,39 +2383,6 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
 #endif
 
   return true;
-}
-
-
-/** @brief compute maximum line distance shift
- * compute maximum line distance shift for the motor and sensor
- * combination. Line distance shift is the distance between different
- * color component of CCD sensors. Since these components aren't at
- * the same physical place, they scan diffrent lines. Software must
- * take this into account to accurately mix color data.
- * @param dev device session to compute max_shift for
- * @param channels number of color channels for the scan
- * @param yres motor resolution used for the scan
- * @param flags scan flags
- * @return 0 or line distance shift
- */
-int sanei_genesys_compute_max_shift(Genesys_Device *dev,
-                                    int channels,
-                                    int yres,
-                                    int flags)
-{
-  int max_shift;
-
-  max_shift=0;
-  if (channels > 1 && !(flags & SCAN_FLAG_IGNORE_LINE_DISTANCE))
-    {
-      max_shift = dev->ld_shift_r;
-      if (dev->ld_shift_b > max_shift)
-	max_shift = dev->ld_shift_b;
-      if (dev->ld_shift_g > max_shift)
-	max_shift = dev->ld_shift_g;
-      max_shift = (max_shift * yres) / dev->motor.base_ydpi;
-    }
-  return max_shift;
 }
 
 /** @brief build lookup table for digital enhancements

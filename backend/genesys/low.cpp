@@ -2654,4 +2654,15 @@ void debug_dump(unsigned level, const Genesys_Sensor& sensor)
     DBG(level, "    gamma.blue : %f\n", sensor.gamma[2]);
 }
 
+void debug_dump(unsigned level, const SANE_Parameters& params)
+{
+    DBG(level, "params:\n");
+    DBG(level, "    format: %d:\n", static_cast<unsigned>(params.format));
+    DBG(level, "    last_frame: %d:\n", params.last_frame);
+    DBG(level, "    bytes_per_line: %d:\n", params.bytes_per_line);
+    DBG(level, "    pixels_per_line: %d:\n", params.pixels_per_line);
+    DBG(level, "    lines: %d:\n", params.lines);
+    DBG(level, "    depth: %d:\n", params.depth);
+}
+
 } // namespace genesys

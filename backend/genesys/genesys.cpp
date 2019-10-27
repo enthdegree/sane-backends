@@ -182,6 +182,7 @@ static const SANE_Range expiration_range = {
 
 const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev)
 {
+    DBG_HELPER(dbg);
     for (const auto& sensor : *s_sensors) {
         if (dev->model->sensor_id == sensor.sensor_id) {
             return sensor;
@@ -193,6 +194,8 @@ const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev)
 Genesys_Sensor* find_sensor_impl(Genesys_Device* dev, unsigned dpi, unsigned channels,
                                  ScanMethod scan_method)
 {
+    DBG_HELPER_ARGS(dbg, "dpi: %d, channels: %d, scan_method: %d", dpi, channels,
+                    static_cast<unsigned>(scan_method));
     for (auto& sensor : *s_sensors) {
         if (dev->model->sensor_id == sensor.sensor_id && sensor.resolutions.matches(dpi) &&
             sensor.matches_channel_count(channels) && sensor.method == scan_method)
@@ -206,12 +209,16 @@ Genesys_Sensor* find_sensor_impl(Genesys_Device* dev, unsigned dpi, unsigned cha
 bool sanei_genesys_has_sensor(Genesys_Device* dev, unsigned dpi, unsigned channels,
                               ScanMethod scan_method)
 {
+    DBG_HELPER_ARGS(dbg, "dpi: %d, channels: %d, scan_method: %d", dpi, channels,
+                    static_cast<unsigned>(scan_method));
     return find_sensor_impl(dev, dpi, channels, scan_method) != nullptr;
 }
 
 const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, unsigned dpi, unsigned channels,
                                                 ScanMethod scan_method)
 {
+    DBG_HELPER_ARGS(dbg, "dpi: %d, channels: %d, scan_method: %d", dpi, channels,
+                    static_cast<unsigned>(scan_method));
     const auto* sensor = find_sensor_impl(dev, dpi, channels, scan_method);
     if (sensor)
         return *sensor;
@@ -222,6 +229,8 @@ Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, unsigne
                                                     unsigned channels,
                                                     ScanMethod scan_method)
 {
+    DBG_HELPER_ARGS(dbg, "dpi: %d, channels: %d, scan_method: %d", dpi, channels,
+                    static_cast<unsigned>(scan_method));
     auto* sensor = find_sensor_impl(dev, dpi, channels, scan_method);
     if (sensor)
         return *sensor;
@@ -232,6 +241,7 @@ Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, unsigne
 std::vector<std::reference_wrapper<const Genesys_Sensor>>
     sanei_genesys_find_sensors_all(Genesys_Device* dev, ScanMethod scan_method)
 {
+    DBG_HELPER_ARGS(dbg, "scan_method: %d", static_cast<unsigned>(scan_method));
     std::vector<std::reference_wrapper<const Genesys_Sensor>> ret;
     for (const Genesys_Sensor& sensor : sanei_genesys_find_sensors_all_for_write(dev, scan_method)) {
         ret.push_back(sensor);
@@ -242,6 +252,7 @@ std::vector<std::reference_wrapper<const Genesys_Sensor>>
 std::vector<std::reference_wrapper<Genesys_Sensor>>
     sanei_genesys_find_sensors_all_for_write(Genesys_Device* dev, ScanMethod scan_method)
 {
+    DBG_HELPER_ARGS(dbg, "scan_method: %d", static_cast<unsigned>(scan_method));
     std::vector<std::reference_wrapper<Genesys_Sensor>> ret;
     for (auto& sensor : *s_sensors) {
         if (dev->model->sensor_id == sensor.sensor_id && sensor.method == scan_method) {
@@ -251,9 +262,10 @@ std::vector<std::reference_wrapper<Genesys_Sensor>>
     return ret;
 }
 
-void
-sanei_genesys_init_structs (Genesys_Device * dev)
+void sanei_genesys_init_structs (Genesys_Device * dev)
 {
+    DBG_HELPER(dbg);
+
     bool gpo_ok = false;
     bool motor_ok = false;
     bool fe_ok = false;
@@ -922,7 +934,7 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
 void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                      int pixels_per_line)
 {
-    DBG_HELPER(dbg);
+    DBG_HELPER_ARGS(dbg, "pixels_per_line: %d", pixels_per_line);
 
     if (dev->model->flags & GENESYS_FLAG_CALIBRATION_HOST_SIDE) {
         return;
@@ -1652,6 +1664,7 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
 
 static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
 {
+    DBG_HELPER(dbg);
     if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK) {
         // rewind keeps registers and slopes table intact from previous scan but is not
         // available on all supported chipsets (or may cause scan artifacts, see #7)
@@ -1671,6 +1684,7 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
 
 static void genesys_repark_sensor_after_white_shading(Genesys_Device* dev)
 {
+    DBG_HELPER(dbg);
     if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK) {
         dev->cmd_set->slow_back_home(dev, true);
     }
@@ -4353,7 +4367,7 @@ check_present (SANE_String_Const devname) noexcept
 
 static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may_wait)
 {
-    DBG_HELPER_ARGS(dbg, " may_wait = %d", may_wait);
+    DBG_HELPER_ARGS(dbg, " devname: %s, may_wait = %d", devname, may_wait);
 
     Genesys_Device *dev = nullptr;
 
@@ -4425,6 +4439,7 @@ static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may
 // this function is passed to C API and must not throw
 static SANE_Status attach_one_device(SANE_String_Const devname) noexcept
 {
+    DBG_HELPER(dbg);
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
         attach_device_by_name(devname, false);
@@ -4942,6 +4957,7 @@ extern "C" void sane_close(SANE_Handle handle)
 const SANE_Option_Descriptor *
 sane_get_option_descriptor_impl(SANE_Handle handle, SANE_Int option)
 {
+    DBG_HELPER(dbg);
     Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
 
     if (static_cast<unsigned>(option) >= NUM_OPTIONS) {
@@ -4964,9 +4980,33 @@ sane_get_option_descriptor(SANE_Handle handle, SANE_Int option)
     return ret;
 }
 
+static void print_option(DebugMessageHelper& dbg, const Genesys_Scanner& s, int option, void* val)
+{
+    switch (s.opt[option].type) {
+        case SANE_TYPE_INT: {
+            dbg.vlog(DBG_proc, "value: %d", *reinterpret_cast<SANE_Word*>(val));
+            return;
+        }
+        case SANE_TYPE_BOOL: {
+            dbg.vlog(DBG_proc, "value: %s", *reinterpret_cast<SANE_Bool*>(val) ? "true" : "false");
+            return;
+        }
+        case SANE_TYPE_FIXED: {
+            dbg.vlog(DBG_proc, "value: %f", SANE_UNFIX(*reinterpret_cast<SANE_Word*>(val)));
+            return;
+        }
+        case SANE_TYPE_STRING: {
+            dbg.vlog(DBG_proc, "value: %s", reinterpret_cast<char*>(val));
+            return;
+        }
+        default: break;
+    }
+    dbg.log(DBG_proc, "value: (non-printable)");
+}
+
 static void get_option_value(Genesys_Scanner* s, int option, void* val)
 {
-    DBG_HELPER(dbg);
+    DBG_HELPER_ARGS(dbg, "option: %s (%d)", s->opt[option].name, option);
   unsigned int i;
     SANE_Word* table = nullptr;
   std::vector<uint16_t> gamma_table;
@@ -5161,6 +5201,7 @@ static void get_option_value(Genesys_Scanner* s, int option, void* val)
     default:
       DBG(DBG_warn, "%s: can't get unknown option %d\n", __func__, option);
     }
+    print_option(dbg, *s, option, val);
 }
 
 /** @brief set calibration file value
@@ -5192,7 +5233,9 @@ static void set_calibration_value(Genesys_Scanner* s, const char* val)
 /* sets an option , called by sane_control_option */
 static void set_option_value(Genesys_Scanner* s, int option, void *val, SANE_Int* myinfo)
 {
-    DBG_HELPER(dbg);
+    DBG_HELPER_ARGS(dbg, "option: %s (%d)", s->opt[option].name, option);
+    print_option(dbg, *s, option, val);
+
   SANE_Word *table;
   unsigned int i;
   unsigned option_size = 0;
@@ -5615,6 +5658,7 @@ void sane_get_parameters_impl(SANE_Handle handle, SANE_Parameters* params)
 	  params->lines = -1;
 	}
     }
+    debug_dump(DBG_proc, *params);
 }
 
 extern "C" SANE_Status sane_get_parameters(SANE_Handle handle, SANE_Parameters* params)

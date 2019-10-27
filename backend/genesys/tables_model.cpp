@@ -511,8 +511,8 @@ void genesys_init_usb_device_tables()
             { 3200, 1600, 800, 400 },
         }, {
             { ScanMethod::TRANSPARENCY_INFRARED },
-            { 1600 },
-            { 1600 },
+            { 3200, 1600, 800, 400 },
+            { 3200, 1600, 800, 400 },
         }
     };
 

@@ -2288,13 +2288,13 @@ void genesys_init_sensor_tables()
             unsigned dpiset_override;
             unsigned pixel_count_multiplier;
             int exposure_lperiod;
-            ScanMethod method;
+            std::vector<ScanMethod> methods;
             GenesysRegisterSettingSet extra_custom_regs;
             GenesysRegisterSettingSet custom_fe_regs;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 400 }, 2400, 1, 7200, ScanMethod::FLATBED, {
+            { { 400 }, 2400, 1, 7200, { ScanMethod::FLATBED }, {
                     { 0x16, 0x33 },
                     { 0x17, 0x0c },
                     { 0x18, 0x13 },
@@ -2320,7 +2320,7 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x2a },
                 }, {}
             },
-            { { 800 }, 4800, 1, 7200, ScanMethod::FLATBED, {
+            { { 800 }, 4800, 1, 7200, { ScanMethod::FLATBED }, {
                     { 0x16, 0x33 },
                     { 0x17, 0x0c },
                     { 0x18, 0x13 },
@@ -2346,7 +2346,7 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x20 },
                 }, {}
             },
-            { { 1600 }, 4800, 1, 14400, ScanMethod::FLATBED, {
+            { { 1600 }, 4800, 1, 14400, { ScanMethod::FLATBED }, {
                     { 0x16, 0x33 },
                     { 0x17, 0x0c },
                     { 0x18, 0x11 },
@@ -2374,7 +2374,8 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 }
             },
-            { { 400 }, 2400, 1, 14400, ScanMethod::TRANSPARENCY, {
+            { { 400 }, 2400, 1, 14400, { ScanMethod::TRANSPARENCY,
+                                         ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x16, 0x33 },
                     { 0x17, 0x0c },
                     { 0x18, 0x13 },
@@ -2400,7 +2401,8 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x20 },
                 }, {}
             },
-            { { 800 }, 4800, 1, 14400, ScanMethod::TRANSPARENCY, {
+            { { 800 }, 4800, 1, 14400, { ScanMethod::TRANSPARENCY,
+                                         ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x16, 0x33 },
                     { 0x17, 0x0c },
                     { 0x18, 0x13 },
@@ -2426,7 +2428,8 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x20 },
                 }, {}
             },
-            { { 1600 }, 4800, 1, 28800, ScanMethod::TRANSPARENCY, {
+            { { 1600 }, 4800, 1, 28800, { ScanMethod::TRANSPARENCY,
+                                          ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x16, 0x33 },
                     { 0x17, 0x0c },
                     { 0x18, 0x11 },
@@ -2454,7 +2457,8 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 },
             },
-            { { 3200 }, 4800, 1, 28800, ScanMethod::TRANSPARENCY, {
+            { { 3200 }, 4800, 1, 28800, { ScanMethod::TRANSPARENCY,
+                                          ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x16, 0x33 },
                     { 0x17, 0x0c },
                     { 0x18, 0x10 },
@@ -2482,46 +2486,20 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 },
             },
-            { { 1600 }, 4800, 1, 28800, ScanMethod::TRANSPARENCY_INFRARED, {
-                    { 0x16, 0x33 },
-                    { 0x17, 0x0c },
-                    { 0x18, 0x11 },
-                    { 0x19, 0x2a },
-                    { 0x1a, 0x30 },
-                    { 0x1b, 0x00 },
-                    { 0x1c, 0x00 },
-                    { 0x1d, 0x84 },
-                    { 0x1e, 0xa0 },
-                    { 0x52, 0x0b },
-                    { 0x53, 0x0e },
-                    { 0x54, 0x11 },
-                    { 0x55, 0x02 },
-                    { 0x56, 0x05 },
-                    { 0x57, 0x08 },
-                    { 0x58, 0x63 },
-                    { 0x59, 0x00 },
-                    { 0x5a, 0x40 },
-                    { 0x70, 0x00 }, { 0x71, 0x01 }, { 0x72, 0x02 }, { 0x73, 0x03 },
-                    { 0x74, 0x00 }, { 0x75, 0x01 }, { 0x76, 0xff },
-                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
-                    { 0x7a, 0x02 }, { 0x7b, 0x49 }, { 0x7c, 0x24 },
-                    { 0x80, 0x21 },
-                }, {
-                    { 0x03, 0x1f },
-                },
-            },
         };
 
         for (const CustomSensorSettings& setting : custom_settings)
         {
-            sensor.resolutions = setting.resolutions;
-            sensor.dpiset_override = setting.dpiset_override;
-            sensor.pixel_count_multiplier = setting.pixel_count_multiplier;
-            sensor.exposure_lperiod = setting.exposure_lperiod;
-            sensor.method = setting.method;
-            sensor.custom_regs = setting.extra_custom_regs;
-            sensor.custom_fe_regs = setting.custom_fe_regs;
-            s_sensors->push_back(sensor);
+            for (auto method : setting.methods) {
+                sensor.resolutions = setting.resolutions;
+                sensor.dpiset_override = setting.dpiset_override;
+                sensor.pixel_count_multiplier = setting.pixel_count_multiplier;
+                sensor.exposure_lperiod = setting.exposure_lperiod;
+                sensor.method = method;
+                sensor.custom_regs = setting.extra_custom_regs;
+                sensor.custom_fe_regs = setting.custom_fe_regs;
+                s_sensors->push_back(sensor);
+            }
         }
     }
 

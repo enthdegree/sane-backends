@@ -124,6 +124,13 @@ public:
 
     void clear() { msg_[0] = '\n'; }
 
+    void log(unsigned level, const char* msg);
+    void vlog(unsigned level, const char* format, ...)
+    #ifdef __GNUC__
+        __attribute__((format(printf, 3, 4)))
+    #endif
+    ;
+
 private:
     const char* func_ = nullptr;
     char msg_[MAX_BUF_SIZE];

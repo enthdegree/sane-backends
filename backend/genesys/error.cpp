@@ -114,7 +114,11 @@ void SaneException::set_msg(const char* format, std::va_list vlist)
     const char* status_msg = sane_strstatus(status_);
     std::size_t status_msg_len = std::strlen(status_msg);
 
-    int msg_len = std::vsnprintf(nullptr, 0, format, vlist);
+    std::va_list vlist2;
+    va_copy(vlist2, vlist);
+    int msg_len = std::vsnprintf(nullptr, 0, format, vlist2);
+    va_end(vlist2);
+
     if (msg_len < 0) {
         const char* formatting_error_msg = "(error formatting arguments)";
         msg_.reserve(std::strlen(formatting_error_msg) + 3 + status_msg_len);
@@ -176,6 +180,36 @@ void DebugMessageHelper::vstatus(const char* format, ...)
     va_start(args, format);
     std::vsnprintf(msg_, MAX_BUF_SIZE, format, args);
     va_end(args);
+}
+
+void DebugMessageHelper::log(unsigned level, const char* msg)
+{
+    DBG(level, "%s: %s\n", func_, msg);
+}
+
+void DebugMessageHelper::vlog(unsigned level, const char* format, ...)
+{
+    std::string msg;
+
+    std::va_list args;
+
+    va_start(args, format);
+    int msg_len = std::vsnprintf(nullptr, 0, format, args);
+    va_end(args);
+
+    if (msg_len < 0) {
+        DBG(level, "%s: error formatting error message: %s\n", func_, format);
+        return;
+    }
+    msg.resize(msg_len + 1, ' ');
+
+    va_start(args, format);
+    std::vsnprintf(&msg.front(), msg.size(), format, args);
+    va_end(args);
+
+    msg.resize(msg_len, ' '); // strip the null character
+
+    DBG(level, "%s: %s\n", func_, msg.c_str());
 }
 
 } // namespace genesys

@@ -203,6 +203,7 @@ DESC_EXT_FILES = descriptions-external/brother2.desc \
   descriptions-external/primascan.desc \
   descriptions-external/primax.desc \
   descriptions-external/samsung.desc \
+  descriptions-external/scangearmp2.desc \
   descriptions-external/scanwit.desc \
   descriptions-external/utsushi.desc \
   descriptions-external/v4l2.desc \

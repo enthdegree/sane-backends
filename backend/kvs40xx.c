@@ -524,9 +524,10 @@ static SANE_Status read_image_simplex(SANE_Handle handle)
 	return st;
 }
 
-static SANE_Status read_data(struct scanner *s)
+static void * read_data (void *arg)
 {
-	SANE_Status st;
+	struct scanner *s = (struct scanner *) arg;
+        SANE_Status st;
 	int duplex = s->val[DUPLEX].w;
 	s->read = 0;
 	s->side = SIDE_FRONT;
@@ -549,7 +550,7 @@ static SANE_Status read_data(struct scanner *s)
 	return SANE_STATUS_GOOD;
       err:
 	s->scanning = 0;
-	return st;
+	return (void *) st;
 }
 
 /* Start scanning */
@@ -640,7 +641,7 @@ sane_start (SANE_Handle handle)
 	goto err;
     }
 
-  if (pthread_create (&s->thread, NULL, (void *(*)(void *)) read_data, s))
+  if (pthread_create (&s->thread, NULL, read_data, s))
     {
       st = SANE_STATUS_IO_ERROR;
       goto err;

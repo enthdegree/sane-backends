@@ -1086,7 +1086,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 
           /* special image format for *most* devices at high dpi.
            * MP220, MX360 and generation 5 scanners are exceptions */
-          if (n > 0
+          if (n > 1
               && s->cfg->pid != MP220_PID
               && s->cfg->pid != MP490_PID
               && s->cfg->pid != MX360_PID

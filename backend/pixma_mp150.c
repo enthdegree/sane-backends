@@ -347,6 +347,12 @@ typedef struct mp150_t
   uint8_t *data_left_ofs;
   unsigned data_left_len;
   uint8_t adf_state;            /* handle adf scanning */
+  unsigned scale;               /* Scale factor for lower resolutions, the
+                                 * scanner doesn't support. We scale down the
+                                 * image after scanning minimum possible
+                                 * resolution.
+                                 */
+
 } mp150_t;
 
 /*
@@ -1194,6 +1200,14 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   sp->mode_jpeg = (s->cfg->cap & PIXMA_CAP_ADF_JPEG) &&
                       (sp->source == PIXMA_SOURCE_ADF ||
                        sp->source == PIXMA_SOURCE_ADFDUP);
+
+  mp->scale = 1;
+  if (s->cfg->min_xdpi && sp->xdpi < s->cfg->min_xdpi)
+  {
+    mp->scale = s->cfg->min_xdpi / sp->xdpi;
+  }
+  /*PDBG (pixma_dbg (4, "*mp150_check_param***** xdpi=%u, min_xdpi=%u, scale=%u *****\n",
+                   sp->xdpi, s->cfg->min_xdpi, mp->scale));*/
 
   /*PDBG (pixma_dbg (4, "*mp150_check_param***** Finally: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u *****\n",
                    sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx));*/

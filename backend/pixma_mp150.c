@@ -347,6 +347,12 @@ typedef struct mp150_t
   uint8_t *data_left_ofs;
   unsigned data_left_len;
   uint8_t adf_state;            /* handle adf scanning */
+  unsigned scale;               /* Scale factor for lower resolutions, the
+                                 * scanner doesn't support. We scale down the
+                                 * image after scanning minimum possible
+                                 * resolution.
+                                 */
+
 } mp150_t;
 
 /*
@@ -596,7 +602,7 @@ calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
      other models, too? */
   if (mp->generation >= 2)
     {
-      raw_width = ALIGN_SUP (param->w + param->xs, 32);
+      raw_width = ALIGN_SUP ((param->w * mp->scale) + param->xs, 32);
       /* PDBG (pixma_dbg (4, "*calc_raw_width***** width %i extended by %i and rounded to %i *****\n", param->w, param->xs, raw_width)); */
     }
   else if (param->channels == 1)
@@ -613,8 +619,13 @@ calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
 static unsigned
 get_cis_line_size (pixma_t * s)
 {
+  mp150_t *mp = (mp150_t *) s->subdriver;
+
+  /*PDBG (pixma_dbg (4, "%s: line_size=%ld, w=%d, wx=%d, scale=%d\n",
+                   __func__, s->param->line_size, s->param->w, s->param->wx, mp->scale));*/
+
   return (s->param->wx ? s->param->line_size / s->param->w * s->param->wx
-                       : s->param->line_size);
+                       : s->param->line_size) * mp->scale;
 }
 
 static int
@@ -622,21 +633,26 @@ send_scan_param (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
   uint8_t *data;
-  unsigned raw_width = calc_raw_width (mp, s->param);
-  unsigned h = MIN (s->param->h, s->cfg->height * s->param->ydpi / 75);
+  unsigned xdpi = s->param->xdpi * mp->scale;
+  unsigned ydpi = s->param->xdpi * mp->scale;
+  unsigned x = s->param->x * mp->scale;
+  unsigned xs = s->param->xs;
+  unsigned y = s->param->y * mp->scale;
+  unsigned wx = calc_raw_width (mp, s->param);
+  unsigned h = MIN (s->param->h, s->cfg->height * s->param->ydpi / 75) * mp->scale;
 
   if (mp->generation <= 2)
     {
-      /*PDBG (pixma_dbg (4, "*send_scan_param gen. 1-2 ***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  w=%i ***** \n",
-                           s->param->xdpi,s->param->ydpi,(s->param->x)-(s->param->xs),s->param->y,raw_width));*/
+      PDBG (pixma_dbg (4, "*send_scan_param gen. 1-2 ***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  wx=%i ***** \n",
+                           xdpi, ydpi, x-xs, y, wx));
       data = pixma_newcmd (&mp->cb, cmd_scan_param, 0x30, 0);
-      pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x04);
-      pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x06);
-      pixma_set_be32 (s->param->x, data + 0x08);
+      pixma_set_be16 (xdpi | 0x8000, data + 0x04);
+      pixma_set_be16 (ydpi | 0x8000, data + 0x06);
+      pixma_set_be32 (x, data + 0x08);
       if (mp->generation == 2)
-        pixma_set_be32 (s->param->x - s->param->xs, data + 0x08);
-      pixma_set_be32 (s->param->y, data + 0x0c);
-      pixma_set_be32 (raw_width, data + 0x10);
+        pixma_set_be32 (x - s->param->xs, data + 0x08);
+      pixma_set_be32 (y, data + 0x0c);
+      pixma_set_be32 (wx, data + 0x10);
       pixma_set_be32 (h, data + 0x14);
       data[0x18] = (s->param->channels != 1) ? 0x08 : 0x04;
       data[0x19] = ((s->param->software_lineart) ? 8 : s->param->depth)
@@ -649,6 +665,8 @@ send_scan_param (pixma_t * s)
     }
   else
     {
+      PDBG (pixma_dbg (4, "*send_scan_param gen. 3+ ***** Setting: xdpi=%hi ydpi=%hi x=%i xs=%i y=%i  wx=%i h=%i ***** \n",
+                           xdpi, ydpi, x, xs, y, wx, h));
       data = pixma_newcmd (&mp->cb, cmd_scan_param_3, 0x38, 0);
       data[0x00] = (is_scanning_from_adf (s)) ? 0x02 : 0x01;
       data[0x01] = 0x01;
@@ -666,13 +684,11 @@ send_scan_param (pixma_t * s)
         {
           data[0x05] = 0x01;	/* This one also seen at 0. Don't know yet what's used for */
         }
-      pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x08);
-      pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x0a);
-      /*PDBG (pixma_dbg (4, "*send_scan_param gen. 3+ ***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  w=%i ***** \n",
-                           s->param->xdpi,s->param->ydpi,(s->param->x)-(s->param->xs),s->param->y,raw_width));*/
-      pixma_set_be32 (s->param->x - s->param->xs, data + 0x0c);
-      pixma_set_be32 (s->param->y, data + 0x10);
-      pixma_set_be32 (raw_width, data + 0x14);
+      pixma_set_be16 (xdpi | 0x8000, data + 0x08);
+      pixma_set_be16 (ydpi | 0x8000, data + 0x0a);
+      pixma_set_be32 (x - xs, data + 0x0c);
+      pixma_set_be32 (y, data + 0x10);
+      pixma_set_be32 (wx, data + 0x14);
       pixma_set_be32 (h, data + 0x18);
       data[0x1c] = (s->param->channels != 1) ? 0x08 : 0x04;
 
@@ -951,6 +967,66 @@ reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n,
   memcpy (sptr, linebuf, line_size);
 }
 
+/* the scanned image must be shrinked by factor "scale"
+ * the image can be formatted as rgb (c=3) or gray (c=1)
+ * we need to crop the left side (xs)
+ * we ignore more pixels inside scanned line (wx), behind needed line (w)
+ *
+ * example (scale=2):
+ * line | pixel[0] | pixel[1] | ... | pixel[w-1]
+ * ---------
+ *  0   |  rgbrgb  |  rgbrgb  | ... |  rgbrgb
+ * wx*c |  rgbrgb  |  rgbrgb  | ... |  rgbrgb
+ */
+uint8_t *
+shrink_image (uint8_t * dptr, uint8_t * sptr, unsigned xs, unsigned w,
+              unsigned wx, unsigned scale, unsigned c)
+{
+  unsigned i, ic;
+  uint16_t pixel;
+  uint8_t *dst = dptr;  /* don't change dptr */
+  uint8_t *src = sptr;  /* don't change sptr */
+
+  /*PDBG (pixma_dbg (4, "%s: w=%d, wx=%d, c=%d, scale=%d\n",
+                   __func__, w, wx, c, scale));
+  PDBG (pixma_dbg (4, "\tdptr=%ld, sptr=%ld\n",
+                   dptr, sptr));*/
+
+  /* crop left side */
+  src += c * xs;
+
+  /* process line */
+  for (i = 0; i < w; i++)
+  {
+    /* process rgb or gray pixel */
+    for (ic = 0; ic < c; ic++)
+    {
+#if 0
+      dst[ic] = src[ic];
+#else
+      pixel = 0;
+
+      /* sum shrink pixels */
+      for (unsigned m = 0; m < scale; m++)    /* get pixels from shrinked lines */
+      {
+        for (unsigned n = 0; n < scale; n++)  /* get pixels from same line */
+        {
+          pixel += src[ic + c * n + wx * c * m];
+        }
+      }
+      dst[ic] = pixel / (scale * scale);
+#endif
+    }
+
+    /* jump over shrinked data */
+    src += c * scale;
+    /* next pixel */
+    dst += c;
+  }
+
+  return dst;
+}
+
 /* This function deals with Generation >= 3 high dpi images.
  * Each complete line in mp->imgbuf is processed for reordering pixels above
  * 600 dpi for Generation >= 3. */
@@ -969,39 +1045,48 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
       return 0;    /* # of non processed bytes */
     }
 
-
+  /* process image sizes */
   c = s->param->channels
-      * ((s->param->software_lineart) ? 8 : s->param->depth) / 8;
-  cw = c * s->param->w;
-  cx = c * s->param->xs;
+      * ((s->param->software_lineart) ? 8 : s->param->depth) / 8;   /* color channels count */
+  cw = c * s->param->w;                                             /* image width */
+  cx = c * s->param->xs;                                            /* x-offset */
 
+  /* special image format parameters
+   * n: no. of sub-images
+   * m: sub-image width
+   */
   if (mp->generation >= 3)
     n = s->param->xdpi / 600;
   else
     n = s->param->xdpi / 2400;
-
   if (s->cfg->pid == MP600_PID || s->cfg->pid == MP600R_PID)
     n = s->param->xdpi / 1200;
-
   m = (n > 0) ? s->param->wx / n : 1;
-  sptr = dptr = gptr = cptr = mp->imgbuf;
-  line_size = get_cis_line_size (s);
-  /*PDBG (pixma_dbg (4, "*post_process_image_data***** ----- Set n=%u, m=%u, line_size=%u ----- ***** \n", n, m, line_size));*/
 
+  /* Initialize pointers */
+  sptr = dptr = gptr = cptr = mp->imgbuf;
+
+  /* walk through complete received lines */
+  line_size = get_cis_line_size (s);
   lines = (mp->data_left_ofs - mp->imgbuf) / line_size;
-  /*PDBG (pixma_dbg (4, "*post_process_image_data***** lines = %i ***** \n", lines));*/
   if (lines > 0)
     {
       unsigned i;
 
+      /*PDBG (pixma_dbg (4, "*post_process_image_data***** Processing with c=%u, n=%u, m=%u, wx=%i, line_size=%u, cx=%u, cw=%u ***** \n",
+                       c, n, m, s->param->wx, line_size, cx, cw));*/
+      /*PDBG (pixma_dbg (4, "*post_process_image_data***** lines = %i ***** \n", lines));*/
+
       for (i = 0; i < lines; i++, sptr += line_size)
         {
           /*PDBG (pixma_dbg (4, "*post_process_image_data***** Processing with c=%u, n=%u, m=%u, w=%i, line_size=%u ***** \n",
-	        c, n, m, s->param->wx, line_size));*/
+                           c, n, m, s->param->wx, line_size));*/
+          /*PDBG (pixma_dbg (4, "*post_process_image_data***** Pointers: sptr=%lx, dptr=%lx, linebuf=%lx ***** \n",
+                           sptr, dptr, mp->linebuf));*/
 
           /* special image format for *most* devices at high dpi.
            * MP220, MX360 and generation 5 scanners are exceptions */
-          if (n > 0
+          if (n > 1
               && s->cfg->pid != MP220_PID
               && s->cfg->pid != MP490_PID
               && s->cfg->pid != MX360_PID
@@ -1019,8 +1104,18 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
                   || s->cfg->pid == MX520_PID))
               reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
 
-          /* Crop line to selected borders */
-          memmove(cptr, sptr + cx, cw);
+
+          /* scale image */
+          if (mp->scale > 1)
+          {
+            /* Crop line inside shrink_image() */
+            shrink_image(cptr, sptr, s->param->xs, s->param->w, s->param->wx, mp->scale, c);
+          }
+          else
+          {
+            /* Crop line to selected borders */
+            memmove(cptr, sptr + cx, cw);
+          }
 
           /* Color / Gray to Lineart convert */
           if (s->param->software_lineart)
@@ -1142,37 +1237,20 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
     {
       /* mod 32 and expansion of the X scan limits */
       /*PDBG (pixma_dbg (4, "*mp150_check_param***** ----- Initially: x=%i, y=%i, w=%i, h=%i *****\n", sp->x, sp->y, sp->w, sp->h));*/
-      sp->xs = (sp->x) % 32;
+      sp->xs = (sp->x * mp->scale) % 32;
     }
   else
       sp->xs = 0;
   /*PDBG (pixma_dbg (4, "*mp150_check_param***** Selected origin, origin shift: %i, %i *****\n", sp->x, sp->xs));*/
   sp->wx = calc_raw_width (mp, sp);
   sp->line_size = sp->w * sp->channels * (((sp->software_lineart) ? 8 : sp->depth) / 8);              /* bytes per line per color after cropping */
-  /*PDBG (pixma_dbg (4, "*mp150_check_param***** Final scan width and line-size: %i, %i *****\n", sp->wx, sp->line_size));*/
+  /*PDBG (pixma_dbg (4, "*mp150_check_param***** Final scan width and line-size: %i, %li *****\n", sp->wx, sp->line_size));*/
 
   /* Some exceptions here for particular devices */
   /* Those devices can scan up to legal 14" with ADF, but A4 11.7" in flatbed */
   /* PIXMA_CAP_ADF also works for PIXMA_CAP_ADFDUP */
   if ((s->cfg->cap & PIXMA_CAP_ADF) && sp->source == PIXMA_SOURCE_FLATBED)
     sp->h = MIN (sp->h, 877 * sp->xdpi / 75);
-
-  if (s->cfg->pid == LIDE300_PID
-      || s->cfg->pid == LIDE400_PID)
-    {
-      uint8_t k;
-
-  /* TPU mode: lowest res is 150 or 300 dpi */
-      k = MAX (sp->xdpi, 300) / sp->xdpi;
-      sp->x *= k;
-      sp->xs *= k;
-      sp->y *= k;
-      sp->w *= k;
-      sp->wx *= k;
-      sp->h *= k;
-      sp->xdpi *= k;
-      sp->ydpi = sp->xdpi;
-    }
 
   if (sp->source == PIXMA_SOURCE_ADF || sp->source == PIXMA_SOURCE_ADFDUP)
     {
@@ -1194,6 +1272,14 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   sp->mode_jpeg = (s->cfg->cap & PIXMA_CAP_ADF_JPEG) &&
                       (sp->source == PIXMA_SOURCE_ADF ||
                        sp->source == PIXMA_SOURCE_ADFDUP);
+
+  mp->scale = 1;
+  if (s->cfg->min_xdpi && sp->xdpi < s->cfg->min_xdpi)
+  {
+    mp->scale = s->cfg->min_xdpi / sp->xdpi;
+  }
+  /*PDBG (pixma_dbg (4, "*mp150_check_param***** xdpi=%u, min_xdpi=%u, scale=%u *****\n",
+                   sp->xdpi, s->cfg->min_xdpi, mp->scale));*/
 
   /*PDBG (pixma_dbg (4, "*mp150_check_param***** Finally: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u *****\n",
                    sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx));*/
@@ -1487,12 +1573,13 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
   mp150_get_status
 };
 
-#define DEVICE(name, model, pid, dpi, adftpu_min_dpi, adftpu_max_dpi, w, h, cap) { \
+#define DEVICE(name, model, pid, min_dpi, dpi, adftpu_min_dpi, adftpu_max_dpi, w, h, cap) { \
         name,              /* name */               \
         model,             /* model */              \
         CANON_VID, pid,    /* vid pid */            \
         0,                 /* iface */              \
         &pixma_mp150_ops,  /* ops */                \
+        min_dpi,           /* min_xdpi */           \
         dpi, 2*(dpi),      /* xdpi, ydpi */         \
         adftpu_min_dpi, adftpu_max_dpi,         /* adftpu_min_dpi, adftpu_max_dpi */ \
         0, 0,              /* tpuir_min_dpi & tpuir_max_dpi not used in this subdriver */  \
@@ -1503,198 +1590,198 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
         PIXMA_CAP_GAMMA_TABLE|PIXMA_CAP_EVENTS|cap  \
 }
 
-#define END_OF_DEVICE_LIST DEVICE(NULL, NULL, 0, 0, 0, 0, 0, 0, 0)
+#define END_OF_DEVICE_LIST DEVICE(NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0)
 
 const pixma_config_t pixma_mp150_devices[] = {
   /* Generation 1: CIS */
-  DEVICE ("Canon PIXMA MP150", "MP150", MP150_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP170", "MP170", MP170_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP450", "MP450", MP450_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP500", "MP500", MP500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP530", "MP530", MP530_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MP150", "MP150", MP150_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP170", "MP170", MP170_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP450", "MP450", MP450_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP500", "MP500", MP500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP530", "MP530", MP530_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
 
   /* Generation 2: CIS */
-  DEVICE ("Canon PIXMA MP140", "MP140", MP140_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP160", "MP160", MP160_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP180", "MP180", MP180_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP460", "MP460", MP460_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP510", "MP510", MP510_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP600", "MP600", MP600_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP600R", "MP600R", MP600R_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP140", "MP140", MP140_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP160", "MP160", MP160_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP180", "MP180", MP180_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP460", "MP460", MP460_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP510", "MP510", MP510_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP600", "MP600", MP600_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP600R", "MP600R", MP600R_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Generation 3: CIS */
-  DEVICE ("Canon PIXMA MP210", "MP210", MP210_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP220", "MP220", MP220_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP470", "MP470", MP470_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP520", "MP520", MP520_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP610", "MP610", MP610_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP210", "MP210", MP210_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP220", "MP220", MP220_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP470", "MP470", MP470_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP520", "MP520", MP520_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP610", "MP610", MP610_PID, 0, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
-  DEVICE ("Canon PIXMA MX300", "MX300", MX300_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MX310", "MX310", MX310_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX700", "MX700", MX700_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX850", "MX850", MX850_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA MX7600", "MX7600", MX7600_PID, 4800, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA MX300", "MX300", MX300_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MX310", "MX310", MX310_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX700", "MX700", MX700_PID, 0, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX850", "MX850", MX850_PID, 0, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA MX7600", "MX7600", MX7600_PID, 0, 4800, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 
-  DEVICE ("Canon PIXMA MP630", "MP630", MP630_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP620", "MP620", MP620_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP540", "MP540", MP540_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP480", "MP480", MP480_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP240", "MP240", MP240_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP260", "MP260", MP260_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP190", "MP190", MP190_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP630", "MP630", MP630_PID, 0, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP620", "MP620", MP620_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP540", "MP540", MP540_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP480", "MP480", MP480_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP240", "MP240", MP240_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP260", "MP260", MP260_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP190", "MP190", MP190_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* PIXMA 2009 vintage */
-  DEVICE ("Canon PIXMA MX320", "MX320", MX320_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX330", "MX330", MX330_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA MX320", "MX320", MX320_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX330", "MX330", MX330_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 0, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 /* width and height adjusted to flatbed size 21.8 x 30.2 cm^2 respective
  * Not sure if anything's going wrong here, leaving as is
-  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 0, 0, 638, 880, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),*/
+  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 0, 2400, 0, 0, 638, 880, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),*/
 
   /* PIXMA 2010 vintage */
-  DEVICE ("Canon PIXMA MX340", "MX340", MX340_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX350", "MX350", MX350_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX870", "MX870", MX870_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA MX340", "MX340", MX340_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX350", "MX350", MX350_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX870", "MX870", MX870_PID, 0, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 
   /* PIXMA 2011 vintage */
-  DEVICE ("Canon PIXMA MX360", "MX360", MX360_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX410", "MX410", MX410_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX420", "MX420", MX420_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX880 Series", "MX880", MX880_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA MX360", "MX360", MX360_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX410", "MX410", MX410_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX420", "MX420", MX420_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX880 Series", "MX880", MX880_PID, 0, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 
   /* Generation 4: CIS */
-  DEVICE ("Canon PIXMA MP640", "MP640", MP640_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP560", "MP560", MP560_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP550", "MP550", MP550_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP490", "MP490", MP490_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP250", "MP250", MP250_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP270", "MP270", MP270_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP640", "MP640", MP640_PID, 0, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP560", "MP560", MP560_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP550", "MP550", MP550_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP490", "MP490", MP490_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP250", "MP250", MP250_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP270", "MP270", MP270_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2010) Generation 4 CIS */
-  DEVICE ("Canon PIXMA MP280",  "MP280",  MP280_PID,  600, 0, 0, 638, 877, PIXMA_CAP_CIS), /* TODO: 1200dpi doesn't work yet */
-  DEVICE ("Canon PIXMA MP495",  "MP495",  MP495_PID,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5100", "MG5100", MG5100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5200", "MG5200", MG5200_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6100", "MG6100", MG6100_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP280",  "MP280",  MP280_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS), /* TODO: 1200dpi doesn't work yet */
+  DEVICE ("Canon PIXMA MP495",  "MP495",  MP495_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG5100", "MG5100", MG5100_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG5200", "MG5200", MG5200_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG6100", "MG6100", MG6100_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2011) Generation 5 CIS */
-  DEVICE ("Canon PIXMA MG2100", "MG2100", MG2100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG3100", "MG3100", MG3100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG4100", "MG4100", MG4100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5300", "MG5300", MG5300_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6200", "MG6200", MG6200_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP493",  "MP493",  MP493_PID,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA E500",   "E500",   E500_PID,   1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG2100", "MG2100", MG2100_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG3100", "MG3100", MG3100_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG4100", "MG4100", MG4100_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG5300", "MG5300", MG5300_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG6200", "MG6200", MG6200_PID, 0, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP493",  "MP493",  MP493_PID, 0,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA E500",   "E500",   E500_PID, 0,   1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2012) Generation 5 CIS */
-  DEVICE ("Canon PIXMA MX370 Series", "MX370", MX370_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX430 Series", "MX430", MX430_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX510 Series", "MX510", MX510_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX710 Series", "MX710", MX710_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA MX890 Series", "MX890", MX890_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA E600 Series",  "E600",  E600_PID,  1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MG4200", "MG4200", MG4200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MX370 Series", "MX370", MX370_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX430 Series", "MX430", MX430_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX510 Series", "MX510", MX510_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX710 Series", "MX710", MX710_PID, 0, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA MX890 Series", "MX890", MX890_PID, 0, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA E600 Series",  "E600",  E600_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MG4200", "MG4200", MG4200_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2013) Generation 5 CIS */
-  DEVICE ("Canon PIXMA E510",  "E510",  E510_PID,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA E610",  "E610",  E610_PID,  1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MP230", "MP230", MP230_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG2200 Series", "MG2200", MG2200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG3200 Series", "MG3200", MG3200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5400 Series", "MG5400", MG5400_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6300 Series", "MG6300", MG6300_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MX390 Series", "MX390", MX390_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX450 Series", "MX450", MX450_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX520 Series", "MX520", MX520_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX720 Series", "MX720", MX720_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA MX920 Series", "MX920", MX920_PID, 2400, 0, 600, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA MG2400 Series", "MG2400", MG2400_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG2500 Series", "MG2500", MG2500_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG3500 Series", "MG3500", MG3500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5500 Series", "MG5500", MG5500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6400 Series", "MG6400", MG6400_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6500 Series", "MG6500", MG6500_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG7100 Series", "MG7100", MG7100_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA E510",  "E510",  E510_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA E610",  "E610",  E610_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MP230", "MP230", MP230_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG2200 Series", "MG2200", MG2200_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG3200 Series", "MG3200", MG3200_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG5400 Series", "MG5400", MG5400_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG6300 Series", "MG6300", MG6300_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MX390 Series", "MX390", MX390_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX450 Series", "MX450", MX450_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX520 Series", "MX520", MX520_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX720 Series", "MX720", MX720_PID, 0, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA MX920 Series", "MX920", MX920_PID, 0, 2400, 0, 600, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA MG2400 Series", "MG2400", MG2400_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG2500 Series", "MG2500", MG2500_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG3500 Series", "MG3500", MG3500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG5500 Series", "MG5500", MG5500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG6400 Series", "MG6400", MG6400_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG6500 Series", "MG6500", MG6500_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG7100 Series", "MG7100", MG7100_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2014) Generation 5 CIS */
-  DEVICE ("Canon PIXMA MX470 Series", "MX470", MX470_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX530 Series", "MX530", MX530_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon MAXIFY MB5000 Series", "MB5000", MB5000_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
-  DEVICE ("Canon MAXIFY MB5300 Series", "MB5300", MB5300_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon MAXIFY MB2000 Series", "MB2000", MB2000_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP | PIXMA_CAP_ADF_JPEG),
-  DEVICE ("Canon MAXIFY MB2100 Series", "MB2100", MB2100_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
-  DEVICE ("Canon MAXIFY MB2300 Series", "MB2300", MB2300_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
-  DEVICE ("Canon MAXIFY MB2700 Series", "MB2700", MB2700_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
-  DEVICE ("Canon PIXMA E400",  "E400",  E400_PID,  600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA E560",  "E560",  E560_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG7500 Series", "MG7500", MG7500_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6600 Series", "MG6600", MG6600_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5600 Series", "MG5600", MG5600_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG2900 Series", "MG2900", MG2900_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA E460 Series",  "E460",  E460_PID,  600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MX470 Series", "MX470", MX470_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX530 Series", "MX530", MX530_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon MAXIFY MB5000 Series", "MB5000", MB5000_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
+  DEVICE ("Canon MAXIFY MB5300 Series", "MB5300", MB5300_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon MAXIFY MB2000 Series", "MB2000", MB2000_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP | PIXMA_CAP_ADF_JPEG),
+  DEVICE ("Canon MAXIFY MB2100 Series", "MB2100", MB2100_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
+  DEVICE ("Canon MAXIFY MB2300 Series", "MB2300", MB2300_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
+  DEVICE ("Canon MAXIFY MB2700 Series", "MB2700", MB2700_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
+  DEVICE ("Canon PIXMA E400",  "E400",  E400_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA E560",  "E560",  E560_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG7500 Series", "MG7500", MG7500_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG6600 Series", "MG6600", MG6600_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG5600 Series", "MG5600", MG5600_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG2900 Series", "MG2900", MG2900_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA E460 Series",  "E460",  E460_PID, 0,  600, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2015) Generation 5 CIS */
-  DEVICE ("Canon PIXMA MX490 Series", "MX490", MX490_PID, 600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA E480 Series",  "E480",  E480_PID,  600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MG3600 Series", "MG3600", MG3600_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG7700 Series", "MG7700", MG7700_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6900 Series", "MG6900", MG6900_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6800 Series", "MG6800", MG6800_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5700 Series", "MG5700", MG5700_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MX490 Series", "MX490", MX490_PID, 0, 600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA E480 Series",  "E480",  E480_PID, 0, 600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MG3600 Series", "MG3600", MG3600_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG7700 Series", "MG7700", MG7700_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG6900 Series", "MG6900", MG6900_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG6800 Series", "MG6800", MG6800_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG5700 Series", "MG5700", MG5700_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2016) Generation 5 CIS */
-  DEVICE ("Canon PIXMA G3000", "G3000", G3000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA G2000", "G2000", G2000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS9000 Series", "TS9000", TS9000_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS8000 Series", "TS8000", TS8000_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS6000 Series", "TS6000", TS6000_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS5000 Series", "TS5000", TS5000_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG3000 Series", "MG3000", MG3000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA E470 Series", "E470", E470_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA E410 Series", "E410", E410_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA G3000", "G3000", G3000_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA G2000", "G2000", G2000_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS9000 Series", "TS9000", TS9000_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS8000 Series", "TS8000", TS8000_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS6000 Series", "TS6000", TS6000_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS5000 Series", "TS5000", TS5000_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MG3000 Series", "MG3000", MG3000_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA E470 Series", "E470", E470_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA E410 Series", "E410", E410_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2017) Generation 5 CIS */
-  DEVICE ("Canon PIXMA G4000", "G4000", G4000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS6100 Series", "TS6100", TS6100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS5100 Series", "TS5100", TS5100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS3100 Series", "TS3100", TS3100_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA E3100 Series", "E3100", E3100_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA G4000", "G4000", G4000_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS6100 Series", "TS6100", TS6100_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS5100 Series", "TS5100", TS5100_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS3100 Series", "TS3100", TS3100_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA E3100 Series", "E3100", E3100_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2018) Generation 5 CIS */
-  DEVICE ("Canon MAXIFY MB5400 Series", "MB5400", MB5400_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon MAXIFY MB5100 Series", "MB5100", MB5100_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA TS9100 Series", "TS9100", TS9100_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TR8500 Series", "TR8500", TR8500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA TR7500 Series", "TR7500", TR7500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA TS9500 Series", "TS9500", TS9500_PID, 1200, 0, 600, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("CanoScan LiDE 400", "LIDE400", LIDE400_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("CanoScan LiDE 300", "LIDE300", LIDE300_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon MAXIFY MB5400 Series", "MB5400", MB5400_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon MAXIFY MB5100 Series", "MB5100", MB5100_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA TS9100 Series", "TS9100", TS9100_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TR8500 Series", "TR8500", TR8500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TR7500 Series", "TR7500", TR7500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TS9500 Series", "TS9500", TS9500_PID, 0, 1200, 0, 600, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("CanoScan LiDE 400", "LIDE400", LIDE400_PID, 300, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("CanoScan LiDE 300", "LIDE300", LIDE300_PID, 300, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2019) Generation 5 CIS */
-  DEVICE ("Canon PIXMA TS8100 Series", "TS8100", TS8100_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA G3010 Series", "G3010", G3010_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA G4010 Series", "G4010", G4010_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA TS9180 Series", "TS9180", TS9180_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS8180 Series", "TS8180", TS8180_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS6180 Series", "TS6180", TS6180_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TR8580 Series", "TR8580", TR8580_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA TS8130 Series", "TS8130", TS8130_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS6130 Series", "TS6130", TS6130_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TR8530 Series", "TR8530", TR8530_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA TR7530 Series", "TR7530", TR7530_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXUS XK50 Series", "XK50", XK50_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXUS XK70 Series", "XK70", XK70_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TR4500 Series", "TR4500", TR4500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA E4200 Series", "E4200", E4200_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA TS6200 Series", "TS6200", TS6200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS6280 Series", "TS6280", TS6280_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS6230 Series", "TS6230", TS6230_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS8200 Series", "TS8200", TS8200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS8280 Series", "TS8280", TS8280_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS8230 Series", "TS8230", TS8230_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS9580 Series", "TS9580", TS9580_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA TR9530 Series", "TR9530", TR9530_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXUS XK80 Series", "XK80", XK80_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS8100 Series", "TS8100", TS8100_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA G3010 Series", "G3010", G3010_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA G4010 Series", "G4010", G4010_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TS9180 Series", "TS9180", TS9180_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS8180 Series", "TS8180", TS8180_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS6180 Series", "TS6180", TS6180_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TR8580 Series", "TR8580", TR8580_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TS8130 Series", "TS8130", TS8130_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS6130 Series", "TS6130", TS6130_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TR8530 Series", "TR8530", TR8530_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TR7530 Series", "TR7530", TR7530_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXUS XK50 Series", "XK50", XK50_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXUS XK70 Series", "XK70", XK70_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TR4500 Series", "TR4500", TR4500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA E4200 Series", "E4200", E4200_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TS6200 Series", "TS6200", TS6200_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS6280 Series", "TS6280", TS6280_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS6230 Series", "TS6230", TS6230_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS8200 Series", "TS8200", TS8200_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS8280 Series", "TS8280", TS8280_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS8230 Series", "TS8230", TS8230_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA TS9580 Series", "TS9580", TS9580_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TR9530 Series", "TR9530", TR9530_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXUS XK80 Series", "XK80", XK80_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   END_OF_DEVICE_LIST
 };

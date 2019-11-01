@@ -815,6 +815,7 @@ static const pixma_scan_ops_t pixma_mp730_ops = {
               0x04a9, pid,       /* vid pid */	      \
               1,                 /* iface */		      \
               &pixma_mp730_ops,  /* ops */            \
+              0,                 /* min_xdpi not used in this subdriver */ \
               dpi, dpi,          /* xdpi, ydpi */	    \
               0, 0,              /* adftpu_min_dpi & adftpu_max_dpi not used in this subdriver */ \
               0, 0,              /* tpuir_min_dpi & tpuir_max_dpi not used in this subdriver */  \

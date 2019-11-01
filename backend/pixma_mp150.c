@@ -975,35 +975,44 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
       return 0;    /* # of non processed bytes */
     }
 
-
+  /* process image sizes */
   c = s->param->channels
-      * ((s->param->software_lineart) ? 8 : s->param->depth) / 8;
-  cw = c * s->param->w;
-  cx = c * s->param->xs;
+      * ((s->param->software_lineart) ? 8 : s->param->depth) / 8;   /* color channels count */
+  cw = c * s->param->w;                                             /* image width */
+  cx = c * s->param->xs;                                            /* x-offset */
 
+  /* special image format parameters
+   * n: no. of sub-images
+   * m: sub-image width
+   */
   if (mp->generation >= 3)
     n = s->param->xdpi / 600;
   else
     n = s->param->xdpi / 2400;
-
   if (s->cfg->pid == MP600_PID || s->cfg->pid == MP600R_PID)
     n = s->param->xdpi / 1200;
-
   m = (n > 0) ? s->param->wx / n : 1;
-  sptr = dptr = gptr = cptr = mp->imgbuf;
-  line_size = get_cis_line_size (s);
-  /*PDBG (pixma_dbg (4, "*post_process_image_data***** ----- Set n=%u, m=%u, line_size=%u ----- ***** \n", n, m, line_size));*/
 
+  /* Initialize pointers */
+  sptr = dptr = gptr = cptr = mp->imgbuf;
+
+  /* walk through complete received lines */
+  line_size = get_cis_line_size (s);
   lines = (mp->data_left_ofs - mp->imgbuf) / line_size;
-  /*PDBG (pixma_dbg (4, "*post_process_image_data***** lines = %i ***** \n", lines));*/
   if (lines > 0)
     {
       unsigned i;
 
+      /*PDBG (pixma_dbg (4, "*post_process_image_data***** Processing with c=%u, n=%u, m=%u, wx=%i, line_size=%u, cx=%u, cw=%u ***** \n",
+                       c, n, m, s->param->wx, line_size, cx, cw));*/
+      /*PDBG (pixma_dbg (4, "*post_process_image_data***** lines = %i ***** \n", lines));*/
+
       for (i = 0; i < lines; i++, sptr += line_size)
         {
           /*PDBG (pixma_dbg (4, "*post_process_image_data***** Processing with c=%u, n=%u, m=%u, w=%i, line_size=%u ***** \n",
-	        c, n, m, s->param->wx, line_size));*/
+                           c, n, m, s->param->wx, line_size));*/
+          /*PDBG (pixma_dbg (4, "*post_process_image_data***** Pointers: sptr=%lx, dptr=%lx, linebuf=%lx ***** \n",
+                           sptr, dptr, mp->linebuf));*/
 
           /* special image format for *most* devices at high dpi.
            * MP220, MX360 and generation 5 scanners are exceptions */
@@ -1155,7 +1164,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   /*PDBG (pixma_dbg (4, "*mp150_check_param***** Selected origin, origin shift: %i, %i *****\n", sp->x, sp->xs));*/
   sp->wx = calc_raw_width (mp, sp);
   sp->line_size = sp->w * sp->channels * (((sp->software_lineart) ? 8 : sp->depth) / 8);              /* bytes per line per color after cropping */
-  /*PDBG (pixma_dbg (4, "*mp150_check_param***** Final scan width and line-size: %i, %i *****\n", sp->wx, sp->line_size));*/
+  /*PDBG (pixma_dbg (4, "*mp150_check_param***** Final scan width and line-size: %i, %li *****\n", sp->wx, sp->line_size));*/
 
   /* Some exceptions here for particular devices */
   /* Those devices can scan up to legal 14" with ADF, but A4 11.7" in flatbed */

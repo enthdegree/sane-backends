@@ -1252,23 +1252,6 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   if ((s->cfg->cap & PIXMA_CAP_ADF) && sp->source == PIXMA_SOURCE_FLATBED)
     sp->h = MIN (sp->h, 877 * sp->xdpi / 75);
 
-  if (s->cfg->pid == LIDE300_PID
-      || s->cfg->pid == LIDE400_PID)
-    {
-      uint8_t k;
-
-  /* TPU mode: lowest res is 150 or 300 dpi */
-      k = MAX (sp->xdpi, 300) / sp->xdpi;
-      sp->x *= k;
-      sp->xs *= k;
-      sp->y *= k;
-      sp->w *= k;
-      sp->wx *= k;
-      sp->h *= k;
-      sp->xdpi *= k;
-      sp->ydpi = sp->xdpi;
-    }
-
   if (sp->source == PIXMA_SOURCE_ADF || sp->source == PIXMA_SOURCE_ADFDUP)
     {
       uint8_t k = 1;
@@ -1771,8 +1754,8 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA TR8500 Series", "TR8500", TR8500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA TR7500 Series", "TR7500", TR7500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA TS9500 Series", "TS9500", TS9500_PID, 0, 1200, 0, 600, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("CanoScan LiDE 400", "LIDE400", LIDE400_PID, 0, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("CanoScan LiDE 300", "LIDE300", LIDE300_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("CanoScan LiDE 400", "LIDE400", LIDE400_PID, 300, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("CanoScan LiDE 300", "LIDE300", LIDE300_PID, 300, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2019) Generation 5 CIS */
   DEVICE ("Canon PIXMA TS8100 Series", "TS8100", TS8100_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),

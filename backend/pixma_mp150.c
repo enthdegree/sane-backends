@@ -602,7 +602,7 @@ calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
      other models, too? */
   if (mp->generation >= 2)
     {
-      raw_width = ALIGN_SUP (param->w + param->xs, 32);
+      raw_width = ALIGN_SUP ((param->w * mp->scale) + param->xs, 32);
       /* PDBG (pixma_dbg (4, "*calc_raw_width***** width %i extended by %i and rounded to %i *****\n", param->w, param->xs, raw_width)); */
     }
   else if (param->channels == 1)
@@ -619,8 +619,13 @@ calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
 static unsigned
 get_cis_line_size (pixma_t * s)
 {
+  mp150_t *mp = (mp150_t *) s->subdriver;
+
+  /*PDBG (pixma_dbg (4, "%s: line_size=%ld, w=%d, wx=%d, scale=%d\n",
+                   __func__, s->param->line_size, s->param->w, s->param->wx, mp->scale));*/
+
   return (s->param->wx ? s->param->line_size / s->param->w * s->param->wx
-                       : s->param->line_size);
+                       : s->param->line_size) * mp->scale;
 }
 
 static int
@@ -628,21 +633,26 @@ send_scan_param (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
   uint8_t *data;
-  unsigned raw_width = calc_raw_width (mp, s->param);
-  unsigned h = MIN (s->param->h, s->cfg->height * s->param->ydpi / 75);
+  unsigned xdpi = s->param->xdpi * mp->scale;
+  unsigned ydpi = s->param->xdpi * mp->scale;
+  unsigned x = s->param->x * mp->scale;
+  unsigned xs = s->param->xs;
+  unsigned y = s->param->y * mp->scale;
+  unsigned wx = calc_raw_width (mp, s->param);
+  unsigned h = MIN (s->param->h, s->cfg->height * s->param->ydpi / 75) * mp->scale;
 
   if (mp->generation <= 2)
     {
-      /*PDBG (pixma_dbg (4, "*send_scan_param gen. 1-2 ***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  w=%i ***** \n",
-                           s->param->xdpi,s->param->ydpi,(s->param->x)-(s->param->xs),s->param->y,raw_width));*/
+      PDBG (pixma_dbg (4, "*send_scan_param gen. 1-2 ***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  wx=%i ***** \n",
+                           xdpi, ydpi, x-xs, y, wx));
       data = pixma_newcmd (&mp->cb, cmd_scan_param, 0x30, 0);
-      pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x04);
-      pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x06);
-      pixma_set_be32 (s->param->x, data + 0x08);
+      pixma_set_be16 (xdpi | 0x8000, data + 0x04);
+      pixma_set_be16 (ydpi | 0x8000, data + 0x06);
+      pixma_set_be32 (x, data + 0x08);
       if (mp->generation == 2)
-        pixma_set_be32 (s->param->x - s->param->xs, data + 0x08);
-      pixma_set_be32 (s->param->y, data + 0x0c);
-      pixma_set_be32 (raw_width, data + 0x10);
+        pixma_set_be32 (x - s->param->xs, data + 0x08);
+      pixma_set_be32 (y, data + 0x0c);
+      pixma_set_be32 (wx, data + 0x10);
       pixma_set_be32 (h, data + 0x14);
       data[0x18] = (s->param->channels != 1) ? 0x08 : 0x04;
       data[0x19] = ((s->param->software_lineart) ? 8 : s->param->depth)
@@ -655,6 +665,8 @@ send_scan_param (pixma_t * s)
     }
   else
     {
+      PDBG (pixma_dbg (4, "*send_scan_param gen. 3+ ***** Setting: xdpi=%hi ydpi=%hi x=%i xs=%i y=%i  wx=%i h=%i ***** \n",
+                           xdpi, ydpi, x, xs, y, wx, h));
       data = pixma_newcmd (&mp->cb, cmd_scan_param_3, 0x38, 0);
       data[0x00] = (is_scanning_from_adf (s)) ? 0x02 : 0x01;
       data[0x01] = 0x01;
@@ -672,13 +684,11 @@ send_scan_param (pixma_t * s)
         {
           data[0x05] = 0x01;	/* This one also seen at 0. Don't know yet what's used for */
         }
-      pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x08);
-      pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x0a);
-      /*PDBG (pixma_dbg (4, "*send_scan_param gen. 3+ ***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  w=%i ***** \n",
-                           s->param->xdpi,s->param->ydpi,(s->param->x)-(s->param->xs),s->param->y,raw_width));*/
-      pixma_set_be32 (s->param->x - s->param->xs, data + 0x0c);
-      pixma_set_be32 (s->param->y, data + 0x10);
-      pixma_set_be32 (raw_width, data + 0x14);
+      pixma_set_be16 (xdpi | 0x8000, data + 0x08);
+      pixma_set_be16 (ydpi | 0x8000, data + 0x0a);
+      pixma_set_be32 (x - xs, data + 0x0c);
+      pixma_set_be32 (y, data + 0x10);
+      pixma_set_be32 (wx, data + 0x14);
       pixma_set_be32 (h, data + 0x18);
       data[0x1c] = (s->param->channels != 1) ? 0x08 : 0x04;
 
@@ -1157,7 +1167,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
     {
       /* mod 32 and expansion of the X scan limits */
       /*PDBG (pixma_dbg (4, "*mp150_check_param***** ----- Initially: x=%i, y=%i, w=%i, h=%i *****\n", sp->x, sp->y, sp->w, sp->h));*/
-      sp->xs = (sp->x) % 32;
+      sp->xs = (sp->x * mp->scale) % 32;
     }
   else
       sp->xs = 0;

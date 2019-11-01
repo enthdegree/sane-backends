@@ -362,6 +362,7 @@ struct pixma_config_t
   uint16_t pid;		     /**< USB Product ID */
   unsigned iface;	     /**< USB Interface number */
   const pixma_scan_ops_t *ops;	  /**< Subdriver ops */
+  unsigned min_xdpi;         /**< Minimum horizontal resolution[DPI] */
   unsigned xdpi;	     /**< Maximum horizontal resolution[DPI] */
   unsigned ydpi;	     /**< Maximum vertical resolution[DPI] */
   unsigned adftpu_min_dpi;    /**< Maximum horizontal resolution[DPI] for adf/tpu

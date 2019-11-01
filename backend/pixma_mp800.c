@@ -2381,6 +2381,7 @@ static const pixma_scan_ops_t pixma_mp800_ops =
         CANON_VID, pid,    /* vid pid */            \
         0,                 /* iface */              \
         &pixma_mp800_ops,  /* ops */                \
+        0,                 /* min_xdpi not used in this subdriver */ \
         dpi, 2*(dpi),      /* xdpi, ydpi */         \
         adftpu_min_dpi, adftpu_max_dpi,  /* adftpu_min_dpi, adftpu_max_dpi */ \
         tpuir_min_dpi, tpuir_max_dpi,    /* tpuir_min_dpi, tpuir_max_dpi */   \

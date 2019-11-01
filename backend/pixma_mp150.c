@@ -967,6 +967,66 @@ reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n,
   memcpy (sptr, linebuf, line_size);
 }
 
+/* the scanned image must be shrinked by factor "scale"
+ * the image can be formatted as rgb (c=3) or gray (c=1)
+ * we need to crop the left side (xs)
+ * we ignore more pixels inside scanned line (wx), behind needed line (w)
+ *
+ * example (scale=2):
+ * line | pixel[0] | pixel[1] | ... | pixel[w-1]
+ * ---------
+ *  0   |  rgbrgb  |  rgbrgb  | ... |  rgbrgb
+ * wx*c |  rgbrgb  |  rgbrgb  | ... |  rgbrgb
+ */
+uint8_t *
+shrink_image (uint8_t * dptr, uint8_t * sptr, unsigned xs, unsigned w,
+              unsigned wx, unsigned scale, unsigned c)
+{
+  unsigned i, ic;
+  uint16_t pixel;
+  uint8_t *dst = dptr;  /* don't change dptr */
+  uint8_t *src = sptr;  /* don't change sptr */
+
+  /*PDBG (pixma_dbg (4, "%s: w=%d, wx=%d, c=%d, scale=%d\n",
+                   __func__, w, wx, c, scale));
+  PDBG (pixma_dbg (4, "\tdptr=%ld, sptr=%ld\n",
+                   dptr, sptr));*/
+
+  /* crop left side */
+  src += c * xs;
+
+  /* process line */
+  for (i = 0; i < w; i++)
+  {
+    /* process rgb or gray pixel */
+    for (ic = 0; ic < c; ic++)
+    {
+#if 0
+      dst[ic] = src[ic];
+#else
+      pixel = 0;
+
+      /* sum shrink pixels */
+      for (unsigned m = 0; m < scale; m++)    /* get pixels from shrinked lines */
+      {
+        for (unsigned n = 0; n < scale; n++)  /* get pixels from same line */
+        {
+          pixel += src[ic + c * n + wx * c * m];
+        }
+      }
+      dst[ic] = pixel / (scale * scale);
+#endif
+    }
+
+    /* jump over shrinked data */
+    src += c * scale;
+    /* next pixel */
+    dst += c;
+  }
+
+  return dst;
+}
+
 /* This function deals with Generation >= 3 high dpi images.
  * Each complete line in mp->imgbuf is processed for reordering pixels above
  * 600 dpi for Generation >= 3. */
@@ -1044,8 +1104,18 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
                   || s->cfg->pid == MX520_PID))
               reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
 
-          /* Crop line to selected borders */
-          memmove(cptr, sptr + cx, cw);
+
+          /* scale image */
+          if (mp->scale > 1)
+          {
+            /* Crop line inside shrink_image() */
+            shrink_image(cptr, sptr, s->param->xs, s->param->w, s->param->wx, mp->scale, c);
+          }
+          else
+          {
+            /* Crop line to selected borders */
+            memmove(cptr, sptr + cx, cw);
+          }
 
           /* Color / Gray to Lineart convert */
           if (s->param->software_lineart)

@@ -1509,10 +1509,10 @@
 :interface "USB"
 :usbid "0x04a9" "0x1913"
 :status :complete
-:comment "Support up to 2400DPI (Note: does not have less than 300DPI support)"
+:comment "All resolutions supported (up to 2400DPI)"
 
 :model "CanoScan LiDE 400"
 :interface "USB"
 :usbid "0x04a9" "0x1912"
 :status :complete
-:comment "Support up to 4800DPI (Note: does not have less than 300DPI support)"
+:comment "All resolutions supported (up to 4800DPI)"

@@ -3511,15 +3511,7 @@ static void calc_parameters(Genesys_Scanner* s)
         bytes_per_line *= 3;
     }
 
-    if (s->mode == SANE_VALUE_SCAN_MODE_COLOR) {
-        s->dev->settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    } else if (s->mode == SANE_VALUE_SCAN_MODE_GRAY) {
-        s->dev->settings.scan_mode = ScanColorMode::GRAY;
-    } else if (s->mode == SANE_TITLE_HALFTONE) {
-        s->dev->settings.scan_mode = ScanColorMode::HALFTONE;
-    } else {				/* Lineart */
-        s->dev->settings.scan_mode = ScanColorMode::LINEART;
-    }
+    s->dev->settings.scan_mode = option_string_to_scan_color_mode(s->mode);
 
   s->dev->settings.lines = s->params.lines;
     s->dev->settings.pixels = pixels_per_line;

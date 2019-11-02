@@ -70,4 +70,29 @@ ScanMethod option_string_to_scan_method(const std::string& str)
     throw SaneException("Unknown scan method option %s", str.c_str());
 }
 
+const char* scan_color_mode_to_option_string(ScanColorMode mode)
+{
+    switch (mode) {
+        case ScanColorMode::COLOR_SINGLE_PASS: return SANE_VALUE_SCAN_MODE_COLOR;
+        case ScanColorMode::GRAY: return SANE_VALUE_SCAN_MODE_GRAY;
+        case ScanColorMode::HALFTONE: return SANE_VALUE_SCAN_MODE_HALFTONE;
+        case ScanColorMode::LINEART: return SANE_VALUE_SCAN_MODE_LINEART;
+    }
+    throw SaneException("Unknown scan mode %d", static_cast<unsigned>(mode));
+}
+
+ScanColorMode option_string_to_scan_color_mode(const std::string& str)
+{
+    if (str == SANE_VALUE_SCAN_MODE_COLOR) {
+        return ScanColorMode::COLOR_SINGLE_PASS;
+    } else if (str == SANE_VALUE_SCAN_MODE_GRAY) {
+        return ScanColorMode::GRAY;
+    } else if (str == SANE_VALUE_SCAN_MODE_HALFTONE) {
+        return ScanColorMode::HALFTONE;
+    } else if (str == SANE_VALUE_SCAN_MODE_LINEART) {
+        return ScanColorMode::LINEART;
+    }
+    throw SaneException("Unknown scan color mode %s", str.c_str());
+}
+
 } // namespace genesys

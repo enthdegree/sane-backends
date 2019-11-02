@@ -212,80 +212,6 @@ static void sanei_gl841_setup_sensor(Genesys_Device * dev, const Genesys_Sensor&
     }
 }
 
-/** Test if the ASIC works
- */
-// TODO: make this functional
-static void sanei_gl841_asic_test(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-
-  size_t size, verify_size;
-  unsigned int i;
-
-    throw SaneException("not implemented");
-
-    // set and read exposure time, compare if it's the same
-    dev->write_register(0x38, 0xde);
-    dev->write_register(0x39, 0xad);
-
-    uint8_t val = dev->read_register(0x38);
-
-  if (val != 0xde)		/* value of register 0x38 */
-    {
-        throw SaneException("register contains invalid value");
-    }
-
-    val = dev->read_register(0x39);
-
-  if (val != 0xad)		/* value of register 0x39 */
-    {
-        throw SaneException("register contains invalid value");
-    }
-
-  /* ram test: */
-  size = 0x40000;
-  verify_size = size + 0x80;
-  /* todo: looks like the read size must be a multiple of 128?
-     otherwise the read doesn't succeed the second time after the scanner has
-     been plugged in. Very strange. */
-
-  std::vector<uint8_t> data(size);
-  std::vector<uint8_t> verify_data(verify_size);
-
-  for (i = 0; i < (size - 1); i += 2)
-    {
-      data[i] = i / 512;
-      data[i + 1] = (i / 2) % 256;
-    }
-
-    sanei_genesys_set_buffer_address(dev, 0x0000);
-
-    // sanei_genesys_bulk_write_data(dev, 0x3c, data, size);
-
-    sanei_genesys_set_buffer_address(dev, 0x0000);
-
-    sanei_genesys_bulk_read_data(dev, 0x45, verify_data.data(), verify_size);
-
-  /* todo: why i + 2 ? */
-  for (i = 0; i < size; i++)
-    {
-      if (verify_data[i] != data[i])
-	{
-	  DBG(DBG_info, "0x%.8x: got %.2x %.2x %.2x %.2x, expected %.2x %.2x %.2x %.2x\n",
-	      i,
-	      verify_data[i],
-	      verify_data[i+1],
-	      verify_data[i+2],
-	      verify_data[i+3],
-	      data[i],
-	      data[i+1],
-	      data[i+2],
-	      data[i+3]);
-            throw SaneException("data verification error");
-	}
-    }
-}
-
 /*
  * Set all registers LiDE 80 to default values
  * (function called only once at the beginning)
@@ -3660,10 +3586,6 @@ void CommandSetGl841::init(Genesys_Device* dev) const
 
     // Write initial registers
     dev->write_registers(dev->reg);
-
-    if (dev->model->flags & GENESYS_FLAG_TEST_ON_INIT) {
-        sanei_gl841_asic_test(dev);
-    }
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 

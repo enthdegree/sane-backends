@@ -109,7 +109,6 @@
 /* Flags */
 #define GENESYS_FLAG_UNTESTED     (1 << 0)	/**< Print a warning for these scanners */
 #define GENESYS_FLAG_14BIT_GAMMA  (1 << 1)	/**< use 14bit Gamma table instead of 12 */
-#define GENESYS_FLAG_TEST_ON_INIT       (1 << 2)    // perform ASIC test on initialization
 #define GENESYS_FLAG_XPA          (1 << 3)
 #define GENESYS_FLAG_SKIP_WARMUP  (1 << 4)	/**< skip genesys_warmup()              */
 /** @brief offset calibration flag

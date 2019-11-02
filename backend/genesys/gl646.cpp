@@ -631,66 +631,6 @@ gl646_setup_sensor (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_
     DBG(DBG_proc, "%s: end\n", __func__);
 }
 
-/** Test if the ASIC works
- */
-static void gl646_asic_test(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-  size_t size, verify_size;
-  unsigned int i;
-
-    // set and read exposure time, compare if it's the same
-    dev->write_register(0x38, 0xde);
-
-    dev->write_register(0x39, 0xad);
-
-    uint8_t val = dev->read_register(0x4e);
-
-  if (val != 0xde)		/* value of register 0x38 */
-    {
-      throw SaneException("register contains invalid value");
-    }
-
-    val = dev->read_register(0x4f);
-
-  if (val != 0xad)		/* value of register 0x39 */
-    {
-      throw SaneException("register contains invalid value");
-    }
-
-  /* ram test: */
-  size = 0x40000;
-  verify_size = size + 0x80;
-  /* todo: looks like the read size must be a multiple of 128?
-     otherwise the read doesn't succeed the second time after the scanner has
-     been plugged in. Very strange. */
-
-  std::vector<uint8_t> data(size);
-  std::vector<uint8_t> verify_data(verify_size);
-
-  for (i = 0; i < (size - 1); i += 2)
-    {
-      data[i] = i / 512;
-      data[i + 1] = (i / 2) % 256;
-    }
-
-    sanei_genesys_set_buffer_address(dev, 0x0000);
-    sanei_genesys_bulk_write_data(dev, 0x3c, data.data(), size);
-    sanei_genesys_set_buffer_address(dev, 0x0000);
-
-    dev->cmd_set->bulk_read_data(dev, 0x45, verify_data.data(), verify_size);
-
-  /* i + 2 is needed as the changed address goes into effect only after one
-     data word is sent. */
-  for (i = 0; i < size; i++)
-    {
-      if (verify_data[i + 2] != data[i])
-	{
-            throw SaneException("data verification error");
-	}
-    }
-}
-
 /**
  * Set all registers to default values after init
  * @param dev scannerr's device to set
@@ -2900,10 +2840,6 @@ void CommandSetGl646::init(Genesys_Device* dev) const
 
         // Write initial registers
         dev->write_registers(dev->reg);
-
-        if (dev->model->flags & GENESYS_FLAG_TEST_ON_INIT) {
-            gl646_asic_test(dev);
-        }
 
         // send gamma tables if needed
         dev->cmd_set->send_gamma_table(dev, sensor);

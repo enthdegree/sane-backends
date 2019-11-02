@@ -97,10 +97,6 @@ namespace {
     StaticInit<std::list<Genesys_Device>> s_devices;
 } // namespace
 
-#define STR_FLATBED SANE_I18N("Flatbed")
-#define STR_TRANSPARENCY_ADAPTER SANE_I18N("Transparency Adapter")
-#define STR_TRANSPARENCY_ADAPTER_INFRARED SANE_I18N("Transparency Adapter Infrared")
-
 static SANE_String_Const mode_list[] = {
   SANE_VALUE_SCAN_MODE_COLOR,
   SANE_VALUE_SCAN_MODE_GRAY,
@@ -3402,28 +3398,6 @@ static unsigned pick_resolution(const std::vector<unsigned>& resolutions, unsign
             __func__, best_res, resolution, direction);
     }
     return best_res;
-}
-
-static const char* scan_method_to_option_string(ScanMethod method)
-{
-    switch (method) {
-        case ScanMethod::FLATBED: return STR_FLATBED;
-        case ScanMethod::TRANSPARENCY: return STR_TRANSPARENCY_ADAPTER;
-        case ScanMethod::TRANSPARENCY_INFRARED: return STR_TRANSPARENCY_ADAPTER_INFRARED;
-    }
-    throw SaneException("Unknown scan method %d", static_cast<unsigned>(method));
-}
-
-static ScanMethod option_string_to_scan_method(const std::string& str)
-{
-    if (str == STR_FLATBED) {
-        return ScanMethod::FLATBED;
-    } else if (str == STR_TRANSPARENCY_ADAPTER) {
-        return ScanMethod::TRANSPARENCY;
-    } else if (str == STR_TRANSPARENCY_ADAPTER_INFRARED) {
-        return ScanMethod::TRANSPARENCY_INFRARED;
-    }
-    throw SaneException("Unknown scan method option %s", str.c_str());
 }
 
 static void calc_parameters(Genesys_Scanner* s)

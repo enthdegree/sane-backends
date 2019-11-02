@@ -491,7 +491,7 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/command_set.h \
     genesys/conv.h genesys/conv.cpp \
     genesys/device.h genesys/device.cpp \
-    genesys/enums.h \
+    genesys/enums.h genesys/enums.cpp \
     genesys/error.h genesys/error.cpp \
     genesys/fwd.h \
     genesys/gl646.cpp genesys/gl646.h genesys/gl646_registers.h \

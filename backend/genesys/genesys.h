@@ -78,6 +78,10 @@
 #define SANE_I18N(text) text
 #endif
 
+#define STR_FLATBED SANE_I18N("Flatbed")
+#define STR_TRANSPARENCY_ADAPTER SANE_I18N("Transparency Adapter")
+#define STR_TRANSPARENCY_ADAPTER_INFRARED SANE_I18N("Transparency Adapter Infrared")
+
 namespace genesys {
 
 /** List of SANE options

@@ -84,6 +84,7 @@
 #include "device.h"
 #include "enums.h"
 #include "error.h"
+#include "fwd.h"
 #include "sanei.h"
 #include "sensor.h"
 #include "serialize.h"
@@ -208,10 +209,6 @@
 #define MAX_DPI 4
 
 namespace genesys {
-
-/* Forward typedefs */
-struct Genesys_Scanner;
-typedef struct Genesys_Calibration_Cache  Genesys_Calibration_Cache;
 
 struct Genesys_USB_Device_Entry {
 

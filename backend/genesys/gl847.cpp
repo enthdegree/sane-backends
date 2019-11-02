@@ -308,10 +308,10 @@ static void gl847_send_slope_table(Genesys_Device* dev, int table_nr,
 
   if (DBG_LEVEL >= DBG_io)
     {
-      sprintf (msg, "write slope %d (%d)=", table_nr, steps);
+        std::sprintf(msg, "write slope %d (%d)=", table_nr, steps);
       for (i = 0; i < steps; i++)
 	{
-	  sprintf (msg+strlen(msg), "%d", slope_table[i]);
+            std::sprintf(msg + std::strlen(msg), "%d", slope_table[i]);
 	}
       DBG (DBG_io, "%s: %s\n", __func__, msg);
     }
@@ -1610,7 +1610,7 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
       if (DBG_LEVEL >= DBG_data)
 	{
           char fn[30];
-          snprintf(fn, 30, "gl847_led_%02d.pnm", turn);
+            std::snprintf(fn, 30, "gl847_led_%02d.pnm", turn);
             sanei_genesys_write_pnm_file(fn, line.data(), session.params.depth,
                                          channels, num_pixels, 1);
 	}
@@ -2174,7 +2174,7 @@ void CommandSetGl847::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   if (DBG_LEVEL >= DBG_data)
    {
       char fn[30];
-      snprintf(fn, 30, "gl847_offset%03d.pnm", bottom);
+        std::snprintf(fn, 30, "gl847_offset%03d.pnm", bottom);
         sanei_genesys_write_pnm_file(fn, first_line.data(), session.params.depth,
                                      channels, pixels, lines);
    }
@@ -2216,7 +2216,7 @@ void CommandSetGl847::offset_calibration(Genesys_Device* dev, const Genesys_Sens
       if (DBG_LEVEL >= DBG_data)
 	{
           char fn[30];
-          snprintf(fn, 30, "gl847_offset%03d.pnm", dev->frontend.get_offset(1));
+          std::snprintf(fn, 30, "gl847_offset%03d.pnm", dev->frontend.get_offset(1));
           sanei_genesys_write_pnm_file(fn, second_line.data(), session.params.depth,
                                        channels, pixels, lines);
 	}

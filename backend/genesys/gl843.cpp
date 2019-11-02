@@ -737,10 +737,9 @@ static void gl843_send_slope_table(Genesys_Device* dev, int table_nr,
 
   if (DBG_LEVEL >= DBG_io)
     {
-      sprintf (msg, "write slope %d (%d)=", table_nr, steps);
-      for (i = 0; i < steps; i++)
-	{
-	  sprintf (msg+strlen(msg), "%d", slope_table[i]);
+        std::sprintf(msg, "write slope %d (%d)=", table_nr, steps);
+        for (i = 0; i < steps; i++) {
+            std::sprintf (msg+strlen(msg), "%d", slope_table[i]);
 	}
       DBG(DBG_io, "%s: %s\n", __func__, msg);
     }
@@ -2425,7 +2424,7 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
       if (DBG_LEVEL >= DBG_data)
 	{
           char fn[30];
-          snprintf(fn, 30, "gl843_led_%02d.pnm", turn);
+            std::snprintf(fn, 30, "gl843_led_%02d.pnm", turn);
             sanei_genesys_write_pnm_file(fn, image);
 	}
 
@@ -2630,8 +2629,8 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   if (DBG_LEVEL >= DBG_data)
     {
       char fn[40];
-      snprintf(fn, 40, "gl843_bottom_offset_%03d_%03d_%03d.pnm",
-               bottom[0], bottom[1], bottom[2]);
+        std::snprintf(fn, 40, "gl843_bottom_offset_%03d_%03d_%03d.pnm",
+                      bottom[0], bottom[1], bottom[2]);
         sanei_genesys_write_pnm_file(fn, first_line);
     }
 
@@ -2693,11 +2692,11 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
       if (DBG_LEVEL >= DBG_data)
 	{
           char title[100];
-          snprintf(title, 100, "lines: %d pixels_per_line: %d offsets[0..2]: %d %d %d\n",
-                   lines, pixels,
-                   dev->frontend.get_offset(0),
-                   dev->frontend.get_offset(1),
-                   dev->frontend.get_offset(2));
+          std::snprintf(title, 100, "lines: %d pixels_per_line: %d offsets[0..2]: %d %d %d\n",
+                        lines, pixels,
+                        dev->frontend.get_offset(0),
+                        dev->frontend.get_offset(1),
+                        dev->frontend.get_offset(2));
           debug_image_info += title;
           std::copy(second_line.get_row_ptr(0),
                     second_line.get_row_ptr(0) + second_line.get_row_bytes() * second_line.get_height(),
@@ -3196,8 +3195,8 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   if (DBG_LEVEL >= DBG_data)
     {
       char fn[40];
-      snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
-               black ? "black" : "white", forward ? "fwd" : "bwd", pass);
+        std::snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
+                      black ? "black" : "white", forward ? "fwd" : "bwd", pass);
         sanei_genesys_write_pnm_file(fn, data);
     }
 

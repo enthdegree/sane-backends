@@ -564,10 +564,9 @@ static void gl841_send_slope_table(Genesys_Device* dev, int table_nr,
 
   if (DBG_LEVEL >= DBG_io)
     {
-      sprintf (msg, "write slope %d (%d)=", table_nr, steps);
-      for (i = 0; i < steps; i++)
-	{
-	  sprintf (msg+strlen(msg), ",%d", slope_table[i]);
+        std::sprintf(msg, "write slope %d (%d)=", table_nr, steps);
+        for (i = 0; i < steps; i++) {
+            std::sprintf (msg+strlen(msg), ",%d", slope_table[i]);
 	}
       DBG(DBG_io, "%s: %s\n", __func__, msg);
     }
@@ -2737,7 +2736,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
 
       if (DBG_LEVEL >= DBG_data) {
           char fn[30];
-          snprintf(fn, 30, "gl841_led_%d.pnm", turn);
+          std::snprintf(fn, 30, "gl841_led_%d.pnm", turn);
           sanei_genesys_write_pnm_file(fn, line.data(), 16, channels, num_pixels, 1);
       }
 
@@ -2920,7 +2919,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       gl841_stop_action (dev);
       if (DBG_LEVEL >= DBG_data) {
           char fn[30];
-          snprintf(fn, 30, "gl841_offset_%02d.pnm", turn);
+          std::snprintf(fn, 30, "gl841_offset_%02d.pnm", turn);
           sanei_genesys_write_pnm_file(fn, line.data(), 8, 3, num_pixels, 1);
       }
 
@@ -3069,7 +3068,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
       if (DBG_LEVEL >= DBG_data) {
           char fn[30];
-          snprintf(fn, 30, "gl841_offset1_%02d.pnm", turn);
+          std::snprintf(fn, 30, "gl841_offset1_%02d.pnm", turn);
           sanei_genesys_write_pnm_file(fn, first_line.data(), 16, channels, num_pixels, 1);
       }
 
@@ -3176,7 +3175,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
       if (DBG_LEVEL >= DBG_data) {
           char fn[30];
-          snprintf(fn, 30, "gl841_offset2_%02d.pnm", turn);
+          std::snprintf(fn, 30, "gl841_offset2_%02d.pnm", turn);
           sanei_genesys_write_pnm_file(fn, second_line.data(), 16, channels, num_pixels, 1);
       }
 
@@ -3792,8 +3791,8 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   pass = 0;
   if (DBG_LEVEL >= DBG_data)
     {
-      sprintf(title, "gl841_search_strip_%s_%s%02u.pnm", black ? "black" : "white",
-              forward ? "fwd" : "bwd", pass);
+        std::sprintf(title, "gl841_search_strip_%s_%s%02u.pnm", black ? "black" : "white",
+                     forward ? "fwd" : "bwd", pass);
       sanei_genesys_write_pnm_file(title, data.data(), session.params.depth,
                                    channels, pixels, lines);
     }
@@ -3817,8 +3816,8 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
 
       if (DBG_LEVEL >= DBG_data)
 	{
-          sprintf(title, "gl841_search_strip_%s_%s%02u.pnm",
-                  black ? "black" : "white", forward ? "fwd" : "bwd", pass);
+            std::sprintf(title, "gl841_search_strip_%s_%s%02u.pnm",
+                         black ? "black" : "white", forward ? "fwd" : "bwd", pass);
           sanei_genesys_write_pnm_file(title, data.data(), session.params.depth,
                                        channels, pixels, lines);
 	}

@@ -69,7 +69,7 @@
 :interface "USB"
 :status    :good
 
-:model     "DS-535"
+:model     "DS-535H"
 :interface "USB"
 :usbid     "0x04b8" "0x017a"
 :status    :good
@@ -190,6 +190,11 @@
 :model     "ET-2550"
 :interface "USB"
 :usbid     "0x04b8" "0x1106"
+:status    :good
+
+:model     "ET-3750"
+:interface "USB"
+:usbid     "0x04b8" "0x1130"
 :status    :good
 
 :model     "ET-4500"
@@ -934,6 +939,18 @@
 :status    :good
 :comment   "L61x0"
 
+:model     "PID 1167"
+:interface "USB"
+:usbid     "0x04b8" "0x1167"
+:status    :good
+:comment   "ET-16xxx"
+
+:model     "PID 1168"
+:interface "USB"
+:usbid     "0x04b8" "0x1168"
+:status    :good
+:comment   "ET-16xxx"
+
 :model     "PID 1169"
 :interface "USB"
 :usbid     "0x04b8" "0x1169"
@@ -951,8 +968,56 @@
 :usbid     "0x04b8" "0x116b"
 :status    :good
 
+:model     "PID 116C"
+:interface "USB"
+:usbid     "0x04b8" "0x116c"
+:status    :good
+:comment   "WFC8xxR"
+
+:model     "PID 116D"
+:interface "USB"
+:usbid     "0x04b8" "0x116d"
+:status    :good
+:comment   "WFC8xxR"
+
 :model     "PID 116E"
 :interface "USB"
 :usbid     "0x04b8" "0x116e"
 :status    :good
 :comment   "EWM7xxTR"
+
+:model     "PID 116F"
+:interface "USB"
+:usbid     "0x04b8" "0x116f"
+:status    :good
+:comment   "ET-16xxx"
+
+:model     "PID 1170"
+:interface "USB"
+:usbid     "0x04b8" "0x1170"
+:status    :good
+:comment   "ET-16xxx"
+
+:model     "PID 1174"
+:interface "USB"
+:usbid     "0x04b8" "0x1174"
+:status    :good
+:comment   "ET-58xx"
+
+:model     "PID 1175"
+:interface "USB"
+:usbid     "0x04b8" "0x1175"
+:status    :good
+:comment   "ET-58xx"
+
+:model     "PID 1176"
+:interface "USB"
+:usbid     "0x04b8" "0x1176"
+:status    :good
+:comment   "ET-58xx"
+
+:model     "PID 1177"
+:interface "USB"
+:usbid     "0x04b8" "0x1177"
+:status    :good
+:comment   "ET-16xxx"

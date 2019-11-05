@@ -471,7 +471,7 @@ bjnp_open_tcp (int devno)
               device[devno].tcp_socket = sock;
               return 0;
 	    }
-      PDBG (bjnp_dbg( LOG_INFO, "bjnp_open_tcp: INFO - Can not yet connect to scanner: %s\n",
+      PDBG (bjnp_dbg( LOG_INFO, "bjnp_open_tcp: INFO - Can not yet connect over TCP to scanner: %s, retrying\n",
                       strerror(errno)));
       usleep(BJNP_TCP_CONNECT_INTERVAL * BJNP_USLEEP_MS);
       connect_timeout = connect_timeout - BJNP_TCP_CONNECT_INTERVAL; 
@@ -720,8 +720,8 @@ udp_command (const int dev_no, char *command, int cmd_len, char *response,
 	  FD_ZERO (&fdset);
 	  FD_SET (sockfd, &fdset);
 
-	  timeout.tv_sec = device[dev_no].bjnp_timeout /1000;
-	  timeout.tv_usec = device[dev_no].bjnp_timeout %1000;
+	  timeout.tv_sec = device[dev_no].bjnp_ip_timeout /1000;
+	  timeout.tv_usec = device[dev_no].bjnp_ip_timeout %1000;
 	}
       while (((result =
 	       select (sockfd + 1, &fdset, NULL, NULL, &timeout)) <= 0)
@@ -751,7 +751,7 @@ udp_command (const int dev_no, char *command, int cmd_len, char *response,
 
   close(sockfd);
   PDBG (bjnp_dbg
-        (LOG_CRIT, "udp_command: ERROR - no data received (timeout = %d)\n", device[dev_no].bjnp_timeout ) );
+        (LOG_CRIT, "udp_command: ERROR - no data received (timeout = %d)\n", device[dev_no].bjnp_ip_timeout ) );
   return -1;
 }
 
@@ -1437,8 +1437,8 @@ bjnp_recv_header (int devno, size_t *payload_size )
       FD_ZERO (&input);
       FD_SET (fd, &input);
 
-      timeout.tv_sec = device[devno].bjnp_timeout /1000;
-      timeout.tv_usec = device[devno].bjnp_timeout %1000;
+      timeout.tv_sec = device[devno].bjnp_ip_timeout /1000;
+      timeout.tv_usec = device[devno].bjnp_ip_timeout %1000;
     }
   while ( ( (result = select (fd + 1, &input, NULL, NULL, &timeout)) <= 0) &&
 	 (errno == EINTR) && (attempt++ < BJNP_MAX_SELECT_ATTEMPTS));
@@ -1457,7 +1457,7 @@ bjnp_recv_header (int devno, size_t *payload_size )
       terrno = errno;
       PDBG (bjnp_dbg (LOG_CRIT,
 		"bjnp_recv_header: ERROR - could not read response header (select timed out after %d ms)!\n",
-		device[devno].bjnp_timeout ) );
+		device[devno].bjnp_ip_timeout ) );
       errno = terrno;
       return SANE_STATUS_IO_ERROR;
     }
@@ -1517,7 +1517,7 @@ bjnp_recv_header (int devno, size_t *payload_size )
 }
 
 static int
-bjnp_init_device_structure(int dn, bjnp_sockaddr_t *sa, bjnp_protocol_defs_t *protocol_defs, int min_timeout)
+bjnp_init_device_structure(int dn, bjnp_sockaddr_t *sa, bjnp_protocol_defs_t *protocol_defs, int ip_timeout)
 {
   /* initialize device structure */
 
@@ -1539,8 +1539,8 @@ bjnp_init_device_structure(int dn, bjnp_sockaddr_t *sa, bjnp_protocol_defs_t *pr
   device[dn].address_level = get_scanner_name(sa, name);
   device[dn].session_id = 0;
   device[dn].serial = -1;
-  device[dn].bjnp_timeout = min_timeout;
-  device[dn].bjnp_min_timeout = min_timeout;
+  device[dn].bjnp_ip_timeout = ip_timeout;
+  device[dn].bjnp_scanner_timeout = 1000;
   device[dn].scanner_data_left = 0;
   device[dn].last_cmd = 0;
   device[dn].blocksize = BJNP_BLOCKSIZE_START;
@@ -1613,8 +1613,8 @@ bjnp_recv_data (int devno, SANE_Byte * buffer, size_t start_pos, size_t * len)
       /* wait for data to be received, retry on a signal being received */
       FD_ZERO (&input);
       FD_SET (fd, &input);
-      timeout.tv_sec = device[devno].bjnp_timeout /1000;
-      timeout.tv_usec = device[devno].bjnp_timeout %1000;
+      timeout.tv_sec = device[devno].bjnp_ip_timeout /1000;
+      timeout.tv_usec = device[devno].bjnp_ip_timeout %1000;
     }
   while (((result = select (fd + 1, &input, NULL, NULL, &timeout)) <= 0) &&
 	 (errno == EINTR) && (attempt++ < BJNP_MAX_SELECT_ATTEMPTS));
@@ -1634,7 +1634,7 @@ bjnp_recv_data (int devno, SANE_Byte * buffer, size_t start_pos, size_t * len)
       terrno = errno;
       PDBG (bjnp_dbg (LOG_CRIT,
 		"bjnp_recv_data: ERROR - could not read response payload (select timed out after %d ms)!\n",
-		device[devno].bjnp_timeout) );
+		device[devno].bjnp_ip_timeout) );
       errno = terrno;
       *len = 0;
       return SANE_STATUS_IO_ERROR;
@@ -1671,7 +1671,7 @@ bjnp_allocate_device (SANE_String_Const devname,
   struct addrinfo hints;
   int result;
   int i;
-  int min_timeout = BJNP_TIMEOUT_DEFAULT;
+  int ip_timeout = BJNP_TIMEOUT_DEFAULT;
 
   PDBG (bjnp_dbg (LOG_DEBUG, "bjnp_allocate_device(%s) %d\n", devname, bjnp_no_devices));
 
@@ -1682,13 +1682,11 @@ bjnp_allocate_device (SANE_String_Const devname,
 
   if (strlen (args) > 0)
     {
-      /* get device specific timeout if any */
+      /* get device specific ip timeout if any */
 
       if (strncmp(args, "timeout=", strlen("timeout=")) == 0)
         {
-          min_timeout = atoi(args + strlen("timeout="));
-          if (min_timeout < BJNP_TIMEOUT_DEFAULT)
-            min_timeout = BJNP_TIMEOUT_DEFAULT;
+          ip_timeout = atoi(args + strlen("timeout="));
         } else {
 		PDBG (bjnp_dbg
 	    		(LOG_CRIT,
@@ -1748,7 +1746,7 @@ bjnp_allocate_device (SANE_String_Const devname,
           return BJNP_STATUS_INVAL;
         }
       if (bjnp_init_device_structure( bjnp_no_devices, (bjnp_sockaddr_t *)cur -> ai_addr,
-                                      protocol_defs, min_timeout) != 0)
+                                      protocol_defs, ip_timeout) != 0)
         {
           /* giving up on this address, try next one if any */
           break;
@@ -1772,15 +1770,8 @@ bjnp_allocate_device (SANE_String_Const devname,
                   device[i].address_level = device[bjnp_no_devices].address_level;
                 }
 
-	      /* check if new timeout value was defined (e.g. from sanei_bjnp_device_open)
-	       * if so, use new timout value */
+	      /* Leave timeout values unchanged, as they were probably specified by the user */
 
-              if (device[i].bjnp_min_timeout < device[bjnp_no_devices].bjnp_min_timeout)
-                {
-                  /* use the longer timeout as requested */
-                  device[i].bjnp_timeout = device[bjnp_no_devices].bjnp_min_timeout;
-                  device[i].bjnp_min_timeout = device[bjnp_no_devices].bjnp_min_timeout;
-                }
               freeaddrinfo(res);
               *dn = i;
               bjnp_free_device_structure( bjnp_no_devices);
@@ -1858,7 +1849,7 @@ static void add_scanner(SANE_Int *dev_no,
     }
 }
 
-int add_default_timeout(char *uri, int timeout, int max_len)
+int add_timeout_to_uri(char *uri, int timeout, int max_len)
 {
   char method[BJNP_METHOD_MAX];
   char host[BJNP_HOST_MAX];
@@ -1877,12 +1868,15 @@ int add_default_timeout(char *uri, int timeout, int max_len)
       port = 8612;
     }
 
+  /* add timeout value only if missing in URI */
+
   if (strstr(args, "timeout=") == NULL)
     {
       sprintf(args, "timeout=%d", timeout);
     }
 
   snprintf(uri, max_len -1, "%s://%s:%d/%s", method,host, port, args);
+  uri[max_len - 1] = '\0';
   return 0;
 }
 
@@ -1965,10 +1959,6 @@ sanei_bjnp_find_devices (const char **conf_devices,
       if (strncmp(conf_devices[i], "bjnp-timeout=", strlen("bjnp-timeout="))== 0)
         {
 	  timeout_default = atoi(conf_devices[i] + strlen("bjnp-timeout=") );
-          if (timeout_default < BJNP_TIMEOUT_DEFAULT)
-	    {
-	      timeout_default = BJNP_TIMEOUT_DEFAULT;
-	    }
 	  PDBG ( bjnp_dbg
                   (LOG_DEBUG, "Set new default timeout value: %d ms.", timeout_default));
 	  continue;
@@ -1976,7 +1966,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
       PDBG (bjnp_dbg
 	    (LOG_DEBUG, "sanei_bjnp_find_devices: Adding scanner from pixma.conf: %s\n", conf_devices[i]));
       memcpy(uri, conf_devices[i], sizeof(uri));
-      add_default_timeout(uri, timeout_default, sizeof(uri));
+      add_timeout_to_uri(uri, timeout_default, sizeof(uri));
       add_scanner(&dev_no, uri, attach_bjnp, pixma_devices);
     }
   PDBG (bjnp_dbg
@@ -2265,17 +2255,10 @@ sanei_bjnp_deactivate (SANE_Int dn)
 extern void
 sanei_bjnp_set_timeout (SANE_Int devno, SANE_Int timeout)
 {
-  if (timeout < device[devno].bjnp_min_timeout)
-    {
-      PDBG (bjnp_dbg (LOG_INFO, "bjnp_set_timeout to %d, but using minimum value %d\n",
-        timeout, device[devno].bjnp_min_timeout));
-      timeout = device[devno].bjnp_min_timeout;
-    } else {
-      PDBG (bjnp_dbg (LOG_INFO, "bjnp_set_timeout to %d\n",
-		   timeout));
-    }
+  PDBG (bjnp_dbg (LOG_INFO, "bjnp_set_timeout to %d\n",
+        timeout));
 
-  device[devno].bjnp_timeout = timeout;
+  device[devno].bjnp_scanner_timeout = timeout;
 }
 
 /** Initiate a bulk transfer read.
@@ -2503,7 +2486,7 @@ sanei_bjnp_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   char hostname[256];
   int resp_len;
   int timeout;
-  int seconds;
+  int interval;
 
   PDBG (bjnp_dbg
 	(LOG_INFO, "bjnp_read_int(%d, bufferptr, 0x%lx = %ld):\n", dn,
@@ -2531,16 +2514,21 @@ sanei_bjnp_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
         }
       device[dn].polling_status = BJNP_POLL_STARTED;
 
-      // fall through
+      /* fall through */
     case BJNP_POLL_STARTED:
-      /* we use only seonds accuracy between poll attempts */
-      timeout = device[dn].bjnp_timeout /1000;
+      /* we use only seonds (rounded up) accuracy between poll attempts */
+      timeout = device[dn].bjnp_scanner_timeout /1000 + 1;
+      if (device[dn].bjnp_scanner_timeout %1000 > 0)
+        {
+	  timeout++;
 
+	}
+      interval = 1;
       do
         {
           if ( (resp_len = bjnp_poll_scanner (dn, 2, hostname, getusername (), buffer, *size ) ) < 0 )
             {
-              PDBG (bjnp_dbg (LOG_NOTICE, "bjnp_read_int: Restarting polling dialog!\n"));
+              PDBG (bjnp_dbg (LOG_NOTICE, "bjnp_read_int: Poll failed, Restarting polling dialog!\n"));
               device[dn].polling_status = BJNP_POLL_STOPPED;
               *size = 0;
               return SANE_STATUS_EOF;
@@ -2551,9 +2539,10 @@ sanei_bjnp_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
               device[dn].polling_status = BJNP_POLL_STATUS_RECEIVED;
               return SANE_STATUS_GOOD;
             }
-          seconds = timeout > 2 ? 2 : timeout;
-          sleep(seconds);
-          timeout = timeout - seconds;
+          timeout = timeout - interval;
+	  if (timeout <= 0)
+	    return SANE_STATUS_EOF;
+          sleep(interval);
         } while ( timeout > 0 ) ;
       break;
     case BJNP_POLL_STATUS_RECEIVED:

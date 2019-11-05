@@ -371,8 +371,8 @@ typedef struct device_s
  		 		/* mac-address, used as device serial no */
   bjnp_sockaddr_t * addr;	/* ip-address of the scanner */
   int address_level;		/* link local, public or has a FQDN */
-  int bjnp_timeout;		/* timeout (msec) for next poll command */
-  int bjnp_min_timeout;		/* device specific min timeout  */
+  int bjnp_scanner_timeout;	/* timeout (msec) for next poll command */
+  int bjnp_ip_timeout;		/* device specific min timeout for the IP-protocol */
 
 #ifdef PIXMA_BJNP_USE_STATUS
   /* polling state information */

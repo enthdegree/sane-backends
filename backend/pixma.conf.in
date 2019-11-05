@@ -1,5 +1,10 @@
 # pixma.conf configuration for the sane pixma backend
 #
+# disable network scanner detection.
+# This must be the first not commented line
+# Uncomment the following line:
+# networking=no
+#
 # bjnp-timeout=5000
 # Specify the timeout (in ms) to be used for all the folllowing
 # scanners.

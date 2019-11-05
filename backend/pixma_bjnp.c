@@ -1931,6 +1931,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
   char uri[HOST_NAME_MAX + 32];
   int dev_no;
   int port;
+  int auto_detect = 1;
   int timeout_default = BJNP_TIMEOUT_DEFAULT;
   bjnp_sockaddr_t broadcast_addr[BJNP_SOCK_MAX];
   bjnp_sockaddr_t scanner_sa;
@@ -1948,34 +1949,57 @@ sanei_bjnp_find_devices (const char **conf_devices,
       socket_fd[i] = -1;
     }
 
-  /* Add devices from config file */
+  /* parse config file */
 
-  if (conf_devices[0] == NULL)
-    PDBG (bjnp_dbg( LOG_DEBUG, "sanei_bjnp_find_devices: No devices specified in configuration file.\n" ) );
-
-  for (i = 0; conf_devices[i] != NULL; i++)
+  if (conf_devices[0] != NULL)
     {
-      if (strncmp(conf_devices[i], "bjnp-timeout=", strlen("bjnp-timeout="))== 0)
+      if (strcmp(conf_devices[0], "networking=no") == 0)
         {
-	  timeout_default = atoi(conf_devices[i] + strlen("bjnp-timeout=") );
-	  PDBG ( bjnp_dbg
-                  (LOG_DEBUG, "Set new default timeout value: %d ms.", timeout_default));
-	  continue;
-	}
-      PDBG (bjnp_dbg
-	    (LOG_DEBUG, "sanei_bjnp_find_devices: Adding scanner from pixma.conf: %s\n", conf_devices[i]));
-      memcpy(uri, conf_devices[i], sizeof(uri));
-      add_timeout_to_uri(uri, timeout_default, sizeof(uri));
-      add_scanner(&dev_no, uri, attach_bjnp, pixma_devices);
-    }
-  PDBG (bjnp_dbg
-	(LOG_DEBUG,
-	 "sanei_bjnp_find_devices: Added all configured scanners, now do auto detection...\n"));
+          /* networking=no may only occur on the first non-commented line */
 
+          PDBG (bjnp_dbg( LOG_DEBUG, "sanei_bjnp_find_devices: Networked scanner detection is disabled in configuration file.\n" ) );
+          return SANE_STATUS_GOOD;
+        }
+      /* parse configuration file */
+
+      for (i = 0; conf_devices[i] != NULL; i++)
+        {
+          if (strncmp(conf_devices[i], "bjnp-timeout=", strlen("bjnp-timeout="))== 0)
+            {
+	      timeout_default = atoi(conf_devices[i] + strlen("bjnp-timeout=") );
+	      PDBG ( bjnp_dbg (LOG_DEBUG, "Set new default timeout value: %d ms.", timeout_default));
+	      continue;
+	    }
+	  else if (strncmp(conf_devices[i], "auto_detection=no", strlen("auto_detection=no"))== 0)
+            {
+              auto_detect = 0;
+	      PDBG ( bjnp_dbg (LOG_DEBUG, "sanei_bjnp_find_devices: auto detection of scanners disabled"));
+	      continue;
+	    }
+	  else
+            {
+              PDBG (bjnp_dbg (LOG_DEBUG, "sanei_bjnp_find_devices: Adding scanner from pixma.conf: %s\n", conf_devices[i]));
+              memcpy(uri, conf_devices[i], sizeof(uri));
+              add_timeout_to_uri(uri, timeout_default, sizeof(uri));
+              add_scanner(&dev_no, uri, attach_bjnp, pixma_devices);
+	    }
+        }
+      PDBG (bjnp_dbg (LOG_DEBUG, "sanei_bjnp_find_devices: Added all specified scanners.\n"));
+    }
+  else
+    {
+      PDBG (bjnp_dbg( LOG_DEBUG, "sanei_bjnp_find_devices: Configuration file is empty, No devices specified.\n" ) );
+    }
+
+  if (auto_detect == 0)
+    {
+      return SANE_STATUS_GOOD;
+    }
   /*
    * Send UDP DISCOVER to discover scanners and return the list of scanners found
    */
 
+  PDBG (bjnp_dbg( LOG_DEBUG, "sanei_bjnp_find_devices: Start auto-detection.\n" ) );
   FD_ZERO (&fdset);
 
   no_sockets = 0;

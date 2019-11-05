@@ -291,6 +291,19 @@ If not explicitly set, the default 1000ms setting will apply.
 .PP
 Setting timeouts should only be required in exceptional cases.
 .PP
+.RE
+.PP
+If so desired networking can be disbled as follows:
+.RS
+.IP -
+If the first non-commented line contains
+.B networking=no
+all networking will be disabled.
+This will cause all further statements in the configuration file to be ignored.
+.IP -
+A line that contains
+.B auto_detection=no
+will cause auto-detection to be skipped. Explicitely defined network scanners will still be probed.
 .SH USB SUPPORT
 USB scanners will be auto-detected and require no configuration.
 .SH NETWORKING SUPPORT

@@ -292,6 +292,7 @@ parse_IEEE1284_to_model (char *scanner_id, char *model)
 
   char s[BJNP_IEEE1284_MAX];
   char *tok;
+  char * model_str;
 
   strncpy (s, scanner_id, BJNP_IEEE1284_MAX);
   s[BJNP_IEEE1284_MAX - 1] = '\0';
@@ -302,10 +303,11 @@ parse_IEEE1284_to_model (char *scanner_id, char *model)
     {
       /* MDL contains make and model */
 
-      if (strncmp (tok, "MDL:", 4) == 0)
+      if (strncmp (tok, "MDL:", strlen("MDL:")) == 0)
 	{
-	  memcpy (model, tok + 4, BJNP_IEEE1284_MAX);
-	  model[BJNP_IEEE1284_MAX -1] = '\0';
+	  model_str = tok + strlen("MDL:");
+	  strncpy (model, model_str, BJNP_MODEL_MAX);
+	  model[BJNP_MODEL_MAX -1] = '\0';
 	  return 1;
 	}
       tok = strtok (NULL, ";");
@@ -1819,7 +1821,7 @@ static void add_scanner(SANE_Int *dev_no,
 {
   char scanner_host[BJNP_HOST_MAX];
   char serial[BJNP_SERIAL_MAX];
-  char makemodel[BJNP_IEEE1284_MAX];
+  char makemodel[BJNP_MODEL_MAX];
 
   /* Allocate device structure for scanner */
   switch (bjnp_allocate_device (uri, dev_no, scanner_host))

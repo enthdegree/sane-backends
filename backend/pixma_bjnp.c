@@ -475,7 +475,7 @@ bjnp_open_tcp (int devno)
                       strerror(errno)));
       usleep(BJNP_TCP_CONNECT_INTERVAL * BJNP_USLEEP_MS);
       connect_timeout = connect_timeout - BJNP_TCP_CONNECT_INTERVAL;
-
+    }
   PDBG (bjnp_dbg
         (LOG_CRIT, "bjnp_open_tcp: ERROR - Can not connect to scanner, giving up!"));
   return -1;

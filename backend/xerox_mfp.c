@@ -95,6 +95,9 @@ static char *str_cmd(int cmd)
 #define MAX_DUMP 70
 const char *encTmpFileName = "/tmp/stmp_enc.tmp";
 
+/*
+ * Decode jpeg from `infilename` into dev->decData of dev->decDataSize size.
+ */
 static int decompress(struct device __sane_unused__ *dev,
                       const char __sane_unused__ *infilename)
 {
@@ -131,6 +134,7 @@ static int decompress(struct device __sane_unused__ *dev,
     height = cinfo.output_height;
     pixel_size = cinfo.output_components;
     bmp_size = width * height * pixel_size;
+    assert(bmp_size <= POST_DATASIZE);
     dev->decDataSize = bmp_size;
 
     row_stride = width * pixel_size;
@@ -152,32 +156,30 @@ static int decompress(struct device __sane_unused__ *dev,
 #endif
 }
 
+/* copy from decoded jpeg image (dev->decData) into user's buffer (pDest) */
+/* returns 0 if there is no data to copy */
 static int copy_decompress_data(struct device *dev, unsigned char *pDest, int maxlen, int *destLen)
 {
     int data_size = 0;
-    size_t result = 0, retVal = 0;
 
-
-    if (0 == dev->decDataSize) {
-        *destLen = 0;
-        return retVal;
-    }
+    if (destLen)
+	*destLen = 0;
+    if (!dev->decDataSize)
+        return 0;
     data_size = dev->decDataSize - dev->currentDecDataIndex;
-    if (data_size > maxlen) {
+    if (data_size > maxlen)
         data_size = maxlen;
+    if (data_size && pDest) {
+	memcpy(pDest, dev->decData + dev->currentDecDataIndex, data_size);
+	if (destLen)
+	    *destLen = data_size;
+	dev->currentDecDataIndex += data_size;
     }
-    memcpy(pDest, dev->decData+dev->currentDecDataIndex, data_size);
-    result = data_size;
-    *destLen = result;
-    dev->currentDecDataIndex += result;
-    retVal = result;
-
     if (dev->decDataSize == dev->currentDecDataIndex) {
         dev->currentDecDataIndex = 0;
         dev->decDataSize = 0;
     }
-
-    return retVal;
+    return 1;
 }
 
 static int decompress_tempfile(struct device *dev)
@@ -1294,9 +1296,10 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
             dev->decDataSize > 0) {
             int diff = dev->total_img_size - dev->total_out_size;
             int bufLen = (diff < maxlen) ? diff : maxlen;
-            if (0 < diff &&
-                0 < copy_decompress_data(dev, buf, bufLen, lenp)) {
-                dev->total_out_size += *lenp;
+            if (diff &&
+                copy_decompress_data(dev, buf, bufLen, lenp)) {
+		if (lenp)
+		    dev->total_out_size += *lenp;
                 return SANE_STATUS_GOOD;
             }
         }
@@ -1460,6 +1463,7 @@ sane_start(SANE_Handle h)
     if (!dev->data && !(dev->data = malloc(DATASIZE)))
         return ret_cancel(dev, SANE_STATUS_NO_MEM);
 
+    /* this is for jpeg mode only */
     if (!dev->decData && !(dev->decData = malloc(POST_DATASIZE)))
         return ret_cancel(dev, SANE_STATUS_NO_MEM);
 

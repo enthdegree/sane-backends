@@ -74,8 +74,8 @@ struct device {
 #define DATATAIL(dev) ((dev->dataoff + dev->datalen) & DATAMASK)
 #define DATAROOM(dev) dataroom(dev)
 
-#define POST_DATASIZE 0xFFFFFF
-    SANE_Byte *decData;
+#define POST_DATASIZE 0xFFFFFF	/* 16777215 bytes */
+    SANE_Byte *decData;		/* static buffer of POST_DATASIZE bytes */
     int decDataSize;
     int currentDecDataIndex;
     /* data from CMD_INQUIRY: */

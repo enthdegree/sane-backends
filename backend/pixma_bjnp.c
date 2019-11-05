@@ -1,25 +1,22 @@
 /* SANE - Scanner Access Now Easy.
 
-   Copyright (C) 2011-2019 Rolf Bensch <rolf at bensch hyphen online dot de>
-   Copyright (C) 2007-2009 Nicolas Martin, <nicols-guest at alioth dot debian dot org>
-   Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
+   Copyright (C) 2008  2012 by Louis Lagendijk
 
    This file is part of the SANE package.
 
-   This program is free software; you can redistribute it and/or
-   modify it under the terms of the GNU General Public License as
-   published by the Free Software Foundation; either version 2 of the
-   License, or (at your option) any later version.
+   SANE is free software; you can redistribute it and/or modify it
+   under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful, but
-   WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   General Public License for more details.
+   SANE is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+   or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+   License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-   MA 02111-1307, USA.
+   along with sane; see the file COPYING.  If not, write to the Free
+   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
@@ -41,1661 +38,2521 @@
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
- */
-/* test cases
-   1. short USB packet (must be no -ETIMEDOUT)
-   2. cancel using button on the printer (look for abort command)
-   3. start scan while busy (status 0x1414)
-   4. cancel using ctrl-c (must send abort command)
- */
+*/
+#undef BACKEND_NAME
+#define BACKEND_NAME bjnp
 
-#include "../include/sane/config.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>		/* localtime(C90) */
-
-#include "pixma_rename.h"
-#include "pixma_common.h"
-#include "pixma_io.h"
-
-/* Some macro code to enhance readability */
-#define RET_IF_ERR(x) do {	\
-    if ((error = (x)) < 0)	\
-      return error;		\
-  } while(0)
-
-#define WAIT_INTERRUPT(x) do {			\
-    error = handle_interrupt (s, x);		\
-    if (s->cancel)				\
-      return PIXMA_ECANCELED;			\
-    if (error != PIXMA_ECANCELED && error < 0)	\
-      return error;				\
-  } while(0)
-
-#ifdef __GNUC__
-# define UNUSED(v) (void) v
-#else
-# define UNUSED(v)
-#endif
-
-/* Size of the command buffer should be multiple of wMaxPacketLength and
-   greater than 4096+24.
-   4096 = size of gamma table. 24 = header + checksum */
-#define IMAGE_BLOCK_SIZE (512*1024)
-#define CMDBUF_SIZE (4096 + 24)
-#define DEFAULT_GAMMA 2.0	/***** Gamma different from 1.0 is potentially impacting color profile generation *****/
-#define UNKNOWN_PID 0xffff
-
-
-#define CANON_VID 0x04a9
-
-/* Generation 1 */
-#define MP150_PID 0x1709
-#define MP170_PID 0x170a
-#define MP450_PID 0x170b
-#define MP500_PID 0x170c
-#define MP530_PID 0x1712
-
-/* Generation 2 */
-#define MP160_PID 0x1714
-#define MP180_PID 0x1715
-#define MP460_PID 0x1716
-#define MP510_PID 0x1717
-#define MP600_PID 0x1718
-#define MP600R_PID 0x1719
-
-#define MP140_PID 0x172b
-
-/* Generation 3 */
-/* PIXMA 2007 vintage */
-#define MX7600_PID 0x171c
-#define MP210_PID 0x1721
-#define MP220_PID 0x1722
-#define MP470_PID 0x1723
-#define MP520_PID 0x1724
-#define MP610_PID 0x1725
-#define MX300_PID 0x1727
-#define MX310_PID 0x1728
-#define MX700_PID 0x1729
-#define MX850_PID 0x172c
-
-/* PIXMA 2008 vintage */
-#define MP630_PID 0x172e
-#define MP620_PID 0x172f
-#define MP540_PID 0x1730
-#define MP480_PID 0x1731
-#define MP240_PID 0x1732
-#define MP260_PID 0x1733
-#define MP190_PID 0x1734
-
-/* PIXMA 2009 vintage */
-#define MX860_PID 0x1735
-#define MX320_PID 0x1736    /* untested */
-#define MX330_PID 0x1737
-
-/* Generation 4 */
-#define MP250_PID 0x173a
-#define MP270_PID 0x173b
-#define MP490_PID 0x173c
-#define MP550_PID 0x173d
-#define MP560_PID 0x173e
-#define MP640_PID 0x173f
-
-/* PIXMA 2010 vintage */
-#define MX340_PID 0x1741
-#define MX350_PID 0x1742
-#define MX870_PID 0x1743
-
-/* 2010 new devices (untested) */
-#define MP280_PID 0x1746
-#define MP495_PID 0x1747
-#define MG5100_PID 0x1748
-#define MG5200_PID 0x1749
-#define MG6100_PID 0x174a
-
-/* PIXMA 2011 vintage */
-#define MX360_PID 0x174d
-#define MX410_PID 0x174e
-#define MX420_PID 0x174f
-#define MX880_PID 0x1750
-
-/* Generation 5 */
-/* 2011 new devices (untested) */
-#define MG2100_PID 0x1751
-#define MG3100_PID 0x1752
-#define MG4100_PID 0x1753
-#define MG5300_PID 0x1754
-#define MG6200_PID 0x1755
-#define MP493_PID 0x1757
-#define E500_PID 0x1758
-
-/* 2012 new devices (untested) */
-#define MX370_PID 0x1759
-#define MX430_PID 0x175B
-#define MX510_PID 0x175C
-#define MX710_PID 0x175D
-#define MX890_PID 0x175E
-#define E600_PID 0x175A
-#define MG4200_PID 0x1763
-
-/* 2013 new devices */
-#define MP230_PID 0x175F
-#define MG6300_PID 0x1765
-
-/* 2013 new devices (untested) */
-#define MG2200_PID 0x1760
-#define E510_PID 0x1761
-#define MG3200_PID 0x1762
-#define MG5400_PID 0x1764
-#define MX390_PID 0x1766
-#define E610_PID 0x1767
-#define MX450_PID 0x1768
-#define MX520_PID 0x1769
-#define MX720_PID 0x176a
-#define MX920_PID 0x176b
-#define MG2400_PID 0x176c
-#define MG2500_PID 0x176d
-#define MG3500_PID 0x176e
-#define MG6500_PID 0x176f
-#define MG6400_PID 0x1770
-#define MG5500_PID 0x1771
-#define MG7100_PID 0x1772
-
-/* 2014 new devices (untested) */
-#define MX470_PID 0x1774
-#define MX530_PID 0x1775
-#define MB5000_PID 0x1776
-#define MB5300_PID 0x1777
-#define MB2000_PID 0x1778
-#define MB2300_PID 0x1779
-#define E400_PID 0x177a
-#define E560_PID 0x177b
-#define MG7500_PID 0x177c
-#define MG6600_PID 0x177e
-#define MG5600_PID 0x177f
-#define MG2900_PID 0x1780
-#define E460_PID 0x1788
-
-/* 2015 new devices (untested) */
-#define MX490_PID 0x1787
-#define E480_PID 0x1789
-#define MG3600_PID 0x178a
-#define MG7700_PID 0x178b
-#define MG6900_PID 0x178c
-#define MG6800_PID 0x178d
-#define MG5700_PID 0x178e
-
-/* 2016 new devices (untested) */
-#define MB2700_PID 0x1792
-#define MB2100_PID 0x1793
-#define G3000_PID 0x1794
-#define G2000_PID 0x1795
-#define TS9000_PID 0x179f
-#define TS8000_PID 0x1800
-#define TS6000_PID 0x1801
-#define TS5000_PID 0x1802
-#define MG3000_PID 0x180b
-#define E470_PID 0x180c
-#define E410_PID 0x181e
-
-/* 2017 new devices (untested) */
-#define G4000_PID 0x181d
-#define TS6100_PID 0x1822
-#define TS5100_PID 0x1825
-#define TS3100_PID 0x1827
-#define E3100_PID 0x1828
-
-/* 2018 new devices (untested) */
-#define MB5400_PID 0x178f
-#define MB5100_PID 0x1790
-#define TS9100_PID 0x1820
-#define TR8500_PID 0x1823
-#define TR7500_PID 0x1824
-#define TS9500_PID 0x185c
-#define LIDE400_PID 0x1912  /* tested */
-#define LIDE300_PID 0x1913  /* tested */
-
-/* 2019 new devices (untested) */
-#define TS8100_PID 0x1821
-#define G3010_PID 0x183b
-#define G4010_PID 0x183d
-#define TS9180_PID 0x183e
-#define TS8180_PID 0x183f
-#define TS6180_PID 0x1840
-#define TR8580_PID 0x1841
-#define TS8130_PID 0x1842
-#define TS6130_PID 0x1843
-#define TR8530_PID 0x1844
-#define TR7530_PID 0x1845
-#define XK50_PID 0x1846
-#define XK70_PID 0x1847
-#define TR4500_PID 0x1854
-#define E4200_PID 0x1855
-#define TS6200_PID 0x1856
-#define TS6280_PID 0x1857
-#define TS6230_PID 0x1858
-#define TS8200_PID 0x1859
-#define TS8280_PID 0x185a
-#define TS8230_PID 0x185b
-#define TS9580_PID 0x185d
-#define TR9530_PID 0x185e
-#define XK80_PID 0x1873
-
-/* Generation 4 XML messages that encapsulates the Pixma protocol messages */
-#define XML_START_1   \
-"<?xml version=\"1.0\" encoding=\"utf-8\" ?>\
-<cmd xmlns:ivec=\"http://www.canon.com/ns/cmd/2008/07/common/\">\
-<ivec:contents><ivec:operation>StartJob</ivec:operation>\
-<ivec:param_set servicetype=\"scan\"><ivec:jobID>00000001</ivec:jobID>\
-<ivec:bidi>1</ivec:bidi></ivec:param_set></ivec:contents></cmd>"
-
-#define XML_START_2   \
-"<?xml version=\"1.0\" encoding=\"utf-8\" ?>\
-<cmd xmlns:ivec=\"http://www.canon.com/ns/cmd/2008/07/common/\" xmlns:vcn=\"http://www.canon.com/ns/cmd/2008/07/canon/\">\
-<ivec:contents><ivec:operation>VendorCmd</ivec:operation>\
-<ivec:param_set servicetype=\"scan\"><ivec:jobID>00000001</ivec:jobID>\
-<vcn:ijoperation>ModeShift</vcn:ijoperation><vcn:ijmode>1</vcn:ijmode>\
-</ivec:param_set></ivec:contents></cmd>"
-
-#define XML_END   \
-"<?xml version=\"1.0\" encoding=\"utf-8\" ?>\
-<cmd xmlns:ivec=\"http://www.canon.com/ns/cmd/2008/07/common/\">\
-<ivec:contents><ivec:operation>EndJob</ivec:operation>\
-<ivec:param_set servicetype=\"scan\"><ivec:jobID>00000001</ivec:jobID>\
-</ivec:param_set></ivec:contents></cmd>"
-
-#define XML_OK   "<ivec:response>OK</ivec:response>"
-
-enum mp150_state_t
-{
-  state_idle,
-  state_warmup,
-  state_scanning,
-  state_transfering,
-  state_finished
-};
-
-enum mp150_cmd_t
-{
-  cmd_start_session = 0xdb20,
-  cmd_select_source = 0xdd20,
-  cmd_gamma = 0xee20,
-  cmd_scan_param = 0xde20,
-  cmd_status = 0xf320,
-  cmd_abort_session = 0xef20,
-  cmd_time = 0xeb80,
-  cmd_read_image = 0xd420,
-  cmd_error_info = 0xff20,
-
-  cmd_scan_param_3 = 0xd820,
-  cmd_scan_start_3 = 0xd920,
-  cmd_status_3 = 0xda20,
-};
-
-typedef struct mp150_t
-{
-  enum mp150_state_t state;
-  pixma_cmdbuf_t cb;
-  uint8_t *imgbuf;
-  uint8_t current_status[16];
-  unsigned last_block;
-  uint8_t generation;
-  /* for Generation 3 shift */
-  uint8_t *linebuf;
-  uint8_t *data_left_ofs;
-  unsigned data_left_len;
-  uint8_t adf_state;            /* handle adf scanning */
-} mp150_t;
+#include  "../include/sane/config.h"
+#include  "../include/sane/sane.h"
 
 /*
-  STAT:  0x0606 = ok,
-         0x1515 = failed (PIXMA_ECANCELED),
-	 0x1414 = busy (PIXMA_EBUSY)
+ * Standard types etc
+ */
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
+#include <unistd.h>
+#include <stdio.h>
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+#ifdef HAVE_LIMITS_H
+#include <limits.h>
+#endif
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
-  Transaction scheme
-    1. command_header/data | result_header
-    2. command_header      | result_header/data
-    3. command_header      | result_header/image_data
+/*
+ * networking stuff
+ */
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <net/if.h>
+#ifdef HAVE_IFADDRS_H
+#include <ifaddrs.h>
+#endif
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
+#ifdef HAVE_PWD_H
+#include <pwd.h>
+#endif
+#include <errno.h>
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
 
-  - data has checksum in the last byte.
-  - image_data has no checksum.
-  - data and image_data begins in the same USB packet as
-    command_header or result_header.
+#include "pixma_bjnp_private.h"
+#include "pixma_bjnp.h"
+/* #include "pixma_rename.h" */
+#include "pixma.h"
+#include "pixma_common.h"
 
-  command format #1:
-   u16be      cmd
-   u8[6]      0
-   u8[4]      0
-   u32be      PLEN parameter length
-   u8[PLEN-1] parameter
-   u8         parameter check sum
-  result:
-   u16be      STAT
-   u8         0
-   u8         0 or 0x21 if STAT == 0x1414
-   u8[4]      0
+#ifndef SSIZE_MAX
+# define SSIZE_MAX      LONG_MAX
+#endif
 
-  command format #2:
-   u16be      cmd
-   u8[6]      0
-   u8[4]      0
-   u32be      RLEN result length
-  result:
-   u16be      STAT
-   u8[6]      0
-   u8[RLEN-1] result
-   u8         result check sum
+/* static data */
+static bjnp_device_t device[BJNP_NO_DEVICES];
+static int bjnp_no_devices = 0;
 
-  command format #3: (only used by read_image_block)
-   u16be      0xd420
-   u8[6]      0
-   u8[4]      0
-   u32be      max. block size + 8
-  result:
-   u16be      STAT
-   u8[6]      0
-   u8         block info bitfield: 0x8 = end of scan, 0x10 = no more paper, 0x20 = no more data
-   u8[3]      0
-   u32be      ILEN image data size
-   u8[ILEN]   image data
+/*
+ * Private functions
  */
 
-static void mp150_finish_scan (pixma_t * s);
-
-static int
-is_scanning_from_adf (pixma_t * s)
+static void
+u8tohex (char *string, const uint8_t *value, int len )
 {
-  return (s->param->source == PIXMA_SOURCE_ADF
-	  || s->param->source == PIXMA_SOURCE_ADFDUP);
-}
-
-static int
-is_scanning_from_adfdup (pixma_t * s)
-{
-  return (s->param->source == PIXMA_SOURCE_ADFDUP);
-}
-
-static int
-is_scanning_jpeg (pixma_t *s)
-{
-  return s->param->mode_jpeg;
-}
-
-static int
-send_xml_dialog (pixma_t * s, const char * xml_message)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  int datalen;
-
-  datalen = pixma_cmd_transaction (s, xml_message, strlen (xml_message),
-                                   mp->cb.buf, 1024);
-  if (datalen < 0)
-    return datalen;
-
-  mp->cb.buf[datalen] = 0;
-
-  PDBG (pixma_dbg (10, "XML message sent to scanner:\n%s\n", xml_message));
-  PDBG (pixma_dbg (10, "XML response back from scanner:\n%s\n", mp->cb.buf));
-
-  return (strcasestr ((const char *) mp->cb.buf, XML_OK) != NULL);
-}
-
-static int
-start_session (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-
-  pixma_newcmd (&mp->cb, cmd_start_session, 0, 0);
-  mp->cb.buf[3] = 0x00;
-  return pixma_exec (s, &mp->cb);
-}
-
-static int
-start_scan_3 (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-
-  pixma_newcmd (&mp->cb, cmd_scan_start_3, 0, 0);
-  mp->cb.buf[3] = 0x00;
-  return pixma_exec (s, &mp->cb);
-}
-
-static int
-is_calibrated (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  if (mp->generation >= 3)
+  int i;
+  int x;
+  const char hdigit[16] =
+    { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
+    'e', 'f'
+  };
+  for (i = 0; i < len; i++)
     {
-      return ((mp->current_status[0] & 0x01) == 1 || (mp->current_status[0] & 0x02) == 2);
+      x = value[i];
+      string[ 2 * i ] = hdigit[(x >> 4) & 0xf];
+      string[ 2 * i + 1] = hdigit[x & 0xf];
     }
-  if (mp->generation == 1)
-    {
-      return (mp->current_status[8] == 1);
-    }
-  else
-    {
-      return (mp->current_status[9] == 1);
-    }
-}
-
-static int
-has_paper (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-
-  if (is_scanning_from_adfdup (s))
-    return (mp->current_status[1] == 0 || mp->current_status[2] == 0);
-  else
-    return (mp->current_status[1] == 0);
+  string[2 * len ] = '\0';
 }
 
 static void
-drain_bulk_in (pixma_t * s)
+u32tohex (uint32_t x, char *str)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  while (pixma_read (s->io, mp->imgbuf, IMAGE_BLOCK_SIZE) >= 0);
+  uint8_t uint8[4];
+  uint8[0] = (uint8_t)(x >> 24);
+  uint8[1] = (uint8_t)(x >> 16);
+  uint8[2] = (uint8_t)(x >> 8);
+  uint8[3] = (uint8_t)x ;
+  u8tohex(str, uint8, 4);
 }
 
-static int
-abort_session (pixma_t * s)
+static void
+bjnp_hexdump (int level, const void *d_, unsigned len)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  mp->adf_state = state_idle;           /* reset adf scanning */
-  return pixma_exec_short_cmd (s, &mp->cb, cmd_abort_session);
-}
+  const uint8_t *d = (const uint8_t *) (d_);
+  unsigned ofs, c, plen;
+  char line[100];               /* actually only 1+8+1+8*3+1+8*3+1 = 61 bytes needed */
 
-static int
-select_source (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  uint8_t *data;
-
-  data = pixma_newcmd (&mp->cb, cmd_select_source, 12, 0);
-  data[5] = ((mp->generation == 2) ? 1 : 0);
-  switch (s->param->source)
+  if (level > DBG_LEVEL)
+    return;
+  if (level == DBG_LEVEL)
+    /* if debuglevel == exact match and buffer contains more than 3 lines, print 2 lines + .... */
+    plen = (len > 64) ? 32: len;
+  else
+    plen = len;
+  ofs = 0;
+  while (ofs < plen)
     {
-      case PIXMA_SOURCE_FLATBED:
-        data[0] = 1;
-        data[1] = 1;
-        break;
+      char *p;
+      line[0] = ' ';
+      u32tohex (ofs, line + 1);
+      line[9] = ':';
+      p = line + 10;
+      for (c = 0; c != 16 && (ofs + c) < plen; c++)
+        {
+          u8tohex (p, d + ofs + c, 1);
+          p[2] = ' ';
+          p += 3;
+          if (c == 7)
+            {
+              p[0] = ' ';
+              p++;
+            }
+        }
+      p[0] = '\0';
+      bjnp_dbg (level, "%s\n", line);
+      ofs += c;
+    }
+  if (len > plen)
+    bjnp_dbg(level, "......\n");
+}
 
-      case PIXMA_SOURCE_ADF:
-        data[0] = 2;
-        data[5] = 1;
-        data[6] = 1;
-        break;
+static int sa_is_equal( const bjnp_sockaddr_t * sa1, const bjnp_sockaddr_t * sa2)
+{
+  if ((sa1 == NULL) || (sa2 == NULL) )
+    return 0;
 
-      case PIXMA_SOURCE_ADFDUP:
-        data[0] = 2;
-        data[5] = 3;
-        data[6] = 3;
-        break;
+  if (sa1->addr.sa_family == sa2-> addr.sa_family)
+    {
+      if( sa1 -> addr.sa_family == AF_INET)
+        {
+          if ( (sa1->ipv4.sin_port == sa2->ipv4.sin_port) &&
+               (sa1->ipv4.sin_addr.s_addr == sa2->ipv4.sin_addr.s_addr))
+            {
+            return 1;
+            }
+        }
+#ifdef ENABLE_IPV6
+      else if (sa1 -> addr.sa_family == AF_INET6 )
+        {
+          if ( (sa1-> ipv6.sin6_port == sa2->ipv6.sin6_port) &&
+              (memcmp(&(sa1->ipv6.sin6_addr), &(sa2->ipv6.sin6_addr), sizeof(struct in6_addr)) == 0))
+            {
+              return 1;
+            }
+        }
+#endif
+    }
+    return 0;
+}
 
+static int
+sa_size( const bjnp_sockaddr_t *sa)
+{
+  switch (sa -> addr.sa_family)
+    {
+      case AF_INET:
+        return (sizeof(struct sockaddr_in) );
+#ifdef ENABLE_IPV6
+      case AF_INET6:
+        return (sizeof(struct sockaddr_in6) );
+#endif
       default:
-        return PIXMA_EPROTO;
+        /* should not occur */
+        return sizeof( bjnp_sockaddr_t );
     }
-  return pixma_exec (s, &mp->cb);
 }
 
 static int
-send_gamma_table (pixma_t * s)
+get_protocol_family( const bjnp_sockaddr_t *sa)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  const uint8_t *lut = s->param->gamma_table;
-  uint8_t *data;
-
-  if (mp->generation == 1)
+  switch (sa -> addr.sa_family)
     {
-      data = pixma_newcmd (&mp->cb, cmd_gamma, 4096 + 8, 0);
-      data[0] = (s->param->channels == 3) ? 0x10 : 0x01;
-      pixma_set_be16 (0x1004, data + 2);
-      if (lut)
-	      memcpy (data + 4, lut, 4096);
-      else
-        pixma_fill_gamma_table (DEFAULT_GAMMA, data + 4, 4096);
+      case AF_INET:
+        return PF_INET;
+        break;
+#ifdef ENABLE_IPV6
+      case AF_INET6:
+        return PF_INET6;
+        break;
+#endif
+      default:
+        /* should not occur */
+        return -1;
     }
-  else
-    {
-      /* FIXME: Gamma table for 2nd generation: 1024 * uint16_le */
-      data = pixma_newcmd (&mp->cb, cmd_gamma, 2048 + 8, 0);
-      data[0] = 0x10;
-      pixma_set_be16 (0x0804, data + 2);
-      if (lut)
-        {
-          int i;
-          for (i = 0; i < 1024; i++)
-            {
-              int j = (i << 2) + (i >> 8);
-              data[4 + 2 * i + 0] = lut[j];
-              data[4 + 2 * i + 1] = lut[j];
-            }
-        }
-      else
-        {
-          int i;
-          pixma_fill_gamma_table (DEFAULT_GAMMA, data + 4, 2048);
-          for (i = 0; i < 1024; i++)
-            {
-              int j = (i << 1) + (i >> 9);
-              data[4 + 2 * i + 0] = data[4 + j];
-              data[4 + 2 * i + 1] = data[4 + j];
-            }
-        }
-    }
-  return pixma_exec (s, &mp->cb);
 }
 
-static unsigned
-calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
+static void
+get_address_info ( const bjnp_sockaddr_t *addr, char * addr_string, int *port)
 {
-  unsigned raw_width;
-  /* NOTE: Actually, we can send arbitary width to MP150. Lines returned
-     are always padded to multiple of 4 or 12 pixels. Is this valid for
-     other models, too? */
-  if (mp->generation >= 2)
+  char tmp_addr[BJNP_HOST_MAX];
+  if ( addr->addr.sa_family == AF_INET)
     {
-      raw_width = ALIGN_SUP (param->w + param->xs, 32);
-      /* PDBG (pixma_dbg (4, "*calc_raw_width***** width %i extended by %i and rounded to %i *****\n", param->w, param->xs, raw_width)); */
+      inet_ntop( AF_INET, &(addr -> ipv4.sin_addr.s_addr), addr_string, BJNP_HOST_MAX);
+      *port = ntohs (addr->ipv4.sin_port);
     }
-  else if (param->channels == 1)
+#ifdef ENABLE_IPV6
+  else if (addr->addr.sa_family == AF_INET6)
     {
-      raw_width = ALIGN_SUP (param->w + param->xs, 12);
+      inet_ntop( AF_INET6, addr -> ipv6.sin6_addr.s6_addr, tmp_addr, sizeof(tmp_addr) );
+
+      if (IN6_IS_ADDR_LINKLOCAL( &(addr -> ipv6.sin6_addr) ) )
+          sprintf(addr_string, "[%s%%%d]", tmp_addr, addr -> ipv6.sin6_scope_id);
+
+      *port = ntohs (addr->ipv6.sin6_port);
     }
+#endif
   else
     {
-      raw_width = ALIGN_SUP (param->w + param->xs, 4);
+      /* unknown address family, should not occur */
+      strcpy(addr_string, "Unknown address family");
+      *port = 0;
     }
-  return raw_width;
-}
-
-static unsigned
-get_cis_line_size (pixma_t * s)
-{
-  return (s->param->wx ? s->param->line_size / s->param->w * s->param->wx
-                       : s->param->line_size);
 }
 
 static int
-send_scan_param (pixma_t * s)
+parse_IEEE1284_to_model (char *scanner_id, char *model)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  uint8_t *data;
-  unsigned raw_width = calc_raw_width (mp, s->param);
-  unsigned h = MIN (s->param->h, s->cfg->height * s->param->ydpi / 75);
+/*
+ * parses the  IEEE1284  ID of the scanner to retrieve make and model
+ * of the scanner
+ * Returns: 0 = not found
+ *          1 = found, model is set
+ */
 
-  if (mp->generation <= 2)
+  char s[BJNP_IEEE1284_MAX];
+  char *tok;
+  char * model_str;
+
+  strncpy (s, scanner_id, BJNP_IEEE1284_MAX);
+  s[BJNP_IEEE1284_MAX - 1] = '\0';
+  model[0] = '\0';
+
+  tok = strtok (s, ";");
+  while (tok != NULL)
     {
-      /*PDBG (pixma_dbg (4, "*send_scan_param gen. 1-2 ***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  w=%i ***** \n",
-                           s->param->xdpi,s->param->ydpi,(s->param->x)-(s->param->xs),s->param->y,raw_width));*/
-      data = pixma_newcmd (&mp->cb, cmd_scan_param, 0x30, 0);
-      pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x04);
-      pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x06);
-      pixma_set_be32 (s->param->x, data + 0x08);
-      if (mp->generation == 2)
-        pixma_set_be32 (s->param->x - s->param->xs, data + 0x08);
-      pixma_set_be32 (s->param->y, data + 0x0c);
-      pixma_set_be32 (raw_width, data + 0x10);
-      pixma_set_be32 (h, data + 0x14);
-      data[0x18] = (s->param->channels != 1) ? 0x08 : 0x04;
-      data[0x19] = ((s->param->software_lineart) ? 8 : s->param->depth)
-                    * s->param->channels;   /* bits per pixel */
-      data[0x1a] = 0;
-      data[0x20] = 0xff;
-      data[0x23] = 0x81;
-      data[0x26] = 0x02;
-      data[0x27] = 0x01;
-    }
-  else
-    {
-      data = pixma_newcmd (&mp->cb, cmd_scan_param_3, 0x38, 0);
-      data[0x00] = (is_scanning_from_adf (s)) ? 0x02 : 0x01;
-      data[0x01] = 0x01;
-      data[0x02] = 0x01;
-      if (is_scanning_from_adfdup (s))
-        {
-          data[0x02] = 0x03;
-          data[0x03] = 0x03;
-        }
-      if (is_scanning_jpeg (s))
-        {
-          data[0x03] = 0x01;
-        }
-      else
-        {
-          data[0x05] = 0x01;	/* This one also seen at 0. Don't know yet what's used for */
-        }
-      pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x08);
-      pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x0a);
-      /*PDBG (pixma_dbg (4, "*send_scan_param gen. 3+ ***** Setting: xdpi=%hi ydpi=%hi  x=%i y=%i  w=%i ***** \n",
-                           s->param->xdpi,s->param->ydpi,(s->param->x)-(s->param->xs),s->param->y,raw_width));*/
-      pixma_set_be32 (s->param->x - s->param->xs, data + 0x0c);
-      pixma_set_be32 (s->param->y, data + 0x10);
-      pixma_set_be32 (raw_width, data + 0x14);
-      pixma_set_be32 (h, data + 0x18);
-      data[0x1c] = (s->param->channels != 1) ? 0x08 : 0x04;
+      /* MDL contains make and model */
 
-      data[0x1d] = ((s->param->software_lineart) ? 8 : s->param->depth)
-                    * s->param->channels;   /* bits per pixel */
-
-      data[0x1f] = 0x01;        /* This one also seen at 0. Don't know yet what's used for */
-      data[0x20] = 0xff;
-      if (is_scanning_jpeg (s))
-        {
-          data[0x21] = 0x83;
-        }
-      else
-        {
-          data[0x21] = 0x81;
-        }
-      data[0x23] = 0x02;
-      data[0x24] = 0x01;
-
-      switch (s->cfg->pid)
-        {
-	case MG5300_PID:
-	  /* unknown values (perhaps counter) for MG5300 series---values must be 0x30-0x39: decimal 0-9 */
-	  data[0x26] = 0x32; /* using example values from a real scan here */
-	  data[0x27] = 0x31;
-	  data[0x28] = 0x34;
-	  data[0x29] = 0x35;
-	  break;
-
-	default:
-	  break;
+      if (strncmp (tok, "MDL:", strlen("MDL:")) == 0)
+	{
+	  model_str = tok + strlen("MDL:");
+	  strncpy (model, model_str, BJNP_MODEL_MAX);
+	  model[BJNP_MODEL_MAX -1] = '\0';
+	  return 1;
 	}
-
-      data[0x30] = 0x01;
+      tok = strtok (NULL, ";");
     }
-  return pixma_exec (s, &mp->cb);
+  return 0;
 }
 
 static int
-query_status_3 (pixma_t * s)
+charTo2byte (char *d, const char *s, int len)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  uint8_t *data;
-  int error, status_len;
+  /*
+   * copy ASCII string to UTF-16 unicode string
+   * len is length of destination buffer
+   * Returns: number of characters copied
+   */
 
-  status_len = 8;
-  data = pixma_newcmd (&mp->cb, cmd_status_3, 0, status_len);
-  RET_IF_ERR (pixma_exec (s, &mp->cb));
-  memcpy (mp->current_status, data, status_len);
-  return error;
+  int done = 0;
+  int copied = 0;
+  int i;
+
+  len = len / 2;
+  for (i = 0; i < len; i++)
+    {
+      d[2 * i] = '\0';
+      if (s[i] == '\0')
+	{
+	  done = 1;
+	}
+      if (done == 0)
+	{
+	  d[2 * i + 1] = s[i];
+	  copied++;
+	}
+      else
+	d[2 * i + 1] = '\0';
+    }
+  return copied;
+}
+
+static bjnp_protocol_defs_t *get_protocol_by_method( char *method)
+{
+  int i = 0;
+  while ( bjnp_protocol_defs[i].method_string != NULL)
+    {
+      if (strcmp(method, bjnp_protocol_defs[i].method_string) == 0)
+        {
+          return &bjnp_protocol_defs[i];
+        }
+      i++;
+    }
+  return NULL;
+}
+
+static bjnp_protocol_defs_t *get_protocol_by_proto_string( char *proto_string)
+{
+  int i = 0;
+  while ( bjnp_protocol_defs[i].proto_string != NULL)
+    {
+      if (strncmp(proto_string, bjnp_protocol_defs[i].proto_string, 4) == 0)
+        {
+          return &bjnp_protocol_defs[i];
+        }
+      i++;
+    }
+  return NULL;
+}
+
+static char *
+getusername (void)
+{
+  static char noname[] = "sane_pixma";
+  struct passwd *pwdent;
+
+#ifdef HAVE_PWD_H
+  if (((pwdent = getpwuid (geteuid ())) != NULL) && (pwdent->pw_name != NULL))
+    return pwdent->pw_name;
+#endif
+  return noname;
+}
+
+
+static char *
+determine_scanner_serial (const char *hostname, const char * mac_address, char *serial)
+{
+  char *dot;
+  char copy[BJNP_HOST_MAX];
+
+  /* determine a "serial number" for the scanner */
+  /* if available we use the hostname or ipv4 address of the printer */
+  /* if we only have a literal ipv6 address, we use the mac-address */
+
+  strcpy(copy, hostname);
+  if (strlen (copy) >= SERIAL_MAX)
+    {
+      /* make the string fit into the serial */
+      /* if this is a FQDN, not an ip-address, remove domain part of the name */
+      if ((dot = strchr (copy, '.')) != NULL)
+        {
+          *dot = '\0';
+        }
+    }
+  /* check if name is still to long. If so use the mac-address */
+  if (strlen(copy) >= SERIAL_MAX)
+    {
+      strcpy(copy, mac_address);
+    }
+  strcpy( serial, copy );
+  return serial;
 }
 
 static int
-query_status (pixma_t * s)
+bjnp_open_tcp (int devno)
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  uint8_t *data;
-  int error, status_len;
+  int sock;
+  int val;
+  bjnp_sockaddr_t *addr = device[devno].addr;
+  char host[BJNP_HOST_MAX];
+  int port;
+  int connect_timeout = BJNP_TIMEOUT_TCP_CONNECT;
 
-  status_len = (mp->generation == 1) ? 12 : 16;
-  data = pixma_newcmd (&mp->cb, cmd_status, 0, status_len);
-  RET_IF_ERR (pixma_exec (s, &mp->cb));
-  memcpy (mp->current_status, data, status_len);
-  PDBG (pixma_dbg (3, "Current status: paper=%u cal=%u lamp=%u busy=%u\n",
-		       data[1], data[8], data[7], data[9]));
-  return error;
-}
+  get_address_info( addr, host, &port);
+  PDBG (bjnp_dbg (LOG_DEBUG, "bjnp_open_tcp: Setting up a TCP socket, dest: %s  port %d\n",
+		   host, port ) );
+
+  if ((sock = socket (get_protocol_family( addr ) , SOCK_STREAM, 0)) < 0)
+    {
+      PDBG (bjnp_dbg (LOG_CRIT, "bjnp_open_tcp: ERROR - Can not create socket: %s\n",
+		       strerror (errno)));
+      return -1;
+    }
+
+  val = 1;
+  setsockopt (sock, SOL_SOCKET, SO_REUSEADDR, &val, sizeof (val));
 
 #if 0
-static int
-send_time (pixma_t * s)
-{
-  /* Why does a scanner need a time? */
-  time_t now;
-  struct tm *t;
-  uint8_t *data;
-  mp150_t *mp = (mp150_t *) s->subdriver;
+  val = 1;
+  setsockopt (sock, SOL_SOCKET, SO_REUSEPORT, &val, sizeof (val));
 
-  data = pixma_newcmd (&mp->cb, cmd_time, 20, 0);
-  pixma_get_time (&now, NULL);
-  t = localtime (&now);
-  strftime ((char *) data, 16, "%y/%m/%d %H:%M", t);
-  PDBG (pixma_dbg (3, "Sending time: '%s'\n", (char *) data));
-  return pixma_exec (s, &mp->cb);
+  val = 1;
+#endif
+
+  /*
+   * Using TCP_NODELAY improves responsiveness, especially on systems
+   * with a slow loopback interface...
+   */
+
+  val = 1;
+  setsockopt (sock, IPPROTO_TCP, TCP_NODELAY, &val, sizeof (val));
+
+/*
+ * Close this socket when starting another process...
+ */
+
+  fcntl (sock, F_SETFD, FD_CLOEXEC);
+
+  while (connect_timeout > 0)
+    {
+      if (connect
+          (sock, &(addr->addr), sa_size(device[devno].addr)) == 0)
+	    {
+              device[devno].tcp_socket = sock;
+              return 0;
+	    }
+      PDBG (bjnp_dbg( LOG_INFO, "bjnp_open_tcp: INFO - Can not yet connect over TCP to scanner: %s, retrying\n",
+                      strerror(errno)));
+      usleep(BJNP_TCP_CONNECT_INTERVAL * BJNP_USLEEP_MS);
+      connect_timeout = connect_timeout - BJNP_TCP_CONNECT_INTERVAL;
+
+  PDBG (bjnp_dbg
+        (LOG_CRIT, "bjnp_open_tcp: ERROR - Can not connect to scanner, giving up!"));
+  return -1;
+}
+
+static int
+split_uri (const char *devname, char *method, char *host, char *port,
+	   char *args)
+{
+  char copy[1024];
+  char *start;
+  char next;
+  int i;
+
+  strncpy (copy, devname, 1024);
+  copy[1023] = '\0';
+  start = copy;
+
+/*
+ * retrieve method
+ */
+  i = 0;
+  while ((start[i] != '\0') && (start[i] != ':'))
+    {
+      i++;
+    }
+
+  if (((strncmp (start + i, "://", 3) != 0)) || (i > BJNP_METHOD_MAX -1 ))
+    {
+      PDBG (bjnp_dbg (LOG_NOTICE, "split_uri: ERROR - Can not find method in %s (offset %d)\n",
+		       devname, i));
+      return -1;
+    }
+
+  start[i] = '\0';
+  strcpy (method, start);
+  start = start + i + 3;
+
+/*
+ * retrieve host
+ */
+
+  if (start[0] == '[')
+    {
+      /* literal IPv6 address */
+
+      char *end_of_address = strchr(start, ']');
+
+      if ( ( end_of_address == NULL) ||
+           ( (end_of_address[1] != ':') && (end_of_address[1] != '/' ) &&  (end_of_address[1] != '\0' )) ||
+           ( (end_of_address - start) >= BJNP_HOST_MAX ) )
+        {
+          PDBG (bjnp_dbg (LOG_NOTICE, "split_uri: ERROR - Can not find hostname or address in %s\n", devname));
+          return -1;
+        }
+      next = end_of_address[1];
+      *end_of_address = '\0';
+      strcpy(host, start + 1);
+      start = end_of_address + 2;
+    }
+  else
+    {
+      i = 0;
+      while ((start[i] != '\0') && (start[i] != '/') && (start[i] != ':'))
+        {
+          i++;
+        }
+      next = start[i];
+      start[i] = '\0';
+      if ((i == 0) || (i >= BJNP_HOST_MAX ) )
+        {
+          PDBG (bjnp_dbg (LOG_NOTICE, "split_uri: ERROR - Can not find hostname or address in %s\n", devname));
+          return -1;
+        }
+      strcpy (host, start);
+      start = start + i +1;
+    }
+
+
+/*
+ * retrieve port number
+ */
+
+  if (next != ':')
+    strcpy(port, "");
+  else
+    {
+      char *end_of_port = strchr(start, '/');
+      if (end_of_port == NULL)
+        {
+          next = '\0';
+        }
+      else
+        {
+          next = *end_of_port;
+          *end_of_port = '\0';
+        }
+      if ((strlen(start) == 0) || (strlen(start) >= BJNP_PORT_MAX ) )
+        {
+          PDBG (bjnp_dbg (LOG_NOTICE, "split_uri: ERROR - Can not find port in %s (have \"%s\")\n", devname, start));
+          return -1;
+        }
+      strcpy(port, start);
+      start = end_of_port + 1;
+    }
+
+/*
+ * Retrieve arguments
+ */
+
+  if (next == '/')
+    {
+    i = strlen(start);
+    if ( i >= BJNP_ARGS_MAX)
+      {
+        PDBG (bjnp_dbg (LOG_NOTICE, "split_uri: ERROR - Argument string too long in %s\n", devname));
+      }
+    strcpy (args, start);
+    }
+  else
+    strcpy (args, "");
+  return 0;
+}
+
+
+
+static void
+set_cmd_from_string (char* protocol_string, struct BJNP_command *cmd, char cmd_code, int payload_len)
+{
+  /*
+   * Set command buffer with command code, session_id and length of payload
+   * Returns: sequence number of command
+   */
+
+  memcpy (cmd->BJNP_id, protocol_string, sizeof (cmd->BJNP_id));
+  cmd->dev_type = BJNP_CMD_SCAN;
+  cmd->cmd_code = cmd_code;
+  cmd->unknown1 = htons (0);
+
+  /* device not yet opened, use 0 for serial and session) */
+  cmd->seq_no = htons (0);
+  cmd->session_id = htons (0);
+  cmd->payload_len = htonl (payload_len);
+}
+
+static void
+set_cmd_for_dev (int devno, struct BJNP_command *cmd, char cmd_code, int payload_len)
+{
+  /*
+   * Set command buffer with command code, session_id and length of payload
+   * Returns: sequence number of command
+   */
+
+  memcpy(cmd->BJNP_id, device[devno].protocol_string, sizeof (cmd->BJNP_id));
+  cmd->dev_type = BJNP_CMD_SCAN;
+  cmd->cmd_code = cmd_code;
+  cmd->unknown1 = htons (0);
+  cmd->seq_no = htons (++(device[devno].serial));
+  cmd->session_id = (cmd_code == CMD_UDP_POLL ) ? 0 : htons (device[devno].session_id);
+  device[devno].last_cmd = cmd_code;
+  cmd->payload_len = htonl (payload_len);
+}
+
+static int
+bjnp_setup_udp_socket ( const int dev_no )
+{
+  /*
+   * Setup a udp socket for the given device
+   * Returns the socket or -1 in case of error
+   */
+
+  int sockfd;
+  char addr_string[256];
+  int port;
+  bjnp_sockaddr_t * addr = device[dev_no].addr;
+
+  get_address_info( addr, addr_string, &port);
+
+  PDBG (bjnp_dbg (LOG_DEBUG, "setup_udp_socket: Setting up a UDP socket, dest: %s  port %d\n",
+		   addr_string, port ) );
+
+  if ((sockfd = socket (get_protocol_family( addr ), SOCK_DGRAM, IPPROTO_UDP)) == -1)
+    {
+      PDBG (bjnp_dbg
+	    (LOG_CRIT, "setup_udp_socket: ERROR - can not open socket - %s\n",
+	     strerror (errno)));
+      return -1;
+    }
+
+  if (connect
+      (sockfd, &(device[dev_no].addr->addr), sa_size(device[dev_no].addr) )!= 0)
+    {
+      PDBG (bjnp_dbg
+	    (LOG_CRIT, "setup_udp_socket: ERROR - connect failed- %s\n",
+	     strerror (errno)));
+      close(sockfd);
+      return -1;
+    }
+  return sockfd;
+}
+
+static int
+udp_command (const int dev_no, char *command, int cmd_len, char *response,
+	     int resp_len)
+{
+  /*
+   * send udp command to given device and recieve the response`
+   * returns: the legth of the response or -1
+   */
+  int sockfd;
+  struct timeval timeout;
+  int result;
+  int try, attempt;
+  int numbytes;
+  fd_set fdset;
+  struct BJNP_command *resp = (struct BJNP_command *) response;
+  struct BJNP_command *cmd = (struct BJNP_command *) command;
+
+  if ( (sockfd = bjnp_setup_udp_socket(dev_no) ) == -1 )
+    {
+      PDBG (bjnp_dbg( LOG_CRIT, "udp_command: ERROR - Can not setup socket\n") );
+      return -1;
+    }
+
+  for (try = 0; try < BJNP_UDP_RETRY_MAX; try++)
+    {
+      if ((numbytes = send (sockfd, command, cmd_len, 0)) != cmd_len)
+	{
+	  PDBG (bjnp_dbg
+		(LOG_NOTICE, "udp_command: ERROR - Sent %d bytes, expected %d\n",
+		 numbytes, cmd_len));
+	  continue;
+	}
+
+      attempt = 0;
+
+      /* wait for data to be received, ignore signals being received */
+      /* skip late udp responses (they have an incorrect sequence number */
+      do
+	{
+	  FD_ZERO (&fdset);
+	  FD_SET (sockfd, &fdset);
+
+	  timeout.tv_sec = device[dev_no].bjnp_ip_timeout /1000;
+	  timeout.tv_usec = device[dev_no].bjnp_ip_timeout %1000;
+	}
+      while (((result =
+	       select (sockfd + 1, &fdset, NULL, NULL, &timeout)) <= 0)
+	     && (errno == EINTR) && (attempt++ < BJNP_MAX_SELECT_ATTEMPTS)
+             && resp-> seq_no != cmd->seq_no);
+
+      if (result <= 0)
+	{
+	  PDBG (bjnp_dbg
+		(LOG_NOTICE, "udp_command: ERROR - select failed: %s\n",
+		 result == 0 ? "timed out" : strerror (errno)));
+	  continue;
+	}
+
+      if ((numbytes = recv (sockfd, response, resp_len, 0)) == -1)
+	{
+	  PDBG (bjnp_dbg
+		(LOG_NOTICE, "udp_command: ERROR - recv failed: %s",
+		 strerror (errno)));
+	  continue;
+	}
+      close(sockfd);
+      return numbytes;
+    }
+
+  /* no response even after retry */
+
+  close(sockfd);
+  PDBG (bjnp_dbg
+        (LOG_CRIT, "udp_command: ERROR - no data received (timeout = %d)\n", device[dev_no].bjnp_ip_timeout ) );
+  return -1;
+}
+
+static int
+get_scanner_id (const int dev_no, char *model)
+{
+  /*
+   * get scanner identity
+   * Sets model (make and model)
+   * Return 0 on success, -1 in case of errors
+   */
+
+  struct BJNP_command cmd;
+  struct IDENTITY *id;
+  char scanner_id[BJNP_IEEE1284_MAX];
+  int resp_len;
+  char resp_buf[BJNP_RESP_MAX];
+  int id_len;
+
+  /* set defaults */
+
+  strcpy (model, "Unidentified scanner");
+
+  set_cmd_for_dev (dev_no, &cmd, CMD_UDP_GET_ID, 0);
+
+  PDBG (bjnp_dbg (LOG_DEBUG2, "get_scanner_id: Get scanner identity\n"));
+  PDBG (bjnp_hexdump (LOG_DEBUG2, (char *) &cmd,
+		       sizeof (struct BJNP_command)));
+
+  if ( ( resp_len =  udp_command (dev_no, (char *) &cmd, sizeof (struct BJNP_command),
+		 resp_buf, BJNP_RESP_MAX) ) < (int)sizeof(struct BJNP_command) )
+    {
+      PDBG (bjnp_dbg (LOG_DEBUG, "get_scanner_id: ERROR - Failed to retrieve scanner identity:\n"));
+      return -1;
+    }
+  PDBG (bjnp_dbg (LOG_DEBUG2, "get_scanner_id: scanner identity:\n"));
+  PDBG (bjnp_hexdump (LOG_DEBUG2, resp_buf, resp_len));
+
+  id = (struct IDENTITY *) resp_buf;
+
+  if (device[dev_no].protocol == PROTOCOL_BJNP)
+    {
+      id_len = MIN(ntohl( id-> cmd.payload_len ) - sizeof(id-> payload.bjnp.id_len), BJNP_IEEE1284_MAX);
+      strncpy(scanner_id, id->payload.bjnp.id, id_len);
+      scanner_id[id_len] = '\0';
+    }
+  else
+    {
+      id_len = MIN(ntohl( id-> cmd.payload_len ), BJNP_IEEE1284_MAX);
+      strncpy(scanner_id, id->payload.mfnp.id, id_len);
+      scanner_id[id_len] = '\0';
+    }
+  PDBG (bjnp_dbg (LOG_INFO, "get_scanner_id: Scanner identity string = %s - length = %d\n", scanner_id, id_len));
+
+  /* get make&model from IEEE1284 id  */
+
+  if (model != NULL)
+  {
+    parse_IEEE1284_to_model (scanner_id, model);
+    PDBG (bjnp_dbg (LOG_INFO, "get_scanner_id: Scanner model = %s\n", model));
+  }
+  return 0;
+}
+
+static int
+get_scanner_name(const bjnp_sockaddr_t *scanner_sa, char *host)
+{
+  /*
+   * Parse identify command responses to ip-address
+   * and hostname. Return qulity of the address
+   */
+
+  struct addrinfo *results;
+  struct addrinfo *result;
+  char ip_address[BJNP_HOST_MAX];
+  int port;
+  int error;
+  int match = 0;
+  int level;
+  char service[64];
+
+#ifdef ENABLE_IPV6
+  if ( ( scanner_sa -> addr.sa_family == AF_INET6 ) &&
+       ( IN6_IS_ADDR_LINKLOCAL( &(scanner_sa -> ipv6.sin6_addr ) ) ) )
+    level = BJNP_ADDRESS_IS_LINK_LOCAL;
+  else
+#endif
+    level = BJNP_ADDRESS_IS_GLOBAL;
+
+  get_address_info( scanner_sa, ip_address, &port );
+
+  /* do reverse name lookup, if hostname can not be found return ip-address */
+
+  if( (error = getnameinfo( &(scanner_sa -> addr) , sa_size( scanner_sa),
+                  host, BJNP_HOST_MAX , NULL, 0, NI_NAMEREQD) ) != 0 )
+    {
+      PDBG (bjnp_dbg(LOG_INFO, "get_scanner_name: Name for %s not found : %s\n",
+                      ip_address, gai_strerror(error) ) );
+      strcpy(host, ip_address);
+      return level;
+    }
+  else
+    {
+      sprintf(service, "%d", port);
+      /* some buggy routers return rubbish if reverse lookup fails, so
+       * we do a forward lookup on the received name to see if the result matches */
+
+      if (getaddrinfo(host , service, NULL, &results) == 0)
+        {
+          result = results;
+
+          while (result != NULL)
+            {
+               if(sa_is_equal( scanner_sa, (bjnp_sockaddr_t *)result-> ai_addr))
+                 {
+                     /* found match, good */
+                     PDBG (bjnp_dbg (LOG_INFO,
+                              "get_scanner_name: Forward lookup for %s succeeded, using as hostname\n", host));
+                    match = 1;
+                    level = BJNP_ADDRESS_HAS_FQDN;
+                    break;
+                 }
+              result = result-> ai_next;
+            }
+          freeaddrinfo(results);
+
+          if (match != 1)
+            {
+              PDBG (bjnp_dbg (LOG_INFO,
+                 "get_scanner_name: Forward lookup for %s succeeded, IP-address does not match, using IP-address %s instead\n",
+                 host, ip_address));
+              strcpy (host, ip_address);
+            }
+         }
+       else
+         {
+           /* forward lookup failed, use ip-address */
+           PDBG ( bjnp_dbg (LOG_INFO, "get_scanner_name: Forward lookup of %s failed, using IP-address", ip_address));
+           strcpy (host, ip_address);
+         }
+    }
+  return level;
+}
+
+static int
+get_port_from_sa(const bjnp_sockaddr_t scanner_sa)
+{
+#ifdef ENABLE_IPV6
+  if ( scanner_sa.addr.sa_family == AF_INET6 )
+    {
+      return ntohs(scanner_sa.ipv6.sin6_port);
+    }
+  else
+#endif
+  if ( scanner_sa.addr.sa_family == AF_INET )
+    {
+      return ntohs(scanner_sa.ipv4.sin_port);
+    }
+  return -1;
+}
+
+static int create_broadcast_socket( const bjnp_sockaddr_t * local_addr )
+{
+  int sockfd = -1;
+  int broadcast = 1;
+  int ipv6_v6only = 1;
+
+
+ if ((sockfd = socket (local_addr-> addr.sa_family, SOCK_DGRAM, 0)) == -1)
+    {
+      PDBG (bjnp_dbg
+            (LOG_CRIT, "create_broadcast_socket: ERROR - can not open socket - %s",
+             strerror (errno)));
+      return -1;
+    }
+
+  /* Set broadcast flag on socket */
+
+  if (setsockopt
+      (sockfd, SOL_SOCKET, SO_BROADCAST, (const char *) &broadcast,
+       sizeof (broadcast)) != 0)
+    {
+      PDBG (bjnp_dbg
+            (LOG_CRIT,
+             "create_broadcast_socket: ERROR - setting socket option SO_BROADCAST failed - %s",
+             strerror (errno)));
+      close (sockfd);
+      return -1;
+    };
+
+  /* For an IPv6 socket, bind to v6 only so a V6 socket can co-exist with a v4 socket */
+  if ( (local_addr -> addr.sa_family == AF_INET6) && ( setsockopt
+      (sockfd, IPPROTO_IPV6, IPV6_V6ONLY, (const char *) &ipv6_v6only,
+       sizeof (ipv6_v6only)) != 0) )
+    {
+      PDBG (bjnp_dbg
+            (LOG_CRIT,
+             "create_broadcast_socket: ERROR - setting socket option IPV6_V6ONLY failed - %s",
+             strerror (errno)));
+      close (sockfd);
+      return -1;
+    };
+
+  if (bind
+      (sockfd, &(local_addr->addr),
+       (socklen_t) sa_size( local_addr)) != 0)
+    {
+      PDBG (bjnp_dbg
+            (LOG_CRIT,
+             "create_broadcast_socket: ERROR - bind socket to local address failed - %s\n",
+             strerror (errno)));
+      close (sockfd);
+      return -1;
+    }
+  return sockfd;
+}
+
+static int
+prepare_socket(const char *if_name, const bjnp_sockaddr_t *local_sa,
+               const bjnp_sockaddr_t *broadcast_sa, bjnp_sockaddr_t * dest_sa)
+{
+  /*
+   * Prepare a socket for broadcast or multicast
+   * Input:
+   * if_name: the name of the interface
+   * local_sa: local address to use
+   * broadcast_sa: broadcast address to use, if NULL we use all hosts
+   * dest_sa: (write) where to return destination address of broadcast
+   * retuns: open socket or -1
+   */
+
+  int socket = -1;
+  bjnp_sockaddr_t local_sa_copy;
+
+  if ( local_sa == NULL )
+    {
+      PDBG (bjnp_dbg (LOG_DEBUG,
+                       "prepare_socket: %s is not a valid IPv4 interface, skipping...\n",
+                       if_name));
+      return -1;
+    }
+
+  memset( &local_sa_copy, 0, sizeof(local_sa_copy) );
+  memcpy( &local_sa_copy, local_sa, sa_size(local_sa) );
+
+  switch( local_sa_copy.addr.sa_family )
+    {
+      case AF_INET:
+        {
+          local_sa_copy.ipv4.sin_port = htons(BJNP_PORT_SCAN);
+
+          if (local_sa_copy.ipv4.sin_addr.s_addr == htonl (INADDR_LOOPBACK) )
+            {
+              /* not a valid interface */
+
+              PDBG (bjnp_dbg (LOG_DEBUG,
+                               "prepare_socket: %s is not a valid IPv4 interface, skipping...\n",
+	                       if_name));
+              return -1;
+            }
+
+
+          /* send broadcasts to the broadcast address of the interface */
+
+          memcpy(dest_sa, broadcast_sa, sa_size(dest_sa) );
+
+	  /* we fill port when we send the broadcast */
+          dest_sa -> ipv4.sin_port = htons(0);
+
+          if ( (socket = create_broadcast_socket( &local_sa_copy) ) != -1)
+            {
+               PDBG (bjnp_dbg (LOG_INFO, "prepare_socket: %s is IPv4 capable, sending broadcast, socket = %d\n",
+                      if_name, socket));
+            }
+          else
+            {
+              PDBG (bjnp_dbg (LOG_INFO, "prepare_socket: ERROR - %s is IPv4 capable, but failed to create a socket.\n",
+                    if_name));
+              return -1;
+            }
+        }
+        break;
+#ifdef ENABLE_IPV6
+      case AF_INET6:
+        {
+          local_sa_copy.ipv6.sin6_port = htons(BJNP_PORT_SCAN);
+
+          if (IN6_IS_ADDR_LOOPBACK( &(local_sa_copy.ipv6.sin6_addr) ) )
+            {
+              /* not a valid interface */
+
+              PDBG (bjnp_dbg (LOG_DEBUG,
+                               "prepare_socket: %s is not a valid IPv6 interface, skipping...\n",
+	                       if_name));
+              return -1;
+            }
+          else
+            {
+              dest_sa -> ipv6.sin6_family = AF_INET6;
+
+              /* We fill port when we send the broadcast */
+              dest_sa -> ipv6.sin6_port = htons(0);
+
+              inet_pton(AF_INET6, "ff02::1", dest_sa -> ipv6.sin6_addr.s6_addr);
+              if ( (socket = create_broadcast_socket( &local_sa_copy ) ) != -1)
+                {
+                   PDBG (bjnp_dbg (LOG_INFO, "prepare_socket: %s is IPv6 capable, sending broadcast, socket = %d\n",
+                          if_name, socket));
+                }
+              else
+                {
+                  PDBG (bjnp_dbg (LOG_INFO, "prepare_socket: ERROR - %s is IPv6 capable, but failed to create a socket.\n",
+                        if_name));
+                  return -1;
+                }
+            }
+          }
+          break;
+#endif
+
+      default:
+        socket = -1;
+    }
+  return socket;
+}
+
+static int
+bjnp_send_broadcast (int sockfd, const bjnp_sockaddr_t * broadcast_addr, int port,
+                     struct BJNP_command cmd, int size)
+{
+  int num_bytes;
+  bjnp_sockaddr_t dest_addr;
+
+  /* set address to send packet to broadcast address of interface, */
+  /* with port set to the destination port */
+
+  memcpy(&dest_addr,  broadcast_addr, sizeof(dest_addr));
+  if( dest_addr.addr.sa_family == AF_INET)
+    {
+      dest_addr.ipv4.sin_port = htons(port);
+    }
+#ifdef ENABLE_IPV6
+  if( dest_addr.addr.sa_family == AF_INET6)
+    {
+      dest_addr.ipv6.sin6_port = htons(port);
+    }
+#endif
+
+  if ((num_bytes = sendto (sockfd, &cmd, size, 0,
+			  &(dest_addr.addr),
+			  sa_size( broadcast_addr)) ) != size)
+    {
+      PDBG (bjnp_dbg (LOG_INFO,
+		       "bjnp_send_broadcast: Socket: %d: ERROR - sent only %x = %d bytes of packet, error = %s\n",
+		       sockfd, num_bytes, num_bytes, strerror (errno)));
+      /* not allowed, skip this interface */
+
+      return -1;
+    }
+  return sockfd;
+}
+
+static void
+bjnp_finish_job (int devno)
+{
+/*
+ * Signal end of scanjob to scanner
+ */
+
+  char resp_buf[BJNP_RESP_MAX];
+  int resp_len;
+  struct BJNP_command cmd;
+
+  set_cmd_for_dev (devno, &cmd, CMD_UDP_CLOSE, 0);
+
+  PDBG (bjnp_dbg (LOG_DEBUG2, "bjnp_finish_job: Finish scanjob\n"));
+  PDBG (bjnp_hexdump
+	(LOG_DEBUG2, (char *) &cmd, sizeof (struct BJNP_command)));
+  resp_len =
+    udp_command (devno, (char *) &cmd, sizeof (struct BJNP_command), resp_buf,
+		 BJNP_RESP_MAX);
+
+  if (resp_len != sizeof (struct BJNP_command))
+    {
+      PDBG (bjnp_dbg
+	    (LOG_INFO,
+	     "bjnp_finish_job: ERROR - Received %d characters on close scanjob command, expected %d\n",
+	     resp_len, (int) sizeof (struct BJNP_command)));
+      return;
+    }
+  PDBG (bjnp_dbg (LOG_DEBUG2, "bjnp_finish_job: Finish scanjob response\n"));
+  PDBG (bjnp_hexdump (LOG_DEBUG2, resp_buf, resp_len));
+
+}
+
+#ifdef PIXMA_BJNP_USE_STATUS
+static int
+bjnp_poll_scanner (int devno, char type,char *hostname, char *user, SANE_Byte *status, int size)
+{
+/*
+ * send details of user to the scanner
+ */
+
+  char cmd_buf[BJNP_CMD_MAX];
+  char resp_buf[BJNP_RESP_MAX];
+  int resp_len;
+  int len = 0;			/* payload length */
+  int buf_len;			/* length of the whole command  buffer */
+  struct POLL_DETAILS *poll;
+  struct POLL_RESPONSE *response;
+  char user_host[256];
+  time_t t;
+  int user_host_len;
+
+  poll = (struct POLL_DETAILS *) cmd_buf;
+  memset( poll, 0, sizeof( struct POLL_DETAILS));
+  memset( &resp_buf, 0, sizeof( resp_buf) );
+
+
+  /* create payload */
+  poll->type = htons(type);
+
+  user_host_len =  sizeof( poll -> extensions.type2.user_host);
+  snprintf(user_host, (user_host_len /2) ,"%s  %s", user, hostname);
+  user_host[ user_host_len /2 + 1] = '\0';
+
+  switch( type) {
+    case 0:
+      len = 80;
+      break;
+    case 1:
+      charTo2byte(poll->extensions.type1.user_host, user_host, user_host_len);
+      len = 80;
+      break;
+    case 2:
+      poll->extensions.type2.dialog = htonl(device[devno].dialog);
+      charTo2byte(poll->extensions.type2.user_host, user_host, user_host_len);
+      poll->extensions.type2.unknown_1 = htonl(0x14);
+      poll->extensions.type2.unknown_2 = htonl(0x10);
+      t = time (NULL);
+      strftime (poll->extensions.type2.ascii_date,
+                sizeof (poll->extensions.type2.ascii_date),
+               "%Y%m%d%H%M%S", localtime (&t));
+      len = 116;
+      break;
+    case 5:
+      poll->extensions.type5.dialog = htonl(device[devno].dialog);
+      charTo2byte(poll->extensions.type5.user_host, user_host, user_host_len);
+      poll->extensions.type5.unknown_1 = htonl(0x14);
+      poll->extensions.type5.key = htonl(device[devno].status_key);
+      len = 100;
+      break;
+    default:
+      PDBG (bjnp_dbg (LOG_INFO, "bjnp_poll_scanner: unknown packet type: %d\n", type));
+      return -1;
+  };
+  /* we can only now set the header as we now know the length of the payload */
+  set_cmd_for_dev (devno, (struct BJNP_command *) cmd_buf, CMD_UDP_POLL,
+	   len);
+
+  buf_len = len + sizeof(struct BJNP_command);
+  PDBG (bjnp_dbg (LOG_DEBUG2, "bjnp_poll_scanner: Poll details (type %d)\n", type));
+  PDBG (bjnp_hexdump (LOG_DEBUG2, cmd_buf,
+		       buf_len));
+
+  resp_len = udp_command (devno, cmd_buf, buf_len,  resp_buf, BJNP_RESP_MAX);
+
+  if (resp_len > 0)
+    {
+      PDBG (bjnp_dbg (LOG_DEBUG2, "bjnp_poll_scanner: Poll details response:\n"));
+      PDBG (bjnp_hexdump (LOG_DEBUG2, resp_buf, resp_len));
+      response = (struct POLL_RESPONSE *) resp_buf;
+
+      device[devno].dialog = ntohl( response -> dialog );
+
+      if ( response -> result[3] == 1 )
+        {
+          return BJNP_RESTART_POLL;
+        }
+      if ( (response -> result[2] & 0x80) != 0)
+        {
+          memcpy( status, response->status, size);
+          PDBG( bjnp_dbg(LOG_INFO, "bjnp_poll_scanner: received button status!\n"));
+	  PDBG (bjnp_hexdump( LOG_DEBUG2, status, size ));
+	  device[devno].status_key = ntohl( response -> key );
+          return  size;
+        }
+    }
+  return 0;
 }
 #endif
 
-/* TODO: Simplify this function. Read the whole data packet in one shot. */
-static int
-read_image_block (pixma_t * s, uint8_t * header, uint8_t * data)
+static void
+bjnp_send_job_details (int devno, char *hostname, char *user, char *title)
 {
-  uint8_t cmd[16];
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  const int hlen = 8 + 8;
-  int error, datalen;
-
-  memset (cmd, 0, sizeof (cmd));
-  pixma_set_be16 (cmd_read_image, cmd);
-  if ((mp->last_block & 0x20) == 0)
-    pixma_set_be32 ((IMAGE_BLOCK_SIZE / 65536) * 65536 + 8, cmd + 0xc);
-  else
-    pixma_set_be32 (32 + 8, cmd + 0xc);
-
-  mp->state = state_transfering;
-  mp->cb.reslen =
-    pixma_cmd_transaction (s, cmd, sizeof (cmd), mp->cb.buf, 512);
-  datalen = mp->cb.reslen;
-  if (datalen < 0)
-    return datalen;
-
-  memcpy (header, mp->cb.buf, hlen);
-
-  if (datalen >= hlen)
-    {
-      datalen -= hlen;
-      memcpy (data, mp->cb.buf + hlen, datalen);
-      data += datalen;
-      if (mp->cb.reslen == 512)
-        {
-          error = pixma_read (s->io, data, IMAGE_BLOCK_SIZE - 512 + hlen);
-          RET_IF_ERR (error);
-          datalen += error;
-        }
-    }
-
-  mp->state = state_scanning;
-  mp->cb.expected_reslen = 0;
-  RET_IF_ERR (pixma_check_result (&mp->cb));
-  if (mp->cb.reslen < hlen)
-    return PIXMA_EPROTO;
-  return datalen;
-}
-
-static int
-read_error_info (pixma_t * s, void *buf, unsigned size)
-{
-  unsigned len = 16;
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  uint8_t *data;
-  int error;
-
-  data = pixma_newcmd (&mp->cb, cmd_error_info, 0, len);
-  RET_IF_ERR (pixma_exec (s, &mp->cb));
-  if (buf && len < size)
-    {
-      size = len;
-      /* NOTE: I've absolutely no idea what the returned data mean. */
-      memcpy (buf, data, size);
-      error = len;
-    }
-  return error;
-}
-
 /*
-handle_interrupt() waits until it receives an interrupt packet or times out.
-It calls send_time() and query_status() if necessary. Therefore, make sure
-that handle_interrupt() is only called from a safe context for send_time()
-and query_status().
+ * send details of scanjob to scanner
+ */
 
-   Returns:
-   0     timed out
-   1     an interrupt packet received
-   PIXMA_ECANCELED interrupted by signal
-   <0    error
-*/
-static int
-handle_interrupt (pixma_t * s, int timeout)
-{
-  uint8_t buf[64];
-  int len;
+  char cmd_buf[BJNP_CMD_MAX];
+  char resp_buf[BJNP_RESP_MAX];
+  int resp_len;
+  struct JOB_DETAILS *job;
+  struct BJNP_command *resp;
 
-  len = pixma_wait_interrupt (s->io, buf, sizeof (buf), timeout);
-  if (len == PIXMA_ETIMEDOUT)
-    return 0;
-  if (len < 0)
-    return len;
-  if (len%16)           /* len must be a multiple of 16 bytes */
+  /* send job details command */
+
+  set_cmd_for_dev (devno, (struct BJNP_command *) cmd_buf, CMD_UDP_JOB_DETAILS,
+	   sizeof (*job) - sizeof (struct BJNP_command));
+
+  /* create payload */
+
+  job = (struct JOB_DETAILS *) (cmd_buf);
+  charTo2byte (job->unknown, "", sizeof (job->unknown));
+  charTo2byte (job->hostname, hostname, sizeof (job->hostname));
+  charTo2byte (job->username, user, sizeof (job->username));
+  charTo2byte (job->jobtitle, title, sizeof (job->jobtitle));
+
+  PDBG (bjnp_dbg (LOG_DEBUG2, "bjnp_send_job_details: Job details\n"));
+  PDBG (bjnp_hexdump (LOG_DEBUG2, cmd_buf,
+		       (sizeof (struct BJNP_command) + sizeof (*job))));
+
+  resp_len = udp_command (devno, cmd_buf,
+			  sizeof (struct JOB_DETAILS), resp_buf,
+			  BJNP_RESP_MAX);
+
+  if (resp_len > 0)
     {
-      PDBG (pixma_dbg
-	    (1, "WARNING:unexpected interrupt packet length %d\n", len));
-      return PIXMA_EPROTO;
+      PDBG (bjnp_dbg (LOG_DEBUG2, "bjnp_send_job_details: Job details response:\n"));
+      PDBG (bjnp_hexdump (LOG_DEBUG2, resp_buf, resp_len));
+      resp = (struct BJNP_command *) resp_buf;
+      device[devno].session_id = ntohs (resp->session_id);
     }
-
-  /* s->event = 0x0brroott
-   * b:  button
-   * oo: original
-   * tt: target
-   * rr: scan resolution
-   * poll event with 'scanimage -A' */
-  if (s->cfg->pid == MG5300_PID
-      || s->cfg->pid == MG5400_PID
-      || s->cfg->pid == MG6200_PID
-      || s->cfg->pid == MG6300_PID
-      || s->cfg->pid == MX520_PID
-      || s->cfg->pid == MX720_PID
-      || s->cfg->pid == MX920_PID
-      || s->cfg->pid == MB2300_PID
-      || s->cfg->pid == MB5000_PID
-      || s->cfg->pid == MB5400_PID)
-  /* button no. in buf[7]
-   * size in buf[10] 01=A4; 02=Letter; 08=10x15; 09=13x18; 0b=auto
-   * format in buf[11] 01=JPEG; 02=TIFF; 03=PDF; 04=Kompakt-PDF
-   * dpi in buf[12] 01=75; 02=150; 03=300; 04=600
-   * target = format; original = size; scan-resolution = dpi */
-  {
-    if (buf[7] & 1)
-      s->events = PIXMA_EV_BUTTON1 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* color scan */
-    if (buf[7] & 2)
-      s->events = PIXMA_EV_BUTTON2 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* b/w scan */
-  }
-  else if (s->cfg->pid == LIDE300_PID
-           || s->cfg->pid == LIDE400_PID)
-  /* unknown value in buf[4]
-   * target in buf[0x13]
-   * always set button-1 */
-  {
-    if (buf[0x13])
-      s->events = PIXMA_EV_BUTTON1 | buf[0x13];
-  }
-  else
-  /* button no. in buf[0]
-   * original in buf[0]
-   * target in buf[1] */
-  {
-    /* More than one event can be reported at the same time. */
-    if (buf[3] & 1)
-      /* FIXME: This function makes trouble with a lot of scanners
-      send_time (s);
-       */
-      PDBG (pixma_dbg (1, "WARNING:send_time() disabled!\n"));
-    if (buf[9] & 2)
-      query_status (s);
-    if (buf[0] & 2)
-      s->events = PIXMA_EV_BUTTON2 | buf[1] | ((buf[0] & 0xf0) << 4);	/* b/w scan */
-    if (buf[0] & 1)
-      s->events = PIXMA_EV_BUTTON1 | buf[1] | ((buf[0] & 0xf0) << 4);	/* color scan */
-  }
-  return 1;
 }
 
 static int
-wait_until_ready (pixma_t * s)
+bjnp_get_scanner_mac_address ( int devno, char *mac_address )
 {
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  int error, tmo = 120;         /* some scanners need a long timeout */
+/*
+ * send discover to scanner
+ */
 
-  RET_IF_ERR ((mp->generation >= 3) ? query_status_3 (s)
-                                    : query_status (s));
-  while (!is_calibrated (s))
+  char cmd_buf[BJNP_CMD_MAX];
+  char resp_buf[BJNP_RESP_MAX];
+  int resp_len;
+  struct DISCOVER_RESPONSE *resp = (struct DISCOVER_RESPONSE * )&resp_buf;;
+
+  /* send job details command */
+
+  set_cmd_for_dev (devno, (struct BJNP_command *) cmd_buf, CMD_UDP_DISCOVER, 0);
+  resp_len = udp_command (devno, cmd_buf,
+			  sizeof (struct BJNP_command), resp_buf,
+			  BJNP_RESP_MAX);
+
+  if (resp_len > 0)
     {
-      WAIT_INTERRUPT (1000);
-      if (mp->generation >= 3)
-        RET_IF_ERR (query_status_3 (s));
-      else if (s->cfg->pid == MP600_PID ||
-               s->cfg->pid == MP600R_PID)
-        RET_IF_ERR (query_status (s));
-      if (--tmo == 0)
-        {
-          PDBG (pixma_dbg (1, "WARNING:Timed out in wait_until_ready()\n"));
-          PDBG (query_status (s));
-          return PIXMA_ETIMEDOUT;
-        }
+      PDBG (bjnp_dbg (LOG_DEBUG2, "bjnp_get_scanner_mac_address: Discover response:\n"));
+      PDBG (bjnp_hexdump (LOG_DEBUG2, resp_buf, resp_len));
+      u8tohex( mac_address, resp -> mac_addr, sizeof( resp -> mac_addr ) );
+      return 0;
+    }
+  return -1;
+}
+
+static int
+bjnp_write (int devno, const SANE_Byte * buf, size_t count)
+{
+/*
+ * This function writes TCP data to the scanner.
+ * Returns: number of bytes written to the scanner
+ */
+  int sent_bytes;
+  int terrno;
+  struct SCAN_BUF bjnp_buf;
+
+  if (device[devno].scanner_data_left)
+    {
+      PDBG (bjnp_dbg
+	    (LOG_CRIT, "bjnp_write: ERROR - scanner data left = 0x%lx = %ld\n",
+	     (unsigned long) device[devno].scanner_data_left,
+	     (unsigned long) device[devno].scanner_data_left));
+    }
+  /* set BJNP command header */
+
+  set_cmd_for_dev (devno, (struct BJNP_command *) &bjnp_buf, CMD_TCP_SEND, count);
+  memcpy (bjnp_buf.scan_data, buf, count);
+  PDBG (bjnp_dbg (LOG_DEBUG, "bjnp_write: sending 0x%lx = %ld bytes\n",
+		   (unsigned long) count, (unsigned long) count);
+	PDBG (bjnp_hexdump (LOG_DEBUG2, (char *) &bjnp_buf,
+			     sizeof (struct BJNP_command) + count)));
+
+  if ((sent_bytes =
+       send (device[devno].tcp_socket, &bjnp_buf,
+	     sizeof (struct BJNP_command) + count, 0)) <
+      (ssize_t) (sizeof (struct BJNP_command) + count))
+    {
+      /* return result from write */
+      terrno = errno;
+      PDBG (bjnp_dbg (LOG_CRIT, "bjnp_write: ERROR - Could not send data!\n"));
+      errno = terrno;
+      return sent_bytes;
+    }
+  /* correct nr of bytes sent for length of command */
+
+  else if (sent_bytes != (int) (sizeof (struct BJNP_command) + count))
+    {
+      errno = EIO;
+      return -1;
+    }
+  return count;
+}
+
+static int
+bjnp_send_read_request (int devno)
+{
+/*
+ * This function reads responses from the scanner.
+ * Returns: 0 on success, else -1
+ *
+ */
+  int sent_bytes;
+  int terrno;
+  struct BJNP_command bjnp_buf;
+
+  if (device[devno].scanner_data_left)
+    PDBG (bjnp_dbg
+	  (LOG_CRIT,
+	   "bjnp_send_read_request: ERROR - scanner data left = 0x%lx = %ld\n",
+	   (unsigned long) device[devno].scanner_data_left,
+	   (unsigned long) device[devno].scanner_data_left));
+
+  /* set BJNP command header */
+
+  set_cmd_for_dev (devno, (struct BJNP_command *) &bjnp_buf, CMD_TCP_REQ, 0);
+
+  PDBG (bjnp_dbg (LOG_DEBUG, "bjnp_send_read_req sending command\n"));
+  PDBG (bjnp_hexdump (LOG_DEBUG2, (char *) &bjnp_buf,
+		       sizeof (struct BJNP_command)));
+
+  if ((sent_bytes =
+       send (device[devno].tcp_socket, &bjnp_buf, sizeof (struct BJNP_command),
+	     0)) < 0)
+    {
+      /* return result from write */
+      terrno = errno;
+      PDBG (bjnp_dbg
+	    (LOG_CRIT, "bjnp_send_read_request: ERROR - Could not send data!\n"));
+      errno = terrno;
+      return -1;
     }
   return 0;
 }
 
-static void
-reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n,
-                unsigned m, unsigned w, unsigned line_size)
+static SANE_Status
+bjnp_recv_header (int devno, size_t *payload_size )
 {
-  unsigned i;
+/*
+ * This function receives the response header to bjnp commands.
+ * devno device number
+ * size: return value for data size returned by scanner
+ * Returns:
+ * SANE_STATUS_IO_ERROR when any IO error occurs
+ * SANE_STATUS_GOOD in case no errors were encountered
+ */
+  struct BJNP_command resp_buf;
+  fd_set input;
+  struct timeval timeout;
+  int recv_bytes;
+  int terrno;
+  int result;
+  int fd;
+  int attempt;
 
-  for (i = 0; i < w; i++)
-    {
-      memcpy (linebuf + c * (n * (i % m) + i / m), sptr + c * i, c);
-    }
-  memcpy (sptr, linebuf, line_size);
-}
+  PDBG (bjnp_dbg
+	(LOG_DEBUG, "bjnp_recv_header: receiving response header\n") );
+  fd = device[devno].tcp_socket;
 
-/* This function deals with Generation >= 3 high dpi images.
- * Each complete line in mp->imgbuf is processed for reordering pixels above
- * 600 dpi for Generation >= 3. */
-static unsigned
-post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  unsigned c, lines, line_size, n, m, cw, cx;
-  uint8_t *sptr, *dptr, *gptr, *cptr;
-
-  if (s->param->mode_jpeg)
-    {
-      /* No post-processing, send raw JPEG data to main */
-      ib->rptr = mp->imgbuf;
-      ib->rend = mp->data_left_ofs;
-      return 0;    /* # of non processed bytes */
-    }
-
-
-  c = s->param->channels
-      * ((s->param->software_lineart) ? 8 : s->param->depth) / 8;
-  cw = c * s->param->w;
-  cx = c * s->param->xs;
-
-  if (mp->generation >= 3)
-    n = s->param->xdpi / 600;
-  else
-    n = s->param->xdpi / 2400;
-
-  if (s->cfg->pid == MP600_PID || s->cfg->pid == MP600R_PID)
-    n = s->param->xdpi / 1200;
-
-  m = (n > 0) ? s->param->wx / n : 1;
-  sptr = dptr = gptr = cptr = mp->imgbuf;
-  line_size = get_cis_line_size (s);
-  /*PDBG (pixma_dbg (4, "*post_process_image_data***** ----- Set n=%u, m=%u, line_size=%u ----- ***** \n", n, m, line_size));*/
-
-  lines = (mp->data_left_ofs - mp->imgbuf) / line_size;
-  /*PDBG (pixma_dbg (4, "*post_process_image_data***** lines = %i ***** \n", lines));*/
-  if (lines > 0)
-    {
-      unsigned i;
-
-      for (i = 0; i < lines; i++, sptr += line_size)
-        {
-          /*PDBG (pixma_dbg (4, "*post_process_image_data***** Processing with c=%u, n=%u, m=%u, w=%i, line_size=%u ***** \n",
-	        c, n, m, s->param->wx, line_size));*/
-
-          /* special image format for *most* devices at high dpi.
-           * MP220, MX360 and generation 5 scanners are exceptions */
-          if (n > 0
-              && s->cfg->pid != MP220_PID
-              && s->cfg->pid != MP490_PID
-              && s->cfg->pid != MX360_PID
-              && (mp->generation < 5
-                  /* generation 5 scanners *with* special image format */
-                  || s->cfg->pid == MG2200_PID
-                  || s->cfg->pid == MG3200_PID
-                  || s->cfg->pid == MG4200_PID
-                  || s->cfg->pid == MG5600_PID
-                  || s->cfg->pid == MG5700_PID
-                  || s->cfg->pid == MG6200_PID
-                  || s->cfg->pid == MP230_PID
-                  || s->cfg->pid == MX470_PID
-                  || s->cfg->pid == MX510_PID
-                  || s->cfg->pid == MX520_PID))
-              reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->wx, line_size);
-
-          /* Crop line to selected borders */
-          memmove(cptr, sptr + cx, cw);
-
-          /* Color / Gray to Lineart convert */
-          if (s->param->software_lineart)
-              cptr = gptr = pixma_binarize_line (s->param, gptr, cptr, s->param->w, c);
-          else
-              cptr += cw;
-        }
-    }
-  ib->rptr = mp->imgbuf;
-  ib->rend = cptr;
-  return mp->data_left_ofs - sptr;    /* # of non processed bytes */
-}
-
-static int
-mp150_open (pixma_t * s)
-{
-  mp150_t *mp;
-  uint8_t *buf;
-
-  mp = (mp150_t *) calloc (1, sizeof (*mp));
-  if (!mp)
-    return PIXMA_ENOMEM;
-
-  buf = (uint8_t *) malloc (CMDBUF_SIZE + IMAGE_BLOCK_SIZE);
-  if (!buf)
-    {
-      free (mp);
-      return PIXMA_ENOMEM;
-    }
-
-  s->subdriver = mp;
-  mp->state = state_idle;
-
-  mp->cb.buf = buf;
-  mp->cb.size = CMDBUF_SIZE;
-  mp->cb.res_header_len = 8;
-  mp->cb.cmd_header_len = 16;
-  mp->cb.cmd_len_field_ofs = 14;
-
-  mp->imgbuf = buf + CMDBUF_SIZE;
-
-  /* General rules for setting Pixma protocol generation # */
-  mp->generation = (s->cfg->pid >= MP160_PID) ? 2 : 1;
-
-  if (s->cfg->pid >= MX7600_PID)
-    mp->generation = 3;
-
-  if (s->cfg->pid >= MP250_PID)
-    mp->generation = 4;
-
-  if (s->cfg->pid >= MG2100_PID)        /* this scanners generation doesn't need */
-    mp->generation = 5;                 /* special image conversion @ high dpi */
-
-  /* And exceptions to be added here */
-  if (s->cfg->pid == MP140_PID)
-    mp->generation = 2;
-
-  PDBG (pixma_dbg (3, "*mp150_open***** This is a generation %d scanner.  *****\n", mp->generation));
-
-  /* adf scanning */
-  mp->adf_state = state_idle;
-
-  if (mp->generation < 4)
-    {
-      query_status (s);
-      handle_interrupt (s, 200);
-    }
-  return 0;
-}
-
-static void
-mp150_close (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-
-  mp150_finish_scan (s);
-  free (mp->cb.buf);
-  free (mp);
-  s->subdriver = NULL;
-}
-
-static int
-mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-
-  /* PDBG (pixma_dbg (4, "*mp150_check_param***** Initially: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u *****\n",
-                   sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx)); */
-
-  /* MP150 only supports 8 bit per channel in color and grayscale mode */
-  if (sp->depth != 1)
-    {
-      sp->software_lineart = 0;
-      sp->depth = 8;
-    }
-  else
-    {
-      /* software lineart */
-      sp->software_lineart = 1;
-      sp->depth = 1;
-      sp->channels = 1;
-    }
-
-  /* for software lineart w must be a multiple of 8 */
-  if (sp->software_lineart == 1 && sp->w % 8)
-    {
-      unsigned w_max;
-
-      sp->w += 8 - (sp->w % 8);
-
-      /* do not exceed the scanner capability */
-      w_max = s->cfg->width * s->cfg->xdpi / 75;
-      w_max -= w_max % 8;
-      if (sp->w > w_max)
-        sp->w = w_max;
-    }
-
-  if (mp->generation >= 2)
-    {
-      /* mod 32 and expansion of the X scan limits */
-      /*PDBG (pixma_dbg (4, "*mp150_check_param***** ----- Initially: x=%i, y=%i, w=%i, h=%i *****\n", sp->x, sp->y, sp->w, sp->h));*/
-      sp->xs = (sp->x) % 32;
-    }
-  else
-      sp->xs = 0;
-  /*PDBG (pixma_dbg (4, "*mp150_check_param***** Selected origin, origin shift: %i, %i *****\n", sp->x, sp->xs));*/
-  sp->wx = calc_raw_width (mp, sp);
-  sp->line_size = sp->w * sp->channels * (((sp->software_lineart) ? 8 : sp->depth) / 8);              /* bytes per line per color after cropping */
-  /*PDBG (pixma_dbg (4, "*mp150_check_param***** Final scan width and line-size: %i, %i *****\n", sp->wx, sp->line_size));*/
-
-  /* Some exceptions here for particular devices */
-  /* Those devices can scan up to legal 14" with ADF, but A4 11.7" in flatbed */
-  /* PIXMA_CAP_ADF also works for PIXMA_CAP_ADFDUP */
-  if ((s->cfg->cap & PIXMA_CAP_ADF) && sp->source == PIXMA_SOURCE_FLATBED)
-    sp->h = MIN (sp->h, 877 * sp->xdpi / 75);
-
-  if (s->cfg->pid == LIDE300_PID
-      || s->cfg->pid == LIDE400_PID)
-    {
-      uint8_t k;
-
-  /* TPU mode: lowest res is 150 or 300 dpi */
-      k = MAX (sp->xdpi, 300) / sp->xdpi;
-      sp->x *= k;
-      sp->xs *= k;
-      sp->y *= k;
-      sp->w *= k;
-      sp->wx *= k;
-      sp->h *= k;
-      sp->xdpi *= k;
-      sp->ydpi = sp->xdpi;
-    }
-
-  if (sp->source == PIXMA_SOURCE_ADF || sp->source == PIXMA_SOURCE_ADFDUP)
-    {
-      uint8_t k = 1;
-
-  /* ADF/ADF duplex mode: max scan res is 600 dpi, at least for generation 4+ */
-      if (mp->generation >= 4)
-        k = sp->xdpi / MIN (sp->xdpi, 600);
-      sp->x /= k;
-      sp->xs /= k;
-      sp->y /= k;
-      sp->w /= k;
-      sp->wx /= k;
-      sp->h /= k;
-      sp->xdpi /= k;
-      sp->ydpi = sp->xdpi;
-    }
-
-  sp->mode_jpeg = (s->cfg->cap & PIXMA_CAP_ADF_JPEG) &&
-                      (sp->source == PIXMA_SOURCE_ADF ||
-                       sp->source == PIXMA_SOURCE_ADFDUP);
-
-  /*PDBG (pixma_dbg (4, "*mp150_check_param***** Finally: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u *****\n",
-                   sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx));*/
-  return 0;
-}
-
-static int
-mp150_scan (pixma_t * s)
-{
-  int error = 0, tmo;
-  mp150_t *mp = (mp150_t *) s->subdriver;
-
-  if (mp->state != state_idle)
-    return PIXMA_EBUSY;
-
-  /* no paper inserted after first adf page => abort session */
-  if (s->param->adf_pageid && is_scanning_from_adf(s) && mp->adf_state == state_idle)
-  {
-    return PIXMA_ENO_PAPER;
-  }
-
-  /* Generation 4+: send XML dialog */
-  /* adf: first page or idle */
-  if (mp->generation >= 4 && mp->adf_state == state_idle)
-    {
-      if (!send_xml_dialog (s, XML_START_1))
-        return PIXMA_EPROTO;
-      if (!send_xml_dialog (s, XML_START_2))
-        return PIXMA_EPROTO;
-    }
-
-  /* clear interrupt packets buffer */
-  while (handle_interrupt (s, 0) > 0)
-    {
-    }
-
-  /* FIXME: Duplex ADF: check paper status only before odd pages (1,3,5,...). */
-  if (is_scanning_from_adf (s))
-    {
-      if ((error = query_status (s)) < 0)
-        return error;
-
-      /* wait for inserted paper
-       * timeout: 10 sec */
-      tmo = 10;
-      while (!has_paper (s) && --tmo >= 0)
-        {
-          if ((error = query_status (s)) < 0)
-            return error;
-          WAIT_INTERRUPT (1000);
-          PDBG (pixma_dbg
-            (2, "No paper in ADF. Timed out in %d sec.\n", tmo));
-        }
-
-      /* no paper inserted
-       * => abort session */
-      if (!has_paper (s))
-      {
-        PDBG (pixma_dbg (4, "*mp150_scan***** no paper in ADF *****\n"));
-        error = abort_session (s);
-        if (error < 0)
-          return error;
-
-        /* Generation 4+: send XML dialog */
-        /* adf: first page or idle */
-        if (mp->generation >= 4 && mp->adf_state == state_idle)
-        {
-          if (!send_xml_dialog (s, XML_END))
-            return PIXMA_EPROTO;
-        }
-
-        return PIXMA_ENO_PAPER;
-      }
-    }
-
-  tmo = 10;
-  /* adf: first page or idle */
-  if (mp->generation <= 2 || mp->adf_state == state_idle)
-    { /* single sheet or first sheet from ADF */
-      PDBG (pixma_dbg (4, "*mp150_scan***** start scanning *****\n"));
-      error = start_session (s);
-      while (error == PIXMA_EBUSY && --tmo >= 0)
-        {
-          if (s->cancel)
-            {
-              error = PIXMA_ECANCELED;
-              break;
-            }
-          PDBG (pixma_dbg
-          (2, "Scanner is busy. Timed out in %d sec.\n", tmo + 1));
-          pixma_sleep (1000000);
-          error = start_session (s);
-        }
-      if (error == PIXMA_EBUSY || error == PIXMA_ETIMEDOUT)
-        {
-          /* The scanner maybe hangs. We try to empty output buffer of the
-           * scanner and issue the cancel command. */
-          PDBG (pixma_dbg (2, "Scanner hangs? Sending abort_session command.\n"));
-          drain_bulk_in (s);
-          abort_session (s);
-          pixma_sleep (500000);
-          error = start_session (s);
-        }
-      if ((error >= 0) || (mp->generation >= 3))
-        mp->state = state_warmup;
-      if ((error >= 0) && (mp->generation <= 2))
-        error = select_source (s);
-      if ((error >= 0) && !is_scanning_jpeg (s))
-        {
-          int i;
-
-          for (i = (mp->generation >= 3) ? 3 : 1 ; i > 0 && error >= 0; i--)
-            error = send_gamma_table (s);
-        }
-    }
-  else   /* ADF pageid != 0 and gen3 or above */
-  { /* next sheet from ADF */
-    PDBG (pixma_dbg (4, "*mp150_scan***** scan next sheet from ADF  *****\n"));
-    pixma_sleep (1000000);
-  }
-  if ((error >= 0) || (mp->generation >= 3))
-    mp->state = state_warmup;
-  if (error >= 0)
-    error = send_scan_param (s);
-  if ((error >= 0) && (mp->generation >= 3))
-    error = start_scan_3 (s);
-  if (error < 0)
-    {
-      mp->last_block = 0x38;   /* Force abort session if ADF scan */
-      mp150_finish_scan (s);
-      return error;
-    }
-
-  /* ADF scanning active */
-  if (is_scanning_from_adf (s))
-    mp->adf_state = state_scanning;
-  return 0;
-}
-
-static int
-mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
-{
-  int error;
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  unsigned block_size, bytes_received, proc_buf_size, line_size;
-  uint8_t header[16];
-
-  if (mp->state == state_warmup)
-    {
-      RET_IF_ERR (wait_until_ready (s));
-      pixma_sleep (1000000);	/* No need to sleep, actually, but Window's driver
-				 * sleep 1.5 sec. */
-      mp->state = state_scanning;
-      mp->last_block = 0;
-
-      line_size = get_cis_line_size (s);
-      proc_buf_size = 2 * line_size;
-      mp->cb.buf = realloc (mp->cb.buf,
-             CMDBUF_SIZE + IMAGE_BLOCK_SIZE + proc_buf_size);
-      if (!mp->cb.buf)
-        return PIXMA_ENOMEM;
-      mp->linebuf = mp->cb.buf + CMDBUF_SIZE;
-      mp->imgbuf = mp->data_left_ofs = mp->linebuf + line_size;
-      mp->data_left_len = 0;
-    }
-
+  *payload_size = 0;
+  attempt = 0;
   do
     {
-      if (s->cancel)
-      {
-        PDBG (pixma_dbg (4, "*mp150_fill_buffer***** s->cancel  *****\n"));
-        return PIXMA_ECANCELED;
-      }
-      if ((mp->last_block & 0x28) == 0x28)
-        {  /* end of image */
-           PDBG (pixma_dbg (4, "*mp150_fill_buffer***** end of image  *****\n"));
-           mp->state = state_finished;
-           return 0;
-        }
-      /*PDBG (pixma_dbg (4, "*mp150_fill_buffer***** moving %u bytes into buffer *****\n", mp->data_left_len));*/
-      memmove (mp->imgbuf, mp->data_left_ofs, mp->data_left_len);
-      error = read_image_block (s, header, mp->imgbuf + mp->data_left_len);
-      if (error < 0)
-        {
-          PDBG (pixma_dbg (4, "*mp150_fill_buffer***** scanner error (%d): end scan  *****\n", error));
-          mp->last_block = 0x38;        /* end scan in mp150_finish_scan() */
-          if (error == PIXMA_ECANCELED)
-            {
-               /* NOTE: I see this in traffic logs but I don't know its meaning. */
-               read_error_info (s, NULL, 0);
-            }
-          return error;
-        }
+      /* wait for data to be received, ignore signals being received */
+      FD_ZERO (&input);
+      FD_SET (fd, &input);
 
-      bytes_received = error;
-      /*PDBG (pixma_dbg (4, "*mp150_fill_buffer***** %u bytes received by read_image_block *****\n", bytes_received));*/
-      block_size = pixma_get_be32 (header + 12);
-      mp->last_block = header[8] & 0x38;
-      if ((header[8] & ~0x38) != 0)
-        {
-          PDBG (pixma_dbg (1, "WARNING: Unexpected result header\n"));
-          PDBG (pixma_hexdump (1, header, 16));
-        }
-      PASSERT (bytes_received == block_size);
-
-      if (block_size == 0)
-        {     /* no image data at this moment. */
-          pixma_sleep (10000);
-        }
-      /* Post-process the image data */
-      mp->data_left_ofs = mp->imgbuf + mp->data_left_len + bytes_received;
-      mp->data_left_len = post_process_image_data (s, ib);
-      mp->data_left_ofs -= mp->data_left_len;
+      timeout.tv_sec = device[devno].bjnp_ip_timeout /1000;
+      timeout.tv_usec = device[devno].bjnp_ip_timeout %1000;
     }
-  while (ib->rend == ib->rptr);
+  while ( ( (result = select (fd + 1, &input, NULL, NULL, &timeout)) <= 0) &&
+	 (errno == EINTR) && (attempt++ < BJNP_MAX_SELECT_ATTEMPTS));
 
-  return ib->rend - ib->rptr;
-}
-
-static void
-mp150_finish_scan (pixma_t * s)
-{
-  int error;
-  mp150_t *mp = (mp150_t *) s->subdriver;
-
-  switch (mp->state)
+  if (result < 0)
     {
-    case state_transfering:
-      drain_bulk_in (s);
-      /* fall through */
-    case state_scanning:
-    case state_warmup:
-    case state_finished:
-      /* FIXME: to process several pages ADF scan, must not send
-       * abort_session and start_session between pages (last_block=0x28) */
-      if (mp->generation <= 2 || !is_scanning_from_adf (s) || mp->last_block == 0x38)
-        {
-          PDBG (pixma_dbg (4, "*mp150_finish_scan***** abort session  *****\n"));
-          error = abort_session (s);  /* FIXME: it probably doesn't work in duplex mode! */
-          if (error < 0)
-            PDBG (pixma_dbg (1, "WARNING:abort_session() failed %d\n", error));
-
-          /* Generation 4+: send XML end of scan dialog */
-          if (mp->generation >= 4)
-            {
-              if (!send_xml_dialog (s, XML_END))
-                PDBG (pixma_dbg (1, "WARNING:XML_END dialog failed \n"));
-            }
-        }
-      else
-        PDBG (pixma_dbg (4, "*mp150_finish_scan***** wait for next page from ADF  *****\n"));
-
-        mp->state = state_idle;
-      /* fall through */
-    case state_idle:
-      break;
+      terrno = errno;
+      PDBG (bjnp_dbg (LOG_CRIT,
+		       "bjnp_recv_header: ERROR - could not read response header (select): %s!\n",
+		       strerror (terrno)));
+      errno = terrno;
+      return SANE_STATUS_IO_ERROR;
     }
-}
-
-static void
-mp150_wait_event (pixma_t * s, int timeout)
-{
-  /* FIXME: timeout is not correct. See usbGetCompleteUrbNoIntr() for
-   * instance. */
-  while (s->events == 0 && handle_interrupt (s, timeout) > 0)
+  else if (result == 0)
     {
+      terrno = errno;
+      PDBG (bjnp_dbg (LOG_CRIT,
+		"bjnp_recv_header: ERROR - could not read response header (select timed out after %d ms)!\n",
+		device[devno].bjnp_ip_timeout ) );
+      errno = terrno;
+      return SANE_STATUS_IO_ERROR;
     }
+
+  /* get response header */
+
+  if ((recv_bytes =
+       recv (fd, (char *) &resp_buf,
+	     sizeof (struct BJNP_command),
+	     0)) != sizeof (struct BJNP_command))
+    {
+      terrno = errno;
+      if (recv_bytes == 0)
+        {
+          PDBG (bjnp_dbg (LOG_CRIT,
+          		"bjnp_recv_header: ERROR - (recv) Scanner closed the TCP-connection!\n"));
+        } else {
+          PDBG (bjnp_dbg (LOG_CRIT,
+	      	       "bjnp_recv_header: ERROR - (recv) could not read response header, received %d bytes!\n",
+		       recv_bytes));
+          PDBG (bjnp_dbg
+	  		(LOG_CRIT, "bjnp_recv_header: ERROR - (recv) error: %s!\n",
+	     		strerror (terrno)));
+        }
+      errno = terrno;
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  if (resp_buf.cmd_code != device[devno].last_cmd)
+    {
+      PDBG (bjnp_dbg
+	    (LOG_CRIT,
+	     "bjnp_recv_header: ERROR - Received response has cmd code %d, expected %d\n",
+	     resp_buf.cmd_code, device[devno].last_cmd));
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  if (ntohs (resp_buf.seq_no) != (uint16_t) device[devno].serial)
+    {
+      PDBG (bjnp_dbg
+	    (LOG_CRIT,
+	     "bjnp_recv_header: ERROR - Received response has serial %d, expected %d\n",
+	     (int) ntohs (resp_buf.seq_no), (int) device[devno].serial));
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  /* got response header back, retrieve length of payload */
+
+
+  *payload_size = ntohl (resp_buf.payload_len);
+  PDBG (bjnp_dbg
+	(LOG_DEBUG, "bjnp_recv_header: TCP response header(payload data = %ld bytes):\n",
+	 *payload_size) );
+  PDBG (bjnp_hexdump
+	(LOG_DEBUG2, (char *) &resp_buf, sizeof (struct BJNP_command)));
+  return SANE_STATUS_GOOD;
 }
 
 static int
-mp150_get_status (pixma_t * s, pixma_device_status_t * status)
+bjnp_init_device_structure(int dn, bjnp_sockaddr_t *sa, bjnp_protocol_defs_t *protocol_defs, int ip_timeout)
 {
-  int error;
+  /* initialize device structure */
 
-  RET_IF_ERR (query_status (s));
-  status->hardware = PIXMA_HARDWARE_OK;
-  status->adf = (has_paper (s)) ? PIXMA_ADF_OK : PIXMA_ADF_NO_PAPER;
-  status->cal =
-    (is_calibrated (s)) ? PIXMA_CALIBRATION_OK : PIXMA_CALIBRATION_OFF;
+  char name[BJNP_HOST_MAX];
+
+  device[dn].open = 0;
+#ifdef PIXMA_BJNP_USE_STATUS
+  device[dn].polling_status = BJNP_POLL_STOPPED;
+  device[dn].dialog = 0;
+  device[dn].status_key = 0;
+#endif
+  device[dn].protocol = protocol_defs->protocol_version;
+  device[dn].protocol_string = protocol_defs->proto_string;
+  device[dn].tcp_socket = -1;
+
+  device[dn].addr = (bjnp_sockaddr_t *) malloc(sizeof ( bjnp_sockaddr_t) );
+  memset( device[dn].addr, 0, sizeof( bjnp_sockaddr_t ) );
+  memcpy(device[dn].addr, sa, sa_size((bjnp_sockaddr_t *)sa) );
+  device[dn].address_level = get_scanner_name(sa, name);
+  device[dn].session_id = 0;
+  device[dn].serial = -1;
+  device[dn].bjnp_ip_timeout = ip_timeout;
+  device[dn].bjnp_scanner_timeout = 1000;
+  device[dn].scanner_data_left = 0;
+  device[dn].last_cmd = 0;
+  device[dn].blocksize = BJNP_BLOCKSIZE_START;
+  device[dn].last_block = 0;
+  /* fill mac_address */
+
+  if (bjnp_get_scanner_mac_address(dn, device[dn].mac_address) != 0 )
+    {
+      PDBG (bjnp_dbg
+            (LOG_CRIT, "bjnp_init_device_structure: Cannot read mac address, skipping this scanner\n"  ) );
+      return -1;
+    }
   return 0;
 }
 
-static const pixma_scan_ops_t pixma_mp150_ops = {
-  mp150_open,
-  mp150_close,
-  mp150_scan,
-  mp150_fill_buffer,
-  mp150_finish_scan,
-  mp150_wait_event,
-  mp150_check_param,
-  mp150_get_status
-};
-
-#define DEVICE(name, model, pid, dpi, adftpu_min_dpi, adftpu_max_dpi, w, h, cap) { \
-        name,              /* name */               \
-        model,             /* model */              \
-        CANON_VID, pid,    /* vid pid */            \
-        0,                 /* iface */              \
-        &pixma_mp150_ops,  /* ops */                \
-        dpi, 2*(dpi),      /* xdpi, ydpi */         \
-        adftpu_min_dpi, adftpu_max_dpi,         /* adftpu_min_dpi, adftpu_max_dpi */ \
-        0, 0,              /* tpuir_min_dpi & tpuir_max_dpi not used in this subdriver */  \
-        w, h,              /* width, height */      \
-        PIXMA_CAP_EASY_RGB|                         \
-        PIXMA_CAP_GRAY|    /* CIS with native grayscale */ \
-        PIXMA_CAP_LINEART| /* all scanners with software lineart */ \
-        PIXMA_CAP_GAMMA_TABLE|PIXMA_CAP_EVENTS|cap  \
+static void
+bjnp_free_device_structure( int dn)
+{
+  if (device[dn].addr != NULL)
+    {
+    free (device[dn].addr );
+    device[dn].addr = NULL;
+    }
+  device[dn].open = 0;
 }
 
-#define END_OF_DEVICE_LIST DEVICE(NULL, NULL, 0, 0, 0, 0, 0, 0, 0)
+static SANE_Status
+bjnp_recv_data (int devno, SANE_Byte * buffer, size_t start_pos, size_t * len)
+{
+/*
+ * This function receives the payload data.
+ * NOTE: len may not exceed SSIZE_MAX (as that is max for recv)
+ *       len will be restricted to SSIZE_MAX to be sure
+ * Returns: number of bytes of payload received from device
+ */
 
-const pixma_config_t pixma_mp150_devices[] = {
-  /* Generation 1: CIS */
-  DEVICE ("Canon PIXMA MP150", "MP150", MP150_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP170", "MP170", MP170_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP450", "MP450", MP450_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP500", "MP500", MP500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP530", "MP530", MP530_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  fd_set input;
+  struct timeval timeout;
+  ssize_t recv_bytes;
+  int terrno;
+  int result;
+  int fd;
+  int attempt;
 
-  /* Generation 2: CIS */
-  DEVICE ("Canon PIXMA MP140", "MP140", MP140_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP160", "MP160", MP160_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP180", "MP180", MP180_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP460", "MP460", MP460_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP510", "MP510", MP510_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP600", "MP600", MP600_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP600R", "MP600R", MP600R_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  PDBG (bjnp_dbg
+	(LOG_DEBUG, "bjnp_recv_data: read response payload (0x%lx bytes max), buffer: 0x%lx, start_pos: 0x%lx\n",
+	 (long) *len, (long) buffer, (long) start_pos));
 
-  /* Generation 3: CIS */
-  DEVICE ("Canon PIXMA MP210", "MP210", MP210_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP220", "MP220", MP220_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP470", "MP470", MP470_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP520", "MP520", MP520_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP610", "MP610", MP610_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
-  DEVICE ("Canon PIXMA MX300", "MX300", MX300_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MX310", "MX310", MX310_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX700", "MX700", MX700_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX850", "MX850", MX850_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA MX7600", "MX7600", MX7600_PID, 4800, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  if (*len == 0)
+    {
+      /* nothing to do */
+      PDBG (bjnp_dbg
+  	    (LOG_DEBUG, "bjnp_recv_data: Nothing to do (%ld bytes requested)\n",
+	     (long) *len));
+      return SANE_STATUS_GOOD;
+    }
+  else if ( *len > SSIZE_MAX )
+    {
+      PDBG (bjnp_dbg
+    	    (LOG_DEBUG, "bjnp_recv_data: WARNING - requested block size (%ld) exceeds maximum, setting to maximum %ld\n",
+	     (long)*len, SSIZE_MAX));
+      *len = SSIZE_MAX;
+    }
 
-  DEVICE ("Canon PIXMA MP630", "MP630", MP630_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP620", "MP620", MP620_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP540", "MP540", MP540_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP480", "MP480", MP480_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP240", "MP240", MP240_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP260", "MP260", MP260_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP190", "MP190", MP190_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  fd = device[devno].tcp_socket;
+  attempt = 0;
+  do
+    {
+      /* wait for data to be received, retry on a signal being received */
+      FD_ZERO (&input);
+      FD_SET (fd, &input);
+      timeout.tv_sec = device[devno].bjnp_ip_timeout /1000;
+      timeout.tv_usec = device[devno].bjnp_ip_timeout %1000;
+    }
+  while (((result = select (fd + 1, &input, NULL, NULL, &timeout)) <= 0) &&
+	 (errno == EINTR) && (attempt++ < BJNP_MAX_SELECT_ATTEMPTS));
 
-  /* PIXMA 2009 vintage */
-  DEVICE ("Canon PIXMA MX320", "MX320", MX320_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX330", "MX330", MX330_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-/* width and height adjusted to flatbed size 21.8 x 30.2 cm^2 respective
- * Not sure if anything's going wrong here, leaving as is
-  DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 2400, 0, 0, 638, 880, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),*/
+  if (result < 0)
+    {
+      terrno = errno;
+      PDBG (bjnp_dbg (LOG_CRIT,
+		       "bjnp_recv_data: ERROR - could not read response payload (select failed): %s!\n",
+		       strerror (errno)));
+      errno = terrno;
+      *len = 0;
+      return SANE_STATUS_IO_ERROR;
+    }
+  else if (result == 0)
+    {
+      terrno = errno;
+      PDBG (bjnp_dbg (LOG_CRIT,
+		"bjnp_recv_data: ERROR - could not read response payload (select timed out after %d ms)!\n",
+		device[devno].bjnp_ip_timeout) );
+      errno = terrno;
+      *len = 0;
+      return SANE_STATUS_IO_ERROR;
+    }
 
-  /* PIXMA 2010 vintage */
-  DEVICE ("Canon PIXMA MX340", "MX340", MX340_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX350", "MX350", MX350_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX870", "MX870", MX870_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  if ((recv_bytes = recv (fd, buffer + start_pos, *len, 0)) < 0)
+    {
+      terrno = errno;
+      PDBG (bjnp_dbg (LOG_CRIT,
+		       "bjnp_recv_data: ERROR - could not read response payload (%ld + %ld = %ld) (recv): %s!\n",
+		       (long) buffer, (long) start_pos, (long) buffer + start_pos, strerror (errno)));
+      errno = terrno;
+      *len = 0;
+      return SANE_STATUS_IO_ERROR;
+    }
+  PDBG (bjnp_dbg (LOG_DEBUG2, "bjnp_recv_data: Received TCP response payload (%ld bytes):\n",
+		   (unsigned long) recv_bytes));
+  PDBG (bjnp_hexdump (LOG_DEBUG2, buffer, recv_bytes));
 
-  /* PIXMA 2011 vintage */
-  DEVICE ("Canon PIXMA MX360", "MX360", MX360_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX410", "MX410", MX410_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX420", "MX420", MX420_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX880 Series", "MX880", MX880_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  *len = recv_bytes;
+  return SANE_STATUS_GOOD;
+}
 
-  /* Generation 4: CIS */
-  DEVICE ("Canon PIXMA MP640", "MP640", MP640_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP560", "MP560", MP560_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP550", "MP550", MP550_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP490", "MP490", MP490_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP250", "MP250", MP250_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP270", "MP270", MP270_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+static BJNP_Status
+bjnp_allocate_device (SANE_String_Const devname,
+                      SANE_Int * dn, char *resulting_host)
+{
+  char method[BJNP_METHOD_MAX];
+  char host[BJNP_HOST_MAX];
+  char port[BJNP_PORT_MAX] = "";
+  char args[BJNP_ARGS_MAX];
+  bjnp_protocol_defs_t *protocol_defs;
+  struct addrinfo *res, *cur;
+  struct addrinfo hints;
+  int result;
+  int i;
+  int ip_timeout = BJNP_TIMEOUT_DEFAULT;
 
-  /* Latest devices (2010) Generation 4 CIS */
-  DEVICE ("Canon PIXMA MP280",  "MP280",  MP280_PID,  600, 0, 0, 638, 877, PIXMA_CAP_CIS), /* TODO: 1200dpi doesn't work yet */
-  DEVICE ("Canon PIXMA MP495",  "MP495",  MP495_PID,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5100", "MG5100", MG5100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5200", "MG5200", MG5200_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6100", "MG6100", MG6100_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  PDBG (bjnp_dbg (LOG_DEBUG, "bjnp_allocate_device(%s) %d\n", devname, bjnp_no_devices));
 
-  /* Latest devices (2011) Generation 5 CIS */
-  DEVICE ("Canon PIXMA MG2100", "MG2100", MG2100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG3100", "MG3100", MG3100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG4100", "MG4100", MG4100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5300", "MG5300", MG5300_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6200", "MG6200", MG6200_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP493",  "MP493",  MP493_PID,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA E500",   "E500",   E500_PID,   1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  if (split_uri (devname, method, host, port, args) != 0)
+    {
+      return BJNP_STATUS_INVAL;
+    }
 
-  /* Latest devices (2012) Generation 5 CIS */
-  DEVICE ("Canon PIXMA MX370 Series", "MX370", MX370_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX430 Series", "MX430", MX430_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX510 Series", "MX510", MX510_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX710 Series", "MX710", MX710_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA MX890 Series", "MX890", MX890_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA E600 Series",  "E600",  E600_PID,  1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MG4200", "MG4200", MG4200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  if (strlen (args) > 0)
+    {
+      /* get device specific ip timeout if any */
 
-  /* Latest devices (2013) Generation 5 CIS */
-  DEVICE ("Canon PIXMA E510",  "E510",  E510_PID,  1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA E610",  "E610",  E610_PID,  1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MP230", "MP230", MP230_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG2200 Series", "MG2200", MG2200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG3200 Series", "MG3200", MG3200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5400 Series", "MG5400", MG5400_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6300 Series", "MG6300", MG6300_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MX390 Series", "MX390", MX390_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX450 Series", "MX450", MX450_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX520 Series", "MX520", MX520_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX720 Series", "MX720", MX720_PID, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA MX920 Series", "MX920", MX920_PID, 2400, 0, 600, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA MG2400 Series", "MG2400", MG2400_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG2500 Series", "MG2500", MG2500_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG3500 Series", "MG3500", MG3500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5500 Series", "MG5500", MG5500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6400 Series", "MG6400", MG6400_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6500 Series", "MG6500", MG6500_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG7100 Series", "MG7100", MG7100_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+      if (strncmp(args, "timeout=", strlen("timeout=")) == 0)
+        {
+          ip_timeout = atoi(args + strlen("timeout="));
+        } else {
+		PDBG (bjnp_dbg
+	    		(LOG_CRIT,
+				"bjnp_allocate_device: ERROR - Unrecognized argument: %s\n",
+	     			devname));
 
-  /* Latest devices (2014) Generation 5 CIS */
-  DEVICE ("Canon PIXMA MX470 Series", "MX470", MX470_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX530 Series", "MX530", MX530_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon MAXIFY MB5000 Series", "MB5000", MB5000_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
-  DEVICE ("Canon MAXIFY MB5300 Series", "MB5300", MB5300_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon MAXIFY MB2000 Series", "MB2000", MB2000_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP | PIXMA_CAP_ADF_JPEG),
-  DEVICE ("Canon MAXIFY MB2100 Series", "MB2100", MB2100_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
-  DEVICE ("Canon MAXIFY MB2300 Series", "MB2300", MB2300_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
-  DEVICE ("Canon MAXIFY MB2700 Series", "MB2700", MB2700_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
-  DEVICE ("Canon PIXMA E400",  "E400",  E400_PID,  600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA E560",  "E560",  E560_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG7500 Series", "MG7500", MG7500_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6600 Series", "MG6600", MG6600_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5600 Series", "MG5600", MG5600_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG2900 Series", "MG2900", MG2900_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA E460 Series",  "E460",  E460_PID,  600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+      return BJNP_STATUS_INVAL;
+        }
+    }
+  if ( (protocol_defs = get_protocol_by_method(method)) == NULL)
+    {
+      PDBG (bjnp_dbg
+		(LOG_CRIT, "bjnp_allocate_device: ERROR - URI %s contains invalid method: %s\n",
+		 devname, method));
+      return BJNP_STATUS_INVAL;
+    }
 
-  /* Latest devices (2015) Generation 5 CIS */
-  DEVICE ("Canon PIXMA MX490 Series", "MX490", MX490_PID, 600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA E480 Series",  "E480",  E480_PID,  600, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MG3600 Series", "MG3600", MG3600_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG7700 Series", "MG7700", MG7700_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6900 Series", "MG6900", MG6900_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG6800 Series", "MG6800", MG6800_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG5700 Series", "MG5700", MG5700_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  if (strlen(port) == 0)
+    {
+      sprintf( port, "%d", protocol_defs->default_port );
+    }
 
-  /* Latest devices (2016) Generation 5 CIS */
-  DEVICE ("Canon PIXMA G3000", "G3000", G3000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA G2000", "G2000", G2000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS9000 Series", "TS9000", TS9000_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS8000 Series", "TS8000", TS8000_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS6000 Series", "TS6000", TS6000_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS5000 Series", "TS5000", TS5000_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MG3000 Series", "MG3000", MG3000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA E470 Series", "E470", E470_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA E410 Series", "E410", E410_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  hints.ai_flags = 0;
+#ifdef ENABLE_IPV6
+  hints.ai_family = AF_UNSPEC;
+#else
+  hints.ai_family = AF_INET;
+#endif
+  hints.ai_socktype = SOCK_DGRAM;
+  hints.ai_protocol = 0;
+  hints.ai_addrlen = 0;
+  hints.ai_addr = NULL;
+  hints.ai_canonname = NULL;
+  hints.ai_next = NULL;
 
-  /* Latest devices (2017) Generation 5 CIS */
-  DEVICE ("Canon PIXMA G4000", "G4000", G4000_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS6100 Series", "TS6100", TS6100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS5100 Series", "TS5100", TS5100_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS3100 Series", "TS3100", TS3100_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA E3100 Series", "E3100", E3100_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  result = getaddrinfo (host, port, &hints, &res );
+  if (result != 0 )
+    {
+      PDBG (bjnp_dbg (LOG_CRIT, "bjnp_allocate_device: ERROR - Cannot resolve host: %s port %s\n", host, port));
+      return SANE_STATUS_INVAL;
+    }
 
-  /* Latest devices (2018) Generation 5 CIS */
-  DEVICE ("Canon MAXIFY MB5400 Series", "MB5400", MB5400_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP|PIXMA_CAP_ADF_JPEG),
-  DEVICE ("Canon MAXIFY MB5100 Series", "MB5100", MB5100_PID, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA TS9100 Series", "TS9100", TS9100_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TR8500 Series", "TR8500", TR8500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA TR7500 Series", "TR7500", TR7500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA TS9500 Series", "TS9500", TS9500_PID, 1200, 0, 600, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("CanoScan LiDE 400", "LIDE400", LIDE400_PID, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("CanoScan LiDE 300", "LIDE300", LIDE300_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  /* Check if a device number is already allocated to any of the scanner's addresses */
 
-  /* Latest devices (2019) Generation 5 CIS */
-  DEVICE ("Canon PIXMA TS8100 Series", "TS8100", TS8100_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA G3010 Series", "G3010", G3010_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA G4010 Series", "G4010", G4010_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA TS9180 Series", "TS9180", TS9180_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS8180 Series", "TS8180", TS8180_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS6180 Series", "TS6180", TS6180_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TR8580 Series", "TR8580", TR8580_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA TS8130 Series", "TS8130", TS8130_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS6130 Series", "TS6130", TS6130_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TR8530 Series", "TR8530", TR8530_PID, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA TR7530 Series", "TR7530", TR7530_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXUS XK50 Series", "XK50", XK50_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXUS XK70 Series", "XK70", XK70_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TR4500 Series", "TR4500", TR4500_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA E4200 Series", "E4200", E4200_PID, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA TS6200 Series", "TS6200", TS6200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS6280 Series", "TS6280", TS6280_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS6230 Series", "TS6230", TS6230_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS8200 Series", "TS8200", TS8200_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS8280 Series", "TS8280", TS8280_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS8230 Series", "TS8230", TS8230_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TS9580 Series", "TS9580", TS9580_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA TR9530 Series", "TR9530", TR9530_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXUS XK80 Series", "XK80", XK80_PID, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  cur = res;
+  while( cur != NULL)
+    {
+      /* create a new device structure for this address */
 
-  END_OF_DEVICE_LIST
-};
+      if (bjnp_no_devices == BJNP_NO_DEVICES)
+        {
+          PDBG (bjnp_dbg
+    	    (LOG_CRIT,
+    	     "bjnp_allocate_device: WARNING - Too many devices, ran out of device structures, cannot add %s\n",
+    	     devname));
+          freeaddrinfo(res);
+          return BJNP_STATUS_INVAL;
+        }
+      if (bjnp_init_device_structure( bjnp_no_devices, (bjnp_sockaddr_t *)cur -> ai_addr,
+                                      protocol_defs, ip_timeout) != 0)
+        {
+          /* giving up on this address, try next one if any */
+          break;
+        }
+      for (i = 0; i < bjnp_no_devices; i++)
+        {
+
+          /* Check if found the scanner before, if so we use the best address
+	   * but still make sure the scanner is listed only once.
+	   * We check for matching addresses as wel as matching mac_addresses as
+           * an IPv6 host can have multiple adresses */
+
+          if ( strcmp( device[i].mac_address, device[bjnp_no_devices].mac_address ) == 0 )
+            {
+              if ( device[i].address_level < device[bjnp_no_devices].address_level )
+                {
+                  /* use the new address instead as it is better */
+                  free (device[i].addr);
+                  device[i].addr = device[bjnp_no_devices].addr;
+                  device[bjnp_no_devices].addr = NULL;
+                  device[i].address_level = device[bjnp_no_devices].address_level;
+                }
+
+	      /* Leave timeout values unchanged, as they were probably specified by the user */
+
+              freeaddrinfo(res);
+              *dn = i;
+              bjnp_free_device_structure( bjnp_no_devices);
+              return BJNP_STATUS_ALREADY_ALLOCATED;
+            }
+        }
+      cur = cur->ai_next;
+    }
+  freeaddrinfo(res);
+
+  PDBG (bjnp_dbg (LOG_INFO, "bjnp_allocate_device: Scanner not yet in our list, added it: %s:%s\n", host, port));
+
+  /* Commit new device structure */
+
+  *dn = bjnp_no_devices;
+  bjnp_no_devices++;
+
+  /* return hostname if required */
+
+  if (resulting_host != NULL)
+    {
+      strcpy (resulting_host, host);
+    }
+
+  return BJNP_STATUS_GOOD;
+}
+
+static void add_scanner(SANE_Int *dev_no,
+                        const char *uri,
+			SANE_Status (*attach_bjnp)
+			              (SANE_String_Const devname,
+			               SANE_String_Const makemodel,
+			               SANE_String_Const serial,
+			               const struct pixma_config_t *
+			               const pixma_devices[]),
+			 const struct pixma_config_t *const pixma_devices[])
+
+{
+  char scanner_host[BJNP_HOST_MAX];
+  char serial[BJNP_SERIAL_MAX];
+  char makemodel[BJNP_MODEL_MAX];
+
+  /* Allocate device structure for scanner */
+  switch (bjnp_allocate_device (uri, dev_no, scanner_host))
+    {
+      case BJNP_STATUS_GOOD:
+        if (get_scanner_id (*dev_no, makemodel) != 0)
+          {
+            PDBG (bjnp_dbg (LOG_CRIT, "add_scanner: ERROR - Cannot read scanner make & model: %s\n",
+                             uri));
+          }
+        else
+          {
+          /*
+           * inform caller of found scanner
+           */
+
+           determine_scanner_serial (scanner_host, device[*dev_no].mac_address, serial);
+
+           attach_bjnp (uri, makemodel,
+                        serial, pixma_devices);
+           PDBG (bjnp_dbg (LOG_NOTICE, "add_scanner: New scanner added: %s, serial %s, mac address: %s.\n",
+	                 uri, serial, device[*dev_no].mac_address));
+          }
+        break;
+      case BJNP_STATUS_ALREADY_ALLOCATED:
+        PDBG (bjnp_dbg (LOG_NOTICE, "add_scanner: Scanner at %s was added before, good!\n",
+	                 uri));
+        break;
+
+      case BJNP_STATUS_INVAL:
+        PDBG (bjnp_dbg (LOG_NOTICE, "add_scanner: Scanner at %s can not be added\n",
+	                 uri));
+        break;
+    }
+}
+
+int add_timeout_to_uri(char *uri, int timeout, int max_len)
+{
+  char method[BJNP_METHOD_MAX];
+  char host[BJNP_HOST_MAX];
+  char port_str[BJNP_PORT_MAX];
+  char args[BJNP_HOST_MAX];
+  int port;
+
+  if (split_uri(uri, method, host, port_str, args ) != 0)
+    {
+      return -1;
+    }
+
+  port = atoi(port_str);
+  if (port == 0)
+    {
+      port = 8612;
+    }
+
+  /* add timeout value only if missing in URI */
+
+  if (strstr(args, "timeout=") == NULL)
+    {
+      sprintf(args, "timeout=%d", timeout);
+    }
+
+  snprintf(uri, max_len -1, "%s://%s:%d/%s", method,host, port, args);
+  uri[max_len - 1] = '\0';
+  return 0;
+}
+
+
+/*
+ * Public functions
+ */
+
+/** Initialize sanei_bjnp.
+ *
+ * Call this before any other sanei_bjnp function.
+ */
+extern void
+sanei_bjnp_init (void)
+{
+  DBG_INIT();
+  bjnp_no_devices = 0;
+}
+
+/**
+ * Find devices that implement the bjnp protocol
+ *
+ * The function attach is called for every device which has been found.
+ *
+ * @param attach attach function
+ *
+ * @return SANE_STATUS_GOOD - on success (even if no scanner was found)
+ */
+extern SANE_Status
+sanei_bjnp_find_devices (const char **conf_devices,
+			 SANE_Status (*attach_bjnp)
+			 (SANE_String_Const devname,
+			  SANE_String_Const makemodel,
+			  SANE_String_Const serial,
+			  const struct pixma_config_t *
+			  const pixma_devices[]),
+			 const struct pixma_config_t *const pixma_devices[])
+{
+  int numbytes = 0;
+  struct BJNP_command cmd;
+  unsigned char resp_buf[2048];
+  struct DISCOVER_RESPONSE *disc_resp = ( struct DISCOVER_RESPONSE *) & resp_buf;
+  int socket_fd[BJNP_SOCK_MAX];
+  int no_sockets;
+  int i;
+  int j;
+  int attempt;
+  int last_socketfd = 0;
+  fd_set fdset;
+  fd_set active_fdset;
+  struct timeval timeout;
+  char scanner_host[HOST_NAME_MAX];
+  char uri[HOST_NAME_MAX + 32];
+  int dev_no;
+  int port;
+  int timeout_default = BJNP_TIMEOUT_DEFAULT;
+  bjnp_sockaddr_t broadcast_addr[BJNP_SOCK_MAX];
+  bjnp_sockaddr_t scanner_sa;
+  socklen_t socklen;
+  bjnp_protocol_defs_t *protocol_defs;
+
+  memset( broadcast_addr, 0, sizeof( broadcast_addr) );
+  memset( &scanner_sa, 0 ,sizeof( scanner_sa ) );
+  PDBG (bjnp_dbg (LOG_INFO, "sanei_bjnp_find_devices, pixma backend version: %d.%d.%d\n",
+	PIXMA_VERSION_MAJOR, PIXMA_VERSION_MINOR, PIXMA_VERSION_BUILD));
+  bjnp_no_devices = 0;
+
+  for (i=0; i < BJNP_SOCK_MAX; i++)
+    {
+      socket_fd[i] = -1;
+    }
+
+  /* Add devices from config file */
+
+  if (conf_devices[0] == NULL)
+    PDBG (bjnp_dbg( LOG_DEBUG, "sanei_bjnp_find_devices: No devices specified in configuration file.\n" ) );
+
+  for (i = 0; conf_devices[i] != NULL; i++)
+    {
+      if (strncmp(conf_devices[i], "bjnp-timeout=", strlen("bjnp-timeout="))== 0)
+        {
+	  timeout_default = atoi(conf_devices[i] + strlen("bjnp-timeout=") );
+	  PDBG ( bjnp_dbg
+                  (LOG_DEBUG, "Set new default timeout value: %d ms.", timeout_default));
+	  continue;
+	}
+      PDBG (bjnp_dbg
+	    (LOG_DEBUG, "sanei_bjnp_find_devices: Adding scanner from pixma.conf: %s\n", conf_devices[i]));
+      memcpy(uri, conf_devices[i], sizeof(uri));
+      add_timeout_to_uri(uri, timeout_default, sizeof(uri));
+      add_scanner(&dev_no, uri, attach_bjnp, pixma_devices);
+    }
+  PDBG (bjnp_dbg
+	(LOG_DEBUG,
+	 "sanei_bjnp_find_devices: Added all configured scanners, now do auto detection...\n"));
+
+  /*
+   * Send UDP DISCOVER to discover scanners and return the list of scanners found
+   */
+
+  FD_ZERO (&fdset);
+
+  no_sockets = 0;
+#ifdef HAVE_IFADDRS_H
+  {
+    struct ifaddrs *interfaces = NULL;
+    struct ifaddrs *interface;
+    getifaddrs (&interfaces);
+
+    /* create a socket for each suitable interface */
+
+    interface = interfaces;
+    while ((no_sockets < BJNP_SOCK_MAX) && (interface != NULL))
+      {
+        if ( ! (interface -> ifa_flags & IFF_POINTOPOINT) &&
+            ( (socket_fd[no_sockets] =
+                      prepare_socket( interface -> ifa_name,
+                                      (bjnp_sockaddr_t *) interface -> ifa_addr,
+                                      (bjnp_sockaddr_t *) interface -> ifa_broadaddr,
+                                      &broadcast_addr[no_sockets] ) ) != -1 ) )
+          {
+            /* track highest used socket for later use in select */
+            if (socket_fd[no_sockets] > last_socketfd)
+              {
+                last_socketfd = socket_fd[no_sockets];
+              }
+            FD_SET (socket_fd[no_sockets], &fdset);
+            no_sockets++;
+          }
+        interface = interface->ifa_next;
+      }
+    freeifaddrs (interfaces);
+  }
+#else
+  /* we have no easy way to find interfaces with their broadcast addresses. */
+  /* use global broadcast and all-hosts instead */
+  {
+    bjnp_sockaddr_t local;
+    bjnp_sockaddr_t bc_addr;
+
+    memset( &local, 0, sizeof( local) );
+    local.ipv4.sin_family = AF_INET;
+    local.ipv4.sin_addr.s_addr = htonl (INADDR_ANY);
+
+    bc_addr.ipv4.sin_family = AF_INET;
+    bc_addr.ipv4.sin_port = htons(0);
+    bc_addr.ipv4.sin_addr.s_addr = htonl (INADDR_BROADCAST);
+
+    socket_fd[no_sockets] = prepare_socket( "any_interface",
+                                   &local,
+                                   &bc_addr,
+                                   &broadcast_addr[no_sockets] );
+    if (socket_fd[no_sockets] >= 0)
+      {
+        FD_SET (socket_fd[no_sockets], &fdset);
+        if (socket_fd[no_sockets] > last_socketfd)
+          {
+            last_socketfd = socket_fd[no_sockets];
+          }
+        no_sockets++;
+      }
+#ifdef ENABLE_IPV6
+    local.ipv6.sin6_family = AF_INET6;
+    local.ipv6.sin6_addr = in6addr_any;
+
+    socket_fd[no_sockets] = prepare_socket( "any_interface",
+                                   &local,
+                                   NULL,
+                                   &broadcast_addr[no_sockets] );
+    if (socket_fd[no_sockets] >= 0)
+      {
+        FD_SET (socket_fd[no_sockets], &fdset);
+        if (socket_fd[no_sockets] > last_socketfd)
+          {
+            last_socketfd = socket_fd[no_sockets];
+          }
+        no_sockets++;
+      }
+#endif
+  }
+#endif
+
+  /* send BJNP_MAX_BROADCAST_ATTEMPTS broadcasts on each prepared socket */
+  for (attempt = 0; attempt < BJNP_MAX_BROADCAST_ATTEMPTS; attempt++)
+    {
+      for ( i=0; i < no_sockets; i++)
+        {
+	  j = 0;
+          while(bjnp_protocol_defs[j].protocol_version != PROTOCOL_NONE)
+	    {
+	      set_cmd_from_string (bjnp_protocol_defs[j].proto_string, &cmd, CMD_UDP_DISCOVER, 0);
+              bjnp_send_broadcast ( socket_fd[i], &broadcast_addr[i],
+                                    bjnp_protocol_defs[j].default_port, cmd, sizeof (cmd));
+	      j++;
+	    }
+	}
+      /* wait for some time between broadcast packets */
+      usleep (BJNP_BROADCAST_INTERVAL * BJNP_USLEEP_MS);
+    }
+
+  /* wait for a UDP response */
+
+  timeout.tv_sec = 0;
+  timeout.tv_usec = BJNP_BC_RESPONSE_TIMEOUT * BJNP_USLEEP_MS;
+
+
+  active_fdset = fdset;
+
+  while (select (last_socketfd + 1, &active_fdset, NULL, NULL, &timeout) > 0)
+    {
+      PDBG (bjnp_dbg (LOG_DEBUG, "sanei_bjnp_find_devices: Select returned, time left %d.%d....\n",
+		       (int) timeout.tv_sec, (int) timeout.tv_usec));
+      for (i = 0; i < no_sockets; i++)
+	{
+	  if (FD_ISSET (socket_fd[i], &active_fdset))
+	    {
+              socklen =  sizeof(scanner_sa);
+	      if ((numbytes =
+		   recvfrom (socket_fd[i], resp_buf, sizeof (resp_buf), 0,
+                             &(scanner_sa.addr), &socklen ) ) == -1)
+		{
+		  PDBG (bjnp_dbg
+			(LOG_INFO, "sanei_find_devices: no data received"));
+		  break;
+		}
+	      else
+		{
+		  PDBG (bjnp_dbg (LOG_DEBUG2, "sanei_find_devices: Discover response:\n"));
+		  PDBG (bjnp_hexdump (LOG_DEBUG2, &resp_buf, numbytes));
+
+		  /* check if something sensible is returned */
+		  protocol_defs = get_protocol_by_proto_string(disc_resp-> response.BJNP_id);
+		  if ( (numbytes < (int)sizeof (struct BJNP_command)) ||
+		       (protocol_defs == NULL))
+		    {
+		      /* not a valid response, assume not a scanner  */
+
+                      char bjnp_id[5];
+                      strncpy(bjnp_id,  disc_resp-> response.BJNP_id, 4);
+                      bjnp_id[4] = '\0';
+                      PDBG (bjnp_dbg (LOG_INFO,
+                        "sanei_find_devices: Invalid discover response! Length = %d, Id = %s\n",
+                        numbytes, bjnp_id ) );
+		      break;
+		    }
+                  if ( !(disc_resp -> response.dev_type & 0x80) )
+                    {
+                      /* not a response, a command from somebody else or */
+                      /* a discover command that we generated */
+                      break;
+                    }
+		};
+
+	      port = get_port_from_sa(scanner_sa);
+	      /* scanner found, get IP-address or hostname */
+              get_scanner_name( &scanner_sa, scanner_host);
+
+	      /* construct URI */
+	      sprintf (uri, "%s://%s:%d/timeout=%d", protocol_defs->method_string, scanner_host,
+		           port, timeout_default);
+
+              add_scanner( &dev_no, uri, attach_bjnp, pixma_devices);
+
+	    }
+	}
+      active_fdset = fdset;
+      timeout.tv_sec = 0;
+      timeout.tv_usec = BJNP_BC_RESPONSE_TIMEOUT * BJNP_USLEEP_MS;
+    }
+  PDBG (bjnp_dbg (LOG_DEBUG, "sanei_find_devices: scanner discovery finished...\n"));
+
+  for (i = 0; i < no_sockets; i++)
+    close (socket_fd[i]);
+
+  return SANE_STATUS_GOOD;
+}
+
+/** Open a BJNP device.
+ *
+ * The device is opened by its name devname and the device number is
+ * returned in dn on success.
+ *
+ * Device names consist of an URI
+ * Where:
+ * type = bjnp
+ * hostname = resolvable name or IP-address
+ * port = 8612 for a scanner
+ * An example could look like this: bjnp://host.domain:8612
+ *
+ * @param devname name of the device to open
+ * @param dn device number
+ *
+ * @return
+ * - SANE_STATUS_GOOD - on success
+ * - SANE_STATUS_ACCESS_DENIED - if the file couldn't be accessed due to
+ *   permissions
+ * - SANE_STATUS_INVAL - on every other error
+ */
+
+extern SANE_Status
+sanei_bjnp_open (SANE_String_Const devname, SANE_Int * dn)
+{
+  int result;
+
+  PDBG (bjnp_dbg (LOG_INFO, "sanei_bjnp_open(%s, %d):\n", devname, *dn));
+
+  result = bjnp_allocate_device (devname, dn, NULL);
+  if ( (result != BJNP_STATUS_GOOD) && (result != BJNP_STATUS_ALREADY_ALLOCATED ) ) {
+    return SANE_STATUS_INVAL;
+  }
+  return SANE_STATUS_GOOD;
+}
+
+/** Close a BJNP device.
+ *
+ * @param dn device number
+ */
+
+void
+sanei_bjnp_close (SANE_Int dn)
+{
+  PDBG (bjnp_dbg (LOG_INFO, "sanei_bjnp_close(%d):\n", dn));
+
+  device[dn].open = 0;
+  sanei_bjnp_deactivate(dn);
+}
+
+/** Activate BJNP device connection
+ *
+ * @param dn device number
+ */
+
+SANE_Status
+sanei_bjnp_activate (SANE_Int dn)
+{
+  char hostname[256];
+  char pid_str[64];
+
+  PDBG (bjnp_dbg (LOG_INFO, "sanei_bjnp_activate (%d)\n", dn));
+  gethostname (hostname, 256);
+  hostname[255] = '\0';
+  sprintf (pid_str, "Process ID = %d", getpid ());
+
+  bjnp_send_job_details (dn, hostname, getusername (), pid_str);
+
+  if (bjnp_open_tcp (dn) != 0)
+    {
+      return SANE_STATUS_INVAL;
+    }
+
+  return SANE_STATUS_GOOD;
+}
+
+/** Deactivate BJNP device connection
+ *
+ * @paran dn device number
+ */
+
+SANE_Status
+sanei_bjnp_deactivate (SANE_Int dn)
+{
+  PDBG (bjnp_dbg (LOG_INFO, "sanei_bjnp_deactivate (%d)\n", dn));
+  if ( device[dn].tcp_socket != -1)
+    {
+      bjnp_finish_job (dn);
+      close (device[dn].tcp_socket);
+      device[dn].tcp_socket = -1;
+    }
+  return SANE_STATUS_GOOD;
+}
+
+/** Set the timeout for interrupt reads.
+ *  we do not use it for bulk reads!
+ * @param timeout the new timeout in ms
+ */
+extern void
+sanei_bjnp_set_timeout (SANE_Int devno, SANE_Int timeout)
+{
+  PDBG (bjnp_dbg (LOG_INFO, "bjnp_set_timeout to %d\n",
+        timeout));
+
+  device[devno].bjnp_scanner_timeout = timeout;
+}
+
+/** Initiate a bulk transfer read.
+ *
+ * Read up to size bytes from the device to buffer. After the read, size
+ * contains the number of bytes actually read.
+ *
+ * @param dn device number
+ * @param buffer buffer to store read data in
+ * @param size size of the data
+ *
+ * @return
+ * - SANE_STATUS_GOOD - on succes
+ * - SANE_STATUS_EOF - if zero bytes have been read
+ * - SANE_STATUS_IO_ERROR - if an error occured during the read
+ * - SANE_STATUS_INVAL - on every other error
+ *
+ */
+
+extern SANE_Status
+sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
+{
+  SANE_Status result;
+  SANE_Status error;
+  size_t recvd;
+  size_t read_size;
+  size_t read_size_max;
+  size_t requested;
+
+  PDBG (bjnp_dbg
+	(LOG_INFO, "bjnp_read_bulk(dn=%d, bufferptr=%lx, 0x%lx = %ld)\n", dn,
+	 (long) buffer, (unsigned long) *size, (unsigned long) *size));
+
+  recvd = 0;
+  requested = *size;
+
+  PDBG (bjnp_dbg
+	(LOG_DEBUG, "bjnp_read_bulk: 0x%lx = %ld bytes available at start\n",
+	 (unsigned long) device[dn].scanner_data_left,
+	 (unsigned long) device[dn].scanner_data_left ) );
+
+  while ( (recvd < requested) && !( device[dn].last_block && (device[dn].scanner_data_left == 0)) )
+    {
+      PDBG (bjnp_dbg
+	    (LOG_DEBUG,
+	     "bjnp_read_bulk: Already received 0x%lx = %ld bytes, backend requested 0x%lx = %ld bytes\n",
+	     (unsigned long) recvd, (unsigned long) recvd,
+	     (unsigned long) requested, (unsigned long)requested ));
+
+      /* Check first if there is data in flight from the scanner */
+
+      if (device[dn].scanner_data_left == 0)
+        {
+	  /* There is no data in flight from the scanner, send new read request */
+
+          PDBG (bjnp_dbg (LOG_DEBUG,
+                          "bjnp_read_bulk: No (more) scanner data available, requesting more( blocksize = %ld = %lx\n",
+                          (long int) device[dn].blocksize, (long int) device[dn].blocksize ));
+
+          if ((error = bjnp_send_read_request (dn)) != SANE_STATUS_GOOD)
+            {
+              *size = recvd;
+              return SANE_STATUS_IO_ERROR;
+            }
+          if ( ( error = bjnp_recv_header (dn, &(device[dn].scanner_data_left) )  ) != SANE_STATUS_GOOD)
+            {
+              *size = recvd;
+              return SANE_STATUS_IO_ERROR;
+            }
+          /* correct blocksize if applicable */
+
+          device[dn].blocksize = MAX (device[dn].blocksize, device[dn].scanner_data_left);
+
+          if ( device[dn].scanner_data_left < device[dn].blocksize)
+            {
+              /* the scanner will not react at all to a read request, when no more data is available */
+              /* we now determine end of data by comparing the payload size to the maximun blocksize */
+              /* this block is shorter than blocksize, so after this block we are done */
+
+              device[dn].last_block = 1;
+            }
+        }
+
+      PDBG (bjnp_dbg (LOG_DEBUG, "bjnp_read_bulk: In flight: 0x%lx = %ld bytes available\n",
+		 (unsigned long) device[dn].scanner_data_left,
+		 (unsigned long) device[dn].scanner_data_left));
+
+       /* read as many bytes as needed and available */
+
+      read_size_max = MIN( device[dn].scanner_data_left, (requested - recvd) );
+      read_size = read_size_max;
+
+      PDBG (bjnp_dbg
+	    (LOG_DEBUG,
+	     "bjnp_read_bulk: Try to read 0x%lx = %ld (of max 0x%lx = %ld) bytes\n",
+	     (unsigned long) read_size_max,
+	     (unsigned long) read_size_max,
+	     (unsigned long) device[dn].scanner_data_left,
+	     (unsigned long) device[dn].scanner_data_left) );
+
+      result = bjnp_recv_data (dn, buffer , recvd, &read_size);
+      if (result != SANE_STATUS_GOOD)
+	{
+	  *size = recvd;
+	  return SANE_STATUS_IO_ERROR;
+	}
+      PDBG (bjnp_dbg (LOG_DEBUG, "bjnp_read_bulk: Expected at most %ld bytes, received this time: %ld\n",
+            read_size_max, read_size) );
+
+      device[dn].scanner_data_left = device[dn].scanner_data_left - read_size;
+      recvd = recvd + read_size;
+    }
+
+  PDBG (bjnp_dbg (LOG_DEBUG, "bjnp_read_bulk: %s: Returning %ld bytes, backend expexts %ld\n",
+        (recvd == *size)? "OK": "NOTICE",recvd, *size ) );
+  *size = recvd;
+  if ( *size == 0 )
+    return SANE_STATUS_EOF;
+  return SANE_STATUS_GOOD;
+}
+
+/** Initiate a bulk transfer write.
+ *
+ * Write up to size bytes from buffer to the device. After the write size
+ * contains the number of bytes actually written.
+ *
+ * @param dn device number
+ * @param buffer buffer to write to device
+ * @param size size of the data
+ *
+ * @return
+ * - SANE_STATUS_GOOD - on succes
+ * - SANE_STATUS_IO_ERROR - if an error occured during the write
+ * - SANE_STATUS_INVAL - on every other error
+ */
+
+extern SANE_Status
+sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
+{
+  ssize_t sent;
+  size_t recvd;
+  uint32_t buf;
+  size_t payload_size;
+
+  /* Write received data to scanner */
+
+  sent = bjnp_write (dn, buffer, *size);
+  if (sent < 0)
+    return SANE_STATUS_IO_ERROR;
+  if (sent != (int) *size)
+    {
+      PDBG (bjnp_dbg
+	    (LOG_CRIT, "sanei_bjnp_write_bulk: ERROR - Sent only %ld bytes to scanner, expected %ld!!\n",
+	     (unsigned long) sent, (unsigned long) *size));
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  if (bjnp_recv_header (dn, &payload_size) != SANE_STATUS_GOOD)
+    {
+      PDBG (bjnp_dbg (LOG_CRIT, "sanei_bjnp_write_bulk: ERROR - Could not read response to command!\n"));
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  if (payload_size != 4)
+    {
+      PDBG (bjnp_dbg (LOG_CRIT,
+		       "sanei_bjnp_write_bulk: ERROR - Scanner length of write confirmation = 0x%lx bytes = %ld, expected %d!!\n",
+		       (unsigned long) payload_size,
+		       (unsigned long) payload_size, 4));
+      return SANE_STATUS_IO_ERROR;
+    }
+  recvd = payload_size;
+  if ((bjnp_recv_data (dn, (unsigned char *) &buf, 0, &recvd) !=
+       SANE_STATUS_GOOD) || (recvd != payload_size))
+    {
+      PDBG (bjnp_dbg (LOG_CRIT,
+		       "sanei_bjnp_write_bulk: ERROR - Could not read length of data confirmed by device\n"));
+      return SANE_STATUS_IO_ERROR;
+    }
+  recvd = ntohl (buf);
+  if (recvd != *size)
+    {
+      PDBG (bjnp_dbg
+	    (LOG_CRIT, "sanei_bjnp_write_bulk: ERROR - Scanner confirmed %ld bytes, expected %ld!!\n",
+	     (unsigned long) recvd, (unsigned long) *size));
+      return SANE_STATUS_IO_ERROR;
+    }
+  /* we can expect data from the scanner */
+
+  device[dn].last_block = 0;
+
+  return SANE_STATUS_GOOD;
+}
+
+/** Initiate a interrupt transfer read.
+ *
+ * Read up to size bytes from the interrupt endpoint from the device to
+ * buffer. After the read, size contains the number of bytes actually read.
+ *
+ * @param dn device number
+ * @param buffer buffer to store read data in
+ * @param size size of the data
+ *
+ * @return
+ * - SANE_STATUS_GOOD - on succes
+ * - SANE_STATUS_EOF - if zero bytes have been read
+ * - SANE_STATUS_IO_ERROR - if an error occured during the read
+ * - SANE_STATUS_INVAL - on every other error
+ *
+ */
+
+extern SANE_Status
+sanei_bjnp_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
+{
+#ifndef PIXMA_BJNP_USE_STATUS
+  PDBG (bjnp_dbg
+	(LOG_INFO, "bjnp_read_int(%d, bufferptr, 0x%lx = %ld):\n", dn,
+	 (unsigned long) *size, (unsigned long) *size));
+
+  memset (buffer, 0, *size);
+  sleep (1);
+  return SANE_STATUS_IO_ERROR;
+#else
+
+  char hostname[256];
+  int resp_len;
+  int timeout;
+  int interval;
+
+  PDBG (bjnp_dbg
+	(LOG_INFO, "bjnp_read_int(%d, bufferptr, 0x%lx = %ld):\n", dn,
+	 (unsigned long) *size, (unsigned long) *size));
+
+  memset (buffer, 0, *size);
+
+  gethostname (hostname, 32);
+  hostname[32] = '\0';
+
+
+  switch (device[dn].polling_status)
+    {
+    case BJNP_POLL_STOPPED:
+
+      /* establish dialog */
+
+      if ( (bjnp_poll_scanner (dn, 0, hostname, getusername (), buffer, *size ) != 0) ||
+           (bjnp_poll_scanner (dn, 1, hostname, getusername (), buffer, *size ) != 0) )
+        {
+	  PDBG (bjnp_dbg (LOG_NOTICE, "bjnp_read_int: WARNING - Failed to setup read_intr dialog with device!\n"));
+          device[dn].dialog = 0;
+          device[dn].status_key = 0;
+          return SANE_STATUS_IO_ERROR;
+        }
+      device[dn].polling_status = BJNP_POLL_STARTED;
+
+      /* fall through */
+    case BJNP_POLL_STARTED:
+      /* we use only seonds (rounded up) accuracy between poll attempts */
+      timeout = device[dn].bjnp_scanner_timeout /1000 + 1;
+      if (device[dn].bjnp_scanner_timeout %1000 > 0)
+        {
+	  timeout++;
+
+	}
+      interval = 1;
+      do
+        {
+          if ( (resp_len = bjnp_poll_scanner (dn, 2, hostname, getusername (), buffer, *size ) ) < 0 )
+            {
+              PDBG (bjnp_dbg (LOG_NOTICE, "bjnp_read_int: Poll failed, Restarting polling dialog!\n"));
+              device[dn].polling_status = BJNP_POLL_STOPPED;
+              *size = 0;
+              return SANE_STATUS_EOF;
+            }
+          *size = (size_t) resp_len;
+          if ( resp_len > 0 )
+            {
+              device[dn].polling_status = BJNP_POLL_STATUS_RECEIVED;
+              return SANE_STATUS_GOOD;
+            }
+          timeout = timeout - interval;
+	  if (timeout <= 0)
+	    return SANE_STATUS_EOF;
+          sleep(interval);
+        } while ( timeout > 0 ) ;
+      break;
+    case BJNP_POLL_STATUS_RECEIVED:
+       if ( (resp_len = bjnp_poll_scanner (dn, 5, hostname, getusername (), buffer, *size ) ) < 0 )
+        {
+          PDBG (bjnp_dbg (LOG_NOTICE, "bjnp_read_int: Restarting polling dialog!\n"));
+          device[dn].polling_status = BJNP_POLL_STOPPED;
+          *size = 0;
+          break;
+        }
+    }
+  return SANE_STATUS_EOF;
+#endif
+}

@@ -246,12 +246,15 @@ support dynamic loading).
 .I @CONFIGDIR@/pixma.conf
 The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
-below). The file contains an optional list of networked scanners. Normally
+below). 
+.RS
+.PP
+The file contains an optional list of networked scanners using the BJNP or MFNP protools 
+(See below for datails on networking support for scanners). Normally
 only scanners that cannot be auto-detected because they are on a different
-subnet shall be listed here. If your OS does not allow enumeration of
+subnet shall be listed here. If you do not use Linux and your OS does not allow enumeration of
 interfaces (i.e. it does not support the getifaddrs() function) you also may need
 to add your scanner here as well.
-.RS
 .PP
 .I Scanners shall be listed in the configuration file as follows:
 .PP
@@ -292,7 +295,15 @@ Setting timeouts should only be required in exceptional cases.
 USB scanners will be auto-detected and require no configuration.
 .SH NETWORKING SUPPORT
 The pixma backend supports network scanners using the so called Canon BJNP
-protocol and MFNP protocol. Both IPv4 and IPv6 are supported, but IPv6 is as
+and MFNP protocols. 
+.PP 
+Canon seems to be dropping support for these protocols in recent scanners.
+To verify if your scanner supports one of these protocols, check the content of
+the _scanner._tcp service entry in mDNS/DNS-SD (using for example  avahi-discover).
+If that does not list port 8610 
+or 8612 your scanner pobably does not support the mfmp or bjnp protols.
+.PP
+Both IPv4 and IPv6 are supported, but IPv6 is as
 yet untested with MFNP. Please report your results on the mailing list.
 .PP
 Configuration is normally not required.

@@ -16,10 +16,12 @@
 # port number can normally be left out, port 8612 is used as default
 # The timeout parameter sets a timeout value for the scanner on
 # the same line
-# Example:
+# Examples using bjnp:
 # bjnp://myscanner.my.domain:8612 // uses the default 1000ms timeout
 # bjnp-timeout=5000
 # bjnp://printer-1.pheasant.org // will use the 5000 ms timeout
 # bjnp://scanner.bad-network.org/timeout=1500 // timeout set to 1500 ms
 # bjnp-timeout=3000 // will be used for auto-detected scanners
 #
+# Example using for a scanner using mfnp including the optional timeout:
+# mfnp://scanner.bad-network.org/timeout=1500

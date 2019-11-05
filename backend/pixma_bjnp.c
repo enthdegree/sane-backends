@@ -424,6 +424,7 @@ bjnp_open_tcp (int devno)
   bjnp_sockaddr_t *addr = device[devno].addr;
   char host[BJNP_HOST_MAX];
   int port;
+  int connect_timeout = BJNP_TIMEOUT_TCP_CONNECT;
 
   get_address_info( addr, host, &port);
   PDBG (bjnp_dbg (LOG_DEBUG, "bjnp_open_tcp: Setting up a TCP socket, dest: %s  port %d\n",
@@ -460,16 +461,23 @@ bjnp_open_tcp (int devno)
 
   fcntl (sock, F_SETFD, FD_CLOEXEC);
 
-  if (connect
-      (sock, &(addr->addr), sa_size(device[devno].addr) )!= 0)
+  while (connect_timeout > 0)
     {
-      PDBG (bjnp_dbg
-	    (LOG_CRIT, "bjnp_open_tcp: ERROR - Can not connect to scanner: %s\n",
-	     strerror (errno)));
-      return -1;
+      if (connect
+          (sock, &(addr->addr), sa_size(device[devno].addr)) == 0)
+	    {
+              device[devno].tcp_socket = sock;
+              return 0;
+	    }
+      PDBG (bjnp_dbg( LOG_INFO, "bjnp_open_tcp: INFO - Can not yet connect to scanner: %s\n",
+                      strerror(errno)));
+      usleep(BJNP_TCP_CONNECT_INTERVAL * BJNP_USLEEP_MS);
+      connect_timeout = connect_timeout - BJNP_TCP_CONNECT_INTERVAL; 
     }
-  device[devno].tcp_socket = sock;
-  return 0;
+	  
+  PDBG (bjnp_dbg
+        (LOG_CRIT, "bjnp_open_tcp: ERROR - Can not connect to scanner, giving up!"));
+  return -1;
 }
 
 static int

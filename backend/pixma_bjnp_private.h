@@ -81,7 +81,9 @@
 #define BJNP_BROADCAST_INTERVAL 10 	/* ms between broadcasts */
 #define BJNP_BC_RESPONSE_TIMEOUT 500  	/* waiting time for broadc. responses */
 #define BJNP_TIMEOUT_DEFAULT 10000	/* minimum tiemout value for network operations */
+#define BJNP_TIMEOUT_TCP_CONNECT 2000   /* timeout for tcp connect attempts in ms */
 #define BJNP_USLEEP_MS 1000          	/* sleep for 1 msec */
+#define BJNP_TCP_CONNECT_INTERVAL 100   /* TCP retry interval in ms */
 
 /* retries */
 #define BJNP_MAX_SELECT_ATTEMPTS 3   	/* max nr of retries on select (EINTR) */

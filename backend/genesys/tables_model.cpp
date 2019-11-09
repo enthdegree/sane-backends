@@ -577,12 +577,12 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            { 1200, 600, 400, 300 },
-            { 1200, 600, 400, 300 },
+            { 1200, 600, 300 },
+            { 1200, 600, 300 },
         }, {
             { ScanMethod::TRANSPARENCY },
-            { 4800, 2400, 1200, 600, 400, 300 },
-            { 4800, 2400, 1200, 600, 400, 300 },
+            { 4800, 2400, 1200, 600, 300 },
+            { 4800, 2400, 1200, 600, 300 },
         }, {
             { ScanMethod::TRANSPARENCY_INFRARED },
             { 1200 },

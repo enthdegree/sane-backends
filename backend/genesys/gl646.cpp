@@ -90,9 +90,6 @@ void CommandSetGl646::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t*
 {
     DBG_HELPER(dbg);
     sanei_genesys_bulk_read_data(dev, addr, data, len);
-    if (dev->model->is_sheetfed) {
-        detect_document_end(dev);
-    }
 }
 
 bool CommandSetGl646::get_gain4_bit(Genesys_Register_Set* regs) const
@@ -146,29 +143,6 @@ static void gl646_stop_motor(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     dev->write_register(0x0f, 0x00);
-}
-
-/**
- * find the lowest resolution for the sensor in the given mode.
- * @param sensor id of the sensor
- * @param channels the channel count
- * @return the minimum resolution for the sensor and mode
- */
-static unsigned get_lowest_resolution(SensorId sensor_id, unsigned channels)
-{
-    unsigned min_res = 9600;
-    for (const auto& sensor : *s_sensors) {
-        // computes distance and keep mode if it is closer than previous
-        if (sensor_id == sensor.sensor_id && sensor.matches_channel_count(channels)) {
-            for (auto res : sensor.resolutions.resolutions()) {
-                if (res < min_res)
-                    min_res = res;
-            }
-        }
-    }
-
-    DBG(DBG_info, "%s: %d\n", __func__, min_res);
-    return min_res;
 }
 
 /**
@@ -1696,7 +1670,7 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     // setup for a backward scan of 65535 steps, with no actual data reading
     settings.scan_method = dev->model->default_method;
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-  settings.xres = get_lowest_resolution(dev->model->sensor_id, 1);
+    settings.xres = sanei_genesys_get_lowest_dpi(dev);
   settings.yres = settings.xres;
   settings.tl_x = 0;
   settings.tl_y = 0;
@@ -3198,7 +3172,7 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance)
     DBG_HELPER_ARGS(dbg, "%d mm", distance);
   Genesys_Settings settings;
 
-  int resolution = get_lowest_resolution(dev->model->sensor_id, 3);
+    unsigned resolution = sanei_genesys_get_lowest_dpi(dev);
 
   const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, dev->model->default_method);
 

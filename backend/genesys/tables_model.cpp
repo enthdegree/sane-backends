@@ -577,12 +577,12 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            { 1200, 600, 400, 300 },
-            { 1200, 600, 400, 300 },
+            { 1200, 600, 300 },
+            { 1200, 600, 300 },
         }, {
             { ScanMethod::TRANSPARENCY },
-            { 4800, 2400, 1200, 600, 400, 300 },
-            { 4800, 2400, 1200, 600, 400, 300 },
+            { 4800, 2400, 1200, 600, 300 },
+            { 4800, 2400, 1200, 600, 300 },
         }, {
             { ScanMethod::TRANSPARENCY_INFRARED },
             { 1200 },
@@ -844,8 +844,9 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
-            { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
+            // BUG: 4800 resolution crashes
+            { /*4800,*/ 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
+            { /*4800,*/ 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
         }
     };
 
@@ -910,8 +911,9 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            { 4800, 2400, 1200, 600, 300, 150, 100, 75 },
-            { 4800, 2400, 1200, 600, 300, 150, 100, 75 },
+            // BUG: 4800 resolution crashes
+            { /*4800,*/ 2400, 1200, 600, 300, 150, 100, 75 },
+            { /*4800,*/ 2400, 1200, 600, 300, 150, 100, 75 },
         }
     };
 
@@ -2958,7 +2960,8 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::IMG101;
     model.flags = GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_UNTESTED;
     model.buttons = GENESYS_HAS_NO_BUTTONS ;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;

@@ -1641,10 +1641,10 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
 
   /* fill dark_average */
     for (unsigned x = 0; x < out_pixels_per_line; x++) {
-        dev->dark_average_data[channels * 2 * x] = dummy1;
+        dev->dark_average_data[channels * x] = dummy1;
         if (channels > 1) {
-            dev->dark_average_data[channels * 2 * x + 1] = dummy2;
-            dev->dark_average_data[channels * 2 * x + 2] = dummy3;
+            dev->dark_average_data[channels * x + 1] = dummy2;
+            dev->dark_average_data[channels * x + 2] = dummy3;
         }
     }
 }
@@ -4047,7 +4047,7 @@ static void init_options(Genesys_Scanner* s)
   s->contrast = 0;  // disable by default
 
   /* "Extras" group: */
-  s->opt[OPT_EXTRAS_GROUP].title = "extras-group";
+  s->opt[OPT_EXTRAS_GROUP].name = "extras-group";
   s->opt[OPT_EXTRAS_GROUP].title = SANE_I18N ("Extras");
   s->opt[OPT_EXTRAS_GROUP].desc = "";
   s->opt[OPT_EXTRAS_GROUP].type = SANE_TYPE_GROUP;

@@ -66,7 +66,7 @@
 
 namespace genesys {
 
-class SaneException : std::exception {
+class SaneException : public std::exception {
 public:
     SaneException(SANE_Status status);
     SaneException(SANE_Status status, const char* format, ...)

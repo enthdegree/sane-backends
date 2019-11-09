@@ -1626,17 +1626,6 @@ static void gl841_compute_session(Genesys_Device* dev, ScanSession& s,
     debug_dump(DBG_info, s);
 }
 
-static void gl841_assert_supported_resolution(const ScanSession& session)
-{
-    for (unsigned factor : {1, 2, 3, 4, 5, 6, 8, 10, 12, 15}) {
-        if (session.output_resolution == session.optical_resolution / factor) {
-            return;
-        }
-    }
-    throw SaneException("Unsupported resolution %d for optical resolution %d",
-                        session.output_resolution, session.optical_resolution);
-}
-
 // set up registers for an actual scan this function sets up the scanner to scan in normal or single
 // line mode
 static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -1679,8 +1668,6 @@ independent of our calculated values:
   dev->total_bytes_read
   dev->bytes_to_read
  */
-
-    gl841_assert_supported_resolution(session);
 
 /* dummy */
   /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1
@@ -1815,8 +1802,6 @@ void CommandSetGl841::calculate_current_setup(Genesys_Device * dev,
     session.params.flags = 0;
 
     gl841_compute_session(dev, session, sensor);
-
-    gl841_assert_supported_resolution(session);
 
   /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1
      dummy line. Maybe the dummy line adds correctness since the motor runs

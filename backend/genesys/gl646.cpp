@@ -90,9 +90,6 @@ void CommandSetGl646::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t*
 {
     DBG_HELPER(dbg);
     sanei_genesys_bulk_read_data(dev, addr, data, len);
-    if (dev->model->is_sheetfed) {
-        detect_document_end(dev);
-    }
 }
 
 bool CommandSetGl646::get_gain4_bit(Genesys_Register_Set* regs) const

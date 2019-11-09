@@ -2286,7 +2286,7 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
 #endif
     int compatible = 1;
 
-    if (dev->cmd_set->has_calculate_current_setup()) {
+    if (!dev->cmd_set->has_calculate_current_setup()) {
       DBG (DBG_proc, "%s: no calculate_setup, non compatible cache\n", __func__);
       return false;
     }

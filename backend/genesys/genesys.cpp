@@ -4047,7 +4047,7 @@ static void init_options(Genesys_Scanner* s)
   s->contrast = 0;  // disable by default
 
   /* "Extras" group: */
-  s->opt[OPT_EXTRAS_GROUP].title = "extras-group";
+  s->opt[OPT_EXTRAS_GROUP].name = "extras-group";
   s->opt[OPT_EXTRAS_GROUP].title = SANE_I18N ("Extras");
   s->opt[OPT_EXTRAS_GROUP].desc = "";
   s->opt[OPT_EXTRAS_GROUP].type = SANE_TYPE_GROUP;

@@ -313,7 +313,7 @@ void genesys_init_motor_tables()
     motor.id = MotorId::DSMOBILE_600;
     motor.base_ydpi = 750;
     motor.optical_ydpi = 1500;
-    motor.max_step_type = 2;
+    motor.max_step_type = 1;
 
     slope = Genesys_Motor_Slope();
     slope.maximum_start_speed = 6666;

@@ -98,7 +98,7 @@ private:
     do {                                                                                           \
         SANE_Status tmp_status = function;                                                         \
         if (tmp_status != SANE_STATUS_GOOD) {                                                      \
-            throw SaneException(tmp_status);                                                       \
+            throw ::genesys::SaneException(tmp_status);                                            \
         }                                                                                          \
     } while (false)
 
@@ -124,24 +124,43 @@ public:
 
     void clear() { msg_[0] = '\n'; }
 
+    void log(unsigned level, const char* msg);
+    void vlog(unsigned level, const char* format, ...)
+    #ifdef __GNUC__
+        __attribute__((format(printf, 3, 4)))
+    #endif
+    ;
+
 private:
     const char* func_ = nullptr;
     char msg_[MAX_BUF_SIZE];
     unsigned num_exceptions_on_enter_ = 0;
 };
 
-#define DBG_HELPER(var) DebugMessageHelper var(__func__)
-#define DBG_HELPER_ARGS(var, ...) DebugMessageHelper var(__func__, __VA_ARGS__)
+
+#if defined(__GNUC__) || defined(__clang__)
+#define GENESYS_CURRENT_FUNCTION __PRETTY_FUNCTION__
+#elif defined(__FUNCSIG__)
+#define GENESYS_CURRENT_FUNCTION __FUNCSIG__
+#else
+#define GENESYS_CURRENT_FUNCTION __func__
+#endif
+
+#define DBG_HELPER(var) DebugMessageHelper var(GENESYS_CURRENT_FUNCTION)
+#define DBG_HELPER_ARGS(var, ...) DebugMessageHelper var(GENESYS_CURRENT_FUNCTION, __VA_ARGS__)
 
 template<class F>
 SANE_Status wrap_exceptions_to_status_code(const char* func, F&& function)
 {
     try {
-        return function();
+        function();
+        return SANE_STATUS_GOOD;
     } catch (const SaneException& exc) {
+        DBG(DBG_error, "%s: got error: %s\n", func, exc.what());
         return exc.status();
     } catch (const std::bad_alloc& exc) {
         (void) exc;
+        DBG(DBG_error, "%s: failed to allocate memory\n", func);
         return SANE_STATUS_NO_MEM;
     } catch (const std::exception& exc) {
         DBG(DBG_error, "%s: got uncaught exception: %s\n", func, exc.what());

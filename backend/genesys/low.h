@@ -620,6 +620,7 @@ void debug_dump(unsigned level, const Genesys_Current_Setup& setup);
 void debug_dump(unsigned level, const Genesys_Register_Set& regs);
 void debug_dump(unsigned level, const GenesysRegisterSettingSet& regs);
 void debug_dump(unsigned level, const Genesys_Sensor& sensor);
+void debug_dump(unsigned level, const SANE_Parameters& params);
 
 } // namespace genesys
 

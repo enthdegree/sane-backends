@@ -74,6 +74,20 @@ enum class FrontendType : unsigned
     ANALOG_DEVICES
 };
 
+
+inline void serialize(std::istream& str, FrontendType& x)
+{
+    unsigned value;
+    serialize(str, value);
+    x = static_cast<FrontendType>(value);
+}
+
+inline void serialize(std::ostream& str, FrontendType& x)
+{
+    unsigned value = static_cast<unsigned>(x);
+    serialize(str, value);
+}
+
 struct GenesysFrontendLayout
 {
     FrontendType type = FrontendType::UNKNOWN;
@@ -87,6 +101,17 @@ struct GenesysFrontendLayout
                 gain_addr == other.gain_addr;
     }
 };
+
+template<class Stream>
+void serialize(Stream& str, GenesysFrontendLayout& x)
+{
+    serialize(str, x.type);
+    serialize_newline(str);
+    serialize(str, x.offset_addr);
+    serialize_newline(str);
+    serialize(str, x.gain_addr);
+}
+
 
 /** @brief Data structure to set up analog frontend.
     The analog frontend converts analog value from image sensor to digital value. It has its own
@@ -146,8 +171,7 @@ void serialize(Stream& str, Genesys_Frontend& x)
     serialize_newline(str);
     serialize(str, x.reg2);
     serialize_newline(str);
-    serialize(str, x.layout.offset_addr);
-    serialize(str, x.layout.gain_addr);
+    serialize(str, x.layout);
 }
 
 struct SensorExposure {

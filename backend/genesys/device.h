@@ -53,7 +53,8 @@
 #include "settings.h"
 #include "sensor.h"
 #include "register.h"
-#include "sanei.h"
+#include "usb_device.h"
+#include "scanner_interface.h"
 #include <vector>
 
 namespace genesys {
@@ -242,7 +243,6 @@ struct Genesys_Device
     // frees commonly used data
     void clear();
 
-    UsbDevice usb_dev;
     SANE_Word vendorId = 0;			/**< USB vendor identifier */
     SANE_Word productId = 0;			/**< USB product identifier */
 
@@ -357,18 +357,12 @@ struct Genesys_Device
     // image buffer where the scanned picture is stored
     std::vector<std::uint8_t> img_buffer;
 
-    // A snapshot of the last known physical state of the device registers. This variable is updated
-    // whenever a register is written or read to the scanner.
-    Genesys_Register_Set physical_regs;
-
     ImagePipelineNodeBytesSource& get_pipeline_source();
 
-    std::uint8_t read_register(std::uint16_t address);
-    void write_register(std::uint16_t address, std::uint8_t value);
-    void write_registers(Genesys_Register_Set& regs);
+    std::unique_ptr<ScannerInterface> interface;
 
 private:
-    void update_register_state(std::uint16_t address, std::uint8_t value);
+    friend class ScannerInterfaceUsb;
 };
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs);

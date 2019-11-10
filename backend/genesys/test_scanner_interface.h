@@ -41,91 +41,53 @@
    If you do not wish that, delete this exception notice.
 */
 
-#ifndef BACKEND_GENESYS_FWD_H
-#define BACKEND_GENESYS_FWD_H
+#ifndef BACKEND_GENESYS_TEST_SCANNER_INTERFACE_H
+#define BACKEND_GENESYS_TEST_SCANNER_INTERFACE_H
+
+#include "scanner_interface.h"
+#include "register_cache.h"
+#include "test_usb_device.h"
 
 namespace genesys {
 
-// buffer.h
-struct Genesys_Buffer;
+class TestScannerInterface : public ScannerInterface
+{
+public:
+    ~TestScannerInterface() override;
 
-// calibration.h
-struct Genesys_Calibration_Cache;
+    bool is_mock() const override;
 
-// command_set.h
-class CommandSet;
+    std::uint8_t read_register(std::uint16_t address) override;
+    void write_register(std::uint16_t address, std::uint8_t value) override;
+    void write_registers(const Genesys_Register_Set& regs) override;
 
-// device.h
-class FixedFloat;
-struct Genesys_Gpo;
-struct MethodResolutions;
-struct Genesys_Model;
-struct Genesys_Device;
+    void write_0x8c(std::uint8_t index, std::uint8_t value) override;
+    void bulk_read_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) override;
+    void bulk_write_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) override;
 
-// error.h
-class DebugMessageHelper;
-class SaneException;
+    void write_buffer(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
+                      std::size_t size, Flags flags) override;
+    void write_gamma(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
+                     std::size_t size, Flags flags) override;
+    void write_ahb(std::uint32_t addr, std::uint32_t size, std::uint8_t* data) override;
 
-// genesys.h
-class GenesysButton;
-struct Genesys_Scanner;
+    std::uint16_t read_fe_register(std::uint8_t address) override;
+    void write_fe_register(std::uint8_t address, std::uint16_t value) override;
 
-// image.h
-class Image;
+    IUsbDevice& get_usb_device() override;
 
-// image_buffer.h
-class ImageBuffer;
-class FakeBufferModel;
-class ImageBufferGenesysUsb;
+    void sleep_us(unsigned microseconds) override;
 
-// image_pipeline.h
-class ImagePipelineNode;
-// ImagePipelineNode* skipped
-class ImagePipelineStack;
+    void record_progress_message(const char* msg) override;
 
-// image_pixel.h
-struct Pixel;
-struct RawPixel;
+    const std::string& last_progress_message() const;
 
-// low.h
-struct Genesys_USB_Device_Entry;
-struct Motor_Profile;
-
-// motor.h
-struct Genesys_Motor;
-struct Genesys_Motor_Slope;
-
-// register.h
-class Genesys_Register_Set;
-struct GenesysRegisterSetState;
-
-// row_buffer.h
-class RowBuffer;
-
-// usb_device.h
-class IUsbDevice;
-class UsbDevice;
-
-// scanner_interface.h
-class ScannerInterface;
-class ScannerInterfaceUsb;
-class TestScannerInterface;
-
-// sensor.h
-class ResolutionFilter;
-struct GenesysFrontendLayout;
-struct Genesys_Frontend;
-struct SensorExposure;
-struct SensorProfile;
-struct Genesys_Sensor;
-
-// settings.h
-struct Genesys_Settings;
-struct SetupParams;
-struct ScanSession;
-
-// test_usb_device.h
-class TestUsbDevice;
+private:
+    RegisterCache<std::uint8_t> cached_regs_;
+    RegisterCache<std::uint16_t> cached_fe_regs_;
+    TestUsbDevice usb_dev_;
+    std::string last_progress_message_;
+};
 
 } // namespace genesys
 

@@ -41,92 +41,12 @@
    If you do not wish that, delete this exception notice.
 */
 
-#ifndef BACKEND_GENESYS_FWD_H
-#define BACKEND_GENESYS_FWD_H
+#define DEBUG_DECLARE_ONLY
+
+#include "scanner_interface.h"
 
 namespace genesys {
 
-// buffer.h
-struct Genesys_Buffer;
-
-// calibration.h
-struct Genesys_Calibration_Cache;
-
-// command_set.h
-class CommandSet;
-
-// device.h
-class FixedFloat;
-struct Genesys_Gpo;
-struct MethodResolutions;
-struct Genesys_Model;
-struct Genesys_Device;
-
-// error.h
-class DebugMessageHelper;
-class SaneException;
-
-// genesys.h
-class GenesysButton;
-struct Genesys_Scanner;
-
-// image.h
-class Image;
-
-// image_buffer.h
-class ImageBuffer;
-class FakeBufferModel;
-class ImageBufferGenesysUsb;
-
-// image_pipeline.h
-class ImagePipelineNode;
-// ImagePipelineNode* skipped
-class ImagePipelineStack;
-
-// image_pixel.h
-struct Pixel;
-struct RawPixel;
-
-// low.h
-struct Genesys_USB_Device_Entry;
-struct Motor_Profile;
-
-// motor.h
-struct Genesys_Motor;
-struct Genesys_Motor_Slope;
-
-// register.h
-class Genesys_Register_Set;
-struct GenesysRegisterSetState;
-
-// row_buffer.h
-class RowBuffer;
-
-// usb_device.h
-class IUsbDevice;
-class UsbDevice;
-
-// scanner_interface.h
-class ScannerInterface;
-class ScannerInterfaceUsb;
-class TestScannerInterface;
-
-// sensor.h
-class ResolutionFilter;
-struct GenesysFrontendLayout;
-struct Genesys_Frontend;
-struct SensorExposure;
-struct SensorProfile;
-struct Genesys_Sensor;
-
-// settings.h
-struct Genesys_Settings;
-struct SetupParams;
-struct ScanSession;
-
-// test_usb_device.h
-class TestUsbDevice;
+ScannerInterface::~ScannerInterface() = default;
 
 } // namespace genesys
-
-#endif

@@ -43,9 +43,11 @@
 
 #define DEBUG_DECLARE_ONLY
 
-#include "sanei.h"
+#include "usb_device.h"
 
 namespace genesys {
+
+IUsbDevice::~IUsbDevice() = default;
 
 UsbDevice::~UsbDevice()
 {

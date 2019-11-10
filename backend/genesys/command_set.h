@@ -108,11 +108,6 @@ public:
 
     virtual bool has_rewind() const { return true; }
 
-    virtual void bulk_write_data(Genesys_Device* dev, std::uint8_t addr, std::uint8_t* data,
-                                 size_t len) const = 0;
-    virtual void bulk_read_data(Genesys_Device * dev, std::uint8_t addr, std::uint8_t* data,
-                                size_t len) const = 0;
-
     // Updates hardware sensor information in Genesys_Scanner.val[].
     virtual void update_hardware_sensors(struct Genesys_Scanner* s) const = 0;
 

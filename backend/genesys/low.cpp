@@ -230,332 +230,6 @@ unsigned sanei_genesys_get_bulk_max_size(AsicType asic_type)
     return 0xf000;
 }
 
-void sanei_genesys_bulk_read_data_send_header(Genesys_Device* dev, size_t len)
-{
-    DBG_HELPER(dbg);
-
-    uint8_t outdata[8];
-    if (dev->model->asic_type == AsicType::GL124 ||
-        dev->model->asic_type == AsicType::GL846 ||
-        dev->model->asic_type == AsicType::GL847)
-    {
-        // hard coded 0x10000000 address
-        outdata[0] = 0;
-        outdata[1] = 0;
-        outdata[2] = 0;
-        outdata[3] = 0x10;
-    } else if (dev->model->asic_type == AsicType::GL841 ||
-               dev->model->asic_type == AsicType::GL843) {
-        outdata[0] = BULK_IN;
-        outdata[1] = BULK_RAM;
-        outdata[2] = 0x82; //
-        outdata[3] = 0x00;
-    } else {
-        outdata[0] = BULK_IN;
-        outdata[1] = BULK_RAM;
-        outdata[2] = 0x00;
-        outdata[3] = 0x00;
-    }
-
-    /* data size to transfer */
-    outdata[4] = (len & 0xff);
-    outdata[5] = ((len >> 8) & 0xff);
-    outdata[6] = ((len >> 16) & 0xff);
-    outdata[7] = ((len >> 24) & 0xff);
-
-    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x00,
-                             sizeof(outdata), outdata);
-}
-
-void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
-                                  size_t len)
-{
-    DBG_HELPER(dbg);
-
-    // currently supported: GL646, GL841, GL843, GL846, GL847, GL124
-    size_t size, target;
-
-    unsigned is_addr_used = 1;
-    unsigned has_header_before_each_chunk = 0;
-    if (dev->model->asic_type == AsicType::GL124 ||
-        dev->model->asic_type == AsicType::GL846 ||
-        dev->model->asic_type == AsicType::GL847)
-    {
-        is_addr_used = 0;
-        has_header_before_each_chunk = 1;
-    }
-
-    if (is_addr_used) {
-        DBG(DBG_io, "%s: requesting %zu bytes from 0x%02x addr\n", __func__, len, addr);
-    } else {
-        DBG(DBG_io, "%s: requesting %zu bytes\n", __func__, len);
-    }
-
-    if (len == 0)
-        return;
-
-    if (is_addr_used) {
-        dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, 0x00,
-                                 1, &addr);
-    }
-
-    target = len;
-
-    size_t max_in_size = sanei_genesys_get_bulk_max_size(dev->model->asic_type);
-
-    if (!has_header_before_each_chunk) {
-        sanei_genesys_bulk_read_data_send_header(dev, len);
-    }
-
-    // loop until computed data size is read
-    while (target) {
-        if (target > max_in_size) {
-            size = max_in_size;
-        } else {
-            size = target;
-        }
-
-        if (has_header_before_each_chunk) {
-            sanei_genesys_bulk_read_data_send_header(dev, size);
-        }
-
-        DBG(DBG_io2, "%s: trying to read %zu bytes of data\n", __func__, size);
-
-        dev->usb_dev.bulk_read(data, &size);
-
-        DBG(DBG_io2, "%s: read %zu bytes, %zu remaining\n", __func__, size, target - size);
-
-        target -= size;
-        data += size;
-    }
-}
-
-void sanei_genesys_bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data, size_t len)
-{
-    DBG_HELPER_ARGS(dbg, "writing %zu bytes", len);
-
-    // supported: GL646, GL841, GL843
-    size_t size;
-    uint8_t outdata[8];
-
-    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
-                             1, &addr);
-
-    size_t max_out_size = sanei_genesys_get_bulk_max_size(dev->model->asic_type);
-
-    while (len) {
-        if (len > max_out_size)
-            size = max_out_size;
-        else
-            size = len;
-
-        if (dev->model->asic_type == AsicType::GL841) {
-            outdata[0] = BULK_OUT;
-            outdata[1] = BULK_RAM;
-            // both 0x82 and 0x00 works on GL841.
-            outdata[2] = 0x82;
-            outdata[3] = 0x00;
-        } else {
-            outdata[0] = BULK_OUT;
-            outdata[1] = BULK_RAM;
-            // 8600F uses 0x82, but 0x00 works too. 8400F uses 0x02 for certain transactions.
-            outdata[2] = 0x00;
-            outdata[3] = 0x00;
-        }
-
-        outdata[4] = (size & 0xff);
-        outdata[5] = ((size >> 8) & 0xff);
-        outdata[6] = ((size >> 16) & 0xff);
-        outdata[7] = ((size >> 24) & 0xff);
-
-        dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x00,
-                                 sizeof(outdata), outdata);
-
-        dev->usb_dev.bulk_write(data, &size);
-
-        DBG(DBG_io2, "%s: wrote %zu bytes, %zu remaining\n", __func__, size, len - size);
-
-        len -= size;
-        data += size;
-    }
-}
-
-/** @brief write to one high (addr >= 0x100) register
- * write to a register which address is higher than 0xff.
- * @param dev opened device to write to
- * @param reg LSB of register address
- * @param val value to write
- */
-static void sanei_genesys_write_hregister(Genesys_Device* dev, uint16_t reg, uint8_t val)
-{
-    DBG_HELPER(dbg);
-
-  uint8_t buffer[2];
-
-  buffer[0]=reg & 0xff;
-  buffer[1]=val;
-
-
-    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, 0x100 | VALUE_SET_REGISTER, INDEX,
-                             2, buffer);
-
-    DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, reg, val);
-}
-
-/** @brief read from one high (addr >= 0x100) register
- * Read to a register which address is higher than 0xff. Second byte is check to detect
- * physical link errors.
- * @param dev opened device to read from
- * @param reg LSB of register address
- * @param val value to write
- */
-static void sanei_genesys_read_hregister(Genesys_Device* dev, uint16_t reg, uint8_t* val)
-{
-    DBG_HELPER(dbg);
-
-  SANE_Byte value[2];
-
-    dev->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_BUFFER, 0x100 | VALUE_GET_REGISTER,
-                             0x22+((reg & 0xff)<<8), 2, value);
-
-  *val=value[0];
-  DBG(DBG_io2, "%s(0x%02x)=0x%02x\n", __func__, reg, *val);
-
-  /* check usb link status */
-    if ((value[1] & 0xff) != 0x55) {
-        throw SaneException(SANE_STATUS_IO_ERROR, "invalid read, scanner unplugged");
-    }
-}
-
-/**
- * Write to one GL847 ASIC register
-URB    10  control  0x40 0x04 0x83 0x00 len     2 wrote 0xa6 0x04
- */
-static void sanei_genesys_write_gl847_register(Genesys_Device* dev, uint8_t reg, uint8_t val)
-{
-    DBG_HELPER(dbg);
-
-  uint8_t buffer[2];
-
-  buffer[0]=reg;
-  buffer[1]=val;
-
-    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_SET_REGISTER, INDEX,
-                             2, buffer);
-
-  DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, reg, val);
-}
-
-/**
- * Write to one ASIC register
- */
-void sanei_genesys_write_register(Genesys_Device* dev, uint16_t reg, uint8_t val)
-{
-    DBG_HELPER(dbg);
-
-  SANE_Byte reg8;
-
-    // 16 bit register address space
-    if (reg > 255) {
-        sanei_genesys_write_hregister(dev, reg, val);
-        return;
-    }
-
-    // route to gl847 function if needed
-    if (dev->model->asic_type == AsicType::GL847 ||
-        dev->model->asic_type == AsicType::GL845 ||
-        dev->model->asic_type == AsicType::GL846 ||
-        dev->model->asic_type == AsicType::GL124)
-    {
-        sanei_genesys_write_gl847_register(dev, reg, val);
-        return;
-    }
-
-  reg8=reg & 0xff;
-
-    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
-                             1, &reg8);
-
-    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_WRITE_REGISTER, INDEX,
-                             1, &val);
-
-  DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, reg, val);
-    return;
-}
-
-/**
- * @brief write command to 0x8c endpoint
- * Write a value to 0x8c end point (end access), for USB firmware related operations
- * Known values are 0x0f, 0x11 for USB 2.0 data transfer and 0x0f,0x14 for USB1.1
- * @param dev device to write to
- * @param index index of the command
- * @param val value to write
- */
-void sanei_genesys_write_0x8c(Genesys_Device* dev, uint8_t index, uint8_t val)
-{
-    DBG_HELPER_ARGS(dbg, "0x%02x,0x%02x", index, val);
-    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_BUF_ENDACCESS, index, 1,
-                             &val);
-}
-
-/* read reg 0x41:
- * URB   164  control  0xc0 0x04 0x8e 0x4122 len     2 read  0xfc 0x55
- */
-static void sanei_genesys_read_gl847_register(Genesys_Device* dev, uint16_t reg, uint8_t* val)
-{
-    DBG_HELPER(dbg);
-  SANE_Byte value[2];
-
-    dev->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_BUFFER, VALUE_GET_REGISTER, 0x22+(reg<<8),
-                             2, value);
-
-  *val=value[0];
-  DBG(DBG_io2, "%s(0x%02x)=0x%02x\n", __func__, reg, *val);
-
-  /* check usb link status */
-  if((value[1] & 0xff) != 0x55)
-    {
-      throw SaneException(SANE_STATUS_IO_ERROR, "invalid read, scanner unplugged?");
-    }
-}
-
-// Read from one register
-void sanei_genesys_read_register(Genesys_Device* dev, uint16_t reg, uint8_t* val)
-{
-    DBG_HELPER(dbg);
-
-  SANE_Byte reg8;
-
-    // 16 bit register address space
-    if (reg > 255) {
-        sanei_genesys_read_hregister(dev, reg, val);
-        return;
-    }
-
-    // route to gl847 function if needed
-    if (dev->model->asic_type == AsicType::GL847 ||
-        dev->model->asic_type == AsicType::GL845 ||
-        dev->model->asic_type == AsicType::GL846 ||
-        dev->model->asic_type == AsicType::GL124)
-    {
-        sanei_genesys_read_gl847_register(dev, reg, val);
-        return;
-    }
-
-  /* 8 bit register address space */
-    reg8 = reg & 0Xff;
-
-    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_SET_REGISTER, INDEX,
-                             1, &reg8);
-
-  *val = 0;
-
-    dev->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_READ_REGISTER, INDEX,
-                             1, val);
-
-  DBG(DBG_io, "%s (0x%02x, 0x%02x) completed\n", __func__, reg, *val);
-}
-
 // Set address for writing data
 void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 {
@@ -574,58 +248,10 @@ void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 
   addr = addr >> 4;
 
-    dev->write_register(0x2b, (addr & 0xff));
+    dev->interface->write_register(0x2b, (addr & 0xff));
 
   addr = addr >> 8;
-    dev->write_register(0x2a, (addr & 0xff));
-}
-
-/**@brief read data from analog frontend (AFE)
- * @param dev device owning the AFE
- * @param addr register address to read
- * @param data placeholder for the result
- */
-void sanei_genesys_fe_read_data (Genesys_Device* dev, uint8_t addr, uint16_t* data)
-{
-    DBG_HELPER(dbg);
-  Genesys_Register_Set reg;
-
-  reg.init_reg(0x50, addr);
-
-    // set up read address
-    dev->write_registers(reg);
-
-    // read data
-    uint8_t value = dev->read_register(0x46);
-    *data = 256 * value;
-    value = dev->read_register(0x47);
-    *data += value;
-
-  DBG(DBG_io, "%s (0x%02x, 0x%04x)\n", __func__, addr, *data);
-}
-
-/*@brief write data to analog frontend
- * writes data to analog frontend to set it up accordingly
- * to the sensor settings (exposure, timings, color, bit depth, ...)
- * @param dev devie owning the AFE to write to
- * @param addr AFE rister address
- * @param data value to write to AFE register
- **/
-void sanei_genesys_fe_write_data(Genesys_Device* dev, uint8_t addr, uint16_t data)
-{
-    DBG_HELPER_ARGS(dbg, "0x%02x, 0x%04x", addr, data);
-  Genesys_Register_Set reg(Genesys_Register_Set::SEQUENTIAL);
-
-    reg.init_reg(0x51, addr);
-    if (dev->model->asic_type == AsicType::GL124) {
-        reg.init_reg(0x5d, (data / 256) & 0xff);
-        reg.init_reg(0x5e, data & 0xff);
-    } else {
-        reg.init_reg(0x3a, (data / 256) & 0xff);
-        reg.init_reg(0x3b, data & 0xff);
-    }
-
-    dev->write_registers(reg);
+    dev->interface->write_register(0x2a, (addr & 0xff));
 }
 
 /* ------------------------------------------------------------------------ */
@@ -641,7 +267,7 @@ std::uint8_t sanei_genesys_get_status(Genesys_Device* dev)
     if (dev->model->asic_type == AsicType::GL124) {
         address = 0x101;
     }
-    return dev->read_register(address);
+    return dev->interface->read_register(address);
 }
 
 /**
@@ -698,34 +324,34 @@ void sanei_genesys_read_valid_words(Genesys_Device* dev, unsigned int* words)
   switch (dev->model->asic_type)
     {
     case AsicType::GL124:
-            *words = dev->read_register(0x102) & 0x03;
-            *words = *words * 256 + dev->read_register(0x103);
-            *words = *words * 256 + dev->read_register(0x104);
-            *words = *words * 256 + dev->read_register(0x105);
+            *words = dev->interface->read_register(0x102) & 0x03;
+            *words = *words * 256 + dev->interface->read_register(0x103);
+            *words = *words * 256 + dev->interface->read_register(0x104);
+            *words = *words * 256 + dev->interface->read_register(0x105);
             break;
 
     case AsicType::GL845:
     case AsicType::GL846:
-            *words = dev->read_register(0x42) & 0x02;
-            *words = *words * 256 + dev->read_register(0x43);
-            *words = *words * 256 + dev->read_register(0x44);
-            *words = *words * 256 + dev->read_register(0x45);
+            *words = dev->interface->read_register(0x42) & 0x02;
+            *words = *words * 256 + dev->interface->read_register(0x43);
+            *words = *words * 256 + dev->interface->read_register(0x44);
+            *words = *words * 256 + dev->interface->read_register(0x45);
             break;
 
     case AsicType::GL847:
-            *words = dev->read_register(0x42) & 0x03;
-            *words = *words * 256 + dev->read_register(0x43);
-            *words = *words * 256 + dev->read_register(0x44);
-            *words = *words * 256 + dev->read_register(0x45);
+            *words = dev->interface->read_register(0x42) & 0x03;
+            *words = *words * 256 + dev->interface->read_register(0x43);
+            *words = *words * 256 + dev->interface->read_register(0x44);
+            *words = *words * 256 + dev->interface->read_register(0x45);
             break;
 
     default:
-            *words = dev->read_register(0x44);
-            *words += dev->read_register(0x43) * 256;
+            *words = dev->interface->read_register(0x44);
+            *words += dev->interface->read_register(0x43) * 256;
             if (dev->model->asic_type == AsicType::GL646) {
-                *words += ((dev->read_register(0x42) & 0x03) * 256 * 256);
+                *words += ((dev->interface->read_register(0x42) & 0x03) * 256 * 256);
             } else {
-                *words += ((dev->read_register(0x42) & 0x0f) * 256 * 256);
+                *words += ((dev->interface->read_register(0x42) & 0x0f) * 256 * 256);
             }
     }
 
@@ -740,18 +366,18 @@ void sanei_genesys_read_scancnt(Genesys_Device* dev, unsigned int* words)
     DBG_HELPER(dbg);
 
     if (dev->model->asic_type == AsicType::GL124) {
-        *words = (dev->read_register(0x10b) & 0x0f) << 16;
-        *words += (dev->read_register(0x10c) << 8);
-        *words += dev->read_register(0x10d);
+        *words = (dev->interface->read_register(0x10b) & 0x0f) << 16;
+        *words += (dev->interface->read_register(0x10c) << 8);
+        *words += dev->interface->read_register(0x10d);
     }
   else
     {
-        *words = dev->read_register(0x4d);
-        *words += dev->read_register(0x4c) * 256;
+        *words = dev->interface->read_register(0x4d);
+        *words += dev->interface->read_register(0x4c) * 256;
         if (dev->model->asic_type == AsicType::GL646) {
-            *words += ((dev->read_register(0x4b) & 0x03) * 256 * 256);
+            *words += ((dev->interface->read_register(0x4b) & 0x03) * 256 * 256);
         } else {
-            *words += ((dev->read_register(0x4b) & 0x0f) * 256 * 256);
+            *words += ((dev->interface->read_register(0x4b) & 0x0f) * 256 * 256);
         }
     }
 
@@ -768,14 +394,14 @@ bool sanei_genesys_is_buffer_empty(Genesys_Device* dev)
     DBG_HELPER(dbg);
   uint8_t val = 0;
 
-  sanei_genesys_sleep_ms(1);
+    dev->interface->sleep_ms(1);
     val = sanei_genesys_get_status(dev);
 
     if (dev->cmd_set->test_buffer_empty_bit(val)) {
       /* fix timing issue on USB3 (or just may be too fast) hardware
        * spotted by John S. Weber <jweber53@gmail.com>
        */
-      sanei_genesys_sleep_ms(1);
+        dev->interface->sleep_ms(1);
       DBG(DBG_io2, "%s: buffer is empty\n", __func__);
         return true;
     }
@@ -797,7 +423,7 @@ void wait_until_buffer_non_empty(Genesys_Device* dev, bool check_status_twice)
         }
 
         bool empty = sanei_genesys_is_buffer_empty(dev);
-        sanei_genesys_sleep_ms(10);
+        dev->interface->sleep_ms(10);
         if (!empty)
             return;
     }
@@ -813,7 +439,7 @@ void wait_until_has_valid_words(Genesys_Device* dev)
         sanei_genesys_read_valid_words(dev, &words);
         if (words != 0)
             break;
-        sanei_genesys_sleep_ms(sleep_time_ms);
+        dev->interface->sleep_ms(sleep_time_ms);
     }
 
     if (words == 0) {
@@ -831,7 +457,7 @@ void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* data, si
 
     wait_until_has_valid_words(dev);
 
-    dev->cmd_set->bulk_read_data(dev, 0x45, data, size);
+    dev->interface->bulk_read_data(0x45, data, size);
 }
 
 Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession& session,
@@ -892,20 +518,20 @@ void sanei_genesys_read_feed_steps(Genesys_Device* dev, unsigned int* steps)
     DBG_HELPER(dbg);
 
     if (dev->model->asic_type == AsicType::GL124) {
-        *steps = (dev->read_register(0x108) & 0x1f) << 16;
-        *steps += (dev->read_register(0x109) << 8);
-        *steps += dev->read_register(0x10a);
+        *steps = (dev->interface->read_register(0x108) & 0x1f) << 16;
+        *steps += (dev->interface->read_register(0x109) << 8);
+        *steps += dev->interface->read_register(0x10a);
     }
   else
     {
-        *steps = dev->read_register(0x4a);
-        *steps += dev->read_register(0x49) * 256;
+        *steps = dev->interface->read_register(0x4a);
+        *steps += dev->interface->read_register(0x49) * 256;
         if (dev->model->asic_type == AsicType::GL646) {
-            *steps += ((dev->read_register(0x48) & 0x03) * 256 * 256);
+            *steps += ((dev->interface->read_register(0x48) & 0x03) * 256 * 256);
         } else if (dev->model->asic_type == AsicType::GL841) {
-            *steps += ((dev->read_register(0x48) & 0x0f) * 256 * 256);
+            *steps += ((dev->interface->read_register(0x48) & 0x0f) * 256 * 256);
         } else {
-            *steps += ((dev->read_register(0x48) & 0x1f) * 256 * 256);
+            *steps += ((dev->interface->read_register(0x48) & 0x1f) * 256 * 256);
         }
     }
 
@@ -984,133 +610,6 @@ bool should_enable_gamma(const ScanSession& session, const Genesys_Sensor& senso
 
     return true;
 }
-
-/**
- * Write to many registers at once
- * Note: sequential call to write register, no effective
- * bulk write implemented.
- * @param dev device to write to
- * @param reg pointer to an array of registers
- * @param elems size of the array
- */
-void sanei_genesys_bulk_write_register(Genesys_Device* dev, const Genesys_Register_Set& reg)
-{
-    DBG_HELPER(dbg);
-
-    if (dev->model->asic_type == AsicType::GL646 ||
-        dev->model->asic_type == AsicType::GL841)
-    {
-        uint8_t outdata[8];
-        std::vector<uint8_t> buffer;
-        buffer.reserve(reg.size() * 2);
-
-        /* copy registers and values in data buffer */
-        for (const auto& r : reg) {
-            buffer.push_back(r.address);
-            buffer.push_back(r.value);
-        }
-
-        DBG(DBG_io, "%s (elems= %zu, size = %zu)\n", __func__, reg.size(), buffer.size());
-
-        if (dev->model->asic_type == AsicType::GL646) {
-            outdata[0] = BULK_OUT;
-            outdata[1] = BULK_REGISTER;
-            outdata[2] = 0x00;
-            outdata[3] = 0x00;
-            outdata[4] = (buffer.size() & 0xff);
-            outdata[5] = ((buffer.size() >> 8) & 0xff);
-            outdata[6] = ((buffer.size() >> 16) & 0xff);
-            outdata[7] = ((buffer.size() >> 24) & 0xff);
-
-            dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, INDEX,
-                                     sizeof(outdata), outdata);
-
-            size_t write_size = buffer.size();
-
-            dev->usb_dev.bulk_write(buffer.data(), &write_size);
-        } else {
-            for (size_t i = 0; i < reg.size();) {
-                size_t c = reg.size() - i;
-                if (c > 32)  /*32 is max on GL841. checked that.*/
-                    c = 32;
-
-                dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_SET_REGISTER,
-                                         INDEX, c * 2, buffer.data() + i * 2);
-
-                i += c;
-            }
-        }
-    } else {
-        for (const auto& r : reg) {
-            dev->write_register(r.address, r.value);
-        }
-    }
-
-    DBG (DBG_io, "%s: wrote %zu registers\n", __func__, reg.size());
-}
-
-
-
-/**
- * writes a block of data to AHB
- * @param dn USB device index
- * @param usb_mode usb mode : 1 usb 1.1, 2 usb 2.0
- * @param addr AHB address to write to
- * @param size size of the chunk of data
- * @param data pointer to the data to write
- */
-void sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size, uint8_t* data)
-{
-    DBG_HELPER(dbg);
-
-  uint8_t outdata[8];
-  size_t written,blksize;
-  int i;
-  char msg[100]="AHB=";
-
-  outdata[0] = addr & 0xff;
-  outdata[1] = ((addr >> 8) & 0xff);
-  outdata[2] = ((addr >> 16) & 0xff);
-  outdata[3] = ((addr >> 24) & 0xff);
-  outdata[4] = (size & 0xff);
-  outdata[5] = ((size >> 8) & 0xff);
-  outdata[6] = ((size >> 16) & 0xff);
-  outdata[7] = ((size >> 24) & 0xff);
-
-  if (DBG_LEVEL >= DBG_io)
-    {
-      for (i = 0; i < 8; i++)
-	{
-          sprintf (msg+strlen(msg), " 0x%02x", outdata[i]);
-	}
-      DBG (DBG_io, "%s: write(0x%08x,0x%08x)\n", __func__, addr,size);
-      DBG (DBG_io, "%s: %s\n", __func__, msg);
-    }
-
-    // write addr and size for AHB
-    dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_BUFFER, VALUE_BUFFER, 0x01, 8, outdata);
-
-  size_t max_out_size = sanei_genesys_get_bulk_max_size(dev->model->asic_type);
-
-  /* write actual data */
-  written = 0;
-  do
-    {
-      if (size - written > max_out_size)
-        {
-          blksize = max_out_size;
-        }
-      else
-        {
-          blksize = size - written;
-        }
-        dev->usb_dev.bulk_write(data + written, &blksize);
-
-      written += blksize;
-    }
-  while (written < size);
-}
-
 
 std::vector<uint16_t> get_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                       int color)
@@ -1215,14 +714,14 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
     // loop sending gamma tables NOTE: 0x01000000 not 0x10000000
     for (i = 0; i < 3; i++) {
         // clear corresponding GMM_N bit
-        uint8_t val = dev->read_register(0xbd);
+        uint8_t val = dev->interface->read_register(0xbd);
         val &= ~(0x01 << i);
-        dev->write_register(0xbd, val);
+        dev->interface->write_register(0xbd, val);
 
         // clear corresponding GMM_F bit
-        val = dev->read_register(0xbe);
+        val = dev->interface->read_register(0xbe);
       val &= ~(0x01 << i);
-        dev->write_register(0xbe, val);
+        dev->interface->write_register(0xbe, val);
 
       // FIXME: currently the last word of each gamma table is not initialied, so to work around
       // unstable data, just set it to 0 which is the most likely value of uninitialized memory
@@ -1231,11 +730,11 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
       gamma[size * 2 * i + size * 2 - 1] = 0;
 
       /* set GMM_Z */
-        dev->write_register(0xc5+2*i, gamma[size*2*i+1]);
-        dev->write_register(0xc6+2*i, gamma[size*2*i]);
+        dev->interface->write_register(0xc5+2*i, gamma[size*2*i+1]);
+        dev->interface->write_register(0xc6+2*i, gamma[size*2*i]);
 
-        sanei_genesys_write_ahb(dev, 0x01000000 + 0x200 * i, (size-1) * 2,
-                                gamma.data() + i * size * 2+2);
+        dev->interface->write_ahb(0x01000000 + 0x200 * i, (size-1) * 2,
+                                  gamma.data() + i * size * 2+2);
     }
 }
 
@@ -1748,7 +1247,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
 
     auto read_data_from_usb = [dev](std::size_t size, std::uint8_t* data)
     {
-        dev->cmd_set->bulk_read_data(dev, 0x45, data, size);
+        dev->interface->bulk_read_data(0x45, data, size);
         return true;
     };
 
@@ -1983,7 +1482,8 @@ void sanei_genesys_asic_init(Genesys_Device* dev, bool /*max_regs*/)
     bool cold = true;
 
     // URB    16  control  0xc0 0x0c 0x8e 0x0b len     1 read  0x00 */
-    dev->usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_GET_REGISTER, 0x00, 1, &val);
+    dev->interface->get_usb_device().control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER,
+                                                 VALUE_GET_REGISTER, 0x00, 1, &val);
 
   DBG (DBG_io2, "%s: value=0x%02x\n", __func__, val);
   DBG (DBG_info, "%s: device is %s\n", __func__, (val & 0x08) ? "USB 1.0" : "USB2.0");
@@ -2000,7 +1500,7 @@ void sanei_genesys_asic_init(Genesys_Device* dev, bool /*max_regs*/)
         check PWRBIT, if reset scanner has been freshly powered up. This bit will be set to later
         so that following reads can detect power down/up cycle
     */
-    if (dev->read_register(0x06) & 0x10) {
+    if (dev->interface->read_register(0x06) & 0x10) {
         cold = false;
     }
   DBG (DBG_info, "%s: device is %s\n", __func__, cold ? "cold" : "warm");
@@ -2089,7 +1589,7 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
     // read initial status, if head isn't at home and motor is on we are parking, so we wait.
     // gl847/gl124 need 2 reads for reliable results
     val = sanei_genesys_get_status(dev);
-  sanei_genesys_sleep_ms(10);
+    dev->interface->sleep_ms(10);
     val = sanei_genesys_get_status(dev);
 
   /* if at home, return */
@@ -2104,7 +1604,7 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
     unsigned elapsed_ms = 0;
   do
     {
-      sanei_genesys_sleep_ms(100);
+      dev->interface->sleep_ms(100);
         elapsed_ms += 100;
 
         val = sanei_genesys_get_status(dev);
@@ -2493,19 +1993,6 @@ void sanei_genesys_load_lut(unsigned char* lut,
 	  lut_p16++;
 	}
     }
-}
-
-void sanei_genesys_usleep(unsigned int useconds)
-{
-    if (sanei_usb_is_replay_mode_enabled()) {
-        return;
-    }
-  usleep(useconds);
-}
-
-void sanei_genesys_sleep_ms(unsigned int milliseconds)
-{
-  sanei_genesys_usleep(milliseconds * 1000);
 }
 
 static std::unique_ptr<std::vector<std::function<void()>>> s_functions_run_at_backend_exit;

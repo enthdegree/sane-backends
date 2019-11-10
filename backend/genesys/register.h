@@ -53,13 +53,17 @@
 
 namespace genesys {
 
-struct GenesysRegister
+template<class Value>
+struct Register
 {
     std::uint16_t address = 0;
-    std::uint8_t value = 0;
+    Value value = 0;
 };
 
-inline bool operator<(const GenesysRegister& lhs, const GenesysRegister& rhs)
+using GenesysRegister = Register<std::uint8_t>;
+
+template<class Value>
+inline bool operator<(const Register<Value>& lhs, const Register<Value>& rhs)
 {
     return lhs.address < rhs.address;
 }
@@ -70,43 +74,36 @@ struct GenesysRegisterSetState
     bool is_xpa_on = false;
 };
 
-class Genesys_Register_Set
+template<class Value>
+class RegisterContainer
 {
 public:
-    static constexpr unsigned MAX_REGS = 256;
-
-    using container = std::vector<GenesysRegister>;
-    using iterator = typename container::iterator;
-    using const_iterator = typename container::const_iterator;
-
-    // FIXME: this shouldn't live here, but in a separate struct that contains Genesys_Register_Set
-    GenesysRegisterSetState state;
 
     enum Options {
         SEQUENTIAL = 1
     };
 
-    Genesys_Register_Set()
-    {
-        registers_.reserve(MAX_REGS);
-    }
+    using RegisterType = Register<Value>;
+    using ContainerType = std::vector<RegisterType>;
+    using iterator = typename ContainerType::iterator;
+    using const_iterator = typename ContainerType::const_iterator;
 
-    // by default the register set is sorted by address. In certain cases it's importand to send
-    // the registers in certain order: use the SEQUENTIAL option for that
-    Genesys_Register_Set(Options opts) : Genesys_Register_Set()
+    RegisterContainer() = default;
+
+    RegisterContainer(Options opts) : RegisterContainer()
     {
         if ((opts & SEQUENTIAL) == SEQUENTIAL) {
             sorted_ = false;
         }
     }
 
-    void init_reg(std::uint16_t address, std::uint8_t default_value)
+    void init_reg(std::uint16_t address, Value default_value)
     {
         if (find_reg_index(address) >= 0) {
-            set8(address, default_value);
+            set(address, default_value);
             return;
         }
-        GenesysRegister reg;
+        RegisterType reg;
         reg.address = address;
         reg.value = default_value;
         registers_.push_back(reg);
@@ -128,7 +125,7 @@ public:
         registers_.erase(registers_.begin() + i);
     }
 
-    GenesysRegister& find_reg(std::uint16_t address)
+    RegisterType& find_reg(std::uint16_t address)
     {
         int i = find_reg_index(address);
         if (i < 0) {
@@ -137,13 +134,107 @@ public:
         return registers_[i];
     }
 
-    const GenesysRegister& find_reg(std::uint16_t address) const
+    const RegisterType& find_reg(std::uint16_t address) const
     {
         int i = find_reg_index(address);
         if (i < 0) {
             throw std::runtime_error("the register does not exist");
         }
         return registers_[i];
+    }
+
+    void set(std::uint16_t address, Value value)
+    {
+        find_reg(address).value = value;
+    }
+
+    Value get(std::uint16_t address) const
+    {
+        return find_reg(address).value;
+    }
+
+    void reserve(std::size_t size) { registers_.reserve(size); }
+    void clear() { registers_.clear(); }
+    std::size_t size() const { return registers_.size(); }
+
+    iterator begin() { return registers_.begin(); }
+    const_iterator begin() const { return registers_.begin(); }
+
+    iterator end() { return registers_.end(); }
+    const_iterator end() const { return registers_.end(); }
+
+private:
+    int find_reg_index(std::uint16_t address) const
+    {
+        if (!sorted_) {
+            for (std::size_t i = 0; i < registers_.size(); i++) {
+                if (registers_[i].address == address) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        RegisterType search;
+        search.address = address;
+        auto it = std::lower_bound(registers_.begin(), registers_.end(), search);
+        if (it == registers_.end())
+            return -1;
+        if (it->address != address)
+            return -1;
+        return std::distance(registers_.begin(), it);
+    }
+
+    // registers are stored in a sorted vector
+    bool sorted_ = true;
+    std::vector<RegisterType> registers_;
+};
+
+class Genesys_Register_Set
+{
+public:
+    static constexpr unsigned MAX_REGS = 256;
+
+    using ContainerType = RegisterContainer<std::uint8_t>;
+    using iterator = typename ContainerType::iterator;
+    using const_iterator = typename ContainerType::const_iterator;
+
+    // FIXME: this shouldn't live here, but in a separate struct that contains Genesys_Register_Set
+    GenesysRegisterSetState state;
+
+    enum Options {
+        SEQUENTIAL = 1
+    };
+
+    Genesys_Register_Set()
+    {
+        registers_.reserve(MAX_REGS);
+    }
+
+    // by default the register set is sorted by address. In certain cases it's importand to send
+    // the registers in certain order: use the SEQUENTIAL option for that
+    Genesys_Register_Set(Options opts) : registers_{static_cast<ContainerType::Options>(opts)}
+    {
+        registers_.reserve(MAX_REGS);
+    }
+
+    void init_reg(std::uint16_t address, std::uint8_t default_value)
+    {
+        registers_.init_reg(address, default_value);
+    }
+
+    bool has_reg(std::uint16_t address) const { return registers_.has_reg(address); }
+
+    void remove_reg(std::uint16_t address) { registers_.remove_reg(address); }
+
+    GenesysRegister& find_reg(std::uint16_t address)
+    {
+        return registers_.find_reg(address);
+    }
+
+    const GenesysRegister& find_reg(std::uint16_t address) const
+    {
+        return registers_.find_reg(address);
     }
 
     GenesysRegister* find_reg_address(std::uint16_t address)
@@ -207,30 +298,9 @@ public:
     const_iterator end() const { return registers_.end(); }
 
 private:
-    int find_reg_index(std::uint16_t address) const
-    {
-        if (!sorted_) {
-            for (std::size_t i = 0; i < registers_.size(); i++) {
-                if (registers_[i].address == address) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        GenesysRegister search;
-        search.address = address;
-        auto it = std::lower_bound(registers_.begin(), registers_.end(), search);
-        if (it == registers_.end())
-            return -1;
-        if (it->address != address)
-            return -1;
-        return std::distance(registers_.begin(), it);
-    }
 
     // registers are stored in a sorted vector
-    bool sorted_ = true;
-    std::vector<GenesysRegister> registers_;
+    ContainerType registers_;
 };
 
 template<class Value>

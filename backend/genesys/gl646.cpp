@@ -60,7 +60,7 @@ namespace genesys {
 /**
  * reads value from gpio endpoint
  */
-static void gl646_gpio_read(UsbDevice& usb_dev, uint8_t* value)
+static void gl646_gpio_read(IUsbDevice& usb_dev, uint8_t* value)
 {
     DBG_HELPER(dbg);
     usb_dev.control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER, GPIO_READ, INDEX, 1, value);
@@ -69,7 +69,7 @@ static void gl646_gpio_read(UsbDevice& usb_dev, uint8_t* value)
 /**
  * writes the given value to gpio endpoint
  */
-static void gl646_gpio_write(UsbDevice& usb_dev, uint8_t value)
+static void gl646_gpio_write(IUsbDevice& usb_dev, uint8_t value)
 {
     DBG_HELPER_ARGS(dbg, "(0x%02x)", value);
     usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, GPIO_WRITE, INDEX, 1, &value);
@@ -78,18 +78,10 @@ static void gl646_gpio_write(UsbDevice& usb_dev, uint8_t value)
 /**
  * writes the given value to gpio output enable endpoint
  */
-static void gl646_gpio_output_enable(UsbDevice& usb_dev, uint8_t value)
+static void gl646_gpio_output_enable(IUsbDevice& usb_dev, uint8_t value)
 {
     DBG_HELPER_ARGS(dbg, "(0x%02x)", value);
     usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, GPIO_OUTPUT_ENABLE, INDEX, 1, &value);
-}
-
-/* Read bulk data (e.g. scanned data) */
-void CommandSetGl646::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
-                                     size_t len) const
-{
-    DBG_HELPER(dbg);
-    sanei_genesys_bulk_read_data(dev, addr, data, len);
 }
 
 bool CommandSetGl646::get_gain4_bit(Genesys_Register_Set* regs) const
@@ -131,7 +123,7 @@ print_status (uint8_t val)
 static void gl646_start_motor(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-    dev->write_register(0x0f, 0x01);
+    dev->interface->write_register(0x0f, 0x01);
 }
 
 
@@ -142,7 +134,7 @@ static void gl646_start_motor(Genesys_Device* dev)
 static void gl646_stop_motor(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-    dev->write_register(0x0f, 0x00);
+    dev->interface->write_register(0x0f, 0x00);
 }
 
 /**
@@ -843,9 +835,7 @@ static void gl646_send_slope_table(Genesys_Device* dev, int table_nr,
       table[i * 2 + 1] = slope_table[i] >> 8;
     }
 
-    sanei_genesys_set_buffer_address(dev, start_address + table_nr * 0x100);
-
-    sanei_genesys_bulk_write_data(dev, 0x3c, table.data(), steps * 2);
+    dev->interface->write_buffer(0x3c, start_address + table_nr * 0x100, table.data(), steps * 2);
 }
 
 // Set values of Analog Device type frontend
@@ -862,24 +852,22 @@ static void gl646_set_ad_fe(Genesys_Device* dev, uint8_t set)
       dev->frontend = dev->frontend_initial;
 
         // write them to analog frontend
-        sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
-        sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
+        dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
+        dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
     }
   if (set == AFE_SET)
     {
-      for (i = 0; i < 3; i++)
-	{
-        sanei_genesys_fe_write_data(dev, 0x02 + i, dev->frontend.get_gain(i));
-	}
-      for (i = 0; i < 3; i++)
-	{
-        sanei_genesys_fe_write_data(dev, 0x05 + i, dev->frontend.get_offset(i));
-	}
+        for (i = 0; i < 3; i++) {
+            dev->interface->write_fe_register(0x02 + i, dev->frontend.get_gain(i));
+        }
+        for (i = 0; i < 3; i++) {
+            dev->interface->write_fe_register(0x05 + i, dev->frontend.get_offset(i));
+        }
     }
   /*
      if (set == AFE_POWER_SAVE)
      {
-        sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.reg[0] | 0x04);
+        dev->interface->write_fe_register(0x00, dev->frontend.reg[0] | 0x04);
      } */
 }
 
@@ -898,17 +886,17 @@ static void gl646_wm_hp3670(Genesys_Device* dev, const Genesys_Sensor& sensor, u
   switch (set)
     {
     case AFE_INIT:
-        sanei_genesys_fe_write_data (dev, 0x04, 0x80);
-      sanei_genesys_sleep_ms(200);
-    dev->write_register(0x50, 0x00);
+        dev->interface->write_fe_register(0x04, 0x80);
+        dev->interface->sleep_ms(200);
+    dev->interface->write_register(0x50, 0x00);
       dev->frontend = dev->frontend_initial;
-        sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
-        sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.regs.get_value(0x02));
-        gl646_gpio_output_enable(dev->usb_dev, 0x07);
+        dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
+        dev->interface->write_fe_register(0x02, dev->frontend.regs.get_value(0x02));
+        gl646_gpio_output_enable(dev->interface->get_usb_device(), 0x07);
       break;
     case AFE_POWER_SAVE:
-        sanei_genesys_fe_write_data(dev, 0x01, 0x06);
-        sanei_genesys_fe_write_data(dev, 0x06, 0x0f);
+        dev->interface->write_fe_register(0x01, 0x06);
+        dev->interface->write_fe_register(0x06, 0x0f);
             return;
       break;
     default:			/* AFE_SET */
@@ -921,18 +909,16 @@ static void gl646_wm_hp3670(Genesys_Device* dev, const Genesys_Sensor& sensor, u
 	   * fe_reg_0x03 set to 0x32 or 0x12 but not to 0x02 */
 	  i = 0x12;
 	}
-        sanei_genesys_fe_write_data(dev, 0x03, i);
+        dev->interface->write_fe_register(0x03, i);
       /* offset and sign (or msb/lsb ?) */
-      for (i = 0; i < 3; i++)
-	{
-        sanei_genesys_fe_write_data(dev, 0x20 + i, dev->frontend.get_offset(i));
-        sanei_genesys_fe_write_data(dev, 0x24 + i,
-                                    dev->frontend.regs.get_value(0x24 + i));	/* MSB/LSB ? */
-	}
+        for (i = 0; i < 3; i++) {
+            dev->interface->write_fe_register(0x20 + i, dev->frontend.get_offset(i));
+            dev->interface->write_fe_register(0x24 + i, dev->frontend.regs.get_value(0x24 + i));
+        }
 
         // gain
         for (i = 0; i < 3; i++) {
-            sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
+            dev->interface->write_fe_register(0x28 + i, dev->frontend.get_gain(i));
         }
     }
 }
@@ -982,19 +968,19 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
       dev->frontend = dev->frontend_initial;
 
         // reset only done on init
-        sanei_genesys_fe_write_data(dev, 0x04, 0x80);
+        dev->interface->write_fe_register(0x04, 0x80);
 
       /* enable GPIO for some models */
         if (dev->model->sensor_id == SensorId::CCD_HP2300) {
 	  val = 0x07;
-            gl646_gpio_output_enable(dev->usb_dev, val);
+            gl646_gpio_output_enable(dev->interface->get_usb_device(), val);
 	}
         return;
     }
 
     // set fontend to power saving mode
     if (set == AFE_POWER_SAVE) {
-        sanei_genesys_fe_write_data(dev, 0x01, 0x02);
+        dev->interface->write_fe_register(0x01, 0x02);
         return;
     }
 
@@ -1004,35 +990,34 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
      && dev->model->ccd_type != SensorId::CCD_HP3670
      && dev->model->ccd_type != SensorId::CCD_HP2400) */
   {
-        sanei_genesys_fe_write_data(dev, 0x00, dev->frontend.regs.get_value(0x00));
-        sanei_genesys_fe_write_data(dev, 0x02, dev->frontend.regs.get_value(0x02));
+        dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
+        dev->interface->write_fe_register(0x02, dev->frontend.regs.get_value(0x02));
   }
 
     // start with reg3
-    sanei_genesys_fe_write_data(dev, 0x03, dev->frontend.regs.get_value(0x03));
+    dev->interface->write_fe_register(0x03, dev->frontend.regs.get_value(0x03));
 
   switch (dev->model->sensor_id)
     {
     default:
-      for (i = 0; i < 3; i++)
-	{
-        sanei_genesys_fe_write_data(dev, 0x24 + i, dev->frontend.regs.get_value(0x24 + i));
-        sanei_genesys_fe_write_data(dev, 0x28 + i, dev->frontend.get_gain(i));
-        sanei_genesys_fe_write_data(dev, 0x20 + i, dev->frontend.get_offset(i));
-	}
+            for (i = 0; i < 3; i++) {
+                dev->interface->write_fe_register(0x24 + i, dev->frontend.regs.get_value(0x24 + i));
+                dev->interface->write_fe_register(0x28 + i, dev->frontend.get_gain(i));
+                dev->interface->write_fe_register(0x20 + i, dev->frontend.get_offset(i));
+            }
       break;
       /* just can't have it to work ....
          case SensorId::CCD_HP2300:
          case SensorId::CCD_HP2400:
          case SensorId::CCD_HP3670:
 
-        sanei_genesys_fe_write_data(dev, 0x23, dev->frontend.get_offset(1));
-        sanei_genesys_fe_write_data(dev, 0x28, dev->frontend.get_gain(1));
+        dev->interface->write_fe_register(0x23, dev->frontend.get_offset(1));
+        dev->interface->write_fe_register(0x28, dev->frontend.get_gain(1));
          break; */
     }
 
     // end with reg1
-    sanei_genesys_fe_write_data(dev, 0x01, dev->frontend.regs.get_value(0x01));
+    dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
 }
 
 /** Set values of analog frontend
@@ -1124,7 +1109,7 @@ void CommandSetGl646::set_powersaving(Genesys_Device* dev, int delay /* in minut
   local_reg.find_reg(0x38).value = exposure_time / 256;
   local_reg.find_reg(0x39).value = exposure_time & 255;
 
-    dev->write_registers(local_reg);
+    dev->interface->write_registers(local_reg);
 }
 
 
@@ -1164,16 +1149,16 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
       count = 0;
       do
 	{
-            gl646_gpio_read(dev->usb_dev, &val);
+            gl646_gpio_read(dev->interface->get_usb_device(), &val);
 
 	  DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, val);
 	  if ((val & 0x04) != 0x04)
 	    {
               DBG(DBG_warn, "%s: no paper detected\n", __func__);
 	    }
-          sanei_genesys_sleep_ms(200);
-	  count++;
-	}
+            dev->interface->sleep_ms(200);
+            count++;
+        }
       while (((val & 0x04) != 0x04) && (count < 300));	/* 1 min time out */
       if (count == 300)
 	{
@@ -1216,7 +1201,7 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
     // wait e1 status to become e0
     gl646_send_slope_table(dev, 1, slope_table, 50);
 
-    dev->write_registers(regs);
+    dev->interface->write_registers(regs);
 
     gl646_start_motor(dev);
 
@@ -1225,7 +1210,7 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
   do
     {
         val = sanei_genesys_get_status(dev);
-      sanei_genesys_sleep_ms(200);
+        dev->interface->sleep_ms(200);
       count++;
     } while ((val & REG_0x41_MOTMFLG) && (count < 300));
 
@@ -1241,7 +1226,7 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
   regs.set8(0x02, 0x71);
   regs.set8(0x3f, 1);
   regs.set8(0x6b, 8);
-    dev->write_registers(regs);
+    dev->interface->write_registers(regs);
 }
 
 /**
@@ -1261,7 +1246,7 @@ void CommandSetGl646::detect_document_end(Genesys_Device* dev) const
     {
       print_status (val);
     }
-    gl646_gpio_read(dev->usb_dev, &gpio);
+    gl646_gpio_read(dev->interface->get_usb_device(), &gpio);
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
 
   /* detect document event. There one event when the document go in,
@@ -1320,7 +1305,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
     dev->document = false;
 
     // first check for document event
-    gl646_gpio_read(dev->usb_dev, &gpio);
+    gl646_gpio_read(dev->interface->get_usb_device(), &gpio);
 
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
 
@@ -1342,12 +1327,12 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
     }
 
     // there is a document inserted, eject it
-    dev->write_register(0x01, 0xb0);
+    dev->interface->write_register(0x01, 0xb0);
 
   /* wait for motor to stop */
   do
     {
-      sanei_genesys_sleep_ms(200);
+        dev->interface->sleep_ms(200);
         state = sanei_genesys_get_status(dev);
     }
     while (state & REG_0x41_MOTMFLG);
@@ -1387,7 +1372,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
     // wait c1 status to become c8 : HOMESNR and ~MOTFLAG
     gl646_send_slope_table(dev, 1, slope_table, 60);
 
-    dev->write_registers(regs);
+    dev->interface->write_registers(regs);
 
     gl646_start_motor(dev);
 
@@ -1399,12 +1384,12 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
         state = sanei_genesys_get_status(dev);
 
       print_status (state);
-      sanei_genesys_sleep_ms(200);
+        dev->interface->sleep_ms(200);
       count++;
     } while (((state & REG_0x41_HOMESNR) == 0) && (count < 150));
 
     // read GPIO on exit
-    gl646_gpio_read(dev->usb_dev, &gpio);
+    gl646_gpio_read(dev->interface->get_usb_device(), &gpio);
 
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
 }
@@ -1427,7 +1412,7 @@ void CommandSetGl646::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
         local_reg.init_reg(0x0f, 0x00); // do not start motor yet
     }
 
-    dev->write_registers(local_reg);
+    dev->interface->write_registers(local_reg);
 }
 
 
@@ -1456,7 +1441,7 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
     val = reg->get8(0x01);
     val &= ~REG_0x01_SCAN;
     reg->set8(0x01, val);
-    dev->write_register(0x01, val);
+    dev->interface->write_register(0x01, val);
 
   /* for sheetfed scanners, we may have to eject document */
     if (dev->model->is_sheetfed) {
@@ -1484,9 +1469,9 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
 		  break;	/* leave for loop */
 		}
 
-              sanei_genesys_sleep_ms(100);
-	    }
-	}
+                dev->interface->sleep_ms(100);
+            }
+        }
     }
   else				/* flat bed scanners */
     {
@@ -1515,9 +1500,9 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
 		  break;	/* leave while loop */
 		}
 
-              sanei_genesys_sleep_ms(100);
-	    }
-	}
+                dev->interface->sleep_ms(100);
+            }
+        }
     }
 
   DBG(DBG_proc, "%s: end (i=%u)\n", __func__, i);
@@ -1560,7 +1545,7 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   /* stop motor if needed */
     if (val & REG_0x41_MOTMFLG) {
         gl646_stop_motor(dev);
-      sanei_genesys_sleep_ms(200);
+        dev->interface->sleep_ms(200);
     }
 
   /* when scanhead is moving then wait until scanhead stops or timeout */
@@ -1576,7 +1561,7 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
             DBG(DBG_info, "%s: already at home and not moving\n", __func__);
             return;
         }
-      sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
     }
 
   if (!i)			/* the loop counted down to 0, scanner still is busy */
@@ -1615,7 +1600,7 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 
   /* write scan registers */
     try {
-        dev->write_registers(dev->reg);
+        dev->interface->write_registers(dev->reg);
     } catch (...) {
         DBG(DBG_error, "%s: failed to bulk write registers\n", __func__);
     }
@@ -1640,12 +1625,12 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 	    {
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
 	      DBG(DBG_proc, "%s: end\n", __func__);
-              sanei_genesys_sleep_ms(500);
-            return;
-	    }
-          sanei_genesys_sleep_ms(100);
-          ++loop;
-	}
+                dev->interface->sleep_ms(500);
+                return;
+            }
+            dev->interface->sleep_ms(100);
+            ++loop;
+        }
 
         // when we come here then the scanner needed too much time for this, so we better
         // stop the motor
@@ -1987,11 +1972,7 @@ void CommandSetGl646::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor
             throw SaneException("invalid dpi");
     }
 
-    // send address
-    sanei_genesys_set_buffer_address(dev, address);
-
-    // send data
-    sanei_genesys_bulk_write_data(dev, 0x3c, gamma.data(), size * 2 * 3);
+    dev->interface->write_buffer(0x3c, address, gamma.data(), size * 2 * 3);
 }
 
 /** @brief this function does the led calibration.
@@ -2723,7 +2704,7 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
 
     // now registers are ok, write them to scanner
     gl646_set_fe(dev, local_sensor, AFE_SET, settings.xres);
-    dev->write_registers(*local_reg);
+    dev->interface->write_registers(*local_reg);
 }
 
 
@@ -2761,7 +2742,7 @@ static void gl646_repark_head(Genesys_Device* dev)
   /* TODO seems wrong ... no effective scan */
     dev->reg.find_reg(0x01).value &= ~REG_0x01_SCAN;
 
-    dev->write_registers(dev->reg);
+    dev->interface->write_registers(dev->reg);
 
     // start scan
     dev->cmd_set->begin_scan(dev, sensor, &dev->reg, true);
@@ -2769,7 +2750,7 @@ static void gl646_repark_head(Genesys_Device* dev)
     expected = dev->reg.get24(REG_FEEDL);
   do
     {
-      sanei_genesys_sleep_ms(100);
+        dev->interface->sleep_ms(100);
         sanei_genesys_read_feed_steps (dev, &steps);
     }
   while (steps < expected);
@@ -2832,14 +2813,14 @@ void CommandSetGl646::init(Genesys_Device* dev) const
       DBG(DBG_info, "%s: device is cold\n", __func__);
 
         val = 0x04;
-        dev->usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_INIT, INDEX, 1, &val);
+        dev->interface->get_usb_device().control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_INIT, INDEX, 1, &val);
 
         // ASIC reset
-        dev->write_register(0x0e, 0x00);
-      sanei_genesys_sleep_ms(100);
+        dev->interface->write_register(0x0e, 0x00);
+        dev->interface->sleep_ms(100);
 
         // Write initial registers
-        dev->write_registers(dev->reg);
+        dev->interface->write_registers(dev->reg);
 
         // send gamma tables if needed
         dev->cmd_set->send_gamma_table(dev, sensor);
@@ -2853,21 +2834,21 @@ void CommandSetGl646::init(Genesys_Device* dev) const
 
   /* GPO enabling for XP200 */
     if (dev->model->sensor_id == SensorId::CIS_XP200) {
-        dev->write_register(0x68, dev->gpo.regs.get_value(0x68));
-        dev->write_register(0x69, dev->gpo.regs.get_value(0x69));
+        dev->interface->write_register(0x68, dev->gpo.regs.get_value(0x68));
+        dev->interface->write_register(0x69, dev->gpo.regs.get_value(0x69));
 
         // enable GPIO
-        gl646_gpio_output_enable(dev->usb_dev, 6);
+        gl646_gpio_output_enable(dev->interface->get_usb_device(), 6);
 
         // writes 0 to GPIO
-        gl646_gpio_write(dev->usb_dev, 0);
+        gl646_gpio_write(dev->interface->get_usb_device(), 0);
 
         // clear GPIO enable
-        gl646_gpio_output_enable(dev->usb_dev, 0);
+        gl646_gpio_output_enable(dev->interface->get_usb_device(), 0);
 
-        dev->write_register(0x66, 0x10);
-        dev->write_register(0x66, 0x00);
-        dev->write_register(0x66, 0x10);
+        dev->interface->write_register(0x66, 0x10);
+        dev->interface->write_register(0x66, 0x00);
+        dev->interface->write_register(0x66, 0x10);
     }
 
   /* MD6471/G2410 and XP200 read/write data from an undocumented memory area which
@@ -2894,9 +2875,9 @@ void CommandSetGl646::init(Genesys_Device* dev) const
         // for some reason, read fails here for MD6471, HP2300 and XP200 one time out of
         // 2 scanimage launches
         try {
-            bulk_read_data(dev, 0x45, dev->control, len);
+            dev->interface->bulk_read_data(0x45, dev->control, len);
         } catch (...) {
-            bulk_read_data(dev, 0x45, dev->control, len);
+            dev->interface->bulk_read_data(0x45, dev->control, len);
         }
         DBG(DBG_info, "%s: control read=0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n", __func__,
             dev->control[0], dev->control[1], dev->control[2], dev->control[3], dev->control[4],
@@ -3022,7 +3003,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     }
 
     // write scan registers
-    dev->write_registers(dev->reg);
+    dev->interface->write_registers(dev->reg);
 
     // starts scan
     dev->cmd_set->begin_scan(dev, sensor, &dev->reg, move);
@@ -3126,7 +3107,7 @@ void CommandSetGl646::update_hardware_sensors(Genesys_Scanner* session) const
   uint8_t value;
 
     // do what is needed to get a new set of events, but try to not loose any of them.
-    gl646_gpio_read(dev->usb_dev, &value);
+    gl646_gpio_read(dev->interface->get_usb_device(), &value);
     DBG(DBG_io, "%s: GPIO=0x%02x\n", __func__, value);
 
     // scan button
@@ -3292,8 +3273,7 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
 
   DBG(DBG_info, "%s: control write=0x%02x 0x%02x 0x%02x 0x%02x\n", __func__, control[0], control[1],
       control[2], control[3]);
-    sanei_genesys_set_buffer_address(dev, addr);
-    sanei_genesys_bulk_write_data(dev, 0x3c, control, 4);
+    dev->interface->write_buffer(0x3c, addr, control, 4);
 }
 
 /**
@@ -3449,12 +3429,6 @@ void CommandSetGl646::rewind(Genesys_Device* dev) const
 {
     (void) dev;
     throw SaneException("not implemented");
-}
-
-void CommandSetGl646::bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
-                                      size_t len) const
-{
-    sanei_genesys_bulk_write_data(dev, addr, data, len);
 }
 
 void CommandSetGl646::send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,

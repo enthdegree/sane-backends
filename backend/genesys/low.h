@@ -85,7 +85,7 @@
 #include "enums.h"
 #include "error.h"
 #include "fwd.h"
-#include "sanei.h"
+#include "usb_device.h"
 #include "sensor.h"
 #include "serialize.h"
 #include "settings.h"
@@ -279,23 +279,6 @@ inline GenesysRegister* sanei_genesys_get_address(Genesys_Register_Set* regs, ui
 
 extern void sanei_genesys_init_cmd_set(Genesys_Device* dev);
 
-extern void sanei_genesys_read_register(Genesys_Device* dev, uint16_t reg, uint8_t* val);
-
-extern void sanei_genesys_write_register(Genesys_Device* dev, uint16_t reg, uint8_t val);
-
-extern void sanei_genesys_bulk_write_register(Genesys_Device* dev,
-                                              const Genesys_Register_Set& regs);
-
-extern void sanei_genesys_write_0x8c(Genesys_Device* dev, uint8_t index, uint8_t val);
-
-unsigned sanei_genesys_get_bulk_max_size(AsicType asic_type);
-
-extern void sanei_genesys_bulk_read_data(Genesys_Device * dev, uint8_t addr, uint8_t* data,
-                                         size_t len);
-
-extern void sanei_genesys_bulk_write_data(Genesys_Device* dev, uint8_t addr, uint8_t* data,
-                                                 size_t len);
-
 std::uint8_t sanei_genesys_get_status(Genesys_Device* dev);
 
 extern void sanei_genesys_print_status (uint8_t val);
@@ -357,16 +340,7 @@ void sanei_genesys_calculate_zmod(bool two_table,
 
 extern void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr);
 
-/** @brief Reads data from frontend register.
- * Reads data from the given frontend register. May be used to query
- * analog frontend status by reading the right register.
- */
-extern void sanei_genesys_fe_read_data(Genesys_Device* dev, uint8_t addr, uint16_t* data);
-/** @brief Write data to frontend register.
- * Writes data to analog frontend register at the given address.
- * The use and address of registers change from model to model.
- */
-extern void sanei_genesys_fe_write_data(Genesys_Device* dev, uint8_t addr, uint16_t data);
+unsigned sanei_genesys_get_bulk_max_size(AsicType asic_type);
 
 SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi, int step_type,
                                       int endpixel, int led_exposure);
@@ -553,12 +527,6 @@ inline T clamp(const T& value, const T& lo, const T& hi)
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */
 /*---------------------------------------------------------------------------*/
-
-// same as usleep, except that it does nothing if testing mode is enabled
-extern void sanei_genesys_usleep(unsigned int useconds);
-
-// same as sanei_genesys_usleep just that the duration is in milliseconds
-extern void sanei_genesys_sleep_ms(unsigned int milliseconds);
 
 void add_function_to_run_at_backend_exit(std::function<void()> function);
 

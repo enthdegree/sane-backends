@@ -41,92 +41,78 @@
    If you do not wish that, delete this exception notice.
 */
 
-#ifndef BACKEND_GENESYS_FWD_H
-#define BACKEND_GENESYS_FWD_H
+#ifndef BACKEND_GENESYS_USB_DEVICE_H
+#define BACKEND_GENESYS_USB_DEVICE_H
+
+#include "error.h"
+#include "../include/sane/sanei_usb.h"
+
+#include <cstdint>
+#include <string>
 
 namespace genesys {
 
-// buffer.h
-struct Genesys_Buffer;
+class IUsbDevice {
+public:
+    IUsbDevice() = default;
 
-// calibration.h
-struct Genesys_Calibration_Cache;
+    IUsbDevice(const IUsbDevice& other) = delete;
+    IUsbDevice& operator=(const IUsbDevice&) = delete;
 
-// command_set.h
-class CommandSet;
+    virtual ~IUsbDevice();
 
-// device.h
-class FixedFloat;
-struct Genesys_Gpo;
-struct MethodResolutions;
-struct Genesys_Model;
-struct Genesys_Device;
+    virtual bool is_open() const = 0;
 
-// error.h
-class DebugMessageHelper;
-class SaneException;
+    virtual const std::string& name() const = 0;
 
-// genesys.h
-class GenesysButton;
-struct Genesys_Scanner;
+    virtual void open(const char* dev_name) = 0;
 
-// image.h
-class Image;
+    virtual void clear_halt() = 0;
+    virtual void reset() = 0;
+    virtual void close() = 0;
 
-// image_buffer.h
-class ImageBuffer;
-class FakeBufferModel;
-class ImageBufferGenesysUsb;
+    virtual void get_vendor_product(int& vendor, int& product) = 0;
 
-// image_pipeline.h
-class ImagePipelineNode;
-// ImagePipelineNode* skipped
-class ImagePipelineStack;
+    virtual void control_msg(int rtype, int reg, int value, int index, int length,
+                             std::uint8_t* data) = 0;
+    virtual void bulk_read(std::uint8_t* buffer, std::size_t* size) = 0;
+    virtual void bulk_write(const std::uint8_t* buffer, std::size_t* size) = 0;
 
-// image_pixel.h
-struct Pixel;
-struct RawPixel;
+};
 
-// low.h
-struct Genesys_USB_Device_Entry;
-struct Motor_Profile;
+class UsbDevice : public IUsbDevice {
+public:
+    UsbDevice() = default;
 
-// motor.h
-struct Genesys_Motor;
-struct Genesys_Motor_Slope;
+    ~UsbDevice() override;
 
-// register.h
-class Genesys_Register_Set;
-struct GenesysRegisterSetState;
+    bool is_open() const override { return is_open_; }
 
-// row_buffer.h
-class RowBuffer;
+    const std::string& name() const override { return name_; }
 
-// usb_device.h
-class IUsbDevice;
-class UsbDevice;
+    void open(const char* dev_name) override;
 
-// scanner_interface.h
-class ScannerInterface;
-class ScannerInterfaceUsb;
-class TestScannerInterface;
+    void clear_halt() override;
+    void reset() override;
+    void close() override;
 
-// sensor.h
-class ResolutionFilter;
-struct GenesysFrontendLayout;
-struct Genesys_Frontend;
-struct SensorExposure;
-struct SensorProfile;
-struct Genesys_Sensor;
+    void get_vendor_product(int& vendor, int& product) override;
 
-// settings.h
-struct Genesys_Settings;
-struct SetupParams;
-struct ScanSession;
+    void control_msg(int rtype, int reg, int value, int index, int length,
+                     std::uint8_t* data) override;
+    void bulk_read(std::uint8_t* buffer, std::size_t* size) override;
+    void bulk_write(const std::uint8_t* buffer, std::size_t* size) override;
 
-// test_usb_device.h
-class TestUsbDevice;
+private:
+
+    void assert_is_open() const;
+    void set_not_open();
+
+    std::string name_;
+    bool is_open_ = false;
+    int device_num_ = 0;
+};
 
 } // namespace genesys
 
-#endif
+#endif // BACKEND_GENESYS_USB_DEVICE_H

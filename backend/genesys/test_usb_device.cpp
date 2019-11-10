@@ -41,92 +41,101 @@
    If you do not wish that, delete this exception notice.
 */
 
-#ifndef BACKEND_GENESYS_FWD_H
-#define BACKEND_GENESYS_FWD_H
+#define DEBUG_DECLARE_ONLY
+
+#include "test_usb_device.h"
+#include "low.h"
 
 namespace genesys {
 
-// buffer.h
-struct Genesys_Buffer;
+TestUsbDevice::TestUsbDevice(std::uint16_t vendor, std::uint16_t product) :
+    vendor_{vendor},
+    product_{product}
+{
+}
 
-// calibration.h
-struct Genesys_Calibration_Cache;
+TestUsbDevice::~TestUsbDevice()
+{
+    if (is_open()) {
+        DBG(DBG_error, "TestUsbDevice not closed; closing automatically");
+        close();
+    }
+}
 
-// command_set.h
-class CommandSet;
+void TestUsbDevice::open(const char* dev_name)
+{
+    DBG_HELPER(dbg);
 
-// device.h
-class FixedFloat;
-struct Genesys_Gpo;
-struct MethodResolutions;
-struct Genesys_Model;
-struct Genesys_Device;
+    if (is_open()) {
+        throw SaneException("device already open");
+    }
+    name_ = dev_name;
+    is_open_ = true;
+}
 
-// error.h
-class DebugMessageHelper;
-class SaneException;
+void TestUsbDevice::clear_halt()
+{
+    DBG_HELPER(dbg);
+    assert_is_open();
+}
 
-// genesys.h
-class GenesysButton;
-struct Genesys_Scanner;
+void TestUsbDevice::reset()
+{
+    DBG_HELPER(dbg);
+    assert_is_open();
+}
 
-// image.h
-class Image;
+void TestUsbDevice::close()
+{
+    DBG_HELPER(dbg);
+    assert_is_open();
 
-// image_buffer.h
-class ImageBuffer;
-class FakeBufferModel;
-class ImageBufferGenesysUsb;
+    is_open_ = false;
+    name_ = "";
+}
 
-// image_pipeline.h
-class ImagePipelineNode;
-// ImagePipelineNode* skipped
-class ImagePipelineStack;
+void TestUsbDevice::get_vendor_product(int& vendor, int& product)
+{
+    DBG_HELPER(dbg);
+    assert_is_open();
+    vendor = vendor_;
+    product = product_;
+}
 
-// image_pixel.h
-struct Pixel;
-struct RawPixel;
+void TestUsbDevice::control_msg(int rtype, int reg, int value, int index, int length,
+                                std::uint8_t* data)
+{
+    (void) reg;
+    (void) value;
+    (void) index;
+    DBG_HELPER(dbg);
+    assert_is_open();
+    if (rtype == REQUEST_TYPE_IN) {
+        std::memset(data, 0, length);
+    }
+}
 
-// low.h
-struct Genesys_USB_Device_Entry;
-struct Motor_Profile;
+void TestUsbDevice::bulk_read(std::uint8_t* buffer, std::size_t* size)
+{
 
-// motor.h
-struct Genesys_Motor;
-struct Genesys_Motor_Slope;
+    DBG_HELPER(dbg);
+    assert_is_open();
+    std::memset(buffer, 0, *size);
+}
 
-// register.h
-class Genesys_Register_Set;
-struct GenesysRegisterSetState;
+void TestUsbDevice::bulk_write(const std::uint8_t* buffer, std::size_t* size)
+{
+    (void) buffer;
+    (void) size;
+    DBG_HELPER(dbg);
+    assert_is_open();
+}
 
-// row_buffer.h
-class RowBuffer;
-
-// usb_device.h
-class IUsbDevice;
-class UsbDevice;
-
-// scanner_interface.h
-class ScannerInterface;
-class ScannerInterfaceUsb;
-class TestScannerInterface;
-
-// sensor.h
-class ResolutionFilter;
-struct GenesysFrontendLayout;
-struct Genesys_Frontend;
-struct SensorExposure;
-struct SensorProfile;
-struct Genesys_Sensor;
-
-// settings.h
-struct Genesys_Settings;
-struct SetupParams;
-struct ScanSession;
-
-// test_usb_device.h
-class TestUsbDevice;
+void TestUsbDevice::assert_is_open() const
+{
+    if (!is_open()) {
+        throw SaneException("device not open");
+    }
+}
 
 } // namespace genesys
-
-#endif

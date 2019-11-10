@@ -41,61 +41,52 @@
    If you do not wish that, delete this exception notice.
 */
 
-#ifndef BACKEND_GENESYS_SANEI_H
-#define BACKEND_GENESYS_SANEI_H
+#ifndef BACKEND_GENESYS_SCANNER_INTERFACE_USB_H
+#define BACKEND_GENESYS_SCANNER_INTERFACE_USB_H
 
-#include "error.h"
-#include "../include/sane/sanei_usb.h"
-
-#include <cstdint>
-#include <string>
+#include "scanner_interface.h"
+#include "usb_device.h"
 
 namespace genesys {
 
-class UsbDevice {
+class ScannerInterfaceUsb : public ScannerInterface
+{
 public:
-    UsbDevice() = default;
-    UsbDevice(const UsbDevice& other) = delete;
-    UsbDevice& operator=(const UsbDevice&) = delete;
+    ScannerInterfaceUsb(Genesys_Device* dev);
 
-    UsbDevice(UsbDevice&& other) :
-        name_(other.name_),
-        is_open_(other.is_open_),
-        device_num_(other.device_num_)
-    {
-        other.set_not_open();
-    }
+    ~ScannerInterfaceUsb() override;
 
-    ~UsbDevice();
+    bool is_mock() const override;
 
-    bool is_open() const { return is_open_; }
+    std::uint8_t read_register(std::uint16_t address) override;
+    void write_register(std::uint16_t address, std::uint8_t value) override;
+    void write_registers(const Genesys_Register_Set& regs) override;
 
-    int device_number() const { return device_num_; }
+    void write_0x8c(std::uint8_t index, std::uint8_t value) override;
+    void bulk_read_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) override;
+    void bulk_write_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) override;
 
-    const std::string& name() const { return name_; }
+    void write_buffer(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
+                      std::size_t size, Flags flags) override;
+    void write_gamma(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
+                     std::size_t size, Flags flags) override;
 
-    void open(const char* dev_name);
+    void write_ahb(std::uint32_t addr, std::uint32_t size, std::uint8_t* data) override;
 
-    void clear_halt();
-    void reset();
-    void close();
+    std::uint16_t read_fe_register(std::uint8_t address) override;
+    void write_fe_register(std::uint8_t address, std::uint16_t value) override;
 
-    void get_vendor_product(int& vendor, int& product);
+    IUsbDevice& get_usb_device() override;
 
-    void control_msg(int rtype, int reg, int value, int index, int length, std::uint8_t* data);
-    void bulk_read(std::uint8_t* buffer, std::size_t* size);
-    void bulk_write(const std::uint8_t* buffer, std::size_t* size);
+    void sleep_us(unsigned microseconds) override;
+
+    void record_progress_message(const char* msg) override;
 
 private:
-
-    void assert_is_open() const;
-    void set_not_open();
-
-    std::string name_;
-    bool is_open_ = false;
-    int device_num_ = 0;
+    Genesys_Device* dev_;
+    UsbDevice usb_dev_;
 };
 
 } // namespace genesys
 
-#endif // BACKEND_GENESYS_SANEI_H
+#endif

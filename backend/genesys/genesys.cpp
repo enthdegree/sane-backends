@@ -62,8 +62,9 @@
 
 #include "genesys.h"
 #include "conv.h"
-#include "sanei.h"
+#include "usb_device.h"
 #include "utilities.h"
+#include "scanner_interface_usb.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_magic.h"
 
@@ -920,9 +921,7 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
         start_address = 0x00;
     }
 
-    sanei_genesys_set_buffer_address(dev, start_address);
-
-    dev->cmd_set->bulk_write_data(dev, 0x3c, data, size);
+    dev->interface->write_buffer(0x3c, start_address, data, size);
 }
 
 // ?
@@ -1375,9 +1374,9 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
             dev->frontend.set_gain(1, 2);
             dev->frontend.set_gain(2, 2);
 
-        sanei_genesys_fe_write_data(dev, 0x28, dev->frontend.get_gain(0));
-        sanei_genesys_fe_write_data(dev, 0x29, dev->frontend.get_gain(1));
-        sanei_genesys_fe_write_data(dev, 0x2a, dev->frontend.get_gain(2));
+            dev->interface->write_fe_register(0x28, dev->frontend.get_gain(0));
+            dev->interface->write_fe_register(0x29, dev->frontend.get_gain(1));
+            dev->interface->write_fe_register(0x2a, dev->frontend.get_gain(2));
 	}
 
       if (i == 3)		/* last line */
@@ -1402,9 +1401,9 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
                 dev->frontend.set_offset(j, curr_offset);
 	    }
 	}
-        sanei_genesys_fe_write_data(dev, 0x20, dev->frontend.get_offset(0));
-        sanei_genesys_fe_write_data(dev, 0x21, dev->frontend.get_offset(1));
-        sanei_genesys_fe_write_data(dev, 0x22, dev->frontend.get_offset(2));
+        dev->interface->write_fe_register(0x20, dev->frontend.get_offset(0));
+        dev->interface->write_fe_register(0x21, dev->frontend.get_offset(1));
+        dev->interface->write_fe_register(0x22, dev->frontend.get_offset(2));
 
       DBG(DBG_info,
           "%s: doing scan: gain: %d/%d/%d, offset: %d/%d/%d\n", __func__,
@@ -1529,15 +1528,15 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
         sanei_genesys_set_motor_power(dev->calib_reg, motor);
     }
 
-    dev->write_registers(dev->calib_reg);
+    dev->interface->write_registers(dev->calib_reg);
 
     if (is_dark) {
         // wait some time to let lamp to get dark
-        sanei_genesys_sleep_ms(200);
+        dev->interface->sleep_ms(200);
     } else if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION) {
         // make sure lamp is bright again
         // FIXME: what about scanners that take a long time to warm the lamp?
-        sanei_genesys_sleep_ms(500);
+        dev->interface->sleep_ms(500);
     }
 
     bool start_motor = !is_dark;
@@ -1734,7 +1733,7 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
     sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
     sanei_genesys_set_motor_power(dev->calib_reg, motor);
 
-    dev->write_registers(dev->calib_reg);
+    dev->interface->write_registers(dev->calib_reg);
 
     dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, false);
 
@@ -2697,51 +2696,45 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
   /* do offset calibration if needed */
   if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
     {
-      sanei_usb_testing_record_message("offset_calibration");
+        dev->interface->record_progress_message("offset_calibration");
         dev->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 
       /* since all the registers are set up correctly, just use them */
-      sanei_usb_testing_record_message("coarse_gain_calibration");
+        dev->interface->record_progress_message("coarse_gain_calibration");
         dev->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
-    }
-  else
+    } else {
     /* since we have 2 gain calibration proc, skip second if first one was
        used. */
-    {
-      sanei_usb_testing_record_message("init_regs_for_coarse_calibration");
+        dev->interface->record_progress_message("init_regs_for_coarse_calibration");
         dev->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
-      sanei_usb_testing_record_message("genesys_coarse_calibration");
+        dev->interface->record_progress_message("genesys_coarse_calibration");
         genesys_coarse_calibration(dev, sensor);
     }
 
   if (dev->model->is_cis)
     {
       /* the afe now sends valid data for doing led calibration */
-        sanei_usb_testing_record_message("led_calibration");
+        dev->interface->record_progress_message("led_calibration");
         sensor.exposure = dev->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
 
       /* calibrate afe again to match new exposure */
-      if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
-	{
-          sanei_usb_testing_record_message("offset_calibration");
+      if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION) {
+            dev->interface->record_progress_message("offset_calibration");
             dev->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 
-	  /* since all the registers are set up correctly, just use them */
+            // since all the registers are set up correctly, just use them
 
-          sanei_usb_testing_record_message("coarse_gain_calibration");
-        dev->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
-	}
-      else
-	/* since we have 2 gain calibration proc, skip second if first one was
-	   used. */
-	{
-          sanei_usb_testing_record_message("init_regs_for_coarse_calibration");
+            dev->interface->record_progress_message("coarse_gain_calibration");
+            dev->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
+        } else {
+            // since we have 2 gain calibration proc, skip second if first one was used
+            dev->interface->record_progress_message("init_regs_for_coarse_calibration");
             dev->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
-          sanei_usb_testing_record_message("genesys_coarse_calibration");
-        genesys_coarse_calibration(dev, sensor);
-	}
+            dev->interface->record_progress_message("genesys_coarse_calibration");
+            genesys_coarse_calibration(dev, sensor);
+        }
     }
 
   /* we always use sensor pixel number when the ASIC can't handle multi-segments sensor */
@@ -2755,8 +2748,8 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
       pixels_per_line = sensor.sensor_pixels;
     }
 
-  /* send default shading data */
-  sanei_usb_testing_record_message("sanei_genesys_init_shading_data");
+    // send default shading data
+    dev->interface->record_progress_message("sanei_genesys_init_shading_data");
     sanei_genesys_init_shading_data(dev, sensor, pixels_per_line);
 
   if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
@@ -2767,28 +2760,28 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
 
     // shading calibration
     if (dev->model->flags & GENESYS_FLAG_DARK_WHITE_CALIBRATION) {
-        sanei_usb_testing_record_message("init_regs_for_shading");
+        dev->interface->record_progress_message("init_regs_for_shading");
         dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
-        sanei_usb_testing_record_message("genesys_dark_white_shading_calibration");
+        dev->interface->record_progress_message("genesys_dark_white_shading_calibration");
         genesys_dark_white_shading_calibration(dev, sensor);
     } else {
         DBG(DBG_proc, "%s : genesys_dark_shading_calibration dev->calib_reg ", __func__);
         debug_dump(DBG_proc, dev->calib_reg);
 
         if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION) {
-            sanei_usb_testing_record_message("init_regs_for_shading");
+            dev->interface->record_progress_message("init_regs_for_shading");
             dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
-            sanei_usb_testing_record_message("genesys_dark_shading_calibration");
+            dev->interface->record_progress_message("genesys_dark_shading_calibration");
             genesys_dark_shading_calibration(dev, sensor);
             genesys_repark_sensor_before_shading(dev);
         }
 
-        sanei_usb_testing_record_message("init_regs_for_shading2");
+        dev->interface->record_progress_message("init_regs_for_shading2");
         dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
-        sanei_usb_testing_record_message("genesys_white_shading_calibration");
+        dev->interface->record_progress_message("genesys_white_shading_calibration");
         genesys_white_shading_calibration(dev, sensor);
         genesys_repark_sensor_after_white_shading(dev);
 
@@ -2798,7 +2791,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     }
 
     if (!dev->cmd_set->has_send_shading_data()) {
-      sanei_usb_testing_record_message("genesys_send_shading_coefficient");
+        dev->interface->record_progress_message("genesys_send_shading_coefficient");
         genesys_send_shading_coefficient(dev, sensor);
     }
 }
@@ -2993,7 +2986,7 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
 
         dev->cmd_set->end_scan(dev, &dev->reg, true);
 
-      sanei_genesys_sleep_ms(1000);
+        dev->interface->sleep_ms(1000);
       seconds++;
 
         dev->cmd_set->begin_scan(dev, sensor, &dev->reg, false);
@@ -3050,10 +3043,9 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
 	}
 
       /* sleep another second before next loop */
-      sanei_genesys_sleep_ms(1000);
-      seconds++;
-    }
-  while (seconds < WARMUP_TIME);
+        dev->interface->sleep_ms(1000);
+        seconds++;
+    } while (seconds < WARMUP_TIME);
 
   if (seconds >= WARMUP_TIME)
     {
@@ -3183,7 +3175,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     }
 
     // now send registers for scan
-    dev->write_registers(dev->reg);
+    dev->interface->write_registers(dev->reg);
 
     // start effective scan
     dev->cmd_set->begin_scan(dev, sensor, &dev->reg, true);
@@ -3195,8 +3187,8 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
            + dev->reg.get8(0x3f);
   do
     {
-      // wait some time between each test to avoid overloading USB and CPU
-      sanei_genesys_sleep_ms(100);
+        // wait some time between each test to avoid overloading USB and CPU
+        dev->interface->sleep_ms(100);
         sanei_genesys_read_feed_steps (dev, &steps);
     }
   while (steps < expected);
@@ -3206,11 +3198,10 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     // we wait for at least one word of valid scan data
     // this is also done in sanei_genesys_read_data_from_scanner -- pierre
     if (!dev->model->is_sheetfed) {
-      do
-	{
-          sanei_genesys_sleep_ms(100);
+        do {
+            dev->interface->sleep_ms(100);
             sanei_genesys_read_valid_words(dev, &steps);
-	}
+        }
       while (steps < 1);
     }
 }
@@ -4332,11 +4323,39 @@ check_present (SANE_String_Const devname) noexcept
   return SANE_STATUS_GOOD;
 }
 
+static Genesys_Device* attach_usb_device(const char* devname,
+                                         std::uint16_t vendor_id, std::uint16_t product_id)
+{
+    Genesys_USB_Device_Entry* found_usb_dev = nullptr;
+    for (auto& usb_dev : *s_usb_devices) {
+        if (usb_dev.vendor == vendor_id &&
+            usb_dev.product == product_id)
+        {
+            found_usb_dev = &usb_dev;
+            break;
+        }
+    }
+
+    if (found_usb_dev == nullptr) {
+        throw SaneException("vendor 0x%xd product 0x%xd is not supported by this backend",
+                            vendor_id, product_id);
+    }
+
+    s_devices->emplace_back();
+    Genesys_Device* dev = &s_devices->back();
+    dev->file_name = devname;
+
+    dev->model = &found_usb_dev->model;
+    dev->vendorId = found_usb_dev->vendor;
+    dev->productId = found_usb_dev->product;
+    dev->usb_mode = 0; // i.e. unset
+    dev->already_initialized = false;
+    return dev;
+}
+
 static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may_wait)
 {
     DBG_HELPER_ARGS(dbg, " devname: %s, may_wait = %d", devname, may_wait);
-
-    Genesys_Device *dev = nullptr;
 
     if (!devname) {
         throw SaneException("devname must not be nullptr");
@@ -4358,6 +4377,7 @@ static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may
 
     int vendor, product;
     usb_dev.get_vendor_product(vendor, product);
+    usb_dev.close();
 
   /* KV-SS080 is an auxiliary device which requires a master device to be here */
   if(vendor == 0x04da && product == 0x100f)
@@ -4371,35 +4391,11 @@ static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may
         }
     }
 
-    Genesys_USB_Device_Entry* found_usb_dev = nullptr;
-    for (auto& usb_dev : *s_usb_devices) {
-        if (usb_dev.vendor == static_cast<unsigned>(vendor) &&
-            usb_dev.product == static_cast<unsigned>(product))
-        {
-            found_usb_dev = &usb_dev;
-            break;
-        }
-    }
-
-    if (found_usb_dev == nullptr) {
-        throw SaneException("vendor 0x%xd product 0x%xd is not supported by this backend",
-                            vendor, product);
-    }
-
-    s_devices->emplace_back();
-    dev = &s_devices->back();
-    dev->file_name = devname;
-
-    dev->model = &found_usb_dev->model;
-    dev->vendorId = found_usb_dev->vendor;
-    dev->productId = found_usb_dev->product;
-  dev->usb_mode = 0;            /* i.e. unset */
-    dev->already_initialized = false;
+    Genesys_Device* dev = attach_usb_device(devname, vendor, product);
 
     DBG(DBG_info, "%s: found %s flatbed scanner %s at %s\n", __func__, dev->model->vendor,
         dev->model->model, dev->file_name.c_str());
 
-    usb_dev.close();
     return dev;
 }
 
@@ -4799,9 +4795,9 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     }
 
     dbg.vstatus("open device '%s'", dev->file_name.c_str());
-    dev->usb_dev.open(dev->file_name.c_str());
+    dev->interface = std::unique_ptr<ScannerInterfaceUsb>{new ScannerInterfaceUsb{dev}};
+    dev->interface->get_usb_device().open(dev->file_name.c_str());
     dbg.clear();
-
 
   s_scanners->push_back(Genesys_Scanner());
   auto* s = &s_scanners->back();
@@ -4904,15 +4900,15 @@ sane_close_impl(SANE_Handle handle)
   s->dev->clear();
 
     // LAMP OFF : same register across all the ASICs */
-    s->dev->write_register(0x03, 0x00);
+    s->dev->interface->write_register(0x03, 0x00);
 
-    catch_all_exceptions(__func__, [&](){ s->dev->usb_dev.clear_halt(); });
+    catch_all_exceptions(__func__, [&](){ s->dev->interface->get_usb_device().clear_halt(); });
 
     // we need this to avoid these ASIC getting stuck in bulk writes
-    catch_all_exceptions(__func__, [&](){ s->dev->usb_dev.reset(); });
+    catch_all_exceptions(__func__, [&](){ s->dev->interface->get_usb_device().reset(); });
 
     // not freeing s->dev because it's in the dev list
-    catch_all_exceptions(__func__, [&](){ s->dev->usb_dev.close(); });
+    catch_all_exceptions(__func__, [&](){ s->dev->interface->get_usb_device().close(); });
 
   s_scanners->erase(it);
 }

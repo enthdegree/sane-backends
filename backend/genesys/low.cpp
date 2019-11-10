@@ -2326,11 +2326,6 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
   struct timeval time;
 #endif
 
-    if (!dev->cmd_set->has_calculate_scan_session()) {
-      DBG (DBG_proc, "%s: no calculate_setup, non compatible cache\n", __func__);
-      return false;
-    }
-
     auto session = dev->cmd_set->calculate_scan_session(dev, sensor, dev->settings);
 
     bool compatible = true;

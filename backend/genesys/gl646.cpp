@@ -1897,7 +1897,19 @@ void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 {
     DBG_HELPER(dbg);
 
-    setup_for_scan(dev, sensor, &dev->reg, dev->settings, false, true, true);
+    debug_dump(DBG_info, dev->settings);
+
+    ScanSession session = calculate_scan_session(dev, sensor, dev->settings);
+
+    std::vector<uint16_t> slope_table0;
+    std::vector<uint16_t> slope_table1;
+
+    // set up correct values for scan (gamma and shading enabled)
+    gl646_setup_registers(dev, sensor, &dev->reg, session, slope_table0, slope_table1);
+
+    // send computed slope tables
+    gl646_send_slope_table(dev, 0, slope_table0, dev->reg.get8(0x21));
+    gl646_send_slope_table(dev, 1, slope_table1, dev->reg.get8(0x6b));
 
   /* gamma is only enabled at final scan time */
     if (dev->settings.depth < 16) {
@@ -3593,10 +3605,49 @@ ScanSession CommandSetGl646::calculate_scan_session(const Genesys_Device* dev,
                                                     const Genesys_Sensor& sensor,
                                                     const Genesys_Settings& settings) const
 {
-    (void) dev;
-    (void) sensor;
-    (void) settings;
-    throw SaneException("not implemented");
+    // compute distance to move
+    float move = 0;
+    // XXX STEF XXX MD5345 -> optical_ydpi, other base_ydpi => half/full step ? */
+    if (!dev->model->is_sheetfed) {
+        move = static_cast<float>(dev->model->y_offset);
+        // add tl_y to base movement
+    }
+    move += static_cast<float>(settings.tl_y);
+
+    if (move < 0) {
+        DBG(DBG_error, "%s: overriding negative move value %f\n", __func__, move);
+        move = 0;
+    }
+
+    move = static_cast<float>((move * dev->motor.optical_ydpi) / MM_PER_INCH);
+    float start = static_cast<float>(settings.tl_x);
+    if (settings.scan_method == ScanMethod::FLATBED) {
+        start += static_cast<float>(dev->model->x_offset);
+    } else {
+        start += static_cast<float>(dev->model->x_offset_ta);
+    }
+    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
+
+    ScanSession session;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
+    session.params.flags = SCAN_FLAG_USE_XCORRECTION;
+    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= SCAN_FLAG_USE_XPA;
+    }
+    compute_session(dev, session, sensor);
+
+    return session;
 }
 
 void CommandSetGl646::asic_boot(Genesys_Device *dev, bool cold) const

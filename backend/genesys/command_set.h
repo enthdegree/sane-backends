@@ -155,11 +155,6 @@ public:
                                                const Genesys_Sensor& sensor,
                                                const Genesys_Settings& settings) const = 0;
 
-    virtual bool has_calculate_scan_session() const
-    {
-        return true;
-    }
-
     /// cold boot init function
     virtual void asic_boot(Genesys_Device* dev, bool cold) const = 0;
 };

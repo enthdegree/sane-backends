@@ -3622,13 +3622,6 @@ static void sanei_gl841_repark_head(Genesys_Device* dev)
     dev->cmd_set->slow_back_home(dev, true);
 }
 
-bool CommandSetGl841::is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                                Genesys_Calibration_Cache* cache,
-                                                bool for_overwrite) const
-{
-    return sanei_genesys_is_compatible_calibration(dev, sensor, cache, for_overwrite);
-}
-
 /*
  * initialize ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home

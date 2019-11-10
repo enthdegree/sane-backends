@@ -2369,13 +2369,6 @@ void CommandSetGl846::move_to_ta(Genesys_Device* dev) const
     throw SaneException("not implemented");
 }
 
-bool CommandSetGl846::is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                                Genesys_Calibration_Cache* cache,
-                                                bool for_overwrite) const
-{
-    return sanei_genesys_is_compatible_calibration(dev, sensor, cache, for_overwrite);
-}
-
 std::unique_ptr<CommandSet> create_gl846_cmd_set()
 {
     return std::unique_ptr<CommandSet>(new CommandSetGl846{});

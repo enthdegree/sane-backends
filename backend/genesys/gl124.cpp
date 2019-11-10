@@ -2554,13 +2554,6 @@ void CommandSetGl124::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     throw SaneException("not implemented");
 }
 
-bool CommandSetGl124::is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                                Genesys_Calibration_Cache* cache,
-                                                bool for_overwrite) const
-{
-    return sanei_genesys_is_compatible_calibration(dev, sensor, cache, for_overwrite);
-}
-
 void CommandSetGl124::move_to_ta(Genesys_Device* dev) const
 {
     (void) dev;

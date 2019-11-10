@@ -3361,21 +3361,6 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
 }
 
 /**
- * check if a stored calibration is compatible with requested scan.
- * @return true if compatible, false if not.
- * Whenever an error is met, it is returned.
- * @param dev scanner device
- * @param cache cache entry to test
- * @param for_overwrite reserved for future use ...
- */
-bool CommandSetGl646::is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                                Genesys_Calibration_Cache* cache,
-                                                bool for_overwrite) const
-{
-    return sanei_genesys_is_compatible_calibration(dev, sensor, cache, for_overwrite);
-}
-
-/**
  * search for a full width black or white strip.
  * @param dev scanner device
  * @param forward true if searching forward, false if searching backward

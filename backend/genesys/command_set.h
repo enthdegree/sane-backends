@@ -134,10 +134,6 @@ public:
     virtual void search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
                               bool forward, bool black) const = 0;
 
-    virtual bool is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                           Genesys_Calibration_Cache* cache,
-                                           bool for_overwrite) const = 0;
-
     /// move scanning head to transparency adapter
     virtual void move_to_ta(Genesys_Device* dev) const = 0;
 

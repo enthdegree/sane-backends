@@ -2597,8 +2597,8 @@ genesys_restore_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
    * matching one */
   for (auto& cache : dev->calibration_cache)
     {
-        if (dev->cmd_set->is_compatible_calibration(dev, sensor, &cache, false)) {
-          dev->frontend = cache.frontend;
+        if (sanei_genesys_is_compatible_calibration(dev, sensor, &cache, false)) {
+            dev->frontend = cache.frontend;
           /* we don't restore the gamma fields */
           sensor.exposure = cache.sensor.exposure;
 
@@ -2633,7 +2633,7 @@ static void genesys_save_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   for (auto cache_it = dev->calibration_cache.begin(); cache_it != dev->calibration_cache.end();
        cache_it++)
     {
-        if (dev->cmd_set->is_compatible_calibration(dev, sensor, &*cache_it, true)) {
+        if (sanei_genesys_is_compatible_calibration(dev, sensor, &*cache_it, true)) {
           found_cache_it = cache_it;
           break;
         }
@@ -5184,9 +5184,8 @@ static void get_option_value(Genesys_Scanner* s, int option, void* val)
       /* scanner needs calibration for current mode unless a matching
        * calibration cache is found */
         *reinterpret_cast<SANE_Bool*>(val) = SANE_TRUE;
-      for (auto& cache : s->dev->calibration_cache)
-	{
-        if (s->dev->cmd_set->is_compatible_calibration(s->dev, *sensor, &cache, false)) {
+        for (auto& cache : s->dev->calibration_cache) {
+            if (sanei_genesys_is_compatible_calibration(s->dev, *sensor, &cache, false)) {
                 *reinterpret_cast<SANE_Bool*>(val) = SANE_FALSE;
 	    }
 	}

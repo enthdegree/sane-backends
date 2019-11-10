@@ -1262,14 +1262,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->read_active = true;
 
     dev->session = session;
-  dev->current_setup.pixels = session.output_pixels;
-  DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
-  dev->current_setup.lines = session.output_line_count;
-  dev->current_setup.exposure_time = exposure;
-  dev->current_setup.xres = session.output_resolution;
-  dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-  dev->current_setup.stagger = session.num_staggered_lines;
-  dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
   dev->total_bytes_read = 0;
     dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
@@ -1277,21 +1269,20 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG(DBG_info, "%s: total bytes to send = %zu\n", __func__, dev->total_bytes_to_read);
 }
 
-void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
-                                              const Genesys_Sensor& sensor) const
+ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
+                                                    const Genesys_Sensor& sensor,
+                                                    const Genesys_Settings& settings) const
 {
+    DBG_HELPER(dbg);
+    debug_dump(DBG_info, settings);
+
   int start;
 
-  int exposure;
-
-    DBG(DBG_info, "%s ", __func__);
-    debug_dump(DBG_info, dev->settings);
-
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
+  unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(settings.xres);
 
-    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
-        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    if (settings.scan_method == ScanMethod::TRANSPARENCY ||
+        settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
         start = static_cast<int>(dev->model->x_offset_ta);
     } else {
@@ -1304,48 +1295,27 @@ void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
         start /= ccd_size_divisor;
     }
 
-    start += static_cast<int>(dev->settings.tl_x);
+    start += static_cast<int>(settings.tl_x);
     start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
-    session.params.xres = dev->settings.xres;
-    session.params.yres = dev->settings.yres;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
     session.params.startx = start; // not used
     session.params.starty = 0; // not used
-    session.params.pixels = dev->settings.pixels;
-    session.params.requested_pixels = dev->settings.requested_pixels;
-    session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.depth;
-    session.params.channels = dev->settings.get_channels();
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = dev->settings.scan_mode;
-    session.params.color_filter = dev->settings.color_filter;
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
     session.params.flags = 0;
 
     compute_session(dev, session, sensor);
 
-  /* compute scan parameters values */
-  /* pixels are allways given at half or full CCD optical resolution */
-  /* use detected left margin  and fixed value */
-
-  /* exposure */
-  exposure = sensor.exposure_lperiod;
-  if (exposure < 0) {
-      throw std::runtime_error("Exposure not defined in sensor definition");
-  }
-  DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
-
-    dev->session = session;
-    dev->current_setup.pixels = session.output_pixels;
-  DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
-    dev->current_setup.lines = session.output_line_count;
-  dev->current_setup.exposure_time = exposure;
-    dev->current_setup.xres = session.params.xres;
-  dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-    dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
-
-  DBG(DBG_proc, "%s: completed\n", __func__);
+    return session;
 }
 
 /**
@@ -1525,7 +1495,7 @@ static void gl843_set_xpa_motor_power(Genesys_Device* dev, bool set)
         if (set) {
             val = dev->read_register(0x6c);
             val &= ~(REG_0x6C_GPIO16 | REG_0x6C_GPIO13);
-            if (dev->current_setup.xres >= 2400) {
+            if (dev->session.output_resolution >= 2400) {
                 val &= ~REG_0x6C_GPIO10;
             }
             dev->write_register(0x6c, val);
@@ -1548,7 +1518,7 @@ static void gl843_set_xpa_motor_power(Genesys_Device* dev, bool set)
         if (set) {
             val = dev->read_register(REG_0x6C);
             val &= ~REG_0x6C_GPIO14;
-            if (dev->current_setup.xres >= 2400) {
+            if (dev->session.output_resolution >= 2400) {
                 val |= REG_0x6C_GPIO10;
             }
             dev->write_register(REG_0x6C, val);
@@ -2249,8 +2219,8 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     gl843_init_scan_regs(dev, calib_sensor, &regs, session);
 
-  // the pixel number may be updated to conform to scanner constraints
-  dev->calib_pixels = dev->current_setup.pixels;
+     // the pixel number may be updated to conform to scanner constraints
+    dev->calib_pixels = session.output_pixels;
 
     dev->calib_session = session;
     dev->calib_total_bytes_to_read = session.output_total_bytes_raw;
@@ -3436,13 +3406,6 @@ void CommandSetGl843::bulk_read_data(Genesys_Device* dev, uint8_t addr, uint8_t*
                                      size_t len) const
 {
     sanei_genesys_bulk_read_data(dev, addr, data, len);
-}
-
-bool CommandSetGl843::is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                                Genesys_Calibration_Cache* cache,
-                                                bool for_overwrite) const
-{
-    return sanei_genesys_is_compatible_calibration(dev, sensor, cache, for_overwrite);
 }
 
 std::unique_ptr<CommandSet> create_gl843_cmd_set()

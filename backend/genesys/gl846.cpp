@@ -811,13 +811,6 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->read_active = true;
 
     dev->session = session;
-    dev->current_setup.pixels = session.output_pixels;
-    dev->current_setup.lines = session.output_line_count;
-  dev->current_setup.exposure_time = exposure_time;
-    dev->current_setup.xres = session.params.xres;
-    dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-    dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
     dev->total_bytes_read = 0;
     dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
@@ -825,70 +818,38 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG(DBG_info, "%s: total bytes to send = %zu\n", __func__, dev->total_bytes_to_read);
 }
 
-void CommandSetGl846::calculate_current_setup(Genesys_Device* dev,
-                                              const Genesys_Sensor& sensor) const
+ScanSession CommandSetGl846::calculate_scan_session(const Genesys_Device* dev,
+                                                    const Genesys_Sensor& sensor,
+                                                    const Genesys_Settings& settings) const
 {
   int start;
 
-  int exposure_time;
-
-  int slope_dpi;
-  int dummy = 0;
-
     DBG(DBG_info, "%s ", __func__);
-    debug_dump(DBG_info, dev->settings);
+    debug_dump(DBG_info, settings);
 
   /* start */
     start = static_cast<int>(dev->model->x_offset);
-    start += static_cast<int>(dev->settings.tl_x);
+    start += static_cast<int>(settings.tl_x);
     start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
-    session.params.xres = dev->settings.xres;
-    session.params.yres = dev->settings.yres;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
     session.params.startx = start; // not used
     session.params.starty = 0; // not used
-    session.params.pixels = dev->settings.pixels;
-    session.params.requested_pixels = dev->settings.requested_pixels;
-    session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.depth;
-    session.params.channels = dev->settings.get_channels();
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = dev->settings.scan_mode;
-    session.params.color_filter = dev->settings.color_filter;
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
     session.params.flags = 0;
 
     compute_session(dev, session, sensor);
 
-  /* compute scan parameters values */
-  /* pixels are allways given at half or full CCD optical resolution */
-  /* use detected left margin  and fixed value */
-
-  /* compute correct pixels number */
-    dummy = 3 - session.params.channels;
-
-  /* cis color scan is effectively a gray scan with 3 gray lines per color
-   line and a FILTER of 0 */
-    if (dev->model->is_cis) {
-        slope_dpi = session.params.yres * session.params.channels;
-    } else {
-        slope_dpi = session.params.yres;
-    }
-
-  slope_dpi = slope_dpi * (1 + dummy);
-
-    exposure_time = get_sensor_profile(dev->model->asic_type, sensor,
-                                       session.params.xres, 1).exposure_lperiod;
-  DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
-
-    dev->session = session;
-    dev->current_setup.pixels = session.output_pixels;
-    dev->current_setup.lines = session.output_line_count;
-  dev->current_setup.exposure_time = exposure_time;
-    dev->current_setup.xres = session.params.xres;
-    dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-    dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
+    return session;
 }
 
 // for fast power saving methods only, like disabling certain amplifiers
@@ -2406,13 +2367,6 @@ void CommandSetGl846::move_to_ta(Genesys_Device* dev) const
 {
     (void) dev;
     throw SaneException("not implemented");
-}
-
-bool CommandSetGl846::is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                                Genesys_Calibration_Cache* cache,
-                                                bool for_overwrite) const
-{
-    return sanei_genesys_is_compatible_calibration(dev, sensor, cache, for_overwrite);
 }
 
 std::unique_ptr<CommandSet> create_gl846_cmd_set()

@@ -905,7 +905,7 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
                                   unsigned int action, unsigned int flags)
 {
     DBG_HELPER_ARGS(dbg, "feed_steps=%d, action=%d, flags=%x", feed_steps, action, flags);
-    unsigned int fast_exposure;
+    unsigned int fast_exposure = 0;
     int use_fast_fed = 0;
     std::vector<uint16_t> fast_slope_table;
     unsigned int fast_slope_steps = 0;
@@ -1734,13 +1734,6 @@ dummy \ scanned lines
     dev->read_active = true;
 
     dev->session = session;
-    dev->current_setup.pixels = session.output_pixels;
-    dev->current_setup.lines = session.output_line_count;
-  dev->current_setup.exposure_time = exposure_time;
-    dev->current_setup.xres = session.params.xres;
-    dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-    dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
     dev->total_bytes_read = 0;
     dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
@@ -1748,95 +1741,39 @@ dummy \ scanned lines
     DBG(DBG_info, "%s: total bytes to send = %zu\n", __func__, dev->total_bytes_to_read);
 }
 
-void CommandSetGl841::calculate_current_setup(Genesys_Device * dev,
-                                              const Genesys_Sensor& sensor) const
+ScanSession CommandSetGl841::calculate_scan_session(const Genesys_Device* dev,
+                                                    const Genesys_Sensor& sensor,
+                                                    const Genesys_Settings& settings) const
 {
   int start;
 
-  int exposure_time;
-
-  int slope_dpi = 0;
-  int dummy = 0;
-  int scan_step_type = 1;
-
     DBG(DBG_info, "%s ", __func__);
-    debug_dump(DBG_info, dev->settings);
+    debug_dump(DBG_info, settings);
 
 /* start */
     start = static_cast<int>(dev->model->x_offset);
-    start += static_cast<int>(dev->settings.tl_x);
+    start += static_cast<int>(settings.tl_x);
 
     start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
-    session.params.xres = dev->settings.xres;
-    session.params.yres = dev->settings.yres;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
     session.params.startx = start;
     session.params.starty = 0; // not used
-    session.params.pixels = dev->settings.pixels;
-    session.params.requested_pixels = dev->settings.requested_pixels;
-    session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.depth;
-    session.params.channels = dev->settings.get_channels();
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = dev->settings.scan_mode;
-    session.params.color_filter = dev->settings.color_filter;
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
     session.params.flags = 0;
 
     compute_session(dev, session, sensor);
 
-  /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1
-     dummy line. Maybe the dummy line adds correctness since the motor runs
-     slower (higher dpi)
-  */
-/* for cis this creates better aligned color lines:
-dummy \ scanned lines
-   0: R           G           B           R ...
-   1: R        G        B        -        R ...
-   2: R      G      B       -      -      R ...
-   3: R     G     B     -     -     -     R ...
-   4: R    G    B     -   -     -    -    R ...
-   5: R    G   B    -   -   -    -   -    R ...
-   6: R   G   B   -   -   -   -   -   -   R ...
-   7: R   G  B   -  -   -   -  -   -  -   R ...
-   8: R  G  B   -  -  -   -  -  -   -  -  R ...
-   9: R  G  B  -  -  -  -  -  -  -  -  -  R ...
-  10: R  G B  -  -  -  - -  -  -  -  - -  R ...
-  11: R  G B  - -  - -  -  - -  - -  - -  R ...
-  12: R G  B - -  - -  - -  - -  - - -  - R ...
-  13: R G B  - - - -  - - -  - - - -  - - R ...
-  14: R G B - - -  - - - - - -  - - - - - R ...
-  15: R G B - - - - - - - - - - - - - - - R ...
- -- pierre
- */
-  dummy = 0;
-
-/* cis color scan is effectively a gray scan with 3 gray lines per color
-   line and a FILTER of 0 */
-    if (dev->model->is_cis) {
-        slope_dpi = session.params.yres * session.params.channels;
-    } else {
-        slope_dpi = session.params.yres;
-    }
-
-  slope_dpi = slope_dpi * (1 + dummy);
-
-    scan_step_type = gl841_scan_step_type(dev, session.params.yres);
-  exposure_time = gl841_exposure_time(dev, sensor,
-                    slope_dpi,
-                    scan_step_type,
-                                        session.pixel_startx,
-                                        session.optical_pixels);
-  DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
-
-    dev->session = session;
-    dev->current_setup.pixels = session.output_pixels;
-    dev->current_setup.lines = session.output_line_count;
-  dev->current_setup.exposure_time = exposure_time;
-    dev->current_setup.xres = session.params.xres;
-    dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-    dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
+    return session;
 }
 
 // for fast power saving methods only, like disabling certain amplifiers
@@ -3662,7 +3599,7 @@ void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
 
     gl841_init_scan_regs(dev, sensor, local_reg, session);
 
-  num_pixels = dev->current_setup.pixels;
+    num_pixels = session.output_pixels;
 
   *total_size = num_pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
@@ -3683,41 +3620,6 @@ static void sanei_gl841_repark_head(Genesys_Device* dev)
 
     // toggle motor flag, put an huge step number and redo move backward
     dev->cmd_set->slow_back_home(dev, true);
-}
-
-bool CommandSetGl841::is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                                Genesys_Calibration_Cache* cache,
-                                                bool for_overwrite) const
-{
-#ifdef HAVE_SYS_TIME_H
-  struct timeval time;
-#endif
-
-    DBG_HELPER(dbg);
-  /* calibration cache not working yet for this model */
-    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_OPTICPRO_3600) {
-      return false;
-    }
-
-    calculate_current_setup(dev, sensor);
-
-  if (dev->current_setup.ccd_size_divisor != cache->used_setup.ccd_size_divisor)
-    return false;
-
-  /* a cache entry expires after 30 minutes for non sheetfed scanners */
-  /* this is not taken into account when overwriting cache entries    */
-#ifdef HAVE_SYS_TIME_H
-    if (!for_overwrite) {
-      gettimeofday (&time, nullptr);
-        if ((time.tv_sec - cache->last_calibration > 30 * 60) && (!dev->model->is_sheetfed))
-        {
-          DBG(DBG_proc, "%s: expired entry, non compatible cache\n", __func__);
-          return false;
-        }
-    }
-#endif
-
-  return true;
 }
 
 /*
@@ -4117,7 +4019,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   /* compute deletion/average factor */
     dpiset = dev->reg.get16(REG_DPISET);
   dpihw = gl841_get_dpihw(dev);
-  unsigned ccd_size_divisor = dev->current_setup.ccd_size_divisor;
+    unsigned ccd_size_divisor = dev->session.ccd_size_divisor;
   factor=dpihw/dpiset;
   DBG(DBG_io2, "%s: dpihw=%d, dpiset=%d, ccd_size_divisor=%d, factor=%d\n", __func__, dpihw, dpiset,
       ccd_size_divisor, factor);

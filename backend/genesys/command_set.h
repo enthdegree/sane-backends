@@ -134,10 +134,6 @@ public:
     virtual void search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
                               bool forward, bool black) const = 0;
 
-    virtual bool is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                           Genesys_Calibration_Cache* cache,
-                                           bool for_overwrite) const = 0;
-
     /// move scanning head to transparency adapter
     virtual void move_to_ta(Genesys_Device* dev) const = 0;
 
@@ -150,14 +146,10 @@ public:
         return true;
     }
 
-    /// calculate current scan setup
-    virtual void calculate_current_setup(Genesys_Device* dev,
-                                         const Genesys_Sensor& sensor) const = 0;
-
-    virtual bool has_calculate_current_setup() const
-    {
-        return true;
-    }
+    /// calculate an instance of ScanSession for scanning with the given settings
+    virtual ScanSession calculate_scan_session(const Genesys_Device* dev,
+                                               const Genesys_Sensor& sensor,
+                                               const Genesys_Settings& settings) const = 0;
 
     /// cold boot init function
     virtual void asic_boot(Genesys_Device* dev, bool cold) const = 0;

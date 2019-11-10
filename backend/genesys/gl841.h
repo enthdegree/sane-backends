@@ -131,16 +131,15 @@ public:
     void search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
                       bool forward, bool black) const override;
 
-    bool is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                   Genesys_Calibration_Cache* cache,
-                                   bool for_overwrite) const override;
-
     void move_to_ta(Genesys_Device* dev) const override;
 
     void send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t* data,
                            int size) const override;
 
-    void calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor) const override;
+    ScanSession calculate_scan_session(const Genesys_Device* dev,
+                                       const Genesys_Sensor& sensor,
+                                       const Genesys_Settings& settings) const override;
+
     void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
 

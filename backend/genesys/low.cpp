@@ -1452,7 +1452,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
     s.pixel_endx *= sensor.pixel_count_multiplier;
 }
 
-void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor)
+void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
 
@@ -2318,48 +2318,61 @@ int sanei_genesys_get_lowest_dpi(Genesys_Device *dev)
  * flatbed cache entries are considred too old and then expires if they
  * are older than the expiration time option, forcing calibration at least once
  * then given time. */
-bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                             Genesys_Calibration_Cache * cache, int for_overwrite)
+bool sanei_genesys_is_compatible_calibration(Genesys_Device* dev,
+                                             const ScanSession& session,
+                                             const Genesys_Calibration_Cache* cache,
+                                             bool for_overwrite)
 {
     DBG_HELPER(dbg);
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
 #endif
-    int compatible = 1;
 
-    if (!dev->cmd_set->has_calculate_current_setup()) {
-      DBG (DBG_proc, "%s: no calculate_setup, non compatible cache\n", __func__);
-      return false;
+    bool compatible = true;
+
+    const auto& dev_params = session.params;
+
+    if (dev_params.scan_method != cache->params.scan_method) {
+        dbg.vlog(DBG_io, "incompatible: scan_method %d vs. %d\n",
+                 static_cast<unsigned>(dev_params.scan_method),
+                 static_cast<unsigned>(cache->params.scan_method));
+        compatible = false;
     }
 
-    dev->cmd_set->calculate_current_setup(dev, sensor);
+    if (dev_params.xres != cache->params.xres) {
+        dbg.vlog(DBG_io, "incompatible: params.xres %d vs. %d\n",
+                 dev_params.xres, cache->params.xres);
+        compatible = false;
+    }
 
-  DBG (DBG_proc, "%s: checking\n", __func__);
+    if (dev_params.yres != cache->params.yres) {
+        // exposure depends on selected sensor and we select the sensor according to yres
+        dbg.vlog(DBG_io, "incompatible: params.yres %d vs. %d\n",
+                 dev_params.yres, cache->params.yres);
+        compatible = false;
+    }
 
-  /* a calibration cache is compatible if color mode and x dpi match the user
-   * requested scan. In the case of CIS scanners, dpi isn't a criteria */
-    if (!dev->model->is_cis) {
-        compatible = (dev->settings.xres == cache->used_setup.xres);
+    if (dev_params.channels != cache->params.channels) {
+        // exposure depends on total number of pixels at least on gl841
+        dbg.vlog(DBG_io, "incompatible: params.channels %d vs. %d\n",
+                 dev_params.channels, cache->params.channels);
+        compatible = false;
     }
-  else
-    {
-        compatible = (sensor.get_register_hwdpi(dev->settings.xres) ==
-                      sensor.get_register_hwdpi(cache->used_setup.xres));
+
+    if (dev_params.startx != cache->params.startx) {
+        // exposure depends on total number of pixels at least on gl841
+        dbg.vlog(DBG_io, "incompatible: params.startx %d vs. %d\n",
+                 dev_params.startx, cache->params.startx);
+        compatible = false;
     }
-  DBG (DBG_io, "%s: after resolution check current compatible=%d\n", __func__, compatible);
-  if (dev->current_setup.ccd_size_divisor != cache->used_setup.ccd_size_divisor)
-    {
-      DBG (DBG_io, "%s: ccd_size_divisor=%d, used=%d\n", __func__,
-           dev->current_setup.ccd_size_divisor, cache->used_setup.ccd_size_divisor);
-      compatible = 0;
+
+    if (dev_params.pixels != cache->params.pixels) {
+        // exposure depends on total number of pixels at least on gl841
+        dbg.vlog(DBG_io, "incompatible: params.pixels %d vs. %d\n",
+                 dev_params.pixels, cache->params.pixels);
+        compatible = false;
     }
-  if (dev->session.params.scan_method != cache->params.scan_method)
-    {
-      DBG (DBG_io, "%s: current method=%d, used=%d\n", __func__,
-           static_cast<unsigned>(dev->session.params.scan_method),
-           static_cast<unsigned>(cache->params.scan_method));
-      compatible = 0;
-    }
+
   if (!compatible)
     {
       DBG (DBG_proc, "%s: completed, non compatible cache\n", __func__);
@@ -2586,25 +2599,6 @@ void debug_dump(unsigned level, const ScanSession& session)
         session.pipeline_needs_ccd ? " ccd" : "",
         session.pipeline_needs_shrink ? " shrink" : "");
     debug_dump(level, session.params);
-}
-
-void debug_dump(unsigned level, const Genesys_Current_Setup& setup)
-{
-    DBG(level, "current_setup:\n"
-        "Pixels: %d\n"
-        "Lines: %d\n"
-        "exposure_time: %d\n"
-        "Resolution X: %d\n"
-        "ccd_size_divisor: %d\n"
-        "stagger: %d\n"
-        "max_shift: %d\n",
-        setup.pixels,
-        setup.lines,
-        setup.exposure_time,
-        setup.xres,
-        setup.ccd_size_divisor,
-        setup.stagger,
-        setup.max_shift);
 }
 
 void debug_dump(unsigned level, const Genesys_Register_Set& regs)

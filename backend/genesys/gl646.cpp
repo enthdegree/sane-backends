@@ -581,19 +581,9 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
     build_image_pipeline(dev, session);
 
-  /* scan bytes to read */
-    unsigned cis_channel_multiplier = dev->model->is_cis ? session.params.channels : 1;
-
     dev->read_active = true;
 
     dev->session = session;
-    dev->current_setup.pixels = session.output_pixels;
-    dev->current_setup.lines = session.output_line_count * cis_channel_multiplier;
-    dev->current_setup.exposure_time = sensor.exposure_lperiod;
-    dev->current_setup.xres = session.output_resolution;
-  dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-    dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
     dev->total_bytes_read = 0;
     dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
@@ -1767,23 +1757,21 @@ void CommandSetGl646::search_start_position(Genesys_Device* dev) const
     std::vector<uint8_t> data;
     simple_scan(dev, sensor, settings, true, true, false, data);
 
-    /* handle stagger case : reorder gray data and thus loose some lines */
-    if (dev->current_setup.stagger > 0)
-      {
+    // handle stagger case : reorder gray data and thus loose some lines
+    auto staggered_lines = dev->session.num_staggered_lines;
+    if (staggered_lines > 0) {
         DBG(DBG_proc, "%s: 'un-staggering'\n", __func__);
-        for (y = 0; y < settings.lines - dev->current_setup.stagger; y++)
-          {
+        for (y = 0; y < settings.lines - staggered_lines; y++) {
             /* one point out of 2 is 'unaligned' */
             for (x = 0; x < settings.pixels; x += 2)
         {
-          data[y * settings.pixels + x] =
-            data[(y + dev->current_setup.stagger) * settings.pixels +
-                 x];
+                data[y * settings.pixels + x] = data[(y + staggered_lines) * settings.pixels + x];
         }
           }
         /* correct line number */
-        settings.lines -= dev->current_setup.stagger;
-      }
+        settings.lines -= staggered_lines;
+    }
+
     if (DBG_LEVEL >= DBG_data)
       {
         sanei_genesys_write_pnm_file("gl646_search_position.pnm", data.data(), settings.depth, 1,
@@ -1891,10 +1879,6 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   /* copy reg to calib_reg */
   dev->calib_reg = dev->reg;
 
-  /* this is an hack to make calibration cache working .... */
-  /* if we don't do this, cache will be identified at the shading calibration
-   * dpi which is different from calibration one */
-  dev->current_setup.xres = dev->settings.xres;
   DBG(DBG_info, "%s:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n", __func__,
       dev->settings.xres, dev->settings.yres);
 }
@@ -1913,7 +1897,19 @@ void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 {
     DBG_HELPER(dbg);
 
-    setup_for_scan(dev, sensor, &dev->reg, dev->settings, false, true, true);
+    debug_dump(DBG_info, dev->settings);
+
+    ScanSession session = calculate_scan_session(dev, sensor, dev->settings);
+
+    std::vector<uint16_t> slope_table0;
+    std::vector<uint16_t> slope_table1;
+
+    // set up correct values for scan (gamma and shading enabled)
+    gl646_setup_registers(dev, sensor, &dev->reg, session, slope_table0, slope_table1);
+
+    // send computed slope tables
+    gl646_send_slope_table(dev, 0, slope_table0, dev->reg.get8(0x21));
+    gl646_send_slope_table(dev, 1, slope_table1, dev->reg.get8(0x6b));
 
   /* gamma is only enabled at final scan time */
     if (dev->settings.depth < 16) {
@@ -3365,77 +3361,6 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
 }
 
 /**
- * check if a stored calibration is compatible with requested scan.
- * @return true if compatible, false if not.
- * Whenever an error is met, it is returned.
- * @param dev scanner device
- * @param cache cache entry to test
- * @param for_overwrite reserved for future use ...
- */
-bool CommandSetGl646::is_compatible_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                                Genesys_Calibration_Cache* cache,
-                                                bool for_overwrite) const
-{
-    (void) sensor;
-#ifdef HAVE_SYS_TIME_H
-  struct timeval time;
-#endif
-  int compatible = 1;
-
-  DBG(DBG_proc, "%s: start (for_overwrite=%d)\n", __func__, for_overwrite);
-
-  if (cache == nullptr)
-    return false;
-
-  /* build minimal current_setup for calibration cache use only, it will be better
-   * computed when during setup for scan
-   */
-    dev->session.params.channels = dev->settings.get_channels();
-  dev->current_setup.xres = dev->settings.xres;
-
-    DBG(DBG_io, "%s: requested=(%d, %d), tested=(%d, %d)\n", __func__,
-        dev->session.params.channels, dev->current_setup.xres,
-        cache->params.channels, cache->used_setup.xres);
-
-  /* a calibration cache is compatible if color mode and x dpi match the user
-   * requested scan. In the case of CIS scanners, dpi isn't a criteria */
-    if (!dev->model->is_cis) {
-        compatible = (dev->session.params.channels == cache->params.channels) &&
-                     (dev->current_setup.xres == cache->used_setup.xres);
-    } else {
-        compatible = dev->session.params.channels == cache->params.channels;
-    }
-
-  if (dev->session.params.scan_method != cache->params.scan_method)
-    {
-      DBG(DBG_io, "%s: current method=%d, used=%d\n", __func__,
-          static_cast<unsigned>(dev->session.params.scan_method),
-          static_cast<unsigned>(cache->params.scan_method));
-      compatible = 0;
-    }
-  if (!compatible)
-    {
-      DBG(DBG_proc, "%s: completed, non compatible cache\n", __func__);
-      return false;
-    }
-
-  /* a cache entry expires after 30 minutes for non sheetfed scanners */
-  /* this is not taken into account when overwriting cache entries    */
-#ifdef HAVE_SYS_TIME_H
-    if (!for_overwrite) {
-      gettimeofday (&time, nullptr);
-        if ((time.tv_sec - cache->last_calibration > 30 * 60) && !dev->model->is_sheetfed) {
-          DBG(DBG_proc, "%s: expired entry, non compatible cache\n", __func__);
-          return false;
-        }
-    }
-#endif
-
-  DBG(DBG_proc, "%s: completed, cache compatible\n", __func__);
-  return true;
-}
-
-/**
  * search for a full width black or white strip.
  * @param dev scanner device
  * @param forward true if searching forward, false if searching backward
@@ -3606,12 +3531,53 @@ void CommandSetGl646::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     throw SaneException("not implemented");
 }
 
-void CommandSetGl646::calculate_current_setup(Genesys_Device* dev,
-                                              const Genesys_Sensor& sensor) const
+ScanSession CommandSetGl646::calculate_scan_session(const Genesys_Device* dev,
+                                                    const Genesys_Sensor& sensor,
+                                                    const Genesys_Settings& settings) const
 {
-    (void) dev;
-    (void) sensor;
-    throw SaneException("not implemented");
+    // compute distance to move
+    float move = 0;
+    // XXX STEF XXX MD5345 -> optical_ydpi, other base_ydpi => half/full step ? */
+    if (!dev->model->is_sheetfed) {
+        move = static_cast<float>(dev->model->y_offset);
+        // add tl_y to base movement
+    }
+    move += static_cast<float>(settings.tl_y);
+
+    if (move < 0) {
+        DBG(DBG_error, "%s: overriding negative move value %f\n", __func__, move);
+        move = 0;
+    }
+
+    move = static_cast<float>((move * dev->motor.optical_ydpi) / MM_PER_INCH);
+    float start = static_cast<float>(settings.tl_x);
+    if (settings.scan_method == ScanMethod::FLATBED) {
+        start += static_cast<float>(dev->model->x_offset);
+    } else {
+        start += static_cast<float>(dev->model->x_offset_ta);
+    }
+    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
+
+    ScanSession session;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
+    session.params.flags = SCAN_FLAG_USE_XCORRECTION;
+    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= SCAN_FLAG_USE_XPA;
+    }
+    compute_session(dev, session, sensor);
+
+    return session;
 }
 
 void CommandSetGl646::asic_boot(Genesys_Device *dev, bool cold) const

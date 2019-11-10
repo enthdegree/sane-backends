@@ -488,10 +488,10 @@ int sanei_genesys_get_lowest_ydpi(Genesys_Device *dev);
 extern
 int sanei_genesys_get_lowest_dpi(Genesys_Device *dev);
 
-extern bool
-sanei_genesys_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sensor& sensor,
-				 Genesys_Calibration_Cache * cache,
-				 int for_overwrite);
+bool sanei_genesys_is_compatible_calibration(Genesys_Device* dev,
+                                             const ScanSession& session,
+                                             const Genesys_Calibration_Cache* cache,
+                                             bool for_overwrite);
 
 extern void sanei_genesys_load_lut(unsigned char* lut,
                                    int in_bits, int out_bits,
@@ -505,7 +505,7 @@ extern void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
                                     int size,
                                     uint8_t* gamma);
 
-void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor);
+void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor);
 
 void build_image_pipeline(Genesys_Device* dev, const ScanSession& session);
 
@@ -616,7 +616,6 @@ void genesys_init_usb_device_tables();
 void debug_dump(unsigned level, const Genesys_Settings& settings);
 void debug_dump(unsigned level, const SetupParams& params);
 void debug_dump(unsigned level, const ScanSession& session);
-void debug_dump(unsigned level, const Genesys_Current_Setup& setup);
 void debug_dump(unsigned level, const Genesys_Register_Set& regs);
 void debug_dump(unsigned level, const GenesysRegisterSettingSet& regs);
 void debug_dump(unsigned level, const Genesys_Sensor& sensor);

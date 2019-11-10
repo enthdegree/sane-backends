@@ -3372,62 +3372,7 @@ bool CommandSetGl646::is_compatible_calibration(Genesys_Device* dev, const Genes
                                                 Genesys_Calibration_Cache* cache,
                                                 bool for_overwrite) const
 {
-    (void) sensor;
-#ifdef HAVE_SYS_TIME_H
-  struct timeval time;
-#endif
-  int compatible = 1;
-
-  DBG(DBG_proc, "%s: start (for_overwrite=%d)\n", __func__, for_overwrite);
-
-  if (cache == nullptr)
-    return false;
-
-  /* build minimal current_setup for calibration cache use only, it will be better
-   * computed when during setup for scan
-   */
-    dev->session.params.channels = dev->settings.get_channels();
-
-    DBG(DBG_io, "%s: requested=(%d, %d), tested=(%d, %d)\n", __func__,
-        dev->session.params.channels, dev->session.params.xres,
-        cache->params.channels, cache->params.xres);
-
-  /* a calibration cache is compatible if color mode and x dpi match the user
-   * requested scan. In the case of CIS scanners, dpi isn't a criteria */
-    if (!dev->model->is_cis) {
-        compatible = (dev->session.params.channels == cache->params.channels) &&
-                     (dev->session.params.xres == cache->params.xres);
-    } else {
-        compatible = dev->session.params.channels == cache->params.channels;
-    }
-
-  if (dev->session.params.scan_method != cache->params.scan_method)
-    {
-      DBG(DBG_io, "%s: current method=%d, used=%d\n", __func__,
-          static_cast<unsigned>(dev->session.params.scan_method),
-          static_cast<unsigned>(cache->params.scan_method));
-      compatible = 0;
-    }
-  if (!compatible)
-    {
-      DBG(DBG_proc, "%s: completed, non compatible cache\n", __func__);
-      return false;
-    }
-
-  /* a cache entry expires after 30 minutes for non sheetfed scanners */
-  /* this is not taken into account when overwriting cache entries    */
-#ifdef HAVE_SYS_TIME_H
-    if (!for_overwrite) {
-      gettimeofday (&time, nullptr);
-        if ((time.tv_sec - cache->last_calibration > 30 * 60) && !dev->model->is_sheetfed) {
-          DBG(DBG_proc, "%s: expired entry, non compatible cache\n", __func__);
-          return false;
-        }
-    }
-#endif
-
-  DBG(DBG_proc, "%s: completed, cache compatible\n", __func__);
-  return true;
+    return sanei_genesys_is_compatible_calibration(dev, sensor, cache, for_overwrite);
 }
 
 /**

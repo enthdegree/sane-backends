@@ -112,15 +112,15 @@ print_status (uint8_t val)
 {
   char msg[80];
 
-  sprintf (msg, "%s%s%s%s%s%s%s%s",
-       val & REG_0x41_PWRBIT ? "PWRBIT " : "",
-       val & REG_0x41_BUFEMPTY ? "BUFEMPTY " : "",
-       val & REG_0x41_FEEDFSH ? "FEEDFSH " : "",
-       val & REG_0x41_SCANFSH ? "SCANFSH " : "",
-       val & REG_0x41_HOMESNR ? "HOMESNR " : "",
-       val & REG_0x41_LAMPSTS ? "LAMPSTS " : "",
-       val & REG_0x41_FEBUSY ? "FEBUSY " : "",
-       val & REG_0x41_MOTMFLG ? "MOTMFLG" : "");
+    std::sprintf(msg, "%s%s%s%s%s%s%s%s",
+                 val & REG_0x41_PWRBIT ? "PWRBIT " : "",
+                 val & REG_0x41_BUFEMPTY ? "BUFEMPTY " : "",
+                 val & REG_0x41_FEEDFSH ? "FEEDFSH " : "",
+                 val & REG_0x41_SCANFSH ? "SCANFSH " : "",
+                 val & REG_0x41_HOMESNR ? "HOMESNR " : "",
+                 val & REG_0x41_LAMPSTS ? "LAMPSTS " : "",
+                 val & REG_0x41_FEBUSY ? "FEBUSY " : "",
+                 val & REG_0x41_MOTMFLG ? "MOTMFLG" : "");
   DBG(DBG_info, "status=%s\n", msg);
 }
 
@@ -629,66 +629,6 @@ gl646_setup_sensor (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_
     sanei_genesys_set_exposure(*regs, sensor.exposure);
 
     DBG(DBG_proc, "%s: end\n", __func__);
-}
-
-/** Test if the ASIC works
- */
-static void gl646_asic_test(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-  size_t size, verify_size;
-  unsigned int i;
-
-    // set and read exposure time, compare if it's the same
-    dev->write_register(0x38, 0xde);
-
-    dev->write_register(0x39, 0xad);
-
-    uint8_t val = dev->read_register(0x4e);
-
-  if (val != 0xde)		/* value of register 0x38 */
-    {
-      throw SaneException("register contains invalid value");
-    }
-
-    val = dev->read_register(0x4f);
-
-  if (val != 0xad)		/* value of register 0x39 */
-    {
-      throw SaneException("register contains invalid value");
-    }
-
-  /* ram test: */
-  size = 0x40000;
-  verify_size = size + 0x80;
-  /* todo: looks like the read size must be a multiple of 128?
-     otherwise the read doesn't succeed the second time after the scanner has
-     been plugged in. Very strange. */
-
-  std::vector<uint8_t> data(size);
-  std::vector<uint8_t> verify_data(verify_size);
-
-  for (i = 0; i < (size - 1); i += 2)
-    {
-      data[i] = i / 512;
-      data[i + 1] = (i / 2) % 256;
-    }
-
-    sanei_genesys_set_buffer_address(dev, 0x0000);
-    sanei_genesys_bulk_write_data(dev, 0x3c, data.data(), size);
-    sanei_genesys_set_buffer_address(dev, 0x0000);
-
-    dev->cmd_set->bulk_read_data(dev, 0x45, verify_data.data(), verify_size);
-
-  /* i + 2 is needed as the changed address goes into effect only after one
-     data word is sent. */
-  for (i = 0; i < size; i++)
-    {
-      if (verify_data[i + 2] != data[i])
-	{
-            throw SaneException("data verification error");
-	}
-    }
 }
 
 /**
@@ -2134,7 +2074,7 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
       if (DBG_LEVEL >= DBG_data)
 	{
           char fn[30];
-          snprintf(fn, 30, "gl646_led_%02d.pnm", turn);
+            std::snprintf(fn, 30, "gl646_led_%02d.pnm", turn);
           sanei_genesys_write_pnm_file(fn, line.data(), 16, channels, settings.pixels, 1);
 	}
 
@@ -2397,7 +2337,7 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   if (DBG_LEVEL >= DBG_data)
     {
       char title[30];
-      snprintf(title, 30, "gl646_offset%03d.pnm", bottom);
+        std::snprintf(title, 30, "gl646_offset%03d.pnm", bottom);
       sanei_genesys_write_pnm_file(title, first_line.data(), 8, channels,
                                    settings.pixels, settings.lines);
     }
@@ -2415,7 +2355,7 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   if (DBG_LEVEL >= DBG_data)
     {
       char title[30];
-      snprintf(title, 30, "gl646_offset%03d.pnm", top);
+        std::snprintf(title, 30, "gl646_offset%03d.pnm", top);
       sanei_genesys_write_pnm_file (title, second_line.data(), 8, channels,
 				    settings.pixels, settings.lines);
     }
@@ -2439,7 +2379,7 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
       if (DBG_LEVEL >= DBG_data)
 	{
           char title[30];
-          snprintf(title, 30, "gl646_offset%03d.pnm", dev->frontend.get_offset(1));
+            std::snprintf(title, 30, "gl646_offset%03d.pnm", dev->frontend.get_offset(1));
           sanei_genesys_write_pnm_file (title, second_line.data(), 8, channels,
 					settings.pixels, settings.lines);
 	}
@@ -2527,7 +2467,7 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
 	{
-          sprintf (title, "gl646_alternative_gain%02d.pnm", pass);
+            std::sprintf(title, "gl646_alternative_gain%02d.pnm", pass);
           sanei_genesys_write_pnm_file(title, line.data(), 8, channels, settings.pixels,
                                        settings.lines);
 	}
@@ -2900,10 +2840,6 @@ void CommandSetGl646::init(Genesys_Device* dev) const
 
         // Write initial registers
         dev->write_registers(dev->reg);
-
-        if (dev->model->flags & GENESYS_FLAG_TEST_ON_INIT) {
-            gl646_asic_test(dev);
-        }
 
         // send gamma tables if needed
         dev->cmd_set->send_gamma_table(dev, sensor);

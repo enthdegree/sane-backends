@@ -77,6 +77,10 @@
 #include <exception>
 #include <vector>
 
+#ifndef SANE_GENESYS_API_LINKAGE
+#define SANE_GENESYS_API_LINKAGE extern "C"
+#endif
+
 namespace genesys {
 
 // Data that we allocate to back SANE_Device objects in s_sane_devices
@@ -92,10 +96,6 @@ namespace {
     StaticInit<std::vector<SANE_Device*>> s_sane_devices_ptrs;
     StaticInit<std::list<Genesys_Device>> s_devices;
 } // namespace
-
-#define STR_FLATBED SANE_I18N("Flatbed")
-#define STR_TRANSPARENCY_ADAPTER SANE_I18N("Transparency Adapter")
-#define STR_TRANSPARENCY_ADAPTER_INFRARED SANE_I18N("Transparency Adapter Infrared")
 
 static SANE_String_Const mode_list[] = {
   SANE_VALUE_SCAN_MODE_COLOR,
@@ -3400,28 +3400,6 @@ static unsigned pick_resolution(const std::vector<unsigned>& resolutions, unsign
     return best_res;
 }
 
-static const char* scan_method_to_option_string(ScanMethod method)
-{
-    switch (method) {
-        case ScanMethod::FLATBED: return STR_FLATBED;
-        case ScanMethod::TRANSPARENCY: return STR_TRANSPARENCY_ADAPTER;
-        case ScanMethod::TRANSPARENCY_INFRARED: return STR_TRANSPARENCY_ADAPTER_INFRARED;
-    }
-    throw SaneException("Unknown scan method %d", static_cast<unsigned>(method));
-}
-
-static ScanMethod option_string_to_scan_method(const std::string& str)
-{
-    if (str == STR_FLATBED) {
-        return ScanMethod::FLATBED;
-    } else if (str == STR_TRANSPARENCY_ADAPTER) {
-        return ScanMethod::TRANSPARENCY;
-    } else if (str == STR_TRANSPARENCY_ADAPTER_INFRARED) {
-        return ScanMethod::TRANSPARENCY_INFRARED;
-    }
-    throw SaneException("Unknown scan method option %s", str.c_str());
-}
-
 static void calc_parameters(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
@@ -3533,15 +3511,7 @@ static void calc_parameters(Genesys_Scanner* s)
         bytes_per_line *= 3;
     }
 
-    if (s->mode == SANE_VALUE_SCAN_MODE_COLOR) {
-        s->dev->settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    } else if (s->mode == SANE_VALUE_SCAN_MODE_GRAY) {
-        s->dev->settings.scan_mode = ScanColorMode::GRAY;
-    } else if (s->mode == SANE_TITLE_HALFTONE) {
-        s->dev->settings.scan_mode = ScanColorMode::HALFTONE;
-    } else {				/* Lineart */
-        s->dev->settings.scan_mode = ScanColorMode::LINEART;
-    }
+    s->dev->settings.scan_mode = option_string_to_scan_color_mode(s->mode);
 
   s->dev->settings.lines = s->params.lines;
     s->dev->settings.pixels = pixels_per_line;
@@ -4706,7 +4676,8 @@ void sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
 }
 
 
-extern "C" SANE_Status sane_init(SANE_Int * version_code, SANE_Auth_Callback authorize)
+SANE_GENESYS_API_LINKAGE
+SANE_Status sane_init(SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -4724,7 +4695,8 @@ sane_exit_impl(void)
   run_functions_at_backend_exit();
 }
 
-extern "C" void sane_exit()
+SANE_GENESYS_API_LINKAGE
+void sane_exit()
 {
     catch_all_exceptions(__func__, [](){ sane_exit_impl(); });
 }
@@ -4768,7 +4740,8 @@ void sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_on
     *const_cast<SANE_Device***>(device_list) = s_sane_devices_ptrs->data();
 }
 
-extern "C" SANE_Status sane_get_devices(const SANE_Device *** device_list, SANE_Bool local_only)
+SANE_GENESYS_API_LINKAGE
+SANE_Status sane_get_devices(const SANE_Device *** device_list, SANE_Bool local_only)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -4873,7 +4846,8 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     }
 }
 
-extern "C" SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle* handle)
+SANE_GENESYS_API_LINKAGE
+SANE_Status sane_open(SANE_String_Const devicename, SANE_Handle* handle)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -4943,7 +4917,8 @@ sane_close_impl(SANE_Handle handle)
   s_scanners->erase(it);
 }
 
-extern "C" void sane_close(SANE_Handle handle)
+SANE_GENESYS_API_LINKAGE
+void sane_close(SANE_Handle handle)
 {
     catch_all_exceptions(__func__, [=]()
     {
@@ -4966,8 +4941,8 @@ sane_get_option_descriptor_impl(SANE_Handle handle, SANE_Int option)
 }
 
 
-extern "C" const SANE_Option_Descriptor*
-sane_get_option_descriptor(SANE_Handle handle, SANE_Int option)
+SANE_GENESYS_API_LINKAGE
+const SANE_Option_Descriptor* sane_get_option_descriptor(SANE_Handle handle, SANE_Int option)
 {
     const SANE_Option_Descriptor* ret = nullptr;
     catch_all_exceptions(__func__, [&]()
@@ -5630,7 +5605,8 @@ void sane_control_option_impl(SANE_Handle handle, SANE_Int option,
     *info = myinfo;
 }
 
-extern "C" SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option,
+SANE_GENESYS_API_LINKAGE
+SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option,
                                            SANE_Action action, void *val, SANE_Int * info)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
@@ -5666,7 +5642,8 @@ void sane_get_parameters_impl(SANE_Handle handle, SANE_Parameters* params)
     debug_dump(DBG_proc, *params);
 }
 
-extern "C" SANE_Status sane_get_parameters(SANE_Handle handle, SANE_Parameters* params)
+SANE_GENESYS_API_LINKAGE
+SANE_Status sane_get_parameters(SANE_Handle handle, SANE_Parameters* params)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -5749,7 +5726,8 @@ void sane_start_impl(SANE_Handle handle)
     }
 }
 
-extern "C" SANE_Status sane_start(SANE_Handle handle)
+SANE_GENESYS_API_LINKAGE
+SANE_Status sane_start(SANE_Handle handle)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -5870,7 +5848,8 @@ void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_
   DBG(DBG_proc, "%s: %d bytes returned\n", __func__, *len);
 }
 
-extern "C" SANE_Status sane_read(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
+SANE_GENESYS_API_LINKAGE
+SANE_Status sane_read(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -5914,7 +5893,8 @@ void sane_cancel_impl(SANE_Handle handle)
   return;
 }
 
-extern "C" void sane_cancel(SANE_Handle handle)
+SANE_GENESYS_API_LINKAGE
+void sane_cancel(SANE_Handle handle)
 {
     catch_all_exceptions(__func__, [=]() { sane_cancel_impl(handle); });
 }
@@ -5933,7 +5913,8 @@ void sane_set_io_mode_impl(SANE_Handle handle, SANE_Bool non_blocking)
     }
 }
 
-extern "C" SANE_Status sane_set_io_mode(SANE_Handle handle, SANE_Bool non_blocking)
+SANE_GENESYS_API_LINKAGE
+SANE_Status sane_set_io_mode(SANE_Handle handle, SANE_Bool non_blocking)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {
@@ -5952,7 +5933,8 @@ void sane_get_select_fd_impl(SANE_Handle handle, SANE_Int* fd)
     throw SaneException(SANE_STATUS_UNSUPPORTED);
 }
 
-extern "C" SANE_Status sane_get_select_fd(SANE_Handle handle, SANE_Int* fd)
+SANE_GENESYS_API_LINKAGE
+SANE_Status sane_get_select_fd(SANE_Handle handle, SANE_Int* fd)
 {
     return wrap_exceptions_to_status_code(__func__, [=]()
     {

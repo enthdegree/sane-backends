@@ -49,6 +49,18 @@
 
 namespace genesys {
 
+std::vector<unsigned> MethodResolutions::get_resolutions() const
+{
+    std::vector<unsigned> ret;
+    std::copy(resolutions_x.begin(), resolutions_x.end(), std::back_inserter(ret));
+    std::copy(resolutions_y.begin(), resolutions_y.end(), std::back_inserter(ret));
+    // sort in decreasing order
+
+    std::sort(ret.begin(), ret.end(), std::greater<unsigned>());
+    ret.erase(std::unique(ret.begin(), ret.end()), ret.end());
+    return ret;
+}
+
 const MethodResolutions& Genesys_Model::get_resolution_settings(ScanMethod method) const
 {
     for (const auto& res_for_method : resolutions) {
@@ -64,16 +76,7 @@ const MethodResolutions& Genesys_Model::get_resolution_settings(ScanMethod metho
 
 std::vector<unsigned> Genesys_Model::get_resolutions(ScanMethod method) const
 {
-    auto settings = get_resolution_settings(method);
-
-    std::vector<unsigned> ret;
-    std::copy(settings.resolutions_x.begin(), settings.resolutions_x.end(), std::back_inserter(ret));
-    std::copy(settings.resolutions_y.begin(), settings.resolutions_y.end(), std::back_inserter(ret));
-    // sort in decreasing order
-
-    std::sort(ret.begin(), ret.end(), std::greater<unsigned>());
-    ret.erase(std::unique(ret.begin(), ret.end()), ret.end());
-    return ret;
+    return get_resolution_settings(method).get_resolutions();
 }
 
 Genesys_Device::~Genesys_Device()

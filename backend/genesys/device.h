@@ -109,6 +109,8 @@ struct MethodResolutions
     {
         return *std::min_element(resolutions_y.begin(), resolutions_y.end());
     }
+
+    std::vector<unsigned> get_resolutions() const;
 };
 
 /** @brief structure to describe a scanner model

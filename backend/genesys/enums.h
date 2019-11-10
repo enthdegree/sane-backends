@@ -71,6 +71,9 @@ inline void serialize(std::ostream& str, ScanMethod& x)
     serialize(str, value);
 }
 
+const char* scan_method_to_option_string(ScanMethod method);
+ScanMethod option_string_to_scan_method(const std::string& str);
+
 enum class ScanColorMode : unsigned {
     LINEART = 0,
     HALFTONE,
@@ -91,6 +94,8 @@ inline void serialize(std::ostream& str, ScanColorMode& x)
     serialize(str, value);
 }
 
+const char* scan_color_mode_to_option_string(ScanColorMode mode);
+ScanColorMode option_string_to_scan_color_mode(const std::string& str);
 
 enum class ColorFilter : unsigned {
     RED = 0,

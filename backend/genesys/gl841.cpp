@@ -212,80 +212,6 @@ static void sanei_gl841_setup_sensor(Genesys_Device * dev, const Genesys_Sensor&
     }
 }
 
-/** Test if the ASIC works
- */
-// TODO: make this functional
-static void sanei_gl841_asic_test(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-
-  size_t size, verify_size;
-  unsigned int i;
-
-    throw SaneException("not implemented");
-
-    // set and read exposure time, compare if it's the same
-    dev->write_register(0x38, 0xde);
-    dev->write_register(0x39, 0xad);
-
-    uint8_t val = dev->read_register(0x38);
-
-  if (val != 0xde)		/* value of register 0x38 */
-    {
-        throw SaneException("register contains invalid value");
-    }
-
-    val = dev->read_register(0x39);
-
-  if (val != 0xad)		/* value of register 0x39 */
-    {
-        throw SaneException("register contains invalid value");
-    }
-
-  /* ram test: */
-  size = 0x40000;
-  verify_size = size + 0x80;
-  /* todo: looks like the read size must be a multiple of 128?
-     otherwise the read doesn't succeed the second time after the scanner has
-     been plugged in. Very strange. */
-
-  std::vector<uint8_t> data(size);
-  std::vector<uint8_t> verify_data(verify_size);
-
-  for (i = 0; i < (size - 1); i += 2)
-    {
-      data[i] = i / 512;
-      data[i + 1] = (i / 2) % 256;
-    }
-
-    sanei_genesys_set_buffer_address(dev, 0x0000);
-
-    // sanei_genesys_bulk_write_data(dev, 0x3c, data, size);
-
-    sanei_genesys_set_buffer_address(dev, 0x0000);
-
-    sanei_genesys_bulk_read_data(dev, 0x45, verify_data.data(), verify_size);
-
-  /* todo: why i + 2 ? */
-  for (i = 0; i < size; i++)
-    {
-      if (verify_data[i] != data[i])
-	{
-	  DBG(DBG_info, "0x%.8x: got %.2x %.2x %.2x %.2x, expected %.2x %.2x %.2x %.2x\n",
-	      i,
-	      verify_data[i],
-	      verify_data[i+1],
-	      verify_data[i+2],
-	      verify_data[i+3],
-	      data[i],
-	      data[i+1],
-	      data[i+2],
-	      data[i+3]);
-            throw SaneException("data verification error");
-	}
-    }
-}
-
 /*
  * Set all registers LiDE 80 to default values
  * (function called only once at the beginning)
@@ -638,10 +564,9 @@ static void gl841_send_slope_table(Genesys_Device* dev, int table_nr,
 
   if (DBG_LEVEL >= DBG_io)
     {
-      sprintf (msg, "write slope %d (%d)=", table_nr, steps);
-      for (i = 0; i < steps; i++)
-	{
-	  sprintf (msg+strlen(msg), ",%d", slope_table[i]);
+        std::sprintf(msg, "write slope %d (%d)=", table_nr, steps);
+        for (i = 0; i < steps; i++) {
+            std::sprintf (msg+strlen(msg), ",%d", slope_table[i]);
 	}
       DBG(DBG_io, "%s: %s\n", __func__, msg);
     }
@@ -2811,7 +2736,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
 
       if (DBG_LEVEL >= DBG_data) {
           char fn[30];
-          snprintf(fn, 30, "gl841_led_%d.pnm", turn);
+          std::snprintf(fn, 30, "gl841_led_%d.pnm", turn);
           sanei_genesys_write_pnm_file(fn, line.data(), 16, channels, num_pixels, 1);
       }
 
@@ -2994,7 +2919,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       gl841_stop_action (dev);
       if (DBG_LEVEL >= DBG_data) {
           char fn[30];
-          snprintf(fn, 30, "gl841_offset_%02d.pnm", turn);
+          std::snprintf(fn, 30, "gl841_offset_%02d.pnm", turn);
           sanei_genesys_write_pnm_file(fn, line.data(), 8, 3, num_pixels, 1);
       }
 
@@ -3143,7 +3068,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
       if (DBG_LEVEL >= DBG_data) {
           char fn[30];
-          snprintf(fn, 30, "gl841_offset1_%02d.pnm", turn);
+          std::snprintf(fn, 30, "gl841_offset1_%02d.pnm", turn);
           sanei_genesys_write_pnm_file(fn, first_line.data(), 16, channels, num_pixels, 1);
       }
 
@@ -3250,7 +3175,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
       if (DBG_LEVEL >= DBG_data) {
           char fn[30];
-          snprintf(fn, 30, "gl841_offset2_%02d.pnm", turn);
+          std::snprintf(fn, 30, "gl841_offset2_%02d.pnm", turn);
           sanei_genesys_write_pnm_file(fn, second_line.data(), 16, channels, num_pixels, 1);
       }
 
@@ -3661,10 +3586,6 @@ void CommandSetGl841::init(Genesys_Device* dev) const
     // Write initial registers
     dev->write_registers(dev->reg);
 
-    if (dev->model->flags & GENESYS_FLAG_TEST_ON_INIT) {
-        sanei_gl841_asic_test(dev);
-    }
-
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
     // Set analog frontend
@@ -3870,8 +3791,8 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   pass = 0;
   if (DBG_LEVEL >= DBG_data)
     {
-      sprintf(title, "gl841_search_strip_%s_%s%02u.pnm", black ? "black" : "white",
-              forward ? "fwd" : "bwd", pass);
+        std::sprintf(title, "gl841_search_strip_%s_%s%02u.pnm", black ? "black" : "white",
+                     forward ? "fwd" : "bwd", pass);
       sanei_genesys_write_pnm_file(title, data.data(), session.params.depth,
                                    channels, pixels, lines);
     }
@@ -3895,8 +3816,8 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
 
       if (DBG_LEVEL >= DBG_data)
 	{
-          sprintf(title, "gl841_search_strip_%s_%s%02u.pnm",
-                  black ? "black" : "white", forward ? "fwd" : "bwd", pass);
+            std::sprintf(title, "gl841_search_strip_%s_%s%02u.pnm",
+                         black ? "black" : "white", forward ? "fwd" : "bwd", pass);
           sanei_genesys_write_pnm_file(title, data.data(), session.params.depth,
                                        channels, pixels, lines);
 	}

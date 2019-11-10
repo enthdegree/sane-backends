@@ -45,11 +45,11 @@
 #define BACKEND_GENESYS_COMMAND_SET_H
 
 #include "device.h"
+#include "fwd.h"
 #include <cstdint>
 
 namespace genesys {
 
-class Genesys_Device;
 
 /** Scanner command set description.
 

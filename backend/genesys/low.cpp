@@ -91,14 +91,12 @@ void sanei_genesys_init_cmd_set(Genesys_Device* dev)
 void sanei_genesys_write_file(const char* filename, const std::uint8_t* data, std::size_t length)
 {
     DBG_HELPER(dbg);
-    FILE *out;
-
-    out = fopen (filename, "w");
+    std::FILE* out = std::fopen(filename, "w");
     if (!out) {
         throw SaneException("could not open %s for writing: %s", filename, strerror(errno));
     }
-    fwrite(data, 1, length, out);
-    fclose(out);
+    std::fwrite(data, 1, length, out);
+    std::fclose(out);
 }
 
 // Write data to a pnm file (e.g. calibration). For debugging only

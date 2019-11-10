@@ -291,11 +291,6 @@ sanei_genesys_init_structs (Genesys_Device * dev)
                             static_cast<unsigned>(dev->model->gpio_id),
                             static_cast<unsigned>(dev->model->motor_id));
     }
-
-  /* set up initial line distance shift */
-  dev->ld_shift_r = dev->model->ld_shift_r;
-  dev->ld_shift_g = dev->model->ld_shift_g;
-  dev->ld_shift_b = dev->model->ld_shift_b;
 }
 
 /* main function for slope creation */

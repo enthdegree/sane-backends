@@ -1608,24 +1608,6 @@ int scan_step_type=0;
   return scan_step_type;
 }
 
-static void gl841_compute_session(Genesys_Device* dev, ScanSession& s,
-                                  const Genesys_Sensor& sensor)
-{
-    DBG_HELPER(dbg);
-
-    // no 16 bit gamma for this ASIC
-    if (s.params.depth == 16) {
-        s.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
-    }
-
-    compute_session(dev, s, sensor);
-
-    s.computed = true;
-
-    DBG(DBG_info, "%s ", __func__);
-    debug_dump(DBG_info, s);
-}
-
 // set up registers for an actual scan this function sets up the scanner to scan in normal or single
 // line mode
 static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -1801,7 +1783,7 @@ void CommandSetGl841::calculate_current_setup(Genesys_Device * dev,
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = 0;
 
-    gl841_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
   /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1
      dummy line. Maybe the dummy line adds correctness since the motor runs
@@ -2530,7 +2512,7 @@ void CommandSetGl841::search_start_position(Genesys_Device* dev) const
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE |
                            SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
-    gl841_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl841_init_scan_regs(dev, sensor, &local_reg, session);
 
@@ -2590,7 +2572,7 @@ void CommandSetGl841::init_regs_for_coarse_calibration(Genesys_Device* dev,
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl841_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl841_init_scan_regs(dev, sensor, &regs, session);
 
@@ -2662,7 +2644,7 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                            SCAN_FLAG_DISABLE_GAMMA |
                            /*SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |*/
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl841_compute_session(dev, session, calib_sensor);
+    compute_session(dev, session, calib_sensor);
 
     gl841_init_scan_regs(dev, calib_sensor, &regs, session);
 
@@ -2754,7 +2736,7 @@ void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = flags;
-    gl841_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl841_init_scan_regs(dev, sensor, &dev->reg, session);
 }
@@ -2839,7 +2821,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl841_compute_session(dev, session, calib_sensor_base);
+    compute_session(dev, session, calib_sensor_base);
 
     gl841_init_scan_regs(dev, calib_sensor_base, &regs, session);
 
@@ -3043,7 +3025,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl841_compute_session(dev, session, calib_sensor);
+    compute_session(dev, session, calib_sensor);
 
     gl841_init_scan_regs(dev, calib_sensor, &regs, session);
 
@@ -3166,7 +3148,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE |
                            SCAN_FLAG_DISABLE_LAMP;
-    gl841_compute_session(dev, session, calib_sensor);
+    compute_session(dev, session, calib_sensor);
 
     gl841_init_scan_regs(dev, calib_sensor, &regs, session);
 
@@ -3531,7 +3513,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl841_compute_session(dev, session, calib_sensor);
+    compute_session(dev, session, calib_sensor);
 
     gl841_init_scan_regs(dev, calib_sensor, &regs, session);
 
@@ -3676,7 +3658,7 @@ void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl841_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl841_init_scan_regs(dev, sensor, local_reg, session);
 
@@ -3834,7 +3816,7 @@ void CommandSetGl841::init(Genesys_Device* dev) const
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl841_compute_session(dev, session, calib_sensor);
+    compute_session(dev, session, calib_sensor);
 
     gl841_init_scan_regs(dev, calib_sensor, &regs, session);
 
@@ -3956,7 +3938,7 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     session.params.scan_mode = ScanColorMode::GRAY;
     session.params.color_filter = ColorFilter::RED;
     session.params.flags = SCAN_FLAG_DISABLE_SHADING | SCAN_FLAG_DISABLE_GAMMA;
-    gl841_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     size = pixels * channels * lines * (session.params.depth / 8);
     std::vector<uint8_t> data(size);

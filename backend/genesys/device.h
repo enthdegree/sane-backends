@@ -336,13 +336,6 @@ struct Genesys_Device
 
     Calibration calibration_cache;
 
-    // used red line-distance shift
-    SANE_Int ld_shift_r = 0;
-    // used green line-distance shift
-    SANE_Int ld_shift_g = 0;
-    // used blue line-distance shift
-    SANE_Int ld_shift_b = 0;
-
     // number of scan lines used during scan
     int line_count = 0;
 

@@ -741,21 +741,6 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   r->value = sensor.dummy_pixel;
 }
 
-static void gl846_compute_session(Genesys_Device* dev, ScanSession& s,
-                                  const Genesys_Sensor& sensor)
-{
-    DBG_HELPER(dbg);
-
-    compute_session(dev, s, sensor);
-
-    s.enable_ledadd = (s.params.channels == 1 && dev->model->is_cis && dev->settings.true_gray);
-
-    s.computed = true;
-
-    DBG(DBG_info, "%s ", __func__);
-    debug_dump(DBG_info, s);
-}
-
 // set up registers for an actual scan this function sets up the scanner to scan in normal or single
 // line mode
 static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -873,7 +858,7 @@ void CommandSetGl846::calculate_current_setup(Genesys_Device* dev,
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = 0;
 
-    gl846_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
@@ -1087,7 +1072,7 @@ void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     session.params.flags = SCAN_FLAG_DISABLE_SHADING |
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl846_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl846_init_scan_regs(dev, sensor, &local_reg, session);
 
@@ -1180,7 +1165,7 @@ void CommandSetGl846::search_start_position(Genesys_Device* dev) const
     session.params.flags = SCAN_FLAG_DISABLE_SHADING |
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl846_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl846_init_scan_regs(dev, sensor, &local_reg, session);
 
@@ -1242,7 +1227,7 @@ void CommandSetGl846::init_regs_for_coarse_calibration(Genesys_Device* dev,
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl846_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl846_init_scan_regs(dev, sensor, &regs, session);
 
@@ -1285,7 +1270,7 @@ static void gl846_feed(Genesys_Device* dev, unsigned int steps)
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_FEEDING |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl846_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl846_init_scan_regs(dev, sensor, &local_reg, session);
 
@@ -1373,7 +1358,7 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                    SCAN_FLAG_DISABLE_GAMMA |
                    SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
                    SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl846_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl846_init_scan_regs(dev, sensor, &regs, session);
 
@@ -1455,7 +1440,7 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.color_filter = dev->settings.color_filter;
     // backtracking isn't handled well, so don't enable it
     session.params.flags = SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
-    gl846_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl846_init_scan_regs(dev, sensor, &dev->reg, session);
 }
@@ -1586,7 +1571,7 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl846_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl846_init_scan_regs(dev, sensor, &regs, session);
 
@@ -1909,7 +1894,7 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     session.params.color_filter = ColorFilter::RED;
     session.params.flags = SCAN_FLAG_DISABLE_SHADING |
                            SCAN_FLAG_DISABLE_GAMMA;
-    gl846_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl846_init_scan_regs(dev, sensor, &local_reg, session);
 
@@ -2132,7 +2117,7 @@ void CommandSetGl846::offset_calibration(Genesys_Device* dev, const Genesys_Sens
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl846_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl846_init_scan_regs(dev, sensor, &regs, session);
 
@@ -2280,7 +2265,7 @@ void CommandSetGl846::coarse_gain_calibration(Genesys_Device* dev, const Genesys
                            SCAN_FLAG_DISABLE_GAMMA |
                            SCAN_FLAG_SINGLE_LINE |
                            SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl846_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     try {
         gl846_init_scan_regs(dev, sensor, &regs, session);

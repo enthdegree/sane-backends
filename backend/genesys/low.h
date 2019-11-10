@@ -493,24 +493,6 @@ sanei_genesys_is_compatible_calibration (Genesys_Device * dev, const Genesys_Sen
 				 Genesys_Calibration_Cache * cache,
 				 int for_overwrite);
 
-/** @brief compute maximum line distance shift
- * compute maximum line distance shift for the motor and sensor
- * combination. Line distance shift is the distance between different
- * color component of CCD sensors. Since these components aren't at
- * the same physical place, they scan diffrent lines. Software must
- * take this into account to accurately mix color data.
- * @param dev device session to compute max_shift for
- * @param channels number of color channels for the scan
- * @param yres motor resolution used for the scan
- * @param flags scan flags
- * @return 0 or line distance shift
- */
-extern
-int sanei_genesys_compute_max_shift(Genesys_Device *dev,
-                                    int channels,
-                                    int yres,
-                                    int flags);
-
 extern void sanei_genesys_load_lut(unsigned char* lut,
                                    int in_bits, int out_bits,
                                    int out_min, int out_max,

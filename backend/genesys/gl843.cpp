@@ -1192,23 +1192,6 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   r->value = sensor.dummy_pixel;
 }
 
-// computes physical parameters for specific scan setup
-static void gl843_compute_session(Genesys_Device* dev, ScanSession& s,
-                                  const Genesys_Sensor& sensor)
-{
-    // no 16 bit gamma for this ASIC
-    if (s.params.depth == 16) {
-        s.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
-    }
-
-    compute_session(dev, s, sensor);
-
-    s.computed = true;
-
-    DBG(DBG_info, "%s ", __func__);
-    debug_dump(DBG_info, s);
-}
-
 // set up registers for an actual scan this function sets up the scanner to scan in normal or single
 // line mode
 static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -1254,20 +1237,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     gl843_init_optical_regs_scan(dev, sensor, reg, exposure, session);
 
   /*** motor parameters ***/
-
-  /* it seems base_dpi of the G4050 motor is changed above 600 dpi*/
-    if (dev->model->motor_id == MotorId::G4050 && session.params.yres>600) {
-      dev->ld_shift_r = (dev->model->ld_shift_r*3800)/dev->motor.base_ydpi;
-      dev->ld_shift_g = (dev->model->ld_shift_g*3800)/dev->motor.base_ydpi;
-      dev->ld_shift_b = (dev->model->ld_shift_b*3800)/dev->motor.base_ydpi;
-    }
-  else
-    {
-      dev->ld_shift_r = dev->model->ld_shift_r;
-      dev->ld_shift_g = dev->model->ld_shift_g;
-      dev->ld_shift_b = dev->model->ld_shift_b;
-    }
-
     mflags = 0;
     if (session.params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE) {
         mflags |= MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
@@ -1353,7 +1322,7 @@ void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = 0;
 
-    gl843_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
   /* compute scan parameters values */
   /* pixels are allways given at half or full CCD optical resolution */
@@ -1365,17 +1334,6 @@ void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
       throw std::runtime_error("Exposure not defined in sensor definition");
   }
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
-
-  /* it seems base_dpi of the G4050 motor is changed above 600 dpi*/
-    if (dev->model->motor_id == MotorId::G4050 && session.params.yres>600) {
-      dev->ld_shift_r = (dev->model->ld_shift_r*3800)/dev->motor.base_ydpi;
-      dev->ld_shift_g = (dev->model->ld_shift_g*3800)/dev->motor.base_ydpi;
-      dev->ld_shift_b = (dev->model->ld_shift_b*3800)/dev->motor.base_ydpi;
-    } else {
-      dev->ld_shift_r = dev->model->ld_shift_r;
-      dev->ld_shift_g = dev->model->ld_shift_g;
-      dev->ld_shift_b = dev->model->ld_shift_b;
-    }
 
     dev->session = session;
     dev->current_setup.pixels = session.output_pixels;
@@ -1965,7 +1923,7 @@ void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
                             SCAN_FLAG_DISABLE_GAMMA |
                             SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
                             SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl843_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl843_init_scan_regs(dev, sensor, &local_reg, session);
 
@@ -2058,7 +2016,7 @@ void CommandSetGl843::search_start_position(Genesys_Device* dev) const
                             SCAN_FLAG_DISABLE_GAMMA |
                             SCAN_FLAG_IGNORE_LINE_DISTANCE |
                             SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
-    gl843_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl843_init_scan_regs(dev, sensor, &local_reg, session);
 
@@ -2122,7 +2080,7 @@ void CommandSetGl843::init_regs_for_coarse_calibration(Genesys_Device* dev,
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = flags;
-    gl843_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl843_init_scan_regs(dev, sensor, &regs, session);
 
@@ -2169,7 +2127,7 @@ static void gl843_feed(Genesys_Device* dev, unsigned int steps)
                             SCAN_FLAG_DISABLE_GAMMA |
                             SCAN_FLAG_FEEDING |
                             SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl843_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl843_init_scan_regs(dev, sensor, &local_reg, session);
 
@@ -2287,7 +2245,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = flags;
-    gl843_compute_session(dev, session, calib_sensor);
+    compute_session(dev, session, calib_sensor);
 
     gl843_init_scan_regs(dev, calib_sensor, &regs, session);
 
@@ -2374,7 +2332,7 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = flags;
-    gl843_compute_session(dev, session, sensor);
+    compute_session(dev, session, sensor);
 
     gl843_init_scan_regs(dev, sensor, &dev->reg, session);
 }
@@ -2456,7 +2414,7 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
                             SCAN_FLAG_DISABLE_GAMMA |
                             SCAN_FLAG_SINGLE_LINE |
                             SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl843_compute_session(dev, session, calib_sensor);
+    compute_session(dev, session, calib_sensor);
 
     gl843_init_scan_regs(dev, calib_sensor, &regs, session);
 
@@ -2669,7 +2627,7 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = ColorFilter::RED;
     session.params.flags = flags;
-    gl843_compute_session(dev, session, calib_sensor);
+    compute_session(dev, session, calib_sensor);
     pixels = session.output_pixels;
 
     DBG(DBG_io, "%s: dpihw       =%d\n", __func__, dpihw);
@@ -2885,7 +2843,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = flags;
-    gl843_compute_session(dev, session, calib_sensor);
+    compute_session(dev, session, calib_sensor);
     std::size_t pixels = session.output_pixels;
 
     try {
@@ -2996,7 +2954,7 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
                             SCAN_FLAG_DISABLE_GAMMA |
                             SCAN_FLAG_SINGLE_LINE |
                             SCAN_FLAG_IGNORE_LINE_DISTANCE;
-    gl843_compute_session(dev, session, calib_sensor);
+    compute_session(dev, session, calib_sensor);
 
     gl843_init_scan_regs(dev, calib_sensor, reg, session);
 
@@ -3240,7 +3198,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     session.params.scan_mode = ScanColorMode::GRAY;
     session.params.color_filter = ColorFilter::RED;
     session.params.flags = SCAN_FLAG_DISABLE_SHADING | SCAN_FLAG_DISABLE_SHADING;
-    gl843_compute_session(dev, session, calib_sensor);
+    compute_session(dev, session, calib_sensor);
 
     gl843_init_scan_regs(dev, calib_sensor, &local_reg, session);
 

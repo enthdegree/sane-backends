@@ -3,7 +3,7 @@
    This file is part of the SANE package, and implements a SANE backend
    for various Canon DR-series scanners.
 
-   Copyright (C) 2008-2016 m. allan noah
+   Copyright (C) 2008-2019 m. allan noah
 
    Yabarana Corp. www.yabarana.com provided significant funding
    EvriChart, Inc. www.evrichart.com provided funding and loaned equipment
@@ -338,6 +338,8 @@
          - initial support for P-150
       v57 2019-02-24, manuarg
          - complete support for X-10, including hardware cropping
+      v58 2019-11-10, MAN
+         - adjust wait_scanner to set runRS only as a last resort, bug #154
 
    SANE FLOW DIAGRAM
 
@@ -388,7 +390,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 57
+#define BUILD 58
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -7584,6 +7586,24 @@ wait_scanner(struct scanner *s)
     NULL, NULL
   );
 
+  if (ret != SANE_STATUS_GOOD) {
+    DBG(5,"WARNING: Brain-dead scanner. Hitting with stick.\n");
+    ret = do_cmd (
+      s, 0, 1,
+      cmd, cmdLen,
+      NULL, 0,
+      NULL, NULL
+    );
+  }
+  if (ret != SANE_STATUS_GOOD) {
+    DBG(5,"WARNING: Brain-dead scanner. Hitting with stick again.\n");
+    ret = do_cmd (
+      s, 0, 1,
+      cmd, cmdLen,
+      NULL, 0,
+      NULL, NULL
+    );
+  }
   // some scanners (such as DR-F120) are OK but will not respond to commands
   // when in sleep mode. By checking the sense it wakes them up.
   if (ret != SANE_STATUS_GOOD) {
@@ -7596,7 +7616,16 @@ wait_scanner(struct scanner *s)
     );
   }
   if (ret != SANE_STATUS_GOOD) {
-    DBG(5,"WARNING: Brain-dead scanner. Hitting with stick instead.\n");
+    DBG(5,"WARNING: Brain-dead scanner. Hitting with stick a third time.\n");
+    ret = do_cmd (
+      s, 0, 1,
+      cmd, cmdLen,
+      NULL, 0,
+      NULL, NULL
+    );
+  }
+  if (ret != SANE_STATUS_GOOD) {
+    DBG(5,"WARNING: Brain-dead scanner. Hitting with stick a fourth time.\n");
     ret = do_cmd (
       s, 0, 1,
       cmd, cmdLen,

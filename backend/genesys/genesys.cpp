@@ -2674,9 +2674,11 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         coarse_res /= 2;
     }
 
-    if (dev->model->model_id == ModelId::CANON_8400F ||
-        dev->model->model_id == ModelId::CANON_8600F)
-    {
+    if (dev->model->model_id == ModelId::CANON_8400F) {
+        coarse_res = 1600;
+    }
+
+    if (dev->model->model_id == ModelId::CANON_8600F) {
         coarse_res = 1200;
     }
 

@@ -267,9 +267,11 @@ struct ScanSession {
     unsigned segment_count = 1;
 
     // the physical pixel positions that are sent to the registers
-    // gl843-only
     unsigned pixel_startx = 0;
     unsigned pixel_endx = 0;
+
+    // certain scanners require the logical pixel count to be multiplied on certain resolutions
+    unsigned pixel_count_multiplier = 1;
 
     // Distance in pixels between consecutive pixels, e.g. between odd and even pixels. Note that
     // the number of segments can be large.

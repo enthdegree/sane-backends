@@ -2593,11 +2593,13 @@ genesys_restore_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
         return false;
     }
 
+    auto session = dev->cmd_set->calculate_scan_session(dev, sensor, dev->settings);
+
   /* we walk the link list of calibration cache in search for a
    * matching one */
   for (auto& cache : dev->calibration_cache)
     {
-        if (sanei_genesys_is_compatible_calibration(dev, sensor, &cache, false)) {
+        if (sanei_genesys_is_compatible_calibration(dev, session, &cache, false)) {
             dev->frontend = cache.frontend;
           /* we don't restore the gamma fields */
           sensor.exposure = cache.sensor.exposure;
@@ -2629,13 +2631,15 @@ static void genesys_save_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   struct timeval time;
 #endif
 
+    auto session = dev->cmd_set->calculate_scan_session(dev, sensor, dev->settings);
+
   auto found_cache_it = dev->calibration_cache.end();
   for (auto cache_it = dev->calibration_cache.begin(); cache_it != dev->calibration_cache.end();
        cache_it++)
     {
-        if (sanei_genesys_is_compatible_calibration(dev, sensor, &*cache_it, true)) {
-          found_cache_it = cache_it;
-          break;
+        if (sanei_genesys_is_compatible_calibration(dev, session, &*cache_it, true)) {
+            found_cache_it = cache_it;
+            break;
         }
     }
 
@@ -2652,7 +2656,7 @@ static void genesys_save_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   found_cache_it->dark_average_data = dev->dark_average_data;
   found_cache_it->white_average_data = dev->white_average_data;
 
-  found_cache_it->params = dev->session.params;
+    found_cache_it->params = session.params;
   found_cache_it->frontend = dev->frontend;
   found_cache_it->sensor = sensor;
 
@@ -5176,20 +5180,29 @@ static void get_option_value(Genesys_Scanner* s, int option, void* val)
     case OPT_EXTRA_SW:
         s->dev->cmd_set->update_hardware_sensors(s);
         *reinterpret_cast<SANE_Bool*>(val) = s->buttons[genesys_option_to_button(option)].read();
-      break;
-    case OPT_NEED_CALIBRATION_SW:
-        if (!sensor)
-            throw SaneException("Unsupported scanner mode selected");
+        break;
 
-      /* scanner needs calibration for current mode unless a matching
-       * calibration cache is found */
-        *reinterpret_cast<SANE_Bool*>(val) = SANE_TRUE;
-        for (auto& cache : s->dev->calibration_cache) {
-            if (sanei_genesys_is_compatible_calibration(s->dev, *sensor, &cache, false)) {
-                *reinterpret_cast<SANE_Bool*>(val) = SANE_FALSE;
-	    }
-	}
-      break;
+        case OPT_NEED_CALIBRATION_SW: {
+            if (!sensor) {
+                throw SaneException("Unsupported scanner mode selected");
+            }
+
+            // scanner needs calibration for current mode unless a matching calibration cache is
+            // found
+
+            bool result = true;
+
+            auto session = s->dev->cmd_set->calculate_scan_session(s->dev, *sensor,
+                                                                   s->dev->settings);
+
+            for (auto& cache : s->dev->calibration_cache) {
+                if (sanei_genesys_is_compatible_calibration(s->dev, session, &cache, false)) {
+                    *reinterpret_cast<SANE_Bool*>(val) = SANE_FALSE;
+                }
+            }
+            *reinterpret_cast<SANE_Bool*>(val) = result;
+            break;
+        }
     default:
       DBG(DBG_warn, "%s: can't get unknown option %d\n", __func__, option);
     }

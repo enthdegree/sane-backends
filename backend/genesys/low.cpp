@@ -2318,15 +2318,15 @@ int sanei_genesys_get_lowest_dpi(Genesys_Device *dev)
  * flatbed cache entries are considred too old and then expires if they
  * are older than the expiration time option, forcing calibration at least once
  * then given time. */
-bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                             Genesys_Calibration_Cache * cache, int for_overwrite)
+bool sanei_genesys_is_compatible_calibration(Genesys_Device* dev,
+                                             const ScanSession& session,
+                                             const Genesys_Calibration_Cache* cache,
+                                             bool for_overwrite)
 {
     DBG_HELPER(dbg);
 #ifdef HAVE_SYS_TIME_H
   struct timeval time;
 #endif
-
-    auto session = dev->cmd_set->calculate_scan_session(dev, sensor, dev->settings);
 
     bool compatible = true;
 

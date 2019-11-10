@@ -84,6 +84,8 @@ struct Genesys_Motor_Slope
     // {  9560,  1912, 31, 0.8 },
 };
 
+std::ostream& operator<<(std::ostream& out, const Genesys_Motor_Slope& slope);
+
 
 struct Genesys_Motor
 {
@@ -100,6 +102,8 @@ struct Genesys_Motor
     // slopes to derive individual slopes from
     std::vector<Genesys_Motor_Slope> slopes;
 };
+
+std::ostream& operator<<(std::ostream& out, const Genesys_Motor& motor);
 
 } // namespace genesys
 

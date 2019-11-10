@@ -52,6 +52,7 @@
 
 #include "gl646.h"
 #include "gl646_registers.h"
+#include "test_settings.h"
 
 #include <vector>
 
@@ -1614,6 +1615,11 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     // starts scan
     dev->cmd_set->begin_scan(dev, sensor, &dev->reg, true);
 
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("slow_back_home");
+        return;
+    }
+
   /* loop until head parked */
   if (wait_until_home)
     {
@@ -1680,7 +1686,7 @@ void CommandSetGl646::search_start_position(Genesys_Device* dev) const
 
     // scan the desired area
     std::vector<uint8_t> data;
-    simple_scan(dev, sensor, settings, true, true, false, data);
+    simple_scan(dev, sensor, settings, true, true, false, data, "search_start_position");
 
     // handle stagger case : reorder gray data and thus loose some lines
     auto staggered_lines = dev->session.num_staggered_lines;
@@ -2050,7 +2056,11 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
 
-        simple_scan(dev, calib_sensor, settings, false, true, false, line);
+        simple_scan(dev, calib_sensor, settings, false, true, false, line, "led_calibration");
+
+        if (is_testing_mode()) {
+            return { 0, 0, 0 };
+        }
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -2207,7 +2217,12 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       dev->frontend.set_offset(0, bottom);
       dev->frontend.set_offset(1, bottom);
       dev->frontend.set_offset(2, bottom);
-        simple_scan(dev, calib_sensor, settings, false, true, false, line);
+        simple_scan(dev, calib_sensor, settings, false, true, false, line,
+                    "ad_fe_offset_calibration");
+
+        if (is_testing_mode()) {
+            return;
+        }
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -2313,7 +2328,8 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
   std::vector<uint8_t> first_line, second_line;
 
-    simple_scan(dev, calib_sensor, settings, false, true, false, first_line);
+    simple_scan(dev, calib_sensor, settings, false, true, false, first_line,
+                "offset_first_line");
 
   if (DBG_LEVEL >= DBG_data)
     {
@@ -2331,7 +2347,8 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   dev->frontend.set_offset(0, top);
   dev->frontend.set_offset(1, top);
   dev->frontend.set_offset(2, top);
-    simple_scan(dev, calib_sensor, settings, false, true, false, second_line);
+    simple_scan(dev, calib_sensor, settings, false, true, false, second_line,
+                "offset_second_line");
 
   if (DBG_LEVEL >= DBG_data)
     {
@@ -2344,6 +2361,10 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
                         black_pixels);
   DBG(DBG_io2, "%s: top avg=%d\n", __func__, topavg);
 
+    if (is_testing_mode()) {
+        return;
+    }
+
   /* loop until acceptable level */
   while ((pass < 32) && (top - bottom > 1))
     {
@@ -2355,7 +2376,8 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
       dev->frontend.set_offset(2, (top + bottom) / 2);
 
         // scan with no move
-        simple_scan(dev, calib_sensor, settings, false, true, false, second_line);
+        simple_scan(dev, calib_sensor, settings, false, true, false, second_line,
+                    "offset_calibration_i");
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -2443,7 +2465,8 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
     // loop until each channel raises to acceptable level
     while ((average < calib_sensor.gain_white_ref) && (pass < 30)) {
         // scan with no move
-        simple_scan(dev, calib_sensor, settings, false, true, false, line);
+        simple_scan(dev, calib_sensor, settings, false, true, false, line,
+                    "ad_fe_coarse_gain_calibration");
 
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
@@ -2575,7 +2598,8 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
             (average[2] < calib_sensor.gain_white_ref)) && (pass < 30))
     {
         // scan with no move
-        simple_scan(dev, calib_sensor, settings, false, true, false, line);
+        simple_scan(dev, calib_sensor, settings, false, true, false, line,
+                    "coarse_gain_calibration");
 
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
@@ -2934,7 +2958,8 @@ void CommandSetGl646::move_to_ta(Genesys_Device* dev) const
  */
 static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                         Genesys_Settings settings, bool move, bool forward,
-                        bool shading, std::vector<uint8_t>& data)
+                        bool shading, std::vector<uint8_t>& data,
+                        const char* scan_identifier)
 {
     DBG_HELPER_ARGS(dbg, "move=%d, forward=%d, shading=%d", move, forward, shading);
   unsigned int size, lines, x, y, bpp;
@@ -3007,6 +3032,11 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
     // starts scan
     dev->cmd_set->begin_scan(dev, sensor, &dev->reg, move);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint(scan_identifier);
+        return;
+    }
 
     wait_until_buffer_non_empty(dev, true);
 
@@ -3093,7 +3123,7 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance)
   settings.threshold = 0;
 
   std::vector<uint8_t> data;
-    simple_scan(dev, sensor, settings, true, true, false, data);
+    simple_scan(dev, sensor, settings, true, true, false, data, "simple_move");
 }
 
 /**
@@ -3326,7 +3356,11 @@ void CommandSetGl646::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   while (pass < 20 && !found)
     {
         // scan a full width strip
-        simple_scan(dev, calib_sensor, settings, true, forward, false, data);
+        simple_scan(dev, calib_sensor, settings, true, forward, false, data, "search_strip");
+
+        if (is_testing_mode()) {
+            return;
+        }
 
       if (DBG_LEVEL >= DBG_data)
 	{

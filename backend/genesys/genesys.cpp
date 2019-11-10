@@ -65,6 +65,8 @@
 #include "usb_device.h"
 #include "utilities.h"
 #include "scanner_interface_usb.h"
+#include "test_scanner_interface.h"
+#include "test_settings.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_magic.h"
 
@@ -1417,8 +1419,13 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
 
         dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, false);
 
-      sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
+        if (is_testing_mode()) {
+            dev->interface->test_checkpoint("coarse_calibration");
+            dev->cmd_set->end_scan(dev, &dev->calib_reg, true);
+            return;
+        }
 
+      sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
       std::memcpy(all_data.data() + i * size, calibration_data.data(), size);
       if (i == 3)		/* last line */
 	{
@@ -1541,6 +1548,14 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
     bool start_motor = !is_dark;
     dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, start_motor);
+
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint(is_dark ? "dark_shading_calibration"
+                                                : "white_shading_calibration");
+        dev->cmd_set->end_scan(dev, &dev->calib_reg, true);
+        return;
+    }
 
     sanei_genesys_read_data_from_scanner(dev, reinterpret_cast<std::uint8_t*>(calibration_data.data()),
                                          size);
@@ -1736,6 +1751,12 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
     dev->interface->write_registers(dev->calib_reg);
 
     dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, false);
+
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("dark_white_shading_calibration");
+        dev->cmd_set->end_scan(dev, &dev->calib_reg, true);
+        return;
+    }
 
     sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
 
@@ -2975,6 +2996,12 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
       DBG(DBG_info, "%s: one more loop\n", __func__);
         dev->cmd_set->begin_scan(dev, sensor, &dev->reg, false);
 
+        if (is_testing_mode()) {
+            dev->interface->test_checkpoint("warmup_lamp");
+            dev->cmd_set->end_scan(dev, &dev->reg, true);
+            return;
+        }
+
         wait_until_buffer_non_empty(dev);
 
         try {
@@ -3180,6 +3207,11 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     // start effective scan
     dev->cmd_set->begin_scan(dev, sensor, &dev->reg, true);
 
+    if (is_testing_mode()) {
+        dev->interface->test_checkpoint("start_scan");
+        return;
+    }
+
   /*do we really need this? the valid data check should be sufficent -- pierre*/
   /* waits for head to reach scanning position */
   expected = dev->reg.get8(0x3d) * 65536
@@ -3297,28 +3329,35 @@ Problems with the first approach:
   total_bytes_to_read and total_bytes_read help in that case.
  */
 
-    genesys_fill_read_buffer(dev);
+    if (is_testing_mode()) {
+        if (dev->total_bytes_read + *len > dev->total_bytes_to_read) {
+            *len = dev->total_bytes_to_read - dev->total_bytes_read;
+        }
+        dev->total_bytes_read += *len;
+    } else {
+        genesys_fill_read_buffer(dev);
 
-  src_buffer = &(dev->read_buffer);
+        src_buffer = &(dev->read_buffer);
 
-  /* move data to destination */
-  bytes = src_buffer->avail();
-  if (bytes > *len)
-    bytes = *len;
-  work_buffer_src = src_buffer->get_read_pos();
+        /* move data to destination */
+        bytes = std::min(src_buffer->avail(), *len);
 
-    std::memcpy(destination, work_buffer_src, bytes);
-    *len = bytes;
+        work_buffer_src = src_buffer->get_read_pos();
 
-  /* avoid signaling some extra data because we have treated a full block
-   * on the last block */
-  if (dev->total_bytes_read + *len > dev->total_bytes_to_read)
-    *len = dev->total_bytes_to_read - dev->total_bytes_read;
+        std::memcpy(destination, work_buffer_src, bytes);
+        *len = bytes;
 
-  /* count bytes sent to frontend */
-  dev->total_bytes_read += *len;
+        /* avoid signaling some extra data because we have treated a full block
+        * on the last block */
+        if (dev->total_bytes_read + *len > dev->total_bytes_to_read) {
+            *len = dev->total_bytes_to_read - dev->total_bytes_read;
+        }
 
-    src_buffer->consume(bytes);
+        /* count bytes sent to frontend */
+        dev->total_bytes_read += *len;
+
+        src_buffer->consume(bytes);
+    }
 
   /* end scan if all needed data have been read */
    if(dev->total_bytes_read >= dev->total_bytes_to_read)
@@ -4424,9 +4463,15 @@ config_attach_genesys(SANEI_Config __sane_unused__ *config, const char *devname)
 }
 
 /* probes for scanner to attach to the backend */
-static void probe_genesys_devices (void)
+static void probe_genesys_devices()
 {
     DBG_HELPER(dbg);
+    if (is_testing_mode()) {
+        attach_usb_device(get_testing_device_name().c_str(),
+                          get_testing_vendor_id(), get_testing_product_id());
+        return;
+    }
+
   SANEI_Config config;
 
     // set configuration options structure : no option for this backend
@@ -4630,19 +4675,23 @@ void sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG_INIT ();
     DBG_HELPER_ARGS(dbg, "authorize %s null", authorize ? "!=" : "==");
     DBG(DBG_init, "SANE Genesys backend from %s\n", PACKAGE_STRING);
+
+    if (!is_testing_mode()) {
 #ifdef HAVE_LIBUSB
-  DBG(DBG_init, "SANE Genesys backend built with libusb-1.0\n");
+        DBG(DBG_init, "SANE Genesys backend built with libusb-1.0\n");
 #endif
 #ifdef HAVE_LIBUSB_LEGACY
-  DBG(DBG_init, "SANE Genesys backend built with libusb\n");
+        DBG(DBG_init, "SANE Genesys backend built with libusb\n");
 #endif
+    }
 
     if (version_code) {
         *version_code = SANE_VERSION_CODE(SANE_CURRENT_MAJOR, SANE_CURRENT_MINOR, 0);
     }
 
-  /* init usb use */
-  sanei_usb_init ();
+    if (!is_testing_mode()) {
+        sanei_usb_init();
+    }
 
   /* init sanei_magic */
   sanei_magic_init();
@@ -4686,7 +4735,9 @@ sane_exit_impl(void)
 {
     DBG_HELPER(dbg);
 
-  sanei_usb_exit();
+    if (!is_testing_mode()) {
+        sanei_usb_exit();
+    }
 
   run_functions_at_backend_exit();
 }
@@ -4701,9 +4752,11 @@ void sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_on
 {
     DBG_HELPER_ARGS(dbg, "local_only = %s", local_only ? "true" : "false");
 
-  /* hot-plug case : detection of newly connected scanners */
-  sanei_usb_scan_devices ();
-  probe_genesys_devices ();
+    if (!is_testing_mode()) {
+        // hot-plug case : detection of newly connected scanners */
+        sanei_usb_scan_devices();
+    }
+    probe_genesys_devices();
 
     s_sane_devices->clear();
     s_sane_devices_data->clear();
@@ -4713,8 +4766,14 @@ void sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_on
     s_sane_devices_ptrs->reserve(s_devices->size() + 1);
 
     for (auto dev_it = s_devices->begin(); dev_it != s_devices->end();) {
-        present = false;
-        sanei_usb_find_devices(dev_it->vendorId, dev_it->productId, check_present);
+
+        if (is_testing_mode()) {
+            present = true;
+        } else {
+            present = false;
+            sanei_usb_find_devices(dev_it->vendorId, dev_it->productId, check_present);
+        }
+
         if (present) {
             s_sane_devices->emplace_back();
             s_sane_devices_data->emplace_back();
@@ -4753,8 +4812,7 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
   /* devicename="" or devicename="genesys" are default values that use
    * first available device
    */
-  if (devicename[0] && strcmp ("genesys", devicename) != 0)
-    {
+    if (devicename[0] && strcmp ("genesys", devicename) != 0) {
       /* search for the given devicename in the device list */
         for (auto& d : *s_devices) {
             if (d.file_name == devicename) {
@@ -4763,14 +4821,16 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
             }
         }
 
-        if (!dev) {
+        if (dev) {
+            DBG(DBG_info, "%s: found `%s' in devlist\n", __func__, dev->model->name);
+        } else if (is_testing_mode()) {
+            DBG(DBG_info, "%s: couldn't find `%s' in devlist, not attaching", __func__, devicename);
+        } else {
             DBG(DBG_info, "%s: couldn't find `%s' in devlist, trying attach\n", __func__,
                 devicename);
             dbg.status("attach_device_by_name");
             dev = attach_device_by_name(devicename, true);
             dbg.clear();
-        } else {
-            DBG(DBG_info, "%s: found `%s' in devlist\n", __func__, dev->model->name);
         }
     } else {
         // empty devicename or "genesys" -> use first device
@@ -4795,7 +4855,14 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     }
 
     dbg.vstatus("open device '%s'", dev->file_name.c_str());
-    dev->interface = std::unique_ptr<ScannerInterfaceUsb>{new ScannerInterfaceUsb{dev}};
+
+    if (is_testing_mode()) {
+        auto interface = std::unique_ptr<TestScannerInterface>{new TestScannerInterface{dev}};
+        interface->set_checkpoint_callback(get_testing_checkpoint_callback());
+        dev->interface = std::move(interface);
+    } else {
+        dev->interface = std::unique_ptr<ScannerInterfaceUsb>{new ScannerInterfaceUsb{dev}};
+    }
     dev->interface->get_usb_device().open(dev->file_name.c_str());
     dbg.clear();
 
@@ -4890,7 +4957,7 @@ sane_close_impl(SANE_Handle handle)
     s->dev->cmd_set->save_power(s->dev, true);
 
     // here is the place to store calibration cache
-    if (s->dev->force_calibration == 0) {
+    if (s->dev->force_calibration == 0 && !is_testing_mode()) {
         catch_all_exceptions(__func__, [&](){ write_calibration(s->dev->calibration_cache,
                                                                 s->dev->calib_file); });
     }
@@ -5801,11 +5868,13 @@ void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_
               dev->local_buffer.produce(local_len);
 
                 dev->binarize_buffer.reset();
-                genesys_gray_lineart(dev, dev->local_buffer.get_read_pos(),
-                                     dev->binarize_buffer.get_write_pos(local_len / 8),
-                                     dev->settings.pixels,
-                                     local_len/dev->settings.pixels,
-                                     dev->settings.threshold);
+                if (!is_testing_mode()) {
+                    genesys_gray_lineart(dev, dev->local_buffer.get_read_pos(),
+                                         dev->binarize_buffer.get_write_pos(local_len / 8),
+                                         dev->settings.pixels,
+                                         local_len / dev->settings.pixels,
+                                         dev->settings.threshold);
+                }
                 dev->binarize_buffer.produce(local_len / 8);
             }
 

@@ -57,7 +57,6 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <math.h>
 #include <stddef.h>
@@ -96,6 +95,7 @@
 #include <cstring>
 #include <functional>
 #include <iostream>
+#include <sstream>
 #include <limits>
 #include <memory>
 #include <stdexcept>
@@ -216,9 +216,9 @@ struct Genesys_USB_Device_Entry {
     {}
 
     // USB vendor identifier
-    unsigned vendor;
+    std::uint16_t vendor;
     // USB product identifier
-    unsigned product;
+    std::uint16_t product;
     // Scanner model information
     Genesys_Model model;
 };
@@ -577,13 +577,13 @@ void genesys_init_gpo_tables();
 void genesys_init_motor_tables();
 void genesys_init_usb_device_tables();
 
-void debug_dump(unsigned level, const Genesys_Settings& settings);
-void debug_dump(unsigned level, const SetupParams& params);
-void debug_dump(unsigned level, const ScanSession& session);
-void debug_dump(unsigned level, const Genesys_Register_Set& regs);
-void debug_dump(unsigned level, const GenesysRegisterSettingSet& regs);
-void debug_dump(unsigned level, const Genesys_Sensor& sensor);
-void debug_dump(unsigned level, const SANE_Parameters& params);
+template<class T>
+void debug_dump(unsigned level, const T& value)
+{
+    std::stringstream out;
+    out << value;
+    DBG(level, "%s\n", out.str().c_str());
+}
 
 } // namespace genesys
 

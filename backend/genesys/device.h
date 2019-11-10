@@ -365,6 +365,8 @@ private:
     friend class ScannerInterfaceUsb;
 };
 
+std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev);
+
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs);
 
 } // namespace genesys

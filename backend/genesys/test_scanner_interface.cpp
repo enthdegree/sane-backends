@@ -44,9 +44,55 @@
 #define DEBUG_DECLARE_ONLY
 
 #include "test_scanner_interface.h"
+#include "device.h"
 #include <cstring>
 
 namespace genesys {
+
+TestScannerInterface::TestScannerInterface(Genesys_Device* dev) : dev_{dev}
+{
+    // initialize status registers
+    if (dev_->model->asic_type == AsicType::GL124) {
+        write_register(0x101, 0x00);
+    } else {
+        write_register(0x41, 0x00);
+    }
+    if (dev_->model->asic_type == AsicType::GL841 ||
+        dev_->model->asic_type == AsicType::GL843 ||
+        dev_->model->asic_type == AsicType::GL845 ||
+        dev_->model->asic_type == AsicType::GL846 ||
+        dev_->model->asic_type == AsicType::GL847)
+    {
+        write_register(0x40, 0x00);
+    }
+
+    // initialize other registers that we read on init
+    if (dev_->model->asic_type == AsicType::GL124) {
+        write_register(0x33, 0x00);
+        write_register(0xbd, 0x00);
+        write_register(0xbe, 0x00);
+        write_register(0x100, 0x00);
+    }
+
+    if (dev_->model->asic_type == AsicType::GL845 ||
+        dev_->model->asic_type == AsicType::GL846 ||
+        dev_->model->asic_type == AsicType::GL847)
+    {
+        write_register(0xbd, 0x00);
+        write_register(0xbe, 0x00);
+
+        write_register(0xd0, 0x00);
+        write_register(0xd1, 0x01);
+        write_register(0xd2, 0x02);
+        write_register(0xd3, 0x03);
+        write_register(0xd4, 0x04);
+        write_register(0xd5, 0x05);
+        write_register(0xd6, 0x06);
+        write_register(0xd7, 0x07);
+        write_register(0xd8, 0x08);
+        write_register(0xd9, 0x09);
+    }
+}
 
 TestScannerInterface::~TestScannerInterface() = default;
 
@@ -145,6 +191,28 @@ void TestScannerInterface::record_progress_message(const char* msg)
 const std::string& TestScannerInterface::last_progress_message() const
 {
     return last_progress_message_;
+}
+
+void TestScannerInterface::record_key_value(const std::string& key, const std::string& value)
+{
+    key_values_[key] = value;
+}
+
+std::map<std::string, std::string>& TestScannerInterface::recorded_key_values()
+{
+    return key_values_;
+}
+
+void TestScannerInterface::test_checkpoint(const std::string& name)
+{
+    if (checkpoint_callback_) {
+        checkpoint_callback_(*dev_, *this, name);
+    }
+}
+
+void TestScannerInterface::set_checkpoint_callback(TestCheckpointCallback callback)
+{
+    checkpoint_callback_ = callback;
 }
 
 } // namespace genesys

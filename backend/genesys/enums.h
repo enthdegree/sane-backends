@@ -58,6 +58,16 @@ enum class ScanMethod : unsigned {
     TRANSPARENCY_INFRARED = 2
 };
 
+inline std::ostream& operator<<(std::ostream& out, ScanMethod mode)
+{
+    switch (mode) {
+        case ScanMethod::FLATBED: out << "FLATBED"; return out;
+        case ScanMethod::TRANSPARENCY: out << "TRANSPARENCY"; return out;
+        case ScanMethod::TRANSPARENCY_INFRARED: out << "TRANSPARENCY_INFRARED"; return out;
+    }
+    return out;
+}
+
 inline void serialize(std::istream& str, ScanMethod& x)
 {
     unsigned value;
@@ -81,6 +91,17 @@ enum class ScanColorMode : unsigned {
     COLOR_SINGLE_PASS
 };
 
+inline std::ostream& operator<<(std::ostream& out, ScanColorMode mode)
+{
+    switch (mode) {
+        case ScanColorMode::LINEART: out << "LINEART"; return out;
+        case ScanColorMode::HALFTONE: out << "HALFTONE"; return out;
+        case ScanColorMode::GRAY: out << "GRAY"; return out;
+        case ScanColorMode::COLOR_SINGLE_PASS: out << "COLOR_SINGLE_PASS"; return out;
+    }
+    return out;
+}
+
 inline void serialize(std::istream& str, ScanColorMode& x)
 {
     unsigned value;
@@ -103,6 +124,8 @@ enum class ColorFilter : unsigned {
     BLUE,
     NONE
 };
+
+std::ostream& operator<<(std::ostream& out, ColorFilter mode);
 
 inline void serialize(std::istream& str, ColorFilter& x)
 {

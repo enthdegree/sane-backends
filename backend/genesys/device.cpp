@@ -46,6 +46,7 @@
 #include "device.h"
 #include "command_set.h"
 #include "low.h"
+#include "utilities.h"
 
 namespace genesys {
 
@@ -101,6 +102,73 @@ void Genesys_Device::clear()
 ImagePipelineNodeBytesSource& Genesys_Device::get_pipeline_source()
 {
     return static_cast<ImagePipelineNodeBytesSource&>(pipeline.front());
+}
+
+std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
+{
+    StreamStateSaver state_saver{out};
+
+    out << "Genesys_Device{\n"
+        << std::hex
+        << "    vendorId: 0x" << dev.vendorId << '\n'
+        << "    productId: 0x" << dev.productId << '\n'
+        << std::dec
+        << "    usb_mode: " << dev.usb_mode << '\n'
+        << "    file_name: " << dev.file_name << '\n'
+        << "    calib_file: " << dev.calib_file << '\n'
+        << "    force_calibration: " << dev.force_calibration << '\n'
+        << "    ignore_offsets: " << dev.ignore_offsets << '\n'
+        << "    model: (not printed)\n"
+        << "    reg: " << format_indent_braced_list(4, dev.reg) << '\n'
+        << "    calib_reg: " << format_indent_braced_list(4, dev.calib_reg) << '\n'
+        << "    settings: " << format_indent_braced_list(4, dev.settings) << '\n'
+        << "    frontend: " << format_indent_braced_list(4, dev.frontend) << '\n'
+        << "    frontend_initial: " << format_indent_braced_list(4, dev.frontend_initial) << '\n'
+        << "    frontend_is_init: " << dev.frontend_is_init << '\n'
+        << "    gpo.regs: " << format_indent_braced_list(4, dev.gpo.regs) << '\n'
+        << "    motor: " << format_indent_braced_list(4, dev.motor) << '\n'
+        << "    control[0..6]: " << std::hex
+        << static_cast<unsigned>(dev.control[0]) << ' '
+        << static_cast<unsigned>(dev.control[1]) << ' '
+        << static_cast<unsigned>(dev.control[2]) << ' '
+        << static_cast<unsigned>(dev.control[3]) << ' '
+        << static_cast<unsigned>(dev.control[4]) << ' '
+        << static_cast<unsigned>(dev.control[5]) << '\n' << std::dec
+        << "    average_size: " << dev.average_size << '\n'
+        << "    calib_pixels: " << dev.calib_pixels << '\n'
+        << "    calib_lines: " << dev.calib_lines << '\n'
+        << "    calib_channels: " << dev.calib_channels << '\n'
+        << "    calib_resolution: " << dev.calib_resolution << '\n'
+        << "    calib_total_bytes_to_read: " << dev.calib_total_bytes_to_read << '\n'
+        << "    calib_session: " << format_indent_braced_list(4, dev.calib_session) << '\n'
+        << "    calib_pixels_offset: " << dev.calib_pixels_offset << '\n'
+        << "    gamma_override_tables[0].size(): " << dev.gamma_override_tables[0].size() << '\n'
+        << "    gamma_override_tables[1].size(): " << dev.gamma_override_tables[1].size() << '\n'
+        << "    gamma_override_tables[2].size(): " << dev.gamma_override_tables[2].size() << '\n'
+        << "    white_average_data.size(): " << dev.white_average_data.size() << '\n'
+        << "    dark_average_data.size(): " << dev.dark_average_data.size() << '\n'
+        << "    already_initialized: " << dev.already_initialized << '\n'
+        << "    scanhead_position_in_steps: " << dev.scanhead_position_in_steps << '\n'
+        << "    read_active: " << dev.read_active << '\n'
+        << "    parking: " << dev.parking << '\n'
+        << "    document: " << dev.document << '\n'
+        << "    needs_home_ta: " << dev.needs_home_ta << '\n'
+        << "    read_buffer.size(): " << dev.read_buffer.size() << '\n'
+        << "    binarize_buffer.size(): " << dev.binarize_buffer.size() << '\n'
+        << "    local_buffer.size(): " << dev.local_buffer.size() << '\n'
+        << "    oe_buffer.size(): " << dev.oe_buffer.size() << '\n'
+        << "    total_bytes_read: " << dev.total_bytes_read << '\n'
+        << "    total_bytes_to_read: " << dev.total_bytes_to_read << '\n'
+        << "    session: " << format_indent_braced_list(4, dev.session) << '\n'
+        << "    lineart_lut: (not printed)\n"
+        << "    calibration_cache: (not printed)\n"
+        << "    line_count: " << dev.line_count << '\n'
+        << "    segment_order: "
+        << format_indent_braced_list(4, format_vector_unsigned(4, dev.segment_order)) << '\n'
+        << "    buffer_image: " << dev.buffer_image << '\n'
+        << "    img_buffer.size(): " << dev.img_buffer.size() << '\n'
+        << '}';
+    return out;
 }
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs)

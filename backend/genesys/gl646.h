@@ -97,7 +97,7 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance);
  */
 static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                         Genesys_Settings settings, bool move, bool forward,
-                        bool shading, std::vector<uint8_t>& data);
+                        bool shading, std::vector<uint8_t>& data, const char* test_identifier);
 
 /**
  * Send the stop scan command

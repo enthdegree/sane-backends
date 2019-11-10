@@ -3689,35 +3689,7 @@ bool CommandSetGl841::is_compatible_calibration(Genesys_Device* dev, const Genes
                                                 Genesys_Calibration_Cache* cache,
                                                 bool for_overwrite) const
 {
-#ifdef HAVE_SYS_TIME_H
-  struct timeval time;
-#endif
-
-    DBG_HELPER(dbg);
-  /* calibration cache not working yet for this model */
-    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_OPTICPRO_3600) {
-      return false;
-    }
-
-    calculate_current_setup(dev, sensor);
-
-  if (dev->current_setup.ccd_size_divisor != cache->used_setup.ccd_size_divisor)
-    return false;
-
-  /* a cache entry expires after 30 minutes for non sheetfed scanners */
-  /* this is not taken into account when overwriting cache entries    */
-#ifdef HAVE_SYS_TIME_H
-    if (!for_overwrite) {
-      gettimeofday (&time, nullptr);
-        if ((time.tv_sec - cache->last_calibration > 30 * 60) && (!dev->model->is_sheetfed))
-        {
-          DBG(DBG_proc, "%s: expired entry, non compatible cache\n", __func__);
-          return false;
-        }
-    }
-#endif
-
-  return true;
+    return sanei_genesys_is_compatible_calibration(dev, sensor, cache, for_overwrite);
 }
 
 /*

@@ -6,7 +6,7 @@
    Copyright (C) 2000 Randolph Bentson
    Copyright (C) 2001 Frederik Ramm
    Copyright (C) 2001-2004 Oliver Schirrmeister
-   Copyright (C) 2003-2016 m. allan noah
+   Copyright (C) 2003-2019 m. allan noah
 
    JPEG output and low memory usage support funded by:
      Archivista GmbH, www.archivista.ch
@@ -603,6 +603,8 @@
       v134 2019-02-23, MAN
          - rewrite init_vpd for scanners which fail to report
            overscan correctly
+      v135 2019-11-10, MAN
+         - set has_MS_lamp=0 for fi-72x0, bug #134
 
    SANE FLOW DIAGRAM
 
@@ -2404,6 +2406,8 @@ init_model (struct fujitsu *s)
 
   else if (strstr (s->model_name,"fi-7280")
    || strstr (s->model_name,"fi-7260")){
+    /* locks up scanner if we try to auto detect */
+    s->has_MS_lamp = 0;
 
     /* weirdness */
     /* these machines have longer max paper at lower res */

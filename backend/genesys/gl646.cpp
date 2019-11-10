@@ -1767,23 +1767,21 @@ void CommandSetGl646::search_start_position(Genesys_Device* dev) const
     std::vector<uint8_t> data;
     simple_scan(dev, sensor, settings, true, true, false, data);
 
-    /* handle stagger case : reorder gray data and thus loose some lines */
-    if (dev->current_setup.stagger > 0)
-      {
+    // handle stagger case : reorder gray data and thus loose some lines
+    auto staggered_lines = dev->session.num_staggered_lines;
+    if (staggered_lines > 0) {
         DBG(DBG_proc, "%s: 'un-staggering'\n", __func__);
-        for (y = 0; y < settings.lines - dev->current_setup.stagger; y++)
-          {
+        for (y = 0; y < settings.lines - staggered_lines; y++) {
             /* one point out of 2 is 'unaligned' */
             for (x = 0; x < settings.pixels; x += 2)
         {
-          data[y * settings.pixels + x] =
-            data[(y + dev->current_setup.stagger) * settings.pixels +
-                 x];
+                data[y * settings.pixels + x] = data[(y + staggered_lines) * settings.pixels + x];
         }
           }
         /* correct line number */
-        settings.lines -= dev->current_setup.stagger;
-      }
+        settings.lines -= staggered_lines;
+    }
+
     if (DBG_LEVEL >= DBG_data)
       {
         sanei_genesys_write_pnm_file("gl646_search_position.pnm", data.data(), settings.depth, 1,
@@ -3391,17 +3389,16 @@ bool CommandSetGl646::is_compatible_calibration(Genesys_Device* dev, const Genes
    * computed when during setup for scan
    */
     dev->session.params.channels = dev->settings.get_channels();
-  dev->current_setup.xres = dev->settings.xres;
 
     DBG(DBG_io, "%s: requested=(%d, %d), tested=(%d, %d)\n", __func__,
-        dev->session.params.channels, dev->current_setup.xres,
-        cache->params.channels, cache->used_setup.xres);
+        dev->session.params.channels, dev->session.params.xres,
+        cache->params.channels, cache->params.xres);
 
   /* a calibration cache is compatible if color mode and x dpi match the user
    * requested scan. In the case of CIS scanners, dpi isn't a criteria */
     if (!dev->model->is_cis) {
         compatible = (dev->session.params.channels == cache->params.channels) &&
-                     (dev->current_setup.xres == cache->used_setup.xres);
+                     (dev->session.params.xres == cache->params.xres);
     } else {
         compatible = dev->session.params.channels == cache->params.channels;
     }

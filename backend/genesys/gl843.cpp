@@ -1525,7 +1525,7 @@ static void gl843_set_xpa_motor_power(Genesys_Device* dev, bool set)
         if (set) {
             val = dev->read_register(0x6c);
             val &= ~(REG_0x6C_GPIO16 | REG_0x6C_GPIO13);
-            if (dev->current_setup.xres >= 2400) {
+            if (dev->session.output_resolution >= 2400) {
                 val &= ~REG_0x6C_GPIO10;
             }
             dev->write_register(0x6c, val);
@@ -1548,7 +1548,7 @@ static void gl843_set_xpa_motor_power(Genesys_Device* dev, bool set)
         if (set) {
             val = dev->read_register(REG_0x6C);
             val &= ~REG_0x6C_GPIO14;
-            if (dev->current_setup.xres >= 2400) {
+            if (dev->session.output_resolution >= 2400) {
                 val |= REG_0x6C_GPIO10;
             }
             dev->write_register(REG_0x6C, val);
@@ -2249,8 +2249,8 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     gl843_init_scan_regs(dev, calib_sensor, &regs, session);
 
-  // the pixel number may be updated to conform to scanner constraints
-  dev->calib_pixels = dev->current_setup.pixels;
+     // the pixel number may be updated to conform to scanner constraints
+    dev->calib_pixels = session.output_pixels;
 
     dev->calib_session = session;
     dev->calib_total_bytes_to_read = session.output_total_bytes_raw;

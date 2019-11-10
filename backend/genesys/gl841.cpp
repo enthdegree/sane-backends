@@ -905,7 +905,7 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
                                   unsigned int action, unsigned int flags)
 {
     DBG_HELPER_ARGS(dbg, "feed_steps=%d, action=%d, flags=%x", feed_steps, action, flags);
-    unsigned int fast_exposure;
+    unsigned int fast_exposure = 0;
     int use_fast_fed = 0;
     std::vector<uint16_t> fast_slope_table;
     unsigned int fast_slope_steps = 0;
@@ -3662,7 +3662,7 @@ void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
 
     gl841_init_scan_regs(dev, sensor, local_reg, session);
 
-  num_pixels = dev->current_setup.pixels;
+    num_pixels = session.output_pixels;
 
   *total_size = num_pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
@@ -4117,7 +4117,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   /* compute deletion/average factor */
     dpiset = dev->reg.get16(REG_DPISET);
   dpihw = gl841_get_dpihw(dev);
-  unsigned ccd_size_divisor = dev->current_setup.ccd_size_divisor;
+    unsigned ccd_size_divisor = dev->session.ccd_size_divisor;
   factor=dpihw/dpiset;
   DBG(DBG_io2, "%s: dpihw=%d, dpiset=%d, ccd_size_divisor=%d, factor=%d\n", __func__, dpihw, dpiset,
       ccd_size_divisor, factor);

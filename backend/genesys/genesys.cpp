@@ -3498,7 +3498,7 @@ static void calc_parameters(Genesys_Scanner* s)
     if (s->dev->settings.xres >= 1200 && (
                 s->dev->model->asic_type == AsicType::GL124 ||
                 s->dev->model->asic_type == AsicType::GL847 ||
-                s->dev->current_setup.xres < s->dev->session.params.yres))
+                s->dev->session.params.xres < s->dev->session.params.yres))
     {
         if (s->dev->settings.xres < s->dev->settings.yres) {
             // FIXME: this is an artifact of the fact that the resolution was twice as large than

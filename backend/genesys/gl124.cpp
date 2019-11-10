@@ -2329,7 +2329,7 @@ void CommandSetGl124::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
 
     gl124_init_scan_regs(dev, sensor, reg, session);
 
-  num_pixels = dev->current_setup.pixels;
+    num_pixels = session.output_pixels;
 
   *total_size = num_pixels * 3 * 1;        /* colors * bytes_per_color * scan lines */
 

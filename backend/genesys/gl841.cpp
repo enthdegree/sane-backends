@@ -1741,38 +1741,39 @@ dummy \ scanned lines
     DBG(DBG_info, "%s: total bytes to send = %zu\n", __func__, dev->total_bytes_to_read);
 }
 
-void CommandSetGl841::calculate_current_setup(Genesys_Device * dev,
-                                              const Genesys_Sensor& sensor) const
+ScanSession CommandSetGl841::calculate_scan_session(const Genesys_Device* dev,
+                                                    const Genesys_Sensor& sensor,
+                                                    const Genesys_Settings& settings) const
 {
   int start;
 
     DBG(DBG_info, "%s ", __func__);
-    debug_dump(DBG_info, dev->settings);
+    debug_dump(DBG_info, settings);
 
 /* start */
     start = static_cast<int>(dev->model->x_offset);
-    start += static_cast<int>(dev->settings.tl_x);
+    start += static_cast<int>(settings.tl_x);
 
     start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
-    session.params.xres = dev->settings.xres;
-    session.params.yres = dev->settings.yres;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
     session.params.startx = start;
     session.params.starty = 0; // not used
-    session.params.pixels = dev->settings.pixels;
-    session.params.requested_pixels = dev->settings.requested_pixels;
-    session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.depth;
-    session.params.channels = dev->settings.get_channels();
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = dev->settings.scan_mode;
-    session.params.color_filter = dev->settings.color_filter;
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
     session.params.flags = 0;
 
     compute_session(dev, session, sensor);
 
-    dev->session = session;
+    return session;
 }
 
 // for fast power saving methods only, like disabling certain amplifiers

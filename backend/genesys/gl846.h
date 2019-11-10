@@ -212,7 +212,10 @@ public:
     void send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t* data,
                            int size) const override;
 
-    void calculate_current_setup(Genesys_Device * dev, const Genesys_Sensor& sensor) const override;
+    ScanSession calculate_scan_session(const Genesys_Device* dev,
+                                       const Genesys_Sensor& sensor,
+                                       const Genesys_Settings& settings) const override;
+
     void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
 

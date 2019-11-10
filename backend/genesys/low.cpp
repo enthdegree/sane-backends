@@ -1452,7 +1452,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
     s.pixel_endx *= sensor.pixel_count_multiplier;
 }
 
-void compute_session(Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor)
+void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
 
@@ -2326,16 +2326,16 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device * dev, const Genesys
   struct timeval time;
 #endif
 
-    if (!dev->cmd_set->has_calculate_current_setup()) {
+    if (!dev->cmd_set->has_calculate_scan_session()) {
       DBG (DBG_proc, "%s: no calculate_setup, non compatible cache\n", __func__);
       return false;
     }
 
-    dev->cmd_set->calculate_current_setup(dev, sensor);
+    auto session = dev->cmd_set->calculate_scan_session(dev, sensor, dev->settings);
 
     bool compatible = true;
 
-    const auto& dev_params = dev->session.params;
+    const auto& dev_params = session.params;
 
     if (dev_params.scan_method != cache->params.scan_method) {
         dbg.vlog(DBG_io, "incompatible: scan_method %d vs. %d\n",

@@ -150,11 +150,12 @@ public:
         return true;
     }
 
-    /// calculate current scan setup
-    virtual void calculate_current_setup(Genesys_Device* dev,
-                                         const Genesys_Sensor& sensor) const = 0;
+    /// calculate an instance of ScanSession for scanning with the given settings
+    virtual ScanSession calculate_scan_session(const Genesys_Device* dev,
+                                               const Genesys_Sensor& sensor,
+                                               const Genesys_Settings& settings) const = 0;
 
-    virtual bool has_calculate_current_setup() const
+    virtual bool has_calculate_scan_session() const
     {
         return true;
     }

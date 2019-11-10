@@ -3589,11 +3589,13 @@ void CommandSetGl646::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     throw SaneException("not implemented");
 }
 
-void CommandSetGl646::calculate_current_setup(Genesys_Device* dev,
-                                              const Genesys_Sensor& sensor) const
+ScanSession CommandSetGl646::calculate_scan_session(const Genesys_Device* dev,
+                                                    const Genesys_Sensor& sensor,
+                                                    const Genesys_Settings& settings) const
 {
     (void) dev;
     (void) sensor;
+    (void) settings;
     throw SaneException("not implemented");
 }
 

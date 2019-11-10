@@ -1269,21 +1269,20 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG(DBG_info, "%s: total bytes to send = %zu\n", __func__, dev->total_bytes_to_read);
 }
 
-void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
-                                              const Genesys_Sensor& sensor) const
+ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
+                                                    const Genesys_Sensor& sensor,
+                                                    const Genesys_Settings& settings) const
 {
+    DBG_HELPER(dbg);
+    debug_dump(DBG_info, settings);
+
   int start;
 
-  int exposure;
-
-    DBG(DBG_info, "%s ", __func__);
-    debug_dump(DBG_info, dev->settings);
-
   /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
+  unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(settings.xres);
 
-    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
-        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    if (settings.scan_method == ScanMethod::TRANSPARENCY ||
+        settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
         start = static_cast<int>(dev->model->x_offset_ta);
     } else {
@@ -1296,40 +1295,27 @@ void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
         start /= ccd_size_divisor;
     }
 
-    start += static_cast<int>(dev->settings.tl_x);
+    start += static_cast<int>(settings.tl_x);
     start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
-    session.params.xres = dev->settings.xres;
-    session.params.yres = dev->settings.yres;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
     session.params.startx = start; // not used
     session.params.starty = 0; // not used
-    session.params.pixels = dev->settings.pixels;
-    session.params.requested_pixels = dev->settings.requested_pixels;
-    session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.depth;
-    session.params.channels = dev->settings.get_channels();
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = dev->settings.scan_mode;
-    session.params.color_filter = dev->settings.color_filter;
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
     session.params.flags = 0;
 
     compute_session(dev, session, sensor);
 
-  /* compute scan parameters values */
-  /* pixels are allways given at half or full CCD optical resolution */
-  /* use detected left margin  and fixed value */
-
-  /* exposure */
-  exposure = sensor.exposure_lperiod;
-  if (exposure < 0) {
-      throw std::runtime_error("Exposure not defined in sensor definition");
-  }
-  DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
-
-    dev->session = session;
-
-  DBG(DBG_proc, "%s: completed\n", __func__);
+    return session;
 }
 
 /**

@@ -1262,14 +1262,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->read_active = true;
 
     dev->session = session;
-  dev->current_setup.pixels = session.output_pixels;
-  DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
-  dev->current_setup.lines = session.output_line_count;
-  dev->current_setup.exposure_time = exposure;
-  dev->current_setup.xres = session.output_resolution;
-  dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-  dev->current_setup.stagger = session.num_staggered_lines;
-  dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
   dev->total_bytes_read = 0;
     dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
@@ -1336,14 +1328,6 @@ void CommandSetGl843::calculate_current_setup(Genesys_Device * dev,
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
 
     dev->session = session;
-    dev->current_setup.pixels = session.output_pixels;
-  DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
-    dev->current_setup.lines = session.output_line_count;
-  dev->current_setup.exposure_time = exposure;
-    dev->current_setup.xres = session.params.xres;
-  dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-    dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
   DBG(DBG_proc, "%s: completed\n", __func__);
 }

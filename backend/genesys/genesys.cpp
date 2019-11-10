@@ -2652,7 +2652,6 @@ static void genesys_save_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   found_cache_it->dark_average_data = dev->dark_average_data;
   found_cache_it->white_average_data = dev->white_average_data;
 
-  found_cache_it->used_setup = dev->current_setup;
   found_cache_it->params = dev->session.params;
   found_cache_it->frontend = dev->frontend;
   found_cache_it->sensor = sensor;
@@ -3256,7 +3255,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
         throw SaneException("read is not active");
     }
 
-    debug_dump(DBG_info, dev->current_setup);
     debug_dump(DBG_info, dev->session.params);
 
     DBG(DBG_info, "%s: frontend requested %zu bytes\n", __func__, *len);
@@ -4478,7 +4476,7 @@ static void probe_genesys_devices (void)
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 15;
+static const int CALIBRATION_VERSION = 16;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

@@ -326,8 +326,6 @@ struct Genesys_Device
     // total bytes read to be sent to frontend
     size_t total_bytes_to_read = 0;
 
-    // contains the real used values
-    Genesys_Current_Setup current_setup;
     // contains computed data for the current setup
     ScanSession session;
 

@@ -2606,25 +2606,6 @@ void debug_dump(unsigned level, const ScanSession& session)
     debug_dump(level, session.params);
 }
 
-void debug_dump(unsigned level, const Genesys_Current_Setup& setup)
-{
-    DBG(level, "current_setup:\n"
-        "Pixels: %d\n"
-        "Lines: %d\n"
-        "exposure_time: %d\n"
-        "Resolution X: %d\n"
-        "ccd_size_divisor: %d\n"
-        "stagger: %d\n"
-        "max_shift: %d\n",
-        setup.pixels,
-        setup.lines,
-        setup.exposure_time,
-        setup.xres,
-        setup.ccd_size_divisor,
-        setup.stagger,
-        setup.max_shift);
-}
-
 void debug_dump(unsigned level, const Genesys_Register_Set& regs)
 {
     DBG(level, "register_set:\n");

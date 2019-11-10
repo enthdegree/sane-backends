@@ -1734,13 +1734,6 @@ dummy \ scanned lines
     dev->read_active = true;
 
     dev->session = session;
-    dev->current_setup.pixels = session.output_pixels;
-    dev->current_setup.lines = session.output_line_count;
-  dev->current_setup.exposure_time = exposure_time;
-    dev->current_setup.xres = session.params.xres;
-    dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-    dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
     dev->total_bytes_read = 0;
     dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
@@ -1752,12 +1745,6 @@ void CommandSetGl841::calculate_current_setup(Genesys_Device * dev,
                                               const Genesys_Sensor& sensor) const
 {
   int start;
-
-  int exposure_time;
-
-  int slope_dpi = 0;
-  int dummy = 0;
-  int scan_step_type = 1;
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
@@ -1785,58 +1772,7 @@ void CommandSetGl841::calculate_current_setup(Genesys_Device * dev,
 
     compute_session(dev, session, sensor);
 
-  /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1
-     dummy line. Maybe the dummy line adds correctness since the motor runs
-     slower (higher dpi)
-  */
-/* for cis this creates better aligned color lines:
-dummy \ scanned lines
-   0: R           G           B           R ...
-   1: R        G        B        -        R ...
-   2: R      G      B       -      -      R ...
-   3: R     G     B     -     -     -     R ...
-   4: R    G    B     -   -     -    -    R ...
-   5: R    G   B    -   -   -    -   -    R ...
-   6: R   G   B   -   -   -   -   -   -   R ...
-   7: R   G  B   -  -   -   -  -   -  -   R ...
-   8: R  G  B   -  -  -   -  -  -   -  -  R ...
-   9: R  G  B  -  -  -  -  -  -  -  -  -  R ...
-  10: R  G B  -  -  -  - -  -  -  -  - -  R ...
-  11: R  G B  - -  - -  -  - -  - -  - -  R ...
-  12: R G  B - -  - -  - -  - -  - - -  - R ...
-  13: R G B  - - - -  - - -  - - - -  - - R ...
-  14: R G B - - -  - - - - - -  - - - - - R ...
-  15: R G B - - - - - - - - - - - - - - - R ...
- -- pierre
- */
-  dummy = 0;
-
-/* cis color scan is effectively a gray scan with 3 gray lines per color
-   line and a FILTER of 0 */
-    if (dev->model->is_cis) {
-        slope_dpi = session.params.yres * session.params.channels;
-    } else {
-        slope_dpi = session.params.yres;
-    }
-
-  slope_dpi = slope_dpi * (1 + dummy);
-
-    scan_step_type = gl841_scan_step_type(dev, session.params.yres);
-  exposure_time = gl841_exposure_time(dev, sensor,
-                    slope_dpi,
-                    scan_step_type,
-                                        session.pixel_startx,
-                                        session.optical_pixels);
-  DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
-
     dev->session = session;
-    dev->current_setup.pixels = session.output_pixels;
-    dev->current_setup.lines = session.output_line_count;
-  dev->current_setup.exposure_time = exposure_time;
-    dev->current_setup.xres = session.params.xres;
-    dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-    dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 }
 
 // for fast power saving methods only, like disabling certain amplifiers

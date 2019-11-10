@@ -315,47 +315,6 @@ struct ScanSession {
     }
 };
 
-struct Genesys_Current_Setup
-{
-    // pixel count expected from scanner
-    int pixels = 0;
-    // line count expected from scanner
-    int lines = 0;
-
-    // used exposure time
-    int exposure_time = 0;
-    // used xres
-    unsigned xres = 0;
-    // half ccd mode
-    unsigned ccd_size_divisor = 1;
-    SANE_Int stagger = 0;
-    //  max shift of any ccd component, including staggered pixels
-    SANE_Int max_shift = 0;
-
-    bool operator==(const Genesys_Current_Setup& other) const
-    {
-        return pixels == other.pixels &&
-            lines == other.lines &&
-            exposure_time == other.exposure_time &&
-            xres == other.xres &&
-            ccd_size_divisor == other.ccd_size_divisor &&
-            stagger == other.stagger &&
-            max_shift == other.max_shift;
-    }
-};
-
-template<class Stream>
-void serialize(Stream& str, Genesys_Current_Setup& x)
-{
-    serialize(str, x.pixels);
-    serialize(str, x.lines);
-    serialize(str, x.exposure_time);
-    serialize(str, x.xres);
-    serialize(str, x.ccd_size_divisor);
-    serialize(str, x.stagger);
-    serialize(str, x.max_shift);
-}
-
 } // namespace genesys
 
 #endif // BACKEND_GENESYS_SETTINGS_H

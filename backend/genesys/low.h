@@ -616,7 +616,6 @@ void genesys_init_usb_device_tables();
 void debug_dump(unsigned level, const Genesys_Settings& settings);
 void debug_dump(unsigned level, const SetupParams& params);
 void debug_dump(unsigned level, const ScanSession& session);
-void debug_dump(unsigned level, const Genesys_Current_Setup& setup);
 void debug_dump(unsigned level, const Genesys_Register_Set& regs);
 void debug_dump(unsigned level, const GenesysRegisterSettingSet& regs);
 void debug_dump(unsigned level, const Genesys_Sensor& sensor);

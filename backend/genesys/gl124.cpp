@@ -958,14 +958,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->read_active = true;
 
     dev->session = session;
-    dev->current_setup.pixels = session.output_pixels;
-  DBG(DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
-    dev->current_setup.lines = session.output_line_count;
-  dev->current_setup.exposure_time = exposure_time;
-    dev->current_setup.xres = session.params.xres;
-  dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-    dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
     dev->total_bytes_read = 0;
     dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
@@ -978,8 +970,6 @@ void CommandSetGl124::calculate_current_setup(Genesys_Device * dev,
                                               const Genesys_Sensor& sensor) const
 {
   int start;
-
-  int exposure_time;
 
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, dev->settings);
@@ -1006,24 +996,7 @@ void CommandSetGl124::calculate_current_setup(Genesys_Device * dev,
 
     compute_session(dev, session, sensor);
 
-  /* compute scan parameters values */
-  /* pixels are allways given at half or full CCD optical resolution */
-  /* use detected left margin  and fixed value */
-
-    exposure_time = get_sensor_profile(dev->model->asic_type, sensor, session.params.xres,
-                                       session.ccd_size_divisor).exposure_lperiod;
-
-  DBG (DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
-
     dev->session = session;
-    dev->current_setup.pixels = session.output_pixels;
-  DBG (DBG_info, "%s: current_setup.pixels=%d\n", __func__, dev->current_setup.pixels);
-    dev->current_setup.lines = session.output_line_count;
-  dev->current_setup.exposure_time = exposure_time;
-    dev->current_setup.xres = session.params.xres;
-  dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-    dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 }
 
 /**

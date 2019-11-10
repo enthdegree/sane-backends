@@ -581,19 +581,9 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
     build_image_pipeline(dev, session);
 
-  /* scan bytes to read */
-    unsigned cis_channel_multiplier = dev->model->is_cis ? session.params.channels : 1;
-
     dev->read_active = true;
 
     dev->session = session;
-    dev->current_setup.pixels = session.output_pixels;
-    dev->current_setup.lines = session.output_line_count * cis_channel_multiplier;
-    dev->current_setup.exposure_time = sensor.exposure_lperiod;
-    dev->current_setup.xres = session.output_resolution;
-  dev->current_setup.ccd_size_divisor = session.ccd_size_divisor;
-    dev->current_setup.stagger = session.num_staggered_lines;
-    dev->current_setup.max_shift = session.max_color_shift_lines + session.num_staggered_lines;
 
     dev->total_bytes_read = 0;
     dev->total_bytes_to_read = session.output_line_bytes_requested * session.params.lines;
@@ -1889,10 +1879,6 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   /* copy reg to calib_reg */
   dev->calib_reg = dev->reg;
 
-  /* this is an hack to make calibration cache working .... */
-  /* if we don't do this, cache will be identified at the shading calibration
-   * dpi which is different from calibration one */
-  dev->current_setup.xres = dev->settings.xres;
   DBG(DBG_info, "%s:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n", __func__,
       dev->settings.xres, dev->settings.yres);
 }

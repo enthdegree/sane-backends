@@ -313,8 +313,8 @@ and MFNP protocols.
 Canon seems to be dropping support for these protocols in recent scanners.
 To verify if your scanner supports one of these protocols, check the content of
 the _scanner._tcp service entry in mDNS/DNS-SD (using for example  avahi-discover).
-If that does not list port 8610.
-or 8612 your scanner pobably does not support the mfmp or bjnp protols.
+If that does not list port 8610
+or 8612 your scanner probably does not support the mfmp or bjnp protols.
 .PP
 Both IPv4 and IPv6 are supported, but IPv6 is as
 yet untested with MFNP. Please report your results on the mailing list.

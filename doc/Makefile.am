@@ -24,7 +24,7 @@ BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 	sane-nec.5 sane-net.5 sane-pie.5 sane-pieusb.5 sane-pint.5 sane-pnm.5 \
 	sane-umax.5 sane-qcam.5 sane-scsi.5 sane-artec.5 sane-kodak.5 sane-kodakaio.5 \
 	sane-fujitsu.5 sane-sharp.5 sane-s9036.5 sane-tamarack.5 \
-	sane-ricoh.5 sane-ricoh.5 sane-avision.5 sane-plustek.5 sane-st400.5 \
+	sane-ricoh.5 sane-ricoh2.5 sane-avision.5 sane-plustek.5 sane-st400.5 \
 	sane-mustek_pp.5 sane-dc210.5 sane-v4l.5 sane-snapscan.5 \
 	sane-canon.5 sane-coolscan.5 sane-bh.5 sane-dc240.5 \
 	sane-umax_pp.5 sane-umax1220u.5 sane-sm3600.5 sane-usb.5 \

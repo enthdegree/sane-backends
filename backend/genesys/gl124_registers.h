@@ -44,6 +44,9 @@
 #ifndef BACKEND_GENESYS_GL124_REGISTERS_H
 #define BACKEND_GENESYS_GL124_REGISTERS_H
 
+namespace genesys {
+namespace gl124 {
+
 #define REG_0x01           0x01
 #define REG_0x01_CISSET    0x80
 #define REG_0x01_DOGENB    0x40
@@ -301,5 +304,8 @@
 #define REG_TRUER       0x110
 #define REG_TRUEG       0x111
 #define REG_TRUEB       0x112
+
+} // namespace gl124
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_GL843_REGISTERS_H

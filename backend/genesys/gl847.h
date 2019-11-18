@@ -48,6 +48,7 @@
 #include "command_set.h"
 
 namespace genesys {
+namespace gl847 {
 
 /** @brief moves the slider to steps at motor base dpi
  * @param dev device to work on
@@ -194,6 +195,7 @@ public:
     void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
 
+} // namespace gl847
 } // namespace genesys
 
 #endif // BACKEND_GENESYS_GL847_H

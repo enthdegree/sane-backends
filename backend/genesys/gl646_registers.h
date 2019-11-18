@@ -44,6 +44,9 @@
 #ifndef BACKEND_GENESYS_GL646_REGISTERS_H
 #define BACKEND_GENESYS_GL646_REGISTERS_H
 
+namespace genesys {
+namespace gl646 {
+
 #define REG_0x01_CISSET	0x80
 #define REG_0x01_DOGENB	0x40
 #define REG_0x01_DVDSET	0x20
@@ -158,5 +161,8 @@
 #define REG_SCANCNT     0x4b
 #define REG_Z1MOD       0x60
 #define REG_Z2MOD       0x62
+
+} // namespace gl646
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_GL646_REGISTERS_H

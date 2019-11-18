@@ -56,6 +56,7 @@
 #define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
 
 namespace genesys {
+namespace gl843 {
 
 class CommandSetGl843 : public CommandSet
 {
@@ -133,6 +134,7 @@ public:
     void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
 
+} // namespace gl843
 } // namespace genesys
 
 #endif // BACKEND_GENESYS_GL843_H

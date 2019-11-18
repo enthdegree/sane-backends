@@ -44,6 +44,9 @@
 #ifndef BACKEND_GENESYS_GL847_REGISTERS_H
 #define BACKEND_GENESYS_GL847_REGISTERS_H
 
+namespace genesys {
+namespace gl847 {
+
 #define REG_0x01           0x01
 #define REG_0x01_CISSET	0x80
 #define REG_0x01_DOGENB	0x40
@@ -322,5 +325,8 @@
 #define REG_CK4MAP      0x7a
 
 #define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
+
+} // namespace gl847
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_GL847_REGISTERS_H

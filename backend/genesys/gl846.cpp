@@ -56,6 +56,7 @@
 #include <vector>
 
 namespace genesys {
+namespace gl846 {
 
 bool CommandSetGl846::get_gain4_bit(Genesys_Register_Set* regs) const
 {
@@ -2417,4 +2418,5 @@ std::unique_ptr<CommandSet> create_gl846_cmd_set()
     return std::unique_ptr<CommandSet>(new CommandSetGl846{});
 }
 
+} // namespace gl846
 } // namespace genesys

@@ -48,6 +48,7 @@
 #define BACKEND_GENESYS_GL846_H
 
 namespace genesys {
+namespace gl846 {
 
 /** @brief moves the slider to steps at motor base dpi
  * @param dev device to work on
@@ -210,6 +211,7 @@ public:
     void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
 
+} // namespace gl846
 } // namespace genesys
 
 #endif // BACKEND_GENESYS_GL846_H

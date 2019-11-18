@@ -50,6 +50,7 @@
 #define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
 
 namespace genesys {
+namespace gl124 {
 
 typedef struct
 {
@@ -197,6 +198,7 @@ public:
     void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
 
+} // namespace gl124
 } // namespace genesys
 
 #endif // BACKEND_GENESYS_GL124_H

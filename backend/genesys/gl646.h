@@ -51,6 +51,7 @@
 #include "command_set.h"
 
 namespace genesys {
+namespace gl646 {
 
 static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set, int dpi);
 
@@ -314,6 +315,7 @@ public:
     void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
 
+} // namespace gl646
 } // namespace genesys
 
 #endif // BACKEND_GENESYS_GL646_H

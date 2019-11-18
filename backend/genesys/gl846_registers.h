@@ -44,6 +44,8 @@
 #ifndef BACKEND_GENESYS_GL846_REGISTERS_H
 #define BACKEND_GENESYS_GL846_REGISTERS_H
 
+namespace genesys {
+namespace gl846 {
 
 #define REG_0x01           0x01
 #define REG_0x01_CISSET	0x80
@@ -338,5 +340,8 @@
 #define REG_0xF8_MINSEL    0x0f
 
 #define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
+
+} // namespace gl846
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_GL846_REGISTERS_H

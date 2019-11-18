@@ -44,6 +44,8 @@
 #ifndef BACKEND_GENESYS_GL841_REGISTERS_H
 #define BACKEND_GENESYS_GL841_REGISTERS_H
 
+namespace genesys {
+namespace gl841 {
 
 /* Individual bits */
 #define REG_0x01           0x01
@@ -253,5 +255,8 @@
 #define REG_0x6F      	0x6f
 
 #define REG_0x87_LEDADD    0x04
+
+} // namespace gl841
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_GL841_REGISTERS_H

@@ -44,6 +44,9 @@
 #ifndef BACKEND_GENESYS_GL843_REGISTERS_H
 #define BACKEND_GENESYS_GL843_REGISTERS_H
 
+namespace genesys {
+namespace gl843 {
+
 #define REG_0x01           0x01
 #define REG_0x01_CISSET	0x80
 #define REG_0x01_DOGENB	0x40
@@ -367,5 +370,8 @@
 #define REG_0xA9_GPO30     0x04
 #define REG_0xA9_GPO29     0x02
 #define REG_0xA9_GPO28     0x01
+
+} // namespace gl843
+} // namespace genesys
 
 #endif // BACKEND_GENESYS_GL843_REGISTERS_H

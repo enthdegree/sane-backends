@@ -57,6 +57,7 @@
 #include <vector>
 
 namespace genesys {
+namespace gl646 {
 
 /**
  * reads value from gpio endpoint
@@ -3536,4 +3537,5 @@ std::unique_ptr<CommandSet> create_gl646_cmd_set()
     return std::unique_ptr<CommandSet>(new CommandSetGl646{});
 }
 
+} // namespace gl646
 } // namespace genesys

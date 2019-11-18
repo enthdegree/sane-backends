@@ -326,8 +326,6 @@ static constexpr RegAddr REG_CK1MAP = 0x74;
 static constexpr RegAddr REG_CK3MAP = 0x77;
 static constexpr RegAddr REG_CK4MAP = 0x7a;
 
-#define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
-
 } // namespace gl847
 } // namespace genesys
 

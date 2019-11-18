@@ -344,8 +344,6 @@ static constexpr RegMask REG_0xF8_MAXSEL = 0xf0;
 static constexpr RegShift REG_0xF8_SMAXSEL = 4;
 static constexpr RegMask REG_0xF8_MINSEL = 0x0f;
 
-#define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
-
 } // namespace gl846
 } // namespace genesys
 

@@ -47,8 +47,6 @@
 #include "genesys.h"
 #include "command_set.h"
 
-#define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
-
 namespace genesys {
 namespace gl124 {
 

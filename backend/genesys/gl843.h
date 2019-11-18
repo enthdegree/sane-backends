@@ -53,8 +53,6 @@
 #define FAST_TABLE 	3 	/* table 4 at 0x5800 */
 #define HOME_TABLE 	4 	/* table 5 at 0x6000 */
 
-#define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
-
 namespace genesys {
 namespace gl843 {
 

@@ -47,8 +47,6 @@
 #ifndef BACKEND_GENESYS_GL841_H
 #define BACKEND_GENESYS_GL841_H
 
-#define INITREG(adr,val) {dev->reg.init_reg(adr, val); }
-
 namespace genesys {
 namespace gl841 {
 

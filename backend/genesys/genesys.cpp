@@ -98,6 +98,9 @@ namespace {
     StaticInit<std::vector<SANE_Device_Data>> s_sane_devices_data;
     StaticInit<std::vector<SANE_Device*>> s_sane_devices_ptrs;
     StaticInit<std::list<Genesys_Device>> s_devices;
+
+    // Maximum time for lamp warm-up
+    constexpr unsigned WARMUP_TIME = 65;
 } // namespace
 
 static SANE_String_Const mode_list[] = {
@@ -2979,7 +2982,7 @@ static void genesys_scanner_calibration(Genesys_Device* dev, Genesys_Sensor& sen
 static void genesys_warmup_lamp(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  int seconds = 0;
+    unsigned seconds = 0;
   int pixel;
   int channels, total_size;
   double first_average = 0;

@@ -59,6 +59,10 @@
 namespace genesys {
 namespace gl646 {
 
+namespace {
+constexpr unsigned CALIBRATION_LINES = 10;
+} // namespace
+
 /**
  * reads value from gpio endpoint
  */
@@ -2263,7 +2267,6 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       dev->frontend.get_offset(2));
 }
 
-#define DARK_TARGET 8
 /**
  * This function does the offset calibration by scanning one line of the calibration
  * area below scanner's top. There is a black margin and the remaining is white.

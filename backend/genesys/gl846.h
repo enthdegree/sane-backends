@@ -211,6 +211,15 @@ public:
     void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
 
+enum SlopeTable
+{
+    SCAN_TABLE = 0, // table 1 at 0x4000
+    BACKTRACK_TABLE = 1, // table 2 at 0x4800
+    STOP_TABLE = 2, // table 3 at 0x5000
+    FAST_TABLE = 3, // table 4 at 0x5800
+    HOME_TABLE = 4, // table 5 at 0x6000
+};
+
 } // namespace gl846
 } // namespace genesys
 

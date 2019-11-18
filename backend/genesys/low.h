@@ -241,12 +241,6 @@ extern Motor_Profile gl124_motor_profiles[];
 
 #define SLOPE_TABLE_SIZE 1024
 
-#define SCAN_TABLE 	0 	/* table 1 at 0x4000 for gl124 */
-#define BACKTRACK_TABLE 1 	/* table 2 at 0x4800 for gl124 */
-#define STOP_TABLE 	2 	/* table 3 at 0x5000 for gl124 */
-#define FAST_TABLE 	3 	/* table 4 at 0x5800 for gl124 */
-#define HOME_TABLE 	4 	/* table 5 at 0x6000 for gl124 */
-
 #define SCAN_FLAG_SINGLE_LINE               0x001
 #define SCAN_FLAG_DISABLE_SHADING           0x002
 #define SCAN_FLAG_DISABLE_GAMMA             0x004

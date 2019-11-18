@@ -713,9 +713,11 @@ void CommandSetGl841::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
     }
 }
 
-#define MOTOR_ACTION_FEED       1
-#define MOTOR_ACTION_GO_HOME    2
-#define MOTOR_ACTION_HOME_FREE  3
+enum MotorAction {
+    MOTOR_ACTION_FEED = 1,
+    MOTOR_ACTION_GO_HOME = 2,
+    MOTOR_ACTION_HOME_FREE = 3
+};
 
 // @brief turn off motor
 static void gl841_init_motor_regs_off(Genesys_Register_Set* reg, unsigned int scan_lines)

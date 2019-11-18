@@ -917,8 +917,8 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
 
     if(session.params.flags & SCAN_FLAG_FEEDING) {
+        exposure_time = 2304;
         scan_step_type = StepType::FULL;
-      exposure_time=MOVE_EXPOSURE;
     }
   else
     {

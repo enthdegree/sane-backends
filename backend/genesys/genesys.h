@@ -71,9 +71,6 @@
 
 #define GENESYS_CONFIG_FILE "genesys.conf"
 
-/* Maximum time for lamp warm-up */
-#define WARMUP_TIME 65
-
 #ifndef SANE_I18N
 #define SANE_I18N(text) text
 #endif

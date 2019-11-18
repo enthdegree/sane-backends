@@ -116,8 +116,6 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
  */
 static void gl646_init_regs (Genesys_Device * dev);
 
-#define CALIBRATION_LINES 10
-
 /**
  * master motor settings table entry
  */

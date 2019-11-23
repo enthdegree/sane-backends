@@ -456,9 +456,11 @@ SANE_Int sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
   /* final speed */
     vtarget = (exposure_time * yres) / motor.base_ydpi;
 
+    const auto& slope = motor.get_slope(step_type).legacy();
+
     unsigned u_step_type = static_cast<unsigned>(step_type);
-    vstart = motor.get_slope(step_type).maximum_start_speed;
-    vend = motor.get_slope(step_type).maximum_speed;
+    vstart = slope.maximum_start_speed;
+    vend = slope.maximum_speed;
 
     vtarget = std::min(vtarget >> u_step_type, 65535u);
     vstart = std::min(vstart >> u_step_type, 65535u);
@@ -470,8 +472,8 @@ SANE_Int sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
 						 vtarget,
 						 vstart,
 						 vend,
-                                                 motor.get_slope(step_type).minimum_steps << u_step_type,
-                                                 motor.get_slope(step_type).g,
+                                                 slope.minimum_steps << u_step_type,
+                                                 slope.g,
                                                  used_steps,
 						 &vfinal);
 
@@ -556,7 +558,7 @@ SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi,
                                       StepType step_type, int endpixel, int exposure_by_led)
 {
   int exposure_by_ccd = endpixel + 32;
-    int exposure_by_motor = static_cast<int>((dev->motor.get_slope(step_type).maximum_speed *
+    int exposure_by_motor = static_cast<int>((dev->motor.get_slope(step_type).legacy().maximum_speed *
                                               dev->motor.base_ydpi) / ydpi);
 
   int exposure = exposure_by_ccd;

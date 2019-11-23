@@ -33,28 +33,28 @@ namespace genesys {
 
 void test_create_slope_table()
 {
-    Genesys_Motor_Slope slope;
+    MotorSlopeLegacy slope;
 
     Genesys_Motor motor;
     motor.id = MotorId::CANON_LIDE_200;
     motor.base_ydpi = 1200;
     motor.optical_ydpi = 6400;
 
-    slope = Genesys_Motor_Slope(); // full step
+    slope = MotorSlopeLegacy(); // full step
     slope.maximum_start_speed = 10000;
     slope.maximum_speed = 1000;
     slope.minimum_steps = 20;
     slope.g = 0.80;
     motor.slopes.push_back(slope);
 
-    slope = Genesys_Motor_Slope(); // half step
+    slope = MotorSlopeLegacy(); // half step
     slope.maximum_start_speed = 10000;
     slope.maximum_speed = 1000;
     slope.minimum_steps = 20;
     slope.g = 0.80;
     motor.slopes.push_back(slope);
 
-    slope = Genesys_Motor_Slope(); // quarter step 0.75*2712
+    slope = MotorSlopeLegacy(); // quarter step 0.75*2712
     slope.maximum_start_speed = 10000;
     slope.maximum_speed = 1000;
     slope.minimum_steps = 16;

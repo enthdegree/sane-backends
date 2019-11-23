@@ -50,17 +50,72 @@
 
 namespace genesys {
 
-struct Genesys_Motor_Slope
-{
-    Genesys_Motor_Slope() = default;
-    Genesys_Motor_Slope(int p_maximum_start_speed, int p_maximum_speed, int p_minimum_steps,
-                        float p_g) :
-        maximum_start_speed(p_maximum_start_speed),
-        maximum_speed(p_maximum_speed),
-        minimum_steps(p_minimum_steps),
-        g(p_g)
-    {}
+/*  Describes a motor acceleration curve.
 
+    The curves are described in two ways: legacy and physical modes.
+
+        LEGACY mode
+
+    The legacy mode is to be removed and described the motor slope as a purely mathematical
+    power law formula:
+
+    v(step) = sl.maximum_start_speed * (1 - pow(q, sl.g)) + sl.maximum_speed * pow(q, sl.g)     (1)
+
+    where `q = step_number / s.minimum_steps`, `sl` is the slope config.
+
+
+        PHYSICAL mode
+
+    Definitions:
+        v - speed in steps per pixeltime
+        w - speed in pixel times per step. w = 1 / v
+        a - acceleration in steps per pixeltime squared
+        s - distance travelled in steps
+        t - time in pixeltime
+
+    The physical mode defines the curve in physical quantities. We asssume that the scanner head
+    accelerates from standstill to the target speed uniformly. Then:
+
+    v(t) = v(0) + a * t                                                                         (2)
+
+    Where `a` is acceleration, `t` is time. Also we can calculate the travelled distance `s`:
+
+    s(t) = v(0) * t + a * t^2 / 2                                                               (3)
+
+    The actual motor slope is defined as the duration of each motor step. That means we need to
+    define speed in terms of travelled distance.
+
+    Solving (3) for `t` gives:
+
+           sqrt( v(0)^2 + 2 * a * s ) - v(0)
+    t(s) = ---------------------------------                                                    (4)
+                          a
+
+    Combining (4) and (2) will yield:
+
+    v(s) = sqrt( v(0)^2 + 2 * a * s )                                                           (5)
+
+    The data in the slope struct MotorSlope corresponds to the above in the following way:
+
+    maximum_start_speed is `w(0) = 1/v(0)`
+
+    maximum_speed is defines maximum speed which should not be exceeded
+
+    minimum_steps is not used
+
+    g is `a`
+
+    Given the start and target speeds on a known motor curve, `a` can be computed as follows:
+
+        v(t1)^2 - v(t0)^2
+    a = -----------------                                                                       (6)
+               2 * s
+
+    Here `v(t0)` and `v(t1)` are the start and target speeds and `s` is the number of step required
+    to reach the target speeds.
+*/
+struct MotorSlopeLegacy
+{
     // maximum speed allowed when accelerating from standstill. Unit: pixeltime/step
     int maximum_start_speed = 0;
     // maximum speed allowed. Unit: pixeltime/step
@@ -68,20 +123,55 @@ struct Genesys_Motor_Slope
     // number of steps used for default curve
     int minimum_steps = 0;
 
-    /*  power for non-linear acceleration curves.
-        vs*(1-i^g)+ve*(i^g) where
-        vs = start speed, ve = end speed,
-        i = 0.0 for first entry and i = 1.0 for last entry in default table
-    */
+    // power for non-linear acceleration curves.
     float g = 0;
+};
 
-    /* start speed, max end speed, step number */
-    /* maximum speed (second field) is used to compute exposure as seen by motor */
-    /* exposure=max speed/ slope dpi * base dpi */
-    /* 5144 = max pixels at 600 dpi */
-    /* 1288=(5144+8)*ydpi(=300)/base_dpi(=1200) , where 5152 is exposure */
-    /* 6440=9660/(1932/1288) */
-    // {  9560,  1912, 31, 0.8 },
+struct MotorSlope
+{
+    // initial speed in pixeltime per step
+    unsigned initial_speed_w = 0;
+
+    // max speed in pixeltime per step
+    unsigned max_speed_w = 0;
+
+    // acceleration in steps per pixeltime squared.
+    float acceleration = 0;
+};
+
+class Genesys_Motor_Slope
+{
+public:
+    enum SlopeType : unsigned {
+        LEGACY,
+        PHYSICAL
+    };
+
+    Genesys_Motor_Slope(const MotorSlopeLegacy& slope) : legacy_slope_{slope}, type_{LEGACY} {}
+    Genesys_Motor_Slope(const MotorSlope& slope) : slope_{slope}, type_{PHYSICAL} {}
+    Genesys_Motor_Slope(const Genesys_Motor_Slope&) = default;
+    Genesys_Motor_Slope& operator=(const Genesys_Motor_Slope&) = default;
+
+    SlopeType type() const { return type_; }
+
+    const MotorSlopeLegacy& legacy() const
+    {
+        if (type_ != LEGACY)
+            throw SaneException("Unexpected slope type");
+        return legacy_slope_;
+    }
+
+    const MotorSlope& physical() const
+    {
+        if (type_ != PHYSICAL)
+            throw SaneException("Unexpected slope type");
+        return slope_;
+    }
+
+private:
+    MotorSlopeLegacy legacy_slope_;
+    MotorSlope slope_;
+    SlopeType type_;
 };
 
 std::ostream& operator<<(std::ostream& out, const Genesys_Motor_Slope& slope);

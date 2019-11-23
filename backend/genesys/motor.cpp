@@ -48,14 +48,34 @@
 
 namespace genesys {
 
-std::ostream& operator<<(std::ostream& out, const Genesys_Motor_Slope& slope)
+std::ostream& operator<<(std::ostream& out, const MotorSlope& slope)
 {
     out << "Genesys_Motor_Slope{\n"
+        << "    initial_speed_w: " << slope.initial_speed_w << '\n'
+        << "    max_speed_w: " << slope.max_speed_w << '\n'
+        << "    a: " << slope.acceleration << '\n'
+        << '}';
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const MotorSlopeLegacy& slope)
+{
+    out << "MotorSlopeLegacy{\n"
         << "    maximum_start_speed: " << slope.maximum_start_speed << '\n'
         << "    maximum_speed: " << slope.maximum_speed << '\n'
         << "    minimum_steps: " << slope.minimum_steps << '\n'
         << "    g: " << slope.g << '\n'
         << '}';
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const Genesys_Motor_Slope& slope)
+{
+    if (slope.type() == Genesys_Motor_Slope::LEGACY) {
+        out << slope.legacy();
+    } else {
+        out << slope.physical();
+    }
     return out;
 }
 
